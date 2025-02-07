@@ -7,6 +7,7 @@ import {
   colorGrayDark,
   colorPrimary,
   colorText,
+  colorWhite,
   settingsModalTabSelected,
   colorBorder,
 } from '/imports/ui/stylesheets/styled-components/palette';
@@ -50,9 +51,14 @@ const SettingsTabList = styled(TabList)`
 
   @media ${smallOnly} {
     width: 100%;
-    flex-flow: row;
-    flex-wrap: wrap;
-    justify-content: center;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+    height: auto;
+    border: none;
+    padding: 0;
+    margin: 0 0 0.5rem 0;
+    background: transparent;
   }
 `;
 
@@ -78,15 +84,39 @@ const SettingsTabSelector = styled(Tab)`
   }
 
   @media ${smallOnly} {
-    max-width: 100%;
-    margin: 0 ${smPaddingX} 0 0;
+    margin: 0;
+    padding: 0.5rem;
+    font-size: 0.85rem;
+    min-height: 3rem;
+    border-radius: 8px;
+    background: ${colorWhite};
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: all 0.2s ease;
+    margin: 0 2px;
+    text-overflow: ellipsis;
 
-    & > i {
-      display: none;
+    &:first-child {
+      border-radius: 8px 0 0 8px;
+      margin-left: 0.5rem;
     }
 
-    [dir="rtl"] & {
-      margin: 0 0 0 ${smPaddingX};
+    &:last-child {
+      border-radius: 0 8px 8px 0;
+      margin-right: 0.5rem;
+    }
+
+    &.is-selected {
+      background: ${colorPrimary};
+      color: ${colorWhite};
+      z-index: 2;
+      transform: scale(1.02);
+    }
+
+    & > span {
+      -webkit-line-clamp: 2;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
     }
   }
 
@@ -127,8 +157,10 @@ const SettingsTabPanel = styled(TabPanel)`
   @media ${smallOnly} {
     width: 100%;
     margin: 0;
-    padding-left: 1rem;
-    padding-right: 1rem;
+    padding: 0.5rem 1rem;
+    border: none;
+    height: auto;
+    overflow: visible;
   }
 `;
 
@@ -138,6 +170,15 @@ const ActionsContainer = styled.div`
   gap: 1.5rem;
   padding: 1.5rem;
   border-top: 1px solid ${colorBorder};
+
+  @media ${smallOnly} {
+    padding: 1rem;
+    gap: 1rem;
+    position: relative;
+    bottom: auto;
+    background: transparent;
+    box-shadow: none;
+  }
 `;
 
 const ActionButton = styled.button`
@@ -172,6 +213,14 @@ const ActionButton = styled.button`
 const Modal = styled(ModalSimple)`
   padding: 0;
   border-radius: 1rem;
+
+  @media ${smallOnly} {
+    height: auto !important;
+    max-height: 90vh;
+    margin: 5vh auto;
+    display: flex;
+    flex-direction: column;
+  }
 `;
 
 export default {

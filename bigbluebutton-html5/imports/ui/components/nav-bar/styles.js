@@ -35,26 +35,6 @@ const Left = styled.div`
   position: relative;
 `;
 
-const ArrowLeft = styled(Icon)`
-  position: absolute;
-  font-size: 40%;
-  color: ${colorWhite};
-  left: .25rem;
-  @media ${smallOnly} {
-    display: none;
-  }
-`;
-
-const ArrowRight = styled(Icon)`
-  position: absolute;
-  font-size: 40%;
-  color: ${colorWhite};
-  right: .0125rem;
-  @media ${smallOnly} {
-    display: none;
-  }
-`;
-
 const Center = styled.div`
   display: flex;
   flex-direction: row;
@@ -78,6 +58,10 @@ const PresentationTitle = styled.h1`
 
   > [class^="icon-bbb-"] {
     font-size: 75%;
+  }
+
+  @media ${smallOnly} {
+    padding: 0 0.3rem;
   }
 `;
 
@@ -145,8 +129,6 @@ export default {
   Navbar,
   Top,
   Left,
-  ArrowLeft,
-  ArrowRight,
   Center,
   PresentationTitle,
   Right,
