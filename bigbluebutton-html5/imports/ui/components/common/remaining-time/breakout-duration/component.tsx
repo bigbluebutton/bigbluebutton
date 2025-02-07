@@ -4,7 +4,7 @@ import { defineMessages, useIntl } from 'react-intl';
 import { FIRST_BREAKOUT_DURATION_DATA_SUBSCRIPTION, breakoutDataResponse } from './queries';
 import logger from '/imports/startup/client/logger';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
-import { notify } from '/imports/ui/services/notification';
+import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
 
 const intlMessages = defineMessages({
   calculatingBreakoutTimeRemaining: {
@@ -43,9 +43,7 @@ const BreakoutRemainingTimeContainer: React.FC<BreakoutRemainingTimeContainerPro
   if (!breakoutData) return null;
 
   if (breakoutError) {
-    notify(intl.formatMessage({
-      id: 'app.error.issueLoadingData',
-    }), 'warning', 'warning');
+    connectionStatus.setSubscriptionFailed(true);
     logger.error(
       {
         logCode: 'subscription_Failed',

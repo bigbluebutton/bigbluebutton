@@ -7,11 +7,9 @@ import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { ACTIONS, PANELS } from '../../../layout/enums';
 import logger from '/imports/startup/client/logger';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
-import { useIntl } from 'react-intl';
-import { notify } from '/imports/ui/services/notification';
+import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
 
 const BreakoutRoomContainer = ({ breakoutRoom }) => {
-  const intl = useIntl();
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
   const { sidebarContentPanel } = sidebarContent;
   const layoutContextDispatch = layoutDispatch();
@@ -35,9 +33,7 @@ const BreakoutRoomContainer = ({ breakoutRoom }) => {
   }));
 
   if (userIsInvitedError) {
-    notify(intl.formatMessage({
-      id: 'app.error.issueLoadingData',
-    }), 'warning', 'warning');
+    connectionStatus.setSubscriptionFailed(true);
     logger.error(
       {
         logCode: 'subscription_Failed',

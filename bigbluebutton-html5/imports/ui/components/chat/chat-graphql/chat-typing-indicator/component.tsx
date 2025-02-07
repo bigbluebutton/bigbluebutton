@@ -19,8 +19,8 @@ import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { Chat } from '/imports/ui/Types/chat';
 import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
-import { notify } from '/imports/ui/services/notification';
 import logger from '/imports/startup/client/logger';
+import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
 
 const DEBUG_CONSOLE = false;
 
@@ -167,9 +167,7 @@ const TypingIndicatorContainer: React.FC = () => {
   DEBUG_CONSOLE && console.log('TypingIndicatorContainer:typingUsersData', typingUsersData);
 
   if (typingUsersError) {
-    notify(intl.formatMessage({
-      id: 'app.error.issueLoadingData',
-    }), 'warning', 'warning');
+    connectionStatus.setSubscriptionFailed(true);
     logger.error(
       {
         logCode: 'subscription_Failed',

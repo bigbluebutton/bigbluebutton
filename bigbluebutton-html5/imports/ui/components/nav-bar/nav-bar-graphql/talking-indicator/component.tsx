@@ -16,7 +16,7 @@ import { VoiceActivityResponse } from '/imports/ui/core/graphql/queries/whoIsTal
 import useTalkingUsers from '/imports/ui/core/hooks/useTalkingUsers';
 import { partition } from '/imports/utils/array-utils';
 import logger from '/imports/startup/client/logger';
-import { notify } from '/imports/ui/services/notification';
+import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
 
 const TALKING_INDICATORS_MAX = 8;
 
@@ -207,7 +207,6 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
 };
 
 const TalkingIndicatorContainer: React.FC = () => {
-  const intl = useIntl();
   const { data: currentUser } = useCurrentUser((u: Partial<User>) => ({
     userId: u?.userId,
     isModerator: u?.isModerator,
@@ -255,9 +254,7 @@ const TalkingIndicatorContainer: React.FC = () => {
   if (talkingUsersLoading || isBreakoutLoading) return null;
 
   if (isBreakoutError) {
-    notify(intl.formatMessage({
-      id: 'app.error.issueLoadingData',
-    }), 'warning', 'warning');
+    connectionStatus.setSubscriptionFailed(true);
     logger.error(
       {
         logCode: 'subscription_Failed',

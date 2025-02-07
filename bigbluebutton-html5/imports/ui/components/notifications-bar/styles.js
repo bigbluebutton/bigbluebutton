@@ -7,9 +7,11 @@ import {
   colorSuccess,
   colorDanger,
 } from '/imports/ui/stylesheets/styled-components/palette';
+import Button from '/imports/ui/components/common/button/component';
 
 const NotificationsBar = styled.div`
-  padding: calc(${lineHeightComputed} / 2);
+  padding-bottom: calc(${lineHeightComputed} / 2);
+  gap: .5rem;
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -41,18 +43,6 @@ const NotificationsBar = styled.div`
   `}
 `;
 
-const RetryButton = styled.button`
-  background-color: transparent;
-   border: none;
-   cursor: pointer;
-   text-decoration: underline;
-   display: inline;
-   margin: 0;
-   padding: 0;
-   color: ${colorWhite};
-`;
-
 export default {
   NotificationsBar,
-  RetryButton,
 };

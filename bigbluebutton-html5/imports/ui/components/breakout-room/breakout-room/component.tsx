@@ -25,7 +25,7 @@ import {
 } from './service';
 import { useExitVideo, useStreams } from '/imports/ui/components/video-provider/hooks';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
-import { notify } from '/imports/ui/services/notification';
+import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
 
 interface BreakoutRoomProps {
   breakouts: BreakoutRoomType[];
@@ -305,7 +305,6 @@ const BreakoutRoom: React.FC<BreakoutRoomProps> = ({
 };
 
 const BreakoutRoomContainer: React.FC = () => {
-  const intl = useIntl();
   const {
     data: meetingData,
   } = useMeeting((m) => ({
@@ -335,9 +334,7 @@ const BreakoutRoomContainer: React.FC = () => {
   ) return null;
 
   if (breakoutError) {
-    notify(intl.formatMessage({
-      id: 'app.error.issueLoadingData',
-    }), 'warning', 'warning');
+    connectionStatus.setSubscriptionFailed(true);
     logger.error(
       {
         logCode: 'subscription_Failed',

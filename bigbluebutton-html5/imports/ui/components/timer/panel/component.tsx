@@ -26,7 +26,7 @@ import {
 import useTimeSync from '/imports/ui/core/local-states/useTimeSync';
 import humanizeSeconds from '/imports/utils/humanizeSeconds';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
-import { notify } from '/imports/ui/services/notification';
+import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
 
 const MAX_HOURS = 23;
 const MILLI_IN_HOUR = 3600000;
@@ -430,8 +430,6 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
 
 const TimerPanelContaier: React.FC = () => {
   const [timeSync] = useTimeSync();
-  const intl = useIntl();
-
   const {
     loading: timerLoading,
     error: timerError,
@@ -441,9 +439,7 @@ const TimerPanelContaier: React.FC = () => {
   if (timerLoading || !timerData) return null;
 
   if (timerError) {
-    notify(intl.formatMessage({
-      id: 'app.error.issueLoadingData',
-    }), 'warning', 'warning');
+    connectionStatus.setSubscriptionFailed(true);
     logger.error(
       {
         logCode: 'subscription_Failed',

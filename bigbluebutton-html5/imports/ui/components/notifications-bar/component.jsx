@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
+import { defineMessages, useIntl } from 'react-intl';
+import Button from '/imports/ui/components/common/button/component';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import Styled from './styles';
 
@@ -11,12 +13,24 @@ const propTypes = {
   color: PropTypes.string,
 };
 
+const intlMessages = defineMessages({
+  reloadPage: {
+    id: 'app.errorBoundary.reloadPage',
+    defaultMessage: 'Reload Page',
+  },
+});
+
 const NotificationsBar = ({
   color = 'default',
   children,
   alert,
+  showReloadButton,
 }) => {
   const hasColor = COLORS.includes(color);
+  const intl = useIntl();
+  const reloadButton = useCallback(() => {
+    window.location.reload();
+  }, []);
 
   return (
     <Styled.NotificationsBar
@@ -30,7 +44,21 @@ const NotificationsBar = ({
       }
       color={color}
     >
-      {children}
+      <>
+        {children}
+        {
+          showReloadButton && (
+            <Button
+              onClick={reloadButton}
+              data-test="notificationBannerReloadButton"
+              color="primary"
+              label={intl.formatMessage(intlMessages.reloadPage)}
+              aria-label={intl.formatMessage(intlMessages.reloadPage)}
+              aria-describedby="notificationBannerReloadButton"
+            />
+          )
+        }
+      </>
     </Styled.NotificationsBar>
   );
 };

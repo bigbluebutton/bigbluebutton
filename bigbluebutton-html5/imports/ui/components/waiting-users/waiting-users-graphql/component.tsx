@@ -33,6 +33,7 @@ import {
   SET_LOBBY_MESSAGE_PRIVATE,
 } from '../mutations';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
 
 interface LayoutDispatchProps {
   type: string,
@@ -400,7 +401,6 @@ const GuestUsersManagementPanel: React.FC<GuestUsersManagementPanelProps> = ({
 };
 
 const GuestUsersManagementPanelContainer: React.FC = () => {
-  const intl = useIntl();
   const layoutContextDispatch = layoutDispatch();
 
   const {
@@ -422,9 +422,7 @@ const GuestUsersManagementPanelContainer: React.FC = () => {
   }
 
   if (guestWaitingUsersError) {
-    notify(intl.formatMessage({
-      id: 'app.error.issueLoadingData',
-    }), 'warning', 'warning');
+    connectionStatus.setSubscriptionFailed(true);
     logger.error(
       {
         logCode: 'subscription_Failed',

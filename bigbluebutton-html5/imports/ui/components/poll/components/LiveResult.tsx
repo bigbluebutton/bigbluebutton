@@ -19,7 +19,7 @@ import { layoutDispatch } from '../../layout/context';
 import { ACTIONS, PANELS } from '../../layout/enums';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import CustomizedAxisTick from './CustomizedAxisTick';
-import { notify } from '/imports/ui/services/notification';
+import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
 
 const intlMessages = defineMessages({
   usersTitle: {
@@ -207,7 +207,6 @@ const LiveResult: React.FC<LiveResultProps> = ({
 };
 
 const LiveResultContainer: React.FC = () => {
-  const intl = useIntl();
   const {
     data: currentPollData,
     loading: currentPollLoading,
@@ -219,9 +218,7 @@ const LiveResultContainer: React.FC = () => {
   }
 
   if (currentPollDataError) {
-    notify(intl.formatMessage({
-      id: 'app.error.issueLoadingData',
-    }), 'warning', 'warning');
+    connectionStatus.setSubscriptionFailed(true);
     logger.error(
       {
         logCode: 'subscription_Failed',

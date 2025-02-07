@@ -31,6 +31,10 @@ const intlMessages = defineMessages({
     id: 'app.notificationBar.connectionCode3005',
     description: 'Slow data alert',
   },
+  connectionCode3006: {
+    id: 'app.notificationBar.issueLoadingDataCode3006',
+    description: 'Subscription failed alert',
+  },
 });
 
 const STATUS_CRITICAL = 'critical';
@@ -41,6 +45,7 @@ const NotificationsBarContainer = () => {
   data.alert = true;
   data.color = COLOR_PRIMARY;
   const intl = useIntl();
+  const subscriptionFailed = useReactiveVar(connectionStatus.getSubscriptionFailedVar());
   const connected = useReactiveVar(connectionStatus.getConnectedStatusVar());
   const serverIsResponding = useReactiveVar(connectionStatus.getServerIsRespondingVar());
   const pingIsComing = useReactiveVar(connectionStatus.getPingIsComingVar());
@@ -57,6 +62,8 @@ const NotificationsBarContainer = () => {
       ? intl.formatMessage(intlMessages.connectionCode3004)
       : intl.formatMessage(intlMessages.connectionCode3003);
   } else if (connected && serverIsResponding && !pingIsComing && lastRttRequestSuccess) {
+    data.message = intl.formatMessage(intlMessages.connectionCode3005);
+  } else if (connected && serverIsResponding && pingIsComing && subscriptionFailed) {
     data.message = intl.formatMessage(intlMessages.connectionCode3005);
   }
 
@@ -102,7 +109,7 @@ const NotificationsBarContainer = () => {
   }
 
   return (
-    <NotificationsBar color={data.color}>
+    <NotificationsBar color={data.color} showReloadButton={subscriptionFailed}>
       {data.message}
     </NotificationsBar>
   );
