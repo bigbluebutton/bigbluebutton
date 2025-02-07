@@ -20,19 +20,20 @@ const Layout = styled(FlexColumn)``;
 
 const DtfInvert = `
   :root {
-    --darkreader-bg-neutral-background: ${colorBackgroundDarkTheme};
-    --darkreader-bg--color-background: ${colorBackgroundDarkTheme};
-    --darkreader-bg--color-white: ${colorOverlaysDarkTheme};
-    --darkreader-bg--btn-default-bg: ${colorOverlaysDarkTheme};
-    --darkreader-text--btn-default-color: ${colorTextDarkTheme};
-    --darkreader-text--color-gray-light: ${colorTextDarkTheme};
-    --darkreader-text--color-text: ${colorTextDarkTheme};
-    --darkreader-text--color-gray: ${colorTextDarkTheme};
-    --darkreader-text--color-white: ${colorTextDarkTheme};
-    --darkreader-text--color-gray-dark: ${colorTextDarkTheme};
-    --darkreader-bg--color-primary: ${colorPrimaryDarkTheme};
-    --darkreader-text--color-primary: ${colorPrimaryDarkTheme};
-    --darkreader-bg--item-focus-border: ${colorPrimaryDarkTheme};
+    --darkreader-bg-neutral-background: ${colorBackgroundDarkTheme} !important;
+    --darkreader-bg--color-background: ${colorBackgroundDarkTheme} !important;
+    --darkreader-bg--color-white: ${colorOverlaysDarkTheme} !important;
+    --darkreader-bg--btn-default-bg: ${colorOverlaysDarkTheme} !important;
+    --darkreader-text--btn-default-color: ${colorTextDarkTheme} !important;
+    --darkreader-text--color-gray-light: ${colorTextDarkTheme} !important;
+    --darkreader-text--color-text: ${colorTextDarkTheme} !important;
+    --darkreader-text--color-gray: ${colorTextDarkTheme} !important;
+    --darkreader-text--color-white: ${colorTextDarkTheme} !important;
+    --darkreader-text--color-gray-dark: ${colorTextDarkTheme} !important;
+    --darkreader-bg--color-primary: ${colorPrimaryDarkTheme} !important;
+    --darkreader-text--color-primary: ${colorPrimaryDarkTheme} !important;
+    --darkreader-bg--item-focus-border: ${colorPrimaryDarkTheme} !important;
+  }
   }
   body {
     background-color: var(--darkreader-bg-neutral-background) !important;
@@ -100,6 +101,12 @@ const DtfInvert = `
       linear-gradient(rgba(34, 36, 37, 0), rgb(45 47 56 / 0%) 70%),
       radial-gradient(farthest-side at 50% 0px, rgba(13, 13, 13, 0.2), rgba(13, 13, 13, 0)),
       radial-gradient(farthest-side at 50% 100%, rgba(13, 13, 13, 0.2), rgba(13, 13, 13, 0));
+  }
+  button[data-test="increaseFontSize"],
+  button[data-test="decreaseFontSize"] {
+    & > span > i {
+      color: var(--darkreader-text--btn-default-color) !important;
+    }
   }
 `;
 
