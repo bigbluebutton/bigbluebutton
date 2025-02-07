@@ -126,6 +126,32 @@ object VoiceApp extends SystemConfiguration {
     outGW.send(msgEvent)
   }
 
+  def broadcastUserDeafenedVoiceEvtMsg(
+      meetingId: String,
+      vu:        VoiceUserState,
+      voiceConf: String,
+      outGW:     OutMsgRouter
+  ): Unit = {
+    val routing = Routing.addMsgToClientRouting(
+      MessageTypes.BROADCAST_TO_MEETING,
+      meetingId,
+      vu.intId
+    )
+    val envelope = BbbCoreEnvelope(UserDeafenedVoiceEvtMsg.NAME, routing)
+    val header = BbbClientMsgHeader(
+      UserDeafenedVoiceEvtMsg.NAME,
+      meetingId,
+      vu.intId
+    )
+
+    val body = UserDeafenedVoiceEvtMsgBody(
+      voiceConf = voiceConf,
+      intId = vu.intId,
+      voiceUserId = vu.intId,
+      vu.deafened
+    )
+  }
+
   def handleUserMutedInVoiceConfEvtMsg(
       liveMeeting: LiveMeeting,
       outGW:       OutMsgRouter,
@@ -224,6 +250,7 @@ object VoiceApp extends SystemConfiguration {
                 cvu.callerIdNum,
                 ColorPicker.nextColor(liveMeeting.props.meetingProp.intId),
                 cvu.muted,
+                false,
                 cvu.talking,
                 cvu.calledInto,
                 cvu.hold,
@@ -276,6 +303,7 @@ object VoiceApp extends SystemConfiguration {
       callerIdNum:  String,
       color:        String,
       muted:        Boolean,
+      deafened:     Boolean,
       talking:      Boolean,
       callingInto:  String,
       hold:         Boolean,
@@ -334,6 +362,7 @@ object VoiceApp extends SystemConfiguration {
       callerIdNum,
       color,
       muted,
+      deafened,
       talking,
       listenOnly = isListenOnly,
       callingInto,
@@ -511,7 +540,7 @@ object VoiceApp extends SystemConfiguration {
     intId:       String,
     voiceUserId: String,
     enabled: Boolean
-  ): Unit = {
+  )(implicit context: ActorContext): Unit = {
     val stopEvent = MsgBuilder.buildStopSoundInVoiceConfSysMsg(
       liveMeeting.props.meetingProp.intId,
       liveMeeting.props.voiceProp.voiceConf,
@@ -546,13 +575,7 @@ object VoiceApp extends SystemConfiguration {
     )
     outGW.send(muteEvent)
 
-    val deafEvent = MsgBuilder.buildDeafUserInVoiceConfSysMsg(
-      liveMeeting.props.meetingProp.intId,
-      liveMeeting.props.voiceProp.voiceConf,
-      voiceUserId,
-      !enabled
-    )
-    outGW.send(deafEvent)
+    deafenUserInVoiceConf(liveMeeting, outGW, intId, !enabled)
   }
 
   def removeToggleListenOnlyTask(userId: String): Unit = {
@@ -708,7 +731,7 @@ object VoiceApp extends SystemConfiguration {
         userId
       )
       } yield {
-        if (u.muted != muted) {
+        if (u.muted != muted && (muted || !u.deafened)) {
           val muteEvent = MsgBuilder.buildMuteUserInVoiceConfSysMsg(
             liveMeeting.props.meetingProp.intId,
             liveMeeting.props.voiceProp.voiceConf,
@@ -739,6 +762,62 @@ object VoiceApp extends SystemConfiguration {
           outGW.send(muteEvent)
         }
       }
+  }
+
+  def deafenUserInVoiceConf(
+    liveMeeting: LiveMeeting,
+    outGW:       OutMsgRouter,
+    userId:      String,
+    deafened:    Boolean
+  )(implicit context: ActorContext): Unit = {
+    for {
+      u <- VoiceUsers.findWithIntId(
+        liveMeeting.voiceUsers,
+        userId
+      )
+    } yield {
+      val event = MsgBuilder.buildDeafUserInVoiceConfSysMsg(
+        liveMeeting.props.meetingProp.intId,
+        liveMeeting.props.voiceProp.voiceConf,
+        userId,
+        u.voiceUserId,
+        deafened
+      )
+      outGW.send(event)
+
+      // For now, deafening is mostly a client-side feature, so we don't
+      // need to wait for media stack response + enforcement here.
+      // This might change in the future (i.e.: if this needs to be
+      // E2E enforced) - prlanzarin
+      handleUserDeafenedInVoiceConfEvtMsg(
+        liveMeeting,
+        outGW,
+        u.voiceUserId,
+        deafened
+      )
+    }
+  }
+
+  def handleUserDeafenedInVoiceConfEvtMsg(
+      liveMeeting: LiveMeeting,
+      outGW:       OutMsgRouter,
+      voiceUserId: String,
+      deafened:       Boolean
+  )(implicit context: ActorContext): Unit = {
+    for {
+      du <- VoiceUsers.userDeafened(liveMeeting.voiceUsers, voiceUserId, deafened)
+    } yield {
+      broadcastUserDeafenedVoiceEvtMsg(
+        liveMeeting.props.meetingProp.intId,
+        du,
+        liveMeeting.props.voiceProp.voiceConf,
+        outGW
+      )
+
+      if (deafened && !du.muted) {
+        muteUserInVoiceConf(liveMeeting, outGW, du.intId, true)
+      }
+    }
   }
 
   def handleUserTalking(

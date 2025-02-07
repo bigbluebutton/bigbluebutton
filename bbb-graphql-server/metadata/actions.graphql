@@ -629,6 +629,13 @@ type Mutation {
 }
 
 type Mutation {
+  userSetDeafened(
+    userId: String
+    deafened: Boolean!
+  ): Boolean
+}
+
+type Mutation {
   userSetEmojiStatus(
     emoji: String!
   ): Boolean
