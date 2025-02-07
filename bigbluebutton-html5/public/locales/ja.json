@@ -500,7 +500,7 @@
     "app.navBar.optionsDropdown.endMeetingDesc": "現在の会議を終了させる",
     "app.navBar.optionsDropdown.endMeetingLabel": "会議を終了",
     "app.navBar.optionsDropdown.endMeetingForAllLabel": "全員を退出させて会議を終了",
-    "app.navBar.optionsDropdown.presenceLabel": "私は",
+    "app.navBar.optionsDropdown.presenceLabel": "自分は",
     "app.navBar.userListToggleBtnLabel": "ユーザーリストのトグル",
     "app.navBar.toggleUserList.ariaLabel": "ユーザーとメッセージの切替",
     "app.navBar.toggleUserList.newMessages": "メッセージを通知する",
