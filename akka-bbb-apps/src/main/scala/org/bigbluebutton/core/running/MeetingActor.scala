@@ -735,6 +735,8 @@ class MeetingActor(
       case m: PluginDataChannelDeleteEntryMsg  => pluginHdlrs.handle(m, state, liveMeeting)
       case m: PluginDataChannelResetMsg        => pluginHdlrs.handle(m, state, liveMeeting)
 
+      case m: PluginPersistEventMsg            => pluginHdlrs.handle(m, state, liveMeeting, msgBus)
+
       // Webcams
       case m: UserBroadcastCamStartMsg =>
         webcamApp2x.handle(m, liveMeeting, msgBus)
