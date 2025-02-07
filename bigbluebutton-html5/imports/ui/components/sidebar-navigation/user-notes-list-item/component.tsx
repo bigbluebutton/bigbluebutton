@@ -130,7 +130,7 @@ const UserNotesGraphql: React.FC<UserNotesGraphqlProps> = (props) => {
           role="button"
           tabIndex={0}
           active={notesOpen}
-          data-test="sharedNotesButton"
+          data-test="sharedNotesSidebarButton"
           onClick={() => toggleNotesPanel(sidebarContentPanel, layoutContextDispatch)}
           // @ts-ignore
           onKeyDown={(e) => {

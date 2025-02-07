@@ -4,7 +4,7 @@ const { getElementLength } = require('../core/util');
 
 async function startSharedNotes(test) {
   try {
-    await test.waitAndClick(e.sharedNotes);
+    await test.waitAndClick(e.sharedNotesSidebarButton);
     await test.waitForSelector(e.hideNoteLabel, ELEMENT_WAIT_LONGER_TIME);
     const resp = await test.page.evaluate(getElementLength, e.etherpad) >= 1;
     await test.waitForSelector(e.etherpad);

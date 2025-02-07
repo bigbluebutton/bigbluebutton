@@ -188,7 +188,7 @@ exports.minutesInput = 'input[data-test="minutesInput"]';
 exports.secondsInput = 'input[data-test="secondsInput"]';
 
 // Notes
-exports.sharedNotes = 'div[data-test="sharedNotesButton"]';
+exports.sharedNotesSidebarButton = 'div[data-test="sharedNotesSidebarButton"]';
 exports.hideNotesLabel = 'button[data-test="hideNotesLabel"]';
 exports.etherpadFrame = 'iframe[title="pad"]';
 exports.etherpadOuter = 'iframe[title="Ether"]';
@@ -380,6 +380,7 @@ exports.askModerator = 'button[data-test="askModerator"]';
 exports.alwaysAccept = 'button[data-test="alwaysAccept"]';
 exports.alwaysDeny = 'button[data-test="alwaysDeny"]';
 exports.deniedMessageElement = 'p[class="error-message"]';
+exports.moreOptionsUserItemButton = 'div[data-test="moreOptionsUserItemButton"]';
 exports.promoteToModerator = 'li[data-test="promoteToModerator"]';
 exports.demoteToViewer = 'li[data-test="demoteToViewer"]';
 exports.makePresenter = 'li[data-test="makePresenter"]';
@@ -397,7 +398,7 @@ exports.unmuteUser = 'li[data-test="unmuteUser"]';
 exports.ejectCamera = 'li[data-test="ejectCamera"]';
 
 // Lock Viewers
-exports.lockViewersButton = 'li[data-test="lockViewersButton"]';
+exports.lockViewersButton = 'button[data-test="lockViewersButton"]';
 exports.unlockUserButton = 'li[data-test="unlockUserButton"]';
 exports.applyLockSettings = 'button[data-test="applyLockSettings"]';
 exports.lockShareWebcam = 'input[data-test="lockShareWebcam"]';

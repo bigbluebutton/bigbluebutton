@@ -59,7 +59,7 @@ class DisabledFeatures extends MultiUsers {
   }
 
   async sharedNotes() {
-    await this.modPage.wasRemoved(e.sharedNotes, 'should not display the shared notes on the side bar');
+    await this.modPage.wasRemoved(e.sharedNotesSidebarButton, 'should not display the shared notes button on the sidebar');
   }
 
   async virtualBackgrounds() {
@@ -161,7 +161,7 @@ class DisabledFeatures extends MultiUsers {
   }
 
   async sharedNotesExclude() {
-    await this.modPage.hasElement(e.sharedNotes, 'should display the shared notes');
+    await this.modPage.hasElement(e.sharedNotesSidebarButton, 'should display the shared notes button on the sidebar');
   }
 
   async virtualBackgroundsExclude() {

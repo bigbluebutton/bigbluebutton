@@ -1,4 +1,3 @@
-const { default: test } = require('@playwright/test');
 const { Create } = require('./create');
 const utilScreenShare = require('../screenshare/util');
 const e = require('../core/elements');
@@ -134,11 +133,11 @@ class Join extends Create {
 
     if(!sharedNotesEnabled) {
       await this.modPage.hasElement(e.chatButton, 'should display the chat button to access the public chat');
-      return this.modPage.wasRemoved(e.sharedNotes, 'should have removed the shared notes.');
+      return this.modPage.wasRemoved(e.sharedNotesSidebarButton, 'should have removed the shared notes.');
     }
     const breakoutUserPage = await this.joinRoom();
     await breakoutUserPage.hasElement(e.presentationTitle, 'should display the presentation title inside the breakout room.');
-    await breakoutUserPage.waitAndClick(e.sharedNotes);
+    await breakoutUserPage.waitAndClick(e.sharedNotesSidebarButton);
     await breakoutUserPage.hasElement(e.hideNotesLabel, 'should display the hide notes element when shared notes is opened');
 
     const notesLocator = getNotesLocator(breakoutUserPage);
@@ -169,12 +168,12 @@ class Join extends Create {
     
     if(!sharedNotesEnabled) {
       await this.modPage.hasElement(e.chatButton, 'should display the chat button to access the public chat');
-      return this.modPage.wasRemoved(e.sharedNotes, 'should have removed the shared notes');
+      return this.modPage.wasRemoved(e.sharedNotesSidebarButton, 'should have removed the shared notes');
     }
 
     const breakoutUserPage = await this.joinRoom();
     await breakoutUserPage.hasElement(e.presentationTitle, 'should have the presentation title displayed on the breakout room');
-    await breakoutUserPage.waitAndClick(e.sharedNotes);
+    await breakoutUserPage.waitAndClick(e.sharedNotesSidebarButton);
     await breakoutUserPage.hasElement(e.hideNotesLabel, 'should display the hide notes element when shared notes is opened');
 
     // draw a line
