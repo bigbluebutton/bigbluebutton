@@ -25,6 +25,7 @@ import useIsAudioConnected from '/imports/ui/components/audio/audio-graphql/hook
 const invalidDialNumbers = ['0', '613-555-1212', '613-555-1234', '0000'];
 
 const AudioModalContainer = (props) => {
+  const { setIsOpen } = props;
   const { data: meeting } = useMeeting((m) => ({
     voiceSettings: m.voiceSettings,
     audioBridge: m.audioBridge,
@@ -97,10 +98,6 @@ const AudioModalContainer = (props) => {
     && Service.inputDeviceId();
   const joinFullAudioImmediately = !isListenOnlyInputDevice
     && (skipCheck || (skipCheckOnJoin && !getEchoTest) || devicesAlreadyConfigured);
-  const { setIsOpen } = props;
-  const close = useCallback(() => {
-    closeModal(() => setIsOpen(false));
-  }, [setIsOpen]);
   const joinMic = useCallback(
     (options = {}) => joinMicrophone({
       skipEchoTest: options.skipEchoTest || joinFullAudioImmediately,
@@ -108,6 +105,26 @@ const AudioModalContainer = (props) => {
     }),
     [skipCheck, skipCheckOnJoin, meeting],
   );
+  const close = useCallback(() => {
+    const handleJoinError = (error, listenOnly) => {
+      if (!listenOnly
+        && (error.name === 'NotAllowedError' || error.errCode === AudioError.MIC_ERROR.NO_PERMISSION)) {
+        joinListenOnly().catch((loError) => handleJoinError(loError, true));
+      }
+    };
+
+    const callback = () => {
+      setIsOpen(false);
+
+      // When using LiveKit, force joining audio when the modal is closed,
+      // but the user is not connected nor connecting to audio.
+      if (usingLiveKit && !isConnected && !isConnecting) {
+        joinMic().catch((error) => handleJoinError(error, false));
+      }
+    };
+
+    closeModal(callback);
+  }, [isConnected, isConnecting, usingLiveKit, joinMic, setIsOpen]);
   const isTranscriptionEnabled = useIsAudioTranscriptionEnabled();
 
   if (!currentUserData) return null;
