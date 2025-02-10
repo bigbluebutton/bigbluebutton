@@ -1,7 +1,7 @@
 const { expect } = require('@playwright/test');
 const path = require('path');
 const e = require('../core/elements');
-const { UPLOAD_PDF_WAIT_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
+const { UPLOAD_PDF_WAIT_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_TIME } = require('../core/constants');
 
 async function checkSvgIndex(test, element) {
   const check = await test.page.evaluate(([el, slideImg]) => {
@@ -11,6 +11,7 @@ async function checkSvgIndex(test, element) {
 }
 
 async function getSlideOuterHtml(testPage) {
+  await testPage.waitForSelector(e.currentSlideImg);
   return testPage.page.evaluate(([slideImg]) => {
     return document.querySelector(slideImg).outerHTML;
   }, [e.currentSlideImg]);
@@ -24,10 +25,9 @@ async function getCurrentPresentationHeight(locator) {
 
 async function uploadSinglePresentation(test, fileName, uploadTimeout = UPLOAD_PDF_WAIT_TIME) {
   const firstSlideSrc = await test.page.evaluate(selector => document.querySelector(selector)
-    ?.style
-    .backgroundImage
-    .split('"')[1],
-  [e.currentSlideImg]);
+    ?.style.backgroundImage.split('"')[1],
+    [e.currentSlideImg],
+  );
   await test.waitAndClick(e.actions);
   await test.waitAndClick(e.managePresentations);
   await test.hasElement(e.presentationFileUpload, 'should display the presentation space for uploading a new file, when the manage presentations is opened');
@@ -55,9 +55,13 @@ async function uploadMultiplePresentations(test, fileNames, uploadTimeout = ELEM
   await test.hasText('body', e.statingUploadPresentationToast, 'should display the toast of a presentation to be uploaded after selecting the files to upload');
 
   await test.waitAndClick(e.confirmManagePresentation);
-  await test.hasText(e.presentationStatusInfo, 'Processing', 'should display the presentation status info after confirmation to upload the new file', uploadTimeout);
-  await test.hasText(e.presentationStatusInfo, e.convertingPresentationFileToast, 'should display the presentation status info after confirmation to upload the new file', uploadTimeout);
-  await test.hasText(e.smallToastMsg, e.presentationUploadedToast, 'should display the toast notification saying that the presentation is uploaded', uploadTimeout);
+  await expect(async () => {
+    await test.hasText(e.presentationStatusInfo, e.convertingPresentationFileToast, 'should display the presentation status info after confirmation to upload the new file', 200);
+  }).toPass({
+    intervals: [200],
+    timeout: ELEMENT_WAIT_TIME,
+  });
+  await test.hasText(e.currentPresentationToast, e.presentationUploadedToast, 'should display the toast notification saying that the presentation is uploaded', uploadTimeout);
 }
 
 async function skipSlide(page) {
