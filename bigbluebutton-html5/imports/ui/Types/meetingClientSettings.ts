@@ -1,6 +1,7 @@
 import type {
   InternalRoomOptions,
   TrackPublishOptions,
+  LogLevel,
 } from 'livekit-client';
 
 export interface MeetingClientSettings {
@@ -651,6 +652,7 @@ export interface LiveKitAudioSettings {
 export interface LiveKitSettings {
   url?: string
   selectiveSubscription?: boolean
+  logLevel?: LogLevel
   roomOptions?: Partial<InternalRoomOptions>
   audio?: LiveKitAudioSettings
   camera?: LiveKitCameraSettings
