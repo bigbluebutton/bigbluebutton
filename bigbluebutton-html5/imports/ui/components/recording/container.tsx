@@ -12,7 +12,9 @@ interface RecordingContainerProps {
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
   amIModerator: boolean;
   onRequestClose: () => void;
+  // eslint-disable-next-line react/no-unused-prop-types
   priority: string;
+  // eslint-disable-next-line react/no-unused-prop-types
   isOpen: boolean;
 }
 
@@ -23,6 +25,7 @@ const RecordingContainer: React.FC<RecordingContainerProps> = (props) => {
   const [setRecordingStatus] = useMutation(SET_RECORDING_STATUS);
   // TODO: unused connected status variable, should we use it to disable the recording button?
   // @ts-expect-error TS6133: Unused variable.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const connected = useReactiveVar(ConnectionStatus.getConnectedStatusVar());
   const {
     data: recordingData,

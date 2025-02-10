@@ -62,10 +62,6 @@ const intlMessages: { [key: string]: { id: string; description?: string } } = de
     id: 'app.videoPreview.webcamSettingsTitle',
     description: 'Title for the video preview modal',
   },
-  minimizeLabel: {
-    id: 'app.videoPreview.minimizeLabel',
-    description: 'Minimize button label',
-  },
   cancelLabel: {
     id: 'app.mobileAppModal.dismissLabel',
     description: 'Close button label',
@@ -271,7 +267,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
   const [previewError, setPreviewError] = useState<string | null>(null);
   const [brightness, setBrightness] = useState<number>(100);
   // @ts-expect-error TS6133: Unused variable.
-  const [wholeImageBrightness, setWholeImageBrightness] = useState<boolean>(false);
+  const [wholeImageBrightness, setWholeImageBrightness] = useState<boolean>(false); // eslint-disable-line
   const [isCameraLoading, setIsCameraLoading] = useState<boolean>(true);
   const [virtualBackgroundChecked, setVirtualBackgroundChecked] = React.useState(false);
 
@@ -483,7 +479,8 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
         const { backgrounds } = customVirtualBackgroundsContext;
         const background = backgrounds[uniqueId]
           || Object.values(backgrounds).find(
-            (bg: any) => bg.uniqueId === uniqueId, // TODO: typing
+            // @ts-ignore
+            (bg) => bg.uniqueId === uniqueId,
           );
 
         if (background && background.data) {
@@ -658,7 +655,8 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
 
   // Unused for now, but will be used in the future when UI/UX for sharing
   // through the profile settings is implemented - prlanzarin
-  // @ts-expect-error TS6133: Unused variable.
+  // @ts-expect-error TS6133: Unused variable
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleStartSharing = async () => {
     if (!currentVideoStream.current) return;
     if (

@@ -21,6 +21,7 @@ interface SidebarNavigationProps {
   height: number,
   width: number,
   sidebarNavigationInput: SidebarNavigationInput,
+  isModerator: boolean,
 }
 
 const SidebarNavigation = ({
@@ -31,6 +32,7 @@ const SidebarNavigation = ({
   height,
   width,
   sidebarNavigationInput,
+  isModerator,
 }: SidebarNavigationProps) => {
   const showBrandingArea = getFromUserSettings('bbb_display_branding_area', window.meetingClientSettings.public.app.branding.displayBrandingArea);
   const isChatEnabled = useIsChatEnabled();
@@ -63,7 +65,7 @@ const SidebarNavigation = ({
         </Styled.Center>
 
         <Styled.Bottom>
-          <LearningDashboardListItem />
+          { isModerator ? <LearningDashboardListItem /> : null }
           <SettingsListItem />
         </Styled.Bottom>
       </Styled.NavigationSidebarListItemsContainer>

@@ -33,10 +33,6 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.actionsDropdown.saveUserNames',
     description: 'Label for the save user names button',
   },
-  minimizeLabel: {
-    id: 'app.userList.minimize',
-    description: 'Label for the minimize button in the user list panel',
-  },
 });
 
 const UserList: React.FC<UserListComponentProps> = () => {
