@@ -694,6 +694,11 @@ class AudioManager {
     this.isDeafened = deafened;
     const STATS = window.meetingClientSettings.public.stats;
 
+    // If the user is deafened, we don't want to proceed any further until
+    // undeafened. Callers that specify deafened = true should handle this case
+    // accordingly by calling this method again when the user is undeafened.
+    if (deafened) return;
+
     try {
       if (!this.isListenOnly) {
         setUserSelectedMicrophone(true);
