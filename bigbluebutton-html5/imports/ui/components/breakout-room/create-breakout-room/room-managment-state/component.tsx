@@ -256,7 +256,7 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
         return aId - bId;
       });
 
-      // set the number of rooms based in the last 
+      // set the number of rooms based in the last
       const lastRoom = sortedGroups[sortedGroups.length - 1];
       setNumberOfRooms(Number.parseInt(lastRoom.groupId, 10));
 
