@@ -936,6 +936,7 @@ public:
       # applicable track sources. Default value is false. This overrides autoSubscribe
       # when set to true and in effect (conditional to client behavior).
       selectiveSubscription: false
+      logLevel: 3
       roomOptions:
         adaptiveStream: true
         dynacast: true

@@ -1,4 +1,4 @@
-import { AudioPresets } from 'livekit-client';
+import { AudioPresets, LogLevel } from 'livekit-client';
 import { MeetingClientSettings } from '../../Types/meetingClientSettings';
 
 export const meetingClientSettingsInitialValues: MeetingClientSettings = {
@@ -678,6 +678,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       livekit: {
         url: `wss://${window.location.hostname}/livekit`,
         selectiveSubscription: false,
+        logLevel: LogLevel.warn,
         roomOptions: {
           adaptiveStream: true,
           dynacast: true,
