@@ -170,9 +170,10 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
     if (disabled) return intl.formatMessage(intlMessages.unavailableTitle);
 
     if (!recording) {
-      if (!isModerator && time > 0) {
+      if (!showButton && time > 0) {
         return intl.formatMessage(intlMessages.resumeViewTitle);
       }
+
       return time > 0
         ? intl.formatMessage(intlMessages.resumeTitle)
         : intl.formatMessage(intlMessages.startTitle);
@@ -183,9 +184,12 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
 
   const tooltipTitle = useMemo(() => {
     if (!recording) {
-      return recordTitle;
+      return !showButton
+        ? Service.getCustomRecordTooltip(recordTitle)
+        : recordTitle;
     }
-    return isModerator
+
+    return showButton
       ? intl.formatMessage(intlMessages.stopTitle)
       : intl.formatMessage(intlMessages.recordingTitle);
   }, [recording, isModerator, recordTitle]);
