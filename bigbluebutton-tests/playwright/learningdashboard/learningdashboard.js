@@ -4,7 +4,7 @@ const { openPublicChat } = require('../chat/util');
 const { expect } = require("@playwright/test");
 const Page = require("../core/page");
 const { sleep } = require("../core/helpers");
-const { ELEMENT_WAIT_EXTRA_LONG_TIME } = require("../core/constants");
+const { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_TIME } = require("../core/constants");
 const { openPoll, timeInSeconds, rowFilter } = require("./util");
 const { checkTextContent } = require('../core/util');
 
@@ -22,7 +22,7 @@ class LearningDashboard extends MultiUsers {
     this.dashboardPage = new Page(this.modPage.context, dashboardPage);
     // ensure data is available
     try {
-      await this.dashboardPage.hasElement(e.meetingDurationTimeDashboard, 'should display the meeting duration time', 2000);
+      await this.dashboardPage.hasElement(e.meetingDurationTimeDashboard, 'should display the meeting duration time', ELEMENT_WAIT_TIME);
     } catch (err) {
       console.log('Failed to load the dashboard page data, reloading...');
       await this.dashboardPage.reloadPage();
