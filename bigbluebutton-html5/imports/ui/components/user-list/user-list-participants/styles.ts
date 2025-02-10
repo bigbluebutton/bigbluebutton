@@ -1,6 +1,6 @@
 import styled, { css, keyframes } from 'styled-components';
 import {
-  contentSidebarPadding,
+  contentSidebarUserListPadding,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
   colorWhite,
@@ -84,7 +84,7 @@ const UserListColumn = styled.div`
   flex-flow: column;
   min-height: 0;
   flex-grow: 1;
-  padding: 0.5rem 0rem 0rem ${contentSidebarPadding};
+  padding: 0.5rem 0rem 0rem ${contentSidebarUserListPadding};
 `;
 
 const pulse = (color: string) => keyframes`
