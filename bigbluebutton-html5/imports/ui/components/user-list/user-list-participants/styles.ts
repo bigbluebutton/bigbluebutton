@@ -1,6 +1,5 @@
 import styled, { css, keyframes } from 'styled-components';
 import {
-  contentSidebarBottomScrollPadding,
   contentSidebarPadding,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {

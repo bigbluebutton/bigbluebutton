@@ -25,6 +25,7 @@ Right.propTypes = {
   icon: PropTypes.string,
   label: PropTypes.string,
   onClick: PropTypes.func,
+  tooltip: PropTypes.string,
 };
 
 export default Right;

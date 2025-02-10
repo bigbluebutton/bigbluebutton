@@ -248,7 +248,7 @@ const ChatContainer: React.FC = () => {
     && chat?.totalUnread
     && chat.totalUnread > 0
   ));
-  const filteredPrivateChats = (chats || []).filter(
+  const filteredPrivateChats = (chats || [] as ChatType[]).filter(
     (chat) => !chat.public && chat.totalMessages !== 0,
   );
 
