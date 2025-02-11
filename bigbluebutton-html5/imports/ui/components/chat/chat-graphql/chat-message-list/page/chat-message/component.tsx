@@ -355,7 +355,6 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
           isSystemSender: true,
           component: (
             <ChatMessageTextContent
-              emphasizedMessage
               text={message.message}
             />
           ),
@@ -371,7 +370,6 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
           isSystemSender: true,
           component: (
             <ChatMessageTextContent
-              emphasizedMessage
               text={message.message}
             />
           ),
@@ -434,7 +432,6 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
             ? null
             : (
               <ChatMessageTextContent
-                emphasizedMessage={message.chatEmphasizedText}
                 text={message.message}
               />
             ),
@@ -452,7 +449,6 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
           showToolbar: true,
           component: (
             <ChatMessageTextContent
-              emphasizedMessage={message.chatEmphasizedText}
               text={message.message}
             />
           ),
@@ -503,6 +499,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
       $keyboardFocused={keyboardFocused}
       $reactionPopoverIsOpen={isToolbarReactionPopoverOpen}
       data-test="chatMessageItem"
+      $emphasizedMessage={message.chatEmphasizedText}
     >
       <ChatMessageToolbar
         keyboardFocused={keyboardFocused}
