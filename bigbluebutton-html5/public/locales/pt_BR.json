@@ -3,7 +3,7 @@
     "app.sidebarContent.hidePanelLabel": "Esconder {0}",
     "app.chat.submitLabel": "Enviar mensagem",
     "app.chat.loading": "Mensagens de bate-papo carregadas: {0}%",
-    "app.chat.errorMaxMessageLength": "Mensagem com {0} caracter(es) em excesso",
+    "app.chat.errorMaxMessageLength": "Mensagem muito longa, excedendo em {0} caractere(es)",
     "app.chat.errorMinMessageLength": "A mensagem não possui o mínimo de {0} caracteres",
     "app.chat.errorOnSendMessage": "Erro ao enviar mensagem ao chat",
     "app.chat.errorOnUpdateMessage": "Erro ao atualizar mensagem",
