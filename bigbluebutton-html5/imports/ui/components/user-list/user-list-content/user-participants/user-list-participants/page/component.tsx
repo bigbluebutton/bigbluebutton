@@ -136,7 +136,9 @@ const UserListParticipantsPageContainer: React.FC<UserListParticipantsContainerP
       if (currentUserIndex !== -1) {
         users.splice(currentUserIndex, 1);
       }
-      users.unshift(currentUser as User);
+      if (offset === 0) {
+        users.unshift(currentUser as User);
+      }
       newList[index] = users;
       return newList;
     });
