@@ -1025,7 +1025,7 @@
     "app.notification.userLeavePushAlert": "{0}がセッションを抜けました",
     "app.submenu.notification.raiseHandLabel": "挙手",
     "app.shortcut-help.title": "キーボードショートカット",
-    "app.shortcut-help.pushToTalk": "割り込み通話を続ける",
+    "app.shortcut-help.pushToTalk": "割り込み通話時に押す",
     "app.shortcut-help.accessKeyNotAvailable": "使用できないアクセスキー",
     "app.shortcut-help.comboLabel": "キー組み合わせ",
     "app.shortcut-help.alternativeLabel": "他の組み合わせ",
