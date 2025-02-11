@@ -744,7 +744,7 @@
     "app.audioModal.help.troubleshoot": "Gibt es immer noch Probleme? Klicken Sie hier für weiterführende Hilfe.",
     "app.audioModal.help.unknownError": "Überprüfen Sie ihren Browser und Ihre Systemeinstellungen. Starten Sie ihren Browser neu und versuchen Sie es erneut.",
     "app.audioModal.help.errorCode": "Fehlercode: {0} - {1}",
-    "app.audioModal.help.noSSL": "Diese Seite ist nicht über HTTPS abgesichtert. Um Zugriff auf Ihr Mikrofon zu erlauben, muss die Webseite über HTTPS bereitgestellt werden. Bitte kontaktieren Sie den Serveradministrator.",
+    "app.audioModal.help.noSSL": "Diese Seite ist nicht über HTTPS abgesichert. Um Zugriff auf Ihr Mikrofon zu erlauben, muss die Webseite über HTTPS bereitgestellt werden. Bitte kontaktieren Sie den Serveradministrator.",
     "app.audioModal.help.macNotAllowed": "Es scheint so, als ob die Mac Systemeinstellungen die Mikrofonfreigabe blockiert. Öffnen die Systemeinstellungen öffnen > Sicherheit & Privatsphäre > Mikrofon und sicherstellen, dass der verwendete Browser ausgewählt ist.",
     "app.audioModal.audioDialTitle": "Mit dem Telefon teilnehmen",
     "app.audioDial.audioDialDescription": "Anrufen",
