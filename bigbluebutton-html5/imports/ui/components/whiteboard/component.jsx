@@ -556,18 +556,7 @@ const Whiteboard = React.memo((props) => {
       z: baseZoom,
     };
 
-    let cameras = [
-      createCamera(formattedPageId - 1, baseZoom),
-      updatedCurrentCam,
-      createCamera(formattedPageId + 1, baseZoom),
-    ];
-
-    cameras = cameras.filter((cam) => cam.id !== 'camera:page:0');
-    if (!cameras.every(validateCameraObject)) {
-      throw new Error(`One or more camera objects are invalid ${description}`);
-    }
-
-    tlEditorRef.current.store.put(cameras);
+    tlEditorRef.current.store.put([updatedCurrentCam]);
   }
 
   const adjustCameraOnMount = (includeViewerLogic = true) => {
@@ -1227,14 +1216,7 @@ const Whiteboard = React.memo((props) => {
         ...camera,
         z: adjustedZoom,
       };
-
-      let cameras = [
-        createCamera(formattedPageId - 1, zoomToApply),
-        updatedCurrentCam,
-        createCamera(formattedPageId + 1, zoomToApply),
-      ];
-      cameras = cameras.filter((cam) => cam.id !== 'camera:page:0');
-      tlEditorRef.current.store.put(cameras);
+      tlEditorRef.current.store.put([updatedCurrentCam]);
     } else {
       const newZoom = calculateZoomValue(
         scaledViewBoxWidth,
@@ -1246,13 +1228,7 @@ const Whiteboard = React.memo((props) => {
         ...camera,
         z: newZoom,
       };
-      let cameras = [
-        createCamera(formattedPageId - 1, newZoom),
-        updatedCurrentCam,
-        createCamera(formattedPageId + 1, newZoom),
-      ];
-      cameras = cameras.filter((cam) => cam.id !== 'camera:page:0');
-      tlEditorRef.current.store.put(cameras);
+      tlEditorRef.current.store.put([updatedCurrentCam]);
     }
   }
 
@@ -1344,6 +1320,10 @@ const Whiteboard = React.memo((props) => {
       [curPageIdRef.current]: zoomValue,
     }));
 
+    if (pageChanged) {
+      return zoomChanger(pageZoomMap[curPageIdRef.current]||HUNDRED_PERCENT);
+    }
+
     if (
       tlEditorRef.current &&
       curPageIdRef.current &&
@@ -1363,7 +1343,7 @@ const Whiteboard = React.memo((props) => {
       }
     }
     prevZoomValueRef.current = zoomValue;
-  }, [zoomValue, tlEditorRef.current, curPageIdRef.current, isWheelZoomRef.current]);
+  }, [zoomValue, pageChanged, tlEditorRef.current, isWheelZoomRef.current]);
 
   React.useEffect(() => {
     if (isPresenter) {
