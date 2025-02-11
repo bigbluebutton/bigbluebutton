@@ -17,7 +17,7 @@
     "app.chat.titlePrivate": "Bate-papo privado",
     "app.chat.partnerDisconnected": "{0} saiu da sessão",
     "app.chat.closeChatLabel": "Fechar {0}",
-    "app.chat.hideChatLabel": "Ocultar {0}",
+    "app.chat.hideChatLabel": "Esconder {0}",
     "app.chat.moreMessages": "Mais mensagens abaixo",
     "app.chat.dropdown.options": "Opções do bate-papo",
     "app.chat.dropdown.clear": "Limpar",
