@@ -1072,7 +1072,7 @@
     "app.video.videoSettings": "Videoeinstellungen",
     "app.video.visualEffects": "Grafische Effekte",
     "app.video.advancedVideo": "Erweiterte Einstellungen öffnen",
-    "app.video.iceCandidateError": "Fehler beim Hinzufügen vom ice candidate",
+    "app.video.iceCandidateError": "Fehler beim Hinzufügen eines ICE Candidate",
     "app.video.iceConnectionStateError": "Verbindungsfehler (Fehler 1107)",
     "app.video.permissionError": "Fehler bei der Webcamfreigabe. Bitte die Berechtigungen prüfen",
     "app.video.sharingError": "Fehler bei der Webcamfreigabe",
