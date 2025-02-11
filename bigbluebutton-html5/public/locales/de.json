@@ -1266,7 +1266,7 @@
     "app.externalVideo.autoPlayWarning": "Video abspielen, um Mediensynchronisation zu aktivieren",
     "app.externalVideo.refreshLabel": "Videoplayer aktualisieren",
     "app.externalVideo.fullscreenLabel": "Videoplayer",
-    "app.externalVideo.noteLabel": "Hinweis: Freigegebene externe Videos werden in der Aufzeichnung nicht angezeigt. Unterstützt werden YouTube, Vimeo, Instructure Media, Twitch, Dailymotion und Mediendatei-URLs (z.B. https://beispiel.net/video.mp4) auf einem beliebigen Server oder einer Peertube Instanz.",
+    "app.externalVideo.noteLabel": "Hinweis: Freigegebene externe Videos werden in der Aufzeichnung nicht angezeigt. Unterstützt werden YouTube, Vimeo, Instructure Media, Twitch, Dailymotion und Mediendatei-URLs (z.B. https://example.com/video.mp4) auf einem beliebigen Server oder einer Peertube-Instanz.",
     "app.externalVideo.subtitlesOn": "Ausschalten",
     "app.externalVideo.subtitlesOff": "Einschalten (falls verfügbar)",
     "app.actionsBar.actionsDropdown.shareExternalVideo": "Externes Video teilen",
