@@ -369,7 +369,7 @@
     "app.poll.hidePollDesc": "Versteckt das Umfragemenü",
     "app.poll.quickPollInstruction": "Wählen Sie eine der unten stehenden Optionen, um die Umfrage zu starten.",
     "app.poll.activePollInstruction": "Lassen Sie dieses Fenster offen, um auf die Antworten der Teilnehmer zu warten. Sobald Sie auf 'Umfrageergebnisse veröffentlichen' klicken, werden die Ergebnisse angezeigt und die Umfrage beendet.",
-    "app.poll.dragDropPollInstruction": "Um die Umfrageoptionen automatisch auszufüllen, eine Textdatei mit den Umfrageoptionen per Drag&Drop in das hervorgehobene Feld ziehen",
+    "app.poll.dragDropPollInstruction": "Um die Umfrageoptionen automatisch auszufüllen, eine Textdatei mit den Umfrageoptionen per Drag & Drop in das hervorgehobene Feld ziehen",
     "app.poll.customPollTextArea": "Umfrageoptionen ausfüllen",
     "app.poll.publishLabel": "Umfrage veröffentlichen",
     "app.poll.cancelPollLabel": "Abbrechen",
