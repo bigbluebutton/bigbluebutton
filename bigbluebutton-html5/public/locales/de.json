@@ -1086,7 +1086,7 @@
     "app.video.notReadableError": "Konnte nicht auf die Webcam zugreifen. Bitte prüfen, dass kein anderes Programm auf die Webcam zugreift",
     "app.video.timeoutError": "Der Browser hat nicht rechtzeitig reagiert.",
     "app.video.genericError": "Ein unbekannter Fehler ist mit der Kamera aufgetreten (Fehler {0})",
-    "app.video.inactiveError": "Die Webcam stoppte unerwartet. Bitte die Browserbrechtigungen prüfen.",
+    "app.video.inactiveError": "Die Webcam stoppte unerwartet. Bitte die Browserberechtigungen prüfen.",
     "app.video.mediaTimedOutError": "Ihre Webcam-Freigabe wurde unterbrochen. Bitte erneut starten.",
     "app.video.mediaFlowTimeout1020": "Verbindung zum Server konnte nicht hergestellt werden (Fehler 1020)",
     "app.video.suggestWebcamLock": "Sperrung der Teilnehmerwebcams aktivieren?",
