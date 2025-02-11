@@ -13,8 +13,8 @@ const intlMessages = defineMessages({
     id: 'app.appsGallery.title',
     description: 'Label for the apps gallery panel title',
   },
-  minimizeAppsGalleryLabel: {
-    id: 'app.appsGallery.minimize',
+  minimize: {
+    id: 'app.sidebarContent.minimizePanelLabel',
     description: 'Label for the minimize apps gallery button',
   },
   pinnedApps: {
@@ -121,10 +121,10 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
         title={title}
         leftButtonProps={{}}
         rightButtonProps={{
-          'aria-label': intl.formatMessage(intlMessages.minimizeAppsGalleryLabel),
+          'aria-label': intl.formatMessage(intlMessages.minimize, { 0: intl.formatMessage(intlMessages.appsGalleryTitle) }),
           'data-test': 'hideAppsGallery',
           icon: 'minus',
-          label: intl.formatMessage(intlMessages.minimizeAppsGalleryLabel),
+          label: intl.formatMessage(intlMessages.minimize, { 0: intl.formatMessage(intlMessages.appsGalleryTitle) }),
           onClick: () => {
             layoutContextDispatch({
               type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,

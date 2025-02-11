@@ -23,10 +23,6 @@ import { useIsPresentationEnabled } from '../../services/features';
 import { useStorageKey } from '/imports/ui/services/storage/hooks';
 
 const intlMessages = defineMessages({
-  hide: {
-    id: 'app.notes.hide',
-    description: 'Label for hiding shared notes button',
-  },
   title: {
     id: 'app.notes.title',
     description: 'Title for the shared notes',
@@ -36,7 +32,7 @@ const intlMessages = defineMessages({
     description: 'Label for unpin shared notes button',
   },
   minimize: {
-    id: 'app.notes.minimize',
+    id: 'app.sidebarContent.minimizePanelLabel',
     description: 'Label for the minimize shared notes panel',
   },
 });
@@ -156,8 +152,8 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
               },
               icon: 'minus',
               'data-test': 'hideNotesLabel',
-              'aria-label': intl.formatMessage(intlMessages.hide),
-              label: intl.formatMessage(intlMessages.minimize),
+              'aria-label': intl.formatMessage(intlMessages.minimize, { 0: intl.formatMessage(intlMessages.title) }),
+              label: intl.formatMessage(intlMessages.minimize, { 0: intl.formatMessage(intlMessages.title) }),
             }}
             customRightButton={
               <NotesDropdown handlePinSharedNotes={handlePinSharedNotes} presentationEnabled={isPresentationEnabled} />

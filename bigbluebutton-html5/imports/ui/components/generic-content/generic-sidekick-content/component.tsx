@@ -9,7 +9,7 @@ import { PANELS, ACTIONS } from '/imports/ui/components/layout/enums';
 
 const intlMessages = defineMessages({
   hidePanelLabel: {
-    id: 'app.sidebarContent.hidePanelLabel',
+    id: 'app.sidebarContent.minimizePanelLabel',
     description: 'Generic label of hide panel',
   },
 });

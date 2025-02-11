@@ -25,8 +25,8 @@ const intlMessages = defineMessages({
     id: 'app.poll.pollPaneTitle',
     description: 'heading label for the poll menu',
   },
-  minimizeLabel: {
-    id: 'app.poll.minimizeLabel',
+  minimize: {
+    id: 'app.sidebarContent.minimizePanelLabe',
     description: 'label for poll pane minimize button',
   },
   hidePollDesc: {
@@ -489,10 +489,10 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
           },
         }}
         rightButtonProps={{
-          'aria-label': `${intl.formatMessage(intlMessages.minimizeLabel)} ${intl.formatMessage(intlMessages.pollPaneTitle)}`,
+          'aria-label': intl.formatMessage(intlMessages.minimize, { 0: intl.formatMessage(intlMessages.pollPaneTitle) }),
           'data-test': 'minimizePolling',
           icon: 'minus',
-          label: intl.formatMessage(intlMessages.minimizeLabel),
+          label: intl.formatMessage(intlMessages.minimize, { 0: intl.formatMessage(intlMessages.pollPaneTitle) }),
           onClick: () => {
             if (hasPoll) stopPoll();
             layoutContextDispatch({

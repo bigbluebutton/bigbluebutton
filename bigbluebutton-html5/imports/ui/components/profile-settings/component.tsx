@@ -46,8 +46,8 @@ const intlMessages: { [key: string]: { id: string; description?: string } } = de
     id: 'app.profileSettings.title',
     description: 'Label for the profile settings panel title',
   },
-  minimizeLabel: {
-    id: 'app.profileSettings.minimize',
+  minimize: {
+    id: 'app.sidebarContent.minimizePanelLabel',
     description: 'Minimize button label',
   },
   username: {
@@ -218,8 +218,8 @@ const intlMessages: { [key: string]: { id: string; description?: string } } = de
     id: 'app.actionsBar.reactions.away',
     description: 'Away Label',
   },
-  activeLabel: {
-    id: 'app.actionsBar.reactions.active',
+  presentLabel: {
+    id: 'app.actionsBar.reactions.present',
     description: 'Active Label',
   },
 });
@@ -948,10 +948,10 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
         title={formatMessage(intlMessages.title)}
         leftButtonProps={{}}
         rightButtonProps={{
-          'aria-label': formatMessage(intlMessages.minimizeLabel),
+          'aria-label': formatMessage(intlMessages.minimize, { 0: formatMessage(intlMessages.title) }),
           'data-test': 'closeProfileSettings',
           icon: 'minus',
-          label: formatMessage(intlMessages.minimizeLabel),
+          label: formatMessage(intlMessages.minimize, { 0: formatMessage(intlMessages.title) }),
           onClick: () => {
             layoutContextDispatch({
               type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
@@ -975,7 +975,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
         <Styled.UserPresenceRoot>
           <Styled.UserPresenceContainer>
             <Styled.UserPresenceButton active={!currentUserData?.away} onClick={handleToggleAFK}>
-              <Styled.UserPresenceText>{formatMessage(intlMessages.activeLabel)}</Styled.UserPresenceText>
+              <Styled.UserPresenceText>{formatMessage(intlMessages.presentLabel)}</Styled.UserPresenceText>
             </Styled.UserPresenceButton>
             <Styled.UserPresenceDivider />
             <Styled.UserPresenceButton active={currentUserData?.away} onClick={handleToggleAFK}>

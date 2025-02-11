@@ -41,7 +41,7 @@ const TRACKS = [
 
 const intlMessages = defineMessages({
   hideTimerLabel: {
-    id: 'app.timer.hideTimerLabel',
+    id: 'app.sidebarContent.minimizePanelLabel',
     description: 'Label for hiding timer button',
   },
   title: {
@@ -388,14 +388,14 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
         title={intl.formatMessage(intlMessages.title)}
         leftButtonProps={{
           onClick: closePanel,
-          'aria-label': intl.formatMessage(intlMessages.hideTimerLabel),
+          'aria-label': intl.formatMessage(intlMessages.hideTimerLabel, { 0: intl.formatMessage(intlMessages.timer) }),
           label: intl.formatMessage(headerMessage),
         }}
         rightButtonProps={{
-          'aria-label': intl.formatMessage(intlMessages.hideTimerLabel),
+          'aria-label': intl.formatMessage(intlMessages.hideTimerLabel, { 0: intl.formatMessage(intlMessages.timer) }),
           'data-test': 'closeTimer',
           icon: 'minus',
-          label: intl.formatMessage(intlMessages.hideTimerLabel),
+          label: intl.formatMessage(intlMessages.hideTimerLabel, { 0: intl.formatMessage(intlMessages.timer) }),
           onClick: closePanel,
         }}
         data-test="timerHeader"
