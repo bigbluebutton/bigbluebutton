@@ -701,7 +701,7 @@
     "app.audioNotification.audioFailedError1012": "Verbindung beendet (Fehler 1012)",
     "app.audioNotification.audioFailedMessage": "Audioverbindung konnte nicht hergestellt werden",
     "app.audioNotification.mediaFailedMessage": "getUserMicMedia fehlgeschlagen, weil nur sichere Quellen erlaubt sind",
-    "app.audioNotification.deviceChangeFailed": "Wechsel des Audiogeräts gescheitert. Bite prüfen, ob das gewählte Gerät korrekt eingerichtet und verfügbar ist.",
+    "app.audioNotification.deviceChangeFailed": "Wechsel des Audiogeräts gescheitert. Bitte prüfen, ob das gewählte Gerät korrekt eingerichtet und verfügbar ist.",
     "app.audioNotification.closeLabel": "Schließen",
     "app.audioNotificaion.reconnectingAsListenOnly": "Mikrofone sind für Teilnehmer gesperrt, es ist nur Zuhören möglich",
     "app.breakoutJoinConfirmation.title": "Gruppenraum beitreten",
