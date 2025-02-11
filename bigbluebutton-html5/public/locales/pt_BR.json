@@ -421,7 +421,7 @@
     "app.poll.pollPaneTitle": "Enquete",
     "app.poll.enableMultipleResponseLabel": "Permitir múltiplas respostas por participante?",
     "app.poll.quickPollTitle": "Enquete rápida",
-    "app.poll.hidePollDesc": "Ocultar menu de enquetes",
+    "app.poll.hidePollDesc": "Esconder menu de enquetes",
     "app.poll.quickPollInstruction": "Selecione uma opção abaixo para iniciar uma enquete.",
     "app.poll.activePollInstruction": "Deixe este painel aberto para ver as respostas da enquete em tempo real. Selecione 'Publicar resultados da enquete' para publicar os resultados e encerrar a enquete.",
     "app.poll.dragDropPollInstruction": "Para preencher as opções da enquete automaticamente, arraste e solte um arquivo de texto com as opções da enquete no campo destacado",
