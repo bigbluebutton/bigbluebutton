@@ -27,7 +27,7 @@ const intlMessages = defineMessages({
   },
   usersStaticTitle: {
     id: 'app.userList.usersStaticTitle',
-    descrition: 'Users title without the count of participants', 
+    descrition: 'Users title without the count of participants',
   },
   minimize: {
     id: 'app.sidebarContent.minimizePanelLabe',
