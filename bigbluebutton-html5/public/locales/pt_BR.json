@@ -1,6 +1,6 @@
 {
     "app.home.greeting": "Sua apresentação começará em breve...",
-    "app.sidebarContent.hidePanelLabel": "Minimizar {0}",
+    "app.sidebarContent.hidePanelLabel": "Esconder {0}",
     "app.chat.submitLabel": "Enviar mensagem",
     "app.chat.loading": "Mensagens de bate-papo carregadas: {0}%",
     "app.chat.errorMaxMessageLength": "Mensagem com {0} caracter(es) em excesso",
