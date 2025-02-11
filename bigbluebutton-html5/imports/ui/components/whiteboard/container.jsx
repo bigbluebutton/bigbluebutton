@@ -240,7 +240,7 @@ const WhiteboardContainer = (props) => {
   const { data: annotationStreamData } = useSubscription(ANNOTATION_HISTORY_STREAM, {
     variables: { updatedAt: lastUpdatedAt },
     skip: !curPageId || !lastUpdatedAt,
-    onSubscriptionData: ({ subscriptionData }) => {
+    onData: ({ data: subscriptionData }) => {
       const annotationStream =
         subscriptionData.data?.pres_annotation_history_curr_stream || [];
 

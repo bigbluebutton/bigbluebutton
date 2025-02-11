@@ -130,10 +130,15 @@ const AvatarWrapper = styled.div`
   display: flex;
 `;
 
+const ToastContentWrapper = styled.div`
+  width: 100%;
+`;
+
 const ToastSeparator = styled(ToastStyled.Separator)``;
 
 export default {
   Avatar,
+  ToastContentWrapper,
   AvatarsExtra,
   ToastContent,
   IconWrapper,

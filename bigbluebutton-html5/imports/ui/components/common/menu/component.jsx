@@ -80,6 +80,8 @@ class BBBMenu extends React.Component {
   };
 
   handleClick(event) {
+    const { disabled } = this.props;
+    if (disabled) return;
     this.setState({ anchorEl: event.currentTarget });
   };
 
@@ -116,8 +118,14 @@ class BBBMenu extends React.Component {
         marginRight: '0px',
       };
 
+      let iconStyles = {};
+
       if (a.customStyles) {
         customStyles = { ...customStyles, ...a.customStyles };
+      }
+
+      if (a.iconStyles) {
+        iconStyles = { ...iconStyles, ...a.iconStyles };
       }
 
       if (loading) {
@@ -153,7 +161,7 @@ class BBBMenu extends React.Component {
               {a.icon ? <Icon iconName={a.icon} key="icon" /> : null}
               <Styled.Option hasIcon={!!(a.icon)} isHorizontal={isHorizontal} isMobile={isMobile} aria-describedby={`${key}-option-desc`} $isToggle={isToggle}>{label}</Styled.Option>
               {description && <div className="sr-only" id={`${key}-option-desc`}>{`${description}${selected ? ` - ${intl.formatMessage(intlMessages.active)}` : ''}`}</div>}
-              {a.iconRight ? <Styled.IconRight iconName={a.iconRight} key="iconRight" /> : null}
+              {a.iconRight ? <Styled.IconRight iconName={a.iconRight} key="iconRight" style={iconStyles} /> : null}
             </Styled.MenuItemWrapper>
           </Styled.BBBMenuItem>
         ),

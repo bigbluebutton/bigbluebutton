@@ -1,6 +1,5 @@
 package org.bigbluebutton.presentation.imp;
 
-import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -8,6 +7,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.io.FileUtils;
+import org.bigbluebutton.presentation.ImageResolution;
 import org.bigbluebutton.presentation.SupportedFileTypes;
 import org.bigbluebutton.presentation.SvgImageCreator;
 import org.bigbluebutton.presentation.UploadedPresentation;
@@ -22,8 +22,6 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.Gson;
 import com.zaxxer.nuprocess.NuProcess;
 import com.zaxxer.nuprocess.NuProcessBuilder;
-
-import javax.imageio.ImageIO;
 
 public class SvgImageCreatorImp implements SvgImageCreator {
     private static Logger log = LoggerFactory.getLogger(SvgImageCreatorImp.class);
@@ -254,10 +252,13 @@ public class SvgImageCreatorImp implements SvgImageCreator {
                         int width = 500;
                         int height = 500;
 
-                        BufferedImage img = ImageIO.read(tempPng);
-                        if (img != null) {
-                            width = img.getWidth();
-                            height = img.getHeight();
+                        ImageResolutionService imgResService = new ImageResolutionService();
+                        ImageResolution imageResolution = imgResService.identifyImageResolution(tempPng);
+                        log.debug("Identified page {} image {} width={} and height={}", page, pres.getName(), imageResolution.getWidth(), imageResolution.getHeight());
+
+                        if (imageResolution.getWidth() != 0 && imageResolution.getHeight() != 0) {
+                            width = imageResolution.getWidth();
+                            height = imageResolution.getHeight();
                         }
 
                         String svg = createSvgWithEmbeddedPng(base64encodedPng, width, height);
@@ -289,6 +290,8 @@ public class SvgImageCreatorImp implements SvgImageCreator {
                     if (namespaceHandler.isCommandTimeout()) {
                         log.error("Command execution (addNameSpaceToSVG) exceeded the {} secs timeout for {} page {}.", convPdfToSvgTimeout, pres.getName(), page);
                     }
+
+                    done = true;
                 }
             }
 
@@ -307,14 +310,15 @@ public class SvgImageCreatorImp implements SvgImageCreator {
             return true;
         }
 
-        copyBlankSvgs(imagePresentationDir, pres.getNumberOfPages());
+        copyBlankSvg(destsvg);
 
         Map<String, Object> logData = new HashMap<String, Object>();
         logData.put("meetingId", pres.getMeetingId());
         logData.put("presId", pres.getId());
         logData.put("filename", pres.getName());
+        logData.put("page", page);
         logData.put("logCode", "create_svg_images_failed");
-        logData.put("message", "Failed to create svg images.");
+        logData.put("message", "Failed to create svg image.");
 
         Gson gson = new Gson();
         String logStr = gson.toJson(logData);
@@ -369,6 +373,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
 
 	private void copyBlankSvg(File svg) {
 		try {
+            log.info("Copying blank SVG to {}", svg);
 			FileUtils.copyFile(new File(BLANK_SVG), svg);
 		} catch (IOException e) {
 			log.error("IOException while copying blank SVG.");

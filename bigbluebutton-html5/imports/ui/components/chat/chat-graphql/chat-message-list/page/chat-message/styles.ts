@@ -21,6 +21,7 @@ import {
   colorBlueLightest,
   colorGrayLight,
   colorGrayLightest,
+  colorGrayDark,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
 import Header from '/imports/ui/components/common/control-header/component';
@@ -40,7 +41,6 @@ interface ChatContentProps {
   $editing: boolean;
   $highlight: boolean;
   $reactionPopoverIsOpen: boolean;
-  $focused: boolean;
   $keyboardFocused: boolean;
 }
 
@@ -50,6 +50,12 @@ interface ChatAvatarProps {
   moderator: boolean;
   emoji?: string;
 }
+
+export const FlexColumn = styled.div`
+  display: flex;
+  flex-flow: column;
+  gap: ${smPaddingY};
+`;
 
 export const ChatWrapper = styled.div<ChatWrapperProps>`
   pointer-events: auto;
@@ -101,11 +107,15 @@ export const ChatContent = styled.div<ChatContentProps>`
   `}
 
   ${({
-    $editing, $reactionPopoverIsOpen, $focused, $keyboardFocused,
-  }) => ($reactionPopoverIsOpen || $editing || $focused || $keyboardFocused)
+    $editing, $reactionPopoverIsOpen, $keyboardFocused,
+  }) => ($reactionPopoverIsOpen || $editing || $keyboardFocused)
     && `
     background-color: ${colorBlueLightest} !important;
   `}
+
+  .chat-message-container:focus & {
+    background-color: ${colorBlueLightest} !important;
+  }
 `;
 
 export const ChatContentFooter = styled.div`
@@ -115,7 +125,7 @@ export const ChatContentFooter = styled.div`
   bottom: 0.25rem;
   line-height: 1;
   font-size: 95%;
-  display: none;
+  display: flex;
   background-color: inherit;
   border-radius: 0.5rem;
 
@@ -125,13 +135,6 @@ export const ChatContentFooter = styled.div`
 
   [dir="ltr"] & {
     right: 0.25rem;
-  }
-
-  .chat-message-wrapper-focused &,
-  .chat-message-wrapper-keyboard-focused &,
-  .chat-message-content:focus &,
-  .chat-message-content:hover & {
-    display: flex;
   }
 `;
 
@@ -229,9 +232,14 @@ export const Container = styled.div<{ $sequence: number }>`
   display: flex;
   flex-direction: column;
   user-select: text;
+  outline: none;
 
   &:not(:first-of-type) {
     margin-top: calc((${fontSizeSmaller} + ${lgPadding} * 2) / 2);
+  }
+
+  &[data-focusable="false"] {
+    pointer-events: none;
   }
 `;
 
@@ -264,5 +272,12 @@ export const EditLabel = styled.span`
 
 export const ChatTime = styled(ChatTimeBase)`
   font-style: italic;
-  color: ${colorGrayLight};
+  color: ${colorGrayDark};
+  display: none;
+
+  .chat-message-container:focus &,
+  .chat-message-container-keyboard-focused &,
+  .chat-message-content:hover & {
+    display: flex;
+  }
 `;

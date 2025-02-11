@@ -47,6 +47,10 @@ const intlMessages = defineMessages({
     id: 'app.shortcut-help.toggleUserList',
     description: 'describes the toggle userlist shortcut',
   },
+  openLeaveMenu: {
+    id: 'app.shortcut-help.openLeaveMenu',
+    description: 'describes the open leave menu shortcut',
+  },
   togglemute: {
     id: 'app.shortcut-help.toggleMute',
     description: 'describes the toggle mute shortcut',
@@ -250,7 +254,15 @@ const intlMessages = defineMessages({
   pushToTalkDesc: {
     id: 'app.shortcut-help.pushToTalk',
     description: 'describes the push-to-talk shortcut',
-  }
+  },
+  gesture: {
+    id: 'app.shortcut-help.gesture',
+    description: 'label for gesture tab',
+  },
+  fingerTap: {
+    id: 'app.shortcut-help.fingerTap',
+    description: 'label for tap shotcut',
+  },
 });
 
 
@@ -335,6 +347,12 @@ const ShortcutHelpComponent = ({
   shortcutItems.push(renderItem(intl.formatMessage(intlMessages.previousSlideDesc),
    intl.formatMessage(intlMessages.previousSlideKey)));
 
+  const gestureItems = [];
+  gestureItems.push(renderItem(intl.formatMessage(intlMessages.undo),
+   `2-${intl.formatMessage(intlMessages.fingerTap)}`));
+  gestureItems.push(renderItem(intl.formatMessage(intlMessages.redo),
+   `3-${intl.formatMessage(intlMessages.fingerTap)}`));
+
   const whiteboardShortcutItems = [];
   //tools
   whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.select), '1', 'V'));
@@ -404,6 +422,11 @@ const ShortcutHelpComponent = ({
             <StyledSettings.SettingsIcon iconName="whiteboard" />
             <span id="whiteboardTab">{intl.formatMessage(intlMessages.whiteboard)}</span>
           </StyledSettings.SettingsTabSelector>
+
+          <StyledSettings.SettingsTabSelector selectedClassName="is-selected">
+            <StyledSettings.SettingsIcon iconName="whiteboard" />
+            <span id="gestureTab">{intl.formatMessage(intlMessages.gesture)}</span>
+          </StyledSettings.SettingsTabSelector>
         </StyledSettings.SettingsTabList>
 
         <Styled.TabPanel selectedClassName="is-selected">
@@ -446,6 +469,20 @@ const ShortcutHelpComponent = ({
                   <th>{intl.formatMessage(intlMessages.alternativeLabel)}</th>
                 </tr>
                 {whiteboardShortcutItems}
+              </tbody>
+            </Styled.ShortcutTable>
+          </Styled.TableWrapper>
+        </Styled.TabPanel>
+
+        <Styled.TabPanel selectedClassName="is-selected">
+          <Styled.TableWrapper>
+            <Styled.ShortcutTable>
+              <tbody>
+                <tr>
+                  <th>{intl.formatMessage(intlMessages.functionLabel)}</th>
+                  <th>{intl.formatMessage(intlMessages.comboLabel)}</th>
+                </tr>
+                {gestureItems}
               </tbody>
             </Styled.ShortcutTable>
           </Styled.TableWrapper>

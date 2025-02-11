@@ -6,10 +6,14 @@ import {
   useLocalParticipant,
   useIsSpeaking,
   useConnectionState,
+  useConnectionQualityIndicator,
 } from '@livekit/components-react';
 import {
+  ConnectionState,
   type Room,
+  type InternalRoomOptions,
   type RoomConnectOptions,
+  ConnectionQuality,
 } from 'livekit-client';
 import Auth from '/imports/ui/services/auth';
 import AudioManager from '/imports/ui/services/audio-manager';
@@ -23,10 +27,12 @@ import {
 import { USER_SET_TALKING } from '/imports/ui/components/livekit/mutations';
 import { useIceServers } from '/imports/ui/components/livekit/hooks';
 import LKAutoplayModalContainer from '/imports/ui/components/livekit/autoplay-modal/container';
+import connectionStatus, { MetricStatus } from '/imports/ui/core/graphql/singletons/connectionStatus';
 
 interface BBBLiveKitRoomProps {
   url?: string;
   token?: string;
+  roomOptions: Partial<InternalRoomOptions>;
   bbbSessionToken: string;
   usingAudio: boolean;
   usingScreenShare: boolean;
@@ -47,9 +53,17 @@ const LiveKitObserver = ({
   const [setUserTalking] = useMutation(USER_SET_TALKING);
   const isSpeaking = useIsSpeaking(localParticipant);
   const connectionState = useConnectionState(room);
+  const { quality } = useConnectionQualityIndicator({ participant: localParticipant });
+  const { data: currentUserData } = useCurrentUser((u) => ({
+    voice: {
+      joined: u.voice?.joined ?? false,
+    },
+  }));
   /* eslint no-underscore-dangle: 0 */
   // @ts-ignore
   const isMuted = useReactiveVar(AudioManager._isMuted.value) as boolean;
+  // @ts-ignore
+  const isAudioManagerConnected = useReactiveVar(AudioManager._isConnected.value) as boolean;
 
   useEffect(() => {
     logger.debug({
@@ -71,12 +85,58 @@ const LiveKitObserver = ({
     });
   }, [isSpeaking, isMuted]);
 
+  useEffect(() => {
+    if (!usingAudio) return;
+
+    // If the user is connected to LiveKit and server-side audio state is present,
+    // but audio-manager is not connected, run the onAudioJoin callback to mark
+    // it as connected. Reasoning: there's no option not to connect to audio
+    // with LiveKit, so this ensures the client-side audio state is in sync with
+    // this automatic behavior.
+    if (!isAudioManagerConnected
+      && connectionState === ConnectionState.Connected
+      && currentUserData?.voice?.joined) {
+      AudioManager.onAudioJoin();
+    }
+  }, [isAudioManagerConnected, currentUserData, connectionState]);
+
+  useEffect(() => {
+    let mappedQuality = MetricStatus.Normal;
+
+    logger.debug({
+      logCode: 'livekit_conn_quality_changed',
+      extraInfo: {
+        quality,
+      },
+    }, `LiveKit conn quality changed: ${quality}`);
+
+    switch (quality) {
+      case ConnectionQuality.Good:
+        mappedQuality = MetricStatus.Warning;
+        break;
+      case ConnectionQuality.Poor:
+        mappedQuality = MetricStatus.Danger;
+        break;
+      case ConnectionQuality.Lost:
+        mappedQuality = MetricStatus.Critical;
+        break;
+      case ConnectionQuality.Unknown:
+      case ConnectionQuality.Excellent:
+      default:
+        mappedQuality = MetricStatus.Normal;
+        break;
+    }
+
+    connectionStatus.setLiveKitConnectionStatus(mappedQuality);
+  }, [quality]);
+
   return null;
 };
 
 const BBBLiveKitRoom: React.FC<BBBLiveKitRoomProps> = ({
   url,
   token,
+  roomOptions,
   bbbSessionToken,
   usingAudio,
   usingScreenShare,
@@ -95,6 +155,7 @@ const BBBLiveKitRoom: React.FC<BBBLiveKitRoomProps> = ({
       },
     };
 
+    liveKitRoom.options = { ...liveKitRoom.options, ...roomOptions };
     liveKitRoom.connect(url, token, connectOptions).catch((error) => {
       logger.error({
         logCode: 'livekit_connect_error',
@@ -149,6 +210,11 @@ const BBBLiveKitRoomContainer: React.FC = () => {
   const [meetingSettings] = useMeetingSettings();
   const url = meetingSettings.public.media?.livekit?.url
     || `wss://${window.location.hostname}/livekit`;
+  const roomOptions = meetingSettings.public.media?.livekit?.roomOptions ?? {
+    adaptiveStream: true,
+    dynacast: true,
+    stopLocalTrackOnUnpublish: false,
+  };
   const { data: bridges } = useMeeting((m) => ({
     cameraBridge: m.cameraBridge,
     screenShareBridge: m.screenShareBridge,
@@ -164,6 +230,7 @@ const BBBLiveKitRoomContainer: React.FC = () => {
     <BBBLiveKitRoom
       token={currentUserData?.livekit?.livekitToken}
       url={url}
+      roomOptions={roomOptions}
       bbbSessionToken={Auth.sessionToken as string}
       usingAudio={bridges?.audioBridge === 'livekit'}
       usingScreenShare={bridges?.screenShareBridge === 'livekit'}

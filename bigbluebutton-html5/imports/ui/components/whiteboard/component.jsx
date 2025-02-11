@@ -1,6 +1,6 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useRef, useCallback } from 'react';
+import { useRef, useCallback, useState } from 'react';
 import { isEqual } from 'radash';
 import {
   Tldraw,
@@ -155,10 +155,20 @@ const Whiteboard = React.memo((props) => {
   const lastVisibilityStateRef = React.useRef('');
   const mountedTimeoutIdRef = useRef(null);
 
+  const [pageZoomMap, setPageZoomMap] = useState(() => {
+    try {
+      const saved = localStorage.getItem('pageZoomMap');
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  });
+
   const customTools = [NoopTool];
 
   const prevFitToWidth = usePrevious(fitToWidth);
   const presenterChanged = usePrevious(isPresenter) !== isPresenter;
+  const pageChanged = usePrevious(curPageId) !== curPageId;
 
   let clipboardContent = null;
   let isPasting = false;
@@ -184,6 +194,10 @@ const Whiteboard = React.memo((props) => {
       ...rest,
     };
   };
+
+  React.useEffect(() => {
+    localStorage.setItem('pageZoomMap', JSON.stringify(pageZoomMap));
+  }, [pageZoomMap]);
 
   React.useEffect(() => {
     currentPresentationPageRef.current = currentPresentationPage;
@@ -864,7 +878,7 @@ const Whiteboard = React.memo((props) => {
 
           const zoomed = prevCam.z !== nextCam.z;
 
-          if ((panned || (zoomed && fitToWidthRef.current)) && isPresenterRef.current) {
+          if ((panned || zoomed) && isPresenterRef.current) {
             const viewedRegionW = SlideCalcUtil.calcViewedRegionWidth(
               editor?.getViewportPageBounds()?.w,
               currentPresentationPageRef.current?.scaledWidth,
@@ -903,15 +917,15 @@ const Whiteboard = React.memo((props) => {
     );
 
     if (editor && curPageIdRef.current) {
-      const pages = [
-        {
-          meta: {},
-          id: `page:${curPageIdRef.current}`,
-          name: `Slide ${curPageIdRef.current}`,
-          index: 'a1',
-          typeName: 'page',
-        },
-      ];
+      const page = [];
+      const formattedPageId = parseInt(curPageIdRef.current, 10);
+      const currentPageId = `page:${formattedPageId}`;
+      const currPageExists = tlEditorRef.current?.getPage(currentPageId);
+
+      if (!currPageExists) {
+        const currentPage = createPage(currentPageId);
+        page.push(...currentPage);
+      }
 
       const hasShapes = shapes && Object.keys(shapes).length > 0;
       const remoteShapesArray = hasShapes 
@@ -920,7 +934,7 @@ const Whiteboard = React.memo((props) => {
 
       editor.store.mergeRemoteChanges(() => {
         editor.batch(() => {
-          editor.store.put(pages);
+          editor.store.put(page);
           editor.store.put(assets);
           editor.setCurrentPage(`page:${curPageIdRef.current}`);
           editor.store.put(bgShape);
@@ -1325,6 +1339,11 @@ const Whiteboard = React.memo((props) => {
 
   React.useEffect(() => {
     zoomValueRef.current = zoomValue;
+    setPageZoomMap(prev => ({
+      ...prev,
+      [curPageIdRef.current]: zoomValue,
+    }));
+
     if (
       tlEditorRef.current &&
       curPageIdRef.current &&
@@ -1574,14 +1593,22 @@ const Whiteboard = React.memo((props) => {
   React.useEffect(() => {
     const formattedPageId = parseInt(curPageIdRef.current, 10);
     if (tlEditorRef.current && formattedPageId !== 0) {
-      const currentPageId = `page:${formattedPageId}`;
-      const tlZ = tlEditorRef.current.getCamera()?.z;
-
-      const pages = createPage(currentPageId);
-      const cameras = createCameras(formattedPageId, tlZ);
-
       tlEditorRef.current.store.mergeRemoteChanges(() => {
         tlEditorRef.current.batch(() => {
+          const currentPageId = `page:${formattedPageId}`;
+          const tlZ = tlEditorRef.current.getCamera()?.z;
+          const cameras = [];
+          const pages = [];
+          const currPageExists = tlEditorRef.current?.getPage(currentPageId);
+          if (!currPageExists) {
+            const currentPage = createPage(currentPageId);
+            pages.push(...currentPage);
+          }
+          const allRecords = tlEditorRef.current.store.allRecords();
+          const cameraRecords = allRecords.filter(record => record.typeName === "camera" && record.id?.split(':').pop() == formattedPageId);
+          if (cameraRecords?.length < 1) {
+            cameras.push(createCamera(formattedPageId, tlZ));
+          }
           cleanupStore(currentPageId);
           updateStore(pages, cameras);
           tlEditorRef.current.setCurrentPage(currentPageId);
@@ -1596,10 +1623,12 @@ const Whiteboard = React.memo((props) => {
 
   React.useEffect(() => {
     setTldrawIsMounting(true);
+    isPresenterRef?.current && zoomChanger(HUNDRED_PERCENT);
     return () => {
       isMountedRef.current = false;
       localStorage.removeItem('initialViewBoxWidth');
       localStorage.removeItem('initialViewBoxHeight');
+      localStorage.removeItem('pageZoomMap');
       if (mountedTimeoutIdRef.current) {
         clearTimeout(mountedTimeoutIdRef.current);
       }

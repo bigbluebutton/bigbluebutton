@@ -7,7 +7,7 @@ const { PARAMETER_HIDE_PRESENTATION_TOAST } = require('../core/constants');
 const hidePresentationToast = encodeCustomParams(PARAMETER_HIDE_PRESENTATION_TOAST);
 
 test.describe.parallel('Presentation', { tag: '@ci' }, () => {
-  // https://docs.bigbluebutton.org/2.6/release-tests.html#navigation-automated
+  // https://docs.bigbluebutton.org/3.0/testing/release-testing/#navigation-automated
   test('Skip slide', async ({ browser, context, page }) => {
     const presentation = new Presentation(browser, context);
     await presentation.initPages(page);
@@ -20,14 +20,14 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
     await presentation.shareCameraAsContent();
   });
 
-  // https://docs.bigbluebutton.org/2.6/release-tests.html#minimizerestore-presentation-automated
+  // https://docs.bigbluebutton.org/3.0/testing/release-testing/#minimizerestore-presentation-automated
   test('Hide/Restore presentation', async ({ browser, context, page }) => {
     const presentation = new Presentation(browser, context);
     await presentation.initPages(page);
     await presentation.hideAndRestorePresentation();
   });
 
-  // https://docs.bigbluebutton.org/2.6/release-tests.html#start-youtube-video-sharing
+  // https://docs.bigbluebutton.org/3.0/testing/release-testing/#start-youtube-video-sharing
   test('Start external video', { tag: '@flaky' }, async ({ browser, context, page }) => {
     // requiring logged user to start external video on CI environment
     linkIssue(21589);
@@ -36,7 +36,7 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
     await presentation.startExternalVideo();
   });
 
-  // https://docs.bigbluebutton.org/2.6/release-tests.html#fit-to-width-option
+  // https://docs.bigbluebutton.org/3.0/testing/release-testing/#fit-to-width-option
   test('Presentation fit to width', async ({ browser, context, page }) => {
     const presentation = new Presentation(browser, context);
     await presentation.initModPage(page, true, { joinParameter: hidePresentationToast });
@@ -79,39 +79,33 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
   });
 
   test.describe.parallel('Manage', () => {
-    // https://docs.bigbluebutton.org/2.6/release-tests.html#uploading-a-presentation-automated
-    test('Upload single presentation', { tag: '@flaky' }, async ({ browser, context, page }) => {
-      // current presentation toast not being displayed sometimes
-      linkIssue(21813);
+    // https://docs.bigbluebutton.org/3.0/testing/release-testing/#uploading-a-presentation-automated
+    test('Upload single presentation', async ({ browser, context, page }) => {
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page, true);
       await presentation.uploadSinglePresentationTest();
     });
 
-    test('Upload Other Presentations Format', { tag: '@flaky' }, async ({ browser, context, page }) => {
-      // file with wrong (not expected) ideogram conversion pushed, which is used for assertions
-      linkIssue(18971);
+    test('Upload Other Presentations Format', async ({ browser, context, page }) => {
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page, true);
       await presentation.uploadOtherPresentationsFormat();
     });
 
-    // https://docs.bigbluebutton.org/2.6/release-tests.html#uploading-multiple-presentations-automated
-    test('Upload multiple presentations', { tag: '@flaky' }, async ({ browser, context, page }) => {
-      // current presentation toast not being displayed sometimes
-      linkIssue(21813);
+    // https://docs.bigbluebutton.org/3.0/testing/release-testing/#uploading-multiple-presentations-automated
+    test('Upload multiple presentations', async ({ browser, context, page }) => {
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page, true);
       await presentation.uploadMultiplePresentationsTest();
     });
 
-    // https://docs.bigbluebutton.org/2.6/release-tests.html#enabling-and-disabling-presentation-download-automated
+    // https://docs.bigbluebutton.org/3.0/testing/release-testing/#enabling-and-disabling-presentation-download-automated
     test('Enable and disable original presentation download', async ({ browser, context, page }, testInfo) => {
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page);
       await presentation.enableAndDisablePresentationDownload(testInfo);
     });
-    
+
     test('Send presentation in the current state (with annotations) to chat for downloading', async ({ browser, context, page }, testInfo) => {
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page);
@@ -124,19 +118,13 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
       await presentation.removeAllPresentation();
     });
 
-    test('Upload and remove all presentations', { tag: '@flaky' }, async ({ browser, context, page }) => {
-      // sometimes the uploaded presentation is not displayed in the manage presentations modal
-      linkIssue(21624);
-      // current presentation toast not being displayed sometimes
-      linkIssue(21813);
+    test('Upload and remove all presentations', async ({ browser, context, page }) => {
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page);
       await presentation.uploadAndRemoveAllPresentations();
     });
 
-    test('Remove previous presentation from previous presenter', { tag: '@flaky' }, async ({ browser, context, page }) => {
-      // current presentation toast not being displayed sometimes
-      linkIssue(21813);
+    test('Remove previous presentation from previous presenter', async ({ browser, context, page }) => {
       const presentation = new Presentation(browser, context);
       await presentation.initModPage(page, true);
       await presentation.initUserPage(true, context);

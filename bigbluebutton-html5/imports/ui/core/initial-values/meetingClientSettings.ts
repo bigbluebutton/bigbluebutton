@@ -37,12 +37,12 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       darkTheme: {
         enabled: true,
       },
-      askForFeedbackOnLogout: false,
       askForConfirmationOnLeave: false,
       wakeLock: {
         enabled: true,
       },
       allowDefaultLogoutUrl: true,
+      skipMeetingEnded: false,
       dynamicGuestPolicy: true,
       enableGuestLobbyMessage: true,
       guestPolicyExtraAllowOptions: false,
@@ -156,6 +156,10 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         toggleUserList: {
           accesskey: 'U',
           descId: 'toggleUserList',
+        },
+        openLeaveMenu: {
+          accesskey: 'X',
+          descId: 'openLeaveMenu',
         },
         toggleMute: {
           accesskey: 'M',
@@ -667,6 +671,11 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       livekit: {
         url: `wss://${window.location.hostname}/livekit`,
         selectiveSubscription: false,
+        roomOptions: {
+          adaptiveStream: true,
+          dynacast: true,
+          stopLocalTrackOnUnpublish: false,
+        },
         audio: {
           publishOptions: {
             audioPreset: AudioPresets.speech,

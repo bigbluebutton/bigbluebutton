@@ -4,6 +4,7 @@ const e = require('../core/elements');
 const c = require('./constants');
 const { VIDEO_LOADING_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_TIME } = require('../core/constants');
 const util = require('./util');
+const { sleep } = require('../core/helpers');
 const { getSettings } = require('../core/settings');
 const { uploadSinglePresentation } = require('../presentation/util');
 
@@ -30,36 +31,6 @@ class CustomParameters extends MultiUsers {
     expect(pageTitle, 'should display the changed name of the client title').toContain(`${c.docTitle} - `);
   }
 
-  async askForFeedbackOnLogout() {
-    const rating = 4;
-    const feedbackMessage = 'This is a test comment';
-    await this.modPage.logoutFromMeeting();
-    await this.modPage.hasElement(e.meetingEndedModal, 'should display the meeting ended modal, when the user presses to leave the meeting');
-    await this.modPage.hasElement(e.rating, 'should display the question for feedback after the user presses to leave the meeting');
-    await this.modPage.wasRemoved(e.sendFeedbackButton, 'should not display the feedback button before the user rates the meeting');
-    await this.modPage.waitAndClick(`label[for="${rating}star"]`);
-    await this.modPage.hasElement(e.feedbackCommentInput, 'should display the feedback comment field after the user rates the meeting');
-    const feedbackField = await this.modPage.getLocator(e.feedbackCommentInput);
-    await feedbackField.fill(feedbackMessage);
-    await expect(feedbackField, 'feedback field should contain the typed message').toHaveValue(feedbackMessage);
-    const requestPromise = this.modPage.page.waitForRequest(async request => {
-      if (request.url().includes('feedback') && request.method() === 'POST') {
-        expect(
-          request.postDataJSON(),
-          'should send the feedback with the correct rating and message',
-        ).toMatchObject({
-          rating: rating,
-          comment: feedbackMessage,
-        });
-        return true;
-      }
-    }, ELEMENT_WAIT_TIME);
-    await this.modPage.waitAndClick(e.sendFeedbackButton);
-    await requestPromise;
-    await this.modPage.wasRemoved(e.feedbackCommentInput, 'should remove the feedback comment input after sending the feedback');
-    await this.modPage.wasRemoved(e.sendFeedbackButton, 'should remove the feedback button after sending the feedback');
-  }
-
   async displayBrandingArea() {
     await this.modPage.hasElement(e.userListContent, 'should display the user list on the meeting');
     await this.modPage.hasElement(e.brandingAreaLogo, 'should display the logo on the branding area');
@@ -73,7 +44,8 @@ class CustomParameters extends MultiUsers {
     await this.modPage.joinMicrophone();
     // Open private chat
     await this.modPage.waitAndClick(e.userListItem);
-    await this.modPage.waitAndClick(e.startPrivateChat);
+    const lastUserStartPrivateChat = await this.modPage.getLocator(e.startPrivateChat).last();
+    await this.modPage.clickOnLocator(lastUserStartPrivateChat);
     await this.modPage.hasElement(e.hidePrivateChat, 'should display the hide private chat element when the user has the private chat open');
     // Check the later shortcuts that can be used after joining audio and opening private chat
     await util.checkShortcutsArray(this.modPage, c.laterShortcuts);
@@ -105,7 +77,9 @@ class CustomParameters extends MultiUsers {
     await this.modPage.hasElement(e.audioSettingsModal, 'should display the audio settings modal when joining', ELEMENT_WAIT_EXTRA_LONG_TIME);
     await this.modPage.waitAndClick(e.joinEchoTestButton);
     await this.modPage.hasElement(e.establishingAudioLabel, 'should display the audio being established');
-    await this.modPage.hasElement(e.isTalking, 'should display the is talking indicator, after the audio being established');
+    await this.modPage.hasElement(e.unmuteMicButton, 'should display the unmute button when user joins audio');
+    await this.modPage.waitAndClick(e.unmuteMicButton);
+    await this.modPage.hasElement(e.isTalking, 'should display the is talking indicator, after the audio being established and mic unmuted');
     await this.modPage.leaveAudio();
     await this.modPage.waitAndClick(e.joinAudio);
     await this.modPage.hasElement(e.audioSettingsModal, 'should display the audio settings modal after clicked on the join audio button');
@@ -113,22 +87,30 @@ class CustomParameters extends MultiUsers {
 
   async forceListenOnly() {
     await this.userPage.wasRemoved(e.audioModal, 'should not display the audio modal after joining meeting');
-    await this.userPage.hasElement(e.leaveListenOnly, 'should join listen only mode and display button to leave it');
-    await this.userPage.wasRemoved(e.muteMicButton, 'should not display the mute mic button');
-    await this.userPage.wasRemoved(e.unmuteMicButton, 'should not display the mute mic button');
+    await this.userPage.hasElement(e.audioDropdownMenu, 'should display the audio dropdown menu');
+    await this.userPage.hasElement(e.unmuteMicButton, 'should display the unmute button when user joins audio / listen only');
+    await this.userPage.waitAndClick(e.unmuteMicButton);
+    await this.userPage.hasElement(e.joinEchoTestButton, 'should display the join echo test modal when user tries to unmute the mic in listen only mode');
+    await this.userPage.waitAndClick(e.closeModal);
+    await this.userPage.waitAndClick(e.audioDropdownMenu);
+    await this.userPage.hasElement(e.leaveAudio, 'should display leave button in the audio dropdown menu');
   }
 
   async skipCheck() {
     await this.modPage.waitAndClick(e.microphoneButton);
     await this.modPage.hasElement(e.establishingAudioLabel, 'should establish audio');
     await this.modPage.wasRemoved(e.establishingAudioLabel, 'should not display the audio being established label', ELEMENT_WAIT_LONGER_TIME);
-    await this.modPage.hasElement(e.isTalking);
+    await this.modPage.hasElement(e.unmuteMicButton, 'should display the unmute button when user joins audio');
+    await this.modPage.waitAndClick(e.unmuteMicButton);
+    await this.modPage.hasElement(e.isTalking, 'should display the is talking element when mic is unmuted');
   }
 
   async skipCheckOnFirstJoin() {
     await this.modPage.waitAndClick(e.microphoneButton, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.hasElement(e.establishingAudioLabel, 'should establish audio');
-    await this.modPage.hasElement(e.isTalking, 'should display the is talking element');
+    await this.modPage.hasElement(e.unmuteMicButton, 'should display the unmute button when user joins audio');
+    await this.modPage.waitAndClick(e.unmuteMicButton);
+    await this.modPage.hasElement(e.isTalking, 'should display the is talking element after unmuting the mic');
     await this.modPage.leaveAudio();
     await this.modPage.waitAndClick(e.joinAudio);
     await this.modPage.waitAndClick(e.microphoneButton);
@@ -161,7 +143,7 @@ class CustomParameters extends MultiUsers {
 
   async hidePresentationOnJoin() {
     await this.modPage.hasElement(e.actions, 'should display the actions button');
-    await this.modPage.hasElement(e.minimizePresentation, 'should display the minimize presentation button for the moderator');
+    await this.modPage.hasElement(e.restorePresentation, 'should display the restore presentation button for the moderator');
     await this.userPage.hasElement(e.restorePresentation, 'should display the restore presentation button for the attendee');
     await this.userPage.wasRemoved(e.whiteboard, 'should not display the whiteboard for the attendee');
   }
@@ -277,7 +259,7 @@ class CustomParameters extends MultiUsers {
   }
 
   async overrideDefaultLocaleTest() {
-    await this.modPage.hasText(e.chatButton, 'Bate-papo público','should display the new overrided default locale');
+    await this.modPage.hasText(e.chatButton, 'Bate-papo público','should display the new overridden default locale');
   }
 
   async hideNavBarTest() {
@@ -288,6 +270,20 @@ class CustomParameters extends MultiUsers {
     await this.modPage.waitAndClick(e.joinVideo);
     expect(await this.modPage.getLocator(e.selectCameraQualityId).inputValue(), 'should display the selector to choose the camera quality').toBe('low');
     await this.modPage.waitAndClick(e.startSharingWebcam);
+  }
+
+  async webcamBackgroundURL() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage.waitAndClick(e.joinVideo);
+    await this.modPage.hasElement(e.webcamSettingsModal, 'should display the webcam settings modal when clicking to join video');
+    await this.modPage.waitAndClick(e.backgroundSettingsTitle);
+    const appleBackground = await this.modPage.getLocator(e.selectCustomBackground);
+    await expect(appleBackground).toHaveCount(1);
+    await this.modPage.waitAndClick(e.selectCustomBackground);
+    await this.modPage.waitAndClick(e.startSharingWebcam);
+    await this.modPage.hasElement(e.webcamMirroredVideoContainer, 'should display the webcam (mirrored) container after successfully sharing webcam');
+    const webcamBackgroundURL = this.modPage.getLocator(e.webcamMirroredVideoContainer);
+    await expect(webcamBackgroundURL).toHaveScreenshot('webcam-background-passing-url.png');
   }
 }
 

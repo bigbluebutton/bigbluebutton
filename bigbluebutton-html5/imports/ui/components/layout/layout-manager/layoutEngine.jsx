@@ -10,8 +10,6 @@ import VideoFocusLayout from '/imports/ui/components/layout/layout-manager/video
 import CamerasOnlyLayout from '/imports/ui/components/layout/layout-manager/camerasOnly';
 import PresentationOnlyLayout from '/imports/ui/components/layout/layout-manager/presentationOnlyLayout';
 import ParticipantsAndChatOnlyLayout from '/imports/ui/components/layout/layout-manager/participantsAndChatOnlyLayout';
-import useSettings from '/imports/ui/services/settings/hooks/useSettings';
-import { SETTINGS } from '/imports/ui/services/settings/enums';
 import { useIsPresentationEnabled } from '/imports/ui/services/features';
 import Session from '/imports/ui/services/storage/in-memory';
 import MediaOnlyLayout from './mediaOnlyLayout';
@@ -35,7 +33,7 @@ const LayoutEngine = () => {
   const isRTL = layoutSelect((i) => i.isRTL);
   const fontSize = layoutSelect((i) => i.fontSize);
   const deviceType = layoutSelect((i) => i.deviceType);
-  const { selectedLayout } = useSettings(SETTINGS.APPLICATION);
+  const selectedLayout = layoutSelect((i) => i.layoutType);
   const isPresentationEnabled = useIsPresentationEnabled();
 
   const isMobile = deviceType === DEVICE_TYPE.MOBILE;
@@ -295,7 +293,7 @@ const LayoutEngine = () => {
     left = !isRTL ? left : null;
     right = isRTL ? right : null;
 
-    const zIndex = isMobile ? 11 : 1;
+    const zIndex = isMobile ? 11 : 2;
 
     return {
       top,

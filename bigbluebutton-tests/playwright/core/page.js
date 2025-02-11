@@ -84,14 +84,19 @@ class Page {
     return newPage;
   }
 
-  async joinMicrophone() {
+  async joinMicrophone({ shouldUnmute = true } = {}) {
     await this.waitForSelector(e.audioModal);
     await this.waitAndClick(e.microphoneButton);
     await this.waitForSelector(e.stopHearingButton);
     await this.waitAndClick(e.joinEchoTestButton);
     await this.waitForSelector(e.establishingAudioLabel);
     await this.wasRemoved(e.establishingAudioLabel, ELEMENT_WAIT_LONGER_TIME);
-    await this.waitForSelector(e.isTalking);
+    await this.hasElement(e.unmuteMicButton);
+    if (shouldUnmute) {
+      await this.waitAndClick(e.unmuteMicButton);
+      await this.hasElement(e.muteMicButton);
+      await this.hasElement(e.isTalking);
+    }
   }
 
   async leaveAudio() {
@@ -313,11 +318,11 @@ class Page {
   }
 
   async closeAllToastNotifications() {
-    const closeToastBtnLocator = this.page.locator(e.closeToastBtn);
-    while (await closeToastBtnLocator.count() > 0) {
+    const toastNotificationElement = this.getLocator(e.toastContainer);
+    while (await toastNotificationElement.count() > 0) {
       try {
-        await this.page.click(e.closeToastBtn, { timeout: ELEMENT_WAIT_TIME });
-        await helpers.sleep(1500);  // expected time to toast notification disappear
+        await toastNotificationElement.first().click({ timeout: ELEMENT_WAIT_TIME });
+        await helpers.sleep(1500);  // expected animation time for toast notification to disappear
       } catch (error) {
         console.log('not able to close the toast notification');
       }

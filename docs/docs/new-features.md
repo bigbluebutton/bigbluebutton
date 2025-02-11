@@ -21,7 +21,7 @@ We have done significant work to adopt the newly released version 2 of tl;draw. 
 
 #### Improved UX for joining audio for transparentListenOnly
 
-When transparentListenOnly is enabled on the server, users can now switch seamlessly between Listen Only and Microphone modes without needing to rejoin audio.
+When transparentListenOnly is enabled on the server (enabled by default starting with BigBlueButton 3.0.0-rc.1), users can now switch seamlessly between Listen Only and Microphone modes without needing to rejoin audio.
 
 To further improve the user experience, you can disable listenOnlyMode (`public.app.listenOnlyMode` in `/etc/bigbluebutton/bbb-html5.yml` or `userdata-bbb_listen_only_mode`). 
 This removes the need to choose between Microphone or Listen Only mode when joining audio in a session. Instead, you are taken directly to the audio configuration screen.
@@ -32,27 +32,41 @@ Once you are joined in audio, you can dynamically change your audio device confi
 
 ![mute yourself has a dropdown menu allowing device changes](/img/30/30-ui-audio-devices-options.png)
 
+#### Chat improvements
+
+BigBlueButton 3.0's chat gained several new functionalities! Users are now able to edit their own messages in case a typo was made, they can react to chat messages and also reply to a previous message. The option to delete a message is available both to the original author and to moderators in the session.
+
+![delete or edit a message, add an emoji or reply to a message](/img/30/30-chat-improvements.png)
+
 #### New layouts for specific integration scenarios
 
-Several new layouts have been added ("Cameras Only", "Presentation Only", and "Participants and Chat Only") to address various use cases of hybrid education - for example splitting views of the BigBlueButton session to be visible on different physical screens.
+Several new layouts have been added ("Cameras Only", "Presentation Only", "Participants and Chat Only", and "Media Only") to address various use cases of hybrid education - for example splitting views of the BigBlueButton session to be visible on different physical screens.
 
 #### Improved Away mode
 
-We have made changes so that when you set yourself as being Away, your microphone is now automatically muted, your webcam is also muted (blank).
+We have moved the trigger to set yourself away to the three-dots menu and improved the design.
 
-![set yourself away](/img/30/30-set-away.png)
+![currently active](/img/30/30-currently-active.png)
 
- When you return and unmute yourself this counts as disabling Away mode. The control for toggling away mode is now positioned in the Reactions bar.
+Note that when you set yourself as away, the client mutes your microphone, masks the webcam, adds an icon on your user avatar and appends a note in the public chat.
 
-![set yourself active](/img/30/30-set-active.png)
+![set yourself active](/img/30/30-currently-away.png)
 
-Away mode also is recorded in the public chat area.
+#### Welcome message relocated
 
-![away public chat](/img/30/30-away-public-chat.png)
+The information previously displayed in the public chat on join is now located in its own dialog - Session details.
+To view the welcome message, moderator only message, a link to the session or a phone number for dial-in please click on the meeting name.
+By default this dialog is open on initial joining of the client.
+
+![moderator view of the session details](/img/30/30-welcome-message-full.png)
+
+Viewers do not see the link to invite others nor the moderator only message.
+
+![viewers see a bit less of the session details](/img/30/30-welcome-message.png)
 
 #### Leave meeting button
 
-A contribution from community member Jan Kessler, the direct Leave Meeting button was first introduced in BigBlueButton 2.7.5. Starting with BigBlueButton 3.0 we are making it enabled by default.
+A contribution from community member Jan Kessler, the direct Leave Meeting button was first introduced in BigBlueButton 2.7.5. Starting with BigBlueButton 3.0 we are making it enabled by default and have modified it slightly to ensure moderators are not ending the session when they try to leave.
 
 ![leave the meeting red button](/img/30/30-leave-meeting.png)
 
@@ -63,6 +77,10 @@ Viewers can leave the meeting by using this new red button, previously hidden ne
 We have enhanced the view of the polling results that appear over the whiteboard. It is now much more intuitive to read.
 
 ![better polling results](/img/30/30-poll-annotation.png)
+
+It matches the results displayed in the public chat!
+
+![better polling results](/img/30/30-poll-chat.png)
 
 
 #### Private chat messages have a "seen" indicator
@@ -83,7 +101,7 @@ You can now use the "M" shortcut while in a conference to control how long your 
 <!-- ### Analytics -->
 
 
-### Behind the scene
+### Behind the scenes
 
 #### Introduction of plugins
 
@@ -97,6 +115,11 @@ At the moment of writing this documentation, the official list of plugins includ
 - [Decrease the volume of external video when someone speaks](https://github.com/bigbluebutton/plugin-decrease-volume-on-speak)
 - [Typed captions](https://github.com/bigbluebutton/plugin-typed-captions)
 - [Source code highlight](https://github.com/bigbluebutton/plugin-code-highlight)
+- [Tour](https://github.com/bigbluebutton/plugin-tour)
+- [Chat mention](https://github.com/bigbluebutton/plugin-chat-mention)
+- [Media popout](https://github.com/bigbluebutton/plugin-media-popout)
+
+For the most accurate information check the [plugins reporisory](https://github.com/bigbluebutton/plugins) where all the plugins are listed.
 
 #### Replaced Akka framework with Pekko
 
@@ -125,44 +148,15 @@ We upgraded tl;draw from version 1 to version 2.0.0-alpha.19 (the last version o
 Collabora Productivity contributed the support for an alternative conversion script where Collabora Online (deployed locally [as a docker container] or running remotely) can be used for document conversion.
 For more information check the [pull request](https://github.com/bigbluebutton/bigbluebutton/pull/18783)
 
+#### S3-based cache for presentation assets
+
+BigBlueButton now supports caching for presentation assets at Amazon S3/Minio or similar.
+For details check the [server customization](/administration/customize/#configure-s3-based-cache-for-presentation-assets) portion of the documents.
+
 #### Support for ClamAV as presentation file scanner
 
-We have added support for ClamAV to automatically scan every presentation file for viruses before sharing it with the others in the session.
-To use it you would need to first install ClamAV:
-The simplest way would be to run it locally as a container.
-
-```
-docker pull clamav/clamav`
-docker run --name "clamav" --mount type=bind,source=/var/bigbluebutton,target=/var/bigbluebutton -p 3310:3310 -p 7357:7357 clamav/clamav:latest
-```
-
-
-The above run command may take a minute to start. If you prefer you could run with `-d` flag to make it detachable.
-
-Now when you check the running containers you should see an entry like this one:
-
-```
-root@test30:~# docker ps
-CONTAINER ID   IMAGE                                                       COMMAND                  CREATED          STATUS                    PORTS                                                                                                           NAMES
-bda7f5596192   clamav/clamav:latest                                        "/init"                  21 minutes ago   Up 21 minutes (healthy)   0.0.0.0:3310->3310/tcp, :::3310->3310/tcp, 0.0.0.0:7357->7357/tcp, :::7357->7357/tcp                            clamav
-```
-
-
-Additionally you will have to enable scanning:
-Specify `scanUploadedPresentationFiles=true` in `/etc/bigbluebutton/bbb-web.properties` and restart BigBlueButton via `sudo bbb-conf --restart`
-
-When you create a new session and try uploading some presentation files, you should not see anything different if the file was fine.
-However, if a threat was detected, you will see the message "Upload failed: Virus detected! Please check your file and retry." in the client and the presentation sharing will not proceed.
-Additionally, in the logs for `bbb-web` you will see similar log lines:
-
-```
-Oct 09 01:07:18 test30 java[2810929]: 2024-10-09T01:07:18.285Z DEBUG o.b.w.c.PresentationController - processing file upload eicar.com.txt (presId: f7ff3fd7c0ab460f7139541c02df46f24ac90b67-1728436037947)
-Oct 09 01:07:18 test30 java[2810929]: 2024-10-09T01:07:18.550Z DEBUG o.b.w.c.PresentationController - file upload success eicar.com.txt
-Oct 09 01:07:23 test30 java[2810929]: 2024-10-09T01:07:23.589Z ERROR o.b.p.DocumentConversionServiceImp - Presentation upload failed for meetingId=4814d8e60f2e15576bebfe7cef34367ef5b54539-1728435987030 presId=f7ff3fd7c0ab460f7139541c02df46f24ac90b67-1728436037947
-Oct 09 01:07:23 test30 java[2810929]: 2024-10-09T01:07:23.590Z ERROR o.b.p.DocumentConversionServiceImp - Presentation upload failed because a virus was detected in the uploaded file
-```
-
-You can test your setup with one of the files from [eicar.org](https://www.eicar.org/download-anti-malware-testfile/).
+BigBlueButton now supports file scanning (virus detection) for presentation files using ClamAV.
+For details check the [ClamAV section](/administration/customize#support-for-clamav-as-presentation-file-scanner) of the server customization documentation.
 
 ### Experimental
 
@@ -187,15 +181,15 @@ Feature parity with the current media framework is not yet achieved, but the
 aforementioned issue provides parity tracking in section `Annex 1`.
 
 To enable support for LiveKit:
-  - Install bbb-livekit: `$ sudo apt-get install bbb-livekit`
-  - Enable the LiveKit controller module in bbb-webrtc-sfu: `$ sudo yq e -i '.livekit.enabled = true' /etc/bigbluebutton/bbb-webrtc-sfu/production.yml`
-  - Restart bbb-webrtc-sfu: `$ sudo systemctl restart bbb-webrtc-sfu`
-  - Guarantee that Node.js 22 is installed in your server: `$ node -v`
-    - Older 3.0 installations might still be using Node.js 18. If that's the case,
+1. Install bbb-livekit: `$ sudo apt-get install bbb-livekit`
+2. Enable the LiveKit controller module in bbb-webrtc-sfu: `$ sudo yq e -i '.livekit.enabled = true' /etc/bigbluebutton/bbb-webrtc-sfu/production.yml`
+3. Restart bbb-webrtc-sfu: `$ sudo systemctl restart bbb-webrtc-sfu`
+4. Guarantee that Node.js 22 is installed in your server: `$ node -v`
+    * Older 3.0 installations might still be using Node.js 18. If that's the case,
       re-run bbb-install or correct any custom installation scripts to ensure
       Node.js 22 is installed.
-  - Only when using BigBlueButton via the [cluster proxy](/administration/cluster-proxy) configuration:
-    - Set the appropriate LiveKit endpoint URL in bbb-html5.yml's `public.media.livekit.url`. See
+5. Only when using BigBlueButton via the [cluster proxy](/administration/cluster-proxy) configuration:
+    1. Set the appropriate LiveKit endpoint URL in bbb-html5.yml's `public.media.livekit.url`. See
       the aforementioned [docs section](/administration/cluster-proxy.md#bigbluebutton-servers) for details.
 
 Once enabled, LiveKit still won't be used by default. There are two ways to make
@@ -213,6 +207,36 @@ Those parameters do *not* need to be set concurrently. LiveKit can be enabled fo
 audio only, for example, while keeping the current media framework for camera
 and screen sharing by setting just `audioBridge=livekit`.
 
+To enable recording/capture with LiveKit (optional):
+1. Create **`/etc/bigbluebutton/egress.yaml`**
+    ```yaml
+    log_level: debug
+    redis:
+      address: localhost:6379
+    api_key: YOUR_API_KEY # see /etc/bigbluebutton/livekit.yaml
+    api_secret: YOUR_API_SECRET # see /etc/bigbluebutton/livekit.yaml
+    health_port: 7005
+    ws_url: ws://localhost:7880
+    file_prefix: /var/lib/bbb-webrtc-recorder
+    file_only: true
+    prometheus_port: 6790
+    ```
+2. Set appropriate key and secret in the file above
+3. Change capture directory permissions: **`chmod -R 777 /var/lib/bbb-webrtc-recorder`**
+    - The recorder runs as root in the docker container
+4. Enable egress in bbb-webrtc-sfu : **`yq e -i ".livekit.egress.enabled = true" /etc/bigbluebutton/bbb-webrtc-sfu/production.yml`**
+5. Run egress
+    ```bash
+    docker run -t -d --rm \
+        --name egress \
+        -e EGRESS_CONFIG_FILE=/etc/bigbluebutton/egress.yaml \
+        -v /etc/bigbluebutton/:/etc/bigbluebutton/ \
+        -v /var/lib/bbb-webrtc-recorder:/var/lib/bbb-webrtc-recorder \
+        --network host \
+        livekit/egress
+    ```
+6. Restart bbb-webrtc-sfu
+
 Keep in mind that the LiveKit integration is still experimental and not feature
 complete. Configuration, API parameters, and other details are subject to change.
 We encourage users to test it and provide feedback via our GitHub issue tracker
@@ -228,6 +252,8 @@ For full details on what is new in BigBlueButton 3.0, see the release notes.
 
 Recent releases:
 
+- [3.0.0-rc.2](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-rc.2)
+- [3.0.0-rc.1](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-rc.1)
 - [3.0.0-beta.7](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-beta.7)
 - [3.0.0-beta.6](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-beta.6)
 - [3.0.0-beta.5](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-beta.5)
@@ -315,6 +341,7 @@ Modified/added events
 - `allowOverrideClientSettingsOnCreateCall=false` added
 - `sessionsCleanupDelayInMinutes=60` added
 - `graphqlWebsocketUrl=${bigbluebutton.web.serverURL}/graphql` added
+- `muteOnStart` default value set to `true` - which helps now that `transparentListenOnly` is enabled by default too. See (PR 20848)[https://github.com/bigbluebutton/bigbluebutton/issues/20848] for more info.
 
 #### Removed support for POST requests on `join` endpoint and Content-Type headers are now required
 

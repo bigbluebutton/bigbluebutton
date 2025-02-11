@@ -22,7 +22,8 @@ class PresenterNotifications extends MultiUsers {
 
   async fileUploaderNotification() {
     await utilPresentation.uploadSinglePresentation(this.modPage, e.uploadPresentationFileName, ELEMENT_WAIT_LONGER_TIME);
-    await util.checkNotificationText(this.userPage, e.presentationUploadedToast);
+    await this.modPage.hasElement(e.currentPresentationToast, 'should display the current presentation toast when the upload finishes');
+    await this.modPage.hasText(e.currentPresentationToast, e.uploadPresentationFileName, 'should display the uploaded presentation name in the toast');
   }
 
   async screenshareToast() {

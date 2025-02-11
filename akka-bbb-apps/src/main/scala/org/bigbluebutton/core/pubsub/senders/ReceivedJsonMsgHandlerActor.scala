@@ -453,6 +453,9 @@ class ReceivedJsonMsgHandlerActor(
       case PluginLearningAnalyticsDashboardSendGenericDataMsg.NAME =>
         routeGenericMsg[PluginLearningAnalyticsDashboardSendGenericDataMsg](envelope, jsonNode)
 
+      case PluginPersistEventMsg.NAME =>
+        routeGenericMsg[PluginPersistEventMsg](envelope, jsonNode)
+
       // ExternalVideo
       case StartExternalVideoPubMsg.NAME =>
         routeGenericMsg[StartExternalVideoPubMsg](envelope, jsonNode)
