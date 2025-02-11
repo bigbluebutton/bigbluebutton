@@ -96,6 +96,7 @@ const RecordingComponent: React.FC<RecordingComponentProps> = ({
               {intl.formatMessage(intlMessages.cancelButtonLabel)}
             </Styled.CancelButton>
             <Styled.ConfirmationButton
+              data-test="confirmRecordingButton"
               onClick={() => {
                 if (toastId !== null) {
                   toast.dismiss(toastId);

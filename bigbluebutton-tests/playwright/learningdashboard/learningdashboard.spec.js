@@ -4,7 +4,7 @@ const { LearningDashboard } = require('./learningdashboard');
 const c = require('../parameters/constants');
 const { initializePages } = require('../core/helpers');
 
-test.describe('Learning Dashboard', { tag: ['@ci', '@flaky-3.1'] } , async () => {
+test.describe('Learning Dashboard', { tag: '@ci' } , async () => {
   const learningDashboard = new LearningDashboard();
 
   test.describe.configure({ mode: fullyParallel ? 'parallel' : 'serial' });
@@ -22,7 +22,7 @@ test.describe('Learning Dashboard', { tag: ['@ci', '@flaky-3.1'] } , async () =>
   });
 
   test('Polls', async () => {
-    await learningDashboard.initUserPage(true, learningDashboard.modPage.context, { isRecording: true });
+    await learningDashboard.initUserPage(true, learningDashboard.modPage.context);
     await learningDashboard.polls();
   });
 

@@ -34,7 +34,6 @@ class Page {
       createParameter,
       joinParameter,
       customMeetingId,
-      isRecording,
       shouldCheckAllInitialSteps,
       shouldAvoidLayoutCheck,
     } = initOptions || {};
@@ -55,7 +54,6 @@ class Page {
       if (!shouldAvoidLayoutCheck) await this.waitForSelector('div#layout', ELEMENT_WAIT_EXTRA_LONG_TIME);
       this.settings = await generateSettingsData(this.page);
       const { autoJoinAudioModal } = this.settings;
-      if (isRecording && !isModerator) await this.closeRecordingModal();
       if (shouldCloseAudioModal && autoJoinAudioModal) await this.closeAudioModal();
     }
   }
@@ -156,11 +154,6 @@ class Page {
   async closeAudioModal() {
     await this.hasElement(e.audioModal, 'should display the audio modal', ELEMENT_WAIT_EXTRA_LONG_TIME);
     await this.waitAndClick(e.closeModal);
-  }
-
-  async closeRecordingModal() {
-    await this.waitForSelector(e.simpleModal, ELEMENT_WAIT_LONGER_TIME);
-    await this.waitAndClick(e.confirmRecording);
   }
 
   async waitForSelector(selector, timeout = ELEMENT_WAIT_TIME) {
