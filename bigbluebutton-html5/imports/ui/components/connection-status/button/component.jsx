@@ -20,7 +20,7 @@ const intlMessages = defineMessages({
   },
 });
 
-const DATA_SAVINGS_TAB_NUMBER = 3;
+const DATA_SAVINGS_TAB_NUMBER = 2;
 
 class ConnectionStatusButton extends PureComponent {
   constructor(props) {

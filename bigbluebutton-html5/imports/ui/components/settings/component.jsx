@@ -239,12 +239,6 @@ class Settings extends Component {
       >
         <Styled.SettingsTabList>
           <Styled.SettingsTabSelector
-            aria-labelledby="aboutTab"
-            selectedClassName="is-selected"
-          >
-            <span id="aboutTab">{intl.formatMessage(intlMessages.aboutTabLabel)}</span>
-          </Styled.SettingsTabSelector>
-          <Styled.SettingsTabSelector
             aria-labelledby="appTab"
             selectedClassName="is-selected"
           >
@@ -275,14 +269,13 @@ class Settings extends Component {
               </Styled.SettingsTabSelector>
             )
             : null}
+          <Styled.SettingsTabSelector
+            aria-labelledby="aboutTab"
+            selectedClassName="is-selected"
+          >
+            <span id="aboutTab">{intl.formatMessage(intlMessages.aboutTabLabel)}</span>
+          </Styled.SettingsTabSelector>
         </Styled.SettingsTabList>
-        <Styled.SettingsTabPanel selectedClassName="is-selected">
-          <About
-            settings={current.application}
-            setIsShortcutModalOpen={setIsShortcutModalOpen}
-            setIsOpen={setIsOpen}
-          />
-        </Styled.SettingsTabPanel>
         <Styled.SettingsTabPanel selectedClassName="is-selected">
           <Application
             allLocales={allLocales}
@@ -330,6 +323,13 @@ class Settings extends Component {
             </Styled.SettingsTabPanel>
           )
           : null}
+        <Styled.SettingsTabPanel selectedClassName="is-selected">
+          <About
+            settings={current.application}
+            setIsShortcutModalOpen={setIsShortcutModalOpen}
+            setIsOpen={setIsOpen}
+          />
+        </Styled.SettingsTabPanel>
       </Styled.SettingsTabs>
     );
   }
