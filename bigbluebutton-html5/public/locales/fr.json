@@ -14,7 +14,7 @@
     "app.chat.loadMoreButtonLabel": "En savoir plus",
     "app.chat.inputPlaceholder": "Message {0}",
     "app.chat.titlePublic": "Discussion publique",
-    "app.chat.titlePrivate": "Discussion privée avec {0}",
+    "app.chat.titlePrivate": "Discussion privée",
     "app.chat.partnerDisconnected": "{0} a quitté la réunion",
     "app.chat.closeChatLabel": "Fermer {0}",
     "app.chat.hideChatLabel": "Cacher {0}",
