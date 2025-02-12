@@ -14,7 +14,7 @@
     "app.chat.loadMoreButtonLabel": "Φόρτωση περισσότερων",
     "app.chat.inputPlaceholder": "Μήνυμα {0}",
     "app.chat.titlePublic": "Δημόσια συνομιλία",
-    "app.chat.titlePrivate": "Ιδιωτική συνομιλία με {0}",
+    "app.chat.titlePrivate": "Ιδιωτική συνομιλία",
     "app.chat.partnerDisconnected": "Ο/Η {0} αποχώρησε από την τηλεδιάσκεψη",
     "app.chat.closeChatLabel": "Κλείσιμο {0}",
     "app.chat.hideChatLabel": "Απόκρυψη {0}",
