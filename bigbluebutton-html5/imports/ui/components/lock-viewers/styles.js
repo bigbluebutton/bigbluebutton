@@ -8,7 +8,12 @@ import {
   mdPaddingX,
 } from '/imports/ui/stylesheets/styled-components/general';
 import { fontSizeBase, fontSizeSmall } from '/imports/ui/stylesheets/styled-components/typography';
-import { colorGray, colorGrayLabel, colorPrimary } from '/imports/ui/stylesheets/styled-components/palette';
+import {
+  colorGray,
+  colorGrayLabel,
+  colorPrimary,
+  colorBorder,
+} from '/imports/ui/stylesheets/styled-components/palette';
 import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import Button from '/imports/ui/components/common/button/component';
 
@@ -27,8 +32,8 @@ const LockViewersModal = styled(ModalSimple)`
 
 const Container = styled.div`
   padding: 1.14rem 2.25rem 1.14rem;
-  border-top: 1px solid #ddd;
-  border-bottom: 1px solid #ddd;
+  border-top: 1px solid ${colorBorder};
+  border-bottom: 1px solid ${colorBorder};
   gap: 1rem;
 `;
 

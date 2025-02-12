@@ -1,7 +1,7 @@
 import styled, { css, keyframes } from 'styled-components';
 import {
-  colorWhite, colorText, colorPrimary, colorGrayLightest, colorGrayLighter,
-  colorGrayDark, colorLink, listItemBgHover,
+  colorWhite, colorText, colorPrimary,
+  colorGrayDark, colorLink, listItemBgHover, colorBorder,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   smPadding,
@@ -168,7 +168,7 @@ const UserPresenceContainer = styled.div`
   align-items: center;
   gap: 1rem;
   border-radius: 1rem;
-  border: 1px solid ${colorGrayLighter};
+  border: 1px solid ${colorBorder};
 `;
 
 const UserPresenceButton = styled(SimpleButton)<{ active?: boolean }>`
@@ -198,13 +198,13 @@ const UserPresenceText = styled.div`
 const UserPresenceDivider = styled.div`
   width: 0.0625rem;
   height: 2.5rem;
-  background: ${colorGrayLightest};
+  background: ${colorBorder};
 `;
 
 const Separator = styled.hr`
   width: 100%;
   border: 0;
-  border-bottom: 1px solid ${colorGrayLightest};
+  border-bottom: 1px solid ${colorBorder};
 `;
 
 const DevicesSettingsContainer = styled.div`
@@ -352,7 +352,7 @@ const BrightnessSlider = styled(Slider)`
 const VirtualBgSelectorBorder = styled.div`
   width: 100%;
   border-radius: 0.25rem;
-  border: 1px solid ${colorGrayLightest};
+  border: 1px solid ${colorBorder};
 `;
 
 const CaptionsContainer = styled.div`

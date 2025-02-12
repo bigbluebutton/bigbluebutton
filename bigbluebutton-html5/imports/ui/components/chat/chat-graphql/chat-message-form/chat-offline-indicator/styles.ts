@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { colorText, colorGrayLighter } from '/imports/ui/stylesheets/styled-components/palette';
+import { colorText, colorBorder } from '/imports/ui/stylesheets/styled-components/palette';
 
 export const ChatOfflineIndicator = styled.div`
   display: flex;
@@ -10,7 +10,7 @@ export const ChatOfflineIndicator = styled.div`
   margin-top: 0.2rem;
   padding: 0.5rem;
   border-radius: 2px;
-  border-top: 1px solid ${colorGrayLighter};
+  border-top: 1px solid ${colorBorder};
   & > span {
     color: ${colorText};
     font-size: 1rem;

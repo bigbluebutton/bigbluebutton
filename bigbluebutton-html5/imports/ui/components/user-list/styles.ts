@@ -8,12 +8,18 @@ import {
   listItemBgHover,
   itemFocusBorder,
 } from '/imports/ui/stylesheets/styled-components/palette';
-import { smPaddingX, borderSize } from '/imports/ui/stylesheets/styled-components/general';
+import {
+  smPaddingX,
+  mdPadding,
+  borderSize,
+  contentSidebarBottomScrollPadding,
+} from '/imports/ui/stylesheets/styled-components/general';
 import {
   HeaderContainer as BaseHeaderContainer,
   PanelContent as BasePanelContent,
   Separator as BaseSeparator,
 } from '/imports/ui/components/sidebar-content/styles';
+import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
 
 const HeaderContainer = styled(BaseHeaderContainer)``;
 
@@ -23,6 +29,12 @@ const PanelContent = styled(BasePanelContent)`
 `;
 
 const Separator = styled(BaseSeparator)``;
+
+const ScrollableSection = styled(ScrollboxVertical)`
+  flex-grow: 1;
+  padding-bottom: ${contentSidebarBottomScrollPadding};
+  margin: ${mdPadding};
+`;
 
 const UserList = styled(FlexColumn)`
   justify-content: flex-start;
@@ -90,6 +102,7 @@ export default {
   HeaderContainer,
   PanelContent,
   Separator,
+  ScrollableSection,
   UserList,
   SmallTitle,
   ListItem,

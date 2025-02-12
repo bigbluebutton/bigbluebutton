@@ -223,26 +223,9 @@ class NavBar extends Component {
   handleToggleUserList() {
     const {
       sidebarNavigation,
-      sidebarContent,
       layoutContextDispatch,
     } = this.props;
 
-    if (sidebarNavigation.isOpen) {
-      if (sidebarContent.isOpen) {
-        layoutContextDispatch({
-          type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-          value: false,
-        });
-        layoutContextDispatch({
-          type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-          value: PANELS.NONE,
-        });
-        layoutContextDispatch({
-          type: ACTIONS.SET_ID_CHAT_OPEN,
-          value: '',
-        });
-      }
-    }
     layoutContextDispatch({
       type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
       value: !sidebarNavigation.isOpen,

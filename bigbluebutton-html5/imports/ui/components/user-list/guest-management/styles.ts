@@ -7,15 +7,12 @@ import { fontSizeSmall, textFontWeight } from '../../../stylesheets/styled-compo
 import {
   contentSidebarBorderRadius, contentSidebarPadding,
 } from '/imports/ui/stylesheets/styled-components/general';
-import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
 
-const GuestManagement = styled(ScrollboxVertical)`
+const GuestManagement = styled.div`
   padding: ${contentSidebarPadding} ${contentSidebarPadding} 
            ${contentSidebarPadding} ${contentSidebarPadding};
   border-radius: ${contentSidebarBorderRadius};
   background: ${colorWhite};
-  overflow-y: auto;
-  max-height: 50%;
 `;
 
 const GuestPolicyContainer = styled.div`

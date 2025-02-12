@@ -222,44 +222,37 @@ const LayoutObserver: React.FC = () => {
         const Settings = getSettingsSingletonInstance();
         Settings.save(setLocalSettings);
 
-        if (getFromUserSettings('bbb_show_participants_on_login', window.meetingClientSettings.public.layout.showParticipantsOnLogin) && !deviceInfo.isPhone) {
-          if (isChatEnabled && getFromUserSettings('bbb_show_public_chat_on_login', !window.meetingClientSettings.public.chat.startClosed)) {
-            const PUBLIC_CHAT_ID = window.meetingClientSettings.public.chat.public_group_id;
+        layoutContextDispatch({
+          type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
+          value: true,
+        });
 
-            layoutContextDispatch({
-              type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
-              value: true,
-            });
-            layoutContextDispatch({
-              type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-              value: true,
-            });
-            layoutContextDispatch({
-              type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-              value: PANELS.CHAT,
-            });
-            layoutContextDispatch({
-              type: ACTIONS.SET_ID_CHAT_OPEN,
-              value: PUBLIC_CHAT_ID,
-            });
-          } else {
-            layoutContextDispatch({
-              type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
-              value: true,
-            });
-            layoutContextDispatch({
-              type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-              value: false,
-            });
-          }
-        } else {
-          layoutContextDispatch({
-            type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
-            value: false,
-          });
+        if (getFromUserSettings('bbb_show_participants_on_login', window.meetingClientSettings.public.layout.showParticipantsOnLogin)
+          && !deviceInfo.isPhone) {
           layoutContextDispatch({
             type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-            value: false,
+            value: true,
+          });
+          layoutContextDispatch({
+            type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+            value: PANELS.USERLIST,
+          });
+        }
+
+        if (isChatEnabled && getFromUserSettings('bbb_show_public_chat_on_login', !window.meetingClientSettings.public.chat.startClosed)) {
+          const PUBLIC_CHAT_ID = window.meetingClientSettings.public.chat.public_group_id;
+
+          layoutContextDispatch({
+            type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+            value: true,
+          });
+          layoutContextDispatch({
+            type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+            value: PANELS.CHAT,
+          });
+          layoutContextDispatch({
+            type: ACTIONS.SET_ID_CHAT_OPEN,
+            value: PUBLIC_CHAT_ID,
           });
         }
 

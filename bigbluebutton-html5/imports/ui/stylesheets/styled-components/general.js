@@ -1,3 +1,9 @@
+import {
+  SIDEBAR_CONTENT_VERTICAL_MARGIN,
+  SIDEBAR_CONTENT_MARGIN_TO_MEDIA,
+  SIDEBAR_NAVIGATION_MARGIN,
+} from '/imports/ui/components/layout/defaultValues';
+
 const borderSizeSmall = '1px';
 const borderSize = '2px';
 const borderSizeLarge = '3px';
@@ -28,6 +34,8 @@ const contentSidebarPadding = '1rem';
 const contentSidebarBottomScrollPadding = '2rem';
 const contentSidebarHeight = '86%';
 const contentSidebarBorderRadius = '1rem';
+const contentSidebarVerticalMargin = `${SIDEBAR_CONTENT_VERTICAL_MARGIN}px`;
+const contentSidebarMarginToMedia = `${SIDEBAR_CONTENT_MARGIN_TO_MEDIA}px`;
 const minModalHeight = '20rem';
 const descriptionMargin = '3.5rem';
 const navbarHeight = '3.9375rem';
@@ -38,6 +46,7 @@ const navigationSidebarListItemsGap = '0.8rem';
 const navigationSidebarListItemsWidth = '65%';
 const navigationSidebarBorderRadius = '48px';
 const navigationSidebarPaddingY = '20px';
+const navigationSidebarMargin = `${SIDEBAR_NAVIGATION_MARGIN}px`;
 const pollHeaderOffset = '-0.875rem';
 const toastContentWidth = '98%';
 const modalMargin = '3rem';
@@ -145,6 +154,7 @@ export {
   navigationSidebarListItemsWidth,
   navigationSidebarBorderRadius,
   navigationSidebarPaddingY,
+  navigationSidebarMargin,
   pollHeaderOffset,
   toastContentWidth,
   modalMargin,
@@ -219,6 +229,8 @@ export {
   contentSidebarBottomScrollPadding,
   contentSidebarHeight,
   contentSidebarBorderRadius,
+  contentSidebarVerticalMargin,
+  contentSidebarMarginToMedia,
   appsPanelGroupItemsSpacing,
   appsPanelItemsSpacing,
   appsButtonsBorderRadius,

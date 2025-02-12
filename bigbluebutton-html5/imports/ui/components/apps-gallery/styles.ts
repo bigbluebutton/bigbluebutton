@@ -5,6 +5,7 @@ import {
   appsGalleryOutlineColor,
   unpinnedAppIconColor,
   colorWhite,
+  colorBorder,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import Button from '/imports/ui/components/common/button/component';
 import { titlesFontWeight, headingsFontWeight } from '/imports/ui/stylesheets/styled-components/typography';
@@ -58,18 +59,18 @@ const RegisteredAppContent = styled.div`
   flex-direction: row;
   flex-grow: 1;
   border-radius: ${appsButtonsBorderRadius};
-  border-top: 1px solid ${appsGalleryOutlineColor};
-  border-right: 1px solid ${appsGalleryOutlineColor};
-  border-bottom: 1px solid ${appsGalleryOutlineColor};
+  border-top: 1px solid ${colorBorder};
+  border-right: 1px solid ${colorBorder};
+  border-bottom: 1px solid ${colorBorder};
   align-items: center;
 `;
 
 // @ts-expect-error -> Untyped component.
-const OpenButton = styled(Button)<{pinned: boolean}>`
+const OpenButton = styled(Button)<{$pinned: boolean}>`
   padding: ${$2xlPadding};
   border-radius: ${appsButtonsBorderRadius} 0px 0px ${appsButtonsBorderRadius};
   
-  ${({ pinned }) => (pinned ? `
+  ${({ $pinned }) => ($pinned ? `
     background-color: ${colorPrimary};
     color: ${colorWhite};
   ` : `

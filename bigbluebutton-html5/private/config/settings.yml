@@ -803,7 +803,7 @@ public:
     pinnable: true
   layout:
     hidePresentationOnJoin: false
-    showParticipantsOnLogin: true
+    showParticipantsOnLogin: false
     showPushLayoutButton: true
     showPushLayoutToggle: true
     showSessionDetailsOnJoin: true

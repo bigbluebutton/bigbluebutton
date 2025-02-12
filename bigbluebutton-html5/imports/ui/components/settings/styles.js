@@ -8,6 +8,7 @@ import {
   colorPrimary,
   colorText,
   settingsModalTabSelected,
+  colorBorder,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { fontSizeLarge } from '/imports/ui/stylesheets/styled-components/typography';
 import {
@@ -41,8 +42,8 @@ const SettingsTabList = styled(TabList)`
   display: flex;
   flex-flow: column;
   margin: 0;
-  border-top: 1px solid #ddd;
-  border-bottom: 1px solid #ddd;
+  border-top: 1px solid ${colorBorder};
+  border-bottom: 1px solid ${colorBorder};
   padding: 0;
   width: calc(100% / 3);
   height: 39rem;
@@ -110,9 +111,9 @@ const SettingsTabPanel = styled(TabPanel)`
   display: none;
   flex-grow: 1;
   padding: 1.5rem 3rem;
-  border-top: 1px solid #ddd;
-  border-left: 1px solid #ddd;
-  border-bottom: 1px solid #ddd;
+  border-top: 1px solid ${colorBorder};
+  border-left: 1px solid ${colorBorder};
+  border-bottom: 1px solid ${colorBorder};
   width: calc(100% / 3 * 2);
 
   [dir="rtl"] & {
@@ -136,7 +137,7 @@ const ActionsContainer = styled.div`
   justify-content: flex-end;
   gap: 1.5rem;
   padding: 1.5rem;
-  border-top: 1px solid #ccc;
+  border-top: 1px solid ${colorBorder};
 `;
 
 const ActionButton = styled.button`

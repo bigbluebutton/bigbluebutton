@@ -556,7 +556,7 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
         customRightButton={null}
       />
       <Styled.PanelSeparator />
-      <Styled.Content>
+      <Styled.Content id="scroll-box">
         <Styled.TitleWrapper>
           {title}
           {form}
