@@ -515,7 +515,7 @@
     "app.navBar.speakersListLabel": "Falar coa xente",
     "app.leaveConfirmation.confirmLabel": "Deixar",
     "app.leaveConfirmation.confirmDesc": "Desconectarse da sesión",
-    "app.endMeeting.title": "Rematar  {0}",
+    "app.endMeeting.title": "Rematar {0}",
     "app.endMeeting.description": "Esta acción rematará a sesión para {0} usuarios activos. Confirma que que quere rematar esta sesión?",
     "app.endMeeting.noUserDescription": "Confirma que quere rematar esta sesión?",
     "app.endMeeting.contentWarning": "As mensaxes da parola, as notas compartidas, o contido do encerado e os documentos compartidos desta sesión deixarán de ser accesíbeis directamente",
