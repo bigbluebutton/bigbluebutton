@@ -2237,6 +2237,7 @@ create index idx_notification on notification("meetingId","userId","role","creat
 create table "plugin" (
 	"meetingId" varchar(100),
 	"name" varchar(100),
+    "localesBaseUrl" varchar(500),
 	"javascriptEntrypointUrl" varchar(500),
 	"javascriptEntrypointIntegrity" varchar(500),
     CONSTRAINT "plugin_pk" PRIMARY KEY ("meetingId","name"),
