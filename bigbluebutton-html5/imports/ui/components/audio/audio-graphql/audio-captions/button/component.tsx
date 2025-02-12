@@ -239,7 +239,7 @@ const AudioCaptionsButton: React.FC<AudioCaptionsButtonProps> = ({
   return (
     shouldRenderChevron || shouldRenderSelector
       ? (
-        <Styled.SpanButtonWrapper active={active}>
+        <Styled.SpanButtonWrapper>
           <BBBMenu
             trigger={(
               <>
@@ -249,7 +249,6 @@ const AudioCaptionsButton: React.FC<AudioCaptionsButtonProps> = ({
                   hideLabel
                   label={intl.formatMessage(intlMessages.transcriptionSettings)}
                   tabIndex={0}
-                  rotate
                 />
               </>
             )}
