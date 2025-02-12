@@ -143,7 +143,7 @@ class LockViewers extends MultiUsers {
   }
 
   async lockEditSharedNotes() {
-    await this.userPage.waitAndClick(e.sharedNotes);
+    await this.userPage.waitAndClick(e.sharedNotesSidebarButton);
     await this.userPage.waitForSelector(e.hideNotesLabel);
     const sharedNotesLocator = getNotesLocator(this.userPage);
     await sharedNotesLocator.type(e.message, { timeout: ELEMENT_WAIT_LONGER_TIME });
@@ -154,10 +154,10 @@ class LockViewers extends MultiUsers {
     await this.modPage.waitAndClick(e.applyLockSettings);
 
     await this.initUserPage2(true);
-    await this.userPage2.waitAndClick(e.sharedNotes);
+    await this.userPage2.waitAndClick(e.sharedNotesSidebarButton);
     await this.userPage2.wasRemoved(e.etherpadFrame, 'should not display the etherpad frame for the second attendee');
 
-    await this.userPage.waitAndClick(e.sharedNotes);
+    await this.userPage.waitAndClick(e.sharedNotesSidebarButton);
     await this.userPage.wasRemoved(e.etherpadFrame, 'should not display the etherpad frame for the first attendee');
 
     await this.modPage.waitAndClick(`${e.userListItem}>>nth=1`);
