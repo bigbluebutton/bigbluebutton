@@ -148,6 +148,11 @@ const Chat: React.FC<ChatProps> = ({
                 backgroundColor: showMessages ? btnPrimaryBg : colorOffWhite,
                 color: showMessages ? colorWhite : colorGrayLight,
                 border: `1px solid ${btnPrimaryBg}`,
+                display: 'block',
+                textAlign: 'center',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
               }}
               onClick={() => handleClickSelectChat(true)}
             >
@@ -180,6 +185,11 @@ const Chat: React.FC<ChatProps> = ({
                 backgroundColor: !showMessages ? btnPrimaryBg : colorOffWhite,
                 color: !showMessages ? colorWhite : colorGrayLight,
                 border: `1px solid ${btnPrimaryBg}`,
+                display: 'block',
+                textAlign: 'center',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
               }}
               onClick={() => handleClickSelectChat(false)}
             >

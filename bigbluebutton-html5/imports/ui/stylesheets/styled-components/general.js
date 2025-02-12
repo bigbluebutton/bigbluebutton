@@ -31,8 +31,9 @@ const whiteboardToolbarMargin = '.5rem';
 const whiteboardToolbarPaddingSm = '.3rem';
 const contentSidebarGap = '0.5rem';
 const contentSidebarPadding = '1rem';
+const contentSidebarUserListPadding = '0.5rem';
 const contentSidebarBottomScrollPadding = '2rem';
-const contentSidebarHeight = '86%';
+const contentSidebarHeight = '92%';
 const contentSidebarBorderRadius = '1rem';
 const contentSidebarVerticalMargin = `${SIDEBAR_CONTENT_VERTICAL_MARGIN}px`;
 const contentSidebarMarginToMedia = `${SIDEBAR_CONTENT_MARGIN_TO_MEDIA}px`;
@@ -226,6 +227,7 @@ export {
   xsPadding,
   contentSidebarGap,
   contentSidebarPadding,
+  contentSidebarUserListPadding,
   contentSidebarBottomScrollPadding,
   contentSidebarHeight,
   contentSidebarBorderRadius,
