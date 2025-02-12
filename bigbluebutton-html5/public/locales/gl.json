@@ -1517,7 +1517,7 @@
     "app.learningDashboard.usersTable.colRaiseHands": "Erguer as mans",
     "app.learningDashboard.usersTable.colActivityScore": "Puntuación da actividade",
     "app.learningDashboard.usersTable.colStatus": "Estado",
-    "app.learningDashboard.usersTable.userStatusOnline": "En liña",
+    "app.learningDashboard.usersTable.userStatusOnline": "Conectado",
     "app.learningDashboard.usersTable.userStatusOffline": "Sen conexión",
     "app.learningDashboard.usersTable.noUsers": "Aínda non hai usuarios",
     "app.learningDashboard.usersTable.name": "Nome",
