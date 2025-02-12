@@ -25,7 +25,7 @@
     "app.chat.breakoutDurationUpdated": "O tempo restante da sala parcial é agora de {0} minutos",
     "app.chat.breakoutDurationUpdatedModerator": "O tempo das salas parciais é agora de {0} minutos, e enviouse unha notificación.",
     "app.chat.emptyLogLabel": "Rexistro da parola baleiro",
-    "app.chat.away": "Está ausente",
+    "app.chat.away": "está ausente",
     "app.chat.notAway": "Xa non está ausente",
     "app.chat.clearPublicChatMessage": "A parola publica foi retirada por un moderador",
     "app.chat.multi.typing": "Varios usuarios están a escribir",
