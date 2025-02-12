@@ -324,6 +324,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[PresentationPageCountErrorSysPubMsg](envelope, jsonNode)
       case PresentationPageGeneratedSysPubMsg.NAME =>
         routeGenericMsg[PresentationPageGeneratedSysPubMsg](envelope, jsonNode)
+      case SetPresentationRenderedInToastPubMsg.NAME =>
+        routeGenericMsg[SetPresentationRenderedInToastPubMsg](envelope, jsonNode)
       case PresentationPageConvertedSysMsg.NAME =>
         routeGenericMsg[PresentationPageConvertedSysMsg](envelope, jsonNode)
       case PresentationPageConversionStartedSysMsg.NAME =>

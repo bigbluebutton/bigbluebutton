@@ -519,6 +519,7 @@ Permission: Restricted to Presenter
 - `name`
 - `presentationId`
 - `removable`
+- `renderedInToast`
 - `totalPages`
 - `totalPagesUploaded`
 - `uploadCompleted`

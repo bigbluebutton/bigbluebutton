@@ -43,7 +43,7 @@ async function convertAndUpload(presentations: any, padId: string, presentationE
     onUpload: () => { },
     onProgress: () => { },
     onDone: () => { },
-  }, undefined, undefined, undefined, presentationEnabled);
+  }, undefined, () => { }, undefined, presentationEnabled);
 }
 
 export default {
