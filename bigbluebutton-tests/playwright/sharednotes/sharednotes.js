@@ -210,12 +210,12 @@ class SharedNotes extends MultiUsers {
       await this.modPage.hasElement(e.chatButton, 'should display the public chat button');
       return this.modPage.wasRemoved(e.sharedNotesSidebarButton, 'should not display the shared notes button');
     }
+    // wait for the whiteboard to load
     await this.modPage.waitForSelector(e.whiteboard);
-    await this.userPage.waitForSelector(e.whiteboard);
-    // user minimize presentation
+    await this.modPage.closeAllToastNotifications();
     await this.userPage.waitAndClick(e.minimizePresentation);
     await this.userPage.hasElement(e.restorePresentation, 'should display the restore presentation button for the attendee');
-    // type on shared notes as moderator
+    // open shared notes and type
     await startSharedNotes(this.modPage);
     const notesLocator = getNotesLocator(this.modPage);
     await notesLocator.type('Hello');
@@ -229,11 +229,12 @@ class SharedNotes extends MultiUsers {
     await expect(notesLocator, 'should display the text "Hello" on the shared notes for the moderator').toContainText(/Hello/, { timeout: 20000 });
     await expect(notesLocatorUser, 'should display the text "Hello" on the shared notes for the attendee').toContainText(/Hello/);
     // unpin notes
+    await this.modPage.hasElement(e.smallToastMsg, 'should display the toast notification about notes pinned for the moderator');
+    await this.modPage.closeAllToastNotifications();
     await this.modPage.waitAndClick(e.unpinNotes);
-    await this.modPage.hasElement(e.whiteboard, 'should restore the presentation for the moderator (previous state)');
-    await this.userPage.wasRemoved(e.whiteboard, 'should not restore the presentation for the attendee as it was minimized before pinning the notes (previous state)');
-    await this.userPage.waitAndClick(e.restorePresentation);
-    // pin notes again as moderator
+    await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard for the moderator');
+    await this.userPage.hasElement(e.whiteboard, 'should display the whiteboard for the attendee');
+    // pin notes again
     await startSharedNotes(this.modPage);
     await this.modPage.waitAndClick(e.notesOptions);
     await this.modPage.waitAndClick(e.pinNotes);

@@ -4,7 +4,6 @@ const e = require('../core/elements');
 const util = require('./util');
 const { openSettings } = require('../options/util');
 const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
-const { getSettings } = require('../core/settings');
 const { sleep } = require('../core/helpers');
 
 class Notifications extends MultiUsers {
@@ -50,6 +49,7 @@ class Notifications extends MultiUsers {
 
   async raiseAndLowerHandNotification() {
     await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage.closeAllToastNotifications();
     await this.modPage.waitAndClick(e.raiseHandBtn);
     await sleep(1000);
     await this.modPage.hasElement(e.raiseHandRejection, 'should display raise hand rejection button on toast notification');

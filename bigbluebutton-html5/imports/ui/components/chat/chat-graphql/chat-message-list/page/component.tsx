@@ -33,7 +33,6 @@ const PAGE_SIZE = 50;
 
 interface ChatListPageCommonProps {
   firstPageToLoad: number;
-  focusedId: number | null;
   scrollRef: React.RefObject<HTMLDivElement>;
   markMessageAsSeen: (message: Message) => void;
   lastSenderPreviousPage: string | undefined;
@@ -113,7 +112,6 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
   page,
   markMessageAsSeen,
   scrollRef,
-  focusedId,
   firstPageToLoad,
   meetingDisablePrivateChat,
   meetingDisablePublicChat,
@@ -134,7 +132,6 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
   const { domElementManipulationIdentifiers } = useContext(PluginsContext);
   const messageRefs = useRef<Record<number, ChatMessageRef | null>>({});
   const chatFocusMessageRequest = useStorageKey(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST, STORAGES.IN_MEMORY);
-  const [keyboardFocusedMessageSequence, setKeyboardFocusedMessageSequence] = useState<number | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const [renderedChatMessages, setRenderedChatMessages] = useState<MessageDetails[]>([]);
@@ -178,18 +175,6 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
   }, [domElementManipulationIdentifiers, renderedChatMessages]);
 
   useEffect(() => {
-    const handleKeyboardFocusMessageRequest = (e: Event) => {
-      if (e instanceof CustomEvent) {
-        setKeyboardFocusedMessageSequence(Number.parseInt(e.detail.sequence, 10));
-      }
-    };
-
-    const handleKeyboardFocusMessageCancel = (e: Event) => {
-      if (e instanceof CustomEvent) {
-        setKeyboardFocusedMessageSequence(null);
-      }
-    };
-
     const handleFocusMessageRequest = (e: Event) => {
       if (e instanceof CustomEvent) {
         if (e.detail.sequence) {
@@ -214,15 +199,11 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
       }
     };
 
-    window.addEventListener(ChatEvents.CHAT_KEYBOARD_FOCUS_MESSAGE_REQUEST, handleKeyboardFocusMessageRequest);
-    window.addEventListener(ChatEvents.CHAT_KEYBOARD_FOCUS_MESSAGE_CANCEL, handleKeyboardFocusMessageCancel);
     window.addEventListener(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST, handleFocusMessageRequest);
     window.addEventListener(ChatEvents.CHAT_EDIT_REQUEST, handleChatEditRequest);
     window.addEventListener(ChatEvents.CHAT_CANCEL_EDIT_REQUEST, handleCancelChatEditRequest);
 
     return () => {
-      window.removeEventListener(ChatEvents.CHAT_KEYBOARD_FOCUS_MESSAGE_REQUEST, handleKeyboardFocusMessageRequest);
-      window.removeEventListener(ChatEvents.CHAT_KEYBOARD_FOCUS_MESSAGE_CANCEL, handleKeyboardFocusMessageCancel);
       window.removeEventListener(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST, handleFocusMessageRequest);
       window.removeEventListener(ChatEvents.CHAT_EDIT_REQUEST, handleChatEditRequest);
       window.removeEventListener(ChatEvents.CHAT_CANCEL_EDIT_REQUEST, handleCancelChatEditRequest);
@@ -257,8 +238,6 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
             scrollRef={scrollRef}
             markMessageAsSeen={markMessageAsSeen}
             messageReadFeedbackEnabled={messageReadFeedbackEnabled}
-            focused={focusedId === message.messageSequence}
-            keyboardFocused={keyboardFocusedMessageSequence === message.messageSequence}
             editing={editingId === message.messageId}
             ref={updateMessageRef}
             meetingDisablePrivateChat={meetingDisablePrivateChat}
@@ -293,7 +272,6 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
   chatId,
   markMessageAsSeen,
   scrollRef,
-  focusedId,
   firstPageToLoad,
   meetingDisablePrivateChat,
   meetingDisablePublicChat,
@@ -357,7 +335,6 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
       page={page}
       markMessageAsSeen={markMessageAsSeen}
       scrollRef={scrollRef}
-      focusedId={focusedId}
       firstPageToLoad={firstPageToLoad}
       meetingDisablePrivateChat={meetingDisablePrivateChat}
       meetingDisablePublicChat={meetingDisablePublicChat}
