@@ -133,7 +133,7 @@ class ActionsBar extends PureComponent {
       setPresentationFitToWidth,
       isPresentationEnabled,
       ariaHidden,
-      allowScreensharePresentationSwitch,
+      showScreenshareQuickSwapButton,
     } = this.props;
 
     const Settings = getSettingsSingletonInstance();
@@ -216,7 +216,7 @@ class ActionsBar extends PureComponent {
           <Styled.Right>
             <Styled.Gap>
               {
-                allowScreensharePresentationSwitch && <SwapPresentationButton />
+                showScreenshareQuickSwapButton && <SwapPresentationButton />
               }
               {shouldShowPresentationButton && shouldShowOptionsButton
                 ? (

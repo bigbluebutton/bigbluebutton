@@ -13,13 +13,6 @@ trait SetScreenshareAsContentReqMsgHdlr extends RightsManagementTrait {
   val outGW: OutMsgRouter
 
   def handleSetScreenshareAsContentReqMsg(msg: SetScreenshareAsContentReqMsg): Unit = {
-
-    val allowScreensharePresentationSwitch = getConfigPropertyValueByPathAsBooleanOrElse(
-      liveMeeting.clientSettings,
-      "public.kurento.screenshare.allowScreensharePresentationSwitch",
-      alternativeValue = false
-    )
-
     if (liveMeeting.props.meetingProp.disabledFeatures.contains("screenshare")) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "Screenshare is disabled for this meeting."
@@ -28,7 +21,7 @@ trait SetScreenshareAsContentReqMsgHdlr extends RightsManagementTrait {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to set screenshare as content."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)
-    } else if (allowScreensharePresentationSwitch){
+    } else {
       Layouts.setScreenshareAsContent(liveMeeting.layouts, msg.body.screenshareAsContent)
       LayoutDAO.insertOrUpdate(liveMeeting.props.meetingProp.intId, liveMeeting.layouts)
       sendSetScreenshareAsContentEvtMsg(msg.header.userId)

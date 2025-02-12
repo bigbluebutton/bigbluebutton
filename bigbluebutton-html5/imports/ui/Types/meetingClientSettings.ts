@@ -332,7 +332,6 @@ export interface CameraTimeouts {
 }
 
 export interface Screenshare {
-  allowScreensharePresentationSwitch: boolean
   enableVolumeControl: boolean
   subscriberOffering: boolean
   bitrate: number
@@ -578,6 +577,7 @@ export interface Layout {
   showParticipantsOnLogin: boolean
   showPushLayoutButton: boolean
   showPushLayoutToggle: boolean
+  showScreenshareQuickSwapButton: boolean
 }
 
 export interface Pads {
