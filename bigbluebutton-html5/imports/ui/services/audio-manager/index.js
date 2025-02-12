@@ -383,7 +383,9 @@ class AudioManager {
     // Initialize device IDs in configured bridges
     this.fullAudioBridge.inputDeviceId = this.inputDeviceId;
     this.fullAudioBridge.outputDeviceId = this.outputDeviceId;
+    this.fullAudioBridge.callback = this.callStateCallback;
     this.listenOnlyBridge.outputDeviceId = this.outputDeviceId;
+    this.listenOnlyBridge.callback = this.callStateCallback;
     logger.debug({
       logCode: 'audiomanager_bridges_loaded',
       extraInfo: {
