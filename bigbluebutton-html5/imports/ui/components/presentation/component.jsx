@@ -531,10 +531,14 @@ class Presentation extends PureComponent {
 
   fitToWidthHandler() {
     const { setPresentationFitToWidth, fitToWidth } = this.props;
-    setPresentationFitToWidth(!fitToWidth);
-    this.setState({
-      zoom: HUNDRED_PERCENT,
-    });
+    this.setState(
+      {
+        zoom: HUNDRED_PERCENT,
+      },
+      () => {
+        setPresentationFitToWidth(!fitToWidth);
+      }
+    );
   }
 
   updateLocalPosition(x, y, width, height, zoom) {
