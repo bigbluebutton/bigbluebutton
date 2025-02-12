@@ -416,7 +416,7 @@
     "app.presentationUploder.uploadViewTitle": "Charger la présentation",
     "app.poll.questionAndoptions.label": "Intitulé de la question à afficher\nA. Réponse *\nB. Réponse (optionnelle)\nC. Réponse (optionnelle)\nD. Réponse (optionnelle)\nE. Réponse (optionnelle)",
     "app.poll.customInput.label": "Saisie personnalisée",
-    "app.poll.customInputInstructions.label": "Saisie personnalisée est activée - Ecrivez la question et la (les) réponse(s) dans le format proposé ou glissez-déposez un fichier texte dans le même format. ",
+    "app.poll.customInputInstructions.label": "La saisie personnalisée est activée - Ecrivez la question et la (les) réponse(s) dans le format proposé ou glissez-déposez un fichier texte dans le même format. ",
     "app.poll.maxOptionsWarning.label": "Seules le 5 premières réponses peuvent être utilisées!",
     "app.poll.pollPaneTitle": "Sondage",
     "app.poll.enableMultipleResponseLabel": "Question à choix multiple ?",
