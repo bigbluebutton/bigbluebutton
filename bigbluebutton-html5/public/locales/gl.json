@@ -1268,7 +1268,7 @@
     "app.learningDashboard.userDetails.emojis": "«Emojis»",
     "app.learningDashboard.userDetails.raiseHands": "Erguer as mans",
     "app.learningDashboard.userDetails.pollVotes": "Votos da enquisa",
-    "app.learningDashboard.userDetails.onlineIndicator": "{0} tempo en liña",
+    "app.learningDashboard.userDetails.onlineIndicator": "{0} tempo conectado",
     "app.learningDashboard.usersTable.title": "Vista xeral",
     "app.learningDashboard.usersTable.colOnline": "Tempo en liña",
     "app.learningDashboard.usersTable.colTalk": "Tempo de conversa",
