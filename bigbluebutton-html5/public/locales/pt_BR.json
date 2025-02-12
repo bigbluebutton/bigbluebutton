@@ -154,7 +154,7 @@
     "app.notes.notesDropdown.notesOptions": "Opções de notas",
     "app.appsGallery.title": "Galeria de Apps",
     "app.appsGallery.maxpinnedApps": "{0} de {1} apps fixados",
-    "app.appsGallery.maxpinnedAppsContinue": "na barra lateral.",
+    "app.appsGallery.maxpinnedAppsContinue": " na barra lateral.",
     "app.appsGallery.pinTooltip": "Fixar app",
     "app.appsGallery.unpinTooltip": "Desfixar app",
     "app.appsGallery.modal.title": "Opa!",
