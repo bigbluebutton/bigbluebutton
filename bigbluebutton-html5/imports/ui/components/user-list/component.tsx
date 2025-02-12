@@ -25,8 +25,12 @@ const intlMessages = defineMessages({
     id: 'app.userList.usersTitle',
     description: 'Title for the Header',
   },
-  minimizeLabel: {
-    id: 'app.userList.minimize',
+  usersStaticTitle: {
+    id: 'app.userList.usersStaticTitle',
+    descrition: 'Users title without the count of participants',
+  },
+  minimize: {
+    id: 'app.sidebarContent.minimizePanelLabe',
     description: 'Label for the minimize button in the user list panel',
   },
   saveUsersNames: {
@@ -100,10 +104,10 @@ const UserList: React.FC<UserListComponentProps> = () => {
       <Styled.HeaderContainer
         title={intl.formatMessage(intlMessages.usersTitle, { 0: count })}
         rightButtonProps={{
-          'aria-label': intl.formatMessage(intlMessages.minimizeLabel),
+          'aria-label': intl.formatMessage(intlMessages.minimize, { 0: intl.formatMessage(intlMessages.usersStaticTitle) }),
           'data-test': 'closeUserList',
           icon: 'minus',
-          label: intl.formatMessage(intlMessages.minimizeLabel),
+          label: intl.formatMessage(intlMessages.minimize, { 0: intl.formatMessage(intlMessages.usersStaticTitle) }),
           onClick: () => {
             layoutContextDispatch({
               type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
