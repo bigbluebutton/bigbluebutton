@@ -1388,7 +1388,7 @@
     "app.createBreakoutRoom.doneLabel": "Feito",
     "app.createBreakoutRoom.nextLabel": "Seguinte",
     "app.createBreakoutRoom.minusRoomTime": "Diminuír o tempo da sala parcial",
-    "app.createBreakoutRoom.addRoomTime": "Incrementar o tempo da sala parcial",
+    "app.createBreakoutRoom.addRoomTime": "Aumentar o tempo da sala parcial",
     "app.createBreakoutRoom.addParticipantLabel": "+ Engadir participante",
     "app.createBreakoutRoom.freeJoin": "Permitirlle aos usuarios escoller a sala parcial á que incorporarse",
     "app.createBreakoutRoom.manageRoomsLabel": "Xestionar salas",
