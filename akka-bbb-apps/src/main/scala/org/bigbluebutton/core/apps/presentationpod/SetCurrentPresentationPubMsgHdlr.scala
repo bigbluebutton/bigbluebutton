@@ -38,8 +38,8 @@ trait SetCurrentPresentationPubMsgHdlr extends RightsManagementTrait {
 
       val newState = for {
         pod <- PresentationPodsApp.getPresentationPodIfPresenter(state, podId, userId)
-        _ <- pod.getPresentation(presId)
-        updatedPod <- pod.setCurrentPresentation(presId)
+        pres <- pod.getPresentation(presId)
+        updatedPod <- pod.setCurrentPresentation(liveMeeting.props.meetingProp.intId, pres)
       } yield {
         broadcastSetCurrentPresentationEvent(podId, userId, presId)
 

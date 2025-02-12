@@ -55,7 +55,7 @@ trait PresentationPageConversionStartedSysMsgHdlr {
       var pods = state.presentationPodManager.addPod(pod)
       pods = pods.addPresentationToPod(pod.id, pres)
       if (msg.body.current) {
-        pods = pods.setCurrentPresentation(pod.id, pres.id)
+        pods = pods.setCurrentPresentation(liveMeeting.props.meetingProp.intId, pod.id, pres)
       }
 
       state.update(pods)

@@ -1,7 +1,8 @@
 package org.bigbluebutton.core.models
 
 import org.bigbluebutton.core.util.RandomStringGenerator
-import org.bigbluebutton.core.db.{ PresPageDAO, PresPresentationDAO }
+import org.bigbluebutton.core.db.{NotificationDAO, PresPageDAO, PresPresentationDAO}
+import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 object PresentationPodFactory {
   private def genId(): String = System.currentTimeMillis() + "-" + RandomStringGenerator.randomAlphanumericString(8)
@@ -98,23 +99,33 @@ case class PresentationPod(id: String, currentPresenter: String,
   def getPresentationsByFilename(filename: String): Iterable[PresentationInPod] =
     presentations.values filter (p => p.name.startsWith(filename))
 
-  def setCurrentPresentation(presId: String): Option[PresentationPod] = {
+  def setCurrentPresentation(meetingId: String, newPresentation: PresentationInPod): Option[PresentationPod] = {
     var updatedPod: PresentationPod = this
-    presentations.get(presId) match {
+    presentations.get(newPresentation.id) match {
       case Some(newCurrentPresentation) =>
         // set new current presentation
         updatedPod = updatedPod.addPresentation(newCurrentPresentation.copy(current = true))
 
         // unset previous current presentation
         presentations.values foreach (curPres => {
-          if (curPres.current && curPres.id != presId) {
+          if (curPres.current && curPres.id != newPresentation.id) {
             val newPres = curPres.copy(current = false)
             updatedPod = updatedPod.addPresentation(newPres)
           }
         })
 
         // update graphql
-        PresPresentationDAO.setCurrentPres(presId)
+        PresPresentationDAO.setCurrentPres(newPresentation.id)
+
+        val notifyEvent = MsgBuilder.buildNotifyAllInMeetingEvtMsg(
+          meetingId,
+          "info",
+          "presentation",
+          "app.presentation.newPresentationActiveNotification",
+          "Notification when a new presentation is set as current",
+          Vector(s"${newPresentation.name}")
+        )
+        NotificationDAO.insert(notifyEvent)
 
         Some(updatedPod)
       case None =>
@@ -260,10 +271,10 @@ case class PresentationPodManager(presentationPods: collection.immutable.Map[Str
     a
   }
 
-  def setCurrentPresentation(podId: String, presId: String): PresentationPodManager = {
+  def setCurrentPresentation(meetingId: String, podId: String, pres: PresentationInPod): PresentationPodManager = {
     val updatedManager = for {
       pod <- getPod(podId)
-      podWithAdjustedCurrentPresentation <- pod.setCurrentPresentation(presId)
+      podWithAdjustedCurrentPresentation <- pod.setCurrentPresentation(meetingId, pres)
 
     } yield {
       updatePresentationPod(podWithAdjustedCurrentPresentation)
