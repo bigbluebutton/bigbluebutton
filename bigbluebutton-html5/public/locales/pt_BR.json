@@ -1356,7 +1356,7 @@
     "app.videoDock.webcamUnpinDesc": "Desafixar a webcam selecionada",
     "app.videoDock.autoplayBlockedDesc": "Precisamos da sua permissão para mostrar as webcams de outros participantes.",
     "app.videoDock.autoplayAllowLabel": "Ver webcams",
-    "app.createBreakoutRoom.title": "Salas de apoio",
+    "app.createBreakoutRoom.title": "Salas de Apoio",
     "app.createBreakoutRoom.ariaTitle": "Esconder salas de apoio",
     "app.createBreakoutRoom.breakoutRoomLabel": "Salas de apoio {0}",
     "app.createBreakoutRoom.askToJoin": "Pedir para entrar",
