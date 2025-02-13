@@ -659,14 +659,11 @@ class AudioManager {
 
   onVoiceUserChanges(fields = {}) {
     if (fields.muted !== undefined && fields.muted !== this.isMuted) {
-      let muteState;
       this.isMuted = fields.muted;
 
       if (this.isMuted) {
-        muteState = 'selfMuted';
         this.mute();
       } else {
-        muteState = 'selfUnmuted';
         this.unmute();
       }
     }
@@ -1158,10 +1155,6 @@ class AudioManager {
   }
 
   setSenderTrackEnabled(shouldEnable) {
-    // If the bridge is set to listen only mode, nothing to do here. This method
-    // is solely for muting outbound tracks.
-    if (this.isListenOnly) return;
-
     this.bridge.setSenderTrackEnabled(shouldEnable);
   }
 
