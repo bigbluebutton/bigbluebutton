@@ -528,7 +528,6 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
       <ChatMessageReplied
         message={message.replyToMessage.message || ''}
         sequence={message.replyToMessage.messageSequence}
-        emphasizedMessage={message.replyToMessage.chatEmphasizedText}
         deletedByUser={message.replyToMessage.deletedBy?.name ?? null}
       />
       )}
