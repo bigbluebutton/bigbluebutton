@@ -531,10 +531,14 @@ class Presentation extends PureComponent {
 
   fitToWidthHandler() {
     const { setPresentationFitToWidth, fitToWidth } = this.props;
-    setPresentationFitToWidth(!fitToWidth);
-    this.setState({
-      zoom: HUNDRED_PERCENT,
-    });
+    this.setState(
+      {
+        zoom: HUNDRED_PERCENT,
+      },
+      () => {
+        setPresentationFitToWidth(!fitToWidth);
+      }
+    );
   }
 
   updateLocalPosition(x, y, width, height, zoom) {
@@ -683,14 +687,14 @@ class Presentation extends PureComponent {
     } = this.props;
 
     return (
-      <Styled.InnerToastWrapper data-test="currentPresentationToast">
+      <Styled.InnerToastWrapper data-test="toastContainer">
         <Styled.ToastIcon>
           <Styled.IconWrapper>
             <Icon iconName="presentation" />
           </Styled.IconWrapper>
         </Styled.ToastIcon>
 
-        <Styled.ToastTextContent data-test="toastSmallMsg">
+        <Styled.ToastTextContent data-test="currentPresentationToast">
           <div>{`${intl.formatMessage(intlMessages.changeNotification)}`}</div>
           <Styled.PresentationName>{`${presentationName}`}</Styled.PresentationName>
         </Styled.ToastTextContent>

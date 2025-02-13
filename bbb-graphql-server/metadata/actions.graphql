@@ -326,6 +326,14 @@ type Mutation {
 }
 
 type Mutation {
+  pluginPersistEvent(
+    payloadJson: json!
+    eventName: String!
+    pluginName: String!
+  ): Boolean
+}
+
+type Mutation {
   pollCancel: Boolean
 }
 

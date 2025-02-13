@@ -216,6 +216,7 @@ export interface DataSaving {
 export interface Shortcuts {
   openOptions: OpenOptions
   toggleUserList: ToggleUserList
+  openLeaveMenu: OpenLeaveMenu
   toggleMute: ToggleMute
   joinAudio: JoinAudio
   leaveAudio: LeaveAudio
@@ -233,6 +234,11 @@ export interface OpenOptions {
 }
 
 export interface ToggleUserList {
+  accesskey: string
+  descId: string
+}
+
+export interface OpenLeaveMenu {
   accesskey: string
   descId: string
 }

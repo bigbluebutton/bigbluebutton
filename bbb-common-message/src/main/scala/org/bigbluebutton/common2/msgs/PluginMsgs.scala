@@ -60,3 +60,17 @@ case class PluginLearningAnalyticsDashboardSendGenericDataMsgBody(
                                                             pluginName: String,
                                                             genericDataForLearningAnalyticsDashboard: PluginLearningAnalyticsDashboardGenericData
                                         )
+object PluginPersistEventMsg { val NAME = "PluginPersistEventMsg" }
+case class PluginPersistEventMsg(header: BbbClientMsgHeader, body: PluginPersistEventMsgBody) extends StandardMsg
+case class PluginPersistEventMsgBody(
+                                      pluginName: String,
+                                      eventName: String,
+                                      payloadJson: Map[String, Object]
+                                    )
+object PluginPersistEventEvtMsg { val NAME = "PluginPersistEventEvtMsg" }
+case class PluginPersistEventEvtMsg(header: BbbClientMsgHeader, body: PluginPersistEventEvtMsgBody) extends StandardMsg
+case class PluginPersistEventEvtMsgBody(
+                                        pluginName: String,
+                                        eventName: String,
+                                        payloadJson: Map[String, Object]
+                                        )

@@ -212,12 +212,12 @@ const InputStreamLiveSelector: React.FC<InputStreamLiveSelectorProps> = ({
     <>
       {inAudio && inputStream && muteAlertEnabled && !listenOnly && muted && showMute ? (
         <div data-debug="live-watcher" aria-live="polite">
-        <MutedAlert
-          {...{
-            muted, inputStream, isPresenter,
-          }}
-          isViewer={!isModerator}
-        />
+          <MutedAlert
+            {...{
+              muted, inputStream, isPresenter,
+            }}
+            isViewer={!isModerator}
+          />
         </div>
       ) : null}
       {

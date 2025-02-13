@@ -153,7 +153,7 @@ class MultiUsers {
     await this.modPage.waitForSelector(e.whiteboard);
     await this.initUserPage();
     await this.userPage.waitAndClick(e.raiseHandBtn);
-    await this.userPage.hasElement(e.raiseHandBtn, 'should display the lower hand button for the attendee');
+    await this.userPage.hasElement(e.lowerHandBtn, 'should display the lower hand button for the attendee');
     await this.userPage.press('Escape');
     await this.modPage.comparingSelectorsBackgroundColor(e.avatarsWrapperAvatar, `${e.userListItem} div:first-child`);
     await this.modPage.waitAndClick(e.raiseHandRejection);
@@ -190,7 +190,7 @@ class MultiUsers {
     await this.userPage.shareWebcam();
     await this.modPage.page.waitForFunction(
       checkElementLengthEqualTo,
-      [e.webcamVideoItem, 3],
+      [e.webcamContainer, 2], //wait two 'videoContainer', as current user has data-test="mirroredVideoContainer"
       { timeout: ELEMENT_WAIT_TIME },
     );
     // Pin first webcam (Mod2)

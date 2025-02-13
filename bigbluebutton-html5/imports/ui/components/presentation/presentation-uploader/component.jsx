@@ -291,7 +291,7 @@ class PresentationUploader extends Component {
     super(props);
 
     this.state = {
-      presentations: [],
+      presentations: props.presentations,
       disableActions: false,
       presExporting: new Set(),
       shouldDisableExportButtonForAllDocuments: false,

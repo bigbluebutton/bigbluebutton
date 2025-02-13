@@ -1,7 +1,7 @@
 const { Create } = require('./create');
 const utilScreenShare = require('../screenshare/util');
 const e = require('../core/elements');
-const { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME } = require('../core/constants');
+const { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME } = require('../core/constants');
 const { getSettings } = require('../core/settings');
 const { expect } = require('@playwright/test');
 const { sleep } = require('../core/helpers');
@@ -161,53 +161,58 @@ class Join extends Create {
 
   async exportBreakoutNotes() {
     const { sharedNotesEnabled } = getSettings();
-
-    if(!sharedNotesEnabled) {
+    if (!sharedNotesEnabled) {
       await this.modPage.hasElement(e.chatButton, 'should display the chat button to access the public chat');
       return this.modPage.wasRemoved(e.sharedNotes, 'should have removed the shared notes.');
     }
+    // join room and type on the shared notes
     const breakoutUserPage = await this.joinRoom();
     await breakoutUserPage.hasElement(e.presentationTitle, 'should display the presentation title inside the breakout room.');
     await breakoutUserPage.waitAndClick(e.sharedNotes);
     await breakoutUserPage.hasElement(e.hideNotesLabel, 'should display the hide notes element when shared notes is opened');
-
     const notesLocator = getNotesLocator(breakoutUserPage);
     await notesLocator.type(e.message);
     await sleep(1000); // making sure there's enough time for the typing to finish
-
+    // end breakout rooms
     await this.modPage.waitAndClick(e.breakoutRoomsItem);
     await this.modPage.waitAndClick(e.breakoutOptionsMenu);
     await this.modPage.closeAllToastNotifications();
     await this.modPage.waitAndClick(e.endAllBreakouts);
-
+    // check if the notes were exported
     await this.modPage.hasElement(e.presentationUploadProgressToast, 'should display the presentation upload progress toast');
     await this.modPage.waitAndClick(e.actions);
     const shareNotesPDF = await this.modPage.getLocatorByIndex(e.actionsItem, 1);
     await expect(shareNotesPDF, 'should have the Notes name on the share notes pdf').toHaveText(/Notes/, { timeout: 30000 });
     await expect(this.modPage.getLocatorByIndex(e.actionsItem, 2)).toHaveText("Upload/Manage presentations"); //This checks if no other content was exported.
-    await this.modPage.checkElementCount(e.actionsItem, 8);
+    const expectedActionItems = [
+      "Default presentation",
+      "Exported breakout notes",
+      "Upload/Manage presentations",
+      "Start a poll",
+      "Share an external video",
+      "Activate timer/stopwatch",
+      "Share camera as content",
+    ];
+    await this.modPage.checkElementCount(e.actionsItem, expectedActionItems.length);
     await shareNotesPDF.click();
-
-    const wbBox = await this.modPage.getLocator(e.whiteboard);
-    await expect(wbBox).toHaveScreenshot('capture-breakout-notes.png', {
-      maxDiffPixels: 1000,
-    });
+    await this.modPage.hasElement(e.currentPresentationToast, 'should display the current presentation toast when changing to the whiteboard exported file');
+    //! avoiding the following screenshot comparison due to https://github.com/microsoft/playwright/issues/18827
+    // TODO should be updated and use entire view page screenshot after https://github.com/bigbluebutton/bigbluebutton/issues/22160 is fixed
+    // visual assertion
+    // await expect(this.modPage.page).toHaveScreenshot('capture-breakout-notes.png', {
+    //   maxDiffPixels: 1500,
+    // });
   }
 
   async exportBreakoutWhiteboard() {
     const { sharedNotesEnabled } = getSettings();
-    
-    if(!sharedNotesEnabled) {
+    if (!sharedNotesEnabled) {
       await this.modPage.hasElement(e.chatButton, 'should display the chat button to access the public chat');
       return this.modPage.wasRemoved(e.sharedNotes, 'should have removed the shared notes');
     }
-
+    // join room and draw a line
     const breakoutUserPage = await this.joinRoom();
     await breakoutUserPage.hasElement(e.presentationTitle, 'should have the presentation title displayed on the breakout room');
-    await breakoutUserPage.waitAndClick(e.sharedNotes);
-    await breakoutUserPage.hasElement(e.hideNotesLabel, 'should display the hide notes element when shared notes is opened');
-
-    // draw a line
     await breakoutUserPage.hasElement(e.whiteboard, 'should display the whiteboard on breakout room', ELEMENT_WAIT_LONGER_TIME);
     await breakoutUserPage.waitAndClick(e.wbShapesButton);
     await breakoutUserPage.waitAndClick(e.wbLineShape);
@@ -217,11 +222,10 @@ class Join extends Create {
     await breakoutUserPage.page.mouse.down();
     await breakoutUserPage.page.mouse.move(wbBoxBreakout.x + 0.7 * wbBoxBreakout.width, wbBoxBreakout.y + 0.7 * wbBoxBreakout.height);
     await breakoutUserPage.page.mouse.up();
-    await sleep(1000); // making sure there's enough time for the typing to finish
-
+    await sleep(1000); // making sure there's enough time for the drawing to finish
+    // end breakout rooms
     await this.modPage.waitAndClick(e.breakoutRoomsItem);
     await this.modPage.waitAndClick(e.breakoutOptionsMenu);
-    await this.modPage.closeAllToastNotifications();
     await this.modPage.waitAndClick(e.endAllBreakouts);
 
     await this.modPage.hasElement(e.presentationUploadProgressToast, 'should display the presentation upload progress toast', ELEMENT_WAIT_LONGER_TIME);
@@ -229,14 +233,32 @@ class Join extends Create {
     const whiteboardPDF = await this.modPage.getLocatorByIndex(e.actionsItem, 1);
     await expect(whiteboardPDF).toHaveText(/Whiteboard/, { timeout: 30000 });
     await expect(this.modPage.getLocatorByIndex(e.actionsItem, 2)).toHaveText("Upload/Manage presentations"); //This checks if no other content was exported.
-    await this.modPage.checkElementCount(e.actionsItem, 8);
+    const expectedActionItems = [
+      "Default presentation",
+      "Exported breakout whiteboard",
+      "Upload/Manage presentations",
+      "Start a poll",
+      "Share an external video",
+      "Activate timer/stopwatch",
+      "Share camera as content",
+    ];
+    await this.modPage.checkElementCount(e.actionsItem, expectedActionItems.length);
+    await this.modPage.press('Escape'); // close the actions menu
+    await this.modPage.hasElement(e.presentationUploadProgressToast, 'should display the presentation upload progress toast with the exported whiteboard');
+    await this.modPage.getLocator(e.presentationUploadProgressToast).click({
+      position: {
+        x: 0.5, y: 1,
+      },
+      timeout: ELEMENT_WAIT_TIME,
+    });
+    await this.modPage.wasRemoved(e.presentationUploadProgressToast, 'should have removed the presentation upload progress toast after clicking on it');
+    await this.modPage.waitAndClick(e.actions);
     await whiteboardPDF.click();
-    await this.modPage.waitAndClick('i[type="info"]');
-    await this.modPage.waitAndClick(e.currentPresentationToast);
-
+    await this.modPage.hasElement(e.currentPresentationToast, 'should display the current presentation toast when changing to the whiteboard exported file');
     //! avoiding the following screenshot comparison due to https://github.com/microsoft/playwright/issues/18827
-    // const wbBox = await this.modPage.getLocator(e.whiteboard);
-    // await expect(wbBox).toHaveScreenshot('capture-breakout-whiteboard.png', {
+    // TODO should be updated and use entire view page screenshot after https://github.com/bigbluebutton/bigbluebutton/issues/22160 is fixed
+    // visual assertion
+    // await expect(this.modPage.page).toHaveScreenshot('capture-breakout-whiteboard.png', {
     //   maxDiffPixels: 1500,
     // });
   }

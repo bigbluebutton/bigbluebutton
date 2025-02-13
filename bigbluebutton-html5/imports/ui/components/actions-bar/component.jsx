@@ -134,6 +134,7 @@ class ActionsBar extends PureComponent {
       isPresentationEnabled,
       ariaHidden,
       showScreenshareQuickSwapButton,
+      isReactionsButtonEnabled,
     } = this.props;
 
     const Settings = getSettingsSingletonInstance();
@@ -163,7 +164,7 @@ class ActionsBar extends PureComponent {
           }
         }
       >
-        <h2 class="sr-only">{intl.formatMessage(intlMessages.actionsBarLabel)}</h2>
+        <h2 className="sr-only">{intl.formatMessage(intlMessages.actionsBarLabel)}</h2>
         <Styled.ActionsBar
           ref={this.actionsBarRef}
           style={
@@ -209,7 +210,7 @@ class ActionsBar extends PureComponent {
               }}
               />
             )}
-            {this.renderReactionsButton()}
+            {isReactionsButtonEnabled && this.renderReactionsButton()}
             <RaiseHandButtonContainer />
             {this.renderPluginsActionBarItems(ActionsBarPosition.RIGHT)}
           </Styled.Center>
