@@ -13,6 +13,9 @@ import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { LAYOUT_TYPE } from '../layout/enums';
 import ReactionsButtonContainer from '/imports/ui/components/actions-bar/reactions-button/container';
 import RaiseHandButtonContainer from '/imports/ui/components/actions-bar/raise-hand-button/container';
+import Selector from '/imports/ui/components/common/selector/component';
+import ToggleGroup from '/imports/ui/components/common/toggle-group/component';
+import Separator from '/imports/ui/components/common/separator/component';
 
 const intlMessages = defineMessages({
   actionsBarLabel: {
@@ -53,8 +56,32 @@ class ActionsBar extends PureComponent {
                 break;
               case ActionsBarItemType.SEPARATOR:
                 actionBarItemToReturn = (
-                  <Styled.Separator
+                  <Separator
                     key={`${plugin.type}-${plugin.id}`}
+                    actionsBar
+                    icon={plugin.icon}
+                  />
+                );
+                break;
+              case ActionsBarItemType.SELECTOR:
+                actionBarItemToReturn = (
+                  <Selector
+                    title={plugin.title}
+                    options={plugin.options}
+                    defaultOption={plugin.defaultOption}
+                    onChange={plugin.onChange}
+                    width={plugin.width}
+                  />
+                );
+                break;
+              case ActionsBarItemType.TOGGLE_GROUP:
+                actionBarItemToReturn = (
+                  <ToggleGroup
+                    title={plugin.title}
+                    options={plugin.options}
+                    defaultOption={plugin.defaultOption}
+                    onChange={plugin.onChange}
+                    exclusive={plugin.exclusive}
                   />
                 );
                 break;
@@ -105,6 +132,7 @@ class ActionsBar extends PureComponent {
       setPresentationFitToWidth,
       isPresentationEnabled,
       ariaHidden,
+      isReactionsButtonEnabled,
     } = this.props;
 
     const Settings = getSettingsSingletonInstance();
@@ -134,6 +162,7 @@ class ActionsBar extends PureComponent {
           }
         }
       >
+        <h2 className="sr-only">{intl.formatMessage(intlMessages.actionsBarLabel)}</h2>
         <Styled.ActionsBar
           ref={this.actionsBarRef}
           style={
@@ -179,7 +208,7 @@ class ActionsBar extends PureComponent {
               }}
               />
             )}
-            {this.renderReactionsButton()}
+            {isReactionsButtonEnabled && this.renderReactionsButton()}
             <RaiseHandButtonContainer />
             {this.renderPluginsActionBarItems(ActionsBarPosition.RIGHT)}
           </Styled.Center>

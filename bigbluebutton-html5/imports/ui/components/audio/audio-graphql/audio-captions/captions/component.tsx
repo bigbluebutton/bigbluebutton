@@ -82,7 +82,6 @@ const AudioCaptionsSelect: React.FC<AudioCaptionsSelectProps> = ({
       <div
         data-test="speechRecognitionUnsupported"
         style={{
-          fontSize: '.75rem',
           padding: '1rem 0',
         }}
       >
