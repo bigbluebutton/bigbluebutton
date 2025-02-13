@@ -204,8 +204,12 @@ export interface InjectedWidget extends Widget {
     contentFunction: (element: HTMLElement) => ReactDOM.Root;
 }
 
+export interface InjectedAppGalleryItem extends Widget {
+    onClick: () => void;
+}
+
 export interface registeredApps {
-    [key: string]: NativeWidget | InjectedWidget;
+    [key: string]: NativeWidget | InjectedWidget | InjectedAppGalleryItem;
 }
 
 export interface SidebarNavigation {

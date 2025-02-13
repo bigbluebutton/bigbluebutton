@@ -66,31 +66,31 @@ const SidebarNavigationContainer = () => {
   const timerIsRegistered = useMemo(() => (
     Object.keys(registeredApps).includes(TIMER_APP_KEY)), [registeredApps]);
 
-  const registerApp = (panel: string, name: string, icon: string) => {
+  const registerApp = (id: string, name: string, icon: string) => {
     layoutContextDispatch({
       type: ACTIONS.REGISTER_SIDEBAR_APP,
       value: {
-        panel,
+        id,
         name,
         icon,
       },
     });
   };
 
-  const pinApp = (panel: string) => {
+  const pinApp = (id: string) => {
     layoutContextDispatch({
       type: ACTIONS.SET_SIDEBAR_NAVIGATION_PIN_APP,
       value: {
-        panel,
+        id,
         pin: true,
       },
     });
   };
 
-  const unregisterApp = (panel: string) => {
+  const unregisterApp = (id: string) => {
     layoutContextDispatch({
       type: ACTIONS.UNREGISTER_SIDEBAR_APP,
-      value: panel,
+      id,
     });
   };
 

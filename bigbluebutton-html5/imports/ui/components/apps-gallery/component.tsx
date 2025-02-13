@@ -4,7 +4,7 @@ import { AppsGalleryProps } from './types';
 import Icon from '/imports/ui/components/common/icon/component';
 import { layoutDispatch, layoutSelect } from '/imports/ui/components/layout/context';
 import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
-import { Layout } from '/imports/ui/components/layout/layoutTypes';
+import { InjectedAppGalleryItem, Layout } from '/imports/ui/components/layout/layoutTypes';
 import Styled from './styles';
 import TooManyPinnedAppsModal from './modal/component';
 
@@ -35,7 +35,13 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
   const title = intl.formatMessage(intlMessages.appsGalleryTitle);
   const [error, setError] = useState(false);
 
-  const renderApp = (appKey: string, name: string, icon: string, isPinned: boolean) => {
+  const renderApp = (
+    appKey: string,
+    name: string,
+    icon: string,
+    isPinned: boolean,
+    onClick?: undefined | (() => void),
+  ) => {
     const togglePinApp = (event: React.MouseEvent<HTMLDivElement> | React.KeyboardEvent<HTMLDivElement>) => {
       event.stopPropagation();
       if (!isPinned && pinnedApps.length >= MAX_PINNED_APPS_GALLERY) {
@@ -45,7 +51,7 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
       layoutContextDispatch({
         type: ACTIONS.SET_SIDEBAR_NAVIGATION_PIN_APP,
         value: {
-          panel: appKey,
+          id: appKey,
           pin: !isPinned,
         },
       });
@@ -60,16 +66,17 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
         value: appKey,
       });
     };
+    const functionToBeCalled = typeof onClick === 'function' ? onClick : openAppPanel;
     return (
       <Styled.RegisteredAppContent>
         <Styled.ClickableArea
-          onClick={openAppPanel}
+          onClick={functionToBeCalled}
         >
           <Styled.OpenButton
             key={`OPEN${appKey}`}
             color="primary"
             type="button"
-            onClick={openAppPanel}
+            onClick={functionToBeCalled}
             icon={icon}
             pinned={isPinned}
           />
@@ -94,7 +101,9 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
   const renderedPinnedApps = useMemo(() => (
     pinnedApps.map((pinnedAppKey) => {
       const { name, icon } = registeredApps[pinnedAppKey];
-      return renderApp(pinnedAppKey, name, icon, true);
+      // type guard
+      const { onClick } = registeredApps[pinnedAppKey] as InjectedAppGalleryItem;
+      return renderApp(pinnedAppKey, name, icon, true, onClick);
     })
   ), [registeredApps, pinnedApps]);
 
@@ -103,7 +112,9 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
       .filter((registeredObjectKey) => !pinnedApps.includes(registeredObjectKey))
       .map((unpinnedAppKey) => {
         const { name, icon } = registeredApps[unpinnedAppKey];
-        return renderApp(unpinnedAppKey, name, icon, false);
+        // type guard
+        const { onClick } = registeredApps[unpinnedAppKey] as InjectedAppGalleryItem;
+        return renderApp(unpinnedAppKey, name, icon, false, onClick);
       })
   ), [registeredApps, pinnedApps]);
 
