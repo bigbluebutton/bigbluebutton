@@ -18,7 +18,6 @@ const CANCEL_KEY = 'Esc';
 const ChatReplyIntention = () => {
   const [username, setUsername] = useState<string>();
   const [message, setMessage] = useState<string>();
-  const [emphasizedMessage, setEmphasizedMessage] = useState<boolean>();
   const [sequence, setSequence] = useState<number>();
   const intl = useIntl();
   const { animations } = useSettings(SETTINGS.APPLICATION) as {
@@ -33,7 +32,6 @@ const ChatReplyIntention = () => {
       if (e instanceof CustomEvent) {
         setUsername(e.detail.username);
         setMessage(e.detail.message);
-        setEmphasizedMessage(e.detail.emphasizedMessage);
         setSequence(e.detail.sequence);
       }
     };
@@ -42,7 +40,6 @@ const ChatReplyIntention = () => {
       if (e instanceof CustomEvent) {
         setUsername(undefined);
         setMessage(undefined);
-        setEmphasizedMessage(undefined);
         setSequence(undefined);
       }
     };
@@ -87,9 +84,7 @@ const ChatReplyIntention = () => {
       }}
     >
       <Styled.Message>
-        <Styled.Markdown
-          $emphasizedMessage={!!emphasizedMessage}
-        >
+        <Styled.Markdown>
           {messageChunks ? messageChunks[0] : ''}
         </Styled.Markdown>
       </Styled.Message>
