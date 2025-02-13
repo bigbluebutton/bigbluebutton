@@ -463,6 +463,7 @@ export const PresentationUploaderToast = ({
   const prevPresentations = usePreviousValue(presentations);
   const exportToastIdRef = useRef('presentationUploaderExportPresentationId');
   const convertingToastIdRef = useRef('presentationUploaderConvertingPresentationId');
+  const closeTimeoutReference = useRef();
 
   const addPressIdToDismissed = (presId) => {
     setDismissedItems((prev) => {
@@ -520,11 +521,17 @@ export const PresentationUploaderToast = ({
 
   useEffect(() => {
     setForceShowToast(false);
+    return () => {
+      // Dismiss toast if active when unmounting (presenter status is lost)
+      if (toast.isActive(convertingToastIdRef.current)) {
+        handleDismissToast(convertingToastIdRef.current);
+      }
+    };
   }, []);
 
   useEffect(() => {
     presentationsToBeShowed.filter(
-      (p) => (p.uploadCompleted && !p.uploadErrorMsgKey),
+      (p) => (p.uploadCompleted || p.uploadErrorMsgKey),
     ).forEach(
       (p) => setPresentationRenderedInToast({ variables: { presentationId: p.presentationId } }),
     );
@@ -547,13 +554,18 @@ export const PresentationUploaderToast = ({
       className: 'presentationUploaderToast toastClass',
       toastId: convertingToastIdRef.current,
       onClose: () => {
+        setShowToast(false);
         Session.setItem('presentationUploaderToastId', null);
       },
     });
   } else if (!showToast && toast.isActive(convertingToastIdRef.current)) {
-    setTimeout(() => {
-      handleDismissToast(convertingToastIdRef.current);
-    }, TIMEOUT_CLOSE_TOAST * 1000);
+    const effectiveTimeout = presentationsToBeShowed.length === 0 ? 0 : TIMEOUT_CLOSE_TOAST;
+    if (!closeTimeoutReference.current) {
+      closeTimeoutReference.current = setTimeout(() => {
+        closeTimeoutReference.current = null;
+        handleDismissToast(convertingToastIdRef.current);
+      }, effectiveTimeout * 1000);
+    }
   } else {
     toast.update(convertingToastIdRef.current, {
       render: renderToastList(presentationsToBeShowed, intl),
