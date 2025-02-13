@@ -509,6 +509,24 @@ Here are the following lists the possible WebRTC error messages that a user may 
 
 ## Networking
 
+### Client Common Errors
+
+| **Error Code** | **Error Message**                                               | **Causes**                                                                            |
+|----------------|-----------------------------------------------------------------|----------------------------------------------------------------------------------------|
+| **3001**       | Reconnection in progress                                        | GraphQL is disconnected and the client is attempting to re-establish the connection.   |
+| **3002**       | Unable to connect. Please check your internet connection        | GraphQL is disconnected (attempting to reconnect), and RTT measurements are critical.  |
+| **3003**       | Server is currently not responding. Reconnection in progress    | GraphQL is connected but not receiving any data from the server.                       |
+| **3004**       | Connection is unstable. Please check your internet connection   | GraphQL is connected but not receiving data, and RTT is critically high.               |
+| **3005**       | Data is loading slowly. Reconnection in progress                | GraphQL is connected and receiving data, but the Hasura PING signal is missing.        |
+| **3006**       | Some live data could not be loaded. Please refresh your client  | One or more GraphQL subscriptions returned an error.                                  |
+
+#### Additional Notes
+
+- **GraphQL** is the server that delivers data to the client through a WebSocket connection. The client also uses this same connection to send actions via GraphQL mutations. Monitoring the GraphQL connection helps determine if the client’s overall network connection is functioning properly.
+
+- **RTT (Round Trip Time)** is measured by periodically sending an HTTP request to `/bigbluebutton/rtt-check`. The BBB server responds with a simple `200` status code as quickly as possible without handling or storing any data. This allows the client to measure how long it takes to receive the response and detect potential network delays or instability.
+
+
 ### Server running behind NAT
 
 The [following issue](https://github.com/bigbluebutton/bigbluebutton/issues/8792) might be helpful in debugging if you run into errors and your server is behind NAT.
