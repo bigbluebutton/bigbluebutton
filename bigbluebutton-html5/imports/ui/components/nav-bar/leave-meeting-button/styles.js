@@ -30,6 +30,10 @@ const LeaveButton = styled(Button)`
 `;
 const LeaveButtonWrapper = styled.div`
   padding-left: 0.5rem;
+
+  @media ${smallOnly} {
+    padding-left: 0.3rem;
+  }
 `;
 
 export default {

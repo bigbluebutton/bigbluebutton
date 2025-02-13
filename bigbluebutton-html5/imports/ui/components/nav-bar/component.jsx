@@ -320,10 +320,6 @@ class NavBar extends Component {
         {!hideTopRow && (
           <Styled.Top>
             <Styled.Left>
-              {shouldShowNavBarToggleButton && isExpanded && document.dir === 'ltr'
-                && <Styled.ArrowLeft iconName="left_arrow" />}
-              {shouldShowNavBarToggleButton && !isExpanded && document.dir === 'rtl'
-                && <Styled.ArrowLeft iconName="left_arrow" />}
               {shouldShowNavBarToggleButton && (
                 <Styled.NavbarToggleButton
                   tooltipplacement="right"
@@ -336,16 +332,14 @@ class NavBar extends Component {
                   label={intl.formatMessage(intlMessages.toggleUserListLabel)}
                   tooltipLabel={intl.formatMessage(intlMessages.toggleUserListLabel)}
                   aria-label={ariaLabel}
-                  icon="user"
+                  icon={isExpanded ?
+                    (document.dir === 'rtl' ? 'right_arrow' : 'left_arrow')
+                    : (document.dir === 'rtl' ? 'left_arrow' : 'right_arrow')}
                   aria-expanded={isExpanded}
                   accessKey={TOGGLE_USERLIST_AK}
                   hasNotification={hasNotification}
                 />
               )}
-              {shouldShowNavBarToggleButton && !isExpanded && document.dir === 'ltr'
-                && <Styled.ArrowRight iconName="right_arrow" />}
-              {shouldShowNavBarToggleButton && isExpanded && document.dir === 'rtl'
-                && <Styled.ArrowRight iconName="right_arrow" />}
               {renderPluginItems(leftPluginItems)}
             </Styled.Left>
             <Styled.Center>
