@@ -583,6 +583,7 @@ export interface Layout {
   showParticipantsOnLogin: boolean
   showPushLayoutButton: boolean
   showPushLayoutToggle: boolean
+  showScreenshareQuickSwapButton: boolean
 }
 
 export interface Pads {

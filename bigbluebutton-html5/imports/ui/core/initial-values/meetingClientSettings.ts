@@ -617,6 +617,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       showParticipantsOnLogin: true,
       showPushLayoutButton: true,
       showPushLayoutToggle: true,
+      showScreenshareQuickSwapButton: true,
     },
     pads: {
       url: 'ETHERPAD_HOST',
