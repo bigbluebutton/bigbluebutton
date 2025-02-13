@@ -140,6 +140,10 @@ class Page {
     return this.page.locator(selector);
   }
 
+  getVisibleLocator(selector) {
+    return this.getLocator(`${selector}:visible`);
+  }
+
   getLocatorByIndex(selector, index) {
     return this.page.locator(selector).nth(index);
   }
