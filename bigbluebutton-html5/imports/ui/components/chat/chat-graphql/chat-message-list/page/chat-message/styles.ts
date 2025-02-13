@@ -22,6 +22,8 @@ import {
   colorGrayLight,
   colorGrayLightest,
   colorGrayDark,
+  emphasizedMessageBackgroundColor,
+  highlightedMessageBorderColor,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
 import Header from '/imports/ui/components/common/control-header/component';
@@ -42,6 +44,7 @@ interface ChatContentProps {
   $highlight: boolean;
   $reactionPopoverIsOpen: boolean;
   $keyboardFocused: boolean;
+  $emphasizedMessage: boolean;
 }
 
 interface ChatAvatarProps {
@@ -95,6 +98,7 @@ export const ChatContent = styled.div<ChatContentProps>`
   width: 100%;
   border-radius: 0.5rem;
   position: relative;
+  border: 1px solid transparent;
 
   ${({ $isSystemSender }) => !$isSystemSender && `
     background-color: #f4f6fa;
@@ -102,8 +106,8 @@ export const ChatContent = styled.div<ChatContentProps>`
 
   ${({ $highlight }) => $highlight && `
     &:hover {
-      background-color: ${colorBlueLightest} !important;
-    }
+      border: 1px solid ${highlightedMessageBorderColor};
+     }
   `}
 
   ${({
@@ -116,6 +120,15 @@ export const ChatContent = styled.div<ChatContentProps>`
   .chat-message-container:focus & {
     background-color: ${colorBlueLightest} !important;
   }
+
+  ${({ $emphasizedMessage }) => $emphasizedMessage && `
+    background-color: ${emphasizedMessageBackgroundColor} !important;
+
+    &:hover {
+      border: 1px solid ${highlightedMessageBorderColor};
+    }
+  `}
+
 `;
 
 export const ChatContentFooter = styled.div`
