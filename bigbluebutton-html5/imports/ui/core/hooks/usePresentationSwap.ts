@@ -20,7 +20,7 @@ const usePresentationSwap = (): [boolean, (v: boolean) => void] => {
         screenshareAsContent: value,
       },
     });
-  }, []);
+  }, [swapScreenshare]);
 
   return [
     (
