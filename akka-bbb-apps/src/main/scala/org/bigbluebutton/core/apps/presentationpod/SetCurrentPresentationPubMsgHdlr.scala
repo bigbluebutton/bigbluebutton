@@ -3,8 +3,10 @@ package org.bigbluebutton.core.apps.presentationpod
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.bus.MessageBus
+import org.bigbluebutton.core.db.NotificationDAO
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.running.LiveMeeting
+import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 trait SetCurrentPresentationPubMsgHdlr extends RightsManagementTrait {
   this: PresentationPodHdlrs =>
@@ -39,9 +41,19 @@ trait SetCurrentPresentationPubMsgHdlr extends RightsManagementTrait {
       val newState = for {
         pod <- PresentationPodsApp.getPresentationPodIfPresenter(state, podId, userId)
         pres <- pod.getPresentation(presId)
-        updatedPod <- pod.setCurrentPresentation(liveMeeting.props.meetingProp.intId, pres)
+        updatedPod <- pod.setCurrentPresentation(pres)
       } yield {
         broadcastSetCurrentPresentationEvent(podId, userId, presId)
+
+        val notifyEvent = MsgBuilder.buildNotifyAllInMeetingEvtMsg(
+          liveMeeting.props.meetingProp.intId,
+          "info",
+          "presentation",
+          "app.presentation.newPresentationActiveNotification",
+          "Notification when a new presentation is set as current",
+          Vector(s"${pres.name}")
+        )
+        NotificationDAO.insert(notifyEvent)
 
         val pods = state.presentationPodManager.addPod(updatedPod)
         state.update(pods)

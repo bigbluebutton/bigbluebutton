@@ -99,7 +99,7 @@ case class PresentationPod(id: String, currentPresenter: String,
   def getPresentationsByFilename(filename: String): Iterable[PresentationInPod] =
     presentations.values filter (p => p.name.startsWith(filename))
 
-  def setCurrentPresentation(meetingId: String, newPresentation: PresentationInPod): Option[PresentationPod] = {
+  def setCurrentPresentation(newPresentation: PresentationInPod): Option[PresentationPod] = {
     var updatedPod: PresentationPod = this
     presentations.get(newPresentation.id) match {
       case Some(newCurrentPresentation) =>
@@ -116,16 +116,6 @@ case class PresentationPod(id: String, currentPresenter: String,
 
         // update graphql
         PresPresentationDAO.setCurrentPres(newPresentation.id)
-
-        val notifyEvent = MsgBuilder.buildNotifyAllInMeetingEvtMsg(
-          meetingId,
-          "info",
-          "presentation",
-          "app.presentation.newPresentationActiveNotification",
-          "Notification when a new presentation is set as current",
-          Vector(s"${newPresentation.name}")
-        )
-        NotificationDAO.insert(notifyEvent)
 
         Some(updatedPod)
       case None =>
@@ -271,10 +261,10 @@ case class PresentationPodManager(presentationPods: collection.immutable.Map[Str
     a
   }
 
-  def setCurrentPresentation(meetingId: String, podId: String, pres: PresentationInPod): PresentationPodManager = {
+  def setCurrentPresentation(podId: String, pres: PresentationInPod): PresentationPodManager = {
     val updatedManager = for {
       pod <- getPod(podId)
-      podWithAdjustedCurrentPresentation <- pod.setCurrentPresentation(meetingId, pres)
+      podWithAdjustedCurrentPresentation <- pod.setCurrentPresentation(pres)
 
     } yield {
       updatePresentationPod(podWithAdjustedCurrentPresentation)
