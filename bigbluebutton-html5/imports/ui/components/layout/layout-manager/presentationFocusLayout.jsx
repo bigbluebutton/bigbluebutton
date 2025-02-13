@@ -7,8 +7,8 @@ import {
   ACTIONS,
   PANELS,
   CAMERADOCK_POSITION,
+  LAYOUT_TYPE,
 } from '/imports/ui/components/layout/enums';
-import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
 import { defaultsDeep } from '/imports/utils/array-utils';
 import Session from '/imports/ui/services/storage/in-memory';
 
