@@ -88,8 +88,6 @@ class Presentation extends PureComponent {
 
     const PAN_ZOOM_INTERV = window.meetingClientSettings.public.presentation.panZoomInterval || 200;
 
-    this.currentPresentationToastId = 'currentPresentationToastId';
-
     this.getSvgRef = this.getSvgRef.bind(this);
     this.zoomChanger = debounce(this.zoomChanger.bind(this), 200);
     this.updateLocalPosition = this.updateLocalPosition.bind(this);
@@ -489,7 +487,7 @@ class Presentation extends PureComponent {
       },
       () => {
         setPresentationFitToWidth(!fitToWidth);
-      }
+      },
     );
   }
 
