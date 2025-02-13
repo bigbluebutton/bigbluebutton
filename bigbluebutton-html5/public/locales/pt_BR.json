@@ -705,7 +705,7 @@
     "app.talkingIndicator.moreThanMaxIndicatorsWereTalking": "{0}+ estavam falando",
     "app.talkingIndicator.wasTalking": "{0} parou de falar",
     "app.actionsBar.actionsDropdown.actionsLabel": "Ações",
-    "app.actionsBar.actionsDropdown.activateTimerStopwatchLabel": "Ativar timer/cronômetro",
+    "app.actionsBar.actionsDropdown.activateTimerStopwatchLabel": "Ativar temporizador/cronômetro",
     "app.actionsBar.actionsDropdown.deactivateTimerStopwatchLabel": "Desativar timer/cronômetro",
     "app.actionsBar.actionsDropdown.presentationLabel": "Gerenciar apresentações",
     "app.actionsBar.actionsDropdown.initPollLabel": "Iniciar uma enquete",
