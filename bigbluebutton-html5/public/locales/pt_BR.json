@@ -10,7 +10,7 @@
     "app.chat.disconnected": "Você está desconectado, as mensagens não podem ser enviadas",
     "app.chat.locked": "O bate-papo está bloqueado, as mensagens não podem ser enviadas",
     "app.chat.inputLabel": "Entrada de mensagem para o bate-papo {0}",
-    "app.chat.emojiButtonLabel": "Seletor de Emoji",
+    "app.chat.emojiButtonLabel": "Incluir Emoji",
     "app.chat.loadMoreButtonLabel": "Ver Mais",
     "app.chat.inputPlaceholder": "Mensagem {0}",
     "app.chat.titlePublic": "Bate-papo público",
