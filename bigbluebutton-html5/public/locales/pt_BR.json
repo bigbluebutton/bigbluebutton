@@ -1126,7 +1126,7 @@
     "app.guest-policy.ariaTitle": "Janela de configurações da política de convidados",
     "app.guest-policy.title": "Política de convidados",
     "app.guest-policy.description": "Alterar política de convidados",
-    "app.guest-policy.button.askModerator": "Pergunte ao moderador",
+    "app.guest-policy.button.askModerator": "Perguntar ao moderador",
     "app.guest-policy.button.alwaysAccept": "Sempre aceitar",
     "app.guest-policy.button.alwaysDeny": "Sempre negar",
     "app.guest-policy.policyBtnDesc": "Define a política de convidados da sessão",
