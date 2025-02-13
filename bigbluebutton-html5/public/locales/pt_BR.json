@@ -61,7 +61,7 @@
     "app.chat.header.tooltipEdit": "Editar mensagem",
     "app.chat.header.tooltipReply": "Responder mensagem",
     "app.chat.header.tooltipDelete": "Excluir mensagem",
-    "app.chat.header.tooltipReact": "Reagir a mensagem",
+    "app.chat.header.tooltipReact": "Reagir à mensagem",
     "app.timer.toolTipTimerStopped": "O timer foi interrompido.",
     "app.timer.toolTipTimerRunning": "O timer está em andamento.",
     "app.timer.toolTipStopwatchStopped": "O cronômetro foi interrompido.",
