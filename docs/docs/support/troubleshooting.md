@@ -509,7 +509,7 @@ Here are the following lists the possible WebRTC error messages that a user may 
 
 ## Networking
 
-### Client Common Errors
+### Common Client Errors
 
 | **Error Code** | **Error Message**                                               | **Causes**                                                                            |
 |----------------|-----------------------------------------------------------------|----------------------------------------------------------------------------------------|
