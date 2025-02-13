@@ -1542,7 +1542,7 @@
     "app.learningDashboard.statusTimelineTable.setAt": "Set at",
     "app.learningDashboard.errors.invalidToken": "Invalid session token",
     "app.learningDashboard.errors.dataUnavailable": "Data is no longer available",
-    "app.sessionDetails.title": "{0} Details",
+    "app.sessionDetails.title": "Session Details",
     "app.sessionDetails.dismissLabel": "Close",
     "app.sessionDetails.dismissDesc": "Close modal",
     "app.sessionDetails.joinByUrl": "Join by URL",
