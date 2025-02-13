@@ -142,7 +142,7 @@ const UserListParticipantsPageContainer: React.FC<UserListParticipantsContainerP
       newList[index] = users;
       return newList;
     });
-  }, [usersData]);
+  }, [usersData, currentUser]);
 
   useEffect(() => {
     return () => {
