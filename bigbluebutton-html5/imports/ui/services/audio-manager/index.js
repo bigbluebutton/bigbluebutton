@@ -383,7 +383,9 @@ class AudioManager {
     // Initialize device IDs in configured bridges
     this.fullAudioBridge.inputDeviceId = this.inputDeviceId;
     this.fullAudioBridge.outputDeviceId = this.outputDeviceId;
+    this.fullAudioBridge.callback = this.callStateCallback;
     this.listenOnlyBridge.outputDeviceId = this.outputDeviceId;
+    this.listenOnlyBridge.callback = this.callStateCallback;
     logger.debug({
       logCode: 'audiomanager_bridges_loaded',
       extraInfo: {
@@ -659,14 +661,11 @@ class AudioManager {
 
   onVoiceUserChanges(fields = {}) {
     if (fields.muted !== undefined && fields.muted !== this.isMuted) {
-      let muteState;
       this.isMuted = fields.muted;
 
       if (this.isMuted) {
-        muteState = 'selfMuted';
         this.mute();
       } else {
-        muteState = 'selfUnmuted';
         this.unmute();
       }
     }
@@ -1158,10 +1157,6 @@ class AudioManager {
   }
 
   setSenderTrackEnabled(shouldEnable) {
-    // If the bridge is set to listen only mode, nothing to do here. This method
-    // is solely for muting outbound tracks.
-    if (this.isListenOnly) return;
-
     this.bridge.setSenderTrackEnabled(shouldEnable);
   }
 

@@ -196,10 +196,14 @@ export default class LiveKitScreenshareBridge {
   }
 
   private handleTrackPublished(publication: LocalTrackPublication | RemoteTrackPublication): void {
+    if (!LiveKitScreenshareBridge.isScreenSharePublication(publication)) return;
+
     this.setPublication(publication);
   }
 
   private handleTrackUnpublished(publication: LocalTrackPublication | RemoteTrackPublication): void {
+    if (!LiveKitScreenshareBridge.isScreenSharePublication(publication)) return;
+
     const { trackSid } = publication;
 
     this.removePublication(trackSid);
@@ -251,7 +255,7 @@ export default class LiveKitScreenshareBridge {
 
     this.liveKitRoom.remoteParticipants.forEach((participant) => {
       participant.trackPublications.forEach((publication) => {
-        if (LiveKitScreenshareBridge.isScreenShareTrack(publication.track)) {
+        if (LiveKitScreenshareBridge.isScreenSharePublication(publication)) {
           this.handleTrackPublished(publication);
         }
       });
@@ -425,6 +429,30 @@ export default class LiveKitScreenshareBridge {
     this.role = RECV_ROLE;
     this.hasAudio = options.hasAudio || false;
 
+    const doSubscribe = () => {
+      this.findInitialRemotePublications();
+      const publication = this.getPublication(streamId);
+
+      if (!publication || !(publication instanceof RemoteTrackPublication)) {
+        throw new Error('Publication not found');
+      }
+
+      this.subscribe(publication);
+    };
+
+    // If publication fails with "Publication not found" error, we will retry the subscription
+    // with a slight delay as  client info might not be available immediately
+    const delayedSubscription = () => new Promise<void>((resolve, reject) => {
+      setTimeout(() => {
+        try {
+          doSubscribe();
+          resolve();
+        } catch (error) {
+          reject(error);
+        }
+      }, 1000);
+    });
+
     const handleInitError = (error: Error) => {
       logger.warn({
         logCode: 'livekit_screenshare_init_error',
@@ -440,15 +468,17 @@ export default class LiveKitScreenshareBridge {
 
     try {
       await this.waitForRoomConnection();
-      this.findInitialRemotePublications();
-
-      const publication = this.getPublication(this.streamId);
-
-      if (!publication || !(publication instanceof RemoteTrackPublication)) throw new Error('Publication not found');
-
-      this.subscribe(publication);
+      doSubscribe();
     } catch (error) {
-      handleInitError(error as Error);
+      if ((error as Error).message === 'Publication not found') {
+        try {
+          await delayedSubscription();
+        } catch (delayedError) {
+          handleInitError(delayedError as Error);
+        }
+      } else {
+        handleInitError(error as Error);
+      }
     }
   }
 

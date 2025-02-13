@@ -14,13 +14,12 @@ const intlMessages = defineMessages({
 interface MessageRepliedProps {
   message: string;
   sequence: number;
-  emphasizedMessage: boolean;
   deletedByUser: string | null;
 }
 
 const ChatMessageReplied: React.FC<MessageRepliedProps> = (props) => {
   const {
-    message, sequence, emphasizedMessage, deletedByUser,
+    message, sequence, deletedByUser,
   } = props;
 
   const intl = useIntl();
@@ -45,7 +44,6 @@ const ChatMessageReplied: React.FC<MessageRepliedProps> = (props) => {
       {!deletedByUser && (
         <Styled.Message>
           <Styled.Markdown
-            $emphasizedMessage={emphasizedMessage}
             linkTarget="_blank"
             allowedElements={window.meetingClientSettings.public.chat.allowedElements}
             unwrapDisallowed
