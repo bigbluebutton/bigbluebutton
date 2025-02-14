@@ -1565,7 +1565,7 @@
     "app.learningDashboard.statusTimelineTable.setAt": "Definido em",
     "app.learningDashboard.errors.invalidToken": "Token de sessão inválido",
     "app.learningDashboard.errors.dataUnavailable": "Dado indisponível",
-    "app.sessionDetails.title": "{0} Detalhes",
+    "app.sessionDetails.title": "Detalhes da Sessão",
     "app.sessionDetails.dismissLabel": "Fechar",
     "app.sessionDetails.dismissDesc": "Fechar modal",
     "app.sessionDetails.joinByUrl": "Entrar por URL",
