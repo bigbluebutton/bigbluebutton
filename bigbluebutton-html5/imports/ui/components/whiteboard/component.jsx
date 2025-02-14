@@ -1404,9 +1404,24 @@ const Whiteboard = React.memo((props) => {
       });
     };
 
-    const timeoutId = setTimeout(handleResize, 300);
-    return () => clearTimeout(timeoutId);
-  }, [presentationAreaHeight, presentationAreaWidth, curPageId, presentationId]);
+    pollInnerWrapperWidthUntilStable(() => {
+      syncCameraWithPresentationArea({
+        tlEditorRef,
+        isPresenter,
+        currentPresentationPageRef,
+        presentationAreaWidth,
+        presentationAreaHeight,
+        zoomValueRef,
+        fitToWidthRef,
+        curPageIdRef,
+        initialViewBoxWidthRef,
+        initialViewBoxHeightRef,
+      });
+    },{
+        maxTries: 120,
+        stabilityFrames: 25,
+    });
+  }, [presentationHeight, presentationWidth, curPageId, presentationId]);
 
   React.useEffect(() => {
     if (!isPresenter
