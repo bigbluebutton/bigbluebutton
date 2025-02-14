@@ -454,7 +454,7 @@ export const PresentationUploaderToast = ({
   intl,
   presentations,
   presentationsToBeShowed,
-  setPresentationRenderedInToast,
+  setPresentationUploadCompletionNotified,
   forceShowToast,
   setForceShowToast,
 }) => {
@@ -533,7 +533,7 @@ export const PresentationUploaderToast = ({
     presentationsToBeShowed.filter(
       (p) => (p.uploadCompleted || p.uploadErrorMsgKey),
     ).forEach(
-      (p) => setPresentationRenderedInToast({ variables: { presentationId: p.presentationId } }),
+      (p) => setPresentationUploadCompletionNotified({ variables: { presentationId: p.presentationId } }),
     );
   }, [showToast]);
 

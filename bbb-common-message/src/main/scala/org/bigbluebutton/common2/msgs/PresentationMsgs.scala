@@ -10,9 +10,9 @@ object PreuploadedPresentationsSysPubMsg { val NAME = "PreuploadedPresentationsS
 case class PreuploadedPresentationsSysPubMsg(header: BbbClientMsgHeader, body: PreuploadedPresentationsSysPubMsgBody) extends StandardMsg
 case class PreuploadedPresentationsSysPubMsgBody(presentations: Vector[PresentationVO])
 
-object SetPresentationRenderedInToastPubMsg { val NAME = "SetPresentationRenderedInToastPubMsg" }
-case class SetPresentationRenderedInToastPubMsg(header: BbbClientMsgHeader, body: SetPresentationRenderedInToastPubMsgBody) extends StandardMsg
-case class SetPresentationRenderedInToastPubMsgBody(presentationId: String)
+object SetPresentationUploadCompletionNotifiedPubMsg { val NAME = "SetPresentationUploadCompletionNotifiedPubMsg" }
+case class SetPresentationUploadCompletionNotifiedPubMsg(header: BbbClientMsgHeader, body: SetPresentationUploadCompletionNotifiedPubMsgBody) extends StandardMsg
+case class SetPresentationUploadCompletionNotifiedPubMsgBody(presentationId: String)
 
 object MakePresentationDownloadReqMsg { val NAME = "MakePresentationDownloadReqMsg" }
 case class MakePresentationDownloadReqMsg(header: BbbClientMsgHeader, body: MakePresentationDownloadReqMsgBody) extends StandardMsg

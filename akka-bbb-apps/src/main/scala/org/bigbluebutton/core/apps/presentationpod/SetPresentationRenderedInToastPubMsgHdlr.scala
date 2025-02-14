@@ -7,11 +7,11 @@ import org.bigbluebutton.core.db.PresPresentationDAO
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.running.LiveMeeting
 
-trait SetPresentationRenderedInToastPubMsgHdlr extends RightsManagementTrait {
+trait SetPresentationUploadCompletionNotifiedPubMsgHdlr extends RightsManagementTrait {
   this: PresentationPodHdlrs =>
 
   def handle(
-      msg: SetPresentationRenderedInToastPubMsg, state: MeetingState2x,
+      msg: SetPresentationUploadCompletionNotifiedPubMsg, state: MeetingState2x,
       liveMeeting: LiveMeeting, bus: MessageBus
   ): MeetingState2x = {
 
@@ -22,7 +22,7 @@ trait SetPresentationRenderedInToastPubMsgHdlr extends RightsManagementTrait {
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
     } else {
       val presentationId = msg.body.presentationId
-      PresPresentationDAO.setPresentationRenderedInToast(presentationId)
+      PresPresentationDAO.setPresentationUploadCompletionNotified(presentationId)
     }
     state
   }
