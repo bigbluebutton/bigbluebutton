@@ -43,8 +43,7 @@ const AudioModalContainer = (props) => {
 
   const isRTL = document.documentElement.getAttribute('dir') === 'rtl';
   const APP_CONFIG = window.meetingClientSettings.public.app;
-  const forceListenOnly = getFromUserSettings('bbb_force_listen_only', APP_CONFIG.forceListenOnly)
-    && !usingLiveKit;
+  const forceListenOnly = getFromUserSettings('bbb_force_listen_only', APP_CONFIG.forceListenOnly);
   const listenOnlyMode = getFromUserSettings('bbb_listen_only_mode', APP_CONFIG.listenOnlyMode)
     && !usingLiveKit;
   const skipCheck = getFromUserSettings('bbb_skip_check_audio', APP_CONFIG.skipCheck);
