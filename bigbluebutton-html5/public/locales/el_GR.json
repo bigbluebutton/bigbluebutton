@@ -1542,7 +1542,7 @@
     "app.learningDashboard.statusTimelineTable.setAt": "Ρύθμιση σε",
     "app.learningDashboard.errors.invalidToken": "Μη έγκυρο αναγνωριστικό σύνδεσης",
     "app.learningDashboard.errors.dataUnavailable": "Τα δεδομένα δεν είναι πλέον διαθέσιμα",
-    "app.sessionDetails.title": "{0} Λεπτομέρειες",
+    "app.sessionDetails.title": "Λεπτομέρειες συνεδρίας",
     "app.sessionDetails.dismissLabel": "Κλείσιμο",
     "app.sessionDetails.dismissDesc": "Κλείσιμο κατάστασης",
     "app.sessionDetails.joinByUrl": "Εγγραφείτε μέσω URL",
