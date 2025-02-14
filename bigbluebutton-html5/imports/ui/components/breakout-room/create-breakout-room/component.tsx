@@ -373,7 +373,6 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
         id: 'freeJoinCheckbox',
         onChange: checkboxCallbackFactory((e: boolean) => {
           setFreeJoin(e);
-          setLeastOneUserIsValid(true);
         }),
         label: intl.formatMessage(intlMessages.freeJoinLabel),
       },
@@ -535,7 +534,7 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
             ? intl.formatMessage(intlMessages.updateConfirm)
             : intl.formatMessage(intlMessages.confirmButton),
           callback: isUpdate ? userUpdate : createRoom,
-          disabled: !leastOneUserIsValid || !numberOfRoomsIsValid || !durationIsValid,
+          disabled: (!leastOneUserIsValid && !freeJoin) || !numberOfRoomsIsValid || !durationIsValid,
         }
       }
       dismiss={{
