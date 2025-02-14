@@ -44,8 +44,8 @@ const AudioModalContainer = (props) => {
   const isRTL = document.documentElement.getAttribute('dir') === 'rtl';
   const APP_CONFIG = window.meetingClientSettings.public.app;
   const forceListenOnly = getFromUserSettings('bbb_force_listen_only', APP_CONFIG.forceListenOnly);
-  const listenOnlyMode = getFromUserSettings('bbb_listen_only_mode', APP_CONFIG.listenOnlyMode)
-    && !usingLiveKit;
+  const listenOnlyMode = forceListenOnly
+    || (getFromUserSettings('bbb_listen_only_mode', APP_CONFIG.listenOnlyMode) && !usingLiveKit);
   const skipCheck = getFromUserSettings('bbb_skip_check_audio', APP_CONFIG.skipCheck);
   const skipCheckOnJoin = getFromUserSettings('bbb_skip_check_audio_on_first_join', APP_CONFIG.skipCheckOnJoin);
   // Mobile users have significant trouble figuring out correct audio I/O devices
