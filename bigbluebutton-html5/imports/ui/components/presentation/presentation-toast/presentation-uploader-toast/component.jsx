@@ -533,7 +533,9 @@ export const PresentationUploaderToast = ({
     presentationsToBeShowed.filter(
       (p) => (p.uploadCompleted || p.uploadErrorMsgKey),
     ).forEach(
-      (p) => setPresentationUploadCompletionNotified({ variables: { presentationId: p.presentationId } }),
+      (p) => setPresentationUploadCompletionNotified(
+        { variables: { presentationId: p.presentationId } },
+      ),
     );
   }, [showToast]);
 
@@ -559,14 +561,12 @@ export const PresentationUploaderToast = ({
       },
     });
   } else if (!showToast && toast.isActive(convertingToastIdRef.current)) {
-    const effectiveTimeout = presentationsToBeShowed.length === 0 ? 0 : TIMEOUT_CLOSE_TOAST;
-    if (!closeTimeoutReference.current) {
-      closeTimeoutReference.current = setTimeout(() => {
-        closeTimeoutReference.current = null;
-        handleDismissToast(convertingToastIdRef.current);
-      }, effectiveTimeout * 1000);
-    }
-  } else {
+    closeTimeoutReference.current = setTimeout(() => {
+      closeTimeoutReference.current = null;
+      handleDismissToast(convertingToastIdRef.current);
+    }, TIMEOUT_CLOSE_TOAST * 1000);
+  } else if (presentationsToBeShowed.length > 0) {
+  // } else {
     toast.update(convertingToastIdRef.current, {
       render: renderToastList(presentationsToBeShowed, intl),
     });
