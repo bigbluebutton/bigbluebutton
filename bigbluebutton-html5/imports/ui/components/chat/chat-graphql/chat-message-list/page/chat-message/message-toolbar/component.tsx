@@ -2,8 +2,6 @@ import React, { useCallback } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
 import Popover from '@mui/material/Popover';
-import { layoutSelect } from '/imports/ui/components/layout/context';
-import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
 import ConfirmationModal from '/imports/ui/components/common/modal/confirmation/component';
 import {
@@ -120,8 +118,6 @@ const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
     });
   }, [chatDeleteMessage, chatId, messageId]);
 
-  const isRTL = layoutSelect((i: Layout) => i.isRTL);
-
   if ([
     chatReplyEnabled,
     chatReactionsEnabled,
@@ -144,105 +140,108 @@ const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
   const container = (
     <Container className="chat-message-toolbar">
       {showReplyButton && (
-      <>
-        <Tooltip title={intl.formatMessage(intlMessages.replyTooltip)}>
+        <>
+          <Tooltip title={intl.formatMessage(intlMessages.replyTooltip)}>
+            <EmojiButton
+              aria-describedby={`chat-reply-btn-label-${messageSequence}`}
+              icon="undo"
+              color="light"
+              onClick={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+                e.stopPropagation();
+                deactivateFocusTrap();
+                window.dispatchEvent(
+                  new CustomEvent(ChatEvents.CHAT_REPLY_INTENTION, {
+                    detail: {
+                      username,
+                      message,
+                      messageId,
+                      chatId,
+                      emphasizedMessage,
+                      sequence: messageSequence,
+                    },
+                  }),
+                );
+                window.dispatchEvent(
+                  new CustomEvent(ChatEvents.CHAT_CANCEL_EDIT_REQUEST),
+                );
+              }}
+            />
+          </Tooltip>
+          <span id={`chat-reply-btn-label-${messageSequence}`} className="sr-only">
+            {intl.formatMessage(intlMessages.reply, { 0: messageSequence })}
+          </span>
+        </>
+      )}
+      {showReactionsButton && (
+        <Tooltip title={intl.formatMessage(intlMessages.reactTooltip)}>
           <EmojiButton
-            aria-describedby={`chat-reply-btn-label-${messageSequence}`}
-            icon="undo"
+            onClick={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+              e.stopPropagation();
+              onReactionPopoverOpenChange(true);
+            }}
+            svgIcon="reactions"
             color="light"
+            data-test="reactionsPickerButton"
+            ref={setReactionsAnchor}
+          />
+        </Tooltip>
+      )}
+      {showDivider && <Divider role="separator" />}
+      {showEditButton && (
+        <Tooltip title={intl.formatMessage(intlMessages.editTooltip)}>
+          <EmojiButton
             onClick={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
               e.stopPropagation();
               deactivateFocusTrap();
               window.dispatchEvent(
-                new CustomEvent(ChatEvents.CHAT_REPLY_INTENTION, {
+                new CustomEvent(ChatEvents.CHAT_EDIT_REQUEST, {
                   detail: {
-                    username,
-                    message,
                     messageId,
                     chatId,
-                    emphasizedMessage,
-                    sequence: messageSequence,
+                    message,
                   },
                 }),
               );
               window.dispatchEvent(
-                new CustomEvent(ChatEvents.CHAT_CANCEL_EDIT_REQUEST),
+                new CustomEvent(ChatEvents.CHAT_CANCEL_REPLY_INTENTION),
               );
             }}
+            icon="pen_tool"
+            color="light"
+            data-test="editMessageButton"
           />
         </Tooltip>
-        <span id={`chat-reply-btn-label-${messageSequence}`} className="sr-only">
-          {intl.formatMessage(intlMessages.reply, { 0: messageSequence })}
-        </span>
-      </>
-      )}
-      {showReactionsButton && (
-      <Tooltip title={intl.formatMessage(intlMessages.reactTooltip)}>
-        <EmojiButton
-          onClick={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-            e.stopPropagation();
-            onReactionPopoverOpenChange(true);
-          }}
-          svgIcon="reactions"
-          color="light"
-          data-test="reactionsPickerButton"
-          ref={setReactionsAnchor}
-        />
-      </Tooltip>
-      )}
-      {showDivider && <Divider role="separator" />}
-      {showEditButton && (
-      <Tooltip title={intl.formatMessage(intlMessages.editTooltip)}>
-        <EmojiButton
-          onClick={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-            e.stopPropagation();
-            deactivateFocusTrap();
-            window.dispatchEvent(
-              new CustomEvent(ChatEvents.CHAT_EDIT_REQUEST, {
-                detail: {
-                  messageId,
-                  chatId,
-                  message,
-                },
-              }),
-            );
-            window.dispatchEvent(
-              new CustomEvent(ChatEvents.CHAT_CANCEL_REPLY_INTENTION),
-            );
-          }}
-          icon="pen_tool"
-          color="light"
-          data-test="editMessageButton"
-        />
-      </Tooltip>
       )}
       {showDeleteButton && (
-      <Tooltip title={intl.formatMessage(intlMessages.deleteTooltip)}>
-        <EmojiButton
-          onClick={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-            e.stopPropagation();
-            deactivateFocusTrap();
-            setIsTryingToDelete(true);
-          }}
-          icon="delete"
-          color="light"
-          data-test="deleteMessageButton"
-        />
-      </Tooltip>
+        <Tooltip title={intl.formatMessage(intlMessages.deleteTooltip)}>
+          <EmojiButton
+            onClick={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+              e.stopPropagation();
+              deactivateFocusTrap();
+              setIsTryingToDelete(true);
+            }}
+            icon="delete"
+            color="light"
+            data-test="deleteMessageButton"
+          />
+        </Tooltip>
       )}
       <Popover
         open={reactionPopoverIsOpen}
         anchorEl={reactionsAnchor}
-        onClose={() => {
-          onReactionPopoverOpenChange(false);
-        }}
-        anchorOrigin={{
-          vertical: 'top',
-          horizontal: isRTL ? 'left' : 'right',
-        }}
+        onClose={() => onReactionPopoverOpenChange(false)}
+        anchorReference="anchorPosition"
+        anchorPosition={
+          reactionsAnchor
+            ? {
+              top: reactionsAnchor.getBoundingClientRect().bottom + window.scrollY,
+              left: reactionsAnchor.getBoundingClientRect().left - 175,
+            }
+            : undefined
+        }
         transformOrigin={{
           vertical: 'top',
-          horizontal: isRTL ? 'right' : 'left',
+          horizontal: 'left',
         }}
       >
         <EmojiPickerWrapper>
@@ -257,18 +256,18 @@ const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
         </EmojiPickerWrapper>
       </Popover>
       {isTryingToDelete && (
-      <ConfirmationModal
-        isOpen={isTryingToDelete}
-        setIsOpen={setIsTryingToDelete}
-        onRequestClose={() => setIsTryingToDelete(false)}
-        onConfirm={onDeleteConfirmation}
-        title={intl.formatMessage(intlMessages.confirmationTitle)}
-        confirmButtonLabel={intl.formatMessage(intlMessages.delete)}
-        cancelButtonLabel={intl.formatMessage(intlMessages.cancelLabel)}
-        description={intl.formatMessage(intlMessages.confirmationDescription)}
-        confirmButtonColor="danger"
-        priority="low"
-      />
+        <ConfirmationModal
+          isOpen={isTryingToDelete}
+          setIsOpen={setIsTryingToDelete}
+          onRequestClose={() => setIsTryingToDelete(false)}
+          onConfirm={onDeleteConfirmation}
+          title={intl.formatMessage(intlMessages.confirmationTitle)}
+          confirmButtonLabel={intl.formatMessage(intlMessages.delete)}
+          cancelButtonLabel={intl.formatMessage(intlMessages.cancelLabel)}
+          description={intl.formatMessage(intlMessages.confirmationDescription)}
+          confirmButtonColor="danger"
+          priority="low"
+        />
       )}
     </Container>
   );

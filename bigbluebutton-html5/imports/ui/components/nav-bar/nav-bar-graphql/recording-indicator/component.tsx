@@ -28,7 +28,9 @@ import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedS
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import logger from '/imports/startup/client/logger';
 import SvgIcon from '/imports/ui/components/common/icon-svg/component';
+import { layoutSelect } from '/imports/ui/components/layout/context';
 import Service from './service';
+import { Layout } from '../../../layout/layoutTypes';
 
 const intlMessages = defineMessages({
   notificationRecordingStart: {
@@ -124,6 +126,7 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
   const setIntervalRef = React.useRef<ReturnType<typeof setTimeout>>();
   const disabled = hasError || isLoading;
   const showButton = Service.mayIRecord(isModerator, allowStartStopRecording);
+  const isRTL = layoutSelect((i: Layout) => i.isRTL);
 
   const recordingToggle = useCallback((hasMicUser: boolean, isRecording: boolean) => {
     if (!hasMicUser && !isRecording) {
@@ -180,7 +183,7 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
     }
 
     return intl.formatMessage(intlMessages.stopTitle);
-  }, [recording, isPhone, disabled, isModerator, time]);
+  }, [recording, isPhone, disabled, isModerator, time, intl.locale]);
 
   const tooltipTitle = useMemo(() => {
     if (!recording) {
@@ -198,10 +201,11 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
     <Styled.RecordingIndicatorIcon
       titleMargin={!isPhone || recording}
       data-test="mainWhiteboard"
+      isRTL={isRTL}
     >
       <SvgIcon iconName="recording" />
     </Styled.RecordingIndicatorIcon>
-  ), [isPhone, recording]);
+  ), [isPhone, recording, isRTL]);
 
   const title = useMemo(() => intl.formatMessage(
     recording
@@ -231,16 +235,23 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
       }}
     >
       {recordingIndicatorIcon}
-      <Styled.PresentationTitle>
-        <Styled.VisuallyHidden id="recording-description">
-          {`${title} ${recording ? `${intl.formatMessage(intlMessages.recordingTitle)} ${humanizeSeconds(time)}` : ''}`}
-        </Styled.VisuallyHidden>
-        {recording ? (
-          <span aria-hidden>{`${intl.formatMessage(intlMessages.recordingTitle)} ${humanizeSeconds(time)}`}</span>
-        ) : (
-          <span>{recordTitle}</span>
-        )}
-      </Styled.PresentationTitle>
+      {!isPhone && (
+        <Styled.PresentationTitle>
+          <Styled.VisuallyHidden id="recording-description">
+            {`${title} ${recording ? `${intl.formatMessage(intlMessages.recordingTitle)} ${humanizeSeconds(time)}` : ''}`}
+          </Styled.VisuallyHidden>
+          {recording ? (
+            <span aria-hidden>{`${intl.formatMessage(intlMessages.recordingTitle)} ${humanizeSeconds(time)}`}</span>
+          ) : (
+            <span>{recordTitle}</span>
+          )}
+        </Styled.PresentationTitle>
+      )}
+      {isPhone && recording && (
+        <Styled.PresentationTitle>
+          <span aria-hidden>{humanizeSeconds(time)}</span>
+        </Styled.PresentationTitle>
+      )}
     </Styled.RecordingControl>
   );
 

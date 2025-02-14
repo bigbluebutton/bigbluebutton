@@ -18,6 +18,7 @@ import SpinnerStyles from '/imports/ui/components/common/loading-screen/styles';
 
 interface RecordingIndicatorIconProps {
   titleMargin: boolean;
+  isRTL: boolean;
 }
 
 interface RecordingIndicatorProps {
@@ -41,10 +42,12 @@ const RecordingIndicatorIcon = styled.span<RecordingIndicatorIconProps>`
   font-size: ${fontSizeBase};
   user-select: none;
 
-  ${({ titleMargin }) => titleMargin && `
-    [dir="ltr"] & {
+  ${({ isRTL, titleMargin }) => isRTL && titleMargin && `
+      margin-left: ${smPaddingX};
+  `}
+
+  ${({ isRTL, titleMargin }) => !isRTL && titleMargin && `
       margin-right: ${smPaddingX};
-    }
   `}
 `;
 
@@ -107,6 +110,10 @@ const RecordingControl = styled.button<RecordingIndicatorProps>`
     cursor: not-allowed;
     pointer-events: none;
   `}
+
+  ${({ isPhone, recording }) => isPhone && !recording && css`
+    justify-content: center;
+  `}
 `;
 
 const PresentationTitle = styled.div`
@@ -122,11 +129,6 @@ const PresentationTitle = styled.div`
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 30vw;
-
-  [dir='rtl'] & {
-    margin-left: 0;
-    margin-right: ${smPaddingX};
-  }
 
   & > [class^='icon-bbb-'] {
     font-size: 75%;
@@ -158,7 +160,8 @@ const RecordingIndicator = styled.div<RecordingIndicatorProps>`
   padding-right: 0.5rem;
 
   ${({ isPhone }) => isPhone && `
-    margin-left: ${smPaddingX};
+    margin-left: 0;
+    padding-right: 0;
   `}
 
   &:hover {
