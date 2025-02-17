@@ -36,10 +36,33 @@ export const localeAsDefaultSelected = () => {
   return window.meetingClientSettings.public.app.audioCaptions.language.defaultSelectLocale;
 };
 
+export const mostSimilarLanguage = (navigatorLanguage: string) => {
+  const LANGUAGES = window.meetingClientSettings.public.app.audioCaptions.language.available;
+  // First, check if there is an exact match in the available locales
+  if (LANGUAGES.includes(navigatorLanguage)) {
+    return navigatorLanguage;
+  }
+
+  // extracts only the language, without the region to find a match. "en-US" -> "en" for example
+  const languageCode = navigatorLanguage.split('-')[0];
+
+  // in case there is no similar language, falls back to the first available one
+  let matchedLocale = LANGUAGES[0];
+  LANGUAGES.forEach((locale) => {
+    if (locale.startsWith(languageCode)) {
+      matchedLocale = locale;
+    }
+  });
+
+  return matchedLocale;
+};
+
 export const getLocale = () => {
   const LOCALE = window.meetingClientSettings.public.app.audioCaptions.language.locale;
 
-  if (LOCALE === 'browserLanguage') return navigator.language;
+  if (LOCALE === 'browserLanguage') {
+    return mostSimilarLanguage(navigator.language);
+  }
   if (LOCALE === 'disabled') return '';
   return LOCALE;
 };

@@ -21,6 +21,7 @@ import {
   SIDEBAR_CONTENT_MARGIN_TO_MEDIA,
   SIDEBAR_CONTENT_VERTICAL_MARGIN,
 } from '/imports/ui/components/layout/defaultValues';
+import AudioCaptionsPanel from '../audio-captions/panel/component';
 
 const SidebarContent = (props: SidebarContentProps) => {
   const {
@@ -177,6 +178,7 @@ const SidebarContent = (props: SidebarContentProps) => {
           {sidebarContentPanel === PANELS.TIMER && <TimerContainer />}
           {sidebarContentPanel === PANELS.POLL && <PollContainer />}
           {sidebarContentPanel === PANELS.APPS_GALLERY && <AppsGallery />}
+          {sidebarContentPanel === PANELS.AUDIO_CAPTIONS && <AudioCaptionsPanel />}
           {sidebarContentPanel.includes(PANELS.GENERIC_CONTENT_SIDEKICK) && (
             <GenericContentSidekickContainer
               genericSidekickContentId={sidebarContentPanel}
