@@ -105,6 +105,7 @@ const UserListParticipantsPageContainer: React.FC<UserListParticipantsContainerP
     isModerator: c.isModerator,
     userId: c.userId,
     presenter: c.presenter,
+    locked: c.locked,
   }));
 
   const {

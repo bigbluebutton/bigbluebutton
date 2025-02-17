@@ -93,6 +93,7 @@ export const EXPORTING_PRESENTATIONS_SUBSCRIPTION = gql`subscription Presentatio
     totalPagesUploaded
     presentationId
     removable
+    uploadCompletionNotified
     uploadCompleted
     exportToChatInProgress
     exportToChatStatus

@@ -174,7 +174,6 @@ const ScreenshareContainer = (props) => {
   if ((isScreenBroadcasting || isCameraAsContentBroadcasting)
     && currentUserData
     && bridgeIsReady
-    && shouldShowScreenshare
   ) {
     return (
       <ScreenshareComponent
@@ -201,6 +200,7 @@ const ScreenshareContainer = (props) => {
           ...selectedInfo,
           isPresenter,
           streamId,
+          shouldShowScreenshare,
         }
         }
       />

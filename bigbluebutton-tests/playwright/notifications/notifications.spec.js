@@ -4,7 +4,6 @@ const { ChatNotifications } = require('./chatNotifications');
 const { PresenterNotifications } = require('./presenterNotifications');
 const { RecordingNotifications } = require('./recordingNotifications');
 const { recordMeeting } = require('../parameters/constants');
-const { linkIssue } = require('../core/helpers');
 
 test.describe.parallel('Notifications', { tag: '@ci' }, () => {
   test('Save settings notification', async ({ browser, context, page }) => {
@@ -25,8 +24,7 @@ test.describe.parallel('Notifications', { tag: '@ci' }, () => {
     await notifications.getUserJoinPopupResponse();
   });
 
-  //Notification does not disappear, test needs to be updated after the fix.
-  test('Raise and lower hand notification', { tag: '@flaky' }, async ({ browser, context, page }) => {
+  test('Raise and lower hand notification', async ({ browser, context, page }) => {
     const notifications = new Notifications(browser, context);
     await notifications.initModPage(page);
     await notifications.raiseAndLowerHandNotification();
@@ -85,9 +83,7 @@ test.describe.parallel('Notifications', { tag: '@ci' }, () => {
       await presenterNotifications.publishPollResults();
     });
 
-    test('Presentation upload notification', { tag: '@flaky' }, async ({ browser, context, page }) => {
-      // uploader notification not displayed sometimes
-      linkIssue(21813);
+    test('Presentation upload notification', async ({ browser, context, page }) => {
       const presenterNotifications = new PresenterNotifications(browser, context);
       await presenterNotifications.initPages(page);
       await presenterNotifications.modPage.closeAllToastNotifications();

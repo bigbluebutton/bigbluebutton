@@ -83,9 +83,7 @@ test.describe('Chat', { tag: '@ci' }, () => {
     await chat.autoConvertEmojiSendPrivateChat();
   });
 
-  // failure only reproducible in CI (user leaves but keeps shown in the mod user list)
-  //! flaky flag recently removed in order to see current behavior
-  test('Private chat disabled when user leaves meeting', { tag: '@ci' }, async () => {
+  test('Private chat disabled when user leaves meeting', async () => {
     await chat.chatDisabledUserLeaves();
   });
 });

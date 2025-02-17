@@ -1,15 +1,16 @@
 import { RedisMessage } from '../types';
-import {throwErrorIfInvalidInput, throwErrorIfNotPresenter} from "../imports/validation";
+import {throwErrorIfInvalidInput} from "../imports/validation";
 
 export default function buildRedisMessage(sessionVariables: Record<string, unknown>, input: Record<string, unknown>): RedisMessage {
-  throwErrorIfNotPresenter(sessionVariables);
   throwErrorIfInvalidInput(input,
-      [
-        {name: 'presentationId', type: 'string', required: true},
-      ]
+    [
+      {name: 'pluginName', type: 'string', required: true},
+      {name: 'eventName', type: 'string', required: true},
+      {name: 'payloadJson', type: 'json', required: true},
+    ]
   )
 
-  const eventName = `SetPresentationRenderedInToastPubMsg`;
+  const eventName = `PluginPersistEventMsg`;
 
   const routing = {
     meetingId: sessionVariables['x-hasura-meetingid'] as String,
@@ -23,11 +24,10 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
   };
 
   const body = {
-    podId: 'DEFAULT_PRESENTATION_POD',
-    presentationId: input.presentationId,
+    pluginName: input.pluginName,
+    eventName: input.eventName,
+    payloadJson: input.payloadJson,
   };
-
-  //TODO Akka-apps doesn't handle it (graphql doesnt have `pres.renderedInToast` prop)
 
   return { eventName, routing, header, body };
 }

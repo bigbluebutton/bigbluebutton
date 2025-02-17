@@ -140,6 +140,10 @@ class Page {
     return this.page.locator(selector);
   }
 
+  getVisibleLocator(selector) {
+    return this.getLocator(`${selector}:visible`);
+  }
+
   getLocatorByIndex(selector, index) {
     return this.page.locator(selector).nth(index);
   }
@@ -318,11 +322,11 @@ class Page {
   }
 
   async closeAllToastNotifications() {
-    const closeToastBtnLocator = this.page.locator(e.closeToastBtn);
-    while (await closeToastBtnLocator.count() > 0) {
+    const toastNotificationElement = this.getLocator(e.toastContainer);
+    while (await toastNotificationElement.count() > 0) {
       try {
-        await this.page.click(e.closeToastBtn, { timeout: ELEMENT_WAIT_TIME });
-        await helpers.sleep(1500);  // expected time to toast notification disappear
+        await toastNotificationElement.first().click({ timeout: ELEMENT_WAIT_TIME });
+        await helpers.sleep(1500);  // expected animation time for toast notification to disappear
       } catch (error) {
         console.log('not able to close the toast notification');
       }

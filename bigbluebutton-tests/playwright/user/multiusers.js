@@ -2,11 +2,9 @@ const { expect } = require('@playwright/test');
 const playwright = require("playwright");
 const Page = require('../core/page');
 const e = require('../core/elements');
-const { waitAndClearDefaultPresentationNotification } = require('../notifications/util');
 const { sleep } = require('../core/helpers');
 const { checkTextContent, checkElementLengthEqualTo } = require('../core/util');
 const { checkAvatarIcon, checkIsPresenter, checkMutedUsers } = require('./util');
-const { getNotesLocator } = require('../sharednotes/util');
 const { getSettings } = require('../core/settings');
 const { ELEMENT_WAIT_TIME } = require('../core/constants');
 
@@ -16,11 +14,8 @@ class MultiUsers {
     this.context = context;
   }
 
-  async initPages(page1, waitAndClearDefaultPresentationNotificationModPage = false) {
+  async initPages(page1) {
     await this.initModPage(page1);
-    if (waitAndClearDefaultPresentationNotificationModPage) {
-      await waitAndClearDefaultPresentationNotification(this.modPage);
-    }
     await this.initUserPage();
   }
 
@@ -153,7 +148,7 @@ class MultiUsers {
     await this.modPage.waitForSelector(e.whiteboard);
     await this.initUserPage();
     await this.userPage.waitAndClick(e.raiseHandBtn);
-    await this.userPage.hasElement(e.raiseHandBtn, 'should display the lower hand button for the attendee');
+    await this.userPage.hasElement(e.lowerHandBtn, 'should display the lower hand button for the attendee');
     await this.userPage.press('Escape');
     await this.modPage.comparingSelectorsBackgroundColor(e.avatarsWrapperAvatar, `${e.userListItem} div:first-child`);
     await this.modPage.waitAndClick(e.raiseHandRejection);
@@ -185,29 +180,43 @@ class MultiUsers {
   }
 
   async pinningWebcams() {
+    // start webcam sharing
     await this.modPage.shareWebcam();
     await this.modPage2.shareWebcam();
     await this.userPage.shareWebcam();
-    await this.modPage.page.waitForFunction(
-      checkElementLengthEqualTo,
-      [e.webcamVideoItem, 3],
-      { timeout: ELEMENT_WAIT_TIME },
-    );
-    // Pin first webcam (Mod2)
-    await this.modPage.waitAndClick(`:nth-match(${e.dropdownWebcamButton}, 3)`);
-    await this.modPage.waitAndClick(`:nth-match(${e.pinWebcamBtn}, 2)`);
-    await this.modPage.hasText(`:nth-match(${e.dropdownWebcamButton}, 1)`, this.modPage2.username, 'should the first webcam display the second moderator username for the first moderator');
-    await this.modPage2.hasText(`:nth-match(${e.dropdownWebcamButton}, 1)`, this.modPage2.username, 'should the first webcam display the second moderator username for the second moderator');
-    await this.userPage.hasText(`:nth-match(${e.dropdownWebcamButton}, 1)`, this.modPage2.username, 'should the first webcam display the second moderator username for the attendee');
-    // Pin second webcam (user)
-    await this.modPage.waitAndClick(`:nth-match(${e.dropdownWebcamButton}, 3)`);
-    await this.modPage.waitAndClick(`:nth-match(${e.pinWebcamBtn}, 3)`);
-    await this.modPage.hasText(`:nth-match(${e.dropdownWebcamButton}, 1)`, this.userPage.username, 'should the first webcam display the attendee username for the first moderator');
-    await this.modPage.hasText(`:nth-match(${e.dropdownWebcamButton}, 2)`, this.modPage2.username, 'should the second webcam display the second moderator username for the first moderator');
-    await this.userPage.hasText(`:nth-match(${e.dropdownWebcamButton}, 1)`, this.modPage2.username, 'should the first webcam display the second moderator username for the first attendee');
-    await this.userPage.hasText(`:nth-match(${e.dropdownWebcamButton}, 2)`, this.userPage.username, 'should the second webcam display the attendee username for the attendee');
-    await this.modPage2.hasText(`:nth-match(${e.dropdownWebcamButton}, 1)`, this.userPage.username, 'should the first webcam display the attendee username for the second moderator');
-    await this.modPage2.hasText(`:nth-match(${e.dropdownWebcamButton}, 2)`, this.modPage2.username, 'should the second webcam display the second moderator username for the second moderator');
+    // check own webcam sharing
+    await this.modPage.hasElement(e.webcamMirroredVideoContainer, 'should display mirrored webcam video container (own share) for Mod1');
+    await this.modPage2.hasElement(e.webcamMirroredVideoContainer, 'should display mirrored webcam video container (own share) for Mod2');
+    await this.userPage.hasElement(e.webcamMirroredVideoContainer, 'should display mirrored webcam video container (own share) for Attendee');
+    // check other webcams sharing for each user
+    await this.modPage.hasNElements(e.webcamContainer, 2, 'should display the other two webcams for Mod1');
+    await this.modPage2.hasNElements(e.webcamContainer, 2, 'should display the other two webcams for Mod2');
+    await this.userPage.hasNElements(e.webcamContainer, 2, 'should display the other two webcams for Attendee');
+    // pin first webcam (Mod2)
+    await this.modPage.getLocator(e.dropdownWebcamButton)
+      .filter({ hasText: this.modPage2.username })
+      .click();
+    await this.modPage.getVisibleLocator(e.pinWebcamBtn).click();
+    // check pinned webcam
+    await this.modPage.hasText(`:nth-match(${e.dropdownWebcamButton}, 1)`, this.modPage2.username, 'should display the username of Mod2 on the pinned webcam for Mod1');
+    await this.modPage2.hasText(`:nth-match(${e.dropdownWebcamButton}, 1)`, this.modPage2.username, 'should display the username of Mod2 on the pinned webcam for Mod2');
+    await this.modPage2.hasText(`:nth-match(${e.dropdownWebcamButton}, 1)`, this.modPage2.username, 'should display the username of Mod2 on the pinned webcam for the Attendee');
+    // pin second webcam (user)
+    await this.modPage.getLocator(e.dropdownWebcamButton)
+      .filter({ hasText: this.userPage.username })
+      .click();
+    await this.modPage.getVisibleLocator(e.pinWebcamBtn).click();
+    // check pin webcam button number for mods
+    await this.modPage.hasNElements(e.pinVideoButton, 2, 'should display two buttons of pinned video for Mod1');
+    await this.modPage2.hasNElements(e.pinVideoButton, 2, 'should display two buttons of pinned video for Mod2');
+    // check first pinned webcam
+    await this.modPage.hasText(`:nth-match(${e.dropdownWebcamButton}, 1)`, this.userPage.username, 'should display the username of Attendee on the first pinned webcam for Mod1');
+    await this.modPage2.hasText(`:nth-match(${e.dropdownWebcamButton}, 1)`, this.userPage.username, 'should display the username of Attendee on the first pinned webcam for Mod2');
+    await this.userPage.hasText(`:nth-match(${e.dropdownWebcamButton}, 1)`, this.modPage2.username, 'should display the username of Mod2 on the first pinned webcam for Attendee (mods priority for viewers)');
+    // check second pinned webcam
+    await this.modPage.hasText(`:nth-match(${e.dropdownWebcamButton}, 2)`, this.modPage2.username, 'should display the username of Mod2 on the second pinned webcam for Mod1');
+    await this.modPage2.hasText(`:nth-match(${e.dropdownWebcamButton}, 2)`, this.modPage2.username, 'should display the username of Mod2 on the second pinned webcam for Mod2');
+    await this.userPage.hasText(`:nth-match(${e.dropdownWebcamButton}, 2)`, this.userPage.username, 'should display the username of Attendee on the second pinned webcam for Attendee');
   }
 
   async giveAndRemoveWhiteboardAccess() {
@@ -270,6 +279,47 @@ class MultiUsers {
     } catch {
       await this.modPage2.hasText('body', /removed/, 'should display the removed message for the second moderator');
     }
+  }
+
+  // Reactions tests
+  async reactionsTest() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.userPage.waitForSelector(e.whiteboard);
+
+    // use the smiling reaction
+    await this.modPage.waitAndClick(e.reactionsButton);
+    await this.modPage.waitAndClick(`${e.singleReactionButton}:nth-child(1)`);
+    await this.modPage.hasText(e.moderatorAvatar, '😃', 'should display the smiling emoji in the moderator avatar for the moderator');
+    await this.modPage.hasText(e.reactionsButton, '😃', 'should display the smiling emoji on the reactions button when used');
+    await this.userPage.hasText(e.moderatorAvatar, '😃', 'should display the smiling emoji in the moderator avatar for the viewer');
+
+    // change the reaction to the thumbs up
+    await this.modPage.waitAndClick(e.reactionsButton);
+    await this.modPage.waitAndClick(`${e.singleReactionButton}:nth-child(5)`);
+    await this.modPage.hasText(e.moderatorAvatar, '👍', 'should display the thumbs up emoji in the moderator avatar for the moderator when changed');
+    await this.modPage.hasText(e.reactionsButton, '👍', 'should display the smiling emoji on the reactions button when changed');
+    await this.userPage.hasText(e.moderatorAvatar, '👍', 'should display the smiling emoji in the moderator avatar for the viewer when changed');
+  }
+
+  async emojiRainTest() {
+    const { emojiRain } = getSettings();
+    const smilingEmojiReaction = `${e.singleReactionButton}:nth-child(1)`;
+
+    if (!emojiRain) {
+      await this.modPage.waitForSelector(e.whiteboard);
+      await this.modPage.waitAndClick(e.reactionsButton);
+      await this.modPage.waitAndClick(smilingEmojiReaction);
+      await this.modPage.wasRemoved(e.emojiRain, 'should not display the emoji rain when disabled');
+      return
+    }
+
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage.waitAndClick(e.reactionsButton);
+    await this.modPage.waitAndClick(smilingEmojiReaction);
+    const emojiRainLocator = this.modPage.getLocator(e.emojiRain);
+    await expect(emojiRainLocator, 'should display the emoji rain element when enabled').toHaveCount(5, { timeout: ELEMENT_WAIT_TIME });
+    await sleep(1000);
+    await expect(emojiRainLocator, 'should stop displaying the emoji rain element after a second').toHaveCount(0, { timeout: ELEMENT_WAIT_TIME });
   }
 }
 
