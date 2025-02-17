@@ -213,7 +213,7 @@
     "app.userList.userOptions.lockViewersLabel": "Gestion des interactions",
     "app.userList.userOptions.lockViewersDesc": "Verrouiller certaines fonctionnalités des participants",
     "app.userList.userOptions.guestPolicyLabel": "Gestion des accès",
-    "app.userList.userOptions.guestPolicyDesc": "Modifier le paramétrage de la gestion des accès à la réunion ",
+    "app.userList.userOptions.guestPolicyDesc": "Modifier la politique d'accès à la réunion pour les invités",
     "app.userList.userOptions.disableCam": "Les webcams des participants sont désactivées",
     "app.userList.userOptions.disableMic": "Les microphones des participants sont désactivés",
     "app.userList.userOptions.disablePrivChat": "La discussion privée est désactivée",
