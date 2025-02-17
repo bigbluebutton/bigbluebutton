@@ -49,7 +49,7 @@ trait SetCurrentPresentationPubMsgHdlr extends RightsManagementTrait {
           liveMeeting.props.meetingProp.intId,
           "info",
           "presentation",
-          "app.presentation.newPresentationActiveNotification",
+          "app.presentation.newCurrentPresentationNotification",
           "Notification when a new presentation is set as current",
           Vector(s"${pres.name}")
         )

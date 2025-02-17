@@ -336,7 +336,7 @@ exports.ytFrameTitle = 'a[class^="ytp-title-link"]';
 // Toasts
 exports.statingUploadPresentationToast = 'To be uploaded ...';
 exports.convertingPresentationFileToast = 'Converting file';
-exports.defaultCurrentPresentationLabel = 'A new presentation is now active';
+exports.defaultCurrentPresentationLabel = 'The current presentation is now';
 exports.presentationPlaceholderLabel = 'There is no currently active presentation';
 exports.noPresentationLabel = 'There is no currently active presentation';
 exports.presentationDownloadEnabledLabel = 'You can now download the presentation';

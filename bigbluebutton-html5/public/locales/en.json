@@ -280,7 +280,7 @@
     "app.meeting.alertBreakoutEndsUnderMinutesPlural": "Breakout is closing in {0} minutes.",
     "app.meeting.alertBreakoutEndsUnderMinutesSingular": "Breakout is closing in one minute.",
     "app.presentation.hide": "Hide presentation",
-    "app.presentation.newPresentationActiveNotification": "A new presentation is now active: {0}",
+    "app.presentation.newCurrentPresentationNotification": "The current presentation is now: {0}",
     "app.presentation.downloadEnabledNotification": "You can now download the presentation",
     "app.presentation.downloadLabel": "Download",
     "app.presentation.actionsLabel": "Actions",
