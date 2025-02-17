@@ -43,6 +43,11 @@ const NotificationsBar = styled.div`
   `}
 `;
 
+const ReloadButton = styled(Button)`
+  border: 1px solid ${colorWhite} !important;
+`;
+
 export default {
   NotificationsBar,
+  ReloadButton,
 };

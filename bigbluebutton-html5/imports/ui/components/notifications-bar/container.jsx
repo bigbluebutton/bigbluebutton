@@ -64,7 +64,7 @@ const NotificationsBarContainer = () => {
   } else if (connected && serverIsResponding && !pingIsComing && lastRttRequestSuccess) {
     data.message = intl.formatMessage(intlMessages.connectionCode3005);
   } else if (connected && serverIsResponding && pingIsComing && subscriptionFailed) {
-    data.message = intl.formatMessage(intlMessages.connectionCode3005);
+    data.message = intl.formatMessage(intlMessages.connectionCode3006);
   }
 
   const { data: meeting } = useMeeting((m) => ({

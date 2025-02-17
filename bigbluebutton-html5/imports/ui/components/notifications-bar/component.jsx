@@ -48,7 +48,7 @@ const NotificationsBar = ({
         {children}
         {
           showReloadButton && (
-            <Button
+            <Styled.ReloadButton
               onClick={reloadButton}
               data-test="notificationBannerReloadButton"
               color="primary"
