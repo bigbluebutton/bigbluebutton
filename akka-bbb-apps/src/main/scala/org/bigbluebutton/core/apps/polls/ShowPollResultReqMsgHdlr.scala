@@ -35,7 +35,7 @@ trait ShowPollResultReqMsgHdlr extends RightsManagementTrait {
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
     } else {
       for {
-        (result, annotationProp) <- Polls.handleShowPollResultReqMsg(state, msg.header.userId, msg.body.pollId, liveMeeting)
+        (result) <- Polls.getPollResult(msg.body.pollId, liveMeeting)
       } yield {
         //it will be used to render the chat message (will be stored as json in chat-msg metadata)
         val resultAsSimpleMap = Map(
@@ -73,17 +73,17 @@ trait ShowPollResultReqMsgHdlr extends RightsManagementTrait {
 
         // Add Chat message with result
         ChatMessageDAO.insertSystemMsg(liveMeeting.props.meetingProp.intId, GroupChatApp.MAIN_PUBLIC_CHAT, "", GroupChatMessageType.POLL, resultAsSimpleMap, "")
+        for {
+          pod <- state.presentationPodManager.getDefaultPod()
+          currentPres <- pod.getCurrentPresentation()
+        } {
+          if (currentPres.current) {
+            Polls.handleShowPollResultReqMsgForAnnotation(state, msg.header.userId, msg.body.pollId, liveMeeting, result, bus)
+          }
+        }
 
-        // Send annotations with the result to recordings
-        val annotationRouting = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, msg.header.userId)
-        val annotationEnvelope = BbbCoreEnvelope(SendWhiteboardAnnotationsEvtMsg.NAME, annotationRouting)
-        val annotationHeader = BbbClientMsgHeader(SendWhiteboardAnnotationsEvtMsg.NAME, liveMeeting.props.meetingProp.intId, msg.header.userId)
-
-        val annotMsgBody = SendWhiteboardAnnotationsEvtMsgBody(annotationProp.wbId, Array[AnnotationVO](annotationProp))
-        val annotationEvent = SendWhiteboardAnnotationsEvtMsg(annotationHeader, annotMsgBody)
-        val annotationMsgEvent = BbbCommonEnvCoreMsg(annotationEnvelope, annotationEvent)
-        bus.outGW.send(annotationMsgEvent)
       }
+
     }
   }
 }
