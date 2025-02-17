@@ -835,12 +835,61 @@ object VoiceApp extends SystemConfiguration {
         liveMeeting,
         outGW
       )
+      AudioFloorManager.handleUserTalking(
+        talkingUser.intId,
+        talking,
+        System.currentTimeMillis(),
+        liveMeeting,
+        outGW
+      )
       val event = MsgBuilder.buildUserTalkingVoiceEvtMsg(
         liveMeeting.props.meetingProp.intId,
         liveMeeting.props.voiceProp.voiceConf,
         talkingUser.intId,
         talkingUser.voiceUserId,
         talking
+      )
+      outGW.send(event)
+    }
+  }
+
+  def becameFloor(
+    liveMeeting: LiveMeeting,
+    outGW:       OutMsgRouter,
+    voiceUserId: String,
+    lastFloorTime:   String
+  ): Unit = {
+    for {
+      u <- VoiceUsers.becameFloor(liveMeeting.voiceUsers, voiceUserId, true, lastFloorTime)
+    } yield {
+      val event = MsgBuilder.buildAudioFloorChangedEvtMsg(
+        liveMeeting.props.meetingProp.intId,
+        liveMeeting.props.voiceProp.voiceConf,
+        u.intId,
+        u.voiceUserId,
+        floor = true,
+        lastFloorTime
+      )
+      outGW.send(event)
+    }
+  }
+
+  def releasedFloor(
+    liveMeeting: LiveMeeting,
+    outGW:       OutMsgRouter,
+    voiceUserId: String,
+    lastFloorTime: String
+  ): Unit = {
+    for {
+      u <- VoiceUsers.releasedFloor(liveMeeting.voiceUsers, voiceUserId, false)
+    } yield {
+      val event = MsgBuilder.buildAudioFloorChangedEvtMsg(
+        liveMeeting.props.meetingProp.intId,
+        liveMeeting.props.voiceProp.voiceConf,
+        u.intId,
+        u.voiceUserId,
+        floor = false,
+        lastFloorTime
       )
       outGW.send(event)
     }

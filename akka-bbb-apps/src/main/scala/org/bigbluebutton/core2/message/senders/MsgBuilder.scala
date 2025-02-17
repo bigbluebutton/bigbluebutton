@@ -668,4 +668,21 @@ object MsgBuilder {
     val event = UserLeftVoiceConfToClientEvtMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, event)
   }
+
+  def buildAudioFloorChangedEvtMsg(
+    meetingId: String,
+    voiceConf: String,
+    userId: String,
+    voiceUserId: String,
+    floor: Boolean,
+    lastFloorTime: String
+  ): BbbCommonEnvCoreMsg = {
+    val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
+    val envelope = BbbCoreEnvelope(AudioFloorChangedEvtMsg.NAME, routing)
+    val header = BbbClientMsgHeader(AudioFloorChangedEvtMsg.NAME, meetingId, userId)
+    val body = AudioFloorChangedEvtMsgBody(voiceConf, userId, voiceUserId, floor, lastFloorTime)
+    val event = AudioFloorChangedEvtMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
 }
