@@ -679,7 +679,7 @@ const Whiteboard = React.memo((props) => {
     }
   }
 
-  const pollInnerWrapperWidthUntilStable = (
+  const pollInnerWrapperDimensionsUntilStable = (
     onReady,
     options = {
       maxTries: 120,
@@ -687,44 +687,53 @@ const Whiteboard = React.memo((props) => {
     },
     currentTry = 0,
     stableCount = 0,
-    lastWidth = 0
+    lastDimensions = { width: 0, height: 0 }
   ) => {
     const container = document.querySelector('[data-test="presentationContainer"]');
     const innerWrapper = document.getElementById('presentationInnerWrapper');
-    const containerWidth = container ? container.offsetWidth : 0;
-    const innerWrapperWidth = innerWrapper ? innerWrapper.offsetWidth : 0;
 
-    if (innerWrapperWidth <= 0) {
+    const containerWidth = container ? container.offsetWidth : 0;
+    const containerHeight = container ? container.offsetHeight : 0;
+    const innerWrapperWidth = innerWrapper ? innerWrapper.offsetWidth : 0;
+    const innerWrapperHeight = innerWrapper ? innerWrapper.offsetHeight : 0;
+
+    if (innerWrapperWidth <= 0 || innerWrapperHeight <= 0) {
       stableCount = 0;
     } else {
-      if (innerWrapperWidth === lastWidth) {
+      if (
+        innerWrapperWidth === lastDimensions.width &&
+        innerWrapperHeight === lastDimensions.height
+      ) {
         stableCount++;
       } else {
         stableCount = 0;
-        lastWidth = innerWrapperWidth;
+        lastDimensions = { width: innerWrapperWidth, height: innerWrapperHeight };
       }
     }
 
     if (stableCount >= options.stabilityFrames) {
-      onReady({ containerWidth, innerWrapperWidth });
+      onReady({ containerWidth, containerHeight, innerWrapperWidth, innerWrapperHeight });
       return;
     }
 
     if (currentTry < options.maxTries) {
       requestAnimationFrame(() => {
-        pollInnerWrapperWidthUntilStable(
+        pollInnerWrapperDimensionsUntilStable(
           onReady,
           options,
           currentTry + 1,
           stableCount,
-          lastWidth
+          lastDimensions
         );
       });
     } else {
-      logger.warn({ logCode: 'pollInnerWrapperWidthUntilStable' }, `Failed to store viewbox dimensions`);
-      onReady({ containerWidth, innerWrapperWidth });
+      logger.warn(
+        { logCode: 'pollInnerWrapperDimensionsUntilStable' },
+        `Failed to store viewbox dimensions`
+      );
+      onReady({ containerWidth, containerHeight, innerWrapperWidth, innerWrapperHeight });
     }
-  }
+  };
 
   const handleTldrawMount = (editor) => {
     tlEditorRef.current = editor;
@@ -1061,7 +1070,7 @@ const Whiteboard = React.memo((props) => {
       }
     }
 
-    pollInnerWrapperWidthUntilStable(() => {
+    pollInnerWrapperDimensionsUntilStable(() => {
       adjustCameraOnMount(!isPresenterRef.current);
     });
   };
@@ -1404,9 +1413,24 @@ const Whiteboard = React.memo((props) => {
       });
     };
 
-    const timeoutId = setTimeout(handleResize, 300);
-    return () => clearTimeout(timeoutId);
-  }, [presentationAreaHeight, presentationAreaWidth, curPageId, presentationId]);
+    pollInnerWrapperDimensionsUntilStable(() => {
+      syncCameraWithPresentationArea({
+        tlEditorRef,
+        isPresenter,
+        currentPresentationPageRef,
+        presentationAreaWidth,
+        presentationAreaHeight,
+        zoomValueRef,
+        fitToWidthRef,
+        curPageIdRef,
+        initialViewBoxWidthRef,
+        initialViewBoxHeightRef,
+      });
+    },{
+        maxTries: 120,
+        stabilityFrames: 35,
+    });
+  }, [presentationHeight, presentationWidth, curPageId, presentationId]);
 
   React.useEffect(() => {
     if (!isPresenter
