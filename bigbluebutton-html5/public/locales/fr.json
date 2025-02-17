@@ -1134,7 +1134,7 @@
     "app.connection-status.connectionStats": "Statistiques de connexion",
     "app.connection-status.connectionStatusNoEvent": "Cette condition n'a pas généré d'incident",
     "app.connection-status.myLogs": "Mon journal de connexion",
-    "app.connection-status.sessionLogs": "Journal de la session",
+    "app.connection-status.sessionLogs": "Journaux de la session",
     "app.connection-status.next": "Page suivante",
     "app.connection-status.prev": "Page précédente",
     "app.connection-status.lastTimeActive": "Dernière fois que le client a confirmé que la connexion était active",
