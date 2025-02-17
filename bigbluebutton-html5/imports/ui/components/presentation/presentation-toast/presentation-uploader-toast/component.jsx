@@ -254,6 +254,8 @@ function renderToastItem(item, intl) {
   let icon = isProcessing ? 'blank' : 'check';
   if (hasError) icon = 'circle_close';
 
+  const isDone = !isProcessing && !hasError;
+
   return (
     <Styled.UploadRow
       key={item.presentationId || item.temporaryPresentationId}
@@ -270,7 +272,8 @@ function renderToastItem(item, intl) {
         </Styled.ToastFileName>
         <Styled.StatusIcon>
           <Styled.ToastItemIcon
-            done={!isProcessing && !hasError}
+            data-test={isDone && 'uploadDoneIcon'}
+            done={isDone}
             error={hasError}
             loading={isProcessing}
             iconName={icon}
@@ -278,7 +281,7 @@ function renderToastItem(item, intl) {
         </Styled.StatusIcon>
       </Styled.FileLine>
       <Styled.StatusInfo>
-        <Styled.StatusInfoSpan data-test="presentationStatusInfo" styles={hasError ? 'error' : 'info'}>
+        <Styled.StatusInfoSpan data-test={isProcessing && 'processingPresentationItem'} styles={hasError ? 'error' : 'info'}>
           {renderPresentationItemStatus(item, intl)}
         </Styled.StatusInfoSpan>
       </Styled.StatusInfo>

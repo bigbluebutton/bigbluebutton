@@ -1,7 +1,7 @@
-const { MultiUsers } = require("../user/multiusers");
 const util = require('./util');
 const e = require('../core/elements');
 const utilPolling = require('../polling/util');
+const { MultiUsers } = require("../user/multiusers");
 const utilScreenShare = require('../screenshare/util');
 const utilPresentation = require('../presentation/util');
 const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
@@ -22,12 +22,10 @@ class PresenterNotifications extends MultiUsers {
 
   async fileUploaderNotification() {
     await utilPresentation.uploadSinglePresentation(this.modPage, e.uploadPresentationFileName, ELEMENT_WAIT_LONGER_TIME);
-    await this.modPage.hasElement(e.currentPresentationToast, 'should display the current presentation toast when the upload finishes');
-    await this.modPage.hasText(e.currentPresentationToast, e.uploadPresentationFileName, 'should display the uploaded presentation name in the toast');
+    await utilPresentation.hasTextOnCurrentPresentationToast(this.modPage, e.uploadPresentationFileName, 'should display the uploaded presentation name in the toast');
   }
 
   async screenshareToast() {
-    await util.waitAndClearDefaultPresentationNotification(this.modPage);
     await utilScreenShare.startScreenshare(this.modPage);
     await util.checkNotificationText(this.modPage, e.startScreenshareToast);
     await this.modPage.closeAllToastNotifications();

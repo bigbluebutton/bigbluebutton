@@ -1,7 +1,5 @@
-const { expect } = require('@playwright/test');
 const Page = require('../core/page');
 const util = require('./util');
-const { waitAndClearNotification, waitAndClearDefaultPresentationNotification } = require('../notifications/util');
 const e = require('../core/elements');
 const { connectMicrophone } = require('../audio/util');
 const { ELEMENT_WAIT_EXTRA_LONG_TIME } = require('../core/constants');
@@ -13,7 +11,7 @@ class RecordingNotifications extends Page {
 
   async notificationNoAudio() {
     // when you don't join audio at all, there's notification about no active mic
-    await waitAndClearDefaultPresentationNotification(this);
+    await this.closeAllToastNotifications();
     await this.waitAndClick(e.recordingIndicator, ELEMENT_WAIT_EXTRA_LONG_TIME);
     await this.hasElement(e.smallToastMsg, 'should appear a toast small message with the new message sent on the chat');
     await util.checkNotificationText(this, e.noActiveMicrophoneToast);
@@ -21,7 +19,7 @@ class RecordingNotifications extends Page {
 
   async notificationListenOnly() {
     // when you join listen only, there's notification about no active mic
-    await waitAndClearDefaultPresentationNotification(this);
+    await this.closeAllToastNotifications();
     await this.waitAndClick(e.joinAudio, ELEMENT_WAIT_EXTRA_LONG_TIME);
     await this.waitAndClick(e.listenOnlyButton, ELEMENT_WAIT_EXTRA_LONG_TIME);
     await util.checkNotificationText(this, e.joinAudioToast);
@@ -29,11 +27,11 @@ class RecordingNotifications extends Page {
 
   async noNotificationInAudio() {
     // when you join audio with mic, there's no notification about no active mic
-    await waitAndClearDefaultPresentationNotification(this);
+    await this.closeAllToastNotifications();
     await this.waitAndClick(e.joinAudio, ELEMENT_WAIT_EXTRA_LONG_TIME);
     await this.hasElement(e.audioModal, 'should the audio modal be displayed', ELEMENT_WAIT_EXTRA_LONG_TIME);
     await connectMicrophone(this);
-    await waitAndClearNotification(this);
+    await this.closeAllToastNotifications();
     await this.waitAndClick(e.recordingIndicator);
     await this.wasRemoved(e.smallToastMsg, 'should the small toast message disappear', ELEMENT_WAIT_EXTRA_LONG_TIME);
   }
