@@ -6,7 +6,7 @@ const { getSettings } = require('../core/settings');
 const { expect } = require('@playwright/test');
 const { sleep } = require('../core/helpers');
 const { getNotesLocator } = require('../sharednotes/util');
-const { uploadSinglePresentation } = require('../presentation/util.js');
+const { uploadSinglePresentation, hasCurrentPresentationToastElement } = require('../presentation/util.js');
 
 class Join extends Create {
   constructor(browser, context) {
@@ -104,17 +104,17 @@ class Join extends Create {
     await this.modPage.waitAndClick(e.breakoutOptionsMenu);
     await this.modPage.waitAndClick(e.openUpdateBreakoutUsersModal);
     await this.modPage.dragDropSelector(e.attendeeNotAssigned, e.breakoutBox1);
-    await this.modPage.hasText(e.breakoutBox1, /Attendee/,  'should have the attende name on the second breakout room box.');
+    await this.modPage.hasText(e.breakoutBox1, /Attendee/,  'should have the attendee name on the second breakout room box.');
     await this.modPage.waitAndClick(e.modalConfirmButton);
 
-    await this.userPage.hasElement(e.modalConfirmButton, 'should display the modal confirm button for the attende to join the meeting');
+    await this.userPage.hasElement(e.modalConfirmButton, 'should display the modal confirm button for the attendee to join the meeting');
     await this.userPage.waitAndClick(e.modalDismissButton);
   }
 
   async usernameShowsBelowRoomsName() {
     const breakoutUserPage = await this.joinRoom();
     await this.modPage.waitAndClick(e.breakoutRoomsItem);
-    await this.modPage.hasText(e.userNameBreakoutRoom, /Attendee/, 'should have the attende name on the breakout room below a room on the main breakout panel');
+    await this.modPage.hasText(e.userNameBreakoutRoom, /Attendee/, 'should have the attendee name on the breakout room below a room on the main breakout panel');
   }
 
   async showBreakoutRoomTimeRemaining() {
@@ -129,7 +129,7 @@ class Join extends Create {
     await this.modPage.waitAndClick(e.sendButtonDurationTime);
     await this.modPage.hasText(e.breakoutRemainingTime, /[11-12]:[0-5][0-9]/, 'should have the breakout room time remaining counting down on the breakout main panel.');
 
-    await breakoutUserPage.hasText(e.timeRemaining, /[11-12]:[0-5][0-9]/, 'should display the remaining time inside the breakout rooom');
+    await breakoutUserPage.hasText(e.timeRemaining, /[11-12]:[0-5][0-9]/, 'should display the remaining time inside the breakout room');
   }
 
   async endAllBreakoutRooms() {
@@ -195,7 +195,7 @@ class Join extends Create {
     ];
     await this.modPage.checkElementCount(e.actionsItem, expectedActionItems.length);
     await shareNotesPDF.click();
-    await this.modPage.hasElement(e.currentPresentationToast, 'should display the current presentation toast when changing to the whiteboard exported file');
+    await hasCurrentPresentationToastElement(this.modPage, 'should display the current presentation toast when changing to the whiteboard exported file');
     //! avoiding the following screenshot comparison due to https://github.com/microsoft/playwright/issues/18827
     // TODO should be updated and use entire view page screenshot after https://github.com/bigbluebutton/bigbluebutton/issues/22160 is fixed
     // visual assertion
@@ -254,7 +254,7 @@ class Join extends Create {
     await this.modPage.wasRemoved(e.presentationUploadProgressToast, 'should have removed the presentation upload progress toast after clicking on it');
     await this.modPage.waitAndClick(e.actions);
     await whiteboardPDF.click();
-    await this.modPage.hasElement(e.currentPresentationToast, 'should display the current presentation toast when changing to the whiteboard exported file');
+    await hasCurrentPresentationToastElement(this.modPage, 'should display the current presentation toast when changing to the whiteboard exported file');
     //! avoiding the following screenshot comparison due to https://github.com/microsoft/playwright/issues/18827
     // TODO should be updated and use entire view page screenshot after https://github.com/bigbluebutton/bigbluebutton/issues/22160 is fixed
     // visual assertion

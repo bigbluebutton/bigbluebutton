@@ -2,13 +2,9 @@ const { MultiUsers } = require("./multiusers");
 const { openLockViewers, drawArrow } = require('./util');
 const e = require('../core/elements');
 const { expect } = require("@playwright/test");
-const { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME, PARAMETER_HIDE_PRESENTATION_TOAST } = require("../core/constants");
+const { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } = require("../core/constants");
 const { getNotesLocator } = require("../sharednotes/util");
-const { waitAndClearNotification } = require("../notifications/util");
-const { encodeCustomParams } = require("../parameters/util");
 const { sleep } = require("../core/helpers");
-
-const hidePresentationToast = encodeCustomParams(PARAMETER_HIDE_PRESENTATION_TOAST);
 
 class LockViewers extends MultiUsers {
   constructor(browser, page) {
@@ -26,7 +22,7 @@ class LockViewers extends MultiUsers {
     await openLockViewers(this.modPage);
     await this.modPage.waitAndClickElement(e.lockShareWebcam);
     await this.modPage.waitAndClick(e.applyLockSettings);
-    await waitAndClearNotification(this.modPage);
+    await this.modPage.closeAllToastNotifications();
     await this.userPage.checkElementCount(e.webcamContainer, 1, 'should display one webcam container for the attendee');
 
     await this.initUserPage2(true);
@@ -180,30 +176,36 @@ class LockViewers extends MultiUsers {
   }
 
   async lockSeeOtherViewersAnnotations() {
-    await this.modPage.waitForSelector(e.whiteboard);
-    await this.modPage.waitAndClick(e.multiUsersWhiteboardOn);
+    // wait for whiteboard to load and no notifications
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await this.userPage.waitForSelector(e.whiteboard);
+    await this.modPage.waitForSelector(e.skipSlide);
+    await this.modPage.closeAllToastNotifications();
+    await this.modPage.wasRemoved(e.smallToastMsg);
+    // turn on multi users whiteboard
+    await this.modPage.waitAndClick(e.multiUsersWhiteboardOn);
     await sleep(1000);   // timeout to ensure that the userPage presentation is zoomed in stabilized
     await drawArrow(this.userPage);
     const screenshotOptions = {
       maxDiffPixels: 250,
     };
-
     // lock the viewers annotations
     await openLockViewers(this.modPage);
     await this.modPage.waitAndClickElement(e.hideViewersAnnotation);
     await this.modPage.waitAndClick(e.applyLockSettings);
     await sleep(1000);  // timeout to ensure the lock settings are applied
-
     // check if previous annotations is displayed for the viewer joining after the lock
-    await this.initUserPage2(true, this.modPage.context, { joinParameter: hidePresentationToast }); // avoid presentation toast notification due to screenshot comparisons
+    await this.initUserPage2(true, this.modPage.context);
+    // wait for whiteboard to load and no notifications
+    await this.userPage2.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await this.userPage2.closeAllToastNotifications();
+    await this.userPage2.wasRemoved(e.smallToastMsg);
     const user2WbLocator = this.userPage2.getLocator(e.whiteboard);
     await this.userPage2.hasElement(e.whiteboard);
     await sleep(1000);   // timeout to ensure the user2 presentation is zoomed correctly
     await this.userPage2.wasRemoved(e.wbDrawnArrow, 'should not display the other viewer annotation for the viewer who just joined');
     await this.userPage.getLocator(e.chatButton).hover(); // ensure userPage cursor won't be visible on the screenshot
     await expect(user2WbLocator, 'should not display the other viewer annotation for the viewer who just joined').toHaveScreenshot('viewer2-just-joined.png', screenshotOptions);
-
     // draw a rectangle and check if it is displayed
     await this.userPage.waitAndClick(e.wbShapesButton);
     await this.userPage.waitAndClick(e.wbRectangleShape);
@@ -211,16 +213,13 @@ class LockViewers extends MultiUsers {
     await this.userPage.getLocator(e.chatButton).hover(); // ensure userPage cursor won't be visible on the screenshot
     await this.userPage2.wasRemoved(e.wbDrawnShape, 'should not display the new annotation for the other viewer');
     await expect(user2WbLocator, 'should not display the new annotation for the other viewer').toHaveScreenshot('viewer2-no-rectangle.png', screenshotOptions);
-
     // unlock user2
     await this.modPage.waitAndClick(`${e.userListItem}>>nth=1`);
     await this.modPage.waitAndClick(`${e.unlockUserButton}>>nth=1`);
-
     // check if previous annotations is displayed after unlocking user
     await this.userPage2.hasElement(e.wbDrawnArrow, 'should display the arrow drawn before user join');
     await this.userPage2.hasElement(e.wbDrawnShape, 'should display the rectangle drawn before unlocking user');
     await expect(user2WbLocator, 'should display the other viewer annotations when unlocking specific user').toHaveScreenshot('viewer2-previous-shapes.png', screenshotOptions);
-
     // check if new annotations is displayed after unlocking user
     await drawArrow(this.userPage);
     await this.userPage.getLocator(e.chatButton).hover(); // ensure userPage cursor will be visible on the screenshot
