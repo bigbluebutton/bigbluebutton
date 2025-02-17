@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client';
 
 const SET_PRESENTATION_RENDERED_IN_TOAST = gql`
-  mutation PresentationSetRenderedInToast($presentationId: String!) {
-    presentationSetRenderedInToast(
+  mutation PresentationSetUploadCompletionNotified($presentationId: String!) {
+    presentationSetUploadCompletionNotified(
       presentationId: $presentationId,
     )
   }

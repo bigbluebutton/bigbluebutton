@@ -34,7 +34,7 @@ select_permissions:
         - name
         - presentationId
         - removable
-        - renderedInToast
+        - uploadCompletionNotified
         - totalPages
         - totalPagesUploaded
         - uploadCompleted
