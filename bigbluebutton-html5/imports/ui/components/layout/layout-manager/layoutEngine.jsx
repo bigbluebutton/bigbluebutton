@@ -13,6 +13,7 @@ import ParticipantsAndChatOnlyLayout from '/imports/ui/components/layout/layout-
 import { useIsPresentationEnabled } from '/imports/ui/services/features';
 import Session from '/imports/ui/services/storage/in-memory';
 import MediaOnlyLayout from './mediaOnlyLayout';
+import { usePrevious } from '../../whiteboard/utils';
 
 const LayoutEngine = () => {
   const bannerBarInput = layoutSelectInput((i) => i.bannerBar);
@@ -35,6 +36,7 @@ const LayoutEngine = () => {
   const deviceType = layoutSelect((i) => i.deviceType);
   const selectedLayout = layoutSelect((i) => i.layoutType);
   const isPresentationEnabled = useIsPresentationEnabled();
+  const prevLayout = usePrevious(selectedLayout);
 
   const isMobile = deviceType === DEVICE_TYPE.MOBILE;
   const isTablet = deviceType === DEVICE_TYPE.TABLET;
@@ -339,6 +341,7 @@ const LayoutEngine = () => {
     calculatesMediaAreaBounds,
     isMobile,
     isTablet,
+    prevLayout,
   };
 
   const layout = document.getElementById('layout');
