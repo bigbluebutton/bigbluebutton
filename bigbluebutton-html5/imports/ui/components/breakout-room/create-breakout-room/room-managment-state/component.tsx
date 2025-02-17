@@ -248,7 +248,7 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
   }, [users]);
 
   useEffect(() => {
-    if (groups && init) {
+    if (groups.length && init) {
       const sortedGroups = Array.from(groups).sort((a, b) => {
         const aId = Number.parseInt(a.groupId, 10);
         const bId = Number.parseInt(b.groupId, 10);
