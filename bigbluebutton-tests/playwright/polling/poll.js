@@ -39,9 +39,10 @@ class Polling extends MultiUsers {
 
     // The slide needs to be uploaded and converted, so wait a bit longer for this step
     await this.modPage.waitAndClick(e.quickPoll, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.waitAndClick(e.startPoll, ELEMENT_WAIT_TIME);
     await this.modPage.hasElement(e.pollMenuButton, 'should display the poll menu button');
 
-    await this.userPage.hasElement(e.pollingContainer, 'should display the polling container for the attendeee to answer it');
+    await this.userPage.hasElement(e.pollingContainer, 'should display the polling container for the attendee to answer it');
 
     await this.modPage.waitAndClick(e.closePollingBtn);
     await this.modPage.wasRemoved(e.closePollingBtn, 'should not display the close poll button after the poll closes');
