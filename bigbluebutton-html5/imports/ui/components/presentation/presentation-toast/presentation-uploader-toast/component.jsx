@@ -15,7 +15,7 @@ const EXPORT_STATUSES = {
   EXPORTED: 'EXPORTED',
 };
 
-const TIMEOUT_CLOSE_TOAST = 1; // second
+const TIMEOUT_CLOSE_TOAST = 2; // second
 
 const intlMessages = defineMessages({
   item: {
@@ -530,6 +530,7 @@ export const PresentationUploaderToast = ({
   }, []);
 
   useEffect(() => {
+    if (showToast) return;
     presentationsToBeShowed.filter(
       (p) => (p.uploadCompleted || p.uploadErrorMsgKey),
     ).forEach(
