@@ -1,10 +1,11 @@
 const { expect } = require('@playwright/test');
 const { MultiUsers } = require('../user/multiusers');
 const e = require('../core/elements');
-const { checkSvgIndex, getSlideOuterHtml, uploadSinglePresentation, uploadMultiplePresentations, getCurrentPresentationHeight } = require('./util.js');
+const { checkSvgIndex, getSlideOuterHtml, uploadSinglePresentation, uploadMultiplePresentations, getCurrentPresentationHeight, hasCurrentPresentationToastElement } = require('./util.js');
 const { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME, UPLOAD_PDF_WAIT_TIME, CI } = require('../core/constants');
 const { sleep } = require('../core/helpers');
 const { getSettings } = require('../core/settings');
+const { checkNotificationText } = require('../notifications/util.js');
 
 const defaultZoomLevel = '100%';
 
@@ -88,9 +89,11 @@ class Presentation extends MultiUsers {
   }
 
   async uploadSinglePresentationTest() {
+    // wait for whiteboard to load and no notifications
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.waitForSelector(e.skipSlide);
-    await this.modPage.wasRemoved(e.smallToastMsg, ELEMENT_WAIT_EXTRA_LONG_TIME);
+    await this.modPage.closeAllToastNotifications();
+    await this.modPage.wasRemoved(e.smallToastMsg);
 
     const imageURLFirstPresentation = await this.modPage.page.evaluate(() => {
       const element = document.querySelector('div[id="whiteboard-element"] div[class="tl-image"]');
@@ -106,6 +109,7 @@ class Presentation extends MultiUsers {
     await this.modPage.setHeightWidthViewPortSize();
 
     // Skip check for screenshot on ci, due to the ci and the local machine generating two different image sizes
+    // also because the slide location is different and inconsistent (it initially shakes to stabilize and then set incorrect location)
     if (!CI) {
       const modWhiteboardLocator = this.modPage.getLocator(e.whiteboard);
       await expect(modWhiteboardLocator).toHaveScreenshot('moderator-new-presentation-screenshot.png', {
@@ -128,6 +132,7 @@ class Presentation extends MultiUsers {
     await expect(imageURLFirstPresentation).not.toBe(imageURLSecondPresentation);
 
     // Skip check for screenshot on ci, due to the ci and the local machine generating two different image sizes
+    // also because the slide location is different and inconsistent (it initially shakes to stabilize and then set incorrect location)
     if (!CI) {
       await expect(userWhiteboardLocator).toHaveScreenshot('viewer-new-presentation-screenshot.png', {
         maxDiffPixels: 1000,
@@ -136,7 +141,12 @@ class Presentation extends MultiUsers {
   }
 
   async uploadOtherPresentationsFormat() {
-    await this.modPage.hasElement(e.whiteboard);
+    // wait for whiteboard to load and no notifications
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.waitForSelector(e.skipSlide);
+    await this.modPage.closeAllToastNotifications();
+    await this.modPage.wasRemoved(e.smallToastMsg);
+
     const imageURLFirstPresentation = await this.modPage.page.evaluate(() => {
       const element = document.querySelector('div[id="whiteboard-element"] div[class="tl-image"]');
       const style = element.getAttribute('style')
@@ -164,7 +174,7 @@ class Presentation extends MultiUsers {
     await expect(imageURLFirstPresentation).not.toBe(imageURLSecondPresentation);
 
     // Skip check for screenshot on ci, due to the ci and the local machine generating two different image sizes
-    if(!CI) {
+    if (!CI) {
       await expect(modWhiteboardLocator).toHaveScreenshot('moderator-png-presentation-screenshot.png', {
         maxDiffPixels: 1000,
       });
@@ -189,7 +199,7 @@ class Presentation extends MultiUsers {
     await this.userPage.setHeightWidthViewPortSize();
 
     // Skip check for screenshot on ci, due to the ci and the local machine generating two different image sizes
-    if(!CI) {
+    if (!CI) {
       await expect(modWhiteboardLocator).toHaveScreenshot('moderator-pptx-presentation-screenshot.png', {
         maxDiffPixels: 1000,
       });
@@ -215,7 +225,7 @@ class Presentation extends MultiUsers {
     await this.userPage.setHeightWidthViewPortSize();
 
     // Skip check for screenshot on ci, due to the ci and the local machine generating two different image sizes
-    if(!CI) {
+    if (!CI) {
       await expect(modWhiteboardLocator).toHaveScreenshot('moderator-txt-presentation-screenshot.png', {
         maxDiffPixels: 1000,
       });
@@ -226,13 +236,17 @@ class Presentation extends MultiUsers {
   }
 
   async uploadMultiplePresentationsTest() {
+    // wait for whiteboard to load and no notifications
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.waitForSelector(e.skipSlide);
+    await this.modPage.closeAllToastNotifications();
+    await this.modPage.wasRemoved(e.smallToastMsg);
 
     const modSlides0 = await getSlideOuterHtml(this.modPage);
     const userSlides0 = await getSlideOuterHtml(this.userPage);
     await expect(modSlides0).toEqual(userSlides0);
 
-    await uploadMultiplePresentations(this.modPage, [e.uploadPresentationFileName, e.questionSlideFileName]);
+    await uploadMultiplePresentations(this.modPage, [e.questionSlideFileName, e.uploadPresentationFileName]);
 
     const modSlides1 = await getSlideOuterHtml(this.modPage);
     const userSlides1 = await getSlideOuterHtml(this.userPage);
@@ -261,23 +275,24 @@ class Presentation extends MultiUsers {
     await expect(Number(width2), 'should the last width be greater than the first one').toBeGreaterThan(Number(width1));
   }
 
-  async enableAndDisablePresentationDownload(testInfo) {
+  async enableAndDisablePresentationDownload() {
     const { originalPresentationDownloadable } = getSettings();
 
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     // enable original presentation download
     await this.modPage.waitAndClick(e.actions);
     await this.modPage.waitAndClick(e.managePresentations);
-    if(!originalPresentationDownloadable) {
+    if (!originalPresentationDownloadable) {
       await this.modPage.hasElement(e.presentationOptionsDownloadBtn, 'should display the option download button for the presentation');
       return this.modPage.wasRemoved(e.enableOriginalPresentationDownloadBtn, 'should the original presentation download presentation be removed');
     }
     await this.modPage.waitAndClick(e.presentationOptionsDownloadBtn);
     await this.modPage.waitAndClick(e.enableOriginalPresentationDownloadBtn);
-    await this.userPage.hasElement(e.smallToastMsg, 'should display the small toast message for the attendee');
-    await this.userPage.hasElement(e.presentationDownloadBtn, 'should display the presentation download button for the attendee');
     await this.userPage.waitForSelector(e.whiteboard);
+    // check for the download buttons displayed
+    await checkNotificationText(this.userPage, e.presentationDownloadEnabledLabel);
     await this.userPage.hasElement(e.presentationDownloadBtn, 'should display the presentation download button for the attendee');
+    await this.modPage.hasElement(e.presentationDownloadBtn, 'should display the presentation download button for the moderator');
     /**
      * the following steps throwing "Error: ENOENT: no such file or directory" at the end of execution
      * due to somehow it's trying to take the screenshot of the tab that opened for the file download
@@ -301,7 +316,7 @@ class Presentation extends MultiUsers {
     await this.modPage.waitAndClick(e.actions);
     await this.modPage.waitAndClick(e.managePresentations);
     await this.modPage.waitAndClick(e.presentationOptionsDownloadBtn);
-    if(!presentationWithAnnotationsDownloadable) {
+    if (!presentationWithAnnotationsDownloadable) {
       await this.modPage.hasElement(e.presentationOptionsDownloadBtn);
       return this.modPage.wasRemoved(e.sendPresentationInCurrentStateBtn);
     }
@@ -408,6 +423,12 @@ class Presentation extends MultiUsers {
   }
 
   async hidePresentationToolbar() {
+    // wait for whiteboard to load and no notifications
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.waitForSelector(e.skipSlide);
+    await this.modPage.closeAllToastNotifications();
+    await this.modPage.wasRemoved(e.smallToastMsg);
+    // enabled multi-users whiteboard and hide toolbar
     await this.modPage.waitAndClick(e.multiUsersWhiteboardOn);
     await this.modPage.waitAndClick(e.whiteboardOptionsButton);
     await this.modPage.waitAndClick(e.toolVisibility);

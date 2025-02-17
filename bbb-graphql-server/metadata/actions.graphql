@@ -235,6 +235,12 @@ type Mutation {
 }
 
 type Mutation {
+  meetingLayoutSetScreenshareAsContent(
+    screenshareAsContent: Boolean!
+  ): Boolean
+}
+
+type Mutation {
   meetingLayoutSetSyncWithPresenterLayout(
     syncWithPresenterLayout: Boolean!
   ): Boolean
@@ -315,6 +321,14 @@ type Mutation {
 type Mutation {
   pluginLearningAnalyticsDashboardSendGenericData(
     genericDataForLearningAnalyticsDashboard: json!
+    pluginName: String!
+  ): Boolean
+}
+
+type Mutation {
+  pluginPersistEvent(
+    payloadJson: json!
+    eventName: String!
     pluginName: String!
   ): Boolean
 }
@@ -432,7 +446,7 @@ type Mutation {
 }
 
 type Mutation {
-  presentationSetRenderedInToast(
+  presentationSetUploadCompletionNotified(
     presentationId: String!
   ): Boolean
 }

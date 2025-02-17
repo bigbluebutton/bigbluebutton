@@ -14,6 +14,7 @@ import { Chat as ChatType } from '/imports/ui/Types/chat';
 import { layoutDispatch } from '/imports/ui/components/layout/context';
 import browserInfo from '/imports/utils/browserInfo';
 import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
 
 interface ChatProps {
@@ -99,6 +100,13 @@ const ChatContainer: React.FC = () => {
 
   const [pendingChat, setPendingChat] = usePendingChat();
 
+  const { data: currentUser } = useCurrentUser((c) => ({
+    userLockSettings: c?.userLockSettings,
+    locked: c?.locked,
+  }));
+
+  const isLocked = currentUser?.locked || currentUser?.userLockSettings?.disablePublicChat;
+
   if (pendingChat && chats) {
     const chat = chats.find((c) => {
       return c.participant?.userId === pendingChat;
@@ -113,7 +121,7 @@ const ChatContainer: React.FC = () => {
   }
 
   if (sidebarContent.sidebarContentPanel !== PANELS.CHAT) return null;
-  if (!idChatOpen) return <ChatLoading isRTL={isRTL} />;
+  if (!idChatOpen && !isLocked) return <ChatLoading isRTL={isRTL} />;
   return <Chat isRTL={isRTL} />;
 };
 

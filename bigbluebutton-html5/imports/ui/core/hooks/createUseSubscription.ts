@@ -70,22 +70,22 @@ function createUseSubscription<T>(
     const observer = useRef({
       //  @ts-ignore
       next(response) {
-        const { data } = response;
+        const { data, loading } = response;
 
-        if (!data) {
+        if (!data && oldLoadingRef.current === loading) {
           return;
         }
 
         const resultSetKey = Object.keys(data)[0];
         const newProjectionOfData = data[resultSetKey].map((element: Partial<T>) => projectionFunction(element));
-        if (!R.equals(oldProjectionOfDataRef.current, newProjectionOfData)) {
-          const loading = response.data === undefined && response.errors === undefined;
+        if (!R.equals(oldProjectionOfDataRef.current, newProjectionOfData) || oldLoadingRef.current !== loading) {
           const objectFromProjectionToSave: GraphqlDataHookSubscriptionResponse<Partial<T>[]> = {
             ...response,
             loading,
           };
           objectFromProjectionToSave.data = newProjectionOfData;
           oldProjectionOfDataRef.current = newProjectionOfData;
+          oldLoadingRef.current = loading;
           setProjectedData(objectFromProjectionToSave);
         }
       },
@@ -100,6 +100,7 @@ function createUseSubscription<T>(
       setProjectedData,
     ] = useState<GraphqlDataHookSubscriptionResponse<Partial<T>[]>>({ loading: true });
     const oldProjectionOfDataRef = useRef<Partial<T>[]>([]);
+    const oldLoadingRef = useRef<boolean>(true);
 
     useEffect(() => {
       const listener = (event: CustomEvent) => {

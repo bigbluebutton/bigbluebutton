@@ -3,7 +3,8 @@ package org.bigbluebutton.core.apps.screenshare
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.{ ExternalVideoModel, ScreenshareModel }
 import org.bigbluebutton.core.bus.MessageBus
-import org.bigbluebutton.core.db.ScreenshareDAO
+import org.bigbluebutton.core.db.{ LayoutDAO, ScreenshareDAO }
+import org.bigbluebutton.core.models.Layouts
 import org.bigbluebutton.core.running.LiveMeeting
 
 trait ScreenshareRtmpBroadcastStartedVoiceConfEvtMsgHdlr {
@@ -60,6 +61,8 @@ trait ScreenshareRtmpBroadcastStartedVoiceConfEvtMsgHdlr {
         log.info("START broadcast ALLOWED when isBroadcastingRTMP=false")
 
         ScreenshareDAO.insert(liveMeeting.props.meetingProp.intId, liveMeeting.screenshareModel)
+        Layouts.setScreenshareAsContent(liveMeeting.layouts, true)
+        LayoutDAO.insertOrUpdate(liveMeeting.props.meetingProp.intId, liveMeeting.layouts)
 
         // Notify viewers in the meeting that there's an rtmp stream to view
         val msgEvent = broadcastEvent(msg.body.voiceConf, msg.body.screenshareConf, msg.body.stream,
