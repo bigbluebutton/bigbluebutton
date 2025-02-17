@@ -15,7 +15,7 @@ const EXPORT_STATUSES = {
   EXPORTED: 'EXPORTED',
 };
 
-const TIMEOUT_CLOSE_TOAST = 1; // second
+const TIMEOUT_CLOSE_TOAST = 2; // second
 
 const intlMessages = defineMessages({
   item: {
@@ -454,7 +454,7 @@ export const PresentationUploaderToast = ({
   intl,
   presentations,
   presentationsToBeShowed,
-  setPresentationRenderedInToast,
+  setPresentationUploadCompletionNotified,
   forceShowToast,
   setForceShowToast,
 }) => {
@@ -463,6 +463,7 @@ export const PresentationUploaderToast = ({
   const prevPresentations = usePreviousValue(presentations);
   const exportToastIdRef = useRef('presentationUploaderExportPresentationId');
   const convertingToastIdRef = useRef('presentationUploaderConvertingPresentationId');
+  const closeTimeoutReference = useRef();
 
   const addPressIdToDismissed = (presId) => {
     setDismissedItems((prev) => {
@@ -520,13 +521,22 @@ export const PresentationUploaderToast = ({
 
   useEffect(() => {
     setForceShowToast(false);
+    return () => {
+      // Dismiss toast if active when unmounting (presenter status is lost)
+      if (toast.isActive(convertingToastIdRef.current)) {
+        handleDismissToast(convertingToastIdRef.current);
+      }
+    };
   }, []);
 
   useEffect(() => {
+    if (showToast) return;
     presentationsToBeShowed.filter(
-      (p) => (p.uploadCompleted && !p.uploadErrorMsgKey),
+      (p) => (p.uploadCompleted || p.uploadErrorMsgKey),
     ).forEach(
-      (p) => setPresentationRenderedInToast({ variables: { presentationId: p.presentationId } }),
+      (p) => setPresentationUploadCompletionNotified(
+        { variables: { presentationId: p.presentationId } },
+      ),
     );
   }, [showToast]);
 
@@ -547,14 +557,17 @@ export const PresentationUploaderToast = ({
       className: 'presentationUploaderToast toastClass',
       toastId: convertingToastIdRef.current,
       onClose: () => {
+        setShowToast(false);
         Session.setItem('presentationUploaderToastId', null);
       },
     });
   } else if (!showToast && toast.isActive(convertingToastIdRef.current)) {
-    setTimeout(() => {
+    closeTimeoutReference.current = setTimeout(() => {
+      closeTimeoutReference.current = null;
       handleDismissToast(convertingToastIdRef.current);
     }, TIMEOUT_CLOSE_TOAST * 1000);
-  } else {
+  } else if (presentationsToBeShowed.length > 0) {
+  // } else {
     toast.update(convertingToastIdRef.current, {
       render: renderToastList(presentationsToBeShowed, intl),
     });

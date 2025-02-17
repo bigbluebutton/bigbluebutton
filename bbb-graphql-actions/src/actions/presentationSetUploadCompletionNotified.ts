@@ -9,7 +9,7 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
       ]
   )
 
-  const eventName = `SetPresentationRenderedInToastPubMsg`;
+  const eventName = `SetPresentationUploadCompletionNotifiedPubMsg`;
 
   const routing = {
     meetingId: sessionVariables['x-hasura-meetingid'] as String,
@@ -25,8 +25,6 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
   const body = {
     presentationId: input.presentationId,
   };
-
-  //TODO Akka-apps doesn't handle it (graphql doesnt have `pres.renderedInToast` prop)
 
   return { eventName, routing, header, body };
 }

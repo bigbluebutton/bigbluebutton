@@ -35,7 +35,7 @@ export interface PresPresentation {
     totalPages: number;
     totalPagesUploaded: number;
     presentationId: string;
-    renderedInToast: boolean;
+    uploadCompletionNotified: boolean;
     removable: boolean;
     uploadCompleted: boolean;
     exportToChatInProgress?: boolean;
