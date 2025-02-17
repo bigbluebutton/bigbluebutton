@@ -142,6 +142,7 @@ const UserNameWithSubs: React.FC<UserNameWithSubsProps> = ({
           {isMe(subjectUser.userId) ? (
             <Styled.StrongName>
               {subjectUser.name}
+              &nbsp;
               {`(${intl.formatMessage(intlMessages.you)})`}
             </Styled.StrongName>
           ) : (
