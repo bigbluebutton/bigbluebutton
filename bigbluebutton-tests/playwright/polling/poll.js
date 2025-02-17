@@ -72,7 +72,7 @@ class Polling extends MultiUsers {
   async stopPoll() {
     await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard for the moderator', ELEMENT_WAIT_LONGER_TIME);
     await util.startPoll(this.modPage);
-    await this.userPage.hasElement(e.pollingContainer, 'should display the polling container for the attendeee after the poll is created');
+    await this.userPage.hasElement(e.pollingContainer, 'should display the polling container for the attendee after the poll is created');
     await this.modPage.waitAndClick(e.cancelPollBtn);
     await this.userPage.wasRemoved(e.pollingContainer, 'should not display the polling container after the poll is canceled');
 
@@ -189,6 +189,7 @@ class Polling extends MultiUsers {
 
     // Type Response
     await this.modPage.waitAndClick(e.quickPoll, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.waitAndClick(e.startPoll, ELEMENT_WAIT_TIME);
     await this.userPage.hasElement(e.responsePollQuestion, 'should display the poll question after quick poll starts');
     await this.userPage.type(e.pollAnswerOptionInput, 'test');
     await this.userPage.waitAndClick(e.pollSubmitAnswer);
@@ -202,6 +203,7 @@ class Polling extends MultiUsers {
     await sleep(500); // avoid error when the tooltip is in front of the button due to layout shift
     await skipSlide(this.modPage);
     await this.modPage.waitAndClick(e.quickPoll);
+    await this.modPage.waitAndClick(e.startPoll, ELEMENT_WAIT_TIME);
     await this.userPage.waitAndClick(e.firstPollAnswerDescOption);
     await this.userPage.waitAndClick(e.secondPollAnswerDescOption);
     await this.userPage.waitAndClick(e.submitAnswersMultiple);
@@ -215,6 +217,7 @@ class Polling extends MultiUsers {
     await sleep(500); // avoid error when the tooltip is in front of the button due to layout shift
     await skipSlide(this.modPage);
     await this.modPage.waitAndClick(e.quickPoll);
+    await this.modPage.waitAndClick(e.startPoll, ELEMENT_WAIT_TIME);
     await this.userPage.waitAndClick(e.pollAnswerOptionE);
     await this.modPage.hasText(e.userVoteLiveResult, 'E) 22222', 'should display the vote result after the poll is answered');
 
@@ -236,8 +239,9 @@ class Polling extends MultiUsers {
     await sleep(500); // avoid error when the tooltip is in front of the button due to layout shift
     await skipSlide(this.modPage);
     await this.modPage.waitAndClick(e.quickPoll);
+    await this.modPage.waitAndClick(e.startPoll, ELEMENT_WAIT_TIME);
     await this.userPage.waitAndClick(e.pollAnswerOptionBtn);
-    await this.modPage.hasText(e.userVoteLiveResult, 'True', 'should display the vote result after the attendeee submit the answer');
+    await this.modPage.hasText(e.userVoteLiveResult, 'True', 'should display the vote result after the attendee submit the answer');
     await this.modPage.waitAndClick(e.publishPollingLabel);
 
     await this.modPage.hasElementDisabled(e.nextSlide, 'should display the next slide button disabled since the smart slides has finished with all the questions');
