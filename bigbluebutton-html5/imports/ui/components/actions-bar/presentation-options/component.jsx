@@ -67,7 +67,7 @@ const PresentationOptionsContainer = ({
     && !hasCameraAsContent;
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
   const isChatOpen = sidebarContent.sidebarContentPanel === PANELS.CHAT;
-  const PUBLIC_CHAT_ID = window.meetingClientSettings.public.chat.public_group_id;
+  const PUBLIC_GROUP_CHAT_ID = window.meetingClientSettings.public.chat.public_group_id;
   const isGridLayout = useStorageKey('isGridEnabled');
   return (
     <Styled.PresentationButton
@@ -93,7 +93,7 @@ const PresentationOptionsContainer = ({
           });
           layoutContextDispatch({
             type: ACTIONS.SET_ID_CHAT_OPEN,
-            value: PUBLIC_CHAT_ID,
+            value: PUBLIC_GROUP_CHAT_ID,
           });
           layoutContextDispatch({
             type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
