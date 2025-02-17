@@ -16,8 +16,12 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
 
   const filename: string = input.filename as string;
   const uploadTemporaryId: string = input.uploadTemporaryId as string;
-  if(uploadTemporaryId.length > 500 || filename.length > 500) {
-    throw new ValidationError('Presentation name or temporaryId with more than 500 characters', 400);
+  if(uploadTemporaryId.length > 500) {
+    throw new ValidationError('Parameter uploadTemporaryId exceeds maximum allowed length of 500 characters.', 400);
+  }
+
+  if(filename.length > 500) {
+    throw new ValidationError('Parameter filename exceeds maximum allowed length of 500 characters.', 400);
   }
 
   const routing = {
