@@ -35,7 +35,7 @@ const colorOffline = `var(--color-offline, ${colorGrayLight})`;
 const colorMuted = 'var(--color-muted, #586571)';
 const colorMutedBackground = 'var(--color-muted-background, #F3F6F9)';
 
-const colorBackground = `var(--color-background, ${colorGrayDark})`;
+const colorBackground = 'var(--color-background, #102133)';
 const colorOverlay = 'var(--color-overlay, rgba(6, 23, 42, 0.75))';
 
 const userListBg = `var(--user-list-bg, ${colorOffWhite})`;
