@@ -48,7 +48,6 @@ interface StartPollButtonProps {
   setIsPolling: (isPolling: boolean) => void;
   secretPoll: boolean;
   isMultipleResponse: boolean;
-  hasCurrentPresentation: boolean;
 }
 
 const StartPollButton: React.FC<StartPollButtonProps> = ({
@@ -59,7 +58,6 @@ const StartPollButton: React.FC<StartPollButtonProps> = ({
   setIsPolling,
   secretPoll,
   isMultipleResponse,
-  hasCurrentPresentation,
 }) => {
   const CHAT_CONFIG = window.meetingClientSettings.public.chat;
   const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
@@ -77,7 +75,7 @@ const StartPollButton: React.FC<StartPollButtonProps> = ({
     isMultipleResponse: boolean,
     answers: (string | null)[] = [],
   ) => {
-    const pollId = hasCurrentPresentation || PUBLIC_CHAT_KEY;
+    const pollId = PUBLIC_CHAT_KEY;
 
     createPoll({
       variables: {

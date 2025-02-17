@@ -29,7 +29,6 @@ interface ResponseChoicesProps {
   question: string | string[];
   setError: (err: string) => void;
   setIsPolling: (isPolling: boolean) => void;
-  hasCurrentPresentation: boolean;
   handleToggle: () => void;
   error: string | null;
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement>, i: number) => void;
@@ -48,7 +47,6 @@ const ResponseChoices: React.FC<ResponseChoicesProps> = ({
   question,
   setError,
   setIsPolling,
-  hasCurrentPresentation,
   handleToggle,
   error,
   handleInputChange,
@@ -89,7 +87,6 @@ const ResponseChoices: React.FC<ResponseChoicesProps> = ({
           question={question}
           setError={setError}
           setIsPolling={setIsPolling}
-          hasCurrentPresentation={hasCurrentPresentation}
           handleToggle={handleToggle}
           handleInputChange={handleInputChange}
           handleRemoveOption={handleRemoveOption}
