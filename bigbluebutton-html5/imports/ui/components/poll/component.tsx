@@ -1,13 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import { useMutation } from '@apollo/client';
 import { Input } from '../layout/layoutTypes';
 import { layoutDispatch, layoutSelectInput } from '../layout/context';
 import { addAlert } from '../screenreader-alert/service';
 import { PANELS, ACTIONS } from '../layout/enums';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
-import { POLL_CANCEL } from './mutations';
 import { GetHasCurrentPresentationResponse, getHasCurrentPresentation } from './queries';
 import EmptySlideArea from './components/EmptySlideArea';
 import { getSplittedQuestionAndOptions, pollTypes, validateInput } from './service';
@@ -26,7 +24,7 @@ const intlMessages = defineMessages({
     description: 'heading label for the poll menu',
   },
   minimize: {
-    id: 'app.sidebarContent.minimizePanelLabe',
+    id: 'app.sidebarContent.minimizePanelLabel',
     description: 'label for poll pane minimize button',
   },
   hidePollDesc: {
@@ -240,7 +238,6 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
   const POLL_SETTINGS = window.meetingClientSettings.public.poll;
   const ALLOW_CUSTOM_INPUT = POLL_SETTINGS.allowCustomResponseInput;
   const MAX_CUSTOM_FIELDS = POLL_SETTINGS.maxCustom;
-  const [stopPoll] = useMutation(POLL_CANCEL);
 
   const intl = useIntl();
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -494,7 +491,6 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
           icon: 'minus',
           label: intl.formatMessage(intlMessages.minimize, { 0: intl.formatMessage(intlMessages.pollPaneTitle) }),
           onClick: () => {
-            if (hasPoll) stopPoll();
             layoutContextDispatch({
               type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
               value: false,
