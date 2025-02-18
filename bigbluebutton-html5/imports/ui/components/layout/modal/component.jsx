@@ -8,6 +8,8 @@ import Button from '/imports/ui/components/common/button/component';
 import Toggle from '/imports/ui/components/common/switch/component';
 import Styled from './styles';
 import Tooltip from '/imports/ui/components/common/tooltip/component';
+import Auth from '/imports/ui/services/auth';
+import Storage from '/imports/ui/services/storage/session';
 
 const LayoutModalComponent = ({
   intl,
@@ -21,12 +23,24 @@ const LayoutModalComponent = ({
   setLocalSettings,
 }) => {
   const [selectedLayout, setSelectedLayout] = useState(application.selectedLayout);
-  const [keepPushingLayout, setKeepPushingLayout] = useState(application.pushLayout);
+
+  const isKeepPushingLayoutEnabled = SettingsService.isKeepPushingLayoutEnabled();
+
+  const getKeepPushingLayout = () => {
+    if (!isKeepPushingLayoutEnabled) return false;
+
+    const storageKey = `keepPushingLayout_${Auth.meetingID}`;
+    return Storage.getItem(storageKey) === true;
+  };
+
+  const setKeepPushingLayout = (value) => {
+    const storageKey = `keepPushingLayout_${Auth.meetingID}`;
+    Storage.setItem(storageKey, value);
+  };
 
   const BASE_NAME = window.meetingClientSettings.public.app.cdn + window.meetingClientSettings.public.app.basename;
 
   const LAYOUTS_PATH = `${BASE_NAME}/resources/images/layouts/`;
-  const isKeepPushingLayoutEnabled = SettingsService.isKeepPushingLayoutEnabled();
 
   const intlMessages = defineMessages({
     title: {
@@ -104,6 +118,8 @@ const LayoutModalComponent = ({
   };
 
   const handleUpdateLayout = () => {
+    const keepPushingLayout = getKeepPushingLayout();
+
     const obj = {
       application:
         { ...application, selectedLayout, pushLayout: keepPushingLayout },
@@ -120,7 +136,8 @@ const LayoutModalComponent = ({
   };
 
   const toggleKeepPushingLayout = () => {
-    setKeepPushingLayout((current) => !current);
+    const current = getKeepPushingLayout();
+    setKeepPushingLayout(!current);
   };
 
   const displayToggleStatus = (toggleValue) => (
@@ -130,20 +147,24 @@ const LayoutModalComponent = ({
     </Styled.ToggleLabel>
   );
 
-  const renderToggle = () => (
-    <Styled.ToggleStatusWrapper>
-      {displayToggleStatus(keepPushingLayout)}
-      <Toggle
-        id="TogglePush"
-        icons={false}
-        defaultChecked={keepPushingLayout}
-        onChange={toggleKeepPushingLayout}
-        ariaLabel="push"
-        data-test="updateEveryoneLayoutToggle"
-        showToggleLabel={false}
-      />
-    </Styled.ToggleStatusWrapper>
-  );
+  const renderToggle = () => {
+    const keepPushingLayout = getKeepPushingLayout();
+
+    return (
+      <Styled.ToggleStatusWrapper>
+        {displayToggleStatus(keepPushingLayout)}
+        <Toggle
+          id="TogglePush"
+          icons={false}
+          defaultChecked={keepPushingLayout}
+          onChange={toggleKeepPushingLayout}
+          ariaLabel="push"
+          data-test="updateEveryoneLayoutToggle"
+          showToggleLabel={false}
+        />
+      </Styled.ToggleStatusWrapper>
+    )
+  };
 
   const renderPushLayoutsOptions = () => {
     if (!isModerator && !isPresenter) {
