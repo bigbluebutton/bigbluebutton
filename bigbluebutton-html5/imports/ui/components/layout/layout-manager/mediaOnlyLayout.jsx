@@ -312,16 +312,6 @@ const MediaOnlyLayout = (props) => {
     });
 
     layoutContextDispatch({
-      type: ACTIONS.SET_SIDEBAR_NAVIGATION_RESIZABLE_EDGE,
-      value: {
-        top: false,
-        right: false,
-        bottom: false,
-        left: false,
-      },
-    });
-
-    layoutContextDispatch({
       type: ACTIONS.SET_SIDEBAR_CONTENT_OUTPUT,
       value: {
         display: false,

@@ -226,16 +226,6 @@ const ParticipantsAndChatOnlyLayout = (props) => {
     });
 
     layoutContextDispatch({
-      type: ACTIONS.SET_SIDEBAR_NAVIGATION_RESIZABLE_EDGE,
-      value: {
-        top: false,
-        right: !isRTL,
-        bottom: false,
-        left: isRTL,
-      },
-    });
-
-    layoutContextDispatch({
       type: ACTIONS.SET_SIDEBAR_CONTENT_OUTPUT,
       value: {
         display: sidebarContentInput.isOpen,

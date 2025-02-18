@@ -1532,7 +1532,7 @@ const updatePresentationAreaContent = (
           value: undefined,
         });
         layoutContextDispatch({
-          type: ACTIONS.PINNED_NOTES,
+          type: ACTIONS.SET_NOTES_IS_PINNED,
           value: !lastPresentationContentInPile.value.open,
         });
         shouldOpenPresentation = Session.getItem('presentationLastState');
