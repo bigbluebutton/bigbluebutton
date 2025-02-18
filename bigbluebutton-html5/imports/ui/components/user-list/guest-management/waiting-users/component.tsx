@@ -1,17 +1,12 @@
 import React, {
-  ChangeEvent,
   useCallback,
-  useEffect,
   useState,
 } from 'react';
 import { useMutation } from '@apollo/client';
 import { defineMessages, useIntl } from 'react-intl';
 import { useMeeting } from '/imports/ui/core/hooks/useMeeting';
-import IconButton from '@mui/material/IconButton';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import CancelIcon from '@mui/icons-material/Cancel';
-import SendIcon from '@mui/icons-material/Send';
 import Avatar from '@mui/material/Avatar';
 import { CheckCircle } from '@mui/icons-material';
 import Tooltip from '/imports/ui/components/common/tooltip/component';
@@ -26,13 +21,11 @@ import renderPendingUsers from './guest-items/guestPendingUser';
 import logger from '/imports/startup/client/logger';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import {
-  SET_LOBBY_MESSAGE,
   SET_LOBBY_MESSAGE_PRIVATE,
   SUBMIT_APPROVAL_STATUS,
 } from './mutations';
-import { colorPrimary } from '/imports/ui/stylesheets/styled-components/palette';
 
-interface GuestUsersManagementPanelProps {
+interface WaitingUserSectionProps {
   authedGuestUsers: GuestWaitingUser[];
   unauthedGuestUsers: GuestWaitingUser[];
   guestLobbyMessage: string | null;
@@ -82,7 +75,7 @@ const intlMessages = defineMessages({
   },
 });
 
-const GuestUsersManagementPanel: React.FC<GuestUsersManagementPanelProps> = ({
+const WaitingUserSection: React.FC<WaitingUserSectionProps> = ({
   authedGuestUsers,
   unauthedGuestUsers,
   guestLobbyEnabled,
@@ -96,10 +89,7 @@ const GuestUsersManagementPanel: React.FC<GuestUsersManagementPanelProps> = ({
   const { isChrome } = browserInfo;
   const [waitingAuthedUsersVisible, setWaitingAuthedUsersVisible] = useState(false);
   const [waitingUnauthedUsersVisible, setWaitingUnauthedUsersVisible] = useState(false);
-  const [guestLobbyMessageChecked, setGuestLobbyMessageChecked] = React.useState(false);
-  const [message, setMessage] = React.useState(guestLobbyMessage);
   const [submitApprovalStatus] = useMutation(SUBMIT_APPROVAL_STATUS);
-  const [setLobbyMessage] = useMutation(SET_LOBBY_MESSAGE);
   const [setLobbyMessagePrivate] = useMutation(SET_LOBBY_MESSAGE_PRIVATE);
 
   const guestUsersCall = useCallback((users: GuestWaitingUser[], status: string) => {
@@ -111,14 +101,6 @@ const GuestUsersManagementPanel: React.FC<GuestUsersManagementPanelProps> = ({
     submitApprovalStatus({
       variables: {
         guests,
-      },
-    });
-  }, []);
-
-  const setGuestLobbyMessage = useCallback((message: string) => {
-    setLobbyMessage({
-      variables: {
-        message,
       },
     });
   }, []);
@@ -140,131 +122,32 @@ const GuestUsersManagementPanel: React.FC<GuestUsersManagementPanelProps> = ({
     return user.guestLobbyMessage === guestLobbyMessage ? '' : user.guestLobbyMessage;
   }, [authedGuestUsers, unauthedGuestUsers]);
 
-  const handleMessageChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
-    setMessage(e.target.value);
-  };
-
-  const handleMessageKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.keyCode === 13 && e.shiftKey === false) {
-      e.preventDefault();
-      setGuestLobbyMessage(message as string);
-      setMessage('');
-    }
-  };
-
-  useEffect(() => {
-    setGuestLobbyMessageChecked(!!guestLobbyMessage);
-  }, [guestLobbyMessage]);
-
   return (
     <Styled.Panel isChrome={isChrome}>
-      {isGuestLobbyMessageEnabled && (
-        <Styled.GuestLobbyMessageContainer>
-          <Styled.SwitchTitle
-            sx={{
-              margin: 0,
-            }}
-            control={(
-              <Styled.MessageSwitch
-                checked={guestLobbyMessageChecked}
-                onChange={(_, checked) => {
-                  setGuestLobbyMessageChecked(checked);
-                  if (!checked) {
-                    setGuestLobbyMessage('');
-                    setMessage('');
-                  }
-                }}
-                sx={{
-                  marginRight: '1rem',
-                }}
-              />
-            )}
-            label={intl.formatMessage(intlMessages.inputPlaceholder)}
-          />
-          {guestLobbyMessageChecked ? (
-            <>
-              {guestLobbyMessage && (
-                <Styled.GuestLobbyMessage>
-                  {guestLobbyMessage}
-                </Styled.GuestLobbyMessage>
-              )}
-              <Styled.InputWrapper>
-                <Styled.Input
-                  id="guest-lobby-message-input"
-                  data-test="lobbyMessage"
-                  maxLength={128}
-                  placeholder={intl.formatMessage(intlMessages.inputPlaceholder)}
-                  aria-label={intl.formatMessage(intlMessages.inputPlaceholder)}
-                  autoCorrect="off"
-                  autoComplete="off"
-                  spellCheck="true"
-                  value={message ?? ''}
-                  onChange={handleMessageChange}
-                  onKeyDown={handleMessageKeyDown}
-                  onPaste={(e) => { e.stopPropagation(); }}
-                  onCut={(e) => { e.stopPropagation(); }}
-                  onCopy={(e) => { e.stopPropagation(); }}
-                  async
-                />
-                <div style={{ zIndex: 10 }}>
-                  <Tooltip title={intl.formatMessage(intlMessages.sendLabel)}>
-                    <Styled.SendButton
-                      sx={{
-                        alignSelf: 'center',
-                        fontSize: '0.9rem',
-                        height: '100%',
-                        borderRadius: '0 0.75rem 0.75rem 0',
-                        minWidth: 'auto',
-                        padding: '8px',
-                      }}
-                      variant="contained"
-                      // disabled={disabled || partnerIsLoggedOut || chatSendMessageLoading}
-                      // type="submit"
-                      data-test="sendMessageButton"
-                      onClick={() => { setGuestLobbyMessage(message as string); }}
-                    >
-                      <SendIcon />
-                    </Styled.SendButton>
-                  </Tooltip>
-                </div>
-              </Styled.InputWrapper>
-            </>
-          ) : (
-            <Styled.NoMessageText>
-              {intl.formatMessage(intlMessages.emptyMessage)}
-            </Styled.NoMessageText>
-          )}
-        </Styled.GuestLobbyMessageContainer>
-      )}
       {authedGuestUsers.length > 0 && (
         <>
-          <Tooltip title={waitingAuthedUsersVisible
-            ? intl.formatMessage(intlMessages.hideWaitingGuests)
-            : intl.formatMessage(intlMessages.showWaitingGuests)}
+          <Tooltip
+            title={
+              waitingAuthedUsersVisible
+                ? intl.formatMessage(intlMessages.hideWaitingGuests)
+                : intl.formatMessage(intlMessages.showWaitingGuests)
+            }
           >
-            <Styled.WaitingUsersHeader onClick={() => setWaitingAuthedUsersVisible(!waitingAuthedUsersVisible)}>
-              <IconButton
-                size="small"
-                sx={{
-                  bgcolor: colorPrimary,
-                  color: 'white',
-                  '&:hover': {
-                    backgroundColor: colorPrimary,
-                  },
-                  width: '1.5rem',
-                  height: '1.5rem',
-                }}
-                onClick={() => setWaitingAuthedUsersVisible(!waitingAuthedUsersVisible)}
-              >
-                {waitingAuthedUsersVisible ? <ExpandLessIcon fontSize="small" /> : <ExpandMoreIcon fontSize="small" />}
-              </IconButton>
-              <Styled.MainTitle>{intl.formatMessage(intlMessages.title)}</Styled.MainTitle>
-              <Avatar sx={{ bgcolor: '#F59240', width: '1.25rem', height: '1.25rem' }}>
-                <Styled.GuestNumberIndicator>
-                  {authedGuestUsers.length}
-                </Styled.GuestNumberIndicator>
-              </Avatar>
-            </Styled.WaitingUsersHeader>
+            <Styled.ToggleButton onClick={() => setWaitingAuthedUsersVisible(!waitingAuthedUsersVisible)}>
+              <Styled.ButtonContent>
+                <Styled.ExpandIcon $expanded={waitingAuthedUsersVisible}>
+                  <ExpandMoreIcon />
+                </Styled.ExpandIcon>
+                <Styled.TitleText>
+                  {intl.formatMessage(intlMessages.title)}
+                </Styled.TitleText>
+                <Avatar sx={{ bgcolor: '#F59240', width: '1.25rem', height: '1.25rem' }}>
+                  <Styled.GuestNumberIndicator>
+                    {authedGuestUsers.length}
+                  </Styled.GuestNumberIndicator>
+                </Avatar>
+              </Styled.ButtonContent>
+            </Styled.ToggleButton>
           </Tooltip>
           {waitingAuthedUsersVisible && (
             renderPendingUsers(
@@ -302,35 +185,29 @@ const GuestUsersManagementPanel: React.FC<GuestUsersManagementPanelProps> = ({
       )}
       {unauthedGuestUsers.length > 0 && (
         <>
-          <Styled.WaitingUsersHeader
-            onClick={() => setWaitingUnauthedUsersVisible(!waitingUnauthedUsersVisible)}
+          <Tooltip
+            title={
+              waitingUnauthedUsersVisible
+                ? intl.formatMessage(intlMessages.hideWaitingGuests)
+                : intl.formatMessage(intlMessages.showWaitingGuests)
+            }
           >
-            <Tooltip title={waitingUnauthedUsersVisible
-              ? intl.formatMessage(intlMessages.hideWaitingGuests)
-              : intl.formatMessage(intlMessages.showWaitingGuests)}
-            >
-              <IconButton
-                size="small"
-                sx={{
-                  bgcolor: colorPrimary,
-                  color: 'white',
-                  '&:hover': {
-                    backgroundColor: colorPrimary,
-                  },
-                  width: '1.5rem',
-                  height: '1.5rem',
-                }}
-              >
-                {waitingUnauthedUsersVisible ? <ExpandLessIcon fontSize="small" /> : <ExpandMoreIcon fontSize="small" />}
-              </IconButton>
-            </Tooltip>
-            <Styled.MainTitle>{intl.formatMessage(intlMessages.title)}</Styled.MainTitle>
-            <Avatar sx={{ bgcolor: '#F59240', width: '1.25rem', height: '1.25rem' }}>
-              <Styled.GuestNumberIndicator>
-                {unauthedGuestUsers.length}
-              </Styled.GuestNumberIndicator>
-            </Avatar>
-          </Styled.WaitingUsersHeader>
+            <Styled.ToggleButton onClick={() => setWaitingUnauthedUsersVisible(!waitingUnauthedUsersVisible)}>
+              <Styled.ButtonContent>
+                <Styled.ExpandIcon $expanded={waitingUnauthedUsersVisible}>
+                  <ExpandMoreIcon />
+                </Styled.ExpandIcon>
+                <Styled.TitleText>
+                  {intl.formatMessage(intlMessages.title)}
+                </Styled.TitleText>
+                <Avatar sx={{ bgcolor: '#F59240', width: '1.25rem', height: '1.25rem' }}>
+                  <Styled.GuestNumberIndicator>
+                    {unauthedGuestUsers.length}
+                  </Styled.GuestNumberIndicator>
+                </Avatar>
+              </Styled.ButtonContent>
+            </Styled.ToggleButton>
+          </Tooltip>
           {waitingUnauthedUsersVisible && (
             renderPendingUsers(
               unauthedGuestUsers,
@@ -369,7 +246,7 @@ const GuestUsersManagementPanel: React.FC<GuestUsersManagementPanelProps> = ({
   );
 };
 
-const GuestUsersManagementPanelContainer: React.FC = () => {
+const WaitingUserSectionContainer: React.FC = () => {
   const {
     data: guestWaitingUsersData,
     loading: guestWaitingUsersLoading,
@@ -409,7 +286,7 @@ const GuestUsersManagementPanelContainer: React.FC = () => {
     }, { authed: [], unauthed: [] }) ?? { authed: [], unauthed: [] };
 
   return (
-    <GuestUsersManagementPanel
+    <WaitingUserSection
       authedGuestUsers={separateGuestUsersByAuthed.authed}
       unauthedGuestUsers={separateGuestUsersByAuthed.unauthed}
       guestLobbyMessage={currentMeeting?.usersPolicies?.guestLobbyMessage ?? null}
@@ -419,4 +296,4 @@ const GuestUsersManagementPanelContainer: React.FC = () => {
   );
 };
 
-export default GuestUsersManagementPanelContainer;
+export default WaitingUserSectionContainer;

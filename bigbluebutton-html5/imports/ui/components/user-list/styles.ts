@@ -34,6 +34,7 @@ const ScrollableSection = styled(ScrollboxVertical)`
   flex-grow: 1;
   padding-bottom: ${contentSidebarBottomScrollPadding};
   margin: ${mdPadding};
+  margin-top: 0;
 `;
 
 const UserList = styled(FlexColumn)`
