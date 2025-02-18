@@ -10,6 +10,7 @@ import { Message } from '/imports/ui/Types/message';
 import { defineMessages, FormattedTime, useIntl } from 'react-intl';
 import FocusTrap from 'focus-trap-react';
 import classNames from 'classnames';
+import { useMutation } from '@apollo/client';
 import ChatMessageHeader from './message-header/component';
 import ChatMessageTextContent from './message-content/text-content/component';
 import ChatPollContent from './message-content/poll-content/component';
@@ -38,6 +39,9 @@ import ChatMessageNotificationContent from './message-content/notification-conte
 import { getValueByPointer } from '/imports/utils/object-utils';
 import Tooltip from '/imports/ui/components/common/tooltip/container';
 import KEY_CODES from '/imports/utils/keyCodes';
+import ConfirmationModal from '/imports/ui/components/common/modal/confirmation/component';
+import logger from '/imports/startup/client/logger';
+import { CHAT_DELETE_MESSAGE_MUTATION } from './mutations';
 
 interface ChatMessageProps {
   message: Message;
@@ -111,6 +115,22 @@ const intlMessages = defineMessages({
     id: 'app.chat.toolbar.edit.edited',
     description: 'edited message label',
   },
+  delete: {
+    id: 'app.chat.toolbar.delete',
+    description: 'delete label',
+  },
+  cancelLabel: {
+    id: 'app.chat.toolbar.delete.cancelLabel',
+    description: '',
+  },
+  confirmationTitle: {
+    id: 'app.chat.toolbar.delete.confirmationTitle',
+    description: '',
+  },
+  confirmationDescription: {
+    id: 'app.chat.toolbar.delete.confirmationDescription',
+    description: '',
+  },
 });
 
 function isInViewport(el: HTMLDivElement) {
@@ -161,10 +181,29 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
   const [isToolbarReactionPopoverOpen, setIsToolbarReactionPopoverOpen] = React.useState(false);
   const [keyboardFocused, setKeyboardFocused] = React.useState(false);
   const [focused, setFocused] = React.useState(false);
+  const [isTryingToDelete, setIsTryingToDelete] = React.useState(false);
   const containerRef = React.useRef<HTMLDivElement>(null);
   const animationInitialTimestamp = React.useRef(0);
   const animationInitialScrollPosition = React.useRef(0);
   const animationScrollPositionDiff = React.useRef(0);
+
+  const [chatDeleteMessage] = useMutation(CHAT_DELETE_MESSAGE_MUTATION);
+  const onDeleteConfirmation = useCallback(() => {
+    chatDeleteMessage({
+      variables: {
+        chatId: message.chatId,
+        messageId: message.messageId,
+      },
+    }).catch((e) => {
+      logger.error({
+        logCode: 'chat_delete_message_error',
+        extraInfo: {
+          errorName: e?.name,
+          errorMessage: e?.message,
+        },
+      }, `Deleting the message failed: ${e?.message}`);
+    });
+  }, [chatDeleteMessage, message.chatId, message.messageId]);
 
   const disablePublicChat = meetingDisablePublicChat || currentUserDisablePublicChat;
 
@@ -523,6 +562,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
         chatReactionsEnabled={chatReactionsEnabled}
         chatReplyEnabled={chatReplyEnabled}
         setKeyboardFocused={setKeyboardFocused}
+        setIsTryingToDelete={setIsTryingToDelete}
       />
       {message.replyToMessage && !deleteTime && (
       <ChatMessageReplied
@@ -593,7 +633,8 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
         setFocused(!Object.is(e.target, e.currentTarget));
       }}
       onKeyDown={(e) => {
-        if (e.keyCode === KEY_CODES.TAB) {
+        const isTargetElement = e.target === e.currentTarget;
+        if (e.keyCode === KEY_CODES.TAB && isTargetElement) {
           setKeyboardFocused(true);
         }
       }}
@@ -652,6 +693,20 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
           </>
         )}
       </ChatWrapper>
+      {isTryingToDelete && (
+        <ConfirmationModal
+          isOpen={isTryingToDelete}
+          setIsOpen={setIsTryingToDelete}
+          onRequestClose={() => setIsTryingToDelete(false)}
+          onConfirm={onDeleteConfirmation}
+          title={intl.formatMessage(intlMessages.confirmationTitle)}
+          confirmButtonLabel={intl.formatMessage(intlMessages.delete)}
+          cancelButtonLabel={intl.formatMessage(intlMessages.cancelLabel)}
+          description={intl.formatMessage(intlMessages.confirmationDescription)}
+          confirmButtonColor="danger"
+          priority="high"
+        />
+      )}
     </Container>
   );
 });

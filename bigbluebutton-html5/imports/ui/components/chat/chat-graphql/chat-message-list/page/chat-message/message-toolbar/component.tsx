@@ -1,11 +1,9 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import { useMutation } from '@apollo/client';
 import Popover from '@mui/material/Popover';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
-import ConfirmationModal from '/imports/ui/components/common/modal/confirmation/component';
 import {
   Container,
   Divider,
@@ -14,8 +12,7 @@ import {
   EmojiPickerWrapper,
   Root,
 } from './styles';
-import { CHAT_DELETE_MESSAGE_MUTATION } from '../mutations';
-import logger from '/imports/startup/client/logger';
+
 import Tooltip from '/imports/ui/components/common/tooltip/component';
 
 const intlMessages = defineMessages({
@@ -26,22 +23,6 @@ const intlMessages = defineMessages({
   edit: {
     id: 'app.chat.toolbar.edit',
     description: 'edit label',
-  },
-  delete: {
-    id: 'app.chat.toolbar.delete',
-    description: 'delete label',
-  },
-  cancelLabel: {
-    id: 'app.chat.toolbar.delete.cancelLabel',
-    description: '',
-  },
-  confirmationTitle: {
-    id: 'app.chat.toolbar.delete.confirmationTitle',
-    description: '',
-  },
-  confirmationDescription: {
-    id: 'app.chat.toolbar.delete.confirmationDescription',
-    description: '',
   },
   editTooltip: {
     id: 'app.chat.header.tooltipEdit',
@@ -87,6 +68,7 @@ interface ChatMessageToolbarProps {
   chatDeleteEnabled: boolean;
   keyboardFocused: boolean;
   setKeyboardFocused: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsTryingToDelete: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
@@ -95,30 +77,12 @@ const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
     messageSequence, emphasizedMessage, own, amIModerator, isBreakoutRoom, locked,
     onReactionPopoverOpenChange, reactionPopoverIsOpen, hasToolbar, keyboardFocused,
     chatDeleteEnabled, chatEditEnabled, chatReactionsEnabled, chatReplyEnabled, setKeyboardFocused,
+    setIsTryingToDelete,
   } = props;
   const [reactionsAnchor, setReactionsAnchor] = React.useState<Element | null>(
     null,
   );
-  const [isTryingToDelete, setIsTryingToDelete] = React.useState(false);
   const intl = useIntl();
-  const [chatDeleteMessage] = useMutation(CHAT_DELETE_MESSAGE_MUTATION);
-
-  const onDeleteConfirmation = useCallback(() => {
-    chatDeleteMessage({
-      variables: {
-        chatId,
-        messageId,
-      },
-    }).catch((e) => {
-      logger.error({
-        logCode: 'chat_delete_message_error',
-        extraInfo: {
-          errorName: e?.name,
-          errorMessage: e?.message,
-        },
-      }, `Deleting the message failed: ${e?.message}`);
-    });
-  }, [chatDeleteMessage, chatId, messageId]);
 
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
 
@@ -256,20 +220,6 @@ const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
           />
         </EmojiPickerWrapper>
       </Popover>
-      {isTryingToDelete && (
-      <ConfirmationModal
-        isOpen={isTryingToDelete}
-        setIsOpen={setIsTryingToDelete}
-        onRequestClose={() => setIsTryingToDelete(false)}
-        onConfirm={onDeleteConfirmation}
-        title={intl.formatMessage(intlMessages.confirmationTitle)}
-        confirmButtonLabel={intl.formatMessage(intlMessages.delete)}
-        cancelButtonLabel={intl.formatMessage(intlMessages.cancelLabel)}
-        description={intl.formatMessage(intlMessages.confirmationDescription)}
-        confirmButtonColor="danger"
-        priority="low"
-      />
-      )}
     </Container>
   );
 
