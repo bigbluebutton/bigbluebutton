@@ -944,9 +944,12 @@ public:
       audio:
         # publishOptions: see https://docs.livekit.io/client-sdk-js/interfaces/TrackPublishOptions.html
         publishOptions:
-          audioPreset: 'speech'
+          audioPreset:
+            maxBitrate: 48000
+            networkPriority: 'high'
+            priority: 'high'
           dtx: true
-          red: false
+          red: true
           forceStereo: false
       camera:
         publishOptions:
