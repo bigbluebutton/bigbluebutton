@@ -678,6 +678,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
               clickOutsideDeactivates: true,
               onDeactivate() {
                 setKeyboardFocused(false);
+                containerRef.current?.focus?.();
               },
             }}
           >

@@ -128,15 +128,18 @@ const findLastFocusableChild = (element: HTMLElement) => {
 
 const roving = (
   event: React.KeyboardEvent<HTMLElement>,
-  changeState: (el?: HTMLElement | null) => void,
   elementsList: HTMLElement,
-  element?: HTMLElement | null,
 ) => {
   const numberOfChilds = elementsList.childElementCount;
+  const isTargetAChild = event.target instanceof HTMLDivElement && event.target.dataset.focusable === 'true';
+  const isTargetElement = event.target === event.currentTarget;
+  const { activeElement } = document;
+  const element = (
+    activeElement
+    && activeElement.classList.contains('chat-message-container')
+  ) ? activeElement : null;
 
-  if ([KEY_CODES.ESCAPE, KEY_CODES.TAB].includes(event.keyCode)) {
-    changeState(null);
-  }
+  if (!(isTargetAChild || isTargetElement)) return;
 
   if (event.keyCode === KEY_CODES.ARROW_DOWN) {
     event.preventDefault();
@@ -149,7 +152,6 @@ const roving = (
 
     elRef = (elRef && elRef.dataset.focusable === 'true') ? elRef : firstElement;
     elRef?.focus?.();
-    changeState(elRef);
   }
 
   if (event.keyCode === KEY_CODES.ARROW_UP) {
@@ -163,13 +165,11 @@ const roving = (
 
     elRef = (elRef && elRef.dataset.focusable === 'true') ? elRef : lastElement;
     elRef?.focus?.();
-    changeState(elRef);
   }
 
-  if ([KEY_CODES.SPACE, KEY_CODES.ENTER].includes(event.keyCode)) {
+  if ([KEY_CODES.SPACE, KEY_CODES.ENTER].includes(event.keyCode) && isTargetElement) {
     const elRef = document.activeElement?.firstChild as HTMLElement;
     elRef?.focus?.();
-    changeState(elRef);
   }
 };
 
@@ -194,7 +194,6 @@ const ChatMessageList: React.FC<ChatListProps> = ({
   const [userLoadedBackUntilPage, setUserLoadedBackUntilPage] = useState<number | null>(null);
   const [lastMessageCreatedAt, setLastMessageCreatedAt] = useState<string>('');
   const [followingTail, setFollowingTail] = React.useState(true);
-  const selectedMessageRef = React.useRef<HTMLElement | null>();
   const [showStartSentinel, setShowStartSentinel] = React.useState(false);
   const {
     childRefProxy: endSentinelRefProxy,
@@ -431,16 +430,10 @@ const ChatMessageList: React.FC<ChatListProps> = ({
   const pagesToLoad = (totalPages - firstPageToLoad) || 1;
 
   const rove: KeyboardEventHandler<HTMLElement> = (e) => {
-    const isTargetAChild = e.target instanceof HTMLDivElement && e.target.dataset.focusable === 'true';
-    const isTargetElement = e.target === e.currentTarget;
-    if (
-      messageListRef.current
-      && (isTargetAChild || isTargetElement)) {
+    if (messageListRef.current) {
       roving(
         e,
-        (el) => { selectedMessageRef.current = el; },
         messageListRef.current,
-        selectedMessageRef.current,
       );
     }
   };
@@ -505,9 +498,6 @@ const ChatMessageList: React.FC<ChatListProps> = ({
               ref={messageListRef}
               tabIndex={hasMessageToolbar ? 0 : -1}
               onKeyDown={rove}
-              onBlur={() => {
-                selectedMessageRef.current = null;
-              }}
             >
               {Array.from({ length: pagesToLoad }, (_v, k) => k + (firstPageToLoad)).map((page) => {
                 return (
