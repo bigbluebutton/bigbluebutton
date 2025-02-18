@@ -129,6 +129,7 @@ const findLastFocusableChild = (element: HTMLElement) => {
 const roving = (
   event: React.KeyboardEvent<HTMLElement>,
   elementsList: HTMLElement,
+  setFocused?: (el?: HTMLElement | null) => void,
 ) => {
   const numberOfChilds = elementsList.childElementCount;
   const isTargetAChild = event.target instanceof HTMLDivElement && event.target.dataset.focusable === 'true';
@@ -152,6 +153,7 @@ const roving = (
 
     elRef = (elRef && elRef.dataset.focusable === 'true') ? elRef : firstElement;
     elRef?.focus?.();
+    setFocused?.(elRef);
   }
 
   if (event.keyCode === KEY_CODES.ARROW_UP) {
@@ -165,11 +167,13 @@ const roving = (
 
     elRef = (elRef && elRef.dataset.focusable === 'true') ? elRef : lastElement;
     elRef?.focus?.();
+    setFocused?.(elRef);
   }
 
   if ([KEY_CODES.SPACE, KEY_CODES.ENTER].includes(event.keyCode) && isTargetElement) {
     const elRef = document.activeElement?.firstChild as HTMLElement;
     elRef?.focus?.();
+    setFocused?.(elRef);
   }
 };
 
@@ -195,6 +199,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
   const [lastMessageCreatedAt, setLastMessageCreatedAt] = useState<string>('');
   const [followingTail, setFollowingTail] = React.useState(true);
   const [showStartSentinel, setShowStartSentinel] = React.useState(false);
+  const [focusedMessageElement, setFocusedMessageElement] = React.useState<HTMLElement | null>();
   const {
     childRefProxy: endSentinelRefProxy,
     intersecting: isEndSentinelVisible,
@@ -434,6 +439,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
       roving(
         e,
         messageListRef.current,
+        setFocusedMessageElement,
       );
     }
   };
@@ -525,6 +531,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
                     chatReplyEnabled={CHAT_REPLY_ENABLED}
                     deleteReaction={deleteReaction}
                     sendReaction={sendReaction}
+                    focusedSequence={Number(focusedMessageElement?.dataset.sequence)}
                   />
                 );
               })}

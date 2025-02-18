@@ -65,6 +65,7 @@ interface ChatMessageProps {
   chatDeleteEnabled: boolean;
   chatEditEnabled: boolean;
   chatReactionsEnabled: boolean;
+  focused: boolean;
   sendReaction: (reactionEmoji: string, reactionEmojiId: string, chatId: string, messageId: string) => void;
   deleteReaction: (reactionEmoji: string, reactionEmojiId: string, chatId: string, messageId: string) => void;
 }
@@ -170,6 +171,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
   chatReplyEnabled,
   deleteReaction,
   sendReaction,
+  focused,
 }, ref) => {
   const intl = useIntl();
   const markMessageAsSeenOnScrollEnd = useCallback(() => {
@@ -180,7 +182,6 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
   const messageContentRef = React.useRef<HTMLDivElement>(null);
   const [isToolbarReactionPopoverOpen, setIsToolbarReactionPopoverOpen] = React.useState(false);
   const [keyboardFocused, setKeyboardFocused] = React.useState(false);
-  const [focused, setFocused] = React.useState(false);
   const [isTryingToDelete, setIsTryingToDelete] = React.useState(false);
   const containerRef = React.useRef<HTMLDivElement>(null);
   const animationInitialTimestamp = React.useRef(0);
@@ -626,12 +627,6 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
       $sequence={message.messageSequence}
       data-sequence={message.messageSequence}
       data-focusable={focusable}
-      onFocus={(e) => {
-        setFocused(Object.is(e.target, e.currentTarget));
-      }}
-      onBlur={(e) => {
-        setFocused(!Object.is(e.target, e.currentTarget));
-      }}
       onKeyDown={(e) => {
         const isTargetElement = e.target === e.currentTarget;
         if (e.keyCode === KEY_CODES.TAB && isTargetElement) {
@@ -726,6 +721,7 @@ const propsToCompare = [
   'focused',
   'editing',
   'keyboardFocused',
+  'focused',
   'message.createdAt',
   'message.message',
   'message.recipientHasSeen',
