@@ -36,8 +36,8 @@ test.describe('Polling', { tag: '@ci' }, async () => {
     await polling.manageResponseChoices();
   });
 
-  test('Not able to start new poll without presentation', async () => {
-    await polling.notAbleStartNewPollWithoutPresentation();
+  test('Start a poll without presentation', async () => {
+    await polling.startPollWithoutPresentation();
   });
 
   test('Custom input', async () => {
