@@ -168,7 +168,7 @@ const roving = (
 
   if ([KEY_CODES.SPACE, KEY_CODES.ENTER].includes(event.keyCode)) {
     const elRef = document.activeElement?.firstChild as HTMLElement;
-    elRef.focus();
+    elRef?.focus?.();
     changeState(elRef);
   }
 };
@@ -431,7 +431,11 @@ const ChatMessageList: React.FC<ChatListProps> = ({
   const pagesToLoad = (totalPages - firstPageToLoad) || 1;
 
   const rove: KeyboardEventHandler<HTMLElement> = (e) => {
-    if (messageListRef.current) {
+    const isTargetAChild = e.target instanceof HTMLDivElement && e.target.dataset.focusable === 'true';
+    const isTargetElement = e.target === e.currentTarget;
+    if (
+      messageListRef.current
+      && (isTargetAChild || isTargetElement)) {
       roving(
         e,
         (el) => { selectedMessageRef.current = el; },
