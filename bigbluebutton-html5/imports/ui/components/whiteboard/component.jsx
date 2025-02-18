@@ -23,6 +23,7 @@ import meetingClientSettingsInitialValues from '/imports/ui/core/initial-values/
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import KEY_CODES from '/imports/utils/keyCodes';
 import { debounce } from '/imports/utils/debounce';
+import logger from '/imports/startup/client/logger';
 import Styled from './styles';
 import {
   mapLanguage,
