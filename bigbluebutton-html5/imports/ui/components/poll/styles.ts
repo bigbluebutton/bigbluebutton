@@ -1,7 +1,6 @@
 import styled, { css, keyframes } from 'styled-components';
 import Button from '/imports/ui/components/common/button/component';
 import {
-  jumboPaddingY,
   smPaddingX,
   smPaddingY,
   lgPaddingX,
