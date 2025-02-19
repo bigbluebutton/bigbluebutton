@@ -4,7 +4,6 @@ const { ChatNotifications } = require('./chatNotifications');
 const { PresenterNotifications } = require('./presenterNotifications');
 const { RecordingNotifications } = require('./recordingNotifications');
 const { recordMeeting } = require('../parameters/constants');
-const { linkIssue } = require('../core/helpers');
 const { PARAMETER_HIDE_PRESENTATION_TOAST } = require('../core/constants');
 const { encodeCustomParams } = require('../parameters/util');
 
@@ -29,8 +28,7 @@ test.describe.parallel('Notifications', { tag: '@ci' }, () => {
     await notifications.getUserJoinPopupResponse();
   });
 
-  // Notification does not disappear, test needs to be updated after the fix.
-  test('Raise and lower hand notification', { tag: '@flaky' }, async ({ browser, context, page }) => {
+  test('Raise and lower hand notification', async ({ browser, context, page }) => {
     const notifications = new Notifications(browser, context);
     await notifications.initModPage(page);
     await notifications.raiseAndLowerHandNotification();
