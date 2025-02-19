@@ -142,6 +142,10 @@ const roving = (
 
   if (!(isTargetAChild || isTargetElement)) return;
 
+  if (event.keyCode === KEY_CODES.ESCAPE && isTargetAChild) {
+    elementsList.focus();
+  }
+
   if (event.keyCode === KEY_CODES.ARROW_DOWN) {
     event.preventDefault();
     const firstElement = findFirstFocusableChild(elementsList);
