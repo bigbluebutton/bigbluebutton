@@ -131,6 +131,7 @@ const ResponseType = styled.div`
   overflow-wrap: break-word;
   position: relative;
   width: 100%;
+  margin-bottom: ${lgPaddingX};
 
   & > button {
     position: relative;
@@ -373,9 +374,7 @@ const CustomInputToggleCol = styled(Col)`
   flex-shrink: 0;
 `;
 
-const AnonymousHeading = styled(CustomInputHeading)`
-  padding-bottom: 0;
-`;
+const AnonymousHeading = styled(CustomInputHeading)``;
 
 const AnonymousHeadingCol = styled(CustomInputHeadingCol)``;
 

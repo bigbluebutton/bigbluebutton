@@ -88,12 +88,12 @@ const PollQuestionArea: React.FC<PollQuestionAreaProps> = ({
       {hasQuestionError || hasOptionError ? (
         <Styled.InputError>{error}</Styled.InputError>
       ) : (
-        null
+        <Styled.ErrorSpacer>&nbsp;</Styled.ErrorSpacer>
       )}
       {hasWarning ? (
         <Styled.Warning>{warning}</Styled.Warning>
       ) : (
-        null
+        <Styled.ErrorSpacer>&nbsp;</Styled.ErrorSpacer>
       )}
     </div>
   );
