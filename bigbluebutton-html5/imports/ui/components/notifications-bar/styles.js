@@ -17,6 +17,8 @@ const NotificationsBar = styled.div`
   justify-content: center;
   align-items: center;
   font-weight: 600;
+  ${({ isMobile }) => isMobile && `
+    font-size: .75rem;`}
 
   ${({ color }) => color === 'default' && `
     color: ${colorGray};

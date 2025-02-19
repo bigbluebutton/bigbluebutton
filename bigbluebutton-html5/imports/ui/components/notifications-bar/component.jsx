@@ -1,9 +1,10 @@
 import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, useIntl } from 'react-intl';
-import Button from '/imports/ui/components/common/button/component';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import Styled from './styles';
+import { layoutSelectInput } from '../layout/context';
+import { SMALL_VIEWPORT_BREAKPOINT } from '../layout/enums';
 
 const COLORS = [
   'default', 'primary', 'danger', 'success',
@@ -26,6 +27,8 @@ const NotificationsBar = ({
   alert,
   showReloadButton,
 }) => {
+  const { width: browserWidth } = layoutSelectInput((i) => i.browser);
+  const isMobile = browserWidth <= SMALL_VIEWPORT_BREAKPOINT;
   const hasColor = COLORS.includes(color);
   const intl = useIntl();
   const reloadButton = useCallback(() => {
@@ -37,6 +40,7 @@ const NotificationsBar = ({
       data-test="notificationBannerBar"
       role={alert ? 'alert' : ''}
       aria-live="off"
+      isMobile={isMobile}
       style={
         !hasColor ? {
           backgroundColor: `${color}`,
