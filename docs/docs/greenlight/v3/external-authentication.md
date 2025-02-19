@@ -121,3 +121,25 @@ All that's left to do is restart Greenlight v3 and it should be connected to Key
 ```bash
 sudo docker-compose down && sudo docker-compose up -d
 ```
+
+### Avatar Support
+
+Greenlight can retrieve user avatars through Keycloak, providing a unified and consistent profile image experience across services. Although this capability has so far only been verified with Google OAuth, it may also work with other OAuth providers configured within Keycloak.
+
+First,  click on `Identity Providers` on the left hand side and choose the provider that you configured.
+
+![Issuer](/img/greenlight/v3/keycloak/avatar-idp.png)
+
+Then, at the top, click on the `Mappers` tab
+
+![Issuer](/img/greenlight/v3/keycloak/avatar-mapper.png)
+
+Next, click on `Add mapper`
+
+![Issuer](/img/greenlight/v3/keycloak/avatar-add-mapper.png)
+
+Finally, Fill in the fields as shown in the image below and click `Save`.
+
+![Issuer](/img/greenlight/v3/keycloak/avatar-fields.png)
+
+Done - avatar images should now be passed down through Keycloak into Greenlight.
