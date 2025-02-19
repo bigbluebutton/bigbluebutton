@@ -195,6 +195,7 @@ public:
     defaultSettings:
       application:
         selectedLayout: 'custom'
+        pushLayout: false
         animations: true
         chatAudioAlerts: false
         chatPushAlerts: false
@@ -264,6 +265,9 @@ public:
       toggleUserList:
         accesskey: U
         descId: toggleUserList
+      openLeaveMenu:
+        accesskey: X
+        descId: openLeaveMenu
       toggleMute:
         accesskey: M
         descId: toggleMute

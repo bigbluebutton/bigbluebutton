@@ -43,6 +43,7 @@ const propTypes = {
   isDropdownOpen: PropTypes.bool,
   ismobile: PropTypes.bool.isRequired,
   userLeaveMeeting: PropTypes.func.isRequired,
+  openLeaveMenu: PropTypes.string,
 };
 
 const defaultProps = {
@@ -145,6 +146,7 @@ class LeaveMeetingButton extends PureComponent {
       isDropdownOpen,
       ismobile,
       isRTL,
+      openLeaveMenu,
     } = this.props;
 
     const { isEndMeetingConfirmationModalOpen } = this.state;
@@ -159,6 +161,7 @@ class LeaveMeetingButton extends PureComponent {
             <Styled.LeaveButton
               state={isDropdownOpen ? 'open' : 'closed'}
               ismobile={ismobile.toString()}
+              accessKey={openLeaveMenu}
               aria-label={intl.formatMessage(intlMessages.leaveMeetingBtnLabel)}
               label={intl.formatMessage(intlMessages.leaveMeetingBtnLabel)}
               tooltipLabel={intl.formatMessage(intlMessages.leaveMeetingBtnLabel)}

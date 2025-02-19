@@ -52,6 +52,10 @@ const intlMessages = defineMessages({
     id: 'app.presentation.emptySlideContent',
     description: 'No content available for slide',
   },
+  presentationHeader: {
+    id: 'playback.player.presentation.wrapper.aria',
+    description: 'Aria label for header navigation',
+  },
 });
 
 const { isSafari } = browserInfo;
@@ -679,14 +683,14 @@ class Presentation extends PureComponent {
     } = this.props;
 
     return (
-      <Styled.InnerToastWrapper data-test="currentPresentationToast">
+      <Styled.InnerToastWrapper data-test="toastContainer">
         <Styled.ToastIcon>
           <Styled.IconWrapper>
             <Icon iconName="presentation" />
           </Styled.IconWrapper>
         </Styled.ToastIcon>
 
-        <Styled.ToastTextContent data-test="toastSmallMsg">
+        <Styled.ToastTextContent data-test="currentPresentationToast">
           <div>{`${intl.formatMessage(intlMessages.changeNotification)}`}</div>
           <Styled.PresentationName>{`${presentationName}`}</Styled.PresentationName>
         </Styled.ToastTextContent>
@@ -862,6 +866,7 @@ class Presentation extends PureComponent {
                 : null,
           }}
         >
+          <h2 class="sr-only">{intl.formatMessage(intlMessages.presentationHeader)}</h2>
           <Styled.Presentation
             ref={(ref) => {
               this.refPresentation = ref;

@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import Styled from './styles';
+import { textToMarkdown } from '/imports/ui/components/chat/chat-graphql/service';
 
 interface ChatMessageTextContentProps {
   text: string;
@@ -21,7 +22,7 @@ const ChatMessageTextContent: React.FC<ChatMessageTextContentProps> = ({
         allowedElements={allowedElements}
         unwrapDisallowed
       >
-        {text}
+        {textToMarkdown(text)}
       </ReactMarkdown>
     </Styled.ChatMessage>
   );

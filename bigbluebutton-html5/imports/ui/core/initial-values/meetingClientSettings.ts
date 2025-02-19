@@ -160,6 +160,10 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           accesskey: 'U',
           descId: 'toggleUserList',
         },
+        openLeaveMenu: {
+          accesskey: 'X',
+          descId: 'openLeaveMenu',
+        },
         toggleMute: {
           accesskey: 'M',
           descId: 'toggleMute',

@@ -85,6 +85,7 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
         onKeyDown={rove}
         tabIndex={0}
         ref={userListRef}
+        role="list"
       >
         <Styled.VirtualizedList>
           {

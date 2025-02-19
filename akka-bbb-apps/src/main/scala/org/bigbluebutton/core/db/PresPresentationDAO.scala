@@ -20,6 +20,7 @@ case class PresPresentationDbModel(
     downloadFileExtension:  Option[String],
     downloadFileUri:        Option[String],
     removable:              Boolean,
+    renderedInToast:        Boolean,
     uploadInProgress:       Boolean,
     uploadCompleted:        Boolean,
     uploadErrorMsgKey:      Option[String],
@@ -43,6 +44,7 @@ class PresPresentationDbTableDef(tag: Tag) extends Table[PresPresentationDbModel
   val downloadable = column[Boolean]("downloadable")
   val downloadFileExtension = column[Option[String]]("downloadFileExtension")
   val downloadFileUri = column[Option[String]]("downloadFileUri")
+  val renderedInToast = column[Boolean]("renderedInToast")
   val removable = column[Boolean]("removable")
   val uploadInProgress = column[Boolean]("uploadInProgress")
   val uploadCompleted = column[Boolean]("uploadCompleted")
@@ -56,7 +58,8 @@ class PresPresentationDbTableDef(tag: Tag) extends Table[PresPresentationDbModel
   //  val meeting = foreignKey("meeting_fk", meetingId, Meetings)(_.meetingId, onDelete = ForeignKeyAction.Cascade)
 
   def * = (
-    presentationId, meetingId, uploadUserId, uploadTemporaryId, uploadToken,  name, filenameConverted, isDefault, current, downloadable, downloadFileExtension, downloadFileUri, removable,
+    presentationId, meetingId, uploadUserId, uploadTemporaryId, uploadToken,  name, filenameConverted, isDefault, current,
+    downloadable, downloadFileExtension, downloadFileUri, removable, renderedInToast,
     uploadInProgress, uploadCompleted, uploadErrorMsgKey, uploadErrorDetailsJson, totalPages,
     exportToChatStatus, exportToChatCurrentPage, exportToChatHasError
   ) <> (PresPresentationDbModel.tupled, PresPresentationDbModel.unapply)
@@ -73,7 +76,7 @@ object PresPresentationDAO {
     DatabaseConnection.enqueue(
       sqlu"""
           insert into "pres_presentation"("meetingId","presentationId","uploadUserId","uploadTemporaryId","uploadToken","name",
-          "filenameConverted","isDefault","current","downloadable","removable","uploadInProgress","uploadCompleted","totalPages")
+          "filenameConverted","isDefault","current","downloadable","removable","renderedInToast","uploadInProgress","uploadCompleted","totalPages")
            select
              ${meetingId} as "meetingId",
              ${presentationId} as "presentationId",
@@ -86,6 +89,7 @@ object PresPresentationDAO {
              false as "current", --Set after pages were inserted
              false as "downloadable",
              false as "removable",
+             false as "renderedInToast",
              false as "uploadInProgress",
              false as "uploadCompleted",
              0 as "totalPages"
@@ -193,6 +197,15 @@ object PresPresentationDAO {
                 "current" = (case when "presentationId" = ${presentationId} then true else false end)
                 WHERE "meetingId" = (select "meetingId" from pres_presentation where "presentationId" = ${presentationId})
                 AND exists (select 1 from pres_page where "presentationId" = ${presentationId} AND "current" IS true)"""
+    )
+  }
+
+  def setPresentationRenderedInToast(presentationId: String) = {
+    DatabaseConnection.enqueue(
+      TableQuery[PresPresentationDbTableDef]
+        .filter(_.presentationId === presentationId)
+        .map(p => p.renderedInToast)
+        .update(true)
     )
   }
 

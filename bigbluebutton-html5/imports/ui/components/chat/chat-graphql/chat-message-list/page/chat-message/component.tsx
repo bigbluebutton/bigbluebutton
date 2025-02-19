@@ -8,6 +8,8 @@ import React, {
 import { MessageDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/dom-element-manipulation/chat/message/types';
 import { Message } from '/imports/ui/Types/message';
 import { defineMessages, FormattedTime, useIntl } from 'react-intl';
+import FocusTrap from 'focus-trap-react';
+import classNames from 'classnames';
 import ChatMessageHeader from './message-header/component';
 import ChatMessageTextContent from './message-content/text-content/component';
 import ChatPollContent from './message-content/poll-content/component';
@@ -23,8 +25,9 @@ import {
   EditLabel,
   ChatContentFooter,
   ChatTime,
+  FlexColumn,
 } from './styles';
-import { ChatMessageType } from '/imports/ui/core/enums/chat';
+import { ChatMessageType, SYSTEM_SENDERS } from '/imports/ui/core/enums/chat';
 import MessageReadConfirmation from './message-read-confirmation/component';
 import ChatMessageToolbar from './message-toolbar/component';
 import ChatMessageReactions from './message-reactions/component';
@@ -35,6 +38,7 @@ import ChatMessageNotificationContent from './message-content/notification-conte
 import { getValueByPointer } from '/imports/utils/object-utils';
 import Tooltip from '/imports/ui/components/common/tooltip/container';
 import Auth from '/imports/ui/services/auth';
+import KEY_CODES from '/imports/utils/keyCodes';
 
 interface ChatMessageProps {
   message: Message;
@@ -44,8 +48,6 @@ interface ChatMessageProps {
   scrollRef: React.RefObject<HTMLDivElement>;
   markMessageAsSeen: (message: Message) => void;
   messageReadFeedbackEnabled: boolean;
-  focused: boolean;
-  keyboardFocused: boolean;
   editing: boolean;
   meetingDisablePublicChat: boolean;
   meetingDisablePrivateChat: boolean;
@@ -133,8 +135,6 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
   setRenderedChatMessages,
   markMessageAsSeen,
   messageReadFeedbackEnabled,
-  focused,
-  keyboardFocused,
   editing,
   meetingDisablePrivateChat,
   meetingDisablePublicChat,
@@ -160,6 +160,8 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
   }, [message, messageRef]);
   const messageContentRef = React.useRef<HTMLDivElement>(null);
   const [isToolbarReactionPopoverOpen, setIsToolbarReactionPopoverOpen] = React.useState(false);
+  const [keyboardFocused, setKeyboardFocused] = React.useState(false);
+  const [focused, setFocused] = React.useState(false);
   const containerRef = React.useRef<HTMLDivElement>(null);
   const animationInitialTimestamp = React.useRef(0);
   const animationInitialScrollPosition = React.useRef(0);
@@ -270,7 +272,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
     || !JSON.parse(previousMessage?.messageMetadata).custom);
   let sameSender = ((previousMessage?.user?.userId
     || lastSenderPreviousPage) === message?.user?.userId) && pluginMessageNotCustom;
-  const isSystemSender = message.messageType === ChatMessageType.BREAKOUT_ROOM;
+  const isSystemSender = SYSTEM_SENDERS.has(message.messageType as ChatMessageType);
   const currentPluginMessageMetadata = message.messageType === ChatMessageType.PLUGIN
     && JSON.parse(message.messageMetadata);
   const isCustomPluginMessage = currentPluginMessageMetadata.custom;
@@ -369,12 +371,13 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
           isModerator: true,
           isSystemSender: true,
           component: (
-            <ChatMessageNotificationContent
+            <ChatMessageTextContent
+              emphasizedMessage
               text={message.message}
             />
           ),
-          showAvatar: false,
-          showHeading: false,
+          showAvatar: true,
+          showHeading: true,
           showToolbar: false,
         };
       case ChatMessageType.USER_AWAY_STATUS_MSG: {
@@ -488,15 +491,120 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
     avatarDisplay = <i className={messageContent.avatarIcon} />;
   }
 
+  const contentElement = (
+    <ChatContent
+      className="chat-message-content"
+      ref={messageContentRef}
+      sameSender={message?.user ? sameSender : false}
+      isCustomPluginMessage={isCustomPluginMessage}
+      $isSystemSender={messageContent.isSystemSender}
+      data-chat-message-id={message?.messageId}
+      $highlight={hasToolbar && messageContent.showToolbar && !deleteTime}
+      $editing={editing}
+      $keyboardFocused={keyboardFocused}
+      $reactionPopoverIsOpen={isToolbarReactionPopoverOpen}
+      data-test="chatMessageItem"
+    >
+      <ChatMessageToolbar
+        keyboardFocused={keyboardFocused}
+        hasToolbar={hasToolbar && messageContent.showToolbar}
+        locked={locked}
+        deleted={!!deleteTime}
+        messageId={message.messageId}
+        chatId={message.chatId}
+        username={message.user?.name}
+        own={message.user?.userId === currentUserId}
+        amIModerator={currentUserIsModerator}
+        isBreakoutRoom={isBreakoutRoom}
+        message={message.message}
+        messageSequence={message.messageSequence}
+        emphasizedMessage={message.chatEmphasizedText}
+        onEmojiSelected={onEmojiSelected}
+        onReactionPopoverOpenChange={setIsToolbarReactionPopoverOpen}
+        reactionPopoverIsOpen={isToolbarReactionPopoverOpen}
+        chatDeleteEnabled={chatDeleteEnabled}
+        chatEditEnabled={chatEditEnabled}
+        chatReactionsEnabled={chatReactionsEnabled}
+        chatReplyEnabled={chatReplyEnabled}
+        setKeyboardFocused={setKeyboardFocused}
+      />
+      {message.replyToMessage && !deleteTime && (
+      <ChatMessageReplied
+        message={message.replyToMessage.message || ''}
+        sequence={message.replyToMessage.messageSequence}
+        emphasizedMessage={message.replyToMessage.chatEmphasizedText}
+        deletedByUser={message.replyToMessage.deletedBy?.name ?? null}
+      />
+      )}
+      {!deleteTime && (
+      <MessageItemWrapper>
+        {messageContent.component}
+        {messageReadFeedbackEnabled && (
+        <MessageReadConfirmation
+          message={message}
+        />
+        )}
+      </MessageItemWrapper>
+      )}
+      {sameSender && (
+      <ChatContentFooter>
+        {!deleteTime && editTime && (
+        <Tooltip title={intl.formatTime(editTime, { hour12: false })}>
+          <EditLabel>
+            <Icon iconName="pen_tool" />
+            <span>{intl.formatMessage(intlMessages.edited)}</span>
+          </EditLabel>
+        </Tooltip>
+        )}
+        <ChatTime>
+          <FormattedTime value={dateTime} hour12={false} />
+        </ChatTime>
+      </ChatContentFooter>
+      )}
+      {deleteTime && (
+      <DeleteMessage>
+        {intl.formatMessage(intlMessages.deleteMessage, { 0: message.deletedBy?.name })}
+      </DeleteMessage>
+      )}
+    </ChatContent>
+  );
+
+  const reactionsElement = !deleteTime && (
+    <ChatMessageReactions
+      reactions={message.reactions}
+      deleteReaction={deleteReaction}
+      sendReaction={sendReaction}
+      chatId={message.chatId}
+      messageId={message.messageId}
+      keyboardFocused={keyboardFocused}
+    />
+  );
+
+  const focusable = !deleteTime && !messageContent.isSystemSender;
+
   return (
     <Container
+      className={classNames('chat-message-container', {
+        'chat-message-container-keyboard-focused': keyboardFocused,
+      })}
       ref={containerRef}
       $sequence={message.messageSequence}
       data-sequence={message.messageSequence}
-      data-focusable={!deleteTime && !messageContent.isSystemSender}
+      data-focusable={focusable}
+      onFocus={(e) => {
+        setFocused(Object.is(e.target, e.currentTarget));
+      }}
+      onBlur={(e) => {
+        setFocused(!Object.is(e.target, e.currentTarget));
+      }}
+      onKeyDown={(e) => {
+        if (e.keyCode === KEY_CODES.TAB) {
+          setKeyboardFocused(true);
+        }
+      }}
+      tabIndex={focusable ? -1 : undefined}
     >
       <ChatWrapper
-        className={`chat-message-wrapper ${focused ? 'chat-message-wrapper-focused' : ''} ${keyboardFocused ? 'chat-message-wrapper-keyboard-focused' : ''}`}
         isSystemSender={isSystemSender}
         sameSender={sameSender}
         ref={messageRef}
@@ -527,89 +635,27 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
             )}
           </ChatHeading>
         )}
-        <ChatContent
-          className="chat-message-content"
-          ref={messageContentRef}
-          sameSender={message?.user ? sameSender : false}
-          isCustomPluginMessage={isCustomPluginMessage}
-          $isSystemSender={messageContent.isSystemSender}
-          data-chat-message-id={message?.messageId}
-          $highlight={hasToolbar && messageContent.showToolbar && !deleteTime}
-          $editing={editing}
-          $focused={focused}
-          $keyboardFocused={keyboardFocused}
-          $reactionPopoverIsOpen={isToolbarReactionPopoverOpen}
-          data-test="chatMessageItem"
-        >
-          <ChatMessageToolbar
-            keyboardFocused={keyboardFocused}
-            hasToolbar={hasToolbar && messageContent.showToolbar}
-            locked={locked}
-            deleted={!!deleteTime}
-            messageId={message.messageId}
-            chatId={message.chatId}
-            username={message.user?.name}
-            own={message.user?.userId === currentUserId}
-            amIModerator={currentUserIsModerator}
-            isBreakoutRoom={isBreakoutRoom}
-            message={message.message}
-            messageSequence={message.messageSequence}
-            emphasizedMessage={message.chatEmphasizedText}
-            onEmojiSelected={onEmojiSelected}
-            onReactionPopoverOpenChange={setIsToolbarReactionPopoverOpen}
-            reactionPopoverIsOpen={isToolbarReactionPopoverOpen}
-            chatDeleteEnabled={chatDeleteEnabled}
-            chatEditEnabled={chatEditEnabled}
-            chatReactionsEnabled={chatReactionsEnabled}
-            chatReplyEnabled={chatReplyEnabled}
-          />
-          {message.replyToMessage && !deleteTime && (
-          <ChatMessageReplied
-            message={message.replyToMessage.message || ''}
-            sequence={message.replyToMessage.messageSequence}
-            emphasizedMessage={message.replyToMessage.chatEmphasizedText}
-            deletedByUser={message.replyToMessage.deletedBy?.name ?? null}
-          />
-          )}
-          {!deleteTime && (
-          <MessageItemWrapper>
-            {messageContent.component}
-            {messageReadFeedbackEnabled && (
-            <MessageReadConfirmation
-              message={message}
-            />
-            )}
-          </MessageItemWrapper>
-          )}
-          {sameSender && (
-            <ChatContentFooter>
-              {!deleteTime && editTime && (
-                <Tooltip title={intl.formatTime(editTime, { hour12: false })}>
-                  <EditLabel>
-                    <Icon iconName="pen_tool" />
-                    <span>{intl.formatMessage(intlMessages.edited)}</span>
-                  </EditLabel>
-                </Tooltip>
-              )}
-              <ChatTime>
-                <FormattedTime value={dateTime} hour12={false} />
-              </ChatTime>
-            </ChatContentFooter>
-          )}
-          {deleteTime && (
-            <DeleteMessage>
-              {intl.formatMessage(intlMessages.deleteMessage, { 0: message.deletedBy?.name })}
-            </DeleteMessage>
-          )}
-        </ChatContent>
-        {!deleteTime && (
-        <ChatMessageReactions
-          reactions={message.reactions}
-          deleteReaction={deleteReaction}
-          sendReaction={sendReaction}
-          chatId={message.chatId}
-          messageId={message.messageId}
-        />
+        {keyboardFocused ? (
+          <FocusTrap
+            paused={isToolbarReactionPopoverOpen}
+            focusTrapOptions={{
+              returnFocusOnDeactivate: false,
+              clickOutsideDeactivates: true,
+              onDeactivate() {
+                setKeyboardFocused(false);
+              },
+            }}
+          >
+            <FlexColumn>
+              {contentElement}
+              {reactionsElement}
+            </FlexColumn>
+          </FocusTrap>
+        ) : (
+          <>
+            {contentElement}
+            {reactionsElement}
+          </>
         )}
       </ChatWrapper>
     </Container>
