@@ -132,6 +132,8 @@ const PluginDataConsumptionManager: React.FC = () => {
       name: currentUser.name,
       role: currentUser.role,
       presenter: currentUser.presenter,
+      cameras: currentUser.cameras,
+      extId: currentUser.extId,
     }),
   );
   const meetingInformation = useMeeting((meeting: Partial<Meeting>) => ({

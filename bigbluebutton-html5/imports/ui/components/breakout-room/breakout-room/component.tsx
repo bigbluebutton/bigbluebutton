@@ -20,6 +20,7 @@ import TimeRemaingPanel from './components/timeRemaining';
 import BreakoutMessageForm from './components/messageForm';
 import { useStopMediaOnMainRoom } from '/imports/ui/components/breakout-room/hooks';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
 
 interface BreakoutRoomProps {
   breakouts: BreakoutRoomType[];
@@ -319,13 +320,17 @@ const BreakoutRoomContainer: React.FC = () => {
   ) return null;
 
   if (breakoutError) {
-    logger.error(breakoutError);
-    return (
-      <div>
-        Error:
-        {JSON.stringify(breakoutError)}
-      </div>
+    connectionStatus.setSubscriptionFailed(true);
+    logger.error(
+      {
+        logCode: 'subscription_Failed',
+        extraInfo: {
+          error: breakoutError,
+        },
+      },
+      'Subscription failed to load',
     );
+    return null;
   }
   if (!currentUserData || !breakoutData || !meetingData) return null; // or loading spinner or error
   return (
