@@ -250,15 +250,15 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
   useEffect(() => {
     if (groups.length && init && lastBreakoutData && !(lastBreakoutData.breakoutRoom_createdLatest.length > 0)) {
       const sortedGroups = Array.from(groups).sort((a, b) => {
-        const aId = Number.parseInt(a.groupId, 10);
-        const bId = Number.parseInt(b.groupId, 10);
+        const aIndex = a.groupIndex + 1;
+        const bIndex = b.groupIndex + 1;
 
-        return aId - bId;
+        return aIndex - bIndex;
       });
 
       // set the number of rooms based in the last
       const lastRoom = sortedGroups[sortedGroups.length - 1];
-      setNumberOfRooms(Number.parseInt(lastRoom.groupId, 10));
+      setNumberOfRooms(lastRoom.groupIndex + 1);
 
       // set the rooms based on the groups
       setRooms((prevRooms: Rooms) => {
@@ -267,14 +267,16 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
           const roomUsers = group.usersExtId
             .map((id) => users.find((user) => user.extId === id))
             .filter((user) => user) as BreakoutUser[];
-          rooms[Number.parseInt(group.groupId, 10)] = {
-            id: Number.parseInt(group.groupId, 10),
-            name: group.name || roomName(Number.parseInt(group.groupId, 10)),
+          const idx = group.groupIndex + 1;
+          rooms[idx] = {
+            id: idx,
+            name: group.name || roomName(idx),
             users: roomUsers,
           };
 
           rooms[0].users = rooms[0].users.filter((user) => !roomUsers.find((u) => u.userId === user.userId));
         });
+
         return rooms;
       });
     }

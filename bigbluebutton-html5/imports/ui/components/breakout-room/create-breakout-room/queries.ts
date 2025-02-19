@@ -41,6 +41,7 @@ export interface LastBreakoutData {
 
 export interface getMeetingGroupResponse {
   meeting_group: {
+    groupIndex: number;
     groupId : string;
     name: string;
     usersExtId: string[];
@@ -117,6 +118,7 @@ export const getLastBreakouts = gql`
 export const getMeetingGroup = gql`
   query getMeetingGroup {
     meeting_group {
+      groupIndex
       groupId
       name
       usersExtId

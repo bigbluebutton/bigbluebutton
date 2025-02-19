@@ -633,8 +633,7 @@ const CreateBreakoutRoomContainer: React.FC<CreateBreakoutRoomContainerProps> = 
 
   if (breakoutsLoading || meetingGroupLoading) return null;
 
-
-  if (usersError || breakoutsError) {
+  if (usersError || breakoutsError || meetingGroupError) {
     notify(intl.formatMessage({
       id: 'app.error.issueLoadingData',
     }), 'warning', 'warning');
@@ -642,7 +641,7 @@ const CreateBreakoutRoomContainer: React.FC<CreateBreakoutRoomContainerProps> = 
       {
         logCode: 'subscription_Failed',
         extraInfo: {
-          error: usersError || breakoutsError,
+          error: usersError || breakoutsError || meetingGroupError,
         },
       },
     );
