@@ -28,7 +28,7 @@ async function uploadSinglePresentation(test, fileName, uploadTimeout = UPLOAD_P
     .backgroundImage
     .split('"')[1],
   [e.currentSlideImg]);
-  await test.waitAndClick(e.actions);
+  await test.waitAndClick(e.mediaAreaButton);
   await test.waitAndClick(e.managePresentations);
   await test.hasElement(e.presentationFileUpload, 'should display the presentation space for uploading a new file, when the manage presentations is opened');
 

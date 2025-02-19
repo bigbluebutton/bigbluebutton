@@ -3,7 +3,8 @@ exports.actions = 'button[data-test="actionsButton"]';
 exports.actionsItem = 'div[id="actions-dropdown-menu"] ul li';
 exports.mediaAreaButton = 'button[data-test="mediaAreaButton"]';
 exports.optionsButton = 'button[data-test="optionsButton"]';
-exports.settings = 'li[data-test="settings"]';
+exports.settingsSidebarButton = 'div[data-test="settingsSidebarButton"]';
+exports.saveSettingsButton = 'button[data-test="saveSettingsButton"]';
 exports.modalConfirmButton = 'button[data-test="modalConfirmButton"]';
 exports.screenshareConnecting = 'div[data-test="screenshareConnecting"]';
 exports.screenShareVideo = 'video[id="screenshareVideo"]';
@@ -217,6 +218,8 @@ exports.hasUnreadMessages = 'div[data-test="unreadMessages"]';
 exports.userJoinPushAlerts = 'input[data-test="userJoinPopupAlerts"]';
 exports.toastContainer = 'div[data-test="toastContainer"]';
 exports.presentationStatusInfo = 'span[data-test="presentationStatusInfo"]';
+exports.confirmRecordingButton = 'button[data-test="confirmRecordingButton"]';
+exports.cancelRecordingButton = 'button[data-test="cancelRecordingButton"]';
 exports.noButton = 'button[aria-label="No"]';
 exports.yesButton = 'button[aria-label="Yes"]';
 // Toasts
@@ -534,7 +537,6 @@ exports.learningDashboardSidebarButton = 'div[data-test="learningDashboardSideba
 exports.panels = 'div[role="tablist"]';
 exports.messageLearningDashboard = 'td[data-test="userTotalMessagesDashboard"]';
 exports.userOnlineTime = 'td[data-test="userOnlineTimeDashboard"]';
-exports.confirmRecordingButton = 'button[data-test="confirmRecordingButton"]';
 exports.pollTrueFalse = 'button[data-test="pollTrueFalse"]';
 exports.pollPanel = 'button[data-test="pollsPanelDashboard"]';
 exports.pollTrueFalseQuestion = 'div[role="rowgroup"] div:nth-child(3) div';

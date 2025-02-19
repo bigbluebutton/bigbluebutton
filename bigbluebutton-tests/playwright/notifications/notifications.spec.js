@@ -5,11 +5,15 @@ const { PresenterNotifications } = require('./presenterNotifications');
 const { RecordingNotifications } = require('./recordingNotifications');
 const { recordMeeting } = require('../parameters/constants');
 const { linkIssue } = require('../core/helpers');
+const { PARAMETER_HIDE_PRESENTATION_TOAST } = require('../core/constants');
+const { encodeCustomParams } = require('../parameters/util');
+
+const hidePresentationToast = encodeCustomParams(PARAMETER_HIDE_PRESENTATION_TOAST);
 
 test.describe.parallel('Notifications', { tag: '@ci' }, () => {
-  test('Save settings notification', { tag: '@flaky-3.1' }, async ({ browser, context, page }) => {
+  test('Save settings notification', async ({ browser, context, page }) => {
     const notifications = new Notifications(browser, context);
-    await notifications.initModPage(page);
+    await notifications.initModPage(page, true, { joinParameter: hidePresentationToast });
     await notifications.saveSettingsNotification();
   });
 
@@ -19,39 +23,41 @@ test.describe.parallel('Notifications', { tag: '@ci' }, () => {
     await notifications.audioNotification();
   });
 
-  test('User join notification', { tag: '@flaky-3.1' }, async ({ browser, context, page }) => {
+  test('User join notification', async ({ browser, context, page }) => {
     const notifications = new Notifications(browser, context);
-    await notifications.initModPage(page);
+    await notifications.initModPage(page, true);
     await notifications.getUserJoinPopupResponse();
   });
 
-  //Notification does not disappear, test needs to be updated after the fix.
+  // Notification does not disappear, test needs to be updated after the fix.
   test('Raise and lower hand notification', { tag: '@flaky' }, async ({ browser, context, page }) => {
     const notifications = new Notifications(browser, context);
     await notifications.initModPage(page);
     await notifications.raiseAndLowerHandNotification();
   });
 
-  test.describe.parallel('Chat', { tag: '@flaky-3.1' }, () => {
+  test.describe.parallel('Chat', () => {
     test('Public Chat notification', async ({ browser, context, page }) => {
       const chatNotifications = new ChatNotifications(browser, context);
       await chatNotifications.initPages(page);
-      await chatNotifications.modPage.closeAllToastNotifications();
-      await chatNotifications.userPage.closeAllToastNotifications();
       await chatNotifications.publicChatNotification();
     });
 
     test('Private Chat notification', async ({ browser, context, page }) => {
       const chatNotifications = new ChatNotifications(browser, context);
       await chatNotifications.initPages(page);
-      await chatNotifications.modPage.closeAllToastNotifications();
-      await chatNotifications.userPage.closeAllToastNotifications();
       await chatNotifications.privateChatNotification();
     });
   });
 
   test.describe.parallel('Recording', () => {
-    test('Notification appearing when user is not in audio', { tag: '@flaky-3.1' }, async ({ browser, page }) => {
+    test('Notification when user wants to start recording', async ({ browser, page }) => {
+      const recordingNotifications = new RecordingNotifications(browser, page);
+      await recordingNotifications.init(true, true, { createParameter: recordMeeting });
+      await recordingNotifications.modalStartRecording();
+    });
+
+    test('Notification appearing when user is not in audio', async ({ browser, page }) => {
       const recordingNotifications = new RecordingNotifications(browser, page);
       await recordingNotifications.init(true, true, { createParameter: recordMeeting });
       await recordingNotifications.notificationNoAudio();
@@ -63,35 +69,23 @@ test.describe.parallel('Notifications', { tag: '@ci' }, () => {
       await recordingNotifications.notificationListenOnly();
     });
 
-    test('No notification appearing when user is in audio', { tag: '@flaky-3.1' }, async ({ browser, page }) => {
+    test('No notification appearing when user is in audio', async ({ browser, page }) => {
       const recordingNotifications = new RecordingNotifications(browser, page);
       await recordingNotifications.init(true, true, { createParameter: recordMeeting });
       await recordingNotifications.noNotificationInAudio();
     });
-
-    test('Modal appearing when user wants to start recording', { tag: '@flaky-3.1' }, async ({ browser, page }) => {
-      const recordingNotifications = new RecordingNotifications(browser, page);
-      await recordingNotifications.init(true, true, { createParameter: recordMeeting });
-      await recordingNotifications.modalStartRecording();
-    });
   });
 
   test.describe.parallel('Presenter', () => {
-    test('Poll results notification', { tag: '@flaky-3.1' }, async ({ browser, context, page }) => {
+    test('Poll results notification', async ({ browser, context, page }) => {
       const presenterNotifications = new PresenterNotifications(browser, context);
-      await presenterNotifications.initPages(page);
-      await presenterNotifications.modPage.closeAllToastNotifications();
-      await presenterNotifications.userPage.closeAllToastNotifications();
+      await presenterNotifications.initPages(page, true, { joinParameter: hidePresentationToast});
       await presenterNotifications.publishPollResults();
     });
 
-    test('Presentation upload notification', { tag: '@flaky' }, async ({ browser, context, page }) => {
-      // uploader notification not displayed sometimes
-      linkIssue(21813);
+    test('Presentation upload notification', async ({ browser, context, page }) => {
       const presenterNotifications = new PresenterNotifications(browser, context);
       await presenterNotifications.initPages(page);
-      await presenterNotifications.modPage.closeAllToastNotifications();
-      await presenterNotifications.userPage.closeAllToastNotifications();
       await presenterNotifications.fileUploaderNotification();
     });
 
