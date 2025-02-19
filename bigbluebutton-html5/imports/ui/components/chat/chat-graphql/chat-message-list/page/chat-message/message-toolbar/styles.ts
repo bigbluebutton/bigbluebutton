@@ -33,8 +33,8 @@ const Root = styled.div<RootProps>`
 
   .chat-message-content:hover &,
   .chat-message-content:focus &,
-  .chat-message-wrapper-focused &,
-  .chat-message-wrapper-keyboard-focused &,
+  .chat-message-container:focus &,
+  .chat-message-container-keyboard-focused &,
   &:hover,
   &:focus-within {
     display: flex;

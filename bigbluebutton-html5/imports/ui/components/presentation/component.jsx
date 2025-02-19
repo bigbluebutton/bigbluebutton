@@ -4,14 +4,12 @@ import WhiteboardContainer from '/imports/ui/components/whiteboard/container';
 import { HUNDRED_PERCENT, MAX_PERCENT, MIN_PERCENT } from '/imports/utils/slideCalcUtils';
 import { SPACE } from '/imports/utils/keyCodes';
 import { defineMessages, injectIntl } from 'react-intl';
-import { toast } from 'react-toastify';
 import Session from '/imports/ui/services/storage/in-memory';
 import PresentationToolbarContainer from './presentation-toolbar/container';
 import PresentationMenu from './presentation-menu/container';
 import DownloadPresentationButton from './download-presentation-button/component';
 import Styled from './styles';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
-import Icon from '/imports/ui/components/common/icon/component';
 import PollingContainer from '/imports/ui/components/polling/container';
 import { ACTIONS, LAYOUT_TYPE } from '../layout/enums';
 import DEFAULT_VALUES from '../layout/defaultValues';
@@ -27,10 +25,6 @@ const intlMessages = defineMessages({
   presentationLabel: {
     id: 'app.presentationUploder.title',
     description: 'presentation area element label',
-  },
-  changeNotification: {
-    id: 'app.presentation.notificationLabel',
-    description: 'label displayed in toast when presentation switches',
   },
   downloadLabel: {
     id: 'app.presentation.downloadLabel',
@@ -51,6 +45,10 @@ const intlMessages = defineMessages({
   noSlideContent: {
     id: 'app.presentation.emptySlideContent',
     description: 'No content available for slide',
+  },
+  presentationHeader: {
+    id: 'playback.player.presentation.wrapper.aria',
+    description: 'Aria label for header navigation',
   },
 });
 
@@ -88,14 +86,12 @@ class Presentation extends PureComponent {
       ignorePresentationRestoring: true,
     };
 
-    const PAN_ZOOM_INTERVAL = window.meetingClientSettings.public.presentation.panZoomInterval || 200;
-
-    this.currentPresentationToastId = 'currentPresentationToastId';
+    const PAN_ZOOM_INTERV = window.meetingClientSettings.public.presentation.panZoomInterval || 200;
 
     this.getSvgRef = this.getSvgRef.bind(this);
     this.zoomChanger = debounce(this.zoomChanger.bind(this), 200);
     this.updateLocalPosition = this.updateLocalPosition.bind(this);
-    this.panAndZoomChanger = throttle(this.panAndZoomChanger.bind(this), PAN_ZOOM_INTERVAL);
+    this.panAndZoomChanger = throttle(this.panAndZoomChanger.bind(this), PAN_ZOOM_INTERV);
     this.fitToWidthHandler = this.fitToWidthHandler.bind(this);
     this.onFullscreenChange = this.onFullscreenChange.bind(this);
     this.getPresentationSizesAvailable = this.getPresentationSizesAvailable.bind(this);
@@ -107,7 +103,6 @@ class Presentation extends PureComponent {
     this.renderPresentationMenu = this.renderPresentationMenu.bind(this);
 
     this.onResize = () => setTimeout(this.handleResize.bind(this), 0);
-    this.renderCurrentPresentationToast = this.renderCurrentPresentationToast.bind(this);
     this.setPresentationRef = this.setPresentationRef.bind(this);
     this.setTldrawIsMounting = this.setTldrawIsMounting.bind(this);
     Session.setItem('componentPresentationWillUnmount', false);
@@ -221,7 +216,6 @@ class Presentation extends PureComponent {
       currentPresentationId,
       fitToWidth,
       isDefaultPresentation,
-      presentationIsDownloadable,
       setPresentationFitToWidth,
     } = this.props;
     const {
@@ -259,46 +253,6 @@ class Presentation extends PureComponent {
           0: currentSlide.num,
         }),
       );
-    }
-
-    if (currentPresentationId) {
-      const downloadableOn = !prevProps?.presentationIsDownloadable && presentationIsDownloadable;
-
-      const shouldCloseToast = !(
-        presentationIsDownloadable && !userIsPresenter
-      );
-
-      if (
-        prevProps?.currentPresentationId !== currentPresentationId
-        || (downloadableOn && !userIsPresenter)
-      ) {
-        if (toast.isActive(this.currentPresentationToastId)) {
-          toast.update(this.currentPresentationToastId, {
-            autoClose: shouldCloseToast,
-            render: this.renderCurrentPresentationToast(),
-          });
-        } else {
-          toast(
-            this.renderCurrentPresentationToast(),
-            {
-              autoClose: shouldCloseToast,
-              className: 'toastClass actionToast currentPresentationToast',
-              bodyClassName: 'toastBodyClass',
-              progressClassName: 'toastProgressClass',
-              toastId: this.currentPresentationToastId,
-            },
-          );
-        }
-      }
-
-      const downloadableOff = prevProps?.presentationIsDownloadable && !presentationIsDownloadable;
-
-      if (toast.isActive(this.currentPresentationToastId) && downloadableOff) {
-        toast.update(this.currentPresentationToastId, {
-          autoClose: true,
-          render: this.renderCurrentPresentationToast(),
-        });
-      }
     }
 
     if (prevProps?.slidePosition && slidePosition) {
@@ -515,7 +469,7 @@ class Presentation extends PureComponent {
 
   zoomChanger(zoom) {
     const { currentSlide } = this.props;
-    let boundZoom = parseInt(zoom);
+    let boundZoom = parseInt(zoom, 10);
     const min = currentSlide?.infiniteWhiteboard ? MIN_PERCENT : HUNDRED_PERCENT;
     if (boundZoom < min) {
       boundZoom = min;
@@ -527,10 +481,14 @@ class Presentation extends PureComponent {
 
   fitToWidthHandler() {
     const { setPresentationFitToWidth, fitToWidth } = this.props;
-    setPresentationFitToWidth(!fitToWidth);
-    this.setState({
-      zoom: HUNDRED_PERCENT,
-    });
+    this.setState(
+      {
+        zoom: HUNDRED_PERCENT,
+      },
+      () => {
+        setPresentationFitToWidth(!fitToWidth);
+      },
+    );
   }
 
   updateLocalPosition(x, y, width, height, zoom) {
@@ -669,48 +627,6 @@ class Presentation extends PureComponent {
     );
   }
 
-  renderCurrentPresentationToast() {
-    const {
-      intl,
-      userIsPresenter,
-      downloadPresentationUri,
-      presentationIsDownloadable,
-      presentationName,
-    } = this.props;
-
-    return (
-      <Styled.InnerToastWrapper data-test="currentPresentationToast">
-        <Styled.ToastIcon>
-          <Styled.IconWrapper>
-            <Icon iconName="presentation" />
-          </Styled.IconWrapper>
-        </Styled.ToastIcon>
-
-        <Styled.ToastTextContent data-test="toastSmallMsg">
-          <div>{`${intl.formatMessage(intlMessages.changeNotification)}`}</div>
-          <Styled.PresentationName>{`${presentationName}`}</Styled.PresentationName>
-        </Styled.ToastTextContent>
-
-        {presentationIsDownloadable && !userIsPresenter ? (
-          <Styled.ToastDownload>
-            <Styled.ToastSeparator />
-            <a
-              data-test="toastDownload"
-              aria-label={`${intl.formatMessage(intlMessages.downloadLabel)} ${
-                presentationName
-              }`}
-              href={downloadPresentationUri}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {intl.formatMessage(intlMessages.downloadLabel)}
-            </a>
-          </Styled.ToastDownload>
-        ) : null}
-      </Styled.InnerToastWrapper>
-    );
-  }
-
   renderPresentationDownload() {
     const { presentationIsDownloadable, downloadPresentationUri } = this.props;
 
@@ -834,8 +750,11 @@ class Presentation extends PureComponent {
     const isVideoFocus = layoutType === LAYOUT_TYPE.VIDEO_FOCUS;
     const presentationZIndex = fullscreenContext ? presentationBounds.zIndex : undefined;
 
-    const APP_CRASH_METADATA = { logCode: 'whiteboard_crash', logMessage: 'Possible whiteboard crash' };
-  if (!presentationIsOpen) return null;
+    const APP_CRASH_METADATA = {
+      logCode: 'whiteboard_crash',
+      logMessage: 'Possible whiteboard crash',
+    };
+    if (!presentationIsOpen) return null;
     return (
       <>
         <Styled.PresentationContainer
@@ -859,6 +778,7 @@ class Presentation extends PureComponent {
                 : null,
           }}
         >
+          <h2 className="sr-only">{intl.formatMessage(intlMessages.presentationHeader)}</h2>
           <Styled.Presentation
             ref={(ref) => {
               this.refPresentation = ref;
@@ -969,7 +889,6 @@ Presentation.propTypes = {
   setPresentationIsOpen: PropTypes.func.isRequired,
   layoutContextDispatch: PropTypes.func.isRequired,
   presentationIsDownloadable: PropTypes.bool,
-  presentationName: PropTypes.string,
   currentPresentationId: PropTypes.string,
   presentationIsOpen: PropTypes.bool,
   totalPages: PropTypes.number.isRequired,
@@ -1012,6 +931,5 @@ Presentation.defaultProps = {
   userIsPresenter: false,
   presentationIsDownloadable: false,
   currentPresentationId: '',
-  presentationName: '',
   presentationIsOpen: true,
 };

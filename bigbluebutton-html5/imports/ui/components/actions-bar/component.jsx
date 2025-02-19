@@ -8,6 +8,7 @@ import ScreenshareButtonContainer from '/imports/ui/components/actions-bar/scree
 import AudioControlsContainer from '../audio/audio-graphql/audio-controls/component';
 import JoinVideoOptionsContainer from '../video-provider/video-button/container';
 import PresentationOptionsContainer from './presentation-options/component';
+import SwapPresentationButton from './swap-presentation/component';
 import Button from '/imports/ui/components/common/button/component';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { LAYOUT_TYPE } from '../layout/enums';
@@ -132,6 +133,8 @@ class ActionsBar extends PureComponent {
       setPresentationFitToWidth,
       isPresentationEnabled,
       ariaHidden,
+      showScreenshareQuickSwapButton,
+      isReactionsButtonEnabled,
     } = this.props;
 
     const Settings = getSettingsSingletonInstance();
@@ -161,6 +164,7 @@ class ActionsBar extends PureComponent {
           }
         }
       >
+        <h2 className="sr-only">{intl.formatMessage(intlMessages.actionsBarLabel)}</h2>
         <Styled.ActionsBar
           ref={this.actionsBarRef}
           style={
@@ -206,26 +210,31 @@ class ActionsBar extends PureComponent {
               }}
               />
             )}
-            {this.renderReactionsButton()}
+            {isReactionsButtonEnabled && this.renderReactionsButton()}
             <RaiseHandButtonContainer />
             {this.renderPluginsActionBarItems(ActionsBarPosition.RIGHT)}
           </Styled.Center>
           <Styled.Right>
-            {shouldShowPresentationButton && shouldShowOptionsButton
-              ? (
-                <PresentationOptionsContainer
-                  presentationIsOpen={presentationIsOpen}
-                  setPresentationIsOpen={setPresentationIsOpen}
-                  layoutContextDispatch={layoutContextDispatch}
-                  hasPresentation={isThereCurrentPresentation}
-                  hasExternalVideo={isSharingVideo}
-                  hasScreenshare={hasScreenshare}
-                  hasPinnedSharedNotes={isSharedNotesPinned}
-                  hasGenericContent={hasGenericContent}
-                  hasCameraAsContent={hasCameraAsContent}
-                />
-              )
-              : null}
+            <Styled.Gap>
+              {
+                showScreenshareQuickSwapButton && <SwapPresentationButton />
+              }
+              {shouldShowPresentationButton && shouldShowOptionsButton
+                ? (
+                  <PresentationOptionsContainer
+                    presentationIsOpen={presentationIsOpen}
+                    setPresentationIsOpen={setPresentationIsOpen}
+                    layoutContextDispatch={layoutContextDispatch}
+                    hasPresentation={isThereCurrentPresentation}
+                    hasExternalVideo={isSharingVideo}
+                    hasScreenshare={hasScreenshare}
+                    hasPinnedSharedNotes={isSharedNotesPinned}
+                    hasGenericContent={hasGenericContent}
+                    hasCameraAsContent={hasCameraAsContent}
+                  />
+                )
+                : null}
+            </Styled.Gap>
           </Styled.Right>
         </Styled.ActionsBar>
       </Styled.ActionsBarWrapper>

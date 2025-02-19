@@ -37,14 +37,8 @@ export const DeleteMessage = styled.span`
   white-space: nowrap;
 `;
 
-export const Markdown = styled(ReactMarkdown)<{
-  $emphasizedMessage: boolean;
-}>`
+export const Markdown = styled(ReactMarkdown)`
   color: ${colorText};
-
-  ${({ $emphasizedMessage }) => $emphasizedMessage && `
-    font-weight: bold;
-  `}
 
   & img {
     max-width: 100%;

@@ -105,6 +105,19 @@ const Wrapper = styled.div`
   }
 `;
 
+const Separator = styled.div`
+  height: 2.5rem;
+  width: 0;
+  border: 1px solid ${colorWhite};
+  align-self: center;
+  opacity: .75;
+`;
+
+const Gap = styled.div`
+  display: flex;
+  gap: .5rem;
+`;
+
 export default {
   ActionsBar,
   Left,
@@ -115,4 +128,6 @@ export default {
   ReactionsDropdown,
   Wrapper,
   ActionsBarWrapper,
+  Gap,
+  Separator,
 };

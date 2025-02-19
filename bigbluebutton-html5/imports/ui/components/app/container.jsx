@@ -16,6 +16,7 @@ import { PINNED_PAD_SUBSCRIPTION } from '../notes/queries';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 import useSettings from '../../services/settings/hooks/useSettings';
 import { SETTINGS } from '../../services/settings/enums';
+import usePresentationSwap from '../../core/hooks/usePresentationSwap';
 
 const AppContainer = (props) => {
   const {
@@ -65,6 +66,8 @@ const AppContainer = (props) => {
   const isSharedNotesPinned = sharedNotesInput?.isPinned && isSharedNotesPinnedFromGraphql;
   const isExternalVideoEnabled = useIsExternalVideoEnabled();
   const isPresentationEnabled = useIsPresentationEnabled();
+  const [showScreenshare] = usePresentationSwap();
+
   const isPresenter = currentUser?.presenter;
 
   const { isOpen } = presentation;
@@ -77,11 +80,11 @@ const AppContainer = (props) => {
   const shouldShowGenericMainContent = !!genericMainContent.genericContentId;
 
   const shouldShowScreenshare = (viewScreenshare || isPresenter)
-    && (currentMeeting?.componentsFlags?.hasScreenshare
-      || currentMeeting?.componentsFlags?.hasCameraAsContent);
+  && (currentMeeting?.componentsFlags?.hasScreenshare
+    || currentMeeting?.componentsFlags?.hasCameraAsContent) && showScreenshare;
   const shouldShowPresentation = (!shouldShowScreenshare && !isSharedNotesPinned
-    && !shouldShowExternalVideo && !shouldShowGenericMainContent
-    && (presentationIsOpen || presentationRestoreOnUpdate)) && isPresentationEnabled;
+      && !shouldShowExternalVideo && !shouldShowGenericMainContent
+      && (presentationIsOpen || presentationRestoreOnUpdate)) && isPresentationEnabled;
 
   // Update after editing app savings
   useEffect(() => {

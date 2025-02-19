@@ -218,7 +218,7 @@ const PushLayoutEngine = (props) => {
       });
 
       // Shouldn't run when enforceLayoutDidChange
-      if (pushLayoutMeetingDidChange) {
+      if (pushLayoutMeeting) {
         updateSettings({
           application: {
             ...Settings.application,
@@ -288,6 +288,17 @@ const PushLayoutEngine = (props) => {
         });
       }
     };
+    // Sync local state of push layout
+    if ((isModerator || isPresenter)
+      && pushLayoutMeetingDidChange
+      && pushLayoutMeeting !== pushLayout) {
+      updateSettings({
+        application: {
+          ...Settings.application,
+          pushLayout: pushLayoutMeeting,
+        },
+      }, null, setLocalSettings);
+    }
 
     // REPLICATE LAYOUT
     if (shouldSwitchLayout && layoutReplicateElements.includes(LAYOUT_ELEMENTS.LAYOUT_TYPE)) {
@@ -317,8 +328,6 @@ const PushLayoutEngine = (props) => {
       || enforceLayoutResult !== prevProps.enforceLayoutResult
       || !equalDouble(presentationVideoRate, prevProps.presentationVideoRate);
 
-    // push layout once after presenter toggles
-    // special case where we set pushLayout to false in all viewers
     if (pushLayout !== prevProps.pushLayout) {
       if (isModerator) {
         setPushLayout(pushLayout);
@@ -331,7 +340,7 @@ const PushLayoutEngine = (props) => {
       // single call just check whether there is any element to be propagate
       && layoutPropagateElements.length > 0
     ) {
-      if ((pushLayout && layoutChanged) || pushLayout !== prevProps.pushLayout) {
+      if (pushLayout && (layoutChanged || pushLayout !== prevProps.pushLayout)) {
         setMeetingLayout();
       }
     }

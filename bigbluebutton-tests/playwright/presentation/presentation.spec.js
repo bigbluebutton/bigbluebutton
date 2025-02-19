@@ -2,9 +2,6 @@ const { test } = require('../fixtures');
 const { encodeCustomParams } = require('../parameters/util');
 const { Presentation } = require('./presentation');
 const { linkIssue } = require('../core/helpers');
-const { PARAMETER_HIDE_PRESENTATION_TOAST } = require('../core/constants');
-
-const hidePresentationToast = encodeCustomParams(PARAMETER_HIDE_PRESENTATION_TOAST);
 
 test.describe.parallel('Presentation', { tag: '@ci' }, () => {
   // https://docs.bigbluebutton.org/3.0/testing/release-testing/#navigation-automated
@@ -39,7 +36,7 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
   // https://docs.bigbluebutton.org/3.0/testing/release-testing/#fit-to-width-option
   test('Presentation fit to width', async ({ browser, context, page }) => {
     const presentation = new Presentation(browser, context);
-    await presentation.initModPage(page, true, { joinParameter: hidePresentationToast });
+    await presentation.initModPage(page, true);
     await presentation.initUserPage(true, context);
     await presentation.fitToWidthTest();
   });
@@ -58,8 +55,8 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
 
   test('Hide Presentation Toolbar', async ({ browser, context, page }) => {
     const presentation = new Presentation(browser, context);
-    await presentation.initModPage(page, true, { joinParameter: hidePresentationToast });
-    await presentation.initUserPage(page, context, { joinParameter: hidePresentationToast });
+    await presentation.initModPage(page, true);
+    await presentation.initUserPage(page, context);
     await presentation.hidePresentationToolbar();
   });
 
@@ -80,28 +77,22 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
 
   test.describe.parallel('Manage', () => {
     // https://docs.bigbluebutton.org/3.0/testing/release-testing/#uploading-a-presentation-automated
-    test('Upload single presentation', { tag: '@flaky' }, async ({ browser, context, page }) => {
-      // current presentation toast not being displayed sometimes
-      linkIssue(21813);
+    test('Upload single presentation', async ({ browser, context, page }) => {
       const presentation = new Presentation(browser, context);
-      await presentation.initPages(page, true);
+      await presentation.initPages(page);
       await presentation.uploadSinglePresentationTest();
     });
 
-    test('Upload Other Presentations Format', { tag: '@flaky' }, async ({ browser, context, page }) => {
-      // file with wrong (not expected) ideogram conversion pushed, which is used for assertions
-      linkIssue(18971);
+    test('Upload Other Presentations Format', async ({ browser, context, page }) => {
       const presentation = new Presentation(browser, context);
-      await presentation.initPages(page, true);
+      await presentation.initPages(page);
       await presentation.uploadOtherPresentationsFormat();
     });
 
     // https://docs.bigbluebutton.org/3.0/testing/release-testing/#uploading-multiple-presentations-automated
-    test('Upload multiple presentations', { tag: '@flaky' }, async ({ browser, context, page }) => {
-      // current presentation toast not being displayed sometimes
-      linkIssue(21813);
+    test('Upload multiple presentations', async ({ browser, context, page }) => {
       const presentation = new Presentation(browser, context);
-      await presentation.initPages(page, true);
+      await presentation.initPages(page);
       await presentation.uploadMultiplePresentationsTest();
     });
 
@@ -111,7 +102,7 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
       await presentation.initPages(page);
       await presentation.enableAndDisablePresentationDownload(testInfo);
     });
-    
+
     test('Send presentation in the current state (with annotations) to chat for downloading', async ({ browser, context, page }, testInfo) => {
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page);
@@ -124,19 +115,13 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
       await presentation.removeAllPresentation();
     });
 
-    test('Upload and remove all presentations', { tag: '@flaky' }, async ({ browser, context, page }) => {
-      // sometimes the uploaded presentation is not displayed in the manage presentations modal
-      linkIssue(21624);
-      // current presentation toast not being displayed sometimes
-      linkIssue(21813);
+    test('Upload and remove all presentations', async ({ browser, context, page }) => {
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page);
       await presentation.uploadAndRemoveAllPresentations();
     });
 
-    test('Remove previous presentation from previous presenter', { tag: '@flaky' }, async ({ browser, context, page }) => {
-      // current presentation toast not being displayed sometimes
-      linkIssue(21813);
+    test('Remove previous presentation from previous presenter', async ({ browser, context, page }) => {
       const presentation = new Presentation(browser, context);
       await presentation.initModPage(page, true);
       await presentation.initUserPage(true, context);
