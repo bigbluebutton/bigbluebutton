@@ -25,8 +25,7 @@ class Stress {
       await this.modPage.init(true, true, { fullName: `Moderator-${i}` });
       await this.modPage.waitForSelector(e.userAvatar);
       const isPresenter = await checkIsPresenter(this.modPage);
-      await this.modPage.waitAndClick(e.actions);
-      const canStartPoll = await this.modPage.checkElement(e.polling);
+      const canStartPoll = await this.modPage.checkElement(e.pollSidebarButton);
       if (!isPresenter || !canStartPoll) {
         failureCount++;
       }
