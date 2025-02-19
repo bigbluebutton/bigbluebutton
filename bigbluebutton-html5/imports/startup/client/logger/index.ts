@@ -91,7 +91,7 @@ class BBBClientLogger {
   }
 }
 
-export default class LoggerFactory {
+class LoggerFactory {
   public static getLogger() {
     return BBBClientLogger.logger;
   }
@@ -124,3 +124,7 @@ export default class LoggerFactory {
     return (LoggerFactory.getLogger() as any).streams;
   }
 }
+// Just add a alias to make easy for auto import on IDEs
+const logger = LoggerFactory;
+
+export default logger;

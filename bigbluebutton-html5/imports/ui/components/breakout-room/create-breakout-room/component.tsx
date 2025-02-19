@@ -29,6 +29,7 @@ import {
 } from './room-managment-state/types';
 import { BREAKOUT_ROOM_CREATE, BREAKOUT_ROOM_MOVE_USER } from '../mutations';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import { notify } from '/imports/ui/services/notification';
 
 const MIN_BREAKOUT_ROOMS = 2;
 const MIN_BREAKOUT_TIME = 5;
@@ -578,6 +579,7 @@ const CreateBreakoutRoomContainer: React.FC<CreateBreakoutRoomContainerProps> = 
   priority,
   isUpdate = false,
 }) => {
+  const intl = useIntl();
   const [fetchedBreakouts, setFetchedBreakouts] = React.useState(false);
   // isBreakoutRecordable - get from meeting breakout policies breakoutPolicies/record
   const {
@@ -621,14 +623,21 @@ const CreateBreakoutRoomContainer: React.FC<CreateBreakoutRoomContainerProps> = 
   if (breakoutsLoading) return null;
 
   if (usersError || breakoutsError) {
-    logger.info('Error loading users', usersError);
-    logger.info('Error loading breakouts', breakoutsError);
-    return (
-      <div>
-        {JSON.stringify(usersError) || JSON.stringify(breakoutsError)}
-      </div>
+    notify(intl.formatMessage({
+      id: 'app.error.issueLoadingData',
+    }), 'warning', 'warning');
+    logger.error(
+      {
+        logCode: 'subscription_Failed',
+        extraInfo: {
+          error: usersError || breakoutsError,
+        },
+      },
+      'Subscription failed to load',
     );
+    return null;
   }
+
   return (
     <CreateBreakoutRoom
       isOpen={isOpen}
