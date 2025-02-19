@@ -132,17 +132,10 @@ const UserListParticipantsPageContainer: React.FC<UserListParticipantsContainerP
   useEffect(() => {
     setVisibleUsers((prev) => {
       const newList = { ...prev };
-      const currentUserIndex = users.findIndex((u: User) => u.userId === currentUser?.userId);
-      if (currentUserIndex !== -1) {
-        users.splice(currentUserIndex, 1);
-      }
-      if (offset === 0) {
-        users.unshift(currentUser as User);
-      }
       newList[index] = users;
       return newList;
     });
-  }, [usersData, currentUser]);
+  }, [usersData]);
 
   useEffect(() => {
     return () => {
@@ -161,6 +154,16 @@ const UserListParticipantsPageContainer: React.FC<UserListParticipantsContainerP
         <SkeletonUserListItem enableAnimation={true} />
       </Styled.UserListItem>
     ));
+  }
+
+  const currentUserIndex = users.findIndex((u: User) => u.userId === currentUser?.userId);
+
+  if (currentUserIndex !== -1) {
+    users.splice(currentUserIndex, 1);
+  }
+
+  if (offset === 0) {
+    users.unshift(currentUser as User);
   }
 
   return (
