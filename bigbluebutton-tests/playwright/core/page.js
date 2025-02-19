@@ -139,7 +139,7 @@ class Page {
   }
 
   getVisibleLocator(selector) {
-    return this.getLocator(`${selector}:visible`);
+    return this.getLocator(`${selector} >> visible=true`);
   }
 
   getLocatorByIndex(selector, index) {
