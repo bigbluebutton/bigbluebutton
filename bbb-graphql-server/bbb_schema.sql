@@ -1962,7 +1962,7 @@ BEGIN
 		   from "user" bkroom_user
 		   join meeting_breakout mb on mb."meetingId" = bkroom_user."meetingId"
 		   join "breakoutRoom" br on br."parentMeetingId" = mb."parentId" and mb."sequence" = br."sequence"
-		   join "user" u on u."meetingId" = br."parentMeetingId"  and bkroom_user."extId" = u."extId" || '-' || br."sequence"
+		   join "user" u on u."meetingId" = br."parentMeetingId"  and bkroom_user."extId" = u."userId" || '-' || br."sequence"
 		   join "breakoutRoom_user" bru on bru."userId" = u."userId" and bru."breakoutRoomId" = br."breakoutRoomId"
 		   where bkroom_user."userId" = NEW."userId"
 	   ) a
