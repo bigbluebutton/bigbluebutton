@@ -25,6 +25,10 @@ const intlMessages = defineMessages({
     id: 'app.userList.usersTitle',
     description: 'Title for the Header',
   },
+  hideUserListTitle: {
+    id: 'app.userList.lockedUsersTitle',
+    description: 'Title for the Header when user is locked',
+  },
   usersStaticTitle: {
     id: 'app.userList.usersStaticTitle',
     description: 'Users title without the count of participants',
@@ -44,6 +48,7 @@ const UserList: React.FC<UserListComponentProps> = () => {
   const layoutContextDispatch = layoutDispatch();
   const { data: currentUserData } = useCurrentUser((user) => ({
     isModerator: user.isModerator,
+    locked: user?.locked ?? false,
   }));
   const {
     data: countData,
@@ -51,9 +56,11 @@ const UserList: React.FC<UserListComponentProps> = () => {
   const count: number = countData?.user_aggregate?.aggregate?.count || 0;
   const { data: meetingInfo } = useMeeting((meeting: Partial<Meeting>) => ({
     name: meeting?.name,
+    lockSettings: meeting?.lockSettings,
   }));
   const [getUsers, { data: usersData, error: usersError }] = useLazyQuery(GET_USER_NAMES, { fetchPolicy: 'no-cache' });
   const users = usersData?.user || [];
+  const hideUserList = currentUserData?.locked && meetingInfo?.lockSettings?.hideUserList;
 
   useEffect(() => {
     if (usersError) {
@@ -98,11 +105,14 @@ const UserList: React.FC<UserListComponentProps> = () => {
       </>
     );
   };
+  const title = hideUserList
+    ? intl.formatMessage(intlMessages.hideUserListTitle, { moderatorCount: count })
+    : intl.formatMessage(intlMessages.usersTitle, { userCount: count });
 
   return (
     <Styled.PanelContent>
       <Styled.HeaderContainer
-        title={intl.formatMessage(intlMessages.usersTitle, { 0: count })}
+        title={title}
         rightButtonProps={{
           'aria-label': intl.formatMessage(intlMessages.minimize, { 0: intl.formatMessage(intlMessages.usersStaticTitle) }),
           'data-test': 'closeUserList',
