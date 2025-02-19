@@ -7,6 +7,7 @@ import {
   ACTIONS,
   PANELS,
   CAMERADOCK_POSITION,
+  LAYOUT_TYPE,
 } from '/imports/ui/components/layout/enums';
 import { defaultsDeep } from '/imports/utils/array-utils';
 import Session from '/imports/ui/services/storage/in-memory';
@@ -48,7 +49,7 @@ const PresentationFocusLayout = (props) => {
   const layoutContextDispatch = layoutDispatch();
 
   const prevDeviceType = usePrevious(deviceType);
-  const { isPresentationEnabled } = props;
+  const { isPresentationEnabled, prevLayout } = props;
 
   const throttledCalculatesLayout = throttle(() => calculatesLayout(),
     50, { trailing: true, leading: true });
@@ -122,7 +123,7 @@ const PresentationFocusLayout = (props) => {
               height: screenShare.height,
             },
           },
-          hasLayoutEngineLoadedOnce ? prevInput : INITIAL_INPUT_STATE,
+          hasLayoutEngineLoadedOnce && prevLayout === LAYOUT_TYPE.PRESENTATION_FOCUS ? prevInput : INITIAL_INPUT_STATE,
         );
       },
     });

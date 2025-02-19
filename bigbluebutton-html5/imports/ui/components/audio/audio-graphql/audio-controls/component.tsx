@@ -15,6 +15,7 @@ import { joinListenOnly } from './service';
 import Styled from './styles';
 import InputStreamLiveSelectorContainer from './input-stream-live-selector/component';
 import { UPDATE_ECHO_TEST_RUNNING } from './queries';
+import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
 
 const intlMessages = defineMessages({
   joinAudio: {
@@ -159,13 +160,15 @@ export const AudioControlsContainer: React.FC = () => {
   // @ts-ignore - temporary while hybrid (meteor+GraphQl)
   const isEchoTest = useReactiveVar(AudioManager._isEchoTest.value) as boolean;
 
+  const isClientConnected = useReactiveVar(connectionStatus.getConnectedStatusVar());
+
   if (!currentUser || !currentMeeting) return null;
 
   return (
     <AudioControls
       inAudio={!!currentUser.voice ?? false}
       isConnected={isConnected}
-      disabled={isConnecting || isHangingUp}
+      disabled={(isConnecting || isHangingUp || !isClientConnected)}
       isEchoTest={isEchoTest}
       updateEchoTestRunning={updateEchoTestRunning}
       away={currentUser.away || false}

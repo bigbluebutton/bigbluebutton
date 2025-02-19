@@ -61,14 +61,8 @@ const Message = styled.div`
   min-width: 0;
 `;
 
-const Markdown = styled(ReactMarkdown)<{
-  $emphasizedMessage: boolean;
-}>`
+const Markdown = styled(ReactMarkdown)`
   color: ${colorText};
-
-  ${({ $emphasizedMessage }) => $emphasizedMessage && `
-    font-weight: bold;
-  `}
 
   & img {
     max-width: 100%;

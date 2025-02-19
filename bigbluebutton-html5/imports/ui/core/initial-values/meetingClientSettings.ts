@@ -157,6 +157,10 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           accesskey: 'U',
           descId: 'toggleUserList',
         },
+        openLeaveMenu: {
+          accesskey: 'X',
+          descId: 'openLeaveMenu',
+        },
         toggleMute: {
           accesskey: 'M',
           descId: 'toggleMute',
@@ -613,6 +617,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       showParticipantsOnLogin: true,
       showPushLayoutButton: true,
       showPushLayoutToggle: true,
+      showScreenshareQuickSwapButton: true,
     },
     pads: {
       url: 'ETHERPAD_HOST',

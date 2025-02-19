@@ -17,7 +17,13 @@ const joinEndpointTableData = [
     "name": "password",
     "required": true,
     "type": "String",
-    "description": (<><b>[DEPRECATED]</b> This password value is used to determine the role of the user based on whether it matches the moderator or attendee password.  Note: This parameter is <b>not</b> required when the role parameter is passed.</>)
+    deprecated: true,
+    "description": (
+      <>
+        <p>This password value is used to determine the role of the user. It must match either the moderator or attendee password.</p>
+        <p><i>Deprecated:</i> Use the <code>role</code> parameter instead to directly set the user's role. If the <code>role</code> parameter is passed, then the <code>password</code> parameter is not required.</p>
+      </>
+    )
   },
   {
     "name": "role",
@@ -65,7 +71,13 @@ const joinEndpointTableData = [
     "name": "webcamBackgroundURL",
     "required": false,
     "type": "String",
-    "description": (<>The link for the user's webcam background to be displayed (default can be enabled/disabled and set with “useDefaultWebcamBackground“ and “defaultWebcamBackgroundURL“ in bigbluebutton.properties). Added in BigBlueButton 2.7.10.</>)
+    "description": (
+      <>
+        <p>The URL of an image to use as the user's webcam background.</p>
+        <p>Server-wide defaults can be enabled/disabled and set with <code>useDefaultWebcamBackground</code> and <code>defaultWebcamBackgroundURL</code> in <code>bigbluebutton.properties</code>.</p>
+        <p><i>Added:</i> 2.7.10</p>
+      </>
+    )
   },
   {
     "name": "redirect",

@@ -3,9 +3,10 @@ package org.bigbluebutton.core.apps.presentationpod
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.bus.MessageBus
-import org.bigbluebutton.core.db.PresPresentationDAO
+import org.bigbluebutton.core.db.{ NotificationDAO, PresPresentationDAO }
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.running.LiveMeeting
+import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 trait SetPresentationDownloadablePubMsgHdlr extends RightsManagementTrait {
   this: PresentationPodHdlrs =>
@@ -54,6 +55,19 @@ trait SetPresentationDownloadablePubMsgHdlr extends RightsManagementTrait {
         val pods = state.presentationPodManager.setPresentationDownloadableInPod(pod.id, presentationId, downloadable, downloadableExtension)
 
         PresPresentationDAO.updateDownloadable(presentationId, downloadable, downloadableExtension)
+
+        if (downloadable && pres.current) {
+          val notifyEvent = MsgBuilder.buildNotifyAllInMeetingEvtMsg(
+            liveMeeting.props.meetingProp.intId,
+            "info",
+            "presentation",
+            "app.presentation.downloadEnabledNotification",
+            "Notification when the download of the presentation has been enabled",
+            Vector(s"${pres.name}")
+          )
+          NotificationDAO.insert(notifyEvent)
+        }
+
         state.update(pods)
       }
 
