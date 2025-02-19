@@ -99,6 +99,9 @@ public:
       mobile: false
       # provider: [webspeech, vosk, gladia]
       provider: webspeech
+      # If true, the transcriptions and captions settings are displayed as an
+      # entry in the apps gallery rather than a button in the actions bar
+      useAppsGallery: false
       language:
         # Available languages will depend on the transcription service
         # Google: https://cloud.google.com/speech-to-text/docs/speech-to-text-supported-languages

@@ -103,6 +103,11 @@ export const getCaptionsTermsLink = (locale: string) => {
   return terms[DEFAULT_LOCALE];
 };
 
+export const useAppsGallery = () => {
+  const USE_APPS_GALLERY = window.meetingClientSettings.public.app.audioCaptions.useAppsGallery;
+  return USE_APPS_GALLERY;
+};
+
 export default {
   getSpeechVoices,
   useIsAudioTranscriptionEnabled,
@@ -115,4 +120,5 @@ export default {
   splitTranscript,
   getLocaleName,
   getCaptionsTermsLink,
+  useAppsGallery,
 };
