@@ -75,8 +75,7 @@ const FormElementCenter = styled(Styled.FormElementCenter)``;
 
 const BoldLabel = styled.label`
   color: ${colorGrayLabel};
-  font-size: 0.9rem;
-  margin-bottom: 0.5rem;
+  font-size: 1rem;
   font-weight: bold;
 `;
 

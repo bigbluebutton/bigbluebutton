@@ -59,12 +59,12 @@ const PresentationOptionsContainer = ({
   }
 
   const isThereCurrentPresentation = hasExternalVideo || hasScreenshare
-  || hasPresentation || hasPinnedSharedNotes
-  || hasGenericContent || hasCameraAsContent;
+    || hasPresentation || hasPinnedSharedNotes
+    || hasGenericContent || hasCameraAsContent;
   const onlyPresentation = hasPresentation
-  && !hasExternalVideo && !hasScreenshare
-  && !hasPinnedSharedNotes && !hasGenericContent
-  && !hasCameraAsContent;
+    && !hasExternalVideo && !hasScreenshare
+    && !hasPinnedSharedNotes && !hasGenericContent
+    && !hasCameraAsContent;
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
   const isChatOpen = sidebarContent.sidebarContentPanel === PANELS.CHAT;
   const PUBLIC_CHAT_ID = window.meetingClientSettings.public.chat.public_group_id;
@@ -84,7 +84,8 @@ const PresentationOptionsContainer = ({
       hideLabel
       circle
       size="lg"
-      onClick={() => {
+      onClick={(e) => {
+        e.currentTarget.blur();
         if (!isChatOpen && isGridLayout && !presentationIsOpen) {
           layoutContextDispatch({
             type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,

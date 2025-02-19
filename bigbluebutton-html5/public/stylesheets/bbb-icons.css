@@ -378,3 +378,9 @@
 .icon-bbb-random:before {
   content: "\e976";
 }
+.icon-bbb-text_decrease:before {
+  content: "\e977";
+}
+.icon-bbb-text_increase:before {
+  content: "\e978";
+}
