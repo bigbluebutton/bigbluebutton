@@ -187,6 +187,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
   const animationInitialTimestamp = React.useRef(0);
   const animationInitialScrollPosition = React.useRef(0);
   const animationScrollPositionDiff = React.useRef(0);
+  const animationInitialBgColor = React.useRef('');
 
   const [chatDeleteMessage] = useMutation(CHAT_DELETE_MESSAGE_MUTATION);
   const onDeleteConfirmation = useCallback(() => {
@@ -241,6 +242,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
 
   const startBackgroundAnimation = (timestamp: number) => {
     animationInitialTimestamp.current = timestamp;
+    animationInitialBgColor.current = containerRef.current?.style.backgroundColor ?? '';
     requestAnimationFrame(animateBackgroundColor);
   };
 
@@ -252,7 +254,6 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
     const { current: diff } = animationScrollPositionDiff;
     if (!scrollContainer || !messageContainer) return;
     if (value <= 1) {
-      // eslint-disable-next-line no-param-reassign
       scrollContainer.scrollTop = initialPosition - (value * diff);
       requestAnimationFrame(animateScrollPosition);
     } else {
@@ -267,7 +268,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
       messageContentRef.current.style.backgroundColor = `rgb(${colorBlueLighterChannel} / ${1 - value})`;
       requestAnimationFrame(animateBackgroundColor);
     } else {
-      messageContentRef.current.style.backgroundColor = '#f4f6fa';
+      messageContentRef.current.style.backgroundColor = animationInitialBgColor.current;
     }
   };
 
