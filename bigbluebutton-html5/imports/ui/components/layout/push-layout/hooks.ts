@@ -38,7 +38,7 @@ const useMeetingLayoutUpdater = (
         presentationIsOpen,
         isResizing,
         cameraPosition: position || 'contentTop',
-        focusedCamera: focusedId,
+        focusedCamera: focusedId || 'none',
         presentationVideoRate: calculatePresentationVideoRate(cameraDockOutput),
       },
     });

@@ -107,10 +107,6 @@ class UrlMappings {
       action = [GET: 'getJoinUrl', POST: 'getJoinUrl']
     }
 
-    "/bigbluebutton/api/feedback"(controller: "api") {
-      action = [POST: 'feedback']
-    }
-
     "/bigbluebutton/api/learningDashboard"(controller: "api") {
       action = [GET: 'learningDashboard', POST: 'learningDashboard']
     }

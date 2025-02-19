@@ -163,6 +163,7 @@ class ActionsBar extends PureComponent {
           }
         }
       >
+        <h2 class="sr-only">{intl.formatMessage(intlMessages.actionsBarLabel)}</h2>
         <Styled.ActionsBar
           ref={this.actionsBarRef}
           style={

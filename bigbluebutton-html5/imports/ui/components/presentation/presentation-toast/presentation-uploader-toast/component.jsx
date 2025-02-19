@@ -6,7 +6,6 @@ import { defineMessages } from 'react-intl';
 import { usePreviousValue } from '/imports/ui/hooks/usePreviousValue';
 import { notify } from '/imports/ui/services/notification';
 import Session from '/imports/ui/services/storage/in-memory';
-import checkSamePresentation from './utils';
 
 const EXPORT_STATUSES = {
   RUNNING: 'RUNNING',
@@ -453,80 +452,91 @@ function renderExportToast(presToShow, intl) {
 
 export const PresentationUploaderToast = ({
   intl,
-  convertingPresentations,
   presentations,
-  setPresentationIdsYetToSee,
   presentationsToBeShowed,
+  setPresentationRenderedInToast,
+  forceShowToast,
+  setForceShowToast,
 }) => {
   const [showToast, setShowToast] = useState(false);
-  const dismissedErrorItems = useRef([]);
+  const [dismissedItems, setDismissedItems] = useState([]);
   const prevPresentations = usePreviousValue(presentations);
   const exportToastIdRef = useRef('presentationUploaderExportPresentationId');
   const convertingToastIdRef = useRef('presentationUploaderConvertingPresentationId');
 
   const addPressIdToDismissed = (presId) => {
-    dismissedErrorItems.current.push(presId);
+    setDismissedItems((prev) => {
+      prev.push(presId);
+      return prev;
+    });
   };
 
   const getIdsFromPresentationsAndDismiss = (pres) => {
-    const presToRemove = [];
     pres.forEach((p) => {
-      if (p.uploadErrorMsgKey && !dismissedErrorItems.current.includes(p.presentationId)) {
-        presToRemove.push(p.presentationId);
+      if (!dismissedItems.includes(p.presentationId)) {
         addPressIdToDismissed(p.presentationId);
       }
     });
-    setPresentationIdsYetToSee(new Set());
   };
 
   useEffect(() => {
-    presentations
-      .filter((p) => !dismissedErrorItems.current.includes(p.presentationId))
-      .forEach((p) => {
-        const prevPropPres = (prevPresentations || [])
-          .find((pres) => pres.presentationId === p.presentationId);
-        // display notification when presentation is exported
-        if (prevPropPres?.exportToChatStatus
+    const exportingPres = presentations.map((p) => {
+      const prevPropPres = (prevPresentations || [])
+        .find((pres) => pres.presentationId === p.presentationId);
+      // display notification when presentation is exported
+      if (prevPropPres?.exportToChatStatus
         && p?.exportToChatStatus === EXPORT_STATUSES.EXPORTED
         && prevPropPres?.exportToChatStatus !== p?.exportToChatStatus
-        ) {
-          notify(intl.formatMessage(intlMessages.linkAvailable, { 0: p.name }), 'success');
-          handleDismissToast(exportToastIdRef.current);
-        }
+      ) {
+        notify(intl.formatMessage(intlMessages.linkAvailable, { 0: p.name }), 'success');
+        handleDismissToast(exportToastIdRef.current);
+      }
+      return p;
+    }).filter((p) => (dismissedItems.length > 0 && !dismissedItems.includes(p.presentationId))
+      || p.exportToChatInProgress);
 
-        // display notification for exportation status
-        if ([
-          EXPORT_STATUSES.RUNNING,
-          EXPORT_STATUSES.COLLECTING,
-          EXPORT_STATUSES.PROCESSING,
-        ].includes(p?.exportToChatStatus)) {
-          if (toast.isActive(exportToastIdRef.current)) {
-            toast.update(exportToastIdRef.current, {
-              render: renderExportToast(presentations, intl),
-            });
-          } else {
-            toast(
-              renderExportToast(presentations, intl), {
-                hideProgressBar: true,
-                autoClose: false,
-                newestOnTop: true,
-                closeOnClick: true,
-                toastId: exportToastIdRef.current,
-                onClose: () => {
-                  Session.setItem('presentationUploaderExportToastId', null);
-                  getIdsFromPresentationsAndDismiss(presentations);
-                },
-              },
-            );
-          }
-        }
-      });
-  }, [presentations]);
+    if (exportingPres && exportingPres.length > 0) {
+      if (toast.isActive(exportToastIdRef.current)) {
+        toast.update(exportToastIdRef.current, {
+          render: renderExportToast(exportingPres, intl),
+        });
+      } else {
+        toast(
+          renderExportToast(exportingPres, intl), {
+            hideProgressBar: true,
+            autoClose: false,
+            newestOnTop: true,
+            closeOnClick: true,
+            toastId: exportToastIdRef.current,
+            onClose: () => {
+              Session.setItem('presentationUploaderExportToastId', null);
+              getIdsFromPresentationsAndDismiss(exportingPres);
+            },
+          },
+        );
+      }
+    }
+  }, [presentations, dismissedItems]);
 
   useEffect(() => {
-    setShowToast(convertingPresentations
-      .filter((p) => !dismissedErrorItems.current.includes(p.presentationId)).length > 0);
-  }, [convertingPresentations]);
+    setForceShowToast(false);
+  }, []);
+
+  useEffect(() => {
+    presentationsToBeShowed.filter(
+      (p) => (p.uploadCompleted && !p.uploadErrorMsgKey),
+    ).forEach(
+      (p) => setPresentationRenderedInToast({ variables: { presentationId: p.presentationId } }),
+    );
+  }, [showToast]);
+
+  useEffect(() => {
+    const allPresentationsDone = presentationsToBeShowed.every(
+      (p) => (p.uploadCompleted && !p.uploadErrorMsgKey),
+    );
+    // Forcing to show toast will only work if there are any presentations to show
+    setShowToast(presentationsToBeShowed.length > 0 && (!allPresentationsDone || forceShowToast));
+  }, [presentationsToBeShowed]);
 
   if (showToast && !toast.isActive(convertingToastIdRef.current)) {
     toast(() => renderToastList(presentationsToBeShowed, intl), {
@@ -538,7 +548,6 @@ export const PresentationUploaderToast = ({
       toastId: convertingToastIdRef.current,
       onClose: () => {
         Session.setItem('presentationUploaderToastId', null);
-        getIdsFromPresentationsAndDismiss(presentations);
       },
     });
   } else if (!showToast && toast.isActive(convertingToastIdRef.current)) {

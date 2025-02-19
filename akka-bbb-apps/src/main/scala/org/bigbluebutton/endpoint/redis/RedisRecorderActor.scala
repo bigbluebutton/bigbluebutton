@@ -131,6 +131,9 @@ class RedisRecorderActor(
       case m: PollStoppedEvtMsg                     => handlePollStoppedEvtMsg(m)
       case m: PollShowResultEvtMsg                  => handlePollShowResultEvtMsg(m)
 
+      // Plugin
+      case m: PluginPersistEventEvtMsg              => handlePluginPersistEvent(m)
+
       // ExternalVideo
       case m: StartExternalVideoEvtMsg              => handleStartExternalVideoEvtMsg(m)
       case m: UpdateExternalVideoEvtMsg             => handleUpdateExternalVideoEvtMsg(m)
@@ -741,6 +744,16 @@ class RedisRecorderActor(
     ev.setAnswers(msg.body.poll.answers)
     ev.setNumRespondents(msg.body.poll.numRespondents)
     ev.setNumResponders(msg.body.poll.numResponders)
+
+    record(msg.header.meetingId, ev.toMap.asJava)
+  }
+
+  private def handlePluginPersistEvent(msg: PluginPersistEventEvtMsg): Unit = {
+    val ev = new PluginEventPersistenceRecordEvent()
+    ev.setPluginEventName(msg.body.eventName)
+    ev.setPluginName(msg.body.pluginName)
+    ev.setUserId(msg.header.userId)
+    ev.setPayloadJson(msg.body.payloadJson)
 
     record(msg.header.meetingId, ev.toMap.asJava)
   }

@@ -2,6 +2,7 @@ import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import Styled, { DeleteMessage } from './styles';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
+import { textToMarkdown } from '/imports/ui/components/chat/chat-graphql/service';
 
 const intlMessages = defineMessages({
   deleteMessage: {
@@ -23,7 +24,7 @@ const ChatMessageReplied: React.FC<MessageRepliedProps> = (props) => {
   } = props;
 
   const intl = useIntl();
-  const messageChunks = message.split('\n');
+  const messageChunks = textToMarkdown(message).split('\n');
 
   return (
     <Styled.Container

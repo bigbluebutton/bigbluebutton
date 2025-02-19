@@ -19,8 +19,7 @@ test.describe('Options', { tag: ['@ci', '@flaky-3.1'] }, () => {
     await options.openHelp();
   });
 
-  test('Locales', { tag: '@flaky' }, async () => {
-    // not applying the correct locale for some main elements
+  test('Locales', async () => {
     await options.localesTest();
   });
 

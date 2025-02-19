@@ -7,6 +7,7 @@ import deviceInfo from '/imports/utils/deviceInfo';
 import Button from '/imports/ui/components/common/button/component';
 import Toggle from '/imports/ui/components/common/switch/component';
 import Styled from './styles';
+import Tooltip from '/imports/ui/components/common/tooltip/component';
 
 const LayoutModalComponent = ({
   intl,
@@ -38,7 +39,15 @@ const LayoutModalComponent = ({
     },
     updateAll: {
       id: 'app.layout.modal.updateAll',
-      description: 'Modal updateAll button',
+      description: 'Label for the push layout toggle when presenter',
+    },
+    followPresentersLayout: {
+      id: 'app.layout.modal.followPresentersLayout',
+      description: 'Label for the push layout toggle when not presenter',
+    },
+    pushToggleWarningTooltip: {
+      id: 'app.layout.modal.pushToggleWarningTooltip',
+      description: 'Tooltip for the push layout toggle when not presenter',
     },
     layoutLabel: {
       id: 'app.layout.modal.layoutLabel',
@@ -143,12 +152,16 @@ const LayoutModalComponent = ({
 
     if (isKeepPushingLayoutEnabled) {
       return (
-        <Styled.PushContainer>
-          <Styled.LabelPushLayout>
-            {intl.formatMessage(intlMessages.updateAll)}
-          </Styled.LabelPushLayout>
-          {renderToggle()}
-        </Styled.PushContainer>
+        <Tooltip title={intl.formatMessage(intlMessages.pushToggleWarningTooltip)}>
+          <Styled.PushContainer>
+            <Styled.LabelPushLayout>
+              {isPresenter
+                ? intl.formatMessage(intlMessages.updateAll)
+                : intl.formatMessage(intlMessages.followPresentersLayout)}
+            </Styled.LabelPushLayout>
+            {renderToggle()}
+          </Styled.PushContainer>
+        </Tooltip>
       );
     }
     return null;
@@ -225,7 +238,7 @@ const propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
-  isModerator: PropTypes.bool,
+  isModerator: PropTypes.bool.isRequired,
   isPresenter: PropTypes.bool.isRequired,
   application: PropTypes.shape({
     selectedLayout: PropTypes.string.isRequired,

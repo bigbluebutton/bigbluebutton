@@ -12,12 +12,8 @@ select_permissions:
       columns:
         - disablePublicChat
       filter:
-        _and:
-          - meetingId:
-              _eq: X-Hasura-MeetingId
-          - _or:
-              - userId:
-                  _eq: X-Hasura-UserId
-              - meetingId:
-                  _eq: X-Hasura-ModeratorInMeeting
+        meetingId:
+          _eq: X-Hasura-MeetingId
+      query_root_fields: []
+      subscription_root_fields: []
     comment: ""

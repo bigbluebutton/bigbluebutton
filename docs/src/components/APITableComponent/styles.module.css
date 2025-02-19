@@ -6,19 +6,33 @@
 	padding: 1em 5px;
 	vertical-align: top;
 }
-
-.apiDeprecated {
-	text-decoration: line-through;
+.apiParams td > :last-child {
+	margin-bottom: 0;
 }
 
 .apiRequired {
-	font-size: 0.7em;
+	font-weight: bold;
+	font-size: 0.85rem;
 	font-style: italic;
-	margin: 0;
+	margin-bottom: 0;
+}
+.apiDeprecated {
+	font-size: 0.85rem;
+	font-style: italic;
+	margin-bottom: 0;
+}
+
+.apiConstraints {
+	font-style: italic;
+	margin-bottom: 0;
 }
 
 .apiDefault {
 	font-style: italic;
-	margin-top: 20px;
+	margin-top: var(--ifm-leading);
 	margin-bottom: 0;
+}
+
+.apiConstraints span {
+	text-wrap-mode: nowrap;
 }

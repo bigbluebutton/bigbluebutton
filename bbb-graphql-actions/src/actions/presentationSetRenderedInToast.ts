@@ -23,7 +23,6 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
   };
 
   const body = {
-    podId: 'DEFAULT_PRESENTATION_POD',
     presentationId: input.presentationId,
   };
 

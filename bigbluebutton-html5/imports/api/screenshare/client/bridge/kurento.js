@@ -252,7 +252,7 @@ export default class KurentoScreenshareBridge {
     return error;
   }
 
-  async view(options = {
+  async view(streamId, options = {
     hasAudio: false,
     outputDeviceId: null,
   }) {
@@ -263,6 +263,7 @@ export default class KurentoScreenshareBridge {
     const SIGNAL_CANDIDATES = SFU_CONFIG.signalCandidates;
     const TRACE_LOGS = SFU_CONFIG.traceLogs;
     const GATHERING_TIMEOUT = SFU_CONFIG.gatheringTimeout;
+    this.streamId = streamId;
     this.hasAudio = options.hasAudio;
     this.outputDeviceId = options.outputDeviceId;
     this.role = RECV_ROLE;

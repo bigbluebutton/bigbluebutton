@@ -5,7 +5,12 @@ const createEndpointTableData = [
     "name": "name",
     "required": true,
     "type": "String",
-    "description": (<>A name for the meeting.  This is now required as of BigBlueButton 2.4.</>)
+    "description": (
+      <>
+        <p>A name for the meeting.</p>
+        <p><i>Added in 2.4:</i> This parameter is now required.</p>
+      </>
+    )
   },
   {
     "name": "meetingID",
@@ -16,14 +21,23 @@ const createEndpointTableData = [
   {
     "name": "attendeePW",
     "type": "String",
-    "description": (<>
-      <b>[DEPRECATED]</b> The password that the <a href="#join">join</a> URL can later provide as its <code className="language-plaintext highlighter-rouge">password</code> parameter to indicate the user will join as a viewer.  If no <code className="language-plaintext highlighter-rouge">attendeePW</code> is provided, the <code className="language-plaintext highlighter-rouge">create</code> call will return a randomly generated <code className="language-plaintext highlighter-rouge">attendeePW</code> password for the meeting.
+    deprecated: true,
+    "description": (
+      <>
+        <p>The password that the <a href="#join">join</a> URL can later provide as its <code className="language-plaintext highlighter-rouge">password</code> parameter to indicate the user will join as a viewer.  If no <code className="language-plaintext highlighter-rouge">attendeePW</code> is provided, the <code className="language-plaintext highlighter-rouge">create</code> call will return a randomly generated <code className="language-plaintext highlighter-rouge">attendeePW</code> password for the meeting.</p>
+        <p><i>Deprecated:</i> If the <code>role</code> parameter is used on the join URL, the <code>attendeePW</code> is unused.</p>
       </>)
   },
   {
     "name": "moderatorPW",
     "type": "String",
-    "description": (<><b>[DEPRECATED]</b> The password that will <a href="#join">join</a> URL can later provide as its <code className="language-plaintext highlighter-rouge">password</code> parameter to indicate the user will as a moderator.  if no <code className="language-plaintext highlighter-rouge">moderatorPW</code> is provided, <code className="language-plaintext highlighter-rouge">create</code> will return a randomly generated <code className="language-plaintext highlighter-rouge">moderatorPW</code> password for the meeting.</>)
+    deprecated: true,
+    "description": (
+      <>
+        <p>The password that will <a href="#join">join</a> URL can later provide as its <code className="language-plaintext highlighter-rouge">password</code> parameter to indicate the user will as a moderator.  if no <code className="language-plaintext highlighter-rouge">moderatorPW</code> is provided, <code className="language-plaintext highlighter-rouge">create</code> will return a randomly generated <code className="language-plaintext highlighter-rouge">moderatorPW</code> password for the meeting.</p>
+        <p><i>Deprecated:</i> If the <code>role</code> parameter is used on the join URL, the <code>moderatorPW</code> is unused.</p>
+      </>
+    )
   },
   {
     "name": "welcome",
@@ -257,8 +271,8 @@ const createEndpointTableData = [
   {
     "name": "meetingLayout",
     "type": "Enum",
-    "default": "SMART_LAYOUT",
-    "description": (<>Will set the default layout for the meeting. Possible values are: CUSTOM_LAYOUT, SMART_LAYOUT, PRESENTATION_FOCUS, VIDEO_FOCUS. (added 2.4) In version 3.0 a few more possible options were added: CAMERAS_ONLY, PRESENTATION_ONLY, PARTICIPANTS_AND_CHAT_ONLY</>)
+    "default": "CUSTOM_LAYOUT",
+    "description": (<>Will set the default layout for the meeting. Possible values are: CUSTOM_LAYOUT, SMART_LAYOUT, PRESENTATION_FOCUS, VIDEO_FOCUS. (added 2.4) In version 3.0 a few more possible options were added: CAMERAS_ONLY, PRESENTATION_ONLY, PARTICIPANTS_AND_CHAT_ONLY, MEDIA_ONLY</>)
   },
   {
     "name": "learningDashboardCleanupDelayInMinutes",
@@ -475,14 +489,24 @@ const createEndpointTableData = [
     "name": "allowOverrideClientSettingsOnCreateCall",
     "required": false,
     "default": "false",
-    "type": "String",
-    "description": (<> (added in BBB 3.0.0-alpha.1)</>)
+    "type": "Boolean",
+    "description": (
+      <>
+        <p>Whether to allow <a href="#clientsettingsoverride">clientSettingsOverride</a> to be included in the body of a POST request. Because the body of the post request is not signed by the <a href="#api-security-model">checksum</a>, this parameter is set to <code>false</code> by default. If you set this to <code>true</code>, you must make sure that the signed parameters of the create API request are not visible to users.</p>
+        <p><i>Added:</i> 3.0.0-alpha.1</p>
+      </>
+    )
   },
   {
     "name": "clientSettingsOverride",
     "required": false,
-    "type": "String",
-    "description": (<> The included structure will override settings.yml needed for the HTML5 client. For an example for the HTTPS POST request check <a href='/development/api#clientsettingsoverride'>clientSettingsOverride section in API</a>(added in BBB 3.0.0-alpha.5)</>)
+    "type": "JSON",
+    "description": (
+      <>
+        <p>A data structure containing settings which override values from the HTML5 client's <code>settings.yml</code> file. This data can also be provided in the body of a POST request, see <a href='#clientsettingsoverride'>clientSettingsOverride</a> for details.</p>
+        <p><i>Added:</i> 3.0.0-alpha.5</p>
+      </>
+    )
   },
   {
     "name": "allowPromoteGuestToModerator",

@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
+import { useMutation } from '@apollo/client';
 import { PresentationUploaderToast } from './component';
 
 import {
   EXPORTING_PRESENTATIONS_SUBSCRIPTION,
 } from '/imports/ui/components/whiteboard/queries';
-import { useStatePreviousValue } from '/imports/ui/hooks/usePreviousValue';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
-import checkSamePresentation from './utils';
+import SET_PRESENTATION_RENDERED_IN_TOAST from './mutation';
 
 const PresentationUploaderToastContainer = (props) => {
   const {
@@ -15,31 +15,14 @@ const PresentationUploaderToastContainer = (props) => {
   } = useDeduplicatedSubscription(
     EXPORTING_PRESENTATIONS_SUBSCRIPTION,
   );
+
+  // Force show toast in first render, since default.pdf is completely uploaded at this point
+  const [forceShowToast, setForceShowToast] = useState(true);
+  const [setPresentationRenderedInToast] = useMutation(SET_PRESENTATION_RENDERED_IN_TOAST);
   const presentations = presentationData?.pres_presentation || [];
 
-  const [presentationIdsYetToSee, setPresentationIdsYetToSee] = useState(new Set());
-  const previousPresentations = useStatePreviousValue(presentations);
-
-  useEffect(() => {
-    const idsYetToSee = presentations.filter(
-      (p) => !previousPresentations.some(
-        (presentation) => checkSamePresentation(p, presentation),
-      ),
-    );
-    if (idsYetToSee.length > 0) {
-      idsYetToSee.forEach((p) => {
-        presentationIdsYetToSee.add(p.presentationId);
-      });
-      setPresentationIdsYetToSee(presentationIdsYetToSee);
-    }
-  }, [presentationData]);
-
-  const convertingPresentations = presentations.filter(
-    (p) => (!p.uploadCompleted || !!p.uploadErrorMsgKey),
-  );
-
   const presentationsToBeShowed = presentations.filter(
-    (p) => (presentationIdsYetToSee.has(p.presentationId)),
+    (p) => (!p.renderedInToast),
   );
 
   if (presentationLoading) return null;
@@ -50,9 +33,10 @@ const PresentationUploaderToastContainer = (props) => {
       {
       ...{
         presentations: presentations.filter((p) => p),
-        convertingPresentations,
-        setPresentationIdsYetToSee,
         presentationsToBeShowed,
+        setPresentationRenderedInToast,
+        forceShowToast,
+        setForceShowToast,
         ...props,
       }
       }

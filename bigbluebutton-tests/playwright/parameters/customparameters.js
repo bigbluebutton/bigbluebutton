@@ -4,6 +4,7 @@ const e = require('../core/elements');
 const c = require('./constants');
 const { VIDEO_LOADING_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_TIME } = require('../core/constants');
 const util = require('./util');
+const { sleep } = require('../core/helpers');
 const { getSettings } = require('../core/settings');
 const { uploadSinglePresentation } = require('../presentation/util');
 
@@ -43,8 +44,9 @@ class CustomParameters extends MultiUsers {
     await this.modPage.joinMicrophone();
     // Open private chat
     await this.modPage.waitAndClick(e.userListItem);
-    await this.modPage.waitAndClick(e.startPrivateChat);
-    await this.modPage.hasElement(e.privateChatBackButton, 'should display the private chat back button when the user has a private chat open');
+    const lastUserStartPrivateChat = await this.modPage.getLocator(e.startPrivateChat).last();
+    await this.modPage.clickOnLocator(lastUserStartPrivateChat);
+    await this.modPage.hasElement(e.hidePrivateChat, 'should display the hide private chat element when the user has the private chat open');
     // Check the later shortcuts that can be used after joining audio and opening private chat
     await util.checkShortcutsArray(this.modPage, c.laterShortcuts);
   }
@@ -257,7 +259,7 @@ class CustomParameters extends MultiUsers {
   }
 
   async overrideDefaultLocaleTest() {
-    await this.modPage.hasText(e.chatButton, 'Bate-papo público','should display the new overrided default locale');
+    await this.modPage.hasText(e.chatButton, 'Bate-papo público','should display the new overridden default locale');
   }
 
   async hideNavBarTest() {
@@ -268,6 +270,20 @@ class CustomParameters extends MultiUsers {
     await this.modPage.waitAndClick(e.joinVideo);
     expect(await this.modPage.getLocator(e.selectCameraQualityId).inputValue(), 'should display the selector to choose the camera quality').toBe('low');
     await this.modPage.waitAndClick(e.startSharingWebcam);
+  }
+
+  async webcamBackgroundURL() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage.waitAndClick(e.joinVideo);
+    await this.modPage.hasElement(e.webcamSettingsModal, 'should display the webcam settings modal when clicking to join video');
+    await this.modPage.waitAndClick(e.backgroundSettingsTitle);
+    const appleBackground = await this.modPage.getLocator(e.selectCustomBackground);
+    await expect(appleBackground).toHaveCount(1);
+    await this.modPage.waitAndClick(e.selectCustomBackground);
+    await this.modPage.waitAndClick(e.startSharingWebcam);
+    await this.modPage.hasElement(e.webcamMirroredVideoContainer, 'should display the webcam (mirrored) container after successfully sharing webcam');
+    const webcamBackgroundURL = this.modPage.getLocator(e.webcamMirroredVideoContainer);
+    await expect(webcamBackgroundURL).toHaveScreenshot('webcam-background-passing-url.png');
   }
 }
 

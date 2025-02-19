@@ -6,7 +6,7 @@ async function openSettings(test) {
   await test.waitAndClick(e.settings);
 }
 
-async function getLocaleValues(elements, locale) {
+function getLocaleValues(elements, locale) {
   const currentValues = {};
   let currentLocale = {};
   try {

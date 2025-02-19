@@ -89,7 +89,13 @@ class ConnectionStatusIcon extends PureComponent {
 const WrapConnectionStatus = (props) => {
   const rttStatus = useReactiveVar(connectionStatus.getRttStatusVar());
   const packetLossStatus = useReactiveVar(connectionStatus.getPacketLossStatusVar());
-  const status = getWorstStatus([rttStatus, packetLossStatus]);
+  const liveKitConnQuality = useReactiveVar(connectionStatus.getLiveKitConnectionStatusVar());
+  const status = getWorstStatus([
+    rttStatus,
+    packetLossStatus,
+    liveKitConnQuality,
+  ]);
+
   return (
     <ConnectionStatusIcon
       {...props}

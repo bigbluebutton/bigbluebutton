@@ -7,7 +7,7 @@ import React, {
   useMemo,
   useCallback,
 } from 'react';
-import { useLazyQuery, useMutation } from '@apollo/client';
+import { useLazyQuery, useMutation, useReactiveVar } from '@apollo/client';
 import TextareaAutosize from 'react-autosize-textarea';
 import { ChatFormCommandsEnum } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-commands/chat/form/enums';
 import { FillChatFormCommandArguments } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-commands/chat/form/types';
@@ -28,9 +28,6 @@ import deviceInfo from '/imports/utils/deviceInfo';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 import useChat from '/imports/ui/core/hooks/useChat';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import {
-  textToMarkdown,
-} from './service';
 import { Chat } from '/imports/ui/Types/chat';
 import { Layout } from '../../../layout/layoutTypes';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
@@ -56,6 +53,7 @@ import {
   USER_LAST_SENT_PUBLIC_CHAT_MESSAGE_QUERY,
 } from './queries';
 import Auth from '/imports/ui/services/auth';
+import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
 
 const CLOSED_CHAT_LIST_KEY = 'closedChatList';
 const START_TYPING_THROTTLE_INTERVAL = 1000;
@@ -369,7 +367,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
     const handleSubmit = (e: React.FormEvent<HTMLFormElement> | React.KeyboardEvent<HTMLInputElement> | Event) => {
       e.preventDefault();
 
-      const msg = textToMarkdown(message);
+      const msg = message;
 
       if (msg.length < minMessageLength || chatSendMessageLoading) return;
 
@@ -660,6 +658,7 @@ const ChatMessageFormContainer: React.FC = () => {
   const intl = useIntl();
   const idChatOpen: string = layoutSelect((i: Layout) => i.idChatOpen);
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
+  const isConnected = useReactiveVar(connectionStatus.getConnectedStatusVar());
   const { data: chat } = useChat((c: Partial<Chat>) => ({
     participant: c?.participant,
     chatId: c?.chatId,
@@ -734,6 +733,8 @@ const ChatMessageFormContainer: React.FC = () => {
 
   const CHAT_CONFIG = window.meetingClientSettings.public.chat;
 
+  const disabled = locked && !isModerator && disablePrivateChat && !isPublicChat && !chat?.participant?.isModerator;
+
   return (
     <ChatMessageForm
       {...{
@@ -742,7 +743,7 @@ const ChatMessageFormContainer: React.FC = () => {
         idChatOpen,
         chatId: idChatOpen,
         connected: true, // TODO: monitoring network status
-        disabled: locked ?? false,
+        disabled: ((isPublicChat ? locked : disabled) || !isConnected) ?? false,
         title,
         isRTL,
         // if participant is not defined, it means that the chat is public

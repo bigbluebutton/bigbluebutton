@@ -14,8 +14,9 @@ import {
 
 import {
   colorBlueLightest,
-  colorGrayLight,
   colorGrayLightest,
+  colorGrayDark,
+  colorGrayLight,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { ChatTime as ChatTimeBase } from './message-header/styles';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
@@ -34,9 +35,14 @@ interface ChatContentProps {
   $editing: boolean;
   $highlight: boolean;
   $reactionPopoverIsOpen: boolean;
-  $focused: boolean;
   $keyboardFocused: boolean;
 }
+
+export const FlexColumn = styled.div`
+  display: flex;
+  flex-flow: column;
+  gap: ${smPaddingY};
+`;
 
 export const ChatWrapper = styled.div<ChatWrapperProps>`
   pointer-events: auto;
@@ -88,11 +94,15 @@ export const ChatContent = styled.div<ChatContentProps>`
   `}
 
   ${({
-    $editing, $reactionPopoverIsOpen, $focused, $keyboardFocused,
-  }) => ($reactionPopoverIsOpen || $editing || $focused || $keyboardFocused)
+    $editing, $reactionPopoverIsOpen, $keyboardFocused,
+  }) => ($reactionPopoverIsOpen || $editing || $keyboardFocused)
     && `
     background-color: ${colorBlueLightest} !important;
   `}
+
+  .chat-message-container:focus & {
+    background-color: ${colorBlueLightest} !important;
+  }
 `;
 
 export const ChatContentFooter = styled.div`
@@ -137,9 +147,14 @@ export const Container = styled.div<{ $sequence: number }>`
   display: flex;
   flex-direction: column;
   user-select: text;
+  outline: none;
 
   &:not(:first-of-type) {
     margin-top: calc((${fontSizeSmaller} + ${lgPadding} * 2) / 2);
+  }
+
+  &[data-focusable="false"] {
+    pointer-events: none;
   }
 `;
 
@@ -172,5 +187,16 @@ export const EditLabel = styled.span`
 
 export const ChatTime = styled(ChatTimeBase)`
   font-style: italic;
+<<<<<<< HEAD
   color: ${colorGrayLight};
+=======
+  color: ${colorGrayDark};
+  display: none;
+
+  .chat-message-container:focus &,
+  .chat-message-container-keyboard-focused &,
+  .chat-message-content:hover & {
+    display: flex;
+  }
+>>>>>>> 0147dbfcd1655dacc7ead8f18b464dbb7408b0df
 `;

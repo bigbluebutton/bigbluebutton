@@ -27,6 +27,10 @@ const intlMessages = defineMessages({
     id: 'app.muteWarning.label',
     description: 'Warning when someone speaks while muted',
   },
+  unmuteAudio: {
+    id: 'app.actionsBar.unmuteLabel',
+    description: 'Unmute audio button label',
+  },
 });
 
 class MutedAlert extends Component {
@@ -143,7 +147,7 @@ class MutedAlert extends Component {
           onClick={() => this.closeAlert()}
         >
           <span>
-            {intl.formatMessage(intlMessages.warningLabel, { 0: <Icon iconName="mute" /> })}
+            {intl.formatMessage(intlMessages.warningLabel, { 0: <><span class="sr-only">{intl.formatMessage(intlMessages.unmuteAudio)}</span><Icon iconName="mute" aria-hidden="true" /></> })}
           </span>
         </Styled.MuteWarning>
       </TooltipContainer>

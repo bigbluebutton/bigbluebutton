@@ -1,21 +1,25 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import { User } from '/imports/ui/Types/user';
 import {
   HookEvents,
 } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/enum';
 import { DataConsumptionHooks } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-consumption/enums';
-import { SubscribedEventDetails, UpdatedEventDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
+import { UpdatedEventDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
 import formatLoadedUserListDataFromGraphql from './utils';
 import { useLocalUserList } from '/imports/ui/core/hooks/useLoadedUserList';
+import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
+import { GeneralHookManagerProps } from '../../../types';
 
-const LoadedUserListHookContainer = () => {
-  const [sendSignal, setSendSignal] = useState(false);
+const LoadedUserListHookContainer = (prop: GeneralHookManagerProps) => {
   const [usersData] = useLocalUserList((user: Partial<User>) => ({
     userId: user.userId,
     name: user.name,
     role: user.role,
   }));
+
+  const { numberOfUses } = prop;
+  const previousNumberOfUses = usePreviousValue(numberOfUses);
 
   const updateLoadedUserListForPlugin = () => {
     window.dispatchEvent(new CustomEvent<
@@ -29,22 +33,15 @@ const LoadedUserListHookContainer = () => {
   };
 
   useEffect(() => {
-    updateLoadedUserListForPlugin();
-  }, [usersData, sendSignal]);
+    const previousNumberOfUsesValue = previousNumberOfUses || 0;
+    if (numberOfUses > previousNumberOfUsesValue) {
+      updateLoadedUserListForPlugin();
+    }
+  }, [numberOfUses]);
 
   useEffect(() => {
-    const updateHookUseLoadedUserList = ((event: CustomEvent<SubscribedEventDetails>) => {
-      if (event.detail.hook === DataConsumptionHooks.LOADED_USER_LIST) setSendSignal((signal) => !signal);
-    }) as EventListener;
-    window.addEventListener(
-      HookEvents.PLUGIN_SUBSCRIBED_TO_BBB_CORE, updateHookUseLoadedUserList,
-    );
-    return () => {
-      window.removeEventListener(
-        HookEvents.PLUGIN_SUBSCRIBED_TO_BBB_CORE, updateHookUseLoadedUserList,
-      );
-    };
-  }, []);
+    updateLoadedUserListForPlugin();
+  }, [usersData]);
 
   return null;
 };

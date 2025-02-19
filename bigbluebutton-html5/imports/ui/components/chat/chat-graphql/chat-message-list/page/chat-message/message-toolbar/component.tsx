@@ -2,7 +2,6 @@ import React, { useCallback } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
 import Popover from '@mui/material/Popover';
-import FocusTrap from 'focus-trap-react';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
 import ConfirmationModal from '/imports/ui/components/common/modal/confirmation/component';
 import {
@@ -85,6 +84,7 @@ interface ChatMessageToolbarProps {
   chatEditEnabled: boolean;
   chatDeleteEnabled: boolean;
   keyboardFocused: boolean;
+  setKeyboardFocused: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
@@ -92,7 +92,7 @@ const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
     messageId, chatId, message, username, onEmojiSelected, deleted,
     messageSequence, emphasizedMessage, own, amIModerator, isBreakoutRoom, locked,
     onReactionPopoverOpenChange, reactionPopoverIsOpen, hasToolbar, keyboardFocused,
-    chatDeleteEnabled, chatEditEnabled, chatReactionsEnabled, chatReplyEnabled,
+    chatDeleteEnabled, chatEditEnabled, chatReactionsEnabled, chatReplyEnabled, setKeyboardFocused,
   } = props;
   const [reactionsAnchor, setReactionsAnchor] = React.useState<Element | null>(
     null,
@@ -133,7 +133,7 @@ const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
 
   const deactivateFocusTrap = () => {
     if (keyboardFocused) {
-      window.dispatchEvent(new CustomEvent(ChatEvents.CHAT_KEYBOARD_FOCUS_MESSAGE_CANCEL));
+      setKeyboardFocused(false);
     }
   };
 
@@ -276,20 +276,7 @@ const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
     <Root
       $reactionPopoverIsOpen={reactionPopoverIsOpen}
     >
-      {keyboardFocused ? (
-        <FocusTrap
-          paused={reactionPopoverIsOpen}
-          focusTrapOptions={{
-            returnFocusOnDeactivate: false,
-            clickOutsideDeactivates: true,
-            onDeactivate() {
-              window.dispatchEvent(new CustomEvent(ChatEvents.CHAT_KEYBOARD_FOCUS_MESSAGE_CANCEL));
-            },
-          }}
-        >
-          {container}
-        </FocusTrap>
-      ) : container}
+      {container}
     </Root>
   );
 };

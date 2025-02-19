@@ -6,12 +6,14 @@ import {
   useLocalParticipant,
   useIsSpeaking,
   useConnectionState,
+  useConnectionQualityIndicator,
 } from '@livekit/components-react';
 import {
   ConnectionState,
   type Room,
   type InternalRoomOptions,
   type RoomConnectOptions,
+  ConnectionQuality,
 } from 'livekit-client';
 import Auth from '/imports/ui/services/auth';
 import AudioManager from '/imports/ui/services/audio-manager';
@@ -25,6 +27,7 @@ import {
 import { USER_SET_TALKING } from '/imports/ui/components/livekit/mutations';
 import { useIceServers } from '/imports/ui/components/livekit/hooks';
 import LKAutoplayModalContainer from '/imports/ui/components/livekit/autoplay-modal/container';
+import connectionStatus, { MetricStatus } from '/imports/ui/core/graphql/singletons/connectionStatus';
 
 interface BBBLiveKitRoomProps {
   url?: string;
@@ -50,6 +53,7 @@ const LiveKitObserver = ({
   const [setUserTalking] = useMutation(USER_SET_TALKING);
   const isSpeaking = useIsSpeaking(localParticipant);
   const connectionState = useConnectionState(room);
+  const { quality } = useConnectionQualityIndicator({ participant: localParticipant });
   const { data: currentUserData } = useCurrentUser((u) => ({
     voice: {
       joined: u.voice?.joined ?? false,
@@ -95,6 +99,36 @@ const LiveKitObserver = ({
       AudioManager.onAudioJoin();
     }
   }, [isAudioManagerConnected, currentUserData, connectionState]);
+
+  useEffect(() => {
+    let mappedQuality = MetricStatus.Normal;
+
+    logger.debug({
+      logCode: 'livekit_conn_quality_changed',
+      extraInfo: {
+        quality,
+      },
+    }, `LiveKit conn quality changed: ${quality}`);
+
+    switch (quality) {
+      case ConnectionQuality.Good:
+        mappedQuality = MetricStatus.Warning;
+        break;
+      case ConnectionQuality.Poor:
+        mappedQuality = MetricStatus.Danger;
+        break;
+      case ConnectionQuality.Lost:
+        mappedQuality = MetricStatus.Critical;
+        break;
+      case ConnectionQuality.Unknown:
+      case ConnectionQuality.Excellent:
+      default:
+        mappedQuality = MetricStatus.Normal;
+        break;
+    }
+
+    connectionStatus.setLiveKitConnectionStatus(mappedQuality);
+  }, [quality]);
 
   return null;
 };

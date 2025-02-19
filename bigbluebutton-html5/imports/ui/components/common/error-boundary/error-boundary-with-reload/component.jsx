@@ -82,6 +82,11 @@ const ErrorBoundaryWithReload = ({ children }) => {
         return;
       }
 
+      // Ignore errors caused by missing permissions on graphql
+      if (event.reason?.message?.toString().indexOf('Permission Denied') !== -1) {
+        return;
+      }
+
       triggerError();
     };
 

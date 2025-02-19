@@ -20,6 +20,7 @@ import {
 } from 'livekit-client';
 import {
   liveKitRoom,
+  getLKStats,
 } from '/imports/ui/services/livekit';
 
 const BRIDGE_NAME = 'livekit';
@@ -337,9 +338,13 @@ export default class LiveKitScreenshareBridge {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  getPeerConnection(): void {
-    // eslint-disable-next-line no-console
-    console.error('The Bridge must implement getPeerConnection');
+  getPeerConnection() {
+    return null;
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  async getStats(): Promise<Map<string, unknown>> {
+    return getLKStats();
   }
 
   setVolume(volume: number): number {

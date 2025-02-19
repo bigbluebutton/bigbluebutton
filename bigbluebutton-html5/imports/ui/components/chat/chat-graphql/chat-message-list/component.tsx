@@ -114,11 +114,21 @@ const dispatchLastSeen = () => setTimeout(() => {
   }
 }, 500);
 
+const findFirstFocusableChild = (element: HTMLElement) => {
+  const childElements = Array.from(element.children) as HTMLElement[];
+  return childElements.find((c) => (c as HTMLElement).dataset.focusable === 'true');
+};
+
+const findLastFocusableChild = (element: HTMLElement) => {
+  const childElements = Array.from(element.children) as HTMLElement[];
+  return childElements.reverse().find((c) => (c as HTMLElement).dataset.focusable === 'true');
+};
+
 const roving = (
   event: React.KeyboardEvent<HTMLElement>,
-  changeState: (el: HTMLElement | null) => void,
+  changeState: (el?: HTMLElement | null) => void,
   elementsList: HTMLElement,
-  element: HTMLElement | null,
+  element?: HTMLElement | null,
 ) => {
   const numberOfChilds = elementsList.childElementCount;
 
@@ -128,7 +138,7 @@ const roving = (
 
   if (event.keyCode === KEY_CODES.ARROW_DOWN) {
     event.preventDefault();
-    const firstElement = elementsList.firstChild as HTMLElement;
+    const firstElement = findFirstFocusableChild(elementsList);
     let elRef = element && numberOfChilds > 1 ? (element.nextSibling as HTMLElement) : firstElement;
 
     while (elRef && elRef.dataset.focusable !== 'true' && elRef.nextSibling) {
@@ -136,12 +146,13 @@ const roving = (
     }
 
     elRef = (elRef && elRef.dataset.focusable === 'true') ? elRef : firstElement;
+    elRef?.focus?.();
     changeState(elRef);
   }
 
   if (event.keyCode === KEY_CODES.ARROW_UP) {
     event.preventDefault();
-    const lastElement = elementsList.lastChild as HTMLElement;
+    const lastElement = findLastFocusableChild(elementsList);
     let elRef = element ? (element.previousSibling as HTMLElement) : lastElement;
 
     while (elRef && elRef.dataset.focusable !== 'true' && elRef.previousSibling) {
@@ -149,24 +160,14 @@ const roving = (
     }
 
     elRef = (elRef && elRef.dataset.focusable === 'true') ? elRef : lastElement;
+    elRef?.focus?.();
     changeState(elRef);
   }
 
   if ([KEY_CODES.SPACE, KEY_CODES.ENTER].includes(event.keyCode)) {
     const elRef = document.activeElement?.firstChild as HTMLElement;
+    elRef.focus();
     changeState(elRef);
-  }
-
-  if ([KEY_CODES.ARROW_RIGHT].includes(event.keyCode)) {
-    if (element?.dataset) {
-      const { sequence } = element.dataset;
-
-      window.dispatchEvent(new CustomEvent(ChatEvents.CHAT_KEYBOARD_FOCUS_MESSAGE_REQUEST, {
-        detail: {
-          sequence,
-        },
-      }));
-    }
   }
 };
 
@@ -190,7 +191,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
   const [userLoadedBackUntilPage, setUserLoadedBackUntilPage] = useState<number | null>(null);
   const [lastMessageCreatedAt, setLastMessageCreatedAt] = useState<string>('');
   const [followingTail, setFollowingTail] = React.useState(true);
-  const [selectedMessage, setSelectedMessage] = React.useState<HTMLElement | null>(null);
+  const selectedMessageRef = React.useRef<HTMLElement | null>();
   const [showStartSentinel, setShowStartSentinel] = React.useState(false);
   const {
     childRefProxy: endSentinelRefProxy,
@@ -299,7 +300,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
         return prev;
       });
     }
-  }, [isStartSentinelVisible, followingTail]);
+  }, [isStartSentinelVisible]);
 
   useEffect(() => {
     setter({
@@ -430,9 +431,9 @@ const ChatMessageList: React.FC<ChatListProps> = ({
     if (messageListRef.current) {
       roving(
         e,
-        setSelectedMessage,
+        (el) => { selectedMessageRef.current = el; },
         messageListRef.current,
-        selectedMessage,
+        selectedMessageRef.current,
       );
     }
   };
@@ -467,6 +468,16 @@ const ChatMessageList: React.FC<ChatListProps> = ({
                 setShowStartSentinel(userScrolledUp);
               }
             }}
+            onWheel={(e) => {
+              if (e.deltaY < 0 && isStartSentinelVisible) {
+                setUserLoadedBackUntilPage((prev) => {
+                  if (typeof prev === 'number' && prev > 0) {
+                    return prev - 1;
+                  }
+                  return prev;
+                });
+              }
+            }}
             data-test="chatMessages"
             ref={updateRefs}
           >
@@ -487,7 +498,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
               tabIndex={hasMessageToolbar ? 0 : -1}
               onKeyDown={rove}
               onBlur={() => {
-                setSelectedMessage(null);
+                selectedMessageRef.current = null;
               }}
             >
               {Array.from({ length: pagesToLoad }, (_v, k) => k + (firstPageToLoad)).map((page) => {
@@ -502,9 +513,6 @@ const ChatMessageList: React.FC<ChatListProps> = ({
                     chatId={chatId}
                     markMessageAsSeen={markMessageAsSeen}
                     scrollRef={messageListContainerRef}
-                    focusedId={selectedMessage?.dataset.sequence
-                      ? Number.parseInt(selectedMessage?.dataset.sequence, 10)
-                      : null}
                     meetingDisablePublicChat={!!meeting?.lockSettings?.disablePublicChat}
                     meetingDisablePrivateChat={!!meeting?.lockSettings?.disablePrivateChat}
                     currentUserDisablePublicChat={!!currentUser?.userLockSettings?.disablePublicChat}

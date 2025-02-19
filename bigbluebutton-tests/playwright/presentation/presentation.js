@@ -106,6 +106,7 @@ class Presentation extends MultiUsers {
     await this.modPage.setHeightWidthViewPortSize();
 
     // Skip check for screenshot on ci, due to the ci and the local machine generating two different image sizes
+    // also because the slide location is different and inconsistent (it initially shakes to stabilize and then set incorrect location)
     if (!CI) {
       const modWhiteboardLocator = this.modPage.getLocator(e.whiteboard);
       await expect(modWhiteboardLocator).toHaveScreenshot('moderator-new-presentation-screenshot.png', {
@@ -128,6 +129,7 @@ class Presentation extends MultiUsers {
     await expect(imageURLFirstPresentation).not.toBe(imageURLSecondPresentation);
 
     // Skip check for screenshot on ci, due to the ci and the local machine generating two different image sizes
+    // also because the slide location is different and inconsistent (it initially shakes to stabilize and then set incorrect location)
     if (!CI) {
       await expect(userWhiteboardLocator).toHaveScreenshot('viewer-new-presentation-screenshot.png', {
         maxDiffPixels: 1000,
@@ -164,7 +166,7 @@ class Presentation extends MultiUsers {
     await expect(imageURLFirstPresentation).not.toBe(imageURLSecondPresentation);
 
     // Skip check for screenshot on ci, due to the ci and the local machine generating two different image sizes
-    if(!CI) {
+    if (!CI) {
       await expect(modWhiteboardLocator).toHaveScreenshot('moderator-png-presentation-screenshot.png', {
         maxDiffPixels: 1000,
       });
@@ -189,7 +191,7 @@ class Presentation extends MultiUsers {
     await this.userPage.setHeightWidthViewPortSize();
 
     // Skip check for screenshot on ci, due to the ci and the local machine generating two different image sizes
-    if(!CI) {
+    if (!CI) {
       await expect(modWhiteboardLocator).toHaveScreenshot('moderator-pptx-presentation-screenshot.png', {
         maxDiffPixels: 1000,
       });
@@ -215,7 +217,7 @@ class Presentation extends MultiUsers {
     await this.userPage.setHeightWidthViewPortSize();
 
     // Skip check for screenshot on ci, due to the ci and the local machine generating two different image sizes
-    if(!CI) {
+    if (!CI) {
       await expect(modWhiteboardLocator).toHaveScreenshot('moderator-txt-presentation-screenshot.png', {
         maxDiffPixels: 1000,
       });
@@ -232,7 +234,7 @@ class Presentation extends MultiUsers {
     const userSlides0 = await getSlideOuterHtml(this.userPage);
     await expect(modSlides0).toEqual(userSlides0);
 
-    await uploadMultiplePresentations(this.modPage, [e.uploadPresentationFileName, e.questionSlideFileName]);
+    await uploadMultiplePresentations(this.modPage, [e.questionSlideFileName, e.uploadPresentationFileName]);
 
     const modSlides1 = await getSlideOuterHtml(this.modPage);
     const userSlides1 = await getSlideOuterHtml(this.userPage);
@@ -261,23 +263,25 @@ class Presentation extends MultiUsers {
     await expect(Number(width2), 'should the last width be greater than the first one').toBeGreaterThan(Number(width1));
   }
 
-  async enableAndDisablePresentationDownload(testInfo) {
+  async enableAndDisablePresentationDownload() {
     const { originalPresentationDownloadable } = getSettings();
 
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     // enable original presentation download
     await this.modPage.waitAndClick(e.actions);
     await this.modPage.waitAndClick(e.managePresentations);
-    if(!originalPresentationDownloadable) {
+    if (!originalPresentationDownloadable) {
       await this.modPage.hasElement(e.presentationOptionsDownloadBtn, 'should display the option download button for the presentation');
       return this.modPage.wasRemoved(e.enableOriginalPresentationDownloadBtn, 'should the original presentation download presentation be removed');
     }
     await this.modPage.waitAndClick(e.presentationOptionsDownloadBtn);
     await this.modPage.waitAndClick(e.enableOriginalPresentationDownloadBtn);
-    await this.userPage.hasElement(e.smallToastMsg, 'should display the small toast message for the attendee');
-    await this.userPage.hasElement(e.presentationDownloadBtn, 'should display the presentation download button for the attendee');
     await this.userPage.waitForSelector(e.whiteboard);
+    // check for the download buttons displayed
+    await this.userPage.hasElement(e.currentPresentationToast, 'should display the current presentation toast notification for the attendee');
+    await this.userPage.hasElement(e.toastDownload, 'should display download button on the toast notification for the attendee');
     await this.userPage.hasElement(e.presentationDownloadBtn, 'should display the presentation download button for the attendee');
+    await this.modPage.hasElement(e.presentationDownloadBtn, 'should display the presentation download button for the attendee');
     /**
      * the following steps throwing "Error: ENOENT: no such file or directory" at the end of execution
      * due to somehow it's trying to take the screenshot of the tab that opened for the file download
@@ -292,6 +296,7 @@ class Presentation extends MultiUsers {
     await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard for the moderator');
     await this.modPage.wasRemoved(e.presentationDownloadBtn, 'should not display the presentation download button for the moderator');
     await this.userPage.wasRemoved(e.presentationDownloadBtn, 'should not display the presentation download button for the attendee');
+    await this.userPage.wasRemoved(e.toastDownload, 'should not display the download button on the toast notification for the attendee');
   }
 
   async sendPresentationToDownload(testInfo) {
@@ -301,7 +306,7 @@ class Presentation extends MultiUsers {
     await this.modPage.waitAndClick(e.actions);
     await this.modPage.waitAndClick(e.managePresentations);
     await this.modPage.waitAndClick(e.presentationOptionsDownloadBtn);
-    if(!presentationWithAnnotationsDownloadable) {
+    if (!presentationWithAnnotationsDownloadable) {
       await this.modPage.hasElement(e.presentationOptionsDownloadBtn);
       return this.modPage.wasRemoved(e.sendPresentationInCurrentStateBtn);
     }
