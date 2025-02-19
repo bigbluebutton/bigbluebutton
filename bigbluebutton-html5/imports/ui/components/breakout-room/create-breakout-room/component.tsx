@@ -10,6 +10,8 @@ import Styled from './styles';
 import {
   getBreakouts,
   getBreakoutsResponse,
+  getMeetingGroup,
+  getMeetingGroupResponse,
   getUser,
   getUserResponse,
 } from './queries';
@@ -49,6 +51,7 @@ interface CreateBreakoutRoomProps extends CreateBreakoutRoomContainerProps {
   runningRooms: getBreakoutsResponse['breakoutRoom'],
   presentations: Array<Presentation>,
   currentPresentation: string,
+  groups: getMeetingGroupResponse['meeting_group'],
 }
 
 const intlMessages = defineMessages({
@@ -228,6 +231,7 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
   runningRooms,
   presentations,
   currentPresentation,
+  groups,
 }) => {
   const { isMobile } = deviceInfo;
   const intl = useIntl();
@@ -567,6 +571,7 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
           getRoomPresentation={getRoomPresentation}
           isUpdate={isUpdate}
           setNumberOfRooms={setNumberOfRooms}
+          groups={groups}
         />
       </Styled.Content>
     </ModalFullscreen>
@@ -607,6 +612,12 @@ const CreateBreakoutRoomContainer: React.FC<CreateBreakoutRoomContainerProps> = 
     fetchPolicy: 'network-only',
   });
 
+  const {
+    data: meetingGroupData,
+    loading: meetingGroupLoading,
+    error: meetingGroupError,
+  } = useQuery<getMeetingGroupResponse>(getMeetingGroup);
+
   const { data: presentationData } = useDeduplicatedSubscription(PRESENTATIONS_SUBSCRIPTION);
   const presentations = presentationData?.pres_presentation || [];
   const currentPresentation = presentations.find((p: Presentation) => p.current)?.presentationId || '';
@@ -620,9 +631,9 @@ const CreateBreakoutRoomContainer: React.FC<CreateBreakoutRoomContainerProps> = 
     setFetchedBreakouts(true);
   }
 
-  if (breakoutsLoading) return null;
+  if (breakoutsLoading || meetingGroupLoading) return null;
 
-  if (usersError || breakoutsError) {
+  if (usersError || breakoutsError || meetingGroupError) {
     notify(intl.formatMessage({
       id: 'app.error.issueLoadingData',
     }), 'warning', 'warning');
@@ -630,10 +641,9 @@ const CreateBreakoutRoomContainer: React.FC<CreateBreakoutRoomContainerProps> = 
       {
         logCode: 'subscription_Failed',
         extraInfo: {
-          error: usersError || breakoutsError,
+          error: usersError || breakoutsError || meetingGroupError,
         },
       },
-      'Subscription failed to load',
     );
     return null;
   }
@@ -649,6 +659,7 @@ const CreateBreakoutRoomContainer: React.FC<CreateBreakoutRoomContainerProps> = 
       runningRooms={breakoutsData?.breakoutRoom ?? []}
       presentations={presentations}
       currentPresentation={currentPresentation}
+      groups={meetingGroupData?.meeting_group ?? []}
     />
   );
 };

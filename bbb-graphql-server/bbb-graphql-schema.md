@@ -633,6 +633,7 @@ Permission: Restricted to Presenter
 Permission: Restricted to Moderators
 ### Fields:
 - `groupId`
+- `groupIndex`
 - `name`
 - `usersExtId`
 

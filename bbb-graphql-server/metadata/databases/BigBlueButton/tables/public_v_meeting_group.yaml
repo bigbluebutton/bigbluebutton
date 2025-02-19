@@ -11,6 +11,7 @@ select_permissions:
     permission:
       columns:
         - groupId
+        - groupIndex
         - name
         - usersExtId
       filter:
