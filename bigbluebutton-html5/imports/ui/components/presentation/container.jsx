@@ -262,7 +262,6 @@ const PresentationContainer = (props) => {
           isViewersAnnotationsLocked,
           setPresentationIsOpen: MediaService.setPresentationIsOpen,
           isDefaultPresentation: currentPresentationPage?.isDefaultPresentation,
-          presentationName: currentPresentationPage?.presentationName,
           presentationAreaSize,
           currentUser,
           hasPoll,

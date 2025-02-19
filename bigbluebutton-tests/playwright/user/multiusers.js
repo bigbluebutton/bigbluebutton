@@ -2,11 +2,9 @@ const { expect } = require('@playwright/test');
 const playwright = require("playwright");
 const Page = require('../core/page');
 const e = require('../core/elements');
-const { waitAndClearDefaultPresentationNotification } = require('../notifications/util');
 const { sleep } = require('../core/helpers');
 const { checkTextContent, checkElementLengthEqualTo } = require('../core/util');
 const { checkAvatarIcon, checkIsPresenter, checkMutedUsers } = require('./util');
-const { getNotesLocator } = require('../sharednotes/util');
 const { getSettings } = require('../core/settings');
 const { ELEMENT_WAIT_TIME } = require('../core/constants');
 
@@ -16,11 +14,8 @@ class MultiUsers {
     this.context = context;
   }
 
-  async initPages(page1, waitAndClearDefaultPresentationNotificationModPage = false) {
+  async initPages(page1) {
     await this.initModPage(page1);
-    if (waitAndClearDefaultPresentationNotificationModPage) {
-      await waitAndClearDefaultPresentationNotification(this.modPage);
-    }
     await this.initUserPage();
   }
 

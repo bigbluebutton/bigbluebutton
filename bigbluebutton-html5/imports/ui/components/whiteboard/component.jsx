@@ -22,6 +22,8 @@ import SlideCalcUtil, { HUNDRED_PERCENT } from '/imports/utils/slideCalcUtils';
 import meetingClientSettingsInitialValues from '/imports/ui/core/initial-values/meetingClientSettings';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import KEY_CODES from '/imports/utils/keyCodes';
+import { debounce } from '/imports/utils/debounce';
+import logger from '/imports/startup/client/logger';
 import Styled from './styles';
 import {
   mapLanguage,
@@ -154,6 +156,7 @@ const Whiteboard = React.memo((props) => {
   const bgSelectedRef = React.useRef(false);
   const lastVisibilityStateRef = React.useRef('');
   const mountedTimeoutIdRef = useRef(null);
+  const presentationIdRef = React.useRef(presentationId);
 
   const [pageZoomMap, setPageZoomMap] = useState(() => {
     try {
@@ -195,6 +198,28 @@ const Whiteboard = React.memo((props) => {
     };
   };
 
+  const debouncedUpdateShapes = debounce(() => {
+    if (shapes && Object.keys(shapes).length > 0) {
+      prevShapesRef.current = shapes;
+      tlEditorRef.current?.store.mergeRemoteChanges(() => {
+        const remoteShapesArray = Object.values(prevShapesRef.current).reduce((acc, shape) => {
+          if (shape.meta?.presentationId === presentationIdRef.current || shape?.whiteboardId?.includes(presentationIdRef.current)) {
+            acc.push(sanitizeShape(shape));
+          }
+          return acc;
+        }, []);
+
+        if (pageChanged) {
+          cleanupStore(`page:${parseInt(curPageIdRef.current, 10)}`);
+          tlEditorRef.current?.store.put(assets);
+          tlEditorRef.current?.store.put(bgShape);
+        }
+
+        tlEditorRef.current?.store.put(remoteShapesArray);
+      });
+    }
+  }, 175);
+
   React.useEffect(() => {
     localStorage.setItem('pageZoomMap', JSON.stringify(pageZoomMap));
   }, [pageZoomMap]);
@@ -214,6 +239,10 @@ const Whiteboard = React.memo((props) => {
   React.useEffect(() => {
     whiteboardIdRef.current = whiteboardId;
   }, [whiteboardId]);
+
+  React.useEffect(() => {
+    presentationIdRef.current = presentationId;
+  }, [presentationId]);
 
   React.useEffect(() => {
     hasWBAccessRef.current = hasWBAccess;
@@ -238,13 +267,7 @@ const Whiteboard = React.memo((props) => {
   }, [fitToWidth]);
 
   React.useEffect(() => {
-    if (shapes && Object.keys(shapes).length > 0) {
-      prevShapesRef.current = shapes;
-      const remoteShapesArray = Object.values(shapes).map((shape) => sanitizeShape(shape));
-      tlEditorRef.current?.store.mergeRemoteChanges(() => {
-        tlEditorRef.current?.store.put(remoteShapesArray);
-      });
-    }
+    debouncedUpdateShapes();
   }, [shapes]);
 
   React.useEffect(() => {
@@ -679,7 +702,7 @@ const Whiteboard = React.memo((props) => {
     }
   }
 
-  const pollInnerWrapperWidthUntilStable = (
+  const pollInnerWrapperDimensionsUntilStable = (
     onReady,
     options = {
       maxTries: 120,
@@ -687,44 +710,53 @@ const Whiteboard = React.memo((props) => {
     },
     currentTry = 0,
     stableCount = 0,
-    lastWidth = 0
+    lastDimensions = { width: 0, height: 0 }
   ) => {
     const container = document.querySelector('[data-test="presentationContainer"]');
     const innerWrapper = document.getElementById('presentationInnerWrapper');
-    const containerWidth = container ? container.offsetWidth : 0;
-    const innerWrapperWidth = innerWrapper ? innerWrapper.offsetWidth : 0;
 
-    if (innerWrapperWidth <= 0) {
+    const containerWidth = container ? container.offsetWidth : 0;
+    const containerHeight = container ? container.offsetHeight : 0;
+    const innerWrapperWidth = innerWrapper ? innerWrapper.offsetWidth : 0;
+    const innerWrapperHeight = innerWrapper ? innerWrapper.offsetHeight : 0;
+
+    if (innerWrapperWidth <= 0 || innerWrapperHeight <= 0) {
       stableCount = 0;
     } else {
-      if (innerWrapperWidth === lastWidth) {
+      if (
+        innerWrapperWidth === lastDimensions.width &&
+        innerWrapperHeight === lastDimensions.height
+      ) {
         stableCount++;
       } else {
         stableCount = 0;
-        lastWidth = innerWrapperWidth;
+        lastDimensions = { width: innerWrapperWidth, height: innerWrapperHeight };
       }
     }
 
     if (stableCount >= options.stabilityFrames) {
-      onReady({ containerWidth, innerWrapperWidth });
+      onReady({ containerWidth, containerHeight, innerWrapperWidth, innerWrapperHeight });
       return;
     }
 
     if (currentTry < options.maxTries) {
       requestAnimationFrame(() => {
-        pollInnerWrapperWidthUntilStable(
+        pollInnerWrapperDimensionsUntilStable(
           onReady,
           options,
           currentTry + 1,
           stableCount,
-          lastWidth
+          lastDimensions
         );
       });
     } else {
-      logger.warn({ logCode: 'pollInnerWrapperWidthUntilStable' }, `Failed to store viewbox dimensions`);
-      onReady({ containerWidth, innerWrapperWidth });
+      logger.warn(
+        { logCode: 'pollInnerWrapperDimensionsUntilStable' },
+        `Failed to store viewbox dimensions`
+      );
+      onReady({ containerWidth, containerHeight, innerWrapperWidth, innerWrapperHeight });
     }
-  }
+  };
 
   const handleTldrawMount = (editor) => {
     tlEditorRef.current = editor;
@@ -806,6 +838,7 @@ const Whiteboard = React.memo((props) => {
               meta: {
                 ...record.meta,
                 createdBy: currentUser?.userId,
+                presentationId: presentationIdRef.current,
               },
             };
 
@@ -822,6 +855,7 @@ const Whiteboard = React.memo((props) => {
             meta: {
               createdBy,
               updatedBy: currentUser?.userId,
+              presentationId: presentationIdRef.current,
             },
           };
 
@@ -1061,7 +1095,7 @@ const Whiteboard = React.memo((props) => {
       }
     }
 
-    pollInnerWrapperWidthUntilStable(() => {
+    pollInnerWrapperDimensionsUntilStable(() => {
       adjustCameraOnMount(!isPresenterRef.current);
     });
   };
@@ -1404,9 +1438,24 @@ const Whiteboard = React.memo((props) => {
       });
     };
 
-    const timeoutId = setTimeout(handleResize, 300);
-    return () => clearTimeout(timeoutId);
-  }, [presentationAreaHeight, presentationAreaWidth, curPageId, presentationId]);
+    pollInnerWrapperDimensionsUntilStable(() => {
+      syncCameraWithPresentationArea({
+        tlEditorRef,
+        isPresenter,
+        currentPresentationPageRef,
+        presentationAreaWidth,
+        presentationAreaHeight,
+        zoomValueRef,
+        fitToWidthRef,
+        curPageIdRef,
+        initialViewBoxWidthRef,
+        initialViewBoxHeightRef,
+      });
+    },{
+        maxTries: 120,
+        stabilityFrames: 35,
+    });
+  }, [presentationHeight, presentationWidth, curPageId, presentationId]);
 
   React.useEffect(() => {
     if (!isPresenter
@@ -1540,11 +1589,16 @@ const Whiteboard = React.memo((props) => {
   const cleanupStore = (currentPageId) => {
     const allRecords = tlEditorRef.current.store.allRecords();
     const shapeIdsToRemove = allRecords
-      .filter((record) => record.typeName === 'shape' && record.parentId && record.parentId !== currentPageId)
+      .filter((record) => {
+        return record.typeName === 'shape' && record.parentId;
+      })
+      .filter((record) => {
+        return record?.meta?.presentationId !== presentationIdRef.current || !record?.meta?.presentationId;
+      })
       .map((shape) => shape.id);
 
     if (shapeIdsToRemove.length > 0) {
-      tlEditorRef.current.deleteShapes(shapeIdsToRemove);
+      tlEditorRef.current?.store.remove([...shapeIdsToRemove]);
     }
   };
 

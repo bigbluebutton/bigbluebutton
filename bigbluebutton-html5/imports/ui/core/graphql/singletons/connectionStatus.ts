@@ -39,6 +39,8 @@ class ConnectionStatus {
 
   private rttValue = makeVar(0);
 
+  private subscriptionFailed = makeVar(false);
+
   // @ts-ignore
   private networkData: ReactiveVar<NetworkData> = makeVar({
     // These are placeholder values for the connstats modal to render something
@@ -247,6 +249,21 @@ class ConnectionStatus {
     return this.connected;
   }
 
+  public setSubscriptionFailed(value: boolean): void {
+    if (value !== this.subscriptionFailed()) {
+      logger.info({ logCode: 'stats_subscription_state' }, `Subscription failed status changed to ${value}`);
+      this.subscriptionFailed(value);
+    }
+  }
+
+  public getSubscriptionFailed() {
+    return this.subscriptionFailed();
+  }
+
+  public getSubscriptionFailedVar() {
+    return this.subscriptionFailed;
+  }
+
   public addUserNetworkHistory(
     user: User,
     lastUnstableStatus: string,
@@ -274,6 +291,6 @@ class ConnectionStatus {
   }
 }
 
-const connectionsStatusSingleton = new ConnectionStatus();
+const connectionStatus = new ConnectionStatus();
 
-export default connectionsStatusSingleton;
+export default connectionStatus;

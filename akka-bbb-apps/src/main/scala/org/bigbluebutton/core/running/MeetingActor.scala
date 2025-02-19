@@ -587,7 +587,6 @@ class MeetingActor(
         padsApp2x.handle(m, liveMeeting, msgBus)
         updateUserLastActivity(m.body.userId)
       case m: PadContentSysMsg => padsApp2x.handle(m, liveMeeting, msgBus)
-      case m: PadPatchSysMsg   => padsApp2x.handle(m, liveMeeting, msgBus)
       case m: PadUpdatePubMsg  => padsApp2x.handle(m, liveMeeting, msgBus)
       case m: PadPinnedReqMsg =>
         padsApp2x.handle(m, liveMeeting, msgBus)
@@ -643,7 +642,7 @@ class MeetingActor(
       case m: PresentationUploadedFileVirusErrorSysPubMsg      => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: PresentationUploadedFileScanFailedErrorSysPubMsg => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: PresentationPageGeneratedSysPubMsg               => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
-      case m: SetPresentationRenderedInToastPubMsg             => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: SetPresentationUploadCompletionNotifiedPubMsg    => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: PresentationPageCountErrorSysPubMsg              => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: PresentationUploadTokenReqMsg                    => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: ResizeAndMovePagePubMsg =>
@@ -655,9 +654,7 @@ class MeetingActor(
       case m: PresentationConversionEndedSysMsg       => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
 
       // Caption
-      case m: EditCaptionHistoryPubMsg                => captionApp2x.handle(m, liveMeeting, msgBus)
       case m: AddCaptionLocalePubMsg                  => captionApp2x.handle(m, liveMeeting, msgBus)
-      case m: SendCaptionHistoryReqMsg                => captionApp2x.handle(m, liveMeeting, msgBus)
       case m: CaptionSubmitTranscriptPubMsg           => captionApp2x.handle(m, liveMeeting, msgBus)
 
       // Guests

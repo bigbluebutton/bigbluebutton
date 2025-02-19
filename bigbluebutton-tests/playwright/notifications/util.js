@@ -1,5 +1,4 @@
 const { expect } = require('@playwright/test');
-const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 const e = require('../core/elements');
 const { sleep } = require('../core/helpers');
 
@@ -48,20 +47,6 @@ async function privateChatMessageToast(page2) {
   await page2.waitAndClick(e.sendButton);
 }
 
-async function waitAndClearNotification(testPage) {
-  await testPage.waitAndClick(e.smallToastMsg, ELEMENT_WAIT_LONGER_TIME);
-  await testPage.wasRemoved(e.smallToastMsg, 'should the new small toast message disappear');
-}
-
-async function waitAndClearDefaultPresentationNotification(testPage) {
-  await testPage.hasElement(e.whiteboard, 'should the whiteboard appear on the meeting', ELEMENT_WAIT_LONGER_TIME);
-  const hasCurrentPresentationToast = await testPage.checkElement(e.currentPresentationToast);
-  if (hasCurrentPresentationToast) {
-    await testPage.waitAndClick(e.currentPresentationToast, ELEMENT_WAIT_LONGER_TIME);
-    await testPage.wasRemoved(e.currentPresentationToast, 'should disappear the current presentation toast');
-  }
-}
-
 exports.privateChatMessageToast = privateChatMessageToast;
 exports.publicChatMessageToast = publicChatMessageToast;
 exports.enableUserJoinPopup = enableUserJoinPopup;
@@ -69,5 +54,3 @@ exports.checkNotificationText = checkNotificationText;
 exports.checkNotificationIcon = checkNotificationIcon;
 exports.enableChatPopup = enableChatPopup;
 exports.saveSettings = saveSettings;
-exports.waitAndClearNotification = waitAndClearNotification;
-exports.waitAndClearDefaultPresentationNotification = waitAndClearDefaultPresentationNotification;

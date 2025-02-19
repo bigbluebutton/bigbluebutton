@@ -2,9 +2,6 @@ const { test } = require('../fixtures');
 const { encodeCustomParams } = require('../parameters/util');
 const { Presentation } = require('./presentation');
 const { linkIssue } = require('../core/helpers');
-const { PARAMETER_HIDE_PRESENTATION_TOAST } = require('../core/constants');
-
-const hidePresentationToast = encodeCustomParams(PARAMETER_HIDE_PRESENTATION_TOAST);
 
 test.describe.parallel('Presentation', { tag: '@ci' }, () => {
   // https://docs.bigbluebutton.org/3.0/testing/release-testing/#navigation-automated
@@ -39,7 +36,7 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
   // https://docs.bigbluebutton.org/3.0/testing/release-testing/#fit-to-width-option
   test('Presentation fit to width', async ({ browser, context, page }) => {
     const presentation = new Presentation(browser, context);
-    await presentation.initModPage(page, true, { joinParameter: hidePresentationToast });
+    await presentation.initModPage(page, true);
     await presentation.initUserPage(true, context);
     await presentation.fitToWidthTest();
   });
@@ -58,8 +55,8 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
 
   test('Hide Presentation Toolbar', async ({ browser, context, page }) => {
     const presentation = new Presentation(browser, context);
-    await presentation.initModPage(page, true, { joinParameter: hidePresentationToast });
-    await presentation.initUserPage(page, context, { joinParameter: hidePresentationToast });
+    await presentation.initModPage(page, true);
+    await presentation.initUserPage(page, context);
     await presentation.hidePresentationToolbar();
   });
 
@@ -82,20 +79,20 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
     // https://docs.bigbluebutton.org/3.0/testing/release-testing/#uploading-a-presentation-automated
     test('Upload single presentation', async ({ browser, context, page }) => {
       const presentation = new Presentation(browser, context);
-      await presentation.initPages(page, true);
+      await presentation.initPages(page);
       await presentation.uploadSinglePresentationTest();
     });
 
     test('Upload Other Presentations Format', async ({ browser, context, page }) => {
       const presentation = new Presentation(browser, context);
-      await presentation.initPages(page, true);
+      await presentation.initPages(page);
       await presentation.uploadOtherPresentationsFormat();
     });
 
     // https://docs.bigbluebutton.org/3.0/testing/release-testing/#uploading-multiple-presentations-automated
     test('Upload multiple presentations', async ({ browser, context, page }) => {
       const presentation = new Presentation(browser, context);
-      await presentation.initPages(page, true);
+      await presentation.initPages(page);
       await presentation.uploadMultiplePresentationsTest();
     });
 

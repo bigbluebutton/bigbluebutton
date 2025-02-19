@@ -20,6 +20,7 @@ import LeaveMeetingButtonContainer from './leave-meeting-button/container';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import Tooltip from '/imports/ui/components/common/tooltip/component';
 import SessionDetailsModal from '/imports/ui/components/session-details/component';
+import Icon from '/imports/ui/components/common/icon/icon-ts/component';
 
 const intlMessages = defineMessages({
   toggleUserListLabel: {
@@ -386,7 +387,10 @@ class NavBar extends Component {
                 onClick={() => this.setModalIsOpen(true)}
               >
                 <Tooltip title={intl.formatMessage(intlMessages.openDetailsTooltip)}>
-                  <span>{presentationTitle}</span>
+                  <span>
+                    {presentationTitle}
+                    <Icon iconName="device_list_selector" />
+                  </span>
                 </Tooltip>
               </Styled.PresentationTitle>
               {this.renderModal(isModalOpen, this.setModalIsOpen, "low", SessionDetailsModal)}

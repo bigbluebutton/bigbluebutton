@@ -519,7 +519,7 @@ Permission: Restricted to Presenter
 - `name`
 - `presentationId`
 - `removable`
-- `renderedInToast`
+- `uploadCompletionNotified`
 - `totalPages`
 - `totalPagesUploaded`
 - `uploadCompleted`
@@ -633,6 +633,7 @@ Permission: Restricted to Presenter
 Permission: Restricted to Moderators
 ### Fields:
 - `groupId`
+- `groupIndex`
 - `name`
 - `usersExtId`
 

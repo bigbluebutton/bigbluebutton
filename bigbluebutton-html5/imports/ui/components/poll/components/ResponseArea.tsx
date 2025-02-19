@@ -44,7 +44,6 @@ interface ResponseAreaProps {
   question: string | string[];
   setError: (err: string) => void;
   setIsPolling: (isPolling: boolean) => void;
-  hasCurrentPresentation: boolean;
   handleToggle: () => void;
   error: string | null;
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement>, i: number) => void;
@@ -61,7 +60,6 @@ const ResponseArea: React.FC<ResponseAreaProps> = ({
   question,
   setError,
   setIsPolling,
-  hasCurrentPresentation,
   handleToggle,
   error,
   handleInputChange,
@@ -141,7 +139,6 @@ const ResponseArea: React.FC<ResponseAreaProps> = ({
           </Styled.PollParagraph>
         )}
         <StartPollButton
-          hasCurrentPresentation={hasCurrentPresentation}
           question={question}
           isMultipleResponse={isMultipleResponse}
           optList={optList}

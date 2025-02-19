@@ -9,8 +9,6 @@ import { addAlert } from '../screenreader-alert/service';
 import { PANELS, ACTIONS } from '../layout/enums';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { POLL_CANCEL } from './mutations';
-import { GetHasCurrentPresentationResponse, getHasCurrentPresentation } from './queries';
-import EmptySlideArea from './components/EmptySlideArea';
 import { getSplittedQuestionAndOptions, pollTypes, validateInput } from './service';
 import Toggle from '/imports/ui/components/common/switch/component';
 import Styled from './styles';
@@ -19,7 +17,6 @@ import ResponseTypes from './components/ResponseTypes';
 import PollQuestionArea from './components/PollQuestionArea';
 import LiveResultContainer from './components/LiveResult';
 import Session from '/imports/ui/services/storage/in-memory';
-import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 import { useStorageKey } from '../../services/storage/hooks';
 
 const intlMessages = defineMessages({
@@ -231,13 +228,11 @@ interface PollCreationPanelProps {
     value: string | boolean;
   }) => void;
   hasPoll: boolean;
-  hasCurrentPresentation: boolean;
 }
 
 const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
   layoutContextDispatch,
   hasPoll,
-  hasCurrentPresentation,
 }) => {
   const POLL_SETTINGS = window.meetingClientSettings.public.poll;
   const ALLOW_CUSTOM_INPUT = POLL_SETTINGS.allowCustomResponseInput;
@@ -466,7 +461,6 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
   }, [textareaRef]);
 
   const pollOptions = () => {
-    if (!hasCurrentPresentation) return <EmptySlideArea />;
     if (hasPoll) return <LiveResultContainer />;
     return (
       <>
@@ -541,7 +535,6 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
             setQuestion('');
             setQuestionAndOptions('');
           }}
-          hasCurrentPresentation={hasCurrentPresentation}
           handleToggle={handleToggle}
           error={error}
           handleInputChange={handleInputChange}
@@ -623,14 +616,8 @@ const PollCreationPanelContainer: React.FC = () => {
     };
   });
 
-  const {
-    data: getHasCurrentPresentationData,
-    loading: getHasCurrentPresentationLoading,
-  } = useDeduplicatedSubscription<GetHasCurrentPresentationResponse>(getHasCurrentPresentation);
-
   if (currentUserLoading || !currentUser) return null;
   if (currentMeetingLoading || !currentMeeting) return null;
-  if (getHasCurrentPresentationLoading || !getHasCurrentPresentationData) return null;
 
   if (!currentUser.presenter && sidebarContentPanel === PANELS.POLL) {
     layoutContextDispatch({
@@ -647,7 +634,6 @@ const PollCreationPanelContainer: React.FC = () => {
     <PollCreationPanel
       layoutContextDispatch={layoutContextDispatch}
       hasPoll={currentMeeting.componentsFlags?.hasPoll ?? false}
-      hasCurrentPresentation={getHasCurrentPresentationData.pres_page_aggregate.aggregate.count > 0}
     />
   );
 };
