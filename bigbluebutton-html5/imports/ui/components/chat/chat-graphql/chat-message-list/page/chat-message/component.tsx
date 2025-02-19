@@ -454,7 +454,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
           ),
         };
     }
-  }, [message.message]);
+  }, [message.message, intl.locale]);
 
   sameSender = message.messageType === ChatMessageType.BREAKOUT_ROOM
     ? false
