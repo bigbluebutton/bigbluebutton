@@ -134,6 +134,7 @@ class ActionsBar extends PureComponent {
       isPresentationEnabled,
       ariaHidden,
       isDarkThemeEnabled,
+      isMobile,
     } = this.props;
 
     const Settings = getSettingsSingletonInstance();
@@ -160,6 +161,8 @@ class ActionsBar extends PureComponent {
             height: actionsBarStyle.height,
             width: actionsBarStyle.width,
             padding: actionsBarStyle.padding,
+            ...(isMobile && { overflowX: 'auto' }),
+            ...(isMobile && { overflowY: 'hidden' }),
           }
         }
       >

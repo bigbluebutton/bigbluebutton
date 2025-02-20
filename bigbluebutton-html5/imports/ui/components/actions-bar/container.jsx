@@ -8,7 +8,9 @@ import {
   layoutSelectOutput,
   layoutSelectInput,
   layoutDispatch,
-} from '../layout/context';
+  layoutSelect,
+} from '/imports/ui/components/layout/context';
+import { DEVICE_TYPE, SMALL_VIEWPORT_BREAKPOINT } from '/imports/ui/components/layout/enums';
 import {
   useIsExternalVideoEnabled,
   useIsPollingEnabled,
@@ -32,7 +34,6 @@ import { useMeetingLayoutUpdater, usePushLayoutUpdater } from '../layout/push-la
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
 import deviceInfo from '/imports/utils/deviceInfo';
-import { SMALL_VIEWPORT_BREAKPOINT } from '../layout/enums';
 
 const isLayeredView = window.matchMedia(`(max-width: ${SMALL_VIEWPORT_BREAKPOINT}px)`);
 
@@ -93,10 +94,10 @@ const ActionsBarContainer = (props) => {
   };
   const amIPresenter = currentUserData?.presenter;
   const amIModerator = currentUserData?.isModerator;
-  const [pinnedPadDataState, setPinnedPadDataState] = useState(null);
   const { data: pinnedPadData } = useDeduplicatedSubscription(
     PINNED_PAD_SUBSCRIPTION,
   );
+  const isMobile = layoutSelect((i) => i.deviceType) === DEVICE_TYPE.MOBILE;
 
   const allowExternalVideo = useIsExternalVideoEnabled();
   const connected = useReactiveVar(connectionStatus.getConnectedStatusVar());
@@ -173,6 +174,7 @@ const ActionsBarContainer = (props) => {
         showPushLayout: showPushLayoutButton && applicationSettings.selectedLayout === 'custom',
         ariaHidden,
         isDarkThemeEnabled: darkModeIsEnabled,
+        isMobile,
       }
     }
     />
