@@ -56,13 +56,19 @@ export const mostSimilarLanguage = (navigatorLanguage: string) => {
   return matchedLocale;
 };
 
-export const getLocale = () => {
+export const getLocale = (skipDisabled = false) => {
   const LOCALE = window.meetingClientSettings.public.app.audioCaptions.language.locale;
 
   if (LOCALE === 'browserLanguage') {
     return mostSimilarLanguage(navigator.language);
   }
-  if (LOCALE === 'disabled') return '';
+  if (LOCALE === 'disabled') {
+    if (skipDisabled) {
+      return mostSimilarLanguage(navigator.language);
+    }
+    return '';
+  }
+
   return LOCALE;
 };
 
