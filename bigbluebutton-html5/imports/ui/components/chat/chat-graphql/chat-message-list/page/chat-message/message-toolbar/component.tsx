@@ -120,7 +120,6 @@ const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
     });
   }, [chatDeleteMessage, chatId, messageId]);
 
-  const isRTL = layoutSelect((i: Layout) => i.isRTL);
 
   if ([
     chatReplyEnabled,
@@ -134,12 +133,6 @@ const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
   const showEditButton = chatEditEnabled && own;
   const showDeleteButton = chatDeleteEnabled && (own || (amIModerator && !isBreakoutRoom));
   const showDivider = (showReplyButton || showReactionsButton) && (showEditButton || showDeleteButton);
-
-  const deactivateFocusTrap = () => {
-    if (keyboardFocused) {
-      setKeyboardFocused(false);
-    }
-  };
 
   const container = (
     <Container className="chat-message-toolbar">
@@ -230,32 +223,6 @@ const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
         />
       </Tooltip>
       )}
-      <Popover
-        open={reactionPopoverIsOpen}
-        anchorEl={reactionsAnchor}
-        onClose={() => {
-          onReactionPopoverOpenChange(false);
-        }}
-        anchorOrigin={{
-          vertical: 'top',
-          horizontal: isRTL ? 'left' : 'right',
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: isRTL ? 'right' : 'left',
-        }}
-      >
-        <EmojiPickerWrapper>
-          <EmojiPicker
-            onEmojiSelect={(emojiObject: { id: string; native: string }) => {
-              deactivateFocusTrap();
-              onEmojiSelected(emojiObject);
-            }}
-            showPreview={false}
-            showSkinTones={false}
-          />
-        </EmojiPickerWrapper>
-      </Popover>
       {isTryingToDelete && (
       <ConfirmationModal
         isOpen={isTryingToDelete}

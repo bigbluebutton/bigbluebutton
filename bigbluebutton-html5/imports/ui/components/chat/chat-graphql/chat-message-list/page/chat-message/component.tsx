@@ -38,6 +38,11 @@ import ChatMessageNotificationContent from './message-content/notification-conte
 import { getValueByPointer } from '/imports/utils/object-utils';
 import Tooltip from '/imports/ui/components/common/tooltip/container';
 import KEY_CODES from '/imports/utils/keyCodes';
+import { Popover } from '@mui/material';
+import { EmojiPicker, EmojiPickerWrapper } from './message-toolbar/styles';
+import { isMobile } from '/imports/utils/deviceInfo';
+import { layoutSelect } from '/imports/ui/components/layout/context';
+import { Layout } from '/imports/ui/components/layout/layoutTypes';
 
 interface ChatMessageProps {
   message: Message;
@@ -165,6 +170,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
   const animationInitialTimestamp = React.useRef(0);
   const animationInitialScrollPosition = React.useRef(0);
   const animationScrollPositionDiff = React.useRef(0);
+  const isRTL = layoutSelect((i: Layout) => i.isRTL);
 
   const disablePublicChat = meetingDisablePublicChat || currentUserDisablePublicChat;
 
@@ -486,6 +492,12 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
     avatarDisplay = <i className={messageContent.avatarIcon} />;
   }
 
+  const deactivateFocusTrap = () => {
+    if (keyboardFocused) {
+      setKeyboardFocused(false);
+    }
+  };
+
   const contentElement = (
     <ChatContent
       className="chat-message-content"
@@ -575,6 +587,35 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
     />
   );
 
+  const reactionsPopover = (
+    <Popover
+      open={isToolbarReactionPopoverOpen}
+      anchorEl={containerRef.current}
+      onClose={() => {
+        setIsToolbarReactionPopoverOpen(false);
+      }}
+      anchorOrigin={{
+        vertical: 'top',
+        horizontal: isRTL || isMobile ? 'left' : 'right',
+      }}
+      transformOrigin={{
+        vertical: 'top',
+        horizontal: isRTL ? 'right' : 'left',
+      }}
+    >
+      <EmojiPickerWrapper>
+        <EmojiPicker
+          onEmojiSelect={(emojiObject: { id: string; native: string }) => {
+            deactivateFocusTrap();
+            onEmojiSelected(emojiObject);
+          }}
+          showPreview={false}
+          showSkinTones={false}
+        />
+      </EmojiPickerWrapper>
+    </Popover>
+  );
+
   const focusable = !deleteTime && !messageContent.isSystemSender;
 
   return (
@@ -629,6 +670,9 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
             )}
           </ChatHeading>
         )}
+        {
+          isToolbarReactionPopoverOpen && reactionsPopover
+        }
         {keyboardFocused ? (
           <FocusTrap
             paused={isToolbarReactionPopoverOpen}
