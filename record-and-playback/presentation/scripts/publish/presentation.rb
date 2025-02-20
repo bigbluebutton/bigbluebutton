@@ -1319,7 +1319,7 @@ end
 @cursor_xml_filename = 'cursor.xml'
 @deskshare_xml_filename = 'deskshare.xml'
 @tldraw_shapes_filename = 'tldraw.json'
-@layout_xml_filename = 'layout_swap.xml'
+@layout_xml_filename = 'layout.xml'
 @svg_shape_id = 1
 @svg_shape_unique_id = 1
 
