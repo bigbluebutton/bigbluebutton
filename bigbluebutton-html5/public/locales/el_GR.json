@@ -1144,7 +1144,7 @@
     "app.notificationBar.connectionCode3003": "Ο διακομιστής δεν ανταποκρίνεται. Προσπάθεια επανασύνδεσης (κωδικός 3003)",
     "app.notificationBar.connectionCode3004": "Ασταθής σύνδεση. Παρακαλούμε ελέγξτε τη σύνδεση στο διαδίκτυο (κωδικός 3004)",
     "app.notificationBar.connectionCode3005": "Αργή φόρτωση δεδομένων. Προσπάθεια επανασύνδεσης (κωδικός 3005)",
-    "app.notificationBar.issueLoadingDataCode3006": "Ορισμένα δεδομένα δεν μπορούν να φορτωθούν. Παρακαλούμε κάντε ανανέωση της εφαρμογής σας (κωδικός 3--6)",
+    "app.notificationBar.issueLoadingDataCode3006": "Ορισμένα δεδομένα δεν μπορούν να φορτωθούν. Παρακαλούμε κάντε ανανέωση της εφαρμογής σας (κωδικός 3006)",
     "app.learning-dashboard.label": "Πίνακας Στατιστικών Εκπαίδευσης",
     "app.learning-dashboard.description": "Πίνακας ελέγχου με δραστηριότητες χρηστών",
     "app.learning-dashboard.clickHereToOpen": "Άνοιγμα του Πίνακα Στατιστικών Εκπαίδευσης",
