@@ -1448,23 +1448,25 @@ const Whiteboard = React.memo((props) => {
     if (innerWrapperPollingFrameRef.current !== null) {
       cancelAnimationFrame(innerWrapperPollingFrameRef.current);
     }
-    pollInnerWrapperDimensionsUntilStable(() => {
-      syncCameraWithPresentationArea({
-        tlEditorRef,
-        isPresenter,
-        currentPresentationPageRef,
-        presentationAreaWidth,
-        presentationAreaHeight,
-        zoomValueRef,
-        fitToWidthRef,
-        curPageIdRef,
-        initialViewBoxWidthRef,
-        initialViewBoxHeightRef,
-      });
-    }, {
-      maxTries: 120,
-      stabilityFrames: 35,
-    }, innerWrapperPollingFrameRef);
+    innerWrapperPollingFrameRef.current = requestAnimationFrame(() => {
+      pollInnerWrapperDimensionsUntilStable(() => {
+        syncCameraWithPresentationArea({
+          tlEditorRef,
+          isPresenter,
+          currentPresentationPageRef,
+          presentationAreaWidth,
+          presentationAreaHeight,
+          zoomValueRef,
+          fitToWidthRef,
+          curPageIdRef,
+          initialViewBoxWidthRef,
+          initialViewBoxHeightRef,
+        });
+      }, {
+        maxTries: 120,
+        stabilityFrames: 35,
+      }, innerWrapperPollingFrameRef);  
+    });
   }, [presentationHeight, presentationWidth, curPageId, presentationId]);
 
   React.useEffect(() => {
