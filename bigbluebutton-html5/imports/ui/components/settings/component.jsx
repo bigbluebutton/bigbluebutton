@@ -272,6 +272,7 @@ class Settings extends Component {
           <Styled.SettingsTabSelector
             aria-labelledby="aboutTab"
             selectedClassName="is-selected"
+            data-test="aboutTabButton"
           >
             <span id="aboutTab">{intl.formatMessage(intlMessages.aboutTabLabel)}</span>
           </Styled.SettingsTabSelector>
@@ -373,6 +374,7 @@ class Settings extends Component {
               {intl.formatMessage(intlMessages.CancelLabel)}
             </Styled.ActionButton>
             <Styled.ActionButton
+              data-test="saveSettingsButton"
               onClick={() => {
                 this.updateSettings(current, intlMessages.savedAlertLabel, setLocalSettings);
 
