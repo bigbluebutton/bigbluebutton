@@ -35,6 +35,7 @@ import {
 } from '/imports/ui/services/features';
 import { CHAT_DELETE_REACTION_MUTATION, CHAT_SEND_REACTION_MUTATION } from './page/chat-message/mutations';
 import logger from '/imports/startup/client/logger';
+import { ChatLoading } from '../component';
 
 const PAGE_SIZE = 50;
 const CLEANUP_TIMEOUT = 3000;
@@ -566,7 +567,7 @@ const ChatMessageListContainer: React.FC = () => {
 
   const isPublicChat = idChatOpen === PUBLIC_CHAT_KEY;
   const chatId = !isPublicChat ? idChatOpen : PUBLIC_GROUP_CHAT_KEY;
-  const { data: chatData } = useChat((chat) => {
+  const { data: chatData, loading: currentChatLoading } = useChat((chat) => {
     return {
       chatId: chat.chatId,
       totalMessages: chat.totalMessages,
@@ -578,7 +579,9 @@ const ChatMessageListContainer: React.FC = () => {
 
   const [setMessageAsSeenMutation] = useMutation(LAST_SEEN_MUTATION);
 
-  const totalMessages = currentChat?.totalMessages || 0;
+  if (currentChatLoading || !currentChat) return <ChatLoading isRTL={document.dir === 'rtl'} />;
+
+  const { totalMessages = 0 } = currentChat;
   const totalPages = Math.ceil(totalMessages / PAGE_SIZE);
   return (
     <ChatMessageList

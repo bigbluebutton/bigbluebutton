@@ -7,6 +7,7 @@ import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { ACTIONS, PANELS } from '../../../layout/enums';
 import logger from '/imports/startup/client/logger';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
 
 const BreakoutRoomContainer = ({ breakoutRoom }) => {
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
@@ -32,12 +33,17 @@ const BreakoutRoomContainer = ({ breakoutRoom }) => {
   }));
 
   if (userIsInvitedError) {
-    logger.error('Error in userIsInvited subscription:', userIsInvitedError);
-    return (
-      <div>
-        {JSON.stringify(userIsInvitedError)}
-      </div>
+    connectionStatus.setSubscriptionFailed(true);
+    logger.error(
+      {
+        logCode: 'subscription_Failed',
+        extraInfo: {
+          error: userIsInvitedError,
+        },
+      },
+      'Subscription failed to load',
     );
+    return null;
   }
 
   if (userIsInvitedLoading) return null;

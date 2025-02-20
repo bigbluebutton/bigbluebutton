@@ -194,7 +194,11 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
     if (isBreakout) window.close();
     if (allowRedirect) {
       if (isURL(logoutUrl)) {
-        window.location.href = logoutUrl;
+        const reason = generateEndMessage(joinErrorCode, meetingEndedCode, endedBy);
+        const finalUrl = reason
+          ? `${logoutUrl}${logoutUrl.includes('?') ? '&' : '?'}reason=${encodeURIComponent(reason)}`
+          : logoutUrl;
+        window.location.href = finalUrl;
       }
     }
   };

@@ -184,6 +184,7 @@ type User = {
   userId: string;
   name: string;
   isModerator: boolean;
+  extId: string;
 };
 
 const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({

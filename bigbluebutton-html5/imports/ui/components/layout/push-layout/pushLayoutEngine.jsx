@@ -14,7 +14,7 @@ import {
   PANELS,
 } from '../enums';
 import { isMobile, LAYOUTS_SYNC } from '../utils';
-import { updateSettings } from '/imports/ui/components/settings/service';
+import { updateSettings, isKeepPushingLayoutEnabled } from '/imports/ui/components/settings/service';
 import Session from '/imports/ui/services/storage/in-memory';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
@@ -31,6 +31,8 @@ import { calculatePresentationVideoRate } from './service';
 import { useMeetingLayoutUpdater, usePushLayoutUpdater } from './hooks';
 import { changeEnforcedLayout } from '/imports/ui/components/plugins-engine/ui-commands/layout/handler';
 import { useIsChatEnabled } from '/imports/ui/services/features';
+import Auth from '/imports/ui/services/auth';
+import Storage from '/imports/ui/services/storage/session';
 
 const equalDouble = (n1, n2) => {
   const precision = 0.01;
@@ -364,8 +366,16 @@ const PushLayoutEngineContainer = (props) => {
   const applicationSettings = useSettings(SETTINGS.APPLICATION);
   const {
     selectedLayout,
-    pushLayout,
   } = applicationSettings;
+
+  const isPushLayoutEnabled = isKeepPushingLayoutEnabled();
+
+  const getKeepPushingLayout = () => {
+    if (!isPushLayoutEnabled) return false;
+
+    const storageKey = `keepPushingLayout_${Auth.meetingID}`;
+    return Storage.getItem(storageKey) === true;
+  };
 
   const {
     width: cameraWidth,
@@ -416,6 +426,8 @@ const PushLayoutEngineContainer = (props) => {
   const isPresenter = currentUserData?.presenter;
 
   const presentationVideoRate = calculatePresentationVideoRate(cameraDockOutput);
+
+  const pushLayout = getKeepPushingLayout();
 
   const setLocalSettings = useUserChangedLocalSettings();
   const setPushLayout = usePushLayoutUpdater(pushLayout);
