@@ -228,7 +228,7 @@ const LayoutObserver: React.FC = () => {
         });
 
         if (getFromUserSettings('bbb_show_participants_on_login', window.meetingClientSettings.public.layout.showParticipantsOnLogin)
-          && !deviceInfo.isPhone) {
+          && !deviceInfo.isMobile) {
           layoutContextDispatch({
             type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
             value: true,
@@ -239,7 +239,8 @@ const LayoutObserver: React.FC = () => {
           });
         }
 
-        if (isChatEnabled && getFromUserSettings('bbb_show_public_chat_on_login', !window.meetingClientSettings.public.chat.startClosed)) {
+        if (isChatEnabled && getFromUserSettings('bbb_show_public_chat_on_login', !window.meetingClientSettings.public.chat.startClosed)
+          && !deviceInfo.isMobile) {
           const PUBLIC_GROUP_CHAT_ID = window.meetingClientSettings.public.chat.public_group_id;
 
           layoutContextDispatch({
