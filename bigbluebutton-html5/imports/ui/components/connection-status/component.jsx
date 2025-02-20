@@ -9,9 +9,11 @@ import connectionStatus from '../../core/graphql/singletons/connectionStatus';
 import getBaseUrl from '/imports/ui/core/utils/getBaseUrl';
 import useCurrentUser from '../../core/hooks/useCurrentUser';
 import getStatus from '../../core/utils/getStatus';
+import logger from '/imports/startup/client/logger';
 
 const ConnectionStatus = () => {
   const STATS_INTERVAL = window.meetingClientSettings.public.stats.interval;
+  const STATS_TIMEOUT = window.meetingClientSettings.public.stats.timeout;
   const networkRttInMs = useRef(0); // Ref to store the last rtt
   const timeoutRef = useRef(null);
 
@@ -31,7 +33,7 @@ const ConnectionStatus = () => {
     const startTime = performance.now();
     fetch(
       `${getBaseUrl()}/rtt-check`,
-      { signal: AbortSignal.timeout(STATS_INTERVAL) },
+      { signal: AbortSignal.timeout(STATS_TIMEOUT) },
     )
       .then((res) => {
         if (res.ok && res.status === 200) {
@@ -57,7 +59,13 @@ const ConnectionStatus = () => {
           }
         }
       })
-      .catch(() => {
+      .catch((error) => {
+        logger.error({
+          logCode: 'rtt_fetch_error',
+          extraInfo: {
+            error,
+          },
+        }, 'Error fetching rtt');
         connectionStatus.setLastRttRequestSuccess(false);
         // gets the worst status
         connectionStatus.setConnectionStatus(2000, 'critical');
