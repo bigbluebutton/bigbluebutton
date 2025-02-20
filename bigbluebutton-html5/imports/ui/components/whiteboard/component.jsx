@@ -157,6 +157,7 @@ const Whiteboard = React.memo((props) => {
   const lastVisibilityStateRef = React.useRef('');
   const mountedTimeoutIdRef = useRef(null);
   const presentationIdRef = React.useRef(presentationId);
+  const innerWrapperPollingFrameRef = React.useRef(null);
 
   const [pageZoomMap, setPageZoomMap] = useState(() => {
     try {
@@ -708,6 +709,7 @@ const Whiteboard = React.memo((props) => {
       maxTries: 120,
       stabilityFrames: 50,
     },
+    frameIdRef = null,
     currentTry = 0,
     stableCount = 0,
     lastDimensions = { width: 0, height: 0 }
@@ -740,15 +742,19 @@ const Whiteboard = React.memo((props) => {
     }
 
     if (currentTry < options.maxTries) {
-      requestAnimationFrame(() => {
+      const frameId = requestAnimationFrame(() => {
         pollInnerWrapperDimensionsUntilStable(
           onReady,
           options,
+          frameIdRef,
           currentTry + 1,
           stableCount,
           lastDimensions
         );
       });
+      if (frameIdRef) {
+        frameIdRef.current = frameId;
+      }
     } else {
       logger.warn(
         { logCode: 'pollInnerWrapperDimensionsUntilStable' },
@@ -759,6 +765,7 @@ const Whiteboard = React.memo((props) => {
   };
 
   const handleTldrawMount = (editor) => {
+    console.log('Tldraw:mount');
     tlEditorRef.current = editor;
     setTldrawAPI(editor);
     setEditor(editor);
@@ -1438,6 +1445,9 @@ const Whiteboard = React.memo((props) => {
       });
     };
 
+    if (innerWrapperPollingFrameRef.current !== null) {
+      cancelAnimationFrame(innerWrapperPollingFrameRef.current);
+    }
     pollInnerWrapperDimensionsUntilStable(() => {
       syncCameraWithPresentationArea({
         tlEditorRef,
@@ -1451,10 +1461,10 @@ const Whiteboard = React.memo((props) => {
         initialViewBoxWidthRef,
         initialViewBoxHeightRef,
       });
-    },{
-        maxTries: 120,
-        stabilityFrames: 35,
-    });
+    }, {
+      maxTries: 120,
+      stabilityFrames: 35,
+    }, innerWrapperPollingFrameRef);
   }, [presentationHeight, presentationWidth, curPageId, presentationId]);
 
   React.useEffect(() => {
