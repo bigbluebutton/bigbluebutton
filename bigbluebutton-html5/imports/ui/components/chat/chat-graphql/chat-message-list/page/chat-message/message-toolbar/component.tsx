@@ -1,17 +1,12 @@
 import React, { useCallback } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
-import Popover from '@mui/material/Popover';
-import { layoutSelect } from '/imports/ui/components/layout/context';
-import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
 import ConfirmationModal from '/imports/ui/components/common/modal/confirmation/component';
 import {
   Container,
   Divider,
   EmojiButton,
-  EmojiPicker,
-  EmojiPickerWrapper,
   Root,
 } from './styles';
 import { CHAT_DELETE_MESSAGE_MUTATION } from '../mutations';
