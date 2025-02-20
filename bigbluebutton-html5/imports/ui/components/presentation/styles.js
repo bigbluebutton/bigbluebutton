@@ -5,6 +5,7 @@ import {
   smPaddingX,
   smPaddingY,
   contentSidebarMarginToMedia,
+  lgBorderRadius,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
   colorPrimary,
@@ -142,6 +143,7 @@ const Presentation = styled.div`
   width: 100%;
   overflow: hidden;
   position: relative;
+  border-radius: ${lgBorderRadius};
 `;
 
 const SvgContainer = styled.div`

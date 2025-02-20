@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { layoutSelect, layoutSelectInput, layoutSelectOutput } from '/imports/ui/components/layout/context';
-import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
+import DEFAULT_VALUES, { SIDEBAR_CONTENT_MARGIN_TO_MEDIA } from '/imports/ui/components/layout/defaultValues';
 import { LAYOUT_TYPE, DEVICE_TYPE } from '/imports/ui/components/layout/enums';
 
 import CustomLayout from '/imports/ui/components/layout/layout-manager/customLayout';
@@ -326,7 +326,8 @@ const LayoutEngine = () => {
       width = windowWidth();
     } else {
       left = !isRTL ? sidebarNavWidth + sidebarContentWidth : 0;
-      width = windowWidth() - sidebarNavWidth - sidebarContentWidth;
+      width = windowWidth()
+        - sidebarNavWidth - sidebarContentWidth - SIDEBAR_CONTENT_MARGIN_TO_MEDIA;
     }
 
     return {

@@ -1,12 +1,12 @@
 import { useEffect, useRef } from 'react';
 import { throttle } from '/imports/utils/throttle';
-import { 
+import {
   layoutDispatch,
   layoutSelect,
   layoutSelectInput,
   layoutSelectOutput,
 } from '/imports/ui/components/layout/context';
-import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
+import DEFAULT_VALUES, { SIDEBAR_CONTENT_MARGIN_TO_MEDIA } from '/imports/ui/components/layout/defaultValues';
 import { INITIAL_INPUT_STATE } from '/imports/ui/components/layout/initState';
 import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
 import { defaultsDeep } from '/imports/utils/array-utils';
@@ -230,16 +230,16 @@ const VideoFocusLayout = (props) => {
     cameraDockBounds,
     sidebarNavWidth,
     sidebarContentWidth,
-    sidebarContentHeight
+    sidebarContentHeight,
   ) => {
     const mediaBounds = {};
     const { element: fullscreenElement } = fullscreen;
 
     if (
-      fullscreenElement === 'Presentation' ||
-      fullscreenElement === 'Screenshare' ||
-      fullscreenElement === 'ExternalVideo' ||
-      fullscreenElement === 'GenericContent'
+      fullscreenElement === 'Presentation'
+      || fullscreenElement === 'Screenshare'
+      || fullscreenElement === 'ExternalVideo'
+      || fullscreenElement === 'GenericContent'
     ) {
       mediaBounds.width = windowWidth();
       mediaBounds.height = windowHeight();
@@ -256,10 +256,11 @@ const VideoFocusLayout = (props) => {
       mediaBounds.top = mediaAreaBounds.top + cameraDockBounds.height;
       mediaBounds.width = mediaAreaBounds.width;
     } else if (presentationInput.isOpen) {
-      mediaBounds.height = windowHeight() - sidebarContentHeight - bannerAreaHeight();
+      mediaBounds.height = windowHeight()
+        - sidebarContentHeight - bannerAreaHeight() - SIDEBAR_CONTENT_MARGIN_TO_MEDIA;
       mediaBounds.left = !isRTL ? sidebarNavWidth : 0;
       mediaBounds.right = isRTL ? sidebarNavWidth : 0;
-      mediaBounds.top = sidebarContentHeight + bannerAreaHeight();
+      mediaBounds.top = sidebarContentHeight + bannerAreaHeight() - SIDEBAR_CONTENT_MARGIN_TO_MEDIA;
       mediaBounds.width = sidebarContentWidth;
       mediaBounds.zIndex = 1;
     } else if (!presentationInput.isOpen) {
@@ -487,7 +488,7 @@ const VideoFocusLayout = (props) => {
     layoutContextDispatch({
       type: ACTIONS.SET_SHARED_NOTES_OUTPUT,
       value: {
-        width: mediaBounds.width,
+        width: mediaBounds.width - SIDEBAR_CONTENT_MARGIN_TO_MEDIA,
         height: mediaBounds.height,
         top: mediaBounds.top,
         left: mediaBounds.left,

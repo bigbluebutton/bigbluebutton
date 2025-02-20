@@ -167,6 +167,7 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
         hasPermission={hasPermission}
         isResizing={isResizing}
         isRTL={isRTL}
+        amIPresenter={amIPresenter}
       />
     </Styled.PanelContent>
   );

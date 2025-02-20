@@ -25,12 +25,14 @@ interface PadContainerGraphqlProps {
   hasPermission: boolean;
   isResizing: boolean;
   isRTL: boolean;
+  amIPresenter: boolean;
 }
 
 interface PadGraphqlProps extends Omit<PadContainerGraphqlProps, 'hasPermission'> {
   hasSession: boolean;
   sessionIds: Array<string>;
   padId: string | undefined;
+  amIPresenter: boolean;
 }
 
 const PadGraphql: React.FC<PadGraphqlProps> = (props) => {
@@ -41,6 +43,7 @@ const PadGraphql: React.FC<PadGraphqlProps> = (props) => {
     isRTL,
     sessionIds,
     padId,
+    amIPresenter,
   } = props;
   const [padURL, setPadURL] = useState<string | undefined>();
   const intl = useIntl();
@@ -66,6 +69,7 @@ const PadGraphql: React.FC<PadGraphqlProps> = (props) => {
         style={{
           pointerEvents: isResizing ? 'none' : 'inherit',
         }}
+        amIPresenter={amIPresenter}
       />
       <Styled.Hint
         id="padEscapeHint"
@@ -83,6 +87,7 @@ const PadContainerGraphql: React.FC<PadContainerGraphqlProps> = (props) => {
     hasPermission,
     isRTL,
     isResizing,
+    amIPresenter,
   } = props;
 
   const { data: hasPadData } = useDeduplicatedSubscription<HasPadSubscriptionResponse>(
@@ -112,6 +117,7 @@ const PadContainerGraphql: React.FC<PadContainerGraphqlProps> = (props) => {
       isResizing={isResizing}
       sessionIds={Array.from(sessionIds)}
       padId={session?.sharedNotes?.padId}
+      amIPresenter={amIPresenter}
     />
   );
 };

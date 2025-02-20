@@ -1,5 +1,6 @@
 import styled, { createGlobalStyle } from 'styled-components';
 import { colorOffWhite } from '/imports/ui/stylesheets/styled-components/palette';
+import { lgBorderRadius } from '/imports/ui/stylesheets/styled-components/general';
 
 const TldrawV2GlobalStyle = createGlobalStyle`
   ${({ isPresenter, hasWBAccess }) => (!isPresenter && hasWBAccess) && `
@@ -47,6 +48,10 @@ const TldrawV2GlobalStyle = createGlobalStyle`
 
   .tl-container:focus-within {
     outline: none !important;
+  }
+
+  .tl-container {
+    border-radius: ${({ isPresenter }) => (isPresenter ? `${lgBorderRadius} ${lgBorderRadius} 0 0` : `${lgBorderRadius}`)};
   }
 
   .tlui-style-panel__wrapper {
