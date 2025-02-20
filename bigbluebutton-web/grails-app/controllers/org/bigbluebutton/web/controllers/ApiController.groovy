@@ -1218,7 +1218,7 @@ class ApiController {
         }
 
         if (!StringUtils.isEmpty(params.sessionName)) {
-          queryParameters.put("sessionName", sessionName);
+          queryParameters.put("sessionName", params.sessionName);
         }
 
         // If the user calling getJoinUrl is a moderator (except in breakout rooms), allow to specify additional parameters
