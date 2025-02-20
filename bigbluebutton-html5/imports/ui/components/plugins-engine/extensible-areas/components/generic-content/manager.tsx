@@ -1,4 +1,9 @@
-import { useEffect, useState, useContext } from 'react';
+import {
+  useEffect,
+  useState,
+  useContext,
+  useCallback,
+} from 'react';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import { GenericContentType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/generic-content-item/enums';
 
@@ -29,6 +34,50 @@ const GenericContentPluginStateContainer = ((
     setPluginsExtensibleAreasAggregatedState,
   } = useContext(PluginsContext);
 
+  const excludeById = useCallback(
+    (arr1: PluginSdk.GenericContentInterface[], arr2: PluginSdk.GenericContentInterface[]) => {
+      const idsSet = new Set(arr2.map((item) => item.id));
+      return arr1.filter((item) => !idsSet.has(item.id));
+    },
+    [],
+  );
+
+  const genericContentSidekickId = useCallback(
+    (id: string) => (
+      PANELS.GENERIC_CONTENT_SIDEKICK + id
+    ),
+    [],
+  );
+
+  const filterSidekick = useCallback(
+    (genericContentItems: PluginSdk.GenericContentInterface[]) => (
+      genericContentItems.filter((gci) => gci.type === GenericContentType.SIDEKICK_AREA)
+    ),
+    [],
+  );
+
+  const unregisterExcludedSidekickContentsFromApps = useCallback(
+    (
+      currentGenericContentItems: PluginSdk.GenericContentInterface[],
+      newGenericContentItems: PluginSdk.GenericContentInterface[],
+    ) => {
+      const currentGenericSidekickContentItems = filterSidekick(currentGenericContentItems);
+      const newGenericSidekickContentItems = filterSidekick(newGenericContentItems);
+      if (currentGenericSidekickContentItems.length === 0) return;
+      const excluded = excludeById(
+        currentGenericSidekickContentItems,
+        newGenericSidekickContentItems,
+      );
+      excluded.forEach((gs) => {
+        layoutContextDispatch({
+          type: ACTIONS.UNREGISTER_SIDEBAR_APP,
+          id: genericContentSidekickId(gs.id),
+        });
+      });
+    },
+    [],
+  );
+
   useEffect(() => {
     // Change this plugin provided toolbar items
     extensibleAreaMap[uuid].genericContentItems = genericContentItems;
@@ -44,14 +93,13 @@ const GenericContentPluginStateContainer = ((
         ...previousState,
         genericContentItems: aggregatedGenericContentItems,
       }));
-    const genericContentSidekickId = (id: string) => PANELS.GENERIC_CONTENT_SIDEKICK + id;
-    const genericContentSidekickArea = genericContentItems
-      .filter((g) => g.type === GenericContentType.SIDEKICK_AREA) as PluginSdk.GenericContentSidekickArea[];
-    genericContentSidekickArea.map((genericContentItem) => {
+    const genericContentSidekickArea = filterSidekick(genericContentItems) as PluginSdk.GenericContentSidekickArea[];
+
+    genericContentSidekickArea.forEach((genericContentItem) => {
       return layoutContextDispatch({
         type: ACTIONS.REGISTER_SIDEBAR_APP,
         value: {
-          panel: genericContentSidekickId(genericContentItem.id),
+          id: genericContentSidekickId(genericContentItem.id),
           name: genericContentItem.name,
           icon: genericContentItem.buttonIcon,
           contentFunction: genericContentItem.contentFunction,
@@ -62,7 +110,10 @@ const GenericContentPluginStateContainer = ((
 
   pluginApi.setGenericContentItems = (items: PluginSdk.GenericContentInterface[]) => {
     const itemsWithId = items.map(generateItemWithId) as PluginSdk.GenericContentInterface[];
-    setGenericContentItems(itemsWithId);
+    setGenericContentItems((currentGenericContentItems) => {
+      unregisterExcludedSidekickContentsFromApps(currentGenericContentItems, items);
+      return itemsWithId;
+    });
     return itemsWithId.map((i) => i.id);
   };
   return null;
