@@ -6,6 +6,7 @@ import {
 import {
   RoomEvent,
   RemoteParticipant,
+  Track,
   type RemoteTrackPublication,
 } from 'livekit-client';
 import { useReactiveVar } from '@apollo/client';
@@ -35,6 +36,10 @@ const PARTICIPANTS_UPDATE_FILTER = [
   RoomEvent.TrackPublished,
   RoomEvent.TrackUnpublished,
 ];
+
+const isValidSource = (source: Track.Source) => (
+  source === Track.Source.Microphone || source === Track.Source.ScreenShareAudio
+);
 
 export const useAudioSenders = (
   remoteParticipants: RemoteParticipant[],
@@ -171,11 +176,15 @@ export const useAudioSubscriptions = () => {
   const handleSubscriptionChanges = useCallback(async () => {
     if (!liveKitRoom) return;
 
-    const currentSubscriptions = new Set<string>();
+    const currentSubscriptions = {
+      [Track.Source.Microphone]: new Set<string>(),
+      [Track.Source.ScreenShareAudio]: new Set<string>(),
+    };
+
     remoteParticipants.forEach((participant) => {
-      participant.audioTrackPublications.forEach((publication) => {
-        if (publication.isSubscribed) {
-          currentSubscriptions.add(participant.identity);
+      participant.audioTrackPublications.forEach((publication: RemoteTrackPublication) => {
+        if (isValidSource(publication.source) && publication.isSubscribed) {
+          currentSubscriptions[publication.source].add(participant.identity);
         }
       });
     });
@@ -184,80 +193,85 @@ export const useAudioSubscriptions = () => {
       senders.map((sender) => sender.userId),
     );
 
-    currentSubscriptions.forEach((participantId) => {
-      if (!desiredSubscriptions.has(participantId)) {
-        const participant = remoteParticipants.find((p) => p.identity === participantId);
-        if (participant) {
-          participant.audioTrackPublications.forEach((publication) => {
-            const { trackSid } = publication;
-            if (publication.isSubscribed) {
-              clearRetryTimer(participantId);
-              retryMap.current.delete(participantId);
-              try {
-                publication.setSubscribed(false);
-                logger.debug({
-                  logCode: 'livekit_audio_unsubscribed',
-                  extraInfo: {
-                    userId: participantId,
-                    inAnyGroup,
-                  },
-                }, `LiveKit: Unsubscribed from audio - ${trackSid}`);
-              } catch (error) {
-                logger.error({
-                  logCode: 'livekit_audio_unsubscription_failed',
-                  extraInfo: {
-                    trackSid,
-                    errorMessage: (error as Error).message,
-                    errorStack: (error as Error).stack,
-                  },
-                }, `LiveKit: Failed to unsubscribe from audio - ${trackSid}`);
+    Object.values(currentSubscriptions).forEach((subscriptions) => {
+      subscriptions.forEach((participantId) => {
+        if (!desiredSubscriptions.has(participantId)) {
+          const participant = remoteParticipants.find((p) => p.identity === participantId);
+          if (participant) {
+            participant.audioTrackPublications.forEach((publication) => {
+              const { trackSid } = publication;
+
+              if (publication.isSubscribed) {
+                clearRetryTimer(participantId);
+                retryMap.current.delete(participantId);
+                try {
+                  publication.setSubscribed(false);
+                  logger.debug({
+                    logCode: 'livekit_audio_unsubscribed',
+                    extraInfo: {
+                      userId: participantId,
+                      inAnyGroup,
+                    },
+                  }, `LiveKit: Unsubscribed from audio - ${trackSid}`);
+                } catch (error) {
+                  logger.error({
+                    logCode: 'livekit_audio_unsubscription_failed',
+                    extraInfo: {
+                      trackSid,
+                      errorMessage: (error as Error).message,
+                      errorStack: (error as Error).stack,
+                    },
+                  }, `LiveKit: Failed to unsubscribe from audio - ${trackSid}`);
+                }
               }
-            }
-          });
+            });
+          }
         }
-      }
+      });
     });
 
     // Handle new subscriptions
     desiredSubscriptions.forEach((participantId) => {
-      if (!currentSubscriptions.has(participantId)) {
-        const participant = remoteParticipants.find((p) => p.identity === participantId);
-        if (participant) {
-          participant.audioTrackPublications.forEach((publication) => {
-            const { trackSid } = publication;
+      Object.entries(currentSubscriptions).forEach(([source, subscriptions]) => {
+        if (!subscriptions.has(participantId)) {
+          const participant = remoteParticipants.find((p) => p.identity === participantId);
+          if (participant) {
+            participant.audioTrackPublications.forEach((publication) => {
+              const { trackSid } = publication;
 
-            if (!publication.isSubscribed) {
-              try {
-                publication.setSubscribed(true);
-                logger.debug({
-                  logCode: 'livekit_audio_subscribed',
-                  extraInfo: {
-                    trackSid,
-                    inAnyGroup,
-                  },
-                }, `LiveKit: Subscribed to audio - ${trackSid}`);
-              } catch (error) {
-                logger.error({
-                  logCode: 'livekit_audio_subscription_failed',
-                  extraInfo: {
-                    trackSid,
-                    errorMessage: (error as Error).message,
-                    errorStack: (error as Error).stack,
-                  },
-                }, `LiveKit: Failed to subscribe to audio - ${trackSid}`);
+              if (!publication.isSubscribed && publication.source === source) {
+                try {
+                  publication.setSubscribed(true);
+                  logger.debug({
+                    logCode: 'livekit_audio_subscribed',
+                    extraInfo: {
+                      trackSid,
+                      inAnyGroup,
+                    },
+                  }, `LiveKit: Subscribed to audio - ${trackSid}`);
+                } catch (error) {
+                  logger.error({
+                    logCode: 'livekit_audio_subscription_failed',
+                    extraInfo: {
+                      trackSid,
+                      errorMessage: (error as Error).message,
+                      errorStack: (error as Error).stack,
+                    },
+                  }, `LiveKit: Failed to subscribe to audio - ${trackSid}`);
 
-                setSubscriptionErrors((prev) => {
-                  const next = new Map(prev);
-                  next.set(participantId, error as Error);
-                  return next;
-                });
+                  setSubscriptionErrors((prev) => {
+                    const next = new Map(prev);
+                    next.set(participantId, error as Error);
+                    return next;
+                  });
 
-                retrySubscription(participantId, publication);
+                  retrySubscription(participantId, publication);
+                }
               }
-            }
-          });
+            });
+          }
         }
-      }
+      });
     });
   }, [
     senders,
