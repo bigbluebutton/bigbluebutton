@@ -527,7 +527,6 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
         message={message.message}
         messageSequence={message.messageSequence}
         emphasizedMessage={message.chatEmphasizedText}
-        onEmojiSelected={onEmojiSelected}
         onReactionPopoverOpenChange={setIsToolbarReactionPopoverOpen}
         reactionPopoverIsOpen={isToolbarReactionPopoverOpen}
         chatDeleteEnabled={chatDeleteEnabled}

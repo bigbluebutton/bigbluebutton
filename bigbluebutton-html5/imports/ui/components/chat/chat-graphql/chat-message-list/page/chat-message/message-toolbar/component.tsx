@@ -70,7 +70,6 @@ interface ChatMessageToolbarProps {
   message: string;
   messageSequence: number;
   emphasizedMessage: boolean;
-  onEmojiSelected(emoji: { id: string; native: string }): void;
   onReactionPopoverOpenChange(open: boolean): void;
   reactionPopoverIsOpen: boolean;
   hasToolbar: boolean;
@@ -86,14 +85,11 @@ interface ChatMessageToolbarProps {
 
 const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
   const {
-    messageId, chatId, message, username, onEmojiSelected, deleted,
+    messageId, chatId, message, username, deleted,
     messageSequence, emphasizedMessage, own, amIModerator, isBreakoutRoom, locked,
     onReactionPopoverOpenChange, reactionPopoverIsOpen, hasToolbar, keyboardFocused,
     chatDeleteEnabled, chatEditEnabled, chatReactionsEnabled, chatReplyEnabled, setKeyboardFocused,
   } = props;
-  const [reactionsAnchor, setReactionsAnchor] = React.useState<Element | null>(
-    null,
-  );
   const [isTryingToDelete, setIsTryingToDelete] = React.useState(false);
   const intl = useIntl();
   const [chatDeleteMessage] = useMutation(CHAT_DELETE_MESSAGE_MUTATION);
@@ -115,6 +111,11 @@ const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
     });
   }, [chatDeleteMessage, chatId, messageId]);
 
+  const deactivateFocusTrap = () => {
+    if (keyboardFocused) {
+      setKeyboardFocused(false);
+    }
+  };
 
   if ([
     chatReplyEnabled,
@@ -174,7 +175,6 @@ const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
           svgIcon="reactions"
           color="light"
           data-test="reactionsPickerButton"
-          ref={setReactionsAnchor}
         />
       </Tooltip>
       )}
