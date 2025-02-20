@@ -9,9 +9,7 @@ import { makeVar, useMutation } from '@apollo/client';
 import { defineMessages, useIntl } from 'react-intl';
 import useChat from '/imports/ui/core/hooks/useChat';
 import useIntersectionObserver from '/imports/ui/hooks/useIntersectionObserver';
-import { Chat } from '/imports/ui/Types/chat';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
-import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import { Message } from '/imports/ui/Types/message';
@@ -135,10 +133,9 @@ const roving = (
   const isTargetAChild = event.target instanceof HTMLDivElement && event.target.dataset.focusable === 'true';
   const isTargetElement = event.target === event.currentTarget;
   const { activeElement } = document;
-  const element = (
-    activeElement
-    && activeElement.classList.contains('chat-message-container')
-  ) ? activeElement : null;
+  const element = activeElement?.classList.contains('chat-message-container')
+    ? activeElement
+    : null;
 
   if (!(isTargetAChild || isTargetElement)) return;
 
@@ -569,14 +566,15 @@ const ChatMessageListContainer: React.FC = () => {
 
   const isPublicChat = idChatOpen === PUBLIC_CHAT_KEY;
   const chatId = !isPublicChat ? idChatOpen : PUBLIC_GROUP_CHAT_KEY;
-  const { data: currentChat } = useChat((chat) => {
+  const { data: chatData } = useChat((chat) => {
     return {
       chatId: chat.chatId,
       totalMessages: chat.totalMessages,
       totalUnread: chat.totalUnread,
       lastSeenAt: chat.lastSeenAt,
     };
-  }, chatId) as GraphqlDataHookSubscriptionResponse<Partial<Chat>>;
+  }, chatId);
+  const currentChat = Array.isArray(chatData) ? chatData[0] : chatData;
 
   const [setMessageAsSeenMutation] = useMutation(LAST_SEEN_MUTATION);
 

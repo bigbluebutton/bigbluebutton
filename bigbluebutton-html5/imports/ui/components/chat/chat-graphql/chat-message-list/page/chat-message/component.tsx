@@ -308,7 +308,6 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
     }
   }, [focused]);
 
-  if (!message) return null;
   const pluginMessageNotCustom = (previousMessage?.messageType !== ChatMessageType.PLUGIN
     || !JSON.parse(previousMessage?.messageMetadata).custom);
   let sameSender = ((previousMessage?.user?.userId
@@ -608,6 +607,8 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
     setIsToolbarReactionPopoverOpen(false);
     deactivateFocusTrap();
   }, [message.chatId, message.messageId, sendReaction]);
+
+  if (!message) return null;
 
   let avatarDisplay;
 
