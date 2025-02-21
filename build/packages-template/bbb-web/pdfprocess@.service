@@ -6,7 +6,7 @@ After=network.target
 Type=oneshot
 RemainAfterExit=no
 
-TimeoutSec=10
+TimeoutSec=60
 MemoryHigh=512M
 MemoryMax=640M
 MemorySwapMax=0
