@@ -386,7 +386,6 @@ export const ButtonContent = styled.div`
   width: 100%;
   padding: 0.5rem;
   border-radius: 0.5rem;
-  background-color: ${colorOffWhite};
 `;
 
 export const ExpandIcon = styled.div<{ $expanded: boolean }>`
@@ -413,7 +412,7 @@ export const ExpandIcon = styled.div<{ $expanded: boolean }>`
 `;
 
 export const TitleText = styled.span`
-  font-size: ${fontSizeSmall};
+  font-size: ${fontSizeBase};
   font-weight: ${textFontWeight};
   color: ${colorGrayDark};
   overflow: hidden;
