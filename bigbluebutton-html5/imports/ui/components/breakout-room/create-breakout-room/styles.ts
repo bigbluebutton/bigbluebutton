@@ -114,7 +114,6 @@ const BreakoutNameInput = styled.input`
 `;
 
 const BreakoutBox = styled(ScrollboxVertical)<BreakoutBoxProps>`
-  max-width: 13rem;
   height: 10rem;
   border: 1px solid ${colorGrayLightest};
   border-radius: ${borderRadius};
