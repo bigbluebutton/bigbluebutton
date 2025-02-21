@@ -101,8 +101,6 @@ object AudioFloorManager extends SystemConfiguration {
     }, minTalkingDuration, TimeUnit.MILLISECONDS)
 
     pendingFloors.enqueue(PendingFloor(userId, timestamp, future))
-
-    logFloorEvent(userId, "floor_timer_scheduled", Map("queue_position" -> pendingFloors.size))
   }
 
   private def grantFloor(
@@ -183,10 +181,6 @@ object AudioFloorManager extends SystemConfiguration {
       liveMeeting: LiveMeeting,
       outGW:       OutMsgRouter
   ): Option[String] = {
-    logFloorEvent(userId, "handle_start_talking", Map(
-      "pending_floors" -> pendingFloors.size
-    ))
-
     if (!state.speakingStartTimes.contains(userId)) {
       state = state.copy(
         speakingStartTimes = state.speakingStartTimes + (userId -> timestamp)
@@ -198,11 +192,6 @@ object AudioFloorManager extends SystemConfiguration {
   }
 
   private def handleStopTalking(userId: String, timestamp: Long): Option[String] = {
-    logFloorEvent(userId, "handle_stop_talking", Map(
-      "speaking_duration" -> state.speakingStartTimes.get(userId).map(timestamp - _),
-      "pending_floors" -> pendingFloors.size
-    ))
-
     pendingFloors.find(_.userId == userId).foreach { pending =>
       pending.timer.cancel(false)
       pendingFloors.dequeueFirst(_.userId == userId)
