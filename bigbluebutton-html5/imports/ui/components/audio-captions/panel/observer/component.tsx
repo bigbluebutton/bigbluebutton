@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { layoutDispatch } from '/imports/ui/components/layout/context';
 import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
 import { defineMessages, useIntl } from 'react-intl';
@@ -20,31 +20,38 @@ const AudioCaptionsPanelAppObserver = () => {
   const intl = useIntl();
   const audioCaptionsAppRegistered = useRef<boolean>(false);
 
-  useEffect(() => {
-    if (shouldUseAppsGallery) {
-      const registerApp = (panel: string, name: string, icon: string) => {
-        layoutContextDispatch({
-          type: ACTIONS.REGISTER_SIDEBAR_APP,
-          value: {
-            panel,
-            name,
-            icon,
-          },
-        });
-      };
+  const registerApp = useCallback((panel: string, name: string, icon: string) => {
+    layoutContextDispatch({
+      type: ACTIONS.REGISTER_SIDEBAR_APP,
+      value: {
+        id: panel,
+        name,
+        icon,
+      },
+    });
+  }, [layoutContextDispatch]);
 
-      if (isEnabled) {
-        if (!audioCaptionsAppRegistered.current) {
-          registerApp(
-            PANELS.AUDIO_CAPTIONS,
-            intl.formatMessage(intlMessages.panelTitle),
-            TRANSCRIPTIONS_AND_CAPTIONS_ICON,
-          );
-          audioCaptionsAppRegistered.current = true;
-        }
-      }
+  useEffect(() => {
+    if (shouldUseAppsGallery && isEnabled && !audioCaptionsAppRegistered.current) {
+      registerApp(
+        PANELS.AUDIO_CAPTIONS,
+        intl.formatMessage(intlMessages.panelTitle),
+        TRANSCRIPTIONS_AND_CAPTIONS_ICON,
+      );
+      audioCaptionsAppRegistered.current = true;
     }
   }, [isEnabled]);
+
+  useEffect(() => {
+    if (isEnabled && shouldUseAppsGallery && audioCaptionsAppRegistered.current) {
+      // update app intl locale
+      registerApp(
+        PANELS.AUDIO_CAPTIONS,
+        intl.formatMessage(intlMessages.panelTitle),
+        TRANSCRIPTIONS_AND_CAPTIONS_ICON,
+      );
+    }
+  }, [intl]);
   return null;
 };
 
