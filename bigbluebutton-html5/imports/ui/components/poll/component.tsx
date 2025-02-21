@@ -406,6 +406,8 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
                     icons={false}
                     defaultChecked={customInput}
                     onChange={() => {
+                      const newType = !customInput ? pollTypes.Custom : '';
+                      setType(newType);
                       setCustomInput(!customInput);
                     }}
                     ariaLabel={intl.formatMessage(intlMessages.customInputToggleLabel)}

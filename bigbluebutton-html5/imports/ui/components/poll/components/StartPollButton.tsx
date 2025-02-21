@@ -18,6 +18,10 @@ const intlMessages = defineMessages({
     id: 'app.poll.optionErr',
     description: 'poll input error label',
   },
+  minOptionsErr: {
+    id: 'app.poll.minOptionsErr',
+    description: 'poll input error label',
+  },
   yes: {
     id: 'app.poll.y',
     description: '',
@@ -91,11 +95,15 @@ const StartPollButton: React.FC<StartPollButtonProps> = ({
     });
   };
 
+  const hasNotMinOptions = (type === pollTypes.Custom || type === pollTypes.Letter) && optList.length < 2;
+
   return (
     <Styled.StartPollBtn
       data-test="startPoll"
       label={intl.formatMessage(intlMessages.startPollLabel)}
       color="primary"
+      disabled={hasNotMinOptions}
+      title={hasNotMinOptions ? intl.formatMessage(intlMessages.minOptionsErr) : ''}
       onClick={() => {
         const optionsList = optList.slice(0, MAX_CUSTOM_FIELDS);
         let hasVal = false;
@@ -104,6 +112,9 @@ const StartPollButton: React.FC<StartPollButtonProps> = ({
         });
 
         let err = null;
+        if (hasNotMinOptions) {
+          err = intl.formatMessage(intlMessages.optionErr);
+        }
         if (type === pollTypes.Response && question.length === 0) {
           err = intl.formatMessage(intlMessages.questionErr);
         }

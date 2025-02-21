@@ -430,6 +430,7 @@
     "app.poll.secretPoll.isSecretLabel": "The poll is anonymous – you will not be able to see individual responses.",
     "app.poll.questionErr": "Providing a question is required.",
     "app.poll.optionErr": "Enter a Poll option",
+    "app.poll.minOptionsErr": "At least two options are required",
     "app.poll.startPollDesc": "Begins the poll",
     "app.poll.showRespDesc": "Displays response configuration",
     "app.poll.addRespDesc": "Adds poll response input",
