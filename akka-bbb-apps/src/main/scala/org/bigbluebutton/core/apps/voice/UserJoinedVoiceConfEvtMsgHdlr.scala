@@ -2,6 +2,7 @@ package org.bigbluebutton.core.apps.voice
 
 import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.common2.msgs._
+import org.bigbluebutton.core.db.NotificationDAO
 import org.bigbluebutton.core.running.{ LiveMeeting, MeetingActor, OutMsgRouter }
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 import org.bigbluebutton.core.models._
@@ -29,6 +30,19 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
       // bbb-html should only listen for this single message
       val event = MsgBuilder.buildGuestsWaitingForApprovalEvtMsg(meetingId, "nodeJSapp", Vector(guest))
       outGW.send(event)
+
+      val notifyEvent = MsgBuilder.buildNotifyRoleInMeetingEvtMsg(
+        Roles.MODERATOR_ROLE,
+
+        liveMeeting.props.meetingProp.intId,
+        "info",
+        "user",
+        "app.userList.guest.pendingGuestAlert",
+        "Notification that a new guest user joined the session",
+        Vector(s"${guest.name}")
+      )
+      outGW.send(notifyEvent)
+      NotificationDAO.insert(notifyEvent)
     }
 
     def registerUserInRegisteredUsers() = {
@@ -66,8 +80,18 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
     }
 
     def registerUserAsGuest() = {
-      if (GuestsWaiting.findWithIntId(liveMeeting.guestsWaiting, msg.body.intId) == None) {
-        val guest = GuestWaiting(msg.body.intId, msg.body.callerIdName, Roles.VIEWER_ROLE, true, "", "", userColor, true, System.currentTimeMillis())
+      if (GuestsWaiting.findWithIntId(liveMeeting.guestsWaiting, msg.body.intId).isEmpty) {
+        val guest = GuestWaiting(
+          msg.body.intId,
+          msg.body.callerIdName,
+          Roles.VIEWER_ROLE,
+          guest = true,
+          avatar = "",
+          webcamBackground = "",
+          userColor,
+          authenticated = true,
+          System.currentTimeMillis()
+        )
         GuestsWaiting.add(liveMeeting.guestsWaiting, guest)
         notifyModeratorsOfGuestWaiting(guest, liveMeeting.users2x, liveMeeting.props.meetingProp.intId)
 
@@ -76,7 +100,7 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
           outGW,
           msg.body.intId,
           msg.body.voiceUserId,
-          false
+          enabled = false
         )
       }
     }
