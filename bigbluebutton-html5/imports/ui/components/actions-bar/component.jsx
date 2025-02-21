@@ -198,7 +198,8 @@ class ActionsBar extends PureComponent {
             {this.renderPluginsActionBarItems(ActionsBarPosition.RIGHT)}
           </Styled.Center>
           <Styled.Right>
-            {shouldShowPresentationButton && shouldShowOptionsButton
+            <Styled.PresentationButtonsWrapper>
+              {shouldShowPresentationButton && shouldShowOptionsButton
               && (
                 <PresentationOptionsContainer
                   presentationIsOpen={presentationIsOpen}
@@ -213,25 +214,26 @@ class ActionsBar extends PureComponent {
                   isDarkThemeEnabled={isDarkThemeEnabled}
                 />
               )}
-            <MediaAreaDropdown {...{
-              amIPresenter,
-              amIModerator,
-              isPollingEnabled,
-              allowExternalVideo,
-              intl,
-              isSharingVideo,
-              stopExternalVideoShare,
-              isTimerActive,
-              isTimerEnabled,
-              isMeteorConnected,
-              setMeetingLayout,
-              setPushLayout,
-              presentationIsOpen,
-              showPushLayout,
-              hasCameraAsContent,
-              setPresentationFitToWidth,
-            }}
-            />
+              <MediaAreaDropdown {...{
+                amIPresenter,
+                amIModerator,
+                isPollingEnabled,
+                allowExternalVideo,
+                intl,
+                isSharingVideo,
+                stopExternalVideoShare,
+                isTimerActive,
+                isTimerEnabled,
+                isMeteorConnected,
+                setMeetingLayout,
+                setPushLayout,
+                presentationIsOpen,
+                showPushLayout,
+                hasCameraAsContent,
+                setPresentationFitToWidth,
+              }}
+              />
+            </Styled.PresentationButtonsWrapper>
           </Styled.Right>
         </Styled.ActionsBar>
       </Styled.ActionsBarWrapper>
