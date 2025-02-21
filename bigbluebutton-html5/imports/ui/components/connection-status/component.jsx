@@ -29,6 +29,18 @@ const ConnectionStatus = () => {
     currentlyInMeeting: u.currentlyInMeeting,
   }));
 
+  const setErrorOnRtt = (error) => {
+    logger.error({
+      logCode: 'rtt_fetch_error',
+      extraInfo: {
+        error,
+      },
+    }, 'Error fetching rtt');
+    connectionStatus.setLastRttRequestSuccess(false);
+    // gets the worst status
+    connectionStatus.setConnectionStatus(2000, 'critical');
+  };
+
   const handleUpdateConnectionAliveAt = () => {
     const startTime = performance.now();
     fetch(
@@ -37,38 +49,47 @@ const ConnectionStatus = () => {
     )
       .then((res) => {
         if (res.ok && res.status === 200) {
-          const rttLevels = window.meetingClientSettings.public.stats.rtt;
-          const endTime = performance.now();
-          const networkRtt = Math.round(endTime - startTime);
-          networkRttInMs.current = networkRtt;
-          updateConnectionAliveAtM({
-            variables: {
-              networkRttInMs: networkRtt,
-            },
-          });
-          const rttStatus = getStatus(rttLevels, networkRtt);
-          connectionStatus.setConnectionStatus(networkRtt, rttStatus);
-          connectionStatus.setLastRttRequestSuccess(true);
+          try {
+            const rttLevels = window.meetingClientSettings.public.stats.rtt;
+            const endTime = performance.now();
+            const networkRtt = Math.round(endTime - startTime);
+            networkRttInMs.current = networkRtt;
+            updateConnectionAliveAtM({
+              variables: {
+                networkRttInMs: networkRtt,
+              },
+            });
+            const rttStatus = getStatus(rttLevels, networkRtt);
+            connectionStatus.setConnectionStatus(networkRtt, rttStatus);
+            connectionStatus.setLastRttRequestSuccess(true);
 
-          if (Object.keys(rttLevels).includes(rttStatus)) {
-            connectionStatus.addUserNetworkHistory(
-              data,
-              rttStatus,
-              Date.now(),
-            );
+            if (Object.keys(rttLevels).includes(rttStatus)) {
+              connectionStatus.addUserNetworkHistory(
+                data,
+                rttStatus,
+                Date.now(),
+              );
+            }
+          } catch (error) {
+            logger.error({
+              logCode: 'rtt_failed_to_register_user_history',
+              extraInfo: {
+                error,
+              },
+            }, 'Error registering user network history');
           }
+        } else {
+          const error = {
+            status: res.status,
+            statusText: res.statusText,
+            url: res.url,
+            stack: new Error().stack,
+          };
+          setErrorOnRtt(error);
         }
       })
       .catch((error) => {
-        logger.error({
-          logCode: 'rtt_fetch_error',
-          extraInfo: {
-            error,
-          },
-        }, 'Error fetching rtt');
-        connectionStatus.setLastRttRequestSuccess(false);
-        // gets the worst status
-        connectionStatus.setConnectionStatus(2000, 'critical');
+        setErrorOnRtt(error);
       })
       .finally(() => {
         if (timeoutRef.current) {
