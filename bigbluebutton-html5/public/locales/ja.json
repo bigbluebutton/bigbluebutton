@@ -1144,6 +1144,7 @@
     "app.notificationBar.connectionCode3003": "現在サーバが応答していません。再接続を行っています (コード3003)",
     "app.notificationBar.connectionCode3004": "接続が不安定です。インターネットへの接続を確認してください (コード3004)",
     "app.notificationBar.connectionCode3005": "データの受信が遅くなっています。再接続を行っています (コード3005)",
+    "app.notificationBar.issueLoadingDataCode3006": "データがリアルタイムで受信できませんでした。ブラウザを再読み込みしてください（コード3006）",
     "app.learning-dashboard.label": "参加状況分析ボード",
     "app.learning-dashboard.description": "ユーザーの活動状況を一覧",
     "app.learning-dashboard.clickHereToOpen": "参加状況分析ボードを開く",
