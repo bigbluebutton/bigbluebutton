@@ -1,0 +1,17 @@
+[Unit]
+Description=Process a single page from a PDF (Instance: %i)
+After=network.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=no
+
+TimeoutSec=60
+MemoryHigh=512M
+MemoryMax=640M
+MemorySwapMax=0
+
+ExecStart=/usr/local/bin/pdf-page-process.sh %i
+
+[Install]
+WantedBy=multi-user.target

@@ -172,8 +172,6 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
   }
 
   private void createBlankThumbnail(File thumbsDir, int page) {
-    File[] thumbs = thumbsDir.listFiles();
-
     File thumb = new File(thumbsDir.getAbsolutePath() + File.separatorChar + "thumb-" + page + ".png");
     if (!thumb.exists()) {
       log.info("Copying blank thumbnail for slide {}", page);

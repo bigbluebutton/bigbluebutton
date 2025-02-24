@@ -99,8 +99,11 @@ public class TextFileCreatorImp implements TextFileCreator {
 
     } else {
       // sudo apt-get install xpdf-utils
-        COMMAND = "pdftotext -raw -nopgbrk -enc UTF-8 -f " + page + " -l " + page
-            + " " + source + " " + dest;
+//        COMMAND = "pdftotext -raw -nopgbrk -enc UTF-8 -f " + page + " -l " + page
+//            + " " + source + " " + dest;
+      String service = "pdfprocess@" + pres.getMeetingId() + "_" + pres.getId() +"_" + page + ".service";
+      log.info("Starting PDF processing service [{}]", service);
+      COMMAND = "sudo systemctl start " + service;
 
         //System.out.println(COMMAND);
 
