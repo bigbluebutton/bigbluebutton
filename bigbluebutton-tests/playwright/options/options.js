@@ -146,7 +146,7 @@ class Options extends MultiUsers {
     const messagesSidebarButtonFontSize = await messagesSidebarButtonLocator.evaluate(getFontSizeNumber);
     const chatTitleFontSize = await chatTitleLocator.evaluate(getFontSizeNumber);
 
-    // increase font size
+    // increasing font size
     await this.modPage.waitAndClick(e.settingsSidebarButton);
     await this.modPage.waitAndClick(e.increaseFontSize);
     await this.modPage.waitAndClick(e.saveSettingsButton);

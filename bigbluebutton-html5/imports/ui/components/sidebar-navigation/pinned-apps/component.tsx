@@ -1,5 +1,6 @@
 import React, { memo } from 'react';
 import {
+  InjectedAppGalleryItem,
   Input,
   SidebarNavigation,
 } from '/imports/ui/components/layout/layoutTypes';
@@ -17,10 +18,24 @@ const PinnedApps = ({ sidebarNavigationInput }: PinnedAppsProps) => {
   const { registeredApps = {}, pinnedApps = [] } = sidebarNavigationInput;
   const layoutContextDispatch = layoutDispatch();
   const { sidebarContentPanel } = layoutSelectInput((i: Input) => i.sidebarContent);
+  const openPanel = (pinnedAppKey: string) => {
+    layoutContextDispatch({
+      type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+      value: sidebarContentPanel !== pinnedAppKey,
+    });
+    layoutContextDispatch({
+      type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+      value: sidebarContentPanel === pinnedAppKey
+        ? PANELS.NONE
+        : pinnedAppKey,
+    });
+  };
 
   return pinnedApps.map((pinnedAppKey: string) => {
     const pinnedAppInfo = registeredApps[pinnedAppKey];
     const { name, icon } = pinnedAppInfo;
+    // type guard
+    const { onClick } = (pinnedAppInfo as InjectedAppGalleryItem);
     return (
       <TooltipContainer
         title={name}
@@ -32,18 +47,7 @@ const PinnedApps = ({ sidebarNavigationInput }: PinnedAppsProps) => {
           tabIndex={0}
           active={sidebarContentPanel === pinnedAppKey}
           data-test={`${pinnedAppKey}SidebarButton`}
-          onClick={() => {
-            layoutContextDispatch({
-              type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-              value: sidebarContentPanel !== pinnedAppKey,
-            });
-            layoutContextDispatch({
-              type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-              value: sidebarContentPanel === pinnedAppKey
-                ? PANELS.NONE
-                : pinnedAppKey,
-            });
-          }}
+          onClick={onClick || (() => openPanel(pinnedAppKey))}
         >
           <Icon iconName={icon} />
         </Styled.ListItem>

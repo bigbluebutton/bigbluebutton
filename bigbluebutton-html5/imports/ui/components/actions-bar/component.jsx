@@ -16,6 +16,7 @@ import RaiseHandButtonContainer from '/imports/ui/components/actions-bar/raise-h
 import Selector from '/imports/ui/components/common/selector/component';
 import ToggleGroup from '/imports/ui/components/common/toggle-group/component';
 import Separator from '/imports/ui/components/common/separator/component';
+import AudioCaptionsPanelAppObserver from '../audio-captions/panel/observer/component';
 
 const intlMessages = defineMessages({
   actionsBarLabel: {
@@ -170,9 +171,12 @@ class ActionsBar extends PureComponent {
             }
           }
         >
-          <Styled.Center>
+          <Styled.Left>
             {this.renderPluginsActionBarItems(ActionsBarPosition.LEFT)}
             <AudioCaptionsButtonContainer />
+            <AudioCaptionsPanelAppObserver />
+          </Styled.Left>
+          <Styled.Center>
             <AudioControlsContainer />
             {shouldShowVideoButton && enableVideo
               ? (

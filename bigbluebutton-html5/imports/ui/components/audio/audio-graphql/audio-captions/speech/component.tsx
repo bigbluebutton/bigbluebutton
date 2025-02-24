@@ -14,6 +14,7 @@ import {
   hasSpeechRecognitionSupport,
   isLocaleValid,
   localeAsDefaultSelected,
+  mostSimilarLanguage,
   setSpeechVoices,
   useFixedLocale,
 } from './service';
@@ -22,7 +23,6 @@ import AudioManager from '/imports/ui/services/audio-manager';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import {
   isWebSpeechApi,
-  setUserLocaleProperty,
   setSpeechLocale,
   useIsAudioTranscriptionEnabled,
 } from '../service';
@@ -84,7 +84,7 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
     if (fixedLocaleResult || localeAsDefaultSelected()) {
       setSpeechLocale(getLocale(), setUserSpeechLocale);
     } else {
-      setSpeechLocale(navigator.language, setUserSpeechLocale);
+      setSpeechLocale(mostSimilarLanguage(navigator.language), setUserSpeechLocale);
     }
   };
 
@@ -103,12 +103,6 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
 
     speechRecognition.continuous = true;
     speechRecognition.interimResults = true;
-
-    if (fixedLocaleResult || localeAsDefaultSelected()) {
-      setUserLocaleProperty(getLocale(), setUserSpeechLocale);
-    } else {
-      setUserLocaleProperty(navigator.language, setUserSpeechLocale);
-    }
 
     return speechRecognition;
   };

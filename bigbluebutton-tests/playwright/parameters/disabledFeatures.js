@@ -50,8 +50,7 @@ class DisabledFeatures extends MultiUsers {
   }
 
   async polls() {
-    await this.modPage.waitAndClick(e.actions);
-    await this.modPage.wasRemoved(e.polling, 'should not display the polling on the actions button');
+    await this.modPage.wasRemoved(e.pollSidebarButton, 'should not display the poll sidebar button');
   }
 
   async screenshare() {
@@ -152,8 +151,7 @@ class DisabledFeatures extends MultiUsers {
   }
 
   async pollsExclude() {
-    await this.modPage.waitAndClick(e.actions);
-    await this.modPage.hasElement(e.polling, 'should display the polling option on the actions');
+    await this.modPage.hasElement(e.pollSidebarButton, 'should display the polling sidebar button');
   }
 
   async screenshareExclude() {

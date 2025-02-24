@@ -12,7 +12,7 @@ class Notifications extends MultiUsers {
 
   async saveSettingsNotification() {
     await this.modPage.waitAndClick(e.settingsSidebarButton);
-    await util.saveSettings(this.modPage);
+    await this.modPage.waitAndClick(e.saveSettingsButton);
     await util.checkNotificationText(this.modPage, e.savedSettingsToast);
   }
 
@@ -38,8 +38,9 @@ class Notifications extends MultiUsers {
   }
 
   async getUserJoinPopupResponse() {
-    await this.modPage.hasElement(e.whiteboard);
+    await this.modPage.waitForSelector(e.whiteboard);
     await this.userJoinNotification(this.modPage);
+    // close all notifications before checking the join notification
     await this.modPage.closeAllToastNotifications();
     await this.initUserPage();
     await this.modPage.waitForSelector(e.smallToastMsg, ELEMENT_WAIT_LONGER_TIME);
@@ -61,7 +62,7 @@ class Notifications extends MultiUsers {
   async userJoinNotification(page) {
     await page.waitAndClick(e.settingsSidebarButton);
     await util.enableUserJoinPopup(page);
-    await util.saveSettings(page);
+    await page.waitAndClick(e.saveSettingsButton);
   }
 }
 

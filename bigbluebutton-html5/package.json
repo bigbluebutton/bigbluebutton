@@ -60,7 +60,7 @@
     "autoprefixer": "^10.4.4",
     "axios": "^1.7.8",
     "babel-runtime": "~6.26.0",
-    "bigbluebutton-html-plugin-sdk": "0.0.70",
+    "bigbluebutton-html-plugin-sdk": "0.1.2",
     "bowser": "^2.11.0",
     "browser-bunyan": "^1.8.0",
     "classnames": "^2.2.6",

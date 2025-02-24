@@ -138,6 +138,10 @@ class Page {
     return this.page.locator(selector);
   }
 
+  getVisibleLocator(selector) {
+    return this.getLocator(`${selector} >> visible=true`);
+  }
+
   getLocatorByIndex(selector, index) {
     return this.page.locator(selector).nth(index);
   }
@@ -239,8 +243,19 @@ class Page {
   }
 
   async hasText(selector, text, description, timeout = ELEMENT_WAIT_TIME) {
-    const locator = this.getLocator(selector).first();
+    const locator = this.getVisibleLocator(selector).first();
     await expect(locator, description).toContainText(text, { timeout });
+  }
+
+  async hasNotificationIcon(selector, description, timeout = ELEMENT_WAIT_TIME) {
+    await expect(async () => {
+      const hasNotificationIcon = await this.page.evaluate((el) => {
+        const element = document.querySelector(el);
+        const afterElement = getComputedStyle(element, 'after');
+        return afterElement && afterElement.content !== 'none';
+      }, [selector]);
+      expect(hasNotificationIcon).toBeTruthy();
+    }, description).toPass({ timeout });
   }
 
   async haveTitle(title) {

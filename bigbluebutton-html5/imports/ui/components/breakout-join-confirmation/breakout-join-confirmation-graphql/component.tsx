@@ -223,6 +223,7 @@ const BreakoutJoinConfirmationContainer: React.FC = () => {
     return {
       isModerator: u.isModerator,
       breakoutRooms: u.breakoutRooms,
+      bot: u.bot,
     };
   });
   const {
@@ -253,6 +254,7 @@ const BreakoutJoinConfirmationContainer: React.FC = () => {
     sendInvitationToModerators,
     breakoutRoomId,
   } = firstBreakout;
+  if (currentUser?.bot) return null;
   if (!sendInvitationToModerators && currentUser?.isModerator) return null;
   return (
     <BreakoutJoinConfirmation

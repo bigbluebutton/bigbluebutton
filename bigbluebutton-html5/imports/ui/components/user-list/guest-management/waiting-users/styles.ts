@@ -9,6 +9,9 @@ import {
   colorGrayLighter,
   colorGrayLightest,
   colorText,
+  colorGrayDark,
+  colorOffWhite,
+  btnPrimaryBg,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   borderSize,
@@ -16,13 +19,14 @@ import {
   smPaddingY,
   borderRadius,
   smPaddingX,
+  contentSidebarBorderRadius,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
   fontSizeBase,
   fontSizeSmall, fontSizeSmaller, textFontWeight, titlesFontWeight,
 } from '/imports/ui/stylesheets/styled-components/typography';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
-import { FormControlLabel, Switch } from '@mui/material';
+import { FormControlLabel, Switch, ButtonBase } from '@mui/material';
 import { styled as materialStyled } from '@mui/material/styles';
 import TextareaAutosize from 'react-autosize-textarea';
 import Button from '@mui/material/Button';
@@ -99,6 +103,7 @@ const MainTitle = styled.div`
 const UsersWrapper = styled.div`
   display: flex;
   flex-direction: column;
+  padding: 0px 0.5rem 0.5rem;
 `;
 
 const Users = styled.div`
@@ -114,6 +119,7 @@ const Panel = styled.div<PanelProps>`
   flex-direction: column;
   justify-content: flex-start;
   overflow: hidden;
+  padding-top: 0.5rem;
   gap: 1rem;
 
   ${({ isChrome }) => isChrome && `
@@ -167,8 +173,9 @@ const GuestOptionsContainer = styled.div`
 
 const AcceptDenyButtonsContainer = styled.div`
   display: inline-flex;
-  justify-content: flex-end;
+  justify-content: space-between
   align-items: center;
+  padding: 0px 0.5rem 0.5rem;
   gap: 1.5rem;
 `;
 
@@ -358,7 +365,67 @@ const GuestLobbyMessage = styled.div`
   font-style: italic;  
 `;
 
+export const ToggleButton = styled(ButtonBase)`
+  width: 100%;
+  padding: 0.75rem;
+  display: flex;
+  align-items: center;
+  transition: background-color 0.3s ease;
+  border-radius: ${contentSidebarBorderRadius};
+
+  &:focus {
+    outline: 2px solid ${colorOffWhite};
+    border-radius: ${contentSidebarBorderRadius};
+    outline-offset: -2px;
+  }
+`;
+
+export const ButtonContent = styled.div`
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  background-color: ${colorOffWhite};
+`;
+
+export const ExpandIcon = styled.div<{ $expanded: boolean }>`
+  width: 1.375rem;
+  height: 1.375rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: ${({ $expanded }) => ($expanded ? 'rotate(180deg)' : 'rotate(0deg)')};
+  transition: all 0.3s ease;
+  margin-right: 0.75rem;
+  border-radius: 50%;
+  background-color: ${btnPrimaryBg};
+
+  svg {
+    color: ${colorWhite};
+    font-size: 1.25rem;
+    transition: transform 0.3s ease;
+  }
+
+  &:hover {
+    filter: brightness(0.9);
+  }
+`;
+
+export const TitleText = styled.span`
+  font-size: ${fontSizeSmall};
+  font-weight: ${textFontWeight};
+  color: ${colorGrayDark};
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 1rem;
+`;
+
 export default {
+  TitleText,
+  ExpandIcon,
+  ButtonContent,
+  ToggleButton,
   ListItem,
   UserContentContainer,
   UserAvatarContainer,

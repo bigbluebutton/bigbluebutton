@@ -67,6 +67,7 @@ Permission: Restricted to User Viewing Self-Related Data
 - `avatar`
 - `away`
 - `banned`
+- `bot`
 - `captionLocale`
 - `clientType`
 - `color`
