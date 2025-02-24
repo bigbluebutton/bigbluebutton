@@ -13,10 +13,6 @@ async function enableUserJoinPopup(test) {
   await test.waitAndClickElement(e.userJoinPushAlerts);
 }
 
-async function saveSettings(page) {
-  await page.waitAndClick(e.modalConfirmButton);
-}
-
 async function checkNotificationText(test, text) {
   await test.hasText(e.smallToastMsg, text, 'should appear the text on the toast message notification');
 }
@@ -41,7 +37,7 @@ async function privateChatMessageToast(page2) {
   await page2.waitAndClick(e.usersListSidebarButton);
   await page2.waitAndClick(e.startPrivateChat);
   // wait for the private chat to be ready
-  await page2.waitUntilHaveCountSelector(e.chatButton, 2);
+  await page2.hasElement(e.privateChatBackButton, 'should display the private chat back button');
   // send a private message
   await page2.type(e.chatBox, e.message1);
   await sleep(1000);
@@ -68,6 +64,5 @@ exports.enableUserJoinPopup = enableUserJoinPopup;
 exports.checkNotificationText = checkNotificationText;
 exports.checkNotificationIcon = checkNotificationIcon;
 exports.enableChatPopup = enableChatPopup;
-exports.saveSettings = saveSettings;
 exports.waitAndClearNotification = waitAndClearNotification;
 exports.waitAndClearDefaultPresentationNotification = waitAndClearDefaultPresentationNotification;

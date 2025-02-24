@@ -373,6 +373,7 @@ class Settings extends Component {
               {intl.formatMessage(intlMessages.CancelLabel)}
             </Styled.ActionButton>
             <Styled.ActionButton
+              data-test="saveSettingsButton"
               onClick={() => {
                 this.updateSettings(current, intlMessages.savedAlertLabel, setLocalSettings);
 

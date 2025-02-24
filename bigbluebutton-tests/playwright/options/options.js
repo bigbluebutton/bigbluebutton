@@ -1,5 +1,5 @@
 const { expect } = require('@playwright/test');
-const { openAboutModal, openSettings, getLocaleValues } = require('./util');
+const { openAboutModal, getLocaleValues } = require('./util');
 const e = require('../core/elements');
 const { CI } = require('../core/constants');
 const { MultiUsers } = require('../user/multiusers');
@@ -46,7 +46,7 @@ class Options extends MultiUsers {
       console.log(`Testing ${locale} locale`);
       const currentValuesBySelector = await getLocaleValues(selectedKeysBySelector, locale);
 
-      await openSettings(this.modPage);
+      await this.modPage.waitAndClick(e.settingsSidebarButton);
       await this.modPage.waitForSelector(e.languageSelector);
       const langDropdown = await this.modPage.page.$(e.languageSelector);
       await langDropdown.selectOption({ value: locale });
@@ -101,7 +101,7 @@ class Options extends MultiUsers {
     const presentationTitleColor = await presentationTitleLocator.evaluate(getTextColorComputed);
     const chatUserMessageTextColor = await chatUserMessageTextLocator.evaluate(getTextColorComputed);
 
-    await openSettings(this.modPage);
+    await this.modPage.waitAndClick(e.settingsSidebarButton);
     await this.modPage.waitAndClickElement(e.darkModeToggleBtn);
     await this.modPage.waitAndClick(e.modalConfirmButton);
     await sleep(500); // wait for the changes to be applied
@@ -144,7 +144,7 @@ class Options extends MultiUsers {
     const messageTitleFontSize = await messageTitleLocator.evaluate(getFontSizeNumber);
 
     // Increasing font size
-    await openSettings(this.modPage);
+    await this.modPage.waitAndClick(e.settingsSidebarButton);
     await this.modPage.waitAndClick(e.increaseFontSize);
     await this.modPage.waitAndClick(e.modalConfirmButton);
     await sleep(500); // wait for the changes to be applied

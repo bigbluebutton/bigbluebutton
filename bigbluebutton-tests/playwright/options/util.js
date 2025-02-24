@@ -1,11 +1,6 @@
 const e = require('../core/elements');
 const defaultLocale = require('../../../bigbluebutton-html5/public/locales/en.json');
 
-async function openSettings(test) {
-  await test.waitAndClick(e.optionsButton);
-  await test.waitAndClick(e.settings);
-}
-
 async function getLocaleValues(elements, locale) {
   const currentValues = {};
   let currentLocale = {};
@@ -35,5 +30,4 @@ async function openAboutModal(test) {
 }
 
 exports.openAboutModal = openAboutModal;
-exports.openSettings = openSettings;
 exports.getLocaleValues = getLocaleValues;

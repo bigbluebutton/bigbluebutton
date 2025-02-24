@@ -115,7 +115,7 @@ class MultiUsers {
     await expect(isPresenter, 'should the second moderator to be presenter').toBeTruthy();
     await this.modPage2.waitAndClick(e.actions);
     await this.modPage2.hasElement(e.managePresentations, 'should display the manage presentations for the second moderator');
-    await this.modPage2.hasElement(e.polling, 'should display the polling option for the second moderator');
+    await this.modPage2.hasElement(e.pollSidebarButton, 'should display the polling option for the second moderator');
     await this.modPage2.hasElement(e.shareExternalVideoBtn, 'should display the share external video button for the second moderator');
   }
 
