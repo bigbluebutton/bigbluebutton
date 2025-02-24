@@ -257,7 +257,7 @@
     "app.media.screenshare.unavailable": "画面共有は利用できません",
     "app.media.screenshare.notSupported": "画面共有はこのブラウザではサポートされていません。",
     "app.media.screenshare.autoplayBlockedDesc": "発表者の画面の共有を許可してください",
-    "app.media.screenshare.autoplayAllowLabel": "共有画面を見る",
+    "app.media.screenshare.autoplayAllowLabel": "画面共有を許可",
     "app.media.cameraAsContent.start": "プレゼンカメラを開始しました",
     "app.media.cameraAsContent.end": "プレゼンカメラを停止しました",
     "app.media.cameraAsContent.endDueToDataSaving": "通信量制限のためプレゼンカメラを停止しました",
