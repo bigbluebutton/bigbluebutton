@@ -453,7 +453,8 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
           question={question}
           setError={setError}
           setIsPolling={() => {
-            setType(null);
+            const newType = customInput ? pollTypes.Custom : '';
+            setType(newType);
             setOptList([]);
             setQuestion('');
             setQuestionAndOptions('');
