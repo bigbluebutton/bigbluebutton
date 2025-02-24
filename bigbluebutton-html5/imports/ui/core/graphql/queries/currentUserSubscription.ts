@@ -38,6 +38,7 @@ subscription userCurrentSubscription {
     speechLocale
     captionLocale
     userId
+    bot
     breakoutRooms {
       hasJoined
       assignedAt
