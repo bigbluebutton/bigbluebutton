@@ -5,6 +5,7 @@ import { useIsPresentationEnabled, useIsExternalVideoEnabled } from '/imports/ui
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import {
+  layoutSelect,
   layoutSelectInput,
   layoutSelectOutput,
 } from '../layout/context';
@@ -55,6 +56,7 @@ const AppContainer = (props) => {
   const presentation = layoutSelectInput((i) => i.presentation);
   const sharedNotesInput = layoutSelectInput((i) => i.sharedNotes);
   const { hideNotificationToasts } = layoutSelectInput((i) => i.notificationsBar);
+  const selectedLayout = layoutSelect((i) => i.layoutType);
 
   const setSpeechOptions = useSetSpeechOptions();
   const { data: pinnedPadData } = useDeduplicatedSubscription(PINNED_PAD_SUBSCRIPTION);
@@ -110,6 +112,7 @@ const AppContainer = (props) => {
           hideNotificationToasts: hideNotificationToasts
             || getFromUserSettings('bbb_hide_notifications', false),
           darkTheme,
+          selectedLayout,
         }}
         {...props}
       />

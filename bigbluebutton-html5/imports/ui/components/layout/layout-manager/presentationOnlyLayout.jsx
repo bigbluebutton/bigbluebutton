@@ -248,14 +248,14 @@ const PresentationOnlyLayout = (props) => {
       type: ACTIONS.SET_PRESENTATION_OUTPUT,
       value: {
         display: true,
-        width: mediaBounds.width,
-        height: mediaBounds.height,
-        top: mediaBounds.top,
-        left: mediaBounds.left,
-        right: isRTL ? mediaBounds.right : null,
+        width: windowWidth(),
+        height: windowHeight(),
+        top: 0,
+        left: 0,
+        right: 0,
         tabOrder: DEFAULT_VALUES.presentationTabOrder,
         isResizable: false,
-        zIndex: mediaBounds.zIndex,
+        zIndex: 99,
       },
     });
 

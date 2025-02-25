@@ -46,6 +46,7 @@ import { notify } from '/imports/ui/services/notification';
 import VoiceActivityAdapter from '../../core/adapters/voice-activity';
 import LayoutObserver from '../layout/observer';
 import BBBLiveKitRoomContainer from '/imports/ui/components/livekit/component';
+import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
 
 const intlMessages = defineMessages({
   userListLabel: {
@@ -254,6 +255,7 @@ class App extends Component {
       pluginConfig,
       genericMainContentId,
       hideNotificationToasts,
+      selectedLayout,
     } = this.props;
 
     const {
@@ -261,17 +263,91 @@ class App extends Component {
       isVideoPreviewModalOpen,
       presentationFitToWidth,
     } = this.state;
+
+    if (selectedLayout !== LAYOUT_TYPE.PRESENTATION_ONLY) {
+      return (
+        <>
+          <ScreenReaderAlertAdapter />
+          <PluginsEngineManager pluginConfig={pluginConfig} />
+          <FloatingWindowContainer />
+          <TimeSync />
+          <Notifications />
+          <PushLayoutEngine
+            shouldShowScreenshare={shouldShowScreenshare}
+            shouldShowExternalVideo={shouldShowExternalVideo}
+          />
+          <LayoutEngine />
+          <LayoutObserver />
+          <GlobalStyles />
+          <Styled.Layout
+            id="layout"
+            style={{
+              width: '100%',
+              height: '100%',
+            }}
+          >
+            <ActivityCheckContainer />
+            <ScreenReaderAlertContainer />
+            <BannerBarContainer />
+            <NotificationsBarContainer />
+            <SidebarNavigationContainer />
+            <SidebarContentContainer isSharedNotesPinned={isSharedNotesPinned} />
+            <NavBarContainer main="new" />
+            <WebcamContainer />
+            <ExternalVideoPlayerContainer />
+            <GenericContentMainAreaContainer
+              genericMainContentId={genericMainContentId}
+            />
+            {
+              shouldShowPresentation
+                ? (
+                  <PresentationContainer
+                    setPresentationFitToWidth={this.setPresentationFitToWidth}
+                    fitToWidth={presentationFitToWidth}
+                    darkTheme={darkTheme}
+                    presentationIsOpen={presentationIsOpen}
+                  />
+                )
+                : null
+            }
+            <ScreenshareContainer shouldShowScreenshare={shouldShowScreenshare} />
+            {isSharedNotesPinned
+              ? (
+                <NotesContainer
+                  area="media"
+                />
+              ) : null}
+            <AudioCaptionsSpeechContainer />
+            {this.renderAudioCaptions()}
+            {!hideNotificationToasts && <PresentationUploaderToastContainer intl={intl} />}
+            <UploaderContainer />
+            <BreakoutJoinConfirmationContainerGraphQL />
+            <BBBLiveKitRoomContainer />
+            <AudioContainer {...{
+              isAudioModalOpen,
+              setAudioModalIsOpen: this.setAudioModalIsOpen,
+              isVideoPreviewModalOpen,
+              setVideoPreviewModalIsOpen: this.setVideoPreviewModalIsOpen,
+            }}
+            />
+            {!hideNotificationToasts && <ToastContainer rtl />}
+            <ChatAlertContainerGraphql />
+            <RaiseHandNotifier />
+            <ManyWebcamsNotifier />
+            <PollingContainer />
+            <WakeLockContainer />
+            {this.renderActionsBar()}
+            <EmojiRainContainer />
+            <VoiceActivityAdapter />
+          </Styled.Layout>
+        </>
+      );
+    }
+    // only load presentation for presentationOnly
     return (
       <>
         <ScreenReaderAlertAdapter />
         <PluginsEngineManager pluginConfig={pluginConfig} />
-        <FloatingWindowContainer />
-        <TimeSync />
-        <Notifications />
-        <PushLayoutEngine
-          shouldShowScreenshare={shouldShowScreenshare}
-          shouldShowExternalVideo={shouldShowExternalVideo}
-        />
         <LayoutEngine />
         <LayoutObserver />
         <GlobalStyles />
@@ -282,59 +358,14 @@ class App extends Component {
             height: '100%',
           }}
         >
-          <ActivityCheckContainer />
           <ScreenReaderAlertContainer />
-          <BannerBarContainer />
-          <NotificationsBarContainer />
-          <SidebarNavigationContainer />
-          <SidebarContentContainer isSharedNotesPinned={isSharedNotesPinned} />
-          <NavBarContainer main="new" />
-          <WebcamContainer />
-          <ExternalVideoPlayerContainer />
-          <GenericContentMainAreaContainer
-            genericMainContentId={genericMainContentId}
+          <PresentationContainer
+            setPresentationFitToWidth={this.setPresentationFitToWidth}
+            fitToWidth={presentationFitToWidth}
+            darkTheme={darkTheme}
+            presentationIsOpen={presentationIsOpen}
+            selectedLayout={selectedLayout}
           />
-          {
-          shouldShowPresentation
-            ? (
-              <PresentationContainer
-                setPresentationFitToWidth={this.setPresentationFitToWidth}
-                fitToWidth={presentationFitToWidth}
-                darkTheme={darkTheme}
-                presentationIsOpen={presentationIsOpen}
-              />
-            )
-            : null
-            }
-          <ScreenshareContainer shouldShowScreenshare={shouldShowScreenshare} />
-          {isSharedNotesPinned
-            ? (
-              <NotesContainer
-                area="media"
-              />
-            ) : null}
-          <AudioCaptionsSpeechContainer />
-          {this.renderAudioCaptions()}
-          { !hideNotificationToasts && <PresentationUploaderToastContainer intl={intl} /> }
-          <UploaderContainer />
-          <BreakoutJoinConfirmationContainerGraphQL />
-          <BBBLiveKitRoomContainer />
-          <AudioContainer {...{
-            isAudioModalOpen,
-            setAudioModalIsOpen: this.setAudioModalIsOpen,
-            isVideoPreviewModalOpen,
-            setVideoPreviewModalIsOpen: this.setVideoPreviewModalIsOpen,
-          }}
-          />
-          { !hideNotificationToasts && <ToastContainer rtl /> }
-          <ChatAlertContainerGraphql />
-          <RaiseHandNotifier />
-          <ManyWebcamsNotifier />
-          <PollingContainer />
-          <WakeLockContainer />
-          {this.renderActionsBar()}
-          <EmojiRainContainer />
-          <VoiceActivityAdapter />
         </Styled.Layout>
       </>
     );
