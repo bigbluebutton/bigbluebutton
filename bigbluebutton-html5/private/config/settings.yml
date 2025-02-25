@@ -971,6 +971,7 @@ public:
       danger: 1000
       critical: 2000
     help: STATS_HELP_URL
+    lastEntriesCap: 20
   presentation:
     allowDownloadOriginal: true
     allowDownloadWithAnnotations: true

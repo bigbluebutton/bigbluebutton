@@ -824,12 +824,13 @@ SELECT * FROM "user_breakoutRoom";
 CREATE TABLE "user_connectionStatus" (
 	"meetingId" varchar(100),
     "userId" varchar(50),
-	"connectionAliveAtMaxIntervalMs" numeric,
-	"connectionAliveAt" timestamp with time zone,
-	"networkRttInMs" numeric,
-	"status" varchar(25),
-	"statusUpdatedAt" timestamp with time zone,
-	CONSTRAINT "user_connectionStatus_voice_pkey" PRIMARY KEY ("meetingId","userId"),
+    "lastEntriesCap" integer,
+    "connectionAliveAtMaxIntervalMs" numeric,
+    "connectionAliveAt" timestamp with time zone,
+    "networkRttInMs" numeric,
+    "status" varchar(25),
+    "statusUpdatedAt" timestamp with time zone,
+    CONSTRAINT "user_connectionStatus_pkey" PRIMARY KEY ("meetingId","userId"),
     FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
 );
 create index "idx_user_connectionStatus_pk_reverse" on "user_connectionStatus"("userId", "meetingId");
@@ -845,8 +846,9 @@ RETURNS TRIGGER AS $$
 BEGIN
     SELECT ("clientSettingsJson"->'public'->'stats'->'rtt'->'critical')::int
             +
-           ("clientSettingsJson"->'public'->'stats'->'interval')::int
-         INTO NEW."connectionAliveAtMaxIntervalMs"
+           ("clientSettingsJson"->'public'->'stats'->'interval')::int,
+         ("clientSettingsJson"->'public'->'stats'->'lastEntriesCap')::int
+         INTO NEW."connectionAliveAtMaxIntervalMs", NEW."lastEntriesCap"
     from "meeting_clientSettings" mcs
     where mcs."meetingId" = NEW."meetingId";
     RETURN NEW;
@@ -858,21 +860,19 @@ BEFORE INSERT ON "user_connectionStatus"
 FOR EACH ROW
 EXECUTE FUNCTION "update_connectionAliveAtMaxIntervalMs"();
 
+CREATE TABLE "user_connectionStatusHistory" (
+    "meetingId" varchar(100),
+	"userId" varchar(50),
+	"networkRttInMs" numeric,
+	"status" varchar(25),
+	"statusUpdatedAt" timestamp with time zone,
+	FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
+);
+create index "idx_user_connectionStatusHistory" on "user_connectionStatus"("meetingId", "userId");
+create index "idx_user_connectionStatusHistory_reverse" on "user_connectionStatus"("userId", "meetingId");
 
---CREATE TABLE "user_connectionStatusHistory" (
---	"userId" varchar(50) REFERENCES "user"("userId") ON DELETE CASCADE,
---	"status" varchar(25),
---	"statusUpdatedAt" timestamp with time zone
---);
---CREATE TABLE "user_connectionStatusHistory" (
---	"userId" varchar(50) REFERENCES "user"("userId") ON DELETE CASCADE,
---	"status" varchar(25),
---	"totalOfOccurrences" integer,
---	"highestNetworkRttInMs" numeric,
---	"statusInsertedAt" timestamp with time zone,
---	"statusUpdatedAt" timestamp with time zone,
---	CONSTRAINT "user_connectionStatusHistory_pkey" PRIMARY KEY ("userId","status")
---);
+create view "v_user_connectionStatusHistory" as select * from "user_connectionStatusHistory";
+
 
 CREATE TABLE "user_connectionStatusMetrics" (
 	"meetingId" varchar(100),
@@ -909,6 +909,31 @@ BEGIN
     SELECT NEW."meetingId", NEW."userId", NEW."status", 1, current_timestamp, current_timestamp,
     NEW."networkRttInMs", NEW."networkRttInMs", NEW."networkRttInMs"
     WHERE NOT EXISTS (SELECT * FROM upsert);
+
+    --Store history into user_connectionStatusHistory
+    INSERT INTO "user_connectionStatusHistory"("meetingId","userId","networkRttInMs","status","statusUpdatedAt")
+    SELECT NEW."meetingId", NEW."userId", NEW."networkRttInMs", NEW."status", NEW."statusUpdatedAt";
+
+    --Keep only the `lastEntriesCap`
+    DELETE FROM "user_connectionStatusHistory"
+    WHERE ("meetingId", "userId", "statusUpdatedAt") IN (
+        SELECT "meetingId", "userId", "statusUpdatedAt"
+        FROM "user_connectionStatusHistory"
+        WHERE "meetingId" = NEW."meetingId"
+        AND "userId" = NEW."userId"
+        ORDER BY "statusUpdatedAt" DESC
+        OFFSET NEW."lastEntriesCap"
+    );
+
+--    DELETE from "user_connectionStatusHistory"
+--    WHERE "meetingId" = NEW."meetingId"
+--    AND "userId" = NEW."userId"
+--
+--    "meetingId" varchar(100),
+--    	"userId" varchar(50) REFERENCES "user"("userId") ON DELETE CASCADE,
+--    	"networkRttInMs" numeric,
+--    	"status" varchar(25),
+--    	"statusUpdatedAt" timestamp with time zone
 
     RETURN NEW;
 END;
