@@ -9,11 +9,13 @@ import {
   useConnectionQualityIndicator,
 } from '@livekit/components-react';
 import {
-  ConnectionState,
+  ConnectionError,
   ConnectionQuality,
+  ConnectionState,
   DisconnectReason,
   LogLevel,
   setLogLevel,
+  RoomEvent,
   type Room,
   type InternalRoomOptions,
   type RoomConnectOptions,
@@ -52,6 +54,8 @@ interface ObserverProps {
   url?: string;
   usingAudio: boolean;
 }
+
+const MAX_CONN_ATTEMPTS = 10;
 
 const LiveKitObserver = ({
   room,
@@ -152,6 +156,20 @@ const LiveKitObserver = ({
     connectionStatus.setLiveKitConnectionStatus(mappedQuality);
   }, [quality]);
 
+  useEffect(() => {
+    const handleSignalConnected = () => {
+      logger.info({
+        logCode: 'livekit_signal_connected',
+      }, 'LiveKit signal connected');
+    };
+
+    liveKitRoom.on(RoomEvent.SignalConnected, handleSignalConnected);
+
+    return () => {
+      liveKitRoom.off(RoomEvent.SignalConnected, handleSignalConnected);
+    };
+  }, []);
+
   return null;
 };
 
@@ -165,8 +183,11 @@ const BBBLiveKitRoom: React.FC<BBBLiveKitRoomProps> = ({
   usingScreenShare,
   withSelectiveSubscription,
 }) => {
+  const [connAttempts, setConnAttempts] = useState(0);
+  const [connError, setConnError] = useState<Error | null>(null);
   const [lkRoomOptionsAvailable, setLkRoomOptionsAvailable] = useState(false);
   const [connectOptions, setConnectOptions] = useState<RoomConnectOptions | undefined>(undefined);
+  const isClientConnected = useReactiveVar(connectionStatus.getConnectedStatusVar());
   const { iceServers, isLoading: iceServersLoading } = useIceServers(bbbSessionToken);
 
   const onDisconnected = useCallback((reason?: DisconnectReason) => {
@@ -176,9 +197,10 @@ const BBBLiveKitRoom: React.FC<BBBLiveKitRoomProps> = ({
         reason,
         url,
         iceServers,
+        connAttempts,
       },
     }, `LiveKit room disconnected, reason=${reason}`);
-  }, []);
+  }, [url, iceServers, connAttempts]);
 
   const onError = useCallback((error: Error) => {
     logger.error({
@@ -189,9 +211,13 @@ const BBBLiveKitRoom: React.FC<BBBLiveKitRoomProps> = ({
         errorStack: error.stack,
         url,
         iceServers,
+        connAttempts,
+        isClientConnected,
       },
     }, `LiveKit room error: ${error.message}`);
-  }, []);
+    setConnError(error);
+    setConnAttempts(connAttempts + 1);
+  }, [isClientConnected, url, iceServers, connAttempts]);
 
   const onConnected = useCallback(() => {
     logger.info({
@@ -200,7 +226,74 @@ const BBBLiveKitRoom: React.FC<BBBLiveKitRoomProps> = ({
         url,
       },
     }, 'LiveKit connected');
-  }, []);
+    setConnAttempts(0);
+    setConnError(null);
+  }, [url]);
+
+  useEffect(() => {
+    if (!token
+      || !url
+      || !lkRoomOptionsAvailable
+      || !connectOptions
+      || !isClientConnected
+      || iceServersLoading
+      || !connError
+      || connAttempts >= MAX_CONN_ATTEMPTS
+    ) {
+      return;
+    }
+
+    if (!(connError instanceof ConnectionError)) {
+      logger.warn({
+        logCode: 'livekit_room_skip_retry',
+        extraInfo: {
+          connAttempts,
+          url,
+          iceServersLoading,
+          errorMessage: connError?.message,
+          errorStack: connError?.stack,
+          errorName: connError?.name,
+        },
+      }, `LiveKit skipping reconnect attempt ${connAttempts}`);
+      setConnError(null);
+      setConnAttempts(0);
+
+      return;
+    }
+
+    logger.warn({
+      logCode: 'livekit_room_conn_retry',
+      extraInfo: {
+        connAttempts,
+        url,
+        iceServersLoading,
+        errorMessage: connError?.message,
+        errorStack: connError?.stack,
+        errorName: connError?.name,
+      },
+    }, `LiveKit reconnect attempt ${connAttempts}`);
+    setConnError(null);
+    liveKitRoom.connect(url, token, connectOptions).catch((error) => {
+      logger.debug({
+        logCode: 'livekit_room_connect_error',
+        extraInfo: {
+          errorMessage: (error as Error).message,
+          errorStack: (error as Error).stack,
+          connAttempts,
+          url,
+        },
+      }, `Failed to connect to LiveKit room: ${error?.message}`);
+    });
+  }, [
+    token,
+    url,
+    lkRoomOptionsAvailable,
+    connectOptions,
+    connError,
+    isClientConnected,
+    iceServersLoading,
+    connAttempts,
+  ]);
 
   useEffect(() => {
     if (iceServersLoading) {
