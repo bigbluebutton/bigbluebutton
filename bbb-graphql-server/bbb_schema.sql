@@ -925,16 +925,6 @@ BEGIN
         OFFSET NEW."lastEntriesCap"
     );
 
---    DELETE from "user_connectionStatusHistory"
---    WHERE "meetingId" = NEW."meetingId"
---    AND "userId" = NEW."userId"
---
---    "meetingId" varchar(100),
---    	"userId" varchar(50) REFERENCES "user"("userId") ON DELETE CASCADE,
---    	"networkRttInMs" numeric,
---    	"status" varchar(25),
---    	"statusUpdatedAt" timestamp with time zone
-
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
