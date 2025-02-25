@@ -235,25 +235,27 @@ class LockViewers extends MultiUsers {
   async lockSeeOtherViewersCursor() {
     await this.modPage.waitForSelector(e.whiteboard);
     await this.modPage.waitAndClick(e.multiUsersWhiteboardOn);
-
+    // user draw an arrow
     await this.userPage.waitForSelector(e.whiteboard);
     await drawArrow(this.userPage);
-
+    // lock the viewers cursor
     await openLockViewers(this.modPage);
     await this.modPage.waitAndClickElement(e.hideViewersCursor);
     await this.modPage.waitAndClick(e.applyLockSettings);
-
+    // check if the cursor is not displayed for the viewer
     await this.modPage.checkElementCount(e.whiteboardCursorIndicator, 1, 'should contain one whiteboard cursor indicator for the moderator');
-
-    await this.initUserPage2(true);
+    // join the second user and check if joined locked
+    await this.initUserPage2();
     await this.userPage2.checkElementCount(e.whiteboardCursorIndicator, 0,
       'should contain no whiteboard cursor indicator for the second attendee when joining a meeting with the setting locked'
     );
-
     // Unlock user2
     await this.modPage.waitAndClick(`${e.userListItem}>>nth=1`);
     await this.modPage.waitAndClick(`${e.unlockUserButton}>>nth=1`);
-    await this.userPage.getLocator(e.whiteboard).hover(); // ensure userPage cursor will be visible on the screenshot
+    await sleep(1000);  // ensure the unlock settings are applied
+    await this.modPage.getLocator(e.whiteboard).hover(); // hover modPage cursor on the whiteboard to ensure a new location
+    await this.modPage.getLocator(e.chatButton).hover(); // ensure modPage cursor WILL NOT be visible on the screenshot
+    await this.userPage.getLocator(e.whiteboard).hover(); // ensure userPage cursor WILL be visible on the screenshot
     await this.userPage.waitAndClick(e.whiteboard);
     await this.userPage2.checkElementCount(e.whiteboardCursorIndicator, 1, 'should be displayed the other viewer whiteboard cursor indicator when unlocking user is unlocked');
   }
