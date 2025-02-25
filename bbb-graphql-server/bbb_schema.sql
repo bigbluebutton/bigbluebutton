@@ -860,7 +860,7 @@ BEFORE INSERT ON "user_connectionStatus"
 FOR EACH ROW
 EXECUTE FUNCTION "update_connectionAliveAtMaxIntervalMs"();
 
-CREATE TABLE "user_connectionStatusHistory" (
+CREATE UNLOGGED TABLE "user_connectionStatusHistory" (
     "meetingId" varchar(100),
 	"userId" varchar(50),
 	"networkRttInMs" numeric,
