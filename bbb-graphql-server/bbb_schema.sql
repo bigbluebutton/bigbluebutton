@@ -868,8 +868,8 @@ CREATE TABLE "user_connectionStatusHistory" (
 	"statusUpdatedAt" timestamp with time zone,
 	FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
 );
-create index "idx_user_connectionStatusHistory" on "user_connectionStatus"("meetingId", "userId");
-create index "idx_user_connectionStatusHistory_reverse" on "user_connectionStatus"("userId", "meetingId");
+create index "idx_user_connectionStatusHistory" on "user_connectionStatusHistory"("meetingId", "userId");
+create index "idx_user_connectionStatusHistory_reverse" on "user_connectionStatusHistory"("userId", "meetingId");
 
 create view "v_user_connectionStatusHistory" as select * from "user_connectionStatusHistory";
 
