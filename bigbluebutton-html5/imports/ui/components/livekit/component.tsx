@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useMutation, useReactiveVar } from '@apollo/client';
 import {
   LiveKitRoom,
@@ -10,12 +10,13 @@ import {
 } from '@livekit/components-react';
 import {
   ConnectionState,
+  ConnectionQuality,
+  DisconnectReason,
+  LogLevel,
+  setLogLevel,
   type Room,
   type InternalRoomOptions,
   type RoomConnectOptions,
-  ConnectionQuality,
-  LogLevel,
-  setLogLevel,
 } from 'livekit-client';
 import Auth from '/imports/ui/services/auth';
 import AudioManager from '/imports/ui/services/audio-manager';
@@ -77,7 +78,7 @@ const LiveKitObserver = ({
   const isDeafened = useReactiveVar(AudioManager._isDeafened.value) as boolean;
 
   useEffect(() => {
-    logger.debug({
+    logger.info({
       logCode: 'livekit_conn_state_changed',
       extraInfo: {
         connectionState,
@@ -164,15 +165,50 @@ const BBBLiveKitRoom: React.FC<BBBLiveKitRoomProps> = ({
   usingScreenShare,
   withSelectiveSubscription,
 }) => {
-  const {
-    iceServers,
-    isLoading: iceServersLoading,
-  } = useIceServers(bbbSessionToken);
+  const [lkRoomOptionsAvailable, setLkRoomOptionsAvailable] = useState(false);
+  const [connectOptions, setConnectOptions] = useState<RoomConnectOptions | undefined>(undefined);
+  const { iceServers, isLoading: iceServersLoading } = useIceServers(bbbSessionToken);
+
+  const onDisconnected = useCallback((reason?: DisconnectReason) => {
+    logger.warn({
+      logCode: 'livekit_room_disconnected',
+      extraInfo: {
+        reason,
+        url,
+        iceServers,
+      },
+    }, `LiveKit room disconnected, reason=${reason}`);
+  }, []);
+
+  const onError = useCallback((error: Error) => {
+    logger.error({
+      logCode: 'livekit_room_error',
+      extraInfo: {
+        errorMessage: error.message,
+        errorName: error.name,
+        errorStack: error.stack,
+        url,
+        iceServers,
+      },
+    }, `LiveKit room error: ${error.message}`);
+  }, []);
+
+  const onConnected = useCallback(() => {
+    logger.info({
+      logCode: 'livekit_room_connected',
+      extraInfo: {
+        url,
+      },
+    }, 'LiveKit connected');
+  }, []);
 
   useEffect(() => {
-    if (!token || !url || iceServersLoading) return;
+    if (iceServersLoading) {
+      setConnectOptions(undefined);
+      return;
+    }
 
-    const connectOptions: RoomConnectOptions = {
+    const connOpts: RoomConnectOptions = {
       autoSubscribe: !withSelectiveSubscription,
       rtcConfig: {
         iceServers,
@@ -180,17 +216,17 @@ const BBBLiveKitRoom: React.FC<BBBLiveKitRoomProps> = ({
     };
 
     liveKitRoom.options = { ...liveKitRoom.options, ...roomOptions };
-    liveKitRoom.connect(url, token, connectOptions).catch((error) => {
-      logger.error({
-        logCode: 'livekit_connect_error',
-        extraInfo: {
-          errorMessage: (error as Error).message,
-          errorStack: (error as Error).stack,
-          url,
-        },
-      }, `Failed to connect to LiveKit room: ${error?.message}`);
-    });
-  }, [token, url, iceServersLoading, iceServers]);
+    setLkRoomOptionsAvailable(true);
+    setConnectOptions(connOpts);
+
+    logger.info({
+      logCode: 'livekit_will_connect',
+      extraInfo: {
+        url,
+        iceServers,
+      },
+    }, 'LiveKit room will connect');
+  }, [token, url, iceServersLoading, iceServers, withSelectiveSubscription]);
 
   useEffect(() => {
     if (!url) return;
@@ -218,11 +254,22 @@ const BBBLiveKitRoom: React.FC<BBBLiveKitRoomProps> = ({
   // Screen share requires audio playback as well (Chrome supports it)
   const withAudioPlayback = usingAudio || usingScreenShare;
 
+  if (iceServersLoading
+    || !lkRoomOptionsAvailable
+    || !connectOptions
+    || !url) {
+    return null;
+  }
+
   return (
     <LiveKitRoom
       video={false}
       audio={false}
-      connect={false}
+      connect
+      connectOptions={connectOptions}
+      onConnected={onConnected}
+      onDisconnected={onDisconnected}
+      onError={onError}
       token={token}
       serverUrl={url}
       room={liveKitRoom}
