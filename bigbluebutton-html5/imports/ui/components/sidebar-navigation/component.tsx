@@ -51,7 +51,7 @@ const SidebarNavigation = ({
         width,
       }}
     >
-      <Styled.NavigationSidebar isMobile={isMobile}>
+      <Styled.NavigationSidebar data-test="navigationSidebarContainer" isMobile={isMobile}>
         <Styled.NavigationSidebarListItemsContainer>
           <Styled.Top>
             {showBrandingArea && <CustomLogo />}

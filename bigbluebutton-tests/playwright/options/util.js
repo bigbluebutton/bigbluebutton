@@ -25,8 +25,8 @@ async function getLocaleValues(elements, locale) {
 }
 
 async function openAboutModal(test) {
-  await test.waitAndClick(e.optionsButton);
-  await test.waitAndClick(e.showAboutModalButton);
+  await test.waitAndClick(e.settingsSidebarButton);
+  await test.waitAndClick(e.aboutTabButton);
 }
 
 exports.openAboutModal = openAboutModal;

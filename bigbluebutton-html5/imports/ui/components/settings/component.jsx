@@ -272,6 +272,7 @@ class Settings extends Component {
           <Styled.SettingsTabSelector
             aria-labelledby="aboutTab"
             selectedClassName="is-selected"
+            data-test="aboutTabButton"
           >
             <span id="aboutTab">{intl.formatMessage(intlMessages.aboutTabLabel)}</span>
           </Styled.SettingsTabSelector>

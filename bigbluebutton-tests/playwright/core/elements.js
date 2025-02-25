@@ -3,8 +3,6 @@ exports.actions = 'button[data-test="actionsButton"]';
 exports.actionsItem = 'div[id="actions-dropdown-menu"] ul li';
 exports.mediaAreaButton = 'button[data-test="mediaAreaButton"]';
 exports.optionsButton = 'button[data-test="optionsButton"]';
-exports.settingsSidebarButton = 'div[data-test="settingsSidebarButton"]';
-exports.saveSettingsButton = 'button[data-test="saveSettingsButton"]';
 exports.modalConfirmButton = 'button[data-test="modalConfirmButton"]';
 exports.screenshareConnecting = 'div[data-test="screenshareConnecting"]';
 exports.screenShareVideo = 'video[id="screenshareVideo"]';
@@ -28,6 +26,7 @@ exports.errorMessageLabel = 'span[id="error-message"]';
 exports.shareCameraAsContent = 'li[data-test="shareCameraAsContent"]';
 exports.closePopup = 'button[data-test="closePopup"]';
 exports.restoreWelcomeMessages = 'li[data-test="restoreWelcomeMessages"]';
+exports.navigationSidebarContainer = 'div[data-test="navigationSidebarContainer"]';
 
 // Accesskey
 exports.userListButton = 'button[accesskey="U"]';
@@ -340,10 +339,13 @@ exports.convertingPresentationFileToast = 'Converting file';
 exports.presentationUploadedToast = 'Current presentation';
 
 // Settings
+exports.settingsSidebarButton = 'div[data-test="settingsSidebarButton"]';
+exports.saveSettingsButton = 'button[data-test="saveSettingsButton"]';
 exports.languageSelector = 'select[id="langSelector"]';
 exports.messageTitle = 'h2[data-test="messageTitle"]';
 exports.notesTitle = 'h2[data-test="notesTitle"]';
 exports.dataSavingsTab = 'span[id="dataSaving"]';
+exports.shortcutsButton = 'button[data-test="shortcutsButton"]';
 
 // User
 const userAvatar = 'div[data-test-avatar="userAvatar"]';
@@ -502,15 +504,15 @@ exports.wbTextTrue = 'div[data-hastext="true"]';
 exports.wbDrawnArrow = 'div[data-shape-type="arrow"]';
 
 // About modal
-exports.showAboutModalButton = 'li[data-test="aboutModal"]';
+exports.aboutTabButton = 'li[data-test="aboutTabButton"]';
 exports.aboutModal = 'div[data-test="aboutModalTitleLabel"]';
 
 // Help button
-exports.helpButton = 'li[data-test="helpButton"]';
+exports.helpLinkButton = 'a[data-test="helpLinkButton"]';
 exports.helpPageTitle = 'BigBlueButton Tutorials | Built For Teachers | BigBlueButton';
 
 // Dark mode
-exports.darkModeToggleBtn = 'input[data-test="darkModeToggleBtn"]';
+exports.darkModeToggleBtn = 'span[data-test="darkModeToggleBtn"]';
 exports.actionsBarBackground = 'section[id="ActionsBar"]';
 exports.navbarBackground = 'header[id="Navbar"]';
 exports.fullscreenModal = 'div[id="fsmodal"]';
