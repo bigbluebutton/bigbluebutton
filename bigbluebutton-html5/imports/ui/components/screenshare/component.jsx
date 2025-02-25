@@ -117,7 +117,6 @@ class ScreenshareComponent extends React.Component {
 
   componentDidMount() {
     const {
-      isLayoutSwapped,
       layoutContextDispatch,
       intl,
       isPresenter,
@@ -168,7 +167,8 @@ class ScreenshareComponent extends React.Component {
     if (prevProps.shouldShowScreenshare && !shouldShowScreenshare) {
       setVolume(0);
     } else if (!prevProps.shouldShowScreenshare && shouldShowScreenshare) {
-      setVolume(this.volume);
+      // if this.volume is 0, means user didn't change the volume, so we set it to 1
+      setVolume(this.volume || 1);
     }
   }
 
