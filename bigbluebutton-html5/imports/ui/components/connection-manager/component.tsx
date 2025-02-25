@@ -193,6 +193,7 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
                   errorName: error.name,
                   errorMessage: error.message,
                   errorReason: error.reason,
+                  error,
                 },
               }, 'Connection terminated (4499)');
             } else if (isDetailedError) {
@@ -202,6 +203,7 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
                   errorName: error.name,
                   errorMessage: error.message,
                   errorReason: error.reason,
+                  error,
                 },
               }, `Connection error (${error.code})`);
             } else {
@@ -211,8 +213,9 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
                   errorName: 'Error',
                   errorMessage: JSON.stringify(error),
                   errorReason: 'Unknown',
+                  error,
                 },
-              }, `Connection error: ${JSON.stringify(error)}`);
+              }, `Connection error: ${(error as WsError)?.code}`);
             }
 
             if (error && typeof error === 'object' && 'code' in error && error.code === 4403) {
