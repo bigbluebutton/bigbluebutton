@@ -430,6 +430,7 @@
     "app.poll.secretPoll.isSecretLabel": "La encuesta es anónima. No podrás ver las respuestas individuales.",
     "app.poll.questionErr": "Se requiere una pregunta.",
     "app.poll.optionErr": "Introducir una opción a la encuesta",
+    "app.poll.minOptionsErr": "At least two options are required",
     "app.poll.startPollDesc": "Inicia la encuesta",
     "app.poll.showRespDesc": "Muestra la configuración de respuestas",
     "app.poll.addRespDesc": "Añade la respuesta de la encuesta",
