@@ -430,6 +430,17 @@ jobs:
         with:
           name: blob-report-${{ matrix.shard }}
           path: bigbluebutton-tests/playwright/blob-report
+      - if: always()
+        name: Generate the shard HTML report from blob report
+        shell: bash
+        working-directory: ./bigbluebutton-tests/playwright
+        run: npx playwright merge-reports --reporter html ./blob-report
+      - if: always()
+        name: Upload shard HTML report to GitHub Actions Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report_shard-${{ matrix.shard }}
+          path: bigbluebutton-tests/playwright/playwright-report
       - if: failure()
         name: Prepare artifacts (configs and logs)
         run: |
