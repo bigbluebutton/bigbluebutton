@@ -57,6 +57,7 @@ const UserList: React.FC<UserListComponentProps> = () => {
   const { data: meetingInfo } = useMeeting((meeting: Partial<Meeting>) => ({
     name: meeting?.name,
     lockSettings: meeting?.lockSettings,
+    isBreakout: meeting?.isBreakout,
   }));
   const [getUsers, { data: usersData, error: usersError }] = useLazyQuery(GET_USER_NAMES, { fetchPolicy: 'no-cache' });
   const users = usersData?.user || [];
@@ -78,7 +79,7 @@ const UserList: React.FC<UserListComponentProps> = () => {
   }, [users]);
 
   const renderGuestManagement = () => {
-    if (!currentUserData?.isModerator) return null;
+    if (!currentUserData?.isModerator || meetingInfo?.isBreakout) return null;
     return (
       <>
         <GuestManagement />
