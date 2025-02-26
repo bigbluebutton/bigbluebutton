@@ -430,6 +430,7 @@
     "app.poll.secretPoll.isSecretLabel": "L'enquesta és anònima: no podrà veure les respostes individuals.",
     "app.poll.questionErr": "Es requereix fer una pregunta.",
     "app.poll.optionErr": "Introdueixi una opció d'enquesta",
+    "app.poll.minOptionsErr": "At least two options are required",
     "app.poll.startPollDesc": "Comença l'enquesta",
     "app.poll.showRespDesc": "Mostra la configuració de la resposta",
     "app.poll.addRespDesc": "Afegir respostes d'enquesta",
