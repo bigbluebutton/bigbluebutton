@@ -938,6 +938,26 @@ order by u."meetingId", u."userId", csm."lastOccurrenceAt" desc;
 
 CREATE INDEX "idx_user_connectionStatusMetrics_UnstableReport" ON "user_connectionStatusMetrics" ("meetingId", "userId") WHERE "status" != 'normal';
 
+create or replace view "v_user_connectionStatusSummary" as
+select u."meetingId", u."userId",
+sum(case when ucsm.status = 'normal' then ucsm."occurrencesCount" else 0 end) as "statusNormalOccurrences",
+max(case when ucsm.status = 'normal' then ucsm."lastOccurrenceAt" else null end) as "statusNormalLastOccurrenceAt",
+max(case when ucsm.status = 'normal' then ucsm."highestNetworkRttInMs" else null end) as "statusNormalHighestNetworkRttInMs",
+sum(case when ucsm.status = 'warning' then ucsm."occurrencesCount" else 0 end) as "statusWarningOccurrences",
+max(case when ucsm.status = 'warning' then ucsm."lastOccurrenceAt" else null end) as "statusWarningLastOccurrenceAt",
+max(case when ucsm.status = 'warning' then ucsm."highestNetworkRttInMs" else null end) as "statusWarningHighestNetworkRttInMs",
+sum(case when ucsm.status = 'danger' then ucsm."occurrencesCount" else 0 end) as "statusDangerOccurrences",
+max(case when ucsm.status = 'danger' then ucsm."lastOccurrenceAt" else null end) as "statusDangerLastOccurrenceAt",
+max(case when ucsm.status = 'danger' then ucsm."highestNetworkRttInMs" else null end) as "statusDangerHighestNetworkRttInMs",
+sum(case when ucsm.status = 'critical' then ucsm."occurrencesCount" else 0 end) as "statusCriticalOccurrences",
+max(case when ucsm.status = 'critical' then ucsm."lastOccurrenceAt" else null end) as "statusCriticalLastOccurrenceAt",
+max(case when ucsm.status = 'critical' then ucsm."highestNetworkRttInMs" else null end) as "statusCriticalHighestNetworkRttInMs",
+sum(ucsm."occurrencesCount") as "totalOfOccurrences"
+from "user" u
+left join "user_connectionStatusMetrics" ucsm on ucsm."meetingId" = u."meetingId" and ucsm."userId" = u."userId"
+group by u."meetingId", u."userId";
+
+
 --ALTER TABLE "user_connectionStatus" ADD COLUMN "applicationRttInMs" NUMERIC GENERATED ALWAYS AS
 --(CASE WHEN  "connectionAliveAt" IS NULL OR "userClientResponseAt" IS NULL THEN NULL
 --ELSE EXTRACT(EPOCH FROM ("userClientResponseAt" - "connectionAliveAt")) * 1000
