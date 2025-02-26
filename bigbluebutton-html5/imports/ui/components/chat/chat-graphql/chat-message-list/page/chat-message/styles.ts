@@ -107,7 +107,7 @@ export const ChatContent = styled.div<ChatContentProps>`
   ${({ $highlight }) => $highlight && `
     &:hover {
       border: 1px solid ${highlightedMessageBorderColor};
-     }
+    }
   `}
 
   ${({
@@ -122,13 +122,12 @@ export const ChatContent = styled.div<ChatContentProps>`
   }
 
   ${({ $emphasizedMessage }) => $emphasizedMessage && `
-    background-color: ${emphasizedMessageBackgroundColor} !important;
+    background-color: ${emphasizedMessageBackgroundColor};
 
     &:hover {
       border: 1px solid ${highlightedMessageBorderColor};
     }
   `}
-
 `;
 
 export const ChatContentFooter = styled.div`
