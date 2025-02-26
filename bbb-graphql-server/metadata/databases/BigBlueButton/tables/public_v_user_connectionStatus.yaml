@@ -27,6 +27,17 @@ object_relationships:
         remote_table:
           name: v_user_ref
           schema: public
+array_relationships:
+  - name: history
+    using:
+      manual_configuration:
+        column_mapping:
+          meetingId: meetingId
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_user_connectionStatusHistory
+          schema: public
 select_permissions:
   - role: bbb_client
     permission:

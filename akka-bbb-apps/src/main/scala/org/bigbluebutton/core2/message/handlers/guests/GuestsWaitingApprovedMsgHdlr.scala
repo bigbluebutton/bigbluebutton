@@ -32,6 +32,15 @@ trait GuestsWaitingApprovedMsgHdlr extends HandlerHelpers with RightsManagementT
             Users2x.findWithIntId(liveMeeting.users2x, g.guest) match {
               case Some(dialInUser) =>
                 if (g.status == GuestStatus.ALLOW) {
+                  //Set dial in user as Joined
+                  for {
+                    regUser <- RegisteredUsers.findWithUserId(dialInUser.intId, liveMeeting.registeredUsers)
+                  } yield {
+                    if (!regUser.loggedOut) {
+                      RegisteredUsers.updateUserJoin(liveMeeting.registeredUsers, regUser, joined = true)
+                    }
+                  }
+
                   VoiceApp.handleUserJoinedVoiceConfEvtMsg(
                     liveMeeting,
                     outGW,
@@ -44,9 +53,9 @@ trait GuestsWaitingApprovedMsgHdlr extends HandlerHelpers with RightsManagementT
                     dialInUser.name,
                     dialInUser.color,
                     MeetingStatus2x.isMeetingMuted(liveMeeting.status),
-                    false,
+                    talking = false,
                     "freeswitch",
-                    false,
+                    hold = false,
                     "unused"
                   )
                   VoiceUsers.findWithIntId(
@@ -59,7 +68,7 @@ trait GuestsWaitingApprovedMsgHdlr extends HandlerHelpers with RightsManagementT
                           outGW,
                           vu.intId,
                           vu.voiceUserId,
-                          true
+                          enabled = true
                         )
                       case None =>
                         println(s"Skipping transferring dial-in user to the "
