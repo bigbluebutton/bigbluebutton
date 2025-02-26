@@ -82,26 +82,6 @@ public class PageToConvert {
   }
 
   public PageToConvert convert() {
-
-    /* adding accessibility */
-    //createThumbnails(pres, page, pageFile);
-
-//    createTextFiles(pres, page);
-
-    // only create SVG images if the configuration requires it
-//    if (svgImagesRequired) {
-//      try{
-//        createSvgImages(pres, page);
-//      } catch (TimeoutException e) {
-//        messageErrorInConversion = e.getMessage();
-//      }
-//    }
-
-    // only create PNG images if the configuration requires it
-//    if (generatePngs) {
-//      createPngImages(pres, page, pageFile);
-//    }
-
     File textfilesDir = determineTextfilesDirectory(pres.getUploadedFile());
     if (!textfilesDir.exists())
       textfilesDir.mkdir();
@@ -114,17 +94,24 @@ public class PageToConvert {
     if (!pngDir.exists())
       pngDir.mkdir();
 
-    File svgImagesPresentationDir = determineSvgImagesDirectory(pres.getUploadedFile());
-    if (!svgImagesPresentationDir.exists())
-      svgImagesPresentationDir.mkdir();
+    File svgDir = determineSvgImagesDirectory(pres.getUploadedFile());
+    if (!svgDir.exists())
+      svgDir.mkdir();
 
-    String service = "pdfprocess@" + pres.getMeetingId() + "_" + pres.getId() +"_" + page + ".service";
-    log.info("Starting PDF processing service [{}]", service);
+    String service;
+    if (SupportedFileTypes.isImageFile(pres.getFileType())) {
+      service = "imgprocess@" + pres.getMeetingId() + "_" + pres.getId() +"_" + pres.getFileType() + ".service";
+    } else {
+      service = "pdfprocess@" + pres.getMeetingId() + "_" + pres.getId() +"_" + page + ".service";
+    }
+    log.info("Starting processing service [{}]", service);
     String COMMAND = "sudo systemctl start " + service;
 
     boolean done = new ExternalProcessExecutor().exec(COMMAND, execTimeout);
 
-    //createBlankThumbnail(thumbsDir, page);
+    createBlankThumbnail(thumbsDir, page);
+    createBlankPng(pngDir, page);
+    createBlankSvg(svgDir, page);
 
     return this;
   }
@@ -147,8 +134,8 @@ public class PageToConvert {
     return new File(presentationFile.getParent() + File.separatorChar + "svgs");
   }
 
-  private void createBlankThumbnail(File thumbsDir, int page) {
-    File thumb = new File(thumbsDir.getAbsolutePath() + File.separatorChar + "thumb-" + page + ".png");
+  private void createBlankThumbnail(File dir, int page) {
+    File thumb = new File(dir.getAbsolutePath() + File.separatorChar + "thumb-" + page + ".png");
     if (!thumb.exists()) {
       log.info("Copying blank thumbnail for slide {}", page);
       copyBlankThumbnail(thumb);
@@ -163,8 +150,8 @@ public class PageToConvert {
     }
   }
 
-  private void createBlankPng(File pngsDir, int page) {
-    File png = new File(pngsDir.getAbsolutePath() + File.separator + "slide-" + page + ".png");
+  private void createBlankPng(File dir, int page) {
+    File png = new File(dir.getAbsolutePath() + File.separator + "slide-" + page + ".png");
     if (!png.exists()) {
       log.info("Copying blank png for slide {}", page);
       copyBlankPng(png);
@@ -179,17 +166,11 @@ public class PageToConvert {
     }
   }
 
-  private void copyBlankSvgs(File svgssDir, int pageCount) {
-    File[] svgs = svgssDir.listFiles();
-
-    if (svgs.length != pageCount) {
-      for (int i = 1; i <= pageCount; i++) {
-        File svg = new File(svgssDir.getAbsolutePath() + File.separator + "slide" + i + ".svg");
-        if (!svg.exists()) {
-          log.info("Copying blank svg for slide {}", i);
-          copyBlankSvg(svg);
-        }
-      }
+  private void createBlankSvg(File dir, int page) {
+    File svg = new File(dir.getAbsolutePath() + File.separator + "slide" + page + ".svg");
+    if (!svg.exists()) {
+      log.info("Copying blank svg for slide {}", page);
+      copyBlankSvg(svg);
     }
   }
 
@@ -200,24 +181,5 @@ public class PageToConvert {
     } catch (IOException e) {
       log.error("IOException while copying blank SVG.");
     }
-  }
-
-  private void createThumbnails(UploadedPresentation pres, int page, File pageFile) {
-    //notifier.sendCreatingThumbnailsUpdateMessage(pres);
-    thumbnailCreator.createThumbnail(pres, page, pageFile);
-  }
-
-  private void createTextFiles(UploadedPresentation pres, int page) {
-    //notifier.sendCreatingTextFilesUpdateMessage(pres);
-    textFileCreator.createTextFile(pres, page);
-  }
-
-  private void createSvgImages(UploadedPresentation pres, int page) throws TimeoutException {
-    //notifier.sendCreatingSvgImagesUpdateMessage(pres);
-    svgImageCreator.createSvgImage(pres, page);
-  }
-
-  private void createPngImages(UploadedPresentation pres, int page, File pageFile) {
-    pngCreator.createPng(pres, page, pageFile);
   }
 }
