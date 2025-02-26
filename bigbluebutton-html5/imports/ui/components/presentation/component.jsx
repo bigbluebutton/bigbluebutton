@@ -771,7 +771,7 @@ class Presentation extends PureComponent {
             height: presentationBounds.height,
             display: !presentationIsOpen ? 'none' : 'flex',
             overflow: 'hidden',
-            zIndex: !isVideoFocus ? presentationZIndex : 0,
+            zIndex: !isVideoFocus ? presentationZIndex : 1,
             background:
               layoutType === isVideoFocus && !fullscreenContext
                 ? colorContentBackground

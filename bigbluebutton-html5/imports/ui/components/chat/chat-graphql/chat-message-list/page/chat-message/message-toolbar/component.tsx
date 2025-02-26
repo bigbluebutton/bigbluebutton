@@ -1,17 +1,12 @@
 import React, { useCallback } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
-import Popover from '@mui/material/Popover';
-import { layoutSelect } from '/imports/ui/components/layout/context';
-import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
 import ConfirmationModal from '/imports/ui/components/common/modal/confirmation/component';
 import {
   Container,
   Divider,
   EmojiButton,
-  EmojiPicker,
-  EmojiPickerWrapper,
   Root,
 } from './styles';
 import { CHAT_DELETE_MESSAGE_MUTATION } from '../mutations';
@@ -75,7 +70,6 @@ interface ChatMessageToolbarProps {
   message: string;
   messageSequence: number;
   emphasizedMessage: boolean;
-  onEmojiSelected(emoji: { id: string; native: string }): void;
   onReactionPopoverOpenChange(open: boolean): void;
   reactionPopoverIsOpen: boolean;
   hasToolbar: boolean;
@@ -91,14 +85,11 @@ interface ChatMessageToolbarProps {
 
 const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
   const {
-    messageId, chatId, message, username, onEmojiSelected, deleted,
+    messageId, chatId, message, username, deleted,
     messageSequence, emphasizedMessage, own, amIModerator, isBreakoutRoom, locked,
     onReactionPopoverOpenChange, reactionPopoverIsOpen, hasToolbar, keyboardFocused,
     chatDeleteEnabled, chatEditEnabled, chatReactionsEnabled, chatReplyEnabled, setKeyboardFocused,
   } = props;
-  const [reactionsAnchor, setReactionsAnchor] = React.useState<Element | null>(
-    null,
-  );
   const [isTryingToDelete, setIsTryingToDelete] = React.useState(false);
   const intl = useIntl();
   const [chatDeleteMessage] = useMutation(CHAT_DELETE_MESSAGE_MUTATION);
@@ -120,7 +111,11 @@ const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
     });
   }, [chatDeleteMessage, chatId, messageId]);
 
-  const isRTL = layoutSelect((i: Layout) => i.isRTL);
+  const deactivateFocusTrap = () => {
+    if (keyboardFocused) {
+      setKeyboardFocused(false);
+    }
+  };
 
   if ([
     chatReplyEnabled,
@@ -134,12 +129,6 @@ const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
   const showEditButton = chatEditEnabled && own;
   const showDeleteButton = chatDeleteEnabled && (own || (amIModerator && !isBreakoutRoom));
   const showDivider = (showReplyButton || showReactionsButton) && (showEditButton || showDeleteButton);
-
-  const deactivateFocusTrap = () => {
-    if (keyboardFocused) {
-      setKeyboardFocused(false);
-    }
-  };
 
   const container = (
     <Container className="chat-message-toolbar">
@@ -186,7 +175,6 @@ const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
           svgIcon="reactions"
           color="light"
           data-test="reactionsPickerButton"
-          ref={setReactionsAnchor}
         />
       </Tooltip>
       )}
@@ -230,32 +218,6 @@ const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
         />
       </Tooltip>
       )}
-      <Popover
-        open={reactionPopoverIsOpen}
-        anchorEl={reactionsAnchor}
-        onClose={() => {
-          onReactionPopoverOpenChange(false);
-        }}
-        anchorOrigin={{
-          vertical: 'top',
-          horizontal: isRTL ? 'left' : 'right',
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: isRTL ? 'right' : 'left',
-        }}
-      >
-        <EmojiPickerWrapper>
-          <EmojiPicker
-            onEmojiSelect={(emojiObject: { id: string; native: string }) => {
-              deactivateFocusTrap();
-              onEmojiSelected(emojiObject);
-            }}
-            showPreview={false}
-            showSkinTones={false}
-          />
-        </EmojiPickerWrapper>
-      </Popover>
       {isTryingToDelete && (
       <ConfirmationModal
         isOpen={isTryingToDelete}
