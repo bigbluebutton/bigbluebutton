@@ -754,7 +754,10 @@ class Presentation extends PureComponent {
       logCode: 'whiteboard_crash',
       logMessage: 'Possible whiteboard crash',
     };
-    if (!presentationIsOpen) return null;
+    const presentationIsHidden = !presentationBounds
+      || presentationBounds.width === 0
+      || presentationBounds.height === 0;
+    if (!presentationIsOpen || presentationIsHidden) return null;
     return (
       <>
         <Styled.PresentationContainer
