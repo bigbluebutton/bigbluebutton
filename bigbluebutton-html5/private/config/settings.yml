@@ -942,6 +942,8 @@ public:
         dynacast: true
         stopLocalTrackOnUnpublish: false
       audio:
+        # unpublishOnMute: whether to unpublish audio tracks when muted. Default is true.
+        unpublishOnMute: true
         # publishOptions: see https://docs.livekit.io/client-sdk-js/interfaces/TrackPublishOptions.html
         publishOptions:
           audioPreset:
