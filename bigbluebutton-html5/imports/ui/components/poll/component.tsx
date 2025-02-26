@@ -400,8 +400,9 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
                     icons={false}
                     defaultChecked={customInput}
                     onChange={() => {
+                      const newType = !customInput ? pollTypes.Custom : '';
+                      setType(newType);
                       setCustomInput(!customInput);
-                      setType(pollTypes.Custom);
                     }}
                     ariaLabel={intl.formatMessage(intlMessages.customInputToggleLabel)}
                     showToggleLabel={false}
@@ -446,7 +447,8 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
           question={question}
           setError={setError}
           setIsPolling={() => {
-            setType(null);
+            const newType = customInput ? pollTypes.Custom : '';
+            setType(newType);
             setOptList([]);
             setQuestion('');
             setQuestionAndOptions('');

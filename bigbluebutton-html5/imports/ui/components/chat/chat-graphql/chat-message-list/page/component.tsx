@@ -49,6 +49,7 @@ interface ChatListPageCommonProps {
   chatDeleteEnabled: boolean;
   chatEditEnabled: boolean;
   chatReactionsEnabled: boolean;
+  focusedSequence: number;
   sendReaction: (reactionEmoji: string, reactionEmojiId: string, chatId: string, messageId: string) => void;
   deleteReaction: (reactionEmoji: string, reactionEmojiId: string, chatId: string, messageId: string) => void;
 }
@@ -77,6 +78,7 @@ const propsToCompare = [
   'chatEditEnabled',
   'chatReactionsEnabled',
   'chatReplyEnabled',
+  'focusedSequence',
 ] as const;
 const messagePropsToCompare = [
   'messageId',
@@ -128,6 +130,7 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
   chatReplyEnabled,
   deleteReaction,
   sendReaction,
+  focusedSequence,
 }) => {
   const { domElementManipulationIdentifiers } = useContext(PluginsContext);
   const messageRefs = useRef<Record<number, ChatMessageRef | null>>({});
@@ -255,6 +258,7 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
             chatReplyEnabled={chatReplyEnabled}
             deleteReaction={deleteReaction}
             sendReaction={sendReaction}
+            focused={focusedSequence === message.messageSequence}
           />
         );
       })}
@@ -287,6 +291,7 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
   chatReplyEnabled,
   deleteReaction,
   sendReaction,
+  focusedSequence,
 }) => {
   const CHAT_CONFIG = window.meetingClientSettings.public.chat;
   const PUBLIC_GROUP_CHAT_KEY = CHAT_CONFIG.public_group_id;
@@ -351,6 +356,7 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
       chatReplyEnabled={chatReplyEnabled}
       deleteReaction={deleteReaction}
       sendReaction={sendReaction}
+      focusedSequence={focusedSequence}
     />
   );
 };

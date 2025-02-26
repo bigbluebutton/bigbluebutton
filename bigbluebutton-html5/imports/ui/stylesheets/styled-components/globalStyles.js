@@ -27,6 +27,9 @@ const GlobalStyle = createGlobalStyle`
       right: 0 !important;
       max-width: none !important;
     }
+    .MuiPaper-root {
+      width: 100%;
+    }
   }
   .MuiList-padding {
     padding: 0 !important;
