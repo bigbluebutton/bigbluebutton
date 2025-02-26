@@ -823,8 +823,8 @@ class Presentation extends PureComponent {
                     intl={intl}
                     presentationWidth={svgWidth}
                     presentationHeight={svgHeight}
-                    presentationAreaHeight={presentationBounds?.height}
-                    presentationAreaWidth={presentationBounds?.width}
+                    presentationAreaHeight={presentationBounds.height - toolbarHeight}
+                    presentationAreaWidth={presentationBounds.width}
                     isPanning={isPanning}
                     zoomChanger={this.zoomChanger}
                     fitToWidth={fitToWidth}
