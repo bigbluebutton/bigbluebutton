@@ -1119,7 +1119,7 @@ const Whiteboard = React.memo((props) => {
         presentationAreaHeight / localHeight,
       ));
     return calcedZoom === 0 || calcedZoom === Infinity
-      ? HUNDRED_PERCENT
+      ? calculateZoomValue(localWidth, localHeight) // Fallback to no gap base zoom
       : calcedZoom;
   };
 
