@@ -7,7 +7,7 @@ exports.color = color;
 exports.bannerColor = `bannerColor=${color}`;
 exports.maxParticipants = 'maxParticipants=2';
 exports.duration = 'duration=2';
-const messageModerator = 'Test';
+const messageModerator = 'This is a moderator only message';
 exports.messageModerator = messageModerator;
 exports.moderatorOnlyMessage = `moderatorOnlyMessage=${messageModerator}`;
 exports.webcamsOnlyForModerator = 'webcamsOnlyForModerator=true';

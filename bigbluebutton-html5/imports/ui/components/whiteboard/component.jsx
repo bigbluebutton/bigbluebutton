@@ -157,6 +157,7 @@ const Whiteboard = React.memo((props) => {
   const lastVisibilityStateRef = React.useRef('');
   const mountedTimeoutIdRef = useRef(null);
   const presentationIdRef = React.useRef(presentationId);
+  const innerWrapperPollingFrameRef = React.useRef(null);
 
   const [pageZoomMap, setPageZoomMap] = useState(() => {
     try {
@@ -708,6 +709,7 @@ const Whiteboard = React.memo((props) => {
       maxTries: 120,
       stabilityFrames: 50,
     },
+    frameIdRef = null,
     currentTry = 0,
     stableCount = 0,
     lastDimensions = { width: 0, height: 0 }
@@ -740,15 +742,19 @@ const Whiteboard = React.memo((props) => {
     }
 
     if (currentTry < options.maxTries) {
-      requestAnimationFrame(() => {
+      const frameId = requestAnimationFrame(() => {
         pollInnerWrapperDimensionsUntilStable(
           onReady,
           options,
+          frameIdRef,
           currentTry + 1,
           stableCount,
           lastDimensions
         );
       });
+      if (frameIdRef) {
+        frameIdRef.current = frameId;
+      }
     } else {
       logger.warn(
         { logCode: 'pollInnerWrapperDimensionsUntilStable' },
@@ -1438,22 +1444,27 @@ const Whiteboard = React.memo((props) => {
       });
     };
 
-    pollInnerWrapperDimensionsUntilStable(() => {
-      syncCameraWithPresentationArea({
-        tlEditorRef,
-        isPresenter,
-        currentPresentationPageRef,
-        presentationAreaWidth,
-        presentationAreaHeight,
-        zoomValueRef,
-        fitToWidthRef,
-        curPageIdRef,
-        initialViewBoxWidthRef,
-        initialViewBoxHeightRef,
-      });
-    },{
+    if (innerWrapperPollingFrameRef.current !== null) {
+      cancelAnimationFrame(innerWrapperPollingFrameRef.current);
+    }
+    innerWrapperPollingFrameRef.current = requestAnimationFrame(() => {
+      pollInnerWrapperDimensionsUntilStable(() => {
+        syncCameraWithPresentationArea({
+          tlEditorRef,
+          isPresenter,
+          currentPresentationPageRef,
+          presentationAreaWidth,
+          presentationAreaHeight,
+          zoomValueRef,
+          fitToWidthRef,
+          curPageIdRef,
+          initialViewBoxWidthRef,
+          initialViewBoxHeightRef,
+        });
+      }, {
         maxTries: 120,
         stabilityFrames: 35,
+      }, innerWrapperPollingFrameRef);  
     });
   }, [presentationHeight, presentationWidth, curPageId, presentationId]);
 

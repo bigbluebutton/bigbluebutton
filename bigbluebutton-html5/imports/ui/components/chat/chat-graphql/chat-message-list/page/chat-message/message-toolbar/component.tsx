@@ -1,14 +1,9 @@
 import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import Popover from '@mui/material/Popover';
-import { layoutSelect } from '/imports/ui/components/layout/context';
-import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import {
   Container,
   Divider,
   EmojiButton,
-  EmojiPicker,
-  EmojiPickerWrapper,
   Root,
 } from './styles';
 
@@ -50,7 +45,6 @@ interface ChatMessageToolbarProps {
   amIModerator: boolean;
   isBreakoutRoom: boolean;
   messageSequence: number;
-  onEmojiSelected(emoji: { id: string; native: string }): void;
   onReactionPopoverOpenChange(open: boolean): void;
   reactionPopoverIsOpen: boolean;
   hasToolbar: boolean;
@@ -67,17 +61,12 @@ interface ChatMessageToolbarProps {
 
 const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
   const {
-    onEmojiSelected, deleted, messageSequence, own, amIModerator, isBreakoutRoom,
+    deleted, messageSequence, own, amIModerator, isBreakoutRoom,
     locked, onReactionPopoverOpenChange, reactionPopoverIsOpen, hasToolbar,
     chatDeleteEnabled, chatEditEnabled, chatReactionsEnabled, chatReplyEnabled,
     onDelete, onEdit, onReply,
   } = props;
-  const [reactionsAnchor, setReactionsAnchor] = React.useState<Element | null>(
-    null,
-  );
   const intl = useIntl();
-
-  const isRTL = layoutSelect((i: Layout) => i.isRTL);
 
   if ([
     chatReplyEnabled,
@@ -119,7 +108,6 @@ const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
           svgIcon="reactions"
           color="light"
           data-test="reactionsPickerButton"
-          ref={setReactionsAnchor}
         />
       </Tooltip>
       )}
@@ -144,31 +132,6 @@ const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
         />
       </Tooltip>
       )}
-      <Popover
-        open={reactionPopoverIsOpen}
-        anchorEl={reactionsAnchor}
-        onClose={() => {
-          onReactionPopoverOpenChange(false);
-        }}
-        anchorOrigin={{
-          vertical: 'top',
-          horizontal: isRTL ? 'left' : 'right',
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: isRTL ? 'right' : 'left',
-        }}
-      >
-        <EmojiPickerWrapper>
-          <EmojiPicker
-            onEmojiSelect={(emojiObject: { id: string; native: string }) => {
-              onEmojiSelected(emojiObject);
-            }}
-            showPreview={false}
-            showSkinTones={false}
-          />
-        </EmojiPickerWrapper>
-      </Popover>
     </Container>
   );
 

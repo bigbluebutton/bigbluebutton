@@ -103,7 +103,10 @@ class AudioManager {
   }
 
   onBeforeUnload() {
-    this.exitAudio();
+    const CONFIRMATION_ON_LEAVE = window.meetingClientSettings.public.app.askForConfirmationOnLeave;
+    if (!CONFIRMATION_ON_LEAVE) {
+      this.forceExitAudio();
+    }
   }
 
   _trackAudioJoinTime() {

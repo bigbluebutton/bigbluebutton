@@ -56,6 +56,7 @@ const Container = styled.div`
 `;
 
 const EmojiPickerWrapper = styled.div`
+  width: 100%;
   bottom: calc(100% + 0.5rem);
   left: 0;
   right: 0;
