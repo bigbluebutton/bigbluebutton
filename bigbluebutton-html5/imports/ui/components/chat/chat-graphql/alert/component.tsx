@@ -97,8 +97,8 @@ const ChatAlertGraphql: React.FC<ChatAlertGraphqlProps> = (props) => {
     && !!privateUnreadMessages
     && privateUnreadMessages.length > 0;
   const shouldPlayAudioAlert = useCallback(
-    (m: Message) => (m.chatId !== idChatOpen || document.hidden) && !history.current.has(m.messageId),
-    [idChatOpen, history.current],
+    (m: Message) => !history.current.has(m.messageId),
+    [history.current],
   );
 
   const CHAT_CONFIG = window.meetingClientSettings.public.chat;
