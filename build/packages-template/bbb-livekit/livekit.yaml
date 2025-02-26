@@ -3,14 +3,18 @@ log_level: info
 rtc:
   port_range_start: 16384
   port_range_end: 32768
-  use_external_ip: false
+  use_external_ip: true
+  tcp_port: 0
+  interfaces:
+    excludes:
+      - docker0
 redis:
   address: 127.0.0.1:6379
 webhook:
   urls:
     - http://127.0.0.1:3040/livekit-webhook
 audio:
-  active_level: 50
+  active_level: 55
   min_percentile: 10
   update_interval: 500
   smooth_intervals: 0
