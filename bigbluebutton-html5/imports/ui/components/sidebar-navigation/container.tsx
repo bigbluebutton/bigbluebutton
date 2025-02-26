@@ -38,9 +38,12 @@ const SidebarNavigationContainer = () => {
     data: currentMeeting,
   } = useMeeting((m: Partial<Meeting>) => ({
     componentsFlags: m.componentsFlags,
+    isBreakout: m.isBreakout,
   }));
+
   const hasBreakoutRoom = currentMeeting?.componentsFlags?.hasBreakoutRoom ?? false;
   const isUserInvited = userIsInvitedData?.breakoutRoom.length > 0;
+  const isBreakoutMeeting = currentMeeting?.isBreakout;
 
   const {
     data: timerData,
@@ -98,15 +101,17 @@ const SidebarNavigationContainer = () => {
   };
 
   useEffect(() => {
-    // TODO: remove this apps setup from here.
-    // Ideally each component(i.e breakouts, polls, timer) should register/unregister itself based
-    // on its specific conditions.
-    if (!breakoutsAreRegistered && (
-      isModerator || (!isModerator && hasBreakoutRoom && isUserInvited))) {
+    if (!breakoutsAreRegistered
+      && !isBreakoutMeeting
+      && (isModerator || (!isModerator && hasBreakoutRoom && isUserInvited))) {
       registerApp(BREAKOUTS_APP_KEY, intl.formatMessage(BREAKOUTS_LABEL), BREAKOUTS_ICON);
       pinApp(BREAKOUTS_APP_KEY);
     }
-    if (breakoutsAreRegistered && !isModerator && (!hasBreakoutRoom || !isUserInvited)) {
+
+    if (breakoutsAreRegistered
+      && (isBreakoutMeeting || (!isModerator
+      && (!hasBreakoutRoom || !isUserInvited))
+      )) {
       unregisterApp(BREAKOUTS_APP_KEY);
     }
 
@@ -134,10 +139,10 @@ const SidebarNavigationContainer = () => {
     isModerator,
     timerData,
     isPresenter,
+    isBreakoutMeeting,
   ]);
 
   useEffect(() => {
-    // update apps label when intl changes
     if (breakoutsAreRegistered) {
       registerApp(BREAKOUTS_APP_KEY, intl.formatMessage(BREAKOUTS_LABEL), BREAKOUTS_ICON);
     }
