@@ -287,9 +287,10 @@ const CustomLayout = (props) => {
       camerasMargin,
       cameraDockMinHeight,
       cameraDockMinWidth,
-      navBarHeight,
       presentationToolbarMinWidth,
     } = DEFAULT_VALUES;
+
+    const navBarHeight = calculatesNavbarHeight();
 
     const cameraDockBounds = {};
 
