@@ -44,11 +44,11 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
 
   public _inputDeviceId: string | null;
 
+  public _originalStream: MediaStream | null;
+
   private readonly liveKitRoom: Room;
 
   private readonly role: string;
-
-  private originalStream: MediaStream | null;
 
   private callback: (args: { status: string; bridge: string }) => void;
 
@@ -92,6 +92,26 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
     const publication = micTrackPublications[0];
 
     return this.originalStream || publication?.track?.mediaStream || null;
+  }
+
+  set originalStream(stream: MediaStream | null) {
+    // eslint-disable-next-line no-underscore-dangle
+    this._originalStream = stream;
+
+    logger.info({
+      logCode: 'livekit_audio_org_stream_set',
+      extraInfo: {
+        bridgeName: this.bridgeName,
+        role: this.role,
+        validStream: !!stream,
+        streamData: MediaStreamUtils.getMediaStreamLogData(stream),
+      },
+    }, 'LiveKit: original stream set');
+  }
+
+  get originalStream(): MediaStream | null {
+    // eslint-disable-next-line no-underscore-dangle
+    return this._originalStream;
   }
 
   private getLocalMicTrackPubs(): LocalTrackPublication[] {
@@ -183,8 +203,8 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
 
     const { trackSid, isMuted, trackName } = publication;
 
-    logger.debug({
-      logCode: 'livekit_audio_track_muted',
+    logger.info({
+      logCode: 'livekit_audio_local_track_muted',
       extraInfo: {
         bridgeName: this.bridgeName,
         role: this.role,
@@ -192,7 +212,7 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
         trackName,
         isMuted,
       },
-    }, `LiveKit: audio track muted - ${trackSid}`);
+    }, `LiveKit: local audio track muted - ${trackSid}`);
   }
 
   private handleLocalTrackUnmuted(publication: TrackPublication): void {
@@ -200,8 +220,8 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
 
     const { trackSid, isMuted, trackName } = publication;
 
-    logger.debug({
-      logCode: 'livekit_audio_track_unmuted',
+    logger.info({
+      logCode: 'livekit_audio_local_track_unmuted',
       extraInfo: {
         bridgeName: this.bridgeName,
         role: this.role,
@@ -209,7 +229,7 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
         trackName,
         isMuted,
       },
-    }, `LiveKit: audio track unmuted - ${trackSid}`);
+    }, `LiveKit: local audio track unmuted - ${trackSid}`);
   }
 
   private handleLocalTrackPublished(publication: LocalTrackPublication): void {
@@ -217,13 +237,15 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
 
     const { trackSid, trackName } = publication;
 
-    logger.debug({
+    logger.info({
       logCode: 'livekit_audio_published',
       extraInfo: {
         bridgeName: this.bridgeName,
         role: this.role,
         trackSid,
         trackName,
+        inputDeviceId: this.inputDeviceId,
+        streamData: MediaStreamUtils.getMediaStreamLogData(this.inputStream),
       },
     }, `LiveKit: audio track published - ${trackSid}`);
   }
@@ -233,13 +255,15 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
 
     const { trackSid, trackName } = publication;
 
-    logger.debug({
+    logger.info({
       logCode: 'livekit_audio_unpublished',
       extraInfo: {
         bridgeName: this.bridgeName,
         role: this.role,
         trackSid,
         trackName,
+        inputDeviceId: this.inputDeviceId,
+        streamData: MediaStreamUtils.getMediaStreamLogData(this.inputStream),
       },
     }, `LiveKit: audio track unpublished - ${trackSid}`);
   }
@@ -312,6 +336,7 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
               bridgeName: this.bridgeName,
               role: this.role,
               inputDeviceId: this.inputDeviceId,
+              streamData: MediaStreamUtils.getMediaStreamLogData(stream),
             },
           }, 'LiveKit: set audio input stream failed');
           throw error;
@@ -334,6 +359,8 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
           bridgeName: this.bridgeName,
           role: this.role,
           enabled: shouldEnable,
+          inputDeviceId: this.inputDeviceId,
+          streamData: MediaStreamUtils.getMediaStreamLogData(this.inputStream),
         },
       }, `LiveKit: setSenderTrackEnabled failed - ${error.message}`);
     };
@@ -463,6 +490,15 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
             return this.liveKitRoom.localParticipant.publishTrack(track, publishOptions);
           });
         await Promise.all(trackPublishers);
+        logger.debug({
+          logCode: 'livekit_audio_publish_with_stream',
+          extraInfo: {
+            bridgeName: this.bridgeName,
+            role: this.role,
+            inputDeviceId: this.inputDeviceId,
+            streamData: MediaStreamUtils.getMediaStreamLogData(inputStream),
+          },
+        }, 'LiveKit: published audio track with stream');
       } else {
         await this.liveKitRoom.localParticipant.setMicrophoneEnabled(
           true,
@@ -470,6 +506,15 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
           publishOptions,
         );
         this.originalStream = this.inputStream;
+        logger.debug({
+          logCode: 'livekit_audio_publish_without_stream',
+          extraInfo: {
+            bridgeName: this.bridgeName,
+            role: this.role,
+            inputDeviceId: this.inputDeviceId,
+            streamData: MediaStreamUtils.getMediaStreamLogData(this.originalStream),
+          },
+        }, 'LiveKit: published audio track without stream');
       }
 
       this.audioPublished();
@@ -482,6 +527,8 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
           errorStack: (error as Error).stack,
           bridgeName: this.bridgeName,
           role: this.role,
+          inputDeviceId: this.inputDeviceId,
+          streamData: MediaStreamUtils.getMediaStreamLogData(inputStream || this.originalStream),
         },
       }, 'LiveKit: failed to publish audio track');
       throw error;
@@ -572,6 +619,8 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
           errorStack: (error as Error).stack,
           bridgeName: this.bridgeName,
           role: this.role,
+          inputDeviceId: this.inputDeviceId,
+          streamData: MediaStreamUtils.getMediaStreamLogData(inputStream),
         },
       }, `LiveKit: activate audio failed: ${(error as Error).message}`);
       throw error;
@@ -618,7 +667,16 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
   exitAudio(): Promise<boolean> {
     return this.liveKitRoom.localParticipant.setMicrophoneEnabled(false)
       .then(() => this.unpublish())
-      .then(() => true)
+      .then(() => {
+        logger.info({
+          logCode: 'livekit_audio_exit',
+          extraInfo: {
+            bridgeName: this.bridgeName,
+            role: this.role,
+          },
+        }, 'LiveKit: audio exited');
+        return true;
+      })
       .catch((error) => {
         logger.error({
           logCode: 'livekit_audio_exit_error',

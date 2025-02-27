@@ -50,7 +50,7 @@ export const useAudioSenders = (
   if (errors) {
     errors.forEach((error) => {
       logger.error({
-        logCode: 'livekit_audio_group_streams_sub_error',
+        logCode: 'livekit_audio_sel_group_sub_error',
         extraInfo: {
           errorMessage: error.message,
         },
@@ -131,7 +131,7 @@ export const useAudioSubscriptions = () => {
 
     if (attempts >= SUBSCRIPTION_RETRY.MAX_RETRIES) {
       logger.error({
-        logCode: 'livekit_audio_subscription_max_retries',
+        logCode: 'livekit_audio_sel_subscription_max_retries',
         extraInfo: {
           trackSid,
         },
@@ -149,7 +149,7 @@ export const useAudioSubscriptions = () => {
       try {
         publication.setSubscribed(true);
         logger.info({
-          logCode: 'livekit_audio_subscription_retry_success',
+          logCode: 'livekit_audio_sel_subscription_retry_success',
           extraInfo: { userId, attempts: attempts + 1 },
         }, `Successfully subscribed to ${userId} after ${attempts + 1} attempts`);
         retryMap.current.delete(userId);
@@ -207,7 +207,7 @@ export const useAudioSubscriptions = () => {
                 try {
                   publication.setSubscribed(false);
                   logger.debug({
-                    logCode: 'livekit_audio_unsubscribed',
+                    logCode: 'livekit_audio_sel_unsubscribed',
                     extraInfo: {
                       userId: participantId,
                       inAnyGroup,
@@ -215,7 +215,7 @@ export const useAudioSubscriptions = () => {
                   }, `LiveKit: Unsubscribed from audio - ${trackSid}`);
                 } catch (error) {
                   logger.error({
-                    logCode: 'livekit_audio_unsubscription_failed',
+                    logCode: 'livekit_audio_sel_unsubscription_failed',
                     extraInfo: {
                       trackSid,
                       errorMessage: (error as Error).message,
@@ -243,7 +243,7 @@ export const useAudioSubscriptions = () => {
                 try {
                   publication.setSubscribed(true);
                   logger.debug({
-                    logCode: 'livekit_audio_subscribed',
+                    logCode: 'livekit_audio_sel_subscribed',
                     extraInfo: {
                       trackSid,
                       inAnyGroup,
@@ -251,7 +251,7 @@ export const useAudioSubscriptions = () => {
                   }, `LiveKit: Subscribed to audio - ${trackSid}`);
                 } catch (error) {
                   logger.error({
-                    logCode: 'livekit_audio_subscription_failed',
+                    logCode: 'livekit_audio_sel_subscription_failed',
                     extraInfo: {
                       trackSid,
                       errorMessage: (error as Error).message,

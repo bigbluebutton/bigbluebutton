@@ -66,8 +66,33 @@ const extractDeviceIdFromStream = (stream, kind) => {
   }
 };
 
+const getMediaStreamLogData = (stream) => {
+  if (!stream) return { audio: [], video: [] };
+
+  try {
+    const audioTracks = getAudioTracks(stream);
+    const videoTracks = getVideoTracks(stream);
+
+    return {
+      audio: audioTracks.map((track) => ({
+        id: track.id,
+        deviceId: getDeviceIdFromTrack(track),
+        label: track.label,
+      })),
+      video: videoTracks.map((track) => ({
+        id: track.id,
+        deviceId: getDeviceIdFromTrack(track),
+        label: track.label,
+      })),
+    };
+  } catch (error) {
+    return { audio: [], video: [] };
+  }
+};
+
 export default {
   stopMediaStreamTracks,
+  getMediaStreamLogData,
   getVideoTracks,
   extractDeviceIdFromStream,
 };
