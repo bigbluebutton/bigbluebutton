@@ -39,12 +39,12 @@ class Options extends MultiUsers {
       [e.minimizePresentation]: 'app.actionsBar.actionsDropdown.minimizePresentationLabel',
       [e.reactionsButton]: 'app.actionsBar.reactions.reactionsButtonLabel',
       [e.connectionStatusBtn]: 'app.connection-status.label',
-      [e.optionsButton]: 'app.navBar.settingsDropdown.optionsLabel',
+      [e.optionsButton]: 'app.navBar.optionsDropdown.optionsLabel',
     }
 
     for (const locale of e.locales) {
       console.log(`Testing ${locale} locale`);
-      const currentValuesBySelector = await getLocaleValues(selectedKeysBySelector, locale);
+      const currentValuesBySelector = getLocaleValues(selectedKeysBySelector, locale);
 
       await openSettings(this.modPage);
       await this.modPage.waitForSelector(e.languageSelector);
@@ -53,7 +53,7 @@ class Options extends MultiUsers {
       await this.modPage.waitAndClick(e.modalConfirmButton);
 
       for (const selector in currentValuesBySelector) {
-        await this.modPage.hasText(selector, currentValuesBySelector[selector], 'should the elements to be translated to the specific language');
+        await this.modPage.hasText(selector, currentValuesBySelector[selector], 'should the elements be translated into the specific language');
       }
     }
   }

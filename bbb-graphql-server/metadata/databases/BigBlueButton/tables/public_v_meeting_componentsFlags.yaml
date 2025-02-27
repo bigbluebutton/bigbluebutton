@@ -17,6 +17,7 @@ select_permissions:
         - hasExternalVideo
         - hasPoll
         - hasScreenshare
+        - hasScreenshareAsContent
         - hasTimer
         - isSharedNotedPinned
         - showRemainingTime

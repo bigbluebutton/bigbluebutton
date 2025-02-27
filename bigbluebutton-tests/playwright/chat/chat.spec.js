@@ -25,8 +25,7 @@ test.describe('Chat', { tag: '@ci' }, () => {
     await chat.clearChat();
   });
 
-  test('Copy chat', { tag: '@only-headed' }, async ({}, testInfo) => {
-    test.skip(testInfo.project.use.headless, 'Only works in headed mode');
+  test('Copy chat', async () => {
     await chat.copyChat();
   });
 
@@ -51,7 +50,7 @@ test.describe('Chat', { tag: '@ci' }, () => {
     await chat.sendEmoji();
   });
 
-  test('Copy chat with emoji', { tag: '@only-headed' }, async () => {
+  test('Copy chat with emoji', async () => {
     await chat.emojiCopyChat();
   });
 
@@ -83,9 +82,7 @@ test.describe('Chat', { tag: '@ci' }, () => {
     await chat.autoConvertEmojiSendPrivateChat();
   });
 
-  // failure only reproducible in CI (user leaves but keeps shown in the mod user list)
-  //! flaky flag recently removed in order to see current behavior
-  test('Private chat disabled when user leaves meeting', { tag: '@ci' }, async () => {
+  test('Private chat disabled when user leaves meeting', async () => {
     await chat.chatDisabledUserLeaves();
   });
 });

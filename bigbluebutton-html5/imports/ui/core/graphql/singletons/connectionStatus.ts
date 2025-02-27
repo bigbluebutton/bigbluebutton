@@ -17,6 +17,15 @@ type NetworkData = {
     videoCurrentDownloadRate: number,
   }
 };
+
+export enum MetricStatus {
+  Unknown = 'unknown',
+  Normal = 'normal',
+  Warning = 'warning',
+  Danger = 'danger',
+  Critical = 'critical',
+}
+
 class ConnectionStatus {
   private connected = makeVar(false);
 
@@ -29,6 +38,8 @@ class ConnectionStatus {
   private lastRttRequestSuccess = makeVar(true);
 
   private rttValue = makeVar(0);
+
+  private subscriptionFailed = makeVar(false);
 
   // @ts-ignore
   private networkData: ReactiveVar<NetworkData> = makeVar({
@@ -55,6 +66,25 @@ class ConnectionStatus {
     lastUnstableStatusAt: Date | number,
     clientNotResponding?: boolean,
   }>>([]);
+
+  private liveKitConnectionStatus = makeVar(MetricStatus.Unknown);
+
+  public setLiveKitConnectionStatus(status: MetricStatus): void {
+    if (this.liveKitConnectionStatus() !== status) {
+      logger.info({
+        logCode: 'stats_livekit_conn_state',
+      }, `LiveKit connection status changed to ${status}`);
+      this.liveKitConnectionStatus(status);
+    }
+  }
+
+  public getLiveKitConnectionStatus() {
+    return this.liveKitConnectionStatus();
+  }
+
+  public getLiveKitConnectionStatusVar() {
+    return this.liveKitConnectionStatus;
+  }
 
   private packetLossFraction = makeVar(0);
 
@@ -219,6 +249,21 @@ class ConnectionStatus {
     return this.connected;
   }
 
+  public setSubscriptionFailed(value: boolean): void {
+    if (value !== this.subscriptionFailed()) {
+      logger.info({ logCode: 'stats_subscription_state' }, `Subscription failed status changed to ${value}`);
+      this.subscriptionFailed(value);
+    }
+  }
+
+  public getSubscriptionFailed() {
+    return this.subscriptionFailed();
+  }
+
+  public getSubscriptionFailedVar() {
+    return this.subscriptionFailed;
+  }
+
   public addUserNetworkHistory(
     user: User,
     lastUnstableStatus: string,
@@ -246,8 +291,6 @@ class ConnectionStatus {
   }
 }
 
-const connectionsStatusSingleton = new ConnectionStatus();
+const connectionStatus = new ConnectionStatus();
 
-window.teste = connectionsStatusSingleton;
-
-export default connectionsStatusSingleton;
+export default connectionStatus;

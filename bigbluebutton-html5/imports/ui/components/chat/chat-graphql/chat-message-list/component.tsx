@@ -9,9 +9,7 @@ import { makeVar, useMutation } from '@apollo/client';
 import { defineMessages, useIntl } from 'react-intl';
 import useChat from '/imports/ui/core/hooks/useChat';
 import useIntersectionObserver from '/imports/ui/hooks/useIntersectionObserver';
-import { Chat } from '/imports/ui/Types/chat';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
-import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import { Message } from '/imports/ui/Types/message';
@@ -20,6 +18,7 @@ import LAST_SEEN_MUTATION from './queries';
 import {
   MessageList,
   UnreadButton,
+  PageWrapper,
 } from './styles';
 import useReactiveRef from '/imports/ui/hooks/useReactiveRef';
 import useStickyScroll from '/imports/ui/hooks/useStickyScroll';
@@ -36,6 +35,7 @@ import {
 } from '/imports/ui/services/features';
 import { CHAT_DELETE_REACTION_MUTATION, CHAT_SEND_REACTION_MUTATION } from './page/chat-message/mutations';
 import logger from '/imports/startup/client/logger';
+import { ChatLoading } from '../component';
 
 const PAGE_SIZE = 50;
 const CLEANUP_TIMEOUT = 3000;
@@ -115,21 +115,38 @@ const dispatchLastSeen = () => setTimeout(() => {
   }
 }, 500);
 
+const findFirstFocusableChild = (element: HTMLElement) => {
+  const childElements = Array.from(element.children) as HTMLElement[];
+  return childElements.find((c) => (c as HTMLElement).dataset.focusable === 'true');
+};
+
+const findLastFocusableChild = (element: HTMLElement) => {
+  const childElements = Array.from(element.children) as HTMLElement[];
+  return childElements.reverse().find((c) => (c as HTMLElement).dataset.focusable === 'true');
+};
+
 const roving = (
   event: React.KeyboardEvent<HTMLElement>,
-  changeState: (el: HTMLElement | null) => void,
   elementsList: HTMLElement,
-  element: HTMLElement | null,
+  setFocused?: (el?: HTMLElement | null) => void,
 ) => {
   const numberOfChilds = elementsList.childElementCount;
+  const isTargetAChild = event.target instanceof HTMLDivElement && event.target.dataset.focusable === 'true';
+  const isTargetElement = event.target === event.currentTarget;
+  const { activeElement } = document;
+  const element = activeElement?.classList.contains('chat-message-container')
+    ? activeElement
+    : null;
 
-  if ([KEY_CODES.ESCAPE, KEY_CODES.TAB].includes(event.keyCode)) {
-    changeState(null);
+  if (!(isTargetAChild || isTargetElement)) return;
+
+  if (event.keyCode === KEY_CODES.ESCAPE && isTargetAChild) {
+    elementsList.focus();
   }
 
   if (event.keyCode === KEY_CODES.ARROW_DOWN) {
     event.preventDefault();
-    const firstElement = elementsList.firstChild as HTMLElement;
+    const firstElement = findFirstFocusableChild(elementsList);
     let elRef = element && numberOfChilds > 1 ? (element.nextSibling as HTMLElement) : firstElement;
 
     while (elRef && elRef.dataset.focusable !== 'true' && elRef.nextSibling) {
@@ -137,12 +154,13 @@ const roving = (
     }
 
     elRef = (elRef && elRef.dataset.focusable === 'true') ? elRef : firstElement;
-    changeState(elRef);
+    elRef?.focus?.();
+    setFocused?.(elRef);
   }
 
   if (event.keyCode === KEY_CODES.ARROW_UP) {
     event.preventDefault();
-    const lastElement = elementsList.lastChild as HTMLElement;
+    const lastElement = findLastFocusableChild(elementsList);
     let elRef = element ? (element.previousSibling as HTMLElement) : lastElement;
 
     while (elRef && elRef.dataset.focusable !== 'true' && elRef.previousSibling) {
@@ -150,24 +168,14 @@ const roving = (
     }
 
     elRef = (elRef && elRef.dataset.focusable === 'true') ? elRef : lastElement;
-    changeState(elRef);
+    elRef?.focus?.();
+    setFocused?.(elRef);
   }
 
-  if ([KEY_CODES.SPACE, KEY_CODES.ENTER].includes(event.keyCode)) {
+  if ([KEY_CODES.SPACE, KEY_CODES.ENTER].includes(event.keyCode) && isTargetElement) {
     const elRef = document.activeElement?.firstChild as HTMLElement;
-    changeState(elRef);
-  }
-
-  if ([KEY_CODES.ARROW_RIGHT].includes(event.keyCode)) {
-    if (element?.dataset) {
-      const { sequence } = element.dataset;
-
-      window.dispatchEvent(new CustomEvent(ChatEvents.CHAT_KEYBOARD_FOCUS_MESSAGE_REQUEST, {
-        detail: {
-          sequence,
-        },
-      }));
-    }
+    elRef?.focus?.();
+    setFocused?.(elRef);
   }
 };
 
@@ -192,8 +200,8 @@ const ChatMessageList: React.FC<ChatListProps> = ({
   const [userLoadedBackUntilPage, setUserLoadedBackUntilPage] = useState<number | null>(null);
   const [lastMessageCreatedAt, setLastMessageCreatedAt] = useState<string>('');
   const [followingTail, setFollowingTail] = React.useState(true);
-  const [selectedMessage, setSelectedMessage] = React.useState<HTMLElement | null>(null);
   const [showStartSentinel, setShowStartSentinel] = React.useState(false);
+  const [focusedMessageElement, setFocusedMessageElement] = React.useState<HTMLElement | null>();
   const {
     childRefProxy: endSentinelRefProxy,
     intersecting: isEndSentinelVisible,
@@ -301,7 +309,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
         return prev;
       });
     }
-  }, [isStartSentinelVisible, followingTail]);
+  }, [isStartSentinelVisible]);
 
   useEffect(() => {
     setter({
@@ -432,9 +440,8 @@ const ChatMessageList: React.FC<ChatListProps> = ({
     if (messageListRef.current) {
       roving(
         e,
-        setSelectedMessage,
         messageListRef.current,
-        selectedMessage,
+        setFocusedMessageElement,
       );
     }
   };
@@ -469,6 +476,16 @@ const ChatMessageList: React.FC<ChatListProps> = ({
                 setShowStartSentinel(userScrolledUp);
               }
             }}
+            onWheel={(e) => {
+              if (e.deltaY < 0 && isStartSentinelVisible) {
+                setUserLoadedBackUntilPage((prev) => {
+                  if (typeof prev === 'number' && prev > 0) {
+                    return prev - 1;
+                  }
+                  return prev;
+                });
+              }
+            }}
             data-test="chatMessages"
             isRTL={isRTL}
             ref={updateRefs}
@@ -485,14 +502,10 @@ const ChatMessageList: React.FC<ChatListProps> = ({
                 aria-hidden
               />
             )}
-            <div
-              role="listbox"
+            <PageWrapper
               ref={messageListRef}
               tabIndex={hasMessageToolbar ? 0 : -1}
               onKeyDown={rove}
-              onBlur={() => {
-                setSelectedMessage(null);
-              }}
             >
               {Array.from({ length: pagesToLoad }, (_v, k) => k + (firstPageToLoad)).map((page) => {
                 return (
@@ -506,9 +519,6 @@ const ChatMessageList: React.FC<ChatListProps> = ({
                     chatId={chatId}
                     markMessageAsSeen={markMessageAsSeen}
                     scrollRef={messageListContainerRef}
-                    focusedId={selectedMessage?.dataset.sequence
-                      ? Number.parseInt(selectedMessage?.dataset.sequence, 10)
-                      : null}
                     meetingDisablePublicChat={!!meeting?.lockSettings?.disablePublicChat}
                     meetingDisablePrivateChat={!!meeting?.lockSettings?.disablePrivateChat}
                     currentUserDisablePublicChat={!!currentUser?.userLockSettings?.disablePublicChat}
@@ -523,10 +533,11 @@ const ChatMessageList: React.FC<ChatListProps> = ({
                     chatReplyEnabled={CHAT_REPLY_ENABLED}
                     deleteReaction={deleteReaction}
                     sendReaction={sendReaction}
+                    focusedSequence={Number(focusedMessageElement?.dataset.sequence)}
                   />
                 );
               })}
-            </div>
+            </PageWrapper>
             <div
               ref={endSentinelRefProxy}
               style={{
@@ -556,18 +567,21 @@ const ChatMessageListContainer: React.FC = () => {
 
   const isPublicChat = idChatOpen === PUBLIC_CHAT_KEY;
   const chatId = !isPublicChat ? idChatOpen : PUBLIC_GROUP_CHAT_KEY;
-  const { data: currentChat } = useChat((chat) => {
+  const { data: chatData, loading: currentChatLoading } = useChat((chat) => {
     return {
       chatId: chat.chatId,
       totalMessages: chat.totalMessages,
       totalUnread: chat.totalUnread,
       lastSeenAt: chat.lastSeenAt,
     };
-  }, chatId) as GraphqlDataHookSubscriptionResponse<Partial<Chat>>;
+  }, chatId);
+  const currentChat = Array.isArray(chatData) ? chatData[0] : chatData;
 
   const [setMessageAsSeenMutation] = useMutation(LAST_SEEN_MUTATION);
 
-  const totalMessages = currentChat?.totalMessages || 0;
+  if (currentChatLoading || !currentChat) return <ChatLoading isRTL={document.dir === 'rtl'} />;
+
+  const { totalMessages = 0 } = currentChat;
   const totalPages = Math.ceil(totalMessages / PAGE_SIZE);
   return (
     <ChatMessageList

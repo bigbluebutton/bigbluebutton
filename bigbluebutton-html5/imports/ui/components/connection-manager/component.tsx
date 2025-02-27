@@ -73,6 +73,7 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
   }
 
   if (networkError) {
+    connectionStatus.setSubscriptionFailed(true);
     logger.error(`[Network error]: ${networkError}`);
   }
 });

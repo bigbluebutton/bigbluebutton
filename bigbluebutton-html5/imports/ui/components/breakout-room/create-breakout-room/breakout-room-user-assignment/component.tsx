@@ -184,6 +184,7 @@ type User = {
   userId: string;
   name: string;
   isModerator: boolean;
+  extId: string;
 };
 
 const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
@@ -416,12 +417,13 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
                 { presentations.length > 0 && !isUpdate ? (
                   <Styled.BreakoutSlideLabel>
                     <Styled.InputRooms
+                      data-test={`changeSlideBreakoutRoom${value}`}
                       value={getRoomPresentation(value)}
                       onChange={changeRoomPresentation(value)}
                       valid
                     >
                       { currentPresentation ? (
-                        <option key="current-slide" value={`${currentSlidePrefix}${currentPresentation}`}>
+                        <option key="current-slide" value={`${currentSlidePrefix}${currentPresentation}`} data-test="currentSlideBreakoutOption">
                           {intl.formatMessage(intlMessages.currentSlide)}
                         </option>
                       ) : null }

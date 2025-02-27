@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import { useQuery } from '@apollo/client';
 import { GET_WELCOME_MESSAGE, WelcomeMsgsResponse } from './queries';
@@ -53,7 +54,6 @@ interface SessionDetailsContainerProps {
 }
 
 interface SessionDetailsProps extends SessionDetailsContainerProps {
-  meetingName: string;
   welcomeMessage: string;
   welcomeMsgForModerators: string;
   loginUrl: string,
@@ -66,7 +66,6 @@ const COPY_MESSAGE_TIMEOUT = 3000;
 
 const SessionDetails: React.FC<SessionDetailsProps> = (props) => {
   const {
-    meetingName,
     welcomeMessage,
     welcomeMsgForModerators,
     isOpen,
@@ -99,7 +98,7 @@ const SessionDetails: React.FC<SessionDetailsProps> = (props) => {
 
   return (
     <ModalSimple
-      title={intl.formatMessage(intlMessages.title, { 0: meetingName })}
+      title={intl.formatMessage(intlMessages.title)}
       dismiss={{
         label: intl.formatMessage(intlMessages.dismissLabel),
         description: intl.formatMessage(intlMessages.dismissDesc),
@@ -195,6 +194,10 @@ const SessionDetailsContainer: React.FC<SessionDetailsContainerProps> = ({
     };
   });
 
+  const { data: currentUserData } = useCurrentUser((user) => ({
+    isModerator: user.isModerator,
+  }));
+
   if (welcomeLoading) return null;
   if (welcomeError) return <div>{JSON.stringify(welcomeError)}</div>;
   if (!welcomeData || loading || !currentMeeting) return null;
@@ -214,13 +217,20 @@ const SessionDetailsContainer: React.FC<SessionDetailsContainerProps> = ({
 
   const anchorElement = document.getElementById('presentationTitle') as HTMLElement;
 
+  // login url should only be displayed for moderators
+  let loginUrl = currentMeeting.loginUrl ?? '';
+  const isModerator = currentUserData?.isModerator;
+
+  if (!isModerator) {
+    loginUrl = '';
+  }
+
   return (
     <SessionDetails
       isOpen={isOpen}
       onRequestClose={onRequestClose}
       priority={priority}
-      meetingName={currentMeeting.name ?? ''}
-      loginUrl={currentMeeting.loginUrl ?? ''}
+      loginUrl={loginUrl}
       welcomeMessage={welcomeData.user_welcomeMsgs[0]?.welcomeMsg ?? ''}
       welcomeMsgForModerators={welcomeData.user_welcomeMsgs[0]?.welcomeMsgForModerators ?? ''}
       formattedDialNum={formattedDialNum}

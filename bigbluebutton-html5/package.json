@@ -8,11 +8,7 @@
     "tscheck": "tsc",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "lint:file": "eslint",
-    "test": "export WITH_RECORD=false;export REGRESSION_TESTING=false;env $(cat ../bigbluebutton-tests/puppeteer/.env | xargs)  jest all.test.js --color --detectOpenHandles --forceExit",
-    "test:recording": "export WITH_RECORD=true;export REGRESSION_TESTING=false;env $(cat ../bigbluebutton-tests/puppeteer/.env | xargs)  jest all.test.js --color --detectOpenHandles --forceExit",
-    "test-visual-regression": "export REGRESSION_TESTING=true;env $(cat ../bigbluebutton-tests/puppeteer/.env | xargs)  jest all.test.js --color --detectOpenHandles --forceExit",
-    "test-visual-regression:recording": "export WITH_RECORD=true;export REGRESSION_TESTING=true;env $(cat ../bigbluebutton-tests/puppeteer/.env | xargs)  jest all.test.js --color --detectOpenHandles --forceExit"
+    "lint:file": "eslint"
   },
   "lint-staged": {
     "*.{js,jsx}": [
@@ -59,7 +55,7 @@
     "autoprefixer": "^10.4.4",
     "axios": "^1.7.8",
     "babel-runtime": "~6.26.0",
-    "bigbluebutton-html-plugin-sdk": "0.0.69",
+    "bigbluebutton-html-plugin-sdk": "0.0.73",
     "bowser": "^2.11.0",
     "browser-bunyan": "^1.8.0",
     "classnames": "^2.2.6",
@@ -152,7 +148,7 @@
     "husky": "^1.3.1",
     "lint-staged": "11.2.0",
     "mini-css-extract-plugin": "^2.9.0",
-    "postcss": "^8.4.49",
+    "postcss": "^8.5.3",
     "postcss-loader": "^8.1.1",
     "prettier": "3.3.3",
     "react": "18.3.1",

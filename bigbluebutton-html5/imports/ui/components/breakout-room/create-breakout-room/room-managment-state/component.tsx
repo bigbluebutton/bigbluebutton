@@ -11,7 +11,7 @@ import {
   RoomPresentations,
 } from './types';
 import {
-  breakoutRoom, getBreakoutsResponse, getLastBreakouts, LastBreakoutData,
+  breakoutRoom, getBreakoutsResponse, getLastBreakouts, getMeetingGroupResponse, LastBreakoutData,
 } from '../queries';
 
 const intlMessages = defineMessages({
@@ -41,6 +41,7 @@ interface RoomManagmentStateProps {
   getRoomPresentation: (roomId: number) => string;
   isUpdate: boolean;
   setNumberOfRooms: React.Dispatch<React.SetStateAction<number>>;
+  groups: getMeetingGroupResponse['meeting_group'];
 }
 
 const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
@@ -59,6 +60,7 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
   getRoomPresentation,
   isUpdate,
   setNumberOfRooms,
+  groups,
 }) => {
   const intl = useIntl();
   const [selectedId, setSelectedId] = useState<string>('');
@@ -244,6 +246,32 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
       }));
     }
   }, [users]);
+
+  useEffect(() => {
+    if (groups.length && init && lastBreakoutData && !(lastBreakoutData.breakoutRoom_createdLatest.length > 0)) {
+      setNumberOfRooms(groups.length >= 2 ? groups.length : 2);
+
+      // set the rooms based on the groups
+      setRooms((prevRooms: Rooms) => {
+        const rooms = { ...prevRooms };
+        Array.from(groups).forEach((group, index) => {
+          const idx = index + 1;
+          const roomUsers = group.usersExtId
+            .map((id) => users.find((user) => user.extId === id))
+            .filter((user) => user) as BreakoutUser[];
+          rooms[idx] = {
+            id: idx,
+            name: group.name || roomName(idx),
+            users: roomUsers,
+          };
+
+          rooms[0].users = rooms[0].users.filter((user) => !roomUsers.find((u) => u.userId === user.userId));
+        });
+
+        return rooms;
+      });
+    }
+  }, [init, lastBreakoutData]);
 
   useEffect(() => {
     if (runningRooms && init) {

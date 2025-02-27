@@ -1,6 +1,6 @@
 import { User } from '/imports/ui/Types/user';
 
-export type BreakoutUser = Pick<User, 'userId' | 'name' | 'isModerator'>;
+export type BreakoutUser = Pick<User, 'userId' | 'name' | 'isModerator' | 'extId'>;
 
 export type Room = {
   id: number;

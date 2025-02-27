@@ -33,6 +33,7 @@ import {
   SET_LOBBY_MESSAGE_PRIVATE,
 } from '../mutations';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
 
 interface LayoutDispatchProps {
   type: string,
@@ -421,12 +422,17 @@ const GuestUsersManagementPanelContainer: React.FC = () => {
   }
 
   if (guestWaitingUsersError) {
-    if (guestWaitingUsersError) logger.error('guestWaitingUsersError', guestWaitingUsersError);
-    return (
-      <div>
-        {guestWaitingUsersError && <p>{JSON.stringify(guestWaitingUsersError)}</p>}
-      </div>
+    connectionStatus.setSubscriptionFailed(true);
+    logger.error(
+      {
+        logCode: 'subscription_Failed',
+        extraInfo: {
+          error: guestWaitingUsersError,
+        },
+      },
+      'Subscription failed to load',
     );
+    return null;
   }
 
   const separateGuestUsersByAuthed = guestWaitingUsersData

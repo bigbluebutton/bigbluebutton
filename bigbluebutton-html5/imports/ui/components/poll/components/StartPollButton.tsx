@@ -18,6 +18,10 @@ const intlMessages = defineMessages({
     id: 'app.poll.optionErr',
     description: 'poll input error label',
   },
+  minOptionsErr: {
+    id: 'app.poll.minOptionsErr',
+    description: 'poll input error label',
+  },
   yes: {
     id: 'app.poll.y',
     description: '',
@@ -48,7 +52,6 @@ interface StartPollButtonProps {
   setIsPolling: (isPolling: boolean) => void;
   secretPoll: boolean;
   isMultipleResponse: boolean;
-  hasCurrentPresentation: boolean;
 }
 
 const StartPollButton: React.FC<StartPollButtonProps> = ({
@@ -59,7 +62,6 @@ const StartPollButton: React.FC<StartPollButtonProps> = ({
   setIsPolling,
   secretPoll,
   isMultipleResponse,
-  hasCurrentPresentation,
 }) => {
   const CHAT_CONFIG = window.meetingClientSettings.public.chat;
   const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
@@ -77,7 +79,7 @@ const StartPollButton: React.FC<StartPollButtonProps> = ({
     isMultipleResponse: boolean,
     answers: (string | null)[] = [],
   ) => {
-    const pollId = hasCurrentPresentation || PUBLIC_CHAT_KEY;
+    const pollId = PUBLIC_CHAT_KEY;
 
     createPoll({
       variables: {
@@ -91,11 +93,16 @@ const StartPollButton: React.FC<StartPollButtonProps> = ({
     });
   };
 
+  const hasNotMinOptions = type !== pollTypes.Response
+    && optList.filter((o) => o.val.trim().length > 0).length < 2;
+
   return (
     <Styled.StartPollBtn
       data-test="startPoll"
       label={intl.formatMessage(intlMessages.startPollLabel)}
       color="primary"
+      disabled={hasNotMinOptions}
+      title={hasNotMinOptions ? intl.formatMessage(intlMessages.minOptionsErr) : ''}
       onClick={() => {
         const optionsList = optList.slice(0, MAX_CUSTOM_FIELDS);
         let hasVal = false;
@@ -104,6 +111,9 @@ const StartPollButton: React.FC<StartPollButtonProps> = ({
         });
 
         let err = null;
+        if (hasNotMinOptions) {
+          err = intl.formatMessage(intlMessages.optionErr);
+        }
         if (type === pollTypes.Response && question.length === 0) {
           err = intl.formatMessage(intlMessages.questionErr);
         }

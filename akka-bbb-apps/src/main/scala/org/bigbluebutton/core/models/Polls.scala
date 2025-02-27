@@ -1,7 +1,8 @@
 package org.bigbluebutton.core.models
 
 import org.bigbluebutton.common2.domain._
-import org.bigbluebutton.common2.msgs.AnnotationVO
+import org.bigbluebutton.common2.msgs.{ AnnotationVO, BbbClientMsgHeader, BbbCommonEnvCoreMsg, BbbCoreEnvelope, MessageTypes, Routing, SendWhiteboardAnnotationsEvtMsg, SendWhiteboardAnnotationsEvtMsgBody }
+import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.db.{ PollDAO, PollResponseDAO }
 import org.bigbluebutton.core.domain.MeetingState2x
 
@@ -82,21 +83,15 @@ object Polls {
     }
   }
 
-  def handleShowPollResultReqMsg(state: MeetingState2x, requesterId: String, pollId: String, lm: LiveMeeting): Option[(SimplePollResultOutVO, AnnotationVO)] = {
-    def sanitizeAnnotation(annotation: AnnotationVO): AnnotationVO = {
-      // Remove null values by wrapping value with Option
-      val shape = annotation.annotationInfo.collect {
-        case (key, value: Any) => key -> Option(value)
-      }
-
-      // Unwrap the value wrapped as Option
-      val shape2 = shape.collect {
-        case (key, Some(value)) => key -> value
-      }
-
-      annotation.copy(annotationInfo = shape2)
+  def getPollResult(pollId: String, lm: LiveMeeting): Option[(SimplePollResultOutVO)] = {
+    for {
+      result <- getSimplePollResult(pollId, lm.polls)
+    } yield {
+      (result)
     }
+  }
 
+  def handleShowPollResultReqMsgForAnnotation(state: MeetingState2x, requesterId: String, pollId: String, lm: LiveMeeting, result: SimplePollResultOutVO, bus: MessageBus): Unit = {
     def send(poll: SimplePollResultOutVO, shape: scala.collection.immutable.Map[String, Object]): Option[AnnotationVO] = {
       for {
         pod <- state.presentationPodManager.getDefaultPod()
@@ -111,7 +106,6 @@ object Polls {
     }
 
     for {
-      result <- getSimplePollResult(pollId, lm.polls)
       pod <- state.presentationPodManager.getDefaultPod()
       pres <- pod.getCurrentPresentation()
       page <- PresentationInPod.getCurrentPage(pres)
@@ -120,8 +114,17 @@ object Polls {
     } yield {
       lm.wbModel.addAnnotations(annot.wbId, lm.props.meetingProp.intId, requesterId, Array[AnnotationVO](annot), isPresenter = false, isModerator = false)
       showPollResult(pollId, lm.polls)
-      (result, annot)
+      // Send annotations with the result to recordings
+      val annotationRouting = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, lm.props.meetingProp.intId, requesterId)
+      val annotationEnvelope = BbbCoreEnvelope(SendWhiteboardAnnotationsEvtMsg.NAME, annotationRouting)
+      val annotationHeader = BbbClientMsgHeader(SendWhiteboardAnnotationsEvtMsg.NAME, lm.props.meetingProp.intId, requesterId)
+
+      val annotMsgBody = SendWhiteboardAnnotationsEvtMsgBody(annot.wbId, Array[AnnotationVO](annot))
+      val annotationEvent = SendWhiteboardAnnotationsEvtMsg(annotationHeader, annotMsgBody)
+      val annotationMsgEvent = BbbCommonEnvCoreMsg(annotationEnvelope, annotationEvent)
+      bus.outGW.send(annotationMsgEvent)
     }
+
   }
 
   def handleGetCurrentPollReqMsg(state: MeetingState2x, requesterId: String, lm: LiveMeeting): Option[PollVO] = {

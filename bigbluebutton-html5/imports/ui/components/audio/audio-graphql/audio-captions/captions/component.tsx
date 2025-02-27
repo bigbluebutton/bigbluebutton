@@ -66,14 +66,13 @@ const AudioCaptionsSelect: React.FC<AudioCaptionsSelectProps> = ({
   const [setSpeechLocaleMutation] = useMutation(SET_SPEECH_LOCALE);
 
   const setUserSpeechLocale = (speechLocale: string, provider: string) => {
-    if (speechLocale !== '') {
-      setSpeechLocaleMutation({
-        variables: {
-          locale: speechLocale,
-          provider,
-        },
-      });
-    }
+    // When speechLocale is '' we disable the transcription provider
+    setSpeechLocaleMutation({
+      variables: {
+        locale: speechLocale,
+        provider: speechLocale !== '' ? provider : '',
+      },
+    });
   };
 
   if (!isTranscriptionEnabled || useLocaleHook) return null;
@@ -83,7 +82,6 @@ const AudioCaptionsSelect: React.FC<AudioCaptionsSelectProps> = ({
       <div
         data-test="speechRecognitionUnsupported"
         style={{
-          fontSize: '.75rem',
           padding: '1rem 0',
         }}
       >
@@ -153,7 +151,7 @@ const AudioCaptionsSelectContainer: React.FC<AudioCaptionsContainerProps> = ({
   const voices = getSpeechVoices();
 
   useEffect(() => {
-    if (voices && voicesList.length === 0) {
+    if ((voices && voices.length > 0) && voicesList.length === 0) {
       setVoicesList(voices);
     }
   }, [voices]);

@@ -56,13 +56,13 @@ public:
     customStyleUrl: null
     darkTheme:
       enabled: true
-    askForFeedbackOnLogout: false
     # the default logoutUrl matches window.location.origin i.e. bigbluebutton.org for demo.bigbluebutton.org
     # in some cases we want only custom logoutUrl to be used when provided on meeting create. Default value: true
     askForConfirmationOnLeave: true
     wakeLock: 
       enabled: true
     allowDefaultLogoutUrl: true
+    skipMeetingEnded: false
     dynamicGuestPolicy: true
     enableGuestLobbyMessage: true
     guestPolicyExtraAllowOptions: false
@@ -189,6 +189,7 @@ public:
     defaultSettings:
       application:
         selectedLayout: 'custom'
+        pushLayout: false
         animations: true
         chatAudioAlerts: false
         chatPushAlerts: false
@@ -258,6 +259,9 @@ public:
       toggleUserList:
         accesskey: U
         descId: toggleUserList
+      openLeaveMenu:
+        accesskey: X
+        descId: openLeaveMenu
       toggleMute:
         accesskey: M
         descId: toggleMute
@@ -801,6 +805,7 @@ public:
     showPushLayoutButton: true
     showPushLayoutToggle: true
     showSessionDetailsOnJoin: true
+    showScreenshareQuickSwapButton: false
   pads:
     url: ETHERPAD_HOST
   media:
@@ -952,7 +957,7 @@ public:
   stats:
     enabled: true
     interval: 10000
-    timeout: 30000
+    timeout: 10000
     log: true
     notification:
       warning: false
@@ -966,6 +971,7 @@ public:
       danger: 1000
       critical: 2000
     help: STATS_HELP_URL
+    lastEntriesCap: 20
   presentation:
     allowDownloadOriginal: true
     allowDownloadWithAnnotations: true
