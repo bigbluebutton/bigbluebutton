@@ -57,13 +57,14 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
 
     this.role = SENDRECV_ROLE;
     this.bridgeName = BRIDGE_NAME;
-    this.originalStream = null;
     this.callback = () => {
       logger.warn('LiveKitAudioBridge: callback not set');
     };
     this.liveKitRoom = liveKitRoom;
     // eslint-disable-next-line no-underscore-dangle
     this._inputDeviceId = null;
+    // eslint-disable-next-line no-underscore-dangle
+    this._originalStream = null;
 
     this.audioEnded = this.audioEnded.bind(this);
     this.handleTrackSubscribed = this.handleTrackSubscribed.bind(this);
@@ -87,16 +88,23 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
     return this._inputDeviceId;
   }
 
-  get inputStream(): MediaStream | null {
+  get publicationTrackStream(): MediaStream | null {
     const micTrackPublications = this.getLocalMicTrackPubs();
     const publication = micTrackPublications[0];
 
-    return this.originalStream || publication?.track?.mediaStream || null;
+    return publication?.track?.mediaStream || null;
+  }
+
+  get inputStream(): MediaStream | null {
+    return this.originalStream || this.publicationTrackStream;
   }
 
   set originalStream(stream: MediaStream | null) {
     // eslint-disable-next-line no-underscore-dangle
     this._originalStream = stream;
+    const streamData = MediaStreamUtils.getMediaStreamLogData(stream);
+    const streamLabel = streamData?.audio?.[0]?.label ?? streamData?.id;
+    const streamLogId = streamLabel ? `${streamLabel}=${streamData?.active}` : 'null';
 
     logger.info({
       logCode: 'livekit_audio_org_stream_set',
@@ -104,9 +112,9 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
         bridgeName: this.bridgeName,
         role: this.role,
         validStream: !!stream,
-        streamData: MediaStreamUtils.getMediaStreamLogData(stream),
+        streamData,
       },
-    }, 'LiveKit: original stream set');
+    }, `LiveKit: original stream set - ${streamLogId}`);
   }
 
   get originalStream(): MediaStream | null {
@@ -347,6 +355,97 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
     return Promise.resolve();
   }
 
+  async liveChangeInputDevice(deviceId: string): Promise<MediaStream | null> {
+    // Remove all input audio tracks from the stream
+    // This will effectively mute the microphone
+    // and keep the audio output working
+    if (deviceId === 'listen-only') {
+      const stream = this.inputStream;
+
+      if (stream) {
+        stream.getAudioTracks().forEach((track) => {
+          track.stop();
+          stream.removeTrack(track);
+        });
+      }
+
+      return stream;
+    }
+    const trackPubs = this.getLocalMicTrackPubs();
+    const hasUnmutedTrack = trackPubs.some((pub) => !pub.isMuted);
+
+    // We have a published track, use LK's own method to switch the device
+    if (hasUnmutedTrack) {
+      await liveKitRoom.switchActiveDevice('audioinput', deviceId, false);
+      if (this.publicationTrackStream) {
+        this.originalStream = this.publicationTrackStream;
+      } else {
+        logger.warn({
+          logCode: 'livekit_audio_switch_pub_stream_missing',
+          extraInfo: {
+            bridgeName: this.bridgeName,
+            role: this.role,
+            deviceId,
+            streamData: MediaStreamUtils.getMediaStreamLogData(this.inputStream),
+          },
+        }, 'LiveKit: publication stream missing after device switch');
+      }
+
+      return this.inputStream;
+    }
+
+    let newStream: MediaStream | null = null;
+    let backupStream: MediaStream | null = null;
+
+    try {
+      const constraints = {
+        audio: getAudioConstraints({ deviceId }),
+      };
+
+      // Backup stream (current one) in case the switch fails
+      if (this.inputStream && this.inputStream.active) {
+        backupStream = this.inputStream ? this.inputStream.clone() : null;
+        this.inputStream.getAudioTracks().forEach((track) => track.stop());
+      }
+
+      newStream = await doGUM(constraints);
+      await this.setInputStream(newStream, { deviceId });
+      if (backupStream && backupStream.active) {
+        backupStream.getAudioTracks().forEach((track) => track.stop());
+        backupStream = null;
+      }
+
+      return newStream;
+    } catch (error) {
+      // Device change failed. Clean up the tentative new stream to avoid lingering
+      // stuff, then try to rollback to the previous input stream.
+      if (newStream && typeof newStream.getAudioTracks === 'function') {
+        newStream.getAudioTracks().forEach((t) => t.stop());
+        newStream = null;
+      }
+
+      // Rollback to backup stream
+      if (backupStream && backupStream.active) {
+        this.setInputStream(backupStream).catch((rollbackError) => {
+          logger.error({
+            logCode: 'audio_changeinputdevice_rollback_failure',
+            extraInfo: {
+              bridgeName: this.bridgeName,
+              deviceId,
+              errorName: rollbackError.name,
+              errorMessage: rollbackError.message,
+            },
+          }, 'Microphone device change rollback failed - the device may become silent');
+
+          backupStream.getAudioTracks().forEach((track) => track.stop());
+          backupStream = null;
+        });
+      }
+
+      throw error;
+    }
+  }
+
   setSenderTrackEnabled(shouldEnable: boolean): void {
     const trackPubs = this.getLocalMicTrackPubs();
     const handleMuteError = (error: Error) => {
@@ -481,15 +580,21 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
 
       if (this.hasMicrophoneTrack()) await this.unpublish();
 
-      if (inputStream) {
-        const cloneStream = inputStream.clone();
+      if (inputStream && !inputStream.active) {
+        logger.warn({
+          logCode: 'livekit_audio_publish_inactive_stream',
+          extraInfo: {
+            bridgeName: this.bridgeName,
+            role: this.role,
+            inputDeviceId: this.inputDeviceId,
+            streamData: MediaStreamUtils.getMediaStreamLogData(inputStream),
+          },
+        }, 'LiveKit: audio stream is inactive, fallback');
+      }
+
+      if (inputStream && inputStream.active) {
         // Get tracks from the stream and publish them. Map into an array of
         // Promise objects and wait for all of them to resolve.
-        const trackPublishers = cloneStream.getTracks()
-          .map((track) => {
-            return this.liveKitRoom.localParticipant.publishTrack(track, publishOptions);
-          });
-        await Promise.all(trackPublishers);
         logger.debug({
           logCode: 'livekit_audio_publish_with_stream',
           extraInfo: {
@@ -498,7 +603,12 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
             inputDeviceId: this.inputDeviceId,
             streamData: MediaStreamUtils.getMediaStreamLogData(inputStream),
           },
-        }, 'LiveKit: published audio track with stream');
+        }, 'LiveKit: publishing audio track with stream');
+        const trackPublishers = inputStream.getAudioTracks()
+          .map((track) => {
+            return this.liveKitRoom.localParticipant.publishTrack(track, publishOptions);
+          });
+        await Promise.all(trackPublishers);
       } else {
         await this.liveKitRoom.localParticipant.setMicrophoneEnabled(
           true,
@@ -542,13 +652,26 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
 
     const unpublishers = micTrackPublications.map((publication: LocalTrackPublication) => {
       if (publication?.track && publication?.source === Track.Source.Microphone) {
-        return this.liveKitRoom.localParticipant.unpublishTrack(publication.track);
+        const stopOnUnpublish = liveKitRoom?.options?.stopLocalTrackOnUnpublish ?? false;
+
+        return this.liveKitRoom.localParticipant.unpublishTrack(publication.track, stopOnUnpublish);
       }
 
       return Promise.resolve();
     });
 
     return Promise.all(unpublishers)
+      .then(() => {
+        const unpublishedTracks = micTrackPublications.map((pub) => pub?.trackSid);
+        logger.debug({
+          logCode: 'livekit_audio_unpublish',
+          extraInfo: {
+            bridgeName: this.bridgeName,
+            role: this.role,
+            unpublishedTracks,
+          },
+        }, 'LiveKit: audio track unpublished');
+      })
       .catch((error) => {
         logger.error({
           logCode: 'livekit_audio_unpublish_error',
