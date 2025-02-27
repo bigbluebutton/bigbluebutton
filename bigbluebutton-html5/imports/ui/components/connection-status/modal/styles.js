@@ -64,6 +64,54 @@ const Name = styled.div`
   }
 `;
 
+const ListOccurrenceContainer = styled.div`
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-items: right;
+  flex-direction: column;
+  align-items: end;
+  `;
+
+const OccurrenceListItem = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+  padding: 0.25rem;
+  border-bottom: 1px solid ${colorGrayLightest};
+`;
+
+const OccurrenceListItemIcon = styled.div`
+  align-self: center;
+  border-radius: 50%;
+  color: white;
+  padding: 0.25em;
+  height: 1rem;
+  width: 1rem;
+  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  justify-self: end;
+  background-color: green;
+  border: 1px solid darkgreen;
+
+  ${({ status }) => status === 'warning' && `
+    background-color: orange;
+    border: 1px solid darkorange;
+  `}
+
+  ${({ status }) => status === 'danger' && `
+    background-color: red;
+    border: 1px solid darkred;
+  `}
+
+  ${({ status }) => status === 'critical' && `
+    background-color: darkred;
+    border: 1px solid red;
+  `}
+`;
+
 const FullName = styled(Name)`
   width: 100%;
 `;
@@ -422,4 +470,7 @@ export default {
   ConnectionTabList,
   ConnectionTabSelector,
   ConnectionTabPanel,
+  ListOccurrenceContainer,
+  OccurrenceListItem,
+  OccurrenceListItemIcon,
 };

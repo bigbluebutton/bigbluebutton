@@ -11,6 +11,7 @@ import ConnectionStatusHelper from '../status-helper/component';
 import Auth from '/imports/ui/services/auth';
 import connectionStatus from '../../../core/graphql/singletons/connectionStatus';
 import logger from '/imports/startup/client/logger';
+import UserConnectionMetricsContainer from './components/userConnectionMetrics';
 
 const MIN_TIMEOUT = 3000;
 
@@ -193,6 +194,7 @@ class ConnectionStatusComponent extends PureComponent {
     this.state = {
       selectedTab: 0,
       copyButtonText: intl.formatMessage(intlMessages.copy),
+      selectedUserId: null,
     };
     this.setButtonMessage = this.setButtonMessage.bind(this);
     this.audioUploadLabel = intl.formatMessage(intlMessages.audioUploadRate);
@@ -294,15 +296,25 @@ class ConnectionStatusComponent extends PureComponent {
       if (isConnectionStatusEmpty(connections)) return this.renderEmpty();
     }
 
+    console.log("🚀 -> ConnectionStatusComponent -> returnconnections.map -> connections:", connections)
     return connections.map((conn, index) => {
       const dateTime = new Date(conn.lastUnstableStatusAt);
       const lastActiveConnection = conn.connectionAliveAt
         ? new Date(conn.connectionAliveAt) : new Date();
       return (
-        <Styled.Item
+        <>
+          <Styled.Item
           key={`${conn.user.name}-${conn.user.userId}`}
           last={(index + 1) === connections.length}
           data-test="connectionStatusItemUser"
+          onClick={()=> {
+            if (conn.user.userId === this.state.selectedUserId) {
+              this.setState({selectedUserId: null});
+            }
+            else {
+              this.setState({selectedUserId: conn.user.userId});
+            }
+          }}
         >
           <Styled.Left>
             <Styled.Avatar>
@@ -366,6 +378,13 @@ class ConnectionStatusComponent extends PureComponent {
             </Styled.Time>
           </Styled.Right>
         </Styled.Item>
+        {
+          conn.user.userId === this.state.selectedUserId 
+          ? (
+            <UserConnectionMetricsContainer userId={conn.user.userId} />
+          ) : null
+        }
+        </>
       );
     });
   }
