@@ -754,7 +754,10 @@ class Presentation extends PureComponent {
       logCode: 'whiteboard_crash',
       logMessage: 'Possible whiteboard crash',
     };
-    if (!presentationIsOpen) return null;
+    const presentationIsHidden = !presentationBounds
+      || presentationBounds.width === 0
+      || presentationBounds.height === 0;
+    if (!presentationIsOpen || presentationIsHidden) return null;
     return (
       <>
         <Styled.PresentationContainer
@@ -820,8 +823,8 @@ class Presentation extends PureComponent {
                     intl={intl}
                     presentationWidth={svgWidth}
                     presentationHeight={svgHeight}
-                    presentationAreaHeight={presentationBounds?.height}
-                    presentationAreaWidth={presentationBounds?.width}
+                    presentationAreaHeight={presentationBounds.height - toolbarHeight}
+                    presentationAreaWidth={presentationBounds.width}
                     isPanning={isPanning}
                     zoomChanger={this.zoomChanger}
                     fitToWidth={fitToWidth}
