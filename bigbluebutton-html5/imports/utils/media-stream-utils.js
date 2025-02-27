@@ -74,13 +74,17 @@ const getMediaStreamLogData = (stream) => {
     const videoTracks = getVideoTracks(stream);
 
     return {
+      active: stream.active,
+      id: stream.id,
       audio: audioTracks.map((track) => ({
         id: track.id,
+        enabled: track.enabled,
         deviceId: getDeviceIdFromTrack(track),
         label: track.label,
       })),
       video: videoTracks.map((track) => ({
         id: track.id,
+        enabled: track.enabled,
         deviceId: getDeviceIdFromTrack(track),
         label: track.label,
       })),
