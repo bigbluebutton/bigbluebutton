@@ -37,6 +37,7 @@ import { calculateCurrentTime } from '/imports/ui/components/external-video-play
 
 import PeerTube from '../custom-players/peertube';
 import { ArcPlayer } from '../custom-players/arc-player';
+import EduplayPlayer from '../custom-players/eduplay';
 import getStorageSingletonInstance from '/imports/ui/services/storage';
 
 const AUTO_PLAY_BLOCK_DETECTION_TIMEOUT_SECONDS = 5;
@@ -88,6 +89,8 @@ interface ExternalVideoPlayerProps {
 Styled.VideoPlayer.addCustomPlayer(PeerTube);
 // @ts-ignore - ArcPlayer is not typed
 Styled.VideoPlayer.addCustomPlayer(ArcPlayer);
+// @ts-ignore - EduplayPlayer is not typed
+Styled.VideoPlayer.addCustomPlayer(EduplayPlayer);
 
 const truncateTime = (time: number) => (time < 1 ? 0 : time);
 
@@ -123,6 +126,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     Vimeo: true,
     Facebook: true,
     ArcPlayer: true,
+    Eduplay: true,
     // YouTube: true,
   }), []);
 
@@ -171,6 +175,9 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
           controls: isPresenter,
         },
         playerId: 'externalVideoPlayerTwitch',
+      },
+      eduplay: {
+        remoteControl: !isPresenter,
       },
       preload: true,
       showHoverToolBar: false,
