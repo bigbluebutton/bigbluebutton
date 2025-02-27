@@ -2,7 +2,6 @@ import React, { PureComponent } from 'react';
 import { FormattedTime, defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
-import CommonIcon from '/imports/ui/components/common/icon/component';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import Icon from '/imports/ui/components/connection-status/icon/component';
 import { getHelp } from '../service';
@@ -283,7 +282,7 @@ class ConnectionStatusComponent extends PureComponent {
       intl,
     } = this.props;
 
-    const { selectedTab } = this.state;
+    const { selectedTab, selectedUserId } = this.state;
 
     if (isConnectionStatusEmpty(connectionData) && selectedTab !== 1) return this.renderEmpty();
 
@@ -296,7 +295,6 @@ class ConnectionStatusComponent extends PureComponent {
       if (isConnectionStatusEmpty(connections)) return this.renderEmpty();
     }
 
-    console.log("🚀 -> ConnectionStatusComponent -> returnconnections.map -> connections:", connections)
     return connections.map((conn, index) => {
       const dateTime = new Date(conn.lastUnstableStatusAt);
       const lastActiveConnection = conn.connectionAliveAt
@@ -304,86 +302,91 @@ class ConnectionStatusComponent extends PureComponent {
       return (
         <>
           <Styled.Item
-          key={`${conn.user.name}-${conn.user.userId}`}
-          last={(index + 1) === connections.length}
-          data-test="connectionStatusItemUser"
-          onClick={()=> {
-            if (conn.user.userId === this.state.selectedUserId) {
-              this.setState({selectedUserId: null});
-            }
-            else {
-              this.setState({selectedUserId: conn.user.userId});
-            }
-          }}
-        >
-          <Styled.Left>
-            <Styled.Avatar>
-              <UserAvatar
-                you={conn.user.userId === Auth.userID}
-                avatar={conn.user.avatar}
-                moderator={conn.user.isModerator}
-                color={conn.user.color}
-              >
-                {conn.user.name.toLowerCase().slice(0, 2)}
-              </UserAvatar>
-            </Styled.Avatar>
-
-            <Styled.Name>
-              <Styled.Text
-                offline={!conn.user.currentlyInMeeting}
-                data-test={!conn.user.currentlyInMeeting ? 'offlineUser' : null}
-              >
-                {conn.user.name}
-                {!conn.user.currentlyInMeeting ? ` (${intl.formatMessage(intlMessages.offline)})` : null}
-              </Styled.Text>
-            </Styled.Name>
-            {
-              !conn.clientNotResponding ? (
-                <Styled.Status
-                  aria-label={`${intl.formatMessage(intlMessages.title)} ${conn.lastUnstableStatus}`}
-                >
-                  <Styled.Icon>
-                    <Icon level={conn.lastUnstableStatus} />
-                  </Styled.Icon>
-                </Styled.Status>
-              ) : null
-            }
-            {conn.clientNotResponding && conn.user.currentlyInMeeting
-              ? (
-                <Styled.ClientNotRespondingText>
-                  {intl.formatMessage(intlMessages.clientNotResponding)}
-                </Styled.ClientNotRespondingText>
-              ) : null}
-          </Styled.Left>
-          <Styled.Right>
-            <Styled.Time>
-              {
-                !conn.clientNotResponding
-                  ? (
-                    <time dateTime={dateTime}>
-                      <FormattedTime value={dateTime} />
-                    </time>
-                  )
-                  : (
-                    <TooltipContainer
-                      placement="top"
-                      title={intl.formatMessage(intlMessages.lastTimeActive)}
-                    >
-                      <Styled.TimeActive dateTime={lastActiveConnection}>
-                        <FormattedTime value={lastActiveConnection} />
-                      </Styled.TimeActive>
-                    </TooltipContainer>
-                  )
+            key={`${conn.user.name}-${conn.user.userId}`}
+            last={(index + 1) === connections.length}
+            data-test="connectionStatusItemUser"
+            onClick={() => {
+              if (conn.user.userId === selectedUserId) {
+                this.setState({ selectedUserId: null });
+              } else {
+                this.setState({ selectedUserId: conn.user.userId });
               }
-            </Styled.Time>
-          </Styled.Right>
-        </Styled.Item>
-        {
-          conn.user.userId === this.state.selectedUserId 
-          ? (
-            <UserConnectionMetricsContainer userId={conn.user.userId} />
-          ) : null
-        }
+            }}
+          >
+            <Styled.Left>
+              <Styled.Avatar>
+                <UserAvatar
+                  you={conn.user.userId === Auth.userID}
+                  avatar={conn.user.avatar}
+                  moderator={conn.user.isModerator}
+                  color={conn.user.color}
+                >
+                  {conn.user.name.toLowerCase().slice(0, 2)}
+                </UserAvatar>
+              </Styled.Avatar>
+
+              <Styled.Name>
+                <Styled.Text
+                  offline={!conn.user.currentlyInMeeting}
+                  data-test={!conn.user.currentlyInMeeting ? 'offlineUser' : null}
+                >
+                  {conn.user.name}
+                  {!conn.user.currentlyInMeeting ? ` (${intl.formatMessage(intlMessages.offline)})` : null}
+                </Styled.Text>
+              </Styled.Name>
+              {
+                !conn.clientNotResponding ? (
+                  <Styled.Status
+                    aria-label={`${intl.formatMessage(intlMessages.title)} ${conn.lastUnstableStatus}`}
+                  >
+                    <Styled.Icon>
+                      <Icon level={conn.lastUnstableStatus} />
+                    </Styled.Icon>
+                  </Styled.Status>
+                ) : null
+              }
+              {conn.clientNotResponding && conn.user.currentlyInMeeting
+                ? (
+                  <Styled.ClientNotRespondingText>
+                    {intl.formatMessage(intlMessages.clientNotResponding)}
+                  </Styled.ClientNotRespondingText>
+                ) : null}
+            </Styled.Left>
+            <Styled.Right>
+              <>
+                <Styled.Time>
+                  {
+                    !conn.clientNotResponding
+                      ? (
+                        <time dateTime={dateTime}>
+                          <FormattedTime value={dateTime} />
+                        </time>
+                      )
+                      : (
+                        <TooltipContainer
+                          placement="top"
+                          title={intl.formatMessage(intlMessages.lastTimeActive)}
+                        >
+                          <Styled.TimeActive dateTime={lastActiveConnection}>
+                            <FormattedTime value={lastActiveConnection} />
+                          </Styled.TimeActive>
+                        </TooltipContainer>
+                      )
+                  }
+                </Styled.Time>
+                <Styled.Chevron
+                  iconName="device_list_selector"
+                  isOpen={conn.user.userId === selectedUserId}
+                />
+              </>
+            </Styled.Right>
+          </Styled.Item>
+          {
+          conn.user.userId === selectedUserId
+            ? (
+              <UserConnectionMetricsContainer userId={conn.user.userId} />
+            ) : null
+          }
         </>
       );
     });
