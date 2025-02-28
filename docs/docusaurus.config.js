@@ -104,8 +104,8 @@ const config = {
                     const redirect_list = [];
 
                     // Create redirect paths for all routes except 2.5 or 2.6 ones
-                    if ( !(path.startsWith("/2.5") || path.startsWith("/2.6"))){
-                        redirect_list.push("/2.7" + path);
+                    if ( !(path.startsWith("/2.5") || path.startsWith("/2.6") || path.startsWith("/2.7"))){
+                        redirect_list.push("/3.0" + path);
                     }
 
                     if ( path.includes("/testing/release-testing") ){
