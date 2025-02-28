@@ -92,6 +92,10 @@ const config = {
                     {
                         to: "/greenlight/v3/migration/",
                         from: "/greenlight_v3/gl3-migration.html"
+                    },
+                    {
+                        to: "/", // Page release-notes was removed in 3.0
+                        from: "/release-notes/"
                     }
                 ],
                 // We interpret the path argument as the path "to"
