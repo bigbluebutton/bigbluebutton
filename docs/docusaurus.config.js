@@ -43,7 +43,7 @@ const config = {
                 docs: {
                     routeBasePath: "/",
                     sidebarPath: require.resolve('./sidebars.js'),
-                    lastVersion: '2.7',
+                    lastVersion: '3.0',
                     includeCurrentVersion: false,
                     versions: {
                         '2.5-legacy': {
