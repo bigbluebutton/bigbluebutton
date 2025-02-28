@@ -82,9 +82,6 @@ const config = {
                         from: "/2.6/new.html"
                     },
                     {
-                        to: "/new-features/",
-                        from: "/3.0/new-features/"
-                    },                    {
                         to: "/2.7/new-features/",
                         from: "/2.7/new/"
                     },
@@ -103,7 +100,7 @@ const config = {
                     // TODO: remove default route to /
                     const redirect_list = [];
 
-                    // Create redirect paths for all routes except 2.5 or 2.6 ones
+                    // Create redirect paths for all routes except 2.5 or 2.6, 2.7 ones
                     if ( !(path.startsWith("/2.5") || path.startsWith("/2.6") || path.startsWith("/2.7"))){
                         redirect_list.push("/3.0" + path);
                     }
