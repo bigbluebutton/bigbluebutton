@@ -24,6 +24,7 @@ import {
   setVolume,
   getVolume,
   getStats,
+  setStreamEnabled,
 } from '/imports/ui/components/screenshare/service';
 import {
   isStreamStateHealthy,
@@ -163,6 +164,8 @@ class ScreenshareComponent extends React.Component {
     if (prevProps.outputDeviceId !== outputDeviceId && !isPresenter) {
       setOutputDeviceId(outputDeviceId);
     }
+
+    if (isPresenter) setStreamEnabled(shouldShowScreenshare);
 
     if (prevProps.shouldShowScreenshare && !shouldShowScreenshare) {
       setVolume(0);
@@ -337,7 +340,7 @@ class ScreenshareComponent extends React.Component {
   }
 
   handleOnMuted(muted) {
-    if (muted && this.volume === 0) {
+    if (muted) {
       setVolume(0);
     } else {
       setVolume(this.volume);
@@ -433,7 +436,6 @@ class ScreenshareComponent extends React.Component {
   }
 
   renderVolumeSlider() {
-    const { shouldShowScreenshare } = this.props;
     const { showHoverToolBar } = this.state;
 
     let toolbarStyle = 'hoverToolbar';
@@ -455,7 +457,7 @@ class ScreenshareComponent extends React.Component {
           volume={getVolume()}
           muted={getVolume() === 0}
           onVolumeChanged={this.handleOnVolumeChanged}
-          onMuted={shouldShowScreenshare ? this.handleOnMuted : () => {}}
+          onMuted={this.handleOnMuted}
         />
       </Styled.HoverToolbar>
     ),

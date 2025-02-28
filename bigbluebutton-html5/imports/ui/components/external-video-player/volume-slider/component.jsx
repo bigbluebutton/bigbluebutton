@@ -61,7 +61,7 @@ class VolumeSlider extends Component {
 
   render() {
     const { muted, volume } = this.state;
-    const { hideVolume, onVolumeChanged } = this.props;
+    const { hideVolume } = this.props;
 
     if (hideVolume) {
       return null;
@@ -69,11 +69,7 @@ class VolumeSlider extends Component {
 
     return (
       <Styled.Slider>
-        <Styled.Volume onClick={() => {
-          if (!muted) onVolumeChanged(0);
-          this.setMuted(!muted);
-        }}
-        >
+        <Styled.Volume onClick={() => this.setMuted(!muted)}>
           <i
             tabIndex="-1"
             className={`icon-bbb-${this.getVolumeIcon()}`}

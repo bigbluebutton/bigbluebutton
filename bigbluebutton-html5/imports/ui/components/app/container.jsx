@@ -6,6 +6,7 @@ import { useIsPresentationEnabled, useIsExternalVideoEnabled } from '/imports/ui
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import {
+  layoutSelect,
   layoutSelectInput,
   layoutSelectOutput,
 } from '../layout/context';
@@ -17,13 +18,14 @@ import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscri
 import useSettings from '../../services/settings/hooks/useSettings';
 import { SETTINGS } from '../../services/settings/enums';
 import usePresentationSwap from '../../core/hooks/usePresentationSwap';
+import { LAYOUT_TYPE } from '../layout/enums';
 
 const AppContainer = (props) => {
   const {
     viewScreenshare,
   } = useSettings(SETTINGS.DATA_SAVING);
   const { isNotificationEnabled } = useReactiveVar(handleIsNotificationEnabled);
-  const { showScreenshareQuickSwapButton } = window.meetingClientSettings.public.layout;
+
   const {
     data: currentUser,
   } = useCurrentUser((u) => ({
@@ -52,12 +54,17 @@ const AppContainer = (props) => {
   } = useSettings(SETTINGS.APPLICATION);
 
   const { partialUtterances, minUtteranceLength } = useSettings(SETTINGS.TRANSCRIPTION);
+
   const genericMainContent = layoutSelectInput((i) => i.genericMainContent);
   const captionsStyle = layoutSelectOutput((i) => i.captions);
   const presentation = layoutSelectInput((i) => i.presentation);
   const sharedNotesInput = layoutSelectInput((i) => i.sharedNotes);
   const { hideNotificationToasts } = layoutSelectInput((i) => i.notificationsBar);
-
+  const layoutType = layoutSelect((i) => i.layoutType);
+  const isNonMediaLayout = [
+    LAYOUT_TYPE.CAMERAS_ONLY,
+    LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY,
+  ].includes(layoutType);
   const setSpeechOptions = useSetSpeechOptions();
   const { data: pinnedPadData } = useDeduplicatedSubscription(PINNED_PAD_SUBSCRIPTION);
   const isSharedNotesPinnedFromGraphql = !!pinnedPadData
@@ -78,19 +85,14 @@ const AppContainer = (props) => {
 
   const shouldShowGenericMainContent = !!genericMainContent.genericContentId;
 
-  const screenshareValidators = (viewScreenshare || isPresenter)
+  const shouldShowScreenshare = (viewScreenshare || isPresenter)
   && (currentMeeting?.componentsFlags?.hasScreenshare
-    || currentMeeting?.componentsFlags?.hasCameraAsContent);
-
-  const shouldShowScreenshare = showScreenshareQuickSwapButton
-    ? (
-      screenshareValidators
-      && (showScreenshare && presentationIsOpen)
-    ) : screenshareValidators;
-
+    || currentMeeting?.componentsFlags?.hasCameraAsContent)
+    && showScreenshare && presentationIsOpen;
   const shouldShowPresentation = (!shouldShowScreenshare && !isSharedNotesPinned
       && !shouldShowExternalVideo && !shouldShowGenericMainContent
       && (presentationIsOpen || presentationRestoreOnUpdate)) && isPresentationEnabled;
+
   // Update after editing app savings
   useEffect(() => {
     setSpeechOptions(
@@ -107,6 +109,7 @@ const AppContainer = (props) => {
         {...{
           hideActionsBar: getFromUserSettings('bbb_hide_actions_bar', false)
             || getFromUserSettings('bbb_hide_controls', false),
+          isNonMediaLayout,
           currentUserAway: currentUser.away,
           currentUserRaiseHand: currentUser.raiseHand,
           captionsStyle,
