@@ -27,6 +27,10 @@ public class PresentationFileProcessor {
     private boolean generatePngs;
     private PageExtractor pageExtractor;
 
+    private String blankThumbnail;
+    private String blankPng;
+    private String blankSvg;
+
     private long bigPdfSize;
     private long maxBigPdfPageSize;
 
@@ -141,7 +145,10 @@ public class PresentationFileProcessor {
                     svgImageCreator,
                     thumbnailCreator,
                     pngCreator,
-                    notifier
+                    notifier,
+                    blankThumbnail,
+                    blankPng,
+                    blankSvg
             );
 
             pdfSlidesGenerationService.process(pageToConvert);
@@ -364,5 +371,15 @@ public class PresentationFileProcessor {
 
     public void setS3FileManager(S3FileManager s3FileManager) {
         this.s3FileManager = s3FileManager;
+    }
+
+    public void setBlankThumbnail(String blankThumbnail) {
+        this.blankThumbnail = blankThumbnail;
+    }
+    public void setBlankPng(String blankPng) {
+        this.blankPng = blankPng;
+    }
+    public void setBlankSvg(String blankSvg) {
+        this.blankSvg = blankSvg;
     }
 }

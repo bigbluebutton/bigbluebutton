@@ -13,9 +13,9 @@ import java.util.concurrent.TimeoutException;
 public class PageToConvert {
   private static Logger log = LoggerFactory.getLogger(PageToConvert.class);
 
-  private String BLANK_THUMBNAIL;
-  private String BLANK_PNG;
-  private String BLANK_SVG;
+  private String blankThumbnail;
+  private String blankPng;
+  private String blankSvg;
 
   private long execTimeout = 60000;
 
@@ -44,7 +44,10 @@ public class PageToConvert {
                        SvgImageCreator svgImageCreator,
                        ThumbnailCreator thumbnailCreator,
                        PngCreator pngCreator,
-                       SlidesGenerationProgressNotifier notifier) {
+                       SlidesGenerationProgressNotifier notifier,
+                       String blankThumbnail,
+                       String blankPng,
+                       String blankSvg) {
     this.pres = pres;
     this.page = page;
     this.pageFile = pageFile;
@@ -55,6 +58,9 @@ public class PageToConvert {
     this.thumbnailCreator = thumbnailCreator;
     this.pngCreator = pngCreator;
     this.notifier = notifier;
+    this.blankThumbnail = blankThumbnail;
+    this.blankPng = blankPng;
+    this.blankSvg = blankSvg;
   }
 
   public File getPageFile() {
@@ -144,7 +150,7 @@ public class PageToConvert {
 
   private void copyBlankThumbnail(File thumb) {
     try {
-      FileUtils.copyFile(new File(BLANK_THUMBNAIL), thumb);
+      FileUtils.copyFile(new File(blankThumbnail), thumb);
     } catch (IOException e) {
       log.error("IOException while copying blank thumbnail.", e);
     }
@@ -160,7 +166,7 @@ public class PageToConvert {
 
   private void copyBlankPng(File png) {
     try {
-      FileUtils.copyFile(new File(BLANK_PNG), png);
+      FileUtils.copyFile(new File(blankPng), png);
     } catch (IOException e) {
       log.error("IOException while copying blank PNG.");
     }
@@ -176,8 +182,7 @@ public class PageToConvert {
 
   private void copyBlankSvg(File svg) {
     try {
-      log.info("Copying blank SVG to {}", svg);
-      FileUtils.copyFile(new File(BLANK_SVG), svg);
+      FileUtils.copyFile(new File(blankSvg), svg);
     } catch (IOException e) {
       log.error("IOException while copying blank SVG.");
     }

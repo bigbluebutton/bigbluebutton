@@ -125,6 +125,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="counterService" ref="pageCounterService"/>
         <property name="pdfSlidesGenerationService" ref="pdfSlidesGenerationService"/>
         <property name="s3FileManager" ref="s3FileManager"/>
+        <property name="blankThumbnail" value="${BLANK_THUMBNAIL}"/>
+        <property name="blankPng" value="${BLANK_PNG}"/>
+        <property name="blankSvg" value="${BLANK_SVG}"/>
     </bean>
 
     <bean id="imageSlidesGenerationService"
