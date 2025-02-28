@@ -40,16 +40,17 @@ fi
 find /var/bigbluebutton/ -maxdepth 1 -type d -name "*-[0-9]*" -mtime +$history -exec rm -rf '{}' +
 
 #
-# Delete streams from mediasoup older than N days
+# Delete streams from mediasoup/livekit older than N days
 #
 mediasoup_dir=/var/mediasoup/
 bbb_webrtc_recorder_dir=/var/lib/bbb-webrtc-recorder/
 
 remove_stale_sfu_raw_files() {
-  for app in recordings screenshare; do
+  for app in recordings screenshare audio; do
       app_dir="${1}${app}"
       if [[ -d $app_dir ]]; then
           find "$app_dir" -name "*.mkv" -o -name "*.webm" -mtime +"$history" -delete
+          find "$app_dir" -name "*.ogg" -o -name "*.json" -mtime +"$history" -delete
           find "$app_dir" -type d -empty -mtime +"$history" -exec rmdir '{}' +
       fi
   done
