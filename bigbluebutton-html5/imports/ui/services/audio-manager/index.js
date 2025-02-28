@@ -931,45 +931,65 @@ class AudioManager {
       this.inputStream = null;
 
       // Reset the input device (and consequently the stream) if it's inactive
-      if (this.isUsingAudio()) this.liveChangeInputDevice(DEFAULT_INPUT_DEVICE_ID);
+      if (this.isUsingAudio()) {
+        this.liveChangeInputDevice(DEFAULT_INPUT_DEVICE_ID).catch((error) => {
+          logger.error({
+            logCode: 'audiomanager_stream_inactive_device_reset_failed',
+            extraInfo: {
+              errorName: error.name,
+              errorMessage: error.message,
+            },
+          }, `Failed to reset input device after stream became inactive: ${error.message}`);
+        });
+      }
     }
   }
 
   trackStreamTermination(stream) {
     if (!stream || !stream?.active) return;
 
-    if (this._inputStreamInactivityTrackers.has(stream.id)) {
-      const prevHandler = this._inputStreamInactivityTrackers.get(stream.id);
-
-      stream.removeEventListener('inactive', prevHandler);
-      stream.getAudioTracks().forEach((track) => {
-        track.removeEventListener('ended', prevHandler);
-        // eslint-disable-next-line no-param-reassign
-        track.onended = null;
-      });
-      this._inputStreamInactivityTrackers.delete(stream.id);
-    }
-
-    const handler = () => {
+    try {
       if (this._inputStreamInactivityTrackers.has(stream.id)) {
-        this.handleMediaStreamInactive(stream);
+        const prevHandler = this._inputStreamInactivityTrackers.get(stream.id);
+
+        stream.removeEventListener('inactive', prevHandler);
+        stream.getAudioTracks().forEach((track) => {
+          track.removeEventListener('ended', prevHandler);
+          // eslint-disable-next-line no-param-reassign
+          track.onended = null;
+        });
         this._inputStreamInactivityTrackers.delete(stream.id);
       }
-    };
 
-    this._inputStreamInactivityTrackers.set(stream.id, handler);
+      const handler = () => {
+        if (this._inputStreamInactivityTrackers.has(stream.id)) {
+          this.handleMediaStreamInactive(stream);
+          this._inputStreamInactivityTrackers.delete(stream.id);
+        }
+      };
 
-    if (stream.oninactive === null) {
-      stream.addEventListener('inactive', handler, { once: true });
-    } else {
-      const track = MediaStreamUtils.getAudioTracks(stream)[0];
+      this._inputStreamInactivityTrackers.set(stream.id, handler);
 
-      if (track) {
-        track.addEventListener('ended', handler, { once: true });
-        // Extra safeguard: Firefox doesn't fire the 'ended' when it should
-        // but it invokes the callback (?), so hook up to both
-        track.onended = handler;
+      if (stream.oninactive === null) {
+        stream.addEventListener('inactive', handler, { once: true });
+      } else {
+        const track = stream.getAudioTracks(stream)[0];
+
+        if (track) {
+          track.addEventListener('ended', handler, { once: true });
+          // Extra safeguard: Firefox doesn't fire the 'ended' when it should
+          // but it invokes the callback (?), so hook up to both
+          track.onended = handler;
+        }
       }
+    } catch (error) {
+      logger.error({
+        logCode: 'audiomanager_stream_termination_tracking_failed',
+        extraInfo: {
+          errorName: error.name,
+          errorMessage: error.message,
+        },
+      }, `Failed to track stream termination - {${error.name}: ${error.message}}`);
     }
   }
 
