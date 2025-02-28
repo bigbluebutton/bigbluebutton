@@ -430,7 +430,7 @@
     "app.poll.secretPoll.isSecretLabel": "投票は匿名で行われます ー 個別の答えは見られません。",
     "app.poll.questionErr": "質問の入力が必須です。",
     "app.poll.optionErr": "投票の選択肢を入力",
-    "app.poll.minOptionsErr": "At least two options are required",
+    "app.poll.minOptionsErr": "少なくとも２つの選択肢が必要です",
     "app.poll.startPollDesc": "投票を開始する",
     "app.poll.showRespDesc": "返答の設定を表示",
     "app.poll.addRespDesc": "返答の入力欄を追加",
