@@ -167,8 +167,9 @@ class ScreenshareComponent extends React.Component {
     if (prevProps.shouldShowScreenshare && !shouldShowScreenshare) {
       setVolume(0);
     } else if (!prevProps.shouldShowScreenshare && shouldShowScreenshare) {
+      this.volume = this.volume || 1;
       // if this.volume is 0, means user didn't change the volume, so we set it to 1
-      setVolume(this.volume || 1);
+      setVolume(this.volume);
     }
   }
 
@@ -336,7 +337,7 @@ class ScreenshareComponent extends React.Component {
   }
 
   handleOnMuted(muted) {
-    if (muted) {
+    if (muted && this.volume === 0) {
       setVolume(0);
     } else {
       setVolume(this.volume);
@@ -432,6 +433,7 @@ class ScreenshareComponent extends React.Component {
   }
 
   renderVolumeSlider() {
+    const { shouldShowScreenshare } = this.props;
     const { showHoverToolBar } = this.state;
 
     let toolbarStyle = 'hoverToolbar';
@@ -453,7 +455,7 @@ class ScreenshareComponent extends React.Component {
           volume={getVolume()}
           muted={getVolume() === 0}
           onVolumeChanged={this.handleOnVolumeChanged}
-          onMuted={this.handleOnMuted}
+          onMuted={shouldShowScreenshare ? this.handleOnMuted : () => {}}
         />
       </Styled.HoverToolbar>
     ),
