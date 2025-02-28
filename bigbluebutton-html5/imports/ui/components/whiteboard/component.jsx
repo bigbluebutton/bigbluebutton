@@ -516,7 +516,7 @@ const Whiteboard = React.memo((props) => {
         presentationAreaHeight / localHeight,
       );
 
-    return calcedZoom === 0 || calcedZoom === Infinity
+    return calcedZoom === 0 || calcedZoom === Infinity || Number.isNaN(calcedZoom)
       ? HUNDRED_PERCENT
       : calcedZoom;
   };
@@ -1134,7 +1134,7 @@ const Whiteboard = React.memo((props) => {
         presentationWidthLocal / localWidth,
         presentationAreaHeight / localHeight,
       ));
-    return calcedZoom === 0 || calcedZoom === Infinity
+    return calcedZoom === 0 || calcedZoom === Infinity || Number.isNaN(calcedZoom)
       ? calculateZoomValue(localWidth, localHeight) // Fallback to no gap base zoom
       : calcedZoom;
   };
