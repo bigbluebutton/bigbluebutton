@@ -1085,7 +1085,7 @@
     "app.shortcut-help.selectAll": "全て選択",
     "app.shortcut-help.delete": "削除",
     "app.shortcut-help.duplicate": "複製",
-    "app.shortcut-help.gesture": "ホワイトボードジェスチャー",
+    "app.shortcut-help.gesture": "タッチジェスチャー",
     "app.shortcut-help.fingerTap": "指でタップ",
     "app.lock-viewers.title": "視聴者の行動を制限",
     "app.lock-viewers.description": "ここから視聴者が使用できる機能を制限できます",
