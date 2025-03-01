@@ -1058,7 +1058,7 @@
     "app.shortcut-help.accessKeyNotAvailable": "使用できないアクセスキー",
     "app.shortcut-help.comboLabel": "キー組み合わせ",
     "app.shortcut-help.alternativeLabel": "他の組み合わせ",
-    "app.shortcut-help.functionLabel": "機能",
+    "app.shortcut-help.functionLabel": "操作",
     "app.shortcut-help.closeLabel": "閉じる",
     "app.shortcut-help.closeDesc": "キーボードショートカットウィンドウを閉じる",
     "app.shortcut-help.openOptions": "設定を開く",
