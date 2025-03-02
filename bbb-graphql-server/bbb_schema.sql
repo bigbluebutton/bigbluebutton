@@ -2390,7 +2390,7 @@ CREATE UNLOGGED TABLE "user_livekit"(
 CREATE INDEX "idx_user_livekit_token" ON "user_livekit"("livekitToken");
 CREATE VIEW "v_user_livekit" AS SELECT * FROM "user_livekit";
 
-CREATE TABLE "audioGroup" (
+CREATE UNLOGGED TABLE "audioGroup" (
 	"meetingId" 			varchar(100),
 	"groupId"					varchar(100),
 	"createdBy"				varchar(50),
@@ -2400,7 +2400,7 @@ CREATE TABLE "audioGroup" (
 
 CREATE VIEW "v_audioGroup" AS SELECT * FROM "audioGroup";
 
-CREATE TABLE "user_audioGroup" (
+CREATE UNLOGGED TABLE "user_audioGroup" (
 	"meetingId"					varchar(100),
 	"userId"						varchar(50),
 	"groupId"						varchar(100),
