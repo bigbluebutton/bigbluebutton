@@ -518,8 +518,8 @@ For **live meetings**, the following parameters can be changed:
 
 The bitrate is specified in kbps and represents screen sharing's maximum bandwidth usage. Setting it to a higher value *may* improve quality but also increase bandwidth usage, while setting it to a lower value *may* reduce quality but will reduce average bandwidth usage.
 The constraints are specified as an YAML object with the same semantics as the [MediaTrackConstraints](https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints) from the WebRTC specification. We recommend checking the aforementioned MDN link as well as the [Media Capture and Streams API spec](https://www.w3.org/TR/mediacapture-streams) for an extensive list of constraints.
-To set new screen sharing constraints, translate the JSON constraints object into an YAML format object and put it into `public.kurento.screenshare.constraints`. Restart bbb-html5 afterwards.
-As an example, suppose you want to set the maximum screen sharing resolution to 1080p, alter the maximum bitrate to 2000 kbps and set a 10 FPS target. The following would need to be added to `etc/bigbluebutton/bbb-html5.yml`:
+To set new screen sharing constraints, translate the JSON constraints object into an YAML format object and put it into `public.kurento.screenshare.constraints`. Restart BigBlueButton afterwards (`sudo bbb-conf --restart`).
+As an example, suppose you want to set the maximum screen sharing resolution to 1080p, alter the maximum bitrate to 2000 kbps and set a 10 FPS target. The following would need to be added to `/etc/bigbluebutton/bbb-html5.yml`:
 ```yaml
 public:
   kurento:
