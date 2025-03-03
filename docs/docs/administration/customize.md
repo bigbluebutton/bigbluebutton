@@ -482,19 +482,31 @@ You can disable screen sharing by setting `enableScreensharing` to `false` in th
 
 #### Reduce bandwidth for webcams
 
-If you expect users to share many webcams, you can [reduce bandwidth for webcams](#reduce-bandwidth-from-webcams).
+If you expect users to share many webcams, you can reduce the bandwidth for webcams.
+For this you would need to make changes to `public.kurento.cameraProfiles` through an override.
+
+Note: if you have made other changes in the section `public.kurento.cameraProfiles` in `/etc/bigbluebutton/bbb-html5.yml`
+you would want to proceed with caution. You would likely only want to run the commands on the bottom, skipping the loading of cameraProfiles.
+
+The following command will copy ALL of the DEFAULT camera profiles from the source `/usr/share/bigbluebutton/html5-client/private/config/settings.yml` to
+the override location `/etc/bigbluebutton/bbb-html5.yml`. If you had previous related overrides, you likely do not want to run this command.
+
+`yq eval -i '.public.kurento.cameraProfiles = (load("/usr/share/bigbluebutton/html5-client/private/config/settings.yml") | .public.kurento.cameraProfiles)' /etc/bigbluebutton/bbb-html5.yml`
+
+Now that you have the list of camera profiles in `/etc/bigbluebutton/bbb-html5.yml`, the following `yq` commands will tweak the bitrate and whether the profile is default.
 
 ```bash
 echo "  - Setting camera defaults"
-yq e -i '.public.kurento.cameraProfiles.(id==low).bitrate = 50' /etc/bigbluebutton/bbb-html5.yml 
-yq e -i '.public.kurento.cameraProfiles.(id==medium).bitrate = 100' /etc/bigbluebutton/bbb-html5.yml
-yq e -i '.public.kurento.cameraProfiles.(id==high).bitrate = 200' /etc/bigbluebutton/bbb-html5.yml
-yq e -i '.public.kurento.cameraProfiles.(id==hd).bitrate = 300' /etc/bigbluebutton/bbb-html5.yml
 
-yq e -i '.public.kurento.cameraProfiles.(id==low).default = true' /etc/bigbluebutton/bbb-html5.yml
-yq e -i '.public.kurento.cameraProfiles.(id==medium).default = false' /etc/bigbluebutton/bbb-html5.yml
-yq e -i '.public.kurento.cameraProfiles.(id==high).default = false' /etc/bigbluebutton/bbb-html5.yml
-yq e -i '.public.kurento.cameraProfiles.(id==hd).default = false' /etc/bigbluebutton/bbb-html5.yml
+yq eval -i '( .public.kurento.cameraProfiles[] | select(.id == "low") ).bitrate = 50' /etc/bigbluebutton/bbb-html5.yml
+yq eval -i '( .public.kurento.cameraProfiles[] | select(.id == "medium") ).bitrate = 100' /etc/bigbluebutton/bbb-html5.yml
+yq eval -i '( .public.kurento.cameraProfiles[] | select(.id == "high") ).bitrate = 200' /etc/bigbluebutton/bbb-html5.yml
+yq eval -i '( .public.kurento.cameraProfiles[] | select(.id == "hd") ).bitrate = 300' /etc/bigbluebutton/bbb-html5.yml
+
+yq eval -i '( .public.kurento.cameraProfiles[] | select(.id == "low") ).default = true' /etc/bigbluebutton/bbb-html5.yml
+yq eval -i '( .public.kurento.cameraProfiles[] | select(.id == "medium") ).default = false' /etc/bigbluebutton/bbb-html5.yml
+yq eval -i '( .public.kurento.cameraProfiles[] | select(.id == "high") ).default = false' /etc/bigbluebutton/bbb-html5.yml
+yq eval -i '( .public.kurento.cameraProfiles[] | select(.id == "hd") ).default = false' /etc/bigbluebutton/bbb-html5.yml
 ```
 
 #### Change screen sharing quality parameters
