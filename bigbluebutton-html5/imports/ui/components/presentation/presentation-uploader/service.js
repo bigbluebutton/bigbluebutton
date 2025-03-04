@@ -2,6 +2,7 @@ import Auth from '/imports/ui/services/auth';
 import logger from '/imports/startup/client/logger';
 import { partition } from '/imports/utils/array-utils';
 import update from 'immutability-helper';
+import { v4 as uuid } from 'uuid';
 import { uniqueId } from '/imports/utils/string-utils';
 import { notify } from '/imports/ui/services/notification';
 import apolloContextHolder from '/imports/ui/core/graphql/apolloContextHolder/apolloContextHolder';
@@ -146,7 +147,9 @@ const persistPresentationChanges = (
   removePresentation,
 ) => {
   const presentationsToUpload = newState.filter((p) => !p.uploadCompleted);
-  const presentationsToRemove = oldState.filter((p) => !newState.find((u) => { return u.presentationId === p.presentationId }));
+  const presentationsToRemove = oldState.filter((p) => !newState.find(
+    (u) => u.presentationId === p.presentationId,
+  ));
 
   let currentPresentation = newState.find((p) => p.current);
   return uploadAndConvertPresentations(presentationsToUpload, Auth.meetingID, uploadEndpoint)
@@ -196,21 +199,23 @@ const handleSavePresentation = (
   }
   const PRESENTATION_CONFIG = window.meetingClientSettings.public.presentation;
 
+  let updatedPresentations = [...presentations];
+
   if (!isFromPresentationUploaderInterface) {
-    if (presentations.length === 0) {
-      presentations = [...currentPresentations];
+    if (updatedPresentations.length === 0) {
+      updatedPresentations = [...currentPresentations];
     }
-    presentations = presentations.map((p) => update(p, {
+    updatedPresentations = updatedPresentations.map((p) => update(p, {
       current: {
         $set: false,
       },
     }));
-    newPres.current = true;
-    presentations.push(newPres);
+    const updatedNewPres = { ...newPres, current: true }; // Avoid mutating newPres
+    updatedPresentations.push(updatedNewPres);
   }
   return persistPresentationChanges(
     currentPresentations,
-    presentations,
+    updatedPresentations,
     PRESENTATION_CONFIG.uploadEndpoint,
     setPresentation,
     removePresentation,
@@ -247,7 +252,7 @@ function handleFiledrop(files, files2, that, intl, intlMessages) {
     );
 
     const presentationsToUpload = accepted.map((file) => {
-      const id = uniqueId(file.name);
+      const id = uniqueId(uuid());
 
       return {
         file,

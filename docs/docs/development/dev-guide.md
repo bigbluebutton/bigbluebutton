@@ -19,8 +19,6 @@ You first need to set up a BigBlueButton 3.0 server. See the instructions at [In
 
 ## Overview
 
-**Note: BigBlueButton 3.0 is still under development**
-
 A BigBlueButton server is built from a number of components that correspond to Ubuntu packages. Some of these components are
 
 - bbb-web -- Implements the BigBlueButton API and conversion of documents for presentation

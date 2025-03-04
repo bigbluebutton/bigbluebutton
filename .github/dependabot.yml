@@ -5,7 +5,7 @@ updates:
   # no configuration for now
 
   # current branch
-  ## excluding bigbluebutton-tests/playwright, bigbluebutton-tests/puppeteer, docs
+  ## excluding bigbluebutton-tests/playwright, docs
   - package-ecosystem: npm
     directory: "/bbb-export-annotations"
     target-branch: "v2.7.x-release"
@@ -46,7 +46,7 @@ updates:
   
 
   # upcoming release branch
-  ## excluding bigbluebutton-tests/playwright, bigbluebutton-tests/puppeteer, docs, bbb-graphql-client-test
+  ## excluding bigbluebutton-tests/playwright, docs, bbb-graphql-client-test
   - package-ecosystem: npm
     directory: "/bbb-graphql-actions"
     target-branch: "v3.0.x-release"

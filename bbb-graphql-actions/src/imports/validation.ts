@@ -16,6 +16,9 @@ export const isModerator = (sessionVariables: Record<string, unknown>) => {
     return (sessionVariables['x-hasura-moderatorinmeeting'] !== "");
 };
 
+export const isPresenter = (sessionVariables: Record<string, unknown>) => {
+    return (sessionVariables['x-hasura-presenterinmeeting'] !== "");
+};
 
 export type InputParam = {
     name: string;

@@ -107,3 +107,10 @@ func loadConfigFile(path string) (Config, error) {
 
 	return config, nil
 }
+
+var AllowedSubscriptionsForNotInMeetingUsers = []string{
+	"getUserInfo",
+	"getMeetingEndData",
+	"PluginConfigurationQuery",
+	"getUserCurrent",
+}

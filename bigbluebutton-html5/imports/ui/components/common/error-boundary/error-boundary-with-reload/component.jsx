@@ -1,7 +1,11 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, {
+  useState, useEffect, useRef, useCallback,
+} from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import logger from '/imports/startup/client/logger';
-import { ErrorContainer, Message, Spinner, ReloadButton } from './styles';
+import {
+  ErrorContainer, Message, Spinner, ReloadButton,
+} from './styles';
 
 const intlMessages = defineMessages({
   attemptingToRecover: {
@@ -60,7 +64,7 @@ const ErrorBoundaryWithReload = ({ children }) => {
           errorStack: event.error?.stack,
         },
       }, 'Global error caught by ErrorBoundaryWithReload');
-    
+
       triggerError();
     };
 
@@ -72,7 +76,17 @@ const ErrorBoundaryWithReload = ({ children }) => {
           errorStack: event.reason?.stack,
         },
       }, 'Unhandled promise rejection caught by ErrorBoundaryWithReload');
-    
+
+      // Ignore errors caused by a Chrome Extension
+      if (event.reason?.stack?.toString().indexOf('chrome-extension://') !== -1) {
+        return;
+      }
+
+      // Ignore errors caused by missing permissions on graphql
+      if (event.reason?.message?.toString().indexOf('Permission Denied') !== -1) {
+        return;
+      }
+
       triggerError();
     };
 

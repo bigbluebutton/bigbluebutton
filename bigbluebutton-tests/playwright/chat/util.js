@@ -21,7 +21,8 @@ async function openPrivateChat(testPage) {
   if(!chatEnabled) {
     return await testPage.wasRemoved(e.startPrivateChat, 'should not display the private chat');
   }
-  await testPage.waitAndClick(e.startPrivateChat);
+  const lastUserStartPrivateChat = await testPage.getLocator(e.startPrivateChat).last();
+  await testPage.clickOnLocator(lastUserStartPrivateChat);
 }
 
 async function checkLastMessageSent(testPage, expectedMessage) {

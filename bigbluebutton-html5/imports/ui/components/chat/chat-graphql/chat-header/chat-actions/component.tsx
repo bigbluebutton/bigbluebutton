@@ -75,7 +75,6 @@ const ChatActions: React.FC = () => {
     if (dataHistory) {
       const exportedString = generateExportedMessages(
         dataHistory.chat_message_public,
-        dataHistory.user_welcomeMsgs[0],
         intl,
       );
       if (downloadOrCopyRef.current === 'download') {
@@ -142,7 +141,7 @@ const ChatActions: React.FC = () => {
       },
     ];
     return dropdownActions.filter((action) => action.enable);
-  }, [userIsModerator, meetingIsBreakout, currentUserLoading, meetingLoading]);
+  }, [userIsModerator, meetingIsBreakout, currentUserLoading, meetingLoading, intl.locale]);
   if (errorHistory) {
     return (
       <p>

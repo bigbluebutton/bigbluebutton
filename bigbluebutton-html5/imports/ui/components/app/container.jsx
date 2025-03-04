@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { useReactiveVar } from '@apollo/client';
 import AudioCaptionsLiveContainer from '/imports/ui/components/audio/audio-graphql/audio-captions/live/component';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import { useIsPresentationEnabled, useIsExternalVideoEnabled } from '/imports/ui/services/features';
@@ -9,17 +10,19 @@ import {
   layoutSelectOutput,
 } from '../layout/context';
 import useSetSpeechOptions from '../audio/audio-graphql/hooks/useSetSpeechOptions';
-
+import { handleIsNotificationEnabled } from '/imports/ui/components/plugins-engine/ui-commands/notification/handler';
 import App from './component';
 import { PINNED_PAD_SUBSCRIPTION } from '../notes/queries';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 import useSettings from '../../services/settings/hooks/useSettings';
 import { SETTINGS } from '../../services/settings/enums';
+import usePresentationSwap from '../../core/hooks/usePresentationSwap';
 
 const AppContainer = (props) => {
   const {
     viewScreenshare,
   } = useSettings(SETTINGS.DATA_SAVING);
+  const { isNotificationEnabled } = useReactiveVar(handleIsNotificationEnabled);
 
   const {
     data: currentUser,
@@ -63,6 +66,8 @@ const AppContainer = (props) => {
   const isSharedNotesPinned = sharedNotesInput?.isPinned && isSharedNotesPinnedFromGraphql;
   const isExternalVideoEnabled = useIsExternalVideoEnabled();
   const isPresentationEnabled = useIsPresentationEnabled();
+  const [showScreenshare] = usePresentationSwap();
+
   const isPresenter = currentUser?.presenter;
 
   const { isOpen } = presentation;
@@ -75,11 +80,11 @@ const AppContainer = (props) => {
   const shouldShowGenericMainContent = !!genericMainContent.genericContentId;
 
   const shouldShowScreenshare = (viewScreenshare || isPresenter)
-    && (currentMeeting?.componentsFlags?.hasScreenshare
-      || currentMeeting?.componentsFlags?.hasCameraAsContent);
+  && (currentMeeting?.componentsFlags?.hasScreenshare
+    || currentMeeting?.componentsFlags?.hasCameraAsContent) && showScreenshare;
   const shouldShowPresentation = (!shouldShowScreenshare && !isSharedNotesPinned
-    && !shouldShowExternalVideo && !shouldShowGenericMainContent
-    && (presentationIsOpen || presentationRestoreOnUpdate)) && isPresentationEnabled;
+      && !shouldShowExternalVideo && !shouldShowGenericMainContent
+      && (presentationIsOpen || presentationRestoreOnUpdate)) && isPresentationEnabled;
 
   // Update after editing app savings
   useEffect(() => {
@@ -105,6 +110,7 @@ const AppContainer = (props) => {
           shouldShowScreenshare,
           isSharedNotesPinned,
           shouldShowPresentation,
+          isNotificationEnabled,
           genericMainContentId: genericMainContent.genericContentId,
           audioCaptions: <AudioCaptionsLiveContainer />,
           hideNotificationToasts: hideNotificationToasts

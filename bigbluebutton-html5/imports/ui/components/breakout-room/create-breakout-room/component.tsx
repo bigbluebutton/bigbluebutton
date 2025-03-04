@@ -10,6 +10,8 @@ import Styled from './styles';
 import {
   getBreakouts,
   getBreakoutsResponse,
+  getMeetingGroup,
+  getMeetingGroupResponse,
   getUser,
   getUserResponse,
 } from './queries';
@@ -29,6 +31,7 @@ import {
 } from './room-managment-state/types';
 import { BREAKOUT_ROOM_CREATE, BREAKOUT_ROOM_MOVE_USER } from '../mutations';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import { notify } from '/imports/ui/services/notification';
 
 const MIN_BREAKOUT_ROOMS = 2;
 const MIN_BREAKOUT_TIME = 5;
@@ -48,6 +51,7 @@ interface CreateBreakoutRoomProps extends CreateBreakoutRoomContainerProps {
   runningRooms: getBreakoutsResponse['breakoutRoom'],
   presentations: Array<Presentation>,
   currentPresentation: string,
+  groups: getMeetingGroupResponse['meeting_group'],
 }
 
 const intlMessages = defineMessages({
@@ -227,6 +231,7 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
   runningRooms,
   presentations,
   currentPresentation,
+  groups,
 }) => {
   const { isMobile } = deviceInfo;
   const intl = useIntl();
@@ -373,7 +378,6 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
         id: 'freeJoinCheckbox',
         onChange: checkboxCallbackFactory((e: boolean) => {
           setFreeJoin(e);
-          setLeastOneUserIsValid(true);
         }),
         label: intl.formatMessage(intlMessages.freeJoinLabel),
       },
@@ -535,7 +539,7 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
             ? intl.formatMessage(intlMessages.updateConfirm)
             : intl.formatMessage(intlMessages.confirmButton),
           callback: isUpdate ? userUpdate : createRoom,
-          disabled: !leastOneUserIsValid || !numberOfRoomsIsValid || !durationIsValid,
+          disabled: (!leastOneUserIsValid && !freeJoin) || !numberOfRoomsIsValid || !durationIsValid,
         }
       }
       dismiss={{
@@ -567,6 +571,7 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
           getRoomPresentation={getRoomPresentation}
           isUpdate={isUpdate}
           setNumberOfRooms={setNumberOfRooms}
+          groups={groups}
         />
       </Styled.Content>
     </ModalFullscreen>
@@ -579,6 +584,7 @@ const CreateBreakoutRoomContainer: React.FC<CreateBreakoutRoomContainerProps> = 
   priority,
   isUpdate = false,
 }) => {
+  const intl = useIntl();
   const [fetchedBreakouts, setFetchedBreakouts] = React.useState(false);
   // isBreakoutRecordable - get from meeting breakout policies breakoutPolicies/record
   const {
@@ -606,6 +612,12 @@ const CreateBreakoutRoomContainer: React.FC<CreateBreakoutRoomContainerProps> = 
     fetchPolicy: 'network-only',
   });
 
+  const {
+    data: meetingGroupData,
+    loading: meetingGroupLoading,
+    error: meetingGroupError,
+  } = useQuery<getMeetingGroupResponse>(getMeetingGroup);
+
   const { data: presentationData } = useDeduplicatedSubscription(PRESENTATIONS_SUBSCRIPTION);
   const presentations = presentationData?.pres_presentation || [];
   const currentPresentation = presentations.find((p: Presentation) => p.current)?.presentationId || '';
@@ -619,17 +631,23 @@ const CreateBreakoutRoomContainer: React.FC<CreateBreakoutRoomContainerProps> = 
     setFetchedBreakouts(true);
   }
 
-  if (breakoutsLoading) return null;
+  if (breakoutsLoading || meetingGroupLoading) return null;
 
-  if (usersError || breakoutsError) {
-    logger.info('Error loading users', usersError);
-    logger.info('Error loading breakouts', breakoutsError);
-    return (
-      <div>
-        {JSON.stringify(usersError) || JSON.stringify(breakoutsError)}
-      </div>
+  if (usersError || breakoutsError || meetingGroupError) {
+    notify(intl.formatMessage({
+      id: 'app.error.issueLoadingData',
+    }), 'warning', 'warning');
+    logger.error(
+      {
+        logCode: 'subscription_Failed',
+        extraInfo: {
+          error: usersError || breakoutsError || meetingGroupError,
+        },
+      },
     );
+    return null;
   }
+
   return (
     <CreateBreakoutRoom
       isOpen={isOpen}
@@ -641,6 +659,7 @@ const CreateBreakoutRoomContainer: React.FC<CreateBreakoutRoomContainerProps> = 
       runningRooms={breakoutsData?.breakoutRoom ?? []}
       presentations={presentations}
       currentPresentation={currentPresentation}
+      groups={meetingGroupData?.meeting_group ?? []}
     />
   );
 };

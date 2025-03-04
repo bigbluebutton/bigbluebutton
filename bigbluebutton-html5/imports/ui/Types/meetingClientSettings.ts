@@ -59,10 +59,10 @@ export interface App {
   learningDashboardBase: string
   customStyleUrl: string | null
   darkTheme: DarkTheme
-  askForFeedbackOnLogout: boolean
   askForConfirmationOnLeave: boolean
   wakeLock: WakeLock
   allowDefaultLogoutUrl: boolean
+  skipMeetingEnded: boolean
   dynamicGuestPolicy: boolean
   enableGuestLobbyMessage: boolean
   guestPolicyExtraAllowOptions: boolean
@@ -216,6 +216,7 @@ export interface DataSaving {
 export interface Shortcuts {
   openOptions: OpenOptions
   toggleUserList: ToggleUserList
+  openLeaveMenu: OpenLeaveMenu
   toggleMute: ToggleMute
   joinAudio: JoinAudio
   leaveAudio: LeaveAudio
@@ -233,6 +234,11 @@ export interface OpenOptions {
 }
 
 export interface ToggleUserList {
+  accesskey: string
+  descId: string
+}
+
+export interface OpenLeaveMenu {
   accesskey: string
   descId: string
 }
@@ -577,6 +583,7 @@ export interface Layout {
   showParticipantsOnLogin: boolean
   showPushLayoutButton: boolean
   showPushLayoutToggle: boolean
+  showScreenshareQuickSwapButton: boolean
 }
 
 export interface Pads {
@@ -613,16 +620,27 @@ export interface Media {
   traceSip: boolean
   sdpSemantics: string
   localEchoTest: LocalEchoTest
+  networkPriorities: MediaNetworkPriorities
   muteAudioOutputWhenAway: boolean
   livekit: LiveKitSettings
 }
 
+export interface LiveKitPresetConfig {
+  width: number
+  height: number
+  maxBitrate: number
+  maxFramerate: number
+  priority?: RTCPriorityType
+}
+
 export interface LiveKitCameraSettings {
   publishOptions?: TrackPublishOptions
+  presets?: LiveKitPresetConfig[]
 }
 
 export interface LiveKitScreenShareSettings {
   publishOptions?: TrackPublishOptions
+  presets?: LiveKitPresetConfig[]
 }
 
 export interface LiveKitAudioSettings {
@@ -655,6 +673,12 @@ export interface LocalEchoTest {
   initialHearingState: boolean
   useRtcLoopbackInChromium: boolean
   delay: Delay
+}
+
+export interface MediaNetworkPriorities {
+  audio: RTCPriorityType
+  webcam: RTCPriorityType
+  screenshare: RTCPriorityType
 }
 
 export interface Delay {

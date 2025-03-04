@@ -1,7 +1,8 @@
 package org.bigbluebutton.core.models
 
 import org.bigbluebutton.core.util.RandomStringGenerator
-import org.bigbluebutton.core.db.{ PresPageDAO, PresPresentationDAO }
+import org.bigbluebutton.core.db.{NotificationDAO, PresPageDAO, PresPresentationDAO}
+import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 object PresentationPodFactory {
   private def genId(): String = System.currentTimeMillis() + "-" + RandomStringGenerator.randomAlphanumericString(8)
@@ -98,25 +99,28 @@ case class PresentationPod(id: String, currentPresenter: String,
   def getPresentationsByFilename(filename: String): Iterable[PresentationInPod] =
     presentations.values filter (p => p.name.startsWith(filename))
 
-  def setCurrentPresentation(presId: String): Option[PresentationPod] = {
-    PresPresentationDAO.setCurrentPres(presId)
+  def setCurrentPresentation(newPresentation: PresentationInPod): Option[PresentationPod] = {
+    var updatedPod: PresentationPod = this
+    presentations.get(newPresentation.id) match {
+      case Some(newCurrentPresentation) =>
+        // set new current presentation
+        updatedPod = updatedPod.addPresentation(newCurrentPresentation.copy(current = true))
 
-    var tempPod: PresentationPod = this
-    presentations.values foreach (curPres => { // unset previous current presentation
-      if (curPres.id != presId) {
-        val newPres = curPres.copy(current = false)
-        tempPod = tempPod.addPresentation(newPres)
-      }
-    })
+        // unset previous current presentation
+        presentations.values foreach (curPres => {
+          if (curPres.current && curPres.id != newPresentation.id) {
+            val newPres = curPres.copy(current = false)
+            updatedPod = updatedPod.addPresentation(newPres)
+          }
+        })
 
-    presentations.get(presId) match { // set new current presentation
-      case Some(pres) =>
-        val cp = pres.copy(current = true)
-        tempPod = tempPod.addPresentation(cp)
-      case None => None
+        // update graphql
+        PresPresentationDAO.setCurrentPres(newPresentation.id)
+
+        Some(updatedPod)
+      case None =>
+        None
     }
-
-    Some(tempPod)
   }
 
   def setPresentationDownloadable(presentationId: String, downloadable: Boolean, downloadFileExtension: String): Option[PresentationPod] = {
@@ -257,10 +261,10 @@ case class PresentationPodManager(presentationPods: collection.immutable.Map[Str
     a
   }
 
-  def setCurrentPresentation(podId: String, presId: String): PresentationPodManager = {
+  def setCurrentPresentation(podId: String, pres: PresentationInPod): PresentationPodManager = {
     val updatedManager = for {
       pod <- getPod(podId)
-      podWithAdjustedCurrentPresentation <- pod.setCurrentPresentation(presId)
+      podWithAdjustedCurrentPresentation <- pod.setCurrentPresentation(pres)
 
     } yield {
       updatePresentationPod(podWithAdjustedCurrentPresentation)
