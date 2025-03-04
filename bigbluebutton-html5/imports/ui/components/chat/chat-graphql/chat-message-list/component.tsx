@@ -503,6 +503,8 @@ const ChatMessageList: React.FC<ChatListProps> = ({
               />
             )}
             <PageWrapper
+              role="list"
+              aria-live="polite"
               ref={messageListRef}
               tabIndex={hasMessageToolbar ? 0 : -1}
               onKeyDown={rove}
