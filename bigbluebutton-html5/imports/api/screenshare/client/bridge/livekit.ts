@@ -90,6 +90,15 @@ export default class LiveKitScreenshareBridge {
     return source === Track.Source.ScreenShare || source === Track.Source.ScreenShareAudio;
   }
 
+  setStreamEnabled(enabled: boolean): void {
+    if (this.gdmStream) {
+      this.gdmStream.getTracks().forEach((track) => {
+        // eslint-disable-next-line no-param-reassign
+        track.enabled = enabled;
+      });
+    }
+  }
+
   getPublications(source: Track.Source): Map<string, LocalTrackPublication | RemoteTrackPublication> | null {
     if (source === Track.Source.ScreenShare) {
       return this.screenPublications;
