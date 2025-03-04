@@ -61,7 +61,7 @@ subscription getCurrentPollData {
       questionText
       ended
       multipleResponses
-      users(where: {responded: {_eq: true}}) {
+      users {
         user {
           name
           userId
