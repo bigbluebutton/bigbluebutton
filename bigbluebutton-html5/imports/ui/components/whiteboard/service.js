@@ -265,7 +265,7 @@ const getCustomEditorAssetUrls = () => {
 const getCustomAssetUrls = () => {
   const BASENAME = window.meetingClientSettings.public.app.basename;
   const TL_ICON_PATHS = `${BASENAME}/svgs/tldraw`;
-  const TL_LOCALE_PATHS = `${BASENAME}/tldraw/locales`;
+  const TL_LOCALE_PATHS = `${BASENAME}/tldraw/translations`;
 
   const { locales } = window.meetingClientSettings.public.whiteboard;
   const availableTranslations = (locales && locales.length > 0)
