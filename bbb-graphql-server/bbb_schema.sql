@@ -543,7 +543,7 @@ FROM "user" u
 JOIN "meeting_usersPolicies" mup using("meetingId")
 where u."guestStatus" = 'WAIT'
 and u."loggedOut" is false
-and (u."ejected" is null or u."ejected" is false);
+and u."ejected" is not true;
 
 --v_user_ref will be used only as foreign key (not possible to fetch this table directly through graphql)
 --it is necessary because v_user has some conditions like "lockSettings-hideUserList"

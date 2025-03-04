@@ -33,16 +33,10 @@ object UsersApp {
     for {
       u <- RegisteredUsers.findWithUserId(userId, liveMeeting.registeredUsers)
     } yield {
-      for {
-        regUser <- RegisteredUsers.eject(u.id, liveMeeting.registeredUsers, ban = false)
-      } yield {
-        // Update database
-        UserDAO.update(regUser)
-        UserStateDAO.updateEjected(liveMeeting.props.meetingProp.intId, userId, "", "", "")
+      RegisteredUsers.setUserLoggedOutFlag(liveMeeting.registeredUsers, u)
 
-        val event = MsgBuilder.buildGuestWaitingLeftEvtMsg(liveMeeting.props.meetingProp.intId, u.id)
-        outGW.send(event)
-      }
+      val event = MsgBuilder.buildGuestWaitingLeftEvtMsg(liveMeeting.props.meetingProp.intId, u.id)
+      outGW.send(event)
     }
   }
 
