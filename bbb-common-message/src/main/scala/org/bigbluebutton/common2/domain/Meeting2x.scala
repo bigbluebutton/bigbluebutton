@@ -20,6 +20,7 @@ case class MeetingProp(
     isBreakout:                             Boolean,
     disabledFeatures:                       Vector[String],
     notifyRecordingIsOn:                    Boolean,
+    presentationConversionCacheEnabled:     Boolean,
     presentationUploadExternalDescription:  String,
     presentationUploadExternalUrl:          String,
 )

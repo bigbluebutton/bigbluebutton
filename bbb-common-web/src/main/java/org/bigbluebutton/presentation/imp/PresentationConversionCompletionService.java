@@ -80,11 +80,13 @@ public class PresentationConversionCompletionService {
 
         notifier.sendConversionCompletedMessage(p.pres);
 
+        String meetingId = p.pres.getMeetingId();
         //Store presentation outputs in cache (if enabled)
         if(!p.pres.getUploadedFileHash().isEmpty()) {
             try {
                 String remoteFileName = p.pres.getUploadedFileHash() + ".tar.gz";
-                if(s3FileManager.isPresentationConversionCacheEnabled() && !s3FileManager.exists(remoteFileName)) {
+                boolean isPresentationConversionCacheEnabled = s3FileManager.isPresentationConversionCacheEnabled(meetingId);
+                if(isPresentationConversionCacheEnabled && !s3FileManager.exists(remoteFileName)) {
                     File parentDir = new File(p.pres.getUploadedFile().getParent());
                     File compressedFile = TarGzManager.compress(
                             parentDir.getAbsolutePath(),

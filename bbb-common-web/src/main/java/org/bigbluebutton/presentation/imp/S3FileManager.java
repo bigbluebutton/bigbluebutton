@@ -18,6 +18,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class S3FileManager {
     private static Logger log = LoggerFactory.getLogger(S3FileManager.class);
@@ -29,9 +31,10 @@ public class S3FileManager {
     private String endpointUrl = "";
     private boolean pathStyleAccess = false;
     private AmazonS3 s3Client = null;
+    private static final Map<String, Boolean> prersentationCacheEnabledMap = new HashMap<>();
 
     public AmazonS3 getS3Client() {
-        if(s3Client == null && isPresentationConversionCacheEnabled()) {
+        if(s3Client == null) {
             AWSCredentials credentials = new BasicAWSCredentials(accessKeyId, accessKeySecret);
             s3Client = AmazonS3ClientBuilder.standard()
                     .withCredentials(new AWSStaticCredentialsProvider(credentials))
@@ -41,6 +44,18 @@ public class S3FileManager {
         }
 
         return s3Client;
+    }
+
+    public static void storePresentationEnabledCache(Boolean presentationConversionCacheEnabled, String meetingId) {
+        if (!prersentationCacheEnabledMap.containsKey(meetingId)) {
+            prersentationCacheEnabledMap.put(meetingId, presentationConversionCacheEnabled);
+        } else {
+            prersentationCacheEnabledMap.replace(meetingId, presentationConversionCacheEnabled);
+        }
+    }
+
+    public static void removePresentationCacheEnabledForMeeting(String meetingId) {
+        prersentationCacheEnabledMap.remove(meetingId);
     }
 
     public boolean exists(String key) {
@@ -79,8 +94,10 @@ public class S3FileManager {
     }
 
 
-    public boolean isPresentationConversionCacheEnabled() {
-        return presentationConversionCacheEnabled;
+    public boolean isPresentationConversionCacheEnabled(String meetingId) {
+        if (prersentationCacheEnabledMap.containsKey(meetingId)) {
+            return prersentationCacheEnabledMap.get(meetingId);
+        } return presentationConversionCacheEnabled;
     }
 
     public void setPresentationConversionCacheEnabled(boolean presentationConversionCacheEnabled) {

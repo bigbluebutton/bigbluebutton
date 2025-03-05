@@ -21,6 +21,7 @@ public interface IBbbWebApiGWApp {
                      String voiceBridge, Integer duration, Boolean autoStartRecording,
                      Boolean allowStartStopRecording,
                      Boolean recordFullDurationMedia,
+                     Boolean presentationConversionCacheEnabled,
                      Boolean webcamsOnlyForModerator,
                      Integer meetingCameraCap,
                      Integer userCameraCap,

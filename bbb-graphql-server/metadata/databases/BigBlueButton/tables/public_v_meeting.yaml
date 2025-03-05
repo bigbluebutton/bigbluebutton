@@ -183,6 +183,7 @@ select_permissions:
         - meetingId
         - name
         - notifyRecordingIsOn
+        - presentationConversionCacheEnabled
         - presentationUploadExternalDescription
         - presentationUploadExternalUrl
       filter:

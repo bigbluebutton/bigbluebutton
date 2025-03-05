@@ -47,6 +47,7 @@ import org.bigbluebutton.api2.IBbbWebApiGWApp;
 import org.bigbluebutton.api2.domain.UploadedTrack;
 import org.bigbluebutton.common2.redis.RedisStorageService;
 import org.bigbluebutton.presentation.PresentationUrlDownloadService;
+import org.bigbluebutton.presentation.imp.S3FileManager;
 import org.bigbluebutton.presentation.imp.SlidesGenerationProgressNotifier;
 import org.bigbluebutton.web.services.UserCleanupTimerTask;
 import org.bigbluebutton.web.services.EnteredUserCleanupTimerTask;
@@ -486,6 +487,7 @@ public class MeetingService implements MessageListener {
     Meeting existingTelVoice = getNotEndedMeetingWithTelVoice(m.getTelVoice());
     Meeting existingWebVoice = getNotEndedMeetingWithWebVoice(m.getWebVoice());
     if (existingId == null && existingTelVoice == null && existingWebVoice == null) {
+      S3FileManager.storePresentationEnabledCache(m.getPresentationConversionCacheEnabled(), m.getInternalId());
       meetings.put(m.getInternalId(), m);
       Map<String, Object> pluginsMap;
       if (m.isBreakout()) {
@@ -571,7 +573,7 @@ public class MeetingService implements MessageListener {
 
     gw.createMeeting(m.getInternalId(), m.getExternalId(), m.getParentMeetingId(), m.getName(), m.isRecord(),
             m.getTelVoice(), m.getDuration(), m.getAutoStartRecording(), m.getAllowStartStopRecording(),
-            m.getRecordFullDurationMedia(),
+            m.getRecordFullDurationMedia(), m.getPresentationConversionCacheEnabled(),
             m.getWebcamsOnlyForModerator(), m.getMeetingCameraCap(), m.getUserCameraCap(), m.getMaxPinnedCameras(),
             m.getCameraBridge(),
             m.getScreenShareBridge(),
@@ -799,6 +801,7 @@ public class MeetingService implements MessageListener {
   }
 
   public void endMeeting(String meetingId) {
+    S3FileManager.removePresentationCacheEnabledForMeeting(meetingId);
     handle(new EndMeeting(meetingId));
   }
 

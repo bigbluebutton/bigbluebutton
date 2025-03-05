@@ -57,11 +57,13 @@ public class PresentationFileProcessor {
             processMakePresentationDownloadableMsg(pres);
         }
 
+        String meetingId = pres.getMeetingId();
         //Download presentation outputs from cache (if enabled)
         try {
             pres.setUploadedFileHash(s3FileManager.generateHash(pres.getUploadedFile()));
             String remoteFileName = pres.getUploadedFileHash() + ".tar.gz";
-            if(s3FileManager.isPresentationConversionCacheEnabled() && s3FileManager.exists(remoteFileName)) {
+            boolean isPresentationConversionCacheEnabled = s3FileManager.isPresentationConversionCacheEnabled(meetingId);
+            if(isPresentationConversionCacheEnabled && s3FileManager.exists(remoteFileName)) {
                 S3Object s3Object = s3FileManager.download(remoteFileName);
                 File parentDir = new File(pres.getUploadedFile().getParent());
                 TarGzManager.decompress(s3Object, parentDir.getAbsolutePath());
