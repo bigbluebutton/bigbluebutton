@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext } from 'react';
 import { useIntl } from 'react-intl';
 import { useMutation, useReactiveVar } from '@apollo/client';
 import getFromUserSettings from '/imports/ui/services/users-settings';
@@ -92,7 +92,6 @@ const ActionsBarContainer = (props) => {
   };
   const amIPresenter = currentUserData?.presenter;
   const amIModerator = currentUserData?.isModerator;
-  const [pinnedPadDataState, setPinnedPadDataState] = useState(null);
   const { data: pinnedPadData } = useDeduplicatedSubscription(
     PINNED_PAD_SUBSCRIPTION,
   );
