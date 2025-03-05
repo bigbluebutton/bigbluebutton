@@ -73,7 +73,13 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
   }
 
   if (networkError) {
-    connectionStatus.setSubscriptionFailed(true);
+    if (
+      networkError?.cause
+      // Mutations doesn't have extensions, only subscriptions
+      // @ts-ignore - extensions is not in the type definition
+      && networkError.cause.extensions) {
+      connectionStatus.setSubscriptionFailed(true);
+    }
     logger.error(`[Network error]: ${networkError}`);
   }
 });
