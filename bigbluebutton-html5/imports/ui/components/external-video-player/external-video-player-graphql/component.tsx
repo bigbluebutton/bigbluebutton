@@ -581,7 +581,7 @@ const ExternalVideoPlayerContainer: React.FC = () => {
   const { element } = fullscreen;
   const fullscreenContext = (element === fullscreenElementId);
   const [key, setKey] = React.useState(uniqueId('react-player'));
-  if (!currentUser || !currentMeeting?.externalVideo) return null;
+  if (!currentUser || !currentMeeting?.externalVideo || !externalVideo?.display) return null;
   if (!hasExternalVideoOnLayout) return null;
   const playerPlaybackRate = currentMeeting.externalVideo?.playerPlaybackRate ?? 1;
   const isPresenter = currentUser.presenter ?? false;
