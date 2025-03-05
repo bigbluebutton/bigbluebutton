@@ -14,6 +14,7 @@ import {
 import { HookEvents } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/enum';
 import { UpdatedEventDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
 import { DomElementManipulationHooks } from 'bigbluebutton-html-plugin-sdk/dist/cjs/dom-element-manipulation/enums';
+import { CircularProgress } from '@mui/material';
 import {
   CHAT_MESSAGE_PUBLIC_SUBSCRIPTION,
   CHAT_MESSAGE_PRIVATE_SUBSCRIPTION,
@@ -22,12 +23,12 @@ import {
 import { Message } from '/imports/ui/Types/message';
 import ChatMessage, { ChatMessageRef } from './chat-message/component';
 import { setLoadedMessageGathering } from '/imports/ui/core/hooks/useLoadedChatMessages';
-import { ChatLoading } from '../../component';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
 import { useStorageKey, STORAGES } from '/imports/ui/services/storage/hooks';
 import Storage from '/imports/ui/services/storage/in-memory';
 import { getValueByPointer } from '/imports/utils/object-utils';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import Styled from './styles';
 
 const PAGE_SIZE = 50;
 
@@ -336,7 +337,7 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
     callback(page);
   }, [page, loading]);
 
-  if (loading) return <ChatLoading isRTL={document.dir === 'rtl'} />;
+  if (loading) return <ChatPageLoading />;
   if (!chatMessageData) return null;
   if (chatMessageData.length > 0 && chatMessageData[chatMessageData.length - 1].user?.userId) {
     setLastSender(page, chatMessageData[chatMessageData.length - 1].user?.userId);
@@ -368,6 +369,14 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
       sendReaction={sendReaction}
       focusedSequence={focusedSequence}
     />
+  );
+};
+
+const ChatPageLoading = () => {
+  return (
+    <Styled.ChatPageLoading>
+      <CircularProgress />
+    </Styled.ChatPageLoading>
   );
 };
 
