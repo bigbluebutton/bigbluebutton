@@ -58,6 +58,8 @@ interface ChatListPageContainerProps extends ChatListPageCommonProps {
   pageSize: number;
   setLastSender: (page: number, message: string) => void;
   chatId: string;
+  setPageLoading: (page: number) => void;
+  clearPageLoading: (page: number) => void;
 }
 
 interface ChatListPageProps extends ChatListPageCommonProps {
@@ -292,6 +294,8 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
   deleteReaction,
   sendReaction,
   focusedSequence,
+  clearPageLoading,
+  setPageLoading,
 }) => {
   const CHAT_CONFIG = window.meetingClientSettings.public.chat;
   const PUBLIC_GROUP_CHAT_KEY = CHAT_CONFIG.public_group_id;
@@ -323,8 +327,14 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
     // component will unmount
     return () => {
       setLoadedMessageGathering(page, []);
+      clearPageLoading(page);
     };
   }, []);
+
+  useEffect(() => {
+    const callback = loading ? setPageLoading : clearPageLoading;
+    callback(page);
+  }, [page, loading]);
 
   if (loading) return <ChatLoading isRTL={document.dir === 'rtl'} />;
   if (!chatMessageData) return null;
