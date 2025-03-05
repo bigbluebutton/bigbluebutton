@@ -75,6 +75,9 @@ const ConnectionStatus = () => {
               logCode: 'rtt_failed_to_register_user_history',
               extraInfo: {
                 error,
+                errorMessage: error.message,
+                errorStack: error.stack,
+                errorCause: error.cause,
               },
             }, 'Error registering user network history');
           }
