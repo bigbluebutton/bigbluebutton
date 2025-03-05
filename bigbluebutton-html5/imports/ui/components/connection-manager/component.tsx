@@ -72,12 +72,10 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
     });
   }
 
+
   if (networkError) {
-    if (
-      networkError?.cause
-      // Mutations doesn't have extensions, only subscriptions
-      // @ts-ignore - extensions is not in the type definition
-      && networkError.cause.extensions) {
+    const isMutation = networkError.message.includes('graphql actions request failed');
+    if (!isMutation) {
       connectionStatus.setSubscriptionFailed(true);
     }
     logger.error(`[Network error]: ${networkError}`);
