@@ -140,6 +140,8 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
     >
       {!isOnMediaArea ? (
         // @ts-ignore Until everything in Typescript
+        <>
+        <h2 class="sr-only">{intl.formatMessage(intlMessages.title)}</h2>
         <Header
           leftButtonProps={{
             onClick: () => {
@@ -160,6 +162,7 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
             <NotesDropdown handlePinSharedNotes={handlePinSharedNotes} presentationEnabled={isPresentationEnabled} />
           }
         />
+        </>
       ) : renderHeaderOnMedia()}
       <PadContainer
         externalId={NOTES_CONFIG.id}
