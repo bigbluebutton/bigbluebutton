@@ -5,6 +5,8 @@ import logger from '/imports/startup/client/logger';
 import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import Styled from '../styles';
+import useCurrentLocale from '/imports/ui/core/local-states/useCurrentLocale';
+import useTimeSync from '/imports/ui/core/local-states/useTimeSync';
 
 interface ListOfOcurrencesContainerProps {
   userId: string;
@@ -27,24 +29,48 @@ const intlMessages = defineMessages({
   critical: {
     id: 'app.connection-status.statusCritical',
   },
+  recentReport: {
+    id: 'app.connection-status.recentReport',
+  },
 });
 
 const ListOfOcurrences: React.FC<ListOfOcurrencesProps> = ({
   statusHistory,
 }) => {
   const intl = useIntl();
+  const [currentLocale] = useCurrentLocale();
+  const [timeSync] = useTimeSync();
   return (
     <Styled.ListOccurrenceContainer>
+      <Styled.OccurrenceListHeader>
+        {intl.formatMessage(intlMessages.recentReport)}
+      </Styled.OccurrenceListHeader>
       {
-        statusHistory.map((status, index) => (
-          <Styled.OccurrenceListItem
-          // eslint-disable-next-line react/no-array-index-key
-            key={index}
-          >
-            <Styled.OccurrenceListItemIcon status={status.status} />
-            {intl.formatMessage(intlMessages[status.status as keyof typeof intlMessages], { 0: status.networkRttInMs })}
-          </Styled.OccurrenceListItem>
-        ))
+        statusHistory.map((status, index) => {
+          const statusUpdatedAt = new Date(status.statusUpdatedAt);
+          return (
+            <Styled.OccurrenceListItem
+            // eslint-disable-next-line react/no-array-index-key
+              key={index}
+            >
+              <Styled.OccurrenceListItemIcon status={status.status} />
+              {
+                intl
+                  .formatMessage(
+                    intlMessages[status.status as keyof typeof intlMessages],
+                    {
+                      0: status.networkRttInMs,
+                      1: new Intl.DateTimeFormat(currentLocale, {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: undefined, // Uses locale default (12h or 24h)
+                      }).format(new Date(statusUpdatedAt.getTime() + timeSync)),
+                    },
+                  )
+              }
+            </Styled.OccurrenceListItem>
+          );
+        })
       }
     </Styled.ListOccurrenceContainer>
   );

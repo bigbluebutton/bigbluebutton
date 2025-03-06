@@ -82,11 +82,17 @@ const ListOccurrenceContainer = styled.div`
 const OccurrenceListItem = styled.div`
   width: 100%;
   display: flex;
-  justify-content: end;
+  justify-content: start;
   flex-direction: row;
   gap: 0.5rem;
   padding: 0.25rem;
   border-bottom: 1px solid ${colorGrayLightest};
+`;
+
+const OccurrenceListHeader = styled(OccurrenceListItem)`
+  font-weight: 600;
+  align-items: center;
+  justify-content: center;
 `;
 
 type OccurrenceListItemIconProps = {
@@ -259,7 +265,7 @@ const Right = styled.div`
   display: flex;
   width: 8rem;
   height: 100%;
-  align-items: anchor-center;
+  align-items: center;
 `;
 
 const Time = styled.div`
@@ -581,6 +587,7 @@ export default {
   ListOccurrenceContainer,
   OccurrenceListItem,
   OccurrenceListItemIcon,
+  OccurrenceListHeader,
   MetricsContainer,
   MetricsTable,
   MetricsTableHeader,
