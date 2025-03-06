@@ -19,6 +19,7 @@
 
 package org.bigbluebutton.presentation.imp;
 
+import java.io.File;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeoutException;
@@ -29,7 +30,12 @@ import org.slf4j.LoggerFactory;
 
 public class ImageSlidesGenerationService {
 	private static Logger log = LoggerFactory.getLogger(ImageSlidesGenerationService.class);
-	
+
+	private String blankThumbnail;
+	private String blankPng;
+	private String blankSvg;
+
+	private long execTimeout = 60000;
 	private ExecutorService executor;
 	private SlidesGenerationProgressNotifier notifier;
 	private SvgImageCreator svgImageCreator;
@@ -52,22 +58,51 @@ public class ImageSlidesGenerationService {
 
 		for (int page = 1; page <= pres.getNumberOfPages(); page++) {
 			/* adding accessibility */
-			createTextFiles(pres, page);
-			createThumbnails(pres, page);
+//			createTextFiles(pres, page);
+//			createThumbnails(pres, page);
+//
+//			if (svgImagesRequired) {
+//				try {
+//					createSvgImages(pres, page);
+//				} catch (TimeoutException e) {
+//					log.error("Slide {} was not converted due to TimeoutException, ending process.", page, e);
+//					notifier.sendUploadFileTimedout(pres, page);
+//					break;
+//				}
+//			}
+//
+//			if (generatePngs) {
+//				createPngImages(pres, page);
+//			}
 
-			if (svgImagesRequired) {
-				try {
-					createSvgImages(pres, page);
-				} catch (TimeoutException e) {
-					log.error("Slide {} was not converted due to TimeoutException, ending process.", page, e);
-					notifier.sendUploadFileTimedout(pres, page);
-					break;
-				}
-			}
+			File textfilesDir = Util.determineTextfilesDirectory(pres.getUploadedFile());
+			if (!textfilesDir.exists())
+				textfilesDir.mkdir();
 
+			File thumbsDir = Util.determineThumbnailDirectory(pres.getUploadedFile());
+			if (!thumbsDir.exists())
+				thumbsDir.mkdir();
+
+			File pngDir = Util.determinePngDirectory(pres.getUploadedFile());
+			if (!pngDir.exists())
+				pngDir.mkdir();
+
+			File svgDir = Util.determineSvgImagesDirectory(pres.getUploadedFile());
+			if (!svgDir.exists())
+				svgDir.mkdir();
+
+			String service = "imgprocess@" + pres.getMeetingId() + "_" + pres.getId() +"_" + pres.getFileType() + ".service";
+
+			log.info("Starting processing service [{}]", service);
+			String COMMAND = "sudo systemctl start " + service;
+
+			boolean done = new ExternalProcessExecutor().exec(COMMAND, execTimeout);
+
+			Util.createBlankThumbnail(thumbsDir, page, blankThumbnail);
 			if (generatePngs) {
-				createPngImages(pres, page);
+				Util.createBlankPng(pngDir, page, blankPng);
 			}
+			Util.createBlankSvg(svgDir, page, blankSvg);
 
 			notifier.sendConversionUpdateMessage(page, pres, page);
 		}
@@ -159,5 +194,15 @@ public class ImageSlidesGenerationService {
 	}
 	public void setMaxImageHeight(long maxImageHeight) {
 		this.maxImageHeight = maxImageHeight;
+	}
+
+	public void setBlankThumbnail(String blankThumbnail) {
+		this.blankThumbnail = blankThumbnail;
+	}
+	public void setBlankPng(String blankPng) {
+		this.blankPng = blankPng;
+	}
+	public void setBlankSvg(String blankSvg) {
+		this.blankSvg = blankSvg;
 	}
 }

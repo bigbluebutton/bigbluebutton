@@ -88,103 +88,35 @@ public class PageToConvert {
   }
 
   public PageToConvert convert() {
-    File textfilesDir = determineTextfilesDirectory(pres.getUploadedFile());
+    File textfilesDir = Util.determineTextfilesDirectory(pres.getUploadedFile());
     if (!textfilesDir.exists())
       textfilesDir.mkdir();
 
-    File thumbsDir = determineThumbnailDirectory(pres.getUploadedFile());
+    File thumbsDir = Util.determineThumbnailDirectory(pres.getUploadedFile());
     if (!thumbsDir.exists())
       thumbsDir.mkdir();
 
-    File pngDir = determinePngDirectory(pres.getUploadedFile());
+    File pngDir = Util.determinePngDirectory(pres.getUploadedFile());
     if (!pngDir.exists())
       pngDir.mkdir();
 
-    File svgDir = determineSvgImagesDirectory(pres.getUploadedFile());
+    File svgDir = Util.determineSvgImagesDirectory(pres.getUploadedFile());
     if (!svgDir.exists())
       svgDir.mkdir();
 
-    String service;
-    if (SupportedFileTypes.isImageFile(pres.getFileType())) {
-      service = "imgprocess@" + pres.getMeetingId() + "_" + pres.getId() +"_" + pres.getFileType() + ".service";
-    } else {
-      service = "pdfprocess@" + pres.getMeetingId() + "_" + pres.getId() +"_" + page + ".service";
-    }
+    String service = "pdfprocess@" + pres.getMeetingId() + "_" + pres.getId() +"_" + page + ".service";
+
     log.info("Starting processing service [{}]", service);
     String COMMAND = "sudo systemctl start " + service;
 
     boolean done = new ExternalProcessExecutor().exec(COMMAND, execTimeout);
 
-    createBlankThumbnail(thumbsDir, page);
-    createBlankPng(pngDir, page);
-    createBlankSvg(svgDir, page);
+    Util.createBlankThumbnail(thumbsDir, page, blankThumbnail);
+    if (generatePngs) {
+      Util.createBlankPng(pngDir, page, blankPng);
+    }
+    Util.createBlankSvg(svgDir, page, blankSvg);
 
     return this;
-  }
-
-  private File determineTextfilesDirectory(File presentationFile) {
-    return new File(
-            presentationFile.getParent() + File.separatorChar + "textfiles");
-  }
-
-  private File determineThumbnailDirectory(File presentationFile) {
-    return new File(
-            presentationFile.getParent() + File.separatorChar + "thumbnails");
-  }
-
-  private File determinePngDirectory(File presentationFile) {
-    return new File(presentationFile.getParent() + File.separatorChar + "pngs");
-  }
-
-  private File determineSvgImagesDirectory(File presentationFile) {
-    return new File(presentationFile.getParent() + File.separatorChar + "svgs");
-  }
-
-  private void createBlankThumbnail(File dir, int page) {
-    File thumb = new File(dir.getAbsolutePath() + File.separatorChar + "thumb-" + page + ".png");
-    if (!thumb.exists()) {
-      log.info("Copying blank thumbnail for slide {}", page);
-      copyBlankThumbnail(thumb);
-    }
-  }
-
-  private void copyBlankThumbnail(File thumb) {
-    try {
-      FileUtils.copyFile(new File(blankThumbnail), thumb);
-    } catch (IOException e) {
-      log.error("IOException while copying blank thumbnail.", e);
-    }
-  }
-
-  private void createBlankPng(File dir, int page) {
-    File png = new File(dir.getAbsolutePath() + File.separator + "slide-" + page + ".png");
-    if (!png.exists()) {
-      log.info("Copying blank png for slide {}", page);
-      copyBlankPng(png);
-    }
-  }
-
-  private void copyBlankPng(File png) {
-    try {
-      FileUtils.copyFile(new File(blankPng), png);
-    } catch (IOException e) {
-      log.error("IOException while copying blank PNG.");
-    }
-  }
-
-  private void createBlankSvg(File dir, int page) {
-    File svg = new File(dir.getAbsolutePath() + File.separator + "slide" + page + ".svg");
-    if (!svg.exists()) {
-      log.info("Copying blank svg for slide {}", page);
-      copyBlankSvg(svg);
-    }
-  }
-
-  private void copyBlankSvg(File svg) {
-    try {
-      FileUtils.copyFile(new File(blankSvg), svg);
-    } catch (IOException e) {
-      log.error("IOException while copying blank SVG.");
-    }
   }
 }

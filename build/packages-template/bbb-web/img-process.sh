@@ -9,23 +9,24 @@ THUMB_DIR="${PARENT_DIR}/thumbnails"
 PNG_DIR="${PARENT_DIR}/pngs"
 SVG_DIR="${PARENT_DIR}/svgs"
 
-echo "No text could be retrieved for the slide" > "${TEXT_DIR}/slide-${PAGE}.txt"
+echo "No text could be retrieved for the slide" > "${TEXT_DIR}/slide-1.txt"
 
-/usr/bin/convert -thumbnail 150x150 "$IMG" "${THUMB_DIR}/thumb-1.png"
+/usr/bin/convert -thumbnail $IMG_THUMB_DIM "$IMG" "${THUMB_DIR}/thumb-1.png"
 
-pdf="${PNG_DIR}/slide-1.pdf"
-CONV_TIMEOUT=7
-output="$(timeout ${CONV_TIMEOUT}s) /usr/bin/convert $IMG -auto-orient $pdf"
-exit_code=$?
+if [ $GENERATE_PNGS = "true" ]; then
+	pdf="${PNG_DIR}/slide-1.pdf"
+	output="$(timeout ${IMG_CONV_TIMEOUT}s /usr/bin/convert "$IMG" -auto-orient "$pdf")"
+	exit_code=$?
 
-if [ $exit_code -eq 0 ]; then
-	/usr/bin/pdftocairo -png -scale-to 800 -f "$PAGE" -l "$PAGE" "$pdf" "${PNG_DIR}/slide"
-else
-	echo "PDF conversion failed with exit code $exit_code"
+	if [ $exit_code -eq 0 ]; then
+		/usr/bin/pdftocairo -png -scale-to $PNG_SCALE -f 1 -l 1 "$pdf" "${PNG_DIR}/slide"
+	else
+		echo "PDF conversion failed with exit code $exit_code"
+	fi
 fi
 
 pdf="${SVG_DIR}/slide-1.pdf"
-output="$(timeout ${CONV_TIMEOUT}s) /usr/bin/convert $IMG -auto-orient $pdf"
+output="$(timeout ${IMG_CONV_TIMEOUT}s /usr/bin/convert "$IMG" -auto-orient "$pdf")"
 exit_code=$?
 
 if [ $exit_code -ne 0 ]; then
@@ -33,13 +34,11 @@ if [ $exit_code -ne 0 ]; then
 	exit $exit_code
 fi
 
-PDF_FONTS_CMD="pdffonts -f ${PAGE} -l ${PAGE} ${PDF} | grep -m 1 'Type 3' | wc -l"
-PDF_FONTS_TIMEOUT=3
-MAX_ATTEMPTS=3
+PDF_FONTS_CMD="pdffonts -f 1 -l 1 ${pdf} | grep -m 1 'Type 3' | wc -l"
 attempt=1
 rasterize=0
 
-while [ $attempt -le $MAX_ATTEMPTS ]; do
+while [ $attempt -le $PDF_FONTS_MAX_ATTEMPTS ]; do
         echo "Attempt #$attempt to detect Type 3 fonts."
 
         OUTPUT="$(timeout "${PDF_FONTS_TIMEOUT}s" /bin/sh -c "${PDF_FONTS_CMD}")"
@@ -49,8 +48,8 @@ while [ $attempt -le $MAX_ATTEMPTS ]; do
                 echo "Command timeout after ${PDF_FONTS_TIMEOUT} seconds."
                 attempt=$((attempt+1))
 
-                if [ $attempt -gt $MAX_ATTEMPTS ]; then
-                        echo "Command failed after $MAX_ATTEMPTS attempts due to repeated timeouts."
+                if [ $attempt -gt $PDF_FONTS_MAX_ATTEMPTS ]; then
+                        echo "Command failed after $PDF_FONTS_MAX_ATTEMPTS attempts due to repeated timeouts."
                         exit 1
                 fi
         elif [ $exit_code -eq 0 ]; then
@@ -63,12 +62,11 @@ while [ $attempt -le $MAX_ATTEMPTS ]; do
         fi
 done
 
-SVG="${SVG_DIR}/slide${PAGE}.svg"
-SVG_CONV_TIMEOUT=60
+SVG="${SVG_DIR}/slide1.svg"
 
 if [ $rasterize -eq 0 ]; then
         echo "Rasterization not required. Converting PDF to SVG."
-        SVG_CONV_CMD="pdftocairo -r 300 -svg -q -f ${PAGE} -l ${PAGE} ${PDF} ${SVG} && cat ${SVG} | egrep 'data:image/png;base64|<path' | sed 's/  / /g' | cut -d' ' -f 1 | sort | uniq -cw 2"
+        SVG_CONV_CMD="pdftocairo -r $SVG_RESOLUTION -svg -q -f 1 -l 1 ${pdf} ${SVG} && cat ${SVG} | egrep 'data:image/png;base64|<path' | sed 's/  / /g' | cut -d' ' -f 1 | sort | uniq -cw 2"
         OUTPUT="$(timeout "${SVG_CONV_TIMEOUT}s" /bin/sh -c "${SVG_CONV_CMD}")"
         exit_code=$?
         echo "Conversion command exited with ${exit_code}"
@@ -76,9 +74,9 @@ fi
 
 svg_size=$(stat -c%s "$SVG" 2>/dev/null || echo 0)
 NUM_PATHS=$(xmlstarlet sel -t -v "count(//svg:path)" "$SVG" 2>/dev/null || echo 0)
-NUM_IMAGES=$(xmlstarlet sel -t -v "count(//svg:image)" "$SVG" 2>/dev/null || echo 0)
+NUM_IMGS=$(xmlstarlet sel -t -v "count(//svg:image)" "$SVG" 2>/dev/null || echo 0)
 
-if [ $svg_size -eq 0 ] || [ $NUM_PATHS -gt 800 ] || [ $NUM_IMAGES -gt 800 ] || [ $rasterize -eq 1 ]; then
+if [ $svg_size -eq 0 ] || [ $NUM_PATHS -gt $MAX_SVG_PATHS ] || [ $NUM_IMGS -gt $MAX_SVG_IMGS ] || [ $rasterize -eq 1 ]; then
 	echo "Rasterizing PDF"
 
    	rm -f "$SVG"
@@ -94,7 +92,7 @@ if [ $svg_size -eq 0 ] || [ $NUM_PATHS -gt 800 ] || [ $NUM_IMAGES -gt 800 ] || [
 
 	echo "Converting PDF to PNG"
 
-	PNG_CONV_CMD="pdftocairo -r 300 -png -singlefile -scale-to-x 2048 -scale-to-y -1 -q -f ${PAGE} -l ${PAGE} ${PDF} ${TEMP_PNG}"
+	PNG_CONV_CMD="pdftocairo -r $SVG_RESOLUTION -png -singlefile -scale-to-x $PNG_X_SCALE -scale-to-y $PNG_Y_SCALE -q -f ${PAGE} -l ${PAGE} ${PDF} ${TEMP_PNG}"
 	OUTPUT="$(timeout "${SVG_CONV_TIMEOUT}s" /bin/sh -c "${PNG_CONV_CMD}")"
   	exit_code=$?
 
@@ -112,8 +110,8 @@ if [ $svg_size -eq 0 ] || [ $NUM_PATHS -gt 800 ] || [ $NUM_IMAGES -gt 800 ] || [
 		if [ $BASE64_SIZE -gt $BROWSER_LIMIT ]; then
 			echo "Encoded PNG is too large for the browser."
 		else
-			width=500
-			height=500
+			width=$PNG_DEFAULT_WIDTH
+			height=$PNG_DEFAULT_HEIGHT
 
 			read PNG_WIDTH PNG_HEIGHT < <(identify -format "%w %h" "${TEMP_PNG}.png")
 

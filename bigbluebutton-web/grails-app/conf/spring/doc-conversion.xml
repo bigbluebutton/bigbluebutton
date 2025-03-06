@@ -142,6 +142,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="maxImageWidth" value="${maxImageWidth}"/>
         <property name="maxImageHeight" value="${maxImageHeight}"/>
         <property name="generatePngs" value="${generatePngs}"/>
+        <property name="blankThumbnail" value="${BLANK_THUMBNAIL}"/>
+        <property name="blankPng" value="${BLANK_PNG}"/>
+        <property name="blankSvg" value="${BLANK_SVG}"/>
     </bean>
 
     <bean id="slidesGenerationProgressNotifier"
