@@ -42,8 +42,7 @@ test.describe('Chat', { tag: '@ci' }, () => {
     await chat.emptyMessage();
   });
 
-  test('Copy and paste public message', { tag: '@flaky' }, async () => {
-    linkIssue(22198);
+  test('Copy and paste public message', async () => {
     await chat.copyPastePublicMessage();
   })
 
