@@ -8,7 +8,7 @@ const roveBuilder = (
   const isActionKey = ev.code === 'Enter' || ev.code === 'Space';
   const isInitialArrowDown = ev.code === 'ArrowDown' && selectedRef.current !== document.activeElement;
   const firstSelect = selectedRef.current !== document.activeElement;
-  if (isActionKey || isInitialArrowDown || (ev.code === 'Tab' && firstSelect)) {
+  if (isActionKey || isInitialArrowDown || ((ev.code === 'Tab' && firstSelect) && !ev.shiftKey)) {
     ev.preventDefault();
     ev.stopPropagation();
     if (selectedRef.current && (selectedRef.current === document.activeElement)) {
