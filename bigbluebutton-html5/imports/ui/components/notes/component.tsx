@@ -141,27 +141,27 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
       {!isOnMediaArea ? (
         // @ts-ignore Until everything in Typescript
         <>
-        <h2 class="sr-only">{intl.formatMessage(intlMessages.title)}</h2>
-        <Header
-          leftButtonProps={{
-            onClick: () => {
-              layoutContextDispatch({
-                type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-                value: false,
-              });
-              layoutContextDispatch({
-                type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-                value: PANELS.NONE,
-              });
-            },
-            'data-test': 'hideNotesLabel',
-            'aria-label': intl.formatMessage(intlMessages.hide),
-            label: intl.formatMessage(intlMessages.title),
-          }}
-          customRightButton={
-            <NotesDropdown handlePinSharedNotes={handlePinSharedNotes} presentationEnabled={isPresentationEnabled} />
+          <h2 className="sr-only">{intl.formatMessage(intlMessages.title)}</h2>
+          <Header
+            leftButtonProps={{
+              onClick: () => {
+                layoutContextDispatch({
+                  type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+                  value: false,
+                });
+                layoutContextDispatch({
+                  type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+                  value: PANELS.NONE,
+                });
+              },
+              'data-test': 'hideNotesLabel',
+              'aria-label': intl.formatMessage(intlMessages.hide),
+              label: intl.formatMessage(intlMessages.title),
+            }}
+            customRightButton={
+              <NotesDropdown handlePinSharedNotes={handlePinSharedNotes} presentationEnabled={isPresentationEnabled} />
           }
-        />
+          />
         </>
       ) : renderHeaderOnMedia()}
       <PadContainer

@@ -135,13 +135,13 @@ const ChatHeaderContainer: React.FC = () => {
     : intl.formatMessage(intlMessages.titlePrivate, { 0: chatData?.chat[0]?.participant?.name });
   return (
     <>
-    <h2 class="sr-only">{title}</h2>
-    <ChatHeader
-      chatId={idChatOpen}
-      isPublicChat={isPublicChat}
-      title={title}
-      isRTL={isRTL}
-    />
+      <h2 className="sr-only">{title}</h2>
+      <ChatHeader
+        chatId={idChatOpen}
+        isPublicChat={isPublicChat}
+        title={title}
+        isRTL={isRTL}
+      />
     </>
   );
 };
