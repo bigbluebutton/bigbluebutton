@@ -80,7 +80,7 @@ const playLeaveAudioAlert = throttle(() => {
   new Audio(`${window.meetingClientSettings.public.app.cdn
     + window.meetingClientSettings.public.app.basename}`
     + '/resources/sounds/userJoin.mp3').play();
-}, 5000, { leading: true, trailing: false });
+}, 500, { leading: true, trailing: false });
 
 export const userLeavePushAlert = (
   notification: Notification,
