@@ -14,14 +14,6 @@ case class MeetingSystemColumnsDbModel(
       bannerColor:                           Option[String],
 )
 
-case class MeetingEndingInformationDbModel(
-    endWhenNoModerator:                    Boolean,
-    endWhenNoModeratorDelayInMinutes:      Int,
-    endedAt:                               Option[java.sql.Timestamp],
-    endedReasonCode:                       Option[String],
-    endedBy:                               Option[String],
-)
-
 case class MeetingDbModel(
     meetingId:                             String,
     extId:                                 String,
@@ -34,14 +26,17 @@ case class MeetingDbModel(
     screenShareBridge:                     String,
     audioBridge:                           String,
     notifyRecordingIsOn:                   Boolean,
-    presentationConversionCacheEnabled:    Boolean,
     presentationUploadExternalDescription: String,
     presentationUploadExternalUrl:         String,
     learningDashboardAccessToken:          String,
     systemColumns:                         MeetingSystemColumnsDbModel,
     createdTime:                           Long,
     durationInSeconds:                     Int,
-    endingInformation:                     MeetingEndingInformationDbModel,
+    endWhenNoModerator:                    Boolean,
+    endWhenNoModeratorDelayInMinutes:      Int,
+    endedAt:                               Option[java.sql.Timestamp],
+    endedReasonCode:                       Option[String],
+    endedBy:                               Option[String],
 )
 
 class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meeting") {
@@ -57,14 +52,17 @@ class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meet
     screenShareBridge,
     audioBridge,
     notifyRecordingIsOn,
-    presentationConversionCacheEnabled,
     presentationUploadExternalDescription,
     presentationUploadExternalUrl,
     learningDashboardAccessToken,
     systemColumns,
     createdTime,
     durationInSeconds,
-    endingInformation
+    endWhenNoModerator,
+    endWhenNoModeratorDelayInMinutes,
+    endedAt,
+    endedReasonCode,
+    endedBy
   ) <> (MeetingDbModel.tupled, MeetingDbModel.unapply)
   val meetingId = column[String]("meetingId", O.PrimaryKey)
   val extId = column[String]("extId")
@@ -77,7 +75,6 @@ class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meet
   val screenShareBridge = column[String]("screenShareBridge")
   val audioBridge = column[String]("audioBridge")
   val notifyRecordingIsOn = column[Boolean]("notifyRecordingIsOn")
-  val presentationConversionCacheEnabled = column[Boolean]("presentationConversionCacheEnabled")
   val presentationUploadExternalDescription = column[String]("presentationUploadExternalDescription")
   val presentationUploadExternalUrl = column[String]("presentationUploadExternalUrl")
   val learningDashboardAccessToken = column[String]("learningDashboardAccessToken")
@@ -95,10 +92,6 @@ class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meet
   val endedAt = column[Option[java.sql.Timestamp]]("endedAt")
   val endedReasonCode = column[Option[String]]("endedReasonCode")
   val endedBy = column[Option[String]]("endedBy")
-  val endingInformation = (
-    endWhenNoModerator, endWhenNoModeratorDelayInMinutes, endedAt, endedReasonCode, endedBy
-  ) <> (MeetingEndingInformationDbModel.tupled, MeetingEndingInformationDbModel.unapply)
-
 }
 
 object MeetingDAO {
@@ -117,7 +110,6 @@ object MeetingDAO {
           screenShareBridge = meetingProps.meetingProp.screenShareBridge,
           audioBridge = meetingProps.meetingProp.audioBridge,
           notifyRecordingIsOn = meetingProps.meetingProp.notifyRecordingIsOn,
-          presentationConversionCacheEnabled = meetingProps.meetingProp.presentationConversionCacheEnabled,
           presentationUploadExternalDescription = meetingProps.meetingProp.presentationUploadExternalDescription,
           presentationUploadExternalUrl = meetingProps.meetingProp.presentationUploadExternalUrl,
           learningDashboardAccessToken = meetingProps.password.learningDashboardAccessToken,
@@ -149,13 +141,11 @@ object MeetingDAO {
           ),
           createdTime = meetingProps.durationProps.createdTime,
           durationInSeconds = meetingProps.durationProps.duration * 60,
-          endingInformation = MeetingEndingInformationDbModel(
-            endWhenNoModerator = meetingProps.durationProps.endWhenNoModerator,
-            endWhenNoModeratorDelayInMinutes = meetingProps.durationProps.endWhenNoModeratorDelayInMinutes,
-            endedAt = None,
-            endedReasonCode = None,
-            endedBy = None
-          )
+          endWhenNoModerator = meetingProps.durationProps.endWhenNoModerator,
+          endWhenNoModeratorDelayInMinutes = meetingProps.durationProps.endWhenNoModeratorDelayInMinutes,
+          endedAt = None,
+          endedReasonCode = None,
+          endedBy = None
         )
       )
     )

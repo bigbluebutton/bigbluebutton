@@ -126,7 +126,6 @@ class BbbWebApiGWApp(
                     autoStartRecording:      java.lang.Boolean,
                     allowStartStopRecording: java.lang.Boolean,
                     recordFullDurationMedia: java.lang.Boolean,
-                    presentationConversionCacheEnabled: java.lang.Boolean,
                     webcamsOnlyForModerator: java.lang.Boolean,
                     meetingCameraCap: java.lang.Integer,
                     userCameraCap:    java.lang.Integer,
@@ -189,7 +188,6 @@ class BbbWebApiGWApp(
       isBreakout = isBreakout.booleanValue(),
       disabledFeaturesAsVector,
       notifyRecordingIsOn,
-      presentationConversionCacheEnabled,
       presentationUploadExternalDescription,
       presentationUploadExternalUrl
     )

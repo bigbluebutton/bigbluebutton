@@ -28,7 +28,6 @@
 - `meetingId`
 - `name`
 - `notifyRecordingIsOn`
-- `presentationConversionCacheEnabled`
 - `presentationUploadExternalDescription`
 - `presentationUploadExternalUrl`
 - `screenShareBridge`
