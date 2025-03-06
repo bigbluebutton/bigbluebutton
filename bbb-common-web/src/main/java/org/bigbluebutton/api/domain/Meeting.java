@@ -654,7 +654,7 @@ public class Meeting {
 		return allowStartStopRecording;
 	}
 
-	public boolean getPresentationConversionCacheEnabled() {
+	public boolean isPresentationConversionCacheEnabled() {
 		return presentationConversionCacheEnabled;
 	}
 

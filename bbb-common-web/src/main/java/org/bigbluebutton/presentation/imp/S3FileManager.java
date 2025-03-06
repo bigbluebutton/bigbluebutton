@@ -9,8 +9,8 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.bigbluebutton.api.domain.Meeting;
+import org.bigbluebutton.api.service.ServiceUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -18,12 +18,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
-import java.util.Map;
 
 public class S3FileManager {
-    private static Logger log = LoggerFactory.getLogger(S3FileManager.class);
-    private boolean presentationConversionCacheEnabled = false;
     private String accessKeyId = "";
     private String accessKeySecret = "";
     private String bucketName = "";
@@ -31,7 +27,6 @@ public class S3FileManager {
     private String endpointUrl = "";
     private boolean pathStyleAccess = false;
     private AmazonS3 s3Client = null;
-    private static final Map<String, Boolean> prersentationCacheEnabledMap = new HashMap<>();
 
     public AmazonS3 getS3Client() {
         if(s3Client == null) {
@@ -44,18 +39,6 @@ public class S3FileManager {
         }
 
         return s3Client;
-    }
-
-    public static void storePresentationEnabledCache(Boolean presentationConversionCacheEnabled, String meetingId) {
-        if (!prersentationCacheEnabledMap.containsKey(meetingId)) {
-            prersentationCacheEnabledMap.put(meetingId, presentationConversionCacheEnabled);
-        } else {
-            prersentationCacheEnabledMap.replace(meetingId, presentationConversionCacheEnabled);
-        }
-    }
-
-    public static void removePresentationCacheEnabledForMeeting(String meetingId) {
-        prersentationCacheEnabledMap.remove(meetingId);
     }
 
     public boolean exists(String key) {
@@ -95,18 +78,8 @@ public class S3FileManager {
 
 
     public boolean isPresentationConversionCacheEnabled(String meetingId) {
-        if (prersentationCacheEnabledMap.containsKey(meetingId)) {
-            return prersentationCacheEnabledMap.get(meetingId);
-        } return presentationConversionCacheEnabled;
-    }
-
-    public void setPresentationConversionCacheEnabled(boolean presentationConversionCacheEnabled) {
-        if(presentationConversionCacheEnabled) {
-            log.info("S3 cache system enabled");
-        } else {
-            log.info("S3 cache system disabled");
-        }
-        this.presentationConversionCacheEnabled = presentationConversionCacheEnabled;
+        Meeting meeting = ServiceUtils.findMeetingFromMeetingID(meetingId);
+        return meeting.isPresentationConversionCacheEnabled();
     }
 
     public String getAccessKeyId() {
