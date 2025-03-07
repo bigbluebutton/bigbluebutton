@@ -13,6 +13,7 @@ GEM
       rexml
     builder (3.2.4)
     concurrent-ruby (1.2.2)
+    connection_pool (2.5.0)
     crass (1.0.6)
     fastimage (2.2.6)
     ffi (1.15.5)
@@ -51,7 +52,10 @@ GEM
     rake (13.0.6)
     rb-inotify (0.10.1)
       ffi (~> 1.0)
-    redis (4.8.1)
+    redis (5.4.0)
+      redis-client (>= 0.22.0)
+    redis-client (0.24.0)
+      connection_pool
     redis-namespace (1.11.0)
       redis (>= 4)
     regexp_parser (2.9.2)
@@ -107,7 +111,7 @@ DEPENDENCIES
   optimist
   rake (>= 12.3, < 14)
   rb-inotify (~> 0.10)
-  redis (~> 4.1)
+  redis (~> 5.4)
   resque (~> 2.6, >= 2.6.0)
   rubocop (~> 1.34.0)
   rubyzip (~> 2.0)
