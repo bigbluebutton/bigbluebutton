@@ -43,9 +43,13 @@ const ConnectionStatus = () => {
 
   const handleUpdateConnectionAliveAt = () => {
     const startTime = performance.now();
+    const fetchOptions = {
+      signal: AbortSignal.timeout ? AbortSignal.timeout(STATS_TIMEOUT) : undefined,
+    };
+
     fetch(
       `${getBaseUrl()}/rtt-check`,
-      { signal: AbortSignal.timeout(STATS_TIMEOUT) },
+      fetchOptions,
     )
       .then((res) => {
         if (res.ok && res.status === 200) {
