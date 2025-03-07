@@ -4,11 +4,15 @@ const e = require('../core/elements');
 
 async function snapshotComparison(modPage, userPage, snapshotName) {
   if (!CI) {
+    // close all toast notifications before taking the screenshot
+    await modPage.closeAllToastNotifications();
+    await userPage.closeAllToastNotifications();
+    // set the masks for the snapshot comparison
     const setMasks = (page) => [
       page.getLocator(e.presentationTitle),
       page.getLocator(e.chatNotificationMessageText).first(),
     ];
-
+    // set proper viewport size for the snapshot comparison
     await modPage.setHeightWidthViewPortSize();
     await userPage.setHeightWidthViewPortSize();
     await expect(modPage.page).toHaveScreenshot(`moderator-${snapshotName}.png`, {

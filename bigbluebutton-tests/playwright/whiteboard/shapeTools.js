@@ -11,6 +11,7 @@ class ShapeTools extends MultiUsers {
 
   async pan() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await this.userPage.waitForSelector(e.whiteboard);
     await this.modPage.waitForSelector(e.resetZoomButton);
     const modWbLocator = this.modPage.getLocator(e.whiteboard);
     const wbBox = await modWbLocator.boundingBox();
@@ -42,6 +43,7 @@ class ShapeTools extends MultiUsers {
 
   async eraser() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await this.userPage.waitForSelector(e.whiteboard);
     const modWbLocator = this.modPage.getLocator(e.whiteboard);
     const wbBox = await modWbLocator.boundingBox();
     // draw a line
@@ -65,6 +67,7 @@ class ShapeTools extends MultiUsers {
 
   async delete() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await this.userPage.waitForSelector(e.whiteboard);
     const modWbLocator = this.modPage.getLocator(e.whiteboard);
     const wbBox = await modWbLocator.boundingBox();
     // draw an arrow

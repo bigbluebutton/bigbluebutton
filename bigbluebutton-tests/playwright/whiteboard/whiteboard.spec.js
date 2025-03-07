@@ -43,7 +43,7 @@ test.describe.parallel('Whiteboard tools', { tag: '@ci' }, () => {
     const line = new DrawShape(browser, context);
     await line.initModPage(page, true);
     await line.initUserPage(true, context);
-    await line.drawShape(e.wbLineShape, 'line');
+    await line.drawShape(e.wbLineShape, 'line', e.wbDrawnLine);
   });
 
   test('Draw arrow', async ({ browser, context, page }) => {
