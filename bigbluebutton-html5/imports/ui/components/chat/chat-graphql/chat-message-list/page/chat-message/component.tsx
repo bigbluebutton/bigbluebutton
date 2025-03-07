@@ -742,7 +742,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
     </Popover>
   );
 
-  const focusable = !deleteTime && !messageContent.isSystemSender;
+  const focusable = !deleteTime && (!messageContent.isSystemSender || message.messageType === ChatMessageType.POLL);
 
   return (
     <Container

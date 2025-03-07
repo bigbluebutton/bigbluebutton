@@ -89,32 +89,49 @@ const ChatPollContent: React.FC<ChatPollContentProps> = ({
   const translatedAnswers = answers.map((answer: Answers) => {
     const translationKey = intlMessages[answer.key.toLowerCase() as keyof typeof intlMessages];
     const pollAnswer = translationKey ? intl.formatMessage(translationKey) : answer.key;
+    const pollAnswerWithNumVotes = `${pollAnswer} (${answer.numVotes})`
     return {
       ...answer,
       pollAnswer,
+      pollAnswerWithNumVotes,
     };
   });
 
   const useHeight = height || translatedAnswers.length * 50;
   return (
-    <Styled.PollWrapper data-test="chatPollMessageText">
-      <Styled.PollText>
-        {pollData.questionText}
-      </Styled.PollText>
-      <ResponsiveContainer width="100%" height={useHeight}>
-        <BarChart
-          data={translatedAnswers}
-          layout="vertical"
-        >
-          <XAxis
-            type="number"
-            allowDecimals={false}
-          />
-          <YAxis width={100} type="category" dataKey="pollAnswer" tick={<CustomizedAxisTick />} />
-          <Bar dataKey="numVotes" fill="#0C57A7" />
-        </BarChart>
-      </ResponsiveContainer>
-    </Styled.PollWrapper>
+    <>
+      <Styled.PollWrapper aria-hidden data-test="chatPollMessageText">
+        <Styled.PollText>
+          {pollData.questionText}
+        </Styled.PollText>
+        <ResponsiveContainer width="100%" height={useHeight}>
+          <BarChart
+            data={translatedAnswers}
+            layout="vertical"
+          >
+            <XAxis
+              type="number"
+              allowDecimals={false}
+            />
+            <YAxis width={100} type="category" dataKey="pollAnswerWithNumVotes" tick={<CustomizedAxisTick />} />
+            <Bar dataKey="numVotes" fill="#0C57A7" />
+          </BarChart>
+        </ResponsiveContainer>
+      </Styled.PollWrapper>
+      <table className="sr-only" id={`poll-result-${pollData.id}`}>
+        <caption>{pollData.questionText}</caption>
+        <tbody>
+          {translatedAnswers.map((ans: Answers & { pollAnswer: string }) => {
+            return (
+              <tr>
+                <th scope="row">{ans.pollAnswer}</th>
+                <td>{ans.numVotes}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </>
   );
 };
 
