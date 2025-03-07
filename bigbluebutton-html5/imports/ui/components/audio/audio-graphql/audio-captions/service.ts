@@ -43,12 +43,14 @@ export const splitTranscript = (obj: Caption) => {
 
   let i = 0;
   return transcripts.map((t) => {
-    i+=1;
-    return {  ...obj,
+    i += 1;
+
+    return {
+      ...obj,
       captionText: t,
       // if messages where split the captions will have a 'part' id
-      captionId: `${obj.captionId}-${i}`
-    };
+      captionId: `${obj.captionId}-${i}`,
+      };
   });
 };
 
