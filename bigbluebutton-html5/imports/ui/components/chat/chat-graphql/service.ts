@@ -1,7 +1,7 @@
 export const textToMarkdown = (message: string) => {
   const parsedMessage = message || '';
 
-  const newLineRegex = /\n\r?/g;
+  const newLineRegex = /\r?\n/g;
 
   // Process the message by separating code blocks from regular text
   const segments = [];
