@@ -145,6 +145,16 @@ const ConnectionStatusContainer = () => {
   }
 
   if (error) {
+    connectionStatus.setSubscriptionFailed(true);
+    logger.error(
+      {
+        logCode: 'subscription_Failed',
+        extraInfo: {
+          error,
+        },
+      },
+      'Subscription failed to load',
+    );
     return null;
   }
 
