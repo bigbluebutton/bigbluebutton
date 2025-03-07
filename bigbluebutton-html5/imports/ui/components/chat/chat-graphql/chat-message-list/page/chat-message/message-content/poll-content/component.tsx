@@ -123,7 +123,7 @@ const ChatPollContent: React.FC<ChatPollContentProps> = ({
         <tbody>
           {translatedAnswers.map((ans: Answers & { pollAnswer: string }) => {
             return (
-              <tr>
+              <tr key={ans.id}>
                 <th scope="row">{ans.pollAnswer}</th>
                 <td>{ans.numVotes}</td>
               </tr>
