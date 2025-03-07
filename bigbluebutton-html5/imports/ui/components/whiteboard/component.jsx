@@ -789,6 +789,7 @@ const Whiteboard = React.memo((props) => {
     DefaultVerticalAlignStyle.defaultValue = 'start';
 
     editor?.user?.updateUserPreferences({ locale: language });
+    editor?.updateInstanceState({ isToolLocked: true });
 
     const colorStyles = [
       'black',
