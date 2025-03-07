@@ -43,7 +43,6 @@ updates:
     schedule:
       interval: daily
     open-pull-requests-limit: 0 # zero means only security pull requests and no (optional) version updates
-  
 
   # upcoming release branch
   ## excluding bigbluebutton-tests/playwright, docs, bbb-graphql-client-test
@@ -71,7 +70,7 @@ updates:
     schedule:
       interval: daily
     open-pull-requests-limit: 20 # both security and versions updates
-    - package-ecosystem: gradle
+  - package-ecosystem: gradle
     directory: "/bigbluebutton-web"
     target-branch: "v3.0.x-release"
     schedule:
