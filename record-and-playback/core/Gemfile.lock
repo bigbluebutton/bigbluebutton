@@ -11,7 +11,7 @@ GEM
     bbbevents (2.0.0)
       activesupport (>= 5.0.0.1, < 8)
       rexml
-    builder (3.2.4)
+    builder (3.3.0)
     concurrent-ruby (1.2.2)
     crass (1.0.6)
     fastimage (2.2.6)
@@ -94,7 +94,7 @@ PLATFORMS
 DEPENDENCIES
   absolute_time (~> 1.0)
   bbbevents (~> 2.0, >= 2.0.0)
-  builder (~> 3.2)
+  builder (~> 3.3)
   fastimage (~> 2.1)
   java_properties
   journald-logger (~> 3.0)
