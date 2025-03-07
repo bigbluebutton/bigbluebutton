@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useMutation } from '@apollo/client';
 import { UPDATE_CONNECTION_ALIVE_AT } from './mutations';
 import {
@@ -11,23 +11,15 @@ import useCurrentUser from '../../core/hooks/useCurrentUser';
 import getStatus from '../../core/utils/getStatus';
 import logger from '/imports/startup/client/logger';
 
-const ConnectionStatus = () => {
+const ConnectionStatus = ({
+  user,
+}) => {
   const STATS_INTERVAL = window.meetingClientSettings.public.stats.interval;
   const STATS_TIMEOUT = window.meetingClientSettings.public.stats.timeout;
   const networkRttInMs = useRef(0); // Ref to store the last rtt
   const timeoutRef = useRef(null);
 
   const [updateConnectionAliveAtM] = useMutation(UPDATE_CONNECTION_ALIVE_AT);
-
-  const {
-    data,
-  } = useCurrentUser((u) => ({
-    userId: u.userId,
-    avatar: u.avatar,
-    isModerator: u.isModerator,
-    color: u.color,
-    currentlyInMeeting: u.currentlyInMeeting,
-  }));
 
   const setErrorOnRtt = (error) => {
     logger.error({
@@ -69,7 +61,7 @@ const ConnectionStatus = () => {
 
             if (Object.keys(rttLevels).includes(rttStatus)) {
               connectionStatus.addUserNetworkHistory(
-                data,
+                user,
                 rttStatus,
                 Date.now(),
               );
@@ -136,4 +128,27 @@ const ConnectionStatus = () => {
   return null;
 };
 
-export default ConnectionStatus;
+const ConnectionStatusContainer = () => {
+  const {
+    data,
+    error,
+  } = useCurrentUser((u) => ({
+    userId: u.userId,
+    avatar: u.avatar,
+    isModerator: u.isModerator,
+    color: u.color,
+    currentlyInMeeting: u.currentlyInMeeting,
+  }));
+
+  if (!data) {
+    return null;
+  }
+
+  if (error) {
+    return null;
+  }
+
+  return <ConnectionStatus user={data} />;
+};
+
+export default ConnectionStatusContainer;
