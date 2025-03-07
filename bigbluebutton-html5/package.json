@@ -66,7 +66,7 @@
     "fastdom": "^1.0.10",
     "flat": "^5.0.2",
     "focus-trap-react": "^10.2.1",
-    "graphql": "^16.8.1",
+    "graphql": "^16.10.0",
     "graphql-ws": "^5.16.0",
     "hark": "^1.2.3",
     "html-to-image": "^1.9.0",
