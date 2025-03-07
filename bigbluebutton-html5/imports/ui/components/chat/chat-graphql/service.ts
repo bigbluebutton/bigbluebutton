@@ -52,7 +52,7 @@ export const textToMarkdown = (message: string) => {
       return segment.content;
     }
 
-    let { content } = segment;
+    const { content } = segment;
 
     // First, handle image markdown similar to how we handle links
     const IMAGE_REGEX = /!\[([^\]]*)\]\(([^)]*)\)/g;
@@ -104,6 +104,7 @@ export const textToMarkdown = (message: string) => {
         const textContent = part.content;
 
         // URL regex without lookbehind
+        // eslint-disable-next-line max-len
         const urlRegex = /(http(s)?:\/\/)[-a-zA-Z0-9@:%._+~#=,ß]{2,256}\.[a-z0-9]{2,6}\b([-a-zA-Z0-9@:%_+.~#!?&//=,ß]*)?/g;
 
         // Handle URLs without using lookbehind
