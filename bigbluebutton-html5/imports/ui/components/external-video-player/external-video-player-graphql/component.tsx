@@ -264,6 +264,11 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
 
   useEffect(() => {
     if (isPresenter !== presenterRef.current) {
+      const internalPlayer = playerRef.current?.getInternalPlayer();
+      const playerVolume = internalPlayer?.getVolume();
+      // the scale fiven by the player is 0 to 100, but the accepted scale is 0 to 1
+      // So we need to divide by 100
+      setVolume(playerVolume / 100);
       clientReloadedRef.current = true;
       setPlayerKey(uniqueId('react-player'));
       presenterRef.current = isPresenter;
