@@ -22,7 +22,7 @@ const LKAutoplayModalContainer: React.FC = () => {
     setIsOpen(true);
   }, [isOpen]);
 
-  const onRequestClose = useCallback(async () => {
+  const runAutoplayCallback = useCallback(async () => {
     try {
       if (!autoplayState.canPlayAudio) {
         await handleStartAudio();
@@ -30,7 +30,8 @@ const LKAutoplayModalContainer: React.FC = () => {
       logger.info({
         logCode: 'livekit_audio_autoplayed',
       }, 'LiveKit: audio autoplayed');
-      setIsOpen(false);
+
+      return true;
     } catch (error) {
       logger.error({
         logCode: 'livekit_audio_autoplay_handle_failed',
@@ -39,6 +40,8 @@ const LKAutoplayModalContainer: React.FC = () => {
           errorStack: (error as Error).stack,
         },
       }, 'LiveKit: failed to handle autoplay');
+
+      return false;
     }
   }, [autoplayState.canPlayAudio, handleStartAudio]);
 
@@ -60,7 +63,11 @@ const LKAutoplayModalContainer: React.FC = () => {
   ]);
 
   useEffect(() => {
-    if (shouldOpen()) openLKAutoplayModal();
+    if (shouldOpen()) {
+      runAutoplayCallback().then((success) => {
+        if (!success) openLKAutoplayModal();
+      });
+    }
   }, [shouldOpen, openLKAutoplayModal]);
 
   if (!shouldOpen()) return null;
@@ -69,7 +76,10 @@ const LKAutoplayModalContainer: React.FC = () => {
     <LKAutoplayModal
       autoplayHandler={handleStartAudio}
       isOpen={isOpen}
-      onRequestClose={onRequestClose}
+      onRequestClose={() => {
+        runAutoplayCallback();
+        setIsOpen(false);
+      }}
       priority="medium"
       setIsOpen={setIsOpen}
       isAttemptingAutoplay={autoplayState.isAttempting}
