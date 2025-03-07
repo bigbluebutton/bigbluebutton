@@ -1,7 +1,8 @@
 package org.bigbluebutton.presentation.imp;
 
 import com.google.gson.Gson;
-import org.bigbluebutton.api.Util;
+import org.bigbluebutton.api.domain.Meeting;
+import org.bigbluebutton.api.service.ServiceUtils;
 import org.bigbluebutton.presentation.messages.IPresentationCompletionMessage;
 import org.bigbluebutton.presentation.messages.PageConvertProgressMessage;
 import org.bigbluebutton.presentation.messages.PresentationConvertMessage;
@@ -85,8 +86,8 @@ public class PresentationConversionCompletionService {
         if(!p.pres.getUploadedFileHash().isEmpty()) {
             try {
                 String remoteFileName = p.pres.getUploadedFileHash() + ".tar.gz";
-                boolean isPresentationConversionCacheEnabled = s3FileManager.isPresentationConversionCacheEnabled(meetingId);
-                if(isPresentationConversionCacheEnabled && !s3FileManager.exists(remoteFileName)) {
+                Meeting meeting = ServiceUtils.findMeetingFromMeetingID(meetingId);
+                if(meeting.isPresentationConversionCacheEnabled() && !s3FileManager.exists(remoteFileName)) {
                     File parentDir = new File(p.pres.getUploadedFile().getParent());
                     File compressedFile = TarGzManager.compress(
                             parentDir.getAbsolutePath(),

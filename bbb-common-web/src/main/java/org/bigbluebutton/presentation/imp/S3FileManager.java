@@ -9,8 +9,6 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
-import org.bigbluebutton.api.domain.Meeting;
-import org.bigbluebutton.api.service.ServiceUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -29,7 +27,7 @@ public class S3FileManager {
     private AmazonS3 s3Client = null;
 
     public AmazonS3 getS3Client() {
-        if(s3Client == null) {
+        if(s3Client == null && !endpointUrl.isEmpty()) {
             AWSCredentials credentials = new BasicAWSCredentials(accessKeyId, accessKeySecret);
             s3Client = AmazonS3ClientBuilder.standard()
                     .withCredentials(new AWSStaticCredentialsProvider(credentials))
@@ -74,12 +72,6 @@ public class S3FileManager {
             hashString.append(String.format("%02x", b));
         }
         return hashString.toString();
-    }
-
-
-    public boolean isPresentationConversionCacheEnabled(String meetingId) {
-        Meeting meeting = ServiceUtils.findMeetingFromMeetingID(meetingId);
-        return meeting.isPresentationConversionCacheEnabled();
     }
 
     public String getAccessKeyId() {

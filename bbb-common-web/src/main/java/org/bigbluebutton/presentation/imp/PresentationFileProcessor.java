@@ -4,6 +4,8 @@ import com.amazonaws.services.s3.model.S3Object;
 import com.google.gson.Gson;
 import org.apache.commons.io.FilenameUtils;
 import org.bigbluebutton.api.Util;
+import org.bigbluebutton.api.domain.Meeting;
+import org.bigbluebutton.api.service.ServiceUtils;
 import org.bigbluebutton.presentation.*;
 import org.bigbluebutton.presentation.messages.*;
 import org.slf4j.Logger;
@@ -62,8 +64,8 @@ public class PresentationFileProcessor {
         try {
             pres.setUploadedFileHash(s3FileManager.generateHash(pres.getUploadedFile()));
             String remoteFileName = pres.getUploadedFileHash() + ".tar.gz";
-            boolean isPresentationConversionCacheEnabled = s3FileManager.isPresentationConversionCacheEnabled(meetingId);
-            if(isPresentationConversionCacheEnabled && s3FileManager.exists(remoteFileName)) {
+            Meeting meeting = ServiceUtils.findMeetingFromMeetingID(meetingId);
+            if(meeting.isPresentationConversionCacheEnabled() && s3FileManager.exists(remoteFileName)) {
                 S3Object s3Object = s3FileManager.download(remoteFileName);
                 File parentDir = new File(pres.getUploadedFile().getParent());
                 TarGzManager.decompress(s3Object, parentDir.getAbsolutePath());
