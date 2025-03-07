@@ -100,7 +100,7 @@
     "react-toastify": "^11.0.2",
     "react-toggle": "^4.1.2",
     "react-transition-group": "^4.4.5",
-    "recharts": "^2.7.2",
+    "recharts": "^2.15.1",
     "reconnecting-websocket": "~v4.4.0",
     "sanitize-html": "2.12.1",
     "scheduler": "^0.20.2",
