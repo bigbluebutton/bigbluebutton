@@ -1167,5 +1167,21 @@ module BigBlueButton
       return false
     end
 
+    def self.get_screenshare_as_content_events(events)
+      BigBlueButton.logger.info("Extracting SetScreenshareAsContentEvent")
+
+      screenshare_content_events = []
+
+      events.xpath("/recording/event[@eventname='SetScreenshareAsContentEvent']").each do |event|
+        screenshare_content_events << {
+          timestamp: event['timestamp'].to_i,
+          timestampUTC: event.at_xpath('timestampUTC')&.text.to_i,
+          date: event.at_xpath('date')&.text,
+          screenshareAsContent: event.at_xpath('screenshareAsContent')&.text == "true"
+        }
+      end
+
+      screenshare_content_events
+    end
   end
 end

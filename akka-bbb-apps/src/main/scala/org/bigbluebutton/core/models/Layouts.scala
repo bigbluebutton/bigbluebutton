@@ -85,7 +85,7 @@ class Layouts {
   private var cameraPosition: String = "contentTop";
   private var focusedCamera: String = "none";
   private var presentationVideoRate: Double = 0;
-  private var screenshareAsContent: Boolean = true;
+  private var screenshareAsContent: Boolean = false;
 }
 
 object LayoutsType {
