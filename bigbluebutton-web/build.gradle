@@ -74,7 +74,7 @@ dependencies {
   implementation "org.grails:grails-plugin-services"
   implementation "org.grails:grails-plugin-url-mappings"
   implementation "org.grails:grails-plugin-interceptors"
-  implementation 'org.grails.plugins:external-config:1.2.2'
+  implementation 'org.grails.plugins:external-config:2.0.0'
   implementation "org.yaml:snakeyaml:1.31"
   implementation "org.grails.plugins:views-json:2.1.1"
   implementation "org.grails.plugins:cache"
