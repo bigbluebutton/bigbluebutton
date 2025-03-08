@@ -181,7 +181,7 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
     const handleFocusMessageRequest = (e: Event) => {
       if (e instanceof CustomEvent) {
         if (e.detail.sequence) {
-          if (Math.ceil(e.detail.sequence / PAGE_SIZE) < firstPageToLoad) {
+          if (Math.ceil(e.detail.sequence / PAGE_SIZE) - 1 < firstPageToLoad) {
             Storage.setItem(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST, e.detail.sequence);
             return;
           }
