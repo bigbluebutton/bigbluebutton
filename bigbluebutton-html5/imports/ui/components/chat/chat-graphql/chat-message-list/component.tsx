@@ -202,6 +202,8 @@ const ChatMessageList: React.FC<ChatListProps> = ({
   const [followingTail, setFollowingTail] = React.useState(true);
   const [showStartSentinel, setShowStartSentinel] = React.useState(false);
   const [focusedMessageElement, setFocusedMessageElement] = React.useState<HTMLElement | null>();
+  const [loadingPages, setLoadingPages] = React.useState(new Set<number>());
+  const allPagesLoaded = loadingPages.size === 0;
   const {
     childRefProxy: endSentinelRefProxy,
     intersecting: isEndSentinelVisible,
@@ -302,6 +304,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
       if (followingTail) {
         toggleFollowingTail(false);
       }
+      if (!allPagesLoaded) return;
       setUserLoadedBackUntilPage((prev) => {
         if (typeof prev === 'number' && prev > 0) {
           return prev - 1;
@@ -457,6 +460,20 @@ const ChatMessageList: React.FC<ChatListProps> = ({
     endSentinelParentRefProxy.current = el;
   }, []);
 
+  const setPageLoading = useCallback((page: number) => {
+    setLoadingPages((prev) => {
+      prev.add(page);
+      return new Set(prev);
+    });
+  }, [setLoadingPages]);
+
+  const clearPageLoading = useCallback((page: number) => {
+    setLoadingPages((prev) => {
+      prev.delete(page);
+      return new Set(prev);
+    });
+  }, [setLoadingPages]);
+
   return (
     <>
       {
@@ -477,7 +494,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
               }
             }}
             onWheel={(e) => {
-              if (e.deltaY < 0 && isStartSentinelVisible) {
+              if (e.deltaY < 0 && isStartSentinelVisible && allPagesLoaded) {
                 setUserLoadedBackUntilPage((prev) => {
                   if (typeof prev === 'number' && prev > 0) {
                     return prev - 1;
@@ -536,6 +553,8 @@ const ChatMessageList: React.FC<ChatListProps> = ({
                     deleteReaction={deleteReaction}
                     sendReaction={sendReaction}
                     focusedSequence={Number(focusedMessageElement?.dataset.sequence)}
+                    clearPageLoading={clearPageLoading}
+                    setPageLoading={setPageLoading}
                   />
                 );
               })}
