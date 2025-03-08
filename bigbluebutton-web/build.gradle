@@ -114,7 +114,7 @@ dependencies {
   testImplementation "org.grails:grails-gorm-testing-support"
   testImplementation "org.grails.plugins:geb"
   testImplementation "org.grails:grails-web-testing-support"
-  testRuntimeOnly "org.seleniumhq.selenium:selenium-chrome-driver:4.0.0"
+  testRuntimeOnly "org.seleniumhq.selenium:selenium-chrome-driver:4.29.0"
   testRuntimeOnly "org.seleniumhq.selenium:selenium-htmlunit-driver:2.47.1"
   testRuntimeOnly "net.sourceforge.htmlunit:htmlunit:2.63.0"
   testImplementation "com.github.javafaker:javafaker:0.12"
