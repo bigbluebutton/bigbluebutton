@@ -79,7 +79,7 @@
     "langmap": "0.0.16",
     "livekit-client": "^2.8.1",
     "makeup-screenreader-trap": "0.0.5",
-    "mobx": "6.4.2",
+    "mobx": "6.13.6",
     "pg": "^8.11.3",
     "postcss-nested": "^5.0.6",
     "probe-image-size": "^7.2.3",
