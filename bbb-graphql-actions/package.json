@@ -30,7 +30,7 @@
     "@types/redis": "^4.0.11",
     "axios": "^1.7.8",
     "express": "^5.0.1",
-    "redis": "^4.6.10"
+    "redis": "^4.7.0"
   },
   "devDependencies": {
     "nodemon": "^3.0.1",
