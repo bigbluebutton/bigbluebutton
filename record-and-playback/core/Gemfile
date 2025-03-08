@@ -39,5 +39,5 @@ gem 'tzinfo', '>= 1.2.10'
 
 group :test, optional: true do
   gem 'rubocop', '~> 1.34.0'
-  gem 'minitest', '~> 5.14.1'
+  gem 'minitest', '~> 5.25.4'
 end
