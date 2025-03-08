@@ -24,7 +24,7 @@ GEM
     journald-native (1.0.12)
     json (2.7.2)
     jwt (2.5.0)
-    locale (2.1.3)
+    locale (2.1.4)
     loofah (2.19.1)
       crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
