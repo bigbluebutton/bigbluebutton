@@ -55,7 +55,7 @@ repositories {
 dependencies {
   runtimeOnly "com.bertramlabs.plugins:asset-pipeline-grails:4.3.0"
 
-  implementation "org.springframework:spring-core:5.3.31"
+  implementation "org.springframework:spring-core:6.2.3"
   implementation "org.springframework:spring-context:5.3.31"
   implementation "org.springframework.boot:spring-boot:${springVersion}"
   implementation "org.springframework.boot:spring-boot-starter-logging:${springVersion}"
