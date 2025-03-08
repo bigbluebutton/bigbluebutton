@@ -332,7 +332,7 @@ const QuickPollDropdown = (props) => {
     slideId, quickPollOptions, startPoll, pollTypes, layoutContextDispatch,
   );
 
-  if (quickPollOptions.length === 0) return null;
+  if (quickPollOptions.length === 0) return <Styled.QuickPollButtonPlaceholder aria-hidden />;
 
   let answers = null;
   let quickPollLabel = '';
