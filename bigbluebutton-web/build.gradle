@@ -12,7 +12,7 @@ buildscript {
     classpath "com.bertramlabs.plugins:asset-pipeline-gradle:4.3.0"
     classpath "gradle.plugin.com.github.erdi.webdriver-binaries:webdriver-binaries-gradle-plugin:2.6"
     classpath "org.grails.plugins:views-gradle:2.1.1"
-    classpath "org.grails.plugins:views-json:2.1.1"
+    classpath "org.grails.plugins:views-json:3.2.3"
   }
 }
 
@@ -77,7 +77,7 @@ dependencies {
   implementation "org.grails:grails-plugin-interceptors"
   implementation 'org.grails.plugins:external-config:1.2.2'
   implementation "org.yaml:snakeyaml:1.31"
-  implementation "org.grails.plugins:views-json:2.1.1"
+  implementation "org.grails.plugins:views-json:3.2.3"
   implementation "org.grails.plugins:cache"
   implementation "org.apache.xmlbeans:xmlbeans:5.0.3"
   implementation "org.grails:grails-gradle-plugin:${grailsGradlePluginVersion}"
