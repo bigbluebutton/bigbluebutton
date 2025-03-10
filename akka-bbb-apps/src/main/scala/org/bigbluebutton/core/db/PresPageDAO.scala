@@ -27,6 +27,8 @@ case class PresPageDbModel(
     maxImageHeight:  Int,
     uploadCompleted: Boolean,
     infiniteWhiteboard:  Boolean,
+    fitToWidth:  Boolean,
+
 )
 
 class PresPageDbTableDef(tag: Tag) extends Table[PresPageDbModel](tag, None, "pres_page") {
@@ -49,9 +51,10 @@ class PresPageDbTableDef(tag: Tag) extends Table[PresPageDbModel](tag, None, "pr
   val maxImageHeight = column[Int]("maxImageHeight")
   val uploadCompleted = column[Boolean]("uploadCompleted")
   val infiniteWhiteboard = column[Boolean]("infiniteWhiteboard")
+  val fitToWidth = column[Boolean]("fitToWidth")
 
   def * = (
-    pageId, presentationId, num, urlsJson, content, slideRevealed, current, xOffset, yOffset, widthRatio, heightRatio, width, height, viewBoxWidth, viewBoxHeight, maxImageWidth, maxImageHeight, uploadCompleted, infiniteWhiteboard
+    pageId, presentationId, num, urlsJson, content, slideRevealed, current, xOffset, yOffset, widthRatio, heightRatio, width, height, viewBoxWidth, viewBoxHeight, maxImageWidth, maxImageHeight, uploadCompleted, infiniteWhiteboard, fitToWidth
   ) <> (PresPageDbModel.tupled, PresPageDbModel.unapply)
 }
 
@@ -87,6 +90,7 @@ object PresPageDAO {
           maxImageHeight = 1080,
           uploadCompleted = page.converted,
           infiniteWhiteboard = page.infiniteWhiteboard,
+          fitToWidth = page.fitToWidth,
         )
       )
     )
@@ -129,6 +133,18 @@ object PresPageDAO {
     ).onComplete {
       case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated infiniteWhiteboard on PresPage table")
       case Failure(e)            => DatabaseConnection.logger.debug(s"Error updating infiniteWhiteboard on PresPage: $e")
+    }
+  }
+
+  def updateFitToWidth(pageId: String, fitToWidth: Boolean): Unit = {
+    DatabaseConnection.db.run(
+      TableQuery[PresPageDbTableDef]
+        .filter(_.pageId === pageId)
+        .map(p => p.fitToWidth)
+        .update(fitToWidth)
+    ).onComplete {
+      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated fitToWidth on PresPage table")
+      case Failure(e)            => DatabaseConnection.logger.debug(s"Error updating fitToWidth on PresPage: $e")
     }
   }
 }

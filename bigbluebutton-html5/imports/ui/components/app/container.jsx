@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useReactiveVar } from '@apollo/client';
+import { useMutation, useReactiveVar } from '@apollo/client';
 import AudioCaptionsLiveContainer from '/imports/ui/components/audio/audio-graphql/audio-captions/live/component';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import { useIsPresentationEnabled, useIsExternalVideoEnabled } from '/imports/ui/services/features';
@@ -19,12 +19,18 @@ import useSettings from '../../services/settings/hooks/useSettings';
 import { SETTINGS } from '../../services/settings/enums';
 import usePresentationSwap from '../../core/hooks/usePresentationSwap';
 import { LAYOUT_TYPE } from '../layout/enums';
+import { SET_PRESENTATION_FIT_TO_WIDTH } from './app-graphql/mutations';
+import { GET_CURR_PRESS_PAGE_INFO } from './app-graphql/queries';
 
 const AppContainer = (props) => {
   const {
     viewScreenshare,
   } = useSettings(SETTINGS.DATA_SAVING);
   const { isNotificationEnabled } = useReactiveVar(handleIsNotificationEnabled);
+
+  const {
+    data: currentPageInfo,
+  } = useDeduplicatedSubscription(GET_CURR_PRESS_PAGE_INFO);
 
   const {
     data: currentUser,
@@ -73,6 +79,7 @@ const AppContainer = (props) => {
   const isExternalVideoEnabled = useIsExternalVideoEnabled();
   const isPresentationEnabled = useIsPresentationEnabled();
   const [showScreenshare] = usePresentationSwap();
+  const [setPresentationFitToWidth] = useMutation(SET_PRESENTATION_FIT_TO_WIDTH);
 
   const isPresenter = currentUser?.presenter;
 
@@ -91,6 +98,18 @@ const AppContainer = (props) => {
   const shouldShowPresentation = (!shouldShowScreenshare && !isSharedNotesPinned
       && !shouldShowExternalVideo && !shouldShowGenericMainContent
       && (presentationIsOpen || presentationRestoreOnUpdate)) && isPresentationEnabled;
+  const currentPageInfoData = currentPageInfo?.pres_page_curr[0] ?? {};
+  const fitToWidth = currentPageInfoData?.fitToWidth ?? false;
+  const pageId = currentPageInfoData?.pageId ?? '';
+
+  const handlePresentationFitToWidth = (ftw) => {
+    setPresentationFitToWidth({
+      variables: {
+        pageId,
+        fitToWidth: ftw,
+      },
+    });
+  };
 
   // Update after editing app savings
   useEffect(() => {
@@ -106,6 +125,8 @@ const AppContainer = (props) => {
     ? (
       <App
         {...{
+          fitToWidth,
+          handlePresentationFitToWidth,
           hideActionsBar: getFromUserSettings('bbb_hide_actions_bar', false)
             || getFromUserSettings('bbb_hide_controls', false),
           isNonMediaLayout,
