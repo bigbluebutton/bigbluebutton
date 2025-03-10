@@ -642,6 +642,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
       $reactionPopoverIsOpen={isToolbarReactionPopoverOpen}
       data-test="chatMessageItem"
       $emphasizedMessage={message.chatEmphasizedText}
+      role="listitem"
     >
       <ChatMessageToolbar
         hasToolbar={hasToolbar && messageContent.showToolbar}
@@ -786,6 +787,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
                 dateTime={dateTime}
                 deleteTime={deleteTime}
                 editTime={editTime}
+                role="listitem"
               />
             )}
           </ChatHeading>

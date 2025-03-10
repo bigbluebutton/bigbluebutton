@@ -255,6 +255,7 @@ class App extends Component {
       genericMainContentId,
       hideNotificationToasts,
       isNotificationEnabled,
+      isNonMediaLayout,
     } = this.props;
 
     const {
@@ -291,7 +292,10 @@ class App extends Component {
           <SidebarContentContainer isSharedNotesPinned={isSharedNotesPinned} />
           <NavBarContainer main="new" />
           <WebcamContainer />
-          <ExternalVideoPlayerContainer />
+          {
+            !isNonMediaLayout
+              && <ExternalVideoPlayerContainer />
+          }
           <GenericContentMainAreaContainer
             genericMainContentId={genericMainContentId}
           />
@@ -307,7 +311,11 @@ class App extends Component {
             )
             : null
             }
-          <ScreenshareContainer shouldShowScreenshare={shouldShowScreenshare} />
+          {
+            !isNonMediaLayout
+            && <ScreenshareContainer shouldShowScreenshare={shouldShowScreenshare} />
+          }
+
           {isSharedNotesPinned
             ? (
               <NotesContainer

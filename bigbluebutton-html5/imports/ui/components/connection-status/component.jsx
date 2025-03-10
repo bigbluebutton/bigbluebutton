@@ -43,9 +43,13 @@ const ConnectionStatus = () => {
 
   const handleUpdateConnectionAliveAt = () => {
     const startTime = performance.now();
+    const fetchOptions = {
+      signal: AbortSignal.timeout ? AbortSignal.timeout(STATS_TIMEOUT) : undefined,
+    };
+
     fetch(
       `${getBaseUrl()}/rtt-check`,
-      { signal: AbortSignal.timeout(STATS_TIMEOUT) },
+      fetchOptions,
     )
       .then((res) => {
         if (res.ok && res.status === 200) {
@@ -75,6 +79,9 @@ const ConnectionStatus = () => {
               logCode: 'rtt_failed_to_register_user_history',
               extraInfo: {
                 error,
+                errorMessage: error.message,
+                errorStack: error.stack,
+                errorCause: error.cause,
               },
             }, 'Error registering user network history');
           }

@@ -3,8 +3,6 @@
 
 ## Overview
 
-### This document is still a draft, BigBlueButton 3.0 is under development
-
 BigBlueButton 3.0 offers users improved usability, increased engagement, and more performance.
 
 - **Usability** - making common functions (such as raise hand) easier
@@ -252,6 +250,10 @@ For full details on what is new in BigBlueButton 3.0, see the release notes.
 
 Recent releases:
 
+- [3.0.1](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.1)
+- [3.0.0](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0)
+- [3.0.0-rc.4](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-rc.4)
+- [3.0.0-rc.3](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-rc.3)
 - [3.0.0-rc.2](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-rc.2)
 - [3.0.0-rc.1](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-rc.1)
 - [3.0.0-beta.7](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-beta.7)

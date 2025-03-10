@@ -212,7 +212,7 @@ class PresentationToolbar extends PureComponent {
 
   nextSlideHandler(event) {
     const {
-      nextSlide, endCurrentPoll, currentSlide, setPresentationPageInfiniteWhiteboard,
+      nextSlide, currentSlide, setPresentationPageInfiniteWhiteboard,
     } = this.props;
     const isInfiniteWhiteboard = currentSlide?.infiniteWhiteboard;
 
@@ -220,13 +220,12 @@ class PresentationToolbar extends PureComponent {
 
     this.handleFTWSlideChange();
     if (event) event.currentTarget.blur();
-    endCurrentPoll();
     nextSlide();
   }
 
   previousSlideHandler(event) {
     const {
-      previousSlide, endCurrentPoll, currentSlide, setPresentationPageInfiniteWhiteboard,
+      previousSlide, currentSlide, setPresentationPageInfiniteWhiteboard,
     } = this.props;
 
     const isInfiniteWhiteboard = currentSlide?.infiniteWhiteboard;
@@ -235,7 +234,6 @@ class PresentationToolbar extends PureComponent {
 
     this.handleFTWSlideChange();
     if (event) event.currentTarget.blur();
-    endCurrentPoll();
     previousSlide();
   }
 
