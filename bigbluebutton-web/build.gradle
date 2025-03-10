@@ -95,7 +95,7 @@ dependencies {
   implementation "io.lettuce:lettuce-core:6.1.9.RELEASE"
   implementation "org.reactivestreams:reactive-streams:1.0.3"
   implementation "io.projectreactor:reactor-core:3.4.12"
-  implementation "org.freemarker:freemarker:2.3.31"
+  implementation "org.freemarker:freemarker:2.3.34"
   implementation "com.google.code.gson:gson:2.8.9"
   implementation "org.json:json:20231013"
   implementation "com.zaxxer:nuprocess:2.0.6"
