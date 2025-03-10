@@ -108,7 +108,7 @@ dependencies {
   implementation 'org.hibernate:hibernate-core:5.6.1.Final'
 
   //--- BigBlueButton Dependencies End
-  console "org.grails:grails-console:5.2.0"
+  console "org.grails:grails-console:6.2.3"
   profile "org.grails.profiles:web"
   runtimeOnly "com.bertramlabs.plugins:asset-pipeline-grails:4.3.0"
   testImplementation "org.grails:grails-gorm-testing-support"
