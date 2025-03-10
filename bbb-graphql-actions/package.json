@@ -33,7 +33,7 @@
     "redis": "^4.6.10"
   },
   "devDependencies": {
-    "nodemon": "^3.0.1",
+    "nodemon": "^3.1.9",
     "ts-node": "^10.9.1",
     "typescript": "^5.2.2"
   }
