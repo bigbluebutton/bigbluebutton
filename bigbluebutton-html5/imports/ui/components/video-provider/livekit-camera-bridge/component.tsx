@@ -10,7 +10,7 @@ import {
   RoomEvent,
   Track,
 } from 'livekit-client';
-import { useConnectionState } from '@livekit/components-react';
+import { useConnectionState, useTracks } from '@livekit/components-react';
 import { debounce } from '/imports/utils/debounce';
 import VideoService from '/imports/ui/components/video-provider/service';
 import VideoListContainer from '/imports/ui/components/video-provider/video-list/container';
@@ -97,6 +97,14 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
 }) => {
   const intl = useIntl();
   const connectionState = useConnectionState(liveKitRoom);
+  const cameraTracks = useTracks([Track.Source.Camera], {
+    room: liveKitRoom,
+    onlySubscribed: true,
+    updateOnlyOn: [
+      RoomEvent.TrackPublished, RoomEvent.TrackUnpublished,
+      RoomEvent.TrackSubscribed, RoomEvent.TrackUnsubscribed,
+    ],
+  });
   const [meetingSettings] = useMeetingSettings();
   const streamRefs = useRef<StreamRefs>({
     remoteTracks: {},
@@ -567,6 +575,7 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
     streams,
     currentVideoPageIndex,
     updateStreams,
+    cameraTracks,
   ]);
 
   useEffect(() => {

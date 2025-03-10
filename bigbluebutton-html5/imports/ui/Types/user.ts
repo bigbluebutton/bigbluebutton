@@ -26,6 +26,7 @@ export interface Voice {
   listenOnly: boolean;
   talking: boolean;
   muted: boolean;
+  deafened: boolean;
   voiceUserId: string;
   callerName: string;
   callerNum: string;

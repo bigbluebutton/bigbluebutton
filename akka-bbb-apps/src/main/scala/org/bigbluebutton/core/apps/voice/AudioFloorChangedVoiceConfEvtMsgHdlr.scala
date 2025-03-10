@@ -12,50 +12,18 @@ trait AudioFloorChangedVoiceConfEvtMsgHdlr {
 
   def handleAudioFloorChangedVoiceConfEvtMsg(msg: AudioFloorChangedVoiceConfEvtMsg): Unit = {
 
-    def broadcastEvent(vu: VoiceUserState): Unit = {
-      val routing = Routing.addMsgToClientRouting(
-        MessageTypes.BROADCAST_TO_MEETING,
-        liveMeeting.props.meetingProp.intId,
-        vu.intId
-      )
-      val envelope = BbbCoreEnvelope(AudioFloorChangedEvtMsg.NAME, routing)
-      val header = BbbClientMsgHeader(
-        AudioFloorChangedEvtMsg.NAME,
-        liveMeeting.props.meetingProp.intId, vu.intId
-      )
+    VoiceApp.releasedFloor(
+      liveMeeting,
+      outGW,
+      msg.body.oldVoiceUserId,
+      msg.body.floorTimestamp
+    )
 
-      val body = AudioFloorChangedEvtMsgBody(
-        voiceConf = msg.header.voiceConf,
-        intId = vu.intId,
-        voiceUserId = vu.voiceUserId,
-        floor = vu.floor,
-        lastFloorTime = msg.body.floorTimestamp
-      )
-
-      val event = AudioFloorChangedEvtMsg(header, body)
-      val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
-      outGW.send(msgEvent)
-    }
-
-    for {
-      oldFloorUser <- VoiceUsers.releasedFloor(
-        liveMeeting.voiceUsers,
-        msg.body.oldVoiceUserId,
-        floor = false
-      )
-    } yield {
-      broadcastEvent(oldFloorUser)
-    }
-
-    for {
-      newFloorUser <- VoiceUsers.becameFloor(
-        liveMeeting.voiceUsers,
-        msg.body.voiceUserId,
-        true,
-        msg.body.floorTimestamp
-      )
-    } yield {
-      broadcastEvent(newFloorUser)
-    }
+    VoiceApp.becameFloor(
+      liveMeeting,
+      outGW,
+      msg.body.voiceUserId,
+      msg.body.floorTimestamp
+    )
   }
 }

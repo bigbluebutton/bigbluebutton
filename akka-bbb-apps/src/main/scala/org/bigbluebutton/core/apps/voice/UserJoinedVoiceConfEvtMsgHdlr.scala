@@ -118,6 +118,7 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
         msg.body.callerIdNum,
         userColor,
         msg.body.muted,
+        deafened = false,
         msg.body.talking,
         "freeswitch",
         msg.body.hold,
