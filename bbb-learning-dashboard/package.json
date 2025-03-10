@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@emotion/react": "^11.10.5",
-    "@emotion/styled": "^11.10.5",
+    "@emotion/styled": "^11.14.0",
     "@mui/material": "^5.10.13",
     "@mui/x-data-grid": "^5.17.10",
     "react": "^17.0.2",
