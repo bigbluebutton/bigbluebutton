@@ -29,8 +29,6 @@ import Storage from '/imports/ui/services/storage/in-memory';
 import { getValueByPointer } from '/imports/utils/object-utils';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 
-const PAGE_SIZE = 50;
-
 interface ChatListPageCommonProps {
   firstPageToLoad: number;
   scrollRef: React.RefObject<HTMLDivElement>;
@@ -181,10 +179,6 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
     const handleFocusMessageRequest = (e: Event) => {
       if (e instanceof CustomEvent) {
         if (e.detail.sequence) {
-          if (Math.ceil(e.detail.sequence / PAGE_SIZE) - 1 < firstPageToLoad) {
-            Storage.setItem(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST, e.detail.sequence);
-            return;
-          }
           messageRefs.current[Number.parseInt(e.detail.sequence, 10)]?.requestFocus();
         }
       }

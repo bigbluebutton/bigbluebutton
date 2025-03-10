@@ -36,6 +36,7 @@ import {
 import { CHAT_DELETE_REACTION_MUTATION, CHAT_SEND_REACTION_MUTATION } from './page/chat-message/mutations';
 import logger from '/imports/startup/client/logger';
 import { ChatLoading } from '../component';
+import Storage from '/imports/ui/services/storage/in-memory';
 
 const PAGE_SIZE = 50;
 const CLEANUP_TIMEOUT = 3000;
@@ -337,6 +338,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
         if (Math.ceil(e.detail.sequence / PAGE_SIZE) - 1 >= firstPageToLoad) {
           return;
         }
+        Storage.setItem(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST, e.detail.sequence);
         toggleFollowingTail(false);
         setUserLoadedBackUntilPage(Math.ceil(e.detail.sequence / PAGE_SIZE) - 1);
       }
