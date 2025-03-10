@@ -16,13 +16,11 @@ interface AudioCaptionsLiveProps {
 const AudioCaptionsLive: React.FC<AudioCaptionsLiveProps> = ({
   captions,
 }) => {
-  const CAPTIONS_CONFIG = window.meetingClientSettings.public.captions;
-  const LINES_PER_MESSAGE = CAPTIONS_CONFIG.lines;
   return (
     <Styled.Wrapper>
       <>
         {
-          captions.length > 0 && captions.length <= LINES_PER_MESSAGE ? captions.map((caption) => {
+          captions.length > 0 ? captions.map((caption) => {
             const {
               user,
               captionText,
