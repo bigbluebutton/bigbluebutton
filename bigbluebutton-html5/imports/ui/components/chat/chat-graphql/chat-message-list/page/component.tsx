@@ -231,7 +231,7 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
         const previousMessage = messagesArray[index - 1];
         return (
           <ChatMessage
-            key={message.messageSequence}
+            key={`chat-message-${message.messageSequence}`}
             message={message}
             previousMessage={previousMessage}
             setRenderedChatMessages={setRenderedChatMessages}
