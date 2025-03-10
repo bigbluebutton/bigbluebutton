@@ -21,9 +21,9 @@ async function checkIsPresenter(test) {
   }, [e.currentUser, e.userAvatar])
 }
 
-async function checkMutedUsers(test) {
-  await test.wasRemoved(e.muteMicButton);
-  await test.hasElement(e.unmuteMicButton);
+async function checkMutedUser(test) {
+  await test.wasRemoved(e.muteMicButton, 'should not display mute mic button when user is muted');
+  await test.hasElement(e.unmuteMicButton, 'should display unmute mic button when user is muted');
 }
 
 async function drawArrow(test) {
@@ -48,6 +48,6 @@ exports.openLockViewers = openLockViewers;
 exports.setGuestPolicyOption = setGuestPolicyOption;
 exports.checkAvatarIcon = checkAvatarIcon;
 exports.checkIsPresenter = checkIsPresenter;
-exports.checkMutedUsers = checkMutedUsers;
+exports.checkMutedUser = checkMutedUser;
 exports.drawArrow = drawArrow;
 exports.timeInSeconds = timeInSeconds;

@@ -3,8 +3,8 @@ const playwright = require("playwright");
 const Page = require('../core/page');
 const e = require('../core/elements');
 const { sleep } = require('../core/helpers');
-const { checkTextContent, checkElementLengthEqualTo } = require('../core/util');
-const { checkAvatarIcon, checkIsPresenter, checkMutedUsers } = require('./util');
+const { checkTextContent } = require('../core/util');
+const { checkAvatarIcon, checkIsPresenter, checkMutedUser } = require('./util');
 const { getSettings } = require('../core/settings');
 const { ELEMENT_WAIT_TIME } = require('../core/constants');
 
@@ -229,16 +229,45 @@ class MultiUsers {
     await this.modPage.hasElement(e.multiUsersWhiteboardOn);
   }
 
+  async disabledUsersJoinMuted() {
+    // join user muted
+    await this.initUserPage(false);
+    await this.userPage.waitAndClick(e.microphoneButton);
+    await this.userPage.waitAndClick(e.joinEchoTestButton);
+    await this.userPage.wasRemoved(e.establishingAudioLabel, 'should stop displaying the establishing audio label when the first user joins audio');
+    await this.userPage.hasElement(e.unmuteMicButton, 'should display the unmute microphone button for the first user - joined muted');
+    // disabled user join muted
+    await this.modPage.waitAndClick(e.manageUsers);
+    await this.modPage.waitAndClick(e.usersJoinMuted);
+    // join user unmuted
+    await this.initUserPage2(false);
+    await this.userPage2.waitAndClick(e.microphoneButton);
+    await this.userPage2.waitAndClick(e.joinEchoTestButton);
+    await this.userPage2.wasRemoved(e.establishingAudioLabel, 'should stop displaying the establishing audio label when the second user joins audio');
+    await this.userPage2.hasElement(e.muteMicButton, 'should display the mute microphone button for the second user - joined unmuted');
+    // check if the talking indicator is displayed for everyone
+    await this.modPage.hasElement(e.isTalking, 'should display the talking indicator for the moderator');
+    await this.userPage.hasElement(e.isTalking, 'should display the talking indicator for the first user');
+    await this.userPage2.hasElement(e.isTalking, 'should display the talking indicator for the second user');
+  }
+
   async muteAllUsersExceptPresenter(){
+    // join audio
     await this.modPage.joinMicrophone();
     await this.modPage2.joinMicrophone();
     await this.userPage.joinMicrophone();
+    // mute all users except the presenter
     await this.modPage.waitAndClick(e.manageUsers);
     await this.modPage.waitAndClick(e.muteAllExceptPresenter);
-    
-    await this.modPage.hasElement(e.isTalking, 'should display the is talking element only for the moderator - 1 item');
-    await checkMutedUsers(this.modPage2);
-    await checkMutedUsers(this.userPage);
+    // check if presenter is not muted
+    await this.modPage.checkUserTalkingIndicator();
+    // check number of talking indicator's element
+    await this.modPage.checkElementCount(e.isTalking, 1, 'should display only the presenter talking indicator for the moderator');
+    await this.modPage2.checkElementCount(e.isTalking, 1, 'should display only the presenter talking indicator for the second moderator');
+    await this.modPage.checkElementCount(e.isTalking, 1, 'should display only the presenter talking indicator for the attendee');
+    // check join audio buttons for the users
+    await checkMutedUser(this.modPage2);
+    await checkMutedUser(this.userPage);
   }
 
   async removeUser() {
