@@ -14,7 +14,7 @@ GEM
     builder (3.2.4)
     concurrent-ruby (1.2.2)
     crass (1.0.6)
-    fastimage (2.2.6)
+    fastimage (2.4.0)
     ffi (1.15.5)
     i18n (1.14.1)
       concurrent-ruby (~> 1.0)
@@ -95,7 +95,7 @@ DEPENDENCIES
   absolute_time (~> 1.0)
   bbbevents (~> 2.0, >= 2.0.0)
   builder (~> 3.2)
-  fastimage (~> 2.1)
+  fastimage (~> 2.4)
   java_properties
   journald-logger (~> 3.0)
   jwt (~> 2.2)
