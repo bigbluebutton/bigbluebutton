@@ -214,8 +214,11 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
   }, [firstPageToLoad]);
 
   useEffect(() => {
-    if (typeof chatFocusMessageRequest === 'number') {
-      messageRefs.current[chatFocusMessageRequest]?.requestFocus();
+    if (
+      typeof chatFocusMessageRequest === 'number'
+      && messageRefs.current[chatFocusMessageRequest]
+    ) {
+      messageRefs.current[chatFocusMessageRequest].requestFocus();
       Storage.removeItem(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST);
     }
   }, []);
