@@ -202,6 +202,10 @@ const ExtraTools = styled.div`
     right: auto;
     left: 43px;
   }
+
+  ${({ isToolbarVisible }) => !isToolbarVisible && `
+    display: none;
+  `}
 `;
 
 export default {
