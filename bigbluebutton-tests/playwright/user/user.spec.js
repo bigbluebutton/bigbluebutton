@@ -248,8 +248,7 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
       await multiusers.disabledUsersJoinMuted();
     });
 
-    test('Mute all users except presenter', { tag: '@flaky' }, async ({ browser, context, page }) => {
-      // Feature not working, see https://github.com/bigbluebutton/bigbluebutton/issues/21174
+    test('Mute all users except presenter', async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initModPage(page, false);
       await multiusers.initModPage2(false);
