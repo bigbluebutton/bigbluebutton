@@ -11,9 +11,10 @@ require (
 	github.com/prometheus/client_golang v1.19.1
 	github.com/redis/go-redis/v9 v9.6.1
 	github.com/sirupsen/logrus v1.9.3
+	golang.org/x/time v0.8.0
 	golang.org/x/xerrors v0.0.0-20240716161551-93cc26a95ae9
 	gopkg.in/yaml.v3 v3.0.1
-	nhooyr.io/websocket v1.8.11
+	nhooyr.io/websocket v1.8.17
 )
 
 require (
@@ -28,6 +29,5 @@ require (
 	github.com/rogpeppe/go-internal v1.12.0 // indirect
 	github.com/stretchr/testify v1.9.0 // indirect
 	golang.org/x/sys v0.21.0 // indirect
-	golang.org/x/time v0.8.0 // indirect
 	google.golang.org/protobuf v1.33.0 // indirect
 )
