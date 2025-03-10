@@ -241,6 +241,8 @@ $ sudo mkdir -p /var/log/turnserver
 $ sudo chown turnserver:turnserver /var/log/turnserver
 ```
 
+It is strongly recommended that you use the logging configuration described. There seems to be a bug in coturn's internal log rotation that causes connection problems.
+
 ### Restart coturn
 
 With the above steps completed, restart the TURN server
