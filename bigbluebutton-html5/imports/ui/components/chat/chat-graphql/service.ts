@@ -1,16 +1,16 @@
 export const textToMarkdown = (message: string) => {
   const parsedMessage = message || '';
-
   const newLineRegex = /\r?\n/g;
 
-  // Process the message by separating code blocks from regular text
+  // Process the message by separating code blocks (multi-line and inline) from regular text
   const segments = [];
-  const CODE_BLOCK_REGEX = /```([\s\S]*?)```/g;
+  const MULTI_LINE_CODE_BLOCK_REGEX = /```([\s\S]*?)```/g;
+  const INLINE_CODE_REGEX = /`([^`]+)`/g;
 
+  // First pass: Extract multi-line code blocks
   let lastIndex = 0;
-  let match = CODE_BLOCK_REGEX.exec(parsedMessage);
+  let match = MULTI_LINE_CODE_BLOCK_REGEX.exec(parsedMessage);
 
-  // Extract code blocks
   while (match !== null) {
     // Add text before this code block (if any)
     if (match.index > lastIndex) {
@@ -27,7 +27,7 @@ export const textToMarkdown = (message: string) => {
     });
 
     lastIndex = match.index + match[0].length;
-    match = CODE_BLOCK_REGEX.exec(parsedMessage);
+    match = MULTI_LINE_CODE_BLOCK_REGEX.exec(parsedMessage);
   }
 
   // Add remaining text after last code block (if any)
@@ -46,9 +46,57 @@ export const textToMarkdown = (message: string) => {
     });
   }
 
-  // Process each segment appropriately
-  const processedSegments = segments.map((segment) => {
+  // Second pass: Process text segments to handle inline code blocks
+  const processedSegments = [];
+  for (const segment of segments) {
     if (segment.type === 'code') {
+      // Keep code blocks as-is
+      processedSegments.push(segment);
+    } else {
+      // For text segments, separate inline code blocks
+      const textContent = segment.content;
+      let textLastIndex = 0;
+      let inlineMatch = INLINE_CODE_REGEX.exec(textContent);
+
+      if (inlineMatch !== null) {
+        // Text contains inline code blocks
+        while (inlineMatch !== null) {
+          // Add text before this inline code (if any)
+          if (inlineMatch.index > textLastIndex) {
+            processedSegments.push({
+              type: 'text',
+              content: textContent.substring(textLastIndex, inlineMatch.index),
+            });
+          }
+
+          // Add the inline code
+          processedSegments.push({
+            type: 'inline-code',
+            content: inlineMatch[0],
+          });
+
+          textLastIndex = inlineMatch.index + inlineMatch[0].length;
+          inlineMatch = INLINE_CODE_REGEX.exec(textContent);
+        }
+
+        // Add remaining text after last inline code (if any)
+        if (textLastIndex < textContent.length) {
+          processedSegments.push({
+            type: 'text',
+            content: textContent.substring(textLastIndex),
+          });
+        }
+      } else {
+        // No inline code, keep the text segment as-is
+        processedSegments.push(segment);
+      }
+    }
+  }
+
+  // Process each segment appropriately
+  const finalSegments = processedSegments.map((segment) => {
+    if (segment.type === 'code' || segment.type === 'inline-code') {
+      // Keep code blocks (multi-line and inline) as-is
       return segment.content;
     }
 
@@ -66,7 +114,6 @@ export const textToMarkdown = (message: string) => {
       let imageMatch;
 
       // Extract image markdown
-      // eslint-disable-next-line no-cond-assign
       while ((imageMatch = IMAGE_REGEX.exec(content)) !== null) {
         // Add text before this image (if any)
         if (imageMatch.index > lastIdx) {
@@ -121,7 +168,6 @@ export const textToMarkdown = (message: string) => {
           let linkMatch;
 
           // Extract existing markdown links
-          // eslint-disable-next-line no-cond-assign
           while ((linkMatch = markdownLinkRegex.exec(textContent)) !== null) {
             // Add text before this link (if any)
             if (linkMatch.index > linkLastIdx) {
@@ -189,7 +235,6 @@ export const textToMarkdown = (message: string) => {
       let linkMatch;
 
       // Extract existing markdown links
-      // eslint-disable-next-line no-cond-assign
       while ((linkMatch = markdownLinkRegex.exec(content)) !== null) {
         // Add text before this link (if any)
         if (linkMatch.index > lastIdx) {
@@ -235,7 +280,7 @@ export const textToMarkdown = (message: string) => {
   });
 
   // Join all segments back together
-  const result = processedSegments.join('');
+  const result = finalSegments.join('');
 
   // Handle newlines and trim the result
   return result.trim().replace(newLineRegex, '  \n');
