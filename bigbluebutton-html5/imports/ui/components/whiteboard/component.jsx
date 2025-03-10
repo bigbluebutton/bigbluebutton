@@ -36,7 +36,7 @@ import { useMouseEvents, useCursor } from './hooks';
 import { notifyShapeNumberExceeded, getCustomEditorAssetUrls, getCustomAssetUrls } from './service';
 
 import NoopTool from './custom-tools/noop-tool/component';
-import { DeleteAllTool } from "./custom-tools/delete-all/component";
+import DeleteAllTool from "./custom-tools/delete-all/component";
 
 const CAMERA_TYPE = 'camera';
 
