@@ -4,6 +4,7 @@ const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 const { MultiUsers } = require('../user/multiusers');
 const { snapshotComparison } = require('./util');
 const { sleep } = require('../core/helpers');
+const presentationUtils = require('../presentation/util');
 
 class ShapeTools extends MultiUsers {
   constructor(browser, context) {
@@ -14,9 +15,19 @@ class ShapeTools extends MultiUsers {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await this.userPage.waitForSelector(e.whiteboard);
     await this.modPage.waitForSelector(e.resetZoomButton);
+    await this.modPage.setHeightWidthViewPortSize();
+    await this.userPage.setHeightWidthViewPortSize();
     const modWbLocator = this.modPage.getLocator(e.whiteboard);
     const wbBox = await modWbLocator.boundingBox();
     const zoomResetBtn = this.modPage.getLocator(e.resetZoomButton);
+    // skip slide and draw a line to avoid excessive pixels information in the screenshots
+    await presentationUtils.skipSlide(this.modPage);
+    await this.modPage.waitAndClick(e.wbShapesButton);
+    await this.modPage.waitAndClick(e.wbLineShape);
+    await this.modPage.page.mouse.move(wbBox.x + 0.3 * wbBox.width, wbBox.y + 0.3 * wbBox.height);
+    await this.modPage.page.mouse.down();
+    await this.modPage.page.mouse.move(wbBox.x + 0.7 * wbBox.width, wbBox.y + 0.7 * wbBox.height);
+    await this.modPage.page.mouse.up();
     // zoom in until 200%
     for(let i = 100; i < 200; i += 25) {
       const currentZoomLabel = await zoomResetBtn.textContent();
@@ -29,10 +40,8 @@ class ShapeTools extends MultiUsers {
     await this.modPage.page.mouse.down();
     await this.modPage.page.mouse.move(wbBox.x + 0.7 * wbBox.width, wbBox.y + 0.7 * wbBox.height);
     await this.modPage.page.mouse.up();
+    await sleep(1500);  // wait for the whiteboard to be stable (zoom and panning)
     // check if the whiteboard was panned
-    await this.modPage.setHeightWidthViewPortSize();
-    await this.userPage.setHeightWidthViewPortSize();
-    await sleep(1000);  // wait for the whiteboard to be stable
     await expect(modWbLocator).toHaveScreenshot('moderator-pan.png', {
       maxDiffPixels: 1000,
     });
