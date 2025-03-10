@@ -98,7 +98,7 @@ dependencies {
   implementation "org.freemarker:freemarker:2.3.31"
   implementation "com.google.code.gson:gson:2.8.9"
   implementation "org.json:json:20231013"
-  implementation "com.zaxxer:nuprocess:2.0.6"
+  implementation "com.zaxxer:nuprocess:3.0.0"
   implementation "net.java.dev.jna:jna:5.10.0"
   implementation "org.springframework.data:spring-data-commons:2.7.6"
 
