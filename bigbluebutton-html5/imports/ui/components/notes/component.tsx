@@ -158,6 +158,8 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
               'aria-label': intl.formatMessage(intlMessages.hide),
               label: intl.formatMessage(intlMessages.title),
             }}
+            data-test="notesHeader"
+            rightButtonProps={null}
             customRightButton={
               <NotesDropdown handlePinSharedNotes={handlePinSharedNotes} presentationEnabled={isPresentationEnabled} />
           }
