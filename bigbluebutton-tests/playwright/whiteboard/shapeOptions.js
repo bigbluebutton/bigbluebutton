@@ -24,13 +24,13 @@ class ShapeOptions extends MultiUsers {
     await this.modPage.page.mouse.move(wbBox.x + 0.7 * wbBox.width, wbBox.y + 0.7 * wbBox.height);
     await this.modPage.page.mouse.up();
     // check if the rectangle was drawn
-    await this.modPage.hasElement(e.wbDrawnShape);
-    await this.userPage.hasElement(e.wbDrawnShape);
+    await this.modPage.hasElement(e.wbDrawnShape, 'should display the drawn rectangle for the moderator');
+    await this.userPage.hasElement(e.wbDrawnShape, 'should display the drawn rectangle for the viewer');
     // duplicate the rectangle by pressing Ctrl+D
     await this.modPage.press('Control+D');
     // check if the rectangle was duplicated
-    await this.modPage.checkElementCount(e.wbDrawnShape, 2);
-    await this.userPage.checkElementCount(e.wbDrawnShape, 2);
+    await this.modPage.checkElementCount(e.wbDrawnShape, 2, 'should display the duplicated rectangle for the moderator');
+    await this.userPage.checkElementCount(e.wbDrawnShape, 2, 'should display the duplicated rectangle for the viewer');
     await snapshotComparison(this.modPage, this.userPage, 'duplicate');
   }
 

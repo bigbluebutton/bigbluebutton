@@ -60,8 +60,8 @@ class ShapeTools extends MultiUsers {
     await this.modPage.page.mouse.move(wbBox.x + 0.7 * wbBox.width, wbBox.y + 0.3 * wbBox.height);
     await this.modPage.page.mouse.up();
     // check if the line was removed
-    await this.modPage.wasRemoved(e.wbDrawnLine);
-    await this.userPage.wasRemoved(e.wbDrawnLine);
+    await this.modPage.wasRemoved(e.wbDrawnLine, 'should remove the drawn line for the moderator');
+    await this.userPage.wasRemoved(e.wbDrawnLine, 'should remove the drawn line for the viewer');
     await snapshotComparison(this.modPage, this.userPage, 'eraser');
   }
 
@@ -77,8 +77,8 @@ class ShapeTools extends MultiUsers {
     await this.modPage.page.mouse.move(wbBox.x + 0.7 * wbBox.width, wbBox.y + 0.7 * wbBox.height);
     await this.modPage.page.mouse.up();
     // check existence of the drawn arrow
-    await this.modPage.hasElement(e.wbDrawnArrow);
-    await this.userPage.hasElement(e.wbDrawnArrow);
+    await this.modPage.hasElement(e.wbDrawnArrow, 'should display the drawn shape for the moderator');
+    await this.userPage.hasElement(e.wbDrawnArrow, 'should display the drawn shape for the viewer');
     // delete the drawn arrow by 'Delete' key
     await this.modPage.press('Delete');
     await this.modPage.wasRemoved(e.wbDrawnArrow, 'should delete the drawn shape for the moderator by pressing the "Delete" key');
@@ -90,8 +90,8 @@ class ShapeTools extends MultiUsers {
     await this.modPage.page.mouse.move(wbBox.x + 0.7 * wbBox.width, wbBox.y + 0.7 * wbBox.height);
     await this.modPage.page.mouse.up();
     // check existence of the new drawn arrow
-    await this.modPage.hasElement(e.wbDrawnArrow);
-    await this.userPage.hasElement(e.wbDrawnArrow);
+    await this.modPage.hasElement(e.wbDrawnArrow, 'should display the new drawn shape for the moderator');
+    await this.userPage.hasElement(e.wbDrawnArrow, 'should display the new drawn shape for the viewer');
     // delete the drawn arrow by 'Backspace' key
     await this.modPage.press('Backspace');
     await this.modPage.wasRemoved(e.wbDrawnArrow, 'should delete the drawn shape for the moderator by pressing the "Backspace" key');
@@ -111,13 +111,13 @@ class ShapeTools extends MultiUsers {
     await this.modPage.page.mouse.move(wbBox.x + 0.7 * wbBox.width, wbBox.y + 0.7 * wbBox.height);
     await this.modPage.page.mouse.up();
     // check if the arrow was drawn
-    await this.modPage.hasElement(e.wbDrawnArrow);
-    await this.userPage.hasElement(e.wbDrawnArrow);
+    await this.modPage.hasElement(e.wbDrawnArrow, 'should display the drawn shape for the moderator');
+    await this.userPage.hasElement(e.wbDrawnArrow, 'should display the drawn shape for the viewer');
     // undo the drawn arrow
     await this.modPage.page.keyboard.press('Control+Z');
     // check if the arrow was removed
-    await this.modPage.wasRemoved(e.wbDrawnArrow);
-    await this.userPage.wasRemoved(e.wbDrawnArrow);
+    await this.modPage.wasRemoved(e.wbDrawnArrow, 'should remove the drawn shape for the moderator by pressing "Ctrl+Z"');
+    await this.userPage.wasRemoved(e.wbDrawnArrow, 'should remove the drawn shape for the viewer by pressing "Ctrl+Z"');
     await snapshotComparison(this.modPage, this.userPage, 'undo');
   }
 
@@ -126,8 +126,8 @@ class ShapeTools extends MultiUsers {
     // redo the undone arrow
     await this.modPage.page.keyboard.press('Control+Shift+Z');
     // check if the arrow reappeared
-    await this.modPage.hasElement(e.wbDrawnArrow);
-    await this.userPage.hasElement(e.wbDrawnArrow);
+    await this.modPage.hasElement(e.wbDrawnArrow, 'should display again the drawn shape for the moderator after redoing');
+    await this.userPage.hasElement(e.wbDrawnArrow, 'should display again the drawn shape for the viewer after redoing');
     await snapshotComparison(this.modPage, this.userPage, 'redo');
   }
 }
