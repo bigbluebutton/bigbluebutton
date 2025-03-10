@@ -14,6 +14,7 @@ import {
   InstancePresenceRecordType,
   setDefaultUiAssetUrls,
   setDefaultEditorAssetUrls,
+  toolbarItem,
 } from '@bigbluebutton/tldraw';
 import '@bigbluebutton/tldraw/tldraw.css';
 // eslint-disable-next-line import/no-extraneous-dependencies
@@ -35,6 +36,7 @@ import { useMouseEvents, useCursor } from './hooks';
 import { notifyShapeNumberExceeded, getCustomEditorAssetUrls, getCustomAssetUrls } from './service';
 
 import NoopTool from './custom-tools/noop-tool/component';
+import { DeleteAllTool } from "./custom-tools/delete-all/component";
 
 const CAMERA_TYPE = 'camera';
 
@@ -169,7 +171,35 @@ const Whiteboard = React.memo((props) => {
     }
   });
 
-  const customTools = [NoopTool];
+  const customTools = [NoopTool, DeleteAllTool];
+  const customUiOverrides = {
+    tools: (editor, tools) => {
+      const updatedTools = {
+        ...tools,
+        deleteAll: {
+          id: "delete-all",
+          label: intl?.messages["app.whiteboard.toolbar.clear"],
+          readonlyOk: false,
+          icon: "tool-delete-all",
+          onSelect() {
+            editor.deleteShapes(editor.getCurrentPageShapes().map(shape => {
+              if (currentUser?.presenter || (shape?.meta?.createdBy === currentUser?.userId)) {
+                return shape.id;
+              }
+              return '';
+            })?.filter(s => s?.length > 0));
+          },
+        },
+      };
+      return updatedTools;
+    },
+    toolbar: (_editor, toolbarItems, { tools }) => {
+      if (tools.deleteAll) {
+        toolbarItems.splice(7, 0, toolbarItem(tools.deleteAll));
+      }
+      return toolbarItems;
+    },
+  };
 
   const prevFitToWidth = usePrevious(fitToWidth);
   const presenterChanged = usePrevious(isPresenter) !== isPresenter;
@@ -1795,6 +1825,7 @@ const Whiteboard = React.memo((props) => {
         hideUi={!(hasWBAccessRef.current || isPresenter)}
         onMount={handleTldrawMount}
         tools={customTools}
+        overrides={customUiOverrides}
       />
       <Styled.TldrawV2GlobalStyle
         {...{
