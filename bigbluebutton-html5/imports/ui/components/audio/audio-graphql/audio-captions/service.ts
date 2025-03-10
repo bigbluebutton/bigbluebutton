@@ -50,7 +50,7 @@ export const splitTranscript = (obj: Caption) => {
       captionText: t,
       // if messages where split the captions will have a 'part' id
       captionId: `${obj.captionId}-${i}`,
-      };
+    };
   });
 };
 
