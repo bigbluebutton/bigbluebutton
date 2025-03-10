@@ -242,11 +242,10 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
       await multiusers.saveUserNames(testInfo);
     });
 
-    test('Mute all users', async ({ browser, context, page }) => {
+    test('Disable users join muted', async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
-      await multiusers.initModPage(page, false);
-      await multiusers.initModPage2(false);
-      await multiusers.initUserPage(false);
+      await multiusers.initModPage(page);
+      await multiusers.disabledUsersJoinMuted();
     });
 
     test('Mute all users except presenter', { tag: '@flaky' }, async ({ browser, context, page }) => {
