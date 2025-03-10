@@ -3,6 +3,7 @@ const e = require('../core/elements');
 const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 const { MultiUsers } = require('../user/multiusers');
 const { snapshotComparison } = require('./util');
+const { sleep } = require('../core/helpers');
 
 class ShapeTools extends MultiUsers {
   constructor(browser, context) {
@@ -31,12 +32,12 @@ class ShapeTools extends MultiUsers {
     // check if the whiteboard was panned
     await this.modPage.setHeightWidthViewPortSize();
     await this.userPage.setHeightWidthViewPortSize();
-    await expect(this.modPage.page).toHaveScreenshot('moderator-pan.png', {
-      mask: [this.modPage.getLocator(e.presentationTitle)],
+    await sleep(1000);  // wait for the whiteboard to be stable
+    await expect(modWbLocator).toHaveScreenshot('moderator-pan.png', {
       maxDiffPixels: 1000,
     });
-    await expect(this.userPage.page).toHaveScreenshot('viewer-pan.png', {
-      mask: [this.userPage.getLocator(e.presentationTitle)],
+    const userWbLocator = this.userPage.getLocator(e.whiteboard);
+    await expect(userWbLocator).toHaveScreenshot('viewer-pan.png', {
       maxDiffPixels: 1000,
     });
   }
