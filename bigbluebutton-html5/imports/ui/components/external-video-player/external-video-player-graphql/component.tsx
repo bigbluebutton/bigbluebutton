@@ -197,6 +197,11 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   const changeVolume = (newVolume: number) => {
     setVolume(newVolume);
     storage.setItem('externalVideoVolume', newVolume);
+    if (newVolume > 0) {
+      setMute(false);
+      const internalPlayer = playerRef.current?.getInternalPlayer();
+      internalPlayer?.unMute?.();
+    }
   };
 
   const handleDuration = (duration: number) => {
@@ -266,9 +271,14 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     if (isPresenter !== presenterRef.current) {
       const internalPlayer = playerRef.current?.getInternalPlayer();
       const playerVolume = internalPlayer?.getVolume();
+      const isMuted = internalPlayer?.isMuted();
       // the scale fiven by the player is 0 to 100, but the accepted scale is 0 to 1
       // So we need to divide by 100
       setVolume(playerVolume / 100);
+      if (isMuted) {
+        setMute(isMuted);
+        setVolume(0);
+      }
       clientReloadedRef.current = true;
       setPlayerKey(uniqueId('react-player'));
       presenterRef.current = isPresenter;
@@ -300,6 +310,9 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     }
     if (clientReloadedRef.current) {
       clientReloadedRef.current = false;
+      if ((!mute || volume > 0) && isPresenter) {
+        playerRef.current?.getInternalPlayer().unMute();
+      }
     }
   };
 
