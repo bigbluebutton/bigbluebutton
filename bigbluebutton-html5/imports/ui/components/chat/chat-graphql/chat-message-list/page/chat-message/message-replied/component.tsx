@@ -2,7 +2,7 @@ import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import Styled, { DeleteMessage } from './styles';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
-import { textToMarkdown } from '/imports/ui/components/chat/chat-graphql/service';
+import { messageToQuoteMarkdown } from '/imports/ui/components/chat/chat-graphql/service';
 
 const intlMessages = defineMessages({
   deleteMessage: {
@@ -23,12 +23,6 @@ const ChatMessageReplied: React.FC<MessageRepliedProps> = (props) => {
   } = props;
 
   const intl = useIntl();
-  const codeBlockRegExp = new RegExp('^```.*', 'gm');
-  const messageChunks = textToMarkdown(message).split('\n');
-  let repliedMessage = messageChunks[0];
-  if (repliedMessage.match(codeBlockRegExp) && messageChunks.length > 1) {
-    repliedMessage = `\`${messageChunks[1]}\``;
-  }
 
   return (
     <Styled.Container
@@ -53,7 +47,7 @@ const ChatMessageReplied: React.FC<MessageRepliedProps> = (props) => {
             allowedElements={window.meetingClientSettings.public.chat.allowedElements}
             unwrapDisallowed
           >
-            {repliedMessage}
+            {messageToQuoteMarkdown(message)}
           </Styled.Markdown>
         </Styled.Message>
       )}
