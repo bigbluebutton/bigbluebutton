@@ -1,9 +1,8 @@
 import styled from 'styled-components';
 import {
-  colorGrayDark,
-  colorGrayLighter,
-  colorGrayLightest, colorOffWhite,
-  colorText
+  colorGrayLightest,
+  colorOffWhite,
+  colorText,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
 interface ChatMessageProps {
