@@ -18,6 +18,7 @@ const ConnectionStatus = ({
   const STATS_TIMEOUT = window.meetingClientSettings.public.stats.timeout;
   const networkRttInMs = useRef(0); // Ref to store the last rtt
   const timeoutRef = useRef(null);
+  const firstRender = useRef(true);
 
   const [updateConnectionAliveAtM] = useMutation(UPDATE_CONNECTION_ALIVE_AT);
 
@@ -33,7 +34,7 @@ const ConnectionStatus = ({
     connectionStatus.setConnectionStatus(2000, 'critical');
   };
 
-  const handleUpdateConnectionAliveAt = () => {
+  const handleUpdateConnectionAliveAt = (userInfo) => {
     const startTime = performance.now();
     const fetchOptions = {
       signal: AbortSignal.timeout ? AbortSignal.timeout(STATS_TIMEOUT) : undefined,
@@ -61,7 +62,7 @@ const ConnectionStatus = ({
 
             if (Object.keys(rttLevels).includes(rttStatus)) {
               connectionStatus.addUserNetworkHistory(
-                user,
+                userInfo,
                 rttStatus,
                 Date.now(),
               );
@@ -102,11 +103,12 @@ const ConnectionStatus = ({
   };
 
   useEffect(() => {
+    clearTimeout(timeoutRef.current);
     // Delay first connectionAlive to avoid high RTT misestimation
     // due to initial subscription and mutation traffic at client render
     timeoutRef.current = setTimeout(() => {
-      handleUpdateConnectionAliveAt();
-    }, STATS_INTERVAL / 2);
+      handleUpdateConnectionAliveAt(user);
+    }, firstRender.current ? STATS_INTERVAL / 2 : STATS_INTERVAL);
 
     const STATS_ENABLED = window.meetingClientSettings.public.stats.enabled;
 
@@ -123,7 +125,7 @@ const ConnectionStatus = ({
         clearTimeout(timeoutRef.current);
       }
     };
-  }, []);
+  }, [user]);
 
   return null;
 };
