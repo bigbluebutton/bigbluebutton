@@ -142,7 +142,7 @@ export const messageToMarkdown = (message: string) => {
 };
 
 export const messageToQuoteMarkdown = (message: string | undefined): string => {
-  // this function will try to find the next line that doesn't begin with ``` or image
+  // this function will try to find the next line that doesn't begin with ``` or image, and is not empty
   if (!message) return '';
 
   const codeBlockRegExp = /^```/;
@@ -150,15 +150,15 @@ export const messageToQuoteMarkdown = (message: string | undefined): string => {
   const messageChunks = messageToMarkdown(message).split('\n');
 
   for (let i = 0; i < messageChunks.length; i += 1) {
-    let candidate = messageChunks[i];
+    let candidate = messageChunks[i].trim();
 
     if (codeBlockRegExp.test(candidate)) {
-      if (i + 1 < messageChunks.length && !codeBlockRegExp.test(messageChunks[i + 1])) {
+      if (i + 1 < messageChunks.length && !codeBlockRegExp.test(messageChunks[i + 1].trim())) {
         candidate = `\`${messageChunks[i + 1]}\``;
       }
     }
 
-    if (!codeBlockRegExp.test(candidate) && !imageRegExp.test(candidate)) {
+    if (!codeBlockRegExp.test(candidate) && !imageRegExp.test(candidate) && candidate !== '') {
       return candidate;
     }
   }
