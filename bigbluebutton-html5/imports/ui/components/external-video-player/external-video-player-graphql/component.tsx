@@ -198,7 +198,6 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     setVolume(newVolume);
     storage.setItem('externalVideoVolume', newVolume);
     if (newVolume > 0) {
-      setMute(false);
       const internalPlayer = playerRef.current?.getInternalPlayer();
       internalPlayer?.unMute?.();
     }
@@ -275,10 +274,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
       // the scale fiven by the player is 0 to 100, but the accepted scale is 0 to 1
       // So we need to divide by 100
       setVolume(playerVolume / 100);
-      if (isMuted) {
-        setMute(isMuted);
-        setVolume(0);
-      }
+      setMute(isMuted);
       clientReloadedRef.current = true;
       setPlayerKey(uniqueId('react-player'));
       presenterRef.current = isPresenter;
@@ -310,7 +306,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     }
     if (clientReloadedRef.current) {
       clientReloadedRef.current = false;
-      if ((!mute || volume > 0) && isPresenter) {
+      if (!mute && isPresenter) {
         playerRef.current?.getInternalPlayer().unMute();
       }
     }
@@ -440,7 +436,8 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
         {
           shouldShowTools() ? (
             <ExternalVideoPlayerToolbar
-              handleOnMuted={(m: boolean) => { setMute(m); }}
+              handleOnMuted={(m: boolean) => {
+                setMute(m); }}
               handleReload={() => setPlayerKey(uniqueId('react-player'))}
               setShowHoverToolBar={setShowHoverToolBar}
               toolbarStyle={toolbarStyle}
