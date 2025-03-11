@@ -5,7 +5,7 @@ import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
 import Tooltip from '/imports/ui/components/common/tooltip/container';
-import {messageToQuoteMarkdown} from "/imports/ui/components/chat/chat-graphql/service";
+import { messageToQuoteMarkdown } from '/imports/ui/components/chat/chat-graphql/service';
 
 const intlMessages = defineMessages({
   cancel: {
