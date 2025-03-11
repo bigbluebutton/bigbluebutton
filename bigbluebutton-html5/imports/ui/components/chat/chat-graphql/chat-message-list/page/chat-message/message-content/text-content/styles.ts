@@ -1,5 +1,10 @@
 import styled from 'styled-components';
-import { colorText } from '/imports/ui/stylesheets/styled-components/palette';
+import {
+  colorGrayDark,
+  colorGrayLighter,
+  colorGrayLightest, colorOffWhite,
+  colorText
+} from '/imports/ui/stylesheets/styled-components/palette';
 
 interface ChatMessageProps {
   systemMsg?: boolean;
@@ -25,6 +30,11 @@ export const ChatMessage = styled.div<ChatMessageProps>`
 
   & code {
     white-space: pre-wrap;
+    background-color: ${colorOffWhite};
+    border: solid 1px ${colorGrayLightest};
+    border-radius: 4px;
+    padding: 2px;
+    font-size: 12px;
   }
   & h1 {
     font-size: 1.5em;
