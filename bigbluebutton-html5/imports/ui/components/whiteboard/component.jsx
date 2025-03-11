@@ -1113,7 +1113,9 @@ const Whiteboard = React.memo((props) => {
       };
 
       if (!isPresenterRef.current && !hasWBAccessRef.current) {
-        editor.setCurrentTool('noop');
+        editor?.setCurrentTool('noop');
+      } else {
+        editor?.setCurrentTool('draw');
       }
     }
 
