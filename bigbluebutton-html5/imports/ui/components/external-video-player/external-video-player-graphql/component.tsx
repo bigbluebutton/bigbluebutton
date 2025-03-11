@@ -436,8 +436,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
         {
           shouldShowTools() ? (
             <ExternalVideoPlayerToolbar
-              handleOnMuted={(m: boolean) => {
-                setMute(m); }}
+              handleOnMuted={(m: boolean) => setMute(m)}
               handleReload={() => setPlayerKey(uniqueId('react-player'))}
               setShowHoverToolBar={setShowHoverToolBar}
               toolbarStyle={toolbarStyle}
