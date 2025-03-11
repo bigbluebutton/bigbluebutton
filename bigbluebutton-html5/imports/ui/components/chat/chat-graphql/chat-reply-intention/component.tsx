@@ -84,7 +84,11 @@ const ChatReplyIntention = () => {
       }}
     >
       <Styled.Message>
-        <Styled.Markdown>
+        <Styled.Markdown
+          linkTarget="_blank"
+          allowedElements={window.meetingClientSettings.public.chat.allowedElements}
+          unwrapDisallowed
+        >
           {messageToQuoteMarkdown(message)}
         </Styled.Markdown>
       </Styled.Message>
