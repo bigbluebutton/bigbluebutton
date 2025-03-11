@@ -23,7 +23,12 @@ const ChatMessageReplied: React.FC<MessageRepliedProps> = (props) => {
   } = props;
 
   const intl = useIntl();
+  const codeBlockRegExp = new RegExp('^```.*', 'gm');
   const messageChunks = textToMarkdown(message).split('\n');
+  let repliedMessage = messageChunks[0];
+  if (repliedMessage.match(codeBlockRegExp) && messageChunks.length > 1) {
+    repliedMessage = `\`${messageChunks[1]}\``;
+  }
 
   return (
     <Styled.Container
@@ -48,7 +53,7 @@ const ChatMessageReplied: React.FC<MessageRepliedProps> = (props) => {
             allowedElements={window.meetingClientSettings.public.chat.allowedElements}
             unwrapDisallowed
           >
-            {messageChunks[0]}
+            {repliedMessage}
           </Styled.Markdown>
         </Styled.Message>
       )}
