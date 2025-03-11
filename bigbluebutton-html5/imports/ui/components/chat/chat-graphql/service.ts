@@ -47,54 +47,57 @@ export const textToMarkdown = (message: string) => {
   }
 
   // Second pass: Process text segments to handle inline code blocks
-  const processedSegments = [];
-  for (const segment of segments) {
+  // @ts-ignore
+  const processedSegments = segments.reduce((acc, segment) => {
     if (segment.type === 'code') {
       // Keep code blocks as-is
-      processedSegments.push(segment);
-    } else {
-      // For text segments, separate inline code blocks
-      const textContent = segment.content;
-      let textLastIndex = 0;
-      let inlineMatch = INLINE_CODE_REGEX.exec(textContent);
-
-      if (inlineMatch !== null) {
-        // Text contains inline code blocks
-        while (inlineMatch !== null) {
-          // Add text before this inline code (if any)
-          if (inlineMatch.index > textLastIndex) {
-            processedSegments.push({
-              type: 'text',
-              content: textContent.substring(textLastIndex, inlineMatch.index),
-            });
-          }
-
-          // Add the inline code
-          processedSegments.push({
-            type: 'inline-code',
-            content: inlineMatch[0],
-          });
-
-          textLastIndex = inlineMatch.index + inlineMatch[0].length;
-          inlineMatch = INLINE_CODE_REGEX.exec(textContent);
-        }
-
-        // Add remaining text after last inline code (if any)
-        if (textLastIndex < textContent.length) {
-          processedSegments.push({
-            type: 'text',
-            content: textContent.substring(textLastIndex),
-          });
-        }
-      } else {
-        // No inline code, keep the text segment as-is
-        processedSegments.push(segment);
-      }
+      return [...acc, segment];
     }
-  }
+
+    // For text segments, separate inline code blocks
+    const textContent = segment.content;
+    let textLastIndex = 0;
+    let inlineMatch = INLINE_CODE_REGEX.exec(textContent);
+    const inlineSegments = [];
+
+    if (inlineMatch !== null) {
+      // Text contains inline code blocks
+      while (inlineMatch !== null) {
+        // Add text before this inline code (if any)
+        if (inlineMatch.index > textLastIndex) {
+          inlineSegments.push({
+            type: 'text',
+            content: textContent.substring(textLastIndex, inlineMatch.index),
+          });
+        }
+
+        // Add the inline code
+        inlineSegments.push({
+          type: 'inline-code',
+          content: inlineMatch[0],
+        });
+
+        textLastIndex = inlineMatch.index + inlineMatch[0].length;
+        inlineMatch = INLINE_CODE_REGEX.exec(textContent);
+      }
+
+      // Add remaining text after last inline code (if any)
+      if (textLastIndex < textContent.length) {
+        inlineSegments.push({
+          type: 'text',
+          content: textContent.substring(textLastIndex),
+        });
+      }
+
+      return [...acc, ...inlineSegments];
+    }
+
+    // No inline code, keep the text segment as-is
+    return [...acc, segment];
+  }, []);
 
   // Process each segment appropriately
-  const finalSegments = processedSegments.map((segment) => {
+  const finalSegments = processedSegments.map((segment: { type?: never; content: never; }) => {
     if (segment.type === 'code' || segment.type === 'inline-code') {
       // Keep code blocks (multi-line and inline) as-is
       return segment.content;
@@ -102,9 +105,15 @@ export const textToMarkdown = (message: string) => {
 
     const { content } = segment;
 
+    // Pre-process empty markdown links - fix links with empty description like [](https://bigbluebutton.org)
+    const EMPTY_LINK_REGEX = /\[\]\((https?:\/\/[^)]+)\)/g;
+    const contentWithFixedEmptyLinks = content.replace(EMPTY_LINK_REGEX, (_match: never, url: never) => {
+      return `[${url}](${url})`;
+    });
+
     // First, handle image markdown similar to how we handle links
     const IMAGE_REGEX = /!\[([^\]]*)\]\(([^)]*)\)/g;
-    const containsImages = IMAGE_REGEX.test(content);
+    const containsImages = IMAGE_REGEX.test(contentWithFixedEmptyLinks);
     IMAGE_REGEX.lastIndex = 0;
 
     if (containsImages) {
@@ -114,10 +123,11 @@ export const textToMarkdown = (message: string) => {
       let imageMatch;
 
       // Extract image markdown
-      while ((imageMatch = IMAGE_REGEX.exec(content)) !== null) {
+      // eslint-disable-next-line no-cond-assign
+      while ((imageMatch = IMAGE_REGEX.exec(contentWithFixedEmptyLinks)) !== null) {
         // Add text before this image (if any)
         if (imageMatch.index > lastIdx) {
-          const textBefore = content.substring(lastIdx, imageMatch.index);
+          const textBefore = contentWithFixedEmptyLinks.substring(lastIdx, imageMatch.index);
           imageParts.push({
             type: 'text',
             content: textBefore,
@@ -134,10 +144,10 @@ export const textToMarkdown = (message: string) => {
       }
 
       // Add remaining text after last image (if any)
-      if (lastIdx < content.length) {
+      if (lastIdx < contentWithFixedEmptyLinks.length) {
         imageParts.push({
           type: 'text',
-          content: content.substring(lastIdx),
+          content: contentWithFixedEmptyLinks.substring(lastIdx),
         });
       }
 
@@ -168,6 +178,7 @@ export const textToMarkdown = (message: string) => {
           let linkMatch;
 
           // Extract existing markdown links
+          // eslint-disable-next-line no-cond-assign
           while ((linkMatch = markdownLinkRegex.exec(textContent)) !== null) {
             // Add text before this link (if any)
             if (linkMatch.index > linkLastIdx) {
@@ -217,6 +228,8 @@ export const textToMarkdown = (message: string) => {
     }
 
     // If no images, proceed with link processing as before
+    const fixedContent = contentWithFixedEmptyLinks;
+
     // URL regex without lookbehind
     const urlRegex = /(http(s)?:\/\/)[-a-zA-Z0-9@:%._+~#=,ß]{2,256}\.[a-z0-9]{2,6}\b([-a-zA-Z0-9@:%_+.~#!?&//=,ß]*)?/g;
 
@@ -224,7 +237,7 @@ export const textToMarkdown = (message: string) => {
     const markdownLinkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
 
     // Check if content already contains markdown links
-    const hasMarkdownLinks = markdownLinkRegex.test(content);
+    const hasMarkdownLinks = markdownLinkRegex.test(fixedContent);
     markdownLinkRegex.lastIndex = 0;
 
     // If content already has markdown links, use a different approach
@@ -235,10 +248,11 @@ export const textToMarkdown = (message: string) => {
       let linkMatch;
 
       // Extract existing markdown links
-      while ((linkMatch = markdownLinkRegex.exec(content)) !== null) {
+      // eslint-disable-next-line no-cond-assign
+      while ((linkMatch = markdownLinkRegex.exec(fixedContent)) !== null) {
         // Add text before this link (if any)
         if (linkMatch.index > lastIdx) {
-          const textBefore = content.substring(lastIdx, linkMatch.index);
+          const textBefore = fixedContent.substring(lastIdx, linkMatch.index);
           parts.push({
             type: 'text',
             content: textBefore,
@@ -255,10 +269,10 @@ export const textToMarkdown = (message: string) => {
       }
 
       // Add remaining text after last link (if any)
-      if (lastIdx < content.length) {
+      if (lastIdx < fixedContent.length) {
         parts.push({
           type: 'text',
-          content: content.substring(lastIdx),
+          content: fixedContent.substring(lastIdx),
         });
       }
 
@@ -276,7 +290,7 @@ export const textToMarkdown = (message: string) => {
     }
 
     // If no existing markdown links, simply convert all URLs
-    return content.replace(urlRegex, '[$&]($&)');
+    return fixedContent.replace(urlRegex, '[$&]($&)');
   });
 
   // Join all segments back together
