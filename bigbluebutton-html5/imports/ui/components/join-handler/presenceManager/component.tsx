@@ -8,6 +8,7 @@ import {
   GetUserInfoResponse,
   userJoinMutation,
 } from './queries';
+import updateMeetingStatusForPlugin from './utils';
 import { setAuthData } from '/imports/ui/core/local-states/useAuthData';
 import MeetingEndedContainer from '../../meeting-ended/component';
 import { setUserDataToSessionStorage } from './service';
@@ -162,9 +163,13 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
 
   const errorCode = loggedOut ? 'user_logged_out_reason' : joinErrorCode || ejectReasonCode;
 
+  const renderMeeting = allowToRender && !(meetingEnded || joinErrorCode || ejectReasonCode || loggedOut);
+
+  updateMeetingStatusForPlugin(renderMeeting);
+
   return (
     <>
-      {allowToRender && !(meetingEnded || joinErrorCode || ejectReasonCode || loggedOut) ? children : null}
+      {renderMeeting ? children : null}
       {
         meetingEnded || joinErrorCode || ejectReasonCode || loggedOut
           ? (
