@@ -1077,6 +1077,7 @@ public:
         - note
         - rectangle
         - delete-all
+        - highlight
         - more
         - actions
       multiUserTools:
@@ -1089,6 +1090,7 @@ public:
         - note
         - rectangle
         - delete-all
+        - highlight
         - more
         - actions
   clientLog:
