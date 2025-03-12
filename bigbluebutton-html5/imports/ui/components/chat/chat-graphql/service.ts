@@ -1,5 +1,11 @@
 export const messageToMarkdown = (message: string) => {
   const parsedMessage = message || '';
+
+  // this function is mostly used to convert links to markdown, so it can skip if it doesn't contain http
+  if (parsedMessage.indexOf('http') === -1) {
+    return parsedMessage;
+  }
+
   const newLineRegex = /\r?\n/g;
 
   // Regex definitions
