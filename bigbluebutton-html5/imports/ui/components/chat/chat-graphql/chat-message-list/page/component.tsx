@@ -14,7 +14,6 @@ import {
 import { HookEvents } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/enum';
 import { UpdatedEventDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
 import { DomElementManipulationHooks } from 'bigbluebutton-html-plugin-sdk/dist/cjs/dom-element-manipulation/enums';
-import { CircularProgress } from '@mui/material';
 import {
   CHAT_MESSAGE_PUBLIC_SUBSCRIPTION,
   CHAT_MESSAGE_PRIVATE_SUBSCRIPTION,
@@ -28,7 +27,7 @@ import { useStorageKey, STORAGES } from '/imports/ui/services/storage/hooks';
 import Storage from '/imports/ui/services/storage/in-memory';
 import { getValueByPointer } from '/imports/utils/object-utils';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
-import Styled from './styles';
+import ChatPageLoading from './loader/component';
 
 const PAGE_SIZE = 50;
 
@@ -369,14 +368,6 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
       sendReaction={sendReaction}
       focusedSequence={focusedSequence}
     />
-  );
-};
-
-const ChatPageLoading = () => {
-  return (
-    <Styled.ChatPageLoading>
-      <CircularProgress />
-    </Styled.ChatPageLoading>
   );
 };
 
