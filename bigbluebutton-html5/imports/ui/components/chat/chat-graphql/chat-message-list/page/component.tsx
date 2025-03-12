@@ -139,6 +139,7 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
   const messageRefs = useRef<Record<number, ChatMessageRef | null>>({});
   const chatFocusMessageRequest = useStorageKey(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST, STORAGES.IN_MEMORY);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const scrollHeightBeforeRender = useRef(scrollRef.current?.scrollHeight || 0);
 
   const [renderedChatMessages, setRenderedChatMessages] = useState<MessageDetails[]>([]);
   useEffect(() => {
@@ -226,6 +227,12 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
   const updateMessageRef = useCallback((ref: ChatMessageRef | null) => {
     if (!ref) return;
     messageRefs.current[ref.sequence] = ref;
+  }, []);
+
+  useEffect(() => {
+    if (!scrollRef.current) return;
+    // eslint-disable-next-line no-param-reassign
+    scrollRef.current.scrollTop = scrollRef.current.scrollHeight - scrollHeightBeforeRender.current;
   }, []);
 
   return (
