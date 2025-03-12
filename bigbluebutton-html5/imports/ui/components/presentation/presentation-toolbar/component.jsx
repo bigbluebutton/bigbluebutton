@@ -112,11 +112,6 @@ class PresentationToolbar extends PureComponent {
   constructor(props) {
     super(props);
 
-    this.state = {
-      wasFTWActive: false,
-    };
-
-    this.setWasActive = this.setWasActive.bind(this);
     this.handleFTWSlideChange = this.handleFTWSlideChange.bind(this);
     this.handleSkipToSlideChange = this.handleSkipToSlideChange.bind(this);
     this.change = this.change.bind(this);
@@ -132,20 +127,6 @@ class PresentationToolbar extends PureComponent {
     document.addEventListener('keydown', this.switchSlide);
   }
 
-  componentDidUpdate(prevProps) {
-    const {
-      zoom, setIsPanning, fitToWidth, fitToWidthHandler, currentSlideNum,
-    } = this.props;
-    const { wasFTWActive } = this.state;
-
-    if ((prevProps?.currentSlideNum !== currentSlideNum) && (!fitToWidth && wasFTWActive)) {
-      setTimeout(() => {
-        fitToWidthHandler();
-        this.setWasActive(false);
-      }, 350);
-    }
-  }
-
   componentWillUnmount() {
     document.removeEventListener('keydown', this.switchSlide);
   }
@@ -154,7 +135,6 @@ class PresentationToolbar extends PureComponent {
     const { fitToWidth, fitToWidthHandler } = this.props;
     if (fitToWidth) {
       fitToWidthHandler();
-      this.setWasActive(fitToWidth);
     }
   }
 
@@ -182,10 +162,6 @@ class PresentationToolbar extends PureComponent {
       return removeWhiteboardGlobalAccess(whiteboardId);
     }
     return addWhiteboardGlobalAccess(whiteboardId);
-  }
-
-  setWasActive(wasFTWActive) {
-    this.setState({ wasFTWActive });
   }
 
   fullscreenToggleHandler() {

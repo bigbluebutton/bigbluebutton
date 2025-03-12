@@ -1481,7 +1481,7 @@ const Whiteboard = React.memo((props) => {
         );
       }, isMountedPollingFrameRef);
     });
-  }, [presentationHeight, presentationWidth, curPageId, presentationId, isPresenter]);
+  }, [presentationHeight, presentationWidth, curPageId, presentationId]);
 
   React.useEffect(() => {
     if (!isPresenter

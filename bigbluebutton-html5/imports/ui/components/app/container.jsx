@@ -27,9 +27,7 @@ const AppContainer = (props) => {
     viewScreenshare,
   } = useSettings(SETTINGS.DATA_SAVING);
   const { isNotificationEnabled } = useReactiveVar(handleIsNotificationEnabled);
-  const { data: currentPageInfo } = useDeduplicatedSubscription(
-    CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
-  );
+
   const {
     data: currentUser,
   } = useCurrentUser((u) => ({
@@ -45,6 +43,15 @@ const AppContainer = (props) => {
     layout: m.layout,
     componentsFlags: m.componentsFlags,
   }));
+
+  const { data: currentPageInfo } = useDeduplicatedSubscription(
+    CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
+    {
+      // presenter can be undefinend leading to a bug
+      // eslint-disable-next-line no-unneeded-ternary
+      skip: currentUser?.presenter ? false : true,
+    },
+  );
 
   const presentationRestoreOnUpdate = getFromUserSettings(
     'bbb_force_restore_presentation_on_new_events',
