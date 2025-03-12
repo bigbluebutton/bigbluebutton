@@ -29,8 +29,6 @@ import Storage from '/imports/ui/services/storage/in-memory';
 import { getValueByPointer } from '/imports/utils/object-utils';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 
-const PAGE_SIZE = 50;
-
 interface ChatListPageCommonProps {
   firstPageToLoad: number;
   scrollRef: React.RefObject<HTMLDivElement>;
@@ -52,12 +50,15 @@ interface ChatListPageCommonProps {
   focusedSequence: number;
   sendReaction: (reactionEmoji: string, reactionEmojiId: string, chatId: string, messageId: string) => void;
   deleteReaction: (reactionEmoji: string, reactionEmojiId: string, chatId: string, messageId: string) => void;
+  allPagesLoaded: boolean;
 }
 
 interface ChatListPageContainerProps extends ChatListPageCommonProps {
   pageSize: number;
   setLastSender: (page: number, message: string) => void;
   chatId: string;
+  setPageLoading: (page: number) => void;
+  clearPageLoading: (page: number) => void;
 }
 
 interface ChatListPageProps extends ChatListPageCommonProps {
@@ -79,6 +80,7 @@ const propsToCompare = [
   'chatReactionsEnabled',
   'chatReplyEnabled',
   'focusedSequence',
+  'allPagesLoaded',
 ] as const;
 const messagePropsToCompare = [
   'messageId',
@@ -131,6 +133,7 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
   deleteReaction,
   sendReaction,
   focusedSequence,
+  allPagesLoaded,
 }) => {
   const { domElementManipulationIdentifiers } = useContext(PluginsContext);
   const messageRefs = useRef<Record<number, ChatMessageRef | null>>({});
@@ -181,10 +184,6 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
     const handleFocusMessageRequest = (e: Event) => {
       if (e instanceof CustomEvent) {
         if (e.detail.sequence) {
-          if (Math.ceil(e.detail.sequence / PAGE_SIZE) < firstPageToLoad) {
-            Storage.setItem(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST, e.detail.sequence);
-            return;
-          }
           messageRefs.current[Number.parseInt(e.detail.sequence, 10)]?.requestFocus();
         }
       }
@@ -214,11 +213,15 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
   }, [firstPageToLoad]);
 
   useEffect(() => {
-    if (typeof chatFocusMessageRequest === 'number') {
-      messageRefs.current[chatFocusMessageRequest]?.requestFocus();
+    if (
+      typeof chatFocusMessageRequest === 'number'
+      && messageRefs.current[chatFocusMessageRequest]
+      && allPagesLoaded
+    ) {
+      messageRefs.current[chatFocusMessageRequest].requestFocus();
       Storage.removeItem(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST);
     }
-  }, []);
+  }, [allPagesLoaded]);
 
   const updateMessageRef = useCallback((ref: ChatMessageRef | null) => {
     if (!ref) return;
@@ -292,6 +295,9 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
   deleteReaction,
   sendReaction,
   focusedSequence,
+  clearPageLoading,
+  setPageLoading,
+  allPagesLoaded,
 }) => {
   const CHAT_CONFIG = window.meetingClientSettings.public.chat;
   const PUBLIC_GROUP_CHAT_KEY = CHAT_CONFIG.public_group_id;
@@ -323,8 +329,14 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
     // component will unmount
     return () => {
       setLoadedMessageGathering(page, []);
+      clearPageLoading(page);
     };
   }, []);
+
+  useEffect(() => {
+    const callback = loading ? setPageLoading : clearPageLoading;
+    callback(page);
+  }, [page, loading]);
 
   if (loading) return <ChatLoading isRTL={document.dir === 'rtl'} />;
   if (!chatMessageData) return null;
@@ -357,6 +369,7 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
       deleteReaction={deleteReaction}
       sendReaction={sendReaction}
       focusedSequence={focusedSequence}
+      allPagesLoaded={allPagesLoaded}
     />
   );
 };
