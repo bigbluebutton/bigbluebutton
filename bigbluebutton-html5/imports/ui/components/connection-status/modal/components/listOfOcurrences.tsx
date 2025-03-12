@@ -30,7 +30,7 @@ const intlMessages = defineMessages({
     id: 'app.connection-status.statusCritical',
   },
   recentReport: {
-    id: 'app.connection-status.recentReport',
+    id: 'app.connection-status.recentReports',
   },
 });
 
