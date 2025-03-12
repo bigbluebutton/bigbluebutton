@@ -48,7 +48,8 @@ const Startup = () => {
     // will strip that so the errors can hopefully be grouped better.
     if (message) message = message.replace(/^Uncaught/, '').trim();
 
-    let { stack } = e.error;
+    let stack = {};
+    stack = e.error?.stack;
 
     // Checks if stack includes the message, if not add the two together.
     if (!stack.includes(message)) {
