@@ -33,14 +33,14 @@ or
 $ npm test chat -- --project="firefox" # or "chromium" for example
 ```
 
-#### Npm-scripts parameters
+### Npm-scripts parameters
 
 Run fully parallel mode:
 ```bash
 $ npm test chat --parallel -- --project chromium
 ```
 
-#### Additional commands
+### Additional commands
 
 To see the tests running visually, you must run them in headed mode:
 ```bash
@@ -64,7 +64,7 @@ If you don't have `BBB_URL` and `BBB_SECRET` set, but have ssh access to the tes
 $ npm run test:ssh -- HOSTNAME
 ```
 
-#### Recording Meteor messages
+## Recording Meteor messages
 
 A modified version of `websockify` can be used to record the Meteor messages exchanged between client and server, by inserted a WebSocket proxy between the client and server, configured to record the sessions.
 
@@ -107,7 +107,10 @@ Meteor messages for Big Blue Button sessions will now be recorded for later revi
 
 It doesn't seem necessary to relay cookies, but that could be done by giving a `--ws-relay-header=Cookie` argument to `websockify`.
 
+## Print browser logs
+
 You can print the browser console log to standard output by setting the environment variable `CONSOLE`:
+
 ```
 $ CONSOLE= npm test chat -- --project=firefox
 ```
@@ -121,3 +124,27 @@ $ CONSOLE= npm test chat -- --project=firefox
 | norefs | remove JavaScript reference URLs |
 | nots   | remove timestamps |
 | nocl   | remove "clientLogger:" strings |
+
+## Check test results
+
+After opening a PR, the CI will run automated tests within your changes + target branch merged. When it finishes testing, generated files of the execution are exposed to be downloaded in the action run tab. the files / data is used mostly for exploring failures. To check the test results locally:
+
+- Go to the action run link (or simply click on the link in the bot's PR comment)
+
+![alt text](core/docs/images/pr-bot-comment.png)
+
+- Scroll down until you see `test-report` artifacts. You can choose downloading **all** data or only the shard data that contains tests failing for a faster download (named `test-reports_shard-<SHARD-NUMBER>`):
+
+![alt text](core/docs/images/artifacts-list.png)
+
+- Click to download and extract the content, preferably, in a folder that already has Playwright installed. You can do it in the `bigbluebutton/bigbluebutton-tests/playwright` folder with the dependencies installed ([see Setup instructions](#setup-with-an-existing-bigbluebutton-server))
+
+  - We suggest the folder to be named with the prefix `test-results` as it will be ignored by git
+
+- Run the following command to serve up the reported files:
+  - you might want to use it in a different port than the default `9323`. use `--port <PORT>` then
+
+```sh
+$ npx playwright show-report <results-folder-name>
+```
+- Access the logged URL to check the test report (if needed, check the [Playwright official documentation](https://playwright.dev/docs/trace-viewer-intro#opening-the-html-report))
