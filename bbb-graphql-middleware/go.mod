@@ -1,6 +1,6 @@
 module bbb-graphql-middleware
 
-go 1.23.6
+go 1.24.1
 
 require (
 	dario.cat/mergo v1.0.1
@@ -29,7 +29,6 @@ require (
 	github.com/prometheus/common v0.62.0 // indirect
 	github.com/prometheus/procfs v0.15.1 // indirect
 	github.com/rogpeppe/go-internal v1.12.0 // indirect
-	github.com/stretchr/testify v1.10.0 // indirect
 	golang.org/x/sys v0.30.0 // indirect
 	google.golang.org/protobuf v1.36.5 // indirect
 )
