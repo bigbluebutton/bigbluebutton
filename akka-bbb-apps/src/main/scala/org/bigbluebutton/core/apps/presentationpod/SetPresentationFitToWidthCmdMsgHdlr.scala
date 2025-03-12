@@ -12,13 +12,9 @@ trait SetPresentationFitToWidthCmdMsgHdlr extends RightsManagementTrait {
       msg: SetPresentationFitToWidthCmdMsg, state: MeetingState2x,
       liveMeeting: LiveMeeting, bus: MessageBus
   ): MeetingState2x = {
-    if (liveMeeting.props.meetingProp.disabledFeatures.contains("infiniteWhiteboard")) {
+    if (permissionFailed(PermissionCheck.GUEST_LEVEL, PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
       val meetingId = liveMeeting.props.meetingProp.intId
-      val reason = "Infinite whiteboard is disabled for this meeting."
-      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
-    } else if (permissionFailed(PermissionCheck.GUEST_LEVEL, PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
-      val meetingId = liveMeeting.props.meetingProp.intId
-      val reason = "No permission to set infinite whiteboard."
+      val reason = "No permission to set fit to width."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
     } else {
       val pageId = msg.body.pageId
