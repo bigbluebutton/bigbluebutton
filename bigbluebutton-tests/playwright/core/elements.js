@@ -461,7 +461,7 @@ exports.whiteboard = 'div[data-testid="canvas"]';
 exports.wbLayer = 'div[data-testid="layer"]';
 exports.wbToolbar = 'div[class^="tlui-toolbar__tools tlui-toolbar__tools__mobile"]';
 exports.wbShapesButton = 'button[data-testid="tools.more"]';
-exports.wbRectangleShape = 'button[data-testid="tools.rectangle"]';
+exports.wbRectangleShape = 'button[data-testid="tools.more.rectangle"]';
 exports.wbEllipseShape = 'button[data-testid="tools.more.ellipse"]';
 exports.wbTriangleShape = 'button[data-testid="tools.more.triangle"]';
 exports.wbLineShape = 'button[data-testid="tools.more.line"]';
