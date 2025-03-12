@@ -1,4 +1,5 @@
 {
+    "app.test": "Test",
     "app.home.greeting": "Your presentation will begin shortly ...",
     "app.chat.submitLabel": "Send message",
     "app.chat.loading": "Chat messages loaded: {0}%",
@@ -1144,7 +1145,7 @@
     "app.connection-status.statusWarning": "the user status is warning with ping of {0} ms at {1}",
     "app.connection-status.statusDanger": "the user status is danger with ping of {0} ms at {1}",
     "app.connection-status.statusCritical": "the user status is critical with ping of {0} ms at {1}",
-    "app.connection-status.recentReports ": "Recent reports",
+    "app.connection-status.recentReports": "Recent reports",
     "app.notificationBar.connectionCode3001": "Reconnection in progress (code 3001)",
     "app.notificationBar.connectionCode3002": "Unable to connect. Please check your internet connection (code 3002)",
     "app.notificationBar.connectionCode3003": "Server is currently not responding. Reconnection in progress (code 3003)",
