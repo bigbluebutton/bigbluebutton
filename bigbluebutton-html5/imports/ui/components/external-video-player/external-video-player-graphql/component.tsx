@@ -264,6 +264,11 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
 
   useEffect(() => {
     if (isPresenter !== presenterRef.current) {
+      const internalPlayer = playerRef.current?.getInternalPlayer();
+      const playerVolume = internalPlayer?.getVolume();
+      // the scale fiven by the player is 0 to 100, but the accepted scale is 0 to 1
+      // So we need to divide by 100
+      setVolume(playerVolume / 100);
       clientReloadedRef.current = true;
       setPlayerKey(uniqueId('react-player'));
       presenterRef.current = isPresenter;
@@ -581,7 +586,7 @@ const ExternalVideoPlayerContainer: React.FC = () => {
   const { element } = fullscreen;
   const fullscreenContext = (element === fullscreenElementId);
   const [key, setKey] = React.useState(uniqueId('react-player'));
-  if (!currentUser || !currentMeeting?.externalVideo) return null;
+  if (!currentUser || !currentMeeting?.externalVideo || !externalVideo?.display) return null;
   if (!hasExternalVideoOnLayout) return null;
   const playerPlaybackRate = currentMeeting.externalVideo?.playerPlaybackRate ?? 1;
   const isPresenter = currentUser.presenter ?? false;

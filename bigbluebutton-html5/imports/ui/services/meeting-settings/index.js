@@ -13,6 +13,7 @@ const subHash = stringToHash(JSON.stringify({
 
 window.addEventListener('graphqlSubscription', (e) => {
   const { subscriptionHash, response } = e.detail;
+  if (!response) return;
   if (subscriptionHash === subHash) {
     const { data } = response;
     if (data) {

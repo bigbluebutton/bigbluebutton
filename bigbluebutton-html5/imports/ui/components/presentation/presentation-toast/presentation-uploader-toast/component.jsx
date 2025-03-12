@@ -411,14 +411,14 @@ function renderToastExportItem(item, intl) {
   );
 }
 
-function renderExportToast(presToShow, intl) {
+function renderExportToast(presToShow, intl, exportToastId) {
   const isAllExported = presToShow.every(
     (p) => p.exportToChatStatus === EXPORT_STATUSES.EXPORTED,
   );
-  const shouldDismiss = isAllExported && this.exportToastId;
+  const shouldDismiss = isAllExported && exportToastId;
 
   if (shouldDismiss) {
-    handleDismissToast(this.exportToastId);
+    handleDismissToast(exportToastId);
     return null;
   }
 
@@ -502,11 +502,11 @@ export const PresentationUploaderToast = ({
     if (exportingPres && exportingPres.length > 0) {
       if (toast.isActive(exportToastIdRef.current)) {
         toast.update(exportToastIdRef.current, {
-          render: renderExportToast(exportingPres, intl),
+          render: renderExportToast(exportingPres, intl, exportToastIdRef.current),
         });
       } else {
         toast(
-          renderExportToast(exportingPres, intl), {
+          renderExportToast(exportingPres, intl, exportToastIdRef.current), {
             hideProgressBar: true,
             autoClose: false,
             newestOnTop: true,

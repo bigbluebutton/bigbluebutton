@@ -6,6 +6,7 @@ import { useIsPresentationEnabled, useIsExternalVideoEnabled } from '/imports/ui
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import {
+  layoutSelect,
   layoutSelectInput,
   layoutSelectOutput,
 } from '../layout/context';
@@ -17,6 +18,7 @@ import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscri
 import useSettings from '../../services/settings/hooks/useSettings';
 import { SETTINGS } from '../../services/settings/enums';
 import usePresentationSwap from '../../core/hooks/usePresentationSwap';
+import { LAYOUT_TYPE } from '../layout/enums';
 
 const AppContainer = (props) => {
   const {
@@ -58,7 +60,11 @@ const AppContainer = (props) => {
   const presentation = layoutSelectInput((i) => i.presentation);
   const sharedNotesInput = layoutSelectInput((i) => i.sharedNotes);
   const { hideNotificationToasts } = layoutSelectInput((i) => i.notificationsBar);
-
+  const layoutType = layoutSelect((i) => i.layoutType);
+  const isNonMediaLayout = [
+    LAYOUT_TYPE.CAMERAS_ONLY,
+    LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY,
+  ].includes(layoutType);
   const setSpeechOptions = useSetSpeechOptions();
   const { data: pinnedPadData } = useDeduplicatedSubscription(PINNED_PAD_SUBSCRIPTION);
   const isSharedNotesPinnedFromGraphql = !!pinnedPadData
@@ -102,6 +108,7 @@ const AppContainer = (props) => {
         {...{
           hideActionsBar: getFromUserSettings('bbb_hide_actions_bar', false)
             || getFromUserSettings('bbb_hide_controls', false),
+          isNonMediaLayout,
           currentUserAway: currentUser.away,
           currentUserRaiseHand: currentUser.raiseHand,
           captionsStyle,

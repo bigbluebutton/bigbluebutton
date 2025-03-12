@@ -73,7 +73,10 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
   }
 
   if (networkError) {
-    connectionStatus.setSubscriptionFailed(true);
+    const isMutation = networkError.message.includes('graphql actions request failed');
+    if (!isMutation) {
+      connectionStatus.setSubscriptionFailed(true);
+    }
     logger.error(`[Network error]: ${networkError}`);
   }
 });

@@ -136,6 +136,7 @@ const UserNotesGraphql: React.FC<UserNotesGraphqlProps> = (props) => {
         role="button"
         tabIndex={0}
         active={notesOpen}
+        aria-expanded={notesOpen}
         data-test="sharedNotesButton"
         onClick={() => toggleNotesPanel(sidebarContentPanel, layoutContextDispatch)}
         // @ts-ignore

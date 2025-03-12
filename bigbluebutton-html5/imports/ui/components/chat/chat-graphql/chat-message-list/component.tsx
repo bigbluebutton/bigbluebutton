@@ -36,6 +36,7 @@ import {
 import { CHAT_DELETE_REACTION_MUTATION, CHAT_SEND_REACTION_MUTATION } from './page/chat-message/mutations';
 import logger from '/imports/startup/client/logger';
 import { ChatLoading } from '../component';
+import Storage from '/imports/ui/services/storage/in-memory';
 
 const PAGE_SIZE = 50;
 const CLEANUP_TIMEOUT = 3000;
@@ -204,6 +205,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
   const [focusedMessageElement, setFocusedMessageElement] = React.useState<HTMLElement | null>();
   const [loadingPages, setLoadingPages] = useState(new Set<number>());
   const [lockLoadingNewPages, setLockLoadingNewPages] = useState(true);
+  const allPagesLoaded = loadingPages.size === 0;
   const {
     childRefProxy: endSentinelRefProxy,
     intersecting: isEndSentinelVisible,
@@ -338,6 +340,10 @@ const ChatMessageList: React.FC<ChatListProps> = ({
   useEffect(() => {
     const handler = (e: Event) => {
       if (e instanceof CustomEvent) {
+        if (Math.ceil(e.detail.sequence / PAGE_SIZE) - 1 >= firstPageToLoad) {
+          return;
+        }
+        Storage.setItem(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST, e.detail.sequence);
         toggleFollowingTail(false);
         setUserLoadedBackUntilPage(Math.ceil(e.detail.sequence / PAGE_SIZE) - 1);
       }
@@ -561,6 +567,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
                     focusedSequence={Number(focusedMessageElement?.dataset.sequence)}
                     clearPageLoading={clearPageLoading}
                     setPageLoading={setPageLoading}
+                    allPagesLoaded={allPagesLoaded}
                   />
                 );
               })}
