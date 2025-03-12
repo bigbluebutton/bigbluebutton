@@ -1,5 +1,5 @@
-name: Upload blob report
-description: Merge and upload the blob report to GitHub Actions Artifacts
+name: Merge and upload blob reports
+description: Merge and upload the blob reports to GitHub Actions Artifacts
 runs:
   using: composite
   steps:
@@ -31,6 +31,4 @@ runs:
       with:
         name: tests-report
         overwrite: true
-        path: |
-          bigbluebutton-tests/playwright/playwright-report
-          bigbluebutton-tests/playwright/test-results
+        path: bigbluebutton-tests/playwright/playwright-report

@@ -1,5 +1,5 @@
 node_modules/
 .env
-test-results/
+test-results*/
 playwright-report/
 blob-report/
