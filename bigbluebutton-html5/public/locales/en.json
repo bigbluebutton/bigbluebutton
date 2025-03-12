@@ -1,5 +1,4 @@
 {
-    "app.test": "Test",
     "app.home.greeting": "Your presentation will begin shortly ...",
     "app.chat.submitLabel": "Send message",
     "app.chat.loading": "Chat messages loaded: {0}%",
