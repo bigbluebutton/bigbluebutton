@@ -20,18 +20,16 @@ import { SETTINGS } from '../../services/settings/enums';
 import usePresentationSwap from '../../core/hooks/usePresentationSwap';
 import { LAYOUT_TYPE } from '../layout/enums';
 import { SET_PRESENTATION_FIT_TO_WIDTH } from './app-graphql/mutations';
-import { GET_CURR_PRESS_PAGE_INFO } from './app-graphql/queries';
+import { CURRENT_PRESENTATION_PAGE_SUBSCRIPTION } from '../whiteboard/queries';
 
 const AppContainer = (props) => {
   const {
     viewScreenshare,
   } = useSettings(SETTINGS.DATA_SAVING);
   const { isNotificationEnabled } = useReactiveVar(handleIsNotificationEnabled);
-
-  const {
-    data: currentPageInfo,
-  } = useDeduplicatedSubscription(GET_CURR_PRESS_PAGE_INFO);
-
+  const { data: currentPageInfo } = useDeduplicatedSubscription(
+    CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
+  );
   const {
     data: currentUser,
   } = useCurrentUser((u) => ({
