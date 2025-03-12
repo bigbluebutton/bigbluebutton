@@ -112,7 +112,6 @@ class PresentationToolbar extends PureComponent {
   constructor(props) {
     super(props);
 
-    this.handleFTWSlideChange = this.handleFTWSlideChange.bind(this);
     this.handleSkipToSlideChange = this.handleSkipToSlideChange.bind(this);
     this.change = this.change.bind(this);
     this.renderAriaDescs = this.renderAriaDescs.bind(this);
@@ -131,13 +130,6 @@ class PresentationToolbar extends PureComponent {
     document.removeEventListener('keydown', this.switchSlide);
   }
 
-  handleFTWSlideChange() {
-    const { fitToWidth, fitToWidthHandler } = this.props;
-    if (fitToWidth) {
-      fitToWidthHandler();
-    }
-  }
-
   handleSkipToSlideChange(event) {
     const { skipToSlide, currentSlide, setPresentationPageInfiniteWhiteboard } = this.props;
     const requestedSlideNum = Number.parseInt(event.target.value, 10);
@@ -146,7 +138,6 @@ class PresentationToolbar extends PureComponent {
 
     if (isInfiniteWhiteboard) setPresentationPageInfiniteWhiteboard(false);
 
-    this.handleFTWSlideChange();
     if (event) event.currentTarget.blur();
     skipToSlide(requestedSlideNum);
   }
@@ -194,7 +185,6 @@ class PresentationToolbar extends PureComponent {
 
     if (isInfiniteWhiteboard) setPresentationPageInfiniteWhiteboard(false);
 
-    this.handleFTWSlideChange();
     if (event) event.currentTarget.blur();
     nextSlide();
   }
@@ -208,7 +198,6 @@ class PresentationToolbar extends PureComponent {
 
     if (isInfiniteWhiteboard) setPresentationPageInfiniteWhiteboard(false);
 
-    this.handleFTWSlideChange();
     if (event) event.currentTarget.blur();
     previousSlide();
   }
