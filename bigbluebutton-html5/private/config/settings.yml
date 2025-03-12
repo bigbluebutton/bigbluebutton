@@ -1076,6 +1076,7 @@ public:
         - text
         - note
         - rectangle
+        - highlight
         - more
         - actions
       multiUserTools:
@@ -1087,6 +1088,7 @@ public:
         - text
         - note
         - rectangle
+        - highlight
         - more
         - actions
   clientLog:
