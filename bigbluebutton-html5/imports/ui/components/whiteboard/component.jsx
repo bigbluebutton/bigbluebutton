@@ -1113,7 +1113,9 @@ const Whiteboard = React.memo((props) => {
       };
 
       if (!isPresenterRef.current && !hasWBAccessRef.current) {
-        editor.setCurrentTool('noop');
+        editor?.setCurrentTool('noop');
+      } else {
+        editor?.setCurrentTool('draw');
       }
     }
 
@@ -1406,7 +1408,7 @@ const Whiteboard = React.memo((props) => {
       zoomChanger(HUNDRED_PERCENT);
       zoomSlide(HUNDRED_PERCENT, HUNDRED_PERCENT, 0, 0);
     }
-  }, [fitToWidth, isPresenter]);
+  }, [fitToWidth]);
 
   React.useEffect(() => {
     if (
@@ -1681,7 +1683,6 @@ const Whiteboard = React.memo((props) => {
 
   React.useEffect(() => {
     setTldrawIsMounting(true);
-    isPresenterRef?.current && zoomChanger(HUNDRED_PERCENT);
     return () => {
       isMountedRef.current = false;
       localStorage.removeItem('initialViewBoxWidth');
