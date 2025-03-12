@@ -174,7 +174,7 @@ const TldrawV2GlobalStyle = createGlobalStyle`
   }
 
   [data-testid="tools.delete-all"] {
-    display: flex !important;
+    display: flex;
   }
 
   ${({ presentationHeight }) => {
