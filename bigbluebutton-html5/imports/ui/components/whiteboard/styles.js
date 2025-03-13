@@ -173,6 +173,10 @@ const TldrawV2GlobalStyle = createGlobalStyle`
     background-color: white !important;
   }
 
+  [data-testid="tools.delete-all"] {
+    display: flex;
+  }
+
   ${({ presentationHeight }) => {
     const minRange = { height: 345, top: 14 };
     const maxRange = { height: 1200, top: 384 };
@@ -189,7 +193,7 @@ const TldrawV2GlobalStyle = createGlobalStyle`
     const topValue = interpolateTop(presentationHeight);
 
     let additionalStyles = '';
-    if (presentationHeight <= 375) {
+    if (presentationHeight <= 405) {
       additionalStyles += `
         .tlui-layout__mobile .tlui-button__tool > .tlui-icon {
           height: 10px !important;

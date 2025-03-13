@@ -149,7 +149,8 @@ For more information check the [pull request](https://github.com/bigbluebutton/b
 #### S3-based cache for presentation assets
 
 BigBlueButton now supports caching for presentation assets at Amazon S3/Minio or similar.
-For details check the [server customization](/administration/customize/#configure-s3-based-cache-for-presentation-assets) portion of the documents.
+For details check the [server customization](/administration/customize/#configure-s3-based-cache-for-presentation-assets) portion of the documents and see the new `/create` parameter to control it per meeting in the [API reference](/development/api/#get-post-create).
+
 
 #### Support for ClamAV as presentation file scanner
 
