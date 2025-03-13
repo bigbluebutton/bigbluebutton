@@ -204,6 +204,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
   const [showStartSentinel, setShowStartSentinel] = React.useState(false);
   const [focusedMessageElement, setFocusedMessageElement] = React.useState<HTMLElement | null>();
   const [loadingPages, setLoadingPages] = useState(new Set<number>());
+  const [lockLoadingNewPages, setLockLoadingNewPages] = useState(true);
   const allPagesLoaded = loadingPages.size === 0;
   const {
     childRefProxy: endSentinelRefProxy,
@@ -305,8 +306,10 @@ const ChatMessageList: React.FC<ChatListProps> = ({
       if (followingTail) {
         toggleFollowingTail(false);
       }
+      if (lockLoadingNewPages) return;
       setUserLoadedBackUntilPage((prev) => {
         if (typeof prev === 'number' && prev > 0) {
+          setLockLoadingNewPages(true);
           return prev - 1;
         }
         return prev;
@@ -478,6 +481,10 @@ const ChatMessageList: React.FC<ChatListProps> = ({
     });
   }, [setLoadingPages]);
 
+  useEffect(() => {
+    setLockLoadingNewPages(loadingPages.size !== 0);
+  }, [loadingPages]);
+
   return (
     <>
       {
@@ -498,9 +505,10 @@ const ChatMessageList: React.FC<ChatListProps> = ({
               }
             }}
             onWheel={(e) => {
-              if (e.deltaY < 0 && isStartSentinelVisible) {
+              if (e.deltaY < 0 && isStartSentinelVisible && !lockLoadingNewPages) {
                 setUserLoadedBackUntilPage((prev) => {
                   if (typeof prev === 'number' && prev > 0) {
+                    setLockLoadingNewPages(true);
                     return prev - 1;
                   }
                   return prev;

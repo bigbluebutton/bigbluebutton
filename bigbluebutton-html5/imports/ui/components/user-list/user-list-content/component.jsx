@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { GenericSidekickContent } from 'bigbluebutton-html-plugin-sdk';
 import Styled from './styles';
 import UserListParticipants from './user-participants/user-list-participants/component';
 import ChatList from './user-messages/chat-list/component';

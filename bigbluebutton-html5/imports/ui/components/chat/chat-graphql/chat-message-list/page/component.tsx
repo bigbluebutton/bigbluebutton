@@ -22,12 +22,12 @@ import {
 import { Message } from '/imports/ui/Types/message';
 import ChatMessage, { ChatMessageRef } from './chat-message/component';
 import { setLoadedMessageGathering } from '/imports/ui/core/hooks/useLoadedChatMessages';
-import { ChatLoading } from '../../component';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
 import { useStorageKey, STORAGES } from '/imports/ui/services/storage/hooks';
 import Storage from '/imports/ui/services/storage/in-memory';
 import { getValueByPointer } from '/imports/utils/object-utils';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import ChatPageLoading from './loader/component';
 
 interface ChatListPageCommonProps {
   firstPageToLoad: number;
@@ -139,6 +139,7 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
   const messageRefs = useRef<Record<number, ChatMessageRef | null>>({});
   const chatFocusMessageRequest = useStorageKey(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST, STORAGES.IN_MEMORY);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const scrollHeightBeforeRender = useRef(scrollRef.current?.scrollHeight || 0);
 
   const [renderedChatMessages, setRenderedChatMessages] = useState<MessageDetails[]>([]);
   useEffect(() => {
@@ -226,6 +227,12 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
   const updateMessageRef = useCallback((ref: ChatMessageRef | null) => {
     if (!ref) return;
     messageRefs.current[ref.sequence] = ref;
+  }, []);
+
+  useEffect(() => {
+    if (!scrollRef.current) return;
+    // eslint-disable-next-line no-param-reassign
+    scrollRef.current.scrollTop = scrollRef.current.scrollHeight - scrollHeightBeforeRender.current;
   }, []);
 
   return (
@@ -338,7 +345,7 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
     callback(page);
   }, [page, loading]);
 
-  if (loading) return <ChatLoading isRTL={document.dir === 'rtl'} />;
+  if (loading) return <ChatPageLoading />;
   if (!chatMessageData) return null;
   if (chatMessageData.length > 0 && chatMessageData[chatMessageData.length - 1].user?.userId) {
     setLastSender(page, chatMessageData[chatMessageData.length - 1].user?.userId);
