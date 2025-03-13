@@ -14,13 +14,24 @@ while [ $# -gt 0 ]; do
       echo
       exit 0
     fi
+    REMOTE="$REMOTE_OVERRIDE"
     shift; shift
     continue
   fi
-
-  usage
   exit 1
 done
+
+# Remove directories and files related to previous build (otherwise it would crash).
+echo Removing directories and files from previous builds
+if [ -d versioned_docs ]; then
+  rm -rf versioned_docs
+fi
+if [ -d versioned_sidebars ]; then
+  rm -rf versioned_sidebars
+fi
+if [ -f versions.json ]; then
+  rm versions.json
+fi
 
 # Build the docs for these tags (the last tag of old major releases)
 # We build the docs for historical reasons. The branch no longer exists
@@ -36,7 +47,7 @@ BRANCHES=(
   v3.0.x-release
 )
 
-git fetch --all
+git fetch "$REMOTE"
 git fetch --tags
 current_branch=$(git rev-parse --abbrev-ref HEAD)
 
