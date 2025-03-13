@@ -1281,7 +1281,8 @@ After a restart of nginx, your customized favicon.ico will be delivered. This ch
 
 The configuration file for the HTML5 client is located in `/usr/share/bigbluebutton/html5-client/private/config/settings.yml`. It contains all the settings for the HTML5 client.
 
-To change the title, edit `settings.yml` and change the entry for `public.app.clientTitle`
+We recommend you make any adjustments to these configurations in the override file `/etc/bigbluebutton/bbb-html5.yml` so they are not lost when updating the system.
+To change the title, edit `bbb-html5.yml` and change the entry for `public.app.clientTitle`
 
 ```yaml
 public:
@@ -1290,11 +1291,10 @@ public:
     clientTitle: BigBlueButton
 ```
 
-You'll need to update this entry each time the package `bbb-html5` updates. The following script can help automate the change
+The following command can be used too.
 
 ```bash
-$ TARGET=/usr/share/bigbluebutton/html5-client/private/config/settings.yml
-$ yq e -i ".public.app.clientTitle = \"New Title\"" $TARGET
+$ yq e -i ".public.app.clientTitle = \"New Title\"" /etc/bigbluebutton/bbb-html5.yml
 ```
 
 #### Apply lock settings to restrict webcams
@@ -1381,15 +1381,6 @@ sudo yq e -i '.gladia.startMessage = "{\"x_gladia_key\": \"<gladia-api-key>\", \
 ```
 
 Restart the BigBlueButton server with `bbb-conf --restart`.  You will now be able to select a speech-to-text option when joining audio (including auto translate).  When one or more users have selected the option, a CC button will appear at the bottom and a Transcript panel will also be available.
-
-
-#### Configuration# of global settings
-
-The configuration file for the HTML5 client is located in `/usr/share/bigbluebutton/html5-client/private/config/settings.yml`. It contains all the settings for the HTML5 client.
-
-#### Modify the HTML5 client title
-
-All changes to global HTML5 client settings are done in the file above. So to change the title, edit `settings.yml` and change the entry for `public.app.clientTitle`
 
 #### Configure guest policy
 
