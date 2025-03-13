@@ -911,6 +911,16 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         'board.jpg',
       ],
     },
+    minBrowserVersions: {
+      safari: '>=16',
+      chrome: '>=100',
+      firefox: '>=100',
+      edge: '>=100',
+      mobile: {
+        safari: '>=16',
+        chrome: '>=100',
+      },
+    },
   },
   private: {
     analytics: {
@@ -922,65 +932,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       pencilChunkLength: 100,
       loadSlidesFromHttpAlways: false,
     },
-    minBrowserVersions: [
-      {
-        browser: 'chrome',
-        version: 72,
-      },
-      {
-        browser: 'chromeMobileIOS',
-        version: 94,
-      },
-      {
-        browser: 'firefox',
-        version: 68,
-      },
-      {
-        browser: 'firefoxMobile',
-        version: 68,
-      },
-      {
-        browser: 'edge',
-        version: 79,
-      },
-      {
-        browser: 'ie',
-        version: 'Infinity',
-      },
-      {
-        browser: 'safari',
-        version: [
-          12,
-          1,
-        ],
-      },
-      {
-        browser: 'mobileSafari',
-        version: [
-          12,
-          1,
-        ],
-      },
-      {
-        browser: 'opera',
-        version: 50,
-      },
-      {
-        browser: 'electron',
-        version: [
-          0,
-          36,
-        ],
-      },
-      {
-        browser: 'SamsungInternet',
-        version: 10,
-      },
-      {
-        browser: 'YandexBrowser',
-        version: 19,
-      },
-    ],
     prometheus: {
       enabled: false,
       path: '/metrics',

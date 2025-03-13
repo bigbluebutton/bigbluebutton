@@ -21,11 +21,13 @@ import React, { useContext, useEffect } from 'react';
 import logger from '/imports/startup/client/logger';
 import '/imports/ui/services/mobile-app';
 import Base from '/imports/startup/client/base';
+import Legacy from '/imports/ui/components/legacy/component';
 import ContextProviders from '/imports/ui/components/context-providers/component';
 import ConnectionManager from '/imports/ui/components/connection-manager/component';
 // The adapter import is "unused" as far as static code is concerned, but it
 // needs to here to override global prototypes. So: don't remove it - prlanzarin 25 Apr 2022
 import adapter from 'webrtc-adapter';
+import Bowser from 'bowser';
 
 import { LoadingContext } from '/imports/ui/components/common/loading-screen/loading-screen-HOC/component';
 import IntlAdapter from '/imports/startup/client/intlAdapter';
@@ -62,6 +64,10 @@ const Startup = () => {
     }, message);
   });
 
+  const MIN_BROWSER_CONFIG = window.meetingClientSettings.public.minBrowserVersions;
+  const userAgent = window.navigator?.userAgent;
+  const isSupportedBrowser = Bowser.getParser(userAgent).satisfies(MIN_BROWSER_CONFIG);
+
   const { data: pluginConfig } = createUseSubscription(
     PLUGIN_CONFIGURATION_QUERY,
   )((obj) => obj);
@@ -69,7 +75,7 @@ const Startup = () => {
     <ContextProviders>
       <PresenceAdapter>
         <IntlAdapter>
-          <Base pluginConfig={pluginConfig} />
+          {isSupportedBrowser ? <Base pluginConfig={pluginConfig} /> : <Legacy />}
         </IntlAdapter>
       </PresenceAdapter>
     </ContextProviders>
