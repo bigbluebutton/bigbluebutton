@@ -113,6 +113,8 @@ public class ApiParams {
 
     public static final String RECORD_FULL_DURATION_MEDIA = "recordFullDurationMedia";
 
+    public static final String MAX_NUM_PAGES = "maxNumPages";
+
     private ApiParams() {
         throw new IllegalStateException("ApiParams is a utility class. Instantiation is forbidden.");
     }

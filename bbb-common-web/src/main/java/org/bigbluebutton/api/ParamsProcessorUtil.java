@@ -148,6 +148,8 @@ public class ParamsProcessorUtil {
     private Boolean allowRevealOfBBBVersion = false;
     private Boolean allowOverrideClientSettingsOnCreateCall = false;
 
+    private Integer defaultMaxNumPages;
+
   	private String formatConfNum(String s) {
   		if (s.length() > 5) {
   			/* Reverse conference number.
@@ -914,6 +916,16 @@ public class ParamsProcessorUtil {
     }
     meeting.setAllowModsToEjectCameras(allowModsToEjectCameras);
 
+        int maxNumPages = defaultMaxNumPages;
+        if (!StringUtils.isEmpty(params.get(ApiParams.MAX_NUM_PAGES))) {
+            try {
+                maxNumPages = Integer.parseInt(params.get(ApiParams.MAX_NUM_PAGES));
+            } catch (NumberFormatException e) {
+                log.warn("Invalid param [maxNumPages] for meeting=[{}]", internalMeetingId);
+            }
+        }
+        meeting.setMaxNumPages(maxNumPages);
+
         return meeting;
     }
 
@@ -1659,5 +1671,7 @@ public class ParamsProcessorUtil {
 	public void setAllowOverrideClientSettingsOnCreateCall(Boolean allowOverrideClientSettingsOnCreateCall) {
 		this.allowOverrideClientSettingsOnCreateCall = allowOverrideClientSettingsOnCreateCall;
 	}
+
+    public void setMaxNumPages(Integer maxNumPages) { this.defaultMaxNumPages = maxNumPages; }
 
 }

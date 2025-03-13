@@ -528,6 +528,12 @@ const createEndpointTableData = [
         </code>
       </>
     )
+  },
+  {
+    "name": "maxNumPages",
+    "required": false,
+    "type": "Number",
+    "description": (<>Overrides the default maximum number of pages that an uploaded presentation can contain defined in <code>bigbluebutton.properties</code>.</>)
   }
 ]
 

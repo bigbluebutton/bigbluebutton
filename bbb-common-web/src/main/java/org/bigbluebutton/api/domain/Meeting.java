@@ -129,6 +129,8 @@ public class Meeting {
 
 	private String overrideClientSettings = "";
 
+	private int maxNumPages;
+
     public Meeting(Meeting.Builder builder) {
         name = builder.name;
         extMeetingId = builder.externalId;
@@ -944,6 +946,9 @@ public class Meeting {
     public Long getEnteredUserById(String userId) {
         return this.enteredUsers.get(userId);
     }
+
+	public void setMaxNumPages(int maxNumPages) { this.maxNumPages = maxNumPages; }
+	public int getMaxNumPages() { return maxNumPages; }
 
     /***
 	 * Meeting Builder

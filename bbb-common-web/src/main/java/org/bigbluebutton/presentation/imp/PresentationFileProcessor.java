@@ -4,6 +4,8 @@ import com.amazonaws.services.s3.model.S3Object;
 import com.google.gson.Gson;
 import org.apache.commons.io.FilenameUtils;
 import org.bigbluebutton.api.Util;
+import org.bigbluebutton.api.domain.Meeting;
+import org.bigbluebutton.api.service.ServiceUtils;
 import org.bigbluebutton.presentation.*;
 import org.bigbluebutton.presentation.messages.*;
 import org.slf4j.Logger;
@@ -182,7 +184,8 @@ public class PresentationFileProcessor {
 
     private boolean determineNumberOfPages(UploadedPresentation pres) {
         try {
-            counterService.determineNumberOfPages(pres);
+            Meeting meeting = ServiceUtils.findMeetingFromMeetingID(pres.getMeetingId());
+            counterService.determineNumberOfPages(pres, meeting.getMaxNumPages());
             return true;
         } catch (CountingPageException e) {
             sendFailedToCountPageMessage(e, pres);
