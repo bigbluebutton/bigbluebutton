@@ -342,10 +342,52 @@ Modified/added events
 
 #### bbb-web properties changes
 
-- `allowOverrideClientSettingsOnCreateCall=false` added
-- `sessionsCleanupDelayInMinutes=60` added
-- `graphqlWebsocketUrl=${bigbluebutton.web.serverURL}/graphql` added
-- `muteOnStart` default value set to `true` - which helps now that `transparentListenOnly` is enabled by default too. See (PR 20848)[https://github.com/bigbluebutton/bigbluebutton/issues/20848] for more info.
+Removed
+- `breakoutRoomsEnabled` removed (was previously deprecated)
+- `learningDashboardEnabled` removed (was previously deprecated)
+- `defaultGuestWaitURL` removed (now handled on the same page as the client)
+
+Value changed
+- `defaultHTML5ClientUrl` changed -- dropped the `/join` ending
+- `muteOnStart` default value changed to `true` - which helps now that `transparentListenOnly` is enabled by default too. See [PR 20848](https://github.com/bigbluebutton/bigbluebutton/issues/20848) for more info.
+
+Added
+- `pluginManifestFetchTimeout` added
+- `numPluginManifestsFetchingThreads` added
+- `extractTimeoutInMs` added
+- `pngCreationExecTimeoutInMs` added
+- `thumbnailCreationExecTimeoutInMs` added
+- `pdfPageDownscaleExecTimeoutInMs` added
+- `officeDocumentValidationExecTimeoutInMs` added
+- `textFileCreationExecTimeoutInMs` added
+- `presDownloadReadTimeoutInMs` added
+- `pngCreationConversionTimeout` added
+- `pngCreationWait` added
+- `pdfToSvgTimeout` added
+- `imageResizeWait` added
+- `officeDocumentValidationTimeout` added
+- `presOfficeConversionTimeout` added
+- `pdfPageCountWait` added
+- `presentationConversionCacheEnabled` added
+- `presentationConversionCacheS3AccessKeyId` added
+- `presentationConversionCacheS3AccessKeySecret` added
+- `presentationConversionCacheS3BucketName` added
+- `presentationConversionCacheS3Region` added
+- `presentationConversionCacheS3EndpointURL` added
+- `presentationConversionCacheS3PathStyle` added
+- `cameraBridge` added
+- `screenShareBridge` added
+- `audioBridge` added
+- `pluginManifests` added
+- `scanUploadedPresentationFiles` added
+- `allowOverrideClientSettingsOnCreateCall` added
+- `defaultBotAvatarURL` added
+- `graphqlApiUrl` added
+- `graphqlWebsocketUrl` added
+- `sessionsCleanupDelayInMinutes` added
+- `useDefaultDarkLogo` added
+- `defaultDarkLogoURL` added
+
 
 #### Removed support for POST requests on `join` endpoint and Content-Type headers are now required
 
