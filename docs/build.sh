@@ -2,6 +2,26 @@
 
 set -eu
 
+# Defines the git remote used to fetch the branches and tags
+REMOTE="origin"
+
+while [ $# -gt 0 ]; do
+  if [ "$1" = "--remote" -o "$1" = "-remote" -o "$1" = "-r" ]; then
+    REMOTE_OVERRIDE="${2}"
+    if [ -z "$REMOTE_OVERRIDE" ]; then
+      echo
+      echo "    No remote was given, using '$REMOTE' to fetch branches and tags"
+      echo
+      exit 0
+    fi
+    shift; shift
+    continue
+  fi
+
+  usage
+  exit 1
+done
+
 # Build the docs for these tags (the last tag of old major releases)
 # We build the docs for historical reasons. The branch no longer exists
 # since the release is no longer supported/maintained.
@@ -15,7 +35,6 @@ BRANCHES=(
   v2.7.x-release
   v3.0.x-release
 )
-REMOTE="origin"
 
 git fetch --all
 git fetch --tags
