@@ -3,15 +3,15 @@ import { MeetingStatusData } from 'bigbluebutton-html-plugin-sdk';
 import { UpdatedEventDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
 import { GENERIC_HOOK_PLUGIN, HookEvents } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/enum';
 
-const updateMeetingStatusForPlugin = (currentRenderMeeting: boolean) => {
-  const previousRenderMeeting = useRef(true);
-  if (previousRenderMeeting.current !== currentRenderMeeting) {
+const updateMeetingStatusForPlugin = (currentUserCurrentlyInMeeting: boolean) => {
+  const previousUserCurrentlyInMeeting = useRef(true);
+  if (previousUserCurrentlyInMeeting.current !== currentUserCurrentlyInMeeting) {
     window.dispatchEvent(new CustomEvent<UpdatedEventDetails<MeetingStatusData>>(
       HookEvents.BBB_CORE_UPDATED_MEETING_STATUS,
       {
         detail: {
           data: {
-            renderMeeting: currentRenderMeeting,
+            userCurrentlyInMeeting: currentUserCurrentlyInMeeting,
           },
           hook: GENERIC_HOOK_PLUGIN,
         },

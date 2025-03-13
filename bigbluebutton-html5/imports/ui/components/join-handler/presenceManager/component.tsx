@@ -163,13 +163,13 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
 
   const errorCode = loggedOut ? 'user_logged_out_reason' : joinErrorCode || ejectReasonCode;
 
-  const renderMeeting = allowToRender && !(meetingEnded || joinErrorCode || ejectReasonCode || loggedOut);
+  const userCurrentlyInMeeting = allowToRender && !(meetingEnded || joinErrorCode || ejectReasonCode || loggedOut);
 
-  updateMeetingStatusForPlugin(renderMeeting);
+  updateMeetingStatusForPlugin(userCurrentlyInMeeting);
 
   return (
     <>
-      {renderMeeting ? children : null}
+      {userCurrentlyInMeeting ? children : null}
       {
         meetingEnded || joinErrorCode || ejectReasonCode || loggedOut
           ? (
