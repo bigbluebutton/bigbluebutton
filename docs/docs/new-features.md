@@ -338,13 +338,55 @@ Retired events
 Modified/added events
 - `ParticipantJoinEvent` - will contain element `userdata` see https://github.com/bigbluebutton/bigbluebutton/pull/20566#pullrequestreview-2142238810
 - the old user status emojis were retired. `emojiStatus` will not be filled anymore. For more information see https://github.com/bigbluebutton/bigbluebutton/pull/20717
+- `SetScreenshareAsContentEvent` - Contains the `screenshareAsContent` field, a boolean that indicates whether the screenshare is in focus. For more information see https://github.com/bigbluebutton/bigbluebutton/pull/22312
 
 #### bbb-web properties changes
 
-- `allowOverrideClientSettingsOnCreateCall=false` added
-- `sessionsCleanupDelayInMinutes=60` added
-- `graphqlWebsocketUrl=${bigbluebutton.web.serverURL}/graphql` added
-- `muteOnStart` default value set to `true` - which helps now that `transparentListenOnly` is enabled by default too. See (PR 20848)[https://github.com/bigbluebutton/bigbluebutton/issues/20848] for more info.
+Removed
+- `breakoutRoomsEnabled` removed (was previously deprecated)
+- `learningDashboardEnabled` removed (was previously deprecated)
+- `defaultGuestWaitURL` removed (now handled on the same page as the client)
+
+Value changed
+- `defaultHTML5ClientUrl` changed -- dropped the `/join` ending
+- `muteOnStart` default value changed to `true` - which helps now that `transparentListenOnly` is enabled by default too. See [PR 20848](https://github.com/bigbluebutton/bigbluebutton/issues/20848) for more info.
+
+Added
+- `pluginManifestFetchTimeout` added
+- `numPluginManifestsFetchingThreads` added
+- `extractTimeoutInMs` added
+- `pngCreationExecTimeoutInMs` added
+- `thumbnailCreationExecTimeoutInMs` added
+- `pdfPageDownscaleExecTimeoutInMs` added
+- `officeDocumentValidationExecTimeoutInMs` added
+- `textFileCreationExecTimeoutInMs` added
+- `presDownloadReadTimeoutInMs` added
+- `pngCreationConversionTimeout` added
+- `pngCreationWait` added
+- `pdfToSvgTimeout` added
+- `imageResizeWait` added
+- `officeDocumentValidationTimeout` added
+- `presOfficeConversionTimeout` added
+- `pdfPageCountWait` added
+- `presentationConversionCacheEnabled` added
+- `presentationConversionCacheS3AccessKeyId` added
+- `presentationConversionCacheS3AccessKeySecret` added
+- `presentationConversionCacheS3BucketName` added
+- `presentationConversionCacheS3Region` added
+- `presentationConversionCacheS3EndpointURL` added
+- `presentationConversionCacheS3PathStyle` added
+- `cameraBridge` added
+- `screenShareBridge` added
+- `audioBridge` added
+- `pluginManifests` added
+- `scanUploadedPresentationFiles` added
+- `allowOverrideClientSettingsOnCreateCall` added
+- `defaultBotAvatarURL` added
+- `graphqlApiUrl` added
+- `graphqlWebsocketUrl` added
+- `sessionsCleanupDelayInMinutes` added
+- `useDefaultDarkLogo` added
+- `defaultDarkLogoURL` added
 - `maxNumPages` added
 
 #### Removed support for POST requests on `join` endpoint and Content-Type headers are now required
