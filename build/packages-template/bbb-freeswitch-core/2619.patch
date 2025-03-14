@@ -1,0 +1,188 @@
+From a22308b9c3310a854f8d800e1f0bb8e0a7fabe20 Mon Sep 17 00:00:00 2001
+From: Jakub Karolczyk <jakub.karolczyk@signalwire.com>
+Date: Fri, 11 Oct 2024 00:14:00 +0100
+Subject: [PATCH] [core] Fix codec set deadlock
+
+---
+ src/include/switch_core.h               | 11 +++++++++++
+ src/mod/endpoints/mod_sofia/mod_sofia.c | 13 ++++++++++++-
+ src/switch_core_codec.c                 | 21 +++++++++++++++++++++
+ src/switch_core_media.c                 |  6 ++----
+ src/switch_core_session.c               |  4 ++++
+ 5 files changed, 50 insertions(+), 5 deletions(-)
+
+diff --git a/src/include/switch_core.h b/src/include/switch_core.h
+index e4c615941d9..ff04fa0954c 100644
+--- a/src/include/switch_core.h
++++ b/src/include/switch_core.h
+@@ -1822,6 +1822,17 @@ SWITCH_DECLARE(void) switch_core_session_unlock_codec_write(_In_ switch_core_ses
+ SWITCH_DECLARE(void) switch_core_session_lock_codec_read(_In_ switch_core_session_t *session);
+ SWITCH_DECLARE(void) switch_core_session_unlock_codec_read(_In_ switch_core_session_t *session);
+ 
++/*!
++  \brief Lock codec read mutex and codec write mutex using trylock in an infinite loop
++  \param session session to lock the codec in
++*/
++SWITCH_DECLARE(void) switch_core_codec_lock_full(switch_core_session_t *session);
++
++/*!
++  \brief Unlock codec read mutex and codec write mutex
++  \param session session to unlock the codec in
++*/
++SWITCH_DECLARE(void) switch_core_codec_unlock_full(switch_core_session_t *session);
+ 
+ SWITCH_DECLARE(switch_status_t) switch_core_session_get_read_impl(switch_core_session_t *session, switch_codec_implementation_t *impp);
+ SWITCH_DECLARE(switch_status_t) switch_core_session_get_real_read_impl(switch_core_session_t *session, switch_codec_implementation_t *impp);
+diff --git a/src/mod/endpoints/mod_sofia/mod_sofia.c b/src/mod/endpoints/mod_sofia/mod_sofia.c
+index c5ce6e38555..c41ed9b2e38 100644
+--- a/src/mod/endpoints/mod_sofia/mod_sofia.c
++++ b/src/mod/endpoints/mod_sofia/mod_sofia.c
+@@ -1339,6 +1339,8 @@ static switch_status_t sofia_receive_message(switch_core_session_t *session, swi
+ 
+ 	if (msg->message_id == SWITCH_MESSAGE_INDICATE_SIGNAL_DATA) {
+ 		sofia_dispatch_event_t *de = (sofia_dispatch_event_t *) msg->pointer_arg;
++
++		switch_core_session_lock_codec_write(session);
+ 		switch_mutex_lock(tech_pvt->sofia_mutex);
+ 		if (switch_core_session_in_thread(session)) {
+ 			de->session = session;
+@@ -1346,8 +1348,8 @@ static switch_status_t sofia_receive_message(switch_core_session_t *session, swi
+ 
+ 		sofia_process_dispatch_event(&de);
+ 
+-
+ 		switch_mutex_unlock(tech_pvt->sofia_mutex);
++		switch_core_session_unlock_codec_write(session);
+ 		goto end;
+ 	}
+ 
+@@ -1363,6 +1365,9 @@ static switch_status_t sofia_receive_message(switch_core_session_t *session, swi
+ 
+ 	/* ones that do not need to lock sofia mutex */
+ 	switch (msg->message_id) {
++	case SWITCH_MESSAGE_INDICATE_TRANSCODING_NECESSARY:
++	case SWITCH_MESSAGE_RESAMPLE_EVENT:
++		goto end;
+ 	case SWITCH_MESSAGE_INDICATE_KEEPALIVE:
+ 		{
+ 			if (msg->numeric_arg) {
+@@ -1523,6 +1528,7 @@ static switch_status_t sofia_receive_message(switch_core_session_t *session, swi
+ 	}
+ 
+ 	/* ones that do need to lock sofia mutex */
++	switch_core_session_lock_codec_write(session);
+ 	switch_mutex_lock(tech_pvt->sofia_mutex);
+ 
+ 	if (switch_channel_down(channel) || sofia_test_flag(tech_pvt, TFLAG_BYE)) {
+@@ -1557,7 +1563,9 @@ static switch_status_t sofia_receive_message(switch_core_session_t *session, swi
+ 			tech_pvt->proxy_refer_uuid = (char *)msg->string_array_arg[0];
+ 		} else if (!switch_channel_var_true(tech_pvt->channel, "sip_refer_continue_after_reply")) {
+ 			switch_mutex_unlock(tech_pvt->sofia_mutex);
++			switch_core_session_unlock_codec_write(session);
+ 			sofia_wait_for_reply(tech_pvt, 9999, 10);
++			switch_core_session_lock_codec_write(session);
+ 			switch_mutex_lock(tech_pvt->sofia_mutex);
+ 
+ 			if ((var = switch_channel_get_variable(tech_pvt->channel, "sip_refer_reply"))) {
+@@ -2391,6 +2399,7 @@ static switch_status_t sofia_receive_message(switch_core_session_t *session, swi
+ 								/* Unlock the session signal to allow the ack to make it in */
+ 								// Maybe we should timeout?
+ 								switch_mutex_unlock(tech_pvt->sofia_mutex);
++								switch_core_session_unlock_codec_write(session);
+ 
+ 								while (switch_channel_ready(channel) && !sofia_test_flag(tech_pvt, TFLAG_3PCC_HAS_ACK)) {
+ 									switch_ivr_parse_all_events(session);
+@@ -2398,6 +2407,7 @@ static switch_status_t sofia_receive_message(switch_core_session_t *session, swi
+ 								}
+ 
+ 								/*  Regain lock on sofia */
++								switch_core_session_lock_codec_write(session);
+ 								switch_mutex_lock(tech_pvt->sofia_mutex);
+ 
+ 								switch_log_printf(SWITCH_CHANNEL_SESSION_LOG(session), SWITCH_LOG_DEBUG, "3PCC-PROXY, Done waiting for ACK\n");
+@@ -2706,6 +2716,7 @@ static switch_status_t sofia_receive_message(switch_core_session_t *session, swi
+ 	//}
+ 
+ 	switch_mutex_unlock(tech_pvt->sofia_mutex);
++	switch_core_session_unlock_codec_write(session);
+ 
+   end:
+ 
+diff --git a/src/switch_core_codec.c b/src/switch_core_codec.c
+index e5c22cd610e..5cedbed6e06 100644
+--- a/src/switch_core_codec.c
++++ b/src/switch_core_codec.c
+@@ -59,6 +59,27 @@ SWITCH_DECLARE(void) switch_core_session_unset_read_codec(switch_core_session_t
+ 	switch_mutex_unlock(session->codec_read_mutex);
+ }
+ 
++SWITCH_DECLARE(void) switch_core_codec_lock_full(switch_core_session_t *session)
++{
++	do {
++		if (switch_mutex_trylock(session->codec_write_mutex) == SWITCH_STATUS_SUCCESS) {
++			if (switch_mutex_trylock(session->codec_read_mutex) == SWITCH_STATUS_SUCCESS) {
++				return;
++			}
++
++			switch_mutex_unlock(session->codec_write_mutex);
++		}
++
++		switch_cond_next();
++	} while (1);
++}
++
++SWITCH_DECLARE(void) switch_core_codec_unlock_full(switch_core_session_t *session)
++{
++	switch_mutex_unlock(session->codec_read_mutex);
++	switch_mutex_unlock(session->codec_write_mutex);
++}
++
+ SWITCH_DECLARE(void) switch_core_session_lock_codec_write(switch_core_session_t *session)
+ {
+ 	switch_mutex_lock(session->codec_write_mutex);
+diff --git a/src/switch_core_media.c b/src/switch_core_media.c
+index 58ef94a53ed..de5d0eff74c 100644
+--- a/src/switch_core_media.c
++++ b/src/switch_core_media.c
+@@ -3601,8 +3601,7 @@ SWITCH_DECLARE(switch_status_t) switch_core_media_set_codec(switch_core_session_
+ 
+ 	switch_assert(session);
+ 
+-	switch_core_session_lock_codec_write(session);
+-	switch_core_session_lock_codec_read(session);
++	switch_core_codec_lock_full(session);
+ 
+ 	switch_mutex_lock(session->codec_init_mutex);
+ 
+@@ -3756,8 +3755,7 @@ SWITCH_DECLARE(switch_status_t) switch_core_media_set_codec(switch_core_session_
+ 
+ 	switch_mutex_unlock(session->codec_init_mutex);
+ 
+-	switch_core_session_unlock_codec_read(session);
+-	switch_core_session_unlock_codec_write(session);
++	switch_core_codec_unlock_full(session);
+ 
+ 	return status;
+ }
+diff --git a/src/switch_core_session.c b/src/switch_core_session.c
+index 61aa5000705..94944faa2fb 100644
+--- a/src/switch_core_session.c
++++ b/src/switch_core_session.c
+@@ -1392,6 +1392,8 @@ SWITCH_DECLARE(void) switch_core_session_reset(switch_core_session_t *session, s
+ {
+ 	switch_channel_t *channel = switch_core_session_get_channel(session);
+ 
++	switch_core_codec_lock_full(session);
++
+ 	if (reset_read_codec) {
+ 		switch_core_session_set_read_codec(session, NULL);
+ 		if (session->sdata && switch_core_codec_ready(&session->sdata->codec)) {
+@@ -1425,6 +1427,8 @@ SWITCH_DECLARE(void) switch_core_session_reset(switch_core_session_t *session, s
+ 	switch_clear_flag(session, SSF_WARN_TRANSCODE);
+ 	switch_ivr_deactivate_unicast(session);
+ 	switch_channel_clear_flag(channel, CF_BREAK);
++
++	switch_core_codec_unlock_full(session);
+ }
+ 
+ 
