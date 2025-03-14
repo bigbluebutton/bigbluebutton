@@ -143,9 +143,6 @@ public:
       sendInvitationToAssignedModeratorsByDefault: false
       breakoutRoomLimit: 16
       allowPresentationManagementInBreakouts: true
-    # https://github.com/bigbluebutton/bigbluebutton/pull/10826
-    customHeartbeat: false
-    customHeartbeatUseDataFrames: true
     showAllAvailableLocales: true
     # Show "Audio Filters for Microphone" option in settings menu.
     # When set to true, users are able to enable/disable microphone constraints,
