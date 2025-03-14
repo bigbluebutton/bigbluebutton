@@ -5,6 +5,31 @@ and GitHub Actions (see [deploy-docs.yml](../.github/workflows/deploy-docs.yml))
 
 ## Local Development
 
+### Docker environment approach
+
+To run the docs in dev environments (likely BigBlueButton docker container) you'll run the following command:
+
+```bash
+./run-dev.sh
+```
+
+Now this command is going to start the server so you can access it.
+
+### Develop branch details
+
+If you want to test the documentation as a whole, we suggest you to check out to the `develop` branch. There you'll have the ability to build all the versioning we currently support (3.0, 2.7, 2.6 and 2.5-legacy).
+
+If you are already into the `develop` branch, to run the docs you'll run the following command first outside a docker-container (Previous to the `run-dev.sh`):
+
+```bash
+./build.sh --remote upstream
+```
+
+Feel free to edit the command and insert whatever remote fork you want to fetch from. For most cases `upstream` is pointing to the official repo (and that's what we recommend fetching from).
+
+
+### Pure Local environment (no docker container needed)
+
 To test build the docs locally use:
 
 ```bash
@@ -56,6 +81,25 @@ This step is optional and if you don't run it, docusaurus will only build the
 currently checkout out version which is recommended for local development
 (building all the versions locally can lead to problems with the live
 updates when using `npx docusaurus start`).
+
+### Comments and tips
+
+**Use Link tags when adding to the docs**
+In order to avoid problems with referencing within the documentation, we highly recommend you to use Link tags inside react files such as `docs/data/create.tsx` instead of `a` tags.
+
+So an example would be:
+
+Instead of:
+```tsx
+<a href='/administration/install/#minimum-server-requirements'>Here are the minimum requirements</a>
+```
+
+Use:
+```tsx
+<Link to='/administration/install/#minimum-server-requirements'>Here are the minimum requirements</a>
+```
+
+For more information, refer back to the official docusaurus documentation: https://docusaurus.io/docs/docusaurus-core#link
 
 ### Build
 
