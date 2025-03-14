@@ -100,7 +100,7 @@ dependencies {
   implementation "org.json:json:20231013"
   implementation "com.zaxxer:nuprocess:2.0.6"
   implementation "net.java.dev.jna:jna:5.10.0"
-  implementation "org.springframework.data:spring-data-commons:2.7.6"
+  implementation "org.springframework.data:spring-data-commons:3.4.3"
 
   implementation 'javax.validation:validation-api:2.0.1.Final'
   implementation "org.springframework.boot:spring-boot-starter-validation:${springVersion}"
