@@ -1076,7 +1076,7 @@ public:
         - text
         - note
         - rectangle
-        - delete-all
+        - delete-selected-items
         - highlight
         - more
         - actions
@@ -1089,7 +1089,7 @@ public:
         - text
         - note
         - rectangle
-        - delete-all
+        - delete-selected-items
         - highlight
         - more
         - actions
