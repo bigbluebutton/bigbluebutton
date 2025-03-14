@@ -69,6 +69,7 @@ subscription userCurrentSubscription {
       joined
       spoke
       listenOnly
+      deafened
     }
     userLockSettings {
       disablePublicChat

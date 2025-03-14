@@ -47,6 +47,12 @@ trait UserLeftVoiceConfEvtMsgHdlr {
     for {
       user <- VoiceUsers.findWithVoiceUserId(liveMeeting.voiceUsers, msg.body.voiceUserId)
     } yield {
+      AudioFloorManager.handleUserLeftVoice(
+        user.intId,
+        System.currentTimeMillis(),
+        liveMeeting,
+        outGW
+      )
       VoiceUsers.removeWithIntId(liveMeeting.voiceUsers, liveMeeting.props.meetingProp.intId, user.intId)
       broadcastEvent(user)
 

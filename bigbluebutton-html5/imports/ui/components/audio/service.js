@@ -13,6 +13,7 @@ import {
 } from '/imports/ui/components/audio/audio-graphql/audio-controls/input-stream-live-selector/service';
 import apolloContextHolder from '/imports/ui/core/graphql/apolloContextHolder/apolloContextHolder';
 import { MEETING_IS_BREAKOUT } from '/imports/ui/components/audio/audio-graphql/audio-controls/queries';
+import useIsAudioConnected from '/imports/ui/components/audio/audio-graphql/hooks/useIsAudioConnected';
 
 const MUTED_KEY = 'muted';
 export const CLIENT_DID_USER_SELECT_MICROPHONE_KEY = 'clientUserSelectedMicrophone';
@@ -109,7 +110,7 @@ const init = (
 };
 
 const useIsUsingAudio = () => {
-  const isConnected = useReactiveVar(AudioManager._isConnected.value);
+  const isConnected = useIsAudioConnected();
   const isConnecting = useReactiveVar(AudioManager._isConnecting.value);
   const isHangingUp = useReactiveVar(AudioManager._isHangingUp.value);
 
@@ -224,7 +225,7 @@ export default {
     const transferStatus = AudioManager.getBreakoutAudioTransferStatus();
     if (!!transferStatus.breakoutMeetingId
       && transferStatus.breakoutMeetingId !== Auth.meetingID) return false;
-    return AudioManager.isConnected;
+    return AudioManager.isAudioConnected();
   },
   isUsingAudio: () => AudioManager.isUsingAudio(),
   isConnecting: () => AudioManager.isConnecting,

@@ -1,3 +1,4 @@
+- "!include public_v_audioGroup.yaml"
 - "!include public_v_breakoutRoom.yaml"
 - "!include public_v_breakoutRoom_assignedUser.yaml"
 - "!include public_v_breakoutRoom_createdLatest.yaml"
@@ -48,6 +49,7 @@
 - "!include public_v_sharedNotes_session.yaml"
 - "!include public_v_timer.yaml"
 - "!include public_v_user.yaml"
+- "!include public_v_user_audioGroup.yaml"
 - "!include public_v_user_breakoutRoom.yaml"
 - "!include public_v_user_camera.yaml"
 - "!include public_v_user_clientSettings.yaml"

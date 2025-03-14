@@ -713,6 +713,7 @@ CREATE UNLOGGED TABLE "user_voice" (
 	"joined" boolean,
 	"listenOnly" boolean,
 	"muted" boolean,
+	"deafened" boolean,
 	"spoke" boolean,
 	"talking" boolean,
 	"floor" boolean,
@@ -2388,3 +2389,29 @@ CREATE UNLOGGED TABLE "user_livekit"(
 
 CREATE INDEX "idx_user_livekit_token" ON "user_livekit"("livekitToken");
 CREATE VIEW "v_user_livekit" AS SELECT * FROM "user_livekit";
+
+CREATE UNLOGGED TABLE "audioGroup" (
+	"meetingId" 			varchar(100),
+	"groupId"					varchar(100),
+	"createdBy"				varchar(50),
+	CONSTRAINT "audioGroup_pkey" PRIMARY KEY ("meetingId", "groupId"),
+	FOREIGN KEY ("meetingId") REFERENCES "meeting"("meetingId") ON DELETE CASCADE
+);
+
+CREATE VIEW "v_audioGroup" AS SELECT * FROM "audioGroup";
+
+CREATE UNLOGGED TABLE "user_audioGroup" (
+	"meetingId"					varchar(100),
+	"userId"						varchar(50),
+	"groupId"						varchar(100),
+	"participantType"		varchar(50),
+	"active"						boolean,
+	CONSTRAINT "user_audioGroup_pkey" PRIMARY KEY ("meetingId", "userId", "groupId"),
+	FOREIGN KEY ("meetingId", "groupId") REFERENCES "audioGroup"("meetingId", "groupId") ON DELETE CASCADE
+);
+
+CREATE INDEX "idx_user_audioGroup_groupId" ON "user_audioGroup"("meetingId", "groupId");
+CREATE INDEX "idx_user_audioGroup_userId" ON "user_audioGroup"("meetingId", "userId");
+CREATE INDEX "idx_user_audioGroup_userId_reverse" ON "user_audioGroup"("userId", "meetingId");
+CREATE INDEX "idx_user_audioGroup_groupId_participantType" ON "user_audioGroup"("meetingId", "groupId", "participantType");
+CREATE OR REPLACE VIEW "v_user_audioGroup" AS SELECT * FROM "user_audioGroup";
