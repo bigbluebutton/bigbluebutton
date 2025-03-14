@@ -5,27 +5,28 @@ and GitHub Actions (see [deploy-docs.yml](../.github/workflows/deploy-docs.yml))
 
 ## Local Development
 
-If you want to test the documentation as a whole, we suggest you to checkout to the development branch. There you'll have the hability to build all the versionings we currently support (3.0, 2.7, 2.6 and 2.5-legacy).
-
 ### Docker environment approach
 
-If you are already on the development branch, to run the docs you'll run the following commands
-
-First outside of a docker-container:
-
-```bash
-./build.sh --remote upstream
-```
-
-Feel free to edit the command and insert whatever remote fork you want to fetch from. For some cases `upstream` is pointing to the official repo (and that's what we recommend fetching from).
-
-Now inside of the docker container (BigBlueButton dev environment):
+To run the docs in dev environments (likely BigBlueButton docker container) you'll run the following command:
 
 ```bash
 ./run-dev.sh
 ```
 
-Now this command is going to create the server so you can access it.
+Now this command is going to start the server so you can access it.
+
+### Develop branch details
+
+If you want to test the documentation as a whole, we suggest you to checkout to the `develop` branch. There you'll have the hability to build all the versionings we currently support (3.0, 2.7, 2.6 and 2.5-legacy).
+
+If you are already into the `develop` branch, to run the docs you'll run the following command first outside of a docker-container (Previous to the `run-dev.sh`):
+
+```bash
+./build.sh --remote upstream
+```
+
+Feel free to edit the command and insert whatever remote fork you want to fetch from. For most cases `upstream` is pointing to the official repo (and that's what we recommend fetching from).
+
 
 ### Pure Local environment (no docker container needed)
 
