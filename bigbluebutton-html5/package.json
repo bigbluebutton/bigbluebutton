@@ -69,7 +69,7 @@
     "graphql": "^16.8.1",
     "graphql-ws": "^5.16.0",
     "hark": "^1.2.3",
-    "html-to-image": "^1.9.0",
+    "html-to-image": "^1.11.13",
     "immutability-helper": "~2.8.1",
     "langmap": "0.0.16",
     "livekit-client": "^2.8.1",
