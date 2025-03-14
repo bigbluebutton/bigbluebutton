@@ -16,6 +16,7 @@ import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedS
 import logger from '/imports/startup/client/logger';
 import deviceInfo from '/imports/utils/deviceInfo';
 import GuestWaitContainer, { GUEST_STATUSES } from '../guest-wait/component';
+import PluginTopLevelManager from '/imports/ui/components/plugin-top-level-manager/component';
 
 const connectionTimeout = 60000;
 const MESSAGE_TIMEOUT = 3000;
@@ -162,9 +163,14 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
 
   const errorCode = loggedOut ? 'user_logged_out_reason' : joinErrorCode || ejectReasonCode;
 
+  const userCurrentlyInMeeting = allowToRender && !(meetingEnded || joinErrorCode || ejectReasonCode || loggedOut);
+
   return (
     <>
-      {allowToRender && !(meetingEnded || joinErrorCode || ejectReasonCode || loggedOut) ? children : null}
+      <PluginTopLevelManager
+        currentUserCurrentlyInMeeting={userCurrentlyInMeeting}
+      />
+      {userCurrentlyInMeeting ? children : null}
       {
         meetingEnded || joinErrorCode || ejectReasonCode || loggedOut
           ? (
