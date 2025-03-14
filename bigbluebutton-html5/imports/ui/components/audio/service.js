@@ -109,8 +109,11 @@ const init = (
   return AudioManager.init(userData, audioEventHandler(toggleVoice), bridges);
 };
 
-const useIsUsingAudio = () => {
-  const isConnected = useIsAudioConnected();
+// This hooks should only be used to determine whether there's a system audio
+// connection underway. It should not be used to determine whether the user is
+// connected to audio UI-wise (i.e.: it ignores the deafened state).
+const useIsAudioConnectionUnderway = () => {
+  const isConnected = useIsAudioConnected({ ignoreDeafened: true });
   const isConnecting = useReactiveVar(AudioManager._isConnecting.value);
   const isHangingUp = useReactiveVar(AudioManager._isHangingUp.value);
 
@@ -250,7 +253,7 @@ export default {
   supportsTransparentListenOnly: () => AudioManager.supportsTransparentListenOnly(),
   hasMicrophonePermission,
   notify: (message, error, icon) => { AudioManager.notify(message, error, icon); },
-  useIsUsingAudio,
+  useIsAudioConnectionUnderway,
   didUserSelectMicrophone,
   didUserSelectListenOnly,
   setUserSelectedMicrophone,

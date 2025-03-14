@@ -691,9 +691,9 @@ class AudioManager {
 
   onAudioJoin({ deafened = false } = {}) {
     this.isConnected = true;
+    this.isDeafened = deafened;
     this.isConnecting = false;
     this.isHangingUp = false;
-    this.isDeafened = deafened;
     const STATS = window.meetingClientSettings.public.stats;
 
     // If the user is deafened, we don't want to proceed any further until

@@ -79,8 +79,8 @@ const AudioModalContainer = (props) => {
   const inputDeviceId = useReactiveVar(AudioManager._inputDeviceId.value);
   const outputDeviceId = useReactiveVar(AudioManager._outputDeviceId.value);
   const showPermissionsOvelay = useReactiveVar(AudioManager._isWaitingPermissions.value);
-  const isUsingAudio = Service.useIsUsingAudio();
   const isConnecting = useReactiveVar(AudioManager._isConnecting.value);
+  const isUsingAudio = Service.useIsAudioConnectionUnderway();
   const isReconnecting = useReactiveVar(AudioManager._isReconnecting.value);
   const isListenOnly = useReactiveVar(AudioManager._isListenOnly.value);
   const isEchoTest = useReactiveVar(AudioManager._isEchoTest.value);
