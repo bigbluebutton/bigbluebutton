@@ -411,7 +411,7 @@ class NavBar extends Component {
               {renderPluginItems(centerPluginItems)}
             </Styled.Center>
             <Styled.Right>
-              <h2 class="sr-only">{intl.formatMessage(intlMessages.sessionControlLabel)}</h2>
+              <h2 className="sr-only">{intl.formatMessage(intlMessages.sessionControlLabel)}</h2>
               {renderPluginItems(rightPluginItems)}
               {ConnectionStatusService.isEnabled() ? <ConnectionStatusButton /> : null}
               {ConnectionStatusService.isEnabled() ? <ConnectionStatus /> : null}
@@ -425,7 +425,7 @@ class NavBar extends Component {
           </Styled.Top>
         )}
         <Styled.Bottom>
-          <h2 class="sr-only">{intl.formatMessage(intlMessages.speakersListLabel)}</h2>
+          <h2 className="sr-only">{intl.formatMessage(intlMessages.speakersListLabel)}</h2>
           {enableTalkingIndicator ? <TalkingIndicator amIModerator={amIModerator} /> : null}
           <TimerIndicatorContainer />
         </Styled.Bottom>
