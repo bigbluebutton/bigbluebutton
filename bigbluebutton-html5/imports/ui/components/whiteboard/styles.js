@@ -173,7 +173,7 @@ const TldrawV2GlobalStyle = createGlobalStyle`
     background-color: white !important;
   }
 
-  [data-testid="tools.delete-all"] {
+  [data-testid="tools.delete-selected-items"] {
     display: flex;
   }
 
