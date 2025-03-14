@@ -2,11 +2,14 @@ import React from 'react';
 import { MeetingStatusData } from 'bigbluebutton-html-plugin-sdk';
 import { UpdatedEventDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
 import { GENERIC_HOOK_PLUGIN, HookEvents } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/enum';
-import { MeetingStatusUpdateForPluginProps } from './types';
+import { PluginTopLevelManagerProps } from './types';
 import { useStatePreviousValue } from '../../hooks/usePreviousValue';
 
-const MeetingStatusUpdateForPlugin: React.FC<MeetingStatusUpdateForPluginProps> = (
-  { currentUserCurrentlyInMeeting }: MeetingStatusUpdateForPluginProps,
+/**
+ * This component manages plugin events and states in a top-level scope
+ */
+const PluginTopLevelManager: React.FC<PluginTopLevelManagerProps> = (
+  { currentUserCurrentlyInMeeting }: PluginTopLevelManagerProps,
 ) => {
   const previousUserCurrentlyInMeeting = useStatePreviousValue(currentUserCurrentlyInMeeting);
 
@@ -27,4 +30,4 @@ const MeetingStatusUpdateForPlugin: React.FC<MeetingStatusUpdateForPluginProps> 
   return null;
 };
 
-export default MeetingStatusUpdateForPlugin;
+export default PluginTopLevelManager;
