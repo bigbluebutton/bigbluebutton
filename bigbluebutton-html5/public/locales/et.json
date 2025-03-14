@@ -430,7 +430,7 @@
     "app.poll.secretPoll.isSecretLabel": "Küsitlus on anonüümne – üksikvastused ei ole nähtavad.",
     "app.poll.questionErr": "Küsimuse sisestamine on nõutav.",
     "app.poll.optionErr": "Sisesta vastusevariant",
-    "app.poll.minOptionsErr": "Vajalik on vähemalt kaks vastusevarianti",
+    "app.poll.minOptionsErr": "Vajalik on vähemalt üks vastusevariant",
     "app.poll.startPollDesc": "Alustab küsitlust",
     "app.poll.showRespDesc": "Kuvab vastuste seadistuse",
     "app.poll.addRespDesc": "Lisab vastuse sisestamise välja",
