@@ -70,7 +70,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
     <bean id="pageCounterService" class="org.bigbluebutton.presentation.imp.PageCounterService">
         <property name="pageCounter" ref="pageCounter"/>
-        <property name="maxNumPages" value="${maxNumPages}"/>
     </bean>
 
     <bean id="thumbCreator" class="org.bigbluebutton.presentation.imp.ThumbnailCreatorImp">

@@ -186,7 +186,8 @@ public class PresentationFileProcessor {
 
     private boolean determineNumberOfPages(UploadedPresentation pres) {
         try {
-            counterService.determineNumberOfPages(pres);
+            Meeting meeting = ServiceUtils.findMeetingFromMeetingID(pres.getMeetingId());
+            counterService.determineNumberOfPages(pres, meeting.getMaxNumPages());
             return true;
         } catch (CountingPageException e) {
             sendFailedToCountPageMessage(e, pres);

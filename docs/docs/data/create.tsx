@@ -534,6 +534,13 @@ const createEndpointTableData = [
         </code>
       </>
     )
+  },
+  {
+    "name": "maxNumPages",
+    "required": false,
+    "type": "Number",
+    "default": 200,
+    "description": (<>Maximum number of pages allowed for an uploaded presentation.</>)
   }
 ]
 
