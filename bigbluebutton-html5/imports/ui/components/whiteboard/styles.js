@@ -60,6 +60,10 @@ const TldrawV2GlobalStyle = createGlobalStyle`
     width: auto !important;
   }
 
+  .tlui-popover__content {
+    left: -50px !important;
+  }
+
   ${({ isPresenter, isMultiUserActive }) => !isPresenter && !isMultiUserActive && `
     .tl-cursor use {
       transform: scale(0.05)!important;
@@ -115,6 +119,10 @@ const TldrawV2GlobalStyle = createGlobalStyle`
       }
   `}
 
+  [data-testid="menu-item.bring-to-front"],
+  [data-testid="menu-item.bring-forward"],
+  [data-testid="menu-item.send-backward"],
+  [data-testid="menu-item.send-to-back"],
   [data-testid="menu-item.modify"],
   [data-testid="menu-item.conversions"],
   .tlui-helper-buttons,
@@ -165,6 +173,10 @@ const TldrawV2GlobalStyle = createGlobalStyle`
     background-color: white !important;
   }
 
+  [data-testid="tools.delete-all"] {
+    display: flex;
+  }
+
   ${({ presentationHeight }) => {
     const minRange = { height: 345, top: 14 };
     const maxRange = { height: 1200, top: 384 };
@@ -181,11 +193,11 @@ const TldrawV2GlobalStyle = createGlobalStyle`
     const topValue = interpolateTop(presentationHeight);
 
     let additionalStyles = '';
-    if (presentationHeight <= 332) {
+    if (presentationHeight <= 405) {
       additionalStyles += `
         .tlui-layout__mobile .tlui-button__tool > .tlui-icon {
-          height: 11px !important;
-          width: 11px !important;
+          height: 10px !important;
+          width: 10px !important;
         }
 
         .tlui-toolbar__tools {
@@ -202,7 +214,11 @@ const TldrawV2GlobalStyle = createGlobalStyle`
           top: 2px !important;
         }
 
-        [data-side="top"][role="dialog"] {
+        .tlui-toolbar__tools.tlui-toolbar__tools__mobile.fade-in {
+          height: 30px !important;
+        }
+
+        [data-side="top"][role="dialog"]:has(.tlui-style-panel) {
           left: 10rem !important;
         }
       `;

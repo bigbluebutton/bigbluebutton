@@ -133,6 +133,7 @@ const CustomLayout = (props) => {
   };
 
   const init = () => {
+    const hasLayoutEngineLoadedOnce = Session.getItem('hasLayoutEngineLoadedOnce');
     if (isMobile) {
       layoutContextDispatch({
         type: ACTIONS.SET_LAYOUT_INPUT,
@@ -181,7 +182,7 @@ const CustomLayout = (props) => {
                 isPinned: sharedNotes.isPinned,
               },
             },
-            INITIAL_INPUT_STATE,
+            hasLayoutEngineLoadedOnce ? prevInput : INITIAL_INPUT_STATE,
           );
         },
       });
@@ -232,7 +233,7 @@ const CustomLayout = (props) => {
                 isPinned: sharedNotes.isPinned,
               },
             },
-            INITIAL_INPUT_STATE,
+            hasLayoutEngineLoadedOnce ? prevInput : INITIAL_INPUT_STATE,
           );
         },
       });
@@ -286,9 +287,10 @@ const CustomLayout = (props) => {
       camerasMargin,
       cameraDockMinHeight,
       cameraDockMinWidth,
-      navBarHeight,
       presentationToolbarMinWidth,
     } = DEFAULT_VALUES;
+
+    const navBarHeight = calculatesNavbarHeight();
 
     const cameraDockBounds = {};
 
@@ -435,7 +437,7 @@ const CustomLayout = (props) => {
     const { element: fullscreenElement } = fullscreen;
     const { camerasMargin } = DEFAULT_VALUES;
 
-    const hasPresentation = isPresentationEnabled && slidesLength !== 0;
+    const hasPresentation = (isPresentationEnabled && slidesLength !== 0) || isOpen;
     const isGeneralMediaOff = !hasPresentation && !hasExternalVideo
       && !hasScreenShare && !isSharedNotesPinned && !genericContentId;
 
@@ -752,6 +754,7 @@ const CustomLayout = (props) => {
     layoutContextDispatch({
       type: ACTIONS.SET_EXTERNAL_VIDEO_OUTPUT,
       value: {
+        display: externalVideoInput.hasExternalVideo,
         width: mediaBounds.width,
         height: mediaBounds.height,
         top: mediaBounds.top,

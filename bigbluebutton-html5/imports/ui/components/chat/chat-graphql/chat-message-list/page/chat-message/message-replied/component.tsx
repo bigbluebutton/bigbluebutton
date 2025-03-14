@@ -1,8 +1,8 @@
 import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import Styled, { DeleteMessage } from './styles';
-import Storage from '/imports/ui/services/storage/in-memory';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
+import { messageToQuoteMarkdown } from '/imports/ui/components/chat/chat-graphql/service';
 
 const intlMessages = defineMessages({
   deleteMessage: {
@@ -14,22 +14,23 @@ const intlMessages = defineMessages({
 interface MessageRepliedProps {
   message: string;
   sequence: number;
-  emphasizedMessage: boolean;
   deletedByUser: string | null;
 }
 
 const ChatMessageReplied: React.FC<MessageRepliedProps> = (props) => {
   const {
-    message, sequence, emphasizedMessage, deletedByUser,
+    message, sequence, deletedByUser,
   } = props;
 
   const intl = useIntl();
-  const messageChunks = message.split('\n');
 
   return (
     <Styled.Container
       onClick={(e) => {
-        e.preventDefault();
+        e.stopPropagation();
+        if (e.target instanceof HTMLAnchorElement) {
+          return;
+        }
         window.dispatchEvent(
           new CustomEvent(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST, {
             detail: {
@@ -37,13 +38,16 @@ const ChatMessageReplied: React.FC<MessageRepliedProps> = (props) => {
             },
           }),
         );
-        Storage.setItem(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST, sequence);
       }}
     >
       {!deletedByUser && (
         <Styled.Message>
-          <Styled.Markdown $emphasizedMessage={emphasizedMessage}>
-            {messageChunks[0]}
+          <Styled.Markdown
+            linkTarget="_blank"
+            allowedElements={window.meetingClientSettings.public.chat.allowedElements}
+            unwrapDisallowed
+          >
+            {messageToQuoteMarkdown(message)}
           </Styled.Markdown>
         </Styled.Message>
       )}

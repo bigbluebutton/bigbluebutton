@@ -23,21 +23,15 @@ export default class ServerLoggerStream extends ServerStream {
   }
 
   static getUserData() {
-    let userInfo: Record<string, unknown> = {
+    const userInfo: Record<string, unknown> = {
       meetingId: Auth.meetingID,
-      userId: Auth.userID,
+      requesterUserId: Auth.userID,
+      fullname: Auth.fullname,
+      confname: Auth.confname,
+      externUserID: Auth.externUserID,
       logoutUrl: Auth.logoutURL,
       sessionToken: Auth.sessionToken,
-      userName: Auth.fullname,
-      extId: Auth.externUserID,
-      meetingName: Auth.confname,
     };
-
-    if (userInfo.meetingId) {
-      userInfo = {
-        sessionToken: sessionStorage.getItem('sessionToken'),
-      };
-    }
 
     return {
       fullInfo: userInfo,

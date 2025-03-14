@@ -1,6 +1,9 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
+import {
+  HUNDRED_PERCENT
+} from '/imports/utils/slideCalcUtils';
 import Styled from './styles';
 import HoldButton from './holdButton/component';
 
@@ -136,7 +139,7 @@ class ZoomTool extends PureComponent {
 
   resetZoom() {
     const { stateZoomValue, initialstateZoomValue } = this.state;
-    if (stateZoomValue !== initialstateZoomValue) this.onChanger(initialstateZoomValue);
+    if (stateZoomValue !== initialstateZoomValue) this.onChanger(HUNDRED_PERCENT);
   }
 
   render() {
@@ -151,6 +154,7 @@ class ZoomTool extends PureComponent {
     const { stateZoomValue } = this.state;
 
     let zoomOutAriaLabel = intl.formatMessage(intlMessages.zoomOutLabel);
+
     if (zoomValue > minBound) {
       zoomOutAriaLabel += ` ${intl.formatNumber(((zoomValue - step) / 100), { style: 'percent' })}`;
     }
@@ -193,7 +197,7 @@ class ZoomTool extends PureComponent {
             <Styled.ResetZoomButton
               aria-label={intl.formatMessage(intlMessages.resetZoomLabel)}
               aria-describedby="resetZoomDescription"
-              disabled={(stateZoomValue === minBound) || !isMeteorConnected}
+              disabled={(stateZoomValue === HUNDRED_PERCENT) || !isMeteorConnected}
               color="light"
               customIcon={stateZoomPct}
               size="md"

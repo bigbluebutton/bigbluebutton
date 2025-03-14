@@ -47,6 +47,7 @@ export default class KurentoScreenshareBridge {
     this._restartIntervalMs = null;
     this.startedOnce = false;
     this.outputDeviceId = null;
+    this.bridgeName = BRIDGE_NAME;
   }
 
   get restartIntervalMs() {
@@ -87,6 +88,15 @@ export default class KurentoScreenshareBridge {
       return peerConnection;
     } catch (error) {
       return null;
+    }
+  }
+
+  setStreamEnabled(enabled) {
+    if (this.gdmStream) {
+      this.gdmStream.getTracks().forEach((track) => {
+        // eslint-disable-next-line no-param-reassign
+        track.enabled = enabled;
+      });
     }
   }
 
@@ -251,7 +261,7 @@ export default class KurentoScreenshareBridge {
     return error;
   }
 
-  async view(options = {
+  async view(streamId, options = {
     hasAudio: false,
     outputDeviceId: null,
   }) {
@@ -262,6 +272,7 @@ export default class KurentoScreenshareBridge {
     const SIGNAL_CANDIDATES = SFU_CONFIG.signalCandidates;
     const TRACE_LOGS = SFU_CONFIG.traceLogs;
     const GATHERING_TIMEOUT = SFU_CONFIG.gatheringTimeout;
+    this.streamId = streamId;
     this.hasAudio = options.hasAudio;
     this.outputDeviceId = options.outputDeviceId;
     this.role = RECV_ROLE;

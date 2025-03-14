@@ -128,7 +128,7 @@ const AudioCaptionsButton: React.FC<AudioCaptionsButtonProps> = ({
   const getAvailableLocales = () => {
     let indexToInsertSeparator = -1;
     const availableVoicesObjectToMenu: (MenuOptionItemType | MenuSeparatorItemType)[] = availableVoices
-      .filter((availableVoice) => availableVoice !== 'auto')
+      .filter((availableVoice) => availableVoice !== 'auto' && availableVoice !== '')
       .map((availableVoice: string, index: number) => {
         if (availableVoice === availableVoices[0]) {
           indexToInsertSeparator = index;
@@ -169,7 +169,7 @@ const AudioCaptionsButton: React.FC<AudioCaptionsButtonProps> = ({
     return availableVoices.map((caption) => {
       const localeName = knownLocales ? knownLocales.find((l) => l.locale === caption)?.name : 'en';
 
-      return {
+      return localeName !== '' ? {
         key: caption,
         label: localeName,
         customStyles: (selectedLocale.current === caption) && Styled.SelectedLabel,
@@ -178,7 +178,7 @@ const AudioCaptionsButton: React.FC<AudioCaptionsButtonProps> = ({
           selectedLocale.current = caption;
           setUserLocaleProperty(selectedLocale.current, setUserCaptionLocale);
         },
-      };
+      } : null;
     });
   };
 
@@ -225,6 +225,7 @@ const AudioCaptionsButton: React.FC<AudioCaptionsButtonProps> = ({
 
   const startStopCaptionsButton = (
     <Styled.ClosedCaptionToggleButton
+      active={active}
       icon={active ? 'closed_caption' : 'closed_caption_stop'}
       label={intl.formatMessage(active ? intlMessages.stop : intlMessages.start)}
       color={active ? 'primary' : 'default'}
@@ -238,7 +239,7 @@ const AudioCaptionsButton: React.FC<AudioCaptionsButtonProps> = ({
   return (
     shouldRenderChevron || shouldRenderSelector
       ? (
-        <Styled.SpanButtonWrapper>
+        <Styled.SpanButtonWrapper active={active}>
           <BBBMenu
             trigger={(
               <>

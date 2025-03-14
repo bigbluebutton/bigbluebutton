@@ -1,7 +1,6 @@
 import styled, { css, keyframes } from 'styled-components';
 import Button from '/imports/ui/components/common/button/component';
 import {
-  jumboPaddingY,
   smPaddingX,
   smPaddingY,
   lgPaddingX,
@@ -122,6 +121,7 @@ const SectionHeading = styled.h4`
   margin-top: 0;
   font-weight: 600;
   color: ${colorHeading};
+  margin-bottom: .25rem; 
 `;
 
 const ResponseType = styled.div`
@@ -363,7 +363,7 @@ const CustomInputHeading = styled(SectionHeading)`
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  padding-bottom: ${jumboPaddingY};
+  padding-bottom: ${mdPaddingX};
 `;
 
 const CustomInputHeadingCol = styled(Col)`

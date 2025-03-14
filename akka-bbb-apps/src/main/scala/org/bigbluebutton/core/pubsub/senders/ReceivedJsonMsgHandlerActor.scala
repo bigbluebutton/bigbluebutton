@@ -167,8 +167,6 @@ class ReceivedJsonMsgHandlerActor(
         routePadMsg[PadUpdatedSysMsg](envelope, jsonNode)
       case PadContentSysMsg.NAME =>
         routePadMsg[PadContentSysMsg](envelope, jsonNode)
-      case PadPatchSysMsg.NAME =>
-        routePadMsg[PadPatchSysMsg](envelope, jsonNode)
       case PadUpdatePubMsg.NAME =>
         routeGenericMsg[PadUpdatePubMsg](envelope, jsonNode)
       case PadPinnedReqMsg.NAME =>
@@ -187,6 +185,8 @@ class ReceivedJsonMsgHandlerActor(
         routeVoiceMsg[UserMutedInVoiceConfEvtMsg](envelope, jsonNode)
       case UserTalkingInVoiceConfEvtMsg.NAME =>
         routeVoiceMsg[UserTalkingInVoiceConfEvtMsg](envelope, jsonNode)
+      case SetUserTalkingReqMsg.NAME =>
+        routeGenericMsg[SetUserTalkingReqMsg](envelope, jsonNode)
       case MuteUserCmdMsg.NAME =>
         routeGenericMsg[MuteUserCmdMsg](envelope, jsonNode)
       case MuteAllExceptPresentersCmdMsg.NAME =>
@@ -220,6 +220,12 @@ class ReceivedJsonMsgHandlerActor(
       case ListenOnlyModeToggledInSfuEvtMsg.NAME =>
         routeVoiceMsg[ListenOnlyModeToggledInSfuEvtMsg](envelope, jsonNode)
 
+      // LiveKit/RTC
+      case GenerateLiveKitTokenRespMsg.NAME =>
+        routeGenericMsg[GenerateLiveKitTokenRespMsg](envelope, jsonNode)
+      case LiveKitParticipantLeftEvtMsg.NAME =>
+        routeGenericMsg[LiveKitParticipantLeftEvtMsg](envelope, jsonNode)
+
       // Breakout rooms
       case BreakoutRoomsListMsg.NAME =>
         routeGenericMsg[BreakoutRoomsListMsg](envelope, jsonNode)
@@ -247,6 +253,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[BroadcastLayoutMsg](envelope, jsonNode)
       case BroadcastPushLayoutMsg.NAME =>
         routeGenericMsg[BroadcastPushLayoutMsg](envelope, jsonNode)
+      case SetScreenshareAsContentReqMsg.NAME =>
+        routeGenericMsg[SetScreenshareAsContentReqMsg](envelope, jsonNode)
 
       case UserLeaveReqMsg.NAME =>
         routeGenericMsg[UserLeaveReqMsg](envelope, jsonNode)
@@ -284,6 +292,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[SetCurrentPagePubMsg](envelope, jsonNode)
       case SetPageInfiniteWhiteboardPubMsg.NAME =>
         routeGenericMsg[SetPageInfiniteWhiteboardPubMsg](envelope, jsonNode)
+      case SetPresentationFitToWidthCmdMsg.NAME =>
+        routeGenericMsg[SetPresentationFitToWidthCmdMsg](envelope, jsonNode)
       case ResizeAndMovePagePubMsg.NAME =>
         routeGenericMsg[ResizeAndMovePagePubMsg](envelope, jsonNode)
       case SlideResizedPubMsg.NAME =>
@@ -304,6 +314,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[PresentationHasInvalidMimeTypeErrorSysPubMsg](envelope, jsonNode)
       case PresentationUploadedFileTimeoutErrorSysPubMsg.NAME =>
         routeGenericMsg[PresentationUploadedFileTimeoutErrorSysPubMsg](envelope, jsonNode)
+      case PresentationConversionFailedErrorSysPubMsg.NAME =>
+        routeGenericMsg[PresentationConversionFailedErrorSysPubMsg](envelope, jsonNode)
       case PresentationUploadedFileVirusErrorSysPubMsg.NAME =>
         routeGenericMsg[PresentationUploadedFileVirusErrorSysPubMsg](envelope, jsonNode)
       case PresentationUploadedFileScanFailedErrorSysPubMsg.NAME =>
@@ -314,6 +326,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[PresentationPageCountErrorSysPubMsg](envelope, jsonNode)
       case PresentationPageGeneratedSysPubMsg.NAME =>
         routeGenericMsg[PresentationPageGeneratedSysPubMsg](envelope, jsonNode)
+      case SetPresentationUploadCompletionNotifiedPubMsg.NAME =>
+        routeGenericMsg[SetPresentationUploadCompletionNotifiedPubMsg](envelope, jsonNode)
       case PresentationPageConvertedSysMsg.NAME =>
         routeGenericMsg[PresentationPageConvertedSysMsg](envelope, jsonNode)
       case PresentationPageConversionStartedSysMsg.NAME =>
@@ -342,12 +356,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[RemovePresentationPodPubMsg](envelope, jsonNode)
 
       // Caption
-      case EditCaptionHistoryPubMsg.NAME =>
-        routeGenericMsg[EditCaptionHistoryPubMsg](envelope, jsonNode)
       case AddCaptionLocalePubMsg.NAME =>
         routeGenericMsg[AddCaptionLocalePubMsg](envelope, jsonNode)
-      case SendCaptionHistoryReqMsg.NAME =>
-        routeGenericMsg[SendCaptionHistoryReqMsg](envelope, jsonNode)
       case CaptionSubmitTranscriptPubMsg.NAME =>
         routeGenericMsg[CaptionSubmitTranscriptPubMsg](envelope, jsonNode)
 
@@ -442,6 +452,9 @@ class ReceivedJsonMsgHandlerActor(
 
       case PluginLearningAnalyticsDashboardSendGenericDataMsg.NAME =>
         routeGenericMsg[PluginLearningAnalyticsDashboardSendGenericDataMsg](envelope, jsonNode)
+
+      case PluginPersistEventMsg.NAME =>
+        routeGenericMsg[PluginPersistEventMsg](envelope, jsonNode)
 
       // ExternalVideo
       case StartExternalVideoPubMsg.NAME =>

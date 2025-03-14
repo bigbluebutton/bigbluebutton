@@ -385,8 +385,7 @@ class VideoPreview extends Component {
   }
 
   componentDidUpdate() {
-    const { viewState } = this.state;
-
+    const { viewState, webcamDeviceId } = this.state;
     if (viewState === VIEW_STATES.found && !this.video?.srcObject) {
       this.displayPreview();
     }
@@ -426,7 +425,7 @@ class VideoPreview extends Component {
         this.setState({ brightness, wholeImageBrightness });
       };
 
-      if (!this.currentVideoStream.virtualBgService) {
+      if (!this.currentVideoStream?.virtualBgService) {
         const switched = await this.startVirtualBackground(
           this.currentVideoStream,
           EFFECT_TYPES.NONE_TYPE,
@@ -564,9 +563,9 @@ class VideoPreview extends Component {
     }
 
     if (
-      this.currentVideoStream.virtualBgService
+      this.currentVideoStream?.virtualBgService
       && brightness === 100
-      && this.currentVideoStream.virtualBgType === EFFECT_TYPES.NONE_TYPE
+      && this.currentVideoStream?.virtualBgType === EFFECT_TYPES.NONE_TYPE
     ) {
       this.stopVirtualBackground(this.currentVideoStream);
     }
@@ -612,9 +611,9 @@ class VideoPreview extends Component {
 
     if (
       (shared)
-      && this.currentVideoStream.virtualBgService
+      && this.currentVideoStream?.virtualBgService
       && brightness === 100
-      && this.currentVideoStream.virtualBgType === EFFECT_TYPES.NONE_TYPE
+      && this.currentVideoStream?.virtualBgType === EFFECT_TYPES.NONE_TYPE
     ) {
       this.stopVirtualBackground(this.currentVideoStream);
     }
@@ -1242,7 +1241,7 @@ class VideoPreview extends Component {
       previewError,
     } = this.state;
     const shouldDisableButtons = this.shouldSkipVideoPreview()
-      && !(deviceError || previewError);
+    || !!(deviceError || previewError);
 
     const shared = this.isAlreadyShared(webcamDeviceId);
 
@@ -1348,32 +1347,31 @@ class VideoPreview extends Component {
 
     const allowCloseModal = !!(deviceError || previewError)
     || !PreviewService.getSkipVideoPreview()
-    || forceOpen;
+      || forceOpen;
 
-    const shouldShowVirtualBackgroundsTab = isVirtualBackgroundsEnabled 
-    && !cameraAsContent
-    && !(webcamDeviceId === cameraAsContentDeviceId)
-    && isVirtualBackgroundSupported()
+    const shouldShowVirtualBackgroundsTab = isVirtualBackgroundsEnabled
+      && !cameraAsContent
+      && !(webcamDeviceId === cameraAsContentDeviceId)
+      && isVirtualBackgroundSupported()
 
     return (
-      <Styled.Background isBlurred={isBlurred}>
-        <Styled.VideoPreviewModal
-          onRequestClose={this.handleProceed}
-          contentLabel={intl.formatMessage(intlMessages.webcamSettingsTitle)}
-          shouldShowCloseButton={allowCloseModal}
-          shouldCloseOnOverlayClick={allowCloseModal}
-          isPhone={deviceInfo.isPhone}
-          data-test="webcamSettingsModal"
-          {...{
-            isOpen,
-            priority,
-          }}
-        >
-          <Styled.Container>
-            <Styled.Header>
-              <Styled.WebcamTabs
-              onSelect={this.handleSelectTab}
-              selectedIndex={selectedTab}
+      <Styled.VideoPreviewModal
+        onRequestClose={this.handleProceed}
+        contentLabel={intl.formatMessage(intlMessages.webcamSettingsTitle)}
+        shouldShowCloseButton={allowCloseModal}
+        shouldCloseOnOverlayClick={allowCloseModal}
+        isPhone={deviceInfo.isPhone}
+        data-test="webcamSettingsModal"
+        {...{
+          isOpen,
+          priority,
+        }}
+      >
+        <Styled.Container>
+    <Styled.Header>
+      <Styled.WebcamTabs
+        onSelect={this.handleSelectTab}
+        selectedIndex={selectedTab}
               >
                 <Styled.WebcamTabList>
                   <Styled.WebcamTabSelector selectedClassName="is-selected">
@@ -1409,7 +1407,6 @@ class VideoPreview extends Component {
 
           </Styled.Container>
         </Styled.VideoPreviewModal>
-      </Styled.Background>
     );
   }
 }

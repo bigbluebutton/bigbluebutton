@@ -1,8 +1,6 @@
 export const enum ChatEvents {
   SENT_MESSAGE = 'sentMessage',
   CHAT_FOCUS_MESSAGE_REQUEST = 'ChatFocusMessageRequest',
-  CHAT_KEYBOARD_FOCUS_MESSAGE_REQUEST = 'ChatKeyboardFocusMessageRequest',
-  CHAT_KEYBOARD_FOCUS_MESSAGE_CANCEL = 'ChatKeyboardFocusMessageCancel',
   CHAT_REPLY_INTENTION = 'ChatReplyIntention',
   CHAT_CANCEL_REPLY_INTENTION = 'ChatCancelReplyIntention',
   CHAT_EDIT_REQUEST = 'ChatEditRequest',
@@ -22,5 +20,11 @@ export const enum ChatMessageType {
   CHAT_CLEAR = 'publicChatHistoryCleared',
   BREAKOUT_ROOM = 'breakoutRoomModeratorMsg',
   USER_AWAY_STATUS_MSG = 'userAwayStatusMsg',
+  USER_IS_PRESENTER_MSG = 'userIsPresenterMsg',
   PLUGIN = 'plugin'
 }
+
+export const SYSTEM_SENDERS = new Set<ChatMessageType>([
+  ChatMessageType.BREAKOUT_ROOM,
+  ChatMessageType.API,
+]);

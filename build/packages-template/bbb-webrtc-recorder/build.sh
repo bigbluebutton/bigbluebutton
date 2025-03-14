@@ -33,6 +33,7 @@ go build -o ./build/bbb-webrtc-recorder \
 cp ./build/bbb-webrtc-recorder staging/usr/bin
 cp ./build/env staging/etc/default/bbb-webrtc-recorder
 cp ./config/bbb-webrtc-recorder.yml staging/etc/bbb-webrtc-recorder/bbb-webrtc-recorder.yml
+chmod 644 staging/etc/bbb-webrtc-recorder/bbb-webrtc-recorder.yml
 cp bbb-webrtc-recorder.service staging/usr/lib/systemd/system
 
 . ./opts-$DISTRO.sh

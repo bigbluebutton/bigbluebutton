@@ -27,6 +27,9 @@ const GlobalStyle = createGlobalStyle`
       right: 0 !important;
       max-width: none !important;
     }
+    .MuiPaper-root {
+      width: 100%;
+    }
   }
   .MuiList-padding {
     padding: 0 !important;
@@ -63,7 +66,7 @@ const GlobalStyle = createGlobalStyle`
   }
 
   .fullscreenModalOverlay {
-    z-index: 1000;
+    z-index: 900;
     background: #fff;
     display: flex;
     align-items: center;
@@ -95,17 +98,18 @@ const GlobalStyle = createGlobalStyle`
     cursor: pointer;
     background-color: ${colorWhite};
 
-    &:hover,
     &:focus {
       background-color: #EEE;
     }
   }
 
   .toastBodyClass {
+    font-family: 'Source Sans Pro';
     margin: auto auto;
     flex: 1;
     background-color: inherit;
     max-width: 17.75rem !important;
+    background-color: ${colorWhite} !important;
   }
 
   @keyframes track-progress {
@@ -126,7 +130,7 @@ const GlobalStyle = createGlobalStyle`
     height: 5px;
     z-index: 999;
     animation: track-progress linear 1;
-    background-color: ${colorGrayLighter};
+    background-color: ${colorGrayLighter} !important;
     border-radius: ${borderRadius};
 
     [dir="rtl"] & {

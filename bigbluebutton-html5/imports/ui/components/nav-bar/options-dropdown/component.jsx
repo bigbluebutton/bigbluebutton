@@ -108,9 +108,13 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.reactions.away',
     description: 'Away Label',
   },
-  activeLabel: {
-    id: 'app.actionsBar.reactions.active',
-    description: 'Active Label',
+  availableLabel: {
+    id: 'app.actionsBar.reactions.available',
+    description: 'Available Label',
+  },
+  presenceLabel: {
+    id: 'app.navBar.optionsDropdown.presenceLabel',
+    description: 'Presence Label',
   },
 });
 
@@ -231,8 +235,6 @@ class OptionsDropdown extends PureComponent {
     const { userLeaveMeeting } = this.props;
     
     userLeaveMeeting();
-    // we don't check askForFeedbackOnLogout here,
-    // it is checked in meeting-ended component
     Session.setItem('codeError', this.LOGOUT_CODE);
   }
 
@@ -288,21 +290,19 @@ class OptionsDropdown extends PureComponent {
 
     const ToggleAFKLabel = () => (away
       ? intl.formatMessage(intlMessages.awayLabel)
-      : intl.formatMessage(intlMessages.activeLabel));
+      : intl.formatMessage(intlMessages.availableLabel));
 
     this.menuItems.push({
       label: (
         <Styled.AwayOption>
-          <>Presence</>
+          <span>{intl.formatMessage(intlMessages.presenceLabel)} <b>{ToggleAFKLabel()}</b></span>
           <Styled.ToggleButtonWrapper>
-            <Styled.AFKLabel>{ToggleAFKLabel()}</Styled.AFKLabel>
             <Toggle
               icons={false}
-              checked={away}
+              checked={!away}
               onChange={handleToggleAFK}
               ariaLabel={ToggleAFKLabel()}
               showToggleLabel={false}
-              invertColors
             />
           </Styled.ToggleButtonWrapper>
         </Styled.AwayOption>
@@ -403,6 +403,7 @@ class OptionsDropdown extends PureComponent {
           icon: 'manage_layout',
           label: intl.formatMessage(intlMessages.layoutModal),
           onClick: () => this.setLayoutModalIsOpen(true),
+          dataTest: 'manageLayoutBtn',
         },
       );
     }

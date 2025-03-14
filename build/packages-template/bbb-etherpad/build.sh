@@ -47,7 +47,11 @@ git clone https://github.com/mconf/ep_redis_publisher.git
 npm pack ./ep_redis_publisher
 npm install ./ep_redis_publisher-*.tgz
 
-npm install ep_cursortrace
+rm -rf ep_cursortrace
+git clone https://github.com/mconf/ep_cursortrace.git
+npm pack ./ep_cursortrace
+npm install ./ep_cursortrace-*.tgz
+
 npm install ep_disable_chat
 npm install --no-save --legacy-peer-deps ep_auth_session
 

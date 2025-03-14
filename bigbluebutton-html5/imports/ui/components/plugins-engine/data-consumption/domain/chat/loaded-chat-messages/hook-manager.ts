@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import {
   LoadedChatMessage,
@@ -7,13 +7,14 @@ import {
   HookEvents,
 } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/enum';
 import { DataConsumptionHooks } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-consumption/enums';
-import { SubscribedEventDetails, UpdatedEventDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
+import { UpdatedEventDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
 import useLoadedPageGathering from '/imports/ui/core/hooks/useLoadedChatMessages';
 import { Message } from '/imports/ui/Types/message';
 import formatLoadedChatMessagesDataFromGraphql from './utils';
+import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
+import { GeneralHookManagerProps } from '../../../types';
 
-const LoadedChatMessagesHookContainer = () => {
-  const [sendSignal, setSendSignal] = useState(false);
+const LoadedChatMessagesHookContainer = (props: GeneralHookManagerProps) => {
   const [chatMessagesData] = useLoadedPageGathering((message: Partial<Message>) => ({
     createdAt: message.createdAt,
     message: message.message,
@@ -21,6 +22,9 @@ const LoadedChatMessagesHookContainer = () => {
     user: message.user,
     messageMetadata: message.messageMetadata,
   }));
+
+  const { numberOfUses } = props;
+  const previousNumberOfUses = usePreviousValue(numberOfUses);
 
   const updateLoadedChatMessagesForPlugin = () => {
     window.dispatchEvent(new CustomEvent<
@@ -34,22 +38,14 @@ const LoadedChatMessagesHookContainer = () => {
   };
 
   useEffect(() => {
-    updateLoadedChatMessagesForPlugin();
-  }, [chatMessagesData, sendSignal]);
-
+    const previousNumberOfUsesValue = previousNumberOfUses || 0;
+    if (numberOfUses > previousNumberOfUsesValue) {
+      updateLoadedChatMessagesForPlugin();
+    }
+  }, [numberOfUses]);
   useEffect(() => {
-    const updateHookUseLoadedChatMessages = ((event: CustomEvent<SubscribedEventDetails>) => {
-      if (event.detail.hook === DataConsumptionHooks.LOADED_CHAT_MESSAGES) setSendSignal((signal) => !signal);
-    }) as EventListener;
-    window.addEventListener(
-      HookEvents.PLUGIN_SUBSCRIBED_TO_BBB_CORE, updateHookUseLoadedChatMessages,
-    );
-    return () => {
-      window.removeEventListener(
-        HookEvents.PLUGIN_SUBSCRIBED_TO_BBB_CORE, updateHookUseLoadedChatMessages,
-      );
-    };
-  }, []);
+    updateLoadedChatMessagesForPlugin();
+  }, [chatMessagesData]);
 
   return null;
 };

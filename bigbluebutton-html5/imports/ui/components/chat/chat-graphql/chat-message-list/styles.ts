@@ -13,7 +13,6 @@ export const MessageList = styled(ScrollboxVertical)<MessageListProps>`
   flex-shrink: 1;
   outline-style: none;
   overflow-x: hidden;
-  user-select: text;
   height: 100%;
   z-index: 2;
   overflow-y: auto;
@@ -28,10 +27,6 @@ export const MessageList = styled(ScrollboxVertical)<MessageListProps>`
   ${({ isRTL }) => !isRTL && `
     padding-right: ${smPaddingX};
   `}
-
-  ${({ $hasMessageToolbar }) => $hasMessageToolbar && `
-    padding-top: 2rem;
-  `}
 `;
 
 export const UnreadButton = styled(ButtonElipsis)`
@@ -42,7 +37,10 @@ export const UnreadButton = styled(ButtonElipsis)`
   z-index: 3;
 `;
 
+export const PageWrapper = styled.div``;
+
 export default {
   MessageList,
   UnreadButton,
+  PageWrapper,
 };

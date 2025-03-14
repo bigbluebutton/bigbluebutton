@@ -136,6 +136,7 @@ const UserNotesGraphql: React.FC<UserNotesGraphqlProps> = (props) => {
         role="button"
         tabIndex={0}
         active={notesOpen}
+        aria-expanded={notesOpen}
         data-test="sharedNotesButton"
         onClick={() => toggleNotesPanel(sidebarContentPanel, layoutContextDispatch)}
         // @ts-ignore
@@ -158,8 +159,11 @@ const UserNotesGraphql: React.FC<UserNotesGraphqlProps> = (props) => {
             ? (
               <Styled.NotesLock>
                 {/* @ts-ignore */}
-                <Icon iconName="lock" />
-                <span id="lockedNotes">{`${intl.formatMessage(intlMessages.locked)} ${intl.formatMessage(intlMessages.byModerator)}`}</span>
+                <span id="lockedNotes">
+                  <Icon iconName="lock" />
+                  &nbsp;
+                  {`${intl.formatMessage(intlMessages.locked)} ${intl.formatMessage(intlMessages.byModerator)}`}
+                </span>
               </Styled.NotesLock>
             ) : null}
           {isPinned

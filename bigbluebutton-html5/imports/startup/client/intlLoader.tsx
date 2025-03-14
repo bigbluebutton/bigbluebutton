@@ -18,9 +18,11 @@ interface IntlLoaderProps extends IntlLoaderContainerProps {
 }
 
 const buildFetchLocale = (locale: string) => {
+  const clientVersion = window.meetingClientSettings.public.app.html5ClientBuild;
   const localesPath = 'locales';
+
   return new Promise((resolve) => {
-    fetch(`${localesPath}/${locale !== 'index' ? `${locale}.json` : ''}`)
+    fetch(`${localesPath}/${locale !== 'index' ? `${locale}.json?v=${clientVersion}` : ''}`)
       .then((response) => {
         if (!response.ok) {
           return resolve(false);
@@ -126,7 +128,7 @@ const IntlLoader: React.FC<IntlLoaderProps> = ({
             const foundLocales = typedResp.filter((locale) => locale instanceof Object) as LocaleJson[];
             if (foundLocales.length === 0) {
               const error = `${{ logCode: 'intl_fetch_locale_error' }},Could not fetch any locale file for ${languageSets.join(', ')}`;
-              loadingContextInfo.setLoading(false, '');
+              loadingContextInfo.setLoading(false);
               logger.error(error);
               throw new Error(error);
             }
@@ -137,15 +139,15 @@ const IntlLoader: React.FC<IntlLoaderProps> = ({
             setCurrentLocale(replacedLocale);
             setMessages(mergedLocale);
             if (!init) {
-              loadingContextInfo.setLoading(false, '');
+              loadingContextInfo.setLoading(false);
             }
           }).catch((error) => {
-            loadingContextInfo.setLoading(false, '');
+            loadingContextInfo.setLoading(false);
             throw new Error(error);
           });
       })
       .catch(() => {
-        loadingContextInfo.setLoading(false, '');
+        loadingContextInfo.setLoading(false);
         throw new Error('unable to fetch localized messages');
       });
   }, []);

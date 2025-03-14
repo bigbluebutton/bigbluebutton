@@ -60,6 +60,8 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
     isFinal: true,
   });
 
+  const localeRef = useRef(locale);
+
   const speechRecognitionRef = useRef<ReturnType<typeof SpeechRecognitionAPI>>(null);
   const prevIdRef = useRef('');
   const prevTranscriptRef = useRef('');
@@ -158,12 +160,19 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
   };
 
   const onEnd = useCallback(() => {
+    logger.debug({
+      logCode: 'captions_speech_recognition_ended',
+    }, 'Captions speech recognition ended by browser');
+
     stop();
+    if (!mutedRef.current) {
+      logger.debug("Speech recogniction ended by browser, but we're not muted. Restart it");
+      start(localeRef.current);
+    }
   }, []);
   const onError = useCallback((event: SpeechRecognitionErrorEvent) => {
-    stop();
     logger.error({
-      logCode: 'captions_speech_recognition',
+      logCode: 'captions_speech_recognition_error',
       extraInfo: {
         error: event.error,
         message: event.message,
@@ -188,16 +197,16 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
     resultRef.current.isFinal = isFinal;
 
     if (isFinal) {
-      updateFinalTranscript(id, transcript, locale);
+      updateFinalTranscript(id, transcript, localeRef.current);
       resultRef.current.id = generateId();
     } else {
-      transcriptUpdate(id, transcript, locale, false);
+      transcriptUpdate(id, transcript, localeRef.current, false);
     }
-  }, [locale]);
+  }, [localeRef]);
 
   const stop = useCallback(() => {
-    logger.debug('Stopping browser speech recognition');
     if (speechRecognitionRef.current) {
+      logger.debug('Stopping browser speech recognition');
       if (!speechHasStarted.started) {
         return;
       }
@@ -209,19 +218,19 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
 
       if (!isFinal) {
         const { id } = resultRef.current;
-        updateFinalTranscript(id, transcript, locale);
+        updateFinalTranscript(id, transcript, localeRef.current);
+        resultRef.current.isFinal = true;
         speechRecognitionRef.current.abort();
       } else {
         speechRecognitionRef.current.stop();
       }
       speechHasStarted.started = false;
     }
-  }, [locale]);
+  }, [localeRef]);
 
   const start = (settedLocale: string) => {
-    logger.debug('Starting browser speech recognition');
-
     if (speechRecognitionRef.current && isLocaleValid(settedLocale)) {
+      logger.debug('Starting browser speech recognition');
       speechRecognitionRef.current.lang = settedLocale;
 
       if (speechHasStarted.started) {
@@ -251,17 +260,20 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
     }
   }, [speechRecognitionRef.current]);
 
-  const localeRef = useRef(locale);
   const connectedRef = useRef(connected);
   const mutedRef = useRef(muted);
 
   useEffect(() => {
-    // Connected
-    if ((!connectedRef.current && connected && !muted)) {
+    // Disabled
+    if (locale === '') {
+      stop();
+      connectedRef.current = false;
+    } else if ((!connectedRef.current && connected && !muted)) {
+      // Connected
       logger.debug('Audio connected');
       start(locale);
       connectedRef.current = connected;
-    } else if (localeRef.current !== locale) {
+    } else if (locale !== '' && localeRef.current !== locale) {
       logger.debug('Locale changed', locale);
 
       // Locale changed

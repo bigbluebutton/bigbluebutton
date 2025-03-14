@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { throttle } from 'radash';
 
+const hasBackgroundImageUrl = (el) => {
+  const style = window.getComputedStyle(el);
+  const bg = style.backgroundImage || '';
+  return bg.includes('url(');
+}
+
 const useCursor = (publishCursorUpdate, whiteboardId) => {
   const [cursorPosition, setCursorPosition] = useState({ x: '', y: '' });
 
@@ -35,8 +41,20 @@ const useMouseEvents = ({
   setIsMouseDown,
   setIsWheelZoom,
   setWheelZoomTimeout,
+  isInfiniteWhiteboard,
 }) => {
   const timeoutIdRef = React.useRef();
+  const fingerCountRef = React.useRef(0);
+  const initialPinchDistanceRef = React.useRef(0);
+  const isPinchingRef = React.useRef(false);
+
+  const PINCH_THRESHOLD = 10;
+
+  const getDistanceBetweenTouches = (touch1, touch2) => {
+    const dx = touch2.clientX - touch1.clientX;
+    const dy = touch2.clientY - touch1.clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+  }
 
   const handleMouseUp = () => {
     if (timeoutIdRef.current) {
@@ -65,13 +83,29 @@ const useMouseEvents = ({
   };
 
   const handleMouseDownWindow = (event) => {
+    const target = event.target;
+    const editor = tlEditorRef.current;
     const presentationInnerWrapper = document.getElementById('presentationInnerWrapper');
-    if (!(presentationInnerWrapper && presentationInnerWrapper.contains(event.target))) {
-      const editingShape = tlEditorRef.current?.getEditingShape();
-      if (editingShape) {
-        return tlEditorRef.current?.setEditingShape(null);
+
+    if (!(presentationInnerWrapper && presentationInnerWrapper.contains(target))) {
+      if (editor?.getEditingShape()) {
+        return editor.complete();
       }
     }
+
+    const selectedShapes = editor?.getSelectedShapes();
+    if (
+      selectedShapes?.length === 1 &&
+      selectedShapes[0].type === 'frame' &&
+      editor?.getCurrentToolId() === 'select' &&
+      !target.matches('[data-testid*="selection.resize"]') &&
+      !target.matches('[data-testid*="selection.target"]') &&
+      hasBackgroundImageUrl(target)
+    ) {
+      editor.selectNone();
+      return editor.complete();
+    }
+
     return undefined;
   };
 
@@ -111,7 +145,7 @@ const useMouseEvents = ({
     setIsWheelZoom(true);
 
     const MAX_ZOOM_FACTOR = 4; // Represents 400%
-    const MIN_ZOOM_FACTOR = 1; // Represents 100%
+    const MIN_ZOOM_FACTOR = isInfiniteWhiteboard ? .25 : 1;
     const ZOOM_IN_FACTOR = 0.25;
     const ZOOM_OUT_FACTOR = 0.25;
 
@@ -157,6 +191,49 @@ const useMouseEvents = ({
     setWheelZoomTimeout();
   });
 
+  const handleTouchStart = (event) => {
+    if (event.touches.length === 2) {
+      fingerCountRef.current = 2;
+      isPinchingRef.current = false;
+      const [t1, t2] = event.touches;
+      initialPinchDistanceRef.current = getDistanceBetweenTouches(t1, t2);
+    } else if (event.touches.length === 3) {
+      fingerCountRef.current = 3;
+    } else {
+      fingerCountRef.current = 0;
+    }
+  };
+
+  const handleTouchMove = (event) => {
+    if (fingerCountRef.current === 2 && event.touches.length === 2) {
+      const [t1, t2] = event.touches;
+      const currentDistance = getDistanceBetweenTouches(t1, t2);
+      const distanceDiff = Math.abs(currentDistance - initialPinchDistanceRef.current);
+      if (distanceDiff > PINCH_THRESHOLD) {
+        isPinchingRef.current = true;
+      }
+    }
+  };
+
+  const handleTouchEnd = (event) => {
+    if (event.touches.length === 0) {
+      const count = fingerCountRef.current;
+
+      if (!hasWBAccess) return;
+
+      if (count === 2) {
+        if (!isPinchingRef.current) {
+          tlEditorRef.current?.undo();
+        }
+      } else if (count === 3) {
+        tlEditorRef.current?.redo();
+      }
+      fingerCountRef.current = 0;
+      isPinchingRef.current = false;
+      initialPinchDistanceRef.current = 0;
+    }
+  };
+
   React.useEffect(() => {
     if (whiteboardToolbarAutoHide) {
       toggleToolsAnimations(
@@ -186,6 +263,10 @@ const useMouseEvents = ({
       whiteboardElement.addEventListener('mouseenter', handleMouseEnter);
       whiteboardElement.addEventListener('mouseleave', handleMouseLeave);
       whiteboardElement.addEventListener('wheel', handleMouseWheel, { passive: false, capture: true });
+
+      whiteboardElement.addEventListener('touchstart', handleTouchStart, { passive: false, capture: true });
+      whiteboardElement.addEventListener('touchend', handleTouchEnd, { passive: false, capture: true });
+      whiteboardElement.addEventListener('touchmove', handleTouchMove, { passive: false });
     }
 
     return () => {
@@ -195,6 +276,10 @@ const useMouseEvents = ({
         whiteboardElement.removeEventListener('mouseenter', handleMouseEnter);
         whiteboardElement.removeEventListener('mouseleave', handleMouseLeave);
         whiteboardElement.removeEventListener('wheel', handleMouseWheel);
+
+        whiteboardElement.removeEventListener('touchstart', handleTouchStart);
+        whiteboardElement.removeEventListener('touchend', handleTouchEnd);
+        whiteboardElement.removeEventListener('touchmove', handleTouchMove);
       }
 
       window.removeEventListener('mousedown', handleMouseDownWindow);

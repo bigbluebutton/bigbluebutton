@@ -81,6 +81,7 @@ const btnMutedColor = `var(--btn-muted-color, ${colorMuted})`;
 const btnMutedBg = `var(--btn-muted-bg, ${colorMutedBackground})`;
 
 const toolbarButtonColor = `var(--toolbar-button-color, ${btnDefaultColor})`;
+const toolbarButtonColorDisabled = `var(--toolbar-button-color, ${colorGrayLight})`;
 const userThumbnailBorder = `var(--user-thumbnail-border, ${colorGrayLight})`;
 const loaderBg = `var(--loader-bg, ${colorGrayDark})`;
 const loaderBullet = `var(--loader-bullet, ${colorWhite})`;
@@ -89,7 +90,8 @@ const systemMessageBackgroundColor = 'var(--system-message-background-color, #F9
 const systemMessageBorderColor = 'var(--system-message-border-color, #C5CDD4)';
 const systemMessageFontColor = `var(--system-message-font-color, ${colorGrayDark})`;
 const highlightedMessageBackgroundColor = 'var(--system-message-background-color, #fef9f1)';
-const highlightedMessageBorderColor = 'var(--system-message-border-color, #f5c67f)';
+const highlightedMessageBorderColor = 'var(--system-message-border-color, #B5D3F7)';
+const emphasizedMessageBackgroundColor = 'var(--emphasized-message-background-color, #E9F1F9)';
 const colorHeading = `var(--color-heading, ${colorGrayDark})`;
 const palettePlaceholderText = 'var(--palette-placeholder-text, #787675)';
 const pollAnnotationGray = 'var(--poll-annotation-gray, #333333)';
@@ -186,6 +188,7 @@ export {
   btnMutedColor,
   btnMutedBg,
   toolbarButtonColor,
+  toolbarButtonColorDisabled,
   userThumbnailBorder,
   loaderBg,
   loaderBullet,
@@ -195,6 +198,7 @@ export {
   systemMessageFontColor,
   highlightedMessageBackgroundColor,
   highlightedMessageBorderColor,
+  emphasizedMessageBackgroundColor,
   colorHeading,
   palettePlaceholderText,
   pollAnnotationGray,

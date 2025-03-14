@@ -69,6 +69,7 @@ public class Meeting {
 	private boolean record;
 	private boolean autoStartRecording = false;
 	private boolean allowStartStopRecording = false;
+	private boolean presentationConversionCacheEnabled = false;
 	private boolean recordFullDurationMedia = false;
 	private boolean haveRecordingMarks = false;
 	private boolean webcamsOnlyForModerator = false;
@@ -102,6 +103,9 @@ public class Meeting {
 	private String customDarkLogoURL = "";
 	private String customCopyright = "";
 	private Boolean muteOnStart = false;
+	private String cameraBridge = "bbb-webrtc-sfu";
+	private String screenShareBridge = "bbb-webrtc-sfu";
+	private String audioBridge = "bbb-webrtc-sfu";
 	private Boolean allowModsToUnmuteUsers = false;
 	private Boolean allowRequestsWithoutSession = false;
 	private Boolean allowModsToEjectCameras = false;
@@ -159,6 +163,7 @@ public class Meeting {
         record = builder.record;
         autoStartRecording = builder.autoStartRecording;
         allowStartStopRecording = builder.allowStartStopRecording;
+		presentationConversionCacheEnabled = builder.presentationConversionCacheEnabled;
         recordFullDurationMedia = builder.recordFullDurationMedia;
         webcamsOnlyForModerator = builder.webcamsOnlyForModerator;
         meetingCameraCap = builder.meetingCameraCap;
@@ -185,6 +190,9 @@ public class Meeting {
         endWhenNoModerator = builder.endWhenNoModerator;
         endWhenNoModeratorDelayInMinutes = builder.endWhenNoModeratorDelayInMinutes;
 		groups = builder.groups;
+				cameraBridge = builder.cameraBridge;
+				screenShareBridge = builder.screenShareBridge;
+				audioBridge = builder.audioBridge;
 		guestUsersWithPositionInWaitingLine = new HashMap<>();
         userCustomData = new HashMap<>();
 		usersWithGuestLobbyMessages = new HashMap<>();
@@ -646,6 +654,10 @@ public class Meeting {
 		return allowStartStopRecording;
 	}
 
+	public boolean isPresentationConversionCacheEnabled() {
+		return presentationConversionCacheEnabled;
+	}
+
 	public boolean getRecordFullDurationMedia() {
 		return recordFullDurationMedia;
 	}
@@ -665,6 +677,18 @@ public class Meeting {
     public Integer getMaxPinnedCameras() {
         return maxPinnedCameras;
     }
+
+		public String getCameraBridge() {
+			return cameraBridge;
+		}
+
+		public String getScreenShareBridge() {
+			return screenShareBridge;
+		}
+
+		public String getAudioBridge() {
+			return audioBridge;
+		}
 
 	public boolean hasUserJoined() {
 		return userHasJoined;
@@ -780,7 +804,7 @@ public class Meeting {
         int sum = 0;
         for (Map.Entry<String, User> entry : users.entrySet()) {
             User u = entry.getValue();
-            if (u.isModerator())
+            if (!u.hasLeft() && u.isModerator())
                 sum++;
         }
         return sum;
@@ -940,6 +964,7 @@ public class Meeting {
     	private boolean autoStartRecording;
     	private boolean recordFullDurationMedia;
         private boolean allowStartStopRecording;
+        private boolean presentationConversionCacheEnabled;
         private boolean webcamsOnlyForModerator;
         private Integer meetingCameraCap;
         private Integer userCameraCap;
@@ -962,6 +987,9 @@ public class Meeting {
     	private String logoutUrl;
     	private String bannerColor;
     	private String bannerText;
+			private String cameraBridge;
+			private String screenShareBridge;
+			private String audioBridge;
     	private int logoutTimer;
     	private Map<String, String> metadata;
     	private String dialNumber;
@@ -1020,6 +1048,11 @@ public class Meeting {
     		return this;
     	}
 
+		public Builder withPresentationConversionCacheEnabled(boolean cacheEnabled) {
+    		this.presentationConversionCacheEnabled = cacheEnabled;
+    		return this;
+    	}
+
 			public Builder withRecordFullDurationMedia(boolean recordFullDurationMedia) {
 				this.recordFullDurationMedia = recordFullDurationMedia;
 				return this;
@@ -1044,6 +1077,21 @@ public class Meeting {
             this.maxPinnedCameras = pins;
             return this;
         }
+
+				public Builder withCameraBridge(String bridge) {
+					this.cameraBridge = bridge;
+					return this;
+				}
+
+				public Builder withScreenShareBridge(String bridge) {
+					this.screenShareBridge = bridge;
+					return this;
+				}
+
+				public Builder withAudioBridge(String bridge) {
+					this.audioBridge = bridge;
+					return this;
+				}
 
     	public Builder withWebVoice(String w) {
     		this.webVoice = w;

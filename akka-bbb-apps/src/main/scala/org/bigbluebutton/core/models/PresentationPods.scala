@@ -1,7 +1,8 @@
 package org.bigbluebutton.core.models
 
 import org.bigbluebutton.core.util.RandomStringGenerator
-import org.bigbluebutton.core.db.{ PresPageDAO, PresPresentationDAO }
+import org.bigbluebutton.core.db.{ NotificationDAO, PresPageDAO, PresPresentationDAO }
+import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 object PresentationPodFactory {
   private def genId(): String = System.currentTimeMillis() + "-" + RandomStringGenerator.randomAlphanumericString(8)
@@ -19,19 +20,20 @@ object PresentationPodFactory {
 }
 
 case class PresentationPage(
-    id:          String,
-    num:         Int,
-    urls:        Map[String, String],
-    content:     String,
-    current:     Boolean             = false,
-    xOffset:     Double              = 0,
-    yOffset:     Double              = 0,
-    widthRatio:  Double              = 100D,
-    heightRatio: Double              = 100D,
-    width:       Double              = 1440D,
-    height:      Double              = 1080D,
-    converted:   Boolean             = false,
-    infiniteWhiteboard: Boolean          = false,
+    id:                 String,
+    num:                Int,
+    urls:               Map[String, String],
+    content:            String,
+    current:            Boolean             = false,
+    xOffset:            Double              = 0,
+    yOffset:            Double              = 0,
+    widthRatio:         Double              = 100.0,
+    heightRatio:        Double              = 100.0,
+    width:              Double              = 1440D,
+    height:             Double              = 1080D,
+    converted:          Boolean             = false,
+    infiniteWhiteboard: Boolean             = false,
+    fitToWidth:         Boolean             = false
 )
 
 object PresentationInPod {
@@ -98,25 +100,28 @@ case class PresentationPod(id: String, currentPresenter: String,
   def getPresentationsByFilename(filename: String): Iterable[PresentationInPod] =
     presentations.values filter (p => p.name.startsWith(filename))
 
-  def setCurrentPresentation(presId: String): Option[PresentationPod] = {
-    PresPresentationDAO.setCurrentPres(presId)
+  def setCurrentPresentation(newPresentation: PresentationInPod): Option[PresentationPod] = {
+    var updatedPod: PresentationPod = this
+    presentations.get(newPresentation.id) match {
+      case Some(newCurrentPresentation) =>
+        // set new current presentation
+        updatedPod = updatedPod.addPresentation(newCurrentPresentation.copy(current = true))
 
-    var tempPod: PresentationPod = this
-    presentations.values foreach (curPres => { // unset previous current presentation
-      if (curPres.id != presId) {
-        val newPres = curPres.copy(current = false)
-        tempPod = tempPod.addPresentation(newPres)
-      }
-    })
+        // unset previous current presentation
+        presentations.values foreach (curPres => {
+          if (curPres.current && curPres.id != newPresentation.id) {
+            val newPres = curPres.copy(current = false)
+            updatedPod = updatedPod.addPresentation(newPres)
+          }
+        })
 
-    presentations.get(presId) match { // set new current presentation
-      case Some(pres) =>
-        val cp = pres.copy(current = true)
-        tempPod = tempPod.addPresentation(cp)
-      case None => None
+        // update graphql
+        PresPresentationDAO.setCurrentPres(newPresentation.id)
+
+        Some(updatedPod)
+      case None =>
+        None
     }
-
-    Some(tempPod)
   }
 
   def setPresentationDownloadable(presentationId: String, downloadable: Boolean, downloadFileExtension: String): Option[PresentationPod] = {
@@ -172,11 +177,12 @@ case class PresentationPod(id: String, currentPresenter: String,
   def resizePage(presentationId: String, pageId: String,
                  xOffset: Double, yOffset: Double, widthRatio: Double,
                  heightRatio: Double, slideNumber: Int): Option[(PresentationPod, PresentationPage)] = {
-    // Force coordinate that are out-of-bounds inside valid values
-    // 0.25D is 400% zoom
-    // 100D-checkedWidth is the maximum the page can be moved over
-    val checkedWidth = Math.min(widthRatio, 100D) //if (widthRatio <= 100D) widthRatio else 100D
-    val checkedHeight = Math.min(heightRatio, 100D)
+    val minZoom = 25.0
+    val maxZoom = 400.0
+
+    val checkedWidth = Math.max(minZoom, Math.min(widthRatio, maxZoom))
+    val checkedHeight = Math.max(minZoom, Math.min(heightRatio, maxZoom))
+
     val checkedXOffset = xOffset
     val checkedYOffset = yOffset
 
@@ -191,7 +197,6 @@ case class PresentationPod(id: String, currentPresenter: String,
       (addPresentation(newPres), nPage)
     }
   }
-
 }
 
 case class PresentationPodManager(presentationPods: collection.immutable.Map[String, PresentationPod]) {
@@ -257,10 +262,10 @@ case class PresentationPodManager(presentationPods: collection.immutable.Map[Str
     a
   }
 
-  def setCurrentPresentation(podId: String, presId: String): PresentationPodManager = {
+  def setCurrentPresentation(podId: String, pres: PresentationInPod): PresentationPodManager = {
     val updatedManager = for {
       pod <- getPod(podId)
-      podWithAdjustedCurrentPresentation <- pod.setCurrentPresentation(presId)
+      podWithAdjustedCurrentPresentation <- pod.setCurrentPresentation(pres)
 
     } yield {
       updatePresentationPod(podWithAdjustedCurrentPresentation)

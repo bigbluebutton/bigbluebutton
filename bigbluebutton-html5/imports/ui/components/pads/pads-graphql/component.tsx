@@ -51,7 +51,7 @@ const PadGraphql: React.FC<PadGraphqlProps> = (props) => {
       return;
     }
     setPadURL(Service.buildPadURL(padId, sessionIds));
-  }, [isRTL, hasSession]);
+  }, [isRTL, hasSession, intl.locale]);
 
   if (!hasSession) {
     return <PadContent externalId={externalId} />;
@@ -97,12 +97,14 @@ const PadContainerGraphql: React.FC<PadContainerGraphqlProps> = (props) => {
   const sessionData = padSessionData?.sharedNotes_session ?? [];
   const session = sessionData.find((s) => s.sharedNotesExtId === externalId);
   const hasPad = !!hasPadData && hasPadData.sharedNotes.length > 0;
-  const hasSession = !!session?.sessionId;
+  const hasSession = session?.sessionId !== undefined;
   const sessionIds = new Set<string>(sessionData.map((s) => s.sessionId));
 
-  if (hasPad && !hasSession && hasPermission) {
-    createSession({ variables: { externalId } });
-  }
+  useEffect(() => {
+    if (hasPad && !hasSession && hasPermission) {
+      createSession({ variables: { externalId } });
+    }
+  }, [hasPad, hasSession, hasPermission]);
 
   return (
     <PadGraphql

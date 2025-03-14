@@ -509,6 +509,24 @@ Here are the following lists the possible WebRTC error messages that a user may 
 
 ## Networking
 
+### Common Client Errors
+
+| **Error Code** | **Error Message**                                               | **Causes**                                                                            |
+|----------------|-----------------------------------------------------------------|----------------------------------------------------------------------------------------|
+| **3001**       | Reconnection in progress                                        | GraphQL is disconnected and the client is attempting to re-establish the connection.   |
+| **3002**       | Unable to connect. Please check your internet connection        | GraphQL is disconnected (attempting to reconnect), and RTT measurements are critical.  |
+| **3003**       | Server is currently not responding. Reconnection in progress    | GraphQL is connected but not receiving any data from the server.                       |
+| **3004**       | Connection is unstable. Please check your internet connection   | GraphQL is connected but not receiving data, and RTT is critically high.               |
+| **3005**       | Data is loading slowly. Reconnection in progress                | GraphQL is connected and receiving data, but the Hasura PING signal is missing.        |
+| **3006**       | Some live data could not be loaded. Please refresh your client  | One or more GraphQL subscriptions returned an error.                                  |
+
+#### Additional Notes
+
+- **GraphQL** is the server that delivers data to the client through a WebSocket connection. The client also uses this same connection to send actions via GraphQL mutations. Monitoring the GraphQL connection helps determine if the client’s overall network connection is functioning properly.
+
+- **RTT (Round Trip Time)** is measured by periodically sending an HTTP request to `/bigbluebutton/rtt-check`. The BBB server responds with a simple `200` status code as quickly as possible without handling or storing any data. This allows the client to measure how long it takes to receive the response and detect potential network delays or instability.
+
+
 ### Server running behind NAT
 
 The [following issue](https://github.com/bigbluebutton/bigbluebutton/issues/8792) might be helpful in debugging if you run into errors and your server is behind NAT.
@@ -622,7 +640,7 @@ $  sudo systemctl daemon-reload
 
 ### bbb-web takes a long time to startup
 
-`bbb-web` relies on the SecureRandom class (which uses available entropy) to provide random values for its session IDs. On a virtualized server, however, the available entropy can run low and cause bbb-web to block for a long period before it finishes it's startup sequence (see [Slow startup of tomcat](https://stackoverflow.com/questions/28201794/slow-startup-on-tomcat-7-0-57-because-of-securerandom)).
+`bbb-web` relies on the SecureRandom class (which uses available entropy) to provide random values for its session IDs. On a virtualized server, however, the available entropy can run low and cause bbb-web to block for a long period before it finishes its startup sequence (see [Slow startup of tomcat](https://stackoverflow.com/questions/28201794/slow-startup-on-tomcat-7-0-57-because-of-securerandom)).
 
 To provide `bbb-web` with more entropy, you can install haveged
 
@@ -663,7 +681,7 @@ $ sudo bbb-conf --start
 
 ### BigBlueButton does not load
 
-If your has changed it's network connection (such as on reboot), you can clean most of BigBlueButton's configuration files with the following steps.
+If your network connection has changed (for example, after a reboot), you can clean up most of BigBlueButton's configuration files by following the steps below.
 
 ```bash
 $ sudo bbb-conf --setip <ip_address_or_hostname>

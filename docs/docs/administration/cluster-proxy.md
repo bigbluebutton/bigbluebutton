@@ -118,6 +118,8 @@ public:
   media:
     stunTurnServersFetchAddress: 'https://bbb-01.example.com/bigbluebutton/api/stuns'
     sip_ws_host: 'bbb-01.example.com'
+    livekit:
+      url: wss://bbb-01.example.com/livekit
   kurento:
     wsUrl: wss://bbb-01.example.com/bbb-webrtc-sfu
   presentation:
@@ -226,7 +228,7 @@ traffic between BigBlueButton servers and the cluster proxy server does not
 incur additional cost.
 
 This setup introduces user visible single point of failure, i.e. a prominent
-DDoS target. Make sure your frontend server is resiliant to DDoS-attacks, e.g.
+DDoS target. Make sure your frontend server is resilient to DDoS-attacks, e.g.
 has connection tracking disabled in its firewall settings and the web server is
 configured to handle enough connections. Those optimizations however are rather
 specific to individual setups and thus out of the scope of this document.

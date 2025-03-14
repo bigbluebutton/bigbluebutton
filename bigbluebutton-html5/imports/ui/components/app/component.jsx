@@ -45,6 +45,7 @@ import ChatAlertContainerGraphql from '../chat/chat-graphql/alert/component';
 import { notify } from '/imports/ui/services/notification';
 import VoiceActivityAdapter from '../../core/adapters/voice-activity';
 import LayoutObserver from '../layout/observer';
+import BBBLiveKitRoomContainer from '/imports/ui/components/livekit/component';
 
 const intlMessages = defineMessages({
   userListLabel: {
@@ -153,6 +154,7 @@ class App extends Component {
       currentUserAway,
       currentUserRaiseHand,
       intl,
+      fitToWidth,
     } = this.props;
 
     this.renderDarkMode();
@@ -172,6 +174,10 @@ class App extends Component {
         notify(intl.formatMessage(intlMessages.loweredHand), 'info', 'clear_status');
       }
     }
+
+    if (prevProps.fitToWidth !== fitToWidth) {
+      this.setState({ presentationFitToWidth: fitToWidth });
+    }
   }
 
   componentWillUnmount() {
@@ -183,6 +189,8 @@ class App extends Component {
   }
 
   setPresentationFitToWidth(presentationFitToWidth) {
+    const { handlePresentationFitToWidth } = this.props;
+    handlePresentationFitToWidth(presentationFitToWidth);
     this.setState({ presentationFitToWidth });
   }
 
@@ -253,6 +261,8 @@ class App extends Component {
       pluginConfig,
       genericMainContentId,
       hideNotificationToasts,
+      isNotificationEnabled,
+      isNonMediaLayout,
     } = this.props;
 
     const {
@@ -289,7 +299,10 @@ class App extends Component {
           <SidebarContentContainer isSharedNotesPinned={isSharedNotesPinned} />
           <NavBarContainer main="new" />
           <WebcamContainer />
-          <ExternalVideoPlayerContainer />
+          {
+            !isNonMediaLayout
+              && <ExternalVideoPlayerContainer />
+          }
           <GenericContentMainAreaContainer
             genericMainContentId={genericMainContentId}
           />
@@ -306,12 +319,10 @@ class App extends Component {
             : null
             }
           {
-          shouldShowScreenshare
-            ? (
-              <ScreenshareContainer />
-            )
-            : null
+            !isNonMediaLayout
+            && <ScreenshareContainer shouldShowScreenshare={shouldShowScreenshare} />
           }
+
           {isSharedNotesPinned
             ? (
               <NotesContainer
@@ -320,9 +331,12 @@ class App extends Component {
             ) : null}
           <AudioCaptionsSpeechContainer />
           {this.renderAudioCaptions()}
-          { !hideNotificationToasts && <PresentationUploaderToastContainer intl={intl} /> }
+          { (
+            !hideNotificationToasts
+            && isNotificationEnabled) && <PresentationUploaderToastContainer intl={intl} /> }
           <UploaderContainer />
           <BreakoutJoinConfirmationContainerGraphQL />
+          <BBBLiveKitRoomContainer />
           <AudioContainer {...{
             isAudioModalOpen,
             setAudioModalIsOpen: this.setAudioModalIsOpen,
@@ -330,7 +344,9 @@ class App extends Component {
             setVideoPreviewModalIsOpen: this.setVideoPreviewModalIsOpen,
           }}
           />
-          { !hideNotificationToasts && <ToastContainer rtl /> }
+          { (
+            !hideNotificationToasts
+            && isNotificationEnabled) && <ToastContainer rtl /> }
           <ChatAlertContainerGraphql />
           <RaiseHandNotifier />
           <ManyWebcamsNotifier />

@@ -2,10 +2,11 @@ package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.db.NotificationDAO
+import org.bigbluebutton.core.graphql.GraphqlMiddleware
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core.util.ColorPicker
-import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender }
+import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 trait RegisterUserReqMsgHdlr {
   this: UsersApp =>
@@ -48,7 +49,7 @@ trait RegisterUserReqMsgHdlr {
                 UsersApp.ejectUserFromMeeting(outGW, liveMeeting, userToRemove.id, SystemUser.ID, reason, EjectReasonCode.DUPLICATE_USER, ban = false)
 
                 // Force reconnection with graphql to refresh permissions
-                Sender.sendForceUserGraphqlReconnectionSysMsg(liveMeeting.props.meetingProp.intId, userToRemove.id, userToRemove.sessionToken, EjectReasonCode.DUPLICATE_USER, outGW)
+                GraphqlMiddleware.requestGraphqlReconnection(userToRemove.sessionToken, EjectReasonCode.DUPLICATE_USER)
               }
           }
         }
@@ -58,9 +59,9 @@ trait RegisterUserReqMsgHdlr {
     val guestStatus = msg.body.guestStatus
 
     val regUser = RegisteredUsers.create(liveMeeting.props.meetingProp.intId, msg.body.intUserId, msg.body.extUserId,
-      msg.body.name, msg.body.role, msg.body.authToken, Vector(msg.body.sessionToken),
+      msg.body.name, msg.body.firstName, msg.body.lastName, msg.body.role, msg.body.authToken, Vector(msg.body.sessionToken),
       msg.body.avatarURL, msg.body.webcamBackgroundURL, ColorPicker.nextColor(liveMeeting.props.meetingProp.intId), msg.body.bot,
-      msg.body.guest, msg.body.authed, guestStatus, msg.body.excludeFromDashboard, msg.body.enforceLayout, msg.body.userMetadata, false)
+      msg.body.guest, msg.body.authed, guestStatus, msg.body.excludeFromDashboard, msg.body.enforceLayout, msg.body.logoutUrl, msg.body.userMetadata, loggedOut = false)
 
     checkUserConcurrentAccesses(regUser)
     RegisteredUsers.add(liveMeeting.registeredUsers, regUser, liveMeeting.props.meetingProp.intId)
@@ -81,6 +82,19 @@ trait RegisterUserReqMsgHdlr {
       // Meteor should only listen for this single message
       val event = MsgBuilder.buildGuestsWaitingForApprovalEvtMsg(meetingId, "nodeJSapp", guests)
       outGW.send(event)
+
+      val notifyEvent = MsgBuilder.buildNotifyRoleInMeetingEvtMsg(
+        Roles.MODERATOR_ROLE,
+
+        liveMeeting.props.meetingProp.intId,
+        "info",
+        "user",
+        "app.userList.guest.pendingGuestAlert",
+        "Notification that a new guest user joined the session",
+        Vector(s"${regUser.name}")
+      )
+      outGW.send(notifyEvent)
+      NotificationDAO.insert(notifyEvent)
     }
 
     def addGuestToWaitingForApproval(guest: GuestWaiting, guestsWaitingList: GuestsWaiting): Unit = {
@@ -95,18 +109,6 @@ trait RegisterUserReqMsgHdlr {
         val guest = GuestWaiting(regUser.id, regUser.name, regUser.role, regUser.guest, regUser.avatarURL, regUser.webcamBackgroundURL, regUser.color, regUser.authed, regUser.registeredOn)
         addGuestToWaitingForApproval(guest, liveMeeting.guestsWaiting)
         notifyModeratorsOfGuestWaiting(Vector(guest), liveMeeting.users2x, liveMeeting.props.meetingProp.intId)
-        val notifyEvent = MsgBuilder.buildNotifyRoleInMeetingEvtMsg(
-          Roles.MODERATOR_ROLE,
-
-          liveMeeting.props.meetingProp.intId,
-          "info",
-          "user",
-          "app.userList.guest.pendingGuestAlert",
-          "Notification that a new guest user joined the session",
-          Vector(s"${regUser.name}")
-        )
-        outGW.send(notifyEvent)
-        NotificationDAO.insert(notifyEvent)
       case GuestStatus.DENY =>
         val g = GuestApprovedVO(regUser.id, GuestStatus.DENY)
         UsersApp.approveOrRejectGuest(liveMeeting, outGW, g, SystemUser.ID)

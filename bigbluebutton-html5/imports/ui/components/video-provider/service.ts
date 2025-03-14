@@ -18,8 +18,10 @@ import WebRtcPeer from '/imports/ui/services/webrtc-base/peer';
 import { Constraints2 } from '/imports/ui/Types/meetingClientSettings';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import Session from '/imports/ui/services/storage/in-memory';
-import type { Stream, StreamItem } from './types';
+import type { Stream, StreamItem, VideoItem } from './types';
 import { VIDEO_TYPES } from './enums';
+import BBBVideoStream from '/imports/ui/services/webrtc-base/bbb-video-stream';
+import { getLKStats } from '/imports/ui/services/livekit';
 
 const TOKEN = '_';
 
@@ -47,7 +49,7 @@ class VideoService {
 
   private activePeers: Record<string, RTCPeerConnection>;
 
-  private readonly clientSessionUUID: string;
+  private clientSessionUUID: string;
 
   constructor() {
     this.userParameterProfile = null;
@@ -56,7 +58,7 @@ class VideoService {
     this.numberOfDevices = 0;
     this.record = null;
     this.hackRecordViewer = null;
-    this.clientSessionUUID = sessionStorage.getItem('clientSessionUUID') || '0';
+    this.clientSessionUUID = '0';
 
     if (navigator.mediaDevices) {
       this.updateNumberOfDevices = this.updateNumberOfDevices.bind(this);
@@ -438,6 +440,21 @@ class VideoService {
     peer.currentProfileId = profileId;
   }
 
+  static getStreamsToConnectAndDisconnect(allStreams: VideoItem[], connectedStreamIds: string[]) {
+    const cameraIds = allStreams
+      .filter((s) => s?.type !== VIDEO_TYPES.GRID)
+      .map((s) => (s as StreamItem).stream);
+    const streamsToConnect = cameraIds.filter((stream) => {
+      return !connectedStreamIds.includes(stream);
+    });
+
+    const streamsToDisconnect = connectedStreamIds.filter((stream) => {
+      return !cameraIds.includes(stream);
+    });
+
+    return [streamsToConnect, streamsToDisconnect];
+  }
+
   static getThreshold(numberOfPublishers: number) {
     const {
       thresholds: CAMERA_QUALITY_THRESHOLDS = [],
@@ -479,8 +496,16 @@ class VideoService {
     });
   }
 
+  getClientSessionUUID() {
+    if (this.clientSessionUUID === '0') {
+      this.clientSessionUUID = sessionStorage.getItem('clientSessionUUID') || '0';
+    }
+
+    return this.clientSessionUUID;
+  }
+
   getPrefix() {
-    return `${Auth.userID}${TOKEN}${this.clientSessionUUID}`;
+    return `${Auth.userID}${TOKEN}${this.getClientSessionUUID()}`;
   }
 
   updateActivePeers(streams: StreamItem[]) {
@@ -513,7 +538,56 @@ class VideoService {
       }),
     );
 
+    try {
+      const lkStats = await getLKStats();
+      lkStats.forEach((stat) => {
+        // @ts-expect-error -> Untyped object.
+        const { id, type: statType, kind } = stat;
+
+        if (FILTER_VIDEO_STATS.includes(statType) && (!kind || kind === 'video')) {
+          stats[id] = { [statType]: stat };
+        }
+      });
+    } catch (error) {
+      logger.error({
+        logCode: 'video_provider_livekit_stats_error',
+        extraInfo: {
+          errorName: (error as Error).name,
+          errorMessage: (error as Error).message,
+          errorStack: (error as Error).stack,
+        },
+      }, `Failed to get LiveKit video stats: ${(error as Error).message}`);
+    }
+
     return stats;
+  }
+
+  static async startVirtualBackground(
+    bbbVideoStream: BBBVideoStream,
+    backgroundType: string,
+    name: string,
+    data: string,
+  ) {
+    try {
+      if (bbbVideoStream && name && data) {
+        await bbbVideoStream.startVirtualBackground(backgroundType, name, { file: data });
+      } else {
+        throw new Error('startVirtualBackground: Invalid parameters');
+      }
+    } catch (error) {
+      logger.error({
+        logCode: 'video_provider_virtualbg_error',
+        extraInfo: {
+          errorName: (error as Error).name,
+          errorMessage: (error as Error).message,
+          errorStack: (error as Error).stack,
+          virtualBgType: backgroundType,
+          virtualBgName: name,
+        },
+      }, 'Failed to start virtual background by dropping image');
+
+      throw error;
+    }
   }
 }
 
@@ -527,6 +601,7 @@ export default {
   getMediaServerAdapter: VideoService.getMediaServerAdapter,
   getCameraProfile: VideoService.getCameraProfile,
   getThreshold: VideoService.getThreshold,
+  getStreamsToConnectAndDisconnect: VideoService.getStreamsToConnectAndDisconnect,
   getPreviousVideoPage: VideoService.getPreviousVideoPage,
   getNextVideoPage: VideoService.getNextVideoPage,
   getCurrentVideoPageIndex: VideoService.getCurrentVideoPageIndex,
@@ -559,4 +634,6 @@ export default {
   isPinEnabled: VideoService.isPinEnabled,
   updateActivePeers: (streams: StreamItem[]) => videoService.updateActivePeers(streams),
   getStats: () => videoService.getStats(),
+  buildStreamName: (deviceId: string) => videoService.buildStreamName(deviceId),
+  startVirtualBackground: VideoService.startVirtualBackground,
 };

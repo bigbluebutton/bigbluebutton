@@ -1,7 +1,7 @@
 import styled, { css } from 'styled-components';
 import ReactMarkdown from 'react-markdown';
 import {
-  colorGrayLightest,
+  colorGrayLightest, colorOffWhite,
   colorPrimary,
   colorText,
   colorWhite,
@@ -61,14 +61,8 @@ const Message = styled.div`
   min-width: 0;
 `;
 
-const Markdown = styled(ReactMarkdown)<{
-  $emphasizedMessage: boolean;
-}>`
+const Markdown = styled(ReactMarkdown)`
   color: ${colorText};
-
-  ${({ $emphasizedMessage }) => $emphasizedMessage && `
-    font-weight: bold;
-  `}
 
   & img {
     max-width: 100%;
@@ -86,6 +80,11 @@ const Markdown = styled(ReactMarkdown)<{
   & code {
     line-height: 1rlh;
     white-space: nowrap;
+    background-color: ${colorOffWhite};
+    border: solid 1px ${colorGrayLightest};
+    border-radius: 4px;
+    padding: 2px;
+    font-size: 12px;
     overflow: hidden;
     text-overflow: ellipsis;
   }
@@ -94,7 +93,7 @@ const Markdown = styled(ReactMarkdown)<{
 const CloseBtn = styled(EmojiButton)`
   font-size: 75%;
   height: 1rem;
-  padding: 0;
+  padding: 2px;
 `;
 
 export default {

@@ -1,3 +1,8 @@
+import type {
+  InternalRoomOptions,
+  TrackPublishOptions,
+} from 'livekit-client';
+
 export interface MeetingClientSettings {
   public: Public
   private: Private
@@ -54,10 +59,10 @@ export interface App {
   learningDashboardBase: string
   customStyleUrl: string | null
   darkTheme: DarkTheme
-  askForFeedbackOnLogout: boolean
   askForConfirmationOnLeave: boolean
   wakeLock: WakeLock
   allowDefaultLogoutUrl: boolean
+  skipMeetingEnded: boolean
   dynamicGuestPolicy: boolean
   enableGuestLobbyMessage: boolean
   guestPolicyExtraAllowOptions: boolean
@@ -211,6 +216,7 @@ export interface DataSaving {
 export interface Shortcuts {
   openOptions: OpenOptions
   toggleUserList: ToggleUserList
+  openLeaveMenu: OpenLeaveMenu
   toggleMute: ToggleMute
   joinAudio: JoinAudio
   leaveAudio: LeaveAudio
@@ -228,6 +234,11 @@ export interface OpenOptions {
 }
 
 export interface ToggleUserList {
+  accesskey: string
+  descId: string
+}
+
+export interface OpenLeaveMenu {
   accesskey: string
   descId: string
 }
@@ -572,6 +583,7 @@ export interface Layout {
   showParticipantsOnLogin: boolean
   showPushLayoutButton: boolean
   showPushLayoutToggle: boolean
+  showScreenshareQuickSwapButton: boolean
 }
 
 export interface Pads {
@@ -608,23 +620,52 @@ export interface Media {
   traceSip: boolean
   sdpSemantics: string
   localEchoTest: LocalEchoTest
+  networkPriorities: MediaNetworkPriorities
   muteAudioOutputWhenAway: boolean
+  livekit: LiveKitSettings
+}
+
+export interface LiveKitPresetConfig {
+  width: number
+  height: number
+  maxBitrate: number
+  maxFramerate: number
+  priority?: RTCPriorityType
+}
+
+export interface LiveKitCameraSettings {
+  publishOptions?: TrackPublishOptions
+  presets?: LiveKitPresetConfig[]
+}
+
+export interface LiveKitScreenShareSettings {
+  publishOptions?: TrackPublishOptions
+  presets?: LiveKitPresetConfig[]
+}
+
+export interface LiveKitAudioSettings {
+  publishOptions?: TrackPublishOptions
+  unpublishOnMute?: boolean
+}
+
+export interface LiveKitSettings {
+  url?: string
+  selectiveSubscription?: boolean
+  roomOptions?: Partial<InternalRoomOptions>
+  audio?: LiveKitAudioSettings
+  camera?: LiveKitCameraSettings
+  screenshare?: LiveKitScreenShareSettings
 }
 
 export interface Audio2 {
   defaultFullAudioBridge: string
   defaultListenOnlyBridge: string
-  bridges: Bridge[]
   retryThroughRelay: boolean
+  allowAudioJoinCancel: boolean
 }
 
 export interface Screenshare2 {
   showButtonForNonPresenters: boolean
-}
-
-export interface Bridge {
-  name: string
-  path: string
 }
 
 export interface LocalEchoTest {
@@ -632,6 +673,12 @@ export interface LocalEchoTest {
   initialHearingState: boolean
   useRtcLoopbackInChromium: boolean
   delay: Delay
+}
+
+export interface MediaNetworkPriorities {
+  audio: RTCPriorityType
+  webcam: RTCPriorityType
+  screenshare: RTCPriorityType
 }
 
 export interface Delay {
@@ -698,6 +745,7 @@ export interface Whiteboard {
   pointerDiameter: number
   maxStickyNoteLength: number
   maxNumberOfAnnotations: number
+  maxNumberOfActiveUsers: number
   annotations: Annotations
   allowInfiniteWhiteboard: boolean
   allowInfiniteWhiteboardInBreakouts: boolean

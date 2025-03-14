@@ -165,7 +165,7 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
         : intl.formatMessage(intlMessages.startTitle);
     }
     return intl.formatMessage(intlMessages.stopTitle);
-  }, [recording, isPhone, disabled]);
+  }, [recording, isPhone, disabled, intl.locale]);
 
   const recordingIndicatorIcon = useMemo(() => (
     <Styled.RecordingIndicatorIcon
@@ -193,8 +193,13 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
       onClick={() => {
         recordingToggle(micUser, recording);
       }}
-      onKeyDown={() => {
-        recordingToggle(micUser, recording);
+      onKeyDown={(ev) => {
+        if (ev.key !== 'Tab') {
+          ev.preventDefault();
+        }
+        if (ev.key === 'Enter') {
+          recordingToggle(micUser, recording);
+        }
       }}
     >
       {recordingIndicatorIcon}

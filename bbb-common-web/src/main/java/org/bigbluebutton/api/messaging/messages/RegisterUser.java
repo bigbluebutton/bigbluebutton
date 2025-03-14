@@ -8,6 +8,8 @@ public class RegisterUser implements IMessage {
 	public final String meetingID;
 	public final String internalUserId;
 	public final String fullname;
+	public final String firstName;
+	public final String lastName;
 	public final String role;
 	public final String externUserID;
 	public final String authToken;
@@ -21,15 +23,19 @@ public class RegisterUser implements IMessage {
 	public final Boolean excludeFromDashboard;
 	public final Boolean leftGuestLobby;
 	public final String enforceLayout;
+	public final String logoutUrl;
 	public final Map<String, String> userMetadata;
 
-	public RegisterUser(String meetingID, String internalUserId, String fullname, String role, String externUserID,
+	public RegisterUser(String meetingID, String internalUserId, String fullname, String firstName, String lastName,
+						String role, String externUserID,
 						String authToken, String sessionToken, String avatarURL, String webcamBackgroundURL, Boolean bot, Boolean guest,
 						Boolean authed, String guestStatus, Boolean excludeFromDashboard, Boolean leftGuestLobby,
-						String enforceLayout, Map<String, String> userMetadata) {
+						String enforceLayout, String logoutUrl, Map<String, String> userMetadata) {
 		this.meetingID = meetingID;
 		this.internalUserId = internalUserId;
 		this.fullname = fullname;
+		this.firstName = firstName;
+		this.lastName = lastName;
 		this.role = role;
 		this.externUserID = externUserID;
 		this.authToken = authToken;
@@ -43,6 +49,7 @@ public class RegisterUser implements IMessage {
 		this.excludeFromDashboard = excludeFromDashboard;
 		this.leftGuestLobby = leftGuestLobby;
 		this.enforceLayout = enforceLayout;
+		this.logoutUrl = logoutUrl;
 		this.userMetadata = userMetadata;
 	}
 }

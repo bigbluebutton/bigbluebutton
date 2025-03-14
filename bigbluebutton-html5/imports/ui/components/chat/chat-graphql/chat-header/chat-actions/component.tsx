@@ -6,21 +6,18 @@ import { defineMessages, useIntl } from 'react-intl';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
-import { useLazyQuery, useMutation, useQuery } from '@apollo/client';
+import { useLazyQuery, useMutation } from '@apollo/client';
 import { uid } from 'radash';
-import { isEmpty } from 'ramda';
 import {
   GET_CHAT_MESSAGE_HISTORY, getChatMessageHistory,
 } from './queries';
 import Trigger from '/imports/ui/components/common/control-header/right/component';
 import { generateExportedMessages } from './services';
 import { getDateString } from '/imports/utils/string-utils';
-import { ChatCommands } from '/imports/ui/core/enums/chat';
 import { CHAT_PUBLIC_CLEAR_HISTORY } from './mutations';
 import useMeetingSettings from '/imports/ui/core/local-states/useMeetingSettings';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
-import { GET_WELCOME_MESSAGE, WelcomeMsgsResponse } from '/imports/ui/components/chat/chat-graphql/chat-popup/queries';
 
 const intlMessages = defineMessages({
   clear: {
@@ -47,10 +44,6 @@ const intlMessages = defineMessages({
     id: 'app.chat.dropdown.options',
     description: 'Chat Options',
   },
-  showWelcomeMessage: {
-    id: 'app.chat.dropdown.showWelcomeMessage',
-    description: 'Restore button label',
-  },
 });
 
 const ChatActions: React.FC = () => {
@@ -63,7 +56,6 @@ const ChatActions: React.FC = () => {
   const downloadOrCopyRef = useRef<'download' | 'copy' | null>(null);
   const [userIsModerator, setUserIsmoderator] = useState<boolean>(false);
   const [meetingIsBreakout, setMeetingIsBreakout] = useState<boolean>(false);
-  const [showShowWelcomeMessages, setShowShowWelcomeMessages] = useState<boolean>(false);
   const [chatPublicClearHistory] = useMutation(CHAT_PUBLIC_CLEAR_HISTORY);
   const { data: currentUserData, loading: currentUserLoading } = useCurrentUser((u) => ({
     isModerator: u.isModerator,
@@ -72,7 +64,6 @@ const ChatActions: React.FC = () => {
     isBreakout: m.isBreakout,
     name: m.name,
   }));
-  const { data: welcomeData } = useQuery<WelcomeMsgsResponse>(GET_WELCOME_MESSAGE);
   const [
     getChatMessageHistory,
     {
@@ -84,7 +75,6 @@ const ChatActions: React.FC = () => {
     if (dataHistory) {
       const exportedString = generateExportedMessages(
         dataHistory.chat_message_public,
-        dataHistory.user_welcomeMsgs[0],
         intl,
       );
       if (downloadOrCopyRef.current === 'download') {
@@ -113,17 +103,6 @@ const ChatActions: React.FC = () => {
       setMeetingIsBreakout(!!meetingData.isBreakout);
     }
   }, [currentUserData, meetingData]);
-
-  useEffect(() => {
-    if (welcomeData) {
-      if (
-        !isEmpty(welcomeData.user_welcomeMsgs[0]?.welcomeMsg || '')
-        || !isEmpty(welcomeData.user_welcomeMsgs[0]?.welcomeMsgForModerators || '')
-      ) {
-        setShowShowWelcomeMessages(true);
-      }
-    }
-  }, [welcomeData]);
 
   const actions = useMemo(() => {
     const dropdownActions = [
@@ -160,22 +139,9 @@ const ChatActions: React.FC = () => {
         onClick: () => chatPublicClearHistory(),
         loading: currentUserLoading || meetingLoading,
       },
-      {
-        key: uniqueIdsRef.current[3],
-        enable: true,
-        disabled: !showShowWelcomeMessages,
-        icon: 'about',
-        dataTest: 'restoreWelcomeMessages',
-        label: intl.formatMessage(intlMessages.showWelcomeMessage),
-        onClick: () => {
-          const restoreWelcomeMessagesEvent = new CustomEvent(ChatCommands.RESTORE_WELCOME_MESSAGES);
-          window.dispatchEvent(restoreWelcomeMessagesEvent);
-        },
-        loading: currentUserLoading,
-      },
     ];
     return dropdownActions.filter((action) => action.enable);
-  }, [userIsModerator, meetingIsBreakout, showShowWelcomeMessages, currentUserLoading, meetingLoading]);
+  }, [userIsModerator, meetingIsBreakout, currentUserLoading, meetingLoading, intl.locale]);
   if (errorHistory) {
     return (
       <p>

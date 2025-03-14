@@ -40,6 +40,7 @@ import { CURRENT_PAGE_WRITERS_QUERY } from '/imports/ui/components/whiteboard/qu
 import { PRESENTATION_SET_WRITERS } from '/imports/ui/components/presentation/mutations';
 import useToggleVoice from '/imports/ui/components/audio/audio-graphql/hooks/useToggleVoice';
 import useWhoIsUnmuted from '/imports/ui/core/hooks/useWhoIsUnmuted';
+import { notify } from '/imports/ui/services/notification';
 
 interface UserActionsProps {
   userListDropdownItems: PluginSdk.UserListDropdownInterface[];
@@ -145,6 +146,10 @@ const messages = defineMessages({
     id: 'app.userList.menu.ejectUserCameras.label',
     description: 'label to eject user cameras',
   },
+  multiUserLimitHasBeenReachedNotification: {
+    id: 'app.whiteboard.toolbar.multiUserLimitHasBeenReachedNotification',
+    description: 'message for when the maximum number of whiteboard writers has been reached',
+  },
 });
 const makeDropdownPluginItem: (
   userDropdownItems: PluginSdk.UserListDropdownInterface[]) => DropdownItem[] = (
@@ -244,6 +249,21 @@ const UserActions: React.FC<UserActionsProps> = ({
       const newUsersIds: string[] = hasAccess
         ? usersIds.filter((id: string) => id !== userId)
         : [...usersIds, userId];
+
+      // Check if the maximum number of writers has been reached.
+      // If so, notify the user then return.
+      const WHITEBOARD_CONFIG = window.meetingClientSettings.public.whiteboard;
+      if (newUsersIds.length >= WHITEBOARD_CONFIG.maxNumberOfActiveUsers) {
+        notify(
+          intl.formatMessage(
+            messages.multiUserLimitHasBeenReachedNotification,
+            { 0: WHITEBOARD_CONFIG.maxNumberOfActiveUsers },
+          ),
+          'info',
+          'pen_tool',
+        );
+        return;
+      }
 
       // Update the writers
       await presentationSetWriters({
@@ -363,17 +383,21 @@ const UserActions: React.FC<UserActionsProps> = ({
       icon: user.pinned ? 'pin-video_off' : 'pin-video_on',
     },
     {
-      allowed: isChatEnabled
-        && (
-          currentUser.isModerator ? allowedToChatPrivately
-            : allowedToChatPrivately && (
-              !(currentUser.locked && lockSettings?.disablePrivateChat)
-              // TODO: Add check for hasPrivateChat between users
-              || user.isModerator
-            )
-        )
-        && !isVoiceOnlyUser(user.userId)
-        && !isBreakout,
+      allowed: (() => {
+        const preventSelfChat = user.userId !== currentUser.userId;
+        const moderatorOverride = currentUser.isModerator
+          && allowedToChatPrivately;
+        const regularUserCondition = (isChatEnabled
+          && !lockSettings?.disablePrivateChat
+          && !isVoiceOnlyUser(user.userId)
+          && !isBreakout)
+          || user.isModerator;
+
+        const isAllowed = preventSelfChat
+          && (moderatorOverride || regularUserCondition || !currentUser.locked);
+
+        return isAllowed;
+      })(),
       key: 'activeChat',
       label: intl.formatMessage(messages.StartPrivateChat),
       onClick: () => {
@@ -588,7 +612,6 @@ const UserActions: React.FC<UserActionsProps> = ({
                   setOpenUserAction(user.userId);
                 }
               }}
-              role="button"
             >
               {children}
             </Styled.UserActionsTrigger>

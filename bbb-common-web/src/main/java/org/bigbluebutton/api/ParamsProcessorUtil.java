@@ -89,8 +89,8 @@ public class ParamsProcessorUtil {
     private boolean disableRecordingDefault;
     private boolean autoStartRecording;
     private boolean allowStartStopRecording;
+    private boolean presentationConversionCacheEnabled;
     private boolean recordFullDurationMedia;
-    private boolean learningDashboardEnabled = true;
     private int learningDashboardCleanupDelayInMinutes;
     private boolean webcamsOnlyForModerator;
     private Integer defaultMeetingCameraCap = 0;
@@ -99,6 +99,9 @@ public class ParamsProcessorUtil {
     private boolean defaultMuteOnStart = false;
     private boolean defaultAllowModsToUnmuteUsers = false;
     private boolean defaultAllowModsToEjectCameras = false;
+    private String defaultCameraBridge = "bbb-webrtc-sfu";
+    private String defaultScreenShareBridge = "bbb-webrtc-sfu";
+    private String defaultAudioBridge = "bbb-webrtc-sfu";
     private String defaultDisabledFeatures;
     private String defaultPluginManifests;
     private boolean defaultNotifyRecordingIsOn = false;
@@ -110,7 +113,6 @@ public class ParamsProcessorUtil {
     private String defaultPresentationUploadExternalDescription = "";
     private String defaultPresentationUploadExternalUrl = "";
 
-		private boolean defaultBreakoutRoomsEnabled = true;
 		private boolean defaultBreakoutRoomsRecord;
         private boolean defaultBreakoutRoomsCaptureSlides = false;
         private boolean defaultBreakoutRoomsCaptureNotes = false;
@@ -542,6 +544,18 @@ public class ParamsProcessorUtil {
             }
         }
 
+        boolean presentationCacheEnabled = presentationConversionCacheEnabled;
+        if (!StringUtils.isEmpty(params.get(ApiParams.PRESENTATION_CONVERSION_CACHE_ENABLED))) {
+            try {
+                presentationCacheEnabled = Boolean.parseBoolean(params
+                        .get(ApiParams.PRESENTATION_CONVERSION_CACHE_ENABLED));
+            } catch (Exception ex) {
+                log.warn(
+                        "Invalid param [presentationConversionCacheEnabled] for meeting=[{}]",
+                        internalMeetingId);
+            }
+        }
+
         boolean _recordFullDurationMedia = recordFullDurationMedia;
         if (!StringUtils.isEmpty(params.get(ApiParams.RECORD_FULL_DURATION_MEDIA))) {
             try {
@@ -588,28 +602,6 @@ public class ParamsProcessorUtil {
                 ArrayList<PluginManifest> pluginManifestsFromParam = processPluginManifests(pluginManifestsParam);
                 listOfPluginManifests.addAll(pluginManifestsFromParam);
             }
-        }
-
-        // Check if VirtualBackgrounds is disabled
-        if (!StringUtils.isEmpty(params.get(ApiParams.VIRTUAL_BACKGROUNDS_DISABLED))) {
-            boolean virtualBackgroundsDisabled = Boolean.valueOf(params.get(ApiParams.VIRTUAL_BACKGROUNDS_DISABLED));
-            if(virtualBackgroundsDisabled == true && !listOfDisabledFeatures.contains("virtualBackgrounds")) {
-                log.warn("[DEPRECATION] use disabledFeatures=virtualBackgrounds instead of virtualBackgroundsDisabled=true");
-                listOfDisabledFeatures.add("virtualBackgrounds");
-            }
-        }
-
-        boolean learningDashboardEn = learningDashboardEnabled;
-        if (!StringUtils.isEmpty(params.get(ApiParams.LEARNING_DASHBOARD_ENABLED))) {
-            try {
-                learningDashboardEn = Boolean.parseBoolean(params.get(ApiParams.LEARNING_DASHBOARD_ENABLED));
-            } catch (Exception ex) {
-                log.warn("Invalid param [learningDashboardEnabled] for meeting=[{}]",internalMeetingId);
-            }
-        }
-        if(learningDashboardEn == false && !listOfDisabledFeatures.contains("learningDashboard")) {
-            log.warn("[DEPRECATION] use disabledFeatures=learningDashboard instead of learningDashboardEnabled=false");
-            listOfDisabledFeatures.add("learningDashboard");
         }
 
         // Learning Dashboard not allowed for Breakout Rooms
@@ -683,6 +675,21 @@ public class ParamsProcessorUtil {
           }
         }
 
+        String cameraBridge = defaultCameraBridge;
+        if (!StringUtils.isEmpty(params.get(ApiParams.CAMERA_BRIDGE))) {
+            cameraBridge = params.get(ApiParams.CAMERA_BRIDGE);
+        }
+
+        String screenShareBridge = defaultScreenShareBridge;
+        if (!StringUtils.isEmpty(params.get(ApiParams.SCREEN_SHARE_BRIDGE))) {
+            screenShareBridge = params.get(ApiParams.SCREEN_SHARE_BRIDGE);
+        }
+
+        String audioBridge = defaultAudioBridge;
+        if (!StringUtils.isEmpty(params.get(ApiParams.AUDIO_BRIDGE))) {
+            audioBridge = params.get(ApiParams.AUDIO_BRIDGE);
+        }
+
         Integer meetingExpireIfNoUserJoinedInMinutes = defaultMeetingExpireIfNoUserJoinedInMinutes;
         if (!StringUtils.isEmpty(params.get(ApiParams.MEETING_EXPIRE_IF_NO_USER_JOINED_IN_MINUTES))) {
             try {
@@ -747,16 +754,6 @@ public class ParamsProcessorUtil {
             meetingLayout = params.get(ApiParams.MEETING_LAYOUT);
         }
 
-        Boolean breakoutRoomsEnabled = defaultBreakoutRoomsEnabled;
-        String breakoutRoomsEnabledParam = params.get(ApiParams.BREAKOUT_ROOMS_ENABLED);
-        if (!StringUtils.isEmpty(breakoutRoomsEnabledParam)) {
-            breakoutRoomsEnabled = Boolean.parseBoolean(breakoutRoomsEnabledParam);
-        }
-        if(breakoutRoomsEnabled == false && !listOfDisabledFeatures.contains("breakoutRooms")) {
-            log.warn("[DEPRECATION] use disabledFeatures=breakoutRooms instead of breakoutRoomsEnabled=false");
-            listOfDisabledFeatures.add("breakoutRooms");
-        }
-
         BreakoutRoomsParams breakoutParams = processBreakoutRoomsParams(params);
         LockSettingsParams lockSettingsParams = processLockSettingsParams(params);
 
@@ -811,11 +808,15 @@ public class ParamsProcessorUtil {
                 .withDefaultWebcamBackgroundURL(webcamBackgroundURL)
                 .withAutoStartRecording(autoStartRec)
                 .withAllowStartStopRecording(allowStartStoptRec)
+                .withPresentationConversionCacheEnabled(presentationCacheEnabled)
                 .withRecordFullDurationMedia(_recordFullDurationMedia)
                 .withWebcamsOnlyForModerator(webcamsOnlyForMod)
                 .withMeetingCameraCap(meetingCameraCap)
                 .withUserCameraCap(userCameraCap)
                 .withMaxPinnedCameras(maxPinnedCameras)
+                .withCameraBridge(cameraBridge)
+                .withScreenShareBridge(screenShareBridge)
+                .withAudioBridge(audioBridge)
                 .withMetadata(meetingInfo)
                 .withWelcomeMessageTemplate(welcomeMessageTemplate)
                 .withWelcomeMessage(welcomeMessage)
@@ -1362,12 +1363,12 @@ public class ParamsProcessorUtil {
         this.allowStartStopRecording = allowStartStopRecording;
     }
 
-    public void setRecordFullDurationMedia(boolean recordFullDurationMedia) {
-        this.recordFullDurationMedia = recordFullDurationMedia;
+    public void setPresentationConversionCacheEnabled(boolean presentationConversionCacheEnabled) {
+        this.presentationConversionCacheEnabled = presentationConversionCacheEnabled;
     }
 
-    public void setLearningDashboardEnabled(boolean learningDashboardEnabled) {
-        this.learningDashboardEnabled = learningDashboardEnabled;
+    public void setRecordFullDurationMedia(boolean recordFullDurationMedia) {
+        this.recordFullDurationMedia = recordFullDurationMedia;
     }
 
     public void setLearningDashboardCleanupDelayInMinutes(int learningDashboardCleanupDelayInMinutes) {
@@ -1482,6 +1483,30 @@ public class ParamsProcessorUtil {
 		return defaultMuteOnStart;
 	}
 
+  public void setCameraBridge(String cameraBridge) {
+    defaultCameraBridge = cameraBridge;
+  }
+
+  public String getCameraBridge() {
+    return defaultCameraBridge;
+  }
+
+  public void setScreenShareBridge(String screenShareBridge) {
+    defaultScreenShareBridge = screenShareBridge;
+  }
+
+  public String getScreenShareBridge() {
+    return defaultScreenShareBridge;
+  }
+
+  public void setAudioBridge(String audioBridge) {
+    defaultAudioBridge = audioBridge;
+  }
+
+  public String getAudioBridge() {
+    return defaultAudioBridge;
+  }
+
 	public void setDefaultKeepEvents(Boolean mke) {
 		defaultKeepEvents = mke;
 	}
@@ -1556,10 +1581,6 @@ public class ParamsProcessorUtil {
 
         return filters;
     }
-
-	public void setBreakoutRoomsEnabled(Boolean breakoutRoomsEnabled) {
-		this.defaultBreakoutRoomsEnabled = breakoutRoomsEnabled;
-	}
 
 	public void setBreakoutRoomsRecord(Boolean breakoutRoomsRecord) {
 		this.defaultBreakoutRoomsRecord = breakoutRoomsRecord;

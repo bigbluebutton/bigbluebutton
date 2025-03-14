@@ -3,7 +3,6 @@ import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import EndMeetingConfirmationContainer from '/imports/ui/components/end-meeting-confirmation/container';
 import BBBMenu from '/imports/ui/components/common/menu/component';
-import { colorDanger, colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
 import Styled from './styles';
 import Session from '/imports/ui/services/storage/in-memory';
 
@@ -44,6 +43,7 @@ const propTypes = {
   isDropdownOpen: PropTypes.bool,
   ismobile: PropTypes.bool.isRequired,
   userLeaveMeeting: PropTypes.func.isRequired,
+  openLeaveMenu: PropTypes.string,
 };
 
 const defaultProps = {
@@ -76,8 +76,6 @@ class LeaveMeetingButton extends PureComponent {
     const { userLeaveMeeting } = this.props;
 
     userLeaveMeeting();
-    // we don't check askForFeedbackOnLogout here,
-    // it is checked in meeting-ended component
     Session.setItem('codeError', this.LOGOUT_CODE);
   }
 
@@ -106,8 +104,6 @@ class LeaveMeetingButton extends PureComponent {
     }
 
     if (allowedToEndMeeting && connected) {
-      const customStyles = { background: colorDanger, color: colorWhite };
-
       this.menuItems.push(
         {
           key: 'list-item-end-meeting',
@@ -115,7 +111,6 @@ class LeaveMeetingButton extends PureComponent {
           icon: 'close',
           label: intl.formatMessage(intlMessages.endMeetingLabel),
           description: intl.formatMessage(intlMessages.endMeetingDesc),
-          customStyles,
           onClick: () => this.setEndMeetingConfirmationModalIsOpen(true),
         },
       );
@@ -151,6 +146,7 @@ class LeaveMeetingButton extends PureComponent {
       isDropdownOpen,
       ismobile,
       isRTL,
+      openLeaveMenu,
     } = this.props;
 
     const { isEndMeetingConfirmationModalOpen } = this.state;
@@ -165,6 +161,7 @@ class LeaveMeetingButton extends PureComponent {
             <Styled.LeaveButton
               state={isDropdownOpen ? 'open' : 'closed'}
               ismobile={ismobile.toString()}
+              accessKey={openLeaveMenu}
               aria-label={intl.formatMessage(intlMessages.leaveMeetingBtnLabel)}
               label={intl.formatMessage(intlMessages.leaveMeetingBtnLabel)}
               tooltipLabel={intl.formatMessage(intlMessages.leaveMeetingBtnLabel)}

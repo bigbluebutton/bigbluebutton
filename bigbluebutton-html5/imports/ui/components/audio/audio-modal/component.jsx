@@ -42,6 +42,7 @@ const propTypes = {
   updateOutputDevices: PropTypes.func.isRequired,
   isEchoTest: PropTypes.bool.isRequired,
   isConnecting: PropTypes.bool.isRequired,
+  isReconnecting: PropTypes.bool.isRequired,
   isConnected: PropTypes.bool.isRequired,
   isUsingAudio: PropTypes.bool.isRequired,
   isListenOnly: PropTypes.bool.isRequired,
@@ -146,6 +147,10 @@ const intlMessages = defineMessages({
     id: 'app.audioModal.connecting',
     description: 'Message for audio connecting',
   },
+  retrying: {
+    id: 'app.audioModal.retrying',
+    description: 'Message for audio retrying',
+  },
   ariaModalTitle: {
     id: 'app.audioModal.ariaTitle',
     description: 'aria label for modal title',
@@ -178,6 +183,7 @@ const AudioModal = ({
   AudioError,
   joinEchoTest,
   isConnecting,
+  isReconnecting,
   localEchoEnabled,
   joinListenOnly,
   changeInputStream,
@@ -218,6 +224,7 @@ const AudioModal = ({
   const [errorInfo, setErrorInfo] = useState(null);
   const [autoplayChecked, setAutoplayChecked] = useState(false);
   const [findingDevices, setFindingDevices] = useState(false);
+  const [initialJoinExecuted, setInitialJoinExecuted] = useState(false);
   const [setAway] = useMutation(SET_AWAY);
   const voiceToggle = useToggleVoice();
 
@@ -290,6 +297,7 @@ const AudioModal = ({
 
   const handleGUMFailure = (error) => {
     const { MIC_ERROR } = AudioError;
+    let errCode;
 
     logger.error({
       logCode: 'audio_gum_failed',
@@ -299,14 +307,26 @@ const AudioModal = ({
       },
     }, `Audio gUM failed: ${error.name}`);
 
+    switch (error?.name) {
+      case 'NotAllowedError':
+        errCode = MIC_ERROR.NO_PERMISSION;
+        break;
+
+      case 'NotFoundError':
+        errCode = MIC_ERROR.DEVICE_NOT_FOUND;
+        break;
+
+      default:
+        errCode = MIC_ERROR.UNKNOWN;
+        break;
+    }
+
     setContent('help');
     setDisableActions(false);
     setHasError(true);
     setErrorInfo({
-      errCode: error?.name === 'NotAllowedError'
-        ? MIC_ERROR.NO_PERMISSION
-        : 0,
-      errMessage: error?.name || 'NotAllowedError',
+      errCode,
+      errMessage: error?.name || 'getUserMediaError',
     });
   };
 
@@ -623,6 +643,11 @@ const AudioModal = ({
             <span data-test={!isEchoTest ? 'establishingAudioLabel' : 'connectingToEchoTest'}>
               {intl.formatMessage(intlMessages.connecting)}
             </span>
+            {isReconnecting && (
+              <Styled.ConnectingSubtext>
+                {intl.formatMessage(intlMessages.retrying)}
+              </Styled.ConnectingSubtext>
+            )}
             <Styled.ConnectingAnimation animations={animations} />
           </Styled.Connecting>
         );
@@ -637,7 +662,12 @@ const AudioModal = ({
       if (forceListenOnlyAttendee || audioLocked) {
         handleJoinListenOnly();
       } else if (!listenOnlyMode) {
-        if (joinFullAudioImmediately) {
+        // Audio join should only be automatic if the prop says so, listen only
+        // mode is off, and automatic audio join hasn't been tried yet. For the
+        // latter, the reason is that we don't want to loop audio join retries
+        // if an error occurs.
+        if (joinFullAudioImmediately && !initialJoinExecuted) {
+          setInitialJoinExecuted(true);
           checkMicrophonePermission({ doGUM: true, permissionStatus })
             .then((hasPermission) => {
               // No permission - let the Help screen be shown as it's triggered
@@ -660,6 +690,7 @@ const AudioModal = ({
     forceListenOnlyAttendee,
     joinFullAudioImmediately,
     listenOnlyMode,
+    initialJoinExecuted,
   ]);
 
   useEffect(() => {

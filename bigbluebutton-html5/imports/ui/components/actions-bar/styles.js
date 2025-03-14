@@ -21,42 +21,33 @@ const ActionsBarWrapper = styled.section`
 const Left = styled.div`
   display: inherit;
   flex: 0;
-
-  > * {
-    margin: 0 ${smPaddingX};
-
+  > *:not(span) {
     @media ${smallOnly} {
       margin: 0 ${smPaddingY};
     }
   }
-
   @media ${smallOnly} {
     bottom: ${smPaddingX};
     left: ${smPaddingX};
     right: auto;
-
     [dir="rtl"] & {
       left: auto;
       right: ${smPaddingX};
     }
   }
-
 `;
 
 const Center = styled.div`
   display: flex;
   flex-direction: row;
+  gap: ${smPaddingX};
   flex: 1;
   justify-content: center;
-
-  > * {
-    margin: 0 ${smPaddingX};
-
+  > *:not(span):not(:last-child) {
     @media ${smallOnly} {
       margin: 0 ${smPaddingY};
     }
   }
-
 `;
 
 const Right = styled.div`
@@ -64,21 +55,16 @@ const Right = styled.div`
   flex-direction: row;
   justify-content: center;
   position: relative;
-
   [dir="rtl"] & {
     right: auto;
     left: ${smPaddingX};
   }
-
   @media ${smallOnly} {
     right: 0;
     left: 0;
     display: contents;
   }
-
-  > * {
-    margin: 0 ${smPaddingX};
-
+  > *:not(span) {
     @media ${smallOnly} {
       margin: 0 ${smPaddingY};
     }
@@ -86,13 +72,13 @@ const Right = styled.div`
 `;
 
 const RaiseHandButton = styled(Button)`
-${({ ghost }) => ghost && `
-  & > span {
-    box-shadow: none;
-    background-color: transparent !important;
-    border-color: ${colorWhite} !important;
-  }
-   `}
+  ${({ ghost }) => ghost && `
+    & > span {
+      box-shadow: none;
+      background-color: transparent !important;
+      border-color: ${colorWhite} !important;
+    }
+  `}
 `;
 
 const ButtonContainer = styled.div`
@@ -127,6 +113,11 @@ const Separator = styled.div`
   opacity: .75;
 `;
 
+const Gap = styled.div`
+  display: flex;
+  gap: .5rem;
+`;
+
 export default {
   ActionsBar,
   Left,
@@ -136,6 +127,7 @@ export default {
   ButtonContainer,
   ReactionsDropdown,
   Wrapper,
-  Separator,
   ActionsBarWrapper,
+  Gap,
+  Separator,
 };

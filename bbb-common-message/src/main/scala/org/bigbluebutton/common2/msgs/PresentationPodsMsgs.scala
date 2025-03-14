@@ -82,6 +82,14 @@ case class PdfConversionInvalidErrorSysPubMsg(
 case class PdfConversionInvalidErrorSysPubMsgBody(podId: String, messageKey: String, code: String, presentationId: String,
                                                   bigPageNumber: Int, bigPageSize: Int, presName: String)
 
+object PresentationConversionFailedErrorSysPubMsg { val NAME = "PresentationConversionFailedErrorSysPubMsg" }
+case class PresentationConversionFailedErrorSysPubMsg(
+    header: BbbClientMsgHeader,
+    body:   PresentationConversionFailedErrorSysPubMsgBody
+) extends StandardMsg
+case class PresentationConversionFailedErrorSysPubMsgBody(podId: String, messageKey: String, presentationId: String,
+                                                  presName: String, meetingId: String, errorDetail: String)
+
 object PresentationPageGeneratedSysPubMsg { val NAME = "PresentationPageGeneratedSysPubMsg" }
 case class PresentationPageGeneratedSysPubMsg(
     header: BbbClientMsgHeader,
@@ -165,6 +173,7 @@ case class PresentationUploadedFileTooLargeErrorSysPubMsg(
     body:   PresentationUploadedFileTooLargeErrorSysPubMsgBody
 ) extends StandardMsg
 case class PresentationUploadedFileTooLargeErrorSysPubMsgBody(
+    presentationId:    String,
     podId:             String,
     messageKey:        String,
     code:              String,
@@ -392,6 +401,10 @@ case class ResizeAndMovePageEvtMsgBody(podId: String, presentationId: String, pa
 object SetCurrentPresentationEvtMsg { val NAME = "SetCurrentPresentationEvtMsg" }
 case class SetCurrentPresentationEvtMsg(header: BbbClientMsgHeader, body: SetCurrentPresentationEvtMsgBody) extends BbbCoreMsg
 case class SetCurrentPresentationEvtMsgBody(podId: String, presentationId: String)
+
+object SetPresentationFitToWidthCmdMsg { val NAME = "SetPresentationFitToWidthCmdMsg"}
+case class SetPresentationFitToWidthCmdMsg(header: BbbClientMsgHeader, body: SetPresentationFitToWidthCmdMsgBody) extends StandardMsg
+case class SetPresentationFitToWidthCmdMsgBody(userId: String, pageId: String, fitToWidth: Boolean)
 
 // ------------ akka-apps to client ------------
 

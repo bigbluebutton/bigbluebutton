@@ -65,6 +65,8 @@ func main() {
 		websrv.ConnectionHandler(w, r)
 	})
 
+	http.HandleFunc("/graphql-reconnection", websrv.ReconnectionHandler)
+
 	// Add Prometheus metrics endpoint
 	http.Handle("/metrics", promhttp.Handler())
 

@@ -275,7 +275,11 @@ class AudioSettings extends React.Component {
       intl,
       notify,
     } = this.props;
-    const { inputDeviceId: currentInputDeviceId } = this.state;
+    const {
+      inputDeviceId: currentInputDeviceId,
+      audioInputDevices,
+      audioOutputDevices,
+    } = this.state;
     try {
       if (!isConnected) changeInputDevice(deviceId);
 
@@ -315,15 +319,30 @@ class AudioSettings extends React.Component {
           // gUM permission is flagged as granted).
           this.updateDeviceList();
         }).catch((error) => {
-          logger.warn({
-            logCode: 'audiosettings_gum_failed',
-            extraInfo: {
-              deviceId,
-              errorMessage: error.message,
-              errorName: error.name,
-            },
-          }, `Audio settings gUM failed: ${error.name}`);
-          handleGUMFailure(error);
+          const handleFailure = (devices) => {
+            const inputDevices = devices?.audioInputDevices.map((device) => device.toJSON());
+            const outputDevices = devices?.audioOutputDevices.map((device) => device.toJSON());
+            logger.warn({
+              logCode: 'audiosettings_gum_failed',
+              extraInfo: {
+                inputDeviceId: deviceId,
+                inputDevices,
+                outputDevices,
+                errorMessage: error.message,
+                errorName: error.name,
+              },
+            }, `Audio settings gUM failed: ${error.name}`);
+            handleGUMFailure(error);
+          };
+
+          // Forcibly run enumeration after gUM failure to add I/O data to the
+          // error log for better debugging.
+          if ((audioInputDevices.length === 0 || audioOutputDevices.length === 0)
+            && this._isMounted) {
+            this.updateDeviceList().then(handleFailure);
+          } else {
+            handleFailure({ audioInputDevices, audioOutputDevices });
+          }
         }).finally(() => {
           // Component unmounted after gUM resolution -> skip echo rendering
           if (!this._isMounted) return;
@@ -400,6 +419,11 @@ class AudioSettings extends React.Component {
           audioInputDevices,
           audioOutputDevices,
         });
+
+        return {
+          audioInputDevices,
+          audioOutputDevices,
+        };
       })
       .catch((error) => {
         logger.warn({

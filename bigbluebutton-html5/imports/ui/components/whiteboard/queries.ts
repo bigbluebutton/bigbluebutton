@@ -54,11 +54,14 @@ export const CURRENT_PRESENTATION_PAGE_SUBSCRIPTION = gql`subscription CurrentPr
     presentationName
     isDefaultPresentation
     infiniteWhiteboard
+    nextPagesSvg
+    fitToWidth
   }  
 }`;
 
 export const PRESENTATIONS_SUBSCRIPTION = gql`subscription PresentationsSubscription {
   pres_presentation {
+    uploadTemporaryId
     uploadInProgress
     current
     downloadFileUri
@@ -91,6 +94,7 @@ export const EXPORTING_PRESENTATIONS_SUBSCRIPTION = gql`subscription Presentatio
     totalPagesUploaded
     presentationId
     removable
+    uploadCompletionNotified
     uploadCompleted
     exportToChatInProgress
     exportToChatStatus
@@ -128,6 +132,22 @@ export const CURRENT_PAGE_ANNOTATIONS_STREAM = gql`subscription annotationsStrea
     userId
   }
 }`;
+
+export const ANNOTATION_HISTORY_STREAM = gql`
+  subscription annotationHistoryStream($updatedAt: timestamptz) {
+    pres_annotation_history_curr_stream(
+      batch_size: 1000,
+      cursor: {initial_value: {updatedAt: $updatedAt}, ordering: ASC}
+    ) {
+      annotationId
+      annotationInfo
+      pageId
+      presentationId
+      updatedAt
+      userId
+    }
+  }
+`;
 
 export const CURRENT_PAGE_WRITERS_SUBSCRIPTION = gql`
   subscription currentPageWritersSubscription($pageId: String!) {

@@ -31,6 +31,7 @@ const ReactionsButton = (props) => {
     reactionsLabel: {
       id: 'app.actionsBar.reactions.reactionsButtonLabel',
       description: 'reactions Label',
+      defaultMessage: 'Share a reaction',
     },
   });
 
@@ -70,6 +71,7 @@ const ReactionsButton = (props) => {
       key: id,
       onClick: () => handleReactionSelect(native),
       customStyles: actionCustomStyles,
+      dataTest: 'reaction'
     });
   });
 

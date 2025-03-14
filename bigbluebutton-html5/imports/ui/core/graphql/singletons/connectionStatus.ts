@@ -17,6 +17,15 @@ type NetworkData = {
     videoCurrentDownloadRate: number,
   }
 };
+
+export enum MetricStatus {
+  Unknown = 'unknown',
+  Normal = 'normal',
+  Warning = 'warning',
+  Danger = 'danger',
+  Critical = 'critical',
+}
+
 class ConnectionStatus {
   private connected = makeVar(false);
 
@@ -29,6 +38,8 @@ class ConnectionStatus {
   private lastRttRequestSuccess = makeVar(true);
 
   private rttValue = makeVar(0);
+
+  private subscriptionFailed = makeVar(false);
 
   // @ts-ignore
   private networkData: ReactiveVar<NetworkData> = makeVar({
@@ -55,6 +66,25 @@ class ConnectionStatus {
     lastUnstableStatusAt: Date | number,
     clientNotResponding?: boolean,
   }>>([]);
+
+  private liveKitConnectionStatus = makeVar(MetricStatus.Unknown);
+
+  public setLiveKitConnectionStatus(status: MetricStatus): void {
+    if (this.liveKitConnectionStatus() !== status) {
+      logger.info({
+        logCode: 'stats_livekit_conn_state',
+      }, `LiveKit connection status changed to ${status}`);
+      this.liveKitConnectionStatus(status);
+    }
+  }
+
+  public getLiveKitConnectionStatus() {
+    return this.liveKitConnectionStatus();
+  }
+
+  public getLiveKitConnectionStatusVar() {
+    return this.liveKitConnectionStatus;
+  }
 
   private packetLossFraction = makeVar(0);
 
@@ -104,9 +134,30 @@ class ConnectionStatus {
     return this.networkData;
   }
 
+  public setConnectionStatus(newRttValue: number, newRttStatus: string): void {
+    if (newRttValue !== this.rttValue() || newRttStatus !== this.rttStatus()) {
+      switch (newRttStatus) {
+        case 'critical':
+          logger.warn({ logCode: 'stats_rtt_state' }, `Connection status changed to critical(rtt > ${newRttValue}ms)`);
+          break;
+        case 'danger':
+          logger.warn({ logCode: 'stats_rtt_state' }, `Connection status changed to danger (rtt = ${newRttValue}ms)`);
+          break;
+        case 'warning':
+        case 'normal':
+          logger.debug({ logCode: 'stats_rtt_state' }, `Connection status changed to ${newRttStatus} (rtt = ${newRttValue}ms)`);
+          break;
+        default:
+      }
+
+      this.setRttValue(newRttValue);
+      this.setRttStatus(newRttStatus);
+    }
+  }
+
   public setRttValue(value: number): void {
     if (value !== this.rttValue()) {
-      logger.debug({ logCode: 'stats_rtt_value_state' }, `RTT value changed to ${value}ms`);
+      logger.debug({ logCode: 'stats_rtt_value_state', extraInfo: { rtt: value } }, `RTT value changed to ${value}ms`);
       this.rttValue(value);
     }
   }
@@ -121,7 +172,11 @@ class ConnectionStatus {
 
   public setLastRttRequestSuccess(value: boolean): void {
     if (value !== this.lastRttRequestSuccess()) {
-      logger.info({ logCode: 'stats_rtt_success_state' }, `Last RTT request changed to ${value}`);
+      if (value === false) {
+        logger.warn({ logCode: 'stats_rtt_success_state' }, `Last RTT request failed (rtt_success=${value})`);
+      } else {
+        logger.debug({ logCode: 'stats_rtt_success_state' }, `Last RTT request succeeded (rtt_success=${value})`);
+      }
       this.lastRttRequestSuccess(value);
     }
   }
@@ -136,7 +191,7 @@ class ConnectionStatus {
 
   public setRttStatus(value: string): void {
     if (value !== this.rttStatus()) {
-      logger.info({ logCode: 'stats_rtt_status_state' }, `Connection status changed to ${value} (rtt=${this.rttValue()}ms)`);
+      logger.info({ logCode: 'stats_rtt_status_value' }, `RTT status changed to ${value}`);
       this.rttStatus(value);
     }
   }
@@ -194,6 +249,21 @@ class ConnectionStatus {
     return this.connected;
   }
 
+  public setSubscriptionFailed(value: boolean): void {
+    if (value !== this.subscriptionFailed()) {
+      logger.info({ logCode: 'stats_subscription_state' }, `Subscription failed status changed to ${value}`);
+      this.subscriptionFailed(value);
+    }
+  }
+
+  public getSubscriptionFailed() {
+    return this.subscriptionFailed();
+  }
+
+  public getSubscriptionFailedVar() {
+    return this.subscriptionFailed;
+  }
+
   public addUserNetworkHistory(
     user: User,
     lastUnstableStatus: string,
@@ -221,4 +291,6 @@ class ConnectionStatus {
   }
 }
 
-export default new ConnectionStatus();
+const connectionStatus = new ConnectionStatus();
+
+export default connectionStatus;

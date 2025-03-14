@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
+import { useQuery } from '@apollo/client';
 import {
   BreakoutUser,
   Rooms,
@@ -9,7 +10,9 @@ import {
   Presentation,
   RoomPresentations,
 } from './types';
-import { breakoutRoom, getBreakoutsResponse } from '../queries';
+import {
+  breakoutRoom, getBreakoutsResponse, getLastBreakouts, getMeetingGroupResponse, LastBreakoutData,
+} from '../queries';
 
 const intlMessages = defineMessages({
   breakoutRoom: {
@@ -37,6 +40,8 @@ interface RoomManagmentStateProps {
   currentSlidePrefix: string;
   getRoomPresentation: (roomId: number) => string;
   isUpdate: boolean;
+  setNumberOfRooms: React.Dispatch<React.SetStateAction<number>>;
+  groups: getMeetingGroupResponse['meeting_group'];
 }
 
 const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
@@ -54,12 +59,15 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
   currentSlidePrefix,
   getRoomPresentation,
   isUpdate,
+  setNumberOfRooms,
+  groups,
 }) => {
   const intl = useIntl();
   const [selectedId, setSelectedId] = useState<string>('');
   const [selectedRoom, setSelectedRoom] = useState<number>(0);
   const [rooms, setRooms] = useState<Rooms>({});
   const [init, setInit] = useState<boolean>(false);
+  const [roomsRestored, setRoomsRestored] = useState<boolean>(false);
   const [movementRegistered, setMovementRegistered] = useState<moveUserRegistery>({});
 
   // accepts one or multiple users
@@ -173,6 +181,57 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
     });
   };
 
+  const {
+    data: lastBreakoutData,
+  } = useQuery<LastBreakoutData>(getLastBreakouts, {
+    fetchPolicy: 'network-only',
+  });
+
+  useEffect(() => {
+    if (runningRooms?.length && runningRooms.length > 0) return;
+    const lastBreakouts = lastBreakoutData?.breakoutRoom_createdLatest ?? [];
+    if (lastBreakouts.length > 0 && init) {
+      const roomState: Rooms = {};
+      lastBreakouts.forEach((room) => {
+        roomState[room.sequence] = {
+          id: room.sequence,
+          name: room.isDefaultName
+            ? intl.formatMessage(intlMessages.breakoutRoom, { 0: room.sequence })
+            : room.shortName,
+          users: [],
+        };
+      });
+      setNumberOfRooms(Object.keys(roomState).length);
+      setRooms((prevRooms: Rooms) => ({
+        ...(prevRooms ?? {}),
+        ...roomState,
+      }));
+      setRoomsRestored(true);
+    }
+  }, [lastBreakoutData, init]);
+
+  useEffect(() => {
+    if (lastBreakoutData?.user && roomsRestored) {
+      const usersToMove: string[] = [];
+      const toRooms: number[] = [];
+
+      if (runningRooms?.length && runningRooms.length > 0) return;
+
+      lastBreakoutData.user.forEach((user) => {
+        if (user.lastBreakoutRoom?.sequence) {
+          const roomSequence = Number(user.lastBreakoutRoom.sequence);
+
+          usersToMove.push(user.lastBreakoutRoom.userId);
+          toRooms.push(roomSequence);
+        }
+      });
+
+      if (usersToMove.length > 0) {
+        moveUser(usersToMove, 0, toRooms);
+      }
+    }
+  }, [lastBreakoutData, roomsRestored]);
+
   useEffect(() => {
     if (users && users.length > 0) {
       // set users to room 0
@@ -187,6 +246,32 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
       }));
     }
   }, [users]);
+
+  useEffect(() => {
+    if (groups.length && init && lastBreakoutData && !(lastBreakoutData.breakoutRoom_createdLatest.length > 0)) {
+      setNumberOfRooms(groups.length >= 2 ? groups.length : 2);
+
+      // set the rooms based on the groups
+      setRooms((prevRooms: Rooms) => {
+        const rooms = { ...prevRooms };
+        Array.from(groups).forEach((group, index) => {
+          const idx = index + 1;
+          const roomUsers = group.usersExtId
+            .map((id) => users.find((user) => user.extId === id))
+            .filter((user) => user) as BreakoutUser[];
+          rooms[idx] = {
+            id: idx,
+            name: group.name || roomName(idx),
+            users: roomUsers,
+          };
+
+          rooms[0].users = rooms[0].users.filter((user) => !roomUsers.find((u) => u.userId === user.userId));
+        });
+
+        return rooms;
+      });
+    }
+  }, [init, lastBreakoutData]);
 
   useEffect(() => {
     if (runningRooms && init) {

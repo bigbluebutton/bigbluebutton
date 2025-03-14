@@ -17,6 +17,7 @@ object Dependencies {
     val gson = "2.8.9"
     val jackson = "2.13.5"
     val freemarker = "2.3.31"
+    val awsSdkS3 = "1.12.779"
     val apacheHttp = "4.5.13"
     val apacheHttpAsync = "4.1.4"
     val jsoup = "1.14.3"
@@ -24,13 +25,12 @@ object Dependencies {
     // Office and document conversion
     val apachePoi = "5.1.0"
     val nuProcess = "2.0.6"
-    val tika = "2.8.0"
+    val tika = "3.0.0"
 
     // Server
     val servlet = "4.0.1"
 
     // Apache Commons
-    val lang = "3.12.0"
     val io = "2.11.0"
     val pool = "2.11.1"
     val text = "1.10.0"
@@ -53,6 +53,7 @@ object Dependencies {
     val jacksonModule = "com.fasterxml.jackson.module" %% "jackson-module-scala" % Versions.jackson
     val jacksonXml = "com.fasterxml.jackson.dataformat" % "jackson-dataformat-xml" % Versions.jackson
     val freemarker = "org.freemarker" % "freemarker" % Versions.freemarker
+    val awsSdkS3 = "com.amazonaws" % "aws-java-sdk-s3" % Versions.awsSdkS3
     val apacheHttp = "org.apache.httpcomponents" % "httpclient" % Versions.apacheHttp
     val apacheHttpAsync = "org.apache.httpcomponents" % "httpasyncclient" % Versions.apacheHttpAsync
     val jsoup = "org.jsoup" % "jsoup" % Versions.jsoup
@@ -63,7 +64,6 @@ object Dependencies {
 
     val servletApi = "javax.servlet" % "javax.servlet-api" % Versions.servlet
 
-    val apacheLang = "org.apache.commons" % "commons-lang3" % Versions.lang
     val apacheIo = "commons-io" % "commons-io" % Versions.io
     val apachePool2 = "org.apache.commons" % "commons-pool2" % Versions.pool
     val apacheText = "org.apache.commons" % "commons-text" % Versions.text
@@ -93,6 +93,7 @@ object Dependencies {
     Compile.jacksonModule,
     Compile.jacksonXml,
     Compile.freemarker,
+    Compile.awsSdkS3,
     Compile.apacheHttp,
     Compile.apacheHttpAsync,
     Compile.jsoup,
@@ -100,7 +101,6 @@ object Dependencies {
     Compile.nuProcess,
     Compile.tika,
     Compile.servletApi,
-    Compile.apacheLang,
     Compile.apacheIo,
     Compile.apachePool2,
     Compile.apacheText,

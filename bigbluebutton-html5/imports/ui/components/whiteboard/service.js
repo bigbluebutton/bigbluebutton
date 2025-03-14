@@ -156,9 +156,9 @@ const formatAnnotations = (annotations, intl, curPageId, currentPresentationPage
   const result = {};
 
   annotations.forEach((annotation) => {
-    if (annotation.annotationInfo === '') return;
+    if (!annotation.annotationInfo) return;
 
-    let annotationInfo = JSON.parse(annotation.annotationInfo);
+    let annotationInfo = annotation.annotationInfo;
 
     if (annotationInfo.questionType) {
       // poll result, convert it to text and create tldraw shape
@@ -271,6 +271,7 @@ const getCustomAssetUrls = () => {
       undo: `${TL_ICON_PATHS}/undo.svg`,
       redo: `${TL_ICON_PATHS}/redo.svg`,
       trash: `${TL_ICON_PATHS}/trash.svg`,
+      'tool-delete-all': `${TL_ICON_PATHS}/trash.svg`,
       duplicate: `${TL_ICON_PATHS}/duplicate.svg`,
       unlock: `${TL_ICON_PATHS}/unlock.svg`,
       'arrowhead-none': `${TL_ICON_PATHS}/arrowhead-none.svg`,
@@ -320,6 +321,7 @@ const getCustomAssetUrls = () => {
       'geo-arrow-right': `${TL_ICON_PATHS}/geo-arrow-right.svg`,
       'align-left': `${TL_ICON_PATHS}/align-left.svg`,
       'align-top': `${TL_ICON_PATHS}/align-top.svg`,
+      'arrow-left': `${TL_ICON_PATHS}/arrow-left.svg`,
       'align-right': `${TL_ICON_PATHS}/align-right.svg`,
       'align-center-horizontal': `${TL_ICON_PATHS}/align-center-horizontal.svg`,
       'align-bottom': `${TL_ICON_PATHS}/align-bottom.svg`,

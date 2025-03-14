@@ -1,3 +1,4 @@
+import { AudioPresets } from 'livekit-client';
 import { MeetingClientSettings } from '../../Types/meetingClientSettings';
 
 export const meetingClientSettingsInitialValues: MeetingClientSettings = {
@@ -36,12 +37,12 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       darkTheme: {
         enabled: true,
       },
-      askForFeedbackOnLogout: false,
       askForConfirmationOnLeave: false,
       wakeLock: {
         enabled: true,
       },
       allowDefaultLogoutUrl: true,
+      skipMeetingEnded: false,
       dynamicGuestPolicy: true,
       enableGuestLobbyMessage: true,
       guestPolicyExtraAllowOptions: false,
@@ -155,6 +156,10 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         toggleUserList: {
           accesskey: 'U',
           descId: 'toggleUserList',
+        },
+        openLeaveMenu: {
+          accesskey: 'X',
+          descId: 'openLeaveMenu',
         },
         toggleMute: {
           accesskey: 'M',
@@ -612,6 +617,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       showParticipantsOnLogin: true,
       showPushLayoutButton: true,
       showPushLayoutToggle: true,
+      showScreenshareQuickSwapButton: true,
     },
     pads: {
       url: 'ETHERPAD_HOST',
@@ -620,17 +626,8 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       audio: {
         defaultFullAudioBridge: 'fullaudio',
         defaultListenOnlyBridge: 'fullaudio',
-        bridges: [
-          {
-            name: 'sipjs',
-            path: 'bridge/sip',
-          },
-          {
-            name: 'fullaudio',
-            path: 'bridge/sfu-audio-bridge',
-          },
-        ],
         retryThroughRelay: false,
+        allowAudioJoinCancel: true,
       },
       stunTurnServersFetchAddress: '/bigbluebutton/api/stuns',
       cacheStunTurnServers: true,
@@ -668,9 +665,42 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           maxDelayTime: 2,
         },
       },
+      networkPriorities: {
+        audio: 'high',
+        webcam: 'medium',
+        screenshare: 'medium',
+      },
       muteAudioOutputWhenAway: false,
       screenshare: {
         showButtonForNonPresenters: false,
+      },
+      livekit: {
+        url: `wss://${window.location.hostname}/livekit`,
+        selectiveSubscription: false,
+        roomOptions: {
+          adaptiveStream: true,
+          dynacast: true,
+          stopLocalTrackOnUnpublish: false,
+        },
+        audio: {
+          publishOptions: {
+            audioPreset: AudioPresets.speech,
+            dtx: true,
+            red: false,
+            forceStereo: false,
+          },
+          unpublishOnMute: false,
+        },
+        camera: {
+          publishOptions: {
+            videoCodec: 'vp8',
+          },
+        },
+        screenshare: {
+          publishOptions: {
+            videoCodec: 'vp8',
+          },
+        },
       },
     },
     stats: {
@@ -806,6 +836,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       pointerDiameter: 5,
       maxStickyNoteLength: 1000,
       maxNumberOfAnnotations: 300,
+      maxNumberOfActiveUsers: 25,
       allowInfiniteWhiteboard: false,
       allowInfiniteWhiteboardInBreakouts: false,
       annotations: {
@@ -831,7 +862,10 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           'text',
           'note',
           'rectangle',
+          'delete-all',
+          'highlight',
           'more',
+          'actions',
         ],
         multiUserTools: [
           'select',
@@ -842,7 +876,10 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           'text',
           'note',
           'rectangle',
+          'delete-all',
+          'highlight',
           'more',
+          'actions',
         ],
       },
     },

@@ -1,9 +1,9 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Icon from '/imports/ui/components/common/icon/component';
 import Styled from '/imports/ui/components/presentation/presentation-uploader/styles';
 import { toast } from 'react-toastify';
 import { defineMessages } from 'react-intl';
-import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
+import { usePreviousValue } from '/imports/ui/hooks/usePreviousValue';
 import { notify } from '/imports/ui/services/notification';
 import Session from '/imports/ui/services/storage/in-memory';
 
@@ -14,6 +14,8 @@ const EXPORT_STATUSES = {
   TIMEOUT: 'TIMEOUT',
   EXPORTED: 'EXPORTED',
 };
+
+const TIMEOUT_CLOSE_TOAST = 2; // second
 
 const intlMessages = defineMessages({
   item: {
@@ -158,6 +160,15 @@ const intlMessages = defineMessages({
   },
 });
 
+function getSizeWithUnit(size) {
+  // If the size in MB is negligible (0.00), switch to kB for better precision
+  const mbString = (size / 1000000).toFixed(2);
+  const kbString = (size / 1000).toFixed(2);
+  return (mbString === '0.00' || mbString === '0,00')
+    ? `${kbString} kB`
+    : `${mbString} MB`;
+}
+
 function renderPresentationItemStatus(item, intl) {
   if ((('progress' in item) && item.progress === 0) || (('upload' in item) && item.upload.progress === 0 && !item.upload.error)) {
     return intl.formatMessage(intlMessages.fileToUpload);
@@ -172,9 +183,7 @@ function renderPresentationItemStatus(item, intl) {
   const constraint = {};
 
   if (('upload' in item) && (item.upload.done && item.upload.error)) {
-    if (item.conversion.status === 'FILE_TOO_LARGE' || item.upload.status !== 413) {
-      constraint['0'] = ((item.conversion.maxFileSize) / 1000 / 1000).toFixed(2);
-    } else if (item.progress < 100) {
+    if (item.progress < 100) {
       const errorMessage = intlMessages.badConnectionError;
       return intl.formatMessage(errorMessage);
     }
@@ -192,11 +201,13 @@ function renderPresentationItemStatus(item, intl) {
         constraint['0'] = item.uploadErrorDetailsJson.numberPageError;
         constraint['1'] = item.uploadErrorDetailsJson.maxNumberOfAttempts;
         break;
-      case 'FILE_TOO_LARGE':
-        constraint['0'] = ((item.uploadErrorDetailsJson.maxFileSize) / 1000 / 1000).toFixed(2);
+      case 'FILE_TOO_LARGE': {
+        const { maxFileSize } = item.uploadErrorDetailsJson;
+        constraint['0'] = getSizeWithUnit(maxFileSize);
         break;
+      }
       case 'PAGE_COUNT_EXCEEDED':
-        constraint['0'] = item.uploadErrorDetailsJson.maxNumberPages;
+        constraint['0'] = item.uploadErrorDetailsJson.maxNumberOfPages;
         break;
       case 'PDF_HAS_BIG_PAGE':
         constraint['0'] = (item.uploadErrorDetailsJson.bigPageSize / 1000 / 1000).toFixed(2);
@@ -234,13 +245,16 @@ function renderPresentationItemStatus(item, intl) {
 }
 
 function renderToastItem(item, intl) {
-  const isUploading = ('totalPages' in item) && item.totalPages > 0;
+  const isUploading = ('totalPages' in item) && ('totalPagesUploaded' in item)
+    && item.totalPages > 0 && item.totalPages > item.totalPagesUploaded;
   const uploadInProgress = ('uploadCompleted' in item) && !item.uploadCompleted;
   const hasError = (('uploadErrorMsgKey' in item) && item.uploadErrorMsgKey);
   const isProcessing = (isUploading || uploadInProgress) && !hasError;
 
   let icon = isProcessing ? 'blank' : 'check';
   if (hasError) icon = 'circle_close';
+
+  const isDone = !isProcessing && !hasError;
 
   return (
     <Styled.UploadRow
@@ -258,7 +272,8 @@ function renderToastItem(item, intl) {
         </Styled.ToastFileName>
         <Styled.StatusIcon>
           <Styled.ToastItemIcon
-            done={!isProcessing && !hasError}
+            data-test={isDone && 'uploadDoneIcon'}
+            done={isDone}
             error={hasError}
             loading={isProcessing}
             iconName={icon}
@@ -266,7 +281,7 @@ function renderToastItem(item, intl) {
         </Styled.StatusIcon>
       </Styled.FileLine>
       <Styled.StatusInfo>
-        <Styled.StatusInfoSpan data-test="presentationStatusInfo" styles={hasError ? 'error' : 'info'}>
+        <Styled.StatusInfoSpan data-test={isProcessing && 'processingPresentationItem'} styles={hasError ? 'error' : 'info'}>
           {renderPresentationItemStatus(item, intl)}
         </Styled.StatusInfoSpan>
       </Styled.StatusInfo>
@@ -282,7 +297,7 @@ const renderToastList = (presentations, intl) => {
 
   presentationsSorted
     .forEach((p) => {
-      const presDone = !p.uploadInProgress;
+      const presDone = p?.totalPages !== 0 && p?.totalPagesUploaded === p?.totalPages;
       if (presDone) converted += 1;
       return p;
     });
@@ -396,14 +411,14 @@ function renderToastExportItem(item, intl) {
   );
 }
 
-function renderExportToast(presToShow, intl) {
+function renderExportToast(presToShow, intl, exportToastId) {
   const isAllExported = presToShow.every(
     (p) => p.exportToChatStatus === EXPORT_STATUSES.EXPORTED,
   );
-  const shouldDismiss = isAllExported && this.exportToastId;
+  const shouldDismiss = isAllExported && exportToastId;
 
   if (shouldDismiss) {
-    handleDismissToast(this.exportToastId);
+    handleDismissToast(exportToastId);
     return null;
   }
 
@@ -440,74 +455,124 @@ function renderExportToast(presToShow, intl) {
 
 export const PresentationUploaderToast = ({
   intl,
-  convertingPresentations,
   presentations,
+  presentationsToBeShowed,
+  setPresentationUploadCompletionNotified,
+  forceShowToast,
+  setForceShowToast,
 }) => {
+  const [showToast, setShowToast] = useState(false);
+  const [dismissedItems, setDismissedItems] = useState([]);
   const prevPresentations = usePreviousValue(presentations);
+  const exportToastIdRef = useRef('presentationUploaderExportPresentationId');
+  const convertingToastIdRef = useRef('presentationUploaderConvertingPresentationId');
+  const closeTimeoutReference = useRef();
+
+  const addPressIdToDismissed = (presId) => {
+    setDismissedItems((prev) => {
+      prev.push(presId);
+      return prev;
+    });
+  };
+
+  const getIdsFromPresentationsAndDismiss = (pres) => {
+    pres.forEach((p) => {
+      if (!dismissedItems.includes(p.presentationId)) {
+        addPressIdToDismissed(p.presentationId);
+      }
+    });
+  };
 
   useEffect(() => {
-    presentations.forEach((p) => {
+    const exportingPres = presentations.map((p) => {
       const prevPropPres = (prevPresentations || [])
         .find((pres) => pres.presentationId === p.presentationId);
       // display notification when presentation is exported
-      let exportToastId = Session.getItem('presentationUploaderExportToastId');
-
       if (prevPropPres?.exportToChatStatus
         && p?.exportToChatStatus === EXPORT_STATUSES.EXPORTED
         && prevPropPres?.exportToChatStatus !== p?.exportToChatStatus
       ) {
         notify(intl.formatMessage(intlMessages.linkAvailable, { 0: p.name }), 'success');
-        Session.setItem('presentationUploaderExportToastId', null);
-        handleDismissToast(exportToastId);
+        handleDismissToast(exportToastIdRef.current);
       }
+      return p;
+    }).filter((p) => (dismissedItems.length > 0 && !dismissedItems.includes(p.presentationId))
+      || p.exportToChatInProgress);
 
-      // display notification for exportation status
-      if ([
-        EXPORT_STATUSES.RUNNING,
-        EXPORT_STATUSES.COLLECTING,
-        EXPORT_STATUSES.PROCESSING,
-      ].includes(p?.exportToChatStatus)) {
-        if (exportToastId) {
-          toast.update(exportToastId, {
-            render: renderExportToast(presentations, intl),
-          });
-        } else {
-          exportToastId = toast.info(renderExportToast(presentations, intl), {
+    if (exportingPres && exportingPres.length > 0) {
+      if (toast.isActive(exportToastIdRef.current)) {
+        toast.update(exportToastIdRef.current, {
+          render: renderExportToast(exportingPres, intl, exportToastIdRef.current),
+        });
+      } else {
+        toast(
+          renderExportToast(exportingPres, intl, exportToastIdRef.current), {
             hideProgressBar: true,
             autoClose: false,
             newestOnTop: true,
             closeOnClick: true,
+            toastId: exportToastIdRef.current,
             onClose: () => {
               Session.setItem('presentationUploaderExportToastId', null);
+              getIdsFromPresentationsAndDismiss(exportingPres);
             },
-          });
-          Session.setItem('presentationUploaderExportToastId', exportToastId);
-        }
+          },
+        );
       }
-    });
-  }, [presentations]);
+    }
+  }, [presentations, dismissedItems]);
 
-  const activeToast = Session.getItem('presentationUploaderToastId');
+  useEffect(() => {
+    setForceShowToast(false);
+    return () => {
+      // Dismiss toast if active when unmounting (presenter status is lost)
+      if (toast.isActive(convertingToastIdRef.current)) {
+        handleDismissToast(convertingToastIdRef.current);
+      }
+    };
+  }, []);
 
-  const showToast = convertingPresentations.length > 0;
+  useEffect(() => {
+    if (showToast) return;
+    presentationsToBeShowed.filter(
+      (p) => (p.uploadCompleted || p.uploadErrorMsgKey),
+    ).forEach(
+      (p) => setPresentationUploadCompletionNotified(
+        { variables: { presentationId: p.presentationId } },
+      ),
+    );
+  }, [showToast]);
 
-  if (showToast && !toast.isActive(activeToast)) {
-    const convertingPresToast = toast.info(() => renderToastList(convertingPresentations, intl), {
+  useEffect(() => {
+    const allPresentationsDone = presentationsToBeShowed.every(
+      (p) => (p.uploadCompleted && !p.uploadErrorMsgKey),
+    );
+    // Forcing to show toast will only work if there are any presentations to show
+    setShowToast(presentationsToBeShowed.length > 0 && (!allPresentationsDone || forceShowToast));
+  }, [presentationsToBeShowed]);
+
+  if (showToast && !toast.isActive(convertingToastIdRef.current)) {
+    toast(() => renderToastList(presentationsToBeShowed, intl), {
       hideProgressBar: true,
       autoClose: false,
       newestOnTop: true,
       closeOnClick: true,
       className: 'presentationUploaderToast toastClass',
+      toastId: convertingToastIdRef.current,
       onClose: () => {
+        setShowToast(false);
         Session.setItem('presentationUploaderToastId', null);
       },
     });
-    Session.setItem('presentationUploaderToastId', convertingPresToast);
-  } else if (!showToast && activeToast) {
-    handleDismissToast(activeToast);
-  } else {
-    toast.update(activeToast, {
-      render: renderToastList(convertingPresentations, intl),
+  } else if (!showToast && toast.isActive(convertingToastIdRef.current)) {
+    closeTimeoutReference.current = setTimeout(() => {
+      closeTimeoutReference.current = null;
+      handleDismissToast(convertingToastIdRef.current);
+    }, TIMEOUT_CLOSE_TOAST * 1000);
+  } else if (presentationsToBeShowed.length > 0) {
+  // } else {
+    toast.update(convertingToastIdRef.current, {
+      render: renderToastList(presentationsToBeShowed, intl),
     });
   }
   return null;

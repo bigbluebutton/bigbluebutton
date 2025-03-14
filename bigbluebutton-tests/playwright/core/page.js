@@ -29,7 +29,15 @@ class Page {
   }
 
   async init(isModerator, shouldCloseAudioModal, initOptions) {
-    const { fullName, meetingId, createParameter, joinParameter, customMeetingId, isRecording, shouldCheckAllInitialSteps } = initOptions || {};
+    const { fullName,
+      meetingId,
+      createParameter,
+      joinParameter,
+      customMeetingId,
+      isRecording,
+      shouldCheckAllInitialSteps,
+      shouldAvoidLayoutCheck,
+    } = initOptions || {};
 
     if (!isModerator) this.initParameters.moderatorPW = '';
     if (fullName) this.initParameters.fullName = fullName;
@@ -44,7 +52,7 @@ class Page {
     const hasErrorLabel = await this.checkElement(e.errorMessageLabel);
     await expect(hasErrorLabel, 'should pass the authentication and the layout element should be displayed').toBeFalsy();
     if (shouldCheckAllInitialSteps != undefined ? shouldCheckAllInitialSteps : true) {
-      await this.waitForSelector('div#layout', ELEMENT_WAIT_EXTRA_LONG_TIME);
+      if (!shouldAvoidLayoutCheck) await this.waitForSelector('div#layout', ELEMENT_WAIT_EXTRA_LONG_TIME);
       this.settings = await generateSettingsData(this.page);
       const { autoJoinAudioModal } = this.settings;
       if (isRecording && !isModerator) await this.closeRecordingModal();
@@ -76,14 +84,19 @@ class Page {
     return newPage;
   }
 
-  async joinMicrophone() {
+  async joinMicrophone({ shouldUnmute = true } = {}) {
     await this.waitForSelector(e.audioModal);
     await this.waitAndClick(e.microphoneButton);
     await this.waitForSelector(e.stopHearingButton);
     await this.waitAndClick(e.joinEchoTestButton);
     await this.waitForSelector(e.establishingAudioLabel);
     await this.wasRemoved(e.establishingAudioLabel, ELEMENT_WAIT_LONGER_TIME);
-    await this.waitForSelector(e.isTalking);
+    await this.hasElement(e.unmuteMicButton);
+    if (shouldUnmute) {
+      await this.waitAndClick(e.unmuteMicButton);
+      await this.hasElement(e.muteMicButton);
+      await this.checkUserTalkingIndicator();
+    }
   }
 
   async leaveAudio() {
@@ -115,16 +128,20 @@ class Page {
     await this.waitAndClick(e.joinVideo);
     if (shouldConfirmSharing) {
       await this.bringToFront();
-      await this.hasElement(e.videoPreview, 'should display the video preview when sharing webcam ', videoPreviewTimeout);
+      await this.hasElement(e.webcamMirroredVideoPreview, 'should display the video preview when sharing webcam ', videoPreviewTimeout);
       await this.waitAndClick(e.startSharingWebcam);
     }
-    await this.waitForSelector(e.webcamContainer, VIDEO_LOADING_WAIT_TIME);
+    await this.waitForSelector(e.webcamMirroredVideoContainer, VIDEO_LOADING_WAIT_TIME);
     await this.waitForSelector(e.leaveVideo, VIDEO_LOADING_WAIT_TIME);
     await this.wasRemoved(e.webcamConnecting, VIDEO_LOADING_WAIT_TIME);
   }
 
   getLocator(selector) {
     return this.page.locator(selector);
+  }
+
+  getVisibleLocator(selector) {
+    return this.getLocator(`${selector}:visible`);
   }
 
   getLocatorByIndex(selector, index) {
@@ -136,8 +153,12 @@ class Page {
     return locator.count();
   }
 
-  async getCopiedText(context) {
-    await context.grantPermissions(['clipboard-write', 'clipboard-read'], { origin: process.env.BBB_URL });
+  async grantClipboardPermissions() {
+    console.log('==> Granting clipboard permissions');
+    await this.context.grantPermissions(['clipboard-write', 'clipboard-read'], { origin: process.env.BBB_URL });
+  }
+
+  async getCopiedText() {
     return this.page.evaluate(async () => navigator.clipboard.readText());
   }
 
@@ -191,8 +212,17 @@ class Page {
     await this.page.click(selector, { timeout });
   }
 
+  async getByLabelAndClick(label, timeout = ELEMENT_WAIT_TIME) {
+    await this.page.getByLabel(label).click({ timeout });
+  }
+
   async clickOnLocator(locator, timeout = ELEMENT_WAIT_TIME) {
     await locator.click({ timeout });
+  }
+
+  async checkUserTalkingIndicator() {
+    const isTalkingLocator = await this.page.locator(e.isTalking).filter({ hasText: this.username });
+    await expect(isTalkingLocator, `should display the "${this.username}" user's conversation indicator to himself`).toBeVisible();
   }
 
   async checkElement(selector, index = 0) {
@@ -268,7 +298,7 @@ class Page {
 
   async checkElementCount(selector, count, description) {
     const locator = await this.page.locator(selector);
-    await expect(locator, description).toHaveCount(count, { timeout: ELEMENT_WAIT_LONGER_TIME });
+    await expect(locator, description).toHaveCount(count, { timeout: ELEMENT_WAIT_TIME });
   }
 
   async hasValue(selector, value, description) {
@@ -305,11 +335,15 @@ class Page {
   }
 
   async closeAllToastNotifications() {
-      const closeToastBtnLocator = this.page.locator(e.closeToastBtn);
-      while (await closeToastBtnLocator.count() > 0) {
-        await this.page.click(e.closeToastBtn, { timeout: ELEMENT_WAIT_TIME });
-        await helpers.sleep(1000);  // expected time to toast notification disappear
+    const toastNotificationElement = this.getLocator(e.toastContainer);
+    while (await toastNotificationElement.count() > 0) {
+      try {
+        await toastNotificationElement.first().click({ timeout: ELEMENT_WAIT_TIME });
+        await helpers.sleep(1500);  // expected animation time for toast notification to disappear
+      } catch (error) {
+        console.log('not able to close the toast notification');
       }
+    }
   }
 
   async setHeightWidthViewPortSize() {

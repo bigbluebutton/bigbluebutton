@@ -1,5 +1,8 @@
 import { makeVar, useReactiveVar } from '@apollo/client';
-import KurentoBridge from '/imports/api/screenshare/client/bridge';
+import {
+  sfuScreenShareBridge,
+  liveKitScreenShareBridge,
+} from '/imports/api/screenshare/client/bridge';
 import BridgeService from '/imports/api/screenshare/client/bridge/service';
 import logger from '/imports/startup/client/logger';
 import AudioService from '/imports/ui/components/audio/service';
@@ -8,6 +11,39 @@ import ConnectionStatusService from '/imports/ui/components/connection-status/se
 import browserInfo from '/imports/utils/browserInfo';
 import createUseSubscription from '/imports/ui/core/hooks/createUseSubscription';
 import { SCREENSHARE_SUBSCRIPTION } from './queries';
+
+let screenShareBridge = sfuScreenShareBridge;
+
+export const setBridge = (bridgeName) => {
+  switch (bridgeName) {
+    case 'bbb-webrtc-sfu':
+      screenShareBridge = sfuScreenShareBridge;
+      break;
+    case 'livekit':
+      screenShareBridge = liveKitScreenShareBridge;
+      break;
+    default:
+      logger.warn({
+        logCode: 'screenshare_unknown_bridge',
+        extraInfo: {
+          targetBridge: bridgeName,
+        },
+      }, `Unknown screenshare bridge: ${bridgeName}`);
+      // Hardcoded default is bbb-webrtc-sfu
+      screenShareBridge = sfuScreenShareBridge;
+      break;
+  }
+
+  logger.debug({
+    logCode: 'screenshare_bridge_set',
+    extraInfo: {
+      targetBridge: bridgeName,
+      bridge: screenShareBridge?.bridgeName,
+    },
+  }, `Screenshare bridge set to ${screenShareBridge?.bridgeName}`);
+
+  return screenShareBridge;
+};
 
 export const SCREENSHARE_MEDIA_ELEMENT_NAME = 'screenshareVideo';
 
@@ -96,10 +132,6 @@ export const _isStreamActive = (stream) => {
   return tracksAreActive && stream.active;
 };
 
-export const _handleStreamTermination = () => {
-  screenshareHasEnded();
-};
-
 export const useIsScreenGloballyBroadcasting = () => {
   const { data, loading } = useScreenshare();
 
@@ -155,6 +187,12 @@ export const useBroadcastContentType = () => {
   return data[0].contentType;
 };
 
+export const useScreenshareStreamId = () => {
+  const { data } = useScreenshare();
+
+  return data?.[0]?.stream;
+};
+
 export const screenshareHasEnded = () => {
   if (isSharingVar()) {
     setIsSharing(false);
@@ -163,7 +201,11 @@ export const screenshareHasEnded = () => {
     setCameraAsContentDeviceId('');
   }
 
-  KurentoBridge.stop();
+  screenShareBridge.stop();
+};
+
+export const _handleStreamTermination = () => {
+  screenshareHasEnded();
 };
 
 export const getMediaElement = () => document.getElementById(SCREENSHARE_MEDIA_ELEMENT_NAME);
@@ -176,11 +218,15 @@ export const getMediaElementDimensions = () => {
   };
 };
 
-export const setVolume = (volume) => {
-  KurentoBridge.setVolume(volume);
+export const setStreamEnabled = (enabled) => {
+  screenShareBridge.setStreamEnabled(enabled);
 };
 
-export const getVolume = () => KurentoBridge.getVolume();
+export const setVolume = (volume) => {
+  screenShareBridge.setVolume(volume);
+};
+
+export const getVolume = () => screenShareBridge.getVolume();
 
 export const useShouldEnableVolumeControl = () => {
   const SCREENSHARE_CONFIG = window.meetingClientSettings.public.kurento.screenshare;
@@ -194,7 +240,7 @@ export const useShowButtonForNonPresenters = () => {
   const MEDIA_CONFIG = window.meetingClientSettings.public.kurento;
 
   return MEDIA_CONFIG.screenshare.showButtonForNonPresenters;
-}
+};
 
 export const attachLocalPreviewStream = (mediaElement) => {
   const { isTabletApp } = browserInfo;
@@ -202,7 +248,7 @@ export const attachLocalPreviewStream = (mediaElement) => {
     // We don't show preview for mobile app, as the stream is only available in native code
     return;
   }
-  const stream = KurentoBridge.gdmStream;
+  const stream = screenShareBridge.gdmStream;
   if (stream && mediaElement) {
     // Always muted, presenter preview.
     BridgeService.screenshareLoadAndPlayMediaStream(stream, mediaElement, true);
@@ -240,13 +286,6 @@ export const setOutputDeviceId = (outputDeviceId) => {
   }
 };
 
-export const screenshareHasStarted = (hasAudio, isPresenter, options = {}) => {
-  // Presenter's screen preview is local, so skip
-  if (!isPresenter) {
-    viewScreenshare({ outputDeviceId: options.outputDeviceId }, hasAudio);
-  }
-};
-
 export const shareScreen = async (
   isCameraAsContentBroadcasting,
   stopWatching,
@@ -274,7 +313,7 @@ export const shareScreen = async (
       return;
     }
 
-    await KurentoBridge.share(stream, onFail, contentType);
+    await screenShareBridge.share(stream, onFail, contentType);
 
     // Stream might have been disabled in the meantime. I love badly designed
     // async components like this screen sharing bridge :) - prlanzarin 09 May 22
@@ -293,8 +332,8 @@ export const shareScreen = async (
   }
 };
 
-export const viewScreenshare = (options = {}, hasAudio) => {
-  KurentoBridge.view({ hasAudio, outputDeviceId: options.outputDeviceId })
+export const viewScreenshare = (streamId, hasAudio, options = {}) => {
+  screenShareBridge.view(streamId, { hasAudio, outputDeviceId: options.outputDeviceId })
     .catch((error) => {
       logger.error({
         logCode: 'screenshare_view_failed',
@@ -304,6 +343,13 @@ export const viewScreenshare = (options = {}, hasAudio) => {
         },
       }, 'Screenshare viewer failure');
     });
+};
+
+export const screenshareHasStarted = (streamId, hasAudio, isPresenter, options = {}) => {
+  // Presenter's screen preview is local, so skip
+  if (!isPresenter) {
+    viewScreenshare(streamId, hasAudio, { outputDeviceId: options.outputDeviceId });
+  }
 };
 
 export const screenShareEndAlert = () => AudioService
@@ -331,14 +377,22 @@ export const screenShareEndAlert = () => AudioService
    */
 export const getStats = async (statsTypes = DEFAULT_SCREENSHARE_STATS_TYPES) => {
   const screenshareStats = {};
-  const peer = KurentoBridge.getPeerConnection();
+  let stats = null;
 
-  if (!peer) return null;
+  if (typeof screenShareBridge.getStats === 'function') {
+    stats = await screenShareBridge.getStats();
+  } else {
+    const peer = screenShareBridge.getPeerConnection();
 
-  const peerStats = await peer.getStats();
+    if (!peer) return null;
 
-  peerStats.forEach((stat) => {
-    if (statsTypes.includes(stat.type)) {
+    stats = await peer.getStats();
+  }
+
+  if (!stats) return null;
+
+  stats.forEach((stat) => {
+    if (statsTypes.includes(stat.type) && (!stat.kind || stat.kind === 'video')) {
       screenshareStats[stat.type] = stat;
     }
   });
@@ -377,6 +431,7 @@ export default {
   getVolume,
   setCameraAsContentDeviceId,
   getCameraAsContentDeviceId,
+  setBridge,
   setOutputDeviceId,
   useCameraAsContentDeviceIdType,
   useIsSharing,
@@ -389,4 +444,5 @@ export default {
   useIsCameraAsContentBroadcasting,
   useScreenshareHasAudio,
   useBroadcastContentType,
+  useScreenshareStreamId,
 };
