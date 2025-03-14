@@ -267,7 +267,7 @@ const PresentationContainer = (props) => {
           currentUser,
           hasPoll,
           currentPresentationPage,
-          layoutType: selectedLayout,
+          layoutType: selectedLayout || '',
         }
       }
     />
