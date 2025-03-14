@@ -957,7 +957,7 @@ public:
   stats:
     enabled: true
     interval: 10000
-    timeout: 30000
+    timeout: 10000
     log: true
     notification:
       warning: false
@@ -971,6 +971,7 @@ public:
       danger: 1000
       critical: 2000
     help: STATS_HELP_URL
+    lastEntriesCap: 20
   presentation:
     allowDownloadOriginal: true
     allowDownloadWithAnnotations: true
@@ -1075,6 +1076,8 @@ public:
         - text
         - note
         - rectangle
+        - delete-all
+        - highlight
         - more
         - actions
       multiUserTools:
@@ -1086,6 +1089,8 @@ public:
         - text
         - note
         - rectangle
+        - delete-all
+        - highlight
         - more
         - actions
   clientLog:

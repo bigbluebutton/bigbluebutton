@@ -24,6 +24,7 @@ import {
   setVolume,
   getVolume,
   getStats,
+  setStreamEnabled,
 } from '/imports/ui/components/screenshare/service';
 import {
   isStreamStateHealthy,
@@ -117,7 +118,6 @@ class ScreenshareComponent extends React.Component {
 
   componentDidMount() {
     const {
-      isLayoutSwapped,
       layoutContextDispatch,
       intl,
       isPresenter,
@@ -165,9 +165,13 @@ class ScreenshareComponent extends React.Component {
       setOutputDeviceId(outputDeviceId);
     }
 
+    if (isPresenter) setStreamEnabled(shouldShowScreenshare);
+
     if (prevProps.shouldShowScreenshare && !shouldShowScreenshare) {
       setVolume(0);
     } else if (!prevProps.shouldShowScreenshare && shouldShowScreenshare) {
+      this.volume = this.volume || 1;
+      // if this.volume is 0, means user didn't change the volume, so we set it to 1
       setVolume(this.volume);
     }
   }

@@ -21,6 +21,7 @@ import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import Tooltip from '/imports/ui/components/common/tooltip/component';
 import SessionDetailsModal from '/imports/ui/components/session-details/component';
 import Icon from '/imports/ui/components/common/icon/icon-ts/component';
+import getStorageSingletonInstance from '../../services/storage';
 
 const intlMessages = defineMessages({
   toggleUserListLabel: {
@@ -159,13 +160,14 @@ class NavBar extends Component {
 
     this.handleToggleUserList = this.handleToggleUserList.bind(this);
     this.splitPluginItems = this.splitPluginItems.bind(this);
+    this.setModalIsOpen = this.setModalIsOpen.bind(this);
+
+    const ShownId = getStorageSingletonInstance().getItem('alreadyShowSessionDetailsOnJoin');
 
     this.state = {
-      isModalOpen: props.showSessionDetailsOnJoin,
+      isModalOpen: props.showSessionDetailsOnJoin && !(ShownId === props.meetingId),
     };
   }
-
-  setModalIsOpen = (isOpen) => this.setState({ isModalOpen: isOpen })
 
   renderModal(isOpen, setIsOpen, priority, Component, otherOptions) {
     return isOpen ? <Component
@@ -220,6 +222,14 @@ class NavBar extends Component {
 
   componentWillUnmount() {
     clearInterval(this.interval);
+  }
+
+  setModalIsOpen(isOpen) {
+    if (!isOpen) {
+      const { meetingId } = this.props;
+      getStorageSingletonInstance().setItem('alreadyShowSessionDetailsOnJoin', meetingId);
+    }
+    this.setState({ isModalOpen: isOpen });
   }
 
   handleToggleUserList() {

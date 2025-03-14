@@ -742,6 +742,16 @@ Permission: Restricted to User Viewing Self-Related Data
 - `shortName`
 - `userId`
 
+## Type: user_connectionStatusHistory
+Permission: Restricted to Moderators or the User Viewing Self-Related Data
+### Fields:
+- `networkRttInMs`
+- `status`
+- `statusUpdatedAt`
+- `userId`
+### Relationships:
+- `user: Object` [Type User](#type-user)
+
 ## Type: user_connectionStatusReport
 Permission: Restricted to Moderators or the User Viewing Self-Related Data
 ### Fields:

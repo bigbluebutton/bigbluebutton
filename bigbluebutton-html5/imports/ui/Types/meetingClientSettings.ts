@@ -620,16 +620,27 @@ export interface Media {
   traceSip: boolean
   sdpSemantics: string
   localEchoTest: LocalEchoTest
+  networkPriorities: MediaNetworkPriorities
   muteAudioOutputWhenAway: boolean
   livekit: LiveKitSettings
 }
 
+export interface LiveKitPresetConfig {
+  width: number
+  height: number
+  maxBitrate: number
+  maxFramerate: number
+  priority?: RTCPriorityType
+}
+
 export interface LiveKitCameraSettings {
   publishOptions?: TrackPublishOptions
+  presets?: LiveKitPresetConfig[]
 }
 
 export interface LiveKitScreenShareSettings {
   publishOptions?: TrackPublishOptions
+  presets?: LiveKitPresetConfig[]
 }
 
 export interface LiveKitAudioSettings {
@@ -662,6 +673,12 @@ export interface LocalEchoTest {
   initialHearingState: boolean
   useRtcLoopbackInChromium: boolean
   delay: Delay
+}
+
+export interface MediaNetworkPriorities {
+  audio: RTCPriorityType
+  webcam: RTCPriorityType
+  screenshare: RTCPriorityType
 }
 
 export interface Delay {

@@ -33,8 +33,7 @@ object UsersApp {
     for {
       u <- RegisteredUsers.findWithUserId(userId, liveMeeting.registeredUsers)
     } yield {
-
-      RegisteredUsers.eject(u.id, liveMeeting.registeredUsers, ban = false)
+      RegisteredUsers.setUserLoggedOutFlag(liveMeeting.registeredUsers, u)
 
       val event = MsgBuilder.buildGuestWaitingLeftEvtMsg(liveMeeting.props.meetingProp.intId, u.id)
       outGW.send(event)

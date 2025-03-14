@@ -256,7 +256,6 @@ class BBBMenu extends React.Component {
           }}
           accessKey={accessKey}
           ref={(ref) => this.anchorElRef = ref}
-          role="button"
           tabIndex={-1}
         >
           {trigger}

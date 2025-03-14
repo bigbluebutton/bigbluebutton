@@ -224,6 +224,7 @@ const AudioModal = ({
   const [errorInfo, setErrorInfo] = useState(null);
   const [autoplayChecked, setAutoplayChecked] = useState(false);
   const [findingDevices, setFindingDevices] = useState(false);
+  const [initialJoinExecuted, setInitialJoinExecuted] = useState(false);
   const [setAway] = useMutation(SET_AWAY);
   const voiceToggle = useToggleVoice();
 
@@ -661,7 +662,12 @@ const AudioModal = ({
       if (forceListenOnlyAttendee || audioLocked) {
         handleJoinListenOnly();
       } else if (!listenOnlyMode) {
-        if (joinFullAudioImmediately) {
+        // Audio join should only be automatic if the prop says so, listen only
+        // mode is off, and automatic audio join hasn't been tried yet. For the
+        // latter, the reason is that we don't want to loop audio join retries
+        // if an error occurs.
+        if (joinFullAudioImmediately && !initialJoinExecuted) {
+          setInitialJoinExecuted(true);
           checkMicrophonePermission({ doGUM: true, permissionStatus })
             .then((hasPermission) => {
               // No permission - let the Help screen be shown as it's triggered
@@ -684,6 +690,7 @@ const AudioModal = ({
     forceListenOnlyAttendee,
     joinFullAudioImmediately,
     listenOnlyMode,
+    initialJoinExecuted,
   ]);
 
   useEffect(() => {

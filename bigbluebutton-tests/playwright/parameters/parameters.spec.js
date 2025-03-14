@@ -40,11 +40,10 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
     await createParam.duration();
   });
 
-  // welcome message moved on #21909
-  test.fixme('Message Only To Moderators', async ({ browser, context, page }) => {
+  test('Message Only To Moderators', async ({ browser, context, page }) => {
     const createParam = new CreateParameters(browser, context);
-    await createParam.initModPage(page, true, { createParameter: c.moderatorOnlyMessage });
-    await createParam.moderatorOnlyMessage(context);
+    await createParam.initModPage(page, true, { createParameter: encodeCustomParams(c.moderatorOnlyMessage) });
+    await createParam.moderatorOnlyMessage();
   });
 
   test('Webcams Shows Only For Moderators', async ({ browser, context, page }) => {
@@ -476,8 +475,7 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
       await customParam.hidePresentationOnJoin();
     });
 
-    // not restoring presentation after zooming in
-    test('Force restore presentation on new events', { tag: '@flaky' }, async ({ browser, context, page }) => {
+    test('Force restore presentation on new events', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page);
       await customParam.initUserPage(true, context, { useModMeetingId: true, joinParameter: c.forceRestorePresentationOnNewEvents });
