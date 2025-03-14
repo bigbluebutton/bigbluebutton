@@ -1,5 +1,6 @@
 import { useMutation, useQuery } from '@apollo/client';
 import React, { useContext, useEffect, useState } from 'react';
+import Bowser from 'bowser';
 import Session from '/imports/ui/services/storage/in-memory';
 import {
   getUserCurrent,
@@ -16,6 +17,7 @@ import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedS
 import logger from '/imports/startup/client/logger';
 import deviceInfo from '/imports/utils/deviceInfo';
 import GuestWaitContainer, { GUEST_STATUSES } from '../guest-wait/component';
+import Legacy from '/imports/ui/components/legacy/component';
 
 const connectionTimeout = 60000;
 const MESSAGE_TIMEOUT = 3000;
@@ -47,6 +49,7 @@ interface PresenceManagerProps extends PresenceManagerContainerProps {
     guestStatus: string;
     guestLobbyMessage: string | null;
     positionInWaitingQueue: number | null;
+    isSupportedBrowser: boolean | undefined;
 }
 
 const PresenceManager: React.FC<PresenceManagerProps> = ({
@@ -73,6 +76,7 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   guestLobbyMessage,
   guestStatus,
   positionInWaitingQueue,
+  isSupportedBrowser,
 }) => {
   const [allowToRender, setAllowToRender] = React.useState(false);
   const [dispatchUserJoin] = useMutation(userJoinMutation);
@@ -162,6 +166,10 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
 
   const errorCode = loggedOut ? 'user_logged_out_reason' : joinErrorCode || ejectReasonCode;
 
+  if (isSupportedBrowser === false) {
+    return <Legacy setLoading={loadingContextInfo.setLoading} />;
+  }
+
   return (
     <>
       {allowToRender && !(meetingEnded || joinErrorCode || ejectReasonCode || loggedOut) ? children : null}
@@ -241,6 +249,10 @@ const PresenceManagerContainer: React.FC<PresenceManagerContainerProps> = ({ chi
   } = userInfoData.meeting[0];
   const { extId, name: userName, userId } = userInfoData.user_current[0];
 
+  const MIN_BROWSER_CONFIG = window.meetingClientSettings.public.minBrowserVersions;
+  const userAgent = window.navigator?.userAgent;
+  const isSupportedBrowser = Bowser.getParser(userAgent).satisfies(MIN_BROWSER_CONFIG);
+
   return (
     <PresenceManager
       authToken={authToken}
@@ -265,6 +277,7 @@ const PresenceManagerContainer: React.FC<PresenceManagerContainerProps> = ({ chi
       guestLobbyMessage={guestStatusDetails?.guestLobbyMessage ?? null}
       positionInWaitingQueue={guestStatusDetails?.positionInWaitingQueue ?? null}
       guestStatus={guestStatus}
+      isSupportedBrowser={isSupportedBrowser}
     >
       {children}
     </PresenceManager>

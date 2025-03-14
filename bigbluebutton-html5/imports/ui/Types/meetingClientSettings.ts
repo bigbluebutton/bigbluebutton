@@ -28,6 +28,7 @@ export interface Public {
   whiteboard: Whiteboard
   clientLog: ClientLog
   virtualBackgrounds: VirtualBackgrounds
+  minBrowserVersions: MinBrowserVersions
 }
 export interface Locales {
   locale: string
@@ -823,7 +824,6 @@ export interface VirtualBackgrounds {
 export interface Private {
   analytics: Analytics
   app: App2
-  minBrowserVersions: MinBrowserVersion[]
   prometheus: Prometheus
 }
 
@@ -850,9 +850,17 @@ export interface Channels {
   toThirdParty: string
 }
 
-export interface MinBrowserVersion {
-  browser: string
-  version: number | number[] | string
+export interface mobileBrowsers {
+  safari: string
+  chrome: string
+}
+
+export interface MinBrowserVersions {
+  safari: string
+  chrome: string
+  firefox: string
+  edge: string
+  mobile: mobileBrowsers
 }
 
 export interface Prometheus {
