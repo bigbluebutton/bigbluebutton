@@ -230,7 +230,9 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
   }, []);
 
   useEffect(() => {
-    if (!scrollRef.current) return;
+    // If chatFocusMessageRequest is a number, do not recalculate scroll position.
+    // A reply message was clicked and the replied message will be focused.
+    if (!scrollRef.current || typeof chatFocusMessageRequest === 'number') return;
     // eslint-disable-next-line no-param-reassign
     scrollRef.current.scrollTop = scrollRef.current.scrollHeight - scrollHeightBeforeRender.current;
   }, []);
