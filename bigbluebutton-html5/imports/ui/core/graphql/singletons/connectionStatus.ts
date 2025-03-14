@@ -270,6 +270,7 @@ class ConnectionStatus {
     lastUnstableStatusAt: Date | number,
   ): void {
     const userNetworkHistory = [...this.userNetworkHistory()];
+    if (!user) return;
     userNetworkHistory.push({
       user: {
         userId: user.userId,
