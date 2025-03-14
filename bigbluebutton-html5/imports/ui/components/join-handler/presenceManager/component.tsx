@@ -8,7 +8,6 @@ import {
   GetUserInfoResponse,
   userJoinMutation,
 } from './queries';
-import updateMeetingStatusForPlugin from './utils';
 import { setAuthData } from '/imports/ui/core/local-states/useAuthData';
 import MeetingEndedContainer from '../../meeting-ended/component';
 import { setUserDataToSessionStorage } from './service';
@@ -17,6 +16,7 @@ import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedS
 import logger from '/imports/startup/client/logger';
 import deviceInfo from '/imports/utils/deviceInfo';
 import GuestWaitContainer, { GUEST_STATUSES } from '../guest-wait/component';
+import MeetingStatusUpdateForPlugin from '/imports/ui/components/meeting-status-update/component';
 
 const connectionTimeout = 60000;
 const MESSAGE_TIMEOUT = 3000;
@@ -165,10 +165,11 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
 
   const userCurrentlyInMeeting = allowToRender && !(meetingEnded || joinErrorCode || ejectReasonCode || loggedOut);
 
-  updateMeetingStatusForPlugin(userCurrentlyInMeeting);
-
   return (
     <>
+      <MeetingStatusUpdateForPlugin
+        currentUserCurrentlyInMeeting={userCurrentlyInMeeting}
+      />
       {userCurrentlyInMeeting ? children : null}
       {
         meetingEnded || joinErrorCode || ejectReasonCode || loggedOut

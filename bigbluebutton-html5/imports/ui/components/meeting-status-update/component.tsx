@@ -1,11 +1,16 @@
-import { useRef } from 'react';
+import React from 'react';
 import { MeetingStatusData } from 'bigbluebutton-html-plugin-sdk';
 import { UpdatedEventDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
 import { GENERIC_HOOK_PLUGIN, HookEvents } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/enum';
+import { MeetingStatusUpdateForPluginProps } from './types';
+import { useStatePreviousValue } from '../../hooks/usePreviousValue';
 
-const updateMeetingStatusForPlugin = (currentUserCurrentlyInMeeting: boolean) => {
-  const previousUserCurrentlyInMeeting = useRef(true);
-  if (previousUserCurrentlyInMeeting.current !== currentUserCurrentlyInMeeting) {
+const MeetingStatusUpdateForPlugin: React.FC<MeetingStatusUpdateForPluginProps> = (
+  { currentUserCurrentlyInMeeting }: MeetingStatusUpdateForPluginProps,
+) => {
+  const previousUserCurrentlyInMeeting = useStatePreviousValue(currentUserCurrentlyInMeeting);
+
+  if (previousUserCurrentlyInMeeting !== currentUserCurrentlyInMeeting) {
     window.dispatchEvent(new CustomEvent<UpdatedEventDetails<MeetingStatusData>>(
       HookEvents.BBB_CORE_UPDATED_MEETING_STATUS,
       {
@@ -18,5 +23,8 @@ const updateMeetingStatusForPlugin = (currentUserCurrentlyInMeeting: boolean) =>
       },
     ));
   }
+
+  return null;
 };
-export default updateMeetingStatusForPlugin;
+
+export default MeetingStatusUpdateForPlugin;
