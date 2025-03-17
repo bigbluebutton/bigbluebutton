@@ -97,7 +97,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         breakoutRoomLimit: 16,
         allowPresentationManagementInBreakouts: true,
       },
-      customHeartbeat: false,
       showAllAvailableLocales: true,
       showAudioFilters: true,
       reactionsButton: {
