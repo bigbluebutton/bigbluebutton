@@ -71,7 +71,7 @@ const defaultUser = {
   userId: '',
 };
 
-const customTools = [NoopTool, DeleteAllTool];
+const customTools = [NoopTool, DeleteSelectedItemsTool];
 
 const Whiteboard = React.memo((props) => {
   const {
