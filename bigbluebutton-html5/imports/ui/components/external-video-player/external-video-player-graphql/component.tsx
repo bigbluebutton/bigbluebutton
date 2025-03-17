@@ -271,9 +271,9 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
       const internalPlayer = playerRef.current?.getInternalPlayer();
       const playerVolume = internalPlayer?.getVolume();
       const isMuted = internalPlayer?.isMuted();
-      // the scale fiven by the player is 0 to 100, but the accepted scale is 0 to 1
+      // the scale given by the player is 0 to 100, but the accepted scale is 0 to 1
       // So we need to divide by 100
-      setVolume(playerVolume / 100);
+      setVolume(playerVolume > 1 ? playerVolume / 100 : playerVolume);
       setMute(isMuted);
       clientReloadedRef.current = true;
       setPlayerKey(uniqueId('react-player'));
