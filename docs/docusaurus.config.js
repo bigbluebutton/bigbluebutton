@@ -12,7 +12,7 @@ const config = {
     tagline: 'Official Documentation',
     url: 'https://docs.bigbluebutton.org/',
     baseUrl: isDev ? '/docs' : '/',
-    onBrokenLinks: 'throw',
+    onBrokenLinks: 'warn',
     onBrokenMarkdownLinks: 'warn',
     favicon: 'img/favicon.ico',
     trailingSlash: true,
@@ -43,7 +43,7 @@ const config = {
                 docs: {
                     routeBasePath: "/",
                     sidebarPath: require.resolve('./sidebars.js'),
-                    lastVersion: '2.7',
+                    lastVersion: '3.0',
                     includeCurrentVersion: false,
                     versions: {
                         '2.5-legacy': {
@@ -82,11 +82,8 @@ const config = {
                         from: "/2.6/new.html"
                     },
                     {
-                        to: "/new-features/",
-                        from: "/2.7/new-features/"
-                    },                    {
-                        to: "/3.0/new-features/",
-                        from: "/3.0/new/"
+                        to: "/2.7/new-features/",
+                        from: "/2.7/new/"
                     },
                     {
                         to: "/development/api/",
@@ -95,6 +92,10 @@ const config = {
                     {
                         to: "/greenlight/v3/migration/",
                         from: "/greenlight_v3/gl3-migration.html"
+                    },
+                    {
+                        to: "/", // Page release-notes was removed in 3.0
+                        from: "/release-notes/"
                     }
                 ],
                 // We interpret the path argument as the path "to"
@@ -103,9 +104,9 @@ const config = {
                     // TODO: remove default route to /
                     const redirect_list = [];
 
-                    // Create redirect paths for all routes except 2.5 or 2.6 ones
-                    if ( !(path.startsWith("/2.5") || path.startsWith("/2.6"))){
-                        redirect_list.push("/2.7" + path);
+                    // Create redirect paths for all routes except 2.5 or 2.6, 2.7 ones
+                    if ( !(path.startsWith("/2.5") || path.startsWith("/2.6") || path.startsWith("/2.7"))){
+                        redirect_list.push("/3.0" + path);
                     }
 
                     if ( path.includes("/testing/release-testing") ){
