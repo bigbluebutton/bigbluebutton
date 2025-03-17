@@ -71,6 +71,8 @@ const defaultUser = {
   userId: '',
 };
 
+const customTools = [NoopTool, DeleteAllTool];
+
 const Whiteboard = React.memo((props) => {
   const {
     isPresenter = false,
@@ -171,8 +173,7 @@ const Whiteboard = React.memo((props) => {
     }
   });
 
-  const customTools = [NoopTool, DeleteSelectedItemsTool];
-  const customUiOverrides = {
+  const customUiOverrides = React.useMemo(() => ({
     tools: (editor, tools) => {
       const updatedTools = {
         ...tools,
@@ -199,7 +200,7 @@ const Whiteboard = React.memo((props) => {
       }
       return toolbarItems;
     },
-  };
+  }), [intl, currentUser?.presenter, currentUser?.userId]);
 
   const prevFitToWidth = usePrevious(fitToWidth);
   const presenterChanged = usePrevious(isPresenter) !== isPresenter;
