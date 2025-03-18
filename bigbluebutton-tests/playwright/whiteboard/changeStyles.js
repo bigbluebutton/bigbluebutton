@@ -11,11 +11,7 @@ class ChangeStyles extends MultiUsers {
   async changingColor() {
     await this.drawEllipseShape();
     await this.modPage.waitAndClick(e.wbColorRed);
-    await this.modPage.setHeightWidthViewPortSize();
-    await this.userPage.setHeightWidthViewPortSize();
-
     await expect(this.modPage.page).toHaveScreenshot('moderator-change-color.png');
-
     const userWbLocator = this.userPage.getLocator(e.whiteboard);
     await expect(userWbLocator).toHaveScreenshot('viewer-change-color.png');
   }
@@ -24,10 +20,6 @@ class ChangeStyles extends MultiUsers {
     await this.drawEllipseShape();
     await this.modPage.waitAndClick(e.wbFillDrawing);
     await this.modPage.press('Escape');
-
-    await this.modPage.setHeightWidthViewPortSize();
-    await this.userPage.setHeightWidthViewPortSize();
-
     await expect(this.modPage.page).toHaveScreenshot('moderator-fill-drawing.png');
 
     const userWbLocator = this.userPage.getLocator(e.whiteboard);
@@ -37,10 +29,6 @@ class ChangeStyles extends MultiUsers {
   async dashDrawing() {
     await this.drawEllipseShape();
     await this.modPage.waitAndClick(e.wbDashDotted);
-
-    await this.modPage.setHeightWidthViewPortSize();
-    await this.userPage.setHeightWidthViewPortSize();
-
     await expect(this.modPage.page).toHaveScreenshot('moderator-dash-drawing.png');
 
     const userWbLocator = this.userPage.getLocator(e.whiteboard);
@@ -50,10 +38,6 @@ class ChangeStyles extends MultiUsers {
   async sizeDrawing() {
     await this.drawEllipseShape();
     await this.modPage.waitAndClick(e.wbSizeLarge);
-
-    await this.modPage.setHeightWidthViewPortSize();
-    await this.userPage.setHeightWidthViewPortSize();
-    
     await expect(this.modPage.page).toHaveScreenshot('moderator-size-drawing.png');
 
     const userWbLocator = this.userPage.getLocator(e.whiteboard);

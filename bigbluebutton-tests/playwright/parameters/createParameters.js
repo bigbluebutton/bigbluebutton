@@ -117,8 +117,6 @@ class CreateParameters extends MultiUsers {
   }
 
   async overrideDefaultPresentation() {
-    await this.modPage.setHeightWidthViewPortSize();
-    await this.userPage.setHeightWidthViewPortSize();
     await this.modPage.waitForSelector(e.whiteboard);
     await this.userPage.waitForSelector(e.whiteboard);
     await expect(
