@@ -5,7 +5,7 @@ const hasBackgroundImageUrl = (el) => {
   const style = window.getComputedStyle(el);
   const bg = style.backgroundImage || '';
   return bg.includes('url(');
-}
+};
 
 const useCursor = (publishCursorUpdate, whiteboardId) => {
   const [cursorPosition, setCursorPosition] = useState({ x: '', y: '' });
@@ -54,7 +54,7 @@ const useMouseEvents = ({
     const dx = touch2.clientX - touch1.clientX;
     const dy = touch2.clientY - touch1.clientY;
     return Math.sqrt(dx * dx + dy * dy);
-  }
+  };
 
   const handleMouseUp = () => {
     if (timeoutIdRef.current) {
@@ -83,7 +83,7 @@ const useMouseEvents = ({
   };
 
   const handleMouseDownWindow = (event) => {
-    const target = event.target;
+    const { target } = event;
     const editor = tlEditorRef.current;
     const presentationInnerWrapper = document.getElementById('presentationInnerWrapper');
 
@@ -95,12 +95,12 @@ const useMouseEvents = ({
 
     const selectedShapes = editor?.getSelectedShapes();
     if (
-      selectedShapes?.length === 1 &&
-      selectedShapes[0].type === 'frame' &&
-      editor?.getCurrentToolId() === 'select' &&
-      !target.matches('[data-testid*="selection.resize"]') &&
-      !target.matches('[data-testid*="selection.target"]') &&
-      hasBackgroundImageUrl(target)
+      selectedShapes?.length === 1
+      && selectedShapes[0].type === 'frame'
+      && editor?.getCurrentToolId() === 'select'
+      && !target.matches('[data-testid*="selection.resize"]')
+      && !target.matches('[data-testid*="selection.target"]')
+      && hasBackgroundImageUrl(target)
     ) {
       editor.selectNone();
       return editor.complete();
@@ -145,7 +145,7 @@ const useMouseEvents = ({
     setIsWheelZoom(true);
 
     const MAX_ZOOM_FACTOR = 4; // Represents 400%
-    const MIN_ZOOM_FACTOR = isInfiniteWhiteboard ? .25 : 1;
+    const MIN_ZOOM_FACTOR = isInfiniteWhiteboard ? 0.25 : 1;
     const ZOOM_IN_FACTOR = 0.25;
     const ZOOM_OUT_FACTOR = 0.25;
 
@@ -253,39 +253,33 @@ const useMouseEvents = ({
   }, [whiteboardToolbarAutoHide]);
 
   React.useEffect(() => {
-    const whiteboardElement = whiteboardRef.current;
-
+    const presentationWrapper = document.getElementById('presentationInnerWrapper');
     window.addEventListener('mousedown', handleMouseDownWindow);
-
-    if (whiteboardElement) {
-      whiteboardElement.addEventListener('mousedown', handleMouseDownWhiteboard);
-      whiteboardElement.addEventListener('mouseup', handleMouseUp);
-      whiteboardElement.addEventListener('mouseenter', handleMouseEnter);
-      whiteboardElement.addEventListener('mouseleave', handleMouseLeave);
-      whiteboardElement.addEventListener('wheel', handleMouseWheel, { passive: false, capture: true });
-
-      whiteboardElement.addEventListener('touchstart', handleTouchStart, { passive: false, capture: true });
-      whiteboardElement.addEventListener('touchend', handleTouchEnd, { passive: false, capture: true });
-      whiteboardElement.addEventListener('touchmove', handleTouchMove, { passive: false });
+    if (presentationWrapper) {
+      presentationWrapper.addEventListener('mousedown', handleMouseDownWhiteboard);
+      presentationWrapper.addEventListener('mouseup', handleMouseUp);
+      presentationWrapper.addEventListener('mouseenter', handleMouseEnter);
+      presentationWrapper.addEventListener('mouseleave', handleMouseLeave);
+      presentationWrapper.addEventListener('wheel', handleMouseWheel, { passive: false, capture: true });
+      presentationWrapper.addEventListener('touchstart', handleTouchStart, { passive: false, capture: true });
+      presentationWrapper.addEventListener('touchend', handleTouchEnd, { passive: false, capture: true });
+      presentationWrapper.addEventListener('touchmove', handleTouchMove, { passive: false });
     }
 
     return () => {
-      if (whiteboardElement) {
-        whiteboardElement.removeEventListener('mousedown', handleMouseDownWhiteboard);
-        whiteboardElement.removeEventListener('mouseup', handleMouseUp);
-        whiteboardElement.removeEventListener('mouseenter', handleMouseEnter);
-        whiteboardElement.removeEventListener('mouseleave', handleMouseLeave);
-        whiteboardElement.removeEventListener('wheel', handleMouseWheel);
-
-        whiteboardElement.removeEventListener('touchstart', handleTouchStart);
-        whiteboardElement.removeEventListener('touchend', handleTouchEnd);
-        whiteboardElement.removeEventListener('touchmove', handleTouchMove);
+      if (presentationWrapper) {
+        presentationWrapper.removeEventListener('mousedown', handleMouseDownWhiteboard);
+        presentationWrapper.removeEventListener('mouseup', handleMouseUp);
+        presentationWrapper.removeEventListener('mouseenter', handleMouseEnter);
+        presentationWrapper.removeEventListener('mouseleave', handleMouseLeave);
+        presentationWrapper.removeEventListener('wheel', handleMouseWheel);
+        presentationWrapper.removeEventListener('touchstart', handleTouchStart);
+        presentationWrapper.removeEventListener('touchend', handleTouchEnd);
+        presentationWrapper.removeEventListener('touchmove', handleTouchMove);
       }
-
       window.removeEventListener('mousedown', handleMouseDownWindow);
     };
   }, [
-    whiteboardRef,
     tlEditorRef,
     isPresenterRef,
     handleMouseDownWhiteboard,
