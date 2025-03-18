@@ -52,6 +52,10 @@ const intlMessages = defineMessages({
     id: 'app.presentation.emptySlideContent',
     description: 'No content available for slide',
   },
+  presentationHeader: {
+    id: 'playback.player.presentation.wrapper.aria',
+    description: 'Aria label for header navigation',
+  },
 });
 
 const { isSafari } = browserInfo;
