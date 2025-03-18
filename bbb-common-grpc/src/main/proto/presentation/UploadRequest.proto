@@ -1,7 +1,0 @@
-syntax = "proto3";
-
-package org.bigbluebutton.protos;
-
-message UploadRequest {
-
-}
