@@ -538,6 +538,16 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
     delete streamRefs.current.videoTags[stream];
   };
 
+  const toggleMirroredCamera = (stream: string, mirrored: boolean) => {
+    try {
+      const bbbVideoStream = streamRefs.current.localVideoStreams[stream];
+      bbbVideoStream.toggleMirroredCamera(mirrored);
+    } catch (error) {
+      const errorLocale = intlClientErrors.virtualBgGenericError;
+      if (errorLocale) VideoService.notify(intl.formatMessage(errorLocale));
+    }
+  };
+
   const startVirtualBackgroundByDrop = useCallback(async (
     stream: string,
     backgroundType: string,
@@ -585,6 +595,7 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
       onVideoItemMount={createVideoTag}
       onVideoItemUnmount={destroyVideoTag}
       onVirtualBgDrop={startVirtualBackgroundByDrop}
+      toggleMirroredCamera={toggleMirroredCamera}
     />
   );
 };

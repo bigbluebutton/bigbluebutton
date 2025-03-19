@@ -26,6 +26,7 @@ interface VideoListContainerProps {
   onVideoItemMount: (stream: string, video: HTMLVideoElement) => void;
   onVideoItemUnmount: (stream: string) => void;
   onVirtualBgDrop: (stream: string, type: string, name: string, data: string) => Promise<unknown>;
+  toggleMirroredCamera: (stream: string, mirrored: boolean) => void;
 }
 
 const VideoListContainer: React.FC<VideoListContainerProps> = (props) => {
@@ -41,6 +42,7 @@ const VideoListContainer: React.FC<VideoListContainerProps> = (props) => {
     onVideoItemMount,
     onVideoItemUnmount,
     onVirtualBgDrop,
+    toggleMirroredCamera,
   } = props;
   const numberOfPages = useNumberOfPages();
 
@@ -115,6 +117,7 @@ const VideoListContainer: React.FC<VideoListContainerProps> = (props) => {
           onVideoItemMount={onVideoItemMount}
           onVideoItemUnmount={onVideoItemUnmount}
           onVirtualBgDrop={onVirtualBgDrop}
+          toggleMirroredCamera={toggleMirroredCamera}
         />
       )
   );

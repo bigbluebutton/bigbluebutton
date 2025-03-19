@@ -62,6 +62,7 @@ interface VideoListItemProps {
     talking: boolean;
     joined: boolean;
   };
+  toggleMirroredCamera: (stream: string, mirrored: boolean) => void;
 }
 
 const renderPluginItems = (
@@ -103,7 +104,7 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
     cameraId, numOfStreams, focused, onVideoItemMount, onVideoItemUnmount,
     makeDragOperations, dragging, draggingOver, isRTL, isStream, settingsSelfViewDisable,
     disabledCams, amIModerator, stream, setUserCamerasRequestedFromPlugin,
-    pluginUserCameraHelperPerPosition,
+    pluginUserCameraHelperPerPosition, toggleMirroredCamera,
   } = props;
 
   const intl = useIntl();
@@ -135,6 +136,26 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
       return userCamera;
     });
   }, [videoContainer]);
+
+  const isStreamType = stream.type === VIDEO_TYPES.STREAM || stream.type === VIDEO_TYPES.CONNECTING;
+  const streamId = isStreamType ? stream.stream : null;
+  let shouldMirror = false;
+  let bbbVideoStream = null;
+
+  if (streamId) {
+    const peer = VideoService.getWebRtcPeersRef()[streamId];
+    if (peer) {
+      // @ts-ignore Untyped object.
+      bbbVideoStream = peer.bbbVideoStream;
+      shouldMirror = bbbVideoStream.virtualBgService == null;
+    }
+  }
+
+  useEffect(() => {
+    if (streamId && bbbVideoStream !== null) {
+      toggleMirroredCamera(streamId, isMirrored);
+    }
+  }, [isMirrored, streamId, bbbVideoStream]);
 
   const videoIsReady = isStreamHealthy && videoDataLoaded && !isSelfViewDisabled;
   const Settings = getSettingsSingletonInstance();
@@ -423,7 +444,7 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
           || disabledCams.includes(cameraId)}
       >
         <Styled.Video
-          mirrored={isMirrored}
+          mirrored={shouldMirror && isMirrored}
           unhealthyStream={videoDataLoaded && !isStreamHealthy}
           data-test={isMirrored ? 'mirroredVideoContainer' : 'videoContainer'}
           ref={videoTag}

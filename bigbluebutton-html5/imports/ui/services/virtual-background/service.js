@@ -58,12 +58,15 @@ const getIsStoredOnBBB = () => {
   return IS_STORED_ON_BBB;
 };
 
-const createVirtualBackgroundStream = (type, name, isVirtualBackground, stream, customParams) => {
+const createVirtualBackgroundStream = (
+  type, name, isVirtualBackground, stream, customParams, mirror,
+) => {
   const buildParams = {
     backgroundType: type,
     backgroundFilename: name,
     isVirtualBackground,
     customParams,
+    mirror,
   };
 
   return createVirtualBackgroundService(buildParams).then((service) => {

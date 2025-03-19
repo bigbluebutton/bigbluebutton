@@ -29,6 +29,7 @@ interface VideoListItemContainerProps {
   onVideoItemUnmount: (stream: string) => void;
   onVirtualBgDrop: (type: string, name: string, data: string) => void;
   onVideoItemMount: (ref: HTMLVideoElement) => void;
+  toggleMirroredCamera: (stream: string, mirrored: boolean) => void;
 }
 
 const VideoListItemContainer: React.FC<VideoListItemContainerProps> = (props) => {
@@ -46,6 +47,7 @@ const VideoListItemContainer: React.FC<VideoListItemContainerProps> = (props) =>
     stream,
     userId,
     pluginUserCameraHelperPerPosition,
+    toggleMirroredCamera,
   } = props;
 
   const fullscreen = layoutSelect((i: Layout) => i.fullscreen);
@@ -94,6 +96,7 @@ const VideoListItemContainer: React.FC<VideoListItemContainerProps> = (props) =>
       settingsSelfViewDisable={settingsSelfViewDisable}
       stream={stream}
       voiceUser={voiceUser}
+      toggleMirroredCamera={toggleMirroredCamera}
     />
   );
 };

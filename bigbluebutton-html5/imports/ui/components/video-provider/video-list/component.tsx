@@ -83,6 +83,7 @@ interface VideoListProps {
   onVideoItemMount: (stream: string, video: HTMLVideoElement) => void;
   onVideoItemUnmount: (stream: string) => void;
   onVirtualBgDrop: (stream: string, type: string, name: string, data: string) => Promise<unknown>;
+  toggleMirroredCamera: (stream: string, mirrored: boolean) => void;
 }
 
 interface VideoListState {
@@ -352,6 +353,7 @@ class VideoList extends Component<VideoListProps, VideoListState> {
       setUserCamerasRequestedFromPlugin,
       focusedId,
       pluginUserCameraHelperPerPosition,
+      toggleMirroredCamera,
     } = this.props;
     const numOfStreams = streams.length;
 
@@ -389,6 +391,7 @@ class VideoList extends Component<VideoListProps, VideoListState> {
                 return isStream ? onVirtualBgDrop(item.stream, type, name, data) : Promise.resolve(null);
               }
             }
+            toggleMirroredCamera={toggleMirroredCamera}
           />
         </Styled.VideoListItem>
       );

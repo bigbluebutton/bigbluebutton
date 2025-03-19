@@ -102,7 +102,7 @@ export default class BBBVideoStream extends EventEmitter2 {
     }
   }
 
-  startVirtualBackground(type, name = '', customParams) {
+  startVirtualBackground(type, name = '', customParams, mirror) {
     if (this.virtualBgService) return this._changeVirtualBackground(type, name, customParams);
 
     return createVirtualBackgroundStream(
@@ -111,6 +111,7 @@ export default class BBBVideoStream extends EventEmitter2 {
       BBBVideoStream.isVirtualBackground(type),
       this.mediaStream,
       customParams,
+      mirror,
     ).then(({ service, effect }) => {
       this.virtualBgService = service;
       this.virtualBgType = type;
@@ -132,6 +133,12 @@ export default class BBBVideoStream extends EventEmitter2 {
     if (!this.virtualBgService) return;
 
     this.virtualBgService.wholeImageBrightness = value;
+  }
+
+  toggleMirroredCamera(mirrored) {
+    if (this.virtualBgService != null) {
+      this.virtualBgService.mirror = mirrored;
+    }
   }
 
   stopVirtualBackground() {

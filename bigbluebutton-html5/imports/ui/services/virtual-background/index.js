@@ -130,17 +130,36 @@ class VirtualBackgroundService {
             this._outputCanvasCtx.filter = 'blur(8px)';
         }
 
-        this._outputCanvasCtx.drawImage(
-            this._segmentationMaskCanvas,
-            0,
-            0,
-            this._options.width,
-            this._options.height,
-            0,
-            0,
-            this._inputVideoElement.width,
-            this._inputVideoElement.height
-        );
+        if (this._options.mirror) {
+            this._outputCanvasCtx.save();
+            this._outputCanvasCtx.scale(-1, 1);
+            this._outputCanvasCtx.translate(-this._inputVideoElement.width, 0);
+            this._outputCanvasCtx.drawImage(
+                this._segmentationMaskCanvas,
+                0,
+                0,
+                this._options.width,
+                this._options.height,
+                0,
+                0,
+                this._inputVideoElement.width,
+                this._inputVideoElement.height
+            );
+            this._outputCanvasCtx.restore();
+        } else {
+            this._outputCanvasCtx.drawImage(
+                this._segmentationMaskCanvas,
+                0,
+                0,
+                this._options.width,
+                this._options.height,
+                0,
+                0,
+                this._inputVideoElement.width,
+                this._inputVideoElement.height
+            );
+        }
+
         this._outputCanvasCtx.globalCompositeOperation = 'source-in';
         this._outputCanvasCtx.filter = 'none';
 
@@ -148,7 +167,17 @@ class VirtualBackgroundService {
         //
 
         this._outputCanvasCtx.filter = `brightness(${this._options.brightness}%)`;
-        this._outputCanvasCtx.drawImage(this._inputVideoElement, 0, 0);
+
+        if (this._options.mirror) {
+            this._outputCanvasCtx.save();
+            this._outputCanvasCtx.scale(-1, 1);
+            this._outputCanvasCtx.translate(-this._inputVideoElement.width, 0);
+            this._outputCanvasCtx.drawImage(this._inputVideoElement, 0, 0);
+            this._outputCanvasCtx.restore();
+        } else {
+            this._outputCanvasCtx.drawImage(this._inputVideoElement, 0, 0);
+        }
+
         this._outputCanvasCtx.filter = 'none';
 
         // Draw the background.
@@ -172,9 +201,25 @@ class VirtualBackgroundService {
             );
         } else if (this._options.virtualBackground.backgroundType === 'blur') {
             this._outputCanvasCtx.filter = `blur(${blurValue})`;
-            this._outputCanvasCtx.drawImage(this._inputVideoElement, 0, 0);
+            if (this._options.mirror) {
+                this._outputCanvasCtx.save();
+                this._outputCanvasCtx.scale(-1, 1);
+                this._outputCanvasCtx.translate(-this._inputVideoElement.width, 0);
+                this._outputCanvasCtx.drawImage(this._inputVideoElement, 0, 0);
+                this._outputCanvasCtx.restore();
+            } else {
+                this._outputCanvasCtx.drawImage(this._inputVideoElement, 0, 0);
+            }
         } else {
-            this._outputCanvasCtx.drawImage(this._inputVideoElement, 0, 0);
+            if (this._options.mirror) {
+                this._outputCanvasCtx.save();
+                this._outputCanvasCtx.scale(-1, 1);
+                this._outputCanvasCtx.translate(-this._inputVideoElement.width, 0);
+                this._outputCanvasCtx.drawImage(this._inputVideoElement, 0, 0);
+                this._outputCanvasCtx.restore();
+            } else {
+                this._outputCanvasCtx.drawImage(this._inputVideoElement, 0, 0);
+            }
         }
     }
 
@@ -354,6 +399,14 @@ class VirtualBackgroundService {
     get wholeImageBrightness() {
         return this._options.wholeImageBrightness;
     }
+
+    set mirror(value) {
+        this._options.mirror = value;
+    }
+
+    get mirror() {
+        return this._options.mirror;
+    }
 }
 
     /**
@@ -406,7 +459,8 @@ export async function createVirtualBackgroundService(parameters = null) {
 
     const options = {
         ... simdSupported ? MODELS.model144.segmentationDimensions : MODELS.model96.segmentationDimensions,
-        virtualBackground: parameters
+        virtualBackground: parameters,
+        mirror: parameters?.mirror,
     };
 
     return new VirtualBackgroundService(tflite, options);

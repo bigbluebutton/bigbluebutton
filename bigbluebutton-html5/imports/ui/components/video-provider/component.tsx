@@ -206,6 +206,7 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
       { leading: false, trailing: true },
     );
     this.startVirtualBackgroundByDrop = this.startVirtualBackgroundByDrop.bind(this);
+    this.toggleMirroredCamera = this.toggleMirroredCamera.bind(this);
     this.onBeforeUnload = this.onBeforeUnload.bind(this);
   }
 
@@ -1231,6 +1232,19 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
     }
   }
 
+  toggleMirroredCamera(stream: string, mirrored: boolean) {
+    try {
+      const peer = this.webRtcPeers[stream];
+      const { bbbVideoStream } = peer;
+      bbbVideoStream.toggleMirroredCamera(mirrored);
+    } catch (error) {
+      const { intl } = this.props;
+      const errorLocale = intlClientErrors.virtualBgGenericError;
+
+      if (errorLocale) VideoService.notify(intl.formatMessage(errorLocale));
+    }
+  }
+
   createVideoTag(stream: string, video: HTMLVideoElement) {
     const peer = this.webRtcPeers[stream];
     this.videoTags[stream] = video;
@@ -1389,6 +1403,7 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
         onVideoItemMount={this.createVideoTag}
         onVideoItemUnmount={this.destroyVideoTag}
         onVirtualBgDrop={this.startVirtualBackgroundByDrop}
+        toggleMirroredCamera={this.toggleMirroredCamera}
       />
     );
   }

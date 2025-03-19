@@ -241,6 +241,7 @@ class VideoPreview extends Component {
     this.handleLocalStreamInactive = this.handleLocalStreamInactive.bind(this);
     this.handleBrightnessAreaChange = this.handleBrightnessAreaChange.bind(this);
     this.handleSelectTab = this.handleSelectTab.bind(this);
+    this.shouldMirrorOwnWebcam = this.shouldMirrorOwnWebcam.bind(this);
 
     this._isMounted = false;
 
@@ -513,6 +514,7 @@ class VideoPreview extends Component {
     if (bbbVideoStream) {
       bbbVideoStream.stopVirtualBackground();
       this.displayPreview();
+      this.forceUpdate();
     }
   }
 
@@ -521,7 +523,7 @@ class VideoPreview extends Component {
 
     if (bbbVideoStream == null) return Promise.resolve(false);
 
-    return bbbVideoStream.startVirtualBackground(type, name, customParams).then(() => {
+    return bbbVideoStream.startVirtualBackground(type, name, customParams, VideoService.mirrorOwnWebcam()).then(() => {
       this.displayPreview();
       return true;
     }).catch(error => {
@@ -774,7 +776,7 @@ class VideoPreview extends Component {
         // Apply custom background from JOIN URL parameter automatically
         // only if there's not any session background yet.
         const { filename, data, type, uniqueId } = this.context.backgrounds.webcamBackgroundURL;
-        const customParams = {
+        customParams = {
           file: data,
           uniqueId,
         };
@@ -902,6 +904,11 @@ class VideoPreview extends Component {
     const { cameraAsContentDeviceId } = this.props;
 
     return deviceId === cameraAsContentDeviceId;
+  }
+
+  shouldMirrorOwnWebcam() {
+    const { virtualBgService } = this.currentVideoStream;
+    return VideoService.mirrorOwnWebcam() && virtualBgService == null;
   }
 
   renderDeviceSelectors() {
@@ -1202,9 +1209,9 @@ class VideoPreview extends Component {
                   )
                   : (
                     <Styled.VideoPreview
-                      mirroredVideo={VideoService.mirrorOwnWebcam()}
+                      mirroredVideo={this.shouldMirrorOwnWebcam()}
                       id="preview"
-                      data-test={VideoService.mirrorOwnWebcam() ? 'mirroredVideoPreview' : 'videoPreview'}
+                      data-test={this.shouldMirrorOwnWebcam() ? 'mirroredVideoPreview' : 'videoPreview'}
                       ref={(ref) => { this.video = ref; }}
                       autoPlay
                       playsInline
