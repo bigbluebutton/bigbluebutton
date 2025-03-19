@@ -85,6 +85,7 @@ class ScreenshareComponent extends React.Component {
       switched: false,
       // Volume control hover toolbar
       showHoverToolBar: false,
+      screenshareRef: null,
     };
 
     this.onLoadedData = this.onLoadedData.bind(this);
@@ -101,6 +102,7 @@ class ScreenshareComponent extends React.Component {
     this.dispatchScreenShareSize = this.dispatchScreenShareSize.bind(this);
     this.renderScreenshareButtons = this.renderScreenshareButtons.bind(this);
     this.splitPluginItems = this.splitPluginItems.bind(this);
+    this.handleMouseMovement = this.handleMouseMovement.bind(this);
     this.debouncedDispatchScreenShareSize = debounce(
       this.dispatchScreenShareSize,
       SCREEN_SIZE_DISPATCH_INTERVAL,
@@ -155,8 +157,9 @@ class ScreenshareComponent extends React.Component {
     }
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps, prevState) {
     const { isPresenter, outputDeviceId, shouldShowScreenshare } = this.props;
+    const { screenshareRef } = this.state;
     if (prevProps.isPresenter && !isPresenter) {
       screenshareHasEnded();
     }
@@ -174,6 +177,10 @@ class ScreenshareComponent extends React.Component {
       // if this.volume is 0, means user didn't change the volume, so we set it to 1
       setVolume(this.volume);
     }
+
+    if ((prevState.screenshareRef !== screenshareRef) && screenshareRef) {
+      screenshareRef.addEventListener('mousemove', this.handleMouseMovement);
+    }
   }
 
   componentWillUnmount() {
@@ -182,6 +189,9 @@ class ScreenshareComponent extends React.Component {
       fullscreenContext,
       layoutContextDispatch,
     } = this.props;
+    const {
+      screenshareRef,
+    } = this.state;
     screenshareHasEnded();
     window.removeEventListener('screensharePlayFailed', this.handlePlayElementFailed);
     unsubscribeFromStreamStateChange('screenshare', this.onStreamStateChange);
@@ -216,6 +226,18 @@ class ScreenshareComponent extends React.Component {
       type: ACTIONS.SET_PRESENTATION_IS_OPEN,
       value: Session.getItem('presentationLastState'),
     });
+    if (screenshareRef) {
+      screenshareRef.removeEventListener('mousemove', this.handleMouseMovement);
+    }
+  }
+
+  handleMouseMovement() {
+    clearTimeout(this.mobileHoverSetTimeout);
+    this.setState({ showHoverToolBar: true });
+    this.mobileHoverSetTimeout = setTimeout(
+      () => this.setState({ showHoverToolBar: false }),
+      MOBILE_HOVER_TIMEOUT,
+    );
   }
 
   clearMediaFlowingMonitor() {
@@ -421,6 +443,7 @@ class ScreenshareComponent extends React.Component {
       <Styled.MobileControlsOverlay
         key="mobile-overlay-screenshare"
         ref={(ref) => { this.overlay = ref; }}
+        on
         onTouchStart={() => {
           clearTimeout(this.mobileHoverSetTimeout);
           this.setState({ showHoverToolBar: true });
@@ -440,11 +463,9 @@ class ScreenshareComponent extends React.Component {
 
     let toolbarStyle = 'hoverToolbar';
 
-    if (deviceInfo.isMobile && !showHoverToolBar) {
+    if (!showHoverToolBar) {
       toolbarStyle = 'dontShowMobileHoverToolbar';
-    }
-
-    if (deviceInfo.isMobile && showHoverToolBar) {
+    } else {
       toolbarStyle = 'showMobileHoverToolbar';
     }
 
@@ -615,6 +636,7 @@ class ScreenshareComponent extends React.Component {
       autoplayBlocked,
       mediaFlowing,
       switched,
+      screenshareRef,
     } = this.state;
     const {
       isPresenter,
@@ -678,6 +700,12 @@ class ScreenshareComponent extends React.Component {
           key="screenshareContainer"
           ref={(ref) => {
             this.screenshareContainer = ref;
+            console.log("🚀 -> ScreenshareComponent -> render -> screenshareRef:", screenshareRef)
+            if (!screenshareRef && ref) {
+              this.setState({
+                screenshareRef: ref,
+              });
+            }
           }}
           id="screenshareContainer"
         >
