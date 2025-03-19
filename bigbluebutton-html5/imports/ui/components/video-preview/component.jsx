@@ -907,6 +907,7 @@ class VideoPreview extends Component {
   }
 
   shouldMirrorOwnWebcam() {
+    if (!this.currentVideoStream) return VideoService.mirrorOwnWebcam();
     const { virtualBgService } = this.currentVideoStream;
     return VideoService.mirrorOwnWebcam() && virtualBgService == null;
   }

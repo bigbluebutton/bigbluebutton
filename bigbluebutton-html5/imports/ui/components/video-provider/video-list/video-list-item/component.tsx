@@ -147,12 +147,12 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
     if (peer) {
       // @ts-ignore Untyped object.
       bbbVideoStream = peer.bbbVideoStream;
-      shouldMirror = bbbVideoStream.virtualBgService == null;
+      shouldMirror = bbbVideoStream?.virtualBgService == null;
     }
   }
 
   useEffect(() => {
-    if (streamId && bbbVideoStream !== null) {
+    if (streamId && bbbVideoStream != null) {
       toggleMirroredCamera(streamId, isMirrored);
     }
   }, [isMirrored, streamId, bbbVideoStream]);
