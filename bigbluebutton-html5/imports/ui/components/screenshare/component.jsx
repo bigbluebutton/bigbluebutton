@@ -700,7 +700,6 @@ class ScreenshareComponent extends React.Component {
           key="screenshareContainer"
           ref={(ref) => {
             this.screenshareContainer = ref;
-            console.log("🚀 -> ScreenshareComponent -> render -> screenshareRef:", screenshareRef)
             if (!screenshareRef && ref) {
               this.setState({
                 screenshareRef: ref,
