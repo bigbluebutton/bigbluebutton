@@ -3,7 +3,7 @@ import { throttle } from '/imports/utils/throttle';
 import { layoutSelect, layoutSelectInput, layoutDispatch } from '/imports/ui/components/layout/context';
 import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
 import { INITIAL_INPUT_STATE } from '/imports/ui/components/layout/initState';
-import { ACTIONS, CAMERADOCK_POSITION, PANELS } from '../enums';
+import { ACTIONS, CAMERADOCK_POSITION, LAYOUT_TYPE, PANELS } from '../enums';
 import Storage from '/imports/ui/services/storage/session';
 import { defaultsDeep } from '/imports/utils/array-utils';
 import Session from '/imports/ui/services/storage/in-memory';
@@ -14,7 +14,10 @@ const min = (value1, value2) => (value1 <= value2 ? value1 : value2);
 const max = (value1, value2) => (value1 >= value2 ? value1 : value2);
 
 const CustomLayout = (props) => {
-  const { bannerAreaHeight, calculatesActionbarHeight, calculatesNavbarHeight, isMobile } = props;
+  const {
+    bannerAreaHeight, calculatesActionbarHeight, calculatesNavbarHeight, isMobile,
+    prevLayout,
+  } = props;
 
   function usePrevious(value) {
     const ref = useRef();
@@ -195,17 +198,24 @@ const CustomLayout = (props) => {
             externalVideo, genericMainContent, screenShare, sharedNotes,
           } = prevInput;
           const { sidebarContentPanel } = sidebarContent;
-          const isSidebarPanelNone = sidebarContentPanel === PANELS.NONE;
-          const sidebarContentPanelOverride = isSidebarPanelNone
-            ? PANELS.CHAT : sidebarContentPanel;
-          const openSidebar = isSidebarPanelNone ? true : sidebarNavigation.isOpen;
+          let sidebarContentPanelOverride = sidebarContentPanel;
+          let overrideOpenSidebarPanel = sidebarContentPanel !== PANELS.NONE;
+          let overrideOpenSidebarNavigation = sidebarNavigation.isOpen
+            || sidebarContentPanel !== PANELS.NONE || false;
+          if (prevLayout === LAYOUT_TYPE.CAMERAS_ONLY
+            || prevLayout === LAYOUT_TYPE.PRESENTATION_ONLY
+            || prevLayout === LAYOUT_TYPE.MEDIA_ONLY) {
+            overrideOpenSidebarNavigation = true;
+            overrideOpenSidebarPanel = true;
+            sidebarContentPanelOverride = PANELS.CHAT;
+          }
           return defaultsDeep(
             {
               sidebarNavigation: {
-                isOpen: openSidebar,
+                isOpen: overrideOpenSidebarNavigation,
               },
               sidebarContent: {
-                isOpen: openSidebar,
+                isOpen: overrideOpenSidebarPanel,
                 sidebarContentPanel: sidebarContentPanelOverride,
               },
               sidebarContentHorizontalResizer: {
