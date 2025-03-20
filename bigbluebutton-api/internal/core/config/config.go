@@ -12,7 +12,7 @@ package config
 import (
 	"fmt"
 
-	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-api/internal/config"
+	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-api/internal/common/config"
 )
 
 const (

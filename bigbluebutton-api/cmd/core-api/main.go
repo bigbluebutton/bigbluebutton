@@ -1,1 +1,5 @@
 package main
+
+func main() {
+
+}

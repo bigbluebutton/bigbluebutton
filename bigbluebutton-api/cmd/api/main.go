@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-api/gen/core"
-	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-api/internal/config"
+	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-api/internal/common/config"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
