@@ -59,6 +59,7 @@ const WhiteboardContainer = (props) => {
   const {
     intl,
     zoomChanger,
+    fitToWidth,
   } = props;
 
   const WHITEBOARD_CONFIG = window.meetingClientSettings.public.whiteboard;
@@ -288,7 +289,7 @@ const WhiteboardContainer = (props) => {
     if (isTabVisible && curPageId) {
       refetchInitialPageAnnotations();
     }
-  }, [isTabVisible, curPageId, presentationId]);
+  }, [isTabVisible, curPageId, presentationId, fitToWidth]);
 
   const processAnnotations = (data) => {
     let annotationsToBeRemoved = [];

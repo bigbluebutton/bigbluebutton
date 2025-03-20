@@ -296,7 +296,7 @@ class AudioManager {
       window.addEventListener('graphqlSubscription', (e) => {
         const { subscriptionHash, response } = e.detail;
         if (subscriptionHash === subHash) {
-          if (response) {
+          if (response && response.data) {
             const { data } = response;
             const voiceUser = data.user_voice_activity_stream.find((v) => v.userId === Auth.userID);
             this.onVoiceUserChanges(voiceUser);

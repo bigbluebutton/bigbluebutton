@@ -1296,11 +1296,30 @@ def copy_media_files_helper(media, media_files, package_dir)
   end
 end
 
+def process_swap_events(events)
+  BigBlueButton.logger.info("Processing screenshare as content events")
+  swap_events = BigBlueButton::Events.get_screenshare_as_content_events(events)
+  @layout_swap_xml = Builder::XmlMarkup.new(indent: 2)
+  @layout_swap_xml.instruct!
+
+  @layout_swap_xml.recording('id' => 'layout_swap_events') do
+    swap_events.each do |event|
+      @layout_swap_xml.event(
+        timestamp: (translate_timestamp(event[:timestamp].to_f) / 1000).round(1),
+        show_screenshare: event[:screenshareAsContent],
+      )
+    end
+  end
+
+
+end
+
 @shapes_svg_filename = 'shapes.svg'
 @panzooms_xml_filename = 'panzooms.xml'
 @cursor_xml_filename = 'cursor.xml'
 @deskshare_xml_filename = 'deskshare.xml'
 @tldraw_shapes_filename = 'tldraw.json'
+@layout_xml_filename = 'layout.xml'
 @svg_shape_id = 1
 @svg_shape_unique_id = 1
 
@@ -1460,12 +1479,16 @@ begin
 
         process_deskshare_events(@doc)
 
+        process_swap_events(@doc)
+
         process_poll_events(@doc, package_dir)
 
         process_external_video_events(@doc, package_dir)
 
         # Write deskshare.xml to file
         File.open("#{package_dir}/#{@deskshare_xml_filename}", 'w') { |f| f.puts @deskshare_xml.target! }
+        # Write layout_swap.xml to file
+        File.open("#{package_dir}/#{@layout_xml_filename}", 'w') { |f| f.puts @layout_swap_xml.target! }
 
         BigBlueButton.logger.info('Copying files to package dir')
         FileUtils.cp_r("#{@process_dir}/presentation", package_dir)

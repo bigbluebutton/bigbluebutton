@@ -52,8 +52,28 @@ class ChangeStyles extends DrawShape {
   }
 
   async sizeDrawing() {
-    await this.drawShape(e.wbEllipseShape, 'ellipse');
-    // change the size of the shape
+    await this.drawEllipseShape();
+    await this.modPage.waitAndClick(e.wbSizeLarge);
+    await expect(this.modPage.page).toHaveScreenshot('moderator-size-drawing.png');
+
+    const userWbLocator = this.userPage.getLocator(e.whiteboard);
+    await expect(userWbLocator).toHaveScreenshot('viewer-size-drawing.png');
+  }
+
+  async drawEllipseShape() {
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+
+    const modWbLocator = this.modPage.getLocator(e.whiteboard);
+    const wbBox = await modWbLocator.boundingBox();
+
+    await this.modPage.waitAndClick(e.wbShapesButton);
+    await this.modPage.waitAndClick(e.wbEllipseShape);
+
+    await this.modPage.page.mouse.move(wbBox.x + 0.3 * wbBox.width, wbBox.y + 0.3 * wbBox.height);
+    await this.modPage.page.mouse.down();
+    await this.modPage.page.mouse.move(wbBox.x + 0.7 * wbBox.width, wbBox.y + 0.7 * wbBox.height);
+    await this.modPage.page.mouse.up();
+
     await this.modPage.waitAndClick(e.whiteboardStyles);
     await this.modPage.waitAndClick(e.wbSizeLarge);
     await this.modPage.press('Escape');

@@ -112,12 +112,6 @@ class PresentationToolbar extends PureComponent {
   constructor(props) {
     super(props);
 
-    this.state = {
-      wasFTWActive: false,
-    };
-
-    this.setWasActive = this.setWasActive.bind(this);
-    this.handleFTWSlideChange = this.handleFTWSlideChange.bind(this);
     this.handleSkipToSlideChange = this.handleSkipToSlideChange.bind(this);
     this.change = this.change.bind(this);
     this.renderAriaDescs = this.renderAriaDescs.bind(this);
@@ -132,30 +126,8 @@ class PresentationToolbar extends PureComponent {
     document.addEventListener('keydown', this.switchSlide);
   }
 
-  componentDidUpdate(prevProps) {
-    const {
-      zoom, setIsPanning, fitToWidth, fitToWidthHandler, currentSlideNum,
-    } = this.props;
-    const { wasFTWActive } = this.state;
-
-    if ((prevProps?.currentSlideNum !== currentSlideNum) && (!fitToWidth && wasFTWActive)) {
-      setTimeout(() => {
-        fitToWidthHandler();
-        this.setWasActive(false);
-      }, 350);
-    }
-  }
-
   componentWillUnmount() {
     document.removeEventListener('keydown', this.switchSlide);
-  }
-
-  handleFTWSlideChange() {
-    const { fitToWidth, fitToWidthHandler } = this.props;
-    if (fitToWidth) {
-      fitToWidthHandler();
-      this.setWasActive(fitToWidth);
-    }
   }
 
   handleSkipToSlideChange(event) {
@@ -166,7 +138,6 @@ class PresentationToolbar extends PureComponent {
 
     if (isInfiniteWhiteboard) setPresentationPageInfiniteWhiteboard(false);
 
-    this.handleFTWSlideChange();
     if (event) event.currentTarget.blur();
     skipToSlide(requestedSlideNum);
   }
@@ -182,10 +153,6 @@ class PresentationToolbar extends PureComponent {
       return removeWhiteboardGlobalAccess(whiteboardId);
     }
     return addWhiteboardGlobalAccess(whiteboardId);
-  }
-
-  setWasActive(wasFTWActive) {
-    this.setState({ wasFTWActive });
   }
 
   fullscreenToggleHandler() {
@@ -212,30 +179,26 @@ class PresentationToolbar extends PureComponent {
 
   nextSlideHandler(event) {
     const {
-      nextSlide, endCurrentPoll, currentSlide, setPresentationPageInfiniteWhiteboard,
+      nextSlide, currentSlide, setPresentationPageInfiniteWhiteboard,
     } = this.props;
     const isInfiniteWhiteboard = currentSlide?.infiniteWhiteboard;
 
     if (isInfiniteWhiteboard) setPresentationPageInfiniteWhiteboard(false);
 
-    this.handleFTWSlideChange();
     if (event) event.currentTarget.blur();
-    endCurrentPoll();
     nextSlide();
   }
 
   previousSlideHandler(event) {
     const {
-      previousSlide, endCurrentPoll, currentSlide, setPresentationPageInfiniteWhiteboard,
+      previousSlide, currentSlide, setPresentationPageInfiniteWhiteboard,
     } = this.props;
 
     const isInfiniteWhiteboard = currentSlide?.infiniteWhiteboard;
 
     if (isInfiniteWhiteboard) setPresentationPageInfiniteWhiteboard(false);
 
-    this.handleFTWSlideChange();
     if (event) event.currentTarget.blur();
-    endCurrentPoll();
     previousSlide();
   }
 

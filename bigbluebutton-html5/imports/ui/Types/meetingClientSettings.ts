@@ -86,7 +86,6 @@ export interface App {
   remainingTimeAlertThresholdArray: number[]
   enableDebugWindow: boolean
   breakouts: Breakouts
-  customHeartbeat: boolean
   showAllAvailableLocales: boolean
   showAudioFilters: boolean
   reactionsButton: ReactionsButton

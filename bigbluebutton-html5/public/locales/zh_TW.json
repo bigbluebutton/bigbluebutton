@@ -430,7 +430,7 @@
     "app.poll.secretPoll.isSecretLabel": "此投票是匿名的 - 您將無法查看個別回應。",
     "app.poll.questionErr": "必須提供問題。",
     "app.poll.optionErr": "請輸入投票選項",
-    "app.poll.minOptionsErr": "最少需要選擇兩個選項",
+    "app.poll.minOptionsErr": "最少需要選擇一個選項",
     "app.poll.startPollDesc": "開始投票",
     "app.poll.showRespDesc": "顯示回應配置",
     "app.poll.addRespDesc": "添加投票回應輸入",

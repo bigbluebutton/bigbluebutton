@@ -243,6 +243,7 @@ const PresentationContainer = (props) => {
           isIphone,
           currentSlide,
           slidePosition,
+          hasWBAccess: multiUserData.hasAccess,
           downloadPresentationUri: `${APP_CONFIG.bbbWebBase}/${currentPresentationPage?.downloadFileUri}`,
           multiUser: (multiUserData.hasAccess || multiUserData.active) && presentationIsOpen,
           presentationIsDownloadable: currentPresentationPage?.downloadable,
@@ -266,7 +267,7 @@ const PresentationContainer = (props) => {
           currentUser,
           hasPoll,
           currentPresentationPage,
-          layoutType: selectedLayout,
+          layoutType: selectedLayout || '',
         }
       }
     />

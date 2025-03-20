@@ -271,6 +271,7 @@ const getCustomAssetUrls = () => {
       undo: `${TL_ICON_PATHS}/undo.svg`,
       redo: `${TL_ICON_PATHS}/redo.svg`,
       trash: `${TL_ICON_PATHS}/trash.svg`,
+      'tool-delete-all': `${TL_ICON_PATHS}/trash.svg`,
       duplicate: `${TL_ICON_PATHS}/duplicate.svg`,
       unlock: `${TL_ICON_PATHS}/unlock.svg`,
       'arrowhead-none': `${TL_ICON_PATHS}/arrowhead-none.svg`,

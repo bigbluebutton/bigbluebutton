@@ -430,7 +430,7 @@
     "app.poll.secretPoll.isSecretLabel": "Questo sondaggio è anonimo – non sarai in grado di vedere le risposte individuali.",
     "app.poll.questionErr": "È obbligatorio inserire una domanda.",
     "app.poll.optionErr": "Inserisci un'opzione di risposta",
-    "app.poll.minOptionsErr": "Sono necessarie almeno due opzioni",
+    "app.poll.minOptionsErr": "È richiesta almeno un'opzione",
     "app.poll.startPollDesc": "Per cominciare il sondaggio",
     "app.poll.showRespDesc": "Mostra la configurazione della risposta",
     "app.poll.addRespDesc": "Aggiunge una risposta al sondaggio",

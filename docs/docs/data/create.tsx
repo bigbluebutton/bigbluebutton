@@ -467,6 +467,12 @@ const createEndpointTableData = [
     "description": (<>Message to be displayed in presentation uploader modal describing how to use an external application to upload presentation files. Only works if <code className="language-plaintext highlighter-rouge">presentationUploadExternalUrl</code> is also set. (added 2.6)</>)
   },
   {
+    "name": "presentationConversionCacheEnabled",
+    "required": false,
+    "type": "Boolean",
+    "description": (<>Parameter to decide whether to use the caching system in a S3-based storage system for presentation assets per meeting. If this parameter is true, the other settings related to the caching feature must be configured properly (see section <a href="/administration/customize/#configure-s3-based-cache-for-presentation-assets">Configure S3-based cache for presentation assets</a>).</>)
+  },
+  {
     "name": "recordFullDurationMedia",
     "required": false,
     "type": "Boolean",
@@ -528,6 +534,13 @@ const createEndpointTableData = [
         </code>
       </>
     )
+  },
+  {
+    "name": "maxNumPages",
+    "required": false,
+    "type": "Number",
+    "default": 200,
+    "description": (<>Maximum number of pages allowed for an uploaded presentation.</>)
   }
 ]
 

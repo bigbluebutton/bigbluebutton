@@ -120,4 +120,4 @@ jobs:
 
             ___
 
-            [Click here](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ needs.get-pr-data.outputs.workflow-id }}) to check the action test reports
+            [Click here](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ needs.get-pr-data.outputs.workflow-id }}) to check the action test reports (_to view the report locally, see the [docs](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/README.md#check-test-results)_)
