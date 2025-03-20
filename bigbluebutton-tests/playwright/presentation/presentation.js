@@ -106,7 +106,6 @@ class Presentation extends MultiUsers {
 
     await this.modPage.closeAllToastNotifications();
     await this.userPage.closeAllToastNotifications();
-    await this.modPage.setHeightWidthViewPortSize();
 
     // Skip check for screenshot on ci, due to the ci and the local machine generating two different image sizes
     // also because the slide location is different and inconsistent (it initially shakes to stabilize and then set incorrect location)
@@ -127,7 +126,6 @@ class Presentation extends MultiUsers {
     await this.userPage.closeAudioModal();
     await this.userPage.closeAllToastNotifications();
     const userWhiteboardLocator = this.userPage.getLocator(e.whiteboard);
-    await this.userPage.setHeightWidthViewPortSize();
 
     await expect(imageURLFirstPresentation).not.toBe(imageURLSecondPresentation);
 
@@ -161,8 +159,6 @@ class Presentation extends MultiUsers {
     const modWhiteboardLocator = this.modPage.getLocator(e.whiteboard);
     const userWhiteboardLocator = this.userPage.getLocator(e.whiteboard);
 
-    await this.modPage.setHeightWidthViewPortSize();
-    await this.userPage.setHeightWidthViewPortSize();
 
     const imageURLSecondPresentation = await this.modPage.page.evaluate(() => {
       const element = document.querySelector('div[id="whiteboard-element"] div[class="tl-image"]');
@@ -195,8 +191,6 @@ class Presentation extends MultiUsers {
 
     await expect(imageURLSecondPresentation).not.toBe(imageURLThirdPresentation);
 
-    await this.modPage.setHeightWidthViewPortSize();
-    await this.userPage.setHeightWidthViewPortSize();
 
     // Skip check for screenshot on ci, due to the ci and the local machine generating two different image sizes
     if (!CI) {
@@ -221,8 +215,6 @@ class Presentation extends MultiUsers {
 
     await expect(imageURLThirdPresentation).not.toBe(imageURLForthPresentation);
 
-    await this.modPage.setHeightWidthViewPortSize();
-    await this.userPage.setHeightWidthViewPortSize();
 
     // Skip check for screenshot on ci, due to the ci and the local machine generating two different image sizes
     if (!CI) {

@@ -58,6 +58,14 @@ class Page {
       if (isRecording && !isModerator) await this.closeRecordingModal();
       if (shouldCloseAudioModal && autoJoinAudioModal) await this.closeAudioModal();
     }
+    // overwrite for font used in CI
+    await this.page.addStyleTag({
+      content: `
+        body {
+          font-family: 'Liberation Sans', Arial, sans-serif;
+        }`,
+    });
+    await this.setHeightWidthViewPortSize();
   }
 
   async handleDownload(locator, testInfo, timeout = ELEMENT_WAIT_TIME) {
