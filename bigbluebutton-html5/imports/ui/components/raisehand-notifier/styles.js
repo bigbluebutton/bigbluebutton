@@ -4,7 +4,6 @@ import {
   borderSize,
   avatarInset,
   smPaddingX,
-  toastIconSide,
   toastMargin,
   toastMarginMobile,
 } from '/imports/ui/stylesheets/styled-components/general';
@@ -36,7 +35,7 @@ const Avatar = styled.div`
   border: solid ${borderSize} ${colorWhite};
   margin-left: ${avatarInset};
   text-align: center;
-  padding: 5px 0;
+  padding: 0.75rem 0;
 
   &:hover,
   &:focus {
@@ -72,8 +71,8 @@ const ToastContent = styled.div`
 
 const IconWrapper = styled.div`
   background-color: ${colorPrimary};
-  width: ${toastIconSide};
-  height: ${toastIconSide};
+  width: ${avatarSide};
+  height: ${avatarSide};
   border-radius: 50%;
   
   & > i {
