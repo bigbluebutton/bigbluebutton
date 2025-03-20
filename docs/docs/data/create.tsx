@@ -528,7 +528,7 @@ const createEndpointTableData = [
     "description": (
       <>
         A list of the BigBlueButton client plugins you want included for the
-        specific session (in addition to the list in <code>/etc/bigbluebutton/bbb-web.properties</code>){" "}
+        specific session (merged with the list in <code>/etc/bigbluebutton/bbb-web.properties</code> and duplicates dropped){" "}
         <code className="language-plaintext highlighter-rouge">
           {`pluginManifests=[{"url":"https://someserver.com/plugins/bbb-plugin-pick-random-user/manifest.json"}]`}
         </code>
