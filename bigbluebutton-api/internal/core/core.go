@@ -4,6 +4,7 @@ import (
 	"encoding/xml"
 
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-api/gen/common"
+	commonapi "github.com/bigbluebutton/bigbluebutton/bigbluebutton-api/internal/common"
 )
 
 type Response struct {
@@ -212,4 +213,18 @@ func MeetingInfoToMeeting(m *common.MeetingInfo) Meeting {
 	}
 
 	return meeting
+}
+
+func ErrorToResponse(err error) *Response {
+	resp := &Response{
+		ReturnCode: commonapi.ReturnCodeFailure,
+	}
+	if bbbErr, ok := err.(*commonapi.BBBError); ok {
+		resp.MessageKey = bbbErr.Key
+		resp.Message = bbbErr.Msg
+	} else {
+		resp.MessageKey = commonapi.UnknownErrorKey
+		resp.Message = err.Error()
+	}
+	return resp
 }

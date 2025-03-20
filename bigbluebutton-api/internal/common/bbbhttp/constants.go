@@ -1,0 +1,25 @@
+package bbbhttp
+
+const (
+	TextXML                   = "text/xml"
+	ApplicationXML            = "application/xml"
+	ApplicationFormURLEncoded = "application/x-www-form-urlencoded"
+	MultipartFormData         = "multipart/form-data"
+	Xls                       = "application/vnd.ms-excel"
+	Xlsx                      = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+	Doc                       = "application/msword"
+	Docx                      = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+	Ppt                       = "application/vnd.ms-powerpoint"
+	Pptx                      = "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+	Tika_MSOffice             = "application/x-tika-msoffice"
+	Tika_MSOffice_x           = "application/x-tika-ooxml"
+	Odt                       = "application/vnd.oasis.opendocument.text"
+	Rtf                       = "application/rtf"
+	Txt                       = "text/plain"
+	Ods                       = "application/vnd.oasis.opendocument.spreadsheet"
+	Odp                       = "application/vnd.oasis.opendocument.presentation"
+	Pdf                       = "application/pdf"
+	Jpeg                      = "image/jpeg"
+	Png                       = "image/png"
+	Svg                       = "image/svg+xml"
+)
