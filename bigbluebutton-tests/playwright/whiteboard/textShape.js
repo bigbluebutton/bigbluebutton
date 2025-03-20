@@ -10,6 +10,7 @@ class TextShape extends MultiUsers {
 
   async typeText() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await this.userPage.waitForSelector(e.whiteboard);
     const modWbLocator = this.modPage.getLocator(e.whiteboard);
     const wbBox = await modWbLocator.boundingBox();
     // select the text
@@ -31,6 +32,7 @@ class TextShape extends MultiUsers {
 
   async stickyNote() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await this.userPage.waitForSelector(e.whiteboard);
     const modWbLocator = this.modPage.getLocator(e.whiteboard);
     const wbBox = await modWbLocator.boundingBox();
 
@@ -53,6 +55,7 @@ class TextShape extends MultiUsers {
 
   async realTimeTextTyping() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await this.userPage.waitForSelector(e.whiteboard);
     const modWbLocator = this.modPage.getLocator(e.whiteboard);
     const wbBox = await modWbLocator.boundingBox();
     // select the text

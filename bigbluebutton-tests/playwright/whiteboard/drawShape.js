@@ -1,6 +1,7 @@
 const { MultiUsers } = require("../user/multiusers");
 const { snapshotComparison } = require('./util');
 const e = require('../core/elements');
+const { ELEMENT_WAIT_LONGER_TIME } = require("../core/constants");
 
 class DrawShape extends MultiUsers {
   constructor(browser, context) {
@@ -8,6 +9,8 @@ class DrawShape extends MultiUsers {
   }
 
   async drawShape(shapeSelector, shapeName, expectedShapeDrawn = e.wbDrawnShape) {
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await this.userPage.waitForSelector(e.whiteboard);
     await this.drawShapeMiddleSlide(shapeSelector);
     // check if the ellipse is drawn
     await this.modPage.hasElement(expectedShapeDrawn);

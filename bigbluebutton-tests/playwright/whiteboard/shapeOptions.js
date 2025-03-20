@@ -36,6 +36,7 @@ class ShapeOptions extends MultiUsers {
 
   async rotate() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await this.userPage.waitForSelector(e.whiteboard);
     const modWbLocator = this.modPage.getLocator(e.whiteboard);
     const wbBox = await modWbLocator.boundingBox();
     // draw a rectangle
