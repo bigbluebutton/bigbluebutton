@@ -443,7 +443,6 @@ class ScreenshareComponent extends React.Component {
       <Styled.MobileControlsOverlay
         key="mobile-overlay-screenshare"
         ref={(ref) => { this.overlay = ref; }}
-        on
         onTouchStart={() => {
           clearTimeout(this.mobileHoverSetTimeout);
           this.setState({ showHoverToolBar: true });
