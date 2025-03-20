@@ -105,7 +105,7 @@ class Polling extends MultiUsers {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.waitAndClick(e.mediaAreaButton);
     await this.modPage.waitAndClick(e.managePresentations);
-
+    // remove all presentations
     const allRemovePresentationBtn = await this.modPage.getLocator(e.removePresentation).all();
     // reversing the order of clicking is needed to avoid failure as the tooltip shows in front of the below button
     const reversedRemovePresentationButtons = allRemovePresentationBtn.reverse();
@@ -144,8 +144,7 @@ class Polling extends MultiUsers {
     await this.modPage.waitAndClickElement(e.allowMultiple);
 
     await this.modPage.waitAndClick(e.addPollItem);
-    await this.modPage.waitAndClick(e.startPoll);
-    await this.modPage.hasElement(e.errorNoValueInput, 'should display an error after trying to start a poll without any input on the option poll item');
+    await this.modPage.hasElementDisabled(e.startPoll, 'should display the start poll button disabled');
 
     await this.modPage.type(e.pollOptionItem1, 'test1');
     await this.modPage.waitAndClick(e.addPollItem);

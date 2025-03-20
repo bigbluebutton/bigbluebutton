@@ -22,18 +22,15 @@ import {
 import { Message } from '/imports/ui/Types/message';
 import ChatMessage, { ChatMessageRef } from './chat-message/component';
 import { setLoadedMessageGathering } from '/imports/ui/core/hooks/useLoadedChatMessages';
-import { ChatLoading } from '../../component';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
 import { useStorageKey, STORAGES } from '/imports/ui/services/storage/hooks';
 import Storage from '/imports/ui/services/storage/in-memory';
 import { getValueByPointer } from '/imports/utils/object-utils';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
-
-const PAGE_SIZE = 50;
+import ChatPageLoading from './loader/component';
 
 interface ChatListPageCommonProps {
   firstPageToLoad: number;
-  focusedId: number | null;
   scrollRef: React.RefObject<HTMLDivElement>;
   markMessageAsSeen: (message: Message) => void;
   lastSenderPreviousPage: string | undefined;
@@ -50,14 +47,18 @@ interface ChatListPageCommonProps {
   chatDeleteEnabled: boolean;
   chatEditEnabled: boolean;
   chatReactionsEnabled: boolean;
+  focusedSequence: number;
   sendReaction: (reactionEmoji: string, reactionEmojiId: string, chatId: string, messageId: string) => void;
   deleteReaction: (reactionEmoji: string, reactionEmojiId: string, chatId: string, messageId: string) => void;
+  allPagesLoaded: boolean;
 }
 
 interface ChatListPageContainerProps extends ChatListPageCommonProps {
   pageSize: number;
   setLastSender: (page: number, message: string) => void;
   chatId: string;
+  setPageLoading: (page: number) => void;
+  clearPageLoading: (page: number) => void;
 }
 
 interface ChatListPageProps extends ChatListPageCommonProps {
@@ -78,6 +79,8 @@ const propsToCompare = [
   'chatEditEnabled',
   'chatReactionsEnabled',
   'chatReplyEnabled',
+  'focusedSequence',
+  'allPagesLoaded',
 ] as const;
 const messagePropsToCompare = [
   'messageId',
@@ -113,7 +116,6 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
   page,
   markMessageAsSeen,
   scrollRef,
-  focusedId,
   firstPageToLoad,
   meetingDisablePrivateChat,
   meetingDisablePublicChat,
@@ -130,12 +132,14 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
   chatReplyEnabled,
   deleteReaction,
   sendReaction,
+  focusedSequence,
+  allPagesLoaded,
 }) => {
   const { domElementManipulationIdentifiers } = useContext(PluginsContext);
   const messageRefs = useRef<Record<number, ChatMessageRef | null>>({});
   const chatFocusMessageRequest = useStorageKey(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST, STORAGES.IN_MEMORY);
-  const [keyboardFocusedMessageSequence, setKeyboardFocusedMessageSequence] = useState<number | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const scrollHeightBeforeRender = useRef(scrollRef.current?.scrollHeight || 0);
 
   const [renderedChatMessages, setRenderedChatMessages] = useState<MessageDetails[]>([]);
   useEffect(() => {
@@ -178,25 +182,9 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
   }, [domElementManipulationIdentifiers, renderedChatMessages]);
 
   useEffect(() => {
-    const handleKeyboardFocusMessageRequest = (e: Event) => {
-      if (e instanceof CustomEvent) {
-        setKeyboardFocusedMessageSequence(Number.parseInt(e.detail.sequence, 10));
-      }
-    };
-
-    const handleKeyboardFocusMessageCancel = (e: Event) => {
-      if (e instanceof CustomEvent) {
-        setKeyboardFocusedMessageSequence(null);
-      }
-    };
-
     const handleFocusMessageRequest = (e: Event) => {
       if (e instanceof CustomEvent) {
         if (e.detail.sequence) {
-          if (Math.ceil(e.detail.sequence / PAGE_SIZE) < firstPageToLoad) {
-            Storage.setItem(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST, e.detail.sequence);
-            return;
-          }
           messageRefs.current[Number.parseInt(e.detail.sequence, 10)]?.requestFocus();
         }
       }
@@ -214,15 +202,11 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
       }
     };
 
-    window.addEventListener(ChatEvents.CHAT_KEYBOARD_FOCUS_MESSAGE_REQUEST, handleKeyboardFocusMessageRequest);
-    window.addEventListener(ChatEvents.CHAT_KEYBOARD_FOCUS_MESSAGE_CANCEL, handleKeyboardFocusMessageCancel);
     window.addEventListener(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST, handleFocusMessageRequest);
     window.addEventListener(ChatEvents.CHAT_EDIT_REQUEST, handleChatEditRequest);
     window.addEventListener(ChatEvents.CHAT_CANCEL_EDIT_REQUEST, handleCancelChatEditRequest);
 
     return () => {
-      window.removeEventListener(ChatEvents.CHAT_KEYBOARD_FOCUS_MESSAGE_REQUEST, handleKeyboardFocusMessageRequest);
-      window.removeEventListener(ChatEvents.CHAT_KEYBOARD_FOCUS_MESSAGE_CANCEL, handleKeyboardFocusMessageCancel);
       window.removeEventListener(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST, handleFocusMessageRequest);
       window.removeEventListener(ChatEvents.CHAT_EDIT_REQUEST, handleChatEditRequest);
       window.removeEventListener(ChatEvents.CHAT_CANCEL_EDIT_REQUEST, handleCancelChatEditRequest);
@@ -230,15 +214,25 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
   }, [firstPageToLoad]);
 
   useEffect(() => {
-    if (typeof chatFocusMessageRequest === 'number') {
-      messageRefs.current[chatFocusMessageRequest]?.requestFocus();
+    if (
+      typeof chatFocusMessageRequest === 'number'
+      && messageRefs.current[chatFocusMessageRequest]
+      && allPagesLoaded
+    ) {
+      messageRefs.current[chatFocusMessageRequest].requestFocus();
       Storage.removeItem(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST);
     }
-  }, []);
+  }, [allPagesLoaded]);
 
   const updateMessageRef = useCallback((ref: ChatMessageRef | null) => {
     if (!ref) return;
     messageRefs.current[ref.sequence] = ref;
+  }, []);
+
+  useEffect(() => {
+    if (!scrollRef.current) return;
+    // eslint-disable-next-line no-param-reassign
+    scrollRef.current.scrollTop = scrollRef.current.scrollHeight - scrollHeightBeforeRender.current;
   }, []);
 
   return (
@@ -247,7 +241,7 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
         const previousMessage = messagesArray[index - 1];
         return (
           <ChatMessage
-            key={message.createdAt}
+            key={message.messageId}
             message={message}
             previousMessage={previousMessage}
             setRenderedChatMessages={setRenderedChatMessages}
@@ -257,8 +251,6 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
             scrollRef={scrollRef}
             markMessageAsSeen={markMessageAsSeen}
             messageReadFeedbackEnabled={messageReadFeedbackEnabled}
-            focused={focusedId === message.messageSequence}
-            keyboardFocused={keyboardFocusedMessageSequence === message.messageSequence}
             editing={editingId === message.messageId}
             ref={updateMessageRef}
             meetingDisablePrivateChat={meetingDisablePrivateChat}
@@ -276,6 +268,7 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
             chatReplyEnabled={chatReplyEnabled}
             deleteReaction={deleteReaction}
             sendReaction={sendReaction}
+            focused={focusedSequence === message.messageSequence}
           />
         );
       })}
@@ -293,7 +286,6 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
   chatId,
   markMessageAsSeen,
   scrollRef,
-  focusedId,
   firstPageToLoad,
   meetingDisablePrivateChat,
   meetingDisablePublicChat,
@@ -309,6 +301,10 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
   chatReplyEnabled,
   deleteReaction,
   sendReaction,
+  focusedSequence,
+  clearPageLoading,
+  setPageLoading,
+  allPagesLoaded,
 }) => {
   const CHAT_CONFIG = window.meetingClientSettings.public.chat;
   const PUBLIC_GROUP_CHAT_KEY = CHAT_CONFIG.public_group_id;
@@ -340,10 +336,16 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
     // component will unmount
     return () => {
       setLoadedMessageGathering(page, []);
+      clearPageLoading(page);
     };
   }, []);
 
-  if (loading) return <ChatLoading />;
+  useEffect(() => {
+    const callback = loading ? setPageLoading : clearPageLoading;
+    callback(page);
+  }, [page, loading]);
+
+  if (loading) return <ChatPageLoading />;
   if (!chatMessageData) return null;
   if (chatMessageData.length > 0 && chatMessageData[chatMessageData.length - 1].user?.userId) {
     setLastSender(page, chatMessageData[chatMessageData.length - 1].user?.userId);
@@ -357,7 +359,6 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
       page={page}
       markMessageAsSeen={markMessageAsSeen}
       scrollRef={scrollRef}
-      focusedId={focusedId}
       firstPageToLoad={firstPageToLoad}
       meetingDisablePrivateChat={meetingDisablePrivateChat}
       meetingDisablePublicChat={meetingDisablePublicChat}
@@ -374,6 +375,8 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
       chatReplyEnabled={chatReplyEnabled}
       deleteReaction={deleteReaction}
       sendReaction={sendReaction}
+      focusedSequence={focusedSequence}
+      allPagesLoaded={allPagesLoaded}
     />
   );
 };

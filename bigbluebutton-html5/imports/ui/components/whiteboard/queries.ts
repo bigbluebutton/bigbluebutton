@@ -55,6 +55,7 @@ export const CURRENT_PRESENTATION_PAGE_SUBSCRIPTION = gql`subscription CurrentPr
     isDefaultPresentation
     infiniteWhiteboard
     nextPagesSvg
+    fitToWidth
   }  
 }`;
 
@@ -93,6 +94,7 @@ export const EXPORTING_PRESENTATIONS_SUBSCRIPTION = gql`subscription Presentatio
     totalPagesUploaded
     presentationId
     removable
+    uploadCompletionNotified
     uploadCompleted
     exportToChatInProgress
     exportToChatStatus

@@ -4,6 +4,7 @@ const e = require('../core/elements');
 const c = require('./constants');
 const { VIDEO_LOADING_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_TIME } = require('../core/constants');
 const util = require('./util');
+const { sleep } = require('../core/helpers');
 const { getSettings } = require('../core/settings');
 const { uploadSinglePresentation } = require('../presentation/util');
 
@@ -148,8 +149,14 @@ class CustomParameters extends MultiUsers {
 
   async forceRestorePresentationOnNewEvents() {
     const { presentationHidden, pollEnabled } = getSettings();
-    if (!presentationHidden) await this.userPage.waitAndClick(e.minimizePresentation);
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    if (!presentationHidden) {
+      await this.userPage.waitForSelector(e.whiteboard);
+      await sleep(1000);  // wait for the whiteboard to be fully loaded and stable (zoom)
+      await this.userPage.waitAndClick(e.minimizePresentation);
+    }
     await this.userPage.wasRemoved(e.whiteboard, 'should remove the whiteboard element for the attendee when minimized');
+    await sleep(1000);  // first minimize of presentation takes longer to be fully applied
     // zoom in
     await this.modPage.waitAndClick(e.zoomInButton);
     await this.userPage.hasElement(e.whiteboard, 'should restore presentation when zooming in the slide');
@@ -161,10 +168,12 @@ class CustomParameters extends MultiUsers {
     await this.userPage.hasElement(e.minimizePresentation, 'should display the minimize presentation button when the presentation is restored');
     await this.userPage.waitAndClick(e.minimizePresentation);
     // publish polling
-    if (pollEnabled) await util.poll(this.modPage, this.userPage);
-    await this.userPage.hasElement(e.whiteboard, 'should restore presentation when a poll is posted');
-    await this.userPage.hasElement(e.minimizePresentation, 'should display the minimize presentation button when the presentation is restored');
-    await this.userPage.waitAndClick(e.minimizePresentation);
+    if (pollEnabled) {
+      await util.poll(this.modPage, this.userPage);
+      await this.userPage.hasElement(e.whiteboard, 'should restore presentation when a poll is posted');
+      await this.userPage.hasElement(e.minimizePresentation, 'should display the minimize presentation button when the presentation is restored');
+      await this.userPage.waitAndClick(e.minimizePresentation);
+    }
     // next slide
     await util.nextSlide(this.modPage);
     await this.userPage.hasElement(e.whiteboard, 'should restore presentation when going to the next slide');
@@ -257,7 +266,7 @@ class CustomParameters extends MultiUsers {
   }
 
   async overrideDefaultLocaleTest() {
-    await this.modPage.hasText(e.chatButton, 'Bate-papo público','should display the new overrided default locale');
+    await this.modPage.hasText(e.chatButton, 'Bate-papo público','should display the new overridden default locale');
   }
 
   async hideNavBarTest() {
@@ -268,6 +277,20 @@ class CustomParameters extends MultiUsers {
     await this.modPage.waitAndClick(e.joinVideo);
     expect(await this.modPage.getLocator(e.selectCameraQualityId).inputValue(), 'should display the selector to choose the camera quality').toBe('low');
     await this.modPage.waitAndClick(e.startSharingWebcam);
+  }
+
+  async webcamBackgroundURL() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage.waitAndClick(e.joinVideo);
+    await this.modPage.hasElement(e.webcamSettingsModal, 'should display the webcam settings modal when clicking to join video');
+    await this.modPage.waitAndClick(e.backgroundSettingsTitle);
+    const appleBackground = await this.modPage.getLocator(e.selectCustomBackground);
+    await expect(appleBackground).toHaveCount(1);
+    await this.modPage.waitAndClick(e.selectCustomBackground);
+    await this.modPage.waitAndClick(e.startSharingWebcam);
+    await this.modPage.hasElement(e.webcamMirroredVideoContainer, 'should display the webcam (mirrored) container after successfully sharing webcam');
+    const webcamBackgroundURL = this.modPage.getLocator(e.webcamMirroredVideoContainer);
+    await expect(webcamBackgroundURL).toHaveScreenshot('webcam-background-passing-url.png');
   }
 }
 

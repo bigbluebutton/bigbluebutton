@@ -93,7 +93,7 @@ class Page {
     if (shouldUnmute) {
       await this.waitAndClick(e.unmuteMicButton);
       await this.hasElement(e.muteMicButton);
-      await this.hasElement(e.isTalking);
+      await this.checkUserTalkingIndicator();
     }
   }
 
@@ -139,7 +139,7 @@ class Page {
   }
 
   getVisibleLocator(selector) {
-    return this.getLocator(`${selector} >> visible=true`);
+    return this.getLocator(`${selector}:visible`);
   }
 
   getLocatorByIndex(selector, index) {
@@ -149,6 +149,11 @@ class Page {
   async getSelectorCount(selector) {
     const locator = this.getLocator(selector);
     return locator.count();
+  }
+
+  async grantClipboardPermissions() {
+    console.log('==> Granting clipboard permissions');
+    await this.context.grantPermissions(['clipboard-write', 'clipboard-read'], { origin: process.env.BBB_URL });
   }
 
   async getCopiedText() {
@@ -206,6 +211,11 @@ class Page {
 
   async clickOnLocator(locator, timeout = ELEMENT_WAIT_TIME) {
     await locator.click({ timeout });
+  }
+
+  async checkUserTalkingIndicator() {
+    const isTalkingLocator = await this.page.locator(e.isTalking).filter({ hasText: this.username });
+    await expect(isTalkingLocator, `should display the "${this.username}" user's conversation indicator to himself`).toBeVisible();
   }
 
   async checkElement(selector, index = 0) {
@@ -329,11 +339,11 @@ class Page {
   }
 
   async closeAllToastNotifications() {
-    const closeToastBtnLocator = this.page.locator(e.closeToastBtn);
-    while (await closeToastBtnLocator.count() > 0) {
+    const toastNotificationElement = this.getLocator(e.toastContainer);
+    while (await toastNotificationElement.count() > 0) {
       try {
-        await this.page.click(e.closeToastBtn, { timeout: ELEMENT_WAIT_TIME });
-        await helpers.sleep(1500);  // expected time to toast notification disappear
+        await toastNotificationElement.first().click({ timeout: ELEMENT_WAIT_TIME });
+        await helpers.sleep(1500);  // expected animation time for toast notification to disappear
       } catch (error) {
         console.log('not able to close the toast notification');
       }

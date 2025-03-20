@@ -19,6 +19,7 @@ import { layoutDispatch } from '../../layout/context';
 import { ACTIONS, PANELS } from '../../layout/enums';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import CustomizedAxisTick from './CustomizedAxisTick';
+import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
 
 const intlMessages = defineMessages({
   usersTitle: {
@@ -217,12 +218,17 @@ const LiveResultContainer: React.FC = () => {
   }
 
   if (currentPollDataError) {
-    logger.error(currentPollDataError);
-    return (
-      <div>
-        {JSON.stringify(currentPollDataError)}
-      </div>
+    connectionStatus.setSubscriptionFailed(true);
+    logger.error(
+      {
+        logCode: 'subscription_Failed',
+        extraInfo: {
+          error: currentPollDataError,
+        },
+      },
+      'Subscription failed to load',
     );
+    return null;
   }
 
   if (!currentPollData.poll.length) return null;

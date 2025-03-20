@@ -1,5 +1,6 @@
 import { RedisMessage } from '../types';
 import {throwErrorIfInvalidInput, throwErrorIfNotPresenter} from "../imports/validation";
+import { ValidationError } from '../types/ValidationError';
 
 export default function buildRedisMessage(sessionVariables: Record<string, unknown>, input: Record<string, unknown>): RedisMessage {
   throwErrorIfNotPresenter(sessionVariables);
@@ -12,6 +13,16 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
   )
 
   const eventName = `PresentationUploadTokenReqMsg`;
+
+  const filename: string = input.filename as string;
+  const uploadTemporaryId: string = input.uploadTemporaryId as string;
+  if(uploadTemporaryId.length > 500) {
+    throw new ValidationError('Parameter uploadTemporaryId exceeds maximum allowed length of 500 characters.', 400);
+  }
+
+  if(filename.length > 500) {
+    throw new ValidationError('Parameter filename exceeds maximum allowed length of 500 characters.', 400);
+  }
 
   const routing = {
     meetingId: sessionVariables['x-hasura-meetingid'] as String,

@@ -425,7 +425,7 @@ class VideoPreview extends Component {
         this.setState({ brightness, wholeImageBrightness });
       };
 
-      if (!this.currentVideoStream.virtualBgService) {
+      if (!this.currentVideoStream?.virtualBgService) {
         const switched = await this.startVirtualBackground(
           this.currentVideoStream,
           EFFECT_TYPES.NONE_TYPE,
@@ -563,9 +563,9 @@ class VideoPreview extends Component {
     }
 
     if (
-      this.currentVideoStream.virtualBgService
+      this.currentVideoStream?.virtualBgService
       && brightness === 100
-      && this.currentVideoStream.virtualBgType === EFFECT_TYPES.NONE_TYPE
+      && this.currentVideoStream?.virtualBgType === EFFECT_TYPES.NONE_TYPE
     ) {
       this.stopVirtualBackground(this.currentVideoStream);
     }
@@ -611,9 +611,9 @@ class VideoPreview extends Component {
 
     if (
       (shared)
-      && this.currentVideoStream.virtualBgService
+      && this.currentVideoStream?.virtualBgService
       && brightness === 100
-      && this.currentVideoStream.virtualBgType === EFFECT_TYPES.NONE_TYPE
+      && this.currentVideoStream?.virtualBgType === EFFECT_TYPES.NONE_TYPE
     ) {
       this.stopVirtualBackground(this.currentVideoStream);
     }
@@ -1241,7 +1241,7 @@ class VideoPreview extends Component {
       previewError,
     } = this.state;
     const shouldDisableButtons = this.shouldSkipVideoPreview()
-      && !(deviceError || previewError);
+    || !!(deviceError || previewError);
 
     const shared = this.isAlreadyShared(webcamDeviceId);
 

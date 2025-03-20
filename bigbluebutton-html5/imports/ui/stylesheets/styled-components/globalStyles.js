@@ -27,6 +27,9 @@ const GlobalStyle = createGlobalStyle`
       right: 0 !important;
       max-width: none !important;
     }
+    .MuiPaper-root {
+      width: 100%;
+    }
   }
   .MuiList-padding {
     padding: 0 !important;
@@ -63,7 +66,7 @@ const GlobalStyle = createGlobalStyle`
   }
 
   .fullscreenModalOverlay {
-    z-index: 1000;
+    z-index: 900;
     background: #fff;
     display: flex;
     align-items: center;

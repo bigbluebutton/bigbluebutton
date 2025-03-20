@@ -66,6 +66,7 @@ const ReactionItem: React.FC<ReactionItemProps> = (props) => {
   return (
     <TooltipContainer title={label} key={reactionEmojiId}>
       <Styled.EmojiWrapper
+        tabIndex={-1}
         aria-describedby={id}
         highlighted={reactedByMe}
         onClick={() => {

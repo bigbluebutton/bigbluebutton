@@ -22,6 +22,7 @@ import { debounce } from '/imports/utils/debounce';
 import { throttle } from '/imports/utils/throttle';
 import LocatedErrorBoundary from '/imports/ui/components/common/error-boundary/located-error-boundary/component';
 import FallbackView from '/imports/ui/components/common/fallback-errors/fallback-view/component';
+import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 
 const intlMessages = defineMessages({
   presentationLabel: {
@@ -92,14 +93,12 @@ class Presentation extends PureComponent {
       ignorePresentationRestoring: true,
     };
 
-    const PAN_ZOOM_INTERVAL = window.meetingClientSettings.public.presentation.panZoomInterval || 200;
-
-    this.currentPresentationToastId = 'currentPresentationToastId';
+    const PAN_ZOOM_INTERV = window.meetingClientSettings.public.presentation.panZoomInterval || 200;
 
     this.getSvgRef = this.getSvgRef.bind(this);
     this.zoomChanger = debounce(this.zoomChanger.bind(this), 200);
     this.updateLocalPosition = this.updateLocalPosition.bind(this);
-    this.panAndZoomChanger = throttle(this.panAndZoomChanger.bind(this), PAN_ZOOM_INTERVAL);
+    this.panAndZoomChanger = throttle(this.panAndZoomChanger.bind(this), PAN_ZOOM_INTERV);
     this.fitToWidthHandler = this.fitToWidthHandler.bind(this);
     this.onFullscreenChange = this.onFullscreenChange.bind(this);
     this.getPresentationSizesAvailable = this.getPresentationSizesAvailable.bind(this);
@@ -520,7 +519,7 @@ class Presentation extends PureComponent {
 
   zoomChanger(zoom) {
     const { currentSlide } = this.props;
-    let boundZoom = parseInt(zoom);
+    let boundZoom = parseInt(zoom, 10);
     const min = currentSlide?.infiniteWhiteboard ? MIN_PERCENT : HUNDRED_PERCENT;
     if (boundZoom < min) {
       boundZoom = min;
@@ -532,10 +531,14 @@ class Presentation extends PureComponent {
 
   fitToWidthHandler() {
     const { setPresentationFitToWidth, fitToWidth } = this.props;
-    setPresentationFitToWidth(!fitToWidth);
-    this.setState({
-      zoom: HUNDRED_PERCENT,
-    });
+    this.setState(
+      {
+        zoom: HUNDRED_PERCENT,
+      },
+      () => {
+        setPresentationFitToWidth(!fitToWidth);
+      },
+    );
   }
 
   updateLocalPosition(x, y, width, height, zoom) {
@@ -764,6 +767,7 @@ class Presentation extends PureComponent {
   render() {
     const {
       userIsPresenter,
+      hasWBAccess,
       currentSlide,
       slidePosition,
       isRTL,
@@ -840,8 +844,15 @@ class Presentation extends PureComponent {
     const isVideoFocus = layoutType === LAYOUT_TYPE.VIDEO_FOCUS;
     const presentationZIndex = fullscreenContext ? presentationBounds.zIndex : undefined;
 
-    const APP_CRASH_METADATA = { logCode: 'whiteboard_crash', logMessage: 'Possible whiteboard crash' };
-    if (!presentationIsOpen) return null;
+    const APP_CRASH_METADATA = {
+      logCode: 'whiteboard_crash',
+      logMessage: 'Possible whiteboard crash',
+    };
+    const presentationIsHidden = !presentationBounds
+      || presentationBounds.width === 0
+      || presentationBounds.height === 0;
+    if (!presentationIsOpen || presentationIsHidden) return null;
+
     return (
       <>
         <Styled.PresentationContainer
@@ -860,7 +871,7 @@ class Presentation extends PureComponent {
             height: presentationBounds.height,
             display: !presentationIsOpen ? 'none' : 'flex',
             overflow: 'hidden',
-            zIndex: !isVideoFocus ? presentationZIndex : 0,
+            zIndex: !isVideoFocus ? presentationZIndex : 1,
             background:
               layoutType === isVideoFocus && !fullscreenContext
                 ? colorContentBackground
@@ -893,6 +904,24 @@ class Presentation extends PureComponent {
                 <Styled.VisuallyHidden id="currentSlideText">
                   {slideContent}
                 </Styled.VisuallyHidden>
+                {((userIsPresenter || hasWBAccess) && (!tldrawIsMounting && presentationWidth > 0 && currentSlide)) && <Styled.ExtraTools {...{isToolbarVisible}}>
+                  <TooltipContainer title={intl?.messages["app.shortcut-help.undo"]}>
+                    <Styled.Button
+                      aria-label={intl?.messages["app.shortcut-help.undo"]}
+                      onClick={() => tldrawAPI?.undo()}
+                    >
+                      <img src={`${window.meetingClientSettings.public.app.basename}/svgs/tldraw/undo.svg`} width="20" height="20" />
+                    </Styled.Button>
+                  </TooltipContainer>
+                  <TooltipContainer title={intl?.messages["app.shortcut-help.redo"]}>
+                    <Styled.Button
+                      aria-label={intl?.messages["app.shortcut-help.redo"]}
+                      onClick={() => tldrawAPI?.redo()}
+                    >
+                      <img src={`${window.meetingClientSettings.public.app.basename}/svgs/tldraw/redo.svg`} width="20" height="20" />
+                    </Styled.Button>
+                  </TooltipContainer>
+                </Styled.ExtraTools>}
                 {!tldrawIsMounting
                   && presentationWidth > 0
                   && currentSlide
@@ -909,8 +938,8 @@ class Presentation extends PureComponent {
                     intl={intl}
                     presentationWidth={svgWidth}
                     presentationHeight={svgHeight}
-                    presentationAreaHeight={presentationBounds?.height}
-                    presentationAreaWidth={presentationBounds?.width}
+                    presentationAreaHeight={presentationBounds.height - toolbarHeight}
+                    presentationAreaWidth={presentationBounds.width}
                     isPanning={isPanning}
                     zoomChanger={this.zoomChanger}
                     fitToWidth={fitToWidth}
@@ -978,7 +1007,6 @@ Presentation.propTypes = {
   setPresentationIsOpen: PropTypes.func.isRequired,
   layoutContextDispatch: PropTypes.func.isRequired,
   presentationIsDownloadable: PropTypes.bool,
-  presentationName: PropTypes.string,
   currentPresentationId: PropTypes.string,
   presentationIsOpen: PropTypes.bool,
   totalPages: PropTypes.number.isRequired,
@@ -1022,6 +1050,5 @@ Presentation.defaultProps = {
   userIsPresenter: false,
   presentationIsDownloadable: false,
   currentPresentationId: '',
-  presentationName: '',
   presentationIsOpen: true,
 };

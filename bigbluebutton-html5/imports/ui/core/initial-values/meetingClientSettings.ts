@@ -101,7 +101,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         breakoutRoomLimit: 16,
         allowPresentationManagementInBreakouts: true,
       },
-      customHeartbeat: false,
       showAllAvailableLocales: true,
       showAudioFilters: true,
       reactionsButton: {
@@ -160,6 +159,10 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         toggleUserList: {
           accesskey: 'U',
           descId: 'toggleUserList',
+        },
+        openLeaveMenu: {
+          accesskey: 'X',
+          descId: 'openLeaveMenu',
         },
         toggleMute: {
           accesskey: 'M',
@@ -617,6 +620,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       showParticipantsOnLogin: true,
       showPushLayoutButton: true,
       showPushLayoutToggle: true,
+      showScreenshareQuickSwapButton: true,
     },
     pads: {
       url: 'ETHERPAD_HOST',
@@ -663,6 +667,11 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           delayTime: 0.5,
           maxDelayTime: 2,
         },
+      },
+      networkPriorities: {
+        audio: 'high',
+        webcam: 'medium',
+        screenshare: 'medium',
       },
       muteAudioOutputWhenAway: false,
       screenshare: {
@@ -858,6 +867,8 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           'text',
           'note',
           'rectangle',
+          'delete-all',
+          'highlight',
           'more',
           'actions',
         ],
@@ -870,6 +881,8 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           'text',
           'note',
           'rectangle',
+          'delete-all',
+          'highlight',
           'more',
           'actions',
         ],

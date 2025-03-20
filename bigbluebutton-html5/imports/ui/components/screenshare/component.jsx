@@ -24,6 +24,7 @@ import {
   setVolume,
   getVolume,
   getStats,
+  setStreamEnabled,
 } from '/imports/ui/components/screenshare/service';
 import {
   isStreamStateHealthy,
@@ -118,7 +119,6 @@ class ScreenshareComponent extends React.Component {
 
   componentDidMount() {
     const {
-      isLayoutSwapped,
       layoutContextDispatch,
       intl,
       isPresenter,
@@ -157,13 +157,23 @@ class ScreenshareComponent extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { isPresenter, outputDeviceId } = this.props;
+    const { isPresenter, outputDeviceId, shouldShowScreenshare } = this.props;
     if (prevProps.isPresenter && !isPresenter) {
       screenshareHasEnded();
     }
 
     if (prevProps.outputDeviceId !== outputDeviceId && !isPresenter) {
       setOutputDeviceId(outputDeviceId);
+    }
+
+    if (isPresenter) setStreamEnabled(shouldShowScreenshare);
+
+    if (prevProps.shouldShowScreenshare && !shouldShowScreenshare) {
+      setVolume(0);
+    } else if (!prevProps.shouldShowScreenshare && shouldShowScreenshare) {
+      this.volume = this.volume || 1;
+      // if this.volume is 0, means user didn't change the volume, so we set it to 1
+      setVolume(this.volume);
     }
   }
 
@@ -617,6 +627,7 @@ class ScreenshareComponent extends React.Component {
       height,
       zIndex,
       fullscreenContext,
+      shouldShowScreenshare,
     } = this.props;
 
     // Conditions to render the (re)connecting dots and the unhealthy stream
@@ -629,7 +640,7 @@ class ScreenshareComponent extends React.Component {
     || (isPresenter && !isGloballyBroadcasting)
     || (!mediaFlowing && loaded && isGloballyBroadcasting);
 
-    const display = (width > 0 && height > 0) ? 'inherit' : 'none';
+    const display = (width > 0 && height > 0) && shouldShowScreenshare ? 'inherit' : 'none';
     const Settings = getSettingsSingletonInstance();
     const { animations } = Settings.application;
 

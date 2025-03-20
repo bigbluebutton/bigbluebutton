@@ -155,6 +155,7 @@ class App extends Component {
       currentUserAway,
       currentUserRaiseHand,
       intl,
+      fitToWidth,
     } = this.props;
 
     this.renderDarkMode();
@@ -174,6 +175,10 @@ class App extends Component {
         notify(intl.formatMessage(intlMessages.loweredHand), 'info', 'clear_status');
       }
     }
+
+    if (prevProps.fitToWidth !== fitToWidth) {
+      this.setState({ presentationFitToWidth: fitToWidth });
+    }
   }
 
   componentWillUnmount() {
@@ -185,6 +190,8 @@ class App extends Component {
   }
 
   setPresentationFitToWidth(presentationFitToWidth) {
+    const { handlePresentationFitToWidth } = this.props;
+    handlePresentationFitToWidth(presentationFitToWidth);
     this.setState({ presentationFitToWidth });
   }
 
@@ -256,6 +263,8 @@ class App extends Component {
       genericMainContentId,
       hideNotificationToasts,
       selectedLayout,
+      isNotificationEnabled,
+      isNonMediaLayout,
     } = this.props;
 
     const {
@@ -366,6 +375,68 @@ class App extends Component {
             presentationIsOpen={presentationIsOpen}
             selectedLayout={selectedLayout}
           />
+          <BannerBarContainer />
+          <NotificationsBarContainer />
+          <SidebarNavigationContainer />
+          <SidebarContentContainer isSharedNotesPinned={isSharedNotesPinned} />
+          <NavBarContainer main="new" />
+          <WebcamContainer />
+          {
+            !isNonMediaLayout
+              && <ExternalVideoPlayerContainer />
+          }
+          <GenericContentMainAreaContainer
+            genericMainContentId={genericMainContentId}
+          />
+          {
+          shouldShowPresentation
+            ? (
+              <PresentationContainer
+                setPresentationFitToWidth={this.setPresentationFitToWidth}
+                fitToWidth={presentationFitToWidth}
+                darkTheme={darkTheme}
+                presentationIsOpen={presentationIsOpen}
+              />
+            )
+            : null
+            }
+          {
+            !isNonMediaLayout
+            && <ScreenshareContainer shouldShowScreenshare={shouldShowScreenshare} />
+          }
+
+          {isSharedNotesPinned
+            ? (
+              <NotesContainer
+                area="media"
+              />
+            ) : null}
+          <AudioCaptionsSpeechContainer />
+          {this.renderAudioCaptions()}
+          { (
+            !hideNotificationToasts
+            && isNotificationEnabled) && <PresentationUploaderToastContainer intl={intl} /> }
+          <UploaderContainer />
+          <BreakoutJoinConfirmationContainerGraphQL />
+          <BBBLiveKitRoomContainer />
+          <AudioContainer {...{
+            isAudioModalOpen,
+            setAudioModalIsOpen: this.setAudioModalIsOpen,
+            isVideoPreviewModalOpen,
+            setVideoPreviewModalIsOpen: this.setVideoPreviewModalIsOpen,
+          }}
+          />
+          { (
+            !hideNotificationToasts
+            && isNotificationEnabled) && <ToastContainer rtl /> }
+          <ChatAlertContainerGraphql />
+          <RaiseHandNotifier />
+          <ManyWebcamsNotifier />
+          <PollingContainer />
+          <WakeLockContainer />
+          {this.renderActionsBar()}
+          <EmojiRainContainer />
+          <VoiceActivityAdapter />
         </Styled.Layout>
       </>
     );

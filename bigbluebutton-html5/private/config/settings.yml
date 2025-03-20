@@ -152,9 +152,6 @@ public:
       sendInvitationToAssignedModeratorsByDefault: false
       breakoutRoomLimit: 16
       allowPresentationManagementInBreakouts: true
-    # https://github.com/bigbluebutton/bigbluebutton/pull/10826
-    customHeartbeat: false
-    customHeartbeatUseDataFrames: true
     showAllAvailableLocales: true
     # Show "Audio Filters for Microphone" option in settings menu.
     # When set to true, users are able to enable/disable microphone constraints,
@@ -198,6 +195,7 @@ public:
     defaultSettings:
       application:
         selectedLayout: 'custom'
+        pushLayout: false
         animations: true
         chatAudioAlerts: false
         chatPushAlerts: false
@@ -267,6 +265,9 @@ public:
       toggleUserList:
         accesskey: U
         descId: toggleUserList
+      openLeaveMenu:
+        accesskey: X
+        descId: openLeaveMenu
       toggleMute:
         accesskey: M
         descId: toggleMute
@@ -810,6 +811,7 @@ public:
     showPushLayoutButton: true
     showPushLayoutToggle: true
     showSessionDetailsOnJoin: true
+    showScreenshareQuickSwapButton: false
   pads:
     url: ETHERPAD_HOST
   media:
@@ -961,7 +963,7 @@ public:
   stats:
     enabled: true
     interval: 10000
-    timeout: 30000
+    timeout: 10000
     log: true
     notification:
       warning: false
@@ -975,6 +977,7 @@ public:
       danger: 1000
       critical: 2000
     help: STATS_HELP_URL
+    lastEntriesCap: 20
   presentation:
     allowDownloadOriginal: true
     allowDownloadWithAnnotations: true
@@ -1081,6 +1084,8 @@ public:
         - text
         - note
         - rectangle
+        - delete-all
+        - highlight
         - more
         - actions
       multiUserTools:
@@ -1092,6 +1097,8 @@ public:
         - text
         - note
         - rectangle
+        - delete-all
+        - highlight
         - more
         - actions
   clientLog:

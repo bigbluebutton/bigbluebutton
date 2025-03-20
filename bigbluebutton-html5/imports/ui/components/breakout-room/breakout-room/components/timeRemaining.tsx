@@ -116,6 +116,7 @@ const TimeRemaingPanel: React.FC<TimeRemainingPanelProps> = ({
               value={newTime}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                 const newSetTime = Number.parseInt(e.target.value, 10) || 0;
+                if (newSetTime > 99999) return;
                 setNewTime(newSetTime);
               }}
               aria-label={intl.formatMessage(intlMessages.setTimeInMinutes)}

@@ -245,6 +245,7 @@ const PresentationContainer = (props) => {
           isIphone,
           currentSlide,
           slidePosition,
+          hasWBAccess: multiUserData.hasAccess,
           downloadPresentationUri: `${APP_CONFIG.bbbWebBase}/${currentPresentationPage?.downloadFileUri}`,
           multiUser: (multiUserData.hasAccess || multiUserData.active) && presentationIsOpen,
           presentationIsDownloadable: currentPresentationPage?.downloadable,
@@ -264,12 +265,11 @@ const PresentationContainer = (props) => {
           isViewersAnnotationsLocked,
           setPresentationIsOpen: MediaService.setPresentationIsOpen,
           isDefaultPresentation: currentPresentationPage?.isDefaultPresentation,
-          presentationName: currentPresentationPage?.presentationName,
           presentationAreaSize,
           currentUser,
           hasPoll,
           currentPresentationPage,
-          layoutType: selectedLayout,
+          layoutType: selectedLayout || '',
         }
       }
     />

@@ -1253,13 +1253,15 @@ const reducer = (state, action) => {
         top,
         left,
         right,
+        display,
       } = action.value;
       const { externalVideo } = state.output;
       if (externalVideo.width === width
         && externalVideo.height === height
         && externalVideo.top === top
         && externalVideo.left === left
-        && externalVideo.right === right) {
+        && externalVideo.right === right
+        && externalVideo.display === display) {
         return state;
       }
       return {
@@ -1273,6 +1275,7 @@ const reducer = (state, action) => {
             top,
             left,
             right,
+            display,
           },
         },
       };

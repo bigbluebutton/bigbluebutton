@@ -1,7 +1,7 @@
 const e = require('../core/elements');
 const defaultLocale = require('../../../bigbluebutton-html5/public/locales/en.json');
 
-async function getLocaleValues(elements, locale) {
+function getLocaleValues(elements, locale) {
   const currentValues = {};
   let currentLocale = {};
   try {

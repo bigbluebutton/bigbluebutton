@@ -71,6 +71,8 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 	browserWsConn, err := websocket.Accept(w, r, &acceptOptions)
 	if err != nil {
 		connectionLogger.Errorf("error: %v", err)
+		http.Error(w, "Closing browser connection, reason: request Origin is not authorized", http.StatusForbidden)
+		return
 	}
 	browserWsConn.SetReadLimit(9999999) //10MB
 

@@ -36,10 +36,12 @@ export const ListBox = styled.div`
   display: flex;
   flex-direction: column;
 `;
+export const PageWrapper = styled.div``;
 
 export default {
   MessageList,
   UnreadButton,
   Wrapper,
   ListBox,
+  PageWrapper,
 };

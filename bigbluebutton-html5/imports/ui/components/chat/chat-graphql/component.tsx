@@ -15,6 +15,7 @@ import useChat from '/imports/ui/core/hooks/useChat';
 import { Chat as ChatType } from '/imports/ui/Types/chat';
 import { layoutDispatch } from '/imports/ui/components/layout/context';
 import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
 import {
   colorWhite,
@@ -45,6 +46,11 @@ interface ChatProps {
   chatId: string;
   participantName: string;
   filteredPrivateChats: Partial<ChatType>[];
+  isRTL: boolean;
+}
+
+interface ChatLoadingProps {
+  isRTL: boolean;
 }
 
 const Chat: React.FC<ChatProps> = ({
@@ -235,12 +241,13 @@ const Chat: React.FC<ChatProps> = ({
   );
 };
 
-export const ChatLoading: React.FC = () => {
+export const ChatLoading: React.FC<ChatLoadingProps> = () => {
   return <Styled.CircularProgressContainer />;
 };
 
 const ChatContainer: React.FC = () => {
   const idChatOpen = layoutSelect((i: Layout) => i.idChatOpen);
+  const isRTL = layoutSelect((i: Layout) => i.isRTL);
   const sidebarContent = layoutSelectInput((i: Input) => i.sidebarContent);
   const layoutContextDispatch = layoutDispatch();
   const { data: chats } = useChat((chat) => {
@@ -276,6 +283,13 @@ const ChatContainer: React.FC = () => {
     participantName = currentChat.participant.name || '';
   }
 
+  const { data: currentUser } = useCurrentUser((c) => ({
+    userLockSettings: c?.userLockSettings,
+    locked: c?.locked,
+  }));
+
+  const isLocked = currentUser?.locked || currentUser?.userLockSettings?.disablePublicChat;
+
   if (pendingChat && chats) {
     const chat = chats.find((c) => {
       return c.participant?.userId === pendingChat;
@@ -290,7 +304,7 @@ const ChatContainer: React.FC = () => {
   }
 
   if (sidebarContent.sidebarContentPanel !== PANELS.CHAT) return null;
-  if (!idChatOpen) return <ChatLoading />;
+  if (!idChatOpen && !isLocked) return <ChatLoading isRTL={isRTL}/>;
 
   return (
     <Chat
@@ -299,6 +313,7 @@ const ChatContainer: React.FC = () => {
       participantName={participantName}
       chatId={idChatOpen}
       filteredPrivateChats={filteredPrivateChats}
+      isRTL={isRTL}
     />
   );
 };
