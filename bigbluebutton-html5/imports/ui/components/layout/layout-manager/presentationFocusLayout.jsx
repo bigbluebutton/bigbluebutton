@@ -88,15 +88,18 @@ const PresentationFocusLayout = (props) => {
           externalVideo, genericMainContent, screenShare,
         } = prevInput;
         const { sidebarContentPanel } = sidebarContent;
+        const isSidebarPanelNone = sidebarContentPanel === PANELS.NONE;
+        const sidebarContentPanelOverride = isSidebarPanelNone
+          ? PANELS.CHAT : sidebarContentPanel;
+        const openSidebar = isSidebarPanelNone ? true : sidebarNavigation.isOpen;
         return defaultsDeep(
           {
             sidebarNavigation: {
-              isOpen:
-                sidebarNavigation.isOpen || sidebarContentPanel !== PANELS.NONE || false,
+              isOpen: openSidebar,
             },
             sidebarContent: {
-              isOpen: sidebarContentPanel !== PANELS.NONE,
-              sidebarContentPanel,
+              isOpen: openSidebar,
+              sidebarContentPanel: sidebarContentPanelOverride,
             },
             SidebarContentHorizontalResizer: {
               isOpen: false,
