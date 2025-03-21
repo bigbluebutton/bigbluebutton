@@ -69,10 +69,11 @@ jobs:
         if: ${{ fromJson(env.isCompleted) }}
         id: check-artifact
         run: |
-          if [ -f pr-comment-data.zip ]; then
-            echo "ARTIFACT_DATA_PROVIDED=true" >> $GITHUB_ENV
+          if [[ -f "pr-comment-data.zip" ]]; then
+            echo "ARTIFACT_DATA_PROVIDED=true" >> "$GITHUB_ENV"
           else
-            echo "ARTIFACT_DATA_PROVIDED=false" >> $GITHUB_ENV
+            echo "ARTIFACT_DATA_PROVIDED=false" >> "$GITHUB_ENV"
+          fi
       - name: Unzip artifact
         if: ${{ fromJson(env.isCompleted) && env.ARTIFACT_DATA_PROVIDED == 'true' }}
         run: unzip pr-comment-data.zip
