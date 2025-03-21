@@ -100,7 +100,13 @@ if (env === prodEnv) {
   config.mode = prodEnv;
   config.optimization = {
     minimize: true,
-    minimizer: [new TerserPlugin()],
+    minimizer: [
+      new TerserPlugin({
+        terserOptions: {
+          safari10: true,
+        },
+      }),
+    ]
   };
   config.performance = {
     hints: 'warning',
