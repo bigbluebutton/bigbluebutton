@@ -69,7 +69,7 @@ import PropTypes from 'prop-types';
 const FETCHING = 'fetching';
 const FALLBACK = 'fallback';
 const READY = 'ready';
-const supportedBrowsers = ['Chrome', 'Firefox', 'Safari', 'Opera', 'Microsoft Edge', 'Yandex Browser'];
+const supportedBrowsers = ['Chrome', 'Firefox', 'Safari', 'Microsoft Edge'];
 
 export default class Legacy extends Component {
   constructor(props) {
@@ -161,11 +161,17 @@ export default class Legacy extends Component {
     if (!this.state) return null;
 
     const { messages, normalizedLocale, viewState } = this.state;
-    const isSupportedBrowser = supportedBrowsers.includes(browserName);
+    const isSupportedBrowser = !supportedBrowsers.includes(browserName);
     const isUnsupportedIos = isIos && !isSafari;
+    const inUnsupportedSafari = isSafari && !isSupportedBrowser;
 
     let messageId = isSupportedBrowser ? 'app.legacy.upgradeBrowser' : 'app.legacy.unsupportedBrowser';
     if (isUnsupportedIos) messageId = 'app.legacy.criosBrowser';
+    if (inUnsupportedSafari) messageId = 'app.legacy.unsupportedSafari';
+
+    const fallbackMessageSafari = inUnsupportedSafari
+      ? 'Please upgrade your browser to Safari 16 or newer for full support.'
+      : 'Please use Safari 16 or newer on iOS for full support.';
 
     switch (viewState) {
       case READY:
@@ -186,8 +192,8 @@ export default class Legacy extends Component {
       case FALLBACK:
         return (
           <p className="browserWarning">
-            {isUnsupportedIos ? (
-              <span>Please use Safari on iOS for full support.</span>
+            {isUnsupportedIos || inUnsupportedSafari ? (
+              <span>{fallbackMessageSafari}</span>
             ) : (
               <span>
                 <span>
