@@ -2,6 +2,7 @@ const { expect } = require('@playwright/test');
 const { MultiUsers } = require('../user/multiusers');
 const e = require('../core/elements');
 const { messageModerator } = require('../parameters/constants');
+const { sleep } = require('../core/helpers');
 
 class CreateParameters extends MultiUsers {
   constructor(browser, context) {
@@ -117,10 +118,9 @@ class CreateParameters extends MultiUsers {
   }
 
   async overrideDefaultPresentation() {
-    await this.modPage.setHeightWidthViewPortSize();
-    await this.userPage.setHeightWidthViewPortSize();
     await this.modPage.waitForSelector(e.whiteboard);
     await this.userPage.waitForSelector(e.whiteboard);
+    await sleep(1500);  // wait for the whiteboard zoom to stabilize
     await expect(
       this.modPage.page,
       'should display the overridden presentation for the mod',

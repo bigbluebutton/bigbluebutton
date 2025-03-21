@@ -58,6 +58,14 @@ class Page {
       if (isRecording && !isModerator) await this.closeRecordingModal();
       if (shouldCloseAudioModal && autoJoinAudioModal) await this.closeAudioModal();
     }
+    // overwrite for font used in CI
+    await this.page.addStyleTag({
+      content: `
+        body {
+          font-family: 'Liberation Sans', Arial, sans-serif;
+        }`,
+    });
+    await this.setHeightWidthViewPortSize();
   }
 
   async handleDownload(locator, testInfo, timeout = ELEMENT_WAIT_TIME) {
@@ -221,8 +229,8 @@ class Page {
   }
 
   async checkUserTalkingIndicator() {
-    const isTalkingLocator = await this.page.locator(e.isTalking).filter({ hasText: this.username });
-    await expect(isTalkingLocator, `should display the "${this.username}" user's conversation indicator to himself`).toBeVisible();
+    const isTalkingLocator = await this.page.locator(e.isTalking).locator(`:text-is("${this.username}")`);
+    await expect(isTalkingLocator, `should display the "${this.username}" user's talking indicator to himself`).toBeVisible();
   }
 
   async checkElement(selector, index = 0) {
