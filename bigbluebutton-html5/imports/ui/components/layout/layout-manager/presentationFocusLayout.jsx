@@ -94,6 +94,8 @@ const PresentationFocusLayout = (props) => {
           || sidebarContentPanel !== PANELS.NONE || false;
         if (
           prevLayout === LAYOUT_TYPE.PRESENTATION_ONLY
+          || prevLayout === LAYOUT_TYPE.CAMERAS_ONLY
+          || prevLayout === LAYOUT_TYPE.MEDIA_ONLY
         ) {
           overrideOpenSidebarNavigation = true;
           overrideOpenSidebarPanel = true;
