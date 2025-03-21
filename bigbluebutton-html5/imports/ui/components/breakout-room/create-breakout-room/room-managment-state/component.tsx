@@ -105,7 +105,7 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
           name: intl.formatMessage(intlMessages.breakoutRoom, {
             0: toRoom,
           }),
-          users: [users.find((user) => user.userId === id)],
+          users: [users.find((user) => user.userId === id)].filter((user) => user),
         } as Room;
       } else {
         updatedRooms[toRoom] = {
@@ -113,7 +113,7 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
           users: [
             ...(room?.users ?? []),
             roomFrom?.users?.find((user) => user.userId === id),
-          ],
+          ].filter((user) => user),
         } as Room;
         updatedRooms[fromRoom] = {
           ...roomFrom,
@@ -170,7 +170,7 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
             users: [
               ...prevRooms[0].users,
               ...rooms[Number(room)].users,
-            ],
+            ].filter((user) => user),
           },
           [Number(room)]: {
             ...prevRooms[Number(room)],
