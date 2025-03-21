@@ -20,7 +20,9 @@ const (
 	cfgFile = "config.yaml"
 )
 
-var cfg Config
+var (
+	cfg Config
+)
 
 // Config encapsulates all of the settings necessary for the proper functioning of the
 // Core API.
@@ -174,6 +176,9 @@ type Config struct {
 	Plugins struct {
 		Manifests []string `yaml:"maniftests"`
 	} `yaml:"plugins"`
+
+	checksumAlgorithms map[string]struct{}
+	disabledFeatures   map[string]struct{}
 }
 
 // DefaultPresentation returns the location of the default presentation file.
@@ -194,6 +199,40 @@ func (c Config) DefaultLogoURL() string {
 // DefaultDarkLogoURL returns the default URL for the BigBlueButton dark logo.
 func (c Config) DefaultDarkLogoURL() string {
 	return fmt.Sprintf("%s/%s", c.Server.BigBlueButton.URL, c.Server.BigBlueButton.Logo.Default.Path.DarkLogo)
+}
+
+// ChecksumAlgorithms returns all of the hashing algorithms that may
+// be used for generating checksums.
+func (c Config) ChecksumAlgorithms() map[string]struct{} {
+	if c.checksumAlgorithms == nil {
+		c.checksumAlgorithms = make(map[string]struct{})
+		for _, algo := range c.Security.Checksum.Algorithms {
+			c.checksumAlgorithms[algo] = struct{}{}
+		}
+	}
+
+	checksumAlgorithms := make(map[string]struct{})
+	for algo := range c.checksumAlgorithms {
+		checksumAlgorithms[algo] = struct{}{}
+	}
+	return checksumAlgorithms
+}
+
+// DisabledFeatures returns all of the features that are disabled for meetings
+// on this server.
+func (c Config) DisabledFeatures() map[string]struct{} {
+	if c.disabledFeatures == nil {
+		c.disabledFeatures = make(map[string]struct{})
+		for _, disabledFeature := range c.Meeting.Features.Disabled {
+			c.disabledFeatures[disabledFeature] = struct{}{}
+		}
+	}
+
+	disabledFeatures := make(map[string]struct{})
+	for disabledFeature := range c.disabledFeatures {
+		disabledFeatures[disabledFeature] = struct{}{}
+	}
+	return disabledFeatures
 }
 
 func init() {

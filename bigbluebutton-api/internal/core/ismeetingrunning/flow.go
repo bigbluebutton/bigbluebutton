@@ -9,7 +9,16 @@ import (
 )
 
 func NewIsMeetingRunningFlow() pipeline.Flow[*http.Request, *coreapi.Response] {
-	filterTransformGRPC := pipeline.NewStep[*http.Request, *core.MeetingRunningRequest]().Filter(nil).Transform(nil)
-	transformToResponse := pipeline.NewStep[*core.MeetingRunningRequest, *coreapi.Response]().Transform(nil)
-	return pipeline.Add(filterTransformGRPC.Flow(), transformToResponse)
+	filterTransformGRPC := pipeline.NewStep[*http.Request, *core.MeetingRunningRequest]().
+		Filter(&IsMeetingRunningFilter{}).
+		Transform(&HTTPToGRPC{})
+
+	sendReceive := pipeline.NewStep[*core.MeetingRunningRequest, *core.MeetingRunningResponse]().SendReceive(&SendMeetingRunningRequest{})
+
+	transformToResponse := pipeline.NewStep[*core.MeetingRunningResponse, *coreapi.Response]().Transform(&GRPCToResponse{})
+
+	f1 := pipeline.Add(filterTransformGRPC.Flow(), sendReceive)
+	f2 := pipeline.Add(f1, transformToResponse)
+
+	return f2
 }
