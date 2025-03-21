@@ -30,12 +30,18 @@ import { CustomVirtualBackgroundsContext } from '/imports/ui/components/video-pr
 import VBGSelectorService from '/imports/ui/components/video-preview/virtual-background/service';
 import Session from '/imports/ui/services/storage/in-memory';
 import getFromUserSettings from '/imports/ui/services/users-settings';
+import { isEqual } from 'radash';
 
 const VIEW_STATES = {
   finding: 'finding',
   found: 'found',
   error: 'error',
 };
+
+const DEFAULT_BRIGHTNESS_STATE = {
+  brightness: 100,
+  wholeImageBrightness: false,
+}
 
 const propTypes = {
   intl: PropTypes.object.isRequired,
@@ -415,7 +421,7 @@ class VideoPreview extends Component {
     Session.setItem('videoPreviewFirstOpen', false);
   }
 
-  async startCameraBrightness(initialState = { brightness: 100, wholeImageBrightness: false }) {
+  async startCameraBrightness(initialState = DEFAULT_BRIGHTNESS_STATE) {
     const ENABLE_CAMERA_BRIGHTNESS = window.meetingClientSettings.public.app.enableCameraBrightness;
     const CAMERA_BRIGHTNESS_AVAILABLE = ENABLE_CAMERA_BRIGHTNESS && isVirtualBackgroundSupported();
 
@@ -825,7 +831,7 @@ class VideoPreview extends Component {
     const webcamDeviceId = deviceId || this.state.webcamDeviceId;
     const cameraBrightness = getCameraBrightnessInfo(webcamDeviceId);
 
-    if (cameraBrightness) {
+    if (cameraBrightness && !isEqual(cameraBrightness, DEFAULT_BRIGHTNESS_STATE)) {
       return this.startCameraBrightness(cameraBrightness);
     }
   }
