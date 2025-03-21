@@ -22,9 +22,6 @@ class UndoDrawing extends MultiUsers {
     await this.modPage.page.mouse.up();
 
     await this.modPage.waitAndClick(e.wbUndo);
-    await this.modPage.setHeightWidthViewPortSize();
-    await this.userPage.setHeightWidthViewPortSize();
-
     await this.modPage.wasRemoved(e.wbDrawnArrow);
     await this.userPage.wasRemoved(e.wbDrawnArrow);
   }

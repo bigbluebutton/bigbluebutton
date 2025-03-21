@@ -387,7 +387,7 @@ Added
 - `sessionsCleanupDelayInMinutes` added
 - `useDefaultDarkLogo` added
 - `defaultDarkLogoURL` added
-
+- `maxNumPages` added
 
 #### Removed support for POST requests on `join` endpoint and Content-Type headers are now required
 

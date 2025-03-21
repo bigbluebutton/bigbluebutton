@@ -50,6 +50,10 @@ jobs:
               let matchArtifact = allArtifacts.data.artifacts.filter((artifact) => {
                 return artifact.name == "pr-comment-data"
               })[0];
+              if (!matchArtifact) {
+                console.log('No artifact found');
+                return;
+              }
               let download = await github.rest.actions.downloadArtifact({
                  owner: context.repo.owner,
                  repo: context.repo.repo,
@@ -59,22 +63,36 @@ jobs:
               let fs = require('fs');
               fs.writeFileSync(`${process.env.GITHUB_WORKSPACE}/pr-comment-data.zip`, Buffer.from(download.data));
             } catch (error) {
-              console.log('No artifact found');
+              console.log('Error downloading artifact:', error);
             }
-      - name: Unzip artifact
+      - name: Check if artifact data was provided
         if: ${{ fromJson(env.isCompleted) }}
+        id: check-artifact
+        run: |
+          if [[ -f "pr-comment-data.zip" ]]; then
+            echo "ARTIFACT_DATA_PROVIDED=true" >> "$GITHUB_ENV"
+          else
+            echo "ARTIFACT_DATA_PROVIDED=false" >> "$GITHUB_ENV"
+          fi
+      - name: Unzip artifact
+        if: ${{ fromJson(env.isCompleted) && env.ARTIFACT_DATA_PROVIDED == 'true' }}
         run: unzip pr-comment-data.zip
       - name: Set env variables from artifact
-        if: ${{ fromJson(env.isCompleted) }}
+        if: ${{ fromJson(env.isCompleted) && env.ARTIFACT_DATA_PROVIDED == 'true' }}
         id: set-env
         run: |
-          echo "pr-number=$(cat ./pr_number)" >> $GITHUB_OUTPUT
-          echo "workflow-id=$(cat ./workflow_id)" >> $GITHUB_OUTPUT
+          if [ -f ./pr_number ] && [ -f ./workflow_id ]; then
+            echo "pr-number=$(cat ./pr_number)" >> $GITHUB_OUTPUT
+            echo "workflow-id=$(cat ./workflow_id)" >> $GITHUB_OUTPUT
+          else
+            echo "Required files not found in artifact"
+          fi
   comment-pr:
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
     needs: get-pr-data
+    if: ${{ needs.get-pr-data.outputs.pr-number && needs.get-pr-data.outputs.workflow-id }}
     steps:
       - name: Find Comment
         uses: peter-evans/find-comment@v3
