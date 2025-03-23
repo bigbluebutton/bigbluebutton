@@ -168,6 +168,25 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   </svg>
   <main>
     <div id="app" role="document">
+      <script>
+        (function () {
+          var ua = navigator.userAgent;
+          var isSafari = /^((?!chrome|android).)*safari/i.test(ua);
+          var match = ua.match(/Version\/(\d+)/);
+          var safariVersion = match ? parseInt(match[1], 10) : null;
+
+          var bundleHash = '<%= bundleHash %>';
+          var script = document.createElement('script');
+
+          if (isSafari && safariVersion && safariVersion <= 16) {
+            script.src = 'bundle.' + bundleHash + '.safari.js';
+          } else {
+            script.src = 'bundle.' + bundleHash + '.js';
+          }
+
+          document.head.appendChild(script);
+        })();
+      </script>
   </main>
   </div>
   <span id="destination"></span>

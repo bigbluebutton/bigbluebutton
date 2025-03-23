@@ -10,11 +10,16 @@ const detailedLogs = process.env.DETAILED_LOGS || false;
 
 const prodEnv = 'production';
 const devEnv = 'development';
+const isSafariTarget = process.env.TARGET === 'safari';
+
+console.log(`Building: ${process.env.TARGET}`);
 
 const config = {
   entry: './client/main.tsx',
   output: {
-    filename: 'bundle.[fullhash].js',
+    filename: isSafariTarget
+      ? 'bundle.safari.js'
+      : 'bundle.[fullhash].js',
     path: path.resolve(__dirname, 'dist'),
     publicPath: '',
   },
@@ -27,6 +32,21 @@ const config = {
   plugins: [
     new HtmlWebpackPlugin({
       template: './client/main.html',
+      filename: 'index.html',
+      inject: false,
+      templateParameters: (compilation, assets, assetTags, options) => {
+        const fullhash = compilation.hash;
+        return {
+          compilation,
+          webpackConfig: compilation.options,
+          htmlWebpackPlugin: {
+            tags: assetTags,
+            files: assets,
+            options,
+          },
+          bundleHash: fullhash,
+        };
+      },
     }),
     new MiniCssExtractPlugin({
       filename: 'styles.css',
@@ -100,13 +120,7 @@ if (env === prodEnv) {
   config.mode = prodEnv;
   config.optimization = {
     minimize: true,
-    minimizer: [
-      new TerserPlugin({
-        terserOptions: {
-          safari10: true,
-        },
-      }),
-    ]
+    minimizer: isSafariTarget ? [] : [new TerserPlugin()],
   };
   config.performance = {
     hints: 'warning',
