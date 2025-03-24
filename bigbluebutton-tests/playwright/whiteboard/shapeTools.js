@@ -1,10 +1,10 @@
 const { expect } = require('@playwright/test');
 const e = require('../core/elements');
 const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
-const { MultiUsers } = require('../user/multiusers');
+const { DrawShape } = require('./drawShape');
 const { snapshotComparison } = require('./util');
 
-class ShapeTools extends MultiUsers {
+class ShapeTools extends DrawShape {
   constructor(browser, context) {
     super(browser, context);
   }
@@ -24,10 +24,7 @@ class ShapeTools extends MultiUsers {
     }
     // pan the whiteboard
     await this.modPage.waitAndClick(e.wbHandButton);
-    await this.modPage.page.mouse.move(wbBox.x + 0.3 * wbBox.width, wbBox.y + 0.3 * wbBox.height);
-    await this.modPage.page.mouse.down();
-    await this.modPage.page.mouse.move(wbBox.x + 0.7 * wbBox.width, wbBox.y + 0.7 * wbBox.height);
-    await this.modPage.page.mouse.up();
+    await this.drawShapeMiddleSlide();
     // check if the whiteboard was panned
     await this.modPage.setHeightWidthViewPortSize();
     await this.userPage.setHeightWidthViewPortSize();
@@ -49,16 +46,10 @@ class ShapeTools extends MultiUsers {
     // draw a line
     await this.modPage.waitAndClick(e.wbShapesButton);
     await this.modPage.waitAndClick(e.wbLineShape);
-    await this.modPage.page.mouse.move(wbBox.x + 0.3 * wbBox.width, wbBox.y + 0.3 * wbBox.height);
-    await this.modPage.page.mouse.down();
-    await this.modPage.page.mouse.move(wbBox.x + 0.7 * wbBox.width, wbBox.y + 0.7 * wbBox.height);
-    await this.modPage.page.mouse.up();
+    await this.drawShapeMiddleSlide();
     // erase the line
     await this.modPage.waitAndClick(e.wbEraser);
-    await this.modPage.page.mouse.move(wbBox.x + 0.3 * wbBox.width, wbBox.y + 0.7 * wbBox.height);
-    await this.modPage.page.mouse.down();
-    await this.modPage.page.mouse.move(wbBox.x + 0.7 * wbBox.width, wbBox.y + 0.3 * wbBox.height);
-    await this.modPage.page.mouse.up();
+    await this.drawShapeMiddleSlide();
     // check if the line was removed
     await this.modPage.wasRemoved(e.wbDrawnLine, 'should remove the drawn line for the moderator');
     await this.userPage.wasRemoved(e.wbDrawnLine, 'should remove the drawn line for the viewer');
@@ -72,10 +63,7 @@ class ShapeTools extends MultiUsers {
     const wbBox = await modWbLocator.boundingBox();
     // draw an arrow
     await this.modPage.waitAndClick(e.wbArrowShape);
-    await this.modPage.page.mouse.move(wbBox.x + 0.3 * wbBox.width, wbBox.y + 0.3 * wbBox.height);
-    await this.modPage.page.mouse.down();
-    await this.modPage.page.mouse.move(wbBox.x + 0.7 * wbBox.width, wbBox.y + 0.7 * wbBox.height);
-    await this.modPage.page.mouse.up();
+    await this.drawShapeMiddleSlide();
     // check existence of the drawn arrow
     await this.modPage.hasElement(e.wbDrawnArrow, 'should display the drawn shape for the moderator');
     await this.userPage.hasElement(e.wbDrawnArrow, 'should display the drawn shape for the viewer');
@@ -85,10 +73,7 @@ class ShapeTools extends MultiUsers {
     await this.userPage.wasRemoved(e.wbDrawnArrow, 'should delete the drawn shape for the viewer by pressing the "Delete" key');
     // draw another arrow
     await this.modPage.waitAndClick(e.wbArrowShape);
-    await this.modPage.page.mouse.move(wbBox.x + 0.3 * wbBox.width, wbBox.y + 0.3 * wbBox.height);
-    await this.modPage.page.mouse.down();
-    await this.modPage.page.mouse.move(wbBox.x + 0.7 * wbBox.width, wbBox.y + 0.7 * wbBox.height);
-    await this.modPage.page.mouse.up();
+    await this.drawShapeMiddleSlide();
     // check existence of the new drawn arrow
     await this.modPage.hasElement(e.wbDrawnArrow, 'should display the new drawn shape for the moderator');
     await this.userPage.hasElement(e.wbDrawnArrow, 'should display the new drawn shape for the viewer');
@@ -106,10 +91,7 @@ class ShapeTools extends MultiUsers {
     const wbBox = await modWbLocator.boundingBox();
     // draw an arrow
     await this.modPage.waitAndClick(e.wbArrowShape);
-    await this.modPage.page.mouse.move(wbBox.x + 0.3 * wbBox.width, wbBox.y + 0.3 * wbBox.height);
-    await this.modPage.page.mouse.down();
-    await this.modPage.page.mouse.move(wbBox.x + 0.7 * wbBox.width, wbBox.y + 0.7 * wbBox.height);
-    await this.modPage.page.mouse.up();
+    await this.drawShapeMiddleSlide();
     // check if the arrow was drawn
     await this.modPage.hasElement(e.wbDrawnArrow, 'should display the drawn shape for the moderator');
     await this.userPage.hasElement(e.wbDrawnArrow, 'should display the drawn shape for the viewer');

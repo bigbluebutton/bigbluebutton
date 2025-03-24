@@ -4,10 +4,6 @@ const { MultiUsers } = require('../user/multiusers');
 const { snapshotComparison } = require('./util');
 
 class TextShape extends MultiUsers {
-  constructor(browser, context) {
-    super(browser, context);
-  }
-
   async typeText() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await this.userPage.waitForSelector(e.whiteboard);
