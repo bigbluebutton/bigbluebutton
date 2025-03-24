@@ -4,7 +4,8 @@
   "license": "LGPL-3.0",
   "scripts": {
     "start": "NODE_ENV=development DETAILED_LOGS=true webpack serve --open --config webpack.config.js",
-    "build": "NODE_ENV=production webpack --config webpack.config.js --mode production",
+    "build": "NODE_ENV=production TARGET=default webpack --config webpack.config.js --mode production",
+    "build-safari": "NODE_ENV=production TARGET=safari webpack --config webpack.config.js --mode production",
     "tscheck": "tsc",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
