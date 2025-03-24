@@ -178,7 +178,6 @@ const Whiteboard = React.memo((props) => {
 
   const customUiOverrides = React.useMemo(() => ({
     tools: (editor, tools) => {
-      console.log("🚀 -> customUiOverrides -> tools:", tools)
       const updatedTools = {
         ...tools,
         deleteAll: {
@@ -224,7 +223,6 @@ const Whiteboard = React.memo((props) => {
 
   const setWheelZoomTimeout = () => {
     isWheelZoomRef.currentTimeout = setTimeout(() => {
-        console.log("🚀 -> customUiOverrides -> tools:", tools)
       setIsWheelZoom(false);
     }, 300);
   };
