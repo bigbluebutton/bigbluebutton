@@ -447,7 +447,7 @@ const Whiteboard = React.memo((props) => {
       },
       a: () => tlEditorRef.current?.setCurrentTool('arrow'),
       l: () => tlEditorRef.current?.setCurrentTool('line'),
-      t: () => tlEditorRef.current?.setCurrentTool('t'),
+      t: () => tlEditorRef.current?.setCurrentTool('text'),
       f: () => tlEditorRef.current?.setCurrentTool('frame'),
       n: () => tlEditorRef.current?.setCurrentTool('note'),
     };
