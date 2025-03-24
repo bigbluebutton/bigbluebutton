@@ -77,10 +77,10 @@ class MultiUsers {
   }
 
   async userPresence() {
-    await this.modPage.checkElementCount(e.currentUser, 1, 'should contain one current user for the moderator');
-    await this.modPage.checkElementCount(e.userListItem, 1, 'should contain one user on user list for the moderator');
-    await this.userPage.checkElementCount(e.currentUser, 1, 'should contain one current user for the attendee');
-    await this.userPage.checkElementCount(e.userListItem, 1, 'should contain one user on user list for the attendee');
+    await this.modPage.hasElementCount(e.currentUser, 1, 'should contain one current user for the moderator');
+    await this.modPage.hasElementCount(e.userListItem, 1, 'should contain one user on user list for the moderator');
+    await this.userPage.hasElementCount(e.currentUser, 1, 'should contain one current user for the attendee');
+    await this.userPage.hasElementCount(e.userListItem, 1, 'should contain one user on user list for the attendee');
   }
 
   async makePresenter() {
@@ -262,9 +262,9 @@ class MultiUsers {
     // check if presenter is not muted
     await this.modPage.checkUserTalkingIndicator();
     // check number of talking indicator's element
-    await this.modPage.checkElementCount(e.isTalking, 1, 'should display only the presenter talking indicator for the moderator');
-    await this.modPage2.checkElementCount(e.isTalking, 1, 'should display only the presenter talking indicator for the second moderator');
-    await this.modPage.checkElementCount(e.isTalking, 1, 'should display only the presenter talking indicator for the attendee');
+    await this.modPage.hasElementCount(e.isTalking, 1, 'should display only the presenter talking indicator for the moderator');
+    await this.modPage2.hasElementCount(e.isTalking, 1, 'should display only the presenter talking indicator for the second moderator');
+    await this.modPage.hasElementCount(e.isTalking, 1, 'should display only the presenter talking indicator for the attendee');
     // check join audio buttons for the users
     await checkMutedUser(this.modPage2);
     await checkMutedUser(this.userPage);

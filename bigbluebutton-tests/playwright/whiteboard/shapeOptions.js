@@ -30,8 +30,8 @@ class ShapeOptions extends MultiUsers {
     await this.modPage.waitAndClick(e.wbDuplicate);
     await this.modPage.waitAndClick(e.wbOptions);
 
-    await this.modPage.checkElementCount(e.wbDrawnShape, 2);
-    await this.userPage.checkElementCount(e.wbDrawnShape, 2);
+    await this.modPage.hasElementCount(e.wbDrawnShape, 2);
+    await this.userPage.hasElementCount(e.wbDrawnShape, 2);
   }
 
   async rotate() {

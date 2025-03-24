@@ -304,8 +304,8 @@ class Page {
     await this.page.mouse.up();
   }
 
-  async checkElementCount(selector, count, description) {
-    const locator = await this.page.locator(selector);
+  async hasElementCount(selector, count, description) {
+    const locator = await this.getVisibleLocator(selector);
     await expect(locator, description).toHaveCount(count, { timeout: ELEMENT_WAIT_TIME });
   }
 
