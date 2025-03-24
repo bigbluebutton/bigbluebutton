@@ -912,12 +912,12 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       ],
     },
     minBrowserVersions: {
-      safari: '>=16',
+      safari: '>=14',
       chrome: '>=114',
       firefox: '>=80',
       edge: '>=85',
       mobile: {
-        safari: '>=16',
+        safari: '>=14',
         chrome: '>=114',
       },
     },
