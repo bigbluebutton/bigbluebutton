@@ -434,7 +434,7 @@ const Whiteboard = React.memo((props) => {
           tlEditorRef.current?.setCurrentTool('hand');
         }
       },
-      r: () => tlEditorRef.current?.setCurrentTool('rectangle'),
+      r: () => tlEditorRef.current?.setCurrentTool('geo'),
       o: () => tlEditorRef.current?.setCurrentTool('ellipse'),
       a: () => tlEditorRef.current?.setCurrentTool('arrow'),
       l: () => tlEditorRef.current?.setCurrentTool('line'),
@@ -491,6 +491,7 @@ const Whiteboard = React.memo((props) => {
     if (!event.altKey && !event.ctrlKey && !event.shiftKey && simpleKeyMap[key]) {
       event.preventDefault();
       event.stopPropagation();
+      console.log("🚀 -> handleKeyDown -> simpleKeyMap:", simpleKeyMap)
       simpleKeyMap[key]();
       return;
     }
