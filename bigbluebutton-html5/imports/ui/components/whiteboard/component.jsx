@@ -16,6 +16,9 @@ import {
   setDefaultEditorAssetUrls,
   toolbarItem,
 } from '@bigbluebutton/tldraw';
+import {
+  GeoShapeGeoStyle,
+} from '@bigbluebutton/editor';
 import '@bigbluebutton/tldraw/tldraw.css';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { compressToBase64, decompressFromBase64 } from 'lz-string';
@@ -175,6 +178,7 @@ const Whiteboard = React.memo((props) => {
 
   const customUiOverrides = React.useMemo(() => ({
     tools: (editor, tools) => {
+      console.log("🚀 -> customUiOverrides -> tools:", tools)
       const updatedTools = {
         ...tools,
         deleteAll: {
@@ -220,6 +224,7 @@ const Whiteboard = React.memo((props) => {
 
   const setWheelZoomTimeout = () => {
     isWheelZoomRef.currentTimeout = setTimeout(() => {
+        console.log("🚀 -> customUiOverrides -> tools:", tools)
       setIsWheelZoom(false);
     }, 300);
   };
@@ -434,11 +439,17 @@ const Whiteboard = React.memo((props) => {
           tlEditorRef.current?.setCurrentTool('hand');
         }
       },
-      r: () => tlEditorRef.current?.setCurrentTool('geo'),
-      o: () => tlEditorRef.current?.setCurrentTool('ellipse'),
+      r: () => {
+        tlEditorRef.current?.setStyleForNextShapes(GeoShapeGeoStyle, 'rectangle');
+        tlEditorRef.current?.setCurrentTool('geo');
+      },
+      o: () => {
+        tlEditorRef.current?.setStyleForNextShapes(GeoShapeGeoStyle, 'ellipse');
+        tlEditorRef.current?.setCurrentTool('geo');
+      },
       a: () => tlEditorRef.current?.setCurrentTool('arrow'),
       l: () => tlEditorRef.current?.setCurrentTool('line'),
-      t: () => tlEditorRef.current?.setCurrentTool('text'),
+      t: () => tlEditorRef.current?.setCurrentTool('t'),
       f: () => tlEditorRef.current?.setCurrentTool('frame'),
       n: () => tlEditorRef.current?.setCurrentTool('note'),
     };
