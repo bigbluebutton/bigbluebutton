@@ -491,7 +491,6 @@ const Whiteboard = React.memo((props) => {
     if (!event.altKey && !event.ctrlKey && !event.shiftKey && simpleKeyMap[key]) {
       event.preventDefault();
       event.stopPropagation();
-      console.log("🚀 -> handleKeyDown -> simpleKeyMap:", simpleKeyMap)
       simpleKeyMap[key]();
       return;
     }
