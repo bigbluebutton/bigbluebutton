@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-api/internal/common"
+	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-api/internal/common/responses"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-api/internal/random"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-api/util"
 )
@@ -21,7 +22,7 @@ func ValidateChecksum(req *http.Request, salt string, algos map[string]struct{})
 	endpoint := strings.TrimPrefix(req.URL.Path, "/")
 	params := req.URL.Query()
 
-	err := common.NewBBBError(common.ChecksumErrorKey, common.ChecksumErrorMsg)
+	err := common.NewBBBError(responses.ChecksumErrorKey, responses.ChecksumErrorMsg)
 
 	if salt == "" {
 		slog.Warn("Security is disabled in this service. Make sure this is intentional.")

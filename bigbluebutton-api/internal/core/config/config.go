@@ -237,7 +237,10 @@ func (c Config) DisabledFeatures() map[string]struct{} {
 
 func init() {
 	config.FindConfig()
-	config.LoadConfig(api, cfgFile, &cfg)
+	err := config.LoadConfig(api, cfgFile, &cfg)
+	if err != nil {
+		panic(err)
+	}
 }
 
 // DefaultConfig returns a copy of the default configuration that was loaded

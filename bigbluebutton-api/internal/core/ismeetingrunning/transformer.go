@@ -5,9 +5,9 @@ import (
 
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-api/gen/common"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-api/gen/core"
-	commonapi "github.com/bigbluebutton/bigbluebutton/bigbluebutton-api/internal/common"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-api/internal/common/bbbhttp"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-api/internal/common/pipeline"
+	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-api/internal/common/responses"
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-api/internal/common/validation"
 	coreapi "github.com/bigbluebutton/bigbluebutton/bigbluebutton-api/internal/core"
 )
@@ -31,7 +31,7 @@ type GRPCToResponse struct{}
 func (g *GRPCToResponse) Transform(msg pipeline.Message[*core.MeetingRunningResponse]) (pipeline.Message[*coreapi.Response], error) {
 	res := msg.Payload
 	return pipeline.NewMessage(&coreapi.Response{
-		ReturnCode: commonapi.ReturnCodeSuccess,
+		ReturnCode: responses.ReturnCodeSuccess,
 		Running:    &res.MeetingRunning.IsRunning,
 	}), nil
 }

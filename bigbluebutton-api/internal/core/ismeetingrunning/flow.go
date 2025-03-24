@@ -8,12 +8,12 @@ import (
 	coreapi "github.com/bigbluebutton/bigbluebutton/bigbluebutton-api/internal/core"
 )
 
-func NewIsMeetingRunningFlow() pipeline.Flow[*http.Request, *coreapi.Response] {
+func NewIsMeetingRunningFlow(client *coreapi.Client) pipeline.Flow[*http.Request, *coreapi.Response] {
 	filterTransformGRPC := pipeline.NewStep[*http.Request, *core.MeetingRunningRequest]().
 		Filter(&IsMeetingRunningFilter{}).
 		Transform(&HTTPToGRPC{})
 
-	sendReceive := pipeline.NewStep[*core.MeetingRunningRequest, *core.MeetingRunningResponse]().SendReceive(&SendMeetingRunningRequest{})
+	sendReceive := pipeline.NewStep[*core.MeetingRunningRequest, *core.MeetingRunningResponse]().SendReceive(&SendMeetingRunningRequest{client})
 
 	transformToResponse := pipeline.NewStep[*core.MeetingRunningResponse, *coreapi.Response]().Transform(&GRPCToResponse{})
 

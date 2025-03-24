@@ -2,9 +2,14 @@ package core
 
 import (
 	"encoding/xml"
+	"net/http"
+	"time"
 
 	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-api/gen/common"
+	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-api/gen/core"
 	commonapi "github.com/bigbluebutton/bigbluebutton/bigbluebutton-api/internal/common"
+	"github.com/bigbluebutton/bigbluebutton/bigbluebutton-api/internal/common/responses"
+	"google.golang.org/grpc"
 )
 
 type Response struct {
@@ -217,14 +222,35 @@ func MeetingInfoToMeeting(m *common.MeetingInfo) Meeting {
 
 func ErrorToResponse(err error) *Response {
 	resp := &Response{
-		ReturnCode: commonapi.ReturnCodeFailure,
+		ReturnCode: responses.ReturnCodeFailure,
 	}
 	if bbbErr, ok := err.(*commonapi.BBBError); ok {
 		resp.MessageKey = bbbErr.Key
 		resp.Message = bbbErr.Msg
 	} else {
-		resp.MessageKey = commonapi.UnknownErrorKey
+		resp.MessageKey = responses.UnknownErrorKey
 		resp.Message = err.Error()
 	}
 	return resp
+}
+
+type Client struct {
+	core.CoreServiceClient
+	noRedirectClient *http.Client
+}
+
+func NewClientWithConn(conn *grpc.ClientConn) *Client {
+	return NewClientWithServiceClient(core.NewCoreServiceClient(conn))
+}
+
+func NewClientWithServiceClient(serviceClient core.CoreServiceClient) *Client {
+	return &Client{
+		CoreServiceClient: serviceClient,
+		noRedirectClient: &http.Client{
+			Timeout: time.Minute,
+			CheckRedirect: func(req *http.Request, via []*http.Request) error {
+				return http.ErrUseLastResponse
+			},
+		},
+	}
 }

@@ -60,8 +60,10 @@ func LoadConfig(api string, file string, out any) error {
 	if api != "" {
 		apiCfgPath = path.Join(apiCfgPath, api)
 	}
-
 	apiCfgPath = path.Join(apiCfgPath, file)
+
+	slog.Info("Attempting to load configuration", "path", apiCfgPath)
+
 	data, err := os.ReadFile(apiCfgPath)
 	if err != nil {
 		return fmt.Errorf("failed to read config file: %w", err)

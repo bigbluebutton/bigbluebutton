@@ -18,6 +18,7 @@ func (h *handler) Handle(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		errResp := core.ErrorToResponse(err)
 		bbbhttp.WriteXML(w, http.StatusAccepted, errResp)
+		return
 	}
 	bbbhttp.WriteXML(w, http.StatusAccepted, resp)
 }
