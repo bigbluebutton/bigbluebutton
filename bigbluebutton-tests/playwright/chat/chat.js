@@ -208,11 +208,9 @@ class Chat extends MultiUsers {
     await this.modPage.waitAndClick(e.sendButton);
     await this.userPage.waitUntilHaveCountSelector(e.chatButton, 2);
     await this.modPage.waitAndClick(e.closePrivateChat);
-    await this.modPage.wasRemoved(e.hidePrivateChat, 'should the hide private chat element not be displayed');
+    await this.modPage.wasRemoved(e.hidePrivateChat, 'should not display the hide private chat element');
     await this.modPage.waitUntilHaveCountSelector(e.chatButton, 1, ELEMENT_WAIT_LONGER_TIME);
-    const userChatCount = await this.userPage.getSelectorCount(e.chatButton);
-    await this.modPage.waitAndClick(e.chatButton);
-    expect(userChatCount, '').toBe(2);
+    await this.userPage.hasElementCount(e.chatButton, 2, 'should display both chat buttons for the viewer');
   }
 
   async emojiSaveChat(testInfo) {

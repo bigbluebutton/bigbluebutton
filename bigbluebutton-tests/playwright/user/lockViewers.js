@@ -168,7 +168,7 @@ class LockViewers extends MultiUsers {
     await this.initUserPage2(true);
     await this.userPage2.hasElementCount(e.userListItem, 1, 'should contain one user on the user list for the second attendee');
     await sleep(1000);
-    await expect(await this.userPage.getLocator(e.userListItem).count(), 'should contain one user on the user list for the first attendee').toBe(1);
+    await this.userPage.hasElementCount(e.userListItem, 1, 'should contain one user on the user list for the first attendee');
 
     await this.modPage.waitAndClick(`${e.userListItem}>>nth=1`);
     await this.modPage.waitAndClick(`${e.unlockUserButton}>>nth=1`);

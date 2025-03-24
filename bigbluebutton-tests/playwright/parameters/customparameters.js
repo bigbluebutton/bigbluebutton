@@ -235,22 +235,19 @@ class CustomParameters extends MultiUsers {
   async multiUserPenOnly() {
     await this.modPage.waitAndClick(e.multiUsersWhiteboardOn);
     await this.userPage.hasElement(e.wbToolbar);
-    const toolsCount = await this.userPage.getSelectorCount(`${e.wbToolbar} button:visible`);
-    await expect(toolsCount, 'should display only 1 tool (pen)').toBe(1);
+    await this.userPage.hasElementCount(`${e.wbToolbar} button`, 1, 'should display only 1 tool (pen)');
   }
 
   async presenterTools() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.hasElement(e.wbToolbar);
-    const toolsCount = await this.modPage.getSelectorCount(`${e.wbToolbar} button:visible`);
-    await expect(toolsCount, 'should display only the 3 elements passed in the parameter (select, draw and arrow)').toBe(3);
+    await this.modPage.hasElementCount(`${e.wbToolbar} button`, 3, 'should display only the 3 elements passed in the parameter (select, draw and arrow)');
   }
 
   async multiUserTools() {
     await this.modPage.waitAndClick(e.multiUsersWhiteboardOn);
     await this.userPage.hasElement(e.wbToolbar);
-    const toolsCount = await this.userPage.getSelectorCount(`${e.wbToolbar} button:visible`);
-    await expect(toolsCount, 'should display only the 2 elements passed in the parameter (arrow and text)').toBe(2);
+    await this.userPage.hasElementCount(`${e.wbToolbar} button`, 2, 'should display only the 2 elements passed in the parameter (arrow and text)');
   }
 
   async autoShareWebcam() {
