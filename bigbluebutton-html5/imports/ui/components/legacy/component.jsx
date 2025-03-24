@@ -3,7 +3,7 @@ import { IntlProvider, FormattedMessage } from 'react-intl';
 import browserInfo from '/imports/utils/browserInfo';
 import deviceInfo from '/imports/utils/deviceInfo';
 import './styles.css';
-
+import PropTypes from 'prop-types';
 
 // currently supported locales.
 // import ar from 'react-intl/locale-data/ar';
@@ -69,7 +69,7 @@ import './styles.css';
 const FETCHING = 'fetching';
 const FALLBACK = 'fallback';
 const READY = 'ready';
-const supportedBrowsers = ['Chrome', 'Firefox', 'Safari', 'Opera', 'Microsoft Edge', 'Yandex Browser'];
+const supportedBrowsers = ['Chrome', 'Firefox', 'Safari', 'Microsoft Edge'];
 
 export default class Legacy extends Component {
   constructor(props) {
@@ -82,10 +82,13 @@ export default class Legacy extends Component {
     const localesPath = 'locales';
 
     const that = this;
-    this.state = { viewState: FETCHING };
 
     const DEFAULT_LANGUAGE = window.meetingClientSettings.public.app.defaultSettings.application.fallbackLocale;
     const CLIENT_VERSION = window.meetingClientSettings.public.app.html5ClientBuild;
+
+    const { setLoading } = this.props;
+
+    setLoading(false);
 
     fetch(url)
       .then((response) => {
@@ -155,12 +158,20 @@ export default class Legacy extends Component {
     const { browserName, isSafari } = browserInfo;
     const { isIos } = deviceInfo;
 
+    if (!this.state) return null;
+
     const { messages, normalizedLocale, viewState } = this.state;
-    const isSupportedBrowser = supportedBrowsers.includes(browserName);
+    const isSupportedBrowser = !supportedBrowsers.includes(browserName);
     const isUnsupportedIos = isIos && !isSafari;
+    const inUnsupportedSafari = isSafari && !isSupportedBrowser;
 
     let messageId = isSupportedBrowser ? 'app.legacy.upgradeBrowser' : 'app.legacy.unsupportedBrowser';
     if (isUnsupportedIos) messageId = 'app.legacy.criosBrowser';
+    if (inUnsupportedSafari) messageId = 'app.legacy.unsupportedSafari';
+
+    const fallbackMessageSafari = inUnsupportedSafari
+      ? 'Please upgrade your browser to Safari 16 or newer for full support.'
+      : 'Please use Safari 16 or newer on iOS for full support.';
 
     switch (viewState) {
       case READY:
@@ -181,8 +192,8 @@ export default class Legacy extends Component {
       case FALLBACK:
         return (
           <p className="browserWarning">
-            {isUnsupportedIos ? (
-              <span>Please use Safari on iOS for full support.</span>
+            {isUnsupportedIos || inUnsupportedSafari ? (
+              <span>{fallbackMessageSafari}</span>
             ) : (
               <span>
                 <span>
@@ -205,3 +216,7 @@ export default class Legacy extends Component {
     }
   }
 }
+
+Legacy.propTypes = {
+  setLoading: PropTypes.func.isRequired,
+};

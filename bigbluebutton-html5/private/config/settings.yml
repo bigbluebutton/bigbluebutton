@@ -1115,6 +1115,14 @@ public:
       - home.jpg
       - coffeeshop.jpg
       - board.jpg
+  minBrowserVersions:
+    safari: ">=16"
+    chrome: ">=114"
+    firefox: ">=80"
+    edge: ">=85"
+    mobile:
+      safari: ">=16"
+      chrome: ">=114"
 private:
   analytics:
     includeChat: true
@@ -1123,31 +1131,6 @@ private:
     localesUrl: /locale-list
     pencilChunkLength: 100
     loadSlidesFromHttpAlways: false
-  minBrowserVersions:
-    - browser: chrome
-      version: 72
-    - browser: chromeMobileIOS
-      version: 94
-    - browser: firefox
-      version: 68
-    - browser: firefoxMobile
-      version: 68
-    - browser: edge
-      version: 79
-    - browser: ie
-      version: Infinity
-    - browser: safari
-      version: [12, 1]
-    - browser: mobileSafari
-      version: [12, 1]
-    - browser: opera
-      version: 50
-    - browser: electron
-      version: [0, 36]
-    - browser: SamsungInternet
-      version: 10
-    - browser: YandexBrowser
-      version: 19
   # Direct Prometheus instrumentation.
   # EXPERIMENTAL, so disabled by default.
   prometheus:
