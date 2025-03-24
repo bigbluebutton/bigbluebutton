@@ -170,8 +170,8 @@ export default class Legacy extends Component {
     if (inUnsupportedSafari) messageId = 'app.legacy.unsupportedSafari';
 
     const fallbackMessageSafari = inUnsupportedSafari
-      ? 'Please upgrade your browser to Safari 16 or newer for full support.'
-      : 'Please use Safari 16 or newer on iOS for full support.';
+      ? 'Please upgrade your browser to Safari 14 or newer for full support.'
+      : 'Please use Safari 14 or newer on iOS for full support.';
 
     switch (viewState) {
       case READY:
