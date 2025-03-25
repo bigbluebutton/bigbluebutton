@@ -399,13 +399,11 @@ export default class LiveKitScreenshareBridge {
 
   // eslint-disable-next-line class-methods-use-this
   async getStats(): Promise<{
-    screenshareStats: {
-        transportStats: object;
-    },
+    transportStats: object;
     [key: string]: unknown,
   }> {
     const stats = getLKStats();
-    return BridgeService.parseStats({ stats, bridgeName: BRIDGE_NAME });
+    return BridgeService.parseStats({ stats, bridgeName: BRIDGE_NAME, role: this.role });
   }
 
   setVolume(volume: number): number {

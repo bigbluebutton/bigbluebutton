@@ -707,8 +707,12 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
     stats: {
       enabled: true,
       interval: 10000,
+      probes: 5,
       timeout: 30000,
       log: true,
+      logMediaStats: {
+        enabled: false,
+      },
       notification: {
         warning: false,
         error: true,

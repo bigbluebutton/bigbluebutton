@@ -164,13 +164,18 @@ const parseStats = async ({
   peer = undefined,
   statsTypes = DEFAULT_SCREENSHARE_STATS_TYPES,
   bridgeName = NO_BRIDGE,
+  role = '',
 }) => {
   let transportStats = {};
   const aggregatedStats = {};
 
   stats.forEach((stat) => {
-    if (statsTypes.includes(stat.type) && (!stat.kind || stat.kind === 'video')) {
-      aggregatedStats[stat.type] = stat;
+    const {
+      type,
+      kind,
+    } = stat;
+    if (statsTypes.includes(type) && (!kind || kind === 'video')) {
+      aggregatedStats[type] = stat;
     }
   });
 
@@ -182,13 +187,13 @@ const parseStats = async ({
       extraInfo: {
         errorCode: error.errorCode,
         errorMessage: error.errorMessage,
-        role: this.role,
+        role,
         bridge: bridgeName,
       },
     }, 'Failed to get transport stats for screenshare');
   }
 
-  return { screenshareStats: { transportStats, ...aggregatedStats } };
+  return { transportStats, ...aggregatedStats };
 };
 
 class EXPORTED_CONFIGS {

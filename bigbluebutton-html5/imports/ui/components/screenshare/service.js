@@ -372,8 +372,8 @@ export const getStats = () => screenShareBridge.getStats();
 // This method may throw errors
 export const isMediaFlowing = (previousStats, currentStats) => {
   const bpsData = ConnectionStatusService.calculateBitsPerSecond(
-    currentStats?.screenshareStats,
-    previousStats?.screenshareStats,
+    currentStats,
+    previousStats,
   );
   const bpsDataAggr = Object.values(bpsData)
     .reduce((sum, partialBpsData = 0) => sum + parseFloat(partialBpsData), 0);

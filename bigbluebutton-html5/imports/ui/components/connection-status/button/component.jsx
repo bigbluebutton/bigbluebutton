@@ -5,8 +5,7 @@ import ConnectionStatusModalContainer from '/imports/ui/components/connection-st
 import ConnectionStatusService from '/imports/ui/components/connection-status/service';
 import Icon from '/imports/ui/components/connection-status/icon/component';
 import Styled from './styles';
-import Auth from '/imports/ui/services/auth';
-import deviceInfo, { isMobile } from '/imports/utils/deviceInfo';
+import { isMobile } from '/imports/utils/deviceInfo';
 
 const intlMessages = defineMessages({
   label: {
@@ -24,7 +23,8 @@ class ConnectionStatusButton extends PureComponent {
     super(props);
     this.state = {
       isModalOpen: false,
-    }
+    };
+    this.setModalIsOpen = this.setModalIsOpen.bind(this);
   }
 
   renderIcon(level = 'normal') {
@@ -38,19 +38,17 @@ class ConnectionStatusButton extends PureComponent {
     );
   }
 
-  setModalIsOpen = (isOpen) => this.setState({ isModalOpen: isOpen });
+  setModalIsOpen(isOpen) {
+    this.setState({ isModalOpen: isOpen });
+  }
 
   renderModal(isModalOpen) {
-    const { logMediaStats, monitoringInterval } = this.props;
-
     return (
-      (isModalOpen || logMediaStats) ?
+      (isModalOpen) ?
         <ConnectionStatusModalContainer
           {...{
             isModalOpen,
             setModalIsOpen: this.setModalIsOpen,
-            logMediaStats,
-            monitoringInterval,
           }}
         /> : null
     )

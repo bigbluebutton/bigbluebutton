@@ -1,15 +1,8 @@
 import { defineMessages } from 'react-intl';
-import { makeVar } from '@apollo/client';
-import Auth from '/imports/ui/services/auth';
 import Session from '/imports/ui/services/storage/in-memory';
 import { notify } from '/imports/ui/services/notification';
-import AudioService from '/imports/ui/components/audio/service';
-import ScreenshareService from '/imports/ui/components/screenshare/service';
-import VideoService from '/imports/ui/components/video-provider/service';
-import connectionStatus from '../../core/graphql/singletons/connectionStatus';
 import getStatus from '../../core/utils/getStatus';
-import { getDataType, addExtraInboundNetworkParameters } from '/imports/utils/stats';
-import logger from '/imports/startup/client/logger';
+import { getDataType } from '/imports/utils/stats';
 
 const intlMessages = defineMessages({
   saved: {
@@ -22,18 +15,6 @@ const intlMessages = defineMessages({
   },
 });
 
-export const NETWORK_MONITORING_INTERVAL_MS = 2000;
-
-export const LOG_MEDIA_STATS = () => (
-  window.meetingClientSettings.public.stats.logMediaStats.enabled);
-
-export const LOG_MONITORING_INTERVAL = () => (
-  window.meetingClientSettings.public.stats.logMediaStats.interval);
-
-export const lastLevel = makeVar();
-
-let monitoringInterval = null;
-
 export const URL_REGEX = new RegExp(/^(http|https):\/\/[^ "]+$/);
 export const getHelp = () => {
   const STATS = window.meetingClientSettings.public.stats;
@@ -41,33 +22,6 @@ export const getHelp = () => {
   if (URL_REGEX.test(STATS.help)) return STATS.help;
 
   return null;
-};
-
-export const getStats = () => {
-  const STATS = window.meetingClientSettings.public.stats;
-  return STATS.level[lastLevel()];
-};
-
-export const handleAudioStatsEvent = (event) => {
-  const { detail } = event;
-
-  if (detail) {
-    const { loss } = detail;
-
-    // The stat provided by this event is the *INBOUND* packet loss fraction
-    // calculated manually by using the packetsLost and packetsReceived metrics.
-    // It uses a 5 probe wide window - so roughly a 10 seconds period with a 2
-    // seconds interval between captures.
-    //
-    // This metric is DIFFERENT from the one used in the connection status modal
-    // (see the network data object in this file). The network data one is an
-    // absolute counter of INBOUND packets lost - and it *SHOULD NOT* be used to
-    // determine alert triggers
-    connectionStatus.setPacketLossFraction(loss);
-    connectionStatus.setPacketLossStatus(
-      getStatus(window.meetingClientSettings.public.stats.loss, loss),
-    );
-  }
 };
 
 export const sortLevel = (a, b) => {
@@ -113,77 +67,6 @@ export const notification = (level, intl) => {
 
   if (intl) notify(intl.formatMessage(intlMessages.notification), level, 'warning');
   return null;
-};
-
-/**
- * Retrieves the inbound and outbound data using WebRTC getStats API, for audio.
- * @returns An Object with format (property:type) :
- *   {
- *     transportStats: Object,
- *     inbound-rtp: RTCInboundRtpStreamStats,
- *     outbound-rtp: RTCOutboundRtpStreamStats,
- *   }
- * For more information see:
- * https://www.w3.org/TR/webrtc-stats/#dom-rtcinboundrtpstreamstats
- * and
- * https://www.w3.org/TR/webrtc-stats/#dom-rtcoutboundrtpstreamstats
- */
-export const getAudioData = async () => {
-  const data = await AudioService.getStats();
-
-  if (!data) return {};
-
-  addExtraInboundNetworkParameters(data);
-
-  return data;
-};
-
-/**
- * Retrieves the inbound and outbound data using WebRTC getStats API, for video.
- * The video stats contains the stats about all video peers (cameras) and
- * for screenshare peer appended into one single object, containing the id
- * of the peers with it's stats information.
- * @returns An Object containing video data for all video peers and screenshare
- *          peer
- */
-export const getVideoData = async () => {
-  const camerasData = await VideoService.getStats() || {};
-
-  const screenshareData = await ScreenshareService.getStats() || {};
-
-  return {
-    ...camerasData,
-    ...screenshareData,
-  };
-};
-
-/**
- * Get the user, audio and video data from current active streams.
- * For audio, this will get information about the mic/listen-only stream.
- * @returns An Object containing all this data.
- */
-export const getNetworkData = async () => {
-  const audio = await getAudioData();
-
-  const video = await getVideoData();
-
-  const user = {
-    time: new Date(),
-    username: Auth.username,
-    meeting_name: Auth.confname,
-    meeting_id: Auth.meetingID,
-    connection_id: Auth.connectionID,
-    user_id: Auth.userID,
-    extern_user_id: Auth.externUserID,
-  };
-
-  const fullData = {
-    user,
-    audio,
-    video,
-  };
-
-  return fullData;
 };
 
 /**
@@ -318,107 +201,6 @@ export const sortConnectionData = (connectionData) => connectionData
   .sort(sortLevel)
   .sort(sortOnline);
 
-export const stopMonitoringNetwork = () => {
-  clearInterval(monitoringInterval);
-  monitoringInterval = null;
-  // Reset the network data so that we don't show old data by accident if the
-  // monitoring is started again later.
-  connectionStatus.setNetworkData({
-    ready: false,
-    audio: {
-      audioCurrentUploadRate: 0,
-      audioCurrentDownloadRate: 0,
-      jitter: 0,
-      packetsLost: 0,
-      transportStats: {},
-    },
-    video: {
-      videoCurrentUploadRate: 0,
-      videoCurrentDownloadRate: 0,
-    },
-  });
-};
-
-/**
-   * Start monitoring the network data.
-   * @return {Promise} A Promise that resolves when process started.
-   */
-export async function startMonitoringNetwork(isConnectionStatusModalOpen = false) {
-  // Reset the monitoring interval if it's already running
-  if (monitoringInterval) stopMonitoringNetwork();
-
-  const interval = isConnectionStatusModalOpen
-    ? NETWORK_MONITORING_INTERVAL_MS
-    : LOG_MONITORING_INTERVAL();
-
-  let previousData = await getNetworkData();
-
-  monitoringInterval = setInterval(async () => {
-    const data = await getNetworkData();
-
-    const {
-      outbound: audioCurrentUploadRate,
-      inbound: audioCurrentDownloadRate,
-    } = calculateBitsPerSecond(data.audio, previousData.audio);
-
-    const inboundRtp = getDataType(data.audio, 'inbound-rtp')[0];
-
-    const jitter = inboundRtp
-      ? inboundRtp.jitterBufferAverage
-      : 0;
-
-    const packetsLost = inboundRtp
-      ? inboundRtp.packetsLost
-      : 0;
-
-    const audio = {
-      audioCurrentUploadRate,
-      audioCurrentDownloadRate,
-      jitter,
-      packetsLost,
-      transportStats: data.audio?.transportStats || {},
-    };
-
-    const {
-      outbound: videoCurrentUploadRate,
-      inbound: videoCurrentDownloadRate,
-    } = calculateBitsPerSecondFromMultipleData(data.video,
-      previousData.video);
-
-    const video = {
-      videoCurrentUploadRate,
-      videoCurrentDownloadRate,
-      screenshareTransportStats: data.video?.screenshareStats?.transportStats || {},
-    };
-
-    const { user } = data;
-
-    const networkData = {
-      ready: true,
-      user,
-      audio,
-      video,
-    };
-
-    previousData = data;
-
-    connectionStatus.setNetworkData(networkData);
-
-    const shouldLogMediaStats = LOG_MEDIA_STATS() && !isConnectionStatusModalOpen &&
-      (Object.keys(audio).length > 0 || Object.keys(video).length > 0);
-
-    if (shouldLogMediaStats) {
-      logger.info({
-        logCode: 'media_stats',
-        extraInfo: {
-          audio,
-          video,
-        },
-      }, 'Media stats');
-    }
-  }, interval);
-}
-
 export function getWorstStatus(statuses) {
   const statusOrder = {
     normal: 0,
@@ -439,19 +221,13 @@ export function getWorstStatus(statuses) {
 }
 
 export default {
-  LOG_MEDIA_STATS,
-  LOG_MONITORING_INTERVAL,
-  getStats,
   getHelp,
   isEnabled,
   notification,
-  getNetworkData,
   calculateBitsPerSecond,
   calculateBitsPerSecondFromMultipleData,
   getDataType,
   sortConnectionData,
-  startMonitoringNetwork,
-  stopMonitoringNetwork,
   getStatus,
   getWorstStatus,
 };

@@ -6,7 +6,6 @@ import logger from '/imports/startup/client/logger';
 import { notify } from '/imports/ui/services/notification';
 import playAndRetry from '/imports/utils/mediaElementPlayRetry';
 import {
-  monitorAudioConnection,
   getRTCStatsLogMetadata,
 } from '/imports/utils/stats';
 import browserInfo from '/imports/utils/browserInfo';
@@ -97,7 +96,6 @@ class AudioManager {
     this._voiceActivityObserver = null;
 
     this.handlePlayElementFailed = this.handlePlayElementFailed.bind(this);
-    this.monitor = this.monitor.bind(this);
     this.isUsingAudio = this.isUsingAudio.bind(this);
     this.callStateCallback = this.callStateCallback.bind(this);
     this.onBeforeUnload = this.onBeforeUnload.bind(this);
@@ -690,7 +688,6 @@ class AudioManager {
   onAudioJoin() {
     this.isConnected = true;
     this.isConnecting = false;
-    const STATS = window.meetingClientSettings.public.stats;
 
     try {
       if (!this.isListenOnly) {
@@ -753,7 +750,6 @@ class AudioManager {
           },
         }, 'Audio Joined');
       });
-      if (STATS.enabled) this.monitor();
       this.audioEventHandler({
         name: 'started',
         isListenOnly: this.isListenOnly,
@@ -1103,11 +1099,6 @@ class AudioManager {
     const audioIcon = this.isListenOnly ? 'listen' : icon;
 
     notify(message, error ? 'error' : 'info', audioIcon);
-  }
-
-  monitor() {
-    const peer = this.bridge.getPeerConnection();
-    monitorAudioConnection(peer);
   }
 
   handleAllowAutoplay() {

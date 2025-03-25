@@ -221,13 +221,18 @@ export default class BaseAudioBridge {
   * `audioStats`.
   *
   */
-  async parseStats(stats, peer) {
+  async parseStats(stats, peer = undefined) {
     let transportStats = {};
     const audioStats = {};
 
     stats.forEach((stat) => {
-      if (FILTER_AUDIO_STATS.includes(stat.type) && (!stat.kind || stat.kind === 'audio')) {
-        audioStats[stat.id] = stat;
+      const {
+        id,
+        type,
+        kind,
+      } = stat;
+      if (FILTER_AUDIO_STATS.includes(type) && (!kind || kind === 'audio')) {
+        audioStats[id] = stat;
       }
     });
 
