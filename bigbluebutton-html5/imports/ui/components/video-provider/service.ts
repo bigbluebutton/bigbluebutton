@@ -546,7 +546,7 @@ class VideoService {
       }, `Failed to get LiveKit video stats: ${(error as Error).message}`);
     }
 
-    return stats;
+    return Object.keys(stats).length === 0 ? null : stats;
   }
 
   static async startVirtualBackground(

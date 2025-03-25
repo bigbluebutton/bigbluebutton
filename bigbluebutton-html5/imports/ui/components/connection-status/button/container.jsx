@@ -2,7 +2,7 @@ import React from 'react';
 import { useReactiveVar } from '@apollo/client';
 import ConnectionStatusButtonComponent from './component';
 import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
-import { getWorstStatus, LOG_MEDIA_STATS } from '../service';
+import { getWorstStatus } from '../service';
 
 const ConnectionStatusButtonContainer = (props) => {
   const connected = useReactiveVar(connectionStatus.getConnectedStatusVar());
@@ -20,7 +20,6 @@ const ConnectionStatusButtonContainer = (props) => {
     <ConnectionStatusButtonComponent
       myCurrentStatus={myCurrentStatus}
       connected={connected}
-      logMediaStats={LOG_MEDIA_STATS()}
       {...props}
     />
   );

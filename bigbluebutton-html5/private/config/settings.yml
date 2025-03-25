@@ -967,6 +967,7 @@ public:
     enabled: true
     interval: 10000
     timeout: 10000
+    probes: 5 
     # Server-side stats event logging. Everytime a connection status event update
     # is received by Meteor, it'll be logged *by the server*.
     log: true
@@ -974,9 +975,10 @@ public:
     # WebRTC stats information to the configured logging transports.
     # Disabled by default. This log is verbose and may incur in additional network
     # usage if external logging targets are configured.
+    # The effective stats logging frequency is determined by the ratio of
+    # stats.interval to stats.probesd (interval / probes).
     logMediaStats:
       enabled: false
-      interval: 30000
     notification:
       warning: false
       error: true

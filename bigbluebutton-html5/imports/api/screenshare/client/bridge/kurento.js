@@ -131,12 +131,13 @@ export default class KurentoScreenshareBridge {
       stats: peerStats,
       peer,
       bridgeName: BRIDGE_NAME,
+      role: this.role,
     });
   }
 
   async getStatsLogData() {
     try {
-      const { screenshareStats } = await this.getStats();
+      const screenshareStats = await this.getStats();
 
       return getRTCStatsLogMetadata(screenshareStats);
     } catch (error) {

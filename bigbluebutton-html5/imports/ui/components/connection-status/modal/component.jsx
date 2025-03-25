@@ -9,7 +9,6 @@ import Styled from './styles';
 import ConnectionStatusHelper from '../status-helper/component';
 import Auth from '/imports/ui/services/auth';
 import connectionStatus from '../../../core/graphql/singletons/connectionStatus';
-import logger from '/imports/startup/client/logger';
 
 const MIN_TIMEOUT = 3000;
 
@@ -149,14 +148,12 @@ const propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
-  startMonitoringNetwork: PropTypes.func.isRequired,
-  stopMonitoringNetwork: PropTypes.func.isRequired,
   networkData: PropTypes.shape({
     ready: PropTypes.bool,
     audio: PropTypes.shape({
       audioCurrentUploadRate: PropTypes.number,
       audioCurrentDownloadRate: PropTypes.number,
-      jitter: PropTypes.number,
+      jitter: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
       packetsLost: PropTypes.number,
       transportStats: PropTypes.shape({
         isUsingTurn: PropTypes.bool,
@@ -202,37 +199,8 @@ class ConnectionStatusComponent extends PureComponent {
     this.handleSelectTab = this.handleSelectTab.bind(this);
   }
 
-  async componentDidMount() {
-    const { startMonitoringNetwork, isModalOpen } = this.props;
-
-    try {
-      await startMonitoringNetwork(isModalOpen);
-    } catch (error) {
-      logger.warn({
-        logCode: 'stats_monitor_network_error',
-        extraInfo: {
-          errorMessage: error?.message,
-          errorStack: error?.stack,
-        },
-      }, 'Failed to start monitoring network');
-    }
-  }
-
-  componentDidUpdate(prevProps) {
-    const { isModalOpen, startMonitoringNetwork } = this.props;
-
-    // If the modal changed open state, we should re-start network monitoring
-    // with the appropriate interval
-    if (prevProps.isModalOpen !== isModalOpen) {
-      startMonitoringNetwork(isModalOpen);
-    }
-  }
-
   componentWillUnmount() {
-    const { stopMonitoringNetwork } = this.props;
-
     clearTimeout(this.copyNetworkDataTimeout);
-    stopMonitoringNetwork();
   }
 
   handleSelectTab(tab) {
