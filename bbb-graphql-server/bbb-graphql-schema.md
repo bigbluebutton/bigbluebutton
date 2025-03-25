@@ -807,10 +807,8 @@ Permission: Restricted to Moderators
 
 ## Type: meeting_clientPluginSettings
 ### Fields:
-- `dataChannels`
 - `name`
 - `settings`
-- `url`
 
 ## Type: pollUserCurrent
 Permission: Restricted to User Viewing Self-Related Data

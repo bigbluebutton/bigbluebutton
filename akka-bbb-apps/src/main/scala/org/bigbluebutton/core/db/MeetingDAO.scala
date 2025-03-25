@@ -161,7 +161,7 @@ object MeetingDAO {
     MeetingBreakoutDAO.insert(meetingProps.meetingProp.intId, meetingProps.breakoutProps)
     LayoutDAO.insert(meetingProps.meetingProp.intId, meetingProps.usersProp.meetingLayout)
     MeetingClientSettingsDAO.insert(meetingProps.meetingProp.intId, JsonUtils.mapToJson(clientSettings))
-    PluginModel.persistPluginsForClient(pluginProps, meetingProps.meetingProp.intId)
+    PluginModel.persistPluginsForClient(meetingProps.meetingProp.intId, pluginProps, clientSettings)
   }
 
   def updateMeetingDurationByParentMeeting(parentMeetingId: String, newDurationInSeconds: Int) = {
