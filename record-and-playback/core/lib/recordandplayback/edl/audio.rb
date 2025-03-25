@@ -121,6 +121,7 @@ module BigBlueButton
           f.write("ffconcat version 1.0\n") 
           segment_files.each do |segment|
             f.write("file #{segment[:file]}\n") 
+            f.write("duration #{ms_to_s(segment[:duration])}\n") 
           end
         end
 
@@ -177,9 +178,9 @@ module BigBlueButton
 
               # Build track label
               track_label = "t#{i}_#{idx}"
-              line = "[#{input_index}]#{FFMPEG_AFORMAT},apad"
-              line << ",atempo=#{speed},atrim=start=#{ms_to_s(audio_data[:timestamp])}" if speed != 1.0
-              line << ",asetpts=N[#{track_label}];"
+              line = "[#{input_index}]#{FFMPEG_AFORMAT},apad,asetpts=N"
+              line << ",atempo=#{speed}" if speed != 1.0
+              line << "[#{track_label}];"
               filter_lines << line
               track_labels << "[#{track_label}]"
               input_index += 1
