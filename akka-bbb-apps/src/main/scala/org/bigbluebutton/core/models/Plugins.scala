@@ -35,9 +35,8 @@ case class RemoteDataSource(
 
 case class PluginSettingTemplate(
     name: String,
-    label: String,
     required: Boolean,
-    settingType: String,
+    `type`: String,
 
 )
 
@@ -51,7 +50,7 @@ case class PluginManifestContent(
     eventPersistence:              Option[EventPersistence]             = None,
     dataChannels:                  Option[List[DataChannel]]            = None,
     remoteDataSources:             Option[List[RemoteDataSource]]       = None,
-    settingsTemplate:              Option[List[PluginSettingTemplate]]  = None,
+    settingsValidator:             Option[List[PluginSettingTemplate]]  = None,
 )
 
 case class PluginManifest(
@@ -125,6 +124,7 @@ object PluginModel {
   def getSettingType(settingValue: Option[Any]): String = {
     settingValue match {
       case Some(_: Int)=> "int"
+      case Some(_: Float)=> "float"
       case Some(_: String) => "string"
       case Some(_: Boolean) => "boolean"
       case Some(_: Map[String, Object]) => "json"
@@ -138,8 +138,8 @@ object PluginModel {
       val plugin = mapItem._2
       logger.info("Validating settings for plugin {}", plugin.manifest.content.name)
       // Checking for pre-defined templates in manifest.json
-      plugin.manifest.content.settingsTemplate match {
-        case Some(settingsTemplateList: List[PluginSettingTemplate]) =>
+      plugin.manifest.content.settingsValidator match {
+        case Some(settingsValidatorList: List[PluginSettingTemplate]) =>
           // Found template check for plugin, now fetch settings value from clientSettings.
           val pluginSettingsValues: Map[String, Object] = pluginSettings.get(plugin.manifest.content.name) match {
             case Some(settingsValues) =>
@@ -148,15 +148,15 @@ object PluginModel {
               logger.warn("Plugin {} with URL {} hasn't provided any setting", plugin.manifest.content.name, plugin.manifest.url)
               null
           }
-          settingsTemplateList.forall(settingTemplate =>
+          settingsValidatorList.forall(settingTemplate =>
             // If template setting is not required, skip it
             if (settingTemplate.required) {
               if (pluginSettingsValues != null) {
                 val settingTypeFound = getSettingType(
                   pluginSettingsValues.get(settingTemplate.name))
-                val settingTypeMatch = settingTemplate.settingType == settingTypeFound
+                val settingTypeMatch = settingTemplate.`type` == settingTypeFound
                 if (!settingTypeMatch) logger.error("Type mismatch in setting {} for plugin {}. Required {}, but got {}",
-                  settingTemplate.name, plugin.manifest.content.name, settingTemplate.settingType, settingTypeFound)
+                  settingTemplate.name, plugin.manifest.content.name, settingTemplate.`type`, settingTypeFound)
                 settingTypeMatch
               } else {
                 logger.error(
