@@ -156,6 +156,12 @@ const GlobalStyle = createGlobalStyle`
       left: none !important;
     }
   }
+  [data-darkreader-scheme="dark"] button[data-testid="mobile.styles"] {
+    & > div.tlui-icon {
+      color: ${colorWhite};
+    }
+    
+  }
 `;
 
 export default GlobalStyle;
