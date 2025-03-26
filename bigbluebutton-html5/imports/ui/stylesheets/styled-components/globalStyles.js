@@ -160,7 +160,7 @@ const GlobalStyle = createGlobalStyle`
     & > div.tlui-icon {
       color: ${colorWhite};
     }
-    
+  }
   button[data-testid="tools.more.asset"] {
     display: none;
   }
