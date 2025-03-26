@@ -95,6 +95,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="svgResolutionPpi" value="${svgPresentationResolutionPpi}"/>
         <property name="forceRasterizeSlides" value="${forceRasterizeSlides}"/>
         <property name="pngWidthRasterizedSlides" value="${pngWidthRasterizedSlides}"/>
+        <property name="imageResizer" ref="imageResizer"/>
+        <property name="maxSvgWidth" value="${maxSvgWidth}"/>
+        <property name="maxSvgHeight" value="${maxSvgHeight}"/>
     </bean>
 
     <bean id="generatedSlidesInfoHelper" class="org.bigbluebutton.presentation.GeneratedSlidesInfoHelperImp"/>

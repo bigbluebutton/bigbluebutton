@@ -18,6 +18,7 @@
 
 package org.bigbluebutton.presentation.imp;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
@@ -41,6 +42,27 @@ public class ImageResizerImp implements ImageResizer {
         log.debug("Rescaling file {} with {} ratio", pres.getUploadedFile().getAbsolutePath(), ratio);
         NuProcessBuilder imgResize = new NuProcessBuilder(Arrays.asList("convert", "-resize", ratio,
                 pres.getUploadedFile().getAbsolutePath(), pres.getUploadedFile().getAbsolutePath()));
+
+        ImageResizerHandler pHandler = new ImageResizerHandler();
+        imgResize.setProcessListener(pHandler);
+
+        NuProcess process = imgResize.start();
+        try {
+            process.waitFor(wait, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            log.error(e.getMessage());
+            conversionSuccess = false;
+        }
+
+        return conversionSuccess;
+    }
+
+    public boolean resize(File image, String ratio) {
+        Boolean conversionSuccess = true;
+
+        log.debug("Rescaling file {} with {} ratio", image.getAbsolutePath(), ratio);
+        NuProcessBuilder imgResize = new NuProcessBuilder(Arrays.asList("convert", "-resize", ratio,
+                image.getAbsolutePath(), image.getAbsolutePath()));
 
         ImageResizerHandler pHandler = new ImageResizerHandler();
         imgResize.setProcessListener(pHandler);

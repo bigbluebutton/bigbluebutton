@@ -7,10 +7,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.io.FileUtils;
-import org.bigbluebutton.presentation.ImageResolution;
-import org.bigbluebutton.presentation.SupportedFileTypes;
-import org.bigbluebutton.presentation.SvgImageCreator;
-import org.bigbluebutton.presentation.UploadedPresentation;
+import org.bigbluebutton.presentation.*;
 import org.bigbluebutton.presentation.handlers.AddNamespaceToSvgHandler;
 import org.bigbluebutton.presentation.handlers.Pdf2PngPageConverterHandler;
 import org.bigbluebutton.presentation.handlers.Png2SvgConversionHandler;
@@ -36,6 +33,10 @@ public class SvgImageCreatorImp implements SvgImageCreator {
     private int pngWidthRasterizedSlides = 2048;
 	private String BLANK_SVG;
     private int maxNumberOfAttempts = 3;
+
+    private ImageResizer imageResizer;
+    private int maxSvgWidth = 1440;
+    private int maxSvgHeight = 1080;
 
     @Override
     public boolean createSvgImage(UploadedPresentation pres, int page) throws TimeoutException{
@@ -261,6 +262,13 @@ public class SvgImageCreatorImp implements SvgImageCreator {
                             height = imageResolution.getHeight();
                         }
 
+                        if(imageResolution.getWidth() > maxSvgWidth || imageResolution.getHeight() > maxSvgHeight) {
+                            log.info("The image exceeds max dimension allowed, it will be resized.");
+                            imageResizer.resize(tempPng, maxSvgWidth + "x" + maxSvgHeight);
+                            width = maxSvgWidth;
+                            height = maxSvgHeight;
+                        }
+
                         String svg = createSvgWithEmbeddedPng(base64encodedPng, width, height);
                         try (FileWriter writer = new FileWriter(destsvg)) {
                             writer.write(svg);
@@ -438,4 +446,8 @@ public class SvgImageCreatorImp implements SvgImageCreator {
     public void setPngWidthRasterizedSlides(int pngWidthRasterizedSlides) {
         this.pngWidthRasterizedSlides = pngWidthRasterizedSlides;
     }
+
+    public void setMaxSvgWidth(int maxSvgWidth) { this.maxSvgWidth = maxSvgWidth; }
+    public void setMaxSvgHeight(int maxSvgHeight) { this.maxSvgHeight = maxSvgHeight; }
+    public void setImageResizer(ImageResizer imageResizer) { this.imageResizer = imageResizer; }
 }
