@@ -309,6 +309,11 @@ class Page {
     await expect(locator, description).toHaveCount(count, { timeout: ELEMENT_WAIT_TIME });
   }
 
+  async hasHiddenElementCount(selector, count, description) {
+    const locator = await this.getLocator(selector);
+    await expect(locator, description).toHaveCount(count, { timeout: ELEMENT_WAIT_TIME });
+  }
+
   async hasValue(selector, value, description) {
     const locator = await this.page.locator(selector);
     await expect(locator, description).toHaveValue(value);

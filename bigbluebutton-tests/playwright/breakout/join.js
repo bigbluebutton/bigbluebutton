@@ -266,9 +266,9 @@ class Join extends Create {
 
     await this.userPage.hasElementEnabled(e.selectBreakoutRoomBtn);
     await this.userPage.hasElementEnabled(e.modalConfirmButton);
-    await this.userPage.hasElementCount(e.roomOption, 2);
+    await this.userPage.hasHiddenElementCount(e.roomOption, 2);
 
-    await this.userPage.getLocator(`${e.fullscreenModal} >> select`).selectOption({index: 1});
+    await this.userPage.getLocator(e.selectBreakoutRoomBtn).selectOption({index: 1});
     await this.userPage.waitAndClick(e.modalConfirmButton);
 
     const breakoutUserPage = await this.userPage.getLastTargetPage(this.context);
