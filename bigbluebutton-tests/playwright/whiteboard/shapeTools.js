@@ -3,6 +3,8 @@ const e = require('../core/elements');
 const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 const { DrawShape } = require('./drawShape');
 const { snapshotComparison } = require('./util');
+const { skipSlide } = require('../presentation/util');
+const { sleep } = require('../core/helpers');
 
 class ShapeTools extends DrawShape {
   constructor(browser, context) {
@@ -14,7 +16,15 @@ class ShapeTools extends DrawShape {
     await this.userPage.waitForSelector(e.whiteboard);
     await this.modPage.waitForSelector(e.resetZoomButton);
     const modWbLocator = this.modPage.getLocator(e.whiteboard);
-    const wbBox = await modWbLocator.boundingBox();
+    // skip slide (blank slide)
+    await skipSlide(this.modPage);
+    // draw line
+    await this.modPage.waitAndClick(e.wbShapesButton);
+    await this.modPage.waitAndClick(e.wbLineShape);
+    await this.drawShapeMiddleSlide();
+    // check if the line was drawn
+    await this.modPage.hasElement(e.wbDrawnLine, 'should display the drawn shape for the moderator');
+    await this.userPage.hasElement(e.wbDrawnLine, 'should display the drawn shape for the viewer');
     const zoomResetBtn = this.modPage.getLocator(e.resetZoomButton);
     // zoom in until 200%
     for(let i = 100; i < 200; i += 25) {
@@ -25,9 +35,8 @@ class ShapeTools extends DrawShape {
     // pan the whiteboard
     await this.modPage.waitAndClick(e.wbHandButton);
     await this.drawShapeMiddleSlide();
+    await sleep(1500);  // wait for the whiteboard to be panned
     // check if the whiteboard was panned
-    await this.modPage.setHeightWidthViewPortSize();
-    await this.userPage.setHeightWidthViewPortSize();
     await expect(this.modPage.page).toHaveScreenshot('moderator-pan.png', {
       mask: [this.modPage.getLocator(e.presentationTitle)],
       maxDiffPixels: 1000,
