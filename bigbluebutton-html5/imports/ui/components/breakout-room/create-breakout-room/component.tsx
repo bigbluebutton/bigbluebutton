@@ -244,7 +244,7 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
   // @ts-ignore
   const BREAKOUT_SETTINGS = window.meetingClientSettings.public.app.breakouts;
 
-  const { allowUserChooseRoomByDefault, recordRoomByDefault } = BREAKOUT_SETTINGS;
+  const { allowUserChooseRoomByDefault, recordRoomByDefault, offerRecordingForBreakouts } = BREAKOUT_SETTINGS;
   const captureWhiteboardByDefault = BREAKOUT_SETTINGS.captureWhiteboardByDefault
                                     && isImportPresentationWithAnnotationsEnabled;
   const captureSharedNotesByDefault = BREAKOUT_SETTINGS.captureSharedNotesByDefault
@@ -382,7 +382,7 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
         label: intl.formatMessage(intlMessages.freeJoinLabel),
       },
       {
-        allowed: isBreakoutRecordable,
+        allowed: isBreakoutRecordable && offerRecordingForBreakouts,
         checked: record,
         htmlFor: 'recordBreakoutCheckbox',
         key: 'record-breakouts',

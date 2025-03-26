@@ -138,6 +138,7 @@ public:
     # this value to be kept under 16.
     breakouts:
       allowUserChooseRoomByDefault: false
+      offerRecordingForBreakouts: false
       recordRoomByDefault: false
       captureWhiteboardByDefault: false
       captureSharedNotesByDefault: false

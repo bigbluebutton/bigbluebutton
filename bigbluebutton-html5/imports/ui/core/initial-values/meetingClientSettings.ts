@@ -91,6 +91,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       enableDebugWindow: true,
       breakouts: {
         allowUserChooseRoomByDefault: false,
+        offerRecordingForBreakouts: false,
         recordRoomByDefault: false,
         captureWhiteboardByDefault: false,
         captureSharedNotesByDefault: false,
