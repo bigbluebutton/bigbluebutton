@@ -65,7 +65,6 @@ const PresentationTitle = styled.h1`
   & span i {
     margin-left: .5rem;
     margin-right: .5rem;
-    font-size: .75rem;
   }
 `;
 

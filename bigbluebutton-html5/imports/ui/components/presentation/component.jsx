@@ -4,14 +4,12 @@ import WhiteboardContainer from '/imports/ui/components/whiteboard/container';
 import { HUNDRED_PERCENT, MAX_PERCENT, MIN_PERCENT } from '/imports/utils/slideCalcUtils';
 import { SPACE } from '/imports/utils/keyCodes';
 import { defineMessages, injectIntl } from 'react-intl';
-import { toast } from 'react-toastify';
 import Session from '/imports/ui/services/storage/in-memory';
 import PresentationToolbarContainer from './presentation-toolbar/container';
 import PresentationMenu from './presentation-menu/container';
 import DownloadPresentationButton from './download-presentation-button/component';
 import Styled from './styles';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
-import Icon from '/imports/ui/components/common/icon/component';
 import PollingContainer from '/imports/ui/components/polling/container';
 import { ACTIONS, LAYOUT_TYPE } from '../layout/enums';
 import DEFAULT_VALUES from '../layout/defaultValues';
@@ -28,10 +26,6 @@ const intlMessages = defineMessages({
   presentationLabel: {
     id: 'app.presentationUploder.title',
     description: 'presentation area element label',
-  },
-  changeNotification: {
-    id: 'app.presentation.notificationLabel',
-    description: 'label displayed in toast when presentation switches',
   },
   downloadLabel: {
     id: 'app.presentation.downloadLabel',
@@ -110,7 +104,6 @@ class Presentation extends PureComponent {
     this.renderPresentationMenu = this.renderPresentationMenu.bind(this);
 
     this.onResize = () => setTimeout(this.handleResize.bind(this), 0);
-    this.renderCurrentPresentationToast = this.renderCurrentPresentationToast.bind(this);
     this.setPresentationRef = this.setPresentationRef.bind(this);
     this.setTldrawIsMounting = this.setTldrawIsMounting.bind(this);
     Session.setItem('componentPresentationWillUnmount', false);
@@ -224,7 +217,6 @@ class Presentation extends PureComponent {
       currentPresentationId,
       fitToWidth,
       isDefaultPresentation,
-      presentationIsDownloadable,
       setPresentationFitToWidth,
     } = this.props;
     const {
@@ -262,46 +254,6 @@ class Presentation extends PureComponent {
           0: currentSlide.num,
         }),
       );
-    }
-
-    if (currentPresentationId) {
-      const downloadableOn = !prevProps?.presentationIsDownloadable && presentationIsDownloadable;
-
-      const shouldCloseToast = !(
-        presentationIsDownloadable && !userIsPresenter
-      );
-
-      if (
-        prevProps?.currentPresentationId !== currentPresentationId
-        || (downloadableOn && !userIsPresenter)
-      ) {
-        if (toast.isActive(this.currentPresentationToastId)) {
-          toast.update(this.currentPresentationToastId, {
-            autoClose: shouldCloseToast,
-            render: this.renderCurrentPresentationToast(),
-          });
-        } else {
-          toast(
-            this.renderCurrentPresentationToast(),
-            {
-              autoClose: shouldCloseToast,
-              className: 'toastClass actionToast currentPresentationToast',
-              bodyClassName: 'toastBodyClass',
-              progressClassName: 'toastProgressClass',
-              toastId: this.currentPresentationToastId,
-            },
-          );
-        }
-      }
-
-      const downloadableOff = prevProps?.presentationIsDownloadable && !presentationIsDownloadable;
-
-      if (toast.isActive(this.currentPresentationToastId) && downloadableOff) {
-        toast.update(this.currentPresentationToastId, {
-          autoClose: true,
-          render: this.renderCurrentPresentationToast(),
-        });
-      }
     }
 
     if (prevProps?.slidePosition && slidePosition) {
@@ -677,48 +629,6 @@ class Presentation extends PureComponent {
     );
   }
 
-  renderCurrentPresentationToast() {
-    const {
-      intl,
-      userIsPresenter,
-      downloadPresentationUri,
-      presentationIsDownloadable,
-      presentationName,
-    } = this.props;
-
-    return (
-      <Styled.InnerToastWrapper data-test="currentPresentationToast">
-        <Styled.ToastIcon>
-          <Styled.IconWrapper>
-            <Icon iconName="presentation" />
-          </Styled.IconWrapper>
-        </Styled.ToastIcon>
-
-        <Styled.ToastTextContent data-test="toastSmallMsg">
-          <div>{`${intl.formatMessage(intlMessages.changeNotification)}`}</div>
-          <Styled.PresentationName>{`${presentationName}`}</Styled.PresentationName>
-        </Styled.ToastTextContent>
-
-        {presentationIsDownloadable && !userIsPresenter ? (
-          <Styled.ToastDownload>
-            <Styled.ToastSeparator />
-            <a
-              data-test="toastDownload"
-              aria-label={
-                `${intl.formatMessage(intlMessages.downloadLabel)} ${presentationName}`
-              }
-              href={downloadPresentationUri}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {intl.formatMessage(intlMessages.downloadLabel)}
-            </a>
-          </Styled.ToastDownload>
-        ) : null}
-      </Styled.InnerToastWrapper>
-    );
-  }
-
   renderPresentationDownload() {
     const { presentationIsDownloadable, downloadPresentationUri } = this.props;
 
@@ -904,24 +814,26 @@ class Presentation extends PureComponent {
                 <Styled.VisuallyHidden id="currentSlideText">
                   {slideContent}
                 </Styled.VisuallyHidden>
-                {((userIsPresenter || hasWBAccess) && (!tldrawIsMounting && presentationWidth > 0 && currentSlide)) && <Styled.ExtraTools {...{isToolbarVisible}}>
-                  <TooltipContainer title={intl?.messages["app.shortcut-help.undo"]}>
-                    <Styled.Button
-                      aria-label={intl?.messages["app.shortcut-help.undo"]}
-                      onClick={() => tldrawAPI?.undo()}
-                    >
-                      <img src={`${window.meetingClientSettings.public.app.basename}/svgs/tldraw/undo.svg`} width="20" height="20" />
-                    </Styled.Button>
-                  </TooltipContainer>
-                  <TooltipContainer title={intl?.messages["app.shortcut-help.redo"]}>
-                    <Styled.Button
-                      aria-label={intl?.messages["app.shortcut-help.redo"]}
-                      onClick={() => tldrawAPI?.redo()}
-                    >
-                      <img src={`${window.meetingClientSettings.public.app.basename}/svgs/tldraw/redo.svg`} width="20" height="20" />
-                    </Styled.Button>
-                  </TooltipContainer>
-                </Styled.ExtraTools>}
+                {((userIsPresenter || hasWBAccess) && (!tldrawIsMounting && presentationWidth > 0 && currentSlide)) && (
+                  <Styled.ExtraTools {...{ isToolbarVisible }}>
+                    <TooltipContainer title={intl?.messages['app.shortcut-help.undo']}>
+                      <Styled.Button
+                        aria-label={intl?.messages['app.shortcut-help.undo']}
+                        onClick={() => tldrawAPI?.undo()}
+                      >
+                        <img src={`${window.meetingClientSettings.public.app.basename}/svgs/tldraw/undo.svg`} width="20" height="20" />
+                      </Styled.Button>
+                    </TooltipContainer>
+                    <TooltipContainer title={intl?.messages['app.shortcut-help.redo']}>
+                      <Styled.Button
+                        aria-label={intl?.messages['app.shortcut-help.redo']}
+                        onClick={() => tldrawAPI?.redo()}
+                      >
+                        <img src={`${window.meetingClientSettings.public.app.basename}/svgs/tldraw/redo.svg`} width="20" height="20" />
+                      </Styled.Button>
+                    </TooltipContainer>
+                  </Styled.ExtraTools>
+                )}
                 {!tldrawIsMounting
                   && presentationWidth > 0
                   && currentSlide

@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import { defineMessages, injectIntl } from 'react-intl';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import { NavBarItemType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/nav-bar-item/enums';
@@ -14,7 +13,7 @@ import OptionsDropdownContainer from './options-dropdown/container';
 import TimerIndicatorContainer from '/imports/ui/components/timer/indicator/component';
 import browserInfo from '/imports/utils/browserInfo';
 import deviceInfo from '/imports/utils/deviceInfo';
-import { PANELS, ACTIONS, LAYOUT_TYPE } from '../layout/enums';
+import { ACTIONS, LAYOUT_TYPE } from '../layout/enums';
 import Button from '/imports/ui/components/common/button/component';
 import LeaveMeetingButtonContainer from './leave-meeting-button/container';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
@@ -177,15 +176,17 @@ class NavBar extends Component {
   }
 
   renderModal(isOpen, setIsOpen, priority, Component, otherOptions) {
-    return isOpen ? <Component
-      {...{
-        ...otherOptions,
-        onRequestClose: () => setIsOpen(false),
-        priority,
-        setIsOpen,
-        isOpen
-      }}
-    /> : null
+    return isOpen ? (
+      <Component
+        {...{
+          ...otherOptions,
+          onRequestClose: () => setIsOpen(false),
+          priority,
+          setIsOpen,
+          isOpen,
+        }}
+      />
+    ) : null;
   }
 
   componentDidMount() {
@@ -344,15 +345,15 @@ class NavBar extends Component {
                   tooltipplacement="right"
                   onClick={this.handleToggleUserList}
                   color={isPhone && isExpanded ? 'primary' : 'dark'}
-                  size='md'
+                  size="md"
                   circle
                   hideLabel
                   data-test={hasNotification ? 'hasUnreadMessages' : 'toggleUserList'}
                   label={intl.formatMessage(intlMessages.toggleUserListLabel)}
                   tooltipLabel={intl.formatMessage(intlMessages.toggleUserListLabel)}
                   aria-label={ariaLabel}
-                  icon={isExpanded ?
-                    (document.dir === 'rtl' ? 'right_arrow' : 'left_arrow')
+                  icon={isExpanded
+                    ? (document.dir === 'rtl' ? 'right_arrow' : 'left_arrow')
                     : (document.dir === 'rtl' ? 'left_arrow' : 'right_arrow')}
                   aria-expanded={isExpanded}
                   accessKey={TOGGLE_USERLIST_AK}
@@ -370,11 +371,11 @@ class NavBar extends Component {
                 <Tooltip title={intl.formatMessage(intlMessages.openDetailsTooltip)}>
                   <span>
                     {presentationTitle}
-                    <Icon iconName="device_list_selector" />
+                    <Icon iconName="device_list_selector" rotate />
                   </span>
                 </Tooltip>
               </Styled.PresentationTitle>
-              {this.renderModal(isModalOpen, this.setModalIsOpen, "low", SessionDetailsModal)}
+              {this.renderModal(isModalOpen, this.setModalIsOpen, 'low', SessionDetailsModal)}
               {renderPluginItems(centerPluginItems)}
             </Styled.Center>
             <Styled.Right>

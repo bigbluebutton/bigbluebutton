@@ -34,7 +34,7 @@ const Pad = styled.div`
   width: 100%;
 `;
 
-const IFrame = styled.iframe<{$amIPresenter: boolean}>`
+const IFrame = styled.iframe<{amIPresenter: boolean}>`
   width: 100%;
   height: auto;
   overflow: hidden;
