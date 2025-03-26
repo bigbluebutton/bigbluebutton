@@ -161,6 +161,8 @@ const GlobalStyle = createGlobalStyle`
       color: ${colorWhite};
     }
     
+  button[data-testid="tools.more.asset"] {
+    display: none;
   }
 `;
 
