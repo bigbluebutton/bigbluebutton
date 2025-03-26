@@ -37,32 +37,19 @@ public class ImageResizerImp implements ImageResizer {
     private int wait = 7;
 
     public boolean resize(UploadedPresentation pres, String ratio) {
-        Boolean conversionSuccess = true;
-
-        log.debug("Rescaling file {} with {} ratio", pres.getUploadedFile().getAbsolutePath(), ratio);
-        NuProcessBuilder imgResize = new NuProcessBuilder(Arrays.asList("convert", "-resize", ratio,
-                pres.getUploadedFile().getAbsolutePath(), pres.getUploadedFile().getAbsolutePath()));
-
-        ImageResizerHandler pHandler = new ImageResizerHandler();
-        imgResize.setProcessListener(pHandler);
-
-        NuProcess process = imgResize.start();
-        try {
-            process.waitFor(wait, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            log.error(e.getMessage());
-            conversionSuccess = false;
-        }
-
-        return conversionSuccess;
+        return resize(pres.getUploadedFile().getAbsolutePath(), ratio);
     }
 
     public boolean resize(File image, String ratio) {
+        return resize(image.getAbsolutePath(), ratio);
+    }
+
+    private boolean resize(String path, String ratio) {
         Boolean conversionSuccess = true;
 
-        log.debug("Rescaling file {} with {} ratio", image.getAbsolutePath(), ratio);
+        log.debug("Rescaling file {} with {} ratio", path, ratio);
         NuProcessBuilder imgResize = new NuProcessBuilder(Arrays.asList("convert", "-resize", ratio,
-                image.getAbsolutePath(), image.getAbsolutePath()));
+                path, path));
 
         ImageResizerHandler pHandler = new ImageResizerHandler();
         imgResize.setProcessListener(pHandler);
