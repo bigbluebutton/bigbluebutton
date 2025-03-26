@@ -45,7 +45,7 @@ class Create extends MultiUsers {
     await this.modPage.getLocator(e.selectNumberOfRooms).selectOption('7');
     await this.modPage.waitAndClick(e.modalConfirmButton, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.waitAndClick(e.breakoutRoomsItem);
-    await this.modPage.hasElementCount(e.userNameBreakoutRoom7, 1, 'should have one user on the breakout room number 7');
+    await this.modPage.hasElementCount(e.breakoutRoomItemOnManage, 7, 'should have 7 breakout rooms created');
   }
 
   async changeDurationTime() {
