@@ -127,8 +127,8 @@ if (env === prodEnv) {
   };
   config.performance = {
     hints: 'warning',
-    maxAssetSize: 8000000,
-    maxEntrypointSize: 8000000,
+    maxAssetSize: isSafariTarget ? 16000000 : 8000000,
+    maxEntrypointSize: isSafariTarget ? 16000000 : 8000000,
   };
 } else {
   config.mode = devEnv;
