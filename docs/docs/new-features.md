@@ -404,6 +404,11 @@ We improved the documentation for which types of files we support when uploading
 
 We have supported the option to mirror your own webcam while viewing it. Starting with BigBlueButton 3.0.0-beta.6 we mirror it by default (which leads to the same result you would expect if you looked yourself in a physical mirror).
 
+#### Feedback form removed
+
+We have removed the feedback form that used to be part of the client. It was relying on client logs to carry the information and was not particularly flexible. See https://github.com/bigbluebutton/bigbluebutton/pull/22111 for more information.
+A new repository was contributed by Mconf https://github.com/bigbluebutton/custom-feedback with a much more sophisticated feedback form.
+
 ### Development
 
 For information on developing in BigBlueButton, see [setting up a development environment for 3.0](/development/guide).
