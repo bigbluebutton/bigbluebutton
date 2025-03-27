@@ -156,14 +156,6 @@ const GlobalStyle = createGlobalStyle`
       left: none !important;
     }
   }
-  [data-darkreader-scheme="dark"] button[data-testid="mobile.styles"] {
-    & > div.tlui-icon {
-      color: ${colorWhite};
-    }
-  }
-  button[data-testid="tools.more.asset"] {
-    display: none;
-  }
 `;
 
 export default GlobalStyle;
