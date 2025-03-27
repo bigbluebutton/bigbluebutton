@@ -154,6 +154,7 @@ class App extends Component {
       currentUserAway,
       currentUserRaiseHand,
       intl,
+      fitToWidth,
     } = this.props;
 
     this.renderDarkMode();
@@ -173,6 +174,10 @@ class App extends Component {
         notify(intl.formatMessage(intlMessages.loweredHand), 'info', 'clear_status');
       }
     }
+
+    if (prevProps.fitToWidth !== fitToWidth) {
+      this.setState({ presentationFitToWidth: fitToWidth });
+    }
   }
 
   componentWillUnmount() {
@@ -184,6 +189,8 @@ class App extends Component {
   }
 
   setPresentationFitToWidth(presentationFitToWidth) {
+    const { handlePresentationFitToWidth } = this.props;
+    handlePresentationFitToWidth(presentationFitToWidth);
     this.setState({ presentationFitToWidth });
   }
 

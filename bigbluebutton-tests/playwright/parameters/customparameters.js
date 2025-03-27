@@ -150,8 +150,14 @@ class CustomParameters extends MultiUsers {
 
   async forceRestorePresentationOnNewEvents() {
     const { presentationHidden, pollEnabled } = getSettings();
-    if (!presentationHidden) await this.userPage.waitAndClick(e.minimizePresentation);
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    if (!presentationHidden) {
+      await this.userPage.waitForSelector(e.whiteboard);
+      await sleep(1000);  // wait for the whiteboard to be fully loaded and stable (zoom)
+      await this.userPage.waitAndClick(e.minimizePresentation);
+    }
     await this.userPage.wasRemoved(e.whiteboard, 'should remove the whiteboard element for the attendee when minimized');
+    await sleep(1000);  // first minimize of presentation takes longer to be fully applied
     // zoom in
     await this.modPage.waitAndClick(e.zoomInButton);
     await this.userPage.hasElement(e.whiteboard, 'should restore presentation when zooming in the slide');
@@ -163,10 +169,12 @@ class CustomParameters extends MultiUsers {
     await this.userPage.hasElement(e.minimizePresentation, 'should display the minimize presentation button when the presentation is restored');
     await this.userPage.waitAndClick(e.minimizePresentation);
     // publish polling
-    if (pollEnabled) await util.poll(this.modPage, this.userPage);
-    await this.userPage.hasElement(e.whiteboard, 'should restore presentation when a poll is posted');
-    await this.userPage.hasElement(e.minimizePresentation, 'should display the minimize presentation button when the presentation is restored');
-    await this.userPage.waitAndClick(e.minimizePresentation);
+    if (pollEnabled) {
+      await util.poll(this.modPage, this.userPage);
+      await this.userPage.hasElement(e.whiteboard, 'should restore presentation when a poll is posted');
+      await this.userPage.hasElement(e.minimizePresentation, 'should display the minimize presentation button when the presentation is restored');
+      await this.userPage.waitAndClick(e.minimizePresentation);
+    }
     // next slide
     await util.nextSlide(this.modPage);
     await this.userPage.hasElement(e.whiteboard, 'should restore presentation when going to the next slide');

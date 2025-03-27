@@ -402,6 +402,10 @@ object SetCurrentPresentationEvtMsg { val NAME = "SetCurrentPresentationEvtMsg" 
 case class SetCurrentPresentationEvtMsg(header: BbbClientMsgHeader, body: SetCurrentPresentationEvtMsgBody) extends BbbCoreMsg
 case class SetCurrentPresentationEvtMsgBody(podId: String, presentationId: String)
 
+object SetPresentationFitToWidthCmdMsg { val NAME = "SetPresentationFitToWidthCmdMsg"}
+case class SetPresentationFitToWidthCmdMsg(header: BbbClientMsgHeader, body: SetPresentationFitToWidthCmdMsgBody) extends StandardMsg
+case class SetPresentationFitToWidthCmdMsgBody(userId: String, pageId: String, fitToWidth: Boolean)
+
 // ------------ akka-apps to client ------------
 
 // ------------ akka-apps to bbb-common-web ------------

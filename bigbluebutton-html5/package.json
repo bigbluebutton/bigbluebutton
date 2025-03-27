@@ -4,7 +4,8 @@
   "license": "LGPL-3.0",
   "scripts": {
     "start": "NODE_ENV=development DETAILED_LOGS=true webpack serve --open --config webpack.config.js",
-    "build": "NODE_ENV=production webpack --config webpack.config.js --mode production",
+    "build": "NODE_ENV=production TARGET=default webpack --config webpack.config.js --mode production",
+    "build-safari": "NODE_ENV=production TARGET=safari webpack --config webpack.config.js --mode production",
     "tscheck": "tsc",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
@@ -33,8 +34,8 @@
   },
   "dependencies": {
     "@apollo/client": "^3.10.4",
-    "@babel/runtime": "^7.17.9",
-    "@bigbluebutton/tldraw": "^2.0.0-alpha.26",
+    "@babel/runtime": "^7.26.10",
+    "@bigbluebutton/tldraw": "^2.0.0-alpha.27",
     "@browser-bunyan/console-formatted-stream": "^1.8.0",
     "@browser-bunyan/console-raw-stream": "^1.8.0",
     "@browser-bunyan/levels": "^1.8.0",

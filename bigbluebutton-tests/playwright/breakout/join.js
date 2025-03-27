@@ -167,7 +167,8 @@ class Join extends Create {
     }
     // join room and type on the shared notes
     const breakoutUserPage = await this.joinRoom();
-    await breakoutUserPage.hasElement(e.presentationTitle, 'should display the presentation title inside the breakout room.');
+    await breakoutUserPage.hasElement(e.presentationTitle, 'should display the presentation title inside the breakout room');
+    await breakoutUserPage.waitForSelector(e.whiteboard);
     await breakoutUserPage.waitAndClick(e.sharedNotes);
     await breakoutUserPage.hasElement(e.hideNotesLabel, 'should display the hide notes element when shared notes is opened');
     const notesLocator = getNotesLocator(breakoutUserPage);
@@ -196,12 +197,11 @@ class Join extends Create {
     await this.modPage.checkElementCount(e.actionsItem, expectedActionItems.length);
     await shareNotesPDF.click();
     await hasCurrentPresentationToastElement(this.modPage, 'should display the current presentation toast when changing to the whiteboard exported file');
-    //! avoiding the following screenshot comparison due to https://github.com/microsoft/playwright/issues/18827
-    // TODO should be updated and use entire view page screenshot after https://github.com/bigbluebutton/bigbluebutton/issues/22160 is fixed
     // visual assertion
-    // await expect(this.modPage.page).toHaveScreenshot('capture-breakout-notes.png', {
-    //   maxDiffPixels: 1500,
-    // });
+    const wbLocator = await this.modPage.getLocator(e.whiteboard);
+    await expect(wbLocator).toHaveScreenshot('capture-breakout-notes.png', {
+      maxDiffPixels: 1500,
+    });
   }
 
   async exportBreakoutWhiteboard() {
@@ -255,12 +255,11 @@ class Join extends Create {
     await this.modPage.waitAndClick(e.actions);
     await whiteboardPDF.click();
     await hasCurrentPresentationToastElement(this.modPage, 'should display the current presentation toast when changing to the whiteboard exported file');
-    //! avoiding the following screenshot comparison due to https://github.com/microsoft/playwright/issues/18827
-    // TODO should be updated and use entire view page screenshot after https://github.com/bigbluebutton/bigbluebutton/issues/22160 is fixed
     // visual assertion
-    // await expect(this.modPage.page).toHaveScreenshot('capture-breakout-whiteboard.png', {
-    //   maxDiffPixels: 1500,
-    // });
+    const wbLocator = await this.modPage.getLocator(e.whiteboard);
+    await expect(wbLocator).toHaveScreenshot('capture-breakout-whiteboard.png', {
+      maxDiffPixels: 1500,
+    });
   }
 
   async userCanChooseRoom() {

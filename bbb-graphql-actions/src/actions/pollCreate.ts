@@ -42,8 +42,8 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
       throw new ValidationError('Field `answers` is required for Custom polls.', 400);
     }
 
-    if(!Array.isArray(input.answers) || input.answers.length < 2) {
-      throw new ValidationError('Field `answers` should contain at least two answers.', 400);
+    if(!Array.isArray(input.answers) || input.answers.length < 1) {
+      throw new ValidationError('Field `answers` should contain at least one answer.', 400);
     }
 
     // @ts-ignore

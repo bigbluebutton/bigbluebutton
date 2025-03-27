@@ -91,13 +91,14 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       enableDebugWindow: true,
       breakouts: {
         allowUserChooseRoomByDefault: false,
+        offerRecordingForBreakouts: false,
+        recordRoomByDefault: false,
         captureWhiteboardByDefault: false,
         captureSharedNotesByDefault: false,
         sendInvitationToAssignedModeratorsByDefault: false,
         breakoutRoomLimit: 16,
         allowPresentationManagementInBreakouts: true,
       },
-      customHeartbeat: false,
       showAllAvailableLocales: true,
       showAudioFilters: true,
       reactionsButton: {
@@ -862,6 +863,8 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           'text',
           'note',
           'rectangle',
+          'delete-all',
+          'highlight',
           'more',
           'actions',
         ],
@@ -874,6 +877,8 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           'text',
           'note',
           'rectangle',
+          'delete-all',
+          'highlight',
           'more',
           'actions',
         ],
@@ -907,6 +912,16 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         'board.jpg',
       ],
     },
+    minBrowserVersions: {
+      safari: '>=14',
+      chrome: '>=114',
+      firefox: '>=80',
+      edge: '>=85',
+      mobile: {
+        safari: '>=14',
+        chrome: '>=114',
+      },
+    },
   },
   private: {
     analytics: {
@@ -918,65 +933,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       pencilChunkLength: 100,
       loadSlidesFromHttpAlways: false,
     },
-    minBrowserVersions: [
-      {
-        browser: 'chrome',
-        version: 72,
-      },
-      {
-        browser: 'chromeMobileIOS',
-        version: 94,
-      },
-      {
-        browser: 'firefox',
-        version: 68,
-      },
-      {
-        browser: 'firefoxMobile',
-        version: 68,
-      },
-      {
-        browser: 'edge',
-        version: 79,
-      },
-      {
-        browser: 'ie',
-        version: 'Infinity',
-      },
-      {
-        browser: 'safari',
-        version: [
-          12,
-          1,
-        ],
-      },
-      {
-        browser: 'mobileSafari',
-        version: [
-          12,
-          1,
-        ],
-      },
-      {
-        browser: 'opera',
-        version: 50,
-      },
-      {
-        browser: 'electron',
-        version: [
-          0,
-          36,
-        ],
-      },
-      {
-        browser: 'SamsungInternet',
-        version: 10,
-      },
-      {
-        browser: 'YandexBrowser',
-        version: 19,
-      },
-    ],
     prometheus: {
       enabled: false,
       path: '/metrics',
