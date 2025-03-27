@@ -34,7 +34,7 @@ import org.bigbluebutton.core.api.CreateMeeting
 import org.bigbluebutton.core.api.HasUserJoined
 import org.bigbluebutton.core.util.PluginManifestProcessor
 
-class CoreServiceImpl(implicit materializer: Materializer, bbbActor: ActorRef) extends CoreService {
+class MeetingServiceImpl(implicit materializer: Materializer, bbbActor: ActorRef) extends MeetingService {
 
   import materializer.executionContext
 
