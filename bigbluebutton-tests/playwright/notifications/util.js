@@ -49,5 +49,3 @@ exports.enableUserJoinPopup = enableUserJoinPopup;
 exports.checkNotificationText = checkNotificationText;
 exports.checkNotificationIcon = checkNotificationIcon;
 exports.enableChatPopup = enableChatPopup;
-exports.waitAndClearNotification = waitAndClearNotification;
-exports.waitAndClearDefaultPresentationNotification = waitAndClearDefaultPresentationNotification;
