@@ -127,8 +127,8 @@ if (env === prodEnv) {
   };
   config.performance = {
     hints: 'warning',
-    maxAssetSize: 6000000,
-    maxEntrypointSize: 6000000,
+    maxAssetSize: 8000000,
+    maxEntrypointSize: 8000000,
   };
 } else {
   config.mode = devEnv;
