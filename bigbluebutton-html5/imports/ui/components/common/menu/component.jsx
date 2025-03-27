@@ -145,7 +145,7 @@ class BBBMenu extends React.Component {
             data-key={`menuItem-${dataTest}`}
             disableRipple={true}
             disableGutters={true}
-            disabled={disabled}
+            disabled={disabled || isTitle}
             style={customStyles}
             $roundButtons={roundButtons}
             $isToggle={isToggle}
@@ -172,6 +172,7 @@ class BBBMenu extends React.Component {
             key={a.key}
             isTitle={isTitle}
             isGenericContent={!!contentFunction}
+            disabled={disabled || isTitle}
           >
             <Styled.MenuItemWrapper
               hasSpaceBetween={isTitle && titleActions}

@@ -139,7 +139,7 @@ After opening a PR, the CI will run automated tests within your changes + target
 
 - Click to download and extract the content, preferably, in a folder that already has Playwright installed. You can do it in the `bigbluebutton/bigbluebutton-tests/playwright` folder with the dependencies installed ([see Setup instructions](#setup-with-an-existing-bigbluebutton-server))
 
-  - We suggest the folder to be named with the prefix `test-results` as it will be ignored by git
+  - We suggest the folder to be named with the prefix `test-results` or `pr-` as it will be ignored by git
 
 - Run the following command to serve up the reported files:
   - you might want to use it in a different port than the default `9323`. use `--port <PORT>` then

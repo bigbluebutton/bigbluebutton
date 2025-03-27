@@ -219,7 +219,7 @@ const TldrawV2GlobalStyle = createGlobalStyle`
           top: 2px !important;
         }
 
-        .tlui-toolbar__tools.tlui-toolbar__tools__mobile.fade-in {
+        .tlui-toolbar__tools.tlui-toolbar__tools__mobile {
           height: 30px !important;
         }
 

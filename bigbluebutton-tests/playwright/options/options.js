@@ -120,7 +120,6 @@ class Options extends MultiUsers {
 
     if (!CI) {
       const modPageLocator = this.modPage.getLocator('body');
-      await this.modPage.setHeightWidthViewPortSize();
       const screenshotOptions = {
         maxDiffPixels: 1000,
       };
@@ -130,8 +129,7 @@ class Options extends MultiUsers {
   }
 
   async fontSizeTest() {
-    await this.modPage.waitForSelector(e.whiteboard);
-    await this.modPage.setHeightWidthViewPortSize();
+    await this.modPage.hasElement(e.whiteboard, 'should the whiteboard be display');
     const getFontSizeNumber = (node) => Number(getComputedStyle(node).fontSize.slice(0, -2));
     const [
       presentationTitleLocator,

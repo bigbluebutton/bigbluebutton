@@ -23,10 +23,6 @@ class RedoDrawing extends MultiUsers {
 
     await this.modPage.waitAndClick(e.wbUndo);
     await this.modPage.waitAndClick(e.wbRedo);
-
-    await this.modPage.setHeightWidthViewPortSize();
-    await this.userPage.setHeightWidthViewPortSize();
-
     await this.modPage.hasElement(e.wbDrawnArrow);
     await this.userPage.hasElement(e.wbDrawnArrow);
   }

@@ -1445,6 +1445,7 @@
     "app.legacy.unsupportedBrowser": "サポート対象外のブラウザを使用されているようです。サポート対象の{0}または{1}をお使いください。",
     "app.legacy.upgradeBrowser": "ブラウザのバージョンが古いようです。サポート対象のブラウザへアップグレードしてください。",
     "app.legacy.criosBrowser": "iOSをお使いの場合、Safariを使ってください",
+    "app.legacy.unsupportedSafari": "完全なサポートを受けるには、ブラウザを Safari 14 以降にアップグレードしてください。",
     "app.debugWindow.windowTitle": "デバッグ",
     "app.debugWindow.form.userAgentLabel": "ユーザーエージェント",
     "app.debugWindow.form.button.copy": "コピー",
