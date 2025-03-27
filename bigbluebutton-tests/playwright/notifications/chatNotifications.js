@@ -15,7 +15,7 @@ class ChatNotifications extends MultiUsers {
     await this.modPage.waitAndClick(e.settingsSidebarButton);
     await util.enableChatPopup(this.modPage);
     await this.modPage.waitAndClick(e.saveSettingsButton);
-    await util.waitAndClearNotification(this.modPage);
+    await this.modPage.closeAllToastNotifications();
     await sleep(1000);
     await util.publicChatMessageToast(this.modPage, this.userPage);
     await this.modPage.waitAndClick(e.chatTitle);
@@ -29,7 +29,7 @@ class ChatNotifications extends MultiUsers {
     await this.modPage.waitAndClick(e.settingsSidebarButton);
     await util.enableChatPopup(this.modPage);
     await this.modPage.waitAndClick(e.saveSettingsButton);
-    await util.waitAndClearNotification(this.modPage);
+    await this.modPage.closeAllToastNotifications();
     await sleep(2000);
     await util.privateChatMessageToast(this.userPage);
     await this.modPage.hasElement(e.smallToastMsg, 'should the small toast message with the new text sent on the private chat');

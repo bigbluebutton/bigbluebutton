@@ -4,15 +4,11 @@ const { ChatNotifications } = require('./chatNotifications');
 const { PresenterNotifications } = require('./presenterNotifications');
 const { RecordingNotifications } = require('./recordingNotifications');
 const { recordMeeting } = require('../parameters/constants');
-const { PARAMETER_HIDE_PRESENTATION_TOAST } = require('../core/constants');
-const { encodeCustomParams } = require('../parameters/util');
-
-const hidePresentationToast = encodeCustomParams(PARAMETER_HIDE_PRESENTATION_TOAST);
 
 test.describe.parallel('Notifications', { tag: '@ci' }, () => {
   test('Save settings notification', async ({ browser, context, page }) => {
     const notifications = new Notifications(browser, context);
-    await notifications.initModPage(page, true, { joinParameter: hidePresentationToast });
+    await notifications.initModPage(page);
     await notifications.saveSettingsNotification();
   });
 

@@ -46,7 +46,6 @@ interface ChatProps {
   chatId: string;
   participantName: string;
   filteredPrivateChats: Partial<ChatType>[];
-  isRTL: boolean;
 }
 
 interface ChatLoadingProps {
@@ -304,7 +303,7 @@ const ChatContainer: React.FC = () => {
   }
 
   if (sidebarContent.sidebarContentPanel !== PANELS.CHAT) return null;
-  if (!idChatOpen && !isLocked) return <ChatLoading isRTL={isRTL}/>;
+  if (!idChatOpen && !isLocked) return <ChatLoading isRTL={isRTL} />;
 
   return (
     <Chat
@@ -313,7 +312,6 @@ const ChatContainer: React.FC = () => {
       participantName={participantName}
       chatId={idChatOpen}
       filteredPrivateChats={filteredPrivateChats}
-      isRTL={isRTL}
     />
   );
 };

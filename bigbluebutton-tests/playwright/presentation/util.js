@@ -27,15 +27,15 @@ async function getCurrentPresentationHeight(locator) {
   });
 }
 
-async function uploadSinglePresentation(test, fileName, uploadTimeout = UPLOAD_PDF_WAIT_TIME) {
-  const firstSlideSrc = await test.page.evaluate(selector => document.querySelector(selector)
+async function uploadSinglePresentation(testPage, fileName, uploadTimeout = UPLOAD_PDF_WAIT_TIME) {
+  const firstSlideSrc = await testPage.page.evaluate(selector => document.querySelector(selector)
     ?.style
     .backgroundImage
     .split('"')[1],
   [e.currentSlideImg]);
-  await test.waitAndClick(e.mediaAreaButton);
-  await test.waitAndClick(e.managePresentations);
-  await test.hasElement(e.presentationFileUpload, 'should display the presentation space for uploading a new file, when the manage presentations is opened');
+  await testPage.waitAndClick(e.mediaAreaButton);
+  await testPage.waitAndClick(e.managePresentations);
+  await testPage.hasElement(e.presentationFileUpload, 'should display the presentation space for uploading a new file, when the manage presentations is opened');
 
   await testPage.page.setInputFiles(e.presentationFileUpload, path.join(__dirname, `../core/media/${fileName}`));
   await testPage.hasText('body', e.statingUploadPresentationToast, 'should display the toast message uploading the presentation');
