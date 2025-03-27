@@ -1454,7 +1454,6 @@ Useful tools for development:
 
 | Parameter                                      | Description                                                                                                                                                                                                                                                                                                                     | Default value |
 | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- |
-| `userdata-bbb_ask_for_feedback_on_logout=`     | If set to `true`, the client will display the ask for feedback screen on logout                                                                                                                                                                                                                                                 | `false`       |
 | `userdata-bbb_auto_join_audio=`                | If set to `true`, the client will start the process of joining the audio bridge automatically upon loading the client                                                                                                                                                                                                           | `false`       |
 | `userdata-bbb_client_title=`                   | Specifies a string to set as the HTML5 client title                                                                                                                                                                                                                                                                             | BigBlueButton |
 | `userdata-bbb_force_listen_only=`              | If set to `true`, attendees will be not be able to join with a microphone as an option (does not apply to moderators)                                                                                                                                                                                                           | `false`       |
@@ -1576,55 +1575,6 @@ If you are adding this to a join-url you need to URI encode the string (see a sa
 #### Send client logs to the server
 
 Step-by-step instructions for how to configure logs from clients to be logged in a server log file are located in [Administration -> Configuration Files](/administration/configuration-files#logs-sent-directly-from-the-client)
-
-#### Collect feedback from the users
-
-The BigBlueButton client can ask the user for feedback when they leave a session. This feedback gives the administrator insight on a user's experiences within a BigBlueButton sessions.
-
-To enable the feedback and its logging to your server, run the following script.
-
-```bash
-#!/bin/bash
-
-HOST=$(cat /etc/bigbluebutton/bbb-web.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
-HTML5_CONFIG=/usr/share/bigbluebutton/html5-client/private/config/settings.yml
-PROTOCOL=$(cat /etc/bigbluebutton/bbb-web.properties | grep -v '#' | grep '^bigbluebutton.web.serverURL' | sed 's/.*\(http[s]*\).*/\1/')
-
-apt-get install -y nginx-full
-
-yq e -i '.public.clientLog.external.enabled = true' $HTML5_CONFIG
-yq e -i ".public.clientLog.external.url = \"$PROTOCOL://$HOST/html5log\"" $HTML5_CONFIG
-yq e -i '.public.app.askForFeedbackOnLogout = true' $HTML5_CONFIG
-
-mkdir -p /etc/bigbluebutton/nginx/
-
-cat > /etc/bigbluebutton/nginx/html5-client-log.nginx << HERE
-location /html5log {
-        access_log /var/log/nginx/html5-client.log postdata;
-        echo_read_request_body;
-}
-HERE
-
-cat > /etc/nginx/conf.d/html5-client-log.conf << HERE
-log_format postdata '\$remote_addr [\$time_iso8601] \$request_body';
-HERE
-
-# We need nginx-full to enable postdata log_format
-if ! dpkg -l | grep -q nginx-full; then
-  apt-get install -y nginx-full
-fi
-
-touch /var/log/nginx/html5-client.log
-chown bigbluebutton:bigbluebutton /var/log/nginx/html5-client.log
-```
-
-The feedback will be written to `/var/log/nginx/html5-client.log`, which you would need to extract and parse. You can also use the following command to monitor the feedback
-
-```bash
-tail -f /var/log/nginx/html5-client.log | sed -u 's/\\x22/"/g' | sed -u 's/\\x5C//g'
-```
-
-There used to be an incorrect version of the script above on the docs. If you face any issues after updating it, refer to [this issue](https://github.com/bigbluebutton/bigbluebutton/issues/9065) for solutions.
 
 ### Other configuration changes
 
