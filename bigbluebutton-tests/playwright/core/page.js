@@ -35,6 +35,7 @@ class Page {
       joinParameter,
       customMeetingId,
       isRecording,
+      skipSessionDetailsModal = true,
       shouldCheckAllInitialSteps,
       shouldAvoidLayoutCheck,
     } = initOptions || {};
@@ -45,8 +46,8 @@ class Page {
 
     if (env.CONSOLE !== undefined) await helpers.setBrowserLogs(this.page);
 
-    this.meetingId = (meetingId) ? meetingId : await helpers.createMeeting(parameters, createParameter, customMeetingId, this.page);
-    const joinUrl = helpers.getJoinURL(this.meetingId, this.initParameters, isModerator, joinParameter);
+    this.meetingId = (meetingId) ? meetingId : await helpers.createMeeting(parameters, createParameter, customMeetingId);
+    const joinUrl = helpers.getJoinURL(this.meetingId, this.initParameters, isModerator, joinParameter, skipSessionDetailsModal);
     const response = await this.page.goto(joinUrl);
     await expect(response.ok()).toBeTruthy();
     const hasErrorLabel = await this.checkElement(e.errorMessageLabel);
