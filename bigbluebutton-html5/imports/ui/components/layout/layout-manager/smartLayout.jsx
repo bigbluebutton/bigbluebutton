@@ -3,7 +3,7 @@ import { throttle } from '/imports/utils/throttle';
 import { layoutDispatch, layoutSelect, layoutSelectInput } from '/imports/ui/components/layout/context';
 import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
 import { INITIAL_INPUT_STATE } from '/imports/ui/components/layout/initState';
-import { ACTIONS, PANELS, CAMERADOCK_POSITION } from '/imports/ui/components/layout/enums';
+import { ACTIONS, PANELS, LAYOUT_TYPE, CAMERADOCK_POSITION } from '/imports/ui/components/layout/enums';
 import { defaultsDeep } from '/imports/utils/array-utils';
 import Session from '/imports/ui/services/storage/in-memory';
 
@@ -11,7 +11,7 @@ const windowWidth = () => window.document.documentElement.clientWidth;
 const windowHeight = () => window.document.documentElement.clientHeight;
 
 const SmartLayout = (props) => {
-  const { bannerAreaHeight, isMobile, calculatesNavbarHeight } = props;
+  const { prevLayout, bannerAreaHeight, isMobile, calculatesNavbarHeight } = props;
 
   function usePrevious(value) {
     const ref = useRef();
@@ -82,15 +82,25 @@ const SmartLayout = (props) => {
           externalVideo, genericMainContent, screenShare, sharedNotes,
         } = prevInput;
         const { sidebarContentPanel } = sidebarContent;
+        let sidebarContentPanelOverride = sidebarContentPanel;
+        let overrideOpenSidebarPanel = sidebarContentPanel !== PANELS.NONE;
+        let overrideOpenSidebarNavigation = sidebarNavigation.isOpen
+          || sidebarContentPanel !== PANELS.NONE || false;
+        if (prevLayout === LAYOUT_TYPE.CAMERAS_ONLY
+          || prevLayout === LAYOUT_TYPE.PRESENTATION_ONLY
+          || prevLayout === LAYOUT_TYPE.MEDIA_ONLY) {
+          overrideOpenSidebarNavigation = true;
+          overrideOpenSidebarPanel = true;
+          sidebarContentPanelOverride = PANELS.CHAT;
+        }
         return defaultsDeep(
           {
             sidebarNavigation: {
-              isOpen:
-                sidebarNavigation.isOpen || sidebarContentPanel !== PANELS.NONE || false,
+              isOpen: overrideOpenSidebarNavigation,
             },
             sidebarContent: {
-              isOpen: sidebarContentPanel !== PANELS.NONE,
-              sidebarContentPanel,
+              isOpen: overrideOpenSidebarPanel,
+              sidebarContentPanel: sidebarContentPanelOverride,
             },
             SidebarContentHorizontalResizer: {
               isOpen: false,

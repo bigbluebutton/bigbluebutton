@@ -3,7 +3,9 @@ import { throttle } from '/imports/utils/throttle';
 import { layoutDispatch, layoutSelect, layoutSelectInput } from '/imports/ui/components/layout/context';
 import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
 import { INITIAL_INPUT_STATE } from '/imports/ui/components/layout/initState';
-import { ACTIONS, CAMERADOCK_POSITION, MEDIA_ONLY_LAYOUT_MARGIN } from '/imports/ui/components/layout/enums';
+import {
+  ACTIONS, CAMERADOCK_POSITION, MEDIA_ONLY_LAYOUT_MARGIN, PANELS,
+} from '/imports/ui/components/layout/enums';
 import { defaultsDeep } from '/imports/utils/array-utils';
 import Session from '/imports/ui/services/storage/in-memory';
 
@@ -457,10 +459,9 @@ const MediaOnlyLayout = (props) => {
       type: ACTIONS.SET_LAYOUT_INPUT,
       value: (prevInput) => {
         const {
-          sidebarContent, presentation, cameraDock,
+          presentation, cameraDock,
           externalVideo, genericMainContent, screenShare, sharedNotes,
         } = prevInput;
-        const { sidebarContentPanel } = sidebarContent;
         return defaultsDeep(
           {
             sidebarNavigation: {
@@ -468,7 +469,7 @@ const MediaOnlyLayout = (props) => {
             },
             sidebarContent: {
               isOpen: false,
-              sidebarContentPanel,
+              sidebarContentPanel: PANELS.NONE,
             },
             SidebarContentHorizontalResizer: {
               isOpen: false,
