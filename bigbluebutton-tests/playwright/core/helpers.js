@@ -76,7 +76,8 @@ async function createMeeting(params, createParameter, customMeetingId) {
 
 function getJoinURL(meetingID, params, moderator, joinParameter, skipSessionDetailsModal) {
   const pw = moderator ? params.moderatorPW : params.attendeePW;
-  const baseQuery = `fullName=${params.fullName}&meetingID=${meetingID}&password=${pw}${skipSessionDetailsModal ? '&userdata-bbb_show_session_details_on_join=false' : ''}`;
+  const shouldSkipSessionDetailsModal = skipSessionDetailsModal ? '&userdata-bbb_show_session_details_on_join=false' : '';  // default value in settings.yml is true
+  const baseQuery = `fullName=${params.fullName}&meetingID=${meetingID}&password=${pw}${shouldSkipSessionDetailsModal}`;
   const query = joinParameter !== undefined ? `${baseQuery}&${joinParameter}` : baseQuery;
   const apiCall = `join${query}${params.secret}`;
   const checksum = getChecksum(apiCall, parameters.secret);
@@ -181,10 +182,10 @@ function sleep(time) {
 }
 
 async function initializePages(testInstance, browser, initOptions) {
-  const { isMultiUser, createParameter, joinParameter, showSessionDetailsModal } = initOptions || {};
+  const { isMultiUser, createParameter, joinParameter } = initOptions || {};
   const context = await browser.newContext();
   const page = await context.newPage();
-  await testInstance.initModPage(page, true, { createParameter, joinParameter, showSessionDetailsModal });
+  await testInstance.initModPage(page, true, { createParameter, joinParameter });
   if (isMultiUser) await testInstance.initUserPage(true, context, { createParameter, joinParameter });
 }
 
