@@ -156,6 +156,9 @@ const GlobalStyle = createGlobalStyle`
       left: none !important;
     }
   }
+  button[data-testid="tools.more.asset"] {
+    display: none;
+  }
 `;
 
 export default GlobalStyle;
