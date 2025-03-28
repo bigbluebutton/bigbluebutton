@@ -1,13 +1,13 @@
 /**
 * BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-* 
+*
 * Copyright (c) 2012 BigBlueButton Inc. and by respective authors (see below).
 *
 * This program is free software; you can redistribute it and/or modify it under the
 * terms of the GNU Lesser General Public License as published by the Free Software
 * Foundation; either version 3.0 of the License, or (at your option) any later
 * version.
-* 
+*
 * BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
 * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A wrapper class the executes an external command.
- * 
+ *
  * @author Richard Alam
  * @author Marcel Hellkamp
  */
@@ -43,11 +43,11 @@ public class ExternalProcessExecutor {
 
 	/**
 	 * Run COMMAND for at most timeoutMillis while ignoring any output.
-	 * 
+	 *
 	 * @deprecated The COMMAND string is split on whitespace to create an argument
 	 *             list. This won't work for arguments that contain whitespace. Use
 	 *             {@link #exec(List, Duration)} instead.
-	 * 
+	 *
 	 * @param COMMAND       A single command or whitespace separated list of
 	 *                      arguments.
 	 * @param timeoutMillis Timeout in milliseconds.
@@ -60,15 +60,13 @@ public class ExternalProcessExecutor {
 
 	/**
 	 * Run a command for a limited amount of time while ignoring any output.
-	 * 
+	 *
 	 * @param cmd     List containing the program and its arguments.
 	 * @param timeout Maximum execution time.
 	 * @return true if the command terminated in time with an exit value of 0.
 	 */
 	public boolean exec(List<String> cmd, Duration timeout) {
-
 		ProcessBuilder pb = new ProcessBuilder(cmd);
-		pb.redirectError(DISCARD);
 		pb.redirectOutput(DISCARD);
 
 		Process proc;
@@ -79,12 +77,35 @@ public class ExternalProcessExecutor {
 			return false;
 		}
 
+		// Capture error output
+		StringBuilder errorOutput = new StringBuilder();
+		Thread errorReader = new Thread(() -> {
+			try (java.io.BufferedReader reader = new java.io.BufferedReader(
+					new java.io.InputStreamReader(proc.getErrorStream()))) {
+				String line;
+				while ((line = reader.readLine()) != null) {
+					errorOutput.append(line).append("\n");
+				}
+			} catch (IOException e) {
+				log.error("Failed to read error output", e);
+			}
+		});
+		errorReader.start();
+
 		try {
 			if (!proc.waitFor(timeout.toMillis(), TimeUnit.MILLISECONDS)) {
 				log.warn("TIMEDOUT executing: {}", String.join(" ", cmd));
 				proc.destroy();
 			}
-			return !proc.isAlive() && proc.exitValue() == 0;
+
+			int exitCode = proc.exitValue();
+			errorReader.join();
+
+			if (exitCode != 0) {
+				log.error("Command failed with exit code {}: {}\nError output: {}",
+						exitCode, String.join(" ", cmd), errorOutput.toString().trim());
+			}
+			return exitCode == 0;
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 			proc.destroy();

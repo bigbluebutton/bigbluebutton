@@ -30,15 +30,12 @@ public class PresentationFileProcessor {
     private String blankThumbnail;
     private String blankPng;
     private String blankSvg;
-
-    private long bigPdfSize;
     private long maxBigPdfPageSize;
-
-    private long MAX_CONVERSION_TIME = 5 * 60 * 1000L;
 
     private TextFileCreator textFileCreator;
     private SvgImageCreator svgImageCreator;
     private ThumbnailCreator thumbnailCreator;
+    private PresentationProcessExternal presentationProcessExternal;
     private PngCreator pngCreator;
     private SlidesGenerationProgressNotifier notifier;
     private PageCounterService counterService;
@@ -146,6 +143,7 @@ public class PresentationFileProcessor {
                     thumbnailCreator,
                     pngCreator,
                     notifier,
+                    presentationProcessExternal,
                     blankThumbnail,
                     blankPng,
                     blankSvg
@@ -325,10 +323,6 @@ public class PresentationFileProcessor {
         this.generatePngs = generatePngs;
     }
 
-    public void setBigPdfSize(long bigPdfSize) {
-        this.bigPdfSize = bigPdfSize;
-    }
-
     public void setMaxBigPdfPageSize(long maxBigPdfPageSize) {
         this.maxBigPdfPageSize = maxBigPdfPageSize;
     }
@@ -353,10 +347,6 @@ public class PresentationFileProcessor {
         this.svgImageCreator = svgImageCreator;
     }
 
-    public void setMaxConversionTime(int minutes) {
-        MAX_CONVERSION_TIME = minutes * 60 * 1000L * 1000L * 1000L;
-    }
-
     public void setImageSlidesGenerationService(ImageSlidesGenerationService s) {
         imageSlidesGenerationService = s;
     }
@@ -371,6 +361,10 @@ public class PresentationFileProcessor {
 
     public void setS3FileManager(S3FileManager s3FileManager) {
         this.s3FileManager = s3FileManager;
+    }
+
+    public void setPresentationProcessExternal(PresentationProcessExternal presentationProcessExternal) {
+        this.presentationProcessExternal = presentationProcessExternal;
     }
 
     public void setBlankThumbnail(String blankThumbnail) {

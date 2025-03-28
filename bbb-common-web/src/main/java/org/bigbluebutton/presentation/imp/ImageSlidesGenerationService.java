@@ -48,6 +48,7 @@ public class ImageSlidesGenerationService {
 	private long MAX_CONVERSION_TIME = 5*60*1000L;
 	private boolean svgImagesRequired=true;
 	private boolean generatePngs;
+	private PresentationProcessExternal presentationProcessExternal;
 	
 	public ImageSlidesGenerationService() {
 		int numThreads = Runtime.getRuntime().availableProcessors();
@@ -91,12 +92,8 @@ public class ImageSlidesGenerationService {
 			if (!svgDir.exists())
 				svgDir.mkdir();
 
-			String service = "imgprocess@" + pres.getMeetingId() + "_" + pres.getId() +"_" + pres.getFileType() + ".service";
-
-			log.info("Starting processing service [{}]", service);
-			String COMMAND = "sudo systemctl start " + service;
-
-			boolean done = new ExternalProcessExecutor().exec(COMMAND, execTimeout);
+			// Call external application to process the image in a sandbox
+			presentationProcessExternal.processImage(pres.getMeetingId(), pres.getId(), pres.getFileType());
 
 			Util.createBlankThumbnail(thumbsDir, page, blankThumbnail);
 			if (generatePngs) {
@@ -177,10 +174,6 @@ public class ImageSlidesGenerationService {
 	  this.svgImagesRequired = svg;
 	}
 	
-	public void setMaxConversionTime(int minutes) {
-		MAX_CONVERSION_TIME = minutes * 60 * 1000L;
-	}
-
 	public void setSlidesGenerationProgressNotifier(SlidesGenerationProgressNotifier notifier) {
 		this.notifier = notifier;
 	}
@@ -204,5 +197,9 @@ public class ImageSlidesGenerationService {
 	}
 	public void setBlankSvg(String blankSvg) {
 		this.blankSvg = blankSvg;
+	}
+
+	public void setPresentationProcessExternal(PresentationProcessExternal presentationProcessExternal) {
+		this.presentationProcessExternal = presentationProcessExternal;
 	}
 }

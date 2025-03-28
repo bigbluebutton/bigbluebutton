@@ -1,14 +1,10 @@
 package org.bigbluebutton.presentation.imp;
 
 
-import org.apache.commons.io.FileUtils;
 import org.bigbluebutton.presentation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.File;
-import java.io.IOException;
-import java.util.concurrent.TimeoutException;
 
 public class PageToConvert {
   private static Logger log = LoggerFactory.getLogger(PageToConvert.class);
@@ -34,6 +30,7 @@ public class PageToConvert {
   private SlidesGenerationProgressNotifier notifier;
   private File pageFile;
   private String messageErrorInConversion;
+  private PresentationProcessExternal presentationProcessExternal;
 
   public PageToConvert(UploadedPresentation pres,
                        int page,
@@ -45,6 +42,7 @@ public class PageToConvert {
                        ThumbnailCreator thumbnailCreator,
                        PngCreator pngCreator,
                        SlidesGenerationProgressNotifier notifier,
+                       PresentationProcessExternal presentationProcessExternal,
                        String blankThumbnail,
                        String blankPng,
                        String blankSvg) {
@@ -58,6 +56,7 @@ public class PageToConvert {
     this.thumbnailCreator = thumbnailCreator;
     this.pngCreator = pngCreator;
     this.notifier = notifier;
+    this.presentationProcessExternal = presentationProcessExternal;
     this.blankThumbnail = blankThumbnail;
     this.blankPng = blankPng;
     this.blankSvg = blankSvg;
@@ -104,12 +103,8 @@ public class PageToConvert {
     if (!svgDir.exists())
       svgDir.mkdir();
 
-    String service = "pdfprocess@" + pres.getMeetingId() + "_" + pres.getId() +"_" + page + ".service";
-
-    log.info("Starting processing service [{}]", service);
-    String COMMAND = "sudo systemctl start " + service;
-
-    boolean done = new ExternalProcessExecutor().exec(COMMAND, execTimeout);
+    // Call external application to process the page in a sandbox
+    presentationProcessExternal.processPage(pres.getMeetingId(), pres.getId(), page);
 
     Util.createBlankThumbnail(thumbsDir, page, blankThumbnail);
     if (generatePngs) {
@@ -119,4 +114,5 @@ public class PageToConvert {
 
     return this;
   }
+
 }

@@ -41,6 +41,7 @@ public class TextFileCreatorImp implements TextFileCreator {
   private static Logger log = LoggerFactory.getLogger(TextFileCreatorImp.class);
 
   private long execTimeout = 60000;
+  private PresentationProcessExternal presentationProcessExternal;
 
   @Override
   public boolean createTextFile(UploadedPresentation pres, int page) {
@@ -98,16 +99,8 @@ public class TextFileCreatorImp implements TextFileCreator {
       }
 
     } else {
-      // sudo apt-get install xpdf-utils
-//        COMMAND = "pdftotext -raw -nopgbrk -enc UTF-8 -f " + page + " -l " + page
-//            + " " + source + " " + dest;
-      String service = "pdfprocess@" + pres.getMeetingId() + "_" + pres.getId() +"_" + page + ".service";
-      log.info("Starting PDF processing service [{}]", service);
-      COMMAND = "sudo systemctl start " + service;
-
-        //System.out.println(COMMAND);
-
-        boolean done = new ExternalProcessExecutor().exec(COMMAND, execTimeout);
+      // Call external application to process the page in a sandbox
+      boolean done = presentationProcessExternal.processPage(pres.getMeetingId(), pres.getId(), page);
         if (!done) {
           success = false;
 
@@ -121,7 +114,6 @@ public class TextFileCreatorImp implements TextFileCreator {
           Gson gson = new Gson();
           String logStr = gson.toJson(logData);
           log.warn(" --analytics-- data={}", logStr);
-
         }
     }
 
@@ -142,5 +134,9 @@ public class TextFileCreatorImp implements TextFileCreator {
 
   public void setExecTimeout(long execTimeout) {
     this.execTimeout = execTimeout;
+  }
+
+  public void setPresentationProcessExternal(PresentationProcessExternal presentationProcessExternal) {
+    this.presentationProcessExternal = presentationProcessExternal;
   }
 }
