@@ -914,7 +914,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
     },
     minBrowserVersions: {
       safari: '>=14',
-      chrome: '>=114',
+      chrome: '>=99',
       firefox: '>=80',
       edge: '>=85',
       mobile: {
