@@ -358,6 +358,8 @@ export const screenShareEndAlert = () => AudioService
    * For more information see:
    *  - https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/getStats
    *  - https://developer.mozilla.org/en-US/docs/Web/API/RTCStatsReport
+   * @param {Array} [additionalStatsTypes] - A list of additional stats types to be included
+   * in the parsing.
    *
    * @returns {Object} The information about each active screen sharing peer.
    *          The returned format follows the format returned by video's service
@@ -367,7 +369,8 @@ export const screenShareEndAlert = () => AudioService
    *            peerIdString: RTCStatsReport
    *          }
    */
-export const getStats = () => screenShareBridge.getStats();
+export const getStats = (additionalStatsTypes = []) => (
+  screenShareBridge.getStats(additionalStatsTypes));
 
 // This method may throw errors
 export const isMediaFlowing = (previousStats, currentStats) => {

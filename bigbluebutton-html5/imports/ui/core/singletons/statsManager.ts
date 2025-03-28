@@ -5,6 +5,7 @@ import ScreenshareService from '/imports/ui/components/screenshare/service';
 import VideoService from '/imports/ui/components/video-provider/service';
 import { Probe, Probes } from '../../components/stats/types';
 import meetingClientSettingsInitialValues from '../initial-values/meetingClientSettings';
+import { StatsTypes } from '/imports/ui/Types/meetingClientSettings';
 
 type Options = {
   interval?: number;
@@ -16,7 +17,7 @@ export interface StatInfo {
 }
 
 export interface Bridge {
-  getStats(): unknown;
+  getStats(additionalStatsTypes?: string[]): unknown;
 }
 
 export interface BridgesMap {
@@ -67,6 +68,19 @@ class StatsManager {
     return this.gatheredStats;
   }
 
+  static getAdditionalStatsTypesToBeIncluded(bridgeKey: string) {
+    const key = bridgeKey as keyof StatsTypes;
+    const {
+      statsTypes = {},
+      enabled,
+    } = window.meetingClientSettings.public.stats.logMediaStats;
+    if (!enabled) return [];
+    const { common = [] } = statsTypes;
+    const specific = statsTypes[key] || [];
+    const statsTypesToFilter = [...common, ...specific];
+    return statsTypesToFilter;
+  }
+
   startMonitoring(
     interval: number,
     probes: number,
@@ -80,21 +94,22 @@ class StatsManager {
       const l_gatheredStats = { audio: {}, video: {}, screenshare: {} };
       await Promise.all(
         Object.keys(this.statsSources).map(async (type) => {
-          const bridgesKey = type as keyof BridgesMap;
-          const freshStats = await this.statsSources[bridgesKey].getStats();
+          const bridgeKey = type as keyof BridgesMap;
+          const additionalStatsTypes = StatsManager.getAdditionalStatsTypesToBeIncluded(bridgeKey);
+          const freshStats = await this.statsSources[bridgeKey].getStats(additionalStatsTypes);
           const hasStats = freshStats && Object.keys(freshStats).length !== 0;
           if (!hasStats) {
-            if (this.gatheredStats[bridgesKey].length !== 0) {
-              this.gatheredStats[bridgesKey] = [];
+            if (this.gatheredStats[bridgeKey].length !== 0) {
+              this.gatheredStats[bridgeKey] = [];
             }
             return;
           }
-          this.gatheredStats[bridgesKey].push(freshStats as Record<string, unknown>);
-          while (this.gatheredStats[bridgesKey].length > probes) {
-            this.gatheredStats[bridgesKey].shift();
+          this.gatheredStats[bridgeKey].push(freshStats as Record<string, unknown>);
+          while (this.gatheredStats[bridgeKey].length > probes) {
+            this.gatheredStats[bridgeKey].shift();
           }
 
-          l_gatheredStats[bridgesKey] = freshStats;
+          l_gatheredStats[bridgeKey] = freshStats;
         }),
       );
 

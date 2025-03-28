@@ -520,8 +520,9 @@ class VideoService {
     this.activePeers = activePeers;
   }
 
-  async getStats() {
+  async getStats(additionalStatsTypes = []) {
     const stats: Record<string, unknown> = {};
+    const statsToFilter = [...FILTER_VIDEO_STATS, ...additionalStatsTypes];
 
     await Promise.all(
       Object.keys(this.activePeers).map(async (peerId) => {
@@ -530,7 +531,7 @@ class VideoService {
         const videoStats: Record<string, unknown> = {};
 
         peerStats.forEach((stat) => {
-          if (FILTER_VIDEO_STATS.includes(stat.type)) {
+          if (statsToFilter.includes(stat.type)) {
             videoStats[stat.type] = stat;
           }
         });
@@ -544,7 +545,7 @@ class VideoService {
         // @ts-expect-error -> Untyped object.
         const { id, type: statType, kind } = stat;
 
-        if (FILTER_VIDEO_STATS.includes(statType) && (!kind || kind === 'video')) {
+        if (statsToFilter.includes(statType) && (!kind || kind === 'video')) {
           stats[id] = { [statType]: stat };
         }
       });
@@ -633,7 +634,7 @@ export default {
   getPrefix: videoService.getPrefix.bind(videoService),
   isPinEnabled: VideoService.isPinEnabled,
   updateActivePeers: (streams: StreamItem[]) => videoService.updateActivePeers(streams),
-  getStats: () => videoService.getStats(),
+  getStats: (additionalStatsTypes = []) => videoService.getStats(additionalStatsTypes),
   buildStreamName: (deviceId: string) => videoService.buildStreamName(deviceId),
   startVirtualBackground: VideoService.startVirtualBackground,
 };

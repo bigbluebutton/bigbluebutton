@@ -107,7 +107,9 @@ export default class KurentoScreenshareBridge {
    * For more information see:
    *  - https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/getStats
    *  - https://developer.mozilla.org/en-US/docs/Web/API/RTCStatsReport
-
+   * @param {Array} [additionalStatsTypes] - A list of additional stats types to be included
+   * in the parsing.
+   *
    * @returns {Object} The information about each active screen sharing peer.
    *          The returned format follows the format returned by video's service
    *          getStats, which considers more than one peer connection to be returned.
@@ -116,7 +118,7 @@ export default class KurentoScreenshareBridge {
    *            peerIdString: RTCStatsReport
    *          }
    */
-  async getStats() {
+  async getStats(additionalStatsTypes = []) {
     let peerStats = null;
     const peer = this.getPeerConnection();
 
@@ -130,6 +132,7 @@ export default class KurentoScreenshareBridge {
     return BridgeService.parseStats({
       stats: peerStats,
       peer,
+      additionalStatsTypes,
       bridgeName: BRIDGE_NAME,
       role: this.role,
     });

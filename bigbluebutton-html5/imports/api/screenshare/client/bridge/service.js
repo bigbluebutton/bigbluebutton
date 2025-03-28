@@ -162,7 +162,7 @@ const screenshareLoadAndPlayMediaStream = (stream, mediaElement, muted) => {
 const parseStats = async ({
   stats,
   peer = undefined,
-  statsTypes = DEFAULT_SCREENSHARE_STATS_TYPES,
+  additionalStatsTypes = [],
   bridgeName = NO_BRIDGE,
   role = '',
 }) => {
@@ -174,7 +174,7 @@ const parseStats = async ({
       type,
       kind,
     } = stat;
-    if (statsTypes.includes(type) && (!kind || kind === 'video')) {
+    if ([...DEFAULT_SCREENSHARE_STATS_TYPES, ...additionalStatsTypes].includes(type) && (!kind || kind === 'video')) {
       aggregatedStats[type] = stat;
     }
   });
