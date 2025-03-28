@@ -13,6 +13,7 @@ import {
   MeetingEndedTable,
   openLearningDashboardUrl,
   setLearningDashboardCookie,
+  allowRedirectToLogoutURL,
 } from './service';
 import { MeetingEndDataResponse, getMeetingEndData } from './queries';
 import useAuthData from '/imports/ui/core/local-states/useAuthData';
@@ -152,26 +153,26 @@ interface MeetingEndedContainerProps {
 }
 
 interface MeetingEndedProps extends MeetingEndedContainerProps {
-  allowDefaultLogoutUrl: boolean;
   skipMeetingEnded: boolean;
   learningDashboardAccessToken: string;
   isModerator: boolean;
   logoutUrl: string;
   learningDashboardBase: string;
   isBreakout: boolean;
+  allowRedirect: boolean;
 }
 
 const MeetingEnded: React.FC<MeetingEndedProps> = ({
   endedBy,
   joinErrorCode,
   meetingEndedCode,
-  allowDefaultLogoutUrl,
   skipMeetingEnded,
   learningDashboardAccessToken,
   isModerator,
   logoutUrl,
   learningDashboardBase,
   isBreakout,
+  allowRedirect,
 }) => {
   const loadingContextInfo = useContext(LoadingContext);
   const intl = useIntl();
@@ -236,7 +237,7 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
 
           <Styled.MeetingEndedButton
             color="primary"
-            onClick={() => confirmRedirect(isBreakout, allowDefaultLogoutUrl)}
+            onClick={() => confirmRedirect(isBreakout, allowRedirect)}
             /* @eslint-disable-next-line */
             aria-details={intl.formatMessage(intlMessage.confirmDesc)}
           >
@@ -284,7 +285,7 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
   }, []);
 
   if (skipMeetingEnded) {
-    confirmRedirect(isBreakout, allowDefaultLogoutUrl);
+    confirmRedirect(isBreakout, allowRedirect);
     return <></>; // even though well redirect, return empty component and prevent lint error
   }
 
@@ -295,7 +296,7 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
           <Styled.Title>
             {generateEndMessage(joinErrorCode, meetingEndedCode, endedBy)}
           </Styled.Title>
-          {allowDefaultLogoutUrl ? logoutButton : null}
+          {allowRedirect ? logoutButton : null}
         </Styled.Content>
       </Styled.Modal>
     </Styled.Parent>
@@ -319,7 +320,7 @@ const MeetingEndedContainer: React.FC<MeetingEndedContainerProps> = ({
         endedBy=""
         joinErrorCode=""
         meetingEndedCode=""
-        allowDefaultLogoutUrl={false}
+        allowRedirect={false}
         skipMeetingEnded={false}
         learningDashboardAccessToken=""
         isModerator={false}
@@ -337,7 +338,7 @@ const MeetingEndedContainer: React.FC<MeetingEndedContainerProps> = ({
         endedBy=""
         joinErrorCode=""
         meetingEndedCode=""
-        allowDefaultLogoutUrl={false}
+        allowRedirect={false}
         skipMeetingEnded={false}
         learningDashboardAccessToken=""
         isModerator={false}
@@ -364,17 +365,18 @@ const MeetingEndedContainer: React.FC<MeetingEndedContainerProps> = ({
   } = meeting;
 
   const {
-    allowDefaultLogoutUrl,
     skipMeetingEnded,
     learningDashboardBase,
   } = clientSettings;
+
+  const allowRedirect = allowRedirectToLogoutURL(logoutUrl);
 
   return (
     <MeetingEnded
       endedBy={endedBy}
       joinErrorCode={joinErrorCode}
       meetingEndedCode={meetingEndedCode}
-      allowDefaultLogoutUrl={allowDefaultLogoutUrl}
+      allowRedirect={allowRedirect}
       skipMeetingEnded={skipMeetingEnded}
       learningDashboardAccessToken={learningDashboard?.learningDashboardAccessToken}
       isModerator={isModerator}
