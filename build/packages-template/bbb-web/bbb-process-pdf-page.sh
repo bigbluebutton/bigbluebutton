@@ -87,19 +87,22 @@ detect_type3_fonts() {
 #--------------------------------------------
 # Determine if rasterization is required based on font detection.
 #--------------------------------------------
-REQUIRES_RASTERIZE=$(detect_type3_fonts)
+if [ "$RASTERIZE_SLIDE_FORCE" = "true" ]; then
+  REQUIRES_RASTERIZE=1
+else
+  REQUIRES_RASTERIZE=$(detect_type3_fonts)
+fi
 
 #--------------------------------------------
 # If no Type 3 fonts are found, try converting PDF to SVG.
 #--------------------------------------------
 if [ "$REQUIRES_RASTERIZE" -eq 0 ]; then
   echo "No Type 3 fonts detected. Converting PDF page ${PAGE_NUMBER} to SVG."
-  svg_conv_cmd="pdftocairo -r $SVG_RESOLUTION_PPI -svg -q -f ${PAGE_NUMBER} -l ${PAGE_NUMBER} ${PDF_FILE} ${SVG_FILE} && \
-                  cat ${SVG_FILE} | egrep 'data:image/png;base64|<path' | sed 's/  / /g' | cut -d' ' -f 1 | sort | uniq -cw 2"
-  output=$(timeout "${SVG_CONV_TIMEOUT}s" /bin/sh -c "${svg_conv_cmd}") || true
-  conv_exit_code=$?
-  echo "SVG conversion command exited with code ${conv_exit_code}" >&2
+  pdftocairo -r $SVG_RESOLUTION_PPI -svg -q -f ${PAGE_NUMBER} -l ${PAGE_NUMBER} ${PDF_FILE} ${SVG_FILE} &&
+    cat ${SVG_FILE} | egrep 'data:image/png;base64|<path' | sed 's/  / /g' | cut -d' ' -f 1 | sort | uniq -cw 2
 fi
+
+# TODO convert -resize ratio
 
 #--------------------------------------------
 # Validate the generated SVG file.
@@ -125,13 +128,11 @@ if [ "$svg_size" -eq 0 ] || [ "$num_paths" -gt "$MAX_SVG_PATHS" ] || [ "$num_img
   trap 'rm -f "${temp_png}"*' EXIT
 
   echo "Converting PDF page ${PAGE_NUMBER} to PNG." >&2
-  pdftocairo -r "$SVG_RESOLUTION_PPI" -png -singlefile -scale-to-x "$PNG_X_SCALE" -scale-to-y "$PNG_Y_SCALE" -q \
+
+  pdftocairo -r "$SVG_RESOLUTION_PPI" -png -singlefile -scale-to-x "$RASTERIZE_PNG_WIDTH" -scale-to-y -1 -q \
     -f "${PAGE_NUMBER}" -l "${PAGE_NUMBER}" "${PDF_FILE}" "${temp_png}"
   conv_exit_code=$?
-  if [ "$conv_exit_code" -eq 124 ]; then
-    echo "PDF to PNG conversion timed out." >&2
-    exit "$conv_exit_code"
-  elif [ "$conv_exit_code" -ne 0 ]; then
+  if [ "$conv_exit_code" -ne 0 ]; then
     echo "PDF to PNG conversion failed with exit code $conv_exit_code." >&2
     exit "$conv_exit_code"
   else

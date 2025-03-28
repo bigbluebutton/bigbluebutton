@@ -6,6 +6,7 @@
 # Exit immediately if a command exits with a non-zero status, if a variable is undefined,
 # or if any command in a pipeline fails.
 set -euo pipefail
+#set -x # debug mode
 
 # Load environment variables (e.g. PNG_X_SCALE, PNG_SCALE_TO, timeouts, etc.)
 #source /etc/systemd/system/doc-process.env
@@ -33,12 +34,32 @@ TEXT_OUTPUT="${TEXT_DIR}/slide-1.txt"
 # Write default text for the slide
 echo "No text could be retrieved for the slide" >"${TEXT_OUTPUT}"
 
+ls ${IMAGE_FILE} -l
+
+# Check image width and height
+identify -format "%w %h" "${IMAGE_FILE}"
+
+IFS=' ' read image_width image_height <<<"$(identify -format "%w %h" "${IMAGE_FILE}")" || {
+  echo "Error extracting image dimensions"
+  exit 1
+}
+
+echo "$image_width"
+echo "$MAX_IMAGE_WIDTH"
+echo "$image_height"
+echo "$MAX_IMAGE_HEIGHT"
+
+if [ "$image_width" -gt "$MAX_IMAGE_WIDTH" ] || [ "$image_height" -gt "$MAX_IMAGE_HEIGHT" ]; then
+  echo "The image exceeds max dimension allowed, it will be resized"
+  convert -resize "${MAX_IMAGE_WIDTH}x${MAX_IMAGE_HEIGHT}" "${IMAGE_FILE}" "${IMAGE_FILE}"
+fi
+
 # Create a thumbnail using ImageMagick
-/usr/bin/convert -thumbnail "${IMG_THUMB_DIM}" "$IMAGE_FILE" "${THUMBNAIL_OUTPUT}"
+/usr/bin/convert -thumbnail "${IMG_THUMB_DIM}" "${IMAGE_FILE}" "${THUMBNAIL_OUTPUT}"
 
 # Convert image to PDF for SVG conversion (and perhaps for png)
 PDF_FOR_SVG_OR_PNG="${BASE_DIR}/slide-1.pdf"
-if ! timeout "${IMG_CONV_TIMEOUT}s" /usr/bin/convert "$IMAGE_FILE" -auto-orient "$PDF_FOR_SVG_OR_PNG"; then
+if ! /usr/bin/convert "$IMAGE_FILE" -auto-orient "$PDF_FOR_SVG_OR_PNG"; then
   echo "PDF conversion for SVG generation failed."
   exit 1
 fi
@@ -52,11 +73,8 @@ fi
 SVG_OUTPUT="${SVG_DIR}/slide1.svg"
 
 echo "Converting PDF to SVG."
-SVG_CONV_CMD="pdftocairo -r ${SVG_RESOLUTION_PPI} -svg -q -f 1 -l 1 ${PDF_FOR_SVG_OR_PNG} ${SVG_OUTPUT} && \
-               cat ${SVG_OUTPUT} | egrep 'data:image/png;base64|<path' | sed 's/  / /g' | cut -d' ' -f 1 | sort | uniq -cw 2"
-svg_conv_output=$(timeout "${SVG_CONV_TIMEOUT}s" /bin/sh -c "${SVG_CONV_CMD}")
-conv_exit_code=$?
-echo "SVG conversion command exited with code ${conv_exit_code}"
+pdftocairo -r ${SVG_RESOLUTION_PPI} -svg -q -f 1 -l 1 ${PDF_FOR_SVG_OR_PNG} ${SVG_OUTPUT} &&
+  cat ${SVG_OUTPUT} | egrep 'data:image/png;base64|<path' | sed 's/  / /g' | cut -d' ' -f 1 | sort | uniq -cw 2
 
 # Validate the generated SVG file by checking its size and element counts
 svg_size=$(stat -c%s "$SVG_OUTPUT" 2>/dev/null || echo 0)
@@ -73,12 +91,7 @@ if [ "$svg_size" -eq 0 ] || [ "$num_paths" -gt "${MAX_SVG_PATHS}" ] || [ "$num_i
 
   echo "Converting PDF to PNG for rasterized SVG creation."
   PAGE=1 # Define the page number for conversion
-  PNG_CONV_CMD="pdftocairo -r ${SVG_RESOLUTION_PPI} -png -singlefile -scale-to-x ${PNG_X_SCALE} -scale-to-y ${PNG_Y_SCALE} -q -f ${PAGE} -l ${PAGE} ${PDF_FOR_SVG_OR_PNG} ${TEMP_PNG}"
-  png_conv_output=$(timeout "${SVG_CONV_TIMEOUT}s" /bin/sh -c "${PNG_CONV_CMD}")
-  conv_exit_code=$?
-  if [ $conv_exit_code -eq 124 ]; then
-    echo "PDF to PNG conversion timed out."
-  fi
+  pdftocairo -r ${SVG_RESOLUTION_PPI} -png -singlefile -scale-to-x ${RASTERIZE_PNG_WIDTH} -scale-to-y -1 -q -f ${PAGE} -l ${PAGE} ${PDF_FOR_SVG_OR_PNG} ${TEMP_PNG}
 
   PNG_FILE="${TEMP_PNG}.png"
   png_size=$(stat -c%s "${PNG_FILE}" 2>/dev/null || echo 0)

@@ -12,7 +12,6 @@ public class PresentationProcessExternal {
     private String presentationDir = "/var/bigbluebutton";
     private long maxConversionTime = 5*60;
     private boolean generatePngs = false;
-    private String generatePngsString = "false";
     private int thumbScale = 150; //used when converting pdf to thumb
     private String thumbnailDimension = "150x150"; //used when converting image to thumb
     private int maxImageWidth = 2048;
@@ -24,9 +23,12 @@ public class PresentationProcessExternal {
     private int pngDefaultHeight = 500;
     private int pdfFontsTimeout = 3;
     private int maxNumberOfAttemptsForPdfFonts = 3;
-    private int svgConversionTimeout = 60;
     private int svgPresentationResolutionPpi = 300;
-    private int pngCreationConversionTimeout = 7;
+    private boolean forceRasterizeSlides = false;
+    private String pngWidthRasterizedSlides = "2048";
+    private String pageConversionMemoryHigh = "512M";
+    private String pageConversionMemoryMax = "640M";
+
 
     public boolean processPage(String meetingId, String presentationId, int page) {
         List<String> command = Arrays.asList(
@@ -35,18 +37,17 @@ public class PresentationProcessExternal {
                 "-p", "Environment=THUMBNAIL_SCALE=" + thumbScale,
                 "-p", "Environment=PDF_FONTS_TIMEOUT=" + pdfFontsTimeout,
                 "-p", "Environment=PDF_FONTS_MAX_ATTEMPTS=" + maxNumberOfAttemptsForPdfFonts,
-                "-p", "Environment=SVG_CONV_TIMEOUT=" + svgConversionTimeout,
                 "-p", "Environment=SVG_RESOLUTION_PPI=" + svgPresentationResolutionPpi,
                 "-p", "Environment=MAX_SVG_PATHS=" + placementsThreshold,
                 "-p", "Environment=MAX_SVG_IMGS=" + imageTagThreshold,
-                "-p", "Environment=PNG_X_SCALE=" + maxImageWidth,
-                "-p", "Environment=PNG_Y_SCALE=" + maxImageHeight,
+//                "-p", "Environment=PNG_X_SCALE=" + maxImageWidth,
+//                "-p", "Environment=PNG_Y_SCALE=" + maxImageHeight,
                 "-p", "Environment=PNG_DEFAULT_WIDTH=" + pngDefaultWidth,
                 "-p", "Environment=PNG_DEFAULT_HEIGHT=" + pngDefaultHeight,
                 "-p", "Environment=PNG_SCALE_TO=" + pngScaleTo,
-//                "-p", "Environment=IMG_THUMB_DIM=" + thumbnailDimension,
-//                "-p", "Environment=IMG_CONV_TIMEOUT=" + pngCreationConversionTimeout,
-                "-p", "Environment=GENERATE_PNGS=" + generatePngsString,
+                "-p", "Environment=GENERATE_PNGS=" + booleanToString(generatePngs),
+                "-p", "Environment=RASTERIZE_SLIDE_FORCE=" + booleanToString(forceRasterizeSlides),
+                "-p", "Environment=RASTERIZE_PNG_WIDTH=" + pngWidthRasterizedSlides,
                 "-p", "ProtectSystem=strict",
                 "-p", "ProtectHome=yes",
                 "-p", "PrivateTmp=true",
@@ -56,8 +57,8 @@ public class PresentationProcessExternal {
                 "-p", "SystemCallFilter=~@mount",
                 "-p", "Type=oneshot",
                 "-p", "TimeoutSec=" + (maxConversionTime * 60),
-                "-p", "MemoryHigh=512M",
-                "-p", "MemoryMax=640M",
+                "-p", "MemoryHigh=" + pageConversionMemoryHigh,
+                "-p", "MemoryMax=" + pageConversionMemoryMax,
                 "-p", "MemorySwapMax=0",
                 "/usr/local/bin/bbb-process-pdf-page.sh",
                 meetingId + "_" + presentationId +"_" + page
@@ -72,21 +73,16 @@ public class PresentationProcessExternal {
         List<String> command = Arrays.asList(
                 "systemd-run", "--user", "--pipe", "--wait", "--same-dir",
                 "-p", "Environment=PRESENTATIONS_DIR=" + presentationDir,
-//                "-p", "Environment=THUMBNAIL_SCALE=" + thumbScale,
-//                "-p", "Environment=PDF_FONTS_TIMEOUT=" + pdfFontsTimeout,
-//                "-p", "Environment=PDF_FONTS_MAX_ATTEMPTS=" + maxNumberOfAttemptsForPdfFonts,
-                "-p", "Environment=SVG_CONV_TIMEOUT=" + svgConversionTimeout,
                 "-p", "Environment=SVG_RESOLUTION_PPI=" + svgPresentationResolutionPpi,
                 "-p", "Environment=MAX_SVG_PATHS=" + placementsThreshold,
                 "-p", "Environment=MAX_SVG_IMGS=" + imageTagThreshold,
-                "-p", "Environment=PNG_X_SCALE=" + maxImageWidth,
-                "-p", "Environment=PNG_Y_SCALE=" + maxImageHeight,
+                "-p", "Environment=MAX_IMAGE_WIDTH=" + maxImageWidth,
+                "-p", "Environment=MAX_IMAGE_HEIGHT=" + maxImageHeight,
                 "-p", "Environment=PNG_DEFAULT_WIDTH=" + pngDefaultWidth,
                 "-p", "Environment=PNG_DEFAULT_HEIGHT=" + pngDefaultHeight,
                 "-p", "Environment=PNG_SCALE_TO=" + pngScaleTo,
                 "-p", "Environment=IMG_THUMB_DIM=" + thumbnailDimension,
-                "-p", "Environment=IMG_CONV_TIMEOUT=" + pngCreationConversionTimeout,
-                "-p", "Environment=GENERATE_PNGS=" + generatePngsString,
+                "-p", "Environment=GENERATE_PNGS=" + booleanToString(generatePngs),
                 "-p", "ProtectSystem=strict",
                 "-p", "ProtectHome=yes",
                 "-p", "PrivateTmp=true",
@@ -96,8 +92,8 @@ public class PresentationProcessExternal {
                 "-p", "SystemCallFilter=~@mount",
                 "-p", "Type=oneshot",
                 "-p", "TimeoutSec=" + (maxConversionTime * 60),
-                "-p", "MemoryHigh=512M",
-                "-p", "MemoryMax=640M",
+                "-p", "MemoryHigh=" + pageConversionMemoryHigh,
+                "-p", "MemoryMax=" + pageConversionMemoryMax,
                 "-p", "MemorySwapMax=0",
                 "/usr/local/bin/bbb-process-image.sh",
                 meetingId + "_" + presentationId +"_" + fileType
@@ -105,6 +101,14 @@ public class PresentationProcessExternal {
 
         log.debug("Starting processing [{}]", String.join(" ", command));
         return new ExternalProcessExecutor().exec(command, Duration.ofMillis(maxConversionTime * 60 * 1000));
+    }
+
+    public String booleanToString(boolean value) {
+        if(value) {
+            return "true";
+        } else {
+            return "false";
+        }
     }
 
     public void setMaxConversionTime(long maxConversionTime) {
@@ -115,15 +119,8 @@ public class PresentationProcessExternal {
         this.presentationDir = presentationDir;
     }
 
-    public void setGeneratePngs(boolean generatePngs)
-    {
+    public void setGeneratePngs(boolean generatePngs) {
         this.generatePngs = generatePngs;
-
-        if(this.generatePngs) {
-            this.generatePngsString = "true";
-        } else {
-            this.generatePngsString = "false";
-        }
     }
 
     public void setThumbScale(int thumbScale) {
@@ -170,15 +167,23 @@ public class PresentationProcessExternal {
         this.maxNumberOfAttemptsForPdfFonts = maxNumberOfAttemptsForPdfFonts;
     }
 
-    public void setSvgConversionTimeout(int svgConversionTimeout) {
-        this.svgConversionTimeout = svgConversionTimeout;
-    }
-
     public void setSvgPresentationResolutionPpi(int svgPresentationResolutionPpi) {
         this.svgPresentationResolutionPpi = svgPresentationResolutionPpi;
     }
 
-    public void setPngCreationConversionTimeout(int pngCreationConversionTimeout) {
-        this.pngCreationConversionTimeout = pngCreationConversionTimeout;
+    public void setForceRasterizeSlides(boolean forceRasterizeSlides) {
+        this.forceRasterizeSlides = forceRasterizeSlides;
+    }
+
+    public void setPngWidthRasterizedSlides(String pngWidthRasterizedSlides) {
+        this.pngWidthRasterizedSlides = pngWidthRasterizedSlides;
+    }
+
+    public void setPageConversionMemoryHigh(String pageConversionMemoryHigh) {
+        this.pageConversionMemoryHigh = pageConversionMemoryHigh;
+    }
+
+    public void setPageConversionMemoryMax(String pageConversionMemoryMax) {
+        this.pageConversionMemoryMax = pageConversionMemoryMax;
     }
 }

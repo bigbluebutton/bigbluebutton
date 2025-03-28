@@ -23,7 +23,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class PresentationFileProcessor {
     private static Logger log = LoggerFactory.getLogger(PresentationFileProcessor.class);
 
-    private boolean svgImagesRequired=true;
     private boolean generatePngs;
     private PageExtractor pageExtractor;
 
@@ -32,11 +31,7 @@ public class PresentationFileProcessor {
     private String blankSvg;
     private long maxBigPdfPageSize;
 
-    private TextFileCreator textFileCreator;
-    private SvgImageCreator svgImageCreator;
-    private ThumbnailCreator thumbnailCreator;
     private PresentationProcessExternal presentationProcessExternal;
-    private PngCreator pngCreator;
     private SlidesGenerationProgressNotifier notifier;
     private PageCounterService counterService;
     private PresentationConversionCompletionService presentationConversionCompletionService;
@@ -136,13 +131,7 @@ public class PresentationFileProcessor {
                     pres,
                     page,
                     pageFile,
-                    svgImagesRequired,
                     generatePngs,
-                    textFileCreator,
-                    svgImageCreator,
-                    thumbnailCreator,
-                    pngCreator,
-                    notifier,
                     presentationProcessExternal,
                     blankThumbnail,
                     blankPng,
@@ -325,26 +314,6 @@ public class PresentationFileProcessor {
 
     public void setMaxBigPdfPageSize(long maxBigPdfPageSize) {
         this.maxBigPdfPageSize = maxBigPdfPageSize;
-    }
-
-    public void setSvgImagesRequired(boolean svgImagesRequired) {
-        this.svgImagesRequired = svgImagesRequired;
-    }
-
-    public void setThumbnailCreator(ThumbnailCreator thumbnailCreator) {
-        this.thumbnailCreator = thumbnailCreator;
-    }
-
-    public void setPngCreator(PngCreator pngCreator) {
-        this.pngCreator = pngCreator;
-    }
-
-    public void setTextFileCreator(TextFileCreator textFileCreator) {
-        this.textFileCreator = textFileCreator;
-    }
-
-    public void setSvgImageCreator(SvgImageCreator svgImageCreator) {
-        this.svgImageCreator = svgImageCreator;
     }
 
     public void setImageSlidesGenerationService(ImageSlidesGenerationService s) {

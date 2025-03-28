@@ -35,18 +35,9 @@ public class ImageSlidesGenerationService {
 	private String blankPng;
 	private String blankSvg;
 
-	private long execTimeout = 60000;
 	private ExecutorService executor;
 	private SlidesGenerationProgressNotifier notifier;
-	private SvgImageCreator svgImageCreator;
-	private ThumbnailCreator thumbnailCreator;
-	private TextFileCreator textFileCreator;
-	private PngCreator pngCreator;
 	private ImageResizer imageResizer;
-	private long maxImageWidth = 2048;
-	private long maxImageHeight = 1536;
-	private long MAX_CONVERSION_TIME = 5*60*1000L;
-	private boolean svgImagesRequired=true;
 	private boolean generatePngs;
 	private PresentationProcessExternal presentationProcessExternal;
 	
@@ -59,22 +50,6 @@ public class ImageSlidesGenerationService {
 
 		for (int page = 1; page <= pres.getNumberOfPages(); page++) {
 			/* adding accessibility */
-//			createTextFiles(pres, page);
-//			createThumbnails(pres, page);
-//
-//			if (svgImagesRequired) {
-//				try {
-//					createSvgImages(pres, page);
-//				} catch (TimeoutException e) {
-//					log.error("Slide {} was not converted due to TimeoutException, ending process.", page, e);
-//					notifier.sendUploadFileTimedout(pres, page);
-//					break;
-//				}
-//			}
-//
-//			if (generatePngs) {
-//				createPngImages(pres, page);
-//			}
 
 			File textfilesDir = Util.determineTextfilesDirectory(pres.getUploadedFile());
 			if (!textfilesDir.exists())
@@ -109,84 +84,20 @@ public class ImageSlidesGenerationService {
 
 	}
 
-	private void createTextFiles(UploadedPresentation pres, int page) {
-		log.debug("Creating textfiles for accessibility.");
-		notifier.sendCreatingTextFilesUpdateMessage(pres);
-		textFileCreator.createTextFile(pres, page);
-	}
-	
-	private void createThumbnails(UploadedPresentation pres, int page) {
-		log.debug("Creating thumbnails.");
-		notifier.sendCreatingThumbnailsUpdateMessage(pres);
-		thumbnailCreator.createThumbnail(pres, page, pres.getUploadedFile());
-	}
-	
-	private void createSvgImages(UploadedPresentation pres, int page) throws TimeoutException{
-		log.debug("Creating SVG images.");
-
-		try {
-			ImageResolutionService imgResService = new ImageResolutionService();
-			ImageResolution imageResolution = imgResService.identifyImageResolution(pres.getUploadedFile());
-
-			log.debug("Identified image {} width={} and height={}", pres.getName(), imageResolution.getWidth(), imageResolution.getHeight());
-
-			if(imageResolution.getWidth() > maxImageWidth || imageResolution.getHeight() > maxImageHeight) {
-				log.info("The image exceeds max dimension allowed, it will be resized.");
-				resizeImage(pres, maxImageWidth + "x" + maxImageHeight);
-			}
-		} catch (Exception e) {
-			log.error("Exception while resizing image {}", pres.getName(), e);
-		}
-
-		notifier.sendCreatingSvgImagesUpdateMessage(pres);
-		svgImageCreator.createSvgImage(pres, page);
-	}
-	
-   private void createPngImages(UploadedPresentation pres, int page) {
-        pngCreator.createPng(pres, page, pres.getUploadedFile());
-   }
-
 	private void resizeImage(UploadedPresentation pres, String ratio) {
 	    imageResizer.resize(pres, ratio);
 	}
 
-	public void setThumbnailCreator(ThumbnailCreator thumbnailCreator) {
-		this.thumbnailCreator = thumbnailCreator;
-	}
-
-	public void setTextFileCreator(TextFileCreator textFileCreator) {
-		this.textFileCreator = textFileCreator;
-	}
-
-	public void setPngCreator(PngCreator pngCreator) {
-	  this.pngCreator = pngCreator;
-	}
-	
-	public void setSvgImageCreator(SvgImageCreator svgImageCreator) {
-		this.svgImageCreator = svgImageCreator;
-	}
-	
 	public void setGeneratePngs(boolean generatePngs) {
 	  this.generatePngs = generatePngs;
 	}
 
-	public void setSvgImagesRequired(boolean svg) {
-	  this.svgImagesRequired = svg;
-	}
-	
 	public void setSlidesGenerationProgressNotifier(SlidesGenerationProgressNotifier notifier) {
 		this.notifier = notifier;
 	}
 	
 	public void setImageResizer(ImageResizer imageResizer) {
 	    this.imageResizer = imageResizer;
-	}
-	
-	public void setMaxImageWidth(long maxImageWidth) {
-	    this.maxImageWidth = maxImageWidth;
-	}
-	public void setMaxImageHeight(long maxImageHeight) {
-		this.maxImageHeight = maxImageHeight;
 	}
 
 	public void setBlankThumbnail(String blankThumbnail) {
