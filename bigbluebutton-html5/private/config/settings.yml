@@ -979,6 +979,26 @@ public:
     # stats.interval to stats.probesd (interval / probes).
     logMediaStats:
       enabled: false
+      # Defines additional WebRTC stats to extract from getStats(), beyond the default ones.
+      # Applied only when logMediaStats.enabled is true.
+      # 
+      # - Values must be provided as arrays.
+      # - 'common' stats apply to all media types: audio, video, and screenshare.
+      # - Stats under 'audio', 'video', or 'screenshare' apply only to their respective media type.
+      # 
+      # Example:
+      # common:
+      #   - 'candidate-pair' 
+      #   - 'data-channel'
+      # video:
+      #   - 'remote-inbound-rtp'
+      #
+      # Valid values: any type from https://developer.mozilla.org/en-US/docs/Web/API/RTCStatsReport#the_statistic_types
+      additionalStatsTypes:
+        # common:
+        # audio:
+        # video:
+        # screenshare:
     notification:
       warning: false
       error: true

@@ -1308,6 +1308,9 @@ class AudioManager {
    * transport. This transport information is retrieved by
    * getTransportStatsFromPeer().
    *
+   * @param [additionalStatsTypes] - A list of additional stats types to be included
+   * in the parsing.
+   *
    * @returns An Object containing the status about the active audio peer.
    *
    * For more information see:
@@ -1315,11 +1318,11 @@ class AudioManager {
    * and
    * https://developer.mozilla.org/en-US/docs/Web/API/RTCStatsReport
    */
-  async getStats(stats) {
+  async getStats(additionalStatsTypes = []) {
     if (!this.bridge) return null;
 
     try {
-      const processedStats = await this.bridge.getStats(stats);
+      const processedStats = await this.bridge.getStats(additionalStatsTypes);
 
       return processedStats;
     } catch (error) {

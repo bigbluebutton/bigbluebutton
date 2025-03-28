@@ -709,6 +709,14 @@ export interface Stats {
 
 export interface LogMediaStats {
   enabled: boolean;
+  statsTypes: StatsTypes;
+}
+
+export interface StatsTypes {
+  common?: string[];
+  audio?: string[];
+  video?: string[];
+  screenshare?: string[];
 }
 
 export interface Notification {
