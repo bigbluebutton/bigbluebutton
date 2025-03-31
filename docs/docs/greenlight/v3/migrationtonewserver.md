@@ -33,5 +33,5 @@ On the New Server
 cd ~
 tar -xvzf greenlight.tar.gz
 ```
-You can now proceed with the installation of Bigbluebutton using install script passing -g as an argument. All the users, rooms, settings will be restored
+You can now proceed with the installation of BigBlueButton using install script passing -g as an argument. All the users, rooms, settings will be restored
 
