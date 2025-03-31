@@ -344,7 +344,7 @@ class Presentation extends MultiUsers {
     // Remove
     await this.modPage.waitAndClick(e.actions);
     await this.modPage.waitAndClick(e.managePresentations);
-    await this.modPage.checkElementCount(e.presentationItem, 2, 'should display both default and uploaded presentation on the manage presentations modal');
+    await this.modPage.hasElementCount(e.presentationItem, 2, 'should display both default and uploaded presentation on the manage presentations modal');
     await this.modPage.waitAndClick(e.removePresentation);  // remove first presentation
     await this.modPage.waitAndClick(e.removePresentation);  // remove second presentation
     await this.modPage.waitAndClick(e.confirmManagePresentation);

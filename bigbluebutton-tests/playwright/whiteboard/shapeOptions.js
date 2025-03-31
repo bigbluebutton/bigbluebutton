@@ -29,8 +29,8 @@ class ShapeOptions extends MultiUsers {
     // duplicate the rectangle by pressing Ctrl+D
     await this.modPage.press('Control+D');
     // check if the rectangle was duplicated
-    await this.modPage.checkElementCount(e.wbDrawnShape, 2, 'should display the duplicated rectangle for the moderator');
-    await this.userPage.checkElementCount(e.wbDrawnShape, 2, 'should display the duplicated rectangle for the viewer');
+    await this.modPage.hasElementCount(e.wbDrawnShape, 2, 'should display the duplicated rectangle for the moderator');
+    await this.userPage.hasElementCount(e.wbDrawnShape, 2, 'should display the duplicated rectangle for the viewer');
     await snapshotComparison(this.modPage, this.userPage, 'duplicate');
   }
 

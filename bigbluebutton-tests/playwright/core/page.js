@@ -305,8 +305,13 @@ class Page {
     await this.page.mouse.up();
   }
 
-  async checkElementCount(selector, count, description) {
-    const locator = await this.page.locator(selector);
+  async hasElementCount(selector, count, description) {
+    const locator = await this.getVisibleLocator(selector);
+    await expect(locator, description).toHaveCount(count, { timeout: ELEMENT_WAIT_TIME });
+  }
+
+  async hasHiddenElementCount(selector, count, description) {
+    const locator = await this.getLocator(selector);
     await expect(locator, description).toHaveCount(count, { timeout: ELEMENT_WAIT_TIME });
   }
 
@@ -353,7 +358,7 @@ class Page {
         console.log('not able to close the toast notification');
       }
     }
-    await this.checkElementCount(e.toastContainer, 0, 'should not display any toast notification');
+    await this.hasElementCount(e.toastContainer, 0, 'should not display any toast notification');
   }
 
   async setHeightWidthViewPortSize() {
