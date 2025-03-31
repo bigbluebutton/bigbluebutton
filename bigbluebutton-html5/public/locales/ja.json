@@ -11,7 +11,7 @@
     "app.chat.inputLabel": "チャット {0} へメッセージ入力",
     "app.chat.emojiButtonLabel": "絵文字選択",
     "app.chat.loadMoreButtonLabel": "もっと見る",
-    "app.chat.inputPlaceholder": "メッセージ {0}",
+    "app.chat.inputPlaceholder": "メッセージを{0}に送信",
     "app.chat.titlePublic": "公開チャット",
     "app.chat.titlePrivate": "{0} との非公開チャット",
     "app.chat.partnerDisconnected": "{0} は会議から退出しました",
