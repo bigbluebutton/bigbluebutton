@@ -264,7 +264,7 @@ class MultiUsers {
     // check number of talking indicator's element
     await this.modPage.hasElementCount(e.isTalking, 1, 'should display only the presenter talking indicator for the moderator');
     await this.modPage2.hasElementCount(e.isTalking, 1, 'should display only the presenter talking indicator for the second moderator');
-    await this.modPage.hasElementCount(e.isTalking, 1, 'should display only the presenter talking indicator for the attendee');
+    await this.userPage.hasElementCount(e.isTalking, 1, 'should display only the presenter talking indicator for the attendee');
     // check join audio buttons for the users
     await checkMutedUser(this.modPage2);
     await checkMutedUser(this.userPage);
