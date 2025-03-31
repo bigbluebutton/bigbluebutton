@@ -13,7 +13,7 @@ public class PresentationProcessExternal {
     private long maxConversionTime = 5*60;
     private boolean generatePngs = false;
     private int thumbScale = 150; //used when converting pdf to thumb
-    private String thumbnailDimension = "150x150"; //used when converting image to thumb
+    //private String thumbnailDimension = "150x150"; //used when converting image to thumb
     private int maxImageWidth = 2048;
     private int maxImageHeight = 1536;
     private int placementsThreshold = 800;
@@ -40,6 +40,8 @@ public class PresentationProcessExternal {
                 "-p", "Environment=SVG_RESOLUTION_PPI=" + svgPresentationResolutionPpi,
                 "-p", "Environment=MAX_SVG_PATHS=" + placementsThreshold,
                 "-p", "Environment=MAX_SVG_IMGS=" + imageTagThreshold,
+                "-p", "Environment=MAX_IMAGE_WIDTH=" + maxImageWidth,
+                "-p", "Environment=MAX_IMAGE_HEIGHT=" + maxImageHeight,
 //                "-p", "Environment=PNG_X_SCALE=" + maxImageWidth,
 //                "-p", "Environment=PNG_Y_SCALE=" + maxImageHeight,
                 "-p", "Environment=PNG_DEFAULT_WIDTH=" + pngDefaultWidth,
@@ -81,7 +83,8 @@ public class PresentationProcessExternal {
                 "-p", "Environment=PNG_DEFAULT_WIDTH=" + pngDefaultWidth,
                 "-p", "Environment=PNG_DEFAULT_HEIGHT=" + pngDefaultHeight,
                 "-p", "Environment=PNG_SCALE_TO=" + pngScaleTo,
-                "-p", "Environment=IMG_THUMB_DIM=" + thumbnailDimension,
+                "-p", "Environment=THUMBNAIL_SCALE=" + thumbScale,
+//                "-p", "Environment=IMG_THUMB_DIM=" + thumbnailDimension,
                 "-p", "Environment=GENERATE_PNGS=" + booleanToString(generatePngs),
                 "-p", "ProtectSystem=strict",
                 "-p", "ProtectHome=yes",
@@ -96,7 +99,7 @@ public class PresentationProcessExternal {
                 "-p", "MemoryMax=" + pageConversionMemoryMax,
                 "-p", "MemorySwapMax=0",
                 "/usr/local/bin/bbb-process-image.sh",
-                meetingId + "_" + presentationId +"_" + fileType
+                meetingId + "_" + presentationId +"_1_" + fileType
         );
 
         log.debug("Starting processing [{}]", String.join(" ", command));
@@ -155,9 +158,9 @@ public class PresentationProcessExternal {
         this.pngDefaultHeight = pngDefaultHeight;
     }
 
-    public void setThumbnailDimension(String thumbnailDimension) {
-        this.thumbnailDimension = thumbnailDimension;
-    }
+//    public void setThumbnailDimension(String thumbnailDimension) {
+//        this.thumbnailDimension = thumbnailDimension;
+//    }
 
     public void setPdfFontsTimeout(int pdfFontsTimeout) {
         this.pdfFontsTimeout = pdfFontsTimeout;

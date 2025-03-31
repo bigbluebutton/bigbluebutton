@@ -34,15 +34,16 @@ SVG_FILE="${SVG_DIR}/slide${PAGE_NUMBER}.svg"
 # Generate a thumbnail image for the page.
 #--------------------------------------------
 /usr/bin/pdftocairo -png -scale-to "$THUMBNAIL_SCALE" -f "$PAGE_NUMBER" -l "$PAGE_NUMBER" $PDF_FILE "${THUMBNAIL_DIR}/thumb"
-# NOTE: Pdf cairo save as thumb-01.png, and BBB expects thumb-1.png, renaming
+# Pdf cairo saves as thumb-01.png, and BBB expects thumb-1.png, renaming
 mv "${THUMBNAIL_DIR}/thumb-0${PAGE_NUMBER}.png" "${THUMBNAIL_DIR}/thumb-${PAGE_NUMBER}.png" 2>/dev/null || true
 
 # --------------------------------------------
-#  Optionally generate a higher resolution PNG if enabled.
+#  Optionally generate PNG if enabled.
 # --------------------------------------------
 if [ "${GENERATE_PNGS}" = "true" ]; then
+  echo "generatePngs flag enabled"
   /usr/bin/pdftocairo -png -scale-to "$PNG_SCALE_TO" -f "$PAGE_NUMBER" -l "$PAGE_NUMBER" "$PDF_FILE" "${PNG_DIR}/slide"
-  #Pdf cairo save as slide-01.png, and BBB expects slide-1.png, renaming
+  # Pdf cairo saves as slide-01.png, and BBB expects slide-1.png, renaming
   mv "${PNG_DIR}/slide-0${PAGE_NUMBER}.png" "${PNG_DIR}/slide-${PAGE_NUMBER}.png" 2>/dev/null || true
 fi
 
@@ -88,99 +89,94 @@ detect_type3_fonts() {
 # Determine if rasterization is required based on font detection.
 #--------------------------------------------
 if [ "$RASTERIZE_SLIDE_FORCE" = "true" ]; then
+  echo "forceRasterizeSlides flag enabled"
   REQUIRES_RASTERIZE=1
 else
-  REQUIRES_RASTERIZE=$(detect_type3_fonts)
-fi
+  FONT_TYPE3_DETECTED=$(detect_type3_fonts)
 
-#--------------------------------------------
-# If no Type 3 fonts are found, try converting PDF to SVG.
-#--------------------------------------------
-if [ "$REQUIRES_RASTERIZE" -eq 0 ]; then
-  echo "No Type 3 fonts detected. Converting PDF page ${PAGE_NUMBER} to SVG."
-  pdftocairo -r $SVG_RESOLUTION_PPI -svg -q -f ${PAGE_NUMBER} -l ${PAGE_NUMBER} ${PDF_FILE} ${SVG_FILE} &&
-    cat ${SVG_FILE} | egrep 'data:image/png;base64|<path' | sed 's/  / /g' | cut -d' ' -f 1 | sort | uniq -cw 2
+  #--------------------------------------------
+  # If no Type 3 fonts are found, try converting PDF to SVG.
+  #--------------------------------------------
+  if [ "$FONT_TYPE3_DETECTED" -eq 0 ]; then
+    echo "No Type 3 fonts detected. Converting PDF page ${PAGE_NUMBER} to SVG."
+    pdftocairo -r $SVG_RESOLUTION_PPI -svg -q -f ${PAGE_NUMBER} -l ${PAGE_NUMBER} ${PDF_FILE} ${SVG_FILE}
+
+    set +e
+    svg_size=$(stat -c%s "$SVG_OUTPUT" 2>/dev/null)
+    svg_size=${svg_size:-0}
+    num_paths=$(grep -o "<path\b" "$SVG_OUTPUT" | wc -l)
+    num_images=$(grep -o 'xlink:href="data:image/png;base64' "$SVG_OUTPUT" | wc -l) # count imbedded images
+    set -e
+
+    if [ "$svg_size" -eq 0 ]; then
+      echo "Empty SVG"
+      REQUIRES_RASTERIZE=1
+    elif [ "$num_paths" -gt "$MAX_SVG_PATHS" ]; then
+      echo "Excessive Paths in the generated SVG"
+      REQUIRES_RASTERIZE=1
+    elif [ "$num_imgs" -gt "$MAX_SVG_IMGS" ]; then
+      echo "Excessive Images in the generated SVG"
+      REQUIRES_RASTERIZE=1
+    fi
+
+  else
+    REQUIRES_RASTERIZE=1
+  fi
+
 fi
 
 # TODO convert -resize ratio
+# # talvez nao se um chamar o outro
 
 #--------------------------------------------
 # Validate the generated SVG file.
 #--------------------------------------------
-svg_size=$(stat -c%s "$SVG_FILE" 2>/dev/null || echo 0)
-num_paths=$(xmlstarlet sel -t -v "count(//svg:path)" "$SVG_FILE" 2>/dev/null || echo 0)
-num_imgs=$(xmlstarlet sel -t -v "count(//svg:image)" "$SVG_FILE" 2>/dev/null || echo 0)
+# svg_size=$(stat -c%s "$SVG_FILE" 2>/dev/null || echo 0)
+# num_paths=$(xmlstarlet sel -t -v "count(//svg:path)" "$SVG_FILE" 2>/dev/null || echo 0)
+# num_imgs=$(xmlstarlet sel -t -v "count(//svg:image)" "$SVG_FILE" 2>/dev/null || echo 0)
 
 # If the SVG file is empty, or contains too many paths/images, or if rasterization is flagged,
 # then perform rasterization.
-if [ "$svg_size" -eq 0 ] || [ "$num_paths" -gt "$MAX_SVG_PATHS" ] || [ "$num_imgs" -gt "$MAX_SVG_IMGS" ] || [ "$REQUIRES_RASTERIZE" -eq 1 ]; then
-  echo "Rasterizing PDF because of empty SVG, excessive paths/images, or rasterization flag." >&2
+if [ "$REQUIRES_RASTERIZE" -eq 1 ]; then
+  echo "proceeding with Rasterization."
   rm -f "$SVG_FILE"
-
-  # If no Type 3 fonts were detected but we reached here, exit with an error.
-  if [ "$REQUIRES_RASTERIZE" -eq 0 ]; then
-    echo "Potential issue with generated SVG. Exiting." >&2
-    exit 1
-  fi
 
   # Create a temporary PNG file and ensure it is removed on exit.
   temp_png=$(mktemp)
   trap 'rm -f "${temp_png}"*' EXIT
 
-  echo "Converting PDF page ${PAGE_NUMBER} to PNG." >&2
+  PNG_FILE="${BASE_DIR}/${PRESENTATION_ID}_${PAGE_NUMBER}"
+
+  echo "Converting PDF page ${PAGE_NUMBER} to PNG."
 
   pdftocairo -r "$SVG_RESOLUTION_PPI" -png -singlefile -scale-to-x "$RASTERIZE_PNG_WIDTH" -scale-to-y -1 -q \
-    -f "${PAGE_NUMBER}" -l "${PAGE_NUMBER}" "${PDF_FILE}" "${temp_png}"
+    -f "${PAGE_NUMBER}" -l "${PAGE_NUMBER}" "${PDF_FILE}" "${PNG_FILE}"
   conv_exit_code=$?
   if [ "$conv_exit_code" -ne 0 ]; then
     echo "PDF to PNG conversion failed with exit code $conv_exit_code." >&2
     exit "$conv_exit_code"
   else
-    echo "PDF converted to PNG successfully." >&2
+    echo "PDF converted to PNG successfully."
   fi
 
+  PNG_FILE="${PNG_FILE}.png"
+
   # Verify the PNG file exists and is non-empty.
-  if [ ! -e "${temp_png}.png" ]; then
+  if [ ! -e "${PNG_FILE}" ]; then
     echo "Converted PNG file not found. Exiting." >&2
     exit 1
   fi
 
-  png_size=$(stat -c%s "${temp_png}.png" 2>/dev/null || echo 0)
+  png_size=$(stat -c%s "${PNG_FILE}" 2>/dev/null || echo 0)
   if [ "$png_size" -eq 0 ]; then
     echo "PNG file is empty. Exiting." >&2
     exit 1
   fi
   echo "PNG file generated with size ${png_size} bytes." >&2
 
-  # Encode the PNG image in base64 and check its size against browser limits.
-  base64_png=$(base64 -w 0 "${temp_png}.png")
-  base64_size=${#base64_png}
-  browser_limit=$((4 * 1024 * 1024))
-  if [ "$base64_size" -gt "$browser_limit" ]; then
-    echo "Encoded PNG is too large for browser display." >&2
-  else
-    # Determine image dimensions (defaulting if detection fails).
-    width=$PNG_DEFAULT_WIDTH
-    height=$PNG_DEFAULT_HEIGHT
-    IFS=' ' read png_width png_height <<<"$(identify -format "%w %h" "${temp_png}.png" 2>/dev/null || echo "$PNG_DEFAULT_WIDTH $PNG_DEFAULT_HEIGHT")"
+  /usr/local/bin/bbb-process-image.sh "${MEETING_ID}_${PRESENTATION_ID}_${PAGE_NUMBER}_png"
+  exit 0
 
-    if [ "$png_width" -ne 0 ] && [ "$png_height" -ne 0 ]; then
-      width=$png_width
-      height=$png_height
-    fi
-
-    echo "Writing PNG data as inline image to SVG file." >&2
-    cat <<EOF >"$SVG_FILE"
-<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
-    <image href="data:image/png;base64,${base64_png}" width="${width}" height="${height}"/>
-</svg>
-EOF
-    # Optionally, adjust the SVG file to include additional namespace attributes.
-    svg_size=$(stat -c%s "$SVG_FILE" 2>/dev/null || echo 0)
-    if [ "$svg_size" -gt 0 ]; then
-      sed -i '4s|>| xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.2">|' "$SVG_FILE"
-    fi
-  fi
 fi
 
 exit 0
