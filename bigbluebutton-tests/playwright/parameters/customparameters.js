@@ -26,6 +26,16 @@ class CustomParameters extends MultiUsers {
     await this.modPage.wasRemoved(e.usersList, 'should not display the users list');
   }
 
+  async showSessionDetailsOnJoin() {
+    await this.modPage.hasElement(e.audioModal, 'should display the audio modal on join');
+    const audioModalCloseButton = await this.modPage.getVisibleLocator(e.closeModal); // avoid throwing error due to both modals being in the DOM
+    await audioModalCloseButton.click();
+    await this.modPage.hasElement(e.sessionDetailsModal, 'should display the session details after audio modal is closed');
+    await this.modPage.hasText(e.sessionDetailsModal, this.modPage.meetingId, 'should contain the meeting id on the session details');
+    await this.modPage.waitAndClick(e.closeModal);
+    await this.modPage.wasRemoved(e.sessionDetailsModal, 'should not display the session details after closing the modal');
+  }
+
   async clientTitle() {
     const pageTitle = await this.modPage.page.title();
     expect(pageTitle, 'should display the changed name of the client title').toContain(`${c.docTitle} - `);

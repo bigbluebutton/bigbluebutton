@@ -138,6 +138,7 @@ public:
     # this value to be kept under 16.
     breakouts:
       allowUserChooseRoomByDefault: false
+      offerRecordingForBreakouts: false
       recordRoomByDefault: false
       captureWhiteboardByDefault: false
       captureSharedNotesByDefault: false
@@ -1117,12 +1118,12 @@ public:
       - board.jpg
   minBrowserVersions:
     safari: ">=14"
-    chrome: ">=114"
+    chrome: ">=87"
     firefox: ">=80"
     edge: ">=85"
     mobile:
       safari: ">=14"
-      chrome: ">=114"
+      chrome: ">=87"
 private:
   analytics:
     includeChat: true

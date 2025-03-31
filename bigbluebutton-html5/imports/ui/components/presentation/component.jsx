@@ -815,6 +815,7 @@ class Presentation extends PureComponent {
                     <Styled.Button
                       aria-label={intl?.messages["app.shortcut-help.undo"]}
                       onClick={() => tldrawAPI?.undo()}
+                      className="tlui-undo"
                     >
                       <img src={`${window.meetingClientSettings.public.app.basename}/svgs/tldraw/undo.svg`} width="20" height="20" />
                     </Styled.Button>
@@ -823,6 +824,7 @@ class Presentation extends PureComponent {
                     <Styled.Button
                       aria-label={intl?.messages["app.shortcut-help.redo"]}
                       onClick={() => tldrawAPI?.redo()}
+                      className="tlui-redo"
                     >
                       <img src={`${window.meetingClientSettings.public.app.basename}/svgs/tldraw/redo.svg`} width="20" height="20" />
                     </Styled.Button>
