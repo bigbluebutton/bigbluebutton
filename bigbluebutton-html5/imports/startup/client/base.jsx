@@ -40,7 +40,7 @@ class Base extends Component {
 
     const isLegacyBundle = HTML.classList.contains('legacy');
     if (isLegacyBundle) {
-      logger.info({ logCode: 'legacy_browser_bundle_loaded' }, 'Client loaded using legacy bundle');
+      logger.warn({ logCode: 'legacy_browser_bundle_loaded' }, 'Client loaded using legacy bundle');
     }
   }
 
