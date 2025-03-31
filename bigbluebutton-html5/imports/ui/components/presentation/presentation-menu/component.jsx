@@ -91,7 +91,7 @@ const intlMessages = defineMessages({
   clearAnnotationsConfirmLabel: {
     id: 'app.presentation.modal.clearAnnotationsConfirmLabel',
     description: 'Label for the confirm button',
-  },
+  }
 });
 
 const propTypes = {
