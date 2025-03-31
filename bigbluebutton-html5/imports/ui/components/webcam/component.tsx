@@ -17,6 +17,7 @@ import {
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import DropAreaContainer from './drop-areas/container';
 import VideoProviderContainer from '/imports/ui/components/video-provider/container';
+import VideoService from '/imports/ui/components/video-provider/service';
 import Storage from '/imports/ui/services/storage/session';
 import Styled from './styles';
 import { Input, Layout, Output } from '/imports/ui/components/layout/layoutTypes';
@@ -354,6 +355,7 @@ const WebcamContainer: React.FC = () => {
   const isGridEnabled = isUnifiedLayout && !presentationIsOpen;
 
   const { streams: videoUsers, gridUsers } = useVideoStreams();
+  VideoService.updateActivePeers(videoUsers);
 
   let usersVideo: VideoItem[];
   if (gridUsers.length > 0) {
