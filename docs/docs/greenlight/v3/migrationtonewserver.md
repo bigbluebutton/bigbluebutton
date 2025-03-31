@@ -13,7 +13,7 @@ keywords:
 
 ### Migrating the Greenlight between Old v3 Server to New v3 Server
 
-Before Installing the Bigbluebutton on a new server the migration should be done.
+Before Installing the BigBlueButton on a new server the migration should be done.
 
 On your old server
 ```
