@@ -7,6 +7,8 @@ exports.settings = 'li[data-test="settings"]';
 exports.modalConfirmButton = 'button[data-test="modalConfirmButton"]';
 exports.screenshareConnecting = 'div[data-test="screenshareConnecting"]';
 exports.screenShareVideo = 'video[id="screenshareVideo"]';
+exports.simpleModal = 'div[id="simpleModal"]';
+exports.sessionDetailsModal = 'div[data-test="sessionDetailsModal"]';
 exports.modalDismissButton = 'button[data-test="modalDismissButton"]';
 exports.closeModal = 'button[data-test="closeModal"]';
 exports.isSharingScreen = 'div[data-test="isSharingScreen"]';
@@ -515,7 +517,6 @@ exports.darkModeToggleBtn = 'input[data-test="darkModeToggleBtn"]';
 exports.actionsBarBackground = 'section[id="ActionsBar"]';
 exports.navbarBackground = 'header[id="Navbar"]';
 exports.fullscreenModal = 'div[id="fsmodal"]';
-exports.simpleModal = 'div[id="simpleModal"]';
 exports.sharedNotesBackground = 'div[data-test="notes"]';
 exports.whiteboardOptionsButton = 'button[data-test="whiteboardOptionsButton"]';
 
