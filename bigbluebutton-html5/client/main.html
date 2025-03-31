@@ -179,6 +179,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           var script = document.createElement('script');
 
           if (isSafari && safariVersion && safariVersion <= 16) {
+            const HTML = document.getElementsByTagName('html')[0];
+            HTML.classList.add('legacy');
+
             script.src = 'bundle.' + bundleHash + '.safari.js';
           } else {
             script.src = 'bundle.' + bundleHash + '.js';
