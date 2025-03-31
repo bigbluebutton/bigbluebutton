@@ -441,6 +441,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
           onEnded={handleOnStop}
           muted={mute || isEchoTest}
           controls={isPresenter}
+          previewTabIndex={isPresenter ? 0 : -1}
         />
         {
           shouldShowTools() ? (
@@ -461,6 +462,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
               loaded={loaded}
               subtitlesOn={subtitlesOn}
               hideVolume={hideVolume[playerName as keyof typeof hideVolume]}
+              showUnsynchedMsg={showUnsynchedMsg}
             />
           ) : null
         }
