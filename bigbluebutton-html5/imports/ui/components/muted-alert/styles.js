@@ -19,7 +19,6 @@ const MuteWarning = styled.div`
   border-radius: ${borderRadius};
   top: -100%;
   left: 50%;
-  transform: translate(-50%, -50%);
   z-index: 100;
   cursor: pointer;
 
@@ -54,6 +53,14 @@ const MuteWarning = styled.div`
       font-size: ${fontSizeSmall};
     }
 
+  `}
+
+  ${({ $mobile }) => $mobile && `
+    transform: translate(0, -50%);
+  `}
+
+  ${({ $mobile }) => !$mobile && `
+    transform: translate(-50%, -50%);
   `}
 `;
 

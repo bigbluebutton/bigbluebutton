@@ -6,6 +6,7 @@ import Styled from './styles';
 import { defineMessages, injectIntl } from 'react-intl';
 import { notify } from '/imports/ui/services/notification';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
+import { isMobile } from '/imports/utils/deviceInfo';
 
 const propTypes = {
   inputStream: PropTypes.objectOf(PropTypes.any).isRequired,
@@ -145,6 +146,7 @@ class MutedAlert extends Component {
           alignForMod={!isViewer || isPresenter}
           alignForViewer={isViewer}
           onClick={() => this.closeAlert()}
+          $mobile={isMobile}
         >
           <span>
             {intl.formatMessage(intlMessages.warningLabel, { 0: <><span class="sr-only">{intl.formatMessage(intlMessages.unmuteAudio)}</span><Icon iconName="mute" aria-hidden="true" /></> })}
