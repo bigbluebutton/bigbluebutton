@@ -439,7 +439,7 @@ async function processPresentationAnnotations() {
 
   // Launch Notifier Worker depending on job type
   logger.info('Saved PDF at ',
-      `${outputDir}/${jobId}/${serverFilenameWithExtension}`);
+      `${outputDir}/${serverFilenameWithExtension}`);
 
   const notifier = new WorkerStarter({
     jobType: exportJob.jobType, jobId,
