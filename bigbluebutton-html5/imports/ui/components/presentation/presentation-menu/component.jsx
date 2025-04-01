@@ -14,7 +14,6 @@ import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 import deviceInfo from '/imports/utils/deviceInfo';
 import browserInfo from '/imports/utils/browserInfo';
-import AppService from '/imports/ui/components/app/service';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import SvgIcon from '/imports/ui/components/common/icon-svg/component';
 
@@ -91,7 +90,7 @@ const intlMessages = defineMessages({
   clearAnnotationsConfirmLabel: {
     id: 'app.presentation.modal.clearAnnotationsConfirmLabel',
     description: 'Label for the confirm button',
-  }
+  },
 });
 
 const propTypes = {
@@ -537,6 +536,7 @@ const PresentationMenu = (props) => {
           })?.filter((s) => s?.length > 0));
           setIsClearModalOpen(false);
         }}
+        priority="0"
         title={intl.formatMessage(intlMessages.clearAnnotationsTitle)}
         description={(currentUser?.presenter || currentUser.isModerator)
           ? intl.formatMessage(intlMessages.clearAnnotationsDescription)
