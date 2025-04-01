@@ -6,19 +6,12 @@ async function openPublicChat(testPage) {
   const { chatEnabled } = getSettings();
 
   if(!chatEnabled) {
-    return testPage.wasRemoved(e.chatButton);
+    return testPage.wasRemoved(e.chatButton, 'public chat should not be displayed');
   }
 
-  await testPage.waitForSelector(e.chatBox);
-  await testPage.waitForSelector(e.chatMessages);
-  try {
-    await testPage.waitForSelector(e.chatWelcomeMessageText);
-  } catch {
-    await testPage.waitAndClick(e.chatMessages);
-    await testPage.down('Home');
-    await testPage.waitForSelector(e.chatWelcomeMessageText);
-    await testPage.down('End');
-  }
+  await testPage.hasElement(e.chatBox, 'should display the chat box for messaging');
+  await testPage.hasElement(e.chatMessages, 'should display the chat messages');
+  await testPage.hasElement(e.chatOptions, 'should display the chat options menu button');
 }
 
 async function openPrivateChat(testPage) {
@@ -26,14 +19,15 @@ async function openPrivateChat(testPage) {
 
   await testPage.waitAndClick(e.userListItem);
   if(!chatEnabled) {
-    return await testPage.wasRemoved(e.startPrivateChat);
+    return await testPage.wasRemoved(e.startPrivateChat, 'should not display the private chat');
   }
-  await testPage.waitAndClick(e.startPrivateChat);
+  const lastUserStartPrivateChat = await testPage.getLocator(e.startPrivateChat).last();
+  await testPage.clickOnLocator(lastUserStartPrivateChat);
 }
 
 async function checkLastMessageSent(testPage, expectedMessage) {
   const lastMessageSent = await testPage.getLocator(e.chatUserMessageText).last();
-  await expect(lastMessageSent).toHaveText(expectedMessage);
+  await expect(lastMessageSent, 'should display the last message sent on the chat').toHaveText(expectedMessage);
 }
 
 exports.openPublicChat = openPublicChat;

@@ -1,8 +1,11 @@
 package org.bigbluebutton.presentation.imp;
 
+import com.amazonaws.services.s3.model.S3Object;
 import com.google.gson.Gson;
 import org.apache.commons.io.FilenameUtils;
 import org.bigbluebutton.api.Util;
+import org.bigbluebutton.api.domain.Meeting;
+import org.bigbluebutton.api.service.ServiceUtils;
 import org.bigbluebutton.presentation.*;
 import org.bigbluebutton.presentation.messages.*;
 import org.slf4j.Logger;
@@ -40,6 +43,7 @@ public class PresentationFileProcessor {
     private PresentationConversionCompletionService presentationConversionCompletionService;
     private ImageSlidesGenerationService imageSlidesGenerationService;
     private PdfSlidesGenerationService pdfSlidesGenerationService;
+    private S3FileManager s3FileManager;
 
     private ExecutorService executor;
     private volatile boolean processPresentation = false;
@@ -53,6 +57,22 @@ public class PresentationFileProcessor {
     public synchronized void process(UploadedPresentation pres) {
         if (pres.isDownloadable()) {
             processMakePresentationDownloadableMsg(pres);
+        }
+
+        String meetingId = pres.getMeetingId();
+        //Download presentation outputs from cache (if enabled)
+        try {
+            pres.setUploadedFileHash(s3FileManager.generateHash(pres.getUploadedFile()));
+            String remoteFileName = pres.getUploadedFileHash() + ".tar.gz";
+            Meeting meeting = ServiceUtils.findMeetingFromMeetingID(meetingId);
+            if(meeting.isPresentationConversionCacheEnabled() && s3FileManager.exists(remoteFileName)) {
+                S3Object s3Object = s3FileManager.download(remoteFileName);
+                File parentDir = new File(pres.getUploadedFile().getParent());
+                TarGzManager.decompress(s3Object, parentDir.getAbsolutePath());
+                log.info("Presentation outputs restored from cache successfully for {}.", pres.getId());
+            }
+        } catch (Exception e) {
+            log.error("Error while downloading presentations outputs from cache: {}", e.getMessage());
         }
 
         Runnable messageProcessor = new Runnable() {
@@ -83,11 +103,13 @@ public class PresentationFileProcessor {
     private void processUploadedPresentation(UploadedPresentation pres) {
         if (SupportedFileTypes.isPdfFile(pres.getFileType())) {
             pres.generateFilenameConverted("pdf");
-            determineNumberOfPages(pres);
-            sendDocPageConversionStartedProgress(pres);
-            PresentationConvertMessage msg = new PresentationConvertMessage(pres);
-            presentationConversionCompletionService.handle(msg);
-            extractIntoPages(pres);
+            boolean isNumberOfPagesOk = determineNumberOfPages(pres);
+            if (isNumberOfPagesOk) {
+                sendDocPageConversionStartedProgress(pres);
+                PresentationConvertMessage msg = new PresentationConvertMessage(pres);
+                presentationConversionCompletionService.handle(msg);
+                extractIntoPages(pres);
+            }
         } else if (SupportedFileTypes.isImageFile(pres.getFileType())) {
             pres.setNumberOfPages(1); // There should be only one image to convert.
             sendDocPageConversionStartedProgress(pres);
@@ -96,19 +118,21 @@ public class PresentationFileProcessor {
     }
 
     private void extractIntoPages(UploadedPresentation pres) {
+        String presDir = pres.getUploadedFile().getParent();
+
         List<PageToConvert> listOfPagesConverted = new ArrayList<>();
         for (int page = 1; page <= pres.getNumberOfPages(); page++) {
-            String presDir = pres.getUploadedFile().getParent();
             File pageFile = new File(presDir + "/page" + "-" + page + ".pdf");
 
-            File extractedPageFile = extractPage(pres, page);
-
-            if (extractedPageFile.length() > maxBigPdfPageSize) {
-                File downscaledPageFile = downscalePage(pres, extractedPageFile, page);
-                downscaledPageFile.renameTo(pageFile);
-                extractedPageFile.delete();
-            } else {
-                extractedPageFile.renameTo(pageFile);
+            if(!pageFile.exists()) {
+                File extractedPageFile = extractPage(pres, page);
+                if (extractedPageFile.length() > maxBigPdfPageSize) {
+                    File downscaledPageFile = downscalePage(pres, extractedPageFile, page);
+                    downscaledPageFile.renameTo(pageFile);
+                    extractedPageFile.delete();
+                } else {
+                    extractedPageFile.renameTo(pageFile);
+                }
             }
 
             PageToConvert pageToConvert = new PageToConvert(
@@ -162,7 +186,8 @@ public class PresentationFileProcessor {
 
     private boolean determineNumberOfPages(UploadedPresentation pres) {
         try {
-            counterService.determineNumberOfPages(pres);
+            Meeting meeting = ServiceUtils.findMeetingFromMeetingID(pres.getMeetingId());
+            counterService.determineNumberOfPages(pres, meeting.getMaxNumPages());
             return true;
         } catch (CountingPageException e) {
             sendFailedToCountPageMessage(e, pres);
@@ -340,5 +365,9 @@ public class PresentationFileProcessor {
 
     public void setPdfSlidesGenerationService(PdfSlidesGenerationService s) {
         this.pdfSlidesGenerationService = s;
+    }
+
+    public void setS3FileManager(S3FileManager s3FileManager) {
+        this.s3FileManager = s3FileManager;
     }
 }

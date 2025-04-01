@@ -23,6 +23,7 @@ export const setUserDataToSessionStorage = (userData: {
   extId: string,
   meetingName: string,
   customLogoUrl: string,
+  customDarkLogoUrl: string,
 }) => {
   sessionStorage.setItem('meetingId', userData.meetingId);
   sessionStorage.setItem('userId', userData.userId);
@@ -32,6 +33,7 @@ export const setUserDataToSessionStorage = (userData: {
   sessionStorage.setItem('extId', userData.extId);
   sessionStorage.setItem('meetingName', userData.meetingName);
   Storage.setItem('CustomLogoUrl', userData.customLogoUrl);
+  Storage.setItem('CustomDarkLogoUrl', userData.customDarkLogoUrl);
 };
 
 export default {

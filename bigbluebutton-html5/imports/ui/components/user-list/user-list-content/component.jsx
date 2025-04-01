@@ -9,8 +9,10 @@ import GuestPanelOpenerContainer from '../user-list-graphql/user-participants-ti
 import UserPollsContainer from './user-polls/container';
 import BreakoutRoomContainer from './breakout-room/container';
 import UserTitleContainer from '../user-list-graphql/user-participants-title/component';
-import { GenericSidekickContent } from 'bigbluebutton-html-plugin-sdk';
 import GenericSidekickContentNavButtonContainer from './generic-sidekick-content-button/container';
+import deviceInfo from '/imports/utils/deviceInfo';
+
+const { isMobile, isPortrait } = deviceInfo;
 
 const propTypes = {
   currentUser: PropTypes.shape({
@@ -43,17 +45,34 @@ class UserContent extends PureComponent {
 
     return (
       <Styled.Content data-test="userListContent">
-        {isChatEnabled ? <ChatList /> : null}
-        <UserNotesContainer />
-        {isTimerActive && <TimerContainer isModerator={currentUser?.role === ROLE_MODERATOR} />}
-        {currentUser?.role === ROLE_MODERATOR ? (
-          <GuestPanelOpenerContainer />
-          ) : null}
-        <UserPollsContainer isPresenter={currentUser?.presenter} />
-        <BreakoutRoomContainer />
-        <GenericSidekickContentNavButtonContainer />
-        <UserTitleContainer />
-        <UserListParticipants compact={compact} />
+        {isMobile || (isMobile && isPortrait) ? (
+          <Styled.ScrollableList role="tabpanel" tabIndex={0}>
+            <Styled.List>
+              {isChatEnabled ? <ChatList /> : null}
+              <UserNotesContainer />
+              {isTimerActive
+              && <TimerContainer isModerator={currentUser?.role === ROLE_MODERATOR} />}
+              {currentUser?.role === ROLE_MODERATOR ? <GuestPanelOpenerContainer /> : null}
+              <UserPollsContainer isPresenter={currentUser?.presenter} />
+              <BreakoutRoomContainer />
+              <GenericSidekickContentNavButtonContainer />
+              <UserTitleContainer />
+              <UserListParticipants compact={compact} />
+            </Styled.List>
+          </Styled.ScrollableList>
+        ) : (
+          <>
+            {isChatEnabled ? <ChatList /> : null}
+            <UserNotesContainer />
+            {isTimerActive && <TimerContainer isModerator={currentUser?.role === ROLE_MODERATOR} />}
+            {currentUser?.role === ROLE_MODERATOR ? <GuestPanelOpenerContainer /> : null}
+            <UserPollsContainer isPresenter={currentUser?.presenter} />
+            <BreakoutRoomContainer />
+            <GenericSidekickContentNavButtonContainer />
+            <UserTitleContainer />
+            <UserListParticipants compact={compact} />
+          </>
+        )}
       </Styled.Content>
     );
   }

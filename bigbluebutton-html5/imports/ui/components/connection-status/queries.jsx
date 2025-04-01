@@ -7,19 +7,22 @@ export const CONNECTION_STATUS_REPORT_SUBSCRIPTION = gql`subscription ConnStatus
             { clientNotResponding: { _eq: true } }, 
             { lastUnstableStatus: { _is_null: false } }
           ]
-  }) {
+  },
+  order_by: {lastUnstableStatusAt: desc}
+  ) {
     user {
       userId
       name
       avatar
       color
       isModerator
-      isOnline
+      currentlyInMeeting
     }
     clientNotResponding
     lastUnstableStatus
     lastUnstableStatusAt
     currentStatus
+    connectionAliveAt
   }
 }`;
 

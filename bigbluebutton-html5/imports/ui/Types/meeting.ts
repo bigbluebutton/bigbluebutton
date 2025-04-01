@@ -105,6 +105,7 @@ export interface ComponentsFlags {
   hasTimer: boolean;
   showRemainingTime: boolean;
   hasCameraAsContent: boolean;
+  hasScreenshareAsContent: boolean;
 }
 
 export interface Metadata {
@@ -121,6 +122,9 @@ export interface Meeting {
   learningDashboardAccessToken: string;
   maxPinnedCameras: number;
   meetingCameraCap: number;
+  cameraBridge: string;
+  screenShareBridge: string;
+  audioBridge: string;
   meetingId: string;
   name: string;
   notifyRecordingIsOn: boolean;

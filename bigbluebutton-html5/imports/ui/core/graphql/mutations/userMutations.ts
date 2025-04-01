@@ -44,14 +44,6 @@ export const SET_PRESENTER = gql`
   }
 `;
 
-export const SET_EMOJI_STATUS = gql`
-  mutation SetEmojiStatus($emoji: String!) {
-    userSetEmojiStatus(
-      emoji: $emoji,
-    )
-  }
-`;
-
 export const SET_REACTION_EMOJI = gql`
   mutation SetReactionEmoji($reactionEmoji: String!) {
     userSetReactionEmoji(
@@ -66,12 +58,6 @@ export const SET_LOCKED = gql`
       userId: $userId,
       locked: $locked,
     )
-  }
-`;
-
-export const CLEAR_ALL_EMOJI = gql`
-  mutation ClearAllUsersEmoji {
-    allUsersClearEmoji
   }
 `;
 
@@ -113,18 +99,32 @@ export const USER_LEAVE_MEETING = gql`
   }
 `;
 
+export const SET_USER_CHAT_LOCKED = gql`
+  mutation UserSetChatLocked($disablePubChat: Boolean!, $userId: String!) {
+    userSetUserLockSettings(
+      userId: $userId,
+      disablePubChat: $disablePubChat,
+    )
+  }
+`;
+
+export const SWAP_SCREENSHARE = gql`
+  mutation($screenshareAsContent: Boolean!) {
+   meetingLayoutSetScreenshareAsContent(screenshareAsContent: $screenshareAsContent)
+  }
+`;
+
 export default {
   SET_CAMERA_PINNED,
   SET_RAISE_HAND,
   EJECT_FROM_MEETING,
   EJECT_FROM_VOICE,
   SET_PRESENTER,
-  SET_EMOJI_STATUS,
   SET_REACTION_EMOJI,
   SET_LOCKED,
-  CLEAR_ALL_EMOJI,
   CLEAR_ALL_REACTION,
   SET_EXIT_REASON,
   SET_SPEECH_LOCALE,
   USER_LEAVE_MEETING,
+  SET_USER_CHAT_LOCKED,
 };

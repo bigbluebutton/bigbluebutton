@@ -1,1 +1,1 @@
-git clone --branch v3.2.0 --depth 1 https://github.com/bigbluebutton/bbb-webhooks bbb-webhooks
+git clone --branch v3.3.1 --depth 1 https://github.com/bigbluebutton/bbb-webhooks bbb-webhooks

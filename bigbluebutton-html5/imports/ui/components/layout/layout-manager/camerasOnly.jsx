@@ -7,10 +7,9 @@ import {
 } from '/imports/ui/components/layout/context';
 import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
 import { INITIAL_INPUT_STATE } from '/imports/ui/components/layout/initState';
-import { ACTIONS } from '/imports/ui/components/layout/enums';
+import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
 import { defaultsDeep } from '/imports/utils/array-utils';
 import Session from '/imports/ui/services/storage/in-memory';
-import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 
 const CamerasOnlyLayout = (props) => {
   const { bannerAreaHeight, isMobile, calculatesNavbarHeight } = props;
@@ -25,12 +24,10 @@ const CamerasOnlyLayout = (props) => {
 
   const input = layoutSelect((i) => i.input);
   const deviceType = layoutSelect((i) => i.deviceType);
-  const Settings = getSettingsSingletonInstance();
-  const { isRTL } = Settings.application;
+  const isRTL = layoutSelect((i) => i.isRTL);
   const fullscreen = layoutSelect((i) => i.fullscreen);
   const fontSize = layoutSelect((i) => i.fontSize);
   const currentPanelType = layoutSelect((i) => i.currentPanelType);
-  const cameraDockInput = layoutSelectInput((i) => i.cameraDock);
   const navbarInput = layoutSelectInput((i) => i.navBar);
   const actionbarInput = layoutSelectInput((i) => i.actionBar);
   const layoutContextDispatch = layoutDispatch();
@@ -113,7 +110,6 @@ const CamerasOnlyLayout = (props) => {
       sidebarNavWidth.width,
       sidebarContentWidth.width,
     );
-    console.log({mediaAreaBounds})
     const navbarBounds = calculatesNavbarBounds(mediaAreaBounds);
     const actionbarBounds = calculatesActionbarBounds(mediaAreaBounds);
     const sidebarSize = sidebarContentWidth.width + sidebarNavWidth.width;
@@ -322,6 +318,21 @@ const CamerasOnlyLayout = (props) => {
         right: isRTL ? mediaBounds.right : null,
       },
     });
+
+    layoutContextDispatch({
+      type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
+      value: false,
+    });
+
+    layoutContextDispatch({
+      type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+      value: false,
+    });
+
+    layoutContextDispatch({
+      type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+      value: PANELS.NONE,
+    });
   };
 
   const throttledCalculatesLayout = throttle(() => calculatesLayout(), 50, {
@@ -342,41 +353,45 @@ const CamerasOnlyLayout = (props) => {
   }, []);
 
   const init = () => {
+    const hasLayoutEngineLoadedOnce = Session.getItem('hasLayoutEngineLoadedOnce');
     layoutContextDispatch({
       type: ACTIONS.SET_LAYOUT_INPUT,
-      value: defaultsDeep(
-        {
-          sidebarNavigation: {
-            isOpen: false,
-            width: 0,
-            height: 0,
+      value: (prevInput) => {
+        const { cameraDock } = prevInput;
+        return defaultsDeep(
+          {
+            sidebarNavigation: {
+              isOpen: false,
+              width: 0,
+              height: 0,
+            },
+            sidebarContent: {
+              isOpen: false,
+              width: 0,
+              height: 0,
+            },
+            SidebarContentHorizontalResizer: {
+              isOpen: false,
+            },
+            presentation: {
+              isOpen: false,
+            },
+            cameraDock: {
+              numCameras: cameraDock.numCameras,
+            },
+            externalVideo: {
+              hasExternalVideo: false,
+            },
+            genericMainContent: {
+              genericContentId: undefined,
+            },
+            screenShare: {
+              hasScreenShare: false,
+            },
           },
-          sidebarContent: {
-            isOpen: false,
-            width: 0,
-            height: 0,
-          },
-          SidebarContentHorizontalResizer: {
-            isOpen: false,
-          },
-          presentation: {
-            isOpen: false,
-          },
-          cameraDock: {
-            numCameras: cameraDockInput.numCameras,
-          },
-          externalVideo: {
-            hasExternalVideo: false,
-          },
-          genericMainContent: {
-            genericContentId: undefined,
-          },
-          screenShare: {
-            hasScreenShare: false,
-          },
-        },
-        INITIAL_INPUT_STATE,
-      ),
+          hasLayoutEngineLoadedOnce ? prevInput : INITIAL_INPUT_STATE,
+        );
+      },
     });
     Session.setItem('layoutReady', true);
     throttledCalculatesLayout();

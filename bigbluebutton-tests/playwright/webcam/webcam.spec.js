@@ -2,9 +2,9 @@ const { test } = require('../fixtures');
 const { MultiUsers } = require('../user/multiusers');
 const { Webcam } = require('./webcam');
 
-test.describe.parallel('Webcam', () => {
-  // https://docs.bigbluebutton.org/2.6/release-tests.html#joining-webcam-automated
-  test('Shares webcam @ci', async ({ browser, page }) => {
+test.describe.parallel('Webcam', { tag: '@ci' }, () => {
+  // https://docs.bigbluebutton.org/3.0/testing/release-testing/#joining-webcam-automated
+  test('Shares webcam', async ({ browser, page }) => {
     const webcam = new Webcam(browser, page);
     await webcam.init(true, true);
     await webcam.share();
@@ -16,13 +16,13 @@ test.describe.parallel('Webcam', () => {
     await webcam.checksContent();
   });
 
-  test('Webcam talking indicator @ci', async ({ browser, page }) => {
+  test('Webcam talking indicator', async ({ browser, page }) => {
     const webcam = new Webcam(browser, page);
     await webcam.init(true, false);
     await webcam.talkingIndicator();
   });
 
-  test('Pinning and unpinning webcams @ci', async ({ browser, context, page, browserName }) => {
+  test('Pinning and unpinning webcams', async ({ browser, context, page }) => {
     const webcam = new MultiUsers(browser, context);
     test.skip(browserName === 'webkit', 'Webkit does not support webcams permission');
     test.skip(browserName === 'firefox', 'Webcams tests are inconsistent on Firefox.');
@@ -32,7 +32,8 @@ test.describe.parallel('Webcam', () => {
     await webcam.pinningWebcams();
   });
 
-  test('Change video quality', async ({ browser, page }) => {
+  test('Change video quality', { tag: '@flaky' } , async ({ browser, page }) => {
+    // Current approach is not reliable enough to ensure the video quality is changed
     const webcam = new Webcam(browser, page);
     await webcam.init(true, true);
     await webcam.changeVideoQuality();
@@ -44,16 +45,13 @@ test.describe.parallel('Webcam', () => {
     await webcam.webcamFullscreen();
   });
 
-
-  test('Disable Self-view @ci', async ({ browser, page }) => {
+  test('Disable Self-view', async ({ browser, page }) => {
     const webcam = new Webcam(browser, page);
     await webcam.init(true, true);
     await webcam.disableSelfView();
   });
 
-  test.describe('Webcam background @ci', () => {
-    /* this test has the flaky tag because it is breaking due to a default video from chrome that
-    is overlapping the virtual background. */
+  test.describe('Webcam background', () => {
     test('Select one of the default backgrounds', async ({ browser, page }) => {
       const webcam = new Webcam(browser, page);
       await webcam.init(true, true);

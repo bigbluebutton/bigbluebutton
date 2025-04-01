@@ -20,6 +20,7 @@ case class PresPresentationDbModel(
     downloadFileExtension:  Option[String],
     downloadFileUri:        Option[String],
     removable:              Boolean,
+    uploadCompletionNotified:        Boolean,
     uploadInProgress:       Boolean,
     uploadCompleted:        Boolean,
     uploadErrorMsgKey:      Option[String],
@@ -43,6 +44,7 @@ class PresPresentationDbTableDef(tag: Tag) extends Table[PresPresentationDbModel
   val downloadable = column[Boolean]("downloadable")
   val downloadFileExtension = column[Option[String]]("downloadFileExtension")
   val downloadFileUri = column[Option[String]]("downloadFileUri")
+  val uploadCompletionNotified = column[Boolean]("uploadCompletionNotified")
   val removable = column[Boolean]("removable")
   val uploadInProgress = column[Boolean]("uploadInProgress")
   val uploadCompleted = column[Boolean]("uploadCompleted")
@@ -56,7 +58,8 @@ class PresPresentationDbTableDef(tag: Tag) extends Table[PresPresentationDbModel
   //  val meeting = foreignKey("meeting_fk", meetingId, Meetings)(_.meetingId, onDelete = ForeignKeyAction.Cascade)
 
   def * = (
-    presentationId, meetingId, uploadUserId, uploadTemporaryId, uploadToken,  name, filenameConverted, isDefault, current, downloadable, downloadFileExtension, downloadFileUri, removable,
+    presentationId, meetingId, uploadUserId, uploadTemporaryId, uploadToken,  name, filenameConverted, isDefault, current,
+    downloadable, downloadFileExtension, downloadFileUri, removable, uploadCompletionNotified,
     uploadInProgress, uploadCompleted, uploadErrorMsgKey, uploadErrorDetailsJson, totalPages,
     exportToChatStatus, exportToChatCurrentPage, exportToChatHasError
   ) <> (PresPresentationDbModel.tupled, PresPresentationDbModel.unapply)
@@ -69,45 +72,44 @@ object PresPresentationDAO {
     }
   }
 
-  def insertToken(meetingId: String, userId: String, temporaryId: String, presentationId: String, uploadToken: String, filename: String) = {
+  def insertUploadTokenIfNotExists(meetingId: String, userId: String, temporaryId: String, presentationId: String, uploadToken: String, filename: String) = {
     DatabaseConnection.enqueue(
-      TableQuery[PresPresentationDbTableDef].forceInsert(
-        PresPresentationDbModel(
-          presentationId = presentationId,
-          meetingId = meetingId,
-          uploadUserId = Some(userId),
-          uploadTemporaryId = Some(temporaryId),
-          uploadToken = Some(uploadToken),
-          name = filename,
-          filenameConverted = "",
-          isDefault = false,
-          current = false, //Set after pages were inserted
-          downloadable = false,
-          downloadFileExtension = None,
-          downloadFileUri = None,
-          removable = false,
-          uploadInProgress = false,
-          uploadCompleted = false,
-          totalPages = 0,
-          uploadErrorMsgKey = None,
-          uploadErrorDetailsJson = None,
-          exportToChatStatus = None,
-          exportToChatCurrentPage = None,
-          exportToChatHasError = None,
-        )
-      )
+      sqlu"""
+          insert into "pres_presentation"("meetingId","presentationId","uploadUserId","uploadTemporaryId","uploadToken","name",
+          "filenameConverted","isDefault","current","downloadable","removable","uploadCompletionNotified","uploadInProgress","uploadCompleted","totalPages")
+           select
+             ${meetingId} as "meetingId",
+             ${presentationId} as "presentationId",
+             ${userId} as "uploadUserId",
+             ${temporaryId} as "uploadTemporaryId",
+             ${uploadToken} as "uploadToken",
+             ${filename} as "name",
+             '' as "filenameConverted",
+             false as "isDefault",
+             false as "current", --Set after pages were inserted
+             false as "downloadable",
+             false as "removable",
+             false as "uploadCompletionNotified",
+             false as "uploadInProgress",
+             false as "uploadCompleted",
+             0 as "totalPages"
+             where NOT EXISTS (
+                select 1
+                from "pres_presentation" pp
+                where pp."meetingId" = ${meetingId}
+                and pp."presentationId" = ${presentationId}
+             )
+          """
     )
   }
 
   def updateConversionStarted(meetingId: String, presentation: PresentationInPod) = {
-    val presentationQuery = TableQuery[PresPresentationDbTableDef].filter(_.presentationId === presentation.id)
-      DatabaseConnection.db.run(presentationQuery.exists.result).map { exists =>
-        if (!exists) {
-          insertToken(meetingId, "", "", presentation.id, "", presentation.name)
-        }
+    insertUploadTokenIfNotExists(meetingId, "", "", presentation.id, "", presentation.name)
 
-        DatabaseConnection.enqueue(
-          presentationQuery.map(p => (
+    DatabaseConnection.enqueue(
+      TableQuery[PresPresentationDbTableDef]
+        .filter(_.presentationId === presentation.id)
+        .map(p => (
           p.name,
           p.filenameConverted,
           p.isDefault,
@@ -120,7 +122,7 @@ object PresPresentationDAO {
           p.uploadErrorMsgKey,
           p.uploadErrorDetailsJson
         ))
-        .update(
+        .update((
           presentation.name,
           presentation.filenameConverted,
           presentation.default,
@@ -133,7 +135,7 @@ object PresPresentationDAO {
           if (presentation.errorMsgKey.isEmpty) None else Some(presentation.errorMsgKey),
           if (presentation.errorDetails.isEmpty) None else Some(presentation.errorDetails.toJson)
         ))
-    }
+    )
   }
 
 
@@ -176,7 +178,9 @@ object PresPresentationDAO {
               viewBoxHeight = 1,
               maxImageWidth = 1440,
               maxImageHeight = 1080,
-              uploadCompleted = page._2.converted
+              uploadCompleted = page._2.converted,
+              infiniteWhiteboard = page._2.infiniteWhiteboard,
+              fitToWidth = page._2.fitToWidth,
             )
           )
         }
@@ -194,6 +198,15 @@ object PresPresentationDAO {
                 "current" = (case when "presentationId" = ${presentationId} then true else false end)
                 WHERE "meetingId" = (select "meetingId" from pres_presentation where "presentationId" = ${presentationId})
                 AND exists (select 1 from pres_page where "presentationId" = ${presentationId} AND "current" IS true)"""
+    )
+  }
+
+  def setPresentationUploadCompletionNotified(presentationId: String) = {
+    DatabaseConnection.enqueue(
+      TableQuery[PresPresentationDbTableDef]
+        .filter(_.presentationId === presentationId)
+        .map(p => p.uploadCompletionNotified)
+        .update(true)
     )
   }
 

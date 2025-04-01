@@ -1,10 +1,8 @@
 import React from 'react';
-import Breakouts from '/imports/api/breakouts';
 import Auth from '/imports/ui/services/auth';
 import Storage from '/imports/ui/services/storage/session';
-import { EMOJI_STATUSES } from '/imports/utils/statuses';
-import KEY_CODES from '/imports/utils/keyCodes';
 import AudioService from '/imports/ui/components/audio/service';
+import KEY_CODES from '/imports/utils/keyCodes';
 import logger from '/imports/startup/client/logger';
 import Session from '/imports/ui/services/storage/in-memory';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
@@ -22,11 +20,17 @@ const STARTED_CHAT_LIST_KEY = 'startedChatList';
 
 const CUSTOM_LOGO_URL_KEY = 'CustomLogoUrl';
 
+const CUSTOM_DARK_LOGO_URL_KEY = 'CustomDarkLogoUrl';
+
 export const setCustomLogoUrl = (path) => Storage.setItem(CUSTOM_LOGO_URL_KEY, path);
+
+export const setCustomDarkLogoUrl = (path) => Storage.setItem(CUSTOM_DARK_LOGO_URL_KEY, path);
 
 export const setModeratorOnlyMessage = (msg) => Storage.setItem('ModeratorOnlyMessage', msg);
 
 const getCustomLogoUrl = () => Storage.getItem(CUSTOM_LOGO_URL_KEY);
+
+const getCustomDarkLogoUrl = () => Storage.getItem(CUSTOM_DARK_LOGO_URL_KEY);
 
 const sortByWhiteboardAccess = (a, b) => {
   const _a = a.whiteboardAccess;
@@ -70,7 +74,6 @@ const sortByPropTime = (propName, propTimeName, nullValue, a, b) => {
   return 0;
 };
 
-const sortUsersByEmoji = (a, b) => sortByPropTime('emoji', 'emojiTime', 'none', a, b);
 const sortUsersByAway = (a, b) => sortByPropTime('away', 'awayTime', false, a, b);
 const sortUsersByRaiseHand = (a, b) => sortByPropTime('raiseHand', 'raiseHandTime', false, a, b);
 const sortUsersByReaction = (a, b) => sortByPropTime('reaction', 'reactionTime', 'none', a, b);
@@ -118,7 +121,6 @@ const sortUsers = (a, b) => {
   if (sort === 0) sort = sortUsersByRaiseHand(a, b);
   if (sort === 0) sort = sortUsersByAway(a, b);
   if (sort === 0) sort = sortUsersByReaction(a, b);
-  if (sort === 0) sort = sortUsersByEmoji(a, b);
   if (sort === 0) sort = sortUsersByPhoneUser(a, b);
   if (sort === 0) sort = sortByWhiteboardAccess(a, b);
   if (sort === 0) sort = sortUsersByName(a, b);
@@ -131,11 +133,6 @@ const isPublicChat = (chat) => {
   const CHAT_CONFIG = window.meetingClientSettings.public.chat;
   return chat.userId === CHAT_CONFIG.public_id;
 };
-
-const hasBreakoutRoom = () => Breakouts.find({ parentMeetingId: Auth.meetingID },
-  { fields: {} }).count() > 0;
-
-const isMe = (userId) => userId === Auth.userID;
 
 const getActiveChats = ({ groupChatsMessages, groupChats, users }) => {
   const PUBLIC_GROUP_CHAT_ID = window.meetingClientSettings.public.chat.public_group_id;
@@ -215,8 +212,10 @@ const getActiveChats = ({ groupChatsMessages, groupChats, users }) => {
   });
 
   const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) || [];
-  const removeClosedChats = chatInfo.filter((chat) => !currentClosedChats.find(closedChat => closedChat.chatId === chat.chatId)
-    && chat.shouldDisplayInChatList);
+  const removeClosedChats = chatInfo.filter(
+    (chat) => !currentClosedChats.some((closedChat) => closedChat.chatId === chat.chatId)
+      && chat.shouldDisplayInChatList,
+  );
 
   const sortByChatIdAndUnread = removeClosedChats.sort((a, b) => {
     if (a.chatId === PUBLIC_GROUP_CHAT_ID) {
@@ -227,22 +226,19 @@ const getActiveChats = ({ groupChatsMessages, groupChats, users }) => {
     }
     if (a.unreadCounter > b.unreadCounter) {
       return -1;
-    } else if (b.unreadCounter > a.unreadCounter) {
+    } if (b.unreadCounter > a.unreadCounter) {
       return 1;
-    } else {
-      if (a.name.toLowerCase() < b.name.toLowerCase()) {
-        return -1;
-      }
-      if (a.name.toLowerCase() > b.name.toLowerCase()) {
-        return 1;
-      }
-      return 0;
     }
+    if (a.name.toLowerCase() < b.name.toLowerCase()) {
+      return -1;
+    }
+    if (a.name.toLowerCase() > b.name.toLowerCase()) {
+      return 1;
+    }
+    return 0;
   });
   return sortByChatIdAndUnread;
 };
-
-const isVoiceOnlyUser = (userId) => userId.toString().startsWith('v_');
 
 const isMeetingLocked = (lockSettings, usersPolicies) => {
   let isLocked = false;
@@ -263,10 +259,6 @@ const isMeetingLocked = (lockSettings, usersPolicies) => {
 
   return isLocked;
 };
-
-const normalizeEmojiName = (emoji) => (
-  emoji in EMOJI_STATUSES ? EMOJI_STATUSES[emoji] : emoji
-);
 
 const toggleVoice = (userId, voiceToggle) => {
   if (userId === Auth.userID) {
@@ -369,18 +361,17 @@ export const getUserNamesLink = (docTitle, fnSortedLabel, lnSortedLabel, users, 
   const mimeType = 'text/plain';
   const userNamesObj = users
     .map((u) => {
-      const name = u.name.split(' ');
+      const nameParts = u.nameSortable.split(' ');
+      const lastPart = nameParts.length > 1 ? nameParts[nameParts.length - 1] : '';
+
       return ({
-        firstName: name[0],
-        middleNames: name.length > 2 ? name.slice(1, name.length - 1) : null,
-        lastName: name.length > 1 ? name[name.length - 1] : null,
+        fullName: u.name,
+        firstName: u.firstNameSortable ? u.firstNameSortable : nameParts[0],
+        lastName: u.lastNameSortable ? u.lastNameSortable : lastPart,
       });
     });
 
-  const getUsernameString = (user) => {
-    const { firstName, middleNames, lastName } = user;
-    return `${firstName || ''} ${middleNames && middleNames.length > 0 ? middleNames.join(' ') : ''} ${lastName || ''}`;
-  };
+  const getUsernameString = (user) => `${user.fullName}`;
 
   const namesByFirstName = userNamesObj.sort(sortUsersByFirstName)
     .map((u) => getUsernameString(u)).join('\r\n');
@@ -411,13 +402,13 @@ const UserJoinedMeetingAlert = (obj) => {
 
   if (userJoinAudioAlerts) {
     AudioService.playAlertSound(`${window.meetingClientSettings.public.app.cdn
-      + window.meetingClientSettings.public.app.basename
-      + window.meetingClientSettings.public.app.instanceId}`
+      + window.meetingClientSettings.public.app.basename}`
       + '/resources/sounds/userJoin.mp3');
   }
 
   if (userJoinPushAlerts) {
     notify(
+      // eslint-disable-next-line react/jsx-filename-extension
       <FormattedMessage
         id={obj.messageId}
         values={obj.messageValues}
@@ -427,7 +418,7 @@ const UserJoinedMeetingAlert = (obj) => {
       obj.icon,
     );
   }
-}
+};
 
 const UserLeftMeetingAlert = (obj) => {
   const Settings = getSettingsSingletonInstance();
@@ -440,8 +431,7 @@ const UserLeftMeetingAlert = (obj) => {
 
   if (userLeaveAudioAlerts) {
     AudioService.playAlertSound(`${window.meetingClientSettings.public.app.cdn
-      + window.meetingClientSettings.public.app.basename
-      + window.meetingClientSettings.public.app.instanceId}`
+      + window.meetingClientSettings.public.app.basename}`
       + '/resources/sounds/notify.mp3');
   }
 
@@ -463,13 +453,11 @@ export default {
   sortUsers,
   toggleVoice,
   getActiveChats,
-  normalizeEmojiName,
   isMeetingLocked,
   isPublicChat,
   roving,
   getCustomLogoUrl,
-  hasBreakoutRoom,
-  getEmojiList: () => EMOJI_STATUSES,
+  getCustomDarkLogoUrl,
   focusFirstDropDownItem,
   sortUsersByCurrent,
   UserJoinedMeetingAlert,

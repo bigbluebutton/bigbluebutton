@@ -97,6 +97,7 @@ export interface GenericContentMainArea {
 }
 interface NavBar {
     hasNavBar?: boolean;
+    hideTopRow: boolean;
     height: number;
     display?: boolean;
     left?: number;
@@ -108,6 +109,7 @@ interface NavBar {
 
 interface NotificationsBar {
     hasNotification: boolean;
+    hideNotificationToasts: boolean;
 }
 
 interface Size {
@@ -246,7 +248,7 @@ interface Input {
     bannerBar: BannerBar;
     browser: Browser;
     cameraDock: CameraDock
-    customParameters: NonNullable<unknown>;
+    userMetadata: NonNullable<unknown>;
     externalVideo: ExternalVideo;
     genericMainContent: GenericContentMainArea;
     navBar: NavBar;

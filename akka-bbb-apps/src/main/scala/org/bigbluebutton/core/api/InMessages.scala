@@ -27,21 +27,6 @@ case class MonitorNumberOfUsersInternalMsg(meetingID: String) extends InMessage
  */
 case class MonitorGuestWaitPresenceInternalMsg(meetingId: String) extends InMessage
 
-/**
- * Audit message sent to meeting to trigger updating clients of meeting time remaining.
- * @param meetingId
- */
-case class SendTimeRemainingAuditInternalMsg(meetingId: String, timeUpdatedInMinutes: Int) extends InMessage
-
-/**
- * Parent message sent to breakout rooms to trigger updating clients of meeting time remaining.
- * @param meetingId
- * @param timeLeftInSec
- */
-case class SendBreakoutTimeRemainingInternalMsg(meetingId: String, timeLeftInSec: Long, timeUpdatedInMinutes: Int) extends InMessage
-
-case class SendRecordingTimerInternalMsg(meetingId: String) extends InMessage
-
 case class ExtendMeetingDuration(meetingId: String, userId: String) extends InMessage
 case class DestroyMeetingInternalMsg(meetingId: String) extends InMessage
 
@@ -141,9 +126,9 @@ case class UserEstablishedGraphqlConnectionInternalMsg(userId: String, clientTyp
 /**
  * API endpoint /userInfo to provide User Session Variables messages
  */
-case class GetUserApiMsg(meetingId: String, userIntId: String)
+case class GetUserApiMsg(sessionToken: String)
 case class UserInfosApiMsg(infos: Map[String, Any])
 
 trait ApiResponse
 case class ApiResponseSuccess(msg: String, any: Any = null) extends ApiResponse
-case class ApiResponseFailure(msg: String, any: Any = null) extends ApiResponse
+case class ApiResponseFailure(msg: String, msgId: String, any: Any = null) extends ApiResponse

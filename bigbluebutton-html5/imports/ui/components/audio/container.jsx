@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { useSubscription } from '@apollo/client';
 import PropTypes from 'prop-types';
 import Session from '/imports/ui/services/storage/in-memory';
@@ -26,6 +26,10 @@ import { useStorageKey } from '../../services/storage/hooks';
 import { BREAKOUT_COUNT } from './queries';
 import useMeeting from '../../core/hooks/useMeeting';
 import useWhoIsUnmuted from '../../core/hooks/useWhoIsUnmuted';
+import AudioService, {
+  CLIENT_DID_USER_SELECT_MICROPHONE_KEY,
+  CLIENT_DID_USER_SELECT_LISTEN_ONLY_KEY,
+} from '/imports/ui/components/audio/service';
 
 const intlMessages = defineMessages({
   joinedAudio: {
@@ -108,7 +112,6 @@ const AudioContainer = (props) => {
     isVideoPreviewModalOpen,
     intl,
     userLocks,
-    speechLocale,
   } = props;
 
   const APP_CONFIG = window.meetingClientSettings.public.app;
@@ -121,19 +124,33 @@ const AudioContainer = (props) => {
 
   const prevProps = usePreviousValue(props);
   const toggleVoice = useToggleVoice();
-  const userSelectedMicrophone = !!useStorageKey('clientUserSelectedMicrophone', 'session');
-  const userSelectedListenOnly = !!useStorageKey('clientUserSelectedListenOnly', 'session');
+  const userSelectedMicrophone = !!useStorageKey(CLIENT_DID_USER_SELECT_MICROPHONE_KEY, 'session');
+  const userSelectedListenOnly = !!useStorageKey(CLIENT_DID_USER_SELECT_LISTEN_ONLY_KEY, 'session');
   const { microphoneConstraints } = useSettings(SETTINGS.APPLICATION);
   const { data: breakoutCountData } = useSubscription(BREAKOUT_COUNT);
   const hasBreakoutRooms = (breakoutCountData?.breakoutRoom_aggregate?.aggregate?.count ?? 0) > 0;
   const meetingIsBreakout = useMeetingIsBreakout();
   const { data: meeting } = useMeeting((m) => ({
+    audioBridge: m.audioBridge,
     voiceSettings: {
       voiceConf: m?.voiceSettings?.voiceConf,
+      muteOnStart: m?.voiceSettings?.muteOnStart,
     },
   }));
-  const { data: currentUserName } = useCurrentUser((u) => u.name);
 
+  const { data: currentUserName } = useCurrentUser((u) => u.name);
+  const { data: speechLocale } = useCurrentUser((u) => u.speechLocale);
+  // public.media.defaultFullAudioBridge/public.media.defaultListenOnlyBridge
+  // are legacy configs. They will be removed in the future. Use
+  // audioBridge (bbb-web, create) instead.
+  const {
+    defaultFullAudioBridge,
+    defaultListenOnlyBridge,
+  } = window.meetingClientSettings.public.media || {};
+  const bridges = {
+    fullAudioBridge: meeting?.audioBridge ?? defaultFullAudioBridge,
+    listenOnlyBridge: meeting?.audioBridge ?? defaultListenOnlyBridge,
+  };
   const openAudioModal = () => setAudioModalIsOpen(true);
 
   const openVideoPreviewModal = () => {
@@ -149,7 +166,9 @@ const AudioContainer = (props) => {
       speechLocale,
       meeting?.voiceSettings?.voiceConf,
       currentUserName,
+      bridges,
     );
+
     if ((!autoJoin || didMountAutoJoin)) {
       if (enableVideo && autoShareWebcam) {
         openVideoPreviewModal();
@@ -178,16 +197,16 @@ const AudioContainer = (props) => {
   const { data: unmutedUsers } = useWhoIsUnmuted();
   const currentUserMuted = currentUser?.userId && !unmutedUsers[currentUser.userId];
 
-  const joinAudio = () => {
+  const joinAudio = useCallback(() => {
     if (Service.isConnected()) return;
 
     if (userSelectedMicrophone) {
-      joinMicrophone(true);
+      joinMicrophone({ skipEchoTest: true, muted: meeting?.voiceSettings?.muteOnStart });
       return;
     }
 
     if (userSelectedListenOnly) joinListenOnly();
-  };
+  }, [userSelectedMicrophone, userSelectedListenOnly, meeting?.voiceSettings?.muteOnStart]);
 
   useEffect(() => {
     // Data is not loaded yet.
@@ -208,21 +227,42 @@ const AudioContainer = (props) => {
     }
   }, [userIsReturningFromBreakoutRoom]);
 
-  if (Service.isConnected() && !Service.isListenOnly()) {
-    Service.updateAudioConstraints(microphoneConstraints);
-
-    if (userLocks.userMic && !currentUserMuted) {
-      toggleMuteMicrophone(!currentUserMuted, toggleVoice);
-      notify(intl.formatMessage(intlMessages.reconectingAsListener), 'info', 'volume_level_2');
+  useEffect(() => {
+    const CONFIRMATION_ON_LEAVE = window.meetingClientSettings.public.app.askForConfirmationOnLeave;
+    if (CONFIRMATION_ON_LEAVE) {
+      window.onbeforeunload = (event) => {
+        if (AudioService.isUsingAudio() && !AudioService.isMuted()) {
+          toggleVoice(currentUser?.userId, true);
+        }
+        event.stopImmediatePropagation();
+        event.preventDefault();
+        // eslint-disable-next-line no-param-reassign
+        event.returnValue = '';
+      };
     }
-  }
+  }, [currentUser?.userId, toggleVoice]);
+
+  useEffect(() => {
+    if (Service.isConnected() && !Service.isListenOnly()) {
+      Service.updateAudioConstraints(microphoneConstraints);
+    }
+  }, [microphoneConstraints]);
+
+  useEffect(() => {
+    if (Service.isConnected() && !Service.isListenOnly()) {
+      if (userLocks.userMic && !currentUserMuted) {
+        toggleMuteMicrophone(!currentUserMuted, toggleVoice);
+        notify(intl.formatMessage(intlMessages.reconectingAsListener), 'info', 'volume_level_2');
+      }
+    }
+  }, [userLocks.userMic, currentUserMuted]);
 
   return (
     <>
       {isAudioModalOpen ? (
         <AudioModalContainer
           {...{
-            priority: 'low',
+            priority: 'medium',
             setIsOpen: setAudioModalIsOpen,
             isOpen: isAudioModalOpen,
           }}
@@ -234,7 +274,7 @@ const AudioContainer = (props) => {
             callbackToClose: () => {
               setVideoPreviewModalIsOpen(false);
             },
-            priority: 'low',
+            priority: 'medium',
             setIsOpen: setVideoPreviewModalIsOpen,
             isOpen: isVideoPreviewModalOpen,
           }}
@@ -257,5 +297,4 @@ AudioContainer.propTypes = {
   userLocks: PropTypes.shape({
     userMic: PropTypes.bool.isRequired,
   }).isRequired,
-  speechLocale: PropTypes.string.isRequired,
 };

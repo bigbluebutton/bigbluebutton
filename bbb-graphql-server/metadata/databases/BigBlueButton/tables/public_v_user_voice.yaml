@@ -11,6 +11,7 @@ object_relationships:
     using:
       manual_configuration:
         column_mapping:
+          meetingId: meetingId
           userId: userId
         insertion_order: null
         remote_table:
@@ -27,10 +28,8 @@ select_permissions:
         - floor
         - joined
         - lastFloorTime
-        - lastSpeakChangedAt
         - listenOnly
         - muted
-        - showTalkingIndicator
         - spoke
         - startTime
         - talking

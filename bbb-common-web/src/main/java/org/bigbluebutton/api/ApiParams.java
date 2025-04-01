@@ -37,6 +37,7 @@ public class ApiParams {
     public static final String MEETING_LAYOUT = "meetingLayout";
     public static final String IS_BREAKOUT = "isBreakout";
     public static final String LOGO = "logo";
+    public static final String DARK_LOGO = "darklogo";
     public static final String LOGOUT_TIMER = "logoutTimer";
     public static final String LOGIN_URL = "loginURL";
     public static final String LOGOUT_URL = "logoutURL";
@@ -46,6 +47,9 @@ public class ApiParams {
     public static final String MODERATOR_ONLY_MESSAGE = "moderatorOnlyMessage";
     public static final String MODERATOR_PW = "moderatorPW";
     public static final String MUTE_ON_START = "muteOnStart";
+    public static final String CAMERA_BRIDGE = "cameraBridge";
+    public static final String SCREEN_SHARE_BRIDGE = "screenShareBridge";
+    public static final String AUDIO_BRIDGE = "audioBridge";
     public static final String MEETING_KEEP_EVENTS = "meetingKeepEvents";
     public static final String ALLOW_MODS_TO_UNMUTE_USERS = "allowModsToUnmuteUsers";
     public static final String ALLOW_REQUESTS_WITHOUT_SESSION = "allowRequestsWithoutSession";
@@ -59,9 +63,7 @@ public class ApiParams {
     public static final String SEQUENCE = "sequence";
     public static final String VOICE_BRIDGE = "voiceBridge";
     public static final String WEB_VOICE = "webVoice";
-    public static final String LEARNING_DASHBOARD_ENABLED = "learningDashboardEnabled";
     public static final String LEARNING_DASHBOARD_CLEANUP_DELAY_IN_MINUTES = "learningDashboardCleanupDelayInMinutes";
-    public static final String VIRTUAL_BACKGROUNDS_DISABLED = "virtualBackgroundsDisabled";
     public static final String WEBCAMS_ONLY_FOR_MODERATOR = "webcamsOnlyForModerator";
     public static final String MEETING_CAMERA_CAP = "meetingCameraCap";
     public static final String USER_CAMERA_CAP = "userCameraCap";
@@ -72,17 +74,18 @@ public class ApiParams {
     public static final String ROLE = "role";
     public static final String GROUPS = "groups";
     public static final String DISABLED_FEATURES = "disabledFeatures";
+    public static final String PLUGIN_MANIFESTS = "pluginManifests";
     public static final String DISABLED_FEATURES_EXCLUDE = "disabledFeaturesExclude";
     public static final String NOTIFY_RECORDING_IS_ON = "notifyRecordingIsOn";
 
     public static final String PRESENTATION_UPLOAD_EXTERNAL_DESCRIPTION = "presentationUploadExternalDescription";
     public static final String PRESENTATION_UPLOAD_EXTERNAL_URL = "presentationUploadExternalUrl";
+    public static final String PRESENTATION_CONVERSION_CACHE_ENABLED = "presentationConversionCacheEnabled";
 
     public static final String BREAKOUT_ROOMS_CAPTURE_SLIDES = "breakoutRoomsCaptureSlides";
     public static final String BREAKOUT_ROOMS_CAPTURE_NOTES  = "breakoutRoomsCaptureNotes";
     public static final String BREAKOUT_ROOMS_CAPTURE_SLIDES_FILENAME = "breakoutRoomsCaptureSlidesFilename";
     public static final String BREAKOUT_ROOMS_CAPTURE_NOTES_FILENAME = "breakoutRoomsCaptureNotesFilename";
-    public static final String BREAKOUT_ROOMS_ENABLED = "breakoutRoomsEnabled";
     public static final String BREAKOUT_ROOMS_RECORD = "breakoutRoomsRecord";
     public static final String BREAKOUT_ROOMS_PRIVATE_CHAT_ENABLED = "breakoutRoomsPrivateChatEnabled";
 
@@ -110,6 +113,8 @@ public class ApiParams {
     public static final String END_WHEN_NO_MODERATOR_DELAY_IN_MINUTES = "endWhenNoModeratorDelayInMinutes";
 
     public static final String RECORD_FULL_DURATION_MEDIA = "recordFullDurationMedia";
+
+    public static final String MAX_NUM_PAGES = "maxNumPages";
 
     private ApiParams() {
         throw new IllegalStateException("ApiParams is a utility class. Instantiation is forbidden.");

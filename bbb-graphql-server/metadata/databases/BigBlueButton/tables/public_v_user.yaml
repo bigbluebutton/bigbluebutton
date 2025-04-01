@@ -11,6 +11,7 @@ object_relationships:
     using:
       manual_configuration:
         column_mapping:
+          meetingId: meetingId
           userId: userId
         insertion_order: null
         remote_table:
@@ -34,10 +35,21 @@ object_relationships:
         remote_table:
           name: v_meeting
           schema: public
+  - name: userLockSettings
+    using:
+      manual_configuration:
+        column_mapping:
+          meetingId: meetingId
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_user_lockSettings
+          schema: public
   - name: voice
     using:
       manual_configuration:
         column_mapping:
+          meetingId: meetingId
           userId: userId
         insertion_order: null
         remote_table:
@@ -48,6 +60,7 @@ array_relationships:
     using:
       manual_configuration:
         column_mapping:
+          meetingId: meetingId
           userId: userId
         insertion_order: null
         remote_table:
@@ -76,16 +89,15 @@ select_permissions:
         - clientType
         - color
         - disconnected
-        - emoji
-        - emojiTime
         - expired
         - extId
+        - bot
         - guest
         - guestStatus
         - hasDrawPermissionOnCurrentPage
         - isDialIn
         - isModerator
-        - isOnline
+        - currentlyInMeeting
         - isRunningEchoTest
         - joined
         - locked
@@ -93,6 +105,10 @@ select_permissions:
         - mobile
         - name
         - nameSortable
+        - firstName
+        - firstNameSortable
+        - lastName
+        - lastNameSortable
         - pinned
         - presenter
         - raiseHand

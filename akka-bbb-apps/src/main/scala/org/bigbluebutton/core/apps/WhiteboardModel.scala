@@ -4,7 +4,7 @@ import scala.collection.immutable.HashMap
 import org.bigbluebutton.common2.msgs.AnnotationVO
 import org.bigbluebutton.core.apps.whiteboard.Whiteboard
 import org.bigbluebutton.SystemConfiguration
-import org.bigbluebutton.core.db.{ PresAnnotationDAO, PresPageWritersDAO }
+import org.bigbluebutton.core.db.{ PresAnnotationDAO, PresAnnotationHistoryDAO, PresPageWritersDAO }
 
 class WhiteboardModel extends SystemConfiguration {
   private var _whiteboards = new HashMap[String, Whiteboard]()
@@ -50,6 +50,7 @@ class WhiteboardModel extends SystemConfiguration {
     val wb = getWhiteboard(wbId)
 
     var annotationsAdded = Array[AnnotationVO]()
+    var annotationsDiffAdded = Array[AnnotationVO]()
     var newAnnotationsMap = wb.annotationsMap
 
     for (annotation <- annotations) {
@@ -57,21 +58,10 @@ class WhiteboardModel extends SystemConfiguration {
       if (oldAnnotation.isDefined) {
         val hasPermission = isPresenter || isModerator || oldAnnotation.get.userId == userId
         if (hasPermission) {
-          // Determine if the annotation is a line shape
-          val isLineShape = annotation.annotationInfo.get("type").contains("line")
-
-          // Merge old and new annotation properties with special handling for line shape
-          val mergedAnnotationInfo = if (isLineShape) {
-            val newProps = annotation.annotationInfo.get("props").asInstanceOf[Option[Map[String, Any]]].getOrElse(Map.empty)
-            val oldProps = oldAnnotation.get.annotationInfo.get("props").asInstanceOf[Option[Map[String, Any]]].getOrElse(Map.empty)
-            val updatedProps = overwriteLineShapeHandles(oldProps, newProps)
-            annotation.annotationInfo + ("props" -> updatedProps)
-          } else {
-            deepMerge(oldAnnotation.get.annotationInfo, annotation.annotationInfo)
-          }
+          val mergedAnnotationInfo = deepMerge(oldAnnotation.get.annotationInfo, annotation.annotationInfo)
 
           // Apply cleaning if it's an arrow annotation
-          val finalAnnotationInfo = if (annotation.annotationInfo.get("type").contains("arrow")) {
+          val finalAnnotationInfo = if (oldAnnotation.get.annotationInfo.get("type").contains("arrow")) {
             cleanArrowAnnotationProps(mergedAnnotationInfo)
           } else {
             mergedAnnotationInfo
@@ -80,6 +70,7 @@ class WhiteboardModel extends SystemConfiguration {
           val newAnnotation = oldAnnotation.get.copy(annotationInfo = finalAnnotationInfo)
           newAnnotationsMap += (annotation.id -> newAnnotation)
           annotationsAdded :+= newAnnotation
+          annotationsDiffAdded :+= annotation
           println(s"Updated annotation on page [${wb.id}]. After numAnnotations=[${newAnnotationsMap.size}].")
         } else {
           println(s"User $userId doesn't have permission to edit annotation ${annotation.id}, ignoring...")
@@ -87,17 +78,20 @@ class WhiteboardModel extends SystemConfiguration {
       } else if (annotation.annotationInfo.contains("type")) {
         newAnnotationsMap += (annotation.id -> annotation)
         annotationsAdded :+= annotation
+        annotationsDiffAdded :+= annotation
         println(s"Adding annotation to page [${wb.id}]. After numAnnotations=[${newAnnotationsMap.size}].")
       } else {
         println(s"New annotation [${annotation.id}] with no type, ignoring...")
       }
     }
 
-    PresAnnotationDAO.insertOrUpdateMap(meetingId, annotationsAdded)
+    val annotationUpdatedAt = System.currentTimeMillis()
+    PresAnnotationHistoryDAO.insertOrUpdateMap(meetingId, annotationsDiffAdded, annotationUpdatedAt)
+    PresAnnotationDAO.insertOrUpdateMap(meetingId, annotationsAdded, annotationUpdatedAt)
 
     val newWb = wb.copy(annotationsMap = newAnnotationsMap)
     saveWhiteboard(newWb)
-    annotationsAdded
+    annotationsDiffAdded
   }
 
   private def overwriteLineShapeHandles(oldProps: Map[String, Any], newProps: Map[String, Any]): Map[String, Any] = {
@@ -162,7 +156,9 @@ class WhiteboardModel extends SystemConfiguration {
     val updatedWb = wb.copy(annotationsMap = newAnnotationsMap)
     saveWhiteboard(updatedWb)
 
-    PresAnnotationDAO.delete(meetingId, userId, annotationsIdsRemoved)
+    val annotationUpdatedAt = System.currentTimeMillis()
+    PresAnnotationHistoryDAO.deleteAnnotations(meetingId, wb.id, userId, annotationsIdsRemoved, annotationUpdatedAt)
+    PresAnnotationDAO.deleteAnnotations(meetingId, userId, annotationsIdsRemoved, annotationUpdatedAt)
 
     annotationsIdsRemoved
   }

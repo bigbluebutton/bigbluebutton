@@ -49,7 +49,7 @@ class AudioDial extends React.PureComponent {
         <Styled.ConferenceText>
           {intl.formatMessage(intlMessages.audioDialConfrenceText)}
         </Styled.ConferenceText>
-        <Styled.Telvoice>{formattedTelVoice}</Styled.Telvoice>
+        <Styled.Telvoice>{`${formattedTelVoice} #`}</Styled.Telvoice>
         <Styled.TipBox>
           <Styled.TipIndicator>
             {`${intl.formatMessage(intlMessages.tipIndicator)}: `}

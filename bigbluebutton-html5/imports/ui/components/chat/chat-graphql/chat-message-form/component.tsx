@@ -5,7 +5,9 @@ import React, {
   useEffect,
   useRef,
   useMemo,
+  useCallback,
 } from 'react';
+import { useLazyQuery, useMutation, useReactiveVar } from '@apollo/client';
 import TextareaAutosize from 'react-autosize-textarea';
 import { ChatFormCommandsEnum } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-commands/chat/form/enums';
 import { FillChatFormCommandArguments } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-commands/chat/form/types';
@@ -14,30 +16,36 @@ import { ChatFormUiDataPayloads } from 'bigbluebutton-html-plugin-sdk/dist/cjs/u
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import { defineMessages, useIntl } from 'react-intl';
-import { useIsChatEnabled } from '/imports/ui/services/features';
-import ClickOutside from '/imports/ui/components/click-outside/component';
+import { useIsChatEnabled, useIsEditChatMessageEnabled } from '/imports/ui/services/features';
 import { checkText } from 'smile2emoji';
+import { findDOMNode } from 'react-dom';
+
 import Styled from './styles';
 import deviceInfo from '/imports/utils/deviceInfo';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 import useChat from '/imports/ui/core/hooks/useChat';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import {
-  textToMarkdown,
-} from './service';
 import { Chat } from '/imports/ui/Types/chat';
 import { Layout } from '../../../layout/layoutTypes';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 
 import ChatOfflineIndicator from './chat-offline-indicator/component';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
-import { useMutation } from '@apollo/client';
 import { CHAT_SEND_MESSAGE, CHAT_SET_TYPING } from './mutations';
 import Storage from '/imports/ui/services/storage/session';
 import { indexOf, without } from '/imports/utils/array-utils';
 import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
 import { throttle } from '/imports/utils/throttle';
 import logger from '/imports/startup/client/logger';
+import { CHAT_EDIT_MESSAGE_MUTATION } from '../chat-message-list/page/chat-message/mutations';
+import {
+  LastSentMessageData,
+  LastSentMessageResponse,
+  USER_LAST_SENT_PRIVATE_CHAT_MESSAGE_QUERY,
+  USER_LAST_SENT_PUBLIC_CHAT_MESSAGE_QUERY,
+} from './queries';
+import Auth from '/imports/ui/services/auth';
+import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
 
 const CLOSED_CHAT_LIST_KEY = 'closedChatList';
 const START_TYPING_THROTTLE_INTERVAL = 1000;
@@ -55,7 +63,7 @@ interface ChatMessageFormProps {
   locked: boolean,
   partnerIsLoggedOut: boolean,
   title: string,
-  handleClickOutside: () => void,
+  getUserLastSentMessage: () => Promise<LastSentMessageData | null>,
 }
 
 const messages = defineMessages({
@@ -113,8 +121,9 @@ const messages = defineMessages({
   },
 });
 
+type EditingMessage = { chatId: string; messageId: string, message: string };
+
 const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
-  handleClickOutside,
   title,
   disabled,
   partnerIsLoggedOut,
@@ -124,6 +133,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   connected,
   locked,
   isRTL,
+  getUserLastSentMessage,
 }) => {
   const isChatEnabled = useIsChatEnabled();
   if (!isChatEnabled) return null;
@@ -132,11 +142,16 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const [error, setError] = React.useState<string | null>(null);
   const [message, setMessage] = React.useState('');
   const [showEmojiPicker, setShowEmojiPicker] = React.useState(false);
+  const emojiPickerRef = useRef<HTMLDivElement>(null);
+  const emojiPickerButtonRef = useRef(null);
   const [isTextAreaFocused, setIsTextAreaFocused] = React.useState(false);
+  const [repliedMessageId, setRepliedMessageId] = React.useState<string | null>(null);
+  const editingMessage = React.useRef<EditingMessage | null>(null);
   const textAreaRef: RefObject<TextareaAutosize> = useRef<TextareaAutosize>(null);
   const { isMobile } = deviceInfo;
   const prevChatId = usePreviousValue(chatId);
   const messageRef = useRef<string>('');
+  const messageBeforeEditingRef = useRef<string | null>(null);
   messageRef.current = message;
   const updateUnreadMessages = (chatId: string, message: string) => {
     const storedData = localStorage.getItem('unsentMessages') || '{}';
@@ -150,6 +165,10 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const [chatSendMessage, {
     loading: chatSendMessageLoading, error: chatSendMessageError,
   }] = useMutation(CHAT_SEND_MESSAGE);
+  const [
+    chatEditMessage,
+    { loading: chatEditMessageLoading },
+  ] = useMutation(CHAT_EDIT_MESSAGE_MUTATION);
 
   const CHAT_CONFIG = window.meetingClientSettings.public.chat;
   const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
@@ -281,13 +300,72 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
     }));
   }, [message]);
 
+  useEffect(() => {
+    if (editingMessage.current) {
+      textAreaRef.current?.dispatchEvent?.('autosize:update');
+    }
+  }, [message]);
+
+  useEffect(() => {
+    const handleReplyIntention = (e: Event) => {
+      if (e instanceof CustomEvent) {
+        setRepliedMessageId(e.detail.messageId);
+        textAreaRef.current?.textarea.focus();
+      }
+    };
+
+    const handleEditingMessage = (e: Event) => {
+      if (e instanceof CustomEvent) {
+        if (textAreaRef.current) {
+          if (messageBeforeEditingRef.current === null) {
+            messageBeforeEditingRef.current = messageRef.current;
+          }
+          editingMessage.current = e.detail;
+          setMessage(e.detail.message);
+          textAreaRef.current?.textarea.focus();
+        }
+      }
+    };
+
+    const handleCancelEditingMessage = (e: Event) => {
+      if (e instanceof CustomEvent) {
+        if (editingMessage.current) {
+          if (messageBeforeEditingRef.current !== null) {
+            setMessage(messageBeforeEditingRef.current);
+            messageBeforeEditingRef.current = null;
+          }
+          editingMessage.current = null;
+        }
+      }
+    };
+
+    const handleCancelReplyIntention = (e: Event) => {
+      if (e instanceof CustomEvent) {
+        setRepliedMessageId(null);
+      }
+    };
+
+    window.addEventListener(ChatEvents.CHAT_REPLY_INTENTION, handleReplyIntention);
+    window.addEventListener(ChatEvents.CHAT_EDIT_REQUEST, handleEditingMessage);
+    window.addEventListener(ChatEvents.CHAT_CANCEL_EDIT_REQUEST, handleCancelEditingMessage);
+    window.addEventListener(ChatEvents.CHAT_CANCEL_REPLY_INTENTION, handleCancelReplyIntention);
+
+    return () => {
+      window.removeEventListener(ChatEvents.CHAT_REPLY_INTENTION, handleReplyIntention);
+      window.removeEventListener(ChatEvents.CHAT_EDIT_REQUEST, handleEditingMessage);
+      window.removeEventListener(ChatEvents.CHAT_CANCEL_EDIT_REQUEST, handleCancelEditingMessage);
+      window.removeEventListener(ChatEvents.CHAT_CANCEL_REPLY_INTENTION, handleCancelReplyIntention);
+    };
+  }, []);
+
   const renderForm = () => {
     const formRef = useRef<HTMLFormElement | null>(null);
+    const CHAT_EDIT_ENABLED = useIsEditChatMessageEnabled();
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement> | React.KeyboardEvent<HTMLInputElement> | Event) => {
       e.preventDefault();
 
-      const msg = textToMarkdown(message);
+      const msg = message;
 
       if (msg.length < minMessageLength || chatSendMessageLoading) return;
 
@@ -297,12 +375,46 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
         return;
       }
 
-      if (!chatSendMessageLoading) {
+      const sendCancelEvents = () => {
+        if (repliedMessageId) {
+          window.dispatchEvent(
+            new CustomEvent(ChatEvents.CHAT_CANCEL_REPLY_INTENTION),
+          );
+        }
+        if (editingMessage) {
+          window.dispatchEvent(
+            new CustomEvent(ChatEvents.CHAT_CANCEL_EDIT_REQUEST),
+          );
+        }
+      };
+
+      if (editingMessage.current && !chatEditMessageLoading) {
+        chatEditMessage({
+          variables: {
+            chatId: editingMessage.current.chatId,
+            messageId: editingMessage.current.messageId,
+            chatMessageInMarkdownFormat: msg,
+          },
+        }).then(() => {
+          sendCancelEvents();
+        }).catch((e) => {
+          logger.error({
+            logCode: 'chat_edit_message_error',
+            extraInfo: {
+              errorName: e?.name,
+              errorMessage: e?.message,
+            },
+          }, `Editing the message failed: ${e?.message}`);
+        });
+      } else if (!chatSendMessageLoading) {
         chatSendMessage({
           variables: {
             chatMessageInMarkdownFormat: msg,
             chatId: chatId === PUBLIC_CHAT_ID ? PUBLIC_GROUP_CHAT_ID : chatId,
+            replyToMessageId: repliedMessageId,
           },
+        }).then(() => {
+          sendCancelEvents();
         });
       }
       const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY);
@@ -331,6 +443,25 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
           cancelable: true,
         });
         handleSubmit(event);
+      }
+      if (e.key === 'ArrowUp' && !editingMessage.current && messageRef.current === '' && CHAT_EDIT_ENABLED) {
+        e.preventDefault();
+        getUserLastSentMessage().then((msg) => {
+          if (msg) {
+            window.dispatchEvent(
+              new CustomEvent(ChatEvents.CHAT_EDIT_REQUEST, {
+                detail: {
+                  messageId: msg.messageId,
+                  chatId: msg.chatId,
+                  message: msg.message,
+                },
+              }),
+            );
+            window.dispatchEvent(
+              new CustomEvent(ChatEvents.CHAT_CANCEL_REPLY_INTENTION),
+            );
+          }
+        });
       }
     };
     const handleFillChatFormThroughPlugin = ((
@@ -396,6 +527,24 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
       }
     }, [chatSendMessageError]);
 
+    useEffect(() => {
+      const handleClickOutside = (event: MouseEvent) => {
+        // eslint-disable-next-line react/no-find-dom-node
+        const button = findDOMNode(emojiPickerButtonRef.current);
+        if (
+          (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target as Node))
+          && (button && !button.contains(event.target as Node))
+        ) {
+          setShowEmojiPicker(false);
+        }
+      };
+
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }, []);
+
     return (
       <Styled.Form
         ref={formRef}
@@ -403,7 +552,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
         isRTL={isRTL}
       >
         {showEmojiPicker ? (
-          <Styled.EmojiPickerWrapper>
+          <Styled.EmojiPickerWrapper ref={emojiPickerRef}>
             <Styled.EmojiPicker
               onEmojiSelect={(emojiObject: { native: string }) => handleEmojiSelect(emojiObject)}
               showPreview={false}
@@ -412,64 +561,69 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
           </Styled.EmojiPickerWrapper>
         ) : null}
         <Styled.Wrapper>
-          <Styled.Input
-            id="message-input"
-            ref={textAreaRef}
-            placeholder={intl.formatMessage(messages.inputPlaceholder, { 0: title })}
-            aria-label={intl.formatMessage(messages.inputLabel, { 0: title })}
-            aria-invalid={hasErrors ? 'true' : 'false'}
-            autoCorrect="off"
-            autoComplete="off"
-            spellCheck="true"
-            disabled={disabled || partnerIsLoggedOut}
-            value={message}
-            onFocus={() => {
-              window.dispatchEvent(new CustomEvent(PluginSdk.ChatFormUiDataNames.CHAT_INPUT_IS_FOCUSED, {
-                detail: {
-                  value: true,
-                },
-              }));
-              setIsTextAreaFocused(true);
-            }}
-            onBlur={() => {
-              window.dispatchEvent(new CustomEvent(PluginSdk.ChatFormUiDataNames.CHAT_INPUT_IS_FOCUSED, {
-                detail: {
-                  value: false,
-                },
-              }));
-            }}
-            onChange={handleMessageChange}
-            onKeyDown={handleMessageKeyDown}
-            onPaste={(e) => { e.stopPropagation(); }}
-            onCut={(e) => { e.stopPropagation(); }}
-            onCopy={(e) => { e.stopPropagation(); }}
-            async
-          />
-          {ENABLE_EMOJI_PICKER ? (
-            <Styled.EmojiButton
-              onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-              icon="happy"
-              color="light"
-              ghost
-              type="button"
-              circle
-              hideLabel
-              label={intl.formatMessage(messages.emojiButtonLabel)}
-              data-test="emojiPickerButton"
+          <Styled.InputWrapper>
+            <Styled.Input
+              id="message-input"
+              ref={textAreaRef}
+              placeholder={intl.formatMessage(messages.inputPlaceholder, { 0: title })}
+              aria-label={intl.formatMessage(messages.inputLabel, { 0: title })}
+              aria-invalid={hasErrors ? 'true' : 'false'}
+              autoCorrect="off"
+              autoComplete="off"
+              spellCheck="true"
+              disabled={disabled || partnerIsLoggedOut}
+              value={message}
+              onFocus={() => {
+                window.dispatchEvent(new CustomEvent(PluginSdk.ChatFormUiDataNames.CHAT_INPUT_IS_FOCUSED, {
+                  detail: {
+                    value: true,
+                  },
+                }));
+                setIsTextAreaFocused(true);
+              }}
+              onBlur={() => {
+                window.dispatchEvent(new CustomEvent(PluginSdk.ChatFormUiDataNames.CHAT_INPUT_IS_FOCUSED, {
+                  detail: {
+                    value: false,
+                  },
+                }));
+              }}
+              onChange={handleMessageChange}
+              onKeyDown={handleMessageKeyDown}
+              onPaste={(e) => { e.stopPropagation(); }}
+              onCut={(e) => { e.stopPropagation(); }}
+              onCopy={(e) => { e.stopPropagation(); }}
+              async
             />
-          ) : null}
-          <Styled.SendButton
-            hideLabel
-            circle
-            aria-label={intl.formatMessage(messages.submitLabel)}
-            type="submit"
-            disabled={disabled || partnerIsLoggedOut || chatSendMessageLoading}
-            label={intl.formatMessage(messages.submitLabel)}
-            color="primary"
-            icon="send"
-            onClick={() => { }}
-            data-test="sendMessageButton"
-          />
+            {ENABLE_EMOJI_PICKER ? (
+              <Styled.EmojiButton
+                ref={emojiPickerButtonRef}
+                onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                icon="happy"
+                color="light"
+                ghost
+                type="button"
+                circle
+                hideLabel
+                label={intl.formatMessage(messages.emojiButtonLabel)}
+                data-test="emojiPickerButton"
+              />
+            ) : null}
+          </Styled.InputWrapper>
+          <div style={{ zIndex: 10 }}>
+            <Styled.SendButton
+              hideLabel
+              circle
+              aria-label={intl.formatMessage(messages.submitLabel)}
+              type="submit"
+              disabled={disabled || partnerIsLoggedOut || chatSendMessageLoading}
+              label={intl.formatMessage(messages.submitLabel)}
+              color="primary"
+              icon="send"
+              onClick={() => { }}
+              data-test="sendMessageButton"
+            />
+          </div>
         </Styled.Wrapper>
         {
           error && (
@@ -483,23 +637,14 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
     );
   };
 
-  return ENABLE_EMOJI_PICKER ? (
-    <ClickOutside
-      onClick={() => handleClickOutside()}
-    >
-      {renderForm()}
-    </ClickOutside>
-  ) : renderForm();
+  return renderForm();
 };
 
-// eslint-disable-next-line no-empty-pattern
-const ChatMessageFormContainer: React.FC = ({
-  // connected, move to network status
-}) => {
+const ChatMessageFormContainer: React.FC = () => {
   const intl = useIntl();
-  const [showEmojiPicker, setShowEmojiPicker] = React.useState(false);
   const idChatOpen: string = layoutSelect((i: Layout) => i.idChatOpen);
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
+  const isConnected = useReactiveVar(connectionStatus.getConnectedStatusVar());
   const { data: chat } = useChat((c: Partial<Chat>) => ({
     participant: c?.participant,
     chatId: c?.chatId,
@@ -508,6 +653,7 @@ const ChatMessageFormContainer: React.FC = ({
 
   const { data: currentUser } = useCurrentUser((c) => ({
     isModerator: c?.isModerator,
+    userLockSettings: c?.userLockSettings,
     locked: c?.locked,
   }));
 
@@ -521,8 +667,9 @@ const ChatMessageFormContainer: React.FC = ({
 
   const isModerator = currentUser?.isModerator;
   const isPublicChat = chat?.public;
-  const isLocked = currentUser?.locked;
-  const disablePublicChat = meeting?.lockSettings?.disablePublicChat;
+  const isLocked = currentUser?.locked || currentUser?.userLockSettings?.disablePublicChat;
+  const disablePublicChat = meeting?.lockSettings?.disablePublicChat
+    || currentUser?.userLockSettings?.disablePublicChat;
   const disablePrivateChat = meeting?.lockSettings?.disablePrivateChat;
 
   let locked = false;
@@ -531,21 +678,48 @@ const ChatMessageFormContainer: React.FC = ({
     if (isPublicChat) {
       locked = (isLocked && disablePublicChat) || false;
     } else {
-      locked = (isLocked && disablePrivateChat) || false;
+      locked = (isLocked && disablePrivateChat && !chat?.participant?.isModerator) || false;
     }
   }
 
-  const handleClickOutside = () => {
-    if (showEmojiPicker) {
-      setShowEmojiPicker(false);
-    }
-  };
+  const userLastSentMessageQuery = chat?.public
+    ? USER_LAST_SENT_PUBLIC_CHAT_MESSAGE_QUERY
+    : USER_LAST_SENT_PRIVATE_CHAT_MESSAGE_QUERY;
 
-  if (chat?.participant && !chat.participant.isOnline) {
+  const [loadUserLastSentMessage] = useLazyQuery<LastSentMessageResponse>(
+    userLastSentMessageQuery,
+    {
+      variables: chat?.public ? {
+        userId: Auth.userID,
+      } : {
+        userId: Auth.userID,
+        requestedChatId: idChatOpen,
+      },
+      fetchPolicy: 'no-cache',
+    },
+  );
+
+  const getUserLastSentMessage = useCallback(
+    async () => {
+      const { data } = await loadUserLastSentMessage();
+      if (data) {
+        if ('chat_message_public' in data) {
+          return data.chat_message_public[0] ?? null;
+        }
+        return data.chat_message_private[0] ?? null;
+      }
+      return null;
+    },
+    [loadUserLastSentMessage],
+  );
+
+  if (chat?.participant && !chat.participant.currentlyInMeeting) {
     return <ChatOfflineIndicator participantName={chat.participant.name} />;
   }
 
   const CHAT_CONFIG = window.meetingClientSettings.public.chat;
+
+  const disabled = locked && !isModerator && disablePrivateChat && !isPublicChat && !chat?.participant?.isModerator;
 
   return (
     <ChatMessageForm
@@ -553,15 +727,15 @@ const ChatMessageFormContainer: React.FC = ({
         minMessageLength: CHAT_CONFIG.min_message_length,
         maxMessageLength: CHAT_CONFIG.max_message_length,
         idChatOpen,
-        handleClickOutside,
         chatId: idChatOpen,
         connected: true, // TODO: monitoring network status
-        disabled: locked ?? false,
+        disabled: ((isPublicChat ? locked : disabled) || !isConnected) ?? false,
         title,
         isRTL,
         // if participant is not defined, it means that the chat is public
-        partnerIsLoggedOut: chat?.participant ? !chat?.participant?.isOnline : false,
+        partnerIsLoggedOut: chat?.participant ? !chat?.participant?.currentlyInMeeting : false,
         locked: locked ?? false,
+        getUserLastSentMessage,
       }}
     />
   );

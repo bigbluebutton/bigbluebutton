@@ -1,10 +1,9 @@
-const { test } = require('@playwright/test');
+const { expect } = require('@playwright/test');
 const { MultiUsers } = require('../user/multiusers');
 const e = require('../core/elements');
 const util = require('./util');
 const { openSettings } = require('../options/util');
 const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
-const { getSettings } = require('../core/settings');
 const { sleep } = require('../core/helpers');
 
 class Notifications extends MultiUsers {
@@ -13,57 +12,52 @@ class Notifications extends MultiUsers {
   }
 
   async saveSettingsNotification() {
-    await util.waitAndClearDefaultPresentationNotification(this.modPage);
     await openSettings(this.modPage);
     await util.saveSettings(this.modPage);
     await util.checkNotificationText(this.modPage, e.savedSettingsToast);
   }
 
   async audioNotification() {
-    await util.waitAndClearDefaultPresentationNotification(this.modPage);
     await this.modPage.waitAndClick(e.joinAudio);
     await this.modPage.joinMicrophone();
     await util.checkNotificationText(this.modPage, e.joinAudioToast);
     await util.checkNotificationIcon(this.modPage, e.unmuteIcon);
-    await util.waitAndClearNotification(this.modPage);
+    await expect(
+      this.modPage.getLocator(e.connectionStatusBtn),
+      'should not complain about loss in connection when joining audio'
+    ).not.toHaveAttribute('color', 'danger');
+    await this.modPage.hasElementCount(e.smallToastMsg, 1, 'should have only one notification displayed');
+    await this.modPage.closeAllToastNotifications();
     await this.modPage.waitAndClick(e.audioDropdownMenu);
     await this.modPage.waitAndClick(e.leaveAudio);
-    await util.waitAndClearNotification(this.modPage);
+    await this.modPage.closeAllToastNotifications();
     await this.modPage.waitAndClick(e.joinAudio);
     await this.modPage.waitAndClick(e.listenOnlyButton);
-    await this.modPage.wasRemoved(e.establishingAudioLabel);
+    await this.modPage.wasRemoved(e.establishingAudioLabel, 'should remove establish audio element after joining successfully');
     await util.checkNotificationText(this.modPage, e.joinAudioToast);
     await util.checkNotificationIcon(this.modPage, e.listenOnlyIcon);
   }
 
   async getUserJoinPopupResponse() {
-    await util.waitAndClearDefaultPresentationNotification(this.modPage);
+    await this.modPage.hasElement(e.whiteboard);
     await this.userJoinNotification(this.modPage);
-    await util.waitAndClearNotification(this.modPage);
+    await this.modPage.closeAllToastNotifications();
     await this.initUserPage();
     await this.modPage.waitForSelector(e.smallToastMsg, ELEMENT_WAIT_LONGER_TIME);
     await util.checkNotificationText(this.modPage, e.attendeeJoinedToast);
   }
 
   async raiseAndLowerHandNotification() {
-    const { reactionsButton } = getSettings();
-    if (!reactionsButton) {
-      await this.modPage.waitForSelector(e.whiteboard);
-      await this.modPage.hasElement(e.joinAudio);
-      await this.modPage.wasRemoved(e.reactionsButton);
-      return
-    }
-
-    await util.waitAndClearDefaultPresentationNotification(this.modPage);
-    await this.modPage.waitAndClick(e.reactionsButton);
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage.closeAllToastNotifications();
     await this.modPage.waitAndClick(e.raiseHandBtn);
     await sleep(1000);
-    await this.modPage.waitAndClick(e.reactionsButton);
-    await this.modPage.waitAndClick(e.lowerHandBtn);
-    await this.modPage.wasRemoved(e.raiseHandRejection);
+    await this.modPage.hasElement(e.raiseHandRejection, 'should display raise hand rejection button on toast notification');
     await util.checkNotificationText(this.modPage, e.raisingHandToast);
-    await this.modPage.hasText(`${e.smallToastMsg}>>nth=0`, e.raisingHandToast);
-    await this.modPage.hasText(`${e.smallToastMsg}>>nth=1`, e.loweringHandToast);
+    await this.modPage.closeAllToastNotifications();
+    await this.modPage.waitAndClick(e.lowerHandBtn);
+    await this.modPage.wasRemoved(e.raiseHandRejection, 'should remove the toast notification with the raise hand rejection button');
+    await util.checkNotificationText(this.modPage, e.loweringHandToast);
   }
 
   async userJoinNotification(page) {

@@ -14,6 +14,7 @@ interface TimerIndicatorProps {
   passedTime: number;
   stopwatch: boolean;
   songTrack: string;
+  elapsed?: boolean;
   running: boolean;
   isModerator: boolean;
   sidebarNavigationIsOpen: boolean;
@@ -25,6 +26,7 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
   passedTime,
   stopwatch,
   songTrack,
+  elapsed,
   running,
   isModerator,
   sidebarNavigationIsOpen,
@@ -96,13 +98,6 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
         setTime((prev) => {
           if (stopwatch) return (Math.round(prev / 1000) * 1000) + 1000;
           const t = (Math.floor(prev / 1000) * 1000) - 1000;
-          if (t <= 0) {
-            if (!alreadyNotified.current) {
-              triggered.current = false;
-              alreadyNotified.current = true;
-              if (alarm.current) alarm.current.play();
-            }
-          }
           return t < 0 ? 0 : t;
         });
       }, 1000);
@@ -114,6 +109,16 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
   }, [running]);
+
+  useEffect(() => {
+    if (elapsed) {
+      if (!alreadyNotified.current) {
+        triggered.current = false;
+        alreadyNotified.current = true;
+        if (alarm.current) alarm.current.play();
+      }
+    }
+  }, [elapsed]);
 
   useEffect(() => {
     if (!running) return;
@@ -204,6 +209,7 @@ const TimerIndicatorContainer: React.FC = () => {
 
   const {
     accumulated,
+    elapsed,
     running,
     startedOn,
     stopwatch,
@@ -225,6 +231,7 @@ const TimerIndicatorContainer: React.FC = () => {
       passedTime={timePassed}
       stopwatch={stopwatch ?? false}
       songTrack={songTrack ?? 'noTrack'}
+      elapsed={elapsed}
       running={running ?? false}
       isModerator={currentUser?.isModerator ?? false}
       sidebarNavigationIsOpen={sidebarNavigationIsOpen}

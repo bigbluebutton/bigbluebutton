@@ -84,9 +84,9 @@ export const DataChannelItemManagerReader: React.ElementType<DataChannelItemMana
         }
       }) as EventListener;
 
-    window.addEventListener(HookEvents.SUBSCRIBED, subscribeHandler);
+    window.addEventListener(HookEvents.PLUGIN_SUBSCRIBED_TO_BBB_CORE, subscribeHandler);
     return () => {
-      window.removeEventListener(HookEvents.SUBSCRIBED, subscribeHandler);
+      window.removeEventListener(HookEvents.PLUGIN_SUBSCRIBED_TO_BBB_CORE, subscribeHandler);
     };
   }, []);
 

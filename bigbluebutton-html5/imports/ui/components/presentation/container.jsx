@@ -16,6 +16,7 @@ import MediaService from '../media/service';
 import {
   CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
   CURRENT_PAGE_WRITERS_SUBSCRIPTION,
+  CURRENT_PAGE_ANNOTATIONS_STREAM,
 } from '/imports/ui/components/whiteboard/queries';
 import POLL_SUBSCRIPTION from '/imports/ui/core/graphql/queries/pollSubscription';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
@@ -23,13 +24,37 @@ import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { PRESENTATION_SET_ZOOM, PRESENTATION_SET_WRITERS } from './mutations';
 import { GET_USER_IDS } from '/imports/ui/core/graphql/queries/users';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
+import useSettings from '/imports/ui/services/settings/hooks/useSettings';
+import { SETTINGS } from '/imports/ui/services/settings/enums';
 
 const fetchedpresentation = {};
 
 const PresentationContainer = (props) => {
+  const { presentationIsOpen } = props;
+  const layoutContextDispatch = layoutDispatch();
+  const { selectedLayout } = useSettings(SETTINGS.APPLICATION);
+
   const { data: presentationPageData } = useDeduplicatedSubscription(
     CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
   );
+
+  const { data: annotationStreamData } = useDeduplicatedSubscription(
+    CURRENT_PAGE_ANNOTATIONS_STREAM,
+    {
+      variables: { lastUpdatedAt: new Date(0).toISOString() },
+    },
+  );
+
+  useEffect(() => {
+    if (
+      (
+        annotationStreamData?.pres_annotation_curr_stream
+        && annotationStreamData.pres_annotation_curr_stream.length > 0)
+      && !presentationIsOpen) {
+      MediaService.setPresentationIsOpen(layoutContextDispatch, true);
+    }
+  }, [annotationStreamData]);
+
   const { pres_page_curr: presentationPageArray } = (presentationPageData || {});
   const currentPresentationPage = presentationPageArray && presentationPageArray[0];
   const slideSvgUrl = currentPresentationPage && currentPresentationPage.svgUrl;
@@ -125,6 +150,7 @@ const PresentationContainer = (props) => {
     num: currentPresentationPage?.num,
     presentationId: currentPresentationPage?.presentationId,
     svgUri: slideSvgUrl,
+    infiniteWhiteboard: currentPresentationPage.infiniteWhiteboard,
   } : null;
 
   let slidePosition;
@@ -153,16 +179,20 @@ const PresentationContainer = (props) => {
     if (PRELOAD_NEXT_SLIDE
       && !presentation.fetchedSlide[currentSlide.num + PRELOAD_NEXT_SLIDE]
       && presentation.canFetch) {
-      // TODO: preload next slides should be reimplemented in graphql
-      const slidesToFetch = [currentPresentationPage];
+      const nextSlidesSvgUrl = (currentPresentationPage.nextPagesSvg || [])
+        .map((url) => ({ svgUrl: url }));
+      const slidesToFetch = [
+        currentPresentationPage,
+        ...nextSlidesSvgUrl,
+      ];
 
       const promiseImageGet = slidesToFetch
-        .filter((s) => !fetchedpresentation[presentationId].fetchedSlide[s.num])
+        .filter((s) => !fetchedpresentation[presentationId].fetchedSlide[s.svgUrl])
         .map(async (slide) => {
           if (presentation.canFetch) presentation.canFetch = false;
           const image = await fetch(slide.svgUrl);
           if (image.ok) {
-            presentation.fetchedSlide[slide.num] = true;
+            presentation.fetchedSlide[slide.svgUrl] = true;
           }
         });
       Promise.all(promiseImageGet).then(() => {
@@ -171,13 +201,11 @@ const PresentationContainer = (props) => {
     }
   }
 
-  const { presentationIsOpen } = props;
-
   const cameraDock = layoutSelectInput((i) => i.cameraDock);
   const presentation = layoutSelectOutput((i) => i.presentation);
   const fullscreen = layoutSelect((i) => i.fullscreen);
   const deviceType = layoutSelect((i) => i.deviceType);
-  const layoutContextDispatch = layoutDispatch();
+  const layoutType = layoutSelect((i) => i.layoutType);
 
   const { numCameras } = cameraDock;
   const { element } = fullscreen;
@@ -198,45 +226,49 @@ const PresentationContainer = (props) => {
     presentationAreaHeight: presentation?.height,
   };
 
+  if (layoutType === 'videoFocus' && presentation?.width === 0) return null;
+
   return (
     <Presentation
       {
-      ...{
-        layoutContextDispatch,
-        numCameras,
-        ...props,
-        userIsPresenter,
-        presentationBounds: presentation,
-        fullscreenContext,
-        fullscreenElementId,
-        isMobile: deviceType === DEVICE_TYPE.MOBILE,
-        isIphone,
-        currentSlide,
-        slidePosition,
-        downloadPresentationUri: `${APP_CONFIG.bbbWebBase}/${currentPresentationPage?.downloadFileUri}`,
-        multiUser: (multiUserData.hasAccess || multiUserData.active) && presentationIsOpen,
-        presentationIsDownloadable: currentPresentationPage?.downloadable,
-        mountPresentation: !!currentSlide,
-        currentPresentationId: currentPresentationPage?.presentationId,
-        totalPages: currentPresentationPage?.totalPages || 0,
-        notify,
-        zoomSlide,
-        publishedPoll: poll?.published || false,
-        restoreOnUpdate: getFromUserSettings(
-          'bbb_force_restore_presentation_on_new_events',
-          window.meetingClientSettings.public.presentation.restoreOnUpdate,
-        ),
-        addWhiteboardGlobalAccess: getUsers,
-        removeWhiteboardGlobalAccess,
-        multiUserSize: multiUserData.size,
-        isViewersAnnotationsLocked,
-        setPresentationIsOpen: MediaService.setPresentationIsOpen,
-        isDefaultPresentation: currentPresentationPage?.isDefaultPresentation,
-        presentationName: currentPresentationPage?.presentationName,
-        presentationAreaSize,
-        currentUser,
-        hasPoll,
-      }
+        ...{
+          layoutContextDispatch,
+          numCameras,
+          ...props,
+          userIsPresenter,
+          presentationBounds: presentation,
+          fullscreenContext,
+          fullscreenElementId,
+          isMobile: deviceType === DEVICE_TYPE.MOBILE,
+          isIphone,
+          currentSlide,
+          slidePosition,
+          hasWBAccess: multiUserData.hasAccess,
+          downloadPresentationUri: `${APP_CONFIG.bbbWebBase}/${currentPresentationPage?.downloadFileUri}`,
+          multiUser: (multiUserData.hasAccess || multiUserData.active) && presentationIsOpen,
+          presentationIsDownloadable: currentPresentationPage?.downloadable,
+          mountPresentation: !!currentSlide,
+          currentPresentationId: currentPresentationPage?.presentationId,
+          totalPages: currentPresentationPage?.totalPages || 0,
+          notify,
+          zoomSlide,
+          publishedPoll: poll?.published || false,
+          restoreOnUpdate: getFromUserSettings(
+            'bbb_force_restore_presentation_on_new_events',
+            window.meetingClientSettings.public.presentation.restoreOnUpdate,
+          ),
+          addWhiteboardGlobalAccess: getUsers,
+          removeWhiteboardGlobalAccess,
+          multiUserSize: multiUserData.size,
+          isViewersAnnotationsLocked,
+          setPresentationIsOpen: MediaService.setPresentationIsOpen,
+          isDefaultPresentation: currentPresentationPage?.isDefaultPresentation,
+          presentationAreaSize,
+          currentUser,
+          hasPoll,
+          currentPresentationPage,
+          layoutType: selectedLayout || '',
+        }
       }
     />
   );
@@ -245,5 +277,8 @@ const PresentationContainer = (props) => {
 export default PresentationContainer;
 
 PresentationContainer.propTypes = {
-  presentationIsOpen: PropTypes.bool.isRequired,
+  presentationIsOpen: PropTypes.bool,
+};
+PresentationContainer.defaultProps = {
+  presentationIsOpen: true,
 };

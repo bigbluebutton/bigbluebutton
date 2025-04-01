@@ -5,6 +5,7 @@ import {
 import caseInsensitiveReducer from '/imports/utils/caseInsensitiveReducer';
 import { defineMessages, useIntl } from 'react-intl';
 import Styled from './styles';
+import CustomizedAxisTick from '/imports/ui/components/poll/components/CustomizedAxisTick';
 
 interface ChatPollContentProps {
   metadata: string;
@@ -96,21 +97,24 @@ const ChatPollContent: React.FC<ChatPollContentProps> = ({
 
   const useHeight = height || translatedAnswers.length * 50;
   return (
-    <div data-test="chatPollMessageText">
+    <Styled.PollWrapper data-test="chatPollMessageText">
       <Styled.PollText>
         {pollData.questionText}
       </Styled.PollText>
-      <ResponsiveContainer width="90%" height={useHeight}>
+      <ResponsiveContainer width="100%" height={useHeight}>
         <BarChart
           data={translatedAnswers}
           layout="vertical"
         >
-          <XAxis type="number" />
-          <YAxis width={80} type="category" dataKey="pollAnswer" />
+          <XAxis
+            type="number"
+            allowDecimals={false}
+          />
+          <YAxis width={100} type="category" dataKey="pollAnswer" tick={<CustomizedAxisTick />} />
           <Bar dataKey="numVotes" fill="#0C57A7" />
         </BarChart>
       </ResponsiveContainer>
-    </div>
+    </Styled.PollWrapper>
   );
 };
 

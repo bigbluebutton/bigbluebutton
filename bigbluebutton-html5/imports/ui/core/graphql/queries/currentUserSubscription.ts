@@ -5,15 +5,14 @@ subscription userCurrentSubscription {
   user_current {
     authToken
     avatar
+    webcamBackground
     away
     clientType
     color
     ejectReason
     ejectReasonCode
     ejected
-    emoji
     reactionEmoji
-    enforceLayout
     extId
     guest
     guestStatus
@@ -22,7 +21,7 @@ subscription userCurrentSubscription {
     inactivityWarningTimeoutSecs
     isDialIn
     isModerator
-    isOnline
+    currentlyInMeeting
     joinErrorCode
     joinErrorMessage
     joined
@@ -70,6 +69,20 @@ subscription userCurrentSubscription {
       joined
       spoke
       listenOnly
+    }
+    userLockSettings {
+      disablePublicChat
+    }
+    sessionCurrent {
+      enforceLayout
+    }
+    livekit {
+      livekitToken
+    }
+    presPagesWritable {
+      isCurrentPage
+      pageId
+      userId
     }
   }
 }

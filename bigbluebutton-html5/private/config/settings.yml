@@ -7,12 +7,11 @@ public:
     # user to select an option ("Microphone" and/or "Listen only") for joining
     # audio
     autoJoin: true
-    # Disables the listen only option in audio modal.
+    # Set to false disables the listen only option in audio modal.
     listenOnlyMode: true
     forceListenOnly: false
     # Skips the echo test when connecting with microphone.
     skipCheck: false
-    instanceId: ''
     # Skips the echo test when connecting with microphone right after user
     # joins the room the first time. Subsequent joins to microphone won't
     # have echo test skipped, for example if user leaves and joins the mic
@@ -27,11 +26,12 @@ public:
     # "media.setsinkid.enabled" to make it work properly
     enableDynamicAudioDeviceSelection: true
     #
+    skipEchoTestIfPreviousDevice: false
     clientTitle: BigBlueButton
     appName: BigBlueButton HTML5 Client
     bbbServerVersion: HTML5_FULL_BBB_VERSION
     displayBbbServerVersion: true
-    copyright: '©2024 BigBlueButton Inc.'
+    copyright: '©2025 BigBlueButton Inc.'
     html5ClientBuild: HTML5_CLIENT_VERSION
     helpLink: https://bigbluebutton.org/html5/
     delayForUnmountOfSharedNote: 120000
@@ -56,13 +56,13 @@ public:
     customStyleUrl: null
     darkTheme:
       enabled: true
-    askForFeedbackOnLogout: false
     # the default logoutUrl matches window.location.origin i.e. bigbluebutton.org for demo.bigbluebutton.org
     # in some cases we want only custom logoutUrl to be used when provided on meeting create. Default value: true
     askForConfirmationOnLeave: true
     wakeLock: 
       enabled: true
     allowDefaultLogoutUrl: true
+    skipMeetingEnded: false
     dynamicGuestPolicy: true
     enableGuestLobbyMessage: true
     guestPolicyExtraAllowOptions: false
@@ -76,13 +76,18 @@ public:
     enableWebcamSelectorButton: true
     enableTalkingIndicator: true
     enableCameraBrightness: true
-    mirrorOwnWebcam: false
+    mirrorOwnWebcam: true
     viewersInWebcam: 8
     ipv4FallbackDomain: ''
     allowLogout: true
     allowFullscreen: true
     preloadNextSlides: 2
     warnAboutUnsavedContentOnMeetingEnd: false
+    # Flag used to enable apollo dev tools in production
+    enableApolloDevTools: false
+    # Time used when the client connection is stale
+    # and a new connection is attempted 
+    terminateAndRetryConnection: 30_000
     # Allows users to enable automatic transcription when joining a meeting.
     # Automatic transcription requires the browser to support the web
     # speech API, which involves sending voice data to third-party servers!
@@ -95,12 +100,15 @@ public:
       # provider: [webspeech, vosk, gladia]
       provider: webspeech
       language:
+        # Available languages will depend on the transcription service
+        # Google: https://cloud.google.com/speech-to-text/docs/speech-to-text-supported-languages
+        # Gladia: https://docs.gladia.io/chapters/speech-to-text-api/pages/languages#supported-languages
         available:
         # - de-DE
           - en-US
           - es-ES
           - fr-FR
-        # - hi-ID
+        # - hi-IN
         # - it-IT
         # - ja-JP
           - pt-BR
@@ -130,13 +138,13 @@ public:
     # this value to be kept under 16.
     breakouts:
       allowUserChooseRoomByDefault: false
+      offerRecordingForBreakouts: false
+      recordRoomByDefault: false
       captureWhiteboardByDefault: false
       captureSharedNotesByDefault: false
       sendInvitationToAssignedModeratorsByDefault: false
       breakoutRoomLimit: 16
-    # https://github.com/bigbluebutton/bigbluebutton/pull/10826
-    customHeartbeat: false
-    customHeartbeatUseDataFrames: true
+      allowPresentationManagementInBreakouts: true
     showAllAvailableLocales: true
     # Show "Audio Filters for Microphone" option in settings menu.
     # When set to true, users are able to enable/disable microphone constraints,
@@ -145,14 +153,7 @@ public:
     # For more info, see 'microphoneConstraints' option in this config.
     # If not set, default value is true.
     showAudioFilters: true
-    raiseHandActionButton:
-      # Enables the old raiseHand icon
-      enabled: false
-      # If true, positions the icon next to the screenshare button, if false positions it where BBB had raisedHand button up to BBB 2.6 (right-hand bottom corner in LRT)
-      centered: true
     reactionsButton:
-      # Enables the new raiseHand icon inside of the reaction menu (introduced in BBB 2.7)
-      # If both reactionsButton and raiseHandActionButton are enabled, reactionsButton takes precedence.
       enabled: true
     emojiRain:
       # If true, new reactions will be activated
@@ -187,6 +188,7 @@ public:
     defaultSettings:
       application:
         selectedLayout: 'custom'
+        pushLayout: false
         animations: true
         chatAudioAlerts: false
         chatPushAlerts: false
@@ -201,6 +203,7 @@ public:
         wakeLock: true
         paginationEnabled: true
         whiteboardToolbarAutoHide: false
+        pushToTalkEnabled: false
         autoCloseReactionsBar: true
         directLeaveButton: true
         darkTheme: false
@@ -255,6 +258,9 @@ public:
       toggleUserList:
         accesskey: U
         descId: toggleUserList
+      openLeaveMenu:
+        accesskey: X
+        descId: openLeaveMenu
       toggleMute:
         accesskey: M
         descId: toggleMute
@@ -322,6 +328,21 @@ public:
     # Controls whether ICE candidates should be signaled to bbb-webrtc-sfu.
     # Enable this if you want to use Kurento as the media server.
     signalCandidates: false
+    # restartIce: controls whether ICE restarts should be signaled to bbb-webrtc-sfu
+    #   whenever peers of the selected type (audio, video, screenshare) transition
+    #   to failure states. Disabled by default (experimental).
+    # restartIce.<mediaType>.retries: number of ICE restart retries before giving up
+    #   (i.e.: throwing an error). Default is 1 for audio, 3 for video and screenshare.
+    restartIce:
+      audio:
+        enabled: false
+        retries: 1
+      video:
+        enabled: false
+        retries: 3
+      screenshare:
+        enabled: false
+        retries: 3
     # traceLogs: <Boolean> - enable trace logs in SFU peers
     traceLogs: false
     cameraTimeouts:
@@ -332,6 +353,7 @@ public:
       # subscribe reattempt increases the reconnection timer up to this
       maxTimeout: 60000
     screenshare:
+      showButtonForNonPresenters: false
       # Whether volume control should be allowed if screen sharing has audio
       enableVolumeControl: true
       # Experimental. True is the canonical behavior. Flip to false to reverse
@@ -454,6 +476,7 @@ public:
     autoShareWebcam: false
     skipVideoPreview: false
     skipVideoPreviewOnFirstJoin: false
+    skipVideoPreviewIfPreviousDevice: false
     # cameraSortingModes.paginationSorting: sorting mode to be applied when pagination is active
     # cameraSortingModes.defaultSorting: sorting mode when pagination is not active (full mesh)
     # Current implemented modes are:
@@ -743,12 +766,18 @@ public:
       enabled: true
       showNames: true
     moderatorChatEmphasized: true
+    privateMessageReadFeedback:
+      enabled: false
     autoConvertEmoji: true
     emojiPicker:
       enable: false
     # e.g.: disableEmojis: ['grin','laughing']
     disableEmojis: []
     allowedElements: ['a', 'code', 'em', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'ol', 'ul', 'p', 'strong']
+    # available options for toolbar: reply, edit, delete, reactions
+    # example: ['reply', 'delete']
+    toolbar: ['reply', 'delete', 'edit', 'reactions']
+    announcePresenterChangeInChat: true
   userReaction:
     enabled: true
     expire: 30
@@ -759,10 +788,10 @@ public:
         native: '😐'
       - id: 'slightly_frowning_face'
         native: '🙁'
-      - id: '+1'
-        native: '👍'
       - id: '-1'
         native: '👎'
+      - id: '+1'
+        native: '👍'
       - id: 'clap'
         native: '👏'
   notes:
@@ -774,51 +803,31 @@ public:
     showParticipantsOnLogin: true
     showPushLayoutButton: true
     showPushLayoutToggle: true
+    showSessionDetailsOnJoin: true
+    showScreenshareQuickSwapButton: false
   pads:
     url: ETHERPAD_HOST
-    cookie:
-      path: /
-      sameSite: None
-      secure: true
   media:
     audio:
-      #
-      #
-      # Default bridge to be used by full audio mechanism.
-      # This is the bridge's name as contained in 'bridges' array
+      # defaultFullAudioBridge: bridge to be used by full audio mechanism.
+      # Deprecated, superseded by `audioBridge` (bigbluebutton.properties, /create)
       defaultFullAudioBridge: fullaudio
-      #
-      #
-      # Server wide configuration to choose which bbb-webrtc-sfu
-      # media server adapter should be used for fullaudio.
+      # fullAudioMediaServer: which bbb-webrtc-sfu media server adapter should
+      # be used for microphone audio.
       # Default is undefined, which means the default setting in bbb-webrtc-sfu
       # prevails (fullAudioMediaServer).
       #fullAudioMediaServer: mediasoup
       #
-      #
-      # Default bridge to be used by listen only mechanism.
+      # defaultListenOnlyBridge: bridge to be used by listen only mechanism.
+      # Deprecated, no alternative as this audio mode will be removed.
       defaultListenOnlyBridge: fullaudio
-      #
-      #
-      # Bridge array, here's where we list our bridges.
-      # To add new bridges, simply add the corresponding .js file in
-      # /imports/api/audio/client/bridge/ and add it to this list.
-      #
-      # Each bridge in this list, must have a name and path attribute.
-      # The name is the desired name/string you can set for your bridge, while
-      # the path specifies the file path, relative to
-      # '/imports/api/audio/client' dir.
-      #
-      bridges:
-        # name:  The name of the bridge
-        - name: sipjs
-          # path: the bridge file path, relative to /imports/api/audio/client
-          path: 'bridge/sip'
-        - name: fullaudio
-          path: 'bridge/sfu-audio-bridge'
-      # Forces a retry with iceTransportPolicy = 'relay' if the first attempt
-      # fails with a few selected errors codes (eg 1007, 1010)
+      # retryThroughRelay: forces a retry with iceTransportPolicy = 'relay'
+      # if the first attempt fails with selected errors codes (eg 1007, 1010)
       retryThroughRelay: false
+      # allowAudioJoinCancel: allow users to cancel audio join requests by
+      # by closing the audio modal while audio is being negotiated.
+      # If false, the audio modal will be locked until the process finishes.
+      allowAudioJoinCancel: true
     stunTurnServersFetchAddress: '/bigbluebutton/api/stuns'
     cacheStunTurnServers: true
     fallbackStunServer: ''
@@ -834,10 +843,15 @@ public:
     callHangupMaximumRetries: 10
     echoTestNumber: 'echo'
     listenOnlyCallTimeout: 15000
-    # Experimental: enables a new audio mechanism that has a server-side,
-    # transparent listen only mode. See issue #14021.
-    # bbb_userdata-transparent-listen-only supersedes this setting
-    transparentListenOnly: false
+    # transparentListenOnly: whether the client should use the transparent 
+    # listen only mechanism. 
+    # It does not remove the "Listen Only" option from the audio modal
+    # by itself, but it allows users to switch modes on the fly and
+    # improves server CPU efficiency for microphone users.
+    # To disable the dedicated listen only option in the audio modal,
+    # see `listenOnlyMode`/`userdata-bbb_transparent_listen_only_mode`
+    # userdata-bbb_transparent_listen_only supersedes this setting
+    transparentListenOnly: true
     # Dev flag. Controls the WebRTC SDP negotiation role for SFU full audio.
     fullAudioOffering: true
     # Dev flag. Controls the WebRTC negotiation role for listen only.
@@ -892,8 +906,6 @@ public:
         enabled: true
         delayTime: 0.5
         maxDelayTime: 2
-    # showVolumeMeter: shows an energy bar for microphones in the AudioSettings view
-    showVolumeMeter: true
     # networkPriorities: DSCP markings for each media type. Chromium only, applies
     # to sender flows. See https://datatracker.ietf.org/doc/html/rfc8837#section-5
     # for further info.
@@ -906,22 +918,49 @@ public:
     # If no link is provided, the audio troubleshooting button will not be shown.
     # Index is the error code:
     #   - 7: permission denied error code
+    #   - 6: no input devices found
     #   - 0: unknown error
     #audioTroubleshootingLinks:
     #  7: 'https://link.bigbluebutton.org/perm'
     #  0: 'https://link.bigbluebutton.org/unk'
+    # muteAudioOutputWhenAway: mute output audio if user is in away mode
+    muteAudioOutputWhenAway: false
+    # Index is the error code:
+    #   - 1136: permission denied
+    screenshareTroubleshootingLinks:
+      1136: 'https://support.bigbluebutton.org/hc/en-us/articles/1500005316582-Share-my-screen#:~:text=Error%201136%3A%20Permission%20to%20capture,able%20to%20screen%20share%20again'
+    livekit:
+      # livekit.url is the URL of the LiveKit server. Default value is 'wss://{window.location.hostname}/livekit'
+      #url: wss://LIVEKIT_HOST/livekit
+      # livekit.selectiveSubscription: whether to use selective subscription all
+      # applicable track sources. Default value is false. This overrides autoSubscribe
+      # when set to true and in effect (conditional to client behavior).
+      selectiveSubscription: false
+      roomOptions:
+        adaptiveStream: true
+        dynacast: true
+        stopLocalTrackOnUnpublish: false
+      audio:
+        # publishOptions: see https://docs.livekit.io/client-sdk-js/interfaces/TrackPublishOptions.html
+        publishOptions:
+          audioPreset: 'speech'
+          dtx: true
+          red: false
+          forceStereo: false
+      camera:
+        publishOptions:
+          videoCodec: 'vp8'
+      screenshare:
+        publishOptions:
+          videoCodec: 'vp8'
   stats:
     enabled: true
     interval: 10000
-    timeout: 30000
+    timeout: 10000
     log: true
     notification:
       warning: false
       error: true
-    jitter:
-      warning: 10
-      danger: 20
-      critical: 30
     loss:
       warning: 0.05
       danger: 0.1
@@ -931,6 +970,7 @@ public:
       danger: 1000
       critical: 2000
     help: STATS_HELP_URL
+    lastEntriesCap: 20
   presentation:
     allowDownloadOriginal: true
     allowDownloadWithAnnotations: true
@@ -943,6 +983,9 @@ public:
     mirroredFromBBBCore:
       uploadSizeMax: 30000000
       uploadPagesMax: 200
+    # If the following mime-types list is changed, please, make sure to also change:
+    # bbb-common-web/src/main/java/org/bigbluebutton/presentation/MimeTypeUtils.java: L34 (and related files.)
+    # docs/docs/development/api.md: L1222
     uploadValidMimeTypes:
       - extension: .pdf
         mime: application/pdf
@@ -970,10 +1013,6 @@ public:
         mime: application/vnd.oasis.opendocument.presentation
       - extension: .odg
         mime: application/vnd.oasis.opendocument.graphics
-      - extension: .odc
-        mime: application/vnd.oasis.opendocument.chart
-      - extension: .odi
-        mime: application/vnd.oasis.opendocument.image
       - extension: .jpg
         mime: image/jpeg
       - extension: .jpeg
@@ -982,6 +1021,8 @@ public:
         mime: image/png
       - extension: .webp
         mime: image/webp
+      - extension: .svg
+        mime: image/svg+xml
   user:
     role_moderator: MODERATOR
     role_viewer: VIEWER
@@ -993,10 +1034,14 @@ public:
   whiteboard:
     annotationsQueueProcessInterval: 60
     cursorInterval: 150
+    allowInfiniteWhiteboard: false
+    allowInfiniteWhiteboardInBreakouts: false
     pointerDiameter: 5
     maxStickyNoteLength: 1000
     # limit number of annotations per slide
     maxNumberOfAnnotations: 300
+    # Limit the number of users who can interact with the whiteboard
+    maxNumberOfActiveUsers: 25
     annotations:
       status:
         start: DRAW_START
@@ -1021,66 +1066,6 @@ public:
         family: script
     toolbar:
       multiUserPenOnly: false
-      colors:
-        - label: black
-          value: '#000000'
-        - label: white
-          value: '#ffffff'
-        - label: red
-          value: '#ff0000'
-        - label: orange
-          value: '#ff8800'
-        - label: eletricLime
-          value: '#ccff00'
-        - label: Lime
-          value: '#00ff00'
-        - label: Cyan
-          value: '#00ffff'
-        - label: dodgerBlue
-          value: '#0088ff'
-        - label: blue
-          value: '#0000ff'
-        - label: violet
-          value: '#8800ff'
-        - label: magenta
-          value: '#ff00ff'
-        - label: silver
-          value: '#c0c0c0'
-      thickness:
-        - value: 14
-        - value: 12
-        - value: 10
-        - value: 8
-        - value: 6
-        - value: 4
-        - value: 2
-        - value: 1
-      font_sizes:
-        - value: 36
-        - value: 32
-        - value: 28
-        - value: 24
-        - value: 20
-        - value: 16
-      tools:
-        - icon: select_tool
-          value: select
-        - icon: hand_tool
-          value: hand
-        - icon: draw_tool
-          value: draw
-        - icon: eraser_tool
-          value: eraser
-        - icon: arrow_tool
-          value: arrow
-        - icon: text_tool
-          value: text
-        - icon: note_tool
-          value: note
-        - icon: rectangle_tool
-          value: rectangle
-        - icon: more_tool
-          value: more
       presenterTools:
         - select
         - hand
@@ -1090,7 +1075,10 @@ public:
         - text
         - note
         - rectangle
+        - delete-all
+        - highlight
         - more
+        - actions
       multiUserTools:
         - select
         - hand
@@ -1100,11 +1088,12 @@ public:
         - text
         - note
         - rectangle
+        - delete-all
+        - highlight
         - more
+        - actions
+    locales: ['ar', 'ca', 'cs', 'da', 'de', 'en', 'es', 'fa', 'fi', 'fr', 'gl', 'he', 'hi-in', 'hu', 'it', 'ja', 'ko-kr', 'ku', 'main', 'my', 'ne', 'no', 'pl', 'pt-br', 'pt-pt', 'ro', 'ru', 'sv', 'te', 'th', 'tr', 'uk', 'vi', 'zh-cn', 'zh-tw']
   clientLog:
-    server:
-      enabled: false
-      level: info
     console:
       enabled: true
       level: debug
@@ -1127,14 +1116,15 @@ public:
       - home.jpg
       - coffeeshop.jpg
       - board.jpg
+  minBrowserVersions:
+    safari: ">=14"
+    chrome: ">=87"
+    firefox: ">=80"
+    edge: ">=85"
+    mobile:
+      safari: ">=14"
+      chrome: ">=87"
 private:
-  postgresql:
-    host: localhost
-    port: 5432
-    database: bbb_graphql
-    user: bbb_frontend
-    password: bbb_frontend
-    timeout: 30000
   analytics:
     includeChat: true
   app:
@@ -1142,38 +1132,6 @@ private:
     localesUrl: /locale-list
     pencilChunkLength: 100
     loadSlidesFromHttpAlways: false
-  serverLog:
-    level: info
-    streamerLog: false
-    includeServerInfo: true
-    healthChecker:
-      enable: true
-      intervalMs: 30000
-  minBrowserVersions:
-    - browser: chrome
-      version: 72
-    - browser: chromeMobileIOS
-      version: 94
-    - browser: firefox
-      version: 68
-    - browser: firefoxMobile
-      version: 68
-    - browser: edge
-      version: 79
-    - browser: ie
-      version: Infinity
-    - browser: safari
-      version: [12, 1]
-    - browser: mobileSafari
-      version: [12, 1]
-    - browser: opera
-      version: 50
-    - browser: electron
-      version: [0, 36]
-    - browser: SamsungInternet
-      version: 10
-    - browser: YandexBrowser
-      version: 19
   # Direct Prometheus instrumentation.
   # EXPERIMENTAL, so disabled by default.
   prometheus:

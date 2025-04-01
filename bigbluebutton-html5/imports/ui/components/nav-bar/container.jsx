@@ -3,7 +3,7 @@ import { defineMessages, useIntl } from 'react-intl';
 import Auth from '/imports/ui/services/auth';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import NavBar from './component';
-import { layoutSelectInput, layoutSelectOutput, layoutDispatch } from '../layout/context';
+import { layoutSelectInput, layoutDispatch, layoutSelectOutput } from '../layout/context';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import { PANELS } from '/imports/ui/components/layout/enums';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
@@ -59,6 +59,10 @@ const NavBarContainer = ({ children, ...props }) => {
   const IS_DIRECT_LEAVE_BUTTON_ENABLED = getFromUserSettings(
     'bbb_direct_leave_button',
     PUBLIC_CONFIG.app.defaultSettings.application.directLeaveButton,
+  );
+  const SHOW_SESSION_DETAILS_ON_JOIN = getFromUserSettings(
+    'bbb_show_session_details_on_join',
+    PUBLIC_CONFIG.layout.showSessionDetailsOnJoin,
   );
 
   let meetingTitle;
@@ -121,6 +125,8 @@ const NavBarContainer = ({ children, ...props }) => {
         isDirectLeaveButtonEnabled: IS_DIRECT_LEAVE_BUTTON_ENABLED,
         // TODO: Remove/Replace
         isMeteorConnected: true,
+        hideTopRow: navBar.hideTopRow,
+        showSessionDetailsOnJoin: SHOW_SESSION_DETAILS_ON_JOIN,
         ...props,
       }}
       style={{ ...navBar }}

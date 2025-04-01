@@ -10,6 +10,7 @@ import {
   userJoinPushAlert,
   userLeavePushAlert,
 } from './service';
+import Styled from './styles';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 
@@ -39,21 +40,24 @@ const Notifications: React.FC = () => {
   const Settings = getSettingsSingletonInstance();
   const {
     userJoinPushAlerts,
+    userJoinAudioAlerts,
     userLeavePushAlerts,
+    userLeaveAudioAlerts,
     guestWaitingPushAlerts,
+    guestWaitingAudioAlerts,
   } = Settings.application;
 
   const excludedMessageIds = [];
 
-  if (!userJoinPushAlerts) {
+  if (!userJoinPushAlerts && !userJoinAudioAlerts) {
     excludedMessageIds.push('app.notification.userJoinPushAlert');
   }
 
-  if (!userLeavePushAlerts) {
+  if (!userLeavePushAlerts && !userLeaveAudioAlerts) {
     excludedMessageIds.push('app.notification.userLeavePushAlert');
   }
 
-  if (!guestWaitingPushAlerts) {
+  if (!guestWaitingPushAlerts && !guestWaitingAudioAlerts) {
     excludedMessageIds.push('app.userList.guest.pendingGuestAlert');
   }
 
@@ -64,16 +68,35 @@ const Notifications: React.FC = () => {
   });
 
   const notifier = (notification: Notification) => {
-    notify(
-      <FormattedMessage
-        id={notification.messageId}
-        // @ts-ignore - JS code
-        values={notification.messageValues}
-        description={notification.messageDescription}
-      />,
-      notification.notificationType,
-      notification.icon,
-    );
+    // special guest alert notification, with user name as title
+    if (notification.messageId === 'app.userList.guest.pendingGuestAlert') {
+      notify(
+        <Styled.TitleMessage>{notification.messageValues[0]}</Styled.TitleMessage>,
+        notification.notificationType,
+        notification.icon,
+        null,
+        <Styled.ContentMessage>
+          <FormattedMessage
+            id={notification.messageId}
+            // @ts-ignore - JS code
+            values={notification.messageValues}
+            description={notification.messageDescription}
+          />
+        </Styled.ContentMessage>,
+        true,
+      );
+    } else {
+      notify(
+        <FormattedMessage
+          id={notification.messageId}
+          // @ts-ignore - JS code
+          values={notification.messageValues}
+          description={notification.messageDescription}
+        />,
+        notification.notificationType,
+        notification.icon,
+      );
+    }
   };
 
   useEffect(() => {

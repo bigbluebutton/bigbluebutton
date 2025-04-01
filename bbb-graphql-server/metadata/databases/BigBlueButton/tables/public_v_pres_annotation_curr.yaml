@@ -11,6 +11,7 @@ object_relationships:
     using:
       manual_configuration:
         column_mapping:
+          meetingId: meetingId
           userId: userId
         insertion_order: null
         remote_table:
@@ -24,7 +25,6 @@ select_permissions:
         - pageId
         - presentationId
         - userId
-        - lastHistorySequence
         - annotationInfo
         - lastUpdatedAt
       filter:
@@ -32,9 +32,8 @@ select_permissions:
           - meetingId:
               _eq: X-Hasura-MeetingId
           - _or:
-              - user:
-                  isModerator:
-                    _eq: true
+              - userIsModerator:
+                  _eq: true
               - meetingId:
                   _eq: X-Hasura-AnnotationsNotLockedInMeeting
               - userId:

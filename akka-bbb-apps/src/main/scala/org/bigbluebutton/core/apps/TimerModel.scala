@@ -44,6 +44,8 @@ object TimerModel {
   }
 
   def setRunning(model: TimerModel, running: Boolean): Unit = {
+    resetTimerIfFinished(model)
+
     val now = System.currentTimeMillis()
 
     // If the timer is running and will stop, update accumulated time
@@ -57,20 +59,21 @@ object TimerModel {
       setStartedAt(model, now)
     }
 
-    // Determine if the timer is finished
-    val isTimerFinished = running && !isStopwatch(model) && {
-      val currentTimerTime = model.startedAt + (model.time - model.accumulated)
-      currentTimerTime < now
-    }
-
-    // If the timer is finished, reset the accumulated time and start time if running
-    if (isTimerFinished) {
-      setAccumulated(model, 0)
-      if (running) setStartedAt(model, now)
-    }
-
     // Update the running status of the model
     model.running = running
+  }
+
+  def resetTimerIfFinished(model: TimerModel) = {
+    // If the timer is finished, reset the accumulated time and start time if running
+    if (isRunning(model)
+      && !isStopwatch(model)
+      && (model.startedAt + (model.time - model.accumulated)) < System.currentTimeMillis()) {
+      model.running = false
+      reset(model)
+      true
+    } else {
+      false
+    }
   }
 
   def isRunning(model: TimerModel): Boolean = {

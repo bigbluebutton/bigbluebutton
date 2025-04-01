@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { range } from '/imports/utils/array-utils';
 import Icon from '/imports/ui/components/common/icon/icon-ts/component';
@@ -172,9 +172,20 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.sendInvitationToMods',
     description: 'label for checkbox send invitation to moderators',
   },
+  currentSlide: {
+    id: 'app.createBreakoutRoom.currentSlideLabel',
+    description: 'label for current slide',
+  },
 });
 
 const isMe = (intId: string) => intId === Auth.userID;
+
+type User = {
+  userId: string;
+  name: string;
+  isModerator: boolean;
+  extId: string;
+};
 
 const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
   moveUser,
@@ -186,8 +197,41 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
   randomlyAssign,
   resetRooms,
   users,
+  currentSlidePrefix,
+  presentations,
+  getRoomPresentation,
+  setRoomPresentations,
+  currentPresentation,
+  roomPresentations,
+  isUpdate,
 }) => {
   const intl = useIntl();
+  const [sortedRooms, setSortedRooms] = useState(rooms);
+
+  const sortUsers = (users: User[]) => {
+    return [...users].sort((a, b) => {
+      if (a.isModerator !== b.isModerator) {
+        return a.isModerator ? -1 : 1;
+      }
+      return a.name.localeCompare(b.name);
+    });
+  };
+
+  const updateSortedRooms = () => {
+    const newSortedRooms = { ...rooms };
+    Object.keys(newSortedRooms).forEach((roomNumber) => {
+      const roomNumberInt = parseInt(roomNumber, 10);
+      newSortedRooms[roomNumberInt] = {
+        ...newSortedRooms[roomNumberInt],
+        users: sortUsers(newSortedRooms[roomNumberInt].users),
+      };
+    });
+    setSortedRooms(newSortedRooms);
+  };
+
+  useEffect(() => {
+    updateSortedRooms();
+  }, [rooms]);
 
   const dragStart = (ev: React.DragEvent<HTMLParagraphElement>) => {
     const paragraphElement = ev.target as HTMLParagraphElement;
@@ -212,11 +256,19 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
     const [userId, from] = data.split('-');
     moveUser(userId, Number(from), roomNumber);
     setSelectedId('');
+    updateSortedRooms();
   };
 
   const hasNameDuplicated = (room: number) => {
     const roomName = rooms[room]?.name || '';
     return Object.values(rooms).filter((r) => r.name === roomName).length > 1;
+  };
+
+  const changeRoomPresentation = (position: number) => (ev: React.ChangeEvent<HTMLSelectElement>) => {
+    // @ts-ignore-next-line
+    const newRoomsPresentations = [...roomPresentations];
+    newRoomsPresentations[position] = ev.target.value;
+    setRoomPresentations(newRoomsPresentations);
   };
 
   useEffect(() => {
@@ -226,13 +278,14 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
   }, [numberOfRooms]);
 
   const roomUserList = (room: number) => {
-    if (rooms[room]) {
-      return rooms[room].users.map((user) => {
+    if (sortedRooms[room] && Array.isArray(sortedRooms[room].users)) {
+      return sortedRooms[room].users.map((user) => {
         return (
           <Styled.RoomUserItem
             tabIndex={-1}
             id={`${user.userId}-${room}`}
             key={user.userId}
+            data-test="roomUserItem"
             draggable
             onDragStart={dragStart}
             onDragEnd={dragEnd}
@@ -251,9 +304,11 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
                   aria-label={intl.formatMessage(intlMessages.resetUserRoom)}
                   onKeyDown={() => {
                     moveUser(user.userId, room, 0);
+                    updateSortedRooms();
                   }}
                   onClick={() => {
                     moveUser(user.userId, room, 0);
+                    updateSortedRooms();
                   }}
                 >
                   <Icon iconName="close" />
@@ -264,6 +319,44 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
       });
     }
     return '';
+  };
+
+  const rover = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const element = e.target as HTMLElement;
+    if (element.id.includes('breakoutBox')) {
+      if (e.key === 'Enter' || e.key === 'ArrowDown') {
+        (element.firstChild as HTMLElement).focus();
+      }
+    }
+
+    if (element?.dataset?.test?.includes('roomUserItem')) {
+      const splitted = element.id.split('-');
+      const [userId, StringFrom] = splitted;
+      const from = Number(StringFrom);
+      const maxRooms = numberOfRooms;
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        const nextElement = e.key === 'ArrowDown' ? element.nextSibling : element.previousSibling;
+        if (nextElement) (nextElement as HTMLElement).focus();
+      }
+
+      if (e.key === 'ArrowRight') {
+        const nextRoom = from + 1;
+        if (nextRoom <= maxRooms) {
+          moveUser(userId, from, from + 1);
+          updateSortedRooms();
+        }
+      }
+
+      if (e.key === 'ArrowLeft') {
+        const prevRoom = from - 1;
+        if (prevRoom >= 0) {
+          moveUser(userId, from, from - 1 < 0 ? 0 : from - 1);
+          updateSortedRooms();
+        }
+      }
+    }
   };
 
   return (
@@ -291,6 +384,7 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
             onDrop={drop(0)}
             onDragOver={allowDrop}
             tabIndex={0}
+            onKeyDown={rover}
           >
             {roomUserList(0)}
           </Styled.BreakoutBox>
@@ -320,12 +414,39 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
                     {intl.formatMessage(intlMessages.roomNameInputDesc)}
                   </div>
                 </Styled.FreeJoinLabel>
+                { presentations.length > 0 && !isUpdate ? (
+                  <Styled.BreakoutSlideLabel>
+                    <Styled.InputRooms
+                      data-test={`changeSlideBreakoutRoom${value}`}
+                      value={getRoomPresentation(value)}
+                      onChange={changeRoomPresentation(value)}
+                      valid
+                    >
+                      { currentPresentation ? (
+                        <option key="current-slide" value={`${currentSlidePrefix}${currentPresentation}`} data-test="currentSlideBreakoutOption">
+                          {intl.formatMessage(intlMessages.currentSlide)}
+                        </option>
+                      ) : null }
+                      {
+                        presentations.map((presentation) => (
+                          <option
+                            key={presentation.presentationId}
+                            value={presentation.presentationId}
+                          >
+                            {presentation.name}
+                          </option>
+                        ))
+                      }
+                    </Styled.InputRooms>
+                  </Styled.BreakoutSlideLabel>
+                ) : null }
                 <Styled.BreakoutBox
                   id={`breakoutBox-${value}`}
                   onDrop={drop(value)}
                   onDragOver={allowDrop}
                   hundred={false}
                   tabIndex={0}
+                  onKeyDown={rover}
                 >
                   {roomUserList(value)}
                 </Styled.BreakoutBox>

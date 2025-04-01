@@ -31,12 +31,14 @@ import { LoadingContext } from '/imports/ui/components/common/loading-screen/loa
 import IntlAdapter from '/imports/startup/client/intlAdapter';
 import PresenceAdapter from '../imports/ui/components/presence-adapter/component';
 import CustomUsersSettings from '/imports/ui/components/join-handler/custom-users-settings/component';
+import createUseSubscription from '/imports/ui/core/hooks/createUseSubscription';
+import PLUGIN_CONFIGURATION_QUERY from '/imports/ui/components/plugins-engine/query';
 
 // eslint-disable-next-line import/prefer-default-export
 const Startup = () => {
   const loadingContextInfo = useContext(LoadingContext);
   useEffect(() => {
-    loadingContextInfo.setLoading(false, '');
+    loadingContextInfo.setLoading(false);
   }, []);
   // Logs all uncaught exceptions to the client logger
   window.addEventListener('error', (e) => {
@@ -46,7 +48,7 @@ const Startup = () => {
     // will strip that so the errors can hopefully be grouped better.
     if (message) message = message.replace(/^Uncaught/, '').trim();
 
-    let { stack } = e.error;
+    let stack = e.error?.stack || '';
 
     // Checks if stack includes the message, if not add the two together.
     if (!stack.includes(message)) {
@@ -60,11 +62,14 @@ const Startup = () => {
     }, message);
   });
 
+  const { data: pluginConfig } = createUseSubscription(
+    PLUGIN_CONFIGURATION_QUERY,
+  )((obj) => obj);
   return (
     <ContextProviders>
       <PresenceAdapter>
         <IntlAdapter>
-          <Base />
+          <Base pluginConfig={pluginConfig} />
         </IntlAdapter>
       </PresenceAdapter>
     </ContextProviders>

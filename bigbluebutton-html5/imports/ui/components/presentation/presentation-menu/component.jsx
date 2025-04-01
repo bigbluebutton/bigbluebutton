@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import { toPng } from 'html-to-image';
+import { toPng, toSvg } from 'html-to-image';
 import { toast } from 'react-toastify';
 import logger from '/imports/startup/client/logger';
 import {
@@ -16,6 +16,7 @@ import deviceInfo from '/imports/utils/deviceInfo';
 import browserInfo from '/imports/utils/browserInfo';
 import AppService from '/imports/ui/components/app/service';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
+import SvgIcon from '/imports/ui/components/common/icon-svg/component';
 
 const intlMessages = defineMessages({
   downloading: {
@@ -125,6 +126,7 @@ const PresentationMenu = (props) => {
     currentUser,
     whiteboardId,
     persistShape,
+    hasWBAccess,
   } = props;
 
   const [state, setState] = useState({
@@ -133,7 +135,7 @@ const PresentationMenu = (props) => {
   });
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const toastId = useRef(null);
+  const toastId = useRef('presentation-menu-toast');
   const dropdownRef = useRef(null);
 
   const formattedLabel = (fullscreen) => (fullscreen
@@ -284,40 +286,41 @@ const PresentationMenu = (props) => {
               hasError: false,
             });
 
-            toastId.current = toast.info(renderToastContent(), {
+            toast(renderToastContent(), {
               hideProgressBar: true,
               autoClose: false,
               newestOnTop: true,
               closeOnClick: true,
-              onClose: () => {
-                toastId.current = null;
-              },
+              toastId: toastId.current,
             });
-
-            // This is a workaround to a conflict of the
-            // dark mode's styles and the html-to-image lib.
-            // Issue:
-            //  https://github.com/bubkoo/html-to-image/issues/370
-            const darkThemeState = AppService.isDarkThemeEnabled();
-            AppService.setDarkTheme(false);
 
             try {
               // filter shapes that are inside the slide
               const backgroundShape = tldrawAPI.getCurrentPageShapes().find((s) => s.id === `shape:BG-${slideNum}`);
-              const shapes = tldrawAPI.getCurrentPageShapes().filter(
-                (shape) => shape.x <= backgroundShape.props.w
-                  && shape.y <= backgroundShape.props.h
-                  && shape.x >= 0
-                  && shape.y >= 0,
+              const shapes = tldrawAPI.getCurrentPageShapes();
+              const pollShape = shapes.find((shape) => shape.type === 'poll');
+              const svgElem = await tldrawAPI.getSvg(
+                shapes
+                  .filter((shape) => shape.type !== 'poll')
+                  .map((shape) => shape.id),
               );
-              const svgElem = await tldrawAPI.getSvg(shapes.map((shape) => shape.id));
+              svgElem.setAttribute('width', backgroundShape.props.w);
+              svgElem.setAttribute('height', backgroundShape.props.h);
+              svgElem.setAttribute('viewBox', `1 1 ${backgroundShape.props.w} ${backgroundShape.props.h}`);
+              if (pollShape) {
+                const pollShapeElement = document.getElementById(pollShape.id);
+                const pollShapeSvg = await toSvg(pollShapeElement);
+                const pollShapeImage = document.createElementNS('http://www.w3.org/2000/svg', 'image');
+                pollShapeImage.setAttribute('href', pollShapeSvg);
+                pollShapeImage.setAttribute('width', pollShape.props.w);
+                pollShapeImage.setAttribute('height', pollShape.props.h);
+                pollShapeImage.setAttribute('x', pollShape.x);
+                pollShapeImage.setAttribute('y', pollShape.y);
+                svgElem.appendChild(pollShapeImage);
+              }
 
               // workaround for ios
               if (isIos || isSafari) {
-                svgElem.setAttribute('width', backgroundShape.props.w);
-                svgElem.setAttribute('height', backgroundShape.props.h);
-                svgElem.setAttribute('viewBox', `1 1 ${backgroundShape.props.w} ${backgroundShape.props.h}`);
-
                 const svgString = new XMLSerializer().serializeToString(svgElem);
                 const blob = new Blob([svgString], { type: 'image/svg+xml' });
 
@@ -358,16 +361,15 @@ const PresentationMenu = (props) => {
                 logCode: 'presentation_snapshot_error',
                 extraInfo: e,
               });
-            } finally {
-              // Workaround
-              AppService.setDarkTheme(darkThemeState);
             }
           },
         },
       );
     }
 
-    menuItems.push(
+    const showVisibilityOption = currentUser?.presenter || hasWBAccess;
+
+    showVisibilityOption && menuItems.push(
       {
         key: 'list-item-toolvisibility',
         dataTest: 'toolVisibility',
@@ -414,16 +416,13 @@ const PresentationMenu = (props) => {
   }
 
   useEffect(() => {
-    if (toastId.current) {
+    if (toast.isActive(toastId.current)) {
       toast.update(toastId.current, {
         render: renderToastContent(),
         hideProgressBar: state.loading,
         autoClose: state.loading ? false : 3000,
         newestOnTop: true,
         closeOnClick: true,
-        onClose: () => {
-          toastId.current = null;
-        },
       });
     }
 
@@ -448,7 +447,7 @@ const PresentationMenu = (props) => {
   }
 
   return (
-    <Styled.Left id="WhiteboardOptionButton">
+    <Styled.Right id="WhiteboardOptionButton">
       <BBBMenu
         trigger={(
           <TooltipContainer title={intl.formatMessage(intlMessages.optionsLabel)}>
@@ -461,46 +460,7 @@ const PresentationMenu = (props) => {
                 setIsDropdownOpen((isOpen) => !isOpen);
               }}
             >
-              <svg width="22" height="22" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path
-                  d="
-                    M9 11.25H11.25
-                    M11.25 11.25H13.5
-                    M11.25 11.25V9
-                    M11.25 11.25V13.5
-                    M4 7H5.5
-                    C5.89782 7 6.27936 6.84196 6.56066 6.56066
-                    C6.84196 6.27936 7 5.89782 7 5.5V4
-                    C7 3.60218 6.84196 3.22064 6.56066 2.93934
-                    C6.27936 2.65804 5.89782 2.5 5.5 2.5H4
-                    C3.60218 2.5 3.22064 2.65804 2.93934 2.93934
-                    C2.65804 3.22064 2.5 3.60218 2.5 4V5.5
-                    C2.5 5.89782 2.65804 6.27936 2.93934 6.56066
-                    C3.22064 6.84196 3.60218 7 4 7
-                    ZM4 13.5H5.5
-                    C5.89782 13.5 6.27936 13.342 6.56066 13.0607
-                    C6.84196 12.7794 7 12.3978 7 12V10.5
-                    C7 10.1022 6.84196 9.72064 6.56066 9.43934
-                    C6.27936 9.15804 5.89782 9 5.5 9H4
-                    C3.60218 9 3.22064 9.15804 2.93934 9.43934
-                    C2.65804 9.72064 2.5 10.1022 2.5 10.5V12
-                    C2.5 12.3978 2.65804 12.7794 2.93934 13.0607
-                    C3.22064 13.342 3.60218 13.5 4 13.5
-                    ZM10.5 7H12
-                    C12.3978 7 12.7794 6.84196 13.0607 6.56066
-                    C13.342 6.27936 13.5 5.89782 13.5 5.5V4
-                    C13.5 3.60218 13.342 3.22064 13.0607 2.93934
-                    C12.7794 2.65804 12.3978 2.5 12 2.5H10.5
-                    C10.1022 2.5 9.72064 2.65804 9.43934 2.93934
-                    C9.15804 3.22064 9 3.60218 9 4V5.5
-                    C9 5.89782 9.15804 6.27936 9.43934 6.56066
-                    C9.72064 6.84196 10.1022 7 10.5 7
-                  "
-                  stroke="currentcolor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
+              <SvgIcon iconName="whiteboardOptions" />
             </Styled.DropdownButton>
           </TooltipContainer>
         )}
@@ -523,7 +483,7 @@ const PresentationMenu = (props) => {
         style={{ display: 'none' }}
         onChange={handleFileInput}
       />
-    </Styled.Left>
+    </Styled.Right>
   );
 };
 

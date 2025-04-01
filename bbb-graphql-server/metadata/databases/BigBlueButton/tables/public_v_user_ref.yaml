@@ -18,7 +18,6 @@ select_permissions:
         - clientType
         - color
         - disconnected
-        - emoji
         - expired
         - extId
         - guest
@@ -26,13 +25,17 @@ select_permissions:
         - hasDrawPermissionOnCurrentPage
         - isDialIn
         - isModerator
-        - isOnline
+        - currentlyInMeeting
         - joined
         - locked
         - loggedOut
         - mobile
         - name
         - nameSortable
+        - firstName
+        - firstNameSortable
+        - lastName
+        - lastNameSortable
         - pinned
         - presenter
         - raiseHand

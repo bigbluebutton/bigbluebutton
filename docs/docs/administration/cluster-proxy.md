@@ -100,10 +100,11 @@ For each BigBlueButton server in your cluster, repeat the following steps:
 Add these options to `/etc/bigbluebutton/bbb-web.properties`:
 
 ```ini
-defaultHTML5ClientUrl=https://bbb-proxy.example.com/bbb-01/html5client/join
+defaultHTML5ClientUrl=https://bbb-proxy.example.com/bbb-01/html5client
 presentationBaseURL=https://bbb-01.example.com/bigbluebutton/presentation
 accessControlAllowOrigin=https://bbb-proxy.example.com
-graphqlWebsocketUrl=wss://bbb-01.example.com/v1/graphql
+graphqlWebsocketUrl=wss://bbb-01.example.com/graphql
+graphqlApiUrl=https://bbb-01.example.com/api/rest
 ```
 
 Add the following options to `/etc/bigbluebutton/bbb-html5.yml`:
@@ -113,10 +114,12 @@ public:
   app:
     basename: '/bbb-01/html5client'
     bbbWebBase: 'https://bbb-01.example.com/bigbluebutton'
-    learningDashboardBase: 'https://bbb-01.example.com/learning-dashboard'
+    learningDashboardBase: 'https://bbb-01.example.com/learning-analytics-dashboard'
   media:
     stunTurnServersFetchAddress: 'https://bbb-01.example.com/bigbluebutton/api/stuns'
     sip_ws_host: 'bbb-01.example.com'
+    livekit:
+      url: wss://bbb-01.example.com/livekit
   kurento:
     wsUrl: wss://bbb-01.example.com/bbb-webrtc-sfu
   presentation:
@@ -129,28 +132,23 @@ public:
     url: 'https://bbb-01.example.com/pad'
 ```
 
-Create (or edit if it already exists) this unit override file:
-
-* `/etc/systemd/system/bbb-html5.service.d/cluster.conf`
-
-It should have the following content:
+Copy `/usr/share/bigbluebutton/nginx/bbb-html5.nginx.static` to
+`/usr/share/bigbluebutton/nginx/bbb-html5-cluster.nginx` and prepend the mount
+point of bbb-html5 in all location sections:
 
 ```
-[Service]
-Environment=ROOT_URL=https://127.0.0.1/bbb-01/html5client
-Environment=DDP_DEFAULT_CONNECTION_URL=https://bbb-01.example.com/bbb-01/html5client
-```
-
-Prepend the mount point of bbb-html5 in all location sections except for the
-`location @html5client` section in `/usr/share/bigbluebutton/nginx/bbb-html5.nginx`:
-
-```
-location @html5client {
-  ...
+# running in production (static assets)
+location /bbb-01/html5client {
+    gzip_static on;
+    alias /var/bigbluebutton/html5-client/;
+    index index.html;
+    try_files $uri $uri/ =404;
 }
 
 location /bbb-01/html5client/locales {
-  ...
+  alias /var/bigbluebutton/html5-client/locales;
+  autoindex on;
+  autoindex_format json;
 }
 ```
 
@@ -182,13 +180,13 @@ Adjust the CORS settings in `/etc/default/bbb-web`:
 JDK_JAVA_OPTIONS="-Dgrails.cors.enabled=true -Dgrails.cors.allowCredentials=true -Dgrails.cors.allowedOrigins=https://bbb-proxy.example.com,https://https://bbb-01.example.com"
 ```
 
-Adjust the CORS setting in `/etc/default/bbb-graphql-middleware`:
+Create the file `/etc/bigbluebutton/bbb-graphql-middleware.yml` with the following content:
 
 ```shell
-BBB_GRAPHQL_MIDDLEWARE_LISTEN_PORT=8378
-# If you are running a cluster proxy setup, you need to configure the Origin of
-# the frontend. See https://docs.bigbluebutton.org/administration/cluster-proxy
-BBB_GRAPHQL_MIDDLEWARE_ORIGIN=bbb-proxy.example.com
+# If you are running a cluster proxy setup, you need to allow the url of the Frontend
+# Add an Authorized Cross Origin. See https://docs.bigbluebutton.org/administration/cluster-proxy
+server:
+  authorized_cross_origin: bbb-proxy.example.com
 ```
 
 Pay attention that this one is without protocol, just the hostname.
@@ -230,7 +228,7 @@ traffic between BigBlueButton servers and the cluster proxy server does not
 incur additional cost.
 
 This setup introduces user visible single point of failure, i.e. a prominent
-DDoS target. Make sure your frontend server is resiliant to DDoS-attacks, e.g.
+DDoS target. Make sure your frontend server is resilient to DDoS-attacks, e.g.
 has connection tracking disabled in its firewall settings and the web server is
 configured to handle enough connections. Those optimizations however are rather
 specific to individual setups and thus out of the scope of this document.

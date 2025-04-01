@@ -26,6 +26,7 @@ export default class BaseAudioBridge {
       failed: 'failed',
       reconnecting: 'reconnecting',
       autoplayBlocked: 'autoplayBlocked',
+      audioPublished: 'audioPublished',
     };
 
     this.bridgeName = BASE_BRIDGE_NAME;
@@ -39,7 +40,7 @@ export default class BaseAudioBridge {
     console.error('The Bridge must implement exitAudio');
   }
 
-  joinAudio() {
+  joinAudio(options, callback) {
     console.error('The Bridge must implement joinAudio');
   }
 
@@ -47,7 +48,10 @@ export default class BaseAudioBridge {
     console.error('The Bridge must implement changeInputDevice');
   }
 
-  setInputStream() {
+  setInputStream(inputStream, {
+    deviceId = null,
+    force = false,
+  } = {}) {
     console.error('The Bridge must implement setInputStream');
   }
 
@@ -61,7 +65,24 @@ export default class BaseAudioBridge {
 
   get inputDeviceId () {
     return this._inputDeviceId;
+  }
 
+  setSenderTrackEnabled(shouldEnable) {
+    const peer = this.getPeerConnection();
+
+    if (!peer) return;
+
+    peer.getSenders().forEach((sender) => {
+      const { track } = sender;
+      if (track && track.kind === 'audio') {
+        track.enabled = shouldEnable;
+      }
+    });
+  }
+
+  /* eslint-disable class-methods-use-this */
+  supportsTransparentListenOnly() {
+    return false;
   }
 
   /**
@@ -78,6 +99,20 @@ export default class BaseAudioBridge {
     let backupStream;
 
     try {
+      // Remove all input audio tracks from the stream
+      // This will effectively mute the microphone
+      // and keep the audio output working
+      if (deviceId === 'listen-only') {
+        const stream = this.inputStream;
+        if (stream) {
+          stream.getAudioTracks().forEach((track) => {
+            track.stop();
+            stream.removeTrack(track);
+          });
+        }
+        return stream;
+      }
+
       const constraints = {
         audio: getAudioConstraints({ deviceId }),
       };
@@ -89,7 +124,7 @@ export default class BaseAudioBridge {
       }
 
       newStream = await doGUM(constraints);
-      await this.setInputStream(newStream);
+      await this.setInputStream(newStream, { deviceId });
       if (backupStream && backupStream.active) {
         backupStream.getAudioTracks().forEach((track) => track.stop());
         backupStream = null;

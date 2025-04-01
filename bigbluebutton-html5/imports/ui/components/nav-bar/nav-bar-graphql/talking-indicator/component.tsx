@@ -15,12 +15,12 @@ import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedS
 import { VoiceActivityResponse } from '/imports/ui/core/graphql/queries/whoIsTalking';
 import useTalkingUsers from '/imports/ui/core/hooks/useTalkingUsers';
 import { partition } from '/imports/utils/array-utils';
+import logger from '/imports/startup/client/logger';
+import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
 
 const TALKING_INDICATORS_MAX = 8;
 
-type VoiceItem = VoiceActivityResponse['user_voice_activity_stream'][number] & {
-  showTalkingIndicator: boolean | undefined;
-};
+type VoiceItem = VoiceActivityResponse['user_voice_activity_stream'][number];
 
 const intlMessages = defineMessages({
   wasTalking: {
@@ -71,7 +71,8 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
       setTalkingIndicatorList([]);
     };
   }, []);
-  const talkingElements = useMemo(() => talkingUsers.map((talkingUser) => {
+
+  const filteredTalkingUsers = talkingUsers.map((talkingUser) => {
     const {
       talking,
       muted,
@@ -80,6 +81,26 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
         speechLocale,
         name,
       },
+      userId,
+    } = talkingUser;
+    return {
+      talking,
+      muted,
+      color,
+      speechLocale,
+      name,
+      userId,
+    };
+  });
+
+  const talkingElements = useMemo(() => filteredTalkingUsers.map((talkingUser) => {
+    const {
+      talking,
+      muted,
+      color,
+      speechLocale,
+      name,
+      userId,
     } = talkingUser;
 
     const ariaLabel = intl.formatMessage(talking
@@ -90,7 +111,7 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
     icon = muted ? 'mute' : icon;
     return (
       <Styled.TalkingIndicatorWrapper
-        key={uniqueId(`${name}-`)}
+        key={userId}
         talking={talking}
         muted={muted}
       >
@@ -105,11 +126,11 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
           $spoke={!talking || undefined}
           $muted={muted || undefined}
           $isViewer={!isModerator || undefined}
-          key={uniqueId(`${name}-`)}
+          key={userId}
           onClick={() => {
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore - call signature is misse due the function being wrapped
-            muteUser(talkingUser.userId, muted, isBreakout, isModerator, toggleVoice);
+            muteUser(userId, muted, isBreakout, isModerator, toggleVoice);
           }}
           label={name}
           tooltipLabel={!muted && isModerator
@@ -121,10 +142,14 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
           color="primary"
           icon={icon}
           size="lg"
-          style={{
-            backgroundColor: color,
-            border: `solid 2px ${color}`,
-          }}
+          style={
+            isModerator
+              ? {
+                backgroundColor: color,
+                border: `solid 2px ${color}`,
+              }
+              : undefined
+          }
         >
           {talking ? (
             <Styled.Hidden id="description">
@@ -134,18 +159,18 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
         </Styled.TalkingIndicatorButton>
       </Styled.TalkingIndicatorWrapper>
     );
-  }), [talkingUsers]);
+  }), [filteredTalkingUsers]);
 
   const maxIndicator = () => {
     if (!moreThanMaxIndicators) return null;
 
-    const nobodyTalking = talkingUsers.every((user) => !user.talking);
+    const nobodyTalking = filteredTalkingUsers.every((user) => !user.talking);
 
     const { moreThanMaxIndicatorsTalking, moreThanMaxIndicatorsWereTalking } = intlMessages;
 
     const ariaLabel = intl.formatMessage(nobodyTalking
       ? moreThanMaxIndicatorsWereTalking : moreThanMaxIndicatorsTalking, {
-      0: talkingUsers.length,
+      0: filteredTalkingUsers.length,
     });
 
     return (
@@ -160,11 +185,13 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
         aria-label={ariaLabel}
         color="primary"
         size="sm"
-        style={{
-          backgroundColor: '#4a148c',
-          border: 'solid 2px #4a148c',
-          cursor: 'default',
-        }}
+        style={
+          isModerator ? {
+            backgroundColor: '#4a148c',
+            border: 'solid 2px #4a148c',
+            cursor: 'default',
+          } : undefined
+        }
       />
     );
   };
@@ -179,75 +206,78 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
   );
 };
 
-const TalkingIndicatorContainer: React.FC = (() => {
-  return () => {
-    const { data: currentUser } = useCurrentUser((u: Partial<User>) => ({
-      userId: u?.userId,
-      isModerator: u?.isModerator,
-    }));
+const TalkingIndicatorContainer: React.FC = () => {
+  const { data: currentUser } = useCurrentUser((u: Partial<User>) => ({
+    userId: u?.userId,
+    isModerator: u?.isModerator,
+  }));
 
-    const {
-      data: isBreakoutData,
-      loading: isBreakoutLoading,
-      error: isBreakoutError,
-    } = useDeduplicatedSubscription<IsBreakoutSubscriptionData>(MEETING_ISBREAKOUT_SUBSCRIPTION);
+  const {
+    data: isBreakoutData,
+    loading: isBreakoutLoading,
+    error: isBreakoutError,
+  } = useDeduplicatedSubscription<IsBreakoutSubscriptionData>(MEETING_ISBREAKOUT_SUBSCRIPTION);
 
-    const toggleVoice = useToggleVoice();
-    const { data: talkingUsersData, loading: talkingUsersLoading } = useTalkingUsers();
-    const talkingUsers = useMemo(() => {
-      const [muted, unmuted] = partition(
-        Object.values(talkingUsersData),
-        (v: VoiceItem) => v.muted,
-      ) as [VoiceItem[], VoiceItem[]];
-      const [talking, silent] = partition(
-        unmuted,
-        (v: VoiceItem) => v.talking,
-      ) as [VoiceItem[], VoiceItem[]];
-      return [
-        ...talking.sort((v1, v2) => {
-          if (!v1.startTime && !v2.startTime) return 0;
-          if (!v1.startTime) return 1;
-          if (!v2.startTime) return -1;
-          return v1.startTime - v2.startTime;
-        }),
-        ...silent.sort((v1, v2) => {
-          if (!v1.endTime && !v2.endTime) return 0;
-          if (!v1.endTime) return 1;
-          if (!v2.endTime) return -1;
-          return v2.endTime - v1.endTime;
-        }),
-        ...muted.sort((v1, v2) => {
-          if (!v1.endTime && !v2.endTime) return 0;
-          if (!v1.endTime) return 1;
-          if (!v2.endTime) return -1;
-          return v2.endTime - v1.endTime;
-        }),
-      ].slice(0, TALKING_INDICATORS_MAX);
-    }, [talkingUsersData]);
+  const toggleVoice = useToggleVoice();
+  const { data: talkingUsersData, loading: talkingUsersLoading } = useTalkingUsers();
+  const talkingUsers = useMemo(() => {
+    const [muted, unmuted] = partition(
+      Object.values(talkingUsersData),
+      (v: VoiceItem) => v.muted,
+    ) as [VoiceItem[], VoiceItem[]];
+    const [talking, silent] = partition(
+      unmuted,
+      (v: VoiceItem) => v.talking,
+    ) as [VoiceItem[], VoiceItem[]];
+    return [
+      ...talking.sort((v1, v2) => {
+        if (!v1.startTime && !v2.startTime) return 0;
+        if (!v1.startTime) return 1;
+        if (!v2.startTime) return -1;
+        return v1.startTime - v2.startTime;
+      }),
+      ...silent.sort((v1, v2) => {
+        if (!v1.endTime && !v2.endTime) return 0;
+        if (!v1.endTime) return 1;
+        if (!v2.endTime) return -1;
+        return v2.endTime - v1.endTime;
+      }),
+      ...muted.sort((v1, v2) => {
+        if (!v1.endTime && !v2.endTime) return 0;
+        if (!v1.endTime) return 1;
+        if (!v2.endTime) return -1;
+        return v2.endTime - v1.endTime;
+      }),
+    ].slice(0, TALKING_INDICATORS_MAX);
+  }, [talkingUsersData]);
 
-    if (talkingUsersLoading || isBreakoutLoading) return null;
+  if (talkingUsersLoading || isBreakoutLoading) return null;
 
-    if (isBreakoutError) {
-      return (
-        <div>
-          error:
-          { JSON.stringify(isBreakoutError) }
-        </div>
-      );
-    }
-
-    const isBreakout = isBreakoutData?.meeting[0]?.isBreakout ?? false;
-    setTalkingIndicatorList(talkingUsers.map(({ user, ...rest }) => ({ ...rest, ...user })));
-    return (
-      <TalkingIndicator
-        talkingUsers={talkingUsers}
-        isBreakout={isBreakout}
-        moreThanMaxIndicators={talkingUsers.length >= TALKING_INDICATORS_MAX}
-        isModerator={currentUser?.isModerator ?? false}
-        toggleVoice={toggleVoice}
-      />
+  if (isBreakoutError) {
+    connectionStatus.setSubscriptionFailed(true);
+    logger.error(
+      {
+        logCode: 'subscription_Failed',
+        extraInfo: {
+          error: isBreakoutError,
+        },
+      },
+      'Subscription failed to load',
     );
-  };
-})();
+    return null;
+  }
+
+  const isBreakout = isBreakoutData?.meeting[0]?.isBreakout ?? false;
+  setTalkingIndicatorList(talkingUsers.map(({ user, ...rest }) => ({ ...rest, ...user })));
+  return (
+    <TalkingIndicator
+      talkingUsers={talkingUsers}
+      isBreakout={isBreakout}
+      moreThanMaxIndicators={talkingUsers.length >= TALKING_INDICATORS_MAX}
+      isModerator={currentUser?.isModerator ?? false}
+      toggleVoice={toggleVoice}
+    />
+  );
+};
 
 export default TalkingIndicatorContainer;

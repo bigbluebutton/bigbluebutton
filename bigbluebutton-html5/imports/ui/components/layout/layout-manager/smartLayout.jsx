@@ -3,16 +3,15 @@ import { throttle } from '/imports/utils/throttle';
 import { layoutDispatch, layoutSelect, layoutSelectInput } from '/imports/ui/components/layout/context';
 import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
 import { INITIAL_INPUT_STATE } from '/imports/ui/components/layout/initState';
-import { ACTIONS, PANELS, CAMERADOCK_POSITION } from '/imports/ui/components/layout/enums';
+import { ACTIONS, PANELS, LAYOUT_TYPE, CAMERADOCK_POSITION } from '/imports/ui/components/layout/enums';
 import { defaultsDeep } from '/imports/utils/array-utils';
 import Session from '/imports/ui/services/storage/in-memory';
-import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 
 const windowWidth = () => window.document.documentElement.clientWidth;
 const windowHeight = () => window.document.documentElement.clientHeight;
 
 const SmartLayout = (props) => {
-  const { bannerAreaHeight, isMobile, calculatesNavbarHeight } = props;
+  const { prevLayout, bannerAreaHeight, isMobile, calculatesNavbarHeight } = props;
 
   function usePrevious(value) {
     const ref = useRef();
@@ -24,8 +23,7 @@ const SmartLayout = (props) => {
 
   const input = layoutSelect((i) => i.input);
   const deviceType = layoutSelect((i) => i.deviceType);
-  const Settings = getSettingsSingletonInstance();
-  const { isRTL } = Settings.application;
+  const isRTL = layoutSelect((i) => i.isRTL);
   const fullscreen = layoutSelect((i) => i.fullscreen);
   const fontSize = layoutSelect((i) => i.fontSize);
   const currentPanelType = layoutSelect((i) => i.currentPanelType);
@@ -75,50 +73,66 @@ const SmartLayout = (props) => {
   }, [input, deviceType, isRTL, fontSize, fullscreen, isPresentationEnabled]);
 
   const init = () => {
-    const { sidebarContentPanel } = sidebarContentInput;
-
+    const hasLayoutEngineLoadedOnce = Session.getItem('hasLayoutEngineLoadedOnce');
     layoutContextDispatch({
       type: ACTIONS.SET_LAYOUT_INPUT,
-      value: defaultsDeep(
-        {
-          sidebarNavigation: {
-            isOpen:
-              input.sidebarNavigation.isOpen || sidebarContentPanel !== PANELS.NONE || false,
-          },
-          sidebarContent: {
-            isOpen: sidebarContentPanel !== PANELS.NONE,
-            sidebarContentPanel,
-          },
-          SidebarContentHorizontalResizer: {
-            isOpen: false,
-          },
-          presentation: {
-            isOpen: presentationInput.isOpen,
-            slidesLength: presentationInput.slidesLength,
-            currentSlide: {
-              ...presentationInput.currentSlide,
+      value: (prevInput) => {
+        const {
+          sidebarNavigation, sidebarContent, presentation, cameraDock,
+          externalVideo, genericMainContent, screenShare, sharedNotes,
+        } = prevInput;
+        const { sidebarContentPanel } = sidebarContent;
+        let sidebarContentPanelOverride = sidebarContentPanel;
+        let overrideOpenSidebarPanel = sidebarContentPanel !== PANELS.NONE;
+        let overrideOpenSidebarNavigation = sidebarNavigation.isOpen
+          || sidebarContentPanel !== PANELS.NONE || false;
+        if (prevLayout === LAYOUT_TYPE.CAMERAS_ONLY
+          || prevLayout === LAYOUT_TYPE.PRESENTATION_ONLY
+          || prevLayout === LAYOUT_TYPE.MEDIA_ONLY) {
+          overrideOpenSidebarNavigation = true;
+          overrideOpenSidebarPanel = true;
+          sidebarContentPanelOverride = PANELS.CHAT;
+        }
+        return defaultsDeep(
+          {
+            sidebarNavigation: {
+              isOpen: overrideOpenSidebarNavigation,
+            },
+            sidebarContent: {
+              isOpen: overrideOpenSidebarPanel,
+              sidebarContentPanel: sidebarContentPanelOverride,
+            },
+            SidebarContentHorizontalResizer: {
+              isOpen: false,
+            },
+            presentation: {
+              isOpen: presentation.isOpen,
+              slidesLength: presentation.slidesLength,
+              currentSlide: {
+                ...presentation.currentSlide,
+              },
+            },
+            cameraDock: {
+              numCameras: cameraDock.numCameras,
+            },
+            externalVideo: {
+              hasExternalVideo: externalVideo.hasExternalVideo,
+            },
+            genericMainContent: {
+              genericContentId: genericMainContent.genericContentId,
+            },
+            screenShare: {
+              hasScreenShare: screenShare.hasScreenShare,
+              width: screenShare.width,
+              height: screenShare.height,
+            },
+            sharedNotes: {
+              isPinned: sharedNotes.isPinned,
             },
           },
-          cameraDock: {
-            numCameras: cameraDockInput.numCameras,
-          },
-          externalVideo: {
-            hasExternalVideo: externalVideoInput.hasExternalVideo,
-          },
-          genericMainContent: {
-            genericContentId: genericMainContentInput.genericContentId,
-          },
-          screenShare: {
-            hasScreenShare: screenShareInput.hasScreenShare,
-            width: screenShareInput.width,
-            height: screenShareInput.height,
-          },
-          sharedNotes: {
-            isPinned: sharedNotesInput.isPinned,
-          },
-        },
-        INITIAL_INPUT_STATE,
-      ),
+          hasLayoutEngineLoadedOnce ? prevInput : INITIAL_INPUT_STATE,
+        );
+      },
     });
     Session.setItem('layoutReady', true);
     throttledCalculatesLayout();
@@ -527,6 +541,7 @@ const SmartLayout = (props) => {
     layoutContextDispatch({
       type: ACTIONS.SET_EXTERNAL_VIDEO_OUTPUT,
       value: {
+        display: externalVideoInput.hasExternalVideo,
         width: mediaBounds.width,
         height: mediaBounds.height,
         top: mediaBounds.top,

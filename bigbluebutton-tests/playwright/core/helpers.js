@@ -66,17 +66,18 @@ function createMeetingPromise(params, createParameter, customMeetingId) {
   return axios.get(url, { adapter: 'http' });
 }
 
-async function createMeeting(params, createParameter, page) {
-  const promise = createMeetingPromise(params, createParameter);
+async function createMeeting(params, createParameter, customMeetingId) {
+  const promise = createMeetingPromise(params, createParameter, customMeetingId);
   const response = await promise;
   expect(response.status).toEqual(200);
   const xmlResponse = await xml2js.parseStringPromise(response.data);
   return xmlResponse.response.meetingID[0];
 }
 
-function getJoinURL(meetingID, params, moderator, joinParameter) {
+function getJoinURL(meetingID, params, moderator, joinParameter, skipSessionDetailsModal) {
   const pw = moderator ? params.moderatorPW : params.attendeePW;
-  const baseQuery = `fullName=${params.fullName}&meetingID=${meetingID}&password=${pw}`;
+  const shouldSkipSessionDetailsModal = skipSessionDetailsModal ? '&userdata-bbb_show_session_details_on_join=false' : '';  // default value in settings.yml is true
+  const baseQuery = `fullName=${params.fullName}&meetingID=${meetingID}&password=${pw}${shouldSkipSessionDetailsModal}`;
   const query = joinParameter !== undefined ? `${baseQuery}&${joinParameter}` : baseQuery;
   const apiCall = `join${query}${params.secret}`;
   const checksum = getChecksum(apiCall, parameters.secret);

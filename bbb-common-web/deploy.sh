@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 #Publish new bbb-common-web .jar
 sbt clean 

@@ -3,11 +3,9 @@ import { makeVar, useReactiveVar } from '@apollo/client';
 import { VoiceActivityResponse } from '/imports/ui/core/graphql/queries/whoIsTalking';
 import { partition } from '/imports/utils/array-utils';
 
-type VoiceItem = VoiceActivityResponse['user_voice_activity_stream'][number] & {
-  showTalkingIndicator: boolean | undefined;
-};
+type VoiceItem = VoiceActivityResponse['user_voice_activity_stream'][number];
 
-const TALKING_INDICATOR_TIMEOUT = 5000;
+const TALKING_INDICATOR_TIMEOUT = 6000;
 
 const createUseTalkingUsers = () => {
   const countVar = makeVar(0);
@@ -23,8 +21,8 @@ const createUseTalkingUsers = () => {
   const useTalkingUsers = () => {
     const voiceActivity = useReactiveVar(stateVar);
     const loading = useReactiveVar(loadingVar);
-    const mutedTimeoutRegistry = useRef<Record<string, NodeJS.Timeout | null>>({});
-    const spokeTimeoutRegistry = useRef<Record<string, NodeJS.Timeout | null>>({});
+    const mutedTimeoutRegistry = useRef<Record<string, ReturnType<typeof setTimeout> | null>>({});
+    const spokeTimeoutRegistry = useRef<Record<string, ReturnType<typeof setTimeout> | null>>({});
     const [record, setRecord] = useState<Record<string, VoiceItem>>({});
 
     useEffect(() => {
@@ -100,8 +98,15 @@ const createUseTalkingUsers = () => {
         const currentSpokeTimeout = spokeTimeoutRegistry.current[userId];
         const currentMutedTimeout = mutedTimeoutRegistry.current[userId];
 
-        // User has never talked
-        if (!(endTime || startTime)) return;
+        // User has never talked or exited audio
+        if (!(endTime || startTime)) {
+          setRecord((previousRecord) => {
+            const newRecord = { ...previousRecord };
+            delete newRecord[userId];
+            return newRecord;
+          });
+          return;
+        }
 
         setRecord((previousRecord) => {
           const previousIndicator = previousRecord[userId];

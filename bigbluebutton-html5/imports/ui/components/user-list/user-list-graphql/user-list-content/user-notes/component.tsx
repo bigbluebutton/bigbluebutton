@@ -8,7 +8,6 @@ import { notify } from '/imports/ui/services/notification';
 import { layoutSelectInput, layoutDispatch } from '/imports/ui/components/layout/context';
 import {
   PINNED_PAD_SUBSCRIPTION,
-  PinnedPadSubscriptionResponse,
 } from '/imports/ui/components/notes/queries';
 import Styled from './styles';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
@@ -137,6 +136,7 @@ const UserNotesGraphql: React.FC<UserNotesGraphqlProps> = (props) => {
         role="button"
         tabIndex={0}
         active={notesOpen}
+        aria-expanded={notesOpen}
         data-test="sharedNotesButton"
         onClick={() => toggleNotesPanel(sidebarContentPanel, layoutContextDispatch)}
         // @ts-ignore
@@ -159,8 +159,11 @@ const UserNotesGraphql: React.FC<UserNotesGraphqlProps> = (props) => {
             ? (
               <Styled.NotesLock>
                 {/* @ts-ignore */}
-                <Icon iconName="lock" />
-                <span id="lockedNotes">{`${intl.formatMessage(intlMessages.locked)} ${intl.formatMessage(intlMessages.byModerator)}`}</span>
+                <span id="lockedNotes">
+                  <Icon iconName="lock" />
+                  &nbsp;
+                  {`${intl.formatMessage(intlMessages.locked)} ${intl.formatMessage(intlMessages.byModerator)}`}
+                </span>
               </Styled.NotesLock>
             ) : null}
           {isPinned
@@ -194,11 +197,10 @@ const UserNotesGraphql: React.FC<UserNotesGraphqlProps> = (props) => {
 const UserNotesContainerGraphql: React.FC<UserNotesContainerGraphqlProps> = (props) => {
   const { userLocks } = props;
   const disableNotes = userLocks.userNotes;
-  const { data: pinnedPadData } = useDeduplicatedSubscription<PinnedPadSubscriptionResponse>(PINNED_PAD_SUBSCRIPTION);
-
+  const { data: pinnedPadData } = useDeduplicatedSubscription(
+    PINNED_PAD_SUBSCRIPTION,
+  );
   const NOTES_CONFIG = window.meetingClientSettings.public.notes;
-
-  const isPinned = !!pinnedPadData && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const sidebarContent = layoutSelectInput((i: any) => i.sidebarContent);
@@ -211,7 +213,9 @@ const UserNotesContainerGraphql: React.FC<UserNotesContainerGraphqlProps> = (pro
   const hasUnreadNotes = useHasUnreadNotes();
   const markNotesAsRead = () => setNotesLastRev(rev);
   const isEnabled = NotesService.useIsEnabled();
+  if (!pinnedPadData) return null;
 
+  const isPinned = !!pinnedPadData && pinnedPadData?.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
   return (
     <UserNotesGraphql
       disableNotes={disableNotes}

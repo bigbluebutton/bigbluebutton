@@ -21,8 +21,10 @@ select_permissions:
     permission:
       columns:
         - content
+        - fitToWidth
         - height
         - heightRatio
+        - infiniteWhiteboard
         - isCurrentPage
         - num
         - pageId

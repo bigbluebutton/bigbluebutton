@@ -91,10 +91,6 @@ class UrlMappings {
       action = [GET: 'getSessionsHandler', POST: 'getSessionsHandler']
     }
 
-    "/bigbluebutton/api/enter"(controller: "api") {
-      action = [GET: 'enter', POST: 'enter']
-    }
-
     "/bigbluebutton/api/stuns"(controller: "api") {
       action = [GET: 'stuns', POST: 'stuns']
     }
@@ -109,10 +105,6 @@ class UrlMappings {
 
     "/bigbluebutton/api/getJoinUrl"(controller: "api") {
       action = [GET: 'getJoinUrl', POST: 'getJoinUrl']
-    }
-
-    "/bigbluebutton/api/feedback"(controller: "api") {
-      action = [POST: 'feedback']
     }
 
     "/bigbluebutton/api/learningDashboard"(controller: "api") {

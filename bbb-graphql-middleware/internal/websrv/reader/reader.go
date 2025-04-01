@@ -1,34 +1,25 @@
 package reader
 
 import (
+	"bbb-graphql-middleware/internal/common"
 	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
-	"github.com/iMDT/bbb-graphql-middleware/internal/common"
-	log "github.com/sirupsen/logrus"
 	"nhooyr.io/websocket"
 	"sync"
 	"time"
 )
 
 func BrowserConnectionReader(
-	browserConnectionId string,
-	ctx context.Context,
-	ctxCancel context.CancelFunc,
-	browserWsConn *websocket.Conn,
-	fromBrowserToGqlActionsChannel *common.SafeChannelByte,
-	fromBrowserToHasuraChannel *common.SafeChannelByte,
-	fromBrowserToHasuraConnectionEstablishingChannel *common.SafeChannelByte,
+	browserConnection *common.BrowserConnection,
 	waitGroups []*sync.WaitGroup) {
-	log := log.WithField("_routine", "BrowserConnectionReader").WithField("browserConnectionId", browserConnectionId)
-	defer log.Debugf("finished")
-	log.Debugf("starting")
+	defer browserConnection.Logger.Debugf("finished")
+	browserConnection.Logger.Debugf("starting")
 
 	defer func() {
-		fromBrowserToHasuraChannel.Close()
-		fromBrowserToGqlActionsChannel.Close()
-		fromBrowserToHasuraConnectionEstablishingChannel.Close()
+		browserConnection.FromBrowserToHasuraChannel.Close()
+		browserConnection.FromBrowserToGqlActionsChannel.Close()
 	}()
 
 	defer func() {
@@ -40,23 +31,27 @@ func BrowserConnectionReader(
 		time.Sleep(100 * time.Millisecond)
 	}()
 
-	defer ctxCancel()
+	defer browserConnection.ContextCancelFunc()
 
 	for {
-		messageType, message, err := browserWsConn.Read(ctx)
+		messageType, message, err := browserConnection.Websocket.Read(browserConnection.Context)
+
 		if err != nil {
 			if errors.Is(err, context.Canceled) {
-				log.Debugf("Closing Browser ws connection as Context was cancelled!")
+				browserConnection.Logger.Debugf("Closing Browser ws connection as Context was cancelled!")
 			} else {
-				log.Debugf("Browser is disconnected, skipping reading of ws message: %v", err)
+				browserConnection.Logger.Debugf("Browser is disconnected, skipping reading of ws message: %v", err)
 			}
 			return
 		}
 
-		log.Tracef("received from browser: %s", string(message))
+		browserConnection.Logger.Tracef("received from browser: %s", string(message))
+		browserConnection.Lock()
+		browserConnection.LastBrowserMessageTime = time.Now()
+		browserConnection.Unlock()
 
 		if messageType != websocket.MessageText {
-			log.Warnf("received non-text message: %v", messageType)
+			browserConnection.Logger.Warnf("received non-text message: %v", messageType)
 			continue
 		}
 
@@ -65,18 +60,17 @@ func BrowserConnectionReader(
 		}
 		err = json.Unmarshal(message, &browserMessageType)
 		if err != nil {
-			log.Errorf("failed to unmarshal message: %v", err)
+			browserConnection.Logger.Errorf("failed to unmarshal message: %v", err)
 			continue
 		}
 
 		if browserMessageType.Type == "subscribe" {
 			if bytes.Contains(message, []byte("\"query\":\"mutation")) {
-				fromBrowserToGqlActionsChannel.Send(message)
+				browserConnection.FromBrowserToGqlActionsChannel.Send(message)
 				continue
 			}
 		}
 
-		fromBrowserToHasuraChannel.Send(message)
-		fromBrowserToHasuraConnectionEstablishingChannel.Send(message)
+		browserConnection.FromBrowserToHasuraChannel.Send(message)
 	}
 }

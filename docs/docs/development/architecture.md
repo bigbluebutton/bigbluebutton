@@ -8,7 +8,7 @@ keywords:
 - architecture
 ---
 
-BigBlueButton is built upon a solid foundation of underlying components, including NGINX, FreeSWITCH, Kurento, Redis, Node.js, React.js, and others.
+BigBlueButton is built upon a solid foundation of underlying components, including NGINX, FreeSWITCH, mediasoup, Redis, Node.js, React.js, and others.
 
 This page describes the overall architecture of BigBlueButton and how these components work together.
 
@@ -32,11 +32,7 @@ The HTML5 client is a single page, responsive web application that is built upon
 
 The HTML5 client connects directly with the BigBlueButton server over port 443 (SSL), from loading the BigBlueButton client to making a web socket connection. These connections are all handled by nginx.
 
-In BigBlueButton 3.0 we are part way through a major architecture restructuring and we still have a HTML5 server component based on Meteor.js. We are almost done removing our dependency on Meteor.js and MongoDB.
-
-- [Meteor.js](https://meteor.com) in [ECMA2015](https://www.ecma-international.org/ecma-262/6.0/)
-  for communication between client and server.
-- [MongoDB](https://www.mongodb.com/) for keeping the state of each BigBlueButton client consistent with the BigBlueButton server
+In BigBlueButton 3.0 we have performed a major architecture restructuring removing our dependency on Meteor.js and MongoDB.
 
 ### bbb-graphql-server
 
@@ -93,7 +89,7 @@ The meeting business logic is in the MeetingActor. This is where information abo
 
 ### FSESL akka
 
-We have extracted out the component that integrates with FreeSWITCH into it's own application. This allows others who are using voice conference systems other than
+We have extracted out the component that integrates with FreeSWITCH into its own application. This allows others who are using voice conference systems other than
 FreeSWITCH to easily create their own integration. Communication between Akka Apps and FreeSWITCH Event Socket Layer (fsels) uses messages through redis pubsub.
 
 ![FsESL Akka architecture](/img/fsesl-akka-arch.png)

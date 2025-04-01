@@ -48,8 +48,7 @@ const IconSvg = styled.img`
   margin: 5px;
 
   @media ${smallOnly} {
-    height: 3rem;
-    margin: 1px;
+    height: 20%;
   }
 `;
 
@@ -65,8 +64,13 @@ const LayoutBtn = styled(Button)`
   width: fit-content;
 
   @media ${smallOnly} {
+
+    ${({ layout }) => (layout === 'custom') && `
+      display: none;
+    `};
+
     margin: 0.5rem;
-    border: ${colorWhite} solid 4px;
+    border: ${colorWhite} solid 6px;
     border-radius: 10px;
     width: fit-content;
   }
@@ -82,7 +86,7 @@ const LayoutBtn = styled(Button)`
     border-radius: 5px;
 
     @media ${smallOnly} {
-      border: ${colorPrimary} solid 4px;
+      border: ${colorPrimary} solid 6px;
       border-radius: 5px;
     }
 
@@ -107,15 +111,12 @@ const LayoutBtn = styled(Button)`
       height: 1.8rem;
 
       @media ${smallOnly} {
-        width: 1rem;
-        height: 1rem;
-        font-size: 0.6rem;
-        margin-left: 4.5rem;
+        width: 2rem;
+        height: 1.5rem;
+        font-size: 0.8rem;
         padding: 0.2rem 0.2rem 0 0.3rem;
 
         [dir="rtl"] & {
-          margin-right: 4.5rem;
-          margin-left: unset;
           padding: 0.2rem 0.3rem 0 0.2rem;
         }
       }
@@ -144,30 +145,57 @@ const ButtonsContainer = styled.div`
 `;
 
 const ButtonBottomContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
   align-self: end;
+  padding-left: 3rem;
   padding-right: 3rem;
   padding-top: 1rem;
+  width: 100%;
 
   @media ${smallOnly} {
     align-self: center;
     padding-right: unset;
+    position: relative;
+    right: 1rem;
   }
 `;
 
 const LabelLayoutNames = styled.label`
   text-align: center;
   margin: 0 0 0.1rem 0;
+
+  @media ${smallOnly} {
+    ${({ layout }) => (layout === 'custom') && `
+     display: none;
+    `};
+    margin: 0 0 1.5rem 0;
+  };
 `;
 
-const BottomButton = styled(Button)`
-  margin: 0 0.5rem;
+const ToggleLabel = styled.span`
+  margin-right: .5rem;
+  min-width: 4rem;
+  text-align: end;
+`;
+
+const ToggleStatusWrapper = styled.div`
+  display: flex;
+  flex-grow: 0;
+  justify-content: flex-end;
+  align-items: center;
+  
+  @media ${smallOnly} {
+  position: relative;
+  right: 2rem;
+  }
 `;
 
 const PushContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 1rem 0 1rem 0;
+  gap: 1rem;
 `;
 
 const LabelPushLayout = styled.div`
@@ -184,7 +212,8 @@ export default {
   ButtonsContainer,
   ButtonBottomContainer,
   LabelLayoutNames,
-  BottomButton,
   PushContainer,
   LabelPushLayout,
+  ToggleStatusWrapper,
+  ToggleLabel,
 };

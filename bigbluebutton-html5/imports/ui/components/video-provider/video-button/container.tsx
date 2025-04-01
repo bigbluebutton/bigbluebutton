@@ -26,6 +26,7 @@ const JoinVideoOptionsContainer: React.FC = () => {
   const status = useStatus();
   const exitVideo = useExitVideo();
   const stopVideo = useStopVideo();
+  const videoConnecting = status === 'videoConnecting';
 
   return (
     <JoinVideoButton
@@ -37,6 +38,7 @@ const JoinVideoOptionsContainer: React.FC = () => {
       setLocalSettings={setLocalSettings}
       exitVideo={exitVideo}
       stopVideo={stopVideo}
+      videoConnecting={videoConnecting}
     />
   );
 };

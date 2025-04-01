@@ -28,11 +28,9 @@ jobs:
           fetch-depth: 1
       - name: Merge branches
         uses: ./.github/actions/merge-branches
-      - name: install meteor
-        run: curl https://install.meteor.com/ | sh
-      - name: run meteor npm install
+      - name: install npm dependencies
         working-directory: bigbluebutton-html5
-        run: meteor npm install
+        run: npm ci
       - name: typescript code validation with eslint
         working-directory: bigbluebutton-html5
         run: npx eslint . --ext .ts,.tsx

@@ -12,7 +12,7 @@
   "dependencies": {
     "@docusaurus/core": "^3.3.2",
     "@docusaurus/plugin-client-redirects": "^3.3.2",
-    "@docusaurus/preset-classic": "^3.3.2",
+    "@docusaurus/preset-classic": "^3.5.0",
     "@easyops-cn/docusaurus-search-local": "^0.40.1",
     "@mdx-js/react": "^3.0.0",
     "clsx": "^2.0.0",

@@ -1,5 +1,5 @@
 import styled, { createGlobalStyle } from 'styled-components';
-import { colorOffWhite } from '/imports/ui/stylesheets/styled-components/palette';
+import { colorOffWhite, colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
 
 const TldrawV2GlobalStyle = createGlobalStyle`
   ${({ isPresenter, hasWBAccess }) => (!isPresenter && hasWBAccess) && `
@@ -45,16 +45,23 @@ const TldrawV2GlobalStyle = createGlobalStyle`
     display: none !important;
   }
 
+  .tl-container:focus-within {
+    outline: none !important;
+  }
+
   .tlui-style-panel__wrapper {
     right: 0px;
     top: -0.35rem;
     position: relative;
   }
 
-  // Add the following lines to override height and width attributes for .tl-overlays__item
   .tl-overlays__item {
     height: auto !important;
     width: auto !important;
+  }
+
+  .tlui-popover__content {
+    left: -50px !important;
   }
 
   ${({ isPresenter, isMultiUserActive }) => !isPresenter && !isMultiUserActive && `
@@ -103,11 +110,28 @@ const TldrawV2GlobalStyle = createGlobalStyle`
     }
   `}
 
+  ${({ bgSelected }) => (bgSelected) && `
+      [data-testid="menu-item.toggle-lock"],
+      [data-testid="menu-item.toggle-locked"],
+      [data-testid="menu-item.paste"],
+      [data-testid="menu-item.copy"] {
+        display: none !important;
+      }
+  `}
+
+  [data-testid="menu-item.bring-to-front"],
+  [data-testid="menu-item.bring-forward"],
+  [data-testid="menu-item.send-backward"],
+  [data-testid="menu-item.send-to-back"],
+  [data-testid="menu-item.modify"],
+  [data-testid="menu-item.conversions"],
+  .tlui-helper-buttons,
   [data-testid="main.page-menu"],
   [data-testid="main.menu"],
   [data-testid="tools.more.laser"],
-  [data-testid="tools.asset"],
+  [data-testid="tools.more.asset"],
   [data-testid="page-menu.button"],
+  [data-testid="menu-item.zoom-to-100"],
   .tlui-menu-zone {
     display: none !important;
   }
@@ -149,6 +173,10 @@ const TldrawV2GlobalStyle = createGlobalStyle`
     background-color: white !important;
   }
 
+  [data-testid="tools.delete-all"] {
+    display: flex;
+  }
+
   ${({ presentationHeight }) => {
     const minRange = { height: 345, top: 14 };
     const maxRange = { height: 1200, top: 384 };
@@ -165,11 +193,11 @@ const TldrawV2GlobalStyle = createGlobalStyle`
     const topValue = interpolateTop(presentationHeight);
 
     let additionalStyles = '';
-    if (presentationHeight <= 332) {
+    if (presentationHeight <= 405) {
       additionalStyles += `
         .tlui-layout__mobile .tlui-button__tool > .tlui-icon {
-          height: 11px !important;
-          width: 11px !important;
+          height: 10px !important;
+          width: 10px !important;
         }
 
         .tlui-toolbar__tools {
@@ -186,7 +214,11 @@ const TldrawV2GlobalStyle = createGlobalStyle`
           top: 2px !important;
         }
 
-        [data-side="top"][role="dialog"] {
+        .tlui-toolbar__tools.tlui-toolbar__tools__mobile {
+          height: 30px !important;
+        }
+
+        [data-side="top"][role="dialog"]:has(.tlui-style-panel) {
           left: 10rem !important;
         }
       `;
@@ -194,6 +226,11 @@ const TldrawV2GlobalStyle = createGlobalStyle`
 
     return `.tlui-layout__bottom { top: ${topValue} !important; }${additionalStyles}`;
   }}
+  [data-darkreader-scheme="dark"] button[data-testid="mobile.styles"] {
+    & > div.tlui-icon {
+      color: ${colorWhite};
+    }
+  }
 `;
 
 const EditableWBWrapper = styled.div`

@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.models
 
 import com.softwaremill.quicklens._
-import org.bigbluebutton.core.db.{ UserDAO, UserReactionDAO, UserStateDAO }
+import org.bigbluebutton.core.db.{ UserDAO, UserLockSettingsDAO, UserReactionDAO, UserStateDAO }
 import org.bigbluebutton.core.util.TimeUtil
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
@@ -67,7 +67,7 @@ object Users2x {
   }
 
   def numUsers(users: Users2x): Int = {
-    users.toVector.length
+    users.toVector.filter(u => !u.bot).length
   }
 
   def numActiveModerators(users: Users2x): Int = {
@@ -136,7 +136,6 @@ object Users2x {
       _ <- users.remove(intId)
       ejectedUser <- users.removeFromCache(intId)
     } yield {
-      //      UserDAO.softDelete(intId)  --it will keep the user on Db
       ejectedUser
     }
   }
@@ -147,7 +146,6 @@ object Users2x {
     } yield {
       val newUser = u.modify(_.presenter).setTo(true)
       users.save(newUser)
-      UserStateDAO.update(newUser)
       newUser
     }
   }
@@ -158,7 +156,6 @@ object Users2x {
     } yield {
       val newUser = u.modify(_.presenter).setTo(false)
       users.save(newUser)
-      UserStateDAO.update(newUser)
       newUser
     }
   }
@@ -195,17 +192,6 @@ object Users2x {
     }
   }
 
-  def setEmojiStatus(users: Users2x, intId: String, emoji: String): Option[UserState] = {
-    for {
-      u <- findWithIntId(users, intId)
-    } yield {
-      val newUser = u.modify(_.emoji).setTo(emoji)
-
-      users.save(newUser)
-      UserStateDAO.update(newUser)
-      newUser
-    }
-  }
   def setReactionEmoji(users: Users2x, intId: String, reactionEmoji: String, durationInSeconds: Int): Option[UserState] = {
     for {
       u <- findWithIntId(users, intId)
@@ -248,6 +234,17 @@ object Users2x {
       val newUser = u.modify(_.locked).setTo(locked)
       users.save(newUser)
       UserStateDAO.update(newUser)
+      newUser
+    }
+  }
+
+  def setUserLockSettings(users: Users2x, intId: String, userLockSettings: UserLockSettings): Option[UserState] = {
+    for {
+      u <- findWithIntId(users, intId)
+    } yield {
+      val newUser = u.modify(_.userLockSettings).setTo(userLockSettings)
+      UserLockSettingsDAO.insertOrUpdate(u.meetingId, u.intId, userLockSettings)
+      users.save(newUser)
       newUser
     }
   }
@@ -424,18 +421,20 @@ case class OldPresenter(userId: String, changedPresenterOn: Long)
 
 case class UserLeftFlag(left: Boolean, leftOn: Long)
 
+case class UserLockSettings(disablePublicChat: Boolean = false)
+
 case class UserState(
     intId:                 String,
     extId:                 String,
     meetingId:             String,
     name:                  String,
     role:                  String,
+    bot:                   Boolean,
     guest:                 Boolean,
     pin:                   Boolean,
     mobile:                Boolean,
     authed:                Boolean,
     guestStatus:           String,
-    emoji:                 String,
     reactionEmoji:         String,
     reactionChangedOn:     Long                = 0,
     raiseHand:             Boolean,
@@ -443,6 +442,7 @@ case class UserState(
     locked:                Boolean,
     presenter:             Boolean,
     avatar:                String,
+    webcamBackground:      String,
     color:                 String,
     roleChangedOn:         Long                = System.currentTimeMillis(),
     lastActivityTime:      Long                = System.currentTimeMillis(),
@@ -451,8 +451,8 @@ case class UserState(
     userLeftFlag:          UserLeftFlag,
     speechLocale:          String              = "",
     captionLocale:         String              = "",
-    customParameters:      Map[String, String] = Map.empty
-
+    userMetadata:          Map[String, String] = Map.empty,
+    userLockSettings:      UserLockSettings    = UserLockSettings()
 )
 
 case class UserIdAndName(id: String, name: String)

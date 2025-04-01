@@ -32,6 +32,7 @@ export interface GetUserInfoResponse {
     bannerColor: string;
     bannerText: string;
     customLogoUrl: string;
+    customDarkLogoUrl: string;
   }>;
   user_current: Array<{
     extId: string;
@@ -49,6 +50,7 @@ query getUserInfo {
     bannerColor
     bannerText
     customLogoUrl
+    customDarkLogoUrl
   }
   user_current {
     extId

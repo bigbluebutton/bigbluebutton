@@ -32,6 +32,7 @@ class Switch extends Toggle {
       showToggleLabel,
       invertColors,
       disabled,
+      isMobile,
       ...inputProps
     } = this.props;
 
@@ -57,6 +58,7 @@ class Switch extends Toggle {
           checked={checked}
           invertColors={invertColors}
           animations={animations}
+          isMobile={isMobile}
         >
           <Styled.ToggleTrackCheck checked={checked} animations={animations}>
             {showToggleLabel ? intl.formatMessage(intlMessages.on) : null}

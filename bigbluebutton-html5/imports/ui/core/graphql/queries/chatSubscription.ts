@@ -17,7 +17,7 @@ const CHATS_SUBSCRIPTION = gql`
         color
         loggedOut
         avatar
-        isOnline
+        currentlyInMeeting
         isModerator
       }
       totalMessages

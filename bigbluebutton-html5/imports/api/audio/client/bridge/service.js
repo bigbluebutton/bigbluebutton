@@ -36,10 +36,25 @@ const getCurrentAudioSinkId = () => {
   return audioElement?.sinkId || DEFAULT_OUTPUT_DEVICE_ID;
 };
 
-const getStoredAudioInputDeviceId = () => getStorageSingletonInstance().getItem(INPUT_DEVICE_ID_KEY);
-const getStoredAudioOutputDeviceId = () => getStorageSingletonInstance().getItem(OUTPUT_DEVICE_ID_KEY);
-const storeAudioInputDeviceId = (deviceId) => getStorageSingletonInstance().setItem(INPUT_DEVICE_ID_KEY, deviceId);
-const storeAudioOutputDeviceId = (deviceId) => getStorageSingletonInstance().setItem(OUTPUT_DEVICE_ID_KEY, deviceId);
+const getStoredAudioOutputDeviceId = () => getStorageSingletonInstance()
+  .getItem(OUTPUT_DEVICE_ID_KEY);
+const storeAudioOutputDeviceId = (deviceId) => getStorageSingletonInstance()
+  .setItem(OUTPUT_DEVICE_ID_KEY, deviceId);
+const getStoredAudioInputDeviceId = () => getStorageSingletonInstance()
+  .getItem(INPUT_DEVICE_ID_KEY);
+const storeAudioInputDeviceId = (deviceId) => {
+  if (deviceId === 'listen-only') {
+    // Do not store listen-only "devices" and remove any stored device
+    // So it starts from scratch next time.
+    getStorageSingletonInstance().removeItem(INPUT_DEVICE_ID_KEY);
+
+    return false;
+  }
+
+  getStorageSingletonInstance().setItem(INPUT_DEVICE_ID_KEY, deviceId);
+
+  return true;
+};
 
 /**
  * Filter constraints set in audioDeviceConstraints, based on
@@ -99,15 +114,19 @@ const doGUM = async (constraints, retryOnFailure = false) => {
   } catch (error) {
     // This is probably a deviceId mismatch. Retry with base constraints
     // without an exact deviceId.
-    if (error.name === 'OverconstrainedError' && retryOnFailure) {
+    const retryableErrors = ['NotFoundError', 'OverconstrainedError', 'NotReadableError'];
+
+    if (retryOnFailure && retryableErrors.includes(error.name)) {
       logger.warn({
         logCode: 'audio_overconstrainederror_rollback',
         extraInfo: {
           constraints,
+          errorName: error.name,
+          errorMessage: error.message,
         },
       }, 'Audio getUserMedia returned OverconstrainedError, rollback');
 
-      return navigator.mediaDevices.getUserMedia({ audio: getAudioConstraints() });
+      return navigator.mediaDevices.getUserMedia({ audio: true });
     }
 
     // Not OverconstrainedError - bubble up the error.

@@ -67,8 +67,7 @@ export const userJoinPushAlert = (
 
   if (userJoinAudioAlerts) {
     new Audio(`${window.meetingClientSettings.public.app.cdn
-      + window.meetingClientSettings.public.app.basename
-      + window.meetingClientSettings.public.app.instanceId}`
+      + window.meetingClientSettings.public.app.basename}`
       + '/resources/sounds/userJoin.mp3').play();
   }
 
@@ -76,6 +75,12 @@ export const userJoinPushAlert = (
     notifier(notification);
   }
 };
+
+const playLeaveAudioAlert = throttle(() => {
+  new Audio(`${window.meetingClientSettings.public.app.cdn
+    + window.meetingClientSettings.public.app.basename}`
+    + '/resources/sounds/userJoin.mp3').play();
+}, 500, { leading: true, trailing: false });
 
 export const userLeavePushAlert = (
   notification: Notification,
@@ -91,10 +96,7 @@ export const userLeavePushAlert = (
   if (!userLeaveAudioAlerts && !userLeavePushAlerts) return;
 
   if (userLeaveAudioAlerts) {
-    new Audio(`${window.meetingClientSettings.public.app.cdn
-      + window.meetingClientSettings.public.app.basename
-      + window.meetingClientSettings.public.app.instanceId}`
-      + '/resources/sounds/userJoin.mp3').play();
+    playLeaveAudioAlert();
   }
 
   if (userLeavePushAlerts) {

@@ -1,8 +1,7 @@
 import Auth from '/imports/ui/services/auth';
 import PresentationUploaderService from '/imports/ui/components/presentation/presentation-uploader/service';
-import PadsService from '/imports/ui/components/pads/pads-graphql/service';
-import { UploadingPresentations } from '/imports/api/presentations';
 import { uniqueId } from '/imports/utils/string-utils';
+import PadsService from '/imports/ui/components/pads/pads-graphql/service';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function convertAndUpload(presentations: any, padId: string, presentationEnabled = true) {
@@ -18,18 +17,6 @@ async function convertAndUpload(presentations: any, padId: string, presentationE
   const extension = 'pdf';
   filename = `${filename}.${extension}`;
 
-  UploadingPresentations.insert({
-    id: uniqueId(filename),
-    progress: 0,
-    filename,
-    lastModifiedUploader: false,
-    upload: {
-      done: false,
-      error: false,
-    },
-    uploadTimestamp: new Date(),
-  });
-
   const PADS_CONFIG = window.meetingClientSettings.public.pads;
 
   const exportUrl = Auth.authenticateURL(`${PADS_CONFIG.url}/p/${padId}/export/${extension}?${params}`);
@@ -40,13 +27,15 @@ async function convertAndUpload(presentations: any, padId: string, presentationE
   const sharedNotesData = new File([data], filename, {
     type: data.type,
   });
+  const id = uniqueId(filename);
 
   PresentationUploaderService.handleSavePresentation([], false, {
     file: sharedNotesData,
+    presentationId: id,
     isDownloadable: false, // by default new presentations are set not to be downloadable
     isRemovable: true,
-    filename: sharedNotesData.name,
-    isCurrent: true,
+    name: sharedNotesData.name,
+    current: true,
     conversion: { done: false, error: false },
     upload: { done: false, error: false, progress: 0 },
     exportation: { isRunning: false, error: false },
@@ -54,7 +43,7 @@ async function convertAndUpload(presentations: any, padId: string, presentationE
     onUpload: () => { },
     onProgress: () => { },
     onDone: () => { },
-  }, undefined, undefined, undefined, presentationEnabled);
+  }, undefined, () => { }, undefined, presentationEnabled);
 }
 
 export default {

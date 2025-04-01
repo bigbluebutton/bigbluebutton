@@ -12,7 +12,6 @@ case class UserEjectColumnsDbModel(
 case class UserStateDbModel(
     meetingId:                    String,
     userId:                       String,
-    emoji:                        String = "none",
     away:                         Boolean = false,
     raiseHand:                    Boolean = false,
     guestStatus:                  String,
@@ -35,12 +34,11 @@ case class UserStateDbModel(
 
 class UserStateDbTableDef(tag: Tag) extends Table[UserStateDbModel](tag, None, "user") {
   override def * = (
-    meetingId, userId,emoji,away,raiseHand,guestStatus,guestStatusSetByModerator,guestLobbyMessage,mobile,clientType,disconnected,
+    meetingId, userId,away,raiseHand,guestStatus,guestStatusSetByModerator,guestLobbyMessage,mobile,clientType,disconnected,
     expired,ejectColumns,presenter,pinned,locked,speechLocale, captionLocale,
     inactivityWarningDisplay, inactivityWarningTimeoutSecs, echoTestRunningAt) <> (UserStateDbModel.tupled, UserStateDbModel.unapply)
   val meetingId = column[String]("meetingId", O.PrimaryKey)
   val userId = column[String]("userId", O.PrimaryKey)
-  val emoji = column[String]("emoji")
   val away = column[Boolean]("away")
   val raiseHand = column[Boolean]("raiseHand")
   val guestStatus = column[String]("guestStatus")
@@ -71,14 +69,13 @@ object UserStateDAO {
       TableQuery[UserStateDbTableDef]
         .filter(_.meetingId === userState.meetingId)
         .filter(_.userId === userState.intId)
-        .map(u => (u.presenter, u.pinned, u.locked, u.speechLocale, u.captionLocale, u.emoji, u.away, u.raiseHand, u.mobile, u.clientType, u.disconnected))
+        .map(u => (u.presenter, u.pinned, u.locked, u.speechLocale, u.captionLocale, u.away, u.raiseHand, u.mobile, u.clientType, u.disconnected))
         .update((
           userState.presenter,
           userState.pin,
           userState.locked,
           userState.speechLocale,
           userState.captionLocale,
-          userState.emoji,
           userState.away,
           userState.raiseHand,
           userState.mobile,

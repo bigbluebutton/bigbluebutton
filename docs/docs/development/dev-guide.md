@@ -24,13 +24,12 @@ A BigBlueButton server is built from a number of components that correspond to U
 - bbb-web -- Implements the BigBlueButton API and conversion of documents for presentation
 - bbb-akka-apps -- Server side application that handles the state of meetings on the server
 - bbb-akka-fsesl -- server component handling the communication with FreeSWITCH
-- bbb-html5 -- HTML5 client that loads in the browser
 - bbb-learning-dashboard -- a live dashboard available to moderators, which displays user activity information that can be useful for instructors
 - bbb-fsesl-akka -- Component to send commands to FreeSWITCH
 - bbb-playback-presentation -- Record and playback script to create presentation layout
 - bbb-playback-video -- Record and playback script to create video layout
 - bbb-export-annotations -- Handles capture of breakout content and annotated presentation download
-- bbb-webrtc-sfu -- Server that bridges incoming requests from client to Kurento
+- bbb-webrtc-sfu -- Signaling server that bridges clients to FreeSWITCH and mediasoup
 - mediasoup -- WebRTC media server for sending/receiving/recording video (webcam and screenshare)
 - bbb-freeswitch-core -- WebRTC media server for sending/receiving/recording audio
 - bbb-graphql-server -- Handles GraphQL queries and subscriptions from clients, checks user permissions
@@ -279,61 +278,48 @@ $ cd bigbluebutton/bigbluebutton-html5/
 
 ### Background
 
-A bit of context is needed to fully explain what the HTML5 client is, why it has server component, what the architecture is, and only then how to make a change and re-deploy.
-
-The HTML5 client in BigBlueButton is build using the framework [Meteor](https://meteor.com). Meteor wraps around a NodeJS server component, MongoDB server database, React frontend user interface library and MiniMongo frontend instance of MongoDB storing a subset of MongoDB's data. When deployed, these same components are split into independently running pieces - NodeJS instance, MongoDB database and a browser optimized client files served by NGINX. There is no "Meteor" in a production deployment, but rather separate components.
-
+The HTML5 client has seen several major refactors. As of BigBlueButton 3.0 the client code is served directly by NginX, removing several component dependencies we used to have.
 Make sure to check the HTML5 portion of the [Architecture page](/development/architecture#html5-client).
-
-Install Meteor.js.
-
-```bash
-$ curl https://install.meteor.com/ | sh
-```
 
 There is one change required to settings.yml to get webcam and screenshare working in the client (assuming you're using HTTPS already). The first step is to find the value for `kurento.wsUrl` packaged settings.yml.
 
-<!-- TODO recommend /etc/bigbluebutton/bbb-html5.yml change instead -->
+```bash
+grep "wsUrl" /usr/share/bigbluebutton/html5-client/private/config/settings.yml
+```
+
+Next, override the `wsURL` so that it remains the same even if you switch branches:
 
 ```bash
-grep "wsUrl" /usr/share/meteor/bundle/programs/server/assets/app/config/settings.yml
-```
-
-Next, edit the development settings.yml and change `wsUrl` to match what was retrieved before.
-
-```bash
-$ vi private/config/settings.yml
-```
-
-You're now ready to run the HTML5 code. First shut down the packaged version of the HTML5 client so you are not running two copies in parallel.
-
-```
-$ sudo systemctl stop bbb-html5
+HOST=$(grep -v '#' /etc/bigbluebutton/bbb-web.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
+sudo yq e -i ".public.kurento.wsUrl = \"wss://$HOST/bbb-webrtc-sfu\"" /etc/bigbluebutton/bbb-html5.yml
+sudo bbb-conf --restart
 ```
 
 Install the npm dependencies.
 
 ```bash
-$ meteor npm install
+$ npm install
 ```
 
-Finally, run the HTML5 code.
+Finally, run the HTML5 code and have it served.
 
 ```bash
 $ npm start
 ```
 
-You can deploy locally your modified version of the HTML5 client source using the script [bigbluebutton-html5/deploy_to_usr_share.sh](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-html5/deploy_to_usr_share.sh) - which deploys your [customized] bigbluebutton-html5/\* code as locally running `bbb-html5` package (production mode). Make sure to read through the script to understand what it does prior to using it.
+The last couple of steps could alternatively be done with the `run-dev.sh` script (running in developer mode)
+or `deploy.sh` to run in production mode and have the client files served by NginX.
 
 ### Audio configuration for development environment
 
-You may see the error "Call timeout (Error 1006)" during the microphone echo test after starting the developing HTML5 client by "npm start". A misconfiguration of Freeswitch may account for it, especially when BigBlueButton is set up with bbb-install.sh script. Try changing "sipjsHackViaWs" true in bigbluebutton-html5/private/config/settings.yml.
+You may see the error "Call timeout (Error 1006)" during the microphone echo test after starting the developing HTML5 client by "npm start". A misconfiguration of Freeswitch may account for it, especially when BigBlueButton is set up with bbb-install.sh script. Try setting "sipjsHackViaWs" to true for the client:
+
+`touch /etc/bigbluebutton/bbb-html5.yml`
+`yq e -i '.public.media.sipjsHackViaWs = true' /etc/bigbluebutton/bbb-html5.yml`
 
 ### `/private/config`
 
-All configurations are located in **/private/config/settings.yml**. If you make any changes to the YAML configuration you will need to restart the meteor process.
-
-During Meteor.startup() the configuration file is loaded and can be accessed through the Meteor.settings.public object.
+All configurations are located in **/private/config/settings.yml**. Starting with BigBlueButton 3.0 this file is actually picked by `bbb-apps-akka` and the settings are passed to the clients.
 Note that individual configuration settings are overridden with their values (if defined) from file `/etc/bigbluebutton/bbb-html5.yml` (if the file exists).
 
 ## Build bbb-common-message

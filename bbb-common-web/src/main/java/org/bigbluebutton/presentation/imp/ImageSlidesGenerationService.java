@@ -19,21 +19,13 @@
 
 package org.bigbluebutton.presentation.imp;
 
-import java.awt.image.BufferedImage;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeoutException;
 
-import org.bigbluebutton.presentation.ImageResizer;
-import org.bigbluebutton.presentation.PngCreator;
-import org.bigbluebutton.presentation.SvgImageCreator;
-import org.bigbluebutton.presentation.TextFileCreator;
-import org.bigbluebutton.presentation.ThumbnailCreator;
-import org.bigbluebutton.presentation.UploadedPresentation;
+import org.bigbluebutton.presentation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.imageio.ImageIO;
 
 public class ImageSlidesGenerationService {
 	private static Logger log = LoggerFactory.getLogger(ImageSlidesGenerationService.class);
@@ -101,8 +93,12 @@ public class ImageSlidesGenerationService {
 		log.debug("Creating SVG images.");
 
 		try {
-			BufferedImage bimg = ImageIO.read(pres.getUploadedFile());
-			if(bimg.getWidth() > maxImageWidth || bimg.getHeight() > maxImageHeight) {
+			ImageResolutionService imgResService = new ImageResolutionService();
+			ImageResolution imageResolution = imgResService.identifyImageResolution(pres.getUploadedFile());
+
+			log.debug("Identified image {} width={} and height={}", pres.getName(), imageResolution.getWidth(), imageResolution.getHeight());
+
+			if(imageResolution.getWidth() > maxImageWidth || imageResolution.getHeight() > maxImageHeight) {
 				log.info("The image exceeds max dimension allowed, it will be resized.");
 				resizeImage(pres, maxImageWidth + "x" + maxImageHeight);
 			}

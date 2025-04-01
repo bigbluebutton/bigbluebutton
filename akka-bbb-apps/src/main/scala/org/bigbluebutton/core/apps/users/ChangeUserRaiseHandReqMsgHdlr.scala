@@ -4,7 +4,6 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.models.{ UserState, Users2x }
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
-import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 trait ChangeUserRaiseHandReqMsgHdlr extends RightsManagementTrait {
   this: UsersApp =>
@@ -51,17 +50,6 @@ trait ChangeUserRaiseHandReqMsgHdlr extends RightsManagementTrait {
         user <- Users2x.findWithIntId(liveMeeting.users2x, msg.body.userId)
         newUserState <- Users2x.setUserRaiseHand(liveMeeting.users2x, user.intId, msg.body.raiseHand)
       } yield {
-
-        if (msg.body.raiseHand && user.emoji == "") {
-          Users2x.setEmojiStatus(liveMeeting.users2x, msg.body.userId, "raiseHand")
-          outGW.send(MsgBuilder.buildUserEmojiChangedEvtMsg(liveMeeting.props.meetingProp.intId, msg.body.userId, "raiseHand"))
-        }
-
-        if (msg.body.raiseHand == false && user.emoji == "raiseHand") {
-          Users2x.setEmojiStatus(liveMeeting.users2x, msg.body.userId, "none")
-          outGW.send(MsgBuilder.buildUserEmojiChangedEvtMsg(liveMeeting.props.meetingProp.intId, msg.body.userId, "none"))
-        }
-
         broadcast(newUserState, msg.body.raiseHand)
       }
     } else {

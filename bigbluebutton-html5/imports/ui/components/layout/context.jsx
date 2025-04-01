@@ -12,6 +12,7 @@ import useUpdatePresentationAreaContentForPlugin from '/imports/ui/components/pl
 import { useIsPresentationEnabled } from '/imports/ui/services/features';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 import { usePrevious } from '../whiteboard/utils';
+import Session from '/imports/ui/services/storage/in-memory';
 
 // variable to debug in console log
 const debug = false;
@@ -83,7 +84,7 @@ const reducer = (state, action) => {
       if (state.input === action.value) return state;
       return {
         ...state,
-        input: action.value,
+        input: typeof action.value === 'function' ? action.value(state.input) : action.value,
       };
     }
 
@@ -204,6 +205,24 @@ const reducer = (state, action) => {
       };
     }
 
+    // NOTIFICATION TOASTS
+    case ACTIONS.SET_HIDE_NOTIFICATION_TOASTS: {
+      const { notificationsBar } = state.input;
+      if (notificationsBar.hideNotificationToasts === action.value) {
+        return state;
+      }
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          notificationsBar: {
+            ...notificationsBar,
+            hideNotificationToasts: action.value,
+          },
+        },
+      };
+    }
+
     // NAV BAR
 
     case ACTIONS.SET_HAS_NAVBAR: {
@@ -218,6 +237,23 @@ const reducer = (state, action) => {
           navBar: {
             ...navBar,
             hasNavBar: action.value,
+          },
+        },
+      };
+    }
+
+    case ACTIONS.SET_HIDE_NAVBAR_TOP_ROW: {
+      const { navBar } = state.output;
+      if (navBar.hideTopRow === action.value) {
+        return state;
+      }
+      return {
+        ...state,
+        output: {
+          ...state.output,
+          navBar: {
+            ...navBar,
+            hideTopRow: action.value,
           },
         },
       };
@@ -854,6 +890,9 @@ const reducer = (state, action) => {
       if (presentation.isOpen === action.value) {
         return state;
       }
+      const { presentationAreaContentActions } = state;
+      presentationAreaContentActions[presentationAreaContentActions.length - 1]
+        .value.open = action.value;
       return {
         ...state,
         input: {
@@ -863,6 +902,7 @@ const reducer = (state, action) => {
             isOpen: action.value,
           },
         },
+        presentationAreaContentActions,
       };
     }
     case ACTIONS.SET_PRESENTATION_SLIDES_LENGTH: {
@@ -1176,13 +1216,15 @@ const reducer = (state, action) => {
         top,
         left,
         right,
+        display,
       } = action.value;
       const { externalVideo } = state.output;
       if (externalVideo.width === width
         && externalVideo.height === height
         && externalVideo.top === top
         && externalVideo.left === left
-        && externalVideo.right === right) {
+        && externalVideo.right === right
+        && externalVideo.display === display) {
         return state;
       }
       return {
@@ -1196,6 +1238,7 @@ const reducer = (state, action) => {
             top,
             left,
             right,
+            display,
           },
         },
       };
@@ -1304,21 +1347,28 @@ const reducer = (state, action) => {
       if (action.value.open) {
         presentationAreaContentActions.push(action);
       } else {
-        const indexOfOpenedContent = presentationAreaContentActions.findIndex((p) => {
+        let indexesOfOpenedContent = presentationAreaContentActions.reduce((indexes, p, index) => {
           if (action.value.content === PRESENTATION_AREA.GENERIC_CONTENT) {
-            return (
+            if (
               p.value.content === action.value.content
-                && p.value.open
-                && p.value.genericContentId === action.value.genericContentId
-            );
+              && p.value.open
+              && p.value.genericContentId === action.value.genericContentId
+            ) {
+              indexes.push(index);
+            }
+          } else if (p.value.content === action.value.content) {
+            indexes.push(index);
           }
-          return (
-            p.value.content === action.value.content && p.value.open
-          );
-        });
+          return indexes;
+        }, []);
+        indexesOfOpenedContent = indexesOfOpenedContent.length > 0 ? indexesOfOpenedContent : -1;
         if (
-          indexOfOpenedContent !== -1
-        ) presentationAreaContentActions.splice(indexOfOpenedContent, 1);
+          indexesOfOpenedContent !== -1
+        ) {
+          indexesOfOpenedContent.reverse().forEach((index) => {
+            presentationAreaContentActions.splice(index, 1);
+          });
+        }
       }
       return {
         ...state,
@@ -1354,6 +1404,7 @@ const updatePresentationAreaContent = (
     previousPresentationAreaContentActions.current = currentPresentationAreaContentActions.slice(0);
     const lastIndex = currentPresentationAreaContentActions.length - 1;
     const lastPresentationContentInPile = currentPresentationAreaContentActions[lastIndex];
+    let shouldOpenPresentation = true;
     switch (lastPresentationContentInPile.value.content) {
       case PRESENTATION_AREA.GENERIC_CONTENT: {
         layoutContextDispatch({
@@ -1450,6 +1501,7 @@ const updatePresentationAreaContent = (
           type: ACTIONS.PINNED_NOTES,
           value: !lastPresentationContentInPile.value.open,
         });
+        shouldOpenPresentation = Session.getItem('presentationLastState');
         break;
       }
       default:
@@ -1457,7 +1509,7 @@ const updatePresentationAreaContent = (
     }
     layoutContextDispatch({
       type: ACTIONS.SET_PRESENTATION_IS_OPEN,
-      value: true,
+      value: shouldOpenPresentation,
     });
   }
 };

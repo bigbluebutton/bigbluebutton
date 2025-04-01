@@ -30,6 +30,9 @@ const MEETING_SUBSCRIPTION = gql`
         }
         maxPinnedCameras
         meetingCameraCap
+        cameraBridge
+        screenShareBridge
+        audioBridge
         meetingId
         name
         notifyRecordingIsOn
@@ -122,6 +125,7 @@ const MEETING_SUBSCRIPTION = gql`
           hasTimer
           showRemainingTime
           hasCameraAsContent
+          hasScreenshareAsContent
         }
       }
   }

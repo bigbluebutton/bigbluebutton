@@ -1,8 +1,9 @@
+const { linkIssue } = require('../core/helpers');
 const { test } = require('../fixtures');
 const { Create } = require('./create');
 const { Join } = require('./join');
 
-test.describe.parallel('Breakout @ci', () => {
+test.describe.parallel('Breakout', { tag: '@ci' }, () => {
   test.describe.parallel('Creating', () => {
     test('Create Breakout room', async ({ browser, context, page }) => {
       const create = new Create(browser, context);
@@ -45,7 +46,7 @@ test.describe.parallel('Breakout @ci', () => {
   });
 
   test.describe.parallel('After creating', () => {
-    // https://docs.bigbluebutton.org/2.6/release-tests.html#moderators-creating-breakout-rooms-and-assiging-users-automated
+    // https://docs.bigbluebutton.org/3.0/testing/release-testing/#moderators-creating-breakout-rooms-and-assiging-users-automated
     test('Join Breakout room', async ({ browser, context, page }) => {
       const join = new Join(browser, context);
       await join.initPages(page);
@@ -126,7 +127,7 @@ test.describe.parallel('Breakout @ci', () => {
       await join.moveUserToOtherRoom();
     });
 
-    test('Export breakout room shared notes @flaky', async ({ browser, context, page }) => {
+    test('Export breakout room shared notes', async ({ browser, context, page }) => {
       const join = new Join(browser, context);
       await join.initPages(page);
       await join.create(true);
@@ -146,6 +147,12 @@ test.describe.parallel('Breakout @ci', () => {
       await join.initPages(page);
       await join.createToAllowChooseOwnRoom();
       await join.userCanChooseRoom();
+    });
+    
+    test('Breakout rooms can use different presentations', async ({ browser, context, page }) => {
+      const join = new Join(browser, context);
+      await join.initPages(page);
+      await join.breakoutWithDifferentPresentations();
     });
   });
 });

@@ -22,6 +22,9 @@ export default class ObservableStorage {
     const prefixedKey = this.prefixedKey(key);
     this.ensureDeps(prefixedKey);
     this.observers[prefixedKey].add(observer);
+    if (typeof observer === 'function') {
+      observer(this.getItem(key));
+    }
   }
 
   public revokeObserver(key: string, observer: (value: StorageData) => void) {

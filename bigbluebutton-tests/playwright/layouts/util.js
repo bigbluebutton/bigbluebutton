@@ -11,15 +11,19 @@ async function reopenChatSidebar(page) {
   }
 }
 
-async function checkScreenshots(layoutTest, maskedSelectors, screenshotName, screenshotNumber) {
-  const modPageWebcamsLocator = layoutTest.modPage.getLocator(maskedSelectors);
-  await expect(layoutTest.modPage.page).toHaveScreenshot(`moderator-${screenshotName}${screenshotNumber ? '-' + screenshotNumber : ''}.png`, {
-    mask: [modPageWebcamsLocator],
+async function checkScreenshots(layoutTest, description, maskedSelectors, screenshotName, screenshotNumber) {
+  const getMaskedLocators = (page) => Array.isArray(maskedSelectors)
+  ? maskedSelectors.map(selector => page.getLocator(selector))
+  : [page.getLocator(maskedSelectors)];
+
+  const modPageMaskedSelectors = getMaskedLocators(layoutTest.modPage);
+  await expect(layoutTest.modPage.page, description).toHaveScreenshot(`moderator-${screenshotName}${screenshotNumber ? '-' + screenshotNumber : ''}.png`, {
+    mask: modPageMaskedSelectors,
   });
 
-  const userWebcamsLocator = layoutTest.userPage.getLocator(maskedSelectors);
-  await expect(layoutTest.userPage.page).toHaveScreenshot(`user-${screenshotName}${screenshotNumber ? '-' + screenshotNumber : ''}.png`, {
-    mask: [userWebcamsLocator],
+  const userPageMaskedSelectors = getMaskedLocators(layoutTest.userPage);
+  await expect(layoutTest.userPage.page, description).toHaveScreenshot(`user-${screenshotName}${screenshotNumber ? '-' + screenshotNumber : ''}.png`, {
+    mask: userPageMaskedSelectors,
   });
 }
 

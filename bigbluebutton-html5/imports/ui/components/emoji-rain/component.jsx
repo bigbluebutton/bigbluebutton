@@ -24,7 +24,7 @@ const EmojiRain = ({ reactions }) => {
       return;
     }
 
-    for (i = 0; i < NUMBER_OF_EMOJIS; i++) {
+    for (let i = 0; i < NUMBER_OF_EMOJIS; i++) {
       const initialPosition = {
         x: coord.x + coord.width / 8,
         y: coord.y + coord.height / 5,
@@ -116,7 +116,7 @@ const EmojiRain = ({ reactions }) => {
     zIndex: 2,
   };
 
-  return <div ref={containerRef} style={containerStyle} />;
+  return <div ref={containerRef} style={containerStyle} data-test="emojiRain" />;
 };
 
 export default EmojiRain;

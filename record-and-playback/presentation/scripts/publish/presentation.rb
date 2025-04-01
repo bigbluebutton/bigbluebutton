@@ -575,6 +575,17 @@ def determine_slide_number(slide, current_slide)
   slide
 end
 
+def clean_arrow_end_or_start_props(props)
+  if props['type'] == 'binding'
+    # Remove 'x' and 'y' for 'binding' type
+    props = props.except('x', 'y')
+  elsif props['type'] == 'point'
+    # Remove unwanted properties for 'point' type
+    props = props.except('boundShapeId', 'normalizedAnchor', 'isExact', 'isPrecise')
+  end
+  props
+end
+
 def events_parse_tldraw_shape(shapes, event, current_presentation, current_slide, timestamp)
   presentation = event.at_xpath('presentation')
   slide = event.at_xpath('pageNumber')
@@ -615,6 +626,11 @@ def events_parse_tldraw_shape(shapes, event, current_presentation, current_slide
     prev_shape[:out] = timestamp
     shape[:shape_unique_id] = prev_shape[:shape_unique_id]
     shape[:shape_data] = prev_shape[:shape_data].deep_merge(shape[:shape_data])
+    # special handling to remove unwanted merged arrow props in tldraw v2
+    if shape[:shape_data]['type'] == 'arrow' && shape[:shape_data].key?('props')
+      shape[:shape_data]['props']['start'] = clean_arrow_end_or_start_props(shape[:shape_data]['props']['start'])
+      shape[:shape_data]['props']['end'] = clean_arrow_end_or_start_props(shape[:shape_data]['props']['end'])
+    end
   else
     shape[:shape_unique_id] = @svg_shape_unique_id
     @svg_shape_unique_id += 1
@@ -842,15 +858,19 @@ def events_get_image_info(slide, tldraw)
     BigBlueButton.logger.warn("Missing image file #{image_path}!")
     # Emergency last-ditch blank image creation
     FileUtils.mkdir_p(File.dirname(image_path))
-    command = \
-      if slide_deskshare
-        ['convert', '-size',
-         "#{@presentation_props['deskshare_output_width']}x#{@presentation_props['deskshare_output_height']}", 'xc:transparent', '-background', 'transparent', image_path,]
-      else
-        ['convert', '-size', '1600x1200', 'xc:transparent', '-background', 'transparent', '-quality', '90', '+dither',
-         '-depth', '8', '-colors', '256', image_path,]
-      end
-    BigBlueButton.exec_ret(*command) || raise("Unable to generate blank image for #{image_path}")
+    if image_path.end_with?(".svg")
+      File.write(image_path, '<svg version="1.1" width="1600" height="1600" xmlns="http://www.w3.org/2000/svg"></svg>')
+    else
+      command = \
+        if slide_deskshare
+          ['convert', '-size',
+           "#{@presentation_props['deskshare_output_width']}x#{@presentation_props['deskshare_output_height']}", 'xc:transparent', '-background', 'transparent', image_path,]
+        else
+          ['convert', '-size', '1600x1200', 'xc:transparent', '-background', 'transparent', '-quality', '90', '+dither',
+           '-depth', '8', '-colors', '256', image_path,]
+        end
+      BigBlueButton.exec_ret(*command) || raise("Unable to generate blank image for #{image_path}")
+    end
   end
 
   slide[:width], slide[:height] = FastImage.size(image_path)
@@ -1101,18 +1121,30 @@ def process_chat_messages(events, bbb_props)
     BigBlueButton::Events.get_chat_events(events, @meeting_start.to_i, @meeting_end.to_i, bbb_props).each do |chat|
       chattimeline = {
         in: (chat[:in] / 1000.0).round(1),
+        id: chat[:id],
         direction: 'down',
         name: chat[:sender],
         chatEmphasizedText: chat[:chatEmphasizedText],
         senderRole: chat[:senderRole],
         message: chat[:message],
+        replyToMessageId: chat[:replyToMessageId],
+        lastEditedTimestamp: chat[:lastEditedTimestamp],
         target: 'chat',
       }
       if (chat[:out])
         chattimeline[:out] = (chat[:out] / 1000.0).round(1)
       end
 
-      xml.chattimeline(**chattimeline)
+      xml.chattimeline(**chattimeline) do
+        # Add reactions only if present
+        if chat[:reactions]
+          xml.reactions do
+            chat[:reactions].each do |emoji, count|
+              xml.reaction(emoji: emoji, count: count)
+            end
+          end
+        end
+      end
     end
   end
 
@@ -1264,11 +1296,30 @@ def copy_media_files_helper(media, media_files, package_dir)
   end
 end
 
+def process_swap_events(events)
+  BigBlueButton.logger.info("Processing screenshare as content events")
+  swap_events = BigBlueButton::Events.get_screenshare_as_content_events(events)
+  @layout_swap_xml = Builder::XmlMarkup.new(indent: 2)
+  @layout_swap_xml.instruct!
+
+  @layout_swap_xml.recording('id' => 'layout_swap_events') do
+    swap_events.each do |event|
+      @layout_swap_xml.event(
+        timestamp: (translate_timestamp(event[:timestamp].to_f) / 1000).round(1),
+        show_screenshare: event[:screenshareAsContent],
+      )
+    end
+  end
+
+
+end
+
 @shapes_svg_filename = 'shapes.svg'
 @panzooms_xml_filename = 'panzooms.xml'
 @cursor_xml_filename = 'cursor.xml'
 @deskshare_xml_filename = 'deskshare.xml'
 @tldraw_shapes_filename = 'tldraw.json'
+@layout_xml_filename = 'layout.xml'
 @svg_shape_id = 1
 @svg_shape_unique_id = 1
 
@@ -1428,12 +1479,16 @@ begin
 
         process_deskshare_events(@doc)
 
+        process_swap_events(@doc)
+
         process_poll_events(@doc, package_dir)
 
         process_external_video_events(@doc, package_dir)
 
         # Write deskshare.xml to file
         File.open("#{package_dir}/#{@deskshare_xml_filename}", 'w') { |f| f.puts @deskshare_xml.target! }
+        # Write layout_swap.xml to file
+        File.open("#{package_dir}/#{@layout_xml_filename}", 'w') { |f| f.puts @layout_swap_xml.target! }
 
         BigBlueButton.logger.info('Copying files to package dir')
         FileUtils.cp_r("#{@process_dir}/presentation", package_dir)

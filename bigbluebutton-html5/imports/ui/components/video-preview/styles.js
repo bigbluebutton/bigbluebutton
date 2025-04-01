@@ -21,7 +21,6 @@ import {
   lineHeightComputed,
   headingsFontWeight,
   fontSizeLarger,
-  fontSizeSmall,
 } from '/imports/ui/stylesheets/styled-components/typography';
 import { smallOnly, mediumOnly, landscape } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import ModalSimple from '/imports/ui/components/common/modal/simple/component';
@@ -247,6 +246,17 @@ const VideoPreviewModal = styled(ModalSimple)`
     flex-direction: column;
     justify-content: space-between;
   }
+  ${({ isBlurred }) => isBlurred && `
+    overlay: {
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      backdropFilter: 'blur(10px)',
+      zIndex: 998,
+    }
+  `}
 `;
 
 const ellipsis = keyframes`

@@ -530,12 +530,14 @@ module BigBlueButton
 
     def self.edl_entry_offset_audio
       return Proc.new do |edl_entry, offset|
-        new_entry = { audio: nil }
-        if edl_entry[:audio]
-          new_entry[:audio] = {
-            filename: edl_entry[:audio][:filename],
-            timestamp: edl_entry[:audio][:timestamp] + offset
-          }
+        new_entry = { audios: [] }
+        if edl_entry[:audios]
+          edl_entry[:audios].each do |audio|
+            new_entry[:audios] << {
+              filename: audio[:filename],
+              timestamp: audio[:timestamp] + offset
+            }
+          end
         end
         if edl_entry[:original_duration]
           new_entry[:original_duration] = edl_entry[:original_duration]
@@ -732,6 +734,33 @@ module BigBlueButton
       map
     end
 
+    def self.get_chat_reactions(events)
+      reactions = {}
+      events.xpath('/recording/event').each do |event|
+        case [event[:module], event[:eventname]]
+        when %w[CHAT SendPublicChatMessageReactionRecordEvent]
+          reaction_emoji = event.at_xpath('./reactionEmoji')&.content
+          message_id = event.at_xpath('./messageId')&.content
+          next if message_id.nil? || reaction_emoji.nil?
+          reactions[message_id] ||= {}
+          reactions[message_id][reaction_emoji] = (reactions[message_id][reaction_emoji] || 0) + 1
+        when %w[CHAT DeletePublicChatMessageReactionRecordEvent]
+          reaction_emoji = event.at_xpath('./reactionEmoji')&.content
+          message_id = event.at_xpath('./messageId')&.content
+          next if message_id.nil? || reaction_emoji.nil?
+          # Check if there is any of that emoji to be deleted
+          next unless reactions[message_id]&.key?(reaction_emoji)
+          if reactions[message_id][reaction_emoji] > 1
+            reactions[message_id][reaction_emoji] -= 1
+          else
+            reactions[message_id].delete(reaction_emoji)
+            reactions.delete(message_id) if reactions[message_id].empty?
+          end
+        end
+      end
+      reactions
+    end
+
     # Get a list of chat events, with start/end time for segments and recording marks applied.
     # Optionally anonymizes chat participant names.
     # Reads the keys 'anonymize_chat' and 'anonymize_chat_moderators' from bbb_props, but allows
@@ -766,7 +795,7 @@ module BigBlueButton
       anonymize_moderators = anonymize_moderators.to_s.casecmp?('true')
 
       user_map = anonymize_senders ? anonymous_user_map(events, moderators: anonymize_moderators) : user_name_map(events);
-
+      reaction_emoji = get_chat_reactions(events)
       chats = []
       events.xpath('/recording/event').each do |event|
         timestamp = event[:timestamp].to_i - initial_timestamp
@@ -782,15 +811,20 @@ module BigBlueButton
           sender_id = event.at_xpath('./senderId')&.content
           senderRole = event.at_xpath('./senderRole')&.content
           chatEmphasizedText = event.at_xpath('./chatEmphasizedText')&.content
+          message_id = event.at_xpath('./messageId')&.content
+          replyToMessageId = event.at_xpath('./replyToMessageId')&.content
 
           chats << {
+            id: message_id,
             in: timestamp - offset,
             out: nil,
             sender_id: sender_id,
             sender: sender_id.nil? ? sender : user_map.fetch(sender_id),
             senderRole: senderRole,
             chatEmphasizedText: chatEmphasizedText,
+            replyToMessageId: replyToMessageId,
             message: linkify(event.at_xpath('./message').content.strip),
+            reactions: reaction_emoji[message_id],
             date: date,
           }
         when %w[CHAT ClearPublicChatEvent]
@@ -800,6 +834,24 @@ module BigBlueButton
           chats.each do |chat|
             chat[:out] = clear_timestamp if chat[:out].nil?
           end
+        when %w[CHAT DeletePublicChatMessageRecordEvent]
+          next if timestamp < start_time
+          message_id = event.at_xpath('./messageId')&.content
+
+          # Delete messages that reply to this message first
+          messagesReply = chats.select{|message| message[:replyToMessageId] == message_id}
+          messagesReply.each { |message| chats.delete(message) }
+
+          # Properly delete this message
+          index_to_be_deleted = chats.index { |message| message[:id] === message_id }
+          chats.delete_at(index_to_be_deleted) unless index_to_be_deleted.nil?
+        when %w[CHAT EditPublicChatMessageRecordEvent]
+          next if timestamp < start_time
+          message_id = event.at_xpath('./messageId')&.content
+          new_message_content = event.at_xpath('./message')&.content
+          index_to_be_edited = chats.index { |message| message[:id] === message_id }
+          chats[index_to_be_edited][:message] = new_message_content unless index_to_be_edited.nil?
+          chats[index_to_be_edited][:lastEditedTimestamp] = timestamp unless index_to_be_edited.nil?
         when %w[PARTICIPANT RecordStatusEvent]
           record = event.at_xpath('status').content == 'true'
           next if timestamp < start_time
@@ -1115,5 +1167,21 @@ module BigBlueButton
       return false
     end
 
+    def self.get_screenshare_as_content_events(events)
+      BigBlueButton.logger.info("Extracting SetScreenshareAsContentEvent")
+
+      screenshare_content_events = []
+
+      events.xpath("/recording/event[@eventname='SetScreenshareAsContentEvent']").each do |event|
+        screenshare_content_events << {
+          timestamp: event['timestamp'].to_i,
+          timestampUTC: event.at_xpath('timestampUTC')&.text.to_i,
+          date: event.at_xpath('date')&.text,
+          screenshareAsContent: event.at_xpath('screenshareAsContent')&.text == "true"
+        }
+      end
+
+      screenshare_content_events
+    end
   end
 end

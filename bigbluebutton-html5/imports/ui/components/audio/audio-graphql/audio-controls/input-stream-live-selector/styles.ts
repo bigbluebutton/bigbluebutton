@@ -8,7 +8,10 @@ import {
   colorGrayDark,
   colorOffWhite,
   colorWhite,
+  colorSuccess,
 } from '/imports/ui/stylesheets/styled-components/palette';
+import { smPaddingY, smPadding } from '/imports/ui/stylesheets/styled-components/general';
+import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 
 const pulse = keyframes`
   0% {
@@ -48,17 +51,47 @@ export const MuteToggleButton = styled(Button)`
         box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.5);
       }
     `}
+  
+      @media ${smallOnly} {
+        margin-right: ${smPaddingY};
+      }
+  
+      [dir='rtl'] & {
+        margin-right: 0;
+        margin-left: -${smPadding};
+  
+        @media ${smallOnly} {
+          margin-left: ${smPaddingY};
+        }
+      }
+    }
 `;
 
 export const DisabledLabel = {
   color: colorGrayDark,
   fontWeight: 'bold',
   opacity: 1,
+  fontSize: '1rem',
+};
+
+export const AudioSettingsOption = {
+  paddingLeft: 12,
 };
 
 export const SelectedLabel = {
   color: colorPrimary,
   backgroundColor: colorOffWhite,
+  fontWeight: 'bold',
+  paddingLeft: '2.6rem',
+};
+
+export const DeviceLabel = {
+  paddingLeft: '2.6rem',
+};
+
+export const SelectedLabelIcon = {
+  color: colorSuccess,
+  fontSize: '1.2rem',
 };
 
 export const DangerColor = {
@@ -79,7 +112,10 @@ export const AudioDropdown = styled(ButtonEmoji)`
 export default {
   MuteToggleButton,
   DisabledLabel,
+  DeviceLabel,
   SelectedLabel,
+  SelectedLabelIcon,
+  AudioSettingsOption,
   DangerColor,
   AudioDropdown,
 };

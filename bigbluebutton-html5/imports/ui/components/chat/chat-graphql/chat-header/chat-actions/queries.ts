@@ -6,7 +6,6 @@ import { Message } from '/imports/ui/Types/message';
 export type getChatMessageHistory = {
   chat_message_public: Array<Message>
   meeting: Array<Meeting>;
-  user_welcomeMsgs: Array<{welcomeMsg: string, welcomeMsgForModerators: string | null}>;
 };
 
 export const GET_CHAT_MESSAGE_HISTORY = gql`
@@ -24,13 +23,12 @@ query getChatMessageHistory {
       name
       role
     }
+    deletedBy {
+      name
+    }
   }
   meeting {
     name
-  }
-  user_welcomeMsgs {
-    welcomeMsg
-    welcomeMsgForModerators
   }
 }
 `;

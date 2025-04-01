@@ -29,9 +29,12 @@ public class UserSession {
   public String externMeetingID = null;
   public String externUserID = null;
   public String fullname = null; 
+  public String firstName = "";
+  public String lastName = "";
   public String role = null;
   public String conference = null;
   public String room = null;
+  public Boolean bot = false;
   public Boolean guest = false;
   public Boolean authed = false;
   public String voicebridge = null;
@@ -42,7 +45,9 @@ public class UserSession {
   public String logoutUrl = null;
   public String defaultLayout = "NOLAYOUT";
   public String enforceLayout = "";
+  public String sessionName = "";
   public String avatarURL;
+  public String webcamBackgroundURL;
   public String guestStatus = GuestPolicy.ALLOW;
   public String clientUrl = null;
   public Boolean excludeFromDashboard = false;
@@ -81,6 +86,14 @@ public class UserSession {
 
   public String getFullname() {
     return fullname;
+  }
+
+  public String getFirstName() {
+    return firstName;
+  }
+
+  public String getLastName() {
+    return lastName;
   }
 
   public String getRole() {
@@ -135,8 +148,16 @@ public class UserSession {
     return enforceLayout;
   }
 
+  public String getSessionName() {
+    return sessionName;
+  }
+
   public String getAvatarURL() {
     return avatarURL;
+  }
+
+  public String getWebcamBackgroundURL() {
+    return webcamBackgroundURL;
   }
 
   public String getGuestStatus() {

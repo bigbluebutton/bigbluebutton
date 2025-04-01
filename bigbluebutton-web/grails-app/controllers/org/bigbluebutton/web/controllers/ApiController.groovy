@@ -264,24 +264,35 @@ class ApiController {
             request
     )
 
+    String errorRedirectUrl = ""
+    if(!StringUtils.isEmpty(params.errorRedirectUrl)) {
+      errorRedirectUrl = params.errorRedirectUrl
+    }
+
+    boolean redirectClient = REDIRECT_RESPONSE
+    if(!(validationResponse == null)) {
+      invalid(validationResponse.getKey(), validationResponse.getValue(), redirectClient, errorRedirectUrl);
+      return
+    }
+
+    String existingUserID = params.existingUserID
+    if (!StringUtils.isEmpty(existingUserID)) {
+      handleJoinExistingUser(existingUserID)
+      return
+    }
+
     HashMap<String, String> roles = new HashMap<String, String>();
 
     roles.put("moderator", ROLE_MODERATOR)
     roles.put("viewer", ROLE_ATTENDEE)
 
     //check if exists the param redirect
-    boolean redirectClient = REDIRECT_RESPONSE
     String clientURL = paramsProcessorUtil.getDefaultHTML5ClientUrl();
 
     if (!StringUtils.isEmpty(params.redirect)) {
       try {
         redirectClient = Boolean.parseBoolean(params.redirect);
       } catch (Exception ignored) {}
-    }
-
-    if(!(validationResponse == null)) {
-      invalid(validationResponse.getKey(), validationResponse.getValue(), redirectClient)
-      return
     }
 
     Boolean authenticated = false;
@@ -295,6 +306,11 @@ class ApiController {
       authenticated = true
     }
 
+    Boolean bot = false;
+    if(!StringUtils.isEmpty(params.bot)) {
+      bot = Boolean.parseBoolean(params.bot)
+    }
+
 
     if (!StringUtils.isEmpty(params.auth)) {
       authenticated = Boolean.parseBoolean(params.auth)
@@ -305,11 +321,6 @@ class ApiController {
     String attPW = params.password
 
     Meeting meeting = ServiceUtils.findMeetingFromMeetingID(params.meetingID);
-
-    String errorRedirectUrl = ""
-    if(!StringUtils.isEmpty(params.errorRedirectUrl)) {
-      errorRedirectUrl = params.errorRedirectUrl
-    }
 
     // the createTime mismatch with meeting's createTime, complain
     // In the future, the createTime param will be required
@@ -405,6 +416,21 @@ class ApiController {
       externUserID = internalUserID
     }
 
+    // Get the logoutUrl, either from the meeting or from the join api.
+    // Also replace the tokens.
+    String logoutUrl = meeting.getLogoutUrl()
+    if(!StringUtils.isEmpty(params.get(ApiParams.LOGOUT_URL))) {
+      String userProvidedUrl = params.get(ApiParams.LOGOUT_URL)
+      if(!ServiceUtils.getValidationService().isValidURL(userProvidedUrl)) {
+        log.warn("Invalid logout URL provided: " + userProvidedUrl)
+        // Use default URL from meeting
+      } else {
+        logoutUrl = params.get(ApiParams.LOGOUT_URL)
+        log.debug "The following logout URL is present: " + logoutUrl
+      }
+    }
+    logoutUrl = subLogoutParams(logoutUrl, meeting.getInternalId(), internalUserID, fullName);
+
     //Return a Map with the user custom data
     Map<String, String> userCustomData = meetingService.getUserCustomData(meeting, externUserID, params);
 
@@ -429,10 +455,11 @@ class ApiController {
     us.mode = "LIVE"
     us.record = meeting.isRecord()
     us.welcome = meeting.getWelcomeMessage()
+    us.bot = bot
     us.guest = guest
     us.authed = authenticated
     us.guestStatus = guestStatusVal
-    us.logoutUrl = meeting.getLogoutUrl()
+    us.logoutUrl = logoutUrl
     us.defaultLayout = meeting.getMeetingLayout()
     us.leftGuestLobby = false
 
@@ -446,8 +473,16 @@ class ApiController {
 
     if (!StringUtils.isEmpty(params.avatarURL)) {
       us.avatarURL = params.avatarURL;
+    } else if (us.bot) {
+      us.avatarURL = meeting.defaultBotAvatarURL
     } else {
       us.avatarURL = meeting.defaultAvatarURL
+    }
+
+    if (!StringUtils.isEmpty(params.webcamBackgroundURL)) {
+      us.webcamBackgroundURL = params.webcamBackgroundURL;
+    } else {
+      us.webcamBackgroundURL = meeting.defaultWebcamBackgroundURL
     }
 
     if (!StringUtils.isEmpty(params.excludeFromDashboard)) {
@@ -456,6 +491,14 @@ class ApiController {
       } catch (Exception e) {
         // Do nothing, prop excludeFromDashboard was already initialized
       }
+    }
+
+    if (!StringUtils.isEmpty(params.firstName)) {
+      us.firstName = params.firstName;
+    }
+
+    if (!StringUtils.isEmpty(params.lastName)) {
+      us.lastName = params.lastName;
     }
 
     String meetingId = meeting.getInternalId()
@@ -476,17 +519,22 @@ class ApiController {
         us.meetingID,
         us.internalUserId,
         us.fullname,
+        us.firstName,
+        us.lastName,
         us.role,
         us.externUserID,
         us.authToken,
         sessionToken,
         us.avatarURL,
+        us.webcamBackgroundURL,
+        us.bot,
         us.guest,
         us.authed,
         guestStatusVal,
         us.excludeFromDashboard,
         us.leftGuestLobby,
         us.enforceLayout,
+        us.logoutUrl,
         meeting.getUserCustomData(us.externUserID)
     )
 
@@ -516,6 +564,132 @@ class ApiController {
       invalid("guestDeniedAccess", "You have been denied access to this meeting based on the meeting's guest policy", redirectClient, errorRedirectUrl)
       return
     }
+
+    Map<String, Object> logData = new HashMap<String, Object>();
+    logData.put("meetingid", us.meetingID);
+    logData.put("extMeetingid", us.externMeetingID);
+    logData.put("name", us.fullname);
+    logData.put("userid", us.internalUserId);
+    logData.put("sessionToken", sessionToken);
+    logData.put("logCode", "join_api");
+    logData.put("description", "Handle JOIN API.");
+
+    Gson gson = new Gson();
+    String logStr = gson.toJson(logData);
+
+    log.info(" --analytics-- data=" + logStr);
+
+    if (redirectClient) {
+      log.info("Redirecting to ${destUrl}");
+      redirect(url: destUrl);
+    } else {
+      log.info("Successfully joined. Sending XML response.");
+      response.addHeader("Cache-Control", "no-cache")
+      withFormat {
+        xml {
+          render(text: responseBuilder.buildJoinMeeting(us, session[sessionToken], guestStatusVal, destUrl, msgKey, msgValue, RESP_CODE_SUCCESS), contentType: "text/xml")
+        }
+      }
+    }
+  }
+
+  def handleJoinExistingUser(String existingUserID) {
+    Meeting meeting = ServiceUtils.findMeetingFromMeetingID(params.meetingID);
+    UserSession existingUserSession = meetingService.getUserSessionWithUserId(existingUserID)
+
+    //check if exists the param redirect
+    boolean redirectClient = REDIRECT_RESPONSE
+    String clientURL = paramsProcessorUtil.getDefaultHTML5ClientUrl();
+
+    if (!StringUtils.isEmpty(params.redirect)) {
+      try {
+        redirectClient = Boolean.parseBoolean(params.redirect);
+      } catch (Exception ignored) {}
+    }
+
+    String sessionToken = RandomStringUtils.randomAlphanumeric(16).toLowerCase()
+    log.debug "Session token: " + sessionToken
+
+    UserSession us = new UserSession();
+    us.authToken = existingUserSession.authToken;
+    us.internalUserId = existingUserSession.internalUserId
+    us.conferencename = meeting.getName()
+    us.meetingID = meeting.getInternalId()
+    us.externMeetingID = meeting.getExternalId()
+    us.externUserID = existingUserSession.externUserID
+    us.fullname = existingUserSession.fullname
+    us.firstName = existingUserSession.firstName
+    us.lastName = existingUserSession.lastName
+    us.role = existingUserSession.role
+    us.conference = meeting.getInternalId()
+    us.room = meeting.getInternalId()
+    us.voicebridge = meeting.getTelVoice()
+    us.webvoiceconf = meeting.getWebVoice()
+    us.mode = "LIVE"
+    us.record = meeting.isRecord()
+    us.welcome = meeting.getWelcomeMessage()
+    us.guest = existingUserSession.guest
+    us.authed = existingUserSession.authed
+    us.guestStatus = existingUserSession.guestStatus
+    us.logoutUrl = meeting.getLogoutUrl()
+    us.defaultLayout = meeting.getMeetingLayout()
+    us.leftGuestLobby = false
+    us.avatarURL = existingUserSession.avatarURL
+    us.excludeFromDashboard = existingUserSession.excludeFromDashboard
+
+    if (!StringUtils.isEmpty(params.defaultLayout)) {
+      us.defaultLayout = params.defaultLayout;
+    }
+
+    if (!StringUtils.isEmpty(params.enforceLayout)) {
+      us.enforceLayout = params.enforceLayout;
+    }
+
+    if (!StringUtils.isEmpty(params.sessionName)) {
+      us.sessionName = params.sessionName;
+    }
+
+    //used to drop the previous session of the user
+    String replaceSessionToken = ""
+    if (!StringUtils.isEmpty(params.replaceSessionToken)) {
+      replaceSessionToken = params.replaceSessionToken;
+    }
+
+    Map<String, String> userSessionCustomData = paramsProcessorUtil.getUserCustomData(params)
+
+    // Register a new session token to the user
+    meetingService.registerUserSession(
+            us.meetingID,
+            us.internalUserId,
+            sessionToken,
+            us.sessionName,
+            replaceSessionToken,
+            us.enforceLayout,
+            userSessionCustomData
+    )
+
+    session.setMaxInactiveInterval(paramsProcessorUtil.getDefaultHttpSessionTimeout())
+
+    String msgKey = "successfullyJoined"
+    String msgValue = "You have joined successfully."
+
+    // Keep track of the client url in case this needs to wait for
+    // approval as guest. We need to be able to send the user to the
+    // client after being approved by moderator.
+    us.clientUrl = clientURL + "?sessionToken=" + sessionToken
+
+    session[sessionToken] = sessionToken
+    meetingService.addUserSession(sessionToken, us)
+
+    //Identify which of these to logs should be used. sessionToken or user-token
+    log.info("Session sessionToken for " + us.fullname + " [" + session[sessionToken] + "]")
+    log.info("Session user-token for " + us.fullname + " [" + session['user-token'] + "]")
+
+    log.info("Session token: ${sessionToken}")
+
+    // Process if we send the user directly to the client or
+    // have it wait for approval.
+    String destUrl = clientURL + "?sessionToken=" + sessionToken
 
     Map<String, Object> logData = new HashMap<String, Object>();
     logData.put("meetingid", us.meetingID);
@@ -736,156 +910,6 @@ class ApiController {
     }
 
     return reqParams;
-  }
-
-  /***********************************************
-   * ENTER API
-   ***********************************************/
-  def enter = {
-    String API_CALL = 'enter'
-    log.debug CONTROLLER_NAME + "#${API_CALL}"
-
-    String respMessage = "Session not found."
-    String respMessageKey = "missingSession"
-    boolean reject = false;
-
-    String sessionToken
-    UserSession us
-    Meeting meeting
-
-    Map.Entry<String, String> validationResponse = validateRequest(
-            ValidationService.ApiCall.ENTER,
-            request
-    )
-    if(!(validationResponse == null)) {
-      respMessage = validationResponse.getValue()
-      respMessageKey = validationResponse.getKey()
-      reject = true
-    } else {
-      sessionToken = sanitizeSessionToken(params.sessionToken)
-      us = getUserSession(sessionToken)
-      meeting = meetingService.getMeeting(us.meetingID)
-
-      if (!hasValidSession(sessionToken)) {
-        reject = true;
-      } else {
-        if(hasReachedMaxParticipants(meeting, us)) {
-          reject = true
-          respMessage = "The maximum number of participants allowed for this meeting has been reached."
-          respMessageKey = "maxParticipantsReached"
-        } else {
-          log.info("User ${us.internalUserId} has entered")
-          meeting.userEntered(us.internalUserId)
-        }
-      }
-    }
-
-    if (reject) {
-      // Determine the logout url so we can send the user there.
-      String logoutUrl = paramsProcessorUtil.getDefaultLogoutUrl()
-
-      if(us != null) {
-        logoutUrl = us.logoutUrl
-      }
-
-      log.info("Session token: ${sessionToken}")
-
-      response.addHeader("Cache-Control", "no-cache")
-      withFormat {
-        json {
-          def builder = new JsonBuilder()
-          builder.response {
-            returncode RESP_CODE_FAILED
-            message respMessage
-            messageKey respMessageKey
-            sessionToken
-            logoutURL logoutUrl
-          }
-          render(contentType: "application/json", text: builder.toPrettyString())
-        }
-      }
-    } else {
-      Map<String, Object> logData = new HashMap<String, Object>();
-      logData.put("meetingid", us.meetingID);
-      logData.put("extMeetingid", us.externMeetingID);
-      logData.put("name", us.fullname);
-      logData.put("userid", us.internalUserId);
-      logData.put("sessionToken", sessionToken);
-      logData.put("logCode", "handle_enter_api");
-      logData.put("description", "Handling ENTER API.");
-
-      Gson gson = new Gson();
-      String logStr = gson.toJson(logData);
-
-      log.info(" --analytics-- data=" + logStr);
-
-      response.addHeader("Cache-Control", "no-cache")
-      withFormat {
-        json {
-          def builder = new JsonBuilder()
-          builder.response {
-            returncode RESP_CODE_SUCCESS
-            fullname us.fullname
-            confname us.conferencename
-            meetingID us.meetingID
-            externMeetingID us.externMeetingID
-            externUserID us.externUserID
-            internalUserID us.internalUserId
-            authToken us.authToken
-            role us.role
-            guest us.guest
-            guestStatus us.guestStatus
-            conference us.conference
-            room us.room
-            voicebridge us.voicebridge
-            dialnumber meeting.getDialNumber()
-            webvoiceconf us.webvoiceconf
-            mode us.mode
-            record us.record
-            isBreakout meeting.isBreakout()
-            logoutTimer meeting.getLogoutTimer()
-            allowStartStopRecording meeting.getAllowStartStopRecording()
-            recordFullDurationMedia meeting.getRecordFullDurationMedia()
-            welcome us.welcome
-            if (!StringUtils.isEmpty(meeting.moderatorOnlyMessage) && us.role.equals(ROLE_MODERATOR)) {
-              modOnlyMessage meeting.moderatorOnlyMessage
-            }
-            if (!StringUtils.isEmpty(meeting.bannerText)) {
-              bannerText meeting.getBannerText()
-              bannerColor meeting.getBannerColor()
-            }
-            customLogoURL meeting.getCustomLogoURL()
-            customCopyright meeting.getCustomCopyright()
-            muteOnStart meeting.getMuteOnStart()
-            allowModsToUnmuteUsers meeting.getAllowModsToUnmuteUsers()
-            logoutUrl us.logoutUrl
-            defaultLayout us.defaultLayout
-            avatarURL us.avatarURL
-            if (meeting.breakoutRoomsParams != null) {
-              breakoutRooms {
-                record meeting.breakoutRoomsParams.record
-                privateChatEnabled meeting.breakoutRoomsParams.privateChatEnabled
-                captureNotes meeting.breakoutRoomsParams.captureNotes
-                captureSlides meeting.breakoutRoomsParams.captureSlides
-                captureNotesFilename meeting.breakoutRoomsParams.captureNotesFilename
-                captureSlidesFilename meeting.breakoutRoomsParams.captureSlidesFilename
-              }
-            }
-            customdata (
-              meeting.getUserCustomData(us.externUserID).collect { k, v ->
-                ["$k": v]
-              }
-            )
-            metadata (
-              meeting.getMetadata().collect { k, v ->
-                ["$k": v]
-              }
-            )
-          }
-          render(contentType: "application/json", text: builder.toPrettyString())
-        }
-      }
-    }
   }
 
   /***********************************************
@@ -1186,14 +1210,23 @@ class ApiController {
         queryParameters.put("meetingID", externalMeetingId);
         queryParameters.put("role", us.role.equals(ROLE_MODERATOR) ? ROLE_MODERATOR : ROLE_ATTENDEE);
         queryParameters.put("redirect", "true");
-        queryParameters.put("userID", us.getExternUserID());
+        queryParameters.put("existingUserID", us.getInternalUserId());
+
+        // replaceSession: If this link is intended to replace the previous session of the user
+        if (!StringUtils.isEmpty(params.replaceSession) && Boolean.parseBoolean(params.replaceSession)) {
+          queryParameters.put("replaceSessionToken", sessionToken);
+        }
+
+        if (!StringUtils.isEmpty(params.sessionName)) {
+          queryParameters.put("sessionName", params.sessionName);
+        }
 
         // If the user calling getJoinUrl is a moderator (except in breakout rooms), allow to specify additional parameters
         if (us.role.equals(ROLE_MODERATOR) && !meeting.isBreakout()) {
           request.getParameterMap()
-            .findAll { key, value -> ["enforceLayout", "role", "fullName", "userID", "avatarURL", "redirect", "excludeFromDashboard"].contains(key) || key.startsWith("userdata-") }
-            .findAll { key, value -> !StringUtils.isEmpty(value[-1]) }
-            .each { key, value -> queryParameters.put(key, value[-1]) };
+                  .findAll { key, value -> ["enforceLayout"].contains(key) || key.startsWith("userdata-") }
+                  .findAll { key, value -> !StringUtils.isEmpty(value[-1]) }
+                  .each { key, value -> queryParameters.put(key, value[-1]) };
         }
 
         String httpQueryString = "";
@@ -1218,87 +1251,6 @@ class ApiController {
       }
     }
   }
-
-  def feedback = {
-    String API_CALL = 'feedback'
-    log.debug CONTROLLER_NAME + "#${API_CALL}"
-
-    if (!params.sessionToken) {
-      invalid("missingSession", "Invalid session token")
-      return
-    }
-
-    if (!session[params.sessionToken]) {
-      log.info("Session for token ${params.sessionToken} not found")
-      invalid("missingSession", "Invalid session token")
-      return
-    }
-
-    String requestBody = request.inputStream == null ? null : request.inputStream.text
-    Gson gson = new Gson()
-    JsonObject body = gson.fromJson(requestBody, JsonObject.class)
-
-    if (!body
-            || !body.has("userName")
-            || !body.has("authToken")
-            || !body.has("comment")
-            || !body.has("rating")) {
-      invalid("missingParameters", "One or more required parameters are missing")
-      return
-    }
-
-    String userName = "[unconfirmed] " + body.get("userName").getAsString()
-    String meetingId = ""
-    String userId = ""
-    String authToken = body.get("authToken").getAsString()
-    String comment = body.get("comment").getAsString()
-    int rating = body.get("rating").getAsInt()
-
-    String sessionToken = sanitizeSessionToken(params.sessionToken)
-    UserSession userSession = meetingService.getUserSessionWithSessionToken(sessionToken)
-
-    if(userSession) {
-      userName = userSession.fullname
-      userId = userSession.internalUserId
-      meetingId = userSession.meetingID
-    } else {
-      //Usually the session was already removed when the user send the feedback
-      UserSessionBasicData removedUserSession = meetingService.getRemovedUserSessionWithSessionToken(sessionToken)
-      if(removedUserSession) {
-        userId = removedUserSession.userId
-        meetingId = removedUserSession.meetingId
-      }
-    }
-
-    if(userId == "") {
-      invalid("invalidSession", "Invalid Session")
-      return
-    }
-
-    response.contentType = 'application/json'
-    response.setStatus(200)
-    withFormat {
-      json {
-        def builder = new JsonBuilder()
-        builder {
-          "status" "ok"
-        }
-        render(contentType: "application/json", text: builder.toPrettyString())
-      }
-    }
-
-    def feedback = [
-            meetingId: meetingId,
-            userId: userId,
-            authToken: authToken,
-            userName: userName,
-            comment: comment,
-            rating: rating
-    ]
-
-    log.info("FEEDBACK LOG: ${feedback}")
-  }
-
 
   /***********************************************
    * LEARNING DASHBOARD DATA
@@ -1646,7 +1598,7 @@ class ApiController {
               uploadFailReasons,
               isDownloadable,
               isRemovable,
-              isDefaultPresentation
+              isDefaultPresentation,
       )
     } else {
       org.bigbluebutton.presentation.Util.deleteDirectoryFromFileHandlingErrors(pres)
@@ -1733,7 +1685,7 @@ class ApiController {
               uploadFailReasons,
               isDownloadable,
               isRemovable,
-              isDefaultPresentation
+              isDefaultPresentation,
       )
     } else {
       org.bigbluebutton.presentation.Util.deleteDirectoryFromFileHandlingErrors(pres)
@@ -1875,6 +1827,8 @@ class ApiController {
     Boolean reenter = meeting.getEnteredUserById(us.internalUserId) != null;
     // User are able to rejoin if he already joined previously with the same extId
     Boolean userExtIdAlreadyJoined = meeting.getUsersWithExtId(us.externUserID).size() > 0
+    // Bot users should not be affected by max partiicpants limitation
+    Boolean isBot = us.bot
     // Users that already joined the meeting
     // It will count only unique users in order to avoid the same user from filling all slots
     int joinedUniqueUsers = meeting.countUniqueExtIds()
@@ -1884,7 +1838,7 @@ class ApiController {
     log.info("Entered users - ${enteredUsers}. Joined users - ${joinedUniqueUsers}")
 
     Boolean reachedMax = joinedUniqueUsers >= maxParticipants;
-    if (enabled && !rejoin && !reenter && !userExtIdAlreadyJoined && reachedMax) {
+    if (enabled && !rejoin && !reenter && !userExtIdAlreadyJoined && reachedMax && !isBot) {
       return true;
     }
 
@@ -1977,24 +1931,39 @@ class ApiController {
     }
   }
 
+  private String subLogoutParams(logoutUrl, meetingID, userID, fullName) {
+    String newURL = logoutUrl;
+    String userName = fullName != null ? validationService.encodeString(fullName) : "";
+
+    newURL = newURL.replace('%%MEETINGID%%', meetingID != null ? meetingID : "");
+    newURL = newURL.replace('%%USERID%%', userID != null ? userID : "");
+    newURL = newURL.replace('%%USERNAME%%', userName);
+
+    return newURL;
+  }
+
   private void respondWithRedirect(errorsJSONArray, redirectUrl = "") {
-    String logoutUrl = paramsProcessorUtil.getDefaultLogoutUrl()
-    URI oldUri = URI.create(logoutUrl)
+    String uriString = paramsProcessorUtil.getDefaultLogoutUrl();
 
     if (!StringUtils.isEmpty(params.logoutURL)) {
       try {
-        oldUri = URI.create(params.logoutURL)
+        uriString = params.logoutURL;
       } catch (Exception e) {
         // Do nothing, the variable oldUri was already initialized
       }
     }
 
+    // If logoutUrl strings get here with %%FIELDS%% we don't
+    // have enough info to construct them, so just clear the fields
+    uriString = subLogoutParams(uriString, "", "", "");
+
     if(!StringUtils.isEmpty(redirectUrl)) {
       try {
-        oldUri = URI.create(redirectUrl)
+        uriString = redirectUrl;
       } catch(Exception ignored) {}
     }
 
+    URI oldUri = URI.create(uriString);
     String newQuery = oldUri.getQuery();
 
     if (newQuery == null) {
@@ -2017,17 +1986,6 @@ class ApiController {
     if(!violations.isEmpty()) {
       for (Map.Entry<String, String> violation: violations.entrySet()) {
         log.error violation.getValue()
-      }
-
-      if(apiCall == ValidationService.ApiCall.ENTER) {
-        //Check if error exist following an order (to avoid showing guestDeny when the meeting doesn't even exist)
-        String[] enterConstraintsKeys = new String[] {"missingSession","meetingForciblyEnded","notFound","guestDeny"}
-        for (String constraintKey : enterConstraintsKeys) {
-          if(violations.containsKey(constraintKey)) {
-            response = new AbstractMap.SimpleEntry<String, String>(constraintKey, violations.get(constraintKey))
-            break
-          }
-        }
       }
 
       if(response == null) {

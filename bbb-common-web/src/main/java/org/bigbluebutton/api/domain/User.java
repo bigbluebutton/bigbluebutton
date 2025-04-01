@@ -32,7 +32,9 @@ public class User {
 	private String role;
 	private Boolean locked;
 	private String avatarURL;
+	private String webcamBackgroundURL;
 	private Map<String,String> status;
+	private Boolean bot;
 	private Boolean guest;
 	private String  guestStatus;
 	private Boolean listeningOnly = false;
@@ -47,6 +49,8 @@ public class User {
 							String role,
 							Boolean locked,
 							String avatarURL,
+							String webcamBackgroundURL,
+							Boolean bot,
 							Boolean guest,
 							String  guestStatus,
 							String clientType) {
@@ -56,6 +60,8 @@ public class User {
 		this.role = role;
 		this.locked = locked;
 		this.avatarURL = avatarURL;
+		this.webcamBackgroundURL = webcamBackgroundURL;
+		this.bot = bot;
 		this.guest = guest;
 		this.guestStatus = guestStatus;
 		this.status = new ConcurrentHashMap<>();
@@ -76,6 +82,14 @@ public class User {
 	
 	public void setExternalUserId(String externalUserId){
 		this.externalUserId = externalUserId;
+	}
+
+	public void setBot(Boolean bot) {
+		this.bot = bot;
+	}
+
+	public Boolean isBot() {
+		return this.bot;
 	}
 
 	public void setGuest(Boolean guest) {
@@ -132,6 +146,14 @@ public class User {
 
 	public void setAvatarUrl(String avatarURL) {
 		this.avatarURL = avatarURL;
+	}
+
+	public String getWebcamBackgroundUrl() {
+		return webcamBackgroundURL;
+	}
+
+	public void setWebcamBackgroundUrl(String webcamBackgroundURL) {
+		this.webcamBackgroundURL = webcamBackgroundURL;
 	}
 
 	public boolean isModerator() {

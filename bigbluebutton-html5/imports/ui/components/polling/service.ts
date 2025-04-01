@@ -9,7 +9,7 @@ const playAlert = () => {
   const APP_CONFIG = window.meetingClientSettings.public.app;
 
   return AudioService.playAlertSound(
-    `${APP_CONFIG.cdn + APP_CONFIG.basename + APP_CONFIG.instanceId}/resources/sounds/Poll.mp3`,
+    `${APP_CONFIG.cdn + APP_CONFIG.basename}/resources/sounds/Poll.mp3`,
   );
 };
 

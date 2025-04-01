@@ -66,10 +66,11 @@ dependencies {
 
   implementation "org.grails:grails-web-boot:5.2.5"
   implementation "org.springframework:spring-webmvc:5.3.31"
+  implementation 'org.apache.commons:commons-compress:1.27.0'
 
   implementation "org.grails:grails-logging"
   implementation "org.grails:grails-plugin-rest:5.2.5"
-  implementation "org.grails:grails-plugin-databinding:5.2.4"
+  implementation "org.grails:grails-plugin-databinding:5.3.4"
   implementation "org.grails:grails-plugin-i18n"
   implementation "org.grails:grails-plugin-services"
   implementation "org.grails:grails-plugin-url-mappings"
@@ -119,6 +120,13 @@ dependencies {
   testImplementation "com.github.javafaker:javafaker:0.12"
 }
 
+configurations.all {
+  resolutionStrategy {
+    dependencySubstitution {
+      substitute module('org.apache.commons:commons-lang3') using module('org.apache.commons:commons-lang3:3.17.0') because 'commons-compress requires this version'
+    }
+  }
+}
 tasks.named('bootWarMainClassName') {
     it.mustRunAfter(tasks.named('compileGsonViews'))
 }

@@ -41,6 +41,7 @@ public class SlidesGenerationProgressNotifier {
 
   public void sendUploadFileTooLargeMessage(PresentationUploadToken pres, int uploadedFileSize, int maxUploadFileSize) {
     UploadFileTooLargeMessage progress = new UploadFileTooLargeMessage(
+            pres.presentationId,
             pres.podId,
             pres.meetingId,
             pres.filename,
@@ -73,6 +74,30 @@ public class SlidesGenerationProgressNotifier {
             ConversionMessageConstants.CONVERSION_TIMEOUT_KEY,
             page, pres.getTemporaryPresentationId(), pres.getId(), maxNumberOfAttempts);
     messagingService.sendDocConversionMsg(errorMessage);
+  }
+
+  public void sendUploadFileVirus(UploadedPresentation pres) {
+    UploadFileVirusMessage message = new UploadFileVirusMessage(
+            pres.getPodId(),
+            pres.getMeetingId(),
+            pres.getName(),
+            ConversionMessageConstants.FILE_VIRUS_KEY,
+            pres.getTemporaryPresentationId(),
+            pres.getId()
+    );
+    messagingService.sendDocConversionMsg(message);
+  }
+
+  public void sendUploadFileScanFailed(UploadedPresentation pres) {
+    UploadFileScanFailedMessage message = new UploadFileScanFailedMessage(
+            pres.getPodId(),
+            pres.getMeetingId(),
+            pres.getName(),
+            ConversionMessageConstants.SCAN_FAILED_KEY,
+            pres.getTemporaryPresentationId(),
+            pres.getId()
+    );
+    messagingService.sendDocConversionMsg(message);
   }
 
   public void sendConversionUpdateMessage(int slidesCompleted, UploadedPresentation pres, int pageGenerated) {

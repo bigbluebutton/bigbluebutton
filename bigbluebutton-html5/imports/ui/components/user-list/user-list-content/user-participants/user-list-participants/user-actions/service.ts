@@ -4,9 +4,10 @@ import {
   UsersPolicies,
 } from '/imports/ui/Types/meeting';
 import Auth from '/imports/ui/services/auth';
-import { EMOJI_STATUSES } from '/imports/utils/statuses';
 import logger from '/imports/startup/client/logger';
 import { toggleMuteMicrophone } from '/imports/ui/components/audio/audio-graphql/audio-controls/input-stream-live-selector/service';
+import { useIsPrivateChatEnabled } from '/imports/ui/services/features';
+import getFromUserSettings from '/imports/ui/services/users-settings';
 
 export const isVoiceOnlyUser = (userId: string) => userId.toString().startsWith('v_');
 
@@ -18,6 +19,7 @@ export const generateActionsPermissions = (
   lockSettings: LockSettings,
   usersPolicies: UsersPolicies,
   isBreakout: boolean,
+  isMuted: boolean,
 ) => {
   const subjectUserVoice = subjectUser.voice;
 
@@ -25,28 +27,27 @@ export const generateActionsPermissions = (
   const isDialInUser = isVoiceOnlyUser(subjectUser.userId);
   const amISubjectUser = isMe(subjectUser.userId);
   const isSubjectUserModerator = subjectUser.isModerator;
+  // Breakout rooms mess up with role permissions
+  // A breakout room user that has a moderator role in it's parent room
+  const parentRoomModerator = getFromUserSettings('bbb_parent_room_moderator', false);
   const isSubjectUserGuest = subjectUser.guest;
   const hasAuthority = currentUser.isModerator || amISubjectUser;
-  const allowedToChatPrivately = !amISubjectUser && !isDialInUser;
+  const allowedToChatPrivately = !amISubjectUser && !isDialInUser && useIsPrivateChatEnabled();
   const allowedToMuteAudio = hasAuthority
     && subjectUserVoice?.joined
-    && !subjectUserVoice?.muted
+    && !isMuted
     && !subjectUserVoice?.listenOnly;
 
   const allowedToUnmuteAudio = hasAuthority
     && subjectUserVoice?.joined
     && !subjectUserVoice.listenOnly
-    && subjectUserVoice.muted
+    && isMuted
     && (amISubjectUser || usersPolicies?.allowModsToUnmuteUsers);
-
-  const allowedToResetStatus = hasAuthority
-    && subjectUser.emoji !== EMOJI_STATUSES.none
-    && !isDialInUser;
 
   // if currentUser is a moderator, allow removing other users
   const allowedToRemove = amIModerator
     && !amISubjectUser
-    && !isBreakout;
+    && (!isBreakout || parentRoomModerator);
 
   const allowedToPromote = amIModerator
     && !amISubjectUser
@@ -81,7 +82,6 @@ export const generateActionsPermissions = (
     allowedToChatPrivately,
     allowedToMuteAudio,
     allowedToUnmuteAudio,
-    allowedToResetStatus,
     allowedToRemove,
     allowedToSetPresenter,
     allowedToPromote,

@@ -124,7 +124,7 @@ const UserAvatar = styled.div<UserAvatarProps>`
   `}
   // ================ image ================
   // ================ content ================
-  color: ${colorWhite};
+  color: ${colorWhite} !important;
   font-size: 110%;
   text-transform: capitalize;
   display: flex;

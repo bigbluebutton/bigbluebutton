@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 #Publish new common-message .jar
 sbt clean

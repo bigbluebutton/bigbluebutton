@@ -15,7 +15,7 @@ public interface IMeetingService {
   void addUserSession(String token, UserSession user);
   void registerUser(String meetingID, String internalUserId,
                     String fullname, String role, String externUserID,
-                    String authToken, String avatarURL, Boolean guest, Boolean authed);
+                    String authToken, String avatarURL, String webcamBackgroundURL, Boolean guest, Boolean authed);
   UserSession getUserSession(String token);
   UserSession removeUserSession(String token);
   void purgeRegisteredUsers();

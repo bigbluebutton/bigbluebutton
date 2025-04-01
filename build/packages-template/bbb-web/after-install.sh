@@ -31,14 +31,6 @@ bbb_config() {
      $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties
 
 	#
-	# XXX
-	if id meteor > /dev/null 2>&1 ; then
-		if [ -d /var/log/bigbluebutton/html5 ]; then
-			chown -R meteor:meteor /var/log/bigbluebutton/html5
-		fi
-	fi
-
-	#
 	# Update the placementsThreshold and imageTagThreshold
 	sed -i 's/placementsThreshold=8000/placementsThreshold=800/g' $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties
 	sed -i 's/imageTagThreshold=8000/imageTagThreshold=800/g'     $SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties

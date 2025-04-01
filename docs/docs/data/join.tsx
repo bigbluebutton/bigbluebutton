@@ -17,7 +17,13 @@ const joinEndpointTableData = [
     "name": "password",
     "required": true,
     "type": "String",
-    "description": (<><b>[DEPRECATED]</b> This password value is used to determine the role of the user based on whether it matches the moderator or attendee password.  Note: This parameter is <b>not</b> required when the role parameter is passed.</>)
+    deprecated: true,
+    "description": (
+      <>
+        <p>This password value is used to determine the role of the user. It must match either the moderator or attendee password.</p>
+        <p><i>Deprecated:</i> Use the <code>role</code> parameter instead to directly set the user's role. If the <code>role</code> parameter is passed, then the <code>password</code> parameter is not required.</p>
+      </>
+    )
   },
   {
     "name": "role",
@@ -50,6 +56,30 @@ const joinEndpointTableData = [
     "description": (<>The link for the user’s avatar to be displayed (default can be enabled/disabled and set with “useDefaultAvatar“ and “defaultAvatarURL“ in bbb-web.properties).</>)
   },
   {
+    "name": "firstName",
+    "required": false,
+    "type": "String",
+    "description": (<>The user's first name portion of "fullname". It is used for sorting purposes; it will not be displayed in the user list. This property is useful if the "fullname" is comprised of several words or if there are title/role/credentials which should be ignored when sorting.</>)
+  },
+  {
+    "name": "lastName",
+    "required": false,
+    "type": "String",
+    "description": (<>The user's last name portion of "fullname". It is used for sorting purposes; it will not be displayed in the user list. This property is useful if the "fullname" is comprised of several words or if there are title/role/credentials which should be ignored when sorting.</>)
+  },
+  {
+    "name": "webcamBackgroundURL",
+    "required": false,
+    "type": "String",
+    "description": (
+      <>
+        <p>The URL of an image to use as the user's webcam background.</p>
+        <p>Server-wide defaults can be enabled/disabled and set with <code>useDefaultWebcamBackground</code> and <code>defaultWebcamBackgroundURL</code> in <code>bigbluebutton.properties</code>.</p>
+        <p><i>Added:</i> 2.7.10</p>
+      </>
+    )
+  },
+  {
     "name": "redirect",
     "required": false,
     "type": "String",
@@ -62,17 +92,22 @@ const joinEndpointTableData = [
     "description": (<>A custom URL to redirect users to when an error occurs while joining. By default users are redirected to the meeting's default logout URL.</>)
   },
   {
-    "name": "joinViaHtml5",
+    "name": "logoutURL",
     "required": false,
     "type": "String",
-    "description": (<><b>[DEPRECATED]</b>Set to “true” to force the HTML5 client to load for the user. (removed in 2.3 since HTML5 is the only client)</>),
-    "deprecated": true
+    "description": (<>A custom URL to redirect client when the user click on OK button in the meeting ended screen. By default users are redirected to the meeting's default logout URL.</>)
   },
   {
     "name": "guest",
     "required": false,
     "type": "String",
     "description": (<>Set to “true” to indicate that the user is a guest, otherwise do NOT send this parameter.</>)
+  },
+  {
+    "name": "bot",
+    "required": false,
+    "type": "String",
+    "description": (<>Set to “true” to indicate that the user is a bot or an automated agent, otherwise do NOT send this parameter.</>)
   },
   {
     "name": "excludeFromDashboard",
@@ -83,7 +118,7 @@ const joinEndpointTableData = [
     "name": "enforceLayout",
     "required": false,
     "type": "String",
-    "description": (<>If passed it overrides the value of `meetingLayout` passed on CREATE or the value of `defaultMeetingLayout` read from configuration. Accepted values are the standard layouts: CUSTOM_LAYOUT, SMART_LAYOUT, PRESENTATION_FOCUS, VIDEO_FOCUS, but also several layouts which are not meant to be selectable via UI: CAMERAS_ONLY, PARTICIPANTS_CHAT_ONLY, PRESENTATION_ONLY. Added in BBB 3.0</>)
+    "description": (<>If passed it overrides the value of `meetingLayout` passed on CREATE or the value of `defaultMeetingLayout` read from configuration. Accepted values are the standard layouts: CUSTOM_LAYOUT, SMART_LAYOUT, PRESENTATION_FOCUS, VIDEO_FOCUS, but also several layouts which are not meant to be selectable via UI: CAMERAS_ONLY, PARTICIPANTS_CHAT_ONLY, PRESENTATION_ONLY, MEDIA_ONLY. Added in BBB 3.0</>)
   }
 ];
 

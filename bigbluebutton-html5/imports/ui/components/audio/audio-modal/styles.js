@@ -63,6 +63,14 @@ const Connecting = styled.div`
   margin-top: auto;
   margin-bottom: auto;
   font-size: 2rem;
+  text-align: center;
+`;
+
+const ConnectingSubtext = styled.p`
+  margin-top: 0.5rem;
+  margin-bottom: 0;
+  font-size: 1.5rem;
+  text-align: center;
 `;
 
 const ellipsis = keyframes`
@@ -138,12 +146,27 @@ const Content = styled.div`
   }
 `;
 
+const Background = styled.span`
+  ${({ isBlurred }) => isBlurred
+    && css`
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    backdrop-filter: blur(10px);
+    z-index: 998;
+    `}
+`;
+
 export default {
   AudioOptions,
   AudioModalButton,
   AudioDial,
+  Background,
   Connecting,
   ConnectingAnimation,
+  ConnectingSubtext,
   AudioModal,
   BrowserWarning,
   Content,

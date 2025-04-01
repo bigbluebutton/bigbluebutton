@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
-import { SubscribedEventDetails, UpdatedEventDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
+import { UpdatedEventDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
 import {
   HookEvents,
 } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/enum';
@@ -11,17 +11,17 @@ import formatCurrentUserResponseFromGraphql from './utils';
 import { User } from '/imports/ui/Types/user';
 import { GeneralHookManagerProps } from '../../../types';
 import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
+import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 
 const CurrentUserHookContainer: React.FunctionComponent<
   GeneralHookManagerProps<GraphqlDataHookSubscriptionResponse<Partial<User>>>
 > = (
   props: GeneralHookManagerProps<GraphqlDataHookSubscriptionResponse<Partial<User>>>,
 ) => {
-  const [sendSignal, setSendSignal] = useState(false);
   const previousCurrentUser = useRef<GraphqlDataHookSubscriptionResponse<Partial<User>> | null>(null);
 
-  const { data: currentUser } = props;
-
+  const { data: currentUser, numberOfUses } = props;
+  const previousNumberOfUses = usePreviousValue(numberOfUses);
   const updateUserForPlugin = () => {
     const currentUserProjection: PluginSdk.GraphqlResponseWrapper<
     PluginSdk.CurrentUserData> = formatCurrentUserResponseFromGraphql(
@@ -29,7 +29,7 @@ const CurrentUserHookContainer: React.FunctionComponent<
     );
     window.dispatchEvent(
       new CustomEvent<UpdatedEventDetails<PluginSdk.GraphqlResponseWrapper<PluginSdk.CurrentUserData>>>(
-        HookEvents.UPDATED,
+        HookEvents.BBB_CORE_SENT_NEW_DATA,
         {
           detail: {
             data: currentUserProjection,
@@ -46,21 +46,11 @@ const CurrentUserHookContainer: React.FunctionComponent<
     }
   }, [currentUser]);
   useEffect(() => {
-    updateUserForPlugin();
-  }, [sendSignal]);
-  useEffect(() => {
-    const updateHookUseCurrentUser = ((event: CustomEvent<SubscribedEventDetails>) => {
-      if (event.detail.hook === DataConsumptionHooks.CURRENT_USER) setSendSignal((signal) => !signal);
-    }) as EventListener;
-    window.addEventListener(
-      HookEvents.SUBSCRIBED, updateHookUseCurrentUser,
-    );
-    return () => {
-      window.removeEventListener(
-        HookEvents.SUBSCRIBED, updateHookUseCurrentUser,
-      );
-    };
-  }, []);
+    const previousNumberOfUsesValue = previousNumberOfUses || 0;
+    if (numberOfUses > previousNumberOfUsesValue) {
+      updateUserForPlugin();
+    }
+  }, [numberOfUses]);
 
   return null;
 };

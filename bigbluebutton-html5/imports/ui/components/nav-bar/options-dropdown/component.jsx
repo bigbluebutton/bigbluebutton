@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import EndMeetingConfirmationContainer from '/imports/ui/components/end-meeting-confirmation/container';
 import AboutContainer from '/imports/ui/components/about/container';
 import MobileAppModal from '/imports/ui/components/mobile-app-modal/mobile-app-modal-graphql/component';
+import LayoutModalContainer from '/imports/ui/components/layout/modal/container';
 import OptionsMenuContainer from '/imports/ui/components/settings/container';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import ShortcutHelpComponent from '/imports/ui/components/shortcut-help/component';
@@ -14,6 +15,9 @@ import Styled from './styles';
 import browserInfo from '/imports/utils/browserInfo';
 import deviceInfo from '/imports/utils/deviceInfo';
 import Session from '/imports/ui/services/storage/in-memory';
+import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
+import Toggle from '/imports/ui/components/common/switch/component';
 
 const intlMessages = defineMessages({
   optionsLabel: {
@@ -96,6 +100,22 @@ const intlMessages = defineMessages({
     id: 'app.audio.captions.button.stop',
     description: 'Stop audio captions',
   },
+  layoutModal: {
+    id: 'app.actionsBar.actionsDropdown.layoutModal',
+    description: 'Label for layouts selection button',
+  },
+  awayLabel: {
+    id: 'app.actionsBar.reactions.away',
+    description: 'Away Label',
+  },
+  availableLabel: {
+    id: 'app.actionsBar.reactions.available',
+    description: 'Available Label',
+  },
+  presenceLabel: {
+    id: 'app.navBar.optionsDropdown.presenceLabel',
+    description: 'Presence Label',
+  },
 });
 
 const propTypes = {
@@ -144,6 +164,7 @@ class OptionsDropdown extends PureComponent {
       isEndMeetingConfirmationModalOpen: false,
       isMobileAppModalOpen: false,
       isFullscreen: false,
+      isLayoutModalOpen: false,
     };
 
     // Set the logout code to 680 because it's not a real code and can be matched on the other side
@@ -156,6 +177,7 @@ class OptionsDropdown extends PureComponent {
     this.setMobileAppModalIsOpen = this.setMobileAppModalIsOpen.bind(this);
     this.setAboutModalIsOpen = this.setAboutModalIsOpen.bind(this);
     this.setShortcutHelpModalIsOpen = this.setShortcutHelpModalIsOpen.bind(this);
+    this.setLayoutModalIsOpen = this.setLayoutModalIsOpen.bind(this);
   }
 
   componentDidMount() {
@@ -203,7 +225,7 @@ class OptionsDropdown extends PureComponent {
           icon: fullscreenIcon,
           label: fullscreenLabel,
           description: fullscreenDesc,
-          onClick: handleToggleFullscreen,
+          onClick: () => handleToggleFullscreen(),
         },
       )
     );
@@ -213,8 +235,6 @@ class OptionsDropdown extends PureComponent {
     const { userLeaveMeeting } = this.props;
     
     userLeaveMeeting();
-    // we don't check askForFeedbackOnLogout here,
-    // it is checked in meeting-ended component
     Session.setItem('codeError', this.LOGOUT_CODE);
   }
 
@@ -238,10 +258,15 @@ class OptionsDropdown extends PureComponent {
     this.setState({isMobileAppModalOpen: value})
   }
 
+  setLayoutModalIsOpen(value) {
+    this.setState({ isLayoutModalOpen: value });
+  }
+
   renderMenuItems() {
     const {
       intl, amIModerator, isBreakoutRoom, isMeteorConnected, audioCaptionsEnabled,
-      audioCaptionsActive, audioCaptionsSet, isMobile, optionsDropdownItems, isDirectLeaveButtonEnabled,
+      audioCaptionsActive, audioCaptionsSet, isMobile, optionsDropdownItems,
+      isDirectLeaveButtonEnabled, isLayoutsEnabled, away, handleToggleAFK,
     } = this.props;
 
     const { isIos } = deviceInfo;
@@ -255,6 +280,40 @@ class OptionsDropdown extends PureComponent {
     } = window.meetingClientSettings.public.app;
 
     this.menuItems = [];
+
+    const actionCustomStyles = {
+      paddingLeft: 0,
+      paddingRight: 0,
+      paddingTop: isMobile ? '0' : '0.5rem',
+      paddingBottom: isMobile ? '0' : '0.5rem',
+    };
+
+    const ToggleAFKLabel = () => (away
+      ? intl.formatMessage(intlMessages.awayLabel)
+      : intl.formatMessage(intlMessages.availableLabel));
+
+    this.menuItems.push({
+      label: (
+        <Styled.AwayOption>
+          <span>{intl.formatMessage(intlMessages.presenceLabel)} <b>{ToggleAFKLabel()}</b></span>
+          <Styled.ToggleButtonWrapper>
+            <Toggle
+              icons={false}
+              checked={!away}
+              onChange={handleToggleAFK}
+              ariaLabel={ToggleAFKLabel()}
+              showToggleLabel={false}
+            />
+          </Styled.ToggleButtonWrapper>
+        </Styled.AwayOption>
+      ),
+      key: 'none',
+      isToggle: true,
+      customStyles: { ...actionCustomStyles, width: 'auto' },
+    }, {
+      key: 'separator-01',
+      isSeparator: true,
+    });
 
     this.getFullscreenItem(this.menuItems);
 
@@ -330,6 +389,24 @@ class OptionsDropdown extends PureComponent {
         onClick: () => this.setShortcutHelpModalIsOpen(true),
       },
     );
+
+    const Settings = getSettingsSingletonInstance();
+    const { selectedLayout } = Settings.application;
+    const shouldShowManageLayoutButton = selectedLayout !== LAYOUT_TYPE.CAMERAS_ONLY
+      && selectedLayout !== LAYOUT_TYPE.PRESENTATION_ONLY
+      && selectedLayout !== LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY;
+
+    if (shouldShowManageLayoutButton && isLayoutsEnabled) {
+      this.menuItems.push(
+        {
+          key: 'list-item-layout-modal',
+          icon: 'manage_layout',
+          label: intl.formatMessage(intlMessages.layoutModal),
+          onClick: () => this.setLayoutModalIsOpen(true),
+          dataTest: 'manageLayoutBtn',
+        },
+      );
+    }
 
     optionsDropdownItems.forEach((item) => {
       switch (item.type) {
@@ -409,8 +486,10 @@ class OptionsDropdown extends PureComponent {
       isRTL,
     } = this.props;
 
-    const { isAboutModalOpen, isShortcutHelpModalOpen, isOptionsMenuModalOpen,
-      isEndMeetingConfirmationModalOpen, isMobileAppModalOpen, } = this.state;
+    const {
+      isAboutModalOpen, isShortcutHelpModalOpen, isOptionsMenuModalOpen,
+      isEndMeetingConfirmationModalOpen, isMobileAppModalOpen, isLayoutModalOpen,
+    } = this.state;
 
     const customStyles = { top: '1rem' };
 
@@ -456,6 +535,13 @@ class OptionsDropdown extends PureComponent {
           "low", EndMeetingConfirmationContainer)}
         {this.renderModal(isMobileAppModalOpen, this.setMobileAppModalIsOpen, "low", 
           MobileAppModal)}
+        {this.renderModal(
+          isLayoutModalOpen,
+          this.setLayoutModalIsOpen,
+          'low',
+          LayoutModalContainer,
+        )}
+
       </>
     );
   }

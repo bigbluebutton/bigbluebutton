@@ -39,7 +39,7 @@ object ClientSettings extends SystemConfiguration {
         }
       )
 
-    //Remove `:private` once it's used only by Meteor internal configs
+    //Remove `:private` once it's used only by HTML5 client's internal configs
     clientSettingsFromFile -= "private"
   }
 

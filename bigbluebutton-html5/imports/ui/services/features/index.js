@@ -96,3 +96,42 @@ export function useIsCameraAsContentEnabled() {
     && window.meetingClientSettings.public.app.enableCameraAsContent
   );
 }
+
+export function useIsInfiniteWhiteboardEnabled() {
+  return (
+    useDisabledFeatures().indexOf('infiniteWhiteboard') === -1
+    && window.meetingClientSettings.public.whiteboard.allowInfiniteWhiteboard
+  );
+}
+
+export function useIsReplyChatMessageEnabled() {
+  return (
+    useDisabledFeatures().indexOf('replyChatMessage') === -1
+    && window.meetingClientSettings.public.chat.toolbar.includes('reply')
+  );
+}
+
+export function useIsDeleteChatMessageEnabled() {
+  return (
+    useDisabledFeatures().indexOf('deleteChatMessage') === -1
+    && window.meetingClientSettings.public.chat.toolbar.includes('delete')
+  );
+}
+
+export function useIsEditChatMessageEnabled() {
+  return (
+    useDisabledFeatures().indexOf('editChatMessage') === -1
+    && window.meetingClientSettings.public.chat.toolbar.includes('edit')
+  );
+}
+
+export function useIsChatMessageReactionsEnabled() {
+  return (
+    useDisabledFeatures().indexOf('chatMessageReactions') === -1
+    && window.meetingClientSettings.public.chat.toolbar.includes('reactions')
+  );
+}
+
+export function useIsPrivateChatEnabled() {
+  return useDisabledFeatures().indexOf('privateChat') === -1;
+}

@@ -25,6 +25,9 @@ public interface IBbbWebApiGWApp {
                      Integer meetingCameraCap,
                      Integer userCameraCap,
                      Integer maxPinnedCameras,
+                     String cameraBridge,
+                     String screenShareBridge,
+                     String audioBridge,
                      String moderatorPass,
                      String viewerPass,
                      String learningDashboardAccessToken,
@@ -61,6 +64,7 @@ public interface IBbbWebApiGWApp {
                      String loginUrl,
                      String logoutUrl,
                      String customLogoURL,
+                     String customDarkLogoURL,
                      String bannerText,
                      String bannerColor,
                      ArrayList<Group> groups,
@@ -68,12 +72,15 @@ public interface IBbbWebApiGWApp {
                      Boolean notifyRecordingIsOn,
                      String presentationUploadExternalDescription,
                      String presentationUploadExternalUrl,
+                     Map<String, Object> plugins,
                      String overrideClientSettings);
 
-  void registerUser(String meetingID, String internalUserId, String fullname, String role,
-                    String externUserID, String authToken, String sessionToken, String avatarURL,
-                    Boolean guest, Boolean authed, String guestStatus, Boolean excludeFromDashboard,
-                    String enforceLayout, Map<String, String> customParameters);
+  void registerUser(String meetingID, String internalUserId, String fullname, String firstName, String lastName, String role,
+                    String externUserID, String authToken, String sessionToken, String avatarURL, String webcamBackgroundURL,
+                    Boolean bot, Boolean guest, Boolean authed, String guestStatus, Boolean excludeFromDashboard,
+                    String enforceLayout, String logoutUrl, Map<String, String> userMetadata);
+  void registerUserSessionToken(String meetingID, String internalUserId, String sessionToken, String sessionName,
+                                String replaceSessionToken, String enforceLayout, Map<String, String> userSessionMetadata);
 
   void destroyMeeting(DestroyMeetingMessage msg);
   void endMeeting(EndMeetingMessage msg);

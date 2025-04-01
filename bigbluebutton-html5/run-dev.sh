@@ -1,25 +1,19 @@
 #!/usr/bin/env bash
-
-# Stopping services
-sudo systemctl stop bbb-html5 mongod
-
 cd "$(dirname "$0")"
 
-# Handling arguments
-for var in "$@"; do
-    if [[ $var == --reset ]]; then
-        echo "Performing Meteor reset..."
-        rm -rf node_modules
-        meteor reset
+for var in "$@"
+do
+    if [[ $var == --reset ]] ; then
+    	echo "Performing a full reset..."
+      rm -rf node_modules
     fi
 done
 
-# Installing dependencies if node_modules is not present
-if [ ! -d ./node_modules ]; then
-    meteor npm i
+if [ ! -d ./node_modules ] ; then
+	npm install
 fi
 
-# Run meteor in the foreground to keep the script running
-npm start
+sudo ln -sf /usr/share/bigbluebutton/nginx/bbb-html5.nginx.dev /usr/share/bigbluebutton/nginx/bbb-html5.nginx
+sudo systemctl restart nginx
 
-# If npm start exits, the script reaches this point and exits, triggering the cleanup trap
+npm start

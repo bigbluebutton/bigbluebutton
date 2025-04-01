@@ -16,6 +16,7 @@ export const Container = styled.span<ContainerProps>`
   position: absolute;
   pointer-events: inherit;
   background: var(--color-black);
+  overflow: hidden;
 
   ${({ isResizing }) => isResizing && `
     pointer-events: none;

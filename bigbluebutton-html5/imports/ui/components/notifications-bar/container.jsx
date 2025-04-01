@@ -10,71 +10,61 @@ import NotificationsBar from './component';
 import connectionStatus from '../../core/graphql/singletons/connectionStatus';
 import useMeeting from '../../core/hooks/useMeeting';
 
-// disconnected and trying to open a new connection
 const intlMessages = defineMessages({
-  failedMessage: {
-    id: 'app.failedMessage',
-    description: 'Notification for connecting to server problems',
+  connectionCode3001: {
+    id: 'app.notificationBar.connectionCode3001',
+    description: 'Closed connection alert',
   },
-  connectingMessage: {
-    id: 'app.connectingMessage',
-    description: 'Notification message for when client is connecting to server',
+  connectionCode3002: {
+    id: 'app.notificationBar.connectionCode3002',
+    description: 'Impossible connection alert',
   },
-  waitingMessage: {
-    id: 'app.waitingMessage',
-    description: 'Notification message for disconnection with reconnection counter',
+  connectionCode3003: {
+    id: 'app.notificationBar.connectionCode3003',
+    description: 'Unresponsive server alert',
   },
-  reconnectingMessage: {
-    id: 'app.reconnectingMessage',
-    description: 'Notification message for disconnection',
+  connectionCode3004: {
+    id: 'app.notificationBar.connectionCode3004',
+    description: 'Unstable connection alert',
   },
-  calculatingBreakoutTimeRemaining: {
-    id: 'app.calculatingBreakoutTimeRemaining',
-    description: 'Message that tells that the remaining time is being calculated',
+  connectionCode3005: {
+    id: 'app.notificationBar.connectionCode3005',
+    description: 'Slow data alert',
   },
-  alertMeetingEndsUnderMinutes: {
-    id: 'app.meeting.alertMeetingEndsUnderMinutes',
-    description: 'Alert that tells that the meeting ends under x minutes',
-  },
-  alertBreakoutEndsUnderMinutes: {
-    id: 'app.meeting.alertBreakoutEndsUnderMinutes',
-    description: 'Alert that tells that the breakout ends under x minutes',
-  },
-  serverIsNotResponding: {
-    id: 'app.serverIsNotResponding',
-    description: 'Alert that tells that server is not responding',
-  },
-  serverIsSlow: {
-    id: 'app.serverIsSlow',
-    description: 'Alert that tells that server is slow',
+  connectionCode3006: {
+    id: 'app.notificationBar.issueLoadingDataCode3006',
+    description: 'Subscription failed alert',
   },
 });
+
+const STATUS_CRITICAL = 'critical';
+const COLOR_PRIMARY = 'primary';
 
 const NotificationsBarContainer = () => {
   const data = {};
   data.alert = true;
-  data.color = 'primary';
+  data.color = COLOR_PRIMARY;
   const intl = useIntl();
+  const subscriptionFailed = useReactiveVar(connectionStatus.getSubscriptionFailedVar());
   const connected = useReactiveVar(connectionStatus.getConnectedStatusVar());
   const serverIsResponding = useReactiveVar(connectionStatus.getServerIsRespondingVar());
   const pingIsComing = useReactiveVar(connectionStatus.getPingIsComingVar());
   const lastRttRequestSuccess = useReactiveVar(connectionStatus.getLastRttRequestSuccessVar());
+  const rttStatus = useReactiveVar(connectionStatus.getRttStatusVar());
+  const isCritical = rttStatus === STATUS_CRITICAL;
   // if connection failed x attempts a error will be thrown
-  if (
-    !connected
-    || !serverIsResponding
-    || !pingIsComing
-  ) {
-    data.color = 'primary';
-    data.message = (
-      <>
-        {!connected && intl.formatMessage(intlMessages.reconnectingMessage)}
-        {(connected && !serverIsResponding && lastRttRequestSuccess)
-          && intl.formatMessage(intlMessages.serverIsNotResponding)}
-        {(connected && (!pingIsComing || !lastRttRequestSuccess))
-          && intl.formatMessage(intlMessages.serverIsSlow)}
-      </>
-    );
+  if (!connected) {
+    data.message = isCritical
+      ? intl.formatMessage(intlMessages.connectionCode3002)
+      : intl.formatMessage(intlMessages.connectionCode3001);
+  } else if (connected && !serverIsResponding) {
+    data.message = isCritical
+      ? intl.formatMessage(intlMessages.connectionCode3004)
+      : intl.formatMessage(intlMessages.connectionCode3003);
+  } else if (connected && serverIsResponding && !pingIsComing && lastRttRequestSuccess) {
+    data.message = intl.formatMessage(intlMessages.connectionCode3005);
+  } else if (connected && serverIsResponding && pingIsComing && subscriptionFailed) {
+    data.message = intl.formatMessage(intlMessages.connectionCode3006);
   }
 
   const { data: meeting } = useMeeting((m) => ({
@@ -119,7 +109,7 @@ const NotificationsBarContainer = () => {
   }
 
   return (
-    <NotificationsBar color={data.color}>
+    <NotificationsBar color={data.color} showReloadButton={subscriptionFailed}>
       {data.message}
     </NotificationsBar>
   );

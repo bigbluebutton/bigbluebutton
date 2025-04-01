@@ -1,6 +1,11 @@
 table:
   name: v_meeting_learningDashboard
   schema: public
+configuration:
+  column_config: {}
+  custom_column_names: {}
+  custom_name: meeting_learningDashboard
+  custom_root_fields: {}
 select_permissions:
   - role: bbb_client
     permission:
@@ -10,7 +15,7 @@ select_permissions:
         meetingId:
           _eq: X-Hasura-ModeratorInMeeting
     comment: ""
-  - role: not_joined_bbb_client
+  - role: bbb_client_not_in_meeting
     permission:
       columns:
         - learningDashboardAccessToken

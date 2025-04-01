@@ -18,6 +18,7 @@ select_permissions:
         - startedOn
         - stopwatch
         - time
+        - elapsed
       filter:
         meetingId:
           _eq: X-Hasura-MeetingId

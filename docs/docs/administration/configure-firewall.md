@@ -51,7 +51,7 @@ If you are using EC2, you should also assign your server an [Elastic IP address]
 
 ### Azure
 
-On Microsot Azure, when you create an instance you need to add the following inbound port rules to enable incoming connections on ports 80, 443, and UDP port range 16384-32768:
+On Microsoft Azure, when you create an instance you need to add the following inbound port rules to enable incoming connections on ports 80, 443, and UDP port range 16384-32768:
 
 ![Azure Cloud ](/img/azure-firewall.png?raw=true 'Azure 80, 443, and UDP 16384-32768')
 
@@ -167,55 +167,12 @@ Notice the `listenIps` key is an **array**. If you need mediasoup to work with *
 mediasoup:
   webrtc:
     listenIps:
+      - ip: 2001:db8::
       - ip: 0.0.0.0
         announcedIp: 192.0.2.0
-      - ip: 2001:db8::
 ```
 
 Restart BigBlueButton to apply the changes.
-
-### Updating Kurento
-
-#### Extra steps when server is behind NAT
-
-In BigBlueButton 2.4 or lower, the HTML5 client uses Kurento Media Server to send/receive WebRTC video streams. If you are installing on a BigBlueButton server behind a firewall that uses network address translation (NAT), you need to make sure Kurento has its external address properly configured.
-
-Keep in mind the following steps should already be done by bbb-install.
-
-To configure an appropriate external address in Kurento, you need to edit `/etc/kurento/modules/kurento/WebRtcEndpoint.conf.ini` and uncomment and assign values for `externalIPv4`. Here's the relevant section in the default configuration.
-
-```ini
-# cat /etc/kurento/modules/kurento/WebRtcEndpoint.conf.ini
-[...]
-;; External IPv4 and IPv6 addresses of the media server.
-;;
-;; Forces all local IPv4 and/or IPv6 ICE candidates to have the given address.
-;; This is really nothing more than a hack, but it's very effective to force a
-;; public IP address when one is known in advance for the media server. In doing
-;; so, KMS will not need a STUN or TURN server, but remote peers will still be
-;; able to contact it.
-;;
-;; You can try using these settings if KMS is deployed on a publicly accessible
-;; server, without NAT, and with a static public IP address. But if it doesn't
-;; work for you, just go back to configuring a STUN or TURN server for ICE.
-;;
-;; Only set this parameter if you know what you're doing, and you understand
-;; 100% WHY you need it. For the majority of cases, you should just prefer to
-;; configure a STUN or TURN server.
-;;
-;; <externalIPv4> is a single IPv4 address.
-;; <externalIPv6> is a single IPv6 address.
-;;
-;externalIPv4=198.51.100.1
-;externalIPv6=2001:0db8:85a3:0000:0000:8a2e:0370:7334
-[...]
-```
-
-For example, in a BigBlueButton server with a public IPv4 address of 192.0.2.0, edit the line with `externalIPv4` as follows:
-
-```ini
-externalIPv4=192.0.2.0
-```
 
 ### Update FreeSWITCH
 
@@ -302,8 +259,6 @@ freeswitch:
 If your running 2.2.29 or later, the value of `sip_ip` depends on whether you have `sipjsHackViaWs`
 set to true or false in `/etc/bigbluebutton/bbb-html5.yml`.
 
-You also need to [setup Kurento to use a STUN server](#extra-steps-when-server-is-behind-nat).
-
 After making the above changes, restart BigBlueButton.
 
 ```bash
@@ -344,7 +299,7 @@ Mar 03 23:13:07 t4 freeswitch[19349]: FreeSWITCH[19349] System Ready pid:19361
 Mar 03 23:13:07 t4 systemd[1]: Started freeswitch.
 ```
 
-You should see `active (running)`. If FreeSWITCH is not running, you can check it's output log for clues on why it's not running `journalctl -u freeswitch.service`. If you continue to see the Error 1002, check the diagnostic stops below, under [Configure a dummy NIC](#configure-a-dummy-nic-if-required).
+You should see `active (running)`. If FreeSWITCH is not running, you can check its output log for clues on why it is not running `journalctl -u freeswitch.service`. If you continue to see the Error 1002, check the diagnostic stops below, under [Configure a dummy NIC](#configure-a-dummy-nic-if-required).
 
 For Error 1007, it means that the web socket connect was successful (FreeSWITCH is running and received the request from the browser to setup a media path), but none of the IP/Port combinations returned by FreeSWITCH enabled the browser to connect and start transmitting media. To diagnose this error, open `about:webrtc` in FireFox and click ‘show details’ for the most recent connection. Look under the column Remote Candidate and check if you see the internal IP address of the BigBlueButton server. If so, you probably have a misconfiguration in the FreeSWITCH settings. Re-check against the examples shown above.
 

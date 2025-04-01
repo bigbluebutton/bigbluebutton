@@ -21,6 +21,18 @@ const intlMessages = defineMessages({
     id: 'app.chat.notAway',
     description: 'message when user is no longer away',
   },
+  deleteMessage: {
+    id: 'app.chat.deleteMessage',
+    description: '',
+  },
+  userIsPresenter: {
+    id: 'app.chat.isPresenter',
+    description: 'message when user is set presenter',
+  },
+  userIsPresenterSetBy: {
+    id: 'app.chat.isPresenterSetBy',
+    description: 'message when user is set presenter by someone else',
+  },
 });
 
 export const htmlDecode = (input: string) => {
@@ -30,15 +42,8 @@ export const htmlDecode = (input: string) => {
 
 export const generateExportedMessages = (
   messages: Array<Message>,
-  welcomeSettings: { welcomeMsg: string, welcomeMsgForModerators: string | null },
   intl: IntlShape,
 ): string => {
-  const welcomeMessage = htmlDecode(welcomeSettings.welcomeMsg);
-  const welcomeMsgForModerators = welcomeSettings.welcomeMsgForModerators
-      && htmlDecode(welcomeSettings.welcomeMsgForModerators);
-  const systemMessages = `${welcomeMessage ? `system: ${welcomeMessage}` : ''}\n 
-  ${welcomeMsgForModerators ? `system: ${welcomeMsgForModerators}` : ''}\n`;
-
   const text = messages.reduce((acc, message) => {
     const date = new Date(message.createdAt);
     const hour = date.getHours().toString().padStart(2, '0');
@@ -60,6 +65,14 @@ export const generateExportedMessages = (
         messageText = pollText.slice(0, -1);
         break;
       }
+      case ChatMessageType.USER_IS_PRESENTER_MSG: {
+        const { assignedBy } = JSON.parse(message.messageMetadata);
+
+        messageText = (assignedBy)
+          ? `${intl.formatMessage(intlMessages.userIsPresenterSetBy, { 0: message.senderName, 1: assignedBy })}`
+          : `${intl.formatMessage(intlMessages.userIsPresenter, { 0: message.senderName })}`;
+        break;
+      }
       case ChatMessageType.USER_AWAY_STATUS_MSG: {
         const { away } = JSON.parse(message.messageMetadata);
 
@@ -70,11 +83,13 @@ export const generateExportedMessages = (
       }
       case ChatMessageType.TEXT:
       default:
-        messageText = htmlDecode(message.message);
+        messageText = message.message
+          ? htmlDecode(message.message)
+          : intl.formatMessage(intlMessages.deleteMessage, { 0: message.deletedBy?.name });
         break;
     }
     return `${acc}${hourMin} ${userName}${messageText}\n`;
-  }, welcomeMessage ? systemMessages : '');
+  }, '');
   return text;
 };
 

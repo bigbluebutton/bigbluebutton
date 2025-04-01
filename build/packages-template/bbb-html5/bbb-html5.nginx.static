@@ -1,0 +1,13 @@
+# running in production (static assets)
+location /html5client {
+    gzip_static on;
+    alias /usr/share/bigbluebutton/html5-client/;
+    index index.html;
+    try_files $uri $uri/ =404;
+}
+
+location /html5client/locales {
+  alias /usr/share/bigbluebutton/html5-client/locales;
+  autoindex on;
+  autoindex_format json;
+}

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import ModalFullscreen from '/imports/ui/components/common/modal/fullscreen/component';
 import { defineMessages, injectIntl } from 'react-intl';
+import Langmap from 'langmap';
 import DataSaving from '/imports/ui/components/settings/submenus/data-saving/component';
 import Application from '/imports/ui/components/settings/submenus/application/component';
 import Notification from '/imports/ui/components/settings/submenus/notification/component';
@@ -106,6 +107,10 @@ const propTypes = {
     minUtteraceLength: PropTypes.number,
   }).isRequired,
   isGladiaEnabled: PropTypes.bool.isRequired,
+  fallbackLocales: PropTypes.objectOf(PropTypes.shape({
+    englishName: PropTypes.string.isRequired,
+    nativeName: PropTypes.string.isRequired,
+  })).isRequired,
 };
 
 class Settings extends Component {
@@ -142,10 +147,29 @@ class Settings extends Component {
   }
 
   componentDidMount() {
-    const { availableLocales } = this.props;
+    const { availableLocales, fallbackLocales } = this.props;
 
     availableLocales.then((locales) => {
-      this.setState({ allLocales: locales.filter((locale) => locale?.name !== 'index') });
+      const tempAggregateLocales = locales
+        .map((file) => file.name)
+        .map((file) => file.replace('.json', ''))
+        .map((file) => file.replace('_', '-'))
+        .map((locale) => {
+          const localeName = (Langmap[locale] || {}).nativeName
+            || (fallbackLocales[locale] || {}).nativeName
+            || locale;
+          return {
+            locale,
+            name: localeName,
+          };
+        })
+        .reverse()
+        .filter((item, index, self) => index === self.findIndex((i) => (
+          i.name === item.name
+        )))
+        .reverse();
+
+      this.setState({ allLocales: tempAggregateLocales });
     });
   }
 

@@ -13,11 +13,17 @@ const subHash = stringToHash(JSON.stringify({
 
 window.addEventListener('graphqlSubscription', (e) => {
   const { subscriptionHash, response } = e.detail;
+  if (!response) return;
   if (subscriptionHash === subHash) {
     const { data } = response;
     if (data) {
       const { metadata = [], voiceSettings } = data.meeting[0];
-      settings(metadata);
+      // convert metadata format to { key: value }
+      const result = metadata.reduce((acc, item) => {
+        acc[item.name] = item.value;
+        return acc;
+      }, {});
+      settings(result);
       voiceConf(voiceSettings.voiceConf);
     }
   }

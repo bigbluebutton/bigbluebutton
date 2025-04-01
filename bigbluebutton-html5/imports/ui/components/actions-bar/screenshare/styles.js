@@ -4,10 +4,12 @@ import { colorGrayDark } from '/imports/ui/stylesheets/styled-components/palette
 import {
   jumboPaddingY,
   minModalHeight,
-  headingsFontWeight,
   mdPaddingX,
 } from '/imports/ui/stylesheets/styled-components/general';
-import { fontSizeLarge } from '/imports/ui/stylesheets/styled-components/typography';
+import {
+  fontSizeLarge,
+  headingsFontWeight,
+} from '/imports/ui/stylesheets/styled-components/typography';
 
 const ScreenShareModal = styled(ModalSimple)`
   padding: ${jumboPaddingY};
@@ -23,7 +25,21 @@ const Title = styled.h3`
   padding-bottom: ${mdPaddingX};
 `;
 
+const Container = styled.span`
+  display: flex;
+  flex-flow: row;
+  position: relative;
+
+  & > div {
+    position: relative;
+  }
+
+  & > :last-child {
+    margin-right: 0;
+  }
+`;
 export default {
   ScreenShareModal,
   Title,
+  Container,
 };

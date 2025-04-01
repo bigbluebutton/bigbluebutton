@@ -10,7 +10,6 @@ import {
 } from '/imports/ui/components/layout/enums';
 import { defaultsDeep } from '/imports/utils/array-utils';
 import Session from '/imports/ui/services/storage/in-memory';
-import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 
 const windowWidth = () => window.document.documentElement.clientWidth;
 const windowHeight = () => window.document.documentElement.clientHeight;
@@ -28,8 +27,7 @@ const ParticipantsAndChatOnlyLayout = (props) => {
 
   const input = layoutSelect((i) => i.input);
   const deviceType = layoutSelect((i) => i.deviceType);
-  const Settings = getSettingsSingletonInstance();
-  const { isRTL } = Settings.application;
+  const isRTL = layoutSelect((i) => i.isRTL);
   const fullscreen = layoutSelect((i) => i.fullscreen);
   const fontSize = layoutSelect((i) => i.fontSize);
   const currentPanelType = layoutSelect((i) => i.currentPanelType);
@@ -379,52 +377,57 @@ const ParticipantsAndChatOnlyLayout = (props) => {
   }, []);
 
   const init = () => {
-    const { sidebarContentPanel } = sidebarContentInput;
+    const hasLayoutEngineLoadedOnce = Session.getItem('hasLayoutEngineLoadedOnce');
     layoutContextDispatch({
       type: ACTIONS.SET_LAYOUT_INPUT,
-      value: defaultsDeep(
-        {
-          sidebarNavigation: {
-            isOpen:
-              input.sidebarNavigation.isOpen || sidebarContentPanel !== PANELS.NONE || false,
-          },
-          sidebarContent: {
-            isOpen: sidebarContentPanel !== PANELS.NONE,
-            sidebarContentPanel,
-          },
-          SidebarContentHorizontalResizer: {
-            isOpen: false,
-          },
-          presentation: {
-            isOpen: false,
-            slidesLength: presentationInput.slidesLength,
-            currentSlide: {
-              ...presentationInput.currentSlide,
+      value: (prevInput) => {
+        const { sidebarContent, presentation } = prevInput;
+        const { sidebarContentPanel } = sidebarContent;
+        const sidebarContentPanelOverride = sidebarContentPanel === PANELS.NONE
+          ? PANELS.CHAT : sidebarContentPanel;
+        return defaultsDeep(
+          {
+            sidebarNavigation: {
+              isOpen: true,
             },
-            width: 0,
-            height: 0,
+            sidebarContent: {
+              isOpen: true,
+              sidebarContentPanel: sidebarContentPanelOverride,
+            },
+            SidebarContentHorizontalResizer: {
+              isOpen: false,
+            },
+            presentation: {
+              isOpen: false,
+              slidesLength: presentation.slidesLength,
+              currentSlide: {
+                ...presentation.currentSlide,
+              },
+              width: 0,
+              height: 0,
+            },
+            cameraDock: {
+              numCameras: 0,
+            },
+            externalVideo: {
+              hasExternalVideo: false,
+              width: 0,
+              height: 0,
+            },
+            genericMainContent: {
+              genericContentId: undefined,
+              width: 0,
+              height: 0,
+            },
+            screenShare: {
+              hasScreenShare: false,
+              width: 0,
+              height: 0,
+            },
           },
-          cameraDock: {
-            numCameras: 0,
-          },
-          externalVideo: {
-            hasExternalVideo: false,
-            width: 0,
-            height: 0,
-          },
-          genericMainContent: {
-            genericContentId: undefined,
-            width: 0,
-            height: 0,
-          },
-          screenShare: {
-            hasScreenShare: false,
-            width: 0,
-            height: 0,
-          },
-        },
-        INITIAL_INPUT_STATE,
-      ),
+          hasLayoutEngineLoadedOnce ? prevInput : INITIAL_INPUT_STATE,
+        );
+      },
     });
     Session.setItem('layoutReady', true);
     throttledCalculatesLayout();

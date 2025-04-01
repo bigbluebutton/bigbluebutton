@@ -13,28 +13,28 @@ class Webcam extends Page {
   async share() {
     const { videoPreviewTimeout, skipVideoPreview, skipVideoPreviewOnFirstJoin } = this.settings;
     await this.shareWebcam(!(skipVideoPreview || skipVideoPreviewOnFirstJoin), videoPreviewTimeout);
-    await this.hasElement('video');
-    await this.hasElement(e.videoDropdownMenu);
+    await this.hasElement('video', 'should display the element video');
+    await this.hasElement(e.videoDropdownMenu, 'should display the video dropdown menu');
     await this.waitAndClick(e.leaveVideo);
-    await this.hasElement(e.joinVideo);
-    await this.wasRemoved('video');
+    await this.hasElement(e.joinVideo, 'should display the join video button');
+    await this.wasRemoved('video', 'should not display the video element');
   }
 
   async checksContent() {
     const { videoPreviewTimeout, skipVideoPreview, skipVideoPreviewOnFirstJoin } = this.settings;
     await this.shareWebcam(!(skipVideoPreview || skipVideoPreviewOnFirstJoin), videoPreviewTimeout);
     await this.waitForSelector(e.webcamVideoItem);
-    await this.wasRemoved(e.webcamConnecting, ELEMENT_WAIT_LONGER_TIME);
+    await this.wasRemoved(e.webcamConnecting, 'should not display the webcam connecting element', ELEMENT_WAIT_LONGER_TIME);
     const respUser = await webcamContentCheck(this);
-    await expect(respUser).toBeTruthy();
+    await expect(respUser, 'should display the user webcam').toBeTruthy();
   }
 
   async talkingIndicator() {
     await this.webcamLayoutStart();
-    await this.waitForSelector(e.webcamContainer, VIDEO_LOADING_WAIT_TIME);
+    await this.waitForSelector(e.webcamMirroredVideoContainer, VIDEO_LOADING_WAIT_TIME);
     await this.waitForSelector(e.leaveVideo, VIDEO_LOADING_WAIT_TIME);
     await this.waitForSelector(e.isTalking);
-    await this.hasElement(e.webcamItemTalkingUser);
+    await this.hasElement(e.webcamItemTalkingUser, 'should display the webcam item talking user');
   }
 
   async changeVideoQuality() {
@@ -45,7 +45,7 @@ class Webcam extends Page {
       await this.waitForSelector(e.videoQualitySelector);
       const langDropdown = await this.page.$(e.videoQualitySelector);
       await langDropdown.selectOption({ value });
-      await this.waitForSelector(e.videoPreview, videoPreviewTimeout);
+      await this.waitForSelector(e.webcamMirroredVideoPreview, videoPreviewTimeout);
       await this.waitAndClick(e.startSharingWebcam);
       await this.waitForSelector(e.webcamConnecting);
       await this.waitForSelector(e.leaveVideo, VIDEO_LOADING_WAIT_TIME);
@@ -68,8 +68,8 @@ class Webcam extends Page {
     await this.waitAndClick(`${e.selectDefaultBackground}[aria-label="Home"]`);
     await sleep(1000);
     await this.waitAndClick(e.startSharingWebcam);
-    await this.waitForSelector(e.webcamContainer);
-    const webcamVideoLocator = await this.getLocator(e.webcamContainer);
+    await this.waitForSelector(e.webcamMirroredVideoContainer);
+    const webcamVideoLocator = await this.getLocator(e.webcamMirroredVideoContainer);
     await expect(webcamVideoLocator).toHaveScreenshot('webcam-with-home-background.png');
   }
 
@@ -84,10 +84,11 @@ class Webcam extends Page {
     });
     await this.waitAndClick(e.dropdownWebcamButton);
     await this.waitAndClick(e.webcamsFullscreenButton);
+    await sleep(1000);  // timeout to ensure the video is in fullscreen
     // get fullscreen webcam size
     const { width, height } = await this.getLocator('video').boundingBox();
-    await expect(width + 1).toBe(windowWidth);  // not sure why there is a difference of 1 pixel
-    await expect(height).toBe(windowHeight);
+    await expect(width + 1, 'should the width to be the same as window width').toBe(windowWidth);  // not sure why there is a difference of 1 pixel
+    await expect(height, 'should the height to be the same as window height').toBe(windowHeight);
   }
 
   async disableSelfView() {
@@ -99,7 +100,7 @@ class Webcam extends Page {
     await this.waitAndClick(e.selectCustomBackground);
     await sleep(1000);
     await this.waitAndClick(e.startSharingWebcam);
-    await this.waitForSelector(e.webcamContainer);
+    await this.waitForSelector(e.webcamMirroredVideoContainer);
 
     await this.waitAndClick(e.dropdownWebcamButton);
     await this.waitAndClick(e.selfViewDisableBtn);
@@ -120,8 +121,8 @@ class Webcam extends Page {
     await this.waitAndClick(e.selectCustomBackground);
     await sleep(1000);
     await this.waitAndClick(e.startSharingWebcam);
-    await this.waitForSelector(e.webcamContainer);
-    const webcamVideoLocator = await this.getLocator(e.webcamContainer);
+    await this.waitForSelector(e.webcamMirroredVideoContainer);
+    const webcamVideoLocator = await this.getLocator(e.webcamMirroredVideoContainer);
     await expect(webcamVideoLocator).toHaveScreenshot('webcam-with-new-background.png');
 
     // Remove
@@ -129,7 +130,7 @@ class Webcam extends Page {
     await this.waitAndClick(e.advancedVideoSettingsBtn);
     await this.waitAndClick(e.backgroundSettingsTitle);
     await this.waitAndClick(e.removeCustomBackground);
-    await this.wasRemoved(e.selectCustomBackground);
+    await this.wasRemoved(e.selectCustomBackground, 'should not display the select custom background');
   }
 
   async keepBackgroundWhenRejoin(context) {
@@ -144,7 +145,7 @@ class Webcam extends Page {
     await openedPage.init(true, true, { meetingId: this.meetingId });
     await openedPage.waitAndClick(e.joinVideo);
     await openedPage.waitAndClick(e.backgroundSettingsTitle);
-    await openedPage.hasElement(e.selectCustomBackground);
+    await openedPage.hasElement(e.selectCustomBackground, 'should display the select custom background');
   }
 
   async webcamLayoutStart() {

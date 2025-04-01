@@ -1,4 +1,5 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
+import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import { MEETING_PERMISSIONS_SUBSCRIPTION } from '../queries';
 import { setLocalUserList, useLoadedUserList } from '/imports/ui/core/hooks/useLoadedUserList';
@@ -13,6 +14,7 @@ import ListItem from '../list-item/component';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import SkeletonUserListItem from '../list-item/skeleton/component';
+import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 
 interface UserListParticipantsContainerProps {
   index: number;
@@ -26,6 +28,7 @@ interface UsersListParticipantsPage {
   meeting: Meeting;
   currentUser: Partial<User>;
   pageId: string;
+  offset: number;
 }
 
 const UsersListParticipantsPage: React.FC<UsersListParticipantsPage> = ({
@@ -33,13 +36,22 @@ const UsersListParticipantsPage: React.FC<UsersListParticipantsPage> = ({
   currentUser,
   meeting,
   pageId,
+  offset,
 }) => {
   const [openUserAction, setOpenUserAction] = React.useState<string | null>(null);
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
+  const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
+  let userListDropdownItems = [] as PluginSdk.UserListDropdownInterface[];
+  if (pluginsExtensibleAreasAggregatedState.userListDropdownItems) {
+    userListDropdownItems = [
+      ...pluginsExtensibleAreasAggregatedState.userListDropdownItems,
+    ];
+  }
+
   return (
     <>
       {
-        users.map((user) => {
+        users.map((user, idx) => {
           return (
             <Styled.UserListItem key={user.userId} style={{ direction: isRTL }}>
               <UserActions
@@ -49,10 +61,11 @@ const UsersListParticipantsPage: React.FC<UsersListParticipantsPage> = ({
                 usersPolicies={meeting.usersPolicies}
                 isBreakout={meeting.isBreakout}
                 pageId={pageId}
+                userListDropdownItems={userListDropdownItems}
                 open={user.userId === openUserAction}
                 setOpenUserAction={setOpenUserAction}
               >
-                <ListItem user={user} lockSettings={meeting.lockSettings} />
+                <ListItem index={offset + idx} user={user} lockSettings={meeting.lockSettings} />
               </UserActions>
             </Styled.UserListItem>
           );
@@ -89,9 +102,25 @@ const UserListParticipantsPageContainer: React.FC<UserListParticipantsContainerP
   const users = usersData ?? [];
 
   const { data: currentUser, loading: currentUserLoading } = useCurrentUser((c: Partial<User>) => ({
-    isModerator: c.isModerator,
     userId: c.userId,
+    voice: c.voice,
+    isModerator: c.isModerator,
     presenter: c.presenter,
+    guest: c.guest,
+    mobile: c.mobile,
+    locked: c.locked,
+    userLockSettings: c.userLockSettings,
+    lastBreakoutRoom: c.lastBreakoutRoom,
+    cameras: c.cameras,
+    pinned: c.pinned,
+    raiseHand: c.raiseHand,
+    away: c.away,
+    reactionEmoji: c.reactionEmoji,
+    avatar: c.avatar,
+    isDialIn: c.isDialIn,
+    name: c.name,
+    color: c.color,
+    presPagesWritable: c.presPagesWritable,
   }));
 
   const {
@@ -128,12 +157,23 @@ const UserListParticipantsPageContainer: React.FC<UserListParticipantsContainerP
     ));
   }
 
+  const currentUserIndex = users.findIndex((u: User) => u.userId === currentUser?.userId);
+
+  if (currentUserIndex !== -1) {
+    users.splice(currentUserIndex, 1);
+  }
+
+  if (offset === 0) {
+    users.unshift(currentUser as User);
+  }
+
   return (
     <UsersListParticipantsPage
       users={users ?? []}
       meeting={meeting ?? {}}
       currentUser={currentUser ?? {}}
       pageId={pageId}
+      offset={offset}
     />
   );
 };

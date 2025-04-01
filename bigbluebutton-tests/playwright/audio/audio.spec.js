@@ -3,21 +3,20 @@ const { fullyParallel } = require('../playwright.config');
 const { Audio } = require('./audio');
 const { initializePages } = require('../core/helpers');
 
-test.describe('Audio', () => {
+test.describe('Audio', { tag: '@ci' }, () => {
   const audio = new Audio();
   test.describe.configure({ mode: fullyParallel ? 'parallel' : 'serial' });
   test[fullyParallel ? 'beforeEach' : 'beforeAll'](async ({ browser }) => {
     await initializePages(audio, browser, { isMultiUser: true });
   });
 
-  // https://docs.bigbluebutton.org/2.6/release-tests.html#listen-only-mode-automated
-  test('Join audio with Listen Only @ci', async () => {
+  // https://docs.bigbluebutton.org/3.0/testing/release-testing/#listen-only-mode-automated
+  test('Join audio with Listen Only', async () => {
     await audio.joinAudio();
   });
 
-  // https://docs.bigbluebutton.org/2.6/release-tests.html#join-audio-automated
-  test('Join audio with Microphone @ci', async ({ browserName }) => {
-    test.skip(browserName === 'firefox', 'Audio tests not working properly on automated tests.');
+  // https://docs.bigbluebutton.org/3.0/testing/release-testing/#join-audio-automated
+  test('Join audio with Microphone', async () => {
     await audio.joinMicrophone();
   });
 
@@ -25,25 +24,25 @@ test.describe('Audio', () => {
     await audio.changeAudioInput();
   });
 
-  // https://docs.bigbluebutton.org/2.6/release-tests.html#muteunmute
-  test('Mute yourself by clicking the mute button @ci', async () => {
+  // https://docs.bigbluebutton.org/3.0/testing/release-testing/#muteunmute
+  // Ci failure: not being muted when clicking the mute button (isTalking element keep displayed)
+  test('Mute yourself by clicking the mute button', { tag: '@flaky' }, async () => {
     await audio.muteYourselfByButton();
   });
 
-  // https://docs.bigbluebutton.org/2.6/release-tests.html#choosing-different-sources
-  test('Keep the last mute state after rejoining audio @ci', async ({ browserName }) => {
-    test.skip(browserName === 'firefox', 'Audio tests not working properly on automated tests.');
+  // https://docs.bigbluebutton.org/3.0/testing/release-testing/#choosing-different-sources
+  test('Keep the last mute state after rejoining audio', async () => {
     await audio.keepMuteStateOnRejoin();
   });
 
   // Talking Indicator
-  // https://docs.bigbluebutton.org/2.6/release-tests.html#talking-indicator
-  test('Mute yourself by clicking the talking indicator @ci', async () => {
+  // https://docs.bigbluebutton.org/3.0/testing/release-testing/#talking-indicator
+  test('Mute yourself by clicking the talking indicator', async () => {
     await audio.muteYourselfByTalkingIndicator();
   });
 
-  // https://docs.bigbluebutton.org/2.6/release-tests.html#talking-indicator
-  test('Mute another user by clicking the talking indicator @ci', async () => {
+  // https://docs.bigbluebutton.org/3.0/testing/release-testing/#talking-indicator
+  test('Mute another user by clicking the talking indicator', async () => {
     await audio.muteAnotherUser();
   });
 });

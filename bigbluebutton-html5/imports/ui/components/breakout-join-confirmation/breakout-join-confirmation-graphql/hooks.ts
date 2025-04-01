@@ -2,26 +2,26 @@ import {
   useEffect, useMemo, useRef, useState,
 } from 'react';
 import { useSubscription } from '@apollo/client';
-import { GetIfUserJoinedBreakoutRoomResponse, getIfUserJoinedBreakoutRoom } from '../../breakout-room/breakout-room/queries';
+import { GetIsUserCurrentlyInBreakoutRoomResponse, getIsUserCurrentlyInBreakoutRoom } from '../../breakout-room/breakout-room/queries';
 
-type BreakoutCount = GetIfUserJoinedBreakoutRoomResponse;
+type BreakoutCount = GetIsUserCurrentlyInBreakoutRoomResponse;
 type Callback = () => void;
 
 const useBreakoutExitObserver = () => {
-  const [joinedRooms, setJoinedRooms] = useState<number>(0);
+  const [numberOfCurrentRooms, setNumberOfCurrentRooms] = useState<number>(0);
   const [observing, setObserving] = useState(false);
   const callbacks = useRef<Map<string, Callback>>(new Map());
   const oneTimeCallbacks = useRef<Callback[]>([]);
-  const { data: userJoinedBreakoutData } = useSubscription<BreakoutCount>(
-    getIfUserJoinedBreakoutRoom,
+  const { data: userIsCurrentlyInBreakoutRoomData } = useSubscription<BreakoutCount>(
+    getIsUserCurrentlyInBreakoutRoom,
     { skip: !observing },
   );
-  const userJoinedRooms = userJoinedBreakoutData?.breakoutRoom_aggregate.aggregate.count ?? 0;
+  const numberOfCurrentRoomsGql = userIsCurrentlyInBreakoutRoomData?.breakoutRoom_aggregate.aggregate.count ?? 0;
 
   useEffect(() => {
-    if (userJoinedRooms !== joinedRooms) {
-      setJoinedRooms((prev) => {
-        if (userJoinedRooms === 0 && prev > 0) {
+    if (numberOfCurrentRoomsGql !== numberOfCurrentRooms) {
+      setNumberOfCurrentRooms((prevNumberOfCurrentRooms) => {
+        if (numberOfCurrentRoomsGql === 0 && prevNumberOfCurrentRooms > 0) {
           callbacks.current.forEach((value) => value());
           oneTimeCallbacks.current.forEach((c) => c());
           oneTimeCallbacks.current = [];
@@ -29,10 +29,10 @@ const useBreakoutExitObserver = () => {
             setObserving(false);
           }
         }
-        return userJoinedRooms;
+        return numberOfCurrentRoomsGql;
       });
     }
-  }, [userJoinedRooms]);
+  }, [numberOfCurrentRoomsGql]);
 
   return useMemo(() => ({
     resetCallbacks: () => {

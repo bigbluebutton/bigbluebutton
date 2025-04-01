@@ -31,6 +31,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -45,8 +47,9 @@ public class PngCreatorImp implements PngCreator {
 
 	private String BLANK_PNG;
 	private int slideWidth = 800;
-	private String convTimeout = "7s";
-	private int WAIT_FOR_SEC = 7;
+	private int convTimeout = 7;
+	private int wait = 7;
+	private long execTimeout = 10000;
 
 	private static final String TEMP_PNG_NAME = "temp-png";
 
@@ -85,7 +88,12 @@ public class PngCreatorImp implements PngCreator {
 	private boolean generatePng(File pngsDir, UploadedPresentation pres, int page, File pageFile)
 					throws InterruptedException {
 		String source = pageFile.getAbsolutePath();
-		String dest;
+		String dest = pngsDir.getAbsolutePath() + File.separator + "slide-" + page + ".png";
+
+		// Skip processing if the destination file exists, as it was likely restored from the cache
+		if(Files.exists(Paths.get(dest))) {
+			return true;
+		}
 
 		if (SupportedFileTypes.isImageFile(pres.getFileType())) {
 			// Need to create a PDF as intermediate step.
@@ -93,14 +101,14 @@ public class PngCreatorImp implements PngCreator {
 			dest = pngsDir.getAbsolutePath() + File.separator + "slide-1.pdf";
 
 			NuProcessBuilder convertImgToSvg = new NuProcessBuilder(
-					Arrays.asList("timeout", convTimeout, "convert", source, "-auto-orient", dest));
+					Arrays.asList("timeout", convTimeout + "s", "convert", source, "-auto-orient", dest));
 
 			Png2SvgConversionHandler pHandler = new Png2SvgConversionHandler();
 			convertImgToSvg.setProcessListener(pHandler);
 
 			NuProcess process = convertImgToSvg.start();
 			try {
-				process.waitFor(WAIT_FOR_SEC, TimeUnit.SECONDS);
+				process.waitFor(wait, TimeUnit.SECONDS);
 			} catch (InterruptedException e) {
 				log.error("InterruptedException while converting to PDF {}", dest, e);
 				return false;
@@ -116,7 +124,7 @@ public class PngCreatorImp implements PngCreator {
 
 		//System.out.println("********* CREATING PNGs " + COMMAND);
 
-		boolean done = new ExternalProcessExecutor().exec(COMMAND, 10000);
+		boolean done = new ExternalProcessExecutor().exec(COMMAND, execTimeout);
 
 		if (done) {
 			return true;
@@ -214,4 +222,15 @@ public class PngCreatorImp implements PngCreator {
 		slideWidth = width;
 	}
 
+	public void setConvTimeout(int convTimeout) {
+		this.convTimeout = convTimeout;
+	}
+
+	public void setWait(int wait) {
+		this.wait = wait;
+	}
+
+	public void setExecTimeout(long execTimeout) {
+		this.execTimeout = execTimeout;
+	}
 }

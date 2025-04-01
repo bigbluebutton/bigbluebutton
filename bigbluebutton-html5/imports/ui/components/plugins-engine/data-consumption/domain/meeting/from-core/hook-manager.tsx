@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
-import { SubscribedEventDetails, UpdatedEventDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
+import { UpdatedEventDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
 import {
   HookEvents,
 } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/enum';
@@ -11,17 +11,17 @@ import formatMeetingResponseFromGraphql from './utils';
 import { GeneralHookManagerProps } from '../../../types';
 import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
 import { Meeting } from '/imports/ui/Types/meeting';
+import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 
 const MeetingHookContainer: React.FunctionComponent<
   GeneralHookManagerProps<GraphqlDataHookSubscriptionResponse<Partial<Meeting>>>
 > = (
   props: GeneralHookManagerProps<GraphqlDataHookSubscriptionResponse<Partial<Meeting>>>,
 ) => {
-  const [sendSignal, setSendSignal] = useState(false);
   const previousMeeting = useRef<GraphqlDataHookSubscriptionResponse<Partial<Meeting>> | null>(null);
 
-  const { data: meeting } = props;
-
+  const { data: meeting, numberOfUses } = props;
+  const previousNumberOfUses = usePreviousValue(numberOfUses);
   const updateMeetingForPlugin = () => {
     const meetingProjection: PluginSdk.GraphqlResponseWrapper<
     PluginSdk.Meeting> = formatMeetingResponseFromGraphql(
@@ -29,7 +29,7 @@ const MeetingHookContainer: React.FunctionComponent<
     );
     window.dispatchEvent(
       new CustomEvent<UpdatedEventDetails<PluginSdk.GraphqlResponseWrapper<PluginSdk.Meeting>>>(
-        HookEvents.UPDATED,
+        HookEvents.BBB_CORE_SENT_NEW_DATA,
         {
           detail: {
             data: meetingProjection,
@@ -46,21 +46,11 @@ const MeetingHookContainer: React.FunctionComponent<
     }
   }, [meeting]);
   useEffect(() => {
-    updateMeetingForPlugin();
-  }, [sendSignal]);
-  useEffect(() => {
-    const updateHookUseCurrentMeeting = ((event: CustomEvent<SubscribedEventDetails>) => {
-      if (event.detail.hook === DataConsumptionHooks.MEETING) setSendSignal((signal) => !signal);
-    }) as EventListener;
-    window.addEventListener(
-      HookEvents.SUBSCRIBED, updateHookUseCurrentMeeting,
-    );
-    return () => {
-      window.removeEventListener(
-        HookEvents.SUBSCRIBED, updateHookUseCurrentMeeting,
-      );
-    };
-  }, []);
+    const previousNumberOfUsesValue = previousNumberOfUses || 0;
+    if (numberOfUses > previousNumberOfUsesValue) {
+      updateMeetingForPlugin();
+    }
+  }, [previousNumberOfUses]);
 
   return null;
 };

@@ -1,42 +1,57 @@
 package writer
 
 import (
+	"bbb-graphql-middleware/config"
+	"bbb-graphql-middleware/internal/common"
 	"context"
 	"encoding/json"
 	"errors"
-	"github.com/iMDT/bbb-graphql-middleware/internal/common"
-	"github.com/iMDT/bbb-graphql-middleware/internal/msgpatch"
-	log "github.com/sirupsen/logrus"
+	"fmt"
+	"github.com/graphql-go/graphql/language/ast"
+	"github.com/graphql-go/graphql/language/parser"
+	"github.com/graphql-go/graphql/language/source"
+	"github.com/prometheus/client_golang/prometheus"
 	"nhooyr.io/websocket"
-	"os"
+	"slices"
 	"strings"
 	"sync"
+	"time"
 )
+
+var allowedSubscriptions []string
+var deniedSubscriptions []string
+var jsonPatchDisabled = config.GetConfig().Server.JsonPatchDisabled
+
+func init() {
+	if config.GetConfig().Server.SubscriptionAllowedList != "" {
+		allowedSubscriptions = strings.Split(config.GetConfig().Server.SubscriptionAllowedList, ",")
+	}
+
+	if config.GetConfig().Server.SubscriptionsDeniedList != "" {
+		deniedSubscriptions = strings.Split(config.GetConfig().Server.SubscriptionsDeniedList, ",")
+	}
+}
 
 // HasuraConnectionWriter
 // process messages (middleware to hasura)
-func HasuraConnectionWriter(hc *common.HasuraConnection, fromBrowserToHasuraChannel *common.SafeChannelByte, wg *sync.WaitGroup, initMessage []byte) {
-	log := log.WithField("_routine", "HasuraConnectionWriter")
-
+func HasuraConnectionWriter(hc *common.HasuraConnection, wg *sync.WaitGroup, initMessage []byte) {
 	browserConnection := hc.BrowserConn
-
-	log = log.WithField("browserConnectionId", browserConnection.Id).WithField("hasuraConnectionId", hc.Id)
 
 	defer wg.Done()
 	defer hc.ContextCancelFunc()
-	defer log.Debugf("finished")
+	defer hc.BrowserConn.Logger.Debugf("finished")
 
 	//Send authentication (init) message at first
 	//It will not use the channel (fromBrowserToHasuraChannel) because this msg must bypass ChannelFreeze
 	if initMessage == nil {
-		log.Errorf("it can't start Hasura Connection because initMessage is null")
+		hc.BrowserConn.Logger.Errorf("it can't start Hasura Connection because initMessage is null")
 		return
 	}
 
 	//Send init connection message to Hasura to start
 	err := hc.Websocket.Write(hc.Context, websocket.MessageText, initMessage)
 	if err != nil {
-		log.Errorf("error on write authentication (init) message (we're disconnected from hasura): %v", err)
+		hc.BrowserConn.Logger.Errorf("error on write authentication (init) message (we're disconnected from hasura): %v", err)
 		return
 	}
 
@@ -45,13 +60,7 @@ RangeLoop:
 		select {
 		case <-hc.Context.Done():
 			break RangeLoop
-		case <-hc.FreezeMsgFromBrowserChan.ReceiveChannel():
-			if !fromBrowserToHasuraChannel.Frozen() {
-				log.Debug("freezing channel fromBrowserToHasuraChannel")
-				//Freeze channel once it's about to close Hasura connection
-				fromBrowserToHasuraChannel.FreezeChannel()
-			}
-		case fromBrowserMessage := <-fromBrowserToHasuraChannel.ReceiveChannel():
+		case fromBrowserMessage := <-hc.BrowserConn.FromBrowserToHasuraChannel.ReceiveChannel():
 			{
 				if fromBrowserMessage == nil {
 					continue
@@ -62,12 +71,24 @@ RangeLoop:
 				var browserMessage common.BrowserSubscribeMessage
 				err := json.Unmarshal(fromBrowserMessage, &browserMessage)
 				if err != nil {
-					log.Errorf("failed to unmarshal message: %v", err)
+					hc.BrowserConn.Logger.Errorf("failed to unmarshal message: %v", err)
 					return
 				}
 
 				if browserMessage.Type == "subscribe" {
 					var queryId = browserMessage.ID
+
+					//Rate limiter from config max_connection_queries_per_minute
+					ctxRateLimiter, _ := context.WithTimeout(hc.Context, 30*time.Second)
+					if err := hc.BrowserConn.FromBrowserToHasuraRateLimiter.Wait(ctxRateLimiter); err != nil {
+						sendErrorMessage(
+							browserConnection,
+							queryId,
+							fmt.Sprintf("Rate limit exceeded: Maximum %d queries per minute allowed. Please try again later.", config.GetConfig().Server.MaxConnectionQueriesPerMinute),
+						)
+
+						continue
+					}
 
 					//Identify type based on query string
 					messageType := common.Query
@@ -77,13 +98,51 @@ RangeLoop:
 					var streamCursorInitialValue interface{}
 
 					query := browserMessage.Payload.Query
+
+					if config.GetConfig().Server.MaxQueryDepth > 0 {
+						queryDepth, _ := calculateQueryDepth(query)
+						if queryDepth > config.GetConfig().Server.MaxQueryDepth {
+							sendErrorMessage(
+								browserConnection,
+								queryId,
+								fmt.Sprintf("Query %s is not valid with depth %d and the max allowed is %d", browserMessage.Payload.OperationName, queryDepth, config.GetConfig().Server.MaxQueryDepth))
+							continue
+						}
+					}
+
+					if config.GetConfig().Server.MaxQueryLength > 0 {
+						queryLength := len(query)
+						if queryLength > config.GetConfig().Server.MaxQueryLength {
+							sendErrorMessage(
+								browserConnection,
+								queryId,
+								fmt.Sprintf("Query %s is not valid with length %d and the max allowed is %d", browserMessage.Payload.OperationName, queryLength, config.GetConfig().Server.MaxQueryLength))
+							continue
+						}
+					}
+
 					if query != "" {
 						if strings.HasPrefix(query, "subscription") {
+							if config.GetConfig().Server.MaxConnectionConcurrentSubscriptions > 0 {
+								browserConnection.ActiveSubscriptionsMutex.RLock()
+								totalOfActiveSubscriptions := len(browserConnection.ActiveSubscriptions)
+								browserConnection.ActiveSubscriptionsMutex.RUnlock()
+
+								if totalOfActiveSubscriptions >= config.GetConfig().Server.MaxConnectionConcurrentSubscriptions {
+									sendErrorMessage(
+										browserConnection,
+										queryId,
+										fmt.Sprintf("Limit exceeded: Maximum %d concurrent subscriptions allowed.", config.GetConfig().Server.MaxConnectionConcurrentSubscriptions),
+									)
+
+									continue
+								}
+							}
+
 							//Validate if subscription is allowed
-							if allowedSubscriptions := os.Getenv("BBB_GRAPHQL_MIDDLEWARE_ALLOWED_SUBSCRIPTIONS"); allowedSubscriptions != "" {
-								allowedSubscriptionsSlice := strings.Split(allowedSubscriptions, ",")
+							if len(allowedSubscriptions) > 0 {
 								subscriptionAllowed := false
-								for _, s := range allowedSubscriptionsSlice {
+								for _, s := range allowedSubscriptions {
 									if s == browserMessage.Payload.OperationName {
 										subscriptionAllowed = true
 										break
@@ -91,16 +150,15 @@ RangeLoop:
 								}
 
 								if !subscriptionAllowed {
-									log.Infof("Subscription %s not allowed!", browserMessage.Payload.OperationName)
+									hc.BrowserConn.Logger.Infof("Subscription %s not allowed!", browserMessage.Payload.OperationName)
 									continue
 								}
 							}
 
 							//Validate if subscription is allowed
-							if deniedSubscriptions := os.Getenv("BBB_GRAPHQL_MIDDLEWARE_DENIED_SUBSCRIPTIONS"); deniedSubscriptions != "" {
-								deniedSubscriptionsSlice := strings.Split(deniedSubscriptions, ",")
+							if len(deniedSubscriptions) > 0 {
 								subscriptionAllowed := true
-								for _, s := range deniedSubscriptionsSlice {
+								for _, s := range deniedSubscriptions {
 									if s == browserMessage.Payload.OperationName {
 										subscriptionAllowed = false
 										break
@@ -108,7 +166,7 @@ RangeLoop:
 								}
 
 								if !subscriptionAllowed {
-									log.Infof("Subscription %s not allowed!", browserMessage.Payload.OperationName)
+									hc.BrowserConn.Logger.Infof("Subscription %s not allowed!", browserMessage.Payload.OperationName)
 									continue
 								}
 							}
@@ -120,6 +178,9 @@ RangeLoop:
 							browserConnection.ActiveSubscriptionsMutex.RUnlock()
 							if queryIdExists {
 								lastReceivedDataChecksum = existingSubscriptionData.LastReceivedDataChecksum
+								streamCursorField = existingSubscriptionData.StreamCursorField
+								streamCursorVariableName = existingSubscriptionData.StreamCursorVariableName
+								streamCursorInitialValue = existingSubscriptionData.StreamCursorCurrValue
 							}
 
 							if strings.Contains(query, "_stream(") && strings.Contains(query, "cursor: {") {
@@ -149,11 +210,8 @@ RangeLoop:
 					//Identify if the client that requested this subscription expects to receive json-patch
 					//Client append `Patched_` to the query operationName to indicate that it supports
 					jsonPatchSupported := false
-					if strings.HasPrefix(browserMessage.Payload.OperationName, "Patched_") {
+					if !jsonPatchDisabled && strings.HasPrefix(browserMessage.Payload.OperationName, "Patched_") {
 						jsonPatchSupported = true
-					}
-					if jsonPatchDisabled := os.Getenv("BBB_GRAPHQL_MIDDLEWARE_JSON_PATCH_DISABLED"); jsonPatchDisabled != "" {
-						jsonPatchSupported = false
 					}
 
 					browserConnection.ActiveSubscriptionsMutex.Lock()
@@ -169,11 +227,15 @@ RangeLoop:
 						Type:                       messageType,
 						LastReceivedDataChecksum:   lastReceivedDataChecksum,
 					}
-					// log.Tracef("Current queries: %v", browserConnection.ActiveSubscriptions)
+					// hc.BrowserConn.Logger.Tracef("Current queries: %v", browserConnection.ActiveSubscriptions)
 					browserConnection.ActiveSubscriptionsMutex.Unlock()
 
-					common.ActivitiesOverviewStarted(string(messageType) + "-" + browserMessage.Payload.OperationName)
-					common.ActivitiesOverviewStarted("_Sum-" + string(messageType))
+					//Add Prometheus Metrics
+					common.GqlSubscribeCounter.
+						With(prometheus.Labels{
+							"type":          string(messageType),
+							"operationName": browserMessage.Payload.OperationName}).
+						Inc()
 
 					//Dump of all subscriptions for analysis purpose
 					//queryCounter++
@@ -182,20 +244,10 @@ RangeLoop:
 				}
 
 				if browserMessage.Type == "complete" {
-					browserConnection.ActiveSubscriptionsMutex.RLock()
-					jsonPatchSupported := browserConnection.ActiveSubscriptions[browserMessage.ID].JsonPatchSupported
-
 					//Remove subscriptions from ActivitiesOverview here once Hasura-Reader will ignore "complete" msg for them
-					common.ActivitiesOverviewCompleted(string(browserConnection.ActiveSubscriptions[browserMessage.ID].Type) + "-" + browserConnection.ActiveSubscriptions[browserMessage.ID].OperationName)
-					common.ActivitiesOverviewCompleted("_Sum-" + string(browserConnection.ActiveSubscriptions[browserMessage.ID].Type))
-
-					browserConnection.ActiveSubscriptionsMutex.RUnlock()
-					if jsonPatchSupported {
-						msgpatch.RemoveConnSubscriptionCacheFile(browserConnection.Id, browserConnection.SessionToken, browserMessage.ID)
-					}
 					browserConnection.ActiveSubscriptionsMutex.Lock()
 					delete(browserConnection.ActiveSubscriptions, browserMessage.ID)
-					// log.Tracef("Current queries: %v", browserConnection.ActiveSubscriptions)
+					// hc.BrowserConn.Logger.Tracef("Current queries: %v", browserConnection.ActiveSubscriptions)
 					browserConnection.ActiveSubscriptionsMutex.Unlock()
 				}
 
@@ -205,13 +257,27 @@ RangeLoop:
 					continue
 				}
 
-				log.Tracef("sending to hasura: %s", string(fromBrowserMessage))
-				errWrite := hc.Websocket.Write(hc.Context, websocket.MessageText, fromBrowserMessage)
-				if errWrite != nil {
-					if !errors.Is(errWrite, context.Canceled) {
-						log.Errorf("error on write (we're disconnected from hasura): %v", errWrite)
+				//Check if user is in meeting and avoid sending to Hasura subscriptions that user doesn't have permission
+				userCurrentlyInMeeting := false
+				if hasuraRole, exists := hc.BrowserConn.BBBWebSessionVariables["x-hasura-role"]; exists {
+					userCurrentlyInMeeting = hasuraRole == "bbb_client"
+				}
+
+				if !userCurrentlyInMeeting &&
+					browserMessage.Type == "subscribe" &&
+					!slices.Contains(config.AllowedSubscriptionsForNotInMeetingUsers, browserMessage.Payload.OperationName) {
+					hc.BrowserConn.Logger.Debugf("Not sending to Hasura %s because the user is not in meeting", browserMessage.Payload.OperationName)
+					continue
+				} else {
+					//Sending to Hasura
+					hc.BrowserConn.Logger.Tracef("sending to hasura: %s", string(fromBrowserMessage))
+					errWrite := hc.Websocket.Write(hc.Context, websocket.MessageText, fromBrowserMessage)
+					if errWrite != nil {
+						if !errors.Is(errWrite, context.Canceled) {
+							hc.BrowserConn.Logger.Errorf("error on write (we're disconnected from hasura): %v", errWrite)
+						}
+						return
 					}
-					return
 				}
 			}
 		}
@@ -238,3 +304,80 @@ RangeLoop:
 //		panic(err)
 //	}
 //}
+
+func calculateQueryDepth(query string) (int, error) {
+	src := source.NewSource(&source.Source{
+		Body: []byte(query),
+		Name: "GraphQL query",
+	})
+	astDoc, err := parser.Parse(parser.ParseParams{
+		Source: src,
+	})
+	if err != nil {
+		return 0, fmt.Errorf("failed to parse query: %v", err)
+	}
+
+	maxDepth := 0
+	for _, def := range astDoc.Definitions {
+		if op, ok := def.(*ast.OperationDefinition); ok {
+			depth := traverseSelectionSet(op.SelectionSet, 0)
+			if depth > maxDepth {
+				maxDepth = depth
+			}
+		}
+	}
+
+	return maxDepth, nil
+}
+
+func traverseSelectionSet(selectionSet *ast.SelectionSet, currentDepth int) int {
+	if selectionSet == nil {
+		return currentDepth
+	}
+
+	currentDepth++
+	maxDepth := currentDepth
+
+	for _, selection := range selectionSet.Selections {
+		var depth int
+		switch sel := selection.(type) {
+		case *ast.Field:
+			depth = traverseSelectionSet(sel.SelectionSet, currentDepth)
+		case *ast.InlineFragment:
+			depth = traverseSelectionSet(sel.SelectionSet, currentDepth)
+		case *ast.FragmentSpread:
+			// Without a schema, we cannot resolve fragment spreads
+			continue
+		}
+		if depth > maxDepth {
+			maxDepth = depth
+		}
+	}
+
+	return maxDepth
+}
+
+func sendErrorMessage(browserConnection *common.BrowserConnection, messageId string, errorMessage string) {
+	browserConnection.Logger.Errorf(errorMessage)
+
+	//Error on sending action, return error msg to client
+	browserResponseData := map[string]interface{}{
+		"id":   messageId,
+		"type": "error",
+		"payload": []interface{}{
+			map[string]interface{}{
+				"message": errorMessage,
+			},
+		},
+	}
+	jsonDataError, _ := json.Marshal(browserResponseData)
+	browserConnection.FromHasuraToBrowserChannel.Send(jsonDataError)
+
+	//Return complete msg to client
+	browserResponseComplete := map[string]interface{}{
+		"id":   messageId,
+		"type": "complete",
+	}
+	jsonDataComplete, _ := json.Marshal(browserResponseComplete)
+	browserConnection.FromHasuraToBrowserChannel.Send(jsonDataComplete)
+}

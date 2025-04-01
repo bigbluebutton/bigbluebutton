@@ -33,11 +33,14 @@ import {
 import { hasPhoneDimentions } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import Button from '/imports/ui/components/common/button/component';
 
-const PollingTitle = styled.div`
+const PollingTitle = styled.h1`
   white-space: nowrap;
   padding-bottom: ${mdPaddingY};
   padding-top: ${mdPaddingY};
   font-size: ${fontSizeSmall};
+  margin: 0;
+  padding: 0;
+  font-weight: 600;
 `;
 
 const PollButtonWrapper = styled.div`
@@ -133,8 +136,11 @@ const QHeader = styled.span`
   left: ${smPaddingY};
 `;
 
-const QTitle = styled.div`
+const QTitle = styled.h1`
   font-size: ${fontSizeSmall};
+  margin: 0;
+  padding: 0;
+  font-weight: 600;
 `;
 
 const QText = styled.div`

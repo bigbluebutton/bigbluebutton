@@ -7,6 +7,24 @@ import { UserDetailsProvider } from './components/UserDetails/context';
 
 const RTL_LANGUAGES = ['ar', 'dv', 'fa', 'he'];
 
+function isValidLocale(locale) {
+  try {
+    const intl = new Intl.Locale(locale);
+    return !!intl;
+  } catch (error) {
+    return false;
+  }
+}
+
+function normalizeLocale(lang) {
+  const lParts = lang.split('-');
+
+  // 'pt' returns 'pt'
+  // 'pt-br' and 'pt-BR' return 'pt_BR'
+  // 'pt_BR' returns 'pt_BR'
+  return lParts.length > 1 ? `${lParts[0]}_${lParts[1].toUpperCase()}` : lang;
+}
+
 function getLanguage() {
   let { language } = navigator;
 
@@ -34,7 +52,7 @@ class Dashboard extends React.Component {
 
   setMessages() {
     const fetchMessages = (lang) => new Promise((resolve, reject) => {
-      const url = `/html5client/locales/${lang.replace('-', '_')}.json`;
+      const url = `/html5client/locales/${normalizeLocale(lang)}.json`;
       fetch(url).then((response) => {
         if (!response.ok) return reject();
         return resolve(response.json());
@@ -70,9 +88,11 @@ class Dashboard extends React.Component {
   render() {
     const { intlLocale, intlMessages } = this.state;
 
+    const locale = isValidLocale(intlLocale) ? intlLocale : undefined;
+
     return (
       <UserDetailsProvider>
-        <IntlProvider defaultLocale="en" locale={intlLocale} messages={intlMessages}>
+        <IntlProvider defaultLocale="en" locale={locale} messages={intlMessages}>
           <App />
         </IntlProvider>
       </UserDetailsProvider>

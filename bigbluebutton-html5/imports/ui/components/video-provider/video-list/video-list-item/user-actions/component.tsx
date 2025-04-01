@@ -2,7 +2,7 @@ import React, { MutableRefObject, useContext, useEffect } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
 import Session from '/imports/ui/services/storage/in-memory';
-import { UserCameraDropdownInterface } from 'bigbluebutton-html-plugin-sdk';
+import { UserCameraDropdownInterface, UserCameraDropdownOption } from 'bigbluebutton-html-plugin-sdk';
 import browserInfo from '/imports/utils/browserInfo';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
 import BBBMenu from '/imports/ui/components/common/menu/component';
@@ -15,6 +15,7 @@ import { SET_CAMERA_PINNED } from '/imports/ui/core/graphql/mutations/userMutati
 import { VideoItem } from '/imports/ui/components/video-provider/types';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 import { useIsVideoPinEnabledForCurrentUser } from '/imports/ui/components/video-provider/hooks';
+import { VIDEO_TYPES } from '/imports/ui/components/video-provider/enums';
 
 const intlMessages = defineMessages({
   focusLabel: {
@@ -118,6 +119,7 @@ const UserActions: React.FC<UserActionProps> = (props) => {
   const intl = useIntl();
   const enableVideoMenu = window.meetingClientSettings.public.kurento.enableVideoMenu || false;
   const { isFirefox } = browserInfo;
+  const isIphone = !!(navigator.userAgent.match(/iPhone/i));
 
   const [setCameraPinned] = useMutation(SET_CAMERA_PINNED);
   const pinEnabledForCurrentUser = useIsVideoPinEnabledForCurrentUser(amIModerator);
@@ -135,7 +137,7 @@ const UserActions: React.FC<UserActionProps> = (props) => {
   }, []);
 
   const getAvailableActions = () => {
-    const pinned = stream.type === 'stream' && stream.user.pinned;
+    const pinned = stream.type === VIDEO_TYPES.STREAM && stream.user.pinned;
     const { userId } = stream;
     const isPinnedIntlKey = !pinned ? 'pin' : 'unpin';
     const isFocusedIntlKey = !focused ? 'focus' : 'unfocus';
@@ -143,7 +145,7 @@ const UserActions: React.FC<UserActionProps> = (props) => {
     const disabledCams = (Session.getItem('disabledCams') || []) as string[];
     const isCameraDisabled = Array.isArray(disabledCams) && disabledCams?.includes(cameraId);
     const enableSelfCamIntlKey = !isCameraDisabled ? 'disable' : 'enable';
-    const ALLOW_FULLSCREEN = window.meetingClientSettings.public.app.allowFullscreen;
+    const ALLOW_FULLSCREEN = !isIphone ? window.meetingClientSettings.public.app.allowFullscreen : false;
 
     const menuItems = [];
 
@@ -242,19 +244,24 @@ const UserActions: React.FC<UserActionProps> = (props) => {
       );
     }
 
-    userCameraDropdownItems.forEach((pluginItem) => {
+    userCameraDropdownItems.filter(
+      (pluginItem) => (pluginItem.displayFunction?.({ userId, streamId: cameraId }) ?? true),
+    ).forEach((pluginItem) => {
       switch (pluginItem.type) {
-        case UserCameraDropdownItemType.OPTION:
+        case UserCameraDropdownItemType.OPTION: {
+          const optionItem = pluginItem as UserCameraDropdownOption;
           menuItems.push({
-            key: pluginItem.id,
-            // @ts-expect-error -> Plugin-related.
-            label: pluginItem.label,
-            // @ts-expect-error -> Plugin-related.
-            onClick: pluginItem.onClick,
-            // @ts-expect-error -> Plugin-related.
-            icon: pluginItem.icon,
+            key: optionItem.id,
+            label: optionItem.label,
+            onClick: (event: React.MouseEvent<HTMLElement>) => optionItem.onClick({
+              streamId: cameraId,
+              userId,
+              browserClickEvent: event,
+            }),
+            icon: optionItem.icon,
           });
           break;
+        }
         case UserCameraDropdownItemType.SEPARATOR:
           menuItems.push({
             key: pluginItem.id,
@@ -303,6 +310,7 @@ const UserActions: React.FC<UserActionProps> = (props) => {
                 tabIndex={0}
                 data-test="dropdownWebcamButton"
                 $isRTL={isRTL}
+                role="button"
               >
                 {name}
               </Styled.DropdownTrigger>

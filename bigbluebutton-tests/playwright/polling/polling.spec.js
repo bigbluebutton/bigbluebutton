@@ -2,17 +2,13 @@ const { test } = require('../fixtures');
 const { fullyParallel } = require('../playwright.config');
 const { Polling } = require('./poll');
 const { initializePages } = require('../core/helpers');
-const { encodeCustomParams } = require('../parameters/util');
-const { PARAMETER_HIDE_PRESENTATION_TOAST } = require('../core/constants');
 
-const hidePresentationToast = encodeCustomParams(PARAMETER_HIDE_PRESENTATION_TOAST);
-
-test.describe('Polling @ci', async () => {
+test.describe('Polling', { tag: '@ci' }, async () => {
   const polling = new Polling();
 
   test.describe.configure({ mode: fullyParallel ? 'parallel' : 'serial' });
   test[fullyParallel ? 'beforeEach' : 'beforeAll'](async ({ browser }) => {
-    await initializePages(polling, browser, { isMultiUser: true, joinParameter: hidePresentationToast });
+    await initializePages(polling, browser, { isMultiUser: true });
   });
 
   // Manage
@@ -40,8 +36,8 @@ test.describe('Polling @ci', async () => {
     await polling.manageResponseChoices();
   });
 
-  test('Not able to start new poll without presentation', async () => {
-    await polling.notAbleStartNewPollWithoutPresentation();
+  test('Start a poll without presentation', async () => {
+    await polling.startPollWithoutPresentation();
   });
 
   test('Custom input', async () => {
@@ -60,8 +56,13 @@ test.describe('Polling @ci', async () => {
   test('Poll results in chat message', async () => {
     await polling.pollResultsOnChat();
   });
+<<<<<<< HEAD
   
   test('Poll results on whiteboard @flaky', async () => {
+=======
+
+  test('Poll results on whiteboard', async () => {
+>>>>>>> upstream/v3.0.x-release
     await polling.pollResultsOnWhiteboard();
   });
 

@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
 import PropTypes from 'prop-types';
-import { withTracker } from 'meteor/react-meteor-data';
 import WakeLock from './component';
 import Service from './service';
 import getFromUserSettings from '/imports/ui/services/users-settings';
@@ -11,7 +10,7 @@ import { useStorageKey } from '../../services/storage/hooks';
 
 const propTypes = {
   areAudioModalsOpen: PropTypes.bool,
-  autoJoin: PropTypes.bool.isRequired,
+  autoJoin: PropTypes.bool,
 };
 
 function usePrevious(value) {
@@ -25,7 +24,7 @@ function usePrevious(value) {
 const WakeLockContainer = (props) => {
   if (!Service.isMobile()) return null;
   const APP_CONFIG = window.meetingClientSettings.public.app;
-  const { autoJoin } = props;
+  const autoJoin = getFromUserSettings('bbb_auto_join_audio', APP_CONFIG.autoJoin);
   const inEchoTest = useStorageKey('inEchoTest');
   const audioModalIsOpen = useStorageKey('audioModalIsOpen');
   const areAudioModalsOpen = audioModalIsOpen || inEchoTest;
@@ -46,7 +45,6 @@ const WakeLockContainer = (props) => {
       wakeLockSettings={wakeLockSettings}
       request={Service.request}
       release={Service.release}
-      autoJoin={getFromUserSettings('bbb_auto_join_audio', APP_CONFIG.autoJoin)}
       areAudioModalsOpen={areAudioModalsOpen}
       {...props}
     />

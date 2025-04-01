@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { isEqual } from 'radash';
 import { makeVar, useReactiveVar } from '@apollo/client';
 import { VoiceActivityResponse } from '/imports/ui/core/graphql/queries/whoIsTalking';
 
@@ -33,6 +34,10 @@ const createUseWhoIsTalking = () => {
 
       newTalkingUsers[userId] = talking;
     });
+
+    if (isEqual(getWhoIsTalking(), newTalkingUsers)) {
+      return;
+    }
 
     setWhoIsTalkingState(newTalkingUsers);
   };

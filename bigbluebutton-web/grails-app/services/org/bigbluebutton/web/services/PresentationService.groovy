@@ -18,9 +18,13 @@
  */
 package org.bigbluebutton.web.services
 
+import org.bigbluebutton.api.domain.Meeting
+import org.bigbluebutton.api.service.ServiceUtils
 import org.bigbluebutton.presentation.DocumentConversionService
 import org.bigbluebutton.presentation.UploadedPresentation
 import org.springframework.beans.factory.annotation.Autowired
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 class PresentationService {
 
@@ -35,6 +39,7 @@ class PresentationService {
 	def defaultUploadedPresentation
 	def presentationBaseUrl
 	def preUploadedPresentationOverrideDefault
+	def scanUploadedPresentationFiles
 
 	def deletePresentation = {conf, room, filename ->
 		def directory = new File(roomDirectory(conf, room).absolutePath + File.separatorChar + filename)
@@ -77,19 +82,37 @@ class PresentationService {
 		return presentationDir
 	}
 
-	def processUploadedPresentation = {uploadedPres ->
-		// Run conversion on another thread.
-		Timer t = new Timer(uploadedPres.getName(), false)
+	def processUploadedPresentation = { uploadedPres ->
+		// Run conversion on another thread to allow multiple conversions to run simultaneously
+		def scheduler = Executors.newSingleThreadScheduledExecutor()
+		def startTime = System.currentTimeMillis()
+		def timeout = 10000 // 10 secs
 
-		t.runAfter(5000) {
-			try {
-				documentConversionService.processDocument(uploadedPres)
-			} catch(Throwable e) {
-				log.error "\nError in Presentation service:\n${e}\n"
-			}finally {
-				t.cancel()
+		scheduler.scheduleWithFixedDelay({
+			long elapsedTime = System.currentTimeMillis() - startTime
+			if (elapsedTime >= timeout) {
+				log.error "It was not able to find the meeting within 10 seconds. [meetingId: ${uploadedPres.getMeetingId()}]"
+				scheduler.shutdown()
+				return
 			}
-		}
+
+			// Check if meeting is already started
+			Meeting meeting = ServiceUtils.findMeetingFromMeetingID(uploadedPres.getMeetingId())
+			boolean isStarted = meeting != null && meeting.getStartTime() != 0
+
+			if (isStarted) {
+				log.debug "Meeting is already started, it will proceed with presentation upload"
+				try {
+					documentConversionService.processDocument(uploadedPres, Boolean.parseBoolean(scanUploadedPresentationFiles))
+				} catch (Throwable e) {
+					log.error "Error in Presentation service:", e
+				} finally {
+					scheduler.shutdown()
+				}
+			} else {
+				log.debug "Meeting is not started, waiting"
+			}
+		}, 0, 1, TimeUnit.SECONDS)
 	}
 
 	def sendDocConversionFailedOnMimeType(UploadedPresentation pres, String fileMime, String fileExtension) {

@@ -1,9 +1,11 @@
 package org.bigbluebutton.core.db
 
-import org.bigbluebutton.core.models.{ PresentationInPod, PresentationPage }
+import org.bigbluebutton.core.models.{PresentationInPod, PresentationPage}
 import PostgresProfile.api._
 import spray.json.JsValue
 import spray.json._
+import scala.util.{Success, Failure}
+import scala.concurrent.ExecutionContext
 
 case class PresPageDbModel(
     pageId:          String,
@@ -23,7 +25,10 @@ case class PresPageDbModel(
     viewBoxHeight:   Double,
     maxImageWidth:   Int,
     maxImageHeight:  Int,
-    uploadCompleted: Boolean
+    uploadCompleted: Boolean,
+    infiniteWhiteboard:  Boolean,
+    fitToWidth:  Boolean,
+
 )
 
 class PresPageDbTableDef(tag: Tag) extends Table[PresPageDbModel](tag, None, "pres_page") {
@@ -45,16 +50,23 @@ class PresPageDbTableDef(tag: Tag) extends Table[PresPageDbModel](tag, None, "pr
   val maxImageWidth = column[Int]("maxImageWidth")
   val maxImageHeight = column[Int]("maxImageHeight")
   val uploadCompleted = column[Boolean]("uploadCompleted")
-  //  val presentation = foreignKey("presentation_fk", presentationId, Presentations)(_.presentationId, onDelete = ForeignKeyAction.Cascade)
-  def * = (pageId, presentationId, num, urlsJson, content, slideRevealed, current, xOffset, yOffset, widthRatio, heightRatio, width, height, viewBoxWidth, viewBoxHeight, maxImageWidth, maxImageHeight, uploadCompleted) <> (PresPageDbModel.tupled, PresPageDbModel.unapply)
+  val infiniteWhiteboard = column[Boolean]("infiniteWhiteboard")
+  val fitToWidth = column[Boolean]("fitToWidth")
+
+  def * = (
+    pageId, presentationId, num, urlsJson, content, slideRevealed, current, xOffset, yOffset, widthRatio, heightRatio, width, height, viewBoxWidth, viewBoxHeight, maxImageWidth, maxImageHeight, uploadCompleted, infiniteWhiteboard, fitToWidth
+  ) <> (PresPageDbModel.tupled, PresPageDbModel.unapply)
 }
 
 object PresPageDAO {
+  implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
+
   implicit val mapFormat: JsonWriter[Map[String, String]] = new JsonWriter[Map[String, String]] {
     def write(m: Map[String, String]): JsValue = {
       JsObject(m.map { case (k, v) => k -> JsString(v) })
     }
   }
+
   def insert(presentationId: String, page: PresentationPage) = {
     DatabaseConnection.enqueue(
       TableQuery[PresPageDbTableDef].insertOrUpdate(
@@ -76,7 +88,9 @@ object PresPageDAO {
           viewBoxHeight = 1,
           maxImageWidth = 1440,
           maxImageHeight = 1080,
-          uploadCompleted = page.converted
+          uploadCompleted = page.converted,
+          infiniteWhiteboard = page.infiniteWhiteboard,
+          fitToWidth = page.fitToWidth,
         )
       )
     )
@@ -85,8 +99,8 @@ object PresPageDAO {
   def setCurrentPage(presentation: PresentationInPod, pageId: String) = {
     DatabaseConnection.enqueue(
       sqlu"""UPDATE pres_page SET
-                "current" = (case when "pageId" = ${pageId} then true else false end),
-                "slideRevealed" = (case when "pageId" = ${pageId} then true else "slideRevealed" end)
+                "current" = (case when "pageId" = $pageId then true else false end),
+                "slideRevealed" = (case when "pageId" = $pageId then true else "slideRevealed" end)
                 WHERE "presentationId" = ${presentation.id}"""
     )
   }
@@ -108,5 +122,29 @@ object PresPageDAO {
         .map(p => (p.width, p.height, p.xOffset, p.yOffset, p.viewBoxWidth, p.viewBoxHeight))
         .update((width, height, xOffset, yOffset, widthRatio, heightRatio))
     )
+  }
+
+  def updateInfiniteWhiteboard(pageId: String, infiniteWhiteboard: Boolean) = {
+    DatabaseConnection.db.run(
+      TableQuery[PresPageDbTableDef]
+        .filter(_.pageId === pageId)
+        .map(p => p.infiniteWhiteboard)
+        .update(infiniteWhiteboard)
+    ).onComplete {
+      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated infiniteWhiteboard on PresPage table")
+      case Failure(e)            => DatabaseConnection.logger.debug(s"Error updating infiniteWhiteboard on PresPage: $e")
+    }
+  }
+
+  def updateFitToWidth(pageId: String, fitToWidth: Boolean): Unit = {
+    DatabaseConnection.db.run(
+      TableQuery[PresPageDbTableDef]
+        .filter(_.pageId === pageId)
+        .map(p => p.fitToWidth)
+        .update(fitToWidth)
+    ).onComplete {
+      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated fitToWidth on PresPage table")
+      case Failure(e)            => DatabaseConnection.logger.debug(s"Error updating fitToWidth on PresPage: $e")
+    }
   }
 }

@@ -47,8 +47,8 @@ class ParticipantJoinRecordEvent extends AbstractParticipantRecordEvent {
     eventMap.put(ROLE, role)
   }
 
-  def setUserdata(customParameters: Map[String, String]): Unit = {
-    eventMap.put(USER_DATA, customParameters.toJson.compactPrint)
+  def setUserdata(userMetadata: Map[String, String]): Unit = {
+    eventMap.put(USER_DATA, userMetadata.toJson.compactPrint)
   }
 }
 

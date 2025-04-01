@@ -67,6 +67,7 @@ const PresentationMenuContainer = (props) => {
         isIphone,
         allowSnapshotOfCurrentSlide,
         persistShape,
+        whiteboardWriters,
       }}
     />
   );

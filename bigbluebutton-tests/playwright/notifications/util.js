@@ -1,5 +1,4 @@
 const { expect } = require('@playwright/test');
-const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 const e = require('../core/elements');
 const { sleep } = require('../core/helpers');
 
@@ -18,7 +17,7 @@ async function saveSettings(page) {
 }
 
 async function checkNotificationText(test, text) {
-  await test.hasText(e.smallToastMsg, text);
+  await test.hasText(e.smallToastMsg, text, 'should appear the text on the toast message notification');
 }
 
 async function checkNotificationIcon(test, icon) {
@@ -48,20 +47,6 @@ async function privateChatMessageToast(page2) {
   await page2.waitAndClick(e.sendButton);
 }
 
-async function waitAndClearNotification(testPage) {
-  await testPage.waitAndClick(e.smallToastMsg, ELEMENT_WAIT_LONGER_TIME);
-  await testPage.wasRemoved(e.smallToastMsg);
-}
-
-async function waitAndClearDefaultPresentationNotification(testPage) {
-  await testPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
-  const hasCurrentPresentationToast = await testPage.checkElement(e.currentPresentationToast);
-  if (hasCurrentPresentationToast) {
-    await testPage.waitAndClick(e.currentPresentationToast, ELEMENT_WAIT_LONGER_TIME);
-    await testPage.wasRemoved(e.currentPresentationToast);
-  }
-}
-
 exports.privateChatMessageToast = privateChatMessageToast;
 exports.publicChatMessageToast = publicChatMessageToast;
 exports.enableUserJoinPopup = enableUserJoinPopup;
@@ -69,5 +54,3 @@ exports.checkNotificationText = checkNotificationText;
 exports.checkNotificationIcon = checkNotificationIcon;
 exports.enableChatPopup = enableChatPopup;
 exports.saveSettings = saveSettings;
-exports.waitAndClearNotification = waitAndClearNotification;
-exports.waitAndClearDefaultPresentationNotification = waitAndClearDefaultPresentationNotification;

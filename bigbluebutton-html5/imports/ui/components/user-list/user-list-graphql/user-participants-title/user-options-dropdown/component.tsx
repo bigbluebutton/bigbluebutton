@@ -22,10 +22,8 @@ import { User } from '/imports/ui/Types/user';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { useIsBreakoutRoomsEnabled, useIsLearningDashboardEnabled } from '/imports/ui/services/features';
 import { useMutation, useLazyQuery } from '@apollo/client';
-import { CLEAR_ALL_EMOJI } from '/imports/ui/core/graphql/mutations/userMutations';
 import { SET_MUTED } from './mutations';
 import { GET_USER_NAMES } from '/imports/ui/core/graphql/queries/users';
-import { notify } from '/imports/ui/services/notification';
 import logger from '/imports/startup/client/logger';
 
 const intlMessages = defineMessages({
@@ -33,28 +31,24 @@ const intlMessages = defineMessages({
     id: 'app.userList.userOptions.manageUsersLabel',
     description: 'Manage user label',
   },
-  clearAllLabel: {
-    id: 'app.userList.userOptions.clearAllLabel',
-    description: 'Clear all label',
-  },
   clearAllDesc: {
     id: 'app.userList.userOptions.clearAllDesc',
     description: 'Clear all description',
   },
-  muteAllLabel: {
-    id: 'app.userList.userOptions.muteAllLabel',
+  usersJoinMutedEnableLabel: {
+    id: 'app.userList.userOptions.usersJoinMutedEnableLabel',
     description: 'Mute all label',
   },
-  muteAllDesc: {
-    id: 'app.userList.userOptions.muteAllDesc',
-    description: 'Mute all description',
+  usersJoinMutedEnableDesc: {
+    id: 'app.userList.userOptions.usersJoinMutedEnableDesc',
+    description: 'Enable Join muted button',
   },
-  unmuteAllLabel: {
-    id: 'app.userList.userOptions.unmuteAllLabel',
-    description: 'Unmute all label',
+  usersJoinMutedDisableLabel: {
+    id: 'app.userList.userOptions.usersJoinMutedDisableLabel',
+    description: 'Disable Join muted button',
   },
-  unmuteAllDesc: {
-    id: 'app.userList.userOptions.unmuteAllDesc',
+  usersJoinMutedDisableDesc: {
+    id: 'app.userList.userOptions.usersJoinMutedDisableDesc',
     description: 'Unmute all desc',
   },
   lockViewersLabel: {
@@ -105,9 +99,13 @@ const intlMessages = defineMessages({
     id: 'app.modal.newTab',
     description: 'label used in aria description',
   },
-  clearStatusMessage: {
-    id: 'app.userList.content.participants.options.clearedStatus',
-    description: 'Used in toast notification when emojis have been cleared',
+  invitationLabel: {
+    id: 'app.actionsBar.actionsDropdown.breakoutRoomInvitationLabel',
+    description: 'Invitation item',
+  },
+  invitationDesc: {
+    id: 'app.actionsBar.actionsDropdown.breakoutRoomInvitationDesc',
+    description: 'Invitation item description',
   },
 });
 
@@ -151,7 +149,7 @@ interface UserTitleOptionsProps {
 
 const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
   isRTL,
-  isMeetingMuted = false,
+  isMeetingMuted,
   isBreakout,
   isModerator,
   hasBreakoutRooms,
@@ -175,12 +173,15 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
   const [isGuestPolicyModalOpen, setGuestPolicyModalIsOpen] = useState(false);
   const [isLockViewersModalOpen, setLockViewersModalIsOpen] = useState(false);
 
-  const [clearAllEmoji] = useMutation(CLEAR_ALL_EMOJI);
   const [setMuted] = useMutation(SET_MUTED);
   const [getUsers, { data: usersData, error: usersError }] = useLazyQuery(GET_USER_NAMES, { fetchPolicy: 'no-cache' });
   const users = usersData?.user || [];
   const isLearningDashboardEnabled = useIsLearningDashboardEnabled();
   const isBreakoutRoomsEnabled = useIsBreakoutRoomsEnabled();
+  const canInviteUsers = isModerator
+  && !isBreakout
+  && hasBreakoutRooms;
+  const isInvitation = hasBreakoutRooms && isModerator;
 
   if (usersError) {
     logger.error({
@@ -196,12 +197,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
     }
   }, [users]);
 
-  const toggleStatus = () => {
-    clearAllEmoji();
-    notify(intl.formatMessage(intlMessages.clearStatusMessage), 'info', 'clear_status');
-  };
-
-  const toggleMute = (muted: boolean, exceptPresenter: boolean) => {
+  const callSetMuted = (muted: boolean, exceptPresenter: boolean) => {
     setMuted({
       variables: {
         muted,
@@ -241,18 +237,18 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
       {
         allow: !isBreakout,
         key: uuids.current[0],
-        label: intl.formatMessage(intlMessages[isMeetingMuted ? 'unmuteAllLabel' : 'muteAllLabel']),
-        description: intl.formatMessage(intlMessages[isMeetingMuted ? 'unmuteAllDesc' : 'muteAllDesc']),
-        onClick: toggleMute.bind(null, !isMeetingMuted, false),
+        label: intl.formatMessage(intlMessages[isMeetingMuted ? 'usersJoinMutedDisableLabel' : 'usersJoinMutedEnableLabel']),
+        description: intl.formatMessage(intlMessages[isMeetingMuted ? 'usersJoinMutedDisableDesc' : 'usersJoinMutedEnableDesc']),
+        onClick: callSetMuted.bind(null, !isMeetingMuted, false),
         icon: isMeetingMuted ? 'unmute' : 'mute',
-        dataTest: 'muteAll',
+        dataTest: 'usersJoinMuted',
       },
       {
-        allow: !isMeetingMuted,
+        allow: true,
         key: uuids.current[1],
         label: intl.formatMessage(intlMessages.muteAllExceptPresenterLabel),
         description: intl.formatMessage(intlMessages.muteAllExceptPresenterDesc),
-        onClick: toggleMute.bind(null, isMeetingMuted, true),
+        onClick: callSetMuted.bind(null, true, true),
         icon: 'mute',
         dataTest: 'muteAllExceptPresenter',
       },
@@ -283,14 +279,6 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
         dataTest: 'downloadUserNamesList',
       },
       {
-        allow: true,
-        key: uuids.current[5],
-        label: intl.formatMessage(intlMessages.clearAllLabel),
-        description: intl.formatMessage(intlMessages.clearAllDesc),
-        onClick: () => toggleStatus(),
-        icon: 'clear_status',
-      },
-      {
         key: 'separator-01',
         isSeparator: true,
         allow: true,
@@ -303,6 +291,15 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
         description: intl.formatMessage(intlMessages.createBreakoutRoomDesc),
         onClick: () => setCreateBreakoutRoomModalIsOpen(true),
         dataTest: 'createBreakoutRooms',
+      },
+      {
+        allow: canInviteUsers,
+        key: uuids.current[7],
+        icon: 'rooms',
+        label: intl.formatMessage(intlMessages.invitationLabel),
+        description: intl.formatMessage(intlMessages.invitationDesc),
+        onClick: () => setCreateBreakoutRoomModalIsOpen(true),
+        dataTest: 'inviteUsers',
       },
       {
         key: 'separator-02',
@@ -357,7 +354,9 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
         setIsOpen: setCreateBreakoutRoomModalIsOpen,
         priority: 'medium',
         Component: CreateBreakoutRoomContainerGraphql,
-        otherOptions: {},
+        otherOptions: {
+          isUpdate: isInvitation,
+        },
       })}
 
       {renderModal({

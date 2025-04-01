@@ -1,9 +1,9 @@
 const { test } = require('../fixtures');
 const { fullyParallel } = require('../playwright.config');
-const { linkIssue, initializePages } = require('../core/helpers');
+const { initializePages } = require('../core/helpers');
 const { Chat } = require('./chat');
 
-test.describe('Chat', () => {
+test.describe('Chat', { tag: '@ci' }, () => {
   const chat = new Chat();
 
   test.describe.configure({ mode: fullyParallel ? 'parallel' : 'serial' });
@@ -11,83 +11,78 @@ test.describe('Chat', () => {
     await initializePages(chat, browser, { isMultiUser: true });
   });
 
-  // https://docs.bigbluebutton.org/2.6/release-tests.html#public-message-automated
-  test('Send public message @ci', async () => {
+  // https://docs.bigbluebutton.org/3.0/testing/release-testing/#public-message-automated
+  test('Send public message', async () => {
     await chat.sendPublicMessage();
   });
 
-  // https://docs.bigbluebutton.org/2.6/release-tests.html#private-message-automated
-  test('Send private message @ci', async () => {
+  // https://docs.bigbluebutton.org/3.0/testing/release-testing/#private-message-automated
+  test('Send private message', async () => {
     await chat.sendPrivateMessage();
   });
 
-  test('Clear chat @ci', async () => {
+  test('Clear chat', async () => {
     await chat.clearChat();
   });
 
-  test.skip('Copy chat', async () => {
+  test('Copy chat', async () => {
     await chat.copyChat();
   });
 
-  test('Save chat @ci', async ({}, testInfo) => {
+  test('Save chat', async ({}, testInfo) => {
     await chat.saveChat(testInfo);
   });
 
-  test('Verify character limit @ci', async () => {
+  test('Verify character limit', async () => {
     await chat.characterLimit();
   });
 
-  // https://docs.bigbluebutton.org/2.6/release-tests.html#sending-empty-chat-message-automated
-  test('Not able to send an empty message @ci', async () => {
+  // https://docs.bigbluebutton.org/3.0/testing/release-testing/#sending-empty-chat-message-automated
+  test('Not able to send an empty message', async () => {
     await chat.emptyMessage();
   });
 
-  test('Copy and paste public message', async ({ browserName }) => {
-    linkIssue('15948');
-    test.skip(browserName === 'webkit', 'The message breaks in two, but it should keep together.');
+  test('Copy and paste public message', async () => {
     await chat.copyPastePublicMessage();
   })
 
-  test('Send emoji on public chat @ci', async () => {
+  test('Send emoji on public chat using emoji picker', { tag: '@setting-required:chat.emojiPicker' }, async () => {
     await chat.sendEmoji();
   });
 
-  test.skip('Copy chat with emoji', async () => {
-    // Only works in headed mode
+  test('Copy chat with emoji', async () => {
     await chat.emojiCopyChat();
   });
 
-  test('Close private chat @ci', async ({ browserName }) => {
-    test.skip(browserName === 'webkit', 'Receiving wrong output.');
+  test('Close private chat', async () => {
     await chat.closePrivateChat();
   });
 
-  test('Save chat with emoji @ci', async ({}, testInfo) => {
+  test('Save chat with emoji', { tag: '@setting-required:chat.emojiPicker' }, async ({}, testInfo) => {
     await chat.emojiSaveChat(testInfo);
   });
 
-  test('Send emoji on private chat', async () => {
+  test('Send emoji on private chat', { tag: '@setting-required:chat.emojiPicker' }, async () => {
     await chat.emojiSendPrivateChat();
   });
 
-  test('Send auto converted emoji on public chat', async () => {
+  test('Send auto converted emoji on public chat', { tag: '@setting-required:chat.autoConvertEmoji' }, async () => {
     await chat.autoConvertEmojiPublicChat();
   });
 
-  test.skip('Copy chat with auto converted emoji', async () => {
+  test('Copy chat with auto converted emoji', { tag: '@setting-required:chat.autoConvertEmoji' }, async () => {
     await chat.autoConvertEmojiCopyChat();
   });
 
-  test('Auto convert emoji save chat', async ({}, testInfo) => {
+  test('Auto convert emoji save chat', { tag: '@setting-required:chat.autoConvertEmoji' }, async ({}, testInfo) => {
     await chat.autoConvertEmojiSaveChat(testInfo);
   });
 
-  test('Send auto converted emoji on private chat', async () => {
+  test('Send auto converted emoji on private chat', { tag: '@setting-required:chat.autoConvertEmoji' }, async () => {
     await chat.autoConvertEmojiSendPrivateChat();
   });
 
-  // failure only reproducible in CI (user leaves but keeps shown in the mod user list)
-  test('Private chat disabled when user leaves meeting @ci @flaky', async () => {
+  test('Private chat disabled when user leaves meeting', async () => {
     await chat.chatDisabledUserLeaves();
   });
 });

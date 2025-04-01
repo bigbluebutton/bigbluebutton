@@ -7,7 +7,6 @@ subscription UserListSubscription($offset: Int!, $limit: Int!) {
                   {presenter: desc},
                   {role: asc},
                   {raiseHandTime: asc_nulls_last},
-                  {emojiTime: asc_nulls_last},
                   {isDialIn: desc},
                   {hasDrawPermissionOnCurrentPage: desc},
                   {nameSortable: asc},
@@ -24,7 +23,6 @@ subscription UserListSubscription($offset: Int!, $limit: Int!) {
     avatar
     away
     raiseHand
-    emoji
     reactionEmoji
     avatar
     presenter
@@ -32,6 +30,7 @@ subscription UserListSubscription($offset: Int!, $limit: Int!) {
     locked
     authed
     mobile
+    bot
     guest
     clientType
     disconnected
@@ -55,6 +54,9 @@ subscription UserListSubscription($offset: Int!, $limit: Int!) {
       shortName
       currentlyInRoom
     }
+    userLockSettings {
+      disablePublicChat
+    }
   }
 }`;
 
@@ -70,7 +72,7 @@ export const USER_AGGREGATE_COUNT_SUBSCRIPTION = gql`
 
 export const GET_USER_IDS = gql`
   query Users {
-    user {
+    user(where: { bot: { _eq: false } } ) {
       userId
     }
   }
@@ -78,8 +80,11 @@ export const GET_USER_IDS = gql`
 
 export const GET_USER_NAMES = gql`
   query Users {
-    user {
+    user(where: { bot: { _eq: false } } ) {
       name
+      nameSortable
+      firstNameSortable
+      lastNameSortable
     }
   }
 `;

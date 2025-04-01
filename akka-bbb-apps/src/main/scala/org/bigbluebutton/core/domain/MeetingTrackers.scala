@@ -84,8 +84,7 @@ case class MeetingExpiryTracker(
 
 case class MeetingRecordingTracker(
     startedOnInMs:        Long,
-    previousDurationInMs: Long,
-    currentDurationInMs:  Long
+    previousDurationInMs: Long
 ) {
 
   def startTimer(nowInMs: Long): MeetingRecordingTracker = {
@@ -93,19 +92,11 @@ case class MeetingRecordingTracker(
   }
 
   def pauseTimer(nowInMs: Long): MeetingRecordingTracker = {
-    copy(currentDurationInMs = 0L, previousDurationInMs = previousDurationInMs + nowInMs - startedOnInMs, startedOnInMs = 0L)
+    copy(previousDurationInMs = previousDurationInMs + nowInMs - startedOnInMs, startedOnInMs = 0L)
   }
 
   def resetTimer(nowInMs: Long): MeetingRecordingTracker = {
-    copy(startedOnInMs = nowInMs, previousDurationInMs = 0L, currentDurationInMs = 0L)
-  }
-
-  def udpateCurrentDuration(nowInMs: Long): MeetingRecordingTracker = {
-    copy(currentDurationInMs = nowInMs - startedOnInMs)
-  }
-
-  def recordingDuration(): Long = {
-    currentDurationInMs + previousDurationInMs
+    copy(startedOnInMs = nowInMs, previousDurationInMs = 0L)
   }
 
 }

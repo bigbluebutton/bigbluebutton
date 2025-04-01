@@ -45,7 +45,7 @@ object FakeUserGenerator {
 
   private def getRandomElement(list: Seq[String], random: Random): String = list(random.nextInt(list.length))
 
-  def createFakeRegisteredUser(users: RegisteredUsers, role: String, guest: Boolean, authed: Boolean, meetingId: String): RegisteredUser = {
+  def createFakeRegisteredUser(users: RegisteredUsers, role: String, bot: Boolean, guest: Boolean, authed: Boolean, meetingId: String): RegisteredUser = {
     val name = getRandomElement(firstNames, random) + " " + getRandomElement(lastNames, random)
     val id = "w_" + RandomStringGenerator.randomAlphanumericString(16)
     val extId = RandomStringGenerator.randomAlphanumericString(16)
@@ -53,10 +53,19 @@ object FakeUserGenerator {
     val sessionToken = RandomStringGenerator.randomAlphanumericString(16)
     val avatarURL = "https://www." + RandomStringGenerator.randomAlphanumericString(32) + ".com/" +
       RandomStringGenerator.randomAlphanumericString(10) + ".png"
+    val webcamBackgroundURL = "https://www." + RandomStringGenerator.randomAlphanumericString(32) + ".com/" +
+      RandomStringGenerator.randomAlphanumericString(10) + ".jpg"
     val color = "#ff6242"
+    val logoutUrlFormats = Seq(
+      s"https://www.${RandomStringGenerator.randomAlphanumericString(32)}.com/logout?user=${RandomStringGenerator.randomAlphanumericString(8)}#section",
+      s"http://localhost:8080/logout/${RandomStringGenerator.randomAlphanumericString(8)}",
+      s"https://example.com/logout?redirect=${java.net.URLEncoder.encode("https://another-site.com", "UTF-8")}"
+    )
+    val logoutUrl = logoutUrlFormats(random.nextInt(logoutUrlFormats.length))
 
-    val ru = RegisteredUsers.create(meetingId, userId = id, extId, name, role,
-      authToken, sessionToken, avatarURL, color, guest, authed, guestStatus = GuestStatus.ALLOW, false, "", Map(), false)
+    val ru = RegisteredUsers.create(meetingId, userId = id, extId, name, "", "", role,
+      authToken, Vector(sessionToken), avatarURL, webcamBackgroundURL, color, bot,
+      guest, authed, guestStatus = GuestStatus.ALLOW, false, "", logoutUrl, Map(), false)
     RegisteredUsers.add(users, ru, meetingId)
     ru
   }
@@ -113,7 +122,7 @@ object FakeUserGenerator {
 
   def createFakeWebcamStreamFor(userId: String, subscribers: Set[String]): WebcamStream = {
     val streamId = RandomStringGenerator.randomAlphanumericString(10)
-    WebcamStream(streamId, userId, subscribers)
+    WebcamStream(streamId, userId, "camera", hasAudio = false, showAsContent = false, subscribers)
   }
 
 }

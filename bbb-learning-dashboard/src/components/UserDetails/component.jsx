@@ -53,16 +53,19 @@ const UserDatailsComponent = (props) => {
   const currTime = () => new Date().getTime();
 
   // Join and left times.
-  const registeredTimes = Object.values(user.intIds).map((intId) => intId.registeredOn);
-  const leftTimes = Object.values(user.intIds).map((intId) => intId.leftOn);
+  const registeredTimes = Object.values(user.intIds)
+    .map((intId) => intId.sessions.map((session) => session.registeredOn)).flat();
+  const leftTimes = Object.values(user.intIds)
+    .map((intId) => intId.sessions.map((session) => session.leftOn)).flat();
   const joinTime = Math.min(...registeredTimes);
   const leftTime = Math.max(...leftTimes);
-  const isOnline = Object.values(user.intIds).some((intId) => intId.leftOn === 0);
+  const currentlyInMeeting = Object.values(user.intIds)
+    .some((intId) => intId.sessions.some((session) => session.leftOn === 0));
 
   // Used in the calculation of the online loader.
   const sessionDuration = (endedOn || currTime()) - createdOn;
   const userStartOffsetTime = ((joinTime - createdOn) * 100) / sessionDuration;
-  const userEndOffsetTime = isOnline
+  const userEndOffsetTime = currentlyInMeeting
     ? 0
     : (((endedOn || currTime()) - leftTime) * 100) / sessionDuration;
 
@@ -109,8 +112,8 @@ const UserDatailsComponent = (props) => {
 
   const usersTalkTime = allUsersArr.map((currUser) => currUser.talk.totalTime);
   const usersMessages = allUsersArr.map((currUser) => currUser.totalOfMessages);
-  const usersEmojis = allUsersArr.map((currUser) => currUser.emojis.filter((emoji) => emoji.name !== 'raiseHand').length);
-  const usersRaiseHands = allUsersArr.map((currUser) => currUser.emojis.filter((emoji) => emoji.name === 'raiseHand').length);
+  const usersReactions = allUsersArr.map((currUser) => currUser.reactions.length);
+  const usersRaiseHands = allUsersArr.map((currUser) => currUser.raiseHand.length);
   const usersAnswers = allUsersArr.map((currUser) => Object.values(currUser.answers || {}).length);
   const totalPolls = Object.values(polls || {}).length;
 
@@ -132,18 +135,18 @@ const UserDatailsComponent = (props) => {
 
   function getPointsOfRaiseHand(u) {
     const maxRaiseHand = Math.max(...usersRaiseHands);
-    const userRaiseHand = u.emojis.filter((emoji) => emoji.name === 'raiseHand').length;
+    const userRaiseHand = u.reactions.length;
     if (maxRaiseHand > 0) {
       return (userRaiseHand / maxRaiseHand) * 2;
     }
     return 0;
   }
 
-  function getPointsofEmoji(u) {
-    const maxEmojis = Math.max(...usersEmojis);
-    const userEmojis = u.emojis.filter((emoji) => emoji.name !== 'raiseHand').length;
-    if (maxEmojis > 0) {
-      return (userEmojis / maxEmojis) * 2;
+  function getPointsofReaction(u) {
+    const maxReactions = Math.max(...usersReactions);
+    const userReactions = u.reactions.length;
+    if (maxReactions > 0) {
+      return (userReactions / maxReactions) * 2;
     }
     return 0;
   }
@@ -161,7 +164,7 @@ const UserDatailsComponent = (props) => {
   const messagesAverage = usersMessages
     .reduce((prev, curr) => prev + curr, 0) / (allUsersArr.length || 1);
 
-  const emojisAverage = usersEmojis
+  const reactionsAverage = usersReactions
     .reduce((prev, curr) => prev + curr, 0) / (allUsersArr.length || 1);
 
   const raiseHandsAverage = usersRaiseHands
@@ -173,7 +176,7 @@ const UserDatailsComponent = (props) => {
   const activityPointsFunctions = {
     'Talk Time': getPointsOfTalk,
     Messages: getPointsOfChatting,
-    Emojis: getPointsofEmoji,
+    Reactions: getPointsofReaction,
     'Raise Hands': getPointsOfRaiseHand,
     'Poll Votes': getPointsOfPolls,
   };
@@ -181,7 +184,7 @@ const UserDatailsComponent = (props) => {
   const averages = {
     'Talk Time': talkTimeAverage,
     Messages: messagesAverage,
-    Emojis: emojisAverage,
+    Reactions: reactionsAverage,
     'Raise Hands': raiseHandsAverage,
     'Poll Votes': pollsAverage,
   };
@@ -400,7 +403,7 @@ const UserDatailsComponent = (props) => {
             </div>
             <div>
               <div className="font-medium">
-                { isOnline ? (
+                { currentlyInMeeting ? (
                   <span className="px-2 py-1 font-semibold leading-tight text-green-700 bg-green-100 rounded-full">
                     <FormattedMessage id="app.learningDashboard.indicators.userStatusOnline" defaultMessage="Online" />
                   </span>
@@ -436,7 +439,7 @@ const UserDatailsComponent = (props) => {
                   <th aria-label="Average" className="grow text-center font-normal"><FormattedMessage id="app.learningDashboard.userDetails.average" defaultMessage="Average" /></th>
                   <th aria-label="Activity Points" className="min-w-[20%] text-ellipsis text-right rtl:text-left font-normal"><FormattedMessage id="app.learningDashboard.userDetails.activityPoints" defaultMessage="Activity Points" /></th>
                 </tr>
-                { ['Talk Time', 'Messages', 'Emojis', 'Raise Hands', 'Poll Votes'].map((category) => {
+                { ['Talk Time', 'Messages', 'Reactions', 'Raise Hands', 'Poll Votes'].map((category) => {
                   let totalOfActivity = 0;
 
                   switch (category) {
@@ -446,11 +449,11 @@ const UserDatailsComponent = (props) => {
                     case 'Messages':
                       totalOfActivity = user.totalOfMessages;
                       break;
-                    case 'Emojis':
-                      totalOfActivity = user.emojis.filter((emoji) => emoji.name !== 'raiseHand').length;
+                    case 'Reactions':
+                      totalOfActivity = user.reactions.length;
                       break;
                     case 'Raise Hands':
-                      totalOfActivity = user.emojis.filter((emoji) => emoji.name === 'raiseHand').length;
+                      totalOfActivity = user.raiseHand.length;
                       break;
                     case 'Poll Votes':
                       totalOfActivity = Object.values(user.answers).length;

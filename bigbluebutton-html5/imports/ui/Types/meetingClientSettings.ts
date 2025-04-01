@@ -1,3 +1,8 @@
+import type {
+  InternalRoomOptions,
+  TrackPublishOptions,
+} from 'livekit-client';
+
 export interface MeetingClientSettings {
   public: Public
   private: Private
@@ -23,13 +28,13 @@ export interface Public {
   whiteboard: Whiteboard
   clientLog: ClientLog
   virtualBackgrounds: VirtualBackgrounds
+  minBrowserVersions: MinBrowserVersions
 }
 export interface Locales {
   locale: string
   name: string
 }
 export interface App {
-  instanceId: string
   mobileFontSize: string
   desktopFontSize: string
   audioChatNotification: boolean
@@ -55,10 +60,10 @@ export interface App {
   learningDashboardBase: string
   customStyleUrl: string | null
   darkTheme: DarkTheme
-  askForFeedbackOnLogout: boolean
   askForConfirmationOnLeave: boolean
   wakeLock: WakeLock
   allowDefaultLogoutUrl: boolean
+  skipMeetingEnded: boolean
   dynamicGuestPolicy: boolean
   enableGuestLobbyMessage: boolean
   guestPolicyExtraAllowOptions: boolean
@@ -82,10 +87,8 @@ export interface App {
   remainingTimeAlertThresholdArray: number[]
   enableDebugWindow: boolean
   breakouts: Breakouts
-  customHeartbeat: boolean
   showAllAvailableLocales: boolean
   showAudioFilters: boolean
-  raiseHandActionButton: RaiseHandActionButton
   reactionsButton: ReactionsButton
   emojiRain: EmojiRain
   enableNetworkStats: boolean
@@ -100,6 +103,8 @@ export interface App {
   fallbackOnEmptyLocaleString: boolean
   disableWebsocketFallback: boolean
   maxMutationPayloadSize: number
+  enableApolloDevTools: boolean
+  terminateAndRetryConnection: number
 }
 
 export interface BbbTabletApp {
@@ -140,10 +145,13 @@ export interface MutedAlert {
 
 export interface Breakouts {
   allowUserChooseRoomByDefault: boolean
+  offerRecordingForBreakouts: boolean
+  recordRoomByDefault: boolean
   captureWhiteboardByDefault: boolean
   captureSharedNotesByDefault: boolean
   sendInvitationToAssignedModeratorsByDefault: boolean
   breakoutRoomLimit: number
+  allowPresentationManagementInBreakouts: boolean
 }
 
 export interface RaiseHandActionButton {
@@ -190,6 +198,7 @@ export interface Application {
   wakeLock: boolean
   paginationEnabled: boolean
   whiteboardToolbarAutoHide: boolean
+  pushToTalkEnabled: boolean
   autoCloseReactionsBar: boolean
   darkTheme: boolean
   fallbackLocale: string
@@ -209,6 +218,7 @@ export interface DataSaving {
 export interface Shortcuts {
   openOptions: OpenOptions
   toggleUserList: ToggleUserList
+  openLeaveMenu: OpenLeaveMenu
   toggleMute: ToggleMute
   joinAudio: JoinAudio
   leaveAudio: LeaveAudio
@@ -226,6 +236,11 @@ export interface OpenOptions {
 }
 
 export interface ToggleUserList {
+  accesskey: string
+  descId: string
+}
+
+export interface OpenLeaveMenu {
   accesskey: string
   descId: string
 }
@@ -520,10 +535,12 @@ export interface Chat {
   system_messages_keys: SystemMessagesKeys
   typingIndicator: TypingIndicator
   moderatorChatEmphasized: boolean
+  privateMessageReadFeedback: MessageReadFeedback
   autoConvertEmoji: boolean
   emojiPicker: EmojiPicker
   disableEmojis: string[]
   allowedElements: string[]
+  toolbar: string[]
 }
 
 export interface SystemMessagesKeys {
@@ -536,6 +553,10 @@ export interface SystemMessagesKeys {
 export interface TypingIndicator {
   enabled: boolean
   showNames: boolean
+}
+
+export interface MessageReadFeedback {
+  enabled: boolean
 }
 
 export interface EmojiPicker {
@@ -564,21 +585,16 @@ export interface Layout {
   showParticipantsOnLogin: boolean
   showPushLayoutButton: boolean
   showPushLayoutToggle: boolean
+  showScreenshareQuickSwapButton: boolean
 }
 
 export interface Pads {
   url: string
-  cookie: Cookie
-}
-
-export interface Cookie {
-  path: string
-  sameSite: string
-  secure: boolean
 }
 
 export interface Media {
   audio: Audio2
+  screenshare: Screenshare2,
   stunTurnServersFetchAddress: string
   cacheStunTurnServers: boolean
   fallbackStunServer: string
@@ -606,19 +622,52 @@ export interface Media {
   traceSip: boolean
   sdpSemantics: string
   localEchoTest: LocalEchoTest
-  showVolumeMeter: boolean
+  networkPriorities: MediaNetworkPriorities
+  muteAudioOutputWhenAway: boolean
+  livekit: LiveKitSettings
+}
+
+export interface LiveKitPresetConfig {
+  width: number
+  height: number
+  maxBitrate: number
+  maxFramerate: number
+  priority?: RTCPriorityType
+}
+
+export interface LiveKitCameraSettings {
+  publishOptions?: TrackPublishOptions
+  presets?: LiveKitPresetConfig[]
+}
+
+export interface LiveKitScreenShareSettings {
+  publishOptions?: TrackPublishOptions
+  presets?: LiveKitPresetConfig[]
+}
+
+export interface LiveKitAudioSettings {
+  publishOptions?: TrackPublishOptions
+  unpublishOnMute?: boolean
+}
+
+export interface LiveKitSettings {
+  url?: string
+  selectiveSubscription?: boolean
+  roomOptions?: Partial<InternalRoomOptions>
+  audio?: LiveKitAudioSettings
+  camera?: LiveKitCameraSettings
+  screenshare?: LiveKitScreenShareSettings
 }
 
 export interface Audio2 {
   defaultFullAudioBridge: string
   defaultListenOnlyBridge: string
-  bridges: Bridge[]
   retryThroughRelay: boolean
+  allowAudioJoinCancel: boolean
 }
 
-export interface Bridge {
-  name: string
-  path: string
+export interface Screenshare2 {
+  showButtonForNonPresenters: boolean
 }
 
 export interface LocalEchoTest {
@@ -626,6 +675,12 @@ export interface LocalEchoTest {
   initialHearingState: boolean
   useRtcLoopbackInChromium: boolean
   delay: Delay
+}
+
+export interface MediaNetworkPriorities {
+  audio: RTCPriorityType
+  webcam: RTCPriorityType
+  screenshare: RTCPriorityType
 }
 
 export interface Delay {
@@ -640,7 +695,6 @@ export interface Stats {
   timeout: number
   log: boolean
   notification: Notification
-  jitter: number[]
   loss: number[]
   rtt: number[]
   level: string[]
@@ -693,7 +747,10 @@ export interface Whiteboard {
   pointerDiameter: number
   maxStickyNoteLength: number
   maxNumberOfAnnotations: number
+  maxNumberOfActiveUsers: number
   annotations: Annotations
+  allowInfiniteWhiteboard: boolean
+  allowInfiniteWhiteboardInBreakouts: boolean
   styles: Styles
   toolbar: Toolbar
 }
@@ -718,10 +775,6 @@ export interface Text {
 
 export interface Toolbar {
   multiUserPenOnly: boolean
-  colors: Color[]
-  thickness: Thickness[]
-  font_sizes: FontSize[]
-  tools: Tool[]
   presenterTools: string[]
   multiUserTools: string[]
 }
@@ -739,20 +792,9 @@ export interface FontSize {
   value: number
 }
 
-export interface Tool {
-  icon: string
-  value: string
-}
-
 export interface ClientLog {
-  server: Server
   console: Console
   external: External
-}
-
-export interface Server {
-  enabled: boolean
-  level: string
 }
 
 export interface Console {
@@ -783,8 +825,6 @@ export interface VirtualBackgrounds {
 export interface Private {
   analytics: Analytics
   app: App2
-  serverLog: ServerLog
-  minBrowserVersions: MinBrowserVersion[]
   prometheus: Prometheus
 }
 
@@ -811,21 +851,17 @@ export interface Channels {
   toThirdParty: string
 }
 
-export interface ServerLog {
-  level: string
-  streamerLog: boolean
-  includeServerInfo: boolean
-  healthChecker: HealthChecker
+export interface mobileBrowsers {
+  safari: string
+  chrome: string
 }
 
-export interface HealthChecker {
-  enable: boolean
-  intervalMs: number
-}
-
-export interface MinBrowserVersion {
-  browser: string
-  version: number | number[] | string
+export interface MinBrowserVersions {
+  safari: string
+  chrome: string
+  firefox: string
+  edge: string
+  mobile: mobileBrowsers
 }
 
 export interface Prometheus {

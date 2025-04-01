@@ -32,6 +32,7 @@ import {
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 
 const CloseIcon = styled(Icon)`
+  align-self: flex-start;
   background: transparent;
   outline: none;
   border: none;
@@ -118,6 +119,7 @@ const ToastMessage = styled.div`
   font-size: ${fontSizeSmall};
   max-height: 15vh;
   overflow: auto;
+  color: black !important;
 
   ${({ small }) => small && `
     font-size: 80%;
@@ -179,8 +181,8 @@ const Toast = styled.div`
 const ToastifyContainer = styled(Toastify)`
   z-index: 998;
   position: fixed;
-  min-width: 20rem !important;
-  max-width: 23rem !important;
+  min-width: 240px !important;
+  max-width: 320px !important;
   box-sizing: border-box;
   right: ${jumboPaddingY};
   left: auto;

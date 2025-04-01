@@ -16,9 +16,9 @@ const getDefaultProfile = () => {
   // Unfiltered, includes hidden profiles
   const CAMERA_PROFILES = window.meetingClientSettings.public.kurento.cameraProfiles || [];
 
-  return CAMERA_PROFILES.find(profile => profile.id === BBBStorage.getItem('WebcamProfileId'))
-    || CAMERA_PROFILES.find(profile => profile.id === VideoService.getUserParameterProfile())
-    || CAMERA_PROFILES.find(profile => profile.default)
+  return CAMERA_PROFILES.find((profile) => profile.id === BBBStorage.getItem('WebcamProfileId'))
+    || CAMERA_PROFILES.find((profile) => profile.id === VideoService.getUserParameterProfile())
+    || CAMERA_PROFILES.find((profile) => profile.default)
     || CAMERA_PROFILES[0];
 };
 
@@ -26,14 +26,14 @@ const getCameraAsContentProfile = () => {
   // Unfiltered, includes hidden profiles
   const CAMERA_PROFILES = window.meetingClientSettings.public.kurento.cameraProfiles || [];
 
-  return CAMERA_PROFILES.find(profile => profile.id == CAMERA_AS_CONTENT_PROFILE_ID)
-    || CAMERA_PROFILES.find(profile => profile.default)
+  return CAMERA_PROFILES.find((profile) => profile.id == CAMERA_AS_CONTENT_PROFILE_ID)
+    || CAMERA_PROFILES.find((profile) => profile.default);
 };
 
 const getCameraProfile = (id) => {
   // Unfiltered, includes hidden profiles
   const CAMERA_PROFILES = window.meetingClientSettings.public.kurento.cameraProfiles || [];
-  return CAMERA_PROFILES.find(profile => profile.id === id);
+  return CAMERA_PROFILES.find((profile) => profile.id === id);
 };
 
 // VIDEO_STREAM_STORAGE: Map<deviceId, MediaStream>. Registers WEBCAM streams.
@@ -61,22 +61,20 @@ const storeStream = (deviceId, stream) => {
   });
 
   return true;
-}
+};
 
-const getStream = (deviceId) => {
-  return VIDEO_STREAM_STORAGE.get(deviceId);
-}
+const getStream = (deviceId) => VIDEO_STREAM_STORAGE.get(deviceId);
 
-const hasStream = (deviceId) => {
-  return VIDEO_STREAM_STORAGE.has(deviceId);
-}
+const hasStream = (deviceId) => VIDEO_STREAM_STORAGE.has(deviceId);
 
 const deleteStream = (deviceId) => {
   const stream = getStream(deviceId);
   if (stream == null) return false;
   MediaStreamUtils.stopMediaStreamTracks(stream);
   return VIDEO_STREAM_STORAGE.delete(deviceId);
-}
+};
+
+const clearStreams = () => VIDEO_STREAM_STORAGE.clear();
 
 const promiseTimeout = (ms, promise) => {
   const timeout = new Promise((resolve, reject) => {
@@ -100,6 +98,7 @@ const promiseTimeout = (ms, promise) => {
 
 const getSkipVideoPreview = () => {
   const KURENTO_CONFIG = window.meetingClientSettings.public.kurento;
+  const BBBStorage = getStorageSingletonInstance();
 
   const skipVideoPreviewOnFirstJoin = getFromUserSettings(
     'bbb_skip_video_preview_on_first_join',
@@ -110,8 +109,14 @@ const getSkipVideoPreview = () => {
     KURENTO_CONFIG.skipVideoPreview,
   );
 
+  const skipVideoPreviewIfPreviousDevice = getFromUserSettings(
+    'bbb_skip_video_preview_if_previous_device',
+    KURENTO_CONFIG.skipVideoPreviewIfPreviousDevice,
+  );
+
   return (
     (Storage.getItem('isFirstJoin') !== false && skipVideoPreviewOnFirstJoin)
+    || (BBBStorage.getItem('WebcamDeviceId') && skipVideoPreviewIfPreviousDevice)
     || skipVideoPreview
   );
 };
@@ -129,7 +134,7 @@ const digestVideoDevices = (devices, priorityDevice) => {
 
   devices.forEach((device) => {
     if (device.kind === 'videoinput') {
-      if (!webcams.some(d => d.deviceId === device.deviceId)) {
+      if (!webcams.some((d) => d.deviceId === device.deviceId)) {
         // We found a priority device. Push it to the beginning of the array so we
         // can use it as the "initial device"
         if (priorityDevice && priorityDevice === device.deviceId) {
@@ -138,8 +143,8 @@ const digestVideoDevices = (devices, priorityDevice) => {
           webcams.push(device);
         }
 
-        if (!device.label) { areLabelled = false }
-        if (!device.deviceId) { areIdentified = false }
+        if (!device.label) { areLabelled = false; }
+        if (!device.deviceId) { areIdentified = false; }
       }
     }
   });
@@ -226,9 +231,9 @@ const doGUM = (deviceId, profile) => {
 const terminateCameraStream = (bbbVideoStream, deviceId) => {
   // Cleanup current stream if it wasn't shared/stored
   if (bbbVideoStream && !hasStream(deviceId)) {
-    bbbVideoStream.stop()
+    bbbVideoStream.stop();
   }
-}
+};
 
 export default {
   promiseTimeout,
@@ -236,14 +241,18 @@ export default {
     getStorageSingletonInstance().setItem('WebcamDeviceId', deviceId);
   },
   webcamDeviceId: () => getStorageSingletonInstance().getItem('WebcamDeviceId'),
+  clearWebcamDeviceId: () => getStorageSingletonInstance().removeItem('WebcamDeviceId'),
   changeProfile: (profileId) => {
     getStorageSingletonInstance().setItem('WebcamProfileId', profileId);
   },
+  webcamProfileId: () => getStorageSingletonInstance().getItem('WebcamProfileId'),
+  clearWebcamProfileId: () => getStorageSingletonInstance().removeItem('WebcamProfileId'),
   getSkipVideoPreview,
   storeStream,
   getStream,
   hasStream,
   deleteStream,
+  clearStreams,
   digestVideoDevices,
   getDefaultProfile,
   getCameraAsContentProfile,

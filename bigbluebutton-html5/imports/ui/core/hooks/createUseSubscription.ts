@@ -3,7 +3,7 @@ import {
   useRef, useState, useEffect, useMemo,
 } from 'react';
 import { FetchResult, gql, useApolloClient } from '@apollo/client';
-import R from 'ramda';
+import * as R from 'ramda';
 import { applyPatch, deepClone } from 'fast-json-patch';
 import { GraphqlDataHookSubscriptionResponse } from '../../Types/hook';
 import useDeepComparison from '../../hooks/useDeepComparison';
@@ -70,22 +70,37 @@ function createUseSubscription<T>(
     const observer = useRef({
       //  @ts-ignore
       next(response) {
-        const { data } = response;
+        const { data, loading } = response;
 
-        if (!data) {
+        const hasLoadingChange = oldLoadingRef.current !== loading;
+        if (!data && !hasLoadingChange) {
           return;
         }
+        let hasResponseChanged = false;
+        let objectFromProjectionToSave: GraphqlDataHookSubscriptionResponse<Partial<T>[]> = {
+          data: oldProjectionOfDataRef.current,
+          loading: oldLoadingRef.current,
+        };
+        if (data) {
+          const resultSetKey = Object.keys(data)[0];
+          const newProjectionOfData = data[resultSetKey].map((element: Partial<T>) => projectionFunction(element));
+          if (!R.equals(oldProjectionOfDataRef.current, newProjectionOfData) || oldLoadingRef.current !== loading) {
+            hasResponseChanged = true;
+            objectFromProjectionToSave = {
+              ...response,
+              loading,
+            };
+            objectFromProjectionToSave.data = newProjectionOfData;
+            oldProjectionOfDataRef.current = newProjectionOfData;
+          }
+        }
+        if (hasLoadingChange) {
+          hasResponseChanged = true;
+          objectFromProjectionToSave.loading = loading;
+          oldLoadingRef.current = loading;
+        }
 
-        const resultSetKey = Object.keys(data)[0];
-        const newProjectionOfData = data[resultSetKey].map((element: Partial<T>) => projectionFunction(element));
-        if (!R.equals(oldProjectionOfDataRef.current, newProjectionOfData)) {
-          const loading = response.data === undefined && response.errors === undefined;
-          const objectFromProjectionToSave: GraphqlDataHookSubscriptionResponse<Partial<T>[]> = {
-            ...response,
-            loading,
-          };
-          objectFromProjectionToSave.data = newProjectionOfData;
-          oldProjectionOfDataRef.current = newProjectionOfData;
+        if (hasResponseChanged) {
           setProjectedData(objectFromProjectionToSave);
         }
       },
@@ -100,6 +115,7 @@ function createUseSubscription<T>(
       setProjectedData,
     ] = useState<GraphqlDataHookSubscriptionResponse<Partial<T>[]>>({ loading: true });
     const oldProjectionOfDataRef = useRef<Partial<T>[]>([]);
+    const oldLoadingRef = useRef<boolean>(true);
 
     useEffect(() => {
       const listener = (event: CustomEvent) => {

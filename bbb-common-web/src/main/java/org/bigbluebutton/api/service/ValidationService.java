@@ -39,7 +39,6 @@ public class ValidationService {
         GET_MEETINGS("getMeetings", RequestType.GET),
         GET_SESSIONS("getSessions", RequestType.GET),
         GUEST_WAIT("guestWait", RequestType.GET),
-        ENTER("enter", RequestType.GET),
         STUNS("stuns", RequestType.GET),
         SIGN_OUT("signOut", RequestType.GET),
         LEARNING_DASHBOARD("learningDashboard", RequestType.GET),
@@ -96,9 +95,14 @@ public class ValidationService {
         return violations;
     }
 
-    boolean isValidURL(String url) {
+    public boolean isValidURL(String url) {
+        // Replace the tokens because they won't validate correctly. 
+        String newUrl = url;
+        newUrl = newUrl.replace("%%MEETINGID%%", "123");
+        newUrl = newUrl.replace("%%USERID%%", "456");
+        newUrl = newUrl.replace("%%USERNAME%%", "John Doe");
         try {
-            new URL(url).toURI();
+            new URL(newUrl).toURI();
             return true;
         } catch (MalformedURLException | URISyntaxException e) {
             return false;
@@ -126,7 +130,6 @@ public class ValidationService {
                 case INSERT_DOCUMENT -> new InsertDocument(checksum, servletRequest);
                 case SEND_CHAT_MESSAGE -> new SendChatMessage(checksum, servletRequest);
                 case GUEST_WAIT -> new GuestWait(servletRequest);
-                case ENTER -> new Enter(servletRequest);
                 case STUNS -> new Stuns(servletRequest);
                 case SIGN_OUT -> new SignOut(servletRequest);
                 case LEARNING_DASHBOARD -> new LearningDashboard(servletRequest);

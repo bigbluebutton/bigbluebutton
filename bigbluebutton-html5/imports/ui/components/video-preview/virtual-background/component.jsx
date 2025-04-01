@@ -1,4 +1,6 @@
-import React, { useState, useRef, useContext, useEffect } from 'react';
+import React, {
+  useState, useRef, useContext, useEffect,
+} from 'react';
 import { findDOMNode } from 'react-dom';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
@@ -10,7 +12,7 @@ import {
   getVirtualBackgroundThumbnail,
   isVirtualBackgroundSupported,
 } from '/imports/ui/services/virtual-background/service';
-import { CustomVirtualBackgroundsContext } from './context';
+import { ACTIONS, CustomVirtualBackgroundsContext } from './context';
 import VirtualBgService from '/imports/ui/components/video-preview/virtual-background/service';
 import logger from '/imports/startup/client/logger';
 import withFileReader from '/imports/ui/components/common/file-reader/component';
@@ -125,8 +127,6 @@ const VirtualBgSelector = ({
     loadFromDB,
   } = useContext(CustomVirtualBackgroundsContext);
 
-  const { MIME_TYPES_ALLOWED } = VirtualBgService;
-
   useEffect(() => {
     if (shouldEnableBackgroundUpload(isCustomVirtualBackgroundsEnabled)) {
       if (!defaultSetUp) {
@@ -136,7 +136,7 @@ const VirtualBgSelector = ({
           lastActivityDate: Date.now(),
         }));
         dispatch({
-          type: 'setDefault',
+          type: ACTIONS.SET_DEFAULT,
           backgrounds: defaultBackgrounds,
         });
       }
@@ -144,58 +144,61 @@ const VirtualBgSelector = ({
     }
   }, [isCustomVirtualBackgroundsEnabled]);
 
-  const _virtualBgSelected = (type, name, index, customParams) =>
-    handleVirtualBgSelected(type, name, customParams)
-      .then(switched => {
-        // Reset to the base NONE_TYPE effect if it failed because the expected
-        // behaviour from upstream's method is to actually stop/reset the effect
-        // service if it fails
-        if (!switched) {
-          return setCurrentVirtualBg({ type: EFFECT_TYPES.NONE_TYPE });
-        }
+  const _virtualBgSelected = (
+    type,
+    name,
+    index,
+    customParams,
+  ) => handleVirtualBgSelected(type, name, customParams)
+    .then((switched) => {
+      // Reset to the base NONE_TYPE effect if it failed because the expected
+      // behaviour from upstream's method is to actually stop/reset the effect
+      // service if it fails
+      if (!switched) {
+        return setCurrentVirtualBg({ type: EFFECT_TYPES.NONE_TYPE });
+      }
 
-        setCurrentVirtualBg({ type, name });
+      setCurrentVirtualBg({ type, name, uniqueId: customParams?.uniqueId });
 
-        if (!index || index < 0) return;
+      if (!index || index < 0) return null;
 
-        if (!shouldEnableBackgroundUpload(isCustomVirtualBackgroundsEnabled)) {
-          findDOMNode(inputElementsRef.current[index]).focus();
+      if (!shouldEnableBackgroundUpload(isCustomVirtualBackgroundsEnabled)) {
+        // eslint-disable-next-line react/no-find-dom-node
+        findDOMNode(inputElementsRef.current[index]).focus();
+      } else {
+        if (customParams) {
+          dispatch({
+            type: ACTIONS.UPDATE,
+            background: {
+              uniqueId: customParams.uniqueId,
+              lastActivityDate: Date.now(),
+            },
+          });
         } else {
-          if (customParams) {
-            dispatch({
-              type: 'update',
-              background: {
-                filename: name,
-                uniqueId: customParams.uniqueId,
-                data: customParams.file,
-                custom: true,
-                lastActivityDate: Date.now(),
-              },
-            });
-          } else {
-            dispatch({
-              type: 'update',
-              background: {
-                uniqueId: name,
-                custom: false,
-                lastActivityDate: Date.now(),
-              },
-            });
-          }
-          findDOMNode(inputElementsRef.current[0]).focus();
+          dispatch({
+            type: ACTIONS.UPDATE,
+            background: {
+              uniqueId: name,
+              lastActivityDate: Date.now(),
+            },
+          });
         }
-      });
+        // eslint-disable-next-line react/no-find-dom-node
+        findDOMNode(inputElementsRef.current[0]).focus();
+      }
+
+      return null;
+    });
 
   const renderDropdownSelector = () => {
     const disabled = locked || !isVirtualBackgroundSupported();
-    const IMAGE_NAMES = getImageNames();
 
     return (
       <div>
         <Styled.Select
           value={JSON.stringify(currentVirtualBg)}
           disabled={disabled}
-          onChange={event => {
+          onChange={(event) => {
             const { type, name } = JSON.parse(event.target.value);
             _virtualBgSelected(type, name);
           }}
@@ -211,25 +214,28 @@ const VirtualBgSelector = ({
           {IMAGE_NAMES.map((imageName, i) => {
             const k = `${imageName}-${i}`;
             return (
-              <option key={k} value={JSON.stringify({
-                type: EFFECT_TYPES.IMAGE_TYPE,
-                name: imageName,
-              })}>
-                {imageName.split(".")[0]}
+              <option
+                key={k}
+                value={JSON.stringify({
+                  type: EFFECT_TYPES.IMAGE_TYPE,
+                  name: imageName,
+                })}
+              >
+                {imageName.split('.')[0]}
               </option>
             );
           })}
         </Styled.Select>
       </div>
     );
-  }
+  };
 
   const handleCustomBgChange = (event) => {
     const file = event.target.files[0];
 
     const onSuccess = (background) => {
       dispatch({
-        type: 'new',
+        type: ACTIONS.NEW,
         background: {
           ...background,
           custom: true,
@@ -261,32 +267,29 @@ const VirtualBgSelector = ({
   const renderThumbnailSelector = () => {
     const disabled = locked || !isVirtualBackgroundSupported();
     const Settings = getSettingsSingletonInstance();
-    const isRTL = Settings.application.isRTL;
-    const IMAGE_NAMES = getImageNames();
+    const { isRTL } = Settings.application;
 
-    const renderBlurButton = (index) => {
-      return (
-        <Styled.ThumbnailButtonWrapper
-          key={`blur-${index}`}
-        >
-          <Styled.ThumbnailButton
-            background={getVirtualBackgroundThumbnail(BLUR_FILENAME)}
-            aria-label={intl.formatMessage(intlMessages.blurLabel)}
-            label={intl.formatMessage(intlMessages.blurLabel)}
-            aria-describedby={`vr-cam-btn-blur`}
-            tabIndex={disabled ? -1 : 0}
-            hideLabel
-            aria-pressed={currentVirtualBg?.name?.includes('blur') || currentVirtualBg?.name?.includes('Blur')}
-            disabled={disabled}
-            ref={ref => { inputElementsRef.current[index] = ref; }}
-            onClick={() => _virtualBgSelected(EFFECT_TYPES.BLUR_TYPE, 'Blur', index)}
-          />
-          <div aria-hidden className="sr-only" id={`vr-cam-btn-blur`}>
-            {intl.formatMessage(intlMessages.camBgAriaDesc, { 0: EFFECT_TYPES.BLUR_TYPE })}
-          </div>
-        </Styled.ThumbnailButtonWrapper>
-      );
-    };
+    const renderBlurButton = (index) => (
+      <Styled.ThumbnailButtonWrapper
+        key={`blur-${index}`}
+      >
+        <Styled.ThumbnailButton
+          background={getVirtualBackgroundThumbnail(BLUR_FILENAME)}
+          aria-label={intl.formatMessage(intlMessages.blurLabel)}
+          label={intl.formatMessage(intlMessages.blurLabel)}
+          aria-describedby="vr-cam-btn-blur"
+          tabIndex={disabled ? -1 : 0}
+          hideLabel
+          aria-pressed={currentVirtualBg?.name?.includes('blur') || currentVirtualBg?.name?.includes('Blur')}
+          disabled={disabled}
+          ref={(ref) => { inputElementsRef.current[index] = ref; }}
+          onClick={() => _virtualBgSelected(EFFECT_TYPES.BLUR_TYPE, 'Blur', index)}
+        />
+        <div aria-hidden className="sr-only" id="vr-cam-btn-blur">
+          {intl.formatMessage(intlMessages.camBgAriaDesc, { 0: EFFECT_TYPES.BLUR_TYPE })}
+        </div>
+      </Styled.ThumbnailButtonWrapper>
+    );
 
     const renderDefaultButton = (imageName, index) => {
       const label = intl.formatMessage(intlMessages[imageName.split('.').shift()], {
@@ -307,7 +310,7 @@ const VirtualBgSelector = ({
             aria-describedby={`vr-cam-btn-${index + 1}`}
             aria-pressed={currentVirtualBg?.name?.includes(imageName.split('.').shift())}
             hideLabel
-            ref={ref => inputElementsRef.current[index] = ref}
+            ref={(ref) => { inputElementsRef.current[index] = ref; }}
             onClick={() => _virtualBgSelected(EFFECT_TYPES.IMAGE_TYPE, imageName, index)}
             disabled={disabled}
             background={getVirtualBackgroundThumbnail(imageName)}
@@ -317,7 +320,7 @@ const VirtualBgSelector = ({
             {intl.formatMessage(intlMessages.camBgAriaDesc, { 0: label })}
           </div>
         </Styled.ThumbnailButtonWrapper>
-      )
+      );
     };
 
     const renderCustomButton = (background, index) => {
@@ -339,7 +342,7 @@ const VirtualBgSelector = ({
             aria-describedby={`vr-cam-btn-${index + 1}`}
             aria-pressed={currentVirtualBg?.name?.includes(filename)}
             hideLabel
-            ref={ref => inputElementsRef.current[index] = ref}
+            ref={(ref) => { inputElementsRef.current[index] = ref; }}
             onClick={() => _virtualBgSelected(
               EFFECT_TYPES.IMAGE_TYPE,
               filename,
@@ -364,7 +367,7 @@ const VirtualBgSelector = ({
               hideLabel
               onClick={() => {
                 dispatch({
-                  type: 'delete',
+                  type: ACTIONS.DELETE,
                   uniqueId,
                 });
                 _virtualBgSelected(EFFECT_TYPES.NONE_TYPE);
@@ -381,9 +384,9 @@ const VirtualBgSelector = ({
     const renderInputButton = () => (
       <>
         <Styled.BgCustomButton
-          icon='plus'
+          icon="upload"
           label={intl.formatMessage(intlMessages.customLabel)}
-          aria-describedby={`vr-cam-btn-custom`}
+          aria-describedby="vr-cam-btn-custom"
           hideLabel
           tabIndex={disabled ? -1 : 0}
           disabled={disabled}
@@ -402,7 +405,7 @@ const VirtualBgSelector = ({
           style={{ display: 'none' }}
           accept={MIME_TYPES_ALLOWED.join(', ')}
         />
-        <div aria-hidden className="sr-only" id={`vr-cam-btn-custom`}>
+        <div aria-hidden className="sr-only" id="vr-cam-btn-custom">
           {intl.formatMessage(intlMessages.customDesc)}
         </div>
       </>
@@ -411,17 +414,17 @@ const VirtualBgSelector = ({
     const renderNoneButton = () => (
       <>
         <Styled.BgNoneButton
-          icon='close'
+          icon="close"
           label={intl.formatMessage(intlMessages.noneLabel)}
           aria-pressed={currentVirtualBg?.name === undefined}
-          aria-describedby={`vr-cam-btn-none`}
+          aria-describedby="vr-cam-btn-none"
           hideLabel
           tabIndex={disabled ? -1 : 0}
           disabled={disabled}
           onClick={() => _virtualBgSelected(EFFECT_TYPES.NONE_TYPE)}
           data-test="noneBackgroundButton"
         />
-        <div aria-hidden className="sr-only" id={`vr-cam-btn-none`}>
+        <div aria-hidden className="sr-only" id="vr-cam-btn-none">
           {intl.formatMessage(intlMessages.camBgAriaDesc, { 0: EFFECT_TYPES.NONE_TYPE })}
         </div>
       </>
@@ -430,6 +433,7 @@ const VirtualBgSelector = ({
     const renderSkeleton = () => (
       <SkeletonTheme baseColor="#DCE4EC" direction={isRTL ? 'rtl' : 'ltr'}>
         {new Array(SKELETON_COUNT).fill(null).map((_, index) => (
+          // eslint-disable-next-line react/no-array-index-key
           <Styled.SkeletonWrapper key={`skeleton-${index}`}>
             <Skeleton />
           </Styled.SkeletonWrapper>
@@ -461,10 +465,11 @@ const VirtualBgSelector = ({
                     .map((background, index) => {
                       if (background.custom !== false) {
                         return renderCustomButton(background, index);
-                      } else {
-                        const isBlur = background.uniqueId.includes('Blur');
-                        return isBlur ? renderBlurButton(index) : renderDefaultButton(background.uniqueId, index);
                       }
+                      const isBlur = background.uniqueId.includes('Blur');
+                      return isBlur
+                        ? renderBlurButton(index)
+                        : renderDefaultButton(background.uniqueId, index);
                     })}
 
                   {renderInputButton()}

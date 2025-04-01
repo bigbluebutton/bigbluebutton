@@ -111,8 +111,9 @@ libraryDependencies ++= Seq(
   "org.flywaydb" % "flyway-core" % "7.8.2",
   "com.zaxxer" % "HikariCP" % "4.0.3",
   "commons-validator" % "commons-validator" % "1.7",
-  "org.apache.tika" % "tika-core" % "2.8.0",
-  "org.apache.tika" % "tika-parsers-standard-package" % "2.8.0",
+  "org.apache.tika" % "tika-core" % "3.0.0",
+  "org.apache.tika" % "tika-parsers-standard-package" % "3.0.0",
   "org.scala-lang.modules" %% "scala-xml" % "2.2.0",
-  "jakarta.ws.rs" % "jakarta.ws.rs-api" % "3.1.0"
+  "jakarta.ws.rs" % "jakarta.ws.rs-api" % "3.1.0",
+  "xyz.capybara" % "clamav-client" % "2.1.2"
 )

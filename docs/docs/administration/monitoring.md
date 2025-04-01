@@ -137,7 +137,7 @@ After a restart of bbb-webrtc-sfu, the metrics can now be queried via
 
 respectively.
 
-#### Meteor / HTML5 Frontend (experimental)
+#### HTML5 Frontend (experimental)
 The HTML5 Frontend servers can be configured to provide Prometheus endpoints by adding
 the following to `/etc/bigbluebutton/bbb-html5.yml`:
 

@@ -24,6 +24,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,6 +39,8 @@ import com.google.gson.Gson;
 
 public class TextFileCreatorImp implements TextFileCreator {
   private static Logger log = LoggerFactory.getLogger(TextFileCreatorImp.class);
+
+  private long execTimeout = 60000;
 
   @Override
   public boolean createTextFile(UploadedPresentation pres, int page) {
@@ -64,8 +68,13 @@ public class TextFileCreatorImp implements TextFileCreator {
       UploadedPresentation pres, int page) throws InterruptedException {
     boolean success = true;
     String source = pres.getUploadedFile().getAbsolutePath();
-    String dest;
+    String dest = textfilesDir.getAbsolutePath() + File.separatorChar + "slide-" + page + ".txt";
     String COMMAND = "";
+
+    // Skip processing if the destination file exists, as it was likely restored from the cache
+    if(Files.exists(Paths.get(dest))) {
+      return true;
+    }
 
     if (SupportedFileTypes.isImageFile(pres.getFileType())) {
       dest = textfilesDir.getAbsolutePath() + File.separatorChar + "slide-1.txt";
@@ -89,15 +98,13 @@ public class TextFileCreatorImp implements TextFileCreator {
       }
 
     } else {
-      dest = textfilesDir.getAbsolutePath() + File.separatorChar + "slide-" + page + ".txt";
       // sudo apt-get install xpdf-utils
-
         COMMAND = "pdftotext -raw -nopgbrk -enc UTF-8 -f " + page + " -l " + page
             + " " + source + " " + dest;
 
         //System.out.println(COMMAND);
 
-        boolean done = new ExternalProcessExecutor().exec(COMMAND, 60000);
+        boolean done = new ExternalProcessExecutor().exec(COMMAND, execTimeout);
         if (!done) {
           success = false;
 
@@ -130,4 +137,7 @@ public class TextFileCreatorImp implements TextFileCreator {
     }
   }
 
+  public void setExecTimeout(long execTimeout) {
+    this.execTimeout = execTimeout;
+  }
 }

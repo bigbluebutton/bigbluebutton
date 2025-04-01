@@ -7,7 +7,6 @@ import Auth from '/imports/ui/services/auth';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
-import useWhoIsUnmuted from '/imports/ui/core/hooks/useWhoIsUnmuted';
 
 const ReactionsButtonContainer = ({ ...props }) => {
   const layoutContextDispatch = layoutDispatch();
@@ -18,21 +17,8 @@ const ReactionsButtonContainer = ({ ...props }) => {
   const isMobile = browserWidth <= SMALL_VIEWPORT_BREAKPOINT;
 
   const { data: currentUserData } = useCurrentUser((user) => ({
-    emoji: user.emoji,
-    raiseHand: user.raiseHand,
-    away: user.away,
-    voice: user.voice,
     reactionEmoji: user.reactionEmoji,
   }));
-  const { data: unmutedUsers } = useWhoIsUnmuted();
-
-  const currentUser = {
-    userId: Auth.userID,
-    emoji: currentUserData?.emoji,
-    raiseHand: currentUserData?.raiseHand,
-    away: currentUserData?.away,
-    muted: !unmutedUsers[Auth.userID],
-  };
 
   const { autoCloseReactionsBar } = useSettings(SETTINGS.APPLICATION);
 
@@ -43,7 +29,7 @@ const ReactionsButtonContainer = ({ ...props }) => {
       sidebarContentPanel,
       isMobile,
       autoCloseReactionsBar,
-      ...currentUser,
+      userId: Auth.userID,
       ...props,
     }}
     />

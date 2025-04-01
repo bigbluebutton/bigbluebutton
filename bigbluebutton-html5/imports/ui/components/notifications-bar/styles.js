@@ -7,14 +7,18 @@ import {
   colorSuccess,
   colorDanger,
 } from '/imports/ui/stylesheets/styled-components/palette';
+import Button from '/imports/ui/components/common/button/component';
 
 const NotificationsBar = styled.div`
-  padding: calc(${lineHeightComputed} / 2);
+  padding: calc(${lineHeightComputed} / 2) 0;
+  gap: .5rem;
   display: flex;
   flex-direction: row;
   justify-content: center;
   align-items: center;
   font-weight: 600;
+  ${({ isMobile }) => isMobile && `
+    font-size: .75rem;`}
 
   ${({ color }) => color === 'default' && `
     color: ${colorGray};
@@ -41,18 +45,11 @@ const NotificationsBar = styled.div`
   `}
 `;
 
-const RetryButton = styled.button`
-  background-color: transparent;
-   border: none;
-   cursor: pointer;
-   text-decoration: underline;
-   display: inline;
-   margin: 0;
-   padding: 0;
-   color: ${colorWhite};
+const ReloadButton = styled(Button)`
+  border: 1px solid ${colorWhite} !important;
 `;
 
 export default {
   NotificationsBar,
-  RetryButton,
+  ReloadButton,
 };

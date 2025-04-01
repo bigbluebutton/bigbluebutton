@@ -1,5 +1,7 @@
 package org.bigbluebutton.common2.domain
 
+import java.util
+
 case class DurationProps(duration: Int, createdTime: Long, createdDate: String,
                          meetingExpireIfNoUserJoinedInMinutes: Int, meetingExpireWhenLastUserLeftInMinutes: Int,
                          userInactivityInspectTimerInMinutes: Int, userInactivityThresholdInMinutes: Int,
@@ -12,6 +14,9 @@ case class MeetingProp(
     intId:                                  String,
     meetingCameraCap:                       Int,
     maxPinnedCameras:                       Int,
+    cameraBridge:                           String,
+    screenShareBridge:                      String,
+    audioBridge:                        String,
     isBreakout:                             Boolean,
     disabledFeatures:                       Vector[String],
     notifyRecordingIsOn:                    Boolean,
@@ -73,6 +78,7 @@ case class SystemProps(
     loginUrl: String,
     logoutUrl: String,
     customLogoURL: String,
+    customDarkLogoURL: String,
     bannerText: String,
     bannerColor: String,
 )
@@ -84,6 +90,7 @@ case class GroupProps(
 )
 
 case class DefaultProps(
+    pluginProp:        util.Map[String, AnyRef],
     meetingProp:       MeetingProp,
     breakoutProps:     BreakoutProps,
     durationProps:     DurationProps,
@@ -117,12 +124,12 @@ case class AnswerVO(id: Int, key: String, text: Option[String], responders: Opti
 case class QuestionVO(id: Int, questionType: String, multiResponse: Boolean, questionText: Option[String], answers: Option[Array[AnswerVO]])
 case class PollVO(id: String, questions: Array[QuestionVO], title: Option[String], started: Boolean, stopped: Boolean, showResult: Boolean, isSecret: Boolean)
 
-case class UserVO(id: String, externalId: String, name: String, role: String,
+case class UserVO(id: String, externalId: String, name: String, role: String, bot: Boolean,
                   guest: Boolean, authed: Boolean, guestStatus: String, emojiStatus: String,
                   presenter: Boolean, hasStream: Boolean, locked: Boolean, webcamStreams: Set[String],
                   phoneUser: Boolean, voiceUser: VoiceUserVO, listenOnly: Boolean, avatarURL: String,
-                  joinedWeb: Boolean)
+                  webcamBackgroundURL: String, joinedWeb: Boolean)
 
 case class VoiceUserVO(userId: String, webUserId: String, callerName: String,
                        callerNum: String, joined: Boolean, locked: Boolean, muted: Boolean,
-                       talking: Boolean, avatarURL: String, listenOnly: Boolean)
+                       talking: Boolean, avatarURL: String, webcamBackgroundURL: String, listenOnly: Boolean)
