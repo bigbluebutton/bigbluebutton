@@ -25,7 +25,7 @@ export const useStopMediaOnMainRoom = () => {
     } catch (error) {
       logger.error({
         logCode: 'breakoutroom_stop_media_error',
-        extraInfo: { error, logType: 'error' },
+        extraInfo: { errorMessage: error.message, errorStack: error.stack },
       }, 'Failed to stop media while joining breakout room');
     }
   }, [exitVideo, streams]);
