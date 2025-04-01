@@ -176,9 +176,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           var safariVersion = match ? parseInt(match[1], 10) : null;
 
           var bundleHash = '<%= bundleHash %>';
+          var isProduction = '<%= isProduction %>' === 'true';
           var script = document.createElement('script');
 
-          if (isSafari && safariVersion && safariVersion <= 16) {
+          if (isProduction && isSafari && safariVersion && safariVersion <= 16) {
             const HTML = document.getElementsByTagName('html')[0];
             HTML.classList.add('legacy');
 
