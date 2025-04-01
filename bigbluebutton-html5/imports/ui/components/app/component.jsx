@@ -109,6 +109,9 @@ const intlMessages = defineMessages({
 const propTypes = {
   darkTheme: PropTypes.bool.isRequired,
   hideNotificationToasts: PropTypes.bool.isRequired,
+  isBreakout: PropTypes.bool.isRequired,
+  meetingId: PropTypes.string.isRequired,
+  meetingName: PropTypes.string.isRequired,
 };
 
 class App extends Component {
@@ -130,6 +133,7 @@ class App extends Component {
   componentDidMount() {
     const { browserName } = browserInfo;
     const { osName } = deviceInfo;
+    const { isBreakout, meetingId, meetingName } = this.props;
 
     Session.setItem('videoPreviewFirstOpen', true);
 
@@ -146,7 +150,15 @@ class App extends Component {
     window.ondragover = (e) => { e.preventDefault(); };
     window.ondrop = (e) => { e.preventDefault(); };
 
-    logger.info({ logCode: 'app_component_componentdidmount' }, 'Client loaded successfully');
+    const logMessage = isBreakout ? 'User joined breakout room' : 'User joined main room';
+
+    logger.info({
+      logCode: 'app_component_componentdidmount',
+      extraInfo: {
+        meetingId,
+        meetingName,
+      },
+    }, logMessage);
   }
 
   componentDidUpdate(prevProps) {
