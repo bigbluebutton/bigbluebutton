@@ -402,7 +402,7 @@ export default class LiveKitScreenshareBridge {
     transportStats: object;
     [key: string]: unknown,
   }> {
-    const stats = getLKStats();
+    const stats = await getLKStats();
     return BridgeService.parseStats({
       stats,
       additionalStatsTypes,
