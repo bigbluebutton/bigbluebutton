@@ -23,9 +23,13 @@ export const useStopMediaOnMainRoom = () => {
       }, 'Joining breakout room closed audio in the main room');
       if (presenter) finishScreenShare();
     } catch (error) {
+      const err = error as Error;
+      const errorMessage = err.message || 'Error stopping media';
+      const errorStack = err.stack || 'No stack trace available';
+
       logger.error({
         logCode: 'breakoutroom_stop_media_error',
-        extraInfo: { errorMessage: error.message, errorStack: error.stack },
+        extraInfo: { errorMessage, errorStack },
       }, 'Failed to stop media while joining breakout room');
     }
   }, [exitVideo, streams]);
