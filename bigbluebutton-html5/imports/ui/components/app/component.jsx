@@ -121,6 +121,7 @@ class App extends Component {
       isAudioModalOpen: false,
       isVideoPreviewModalOpen: false,
       presentationFitToWidth: false,
+      isJoinLogged: false,
     };
 
     this.timeOffsetInterval = null;
@@ -128,12 +129,13 @@ class App extends Component {
     this.setPresentationFitToWidth = this.setPresentationFitToWidth.bind(this);
     this.setAudioModalIsOpen = this.setAudioModalIsOpen.bind(this);
     this.setVideoPreviewModalIsOpen = this.setVideoPreviewModalIsOpen.bind(this);
+    this.logJoin = this.logJoin.bind(this);
   }
 
   componentDidMount() {
     const { browserName } = browserInfo;
     const { osName } = deviceInfo;
-    const { isBreakout, meetingId, meetingName } = this.props;
+    const { isJoinLogged } = this.state;
 
     Session.setItem('videoPreviewFirstOpen', true);
 
@@ -150,15 +152,9 @@ class App extends Component {
     window.ondragover = (e) => { e.preventDefault(); };
     window.ondrop = (e) => { e.preventDefault(); };
 
-    const logMessage = isBreakout ? 'User joined breakout room' : 'User joined main room';
-
-    logger.info({
-      logCode: 'app_component_componentdidmount',
-      extraInfo: {
-        meetingId,
-        meetingName,
-      },
-    }, logMessage);
+    if (!isJoinLogged) {
+      this.logJoin();
+    }
   }
 
   componentDidUpdate(prevProps) {
@@ -168,6 +164,8 @@ class App extends Component {
       intl,
       fitToWidth,
     } = this.props;
+
+    const { isJoinLogged } = this.state;
 
     this.renderDarkMode();
 
@@ -189,6 +187,10 @@ class App extends Component {
 
     if (prevProps.fitToWidth !== fitToWidth) {
       this.setState({ presentationFitToWidth: fitToWidth });
+    }
+
+    if (!isJoinLogged) {
+      this.logJoin();
     }
   }
 
@@ -212,6 +214,24 @@ class App extends Component {
 
   setVideoPreviewModalIsOpen(value) {
     this.setState({ isVideoPreviewModalOpen: value });
+  }
+
+  logJoin() {
+    const { isJoinLogged } = this.state;
+    const { meetingId, meetingName, isBreakout } = this.props;
+
+    const logMessage = isBreakout ? 'User joined breakout room' : 'User joined main room';
+
+    if (!isJoinLogged && meetingId) {
+      logger.info({
+        logCode: 'app_component_componentdidmount',
+        extraInfo: {
+          meetingId,
+          meetingName,
+        },
+      }, logMessage);
+      this.setState({ isJoinLogged: true });
+    }
   }
 
   renderDarkMode() {
