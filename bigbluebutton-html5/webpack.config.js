@@ -48,6 +48,7 @@ const config = {
             options,
           },
           bundleHash: fullhash,
+          isProduction: env === prodEnv,
         };
       },
     }),

@@ -208,6 +208,12 @@ const ExtraTools = styled.div`
   `}
 `;
 
+const IconWithMask = styled.div.attrs({
+  className: 'tlui-icon',
+})`
+  mask: url(${({ mask }) => mask})  center 100% / 100% no-repeat;
+`;
+
 export default {
   VisuallyHidden,
   PresentationSvg,
@@ -226,4 +232,5 @@ export default {
   ToastSeparator,
   Button,
   ExtraTools,
+  IconWithMask,
 };
