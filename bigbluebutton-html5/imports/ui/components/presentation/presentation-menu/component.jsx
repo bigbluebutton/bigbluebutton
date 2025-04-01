@@ -315,13 +315,6 @@ const PresentationMenu = (props) => {
               toastId: toastId.current,
             });
 
-            // This is a workaround to a conflict of the
-            // dark mode's styles and the html-to-image lib.
-            // Issue:
-            //  https://github.com/bubkoo/html-to-image/issues/370
-            const darkThemeState = AppService.isDarkThemeEnabled();
-            AppService.setDarkTheme(false);
-
             try {
               // filter shapes that are inside the slide
               const backgroundShape = tldrawAPI.getCurrentPageShapes().find((s) => s.id === `shape:BG-${slideNum}`);
@@ -389,9 +382,6 @@ const PresentationMenu = (props) => {
                 logCode: 'presentation_snapshot_error',
                 extraInfo: e,
               });
-            } finally {
-              // Workaround
-              AppService.setDarkTheme(darkThemeState);
             }
           },
         },
