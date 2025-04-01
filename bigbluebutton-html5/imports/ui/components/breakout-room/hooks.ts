@@ -13,14 +13,21 @@ export const useStopMediaOnMainRoom = () => {
   const streams = useStreams();
 
   const stop = useCallback((presenter: boolean) => {
-    forceExitAudio();
-    VideoService.storeDeviceIds(streams);
-    stopVideo(exitVideo, streams);
-    logger.info({
-      logCode: 'breakoutroom_join_stop_media',
-      extraInfo: { logType: 'user_action' },
-    }, 'Joining breakout room closed audio in the main room');
-    if (presenter) finishScreenShare();
+    try {
+      forceExitAudio();
+      VideoService.storeDeviceIds(streams);
+      stopVideo(exitVideo, streams);
+      logger.info({
+        logCode: 'breakoutroom_join_stop_media',
+        extraInfo: { logType: 'user_action' },
+      }, 'Joining breakout room closed audio in the main room');
+      if (presenter) finishScreenShare();
+    } catch (error) {
+      logger.error({
+        logCode: 'breakoutroom_stop_media_error',
+        extraInfo: { error, logType: 'error' },
+      }, 'Failed to stop media while joining breakout room');
+    }
   }, [exitVideo, streams]);
 
   return stop;
