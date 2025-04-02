@@ -21,6 +21,11 @@ import com.zaxxer.nuprocess.NuProcess;
 import com.zaxxer.nuprocess.NuProcessBuilder;
 
 public class SvgImageCreatorImp implements SvgImageCreator {
+    // These values should be kept in sync across all BBB components.
+    // See the values under "process" in bbb-export-annotations/config/settings.json
+    private static final int MAX_SVG_WIDTH = 1440;
+    private static final int MAX_SVG_HEIGHT = 1080;
+
     private static Logger log = LoggerFactory.getLogger(SvgImageCreatorImp.class);
 
     private SlidesGenerationProgressNotifier notifier;
@@ -33,10 +38,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
     private int pngWidthRasterizedSlides = 2048;
 	private String BLANK_SVG;
     private int maxNumberOfAttempts = 3;
-
     private ImageResizer imageResizer;
-    private int maxSvgWidth = 1440;
-    private int maxSvgHeight = 1080;
 
     @Override
     public boolean createSvgImage(UploadedPresentation pres, int page) throws TimeoutException{
@@ -262,11 +264,11 @@ public class SvgImageCreatorImp implements SvgImageCreator {
                             height = imageResolution.getHeight();
                         }
 
-                        if(imageResolution.getWidth() > maxSvgWidth || imageResolution.getHeight() > maxSvgHeight) {
+                        if(imageResolution.getWidth() > MAX_SVG_WIDTH || imageResolution.getHeight() > MAX_SVG_HEIGHT) {
                             log.info("The image exceeds max dimension allowed, it will be resized.");
-                            imageResizer.resize(tempPng, maxSvgWidth + "x" + maxSvgHeight);
-                            width = maxSvgWidth;
-                            height = maxSvgHeight;
+                            imageResizer.resize(tempPng, MAX_SVG_WIDTH + "x" + MAX_SVG_HEIGHT);
+                            width = MAX_SVG_WIDTH;
+                            height = MAX_SVG_HEIGHT;
                         }
 
                         String svg = createSvgWithEmbeddedPng(base64encodedPng, width, height);
@@ -447,7 +449,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
         this.pngWidthRasterizedSlides = pngWidthRasterizedSlides;
     }
 
-    public void setMaxSvgWidth(int maxSvgWidth) { this.maxSvgWidth = maxSvgWidth; }
-    public void setMaxSvgHeight(int maxSvgHeight) { this.maxSvgHeight = maxSvgHeight; }
-    public void setImageResizer(ImageResizer imageResizer) { this.imageResizer = imageResizer; }
+    public void setImageResizer(ImageResizer imageResizer) {
+        this.imageResizer = imageResizer;
+    }
 }
