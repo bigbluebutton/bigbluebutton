@@ -65,6 +65,11 @@ const ErrorBoundaryWithReload = ({ children }) => {
         },
       }, 'Global error caught by ErrorBoundaryWithReload');
 
+      // Ignore errors caused by ResizeObserver in chrome <100
+      if (event.reason?.message?.toString().indexOf('ResizeObserver loop limit exceeded') !== -1) {
+        return;
+      }
+
       triggerError();
     };
 

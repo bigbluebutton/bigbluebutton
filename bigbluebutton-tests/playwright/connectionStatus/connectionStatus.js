@@ -34,7 +34,7 @@ class ConnectionStatus extends MultiUsers {
     await this.modPage.hasElement(e.connectionStatusItemEmpty);
     await this.modPage.page.evaluate(() => window.dispatchEvent(new CustomEvent('socketstats', { detail: { rtt: 2000 } })));
     await this.modPage.wasRemoved(e.connectionStatusItemEmpty);
-    await this.modPage.checkElementCount(e.connectionStatusItemUser, 1);
+    await this.modPage.hasElementCount(e.connectionStatusItemUser, 1);
   }
 
   async linkToSettingsTest() {

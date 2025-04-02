@@ -120,6 +120,7 @@ const UserListParticipantsPageContainer: React.FC<UserListParticipantsContainerP
     isDialIn: c.isDialIn,
     name: c.name,
     color: c.color,
+    presPagesWritable: c.presPagesWritable,
   }));
 
   const {

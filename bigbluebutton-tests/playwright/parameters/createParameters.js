@@ -62,10 +62,10 @@ class CreateParameters extends MultiUsers {
     await this.userPage2.waitAndClick(e.startSharingWebcam);
     await this.userPage2.hasElement(e.webcamMirroredVideoContainer, 'should display the attendee 2 camera');
 
-    await this.modPage.checkElementCount(e.webcamContainer, 1, 'should display one camera from the attendee 2 for the moderator');
-    await this.userPage2.checkElementCount(e.webcamMirroredVideoContainer, 1, 'should display one camera from the attendee 2 ');
+    await this.modPage.hasElementCount(e.webcamContainer, 1, 'should display one camera from the attendee 2 for the moderator');
+    await this.userPage2.hasElementCount(e.webcamMirroredVideoContainer, 1, 'should display one camera from the attendee 2 ');
     await this.initUserPage(true, context);
-    await this.userPage.checkElementCount(e.webcamMirroredVideoContainer, 0, 'should not display any camera for the attendee 1');
+    await this.userPage.hasElementCount(e.webcamMirroredVideoContainer, 0, 'should not display any camera for the attendee 1');
   }
 
   async muteOnStart() {
@@ -103,9 +103,9 @@ class CreateParameters extends MultiUsers {
 
   async lockSettingsHideUserList() {
     await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard for the moderator');
-    await this.modPage.checkElementCount(e.userListItem, 2, 'should display the two attendees for the moderator');
-    await this.userPage.checkElementCount(e.userListItem, 1, 'should display one user(the moderator) for the first attendee');
-    await this.userPage2.checkElementCount(e.userListItem, 1, 'should display one user(the moderator) for the second attendee');
+    await this.modPage.hasElementCount(e.userListItem, 2, 'should display the two attendees for the moderator');
+    await this.userPage.hasElementCount(e.userListItem, 1, 'should display one user(the moderator) for the first attendee');
+    await this.userPage2.hasElementCount(e.userListItem, 1, 'should display one user(the moderator) for the second attendee');
   }
 
   async allowModsToEjectCameras() {

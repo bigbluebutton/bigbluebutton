@@ -145,6 +145,7 @@ export interface MutedAlert {
 
 export interface Breakouts {
   allowUserChooseRoomByDefault: boolean
+  offerRecordingForBreakouts: boolean
   recordRoomByDefault: boolean
   captureWhiteboardByDefault: boolean
   captureSharedNotesByDefault: boolean

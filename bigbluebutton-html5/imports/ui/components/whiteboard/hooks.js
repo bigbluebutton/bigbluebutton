@@ -171,9 +171,9 @@ const useMouseEvents = ({
     const newCameraZoomFactor = currentZoomLevel * initialZoomRef.current;
 
     // Calculate the mouse position in canvas space using whiteboardRef
-    const rect = whiteboardRef.current.getBoundingClientRect();
-    const canvasMouseX = (mouseX - rect.left) / cz + cx;
-    const canvasMouseY = (mouseY - rect.top) / cz + cy;
+    const rect = whiteboardRef.current?.getBoundingClientRect();
+    const canvasMouseX = (mouseX - (rect?.left || 0)) / cz + cx;
+    const canvasMouseY = (mouseY - (rect?.top || 0)) / cz + cy;
 
     // Calculate the new camera position to keep the mouse position under the cursor
     const nextCamera = {

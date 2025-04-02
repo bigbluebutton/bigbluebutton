@@ -42,6 +42,9 @@ const AppContainer = (props) => {
   } = useMeeting((m) => ({
     layout: m.layout,
     componentsFlags: m.componentsFlags,
+    isBreakout: m.isBreakout,
+    name: m.name,
+    meetingId: m.meetingId,
   }));
 
   const { data: currentPageInfo } = useDeduplicatedSubscription(
@@ -149,6 +152,9 @@ const AppContainer = (props) => {
           hideNotificationToasts: hideNotificationToasts
             || getFromUserSettings('bbb_hide_notifications', false),
           darkTheme,
+          isBreakout: currentMeeting?.isBreakout,
+          meetingName: currentMeeting?.name,
+          meetingId: currentMeeting?.meetingId,
         }}
         {...props}
       />

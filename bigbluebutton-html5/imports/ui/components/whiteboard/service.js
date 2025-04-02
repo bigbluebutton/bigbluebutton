@@ -134,7 +134,7 @@ const toggleToolsAnimations = (activeAnim, anim, time, hasWBAccess = false) => {
   }
 
   const checkElementsAndRun = () => {
-    const tlEls = document.querySelectorAll('.tlui-menu-zone, .tlui-toolbar__tools, .tlui-toolbar__extras, .tlui-style-panel__wrapper');
+    const tlEls = document.querySelectorAll('.tlui-menu-zone, .tlui-toolbar__tools, .tlui-toolbar__extras, .tlui-style-panel__wrapper, .tlui-undo, .tlui-redo');
     if (tlEls.length) {
       tlEls?.forEach((el) => {
         el.classList.remove(activeAnim);
