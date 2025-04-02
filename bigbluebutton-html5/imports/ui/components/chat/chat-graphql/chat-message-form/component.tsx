@@ -637,6 +637,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
                   disabled={disabled || partnerIsLoggedOut || chatSendMessageLoading}
                   type="submit"
                   data-test="sendMessageButton"
+                  aria-label={intl.formatMessage(messages.submitLabel)}
                 >
                   <SendIcon />
                 </Styled.SendButton>

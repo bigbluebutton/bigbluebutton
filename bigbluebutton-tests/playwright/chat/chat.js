@@ -4,7 +4,7 @@ const e = require('../core/elements');
 const { checkTextContent } = require('../core/util');
 const { MultiUsers } = require('../user/multiusers');
 const { sleep } = require('../core/helpers');
-const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
+const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 
 class Chat extends MultiUsers {
   constructor(browser, context) {
@@ -43,8 +43,10 @@ class Chat extends MultiUsers {
     await this.modPage.hasElement(e.typingIndicator, 'should display the typing indicator for the moderator when user is typing a message');
     await this.userPage.waitAndClick(e.sendButton);
     // check sent messages 
-    await this.modPage.hasText(`${e.chatUserMessageText}>>nth=1`, e.message2, 'should display the message sent from the user to the moderator chat');
-    await this.userPage.hasText(`${e.chatUserMessageText}>>nth=1`, e.message2, 'should display the message sent from the user to the user chat');
+    await expect(this.modPage.getLocator(e.chatUserMessageText).nth(1), 'should display the message sent from the user to the moderator chat')
+      .toContainText(e.message2, { timeout: ELEMENT_WAIT_TIME });
+    await expect(this.userPage.getLocator(e.chatUserMessageText).nth(1), 'should display the message sent from the user to the user chat')
+      .toContainText(e.message2, { timeout: ELEMENT_WAIT_TIME });
     await this.modPage.waitAndClick(e.publicChatButton);
     await this.userPage.waitAndClick(e.publicChatButton);
   }

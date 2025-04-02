@@ -616,6 +616,7 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
           isUpdate={isUpdate}
           setNumberOfRooms={setNumberOfRooms}
           groups={groups}
+          freeJoin={freeJoin}
         />
       </Styled.Content>
       <Styled.ActionButton
@@ -625,7 +626,7 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
           : intl.formatMessage(intlMessages.confirmButton)}
         onClick={isUpdate ? userUpdate : createRoom}
         data-test={isUpdate ? 'updateBreakoutRoomsButton' : 'createBreakoutRoomsButton'}
-        disabled={!leastOneUserIsValid || !numberOfRoomsIsValid || !durationIsValid}
+        disabled={(!leastOneUserIsValid && !freeJoin) || !numberOfRoomsIsValid || !durationIsValid}
       />
     </>
   );

@@ -42,6 +42,7 @@ interface RoomManagmentStateProps {
   isUpdate: boolean;
   setNumberOfRooms: React.Dispatch<React.SetStateAction<number>>;
   groups: getMeetingGroupResponse['meeting_group'];
+  freeJoin: boolean;
 }
 
 const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
@@ -61,6 +62,7 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
   isUpdate,
   setNumberOfRooms,
   groups,
+  freeJoin,
 }) => {
   const intl = useIntl();
   const [selectedId, setSelectedId] = useState<string>('');
@@ -334,6 +336,7 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
             getRoomPresentation={getRoomPresentation}
             currentPresentation={currentPresentation}
             isUpdate={isUpdate}
+            freeJoin={freeJoin}
           />
         ) : null
       }

@@ -59,7 +59,6 @@ class Join extends Create {
   async joinRoomWithModerator() {
     await this.modPage.bringToFront();
 
-    await this.modPage.waitAndClick(e.breakoutRoomsItem);
     await this.modPage.waitAndClick(e.askJoinRoom2);
     await this.modPage.waitForSelector(e.alreadyConnected, ELEMENT_WAIT_LONGER_TIME);
 
@@ -161,14 +160,12 @@ class Join extends Create {
     await notesLocator.type(e.message);
     await sleep(1000); // making sure there's enough time for the typing to finish
 
-    await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
-
     await this.modPage.waitAndClick(e.breakoutOptionsMenu);
     await this.modPage.closeAllToastNotifications();
     await this.modPage.waitAndClick(e.endAllBreakouts);
     // check if the notes were exported
     await this.modPage.hasElement(e.presentationUploadProgressToast, 'should display the presentation upload progress toast');
-    await this.modPage.waitAndClick(e.actions);
+    await this.modPage.waitAndClick(e.mediaAreaButton);
     const shareNotesPDF = await this.modPage.getLocatorByIndex(e.actionsItem, 1);
     await expect(shareNotesPDF, 'should have the Notes name on the share notes pdf').toHaveText(/Notes/, { timeout: 30000 });
     await expect(this.modPage.getLocatorByIndex(e.actionsItem, 2)).toHaveText("Upload/Manage presentations"); //This checks if no other content was exported.
@@ -176,9 +173,7 @@ class Join extends Create {
       "Default presentation",
       "Exported breakout notes",
       "Upload/Manage presentations",
-      "Start a poll",
       "Share an external video",
-      "Activate timer/stopwatch",
       "Share camera as content",
     ];
     await this.modPage.checkElementCount(e.actionsItem, expectedActionItems.length);
@@ -215,22 +210,19 @@ class Join extends Create {
     await breakoutUserPage.page.mouse.up();
     await sleep(1000); // making sure there's enough time for the typing to finish
 
-    await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
     await this.modPage.waitAndClick(e.breakoutOptionsMenu);
     await this.modPage.waitAndClick(e.endAllBreakouts);
 
     await this.modPage.hasElement(e.presentationUploadProgressToast, 'should display the presentation upload progress toast', ELEMENT_WAIT_LONGER_TIME);
-    await this.modPage.waitAndClick(e.actions);
+    await this.modPage.waitAndClick(e.mediaAreaButton);
     const whiteboardPDF = await this.modPage.getLocatorByIndex(e.actionsItem, 1);
     await expect(whiteboardPDF).toHaveText(/Whiteboard/, { timeout: 30000 });
     await expect(this.modPage.getLocatorByIndex(e.actionsItem, 2)).toHaveText("Upload/Manage presentations"); //This checks if no other content was exported.
     const expectedActionItems = [
       "Default presentation",
-      "Exported breakout whiteboard",
+      "Exported breakout notes",
       "Upload/Manage presentations",
-      "Start a poll",
       "Share an external video",
-      "Activate timer/stopwatch",
       "Share camera as content",
     ];
     await this.modPage.checkElementCount(e.actionsItem, expectedActionItems.length);
@@ -243,7 +235,7 @@ class Join extends Create {
       timeout: ELEMENT_WAIT_TIME,
     });
     await this.modPage.wasRemoved(e.presentationUploadProgressToast, 'should have removed the presentation upload progress toast after clicking on it');
-    await this.modPage.waitAndClick(e.actions);
+    await this.modPage.waitAndClick(e.mediaAreaButton);
     await whiteboardPDF.click();
     await hasCurrentPresentationToastElement(this.modPage, 'should display the current presentation toast when changing to the whiteboard exported file');
     // visual assertion
@@ -275,10 +267,11 @@ class Join extends Create {
     await uploadSinglePresentation(this.modPage, e.uploadPresentationFileName);
     await this.modPage.closeAllToastNotifications();
     // create breakouts
-    await this.modPage.waitAndClick(e.manageUsers);
-    await this.modPage.waitAndClick(e.createBreakoutRooms);
+    await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
     await this.modPage.waitForSelector(e.randomlyAssign);
+    await this.modPage.setHeightWidthViewPortSize({ width: 1920, height: 1080 }); // needed for better create breakout rooms button disposition
     await this.modPage.dragDropSelector(e.attendeeNotAssigned, e.breakoutBox1);
+    await this.modPage.setHeightWidthViewPortSize(); // reset to default size
     // select different presentation for the first breakout room
     const changeSlideBreakoutLocator = await this.modPage.getLocator(e.changeSlideBreakoutRoom1);
     await expect(
@@ -286,12 +279,12 @@ class Join extends Create {
       'should display 3 available option on presentation selection (current slide, default and uploaded presentation)',
     ).toHaveCount(3);
     await changeSlideBreakoutLocator.selectOption({ label: e.uploadPresentationFileName });
-    await this.modPage.waitAndClick(e.modalConfirmButton);
+    await this.modPage.waitAndClick(e.createBreakoutRoomsButton);
     await this.userPage.waitAndClick(e.modalDismissButton);
     // join user to breakout room and check the presentation loaded
     const breakoutUserPage = await this.joinRoom();
     await breakoutUserPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_EXTRA_LONG_TIME);
-    await this.modPage.waitForSelector(e.breakoutRoomsItem);
+    await this.modPage.waitForSelector(e.breakoutRoomSidebarButton);
     const breakoutModPage = await this.joinRoomWithModerator();
     await breakoutModPage.waitForSelector(e.presentationTitle);
     await breakoutModPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_EXTRA_LONG_TIME);

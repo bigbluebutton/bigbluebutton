@@ -33,12 +33,8 @@ class Options extends MultiUsers {
 
   async localesTest() {
     const selectedKeysBySelector = {
-      [e.messageTitle]: 'app.userList.messagesTitle',
-      [e.notesTitle]: 'app.userList.notesTitle',
-      [e.userListToggleBtn]: 'app.navBar.userListToggleBtnLabel',
-      [e.hidePublicChat]: 'app.chat.titlePublic',
-      [e.sendButton]: 'app.chat.submitLabel',
-      [e.actions]: 'app.actionsBar.actionsDropdown.actionsLabel',
+      [e.chatTitle]: 'app.userList.messagesTitle',
+      [e.mediaAreaButton]: 'app.actionsBar.actionsDropdown.actionsLabel',
       [e.joinAudio]: 'app.audio.joinAudio',
       [e.joinVideo]: 'app.video.joinVideo',
       [e.startScreenSharing]: 'app.actionsBar.actionsDropdown.desktopShareLabel',
@@ -56,7 +52,7 @@ class Options extends MultiUsers {
       await this.modPage.waitForSelector(e.languageSelector);
       const langDropdown = await this.modPage.page.$(e.languageSelector);
       await langDropdown.selectOption({ value: locale });
-      await this.modPage.waitAndClick(e.modalConfirmButton);
+      await this.modPage.waitAndClick(e.saveSettingsButton);
 
       for (const selector in currentValuesBySelector) {
         await this.modPage.hasText(selector, currentValuesBySelector[selector], 'should the elements be translated into the specific language');

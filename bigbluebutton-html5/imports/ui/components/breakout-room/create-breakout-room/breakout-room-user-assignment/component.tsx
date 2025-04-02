@@ -204,6 +204,7 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
   currentPresentation,
   roomPresentations,
   isUpdate,
+  freeJoin,
 }) => {
   const intl = useIntl();
   const [sortedRooms, setSortedRooms] = useState(rooms);
@@ -361,7 +362,7 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
 
   return (
     <>
-      <Styled.SpanWarn data-test="warningNoUserAssigned" valid={rooms[0]?.users?.length < users.length}>
+      <Styled.SpanWarn data-test="warningNoUserAssigned" valid={rooms[0]?.users?.length < users.length || freeJoin}>
         {intl.formatMessage(intlMessages.leastOneWarnBreakout)}
       </Styled.SpanWarn>
       <ManageRoomLabel

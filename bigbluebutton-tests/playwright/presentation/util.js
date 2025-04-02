@@ -54,7 +54,7 @@ async function uploadSinglePresentation(testPage, fileName, uploadTimeout = UPLO
 }
 
 async function uploadMultiplePresentations(testPage, fileNames, uploadTimeout = ELEMENT_WAIT_EXTRA_LONG_TIME) {
-  await testPage.waitAndClick(e.actions);
+  await testPage.waitAndClick(e.mediaAreaButton);
   await testPage.waitAndClick(e.managePresentations);
   await testPage.hasElement(e.presentationFileUpload, 'should display the modal for uploading a new presentation after opening the manage presentations');
 
