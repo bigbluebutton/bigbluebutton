@@ -178,9 +178,9 @@ module BigBlueButton
 
               # Build track label
               track_label = "t#{i}_#{idx}"
-              line = "[#{input_index}]#{FFMPEG_AFORMAT},apad,asetpts=N"
-              line << ",atempo=#{speed}" if speed != 1.0
-              line << "[#{track_label}];"
+              line = "[#{input_index}]#{FFMPEG_AFORMAT},apad"
+              line << ",atempo=#{speed},atrim=start=#{ms_to_s(audio_data[:timestamp])}" if speed != 1.0
+              line << ",asetpts=N[#{track_label}];"
               filter_lines << line
               track_labels << "[#{track_label}]"
               input_index += 1
