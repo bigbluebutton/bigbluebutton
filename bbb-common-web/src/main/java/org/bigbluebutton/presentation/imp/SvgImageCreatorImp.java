@@ -267,8 +267,9 @@ public class SvgImageCreatorImp implements SvgImageCreator {
                         if(imageResolution.getWidth() > MAX_SVG_WIDTH || imageResolution.getHeight() > MAX_SVG_HEIGHT) {
                             log.info("The image exceeds max dimension allowed, it will be resized.");
                             imageResizer.resize(tempPng, MAX_SVG_WIDTH + "x" + MAX_SVG_HEIGHT);
-                            width = MAX_SVG_WIDTH;
-                            height = MAX_SVG_HEIGHT;
+                            imageResolution = imgResService.identifyImageResolution(tempPng);
+                            width = imageResolution.getWidth();
+                            height = imageResolution.getHeight();
                         }
 
                         String svg = createSvgWithEmbeddedPng(base64encodedPng, width, height);
