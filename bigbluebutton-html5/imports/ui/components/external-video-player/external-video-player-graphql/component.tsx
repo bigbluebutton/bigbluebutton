@@ -303,7 +303,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
         ? internalPlayer.playbackRate
         : internalPlayer?.getPlaybackRate?.() ?? 1;
 
-      const currentTime = played * duration;
+      const currentTime = internalPlayer?.getCurrentTime() ?? 0;
       sendMessage('play', {
         rate,
         time: currentTime,
