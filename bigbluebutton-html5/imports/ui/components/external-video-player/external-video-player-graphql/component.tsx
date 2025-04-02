@@ -188,7 +188,6 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   const playerParentRef = useRef<HTMLDivElement| null>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
   const presenterRef = useRef(isPresenter);
-  const [duration, setDuration] = React.useState(0);
   const [reactPlayerPlaying, setReactPlayerPlaying] = React.useState(false);
   const clientReloadedRef = useRef(false);
 
@@ -201,10 +200,6 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
       const internalPlayer = playerRef.current?.getInternalPlayer();
       internalPlayer?.unMute?.();
     }
-  };
-
-  const handleDuration = (duration: number) => {
-    setDuration(duration);
   };
 
   useEffect(() => {
@@ -435,7 +430,6 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
           onStart={handleOnStart}
           onPlay={handleOnPlay}
           onSeek={handleOnSeek}
-          onDuration={handleDuration}
           onProgress={handleProgress}
           onPause={handleOnStop}
           onEnded={handleOnStop}
