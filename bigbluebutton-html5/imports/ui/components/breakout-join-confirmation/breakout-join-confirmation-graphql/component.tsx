@@ -17,6 +17,7 @@ import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedS
 import { rejoinAudio } from '../../breakout-room/breakout-room/service';
 import { useBreakoutExitObserver } from './hooks';
 import { useStopMediaOnMainRoom } from '/imports/ui/components/breakout-room/hooks';
+import logger from '/imports/startup/client/logger';
 
 const intlMessages = defineMessages({
   title: {
@@ -119,6 +120,12 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
     } else {
       const selectedBreakout = breakouts.find(({ breakoutRoomId }) => breakoutRoomId === selectValue);
       if (selectedBreakout?.joinURL) {
+        // log which breakout room the user is joining
+        logger.info({
+          logCode: 'breakoutroom_freejoin_selected',
+          extraInfo: { selectedBreakout },
+        }, 'User selected breakout room to join');
+
         window.open(selectedBreakout.joinURL, '_blank');
       }
     }
@@ -171,6 +178,16 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
       setIsOpen(true);
     }
   }, [breakouts, currentUserJoined]);
+
+  useEffect(() => {
+    // log which breakout rooms the user has the option to join
+    if (freeJoin) {
+      logger.info({
+        logCode: 'breakoutroom_freejoin_options',
+        extraInfo: { breakouts },
+      }, 'User is given the option to join these breakout rooms');
+    }
+  }, []);
 
   return (
     <ModalFullscreen

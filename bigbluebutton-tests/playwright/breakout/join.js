@@ -154,6 +154,7 @@ class Join extends Create {
     // join room and type on the shared notes
     const breakoutUserPage = await this.joinRoom();
     await breakoutUserPage.hasElement(e.presentationTitle, 'should display the presentation title inside the breakout room.');
+    await breakoutUserPage.waitForSelector(e.whiteboard);
     await breakoutUserPage.waitAndClick(e.sharedNotesSidebarButton);
     await breakoutUserPage.hasElement(e.hideNotesLabel, 'should display the hide notes element when shared notes is opened');
     const notesLocator = getNotesLocator(breakoutUserPage);
@@ -176,7 +177,7 @@ class Join extends Create {
       "Share an external video",
       "Share camera as content",
     ];
-    await this.modPage.checkElementCount(e.actionsItem, expectedActionItems.length);
+    await this.modPage.hasElementCount(e.actionsItem, expectedActionItems.length);
     await shareNotesPDF.click();
     await hasCurrentPresentationToastElement(this.modPage, 'should display the current presentation toast when changing to the whiteboard exported file');
     // visual assertion
@@ -225,7 +226,7 @@ class Join extends Create {
       "Share an external video",
       "Share camera as content",
     ];
-    await this.modPage.checkElementCount(e.actionsItem, expectedActionItems.length);
+    await this.modPage.hasElementCount(e.actionsItem, expectedActionItems.length);
     await this.modPage.press('Escape'); // close the actions menu
     await this.modPage.hasElement(e.presentationUploadProgressToast, 'should display the presentation upload progress toast with the exported whiteboard');
     await this.modPage.getLocator(e.presentationUploadProgressToast).click({
@@ -250,9 +251,9 @@ class Join extends Create {
 
     await this.userPage.hasElementEnabled(e.selectBreakoutRoomBtn);
     await this.userPage.hasElementEnabled(e.modalConfirmButton);
-    await this.userPage.checkElementCount(e.roomOption, 2);
+    await this.userPage.hasHiddenElementCount(e.roomOption, 2);
 
-    await this.userPage.getLocator(`${e.fullscreenModal} >> select`).selectOption({index: 1});
+    await this.userPage.getLocator(e.selectBreakoutRoomBtn).selectOption({index: 1});
     await this.userPage.waitAndClick(e.modalConfirmButton);
 
     const breakoutUserPage = await this.userPage.getLastTargetPage(this.context);

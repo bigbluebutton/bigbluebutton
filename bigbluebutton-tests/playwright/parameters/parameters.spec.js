@@ -361,6 +361,12 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
     await customParam.showParticipantsOnLogin();
   });
 
+  test('Show Session Details on Join', async ({ browser, context, page }) => {
+    const customParam = new CustomParameters(browser, context);
+    await customParam.initModPage(page, false, { joinParameter: c.showSessionDetailsOnJoin, skipSessionDetailsModal: false });
+    await customParam.showSessionDetailsOnJoin();
+  });
+
   test('Client title', async ({ browser, context, page }) => {
     const customParam = new CustomParameters(browser, context);
     await customParam.initModPage(page, true, { joinParameter: c.clientTitle });

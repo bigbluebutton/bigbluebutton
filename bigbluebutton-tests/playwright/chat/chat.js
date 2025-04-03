@@ -13,12 +13,12 @@ class Chat extends MultiUsers {
 
   async sendPublicMessage() {
     await openPublicChat(this.modPage);
-    await this.modPage.checkElementCount(e.chatUserMessageText, 0, 'should have none message on the public chat');
+    await this.modPage.hasElementCount(e.chatUserMessageText, 0, 'should have none message on the public chat');
 
     await this.modPage.type(e.chatBox, e.message);
     await this.userPage.hasElement(e.typingIndicator, 'should display the typing indicator element');
     await this.modPage.page.click(e.sendButton);
-    await this.modPage.checkElementCount(e.chatUserMessageText, 1, 'should have on message on the public chat');
+    await this.modPage.hasElementCount(e.chatUserMessageText, 1, 'should have on message on the public chat');
   }
 
   async sendPrivateMessage() {
@@ -61,7 +61,7 @@ class Chat extends MultiUsers {
     await this.modPage.hasElement(e.chatUserMessageText, 'should display a message sent by the moderator');
 
     // 1 message
-    await this.modPage.checkElementCount(e.chatUserMessageText, userMessageTextCount + 1, 'should display one message');
+    await this.modPage.hasElementCount(e.chatUserMessageText, userMessageTextCount + 1, 'should display one message');
 
     // clear
     await this.modPage.waitAndClick(e.chatOptions);
@@ -125,13 +125,13 @@ class Chat extends MultiUsers {
     await this.modPage.page.fill(e.chatBox, e.uniqueCharacterMessage.repeat(maxMessageLength));
     await this.modPage.waitAndClick(e.sendButton);
     await this.modPage.hasElement(e.chatUserMessageText, 'should display only one message text sent by the user on the public chat');
-    await this.modPage.checkElementCount(e.chatUserMessageText, initialMessagesCount + 1);
+    await this.modPage.hasElementCount(e.chatUserMessageText, initialMessagesCount + 1);
 
     await this.modPage.page.fill(e.chatBox, e.uniqueCharacterMessage.repeat(maxMessageLength));
     await this.modPage.type(e.chatBox, '123');  // it should has no effect
     await this.modPage.hasElement(e.errorTypingIndicator, 'Should appear the warning message below the chat box');
     await this.modPage.waitAndClick(e.sendButton);
-    await this.modPage.checkElementCount(e.chatUserMessageText, initialMessagesCount + 2);
+    await this.modPage.hasElementCount(e.chatUserMessageText, initialMessagesCount + 2);
   }
 
   async emptyMessage() {
@@ -140,7 +140,7 @@ class Chat extends MultiUsers {
     const userMessageTextCount = await this.modPage.getSelectorCount(e.chatUserMessageText);
 
     await this.modPage.waitAndClick(e.sendButton);
-    await this.modPage.checkElementCount(e.chatUserMessageText, userMessageTextCount, 'should have none messages on the chat');
+    await this.modPage.hasElementCount(e.chatUserMessageText, userMessageTextCount, 'should have none messages on the chat');
   }
 
   async copyPastePublicMessage() {
@@ -275,7 +275,7 @@ class Chat extends MultiUsers {
     await this.modPage.waitAndClick(e.chatOptions);
     await this.modPage.waitAndClick(e.chatClear);
 
-    await this.modPage.checkElementCount(e.chatUserMessageText, 0, 'should not display any messages on the public chat');
+    await this.modPage.hasElementCount(e.chatUserMessageText, 0, 'should not display any messages on the public chat');
 
     await this.modPage.type(e.chatBox, e.autoConvertEmojiMessage);
     await this.modPage.waitAndClick(e.sendButton);
@@ -285,7 +285,7 @@ class Chat extends MultiUsers {
       return this.modPage.hasText(`${e.chatUserMessageText}>>nth=1`, ":)", 'should not display the emoji converted');
     }
     await this.modPage.hasElement(e.chatUserMessageText, 'should display the user messages sent on the chat');
-    await this.modPage.checkElementCount(e.chatUserMessageText, 1, 'should display only one message on the public chat');
+    await this.modPage.hasElementCount(e.chatUserMessageText, 1, 'should display only one message on the public chat');
   }
 
   async autoConvertEmojiCopyChat() {

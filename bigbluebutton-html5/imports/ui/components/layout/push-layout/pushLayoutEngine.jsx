@@ -103,10 +103,12 @@ const PushLayoutEngine = (props) => {
     setMeetingLayout,
     setPushLayout,
     hasMeetingLayout,
+    isChatEnabled,
   } = props;
 
   useEffect(() => {
     const Settings = getSettingsSingletonInstance();
+    const hasLayoutEngineLoadedOnce = Session.getItem('hasLayoutEngineLoadedOnce');
 
     const changeLayout = LAYOUT_TYPE[getFromUserSettings('bbb_change_layout', null)];
     const defaultLayout = LAYOUT_TYPE[getFromUserSettings('bbb_default_layout', null)];
@@ -127,8 +129,10 @@ const PushLayoutEngine = (props) => {
     Settings.save(setLocalSettings);
 
     const HIDE_PRESENTATION = window.meetingClientSettings.public.layout.hidePresentationOnJoin;
+    const HIDE_CHAT = window.meetingClientSettings.public.chat.startClosed;
 
     const shouldOpenPresentation = shouldShowScreenshare || shouldShowExternalVideo;
+    const shouldOpenChat = isChatEnabled && getFromUserSettings('bbb_show_public_chat_on_login', !HIDE_CHAT);
     let presentationLastState = !getFromUserSettings('bbb_hide_presentation_on_join', HIDE_PRESENTATION);
     presentationLastState = pushLayoutMeeting ? meetingPresentationIsOpen : presentationLastState;
     presentationLastState = shouldOpenPresentation || presentationLastState;
@@ -146,7 +150,16 @@ const PushLayoutEngine = (props) => {
           type: ACTIONS.SET_CAMERA_DOCK_POSITION,
           value: meetingLayoutCameraPosition || 'contentTop',
         });
-
+        if (shouldOpenChat && !hasLayoutEngineLoadedOnce) {
+          layoutContextDispatch({
+            type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+            value: true,
+          });
+          layoutContextDispatch({
+            type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+            value: PANELS.CHAT,
+          });
+        }
         if (!equalDouble(meetingLayoutVideoRate, 0)) {
           let w; let h;
           if (horizontalPosition) {

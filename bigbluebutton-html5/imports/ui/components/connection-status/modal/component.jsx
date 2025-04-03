@@ -310,10 +310,9 @@ class ConnectionStatusComponent extends PureComponent {
                 moderator={conn.user.isModerator}
                 color={conn.user.color}
               >
-                {conn.user.name.toLowerCase().slice(0, 2)}
+                {(conn.user.name?.toLowerCase()?.slice(0, 2)) || ''}
               </Styled.Avatar>
             </Styled.AvatarWrapper>
-
             <Styled.Name>
               <Styled.Text
                 offline={!conn.user.currentlyInMeeting}

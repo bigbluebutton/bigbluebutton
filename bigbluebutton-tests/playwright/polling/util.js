@@ -11,7 +11,7 @@ async function openPoll(testPage) {
   if (!isPollSidebarOpen) await testPage.waitAndClick(e.pollSidebarButton);
   await testPage.hasElement(e.minimizePolling, 'should display the minimize poll button when the poll sidebar is open');
   await testPage.waitAndClick(e.pollLetterAlternatives);
-  await testPage.checkElementCount(e.pollOptionItem, 4, 'should display the poll options item for the poll answers');
+  await testPage.hasElementCount(e.pollOptionItem, 4, 'should display the poll options item for the poll answers');
 }
 
 async function startPoll(test, isAnonymous = false) {

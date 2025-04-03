@@ -8,7 +8,7 @@ import {
 } from '/imports/ui/components/layout/context';
 import DEFAULT_VALUES, { SIDEBAR_CONTENT_MARGIN_TO_MEDIA } from '/imports/ui/components/layout/defaultValues';
 import { INITIAL_INPUT_STATE } from '/imports/ui/components/layout/initState';
-import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
+import { ACTIONS, PANELS, LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
 import { defaultsDeep } from '/imports/utils/array-utils';
 import Session from '/imports/ui/services/storage/in-memory';
 
@@ -16,7 +16,9 @@ const windowWidth = () => window.document.documentElement.clientWidth;
 const windowHeight = () => window.document.documentElement.clientHeight;
 
 const VideoFocusLayout = (props) => {
-  const { bannerAreaHeight, isMobile, calculatesNavbarHeight } = props;
+  const {
+    prevLayout, bannerAreaHeight, isMobile, calculatesNavbarHeight,
+  } = props;
 
   function usePrevious(value) {
     const ref = useRef();
@@ -90,18 +92,29 @@ const VideoFocusLayout = (props) => {
           externalVideo, genericMainContent, screenShare,
         } = prevInput;
         const { sidebarContentPanel } = sidebarContent;
+        let sidebarContentPanelOverride = sidebarContentPanel;
+        let overrideOpenSidebarPanel = sidebarContentPanel !== PANELS.NONE;
+        let overrideOpenSidebarNavigation = sidebarNavigation.isOpen
+          || sidebarContentPanel !== PANELS.NONE || false;
+        if (prevLayout === LAYOUT_TYPE.CAMERAS_ONLY
+          || prevLayout === LAYOUT_TYPE.PRESENTATION_ONLY
+          || prevLayout === LAYOUT_TYPE.MEDIA_ONLY
+        ) {
+          overrideOpenSidebarNavigation = true;
+          overrideOpenSidebarPanel = true;
+          sidebarContentPanelOverride = PANELS.CHAT;
+        }
         const { registeredApps, pinnedApps } = sidebarNavigation;
         return defaultsDeep(
           {
             sidebarNavigation: {
-              isOpen:
-                sidebarNavigation.isOpen || sidebarContentPanel !== PANELS.NONE || false,
+              isOpen: overrideOpenSidebarNavigation,
               registeredApps,
               pinnedApps,
             },
             sidebarContent: {
-              isOpen: sidebarContentPanel !== PANELS.NONE,
-              sidebarContentPanel,
+              isOpen: overrideOpenSidebarPanel,
+              sidebarContentPanel: sidebarContentPanelOverride,
             },
             SidebarContentHorizontalResizer: {
               isOpen: false,

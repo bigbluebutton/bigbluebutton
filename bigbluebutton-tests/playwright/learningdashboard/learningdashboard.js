@@ -32,11 +32,11 @@ class LearningDashboard extends MultiUsers {
 
   async writeOnPublicChat() {
     await openPublicChat(this.modPage);
-    await this.modPage.checkElementCount(e.chatUserMessageText, 0);
+    await this.modPage.hasElementCount(e.chatUserMessageText, 0);
 
     await this.modPage.type(e.chatBox, e.message);
     await this.modPage.waitAndClick(e.sendButton);
-    await this.modPage.checkElementCount(e.chatUserMessageText, 1);
+    await this.modPage.hasElementCount(e.chatUserMessageText, 1);
     await this.dashboardPage.reloadPage();
     await this.dashboardPage.hasText(e.messageLearningDashboard, '1', 'should display the correct amount of messages sent', ELEMENT_WAIT_EXTRA_LONG_TIME);
   }

@@ -251,6 +251,7 @@ For full details on what is new in BigBlueButton 3.0, see the release notes.
 
 Recent releases:
 
+- [3.0.5](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.5)
 - [3.0.4](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.4)
 - [3.0.3](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.3)
 - [3.0.2](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.2)
@@ -403,6 +404,11 @@ We improved the documentation for which types of files we support when uploading
 #### We mirror the webcam preview by default now
 
 We have supported the option to mirror your own webcam while viewing it. Starting with BigBlueButton 3.0.0-beta.6 we mirror it by default (which leads to the same result you would expect if you looked yourself in a physical mirror).
+
+#### Feedback form removed
+
+We have removed the feedback form that used to be part of the client. It was relying on client logs to carry the information and was not particularly flexible. See https://github.com/bigbluebutton/bigbluebutton/pull/22111 for more information.
+A new repository was contributed by Mconf https://github.com/bigbluebutton/custom-feedback with a much more sophisticated feedback form.
 
 ### Development
 

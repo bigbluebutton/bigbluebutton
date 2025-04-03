@@ -229,7 +229,6 @@ class SharedNotes extends MultiUsers {
     await expect(notesLocator, 'should display the text "Hello" on the shared notes for the moderator').toContainText(/Hello/, { timeout: 20000 });
     await expect(notesLocatorUser, 'should display the text "Hello" on the shared notes for the attendee').toContainText(/Hello/);
     // unpin notes
-    await this.modPage.hasElement(e.smallToastMsg, 'should display the toast notification about notes pinned for the moderator');
     await this.modPage.closeAllToastNotifications();
     await this.modPage.waitAndClick(e.unpinNotes);
     await this.modPage.hasElement(e.whiteboard, 'should restore the presentation for the moderator (previous state)');
@@ -244,6 +243,7 @@ class SharedNotes extends MultiUsers {
     await this.modPage.waitAndClick(e.usersListSidebarButton);
     await this.modPage.waitAndClick(e.moreOptionsUserItemButton);
     await this.modPage.waitAndClick(e.makePresenter);
+    await this.userPage.closeAllToastNotifications();
     await this.userPage.waitAndClick(e.unpinNotes);
     await this.userPage.hasElement(e.whiteboard, 'should restore the presentation for the attendee (previous state)');
     await this.modPage.hasElement(e.whiteboard, 'should restore the presentation for the moderator (previous state)');

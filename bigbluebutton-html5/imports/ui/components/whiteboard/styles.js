@@ -1,5 +1,5 @@
 import styled, { createGlobalStyle } from 'styled-components';
-import { colorOffWhite } from '/imports/ui/stylesheets/styled-components/palette';
+import { colorOffWhite, colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
 import { lgBorderRadius } from '/imports/ui/stylesheets/styled-components/general';
 
 const TldrawV2GlobalStyle = createGlobalStyle`
@@ -134,7 +134,7 @@ const TldrawV2GlobalStyle = createGlobalStyle`
   [data-testid="main.page-menu"],
   [data-testid="main.menu"],
   [data-testid="tools.more.laser"],
-  [data-testid="tools.asset"],
+  [data-testid="tools.more.asset"],
   [data-testid="page-menu.button"],
   [data-testid="menu-item.zoom-to-100"],
   .tlui-menu-zone {
@@ -231,6 +231,11 @@ const TldrawV2GlobalStyle = createGlobalStyle`
 
     return `.tlui-layout__bottom { top: ${topValue} !important; }${additionalStyles}`;
   }}
+  [data-darkreader-scheme="dark"] button[data-testid="mobile.styles"] {
+    & > div.tlui-icon {
+      color: ${colorWhite};
+    }
+  }
 `;
 
 const EditableWBWrapper = styled.div`

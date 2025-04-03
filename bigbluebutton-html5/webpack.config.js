@@ -30,6 +30,9 @@ const config = {
   },
   devtool: 'source-map',
   plugins: [
+    new webpack.optimize.LimitChunkCountPlugin({
+      maxChunks: 1,
+    }),
     new HtmlWebpackPlugin({
       template: './client/main.html',
       filename: 'index.html',
@@ -45,6 +48,7 @@ const config = {
             options,
           },
           bundleHash: fullhash,
+          isProduction: env === prodEnv,
         };
       },
     }),
@@ -124,8 +128,8 @@ if (env === prodEnv) {
   };
   config.performance = {
     hints: 'warning',
-    maxAssetSize: 6000000,
-    maxEntrypointSize: 6000000,
+    maxAssetSize: isSafariTarget ? 16000000 : 8000000,
+    maxEntrypointSize: isSafariTarget ? 16000000 : 8000000,
   };
 } else {
   config.mode = devEnv;

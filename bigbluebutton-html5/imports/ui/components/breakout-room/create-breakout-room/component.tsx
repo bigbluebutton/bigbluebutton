@@ -328,6 +328,14 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
         });
       }
     }
+
+    logger.info({
+      logCode: 'breakout_create_rooms',
+      extraInfo: {
+        rooms: roomsArray,
+      },
+    }, 'Creating breakout rooms');
+
     createBreakoutRoom(
       {
         variables: {
@@ -359,7 +367,7 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
           variables: {
             userId,
             fromBreakoutRoomId: fromRoomId || '',
-            toBreakoutRoomId: toRoomId,
+            toBreakoutRoomId: toRoomId || '',
           },
         });
       }
