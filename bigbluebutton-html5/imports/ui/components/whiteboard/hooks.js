@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { throttle } from 'radash';
+import { set, throttle } from 'radash';
 
 const hasBackgroundImageUrl = (el) => {
   const style = window.getComputedStyle(el);
@@ -28,6 +28,11 @@ const useCursor = (publishCursorUpdate, whiteboardId) => {
   return [cursorPosition, updateCursorPosition];
 };
 
+const getPrensentationMenuItem = () => document.querySelector('li#presentationFullscreen')
+    || document.querySelector('li#presentationSnapshot')
+    || document.querySelector('li#toolVisibility')
+    || null;
+
 const useMouseEvents = ({
   whiteboardRef, tlEditorRef, isWheelZoomRef, initialZoomRef, isPresenterRef,
 }, {
@@ -47,7 +52,7 @@ const useMouseEvents = ({
   const fingerCountRef = React.useRef(0);
   const initialPinchDistanceRef = React.useRef(0);
   const isPinchingRef = React.useRef(false);
-
+  const mouseLeaveTimeoutRef = React.useRef();
   const PINCH_THRESHOLD = 10;
 
   const getDistanceBetweenTouches = (touch1, touch2) => {
@@ -122,12 +127,25 @@ const useMouseEvents = ({
 
   const handleMouseLeave = () => {
     if (whiteboardToolbarAutoHide) {
-      toggleToolsAnimations(
-        'fade-in',
-        'fade-out',
-        animations ? '3s' : '0s',
-        hasWBAccess || isPresenterRef.current,
-      );
+      clearTimeout(mouseLeaveTimeoutRef.current);
+      const presentationWBOptionsMenuItem = getPrensentationMenuItem();
+      if (presentationWBOptionsMenuItem) {
+        const ulElemnt = presentationWBOptionsMenuItem.parentElement;
+        const menuWrapper = ulElemnt.parentElement;
+        const isVisible = menuWrapper.style.visibility !== 'hidden';
+        if (isVisible) {
+          mouseLeaveTimeoutRef.current = setTimeout(() => {
+            handleMouseLeave();
+          }, 500);
+        } else {
+          toggleToolsAnimations(
+            'fade-in',
+            'fade-out',
+            animations ? '3s' : '0s',
+            hasWBAccess || isPresenterRef.current,
+          );
+        }
+      }
     }
 
     setTimeout(() => {
