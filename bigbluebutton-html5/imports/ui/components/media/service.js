@@ -16,7 +16,7 @@ const setPresentationIsOpen = debounce((layoutContextDispatch, value) => {
     type: ACTIONS.SET_PRESENTATION_IS_OPEN,
     value,
   });
-}, 500, { leading: true, trailing: false });
+}, 50, { leading: true, trailing: false });
 
 const buildLayoutWhenPresentationAreaIsDisabled = (
   layoutContextDispatch,
