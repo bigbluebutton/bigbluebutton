@@ -5,9 +5,9 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/common/api"
-	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/common/bbbhttp"
-	core "github.com/bigbluebutton/bigbluebutton/bbb-api/internal/meeting"
+	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/api"
+	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/bbbhttp"
+	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/meeting"
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/meeting/config"
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/meeting/ismeetingrunning"
 	"google.golang.org/grpc"
@@ -38,13 +38,13 @@ func main() {
 	}
 
 	slog.Info("Opening new gRPC channel at", "URI", target)
-	conn, err := grpc.NewClient(target, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithDefaultServiceConfig(core.RetryPolicy))
+	conn, err := grpc.NewClient(target, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithDefaultServiceConfig(meeting.RetryPolicy))
 	if err != nil {
 		panic(err)
 	}
 	defer conn.Close()
 
-	client := core.NewClientWithConn(conn)
+	client := meeting.NewClientWithConn(conn)
 
 	coreAPI := api.NewAPI(address, func(server *bbbhttp.Server) {
 		server.AddRoute(http.MethodGet, "/isMeetingRunning", ismeetingrunning.NewHandlerFunc(ismeetingrunning.NewIsMeetingRunningFlow(client)))

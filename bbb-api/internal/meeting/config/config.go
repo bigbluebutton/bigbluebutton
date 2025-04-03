@@ -12,11 +12,11 @@ package config
 import (
 	"fmt"
 
-	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/common/config"
+	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/config"
 )
 
 const (
-	api     = "core"
+	api     = "meeting"
 	cfgFile = "config.yaml"
 )
 

@@ -5,7 +5,7 @@ package api
 import (
 	"log/slog"
 
-	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/common/bbbhttp"
+	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/bbbhttp"
 )
 
 // An API is a composed of a server that can be run at

@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/gen/common"
-	"github.com/bigbluebutton/bigbluebutton/bbb-api/gen/core"
+	"github.com/bigbluebutton/bigbluebutton/bbb-api/gen/meeting"
 	bbbmime "github.com/bigbluebutton/bigbluebutton/bbb-api/internal/mime"
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/model"
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/validation"
@@ -41,7 +41,7 @@ func (app *Config) isMeetingRunning(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
-	res, err := app.Core.IsMeetingRunning(ctx, &core.MeetingRunningRequest{
+	res, err := app.Core.IsMeetingRunning(ctx, &meeting.MeetingRunningRequest{
 		MeetingData: &common.MeetingData{
 			MeetingId: meetingID,
 		},
@@ -82,7 +82,7 @@ func (app *Config) getMeetingInfo(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
-	res, err := app.Core.GetMeetingInfo(ctx, &core.MeetingInfoRequest{
+	res, err := app.Core.GetMeetingInfo(ctx, &meeting.MeetingInfoRequest{
 		MeetingData: &common.MeetingData{
 			MeetingId: meetingID,
 		},
@@ -164,7 +164,7 @@ func (app *Config) getMeetings(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
-	stream, err := app.Core.GetMeetingsStream(ctx, &core.GetMeetingsStreamRequest{
+	stream, err := app.Core.GetMeetingsStream(ctx, &meeting.GetMeetingsStreamRequest{
 		MeetingData: &common.MeetingData{
 			MeetingId: meetingID,
 		},
@@ -243,7 +243,7 @@ func (app *Config) createMeeting(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		res, err := app.Core.IsMeetingRunning(ctx, &core.MeetingRunningRequest{
+		res, err := app.Core.IsMeetingRunning(ctx, &meeting.MeetingRunningRequest{
 			MeetingData: &common.MeetingData{
 				MeetingId: parentMeetingId,
 			},
@@ -280,7 +280,7 @@ func (app *Config) createMeeting(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	res, err := app.Core.CreateMeeting(ctx, &core.CreateMeetingRequest{
+	res, err := app.Core.CreateMeeting(ctx, &meeting.CreateMeetingRequest{
 		CreateMeetingSettings: settings,
 	})
 	if err != nil {
@@ -346,7 +346,7 @@ func (app *Config) insertDocument(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
-	res, err := app.Core.GetMeetingInfo(ctx, &core.MeetingInfoRequest{
+	res, err := app.Core.GetMeetingInfo(ctx, &meeting.MeetingInfoRequest{
 		MeetingData: &common.MeetingData{
 			MeetingId: meetingID,
 		},

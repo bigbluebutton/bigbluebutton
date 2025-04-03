@@ -3,8 +3,8 @@ package ismeetingrunning
 import (
 	"net/http"
 
-	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/common/bbbhttp"
-	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/common/pipeline"
+	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/bbbhttp"
+	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/pipeline"
 	core "github.com/bigbluebutton/bigbluebutton/bbb-api/internal/meeting"
 )
 

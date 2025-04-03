@@ -6,9 +6,9 @@ import (
 	"time"
 
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/gen/common"
-	"github.com/bigbluebutton/bigbluebutton/bbb-api/gen/core"
-	commonapi "github.com/bigbluebutton/bigbluebutton/bbb-api/internal/common"
-	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/common/responses"
+	"github.com/bigbluebutton/bigbluebutton/bbb-api/gen/meeting"
+	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core"
+	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/responses"
 	"google.golang.org/grpc"
 )
 
@@ -224,7 +224,7 @@ func ErrorToResponse(err error) *Response {
 	resp := &Response{
 		ReturnCode: responses.ReturnCodeFailure,
 	}
-	if bbbErr, ok := err.(*commonapi.BBBError); ok {
+	if bbbErr, ok := err.(*core.BBBError); ok {
 		resp.MessageKey = bbbErr.Key
 		resp.Message = bbbErr.Msg
 	} else {
@@ -235,17 +235,17 @@ func ErrorToResponse(err error) *Response {
 }
 
 type Client struct {
-	core.CoreServiceClient
+	meeting.MeetingServiceClient
 	noRedirectClient *http.Client
 }
 
 func NewClientWithConn(conn *grpc.ClientConn) *Client {
-	return NewClientWithServiceClient(core.NewCoreServiceClient(conn))
+	return NewClientWithServiceClient(meeting.NewMeetingServiceClient(conn))
 }
 
-func NewClientWithServiceClient(serviceClient core.CoreServiceClient) *Client {
+func NewClientWithServiceClient(serviceClient meeting.MeetingServiceClient) *Client {
 	return &Client{
-		CoreServiceClient: serviceClient,
+		MeetingServiceClient: serviceClient,
 		noRedirectClient: &http.Client{
 			Timeout: time.Minute,
 			CheckRedirect: func(req *http.Request, via []*http.Request) error {

@@ -6,8 +6,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/common"
-	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/common/responses"
+	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core"
+	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/responses"
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/random"
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/util"
 )
@@ -17,12 +17,13 @@ import (
 // of the called endpoint concatenated with the query string of the request
 // minus the checksum and the provided salt. A hash is then generated using
 // one of the provided hashing algorithms which is selected based on the length
-// of the provided checksum.
+// of the provided checksum. Returns an error if no checksum is provided or the
+// provided checksum does not match the the generated hash.
 func ValidateChecksum(req *http.Request, salt string, algos map[string]struct{}) error {
 	endpoint := strings.TrimPrefix(req.URL.Path, "/")
 	params := req.URL.Query()
 
-	err := common.NewBBBError(responses.ChecksumErrorKey, responses.ChecksumErrorMsg)
+	err := core.NewBBBError(responses.ChecksumErrorKey, responses.ChecksumErrorMsg)
 
 	if salt == "" {
 		slog.Warn("Security is disabled in this service. Make sure this is intentional.")

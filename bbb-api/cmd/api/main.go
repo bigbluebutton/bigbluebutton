@@ -6,17 +6,17 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/bigbluebutton/bigbluebutton/bbb-api/gen/core"
-	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/common/config"
+	"github.com/bigbluebutton/bigbluebutton/bbb-api/gen/meeting"
+	mCfg "github.com/bigbluebutton/bigbluebutton/bbb-api/internal/meeting/config"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
 
 type Config struct {
-	Core               core.CoreServiceClient
+	Core               meeting.MeetingServiceClient
 	ChecksumAlgorithms map[string]struct{}
 	DisabledFeatures   map[string]struct{}
-	ServerConfig       *config.ServerConfig
+	ServerConfig       *mCfg.Config
 	NoRedirectClient   *http.Client
 }
 
@@ -35,8 +35,6 @@ const retryPolicy = `{
 	}]
 }`
 
-const configFilePath = "config.yml"
-
 func main() {
 	app, err := parseConfiguration()
 	if err != nil {
@@ -53,7 +51,7 @@ func main() {
 	}
 	defer conn.Close()
 
-	client := core.NewCoreServiceClient(conn)
+	client := meeting.NewMeetingServiceClient(conn)
 	app.Core = client
 
 	app.NoRedirectClient = &http.Client{
@@ -80,12 +78,6 @@ func parseConfiguration() (*Config, error) {
 	log.Println("Parsing server configuration")
 
 	var app Config
-
-	serverConfig, err := config.ParseConfig(configFilePath)
-	if err != nil {
-		return nil, err
-	}
-	app.ServerConfig = serverConfig
 
 	checksumAlgorithms := make(map[string]struct{})
 	for _, algorithm := range app.ServerConfig.Security.Checksum.Algorithms {

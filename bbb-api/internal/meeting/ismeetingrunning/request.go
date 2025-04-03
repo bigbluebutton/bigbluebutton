@@ -5,8 +5,8 @@ import (
 	"errors"
 	"time"
 
-	"github.com/bigbluebutton/bigbluebutton/bbb-api/gen/core"
-	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/common/pipeline"
+	"github.com/bigbluebutton/bigbluebutton/bbb-api/gen/meeting"
+	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/pipeline"
 	meetingapi "github.com/bigbluebutton/bigbluebutton/bbb-api/internal/meeting"
 )
 
@@ -14,9 +14,9 @@ type SendMeetingRunningRequest struct {
 	client *meetingapi.Client
 }
 
-func (s *SendMeetingRunningRequest) Send(msg pipeline.Message[*core.MeetingRunningRequest]) (pipeline.Message[*core.MeetingRunningResponse], error) {
+func (s *SendMeetingRunningRequest) Send(msg pipeline.Message[*meeting.MeetingRunningRequest]) (pipeline.Message[*meeting.MeetingRunningResponse], error) {
 	if s.client == nil {
-		return pipeline.Message[*core.MeetingRunningResponse]{}, errors.New("no client provided for call")
+		return pipeline.Message[*meeting.MeetingRunningResponse]{}, errors.New("no client provided for call")
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
@@ -24,7 +24,7 @@ func (s *SendMeetingRunningRequest) Send(msg pipeline.Message[*core.MeetingRunni
 
 	res, err := s.client.IsMeetingRunning(ctx, msg.Payload)
 	if err != nil {
-		return pipeline.Message[*core.MeetingRunningResponse]{}, err
+		return pipeline.Message[*meeting.MeetingRunningResponse]{}, err
 	}
 	return pipeline.NewMessage(res), nil
 }

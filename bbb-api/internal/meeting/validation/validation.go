@@ -1,28 +1,33 @@
+// Package validation provides functionality for validating request data
+// that is common among the various endpoints in the Meeting API.
 package validation
 
 import (
 	"regexp"
 	"strings"
 
-	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/common"
-	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/common/responses"
+	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core"
+	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/responses"
 )
 
+// ValidateMeetingID checks whether the provided meeting ID is valid.
+// A valid meeting ID is between 2 and 256 characters long and does not
+// contain any commas. Returns an error if the meeting ID is not valid.
 func ValidateMeetingID(meetingId string) error {
 	id := strings.TrimSpace(meetingId)
 	if id == "" {
-		return common.NewBBBError(responses.MeetingIDMissingErrorKey, responses.MeetingIDMissingErrorMsg)
+		return core.NewBBBError(responses.MeetingIDMissingErrorKey, responses.MeetingIDMissingErrorMsg)
 	}
 
 	if len(id) < 2 || len(id) > 256 {
-		return common.NewBBBError(responses.MeetingIDLengthErrorKey, responses.MeetingIDLengthErrorMsg)
+		return core.NewBBBError(responses.MeetingIDLengthErrorKey, responses.MeetingIDLengthErrorMsg)
 
 	}
 
 	r, _ := regexp.Compile("^[^,]+$")
 
 	if !r.MatchString(id) {
-		return common.NewBBBError(responses.MeetingIDFormatErrorKey, responses.MeetingIDFormatErrorMsg)
+		return core.NewBBBError(responses.MeetingIDFormatErrorKey, responses.MeetingIDFormatErrorMsg)
 	}
 
 	return nil
