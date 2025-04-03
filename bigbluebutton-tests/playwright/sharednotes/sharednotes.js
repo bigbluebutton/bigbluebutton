@@ -47,10 +47,10 @@ class SharedNotes extends MultiUsers {
     await expect(notesLocator, 'should contain the edited text on shared notes').toContainText(editedMessage, { timeout: ELEMENT_WAIT_TIME });
 
     //! avoiding the following screenshot comparison due to https://github.com/microsoft/playwright/issues/18827
-    // const wbBox = await this.modPage.getLocator(e.etherpadFrame);
-    // await expect(wbBox).toHaveScreenshot('sharednotes-type.png', {
-    //   maxDiffPixels: 100,
-    // });
+    const wbBox = await this.modPage.getLocator(e.etherpadFrame);
+    await expect(wbBox).toHaveScreenshot('sharednotes-type.png', {
+      maxDiffPixels: 100,
+    });
 
     await notesLocator.press('Control+Z');
     await notesLocator.press('Control+Z');
@@ -229,6 +229,7 @@ class SharedNotes extends MultiUsers {
     await expect(notesLocator, 'should display the text "Hello" on the shared notes for the moderator').toContainText(/Hello/, { timeout: 20000 });
     await expect(notesLocatorUser, 'should display the text "Hello" on the shared notes for the attendee').toContainText(/Hello/);
     // unpin notes
+    await this.modPage.closeAllToastNotifications();
     await this.modPage.waitAndClick(e.unpinNotes);
     await this.modPage.hasElement(e.whiteboard, 'should restore the presentation for the moderator (previous state)');
     await this.userPage.wasRemoved(e.whiteboard, 'should not restore the presentation for the attendee as it was minimized before pinning the notes (previous state)');
@@ -242,6 +243,7 @@ class SharedNotes extends MultiUsers {
     await this.modPage.waitAndClick(e.usersListSidebarButton);
     await this.modPage.waitAndClick(e.moreOptionsUserItemButton);
     await this.modPage.waitAndClick(e.makePresenter);
+    await this.userPage.closeAllToastNotifications();
     await this.userPage.waitAndClick(e.unpinNotes);
     await this.userPage.hasElement(e.whiteboard, 'should restore the presentation for the attendee (previous state)');
     await this.modPage.hasElement(e.whiteboard, 'should restore the presentation for the moderator (previous state)');

@@ -20,6 +20,7 @@ class Create extends MultiUsers {
     await this.userPage.hasElement(e.modalConfirmButton, 'should appear the modal confirm button to join breakout');
     await this.userPage.waitAndClick(e.modalDismissButton);
     await this.userPage.hasElement(e.breakoutRoomSidebarButton, 'should display the breakout room sidebar button for the attendee after rooms are created');
+    await this.modPage.setHeightWidthViewPortSize(); // reset to default size
   }
 
   async createToAllowChooseOwnRoom() {
@@ -34,7 +35,7 @@ class Create extends MultiUsers {
     await this.modPage.waitAndClick(e.randomlyAssign);
     await this.modPage.getLocator(e.selectNumberOfRooms).selectOption('7');
     await this.modPage.waitAndClick(e.createBreakoutRoomsButton, ELEMENT_WAIT_LONGER_TIME);
-    await this.modPage.checkElementCount(e.userNameBreakoutRoom7, 1, 'should have one user on the breakout room number 7');
+    await this.modPage.hasElementCount(e.breakoutRoomItemOnManage, 7, 'should have 7 breakout rooms created');
   }
 
   async changeDurationTime() {
@@ -79,6 +80,7 @@ class Create extends MultiUsers {
     await this.modPage.dragDropSelector(e.attendeeNotAssigned, e.breakoutBox1);
     await this.modPage.waitAndClick(`${e.breakoutBox1} span[role="button"]`);
     await this.modPage.hasText(e.breakoutBox0, /Attendee/, 'should display the attendee name on the first breakout room box');
+    await this.modPage.setHeightWidthViewPortSize(); // reset to default size
   }
 
   async dragDropUserInRoom() {
@@ -97,6 +99,7 @@ class Create extends MultiUsers {
     await this.userPage.waitAndClick(e.modalConfirmButton);
 
     await this.modPage.hasText(e.userNameBreakoutRoom, /Attendee/, 'should have the attendee name on the first breakout room', ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.setHeightWidthViewPortSize(); // reset to default size
   }
 }
 

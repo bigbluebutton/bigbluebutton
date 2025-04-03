@@ -101,11 +101,11 @@ class Polling extends MultiUsers {
     await this.checkLastOptionText();
   }
 
-  async notAbleStartNewPollWithoutPresentation() {
+  async startPollWithoutPresentation() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.waitAndClick(e.mediaAreaButton);
     await this.modPage.waitAndClick(e.managePresentations);
-
+    // remove all presentations
     const allRemovePresentationBtn = await this.modPage.getLocator(e.removePresentation).all();
     // reversing the order of clicking is needed to avoid failure as the tooltip shows in front of the below button
     const reversedRemovePresentationButtons = allRemovePresentationBtn.reverse();
@@ -113,8 +113,13 @@ class Polling extends MultiUsers {
       await removeBtn.click({ timeout: ELEMENT_WAIT_TIME });
     }
     await this.modPage.waitAndClick(e.confirmManagePresentation);
-    await this.modPage.waitAndClick(e.pollSidebarButton);
-    await this.modPage.hasElement(e.noPresentation, 'should display the no presentation for not being able to start a poll without presentation');
+    await util.startPoll(this.modPage);
+    await this.userPage.hasElement(e.pollingContainer, 'should display the polling container for the attendee after the poll is created');
+    await this.userPage.waitAndClick(e.pollAnswerOptionBtn);
+    // publish the poll and check the chat results
+    await this.modPage.waitAndClick(e.publishPollingLabel);
+    await this.modPage.hasElement(e.chatPollMessageText);
+    await this.userPage.hasElement(e.chatPollMessageText);
   }
 
   async customInput() {
@@ -144,8 +149,7 @@ class Polling extends MultiUsers {
     await this.modPage.waitAndClickElement(e.allowMultiple);
 
     await this.modPage.waitAndClick(e.addPollItem);
-    await this.modPage.waitAndClick(e.startPoll);
-    await this.modPage.hasElement(e.errorNoValueInput, 'should display an error after trying to start a poll without any input on the option poll item');
+    await this.modPage.hasElementDisabled(e.startPoll, 'should display the start poll button disabled');
 
     await this.modPage.type(e.pollOptionItem1, 'test1');
     await this.modPage.waitAndClick(e.addPollItem);

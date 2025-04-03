@@ -33,6 +33,7 @@ const PresentationOnlyLayout = (props) => {
   const currentPanelType = layoutSelect((i) => i.currentPanelType);
 
   const presentationInput = layoutSelectInput((i) => i.presentation);
+  const externalVideoInput = layoutSelectInput((i) => i.externalVideo);
   const actionbarInput = layoutSelectInput((i) => i.actionBar);
   const navbarInput = layoutSelectInput((i) => i.navBar);
   const layoutContextDispatch = layoutDispatch();
@@ -180,16 +181,6 @@ const PresentationOnlyLayout = (props) => {
     });
 
     layoutContextDispatch({
-      type: ACTIONS.SET_SIDEBAR_NAVIGATION_RESIZABLE_EDGE,
-      value: {
-        top: false,
-        right: !isRTL,
-        bottom: false,
-        left: isRTL,
-      },
-    });
-
-    layoutContextDispatch({
       type: ACTIONS.SET_SIDEBAR_CONTENT_OUTPUT,
       value: {
         display: false,
@@ -258,14 +249,14 @@ const PresentationOnlyLayout = (props) => {
       type: ACTIONS.SET_PRESENTATION_OUTPUT,
       value: {
         display: true,
-        width: mediaBounds.width,
-        height: mediaBounds.height,
-        top: mediaBounds.top,
-        left: mediaBounds.left,
-        right: isRTL ? mediaBounds.right : null,
+        width: windowWidth(),
+        height: windowHeight(),
+        top: 0,
+        left: 0,
+        right: 0,
         tabOrder: DEFAULT_VALUES.presentationTabOrder,
         isResizable: false,
-        zIndex: mediaBounds.zIndex,
+        zIndex: 99,
       },
     });
 
@@ -284,6 +275,7 @@ const PresentationOnlyLayout = (props) => {
     layoutContextDispatch({
       type: ACTIONS.SET_EXTERNAL_VIDEO_OUTPUT,
       value: {
+        display: externalVideoInput.hasExternalVideo,
         width: isOpen ? mediaBounds.width : 0,
         height: isOpen ? mediaBounds.height : 0,
         top: mediaBounds.top,

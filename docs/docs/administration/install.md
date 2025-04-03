@@ -12,8 +12,6 @@ We have tools to make it easy for you, a system administrator, to install BigBlu
 
 ## Before you install
 
-**Note: BigBlueButton 3.0 is still under development**
-
 We recommend installing BigBlueButton with a 'clean' and dedicated Ubuntu 22.04 64-bit server with no prior software installed. If you want to upgrade from an earlier version of BigBlueButton like 2.7, we recommend setting up a clean server for BigBlueButton 3.0 on Ubuntu 22.04 and, after setup, [migrate over your existing recordings](/administration/customize#transfer-published-recordings-from-another-server).
 
 A 'clean' server does not have any previous web servers installed (such as apache) or web applications (such as plesk or webadmin) that are [binding to port 80/443](/support/faq#we-recommend-running-bigbluebutton-on-port-80443). By 'dedicated' we mean that this server won't be used for anything else besides BigBlueButton (and possibly BigBlueButton-related applications such as [Greenlight](/greenlight/v3/install)).

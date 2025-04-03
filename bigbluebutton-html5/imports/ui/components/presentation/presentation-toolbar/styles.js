@@ -14,6 +14,7 @@ import {
   whiteboardToolbarPaddingSm,
   whiteboardToolbarPadding,
   borderSize,
+  lgBorderRadius,
   smPaddingY,
   borderSizeLarge,
   smPaddingX,
@@ -26,6 +27,7 @@ const PresentationToolbarWrapper = styled.div`
   z-index: 1;
   background-color: ${colorOffWhite};
   border-top: 1px solid ${colorBlueLightest};
+  border-radius: 0 0 ${lgBorderRadius} ${lgBorderRadius};
   min-width: fit-content;
   width: 100%;
   bottom: 0px;

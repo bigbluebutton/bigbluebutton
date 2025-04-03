@@ -1253,13 +1253,15 @@ const reducer = (state, action) => {
         top,
         left,
         right,
+        display,
       } = action.value;
       const { externalVideo } = state.output;
       if (externalVideo.width === width
         && externalVideo.height === height
         && externalVideo.top === top
         && externalVideo.left === left
-        && externalVideo.right === right) {
+        && externalVideo.right === right
+        && externalVideo.display === display) {
         return state;
       }
       return {
@@ -1273,6 +1275,7 @@ const reducer = (state, action) => {
             top,
             left,
             right,
+            display,
           },
         },
       };
@@ -1432,7 +1435,7 @@ const updatePresentationAreaContent = (
     previousPresentationAreaContentActions.current,
   ) || layoutType !== previousLayoutType) {
     const CHAT_CONFIG = window.meetingClientSettings.public.chat;
-    const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
+    const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 
     // eslint-disable-next-line no-param-reassign
     previousPresentationAreaContentActions.current = currentPresentationAreaContentActions.slice(0);
@@ -1464,7 +1467,7 @@ const updatePresentationAreaContent = (
             });
             layoutContextDispatch({
               type: ACTIONS.SET_ID_CHAT_OPEN,
-              value: PUBLIC_CHAT_ID,
+              value: PUBLIC_GROUP_CHAT_ID,
             });
           } else {
             layoutContextDispatch({
@@ -1532,7 +1535,7 @@ const updatePresentationAreaContent = (
           value: undefined,
         });
         layoutContextDispatch({
-          type: ACTIONS.PINNED_NOTES,
+          type: ACTIONS.SET_NOTES_IS_PINNED,
           value: !lastPresentationContentInPile.value.open,
         });
         shouldOpenPresentation = Session.getItem('presentationLastState');

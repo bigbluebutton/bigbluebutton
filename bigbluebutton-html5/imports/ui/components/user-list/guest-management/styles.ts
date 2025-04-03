@@ -7,7 +7,7 @@ import {
   colorOffWhite,
 } from '../../../stylesheets/styled-components/palette';
 import {
-  fontSizeSmall,
+  fontSizeBase,
   textFontWeight,
 } from '../../../stylesheets/styled-components/typography';
 import {
@@ -17,7 +17,6 @@ import {
 export const GuestManagementContainer = styled.div`
   border-radius: ${contentSidebarBorderRadius};
   background: ${colorWhite};
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 `;
 
 export const ClickableArea = styled.div`
@@ -57,7 +56,7 @@ export const ButtonContent = styled.div`
   width: 100%;
   padding: 0.5rem;
   border-radius: 0.5rem;
-  background-color: ${colorOffWhite};
+  background-color: transparent;
 `;
 
 export const ExpandIcon = styled.div<{ $expanded: boolean }>`
@@ -84,7 +83,7 @@ export const ExpandIcon = styled.div<{ $expanded: boolean }>`
 `;
 
 export const TitleText = styled.span`
-  font-size: ${fontSizeSmall};
+  font-size: ${fontSizeBase};
   font-weight: ${textFontWeight};
   color: ${colorGrayDark};
   overflow: hidden;

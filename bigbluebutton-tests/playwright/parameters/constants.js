@@ -7,7 +7,7 @@ exports.color = color;
 exports.bannerColor = `bannerColor=${color}`;
 exports.maxParticipants = 'maxParticipants=2';
 exports.duration = 'duration=2';
-const messageModerator = 'Test';
+const messageModerator = 'This is a moderator only message';
 exports.messageModerator = messageModerator;
 exports.moderatorOnlyMessage = `moderatorOnlyMessage=${messageModerator}`;
 exports.webcamsOnlyForModerator = 'webcamsOnlyForModerator=true';
@@ -19,6 +19,10 @@ exports.lockSettingsDisablePublicChat = 'lockSettingsDisablePublicChat=true';
 exports.lockSettingsHideUserList = 'lockSettingsHideUserList=true';
 exports.allowModsToEjectCameras = 'allowModsToEjectCameras=true';
 exports.notifyRecordingIsOn = 'notifyRecordingIsOn=true&notifyRecordingIsOn=true';
+exports.preUploadedPresentation = 'preUploadedPresentation=https://dagrs.berkeley.edu/sites/default/files/2020-01/sample.pdf';
+exports.preUploadedPresentationOverrideDefault = 'preUploadedPresentationOverrideDefault=true';
+exports.preUploadedPresentationName = 'preUploadedPresentationName=ScientificPaper.pdf';
+
 
 // Custom Parameters
 exports.autoJoin = 'userdata-bbb_auto_join_audio=false';
@@ -52,10 +56,12 @@ exports.skipVideoPreviewOnFirstJoin = 'userdata-bbb_skip_video_preview_on_first_
 exports.skipVideoPreviewIfPreviousDevice = 'userdata-bbb_skip_video_preview_if_previous_device=true';
 exports.mirrorOwnWebcam = 'userdata-bbb_mirror_own_webcam=true';
 exports.showParticipantsOnLogin = 'userdata-bbb_show_participants_on_login=false';
+exports.showSessionDetailsOnJoin = 'bbb_show_session_details_on_join=true';
 exports.hideActionsBar = 'userdata-bbb_hide_actions_bar=true';
 exports.overrideDefaultLocale = 'userdata-bbb_override_default_locale=pt-br';
 exports.hideNavBar = 'userdata-bbb_hide_nav_bar=true';
 exports.preferredCameraProfile = 'userdata-bbb_preferred_camera_profile=low';
+exports.webcamBackgroundPassingURL = 'webcamBackgroundURL=https://upload.wikimedia.org/wikipedia/commons/3/35/Spartan_apple.jpg'
 
 // Disabled Features
 exports.breakoutRoomsDisabled = 'disabledFeatures=breakoutRooms';

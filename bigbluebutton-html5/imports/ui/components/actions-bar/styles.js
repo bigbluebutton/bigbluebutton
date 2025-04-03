@@ -18,9 +18,17 @@ const ActionsBarWrapper = styled.section`
   order: 3;
 `;
 
+const ItemsGroup = `
+  display: flex;
+  align-items: center;
+  flex-grow: 1;
+  flex-shrink: 1;
+`;
+
 const Left = styled.div`
-  display: inherit;
-  flex: 0;
+  ${ItemsGroup}
+  flex-basis: 0;
+  justify-content: flex-start;
   > *:not(span) {
     @media ${smallOnly} {
       margin: 0 ${smPaddingY};
@@ -38,10 +46,8 @@ const Left = styled.div`
 `;
 
 const Center = styled.div`
-  display: flex;
-  flex-direction: row;
+  ${ItemsGroup}
   gap: ${smPaddingX};
-  flex: 1;
   justify-content: center;
   > *:not(span):not(:last-child) {
     @media ${smallOnly} {
@@ -51,11 +57,9 @@ const Center = styled.div`
 `;
 
 const Right = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  background-color: ${btnDefaultGhostBg};
-  border-radius: 3rem;
+  ${ItemsGroup}
+  flex-basis: 0;
+  justify-content: flex-end;
   position: relative;
   [dir="rtl"] & {
     right: auto;
@@ -71,6 +75,12 @@ const Right = styled.div`
       margin: 0 ${smPaddingY};
     }
   }
+`;
+
+const PresentationButtonsWrapper = styled.div`
+  background-color: ${btnDefaultGhostBg};
+  border-radius: 3rem;
+  display: flex;
 `;
 
 const RaiseHandButton = styled(Button)`
@@ -107,14 +117,30 @@ const Wrapper = styled.div`
   }
 `;
 
+const Separator = styled.div`
+  height: 2.5rem;
+  width: 0;
+  border: 1px solid ${colorWhite};
+  align-self: center;
+  opacity: .75;
+`;
+
+const Gap = styled.div`
+  display: flex;
+  gap: .5rem;
+`;
+
 export default {
   ActionsBar,
   Left,
   Center,
   Right,
+  PresentationButtonsWrapper,
   RaiseHandButton,
   ButtonContainer,
   ReactionsDropdown,
   Wrapper,
   ActionsBarWrapper,
+  Gap,
+  Separator,
 };

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
     <layout class="ch.qos.logback.classic.PatternLayout">
-      <Pattern>%d{"yyyy-MM-dd'T'HH:mm:ss.SSSXXX"} %-5level %logger{35} - %msg%n</Pattern>
+      <Pattern>%d{"yyyy-MM-dd'T'HH:mm:ss.SSSXXX"} %-5level %logger{35} - %replace(%msg){'[\n\r]', ' '}%n</Pattern>
     </layout>
-</appender>
+  </appender>
 
   <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
     <File>logs/bbb-apps-akka.log</File>
@@ -14,17 +14,17 @@
       <MaxHistory>14</MaxHistory>
     </rollingPolicy>
     <layout class="ch.qos.logback.classic.PatternLayout">
-      <Pattern>%d{"yyyy-MM-dd'T'HH:mm:ss.SSSXXX"} %-5level %logger{35} - %msg%n</Pattern>
+      <Pattern>%d{"yyyy-MM-dd'T'HH:mm:ss.SSSXXX"} %-5level %logger{35} - %replace(%msg){'[\n\r]', ' '}%n</Pattern>
     </layout>
   </appender>
-      
-    <logger name="akka" level="INFO" />
-    <logger name="org.bigbluebutton" level="DEBUG" />
-    <logger name="io.lettuce" level="INFO" />
-    <logger name="slick" level="INFO" />
 
-    <root level="DEBUG">
-        <appender-ref ref="STDOUT"/>
-        <appender-ref ref="FILE" />
-    </root>
+  <logger name="akka" level="INFO" />
+  <logger name="org.bigbluebutton" level="DEBUG" />
+  <logger name="io.lettuce" level="INFO" />
+  <logger name="slick" level="INFO" />
+
+  <root level="DEBUG">
+    <appender-ref ref="STDOUT"/>
+    <appender-ref ref="FILE" />
+  </root>
 </configuration>

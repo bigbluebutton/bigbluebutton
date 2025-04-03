@@ -103,7 +103,7 @@ const pollBottomOffset = '4.5rem';
 const pollColAmount = '2';
 
 const toastMargin = '.5rem';
-const avatarSide = '34px';
+const avatarSide = '3rem';
 const avatarWrapperOffset = '14px';
 const avatarInset = '-7px';
 

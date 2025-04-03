@@ -33,33 +33,29 @@ class Options extends MultiUsers {
 
   async localesTest() {
     const selectedKeysBySelector = {
-      [e.messageTitle]: 'app.userList.messagesTitle',
-      [e.notesTitle]: 'app.userList.notesTitle',
-      [e.userListToggleBtn]: 'app.navBar.userListToggleBtnLabel',
-      [e.hidePublicChat]: 'app.chat.titlePublic',
-      [e.sendButton]: 'app.chat.submitLabel',
-      [e.actions]: 'app.actionsBar.actionsDropdown.actionsLabel',
+      [e.chatTitle]: 'app.userList.messagesTitle',
+      [e.mediaAreaButton]: 'app.actionsBar.actionsDropdown.actionsLabel',
       [e.joinAudio]: 'app.audio.joinAudio',
       [e.joinVideo]: 'app.video.joinVideo',
       [e.startScreenSharing]: 'app.actionsBar.actionsDropdown.desktopShareLabel',
       [e.minimizePresentation]: 'app.actionsBar.actionsDropdown.minimizePresentationLabel',
       [e.reactionsButton]: 'app.actionsBar.reactions.reactionsButtonLabel',
       [e.connectionStatusBtn]: 'app.connection-status.label',
-      [e.optionsButton]: 'app.navBar.settingsDropdown.optionsLabel',
+      [e.optionsButton]: 'app.navBar.optionsDropdown.optionsLabel',
     }
 
     for (const locale of e.locales) {
       console.log(`Testing ${locale} locale`);
-      const currentValuesBySelector = await getLocaleValues(selectedKeysBySelector, locale);
+      const currentValuesBySelector = getLocaleValues(selectedKeysBySelector, locale);
 
       await this.modPage.waitAndClick(e.settingsSidebarButton);
       await this.modPage.waitForSelector(e.languageSelector);
       const langDropdown = await this.modPage.page.$(e.languageSelector);
       await langDropdown.selectOption({ value: locale });
-      await this.modPage.waitAndClick(e.modalConfirmButton);
+      await this.modPage.waitAndClick(e.saveSettingsButton);
 
       for (const selector in currentValuesBySelector) {
-        await this.modPage.hasText(selector, currentValuesBySelector[selector], 'should the elements to be translated to the specific language');
+        await this.modPage.hasText(selector, currentValuesBySelector[selector], 'should the elements be translated into the specific language');
       }
     }
   }
@@ -120,7 +116,6 @@ class Options extends MultiUsers {
 
     if (!CI) {
       const modPageLocator = this.modPage.getLocator('body');
-      await this.modPage.setHeightWidthViewPortSize();
       const screenshotOptions = {
         maxDiffPixels: 1000,
       };
@@ -130,8 +125,7 @@ class Options extends MultiUsers {
   }
 
   async fontSizeTest() {
-    await this.modPage.waitForSelector(e.whiteboard);
-    await this.modPage.setHeightWidthViewPortSize();
+    await this.modPage.hasElement(e.whiteboard, 'should the whiteboard be display');
     const getFontSizeNumber = (node) => Number(getComputedStyle(node).fontSize.slice(0, -2));
     const [
       presentationTitleLocator,

@@ -17,17 +17,14 @@ import {
   LocalTrack,
   RemoteTrack,
   type TrackPublishOptions,
+  VideoPreset,
+  ScreenSharePresets,
 } from 'livekit-client';
 import {
   liveKitRoom,
+  getLKStats,
 } from '/imports/ui/services/livekit';
-
-const BRIDGE_NAME = 'livekit';
-const SCREENSHARE_VIDEO_TAG = 'screenshareVideo';
-const SEND_ROLE = 'send';
-const RECV_ROLE = 'recv';
-const DEFAULT_VOLUME = 1;
-const ROOM_CONNECTION_TIMEOUT = 15000;
+import { LiveKitPresetConfig } from 'imports/ui/Types/meetingClientSettings';
 
 interface Options {
   hasAudio?: boolean;
@@ -38,6 +35,52 @@ interface PublicationData {
   track: LocalTrack | RemoteTrack;
   publication: LocalTrackPublication | RemoteTrackPublication;
 }
+
+const BRIDGE_NAME = 'livekit';
+const SCREENSHARE_VIDEO_TAG = 'screenshareVideo';
+const SEND_ROLE = 'send';
+const RECV_ROLE = 'recv';
+const DEFAULT_VOLUME = 1;
+const ROOM_CONNECTION_TIMEOUT = 15000;
+
+const FALLBACK_PRESET_ORG_HIGH = new VideoPreset(1920, 1080, 2_000_000, 15, 'medium');
+
+const getDefaultPresets = (mediaStream: MediaStream): VideoPreset[] => {
+  const fallbackPresets = [FALLBACK_PRESET_ORG_HIGH];
+
+  try {
+    if (!mediaStream.getVideoTracks().length) return fallbackPresets;
+
+    const { width = 1920, height = 1080 } = mediaStream.getVideoTracks()[0].getSettings();
+
+    return [
+      new VideoPreset(width, height, 2_000_000, 15, 'medium'),
+    ];
+  } catch (error) {
+    logger.error({
+      logCode: 'livekit_screenshare_get_presets_error',
+      extraInfo: {
+        errorName: (error as Error).name,
+        errorMessage: (error as Error).message,
+        errorStack: (error as Error).stack,
+      },
+    }, `LiveKit: failed to get screen share presets: ${(error as Error).message}`);
+
+    return fallbackPresets;
+  }
+};
+
+const assemblePresetFromConfig = (config: LiveKitPresetConfig): VideoPreset => {
+  const {
+    width,
+    height,
+    maxBitrate,
+    maxFramerate,
+    priority,
+  } = config;
+
+  return new VideoPreset(width, height, maxBitrate, maxFramerate, priority);
+};
 
 export default class LiveKitScreenshareBridge {
   private readonly liveKitRoom: Room;
@@ -87,6 +130,15 @@ export default class LiveKitScreenshareBridge {
     const { source } = track;
 
     return source === Track.Source.ScreenShare || source === Track.Source.ScreenShareAudio;
+  }
+
+  setStreamEnabled(enabled: boolean): void {
+    if (this.gdmStream) {
+      this.gdmStream.getTracks().forEach((track) => {
+        // eslint-disable-next-line no-param-reassign
+        track.enabled = enabled;
+      });
+    }
   }
 
   getPublications(source: Track.Source): Map<string, LocalTrackPublication | RemoteTrackPublication> | null {
@@ -195,10 +247,14 @@ export default class LiveKitScreenshareBridge {
   }
 
   private handleTrackPublished(publication: LocalTrackPublication | RemoteTrackPublication): void {
+    if (!LiveKitScreenshareBridge.isScreenSharePublication(publication)) return;
+
     this.setPublication(publication);
   }
 
   private handleTrackUnpublished(publication: LocalTrackPublication | RemoteTrackPublication): void {
+    if (!LiveKitScreenshareBridge.isScreenSharePublication(publication)) return;
+
     const { trackSid } = publication;
 
     this.removePublication(trackSid);
@@ -250,7 +306,7 @@ export default class LiveKitScreenshareBridge {
 
     this.liveKitRoom.remoteParticipants.forEach((participant) => {
       participant.trackPublications.forEach((publication) => {
-        if (LiveKitScreenshareBridge.isScreenShareTrack(publication.track)) {
+        if (LiveKitScreenshareBridge.isScreenSharePublication(publication)) {
           this.handleTrackPublished(publication);
         }
       });
@@ -337,9 +393,13 @@ export default class LiveKitScreenshareBridge {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  getPeerConnection(): void {
-    // eslint-disable-next-line no-console
-    console.error('The Bridge must implement getPeerConnection');
+  getPeerConnection() {
+    return null;
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  async getStats(): Promise<Map<string, unknown>> {
+    return getLKStats();
   }
 
   setVolume(volume: number): number {
@@ -420,6 +480,30 @@ export default class LiveKitScreenshareBridge {
     this.role = RECV_ROLE;
     this.hasAudio = options.hasAudio || false;
 
+    const doSubscribe = () => {
+      this.findInitialRemotePublications();
+      const publication = this.getPublication(streamId);
+
+      if (!publication || !(publication instanceof RemoteTrackPublication)) {
+        throw new Error('Publication not found');
+      }
+
+      this.subscribe(publication);
+    };
+
+    // If publication fails with "Publication not found" error, we will retry the subscription
+    // with a slight delay as  client info might not be available immediately
+    const delayedSubscription = () => new Promise<void>((resolve, reject) => {
+      setTimeout(() => {
+        try {
+          doSubscribe();
+          resolve();
+        } catch (error) {
+          reject(error);
+        }
+      }, 1000);
+    });
+
     const handleInitError = (error: Error) => {
       logger.warn({
         logCode: 'livekit_screenshare_init_error',
@@ -435,32 +519,46 @@ export default class LiveKitScreenshareBridge {
 
     try {
       await this.waitForRoomConnection();
-      this.findInitialRemotePublications();
-
-      const publication = this.getPublication(this.streamId);
-
-      if (!publication || !(publication instanceof RemoteTrackPublication)) throw new Error('Publication not found');
-
-      this.subscribe(publication);
+      doSubscribe();
     } catch (error) {
-      handleInitError(error as Error);
+      if ((error as Error).message === 'Publication not found') {
+        try {
+          await delayedSubscription();
+        } catch (delayedError) {
+          handleInitError(delayedError as Error);
+        }
+      } else {
+        handleInitError(error as Error);
+      }
     }
   }
 
   async share(stream: MediaStream, onFailure: (error: Error) => void, contentType: string): Promise<void> {
     // @ts-ignore
-    const LIVEKIT_SCREEN_SETTINGS = window.meetingClientSettings.public.media?.livekit?.screenshare;
+    const configScreenPubOpts = window.meetingClientSettings.public.media?.livekit?.screenshare?.publishOptions
+      || {};
+    const presets = window.meetingClientSettings.public.media?.livekit?.screenshare?.presets;
+    const screenSharePresets = presets
+      ? presets.map((preset: LiveKitPresetConfig) => assemblePresetFromConfig(preset))
+      : getDefaultPresets(stream);
+    const screenShareEncoding = screenSharePresets[screenSharePresets.length - 1]?.encoding
+      || ScreenSharePresets.h1080fps15.encoding;
     // @ts-ignore
-    const LIVEKIT_AUDIO_SETTINGS = window.meetingClientSettings.public.media?.livekit?.audio;
-    const baseAudioOptions: TrackPublishOptions = LIVEKIT_AUDIO_SETTINGS?.publishOptions || {
+    const configAudioPubOpts = window.meetingClientSettings.public.media?.livekit?.audio?.publishOptions || {};
+    const baseAudioOptions: TrackPublishOptions = {
       audioPreset: AudioPresets.speech,
       dtx: true,
       red: false,
       forceStereo: false,
+      ...configAudioPubOpts,
     };
-    const baseVideoOptions: TrackPublishOptions = LIVEKIT_SCREEN_SETTINGS?.publishOptions || {
+    const baseVideoOptions: TrackPublishOptions = {
       videoCodec: 'vp8',
+      simulcast: true,
+      screenShareEncoding,
+      ...configScreenPubOpts,
     };
+
     this.role = SEND_ROLE;
     this.hasAudio = BridgeService.streamHasAudioTrack(stream);
     this.gdmStream = stream;

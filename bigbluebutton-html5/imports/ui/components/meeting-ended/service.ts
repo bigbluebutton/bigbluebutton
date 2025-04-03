@@ -95,9 +95,29 @@ export const setLearningDashboardCookie = (accessToken: string, mId: string, lea
   return false;
 };
 
+export const allowRedirectToLogoutURL = (logoutURL: string) => {
+  const ALLOW_DEFAULT_LOGOUT_URL = window.meetingClientSettings.public.app.allowDefaultLogoutUrl;
+  const protocolPattern = /^((http|https):\/\/)/;
+
+  if (logoutURL) {
+    // default logoutURL
+    // compare only the host to ignore protocols
+    const urlWithoutProtocolForAuthLogout = logoutURL.replace(protocolPattern, '');
+    const urlWithoutProtocolForLocationOrigin = window.location.origin.replace(protocolPattern, '');
+    if (urlWithoutProtocolForAuthLogout === urlWithoutProtocolForLocationOrigin) {
+      return ALLOW_DEFAULT_LOGOUT_URL;
+    }
+    // custom logoutURL
+    return true;
+  }
+  // no logout url
+  return false;
+};
+
 export default {
   JoinErrorCodeTable,
   MeetingEndedTable,
   setLearningDashboardCookie,
   openLearningDashboardUrl,
+  allowRedirectToLogoutURL,
 };

@@ -11,7 +11,7 @@ import {
   settingsModalTabSelected,
   colorBorder,
 } from '/imports/ui/stylesheets/styled-components/palette';
-import { fontSizeLarge } from '/imports/ui/stylesheets/styled-components/typography';
+import { fontSizeLarge, titlesFontWeight, textFontWeight } from '/imports/ui/stylesheets/styled-components/typography';
 import {
   Tab, Tabs, TabList, TabPanel,
 } from 'react-tabs';
@@ -223,6 +223,40 @@ const Modal = styled(ModalSimple)`
   }
 `;
 
+const UnsavedChangesModal = styled(ModalSimple)`
+  border-radius: 0.5rem;
+  width: 35rem;
+`;
+
+const UnsavedChangesContent = styled.div`
+  padding: 0 1rem;
+`;
+
+const UnsavedChangesText = styled.div`
+  font-weight: ${titlesFontWeight};
+  margin-bottom: 0.25rem;
+`;
+
+const UnsavedChangesIgnoreText = styled.div`
+  font-weight: ${textFontWeight};
+`;
+
+const UnsavedActionsContainer = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  gap: 1.5rem;
+  padding: 1.5rem;
+
+  @media ${smallOnly} {
+    padding: 1rem;
+    gap: 1rem;
+    position: relative;
+    bottom: auto;
+    background: transparent;
+    box-shadow: none;
+  }
+`;
+
 export default {
   ToggleLabel,
   SettingsTabs,
@@ -233,4 +267,9 @@ export default {
   ActionsContainer,
   ActionButton,
   Modal,
+  UnsavedChangesModal,
+  UnsavedChangesContent,
+  UnsavedActionsContainer,
+  UnsavedChangesText,
+  UnsavedChangesIgnoreText,
 };

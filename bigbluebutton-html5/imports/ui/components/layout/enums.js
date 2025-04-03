@@ -132,6 +132,8 @@ export const ACTIONS = {
   SET_SHARED_NOTES_OUTPUT: 'setSharedNotesOutput',
   SET_NOTES_IS_PINNED: 'setNotesIsPinned',
 
+  SET_CAPTIONS_OUTPUT: 'setCaptionsOutput',
+
   SET_PILE_CONTENT_FOR_PRESENTATION_AREA: 'setPileContentForPresentationArea',
 };
 

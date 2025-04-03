@@ -7,6 +7,7 @@ import useAudioCaptionEnable from '/imports/ui/core/local-states/useAudioCaption
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { splitTranscript } from '../service';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
 
 interface AudioCaptionsLiveProps {
   captions: Caption[];
@@ -15,13 +16,11 @@ interface AudioCaptionsLiveProps {
 const AudioCaptionsLive: React.FC<AudioCaptionsLiveProps> = ({
   captions,
 }) => {
-  const CAPTIONS_CONFIG = window.meetingClientSettings.public.captions;
-  const LINES_PER_MESSAGE = CAPTIONS_CONFIG.lines;
   return (
     <Styled.Wrapper>
       <>
         {
-          captions.length > 0 && captions.length <= LINES_PER_MESSAGE ? captions.map((caption) => {
+          captions.length > 0 ? captions.map((caption) => {
             const {
               user,
               captionText,
@@ -79,12 +78,17 @@ const AudioCaptionsLiveContainer: React.FC = () => {
   if (AudioCaptionsLiveLoading) return null;
 
   if (AudioCaptionsLiveError) {
-    logger.error(AudioCaptionsLiveError);
-    return (
-      <div>
-        {JSON.stringify(AudioCaptionsLiveError)}
-      </div>
+    connectionStatus.setSubscriptionFailed(true);
+    logger.error(
+      {
+        logCode: 'subscription_Failed',
+        extraInfo: {
+          error: AudioCaptionsLiveError,
+        },
+      },
+      'Subscription failed to load',
     );
+    return null;
   }
 
   if (!AudioCaptionsLiveData) return null;

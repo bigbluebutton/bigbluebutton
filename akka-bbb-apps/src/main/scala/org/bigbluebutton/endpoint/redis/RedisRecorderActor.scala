@@ -121,6 +121,7 @@ class RedisRecorderActor(
       case m: WebcamsOnlyForModeratorChangedEvtMsg  => handleWebcamsOnlyForModeratorChangedEvtMsg(m)
       case m: MeetingEndingEvtMsg                   => handleMeetingEndingEvtMsg(m)
       case m: MeetingCreatedEvtMsg                  => handleStarterConfigurations(m)
+      case m: SetScreenshareAsContentEvtMsg         => handleSetScreenshareAsContent(m)
 
       // Recording
       case m: RecordingChapterBreakSysMsg           => handleRecordingChapterBreakSysMsg(m)
@@ -130,6 +131,9 @@ class RedisRecorderActor(
       case m: UserRespondedToPollRecordMsg          => handleUserRespondedToPollRecordMsg(m)
       case m: PollStoppedEvtMsg                     => handlePollStoppedEvtMsg(m)
       case m: PollShowResultEvtMsg                  => handlePollShowResultEvtMsg(m)
+
+      // Plugin
+      case m: PluginPersistEventEvtMsg              => handlePluginPersistEvent(m)
 
       // ExternalVideo
       case m: StartExternalVideoEvtMsg              => handleStartExternalVideoEvtMsg(m)
@@ -745,6 +749,16 @@ class RedisRecorderActor(
     record(msg.header.meetingId, ev.toMap.asJava)
   }
 
+  private def handlePluginPersistEvent(msg: PluginPersistEventEvtMsg): Unit = {
+    val ev = new PluginEventPersistenceRecordEvent()
+    ev.setPluginEventName(msg.body.eventName)
+    ev.setPluginName(msg.body.pluginName)
+    ev.setUserId(msg.header.userId)
+    ev.setPayloadJson(msg.body.payloadJson)
+
+    record(msg.header.meetingId, ev.toMap.asJava)
+  }
+
   private def checkRecordingDBStatus(): Unit = {
     if (redis.checkConnectionStatusBasic)
       healthzService.sendRecordingDBStatusMessage(System.currentTimeMillis())
@@ -756,6 +770,12 @@ class RedisRecorderActor(
     val ev = new MeetingConfigurationEvent()
     ev.setWebcamsOnlyForModerator(msg.body.props.usersProp.webcamsOnlyForModerator)
     record(msg.body.props.meetingProp.intId, ev.toMap().asJava)
+  }
+
+  private def handleSetScreenshareAsContent(msg: SetScreenshareAsContentEvtMsg): Unit = {
+    val ev = new SetScreenshareAsContentEvent()
+    ev.setScreenshareAsContent(msg.body.screenshareAsContent)
+    record(msg.header.meetingId, ev.toMap().asJava)
   }
 
 }

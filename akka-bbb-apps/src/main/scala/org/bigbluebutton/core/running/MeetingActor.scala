@@ -571,22 +571,22 @@ class MeetingActor(
         handleListenOnlyModeToggledInSfuEvtMsg(m)
 
       // Layout
-      case m: GetCurrentLayoutReqMsg  => handleGetCurrentLayoutReqMsg(m)
-      case m: BroadcastLayoutMsg      => handleBroadcastLayoutMsg(m)
-      case m: BroadcastPushLayoutMsg  => handleBroadcastPushLayoutMsg(m)
+      case m: GetCurrentLayoutReqMsg        => handleGetCurrentLayoutReqMsg(m)
+      case m: BroadcastLayoutMsg            => handleBroadcastLayoutMsg(m)
+      case m: BroadcastPushLayoutMsg        => handleBroadcastPushLayoutMsg(m)
+      case m: SetScreenshareAsContentReqMsg => handleSetScreenshareAsContentReqMsg(m)
 
       // Pads
-      case m: PadGroupCreatedEvtMsg   => padsApp2x.handle(m, liveMeeting, msgBus)
-      case m: PadCreateReqMsg         => padsApp2x.handle(m, liveMeeting, msgBus)
-      case m: PadCreatedEvtMsg        => padsApp2x.handle(m, liveMeeting, msgBus)
-      case m: PadCreateSessionReqMsg  => padsApp2x.handle(m, liveMeeting, msgBus)
-      case m: PadSessionCreatedEvtMsg => padsApp2x.handle(m, liveMeeting, msgBus)
-      case m: PadSessionDeletedSysMsg => padsApp2x.handle(m, liveMeeting, msgBus)
+      case m: PadGroupCreatedEvtMsg         => padsApp2x.handle(m, liveMeeting, msgBus)
+      case m: PadCreateReqMsg               => padsApp2x.handle(m, liveMeeting, msgBus)
+      case m: PadCreatedEvtMsg              => padsApp2x.handle(m, liveMeeting, msgBus)
+      case m: PadCreateSessionReqMsg        => padsApp2x.handle(m, liveMeeting, msgBus)
+      case m: PadSessionCreatedEvtMsg       => padsApp2x.handle(m, liveMeeting, msgBus)
+      case m: PadSessionDeletedSysMsg       => padsApp2x.handle(m, liveMeeting, msgBus)
       case m: PadUpdatedSysMsg =>
         padsApp2x.handle(m, liveMeeting, msgBus)
         updateUserLastActivity(m.body.userId)
       case m: PadContentSysMsg => padsApp2x.handle(m, liveMeeting, msgBus)
-      case m: PadPatchSysMsg   => padsApp2x.handle(m, liveMeeting, msgBus)
       case m: PadUpdatePubMsg  => padsApp2x.handle(m, liveMeeting, msgBus)
       case m: PadPinnedReqMsg =>
         padsApp2x.handle(m, liveMeeting, msgBus)
@@ -632,6 +632,7 @@ class MeetingActor(
         state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
         updateUserLastActivity(m.header.userId)
       case m: SetPageInfiniteWhiteboardPubMsg                  => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: SetPresentationFitToWidthCmdMsg                  => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: RemovePresentationPubMsg                         => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: SetPresentationDownloadablePubMsg                => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: PresentationConversionUpdateSysPubMsg            => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
@@ -642,6 +643,7 @@ class MeetingActor(
       case m: PresentationUploadedFileVirusErrorSysPubMsg      => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: PresentationUploadedFileScanFailedErrorSysPubMsg => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: PresentationPageGeneratedSysPubMsg               => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: SetPresentationUploadCompletionNotifiedPubMsg    => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: PresentationPageCountErrorSysPubMsg              => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: PresentationUploadTokenReqMsg                    => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: ResizeAndMovePagePubMsg =>
@@ -653,9 +655,7 @@ class MeetingActor(
       case m: PresentationConversionEndedSysMsg       => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
 
       // Caption
-      case m: EditCaptionHistoryPubMsg                => captionApp2x.handle(m, liveMeeting, msgBus)
       case m: AddCaptionLocalePubMsg                  => captionApp2x.handle(m, liveMeeting, msgBus)
-      case m: SendCaptionHistoryReqMsg                => captionApp2x.handle(m, liveMeeting, msgBus)
       case m: CaptionSubmitTranscriptPubMsg           => captionApp2x.handle(m, liveMeeting, msgBus)
 
       // Guests
@@ -734,6 +734,8 @@ class MeetingActor(
       case m: PluginDataChannelReplaceEntryMsg => pluginHdlrs.handle(m, state, liveMeeting)
       case m: PluginDataChannelDeleteEntryMsg  => pluginHdlrs.handle(m, state, liveMeeting)
       case m: PluginDataChannelResetMsg        => pluginHdlrs.handle(m, state, liveMeeting)
+
+      case m: PluginPersistEventMsg            => pluginHdlrs.handle(m, state, liveMeeting, msgBus)
 
       // Webcams
       case m: UserBroadcastCamStartMsg =>

@@ -146,7 +146,7 @@ const LayoutObserver: React.FC = () => {
 
   useEffect(() => {
     const CHAT_CONFIG = window.meetingClientSettings.public.chat;
-    const PUBLIC_CHAT_ID = CHAT_CONFIG.public_group_id;
+    const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 
     if (
       selectedLayout?.toLowerCase?.()?.includes?.('focus')
@@ -162,7 +162,7 @@ const LayoutObserver: React.FC = () => {
         });
         layoutContextDispatch({
           type: ACTIONS.SET_ID_CHAT_OPEN,
-          value: PUBLIC_CHAT_ID,
+          value: PUBLIC_GROUP_CHAT_ID,
         });
         layoutContextDispatch({
           type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
@@ -228,7 +228,7 @@ const LayoutObserver: React.FC = () => {
         });
 
         if (getFromUserSettings('bbb_show_participants_on_login', window.meetingClientSettings.public.layout.showParticipantsOnLogin)
-          && !deviceInfo.isPhone) {
+          && !deviceInfo.isMobile) {
           layoutContextDispatch({
             type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
             value: true,
@@ -239,8 +239,9 @@ const LayoutObserver: React.FC = () => {
           });
         }
 
-        if (isChatEnabled && getFromUserSettings('bbb_show_public_chat_on_login', !window.meetingClientSettings.public.chat.startClosed)) {
-          const PUBLIC_CHAT_ID = window.meetingClientSettings.public.chat.public_group_id;
+        if (isChatEnabled && getFromUserSettings('bbb_show_public_chat_on_login', !window.meetingClientSettings.public.chat.startClosed)
+          && !deviceInfo.isMobile) {
+          const PUBLIC_GROUP_CHAT_ID = window.meetingClientSettings.public.chat.public_group_id;
 
           layoutContextDispatch({
             type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
@@ -252,7 +253,7 @@ const LayoutObserver: React.FC = () => {
           });
           layoutContextDispatch({
             type: ACTIONS.SET_ID_CHAT_OPEN,
-            value: PUBLIC_CHAT_ID,
+            value: PUBLIC_GROUP_CHAT_ID,
           });
         }
 

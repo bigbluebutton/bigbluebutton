@@ -125,7 +125,8 @@ Permission: Restricted to User Viewing Self-Related Data
 - `sharedNotesSession: Object` [Type sharedNotes_session](#type-sharedNotes_session)
 - `transcriptionError: Object` [Type user_transcriptionError](#type-user_transcriptionError)
 - `userClientSettings: Object` [Type user_clientSettings](#type-user_clientSettings)
-- `userLockSettings: Object` [Type user_lockSettings](#type-user_lockSettings)
+- `userLockSettings: Object` **Type user_lockSettings**
+  - `disablePublicChat`
 - `userMetadata: Object` [Type user_metadata](#type-user_metadata)
 - `voice: Object` [Type user_voice](#type-user_voice)
 - `welcomeMsgs: Object` [Type user_welcomeMsgs](#type-user_welcomeMsgs)
@@ -234,7 +235,8 @@ Permission: Restricted by Lock Settings
 - `lastBreakoutRoom: Object` [Type user_breakoutRoom](#type-user_breakoutRoom)
 - `meeting: Object` [Type meeting](#type-meeting)
 - `presPagesWritable: Array` [Type pres_page_writers](#type-pres_page_writers)
-- `userLockSettings: Object` [Type user_lockSettings](#type-user_lockSettings)
+- `userLockSettings: Object` **Type user_lockSettings**
+  - `disablePublicChat`
 - `voice: Object` [Type user_voice](#type-user_voice)
 
 ## Type: pres_annotation_curr
@@ -518,6 +520,7 @@ Permission: Restricted to Presenter
 - `name`
 - `presentationId`
 - `removable`
+- `uploadCompletionNotified`
 - `totalPages`
 - `totalPagesUploaded`
 - `uploadCompleted`
@@ -631,6 +634,7 @@ Permission: Restricted to Presenter
 Permission: Restricted to Moderators
 ### Fields:
 - `groupId`
+- `groupIndex`
 - `name`
 - `usersExtId`
 
@@ -738,6 +742,16 @@ Permission: Restricted to User Viewing Self-Related Data
 - `sequence`
 - `shortName`
 - `userId`
+
+## Type: user_connectionStatusHistory
+Permission: Restricted to Moderators or the User Viewing Self-Related Data
+### Fields:
+- `networkRttInMs`
+- `status`
+- `statusUpdatedAt`
+- `userId`
+### Relationships:
+- `user: Object` [Type User](#type-user)
 
 ## Type: user_connectionStatusReport
 Permission: Restricted to Moderators or the User Viewing Self-Related Data
@@ -848,11 +862,6 @@ Permission: Restricted to User Viewing Self-Related Data
 - `messageValues`
 - `notificationType`
 - `role`
-
-## Type: user_lockSettings
-Permission: Restricted to Moderators or the User Viewing Self-Related Data
-### Fields:
-- `disablePublicChat`
 
 ## Type: meeting_metadata
 ### Fields:

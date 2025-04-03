@@ -8,7 +8,6 @@ import {
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
   colorWhite,
-  colorPrimary,
   colorDanger,
   colorDangerDark,
   colorGray,
@@ -56,27 +55,26 @@ const RecordingControl = styled.button<RecordingIndicatorProps>`
   align-items: center;
   user-select: none;
   background: ${btnDefaultGhostBg};
-
-  span {
-    border: none;
-    box-shadow: none;
-    background-color: transparent !important;
-    color: ${colorWhite} !important;
+  
+  &:hover {
+    outline-style: solid;
+    outline: transparent dotted 2px;
   }
 
   &:hover:not(:disabled) {
     color: ${colorWhite} !important;
     cursor: pointer;
   }
-
+      
   &:focus {
-    outline: none;
-    box-shadow: 0 0 0 ${borderSize} ${colorPrimary};
+    background-clip: padding-box;
+    outline: transparent dotted 2px;
+    box-shadow: 0 0 0 ${borderSizeLarge} ${colorWhite};
   }
 
   &:active {
     transform: scale(0.95);
-    box-shadow: 0 0 0 ${borderSizeSmall} ${colorPrimary};
+    box-shadow: 0 0 0 ${borderSizeSmall} ${colorWhite};
   }
 
   ${({ recording }) => recording && `
@@ -86,8 +84,8 @@ const RecordingControl = styled.button<RecordingIndicatorProps>`
     border-radius: 2em 2em;
 
     &:focus {
+      box-shadow: 0 0 0 ${borderSize} ${colorDanger};
       border: ${borderSizeLarge};
-      box-shadow: none;
     }
   `}
 
@@ -95,11 +93,6 @@ const RecordingControl = styled.button<RecordingIndicatorProps>`
     padding: 0.5rem 1rem;
     border: ${borderSizeSmall};
     border-radius: 2em 2em;
-
-    &:focus {
-      border: ${borderSizeLarge};
-      box-shadow: none;
-    }
   `}
 
   ${({ disabled, time }) => disabled && time === 0 && css`
@@ -164,19 +157,7 @@ const RecordingIndicator = styled.div<RecordingIndicatorProps>`
     padding-right: 0;
   `}
 
-  &:hover {
-    outline: transparent;
-    outline-style: dotted;
-    outline-width: ${borderSize};
-  }
 
-  &:active,
-  &:focus,
-  &:focus-within {
-    outline: transparent;
-    outline-width: ${borderSize};
-    outline-style: solid;
-  }
 `;
 
 const RecordingStatusViewOnly = styled.div<RecordingStatusViewOnlyProps>`

@@ -3,6 +3,7 @@
 import { useReactiveVar } from '@apollo/client';
 import React, { useCallback, useEffect } from 'react';
 import deviceInfo from '/imports/utils/deviceInfo';
+import { hasMediaDevicesEventTarget } from '/imports/ui/services/webrtc-base/utils';
 import AudioManager from '/imports/ui/services/audio-manager';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { User } from '/imports/ui/Types/user';
@@ -186,10 +187,12 @@ const InputStreamLiveSelector: React.FC<InputStreamLiveSelectorProps> = ({
   }, [inAudio, inputDevices, outputDevices, updateRemovedDevices]);
 
   useEffect(() => {
-    navigator.mediaDevices.addEventListener('devicechange', updateDevices);
+    if (hasMediaDevicesEventTarget()) navigator.mediaDevices.addEventListener('devicechange', updateDevices);
 
     return () => {
-      navigator.mediaDevices.removeEventListener('devicechange', updateDevices);
+      if (hasMediaDevicesEventTarget()) {
+        navigator.mediaDevices.removeEventListener('devicechange', updateDevices);
+      }
     };
   }, [updateDevices]);
 
@@ -211,12 +214,14 @@ const InputStreamLiveSelector: React.FC<InputStreamLiveSelectorProps> = ({
   return (
     <>
       {inAudio && inputStream && muteAlertEnabled && !listenOnly && muted && showMute ? (
-        <MutedAlert
-          {...{
-            muted, inputStream, isPresenter,
-          }}
-          isViewer={!isModerator}
-        />
+        <div data-debug="live-watcher" aria-live="polite">
+          <MutedAlert
+            {...{
+              muted, inputStream, isPresenter,
+            }}
+            isViewer={!isModerator}
+          />
+        </div>
       ) : null}
       {
 

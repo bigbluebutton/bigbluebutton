@@ -65,7 +65,7 @@ const AudioCaptionsSpeechSelector: React.FC<AudioCaptionsSpeechSelectorProps> = 
 
   const setDefaultLocale = () => {
     if (useLocaleHook || localeAsDefaultSelected()) {
-      setSpeechLocale(getLocale(), setUserSpeechLocale);
+      setSpeechLocale(getLocale(true), setUserSpeechLocale);
     } else {
       setSpeechLocale(mostSimilarLanguage(navigator.language), setUserSpeechLocale);
     }

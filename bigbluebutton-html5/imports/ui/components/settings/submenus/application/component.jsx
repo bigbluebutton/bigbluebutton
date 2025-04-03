@@ -294,10 +294,10 @@ class ApplicationMenu extends BaseMenu {
           <Styled.Col>
             <Styled.FormElementRight>
               <SubMenusStyle.MaterialSwitch
-                icons={false}
-                defaultChecked={this.state.audioFilterEnabled}
+                icons="false"
+                checked={this.state.audioFilterEnabled}
                 onChange={() => this.handleAudioFilterChange()}
-                ariaLabel={`${intl.formatMessage(intlMessages.audioFilterLabel)} - ${displaySettingsStatus(audioFilterStatus, true)}`}
+                aria-label={`${intl.formatMessage(intlMessages.audioFilterLabel)} - ${displaySettingsStatus(audioFilterStatus, true)}`}
                 data-test="audioFilterToggleBtn"
               />
               <Styled.Label style={{ marginLeft: '0.5rem' }}>
@@ -325,10 +325,10 @@ class ApplicationMenu extends BaseMenu {
         <Styled.Col>
           <Styled.FormElementRight>
             <SubMenusStyle.MaterialSwitch
-              icons={false}
-              defaultChecked={settings.paginationEnabled}
+              icons="false"
+              checked={settings.paginationEnabled}
               onChange={() => this.handleToggle('paginationEnabled')}
-              ariaLabel={`${intl.formatMessage(intlMessages.paginationEnabledLabel)} - ${displaySettingsStatus(settings.paginationEnabled, true)}`}
+              aria-label={`${intl.formatMessage(intlMessages.paginationEnabledLabel)} - ${displaySettingsStatus(settings.paginationEnabled, true)}`}
               data-test="paginationToggleBtn"
             />
             <Styled.Label style={{ marginLeft: '0.5rem' }}>
@@ -352,10 +352,10 @@ class ApplicationMenu extends BaseMenu {
         <Styled.Col>
           <Styled.FormElementRight>
             <SubMenusStyle.MaterialSwitch
-              icons={false}
-              defaultChecked={settings.darkTheme}
+              icons="false"
+              checked={settings.darkTheme}
               onChange={() => this.handleToggle('darkTheme')}
-              ariaLabel={`${intl.formatMessage(intlMessages.darkThemeLabel)} - ${displaySettingsStatus(settings.darkTheme, true)}`}
+              aria-label={`${intl.formatMessage(intlMessages.darkThemeLabel)} - ${displaySettingsStatus(settings.darkTheme, true)}`}
               data-test="darkModeToggleBtn"
             />
             <Styled.Label style={{ marginLeft: '0.5rem' }}>
@@ -378,10 +378,10 @@ class ApplicationMenu extends BaseMenu {
         <Styled.Col>
           <Styled.FormElementRight>
             <SubMenusStyle.MaterialSwitch
-              icons={false}
-              defaultChecked={settings.wakeLock}
+              icons="false"
+              checked={settings.wakeLock}
               onChange={() => this.handleToggle('wakeLock')}
-              ariaLabel={intl.formatMessage(intlMessages.wakeLockEnabledLabel)}
+              aria-label={intl.formatMessage(intlMessages.wakeLockEnabledLabel)}
               data-test="wakeLockToggleBtn"
             />
             <Styled.Label style={{ marginLeft: '0.5rem' }}>
@@ -459,10 +459,12 @@ class ApplicationMenu extends BaseMenu {
           <Styled.PullContentRight>
             <Styled.Col>
               <Button
-                onClick={() => this.handleDecreaseFontSize()}
-                color="transparent"
-                icon="substract"
-                circle
+                onClick={(e) => {
+                  e.currentTarget.blur();
+                  this.handleDecreaseFontSize();
+                }}
+                size="lg"
+                icon="text_decrease"
                 hideLabel
                 label={intl.formatMessage(intlMessages.decreaseFontBtnLabel)}
                 aria-label={`${intl.formatMessage(intlMessages.decreaseFontBtnLabel)}, ${ariaValueLabel}`}
@@ -477,10 +479,12 @@ class ApplicationMenu extends BaseMenu {
             </Styled.Col>
             <Styled.Col>
               <Button
-                onClick={() => this.handleIncreaseFontSize()}
-                color="transparent"
-                icon="add"
-                circle
+                onClick={(e) => {
+                  e.currentTarget.blur();
+                  this.handleIncreaseFontSize();
+                }}
+                size="lg"
+                icon="text_increase"
                 hideLabel
                 label={intl.formatMessage(intlMessages.increaseFontBtnLabel)}
                 aria-label={`${intl.formatMessage(intlMessages.increaseFontBtnLabel)}, ${ariaValueLabel}`}
@@ -503,10 +507,10 @@ class ApplicationMenu extends BaseMenu {
         <Styled.Col>
           <Styled.FormElementRight>
             <SubMenusStyle.MaterialSwitch
-              icons={false}
-              defaultChecked={settings.pushToTalkEnabled}
+              icons="false"
+              checked={settings.pushToTalkEnabled}
               onChange={() => this.handleToggle('pushToTalkEnabled')}
-              ariaLabel={`${intl.formatMessage(intlMessages.pushToTalkLabel)} - ${displaySettingsStatus(settings.pushToTalkEnabled, true)}`}
+              aria-label={`${intl.formatMessage(intlMessages.pushToTalkLabel)} - ${displaySettingsStatus(settings.pushToTalkEnabled, true)}`}
               data-test="pushToTalkToggleBtn"
             />
             <Styled.Label style={{ marginLeft: '0.5rem' }}>
@@ -538,10 +542,10 @@ class ApplicationMenu extends BaseMenu {
               <Styled.Col>
                 <Styled.FormElementRight>
                   <SubMenusStyle.MaterialSwitch
-                    icons={false}
-                    defaultChecked={settings.animations}
+                    icons="false"
+                    checked={settings.animations}
                     onChange={() => this.handleToggle('animations')}
-                    ariaLabel={`${intl.formatMessage(intlMessages.animationsLabel)} - ${displaySettingsStatus(settings.animations, true)}`}
+                    aria-label={`${intl.formatMessage(intlMessages.animationsLabel)} - ${displaySettingsStatus(settings.animations, true)}`}
                     data-test="animationsToggleBtn"
                   />
                   <Styled.Label style={{ marginLeft: '0.5rem' }}>
@@ -561,10 +565,10 @@ class ApplicationMenu extends BaseMenu {
               <Styled.Col>
                 <Styled.FormElementRight>
                   <SubMenusStyle.MaterialSwitch
-                    icons={false}
-                    defaultChecked={settings.whiteboardToolbarAutoHide}
+                    icons="false"
+                    checked={settings.whiteboardToolbarAutoHide}
                     onChange={() => this.handleToggle('whiteboardToolbarAutoHide')}
-                    ariaLabel={`${intl.formatMessage(intlMessages.wbToolbarsAutoHideLabel)} - ${displaySettingsStatus(settings.whiteboardToolbarAutoHide, true)}`}
+                    aria-label={`${intl.formatMessage(intlMessages.wbToolbarsAutoHideLabel)} - ${displaySettingsStatus(settings.whiteboardToolbarAutoHide, true)}`}
                     data-test="whiteboardToolbarAutoHideToggleBtn"
                   />
                   <Styled.Label style={{ marginLeft: '0.5rem' }}>
@@ -578,10 +582,10 @@ class ApplicationMenu extends BaseMenu {
               <Styled.Col>
                 <Styled.FormElementRight>
                   <SubMenusStyle.MaterialSwitch
-                    icons={false}
-                    defaultChecked={settings.selfViewDisable}
+                    icons="false"
+                    checked={settings.selfViewDisable}
                     onChange={() => this.handleToggle('selfViewDisable')}
-                    ariaLabel={`${intl.formatMessage(intlMessages.disableLabel)} - ${displaySettingsStatus(settings.selfViewDisable, false)}`}
+                    aria-label={`${intl.formatMessage(intlMessages.disableLabel)} - ${displaySettingsStatus(settings.selfViewDisable, false)}`}
                     data-test="selfViewDisableToggleBtn"
                   />
                   <Styled.Label style={{ marginLeft: '0.5rem' }}>
@@ -596,10 +600,10 @@ class ApplicationMenu extends BaseMenu {
                 <Styled.Col>
                   <Styled.FormElementRight>
                     <SubMenusStyle.MaterialSwitch
-                      icons={false}
-                      defaultChecked={settings.autoCloseReactionsBar}
+                      icons="false"
+                      checked={settings.autoCloseReactionsBar}
                       onChange={() => this.handleToggle('autoCloseReactionsBar')}
-                      ariaLabel={`${intl.formatMessage(intlMessages.autoCloseReactionsBarLabel)} - ${displaySettingsStatus(settings.autoCloseReactionsBar, false)}`}
+                      aria-label={`${intl.formatMessage(intlMessages.autoCloseReactionsBarLabel)} - ${displaySettingsStatus(settings.autoCloseReactionsBar, false)}`}
                       data-test="autoCloseReactionsBarToggleBtn"
                     />
                     <Styled.Label style={{ marginLeft: '0.5rem' }}>

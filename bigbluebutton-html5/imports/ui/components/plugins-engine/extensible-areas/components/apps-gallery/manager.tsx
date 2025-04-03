@@ -41,7 +41,7 @@ const AppsGalleryPluginStateContainer = ((
       excluded.forEach((agi) => {
         layoutContextDispatch({
           type: ACTIONS.UNREGISTER_SIDEBAR_APP,
-          value: agi.id,
+          id: agi.id,
         });
       });
     },

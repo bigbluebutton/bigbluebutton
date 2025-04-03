@@ -156,6 +156,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="disableRecordingDefault" value="${disableRecordingDefault}"/>
         <property name="autoStartRecording" value="${autoStartRecording}"/>
         <property name="allowStartStopRecording" value="${allowStartStopRecording}"/>
+        <property name="presentationConversionCacheEnabled" value="${presentationConversionCacheEnabled}"/>
         <property name="recordFullDurationMedia" value="${recordFullDurationMedia}"/>
         <property name="learningDashboardCleanupDelayInMinutes" value="${learningDashboardCleanupDelayInMinutes}"/>
         <property name="webcamsOnlyForModerator" value="${webcamsOnlyForModerator}"/>
@@ -207,6 +208,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="allowRevealOfBBBVersion" value="${allowRevealOfBBBVersion}"/>
         <property name="allowOverrideClientSettingsOnCreateCall" value="${allowOverrideClientSettingsOnCreateCall}"/>
         <property name="pluginManifests" value="${pluginManifests}"/>
+        <property name="maxNumPages" value="${maxNumPages}"/>
     </bean>
 
     <bean id="presentationService" class="org.bigbluebutton.web.services.PresentationService">

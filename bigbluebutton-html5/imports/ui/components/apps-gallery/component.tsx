@@ -103,7 +103,6 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
           <Styled.PinApp
             role="button"
             onClick={togglePinApp}
-            onKeyDown={togglePinApp}
             tabIndex={0}
             pinned={isPinned}
           >

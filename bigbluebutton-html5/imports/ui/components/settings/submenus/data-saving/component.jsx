@@ -56,11 +56,11 @@ class DataSaving extends BaseMenu {
                 <Styled.Col>
                   <Styled.FormElementRight>
                     <SubMenuStyle.MaterialSwitch
-                      icons={false}
-                      defaultChecked={viewParticipantsWebcams}
+                      icons="false"
+                      checked={viewParticipantsWebcams}
                       onChange={() => this.handleToggle('viewParticipantsWebcams')}
-                      ariaLabelledBy="webcamToggle"
-                      ariaLabel={`${intl.formatMessage(intlMessages.webcamLabel)} - ${displaySettingsStatus(viewParticipantsWebcams, true)}`}
+                      aria-labelledby="webcamToggle"
+                      aria-label={`${intl.formatMessage(intlMessages.webcamLabel)} - ${displaySettingsStatus(viewParticipantsWebcams, true)}`}
                     />
                     <Styled.Label>
                       {intl.formatMessage(intlMessages.webcamLabel)}
@@ -76,11 +76,11 @@ class DataSaving extends BaseMenu {
                 <Styled.Col>
                   <Styled.FormElementRight>
                     <SubMenuStyle.MaterialSwitch
-                      icons={false}
-                      defaultChecked={viewScreenshare}
+                      icons="false"
+                      checked={viewScreenshare}
                       onChange={() => this.handleToggle('viewScreenshare')}
-                      ariaLabelledBy="screenShare"
-                      ariaLabel={`${intl.formatMessage(intlMessages.screenShareLabel)} - ${displaySettingsStatus(viewScreenshare, true)}`}
+                      aria-labelledby="screenShare"
+                      aria-label={`${intl.formatMessage(intlMessages.screenShareLabel)} - ${displaySettingsStatus(viewScreenshare, true)}`}
                     />
                     <Styled.Label>
                       {intl.formatMessage(intlMessages.screenShareLabel)}

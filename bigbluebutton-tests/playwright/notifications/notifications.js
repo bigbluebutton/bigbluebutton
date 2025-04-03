@@ -25,7 +25,7 @@ class Notifications extends MultiUsers {
       this.modPage.getLocator(e.connectionStatusBtn),
       'should not complain about loss in connection when joining audio'
     ).not.toHaveAttribute('color', 'danger');
-    await this.modPage.checkElementCount(e.smallToastMsg, 1, 'should have only one notification displayed');
+    await this.modPage.hasElementCount(e.smallToastMsg, 1, 'should have only one notification displayed');
     await this.modPage.closeAllToastNotifications();
     await this.modPage.waitAndClick(e.audioDropdownMenu);
     await this.modPage.waitAndClick(e.leaveAudio);
@@ -49,6 +49,7 @@ class Notifications extends MultiUsers {
 
   async raiseAndLowerHandNotification() {
     await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage.closeAllToastNotifications();
     await this.modPage.waitAndClick(e.raiseHandBtn);
     await sleep(1000);
     await this.modPage.hasElement(e.raiseHandRejection, 'should display raise hand rejection button on toast notification');

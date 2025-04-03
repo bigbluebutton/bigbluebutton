@@ -19,6 +19,7 @@ import { layoutDispatch } from '../../layout/context';
 import { ACTIONS, PANELS } from '../../layout/enums';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import CustomizedAxisTick from './CustomizedAxisTick';
+import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
 
 const intlMessages = defineMessages({
   usersTitle: {
@@ -81,7 +82,7 @@ const LiveResult: React.FC<LiveResultProps> = ({
   isSecret,
 }) => {
   const CHAT_CONFIG = window.meetingClientSettings.public.chat;
-  const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_group_id;
+  const PUBLIC_GROUP_CHAT_KEY = CHAT_CONFIG.public_group_id;
 
   const intl = useIntl();
   const [pollPublishResult] = useMutation(POLL_PUBLISH_RESULT);
@@ -146,7 +147,7 @@ const LiveResult: React.FC<LiveResultProps> = ({
                 });
                 layoutContextDispatch({
                   type: ACTIONS.SET_ID_CHAT_OPEN,
-                  value: PUBLIC_CHAT_KEY,
+                  value: PUBLIC_GROUP_CHAT_KEY,
                 });
               }}
               disabled={numberOfAnswerCount <= 0}
@@ -217,12 +218,17 @@ const LiveResultContainer: React.FC = () => {
   }
 
   if (currentPollDataError) {
-    logger.error(currentPollDataError);
-    return (
-      <div>
-        {JSON.stringify(currentPollDataError)}
-      </div>
+    connectionStatus.setSubscriptionFailed(true);
+    logger.error(
+      {
+        logCode: 'subscription_Failed',
+        extraInfo: {
+          error: currentPollDataError,
+        },
+      },
+      'Subscription failed to load',
     );
+    return null;
   }
 
   if (!currentPollData.poll.length) return null;

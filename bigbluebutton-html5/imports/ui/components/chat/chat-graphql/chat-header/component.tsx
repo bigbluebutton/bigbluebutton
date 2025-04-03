@@ -109,12 +109,15 @@ const ChatHeaderContainer: React.FC = () => {
   const title = intl.formatMessage(intlMessages.messagesTitle);
 
   return (
-    <ChatHeader
-      chatId={idChatOpen}
-      isPublicChat={isPublicChat}
-      title={title}
-      isRTL={isRTL}
-    />
+    <>
+      <h2 className="sr-only">{title}</h2>
+      <ChatHeader
+        chatId={idChatOpen}
+        isPublicChat={isPublicChat}
+        title={title}
+        isRTL={isRTL}
+      />
+    </>
   );
 };
 

@@ -9,6 +9,7 @@ export interface Message {
   messageMetadata: string | null;
   senderName: string | null;
   senderRole: string | null;
+  senderId: string | null;
 }
 
 export interface PublicMessageStreamResponse {
@@ -33,6 +34,7 @@ export const CHAT_MESSAGE_PUBLIC_STREAM = gql`
       messageType
       senderName
       senderRole
+      senderId
     }
   }
 `;
@@ -51,6 +53,7 @@ export const CHAT_MESSAGE_PRIVATE_STREAM = gql`
       messageType
       senderName
       senderRole
+      senderId
     }
   }
 `;

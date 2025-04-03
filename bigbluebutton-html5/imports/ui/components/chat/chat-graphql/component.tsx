@@ -15,6 +15,7 @@ import useChat from '/imports/ui/core/hooks/useChat';
 import { Chat as ChatType } from '/imports/ui/Types/chat';
 import { layoutDispatch } from '/imports/ui/components/layout/context';
 import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
 import {
   colorWhite,
@@ -47,6 +48,10 @@ interface ChatProps {
   filteredPrivateChats: Partial<ChatType>[];
 }
 
+interface ChatLoadingProps {
+  isRTL: boolean;
+}
+
 const Chat: React.FC<ChatProps> = ({
   publicUnreadMessages,
   privateUnreadMessages,
@@ -58,16 +63,15 @@ const Chat: React.FC<ChatProps> = ({
   const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 
   const isEditingMessage = useRef(false);
-  const [showMessages, setShowMessages] = useState(chatId === PUBLIC_GROUP_CHAT_ID);
   const [privateList, setPrivateList] = useState(false);
   const layoutContextDispatch = layoutDispatch();
   const intl = useIntl();
+  const isPrivateChat = chatId !== PUBLIC_GROUP_CHAT_ID;
+  const isPublicChat = chatId === PUBLIC_GROUP_CHAT_ID && !privateList;
 
   const handleClickSelectChat = (isPublicChat: boolean) => {
-    setShowMessages(isPublicChat);
-    setPrivateList(false);
-
     if (isPublicChat) {
+      setPrivateList(false);
       layoutContextDispatch({
         type: ACTIONS.SET_ID_CHAT_OPEN,
         value: PUBLIC_GROUP_CHAT_ID,
@@ -124,6 +128,26 @@ const Chat: React.FC<ChatProps> = ({
     };
   }, []);
 
+  const renderChatPanelContent = () => {
+    if (privateList) {
+      return (
+        <PrivateChatListContainer
+          privateChatSelectedCallback={() => setPrivateList(false)}
+          chats={filteredPrivateChats}
+        />
+      );
+    }
+    return (
+      <>
+        {isPrivateChat && (
+          <BackButton onClick={handleClickReturnPrivateList} title={participantName} />
+        )}
+        <ChatMessageListContainer />
+        <ChatMessageFormContainer />
+      </>
+    );
+  };
+
   return (
     <>
       <ChatHeader />
@@ -134,7 +158,7 @@ const Chat: React.FC<ChatProps> = ({
         {filteredPrivateChats.length > 0 ? (
           <Styled.ButtonsWrapper>
             <Button
-              variant={showMessages ? 'contained' : 'outlined'}
+              variant={isPublicChat ? 'contained' : 'outlined'}
               color="primary"
               size="medium"
               data-test="publicChatButton"
@@ -145,8 +169,8 @@ const Chat: React.FC<ChatProps> = ({
                 marginRight: '8px',
                 padding: '8px 16px',
                 textTransform: 'none',
-                backgroundColor: showMessages ? btnPrimaryBg : colorOffWhite,
-                color: showMessages ? colorWhite : colorGrayLight,
+                backgroundColor: isPublicChat ? btnPrimaryBg : colorOffWhite,
+                color: isPublicChat ? colorWhite : colorGrayLight,
                 border: `1px solid ${btnPrimaryBg}`,
                 display: 'block',
                 textAlign: 'center',
@@ -172,7 +196,7 @@ const Chat: React.FC<ChatProps> = ({
               )}
             </Button>
             <Button
-              variant={!showMessages ? 'contained' : 'outlined'}
+              variant={isPrivateChat || privateList ? 'contained' : 'outlined'}
               color="primary"
               size="medium"
               data-test="privateChatButton"
@@ -182,8 +206,8 @@ const Chat: React.FC<ChatProps> = ({
                 width: '100%',
                 padding: '8px 16px',
                 textTransform: 'none',
-                backgroundColor: !showMessages ? btnPrimaryBg : colorOffWhite,
-                color: !showMessages ? colorWhite : colorGrayLight,
+                backgroundColor: isPrivateChat || privateList ? btnPrimaryBg : colorOffWhite,
+                color: isPrivateChat || privateList ? colorWhite : colorGrayLight,
                 border: `1px solid ${btnPrimaryBg}`,
                 display: 'block',
                 textAlign: 'center',
@@ -210,31 +234,19 @@ const Chat: React.FC<ChatProps> = ({
             </Button>
           </Styled.ButtonsWrapper>
         ) : null}
-        {privateList ? (
-          <PrivateChatListContainer
-            privateChatSelectedCallback={() => setPrivateList(false)}
-            chats={filteredPrivateChats}
-          />
-        ) : (
-          <>
-            {!showMessages && !privateList && (
-              <BackButton onClick={handleClickReturnPrivateList} title={participantName} />
-            )}
-            <ChatMessageListContainer />
-            <ChatMessageFormContainer />
-          </>
-        )}
+        {renderChatPanelContent()}
       </Styled.ContentWrapper>
     </>
   );
 };
 
-export const ChatLoading: React.FC = () => {
+export const ChatLoading: React.FC<ChatLoadingProps> = () => {
   return <Styled.CircularProgressContainer />;
 };
 
 const ChatContainer: React.FC = () => {
   const idChatOpen = layoutSelect((i: Layout) => i.idChatOpen);
+  const isRTL = layoutSelect((i: Layout) => i.isRTL);
   const sidebarContent = layoutSelectInput((i: Input) => i.sidebarContent);
   const layoutContextDispatch = layoutDispatch();
   const { data: chats } = useChat((chat) => {
@@ -270,6 +282,13 @@ const ChatContainer: React.FC = () => {
     participantName = currentChat.participant.name || '';
   }
 
+  const { data: currentUser } = useCurrentUser((c) => ({
+    userLockSettings: c?.userLockSettings,
+    locked: c?.locked,
+  }));
+
+  const isLocked = currentUser?.locked || currentUser?.userLockSettings?.disablePublicChat;
+
   if (pendingChat && chats) {
     const chat = chats.find((c) => {
       return c.participant?.userId === pendingChat;
@@ -284,7 +303,7 @@ const ChatContainer: React.FC = () => {
   }
 
   if (sidebarContent.sidebarContentPanel !== PANELS.CHAT) return null;
-  if (!idChatOpen) return <ChatLoading />;
+  if (!idChatOpen && !isLocked) return <ChatLoading isRTL={isRTL} />;
 
   return (
     <Chat

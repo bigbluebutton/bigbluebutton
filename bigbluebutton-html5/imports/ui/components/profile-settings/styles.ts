@@ -56,7 +56,7 @@ interface VideoPreviewProps {
 }
 
 const VideoPreview = styled.video<VideoPreviewProps>`
-  height: 100%;
+  max-height: 14rem;
   width: 100%;
   border-radius: 0.5rem;
   box-shadow: 8px 8px 24px 0px rgba(0, 0, 0, 0.10);
@@ -339,7 +339,6 @@ const MaterialSwitch = materialStyled(Switch)(({ theme }) => ({
 }));
 
 const BrightnessSlider = styled(Slider)`
-  color: ${colorPrimary};
   & .MuiSlider-thumb {
     height: 1rem;
     width: 1rem;
