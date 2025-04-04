@@ -105,135 +105,132 @@ module BigBlueButton
           dump(edl)
         end
 
-        ffmpeg_inputs = []
-        filter_lines  = []
-      
-        # Keep an array of final segment labels for later concat
-        segment_labels = []
-      
-        BigBlueButton.logger.info "Generating ffmpeg command"
+        segment_files = []
+
         # Build one chain per segment
         (0...(edl.length - 1)).each do |i|
           entry = edl[i]
-          seg_duration = entry[:next_timestamp] - entry[:timestamp]
-      
-          # label the final output of this segment as [segX]
-          seg_label = "seg#{i}"
-
-          audios = entry[:audios]
-          if audios && !audios.empty?
-            track_labels = []
-      
-            audios.each_with_index do |audio_data, idx|
-              filename = audio_data[:filename]
-              seek     = audio_data[:timestamp]
-              info     = audioinfo[filename]
-              speed    = 1.0
-
-              # Check for and handle audio files with mismatched lengths (generated
-              # by buggy versions of freeswitch in old BigBlueButton
-              if ((info[:format][:format_name] == 'wav' ||
-                info[:audio][:codec_name] == 'vorbis') &&
-                  entry[:original_duration] &&
-                  (info[:duration].to_f / entry[:original_duration]) < 0.997 &&
-                  ((entry[:original_duration] - info[:duration]).to_f /
-                    entry[:original_duration]).abs < 0.05)
-
-                speed = audioinfo[audio[:filename]][:duration].to_f / entry[:original_duration]
-                seek = 0
-                BigBlueButton.logger.warn "  Audio file length mismatch, adjusting speed to #{speed}"
-              end
-
-              # Skip this input and generate silence if the seekpoint is past the end of the audio, which can happen
-              # if events are slightly misaligned and you get unlucky with a start/stop or chapter break.
-              if seek < (info[:duration].to_f * speed)
-                input_index = ffmpeg_inputs.size
-                ffmpeg_inputs << { filename: filename, seek: seek }
-      
-                # Build track label
-                track_label = "t#{i}_#{idx}"
-                line = "[#{input_index}]#{FFMPEG_AFORMAT},apad,asetpts=N"
-                line << ",atempo=#{speed}" if speed != 1.0
-                line << "[#{track_label}];"
-                filter_lines << line
-                track_labels << "[#{track_label}]"
-              else
-                # If we're seeking past the file end => silence
-                track_label = "t#{i}_silence#{idx}"
-                line = "#{FFMPEG_AEVALSRC},#{FFMPEG_AFORMAT},asetpts=N[#{track_label}];"
-                filter_lines << line
-                track_labels << "[#{track_label}]"
-              end
-            end
-      
-            # Mix audios if more than one
-            if track_labels.size > 1
-              # e.g.: [t0_0][t0_1]amix=inputs=2[seg0]
-              line = track_labels.join
-              line << "amix=inputs=#{track_labels.size}:normalize=0[#{seg_label}];"
-              filter_lines << line
-            else
-              # Only one track => rename it to [segX] (via anull or direct rename)
-              line = "#{track_labels.first}anull[#{seg_label}];"
-              filter_lines << line
-            end
-          else
-            BigBlueButton.logger.info "  Generating silence"
-            line = "#{FFMPEG_AEVALSRC},#{FFMPEG_AFORMAT},asetpts=N[#{seg_label}];"
-            filter_lines << line
-          end
-      
-          # Now trim this segment to seg_duration
-          trim_line = "[#{seg_label}]atrim=end=#{ms_to_s(seg_duration)}[#{seg_label}];"
-          filter_lines << trim_line
-      
-          # Collect the segment’s final label for the eventual concat
-          segment_labels << "[#{seg_label}]"
+          segment_output = process_segment(entry, output_basename, i+1, edl.length-1, audioinfo)
+          segment_files << segment_output
         end
       
-        # Build the final concat line if we have at least one segment
-        if segment_labels.any?
-          # e.g.: [seg0][seg1][seg2]concat=n=3:a=1:v=0
-          line = segment_labels.join
-          line << "concat=n=#{segment_labels.size}:a=1:v=0"
-          filter_lines << line
-        end
-      
-        #-------------------------------------
-        # Build the ffmpeg command
-        #-------------------------------------
-        ffmpeg_cmd = [*FFMPEG]
-        ffmpeg_inputs.each do |input|
-          # Seek
-          ffmpeg_cmd += ['-ss', ms_to_s(input[:seek])]
-          # Ensure that the entire contents of freeswitch wav files are read
-          info = audioinfo[input[:filename]]
-          if info && info[:format][:format_name] == 'wav'
-            ffmpeg_cmd += ['-ignore_length', '1']
+        # Merge all segments into the final output file
+        BigBlueButton.logger.info "Merging #{segment_files.size} segments..."
+        concat_list_file = "#{output_basename}_concat_list.txt"
+        File.open(concat_list_file, 'w') do |f|
+          f.write("ffconcat version 1.0\n") 
+          segment_files.each do |segment|
+            f.write("file #{segment[:file]}\n") 
+            f.write("duration #{ms_to_s(segment[:duration])}\n") 
           end
-          # Prefer using the libopus decoder for opus files, it handles discontinuities better
-          if info && info[:audio][:codec_name] == 'opus'
-            ffmpeg_cmd << '-c:a' << 'libopus'
-          end
-          ffmpeg_cmd += ['-i', input[:filename]]
         end
 
-        # Write filter script
-        filter_script = "#{output_basename}.filter"
-        filter_content = filter_lines.join("\n")
-        BigBlueButton.logger.debug('  ffmpeg filter_complex_script:')
-        BigBlueButton.logger.debug(filter_content)
-        File.open(filter_script, 'w') { |f| f.write(filter_content) }
-        ffmpeg_cmd << '-filter_complex_script' << filter_script
-
+        merge_cmd = [*FFMPEG, '-f', 'concat', '-safe', '0', '-i', concat_list_file, '-af', "#{FFMPEG_AFORMAT},asetpts=N"]
         output = "#{output_basename}.#{WF_EXT}"
-        ffmpeg_cmd += ['-vn', *FFMPEG_WF_ARGS, output]
-
-        BigBlueButton.logger.info "Running audio processing..."
-        exitstatus = BigBlueButton.exec_ret(*ffmpeg_cmd)
-        raise "ffmpeg failed, exit code #{exitstatus}" if exitstatus != 0
+        merge_cmd += ['-vn', *FFMPEG_WF_ARGS, output]
+        BigBlueButton.logger.info "Running merge command..."
+        exitstatus = BigBlueButton.exec_ret(*merge_cmd)
+        raise "ffmpeg merge failed, exit code #{exitstatus}" if exitstatus != 0
 
         output
+      end
+
+      def self.process_segment(entry, output_basename, i, total_segments, audioinfo)
+        BigBlueButton.logger.info "Processing segment #{i} of #{total_segments} (duration: #{entry[:next_timestamp] - entry[:timestamp]} ms, num_audios: #{entry[:audios]&.length || 0})"
+        ffmpeg_cmd = [*FFMPEG]
+        filter_lines = []
+        track_labels = []
+        input_index = 0
+
+        if entry[:audios] && !entry[:audios].empty?
+          entry[:audios].each_with_index do |audio_data, idx|
+            filename = audio_data[:filename]
+            seek     = audio_data[:timestamp]
+            info     = audioinfo[filename]
+            speed    = 1.0
+
+            # Check for and handle audio files with mismatched lengths (generated
+            # by buggy versions of freeswitch in old BigBlueButton
+            if ((info[:format][:format_name] == 'wav' ||
+                 info[:audio][:codec_name] == 'vorbis') &&
+                 entry[:original_duration] &&
+                 (info[:duration].to_f / entry[:original_duration]) < 0.997 &&
+                 (((entry[:original_duration] - info[:duration]).to_f) / entry[:original_duration]).abs < 0.05)
+              speed = info[:duration].to_f / entry[:original_duration]
+              seek = 0
+              BigBlueButton.logger.warn "  Audio file length mismatch in #{filename}, adjusting speed to #{speed}"
+            end
+
+            # Skip this input and generate silence if the seekpoint is past the end of the audio, which can happen
+            # if events are slightly misaligned and you get unlucky with a start/stop or chapter break.
+            if seek < (info[:duration].to_f * speed)
+              # For each audio, add a -ss and -i for its input
+              ffmpeg_cmd += ['-ss', ms_to_s(seek)]
+              # Ensure that the entire contents of freeswitch wav files are read
+              if info[:format][:format_name] == 'wav'
+                ffmpeg_cmd += ['-ignore_length', '1']
+              end
+              # Prefer using the libopus decoder for opus files, it handles discontinuities better
+              if info[:audio][:codec_name] == 'opus'
+                ffmpeg_cmd += ['-c:a', 'libopus']
+              end
+              ffmpeg_cmd += ['-i', filename]
+
+              # Build track label
+              track_label = "t#{i}_#{idx}"
+              line = "[#{input_index}]#{FFMPEG_AFORMAT},apad"
+              line << ",atempo=#{speed},atrim=start=#{ms_to_s(audio_data[:timestamp])}" if speed != 1.0
+              line << ",asetpts=N[#{track_label}];"
+              filter_lines << line
+              track_labels << "[#{track_label}]"
+              input_index += 1
+            else
+              # If we're seeking past the file end => silence
+              track_label = "t#{i}_silence#{idx}"
+              line = "#{FFMPEG_AEVALSRC},#{FFMPEG_AFORMAT},asetpts=N[#{track_label}];"
+              filter_lines << line
+              track_labels << "[#{track_label}]"
+            end
+          end
+
+          if track_labels.size > 1
+            # Mix multiple tracks
+            line = track_labels.join
+            line << "amix=inputs=#{track_labels.size}:normalize=0,"
+            filter_lines << line
+          else
+            # Single track: simply rename via anull
+            line = "#{track_labels.first}anull,"
+            filter_lines << line
+          end
+        else
+          BigBlueButton.logger.info "  Generating silence"
+          filter_lines << "#{FFMPEG_AEVALSRC},#{FFMPEG_AFORMAT},asetpts=N,"
+        end
+      
+        # Now trim this segment to seg_duration
+        filter_lines << "atrim=end=#{ms_to_s(entry[:next_timestamp] - entry[:timestamp])}"
+
+        # Write filter_complex script to a temporary file for this segment
+        filter_script = "#{output_basename}_seg#{i}.filter"
+        File.open(filter_script, 'w') { |f| f.write(filter_lines.join("\n")) }
+        ffmpeg_cmd += ['-filter_complex_script', filter_script]
+
+        BigBlueButton.logger.debug("ffmpeg filter_complex_script for segment #{i}: ")
+        BigBlueButton.logger.debug(filter_lines.join("\n"))
+      
+        segment = "#{output_basename}_seg#{i}.#{WF_EXT}"
+        ffmpeg_cmd += ['-vn', *FFMPEG_WF_ARGS, segment]
+      
+        BigBlueButton.logger.info "Running ffmpeg for segment #{i} of #{total_segments}..."
+        exitstatus = BigBlueButton.exec_ret(*ffmpeg_cmd)
+        raise "ffmpeg failed for segment #{i}, exit code #{exitstatus}" if exitstatus != 0
+
+        segment_output = { 
+          file: segment, 
+          duration: entry[:next_timestamp] - entry[:timestamp], 
+        } 
+        segment_output
       end
 
       # The methods below should be considered private
