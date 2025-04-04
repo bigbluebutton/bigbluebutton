@@ -18,7 +18,6 @@ const MuteWarning = styled.div`
   padding: ${mdPaddingX};
   border-radius: ${borderRadius};
   top: -100%;
-  left: 50%;
   z-index: 100;
   cursor: pointer;
 
@@ -30,37 +29,30 @@ const MuteWarning = styled.div`
     font-size: ${fontSizeMD};
   }
 
-  ${({ alignForMod }) => alignForMod && `
-    left: 72.25%;
-
-    [dir="rtl"] & {
-      left: 20%;
-    }
-
-    @media ${mediumOnly} {
-      font-size: ${fontSizeSmall};
-    }
-  `}
-
-  ${({ alignForViewer }) => alignForViewer && `
-    left: 80%;
-  
-    [dir="rtl"] & {
-      left: 20%;
-    }
-
-    @media ${mediumOnly} {
-      font-size: ${fontSizeSmall};
-    }
-
-  `}
+  @media ${mediumOnly} {
+    font-size: ${fontSizeSmall};
+  }
 
   ${({ $mobile }) => $mobile && `
     transform: translate(0, -50%);
+
+    [dir="rtl"] & {
+      right: 0;
+    }
+
+    [dir="ltr"] & {
+      left: 0;
+    }
   `}
 
   ${({ $mobile }) => !$mobile && `
-    transform: translate(-50%, -50%);
+    [dir="rtl"] & {
+      transform: translate(50%, -50%);
+    }
+
+    [dir="ltr"] & {
+      transform: translate(-50%, -50%);
+    }
   `}
 `;
 

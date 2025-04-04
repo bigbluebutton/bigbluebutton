@@ -133,7 +133,7 @@ class MutedAlert extends Component {
 
   render() {
     const {
-      isViewer, isPresenter, muted, intl,
+      muted, intl,
     } = this.props;
     const { visible } = this.state;
 
@@ -143,8 +143,6 @@ class MutedAlert extends Component {
         position="top"
       >
         <Styled.MuteWarning
-          alignForMod={!isViewer || isPresenter}
-          alignForViewer={isViewer}
           onClick={() => this.closeAlert()}
           $mobile={isMobile}
         >
