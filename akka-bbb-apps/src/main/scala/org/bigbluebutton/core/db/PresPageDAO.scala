@@ -86,8 +86,12 @@ object PresPageDAO {
           height = page.height,
           viewBoxWidth = 1,
           viewBoxHeight = 1,
+
+          // These values should be kept in sync across all BBB components.
+          // See the values under "process" in bbb-export-annotations/config/settings.json
           maxImageWidth = 1440,
           maxImageHeight = 1080,
+
           uploadCompleted = page.converted,
           infiniteWhiteboard = page.infiniteWhiteboard,
           fitToWidth = page.fitToWidth,

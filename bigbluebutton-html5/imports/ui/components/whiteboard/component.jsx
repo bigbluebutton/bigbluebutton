@@ -497,7 +497,7 @@ const Whiteboard = React.memo((props) => {
       }
     }
 
-    if (!event.altKey && !event.ctrlKey && !event.shiftKey && simpleKeyMap[key]) {
+    if (!event.altKey && !event.ctrlKey && !event.shiftKey && simpleKeyMap[key] && (isPresenterRef.current || hasWBAccessRef.current)) {
       event.preventDefault();
       event.stopPropagation();
       simpleKeyMap[key]();
@@ -963,7 +963,7 @@ const Whiteboard = React.memo((props) => {
 
           const zoomed = prevCam.z !== nextCam.z;
 
-          if ((panned || (zoomed && fitToWidthRef.current)) && isPresenterRef.current) {
+          if ((panned || (zoomed || fitToWidthRef.current)) && isPresenterRef.current) {
             const viewedRegionW = SlideCalcUtil.calcViewedRegionWidth(
               editor?.getViewportPageBounds()?.w,
               currentPresentationPageRef.current?.scaledWidth,

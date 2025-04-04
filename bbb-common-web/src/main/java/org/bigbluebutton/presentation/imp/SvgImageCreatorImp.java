@@ -7,10 +7,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.io.FileUtils;
-import org.bigbluebutton.presentation.ImageResolution;
-import org.bigbluebutton.presentation.SupportedFileTypes;
-import org.bigbluebutton.presentation.SvgImageCreator;
-import org.bigbluebutton.presentation.UploadedPresentation;
+import org.bigbluebutton.presentation.*;
 import org.bigbluebutton.presentation.handlers.AddNamespaceToSvgHandler;
 import org.bigbluebutton.presentation.handlers.Pdf2PngPageConverterHandler;
 import org.bigbluebutton.presentation.handlers.Png2SvgConversionHandler;
@@ -24,6 +21,11 @@ import com.zaxxer.nuprocess.NuProcess;
 import com.zaxxer.nuprocess.NuProcessBuilder;
 
 public class SvgImageCreatorImp implements SvgImageCreator {
+    // These values should be kept in sync across all BBB components.
+    // See the values under "process" in bbb-export-annotations/config/settings.json
+    private static final int MAX_SVG_WIDTH = 1440;
+    private static final int MAX_SVG_HEIGHT = 1080;
+
     private static Logger log = LoggerFactory.getLogger(SvgImageCreatorImp.class);
 
     private SlidesGenerationProgressNotifier notifier;
@@ -36,6 +38,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
     private int pngWidthRasterizedSlides = 2048;
 	private String BLANK_SVG;
     private int maxNumberOfAttempts = 3;
+    private ImageResizer imageResizer;
 
     @Override
     public boolean createSvgImage(UploadedPresentation pres, int page) throws TimeoutException{
@@ -261,6 +264,14 @@ public class SvgImageCreatorImp implements SvgImageCreator {
                             height = imageResolution.getHeight();
                         }
 
+                        if(imageResolution.getWidth() > MAX_SVG_WIDTH || imageResolution.getHeight() > MAX_SVG_HEIGHT) {
+                            log.info("The image exceeds max dimension allowed, it will be resized.");
+                            imageResizer.resize(tempPng, MAX_SVG_WIDTH + "x" + MAX_SVG_HEIGHT);
+                            imageResolution = imgResService.identifyImageResolution(tempPng);
+                            width = imageResolution.getWidth();
+                            height = imageResolution.getHeight();
+                        }
+
                         String svg = createSvgWithEmbeddedPng(base64encodedPng, width, height);
                         try (FileWriter writer = new FileWriter(destsvg)) {
                             writer.write(svg);
@@ -437,5 +448,9 @@ public class SvgImageCreatorImp implements SvgImageCreator {
 
     public void setPngWidthRasterizedSlides(int pngWidthRasterizedSlides) {
         this.pngWidthRasterizedSlides = pngWidthRasterizedSlides;
+    }
+
+    public void setImageResizer(ImageResizer imageResizer) {
+        this.imageResizer = imageResizer;
     }
 }

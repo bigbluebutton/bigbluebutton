@@ -839,9 +839,6 @@ $ sudo systemctl restart freeswitch
 
 Try calling the phone number. It should connect to FreeSWITCH and you should hear a voice prompting you to enter the five digit PIN number for the conference. Please note, that dialin will currently only work if at least one web participant has joined with their microphone.
 
-It's also important to note that there are basic checks in place to prevent anonymous callers from joining BigBlueButton audio conferences.
-If you want to allow anonymous SIP UAs, you need to remove the `reject_anonymous` extension in `/opt/freeswitch/conf/dialplan/default/bbb_conference.xml`, then restart FreeSWITCH again.
-
 To always show users the phone number along with the 5-digit PIN number within BigBlueButton, not only while selecting the microphone participation, edit `/etc/bigbluebutton/bbb-web.properties` and set the phone number provided by your Internet Telephone Service Provider
 
 ```properties
@@ -875,6 +872,10 @@ iptables -I INPUT  -p udp --dport 5060 -s 64.2.142.33 -j ACCEPT
 ```
 
 With these rules, you won't get spammed by bots scanning for SIP endpoints and trying to connect.
+
+It's also important to note that, alongside the PIN requirement, there are basic dialplan-level checks in place to prevent anonymous dial-in callers from joining BigBlueButton audio conferences.
+  - Those checks offer minimal protection regarding blocking anonymous SIP participants and should not be considered a comprehensive solution. For production environments requiring stronger security controls, administrators are responsible for implementing additional measures that match the sensitivity of their deployments.
+  - If you want to allow anonymous SIP UAs, you need to remove the `reject_anonymous` extension in `/opt/freeswitch/conf/dialplan/default/bbb_conference.xml`, then restart FreeSWITCH.
 
 #### Turn on the "comfort noise" when no one is speaking
 
