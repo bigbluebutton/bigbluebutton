@@ -14,7 +14,6 @@ import { throttle } from 'radash';
 import {
   CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
   ANNOTATION_HISTORY_STREAM,
-  CURRENT_PAGE_ANNOTATIONS_STREAM,
   CURRENT_PAGE_ANNOTATIONS_QUERY,
   CURRENT_PAGE_WRITERS_SUBSCRIPTION,
 } from './queries';
@@ -24,7 +23,6 @@ import {
   notifyNotAllowedChange,
   notifyShapeNumberExceeded,
   toggleToolsAnimations,
-  formatAnnotations,
 } from './service';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import Auth from '/imports/ui/services/auth';
@@ -35,7 +33,7 @@ import {
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
 import deviceInfo from '/imports/utils/deviceInfo';
 import Whiteboard from './component';
-import ErrorBoundaryWithReload from '../common/error-boundary/error-boundary-with-reload/component'
+import ErrorBoundaryWithReload from '../common/error-boundary/error-boundary-with-reload/component';
 
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import {
@@ -57,7 +55,6 @@ const FORCE_RESTORE_PRESENTATION_ON_NEW_EVENTS = 'bbb_force_restore_presentation
 
 const WhiteboardContainer = (props) => {
   const {
-    intl,
     zoomChanger,
     fitToWidth,
   } = props;
@@ -66,11 +63,11 @@ const WhiteboardContainer = (props) => {
   const layoutContextDispatch = layoutDispatch();
 
   const [editor, setEditor] = useState(null);
-  const [annotations, setAnnotations] = useState([]);
   const [shapes, setShapes] = useState([]);
   const [removedShapes, setRemovedShapes] = useState([]);
   const [isTabVisible, setIsTabVisible] = useState(document.visibilityState === 'visible');
   const [currentPresentationPage, setCurrentPresentationPage] = useState(null);
+  const [initialPageAnnotationsReady, setInitialPageAnnotationsReady] = useState(false);
 
   const { userLocks } = useLockContext();
 
@@ -219,50 +216,81 @@ const WhiteboardContainer = (props) => {
     createdTime: m.createdTime,
   }));
 
-  const { data: initialPageAnnotations, refetch: refetchInitialPageAnnotations } = useQuery(
+  const {
+    data: initialPageAnnotations,
+    refetch: initialPageAnnotationsRefetch,
+    loading: initialPageAnnotationsLoading,
+  } = useQuery(
     CURRENT_PAGE_ANNOTATIONS_QUERY,
     {
+      variables: { pageId: curPageId },
       skip: !curPageId,
+      onCompleted: () => {
+        setInitialPageAnnotationsReady(true);
+      },
     },
   );
 
   const lastUpdatedAt = useMemo(() => {
-    if (!initialPageAnnotations?.pres_annotation_curr?.length) {
+    if (initialPageAnnotationsLoading
+        || !initialPageAnnotationsReady
+        || !initialPageAnnotations?.pres_annotation_curr) {
+      // Return null while loading or if data is null/undefined
+      // This ensures the history subscription waits.
+      return null;
+    }
+    if (initialPageAnnotations.pres_annotation_curr.length === 0) {
       return currentMeeting?.createdTime
         ? new Date(currentMeeting.createdTime).toISOString()
         : null;
     }
+    // Obtain updatedAt from the latest annotation
     return initialPageAnnotations.pres_annotation_curr.reduce((latest, annotation) => {
       const updatedAt = new Date(annotation.lastUpdatedAt);
       return updatedAt > latest ? updatedAt : latest;
     }, new Date(0)).toISOString();
-  }, [initialPageAnnotations]);
+  }, [
+    initialPageAnnotations,
+    initialPageAnnotationsLoading,
+    initialPageAnnotationsReady,
+    currentMeeting?.createdTime,
+  ]);
 
-  const { data: annotationStreamData } = useSubscription(ANNOTATION_HISTORY_STREAM, {
-    variables: { updatedAt: lastUpdatedAt },
-    skip: !curPageId || !lastUpdatedAt,
+  // Refetch whiteboard shapes after toggling fit-to-width.
+  // on toggling fit-to-width the whiteboard component is remounted so all previous shapes are lost
+  useEffect(() => {
+    if (isTabVisible && curPageId) {
+      setInitialPageAnnotationsReady(false);
+      initialPageAnnotationsRefetch();
+    }
+  }, [isTabVisible, fitToWidth]);
+
+  useSubscription(ANNOTATION_HISTORY_STREAM, {
+    variables: { updatedAt: lastUpdatedAt, pageId: curPageId },
+    skip: !curPageId
+        || initialPageAnnotationsLoading
+        || !initialPageAnnotationsReady
+        || !lastUpdatedAt,
     onData: ({ data: subscriptionData }) => {
-      const annotationStream =
-        subscriptionData.data?.pres_annotation_history_curr_stream || [];
+      const annotationStream = subscriptionData.data?.pres_annotation_history_curr_stream || [];
 
       const processedAnnotationIds = new Set();
       const validShapes = [];
       const annotationsToBeRemoved = new Set();
 
-      for (let i = annotationStream.length - 1; i >= 0; i--) {
+      for (let i = annotationStream.length - 1; i >= 0; i -= 1) {
         const annotation = annotationStream[i];
-        const { annotationId, annotationInfo } = annotation;
+        const { annotationId, annotationInfo, pageId } = annotation;
 
-        if (processedAnnotationIds.has(annotationId)) {
-          continue;
-        }
+        // process only the last version of each annotationId
+        if (pageId === curPageId && !processedAnnotationIds.has(annotationId)) {
+          processedAnnotationIds.add(annotationId);
 
-        processedAnnotationIds.add(annotationId);
-
-        if (!annotationInfo) {
-          annotationsToBeRemoved.add(annotationId);
-        } else {
-          validShapes.push({ ...annotationInfo, id: annotationId });
+          if (!annotationInfo) {
+            annotationsToBeRemoved.add(annotationId);
+          } else {
+            validShapes.push({ ...annotationInfo, id: annotationId });
+          }
         }
       }
 
@@ -270,7 +298,7 @@ const WhiteboardContainer = (props) => {
         if (validShapes.length > 0) {
           const restoreOnUpdate = getFromUserSettings(
             FORCE_RESTORE_PRESENTATION_ON_NEW_EVENTS,
-            window.meetingClientSettings.public.presentation.restoreOnUpdate
+            window.meetingClientSettings.public.presentation.restoreOnUpdate,
           );
 
           if (restoreOnUpdate) {
@@ -284,12 +312,6 @@ const WhiteboardContainer = (props) => {
       setRemovedShapes(Array.from(annotationsToBeRemoved || []));
     },
   });
-
-  useEffect(() => {
-    if (isTabVisible && curPageId) {
-      refetchInitialPageAnnotations();
-    }
-  }, [isTabVisible, curPageId, presentationId, fitToWidth]);
 
   const processAnnotations = (data) => {
     let annotationsToBeRemoved = [];
@@ -309,7 +331,7 @@ const WhiteboardContainer = (props) => {
           });
 
           annotationsToBeRemoved = annotationsToBeRemoved.filter(
-            (id) => id !== item.annotationId
+            (id) => id !== item.annotationId,
           );
         } else {
           newAnnotations.push({
@@ -352,11 +374,11 @@ const WhiteboardContainer = (props) => {
   }, [initialPageAnnotations]);
 
   useEffect(() => {
-    if (!curPageId || !lastUpdatedAt) {
+    if (!curPageId || initialPageAnnotationsLoading) {
       setShapes([]);
       setRemovedShapes([]);
     }
-  }, [curPageId, lastUpdatedAt]);
+  }, [curPageId, initialPageAnnotationsLoading]);
 
   const bgShape = [];
 
