@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { set, throttle } from 'radash';
+import { throttle } from 'radash';
 
 const hasBackgroundImageUrl = (el) => {
   const style = window.getComputedStyle(el);
@@ -28,10 +28,22 @@ const useCursor = (publishCursorUpdate, whiteboardId) => {
   return [cursorPosition, updateCursorPosition];
 };
 
-const getPrensentationMenuItem = () => document.querySelector('li#presentationFullscreen')
+const getPresentationOptionsMenuItem = () => document.querySelector('li#presentationFullscreen')
     || document.querySelector('li#presentationSnapshot')
     || document.querySelector('li#toolVisibility')
     || null;
+
+const getTldrawOpenMenu = () => {
+  const tlElement = document.querySelectorAll('[id^=radix-]');
+  const tldrawMenu = Array.from(tlElement).find((el) => {
+    const menuClasses = ['tlui-popover__content', 'tlui-menu'];
+    if (el && menuClasses.includes(el.className)) {
+      return el;
+    }
+    return false;
+  });
+  return tldrawMenu;
+};
 
 const useMouseEvents = ({
   whiteboardRef, tlEditorRef, isWheelZoomRef, initialZoomRef, isPresenterRef,
@@ -128,12 +140,13 @@ const useMouseEvents = ({
   const handleMouseLeave = () => {
     if (whiteboardToolbarAutoHide) {
       clearTimeout(mouseLeaveTimeoutRef.current);
-      const presentationWBOptionsMenuItem = getPrensentationMenuItem();
-      if (presentationWBOptionsMenuItem) {
-        const ulElemnt = presentationWBOptionsMenuItem.parentElement;
-        const menuWrapper = ulElemnt.parentElement;
+      const presentationWBOptionsMenuItem = getPresentationOptionsMenuItem();
+      const tldrawMenu = getTldrawOpenMenu();
+      if (presentationWBOptionsMenuItem || tldrawMenu) {
+        const ulElement = presentationWBOptionsMenuItem.parentElement;
+        const menuWrapper = ulElement.parentElement;
         const isVisible = menuWrapper.style.visibility !== 'hidden';
-        if (isVisible) {
+        if (isVisible || tldrawMenu) {
           mouseLeaveTimeoutRef.current = setTimeout(() => {
             handleMouseLeave();
           }, 500);
