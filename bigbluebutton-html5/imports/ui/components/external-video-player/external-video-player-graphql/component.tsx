@@ -132,21 +132,21 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
       playerOptions: {
         autoPlay: true,
         playsInline: true,
-        controls: isPresenter,
+        controls: true,
       },
       file: {
         attributes: {
-          controls: isPresenter ? 'controls' : '',
+          controls: 'controls',
           autoPlay: true,
           playsInline: true,
         },
       },
       facebook: {
-        controls: isPresenter,
+        controls: true,
       },
       dailymotion: {
         params: {
-          controls: isPresenter,
+          controls: true,
         },
       },
       youtube: {
@@ -156,7 +156,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
           autohide: 1,
           rel: 0,
           ecver: 2,
-          controls: isPresenter ? 1 : 0,
+          controls: 1,
           cc_lang_pref: document.getElementsByTagName('html')[0].lang.substring(0, 2),
         },
         embedOptions: {
@@ -164,18 +164,18 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
         },
       },
       peertube: {
-        isPresenter,
+        isPresenter: true,
       },
       twitch: {
         options: {
-          controls: isPresenter,
+          controls: true,
         },
         playerId: 'externalVideoPlayerTwitch',
       },
       preload: true,
       showHoverToolBar: false,
     };
-  }, [isPresenter]);
+  }, []);
 
   const [showUnsynchedMsg, setShowUnsynchedMsg] = React.useState(false);
   const [showHoverToolBar, setShowHoverToolBar] = React.useState(false);
@@ -280,7 +280,6 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
       }
 
       clientReloadedRef.current = true;
-      setPlayerKey(uniqueId('react-player'));
       presenterRef.current = isPresenter;
     }
   }, [isPresenter]);
@@ -434,7 +433,8 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
           onPause={handleOnStop}
           onEnded={handleOnStop}
           muted={mute || isEchoTest}
-          controls={isPresenter}
+          controls
+          previewTabIndex={isPresenter ? 0 : -1}
         />
         {
           shouldShowTools() ? (
@@ -455,6 +455,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
               loaded={loaded}
               subtitlesOn={subtitlesOn}
               hideVolume={hideVolume[playerName as keyof typeof hideVolume]}
+              showUnsynchedMsg={showUnsynchedMsg}
             />
           ) : null
         }
