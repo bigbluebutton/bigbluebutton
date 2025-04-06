@@ -26,7 +26,6 @@ import SlideCalcUtil, { HUNDRED_PERCENT } from '/imports/utils/slideCalcUtils';
 import meetingClientSettingsInitialValues from '/imports/ui/core/initial-values/meetingClientSettings';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import KEY_CODES from '/imports/utils/keyCodes';
-import { debounce } from '/imports/utils/debounce';
 import logger from '/imports/startup/client/logger';
 import Styled from './styles';
 import {
@@ -81,8 +80,9 @@ const Whiteboard = React.memo((props) => {
     isPresenter = false,
     removeShapes,
     persistShapeWrapper,
-    shapes,
-    removedShapes,
+    initialShapes,
+    shapesToProcessQueueRef,
+    shapesToRemoveQueueRef,
     assets,
     currentUser = defaultUser,
     whiteboardId = undefined,
@@ -140,7 +140,7 @@ const Whiteboard = React.memo((props) => {
 
   const whiteboardRef = React.useRef(null);
   const zoomValueRef = React.useRef(null);
-  const prevShapesRef = React.useRef(shapes);
+  const prevShapesRef = React.useRef(initialShapes);
   const tlEditorRef = React.useRef(null);
   const slideChanged = React.useRef(false);
   const slideNext = React.useRef(null);
@@ -234,13 +234,14 @@ const Whiteboard = React.memo((props) => {
     };
   };
 
-  const debouncedUpdateShapes = debounce(() => {
-    if (shapes && Object.keys(shapes).length > 0) {
-      prevShapesRef.current = shapes;
+  const updateTlEditorWithReceivedShapes = (shapesToProcess) => {
+    if (shapesToProcess && Object.keys(shapesToProcess).length > 0) {
+      prevShapesRef.current = shapesToProcess;
       tlEditorRef.current?.store.mergeRemoteChanges(() => {
-        const remoteShapesArray = Object.values(prevShapesRef.current).reduce((acc, shape) => {
-          if (shape.meta?.presentationId === presentationIdRef.current || shape?.whiteboardId?.includes(presentationIdRef.current)) {
-            acc.push(sanitizeShape(shape));
+        const remoteShapesArray = Object.values(prevShapesRef.current).reduce((acc, curShape) => {
+          if (curShape.meta?.presentationId === presentationIdRef.current
+              || curShape?.whiteboardId?.includes(presentationIdRef.current)) {
+            acc.push(sanitizeShape(curShape));
           }
           return acc;
         }, []);
@@ -254,7 +255,7 @@ const Whiteboard = React.memo((props) => {
         tlEditorRef.current?.store.put(remoteShapesArray);
       });
     }
-  }, 175);
+  };
 
   React.useEffect(() => {
     localStorage.setItem('pageZoomMap', JSON.stringify(pageZoomMap));
@@ -303,14 +304,22 @@ const Whiteboard = React.memo((props) => {
   }, [fitToWidth]);
 
   React.useEffect(() => {
-    debouncedUpdateShapes();
-  }, [shapes]);
+    const interval = setInterval(() => {
+      //  Process all shapes received
+      if (shapesToProcessQueueRef.current.length > 0) {
+        const allReceivedShapes = shapesToProcessQueueRef.current.splice(0).flat();
+        updateTlEditorWithReceivedShapes(allReceivedShapes);
+      }
 
-  React.useEffect(() => {
-    if (removedShapes && removedShapes.length > 0) {
-      tlEditorRef.current?.store.remove([...removedShapes]);
-    }
-  }, [removedShapes]);
+      // Process all shapes to remove
+      if(shapesToRemoveQueueRef.current.length > 0) {
+        const allShapesToRemove = shapesToRemoveQueueRef.current.splice(0).flat();
+        tlEditorRef.current?.store.remove([...allShapesToRemove]);
+      }
+    }, 100);
+
+    return () => clearInterval(interval);
+  }, [shapesToProcessQueueRef, shapesToRemoveQueueRef]);
 
   const handleCopy = useCallback(() => {
     const selectedShapes = tlEditorRef.current?.getSelectedShapes();
@@ -1012,9 +1021,9 @@ const Whiteboard = React.memo((props) => {
         page.push(...currentPage);
       }
 
-      const hasShapes = shapes && Object.keys(shapes).length > 0;
-      const remoteShapesArray = hasShapes 
-        ? Object.values(shapes).map((shape) => sanitizeShape(shape))
+      const hasShapes = initialShapes && Object.keys(initialShapes).length > 0;
+      const remoteShapesArray = hasShapes
+        ? Object.values(initialShapes).map((shape) => sanitizeShape(shape))
         : [];
 
       editor.store.mergeRemoteChanges(() => {
@@ -1861,7 +1870,9 @@ Whiteboard.propTypes = {
   removeShapes: PropTypes.func.isRequired,
   persistShapeWrapper: PropTypes.func.isRequired,
   notifyNotAllowedChange: PropTypes.func.isRequired,
-  shapes: PropTypes.arrayOf(PropTypes.shape).isRequired,
+  initialShapes: PropTypes.arrayOf(PropTypes.shape).isRequired,
+  shapesToProcessQueueRef: PropTypes.arrayOf(PropTypes.shape).isRequired,
+  shapesToRemoveQueueRef: PropTypes.arrayOf(PropTypes.string).isRequired,
   assets: PropTypes.arrayOf(PropTypes.shape).isRequired,
   currentUser: PropTypes.shape({
     userId: PropTypes.string.isRequired,
