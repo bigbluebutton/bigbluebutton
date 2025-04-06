@@ -860,7 +860,7 @@
     "app.audio.listenOnly.closeLabel": "Закрыть",
     "app.audio.permissionsOverlay.title": "Разрешить доступ к микрофону",
     "app.audio.permissionsOverlay.hint": "Вы должны разрешить использование медиа-устройств, чтобы участвовать в вебинаре :)",
-    "app.audio.captions.disclaimer": "Включив автоматическую транскрипцию или субтитры, вы соглашаетесь с нашими {termsLink}.",
+    "app.audio.captions.disclaimer": "Включив автоматическую расшифровку речи или субтитры, вы соглашаетесь с нашими {termsLink}.",
     "app.audio.captions.panelTitle": "Расшифровка речи и субтитры",
     "app.audio.captions.terms": "Активируя, вы соглашаетесь с: {0}",
     "app.audio.captions.terms.linkText": "условия использования скрытых субтитров",
