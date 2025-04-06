@@ -671,7 +671,7 @@
     "app.submenu.video.videoQualityLabel": "Качество видео",
     "app.submenu.video.qualityOptionLabel": "Выберите качество видео",
     "app.submenu.video.participantsCamLabel": "Просмотр веб-камер пользователей",
-    "app.submenu.transcription.desc": "Настройка параметров бэкенда транскрипции",
+    "app.submenu.transcription.desc": "Настройка параметров бэкенда расшифровки речи",
     "app.submenu.transcription.sectionTitle": "Параметры транскрипции",
     "app.settings.applicationTab.label": "Приложение",
     "app.settings.help.title": "Помощь",
