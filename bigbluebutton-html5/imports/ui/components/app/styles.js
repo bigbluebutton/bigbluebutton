@@ -65,9 +65,6 @@ const DtfInvert = `
   textarea {
     caret-color: black !important;
   }
-  #connectionBars > div {
-    background-color: var(--darkreader-neutral-text) !important;
-  }
 `;
 
 const DtfBrandingInvert = `
