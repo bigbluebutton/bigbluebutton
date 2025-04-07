@@ -1070,7 +1070,7 @@ class ApiController {
                     , contentType: "text/xml")
           }
         }
-      } else if (meetingService.isMeetingWithDisabledPresentation(meetingId)) {
+      } else if (meetingService.isMeetingWithDisabledPresentation(meeting.getInternalId())) {
         withFormat {
           xml {
             render(text: responseBuilder.buildInsertDocumentResponse("Presentation feature is disabled, ignoring.",
