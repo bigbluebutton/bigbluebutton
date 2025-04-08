@@ -87,7 +87,6 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
             key={`OPEN${appKey}`}
             color="primary"
             type="button"
-            onClick={functionToBeCalled}
             icon={icon}
             $pinned={isPinned}
           />

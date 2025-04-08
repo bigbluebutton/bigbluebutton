@@ -47,6 +47,7 @@ import VoiceActivityAdapter from '../../core/adapters/voice-activity';
 import LayoutObserver from '../layout/observer';
 import BBBLiveKitRoomContainer from '/imports/ui/components/livekit/component';
 import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
+import BreakoutRoomsAppObserver from '../breakout-room/breakout-observer/component';
 
 const intlMessages = defineMessages({
   userListLabel: {
@@ -308,6 +309,7 @@ class App extends Component {
     if (selectedLayout !== LAYOUT_TYPE.PRESENTATION_ONLY) {
       return (
         <>
+          <BreakoutRoomsAppObserver />
           <ScreenReaderAlertAdapter />
           <PluginsEngineManager pluginConfig={pluginConfig} />
           <FloatingWindowContainer />

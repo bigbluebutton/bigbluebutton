@@ -24,9 +24,9 @@ import {
   lgPaddingY,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
-  HeaderContainer as BaseHeaderContainer,
   Separator as BaseSeparator,
 } from '/imports/ui/components/sidebar-content/styles';
+import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 
 type withValidProp = {
   valid: boolean;
@@ -45,8 +45,6 @@ type RoomNameProps = {
 type LabelTextProps = {
   bold: boolean;
 };
-
-const HeaderContainer = styled(BaseHeaderContainer)``;
 
 const PanelSeparator = styled(BaseSeparator)``;
 
@@ -377,6 +375,10 @@ const BreakoutSlideLabel = styled.label`
   margin-bottom: 0.2rem;
 `;
 
+const ActionButtonContainer = styled.div`
+  display: flex;
+`;
+
 // @ts-ignore - Button is a JS component
 const ActionButton = styled(Button)`
   padding: 1rem 1.5rem;
@@ -384,8 +386,27 @@ const ActionButton = styled(Button)`
   margin: 1.5rem auto;
 `;
 
+const Modal = styled(ModalSimple)`
+  padding: 0;
+  border-radius: 1rem;
+  min-width: 50vw;
+  max-width: 80vw;
+  max-height: 95vh;
+
+  @media ${smallOnly} {
+    height: auto !important;
+    max-height: 90vh;
+    margin: 5vh auto;
+    display: flex;
+    flex-direction: column;
+  }
+`;
+
+const ModalContentWrapper = styled.div`
+  padding: 1rem;
+`;
+
 export default {
-  HeaderContainer,
   PanelSeparator,
   BoxContainer,
   Alert,
@@ -418,5 +439,8 @@ export default {
   Content,
   ContentContainer,
   BreakoutSlideLabel,
+  ActionButtonContainer,
   ActionButton,
+  Modal,
+  ModalContentWrapper,
 };

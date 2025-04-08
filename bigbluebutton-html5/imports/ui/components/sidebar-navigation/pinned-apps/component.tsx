@@ -1,6 +1,7 @@
 import React, { memo } from 'react';
 import {
   InjectedAppGalleryItem,
+  InjectedWidget,
   Input,
   SidebarNavigation,
 } from '/imports/ui/components/layout/layoutTypes';
@@ -75,10 +76,23 @@ const areAppsEqual = (prevProps: PinnedAppsProps, nextProps: PinnedAppsProps) =>
   return prevRegisteredAppsKeys
     .filter((prevRegisteredAppsKey) => prevPinnedApps.includes(prevRegisteredAppsKey))
     .every((prevPinnedregisteredAppKey) => {
-      const prevregisteredApp = prevRegisteredApps[prevPinnedregisteredAppKey];
-      const nextregisteredApp = nextregisteredApps[prevPinnedregisteredAppKey];
-      return prevregisteredApp.name === nextregisteredApp.name
-        && prevregisteredApp.icon === nextregisteredApp.icon;
+      const prevApp = prevRegisteredApps[prevPinnedregisteredAppKey];
+      const nextApp = nextregisteredApps[prevPinnedregisteredAppKey];
+      if (prevApp.name !== nextApp.name || prevApp.icon !== nextApp.icon) {
+        return false;
+      }
+
+      const prevOnClick = (prevApp as InjectedAppGalleryItem).onClick;
+      const nextOnClick = (nextApp as InjectedAppGalleryItem).onClick;
+
+      if (prevOnClick !== nextOnClick) return false;
+
+      const prevContentFunction = (prevApp as InjectedWidget).contentFunction;
+      const nextContentFunction = (nextApp as InjectedWidget).contentFunction;
+
+      if (prevContentFunction !== nextContentFunction) return false;
+
+      return true;
     });
 };
 
