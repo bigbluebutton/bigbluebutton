@@ -118,6 +118,7 @@ const PluginDataConsumptionManager: React.FC = () => {
           HooksWithArgumentContainerToRun.push({
             componentToRender: HooksMapWithArguments[hookName],
             hookArguments: object.hookArguments,
+            numberOfUses: object.count,
           });
         }
       });
@@ -131,6 +132,8 @@ const PluginDataConsumptionManager: React.FC = () => {
       name: currentUser.name,
       role: currentUser.role,
       presenter: currentUser.presenter,
+      cameras: currentUser.cameras,
+      extId: currentUser.extId,
     }),
   );
   const meetingInformation = useMeeting((meeting: Partial<Meeting>) => ({
@@ -149,8 +152,10 @@ const PluginDataConsumptionManager: React.FC = () => {
             const HookComponent = hooksMap[hookName];
             if (hookName === DataConsumptionHooks.CURRENT_USER) data = currentUser;
             if (hookName === DataConsumptionHooks.MEETING) data = meetingInformation;
+            const countOfUses = hookUtilizationCount.get(hookName) || 0;
             return (
               <HookComponent
+                numberOfUses={countOfUses}
                 key={hookName}
                 data={data}
               />
@@ -162,6 +167,7 @@ const PluginDataConsumptionManager: React.FC = () => {
           const HookComponent = hookWithArguments.componentToRender;
           return (
             <HookComponent
+              numberOfUses={hookWithArguments.numberOfUses}
               key={makeCustomHookIdentifierFromArgs(hookWithArguments.hookArguments)}
               hookArguments={hookWithArguments.hookArguments}
             />

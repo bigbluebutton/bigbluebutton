@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { defineMessages, useIntl } from 'react-intl';
 import Resizable from 're-resizable';
 import Draggable, { DraggableEvent } from 'react-draggable';
 import { useVideoStreams } from '/imports/ui/components/video-provider/hooks';
@@ -22,6 +23,14 @@ import { useStorageKey } from '/imports/ui/services/storage/hooks';
 import useSettings from '../../services/settings/hooks/useSettings';
 import { SETTINGS } from '../../services/settings/enums';
 import { INITIAL_INPUT_STATE } from '../layout/initState';
+import { contentSidebarMarginToMedia } from '../../stylesheets/styled-components/general';
+
+const intlMessages = defineMessages({
+  camerasAriaLabel: {
+    id: 'app.video.cameraAriaLabel',
+    description: 'Aria Label for cameras component',
+  },
+});
 
 interface WebcamComponentProps {
   cameraDock: Output['cameraDock'];
@@ -52,6 +61,7 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
   const [resizeStart, setResizeStart] = useState({ width: 0, height: 0 });
   const [cameraMaxWidth, setCameraMaxWidth] = useState(0);
   const [draggedAtLeastOneTime, setDraggedAtLeastOneTime] = useState(false);
+  const intl = useIntl();
 
   const lastSize = Storage.getItem('webcamSize') || { width: 0, height: 0 };
   const { height: lastHeight } = lastSize as { width: number, height: number };
@@ -189,8 +199,12 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
   const mobileWidth = `${isDragging ? cameraSize?.width : cameraDock.width}px`;
   const mobileHeight = `${isDragging ? cameraSize?.height : cameraDock.height}px`;
   const isDesktopWidth = isDragging ? cameraSize?.width : cameraDock.width;
+  const desktopWidthWithSidebar = isCameraSidebar ? '100%' : isDesktopWidth;
   const isDesktopHeight = isDragging ? cameraSize?.height : cameraDock.height;
   const camOpacity = isDragging ? 0.5 : undefined;
+  let padding = '';
+  if (isCameraSidebar && isRTL) padding = `0px 0px 0px ${contentSidebarMarginToMedia}`;
+  if (isCameraSidebar && !isRTL) padding = `0px ${contentSidebarMarginToMedia} 0px 0px`;
 
   return (
     <>
@@ -265,6 +279,7 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
             style={{
               position: 'absolute',
               zIndex: isCameraSidebar && !isDragging ? 0 : cameraDock?.zIndex,
+              padding,
             }}
           >
             <Styled.Draggable
@@ -274,20 +289,23 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
               role="region"
               draggable={cameraDock.isDraggable && !isFullscreen ? 'true' : undefined}
               style={{
-                width: isIphone ? mobileWidth : isDesktopWidth,
+                width: isIphone ? mobileWidth : desktopWidthWithSidebar,
                 height: isIphone ? mobileHeight : isDesktopHeight,
                 opacity: camOpacity,
                 background: 'none',
               }}
             >
-              <VideoProviderContainer
-                {...{
-                  swapLayout,
-                  cameraDock,
-                  focusedId,
-                  handleVideoFocus,
-                }}
-              />
+              <>
+                <h2 className="sr-only">{intl.formatMessage(intlMessages.camerasAriaLabel)}</h2>
+                <VideoProviderContainer
+                  {...{
+                    swapLayout,
+                    cameraDock,
+                    focusedId,
+                    handleVideoFocus,
+                  }}
+                />
+              </>
             </Styled.Draggable>
           </Resizable>
         </Draggable>
@@ -344,7 +362,7 @@ const WebcamContainer: React.FC = () => {
 
   const audioModalIsOpen = useStorageKey('audioModalIsOpen');
 
-  return !audioModalIsOpen && (usersVideo.length > 0 || isGridEnabled)
+  return cameraDock?.display && !audioModalIsOpen && (usersVideo.length > 0 || isGridEnabled)
     ? (
       <WebcamComponent
         {...{

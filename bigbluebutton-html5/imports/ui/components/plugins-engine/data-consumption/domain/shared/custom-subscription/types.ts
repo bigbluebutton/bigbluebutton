@@ -6,6 +6,7 @@ import React from 'react';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export interface HookWithArgumentsContainerProps {
   key: string;
+  numberOfUses: number;
   hookArguments: CustomSubscriptionArguments;
 }
 
@@ -17,4 +18,5 @@ export interface ObjectToCustomHookContainerMap {
 export interface HookWithArgumentContainerToRender{
   componentToRender: React.FunctionComponent<HookWithArgumentsContainerProps>;
   hookArguments: CustomSubscriptionArguments;
+  numberOfUses: number;
 }

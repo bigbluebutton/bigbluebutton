@@ -28,10 +28,11 @@ import org.slf4j.LoggerFactory;
 public class PageCounterService {	
 	private static Logger log = LoggerFactory.getLogger(PageCounterService.class);
 	
-	private int maxNumPages = 100;
+	private int maxNumPages;
 	private PageCounter pageCounter;
 	
-	public void determineNumberOfPages(UploadedPresentation pres) throws CountingPageException {
+	public void determineNumberOfPages(UploadedPresentation pres, int maxNumPages) throws CountingPageException {
+		this.maxNumPages = maxNumPages;
 		int numberOfPages = 0;
 		if (SupportedFileTypes.isPdfFile(pres.getFileType())) {
 			numberOfPages = countPages(pres);			

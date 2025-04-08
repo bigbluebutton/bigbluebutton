@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { layoutSelect, layoutSelectInput, layoutSelectOutput } from '/imports/ui/components/layout/context';
-import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
+import DEFAULT_VALUES, { SIDEBAR_CONTENT_MARGIN_TO_MEDIA } from '/imports/ui/components/layout/defaultValues';
 import { LAYOUT_TYPE, DEVICE_TYPE } from '/imports/ui/components/layout/enums';
 
 import CustomLayout from '/imports/ui/components/layout/layout-manager/customLayout';
@@ -10,11 +10,10 @@ import VideoFocusLayout from '/imports/ui/components/layout/layout-manager/video
 import CamerasOnlyLayout from '/imports/ui/components/layout/layout-manager/camerasOnly';
 import PresentationOnlyLayout from '/imports/ui/components/layout/layout-manager/presentationOnlyLayout';
 import ParticipantsAndChatOnlyLayout from '/imports/ui/components/layout/layout-manager/participantsAndChatOnlyLayout';
-import useSettings from '/imports/ui/services/settings/hooks/useSettings';
-import { SETTINGS } from '/imports/ui/services/settings/enums';
 import { useIsPresentationEnabled } from '/imports/ui/services/features';
 import Session from '/imports/ui/services/storage/in-memory';
 import MediaOnlyLayout from './mediaOnlyLayout';
+import { usePrevious } from '../../whiteboard/utils';
 
 const LayoutEngine = () => {
   const bannerBarInput = layoutSelectInput((i) => i.bannerBar);
@@ -35,8 +34,9 @@ const LayoutEngine = () => {
   const isRTL = layoutSelect((i) => i.isRTL);
   const fontSize = layoutSelect((i) => i.fontSize);
   const deviceType = layoutSelect((i) => i.deviceType);
-  const { selectedLayout } = useSettings(SETTINGS.APPLICATION);
+  const selectedLayout = layoutSelect((i) => i.layoutType);
   const isPresentationEnabled = useIsPresentationEnabled();
+  const prevLayout = usePrevious(selectedLayout);
 
   const isMobile = deviceType === DEVICE_TYPE.MOBILE;
   const isTablet = deviceType === DEVICE_TYPE.TABLET;
@@ -185,7 +185,6 @@ const LayoutEngine = () => {
     const {
       sidebarNavWidth,
       sidebarNavWidthMobile,
-      sidebarNavHorizontalMargin,
     } = DEFAULT_VALUES;
 
     const { isOpen } = sidebarNavigationInput;
@@ -201,7 +200,7 @@ const LayoutEngine = () => {
         horizontalSpaceOccupied = 0;
       } else {
         width = sidebarNavWidth;
-        horizontalSpaceOccupied = sidebarNavWidth + (2 * sidebarNavHorizontalMargin);
+        horizontalSpaceOccupied = sidebarNavWidth;
       }
     }
     return {
@@ -235,24 +234,22 @@ const LayoutEngine = () => {
 
   const calculatesSidebarNavBounds = (sidebarNavHeight) => {
     const {
-      sidebarNavLeft,
-      sidebarNavHorizontalMargin,
-      sidebarNavHorizontalMarginMobile,
+      sidebarNavMarginToTheEdgeMobile,
     } = DEFAULT_VALUES;
 
-    let offset = bannerAreaHeight();
-    let horizontalPlacement = sidebarNavLeft + sidebarNavHorizontalMargin;
-    if (isMobile) {
-      offset = 0;
-      horizontalPlacement = sidebarNavLeft + sidebarNavHorizontalMarginMobile;
+    let left = null;
+    let right = null;
+    if (isRTL) {
+      right = isMobile ? sidebarNavMarginToTheEdgeMobile : 0;
+    } else {
+      left = isMobile ? sidebarNavMarginToTheEdgeMobile : 0;
     }
-    const remainingVerticalEmptySpace = windowHeight() - offset - sidebarNavHeight;
 
     return {
-      top: offset + (remainingVerticalEmptySpace / 2),
-      left: !isRTL ? horizontalPlacement : null,
-      right: isRTL ? horizontalPlacement : null,
-      zIndex: isMobile ? 11 : 2,
+      top: isMobile ? (windowHeight() - sidebarNavHeight) / 2 : bannerAreaHeight(),
+      left,
+      right,
+      zIndex: isMobile ? 12 : 2,
     };
   };
 
@@ -294,9 +291,9 @@ const LayoutEngine = () => {
   };
 
   const calculatesSidebarContentBounds = (sidebarNavWidth) => {
-    const { navBarHeight, sidebarNavTop } = DEFAULT_VALUES;
+    const { navBarHeight } = DEFAULT_VALUES;
 
-    let top = sidebarNavTop + bannerAreaHeight();
+    let top = bannerAreaHeight();
 
     if (isMobile) top = navBarHeight + bannerAreaHeight();
 
@@ -329,7 +326,8 @@ const LayoutEngine = () => {
       width = windowWidth();
     } else {
       left = !isRTL ? sidebarNavWidth + sidebarContentWidth : 0;
-      width = windowWidth() - sidebarNavWidth - sidebarContentWidth;
+      width = windowWidth()
+        - sidebarNavWidth - sidebarContentWidth - SIDEBAR_CONTENT_MARGIN_TO_MEDIA;
     }
 
     return {
@@ -355,6 +353,7 @@ const LayoutEngine = () => {
     calculatesMediaAreaBounds,
     isMobile,
     isTablet,
+    prevLayout,
   };
 
   const layout = document.getElementById('layout');

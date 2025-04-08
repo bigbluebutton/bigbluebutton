@@ -9,6 +9,7 @@ import AudioStreamVolume from '/imports/ui/components/audio/audio-stream-volume/
 import LocalEchoContainer from '/imports/ui/components/audio/local-echo/container';
 import DeviceSelector from '/imports/ui/components/audio/device-selector/component';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
+import { hasMediaDevicesEventTarget } from '/imports/ui/services/webrtc-base/utils';
 import AudioManager from '/imports/ui/services/audio-manager';
 import Session from '/imports/ui/services/storage/in-memory';
 import AudioCaptionsSelectContainer from '../audio-graphql/audio-captions/captions/component';
@@ -166,10 +167,12 @@ class AudioSettings extends React.Component {
       .then(() => {
         if (!this._isMounted) return;
 
-        navigator.mediaDevices.addEventListener(
-          'devicechange',
-          this.updateDeviceList,
-        );
+        if (hasMediaDevicesEventTarget()) {
+          navigator.mediaDevices.addEventListener(
+            'devicechange',
+            this.updateDeviceList,
+          );
+        }
         this.setState({ findingDevices: false });
         this.setInputDevice(inputDeviceId);
         this.setOutputDevice(outputDeviceId);
@@ -203,9 +206,12 @@ class AudioSettings extends React.Component {
     }
 
     AudioManager.isEchoTest = false;
-    navigator.mediaDevices.removeEventListener(
-      'devicechange', this.updateDeviceList,
-    );
+
+    if (hasMediaDevicesEventTarget()) {
+      navigator.mediaDevices.removeEventListener(
+        'devicechange', this.updateDeviceList,
+      );
+    }
 
     this.unmuteOnExit();
   }

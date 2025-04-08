@@ -1,6 +1,6 @@
 const { test } = require('../fixtures');
 const { fullyParallel } = require('../playwright.config');
-const { initializePages } = require('../core/helpers');
+const { initializePages, linkIssue } = require('../core/helpers');
 const { Chat } = require('./chat');
 
 test.describe('Chat', { tag: '@ci' }, () => {
@@ -17,7 +17,7 @@ test.describe('Chat', { tag: '@ci' }, () => {
   });
 
   // https://docs.bigbluebutton.org/3.0/testing/release-testing/#private-message-automated
-  test('Send private message', { tag: '@flaky-3.1' }, async () => {
+  test('Send private message', async () => {
     await chat.sendPrivateMessage();
   });
 
@@ -25,8 +25,7 @@ test.describe('Chat', { tag: '@ci' }, () => {
     await chat.clearChat();
   });
 
-  test('Copy chat', { tag: '@only-headed' }, async ({}, testInfo) => {
-    test.skip(testInfo.project.use.headless, 'Only works in headed mode');
+  test('Copy chat', async () => {
     await chat.copyChat();
   });
 
@@ -43,7 +42,7 @@ test.describe('Chat', { tag: '@ci' }, () => {
     await chat.emptyMessage();
   });
 
-  test('Copy and paste public message', { tag: '@flaky-3.1' }, async () => {
+  test('Copy and paste public message', async () => {
     await chat.copyPastePublicMessage();
   })
 
@@ -51,12 +50,12 @@ test.describe('Chat', { tag: '@ci' }, () => {
     await chat.sendEmoji();
   });
 
-  test('Copy chat with emoji', { tag: '@only-headed' }, async () => {
+  test('Copy chat with emoji', async () => {
     await chat.emojiCopyChat();
   });
 
-  test('Close private chat', { tag: '@flaky-3.1' }, async () => {
-    await chat.closePrivateChat();
+  test('Hide public messages', async () => {
+    await chat.hidePublicMessages();
   });
 
   test('Save chat with emoji', { tag: '@setting-required:chat.emojiPicker' }, async ({}, testInfo) => {
@@ -83,9 +82,7 @@ test.describe('Chat', { tag: '@ci' }, () => {
     await chat.autoConvertEmojiSendPrivateChat();
   });
 
-  // failure only reproducible in CI (user leaves but keeps shown in the mod user list)
-  //! flaky flag recently removed in order to see current behavior
-  test('Private chat disabled when user leaves meeting', { tag: ['@ci', '@flaky-3.1'] }, async () => {
+  test('Private chat disabled when user leaves meeting', async () => {
     await chat.chatDisabledUserLeaves();
   });
 });

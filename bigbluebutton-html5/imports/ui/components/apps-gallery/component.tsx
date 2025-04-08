@@ -4,18 +4,19 @@ import { AppsGalleryProps } from './types';
 import Icon from '/imports/ui/components/common/icon/component';
 import { layoutDispatch, layoutSelect } from '/imports/ui/components/layout/context';
 import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
-import { Layout } from '/imports/ui/components/layout/layoutTypes';
+import { InjectedAppGalleryItem, Layout } from '/imports/ui/components/layout/layoutTypes';
 import Styled from './styles';
 import TooManyPinnedAppsModal from './modal/component';
+import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 
 const intlMessages = defineMessages({
   appsGalleryTitle: {
     id: 'app.appsGallery.title',
     description: 'Label for the apps gallery panel title',
   },
-  closeAppsGalleryLabel: {
-    id: 'app.appsGallery.close',
-    description: 'Label for the close apps gallery button',
+  minimize: {
+    id: 'app.sidebarContent.minimizePanelLabel',
+    description: 'Label for the minimize apps gallery button',
   },
   pinnedApps: {
     id: 'app.appsGallery.maxpinnedApps',
@@ -24,6 +25,14 @@ const intlMessages = defineMessages({
   pinnedAppsContinue: {
     id: 'app.appsGallery.maxpinnedAppsContinue',
     description: 'Last part of warning about pinned apps',
+  },
+  pinTooltip: {
+    id: 'app.appsGallery.pinTooltip',
+    description: 'Tooltip of the pin button',
+  },
+  unpinTooltip: {
+    id: 'app.appsGallery.unpinTooltip',
+    description: 'Tooltip of the unpin buuton',
   },
 });
 
@@ -35,7 +44,13 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
   const title = intl.formatMessage(intlMessages.appsGalleryTitle);
   const [error, setError] = useState(false);
 
-  const renderApp = (appKey: string, name: string, icon: string, isPinned: boolean) => {
+  const renderApp = (
+    appKey: string,
+    name: string,
+    icon: string,
+    isPinned: boolean,
+    onClick?: undefined | (() => void),
+  ) => {
     const togglePinApp = (event: React.MouseEvent<HTMLDivElement> | React.KeyboardEvent<HTMLDivElement>) => {
       event.stopPropagation();
       if (!isPinned && pinnedApps.length >= MAX_PINNED_APPS_GALLERY) {
@@ -45,7 +60,7 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
       layoutContextDispatch({
         type: ACTIONS.SET_SIDEBAR_NAVIGATION_PIN_APP,
         value: {
-          panel: appKey,
+          id: appKey,
           pin: !isPinned,
         },
       });
@@ -60,33 +75,40 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
         value: appKey,
       });
     };
+    const functionToBeCalled = typeof onClick === 'function' ? onClick : openAppPanel;
     return (
-      <Styled.RegisteredAppContent>
+      <Styled.RegisteredAppContent
+        key={`${appKey}${isPinned}`}
+      >
         <Styled.ClickableArea
-          onClick={openAppPanel}
+          onClick={functionToBeCalled}
         >
           <Styled.OpenButton
             key={`OPEN${appKey}`}
             color="primary"
             type="button"
-            onClick={openAppPanel}
+            onClick={functionToBeCalled}
             icon={icon}
-            pinned={isPinned}
+            $pinned={isPinned}
           />
           <Styled.AppTitle>
             {name}
           </Styled.AppTitle>
         </Styled.ClickableArea>
-        <Styled.PinApp
-          key={`PIN${appKey}`}
-          role="button"
-          onClick={togglePinApp}
-          onKeyDown={togglePinApp}
-          tabIndex={0}
-          pinned={isPinned}
+        <TooltipContainer
+          title={isPinned
+            ? intl.formatMessage(intlMessages.unpinTooltip)
+            : intl.formatMessage(intlMessages.pinTooltip)}
         >
-          <Icon iconName={isPinned ? 'pin-video_on' : 'pin-video_off'} />
-        </Styled.PinApp>
+          <Styled.PinApp
+            role="button"
+            onClick={togglePinApp}
+            tabIndex={0}
+            pinned={isPinned}
+          >
+            <Icon iconName={isPinned ? 'pin-video_on' : 'pin-video_off'} />
+          </Styled.PinApp>
+        </TooltipContainer>
       </Styled.RegisteredAppContent>
     );
   };
@@ -94,7 +116,9 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
   const renderedPinnedApps = useMemo(() => (
     pinnedApps.map((pinnedAppKey) => {
       const { name, icon } = registeredApps[pinnedAppKey];
-      return renderApp(pinnedAppKey, name, icon, true);
+      // type guard
+      const { onClick } = registeredApps[pinnedAppKey] as InjectedAppGalleryItem;
+      return renderApp(pinnedAppKey, name, icon, true, onClick);
     })
   ), [registeredApps, pinnedApps]);
 
@@ -103,7 +127,9 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
       .filter((registeredObjectKey) => !pinnedApps.includes(registeredObjectKey))
       .map((unpinnedAppKey) => {
         const { name, icon } = registeredApps[unpinnedAppKey];
-        return renderApp(unpinnedAppKey, name, icon, false);
+        // type guard
+        const { onClick } = registeredApps[unpinnedAppKey] as InjectedAppGalleryItem;
+        return renderApp(unpinnedAppKey, name, icon, false, onClick);
       })
   ), [registeredApps, pinnedApps]);
 
@@ -121,10 +147,10 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
         title={title}
         leftButtonProps={{}}
         rightButtonProps={{
-          'aria-label': intl.formatMessage(intlMessages.closeAppsGalleryLabel),
+          'aria-label': intl.formatMessage(intlMessages.minimize, { 0: intl.formatMessage(intlMessages.appsGalleryTitle) }),
           'data-test': 'hideAppsGallery',
-          icon: 'close',
-          label: intl.formatMessage(intlMessages.closeAppsGalleryLabel),
+          icon: 'minus',
+          label: intl.formatMessage(intlMessages.minimize, { 0: intl.formatMessage(intlMessages.appsGalleryTitle) }),
           onClick: () => {
             layoutContextDispatch({
               type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
@@ -146,7 +172,9 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
         </Styled.BoldText>
         {intl.formatMessage(intlMessages.pinnedAppsContinue)}
       </Styled.DescWrapper>
-      <Styled.Wrapper>
+      <Styled.Wrapper
+        id="scroll-box"
+      >
         {renderedPinnedApps.length > 0 && (
           <Styled.PinnedAppsWrapper>
             {renderedPinnedApps}

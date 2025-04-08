@@ -15,7 +15,7 @@ import {
 } from '/imports/ui/components/chat/chat-graphql/chat-message-list/page/queries';
 
 interface PrivateChatListItemProps {
-  chat: Chat;
+  chat: Partial<Chat>;
   chatNodeRef: React.Ref<HTMLButtonElement>;
   index: number;
   privateChatSelectedCallback: () => void;
@@ -49,7 +49,8 @@ const PrivateChatListItem = (props: PrivateChatListItemProps) => {
 
   const chatQuery = CHAT_MESSAGE_PRIVATE_SUBSCRIPTION;
   const defaultVariables = {
-    offset: chat.totalMessages - 1,
+    // The || 0 is here because chat is a partial type (can have undefined fields)
+    offset: (chat.totalMessages || 0) - 1,
     limit: 1,
   }; // to get only the last message from private chat
   const variables = { ...defaultVariables, requestedChatId: chat.chatId };
@@ -81,7 +82,7 @@ const PrivateChatListItem = (props: PrivateChatListItemProps) => {
 
   return (
     <Styled.ChatListItem
-      data-test="chatButton"
+      data-test="privateChatItem"
       role="button"
       aria-expanded={isCurrentChat}
       active={isCurrentChat}

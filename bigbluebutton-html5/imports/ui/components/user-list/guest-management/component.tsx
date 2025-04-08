@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { MessageDescriptor, useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
 import { MenuItem } from '@mui/material';
@@ -8,7 +8,8 @@ import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { SET_POLICY } from './waiting-users/mutations';
 import { notify } from '/imports/ui/services/notification';
-import GuestUsersManagementPanel from './waiting-users/component';
+import GuestUsersManagementPanel from './waiting-users/guest-policy/component';
+import WaitingUserSection from './waiting-users/component';
 
 const ASK_MODERATOR = 'ASK_MODERATOR';
 const ALWAYS_ACCEPT = 'ALWAYS_ACCEPT';
@@ -37,11 +38,11 @@ const intlMessages: Record<string, { id: string; description: string }> = {
   },
 };
 
-interface GuestManagementProps {
-}
+interface GuestManagementProps { }
 
 const GuestManagement: React.FC<GuestManagementProps> = () => {
   const intl = useIntl();
+  const [isExpanded, setIsExpanded] = useState(false);
   const { data: currentUserData } = useCurrentUser((user) => ({
     isModerator: user.isModerator,
   }));
@@ -71,48 +72,64 @@ const GuestManagement: React.FC<GuestManagementProps> = () => {
     notify(intl.formatMessage(intlMessages.feedbackMessage) + intl.formatMessage(messageId), 'success');
   };
 
-  return amIModerator && (
-    <Styled.GuestManagement>
-      <Styled.GuestPolicyContainer>
-        <Styled.GuestPolicyText>
-          {intl.formatMessage(intlMessages.guestPolicyLabel)}
-        </Styled.GuestPolicyText>
-        <Styled.GuestPolicySelector value={guestPolicy} IconComponent={ExpandMoreIcon}>
-          <MenuItem
-            value={ASK_MODERATOR}
-            disabled={guestPolicy === ASK_MODERATOR}
-            onClick={() => {
-              handleChangePolicy(ASK_MODERATOR, intlMessages.askModerator);
-            }}
-            data-test="askModerator"
-          >
-            {intl.formatMessage(intlMessages.askModerator)}
-          </MenuItem>
-          <MenuItem
-            value={ALWAYS_ACCEPT}
-            disabled={guestPolicy === ALWAYS_ACCEPT}
-            onClick={() => {
-              handleChangePolicy(ALWAYS_ACCEPT, intlMessages.alwaysAccept);
-            }}
-            data-test="alwaysAccept"
-          >
-            {intl.formatMessage(intlMessages.alwaysAccept)}
-          </MenuItem>
-          <MenuItem
-            value={ALWAYS_DENY}
-            disabled={guestPolicy === ALWAYS_DENY}
-            onClick={() => {
-              handleChangePolicy(ALWAYS_DENY, intlMessages.alwaysDeny);
-            }}
-            data-test="alwaysDeny"
-          >
-            {intl.formatMessage(intlMessages.alwaysDeny)}
-          </MenuItem>
-        </Styled.GuestPolicySelector>
-      </Styled.GuestPolicyContainer>
-      <GuestUsersManagementPanel />
-    </Styled.GuestManagement>
-  );
+  return amIModerator ? (
+    <Styled.GuestManagementContainer>
+      <Styled.ToggleButton onClick={() => setIsExpanded(!isExpanded)}>
+        <Styled.ButtonContent>
+          <Styled.ExpandIcon $expanded={isExpanded}>
+            <ExpandMoreIcon />
+          </Styled.ExpandIcon>
+          <Styled.TitleText>
+            {intl.formatMessage(intlMessages.guestPolicyLabel)}
+          </Styled.TitleText>
+        </Styled.ButtonContent>
+      </Styled.ToggleButton>
+
+      {isExpanded && (
+        <Styled.ExpandedContent>
+          <Styled.GuestPolicyContainer>
+            <Styled.GuestPolicySelector
+              value={guestPolicy}
+              IconComponent={ExpandMoreIcon}
+            >
+              <MenuItem
+                value={ASK_MODERATOR}
+                disabled={guestPolicy === ASK_MODERATOR}
+                onClick={() => {
+                  handleChangePolicy(ASK_MODERATOR, intlMessages.askModerator);
+                }}
+                data-test="askModerator"
+              >
+                {intl.formatMessage(intlMessages.askModerator)}
+              </MenuItem>
+              <MenuItem
+                value={ALWAYS_ACCEPT}
+                disabled={guestPolicy === ALWAYS_ACCEPT}
+                onClick={() => {
+                  handleChangePolicy(ALWAYS_ACCEPT, intlMessages.alwaysAccept);
+                }}
+                data-test="alwaysAccept"
+              >
+                {intl.formatMessage(intlMessages.alwaysAccept)}
+              </MenuItem>
+              <MenuItem
+                value={ALWAYS_DENY}
+                disabled={guestPolicy === ALWAYS_DENY}
+                onClick={() => {
+                  handleChangePolicy(ALWAYS_DENY, intlMessages.alwaysDeny);
+                }}
+                data-test="alwaysDeny"
+              >
+                {intl.formatMessage(intlMessages.alwaysDeny)}
+              </MenuItem>
+            </Styled.GuestPolicySelector>
+          </Styled.GuestPolicyContainer>
+          <GuestUsersManagementPanel />
+        </Styled.ExpandedContent>
+      )}
+      <WaitingUserSection />
+    </Styled.GuestManagementContainer>
+  ) : null;
 };
 
 export default GuestManagement;

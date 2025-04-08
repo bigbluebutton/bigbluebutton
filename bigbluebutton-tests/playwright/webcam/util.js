@@ -60,6 +60,7 @@ async function uploadBackgroundVideoImage(testPage) {
   ]);
   await fileChooser.setFiles(resolve(__dirname, '../core/media/simpsons-background.png'));
   const uploadedBackgroundLocator = testPage.getLocator(e.selectCustomBackground);
+  await sleep(1000); // give some time for the background to apply
   await expect(uploadedBackgroundLocator).toHaveScreenshot('custom-background-item.png');
 }
 

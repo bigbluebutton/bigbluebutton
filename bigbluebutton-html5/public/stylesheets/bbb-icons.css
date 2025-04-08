@@ -369,3 +369,18 @@
 .icon-bbb-pen_tool_off:before {
   content: "\e973";
 }
+.icon-bbb-hand_off:before {
+  content: "\e974";
+}
+.icon-bbb-reactions:before {
+  content: "\e975";
+}
+.icon-bbb-random:before {
+  content: "\e976";
+}
+.icon-bbb-text_decrease:before {
+  content: "\e977";
+}
+.icon-bbb-text_increase:before {
+  content: "\e978";
+}

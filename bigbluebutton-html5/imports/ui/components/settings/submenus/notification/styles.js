@@ -21,7 +21,7 @@ const Label = styled(Styled.Label)``;
 
 const ColHeading = styled(Styled.Col)`
   display: block;
-  text-align: center;
+  text-align: end;
   font-size: 0.9rem;
   margin-bottom: 0.5rem;
   font-weight: bold;

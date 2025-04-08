@@ -41,8 +41,7 @@ async function zoomOut(test) {
 
 async function poll(page1, page2) {
   await page1.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
-  await page1.waitAndClick(e.actions);
-  await page1.waitAndClick(e.polling);
+  await page1.waitAndClick(e.pollSidebarButton);
   await page1.waitAndClick(e.pollYesNoAbstentionBtn);
   await page1.waitAndClick(e.startPoll);
   await page2.waitForSelector(e.pollingContainer);

@@ -2,9 +2,7 @@ const { expect } = require('@playwright/test');
 const { MultiUsers } = require('../user/multiusers');
 const e = require('../core/elements');
 const util = require('./util');
-const { openSettings } = require('../options/util');
 const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
-const { getSettings } = require('../core/settings');
 const { sleep } = require('../core/helpers');
 
 class Notifications extends MultiUsers {
@@ -13,8 +11,8 @@ class Notifications extends MultiUsers {
   }
 
   async saveSettingsNotification() {
-    await openSettings(this.modPage);
-    await util.saveSettings(this.modPage);
+    await this.modPage.waitAndClick(e.settingsSidebarButton);
+    await this.modPage.waitAndClick(e.saveSettingsButton);
     await util.checkNotificationText(this.modPage, e.savedSettingsToast);
   }
 
@@ -27,7 +25,7 @@ class Notifications extends MultiUsers {
       this.modPage.getLocator(e.connectionStatusBtn),
       'should not complain about loss in connection when joining audio'
     ).not.toHaveAttribute('color', 'danger');
-    await this.modPage.checkElementCount(e.smallToastMsg, 1, 'should have only one notification displayed');
+    await this.modPage.hasElementCount(e.smallToastMsg, 1, 'should have only one notification displayed');
     await this.modPage.closeAllToastNotifications();
     await this.modPage.waitAndClick(e.audioDropdownMenu);
     await this.modPage.waitAndClick(e.leaveAudio);
@@ -40,8 +38,9 @@ class Notifications extends MultiUsers {
   }
 
   async getUserJoinPopupResponse() {
-    await this.modPage.hasElement(e.whiteboard);
+    await this.modPage.waitForSelector(e.whiteboard);
     await this.userJoinNotification(this.modPage);
+    // close all notifications before checking the join notification
     await this.modPage.closeAllToastNotifications();
     await this.initUserPage();
     await this.modPage.waitForSelector(e.smallToastMsg, ELEMENT_WAIT_LONGER_TIME);
@@ -50,6 +49,7 @@ class Notifications extends MultiUsers {
 
   async raiseAndLowerHandNotification() {
     await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage.closeAllToastNotifications();
     await this.modPage.waitAndClick(e.raiseHandBtn);
     await sleep(1000);
     await this.modPage.hasElement(e.raiseHandRejection, 'should display raise hand rejection button on toast notification');
@@ -61,9 +61,9 @@ class Notifications extends MultiUsers {
   }
 
   async userJoinNotification(page) {
-    await openSettings(page);
+    await page.waitAndClick(e.settingsSidebarButton);
     await util.enableUserJoinPopup(page);
-    await util.saveSettings(page);
+    await page.waitAndClick(e.saveSettingsButton);
   }
 }
 

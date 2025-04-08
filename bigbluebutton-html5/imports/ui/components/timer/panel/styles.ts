@@ -9,7 +9,7 @@ import {
 import {
   colorGrayDark,
   colorGrayLighter,
-  colorGrayLightest,
+  colorBorder,
   colorGray,
   colorBlueLight,
   colorWhite,
@@ -79,8 +79,8 @@ const TimerContent = styled.div`
 `;
 
 const TimerCurrent = styled.span`
-  border-bottom: 1px solid ${colorGrayLightest};
-  border-top: 1px solid ${colorGrayLightest};
+  border-bottom: 1px solid ${colorBorder};
+  border-top: 1px solid ${colorBorder};
   display: flex;
   font-size: xxx-large;
   justify-content: center;

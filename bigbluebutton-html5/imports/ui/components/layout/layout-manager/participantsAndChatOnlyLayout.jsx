@@ -226,16 +226,6 @@ const ParticipantsAndChatOnlyLayout = (props) => {
     });
 
     layoutContextDispatch({
-      type: ACTIONS.SET_SIDEBAR_NAVIGATION_RESIZABLE_EDGE,
-      value: {
-        top: false,
-        right: !isRTL,
-        bottom: false,
-        left: isRTL,
-      },
-    });
-
-    layoutContextDispatch({
       type: ACTIONS.SET_SIDEBAR_CONTENT_OUTPUT,
       value: {
         display: sidebarContentInput.isOpen,
@@ -385,17 +375,18 @@ const ParticipantsAndChatOnlyLayout = (props) => {
     layoutContextDispatch({
       type: ACTIONS.SET_LAYOUT_INPUT,
       value: (prevInput) => {
-        const { sidebarNavigation, sidebarContent, presentation } = prevInput;
+        const { sidebarContent, presentation } = prevInput;
         const { sidebarContentPanel } = sidebarContent;
+        const sidebarContentPanelOverride = sidebarContentPanel === PANELS.NONE
+          ? PANELS.CHAT : sidebarContentPanel;
         return defaultsDeep(
           {
             sidebarNavigation: {
-              isOpen:
-                sidebarNavigation.isOpen || sidebarContentPanel !== PANELS.NONE || false,
+              isOpen: true,
             },
             sidebarContent: {
-              isOpen: sidebarContentPanel !== PANELS.NONE,
-              sidebarContentPanel,
+              isOpen: true,
+              sidebarContentPanel: sidebarContentPanelOverride,
             },
             SidebarContentHorizontalResizer: {
               isOpen: false,

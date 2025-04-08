@@ -7,6 +7,7 @@ import UserListDropdownPluginStateContainer from './components/user-list-dropdow
 import ActionButtonDropdownPluginStateContainer from './components/action-button-dropdown/manager';
 import AudioSettingsDropdownPluginStateContainer from './components/audio-settings-dropdown/manager';
 import ActionBarPluginStateContainer from './components/action-bar/manager';
+import AppsGalleryPluginStateContainer from './components/apps-gallery/manager';
 import PresentationDropdownPluginStateContainer from './components/presentation-dropdown/manager';
 import NavBarPluginStateContainer from './components/nav-bar/manager';
 import OptionsDropdownPluginStateContainer from './components/options-dropdown/manager';
@@ -30,6 +31,7 @@ const extensibleAreaComponentManagers: ExtensibleAreaComponentManager[] = [
   ActionButtonDropdownPluginStateContainer,
   AudioSettingsDropdownPluginStateContainer,
   ActionBarPluginStateContainer,
+  AppsGalleryPluginStateContainer,
   UserCameraHelperPluginStateContainer,
   PresentationDropdownPluginStateContainer,
   NavBarPluginStateContainer,

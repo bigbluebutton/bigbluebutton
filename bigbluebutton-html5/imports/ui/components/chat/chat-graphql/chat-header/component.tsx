@@ -47,8 +47,8 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
       rightButtonProps={{
         accessKey: HIDE_CHAT_AK,
         'aria-label': intl.formatMessage(intlMessages.hideChatLabel, { 0: title }),
-        'data-test': 'hidePrivateChat',
-        icon: 'close',
+        'data-test': 'hideMessagesButton',
+        icon: 'minus',
         label: intl.formatMessage(intlMessages.hideChatLabel, { 0: title }),
         onClick: () => {
           updateVisible({ variables: { chatId, visible: false } });
@@ -109,12 +109,15 @@ const ChatHeaderContainer: React.FC = () => {
   const title = intl.formatMessage(intlMessages.messagesTitle);
 
   return (
-    <ChatHeader
-      chatId={idChatOpen}
-      isPublicChat={isPublicChat}
-      title={title}
-      isRTL={isRTL}
-    />
+    <>
+      <h2 className="sr-only">{title}</h2>
+      <ChatHeader
+        chatId={idChatOpen}
+        isPublicChat={isPublicChat}
+        title={title}
+        isRTL={isRTL}
+      />
+    </>
   );
 };
 

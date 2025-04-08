@@ -10,7 +10,7 @@ class DisabledFeatures extends MultiUsers {
 
   async breakoutRooms() {
     await this.modPage.waitAndClick(e.manageUsers);
-    await this.modPage.wasRemoved(e.createBreakoutRooms, 'should not display the option to create breakout rooms on the manage users');
+    await this.modPage.wasRemoved(e.createBreakoutRoomsButton, 'should not display the option to create breakout rooms on the manage users');
   }
 
   async speechRecognition() {
@@ -45,13 +45,12 @@ class DisabledFeatures extends MultiUsers {
   }
 
   async learningDashboard() {
-    await this.modPage.waitAndClick(e.manageUsers);
-    await this.modPage.wasRemoved(e.learningDashboard, 'should not display the learning dashboard on the manage users');
+    await this.modPage.hasElement(e.usersListSidebarButton);
+    await this.modPage.wasRemoved(e.learningDashboardSidebarButton, 'should not display the learning dashboard button on the sidebar');
   }
 
   async polls() {
-    await this.modPage.waitAndClick(e.actions);
-    await this.modPage.wasRemoved(e.polling, 'should not display the polling on the actions button');
+    await this.modPage.wasRemoved(e.pollSidebarButton, 'should not display the poll sidebar button');
   }
 
   async screenshare() {
@@ -59,7 +58,7 @@ class DisabledFeatures extends MultiUsers {
   }
 
   async sharedNotes() {
-    await this.modPage.wasRemoved(e.sharedNotes, 'should not display the shared notes on the side bar');
+    await this.modPage.wasRemoved(e.sharedNotesSidebarButton, 'should not display the shared notes button on the sidebar');
   }
 
   async virtualBackgrounds() {
@@ -75,14 +74,12 @@ class DisabledFeatures extends MultiUsers {
   }
 
   async importPresentationWithAnnotationsFromBreakoutRooms() {
-    await this.modPage.waitAndClick(e.manageUsers);
-    await this.modPage.waitAndClick(e.createBreakoutRooms);
+    await this.modPage.waitAndClick(e.createBreakoutRoomsButton);
     await this.modPage.wasRemoved(e.captureBreakoutWhiteboard, 'should not display the option to capture the breakout room whiteboard when the create breakout rooms modal is opened');
   }
 
   async importSharedNotesFromBreakoutRooms() {
-    await this.modPage.waitAndClick(e.manageUsers);
-    await this.modPage.waitAndClick(e.createBreakoutRooms);
+    await this.modPage.waitAndClick(e.createBreakoutRoomsButton);
     await this.modPage.wasRemoved(e.captureBreakoutSharedNotes, 'should not display the option to capture the breakout room shared notes when the create breakout room modal is opened');
   }
 
@@ -100,6 +97,7 @@ class DisabledFeatures extends MultiUsers {
 
   async slideSnapshot() {
     await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard');
+    await this.modPage.closeAllToastNotifications();
     await this.modPage.waitAndClick(e.whiteboardOptionsButton);
     await this.modPage.hasElement(e.presentationFullscreen, 'should display the presentation fullscreen on the whiteboard options');
     await this.modPage.wasRemoved(e.presentationSnapshot, 'should not display the presentation snapshot on the whiteboard options');
@@ -114,8 +112,7 @@ class DisabledFeatures extends MultiUsers {
 
   // Disabled Features Exclude
   async breakoutRoomsExclude() {
-    await this.modPage.waitAndClick(e.manageUsers);
-    await this.modPage.hasElement(e.createBreakoutRooms, 'should display the create breakout rooms option on the manage users');
+    await this.modPage.hasElement(e.createBreakoutRoomsButton, 'should display the create breakout rooms option on the manage users');
   }
 
   async speechRecognitionExclude() {
@@ -150,13 +147,12 @@ class DisabledFeatures extends MultiUsers {
   }
 
   async learningDashboardExclude() {
-    await this.modPage.waitAndClick(e.manageUsers);
-    await this.modPage.hasElement(e.learningDashboard, 'should display the learning dashboard on the manage users');
+    await this.modPage.hasElement(e.usersListSidebarButton);
+    await this.modPage.hasElement(e.learningDashboardSidebarButton, 'should display the learning dashboard button on the sidebar');
   }
 
   async pollsExclude() {
-    await this.modPage.waitAndClick(e.actions);
-    await this.modPage.hasElement(e.polling, 'should display the polling option on the actions');
+    await this.modPage.hasElement(e.pollSidebarButton, 'should display the polling sidebar button');
   }
 
   async screenshareExclude() {
@@ -164,7 +160,7 @@ class DisabledFeatures extends MultiUsers {
   }
 
   async sharedNotesExclude() {
-    await this.modPage.hasElement(e.sharedNotes, 'should display the shared notes');
+    await this.modPage.hasElement(e.sharedNotesSidebarButton, 'should display the shared notes button on the sidebar');
   }
 
   async virtualBackgroundsExclude() {
@@ -182,14 +178,12 @@ class DisabledFeatures extends MultiUsers {
   }
 
   async importPresentationWithAnnotationsFromBreakoutRoomsExclude() {
-    await this.modPage.waitAndClick(e.manageUsers);
-    await this.modPage.waitAndClick(e.createBreakoutRooms);
+    await this.modPage.waitAndClick(e.createBreakoutRoomsButton);
     await this.modPage.hasElement(e.captureBreakoutWhiteboard, 'should display the option to capture the breakout whiteboard on the create breakout rooms modal');
   }
 
   async importSharedNotesFromBreakoutRoomsExclude() {
-    await this.modPage.waitAndClick(e.manageUsers);
-    await this.modPage.waitAndClick(e.createBreakoutRooms);
+    await this.modPage.waitAndClick(e.createBreakoutRoomsButton);
     await this.modPage.hasElement(e.captureBreakoutSharedNotes, 'should display the option to capture the shared notes whiteboard on the create breakout rooms modal');
   }
 
@@ -207,6 +201,7 @@ class DisabledFeatures extends MultiUsers {
 
   async slideSnapshotExclude() {
     await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard');
+    await this.modPage.closeAllToastNotifications();
     await this.modPage.waitAndClick(e.whiteboardOptionsButton);
     await this.modPage.hasElement(e.presentationSnapshot, 'should display the presentation snapshot on the whiteboard options');
   }

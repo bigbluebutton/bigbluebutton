@@ -137,6 +137,7 @@ const SectionHeading = styled.h4`
   margin-top: 0;
   font-weight: 600;
   color: ${colorHeading};
+  margin-bottom: .25rem; 
 `;
 
 const ResponseType = styled.div`

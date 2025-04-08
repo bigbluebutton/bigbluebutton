@@ -184,6 +184,7 @@ type User = {
   userId: string;
   name: string;
   isModerator: boolean;
+  extId: string;
 };
 
 const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
@@ -203,6 +204,7 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
   currentPresentation,
   roomPresentations,
   isUpdate,
+  freeJoin,
 }) => {
   const intl = useIntl();
   const [sortedRooms, setSortedRooms] = useState(rooms);
@@ -360,7 +362,7 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
 
   return (
     <>
-      <Styled.SpanWarn data-test="warningNoUserAssigned" valid={rooms[0]?.users?.length < users.length}>
+      <Styled.SpanWarn data-test="warningNoUserAssigned" valid={rooms[0]?.users?.length < users.length || freeJoin}>
         {intl.formatMessage(intlMessages.leastOneWarnBreakout)}
       </Styled.SpanWarn>
       <ManageRoomLabel
@@ -416,12 +418,13 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
                 { presentations.length > 0 && !isUpdate ? (
                   <Styled.BreakoutSlideLabel>
                     <Styled.InputRooms
+                      data-test={`changeSlideBreakoutRoom${value}`}
                       value={getRoomPresentation(value)}
                       onChange={changeRoomPresentation(value)}
                       valid
                     >
                       { currentPresentation ? (
-                        <option key="current-slide" value={`${currentSlidePrefix}${currentPresentation}`}>
+                        <option key="current-slide" value={`${currentSlidePrefix}${currentPresentation}`} data-test="currentSlideBreakoutOption">
                           {intl.formatMessage(intlMessages.currentSlide)}
                         </option>
                       ) : null }

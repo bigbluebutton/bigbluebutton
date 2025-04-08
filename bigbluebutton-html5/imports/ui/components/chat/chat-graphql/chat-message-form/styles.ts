@@ -2,9 +2,10 @@ import styled from 'styled-components';
 import {
   colorText,
   colorGrayLighter,
+  colorGrayLight,
   colorDanger,
   colorGrayDark,
-  colorGrayLightest,
+  colorBorder,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   smPaddingX,
@@ -42,7 +43,7 @@ const Input = styled(TextareaAutosize)`
   background: #fff;
   background-clip: padding-box;
   margin: ${xsPadding} 0 ${xsPadding} ${xsPadding};
-  color: ${colorGrayLighter};
+  color: ${colorGrayLight};
   -webkit-appearance: none;
   padding: calc(${smPaddingY} * 2.5) 0 calc(${smPaddingX} * 1.25) calc(${smPaddingY} * 2.5);
   resize: none;
@@ -53,9 +54,26 @@ const Input = styled(TextareaAutosize)`
   min-height: 2.5rem;
   max-height: 3.5rem;
   overflow-y: auto;
-  border: ${colorGrayLightest};
+  border: ${colorBorder};
   box-shadow: none;
   outline: none;
+
+  &::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: ${colorGrayLighter};
+    border-radius: 10px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: ${colorGrayDark};
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
 
   [dir='ltr'] & {
     border-radius: 0.75rem 0 0 0.75rem;
@@ -120,7 +138,7 @@ position: absolute;
 bottom: calc(100% + 0.5rem);
 left: 0;
 right: 0;
-border: 1px solid ${colorGrayLighter};
+border: 1px solid ${colorBorder};
 border-radius: ${borderRadius};
 box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 z-index: 1000;
@@ -165,10 +183,10 @@ const InputWrapper = styled.div`
   min-width: 0;
   z-index: 0;
   border-radius: 0.75rem;
-  border: 1px solid ${colorGrayLighter};
+  border: 1px solid ${colorBorder};
 
   &:focus-within {
-    box-shadow: 0 0 0 ${xsPadding} ${colorGrayLighter};
+    box-shadow: 0 0 0 ${xsPadding} ${colorBorder};
   }
 `;
 

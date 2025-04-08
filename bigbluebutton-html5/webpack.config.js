@@ -10,11 +10,16 @@ const detailedLogs = process.env.DETAILED_LOGS || false;
 
 const prodEnv = 'production';
 const devEnv = 'development';
+const isSafariTarget = process.env.TARGET === 'safari';
+
+console.log(`Building: ${process.env.TARGET}`);
 
 const config = {
   entry: './client/main.tsx',
   output: {
-    filename: 'bundle.[fullhash].js',
+    filename: isSafariTarget
+      ? 'bundle.safari.js'
+      : 'bundle.[fullhash].js',
     path: path.resolve(__dirname, 'dist'),
     publicPath: '',
   },
@@ -25,8 +30,27 @@ const config = {
   },
   devtool: 'source-map',
   plugins: [
+    new webpack.optimize.LimitChunkCountPlugin({
+      maxChunks: 1,
+    }),
     new HtmlWebpackPlugin({
       template: './client/main.html',
+      filename: 'index.html',
+      inject: false,
+      templateParameters: (compilation, assets, assetTags, options) => {
+        const fullhash = compilation.hash;
+        return {
+          compilation,
+          webpackConfig: compilation.options,
+          htmlWebpackPlugin: {
+            tags: assetTags,
+            files: assets,
+            options,
+          },
+          bundleHash: fullhash,
+          isProduction: env === prodEnv,
+        };
+      },
     }),
     new MiniCssExtractPlugin({
       filename: 'styles.css',
@@ -100,12 +124,12 @@ if (env === prodEnv) {
   config.mode = prodEnv;
   config.optimization = {
     minimize: true,
-    minimizer: [new TerserPlugin()],
+    minimizer: isSafariTarget ? [] : [new TerserPlugin()],
   };
   config.performance = {
     hints: 'warning',
-    maxAssetSize: 6000000,
-    maxEntrypointSize: 6000000,
+    maxAssetSize: isSafariTarget ? 16000000 : 8000000,
+    maxEntrypointSize: isSafariTarget ? 16000000 : 8000000,
   };
 } else {
   config.mode = devEnv;

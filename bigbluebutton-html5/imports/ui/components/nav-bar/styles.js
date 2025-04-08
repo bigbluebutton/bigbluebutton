@@ -1,5 +1,4 @@
 import styled from 'styled-components';
-import Icon from '/imports/ui/components/common/icon/component';
 import { barsPadding, borderSize } from '/imports/ui/stylesheets/styled-components/general';
 import {
   colorWhite,
@@ -27,41 +26,21 @@ const Top = styled.div`
   flex-direction: row;
 `;
 
-const Left = styled.div`
+const ItemsGroup = `
+  flex: 1;
   display: flex;
   flex-direction: row;
-  justify-content: center;
   align-items: center;
-  position: relative;
 `;
 
-const ArrowLeft = styled(Icon)`
-  position: absolute;
-  font-size: 40%;
-  color: ${colorWhite};
-  left: .25rem;
-  @media ${smallOnly} {
-    display: none;
-  }
-`;
-
-const ArrowRight = styled(Icon)`
-  position: absolute;
-  font-size: 40%;
-  color: ${colorWhite};
-  right: .0125rem;
-  @media ${smallOnly} {
-    display: none;
-  }
+const Left = styled.div`
+  ${ItemsGroup}
+  justify-content: flex-start;
 `;
 
 const Center = styled.div`
-  display: flex;
-  flex-direction: row;
+  ${ItemsGroup}
   justify-content: center;
-  align-items: center;
-  width: 70%;
-  flex: 1;
 `;
 
 const PresentationTitle = styled.h1`
@@ -78,6 +57,14 @@ const PresentationTitle = styled.h1`
 
   > [class^="icon-bbb-"] {
     font-size: 75%;
+  }
+
+  @media ${smallOnly} {
+    padding: 0 0.3rem;
+  }
+  & span i {
+    margin-left: .5rem;
+    margin-right: .5rem;
   }
 `;
 
@@ -104,11 +91,8 @@ const PluginSeparatorWrapper = styled.div`
 `;
 
 const Right = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  flex: 0;
+  ${ItemsGroup}
+  justify-content: flex-end;
 `;
 
 const Bottom = styled.div`
@@ -145,8 +129,6 @@ export default {
   Navbar,
   Top,
   Left,
-  ArrowLeft,
-  ArrowRight,
   Center,
   PresentationTitle,
   Right,

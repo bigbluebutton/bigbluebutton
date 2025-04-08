@@ -7,6 +7,7 @@ import {
   navigationSidebarListItemsGap,
   navigationSidebarListItemsWidth,
   navigationSidebarPaddingY,
+  navigationSidebarMargin,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
   colorGrayDark,
@@ -17,15 +18,23 @@ import {
   listItemBgHover,
   itemFocusBorder,
   colorGrayIcons,
+  colorBackground,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
-const NavigationSidebar = styled.div`
+const NavigationSidebarBackdrop = styled.div<{isMobile: boolean}>`
   position: absolute;
+  background-color: ${({ isMobile }) => (!isMobile ? `${colorBackground}` : 'transparent')};
+  ${({ isMobile }) => !isMobile && `padding: ${navigationSidebarMargin}`};
+`;
+
+const NavigationSidebar = styled.div<{isMobile: boolean}>`
   background-color: ${colorWhite};
   border-radius: ${navigationSidebarBorderRadius};
   padding: ${navigationSidebarPaddingY} 0;
   display: flex;
   flex-direction: column;
+  height: 100%;
+  ${({ isMobile }) => isMobile && 'box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2)'};
 `;
 
 const NavigationSidebarListItemsContainer = styled.div`
@@ -121,6 +130,7 @@ const ListItem = styled.div<ListItemProps>`
 `;
 
 export default {
+  NavigationSidebarBackdrop,
   NavigationSidebar,
   NavigationSidebarListItemsContainer,
   Top,

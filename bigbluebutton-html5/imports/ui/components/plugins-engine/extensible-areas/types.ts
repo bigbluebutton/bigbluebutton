@@ -13,6 +13,7 @@ export interface ExtensibleArea {
   actionButtonDropdownItems: PluginSdk.ActionButtonDropdownInterface[];
   audioSettingsDropdownItems: PluginSdk.AudioSettingsDropdownInterface[];
   actionsBarItems: PluginSdk.ActionsBarInterface[];
+  appsGalleryItems: PluginSdk.AppsGalleryInterface[];
   presentationDropdownItems: PluginSdk.PresentationDropdownInterface[];
   navBarItems: PluginSdk.NavBarInterface[];
   screenshareHelperItems: PluginSdk.ScreenshareHelperInterface[];

@@ -58,6 +58,7 @@ const UserItemToolbar: React.FC<UserItemToolbarProps> = ({
               (
                 <Styled.MoreItems
                   onClick={() => setOpenUserAction(subjectUser.userId)}
+                  data-test="moreOptionsUserItemButton"
                 >
                   <Tooltip
                     title={intl.formatMessage(intlMessages.more)}

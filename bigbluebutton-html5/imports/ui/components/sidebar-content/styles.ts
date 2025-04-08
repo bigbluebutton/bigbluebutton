@@ -2,21 +2,36 @@ import styled from 'styled-components';
 import {
   colorWhite,
   colorPrimary,
-  colorGrayLightest,
+  colorBorder,
   appsPanelTextColor,
+  colorBackground,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   borderSize,
   navbarHeight,
   smPaddingX,
-  contentSidebarHeight,
   contentSidebarBorderRadius,
   contentSidebarPadding,
+  contentSidebarMarginToMedia,
+  contentSidebarVerticalMargin,
 } from '/imports/ui/stylesheets/styled-components/general';
 import { smallOnly, mediumUp } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import { SidebarContentPanelProps } from './types';
 import Header from '../common/control-header/component';
 import { textFontWeight } from '../../stylesheets/styled-components/typography';
+
+const SidebarContentBackdrop = styled.div<{isRTL: boolean, isMobile: boolean}>`
+  position: absolute;
+  background-color: ${colorBackground};
+  ${({ isMobile, isRTL }) => !isMobile && `
+    padding: ${isRTL
+    ? `
+      ${contentSidebarVerticalMargin} 0px ${contentSidebarVerticalMargin} ${contentSidebarMarginToMedia}
+    ` : `
+      ${contentSidebarVerticalMargin} ${contentSidebarMarginToMedia} ${contentSidebarVerticalMargin} 0px
+    `};
+  `}
+`;
 
 const Poll = styled.div`
   position: absolute;
@@ -60,7 +75,6 @@ export const SidebarContentPanel = styled.div<SidebarContentPanelProps>`
   flex-direction: column;
   justify-content: space-around;
   overflow: hidden;
-  height: ${contentSidebarHeight};
   border-radius: ${contentSidebarBorderRadius};
   user-select: none;
 
@@ -104,13 +118,13 @@ export const SidebarContentPanel = styled.div<SidebarContentPanelProps>`
 
 export const HeaderContainer = styled(Header)`
   padding: ${contentSidebarPadding};
-  padding-bottom: 0.5rem;
+  padding-bottom: 0;
 `;
 
 export const Separator = styled.hr`
   width: 100%;
   border: 0;
-  border-bottom: 1px solid ${colorGrayLightest};
+  border-bottom: 1px solid ${colorBorder};
 `;
 
 export const PanelContent = styled.div`
@@ -121,6 +135,7 @@ export const PanelContent = styled.div`
 `;
 
 export default {
+  SidebarContentBackdrop,
   Poll,
   SidebarContentPanel,
   HeaderContainer,

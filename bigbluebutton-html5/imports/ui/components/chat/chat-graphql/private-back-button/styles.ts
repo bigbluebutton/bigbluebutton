@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import {
-  colorGrayLighter,
+  colorBorder,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
 const Form = styled.div`
@@ -19,7 +19,7 @@ const ArrowWrapper = styled.div`
   border-left: 1px solid transparent;
   border-top: 1px solid transparent;
   border-bottom: 1px solid transparent;
-  border-right: 1px solid ${colorGrayLighter};
+  border-right: 1px solid ${colorBorder};
   color: #1976D2;
   padding: 8px;
   cursor: pointer;
@@ -30,7 +30,7 @@ const InputWrapper = styled.div`
   align-items: center;
   border-radius: 0.75rem;
   cursor: pointer;
-  border: 1px solid ${colorGrayLighter};
+  border: 1px solid ${colorBorder};
   background-color: #fff;
 `;
 
