@@ -161,7 +161,7 @@ runs:
         sed -i "s|> /etc/apt/sources.list.d/bigbluebutton.list||g" bbb-install.sh
         chmod +x bbb-install.sh
 
-        ./bbb-install.sh -v jammy-30-dev -s bbb-ci.test -j -d /certs/
+        ./bbb-install.sh -v noble-40-dev -s bbb-ci.test -j -d /certs/
 
         bbb-conf --salt bbbci
         sed -i "s/\"minify\": true,/\"minify\": false,/" /usr/share/etherpad-lite/settings.json
