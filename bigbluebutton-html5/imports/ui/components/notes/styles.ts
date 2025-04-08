@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import {
-  mdPaddingX,
+  mdPaddingX, lgBorderRadius,
 } from '/imports/ui/stylesheets/styled-components/general';
 import { colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
@@ -45,6 +45,7 @@ const Notes = styled.div<{ isChrome: boolean }>`
 const Header = styled(CommonHeader)`
   background-color: ${colorWhite};
   padding-bottom: .2rem;
+  border-radius: ${lgBorderRadius} ${lgBorderRadius} 0 0;
 `;
 
 export default {

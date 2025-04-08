@@ -7,9 +7,8 @@ import { layoutDispatch, layoutSelectInput } from '../layout/context';
 import { addAlert } from '../screenreader-alert/service';
 import { PANELS, ACTIONS } from '../layout/enums';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
-import { POLL_CANCEL } from './mutations';
 import { GetHasCurrentPresentationResponse, getHasCurrentPresentation } from './queries';
-import EmptySlideArea from './components/EmptySlideArea';
+import { POLL_CANCEL } from './mutations';
 import { getSplittedQuestionAndOptions, pollTypes, validateInput } from './service';
 import Toggle from '/imports/ui/components/common/switch/component';
 import Styled from './styles';
@@ -25,9 +24,9 @@ const intlMessages = defineMessages({
     id: 'app.poll.pollPaneTitle',
     description: 'heading label for the poll menu',
   },
-  closeLabel: {
-    id: 'app.poll.closeLabel',
-    description: 'label for poll pane close button',
+  minimize: {
+    id: 'app.sidebarContent.minimizePanelLabel',
+    description: 'label for poll pane minimize button',
   },
   hidePollDesc: {
     id: 'app.poll.hidePollDesc',
@@ -229,13 +228,11 @@ interface PollCreationPanelProps {
     value: string | boolean;
   }) => void;
   hasPoll: boolean;
-  hasCurrentPresentation: boolean;
 }
 
 const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
   layoutContextDispatch,
   hasPoll,
-  hasCurrentPresentation,
 }) => {
   const POLL_SETTINGS = window.meetingClientSettings.public.poll;
   const ALLOW_CUSTOM_INPUT = POLL_SETTINGS.allowCustomResponseInput;
@@ -247,7 +244,7 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
   const [customInput, setCustomInput] = React.useState(false);
   const [question, setQuestion] = useState<string[] | string>('');
   const [questionAndOptions, setQuestionAndOptions] = useState<string[] | string>('');
-  const [optList, setOptList] = useState<Array<{val: string}>>([]);
+  const [optList, setOptList] = useState<Array<{ val: string }>>([]);
   const [error, setError] = useState<string | null>(null);
   const [isMultipleResponse, setIsMultipleResponse] = useState(false);
   const [secretPoll, setSecretPoll] = useState(false);
@@ -381,7 +378,6 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
   }, [textareaRef]);
 
   const pollOptions = () => {
-    if (!hasCurrentPresentation) return <EmptySlideArea />;
     if (hasPoll) return <LiveResultContainer />;
     return (
       <>
@@ -401,12 +397,13 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
                       : intl.formatMessage(intlMessages.off)}
                   </Styled.ToggleLabel>
                   <Toggle
-                  // @ts-ignore - JS component wrapped by intl
+                    // @ts-ignore - JS component wrapped by intl
                     icons={false}
                     defaultChecked={customInput}
                     onChange={() => {
+                      const newType = !customInput ? pollTypes.Custom : '';
+                      setType(newType);
                       setCustomInput(!customInput);
-                      setType(pollTypes.Custom);
                     }}
                     ariaLabel={intl.formatMessage(intlMessages.customInputToggleLabel)}
                     showToggleLabel={false}
@@ -451,12 +448,12 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
           question={question}
           setError={setError}
           setIsPolling={() => {
-            setType(null);
+            const newType = customInput ? pollTypes.Custom : '';
+            setType(newType);
             setOptList([]);
             setQuestion('');
             setQuestionAndOptions('');
           }}
-          hasCurrentPresentation={hasCurrentPresentation}
           handleToggle={handleToggle}
           error={error}
           handleInputChange={handleInputChange}
@@ -478,6 +475,7 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
           'data-test': 'hidePollDesc',
           label: intl.formatMessage(intlMessages.pollPaneTitle),
           onClick: () => {
+            if (hasPoll) stopPoll();
             layoutContextDispatch({
               type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
               value: false,
@@ -489,12 +487,11 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
           },
         }}
         rightButtonProps={{
-          'aria-label': `${intl.formatMessage(intlMessages.closeLabel)} ${intl.formatMessage(intlMessages.pollPaneTitle)}`,
-          'data-test': 'closePolling',
-          icon: 'close',
-          label: intl.formatMessage(intlMessages.closeLabel),
+          'aria-label': intl.formatMessage(intlMessages.minimize, { 0: intl.formatMessage(intlMessages.pollPaneTitle) }),
+          'data-test': 'minimizePolling',
+          icon: 'minus',
+          label: intl.formatMessage(intlMessages.minimize, { 0: intl.formatMessage(intlMessages.pollPaneTitle) }),
           onClick: () => {
-            if (hasPoll) stopPoll();
             layoutContextDispatch({
               type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
               value: false,
@@ -510,7 +507,9 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
         customRightButton={null}
       />
       <Styled.Separator />
-      <Styled.ContentWrapper>
+      <Styled.ContentWrapper
+        id="scroll-box"
+      >
         {pollOptions()}
         <span className="sr-only" id="poll-config-button">{intl.formatMessage(intlMessages.showRespDesc)}</span>
         <span className="sr-only" id="add-item-button">{intl.formatMessage(intlMessages.addRespDesc)}</span>
@@ -566,7 +565,6 @@ const PollCreationPanelContainer: React.FC = () => {
     <PollCreationPanel
       layoutContextDispatch={layoutContextDispatch}
       hasPoll={currentMeeting.componentsFlags?.hasPoll ?? false}
-      hasCurrentPresentation={getHasCurrentPresentationData.pres_page_aggregate.aggregate.count > 0}
     />
   );
 };

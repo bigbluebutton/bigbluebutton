@@ -25,17 +25,21 @@ const intlMessages = defineMessages({
     id: 'app.userList.usersTitle',
     description: 'Title for the Header',
   },
-  closeLabel: {
-    id: 'app.userList.close',
-    description: 'Label for the close button in the user list panel',
+  hideUserListTitle: {
+    id: 'app.userList.lockedUsersTitle',
+    description: 'Title for the Header when user is locked',
+  },
+  usersStaticTitle: {
+    id: 'app.userList.usersStaticTitle',
+    description: 'Users title without the count of participants',
+  },
+  minimize: {
+    id: 'app.sidebarContent.minimizePanelLabel',
+    description: 'Label for the minimize button in the user list panel',
   },
   saveUsersNames: {
     id: 'app.actionsBar.actionsDropdown.saveUserNames',
     description: 'Label for the save user names button',
-  },
-  minimizeLabel: {
-    id: 'app.userList.minimize',
-    description: 'Label for the minimize button in the user list panel',
   },
 });
 
@@ -44,6 +48,7 @@ const UserList: React.FC<UserListComponentProps> = () => {
   const layoutContextDispatch = layoutDispatch();
   const { data: currentUserData } = useCurrentUser((user) => ({
     isModerator: user.isModerator,
+    locked: user?.locked ?? false,
   }));
   const {
     data: countData,
@@ -51,9 +56,12 @@ const UserList: React.FC<UserListComponentProps> = () => {
   const count: number = countData?.user_aggregate?.aggregate?.count || 0;
   const { data: meetingInfo } = useMeeting((meeting: Partial<Meeting>) => ({
     name: meeting?.name,
+    lockSettings: meeting?.lockSettings,
+    isBreakout: meeting?.isBreakout,
   }));
   const [getUsers, { data: usersData, error: usersError }] = useLazyQuery(GET_USER_NAMES, { fetchPolicy: 'no-cache' });
   const users = usersData?.user || [];
+  const hideUserList = currentUserData?.locked && meetingInfo?.lockSettings?.hideUserList;
 
   useEffect(() => {
     if (usersError) {
@@ -71,12 +79,21 @@ const UserList: React.FC<UserListComponentProps> = () => {
   }, [users]);
 
   const renderGuestManagement = () => {
-    if (!currentUserData?.isModerator) return null;
+    if (!currentUserData?.isModerator || meetingInfo?.isBreakout) return null;
     return (
       <>
         <GuestManagement />
         <Styled.Separator />
       </>
+    );
+  };
+
+  const renderScrollableSection = () => {
+    return (
+      <Styled.ScrollableSection id="scroll-box">
+        {renderGuestManagement()}
+        <UserListParticipants count={count} />
+      </Styled.ScrollableSection>
     );
   };
 
@@ -89,16 +106,19 @@ const UserList: React.FC<UserListComponentProps> = () => {
       </>
     );
   };
+  const title = hideUserList
+    ? intl.formatMessage(intlMessages.hideUserListTitle, { moderatorCount: count })
+    : intl.formatMessage(intlMessages.usersTitle, { userCount: count });
 
   return (
     <Styled.PanelContent>
       <Styled.HeaderContainer
-        title={intl.formatMessage(intlMessages.usersTitle, { 0: count })}
+        title={title}
         rightButtonProps={{
-          'aria-label': intl.formatMessage(intlMessages.closeLabel),
+          'aria-label': intl.formatMessage(intlMessages.minimize, { 0: intl.formatMessage(intlMessages.usersStaticTitle) }),
           'data-test': 'closeUserList',
-          icon: 'close',
-          label: intl.formatMessage(intlMessages.closeLabel),
+          icon: 'minus',
+          label: intl.formatMessage(intlMessages.minimize, { 0: intl.formatMessage(intlMessages.usersStaticTitle) }),
           onClick: () => {
             layoutContextDispatch({
               type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
@@ -115,14 +135,13 @@ const UserList: React.FC<UserListComponentProps> = () => {
             data-test="downloadUserNamesList"
             icon="template_download"
             aria-label={intl.formatMessage(intlMessages.saveUsersNames)}
-            tooltip={intl.formatMessage(intlMessages.saveUsersNames)}
+            label={intl.formatMessage(intlMessages.saveUsersNames)}
             onClick={getUsers}
           />
         )}
       />
       <Styled.Separator />
-      {renderGuestManagement()}
-      <UserListParticipants count={count} />
+      {renderScrollableSection()}
       {renderCrowdActionButtons()}
     </Styled.PanelContent>
   );

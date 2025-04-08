@@ -28,7 +28,8 @@ interface UserItemContentsProps {
 
 const UserItemContents = styled.div<UserItemContentsProps>`
   position: static;
-  padding: .45rem;
+  padding-right: 0.5rem;
+  padding-left: 0.5rem;
   width: 100%;
   overflow: hidden;
 
@@ -98,10 +99,10 @@ const Avatar = styled(UserAvatar)<AvatarProps>`
   font-size: .85rem;
   border: 2px solid transparent;
   user-select: none;
-  width: 3.5rem;
-  min-width: 3.5rem;
-  height: 3.5rem;
-  min-height: 3.5rem;
+  width: 2.5rem;
+  min-width: 2.5rem;
+  height: 2.5rem;
+  min-height: 2.5rem;
 `;
 
 // ======================== Icon Right Container ========================

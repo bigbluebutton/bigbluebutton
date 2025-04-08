@@ -8,6 +8,7 @@ import {
   colorWhite,
   btnPrimaryActiveBg,
   colorDanger,
+  colorBorder,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   smPaddingX,
@@ -179,7 +180,7 @@ const CopyContainer = styled.div`
   display: flex;
   justify-content: flex-end;
   border: none;
-  border-top: 1px solid ${colorOffWhite};
+  border-top: 1px solid ${colorBorder};
   padding: ${mdPaddingX} 0 0 0;
 `;
 

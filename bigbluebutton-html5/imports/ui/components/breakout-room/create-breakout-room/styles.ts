@@ -114,7 +114,6 @@ const BreakoutNameInput = styled.input`
 `;
 
 const BreakoutBox = styled(ScrollboxVertical)<BreakoutBoxProps>`
-  max-width: 13rem;
   height: 10rem;
   border: 1px solid ${colorGrayLightest};
   border-radius: ${borderRadius};
@@ -126,18 +125,14 @@ const BreakoutBox = styled(ScrollboxVertical)<BreakoutBoxProps>`
 `;
 
 const SpanWarn = styled.span<withValidProp>`
-  ${({ valid }) => valid && `
-    display: none;
-  `}
-
-  ${({ valid }) => !valid && `
-    margin: .25rem;
-    position: absolute;
-    font-size: ${fontSizeSmall};
-    color: ${colorDanger};
-    font-weight: 200;
-    white-space: nowrap;
-  `}
+  display: ${({ valid }) => (valid ? 'none' : 'block')};
+  margin: .25rem;
+  font-size: ${fontSizeSmall};
+  color: ${colorDanger};
+  font-weight: 200;
+  white-space: normal;
+  word-break: break-word;
+  width: 100%;
 `;
 
 const RoomName = styled(BreakoutNameInput)<RoomNameProps>`
@@ -152,9 +147,7 @@ const RoomName = styled(BreakoutNameInput)<RoomNameProps>`
 
 const BreakoutSettings = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr 2fr;
   grid-template-rows: 1fr;
-  grid-gap: 2rem;
 
   @media ${smallOnly} {
     grid-template-columns: 1fr ;
@@ -166,7 +159,8 @@ const BreakoutSettings = styled.div`
 const FormLabel = styled.p<withValidProp>`
   color: ${colorGray};
   white-space: nowrap;
-  margin-bottom: .5rem;
+  margin-top: .5rem;
+  margin-bottom: 0;
 
   ${({ valid }) => !valid && `
     color: ${colorDanger};
@@ -189,6 +183,8 @@ const InputRooms = styled.select<withValidProp>`
 `;
 
 const DurationLabel = styled.label<withValidProp>`
+  padding-top: 0.5rem;
+
   ${({ valid }) => !valid && `
     & > * {
       border-color: ${colorDanger} !important;
@@ -200,11 +196,14 @@ const DurationLabel = styled.label<withValidProp>`
 const LabelText = styled.p<LabelTextProps>`
   color: ${colorGray};
   white-space: nowrap;
-  margin-bottom: .5rem;
+  margin-bottom: 0;
+  margin-top: 0;
 
   ${({ bold }) => bold && `
   font-weight: bold;
   font-size: 1.5rem;
+  margin-top: 0;
+  margin-bottom: 0;
   `}
 `;
 
@@ -243,28 +242,36 @@ const HoldButtonWrapper = styled(HoldButton)`
 `;
 
 const AssignBtnsContainer = styled.div`
-  justify-items: center;
+  justify-content: flex-start;
   display: flex;
-  flex-flow: row;
-  align-items: baseline;
+  flex-flow: row wrap;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
   margin-top: auto;
+  padding-bottom: 0.5rem;
 `;
 // @ts-ignore - Button is a JS component
 const AssignBtns = styled(Button)`
   color: ${colorDanger};
   font-size: ${fontSizeSmall};
   white-space: nowrap;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0;
+  flex-shrink: 0;
+  min-width: max-content;
+  padding-left: 0;
+  padding-right: 0;
 
   ${({ $random }) => $random && `
-  color: ${colorPrimary};
+    color: ${colorPrimary};
   `}
 `;
 
 const CheckBoxesContainer = styled(FlexRow)`
   display: flex;
   flex-flow: column;
-  justify-content: flex-end; 
+  justify-content: flex-end;
+  padding-top: 1rem;
 `;
 
 const FreeJoinCheckbox = styled.input`
@@ -347,10 +354,11 @@ const SubTitle = styled.p`
   font-size: ${fontSizeBase};
   text-align: justify;
   color: ${colorGray};
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
 `;
 
 const TitleWrapper = styled.div`
-  padding: 0px ${contentSidebarPadding};
 `;
 
 const Content = styled(ScrollboxVertical)`

@@ -54,7 +54,7 @@ index 50b72b12ec..04f360a955 100644
 --- a/docs/docusaurus.config.js
 +++ b/docs/docusaurus.config.js
 @@ -38,12 +38,6 @@ const config = {
-                     lastVersion: '2.7',
+                     lastVersion: '...',
                      includeCurrentVersion: false,
                      versions: {
 -                        '2.5-legacy': {

@@ -218,6 +218,10 @@ export const getMediaElementDimensions = () => {
   };
 };
 
+export const setStreamEnabled = (enabled) => {
+  screenShareBridge.setStreamEnabled(enabled);
+};
+
 export const setVolume = (volume) => {
   screenShareBridge.setVolume(volume);
 };
@@ -373,14 +377,22 @@ export const screenShareEndAlert = () => AudioService
    */
 export const getStats = async (statsTypes = DEFAULT_SCREENSHARE_STATS_TYPES) => {
   const screenshareStats = {};
-  const peer = screenShareBridge.getPeerConnection();
+  let stats = null;
 
-  if (!peer) return null;
+  if (typeof screenShareBridge.getStats === 'function') {
+    stats = await screenShareBridge.getStats();
+  } else {
+    const peer = screenShareBridge.getPeerConnection();
 
-  const peerStats = await peer.getStats();
+    if (!peer) return null;
 
-  peerStats.forEach((stat) => {
-    if (statsTypes.includes(stat.type)) {
+    stats = await peer.getStats();
+  }
+
+  if (!stats) return null;
+
+  stats.forEach((stat) => {
+    if (statsTypes.includes(stat.type) && (!stat.kind || stat.kind === 'video')) {
       screenshareStats[stat.type] = stat;
     }
   });

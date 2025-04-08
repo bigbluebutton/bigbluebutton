@@ -3,7 +3,7 @@ import {
   colorGrayLabel,
   colorPrimary,
   colorWhite,
-  colorGrayLighter,
+  colorBorder,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { borderSize, borderSizeLarge, lgBorderRadius } from '/imports/ui/stylesheets/styled-components/general';
 import SpinnerStyles from '/imports/ui/components/common/loading-screen/styles';
@@ -67,7 +67,7 @@ const Bounce2 = styled(SpinnerStyles.Bounce2)``;
 
 const Separator = styled.hr`
   margin: 2.5rem 0;
-  border: 1px solid ${colorGrayLighter};
+  border: 1px solid ${colorBorder};
   opacity: 0.25;
 `;
 
@@ -75,8 +75,7 @@ const FormElementCenter = styled(Styled.FormElementCenter)``;
 
 const BoldLabel = styled.label`
   color: ${colorGrayLabel};
-  font-size: 0.9rem;
-  margin-bottom: 0.5rem;
+  font-size: 1rem;
   font-weight: bold;
 `;
 
@@ -93,7 +92,7 @@ const LocalesDropdownSelect = styled.div`
 
   & > select {
     background-color: ${colorWhite};
-    border: ${borderSize} solid ${colorGrayLighter};
+    border: ${borderSize} solid ${colorBorder};
     border-radius: ${lgBorderRadius};  
     color: ${colorGrayLabel};
     width: 100%;

@@ -11,6 +11,8 @@ const colorGrayLightest = 'var(--color-gray-lightest, #D4D9DF)';
 const colorGrayIcons = 'var(--color-gray-icons, #909CAF)';
 const colorGrayUserListToolbar = 'var(--color-gray-user-list-toolbar, #F4F6FA)';
 
+const colorBorder = 'var(--color-border, #B8C9D8)';
+
 const colorBlueLight = 'var(--color-blue-light, #54a1f3)';
 const colorBlueLighter = 'var(--color-blue-lighter, #92BCEA)';
 const colorBlueLightest = 'var(--color-blue-lightest, #E4ECF2)';
@@ -33,7 +35,7 @@ const colorOffline = `var(--color-offline, ${colorGrayLight})`;
 const colorMuted = 'var(--color-muted, #586571)';
 const colorMutedBackground = 'var(--color-muted-background, #F3F6F9)';
 
-const colorBackground = `var(--color-background, ${colorGrayDark})`;
+const colorBackground = 'var(--color-background, #102133)';
 const colorOverlay = 'var(--color-overlay, rgba(6, 23, 42, 0.75))';
 
 const userListBg = `var(--user-list-bg, ${colorOffWhite})`;
@@ -97,7 +99,8 @@ const systemMessageBackgroundColor = 'var(--system-message-background-color, #F9
 const systemMessageBorderColor = 'var(--system-message-border-color, #C5CDD4)';
 const systemMessageFontColor = `var(--system-message-font-color, ${colorGrayDark})`;
 const highlightedMessageBackgroundColor = 'var(--system-message-background-color, #fef9f1)';
-const highlightedMessageBorderColor = 'var(--system-message-border-color, #f5c67f)';
+const highlightedMessageBorderColor = 'var(--system-message-border-color, #B5D3F7)';
+const emphasizedMessageBackgroundColor = 'var(--emphasized-message-background-color, #E9F1F9)';
 const colorHeading = `var(--color-heading, ${colorGrayDark})`;
 const palettePlaceholderText = 'var(--palette-placeholder-text, #787675)';
 const pollAnnotationGray = 'var(--poll-annotation-gray, #333333)';
@@ -105,6 +108,8 @@ const pollAnnotationGray = 'var(--poll-annotation-gray, #333333)';
 const appsGalleryOutlineColor = 'var(--apps-gallery-outline, #DCE4EC)';
 const unpinnedAppIconColor = 'var(--apps-unpinned-icon-color, #A5B2C7)';
 const appsPanelTextColor = 'var(--apps-panel-text-color, #393C48)';
+
+const settingsModalTabSelected = 'var(--settings-modal-tab-selected, #eaf4fc)';
 
 const toolbarButtonBorderColor = `var(--toolbar-button-border-color, ${colorGrayLighter})`;
 const toolbarListColor = `var(--toolbar-list-color, ${colorGray})`;
@@ -136,6 +141,12 @@ const webcamPlaceholderBorder = 'var(--webcam-placeholder-border, rgba(255, 255,
 const toastWarningColor = `var(--toast-warning-color, ${colorWhite})`;
 const toastWarningBg = `var(--toast-warning-bg, ${colorWarning})`;
 
+// DARK THEME COLORS
+const colorBackgroundDarkTheme = 'var(--color-background-dark-theme, #181A23)';
+const colorOverlaysDarkTheme = 'var(--color-overlays-dark-theme, #2D2F38)';
+const colorTextDarkTheme = `var(--color-text-dark-theme, ${colorWhite})`;
+const colorPrimaryDarkTheme = `var(--color-primary-dark-theme, ${colorPrimary})`;
+
 export {
   colorWhite,
   colorOffWhite,
@@ -147,6 +158,7 @@ export {
   colorGrayLightest,
   colorGrayIcons,
   colorGrayUserListToolbar,
+  colorBorder,
   colorTransparent,
   colorUserModerator,
   colorUserYou,
@@ -214,12 +226,14 @@ export {
   systemMessageFontColor,
   highlightedMessageBackgroundColor,
   highlightedMessageBorderColor,
+  emphasizedMessageBackgroundColor,
   colorHeading,
   palettePlaceholderText,
   pollAnnotationGray,
   appsGalleryOutlineColor,
   unpinnedAppIconColor,
   appsPanelTextColor,
+  settingsModalTabSelected,
   toolbarButtonBorderColor,
   toolbarListColor,
   toolbarButtonBg,
@@ -241,4 +255,8 @@ export {
   toastWarningBg,
   webcamBackgroundColor,
   webcamPlaceholderBorder,
+  colorBackgroundDarkTheme,
+  colorOverlaysDarkTheme,
+  colorTextDarkTheme,
+  colorPrimaryDarkTheme,
 };

@@ -3,7 +3,7 @@ const { fullyParallel } = require('../playwright.config');
 const { Options } = require('./options');
 const { initializePages } = require('../core/helpers');
 
-test.describe('Options', { tag: ['@ci', '@flaky-3.1'] }, () => {
+test.describe('Options', { tag: '@ci' }, () => {
   const options = new Options();
 
   test.describe.configure({ mode: fullyParallel ? 'parallel' : 'serial' });
@@ -19,8 +19,7 @@ test.describe('Options', { tag: ['@ci', '@flaky-3.1'] }, () => {
     await options.openHelp();
   });
 
-  test('Locales', { tag: '@flaky' }, async () => {
-    // not applying the correct locale for some main elements
+  test('Locales', async () => {
     await options.localesTest();
   });
 

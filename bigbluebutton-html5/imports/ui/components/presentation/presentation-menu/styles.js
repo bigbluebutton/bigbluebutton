@@ -39,16 +39,18 @@ const DropdownButton = styled.button`
 const Right = styled.div`
   cursor: pointer;
   position: absolute;
-  right: 2px;
+  right: 3px;
   top: 2px;
   z-index: 999;
+
   > div {
-    width: 50px;
-    height: 40px;
+    width: 35px;
+    height: 35px;
     display: flex;
     align-items: center;
     justify-content: center;
   }
+
   button {
     height: 100%;
     width: 100%;
@@ -57,11 +59,12 @@ const Right = styled.div`
     justify-content: center;
   }
 
-  [dir="rtl"] &{
-      left: 2px;
-      right: auto;
-    }
+  [dir="rtl"] & {
+    left: 3px;
+    right: auto;
+  }
 `;
+
 const ToastText = styled.span`
   overflow: hidden;
   text-overflow: ellipsis;

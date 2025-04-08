@@ -3,6 +3,7 @@ import { colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
 import { mediumUp } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import { actionsBarHeight, navbarHeight, mdPaddingX } from '/imports/ui/stylesheets/styled-components/general';
 import Button from '/imports/ui/components/common/button/component';
+import { CAMERADOCK_POSITION } from '../../layout/enums';
 
 // @ts-expect-error -> Untyped component.
 const NextPageButton = styled(Button)`
@@ -75,7 +76,7 @@ const VideoListItem = styled.div<{
 const VideoCanvas = styled.div<{
   $position: string;
 }>`
-  position: absolute;
+  ${({ $position }) => ($position !== CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM && 'position: absolute')};
   width: 100%;
   min-height: calc((100vh - calc(${navbarHeight} + ${actionsBarHeight})) * 0.2);
   height: 100%;

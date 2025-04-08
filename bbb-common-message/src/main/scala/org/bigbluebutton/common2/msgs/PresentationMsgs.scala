@@ -6,6 +6,14 @@ import org.bigbluebutton.common2.domain.PresentationVO
 // ------------ client to akka-apps ------------
 
 // ------------ bbb-common-web to akka-apps ------------
+object PreuploadedPresentationsSysPubMsg { val NAME = "PreuploadedPresentationsSysPubMsg" }
+case class PreuploadedPresentationsSysPubMsg(header: BbbClientMsgHeader, body: PreuploadedPresentationsSysPubMsgBody) extends StandardMsg
+case class PreuploadedPresentationsSysPubMsgBody(presentations: Vector[PresentationVO])
+
+object SetPresentationUploadCompletionNotifiedPubMsg { val NAME = "SetPresentationUploadCompletionNotifiedPubMsg" }
+case class SetPresentationUploadCompletionNotifiedPubMsg(header: BbbClientMsgHeader, body: SetPresentationUploadCompletionNotifiedPubMsgBody) extends StandardMsg
+case class SetPresentationUploadCompletionNotifiedPubMsgBody(presentationId: String)
+
 object MakePresentationDownloadReqMsg { val NAME = "MakePresentationDownloadReqMsg" }
 case class MakePresentationDownloadReqMsg(header: BbbClientMsgHeader, body: MakePresentationDownloadReqMsgBody) extends StandardMsg
 case class MakePresentationDownloadReqMsgBody(presId: String, allPages: Boolean, pages: List[Int], fileStateType: String)

@@ -54,7 +54,6 @@ interface SessionDetailsContainerProps {
 }
 
 interface SessionDetailsProps extends SessionDetailsContainerProps {
-  meetingName: string;
   welcomeMessage: string;
   welcomeMsgForModerators: string;
   loginUrl: string,
@@ -67,7 +66,6 @@ const COPY_MESSAGE_TIMEOUT = 3000;
 
 const SessionDetails: React.FC<SessionDetailsProps> = (props) => {
   const {
-    meetingName,
     welcomeMessage,
     welcomeMsgForModerators,
     isOpen,
@@ -100,11 +98,12 @@ const SessionDetails: React.FC<SessionDetailsProps> = (props) => {
 
   return (
     <ModalSimple
-      title={intl.formatMessage(intlMessages.title, { 0: meetingName })}
+      title={intl.formatMessage(intlMessages.title)}
       dismiss={{
         label: intl.formatMessage(intlMessages.dismissLabel),
         description: intl.formatMessage(intlMessages.dismissDesc),
       }}
+      data-test="sessionDetailsModal"
       {...{
         isOpen,
         onRequestClose,
@@ -232,7 +231,6 @@ const SessionDetailsContainer: React.FC<SessionDetailsContainerProps> = ({
       isOpen={isOpen}
       onRequestClose={onRequestClose}
       priority={priority}
-      meetingName={currentMeeting.name ?? ''}
       loginUrl={loginUrl}
       welcomeMessage={welcomeData.user_welcomeMsgs[0]?.welcomeMsg ?? ''}
       welcomeMsgForModerators={welcomeData.user_welcomeMsgs[0]?.welcomeMsgForModerators ?? ''}

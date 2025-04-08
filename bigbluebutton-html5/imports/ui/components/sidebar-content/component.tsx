@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Resizable from 're-resizable';
-import { ACTIONS, PANELS } from '../layout/enums';
+import { ACTIONS, DEVICE_TYPE, PANELS } from '../layout/enums';
 import ChatContainer from '/imports/ui/components/chat/chat-graphql/component';
 import ProfileSettings from '/imports/ui/components/profile-settings/component';
 import NotesContainer from '/imports/ui/components/notes/component';
@@ -17,19 +17,24 @@ import browserInfo from '/imports/utils/browserInfo';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import { SidebarContentProps } from './types';
+import {
+  SIDEBAR_CONTENT_MARGIN_TO_MEDIA,
+  SIDEBAR_CONTENT_VERTICAL_MARGIN,
+} from '/imports/ui/components/layout/defaultValues';
+import AudioCaptionsPanel from '../audio-captions/panel/component';
 
 const SidebarContent = (props: SidebarContentProps) => {
   const {
     top,
     left = undefined,
     right = undefined,
+    zIndex,
     minWidth,
     width,
     maxWidth,
     minHeight,
     height,
     maxHeight,
-    zIndex,
     isResizable,
     resizableEdge,
     contextDispatch,
@@ -43,6 +48,8 @@ const SidebarContent = (props: SidebarContentProps) => {
   const [resizeStartWidth, setResizeStartWidth] = useState(0);
   const [resizeStartHeight, setResizeStartHeight] = useState(0);
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
+  const deviceType = layoutSelect((i: Layout) => i.deviceType);
+  const isMobile = deviceType === DEVICE_TYPE.MOBILE;
 
   useEffect(() => {
     if (!isResizing) {
@@ -73,87 +80,113 @@ const SidebarContent = (props: SidebarContentProps) => {
 
   if (sidebarContentPanel === PANELS.NONE) return null;
 
+  const innerPanel = !isMobile ? {
+    minWidth: minWidth - SIDEBAR_CONTENT_MARGIN_TO_MEDIA,
+    maxWidth: maxWidth - SIDEBAR_CONTENT_MARGIN_TO_MEDIA,
+    minHeight: minHeight - (2 * SIDEBAR_CONTENT_VERTICAL_MARGIN),
+    maxHeight: maxHeight - (2 * SIDEBAR_CONTENT_VERTICAL_MARGIN),
+    width: width - SIDEBAR_CONTENT_MARGIN_TO_MEDIA,
+    height: height - (2 * SIDEBAR_CONTENT_VERTICAL_MARGIN),
+  } : {
+    minWidth,
+    maxWidth,
+    minHeight,
+    maxHeight,
+    width,
+    height,
+  };
+
   return (
-    <Resizable
-      minWidth={minWidth}
-      maxWidth={maxWidth}
-      minHeight={minHeight}
-      maxHeight={maxHeight}
-      size={{
-        width,
-        height,
-      }}
-      enable={{
-        top: isResizable && resizableEdge?.top,
-        left: isResizable && resizableEdge?.left,
-        bottom: isResizable && resizableEdge?.bottom,
-        right: isResizable && resizableEdge?.right,
-      }}
-      handleWrapperClass="resizeSidebarContentWrapper"
-      onResizeStart={() => {
-        setIsResizing(true);
-        setResizeStartWidth(resizableWidth);
-        setResizeStartHeight(resizableHeight);
-      }}
-      onResize={(...[, , , delta]) => setSidebarContentSize(delta.width, delta.height)}
-      onResizeStop={() => {
-        setIsResizing(false);
-        setResizeStartWidth(0);
-        setResizeStartHeight(0);
-      }}
+    <Styled.SidebarContentBackdrop
+      isMobile={isMobile}
+      isRTL={isRTL}
       style={{
-        position: 'absolute',
-        display: 'flex',
-        alignItems: 'center',
         top,
         left,
         right,
         zIndex,
         width,
         height,
-      }}
-      handleStyles={{
-        left: {
-          width: '4px',
-          height: '100vh',
-          left: '-2px',
-          cursor: 'ew-resize',
-        },
-        right: {
-          width: '12px',
-          height: '100vh',
-          right: '-12px',
-          cursor: 'ew-resize',
-        },
+        maxWidth,
+        minHeight,
       }}
     >
-      <Styled.SidebarContentPanel isRTL={isRTL} isChrome={isChrome}>
-        {sidebarContentPanel === PANELS.CHAT
-          && (
-            <ErrorBoundary
-              Fallback={FallbackView}
-            >
-              <ChatContainer />
-            </ErrorBoundary>
+      <Resizable
+        minWidth={innerPanel.minWidth}
+        maxWidth={innerPanel.maxWidth}
+        minHeight={innerPanel.minHeight}
+        maxHeight={innerPanel.maxHeight}
+        size={{
+          width: innerPanel.width,
+          height: innerPanel.height,
+        }}
+        enable={{
+          top: isResizable && resizableEdge?.top,
+          left: isResizable && resizableEdge?.left,
+          bottom: isResizable && resizableEdge?.bottom,
+          right: isResizable && resizableEdge?.right,
+        }}
+        handleWrapperClass="resizeSidebarContentWrapper"
+        onResizeStart={() => {
+          setIsResizing(true);
+          setResizeStartWidth(resizableWidth);
+          setResizeStartHeight(resizableHeight);
+        }}
+        onResize={(...[, , , delta]) => setSidebarContentSize(delta.width, delta.height)}
+        onResizeStop={() => {
+          setIsResizing(false);
+          setResizeStartWidth(0);
+          setResizeStartHeight(0);
+        }}
+        style={{
+          position: 'absolute',
+          display: 'flex',
+          zIndex,
+        }}
+        handleStyles={{
+          left: {
+            width: '4px',
+            height: '100%',
+            left: '-2px',
+            cursor: 'ew-resize',
+          },
+          right: {
+            width: '12px',
+            height: '100%',
+            right: '-12px',
+            cursor: 'ew-resize',
+          },
+        }}
+      >
+        <Styled.SidebarContentPanel isRTL={isRTL} isChrome={isChrome}>
+          {sidebarContentPanel === PANELS.CHAT
+            && (
+              <ErrorBoundary
+                Fallback={FallbackView}
+              >
+                <ChatContainer />
+              </ErrorBoundary>
+            )}
+          {!isSharedNotesPinned && (
+            <NotesContainer
+              isToSharedNotesBeShow={sidebarContentPanel === PANELS.SHARED_NOTES}
+            />
           )}
-        {!isSharedNotesPinned && (
-          <NotesContainer
-            isToSharedNotesBeShow={sidebarContentPanel === PANELS.SHARED_NOTES}
-          />
-        )}
-        {sidebarContentPanel === PANELS.PROFILE && <ProfileSettings />}
-        {sidebarContentPanel === PANELS.USERLIST && <UserListComponent />}
-        {sidebarContentPanel === PANELS.BREAKOUT && <BreakoutRoomContainer />}
-        {sidebarContentPanel === PANELS.TIMER && <TimerContainer />}
-        {sidebarContentPanel === PANELS.POLL && <PollContainer />}
-        {sidebarContentPanel === PANELS.APPS_GALLERY && <AppsGallery />}
-        {sidebarContentPanel.includes(PANELS.GENERIC_CONTENT_SIDEKICK) && (
-          <GenericContentSidekickContainer
-            genericSidekickContentId={sidebarContentPanel}
-          />
-        )}
-      </Styled.SidebarContentPanel>
-    </Resizable>
+          {sidebarContentPanel === PANELS.PROFILE && <ProfileSettings />}
+          {sidebarContentPanel === PANELS.USERLIST && <UserListComponent />}
+          {sidebarContentPanel === PANELS.BREAKOUT && <BreakoutRoomContainer />}
+          {sidebarContentPanel === PANELS.TIMER && <TimerContainer />}
+          {sidebarContentPanel === PANELS.POLL && <PollContainer />}
+          {sidebarContentPanel === PANELS.APPS_GALLERY && <AppsGallery />}
+          {sidebarContentPanel === PANELS.AUDIO_CAPTIONS && <AudioCaptionsPanel />}
+          {sidebarContentPanel.includes(PANELS.GENERIC_CONTENT_SIDEKICK) && (
+            <GenericContentSidekickContainer
+              genericSidekickContentId={sidebarContentPanel}
+            />
+          )}
+        </Styled.SidebarContentPanel>
+      </Resizable>
+    </Styled.SidebarContentBackdrop>
   );
 };
 

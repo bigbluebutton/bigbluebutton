@@ -7,7 +7,8 @@ class PluginHdlrs(implicit val context: ActorContext)
   extends PluginDataChannelPushEntryMsgHdlr
   with PluginDataChannelReplaceEntryMsgHdlr
   with PluginDataChannelDeleteEntryMsgHdlr
-  with PluginDataChannelResetMsgHdlr {
+  with PluginDataChannelResetMsgHdlr
+  with PluginPersistEventMsgHdlr {
 
   val log = Logging(context.system, getClass)
 }

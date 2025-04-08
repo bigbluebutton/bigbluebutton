@@ -106,22 +106,19 @@ const Select = styled.select`
 `;
 
 const MaterialSwitch = materialStyled(Switch)(({ theme }) => ({
-  width: 22,
-  height: 12,
+  width: '2.3rem',
+  height: '1.2rem',
   padding: 0,
   display: 'flex',
   '&:active': {
-    '& .MuiSwitch-thumb': {
-      // width: 10,
-    },
     '& .MuiSwitch-switchBase.Mui-checked': {
-      transform: 'translateX(9px)',
+      transform: 'translateX(1.2rem)',
     },
   },
   '& .MuiSwitch-switchBase': {
-    padding: 2,
+    padding: '0.2rem',
     '&.Mui-checked': {
-      transform: 'translateX(12px)',
+      transform: 'translateX(1.2rem)',
       color: '#fff',
       '& + .MuiSwitch-track': {
         opacity: 1,
@@ -134,16 +131,16 @@ const MaterialSwitch = materialStyled(Switch)(({ theme }) => ({
   },
   '& .MuiSwitch-thumb': {
     boxShadow: '0 2px 4px 0 rgb(0 35 11 / 20%)',
-    width: 6,
-    height: 6,
-    borderRadius: 6,
+    width: '0.6rem',
+    height: '0.6rem',
+    borderRadius: '0.5rem',
     transition: theme.transitions.create(['width'], {
       duration: 200,
     }),
     transform: 'translateY(1px)',
   },
   '& .MuiSwitch-track': {
-    borderRadius: 16 / 2,
+    borderRadius: '0.6rem',
     opacity: 1,
     backgroundColor: 'rgba(0,0,0,.25)',
     boxSizing: 'border-box',

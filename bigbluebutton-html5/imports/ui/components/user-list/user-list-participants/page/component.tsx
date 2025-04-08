@@ -100,9 +100,25 @@ const UserListParticipantsPageContainer: React.FC<UserListParticipantsContainerP
   const users = usersData ?? [];
 
   const { data: currentUser, loading: currentUserLoading } = useCurrentUser((c: Partial<User>) => ({
-    isModerator: c.isModerator,
     userId: c.userId,
+    voice: c.voice,
+    isModerator: c.isModerator,
     presenter: c.presenter,
+    guest: c.guest,
+    mobile: c.mobile,
+    locked: c.locked,
+    userLockSettings: c.userLockSettings,
+    lastBreakoutRoom: c.lastBreakoutRoom,
+    cameras: c.cameras,
+    pinned: c.pinned,
+    raiseHand: c.raiseHand,
+    away: c.away,
+    reactionEmoji: c.reactionEmoji,
+    avatar: c.avatar,
+    isDialIn: c.isDialIn,
+    name: c.name,
+    color: c.color,
+    presPagesWritable: c.presPagesWritable,
   }));
 
   const {
@@ -137,6 +153,16 @@ const UserListParticipantsPageContainer: React.FC<UserListParticipantsContainerP
         <SkeletonUserListItem enableAnimation={true} />
       </Styled.UserListItem>
     ));
+  }
+
+  const currentUserIndex = users.findIndex((u: User) => u.userId === currentUser?.userId);
+
+  if (currentUserIndex !== -1) {
+    users.splice(currentUserIndex, 1);
+  }
+
+  if (offset === 0) {
+    users.unshift(currentUser as User);
   }
 
   return (

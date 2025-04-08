@@ -61,17 +61,39 @@ object PluginModel {
   def getPlugins(instance: PluginModel): Map[String, Plugin] = {
     instance.plugins
   }
-  def replaceRelativeJavascriptEntrypoint(plugin: Plugin): Plugin = {
+  private def replaceRelativeJavascriptEntrypoint(plugin: Plugin): Plugin = {
     val jsEntrypoint = plugin.manifest.content.javascriptEntrypointUrl
     if (jsEntrypoint.startsWith("http://") || jsEntrypoint.startsWith("https://")) {
       plugin
     } else {
-      val baseUrl = plugin.manifest.url.substring(0, plugin.manifest.url.lastIndexOf('/') + 1)
-      val absoluteJavascriptEntrypoint = baseUrl + jsEntrypoint
+      val absoluteJavascriptEntrypoint = makeAbsoluteUrl(plugin, jsEntrypoint)
       val newPluginManifestContent = plugin.manifest.content.copy(javascriptEntrypointUrl = absoluteJavascriptEntrypoint)
       val newPluginManifest = plugin.manifest.copy(content = newPluginManifestContent)
       plugin.copy(manifest = newPluginManifest)
     }
+  }
+  private def replaceRelativeLocalesBaseUrl(plugin: Plugin): Plugin = {
+    val localesBaseUrl = plugin.manifest.content.localesBaseUrl
+    localesBaseUrl match {
+      case Some(value: String) =>
+        if (value.startsWith("http://") || value.startsWith("https://")) {
+          plugin
+        } else {
+          val absoluteLocalesBaseUrl = makeAbsoluteUrl(plugin = plugin, relativeUrl = value)
+          val newPluginManifestContent = plugin.manifest.content.copy(localesBaseUrl = Some(absoluteLocalesBaseUrl))
+          val newPluginManifest = plugin.manifest.copy(content = newPluginManifestContent)
+          plugin.copy(manifest = newPluginManifest)
+        }
+      case None => plugin
+    }
+  }
+  private def makeAbsoluteUrl(plugin: Plugin, relativeUrl: String): String = {
+    val baseUrl = plugin.manifest.url.substring(0, plugin.manifest.url.lastIndexOf('/') + 1)
+    baseUrl + relativeUrl
+  }
+  private def replaceAllRelativeUrls(plugin: Plugin): Plugin = {
+    val pluginWithAbsoluteJsEntrypoint = replaceRelativeJavascriptEntrypoint(plugin)
+    replaceRelativeLocalesBaseUrl(pluginWithAbsoluteJsEntrypoint)
   }
   def createPluginModelFromJson(json: util.Map[String, AnyRef]): PluginModel = {
     val instance = new PluginModel()
@@ -79,8 +101,8 @@ object PluginModel {
     json.forEach { case (pluginName, plugin) =>
       try {
         val pluginObject = objectMapper.readValue(objectMapper.writeValueAsString(plugin), classOf[Plugin])
-        val pluginObjectWithAbsoluteJavascriptEntrypoint = replaceRelativeJavascriptEntrypoint(pluginObject)
-        pluginsMap = pluginsMap + (pluginName -> pluginObjectWithAbsoluteJavascriptEntrypoint)
+        val pluginObjectWithAbsoluteUrls = replaceAllRelativeUrls(pluginObject)
+        pluginsMap = pluginsMap + (pluginName -> pluginObjectWithAbsoluteUrls)
       } catch {
         case err @ (_: JsonProcessingException | _: JsonMappingException)   => println(s"Error while processing plugin $pluginName: $err")
       }
@@ -91,7 +113,7 @@ object PluginModel {
   def persistPluginsForClient(instance: PluginModel, meetingId: String): Unit = {
     instance.plugins.foreach { case (_, plugin) =>
       PluginDAO.insert(meetingId, plugin.manifest.content.name, plugin.manifest.content.javascriptEntrypointUrl,
-        plugin.manifest.content.javascriptEntrypointIntegrity.getOrElse(""))
+        plugin.manifest.content.javascriptEntrypointIntegrity.getOrElse(""), plugin.manifest.content.localesBaseUrl)
     }
   }
 }

@@ -4,7 +4,6 @@ import {
   borderSize,
   avatarInset,
   smPaddingX,
-  toastIconSide,
   toastMargin,
   toastMarginMobile,
 } from '/imports/ui/stylesheets/styled-components/general';
@@ -39,6 +38,8 @@ const ButtonAvatar = styled.div`
 `;
 
 const Avatar = styled(UserAvatar)`
+  padding: 0.75rem 0;
+  border: solid ${borderSize} ${colorWhite};
   &:hover,
   &:focus {
     border: solid ${borderSize} ${colorGrayLighter};
@@ -73,8 +74,8 @@ const ToastContent = styled.div`
 
 const IconWrapper = styled.div`
   background-color: ${colorPrimary};
-  width: ${toastIconSide};
-  height: ${toastIconSide};
+  width: ${avatarSide};
+  height: ${avatarSide};
   border-radius: 50%;
   
   & > i {

@@ -87,8 +87,8 @@ const AudioSelectors: React.FC<AudioSelectorsProps> = ({
   inAudio,
 }) => {
   const intl = useIntl();
-  // @ts-expect-error TS6133: Unused variable.
-  const [findingDevices, setFindingDevices] = React.useState(false);
+  // @ts-expect-error TS6133: Unused variable
+  const [findingDevices, setFindingDevices] = React.useState(false); // eslint-disable-line
   const [inputDevices, setInputDevices] = React.useState<InputDeviceInfo[]>([]);
   const [outputDevices, setOutputDevices] = React.useState<MediaDeviceInfo[]>([]);
   const { enableDynamicAudioDeviceSelection } = window.meetingClientSettings.public.app;
@@ -250,7 +250,7 @@ const AudioSelectors: React.FC<AudioSelectorsProps> = ({
         {outputDevices.length > 0
           ? (
             <Styled.DeviceSelector
-              value={outputDeviceId || ''}
+              value={outputDeviceId || outputDevices[0].deviceId}
               IconComponent={ExpandMoreIcon}
               onChange={(event: SelectChangeEvent<unknown>) => {
                 const deviceId = event.target.value as string;
@@ -271,7 +271,7 @@ const AudioSelectors: React.FC<AudioSelectorsProps> = ({
         {inputDevices.length > 0
           ? (
             <Styled.DeviceSelector
-              value={inputDeviceId || ''}
+              value={inputDeviceId || inputDevices[0].deviceId}
               IconComponent={ExpandMoreIcon}
               onChange={(event: SelectChangeEvent<unknown>) => {
                 const deviceId = event.target.value as string;

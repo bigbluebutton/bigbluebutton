@@ -14,6 +14,7 @@ import { SidebarNavigation as SidebarNavigationInput } from '../layout/layoutTyp
 import Styled from './styles';
 
 interface SidebarNavigationProps {
+  isMobile: boolean,
   top: number,
   left?: number,
   right?: number,
@@ -21,9 +22,11 @@ interface SidebarNavigationProps {
   height: number,
   width: number,
   sidebarNavigationInput: SidebarNavigationInput,
+  isModerator: boolean,
 }
 
 const SidebarNavigation = ({
+  isMobile,
   top,
   left = undefined,
   right = undefined,
@@ -31,12 +34,14 @@ const SidebarNavigation = ({
   height,
   width,
   sidebarNavigationInput,
+  isModerator,
 }: SidebarNavigationProps) => {
   const showBrandingArea = getFromUserSettings('bbb_display_branding_area', window.meetingClientSettings.public.app.branding.displayBrandingArea);
   const isChatEnabled = useIsChatEnabled();
 
   return (
-    <Styled.NavigationSidebar
+    <Styled.NavigationSidebarBackdrop
+      isMobile={isMobile}
       style={{
         top,
         left,
@@ -46,28 +51,30 @@ const SidebarNavigation = ({
         width,
       }}
     >
-      <Styled.NavigationSidebarListItemsContainer>
-        <Styled.Top>
-          {showBrandingArea && <CustomLogo />}
-          <ProfileListItem />
-          <UsersListItem />
-          {isChatEnabled && <ChatListItemContainer />}
-          <UserNotesListItemContainer />
-        </Styled.Top>
+      <Styled.NavigationSidebar data-test="navigationSidebarContainer" isMobile={isMobile}>
+        <Styled.NavigationSidebarListItemsContainer>
+          <Styled.Top>
+            {showBrandingArea && <CustomLogo />}
+            <ProfileListItem />
+            <UsersListItem />
+            {isChatEnabled && <ChatListItemContainer />}
+            <UserNotesListItemContainer />
+          </Styled.Top>
 
-        <Styled.Center>
-          <AppsListItem />
-          <PinnedApps
-            sidebarNavigationInput={sidebarNavigationInput}
-          />
-        </Styled.Center>
+          <Styled.Center>
+            <AppsListItem />
+            <PinnedApps
+              sidebarNavigationInput={sidebarNavigationInput}
+            />
+          </Styled.Center>
 
-        <Styled.Bottom>
-          <LearningDashboardListItem />
-          <SettingsListItem />
-        </Styled.Bottom>
-      </Styled.NavigationSidebarListItemsContainer>
-    </Styled.NavigationSidebar>
+          <Styled.Bottom>
+            { isModerator ? <LearningDashboardListItem /> : null }
+            <SettingsListItem />
+          </Styled.Bottom>
+        </Styled.NavigationSidebarListItemsContainer>
+      </Styled.NavigationSidebar>
+    </Styled.NavigationSidebarBackdrop>
   );
 };
 

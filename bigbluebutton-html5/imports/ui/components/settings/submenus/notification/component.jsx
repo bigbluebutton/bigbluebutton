@@ -94,7 +94,7 @@ class NotificationMenu extends BaseMenu {
                 </Styled.Label>
               </Styled.Col>
               <Styled.Col>
-                <Styled.FormElementCenter>
+                <Styled.FormElementRight>
                   {displaySettingsStatus(settings.chatAudioAlerts)}
                   <SubMenusStyle.MaterialSwitch
                     checked={settings.chatAudioAlerts}
@@ -103,10 +103,10 @@ class NotificationMenu extends BaseMenu {
                       'aria-label': `${intl.formatMessage(intlMessages.messagesLabel)} ${intl.formatMessage(intlMessages.audioAlertLabel)} - ${displaySettingsStatus(settings.chatAudioAlerts, true)}`,
                     }}
                   />
-                </Styled.FormElementCenter>
+                </Styled.FormElementRight>
               </Styled.Col>
               <Styled.Col>
-                <Styled.FormElementCenter>
+                <Styled.FormElementRight>
                   {displaySettingsStatus(settings.chatPushAlerts)}
                   <SubMenusStyle.MaterialSwitch
                     checked={settings.chatPushAlerts}
@@ -116,7 +116,7 @@ class NotificationMenu extends BaseMenu {
                       'data-test': 'chatPopupAlertsBtn',
                     }}
                   />
-                </Styled.FormElementCenter>
+                </Styled.FormElementRight>
               </Styled.Col>
             </Styled.Row>
           ) : null}
@@ -128,7 +128,7 @@ class NotificationMenu extends BaseMenu {
               </Styled.Label>
             </Styled.Col>
             <Styled.Col>
-              <Styled.FormElementCenter>
+              <Styled.FormElementRight>
                 {displaySettingsStatus(settings.userJoinAudioAlerts)}
                 <SubMenusStyle.MaterialSwitch
                   checked={settings.userJoinAudioAlerts}
@@ -137,10 +137,10 @@ class NotificationMenu extends BaseMenu {
                     'aria-label': `${intl.formatMessage(intlMessages.userJoinLabel)} ${intl.formatMessage(intlMessages.audioAlertLabel)} - ${displaySettingsStatus(settings.userJoinAudioAlerts, true)}`,
                   }}
                 />
-              </Styled.FormElementCenter>
+              </Styled.FormElementRight>
             </Styled.Col>
             <Styled.Col>
-              <Styled.FormElementCenter>
+              <Styled.FormElementRight>
                 {displaySettingsStatus(settings.userJoinPushAlerts)}
                 <SubMenusStyle.MaterialSwitch
                   checked={settings.userJoinPushAlerts}
@@ -150,7 +150,7 @@ class NotificationMenu extends BaseMenu {
                     'data-test': 'userJoinPopupAlerts',
                   }}
                 />
-              </Styled.FormElementCenter>
+              </Styled.FormElementRight>
             </Styled.Col>
           </Styled.Row>
 
@@ -161,7 +161,7 @@ class NotificationMenu extends BaseMenu {
               </Styled.Label>
             </Styled.Col>
             <Styled.Col>
-              <Styled.FormElementCenter>
+              <Styled.FormElementRight>
                 {displaySettingsStatus(settings.userLeaveAudioAlerts)}
                 <SubMenusStyle.MaterialSwitch
                   checked={settings.userLeaveAudioAlerts}
@@ -170,10 +170,10 @@ class NotificationMenu extends BaseMenu {
                     'aria-label': `${intl.formatMessage(intlMessages.userLeaveLabel)} ${intl.formatMessage(intlMessages.audioAlertLabel)} - ${displaySettingsStatus(settings.userLeaveAudioAlerts, true)}`,
                   }}
                 />
-              </Styled.FormElementCenter>
+              </Styled.FormElementRight>
             </Styled.Col>
             <Styled.Col>
-              <Styled.FormElementCenter>
+              <Styled.FormElementRight>
                 {displaySettingsStatus(settings.userLeavePushAlerts)}
                 <SubMenusStyle.MaterialSwitch
                   checked={settings.userLeavePushAlerts}
@@ -182,7 +182,7 @@ class NotificationMenu extends BaseMenu {
                     'aria-label': `${intl.formatMessage(intlMessages.userLeaveLabel)} ${intl.formatMessage(intlMessages.pushAlertLabel)} - ${displaySettingsStatus(settings.userLeavePushAlerts, true)}`,
                   }}
                 />
-              </Styled.FormElementCenter>
+              </Styled.FormElementRight>
             </Styled.Col>
           </Styled.Row>
 
@@ -194,7 +194,7 @@ class NotificationMenu extends BaseMenu {
                 </Styled.Label>
               </Styled.Col>
               <Styled.Col>
-                <Styled.FormElementCenter>
+                <Styled.FormElementRight>
                   {displaySettingsStatus(settings.guestWaitingAudioAlerts)}
                   <SubMenusStyle.MaterialSwitch
                     checked={settings.guestWaitingAudioAlerts}
@@ -203,10 +203,10 @@ class NotificationMenu extends BaseMenu {
                       'aria-label': `${intl.formatMessage(intlMessages.guestWaitingLabel)} ${intl.formatMessage(intlMessages.audioAlertLabel)} - ${displaySettingsStatus(settings.guestWaitingAudioAlerts, true)}`,
                     }}
                   />
-                </Styled.FormElementCenter>
+                </Styled.FormElementRight>
               </Styled.Col>
               <Styled.Col>
-                <Styled.FormElementCenter>
+                <Styled.FormElementRight>
                   {displaySettingsStatus(settings.guestWaitingPushAlerts)}
                   <SubMenusStyle.MaterialSwitch
                     checked={settings.guestWaitingPushAlerts}
@@ -215,7 +215,7 @@ class NotificationMenu extends BaseMenu {
                       'aria-label': `${intl.formatMessage(intlMessages.guestWaitingLabel)} ${intl.formatMessage(intlMessages.pushAlertLabel)} - ${displaySettingsStatus(settings.guestWaitingPushAlerts, true)}`,
                     }}
                   />
-                </Styled.FormElementCenter>
+                </Styled.FormElementRight>
               </Styled.Col>
             </Styled.Row>
           ) : null}
@@ -228,7 +228,7 @@ class NotificationMenu extends BaseMenu {
                 </Styled.Label>
               </Styled.Col>
               <Styled.Col>
-                <Styled.FormElementCenter>
+                <Styled.FormElementRight>
                   {displaySettingsStatus(settings.raiseHandAudioAlerts)}
                   <SubMenusStyle.MaterialSwitch
                     checked={settings.raiseHandAudioAlerts}
@@ -237,10 +237,10 @@ class NotificationMenu extends BaseMenu {
                       'aria-label': `${intl.formatMessage(intlMessages.raiseHandLabel)} ${intl.formatMessage(intlMessages.audioAlertLabel)} - ${displaySettingsStatus(settings.raiseHandAudioAlerts, true)}`,
                     }}
                   />
-                </Styled.FormElementCenter>
+                </Styled.FormElementRight>
               </Styled.Col>
               <Styled.Col>
-                <Styled.FormElementCenter>
+                <Styled.FormElementRight>
                   {displaySettingsStatus(settings.raiseHandPushAlerts)}
                   <SubMenusStyle.MaterialSwitch
                     checked={settings.raiseHandPushAlerts}
@@ -249,7 +249,7 @@ class NotificationMenu extends BaseMenu {
                       'aria-label': `${intl.formatMessage(intlMessages.raiseHandLabel)} ${intl.formatMessage(intlMessages.pushAlertLabel)} - ${displaySettingsStatus(settings.raiseHandPushAlerts, true)}`,
                     }}
                   />
-                </Styled.FormElementCenter>
+                </Styled.FormElementRight>
               </Styled.Col>
             </Styled.Row>
           ) : null}

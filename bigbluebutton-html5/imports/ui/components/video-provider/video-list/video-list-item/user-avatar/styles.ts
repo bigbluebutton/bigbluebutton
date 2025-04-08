@@ -12,6 +12,7 @@ const UserAvatarStyled = styled(UserAvatar)<{
   unhealthyStream: boolean;
   dialIn: boolean;
   presenter: boolean;
+  whiteboardAccess: boolean;
 }>`
   height: 60%;
   width: 45%;

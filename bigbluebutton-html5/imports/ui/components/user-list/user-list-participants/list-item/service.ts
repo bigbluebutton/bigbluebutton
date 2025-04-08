@@ -49,10 +49,6 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.room',
     description: 'breakout room',
   },
-  you: {
-    id: 'app.userList.you',
-    description: 'Text for identifying your user',
-  },
   startPrivateChat: {
     id: 'app.userList.menu.chat.label',
     description: 'label for option to start a new private chat',
@@ -143,6 +139,7 @@ export const generateActionsPermissions = (
   const amISubjectUser = isMe(subjectUser.userId);
   const isSubjectUserModerator = subjectUser.isModerator;
   const isSubjectUserGuest = subjectUser.guest;
+  const isSubjectUserBot = subjectUser.bot;
   // Breakout rooms mess up with role permissions
   // A breakout room user that has a moderator role in it's parent room
   const parentRoomModerator = getFromUserSettings('bbb_parent_room_moderator', false);
@@ -156,12 +153,14 @@ export const generateActionsPermissions = (
     )) && !amISubjectUser
     && !isDialInUser
     && isPrivateChatEnabled
+    && !isSubjectUserBot
     && !isBreakout;
 
   const allowedToMuteAudio = hasAuthority
     && subjectUserVoice?.joined
     && !isMuted
     && !subjectUserVoice?.listenOnly
+    && !isSubjectUserBot
     && !isBreakout;
 
   const allowedToUnmuteAudio = hasAuthority
@@ -174,10 +173,12 @@ export const generateActionsPermissions = (
 
   const allowedToChangeWhiteboardAccess = currentUser.presenter
       && !amISubjectUser && !subjectUser.presenter
+      && !isSubjectUserBot
       && !isDialInUser;
 
   const allowedToSetPresenter = amIModerator
       && !subjectUser.presenter
+      && !isSubjectUserBot
       && !isDialInUser;
 
   // if currentUser is a moderator, allow removing other users
@@ -190,6 +191,7 @@ export const generateActionsPermissions = (
     && !isSubjectUserModerator
     && !isDialInUser
     && !isBreakout
+    && !isSubjectUserBot
     && !(isSubjectUserGuest && usersPolicies?.authenticatedGuest && !usersPolicies?.allowPromoteGuestToModerator);
 
   const allowedToDemote = amIModerator
@@ -197,10 +199,12 @@ export const generateActionsPermissions = (
     && isSubjectUserModerator
     && !isDialInUser
     && !isBreakout
+    && !isSubjectUserBot
     && !(isSubjectUserGuest && usersPolicies?.authenticatedGuest && !usersPolicies?.allowPromoteGuestToModerator);
 
   const allowedToChangeUserLockStatus = amIModerator
     && !isSubjectUserModerator
+    && !isSubjectUserBot
     && lockSettings?.hasActiveLockSetting;
 
   const allowedToEjectCameras = amIModerator

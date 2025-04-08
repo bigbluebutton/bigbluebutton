@@ -21,6 +21,7 @@ import Session from '/imports/ui/services/storage/in-memory';
 import type { Stream, StreamItem, VideoItem } from './types';
 import { VIDEO_TYPES } from './enums';
 import BBBVideoStream from '/imports/ui/services/webrtc-base/bbb-video-stream';
+import { getLKStats } from '/imports/ui/services/livekit';
 
 const TOKEN = '_';
 
@@ -48,7 +49,7 @@ class VideoService {
 
   private activePeers: Record<string, RTCPeerConnection>;
 
-  private readonly clientSessionUUID: string;
+  private clientSessionUUID: string;
 
   constructor() {
     this.userParameterProfile = null;
@@ -57,7 +58,7 @@ class VideoService {
     this.numberOfDevices = 0;
     this.record = null;
     this.hackRecordViewer = null;
-    this.clientSessionUUID = sessionStorage.getItem('clientSessionUUID') || '0';
+    this.clientSessionUUID = '0';
 
     if (navigator.mediaDevices) {
       this.updateNumberOfDevices = this.updateNumberOfDevices.bind(this);
@@ -495,8 +496,16 @@ class VideoService {
     });
   }
 
+  getClientSessionUUID() {
+    if (this.clientSessionUUID === '0') {
+      this.clientSessionUUID = sessionStorage.getItem('clientSessionUUID') || '0';
+    }
+
+    return this.clientSessionUUID;
+  }
+
   getPrefix() {
-    return `${Auth.userID}${TOKEN}${this.clientSessionUUID}`;
+    return `${Auth.userID}${TOKEN}${this.getClientSessionUUID()}`;
   }
 
   updateActivePeers(streams: StreamItem[]) {
@@ -528,6 +537,27 @@ class VideoService {
         stats[peerId] = videoStats;
       }),
     );
+
+    try {
+      const lkStats = await getLKStats();
+      lkStats.forEach((stat) => {
+        // @ts-expect-error -> Untyped object.
+        const { id, type: statType, kind } = stat;
+
+        if (FILTER_VIDEO_STATS.includes(statType) && (!kind || kind === 'video')) {
+          stats[id] = { [statType]: stat };
+        }
+      });
+    } catch (error) {
+      logger.error({
+        logCode: 'video_provider_livekit_stats_error',
+        extraInfo: {
+          errorName: (error as Error).name,
+          errorMessage: (error as Error).message,
+          errorStack: (error as Error).stack,
+        },
+      }, `Failed to get LiveKit video stats: ${(error as Error).message}`);
+    }
 
     return stats;
   }

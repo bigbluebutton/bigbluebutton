@@ -2,8 +2,6 @@ package org.bigbluebutton.core.db
 
 import slick.jdbc.PostgresProfile.api._
 
-import scala.collection.compat.immutable.ArraySeq
-
 case class CaptionDbModel(
     captionId:   String,
     meetingId:   String,
@@ -22,9 +20,7 @@ class CaptionTableDef(tag: Tag) extends Table[CaptionDbModel](tag, None, "captio
   val locale = column[String]("locale")
   val captionText = column[String]("captionText")
   val createdAt = column[java.sql.Timestamp]("createdAt")
-  def * = (
-    captionId, meetingId, captionType, userId, locale, captionText, createdAt
-  ).<>(CaptionDbModel.tupled, CaptionDbModel.unapply)
+  def * = (captionId, meetingId, captionType, userId, locale, captionText, createdAt) <> (CaptionDbModel.tupled, CaptionDbModel.unapply)
 }
 
 object CaptionTypes {
@@ -49,51 +45,5 @@ object CaptionDAO {
         )
       )
     )
-  }
-
-  def insertOrUpdatePadCaption(meetingId: String, locale: String, userId: String, text: String) = {
-
-    val lines: Array[String] = text.split("\\r?\\n").filter(_.trim.nonEmpty)
-    val lastTwoLines = lines.takeRight(2)
-    val lastTwoLinesSeq = ArraySeq.unsafeWrapArray(lastTwoLines) // Use efficient wrapping
-
-    val actions: Seq[DBIO[Int]] = lastTwoLinesSeq.map { line =>
-      sqlu"""
-        WITH upsert AS (
-          UPDATE caption
-          SET "captionText"=${line},
-          "createdAt" = current_timestamp
-          WHERE "captionId" in (
-                  SELECT "captionId"
-                  FROM (
-                    SELECT "captionId", "captionText", "createdAt"
-                    FROM caption
-                    WHERE "meetingId" = ${meetingId}
-                    AND locale = ${locale}
-                    AND "captionType" = ${CaptionTypes.TYPED}
-                    order by "createdAt" desc
-                    limit 2
-                  ) a
-                  WHERE ${line} != "captionText"
-                  AND (${line} LIKE "captionText" || '%' or "captionText" LIKE ${line} || '%')
-                  AND ABS(length("captionText") - length(${line})) < 25
-                  ORDER BY "createdAt" desc
-                  LIMIT 1
-                )
-          RETURNING *)
-        INSERT INTO caption ("captionId", "meetingId", "captionType", "userId", "locale", "captionText", "createdAt")
-        SELECT md5(random()::text || clock_timestamp()::text), ${meetingId}, 'TYPED', ${userId}, ${locale}, ${line}, current_timestamp
-        WHERE NOT EXISTS (SELECT * FROM upsert)
-        AND ${line} NOT IN (SELECT "captionText"
-                    FROM caption
-                    WHERE "meetingId" = ${meetingId}
-                    AND locale = ${locale}
-                    AND "captionType" = ${CaptionTypes.TYPED}
-                    order by "createdAt" desc
-                    limit 2
-                  )"""
-    }
-
-    DatabaseConnection.enqueue(DBIO.sequence(actions).transactionally)
   }
 }

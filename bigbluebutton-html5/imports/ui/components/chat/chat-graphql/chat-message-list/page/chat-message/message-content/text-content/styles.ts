@@ -1,8 +1,11 @@
 import styled from 'styled-components';
-import { colorText } from '/imports/ui/stylesheets/styled-components/palette';
+import {
+  colorGrayLightest,
+  colorOffWhite,
+  colorText,
+} from '/imports/ui/stylesheets/styled-components/palette';
 
 interface ChatMessageProps {
-  emphasizedMessage: boolean;
   systemMsg?: boolean;
 }
 
@@ -13,10 +16,6 @@ export const ChatMessage = styled.div<ChatMessageProps>`
   flex-direction: column;
   color: ${colorText};
   word-break: break-word;
-
-  ${({ emphasizedMessage }) => emphasizedMessage && `
-    font-weight: bold;
-  `}
 
   & img {
     max-width: 100%;
@@ -30,6 +29,11 @@ export const ChatMessage = styled.div<ChatMessageProps>`
 
   & code {
     white-space: pre-wrap;
+    background-color: ${colorOffWhite};
+    border: solid 1px ${colorGrayLightest};
+    border-radius: 4px;
+    padding: 2px;
+    font-size: 12px;
   }
   & h1 {
     font-size: 1.5em;
