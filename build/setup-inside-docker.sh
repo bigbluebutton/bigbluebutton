@@ -42,7 +42,7 @@ else
     VERSION="${VERSION_NUMBER}~${VERSION_ADDON}+${COMMIT_DATE}-git.${GIT_REV}"
 fi
 
-DISTRO=jammy
+DISTRO=noble
 CACHE_DIR="/root/"
 mkdir -p "$CACHE_DIR"
 
