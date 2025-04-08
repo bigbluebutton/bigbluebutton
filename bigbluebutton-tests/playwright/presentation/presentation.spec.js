@@ -47,7 +47,8 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
     await presentation.presentationFullscreen();
   });
 
-  test('Presentation snapshot', async ({ browser, context, page }, testInfo) => {
+  test('Presentation snapshot', async ({ browser, context, page, browserName }, testInfo) => {
+    test.skip(browserName === 'firefox', 'Firefox does not support downloads.')
     const presentation = new Presentation(browser, context);
     await presentation.initPages(page);
     await presentation.presentationSnapshot(testInfo);
