@@ -1,0 +1,22 @@
+name: CI Workflow
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - "**"
+    tags:
+      - "v*.*.*"
+
+jobs:
+  html5-client:
+    uses: ./.github/workflows/build-docker-image.yml
+    with:
+      image_name: "html5-client"
+      docker_context: "./bigbluebutton-html5"
+
+  learning-dashboard:
+    uses: ./.github/workflows/build-docker-image.yml
+    with:
+      image_name: "learning-dashboard"
+      docker_context: "./bbb-learning-dashboard"
