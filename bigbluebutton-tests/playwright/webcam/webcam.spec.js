@@ -22,7 +22,8 @@ test.describe.parallel('Webcam', { tag: '@ci' }, () => {
     await webcam.talkingIndicator();
   });
 
-  test('Pinning and unpinning webcams', async ({ browser, context, page }) => {
+  test('Pinning and unpinning webcams', async ({ browser, context, page, browserName }) => {
+    test.skip(browserName === 'firefox', 'It only works manually on Firefox');
     const webcam = new MultiUsers(browser, context);
     await webcam.initModPage(page);
     await webcam.initUserPage();
