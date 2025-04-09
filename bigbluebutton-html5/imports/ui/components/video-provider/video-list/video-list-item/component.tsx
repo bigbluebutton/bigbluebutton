@@ -426,6 +426,8 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
           mirrored={isMirrored}
           unhealthyStream={videoDataLoaded && !isStreamHealthy}
           data-test={isMirrored ? 'mirroredVideoContainer' : 'videoContainer'}
+          data-current-user-stream={stream.userId === Auth.userID ? 'true' : 'false'}
+          data-local-stream={VideoService.isLocalStream(cameraId) ? 'true' : 'false'}
           ref={videoTag}
           muted
           autoPlay
