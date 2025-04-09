@@ -48,6 +48,7 @@ public class PdfSlidesGenerationService {
                 pageToConvert.getPresId(),
                 pageToConvert.getMeetingId(),
                 new ArrayList<>());
+        log.info("Sending PageConvertProgressMessage for page {}", pageToConvert.getPageNumber());
         presentationConversionCompletionService.handle(msg);
         // The pdf of the page will be removed after cache storing
       }
