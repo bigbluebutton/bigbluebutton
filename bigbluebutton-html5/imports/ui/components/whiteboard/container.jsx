@@ -78,22 +78,28 @@ const WhiteboardContainer = (props) => {
   // Aggregates the queues and updates state at once.
   const flushUpdates = useCallback(() => {
     const bufferedShapes = shapesQueueRef.current.flat();
-    const bufferedRemovals = removedQueueRef.current.flat();
-
+    const bufferedRemovals = new Set(removedQueueRef.current.flat());
     shapesQueueRef.current = [];
     removedQueueRef.current = [];
     flushScheduledRef.current = false;
 
     setShapes((prevShapes) => {
       const lookup = new Map();
-      prevShapes.forEach((shape) => lookup.set(shape.id, shape));
+      prevShapes.forEach((shape) => {
+        if (!bufferedRemovals.has(shape.id)) {
+          lookup.set(shape.id, shape);
+        }
+      });
+
       bufferedShapes.forEach((shape) => {
-        lookup.set(shape.id, shape);
+        if (!bufferedRemovals.has(shape.id)) {
+          lookup.set(shape.id, shape);
+        }
       });
       return Array.from(lookup.values());
     });
 
-    setRemovedShapes(bufferedRemovals);
+    setRemovedShapes(Array.from(bufferedRemovals));
   }, [setShapes, setRemovedShapes]);
 
   // Schedule a flush only once per animation frame.
