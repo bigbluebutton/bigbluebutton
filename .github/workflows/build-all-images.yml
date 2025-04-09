@@ -20,3 +20,9 @@ jobs:
     with:
       image_name: "learning-dashboard"
       docker_context: "./bbb-learning-dashboard"
+
+  graphql-actions:
+    uses: ./.github/workflows/build-docker-image.yml
+    with:
+      image_name: "graphql-actions"
+      docker_context: "./bbb-graphql-actions"
