@@ -1,5 +1,4 @@
 import React from 'react';
-import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 
 import { createChannelIdentifier } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-channel/utils';
 import { DataChannelTypes } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-channel/enums';
@@ -12,8 +11,8 @@ export interface DataChannelItemManagerProps {
   pluginName: string;
   channelName: string;
   subChannelName: string;
-  pluginApi: PluginSdk.PluginApi;
   dataChannelTypes: DataChannelTypes[];
+  pluginUuid: string;
 }
 
 export const DataChannelItemManager: React.ElementType<DataChannelItemManagerProps> = (
@@ -23,9 +22,9 @@ export const DataChannelItemManager: React.ElementType<DataChannelItemManagerPro
     identifier,
     pluginName,
     channelName,
-    pluginApi,
     dataChannelTypes,
     subChannelName,
+    pluginUuid,
   } = props;
 
   const dataChannelIdentifier = createChannelIdentifier(channelName, subChannelName, pluginName);
@@ -36,9 +35,9 @@ export const DataChannelItemManager: React.ElementType<DataChannelItemManagerPro
         {...{
           pluginName,
           channelName,
-          pluginApi,
           subChannelName,
           dataChannelIdentifier,
+          pluginUuid,
         }}
       />
       {

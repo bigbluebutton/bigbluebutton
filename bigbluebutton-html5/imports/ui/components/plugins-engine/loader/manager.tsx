@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import logger from '/imports/startup/client/logger';
 import { PluginBrowserWindow } from 'bigbluebutton-html-plugin-sdk';
 import { PluginLoaderManagerProps } from './types';
-import { pluginName } from 'mini-css-extract-plugin';
+import { appendPluginApi } from '../plugin-api/singleton';
 
 declare const window: PluginBrowserWindow;
 
@@ -34,6 +34,7 @@ const PluginLoaderManager = (props: PluginLoaderManagerProps) => {
       }, `Loaded plugin ${plugin.name}`);
       // Send pluginApi to plugin constructor
       window.bbbPluginApiConstructors[uuid](pluginApi);
+      appendPluginApi(pluginApi, uuid);
     };
     script.onerror = () => {
       logger.error({

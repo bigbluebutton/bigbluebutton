@@ -17,7 +17,7 @@ import PluginServerCommandsHandler from './server-commands/handler';
 import PluginLearningAnalyticsDashboardManager from './learning-analytics-dashboard/manager';
 import PluginEventPersistenceManager from './event-persistence/manager';
 
-function getPluginApi(pluginName: string) {
+function createPluginApi(pluginName: string) {
   return {
     setUserListDropdownItems: () => [],
     setPresentationToolbarItems: () => [],
@@ -93,7 +93,7 @@ const PluginsEngineManager = (props: PluginsEngineManagerProps) => {
       {
         effectivePluginsConfig?.map((effectivePluginConfig: EffectivePluginConfig) => {
           const { uuid, name: pluginName } = effectivePluginConfig;
-          const pluginApi: PluginSdk.PluginApi = getPluginApi(pluginName);
+          const pluginApi: PluginSdk.PluginApi = createPluginApi(pluginName);
           return (
             <div key={uuid}>
               <PluginLoaderManager
@@ -114,7 +114,8 @@ const PluginsEngineManager = (props: PluginsEngineManagerProps) => {
               />
               <PluginDataChannelManager
                 {...{
-                  pluginApi,
+                  pluginName,
+                  pluginUuid: uuid,
                 }}
               />
               <ExtensibleAreaStateManager

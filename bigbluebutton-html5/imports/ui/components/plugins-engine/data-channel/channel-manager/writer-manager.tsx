@@ -16,13 +16,14 @@ import {
   PLUGIN_DATA_CHANNEL_DELETE_MUTATION, PLUGIN_DATA_CHANNEL_PUSH_MUTATION,
   PLUGIN_DATA_CHANNEL_REPLACE_MUTATION, PLUGIN_DATA_CHANNEL_RESET_MUTATION,
 } from '../mutations';
+import { getPluginApi } from '../../plugin-api/singleton';
 
 export interface DataChannelItemManagerWriterProps {
   pluginName: string;
   channelName: string;
   subChannelName: string;
-  pluginApi: PluginSdk.PluginApi;
   dataChannelIdentifier: string;
+  pluginUuid: string;
 }
 
 export interface MutationVariables {
@@ -46,10 +47,11 @@ const DataChannelItemManagerWriter: React.ElementType<DataChannelItemManagerWrit
   const {
     pluginName,
     channelName,
-    pluginApi,
     subChannelName,
     dataChannelIdentifier,
+    pluginUuid,
   } = props;
+  const pluginApi = getPluginApi(pluginUuid);
 
   const [pushEntryFunctionPluginDataChannel] = useMutation(PLUGIN_DATA_CHANNEL_PUSH_MUTATION);
   const [deleteEntryFunctionPluginDataChannel] = useMutation(PLUGIN_DATA_CHANNEL_DELETE_MUTATION);
