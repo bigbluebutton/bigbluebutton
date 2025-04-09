@@ -1,10 +1,8 @@
 import React, {
   useEffect, useRef, useState,
 } from 'react';
+import { PluginBrowserWindow } from 'bigbluebutton-html-plugin-sdk';
 import logger from '/imports/startup/client/logger';
-import {
-  BbbPluginSdk,
-} from 'bigbluebutton-html-plugin-sdk';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import * as uuidLib from 'uuid';
 import PluginDataConsumptionManager from './data-consumption/manager';
@@ -19,6 +17,32 @@ import PluginServerCommandsHandler from './server-commands/handler';
 import PluginLearningAnalyticsDashboardManager from './learning-analytics-dashboard/manager';
 import PluginEventPersistenceManager from './event-persistence/manager';
 
+function getPluginApi(pluginName: string) {
+  return {
+    setUserListDropdownItems: () => [],
+    setPresentationToolbarItems: () => [],
+    setActionButtonDropdownItems: () => [],
+    setActionsBarItems: () => [],
+    setAudioSettingsDropdownItems: () => [],
+    setPresentationDropdownItems: () => [],
+    setNavBarItems: () => [],
+    setScreenshareHelperItems: () => [],
+    setUserCameraHelperItems: () => [],
+    setOptionsDropdownItems: () => [],
+    setCameraSettingsDropdownItems: () => [],
+    setUserCameraDropdownItems: () => [],
+    setUserListItemAdditionalInformation: () => [],
+    setFloatingWindows: () => [],
+    setGenericContentItems: () => [],
+    mapOfPushEntryFunctions: {
+      '': () => {},
+    },
+    pluginName,
+  };
+}
+
+declare const window: PluginBrowserWindow;
+
 const PluginsEngineManager = (props: PluginsEngineManagerProps) => {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore - temporary, while meteor exists in the project
@@ -30,6 +54,10 @@ const PluginsEngineManager = (props: PluginsEngineManagerProps) => {
   const [lastLoadedPlugin, setLastLoadedPlugin] = useState<HTMLScriptElement | undefined>();
   const [effectivePluginsConfig, setEffectivePluginsConfig] = useState<EffectivePluginConfig[] | undefined>();
   const [numberOfLoadedPlugins, setNumberOfLoadedPlugins] = useState<number>(0);
+
+  useEffect(() => {
+    window.bbbPluginApiConstructors = {};
+  }, []);
 
   useEffect(() => {
     setEffectivePluginsConfig(
@@ -45,7 +73,6 @@ const PluginsEngineManager = (props: PluginsEngineManagerProps) => {
   ]);
 
   const totalNumberOfPlugins = pluginConfig?.length;
-  window.React = React;
 
   useEffect(() => {
     if (totalNumberOfPlugins) logger.info(`${numberOfLoadedPlugins}/${totalNumberOfPlugins} plugins loaded`);
@@ -66,11 +93,12 @@ const PluginsEngineManager = (props: PluginsEngineManagerProps) => {
       {
         effectivePluginsConfig?.map((effectivePluginConfig: EffectivePluginConfig) => {
           const { uuid, name: pluginName } = effectivePluginConfig;
-          const pluginApi: PluginSdk.PluginApi = BbbPluginSdk.getPluginApi(uuid, pluginName);
+          const pluginApi: PluginSdk.PluginApi = getPluginApi(pluginName);
           return (
             <div key={uuid}>
               <PluginLoaderManager
                 {...{
+                  pluginApi,
                   uuid,
                   containerRef,
                   setNumberOfLoadedPlugins,
