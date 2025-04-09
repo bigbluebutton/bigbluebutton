@@ -276,6 +276,7 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
 
   const roomsRef = React.useRef<Rooms>({});
   const moveRegisterRef = React.useRef<moveUserRegistery>({});
+  const randomlyAssignFunction = React.useRef<() => void>(() => {});
 
   const setRoomsRef = (rooms: Rooms) => {
     roomsRef.current = rooms;
@@ -463,10 +464,10 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
     return (
       <React.Fragment key="breakout-form">
         <Styled.BreakoutSettings>
-          <div>
-            <Styled.FormLabel valid={numberOfRoomsIsValid} aria-hidden>
+          <Styled.InputRoomsLabel valid={numberOfRoomsIsValid} htmlFor="roomsNumber">
+            <Styled.LabelText bold={false} aria-hidden>
               {intl.formatMessage(intlMessages.numberOfRooms)}
-            </Styled.FormLabel>
+            </Styled.LabelText>
             <Styled.InputRooms
               id="numberOfRooms"
               name="numberOfRooms"
@@ -483,32 +484,30 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
                 range(MIN_BREAKOUT_ROOMS, MAX_BREAKOUT_ROOMS + 1).map((item) => (<option key={uniqueId('value-')}>{item}</option>))
               }
             </Styled.InputRooms>
-          </div>
+          </Styled.InputRoomsLabel>
           <Styled.DurationLabel valid={durationIsValid} htmlFor="breakoutRoomTime">
             <Styled.LabelText bold={false} aria-hidden>
               {intl.formatMessage(intlMessages.duration)}
             </Styled.LabelText>
-            <Styled.DurationArea>
-              <Styled.DurationInput
-                type="number"
-                min="1"
-                value={durationTime}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                  const { value } = e.target;
-                  const v = Number.parseInt(value, 10);
-                  setDurationTime((v && !(v <= 0) && v >= MIN_BREAKOUT_TIME) ? v : MIN_BREAKOUT_TIME);
-                  setDurationIsValid(v >= MIN_BREAKOUT_TIME);
-                }}
-                onBlur={(e: React.FocusEvent<HTMLInputElement>) => {
-                  const { value } = e.target;
-                  const v = Number.parseInt(value, 10);
-                  setDurationTime((v && !(v <= 0) && v >= MIN_BREAKOUT_TIME) ? v : MIN_BREAKOUT_TIME);
-                  setDurationIsValid(true);
-                }}
-                aria-label={intl.formatMessage(intlMessages.duration)}
-                data-test="durationTime"
-              />
-            </Styled.DurationArea>
+            <Styled.DurationInput
+              type="number"
+              min="1"
+              value={durationTime}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                const { value } = e.target;
+                const v = Number.parseInt(value, 10);
+                setDurationTime((v && !(v <= 0) && v >= MIN_BREAKOUT_TIME) ? v : MIN_BREAKOUT_TIME);
+                setDurationIsValid(v >= MIN_BREAKOUT_TIME);
+              }}
+              onBlur={(e: React.FocusEvent<HTMLInputElement>) => {
+                const { value } = e.target;
+                const v = Number.parseInt(value, 10);
+                setDurationTime((v && !(v <= 0) && v >= MIN_BREAKOUT_TIME) ? v : MIN_BREAKOUT_TIME);
+                setDurationIsValid(true);
+              }}
+              aria-label={intl.formatMessage(intlMessages.duration)}
+              data-test="durationTime"
+            />
             <Styled.SpanWarn data-test="minimumDurationWarnBreakout" valid={durationIsValid}>
               {
                 intl.formatMessage(
@@ -518,29 +517,40 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
               }
             </Styled.SpanWarn>
           </Styled.DurationLabel>
-          <Styled.CheckBoxesContainer key="breakout-checkboxes">
-            {checkboxesInfo
-              .filter((item) => item.allowed)
-              .map((item) => (
-                <Styled.FreeJoinLabel htmlFor={item.htmlFor} key={item.key}>
-                  <Styled.FreeJoinCheckbox
-                    type="checkbox"
-                    id={item.id}
-                    onChange={item.onChange}
-                    aria-label={item.label}
-                    checked={item.checked}
-                  />
-                  <span aria-hidden>{item.label}</span>
-                </Styled.FreeJoinLabel>
-              ))}
-          </Styled.CheckBoxesContainer>
+          <Styled.RandomAssignLabel valid={numberOfRooms > 0} htmlFor="randomlyAssignUsers">
+            <Styled.LabelText bold={false} aria-hidden>
+              {intl.formatMessage(intlMessages.randomlyAssign)}
+            </Styled.LabelText>
+            {/* @ts-ignore - button is js component */}
+            <Styled.RandomAssignButton
+              aria-label={intl.formatMessage(intlMessages.randomlyAssignDesc)}
+              tooltipLabel={intl.formatMessage(intlMessages.randomlyAssignDesc)}
+              icon="random"
+              size="lg"
+              data-test="randomlyAssignUsers"
+              onClick={() => randomlyAssignFunction.current()}
+            />
+          </Styled.RandomAssignLabel>
         </Styled.BreakoutSettings>
+        <Styled.CheckBoxesContainer key="breakout-checkboxes">
+          {checkboxesInfo
+            .filter((item) => item.allowed)
+            .map((item) => (
+              <Styled.SwitchLabel htmlFor={item.htmlFor} key={item.key}>
+                <Styled.MaterialSwitch
+                  type="checkbox"
+                  id={item.id}
+                  onChange={item.onChange}
+                  aria-label={item.label}
+                  checked={item.checked}
+                />
+                <span aria-hidden>{item.label}</span>
+              </Styled.SwitchLabel>
+            ))}
+        </Styled.CheckBoxesContainer>
         <Styled.SpanWarn valid={numberOfRoomsIsValid}>
           {intl.formatMessage(intlMessages.numberOfRoomsIsValid)}
         </Styled.SpanWarn>
-        <span aria-hidden id="randomlyAssignDesc" className="sr-only">
-          {intl.formatMessage(intlMessages.randomlyAssignDesc)}
-        </span>
       </React.Fragment>
     );
   }, [
@@ -590,18 +600,26 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
             setNumberOfRooms={setNumberOfRooms}
             groups={groups}
             freeJoin={freeJoin}
+            randomlyAssignFunction={(fn: () => void) => { randomlyAssignFunction.current = fn; }}
           />
         </Styled.Content>
+        <Styled.PanelSeparator />
         <Styled.ActionButtonContainer>
-          <Styled.ActionButton
-            color="primary"
-            label={isUpdate
-              ? intl.formatMessage(intlMessages.updateConfirm)
-              : intl.formatMessage(intlMessages.confirmButton)}
-            onClick={isUpdate ? userUpdate : createRoom}
-            data-test={isUpdate ? 'updateBreakoutRoomsButton' : 'createBreakoutRoomsButton'}
-            disabled={(!leastOneUserIsValid && !freeJoin) || !numberOfRoomsIsValid || !durationIsValid}
-          />
+          <div>
+            <Styled.FooterButton onClick={() => setIsOpen(false)}>
+              {intl.formatMessage(intlMessages.cancelLabel)}
+            </Styled.FooterButton>
+            <Styled.FooterButton
+              color="primary"
+              onClick={isUpdate ? userUpdate : createRoom}
+              data-test={isUpdate ? 'updateBreakoutRoomsButton' : 'createBreakoutRoomsButton'}
+              disabled={(!leastOneUserIsValid && !freeJoin) || !numberOfRoomsIsValid || !durationIsValid}
+            >
+              {isUpdate
+                ? intl.formatMessage(intlMessages.updateConfirm)
+                : intl.formatMessage(intlMessages.confirmButton)}
+            </Styled.FooterButton>
+          </div>
         </Styled.ActionButtonContainer>
       </Styled.ModalContentWrapper>
     </Styled.Modal>

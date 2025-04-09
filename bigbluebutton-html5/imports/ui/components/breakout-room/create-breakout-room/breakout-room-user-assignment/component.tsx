@@ -4,7 +4,6 @@ import { range } from '/imports/utils/array-utils';
 import Icon from '/imports/ui/components/common/icon/icon-ts/component';
 import Styled from '../styles';
 import Auth from '/imports/ui/services/auth';
-import ManageRoomLabel from '../manage-room-label/component';
 import { ChildComponentProps } from '../room-managment-state/types';
 
 const intlMessages = defineMessages({
@@ -194,7 +193,6 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
   changeRoomName,
   numberOfRooms,
   setSelectedId,
-  randomlyAssign,
   resetRooms,
   users,
   currentSlidePrefix,
@@ -365,12 +363,6 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
       <Styled.SpanWarn data-test="warningNoUserAssigned" valid={rooms[0]?.users?.length < users.length || freeJoin}>
         {intl.formatMessage(intlMessages.leastOneWarnBreakout)}
       </Styled.SpanWarn>
-      <ManageRoomLabel
-        onAssignReset={() => { resetRooms(0); }}
-        onAssignRandomly={randomlyAssign}
-        numberOfRoomsIsValid={numberOfRooms > 0}
-        leastOneUserIsValid={rooms[0]?.users?.length < users.length}
-      />
       <Styled.ContentContainer>
         <Styled.Alert valid role="alert">
           <Styled.FreeJoinLabel>
@@ -417,7 +409,7 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
                 </Styled.FreeJoinLabel>
                 { presentations.length > 0 && !isUpdate ? (
                   <Styled.BreakoutSlideLabel>
-                    <Styled.InputRooms
+                    <Styled.SlideSelector
                       data-test={`changeSlideBreakoutRoom${value}`}
                       value={getRoomPresentation(value)}
                       onChange={changeRoomPresentation(value)}
@@ -438,7 +430,7 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
                           </option>
                         ))
                       }
-                    </Styled.InputRooms>
+                    </Styled.SlideSelector>
                   </Styled.BreakoutSlideLabel>
                 ) : null }
                 <Styled.BreakoutBox

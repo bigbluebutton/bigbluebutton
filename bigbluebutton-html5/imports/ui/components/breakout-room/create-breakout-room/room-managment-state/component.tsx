@@ -43,6 +43,7 @@ interface RoomManagmentStateProps {
   setNumberOfRooms: React.Dispatch<React.SetStateAction<number>>;
   groups: getMeetingGroupResponse['meeting_group'];
   freeJoin: boolean;
+  randomlyAssignFunction: (fn: () => void) => void;
 }
 
 const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
@@ -63,6 +64,7 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
   setNumberOfRooms,
   groups,
   freeJoin,
+  randomlyAssignFunction,
 }) => {
   const intl = useIntl();
   const [selectedId, setSelectedId] = useState<string>('');
@@ -257,6 +259,8 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
     }
   }, [users]);
 
+  randomlyAssignFunction(randomlyAssign);
+
   useEffect(() => {
     if (groups.length && init && lastBreakoutData && !(lastBreakoutData.breakoutRoom_createdLatest.length > 0)) {
       setNumberOfRooms(groups.length >= 2 ? groups.length : 2);
@@ -334,7 +338,6 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
             setSelectedId={setSelectedId}
             selectedRoom={selectedRoom}
             setSelectedRoom={setSelectedRoom}
-            randomlyAssign={randomlyAssign}
             resetRooms={resetRooms}
             users={users}
             currentSlidePrefix={currentSlidePrefix}
