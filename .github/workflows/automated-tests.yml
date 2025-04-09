@@ -107,7 +107,7 @@ jobs:
         with:
           name: artifacts_${{ matrix.package }}.tar
           path: artifacts.tar
-  install-and-run-tests:
+  install-and-run-core-tests:
     needs: build-package
     runs-on: ubuntu-22.04
     strategy:
@@ -171,7 +171,7 @@ jobs:
           name: test-report_shard-${{ matrix.shard }}
           path: bigbluebutton-tests/playwright/playwright-report
       - if: failure()
-        uses: ./.github/workflows/prepare-artifacts 
+        uses: ./.github/workflows/prepare-artifacts
       - if: failure()
         uses: actions/upload-artifact@v4
         with:
@@ -182,12 +182,107 @@ jobs:
         with:
           name: bbb-logs-${{ env.MATRIX_SHARD_UNDERSCORED }}
           path: ./bbb-logs.tar.gz
+  install-and-run-plugin-tests:
+    needs: build-package
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+    steps:
+      - uses: ./.github/actions/install-bbb
+      - name: Extract SDK Repo and Commit
+        working-directory: ./bigbluebutton-html5
+        run: |
+          SDK_DEP=$(jq -r '.dependencies["bigbluebutton-html-plugin-sdk"]' package.json)
+          echo "SDK_REPO=$(echo "$SDK_DEP" | sed -E 's|git\+(.+)#.*|\1|')" >> $GITHUB_ENV
+          echo "SDK_COMMIT=$(echo "$SDK_DEP" | sed -E 's|.*#([^#]+)|\1|')" >> $GITHUB_ENV
+      - name: Clone plugins SDK repository
+        run: |
+          cd /home/runner/work/bigbluebutton/bigbluebutton
+          git clone "$SDK_REPO"
+          cd sdk-repo
+          git checkout "$SDK_COMMIT"
+          npm install
+      - name: Checkout SDK to the same BBB Core version
+        working-directory: ./bigbluebutton-html-plugin-sdk
+        run: |
+          git checkout "$SDK_COMMIT"
+          npm install
+          # if git rev-parse "v$SDK_VERSION" >/dev/null 2>&1; then
+          # echo "checkout to tag"
+          # git checkout "v$SDK_VERSION" # Checkout tag
+          # else
+          # echo "checkout to commit"
+          # git checkout "$SDK_VERSION" # Checkout commit hash
+          # fi
+      - name: Build plugin
+        working-directory: ./bigbluebutton-html-plugin-sdk
+        run: |
+          echo "Currently building the 'Actions Button Dropdown' sample only"
+          cd /samples/sample-action-button-dropdown-plugin
+          npm ci --silent
+          npm run build-bundle
+      - name: Move built plugin files to the plugin assets directory
+        run: |
+          sudo -i <<EOF
+          set -e
+          mkdir -p /var/www/bigbluebutton-default/assets/plugins/sampleActionButtonDropdownPlugin
+          cp -r home/runner/work/bigbluebutton/bigbluebutton/bigbluebutton-html-plugin-sdk/samples/sampleActionButtonDropdownPlugin/dist/ /var/www/bigbluebutton-default/assets/plugins/
+          EOF
+      - name: Install test dependencies
+        working-directory: ./bigbluebutton-html-plugin-sdk
+        timeout-minutes: 25
+        run: |
+          sh -c '
+          npm ci
+          npx playwright install-deps
+          npx playwright install
+          '
+      - name: Run tests
+        working-directory: ./bigbluebutton-html-plugin-sdk
+        timeout-minutes: 25
+        env:
+          NODE_EXTRA_CA_CERTS: /usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt
+          ACTIONS_RUNNER_DEBUG: true
+          BBB_URL: https://bbb-ci.test/bigbluebutton/api
+          BBB_SECRET: bbbci
+        run: npm test
+      - if: always()
+        name: Upload blob report to GitHub Actions Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: blob-report-plugins
+          path: bigbluebutton-tests/playwright/blob-report
+      - if: always()
+        name: Generate the shard HTML report from blob report
+        shell: bash
+        working-directory: ./bigbluebutton-tests/playwright
+        run: npx playwright merge-reports --reporter html ./blob-report
+      - if: always()
+        name: Upload shard HTML report to GitHub Actions Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report_plugins
+          path: bigbluebutton-tests/playwright/playwright-report
+      - if: failure()
+        uses: ./.github/workflows/prepare-artifacts
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bbb-configs-plugins
+          path: configs
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bbb-logs-plugins
+          path: ./bbb-logs.tar.gz
   upload-report:
     if: always() && !contains(github.event.head_commit.message, 'Merge pull request')
-    needs: install-and-run-tests
+    needs:
+      - install-and-run-core-tests
+      - install-and-run-plugin-tests
     runs-on: ubuntu-22.04
     env:
-      hasReportData: ${{ needs.install-and-run-tests.result == 'success' || needs.install-and-run-tests.result == 'failure' }}
+      hasReportData: ${{ needs.install-and-run-core-tests.result == 'success' || needs.install-and-run-core-tests.result == 'failure' && needs.install-and-run-plugin-tests.result == 'success' || needs.install-and-run-plugin-tests.result == 'failure' }}
     steps:
       - uses: actions/checkout@v4
       - name: Merge and upload the blob reports

@@ -204,7 +204,7 @@ class BBBMenu extends React.Component {
             </Styled.MenuItemWrapper>
           </Styled.BBBMenuInformation>
         ),
-        a.isSeparator && <Divider disabled />
+        a.isSeparator && <Divider data-test={dataTest} disabled />
       ];
     }) ?? [];
   }
