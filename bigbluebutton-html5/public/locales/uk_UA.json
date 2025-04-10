@@ -26,7 +26,7 @@
     "app.chat.offline": "Не в мережі",
     "app.chat.pollResult": "Результати опитування",
     "app.chat.breakoutDurationUpdated": "Час роботи по групах - {0} хвилин",
-    "app.chat.breakoutDurationUpdatedModerator": "Час у тимчасових кімнатах {0} хвилин, сповіщення надіслане.",
+    "app.chat.breakoutDurationUpdatedModerator": "Час для групової роботи {0} хвилин, сповіщення надіслане.",
     "app.chat.emptyLogLabel": "Журнал чату порожній",
     "app.chat.away": "наразі не поруч",
     "app.chat.notAway": "повернувся(лася)",
