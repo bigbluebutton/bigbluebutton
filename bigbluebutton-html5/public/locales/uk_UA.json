@@ -1358,7 +1358,7 @@
     "app.createBreakoutRoom.resetAssignmentsDesc": "Скинути усі призначення кімнати",
     "app.createBreakoutRoom.endAllBreakouts": "Закрити всі тимчасові кімнати",
     "app.createBreakoutRoom.chatTitleMsgAllRooms": "усі кімнати",
-    "app.createBreakoutRoom.msgToBreakoutsSent": "Повідомлення надіслано до  {0} тимчасових кімнат",
+    "app.createBreakoutRoom.msgToBreakoutsSent": "Повідомлення надіслано до {0} тимчасових кімнат",
     "app.createBreakoutRoom.roomName": "{0} (Кімната - {1})",
     "app.createBreakoutRoom.doneLabel": "Готово",
     "app.createBreakoutRoom.nextLabel": "Далі",
