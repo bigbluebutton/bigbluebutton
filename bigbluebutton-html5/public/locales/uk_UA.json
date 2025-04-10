@@ -1335,7 +1335,7 @@
     "app.videoDock.webcamUnpinDesc": "Відкріпити обрану камеру",
     "app.videoDock.autoplayBlockedDesc": "Потрібен дозвіл, щоб показати вам вебкамери інших учасників.",
     "app.videoDock.autoplayAllowLabel": "Дивитися вебкамери",
-    "app.createBreakoutRoom.title": "Кімнати для перерв",
+    "app.createBreakoutRoom.title": "Кімнати для групової роботи",
     "app.createBreakoutRoom.ariaTitle": "Приховати тимчасові кімнати",
     "app.createBreakoutRoom.breakoutRoomLabel": "Тимчасові кімнати {0}",
     "app.createBreakoutRoom.askToJoin": "Запит на приєднання",
