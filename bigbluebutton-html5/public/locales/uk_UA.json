@@ -704,7 +704,7 @@
     "app.actionsBar.actionsDropdown.pollBtnLabel": "Опитування",
     "app.actionsBar.actionsDropdown.pollBtnDesc": "Перемкнути панель опитування",
     "app.actionsBar.actionsDropdown.saveUserNames": "Зберегти імена учасників",
-    "app.actionsBar.actionsDropdown.createBreakoutRoom": "Створити тимчасові кімнати для перерви",
+    "app.actionsBar.actionsDropdown.createBreakoutRoom": "Створити тимчасові кімнати для групової роботи",
     "app.actionsBar.actionsDropdown.createBreakoutRoomDesc": "створити тимчасові кімнати для групової роботи та розділити учасників між ними",
     "app.actionsBar.actionsDropdown.captionsLabel": "Створити приховані субтитри",
     "app.actionsBar.actionsDropdown.captionsDesc": "Вмикає панель субтитрів",
