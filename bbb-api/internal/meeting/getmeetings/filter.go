@@ -1,4 +1,4 @@
-package ismeetingrunning
+package getmeetings
 
 import (
 	"net/http"
@@ -11,12 +11,12 @@ import (
 	meetingv "github.com/bigbluebutton/bigbluebutton/bbb-api/internal/meeting/validation"
 )
 
-// IsMeetingRunningFilter is an impementaion of the pipeline.Filter interface. It verifies
-// the validity of the request data for IsMeetingRunning requests.
-type IsMeetingRunningFilter struct{}
+// GetMeetingsFilter is an impementaion of the pipeline.Filter interface. It verifies
+// the validity of the request data for GetMeetings requests.
+type GetMeetingsFilter struct{}
 
 // Filter checks the validity of the checksum and the meeting ID for the incoming request.
-func (f *IsMeetingRunningFilter) Filter(msg pipeline.Message[*http.Request]) error {
+func (f *GetMeetingsFilter) Filter(msg pipeline.Message[*http.Request]) error {
 	req := msg.Payload
 	cfg := config.DefaultConfig()
 
@@ -25,6 +25,9 @@ func (f *IsMeetingRunningFilter) Filter(msg pipeline.Message[*http.Request]) err
 	}
 
 	params := req.Context().Value(bbbhttp.ParamsKey).(bbbhttp.Params)
-	return meetingv.ValidateMeetingID(params.Get(meeting.MeetingIDParam).Value)
 
+	if meetingID := params.Get(meeting.MeetingIDParam).Value; meetingID != "" {
+		return meetingv.ValidateMeetingID(meetingID)
+	}
+	return nil
 }

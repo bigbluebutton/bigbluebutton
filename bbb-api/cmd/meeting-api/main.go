@@ -9,6 +9,8 @@ import (
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/bbbhttp"
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/meeting"
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/meeting/config"
+	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/meeting/getmeetinginfo"
+	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/meeting/getmeetings"
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/meeting/ismeetingrunning"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -46,16 +48,16 @@ func main() {
 
 	client := meeting.NewClientWithConn(conn)
 
-	coreAPI := api.NewAPI(address, func(server *bbbhttp.Server) {
-		server.AddRoute(http.MethodGet, "/isMeetingRunning", ismeetingrunning.NewHandlerFunc(ismeetingrunning.NewIsMeetingRunningFlow(client)))
-		server.AddRoute(http.MethodPost, "/isMeetingRunning", ismeetingrunning.NewHandlerFunc(ismeetingrunning.NewIsMeetingRunningFlow(client)))
-		server.AddRoute(http.MethodGet, "/getMeetingInfo", nil)
-		server.AddRoute(http.MethodPost, "/getMeetingInfo", nil)
-		server.AddRoute(http.MethodGet, "/getMeetings", nil)
-		server.AddRoute(http.MethodPost, "/getMeetings", nil)
+	meetingAPI := api.NewAPI(address, func(server *bbbhttp.Server) {
+		server.AddRoute(http.MethodGet, "/isMeetingRunning", meeting.NewHandlerFunc(ismeetingrunning.NewIsMeetingRunningFlow(client)))
+		server.AddRoute(http.MethodPost, "/isMeetingRunning", meeting.NewHandlerFunc(ismeetingrunning.NewIsMeetingRunningFlow(client)))
+		server.AddRoute(http.MethodGet, "/getMeetingInfo", getmeetinginfo.NewHandlerFunc(getmeetinginfo.NewGetMeetingInfoFlow(client)))
+		server.AddRoute(http.MethodPost, "/getMeetingInfo", getmeetinginfo.NewHandlerFunc(getmeetinginfo.NewGetMeetingInfoFlow(client)))
+		server.AddRoute(http.MethodGet, "/getMeetings", meeting.NewHandlerFunc(getmeetings.NewGetMeetingsFlow(client)))
+		server.AddRoute(http.MethodPost, "/getMeetings", meeting.NewHandlerFunc(getmeetings.NewGetMeetingsFlow(client)))
 		server.AddRoute(http.MethodGet, "/create", nil)
 		server.AddRoute(http.MethodPost, "/create", nil)
 		server.AddRoute(http.MethodPost, "/insertDocument", nil)
 	})
-	coreAPI.Start()
+	meetingAPI.Start()
 }

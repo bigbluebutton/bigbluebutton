@@ -10,10 +10,16 @@ import (
 	meetingapi "github.com/bigbluebutton/bigbluebutton/bbb-api/internal/meeting"
 )
 
+// SendMeetingRunningRequest is an implementation of the pipeline.SenderReceiver
+// interface that is used to send a [MeetingRunningRequest] to Akka Apps and
+// recieve [MeetingRunningResponse].
 type SendMeetingRunningRequest struct {
 	client *meetingapi.Client
 }
 
+// Send make a gRPC request to Akka Apps using the incoming message with a payload
+// of type [MeetingRunningRequest] and returns the response in a new message with
+// a payload of type [MeetingRunningResponse].
 func (s *SendMeetingRunningRequest) Send(msg pipeline.Message[*meeting.MeetingRunningRequest]) (pipeline.Message[*meeting.MeetingRunningResponse], error) {
 	if s.client == nil {
 		return pipeline.Message[*meeting.MeetingRunningResponse]{}, errors.New("no client provided for call")

@@ -1,4 +1,4 @@
-package ismeetingrunning
+package getmeetings
 
 import (
 	"net/http"
@@ -13,16 +13,16 @@ import (
 )
 
 // HTTPToGRPC is a pipleline.Transformer implementation that is used
-// to transform a HTTP request into a [MeetingRunningRequest].
+// to transform a HTTP request into a [GetMeetingsStreamRequest].
 type HTTPToGRPC struct{}
 
 // Transform takes an incoming message with a payload of type http.Request, transforms
-// it into a [MeetingRunningRequest], and then returns it in a new message.
-func (h *HTTPToGRPC) Transform(msg pipeline.Message[*http.Request]) (pipeline.Message[*meeting.MeetingRunningRequest], error) {
+// it into a [GetMeetingsStreamRequest], and then returns it in a new message.
+func (h *HTTPToGRPC) Transform(msg pipeline.Message[*http.Request]) (pipeline.Message[*meeting.GetMeetingsStreamRequest], error) {
 	req := msg.Payload
 	params := req.Context().Value(bbbhttp.ParamsKey).(bbbhttp.Params)
 	meetingID := validation.StripCtrlChars(params.Get(meetingapi.MeetingIDParam).Value)
-	grpcReq := &meeting.MeetingRunningRequest{
+	grpcReq := &meeting.GetMeetingsStreamRequest{
 		MeetingData: &common.MeetingData{
 			MeetingId: meetingID,
 		},
@@ -31,15 +31,24 @@ func (h *HTTPToGRPC) Transform(msg pipeline.Message[*http.Request]) (pipeline.Me
 }
 
 // GRPCToResponse is a pipeline.Transformer implementation that is
-// used to transform a [MeetingRunningResponse] into a meeting API response.
+// used to transform a collection of [MeetingInfoResponse] into a
+// meeting API response.
 type GRPCToResponse struct{}
 
 // Transform takes an incoming message with a payload of type [MeetingRunningResponse],
 // transforms it into a meeting API response, and then returns it in a new message.
-func (g *GRPCToResponse) Transform(msg pipeline.Message[*meeting.MeetingRunningResponse]) (pipeline.Message[*meetingapi.Response], error) {
+func (g *GRPCToResponse) Transform(msg pipeline.Message[[]*meeting.MeetingInfoResponse]) (pipeline.Message[*meetingapi.Response], error) {
 	resp := msg.Payload
+
+	meetings := make([]meetingapi.Meeting, 0)
+	for _, meetingInfoResp := range resp {
+		meetings = append(meetings, meetingapi.MeetingInfoToMeeting(meetingInfoResp.MeetingInfo))
+	}
+
 	return pipeline.NewMessage(&meetingapi.Response{
 		ReturnCode: responses.ReturnCodeSuccess,
-		Running:    &resp.MeetingRunning.IsRunning,
+		Meetings: &meetingapi.Meetings{
+			Meetings: meetings,
+		},
 	}), nil
 }

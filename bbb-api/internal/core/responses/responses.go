@@ -65,4 +65,6 @@ const (
 
 	PresentationDisabledKey = "presentationDisabled"
 	PresentationDisabledMsg = "Presentation feature is disabled, ignoring."
+
+	NoClientProvided = "no client provided for call"
 )
