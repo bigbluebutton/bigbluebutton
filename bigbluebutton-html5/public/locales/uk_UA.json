@@ -265,7 +265,7 @@
     "app.meeting.endedWhenLastUserLeft": "Сеанс завершено після виходу останнього користувача",
     "app.meeting.endedAfterExceedingDuration": "Сеанс завершено через перевищення максимальної тривалості",
     "app.meeting.breakoutEndedAfterExceedingDuration": "Групову зустріч завершено через перевищення максимальної тривалості",
-    "app.meeting.breakoutEndedByModerator": "Відокремлену зустріч завершено Модератором",
+    "app.meeting.breakoutEndedByModerator": "Групову зустріч завершено Модератором",
     "app.meeting.endedDueNoAuthed": "сеанс завершено через відсутність автентифікованих користувачів",
     "app.meeting.endedDueNoModerators": "Сеанс завершено через відсутність модератора",
     "app.meeting.endedDueServiceInterruption": "Сеанс припинено через тимчасову недоступність сервісу",
