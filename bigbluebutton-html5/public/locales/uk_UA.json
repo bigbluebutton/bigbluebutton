@@ -742,7 +742,7 @@
     "app.breakoutJoinConfirmation.dismissLabel": "Скасувати",
     "app.breakoutJoinConfirmation.dismissDesc": "Закрити та відмовити у приєднанні до тимчасової кімнати",
     "app.breakoutJoinConfirmation.freeJoinMessage": "Виберіть тимчасову кімнату до якої бажаєте під’єднатися",
-    "app.breakoutTimeRemainingMessage": "Час перерви у кімнаті: {0}",
+    "app.breakoutTimeRemainingMessage": "До завершення групової роботи у кімнаті залишилось: {0}",
     "app.breakoutWillCloseMessage": "Час вичерпано. Тимчасова кімната буде скоро закрита",
     "app.breakout.dropdown.manageDuration": "Змінити протяжність",
     "app.breakout.dropdown.destroyAll": "Закінчити тимчасові кімнати",
