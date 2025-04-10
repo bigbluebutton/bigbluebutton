@@ -52,12 +52,12 @@ class ActionsBar extends PureComponent {
                   circle: true,
                   label: plugin.tooltip,
                 };
-                if (typeof plugin.icon === 'string') {
-                  buttonProps.icon = plugin.icon;
-                } else {
+                if ('iconName' in plugin?.icon) {
+                  buttonProps.icon = plugin.icon.iconName;
+                } else if ('svgContent' in plugin?.icon) {
                   buttonProps.customIcon = (
                     <i>
-                      {plugin.icon}
+                      {plugin.icon.svgContent}
                     </i>
                   );
                 }
