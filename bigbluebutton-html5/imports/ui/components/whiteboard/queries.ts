@@ -111,8 +111,10 @@ export const PROCESSED_PRESENTATIONS_SUBSCRIPTION = gql`subscription ProcessedPr
   }
 }`;
 
-export const CURRENT_PAGE_ANNOTATIONS_QUERY = gql`query CurrentPageAnnotationsQuery {
-  pres_annotation_curr(order_by: { lastUpdatedAt: desc }) {
+export const CURRENT_PAGE_ANNOTATIONS_QUERY = gql`query CurrentPageAnnotationsQuery($pageId: String!) {
+  pres_annotation_curr(
+    where: {pageId: {_eq: $pageId}},
+    order_by: { lastUpdatedAt: desc }) {
     annotationId
     annotationInfo
     lastUpdatedAt
@@ -134,9 +136,10 @@ export const CURRENT_PAGE_ANNOTATIONS_STREAM = gql`subscription annotationsStrea
 }`;
 
 export const ANNOTATION_HISTORY_STREAM = gql`
-  subscription annotationHistoryStream($updatedAt: timestamptz) {
+  subscription annotationHistoryStream($updatedAt: timestamptz, $pageId: String!) {
     pres_annotation_history_curr_stream(
       batch_size: 1000,
+      where: {pageId: {_eq: $pageId}},
       cursor: {initial_value: {updatedAt: $updatedAt}, ordering: ASC}
     ) {
       annotationId
