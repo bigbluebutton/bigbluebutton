@@ -290,6 +290,7 @@ class ActionsDropdown extends PureComponent {
             key: actionButtonItem.id,
             onClick: actionButtonItem.onClick,
             allowed: actionButtonItem.allowed,
+            dataTest: actionButtonItem.dataTest,
           });
           break;
         case ActionButtonDropdownItemType.SEPARATOR:
@@ -297,6 +298,7 @@ class ActionsDropdown extends PureComponent {
             key: actionButtonItem.id,
             allowed: actionButtonItem.allowed,
             isSeparator: true,
+            dataTest: 'pluginsSeparator',
           });
           break;
         default:
