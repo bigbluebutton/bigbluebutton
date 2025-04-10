@@ -40,18 +40,32 @@ class ActionsBar extends PureComponent {
         {
           actionBarItems.filter((plugin) => plugin.position === position).map((plugin) => {
             let actionBarItemToReturn;
+            let buttonProps;
             switch (plugin.type) {
               case ActionsBarItemType.BUTTON:
+                buttonProps = {
+                  key: `${plugin.type}-${plugin.id}`,
+                  onClick: plugin.onClick,
+                  hideLabel: true,
+                  color: 'primary',
+                  size: 'lg',
+                  circle: true,
+                  label: plugin.tooltip,
+                };
+                if (plugin.icon === null) {
+                  buttonProps.customIcon = (
+                    <i>
+                      {plugin.customIconSvg}
+                    </i>
+                  );
+                } else {
+                  buttonProps.icon = plugin.icon;
+                }
                 actionBarItemToReturn = (
                   <Button
-                    key={`${plugin.type}-${plugin.id}`}
-                    onClick={plugin.onClick}
-                    hideLabel
-                    color="primary"
-                    icon={plugin.icon}
-                    size="lg"
-                    circle
-                    label={plugin.tooltip}
+                    {
+                      ...buttonProps
+                    }
                   />
                 );
                 break;
