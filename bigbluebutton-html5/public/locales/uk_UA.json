@@ -746,7 +746,7 @@
     "app.breakoutWillCloseMessage": "Час вичерпано. Тимчасова кімната буде скоро закрита",
     "app.breakout.dropdown.manageDuration": "Змінити протяжність",
     "app.breakout.dropdown.destroyAll": "Закінчити тимчасові кімнати",
-    "app.breakout.dropdown.options": "Опції перерви",
+    "app.breakout.dropdown.options": "Опції тимчасових кімнат",
     "app.breakout.dropdown.manageUsers": "Керування користувачами",
     "app.calculatingBreakoutTimeRemaining": "Підрахунок часу, що залишився...",
     "app.audioModal.ariaTitle": "Вікно підключення до голосової конференції",
