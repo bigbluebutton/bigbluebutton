@@ -738,7 +738,7 @@
     "app.audioNotificaion.reconnectingAsListenOnly": "Мікрофони вимкнено для глядачів, ви під'єднані як слухач",
     "app.breakoutJoinConfirmation.title": "Приєднатися до тимчасової кімнати для групової роботи",
     "app.breakoutJoinConfirmation.message": "Чи хочете ви приєднатися до",
-    "app.breakoutJoinConfirmation.confirmDesc": "Приєднує вас  до тимчасової кімнати",
+    "app.breakoutJoinConfirmation.confirmDesc": "Приєднує вас до тимчасової кімнати для групової роботи",
     "app.breakoutJoinConfirmation.dismissLabel": "Скасувати",
     "app.breakoutJoinConfirmation.dismissDesc": "Закрити та відмовити у приєднанні до тимчасової кімнати",
     "app.breakoutJoinConfirmation.freeJoinMessage": "Виберіть тимчасову кімнату до якої бажаєте під’єднатися",
