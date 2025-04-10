@@ -736,7 +736,7 @@
     "app.audioNotification.deviceChangeFailed": "Помилка замівни пристою виводу звуку. Перевірте його функціональність та доступність",
     "app.audioNotification.closeLabel": "Закрити",
     "app.audioNotificaion.reconnectingAsListenOnly": "Мікрофони вимкнено для глядачів, ви під'єднані як слухач",
-    "app.breakoutJoinConfirmation.title": "Приєднатися до тимчасової кімнати",
+    "app.breakoutJoinConfirmation.title": "Приєднатися до тимчасової кімнати для групової роботи",
     "app.breakoutJoinConfirmation.message": "Чи хочете ви приєднатися до",
     "app.breakoutJoinConfirmation.confirmDesc": "Приєднує вас  до тимчасової кімнати",
     "app.breakoutJoinConfirmation.dismissLabel": "Скасувати",
