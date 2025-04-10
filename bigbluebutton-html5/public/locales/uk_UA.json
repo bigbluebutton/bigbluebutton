@@ -555,7 +555,7 @@
     "app.actionsBar.actionsDropdown.shareCameraAsContent": "Показати камеру як презентацію",
     "app.actionsBar.actionsDropdown.unshareCameraAsContent": "Припинити показ камери як презентації",
     "app.actionsBar.actionsDropdown.breakoutRoomInvitationLabel": "Запрошення до кімнати для групової роботи",
-    "app.actionsBar.actionsDropdown.breakoutRoomInvitationDesc": "Запросити користувачів до кімнат перерв",
+    "app.actionsBar.actionsDropdown.breakoutRoomInvitationDesc": "Запросити учасників до кімнати для групової роботи",
     "app.screenshare.screenShareLabel": "Демонстрація екрану",
     "app.cameraAsContent.cameraAsContentLabel": "Показати камеру",
     "app.submenu.application.applicationSectionTitle": "Застосунок",
