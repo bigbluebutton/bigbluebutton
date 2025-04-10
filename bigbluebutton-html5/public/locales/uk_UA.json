@@ -278,7 +278,7 @@
     "app.meeting.alertMeetingEndsUnderMinutesSingular": "Сеанс завершується за одну хвилину.",
     "app.meeting.alertMeetingEndsUnderMinutesPlural": "Сеанс завершується за {0} хв.",
     "app.meeting.alertBreakoutEndsUnderMinutesPlural": "Групова робота закінчиться за {0} хв.",
-    "app.meeting.alertBreakoutEndsUnderMinutesSingular": "Перерва закінчиться за хвилину.",
+    "app.meeting.alertBreakoutEndsUnderMinutesSingular": "Групова робота закінчиться за хвилину.",
     "app.presentation.hide": "Приховати презентацію",
     "app.presentation.newCurrentPresentationNotification": "Поточна презентація зараз: {0}",
     "app.presentation.downloadEnabledNotification": "Завантаження презентації увімкнено",
