@@ -384,7 +384,6 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
               label={intl.formatMessage(intlMessages.changeAudioDevice)}
               hideLabel
               tabIndex={0}
-              rotate
             />
           </>
         )}

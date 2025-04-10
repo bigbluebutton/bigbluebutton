@@ -8,7 +8,7 @@ import {
   mdPadding,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
-  fontSizeBase,
+  fontSizeSmall,
   fontSizeSmaller,
 } from '/imports/ui/stylesheets/styled-components/typography';
 
@@ -16,6 +16,9 @@ import {
   colorBlueLightest,
   colorGrayLight,
   colorGrayLightest,
+  colorGrayDark,
+  emphasizedMessageBackgroundColor,
+  highlightedMessageBorderColor,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { ChatTime as ChatTimeBase } from './message-header/styles';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
@@ -34,9 +37,15 @@ interface ChatContentProps {
   $editing: boolean;
   $highlight: boolean;
   $reactionPopoverIsOpen: boolean;
-  $focused: boolean;
   $keyboardFocused: boolean;
+  $emphasizedMessage: boolean;
 }
+
+export const FlexColumn = styled.div`
+  display: flex;
+  flex-flow: column;
+  gap: ${smPaddingY};
+`;
 
 export const ChatWrapper = styled.div<ChatWrapperProps>`
   pointer-events: auto;
@@ -44,7 +53,7 @@ export const ChatWrapper = styled.div<ChatWrapperProps>`
   flex-flow: column;
   gap: ${smPaddingY};
   position: relative;
-  font-size: ${fontSizeBase};
+  font-size: ${fontSizeSmall};
   position: relative;
 
   [dir='rtl'] & {
@@ -76,6 +85,7 @@ export const ChatContent = styled.div<ChatContentProps>`
   width: 100%;
   border-radius: 0.5rem;
   position: relative;
+  border: 1px solid transparent;
 
   ${({ $isSystemSender }) => !$isSystemSender && `
     background-color: #f4f6fa;
@@ -83,15 +93,27 @@ export const ChatContent = styled.div<ChatContentProps>`
 
   ${({ $highlight }) => $highlight && `
     &:hover {
-      background-color: ${colorBlueLightest} !important;
+      border: 1px solid ${highlightedMessageBorderColor};
     }
   `}
 
   ${({
-    $editing, $reactionPopoverIsOpen, $focused, $keyboardFocused,
-  }) => ($reactionPopoverIsOpen || $editing || $focused || $keyboardFocused)
+    $editing, $reactionPopoverIsOpen, $keyboardFocused,
+  }) => ($reactionPopoverIsOpen || $editing || $keyboardFocused)
     && `
     background-color: ${colorBlueLightest} !important;
+  `}
+
+  .chat-message-container:focus & {
+    background-color: ${colorBlueLightest} !important;
+  }
+
+  ${({ $emphasizedMessage }) => $emphasizedMessage && `
+    background-color: ${emphasizedMessageBackgroundColor};
+
+    &:hover {
+      border: 1px solid ${highlightedMessageBorderColor};
+    }
   `}
 `;
 
@@ -136,9 +158,15 @@ export const ChatAvatar = styled(UserAvatar)`
 export const Container = styled.div<{ $sequence: number }>`
   display: flex;
   flex-direction: column;
+  user-select: text;
+  outline: none;
 
   &:not(:first-of-type) {
     margin-top: calc((${fontSizeSmaller} + ${lgPadding} * 2) / 2);
+  }
+
+  &[data-focusable="false"] {
+    pointer-events: none;
   }
 `;
 
@@ -171,5 +199,12 @@ export const EditLabel = styled.span`
 
 export const ChatTime = styled(ChatTimeBase)`
   font-style: italic;
-  color: ${colorGrayLight};
+  color: ${colorGrayDark};
+  display: none;
+
+  .chat-message-container:focus &,
+  .chat-message-container-keyboard-focused &,
+  .chat-message-content:hover & {
+    display: flex;
+  }
 `;

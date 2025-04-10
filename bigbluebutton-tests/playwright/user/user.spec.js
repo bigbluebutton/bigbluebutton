@@ -5,12 +5,7 @@ const { GuestPolicy } = require('./guestPolicy');
 const { LockViewers } = require('./lockViewers');
 const { MobileDevices } = require('./mobileDevices');
 const { Timer } = require('./timer');
-const { encodeCustomParams } = require('../parameters/util');
-const { PARAMETER_HIDE_PRESENTATION_TOAST } = require('../core/constants');
-const motoG4 = devices['Moto G4'];
 const iPhone11 = devices['iPhone 11'];
-
-const hidePresentationToast = encodeCustomParams(PARAMETER_HIDE_PRESENTATION_TOAST);
 
 test.describe.parallel('User', { tag: ['@ci', '@flaky-3.1'] }, () => {
   test.describe.parallel('Actions', () => {
@@ -43,6 +38,21 @@ test.describe.parallel('User', { tag: ['@ci', '@flaky-3.1'] }, () => {
       const timer = new Timer(browser, context);
       await timer.initModPage(page, true);
       await timer.timerTest();
+    });
+  });
+
+  test.describe.parallel('Reactions', () => {
+    test('Use reactions', async ({ browser, context, page }) => {
+      const multiusers = new MultiUsers(browser, context);
+      await multiusers.initModPage(page, true);
+      await multiusers.initUserPage(true, context);
+      await multiusers.reactionsTest();
+    });
+
+    test('Emoji rain', async ({ browser, context, page }) => {
+      const emojiRain = new MultiUsers(browser, context);
+      await emojiRain.initModPage(page, true);
+      await emojiRain.emojiRainTest();
     });
   });
 
@@ -212,10 +222,9 @@ test.describe.parallel('User', { tag: ['@ci', '@flaky-3.1'] }, () => {
         await lockViewers.lockSeeOtherViewersUserList();
       });
 
-      test('Lock see other viewers annotations', async ({ browser, context, page }) => {
+      test('Lock see other viewers annotations', { tag: '@flaky' }, async ({ browser, context, page }) => {
         const lockViewers = new LockViewers(browser, context);
-        await lockViewers.initModPage(page, true, { joinParameter: hidePresentationToast });
-        await lockViewers.initUserPage(true, context, { joinParameter: hidePresentationToast });
+        await lockViewers.initPages(page);
         await lockViewers.lockSeeOtherViewersAnnotations();
       });
 
@@ -233,15 +242,13 @@ test.describe.parallel('User', { tag: ['@ci', '@flaky-3.1'] }, () => {
       await multiusers.saveUserNames(testInfo);
     });
 
-    test('Mute all users', async ({ browser, context, page }) => {
+    test('Disable users join muted', async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
-      await multiusers.initModPage(page, false);
-      await multiusers.initModPage2(false);
-      await multiusers.initUserPage(false);
+      await multiusers.initModPage(page);
+      await multiusers.disabledUsersJoinMuted();
     });
 
-    test('Mute all users except presenter', { tag: '@flaky' }, async ({ browser, context, page }) => {
-      // Feature not working, see https://github.com/bigbluebutton/bigbluebutton/issues/21174
+    test('Mute all users except presenter', async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initModPage(page, false);
       await multiusers.initModPage2(false);

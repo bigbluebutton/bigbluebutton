@@ -3,7 +3,7 @@ const { test } = require('../fixtures');
 const { Create } = require('./create');
 const { Join } = require('./join');
 
-test.describe.parallel('Breakout', { tag: ['@ci', '@flaky-3.1'] }, () => {
+test.describe.parallel('Breakout', { tag: '@ci' }, () => {
   test.describe.parallel('Creating', () => {
     test('Create Breakout room', async ({ browser, context, page }) => {
       const create = new Create(browser, context);
@@ -47,7 +47,7 @@ test.describe.parallel('Breakout', { tag: ['@ci', '@flaky-3.1'] }, () => {
     test('Join Breakout room', async ({ browser, context, page }) => {
       const join = new Join(browser, context);
       await join.initPages(page);
-      await join.create()
+      await join.create();
       await join.joinRoom();
     });
 
@@ -121,18 +121,14 @@ test.describe.parallel('Breakout', { tag: ['@ci', '@flaky-3.1'] }, () => {
       await join.moveUserToOtherRoom();
     });
 
-    test('Export breakout room shared notes', { tag: '@flaky' }, async ({ browser, context, page }) => {
-      // frequently failing on CI due to missing "current presentation" notifications
-      linkIssue(21576);
+    test('Export breakout room shared notes', async ({ browser, context, page }) => {
       const join = new Join(browser, context);
       await join.initPages(page);
       await join.create(true);
       await join.exportBreakoutNotes();
     });
 
-    test('Export breakout room whiteboard annotations', { tag: '@flaky' }, async ({ browser, context, page }) => {
-      // frequently failing on CI due to missing "current presentation" notifications
-      linkIssue(21576);
+    test('Export breakout room whiteboard annotations', async ({ browser, context, page }) => {
       const join = new Join(browser, context);
       await join.initPages(page);
       await join.create(false, true);
@@ -144,6 +140,12 @@ test.describe.parallel('Breakout', { tag: ['@ci', '@flaky-3.1'] }, () => {
       await join.initPages(page);
       await join.createToAllowChooseOwnRoom();
       await join.userCanChooseRoom();
+    });
+    
+    test('Breakout rooms can use different presentations', async ({ browser, context, page }) => {
+      const join = new Join(browser, context);
+      await join.initPages(page);
+      await join.breakoutWithDifferentPresentations();
     });
   });
 });

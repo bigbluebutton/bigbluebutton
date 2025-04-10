@@ -14,6 +14,7 @@ import {
   hasSpeechRecognitionSupport,
   isLocaleValid,
   localeAsDefaultSelected,
+  mostSimilarLanguage,
   setSpeechVoices,
   useFixedLocale,
 } from './service';
@@ -22,7 +23,6 @@ import AudioManager from '/imports/ui/services/audio-manager';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import {
   isWebSpeechApi,
-  setUserLocaleProperty,
   setSpeechLocale,
   useIsAudioTranscriptionEnabled,
 } from '../service';
@@ -84,7 +84,7 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
     if (fixedLocaleResult || localeAsDefaultSelected()) {
       setSpeechLocale(getLocale(), setUserSpeechLocale);
     } else {
-      setSpeechLocale(navigator.language, setUserSpeechLocale);
+      setSpeechLocale(mostSimilarLanguage(navigator.language), setUserSpeechLocale);
     }
   };
 
@@ -103,12 +103,6 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
 
     speechRecognition.continuous = true;
     speechRecognition.interimResults = true;
-
-    if (fixedLocaleResult || localeAsDefaultSelected()) {
-      setUserLocaleProperty(getLocale(), setUserSpeechLocale);
-    } else {
-      setUserLocaleProperty(navigator.language, setUserSpeechLocale);
-    }
 
     return speechRecognition;
   };
@@ -160,12 +154,19 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
   };
 
   const onEnd = useCallback(() => {
+    logger.debug({
+      logCode: 'captions_speech_recognition_ended',
+    }, 'Captions speech recognition ended by browser');
+
     stop();
+    if (!mutedRef.current) {
+      logger.debug("Speech recogniction ended by browser, but we're not muted. Restart it");
+      start(localeRef.current);
+    }
   }, []);
   const onError = useCallback((event: SpeechRecognitionErrorEvent) => {
-    stop();
     logger.error({
-      logCode: 'captions_speech_recognition',
+      logCode: 'captions_speech_recognition_error',
       extraInfo: {
         error: event.error,
         message: event.message,
@@ -212,6 +213,7 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
       if (!isFinal) {
         const { id } = resultRef.current;
         updateFinalTranscript(id, transcript, localeRef.current);
+        resultRef.current.isFinal = true;
         speechRecognitionRef.current.abort();
       } else {
         speechRecognitionRef.current.stop();

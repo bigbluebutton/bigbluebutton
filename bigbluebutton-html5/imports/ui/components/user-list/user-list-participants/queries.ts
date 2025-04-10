@@ -36,6 +36,7 @@ subscription UserListCurrUser {
   user_current {
     userId 
     isModerator
+    bot
     guest
     presenter
     locked

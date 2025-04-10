@@ -9,7 +9,7 @@ import { PANELS, ACTIONS } from '/imports/ui/components/layout/enums';
 
 const intlMessages = defineMessages({
   hidePanelLabel: {
-    id: 'app.sidebarContent.hidePanelLabel',
+    id: 'app.sidebarContent.minimizePanelLabel',
     description: 'Generic label of hide panel',
   },
 });
@@ -43,7 +43,7 @@ const GenericSidekickContent: React.FC<GenericSidekickContentProps> = ({
           },
           'data-test': `hide_${genericContentId}`,
           'aria-label': genericContentLabel,
-          icon: 'close',
+          icon: 'minus',
           label: intl.formatMessage(intlMessages.hidePanelLabel, { 0: genericContentLabel }),
         }}
       />

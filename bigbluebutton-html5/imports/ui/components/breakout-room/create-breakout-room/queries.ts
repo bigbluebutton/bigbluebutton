@@ -39,6 +39,14 @@ export interface LastBreakoutData {
   }[];
 }
 
+export interface getMeetingGroupResponse {
+  meeting_group: {
+    groupId : string;
+    name: string;
+    usersExtId: string[];
+  }[];
+}
+
 export const getUser = gql`
   query getUser {
     user(
@@ -52,6 +60,7 @@ export const getUser = gql`
         {nameSortable: asc},
         {userId: asc}
       ]) {
+      extId
       userId
       name
       isModerator
@@ -105,8 +114,20 @@ export const getLastBreakouts = gql`
   }
 `;
 
+export const getMeetingGroup = gql`
+  query getMeetingGroup {
+    meeting_group(order_by: {groupIndex: asc}) {
+      groupId
+      name
+      usersExtId
+    }
+ }
+
+`;
+
 export default {
   getUser,
   getBreakouts,
   getLastBreakouts,
+  getMeetingGroup,
 };

@@ -3,10 +3,10 @@ package org.bigbluebutton.core.running
 import org.apache.pekko.actor.ActorContext
 import org.bigbluebutton.ClientSettings
 import org.bigbluebutton.common2.domain.DefaultProps
-import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core.apps._
 import org.bigbluebutton.core.bus._
 import org.bigbluebutton.core.models._
+import org.bigbluebutton.core.OutMessageGateway
 import org.bigbluebutton.core2.MeetingStatus2x
 
 object RunningMeeting {
@@ -23,7 +23,6 @@ class RunningMeeting(val props: DefaultProps, outGW: OutMessageGateway,
   private val layouts = new Layouts()
   private val pads = new Pads()
   private val wbModel = new WhiteboardModel()
-  private val captionModel = new CaptionModel()
   private val registeredUsers = new RegisteredUsers
   private val meetingStatux2x = new MeetingStatus2x
   private val webcams = new Webcams
@@ -41,7 +40,7 @@ class RunningMeeting(val props: DefaultProps, outGW: OutMessageGateway,
   // We extract the meeting handlers into this class so it is
   // easy to test.
   private val liveMeeting = new LiveMeeting(props, meetingStatux2x, deskshareModel, audioCaptions, timerModel,
-    chatModel, externalVideoModel, layouts, pads, registeredUsers, polls2x, wbModel, captionModel,
+    chatModel, externalVideoModel, layouts, pads, registeredUsers, polls2x, wbModel,
     webcams, voiceUsers, users2x, guestsWaiting, clientSettings, plugins)
 
   GuestsWaiting.setGuestPolicy(

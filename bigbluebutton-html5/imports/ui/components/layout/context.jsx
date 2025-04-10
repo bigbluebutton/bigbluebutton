@@ -409,10 +409,11 @@ const reducer = (state, action) => {
     }
     case ACTIONS.REGISTER_SIDEBAR_APP: {
       const {
-        panel,
+        id,
         name,
         icon,
         contentFunction = undefined,
+        onClick = undefined,
       } = action.value;
       const { sidebarNavigation } = state.input;
       const { registeredApps } = sidebarNavigation;
@@ -424,10 +425,11 @@ const reducer = (state, action) => {
             ...sidebarNavigation,
             registeredApps: {
               ...registeredApps,
-              [panel]: {
+              [id]: {
                 name,
                 icon,
                 ...(contentFunction && { contentFunction }),
+                ...(onClick && { onClick }),
               },
             },
           },
@@ -436,23 +438,23 @@ const reducer = (state, action) => {
     }
     case ACTIONS.UNREGISTER_SIDEBAR_APP: {
       const {
-        value,
+        id,
       } = action;
       const { sidebarNavigation } = state.input;
       const { registeredApps, pinnedApps } = sidebarNavigation;
-      if (!(value in registeredApps)) {
+      if (!(id in registeredApps)) {
         logger.warn({
           logCode: 'unregister_not_found_app',
           extraInfo: {
-            panel: value,
+            id,
           },
-        }, `Layout Context: Attempting to unregister an app "${value}" that is not registered.`);
+        }, `Layout Context: Attempting to unregister an app "${id}" that is not registered.`);
         return state;
       }
       const updatedRegisteredApps = { ...registeredApps };
-      delete updatedRegisteredApps[value];
+      delete updatedRegisteredApps[id];
       // Also remove it from pinned apps
-      const updatedPinnedApps = pinnedApps.filter((pinnedApp) => pinnedApp !== value);
+      const updatedPinnedApps = pinnedApps.filter((pinnedApp) => pinnedApp !== id);
       return {
         ...state,
         input: {
@@ -470,12 +472,12 @@ const reducer = (state, action) => {
     case ACTIONS.SET_SIDEBAR_NAVIGATION_PIN_APP: {
       const APP_CONFIG = window.meetingClientSettings.public.app;
       const MAX_PINNED_APPS_GALLERY = APP_CONFIG.appsGallery.maxPinnedApps;
-      const { panel: appKey, pin } = action.value;
+      const { id: appId, pin } = action.value;
       const { sidebarNavigation } = state.input;
       const { pinnedApps, registeredApps } = sidebarNavigation;
 
-      const isAppRegistered = appKey in registeredApps;
-      const isAppPinned = pinnedApps.includes(appKey);
+      const isAppRegistered = appId in registeredApps;
+      const isAppPinned = pinnedApps.includes(appId);
 
       if (!isAppRegistered) return state;
       if ((pin && isAppPinned) || (!pin && !isAppPinned)) {
@@ -486,8 +488,8 @@ const reducer = (state, action) => {
       }
 
       const updatedPinnedApps = pin
-        ? [...pinnedApps, appKey]
-        : pinnedApps.filter((pinnedApp) => pinnedApp !== appKey);
+        ? [...pinnedApps, appId]
+        : pinnedApps.filter((pinnedApp) => pinnedApp !== appId);
 
       return {
         ...state,
@@ -1251,13 +1253,15 @@ const reducer = (state, action) => {
         top,
         left,
         right,
+        display,
       } = action.value;
       const { externalVideo } = state.output;
       if (externalVideo.width === width
         && externalVideo.height === height
         && externalVideo.top === top
         && externalVideo.left === left
-        && externalVideo.right === right) {
+        && externalVideo.right === right
+        && externalVideo.display === display) {
         return state;
       }
       return {
@@ -1271,6 +1275,7 @@ const reducer = (state, action) => {
             top,
             left,
             right,
+            display,
           },
         },
       };
@@ -1430,7 +1435,7 @@ const updatePresentationAreaContent = (
     previousPresentationAreaContentActions.current,
   ) || layoutType !== previousLayoutType) {
     const CHAT_CONFIG = window.meetingClientSettings.public.chat;
-    const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
+    const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 
     // eslint-disable-next-line no-param-reassign
     previousPresentationAreaContentActions.current = currentPresentationAreaContentActions.slice(0);
@@ -1462,7 +1467,7 @@ const updatePresentationAreaContent = (
             });
             layoutContextDispatch({
               type: ACTIONS.SET_ID_CHAT_OPEN,
-              value: PUBLIC_CHAT_ID,
+              value: PUBLIC_GROUP_CHAT_ID,
             });
           } else {
             layoutContextDispatch({
@@ -1530,7 +1535,7 @@ const updatePresentationAreaContent = (
           value: undefined,
         });
         layoutContextDispatch({
-          type: ACTIONS.PINNED_NOTES,
+          type: ACTIONS.SET_NOTES_IS_PINNED,
           value: !lastPresentationContentInPile.value.open,
         });
         shouldOpenPresentation = Session.getItem('presentationLastState');

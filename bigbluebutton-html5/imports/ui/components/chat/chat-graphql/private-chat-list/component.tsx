@@ -2,18 +2,16 @@ import React from 'react';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import Styled from './styles';
 import PrivateChatListItem from './chat-list-item/component';
-import useChat from '/imports/ui/core/hooks/useChat';
 import { Chat } from '/imports/ui/Types/chat';
 import Service from '/imports/ui/components/user-list/service';
-import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
 
 interface ChatListProps {
-  chats: Chat[],
+  chats: Partial<Chat>[],
   privateChatSelectedCallback: () => void;
 }
 
 const getActiveChats = (
-  chats: Chat[],
+  chats: Partial<Chat>[],
   chatNodeRef: React.Ref<HTMLButtonElement>,
   privateChatSelectedCallback: () => void,
 ) => chats.map((chat, idx) => (
@@ -72,12 +70,10 @@ const PrivateChatList: React.FC<ChatListProps> = ({ chats, privateChatSelectedCa
 
 interface PrivateChatListContainerProps {
   privateChatSelectedCallback: () => void;
+  chats: Partial<Chat>[];
 }
 
-const PrivateChatListContainer: React.FC<PrivateChatListContainerProps> = ({ privateChatSelectedCallback }) => {
-  const { data } = useChat((chat) => chat) as GraphqlDataHookSubscriptionResponse<Chat[]>;
-  const chats = (data || []).filter((chat) => !chat.public && chat.totalMessages !== 0);
-
+const PrivateChatListContainer: React.FC<PrivateChatListContainerProps> = ({ privateChatSelectedCallback, chats }) => {
   return (
     <PrivateChatList chats={chats} privateChatSelectedCallback={privateChatSelectedCallback} />
   );

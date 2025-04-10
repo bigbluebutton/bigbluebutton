@@ -26,6 +26,7 @@ import {
 import useTimeSync from '/imports/ui/core/local-states/useTimeSync';
 import humanizeSeconds from '/imports/utils/humanizeSeconds';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
 
 const MAX_HOURS = 23;
 const MILLI_IN_HOUR = 3600000;
@@ -41,7 +42,7 @@ const TRACKS = [
 
 const intlMessages = defineMessages({
   hideTimerLabel: {
-    id: 'app.timer.hideTimerLabel',
+    id: 'app.sidebarContent.minimizePanelLabel',
     description: 'Label for hiding timer button',
   },
   title: {
@@ -388,14 +389,14 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
         title={intl.formatMessage(intlMessages.title)}
         leftButtonProps={{
           onClick: closePanel,
-          'aria-label': intl.formatMessage(intlMessages.hideTimerLabel),
+          'aria-label': intl.formatMessage(intlMessages.hideTimerLabel, { 0: intl.formatMessage(intlMessages.timer) }),
           label: intl.formatMessage(headerMessage),
         }}
         rightButtonProps={{
-          'aria-label': intl.formatMessage(intlMessages.hideTimerLabel),
+          'aria-label': intl.formatMessage(intlMessages.hideTimerLabel, { 0: intl.formatMessage(intlMessages.timer) }),
           'data-test': 'closeTimer',
-          icon: 'close',
-          label: intl.formatMessage(intlMessages.hideTimerLabel),
+          icon: 'minus',
+          label: intl.formatMessage(intlMessages.hideTimerLabel, { 0: intl.formatMessage(intlMessages.timer) }),
           onClick: closePanel,
         }}
         data-test="timerHeader"
@@ -459,8 +460,17 @@ const TimerPanelContaier: React.FC = () => {
   if (timerLoading || !timerData) return null;
 
   if (timerError) {
-    logger.error('TimerIndicatorContainer', timerError);
-    return (<div>{JSON.stringify(timerError)}</div>);
+    connectionStatus.setSubscriptionFailed(true);
+    logger.error(
+      {
+        logCode: 'subscription_Failed',
+        extraInfo: {
+          error: timerError,
+        },
+      },
+      'Subscription failed to load',
+    );
+    return null;
   }
 
   const timer = timerData.timer[0];

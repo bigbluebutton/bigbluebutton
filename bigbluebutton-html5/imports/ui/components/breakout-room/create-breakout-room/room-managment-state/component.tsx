@@ -11,7 +11,7 @@ import {
   RoomPresentations,
 } from './types';
 import {
-  breakoutRoom, getBreakoutsResponse, getLastBreakouts, LastBreakoutData,
+  breakoutRoom, getBreakoutsResponse, getLastBreakouts, getMeetingGroupResponse, LastBreakoutData,
 } from '../queries';
 
 const intlMessages = defineMessages({
@@ -41,6 +41,8 @@ interface RoomManagmentStateProps {
   getRoomPresentation: (roomId: number) => string;
   isUpdate: boolean;
   setNumberOfRooms: React.Dispatch<React.SetStateAction<number>>;
+  groups: getMeetingGroupResponse['meeting_group'];
+  freeJoin: boolean;
 }
 
 const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
@@ -59,6 +61,8 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
   getRoomPresentation,
   isUpdate,
   setNumberOfRooms,
+  groups,
+  freeJoin,
 }) => {
   const intl = useIntl();
   const [selectedId, setSelectedId] = useState<string>('');
@@ -103,7 +107,7 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
           name: intl.formatMessage(intlMessages.breakoutRoom, {
             0: toRoom,
           }),
-          users: [users.find((user) => user.userId === id)],
+          users: [users.find((user) => user.userId === id)].filter((user) => user),
         } as Room;
       } else {
         updatedRooms[toRoom] = {
@@ -111,7 +115,7 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
           users: [
             ...(room?.users ?? []),
             roomFrom?.users?.find((user) => user.userId === id),
-          ],
+          ].filter((user) => user),
         } as Room;
         updatedRooms[fromRoom] = {
           ...roomFrom,
@@ -151,10 +155,18 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
   };
 
   const randomlyAssign = () => {
+    // assign users to rooms in an evenly distributed manner
     const withoutModerators = rooms[0].users.filter((user) => !user.isModerator);
-    const userIds = withoutModerators.map((user) => user.userId);
-    const randomRooms = withoutModerators.map(() => Math.floor(Math.random() * numberOfRooms) + 1);
-    moveUser(userIds, 0, randomRooms);
+    const userIds = withoutModerators.sort(() => Math.random() - 0.5).map((user) => user.userId);
+    const numberOfUsers = withoutModerators.length;
+    const assignments = new Array(numberOfUsers);
+
+    // eslint-disable-next-line no-plusplus
+    for (let i = 0; i < numberOfUsers; i++) {
+      assignments[i] = (i % numberOfRooms) + 1;
+    }
+
+    moveUser(userIds, 0, assignments);
   };
 
   const resetRooms = (cap: number) => {
@@ -168,7 +180,7 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
             users: [
               ...prevRooms[0].users,
               ...rooms[Number(room)].users,
-            ],
+            ].filter((user) => user),
           },
           [Number(room)]: {
             ...prevRooms[Number(room)],
@@ -246,6 +258,32 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
   }, [users]);
 
   useEffect(() => {
+    if (groups.length && init && lastBreakoutData && !(lastBreakoutData.breakoutRoom_createdLatest.length > 0)) {
+      setNumberOfRooms(groups.length >= 2 ? groups.length : 2);
+
+      // set the rooms based on the groups
+      setRooms((prevRooms: Rooms) => {
+        const rooms = { ...prevRooms };
+        Array.from(groups).forEach((group, index) => {
+          const idx = index + 1;
+          const roomUsers = group.usersExtId
+            .map((id) => users.find((user) => user.extId === id))
+            .filter((user) => user) as BreakoutUser[];
+          rooms[idx] = {
+            id: idx,
+            name: group.name || roomName(idx),
+            users: roomUsers,
+          };
+
+          rooms[0].users = rooms[0].users.filter((user) => !roomUsers.find((u) => u.userId === user.userId));
+        });
+
+        return rooms;
+      });
+    }
+  }, [init, lastBreakoutData]);
+
+  useEffect(() => {
     if (runningRooms && init) {
       const usersToMove: string[] = [];
       const toRooms: number[] = [];
@@ -306,6 +344,7 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
             getRoomPresentation={getRoomPresentation}
             currentPresentation={currentPresentation}
             isUpdate={isUpdate}
+            freeJoin={freeJoin}
           />
         ) : null
       }

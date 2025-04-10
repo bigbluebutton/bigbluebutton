@@ -2,6 +2,7 @@ import styled from 'styled-components';
 import {
   smPaddingX,
   lgPaddingY,
+  lgBorderRadius,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
   colorGray,
@@ -33,13 +34,16 @@ const Pad = styled.div`
   width: 100%;
 `;
 
-const IFrame = styled.iframe`
+const IFrame = styled.iframe<{amIPresenter: boolean}>`
   width: 100%;
   height: auto;
   overflow: hidden;
   border-style: none;
   border-bottom: 1px solid ${colorGrayLightest};
-  padding-bottom: 5px;
+  border-radius: ${({ amIPresenter }) => (amIPresenter
+    ? `0 0 ${lgBorderRadius} ${lgBorderRadius}`
+    : `${lgBorderRadius}`
+  )};
 `;
 
 export default {

@@ -16,6 +16,8 @@ import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedS
 import { VoiceActivityResponse } from '/imports/ui/core/graphql/queries/whoIsTalking';
 import useTalkingUsers from '/imports/ui/core/hooks/useTalkingUsers';
 import { partition } from '/imports/utils/array-utils';
+import logger from '/imports/startup/client/logger';
+import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
 
 const TALKING_INDICATORS_MAX = 8;
 
@@ -199,75 +201,78 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
   );
 };
 
-const TalkingIndicatorContainer: React.FC = (() => {
-  return () => {
-    const { data: currentUser } = useCurrentUser((u: Partial<User>) => ({
-      userId: u?.userId,
-      isModerator: u?.isModerator,
-    }));
+const TalkingIndicatorContainer: React.FC = () => {
+  const { data: currentUser } = useCurrentUser((u: Partial<User>) => ({
+    userId: u?.userId,
+    isModerator: u?.isModerator,
+  }));
 
-    const {
-      data: isBreakoutData,
-      loading: isBreakoutLoading,
-      error: isBreakoutError,
-    } = useDeduplicatedSubscription<IsBreakoutSubscriptionData>(MEETING_ISBREAKOUT_SUBSCRIPTION);
+  const {
+    data: isBreakoutData,
+    loading: isBreakoutLoading,
+    error: isBreakoutError,
+  } = useDeduplicatedSubscription<IsBreakoutSubscriptionData>(MEETING_ISBREAKOUT_SUBSCRIPTION);
 
-    const toggleVoice = useToggleVoice();
-    const { data: talkingUsersData, loading: talkingUsersLoading } = useTalkingUsers();
-    const talkingUsers = useMemo(() => {
-      const [muted, unmuted] = partition(
-        Object.values(talkingUsersData),
-        (v: VoiceItem) => v.muted,
-      ) as [VoiceItem[], VoiceItem[]];
-      const [talking, silent] = partition(
-        unmuted,
-        (v: VoiceItem) => v.talking,
-      ) as [VoiceItem[], VoiceItem[]];
-      return [
-        ...talking.sort((v1, v2) => {
-          if (!v1.startTime && !v2.startTime) return 0;
-          if (!v1.startTime) return 1;
-          if (!v2.startTime) return -1;
-          return v1.startTime - v2.startTime;
-        }),
-        ...silent.sort((v1, v2) => {
-          if (!v1.endTime && !v2.endTime) return 0;
-          if (!v1.endTime) return 1;
-          if (!v2.endTime) return -1;
-          return v2.endTime - v1.endTime;
-        }),
-        ...muted.sort((v1, v2) => {
-          if (!v1.endTime && !v2.endTime) return 0;
-          if (!v1.endTime) return 1;
-          if (!v2.endTime) return -1;
-          return v2.endTime - v1.endTime;
-        }),
-      ].slice(0, TALKING_INDICATORS_MAX);
-    }, [talkingUsersData]);
+  const toggleVoice = useToggleVoice();
+  const { data: talkingUsersData, loading: talkingUsersLoading } = useTalkingUsers();
+  const talkingUsers = useMemo(() => {
+    const [muted, unmuted] = partition(
+      Object.values(talkingUsersData),
+      (v: VoiceItem) => v.muted,
+    ) as [VoiceItem[], VoiceItem[]];
+    const [talking, silent] = partition(
+      unmuted,
+      (v: VoiceItem) => v.talking,
+    ) as [VoiceItem[], VoiceItem[]];
+    return [
+      ...talking.sort((v1, v2) => {
+        if (!v1.startTime && !v2.startTime) return 0;
+        if (!v1.startTime) return 1;
+        if (!v2.startTime) return -1;
+        return v1.startTime - v2.startTime;
+      }),
+      ...silent.sort((v1, v2) => {
+        if (!v1.endTime && !v2.endTime) return 0;
+        if (!v1.endTime) return 1;
+        if (!v2.endTime) return -1;
+        return v2.endTime - v1.endTime;
+      }),
+      ...muted.sort((v1, v2) => {
+        if (!v1.endTime && !v2.endTime) return 0;
+        if (!v1.endTime) return 1;
+        if (!v2.endTime) return -1;
+        return v2.endTime - v1.endTime;
+      }),
+    ].slice(0, TALKING_INDICATORS_MAX);
+  }, [talkingUsersData]);
 
-    if (talkingUsersLoading || isBreakoutLoading) return null;
+  if (talkingUsersLoading || isBreakoutLoading) return null;
 
-    if (isBreakoutError) {
-      return (
-        <div>
-          error:
-          { JSON.stringify(isBreakoutError) }
-        </div>
-      );
-    }
-
-    const isBreakout = isBreakoutData?.meeting[0]?.isBreakout ?? false;
-    setTalkingIndicatorList(talkingUsers.map(({ user, ...rest }) => ({ ...rest, ...user })));
-    return (
-      <TalkingIndicator
-        talkingUsers={talkingUsers}
-        isBreakout={isBreakout}
-        moreThanMaxIndicators={talkingUsers.length >= TALKING_INDICATORS_MAX}
-        isModerator={currentUser?.isModerator ?? false}
-        toggleVoice={toggleVoice}
-      />
+  if (isBreakoutError) {
+    connectionStatus.setSubscriptionFailed(true);
+    logger.error(
+      {
+        logCode: 'subscription_Failed',
+        extraInfo: {
+          error: isBreakoutError,
+        },
+      },
+      'Subscription failed to load',
     );
-  };
-})();
+    return null;
+  }
+
+  const isBreakout = isBreakoutData?.meeting[0]?.isBreakout ?? false;
+  setTalkingIndicatorList(talkingUsers.map(({ user, ...rest }) => ({ ...rest, ...user })));
+  return (
+    <TalkingIndicator
+      talkingUsers={talkingUsers}
+      isBreakout={isBreakout}
+      moreThanMaxIndicators={talkingUsers.length >= TALKING_INDICATORS_MAX}
+      isModerator={currentUser?.isModerator ?? false}
+      toggleVoice={toggleVoice}
+    />
+  );
+};
 
 export default TalkingIndicatorContainer;

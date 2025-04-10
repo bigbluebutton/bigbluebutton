@@ -20,7 +20,7 @@ ExecStartPre=/bin/mkdir -p /run/bbb-apps-akka
 ExecStartPre=/bin/chown bigbluebutton:bigbluebutton /run/bbb-apps-akka
 ExecStartPre=/bin/chmod 755 /run/bbb-apps-akka
 PermissionsStartOnly=true
-LimitNOFILE=1024
+LimitNOFILE=4096
 
 [Install]
 WantedBy=multi-user.target bigbluebutton.target

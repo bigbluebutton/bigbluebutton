@@ -2,32 +2,19 @@ import { useEffect } from 'react';
 import {
   SidekickOptionsContainerEnum,
 } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-commands/sidekick-options-container/enums';
-import { layoutDispatch } from '../../../layout/context';
-import { PANELS, ACTIONS } from '../../../layout/enums';
+import logger from '/imports/startup/client/logger';
 
 const PluginSidekickOptionsContainerUiCommandsHandler = () => {
-  const layoutContextDispatch = layoutDispatch();
-
   const handleSidekickOptionsContainerOpen = () => {
-    layoutContextDispatch({
-      type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
-      value: true,
-    });
+    logger.info({
+      logCode: 'navigation_open_called_by_plugin',
+    }, 'Plugin tried to open the navigation sidebar. Intentionally ignored.');
   };
 
   const handleSidekickOptionsContainerClose = () => {
-    layoutContextDispatch({
-      type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
-      value: false,
-    });
-    layoutContextDispatch({
-      type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-      value: PANELS.NONE,
-    });
-    layoutContextDispatch({
-      type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-      value: false,
-    });
+    logger.info({
+      logCode: 'navigation_close_called_by_plugin',
+    }, 'Plugin tried to close the navigation sidebar. Intentionally ignored.');
   };
 
   useEffect(() => {
@@ -35,8 +22,8 @@ const PluginSidekickOptionsContainerUiCommandsHandler = () => {
     window.addEventListener(SidekickOptionsContainerEnum.CLOSE, handleSidekickOptionsContainerClose);
 
     return () => {
-      window.addEventListener(SidekickOptionsContainerEnum.OPEN, handleSidekickOptionsContainerOpen);
-      window.addEventListener(SidekickOptionsContainerEnum.OPEN, handleSidekickOptionsContainerClose);
+      window.removeEventListener(SidekickOptionsContainerEnum.OPEN, handleSidekickOptionsContainerOpen);
+      window.removeEventListener(SidekickOptionsContainerEnum.CLOSE, handleSidekickOptionsContainerClose);
     };
   }, []);
   return null;

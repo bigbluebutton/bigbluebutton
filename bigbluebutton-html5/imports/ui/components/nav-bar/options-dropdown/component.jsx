@@ -84,14 +84,6 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.actionsDropdown.layoutModal',
     description: 'Label for layouts selection button',
   },
-  awayLabel: {
-    id: 'app.actionsBar.reactions.away',
-    description: 'Away Label',
-  },
-  availableLabel: {
-    id: 'app.actionsBar.reactions.available',
-    description: 'Available Label',
-  },
 });
 
 const propTypes = {

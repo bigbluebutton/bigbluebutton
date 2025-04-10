@@ -13,7 +13,7 @@ We designed BigBlueButton for online learning, it can be used for many other app
   * Group collaboration (many-to-many)
   * Online classes (one-to-many)
 
-The latest version is BigBlueButton 2.7.  You can install BigBlueButton 2.7 on Ubuntu 20.04 using [bbb-install.sh](https://github.com/bigbluebutton/bbb-install) within 30 minutes (or your money back 😉).
+The latest version is BigBlueButton 3.0.  You can install BigBlueButton it on Ubuntu 22.04 using [bbb-install.sh](https://github.com/bigbluebutton/bbb-install) within 30 minutes (or your money back 😉).
 
 For full technical documentation of BigBlueButton -- including architecture, features, API, and GreenLight (the default front-end) -- see [https://docs.bigbluebutton.org/](https://docs.bigbluebutton.org/).
 

@@ -310,6 +310,7 @@ const UserActions: React.FC<UserActionProps> = (props) => {
                 tabIndex={0}
                 data-test="dropdownWebcamButton"
                 $isRTL={isRTL}
+                role="button"
               >
                 {name}
               </Styled.DropdownTrigger>

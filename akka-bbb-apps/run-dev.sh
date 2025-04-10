@@ -9,6 +9,9 @@ cp -R src/universal/conf src/main/resources
 sudo sed -i "s/sharedSecret = \"changeme\"/sharedSecret = \"$(sudo bbb-conf --salt | grep Secret: | cut -d ' ' -f 6)\"/g" src/main/resources/application.conf
 sudo sed -i "s/bbbWebAPI = \"https:\/\/192.168.23.33\/bigbluebutton\/api\"/bbbWebAPI = \"https:\/\/$(hostname -f)\/bigbluebutton\/api\"/g" src/main/resources/application.conf
 
+#temporary to avoid error: No configuration setting found for key 'grpc'
+sudo cp src/main/resources/application.conf /usr/share/bbb-apps-akka/conf/application.conf
+
 cd ../bbb-common-grpc
 sbt compile
 cd ../akka-bbb-apps

@@ -25,8 +25,7 @@ class Stress {
       await this.modPage.init(true, true, { fullName: `Moderator-${i}` });
       await this.modPage.waitForSelector(e.userAvatar);
       const isPresenter = await checkIsPresenter(this.modPage);
-      await this.modPage.waitAndClick(e.actions);
-      const canStartPoll = await this.modPage.checkElement(e.polling);
+      const canStartPoll = await this.modPage.checkElement(e.pollSidebarButton);
       if (!isPresenter || !canStartPoll) {
         failureCount++;
       }
@@ -52,8 +51,7 @@ class Stress {
 
     // Create breakout rooms with the allow choice option enabled
     await this.modPage.bringToFront();
-    await this.modPage.waitAndClick(e.manageUsers);
-    await this.modPage.waitAndClick(e.createBreakoutRooms);
+    await this.modPage.waitAndClick(e.createBreakoutRoomsButton);
     await this.modPage.waitAndClick(e.allowChoiceRoom);
     await this.modPage.waitAndClick(e.modalConfirmButton);
 
@@ -70,8 +68,7 @@ class Stress {
     await this.modPage.closeAudioModal();
 
     // Create breakout rooms with the allow choice option NOT enabled (randomly assign)
-    await this.modPage.waitAndClick(e.manageUsers);
-    await this.modPage.waitAndClick(e.createBreakoutRooms);
+    await this.modPage.waitAndClick(e.createBreakoutRoomsButton);
     await this.modPage.waitAndClick(e.randomlyAssign);
     await this.modPage.waitAndClick(e.modalConfirmButton);
 

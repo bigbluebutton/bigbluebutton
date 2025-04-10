@@ -57,7 +57,7 @@ const UserAvatar = ({
 
           <Styled.Talking talking={talking && !muted} animations={animations} />
 
-          {avatar.length !== 0 && !emoji
+          {avatar && avatar.length !== 0 && !emoji
             ? (
               <Styled.Image>
                 <Styled.Img

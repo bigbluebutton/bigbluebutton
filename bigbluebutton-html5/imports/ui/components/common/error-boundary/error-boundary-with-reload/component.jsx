@@ -65,6 +65,11 @@ const ErrorBoundaryWithReload = ({ children }) => {
         },
       }, 'Global error caught by ErrorBoundaryWithReload');
 
+      // Ignore errors caused by ResizeObserver in chrome <100
+      if (event.reason?.message?.toString().indexOf('ResizeObserver loop limit exceeded') !== -1) {
+        return;
+      }
+
       triggerError();
     };
 
@@ -79,6 +84,11 @@ const ErrorBoundaryWithReload = ({ children }) => {
 
       // Ignore errors caused by a Chrome Extension
       if (event.reason?.stack?.toString().indexOf('chrome-extension://') !== -1) {
+        return;
+      }
+
+      // Ignore errors caused by missing permissions on graphql
+      if (event.reason?.message?.toString().indexOf('Permission Denied') !== -1) {
         return;
       }
 

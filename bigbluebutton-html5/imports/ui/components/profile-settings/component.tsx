@@ -3,11 +3,10 @@ import React, {
 } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
-import { Layout } from '../layout/layoutTypes';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { SelectChangeEvent } from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
-import Slider from '@mui/material/Slider';
+import { Layout } from '../layout/layoutTypes';
 import Styled from './styles';
 import { layoutDispatch, layoutSelect } from '../layout/context';
 import { ACTIONS, PANELS } from '../layout/enums';
@@ -38,8 +37,8 @@ import { useSharedDevices, useIsUserLocked } from '/imports/ui/components/video-
 import { useIsCustomVirtualBackgroundsEnabled, useIsVirtualBackgroundsEnabled } from '../../services/features';
 import VirtualBgSelector from '/imports/ui/components/video-preview/virtual-background/component';
 import AudioSelectors from './audio-selectors/component';
-import AudioCaptions from './audio-captions/component';
 import BBBVideoStream from '/imports/ui/services/webrtc-base/bbb-video-stream';
+import Tooltip from '/imports/ui/components/common/tooltip/component';
 import { colorPrimary } from '../../stylesheets/styled-components/palette';
 
 const intlMessages: { [key: string]: { id: string; description?: string } } = defineMessages({
@@ -47,9 +46,9 @@ const intlMessages: { [key: string]: { id: string; description?: string } } = de
     id: 'app.profileSettings.title',
     description: 'Label for the profile settings panel title',
   },
-  close: {
-    id: 'app.profileSettings.close',
-    description: 'Label for the close profile settings button',
+  minimize: {
+    id: 'app.sidebarContent.minimizePanelLabel',
+    description: 'Minimize button label',
   },
   username: {
     id: 'app.profileSettings.usernameTitle',
@@ -62,10 +61,6 @@ const intlMessages: { [key: string]: { id: string; description?: string } } = de
   webcamSettingsTitle: {
     id: 'app.videoPreview.webcamSettingsTitle',
     description: 'Title for the video preview modal',
-  },
-  closeLabel: {
-    id: 'app.videoPreview.closeLabel',
-    description: 'Close button label',
   },
   cancelLabel: {
     id: 'app.mobileAppModal.dismissLabel',
@@ -223,8 +218,8 @@ const intlMessages: { [key: string]: { id: string; description?: string } } = de
     id: 'app.actionsBar.reactions.away',
     description: 'Away Label',
   },
-  activeLabel: {
-    id: 'app.actionsBar.reactions.active',
+  presentLabel: {
+    id: 'app.actionsBar.reactions.present',
     description: 'Active Label',
   },
 });
@@ -272,7 +267,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
   const [previewError, setPreviewError] = useState<string | null>(null);
   const [brightness, setBrightness] = useState<number>(100);
   // @ts-expect-error TS6133: Unused variable.
-  const [wholeImageBrightness, setWholeImageBrightness] = useState<boolean>(false);
+  const [wholeImageBrightness, setWholeImageBrightness] = useState<boolean>(false); // eslint-disable-line
   const [isCameraLoading, setIsCameraLoading] = useState<boolean>(true);
   const [virtualBackgroundChecked, setVirtualBackgroundChecked] = React.useState(false);
 
@@ -462,6 +457,10 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
         terminateCameraStream(currentVideoStream.current, deviceId);
         cleanupStreamAndVideo();
       }
+      // restore brightness
+      if (brightness !== 100) {
+        setCameraBrightness(brightness);
+      }
       setIsCameraLoading(false);
     }
   };
@@ -480,7 +479,8 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
         const { backgrounds } = customVirtualBackgroundsContext;
         const background = backgrounds[uniqueId]
           || Object.values(backgrounds).find(
-            (bg : any) => bg.uniqueId === uniqueId, // TODO: typing
+            // @ts-ignore
+            (bg) => bg.uniqueId === uniqueId,
           );
 
         if (background && background.data) {
@@ -510,6 +510,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
 
     await getCameraStream(webcamValue, PreviewService.getDefaultProfile());
     displayPreview();
+    PreviewService.changeWebcam(webcamValue);
   };
 
   const handleSelectProfile = async (event: SelectChangeEvent<unknown>) => {
@@ -518,6 +519,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
     const selectedProfile = PreviewService.getCameraProfile(profileValue) as CameraProfileProps;
     await getCameraStream(webcamDeviceId, selectedProfile);
     displayPreview();
+    PreviewService.changeProfile(selectedProfile);
   };
 
   const handleVirtualBgError = (error: Error, type: string, name: string | undefined) => {
@@ -558,7 +560,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
         customParams,
       );
       if (switched) updateVirtualBackgroundInfo();
-      setVirtualBackgroundChecked(true);
+      if (type !== EFFECT_TYPES.NONE_TYPE) setVirtualBackgroundChecked(true);
       return switched;
     }
     stopVirtualBackground(currentVideoStream.current);
@@ -653,6 +655,8 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
 
   // Unused for now, but will be used in the future when UI/UX for sharing
   // through the profile settings is implemented - prlanzarin
+  // @ts-expect-error TS6133: Unused variable
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleStartSharing = async () => {
     if (!currentVideoStream.current) return;
     if (
@@ -826,7 +830,6 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
                   )
               }
             </Styled.VideoCol>
-            {/* this.renderTabsContent(selectedTab) */}
           </Styled.VideoPreviewContent>
         );
     }
@@ -843,25 +846,28 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
         </Styled.CameraQualityText>
         {PREVIEW_CAMERA_PROFILES.length > 0
           ? (
-            <Styled.CameraQualitySelector
-              value={selectedProfile || ''}
-              onChange={handleSelectProfile}
-              IconComponent={ExpandMoreIcon}
-            >
-              {PREVIEW_CAMERA_PROFILES.map((profile) => {
-                // @ts-ignore
-                const label = intlMessages[`${profile.id}`]
+            <Tooltip title={formatMessage(intlMessages.sharedCameraLabel)}>
+              <Styled.CameraQualitySelector
+                value={selectedProfile || ''}
+                onChange={handleSelectProfile}
+                IconComponent={ExpandMoreIcon}
+                disabled={isAlreadyShared(webcamDeviceId as string)}
+              >
+                {PREVIEW_CAMERA_PROFILES.map((profile) => {
                   // @ts-ignore
-                  ? formatMessage(intlMessages[`${profile.id}`])
-                  : profile.name;
+                  const label = intlMessages[`${profile.id}`]
+                    // @ts-ignore
+                    ? formatMessage(intlMessages[`${profile.id}`])
+                    : profile.name;
 
-                return (
-                  <MenuItem key={profile.id} value={profile.id}>
-                    {label}
-                  </MenuItem>
-                );
-              })}
-            </Styled.CameraQualitySelector>
+                  return (
+                    <MenuItem key={profile.id} value={profile.id}>
+                      {label}
+                    </MenuItem>
+                  );
+                })}
+              </Styled.CameraQualitySelector>
+            </Tooltip>
           )
           : (
             <span>
@@ -877,19 +883,16 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
     if (!ENABLE_CAMERA_BRIGHTNESS) return null;
 
     return (
-      <Slider
+      <Styled.BrightnessSlider
+        sx={{ color: colorPrimary }}
         value={brightness - 100}
         defaultValue={0}
         min={-100}
         max={100}
-        // size="small"
         onChange={(_, value) => setCameraBrightness((value as number) + 100)}
         aria-describedby="brightness-slider-desc"
         valueLabelDisplay="auto"
         disabled={!isVirtualBackgroundSupported() || isCameraLoading}
-        sx={{
-          color: colorPrimary,
-        }}
       />
     );
   };
@@ -946,10 +949,10 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
         title={formatMessage(intlMessages.title)}
         leftButtonProps={{}}
         rightButtonProps={{
-          'aria-label': formatMessage(intlMessages.closeLabel),
+          'aria-label': formatMessage(intlMessages.minimize, { 0: formatMessage(intlMessages.title) }),
           'data-test': 'closeProfileSettings',
-          icon: 'close',
-          label: formatMessage(intlMessages.closeLabel),
+          icon: 'minus',
+          label: formatMessage(intlMessages.minimize, { 0: formatMessage(intlMessages.title) }),
           onClick: () => {
             layoutContextDispatch({
               type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
@@ -964,8 +967,8 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
         customRightButton={null}
       />
       <Styled.Separator />
+      {renderWebcamPreview()}
       <Styled.ProfileSettings>
-        {renderWebcamPreview()}
         <Styled.UsernameContainer>
           <Styled.UsernameTitle>{formatMessage(intlMessages.username)}</Styled.UsernameTitle>
           <Styled.Username>{currentUserData?.name ?? ''}</Styled.Username>
@@ -973,7 +976,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
         <Styled.UserPresenceRoot>
           <Styled.UserPresenceContainer>
             <Styled.UserPresenceButton active={!currentUserData?.away} onClick={handleToggleAFK}>
-              <Styled.UserPresenceText>{formatMessage(intlMessages.activeLabel)}</Styled.UserPresenceText>
+              <Styled.UserPresenceText>{formatMessage(intlMessages.presentLabel)}</Styled.UserPresenceText>
             </Styled.UserPresenceButton>
             <Styled.UserPresenceDivider />
             <Styled.UserPresenceButton active={currentUserData?.away} onClick={handleToggleAFK}>
@@ -1008,7 +1011,6 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
         <Styled.VirtualBackgroundContainer>
           {isVirtualBackgroundsEnabled && renderVirtualBgSelector()}
         </Styled.VirtualBackgroundContainer>
-        <AudioCaptions />
       </Styled.ProfileSettings>
     </>
   );

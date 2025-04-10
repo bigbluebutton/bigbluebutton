@@ -11,12 +11,12 @@ const Container = styled.div`
 const Content = styled.div`
   text-align: center;
   color: white;
-  font-weight: bold;
   font-size: 24px;
 `;
 
 const Heading = styled.h1`
   font-size: 2rem;
+  font-weight: bold;
 `;
 
 const Position = styled.div`

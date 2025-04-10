@@ -1,10 +1,11 @@
 import styled, { css, keyframes } from 'styled-components';
 import {
-  colorWhite, colorText, colorPrimary, colorGrayLightest,
-  colorGrayDark, colorLink, listItemBgHover,
+  colorWhite, colorText, colorPrimary,
+  colorGrayDark, colorLink, listItemBgHover, colorBorder,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   smPadding,
+  contentSidebarGap,
   contentSidebarPadding,
   contentSidebarBottomScrollPadding,
   contentSidebarBorderRadius,
@@ -20,6 +21,7 @@ import Headphones from '@mui/icons-material/Headphones';
 import Mic from '@mui/icons-material/Mic';
 import Select from '@mui/material/Select';
 import Switch from '@mui/material/Switch';
+import Slider from '@mui/material/Slider';
 import { styled as materialStyled } from '@mui/material/styles';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import {
@@ -40,10 +42,11 @@ const ProfileSettings = styled(ScrollboxVertical)`
   padding: ${contentSidebarPadding} 0 ${contentSidebarBottomScrollPadding} 0;
   margin: 0 ${smPadding} 0;
   flex-direction: column;
-  gap: ${contentSidebarPadding};
+  gap: ${contentSidebarGap};
   border-radius: ${contentSidebarBorderRadius};
   background: ${colorWhite};
   overflow-y: auto;
+  overflow-x: hidden;
 `;
 
 const HeaderContainer = styled(BaseHeaderContainer)``;
@@ -53,8 +56,10 @@ interface VideoPreviewProps {
 }
 
 const VideoPreview = styled.video<VideoPreviewProps>`
-  height: 100%;
+  max-height: 14rem;
   width: 100%;
+  border-radius: 0.5rem;
+  box-shadow: 8px 8px 24px 0px rgba(0, 0, 0, 0.10);
 
   @media ${smallOnly} {
     height: 10rem;
@@ -67,8 +72,6 @@ const VideoPreview = styled.video<VideoPreviewProps>`
 
 const VideoPreviewContent = styled.div`
   padding: 0px ${contentSidebarPadding};
-  position: sticky;
-  top: 0;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -165,7 +168,7 @@ const UserPresenceContainer = styled.div`
   align-items: center;
   gap: 1rem;
   border-radius: 1rem;
-  border: 1px solid ${colorGrayLightest};
+  border: 1px solid ${colorBorder};
 `;
 
 const UserPresenceButton = styled(SimpleButton)<{ active?: boolean }>`
@@ -195,13 +198,13 @@ const UserPresenceText = styled.div`
 const UserPresenceDivider = styled.div`
   width: 0.0625rem;
   height: 2.5rem;
-  background: ${colorGrayLightest};
+  background: ${colorBorder};
 `;
 
 const Separator = styled.hr`
   width: 100%;
   border: 0;
-  border-bottom: 1px solid ${colorGrayLightest};
+  border-bottom: 1px solid ${colorBorder};
 `;
 
 const DevicesSettingsContainer = styled.div`
@@ -215,7 +218,6 @@ const DevicesSettingsContainer = styled.div`
 const DeviceContainer = styled.div`
   display: flex;
   flex-direction: row;
-  height: 3.5rem;
   flex-shrink: 0;
   gap: 1rem;
   align-items: center;
@@ -280,7 +282,6 @@ const VirtualBackgroundContainer = styled.div`
 `;
 
 const SwitchTitle = styled(FormControlLabel)`
-  height: 1.5rem;
   flex-shrink: 0;
   .MuiFormControlLabel-label {
     color: ${colorGrayDark};
@@ -337,10 +338,20 @@ const MaterialSwitch = materialStyled(Switch)(({ theme }) => ({
   },
 }));
 
+const BrightnessSlider = styled(Slider)`
+  & .MuiSlider-thumb {
+    height: 1rem;
+    width: 1rem;
+  };
+  & .MuiSlider-track {
+    height: 5px;
+  }
+`;
+
 const VirtualBgSelectorBorder = styled.div`
   width: 100%;
   border-radius: 0.25rem;
-  border: 1px solid ${colorGrayLightest};
+  border: 1px solid ${colorBorder};
 `;
 
 const CaptionsContainer = styled.div`
@@ -413,6 +424,7 @@ export default {
   VirtualBackgroundContainer,
   SwitchTitle,
   MaterialSwitch,
+  BrightnessSlider,
   VirtualBgSelectorBorder,
   CaptionsContainer,
   CaptionsToggleContainer,

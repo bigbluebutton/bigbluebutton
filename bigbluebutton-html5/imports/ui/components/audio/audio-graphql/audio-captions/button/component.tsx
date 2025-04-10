@@ -8,7 +8,7 @@ import { defineMessages, useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
 import Styled from './styles';
 import {
-  setAudioCaptions, setUserLocaleProperty,
+  setAudioCaptions, setUserLocaleProperty, useAppsGallery,
 } from '../service';
 import { MenuSeparatorItemType, MenuOptionItemType } from '/imports/ui/components/common/menu/menuTypes';
 import useAudioCaptionEnable from '/imports/ui/core/local-states/useAudioCaptionEnable';
@@ -239,7 +239,7 @@ const AudioCaptionsButton: React.FC<AudioCaptionsButtonProps> = ({
   return (
     shouldRenderChevron || shouldRenderSelector
       ? (
-        <Styled.SpanButtonWrapper active={active}>
+        <Styled.SpanButtonWrapper>
           <BBBMenu
             trigger={(
               <>
@@ -249,7 +249,6 @@ const AudioCaptionsButton: React.FC<AudioCaptionsButtonProps> = ({
                   hideLabel
                   label={intl.formatMessage(intlMessages.transcriptionSettings)}
                   tabIndex={0}
-                  rotate
                 />
               </>
             )}
@@ -271,6 +270,7 @@ const AudioCaptionsButton: React.FC<AudioCaptionsButtonProps> = ({
 };
 
 const AudioCaptionsButtonContainer: React.FC = () => {
+  const shouldUseAppsGallery = useAppsGallery();
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
   const {
     data: currentUser,
@@ -306,6 +306,7 @@ const AudioCaptionsButtonContainer: React.FC = () => {
   const currentCaptionLocale = currentUser.captionLocale || '';
   const isSupported = availableVoices.length > 0;
 
+  if (shouldUseAppsGallery) return null;
   if (!currentMeetingData.componentsFlags?.hasCaption) return null;
 
   return (

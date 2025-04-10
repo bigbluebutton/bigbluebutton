@@ -17,6 +17,8 @@ import Service from './service';
 import Styled from './styles';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 import { useIsPollingEnabled } from '../../services/features';
+import logger from '/imports/startup/client/logger';
+import connectionStatus from '../../core/graphql/singletons/connectionStatus';
 
 const intlMessages = defineMessages({
   pollingTitleLabel: {
@@ -373,6 +375,20 @@ const PollingGraphqlContainer: React.FC = () => {
   };
 
   if (!showPolling || error || loading) return null;
+
+  if (error) {
+    connectionStatus.setSubscriptionFailed(true);
+    logger.error(
+      {
+        logCode: 'subscription_Failed',
+        extraInfo: {
+          error,
+        },
+      },
+      'Subscription failed to load',
+    );
+    return null;
+  }
 
   return (
     <PollingGraphql

@@ -4,6 +4,7 @@ export const USER_LIST_SUBSCRIPTION = gql`
 subscription UserListSubscription($offset: Int!, $limit: Int!) {
   user(limit:$limit, offset: $offset, 
                 order_by: [
+                  { bot: asc },
                   {presenter: desc},
                   {role: asc},
                   {raiseHandTime: asc_nulls_last},
@@ -30,7 +31,6 @@ subscription UserListSubscription($offset: Int!, $limit: Int!) {
     locked
     authed
     mobile
-    bot
     guest
     clientType
     disconnected

@@ -31,7 +31,6 @@ object Dependencies {
     val servlet = "4.0.1"
 
     // Apache Commons
-    val lang = "3.12.0"
     val io = "2.11.0"
     val pool = "2.11.1"
     val text = "1.10.0"
@@ -65,7 +64,6 @@ object Dependencies {
 
     val servletApi = "javax.servlet" % "javax.servlet-api" % Versions.servlet
 
-    val apacheLang = "org.apache.commons" % "commons-lang3" % Versions.lang
     val apacheIo = "commons-io" % "commons-io" % Versions.io
     val apachePool2 = "org.apache.commons" % "commons-pool2" % Versions.pool
     val apacheText = "org.apache.commons" % "commons-text" % Versions.text
@@ -103,7 +101,6 @@ object Dependencies {
     Compile.nuProcess,
     Compile.tika,
     Compile.servletApi,
-    Compile.apacheLang,
     Compile.apacheIo,
     Compile.apachePool2,
     Compile.apacheText,

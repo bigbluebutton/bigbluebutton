@@ -28,7 +28,9 @@ import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedS
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import logger from '/imports/startup/client/logger';
 import SvgIcon from '/imports/ui/components/common/icon-svg/component';
+import { layoutSelect } from '/imports/ui/components/layout/context';
 import Service from './service';
+import { Layout } from '../../../layout/layoutTypes';
 
 const intlMessages = defineMessages({
   notificationRecordingStart: {
@@ -120,10 +122,11 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
   const [isRecordingModalOpen, setIsRecordingModalOpen] = useState(false);
   const [isRecordingNotifyModalOpen, setIsRecordingNotifyModalOpen] = useState(false);
   const [shouldNotify, setShouldNotify] = useState(true);
-  const [time, setTime] = useState(0);
+  const [time, setTime] = useState(serverTime);
   const setIntervalRef = React.useRef<ReturnType<typeof setTimeout>>();
   const disabled = hasError || isLoading;
   const showButton = Service.mayIRecord(isModerator, allowStartStopRecording);
+  const isRTL = layoutSelect((i: Layout) => i.isRTL);
 
   const recordingToggle = useCallback((hasMicUser: boolean, isRecording: boolean) => {
     if (!hasMicUser && !isRecording) {
@@ -170,25 +173,39 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
     if (disabled) return intl.formatMessage(intlMessages.unavailableTitle);
 
     if (!recording) {
-      if (!isModerator && time > 0) {
+      if (!showButton && time > 0) {
         return intl.formatMessage(intlMessages.resumeViewTitle);
       }
+
       return time > 0
         ? intl.formatMessage(intlMessages.resumeTitle)
         : intl.formatMessage(intlMessages.startTitle);
     }
 
     return intl.formatMessage(intlMessages.stopTitle);
-  }, [recording, isPhone, disabled, isModerator, time]);
+  }, [recording, isPhone, disabled, isModerator, time, intl.locale]);
+
+  const tooltipTitle = useMemo(() => {
+    if (!recording) {
+      return !showButton
+        ? Service.getCustomRecordTooltip(recordTitle)
+        : recordTitle;
+    }
+
+    return showButton
+      ? intl.formatMessage(intlMessages.stopTitle)
+      : intl.formatMessage(intlMessages.recordingTitle);
+  }, [recording, isModerator, recordTitle]);
 
   const recordingIndicatorIcon = useMemo(() => (
     <Styled.RecordingIndicatorIcon
       titleMargin={!isPhone || recording}
       data-test="mainWhiteboard"
+      isRTL={isRTL}
     >
       <SvgIcon iconName="recording" />
     </Styled.RecordingIndicatorIcon>
-  ), [isPhone, recording]);
+  ), [isPhone, recording, isRTL]);
 
   const title = useMemo(() => intl.formatMessage(
     recording
@@ -218,22 +235,29 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
       }}
     >
       {recordingIndicatorIcon}
-      <Styled.PresentationTitle>
-        <Styled.VisuallyHidden id="recording-description">
-          {`${title} ${recording ? `${intl.formatMessage(intlMessages.recordingTitle)} ${humanizeSeconds(time)}` : ''}`}
-        </Styled.VisuallyHidden>
-        {recording ? (
-          <span aria-hidden>{`${intl.formatMessage(intlMessages.recordingTitle)} ${humanizeSeconds(time)}`}</span>
-        ) : (
-          <span>{recordTitle}</span>
-        )}
-      </Styled.PresentationTitle>
+      {!isPhone && (
+        <Styled.PresentationTitle>
+          <Styled.VisuallyHidden id="recording-description">
+            {`${title} ${recording ? `${intl.formatMessage(intlMessages.recordingTitle)} ${humanizeSeconds(time)}` : ''}`}
+          </Styled.VisuallyHidden>
+          {recording ? (
+            <span aria-hidden>{`${intl.formatMessage(intlMessages.recordingTitle)} ${humanizeSeconds(time)}`}</span>
+          ) : (
+            <span>{recordTitle}</span>
+          )}
+        </Styled.PresentationTitle>
+      )}
+      {isPhone && recording && (
+        <Styled.PresentationTitle>
+          <span aria-hidden>{humanizeSeconds(time)}</span>
+        </Styled.PresentationTitle>
+      )}
     </Styled.RecordingControl>
   );
 
-  const recordMeetingButtonWithTooltip = (
-    <Tooltip title={intl.formatMessage(intlMessages.stopTitle)}>
-      {recordMeetingButton}
+  const recordingButtonWithTooltip = (
+    <Tooltip title={tooltipTitle}>
+      <span>{recordMeetingButton}</span>
     </Tooltip>
   );
 
@@ -253,7 +277,6 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
     );
   }
 
-  const recordingButton = recording ? recordMeetingButtonWithTooltip : recordMeetingButton;
   if (!record) return null;
   return (
     <>
@@ -264,7 +287,7 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
         time={time}
         disabled={!showButton}
       >
-        {recordingButton}
+        {recordingButtonWithTooltip}
       </Styled.RecordingIndicator>
       {isRecordingNotifyModalOpen ? (
         <RecordingNotify

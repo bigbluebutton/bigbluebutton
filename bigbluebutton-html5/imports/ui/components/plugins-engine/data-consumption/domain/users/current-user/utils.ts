@@ -10,6 +10,8 @@ const formatCurrentUserResponseFromGraphql = (
     name: graphqlDataResult?.data?.name,
     role: graphqlDataResult?.data?.role,
     presenter: graphqlDataResult?.data?.presenter,
+    cameras: graphqlDataResult?.data?.cameras,
+    extId: graphqlDataResult?.data?.extId,
   } : undefined,
   loading: graphqlDataResult.loading,
   error: graphqlDataResult?.errors?.[0],

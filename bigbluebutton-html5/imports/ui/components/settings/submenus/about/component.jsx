@@ -102,6 +102,7 @@ class About extends Component {
                   setIsOpen(false);
                   setIsShortcutModalOpen(true);
                 }}
+                data-test="shortcutsButton"
               >
                 [
                 {intl.formatMessage(intlMessages.hotkeysTable)}
@@ -119,6 +120,7 @@ class About extends Component {
                 href={helpLink}
                 target="_blank"
                 rel="noopener noreferrer"
+                data-test="helpLinkButton"
               >
                 {intl.formatMessage(intlMessages.link)}
               </Styled.Link>

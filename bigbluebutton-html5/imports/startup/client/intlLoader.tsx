@@ -18,9 +18,11 @@ interface IntlLoaderProps extends IntlLoaderContainerProps {
 }
 
 const buildFetchLocale = (locale: string) => {
+  const clientVersion = window.meetingClientSettings.public.app.html5ClientBuild;
   const localesPath = 'locales';
+
   return new Promise((resolve) => {
-    fetch(`${localesPath}/${locale !== 'index' ? `${locale}.json` : ''}`)
+    fetch(`${localesPath}/${locale !== 'index' ? `${locale}.json?v=${clientVersion}` : ''}`)
       .then((response) => {
         if (!response.ok) {
           return resolve(false);

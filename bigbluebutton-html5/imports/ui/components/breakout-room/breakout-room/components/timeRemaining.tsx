@@ -10,10 +10,6 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.title',
     description: 'breakout title',
   },
-  breakoutAriaTitle: {
-    id: 'app.createBreakoutRoom.ariaTitle',
-    description: 'breakout aria title',
-  },
   breakoutDuration: {
     id: 'app.createBreakoutRoom.duration',
     description: 'breakout duration time',
@@ -120,6 +116,7 @@ const TimeRemaingPanel: React.FC<TimeRemainingPanelProps> = ({
               value={newTime}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                 const newSetTime = Number.parseInt(e.target.value, 10) || 0;
+                if (newSetTime > 99999) return;
                 setNewTime(newSetTime);
               }}
               aria-label={intl.formatMessage(intlMessages.setTimeInMinutes)}

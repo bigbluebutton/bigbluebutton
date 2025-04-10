@@ -71,7 +71,7 @@ object RegisteredUsers {
     //userId + "-" + roomSequence
     val userIdParts = breakoutRoomId.split("-")
     val userExtId = userIdParts(0)
-    users.toVector.filter(ru => userExtId == ru.externId)
+    users.toVector.filter(ru => userExtId == ru.id)
   }
 
   def getRegisteredUserWithToken(token: String, userId: String, regUsers: RegisteredUsers): Option[RegisteredUser] = {

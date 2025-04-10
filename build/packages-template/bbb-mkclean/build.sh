@@ -14,7 +14,7 @@ DISTRO=$(echo $TARGET | cut -d'_' -f3)
 rm -rf staging
 
 if [ ! -f mkclean-0.8.10.tar.bz2 ]; then
-    wget https://netcologne.dl.sourceforge.net/project/matroska/mkclean/mkclean-0.8.10.tar.bz2 -O mkclean-0.8.10.tar.bz2
+    wget https://phoenixnap.dl.sourceforge.net/project/matroska/mkclean/mkclean-0.8.10.tar.bz2 -O mkclean-0.8.10.tar.bz2
 fi
 if ! sha256sum -c mkclean.sha256sum ; then
     exit 1
@@ -45,4 +45,3 @@ fpm -s dir -t deb -C ./staging -n $PACKAGE \
     --description "Clean and optimize Matroska and WebM files" \
     $DIRECTORIES \
     $OPTS
-

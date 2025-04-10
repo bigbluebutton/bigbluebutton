@@ -33,10 +33,14 @@ const SettingsListItem = () => {
           role="button"
           tabIndex={0}
           data-test="settingsSidebarButton"
-          onClick={openSettingsModal}
+          onClick={(e) => {
+            e.currentTarget.blur();
+            openSettingsModal();
+          }}
           // @ts-ignore
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
+              e.currentTarget.blur();
               openSettingsModal();
             }
           }}
