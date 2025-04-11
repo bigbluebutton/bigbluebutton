@@ -1549,7 +1549,7 @@
     "app.sessionDetails.title": "تفاصيل الجلسة",
     "app.sessionDetails.dismissLabel": "إغلاق",
     "app.sessionDetails.dismissDesc": "إغلاق مشروط",
-    "app.sessionDetails.joinByUrl": "الانضمام عن طريق عنوان URL",
+    "app.sessionDetails.joinByUrl": "الانضمام عن طريق عنوان رابط",
     "app.sessionDetails.joinByPhone": "انضم عبر الهاتف",
     "app.sessionDetails.copyUrlTooltip": "نسخ رابط الانضمام",
     "app.sessionDetails.copyPhoneTooltip": "نسخ رقم الهاتف",
