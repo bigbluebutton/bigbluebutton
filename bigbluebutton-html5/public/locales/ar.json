@@ -534,7 +534,7 @@
     "app.mobileAppModal.title": "افتح في تطبيق لوحية بك بلو بتن",
     "app.mobileAppModal.description": "هل قمت بتثبيت تطبيق لوحية بك بلو بتن على جهازك؟",
     "app.mobileAppModal.openApp": "نعم، افتح التطبيق الآن",
-    "app.mobileAppModal.obtainUrlMsg": "الحصول على عنوان URL للجلسة",
+    "app.mobileAppModal.obtainUrlMsg": "الحصول على عنوان رابط للجلسة",
     "app.mobileAppModal.obtainUrlErrorMsg": "حدث خطأ أثناء محاولة الحصول على عنوان URL للجلسة",
     "app.mobileAppModal.openStore": "لا، افتح متجر التطبيقات للتنزيل",
     "app.mobileAppModal.dismissLabel": "إلغاء",
