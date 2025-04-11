@@ -3,6 +3,7 @@
   "description": "BigBlueButton HTML5 Client",
   "license": "LGPL-3.0",
   "scripts": {
+    "postinstall": "cd node_modules/bigbluebutton-html-plugin-sdk; npm ci; npm run build; rm node_modules",
     "start": "NODE_ENV=development DETAILED_LOGS=true webpack serve --open --config webpack.config.js",
     "build": "NODE_ENV=production TARGET=default webpack --config webpack.config.js --mode production",
     "build-safari": "NODE_ENV=production TARGET=safari webpack --config webpack.config.js --mode production",
@@ -56,7 +57,7 @@
     "autoprefixer": "^10.4.4",
     "axios": "^1.8.3",
     "babel-runtime": "~6.26.0",
-    "bigbluebutton-html-plugin-sdk": "git+https://github.com/bigbluebutton/bigbluebutton-html-plugin-sdk#d3f677b8ad9d9174605f39fd8cd99a56a789de41",
+    "bigbluebutton-html-plugin-sdk": "https://codeload.github.com/bigbluebutton/bigbluebutton-html-plugin-sdk/tar.gz/356612aa7e852315fa668fc5d053356a08168dd9",
     "bowser": "^2.11.0",
     "browser-bunyan": "^1.8.0",
     "classnames": "^2.2.6",
