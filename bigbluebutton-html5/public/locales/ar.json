@@ -531,7 +531,7 @@
     "app.about.confirmDesc": "موافق",
     "app.about.dismissLabel": "إلغاء",
     "app.about.dismissDesc": "غلق معلومات التطبيق",
-    "app.mobileAppModal.title": "افتح تطبيق BigBlueButton Tablet",
+    "app.mobileAppModal.title": "افتح في تطبيق لوحية بك بلو بتن",
     "app.mobileAppModal.description": "هل قمت بتثبيت تطبيق BigBlueButton Tablet على جهازك؟",
     "app.mobileAppModal.openApp": "نعم، افتح التطبيق الآن",
     "app.mobileAppModal.obtainUrlMsg": "الحصول على عنوان URL للجلسة",
