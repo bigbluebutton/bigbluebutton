@@ -380,7 +380,7 @@
     "app.presentationUploder.conversion.officeDocConversionInvalid": "فشل في معالجة مستند المكتب. الرجاء تحميل بي دي اف بدلاً من ذلك.",
     "app.presentationUploder.conversion.officeDocConversionFailed": "فشل في معالجة مستند المكتب. الرجاء تحميل بي دي اف بدلاً من ذلك.",
     "app.presentationUploder.conversion.pdfHasBigPage": "لم نتمكن من تحويل ملف بي دي اف ، يرجى محاولة تحسينه. أقصى حجم للصفحة {0}",
-    "app.presentationUploder.conversion.timeout": "مكتب خدمات المشاريع, تحويل يستغرق وقتا اطول",
+    "app.presentationUploder.conversion.timeout": "استغرق التحويل وقتا طويلا",
     "app.presentationUploder.conversion.pageCountFailed": "فشل تحديد عدد الصفحات.",
     "app.presentationUploder.conversion.unsupportedDocument": "امتداد الملف غير مدعوم",
     "app.presentationUploder.removePresentationLabel": "حذف العرض",
