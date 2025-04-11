@@ -257,7 +257,7 @@
     "app.screenshare.screensharePermissionError": "رمز {0}. يجب منح إذن لالتقاط الشاشة.",
     "app.screenshare.screenshareToastHelpLabel": "اعرف المزيد", 
     "app.cameraAsContent.presenterLoadingLabel": "يتم تحميل الكاميرا الخاصة بك",
-    "app.cameraAsContent.viewerLoadingLabel": "كاميرا المذيع قيد التحميل",
+    "app.cameraAsContent.viewerLoadingLabel": "كاميرا المقدّم قيد التحميل",
     "app.cameraAsContent.presenterSharingLabel": "أنت الآن تقدم الكاميرا الخاصة بك",
     "app.meeting.ended": "إنتهت هذه الجلسة",
     "app.meeting.endedFromAPI": "تم إنهاء الجلسة بواسطة النظام",
