@@ -194,7 +194,7 @@
     "app.userList.menu.ejectUserCameras.label": "أغلق الكاميرات",
     "app.userList.userAriaLabel": "{0} {1} {2} حالات {3}",
     "app.userList.menu.promoteUser.label": "الترقية إلى مشرف",
-    "app.userList.menu.demoteUser.label": "تخفيض الى المشاهد",
+    "app.userList.menu.demoteUser.label": "تخفيض الى مشاهد",
     "app.userList.menu.unlockUser.label": "فتح {0}",
     "app.userList.menu.lockUser.label": "إغلاق {0}",
     "app.userList.menu.directoryLookup.label": "بحث الدليل",
