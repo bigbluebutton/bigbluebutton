@@ -22,7 +22,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   build-package:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -109,7 +109,7 @@ jobs:
           path: artifacts.tar
   install-and-run-tests:
     needs: build-package
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -479,7 +479,7 @@ jobs:
   upload-report:
     if: always() && !contains(github.event.head_commit.message, 'Merge pull request')
     needs: install-and-run-tests
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     env:
       hasReportData: ${{ needs.install-and-run-tests.result == 'success' || needs.install-and-run-tests.result == 'failure' }}
     steps:
