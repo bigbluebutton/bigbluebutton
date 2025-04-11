@@ -412,7 +412,7 @@
     "app.poll.cancelPollLabel": "إلغاء",
     "app.poll.backLabel": "بدء التصويت",
     "app.poll.closeLabel": "إغلاق",
-    "app.poll.waitingLabel": "انتضار الإجابات ({0}/{1})",
+    "app.poll.waitingLabel": "في انتظار الردود ({0}/{1})",
     "app.poll.ariaInputCount": "إختيار تصويت مخصص {0} من {1}",
     "app.poll.customPlaceholder": "إضاف خيار تصويت",
     "app.poll.noPresentationSelected": "لم يتم تحديد عرض! الرجاء اختر عرض.",
