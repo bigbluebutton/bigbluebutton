@@ -22,7 +22,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   build-package:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -109,7 +109,7 @@ jobs:
           path: artifacts.tar
   install-and-run-tests:
     needs: build-package
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -298,11 +298,11 @@ jobs:
           sudo -i <<'EOF'
           set -e
           cd /root/
-          wget -nv https://raw.githubusercontent.com/bigbluebutton/bbb-install/v3.0.x-release/bbb-install.sh -O bbb-install.sh
+          wget -nv https://raw.githubusercontent.com/bigbluebutton/bbb-install/v4.0.x-release/bbb-install.sh -O bbb-install.sh
           sed -i "s|> /etc/apt/sources.list.d/bigbluebutton.list||g" bbb-install.sh
           chmod +x bbb-install.sh
 
-          COMMAND="./bbb-install.sh -v jammy-30-dev -s bbb-ci.test -j -d /certs/"
+          COMMAND="./bbb-install.sh -v noble-40-dev -s bbb-ci.test -j -d /certs/"
           TIMEOUT=1500  # 25 minutes
           MAX_RETRIES=3
           RETRY_INTERVAL=60
@@ -479,7 +479,7 @@ jobs:
   upload-report:
     if: always() && !contains(github.event.head_commit.message, 'Merge pull request')
     needs: install-and-run-tests
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     env:
       hasReportData: ${{ needs.install-and-run-tests.result == 'success' || needs.install-and-run-tests.result == 'failure' }}
     steps:
