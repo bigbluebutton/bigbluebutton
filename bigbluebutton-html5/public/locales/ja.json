@@ -1461,7 +1461,7 @@
     "app.layout.modal.update": "更新",
     "app.layout.modal.updateAll": "全員を更新",
     "app.layout.modal.followPresentersLayout": "発表者のレイアウトに追従",
-    "app.layout.modal.pushToggleWarningTooltip": "これを有効にすると、すべての参加者のレイアウトが発表者のレイアウトに同期されます。",
+    "app.layout.modal.pushToggleWarningTooltip": "これにより、すべての参加者のレイアウトが発表者のレイアウトに同期されます。",
     "app.layout.modal.layoutLabel": "レイアウトを選択してください",
     "app.layout.modal.pushLayoutLabel": "全員に強制",
     "app.layout.modal.layoutToastLabel": "レイアウトの設定が変更されました",
