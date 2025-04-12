@@ -298,7 +298,7 @@
     "app.meeting.alertBreakoutEndsUnderMinutesSingular": "この小会議はあと一分で終了します。",
     "app.presentation.hide": "プレゼンテーションを非表示",
     "app.presentation.newCurrentPresentationNotification": "現在のプレゼンテーションは {0} です",
-    "app.presentation.downloadEnabledNotification": "プレゼンファイルがダウンロード可能になりました",
+    "app.presentation.downloadEnabledNotification": "プレゼンファイルをダウンロードできます",
     "app.presentation.downloadLabel": "ダウンロード",
     "app.presentation.actionsLabel": "操作",
     "app.presentation.slideContent": "スライドコンテンツ",
