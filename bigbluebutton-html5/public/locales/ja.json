@@ -1445,7 +1445,7 @@
     "app.externalVideo.subtitlesOff": "（あれば）表示する",
     "app.actionsBar.actionsDropdown.shareExternalVideo": "インターネット上の動画を共有",
     "app.actionsBar.actionsDropdown.stopShareExternalVideo": "動画の共有停止",
-    "app.legacy.unsupportedBrowser": "サポート対象でないブラウザを使用しているようです。{0} または {1} の最新バージョンをお使いください。",
+    "app.legacy.unsupportedBrowser": "サポート対象でないブラウザを使用しているようです。{0}または{1}の最新バージョンをお使いください。",
     "app.legacy.upgradeBrowser": "お使いのブラウザはサポート対象ですが、バージョンが古いようです。完全なサポートのため、ブラウザを最新のものににアップグレードしてください。",
     "app.legacy.criosBrowser": "iOSでは、完全なサポートのため、Safariの最新バージョンをお使いください。",
     "app.legacy.unsupportedSafari": "完全なサポートのため、Safari 14かそれよりも新しいバージョンをお使いください。",
