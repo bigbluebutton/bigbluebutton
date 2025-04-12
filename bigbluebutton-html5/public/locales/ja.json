@@ -1138,7 +1138,7 @@
     "app.lock-viewers.button.cancel": "キャンセル",
     "app.lock-viewers.locked": "禁止",
     "app.lock-viewers.hideViewersCursor": "他の視聴者のカーソルを表示する",
-    "app.lock-viewers.hideAnnotationsLabel": "他のビューアーの書き込みを見る",
+    "app.lock-viewers.hideAnnotationsLabel": "他の視聴者の書き込みを見る",
     "app.guest-policy.ariaTitle": "入室許可設定モーダル",
     "app.guest-policy.title": "入室許可設定",
     "app.guest-policy.description": "会議のゲストポリシー設定を変更する",
