@@ -674,7 +674,7 @@ If you want to have all users join muted, you can add an overwrite in `/etc/bigb
 
 ```properties
 # Mute the meeting on start
-muteOnStart=false
+muteOnStart=true
 ```
 
 After making them modification, restart your server with `sudo bbb-conf --restart` to apply the changes.
