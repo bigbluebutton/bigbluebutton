@@ -277,6 +277,7 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
   const roomsRef = React.useRef<Rooms>({});
   const moveRegisterRef = React.useRef<moveUserRegistery>({});
   const randomlyAssignFunction = React.useRef<() => void>(() => {});
+  const resetAssignmentsFunction = React.useRef<() => void>(() => {});
 
   const setRoomsRef = (rooms: Rooms) => {
     roomsRef.current = rooms;
@@ -460,6 +461,7 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
     // @ts-ignore
     const BREAKOUT_LIM = window.meetingClientSettings.public.app.breakouts.breakoutRoomLimit;
     const MAX_BREAKOUT_ROOMS = BREAKOUT_LIM > MIN_BREAKOUT_ROOMS ? BREAKOUT_LIM : MIN_BREAKOUT_ROOMS;
+    const leastOneUserIsValid = roomsRef.current[0]?.users?.length < users.length;
 
     return (
       <React.Fragment key="breakout-form">
@@ -519,17 +521,32 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
           </Styled.DurationLabel>
           <Styled.RandomAssignLabel valid={numberOfRooms > 0} htmlFor="randomlyAssignUsers">
             <Styled.LabelText bold={false} aria-hidden>
-              {intl.formatMessage(intlMessages.randomlyAssign)}
+              {leastOneUserIsValid
+                ? intl.formatMessage(intlMessages.resetAssignments)
+                : intl.formatMessage(intlMessages.randomlyAssign)}
             </Styled.LabelText>
-            {/* @ts-ignore - button is js component */}
-            <Styled.RandomAssignButton
-              aria-label={intl.formatMessage(intlMessages.randomlyAssignDesc)}
-              tooltipLabel={intl.formatMessage(intlMessages.randomlyAssignDesc)}
-              icon="random"
-              size="lg"
-              data-test="randomlyAssignUsers"
-              onClick={() => randomlyAssignFunction.current()}
-            />
+            {leastOneUserIsValid ? (
+              // @ts-ignore - button is js component
+              <Styled.ResetAssignmentButton
+                aria-label={intl.formatMessage(intlMessages.resetAssignmentsDesc)}
+                tooltipLabel={intl.formatMessage(intlMessages.resetAssignmentsDesc)}
+                icon="close"
+                size="lg"
+                data-test="resetAssignments"
+                color="danger"
+                onClick={() => resetAssignmentsFunction.current()}
+              />
+            ) : (
+              // @ts-ignore - button is js component
+              <Styled.RandomAssignButton
+                aria-label={intl.formatMessage(intlMessages.randomlyAssignDesc)}
+                tooltipLabel={intl.formatMessage(intlMessages.randomlyAssignDesc)}
+                icon="random"
+                size="lg"
+                data-test="randomlyAssign"
+                onClick={() => randomlyAssignFunction.current()}
+              />
+            )}
           </Styled.RandomAssignLabel>
         </Styled.BreakoutSettings>
         <Styled.CheckBoxesContainer key="breakout-checkboxes">
@@ -556,7 +573,7 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
   }, [
     durationTime, durationIsValid, numberOfRooms, numberOfRoomsIsValid,
     isImportPresentationWithAnnotationsEnabled, isImportSharedNotesEnabled,
-    checkboxesInfo,
+    checkboxesInfo, roomsRef.current,
   ]);
 
   return (
@@ -601,6 +618,7 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
             groups={groups}
             freeJoin={freeJoin}
             randomlyAssignFunction={(fn: () => void) => { randomlyAssignFunction.current = fn; }}
+            resetAssignmentsFunction={(fn: () => void) => { resetAssignmentsFunction.current = fn; }}
           />
         </Styled.Content>
         <Styled.PanelSeparator />

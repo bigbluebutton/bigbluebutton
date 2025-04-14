@@ -50,7 +50,7 @@ type LabelTextProps = {
   bold: boolean;
 };
 
-interface RandomAssignButtonProps {
+interface ButtonProps {
   color: string;
   disabled: boolean;
   label: string;
@@ -525,13 +525,23 @@ const RandomAssignLabel = styled.label<withValidProp>`
 `;
 
 // @ts-ignore - Button is JSX element
-const RandomAssignButton = styled<RandomAssignButtonProps>(Button)`
+const RandomAssignButton = styled<ButtonProps>(Button)`
   justify-content: center;
   align-items: center;
   height: 3rem;
   border-radius: 1rem;
   border: 1px solid ${appsGalleryOutlineColor};
   background: ${colorGrayUserListToolbar};
+  margin-top: 0.5rem;
+  width: 100%;
+`;
+
+// @ts-ignore - Button is JSX element
+const ResetAssignmentButton = styled<ButtonProps>(Button)`
+  justify-content: center;
+  align-items: center;
+  height: 3rem;
+  border-radius: 1rem;
   margin-top: 0.5rem;
   width: 100%;
 `;
@@ -607,5 +617,6 @@ export default {
   ModalContentWrapper,
   RandomAssignLabel,
   RandomAssignButton,
+  ResetAssignmentButton,
   FooterButton,
 };
