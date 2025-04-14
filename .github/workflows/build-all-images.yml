@@ -38,3 +38,9 @@ jobs:
     with:
       image_name: "graphql-server"
       docker_context: "./bbb-graphql-server"
+
+  export-annotations:
+    uses: ./.github/workflows/build-docker-image.yml
+    with:
+      image_name: "export-annotations"
+      docker_context: "./bbb-export-annotations"
