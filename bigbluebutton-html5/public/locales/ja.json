@@ -1283,7 +1283,7 @@
     "app.debugWindow.form.button.apply": "設定",
     "app.layout.modal.title": "レイアウト",
     "app.layout.modal.update": "更新",
-    "app.layout.modal.updateAll": "全員を更新",
+    "app.layout.modal.updateAll": "全員を変更",
     "app.layout.modal.layoutLabel": "レイアウトを選択してください",
     "app.layout.modal.pushLayoutLabel": "全員に強制",
     "app.layout.modal.layoutToastLabel": "レイアウトの設定が変更されました",
