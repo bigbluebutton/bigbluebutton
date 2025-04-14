@@ -435,6 +435,12 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
     await customParam.webcamBackgroundURL();
   });
 
+  test.only('Logout URL', async ({ browser, context, page}) => {
+    const customParam = new CustomParameters(browser, context);
+    await customParam.initModPage(page, true, { joinParameter: c.logoutURL });
+    await customParam.logoutURLTest();
+  });
+
   test.describe.parallel('Audio', () => {
     test('Auto join', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);

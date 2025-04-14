@@ -22,6 +22,7 @@ exports.raiseHandBtn = 'button[data-test="raiseHandBtn"]';
 exports.lowerHandBtn = 'button[data-test="lowerHandBtn"]';
 exports.raiseHandRejection = 'button[data-test="raiseHandRejection"]';
 exports.meetingEndedModal = 'div[data-test="meetingEndedModal"]';
+exports.redirectButton = 'button[data-test="redirectButton"]';
 exports.leaveMeetingDropdown = 'button[data-test="leaveMeetingDropdown"]';
 exports.directLogoutButton = 'li[data-test="directLogoutButton"]';
 exports.optionsLogoutButton = 'li[data-test="optionsLogoutButton"]';
