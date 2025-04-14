@@ -318,7 +318,7 @@ const WhiteboardContainer = (props) => {
         }
       })();
     }
-  }, [connectedStatus, presenterChanged, wBAccessChanged]);
+  }, [connectedStatus, presenterChanged, wBAccessChanged, curPageId]);
 
   const lastUpdatedAt = useMemo(() => {
     if (!initialPageAnnotations?.pres_annotation_curr?.length) {

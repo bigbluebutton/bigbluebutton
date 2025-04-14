@@ -229,13 +229,13 @@ const Whiteboard = React.memo((props) => {
     }, 300);
   };
 
-  const cleanupStore = () => {
+  const cleanupStore = (cpid) => {
     const allRecords = tlEditorRef.current.store.allRecords();
     const shapeIdsToRemove = allRecords
       .filter((record) => record.typeName === 'shape' && record.parentId)
       .filter((record) => (
         record?.meta?.presentationId !== presentationIdRef.current
-          || !record?.meta?.presentationId
+          || !record?.meta?.presentationId || record.parentId !== cpid
       ))
       .map((shape) => shape.id);
 
