@@ -903,7 +903,6 @@ const Whiteboard = React.memo((props) => {
                 presentationId: presentationIdRef.current,
               },
             };
-
             shapeBatchRef.current[updatedRecord.id] = updatedRecord;
           });
         }
@@ -915,17 +914,16 @@ const Whiteboard = React.memo((props) => {
           const updatedRecord = {
             ...record,
             meta: {
-              createdBy,
+              ...record.meta,
+              createdBy: createdBy,
               updatedBy: currentUser?.userId,
               presentationId: presentationIdRef.current,
             },
           };
 
           const diff = getDifferences(prevShapesRef.current[record?.id], updatedRecord);
-
           if (diff) {
             diff.id = record.id;
-
             shapeBatchRef.current[updatedRecord.id] = diff;
           } else {
             shapeBatchRef.current[updatedRecord.id] = updatedRecord;
@@ -1104,6 +1102,17 @@ const Whiteboard = React.memo((props) => {
           }
 
           return newNext;
+        }
+
+        if (next && next?.typeName === 'shape') {
+          const newVersion = next.meta?.version ? next.meta?.version + 1 : 1;
+          return {
+            ...next,
+            meta: {
+              ...next?.meta,
+              version: newVersion,
+            },
+          };
         }
 
         // Get viewport dimensions and bounds

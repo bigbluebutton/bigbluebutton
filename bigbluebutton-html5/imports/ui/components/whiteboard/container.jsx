@@ -6,7 +6,9 @@ import React, {
   useCallback,
 } from 'react';
 import PropTypes from 'prop-types';
-import { useMutation, useQuery, useSubscription } from '@apollo/client';
+import {
+  useMutation, useQuery, useSubscription, useReactiveVar,
+} from '@apollo/client';
 import {
   AssetRecordType,
 } from '@bigbluebutton/tldraw';
@@ -24,17 +26,20 @@ import {
   notifyShapeNumberExceeded,
   toggleToolsAnimations,
 } from './service';
+import {
+  usePrevious,
+} from './utils';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import Auth from '/imports/ui/services/auth';
 import {
   layoutSelect,
   layoutDispatch,
 } from '/imports/ui/components/layout/context';
+import logger from '/imports/startup/client/logger';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
 import deviceInfo from '/imports/utils/deviceInfo';
 import Whiteboard from './component';
 import ErrorBoundaryWithReload from '../common/error-boundary/error-boundary-with-reload/component';
-
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import {
   PRESENTATION_SET_ZOOM,
@@ -50,6 +55,7 @@ import getFromUserSettings from '/imports/ui/services/users-settings';
 import { debounce } from '/imports/utils/debounce';
 import useLockContext from '/imports/ui/components/lock-viewers/hooks/useLockContext';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
 
 const FORCE_RESTORE_PRESENTATION_ON_NEW_EVENTS = 'bbb_force_restore_presentation_on_new_events';
 
@@ -120,6 +126,8 @@ const WhiteboardContainer = (props) => {
   const isPresenter = currentUser?.presenter;
   const isModerator = currentUser?.isModerator;
 
+  const presenterChanged = usePrevious(isPresenter) !== isPresenter;
+
   const { data: presentationPageData } = useDeduplicatedSubscription(
     CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
   );
@@ -165,6 +173,7 @@ const WhiteboardContainer = (props) => {
 
   const whiteboardWriters = whiteboardWritersData?.pres_page_writers || [];
   const hasWBAccess = whiteboardWriters?.some((writer) => writer.userId === Auth.userID);
+  const wBAccessChanged = usePrevious(hasWBAccess) !== hasWBAccess;
 
   const [presentationSetZoom] = useMutation(PRESENTATION_SET_ZOOM);
   const [presentationSetPage] = useMutation(PRESENTATION_SET_PAGE);
@@ -248,9 +257,7 @@ const WhiteboardContainer = (props) => {
   ), [publishCursorUpdate]);
 
   const isMultiUserActive = whiteboardWriters?.length > 0;
-
   const cursorArray = useMergedCursorData();
-
   const {
     data: currentMeeting,
   } = useMeeting((m) => ({
@@ -265,18 +272,53 @@ const WhiteboardContainer = (props) => {
     },
   );
 
+  const connectedStatus = useReactiveVar(connectionStatus.getConnectedStatusVar());
   useEffect(() => {
-    const handleOnline = () => {
-      if (curPageId) {
-        refetchInitialPageAnnotations();
-      }
-    };
-
-    window.addEventListener('online', handleOnline);
-    return () => {
-      window.removeEventListener('online', handleOnline);
-    };
-  }, [curPageId, refetchInitialPageAnnotations]);
+    if (curPageId && editor) {
+      (async () => {
+        try {
+          const result = await refetchInitialPageAnnotations();
+          const serverAnnotations = result?.data?.pres_annotation_curr || [];
+          const serverMap = new Map();
+          serverAnnotations.forEach((ann) => {
+            const meta = ann.annotationInfo?.meta || {};
+            serverMap.set(ann.annotationId, { ...ann, meta });
+          });
+          const localShapes = editor.getCurrentPageShapes();
+          const idsToRemove = localShapes
+            .filter((shape) => {
+              // Always keep background shapes.
+              if (shape.id.startsWith('shape:BG-')) return false;
+              const serverAnn = serverMap.get(shape.id);
+              if (!serverAnn) {
+                return true;
+              }
+              const localMeta = shape.meta || {};
+              const serverMeta = serverAnn.meta || {};
+              if (localMeta.synced !== true) {
+                return true;
+              }
+              if (serverMeta.synced === true && localMeta.version !== serverMeta.version) {
+                return true;
+              }
+              return false;
+            })
+            .map((shape) => shape.id);
+          if (idsToRemove.length > 0) {
+            removedQueueRef.current.push(idsToRemove);
+            scheduleFlush();
+          }
+        } catch (error) {
+          logger.error(
+            {
+              logCode: 'wbShapeSync',
+            },
+            `Error during reconnection sync: ${error}`,
+          );
+        }
+      })();
+    }
+  }, [connectedStatus, presenterChanged, wBAccessChanged]);
 
   const lastUpdatedAt = useMemo(() => {
     if (!initialPageAnnotations?.pres_annotation_curr?.length) {
@@ -310,7 +352,11 @@ const WhiteboardContainer = (props) => {
           if (!annotationInfo) {
             annotationsToBeRemoved.add(annotationId);
           } else {
-            validShapes.push({ ...annotationInfo, id: annotationId });
+            validShapes.push({
+              ...annotationInfo,
+              id: annotationId,
+              meta: { ...annotationInfo.meta },
+            });
           }
         }
       }
@@ -354,7 +400,9 @@ const WhiteboardContainer = (props) => {
         annotationsToBeRemoved.push(item.annotationId);
       } else {
         const annotationInfoParsed = JSON.parse(item.annotationInfo);
-        const existingShape = editor?.getShape(item.annotationId);
+        const existingShape = editor?.getCurrentPageShapes().find(
+          (s) => s.id === item.annotationId,
+        );
         if (existingShape) {
           updatedAnnotations.push({
             ...item,
