@@ -352,9 +352,7 @@ class NavBar extends Component {
                   label={intl.formatMessage(intlMessages.toggleUserListLabel)}
                   tooltipLabel={intl.formatMessage(intlMessages.toggleUserListLabel)}
                   aria-label={ariaLabel}
-                  icon={isExpanded
-                    ? (document.dir === 'rtl' ? 'right_arrow' : 'left_arrow')
-                    : (document.dir === 'rtl' ? 'left_arrow' : 'right_arrow')}
+                  icon="menu"
                   aria-expanded={isExpanded}
                   accessKey={TOGGLE_USERLIST_AK}
                   hasNotification={hasNotification}

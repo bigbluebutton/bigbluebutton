@@ -382,5 +382,8 @@
   content: "\e977";
 }
 .icon-bbb-text_increase:before {
-  content: "\e978";
+  content:   "\e978";
+}
+.icon-bbb-menu:before {
+  content:   "\e979";
 }
