@@ -1,4 +1,4 @@
-name: CI Workflow
+name: Build all docker images
 
 on:
   workflow_dispatch:
@@ -50,3 +50,25 @@ jobs:
     with:
       image_name: "bbb-etherpad"
       docker_context: "./docker/etherpad"
+
+  bbb-common-message:
+    uses: ./.github/workflows/build-docker-image.yml
+    with:
+      image_name: "bbb-common-message"
+      docker_context: "./bbb-common-message"
+
+  bbb-java-base:
+    uses: ./.github/workflows/build-docker-image.yml
+    with:
+      image_name: "bbb-java-base"
+      docker_context: "./docker/java-base"
+
+  apps-akka:
+    needs: [bbb-java-base, bbb-common-message]
+    uses: ./.github/workflows/build-docker-image.yml
+    with:
+      image_name: "apps-akka"
+      docker_context: "./akka-bbb-apps"
+      build_args: |
+        "JAVA_BASE_TAG=${{ needs.bbb-java-base.outputs.image_tag }}"
+        "COMMON_MESSAGE_TAG=${{ needs.bbb-common-message.outputs.image_tag }}"
