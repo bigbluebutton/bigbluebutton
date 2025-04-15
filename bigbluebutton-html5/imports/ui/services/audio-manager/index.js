@@ -20,6 +20,7 @@ import {
 } from '/imports/api/audio/client/bridge/service';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import { makeVar } from '@apollo/client';
+import { hasMediaDevicesEventTarget } from '/imports/ui/services/webrtc-base/utils';
 import AudioErrors from '/imports/ui/services/audio-manager/error-codes';
 import GrahqlSubscriptionStore, { stringToHash } from '/imports/ui/core/singletons/subscriptionStore';
 import VOICE_ACTIVITY from '../../core/graphql/queries/whoIsTalking';
@@ -53,6 +54,17 @@ const FILTER_AUDIO_STATS = [
   'local-candidate',
   'transport',
 ];
+
+const checkMediaDevicesTarget = () => {
+  if (!hasMediaDevicesEventTarget()) {
+    logger.warn({
+      logCode: 'media_devices_event_target_unavailable',
+      extraInfo: {
+        hasMediaDevicesIface: typeof navigator?.mediaDevices !== 'undefined',
+      },
+    }, 'navigator.mediaDevices EventTarget unavailable');
+  }
+};
 
 class AudioManager {
   constructor() {
@@ -100,10 +112,14 @@ class AudioManager {
 
     window.addEventListener('StopAudioTracks', () => this.forceExitAudio());
     window.addEventListener('beforeunload', this.onBeforeUnload);
+    checkMediaDevicesTarget();
   }
 
   onBeforeUnload() {
-    this.exitAudio();
+    const CONFIRMATION_ON_LEAVE = window.meetingClientSettings.public.app.askForConfirmationOnLeave;
+    if (!CONFIRMATION_ON_LEAVE) {
+      this.forceExitAudio();
+    }
   }
 
   _trackAudioJoinTime() {
@@ -293,7 +309,7 @@ class AudioManager {
       window.addEventListener('graphqlSubscription', (e) => {
         const { subscriptionHash, response } = e.detail;
         if (subscriptionHash === subHash) {
-          if (response) {
+          if (response && response.data) {
             const { data } = response;
             const voiceUser = data.user_voice_activity_stream.find((v) => v.userId === Auth.userID);
             this.onVoiceUserChanges(voiceUser);

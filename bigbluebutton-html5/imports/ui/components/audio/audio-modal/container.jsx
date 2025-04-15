@@ -1,5 +1,6 @@
-import React, { useCallback } from 'react';
+import React, { memo, useCallback } from 'react';
 import { useReactiveVar } from '@apollo/client';
+import { isEqual } from 'radash';
 import browserInfo from '/imports/utils/browserInfo';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import AudioModal from './component';
@@ -166,4 +167,4 @@ const AudioModalContainer = (props) => {
   );
 };
 
-export default AudioModalContainer;
+export default memo(AudioModalContainer, isEqual);

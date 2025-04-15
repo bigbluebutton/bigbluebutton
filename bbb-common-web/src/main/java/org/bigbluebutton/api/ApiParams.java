@@ -80,6 +80,7 @@ public class ApiParams {
 
     public static final String PRESENTATION_UPLOAD_EXTERNAL_DESCRIPTION = "presentationUploadExternalDescription";
     public static final String PRESENTATION_UPLOAD_EXTERNAL_URL = "presentationUploadExternalUrl";
+    public static final String PRESENTATION_CONVERSION_CACHE_ENABLED = "presentationConversionCacheEnabled";
 
     public static final String BREAKOUT_ROOMS_CAPTURE_SLIDES = "breakoutRoomsCaptureSlides";
     public static final String BREAKOUT_ROOMS_CAPTURE_NOTES  = "breakoutRoomsCaptureNotes";
@@ -112,6 +113,8 @@ public class ApiParams {
     public static final String END_WHEN_NO_MODERATOR_DELAY_IN_MINUTES = "endWhenNoModeratorDelayInMinutes";
 
     public static final String RECORD_FULL_DURATION_MEDIA = "recordFullDurationMedia";
+
+    public static final String MAX_NUM_PAGES = "maxNumPages";
 
     private ApiParams() {
         throw new IllegalStateException("ApiParams is a utility class. Instantiation is forbidden.");

@@ -22,14 +22,12 @@ import {
 import { Message } from '/imports/ui/Types/message';
 import ChatMessage, { ChatMessageRef } from './chat-message/component';
 import { setLoadedMessageGathering } from '/imports/ui/core/hooks/useLoadedChatMessages';
-import { ChatLoading } from '../../component';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
 import { useStorageKey, STORAGES } from '/imports/ui/services/storage/hooks';
 import Storage from '/imports/ui/services/storage/in-memory';
 import { getValueByPointer } from '/imports/utils/object-utils';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
-
-const PAGE_SIZE = 50;
+import ChatPageLoading from './loader/component';
 
 interface ChatListPageCommonProps {
   firstPageToLoad: number;
@@ -49,14 +47,18 @@ interface ChatListPageCommonProps {
   chatDeleteEnabled: boolean;
   chatEditEnabled: boolean;
   chatReactionsEnabled: boolean;
+  focusedSequence: number;
   sendReaction: (reactionEmoji: string, reactionEmojiId: string, chatId: string, messageId: string) => void;
   deleteReaction: (reactionEmoji: string, reactionEmojiId: string, chatId: string, messageId: string) => void;
+  allPagesLoaded: boolean;
 }
 
 interface ChatListPageContainerProps extends ChatListPageCommonProps {
   pageSize: number;
   setLastSender: (page: number, message: string) => void;
   chatId: string;
+  setPageLoading: (page: number) => void;
+  clearPageLoading: (page: number) => void;
 }
 
 interface ChatListPageProps extends ChatListPageCommonProps {
@@ -77,6 +79,8 @@ const propsToCompare = [
   'chatEditEnabled',
   'chatReactionsEnabled',
   'chatReplyEnabled',
+  'focusedSequence',
+  'allPagesLoaded',
 ] as const;
 const messagePropsToCompare = [
   'messageId',
@@ -128,11 +132,14 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
   chatReplyEnabled,
   deleteReaction,
   sendReaction,
+  focusedSequence,
+  allPagesLoaded,
 }) => {
   const { domElementManipulationIdentifiers } = useContext(PluginsContext);
   const messageRefs = useRef<Record<number, ChatMessageRef | null>>({});
   const chatFocusMessageRequest = useStorageKey(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST, STORAGES.IN_MEMORY);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const scrollHeightBeforeRender = useRef(scrollRef.current?.scrollHeight || 0);
 
   const [renderedChatMessages, setRenderedChatMessages] = useState<MessageDetails[]>([]);
   useEffect(() => {
@@ -178,10 +185,6 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
     const handleFocusMessageRequest = (e: Event) => {
       if (e instanceof CustomEvent) {
         if (e.detail.sequence) {
-          if (Math.ceil(e.detail.sequence / PAGE_SIZE) < firstPageToLoad) {
-            Storage.setItem(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST, e.detail.sequence);
-            return;
-          }
           messageRefs.current[Number.parseInt(e.detail.sequence, 10)]?.requestFocus();
         }
       }
@@ -211,15 +214,27 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
   }, [firstPageToLoad]);
 
   useEffect(() => {
-    if (typeof chatFocusMessageRequest === 'number') {
-      messageRefs.current[chatFocusMessageRequest]?.requestFocus();
+    if (
+      typeof chatFocusMessageRequest === 'number'
+      && messageRefs.current[chatFocusMessageRequest]
+      && allPagesLoaded
+    ) {
+      messageRefs.current[chatFocusMessageRequest].requestFocus();
       Storage.removeItem(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST);
     }
-  }, []);
+  }, [allPagesLoaded]);
 
   const updateMessageRef = useCallback((ref: ChatMessageRef | null) => {
     if (!ref) return;
     messageRefs.current[ref.sequence] = ref;
+  }, []);
+
+  useEffect(() => {
+    // If chatFocusMessageRequest is a number, do not recalculate scroll position.
+    // A reply message was clicked and the replied message will be focused.
+    if (!scrollRef.current || typeof chatFocusMessageRequest === 'number') return;
+    // eslint-disable-next-line no-param-reassign
+    scrollRef.current.scrollTop = scrollRef.current.scrollHeight - scrollHeightBeforeRender.current;
   }, []);
 
   return (
@@ -228,7 +243,7 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
         const previousMessage = messagesArray[index - 1];
         return (
           <ChatMessage
-            key={message.createdAt}
+            key={message.messageId}
             message={message}
             previousMessage={previousMessage}
             setRenderedChatMessages={setRenderedChatMessages}
@@ -255,6 +270,7 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
             chatReplyEnabled={chatReplyEnabled}
             deleteReaction={deleteReaction}
             sendReaction={sendReaction}
+            focused={focusedSequence === message.messageSequence}
           />
         );
       })}
@@ -287,6 +303,10 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
   chatReplyEnabled,
   deleteReaction,
   sendReaction,
+  focusedSequence,
+  clearPageLoading,
+  setPageLoading,
+  allPagesLoaded,
 }) => {
   const CHAT_CONFIG = window.meetingClientSettings.public.chat;
   const PUBLIC_GROUP_CHAT_KEY = CHAT_CONFIG.public_group_id;
@@ -318,10 +338,16 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
     // component will unmount
     return () => {
       setLoadedMessageGathering(page, []);
+      clearPageLoading(page);
     };
   }, []);
 
-  if (loading) return <ChatLoading isRTL={document.dir === 'rtl'} />;
+  useEffect(() => {
+    const callback = loading ? setPageLoading : clearPageLoading;
+    callback(page);
+  }, [page, loading]);
+
+  if (loading) return <ChatPageLoading />;
   if (!chatMessageData) return null;
   if (chatMessageData.length > 0 && chatMessageData[chatMessageData.length - 1].user?.userId) {
     setLastSender(page, chatMessageData[chatMessageData.length - 1].user?.userId);
@@ -351,6 +377,8 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
       chatReplyEnabled={chatReplyEnabled}
       deleteReaction={deleteReaction}
       sendReaction={sendReaction}
+      focusedSequence={focusedSequence}
+      allPagesLoaded={allPagesLoaded}
     />
   );
 };

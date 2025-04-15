@@ -20,6 +20,7 @@ import { debounce } from '/imports/utils/debounce';
 import { throttle } from '/imports/utils/throttle';
 import LocatedErrorBoundary from '/imports/ui/components/common/error-boundary/located-error-boundary/component';
 import FallbackView from '/imports/ui/components/common/fallback-errors/fallback-view/component';
+import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 
 const intlMessages = defineMessages({
   presentationLabel: {
@@ -675,6 +676,7 @@ class Presentation extends PureComponent {
   render() {
     const {
       userIsPresenter,
+      hasWBAccess,
       currentSlide,
       slidePosition,
       presentationBounds,
@@ -754,7 +756,11 @@ class Presentation extends PureComponent {
       logCode: 'whiteboard_crash',
       logMessage: 'Possible whiteboard crash',
     };
-    if (!presentationIsOpen) return null;
+    const presentationIsHidden = !presentationBounds
+      || presentationBounds.width === 0
+      || presentationBounds.height === 0;
+    if (!presentationIsOpen || presentationIsHidden) return null;
+
     return (
       <>
         <Styled.PresentationContainer
@@ -771,7 +777,7 @@ class Presentation extends PureComponent {
             height: presentationBounds.height,
             display: !presentationIsOpen ? 'none' : 'flex',
             overflow: 'hidden',
-            zIndex: !isVideoFocus ? presentationZIndex : 0,
+            zIndex: !isVideoFocus ? presentationZIndex : 1,
             background:
               layoutType === isVideoFocus && !fullscreenContext
                 ? colorContentBackground
@@ -804,6 +810,26 @@ class Presentation extends PureComponent {
                 <Styled.VisuallyHidden id="currentSlideText">
                   {slideContent}
                 </Styled.VisuallyHidden>
+                {((userIsPresenter || hasWBAccess) && (!tldrawIsMounting && presentationWidth > 0 && currentSlide)) && <Styled.ExtraTools {...{isToolbarVisible}}>
+                  <TooltipContainer title={intl?.messages["app.shortcut-help.undo"]}>
+                    <Styled.Button
+                      aria-label={intl?.messages["app.shortcut-help.undo"]}
+                      onClick={() => tldrawAPI?.undo()}
+                      className="tlui-undo"
+                    >
+                      <Styled.IconWithMask mask={`${window.meetingClientSettings.public.app.basename}/svgs/tldraw/undo.svg`} />
+                    </Styled.Button>
+                  </TooltipContainer>
+                  <TooltipContainer title={intl?.messages["app.shortcut-help.redo"]}>
+                    <Styled.Button
+                      aria-label={intl?.messages["app.shortcut-help.redo"]}
+                      onClick={() => tldrawAPI?.redo()}
+                      className="tlui-redo"
+                    >
+                      <Styled.IconWithMask mask={`${window.meetingClientSettings.public.app.basename}/svgs/tldraw/redo.svg`} />
+                    </Styled.Button>
+                  </TooltipContainer>
+                </Styled.ExtraTools>}
                 {!tldrawIsMounting
                   && presentationWidth > 0
                   && currentSlide
@@ -820,8 +846,8 @@ class Presentation extends PureComponent {
                     intl={intl}
                     presentationWidth={svgWidth}
                     presentationHeight={svgHeight}
-                    presentationAreaHeight={presentationBounds?.height}
-                    presentationAreaWidth={presentationBounds?.width}
+                    presentationAreaHeight={presentationBounds.height - toolbarHeight}
+                    presentationAreaWidth={presentationBounds.width}
                     isPanning={isPanning}
                     zoomChanger={this.zoomChanger}
                     fitToWidth={fitToWidth}

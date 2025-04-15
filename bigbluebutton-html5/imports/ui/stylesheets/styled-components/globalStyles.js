@@ -27,6 +27,9 @@ const GlobalStyle = createGlobalStyle`
       right: 0 !important;
       max-width: none !important;
     }
+    .MuiPaper-root {
+      width: 100%;
+    }
   }
   .MuiList-padding {
     padding: 0 !important;
@@ -63,7 +66,7 @@ const GlobalStyle = createGlobalStyle`
   }
 
   .fullscreenModalOverlay {
-    z-index: 1000;
+    z-index: 900;
     background: #fff;
     display: flex;
     align-items: center;
@@ -89,9 +92,7 @@ const GlobalStyle = createGlobalStyle`
     animation-duration: 0.75s;
     -webkit-animation-fill-mode: both;
     animation-fill-mode: both;
-    max-width: 20rem !important;
-    min-width: 20rem !important;
-    width: 20rem !important;
+    width: 320px !important;
     cursor: pointer;
     background-color: ${colorWhite};
 

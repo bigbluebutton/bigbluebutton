@@ -9,47 +9,52 @@ interface VolumeSlideProps {
   hideVolume: boolean;
 }
 
-const VolumeSlide: React.FC<VolumeSlideProps> = ({
+const VolumeSlide = React.forwardRef<HTMLInputElement, VolumeSlideProps>(({
   onVolumeChanged,
   onMuted,
   volume,
   muted,
   hideVolume,
-}) => {
+}, ref) => {
   const [volumeState, setVolume] = React.useState(volume);
   const [mutedState, setMuted] = React.useState(muted);
 
   const volumeBeforeMute = React.useRef<number>(0);
 
   const getVolumeIcon = useCallback(() => {
-    if (mutedState || volumeState <= 0) return 'volume_off';
+    if ((mutedState || muted) || volumeState <= 0) return 'volume_off';
 
     if (volumeState <= 0.25) return 'volume_mute';
 
     if (volumeState <= 0.75) return 'volume_down';
 
     return 'volume_up';
-  }, [mutedState, volumeState]);
+  }, [mutedState, volumeState, muted]);
 
-  const handleOnChange = useCallback((volume: number) => {
+  const handleOnChange = useCallback((volume: number, mute: boolean) => {
     onVolumeChanged(volume);
-
     setVolume(volume);
+    defineMuteState(mute, volume);
   }, []);
 
-  useEffect(() => {
-    if (mutedState && volumeState > 0) { // unmute if volume was raised during mute
+  const defineMuteState = useCallback((mute: boolean, volume: number) => {
+    if (mute && volume > 0) { // unmute if volume was raised during mute
       setMuted(false);
       onMuted(false);
-    } else if (volumeState <= 0) { // mute if volume is turned to 0
+    } else if (volume <= 0) { // mute if volume is turned to 0
       setMuted(true);
       onMuted(true);
     }
-  }, [volumeState, mutedState, onMuted]);
+  }, []);
+
+  useEffect(() => {
+    setMuted(muted);
+    volumeBeforeMute.current = volume;
+  }, []);
 
   useEffect(() => {
     if (volumeState !== volume) {
-      handleOnChange(volume);
+      handleOnChange(volume, muted);
     }
 
     if (mutedState !== muted) {
@@ -66,7 +71,7 @@ const VolumeSlide: React.FC<VolumeSlideProps> = ({
           volumeBeforeMute.current = volumeState;
         }
         onVolumeChanged(muted ? volumeBeforeMute.current : 0);
-        setVolume(!muted ? 0 : volumeBeforeMute.current);
+        setVolume(!muted ? 0 : volumeBeforeMute.current || volume);
         setMuted(!muted);
         onMuted(!muted);
       }}
@@ -77,15 +82,16 @@ const VolumeSlide: React.FC<VolumeSlideProps> = ({
         />
       </Styled.Volume>
       <Styled.VolumeSlider
+        ref={ref}
         type="range"
         min={0}
         max={1}
         step={0.02}
         value={mutedState ? 0 : volumeState}
-        onChange={(e) => handleOnChange(e.target.valueAsNumber)}
+        onChange={(e) => handleOnChange(e.target.valueAsNumber, muted)}
       />
     </Styled.Slider>
   );
-};
+});
 
 export default VolumeSlide;

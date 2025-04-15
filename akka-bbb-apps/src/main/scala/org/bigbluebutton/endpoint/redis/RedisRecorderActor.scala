@@ -121,6 +121,7 @@ class RedisRecorderActor(
       case m: WebcamsOnlyForModeratorChangedEvtMsg  => handleWebcamsOnlyForModeratorChangedEvtMsg(m)
       case m: MeetingEndingEvtMsg                   => handleMeetingEndingEvtMsg(m)
       case m: MeetingCreatedEvtMsg                  => handleStarterConfigurations(m)
+      case m: SetScreenshareAsContentEvtMsg         => handleSetScreenshareAsContent(m)
 
       // Recording
       case m: RecordingChapterBreakSysMsg           => handleRecordingChapterBreakSysMsg(m)
@@ -769,6 +770,12 @@ class RedisRecorderActor(
     val ev = new MeetingConfigurationEvent()
     ev.setWebcamsOnlyForModerator(msg.body.props.usersProp.webcamsOnlyForModerator)
     record(msg.body.props.meetingProp.intId, ev.toMap().asJava)
+  }
+
+  private def handleSetScreenshareAsContent(msg: SetScreenshareAsContentEvtMsg): Unit = {
+    val ev = new SetScreenshareAsContentEvent()
+    ev.setScreenshareAsContent(msg.body.screenshareAsContent)
+    record(msg.header.meetingId, ev.toMap().asJava)
   }
 
 }

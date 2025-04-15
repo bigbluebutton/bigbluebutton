@@ -200,6 +200,7 @@ export const usePageSizeDictionary = () => {
     desktopPageSizes: DESKTOP_PAGE_SIZES,
     mobilePageSizes: MOBILE_PAGE_SIZES,
   } = window.meetingClientSettings.public.kurento.pagination;
+  const userCount = getCountData();
 
   const PAGINATION_THRESHOLDS_CONF = window.meetingClientSettings.public.kurento.paginationThresholds;
   const PAGINATION_THRESHOLDS_ENABLED = PAGINATION_THRESHOLDS_CONF.enabled;
@@ -235,7 +236,7 @@ export const usePageSizeDictionary = () => {
   };
 
   // Short-circuit: no threshold yet, return stock values (processThreshold has a default arg)
-  if (getCountData() < PAGINATION_THRESHOLDS[0].users) return processThreshold();
+  if (userCount < PAGINATION_THRESHOLDS[0].users) return processThreshold();
 
   // Reverse search for the threshold where our participant count is directly equal or great
   // The PAGINATION_THRESHOLDS config is sorted when imported.
@@ -245,7 +246,7 @@ export const usePageSizeDictionary = () => {
     mapIndex -= 1
   ) {
     targetThreshold = PAGINATION_THRESHOLDS[mapIndex];
-    if (targetThreshold.users <= getCountData()) {
+    if (targetThreshold.users <= userCount) {
       return processThreshold(targetThreshold);
     }
   }

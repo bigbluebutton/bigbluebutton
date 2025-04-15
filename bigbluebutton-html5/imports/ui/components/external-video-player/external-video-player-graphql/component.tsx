@@ -132,21 +132,21 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
       playerOptions: {
         autoPlay: true,
         playsInline: true,
-        controls: isPresenter,
+        controls: true,
       },
       file: {
         attributes: {
-          controls: isPresenter ? 'controls' : '',
+          controls: 'controls',
           autoPlay: true,
           playsInline: true,
         },
       },
       facebook: {
-        controls: isPresenter,
+        controls: true,
       },
       dailymotion: {
         params: {
-          controls: isPresenter,
+          controls: true,
         },
       },
       youtube: {
@@ -156,7 +156,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
           autohide: 1,
           rel: 0,
           ecver: 2,
-          controls: isPresenter ? 1 : 0,
+          controls: 1,
           cc_lang_pref: document.getElementsByTagName('html')[0].lang.substring(0, 2),
         },
         embedOptions: {
@@ -164,18 +164,18 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
         },
       },
       peertube: {
-        isPresenter,
+        isPresenter: true,
       },
       twitch: {
         options: {
-          controls: isPresenter,
+          controls: true,
         },
         playerId: 'externalVideoPlayerTwitch',
       },
       preload: true,
       showHoverToolBar: false,
     };
-  }, [isPresenter]);
+  }, []);
 
   const [showUnsynchedMsg, setShowUnsynchedMsg] = React.useState(false);
   const [showHoverToolBar, setShowHoverToolBar] = React.useState(false);
@@ -188,7 +188,6 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   const playerParentRef = useRef<HTMLDivElement| null>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
   const presenterRef = useRef(isPresenter);
-  const [duration, setDuration] = React.useState(0);
   const [reactPlayerPlaying, setReactPlayerPlaying] = React.useState(false);
   const clientReloadedRef = useRef(false);
 
@@ -197,10 +196,10 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   const changeVolume = (newVolume: number) => {
     setVolume(newVolume);
     storage.setItem('externalVideoVolume', newVolume);
-  };
-
-  const handleDuration = (duration: number) => {
-    setDuration(duration);
+    if (newVolume > 0) {
+      const internalPlayer = playerRef.current?.getInternalPlayer();
+      internalPlayer?.unMute?.();
+    }
   };
 
   useEffect(() => {
@@ -264,8 +263,23 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
 
   useEffect(() => {
     if (isPresenter !== presenterRef.current) {
+      const internalPlayer = playerRef.current?.getInternalPlayer ? playerRef.current?.getInternalPlayer() : null;
+      if (internalPlayer && internalPlayer?.isMuted
+        && typeof internalPlayer?.isMuted === 'function') {
+        const isMuted = internalPlayer?.isMuted();
+        setMute(isMuted);
+      }
+
+      if (internalPlayer && internalPlayer?.getVolume
+        && typeof internalPlayer?.getVolume === 'function'
+        && internalPlayer?.getVolume() !== currentVolume.current) {
+        const playerVolume = internalPlayer?.getVolume();
+        // the scale fiven by the player is 0 to 100, but the accepted scale is 0 to 1
+        // So we need to divide by 100
+        setVolume(playerVolume / 100);
+      }
+
       clientReloadedRef.current = true;
-      setPlayerKey(uniqueId('react-player'));
       presenterRef.current = isPresenter;
     }
   }, [isPresenter]);
@@ -283,7 +297,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
         ? internalPlayer.playbackRate
         : internalPlayer?.getPlaybackRate?.() ?? 1;
 
-      const currentTime = played * duration;
+      const currentTime = internalPlayer?.getCurrentTime() ?? 0;
       sendMessage('play', {
         rate,
         time: currentTime,
@@ -295,6 +309,9 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     }
     if (clientReloadedRef.current) {
       clientReloadedRef.current = false;
+      if (!mute && isPresenter) {
+        playerRef.current?.getInternalPlayer().unMute();
+      }
     }
   };
 
@@ -412,17 +429,17 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
           onStart={handleOnStart}
           onPlay={handleOnPlay}
           onSeek={handleOnSeek}
-          onDuration={handleDuration}
           onProgress={handleProgress}
           onPause={handleOnStop}
           onEnded={handleOnStop}
           muted={mute || isEchoTest}
-          controls={isPresenter}
+          controls
+          previewTabIndex={isPresenter ? 0 : -1}
         />
         {
           shouldShowTools() ? (
             <ExternalVideoPlayerToolbar
-              handleOnMuted={(m: boolean) => { setMute(m); }}
+              handleOnMuted={(m: boolean) => setMute(m)}
               handleReload={() => setPlayerKey(uniqueId('react-player'))}
               setShowHoverToolBar={setShowHoverToolBar}
               toolbarStyle={toolbarStyle}
@@ -438,6 +455,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
               loaded={loaded}
               subtitlesOn={subtitlesOn}
               hideVolume={hideVolume[playerName as keyof typeof hideVolume]}
+              showUnsynchedMsg={showUnsynchedMsg}
             />
           ) : null
         }
@@ -581,7 +599,7 @@ const ExternalVideoPlayerContainer: React.FC = () => {
   const { element } = fullscreen;
   const fullscreenContext = (element === fullscreenElementId);
   const [key, setKey] = React.useState(uniqueId('react-player'));
-  if (!currentUser || !currentMeeting?.externalVideo) return null;
+  if (!currentUser || !currentMeeting?.externalVideo || !externalVideo?.display) return null;
   if (!hasExternalVideoOnLayout) return null;
   const playerPlaybackRate = currentMeeting.externalVideo?.playerPlaybackRate ?? 1;
   const isPresenter = currentUser.presenter ?? false;

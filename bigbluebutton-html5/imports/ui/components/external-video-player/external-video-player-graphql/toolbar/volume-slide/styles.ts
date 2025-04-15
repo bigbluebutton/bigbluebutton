@@ -17,7 +17,7 @@ const Slider = styled.div`
     font-size: 200%;
     cursor: pointer;
   }
-  z-index: 0;
+  z-index: 5;
 `;
 
 const Volume = styled.span`

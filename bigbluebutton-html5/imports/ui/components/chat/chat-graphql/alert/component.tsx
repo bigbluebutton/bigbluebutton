@@ -20,6 +20,7 @@ import Service from './service';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
+import Auth from '/imports/ui/services/auth';
 
 const intlMessages = defineMessages({
   appToastChatPublic: {
@@ -97,8 +98,8 @@ const ChatAlertGraphql: React.FC<ChatAlertGraphqlProps> = (props) => {
     && !!privateUnreadMessages
     && privateUnreadMessages.length > 0;
   const shouldPlayAudioAlert = useCallback(
-    (m: Message) => (m.chatId !== idChatOpen || document.hidden) && !history.current.has(m.messageId),
-    [idChatOpen, history.current],
+    (m: Message) => m.senderId !== Auth.userID && !history.current.has(m.messageId),
+    [history.current],
   );
 
   const CHAT_CONFIG = window.meetingClientSettings.public.chat;

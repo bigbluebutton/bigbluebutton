@@ -2,7 +2,7 @@ const { expect } = require('@playwright/test');
 const { MultiUsers } = require('../user/multiusers');
 const e = require('../core/elements');
 const { killConnection } = require('./util');
-const { ELEMENT_WAIT_TIME } = require('../core/constants');
+const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME } = require('../core/constants');
 
 class Reconnection extends MultiUsers {
   constructor(browser, context) {
@@ -25,8 +25,8 @@ class Reconnection extends MultiUsers {
     ]);
 
     // reconnected -> chat enabled
+    await this.modPage.wasRemoved(e.notificationBannerBar, 'notification bar should be removed after reconnecting successfully', ELEMENT_WAIT_EXTRA_LONG_TIME);
     await expect(chatBoxLocator, 'chat box should be enabled again after reconnecting successfully').toBeEnabled();
-    await this.modPage.wasRemoved(e.notificationBannerBar, 'notification bar should be removed after reconnecting successfully');
   }
 
   async microphone() {
@@ -43,7 +43,7 @@ class Reconnection extends MultiUsers {
     await this.modPage.hasText(e.notificationBannerBar, 'Reconnection in progress');
 
     // reconnected
-    await this.modPage.wasRemoved(e.notificationBannerBar, 'notification bar should be removed after reconnecting successfully');
+    await this.modPage.wasRemoved(e.notificationBannerBar, 'notification bar should be removed after reconnecting successfully', ELEMENT_WAIT_EXTRA_LONG_TIME);
 
     // audio connection should keep connected
     await this.modPage.hasElement(e.muteMicButton, 'user audio should keep connected after reconnection');

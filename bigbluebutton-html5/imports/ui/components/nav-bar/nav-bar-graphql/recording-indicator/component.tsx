@@ -165,7 +165,7 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
         : intl.formatMessage(intlMessages.startTitle);
     }
     return intl.formatMessage(intlMessages.stopTitle);
-  }, [recording, isPhone, disabled]);
+  }, [recording, isPhone, disabled, intl.locale]);
 
   const recordingIndicatorIcon = useMemo(() => (
     <Styled.RecordingIndicatorIcon

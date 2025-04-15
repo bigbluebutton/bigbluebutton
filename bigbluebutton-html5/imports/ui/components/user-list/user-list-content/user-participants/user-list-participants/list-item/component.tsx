@@ -254,7 +254,7 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings, index }
       </Styled.Avatar>
       <Styled.UserNameContainer>
         <Styled.UserName>
-          <TooltipContainer title={user.name}>
+          <TooltipContainer title={user.name} role="button">
             <span>{user.name}</span>
           </TooltipContainer>
           &nbsp;

@@ -1070,7 +1070,7 @@ class ApiController {
                     , contentType: "text/xml")
           }
         }
-      } else if (meetingService.isMeetingWithDisabledPresentation(meetingId)) {
+      } else if (meetingService.isMeetingWithDisabledPresentation(meeting.getInternalId())) {
         withFormat {
           xml {
             render(text: responseBuilder.buildInsertDocumentResponse("Presentation feature is disabled, ignoring.",
@@ -1218,7 +1218,7 @@ class ApiController {
         }
 
         if (!StringUtils.isEmpty(params.sessionName)) {
-          queryParameters.put("sessionName", sessionName);
+          queryParameters.put("sessionName", params.sessionName);
         }
 
         // If the user calling getJoinUrl is a moderator (except in breakout rooms), allow to specify additional parameters

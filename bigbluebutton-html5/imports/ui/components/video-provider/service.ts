@@ -49,7 +49,7 @@ class VideoService {
 
   private activePeers: Record<string, RTCPeerConnection>;
 
-  private readonly clientSessionUUID: string;
+  private clientSessionUUID: string;
 
   constructor() {
     this.userParameterProfile = null;
@@ -58,7 +58,7 @@ class VideoService {
     this.numberOfDevices = 0;
     this.record = null;
     this.hackRecordViewer = null;
-    this.clientSessionUUID = sessionStorage.getItem('clientSessionUUID') || '0';
+    this.clientSessionUUID = '0';
 
     if (navigator.mediaDevices) {
       this.updateNumberOfDevices = this.updateNumberOfDevices.bind(this);
@@ -496,8 +496,16 @@ class VideoService {
     });
   }
 
+  getClientSessionUUID() {
+    if (this.clientSessionUUID === '0') {
+      this.clientSessionUUID = sessionStorage.getItem('clientSessionUUID') || '0';
+    }
+
+    return this.clientSessionUUID;
+  }
+
   getPrefix() {
-    return `${Auth.userID}${TOKEN}${this.clientSessionUUID}`;
+    return `${Auth.userID}${TOKEN}${this.getClientSessionUUID()}`;
   }
 
   updateActivePeers(streams: StreamItem[]) {

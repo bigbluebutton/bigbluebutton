@@ -75,11 +75,11 @@ const AudioControls: React.FC<AudioControlsProps> = ({
     }
   }, []);
 
-  const openAudioSettings = (props: { unmuteOnExit?: boolean } = {}) => {
+  const openAudioSettings = useCallback((props: { unmuteOnExit?: boolean } = {}) => {
     setAudioModalContent('settings');
     setAudioModalProps(props);
     setIsAudioModalOpen(true);
-  };
+  }, []);
 
   const joinButton = useMemo(() => {
     const joinAudioLabel = away ? intlMessages.joinAudioAndSetActive : intlMessages.joinAudio;
@@ -113,17 +113,19 @@ const AudioControls: React.FC<AudioControlsProps> = ({
     }
   }, [isEchoTest]);
 
+  const setIsOpen = useCallback(() => {
+    setIsAudioModalOpen(false);
+    setAudioModalContent(null);
+    setAudioModalProps(null);
+  }, []);
+
   return (
     <Styled.Container>
       {!inAudio ? joinButton : <InputStreamLiveSelectorContainer openAudioSettings={openAudioSettings} />}
       {isAudioModalOpen && (
         <AudioModalContainer
           priority="low"
-          setIsOpen={() => {
-            setIsAudioModalOpen(false);
-            setAudioModalContent(null);
-            setAudioModalProps(null);
-          }}
+          setIsOpen={setIsOpen}
           isOpen={isAudioModalOpen}
           content={audioModalContent}
           unmuteOnExit={audioModalProps?.unmuteOnExit}
@@ -145,7 +147,11 @@ export const AudioControlsContainer: React.FC = () => {
   const { data: currentMeeting } = useMeeting((m: Partial<Meeting>) => ({
     lockSettings: m.lockSettings,
   }));
-  const [updateEchoTestRunning] = useMutation(UPDATE_ECHO_TEST_RUNNING);
+  const [updateEchoTestRunningMutation] = useMutation(UPDATE_ECHO_TEST_RUNNING);
+
+  const updateEchoTestRunning = useCallback(() => {
+    updateEchoTestRunningMutation();
+  }, []);
 
   // I access the internal variable to get the makevar reference,
   // so we doesn't broke the client that uses the value directly
@@ -166,12 +172,12 @@ export const AudioControlsContainer: React.FC = () => {
 
   return (
     <AudioControls
-      inAudio={!!currentUser.voice ?? false}
+      inAudio={!!currentUser.voice}
       isConnected={isConnected}
       disabled={(isConnecting || isHangingUp || !isClientConnected)}
       isEchoTest={isEchoTest}
       updateEchoTestRunning={updateEchoTestRunning}
-      away={currentUser.away || false}
+      away={currentUser.away ?? false}
       isConnecting={isConnecting}
     />
   );

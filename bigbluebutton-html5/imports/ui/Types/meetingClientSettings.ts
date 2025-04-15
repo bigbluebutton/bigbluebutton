@@ -28,6 +28,7 @@ export interface Public {
   whiteboard: Whiteboard
   clientLog: ClientLog
   virtualBackgrounds: VirtualBackgrounds
+  minBrowserVersions: MinBrowserVersions
 }
 export interface Locales {
   locale: string
@@ -86,7 +87,6 @@ export interface App {
   remainingTimeAlertThresholdArray: number[]
   enableDebugWindow: boolean
   breakouts: Breakouts
-  customHeartbeat: boolean
   showAllAvailableLocales: boolean
   showAudioFilters: boolean
   reactionsButton: ReactionsButton
@@ -145,6 +145,8 @@ export interface MutedAlert {
 
 export interface Breakouts {
   allowUserChooseRoomByDefault: boolean
+  offerRecordingForBreakouts: boolean
+  recordRoomByDefault: boolean
   captureWhiteboardByDefault: boolean
   captureSharedNotesByDefault: boolean
   sendInvitationToAssignedModeratorsByDefault: boolean
@@ -621,16 +623,27 @@ export interface Media {
   traceSip: boolean
   sdpSemantics: string
   localEchoTest: LocalEchoTest
+  networkPriorities: MediaNetworkPriorities
   muteAudioOutputWhenAway: boolean
   livekit: LiveKitSettings
 }
 
+export interface LiveKitPresetConfig {
+  width: number
+  height: number
+  maxBitrate: number
+  maxFramerate: number
+  priority?: RTCPriorityType
+}
+
 export interface LiveKitCameraSettings {
   publishOptions?: TrackPublishOptions
+  presets?: LiveKitPresetConfig[]
 }
 
 export interface LiveKitScreenShareSettings {
   publishOptions?: TrackPublishOptions
+  presets?: LiveKitPresetConfig[]
 }
 
 export interface LiveKitAudioSettings {
@@ -663,6 +676,12 @@ export interface LocalEchoTest {
   initialHearingState: boolean
   useRtcLoopbackInChromium: boolean
   delay: Delay
+}
+
+export interface MediaNetworkPriorities {
+  audio: RTCPriorityType
+  webcam: RTCPriorityType
+  screenshare: RTCPriorityType
 }
 
 export interface Delay {
@@ -807,7 +826,6 @@ export interface VirtualBackgrounds {
 export interface Private {
   analytics: Analytics
   app: App2
-  minBrowserVersions: MinBrowserVersion[]
   prometheus: Prometheus
 }
 
@@ -834,9 +852,17 @@ export interface Channels {
   toThirdParty: string
 }
 
-export interface MinBrowserVersion {
-  browser: string
-  version: number | number[] | string
+export interface mobileBrowsers {
+  safari: string
+  chrome: string
+}
+
+export interface MinBrowserVersions {
+  safari: string
+  chrome: string
+  firefox: string
+  edge: string
+  mobile: mobileBrowsers
 }
 
 export interface Prometheus {
