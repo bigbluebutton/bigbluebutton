@@ -302,6 +302,7 @@ class CustomParameters extends MultiUsers {
   }
 
   async logoutURLTest() {
+    //allowDefaultLogoutUrl setting true/false should have no effect if a custom logoutURL is provided
     await this.modPage.waitForSelector(e.whiteboard);
     await this.modPage.waitAndClick(e.leaveMeetingDropdown);
     await this.modPage.waitAndClick(e.directLogoutButton);
