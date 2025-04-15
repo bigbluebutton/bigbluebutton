@@ -28,14 +28,16 @@ const ToggleLabel = styled.span`
 
 const SettingsTabs = styled(Tabs)`
   display: flex;
-  flex-grow: 1;
   flex-direction: row;
   width: 100%;
   height: 100%;
 
   @media ${smallOnly} {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
     width: 100%;
-    flex-flow: column;
+    overflow-x: hidden;
   }
 `;
 
@@ -59,6 +61,7 @@ const SettingsTabList = styled(TabList)`
     padding: 0;
     margin: 0 0 0.5rem 0;
     background: transparent;
+    overflow-y: auto;
   }
 `;
 
@@ -160,7 +163,9 @@ const SettingsTabPanel = styled(TabPanel)`
     padding: 0.5rem 1rem;
     border: none;
     height: auto;
-    overflow: visible;
+    flex-grow: 1;
+    flex-basis: 0;
+    overflow-x: hidden;
   }
 `;
 
@@ -178,6 +183,7 @@ const ActionsContainer = styled.div`
     bottom: auto;
     background: transparent;
     box-shadow: none;
+    flex-grow: 0;
   }
 `;
 
@@ -215,11 +221,22 @@ const Modal = styled(ModalSimple)`
   border-radius: 1rem;
 
   @media ${smallOnly} {
-    height: auto !important;
+    height: 90vh !important;
+    min-height: 90vh;
     max-height: 90vh;
     margin: 5vh auto;
     display: flex;
     flex-direction: column;
+    & > div {
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+      & > div {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+      }
+    }
   }
 `;
 
