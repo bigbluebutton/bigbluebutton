@@ -9,6 +9,14 @@ on:
       docker_context:
         required: true
         type: string
+      build_args:
+        required: false
+        type: string
+        default: ''
+    outputs:
+      image_tag:
+        description: "SHA short tag of the built image"
+        value: ${{ jobs.build_and_publish.outputs.image_tag }}
 
 jobs:
   build_and_publish:
@@ -42,6 +50,11 @@ jobs:
             type=semver,pattern={{ major }}
             type=sha
 
+      - name: Print metadata outputs
+        run: |
+          echo "Docker tags: ${{ steps.meta.outputs.tags }}"
+          echo "Docker labels: ${{ steps.meta.outputs.labels }}"
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
@@ -56,3 +69,12 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            ${{ inputs.build_args != '' && inputs.build_args || '' }}
+
+      - name: Set output for image tag
+        id: image-output
+        run: echo "IMAGE_TAG=sha-$(git rev-parse --short ${{ github.sha }})" >> $GITHUB_OUTPUT
+    
+    outputs:
+      image_tag: ${{ steps.image-output.outputs.IMAGE_TAG }}
