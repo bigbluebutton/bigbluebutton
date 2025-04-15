@@ -4,7 +4,7 @@ import { useMutation } from '@apollo/client';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
 import { useIsInfiniteWhiteboardEnabled, useIsPollingEnabled } from '/imports/ui/services/features';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
-import { POLL_CANCEL } from '/imports/ui/components/poll/mutations';
+import { POLL_CANCEL, POLL_CREATE } from '/imports/ui/components/poll/mutations';
 import { PRESENTATION_SET_ZOOM, PRESENTATION_SET_PAGE, PRESENTATION_SET_PAGE_INFINITE_WHITEBOARD } from '../mutations';
 import PresentationToolbar from './component';
 import Session from '/imports/ui/services/storage/in-memory';
@@ -101,6 +101,7 @@ const PresentationToolbarContainer = (props) => {
   const handleToggleFullScreen = (ref) => FullscreenService.toggleFullScreen(ref);
 
   const [stopPoll] = useMutation(POLL_CANCEL);
+  const [createPoll] = useMutation(POLL_CREATE);
   const [presentationSetZoom] = useMutation(PRESENTATION_SET_ZOOM);
   const [presentationSetPage] = useMutation(PRESENTATION_SET_PAGE);
   const [presentationSetPageInfiniteWhiteboard] = useMutation(PRESENTATION_SET_PAGE_INFINITE_WHITEBOARD);
@@ -167,13 +168,28 @@ const PresentationToolbarContainer = (props) => {
   const startPoll = (pollType, pollId, answers = [], question, isMultipleResponse = false) => {
     Session.setItem('openPanel', 'poll');
     Session.setItem('forcePollOpen', true);
-    Session.setItem('quickPollVariables', {
-      pollType,
-      secretPoll: false,
-      question,
-      isMultipleResponse,
-      answers,
-    });
+
+    if (window.meetingClientSettings.public.poll.quickPollConfirmationStep) {
+      Session.setItem('quickPollVariables', {
+        pollType,
+        secretPoll: false,
+        question,
+        isMultipleResponse,
+        answers,
+      });
+    } else {
+      createPoll({
+        variables: {
+          pollType,
+          pollId: `${pollId}/${new Date().getTime()}`,
+          secretPoll: false,
+          question,
+          isMultipleResponse,
+          answers,
+        },
+      });
+    }
+
     window.dispatchEvent(new Event('panelChanged'));
   };
 
