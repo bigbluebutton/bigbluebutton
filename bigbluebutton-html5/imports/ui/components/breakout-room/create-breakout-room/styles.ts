@@ -1,4 +1,6 @@
 import styled from 'styled-components';
+import { styled as materialStyled } from '@mui/material/styles';
+import { Switch } from '@mui/material';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
 import HoldButton from '/imports/ui/components/presentation/presentation-toolbar/zoom-tool/holdButton/component';
@@ -13,6 +15,8 @@ import {
   colorPrimary,
   colorBlueLight,
   colorGrayLightest,
+  appsGalleryOutlineColor,
+  colorGrayUserListToolbar,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { fontSizeSmall, fontSizeBase, fontSizeSmaller } from '/imports/ui/stylesheets/styled-components/typography';
 import {
@@ -24,9 +28,9 @@ import {
   lgPaddingY,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
-  HeaderContainer as BaseHeaderContainer,
   Separator as BaseSeparator,
 } from '/imports/ui/components/sidebar-content/styles';
+import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 
 type withValidProp = {
   valid: boolean;
@@ -46,7 +50,15 @@ type LabelTextProps = {
   bold: boolean;
 };
 
-const HeaderContainer = styled(BaseHeaderContainer)``;
+interface ButtonProps {
+  color: string;
+  disabled: boolean;
+  label: string;
+  onClick: React.MouseEventHandler;
+  role: string;
+  size: string;
+  icon: string;
+}
 
 const PanelSeparator = styled(BaseSeparator)``;
 
@@ -88,6 +100,21 @@ const FreeJoinLabel = styled.label`
 
   & > * {
     margin: 0 .5rem 0 0;
+
+    [dir="rtl"] & {
+      margin: 0 0 0 .5rem;
+    }
+  }
+`;
+
+const SwitchLabel = styled.label`
+  font-size: ${fontSizeSmall};
+  display: flex;
+  align-items: center;
+  font-size: ${fontSizeSmall};
+
+  & > * {
+    margin: 0 1rem 0 0;
 
     [dir="rtl"] & {
       margin: 0 0 0 .5rem;
@@ -146,8 +173,9 @@ const RoomName = styled(BreakoutNameInput)<RoomNameProps>`
 `;
 
 const BreakoutSettings = styled.div`
-  display: grid;
-  grid-template-rows: 1fr;
+  grid-gap: 1.7rem;
+  display: flex;
+  justify-content: space-around;
 
   @media ${smallOnly} {
     grid-template-columns: 1fr ;
@@ -167,7 +195,20 @@ const FormLabel = styled.p<withValidProp>`
   `}
 `;
 
-const InputRooms = styled.select<withValidProp>`
+const InputRoomsLabel = styled.label<withValidProp>`
+  padding-top: 0.5rem;
+  flex-grow: 1;
+  flex-basis: 0;
+
+  ${({ valid }) => !valid && `
+    & > * {
+      border-color: ${colorDanger} !important;
+      color: ${colorDanger};
+    }
+  `}
+`;
+
+const GeneralSelect = `
   background-color: ${colorWhite};
   color: ${colorGray};
   border: 1px solid ${colorGrayLighter};
@@ -176,7 +217,20 @@ const InputRooms = styled.select<withValidProp>`
   padding-top: .25rem;
   padding-bottom: .25rem;
   padding: .25rem 0 .25rem .25rem;
+  height: 2.7rem;
 
+`;
+
+const InputRooms = styled.select<withValidProp>`
+  ${GeneralSelect}
+  margin-top: 0.5rem;
+  ${({ valid }) => !valid && `
+      border-color: ${colorDanger} !important;
+  `}
+`;
+
+const SlideSelector = styled.select<withValidProp>`
+  ${GeneralSelect}
   ${({ valid }) => !valid && `
       border-color: ${colorDanger} !important;
   `}
@@ -184,6 +238,8 @@ const InputRooms = styled.select<withValidProp>`
 
 const DurationLabel = styled.label<withValidProp>`
   padding-top: 0.5rem;
+  flex-grow: 1;
+  flex-basis: 0;
 
   ${({ valid }) => !valid && `
     & > * {
@@ -207,12 +263,6 @@ const LabelText = styled.p<LabelTextProps>`
   `}
 `;
 
-const DurationArea = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-`;
-
 const DurationInput = styled.input`
   background-color: ${colorWhite};
   color: ${colorGray};
@@ -221,7 +271,8 @@ const DurationInput = styled.input`
   width: 100%;
   text-align: left;
   padding: .25rem;
-  
+  margin-top: .5rem;
+  height: 2.7rem;
 
   &::placeholder {
     color: ${colorGray};
@@ -272,12 +323,62 @@ const CheckBoxesContainer = styled(FlexRow)`
   flex-flow: column;
   justify-content: flex-end;
   padding-top: 1rem;
+  width: fit-content;
+  grid-gap: 0.5rem;
 `;
 
 const FreeJoinCheckbox = styled.input`
   width: 1rem;
   height: 1rem;
 `;
+
+const MaterialSwitch = materialStyled(Switch)(({ theme }) => ({
+  width: 24,
+  height: 14,
+  padding: 0,
+  display: 'flex',
+  '&:active': {
+    '& .MuiSwitch-thumb': {
+      // width: 10,
+    },
+    '& .MuiSwitch-switchBase.Mui-checked': {
+      transform: 'translateX(9px)',
+    },
+  },
+  '& .MuiSwitch-switchBase': {
+    padding: 2,
+    '&.Mui-checked': {
+      transform: 'translateX(12px)',
+      color: '#fff',
+      '& + .MuiSwitch-track': {
+        opacity: 1,
+        backgroundColor: colorPrimary,
+        ...theme.applyStyles('dark', {
+          backgroundColor: colorPrimary,
+        }),
+      },
+    },
+  },
+  '& .MuiSwitch-thumb': {
+    boxShadow: '0 2px 4px 0 rgb(0 35 11 / 20%)',
+    width: 7,
+    height: 7,
+    borderRadius: 6,
+    transition: theme.transitions.create(['width'], {
+      duration: 200,
+    }),
+    transform: 'translateY(1px)',
+  },
+  '& .MuiSwitch-track': {
+    borderRadius: 16 / 2,
+    opacity: 1,
+    backgroundColor: 'rgba(0,0,0,.25)',
+    boxSizing: 'border-box',
+    ...theme.applyStyles('dark', {
+      backgroundColor: 'rgba(255,255,255,.35)',
+    }),
+  },
+}));
 
 const RoomUserItem = styled.p`
   margin: 0;
@@ -359,6 +460,7 @@ const SubTitle = styled.p`
 `;
 
 const TitleWrapper = styled.div`
+  margin-bottom: 1.7rem;
 `;
 
 const Content = styled(ScrollboxVertical)`
@@ -377,6 +479,11 @@ const BreakoutSlideLabel = styled.label`
   margin-bottom: 0.2rem;
 `;
 
+const ActionButtonContainer = styled.div`
+  display: flex;
+  justify-content: flex-end;
+`;
+
 // @ts-ignore - Button is a JS component
 const ActionButton = styled(Button)`
   padding: 1rem 1.5rem;
@@ -384,12 +491,96 @@ const ActionButton = styled(Button)`
   margin: 1.5rem auto;
 `;
 
+const Modal = styled(ModalSimple)`
+  padding: 0;
+  border-radius: 1rem;
+  min-width: 50vw;
+  max-width: 80vw;
+  max-height: 95vh;
+
+  @media ${smallOnly} {
+    height: auto !important;
+    max-height: 90vh;
+    margin: 5vh auto;
+    display: flex;
+    flex-direction: column;
+  }
+`;
+
+const ModalContentWrapper = styled.div`
+  padding: 1rem;
+`;
+
+const RandomAssignLabel = styled.label<withValidProp>`
+  padding-top: 0.5rem;
+  flex-grow: .5;
+  flex-basis: 0;
+
+  ${({ valid }) => !valid && `
+    & > * {
+      border-color: ${colorDanger} !important;
+      color: ${colorDanger};
+    }
+  `}
+`;
+
+// @ts-ignore - Button is JSX element
+const RandomAssignButton = styled<ButtonProps>(Button)`
+  justify-content: center;
+  align-items: center;
+  height: 3rem;
+  border-radius: 1rem;
+  border: 1px solid ${appsGalleryOutlineColor};
+  background: ${colorGrayUserListToolbar};
+  margin-top: 0.5rem;
+  width: 100%;
+`;
+
+// @ts-ignore - Button is JSX element
+const ResetAssignmentButton = styled<ButtonProps>(Button)`
+  justify-content: center;
+  align-items: center;
+  height: 3rem;
+  border-radius: 1rem;
+  margin-top: 0.5rem;
+  width: 100%;
+`;
+
+const FooterButton = styled.button`
+  width: 12.75rem;
+  height: 3.5rem;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 1rem;
+  cursor: pointer;
+  font-size: 16px;
+  color: #fff;
+
+  &:first-child {
+    background-color: transparent; 
+    color: #ccc;
+  }
+
+  &:last-child {
+    background-color: ${colorPrimary};
+  }
+
+  &:hover {
+    opacity: 0.9;
+  }
+
+  &:disabled {
+    background-color: #aaa;
+    cursor: not-allowed;
+  }
+`;
+
 export default {
-  HeaderContainer,
   PanelSeparator,
   BoxContainer,
   Alert,
   FreeJoinLabel,
+  SwitchLabel,
   BreakoutNameInput,
   BreakoutBox,
   SpanWarn,
@@ -397,14 +588,16 @@ export default {
   BreakoutSettings,
   FormLabel,
   InputRooms,
+  SlideSelector,
+  InputRoomsLabel,
   DurationLabel,
   LabelText,
-  DurationArea,
   DurationInput,
   HoldButtonWrapper,
   AssignBtnsContainer,
   AssignBtns,
   CheckBoxesContainer,
+  MaterialSwitch,
   FreeJoinCheckbox,
   RoomUserItem,
   LockIcon,
@@ -418,5 +611,12 @@ export default {
   Content,
   ContentContainer,
   BreakoutSlideLabel,
+  ActionButtonContainer,
   ActionButton,
+  Modal,
+  ModalContentWrapper,
+  RandomAssignLabel,
+  RandomAssignButton,
+  ResetAssignmentButton,
+  FooterButton,
 };

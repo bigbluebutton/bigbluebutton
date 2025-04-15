@@ -1,5 +1,4 @@
 import React, { Dispatch, SetStateAction, useMemo } from 'react';
-import ModalFullscreen from '/imports/ui/components/common/modal/fullscreen/component';
 import { defineMessages, useIntl } from 'react-intl';
 import { range } from 'ramda';
 import { uniqueId } from '/imports/utils/string-utils';
@@ -41,6 +40,9 @@ const DEFAULT_BREAKOUT_TIME = 15;
 const CURRENT_SLIDE_PREFIX = 'current-';
 
 interface CreateBreakoutRoomContainerProps {
+  isOpen: boolean
+  setIsOpen: (value: boolean) => void,
+  priority: string,
   isUpdate?: boolean,
   setUpdateUsersWhileRunning: Dispatch<SetStateAction<boolean>>,
 }
@@ -53,6 +55,9 @@ interface CreateBreakoutRoomProps extends CreateBreakoutRoomContainerProps {
   currentPresentation: string,
   setUpdateUsersWhileRunning: Dispatch<SetStateAction<boolean>>,
   groups: getMeetingGroupResponse['meeting_group'],
+  isOpen: boolean
+  setIsOpen: (value: boolean) => void,
+  priority: string,
 }
 
 const intlMessages = defineMessages({
@@ -223,6 +228,9 @@ const intlMessages = defineMessages({
 });
 
 const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
+  isOpen,
+  setIsOpen,
+  priority,
   isUpdate = false,
   isBreakoutRecordable,
   users,
@@ -254,7 +262,7 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
   const [numberOfRoomsIsValid, setNumberOfRoomsIsValid] = React.useState(true);
   const [durationIsValid, setDurationIsValid] = React.useState(true);
   const [freeJoin, setFreeJoin] = React.useState(allowUserChooseRoomByDefault);
-  const [record, setRecord] = React.useState(recordRoomByDefault);
+  const [record, setRecord] = React.useState(recordRoomByDefault || false);
   const [captureSlides, setCaptureSlides] = React.useState(captureWhiteboardByDefault);
   const [leastOneUserIsValid, setLeastOneUserIsValid] = React.useState(false);
   const [captureNotes, setCaptureNotes] = React.useState(captureSharedNotesByDefault);
@@ -268,6 +276,8 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
 
   const roomsRef = React.useRef<Rooms>({});
   const moveRegisterRef = React.useRef<moveUserRegistery>({});
+  const randomlyAssignFunction = React.useRef<() => void>(() => {});
+  const resetAssignmentsFunction = React.useRef<() => void>(() => {});
 
   const setRoomsRef = (rooms: Rooms) => {
     roomsRef.current = rooms;
@@ -348,6 +358,7 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
         },
       },
     );
+    setIsOpen(false);
     layoutContextDispatch({
       type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
       value: true,
@@ -450,14 +461,15 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
     // @ts-ignore
     const BREAKOUT_LIM = window.meetingClientSettings.public.app.breakouts.breakoutRoomLimit;
     const MAX_BREAKOUT_ROOMS = BREAKOUT_LIM > MIN_BREAKOUT_ROOMS ? BREAKOUT_LIM : MIN_BREAKOUT_ROOMS;
+    const leastOneUserIsValid = roomsRef.current[0]?.users?.length < users.length;
 
     return (
       <React.Fragment key="breakout-form">
         <Styled.BreakoutSettings>
-          <div>
-            <Styled.FormLabel valid={numberOfRoomsIsValid} aria-hidden>
+          <Styled.InputRoomsLabel valid={numberOfRoomsIsValid} htmlFor="roomsNumber">
+            <Styled.LabelText bold={false} aria-hidden>
               {intl.formatMessage(intlMessages.numberOfRooms)}
-            </Styled.FormLabel>
+            </Styled.LabelText>
             <Styled.InputRooms
               id="numberOfRooms"
               name="numberOfRooms"
@@ -474,32 +486,30 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
                 range(MIN_BREAKOUT_ROOMS, MAX_BREAKOUT_ROOMS + 1).map((item) => (<option key={uniqueId('value-')}>{item}</option>))
               }
             </Styled.InputRooms>
-          </div>
+          </Styled.InputRoomsLabel>
           <Styled.DurationLabel valid={durationIsValid} htmlFor="breakoutRoomTime">
             <Styled.LabelText bold={false} aria-hidden>
               {intl.formatMessage(intlMessages.duration)}
             </Styled.LabelText>
-            <Styled.DurationArea>
-              <Styled.DurationInput
-                type="number"
-                min="1"
-                value={durationTime}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                  const { value } = e.target;
-                  const v = Number.parseInt(value, 10);
-                  setDurationTime((v && !(v <= 0) && v >= MIN_BREAKOUT_TIME) ? v : MIN_BREAKOUT_TIME);
-                  setDurationIsValid(v >= MIN_BREAKOUT_TIME);
-                }}
-                onBlur={(e: React.FocusEvent<HTMLInputElement>) => {
-                  const { value } = e.target;
-                  const v = Number.parseInt(value, 10);
-                  setDurationTime((v && !(v <= 0) && v >= MIN_BREAKOUT_TIME) ? v : MIN_BREAKOUT_TIME);
-                  setDurationIsValid(true);
-                }}
-                aria-label={intl.formatMessage(intlMessages.duration)}
-                data-test="durationTime"
-              />
-            </Styled.DurationArea>
+            <Styled.DurationInput
+              type="number"
+              min="1"
+              value={durationTime}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                const { value } = e.target;
+                const v = Number.parseInt(value, 10);
+                setDurationTime((v && !(v <= 0) && v >= MIN_BREAKOUT_TIME) ? v : MIN_BREAKOUT_TIME);
+                setDurationIsValid(v >= MIN_BREAKOUT_TIME);
+              }}
+              onBlur={(e: React.FocusEvent<HTMLInputElement>) => {
+                const { value } = e.target;
+                const v = Number.parseInt(value, 10);
+                setDurationTime((v && !(v <= 0) && v >= MIN_BREAKOUT_TIME) ? v : MIN_BREAKOUT_TIME);
+                setDurationIsValid(true);
+              }}
+              aria-label={intl.formatMessage(intlMessages.duration)}
+              data-test="durationTime"
+            />
             <Styled.SpanWarn data-test="minimumDurationWarnBreakout" valid={durationIsValid}>
               {
                 intl.formatMessage(
@@ -509,139 +519,136 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
               }
             </Styled.SpanWarn>
           </Styled.DurationLabel>
-          <Styled.CheckBoxesContainer key="breakout-checkboxes">
-            {checkboxesInfo
-              .filter((item) => item.allowed)
-              .map((item) => (
-                <Styled.FreeJoinLabel htmlFor={item.htmlFor} key={item.key}>
-                  <Styled.FreeJoinCheckbox
-                    type="checkbox"
-                    id={item.id}
-                    onChange={item.onChange}
-                    aria-label={item.label}
-                    checked={item.checked}
-                  />
-                  <span aria-hidden>{item.label}</span>
-                </Styled.FreeJoinLabel>
-              ))}
-          </Styled.CheckBoxesContainer>
+          <Styled.RandomAssignLabel valid={numberOfRooms > 0} htmlFor="randomlyAssignUsers">
+            <Styled.LabelText bold={false} aria-hidden>
+              {leastOneUserIsValid
+                ? intl.formatMessage(intlMessages.resetAssignments)
+                : intl.formatMessage(intlMessages.randomlyAssign)}
+            </Styled.LabelText>
+            {leastOneUserIsValid ? (
+              // @ts-ignore - button is js component
+              <Styled.ResetAssignmentButton
+                aria-label={intl.formatMessage(intlMessages.resetAssignmentsDesc)}
+                tooltipLabel={intl.formatMessage(intlMessages.resetAssignmentsDesc)}
+                icon="close"
+                size="lg"
+                data-test="resetAssignments"
+                color="danger"
+                onClick={() => resetAssignmentsFunction.current()}
+              />
+            ) : (
+              // @ts-ignore - button is js component
+              <Styled.RandomAssignButton
+                aria-label={intl.formatMessage(intlMessages.randomlyAssignDesc)}
+                tooltipLabel={intl.formatMessage(intlMessages.randomlyAssignDesc)}
+                icon="random"
+                size="lg"
+                data-test="randomlyAssign"
+                onClick={() => randomlyAssignFunction.current()}
+              />
+            )}
+          </Styled.RandomAssignLabel>
         </Styled.BreakoutSettings>
+        <Styled.CheckBoxesContainer key="breakout-checkboxes">
+          {checkboxesInfo
+            .filter((item) => item.allowed)
+            .map((item) => (
+              <Styled.SwitchLabel htmlFor={item.htmlFor} key={item.key}>
+                <Styled.MaterialSwitch
+                  type="checkbox"
+                  id={item.id}
+                  onChange={item.onChange}
+                  aria-label={item.label}
+                  checked={item.checked}
+                />
+                <span aria-hidden>{item.label}</span>
+              </Styled.SwitchLabel>
+            ))}
+        </Styled.CheckBoxesContainer>
         <Styled.SpanWarn valid={numberOfRoomsIsValid}>
           {intl.formatMessage(intlMessages.numberOfRoomsIsValid)}
         </Styled.SpanWarn>
-        <span aria-hidden id="randomlyAssignDesc" className="sr-only">
-          {intl.formatMessage(intlMessages.randomlyAssignDesc)}
-        </span>
       </React.Fragment>
     );
   }, [
     durationTime, durationIsValid, numberOfRooms, numberOfRoomsIsValid,
     isImportPresentationWithAnnotationsEnabled, isImportSharedNotesEnabled,
-    checkboxesInfo,
+    checkboxesInfo, roomsRef.current,
   ]);
 
   return (
-    <>
-      <Styled.HeaderContainer
-        data-test="pollPaneTitle"
-        title={
-          isUpdate
-            ? intl.formatMessage(intlMessages.updateTitle)
-            : intl.formatMessage(intlMessages.breakoutRoomTitle)
+    <Styled.Modal
+      title={isUpdate
+        ? intl.formatMessage(intlMessages.updateTitle)
+        : intl.formatMessage(intlMessages.breakoutRoomTitle)}
+      isOpen={isOpen}
+      priority={priority}
+      onRequestClose={() => {
+        if (isUpdate) {
+          setUpdateUsersWhileRunning(false);
+        } else {
+          setIsOpen(false);
         }
-        rightButtonProps={{
-          'data-test': 'closeBreakoutsCreation',
-          icon: 'close',
-          label: isUpdate
-            ? intl.formatMessage(intlMessages.cancelLabel)
-            : intl.formatMessage(intlMessages.dismissLabel),
-          onClick: () => {
-            layoutContextDispatch({
-              type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-              value: false,
-            });
-            layoutContextDispatch({
-              type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-              value: PANELS.NONE,
-            });
-          },
-        }}
-        customRightButton={null}
-      />
-      <ModalFullscreen
-        title={
-          isUpdate
-            ? intl.formatMessage(intlMessages.updateTitle)
-            : intl.formatMessage(intlMessages.breakoutRoomTitle)
-        }
-        confirm={{
-          label: isUpdate
-            ? intl.formatMessage(intlMessages.updateConfirm)
-            : intl.formatMessage(intlMessages.confirmButton),
-          callback: isUpdate ? userUpdate : createRoom,
-          disabled: (!leastOneUserIsValid && !freeJoin) || !numberOfRoomsIsValid || !durationIsValid,
-        }}
-        rightButtonProps={{
-          'data-test': 'closeBreakoutsCreation',
-          icon: 'close',
-          label: isUpdate
-            ? intl.formatMessage(intlMessages.cancelLabel)
-            : intl.formatMessage(intlMessages.dismissLabel),
-          onClick: () => {
-            layoutContextDispatch({
-              type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-              value: false,
-            });
-            layoutContextDispatch({
-              type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-              value: PANELS.NONE,
-            });
-          },
-        }}
-        customRightButton={null}
-      />
+      }}
+    >
       <Styled.PanelSeparator />
-      <Styled.Content id="scroll-box">
-        <Styled.TitleWrapper>
-          {title}
-          {form}
-        </Styled.TitleWrapper>
+      <Styled.ModalContentWrapper>
+        <Styled.Content id="scroll-box">
+          <Styled.TitleWrapper>
+            {title}
+            {form}
+          </Styled.TitleWrapper>
+          <Styled.PanelSeparator />
+          <RoomManagmentState
+            numberOfRooms={numberOfRooms}
+            users={users}
+            RendererComponent={isMobile ? BreakoutRoomUserAssignmentMobile : BreakoutRoomUserAssignment}
+            runningRooms={runningRooms}
+            setRoomsRef={setRoomsRef}
+            setMoveRegisterRef={setMoveRegisterRef}
+            setFormIsValid={setLeastOneUserIsValid}
+            roomPresentations={roomPresentations}
+            setRoomPresentations={setRoomPresentations}
+            presentations={presentations}
+            currentPresentation={currentPresentation}
+            currentSlidePrefix={CURRENT_SLIDE_PREFIX}
+            getRoomPresentation={getRoomPresentation}
+            isUpdate={isUpdate}
+            setNumberOfRooms={setNumberOfRooms}
+            groups={groups}
+            freeJoin={freeJoin}
+            randomlyAssignFunction={(fn: () => void) => { randomlyAssignFunction.current = fn; }}
+            resetAssignmentsFunction={(fn: () => void) => { resetAssignmentsFunction.current = fn; }}
+          />
+        </Styled.Content>
         <Styled.PanelSeparator />
-        <RoomManagmentState
-          numberOfRooms={numberOfRooms}
-          users={users}
-          RendererComponent={isMobile ? BreakoutRoomUserAssignmentMobile : BreakoutRoomUserAssignment}
-          runningRooms={runningRooms}
-          setRoomsRef={setRoomsRef}
-          setMoveRegisterRef={setMoveRegisterRef}
-          setFormIsValid={setLeastOneUserIsValid}
-          roomPresentations={roomPresentations}
-          setRoomPresentations={setRoomPresentations}
-          presentations={presentations}
-          currentPresentation={currentPresentation}
-          currentSlidePrefix={CURRENT_SLIDE_PREFIX}
-          getRoomPresentation={getRoomPresentation}
-          isUpdate={isUpdate}
-          setNumberOfRooms={setNumberOfRooms}
-          groups={groups}
-          freeJoin={freeJoin}
-        />
-      </Styled.Content>
-      <Styled.ActionButton
-        color="primary"
-        label={isUpdate
-          ? intl.formatMessage(intlMessages.updateConfirm)
-          : intl.formatMessage(intlMessages.confirmButton)}
-        onClick={isUpdate ? userUpdate : createRoom}
-        data-test={isUpdate ? 'updateBreakoutRoomsButton' : 'createBreakoutRoomsButton'}
-        disabled={(!leastOneUserIsValid && !freeJoin) || !numberOfRoomsIsValid || !durationIsValid}
-      />
-    </>
+        <Styled.ActionButtonContainer>
+          <div>
+            <Styled.FooterButton onClick={() => setIsOpen(false)}>
+              {intl.formatMessage(intlMessages.cancelLabel)}
+            </Styled.FooterButton>
+            <Styled.FooterButton
+              color="primary"
+              onClick={isUpdate ? userUpdate : createRoom}
+              data-test={isUpdate ? 'updateBreakoutRoomsButton' : 'createBreakoutRoomsButton'}
+              disabled={(!leastOneUserIsValid && !freeJoin) || !numberOfRoomsIsValid || !durationIsValid}
+            >
+              {isUpdate
+                ? intl.formatMessage(intlMessages.updateConfirm)
+                : intl.formatMessage(intlMessages.confirmButton)}
+            </Styled.FooterButton>
+          </div>
+        </Styled.ActionButtonContainer>
+      </Styled.ModalContentWrapper>
+    </Styled.Modal>
   );
 };
 
 const CreateBreakoutRoomContainer: React.FC<CreateBreakoutRoomContainerProps> = ({
   isUpdate = false,
+  isOpen,
+  setIsOpen,
+  priority,
   setUpdateUsersWhileRunning = () => { },
 }) => {
   const intl = useIntl();
@@ -718,6 +725,9 @@ const CreateBreakoutRoomContainer: React.FC<CreateBreakoutRoomContainerProps> = 
       presentations={presentations}
       currentPresentation={currentPresentation}
       groups={meetingGroupData?.meeting_group ?? []}
+      isOpen={isOpen}
+      setIsOpen={setIsOpen}
+      priority={priority}
     />
   );
 };
