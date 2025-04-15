@@ -44,3 +44,9 @@ jobs:
     with:
       image_name: "export-annotations"
       docker_context: "./bbb-export-annotations"
+
+  etherpad:
+    uses: ./.github/workflows/build-docker-image.yml
+    with:
+      image_name: "bbb-etherpad"
+      docker_context: "./docker/etherpad"
