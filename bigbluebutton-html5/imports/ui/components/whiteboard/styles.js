@@ -231,6 +231,13 @@ const TldrawV2GlobalStyle = createGlobalStyle`
       color: ${colorWhite};
     }
   }
+
+    ${({ cursorType }) => (cursorType) && `
+      .tl-canvas {
+        cursor: ${cursorType} !important;
+      }
+  `}
+
 `;
 
 const EditableWBWrapper = styled.div`
