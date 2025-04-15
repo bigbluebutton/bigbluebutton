@@ -273,8 +273,9 @@ const WhiteboardContainer = (props) => {
   );
 
   const connectedStatus = useReactiveVar(connectionStatus.getConnectedStatusVar());
+
   useEffect(() => {
-    if (curPageId && editor) {
+    if (curPageId && editor && connectedStatus) {
       (async () => {
         try {
           const result = await refetchInitialPageAnnotations();
@@ -284,41 +285,72 @@ const WhiteboardContainer = (props) => {
             const meta = ann.annotationInfo?.meta || {};
             serverMap.set(ann.annotationId, { ...ann, meta });
           });
+
           const localShapes = editor.getCurrentPageShapes();
-          const idsToRemove = localShapes
-            .filter((shape) => {
-              // Always keep background shapes.
-              if (shape.id.startsWith('shape:BG-')) return false;
-              const serverAnn = serverMap.get(shape.id);
-              if (!serverAnn) {
-                return true;
+
+          const shapesToRemove = [];
+          const shapesToResync = [];
+
+          localShapes.forEach((shape) => {
+            // Always keep background shapes.
+            if (shape.id.startsWith('shape:BG-')) return;
+
+            const serverAnn = serverMap.get(shape.id);
+
+            if (!serverAnn) {
+              if (isMultiUserActive && hasWBAccess) {
+                shapesToResync.push(shape);
+              } else {
+                shapesToRemove.push(shape.id);
               }
+            } else {
               const localMeta = shape.meta || {};
               const serverMeta = serverAnn.meta || {};
-              if (localMeta.synced !== true) {
-                return true;
+              if (
+                serverMeta.synced === true
+                && (serverMeta.version && localMeta.version !== serverMeta.version)
+              ) {
+                shapesToRemove.push(shape.id);
               }
-              if (serverMeta.synced === true && localMeta.version !== serverMeta.version) {
-                return true;
-              }
-              return false;
-            })
-            .map((shape) => shape.id);
-          if (idsToRemove.length > 0) {
-            removedQueueRef.current.push(idsToRemove);
+            }
+          });
+
+          if (shapesToResync.length > 0) {
+            const newAnnotations = shapesToResync.map((shape) => ({
+              annotationId: shape.id,
+              annotationInfo: JSON.stringify(shape),
+            }));
+
+            try {
+              await submitAnnotations(newAnnotations);
+            } catch (err) {
+              logger.error(
+                { logCode: 'wbShapeSyncSubmit' },
+                `Error sending shapes to persist: ${err}`,
+              );
+            }
+          }
+
+          if (shapesToRemove.length > 0) {
+            removedQueueRef.current.push(shapesToRemove);
             scheduleFlush();
           }
         } catch (error) {
           logger.error(
-            {
-              logCode: 'wbShapeSync',
-            },
+            { logCode: 'wbShapeSync' },
             `Error during reconnection sync: ${error}`,
           );
         }
       })();
     }
-  }, [connectedStatus, presenterChanged, wBAccessChanged, curPageId]);
+  }, [
+    connectedStatus,
+    curPageId,
+    isMultiUserActive,
+    hasWBAccess,
+    presenterChanged,
+    wBAccessChanged,
+  ]);
 
   const lastUpdatedAt = useMemo(() => {
     if (!initialPageAnnotations?.pres_annotation_curr?.length) {
@@ -388,7 +420,7 @@ const WhiteboardContainer = (props) => {
     if (isTabVisible && curPageId) {
       refetchInitialPageAnnotations();
     }
-  }, [isTabVisible, curPageId, presentationId, fitToWidth]);
+  }, [isTabVisible, presentationId, fitToWidth]);
 
   const processAnnotations = (data) => {
     let annotationsToBeRemoved = [];
@@ -451,13 +483,6 @@ const WhiteboardContainer = (props) => {
       processAnnotations(initialPageAnnotations.pres_annotation_curr);
     }
   }, [initialPageAnnotations]);
-
-  useEffect(() => {
-    if (!curPageId || !lastUpdatedAt) {
-      setShapes([]);
-      setRemovedShapes([]);
-    }
-  }, [curPageId, lastUpdatedAt]);
 
   const bgShape = [];
 

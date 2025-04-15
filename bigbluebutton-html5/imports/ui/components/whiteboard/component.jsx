@@ -259,7 +259,6 @@ const Whiteboard = React.memo((props) => {
         }, []);
 
         if (pageChanged) {
-          cleanupStore(`page:${parseInt(curPageIdRef.current, 10)}`);
           tlEditorRef.current?.store.put(assets);
           tlEditorRef.current?.store.put(bgShape);
         }
