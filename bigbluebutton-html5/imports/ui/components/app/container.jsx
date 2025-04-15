@@ -87,7 +87,7 @@ const AppContainer = (props) => {
   const { data: pinnedPadData } = useDeduplicatedSubscription(PINNED_PAD_SUBSCRIPTION);
   const isSharedNotesPinnedFromGraphql = !!pinnedPadData
     && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
-  const isSharedNotesPinned = sharedNotesInput?.isPinned && isSharedNotesPinnedFromGraphql;
+  const isSharedNotesPinned = sharedNotesInput?.isPinned || isSharedNotesPinnedFromGraphql;
   const isExternalVideoEnabled = useIsExternalVideoEnabled();
   const isPresentationEnabled = useIsPresentationEnabled();
   const isRaiseHandEnabled = useIsRaiseHandEnabled();
