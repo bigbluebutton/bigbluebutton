@@ -47,11 +47,14 @@ public class PresentationConversionCompletionService {
         } else if (msg instanceof PageConvertProgressMessage) {
             PageConvertProgressMessage m = (PageConvertProgressMessage) msg;
 
+            log.info("Handling PageConvertProgressMessage for page {}", m.page);
+
             String presentationToConvertKey = m.presId + "_" + m.meetingId;
 
             PresentationToConvert p = presentationsToConvert.get(presentationToConvertKey);
             if (p != null) {
                 p.incrementPagesCompleted();
+                log.info("Finished converting {} out of {}", p.getPagesCompleted(), p.pres.getNumberOfPages());
                 notifier.sendConversionUpdateMessage(p.getPagesCompleted(), p.pres, m.page);
                 if (p.getPagesCompleted() == p.pres.getNumberOfPages()) {
                     handleEndProcessing(p);
