@@ -134,7 +134,7 @@ const toggleToolsAnimations = (activeAnim, anim, time, hasWBAccess = false) => {
   }
 
   const checkElementsAndRun = () => {
-    const tlEls = document.querySelectorAll('.tlui-menu-zone, .tlui-toolbar__tools, .tlui-toolbar__extras, .tlui-style-panel__wrapper');
+    const tlEls = document.querySelectorAll('.tlui-menu-zone, .tlui-toolbar__tools, .tlui-toolbar__extras, .tlui-style-panel__wrapper, .tlui-undo, .tlui-redo');
     if (tlEls.length) {
       tlEls?.forEach((el) => {
         el.classList.remove(activeAnim);
@@ -158,7 +158,7 @@ const formatAnnotations = (annotations, intl, curPageId, currentPresentationPage
   annotations.forEach((annotation) => {
     if (!annotation.annotationInfo) return;
 
-    let annotationInfo = annotation.annotationInfo;
+    let { annotationInfo } = annotation;
 
     if (annotationInfo.questionType) {
       // poll result, convert it to text and create tldraw shape
@@ -265,6 +265,13 @@ const getCustomEditorAssetUrls = () => {
 const getCustomAssetUrls = () => {
   const BASENAME = window.meetingClientSettings.public.app.basename;
   const TL_ICON_PATHS = `${BASENAME}/svgs/tldraw`;
+  const TL_LOCALE_PATHS = `${BASENAME}/tldraw/translations`;
+
+  const { locales } = window.meetingClientSettings.public.whiteboard;
+  const availableTranslations = (locales && locales.length > 0)
+    ? Object.fromEntries(locales.map((locale) => [locale, `${TL_LOCALE_PATHS}/${locale}.json`]))
+    : {};
+
   return {
     icons: {
       menu: `${TL_ICON_PATHS}/menu.svg`,
@@ -364,6 +371,7 @@ const getCustomAssetUrls = () => {
       'vertical-align-start': `${TL_ICON_PATHS}/vertical-align-start.svg`,
       'vertical-align-end': `${TL_ICON_PATHS}/vertical-align-end.svg`,
     },
+    translations: availableTranslations,
   };
 };
 

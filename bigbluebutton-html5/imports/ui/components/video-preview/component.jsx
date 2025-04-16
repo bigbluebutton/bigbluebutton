@@ -20,6 +20,8 @@ import {
   removeSessionVirtualBackgroundInfo,
   isVirtualBackgroundSupported,
   getSessionVirtualBackgroundInfoWithDefault,
+  setCameraBrightnessInfo,
+  getCameraBrightnessInfo,
 } from '/imports/ui/services/virtual-background/service';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import Checkbox from '/imports/ui/components/common/checkbox/component'
@@ -28,12 +30,18 @@ import { CustomVirtualBackgroundsContext } from '/imports/ui/components/video-pr
 import VBGSelectorService from '/imports/ui/components/video-preview/virtual-background/service';
 import Session from '/imports/ui/services/storage/in-memory';
 import getFromUserSettings from '/imports/ui/services/users-settings';
+import { isEqual } from 'radash';
 
 const VIEW_STATES = {
   finding: 'finding',
   found: 'found',
   error: 'error',
 };
+
+const DEFAULT_BRIGHTNESS_STATE = {
+  brightness: 100,
+  wholeImageBrightness: false,
+}
 
 const propTypes = {
   intl: PropTypes.object.isRequired,
@@ -413,7 +421,7 @@ class VideoPreview extends Component {
     Session.setItem('videoPreviewFirstOpen', false);
   }
 
-  async startCameraBrightness() {
+  async startCameraBrightness(initialState = DEFAULT_BRIGHTNESS_STATE) {
     const ENABLE_CAMERA_BRIGHTNESS = window.meetingClientSettings.public.app.enableCameraBrightness;
     const CAMERA_BRIGHTNESS_AVAILABLE = ENABLE_CAMERA_BRIGHTNESS && isVirtualBackgroundSupported();
 
@@ -425,13 +433,23 @@ class VideoPreview extends Component {
         this.setState({ brightness, wholeImageBrightness });
       };
 
+      const applyStreamBrightnessState = () => {
+        if (!this.currentVideoStream) return;
+        this.currentVideoStream.changeCameraBrightness(initialState.brightness);
+        this.currentVideoStream.toggleCameraBrightnessArea(initialState.wholeImageBrightness);
+      };
+
       if (!this.currentVideoStream?.virtualBgService) {
         const switched = await this.startVirtualBackground(
           this.currentVideoStream,
           EFFECT_TYPES.NONE_TYPE,
         );
-        if (switched) setBrightnessInfo();
+        if (switched) {
+          applyStreamBrightnessState();
+          setBrightnessInfo();
+        }
       } else {
+        applyStreamBrightnessState();
         setBrightnessInfo();
       }
     }
@@ -446,8 +464,12 @@ class VideoPreview extends Component {
         await this.startCameraBrightness();
       }
 
+      const { webcamDeviceId } = this.state;
+      const shared = this.isAlreadyShared(webcamDeviceId);
       this.currentVideoStream.changeCameraBrightness(brightness);
-      this.setState({ brightness });
+      this.setState({ brightness }, () => {
+        if (shared) this.updateCameraBrightnessInfo();
+      });
     }
   }
 
@@ -487,6 +509,18 @@ class VideoPreview extends Component {
       );
     }
   };
+
+  updateCameraBrightnessInfo() {
+    const { webcamDeviceId } = this.state;
+
+    if (this.currentVideoStream) {
+      setCameraBrightnessInfo(
+        webcamDeviceId,
+        this.state.brightness,
+        this.state.wholeImageBrightness,
+      );
+    }
+  }
 
   // Resolves into true if the background switch is successful, false otherwise
   handleVirtualBgSelected(type, name, customParams) {
@@ -576,6 +610,7 @@ class VideoPreview extends Component {
       PreviewService.changeProfile(selectedProfile);
       PreviewService.changeWebcam(webcamDeviceId);
       this.updateVirtualBackgroundInfo();
+      this.updateCameraBrightnessInfo();
       this.cleanupStreamAndVideo();
       startSharing(webcamDeviceId);
     } else {
@@ -792,6 +827,15 @@ class VideoPreview extends Component {
     });
   }
 
+  async applyStoredBrightness(deviceId = null) {
+    const webcamDeviceId = deviceId || this.state.webcamDeviceId;
+    const cameraBrightness = getCameraBrightnessInfo(webcamDeviceId);
+
+    if (cameraBrightness && !isEqual(cameraBrightness, DEFAULT_BRIGHTNESS_STATE)) {
+      return this.startCameraBrightness(cameraBrightness);
+    }
+  }
+
   async getCameraStream(deviceId, profile) {
     const { webcamDeviceId } = this.state;
     const { cameraAsContent, forceOpen } = this.props;
@@ -832,6 +876,15 @@ class VideoPreview extends Component {
       // Only bubble up errors in this case if we're skipping the video preview
       // This is because virtual background failures are deemed critical when
       // skipping the video preview, but not otherwise
+      if (this.shouldSkipVideoPreview()) {
+        throw error;
+      }
+    }
+
+    // Restore brightness state if it was stored in Local/Session Storage
+    try {
+      if (!cameraAsContent) await this.applyStoredBrightness(deviceId);
+    } catch (error) {
       if (this.shouldSkipVideoPreview()) {
         throw error;
       }
@@ -1019,9 +1072,12 @@ class VideoPreview extends Component {
         await this.startCameraBrightness();
       }
 
-      const { wholeImageBrightness } = this.state;
+      const { wholeImageBrightness, webcamDeviceId } = this.state;
+      const shared = this.isAlreadyShared(webcamDeviceId);
       this.currentVideoStream.toggleCameraBrightnessArea(!wholeImageBrightness);
-      this.setState({ wholeImageBrightness: !wholeImageBrightness });
+      this.setState({ wholeImageBrightness: !wholeImageBrightness }, () => {
+        if (shared) this.updateCameraBrightnessInfo();
+      });
     }
   }
 

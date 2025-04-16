@@ -33,25 +33,46 @@ if [ -f private/config/settings.yml ]; then
   sed -i "s/HTML5_CLIENT_VERSION/$(($BUILD))/g" private/config/settings.yml
 fi
 
-echo "Npm version:" 
+echo "Npm version:"
 npm -v
-echo "Node version:" 
+echo "Node version:"
 node -v
 
 CI=true npm ci
-DISABLE_ESLINT_PLUGIN=true npm run build
+DISABLE_ESLINT_PLUGIN=true npm run build-safari && npm run build
 
-# Compress CSS, Javascript and tensorflow WASM binaries used for virtual backgrounds. Keep the
-# uncompressed versions as well so it works with mismatched nginx location blocks
-find dist -name '*.js' -exec gzip -k -f -9 '{}' \;
-find dist -name '*.css' -exec gzip -k -f -9 '{}' \;
-find dist -name '*.wasm' -exec gzip -k -f -9 '{}' \;
+#Rename all safari bundle with same hash of the last bundle
+cd dist
+HASH=$(ls | grep -Eo 'bundle\.[a-f0-9]{20}\.js' | head -n 1 | grep -Eo '[a-f0-9]{20}')
+if [ -z "$HASH" ]; then
+  echo "Bundle hash not found."
+else
+  for FILE in *.safari.js *.safari.js.map; do
+    if [[ "$FILE" == *"$HASH"* ]]; then
+      continue
+    fi
+
+    PREFIX="${FILE%%.safari.js*}"
+    SUFFIX="${FILE#*.safari.js}"  #".js" or ".js.map"
+    NEW_NAME="${PREFIX}.${HASH}.safari.js${SUFFIX}"
+
+    echo "Renaming $FILE → $NEW_NAME"
+    mv "$FILE" "$NEW_NAME"
+  done
+fi
+cd ..
 
 # replace v=VERSION with build number in head and css files
 if [ -f dist/index.html ] || [ -f dist/stylesheets/fonts.css ]; then
   sed -i "s/VERSION/$(($BUILD))/g" dist/index.html
   sed -i "s/VERSION/$(($BUILD))/g" dist/stylesheets/fonts.css
 fi
+
+# Compress CSS, Javascript and tensorflow WASM binaries used for virtual backgrounds. Keep the
+# uncompressed versions as well so it works with mismatched nginx location blocks
+find dist -name '*.js' -exec gzip -k -f -9 '{}' \;
+find dist -name '*.css' -exec gzip -k -f -9 '{}' \;
+find dist -name '*.wasm' -exec gzip -k -f -9 '{}' \;
 
 cp -r dist/* staging/usr/share/bigbluebutton/html5-client
 

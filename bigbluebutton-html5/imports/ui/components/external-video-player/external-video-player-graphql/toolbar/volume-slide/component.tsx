@@ -9,13 +9,13 @@ interface VolumeSlideProps {
   hideVolume: boolean;
 }
 
-const VolumeSlide: React.FC<VolumeSlideProps> = ({
+const VolumeSlide = React.forwardRef<HTMLInputElement, VolumeSlideProps>(({
   onVolumeChanged,
   onMuted,
   volume,
   muted,
   hideVolume,
-}) => {
+}, ref) => {
   const [volumeState, setVolume] = React.useState(volume);
   const [mutedState, setMuted] = React.useState(muted);
 
@@ -83,6 +83,7 @@ const VolumeSlide: React.FC<VolumeSlideProps> = ({
         />
       </Styled.Volume>
       <Styled.VolumeSlider
+        ref={ref}
         type="range"
         min={0}
         max={1}
@@ -92,6 +93,6 @@ const VolumeSlide: React.FC<VolumeSlideProps> = ({
       />
     </Styled.Slider>
   );
-};
+});
 
 export default VolumeSlide;

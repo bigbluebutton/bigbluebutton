@@ -16,6 +16,9 @@ import {
   setDefaultEditorAssetUrls,
   toolbarItem,
 } from '@bigbluebutton/tldraw';
+import {
+  GeoShapeGeoStyle,
+} from '@bigbluebutton/editor';
 import '@bigbluebutton/tldraw/tldraw.css';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { compressToBase64, decompressFromBase64 } from 'lz-string';
@@ -70,6 +73,8 @@ const createLookup = (arr) =>
 const defaultUser = {
   userId: '',
 };
+
+const customTools = [NoopTool, DeleteAllTool];
 
 const Whiteboard = React.memo((props) => {
   const {
@@ -127,6 +132,7 @@ const Whiteboard = React.memo((props) => {
   clearTldrawCache();
 
   const [isMounting, setIsMounting] = React.useState(true);
+  const [cursorType, setCursorType] = React.useState('');
 
   if (isMounting) {
     setDefaultEditorAssetUrls(getCustomEditorAssetUrls());
@@ -171,8 +177,7 @@ const Whiteboard = React.memo((props) => {
     }
   });
 
-  const customTools = [NoopTool, DeleteAllTool];
-  const customUiOverrides = {
+  const customUiOverrides = React.useMemo(() => ({
     tools: (editor, tools) => {
       const updatedTools = {
         ...tools,
@@ -199,7 +204,7 @@ const Whiteboard = React.memo((props) => {
       }
       return toolbarItems;
     },
-  };
+  }), [intl, currentUser?.presenter, currentUser?.userId]);
 
   const prevFitToWidth = usePrevious(fitToWidth);
   const presenterChanged = usePrevious(isPresenter) !== isPresenter;
@@ -433,8 +438,14 @@ const Whiteboard = React.memo((props) => {
           tlEditorRef.current?.setCurrentTool('hand');
         }
       },
-      r: () => tlEditorRef.current?.setCurrentTool('rectangle'),
-      o: () => tlEditorRef.current?.setCurrentTool('ellipse'),
+      r: () => {
+        tlEditorRef.current?.setStyleForNextShapes(GeoShapeGeoStyle, 'rectangle');
+        tlEditorRef.current?.setCurrentTool('geo');
+      },
+      o: () => {
+        tlEditorRef.current?.setStyleForNextShapes(GeoShapeGeoStyle, 'ellipse');
+        tlEditorRef.current?.setCurrentTool('geo');
+      },
       a: () => tlEditorRef.current?.setCurrentTool('arrow'),
       l: () => tlEditorRef.current?.setCurrentTool('line'),
       t: () => tlEditorRef.current?.setCurrentTool('text'),
@@ -487,7 +498,7 @@ const Whiteboard = React.memo((props) => {
       }
     }
 
-    if (!event.altKey && !event.ctrlKey && !event.shiftKey && simpleKeyMap[key]) {
+    if (!event.altKey && !event.ctrlKey && !event.shiftKey && simpleKeyMap[key] && (isPresenterRef.current || hasWBAccessRef.current)) {
       event.preventDefault();
       event.stopPropagation();
       simpleKeyMap[key]();
@@ -953,7 +964,7 @@ const Whiteboard = React.memo((props) => {
 
           const zoomed = prevCam.z !== nextCam.z;
 
-          if ((panned || (zoomed && fitToWidthRef.current)) && isPresenterRef.current) {
+          if ((panned || (zoomed || fitToWidthRef.current)) && isPresenterRef.current) {
             const viewedRegionW = SlideCalcUtil.calcViewedRegionWidth(
               editor?.getViewportPageBounds()?.w,
               currentPresentationPageRef.current?.scaledWidth,
@@ -1813,6 +1824,23 @@ const Whiteboard = React.memo((props) => {
   // so this is not run on every render
   });
 
+  React.useEffect(() => {
+    const baseName = window.meetingClientSettings.public.app.cdn + window.meetingClientSettings.public.app.basename;
+    const makeCursorUrl = (filename) => `${baseName}/resources/images/whiteboard-cursor/${filename}`;
+
+    const TOOL_CURSORS = {
+      draw: `url('${makeCursorUrl('pencil.png')}') 2 22, default`,
+      line: `url('${makeCursorUrl('line.png')}'), default`,
+      text: `url('${makeCursorUrl('text.png')}'), default`,
+      note: `url('${makeCursorUrl('square.png')}'), default`,
+      pan: `url('${makeCursorUrl('pan.png')}'), default`,
+    };
+
+    const currentTool = tlEditorRef.current?.getCurrentToolId();
+    const newCursor = hasWBAccessRef.current || currentUser?.presenter ? TOOL_CURSORS[currentTool] || '' : 'inherit';
+    setCursorType(newCursor);
+  }, [tlEditorRef.current?.getCurrentToolId()]);
+
   return (
     <div
       ref={whiteboardRef}
@@ -1837,6 +1865,7 @@ const Whiteboard = React.memo((props) => {
           isMultiUserActive,
           isToolbarVisible,
           presentationHeight,
+          cursorType,
         }}
       />
     </div>
@@ -1851,7 +1880,7 @@ Whiteboard.propTypes = {
   removeShapes: PropTypes.func.isRequired,
   persistShapeWrapper: PropTypes.func.isRequired,
   notifyNotAllowedChange: PropTypes.func.isRequired,
-  shapes: PropTypes.objectOf(PropTypes.shape).isRequired,
+  shapes: PropTypes.arrayOf(PropTypes.shape).isRequired,
   assets: PropTypes.arrayOf(PropTypes.shape).isRequired,
   currentUser: PropTypes.shape({
     userId: PropTypes.string.isRequired,
