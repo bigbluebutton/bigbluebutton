@@ -291,7 +291,6 @@ const useMouseEvents = ({
         hasWBAccess || isPresenterRef.current,
       );
     } else {
-      console.log("🚀 -> React.useEffect -> animations ? '3s': else", '3s');
       toggleToolsAnimations(
         'fade-out',
         'fade-in',
