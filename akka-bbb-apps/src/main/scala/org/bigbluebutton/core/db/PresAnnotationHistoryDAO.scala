@@ -24,15 +24,23 @@ class PresAnnotationHistoryDbTableDef(tag: Tag) extends Table[PresAnnotationHist
 }
 
 object PresAnnotationHistoryDAO {
-
   def insertOrUpdateMap(meetingId: String, annotations: Array[AnnotationVO], annotationUpdatedAt: Long) = {
     val dbModels = annotations.map { annotation =>
+      val currentMeta = annotation.annotationInfo.get("meta") match {
+        case Some(meta: Map[String, Any] @unchecked) => meta
+        case _                                       => Map.empty[String, Any]
+      }
+      val enforcedMeta = currentMeta ++ Map(
+        "synced" -> true,
+      )
+      val updatedMeta = annotation.annotationInfo.updated("meta", enforcedMeta)
+
       PresAnnotationHistoryDbModel(
         annotationId = annotation.id,
         pageId = annotation.wbId,
         meetingId = meetingId,
         userId = annotation.userId,
-        annotationInfo = Some(JsonUtils.mapToJson(annotation.annotationInfo)),
+        annotationInfo = Some(JsonUtils.mapToJson(updatedMeta)),
         updatedAt = new java.sql.Timestamp(annotationUpdatedAt)
       )
     }
