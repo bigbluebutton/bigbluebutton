@@ -580,7 +580,7 @@ public:
     maxCustom: 5
     maxTypedAnswerLength: 45
     chatMessage: true
-    quickPollConfirmationStep: false
+    quickPollConfirmationStep: true
   captions:
     enabled: true
     id: captions
