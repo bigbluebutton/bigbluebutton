@@ -146,7 +146,11 @@ const useMouseEvents = ({
         const ulElement = presentationWBOptionsMenuItem.parentElement;
         const menuWrapper = ulElement.parentElement;
         const isVisible = menuWrapper.style.visibility !== 'hidden';
-        if (isVisible || tldrawMenu) {
+        if (isVisible) {
+          mouseLeaveTimeoutRef.current = setTimeout(() => {
+            handleMouseLeave();
+          }, 500);
+        } else if (tldrawMenu) {
           mouseLeaveTimeoutRef.current = setTimeout(() => {
             handleMouseLeave();
           }, 500);
