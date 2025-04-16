@@ -143,17 +143,26 @@ const useMouseEvents = ({
       const presentationWBOptionsMenuItem = getPresentationOptionsMenuItem();
       const tldrawMenu = getTldrawOpenMenu();
       if (presentationWBOptionsMenuItem || tldrawMenu) {
-        const ulElement = presentationWBOptionsMenuItem.parentElement;
-        const menuWrapper = ulElement.parentElement;
-        const isVisible = menuWrapper.style.visibility !== 'hidden';
-        if (isVisible) {
+        if (tldrawMenu) {
           mouseLeaveTimeoutRef.current = setTimeout(() => {
             handleMouseLeave();
           }, 500);
-        } else if (tldrawMenu) {
-          mouseLeaveTimeoutRef.current = setTimeout(() => {
-            handleMouseLeave();
-          }, 500);
+        } else if (presentationWBOptionsMenuItem) {
+          const ulElement = presentationWBOptionsMenuItem.parentElement;
+          const menuWrapper = ulElement.parentElement;
+          const isVisible = menuWrapper.style.visibility !== 'hidden';
+          if (isVisible) {
+            mouseLeaveTimeoutRef.current = setTimeout(() => {
+              handleMouseLeave();
+            }, 500);
+          } else {
+            toggleToolsAnimations(
+              'fade-in',
+              'fade-out',
+              animations ? '3s' : '0s',
+              hasWBAccess || isPresenterRef.current,
+            );
+          }
         } else {
           toggleToolsAnimations(
             'fade-in',
