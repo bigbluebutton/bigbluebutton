@@ -260,8 +260,8 @@ class VideoService {
     return videoStream ? videoStream.stream : null;
   }
 
-  isLocalStream(cameraId = '') {
-    return cameraId.startsWith(this.getPrefix());
+  isLocalStream(cameraId: unknown) {
+    return typeof cameraId === 'string' && cameraId.startsWith(this.getPrefix());
   }
 
   static getCameraProfile() {
