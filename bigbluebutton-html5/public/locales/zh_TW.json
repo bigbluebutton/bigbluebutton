@@ -711,6 +711,7 @@
     "app.actionsBar.actionsDropdown.takePresenter": "取得簡報者身份",
     "app.actionsBar.actionsDropdown.takePresenterDesc": "將自己指定為新的簡報者",
     "app.actionsBar.reactions.reactionsButtonLabel": "分享反應",
+    "app.actionsBar.reactions.removeReactionLabel": "移除反應",
     "app.actionsBar.reactions.raiseHand": "舉手",
     "app.actionsBar.reactions.lowHand": "降低手",
     "app.actionsBar.reactions.autoCloseReactionsBarLabel": "自動關閉反應欄",
