@@ -170,6 +170,8 @@ const useMouseEvents = ({
     }, 150);
   };
 
+  useEffect(() => () => clearTimeout(mouseLeaveTimeoutRef.current), []);
+
   const handleMouseWheel = throttle({ interval: 175 }, (event) => {
     event.preventDefault();
     event.stopPropagation();
