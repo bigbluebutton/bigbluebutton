@@ -16,5 +16,12 @@ const (
 		}]
 	}`
 
-	MeetingIDParam = "meetingID"
+	MeetingIDParam       = "meetingID"
+	MeetingNameParam     = "name"
+	VoiceBirdgeParam     = "voiceBridge"
+	AttendeePWParam      = "attendeePW"
+	ModeratorPWParam     = "moderatorPW"
+	IsBreakoutRoomParam  = "isBreakoutRoom"
+	ParentMeetingIDParam = "parentMeetingId"
+	RecordParam          = "record"
 )

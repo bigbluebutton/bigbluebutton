@@ -202,12 +202,6 @@ func (app *Config) processCreateParams(params *Params) (*common.CreateMeetingSet
 	settings.LockSettings = app.processLockSettings(params)
 	settings.SystemSettings = app.processSystemSettings(params)
 	settings.GroupSettings = app.processGroupSettings(params)
-
-	// TODO: Implement client settings override
-	if app.ServerConfig.Override.ClientSettings {
-
-	}
-
 	settings.PluginSettings = app.processPluginSettings(params)
 
 	return &settings, nil

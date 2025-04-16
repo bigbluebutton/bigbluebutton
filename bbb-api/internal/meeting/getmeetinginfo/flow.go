@@ -10,7 +10,7 @@ import (
 
 // NewGetMeetingInfoFlow creates a pipleine.Flow for handling an incoming GetMeetingInfo request and
 // returning a [GetMeetingInfoResponse]. The flow implements the following steps:
-// take the incoming HTTP Request and validate it accoring to the requirements for a GetMeetingInfo request,
+// take the incoming HTTP Request and validate it according to the requirements for a GetMeetingInfo request,
 // transform the HTTP request into a MeetingInfoRequest gRPC request,
 // send the request to Akka Apps and receive a response,
 // transform the gRPC response into a GetMeetingInfoResponse.

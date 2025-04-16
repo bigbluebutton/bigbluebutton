@@ -67,4 +67,8 @@ const (
 	PresentationDisabledMsg = "Presentation feature is disabled, ignoring."
 
 	NoClientProvided = "no client provided for call"
+
+	InvalidInteger      = "invalid integer"
+	InvalidStringLength = "invalid string length"
+	InvalidBoolean      = "invalid boolean"
 )

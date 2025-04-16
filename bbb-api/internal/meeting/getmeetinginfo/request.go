@@ -7,6 +7,7 @@ import (
 
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/gen/meeting"
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/pipeline"
+	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/responses"
 	meetingapi "github.com/bigbluebutton/bigbluebutton/bbb-api/internal/meeting"
 )
 
@@ -22,7 +23,7 @@ type SendMeetingInfoRequest struct {
 // a payload of type [MeetingInfoResponse].
 func (s *SendMeetingInfoRequest) Send(msg pipeline.Message[*meeting.MeetingInfoRequest]) (pipeline.Message[*meeting.MeetingInfoResponse], error) {
 	if s.client == nil {
-		return pipeline.Message[*meeting.MeetingInfoResponse]{}, errors.New("no client provided for call")
+		return pipeline.Message[*meeting.MeetingInfoResponse]{}, errors.New(responses.NoClientProvided)
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)

@@ -32,3 +32,18 @@ func ValidateMeetingID(meetingId string) error {
 
 	return nil
 }
+
+// ValidateMeetingName ensures that the provided meeting name is valid.
+// A valid meeting name is between 2 and 256 characters long.
+func ValidateMeetingName(meetingName string) error {
+	name := strings.TrimSpace(meetingName)
+	if name == "" {
+		return core.NewBBBError(responses.MeetingNameMissingErrorKey, responses.MeetingNameMissingErrorMsg)
+	}
+
+	if len(name) < 2 || len(name) > 256 {
+		return core.NewBBBError(responses.MeetingNameSizeErrorKey, responses.MeetingNameSizeErrorMsg)
+	}
+
+	return nil
+}
