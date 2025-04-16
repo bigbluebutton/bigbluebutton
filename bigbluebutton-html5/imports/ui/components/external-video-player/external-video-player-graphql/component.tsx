@@ -1,5 +1,10 @@
 /* eslint-disable no-param-reassign */
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+} from 'react';
 import ReactPlayer from 'react-player';
 import { defineMessages, useIntl } from 'react-intl';
 import audioManager from '/imports/ui/services/audio-manager';
@@ -202,6 +207,39 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     }
   };
 
+  const stopVideo = useCallback((player: ReactPlayer) => {
+    if (player) {
+      const internalPlayer = player.getInternalPlayer();
+      if (internalPlayer instanceof HTMLVideoElement) {
+        internalPlayer.pause();
+      } else {
+        internalPlayer?.pauseVideo?.();
+      }
+    }
+  }, []);
+
+  const playVideo = useCallback((player: ReactPlayer) => {
+    if (player) {
+      const internalPlayer = player.getInternalPlayer();
+      if (internalPlayer instanceof HTMLVideoElement) {
+        internalPlayer.play();
+      } else {
+        internalPlayer?.playVideo?.();
+      }
+    }
+  }, []);
+
+  const getPlayerCurrentTime = useCallback((player: ReactPlayer) => {
+    if (player) {
+      const internalPlayer = player.getInternalPlayer();
+      if (internalPlayer instanceof HTMLVideoElement) {
+        return internalPlayer.currentTime;
+      }
+      return internalPlayer?.getCurrentTime?.() ?? 0;
+    }
+    return 0;
+  }, []);
+
   useEffect(() => {
     const storedVolume = storage.getItem('externalVideoVolume');
     if (storedVolume) {
@@ -291,13 +329,13 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
 
   const handleOnPlay = async () => {
     setReactPlayerPlaying(true);
+    const internalPlayer = playerRef.current?.getInternalPlayer();
     if (isPresenter && !playing && !clientReloadedRef.current) {
-      const internalPlayer = playerRef.current?.getInternalPlayer();
       const rate = internalPlayer instanceof HTMLVideoElement
         ? internalPlayer.playbackRate
         : internalPlayer?.getPlaybackRate?.() ?? 1;
 
-      const currentTime = internalPlayer?.getCurrentTime() ?? 0;
+      const currentTime = getPlayerCurrentTime(playerRef.current as ReactPlayer);
       sendMessage('play', {
         rate,
         time: currentTime,
@@ -305,7 +343,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     }
 
     if (!playing && !isPresenter) {
-      playerRef.current?.getInternalPlayer().pauseVideo();
+      stopVideo(playerRef.current as ReactPlayer);
     }
     if (clientReloadedRef.current) {
       clientReloadedRef.current = false;
@@ -327,7 +365,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
         rate = await rate;
       }
 
-      const currentTime = playerRef.current?.getCurrentTime() ?? 0;
+      const currentTime = getPlayerCurrentTime(playerRef.current as ReactPlayer);
       sendMessage('stop', {
         rate,
         time: currentTime,
@@ -335,22 +373,24 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     }
 
     if (!isPresenter && playing) {
-      playerRef.current?.getInternalPlayer().playVideo();
+      playVideo(playerRef.current as ReactPlayer);
     }
   };
 
   const handleProgress = (state: OnProgressProps) => {
     setPlayed(state.played);
     setLoaded(state.loaded);
-
     if (playing && isPresenter) {
-      currentTime = playerRef.current?.getCurrentTime() || 0;
+      currentTime = getPlayerCurrentTime(playerRef.current as ReactPlayer);
     }
   };
 
   const handleOnSeek = async (seconds: number) => {
     if (isPresenter) {
-      let rate = playerRef.current?.getInternalPlayer()?.getPlaybackRate() ?? 1;
+      const internalPlayer = playerRef.current?.getInternalPlayer();
+      let rate = internalPlayer instanceof HTMLVideoElement
+        ? internalPlayer.playbackRate
+        : internalPlayer?.getPlaybackRate?.() ?? 1;
       if (rate instanceof Promise) {
         rate = await rate;
       }
@@ -359,7 +399,8 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
         rate,
         time: seconds,
       });
-      playerRef.current?.seekTo(seconds, 'seconds');
+    } else {
+      playVideo(playerRef.current as ReactPlayer);
     }
   };
 
