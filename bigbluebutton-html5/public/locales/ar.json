@@ -711,6 +711,7 @@
     "app.actionsBar.actionsDropdown.takePresenter": "التمكن من المقدم",
     "app.actionsBar.actionsDropdown.takePresenterDesc": "جعل نفسي المقدم الجديد",
     "app.actionsBar.reactions.reactionsButtonLabel": "شارك في رد الفعل",
+    "app.actionsBar.reactions.removeReactionLabel": "إزالة التفاعل",
     "app.actionsBar.reactions.raiseHand": "ارفع يدك",
     "app.actionsBar.reactions.lowHand": "اخفض يدك",
     "app.actionsBar.reactions.autoCloseReactionsBarLabel": "إغلاق شريط التفاعلات تلقائيًا",
