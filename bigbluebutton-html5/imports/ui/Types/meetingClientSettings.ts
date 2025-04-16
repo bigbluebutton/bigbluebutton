@@ -467,6 +467,7 @@ export interface Poll {
   maxCustom: number
   maxTypedAnswerLength: number
   chatMessage: boolean
+  quickPollConfirmationStep: boolean
 }
 
 export interface Captions {
