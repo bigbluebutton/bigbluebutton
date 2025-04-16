@@ -283,7 +283,6 @@ const useMouseEvents = ({
 
   React.useEffect(() => {
     if (whiteboardToolbarAutoHide) {
-      console.log("🚀 -> React.useEffect -> animations ? '3s': if", '3s');
       toggleToolsAnimations(
         'fade-in',
         'fade-out',
@@ -291,7 +290,6 @@ const useMouseEvents = ({
         hasWBAccess || isPresenterRef.current,
       );
     } else {
-      console.log("🚀 -> React.useEffect -> animations ? '3s': else", '3s');
       toggleToolsAnimations(
         'fade-out',
         'fade-in',
