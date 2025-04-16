@@ -4,6 +4,7 @@ import { range } from '/imports/utils/array-utils';
 import Icon from '/imports/ui/components/common/icon/icon-ts/component';
 import Styled from '../styles';
 import Auth from '/imports/ui/services/auth';
+import RoomUserList from './room-user-list/component';
 import { ChildComponentProps } from '../room-managment-state/types';
 
 const intlMessages = defineMessages({
@@ -175,6 +176,10 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.currentSlideLabel',
     description: 'label for current slide',
   },
+  closeLabel: {
+    id: 'app.dropdown.close',
+    description: 'label for the button to close the user list dropdown',
+  },
 });
 
 const isMe = (intId: string) => intId === Auth.userID;
@@ -203,9 +208,11 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
   roomPresentations,
   isUpdate,
   freeJoin,
+  isMobile,
 }) => {
   const intl = useIntl();
   const [sortedRooms, setSortedRooms] = useState(rooms);
+  const [openRoomUserListNumber, setOpenRoomUserListNumber] = useState<null | number>(null);
 
   const sortUsers = (users: User[]) => {
     return [...users].sort((a, b) => {
@@ -293,7 +300,7 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
               <span>{user.name}</span>
               <i>{(isMe(user.userId)) ? ` (${intl.formatMessage(intlMessages.you)})` : ''}</i>
             </span>
-            {room !== 0
+            {room !== 0 && !isMobile
               ? (
                 <span
                   key={`${user.userId}-${room}`}
@@ -358,6 +365,35 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
     }
   };
 
+  const renderParticipantsNames = (roomNumber: number) => {
+    if (!isMobile) {
+      return roomUserList(roomNumber);
+    }
+    const isSelectedRoom = roomNumber === openRoomUserListNumber;
+    return (
+      <>
+        <Styled.AddParticipantButton
+          type="button"
+          onClick={() => setOpenRoomUserListNumber(isSelectedRoom ? null : roomNumber)}
+        >
+          <Styled.Icon
+            iconName={isSelectedRoom ? 'close' : 'plus'}
+          />
+          {intl.formatMessage(isSelectedRoom ? intlMessages.closeLabel : intlMessages.addParticipantLabel)}
+        </Styled.AddParticipantButton>
+        {isSelectedRoom ? (
+          <RoomUserList
+            selectedRoom={roomNumber}
+            rooms={rooms}
+            moveUser={moveUser}
+          />
+        ) : (
+          roomUserList(roomNumber)
+        )}
+      </>
+    );
+  };
+
   return (
     <>
       <Styled.SpanWarn data-test="warningNoUserAssigned" valid={rooms[0]?.users?.length < users.length || freeJoin}>
@@ -375,7 +411,6 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
             />
           </Styled.FreeJoinLabel>
           <Styled.BreakoutBox
-            hundred
             id="breakoutBox-0"
             onDrop={drop(0)}
             onDragOver={allowDrop}
@@ -388,7 +423,7 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
         <Styled.BoxContainer key="rooms-grid-" data-test="roomGrid">
           {
             range(1, numberOfRooms + 1).map((value) => (
-              <div key={`room-${value}`}>
+              <Styled.GridItem key={`room-${value}`}>
                 <Styled.FreeJoinLabel>
                   <Styled.RoomName
                     type="text"
@@ -437,11 +472,10 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
                   id={`breakoutBox-${value}`}
                   onDrop={drop(value)}
                   onDragOver={allowDrop}
-                  hundred={false}
                   tabIndex={0}
                   onKeyDown={rover}
                 >
-                  {roomUserList(value)}
+                  {renderParticipantsNames(value)}
                 </Styled.BreakoutBox>
                 {hasNameDuplicated(value) ? (
                   <Styled.SpanWarn valid>
@@ -453,7 +487,7 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
                     {intl.formatMessage(intlMessages.roomNameEmptyIsValid)}
                   </Styled.SpanWarn>
                 ) : null}
-              </div>
+              </Styled.GridItem>
             ))
           }
         </Styled.BoxContainer>
