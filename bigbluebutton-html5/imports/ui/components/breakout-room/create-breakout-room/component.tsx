@@ -18,7 +18,6 @@ import { PRESENTATIONS_SUBSCRIPTION } from '/imports/ui/components/whiteboard/qu
 import logger from '/imports/startup/client/logger';
 import BreakoutRoomUserAssignment from './breakout-room-user-assignment/component';
 import deviceInfo from '/imports/utils/deviceInfo';
-import BreakoutRoomUserAssignmentMobile from './breakout-room-user-assignment-mobile/component';
 import RoomManagmentState from './room-managment-state/component';
 import {
   Rooms,
