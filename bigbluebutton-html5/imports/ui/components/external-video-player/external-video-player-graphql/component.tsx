@@ -562,6 +562,14 @@ const ExternalVideoPlayerContainer: React.FC = () => {
   };
 
   useEffect(() => {
+    // clear lastMessageRef when video is changed
+    if (lastMessageRef?.current?.event) {
+      lastMessageRef.current.event = '';
+      lastMessageRef.current.rate = 0;
+      lastMessageRef.current.time = 0;
+      lastMessageRef.current.state = undefined;
+    }
+
     if (!currentMeeting?.externalVideo?.externalVideoUrl && hasExternalVideo.current) {
       layoutContextDispatch({
         type: ACTIONS.SET_PILE_CONTENT_FOR_PRESENTATION_AREA,
