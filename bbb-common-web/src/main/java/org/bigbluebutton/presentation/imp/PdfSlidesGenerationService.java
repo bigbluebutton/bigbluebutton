@@ -55,7 +55,7 @@ public class PdfSlidesGenerationService {
         presentationConversionCompletionService.handle(msg);
         log.info("Progress message handled for page {}", pageToConvert.getPageNumber());
       } catch (Throwable t) {
-        log.error("Conversion task failed", t);
+        log.error("Conversion task failed for page {}", pageToConvert.getPageNumber(), t);
       }
     });
   }
