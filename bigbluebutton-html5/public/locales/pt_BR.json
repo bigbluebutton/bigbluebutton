@@ -838,7 +838,7 @@
     "app.audio.loading": "Carregando",
     "app.audio.microphones": "Microfones",
     "app.audio.speakers": "Alto-falantes",
-    "app.audio.noDeviceFound": "Nenhum dispotivo encontrado (modo ouvinte)",
+    "app.audio.noDeviceFound": "Nenhum dispositivo encontrado (modo ouvinte)",
     "app.audio.audioSettings.titleLabel": "Suas configurações de áudio",
     "app.audio.audioSettings.baseSubtitle": "Para ajustar suas configurações, tente falar para verificar como seus dispositivos de entrada e saída estão funcionando.",
     "app.audio.audioSettings.findingDevicesTitle": "Buscando dispositivos de áudio, por favor aceite a requisição de seu uso",
