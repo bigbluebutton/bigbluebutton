@@ -312,7 +312,7 @@ class ConnectionStatusComponent extends PureComponent {
                 moderator={conn.user.isModerator}
                 color={conn.user.color}
               >
-                {conn.user.name.toLowerCase().slice(0, 2)}
+                {(conn.user.name?.toLowerCase()?.slice(0, 2)) || ''}
               </UserAvatar>
             </Styled.Avatar>
 

@@ -105,7 +105,7 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
           name: intl.formatMessage(intlMessages.breakoutRoom, {
             0: toRoom,
           }),
-          users: [users.find((user) => user.userId === id)],
+          users: [users.find((user) => user.userId === id)].filter((user) => user),
         } as Room;
       } else {
         updatedRooms[toRoom] = {
@@ -113,7 +113,7 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
           users: [
             ...(room?.users ?? []),
             roomFrom?.users?.find((user) => user.userId === id),
-          ],
+          ].filter((user) => user),
         } as Room;
         updatedRooms[fromRoom] = {
           ...roomFrom,
@@ -153,10 +153,18 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
   };
 
   const randomlyAssign = () => {
+    // assign users to rooms in an evenly distributed manner
     const withoutModerators = rooms[0].users.filter((user) => !user.isModerator);
-    const userIds = withoutModerators.map((user) => user.userId);
-    const randomRooms = withoutModerators.map(() => Math.floor(Math.random() * numberOfRooms) + 1);
-    moveUser(userIds, 0, randomRooms);
+    const userIds = withoutModerators.sort(() => Math.random() - 0.5).map((user) => user.userId);
+    const numberOfUsers = withoutModerators.length;
+    const assignments = new Array(numberOfUsers);
+
+    // eslint-disable-next-line no-plusplus
+    for (let i = 0; i < numberOfUsers; i++) {
+      assignments[i] = (i % numberOfRooms) + 1;
+    }
+
+    moveUser(userIds, 0, assignments);
   };
 
   const resetRooms = (cap: number) => {
@@ -170,7 +178,7 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
             users: [
               ...prevRooms[0].users,
               ...rooms[Number(room)].users,
-            ],
+            ].filter((user) => user),
           },
           [Number(room)]: {
             ...prevRooms[Number(room)],

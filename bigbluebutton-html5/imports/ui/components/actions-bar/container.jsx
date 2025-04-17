@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext } from 'react';
 import { useIntl } from 'react-intl';
 import { useMutation, useReactiveVar } from '@apollo/client';
 import getFromUserSettings from '/imports/ui/services/users-settings';
@@ -14,6 +14,7 @@ import {
   useIsPollingEnabled,
   useIsPresentationEnabled,
   useIsTimerFeatureEnabled,
+  useIsRaiseHandEnabled,
 } from '/imports/ui/services/features';
 
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
@@ -92,7 +93,6 @@ const ActionsBarContainer = (props) => {
   };
   const amIPresenter = currentUserData?.presenter;
   const amIModerator = currentUserData?.isModerator;
-  const [pinnedPadDataState, setPinnedPadDataState] = useState(null);
   const { data: pinnedPadData } = useDeduplicatedSubscription(
     PINNED_PAD_SUBSCRIPTION,
   );
@@ -103,6 +103,7 @@ const ActionsBarContainer = (props) => {
   const isPresentationEnabled = useIsPresentationEnabled();
   const isTimerFeatureEnabled = useIsTimerFeatureEnabled();
   const isPollingEnabled = useIsPollingEnabled() && isPresentationEnabled;
+  const isRaiseHandEnabled = useIsRaiseHandEnabled();
   const applicationSettings = useSettings(SETTINGS.APPLICATION);
   const { pushLayout } = applicationSettings;
   const setPushLayout = usePushLayoutUpdater(pushLayout);
@@ -142,6 +143,7 @@ const ActionsBarContainer = (props) => {
         allowExternalVideo,
         isPollingEnabled,
         isPresentationEnabled,
+        isRaiseHandEnabled,
         currentUser,
         amIModerator,
         layoutContextDispatch,

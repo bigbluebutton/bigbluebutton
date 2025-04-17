@@ -264,6 +264,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
       scrollContainer.scrollTop = initialPosition - (value * diff);
       requestAnimationFrame(animateScrollPosition);
     } else {
+      scrollContainer.scrollTop = initialPosition - diff;
       requestAnimationFrame(startBackgroundAnimation);
     }
   };

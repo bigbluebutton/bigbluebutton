@@ -108,6 +108,7 @@ const PushLayoutEngine = (props) => {
 
   useEffect(() => {
     const Settings = getSettingsSingletonInstance();
+    const hasLayoutEngineLoadedOnce = Session.getItem('hasLayoutEngineLoadedOnce');
 
     const changeLayout = LAYOUT_TYPE[getFromUserSettings('bbb_change_layout', null)];
     const defaultLayout = LAYOUT_TYPE[getFromUserSettings('bbb_default_layout', null)];
@@ -149,7 +150,7 @@ const PushLayoutEngine = (props) => {
           type: ACTIONS.SET_CAMERA_DOCK_POSITION,
           value: meetingLayoutCameraPosition || 'contentTop',
         });
-        if (shouldOpenChat) {
+        if (shouldOpenChat && !hasLayoutEngineLoadedOnce) {
           layoutContextDispatch({
             type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
             value: true,
@@ -418,7 +419,7 @@ const PushLayoutEngineContainer = (props) => {
   const { isOpen: presentationIsOpen } = presentationInput;
 
   const { data: currentUserData } = useCurrentUser((user) => ({
-    enforceLayout: user.sessionCurrent.enforceLayout,
+    enforceLayout: user.sessionCurrent?.enforceLayout,
     isModerator: user.isModerator,
     presenter: user.presenter,
   }));

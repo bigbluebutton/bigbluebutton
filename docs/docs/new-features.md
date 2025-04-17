@@ -149,7 +149,8 @@ For more information check the [pull request](https://github.com/bigbluebutton/b
 #### S3-based cache for presentation assets
 
 BigBlueButton now supports caching for presentation assets at Amazon S3/Minio or similar.
-For details check the [server customization](/administration/customize/#configure-s3-based-cache-for-presentation-assets) portion of the documents.
+For details check the [server customization](/administration/customize/#configure-s3-based-cache-for-presentation-assets) portion of the documents and see the new `/create` parameter to control it per meeting in the [API reference](/development/api/#get-post-create).
+
 
 #### Support for ClamAV as presentation file scanner
 
@@ -250,6 +251,11 @@ For full details on what is new in BigBlueButton 3.0, see the release notes.
 
 Recent releases:
 
+- [3.0.5](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.5)
+- [3.0.4](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.4)
+- [3.0.3](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.3)
+- [3.0.2](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.2)
+- [3.0.1](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.1)
 - [3.0.0](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0)
 - [3.0.0-rc.4](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-rc.4)
 - [3.0.0-rc.3](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-rc.3)
@@ -336,13 +342,56 @@ Retired events
 Modified/added events
 - `ParticipantJoinEvent` - will contain element `userdata` see https://github.com/bigbluebutton/bigbluebutton/pull/20566#pullrequestreview-2142238810
 - the old user status emojis were retired. `emojiStatus` will not be filled anymore. For more information see https://github.com/bigbluebutton/bigbluebutton/pull/20717
+- `SetScreenshareAsContentEvent` - Contains the `screenshareAsContent` field, a boolean that indicates whether the screenshare is in focus. For more information see https://github.com/bigbluebutton/bigbluebutton/pull/22312
 
 #### bbb-web properties changes
 
-- `allowOverrideClientSettingsOnCreateCall=false` added
-- `sessionsCleanupDelayInMinutes=60` added
-- `graphqlWebsocketUrl=${bigbluebutton.web.serverURL}/graphql` added
-- `muteOnStart` default value set to `true` - which helps now that `transparentListenOnly` is enabled by default too. See (PR 20848)[https://github.com/bigbluebutton/bigbluebutton/issues/20848] for more info.
+Removed
+- `breakoutRoomsEnabled` removed (was previously deprecated)
+- `learningDashboardEnabled` removed (was previously deprecated)
+- `defaultGuestWaitURL` removed (now handled on the same page as the client)
+
+Value changed
+- `defaultHTML5ClientUrl` changed -- dropped the `/join` ending
+- `muteOnStart` default value changed to `true` - which helps now that `transparentListenOnly` is enabled by default too. See [PR 20848](https://github.com/bigbluebutton/bigbluebutton/issues/20848) for more info.
+
+Added
+- `pluginManifestFetchTimeout` added
+- `numPluginManifestsFetchingThreads` added
+- `extractTimeoutInMs` added
+- `pngCreationExecTimeoutInMs` added
+- `thumbnailCreationExecTimeoutInMs` added
+- `pdfPageDownscaleExecTimeoutInMs` added
+- `officeDocumentValidationExecTimeoutInMs` added
+- `textFileCreationExecTimeoutInMs` added
+- `presDownloadReadTimeoutInMs` added
+- `pngCreationConversionTimeout` added
+- `pngCreationWait` added
+- `pdfToSvgTimeout` added
+- `imageResizeWait` added
+- `officeDocumentValidationTimeout` added
+- `presOfficeConversionTimeout` added
+- `pdfPageCountWait` added
+- `presentationConversionCacheEnabled` added
+- `presentationConversionCacheS3AccessKeyId` added
+- `presentationConversionCacheS3AccessKeySecret` added
+- `presentationConversionCacheS3BucketName` added
+- `presentationConversionCacheS3Region` added
+- `presentationConversionCacheS3EndpointURL` added
+- `presentationConversionCacheS3PathStyle` added
+- `cameraBridge` added
+- `screenShareBridge` added
+- `audioBridge` added
+- `pluginManifests` added
+- `scanUploadedPresentationFiles` added
+- `allowOverrideClientSettingsOnCreateCall` added
+- `defaultBotAvatarURL` added
+- `graphqlApiUrl` added
+- `graphqlWebsocketUrl` added
+- `sessionsCleanupDelayInMinutes` added
+- `useDefaultDarkLogo` added
+- `defaultDarkLogoURL` added
+- `maxNumPages` added
 
 #### Removed support for POST requests on `join` endpoint and Content-Type headers are now required
 
@@ -355,6 +404,11 @@ We improved the documentation for which types of files we support when uploading
 #### We mirror the webcam preview by default now
 
 We have supported the option to mirror your own webcam while viewing it. Starting with BigBlueButton 3.0.0-beta.6 we mirror it by default (which leads to the same result you would expect if you looked yourself in a physical mirror).
+
+#### Feedback form removed
+
+We have removed the feedback form that used to be part of the client. It was relying on client logs to carry the information and was not particularly flexible. See https://github.com/bigbluebutton/bigbluebutton/pull/22111 for more information.
+A new repository was contributed by Mconf https://github.com/bigbluebutton/custom-feedback with a much more sophisticated feedback form.
 
 ### Development
 

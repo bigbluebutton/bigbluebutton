@@ -89,6 +89,7 @@ public class ParamsProcessorUtil {
     private boolean disableRecordingDefault;
     private boolean autoStartRecording;
     private boolean allowStartStopRecording;
+    private boolean presentationConversionCacheEnabled;
     private boolean recordFullDurationMedia;
     private int learningDashboardCleanupDelayInMinutes;
     private boolean webcamsOnlyForModerator;
@@ -147,6 +148,8 @@ public class ParamsProcessorUtil {
     private String bbbVersion = "";
     private Boolean allowRevealOfBBBVersion = false;
     private Boolean allowOverrideClientSettingsOnCreateCall = false;
+
+    private Integer defaultMaxNumPages;
 
   	private String formatConfNum(String s) {
   		if (s.length() > 5) {
@@ -543,6 +546,18 @@ public class ParamsProcessorUtil {
             }
         }
 
+        boolean presentationCacheEnabled = presentationConversionCacheEnabled;
+        if (!StringUtils.isEmpty(params.get(ApiParams.PRESENTATION_CONVERSION_CACHE_ENABLED))) {
+            try {
+                presentationCacheEnabled = Boolean.parseBoolean(params
+                        .get(ApiParams.PRESENTATION_CONVERSION_CACHE_ENABLED));
+            } catch (Exception ex) {
+                log.warn(
+                        "Invalid param [presentationConversionCacheEnabled] for meeting=[{}]",
+                        internalMeetingId);
+            }
+        }
+
         boolean _recordFullDurationMedia = recordFullDurationMedia;
         if (!StringUtils.isEmpty(params.get(ApiParams.RECORD_FULL_DURATION_MEDIA))) {
             try {
@@ -795,6 +810,7 @@ public class ParamsProcessorUtil {
                 .withDefaultWebcamBackgroundURL(webcamBackgroundURL)
                 .withAutoStartRecording(autoStartRec)
                 .withAllowStartStopRecording(allowStartStoptRec)
+                .withPresentationConversionCacheEnabled(presentationCacheEnabled)
                 .withRecordFullDurationMedia(_recordFullDurationMedia)
                 .withWebcamsOnlyForModerator(webcamsOnlyForMod)
                 .withMeetingCameraCap(meetingCameraCap)
@@ -913,6 +929,16 @@ public class ParamsProcessorUtil {
       allowModsToEjectCameras = Boolean.parseBoolean(params.get(ApiParams.ALLOW_MODS_TO_EJECT_CAMERAS));
     }
     meeting.setAllowModsToEjectCameras(allowModsToEjectCameras);
+
+        int maxNumPages = defaultMaxNumPages;
+        if (!StringUtils.isEmpty(params.get(ApiParams.MAX_NUM_PAGES))) {
+            try {
+                maxNumPages = Integer.parseInt(params.get(ApiParams.MAX_NUM_PAGES));
+            } catch (NumberFormatException e) {
+                log.warn("Invalid param [maxNumPages] for meeting=[{}]", internalMeetingId);
+            }
+        }
+        meeting.setMaxNumPages(maxNumPages);
 
         return meeting;
     }
@@ -1349,6 +1375,10 @@ public class ParamsProcessorUtil {
         this.allowStartStopRecording = allowStartStopRecording;
     }
 
+    public void setPresentationConversionCacheEnabled(boolean presentationConversionCacheEnabled) {
+        this.presentationConversionCacheEnabled = presentationConversionCacheEnabled;
+    }
+
     public void setRecordFullDurationMedia(boolean recordFullDurationMedia) {
         this.recordFullDurationMedia = recordFullDurationMedia;
     }
@@ -1659,5 +1689,7 @@ public class ParamsProcessorUtil {
 	public void setAllowOverrideClientSettingsOnCreateCall(Boolean allowOverrideClientSettingsOnCreateCall) {
 		this.allowOverrideClientSettingsOnCreateCall = allowOverrideClientSettingsOnCreateCall;
 	}
+
+    public void setMaxNumPages(Integer maxNumPages) { this.defaultMaxNumPages = maxNumPages; }
 
 }

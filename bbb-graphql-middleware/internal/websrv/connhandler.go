@@ -71,6 +71,8 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 	browserWsConn, err := websocket.Accept(w, r, &acceptOptions)
 	if err != nil {
 		connectionLogger.Errorf("error: %v", err)
+		http.Error(w, "Closing browser connection, reason: request Origin is not authorized", http.StatusForbidden)
+		return
 	}
 	browserWsConn.SetReadLimit(9999999) //10MB
 
@@ -476,6 +478,8 @@ func disconnectWithError(
 	jsonData, _ := json.Marshal(browserResponseData)
 
 	logger.Tracef("sending to browser: %s", string(jsonData))
+	logger.Infof("deliberately disconnecting browser with error, reason: %s (%s)", reasonMessage, reasonMessageId)
+
 	err := browserConnectionWs.Write(browserConnectionContext, websocket.MessageText, jsonData)
 	if err != nil {
 		logger.Debugf("Browser is disconnected, skipping writing of ws message: %v", err)

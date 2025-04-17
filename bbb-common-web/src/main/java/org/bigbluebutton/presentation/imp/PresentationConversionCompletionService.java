@@ -1,7 +1,8 @@
 package org.bigbluebutton.presentation.imp;
 
 import com.google.gson.Gson;
-import org.bigbluebutton.api.Util;
+import org.bigbluebutton.api.domain.Meeting;
+import org.bigbluebutton.api.service.ServiceUtils;
 import org.bigbluebutton.presentation.messages.IPresentationCompletionMessage;
 import org.bigbluebutton.presentation.messages.PageConvertProgressMessage;
 import org.bigbluebutton.presentation.messages.PresentationConvertMessage;
@@ -46,11 +47,14 @@ public class PresentationConversionCompletionService {
         } else if (msg instanceof PageConvertProgressMessage) {
             PageConvertProgressMessage m = (PageConvertProgressMessage) msg;
 
+            log.info("Handling PageConvertProgressMessage for page {}", m.page);
+
             String presentationToConvertKey = m.presId + "_" + m.meetingId;
 
             PresentationToConvert p = presentationsToConvert.get(presentationToConvertKey);
             if (p != null) {
                 p.incrementPagesCompleted();
+                log.info("Finished converting {} out of {}", p.getPagesCompleted(), p.pres.getNumberOfPages());
                 notifier.sendConversionUpdateMessage(p.getPagesCompleted(), p.pres, m.page);
                 if (p.getPagesCompleted() == p.pres.getNumberOfPages()) {
                     handleEndProcessing(p);
@@ -80,11 +84,13 @@ public class PresentationConversionCompletionService {
 
         notifier.sendConversionCompletedMessage(p.pres);
 
+        String meetingId = p.pres.getMeetingId();
         //Store presentation outputs in cache (if enabled)
         if(!p.pres.getUploadedFileHash().isEmpty()) {
             try {
                 String remoteFileName = p.pres.getUploadedFileHash() + ".tar.gz";
-                if(s3FileManager.isPresentationConversionCacheEnabled() && !s3FileManager.exists(remoteFileName)) {
+                Meeting meeting = ServiceUtils.findMeetingFromMeetingID(meetingId);
+                if(meeting.isPresentationConversionCacheEnabled() && !s3FileManager.exists(remoteFileName)) {
                     File parentDir = new File(p.pres.getUploadedFile().getParent());
                     File compressedFile = TarGzManager.compress(
                             parentDir.getAbsolutePath(),

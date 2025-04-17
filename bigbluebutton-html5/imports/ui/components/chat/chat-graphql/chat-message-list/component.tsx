@@ -36,6 +36,7 @@ import {
 import { CHAT_DELETE_REACTION_MUTATION, CHAT_SEND_REACTION_MUTATION } from './page/chat-message/mutations';
 import logger from '/imports/startup/client/logger';
 import { ChatLoading } from '../component';
+import Storage from '/imports/ui/services/storage/in-memory';
 
 const PAGE_SIZE = 50;
 const CLEANUP_TIMEOUT = 3000;
@@ -202,6 +203,9 @@ const ChatMessageList: React.FC<ChatListProps> = ({
   const [followingTail, setFollowingTail] = React.useState(true);
   const [showStartSentinel, setShowStartSentinel] = React.useState(false);
   const [focusedMessageElement, setFocusedMessageElement] = React.useState<HTMLElement | null>();
+  const [loadingPages, setLoadingPages] = useState(new Set<number>());
+  const [lockLoadingNewPages, setLockLoadingNewPages] = useState(true);
+  const allPagesLoaded = loadingPages.size === 0;
   const {
     childRefProxy: endSentinelRefProxy,
     intersecting: isEndSentinelVisible,
@@ -302,8 +306,10 @@ const ChatMessageList: React.FC<ChatListProps> = ({
       if (followingTail) {
         toggleFollowingTail(false);
       }
+      if (lockLoadingNewPages) return;
       setUserLoadedBackUntilPage((prev) => {
         if (typeof prev === 'number' && prev > 0) {
+          setLockLoadingNewPages(true);
           return prev - 1;
         }
         return prev;
@@ -334,6 +340,10 @@ const ChatMessageList: React.FC<ChatListProps> = ({
   useEffect(() => {
     const handler = (e: Event) => {
       if (e instanceof CustomEvent) {
+        if (Math.ceil(e.detail.sequence / PAGE_SIZE) - 1 >= firstPageToLoad) {
+          return;
+        }
+        Storage.setItem(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST, e.detail.sequence);
         toggleFollowingTail(false);
         setUserLoadedBackUntilPage(Math.ceil(e.detail.sequence / PAGE_SIZE) - 1);
       }
@@ -378,6 +388,41 @@ const ChatMessageList: React.FC<ChatListProps> = ({
     }
   };
 
+  const scrollToBottom = useCallback(() => {
+    const container = messageListContainerRef.current;
+
+    if (!container) return;
+
+    let initialPosition = 0;
+    let initialTimestamp = 0;
+    let scrollPositionDiff = 0;
+
+    const animateScrollPosition = (timestamp: number) => {
+      const value = (timestamp - initialTimestamp) / 300;
+      if (value <= 1) {
+        container.scrollTop = initialPosition + (value * scrollPositionDiff);
+        requestAnimationFrame(animateScrollPosition);
+      } else {
+        container.scrollTop = container.scrollHeight - container.offsetHeight;
+      }
+    };
+
+    const startScrollAnimation = (timestamp: number) => {
+      const {
+        scrollTop,
+        scrollHeight,
+        offsetHeight,
+      } = container;
+
+      initialTimestamp = timestamp;
+      initialPosition = scrollTop;
+      scrollPositionDiff = scrollHeight - offsetHeight - scrollTop;
+      requestAnimationFrame(animateScrollPosition);
+    };
+
+    requestAnimationFrame(startScrollAnimation);
+  }, []);
+
   const renderUnreadNotification = useMemo(() => {
     if (totalUnread && !followingTail) {
       return (
@@ -387,11 +432,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
           size="sm"
           key="unread-messages"
           label={intl.formatMessage(intlMessages.moreMessages)}
-          onClick={() => {
-            if (endSentinelRef.current) {
-              endSentinelRef.current.scrollIntoView({ behavior: 'smooth' });
-            }
-          }}
+          onClick={scrollToBottom}
         />
       );
     }
@@ -457,6 +498,24 @@ const ChatMessageList: React.FC<ChatListProps> = ({
     endSentinelParentRefProxy.current = el;
   }, []);
 
+  const setPageLoading = useCallback((page: number) => {
+    setLoadingPages((prev) => {
+      prev.add(page);
+      return new Set(prev);
+    });
+  }, [setLoadingPages]);
+
+  const clearPageLoading = useCallback((page: number) => {
+    setLoadingPages((prev) => {
+      prev.delete(page);
+      return new Set(prev);
+    });
+  }, [setLoadingPages]);
+
+  useEffect(() => {
+    setLockLoadingNewPages(loadingPages.size !== 0);
+  }, [loadingPages]);
+
   return (
     <>
       {
@@ -477,9 +536,10 @@ const ChatMessageList: React.FC<ChatListProps> = ({
               }
             }}
             onWheel={(e) => {
-              if (e.deltaY < 0 && isStartSentinelVisible) {
+              if (e.deltaY < 0 && isStartSentinelVisible && !lockLoadingNewPages) {
                 setUserLoadedBackUntilPage((prev) => {
                   if (typeof prev === 'number' && prev > 0) {
+                    setLockLoadingNewPages(true);
                     return prev - 1;
                   }
                   return prev;
@@ -536,6 +596,9 @@ const ChatMessageList: React.FC<ChatListProps> = ({
                     deleteReaction={deleteReaction}
                     sendReaction={sendReaction}
                     focusedSequence={Number(focusedMessageElement?.dataset.sequence)}
+                    clearPageLoading={clearPageLoading}
+                    setPageLoading={setPageLoading}
+                    allPagesLoaded={allPagesLoaded}
                   />
                 );
               })}

@@ -100,6 +100,7 @@ class DisabledFeatures extends MultiUsers {
 
   async slideSnapshot() {
     await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard');
+    await this.modPage.closeAllToastNotifications();
     await this.modPage.waitAndClick(e.whiteboardOptionsButton);
     await this.modPage.hasElement(e.presentationFullscreen, 'should display the presentation fullscreen on the whiteboard options');
     await this.modPage.wasRemoved(e.presentationSnapshot, 'should not display the presentation snapshot on the whiteboard options');
@@ -207,6 +208,7 @@ class DisabledFeatures extends MultiUsers {
 
   async slideSnapshotExclude() {
     await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard');
+    await this.modPage.closeAllToastNotifications();
     await this.modPage.waitAndClick(e.whiteboardOptionsButton);
     await this.modPage.hasElement(e.presentationSnapshot, 'should display the presentation snapshot on the whiteboard options');
   }

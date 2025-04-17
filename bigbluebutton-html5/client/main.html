@@ -168,10 +168,33 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   </svg>
   <main>
     <div id="app" role="document">
+      <script>
+        (function () {
+          var ua = navigator.userAgent;
+          var isSafari = /^((?!chrome|android).)*safari/i.test(ua);
+          var match = ua.match(/Version\/(\d+)/);
+          var safariVersion = match ? parseInt(match[1], 10) : null;
+
+          var bundleHash = '<%= bundleHash %>';
+          var isProduction = '<%= isProduction %>' === 'true';
+          var script = document.createElement('script');
+
+          if (isProduction && isSafari && safariVersion && safariVersion <= 16) {
+            const HTML = document.getElementsByTagName('html')[0];
+            HTML.classList.add('legacy');
+
+            script.src = 'bundle.' + bundleHash + '.safari.js';
+          } else {
+            script.src = 'bundle.' + bundleHash + '.js';
+          }
+
+          document.head.appendChild(script);
+        })();
+      </script>
   </main>
   </div>
   <span id="destination"></span>
-  <audio id="remote-media" autoplay></audio>
-  <audio id="local-media" autoplay></audio>
+  <audio id="remote-media"></audio>
+  <audio id="local-media"></audio>
   <div id="modals-container"></div>
 </body>
