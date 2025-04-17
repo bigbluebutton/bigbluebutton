@@ -42,9 +42,9 @@ public class PdfSlidesGenerationService {
   public void process(PageToConvert pageToConvert) {
     executor.submit(() -> {
       try {
-        log.info("Starting convert, page={}", pageToConvert.getPageNumber());
+        log.info("Starting conversion for page {}", pageToConvert.getPageNumber());
         pageToConvert.convert();
-        log.info("Convert finished, sending progress message");
+        log.info("Conversion finished for page {}, sending progress message", pageToConvert.getPageNumber());
 
         PageConvertProgressMessage msg = new PageConvertProgressMessage(
                 pageToConvert.getPageNumber(),
@@ -53,7 +53,7 @@ public class PdfSlidesGenerationService {
                 new ArrayList<>());
 
         presentationConversionCompletionService.handle(msg);
-        log.info("Progress message handled");
+        log.info("Progress message handled for page {}", pageToConvert.getPageNumber());
       } catch (Throwable t) {
         log.error("Conversion task failed", t);
       }
