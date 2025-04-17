@@ -224,7 +224,8 @@ class ApplicationMenu extends BaseMenu {
 
     const obj = this.state;
     obj.settings.microphoneConstraints = _newConstraints;
-    this.handleUpdateSettings(this.state.settings, obj.settings);
+    this.handleUpdateSettings(this.state.settingsName, obj.settings);
+    this.setState({ audioFilterEnabled: _audioFilterEnabled });
   }
 
   handleUpdateFontSize(size) {
