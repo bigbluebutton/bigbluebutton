@@ -711,6 +711,7 @@
     "app.actionsBar.actionsDropdown.takePresenter": "発表者になる",
     "app.actionsBar.actionsDropdown.takePresenterDesc": "自分を新しい発表者とする",
     "app.actionsBar.reactions.reactionsButtonLabel": "リアクションを共有",
+    "app.actionsBar.reactions.removeReactionLabel": "リアクションを消す",
     "app.actionsBar.reactions.raiseHand": "手をあげる",
     "app.actionsBar.reactions.lowHand": "手をおろす",
     "app.actionsBar.reactions.autoCloseReactionsBarLabel": "リアクションバーを自動で隠す",
