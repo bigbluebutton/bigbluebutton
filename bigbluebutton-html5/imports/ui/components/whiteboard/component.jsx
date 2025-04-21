@@ -130,6 +130,7 @@ const Whiteboard = React.memo((props) => {
     whiteboardWriters,
     isPhone,
     setEditor,
+    lockToolbarTools,
   } = props;
 
   clearTldrawCache();
@@ -863,7 +864,9 @@ const Whiteboard = React.memo((props) => {
     DefaultVerticalAlignStyle.defaultValue = 'start';
 
     editor?.user?.updateUserPreferences({ locale: language });
-    editor?.updateInstanceState({ isToolLocked: true });
+    if (lockToolbarTools) {
+      editor?.updateInstanceState({ isToolLocked: true });
+    }
 
     const colorStyles = [
       'black',
