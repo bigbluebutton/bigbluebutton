@@ -711,6 +711,7 @@
     "app.actionsBar.actionsDropdown.takePresenter": "Diventa Relatore",
     "app.actionsBar.actionsDropdown.takePresenterDesc": "Assegna al tuo utente il ruolo di Relatore",
     "app.actionsBar.reactions.reactionsButtonLabel": "Condividi una reazione",
+    "app.actionsBar.reactions.removeReactionLabel": "Rimuovi reazione",
     "app.actionsBar.reactions.raiseHand": "Alza la mano",
     "app.actionsBar.reactions.lowHand": "Abbassa la mano",
     "app.actionsBar.reactions.autoCloseReactionsBarLabel": "Chiudi automaticamente la barra delle reazioni",

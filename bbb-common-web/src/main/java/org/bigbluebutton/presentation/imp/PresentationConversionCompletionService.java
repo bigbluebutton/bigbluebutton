@@ -46,7 +46,6 @@ public class PresentationConversionCompletionService {
             presentationsToConvert.put(presentationToConvertKey, p);
         } else if (msg instanceof PageConvertProgressMessage) {
             PageConvertProgressMessage m = (PageConvertProgressMessage) msg;
-
             String presentationToConvertKey = m.presId + "_" + m.meetingId;
 
             PresentationToConvert p = presentationsToConvert.get(presentationToConvertKey);

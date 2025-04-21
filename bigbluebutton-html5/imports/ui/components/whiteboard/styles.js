@@ -129,7 +129,7 @@ const TldrawV2GlobalStyle = createGlobalStyle`
   [data-testid="main.page-menu"],
   [data-testid="main.menu"],
   [data-testid="tools.more.laser"],
-  [data-testid="tools.more.asset"],
+  [data-tool="asset"],
   [data-testid="page-menu.button"],
   [data-testid="menu-item.zoom-to-100"],
   .tlui-menu-zone {
@@ -231,6 +231,13 @@ const TldrawV2GlobalStyle = createGlobalStyle`
       color: ${colorWhite};
     }
   }
+
+    ${({ cursorType }) => (cursorType) && `
+      .tl-canvas {
+        cursor: ${cursorType} !important;
+      }
+  `}
+
 `;
 
 const EditableWBWrapper = styled.div`
