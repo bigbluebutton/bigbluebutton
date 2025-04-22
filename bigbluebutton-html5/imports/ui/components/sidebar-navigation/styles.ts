@@ -20,6 +20,9 @@ import {
   colorGrayIcons,
   colorBackground,
 } from '/imports/ui/stylesheets/styled-components/palette';
+import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
+
+const smallHeight = '(max-height: 40em)';
 
 const NavigationSidebarBackdrop = styled.div<{isMobile: boolean}>`
   position: absolute;
@@ -37,12 +40,18 @@ const NavigationSidebar = styled.div<{isMobile: boolean}>`
   ${({ isMobile }) => isMobile && 'box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2)'};
 `;
 
-const NavigationSidebarListItemsContainer = styled.div`
+const NavigationSidebarListItemsContainer = styled(ScrollboxVertical)`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   flex-grow: 1;
+  overflow-y: auto;
+  border-radius: ${navigationSidebarBorderRadius};
   gap: ${navigationSidebarListItemsContainerGap};
+
+  @media ${smallHeight} {
+    gap: 1.25rem;
+  }
 `;
 
 const PositionedDiv = styled.div`
@@ -50,6 +59,10 @@ const PositionedDiv = styled.div`
   flex-direction: column;
   width: 100%;
   gap: ${navigationSidebarListItemsGap};
+
+  @media ${smallHeight} {
+    gap: 0.4rem;
+  }
 `;
 
 const Top = styled(PositionedDiv)`
@@ -81,8 +94,12 @@ const ListItem = styled.div<ListItemProps>`
   > i {
     font-size: 175%;
     color: ${colorGrayLight};
+
+    @media ${smallHeight} {
+      font-size: 125%;
+    }
   }
-  
+
   &:hover {
     outline: transparent;
     outline-style: dotted;

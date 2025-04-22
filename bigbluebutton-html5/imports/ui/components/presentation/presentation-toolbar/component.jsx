@@ -383,6 +383,7 @@ class PresentationToolbar extends PureComponent {
     return (
       <Styled.PresentationToolbarWrapper
         id="presentationToolbarWrapper"
+        isMobile={isMobile}
       >
         {this.renderAriaDescs()}
         <Styled.QuickPollButtonWrapper>
