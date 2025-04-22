@@ -54,7 +54,6 @@ case class Plugin(
 )
 
 object PluginModel {
-  private val FIRST_PLUGIN_SDK_VERSION_WITH_BACKWARD_COMPATIBILITY = "0.0.73"
   val logger = LoggerFactory.getLogger(this.getClass)
   val objectMapper: ObjectMapper = new ObjectMapper()
   objectMapper.registerModule(new DefaultScalaModule())
@@ -124,20 +123,12 @@ object PluginModel {
       try {
         val pluginObject = objectMapper.readValue(objectMapper.writeValueAsString(plugin), classOf[Plugin])
         val pluginObjectWithAbsoluteUrls = replaceAllRelativeUrls(pluginObject)
-
-        // True if plugin-sdk version of manifest is greater than the first version with backward compatibility
-        val isManifestSdkVersionBackwardCompatible = versioningComparison(
-          pluginObjectWithAbsoluteUrls.manifest.content.requiredSdkVersion,
-          FIRST_PLUGIN_SDK_VERSION_WITH_BACKWARD_COMPATIBILITY
-        ) >= 0
         val hasMatchingVersions = hasMatchingSdkVersion(
           htmlPluginSdkVersion, pluginObjectWithAbsoluteUrls.manifest.content.requiredSdkVersion
         )
-        if (isManifestSdkVersionBackwardCompatible && hasMatchingVersions) {
+        if (hasMatchingVersions) {
           pluginsMap = pluginsMap + (pluginName -> pluginObjectWithAbsoluteUrls)
-        } else if (!isManifestSdkVersionBackwardCompatible) {
-          logger.error(s"Plugin-SDK for plugin $pluginName is too old. Please update it")
-        } else if (!hasMatchingVersions) {
+        } else {
           logger.error(s"Could not load plugin $pluginName due to version mismatch")
         }
       } catch {
