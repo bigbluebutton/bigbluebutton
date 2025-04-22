@@ -244,6 +244,8 @@ const PresentationMenu = (props) => {
   }
 
   function getAvailableOptions() {
+    // if any item is changed, please verify the function handleMouseLeave in whiteboard/hooks.js
+    // to make sure the menu is closed when clicking on the options
     const menuItems = [];
 
     if (!isIphone) {
