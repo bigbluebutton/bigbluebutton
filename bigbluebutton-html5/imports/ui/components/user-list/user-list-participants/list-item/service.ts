@@ -144,10 +144,9 @@ export const generateActionsPermissions = (
   // A breakout room user that has a moderator role in it's parent room
   const parentRoomModerator = getFromUserSettings('bbb_parent_room_moderator', false);
   const hasAuthority = currentUser.isModerator || amISubjectUser;
-  const userChatIsLocked = currentUser.locked || lockSettings?.disablePrivateChat;
   const allowedToChatPrivately = isChatEnabled && (
     currentUser.isModerator || (
-      !userChatIsLocked
+      !lockSettings?.disablePrivateChat
         // TODO: Add check for hasPrivateChat between users
         || subjectUser.isModerator
     )) && !amISubjectUser
