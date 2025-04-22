@@ -82,7 +82,15 @@ const Chat: React.FC<ChatProps> = ({
   };
 
   const handleClickReturnPrivateList = () => {
-    setPrivateList(true);
+    if (filteredPrivateChats.length > 0) {
+      setPrivateList(true);
+    } else {
+      // no private chat was started, go back to public chat
+      layoutContextDispatch({
+        type: ACTIONS.SET_ID_CHAT_OPEN,
+        value: PUBLIC_GROUP_CHAT_ID,
+      });
+    }
   };
 
   React.useEffect(() => {
