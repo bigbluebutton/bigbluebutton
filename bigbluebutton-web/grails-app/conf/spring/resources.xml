@@ -208,6 +208,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="allowRevealOfBBBVersion" value="${allowRevealOfBBBVersion}"/>
         <property name="allowOverrideClientSettingsOnCreateCall" value="${allowOverrideClientSettingsOnCreateCall}"/>
         <property name="pluginManifests" value="${pluginManifests}"/>
+        <property name="htmlPluginSdkVersion" value="${htmlPluginSdkVersion}"/>
         <property name="maxNumPages" value="${maxNumPages}"/>
     </bean>
 

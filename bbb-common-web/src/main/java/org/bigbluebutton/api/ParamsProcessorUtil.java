@@ -104,6 +104,7 @@ public class ParamsProcessorUtil {
     private String defaultAudioBridge = "bbb-webrtc-sfu";
     private String defaultDisabledFeatures;
     private String defaultPluginManifests;
+    private String htmlPluginSdkVersion;
     private boolean defaultNotifyRecordingIsOn = false;
     private boolean defaultKeepEvents = false;
     private Boolean useDefaultLogo;
@@ -836,6 +837,7 @@ public class ParamsProcessorUtil {
                 .withLearningDashboardAccessToken(learningDashboardAccessToken)
                 .withGroups(groups)
                 .withPluginManifests(listOfPluginManifests)
+                .withHtmlPluginSdkVersion(htmlPluginSdkVersion)
                 .withDisabledFeatures(listOfDisabledFeatures)
                 .withNotifyRecordingIsOn(notifyRecordingIsOn)
                 .withPresentationUploadExternalDescription(presentationUploadExternalDescription)
@@ -1664,6 +1666,14 @@ public class ParamsProcessorUtil {
 
 	public void setPluginManifests(String pluginManifests) {
 		this.defaultPluginManifests = pluginManifests;
+	}
+
+    public void setHtmlPluginSdkVersion(String htmlPluginSdkVersion) {
+		this.htmlPluginSdkVersion = htmlPluginSdkVersion;
+	}
+
+    public String getHtmlPluginSdkVersion() {
+		return this.htmlPluginSdkVersion;
 	}
 
 	public void setNotifyRecordingIsOn(Boolean notifyRecordingIsOn) {

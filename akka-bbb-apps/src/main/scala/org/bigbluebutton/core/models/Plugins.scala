@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.{ JsonMappingException, ObjectMapper }
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import org.bigbluebutton.core.db.PluginDAO
+import org.slf4j.LoggerFactory
 
 import java.util
 
@@ -54,6 +55,7 @@ case class Plugin(
 )
 
 object PluginModel {
+  val logger = LoggerFactory.getLogger(this.getClass)
   val objectMapper: ObjectMapper = new ObjectMapper()
   objectMapper.registerModule(new DefaultScalaModule())
   def getPluginByName(instance: PluginModel, pluginName: String): Option[Plugin] = {
@@ -96,17 +98,40 @@ object PluginModel {
     val pluginWithAbsoluteJsEntrypoint = replaceRelativeJavascriptEntrypoint(plugin)
     replaceRelativeLocalesBaseUrl(pluginWithAbsoluteJsEntrypoint)
   }
-  def createPluginModelFromJson(json: util.Map[String, AnyRef]): PluginModel = {
+
+  private def checkPluginSdkVersionDevMode(pluginSdkVersion: String): Boolean =
+    pluginSdkVersion.startsWith("http://codeload")
+
+  private def hasMatchingSdkVersion(htmlPluginSdkVersion: String, manifestPluginSdkVersion: String): Boolean = {
+    // Returns `true` if:
+    // - Both versions are URLs starting with "http://codeload" (development mode).
+    // - OR the manifest plugin-sdk version is less than or equal to the HTML plugin-sdk version.
+    (checkPluginSdkVersionDevMode(manifestPluginSdkVersion)
+      && checkPluginSdkVersionDevMode(htmlPluginSdkVersion)) || manifestPluginSdkVersion.split("\\.")
+      .zipAll(htmlPluginSdkVersion.split("\\."), "0", "0")
+      .find { case (a, b) => a != b }
+      .fold(0) { case (a, b) => a.toInt - b.toInt } <= 0
+  }
+
+  def createPluginModelFromJson(json: util.Map[String, AnyRef], htmlPluginSdkVersion: String): PluginModel = {
     val instance = new PluginModel()
     var pluginsMap: Map[String, Plugin] = Map.empty[String, Plugin]
     json.forEach { case (pluginName, plugin) =>
       try {
         val pluginObject = objectMapper.readValue(objectMapper.writeValueAsString(plugin), classOf[Plugin])
         val pluginObjectWithAbsoluteUrls = replaceAllRelativeUrls(pluginObject)
-        pluginsMap = pluginsMap + (pluginName -> pluginObjectWithAbsoluteUrls)
+        if (hasMatchingSdkVersion(htmlPluginSdkVersion, pluginObjectWithAbsoluteUrls.manifest.content.requiredSdkVersion)) {
+          pluginsMap = pluginsMap + (pluginName -> pluginObjectWithAbsoluteUrls)
+        } else {
+          logger.error(s"Could not load plugin $pluginName due to version mismatch")
+        }
       } catch {
-        case err @ (_: JsonProcessingException | _: JsonMappingException) => println("Error while processing plugin " +
-          pluginName + ": ", err)
+        case err @ (_: JsonProcessingException | _: JsonMappingException) => logger.error(
+          s"Error while processing plugin $pluginName: $err"
+        )
+        case err @ (_: NumberFormatException) => logger.error(
+          s"Plugin SDK version of either HTML5 or plugin manifest couldn't be parsed ($pluginName): $err"
+        )
       }
     }
     instance.plugins = pluginsMap

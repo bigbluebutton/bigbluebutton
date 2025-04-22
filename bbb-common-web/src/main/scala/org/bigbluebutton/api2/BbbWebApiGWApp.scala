@@ -172,6 +172,7 @@ class BbbWebApiGWApp(
                     presentationUploadExternalDescription:  String,
                     presentationUploadExternalUrl:          String,
                     plugins:                                util.Map[String, AnyRef],
+                    htmlPluginSdkVersion:                   String,
                     overrideClientSettings:                 String): Unit = {
 
     val disabledFeaturesAsVector: Vector[String] = disabledFeatures.asScala.toVector
@@ -273,6 +274,7 @@ class BbbWebApiGWApp(
 
     val defaultProps = DefaultProps(
       plugins,
+      htmlPluginSdkVersion,
       meetingProp,
       breakoutProps,
       durationProps,

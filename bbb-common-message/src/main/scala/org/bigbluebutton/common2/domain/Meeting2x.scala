@@ -90,19 +90,20 @@ case class GroupProps(
 )
 
 case class DefaultProps(
-    pluginProp:        util.Map[String, AnyRef],
-    meetingProp:       MeetingProp,
-    breakoutProps:     BreakoutProps,
-    durationProps:     DurationProps,
-    password:          PasswordProp,
-    recordProp:        RecordProp,
-    welcomeProp:       WelcomeProp,
-    voiceProp:         VoiceProp,
-    usersProp:         UsersProp,
-    metadataProp:      MetadataProp,
-    lockSettingsProps: LockSettingsProps,
-    systemProps:       SystemProps,
-    groups:            Vector[GroupProps],
+    pluginProp:           util.Map[String, AnyRef],
+    htmlPluginSdkVersion: String,
+    meetingProp:          MeetingProp,
+    breakoutProps:        BreakoutProps,
+    durationProps:        DurationProps,
+    password:             PasswordProp,
+    recordProp:           RecordProp,
+    welcomeProp:          WelcomeProp,
+    voiceProp:            VoiceProp,
+    usersProp:            UsersProp,
+    metadataProp:         MetadataProp,
+    lockSettingsProps:    LockSettingsProps,
+    systemProps:          SystemProps,
+    groups:               Vector[GroupProps],
     overrideClientSettings: String
 )
 
