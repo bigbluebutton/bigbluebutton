@@ -1,7 +1,8 @@
 import styled from 'styled-components';
 import { styled as materialStyled } from '@mui/material/styles';
 import { Switch } from '@mui/material';
-import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
+import { smallOnly, smallUp } from '/imports/ui/stylesheets/styled-components/breakpoints';
+import IconB from '/imports/ui/components/common/icon/icon-ts/component';
 import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
 import HoldButton from '/imports/ui/components/presentation/presentation-toolbar/zoom-tool/holdButton/component';
 import Button from '/imports/ui/components/common/button/component';
@@ -14,9 +15,9 @@ import {
   colorWhite,
   colorPrimary,
   colorBlueLight,
-  colorGrayLightest,
   appsGalleryOutlineColor,
   colorGrayUserListToolbar,
+  colorText,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { fontSizeSmall, fontSizeBase, fontSizeSmaller } from '/imports/ui/stylesheets/styled-components/typography';
 import {
@@ -34,10 +35,6 @@ import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 
 type withValidProp = {
   valid: boolean;
-};
-
-type BreakoutBoxProps = {
-  hundred: boolean;
 };
 
 type RoomNameProps = {
@@ -64,22 +61,33 @@ const PanelSeparator = styled(BaseSeparator)``;
 
 const BoxContainer = styled.div`
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  @media ${smallUp} {
+    grid-template-columns: repeat(2, 1fr);
+  }
   grid-gap: 1.6rem 1rem;
   box-sizing: border-box;
   padding-bottom: 1rem;
 `;
 
 const ContentContainer = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 2fr;
-  grid-template-areas: "sidebar content";
+  @media ${smallUp} {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    grid-template-areas: "sidebar content";
+  }
+  @media ${smallOnly} {
+    display: flex;
+    flex-direction: column;
+  }
   grid-gap: 1rem;
 `;
 
 const Alert = styled.div<withValidProp>`
   grid-area: sidebar;
-  margin-bottom: 2.5rem;
+  background-color: ${colorGrayUserListToolbar};
+  border: none;
+  border-radius: 1rem;
+
   ${({ valid }) => valid === false && `
     position: relative;
 
@@ -132,23 +140,24 @@ const BreakoutNameInput = styled.input`
     color: ${colorGray};
     opacity: 1;
   }
-  border: 1px solid ${colorGrayLightest};
   margin-bottom: 1rem;
+  background-color: ${colorGrayUserListToolbar};
+  border: none;
+  border-radius: 1rem;
 
   ${({ readOnly }) => readOnly && `
     cursor: default;
   `}
 `;
 
-const BreakoutBox = styled(ScrollboxVertical)<BreakoutBoxProps>`
-  height: 10rem;
-  border: 1px solid ${colorGrayLightest};
-  border-radius: ${borderRadius};
+const BreakoutBox = styled(ScrollboxVertical)`
+  min-height: 10rem;
+  border-radius: 1rem;
   padding: ${lgPaddingY} 0;
-
-  ${({ hundred }) => hundred && `
-  height: 100%;
-  `}
+  background: ${colorGrayUserListToolbar};
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 `;
 
 const SpanWarn = styled.span<withValidProp>`
@@ -163,6 +172,9 @@ const SpanWarn = styled.span<withValidProp>`
 `;
 
 const RoomName = styled(BreakoutNameInput)<RoomNameProps>`
+  background-color: ${colorGrayUserListToolbar};
+  border: none;
+  border-radius: 1rem;
   ${({ value }) => value.length === 0 && `
     border-color: ${colorDanger} !important;
   `}
@@ -174,12 +186,12 @@ const RoomName = styled(BreakoutNameInput)<RoomNameProps>`
 
 const BreakoutSettings = styled.div`
   grid-gap: 1.7rem;
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   justify-content: space-around;
 
   @media ${smallOnly} {
-    grid-template-columns: 1fr ;
-    grid-template-rows: 1fr 1fr 1fr; 
+    grid-template-columns: repeat(2, 1fr);
     flex-direction: column;
   }
 `;
@@ -231,6 +243,7 @@ const InputRooms = styled.select<withValidProp>`
 
 const SlideSelector = styled.select<withValidProp>`
   ${GeneralSelect}
+  background-color: ${colorGrayUserListToolbar};
   ${({ valid }) => !valid && `
       border-color: ${colorDanger} !important;
   `}
@@ -381,7 +394,7 @@ const MaterialSwitch = materialStyled(Switch)(({ theme }) => ({
 }));
 
 const RoomUserItem = styled.p`
-  margin: 0;
+  margin: 0 1rem;
   padding: .25rem 0 .25rem .25rem;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -499,6 +512,8 @@ const Modal = styled(ModalSimple)`
   max-height: 95vh;
 
   @media ${smallOnly} {
+    min-width: 100% !important;
+    max-width: 100% !important;
     height: auto !important;
     max-height: 90vh;
     margin: 5vh auto;
@@ -522,6 +537,10 @@ const RandomAssignLabel = styled.label<withValidProp>`
       color: ${colorDanger};
     }
   `}
+
+  @media ${smallOnly} {
+    grid-column: 1/-1;
+  }
 `;
 
 // @ts-ignore - Button is JSX element
@@ -575,6 +594,30 @@ const FooterButton = styled.button`
   }
 `;
 
+const GridItem = styled.div`
+  background-color: ${colorGrayUserListToolbar};
+  border-radius: 1rem;
+`;
+
+const AddParticipantButton = styled.button`
+  background: none;
+  border: none;
+  display: flex;
+  justify-content: flex-start;
+  margin: 0 1rem;
+  padding: 0;
+  align-items: center;
+  gap: .7rem;
+  color: ${colorText};
+`;
+
+const Icon = styled(IconB)`
+  color: white;
+  background-color: ${colorPrimary};
+  border-radius: 50%;
+  font-size: 1.7rem;
+`;
+
 export default {
   PanelSeparator,
   BoxContainer,
@@ -619,4 +662,7 @@ export default {
   RandomAssignButton,
   ResetAssignmentButton,
   FooterButton,
+  GridItem,
+  AddParticipantButton,
+  Icon,
 };

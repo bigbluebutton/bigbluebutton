@@ -18,7 +18,6 @@ import { PRESENTATIONS_SUBSCRIPTION } from '/imports/ui/components/whiteboard/qu
 import logger from '/imports/startup/client/logger';
 import BreakoutRoomUserAssignment from './breakout-room-user-assignment/component';
 import deviceInfo from '/imports/utils/deviceInfo';
-import BreakoutRoomUserAssignmentMobile from './breakout-room-user-assignment-mobile/component';
 import RoomManagmentState from './room-managment-state/component';
 import {
   Rooms,
@@ -595,14 +594,14 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
       <Styled.ModalContentWrapper>
         <Styled.Content id="scroll-box">
           <Styled.TitleWrapper>
-            {title}
+            {!isMobile && title}
             {form}
           </Styled.TitleWrapper>
           <Styled.PanelSeparator />
           <RoomManagmentState
             numberOfRooms={numberOfRooms}
             users={users}
-            RendererComponent={isMobile ? BreakoutRoomUserAssignmentMobile : BreakoutRoomUserAssignment}
+            RendererComponent={BreakoutRoomUserAssignment}
             runningRooms={runningRooms}
             setRoomsRef={setRoomsRef}
             setMoveRegisterRef={setMoveRegisterRef}
@@ -619,25 +618,24 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
             freeJoin={freeJoin}
             randomlyAssignFunction={(fn: () => void) => { randomlyAssignFunction.current = fn; }}
             resetAssignmentsFunction={(fn: () => void) => { resetAssignmentsFunction.current = fn; }}
+            isMobile={isMobile}
           />
         </Styled.Content>
         <Styled.PanelSeparator />
         <Styled.ActionButtonContainer>
-          <div>
-            <Styled.FooterButton onClick={() => setIsOpen(false)}>
-              {intl.formatMessage(intlMessages.cancelLabel)}
-            </Styled.FooterButton>
-            <Styled.FooterButton
-              color="primary"
-              onClick={isUpdate ? userUpdate : createRoom}
-              data-test={isUpdate ? 'updateBreakoutRoomsButton' : 'createBreakoutRoomsButton'}
-              disabled={(!leastOneUserIsValid && !freeJoin) || !numberOfRoomsIsValid || !durationIsValid}
-            >
-              {isUpdate
-                ? intl.formatMessage(intlMessages.updateConfirm)
-                : intl.formatMessage(intlMessages.confirmButton)}
-            </Styled.FooterButton>
-          </div>
+          <Styled.FooterButton onClick={() => setIsOpen(false)}>
+            {intl.formatMessage(intlMessages.cancelLabel)}
+          </Styled.FooterButton>
+          <Styled.FooterButton
+            color="primary"
+            onClick={isUpdate ? userUpdate : createRoom}
+            data-test={isUpdate ? 'updateBreakoutRoomsButton' : 'createBreakoutRoomsButton'}
+            disabled={(!leastOneUserIsValid && !freeJoin) || !numberOfRoomsIsValid || !durationIsValid}
+          >
+            {isUpdate
+              ? intl.formatMessage(intlMessages.updateConfirm)
+              : intl.formatMessage(intlMessages.confirmButton)}
+          </Styled.FooterButton>
         </Styled.ActionButtonContainer>
       </Styled.ModalContentWrapper>
     </Styled.Modal>

@@ -1403,7 +1403,7 @@
     "app.createBreakoutRoom.nextLabel": "Next",
     "app.createBreakoutRoom.minusRoomTime": "Decrease breakout room time to",
     "app.createBreakoutRoom.addRoomTime": "Increase breakout room time to",
-    "app.createBreakoutRoom.addParticipantLabel": "+ Add participant",
+    "app.createBreakoutRoom.addParticipantLabel": "Add participant",
     "app.createBreakoutRoom.freeJoin": "Allow users to choose rooms",
     "app.createBreakoutRoom.manageRoomsLabel": "Manage Rooms",
     "app.createBreakoutRoom.captureNotes": "Save shared notes",

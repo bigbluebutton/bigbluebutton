@@ -9,6 +9,7 @@ import {
 } from '/imports/ui/stylesheets/styled-components/general';
 import EmojiPickerComponent from '/imports/ui/components/emoji-picker/component';
 import BaseEmojiButton from './emoji-button/component';
+import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 
 interface RootProps {
   $reactionPopoverIsOpen: boolean;
@@ -81,6 +82,11 @@ const EmojiPickerWrapper = styled.div`
     span {
       cursor: pointer !important;
       display: inline-block !important;
+    }
+  }
+  @media ${smallOnly} { 
+    em-emoji-picker {
+      height: 200px !important;
     }
   }
 `;

@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import {
   colorText,
   colorGrayLighter,
@@ -156,6 +157,11 @@ z-index: 1000;
     span {
       cursor: pointer !important;
       display: inline-block !important;
+    }
+  }
+  @media ${smallOnly} { 
+    em-emoji-picker {
+      height: 200px !important;
     }
   }
 `;

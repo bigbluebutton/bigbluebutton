@@ -11,7 +11,7 @@ import { lineHeightComputed } from '/imports/ui/stylesheets/styled-components/ty
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 
 const SelectUserContainer = styled.div`
-  margin: 1.5rem 1rem;
+  margin: .5rem 1rem;
 `;
 
 const Round = styled.span`

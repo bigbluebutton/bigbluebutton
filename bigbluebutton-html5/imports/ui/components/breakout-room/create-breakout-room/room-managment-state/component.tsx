@@ -45,6 +45,7 @@ interface RoomManagmentStateProps {
   freeJoin: boolean;
   randomlyAssignFunction: (fn: () => void) => void;
   resetAssignmentsFunction: (fn: () => void) => void;
+  isMobile: boolean;
 }
 
 const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
@@ -67,6 +68,7 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
   freeJoin,
   randomlyAssignFunction,
   resetAssignmentsFunction,
+  isMobile,
 }) => {
   const intl = useIntl();
   const [selectedId, setSelectedId] = useState<string>('');
@@ -351,6 +353,7 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
             currentPresentation={currentPresentation}
             isUpdate={isUpdate}
             freeJoin={freeJoin}
+            isMobile={isMobile}
           />
         ) : null
       }

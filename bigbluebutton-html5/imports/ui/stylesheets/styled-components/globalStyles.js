@@ -92,7 +92,6 @@ const GlobalStyle = createGlobalStyle`
     animation-duration: 0.75s;
     -webkit-animation-fill-mode: both;
     animation-fill-mode: both;
-    width: 320px !important;
     cursor: pointer;
     background-color: ${colorWhite};
 

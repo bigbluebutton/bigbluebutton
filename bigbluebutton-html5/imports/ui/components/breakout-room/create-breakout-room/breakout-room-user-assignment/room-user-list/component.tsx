@@ -1,21 +1,8 @@
 import React, { useMemo } from 'react';
-import { defineMessages, useIntl } from 'react-intl';
 import Styled from './styles';
 import { BreakoutUser } from '../../room-managment-state/types';
 
-const intlMessages = defineMessages({
-  breakoutRoomLabel: {
-    id: 'app.createBreakoutRoom.breakoutRoomLabel',
-    description: 'breakout room label',
-  },
-  doneLabel: {
-    id: 'app.createBreakoutRoom.doneLabel',
-    description: 'done label',
-  },
-});
-
 interface RoomUserListProps {
-  confirm: () => void;
   selectedRoom: number;
   rooms: {
     [key: number]: {
@@ -31,10 +18,7 @@ const RoomUserList: React.FC<RoomUserListProps> = ({
   selectedRoom,
   rooms,
   moveUser,
-  confirm,
 }) => {
-  const intl = useIntl();
-
   const users = useMemo(() => {
     return Object.values(rooms).map((room) => {
       return room.users.map((user) => (
@@ -64,22 +48,7 @@ const RoomUserList: React.FC<RoomUserListProps> = ({
     }).flat();
   }, [rooms, selectedRoom, moveUser]);
 
-  return (
-    <Styled.SelectUserScreen>
-      <Styled.Header>
-        <Styled.Title>
-          {intl.formatMessage(intlMessages.breakoutRoomLabel, { 0: selectedRoom })}
-        </Styled.Title>
-        <Styled.ButtonAdd
-          size="md"
-          label={intl.formatMessage(intlMessages.doneLabel)}
-          color="primary"
-          onClick={confirm}
-        />
-      </Styled.Header>
-      {users}
-    </Styled.SelectUserScreen>
-  );
+  return (users);
 };
 
 export default RoomUserList;

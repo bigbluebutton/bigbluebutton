@@ -54,6 +54,7 @@ export type ChildComponentProps = {
   roomPresentations: RoomPresentations;
   isUpdate: boolean;
   freeJoin: boolean;
+  isMobile: boolean;
 }
 
 export interface Presentation {
