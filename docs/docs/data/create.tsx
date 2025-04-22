@@ -431,6 +431,9 @@ const createEndpointTableData = [
             <li>
               <code className="language-plaintext highlighter-rouge">infiniteWhiteboard</code> - <b>Infinite Whiteboard (added in BigBlueButton 3.0)</b>
             </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">raiseHand</code> - <b>Raise Hand (added in BigBlueButton 3.0)</b>
+            </li>
           </ul>
         </>
     ),

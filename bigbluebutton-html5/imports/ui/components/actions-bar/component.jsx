@@ -149,6 +149,7 @@ class ActionsBar extends PureComponent {
       ariaHidden,
       showScreenshareQuickSwapButton,
       isReactionsButtonEnabled,
+      isRaiseHandEnabled,
     } = this.props;
 
     const Settings = getSettingsSingletonInstance();
@@ -225,7 +226,7 @@ class ActionsBar extends PureComponent {
               />
             )}
             {isReactionsButtonEnabled && this.renderReactionsButton()}
-            <RaiseHandButtonContainer />
+            {isRaiseHandEnabled && <RaiseHandButtonContainer />}
             {this.renderPluginsActionBarItems(ActionsBarPosition.RIGHT)}
           </Styled.Center>
           <Styled.Right>
