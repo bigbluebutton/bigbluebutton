@@ -1,6 +1,5 @@
 package org.bigbluebutton.core.models
 
-import com.fasterxml.jackson.annotation.{ JsonIgnoreProperties, JsonProperty }
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.{ JsonMappingException, ObjectMapper }
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
@@ -55,6 +54,7 @@ case class Plugin(
 )
 
 object PluginModel {
+  private val FIRST_PLUGIN_SDK_VERSION_WITH_BACKWARD_COMPATIBILITY = "0.0.73"
   val logger = LoggerFactory.getLogger(this.getClass)
   val objectMapper: ObjectMapper = new ObjectMapper()
   objectMapper.registerModule(new DefaultScalaModule())
@@ -102,15 +102,19 @@ object PluginModel {
   private def checkPluginSdkVersionDevMode(pluginSdkVersion: String): Boolean =
     pluginSdkVersion.startsWith("http://codeload")
 
+  private def versioningComparison(version1: String, version2: String): Int =
+    version1.split("\\.").zipAll(version2.split("\\."), "0", "0")
+      .find { case (a, b) => a != b }
+      .fold(0) { case (a, b) => a.toInt - b.toInt }
+
   private def hasMatchingSdkVersion(htmlPluginSdkVersion: String, manifestPluginSdkVersion: String): Boolean = {
     // Returns `true` if:
     // - Both versions are URLs starting with "http://codeload" (development mode).
     // - OR the manifest plugin-sdk version is less than or equal to the HTML plugin-sdk version.
-    (checkPluginSdkVersionDevMode(manifestPluginSdkVersion)
-      && checkPluginSdkVersionDevMode(htmlPluginSdkVersion)) || manifestPluginSdkVersion.split("\\.")
-      .zipAll(htmlPluginSdkVersion.split("\\."), "0", "0")
-      .find { case (a, b) => a != b }
-      .fold(0) { case (a, b) => a.toInt - b.toInt } <= 0
+    (checkPluginSdkVersionDevMode(htmlPluginSdkVersion)
+      && checkPluginSdkVersionDevMode(manifestPluginSdkVersion)) || (
+        versioningComparison(manifestPluginSdkVersion, htmlPluginSdkVersion) <= 0
+      )
   }
 
   def createPluginModelFromJson(json: util.Map[String, AnyRef], htmlPluginSdkVersion: String): PluginModel = {
@@ -120,9 +124,20 @@ object PluginModel {
       try {
         val pluginObject = objectMapper.readValue(objectMapper.writeValueAsString(plugin), classOf[Plugin])
         val pluginObjectWithAbsoluteUrls = replaceAllRelativeUrls(pluginObject)
-        if (hasMatchingSdkVersion(htmlPluginSdkVersion, pluginObjectWithAbsoluteUrls.manifest.content.requiredSdkVersion)) {
+
+        // True if plugin-sdk version of manifest is greater than the first version with backward compatibility
+        val isManifestSdkVersionBackwardCompatible = versioningComparison(
+          pluginObjectWithAbsoluteUrls.manifest.content.requiredSdkVersion,
+          FIRST_PLUGIN_SDK_VERSION_WITH_BACKWARD_COMPATIBILITY
+        ) >= 0
+        val hasMatchingVersions = hasMatchingSdkVersion(
+          htmlPluginSdkVersion, pluginObjectWithAbsoluteUrls.manifest.content.requiredSdkVersion
+        )
+        if (isManifestSdkVersionBackwardCompatible && hasMatchingVersions) {
           pluginsMap = pluginsMap + (pluginName -> pluginObjectWithAbsoluteUrls)
-        } else {
+        } else if (!isManifestSdkVersionBackwardCompatible) {
+          logger.error(s"Plugin-SDK for plugin $pluginName is too old. Please update it")
+        } else if (!hasMatchingVersions) {
           logger.error(s"Could not load plugin $pluginName due to version mismatch")
         }
       } catch {
