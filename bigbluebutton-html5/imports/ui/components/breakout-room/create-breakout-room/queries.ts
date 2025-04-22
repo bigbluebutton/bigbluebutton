@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 import { BreakoutUser } from './room-managment-state/types';
 
-export interface getUserResponse {
+export interface getUsersResponse {
   user: Array<BreakoutUser>;
 }
 
@@ -47,8 +47,8 @@ export interface getMeetingGroupResponse {
   }[];
 }
 
-export const getUser = gql`
-  query getUser {
+export const getUsersSubscription = gql`
+  subscription users {
     user(
       where: { bot: {_eq: false } }
       order_by: [
@@ -126,7 +126,7 @@ export const getMeetingGroup = gql`
 `;
 
 export default {
-  getUser,
+  getUsersSubscription,
   getBreakouts,
   getLastBreakouts,
   getMeetingGroup,
