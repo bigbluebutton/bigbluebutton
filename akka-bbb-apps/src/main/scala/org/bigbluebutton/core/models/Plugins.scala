@@ -101,10 +101,15 @@ object PluginModel {
   private def checkPluginSdkVersionDevMode(pluginSdkVersion: String): Boolean =
     pluginSdkVersion.startsWith("http://codeload")
 
-  private def versioningComparison(version1: String, version2: String): Int =
-    version1.split("\\.").zipAll(version2.split("\\."), "0", "0")
-      .find { case (a, b) => a != b }
-      .fold(0) { case (a, b) => a.toInt - b.toInt }
+  private def versioningComparison(v1: String, v2: String): Int = {
+    def parsePart(s: String): Int =
+      s.takeWhile(_.isDigit).toIntOption.getOrElse(0)
+
+    val parts1 = v1.split("\\.")
+    val parts2 = v2.split("\\.")
+    parts1.zipAll(parts2, "", "").map { case (a, b) => parsePart(a) - parsePart(b) }
+      .find(_ != 0).getOrElse(0)
+  }
 
   private def hasMatchingSdkVersion(htmlPluginSdkVersion: String, manifestPluginSdkVersion: String): Boolean = {
     // Returns `true` if:
