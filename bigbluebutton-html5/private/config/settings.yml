@@ -304,12 +304,12 @@ public:
     # Maximum number of bytes allowed in each mutation message payload.
     # Defaults to 10485760 (10MB)
     maxMutationPayloadSize: 10485760
-  # plugins:
-  #   - name: SamplePresentationToolbarPlugin
-  #     url: https://<your-Host>/plugins/SamplePresentationToolbarPlugin.js
     # Timeout before automatically redirecting users to the logout URL (or closing the window if the session is
     # a breakout room). Either a number (in miliseconds) or null.
     timeoutBeforeRedirectOnMeetingEnd: 10000
+  # plugins:
+  #   - name: SamplePresentationToolbarPlugin
+  #     url: https://<your-Host>/plugins/SamplePresentationToolbarPlugin.js
   externalVideoPlayer:
     enabled: true
   kurento:
