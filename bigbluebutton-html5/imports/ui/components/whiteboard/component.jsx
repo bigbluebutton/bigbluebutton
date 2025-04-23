@@ -130,6 +130,7 @@ const Whiteboard = React.memo((props) => {
     whiteboardWriters,
     isPhone,
     setEditor,
+    lockToolbarTools,
   } = props;
 
   clearTldrawCache();
@@ -863,6 +864,9 @@ const Whiteboard = React.memo((props) => {
     DefaultVerticalAlignStyle.defaultValue = 'start';
 
     editor?.user?.updateUserPreferences({ locale: language });
+    if (lockToolbarTools) {
+      editor?.updateInstanceState({ isToolLocked: true });
+    }
 
     const colorStyles = [
       'black',
@@ -1015,7 +1019,17 @@ const Whiteboard = React.memo((props) => {
         }
 
         // Check for idle states and persist the batch if there are shapes
-        if (path === 'select.idle' || path === 'draw.idle' || path === 'select.editing_shape' || path === 'highlight.idle') {
+        if (
+          path === 'note.idle' ||
+          path === 'frame.idle' ||
+          path === 'line.idle' ||
+          path === 'arrow.idle' ||
+          path === 'geo.idle' ||
+          path === 'select.idle' ||
+          path === 'draw.idle' ||
+          path === 'select.editing_shape' ||
+          path === 'highlight.idle'
+        ) {
           if (Object.keys(shapeBatchRef.current).length > 0) {
             const shapesToPersist = Object.values(shapeBatchRef.current);
             shapesToPersist.forEach((shape) => {
