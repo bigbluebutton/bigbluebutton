@@ -105,6 +105,7 @@ export interface App {
   maxMutationPayloadSize: number
   enableApolloDevTools: boolean
   terminateAndRetryConnection: number
+  timeoutBeforeRedirectOnMeetingEnd: number | null
 }
 
 export interface BbbTabletApp {
