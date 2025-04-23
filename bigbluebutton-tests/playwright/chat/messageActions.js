@@ -126,9 +126,9 @@ class MessageActions extends Chat {
     await this.modPage.wasRemoved(e.messageToolbar, 'should not display the message toolbar when hovering a deleted message');
   }
 
-  async deleteViewerMessage() {
+  async deleteAnotherUserMessage() {
     await openPublicChat(this.userPage);
-    // send a message
+    // user send a message
     await this.userPage.type(e.chatBox, e.message);
     await this.userPage.waitAndClick(e.sendButton);
     await this.userPage.hasElement(e.chatUserMessageText, 'should display the message sent by the user on its public chat');
@@ -153,6 +153,23 @@ class MessageActions extends Chat {
     await this.modPage.wasRemoved(e.messageReactionItem, 'should remove the message reaction item from the deleted message');
     await lastMessageItem.hover();
     await this.modPage.wasRemoved(e.messageToolbar, 'should not display the message toolbar when hovering a deleted message');
+    // join mod2 and send a message
+    await this.initModPage2();
+    await this.modPage2.type(e.chatBox, e.message);
+    await this.modPage2.waitAndClick(e.sendButton);
+    // check if mod2 message is deletable by mod1
+    await this.modPage.hasElement(e.chatUserMessageText, 'should display the message sent by the mod2 on the public chat');
+    await checkLastMessageSent(this.modPage, e.message);
+    await hoverLastMessage(this.modPage);
+    await this.modPage.hasElement(e.messageToolbar, 'should display the message toolbar when hovering a message');
+    await this.modPage.waitAndClick(e.deleteMessageButton);
+    await this.modPage.hasElement(e.simpleModal, 'should display the delete message confirmation modal');
+    await this.modPage.waitAndClick(e.confirmDeleteChatMessageButton);
+    // check deleted message
+    const lastMessageItem2 = await this.modPage.getLocator(e.chatMessageItem).last();
+    await expect(lastMessageItem2, 'should display the message deleted label after deleting a message').toContainText(`This message was deleted by ${this.modPage.username}`);
+    await this.modPage.wasRemoved(e.chatUserMessageText, 'should remove the message content from the public chat');
+    await this.modPage.hasElementCount(e.chatMessageItem, initialMessageItemsCount + 1, 'should keep displaying the mod2 deleted message item on the public chat');
   }
 
   async replyMessage() {

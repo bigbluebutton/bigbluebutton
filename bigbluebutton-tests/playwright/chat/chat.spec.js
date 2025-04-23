@@ -142,10 +142,10 @@ test.describe('Chat', { tag: '@ci' }, () => {
         await message.deleteOwnMessage();
       });
 
-      test('Delete message from a viewer', async ({ browser, context, page }) => {
+      test('Moderator can delete a message from another user', async ({ browser, context, page }) => {
         const message = new MessageActions(browser, context);
         await message.initPages(page);
-        await message.deleteViewerMessage();
+        await message.deleteAnotherUserMessage();
       });
     });
 
