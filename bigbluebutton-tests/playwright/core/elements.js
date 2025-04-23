@@ -148,9 +148,24 @@ exports.inputPrivateLobbyMessage = 'div[data-test="privateLobbyMessage"] >> text
 exports.sendPrivateLobbyMessage = 'div[data-test="privateLobbyMessage"] >> button';
 exports.rememberCheckboxId = 'input[id="rememberCheckboxId"]';
 exports.welcomeMessage = 'h1[id="welcome-message"]';
+exports.chatMessageEditedLabel = 'span[data-test="chatMessageEditedLabel"]';
+exports.chatEditingWarningContainer = 'div[data-test="chatEditingWarningContainer"]';
+exports.cancelEditingButton = 'button[data-test="cancelEditingButton"]';
+exports.confirmDeleteChatMessageButton = 'button[data-test="confirmDeleteChatMessageButton"]';
+exports.chatReplyIntentionContainerContent = 'div[data-test="chatReplyIntentionContainer"] p';
+exports.closeChatReplyIntentionButton = 'button[data-test="closeChatReplyIntentionButton"]';
+exports.chatMessageReplied = 'div[data-test="chatMessageReplied"]';
+exports.messageReactionItem = 'button[data-test="messageReactionItem"]';
+// Message toolbar
+exports.messageToolbar = 'div[data-test="chatMessageToolbar"]';
+exports.replyMessageButton = 'button[data-test="replyMessageButton"]';
+exports.reactMessageButton = 'button[data-test="reactMessageButton"]';
+exports.editMessageButton = 'button[data-test="editMessageButton"]';
+exports.deleteMessageButton = 'button[data-test="deleteMessageButton"]';
 // Emoji picker
 exports.emojiPickerButton = 'button[data-test="emojiPickerButton"]';
 exports.frequentlyUsedEmoji = '👍';
+exports.grinningFaceEmoji = '😀';
 // Auto Convert Emoji
 exports.autoConvertEmojiMessage = ':)';
 exports.convertedEmojiMessage = '😊';
