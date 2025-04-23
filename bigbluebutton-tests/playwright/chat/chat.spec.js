@@ -147,6 +147,12 @@ test.describe('Chat', { tag: '@ci' }, () => {
         await message.initPages(page);
         await message.deleteAnotherUserMessage();
       });
+
+      test('User can delete only his own messages in breakout rooms', async ({ browser, context, page }) => {
+        const message = new MessageActions(browser, context);
+        await message.initPages(page);
+        await message.breakoutsModDelete();
+      });
     });
 
     test.describe('Reply', () => {

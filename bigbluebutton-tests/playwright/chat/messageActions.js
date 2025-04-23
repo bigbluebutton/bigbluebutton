@@ -2,6 +2,7 @@ const { Chat } = require("./chat");
 const { hoverLastMessage, openPublicChat, checkLastMessageSent } = require("./util");
 const e = require('../core/elements');
 const { expect } = require("playwright/test");
+const { ELEMENT_WAIT_LONGER_TIME } = require("../core/constants");
 
 class MessageActions extends Chat {
   async editMessageFromToolbarButton() {
@@ -170,6 +171,52 @@ class MessageActions extends Chat {
     await expect(lastMessageItem2, 'should display the message deleted label after deleting a message').toContainText(`This message was deleted by ${this.modPage.username}`);
     await this.modPage.wasRemoved(e.chatUserMessageText, 'should remove the message content from the public chat');
     await this.modPage.hasElementCount(e.chatMessageItem, initialMessageItemsCount + 1, 'should keep displaying the mod2 deleted message item on the public chat');
+  }
+
+  async breakoutsModDelete() {
+    // create breakout rooms
+    await this.modPage.waitAndClick(e.manageUsers);
+    await this.modPage.waitAndClick(e.createBreakoutRooms);
+    await this.modPage.dragDropSelector(e.attendeeNotAssigned, e.breakoutBox1);
+    await this.modPage.waitAndClick(e.modalConfirmButton);
+    // join both users in room1
+    await this.userPage.waitAndClick(e.modalConfirmButton);
+    await this.userPage.waitAndClick(e.breakoutRoomsItem);
+    await this.userPage.hasElement(e.alreadyConnected, 'should display the element alreadyConnected when user join', ELEMENT_WAIT_LONGER_TIME);
+    const breakoutUserPage = await this.userPage.getLastTargetPage(this.context);
+    await breakoutUserPage.waitAndClick(e.closeModal);
+    await this.modPage.waitAndClick(e.breakoutRoomsItem);
+    await this.modPage.waitAndClick(e.askJoinRoom1);
+    await this.modPage.hasElement(e.alreadyConnected, 'should display the alreadyConnected element when mod join', ELEMENT_WAIT_LONGER_TIME);
+    const breakoutModPage = await this.modPage.getLastTargetPage(this.context);
+    await breakoutModPage.waitAndClick(e.closeModal);
+    // mod send a message
+    await breakoutModPage.type(e.chatBox, e.message);
+    await breakoutModPage.waitAndClick(e.sendButton);
+    await breakoutModPage.hasElement(e.chatUserMessageText, 'should display the message sent by the moderator on the public chat');
+    await checkLastMessageSent(breakoutModPage, e.message);
+    // check if user cannot delete mod message
+    await breakoutUserPage.hasElement(e.chatUserMessageText, 'should display the message sent by the moderator on the public chat');
+    await hoverLastMessage(breakoutUserPage);
+    await breakoutUserPage.hasElement(e.messageToolbar, 'should display the message toolbar when hovering a message');
+    await breakoutUserPage.hasElement(e.replyMessageButton, 'should display the reply message button on the toolbar');
+    await breakoutUserPage.hasElement(e.reactMessageButton, 'should display the react message button on the toolbar');
+    await breakoutUserPage.wasRemoved(e.deleteMessageButton, 'should not display the delete message button on the toolbar');
+    // check if mod can delete own message
+    await hoverLastMessage(breakoutModPage);
+    await breakoutModPage.hasElement(e.messageToolbar, 'should display the message toolbar when hovering a message');
+    await breakoutModPage.hasElement(e.replyMessageButton, 'should display the reply message button on the toolbar');
+    await breakoutModPage.hasElement(e.reactMessageButton, 'should display the react message button on the toolbar');
+    await breakoutModPage.hasElement(e.editMessageButton, 'should display the edit message button on the toolbar');
+    await breakoutModPage.hasElement(e.deleteMessageButton, 'should display the delete message button on the toolbar');
+    await breakoutModPage.waitAndClick(e.deleteMessageButton);
+    await breakoutModPage.hasElement(e.simpleModal, 'should display the delete message confirmation modal');
+    await breakoutModPage.waitAndClick(e.confirmDeleteChatMessageButton);
+    // check deleted message
+    const lastMessageItemMod = await breakoutModPage.getLocator(e.chatMessageItem).last();
+    await expect(lastMessageItemMod, 'should display the message deleted label after deleting a message for the mod').toContainText(`This message was deleted by ${this.modPage.username}`);
+    const lastMessageItemUser = await breakoutUserPage.getLocator(e.chatMessageItem).last();
+    await expect(lastMessageItemUser, 'should display the message deleted label after deleting a message for the viewer').toContainText(`This message was deleted by ${this.modPage.username}`);
   }
 
   async replyMessage() {
