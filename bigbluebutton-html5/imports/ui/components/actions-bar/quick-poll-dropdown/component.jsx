@@ -80,34 +80,42 @@ const QuickPollDropdown = (props) => {
     content,
   } = currentSlide;
 
-  let lines = content.split('\n');
-  let questions = [];
-  let questionLines = [];
+  const questionPattern = /^[a-zA-Z0-9][.)]\s+.*/;
 
-  for (let line of lines) {
-    let startsWithCapital = /^[A-Z]/.test(line);
-    let isEndOfQuestion = /\?$/.test(line);
+  const optionsPattern = /^\s*(yes\s*\/\s*no|true\s*\/\s*false)\s*$/i;
 
-    if (startsWithCapital) {
-      if (questionLines.length > 0) {
-        questions.push(questionLines.join(' '));
-      }
-      questionLines = [];
+  const lines = content.split('\n');
+  const questionLines = [];
+  let isOptionSection = false;
+  const options = [];
+
+  // Group consecutive non-option lines as question
+  lines.forEach((line) => {
+    const trimmedLine = line.trim();
+
+    if (questionPattern.test(trimmedLine) || optionsPattern.test(trimmedLine)) {
+      // We've found explicit options (e.g., "a) Yes" or "Yes / No")
+      isOptionSection = true;
+      options.push(trimmedLine);
+    } else if (!isOptionSection && trimmedLine.length > 0) {
+      // Any non-empty line before options is considered question text
+      questionLines.push(trimmedLine);
     }
+  });
 
-    questionLines.push(line.trim());
+  // Join lines into a single question string
+  const question = [questionLines.join(' ').trim()];
 
-    if (isEndOfQuestion) {
-      questions.push(questionLines.join(' '));
-      questionLines = [];
-    }
-  }
+  // Check explicitly if options exist or if the question ends with '?'
+  const hasExplicitQuestionMark = /\?$/.test(question);
+  // Process standard lettered options
+  const processedOptions = options
+    .filter((opt) => questionPattern.test(opt))
+    .map((opt) => opt.replace(/^[a-zA-Z0-9][.)]\s+/, '').trim());
 
-  if (questionLines.length > 0) {
-    questions.push(questionLines.join(' '));
-  }
-
-  const question = questions.filter(q => /^[A-Z].*\?$/.test(q?.trim()));
+  // Identify Yes/No or True/False options
+  const hasYesNo = options.some((opt) => /^yes\s*\/\s*no$/i.test(opt));
+  const hasTrueFalse = options.some((opt) => /^true\s*\/\s*false$/i.test(opt));
 
   if (question?.length > 0) {
     question[0] = question[0]?.replace(/\n/g, ' ');
@@ -115,6 +123,10 @@ const QuickPollDropdown = (props) => {
     const hasUrl = safeMatch(urlRegex, question[0], '');
     if (hasUrl.length > 0) question.pop();
   }
+
+  // Determine whether to actually consider it a question based on your conditions
+  const isValidQuestion = (processedOptions.length > 0 || hasYesNo || hasTrueFalse)
+    || hasExplicitQuestionMark;
 
   const doubleQuestionRegex = /\?{2}/gm;
   const doubleQuestion = safeMatch(doubleQuestionRegex, content, false);
@@ -127,6 +139,7 @@ const QuickPollDropdown = (props) => {
 
   const pollRegex = /\b[1-9A-Ia-i][.)] .*/g;
   let optionsPoll = safeMatch(pollRegex, content, []);
+
   const optionsWithLabels = [];
 
   if (hasYN) {
@@ -195,7 +208,13 @@ const QuickPollDropdown = (props) => {
     }
   });
 
-  if (question.length > 0 && optionsPoll.length === 0 && !doubleQuestion && !hasYN && !hasTF) {
+  if (question.length > 0
+    && optionsPoll.length === 0
+    && !doubleQuestion
+    && !hasYN
+    && !hasTF
+    && isValidQuestion
+  ) {
     quickPollOptions.push({
       type: 'R-',
       poll: {
