@@ -38,7 +38,7 @@ import {
 import { useMouseEvents, useCursor } from './hooks';
 import { notifyShapeNumberExceeded, getCustomEditorAssetUrls, getCustomAssetUrls } from './service';
 import NoopTool from './custom-tools/noop-tool/component';
-import DeleteAllTool from './custom-tools/delete-all/component';
+import DeleteSelectedItemsTool from './custom-tools/delete-selected-items/component';
 
 const CAMERA_TYPE = 'camera';
 
@@ -79,7 +79,7 @@ const defaultUser = {
   userId: '',
 };
 
-const customTools = [NoopTool, DeleteAllTool];
+const customTools = [NoopTool, DeleteSelectedItemsTool];
 
 const Whiteboard = React.memo((props) => {
   const {
@@ -184,13 +184,13 @@ const Whiteboard = React.memo((props) => {
     tools: (editor, tools) => {
       const updatedTools = {
         ...tools,
-        deleteAll: {
-          id: 'delete-all',
-          label: intl?.messages['app.whiteboard.toolbar.clear'],
+        deleteSelectedItems: {
+          id: "delete-selected-items",
+          label: intl?.messages["app.whiteboard.toolbar.delete"],
           readonlyOk: false,
-          icon: 'tool-delete-all',
+          icon: "tool-delete-selected-items",
           onSelect() {
-            editor.deleteShapes(editor.getCurrentPageShapes().map((shape) => {
+            editor.deleteShapes(editor.getSelectedShapes().map(shape => {
               if (currentUser?.presenter || (shape?.meta?.createdBy === currentUser?.userId)) {
                 return shape.id;
               }
@@ -202,8 +202,8 @@ const Whiteboard = React.memo((props) => {
       return updatedTools;
     },
     toolbar: (_editor, toolbarItems, { tools }) => {
-      if (tools.deleteAll) {
-        toolbarItems.splice(7, 0, toolbarItem(tools.deleteAll));
+      if (tools.deleteSelectedItems) {
+        toolbarItems.splice(7, 0, toolbarItem(tools.deleteSelectedItems));
       }
       return toolbarItems;
     },
