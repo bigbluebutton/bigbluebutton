@@ -5,6 +5,7 @@ const { expect } = require("@playwright/test");
 const { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } = require("../core/constants");
 const { getNotesLocator } = require("../sharednotes/util");
 const { sleep } = require("../core/helpers");
+const { hoverLastMessage } = require("../chat/util");
 
 class LockViewers extends MultiUsers {
   constructor(browser, page) {
@@ -94,11 +95,20 @@ class LockViewers extends MultiUsers {
   }
 
   async lockSendPublicChatMessages() {
+    // mod send a message
+    await this.modPage.type(e.chatBox, e.message);
+    await this.modPage.waitAndClick(e.sendButton);
+    await this.modPage.hasElement(e.chatUserMessageText);
+    await this.userPage.hasElement(e.chatUserMessageText);
+    // lock the public chat
     await openLockViewers(this.modPage);
     await this.modPage.waitAndClickElement(e.lockPublicChat);
     await this.modPage.waitAndClick(e.applyLockSettings);
     await this.userPage.hasElementDisabled(e.chatBox, 'should have the public chat disabled for the first attendee');
     await this.userPage.hasElementDisabled(e.sendButton, 'should have the send button on the public chat disabled for the first attendee');
+    await hoverLastMessage(this.userPage);
+    await this.userPage.wasRemoved(e.messageToolbar, 'should not display the chat message toolbar when locked viewer is hovering a message');
+    // join second user
     await this.initUserPage2(true);
     await this.userPage2.hasElementDisabled(e.chatBox, 'should have the public chat disabled for the second attendee');
     await this.userPage2.hasElementDisabled(e.sendButton, 'should have the send button on the public chat disabled for the second attendee');
@@ -110,33 +120,46 @@ class LockViewers extends MultiUsers {
     await this.userPage2.type(e.chatBox, e.message);
     await this.modPage.hasElement(e.typingIndicator, 'should display the typing indicator element for the moderator');
     await this.userPage2.waitAndClick(e.sendButton);
+    const lastMessageSentUser2Locator = await this.userPage2.getLocator(e.chatMessageItem).last();
+    await lastMessageSentUser2Locator.locator(e.chatUserMessageText).hover();
+    await expect(lastMessageSentUser2Locator.locator(e.messageToolbar), 'should display the chat message toolbar when the unlocked viewer is hovering a message').toBeVisible();
     await this.userPage.waitForSelector(e.chatUserMessageText);
     await this.userPage.hasElementCount(e.chatUserMessageText, 2, 'should display two user messages on the public chat for the first attendee');
   }
 
   async lockSendPrivateChatMessages() {
+    // user start private chat with mod and send a message
     const lastUserItemLocator = this.userPage.getLocatorByIndex(e.userListItem, -1);
     await this.userPage.clickOnLocator(lastUserItemLocator);
     const startPrivateChatButton = this.userPage.getLocatorByIndex(e.startPrivateChat, -1);
     await this.userPage.clickOnLocator(startPrivateChatButton);
+    // mod lock the private chat
     await openLockViewers(this.modPage);
     await this.modPage.waitAndClickElement(e.lockPrivateChat);
     await this.modPage.waitAndClick(e.applyLockSettings);
+    // join second user
     await this.initUserPage2();
     await this.modPage.getLocator(e.userListItem).filter({ hasNotText: this.userPage2.username }).click();
     await this.modPage.waitAndClick(e.unlockUserButton);
-
     await this.userPage.getLocator(e.userListItem).filter({ hasText: this.userPage2.username }).click();
     await this.userPage.waitAndClick(`${e.startPrivateChat} >> visible=true`);
     await this.userPage.hasElementEnabled(e.chatBox, 'should have the private chat enabled for the first attendee');
     await this.userPage.hasElementEnabled(e.sendButton, 'should have the send button on the private chat enabled for the first attendee');
     await this.userPage.type(e.chatBox, 'Test');
     await this.userPage.waitAndClick(e.sendButton);
-
+    // check message sent and toolbar
+    await this.userPage.hasElement(e.chatUserMessageText);
+    const privateChatMessaSentUser = await this.userPage.getLocator(e.chatMessageItem).last();
+    await privateChatMessaSentUser.locator(e.chatUserMessageText).hover();
+    await expect(privateChatMessaSentUser.locator(e.messageToolbar), 'should display the chat message toolbar when hovering the message').toBeVisible();
+    // check if the private chat is locked for the second attendee
     await this.userPage2.getLocator(e.chatButton).filter({ hasText: this.userPage.username }).click();
     await this.userPage2.waitForSelector(e.closePrivateChat);
     await this.userPage2.hasElementDisabled(e.chatBox, 'should have the private chat disabled for the second attendee');
     await this.userPage2.hasElementDisabled(e.sendButton, 'should have the send button on the private chat disabled for the second attendee');
+    const privateChatMessaSentUser2 = await this.userPage2.getLocator(e.chatMessageItem).last();
+    await privateChatMessaSentUser2.locator(e.chatUserMessageText).hover();
+    await expect(privateChatMessaSentUser2.locator(e.messageToolbar), 'should not display the chat message toolbar when locked user is hovering the message').not.toBeVisible();
   }
 
   async lockEditSharedNotes() {
@@ -144,7 +167,7 @@ class LockViewers extends MultiUsers {
     await this.userPage.waitForSelector(e.hideNotesLabel);
     const sharedNotesLocator = getNotesLocator(this.userPage);
     await sharedNotesLocator.type(e.message, { timeout: ELEMENT_WAIT_LONGER_TIME });
-    await expect(sharedNotesLocator, 'should the shared notes contain the text "Hello World!" for the first attende').toContainText(e.message, { timeout: ELEMENT_WAIT_TIME });
+    await expect(sharedNotesLocator, 'should the shared notes contain the text "Hello World!" for the first attendee').toContainText(e.message, { timeout: ELEMENT_WAIT_TIME });
 
     await openLockViewers(this.modPage);
     await this.modPage.waitAndClickElement(e.lockEditSharedNotes);
