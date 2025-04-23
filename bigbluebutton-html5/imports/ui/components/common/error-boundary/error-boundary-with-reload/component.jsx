@@ -92,7 +92,7 @@ const ErrorBoundaryWithReload = ({ children }) => {
         return;
       }
       // Ignore errors caused by missing permissions on browser
-      if (event.reason.name === 'NotAllowedError') {
+      if (event.reason?.name === 'NotAllowedError') {
         return;
       }
 
