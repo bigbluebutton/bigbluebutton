@@ -168,18 +168,29 @@ const PresentationToolbarContainer = (props) => {
   const startPoll = (pollType, pollId, answers = [], question, isMultipleResponse = false) => {
     Session.setItem('openPanel', 'poll');
     Session.setItem('forcePollOpen', true);
-    window.dispatchEvent(new Event('panelChanged'));
 
-    createPoll({
-      variables: {
+    if (window.meetingClientSettings.public.poll.quickPollConfirmationStep) {
+      Session.setItem('quickPollVariables', {
         pollType,
-        pollId: `${pollId}/${new Date().getTime()}`,
         secretPoll: false,
         question,
         isMultipleResponse,
         answers,
-      },
-    });
+      });
+    } else {
+      createPoll({
+        variables: {
+          pollType,
+          pollId: `${pollId}/${new Date().getTime()}`,
+          secretPoll: false,
+          question,
+          isMultipleResponse,
+          answers,
+        },
+      });
+    }
+
+    window.dispatchEvent(new Event('panelChanged'));
   };
 
   const isPollingEnabled = useIsPollingEnabled();

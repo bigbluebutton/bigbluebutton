@@ -18,7 +18,7 @@ BigBlueButton's components use various configuration files which are included wi
 
 For the full list of the configuration files and their overriding counterpart, see [Configuration Files](/administration/configuration-files#local-overrides-for-configuration-settings)
 
-### Preserving customizations using apply-conf.sh
+### Preserving customizations using apply-config.sh
 
 **Note that starting with BigBlueButton 2.6 we strongly recommend adding your custom settings to `/etc/bigbluebutton` instead. See [the list of override files](/administration/configuration-files#local-overrides-for-configuration-settings)**
 
@@ -26,7 +26,7 @@ Whenever you upgrade a server to the latest version of BigBlueButton, either usi
 
 To make it easier to apply your configuration changes, you can create a BASH script at `/etc/bigbluebutton/bbb-conf/apply-config.sh` that contains commands to apply your changes. The `bbb-conf` script, which is run as part of the last steps in a manual upgrade steps or using `bbb-install.sh`, will detect `apply-config.sh` and invoke it just before starting all of BigBlueButton's components.
 
-In this way, you can use `apply-conf.sh` to apply your custom configuration changes after all packages have updated but just before BigBlueButton starts.
+In this way, you can use `apply-config.sh` to apply your custom configuration changes after all packages have updated but just before BigBlueButton starts.
 
 For example, if you create `/etc/bigbluebutton/bbb-conf/apply-config.sh` with the following contents and make it executable with `chmod +x /etc/bigbluebutton/bbb-conf/apply-config.sh`
 
@@ -39,11 +39,11 @@ source /etc/bigbluebutton/bbb-conf/apply-lib.sh
 enableUFWRules
 ```
 
-then when called by `bbb-conf`, the above `apply-conf.sh` script will
+then when called by `bbb-conf`, the above `apply-config.sh` script will
 
 - use the helper function `enableUFWRules` to restrict access to specific ports, and
 
-Notice that `apply-conf.sh` includes a helper script [apply-lib.sh](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-config/bin/apply-lib.sh).
+Notice that `apply-config.sh` includes a helper script [apply-lib.sh](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-config/bin/apply-lib.sh).
 This helper script contains some functions to make it easy to apply common configuration changes, along with some helper variables, such as `HTML5_CONFIG`.
 
 The contents of `apply-config.sh` are not owned by any package, so it will never be overwritten.
@@ -336,7 +336,7 @@ If you run `systemctl status bbb-rap-resque-worker.service` now, you will see th
 
 #### Install additional recording processing formats
 
-In addition to the `presentation` format that is installed and enabled by default, there are several optional recording formats available for BigBlueButton 2.6:
+In addition to the `presentation` format that is installed and enabled by default, there are several optional recording formats available for BigBlueButton:
 
 - `notes`: Makes the shared notes from the meeting available as a document.
 - `screenshare`: Generate a single video file from the screensharing and meeting audio.
@@ -347,11 +347,11 @@ The processing scripts and playback support files for these recording formats ca
 
 There is currently an issue where the recording formats are not automatically enabled when they are installed - see [#12241](https://github.com/bigbluebutton/bigbluebutton/issues/12241) for details.
 
-In order to enable the recording formats manually, you need to edit the file `/usr/local/bigbluebutton/core/scripts/bigbluebutton.yml`. Look for the section named `steps:`. In this section, the recording processing workflow is defined, including what recording processing steps are performed, and what order they need to be performed in.
+In order to enable the recording formats manually, you need to edit the file `/usr/local/bigbluebutton/core/scripts/bigbluebutton.yml`. Look for the section named `steps:`. In this section, the recording processing workflow is defined, including what recording processing steps are performed, and what order they need to be performed in. To ensure that your modifications are not lost when a new version of the packages is installed, you can [create the file and] write your changes to `/etc/bigbluebutton/recording/recording.yml`.
 
 To enable a new recording format, you need to add a new step named `process:formatname` that runs after the step named captions, and a new step named `publish:formatname` that runs after `process:formatname`. You may have to convert some of the steps to list format.
 
-For example, here are the stock steps in BigBlueButton 2.6 with the `presentation` format enabled:
+For example, here are the stock steps in BigBlueButton 3.0 with the `presentation` format enabled:
 
 ```yml
 steps:
@@ -362,6 +362,8 @@ steps:
 ```
 
 If you additionally enable the `video` recording format, the steps will have to be changed to look like this:
+
+`cat /etc/bigbluebutton/recording/recording.yml`
 
 ```yml
 steps:
@@ -674,7 +676,7 @@ If you want to have all users join muted, you can add an overwrite in `/etc/bigb
 
 ```properties
 # Mute the meeting on start
-muteOnStart=false
+muteOnStart=true
 ```
 
 After making them modification, restart your server with `sudo bbb-conf --restart` to apply the changes.
@@ -872,6 +874,10 @@ iptables -I INPUT  -p udp --dport 5060 -s 64.2.142.33 -j ACCEPT
 ```
 
 With these rules, you won't get spammed by bots scanning for SIP endpoints and trying to connect.
+
+It's also important to note that, alongside the PIN requirement, there are basic dialplan-level checks in place to prevent anonymous dial-in callers from joining BigBlueButton audio conferences.
+  - Those checks offer minimal protection regarding blocking anonymous SIP participants and should not be considered a comprehensive solution. For production environments requiring stronger security controls, administrators are responsible for implementing additional measures that match the sensitivity of their deployments.
+  - If you want to allow anonymous SIP UAs, you need to remove the `reject_anonymous` extension in `/opt/freeswitch/conf/dialplan/default/bbb_conference.xml`, then restart FreeSWITCH.
 
 #### Turn on the "comfort noise" when no one is speaking
 
@@ -1099,7 +1105,7 @@ tcp6       0      0 :::22                   :::*                    LISTEN      
 ```
 
 To restrict external access minimal needed ports for BigBlueButton.
-BigBlueButton supplies a helper function that you can call in `/etc/bigbluebutton/bbb-conf/apply-conf.sh`
+BigBlueButton supplies a helper function that you can call in `/etc/bigbluebutton/bbb-conf/apply-config.sh`
 to setup a minimal firewall (see [Setup Firewall](#setup-firewall)).
 
 You can also do it manually with the following commands
@@ -1454,7 +1460,6 @@ Useful tools for development:
 
 | Parameter                                      | Description                                                                                                                                                                                                                                                                                                                     | Default value |
 | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- |
-| `userdata-bbb_ask_for_feedback_on_logout=`     | If set to `true`, the client will display the ask for feedback screen on logout                                                                                                                                                                                                                                                 | `false`       |
 | `userdata-bbb_auto_join_audio=`                | If set to `true`, the client will start the process of joining the audio bridge automatically upon loading the client                                                                                                                                                                                                           | `false`       |
 | `userdata-bbb_client_title=`                   | Specifies a string to set as the HTML5 client title                                                                                                                                                                                                                                                                             | BigBlueButton |
 | `userdata-bbb_force_listen_only=`              | If set to `true`, attendees will be not be able to join with a microphone as an option (does not apply to moderators)                                                                                                                                                                                                           | `false`       |
@@ -1576,55 +1581,6 @@ If you are adding this to a join-url you need to URI encode the string (see a sa
 #### Send client logs to the server
 
 Step-by-step instructions for how to configure logs from clients to be logged in a server log file are located in [Administration -> Configuration Files](/administration/configuration-files#logs-sent-directly-from-the-client)
-
-#### Collect feedback from the users
-
-The BigBlueButton client can ask the user for feedback when they leave a session. This feedback gives the administrator insight on a user's experiences within a BigBlueButton sessions.
-
-To enable the feedback and its logging to your server, run the following script.
-
-```bash
-#!/bin/bash
-
-HOST=$(cat /etc/bigbluebutton/bbb-web.properties | grep -v '#' | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
-HTML5_CONFIG=/usr/share/bigbluebutton/html5-client/private/config/settings.yml
-PROTOCOL=$(cat /etc/bigbluebutton/bbb-web.properties | grep -v '#' | grep '^bigbluebutton.web.serverURL' | sed 's/.*\(http[s]*\).*/\1/')
-
-apt-get install -y nginx-full
-
-yq e -i '.public.clientLog.external.enabled = true' $HTML5_CONFIG
-yq e -i ".public.clientLog.external.url = \"$PROTOCOL://$HOST/html5log\"" $HTML5_CONFIG
-yq e -i '.public.app.askForFeedbackOnLogout = true' $HTML5_CONFIG
-
-mkdir -p /etc/bigbluebutton/nginx/
-
-cat > /etc/bigbluebutton/nginx/html5-client-log.nginx << HERE
-location /html5log {
-        access_log /var/log/nginx/html5-client.log postdata;
-        echo_read_request_body;
-}
-HERE
-
-cat > /etc/nginx/conf.d/html5-client-log.conf << HERE
-log_format postdata '\$remote_addr [\$time_iso8601] \$request_body';
-HERE
-
-# We need nginx-full to enable postdata log_format
-if ! dpkg -l | grep -q nginx-full; then
-  apt-get install -y nginx-full
-fi
-
-touch /var/log/nginx/html5-client.log
-chown bigbluebutton:bigbluebutton /var/log/nginx/html5-client.log
-```
-
-The feedback will be written to `/var/log/nginx/html5-client.log`, which you would need to extract and parse. You can also use the following command to monitor the feedback
-
-```bash
-tail -f /var/log/nginx/html5-client.log | sed -u 's/\\x22/"/g' | sed -u 's/\\x5C//g'
-```
-
-There used to be an incorrect version of the script above on the docs. If you face any issues after updating it, refer to [this issue](https://github.com/bigbluebutton/bigbluebutton/issues/9065) for solutions.
 
 ### Other configuration changes
 

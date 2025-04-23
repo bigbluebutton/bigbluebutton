@@ -23,22 +23,41 @@ class PresAnnotationDbTableDef(tag: Tag) extends Table[PresAnnotationDbModel](ta
 }
 
 object PresAnnotationDAO {
-  def insertOrUpdateMap(meetingId: String, annotations: Array[AnnotationVO], annotationUpdatedAt: Long) = {
-    for {
-      annotation <- annotations
-    } yield {
+  // Helper method adds the synced flag into the meta field of annotations.
+  def addSynced(info: Map[String, Any]): Map[String, Any] = {
+    val currentMeta = info.get("meta") match {
+      case Some(meta: Map[String, Any] @unchecked) => meta
+      case _                                       => Map.empty[String, Any]
+    }
+    val newMeta = currentMeta ++ Map("synced" -> true)
+    info.updated("meta", newMeta)
+  }
+
+  def insertOrUpdateMap(meetingId: String, annotations: Array[AnnotationVO], annotationUpdatedAt: Long): Unit = {
+    for (annotation <- annotations) {
+      val infoWithSyncedFlag = addSynced(annotation.annotationInfo)
+
       DatabaseConnection.enqueue(
         sqlu"""
           WITH upsert AS (
             UPDATE pres_annotation
-            SET "annotationInfo"=${JsonUtils.mapToJson(annotation.annotationInfo).compactPrint},
-            "lastUpdatedAt" = ${new java.sql.Timestamp(annotationUpdatedAt)}
+            SET
+              "annotationInfo" = ${JsonUtils.mapToJson(infoWithSyncedFlag).compactPrint},
+              "lastUpdatedAt"  = ${new java.sql.Timestamp(annotationUpdatedAt)}
             WHERE "annotationId" = ${annotation.id}
-            RETURNING *)
-          INSERT INTO pres_annotation ("annotationId", "pageId", "meetingId", "userId", "annotationInfo", "lastUpdatedAt")
-          SELECT ${annotation.id}, ${annotation.wbId}, ${meetingId}, ${annotation.userId},
-          ${JsonUtils.mapToJson(annotation.annotationInfo).compactPrint}, ${new java.sql.Timestamp(annotationUpdatedAt)}
-          WHERE NOT EXISTS (SELECT * FROM upsert)"""
+            RETURNING *
+          )
+          INSERT INTO pres_annotation
+            ("annotationId", "pageId", "meetingId", "userId", "annotationInfo", "lastUpdatedAt")
+          SELECT
+            ${annotation.id},
+            ${annotation.wbId},
+            $meetingId,
+            ${annotation.userId},
+            ${JsonUtils.mapToJson(infoWithSyncedFlag).compactPrint},
+            ${new java.sql.Timestamp(annotationUpdatedAt)}
+          WHERE NOT EXISTS (SELECT * FROM upsert)
+        """
       )
     }
   }
@@ -51,5 +70,4 @@ object PresAnnotationDAO {
         .update("", meetingId, userId, new java.sql.Timestamp(annotationUpdatedAt))
     )
   }
-
 }

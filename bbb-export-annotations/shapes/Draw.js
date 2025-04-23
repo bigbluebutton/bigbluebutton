@@ -1,9 +1,7 @@
-import pkg from 'perfect-freehand';
+import {getStrokePoints, getStrokeOutlinePoints} from 'perfect-freehand';
 import {TAU} from '../shapes/helpers.js';
 import {Path} from '@svgdotjs/svg.js';
 import {Shape} from './Shape.js';
-
-const {getStrokePoints, getStrokeOutlinePoints} = pkg;
 
 /**
  * Creates an SVG path from Tldraw v2 pencil data.
