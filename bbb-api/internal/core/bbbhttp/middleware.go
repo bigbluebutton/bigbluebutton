@@ -36,14 +36,14 @@ type Param struct {
 // case where a parameter has values originating from both the
 // query string and the request body the first value for that
 // parameter will always be the one from the query string.
-type Params map[string][]*Param
+type Params map[string][]Param
 
 // Get returns the first [Param] assosocated with the given
 // parameter name.
-func (p Params) Get(key string) *Param {
+func (p Params) Get(key string) Param {
 	vs := p[key]
 	if len(vs) == 0 {
-		return nil
+		return Param{}
 	}
 	return vs[0]
 }
@@ -51,13 +51,13 @@ func (p Params) Get(key string) *Param {
 // Set creates a new collection of Params associated with
 // the given parameter name. Note that this will replace
 // any existing Params.
-func (p Params) Set(key string, value *Param) {
-	p[key] = []*Param{value}
+func (p Params) Set(key string, value Param) {
+	p[key] = []Param{value}
 }
 
 // Add inserts a new [Param] into the collection associated
 // with the given parameter name.
-func (p Params) Add(key string, value *Param) {
+func (p Params) Add(key string, value Param) {
 	p[key] = append(p[key], value)
 }
 
@@ -86,7 +86,7 @@ func CollectParams() func(next http.Handler) http.Handler {
 
 			for k, vs := range queryParams {
 				for _, v := range vs {
-					p := &Param{
+					p := Param{
 						Value:     v,
 						FromQuery: true,
 					}
@@ -102,7 +102,7 @@ func CollectParams() func(next http.Handler) http.Handler {
 					if err == nil {
 						for k, vs := range r.PostForm {
 							for _, v := range vs {
-								p := &Param{
+								p := Param{
 									Value:    v,
 									FromBody: true,
 								}
@@ -115,7 +115,7 @@ func CollectParams() func(next http.Handler) http.Handler {
 					if err == nil {
 						for k, vs := range r.MultipartForm.Value {
 							for _, v := range vs {
-								p := &Param{
+								p := Param{
 									Value:    v,
 									FromBody: true,
 								}

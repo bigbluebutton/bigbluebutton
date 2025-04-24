@@ -21,7 +21,7 @@ type HTTPToGRPC struct{}
 func (h *HTTPToGRPC) Transform(msg pipeline.Message[*http.Request]) (pipeline.Message[*meeting.MeetingInfoRequest], error) {
 	req := msg.Payload
 	params := req.Context().Value(bbbhttp.ParamsKey).(bbbhttp.Params)
-	meetingID := validation.StripCtrlChars(params.Get(meetingapi.MeetingIDParam).Value)
+	meetingID := validation.StripCtrlChars(params.Get(meetingapi.IDParam).Value)
 	grpcReq := &meeting.MeetingInfoRequest{
 		MeetingData: &common.MeetingData{
 			MeetingId: meetingID,

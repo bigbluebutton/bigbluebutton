@@ -26,7 +26,7 @@ func (f *GetMeetingsFilter) Filter(msg pipeline.Message[*http.Request]) error {
 
 	params := req.Context().Value(bbbhttp.ParamsKey).(bbbhttp.Params)
 
-	if meetingID := params.Get(meeting.MeetingIDParam).Value; meetingID != "" {
+	if meetingID := params.Get(meeting.IDParam).Value; meetingID != "" {
 		return meetingv.ValidateMeetingID(meetingID)
 	}
 	return nil

@@ -71,4 +71,7 @@ const (
 	InvalidInteger      = "invalid integer"
 	InvalidStringLength = "invalid string length"
 	InvalidBoolean      = "invalid boolean"
+
+	InvalidRequestBodyKey string = "invalidRequestBody"
+	InvalidRequestBodyMsg string = "Invalid request body"
 )

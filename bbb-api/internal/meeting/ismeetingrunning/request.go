@@ -18,7 +18,7 @@ type SendMeetingRunningRequest struct {
 	client *meetingapi.Client
 }
 
-// Send make a gRPC request to Akka Apps using the incoming message with a payload
+// Send makes a gRPC request to Akka Apps using the incoming message with a payload
 // of type [MeetingRunningRequest] and returns the response in a new message with
 // a payload of type [MeetingRunningResponse].
 func (s *SendMeetingRunningRequest) Send(msg pipeline.Message[*meeting.MeetingRunningRequest]) (pipeline.Message[*meeting.MeetingRunningResponse], error) {
