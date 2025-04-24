@@ -240,6 +240,7 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
             onClick={() => confirmRedirect(isBreakout, allowRedirect)}
             /* @eslint-disable-next-line */
             aria-details={intl.formatMessage(intlMessage.confirmDesc)}
+            data-test="redirectButton"
           >
             {intl.formatMessage(intlMessage.buttonOkay)}
           </Styled.MeetingEndedButton>

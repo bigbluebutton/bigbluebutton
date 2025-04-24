@@ -11,6 +11,7 @@ class ChangeStyles extends DrawShape {
 
   async changingColor() {
     await this.drawShape(e.wbEllipseShape, 'ellipse');
+    await this.modPage.page.keyboard.press('v');
     // change the color of the shape
     await this.modPage.waitAndClick(e.whiteboardStyles);
     await this.modPage.waitAndClick(e.wbColorRed);
@@ -25,6 +26,7 @@ class ChangeStyles extends DrawShape {
 
   async fillDrawing() {
     await this.drawShape(e.wbEllipseShape, 'ellipse');
+    await this.modPage.page.keyboard.press('v');
     // fill the shape
     await this.modPage.waitAndClick(e.whiteboardStyles);
     await this.modPage.waitAndClick(e.wbFillDrawing);
@@ -39,6 +41,7 @@ class ChangeStyles extends DrawShape {
 
   async dashDrawing() {
     await this.drawShape(e.wbEllipseShape, 'ellipse');
+    await this.modPage.page.keyboard.press('v');
     // dash the shape
     await this.modPage.waitAndClick(e.whiteboardStyles);
     await this.modPage.waitAndClick(e.wbDashDotted);
@@ -53,6 +56,7 @@ class ChangeStyles extends DrawShape {
 
   async sizeDrawing() {
     await this.drawShape(e.wbEllipseShape, 'ellipse');
+    await this.modPage.page.keyboard.press('v');
     // change the size of the shape
     await this.modPage.waitAndClick(e.whiteboardStyles);
     await this.modPage.waitAndClick(e.wbSizeLarge);

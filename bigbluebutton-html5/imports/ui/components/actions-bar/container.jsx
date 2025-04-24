@@ -14,6 +14,7 @@ import {
   useIsPollingEnabled,
   useIsPresentationEnabled,
   useIsTimerFeatureEnabled,
+  useIsRaiseHandEnabled,
 } from '/imports/ui/services/features';
 
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
@@ -102,6 +103,7 @@ const ActionsBarContainer = (props) => {
   const isPresentationEnabled = useIsPresentationEnabled();
   const isTimerFeatureEnabled = useIsTimerFeatureEnabled();
   const isPollingEnabled = useIsPollingEnabled() && isPresentationEnabled;
+  const isRaiseHandEnabled = useIsRaiseHandEnabled();
   const applicationSettings = useSettings(SETTINGS.APPLICATION);
   const { pushLayout } = applicationSettings;
   const setPushLayout = usePushLayoutUpdater(pushLayout);
@@ -141,6 +143,7 @@ const ActionsBarContainer = (props) => {
         allowExternalVideo,
         isPollingEnabled,
         isPresentationEnabled,
+        isRaiseHandEnabled,
         currentUser,
         amIModerator,
         layoutContextDispatch,

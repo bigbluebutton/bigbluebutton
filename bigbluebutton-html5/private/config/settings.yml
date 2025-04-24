@@ -580,6 +580,7 @@ public:
     maxCustom: 5
     maxTypedAnswerLength: 45
     chatMessage: true
+    quickPollConfirmationStep: true
   captions:
     enabled: true
     id: captions
@@ -1042,6 +1043,7 @@ public:
     maxNumberOfAnnotations: 300
     # Limit the number of users who can interact with the whiteboard
     maxNumberOfActiveUsers: 25
+    lockToolbarTools: false
     annotations:
       status:
         start: DRAW_START
@@ -1075,7 +1077,7 @@ public:
         - text
         - note
         - rectangle
-        - delete-all
+        - delete-selected-items
         - highlight
         - more
         - actions
@@ -1088,7 +1090,7 @@ public:
         - text
         - note
         - rectangle
-        - delete-all
+        - delete-selected-items
         - highlight
         - more
         - actions
