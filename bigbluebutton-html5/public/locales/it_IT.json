@@ -1403,7 +1403,7 @@
     "app.createBreakoutRoom.nextLabel": "Prossimo",
     "app.createBreakoutRoom.minusRoomTime": "Diminuisci la durata dell'aula separata",
     "app.createBreakoutRoom.addRoomTime": "Aumenta la durata dell'aula separata",
-    "app.createBreakoutRoom.addParticipantLabel": "+ Aggiungi partecipante",
+    "app.createBreakoutRoom.addParticipantLabel": "Aggiungi partecipanti",
     "app.createBreakoutRoom.freeJoin": "Permetti agli utenti di entrare in un'aula separata",
     "app.createBreakoutRoom.manageRoomsLabel": "Gestisci aule",
     "app.createBreakoutRoom.captureNotes": "Salva le note condivise",
