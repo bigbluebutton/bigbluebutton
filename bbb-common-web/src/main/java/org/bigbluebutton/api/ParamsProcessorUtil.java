@@ -19,14 +19,23 @@
 
 package org.bigbluebutton.api;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.*;
 import org.bigbluebutton.api.domain.*;
 import org.jsoup.Jsoup;
@@ -45,6 +54,7 @@ import org.slf4j.LoggerFactory;
 
 public class ParamsProcessorUtil {
     private static Logger log = LoggerFactory.getLogger(ParamsProcessorUtil.class);
+    ObjectMapper objectMapper = new ObjectMapper();
 
     private static final String URLDECODER_SEPARATOR=",";
     private static final String FILTERDECODER_SEPARATOR_ELEMENTS=":";
@@ -433,9 +443,8 @@ public class ParamsProcessorUtil {
         return groups;
     }
 
-    private ArrayList<PluginManifest> processPluginManifests(String pluginManifestsParam) {
+    private ArrayList<PluginManifest> processPluginManifests(JsonElement pluginManifestsJsonElement) {
         ArrayList<PluginManifest> pluginManifests = new ArrayList<PluginManifest>();
-        JsonElement pluginManifestsJsonElement = new Gson().fromJson(pluginManifestsParam, JsonElement.class);
         try {
             if (pluginManifestsJsonElement != null && pluginManifestsJsonElement.isJsonArray()) {
                 JsonArray pluginManifestsJson = pluginManifestsJsonElement.getAsJsonArray();
@@ -458,6 +467,35 @@ public class ParamsProcessorUtil {
         }
 
         return pluginManifests;
+    }
+
+    private ArrayList<PluginManifest> processPluginManifests(String pluginManifestsParam) {
+        JsonElement pluginManifestsJsonElement = new Gson().fromJson(pluginManifestsParam, JsonElement.class);
+        return processPluginManifests(pluginManifestsJsonElement);
+    }
+
+    private JsonElement processPluginManifestsSourceUrl(String pluginManifestsSourceUrlParam) {
+        try {
+            URL url = new URL(pluginManifestsSourceUrlParam);
+            String content;
+            try (BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()))) {
+                content = in.lines().collect(Collectors.joining("\n"));
+            }
+            // Parse the JSON content
+            return new Gson().fromJson(content, JsonElement.class);
+        } catch (MalformedURLException e) {
+            log.error("Invalid URL for pluginManifestsSourceUrl: {}", pluginManifestsSourceUrlParam, e);
+        } catch (JsonProcessingException e) {
+            log.error("Failed to parse JSON from URL: {}", pluginManifestsSourceUrlParam, e);
+        } catch (IOException e) {
+            log.error("I/O error when fetching URL: {}", pluginManifestsSourceUrlParam, e);
+        } catch (Exception e) {
+            log.error(
+                    "Unexpected error processing parameter pluginManifestsSourceUrl ({}): {}",
+                    pluginManifestsSourceUrlParam, e
+            );
+        }
+        return null;
     }
 
     public Meeting processCreateParams(Map<String, String> params) {
@@ -598,11 +636,23 @@ public class ParamsProcessorUtil {
                 ArrayList<PluginManifest> pluginManifestsFromConfig = processPluginManifests(defaultPluginManifests);
                 listOfPluginManifests.addAll(pluginManifestsFromConfig);
             }
-            //Process plugins from /create param
+            // Process plugins from /create params
             String pluginManifestsParam = params.get(ApiParams.PLUGIN_MANIFESTS);
             if (!StringUtils.isEmpty(pluginManifestsParam)) {
                 ArrayList<PluginManifest> pluginManifestsFromParam = processPluginManifests(pluginManifestsParam);
                 listOfPluginManifests.addAll(pluginManifestsFromParam);
+            }
+            String pluginManifestsSourceUrlParam = params.get(ApiParams.PLUGIN_MANIFESTS_SOURCE_URL);
+            if (!StringUtils.isEmpty(pluginManifestsSourceUrlParam)) {
+                JsonElement pluginManifestsFromSourceUrlParam = processPluginManifestsSourceUrl(
+                        pluginManifestsSourceUrlParam
+                );
+                if (pluginManifestsFromSourceUrlParam != null) {
+                    ArrayList<PluginManifest> pluginManifestsFromParam = processPluginManifests(
+                            pluginManifestsFromSourceUrlParam
+                    );
+                    listOfPluginManifests.addAll(pluginManifestsFromParam);
+                }
             }
         }
 
