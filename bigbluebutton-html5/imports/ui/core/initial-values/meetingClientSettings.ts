@@ -212,7 +212,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       fallbackOnEmptyLocaleString: true,
       disableWebsocketFallback: true,
       maxMutationPayloadSize: 10485760, // 10MB
-      timeoutBeforeRedirectOnMeetingEnd: 10000,
+      timeoutBeforeRedirectOnMeetingEnd: 20000,
     },
     externalVideoPlayer: {
       enabled: true,
