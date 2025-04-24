@@ -25,6 +25,11 @@ PNG_DIR="${BASE_DIR}/pngs"
 SVG_DIR="${BASE_DIR}/svgs"
 SVG_FILE="${SVG_DIR}/slide${PAGE_NUMBER}.svg"
 
+if [ ! -e $PDF_FILE ]; then
+    echo "PDF not found: $PDF_FILE"
+    exit 1
+fi
+
 #--------------------------------------------
 # Convert a specific page of the PDF to a text file.
 #--------------------------------------------
@@ -88,6 +93,7 @@ detect_type3_fonts() {
 #--------------------------------------------
 # Determine if rasterization is required based on font detection.
 #--------------------------------------------
+REQUIRES_RASTERIZE=0
 if [ "$RASTERIZE_SLIDE_FORCE" = "true" ]; then
   echo "forceRasterizeSlides flag enabled"
   REQUIRES_RASTERIZE=1
@@ -102,6 +108,10 @@ else
     pdftocairo -r $SVG_RESOLUTION_PPI -svg -q -f ${PAGE_NUMBER} -l ${PAGE_NUMBER} ${PDF_FILE} ${SVG_FILE}
 
     set +e
+
+    # Define output SVG file
+    SVG_OUTPUT="$SVG_FILE"
+
     svg_size=$(stat -c%s "$SVG_OUTPUT" 2>/dev/null)
     svg_size=${svg_size:-0}
     num_paths=$(grep -o "<path\b" "$SVG_OUTPUT" | wc -l)
@@ -114,7 +124,7 @@ else
     elif [ "$num_paths" -gt "$MAX_SVG_PATHS" ]; then
       echo "Excessive Paths in the generated SVG"
       REQUIRES_RASTERIZE=1
-    elif [ "$num_imgs" -gt "$MAX_SVG_IMGS" ]; then
+    elif [ "$num_images" -gt "$MAX_SVG_IMGS" ]; then
       echo "Excessive Images in the generated SVG"
       REQUIRES_RASTERIZE=1
     fi
@@ -125,16 +135,9 @@ else
 
 fi
 
-# TODO convert -resize ratio
-# # talvez nao se um chamar o outro
-
 #--------------------------------------------
 # Validate the generated SVG file.
 #--------------------------------------------
-# svg_size=$(stat -c%s "$SVG_FILE" 2>/dev/null || echo 0)
-# num_paths=$(xmlstarlet sel -t -v "count(//svg:path)" "$SVG_FILE" 2>/dev/null || echo 0)
-# num_imgs=$(xmlstarlet sel -t -v "count(//svg:image)" "$SVG_FILE" 2>/dev/null || echo 0)
-
 # If the SVG file is empty, or contains too many paths/images, or if rasterization is flagged,
 # then perform rasterization.
 if [ "$REQUIRES_RASTERIZE" -eq 1 ]; then

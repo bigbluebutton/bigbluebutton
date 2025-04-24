@@ -27,6 +27,7 @@ PAGE_NUMBER=${PAGE_NUMBER-1}
 # Define directory paths and file locations
 BASE_DIR="${PRESENTATIONS_DIR}/${MEETING_ID}/${MEETING_ID}/${PRES_ID}"
 IMAGE_FILE="${BASE_DIR}/${PRES_ID}_${PAGE_NUMBER}.${IMG_FORMAT}"
+IMAGE_FILE_WITHOUT_PAGE="${BASE_DIR}/${PRES_ID}.${IMG_FORMAT}"
 TEXT_DIR="${BASE_DIR}/textfiles"
 THUMBNAIL_DIR="${BASE_DIR}/thumbnails"
 PNG_DIR="${BASE_DIR}/pngs"
@@ -35,11 +36,19 @@ SVG_DIR="${BASE_DIR}/svgs"
 THUMBNAIL_OUTPUT="${THUMBNAIL_DIR}/thumb-${PAGE_NUMBER}.png"
 TEXT_OUTPUT="${TEXT_DIR}/slide-${PAGE_NUMBER}.txt"
 
-# Write default text for the slide
-echo "No text could be retrieved for the slide" >"${TEXT_OUTPUT}"
+# when it's page one maybe the filename doesn't contain the page
+if [ "$PAGE_NUMBER" = "1" ] && [ ! -e "$IMAGE_FILE" ] && [ -e "$IMAGE_FILE_WITHOUT_PAGE" ]; then
+  IMAGE_FILE=$IMAGE_FILE_WITHOUT_PAGE
+elif [ ! -e "$IMAGE_FILE" ]; then
+    echo "Image not found: $IMAGE_FILE"
+    exit 1
+fi
 
-# echo ${IMAGE_FILE}
-# ls ${IMAGE_FILE} -l
+# Write default text for the slide
+if [ ! -e $TEXT_OUTPUT ]; then
+  echo "No text could be retrieved for the slide" >"${TEXT_OUTPUT}"
+fi
+
 
 # Check image width and height
 IFS=' ' read IMAGE_WIDTH IMAGE_HEIGHT <<<"$(identify -format "%w %h" "${IMAGE_FILE}")" || {
@@ -78,48 +87,46 @@ TEMP_PNG=$(mktemp)
 trap 'rm -f "${TEMP_PNG}"*' EXIT
 
 echo "Converting PDF to PNG for rasterized SVG creation."
-# PAGE=1 # Define the page number for conversion
-# PAGE=$PAGE_NUMBER
 pdftocairo -r ${SVG_RESOLUTION_PPI} -png -singlefile -scale-to-x ${RASTERIZE_PNG_WIDTH} -scale-to-y -1 -q -f 1 -l 1 ${PDF_FOR_SVG_OR_PNG} ${TEMP_PNG}
 
 PNG_FILE="${TEMP_PNG}.png"
 png_size=$(stat -c%s "${PNG_FILE}" 2>/dev/null || echo 0)
 
-if [ "$png_size" -gt 0 ]; then
-  base64_png=$(base64 -w 0 "${PNG_FILE}")
-  base64_size=${#base64_png}
-  browser_limit=$((4 * 1024 * 1024))
-
-  if [ "$base64_size" -gt $browser_limit ]; then
-    echo "Encoded PNG exceeds the browser size limit." >&2
+if [ ! "$png_size" -gt 0 ]; then
+    echo "PNG conversion did not produce a valid file."
     exit 1
-  else
-    # Set default dimensions and update if the PNG file contains valid size information
-    IFS=' ' read png_width png_height <<<"$(identify -format "%w %h" "${PNG_FILE}")" || {
-      echo "Error extracting Png dimensions, using default values instead"
-      png_width="${PNG_DEFAULT_WIDTH}"
-      png_height="${PNG_DEFAULT_HEIGHT}"
-    }
+fi
 
-    echo "Embedding PNG data into SVG container."
-    SVG_CONTENT=$(
-      cat <<EOF
+base64_png=$(base64 -w 0 "${PNG_FILE}")
+base64_size=${#base64_png}
+browser_limit=$((4 * 1024 * 1024))
+
+if [ "$base64_size" -gt $browser_limit ]; then
+  echo "Encoded PNG ($base64_size) exceeds the browser size limit ($browser_limit)." >&2
+  exit 1
+else
+  # Set default dimensions and update if the PNG file contains valid size information
+  IFS=' ' read png_width png_height <<<"$(identify -format "%w %h" "${PNG_FILE}")" || {
+    echo "Error extracting Png dimensions, using default values instead"
+    png_width="${PNG_DEFAULT_WIDTH}"
+    png_height="${PNG_DEFAULT_HEIGHT}"
+  }
+
+  echo "Embedding PNG data into SVG container."
+  SVG_CONTENT=$(
+    cat <<EOF
 <svg xmlns="http://www.w3.org/2000/svg" width="${png_width}" height="${png_height}">
-    <image href="data:image/png;base64,${base64_png}" width="${png_width}" height="${png_height}"/>
+  <image href="data:image/png;base64,${base64_png}" width="${png_width}" height="${png_height}"/>
 </svg>
 EOF
-    )
-    echo "$SVG_CONTENT" >"$SVG_OUTPUT"
-    svg_size=$(stat -c%s "$SVG_OUTPUT")
+  )
+  echo "$SVG_CONTENT" >"$SVG_OUTPUT"
+  svg_size=$(stat -c%s "$SVG_OUTPUT")
 
-    # If the SVG file was successfully written, add additional namespace attributes
-    if [ "$svg_size" -gt 0 ]; then
-      sed -i '4s|>| xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.2">|' "$SVG_OUTPUT"
-    fi
+  # If the SVG file was successfully written, add additional namespace attributes
+  if [ "$svg_size" -gt 0 ]; then
+    sed -i '4s|>| xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.2">|' "$SVG_OUTPUT"
   fi
-else
-  echo "PNG conversion did not produce a valid file."
-  exit 1
 fi
 
 exit 0
