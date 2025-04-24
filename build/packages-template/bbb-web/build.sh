@@ -16,7 +16,7 @@ rm -rf $STAGING
 
 #
 # Create directory for fpm to process
-DIRS="/var/bigbluebutton/configs /var/log/bigbluebutton /var/log/bigbluebutton/html5"
+DIRS="/var/bigbluebutton/configs /var/log/bigbluebutton /var/log/bigbluebutton/html5 /usr/bin"
 for dir in $DIRS; do
   mkdir -p "${STAGING}/${dir}"
 done
