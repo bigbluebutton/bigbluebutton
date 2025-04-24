@@ -1410,6 +1410,14 @@ const Whiteboard = React.memo((props) => {
       ) {
         handleArrowPress(event);
       }
+
+      if (
+        event.keyCode === KEY_CODES.ENTER
+        && event.target.classList.contains('tl-frame-name-input')
+      ) {
+        tlEditorRef.current?.selectNone();
+        tlEditorRef.current?.complete();
+      }
     };
 
     const handleKeyUp = (event) => {
