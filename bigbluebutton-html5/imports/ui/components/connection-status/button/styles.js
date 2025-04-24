@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 
 const IconWrapper = styled.div`
   width: 1.025rem;
@@ -6,9 +7,9 @@ const IconWrapper = styled.div`
 `;
 
 const ButtonWrapper = styled.div`
-  ${({ isMobile }) => isMobile && `
-    margin: 0 0 0 .2rem;
-  `}
+  @media ${smallOnly} {
+  margin: 0 0 0 .3rem;
+}
   margin: 0 .5rem;
 `;
 

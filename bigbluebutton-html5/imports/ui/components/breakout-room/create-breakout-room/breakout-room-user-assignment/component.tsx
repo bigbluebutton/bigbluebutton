@@ -4,7 +4,7 @@ import { range } from '/imports/utils/array-utils';
 import Icon from '/imports/ui/components/common/icon/icon-ts/component';
 import Styled from '../styles';
 import Auth from '/imports/ui/services/auth';
-import ManageRoomLabel from '../manage-room-label/component';
+import RoomUserList from './room-user-list/component';
 import { ChildComponentProps } from '../room-managment-state/types';
 
 const intlMessages = defineMessages({
@@ -176,6 +176,10 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.currentSlideLabel',
     description: 'label for current slide',
   },
+  closeLabel: {
+    id: 'app.dropdown.close',
+    description: 'label for the button to close the user list dropdown',
+  },
 });
 
 const isMe = (intId: string) => intId === Auth.userID;
@@ -194,7 +198,6 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
   changeRoomName,
   numberOfRooms,
   setSelectedId,
-  randomlyAssign,
   resetRooms,
   users,
   currentSlidePrefix,
@@ -204,9 +207,12 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
   currentPresentation,
   roomPresentations,
   isUpdate,
+  freeJoin,
+  isMobile,
 }) => {
   const intl = useIntl();
   const [sortedRooms, setSortedRooms] = useState(rooms);
+  const [openRoomUserListNumber, setOpenRoomUserListNumber] = useState<null | number>(null);
 
   const sortUsers = (users: User[]) => {
     return [...users].sort((a, b) => {
@@ -294,7 +300,7 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
               <span>{user.name}</span>
               <i>{(isMe(user.userId)) ? ` (${intl.formatMessage(intlMessages.you)})` : ''}</i>
             </span>
-            {room !== 0
+            {room !== 0 && !isMobile
               ? (
                 <span
                   key={`${user.userId}-${room}`}
@@ -359,14 +365,40 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
     }
   };
 
+  const renderParticipantsNames = (roomNumber: number) => {
+    if (!isMobile) {
+      return roomUserList(roomNumber);
+    }
+    const isSelectedRoom = roomNumber === openRoomUserListNumber;
+    return (
+      <>
+        <Styled.AddParticipantButton
+          type="button"
+          onClick={() => setOpenRoomUserListNumber(isSelectedRoom ? null : roomNumber)}
+        >
+          <Styled.Icon
+            iconName={isSelectedRoom ? 'close' : 'plus'}
+          />
+          {intl.formatMessage(isSelectedRoom ? intlMessages.closeLabel : intlMessages.addParticipantLabel)}
+        </Styled.AddParticipantButton>
+        {isSelectedRoom ? (
+          <RoomUserList
+            selectedRoom={roomNumber}
+            rooms={rooms}
+            moveUser={moveUser}
+          />
+        ) : (
+          roomUserList(roomNumber)
+        )}
+      </>
+    );
+  };
+
   return (
     <>
-      <ManageRoomLabel
-        onAssignReset={() => { resetRooms(0); }}
-        onAssignRandomly={randomlyAssign}
-        numberOfRoomsIsValid={numberOfRooms > 0}
-        leastOneUserIsValid={rooms[0]?.users?.length < users.length}
-      />
+      <Styled.SpanWarn data-test="warningNoUserAssigned" valid={rooms[0]?.users?.length < users.length || freeJoin}>
+        {intl.formatMessage(intlMessages.leastOneWarnBreakout)}
+      </Styled.SpanWarn>
       <Styled.ContentContainer>
         <Styled.Alert valid role="alert">
           <Styled.FreeJoinLabel>
@@ -374,12 +406,11 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
               type="text"
               readOnly
               value={
-                intl.formatMessage(intlMessages.notAssigned, { 0: 0 })
+                intl.formatMessage(intlMessages.notAssigned, { 0: rooms[0]?.users?.length ?? 0 })
               }
             />
           </Styled.FreeJoinLabel>
           <Styled.BreakoutBox
-            hundred
             id="breakoutBox-0"
             onDrop={drop(0)}
             onDragOver={allowDrop}
@@ -388,14 +419,11 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
           >
             {roomUserList(0)}
           </Styled.BreakoutBox>
-          <Styled.SpanWarn data-test="warningNoUserAssigned" valid={rooms[0]?.users?.length < users.length}>
-            {intl.formatMessage(intlMessages.leastOneWarnBreakout)}
-          </Styled.SpanWarn>
         </Styled.Alert>
         <Styled.BoxContainer key="rooms-grid-" data-test="roomGrid">
           {
             range(1, numberOfRooms + 1).map((value) => (
-              <div key={`room-${value}`}>
+              <Styled.GridItem key={`room-${value}`}>
                 <Styled.FreeJoinLabel>
                   <Styled.RoomName
                     type="text"
@@ -416,7 +444,7 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
                 </Styled.FreeJoinLabel>
                 { presentations.length > 0 && !isUpdate ? (
                   <Styled.BreakoutSlideLabel>
-                    <Styled.InputRooms
+                    <Styled.SlideSelector
                       data-test={`changeSlideBreakoutRoom${value}`}
                       value={getRoomPresentation(value)}
                       onChange={changeRoomPresentation(value)}
@@ -437,18 +465,17 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
                           </option>
                         ))
                       }
-                    </Styled.InputRooms>
+                    </Styled.SlideSelector>
                   </Styled.BreakoutSlideLabel>
                 ) : null }
                 <Styled.BreakoutBox
                   id={`breakoutBox-${value}`}
                   onDrop={drop(value)}
                   onDragOver={allowDrop}
-                  hundred={false}
                   tabIndex={0}
                   onKeyDown={rover}
                 >
-                  {roomUserList(value)}
+                  {renderParticipantsNames(value)}
                 </Styled.BreakoutBox>
                 {hasNameDuplicated(value) ? (
                   <Styled.SpanWarn valid>
@@ -460,7 +487,7 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
                     {intl.formatMessage(intlMessages.roomNameEmptyIsValid)}
                   </Styled.SpanWarn>
                 ) : null}
-              </div>
+              </Styled.GridItem>
             ))
           }
         </Styled.BoxContainer>

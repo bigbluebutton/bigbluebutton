@@ -3,8 +3,6 @@ import { defineMessages, useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import PadContainer from '/imports/ui/components/pads/pads-graphql/component';
-import browserInfo from '/imports/utils/browserInfo';
-import Header from '/imports/ui/components/common/control-header/component';
 import NotesDropdown from './notes-dropdown/component';
 import {
   PANELS, ACTIONS,
@@ -25,10 +23,6 @@ import { useIsPresentationEnabled } from '../../services/features';
 import { useStorageKey } from '/imports/ui/services/storage/hooks';
 
 const intlMessages = defineMessages({
-  hide: {
-    id: 'app.notes.hide',
-    description: 'Label for hiding shared notes button',
-  },
   title: {
     id: 'app.notes.title',
     description: 'Title for the shared notes',
@@ -36,6 +30,10 @@ const intlMessages = defineMessages({
   unpinNotes: {
     id: 'app.notes.notesDropdown.unpinNotes',
     description: 'Label for unpin shared notes button',
+  },
+  minimize: {
+    id: 'app.sidebarContent.minimizePanelLabel',
+    description: 'Label for the minimize shared notes panel',
   },
 });
 
@@ -80,7 +78,6 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
   const [shouldRenderNotes, setShouldRenderNotes] = useState(false);
   const intl = useIntl();
 
-  const { isChrome } = browserInfo;
   const isOnMediaArea = area === 'media';
   const style = isOnMediaArea ? {
     position: 'absolute',
@@ -133,41 +130,47 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
   const NOTES_CONFIG = window.meetingClientSettings.public.notes;
 
   return (shouldRenderNotes || shouldShowSharedNotesOnPresentationArea) && (
-    <Styled.Notes
+    <Styled.PanelContent
       data-test="notes"
-      isChrome={isChrome}
       style={style}
     >
       {!isOnMediaArea ? (
         // @ts-ignore Until everything in Typescript
-        <Header
-          leftButtonProps={{
-            onClick: () => {
-              layoutContextDispatch({
-                type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-                value: false,
-              });
-              layoutContextDispatch({
-                type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-                value: PANELS.NONE,
-              });
-            },
-            'data-test': 'hideNotesLabel',
-            'aria-label': intl.formatMessage(intlMessages.hide),
-            label: intl.formatMessage(intlMessages.title),
-          }}
-          customRightButton={
-            <NotesDropdown handlePinSharedNotes={handlePinSharedNotes} presentationEnabled={isPresentationEnabled} />
-          }
-        />
+        <>
+          <Styled.HeaderContainer
+            title={intl.formatMessage(intlMessages.title)}
+            rightButtonProps={{
+              onClick: () => {
+                layoutContextDispatch({
+                  type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+                  value: false,
+                });
+                layoutContextDispatch({
+                  type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+                  value: PANELS.NONE,
+                });
+              },
+              icon: 'minus',
+              'data-test': 'hideNotesLabel',
+              'aria-label': intl.formatMessage(intlMessages.minimize, { 0: intl.formatMessage(intlMessages.title) }),
+              label: intl.formatMessage(intlMessages.minimize, { 0: intl.formatMessage(intlMessages.title) }),
+            }}
+            data-test="notesHeader"
+            customRightButton={
+              <NotesDropdown handlePinSharedNotes={handlePinSharedNotes} presentationEnabled={isPresentationEnabled} />
+            }
+          />
+          <Styled.Separator />
+        </>
       ) : renderHeaderOnMedia()}
       <PadContainer
         externalId={NOTES_CONFIG.id}
         hasPermission={hasPermission}
         isResizing={isResizing}
         isRTL={isRTL}
+        amIPresenter={amIPresenter}
       />
-    </Styled.Notes>
+    </Styled.PanelContent>
   );
 };
 

@@ -65,6 +65,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         enabled: false,
         mobile: false,
         provider: 'webspeech',
+        useAppsGallery: false,
         language: {
           available: [
             'en-US',
@@ -83,6 +84,9 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         threshold: -50,
         duration: 4000,
       },
+      appsGallery: {
+        maxPinnedApps: 3,
+      },
       remainingTimeThreshold: 30,
       remainingTimeAlertThresholdArray: [
         1,
@@ -91,13 +95,14 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       enableDebugWindow: true,
       breakouts: {
         allowUserChooseRoomByDefault: false,
+        offerRecordingForBreakouts: false,
+        recordRoomByDefault: false,
         captureWhiteboardByDefault: false,
         captureSharedNotesByDefault: false,
         sendInvitationToAssignedModeratorsByDefault: false,
         breakoutRoomLimit: 16,
         allowPresentationManagementInBreakouts: true,
       },
-      customHeartbeat: false,
       showAllAvailableLocales: true,
       showAudioFilters: true,
       reactionsButton: {
@@ -665,6 +670,11 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           maxDelayTime: 2,
         },
       },
+      networkPriorities: {
+        audio: 'high',
+        webcam: 'medium',
+        screenshare: 'medium',
+      },
       muteAudioOutputWhenAway: false,
       screenshare: {
         showButtonForNonPresenters: false,
@@ -819,10 +829,12 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       role_moderator: 'MODERATOR',
       role_viewer: 'VIEWER',
       label: {
+        presenter: false,
         moderator: false,
         mobile: true,
         guest: true,
         sharingWebcam: true,
+        bot: false,
       },
     },
     whiteboard: {
@@ -857,6 +869,8 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           'text',
           'note',
           'rectangle',
+          'delete-all',
+          'highlight',
           'more',
           'actions',
         ],
@@ -869,6 +883,8 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           'text',
           'note',
           'rectangle',
+          'delete-all',
+          'highlight',
           'more',
           'actions',
         ],
@@ -902,6 +918,16 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         'board.jpg',
       ],
     },
+    minBrowserVersions: {
+      safari: '>=14',
+      chrome: '>=87',
+      firefox: '>=80',
+      edge: '>=85',
+      mobile: {
+        safari: '>=14',
+        chrome: '>=87',
+      },
+    },
   },
   private: {
     analytics: {
@@ -913,65 +939,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       pencilChunkLength: 100,
       loadSlidesFromHttpAlways: false,
     },
-    minBrowserVersions: [
-      {
-        browser: 'chrome',
-        version: 72,
-      },
-      {
-        browser: 'chromeMobileIOS',
-        version: 94,
-      },
-      {
-        browser: 'firefox',
-        version: 68,
-      },
-      {
-        browser: 'firefoxMobile',
-        version: 68,
-      },
-      {
-        browser: 'edge',
-        version: 79,
-      },
-      {
-        browser: 'ie',
-        version: 'Infinity',
-      },
-      {
-        browser: 'safari',
-        version: [
-          12,
-          1,
-        ],
-      },
-      {
-        browser: 'mobileSafari',
-        version: [
-          12,
-          1,
-        ],
-      },
-      {
-        browser: 'opera',
-        version: 50,
-      },
-      {
-        browser: 'electron',
-        version: [
-          0,
-          36,
-        ],
-      },
-      {
-        browser: 'SamsungInternet',
-        version: 10,
-      },
-      {
-        browser: 'YandexBrowser',
-        version: 19,
-      },
-    ],
     prometheus: {
       enabled: false,
       path: '/metrics',

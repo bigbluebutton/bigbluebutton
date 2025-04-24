@@ -46,7 +46,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     </bean>
 
     <bean id="s3FileManager" class="org.bigbluebutton.presentation.imp.S3FileManager">
-        <property name="presentationConversionCacheEnabled" value="${presentationConversionCacheEnabled}"/>
         <property name="accessKeyId" value="${presentationConversionCacheS3AccessKeyId}"/>
         <property name="accessKeySecret" value="${presentationConversionCacheS3AccessKeySecret}"/>
         <property name="bucketName" value="${presentationConversionCacheS3BucketName}"/>
@@ -71,7 +70,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
     <bean id="pageCounterService" class="org.bigbluebutton.presentation.imp.PageCounterService">
         <property name="pageCounter" ref="pageCounter"/>
-        <property name="maxNumPages" value="${maxNumPages}"/>
     </bean>
 
     <bean id="presentationProcessExternal" class="org.bigbluebutton.presentation.imp.PresentationProcessExternal">

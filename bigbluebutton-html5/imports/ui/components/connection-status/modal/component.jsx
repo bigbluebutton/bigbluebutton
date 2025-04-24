@@ -1,8 +1,6 @@
 import React, { PureComponent } from 'react';
 import { FormattedTime, defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
-import UserAvatar from '/imports/ui/components/user-avatar/component';
-import CommonIcon from '/imports/ui/components/common/icon/component';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import Icon from '/imports/ui/components/connection-status/icon/component';
 import { getHelp } from '../service';
@@ -305,17 +303,16 @@ class ConnectionStatusComponent extends PureComponent {
           data-test="connectionStatusItemUser"
         >
           <Styled.Left>
-            <Styled.Avatar>
-              <UserAvatar
+            <Styled.AvatarWrapper>
+              <Styled.Avatar
                 you={conn.user.userId === Auth.userID}
                 avatar={conn.user.avatar}
                 moderator={conn.user.isModerator}
                 color={conn.user.color}
               >
-                {conn.user.name.toLowerCase().slice(0, 2)}
-              </UserAvatar>
-            </Styled.Avatar>
-
+                {(conn.user.name?.toLowerCase()?.slice(0, 2)) || ''}
+              </Styled.Avatar>
+            </Styled.AvatarWrapper>
             <Styled.Name>
               <Styled.Text
                 offline={!conn.user.currentlyInMeeting}
@@ -389,7 +386,12 @@ class ConnectionStatusComponent extends PureComponent {
       videoDownloadLabel,
     } = this;
 
-    const { intl, setModalIsOpen, connectionData } = this.props;
+    const {
+      intl,
+      setModalIsOpen,
+      connectionData,
+      setAdjustYourSettingsModalIsOpen,
+    } = this.props;
 
     const { networkData } = this.props;
 
@@ -423,6 +425,7 @@ class ConnectionStatusComponent extends PureComponent {
 
     return (
       <Styled.NetworkDataContainer
+        id="scroll-box"
         data-test="networkDataContainer"
         tabIndex={0}
       >
@@ -431,6 +434,7 @@ class ConnectionStatusComponent extends PureComponent {
             <ConnectionStatusHelper
               connectionData={connectionData}
               closeModal={() => setModalIsOpen(false)}
+              setAdjustYourSettingsModalIsOpen={setAdjustYourSettingsModalIsOpen}
             />
           </Styled.Helper>
         </Styled.HelperWrapper>

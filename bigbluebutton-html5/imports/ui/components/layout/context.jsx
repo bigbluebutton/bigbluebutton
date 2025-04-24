@@ -5,6 +5,7 @@ import { equals } from 'ramda';
 import { PINNED_PAD_SUBSCRIPTION } from '/imports/ui/components/notes/queries';
 import {
   ACTIONS, PRESENTATION_AREA, PANELS, LAYOUT_TYPE,
+  DEVICE_TYPE,
 } from '/imports/ui/components/layout/enums';
 import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
 import { INITIAL_INPUT_STATE, INITIAL_OUTPUT_STATE } from './initState';
@@ -13,6 +14,7 @@ import { useIsPresentationEnabled } from '/imports/ui/services/features';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 import { usePrevious } from '../whiteboard/utils';
 import Session from '/imports/ui/services/storage/in-memory';
+import logger from '/imports/startup/client/logger';
 
 // variable to debug in console log
 const debug = false;
@@ -387,22 +389,6 @@ const reducer = (state, action) => {
         },
       };
     }
-    case ACTIONS.SET_SIDEBAR_NAVIGATION_PANEL: {
-      const { sidebarNavigation } = state.input;
-      if (sidebarNavigation.sidebarNavPanel === action.value) {
-        return state;
-      }
-      return {
-        ...state,
-        input: {
-          ...state.input,
-          sidebarNavigation: {
-            ...sidebarNavigation,
-            sidebarNavPanel: action.value,
-          },
-        },
-      };
-    }
     case ACTIONS.SET_SIDEBAR_NAVIGATION_SIZE: {
       const { width, browserWidth } = action.value;
       const { sidebarNavigation } = state.input;
@@ -422,36 +408,120 @@ const reducer = (state, action) => {
         },
       };
     }
+    case ACTIONS.REGISTER_SIDEBAR_APP: {
+      const {
+        id,
+        name,
+        icon,
+        contentFunction = undefined,
+        onClick = undefined,
+      } = action.value;
+      const { sidebarNavigation } = state.input;
+      const { registeredApps } = sidebarNavigation;
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          sidebarNavigation: {
+            ...sidebarNavigation,
+            registeredApps: {
+              ...registeredApps,
+              [id]: {
+                name,
+                icon,
+                ...(contentFunction && { contentFunction }),
+                ...(onClick && { onClick }),
+              },
+            },
+          },
+        },
+      };
+    }
+    case ACTIONS.UNREGISTER_SIDEBAR_APP: {
+      const {
+        id,
+      } = action;
+      const { sidebarNavigation } = state.input;
+      const { registeredApps, pinnedApps } = sidebarNavigation;
+      if (!(id in registeredApps)) {
+        logger.warn({
+          logCode: 'unregister_not_found_app',
+          extraInfo: {
+            id,
+          },
+        }, `Layout Context: Attempting to unregister an app "${id}" that is not registered.`);
+        return state;
+      }
+      const updatedRegisteredApps = { ...registeredApps };
+      delete updatedRegisteredApps[id];
+      // Also remove it from pinned apps
+      const updatedPinnedApps = pinnedApps.filter((pinnedApp) => pinnedApp !== id);
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          sidebarNavigation: {
+            ...sidebarNavigation,
+            pinnedApps: updatedPinnedApps,
+            registeredApps: {
+              ...updatedRegisteredApps,
+            },
+          },
+        },
+      };
+    }
+    case ACTIONS.SET_SIDEBAR_NAVIGATION_PIN_APP: {
+      const APP_CONFIG = window.meetingClientSettings.public.app;
+      const MAX_PINNED_APPS_GALLERY = APP_CONFIG.appsGallery.maxPinnedApps;
+      const { id: appId, pin } = action.value;
+      const { sidebarNavigation } = state.input;
+      const { pinnedApps, registeredApps } = sidebarNavigation;
+
+      const isAppRegistered = appId in registeredApps;
+      const isAppPinned = pinnedApps.includes(appId);
+
+      if (!isAppRegistered) return state;
+      if ((pin && isAppPinned) || (!pin && !isAppPinned)) {
+        return state;
+      }
+      if (pin && pinnedApps.length === MAX_PINNED_APPS_GALLERY) {
+        return state;
+      }
+
+      const updatedPinnedApps = pin
+        ? [...pinnedApps, appId]
+        : pinnedApps.filter((pinnedApp) => pinnedApp !== appId);
+
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          sidebarNavigation: {
+            ...sidebarNavigation,
+            pinnedApps: updatedPinnedApps,
+          },
+        },
+      };
+    }
     case ACTIONS.SET_SIDEBAR_NAVIGATION_OUTPUT: {
       const {
         display,
-        minWidth,
         width,
-        maxWidth,
-        minHeight,
         height,
-        maxHeight,
         top,
         left,
         right,
         tabOrder,
-        isResizable,
         zIndex,
       } = action.value;
       const { sidebarNavigation } = state.output;
       if (sidebarNavigation.display === display
-        && sidebarNavigation.minWidth === minWidth
-        && sidebarNavigation.maxWidth === maxWidth
         && sidebarNavigation.width === width
-        && sidebarNavigation.minHeight === minHeight
         && sidebarNavigation.height === height
-        && sidebarNavigation.maxHeight === maxHeight
-        && sidebarNavigation.top === top
         && sidebarNavigation.left === left
         && sidebarNavigation.right === right
         && sidebarNavigation.tabOrder === tabOrder
-        && sidebarNavigation.zIndex === zIndex
-        && sidebarNavigation.isResizable === isResizable) {
+        && sidebarNavigation.zIndex === zIndex) {
         return state;
       }
       return {
@@ -461,45 +531,13 @@ const reducer = (state, action) => {
           sidebarNavigation: {
             ...sidebarNavigation,
             display,
-            minWidth,
             width,
-            maxWidth,
-            minHeight,
             height,
-            maxHeight,
             top,
             left,
             right,
             tabOrder,
-            isResizable,
             zIndex,
-          },
-        },
-      };
-    }
-    case ACTIONS.SET_SIDEBAR_NAVIGATION_RESIZABLE_EDGE: {
-      const {
-        top, right, bottom, left,
-      } = action.value;
-      const { sidebarNavigation } = state.output;
-      if (sidebarNavigation.resizableEdge.top === top
-        && sidebarNavigation.resizableEdge.right === right
-        && sidebarNavigation.resizableEdge.bottom === bottom
-        && sidebarNavigation.resizableEdge.left === left) {
-        return state;
-      }
-      return {
-        ...state,
-        output: {
-          ...state.output,
-          sidebarNavigation: {
-            ...sidebarNavigation,
-            resizableEdge: {
-              top,
-              right,
-              bottom,
-              left,
-            },
           },
         },
       };
@@ -508,11 +546,20 @@ const reducer = (state, action) => {
     // SIDEBAR CONTENT
     case ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN: {
       const { sidebarContent, sidebarNavigation } = state.input;
+      const { deviceType } = state;
       if (sidebarContent.isOpen === action.value) {
         return state;
       }
-      // When opening content sidebar, the navigation sidebar should be opened as well
-      if (action.value === true) sidebarNavigation.isOpen = true;
+      // When opening any panel on mobile, the navigation sidebar should be closed
+      // to prevent it from overlapping the opened panel.
+      // When the panel is closed, the navigation sidebar should be restored.
+      if (deviceType === DEVICE_TYPE.MOBILE) {
+        if (action.value === true) {
+          sidebarNavigation.isOpen = false;
+        } else {
+          sidebarNavigation.isOpen = true;
+        }
+      }
       return {
         ...state,
         input: {
@@ -1216,13 +1263,15 @@ const reducer = (state, action) => {
         top,
         left,
         right,
+        display,
       } = action.value;
       const { externalVideo } = state.output;
       if (externalVideo.width === width
         && externalVideo.height === height
         && externalVideo.top === top
         && externalVideo.left === left
-        && externalVideo.right === right) {
+        && externalVideo.right === right
+        && externalVideo.display === display) {
         return state;
       }
       return {
@@ -1236,6 +1285,7 @@ const reducer = (state, action) => {
             top,
             left,
             right,
+            display,
           },
         },
       };
@@ -1395,7 +1445,7 @@ const updatePresentationAreaContent = (
     previousPresentationAreaContentActions.current,
   ) || layoutType !== previousLayoutType) {
     const CHAT_CONFIG = window.meetingClientSettings.public.chat;
-    const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
+    const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 
     // eslint-disable-next-line no-param-reassign
     previousPresentationAreaContentActions.current = currentPresentationAreaContentActions.slice(0);
@@ -1427,7 +1477,7 @@ const updatePresentationAreaContent = (
             });
             layoutContextDispatch({
               type: ACTIONS.SET_ID_CHAT_OPEN,
-              value: PUBLIC_CHAT_ID,
+              value: PUBLIC_GROUP_CHAT_ID,
             });
           } else {
             layoutContextDispatch({
@@ -1495,7 +1545,7 @@ const updatePresentationAreaContent = (
           value: undefined,
         });
         layoutContextDispatch({
-          type: ACTIONS.PINNED_NOTES,
+          type: ACTIONS.SET_NOTES_IS_PINNED,
           value: !lastPresentationContentInPile.value.open,
         });
         shouldOpenPresentation = Session.getItem('presentationLastState');

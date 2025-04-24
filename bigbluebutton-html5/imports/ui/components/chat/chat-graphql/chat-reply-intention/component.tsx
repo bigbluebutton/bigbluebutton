@@ -5,6 +5,7 @@ import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
 import Tooltip from '/imports/ui/components/common/tooltip/container';
+import { messageToQuoteMarkdown } from '/imports/ui/components/chat/chat-graphql/service';
 
 const intlMessages = defineMessages({
   cancel: {
@@ -25,7 +26,6 @@ const ChatReplyIntention = () => {
   };
 
   const hidden = !username || !message;
-  const messageChunks = message ? message.split('\n') : null;
 
   useEffect(() => {
     const handleReplyIntention = (e: Event) => {
@@ -69,6 +69,8 @@ const ChatReplyIntention = () => {
     };
   }, [hidden]);
 
+  if (hidden) return null;
+
   return (
     <Styled.Container
       $hidden={hidden}
@@ -84,8 +86,12 @@ const ChatReplyIntention = () => {
       }}
     >
       <Styled.Message>
-        <Styled.Markdown>
-          {messageChunks ? messageChunks[0] : ''}
+        <Styled.Markdown
+          linkTarget="_blank"
+          allowedElements={window.meetingClientSettings.public.chat.allowedElements}
+          unwrapDisallowed
+        >
+          {messageToQuoteMarkdown(message)}
         </Styled.Markdown>
       </Styled.Message>
       <Tooltip title={intl.formatMessage(intlMessages.cancel, { 0: CANCEL_KEY })}>

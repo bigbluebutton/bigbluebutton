@@ -11,6 +11,7 @@ export interface VoiceActivityResponse {
       color: string;
       name: string;
       speechLocale: string | undefined;
+      role: string;
     };
   }>;
 }
@@ -30,6 +31,7 @@ export const VOICE_ACTIVITY = gql`
         color
         name
         speechLocale
+        role
       }
     }
   }

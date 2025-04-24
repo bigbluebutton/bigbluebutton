@@ -104,7 +104,7 @@ const NotificationsBarContainer = () => {
     }
   }, [data.message, hasNotification]);
 
-  if (isEmpty(data.message)) {
+  if (isEmpty(data.message) || !hasNotification) {
     return null;
   }
 

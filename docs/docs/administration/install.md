@@ -12,8 +12,6 @@ We have tools to make it easy for you, a system administrator, to install BigBlu
 
 ## Before you install
 
-**Note: BigBlueButton 3.0 is still under development**
-
 We recommend installing BigBlueButton with a 'clean' and dedicated Ubuntu 22.04 64-bit server with no prior software installed. If you want to upgrade from an earlier version of BigBlueButton like 2.7, we recommend setting up a clean server for BigBlueButton 3.0 on Ubuntu 22.04 and, after setup, [migrate over your existing recordings](/administration/customize#transfer-published-recordings-from-another-server).
 
 A 'clean' server does not have any previous web servers installed (such as apache) or web applications (such as plesk or webadmin) that are [binding to port 80/443](/support/faq#we-recommend-running-bigbluebutton-on-port-80443). By 'dedicated' we mean that this server won't be used for anything else besides BigBlueButton (and possibly BigBlueButton-related applications such as [Greenlight](/greenlight/v3/install)).
@@ -123,7 +121,7 @@ Next, check that your server is running Linux kernel 5.x.
 
 ```bash
 $ uname -r
-5.15.x-xx-generic
+6.2.x-xx-generic
 ```
 
 Next, check that your server has (at least) 8 CPU cores
@@ -168,9 +166,9 @@ After the `bbb-install.sh` script finishes, you can check the status of your ser
 ```bash
 $ sudo bbb-conf --check
 
-root@test27:~# bbb-conf --check
+root@test30:~# bbb-conf --check
 BigBlueButton Server 3.0.0-alpha.1 (68)
-                    Kernel version: 5.15.0-67-generic
+                    Kernel version: 6.2.0-39-generic
                       Distribution: Ubuntu 22.04.3 LTS (64-bit)
                             Memory: 8140 MB
                          CPU cores: 4

@@ -14,6 +14,7 @@ import {
   whiteboardToolbarPaddingSm,
   whiteboardToolbarPadding,
   borderSize,
+  lgBorderRadius,
   smPaddingY,
   borderSizeLarge,
   smPaddingX,
@@ -26,12 +27,16 @@ const PresentationToolbarWrapper = styled.div`
   z-index: 1;
   background-color: ${colorOffWhite};
   border-top: 1px solid ${colorBlueLightest};
-  min-width: fit-content;
+  border-radius: 0 0 ${lgBorderRadius} ${lgBorderRadius};
   width: 100%;
   bottom: 0px;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   padding: 2px;
+  ${({ isMobile }) => (isMobile
+    ? 'overflow: auto;'
+    : 'min-width: fit-content;'
+  )};
 
   select {
     &:-moz-focusring {
@@ -41,7 +46,7 @@ const PresentationToolbarWrapper = styled.div`
     background-color: ${colorOffWhite};
     color: ${toolbarButtonColor};
     cursor: pointer;
-    margin: 0 ${whiteboardToolbarMargin} 0 0;
+    margin: 0 0 0 0;
     padding: ${whiteboardToolbarPadding};
     padding-left: ${whiteboardToolbarPaddingSm};
 
@@ -99,7 +104,6 @@ const PresentationSlideControls = styled.div`
 const PrevSlideButton = styled(Button)`
   i {
     font-size: 1rem;
-    padding-left: 20%;
 
     [dir="rtl"] & {
       -webkit-transform: scale(-1, 1);
@@ -114,7 +118,6 @@ const PrevSlideButton = styled(Button)`
 const NextSlideButton = styled(Button)`
   i {
     font-size: 1rem;
-    padding-left: 60%;
     
     [dir="rtl"] & {
       -webkit-transform: scale(-1, 1);

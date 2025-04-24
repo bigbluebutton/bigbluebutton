@@ -8,19 +8,22 @@ import {
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
   colorWhite,
-  colorPrimary,
+  colorDanger,
   colorDangerDark,
   colorGray,
+  btnDefaultGhostBg,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import SpinnerStyles from '/imports/ui/components/common/loading-screen/styles';
 
 interface RecordingIndicatorIconProps {
   titleMargin: boolean;
+  isRTL: boolean;
 }
 
 interface RecordingIndicatorProps {
   recording: boolean;
   disabled: boolean;
+  time: number;
   isPhone?: boolean;
 }
 
@@ -38,10 +41,12 @@ const RecordingIndicatorIcon = styled.span<RecordingIndicatorIconProps>`
   font-size: ${fontSizeBase};
   user-select: none;
 
-  ${({ titleMargin }) => titleMargin && `
-    [dir="ltr"] & {
+  ${({ isRTL, titleMargin }) => isRTL && titleMargin && `
+      margin-left: ${smPaddingX};
+  `}
+
+  ${({ isRTL, titleMargin }) => !isRTL && titleMargin && `
       margin-right: ${smPaddingX};
-    }
   `}
 `;
 
@@ -49,52 +54,58 @@ const RecordingControl = styled.button<RecordingIndicatorProps>`
   display: flex;
   align-items: center;
   user-select: none;
-  background: none;
-
-  span {
-    border: none;
-    box-shadow: none;
-    background-color: transparent !important;
-    color: ${colorWhite} !important;
+  background: ${btnDefaultGhostBg};
+  
+  &:hover {
+    outline-style: solid;
+    outline: transparent dotted 2px;
   }
 
   &:hover:not(:disabled) {
     color: ${colorWhite} !important;
     cursor: pointer;
   }
-
+      
   &:focus {
-    outline: none;
-    box-shadow: 0 0 0 ${borderSize} ${colorPrimary};
+    background-clip: padding-box;
+    outline: transparent dotted 2px;
+    box-shadow: 0 0 0 ${borderSizeLarge} ${colorWhite};
+  }
+
+  &:active {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 ${borderSizeSmall} ${colorWhite};
   }
 
   ${({ recording }) => recording && `
-    padding: 5px;
-    background-color: ${colorDangerDark};
-    border: ${borderSizeLarge} solid ${colorDangerDark};
-    border-radius: 10px;
+    padding: 0.5rem 1rem;
+    background-color: ${colorDanger};
+    border: ${borderSizeSmall}} solid ${colorDanger};
+    border-radius: 2em 2em;
 
     &:focus {
-      background-clip: padding-box;
-      border: ${borderSizeLarge} solid transparent;
+      box-shadow: 0 0 0 ${borderSize} ${colorDanger};
+      border: ${borderSizeLarge};
     }
   `}
 
   ${({ recording }) => !recording && `
-    padding: 7px;
-    border: ${borderSizeSmall} solid ${colorWhite};
+    padding: 0.5rem 1rem;
+    border: ${borderSizeSmall};
     border-radius: 2em 2em;
-
-    &:focus {
-      padding: 5px;
-      border: ${borderSizeLarge} solid ${colorWhite};
-      box-shadow: none;
-    }
   `}
 
-  ${({ disabled }) => disabled && css`
+  ${({ disabled, time }) => disabled && time === 0 && css`
+    display: none;
+  `}
+
+  ${({ disabled, time }) => disabled && time > 0 && css`
     cursor: not-allowed;
-    opacity: .5;
+    pointer-events: none;
+  `}
+
+  ${({ isPhone, recording }) => isPhone && !recording && css`
+    justify-content: center;
   `}
 `;
 
@@ -111,11 +122,6 @@ const PresentationTitle = styled.div`
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 30vw;
-
-  [dir='rtl'] & {
-    margin-left: 0;
-    margin-right: ${smPaddingX};
-  }
 
   & > [class^='icon-bbb-'] {
     font-size: 75%;
@@ -144,23 +150,14 @@ const PresentationTitleSeparator = styled.span`
 `;
 
 const RecordingIndicator = styled.div<RecordingIndicatorProps>`
+  padding-right: 0.5rem;
+
   ${({ isPhone }) => isPhone && `
-    margin-left: ${smPaddingX};
+    margin-left: 0;
+    padding-right: 0;
   `}
 
-  &:hover {
-    outline: transparent;
-    outline-style: dotted;
-    outline-width: ${borderSize};
-  }
 
-  &:active,
-  &:focus,
-  &:focus-within {
-    outline: transparent;
-    outline-width: ${borderSize};
-    outline-style: solid;
-  }
 `;
 
 const RecordingStatusViewOnly = styled.div<RecordingStatusViewOnlyProps>`
@@ -176,7 +173,7 @@ const RecordingStatusViewOnly = styled.div<RecordingStatusViewOnlyProps>`
 
 const SpinnerOverlay = styled(SpinnerStyles.Spinner)<SpinnerOverlayProps>`
   & > div {
-    background-color: white;
+    background-color: ${colorWhite};;
     height: 0.5625rem;
     width: 0.5625rem;
   }

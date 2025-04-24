@@ -99,6 +99,9 @@ public:
       mobile: false
       # provider: [webspeech, vosk, gladia]
       provider: webspeech
+      # If true, the transcriptions and captions settings are displayed as an
+      # entry in the apps gallery rather than a button in the actions bar
+      useAppsGallery: false
       language:
         # Available languages will depend on the transcription service
         # Google: https://cloud.google.com/speech-to-text/docs/speech-to-text-supported-languages
@@ -125,11 +128,17 @@ public:
         # [en-US, es-ES, pt-BR,...]: to set a specific locale
         # disabled: to set disabled
         locale: disabled
+      terms:
+        # The URL to the terms of service for the transcription service
+        # Specify the URL for each locale you want: 
+        # en-US: 'https://xxx/SubtitleTerms'
     mutedAlert:
       enabled: true
       interval: 200
       threshold: -50
       duration: 4000
+    appsGallery:
+      maxPinnedApps: 3
     remainingTimeThreshold: 30
     remainingTimeAlertThresholdArray: [1,5]
     enableDebugWindow: true
@@ -138,14 +147,13 @@ public:
     # this value to be kept under 16.
     breakouts:
       allowUserChooseRoomByDefault: false
+      offerRecordingForBreakouts: false
+      recordRoomByDefault: false
       captureWhiteboardByDefault: false
       captureSharedNotesByDefault: false
       sendInvitationToAssignedModeratorsByDefault: false
       breakoutRoomLimit: 16
       allowPresentationManagementInBreakouts: true
-    # https://github.com/bigbluebutton/bigbluebutton/pull/10826
-    customHeartbeat: false
-    customHeartbeatUseDataFrames: true
     showAllAvailableLocales: true
     # Show "Audio Filters for Microphone" option in settings menu.
     # When set to true, users are able to enable/disable microphone constraints,
@@ -801,7 +809,7 @@ public:
     pinnable: true
   layout:
     hidePresentationOnJoin: false
-    showParticipantsOnLogin: true
+    showParticipantsOnLogin: false
     showPushLayoutButton: true
     showPushLayoutToggle: true
     showSessionDetailsOnJoin: true
@@ -957,7 +965,7 @@ public:
   stats:
     enabled: true
     interval: 10000
-    timeout: 30000
+    timeout: 10000
     log: true
     notification:
       warning: false
@@ -971,6 +979,7 @@ public:
       danger: 1000
       critical: 2000
     help: STATS_HELP_URL
+    lastEntriesCap: 20
   presentation:
     allowDownloadOriginal: true
     allowDownloadWithAnnotations: true
@@ -1027,10 +1036,12 @@ public:
     role_moderator: MODERATOR
     role_viewer: VIEWER
     label:
-      moderator: false
+      presenter: true
+      moderator: true
       mobile: true
       guest: true
       sharingWebcam: true
+      bot: true
   whiteboard:
     annotationsQueueProcessInterval: 60
     cursorInterval: 150
@@ -1075,6 +1086,8 @@ public:
         - text
         - note
         - rectangle
+        - delete-all
+        - highlight
         - more
         - actions
       multiUserTools:
@@ -1086,8 +1099,11 @@ public:
         - text
         - note
         - rectangle
+        - delete-all
+        - highlight
         - more
         - actions
+    locales: ['ar', 'ca', 'cs', 'da', 'de', 'en', 'es', 'fa', 'fi', 'fr', 'gl', 'he', 'hi-in', 'hu', 'it', 'ja', 'ko-kr', 'ku', 'main', 'my', 'ne', 'no', 'pl', 'pt-br', 'pt-pt', 'ro', 'ru', 'sv', 'te', 'th', 'tr', 'uk', 'vi', 'zh-cn', 'zh-tw']
   clientLog:
     console:
       enabled: true
@@ -1111,6 +1127,14 @@ public:
       - home.jpg
       - coffeeshop.jpg
       - board.jpg
+  minBrowserVersions:
+    safari: ">=14"
+    chrome: ">=87"
+    firefox: ">=80"
+    edge: ">=85"
+    mobile:
+      safari: ">=14"
+      chrome: ">=87"
 private:
   analytics:
     includeChat: true
@@ -1119,31 +1143,6 @@ private:
     localesUrl: /locale-list
     pencilChunkLength: 100
     loadSlidesFromHttpAlways: false
-  minBrowserVersions:
-    - browser: chrome
-      version: 72
-    - browser: chromeMobileIOS
-      version: 94
-    - browser: firefox
-      version: 68
-    - browser: firefoxMobile
-      version: 68
-    - browser: edge
-      version: 79
-    - browser: ie
-      version: Infinity
-    - browser: safari
-      version: [12, 1]
-    - browser: mobileSafari
-      version: [12, 1]
-    - browser: opera
-      version: 50
-    - browser: electron
-      version: [0, 36]
-    - browser: SamsungInternet
-      version: 10
-    - browser: YandexBrowser
-      version: 19
   # Direct Prometheus instrumentation.
   # EXPERIMENTAL, so disabled by default.
   prometheus:

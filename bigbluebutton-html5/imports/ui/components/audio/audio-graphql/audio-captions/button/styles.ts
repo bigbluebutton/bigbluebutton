@@ -9,10 +9,6 @@ import {
   colorSuccess,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
-interface ButtonProps {
- active: boolean;
-}
-
 // @ts-ignore - as button comes from JS, we can't provide its props
 const ClosedCaptionToggleButton = styled(Button)`
   ${({ ghost }) => ghost && `
@@ -21,19 +17,11 @@ const ClosedCaptionToggleButton = styled(Button)`
       background-color: transparent !important;
       border-color: ${colorWhite} !important;
     }
-    i {
-      margin-top: .4rem;
-    }
   `}
 `;
 
-const SpanButtonWrapper = styled.span<ButtonProps>`
+const SpanButtonWrapper = styled.span`
   position: relative;
-  ${({ active }) => !active && `
-    i {
-      bottom: -.2em;
-    }
-  `}
 `;
 
 const TranscriptionToggle = styled(Toggle)`

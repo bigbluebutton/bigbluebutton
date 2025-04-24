@@ -1,5 +1,5 @@
 const { expect } = require('@playwright/test');
-const { openAboutModal, openSettings, getLocaleValues } = require('./util');
+const { openAboutModal, getLocaleValues } = require('./util');
 const e = require('../core/elements');
 const { CI } = require('../core/constants');
 const { MultiUsers } = require('../user/multiusers');
@@ -13,13 +13,19 @@ class Options extends MultiUsers {
 
   async openedAboutModal() {
     await openAboutModal(this.modPage);
+    await this.modPage.hasText(e.simpleModal, 'Copyright: ', 'should display the copyright text');
+    await this.modPage.hasText(e.simpleModal, 'Client build: ', 'should display the client build text');
+    await this.modPage.hasText(e.simpleModal, 'BigBlueButton version: ', 'should display the BBB version text');
+    await this.modPage.hasText(e.simpleModal, 'Keyboard shortcuts', 'should display the shortcuts text');
+    await this.modPage.hasElement(e.shortcutsButton, 'should display the shortcuts button');
+    await this.modPage.hasElement(e.helpLinkButton, 'should display the help link button');
     await this.modPage.hasElement(e.closeModal, 'should display the close modal button for the about modal');
     await this.modPage.waitAndClick(e.closeModal);
   }
 
   async openHelp() {
-    await this.modPage.waitAndClick(e.optionsButton);
-    const newPage = await this.modPage.handleNewTab(e.helpButton, this.modPage.context);
+    await openAboutModal(this.modPage);
+    const newPage = await this.modPage.handleNewTab(e.helpLinkButton, this.modPage.context);
     await expect(newPage, 'should the help page to display the title Tutorials').toHaveTitle(/Tutorials/);
     await newPage.close();
     await this.modPage.hasElement(e.whiteboard, 'should the whiteboard be open on the main meeting');
@@ -27,12 +33,8 @@ class Options extends MultiUsers {
 
   async localesTest() {
     const selectedKeysBySelector = {
-      [e.messageTitle]: 'app.userList.messagesTitle',
-      [e.notesTitle]: 'app.userList.notesTitle',
-      [e.userListToggleBtn]: 'app.navBar.userListToggleBtnLabel',
-      [e.hidePublicChat]: 'app.chat.titlePublic',
-      [e.sendButton]: 'app.chat.submitLabel',
-      [e.actions]: 'app.actionsBar.actionsDropdown.actionsLabel',
+      [e.chatTitle]: 'app.userList.messagesTitle',
+      [e.mediaAreaButton]: 'app.actionsBar.actionsDropdown.actionsLabel',
       [e.joinAudio]: 'app.audio.joinAudio',
       [e.joinVideo]: 'app.video.joinVideo',
       [e.startScreenSharing]: 'app.actionsBar.actionsDropdown.desktopShareLabel',
@@ -46,11 +48,11 @@ class Options extends MultiUsers {
       console.log(`Testing ${locale} locale`);
       const currentValuesBySelector = getLocaleValues(selectedKeysBySelector, locale);
 
-      await openSettings(this.modPage);
+      await this.modPage.waitAndClick(e.settingsSidebarButton);
       await this.modPage.waitForSelector(e.languageSelector);
       const langDropdown = await this.modPage.page.$(e.languageSelector);
       await langDropdown.selectOption({ value: locale });
-      await this.modPage.waitAndClick(e.modalConfirmButton);
+      await this.modPage.waitAndClick(e.saveSettingsButton);
 
       for (const selector in currentValuesBySelector) {
         await this.modPage.hasText(selector, currentValuesBySelector[selector], 'should the elements be translated into the specific language');
@@ -59,65 +61,61 @@ class Options extends MultiUsers {
   }
 
   async darkMode() {
-    await this.modPage.hasElement(e.whiteboard, 'should the whiteboard be display');
+    await this.modPage.waitForSelector(e.whiteboard);
     // send chat message
     await this.modPage.type(e.chatBox, e.message);
     await this.modPage.waitAndClick(e.sendButton);
     await this.modPage.hasElement(e.chatUserMessageText, 'should the chat message be displayed');
     // set all locators
     const [
-      userListContainerLocator,
+      navigationSidebarContainerLocator,
       whiteboardOptionsButtonLocator,
-      messageTitleLocator,
-      presentationTitleLocator,
+      chatTitleLocator,
       chatUserMessageTextLocator,
       chatNotificationMessageItemLocator,
-      sendButtonLocator,
+      settingsSidebarButtonLocator,
       joinAudioLocator,
-      minimizePresentationLocator,
+      leaveMeetingDropdownLocator,
     ] = [
-      e.userListContainer,
+      e.navigationSidebarContainer,
       e.whiteboardOptionsButton,
-      e.messageTitle,
-      e.presentationTitle,
+      e.chatTitle,
       e.chatUserMessageText,
       e.chatNotificationMessageText,
-      `${e.sendButton} span[color]`,
+      e.settingsSidebarButton,
       `${e.joinAudio} span[color]`,
-      `${e.minimizePresentation} span[color]`,
+      e.leaveMeetingDropdown,
     ].map(e => this.modPage.getLocator(e));
 
     const getBackgroundColorComputed = (node) => getComputedStyle(node).backgroundColor;
     const getTextColorComputed = (node) => getComputedStyle(node).color;
     // background color elements that should be changed (light mode)
-    const userListContainerBackgroundColor = await userListContainerLocator.evaluate(getBackgroundColorComputed);
+    const navigationSidebarContainerBackgroundColor = await navigationSidebarContainerLocator.evaluate(getBackgroundColorComputed);
     const whiteboardOptionsButtonBackground = await whiteboardOptionsButtonLocator.evaluate(getBackgroundColorComputed);
-    const sendButtonBackgroundColor = await sendButtonLocator.evaluate(getBackgroundColorComputed);
     const joinAudioBackgroundColor = await joinAudioLocator.evaluate(getBackgroundColorComputed);
-    const minimizePresentationBackgroundColor = await minimizePresentationLocator.evaluate(getBackgroundColorComputed);
+    const leaveMeetingDropdownBackgroundColor = await leaveMeetingDropdownLocator.evaluate(getBackgroundColorComputed);
     // text colors that should be changed (light mode)
+    const settingsSidebarButtonColor = await settingsSidebarButtonLocator.evaluate(getBackgroundColorComputed);
     const chatMessagesBackgroundColor = await chatNotificationMessageItemLocator.evaluate(getTextColorComputed);
-    const messageTitleColor = await messageTitleLocator.evaluate(getTextColorComputed);
-    const presentationTitleColor = await presentationTitleLocator.evaluate(getTextColorComputed);
+    const chatTitleColor = await chatTitleLocator.evaluate(getTextColorComputed);
     const chatUserMessageTextColor = await chatUserMessageTextLocator.evaluate(getTextColorComputed);
 
-    await openSettings(this.modPage);
-    await this.modPage.waitAndClickElement(e.darkModeToggleBtn);
-    await this.modPage.waitAndClick(e.modalConfirmButton);
+    await this.modPage.waitAndClick(e.settingsSidebarButton);
+    await this.modPage.waitAndClick(e.darkModeToggleBtn);
+    await this.modPage.waitAndClick(e.saveSettingsButton);
     await sleep(500); // wait for the changes to be applied
-    expect.soft(userListContainerBackgroundColor).not.toEqual(await userListContainerLocator.evaluate(getBackgroundColorComputed), 'should the user list container background color be changed');
+    //! update assertion descriptions
+    expect.soft(navigationSidebarContainerBackgroundColor).not.toEqual(await navigationSidebarContainerLocator.evaluate(getBackgroundColorComputed), 'should the user list container background color be changed');
     expect.soft(whiteboardOptionsButtonBackground).not.toEqual(await whiteboardOptionsButtonLocator.evaluate(getBackgroundColorComputed), 'should the whiteboard options button background color be changed');
-    expect.soft(sendButtonBackgroundColor).not.toEqual(await sendButtonLocator.evaluate(getBackgroundColorComputed), 'should the send button background color be changed');
     expect.soft(joinAudioBackgroundColor).not.toEqual(await joinAudioLocator.evaluate(getBackgroundColorComputed), 'should the join audio button background color be changed');
-    expect.soft(minimizePresentationBackgroundColor).not.toEqual(await minimizePresentationLocator.evaluate(getBackgroundColorComputed), 'should the minimize presentation button background color be changed');
+    expect.soft(leaveMeetingDropdownBackgroundColor).not.toEqual(await leaveMeetingDropdownLocator.evaluate(getBackgroundColorComputed), 'should the minimize presentation button background color be changed');
+    expect.soft(settingsSidebarButtonColor).not.toEqual(await settingsSidebarButtonLocator.evaluate(getTextColorComputed), 'should the send button background color be changed');
     expect.soft(chatMessagesBackgroundColor).not.toEqual(await chatNotificationMessageItemLocator.evaluate(getTextColorComputed), 'should the chat notification message color be changed');
-    expect.soft(messageTitleColor).not.toEqual(await messageTitleLocator.evaluate(getTextColorComputed), 'should the message title text color be changed');
-    expect.soft(presentationTitleColor).not.toEqual(await presentationTitleLocator.evaluate(getTextColorComputed), 'should the presentation title text color be changed');
+    expect.soft(chatTitleColor).not.toEqual(await chatTitleLocator.evaluate(getTextColorComputed), 'should the message title text color be changed');
     expect.soft(chatUserMessageTextColor).not.toEqual(await chatUserMessageTextLocator.evaluate(getTextColorComputed), 'should the chat user message text color be changed');
 
     if (!CI) {
       const modPageLocator = this.modPage.getLocator('body');
-      await this.modPage.setHeightWidthViewPortSize();
       const screenshotOptions = {
         maxDiffPixels: 1000,
       };
@@ -128,29 +126,28 @@ class Options extends MultiUsers {
 
   async fontSizeTest() {
     await this.modPage.hasElement(e.whiteboard, 'should the whiteboard be display');
-    await this.modPage.setHeightWidthViewPortSize();
     const getFontSizeNumber = (node) => Number(getComputedStyle(node).fontSize.slice(0, -2));
     const [
       presentationTitleLocator,
-      chatButtonLocator,
-      messageTitleLocator,
+      messagesSidebarButtonLocator,
+      chatTitleLocator,
     ] = [
       e.presentationTitle,
-      e.chatButton,
-      e.messageTitle,
+      e.messagesSidebarButton,
+      e.chatTitle,
     ].map(e => this.modPage.getLocator(e));
     const presentationTitleFontSize = await presentationTitleLocator.evaluate(getFontSizeNumber);
-    const chatButtonFontSize = await chatButtonLocator.evaluate(getFontSizeNumber);
-    const messageTitleFontSize = await messageTitleLocator.evaluate(getFontSizeNumber);
+    const messagesSidebarButtonFontSize = await messagesSidebarButtonLocator.evaluate(getFontSizeNumber);
+    const chatTitleFontSize = await chatTitleLocator.evaluate(getFontSizeNumber);
 
-    // Increasing font size
-    await openSettings(this.modPage);
+    // increasing font size
+    await this.modPage.waitAndClick(e.settingsSidebarButton);
     await this.modPage.waitAndClick(e.increaseFontSize);
-    await this.modPage.waitAndClick(e.modalConfirmButton);
+    await this.modPage.waitAndClick(e.saveSettingsButton);
     await sleep(500); // wait for the changes to be applied
     expect.soft(await presentationTitleLocator.evaluate(getFontSizeNumber)).toBeGreaterThan(presentationTitleFontSize, 'should the presentation title font size be increased');
-    expect.soft(await chatButtonLocator.evaluate(getFontSizeNumber)).toBeGreaterThan(chatButtonFontSize, 'should the chat button font size be increased');
-    expect.soft(await messageTitleLocator.evaluate(getFontSizeNumber)).toBeGreaterThan(messageTitleFontSize, 'should the message title font size be increased');
+    expect.soft(await messagesSidebarButtonLocator.evaluate(getFontSizeNumber)).toBeGreaterThan(messagesSidebarButtonFontSize, 'should the chat button font size be increased');
+    expect.soft(await chatTitleLocator.evaluate(getFontSizeNumber)).toBeGreaterThan(chatTitleFontSize, 'should the message title font size be increased');
 
     if (!CI) {
       const modPageLocator = this.modPage.getLocator('body');

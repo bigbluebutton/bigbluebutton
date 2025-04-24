@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import { defineMessages, injectIntl } from 'react-intl';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import { NavBarItemType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/nav-bar-item/enums';
@@ -14,13 +13,14 @@ import OptionsDropdownContainer from './options-dropdown/container';
 import TimerIndicatorContainer from '/imports/ui/components/timer/indicator/component';
 import browserInfo from '/imports/utils/browserInfo';
 import deviceInfo from '/imports/utils/deviceInfo';
-import { PANELS, ACTIONS, LAYOUT_TYPE } from '../layout/enums';
+import { ACTIONS, LAYOUT_TYPE } from '../layout/enums';
 import Button from '/imports/ui/components/common/button/component';
 import LeaveMeetingButtonContainer from './leave-meeting-button/container';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import Tooltip from '/imports/ui/components/common/tooltip/component';
 import SessionDetailsModal from '/imports/ui/components/session-details/component';
 import Icon from '/imports/ui/components/common/icon/icon-ts/component';
+import getStorageSingletonInstance from '../../services/storage';
 
 const intlMessages = defineMessages({
   toggleUserListLabel: {
@@ -71,6 +71,13 @@ const propTypes = {
   pluginNavBarItems: PropTypes.arrayOf(PropTypes.shape({
     id: PropTypes.string,
   })).isRequired,
+  sidebarNavigation: PropTypes.shape({
+    isOpen: PropTypes.boolean,
+  }).isRequired,
+  sidebarContent: PropTypes.shape({
+    isOpen: PropTypes.boolean,
+  }).isRequired,
+  layoutContextDispatch: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
@@ -159,24 +166,27 @@ class NavBar extends Component {
 
     this.handleToggleUserList = this.handleToggleUserList.bind(this);
     this.splitPluginItems = this.splitPluginItems.bind(this);
+    this.setModalIsOpen = this.setModalIsOpen.bind(this);
+
+    const ShownId = getStorageSingletonInstance().getItem('alreadyShowSessionDetailsOnJoin');
 
     this.state = {
-      isModalOpen: props.showSessionDetailsOnJoin,
+      isModalOpen: props.showSessionDetailsOnJoin && !(ShownId === props.meetingId),
     };
   }
 
-  setModalIsOpen = (isOpen) => this.setState({ isModalOpen: isOpen })
-
   renderModal(isOpen, setIsOpen, priority, Component, otherOptions) {
-    return isOpen ? <Component
-      {...{
-        ...otherOptions,
-        onRequestClose: () => setIsOpen(false),
-        priority,
-        setIsOpen,
-        isOpen
-      }}
-    /> : null
+    return isOpen ? (
+      <Component
+        {...{
+          ...otherOptions,
+          onRequestClose: () => setIsOpen(false),
+          priority,
+          setIsOpen,
+          isOpen,
+        }}
+      />
+    ) : null;
   }
 
   componentDidMount() {
@@ -222,47 +232,24 @@ class NavBar extends Component {
     clearInterval(this.interval);
   }
 
+  setModalIsOpen(isOpen) {
+    if (!isOpen) {
+      const { meetingId } = this.props;
+      getStorageSingletonInstance().setItem('alreadyShowSessionDetailsOnJoin', meetingId);
+    }
+    this.setState({ isModalOpen: isOpen });
+  }
+
   handleToggleUserList() {
     const {
       sidebarNavigation,
-      sidebarContent,
       layoutContextDispatch,
     } = this.props;
 
-    if (sidebarNavigation.isOpen) {
-      if (sidebarContent.isOpen) {
-        layoutContextDispatch({
-          type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-          value: false,
-        });
-        layoutContextDispatch({
-          type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-          value: PANELS.NONE,
-        });
-        layoutContextDispatch({
-          type: ACTIONS.SET_ID_CHAT_OPEN,
-          value: '',
-        });
-      }
-
-      layoutContextDispatch({
-        type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
-        value: false,
-      });
-      layoutContextDispatch({
-        type: ACTIONS.SET_SIDEBAR_NAVIGATION_PANEL,
-        value: PANELS.NONE,
-      });
-    } else {
-      layoutContextDispatch({
-        type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
-        value: true,
-      });
-      layoutContextDispatch({
-        type: ACTIONS.SET_SIDEBAR_NAVIGATION_PANEL,
-        value: PANELS.USERLIST,
-      });
-    }
+    layoutContextDispatch({
+      type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
+      value: !sidebarNavigation.isOpen,
+    });
   }
 
   splitPluginItems() {
@@ -325,7 +312,8 @@ class NavBar extends Component {
     const shouldShowNavBarToggleButton = selectedLayout !== LAYOUT_TYPE.CAMERAS_ONLY
       && selectedLayout !== LAYOUT_TYPE.PRESENTATION_ONLY
       && selectedLayout !== LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY
-      && selectedLayout !== LAYOUT_TYPE.MEDIA_ONLY;
+      && selectedLayout !== LAYOUT_TYPE.MEDIA_ONLY
+      && isPhone === true;
 
     const APP_CONFIG = window.meetingClientSettings?.public?.app;
     const enableTalkingIndicator = APP_CONFIG?.enableTalkingIndicator;
@@ -352,32 +340,24 @@ class NavBar extends Component {
         {!hideTopRow && (
           <Styled.Top>
             <Styled.Left>
-              {shouldShowNavBarToggleButton && isExpanded && document.dir === 'ltr'
-                && <Styled.ArrowLeft iconName="left_arrow" />}
-              {shouldShowNavBarToggleButton && !isExpanded && document.dir === 'rtl'
-                && <Styled.ArrowLeft iconName="left_arrow" />}
               {shouldShowNavBarToggleButton && (
                 <Styled.NavbarToggleButton
                   tooltipplacement="right"
                   onClick={this.handleToggleUserList}
                   color={isPhone && isExpanded ? 'primary' : 'dark'}
-                  size='md'
+                  size="md"
                   circle
                   hideLabel
                   data-test={hasNotification ? 'hasUnreadMessages' : 'toggleUserList'}
                   label={intl.formatMessage(intlMessages.toggleUserListLabel)}
                   tooltipLabel={intl.formatMessage(intlMessages.toggleUserListLabel)}
                   aria-label={ariaLabel}
-                  icon="user"
+                  icon="menu"
                   aria-expanded={isExpanded}
                   accessKey={TOGGLE_USERLIST_AK}
                   hasNotification={hasNotification}
                 />
               )}
-              {shouldShowNavBarToggleButton && !isExpanded && document.dir === 'ltr'
-                && <Styled.ArrowRight iconName="right_arrow" />}
-              {shouldShowNavBarToggleButton && isExpanded && document.dir === 'rtl'
-                && <Styled.ArrowRight iconName="right_arrow" />}
               {renderPluginItems(leftPluginItems)}
             </Styled.Left>
             <Styled.Center>
@@ -389,19 +369,19 @@ class NavBar extends Component {
                 <Tooltip title={intl.formatMessage(intlMessages.openDetailsTooltip)}>
                   <span>
                     {presentationTitle}
-                    <Icon iconName="device_list_selector" />
+                    <Icon iconName="device_list_selector" rotate />
                   </span>
                 </Tooltip>
               </Styled.PresentationTitle>
-              {this.renderModal(isModalOpen, this.setModalIsOpen, "low", SessionDetailsModal)}
+              {this.renderModal(isModalOpen, this.setModalIsOpen, 'low', SessionDetailsModal)}
+              {renderPluginItems(centerPluginItems)}
+            </Styled.Center>
+            <Styled.Right>
+              <h2 className="sr-only">{intl.formatMessage(intlMessages.sessionControlLabel)}</h2>
               <RecordingIndicator
                 amIModerator={amIModerator}
                 currentUserId={currentUserId}
               />
-              {renderPluginItems(centerPluginItems)}
-            </Styled.Center>
-            <Styled.Right>
-              <h2 class="sr-only">{intl.formatMessage(intlMessages.sessionControlLabel)}</h2>
               {renderPluginItems(rightPluginItems)}
               {ConnectionStatusService.isEnabled() ? <ConnectionStatusButton /> : null}
               {ConnectionStatusService.isEnabled() ? <ConnectionStatus /> : null}
@@ -415,7 +395,7 @@ class NavBar extends Component {
           </Styled.Top>
         )}
         <Styled.Bottom>
-          <h2 class="sr-only">{intl.formatMessage(intlMessages.speakersListLabel)}</h2>
+          <h2 className="sr-only">{intl.formatMessage(intlMessages.speakersListLabel)}</h2>
           {enableTalkingIndicator ? <TalkingIndicator amIModerator={amIModerator} /> : null}
           <TimerIndicatorContainer />
         </Styled.Bottom>

@@ -4,9 +4,7 @@ import {
   borderSize,
   avatarInset,
   smPaddingX,
-  toastIconSide,
   toastMargin,
-  toastMarginMobile,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
   colorWhite,
@@ -18,13 +16,11 @@ import {
   fontSizeXL,
   fontSizeSmall,
 } from '/imports/ui/stylesheets/styled-components/typography';
-import {
-  smallOnly,
-} from '/imports/ui/stylesheets/styled-components/breakpoints';
 import Button from '/imports/ui/components/common/button/component';
+import UserAvatar from '/imports/ui/components/user-avatar/component';
 import ToastStyled from '/imports/ui/components/common/toast/styles';
 
-const Avatar = styled.div`
+const ButtonAvatar = styled.div`
   cursor: pointer;
   outline: transparent;
   outline-style: dotted;
@@ -32,12 +28,14 @@ const Avatar = styled.div`
   width: ${avatarSide};
   height: ${avatarSide};
   color: ${colorWhite};
-  border-radius: 50%;
   border: solid ${borderSize} ${colorWhite};
   margin-left: ${avatarInset};
   text-align: center;
-  padding: 5px 0;
+`;
 
+const Avatar = styled(UserAvatar)`
+  padding: 0.75rem 0;
+  border: solid ${borderSize} ${colorWhite};
   &:hover,
   &:focus {
     border: solid ${borderSize} ${colorGrayLighter};
@@ -72,32 +70,16 @@ const ToastContent = styled.div`
 
 const IconWrapper = styled.div`
   background-color: ${colorPrimary};
-  width: ${toastIconSide};
-  height: ${toastIconSide};
+  width: ${avatarSide};
+  height: ${avatarSide};
   border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   
   & > i {
-    position: relative;
     color: ${colorWhite};
-    top: ${toastMargin};
-    left: ${toastMargin};
     font-size: ${fontSizeXL};
-  
-    [dir="rtl"] & {
-      left: 0;
-      right: 10px;
-    }
-    @media ${smallOnly} {
-      {
-        top: ${toastMarginMobile};
-        left: ${toastMarginMobile};
-
-        [dir="rtl"] & {
-          left: 0;
-          right: ${toastMargin};
-        }
-      }
-    }
   }
 `;
 
@@ -137,6 +119,7 @@ const ToastContentWrapper = styled.div`
 const ToastSeparator = styled(ToastStyled.Separator)``;
 
 export default {
+  ButtonAvatar,
   Avatar,
   ToastContentWrapper,
   AvatarsExtra,

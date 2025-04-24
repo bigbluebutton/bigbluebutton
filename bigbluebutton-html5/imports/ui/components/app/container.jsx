@@ -1,11 +1,12 @@
 import React, { useEffect } from 'react';
-import { useReactiveVar } from '@apollo/client';
+import { useMutation, useReactiveVar } from '@apollo/client';
 import AudioCaptionsLiveContainer from '/imports/ui/components/audio/audio-graphql/audio-captions/live/component';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import { useIsPresentationEnabled, useIsExternalVideoEnabled } from '/imports/ui/services/features';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import {
+  layoutSelect,
   layoutSelectInput,
   layoutSelectOutput,
 } from '../layout/context';
@@ -17,6 +18,9 @@ import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscri
 import useSettings from '../../services/settings/hooks/useSettings';
 import { SETTINGS } from '../../services/settings/enums';
 import usePresentationSwap from '../../core/hooks/usePresentationSwap';
+import { LAYOUT_TYPE } from '../layout/enums';
+import { SET_PRESENTATION_FIT_TO_WIDTH } from './app-graphql/mutations';
+import { CURRENT_PRESENTATION_PAGE_SUBSCRIPTION } from '../whiteboard/queries';
 
 const AppContainer = (props) => {
   const {
@@ -38,7 +42,19 @@ const AppContainer = (props) => {
   } = useMeeting((m) => ({
     layout: m.layout,
     componentsFlags: m.componentsFlags,
+    isBreakout: m.isBreakout,
+    name: m.name,
+    meetingId: m.meetingId,
   }));
+
+  const { data: currentPageInfo } = useDeduplicatedSubscription(
+    CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
+    {
+      // presenter can be undefinend leading to a bug
+      // eslint-disable-next-line no-unneeded-ternary
+      skip: currentUser?.presenter ? false : true,
+    },
+  );
 
   const presentationRestoreOnUpdate = getFromUserSettings(
     'bbb_force_restore_presentation_on_new_events',
@@ -58,7 +74,13 @@ const AppContainer = (props) => {
   const presentation = layoutSelectInput((i) => i.presentation);
   const sharedNotesInput = layoutSelectInput((i) => i.sharedNotes);
   const { hideNotificationToasts } = layoutSelectInput((i) => i.notificationsBar);
+  const selectedLayout = layoutSelect((i) => i.layoutType);
 
+  const layoutType = layoutSelect((i) => i.layoutType);
+  const isNonMediaLayout = [
+    LAYOUT_TYPE.CAMERAS_ONLY,
+    LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY,
+  ].includes(layoutType);
   const setSpeechOptions = useSetSpeechOptions();
   const { data: pinnedPadData } = useDeduplicatedSubscription(PINNED_PAD_SUBSCRIPTION);
   const isSharedNotesPinnedFromGraphql = !!pinnedPadData
@@ -67,6 +89,7 @@ const AppContainer = (props) => {
   const isExternalVideoEnabled = useIsExternalVideoEnabled();
   const isPresentationEnabled = useIsPresentationEnabled();
   const [showScreenshare] = usePresentationSwap();
+  const [setPresentationFitToWidth] = useMutation(SET_PRESENTATION_FIT_TO_WIDTH);
 
   const isPresenter = currentUser?.presenter;
 
@@ -85,6 +108,18 @@ const AppContainer = (props) => {
   const shouldShowPresentation = (!shouldShowScreenshare && !isSharedNotesPinned
       && !shouldShowExternalVideo && !shouldShowGenericMainContent
       && (presentationIsOpen || presentationRestoreOnUpdate)) && isPresentationEnabled;
+  const currentPageInfoData = currentPageInfo?.pres_page_curr[0] ?? {};
+  const fitToWidth = currentPageInfoData?.fitToWidth ?? false;
+  const pageId = currentPageInfoData?.pageId ?? '';
+
+  const handlePresentationFitToWidth = (ftw) => {
+    setPresentationFitToWidth({
+      variables: {
+        pageId,
+        fitToWidth: ftw,
+      },
+    });
+  };
 
   // Update after editing app savings
   useEffect(() => {
@@ -100,8 +135,11 @@ const AppContainer = (props) => {
     ? (
       <App
         {...{
+          fitToWidth,
+          handlePresentationFitToWidth,
           hideActionsBar: getFromUserSettings('bbb_hide_actions_bar', false)
             || getFromUserSettings('bbb_hide_controls', false),
+          isNonMediaLayout,
           currentUserAway: currentUser.away,
           currentUserRaiseHand: currentUser.raiseHand,
           captionsStyle,
@@ -116,6 +154,10 @@ const AppContainer = (props) => {
           hideNotificationToasts: hideNotificationToasts
             || getFromUserSettings('bbb_hide_notifications', false),
           darkTheme,
+          selectedLayout,
+          isBreakout: currentMeeting?.isBreakout,
+          meetingName: currentMeeting?.name,
+          meetingId: currentMeeting?.meetingId,
         }}
         {...props}
       />

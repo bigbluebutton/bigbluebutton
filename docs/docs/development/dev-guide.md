@@ -19,8 +19,6 @@ You first need to set up a BigBlueButton 3.0 server. See the instructions at [In
 
 ## Overview
 
-**Note: BigBlueButton 3.0 is still under development**
-
 A BigBlueButton server is built from a number of components that correspond to Ubuntu packages. Some of these components are
 
 - bbb-web -- Implements the BigBlueButton API and conversion of documents for presentation
@@ -87,14 +85,11 @@ Consider using a Docker setup for a development environment - [https://github.co
 usermod -a -G sudo bigbluebutton
 mkhomedir_helper bigbluebutton # to add homedir to existing user
 chown -R bigbluebutton:bigbluebutton /home/bigbluebutton/
+sudo passwd bigbluebutton # to set password for the user bigbluebutton if not done yet
 sudo su - bigbluebutton
 # if you cannot switch to user bigbluebutton, you may need to switch /bin/false to /bin/bash for user bigbluebutton in /etc/passwd
 # and then retry "sudo su - bigbluebutton"
 # Note that you may want to disable terminal sessions for user bigbluebutton if you will later use the server in production
-```
-
-```bash
-sudo ls
 ```
 
 #### wget

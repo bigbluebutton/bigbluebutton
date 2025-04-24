@@ -17,7 +17,6 @@ const LeaveButton = styled(Button)`
 `}
 
   ${({ state, isMobile }) => state === 'closed' && !isMobile && `
-    margin-left: 1.0rem;
     margin-right: 0.5rem;
   `}
 
@@ -29,7 +28,15 @@ const LeaveButton = styled(Button)`
     z-index: 3;
   `}
 `;
+const LeaveButtonWrapper = styled.div`
+  padding-left: 0.5rem;
+
+  @media ${smallOnly} {
+    padding-left: 0.3rem;
+  }
+`;
 
 export default {
   LeaveButton,
+  LeaveButtonWrapper,
 };

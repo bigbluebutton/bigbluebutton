@@ -9,7 +9,9 @@ export const splitTranscript = (obj: Caption) => {
   const CAPTIONS_CONFIG = window.meetingClientSettings.public.captions;
   const CHARACTERS_PER_LINE = CAPTIONS_CONFIG.lineLimit;
   const LINES_PER_MESSAGE = CAPTIONS_CONFIG.lines;
-  const transcripts = [];
+  const CAPTION_LIMIT = CAPTIONS_CONFIG.captionLimit;
+
+  let transcripts = [];
   const words = obj.captionText.split(' ');
 
   let currentLine = '';
@@ -35,7 +37,21 @@ export const splitTranscript = (obj: Caption) => {
   }
   transcripts.push(currentLine.trim());
 
-  return transcripts.map((t) => { return { ...obj, captionText: t }; });
+  // If there are more caption objects than CAPTION_LIMIT
+  // just get the last N captions
+  transcripts = transcripts.slice(-CAPTION_LIMIT);
+
+  let i = 0;
+  return transcripts.map((t) => {
+    i += 1;
+
+    return {
+      ...obj,
+      captionText: t,
+      // if messages where split the captions will have a 'part' id
+      captionId: `${obj.captionId}-${i}`,
+    };
+  });
 };
 
 export const useIsAudioTranscriptionEnabled = () => useIsLiveTranscriptionEnabled();
@@ -95,6 +111,19 @@ export const getLocaleName = (locale: string) => {
   return languageNames.of(locale);
 };
 
+export const getCaptionsTermsLink = (locale: string) => {
+  const DEFAULT_LOCALE = 'en-US';
+  // @ts-ignore
+  const terms = window.meetingClientSettings.public.app.audioCaptions.terms || {};
+  if (Object.keys(terms).includes(locale)) return terms[locale];
+  return terms[DEFAULT_LOCALE];
+};
+
+export const useAppsGallery = () => {
+  const USE_APPS_GALLERY = window.meetingClientSettings.public.app.audioCaptions.useAppsGallery;
+  return USE_APPS_GALLERY;
+};
+
 export default {
   getSpeechVoices,
   useIsAudioTranscriptionEnabled,
@@ -106,4 +135,6 @@ export default {
   isGladia,
   splitTranscript,
   getLocaleName,
+  getCaptionsTermsLink,
+  useAppsGallery,
 };

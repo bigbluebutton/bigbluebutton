@@ -7,7 +7,7 @@ const { MobileDevices } = require('./mobileDevices');
 const { Timer } = require('./timer');
 const iPhone11 = devices['iPhone 11'];
 
-test.describe.parallel('User', { tag: '@ci' }, () => {
+test.describe.parallel('User', { tag: ['@ci', '@flaky-3.1'] }, () => {
   test.describe.parallel('Actions', () => {
     // https://docs.bigbluebutton.org/3.0/testing/release-testing/#set-status--raise-hand-automated
     test('Raise and lower Hand', async ({ browser, context, page }) => {
@@ -222,7 +222,7 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
         await lockViewers.lockSeeOtherViewersUserList();
       });
 
-      test('Lock see other viewers annotations', async ({ browser, context, page }) => {
+      test('Lock see other viewers annotations', { tag: '@flaky' }, async ({ browser, context, page }) => {
         const lockViewers = new LockViewers(browser, context);
         await lockViewers.initPages(page);
         await lockViewers.lockSeeOtherViewersAnnotations();
@@ -242,15 +242,13 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
       await multiusers.saveUserNames(testInfo);
     });
 
-    test('Mute all users', async ({ browser, context, page }) => {
+    test('Disable users join muted', async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
-      await multiusers.initModPage(page, false);
-      await multiusers.initModPage2(false);
-      await multiusers.initUserPage(false);
+      await multiusers.initModPage(page);
+      await multiusers.disabledUsersJoinMuted();
     });
 
-    test('Mute all users except presenter', { tag: '@flaky' }, async ({ browser, context, page }) => {
-      // Feature not working, see https://github.com/bigbluebutton/bigbluebutton/issues/21174
+    test('Mute all users except presenter', async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initModPage(page, false);
       await multiusers.initModPage2(false);

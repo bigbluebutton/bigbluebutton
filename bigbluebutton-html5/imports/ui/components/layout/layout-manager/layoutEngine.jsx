@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { layoutSelect, layoutSelectInput, layoutSelectOutput } from '/imports/ui/components/layout/context';
-import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
+import DEFAULT_VALUES, { SIDEBAR_CONTENT_MARGIN_TO_MEDIA } from '/imports/ui/components/layout/defaultValues';
 import { LAYOUT_TYPE, DEVICE_TYPE } from '/imports/ui/components/layout/enums';
 
 import CustomLayout from '/imports/ui/components/layout/layout-manager/customLayout';
@@ -183,66 +183,73 @@ const LayoutEngine = () => {
 
   const calculatesSidebarNavWidth = () => {
     const {
-      sidebarNavMinWidth,
-      sidebarNavMaxWidth,
+      sidebarNavWidth,
+      sidebarNavWidthMobile,
     } = DEFAULT_VALUES;
 
-    const { isOpen, width: sidebarNavWidth } = sidebarNavigationInput;
+    const { isOpen } = sidebarNavigationInput;
 
-    let minWidth = 0;
     let width = 0;
-    let maxWidth = 0;
+    let horizontalSpaceOccupied = 0;
     if (isOpen) {
       if (isMobile) {
-        minWidth = windowWidth();
-        width = windowWidth();
-        maxWidth = windowWidth();
+        width = sidebarNavWidthMobile;
+        // The navigation sidebar is a floating window on mobile. We say it does not
+        // occupy any space, so that its width is not taken into account when calculating the
+        // position of other layout elements.
+        horizontalSpaceOccupied = 0;
       } else {
-        if (sidebarNavWidth === 0) {
-          width = min(max((windowWidth() * 0.2), sidebarNavMinWidth), sidebarNavMaxWidth);
-        } else {
-          width = min(max(sidebarNavWidth, sidebarNavMinWidth), sidebarNavMaxWidth);
-        }
-        minWidth = sidebarNavMinWidth;
-        maxWidth = sidebarNavMaxWidth;
+        width = sidebarNavWidth;
+        horizontalSpaceOccupied = sidebarNavWidth;
       }
     }
     return {
-      minWidth,
       width,
-      maxWidth,
+      horizontalSpaceOccupied,
     };
   };
 
   const calculatesSidebarNavHeight = () => {
-    const { navBarHeight } = DEFAULT_VALUES;
+    const {
+      sidebarNavHeightPercentage,
+      sidebarNavHeightPercentageMobile,
+    } = DEFAULT_VALUES;
     const { isOpen } = sidebarNavigationInput;
 
-    let sidebarNavHeight = 0;
+    let sidebarNavigationHeight = 0;
+    let availableHeight = windowHeight();
     if (isOpen) {
       if (isMobile) {
-        sidebarNavHeight = windowHeight() - navBarHeight - bannerAreaHeight();
+        // The navigation sidebar is a floating tile on mobile, so it should
+        // not take into account the banner and navbar height when calculating
+        // its height.
+        sidebarNavigationHeight = availableHeight * sidebarNavHeightPercentageMobile;
       } else {
-        sidebarNavHeight = windowHeight() - bannerAreaHeight();
+        availableHeight -= bannerAreaHeight();
+        sidebarNavigationHeight = availableHeight * sidebarNavHeightPercentage;
       }
     }
-    return sidebarNavHeight;
+    return sidebarNavigationHeight;
   };
 
-  const calculatesSidebarNavBounds = () => {
-    const { sidebarNavTop, navBarHeight, sidebarNavLeft } = DEFAULT_VALUES;
+  const calculatesSidebarNavBounds = (sidebarNavHeight) => {
+    const {
+      sidebarNavMarginToTheEdgeMobile,
+    } = DEFAULT_VALUES;
 
-    let top = sidebarNavTop + bannerAreaHeight();
-
-    if (isMobile) {
-      top = navBarHeight + bannerAreaHeight();
+    let left = null;
+    let right = null;
+    if (isRTL) {
+      right = isMobile ? sidebarNavMarginToTheEdgeMobile : 0;
+    } else {
+      left = isMobile ? sidebarNavMarginToTheEdgeMobile : 0;
     }
 
     return {
-      top,
-      left: !isRTL ? sidebarNavLeft : null,
-      right: isRTL ? sidebarNavLeft : null,
-      zIndex: isMobile ? 11 : 2,
+      top: isMobile ? (windowHeight() - sidebarNavHeight) / 2 : bannerAreaHeight(),
+      left,
+      right,
+      zIndex: isMobile ? 12 : 2,
     };
   };
 
@@ -284,9 +291,9 @@ const LayoutEngine = () => {
   };
 
   const calculatesSidebarContentBounds = (sidebarNavWidth) => {
-    const { navBarHeight, sidebarNavTop } = DEFAULT_VALUES;
+    const { navBarHeight } = DEFAULT_VALUES;
 
-    let top = sidebarNavTop + bannerAreaHeight();
+    let top = bannerAreaHeight();
 
     if (isMobile) top = navBarHeight + bannerAreaHeight();
 
@@ -305,7 +312,11 @@ const LayoutEngine = () => {
     };
   };
 
-  const calculatesMediaAreaBounds = (sidebarNavWidth, sidebarContentWidth, margin = 0) => {
+  const calculatesMediaAreaBounds = (
+    sidebarNavWidth,
+    sidebarContentWidth,
+    margin = 0,
+  ) => {
     const { height: actionBarHeight } = calculatesActionbarHeight();
     const navBarHeight = calculatesNavbarHeight();
 
@@ -315,7 +326,8 @@ const LayoutEngine = () => {
       width = windowWidth();
     } else {
       left = !isRTL ? sidebarNavWidth + sidebarContentWidth : 0;
-      width = windowWidth() - sidebarNavWidth - sidebarContentWidth;
+      width = windowWidth()
+        - sidebarNavWidth - sidebarContentWidth - SIDEBAR_CONTENT_MARGIN_TO_MEDIA;
     }
 
     return {

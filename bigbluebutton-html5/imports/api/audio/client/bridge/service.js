@@ -114,11 +114,15 @@ const doGUM = async (constraints, retryOnFailure = false) => {
   } catch (error) {
     // This is probably a deviceId mismatch. Retry with base constraints
     // without an exact deviceId.
-    if (error.name === 'OverconstrainedError' && retryOnFailure) {
+    const retryableErrors = ['NotFoundError', 'OverconstrainedError', 'NotReadableError'];
+
+    if (retryOnFailure && retryableErrors.includes(error.name)) {
       logger.warn({
         logCode: 'audio_overconstrainederror_rollback',
         extraInfo: {
           constraints,
+          errorName: error.name,
+          errorMessage: error.message,
         },
       }, 'Audio getUserMedia returned OverconstrainedError, rollback');
 

@@ -112,7 +112,7 @@ const GuestWait: React.FC<GuestWaitProps> = (props) => {
       if (positionInWaitingQueueRef.current === '1') {
         setPositionMessage(intl.formatMessage(intlMessages.firstPosition));
       } else {
-        setPositionMessage(intl.formatMessage(intlMessages.position) + positionInWaitingQueueRef.current);
+        setPositionMessage(`${intl.formatMessage(intlMessages.position)} ${positionInWaitingQueueRef.current}`);
       }
     }
   }, [intl]);

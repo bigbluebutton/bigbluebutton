@@ -202,6 +202,7 @@ const PresentationContainer = (props) => {
   }
 
   const cameraDock = layoutSelectInput((i) => i.cameraDock);
+  const isRTL = layoutSelect((i) => i.isRTL);
   const presentation = layoutSelectOutput((i) => i.presentation);
   const fullscreen = layoutSelect((i) => i.fullscreen);
   const deviceType = layoutSelect((i) => i.deviceType);
@@ -236,6 +237,7 @@ const PresentationContainer = (props) => {
           numCameras,
           ...props,
           userIsPresenter,
+          isRTL,
           presentationBounds: presentation,
           fullscreenContext,
           fullscreenElementId,
@@ -243,6 +245,7 @@ const PresentationContainer = (props) => {
           isIphone,
           currentSlide,
           slidePosition,
+          hasWBAccess: multiUserData.hasAccess,
           downloadPresentationUri: `${APP_CONFIG.bbbWebBase}/${currentPresentationPage?.downloadFileUri}`,
           multiUser: (multiUserData.hasAccess || multiUserData.active) && presentationIsOpen,
           presentationIsDownloadable: currentPresentationPage?.downloadable,
@@ -266,7 +269,7 @@ const PresentationContainer = (props) => {
           currentUser,
           hasPoll,
           currentPresentationPage,
-          layoutType: selectedLayout,
+          layoutType: selectedLayout || '',
         }
       }
     />

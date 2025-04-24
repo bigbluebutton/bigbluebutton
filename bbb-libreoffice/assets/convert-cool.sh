@@ -16,7 +16,7 @@ HOST=127.0.0.1
 
 # Set this to "-k" to allow it to work in a test environment, ie with a self signed
 # certificate
-INSECURE=
+UNSECURE=
 
 # This script receives three params
 # Param 1: Input office file path (e.g. "/tmp/test.odt")
@@ -46,6 +46,6 @@ timeoutSecs="${timeoutSecs:0:3}"
 
 # The timeout is important.
 
-timeout $(printf %03d $timeoutSecs)s curl $INSECURE -F "data=@${source}" https://$HOST:9980/cool/convert-to/$convertTo > "${dest}"
+timeout $(printf %03d $timeoutSecs)s curl $UNSECURE -F "data=@${source}" https://$HOST:9980/cool/convert-to/$convertTo > "${dest}"
 
 exit 0

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import ModalFullscreen from '/imports/ui/components/common/modal/fullscreen/component';
 import { defineMessages, injectIntl } from 'react-intl';
 import Langmap from 'langmap';
+import About from '/imports/ui/components/settings/submenus/about/component';
 import DataSaving from '/imports/ui/components/settings/submenus/data-saving/component';
 import Application from '/imports/ui/components/settings/submenus/application/component';
 import Notification from '/imports/ui/components/settings/submenus/notification/component';
@@ -16,6 +16,10 @@ const intlMessages = defineMessages({
   appTabLabel: {
     id: 'app.settings.applicationTab.label',
     description: 'label for application tab',
+  },
+  aboutTabLabel: {
+    id: 'app.about.title',
+    description: 'label for about tab',
   },
   audioTabLabel: {
     id: 'app.settings.audioTab.label',
@@ -73,6 +77,22 @@ const intlMessages = defineMessages({
     id: 'app.settings.transcriptionTab.label',
     description: 'label for transcriptions tab',
   },
+  unsavedChangesModalTitle: {
+    id: 'app.appsGallery.modal.title',
+    description: 'label for the title of the unsaved changes modal',
+  },
+  unsavedChangesMessage: {
+    id: 'app.settings.unsavedChanges.message',
+    description: 'label for the title of the unsaved changes modal',
+  },
+  unsavedChangesIgnoreMessage: {
+    id: 'app.settings.unsavedChanges.ignoreMessage',
+    description: 'label for the title of the unsaved changes modal',
+  },
+  unsavedChangesIgnoreButtonLabel: {
+    id: 'app.settings.unsavedChanges.ignoreButtonLabel',
+    description: 'label for the title of the unsaved changes modal',
+  },
 });
 
 const propTypes = {
@@ -100,7 +120,6 @@ const propTypes = {
   }).isRequired,
   updateSettings: PropTypes.func.isRequired,
   availableLocales: PropTypes.objectOf(PropTypes.array).isRequired,
-  showToggleLabel: PropTypes.bool.isRequired,
   isReactionsEnabled: PropTypes.bool.isRequired,
   transcription: PropTypes.shape({
     partialUtterances: PropTypes.bool,
@@ -135,15 +154,20 @@ class Settings extends Component {
         dataSaving: clone(dataSaving),
         application: clone(application),
       },
-      selectedTab: Number.isFinite(selectedTab) && selectedTab >= 0 && selectedTab <= 2
+      selectedTab: Number.isFinite(selectedTab) && selectedTab >= 0 && selectedTab <= 3
         ? selectedTab
         : 0,
+      unsavedModalOpen: false,
+      hasUnsavedChanges: false,
     };
 
     this.updateSettings = props.updateSettings;
     this.handleUpdateSettings = this.handleUpdateSettings.bind(this);
     this.handleSelectTab = this.handleSelectTab.bind(this);
     this.displaySettingsStatus = this.displaySettingsStatus.bind(this);
+    this.handleClose = this.handleClose.bind(this);
+    this.handleIgnoreChanges = this.handleIgnoreChanges.bind(this);
+    this.performClose = this.performClose.bind(this);
   }
 
   componentDidMount() {
@@ -171,18 +195,54 @@ class Settings extends Component {
 
       this.setState({ allLocales: tempAggregateLocales });
     });
+
+    // needed because the initial value is null in the saved state
+    const { saved } = this.state;
+    saved.application.fontSize = document.getElementsByTagName('html')[0].style.fontSize;
+    this.setState({ saved });
   }
 
   handleUpdateSettings(key, newSettings) {
-    const settings = this.state;
-    settings.current[key] = newSettings;
-    this.setState(settings);
+    const { saved } = this.state;
+    const hasUnsavedChanges = JSON.stringify(saved[key]) !== JSON.stringify(newSettings);
+
+    this.setState((prevState) => ({
+      current: {
+        ...prevState.current,
+        [key]: newSettings,
+      },
+      hasUnsavedChanges,
+    }));
   }
 
   handleSelectTab(tab) {
     this.setState({
       selectedTab: tab,
     });
+  }
+
+  handleClose() {
+    const { hasUnsavedChanges } = this.state;
+
+    if (hasUnsavedChanges) {
+      this.setState({ unsavedModalOpen: true });
+      return;
+    }
+    this.performClose();
+  }
+
+  handleIgnoreChanges() {
+    this.setState({ unsavedModalOpen: false }, () => {
+      this.performClose();
+    });
+  }
+
+  performClose() {
+    const { saved } = this.state;
+    const { setIsOpen } = this.props;
+    Settings.setHtmlFontSize(saved.application.fontSize);
+    document.getElementsByTagName('html')[0].lang = saved.application.locale;
+    setIsOpen(false);
   }
 
   displaySettingsStatus(status, textOnly = false) {
@@ -205,7 +265,6 @@ class Settings extends Component {
       isModerator,
       isPresenter,
       showGuestNotification,
-      showToggleLabel,
       layoutContextDispatch,
       selectedLayout,
       isScreenSharingEnabled,
@@ -214,6 +273,8 @@ class Settings extends Component {
       isGladiaEnabled,
       paginationToggleEnabled,
       isChatEnabled,
+      setIsOpen,
+      setIsShortcutModalOpen,
     } = this.props;
 
     const {
@@ -235,13 +296,11 @@ class Settings extends Component {
             aria-labelledby="appTab"
             selectedClassName="is-selected"
           >
-            <Styled.SettingsIcon iconName="application" />
             <span id="appTab">{intl.formatMessage(intlMessages.appTabLabel)}</span>
           </Styled.SettingsTabSelector>
           <Styled.SettingsTabSelector
             selectedClassName="is-selected"
           >
-            <Styled.SettingsIcon iconName="alert" />
             <span id="notificationTab">{intl.formatMessage(intlMessages.notificationLabel)}</span>
           </Styled.SettingsTabSelector>
           {isDataSavingTabEnabled
@@ -250,7 +309,6 @@ class Settings extends Component {
                 aria-labelledby="dataSavingTab"
                 selectedClassName="is-selected"
               >
-                <Styled.SettingsIcon iconName="network" />
                 <span id="dataSaving">{intl.formatMessage(intlMessages.dataSavingLabel)}</span>
               </Styled.SettingsTabSelector>
             )
@@ -261,18 +319,23 @@ class Settings extends Component {
                 aria-labelledby="transcriptionTab"
                 selectedClassName="is-selected"
               >
-                <Styled.SettingsIcon iconName="closed_caption" />
                 <span id="transcriptionTab">{intl.formatMessage(intlMessages.transcriptionLabel)}</span>
               </Styled.SettingsTabSelector>
             )
             : null}
+          <Styled.SettingsTabSelector
+            aria-labelledby="aboutTab"
+            selectedClassName="is-selected"
+            data-test="aboutTabButton"
+          >
+            <span id="aboutTab">{intl.formatMessage(intlMessages.aboutTabLabel)}</span>
+          </Styled.SettingsTabSelector>
         </Styled.SettingsTabList>
         <Styled.SettingsTabPanel selectedClassName="is-selected">
           <Application
             allLocales={allLocales}
             handleUpdateSettings={this.handleUpdateSettings}
             settings={current.application}
-            showToggleLabel={showToggleLabel}
             displaySettingsStatus={this.displaySettingsStatus}
             layoutContextDispatch={layoutContextDispatch}
             selectedLayout={selectedLayout}
@@ -286,7 +349,6 @@ class Settings extends Component {
             handleUpdateSettings={this.handleUpdateSettings}
             settings={current.application}
             showGuestNotification={showGuestNotification}
-            showToggleLabel={showToggleLabel}
             displaySettingsStatus={this.displaySettingsStatus}
             isChatEnabled={isChatEnabled}
             {...{ isModerator }}
@@ -298,7 +360,6 @@ class Settings extends Component {
               <DataSaving
                 settings={current.dataSaving}
                 handleUpdateSettings={this.handleUpdateSettings}
-                showToggleLabel={showToggleLabel}
                 displaySettingsStatus={this.displaySettingsStatus}
                 isScreenSharingEnabled={isScreenSharingEnabled}
                 isVideoEnabled={isVideoEnabled}
@@ -317,6 +378,13 @@ class Settings extends Component {
             </Styled.SettingsTabPanel>
           )
           : null}
+        <Styled.SettingsTabPanel selectedClassName="is-selected">
+          <About
+            settings={current.application}
+            setIsShortcutModalOpen={setIsShortcutModalOpen}
+            setIsOpen={setIsOpen}
+          />
+        </Styled.SettingsTabPanel>
       </Styled.SettingsTabs>
     );
   }
@@ -326,51 +394,75 @@ class Settings extends Component {
       intl,
       setIsOpen,
       isOpen,
-      priority,
       setLocalSettings,
+      modalHeight,
+      modalWidth,
     } = this.props;
-    const {
-      current,
-      saved,
-    } = this.state;
+    const { current, saved, unsavedModalOpen } = this.state;
+
+    if (unsavedModalOpen) {
+      return (
+        <Styled.UnsavedChangesModal
+          title={intl.formatMessage(intlMessages.unsavedChangesModalTitle)}
+          modalisOpen={unsavedModalOpen}
+          dismiss={{
+            callback: () => this.setState({ unsavedModalOpen: false }),
+          }}
+          onRequestClose={() => this.setState({ unsavedModalOpen: false })}
+        >
+          <Styled.UnsavedChangesContent>
+            <Styled.UnsavedChangesText>
+              {intl.formatMessage(intlMessages.unsavedChangesMessage)}
+            </Styled.UnsavedChangesText>
+            <Styled.UnsavedChangesIgnoreText>
+              {intl.formatMessage(intlMessages.unsavedChangesIgnoreMessage)}
+            </Styled.UnsavedChangesIgnoreText>
+            <Styled.UnsavedActionsContainer>
+              <Styled.ActionButton onClick={() => this.setState({ unsavedModalOpen: false })}>
+                {intl.formatMessage(intlMessages.CancelLabel)}
+              </Styled.ActionButton>
+              <Styled.ActionButton onClick={this.handleIgnoreChanges}>
+                {intl.formatMessage(intlMessages.unsavedChangesIgnoreButtonLabel)}
+              </Styled.ActionButton>
+            </Styled.UnsavedActionsContainer>
+          </Styled.UnsavedChangesContent>
+        </Styled.UnsavedChangesModal>
+      );
+    }
+
     return (
-      <ModalFullscreen
+      <Styled.Modal
         title={intl.formatMessage(intlMessages.SettingsLabel)}
-        confirm={{
-          callback: () => {
-            this.updateSettings(current, intlMessages.savedAlertLabel, setLocalSettings);
-
-            if (saved.application.locale !== current.application.locale) {
-              const { language } = formatLocaleCode(saved.application.locale);
-              const newLanguage = current.application.locale;
-              setUseCurrentLocale(newLanguage);
-              document.body.classList.remove(`lang-${language}`);
-            }
-
-            /* We need to use setIsOpen(false) here to prevent submenu state updates,
-            *  from re-opening the modal.
-            */
-            setIsOpen(false);
-          },
-          label: intl.formatMessage(intlMessages.SaveLabel),
-          description: intl.formatMessage(intlMessages.SaveLabelDesc),
-        }}
+        width={modalWidth}
+        height={modalHeight}
+        modalisOpen={isOpen}
         dismiss={{
-          callback: () => {
-            Settings.setHtmlFontSize(saved.application.fontSize);
-            document.getElementsByTagName('html')[0].lang = saved.application.locale;
-            setIsOpen(false);
-          },
-          label: intl.formatMessage(intlMessages.CancelLabel),
-          description: intl.formatMessage(intlMessages.CancelLabelDesc),
+          callback: this.handleClose,
         }}
-        {...{
-          isOpen,
-          priority,
-        }}
+        onRequestClose={this.handleClose}
       >
         {this.renderModalContent()}
-      </ModalFullscreen>
+        <Styled.ActionsContainer>
+          <Styled.ActionButton onClick={this.performClose}>
+            {intl.formatMessage(intlMessages.CancelLabel)}
+          </Styled.ActionButton>
+          <Styled.ActionButton
+            data-test="saveSettingsButton"
+            onClick={() => {
+              this.updateSettings(current, intlMessages.savedAlertLabel, setLocalSettings);
+              if (saved.application.locale !== current.application.locale) {
+                const { language } = formatLocaleCode(saved.application.locale);
+                const newLanguage = current.application.locale;
+                setUseCurrentLocale(newLanguage);
+                document.body.classList.remove(`lang-${language}`);
+              }
+              setIsOpen(false);
+            }}
+          >
+            {intl.formatMessage(intlMessages.SaveLabel)}
+          </Styled.ActionButton>
+        </Styled.ActionsContainer>
+      </Styled.Modal>
     );
   }
 }

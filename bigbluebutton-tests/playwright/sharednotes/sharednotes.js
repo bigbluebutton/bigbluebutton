@@ -1,14 +1,18 @@
-const { default: test } = require('@playwright/test');
 const { MultiUsers } = require('../user/multiusers');
-const { getSettings } = require('../core/settings');
 const e = require('../core/elements');
-const { startSharedNotes, getNotesLocator, getShowMoreButtonLocator, getExportButtonLocator, getExportPlainTextLocator, getSharedNotesUserWithoutPermission, getExportHTMLLocator, getExportEtherpadLocator } = require('./util');
 const { expect } = require('@playwright/test');
 const { ELEMENT_WAIT_TIME } = require('../core/constants');
 const { sleep } = require('../core/helpers');
-const { readFileSync } = require('fs');
 const { checkTextContent } = require('../core/util');
-const { domainToASCII } = require('url');
+const { startSharedNotes,
+  getNotesLocator,
+  getShowMoreButtonLocator,
+  getExportButtonLocator,
+  getExportPlainTextLocator,
+  getSharedNotesUserWithoutPermission,
+  getExportHTMLLocator,
+  getExportEtherpadLocator,
+} = require('./util');
 
 class SharedNotes extends MultiUsers {
   constructor(browser, context) {
@@ -16,10 +20,10 @@ class SharedNotes extends MultiUsers {
   }
 
   async openSharedNotes() {
-    const { sharedNotesEnabled } = getSettings();
-    if(!sharedNotesEnabled) {
+    const { sharedNotesEnabled } = this.modPage.settings;
+    if (!sharedNotesEnabled) {
       await this.modPage.hasElement(e.chatButton, 'should display the public chat button');
-      return this.modPage.wasRemoved(e.sharedNotes, 'should not display the shared notes button');
+      return this.modPage.wasRemoved(e.sharedNotesSidebarButton, 'should not display the shared notes button');
     }
     await startSharedNotes(this.modPage);
     const sharedNotesContent = await getNotesLocator(this.modPage);
@@ -30,10 +34,10 @@ class SharedNotes extends MultiUsers {
   }
 
   async typeInSharedNotes() {
-    const { sharedNotesEnabled } = getSettings();
-    if(!sharedNotesEnabled) {
+    const { sharedNotesEnabled } = this.modPage.settings;
+    if (!sharedNotesEnabled) {
       await this.modPage.hasElement(e.chatButton, 'should display the public chat button');
-      return this.modPage.wasRemoved(e.sharedNotes, 'should not display the shared notes button');
+      return this.modPage.wasRemoved(e.sharedNotesSidebarButton, 'should not display the shared notes button');
     }
     await startSharedNotes(this.modPage);
     const notesLocator = getNotesLocator(this.modPage);
@@ -43,10 +47,10 @@ class SharedNotes extends MultiUsers {
     await expect(notesLocator, 'should contain the edited text on shared notes').toContainText(editedMessage, { timeout: ELEMENT_WAIT_TIME });
 
     //! avoiding the following screenshot comparison due to https://github.com/microsoft/playwright/issues/18827
-    // const wbBox = await this.modPage.getLocator(e.etherpadFrame);
-    // await expect(wbBox).toHaveScreenshot('sharednotes-type.png', {
-    //   maxDiffPixels: 100,
-    // });
+    const wbBox = await this.modPage.getLocator(e.etherpadFrame);
+    await expect(wbBox).toHaveScreenshot('sharednotes-type.png', {
+      maxDiffPixels: 100,
+    });
 
     await notesLocator.press('Control+Z');
     await notesLocator.press('Control+Z');
@@ -57,10 +61,10 @@ class SharedNotes extends MultiUsers {
   }
 
   async formatTextInSharedNotes() {
-    const { sharedNotesEnabled } = getSettings();
-    if(!sharedNotesEnabled) {
+    const { sharedNotesEnabled } = this.modPage.settings;
+    if (!sharedNotesEnabled) {
       await this.modPage.hasElement(e.chatButton, 'should display the public chat button');
-      return this.modPage.wasRemoved(e.sharedNotes, 'should not display the shared notes button');
+      return this.modPage.wasRemoved(e.sharedNotesSidebarButton, 'should not display the shared notes button');
     }
     await startSharedNotes(this.modPage);
     const notesLocator = getNotesLocator(this.modPage);
@@ -90,10 +94,10 @@ class SharedNotes extends MultiUsers {
   }
 
   async exportSharedNotes(testInfo) {
-    const { sharedNotesEnabled } = getSettings();
-    if(!sharedNotesEnabled) {
+    const { sharedNotesEnabled } = this.modPage.settings;
+    if (!sharedNotesEnabled) {
       await this.modPage.hasElement(e.chatButton, 'should display the public chat button');
-      return this.modPage.wasRemoved(e.sharedNotes, 'should not display the shared notes button');
+      return this.modPage.wasRemoved(e.sharedNotesSidebarButton, 'should not display the shared notes button');
     }
     await startSharedNotes(this.modPage);
     const notesLocator = getNotesLocator(this.modPage);
@@ -132,10 +136,10 @@ class SharedNotes extends MultiUsers {
   }
 
   async convertNotesToWhiteboard() {
-    const { sharedNotesEnabled } = getSettings();
-    if(!sharedNotesEnabled) {
+    const { sharedNotesEnabled } = this.modPage.settings;
+    if (!sharedNotesEnabled) {
       await this.modPage.hasElement(e.chatButton, 'should display the public chat button');
-      return this.modPage.wasRemoved(e.sharedNotes, 'should not display the shared notes button');
+      return this.modPage.wasRemoved(e.sharedNotesSidebarButton, 'should not display the shared notes button');
     }
     await startSharedNotes(this.modPage);
     const notesLocator = getNotesLocator(this.modPage);
@@ -156,10 +160,10 @@ class SharedNotes extends MultiUsers {
   }
 
   async editSharedNotesWithMoreThanOneUSer() {
-    const { sharedNotesEnabled } = getSettings();
-    if(!sharedNotesEnabled) {
+    const { sharedNotesEnabled } = this.modPage.settings;
+    if (!sharedNotesEnabled) {
       await this.modPage.hasElement(e.chatButton, 'should display the public chat button');
-      return this.modPage.wasRemoved(e.sharedNotes, 'should not display the shared notes button');
+      return this.modPage.wasRemoved(e.sharedNotesSidebarButton, 'should not display the shared notes button');
     }
     await startSharedNotes(this.modPage);
     const notesLocator = getNotesLocator(this.modPage);
@@ -179,51 +183,39 @@ class SharedNotes extends MultiUsers {
   }
 
   async seeNotesWithoutEditPermission() {
-    const { sharedNotesEnabled } = getSettings();
-    if(!sharedNotesEnabled) {
+    const { sharedNotesEnabled } = this.modPage.settings;
+    if (!sharedNotesEnabled) {
       await this.modPage.hasElement(e.chatButton, 'should display the public chat button');
-      return this.modPage.wasRemoved(e.sharedNotes, 'should not display the shared notes button');
+      return this.modPage.wasRemoved(e.sharedNotesSidebarButton, 'should not display the shared notes button');
     }
-
+    // type on shared notes as moderator
     await startSharedNotes(this.modPage);
     const notesLocator = getNotesLocator(this.modPage);
     await notesLocator.type('Hello');
-
+    // lock shared notes
     await startSharedNotes(this.userPage);
-
-    await this.modPage.waitAndClick(e.manageUsers);
+    await this.modPage.waitAndClick(e.usersListSidebarButton);
     await this.modPage.waitAndClick(e.lockViewersButton);
     await this.modPage.waitAndClickElement(e.lockEditSharedNotes);
     await this.modPage.waitAndClick(e.applyLockSettings);
-
+    // check text content on shared notes as attendee (locked)
     const notesLocatorUser = getSharedNotesUserWithoutPermission(this.userPage);
     await expect(notesLocatorUser, 'should the shared notes contain the text "Hello" for the attendee').toContainText(/Hello/, { timeout: 20000 });
-    await this.userPage.wasRemoved(e.etherpadFrame);
-
-    await this.modPage.waitAndClick(e.manageUsers);
-    await this.modPage.waitAndClick(e.lockViewersButton);
-    await this.modPage.waitAndClickElement(e.lockEditSharedNotes);
-    await this.modPage.waitAndClick(e.applyLockSettings);
-    
-    await this.modPage.waitAndClick(e.hideNotesLabel);
-    await this.modPage.wasRemoved(e.hideNotesLabel, 'should not display the hide notes button for the moderator');
-
-    await this.userPage.waitAndClick(e.hideNotesLabel);
-    await this.userPage.wasRemoved(e.hideNotesLabel, 'should not display the hide notes button for the attendee');
+    await this.userPage.wasRemoved(e.etherpadFrame, 'should not display the etherpad frame for the attendee as the shared notes are locked for editing');
   }
 
   async pinAndUnpinNotesOntoWhiteboard() {
-    const { sharedNotesEnabled } = getSettings();
-    if(!sharedNotesEnabled) {
+    const { sharedNotesEnabled } = this.modPage.settings;
+    if (!sharedNotesEnabled) {
       await this.modPage.hasElement(e.chatButton, 'should display the public chat button');
-      return this.modPage.wasRemoved(e.sharedNotes, 'should not display the shared notes button');
+      return this.modPage.wasRemoved(e.sharedNotesSidebarButton, 'should not display the shared notes button');
     }
-    // wait for the whiteboard to load
     await this.modPage.waitForSelector(e.whiteboard);
-    await this.modPage.closeAllToastNotifications();
+    await this.userPage.waitForSelector(e.whiteboard);
+    // user minimize presentation
     await this.userPage.waitAndClick(e.minimizePresentation);
     await this.userPage.hasElement(e.restorePresentation, 'should display the restore presentation button for the attendee');
-    // open shared notes and type
+    // type on shared notes as moderator
     await startSharedNotes(this.modPage);
     const notesLocator = getNotesLocator(this.modPage);
     await notesLocator.type('Hello');
@@ -232,26 +224,29 @@ class SharedNotes extends MultiUsers {
     await this.modPage.waitAndClick(e.pinNotes);
     await this.modPage.hasElement(e.unpinNotes, 'should display the unpin notes button');
     await this.userPage.hasElement(e.minimizePresentation, 'should display the minimize presentation button for the attendee');
+    // check text content on pinned shared notes as attendee
     const notesLocatorUser = getNotesLocator(this.userPage);
     await expect(notesLocator, 'should display the text "Hello" on the shared notes for the moderator').toContainText(/Hello/, { timeout: 20000 });
     await expect(notesLocatorUser, 'should display the text "Hello" on the shared notes for the attendee').toContainText(/Hello/);
     // unpin notes
-    await this.modPage.hasElement(e.smallToastMsg, 'should display the toast notification about notes pinned for the moderator');
     await this.modPage.closeAllToastNotifications();
     await this.modPage.waitAndClick(e.unpinNotes);
-    await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard for the moderator');
-    await this.userPage.hasElement(e.whiteboard, 'should display the whiteboard for the attendee');
-    // pin notes again
+    await this.modPage.hasElement(e.whiteboard, 'should restore the presentation for the moderator (previous state)');
+    await this.userPage.wasRemoved(e.whiteboard, 'should not restore the presentation for the attendee as it was minimized before pinning the notes (previous state)');
+    await this.userPage.waitAndClick(e.restorePresentation);
+    // pin notes again as moderator
     await startSharedNotes(this.modPage);
     await this.modPage.waitAndClick(e.notesOptions);
     await this.modPage.waitAndClick(e.pinNotes);
-    await this.modPage.hasElement(e.unpinNotes, 'should display the unpin notes button for the moderator');
-    // make viewer as presenter and unpin pinned notes
-    await this.modPage.waitAndClick(e.userListItem);
+    await this.modPage.hasElement(e.unpinNotes, 'should display the unpin notes button for the moderator after pinning the notes again');
+    // make viewer as presenter and unpin notes
+    await this.modPage.waitAndClick(e.usersListSidebarButton);
+    await this.modPage.waitAndClick(e.moreOptionsUserItemButton);
     await this.modPage.waitAndClick(e.makePresenter);
+    await this.userPage.closeAllToastNotifications();
     await this.userPage.waitAndClick(e.unpinNotes);
-    await this.userPage.hasElement(e.whiteboard, 'should display the whiteboard for the attendee');
-    await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard for the moderator');
+    await this.userPage.hasElement(e.whiteboard, 'should restore the presentation for the attendee (previous state)');
+    await this.modPage.hasElement(e.whiteboard, 'should restore the presentation for the moderator (previous state)');
   }
 
   async editMessage() {

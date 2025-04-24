@@ -16,9 +16,9 @@ import AudioDial from '../audio-dial/component';
 import AudioAutoplayPrompt from '../autoplay/component';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
-import { SET_AWAY } from '/imports/ui/components/user-list/user-list-content/user-participants/user-list-participants/user-actions/mutations';
+import { SET_AWAY } from '/imports/ui/components/user-list/user-list-participants/list-item/mutations';
 import VideoService from '/imports/ui/components/video-provider/service';
-import AudioCaptionsSelectContainer from '../audio-graphql/audio-captions/captions/component';
+import AudioCaptionsSpeechControls from '/imports/ui/components/audio-captions/panel/speech/component';
 import useToggleVoice from '/imports/ui/components/audio/audio-graphql/hooks/useToggleVoice';
 import {
   muteAway,
@@ -224,6 +224,7 @@ const AudioModal = ({
   const [errorInfo, setErrorInfo] = useState(null);
   const [autoplayChecked, setAutoplayChecked] = useState(false);
   const [findingDevices, setFindingDevices] = useState(false);
+  const [initialJoinExecuted, setInitialJoinExecuted] = useState(false);
   const [setAway] = useMutation(SET_AWAY);
   const voiceToggle = useToggleVoice();
 
@@ -492,7 +493,7 @@ const AudioModal = ({
             }}
           />
         ) : null}
-        {joinFullAudioImmediately && <AudioCaptionsSelectContainer />}
+        {joinFullAudioImmediately && <AudioCaptionsSpeechControls showTerms audioModal />}
       </div>
     );
   };
@@ -661,7 +662,12 @@ const AudioModal = ({
       if (forceListenOnlyAttendee || audioLocked) {
         handleJoinListenOnly();
       } else if (!listenOnlyMode) {
-        if (joinFullAudioImmediately) {
+        // Audio join should only be automatic if the prop says so, listen only
+        // mode is off, and automatic audio join hasn't been tried yet. For the
+        // latter, the reason is that we don't want to loop audio join retries
+        // if an error occurs.
+        if (joinFullAudioImmediately && !initialJoinExecuted) {
+          setInitialJoinExecuted(true);
           checkMicrophonePermission({ doGUM: true, permissionStatus })
             .then((hasPermission) => {
               // No permission - let the Help screen be shown as it's triggered
@@ -684,6 +690,7 @@ const AudioModal = ({
     forceListenOnlyAttendee,
     joinFullAudioImmediately,
     listenOnlyMode,
+    initialJoinExecuted,
   ]);
 
   useEffect(() => {

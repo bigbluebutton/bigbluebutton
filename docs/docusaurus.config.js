@@ -15,6 +15,7 @@ const config = {
     onBrokenLinks: 'throw',
     onBrokenMarkdownLinks: 'warn',
     favicon: 'img/favicon.ico',
+    trailingSlash: true,
 
     // GitHub pages deployment config.
     // If you aren't using GitHub pages, you don't need these.
@@ -29,6 +30,11 @@ const config = {
         locales: ['en'],
     },
 
+    scripts: [
+        // Cookie consent control required for GDPR. Token is not required to be renewed. Update hN querystring to match domain.
+        'https://cdn.baycloud.com/cl.js?cid=9be233bfe3004dc49e742fd0fa98642c&hN=docs.bigbluebutton.org'
+    ],
+    
     presets: [
         [
             'classic',
@@ -37,11 +43,92 @@ const config = {
                 docs: {
                     routeBasePath: "/",
                     sidebarPath: require.resolve('./sidebars.js'),
+                    lastVersion: '2.7',
+                    includeCurrentVersion: false,
+                    versions: {
+                        '2.5-legacy': {
+                            banner: 'none'
+                        },
+                        '2.6': {
+                            banner: 'none'
+                        },
+                        '3.0': {
+                            banner: 'none'
+                        },
+                        '2.7': {
+                            banner: 'none'
+                        },
+                    }
                 },
                 theme: {
                     customCss: require.resolve('./src/css/custom.css'),
                 },
             }),
+        ],
+    ],
+
+    plugins: [
+        [
+            "@docusaurus/plugin-client-redirects",
+            {
+                fromExtensions: ['html', 'htm'],
+                redirects: [
+                    {
+                        to: "/2.6/new-features/",
+                        from: "/2.6/new/"
+                    },
+                    {
+                        to: "/2.6/new-features/",
+                        from: "/2.6/new.html"
+                    },
+                    {
+                        to: "/new-features/",
+                        from: "/2.7/new-features/"
+                    },                    {
+                        to: "/3.0/new-features/",
+                        from: "/3.0/new/"
+                    },
+                    {
+                        to: "/development/api/",
+                        from: "/dev/api.html"
+                    },
+                    {
+                        to: "/greenlight/v3/migration/",
+                        from: "/greenlight_v3/gl3-migration.html"
+                    }
+                ],
+                // We interpret the path argument as the path "to"
+                // and the return of this function as the paths "from"
+                createRedirects: (path) =>  {
+                    // TODO: remove default route to /
+                    const redirect_list = [];
+
+                    // Create redirect paths for all routes except 2.5 or 2.6 ones
+                    if ( !(path.startsWith("/2.5") || path.startsWith("/2.6"))){
+                        redirect_list.push("/2.7" + path);
+                    }
+
+                    if ( path.includes("/testing/release-testing") ){
+                        redirect_list.push( path.replace("/testing/release-testing", "/release-tests.html") )
+                    }
+                    // Handle the old docs group /admin
+                    if ( path.startsWith("/administration") ) {
+                        // creates new routes /admin/something pointing to /administration
+                        redirect_list.push( path.replace("/administration", "/admin") );
+                    }
+                    // handle the old docs group /dev
+                    if ( path.startsWith("/development") ) {
+                        // creates new routes /dev/something pointing to /development
+                        redirect_list.push( path.replace("/development", "/dev") );
+                    }
+                    // redirect old links to the now modified url (includes -legacy)
+                    if ( path.startsWith("/2.5") ) {
+                        redirect_list.push( path.replace("/2.5", "/2.5-legacy") );
+                    }
+
+                    return redirect_list;
+                },
+            }
         ],
     ],
 

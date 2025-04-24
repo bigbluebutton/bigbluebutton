@@ -1,3 +1,5 @@
+import * as ReactDOM from 'react-dom/client';
+
 interface ActionBar {
     hasActionBar?: boolean;
     height: number;
@@ -191,23 +193,37 @@ interface SidebarContentHorizontalResizer {
     width: number;
 }
 
-interface SidebarNavigation {
+interface Widget {
+    name: string;
+    icon: string;
+}
+
+export interface NativeWidget extends Widget {}
+
+export interface InjectedWidget extends Widget {
+    contentFunction: (element: HTMLElement) => ReactDOM.Root;
+}
+
+export interface InjectedAppGalleryItem extends Widget {
+    onClick: () => void;
+}
+
+export interface registeredApps {
+    [key: string]: NativeWidget | InjectedWidget | InjectedAppGalleryItem;
+}
+
+export interface SidebarNavigation {
     browserWidth?: number;
     isOpen?: boolean;
-    sidebarNavPanel?: string;
     width: number;
     height: number;
     display?: boolean;
-    isResizable?: boolean;
     left?: number;
-    maxHeight?: number;
-    maxWidth?: number;
-    minHeight?: number;
-    minWidth?: number;
-    resizableEdge?: ResizableEdge;
     tabOrder?: number;
     top?: number;
     zIndex?: number;
+    registeredApps?: registeredApps;
+    pinnedApps?: string[];
 }
 
 interface Fullscreen {
@@ -291,7 +307,7 @@ interface Layout {
 
 interface ActionForDispatcher {
   type: string;
-  value: object;
+  value: object | boolean | string;
 }
 
 type DispatcherFunction = (action: ActionForDispatcher) => void;

@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 import ReactPlayer from 'react-player';
 import React from 'react';
+import { lgBorderRadius } from '/imports/ui/stylesheets/styled-components/general';
 
 type VideoPlayerWrapperProps = {
   fullscreen: boolean;
@@ -17,6 +18,7 @@ export const Container = styled.span<ContainerProps>`
   pointer-events: inherit;
   background: var(--color-black);
   overflow: hidden;
+  border-radius: ${lgBorderRadius};
 
   ${({ isResizing }) => isResizing && `
     pointer-events: none;

@@ -15,6 +15,9 @@ import {
   colorSuccess,
   colorDanger,
   colorBackground,
+  colorUserViewer,
+  colorUserModerator,
+  colorUserYou,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   fontSizeBase,
@@ -112,10 +115,51 @@ const TalkingIndicatorButton = styled(Button)`
     }
   `}
 
-  ${({ $isViewer }) => $isViewer
-    && `
+  ${({ $isViewer }) => $isViewer && `
     cursor: default;
     pointer-events: none;
+  `}
+
+  ${({ $talkingUserIsViewer }) => $talkingUserIsViewer && `
+    border: solid 2px ${colorUserViewer} !important;
+    background-color: ${colorUserViewer} !important;
+    &:hover {
+      background-color: ${colorUserViewer} !important;
+      color: ${colorWhite} !important;
+    }
+    
+    &:focus {
+      background-color: ${colorUserViewer} !important;
+      color: ${colorWhite} !important;
+    }
+  `}
+  
+  ${({ $moderator }) => $moderator && `
+    border: solid 2px ${colorUserModerator} !important;
+    background-color: ${colorUserModerator} !important;
+    &:hover {
+      background-color: ${colorUserModerator} !important;
+      color: ${colorWhite} !important;
+    }
+    
+    &:focus {
+      background-color: ${colorUserModerator} !important;
+      color: ${colorWhite} !important;
+    }
+  `}
+
+  ${({ $you }) => $you && `
+    border: solid 2px ${colorUserYou} !important;
+    background-color: ${colorUserYou} !important;
+    &:hover {
+      background-color: ${colorUserYou} !important;
+      color: ${colorWhite} !important;
+    }
+    
+    &:focus {
+      background-color: ${colorUserYou} !important;
+      color: ${colorWhite} !important;
+    }
   `}
 `;
 

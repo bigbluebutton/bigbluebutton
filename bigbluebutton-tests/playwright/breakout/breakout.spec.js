@@ -47,7 +47,7 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
     test('Join Breakout room', async ({ browser, context, page }) => {
       const join = new Join(browser, context);
       await join.initPages(page);
-      await join.create()
+      await join.create();
       await join.joinRoom();
     });
 

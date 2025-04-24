@@ -103,6 +103,7 @@ const SessionDetails: React.FC<SessionDetailsProps> = (props) => {
         label: intl.formatMessage(intlMessages.dismissLabel),
         description: intl.formatMessage(intlMessages.dismissDesc),
       }}
+      data-test="sessionDetailsModal"
       {...{
         isOpen,
         onRequestClose,

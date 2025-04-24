@@ -5,7 +5,7 @@ const { getSettings } = require('../core/settings');
 async function openPublicChat(testPage) {
   const { chatEnabled } = getSettings();
 
-  if(!chatEnabled) {
+  if (!chatEnabled) {
     return testPage.wasRemoved(e.chatButton, 'public chat should not be displayed');
   }
 
@@ -16,10 +16,11 @@ async function openPublicChat(testPage) {
 
 async function openPrivateChat(testPage) {
   const { chatEnabled } = getSettings();
+  await testPage.waitAndClick(e.usersListSidebarButton);
+  await testPage.waitForSelector(e.userListItem);
 
-  await testPage.waitAndClick(e.userListItem);
-  if(!chatEnabled) {
-    return await testPage.wasRemoved(e.startPrivateChat, 'should not display the private chat');
+  if (!chatEnabled) {
+    return testPage.wasRemoved(e.startPrivateChat, 'should not display the private chat');
   }
   const lastUserStartPrivateChat = await testPage.getLocator(e.startPrivateChat).last();
   await testPage.clickOnLocator(lastUserStartPrivateChat);

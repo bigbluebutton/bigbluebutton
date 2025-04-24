@@ -8,7 +8,6 @@ type IconProps = {
 const Icon = styled.i<IconProps>`
   ${({ $rotate }) => $rotate && `
     transform: rotate(180deg);
-    margin-top: 20%;
   `}
 `;
 

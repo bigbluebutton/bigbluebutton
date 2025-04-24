@@ -1,6 +1,6 @@
 const { test } = require('../fixtures');
 const { fullyParallel } = require('../playwright.config');
-const { initializePages } = require('../core/helpers');
+const { initializePages, linkIssue } = require('../core/helpers');
 const { Chat } = require('./chat');
 
 test.describe('Chat', { tag: '@ci' }, () => {
@@ -54,8 +54,8 @@ test.describe('Chat', { tag: '@ci' }, () => {
     await chat.emojiCopyChat();
   });
 
-  test('Close private chat', async () => {
-    await chat.closePrivateChat();
+  test('Hide public messages', async () => {
+    await chat.hidePublicMessages();
   });
 
   test('Save chat with emoji', { tag: '@setting-required:chat.emojiPicker' }, async ({}, testInfo) => {

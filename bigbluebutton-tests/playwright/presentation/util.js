@@ -29,10 +29,11 @@ async function getCurrentPresentationHeight(locator) {
 
 async function uploadSinglePresentation(testPage, fileName, uploadTimeout = UPLOAD_PDF_WAIT_TIME) {
   const firstSlideSrc = await testPage.page.evaluate(selector => document.querySelector(selector)
-    ?.style.backgroundImage.split('"')[1],
-    [e.currentSlideImg],
-  );
-  await testPage.waitAndClick(e.actions);
+    ?.style
+    .backgroundImage
+    .split('"')[1],
+  [e.currentSlideImg]);
+  await testPage.waitAndClick(e.mediaAreaButton);
   await testPage.waitAndClick(e.managePresentations);
   await testPage.hasElement(e.presentationFileUpload, 'should display the presentation space for uploading a new file, when the manage presentations is opened');
 
@@ -53,7 +54,7 @@ async function uploadSinglePresentation(testPage, fileName, uploadTimeout = UPLO
 }
 
 async function uploadMultiplePresentations(testPage, fileNames, uploadTimeout = ELEMENT_WAIT_EXTRA_LONG_TIME) {
-  await testPage.waitAndClick(e.actions);
+  await testPage.waitAndClick(e.mediaAreaButton);
   await testPage.waitAndClick(e.managePresentations);
   await testPage.hasElement(e.presentationFileUpload, 'should display the modal for uploading a new presentation after opening the manage presentations');
 

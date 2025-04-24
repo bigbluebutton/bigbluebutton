@@ -9,13 +9,13 @@ import { defineMessages, useIntl } from 'react-intl';
 import {
   useMutation,
 } from '@apollo/client';
-import Header from '/imports/ui/components/common/control-header/component';
 import Styled from './styles';
 import GET_TIMER, { GetTimerResponse, TimerData } from '../../../core/graphql/queries/timer';
 import logger from '/imports/startup/client/logger';
 import { layoutDispatch } from '../../layout/context';
 import { ACTIONS, PANELS } from '../../layout/enums';
 import {
+  TIMER_ACTIVATE,
   TIMER_RESET,
   TIMER_SET_SONG_TRACK,
   TIMER_SET_TIME,
@@ -42,7 +42,7 @@ const TRACKS = [
 
 const intlMessages = defineMessages({
   hideTimerLabel: {
-    id: 'app.timer.hideTimerLabel',
+    id: 'app.sidebarContent.minimizePanelLabel',
     description: 'Label for hiding timer button',
   },
   title: {
@@ -385,14 +385,23 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
       data-test={`${stopwatch ? 'stopwatch' : 'timer'}Container`}
     >
       {/* @ts-ignore - JS code */}
-      <Header
+      <Styled.HeaderContainer
+        title={intl.formatMessage(intlMessages.title)}
         leftButtonProps={{
           onClick: closePanel,
-          'aria-label': intl.formatMessage(intlMessages.hideTimerLabel),
+          'aria-label': intl.formatMessage(intlMessages.hideTimerLabel, { 0: intl.formatMessage(intlMessages.timer) }),
           label: intl.formatMessage(headerMessage),
+        }}
+        rightButtonProps={{
+          'aria-label': intl.formatMessage(intlMessages.hideTimerLabel, { 0: intl.formatMessage(intlMessages.timer) }),
+          'data-test': 'closeTimer',
+          icon: 'minus',
+          label: intl.formatMessage(intlMessages.hideTimerLabel, { 0: intl.formatMessage(intlMessages.timer) }),
+          onClick: closePanel,
         }}
         data-test="timerHeader"
       />
+      <Styled.Separator />
       <Styled.TimerContent>
         <Styled.TimerCurrent
           aria-hidden
@@ -430,11 +439,23 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
 
 const TimerPanelContaier: React.FC = () => {
   const [timeSync] = useTimeSync();
+  const [timerActivate] = useMutation(TIMER_ACTIVATE);
+
   const {
     loading: timerLoading,
     error: timerError,
     data: timerData,
   } = useDeduplicatedSubscription<GetTimerResponse>(GET_TIMER);
+
+  const activateTimer = useCallback(() => {
+    const TIMER_CONFIG = window.meetingClientSettings.public.timer;
+    const MILLI_IN_MINUTE = 60000;
+    const stopwatch = true;
+    const running = false;
+    const time = TIMER_CONFIG.time * MILLI_IN_MINUTE;
+
+    return timerActivate({ variables: { stopwatch, running, time } });
+  }, []);
 
   if (timerLoading || !timerData) return null;
 
@@ -464,6 +485,8 @@ const TimerPanelContaier: React.FC = () => {
   ) : (
     Math.floor(((timer.time) - (timer.accumulated + (timer.running ? timeDifferenceMs : 0)))));
 
+  if (!timer.active) activateTimer();
+
   return (
     <TimerPanel
       stopwatch={timer.stopwatch ?? false}
@@ -471,7 +494,7 @@ const TimerPanelContaier: React.FC = () => {
       running={timer.running ?? false}
       timePassed={timePassed}
       accumulated={timer.accumulated}
-      active={timer.active ?? false}
+      active
       time={timer.time}
       startedOn={timer.startedOn}
       startedAt={timer.startedAt}

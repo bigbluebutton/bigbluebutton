@@ -16,7 +16,7 @@ do
 done
 
 if [ ! -d ./node_modules ] ; then
-	npm install
+	npm ci
 fi
 
 sudo cp bbb-docs.nginx /usr/share/bigbluebutton/nginx/bbb-docs.nginx
