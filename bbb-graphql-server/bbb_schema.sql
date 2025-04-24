@@ -283,7 +283,7 @@ CREATE UNLOGGED TABLE "user" (
 	"avatar" varchar(500),
     "webcamBackground" varchar(500),
 	"color" varchar(7),
-    "authToken" varchar(16),
+    "authToken" varchar(50),
     "authed" bool,
     "joined" bool,
     "firstJoinedAt" timestamp with time zone,
