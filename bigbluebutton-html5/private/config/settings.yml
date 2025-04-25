@@ -950,7 +950,7 @@ public:
             maxBitrate: 48000
             networkPriority: 'high'
             priority: 'high'
-          dtx: true
+          dtx: false
           red: true
           forceStereo: false
       camera:
