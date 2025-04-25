@@ -59,7 +59,7 @@ public class PresentationProcessExternal {
                 "-p", "MemoryHigh=" + pageConversionMemoryHigh,
                 "-p", "MemoryMax=" + pageConversionMemoryMax,
                 "-p", "MemorySwapMax=0",
-                "/usr/local/bin/bbb-process-pdf-page.sh",
+                "/usr/share/bbb-web/bbb-process-pdf-page.sh",
                 meetingId + "_" + presentationId +"_" + page
         );
 
@@ -95,7 +95,7 @@ public class PresentationProcessExternal {
                 "-p", "MemoryHigh=" + pageConversionMemoryHigh,
                 "-p", "MemoryMax=" + pageConversionMemoryMax,
                 "-p", "MemorySwapMax=0",
-                "/usr/local/bin/bbb-process-image.sh",
+                "/usr/share/bbb-web/bbb-process-image.sh",
                 meetingId + "_" + presentationId +"_1_" + fileType
         );
 

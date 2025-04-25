@@ -16,7 +16,7 @@ rm -rf $STAGING
 
 #
 # Create directory for fpm to process
-DIRS="/var/bigbluebutton/configs /var/log/bigbluebutton /var/log/bigbluebutton/html5 /usr/bin"
+DIRS="/var/bigbluebutton/configs /var/log/bigbluebutton /var/log/bigbluebutton/html5"
 for dir in $DIRS; do
   mkdir -p "${STAGING}/${dir}"
 done
@@ -84,8 +84,8 @@ cp ../bbb-web.env "$STAGING"/etc/default/bbb-web
 mkdir -p "$STAGING"/lib/systemd/system
 cp ../bbb-web.service "$STAGING"/lib/systemd/system
 
-cp ../bbb-process-image.sh "$STAGING"/usr/bin
-cp ../bbb-process-pdf-page.sh "$STAGING"/usr/bin
+cp ../bbb-process-image.sh "$STAGING"/usr/share/bbb-web
+cp ../bbb-process-pdf-page.sh "$STAGING"/usr/share/bbb-web
 
 pushd "$STAGING"/usr/share/bbb-web
 jar -xvf bigbluebutton-0.10.0.war
