@@ -60,7 +60,9 @@ public class PresentationProcessExternal {
                 "-p", "MemoryMax=" + pageConversionMemoryMax,
                 "-p", "MemorySwapMax=0",
                 "/usr/share/bbb-web/bbb-process-pdf-page.sh",
-                meetingId + "_" + presentationId +"_" + page
+                meetingId,
+                presentationId,
+                Integer.toString(page)
         );
 
 
@@ -96,7 +98,10 @@ public class PresentationProcessExternal {
                 "-p", "MemoryMax=" + pageConversionMemoryMax,
                 "-p", "MemorySwapMax=0",
                 "/usr/share/bbb-web/bbb-process-image.sh",
-                meetingId + "_" + presentationId +"_1_" + fileType
+                meetingId,
+                presentationId,
+                "1", //page
+                fileType
         );
 
         log.debug("Starting processing image [{}]", String.join(" ", command));

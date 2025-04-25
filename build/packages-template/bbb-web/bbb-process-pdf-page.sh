@@ -8,17 +8,18 @@ set -euo pipefail
 #source /etc/systemd/system/doc-process.env
 
 # Ensure exactly one argument is provided.
-if [ "$#" -ne 1 ]; then
-  echo "Usage: $0 <meetingId_presId_page>"
+if [ "$#" -ne 3 ]; then
+  echo "Usage: $0 <meetingId> <presId> <page>"
   exit 1
 fi
 
-# Parse input argument (expected format: meetingId_presId_page)
-IFS='_' read -r MEETING_ID PRESENTATION_ID PAGE_NUMBER <<<"$1"
+MEETING_ID=$1
+PRES_ID=$2
+PAGE_NUMBER=$3
 
 # Define directories and file paths based on the provided IDs.
-BASE_DIR="${PRESENTATIONS_DIR}/${MEETING_ID}/${MEETING_ID}/${PRESENTATION_ID}"
-PDF_FILE="${BASE_DIR}/${PRESENTATION_ID}.pdf"
+BASE_DIR="${PRESENTATIONS_DIR}/${MEETING_ID}/${MEETING_ID}/${PRES_ID}"
+PDF_FILE="${BASE_DIR}/${PRES_ID}.pdf"
 TEXT_DIR="${BASE_DIR}/textfiles"
 THUMBNAIL_DIR="${BASE_DIR}/thumbnails"
 PNG_DIR="${BASE_DIR}/pngs"
@@ -148,7 +149,7 @@ if [ "$REQUIRES_RASTERIZE" -eq 1 ]; then
   temp_png=$(mktemp)
   trap 'rm -f "${temp_png}"*' EXIT
 
-  PNG_FILE="${BASE_DIR}/${PRESENTATION_ID}_${PAGE_NUMBER}"
+  PNG_FILE="${BASE_DIR}/${PRES_ID}_${PAGE_NUMBER}"
 
   echo "Converting PDF page ${PAGE_NUMBER} to PNG."
 
@@ -177,7 +178,7 @@ if [ "$REQUIRES_RASTERIZE" -eq 1 ]; then
   fi
   echo "PNG file generated with size ${png_size} bytes." >&2
 
-  /usr/local/bin/bbb-process-image.sh "${MEETING_ID}_${PRESENTATION_ID}_${PAGE_NUMBER}_png"
+  /usr/share/bbb-web/bbb-process-image.sh ${MEETING_ID} ${PRES_ID} ${PAGE_NUMBER} png
   exit 0
 
 fi

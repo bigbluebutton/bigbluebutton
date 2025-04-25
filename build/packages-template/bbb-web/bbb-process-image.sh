@@ -12,17 +12,17 @@ set -euo pipefail
 #source /etc/systemd/system/doc-process.env
 
 # Validate input arguments
-if [ "$#" -ne 1 ]; then
-  echo "Usage: $0 <meetingId_presId_format>"
+if [ "$#" -ne 4 ]; then
+  echo "Usage: $0 <meetingId> <presId> <page> <format>"
   exit 1
 fi
 
-# Extract meeting ID, presentation ID, and image format from the input argument
-IFS='_' read -r MEETING_ID PRES_ID PAGE_NUMBER IMG_FORMAT <<<"$1"
+MEETING_ID=$1
+PRES_ID=$2
+PAGE_NUMBER=$3
+IMG_FORMAT=$4
 
 echo "Starting bbb-process-image"
-
-PAGE_NUMBER=${PAGE_NUMBER-1}
 
 # Define directory paths and file locations
 BASE_DIR="${PRESENTATIONS_DIR}/${MEETING_ID}/${MEETING_ID}/${PRES_ID}"
