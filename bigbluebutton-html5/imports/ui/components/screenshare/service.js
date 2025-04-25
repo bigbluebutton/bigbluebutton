@@ -47,11 +47,6 @@ export const setBridge = (bridgeName) => {
 
 export const SCREENSHARE_MEDIA_ELEMENT_NAME = 'screenshareVideo';
 
-export const DEFAULT_SCREENSHARE_STATS_TYPES = [
-  'outbound-rtp',
-  'inbound-rtp',
-];
-
 export const CONTENT_TYPE_CAMERA = 'camera';
 export const CONTENT_TYPE_SCREENSHARE = 'screenshare';
 
@@ -363,9 +358,8 @@ export const screenShareEndAlert = () => AudioService
    * For more information see:
    *  - https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/getStats
    *  - https://developer.mozilla.org/en-US/docs/Web/API/RTCStatsReport
-
-   * @param {Array[String]} statsType - An array containing valid RTCStatsType
-   *                                    values to include in the return object
+   * @param {Array} [additionalStatsTypes] - A list of additional stats types to be included
+   * in the parsing.
    *
    * @returns {Object} The information about each active screen sharing peer.
    *          The returned format follows the format returned by video's service
@@ -375,36 +369,14 @@ export const screenShareEndAlert = () => AudioService
    *            peerIdString: RTCStatsReport
    *          }
    */
-export const getStats = async (statsTypes = DEFAULT_SCREENSHARE_STATS_TYPES) => {
-  const screenshareStats = {};
-  let stats = null;
-
-  if (typeof screenShareBridge.getStats === 'function') {
-    stats = await screenShareBridge.getStats();
-  } else {
-    const peer = screenShareBridge.getPeerConnection();
-
-    if (!peer) return null;
-
-    stats = await peer.getStats();
-  }
-
-  if (!stats) return null;
-
-  stats.forEach((stat) => {
-    if (statsTypes.includes(stat.type) && (!stat.kind || stat.kind === 'video')) {
-      screenshareStats[stat.type] = stat;
-    }
-  });
-
-  return { screenshareStats };
-};
+export const getStats = (additionalStatsTypes = []) => (
+  screenShareBridge.getStats(additionalStatsTypes));
 
 // This method may throw errors
 export const isMediaFlowing = (previousStats, currentStats) => {
   const bpsData = ConnectionStatusService.calculateBitsPerSecond(
-    currentStats?.screenshareStats,
-    previousStats?.screenshareStats,
+    currentStats,
+    previousStats,
   );
   const bpsDataAggr = Object.values(bpsData)
     .reduce((sum, partialBpsData = 0) => sum + parseFloat(partialBpsData), 0);
