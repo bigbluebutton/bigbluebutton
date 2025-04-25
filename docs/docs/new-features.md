@@ -206,35 +206,9 @@ Those parameters do *not* need to be set concurrently. LiveKit can be enabled fo
 audio only, for example, while keeping the current media framework for camera
 and screen sharing by setting just `audioBridge=livekit`.
 
-To enable recording/capture with LiveKit (optional):
-1. Create **`/etc/bigbluebutton/egress.yaml`**
-    ```yaml
-    log_level: debug
-    redis:
-      address: localhost:6379
-    api_key: YOUR_API_KEY # see /etc/bigbluebutton/livekit.yaml
-    api_secret: YOUR_API_SECRET # see /etc/bigbluebutton/livekit.yaml
-    health_port: 7005
-    ws_url: ws://localhost:7880
-    file_prefix: /var/lib/bbb-webrtc-recorder
-    file_only: true
-    prometheus_port: 6790
-    ```
-2. Set appropriate key and secret in the file above
-3. Change capture directory permissions: **`chmod -R 777 /var/lib/bbb-webrtc-recorder`**
-    - The recorder runs as root in the docker container
-4. Enable egress in bbb-webrtc-sfu : **`yq e -i ".livekit.egress.enabled = true" /etc/bigbluebutton/bbb-webrtc-sfu/production.yml`**
-5. Run egress
-    ```bash
-    docker run -t -d --rm \
-        --name egress \
-        -e EGRESS_CONFIG_FILE=/etc/bigbluebutton/egress.yaml \
-        -v /etc/bigbluebutton/:/etc/bigbluebutton/ \
-        -v /var/lib/bbb-webrtc-recorder:/var/lib/bbb-webrtc-recorder \
-        --network host \
-        livekit/egress
-    ```
-6. Restart bbb-webrtc-sfu
+As of BigBlueButton v3.0.7, recording is enabled by default for LiveKit sessions
+via the bbb-webrtc-recorder application. If `livekit/egress` was previously
+[installed](https://github.com/bigbluebutton/bigbluebutton/blob/6eab874ffa8d0e82453dad3b06621dea16e15e6d/docs/docs/new-features.md?plain=1#L209-L237), the docker image and any leftover egress containers can be removed safely.
 
 Keep in mind that the LiveKit integration is still experimental and not feature
 complete. Configuration, API parameters, and other details are subject to change.
