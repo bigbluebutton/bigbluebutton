@@ -379,6 +379,7 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
       await liveKitRoom.switchActiveDevice('audioinput', deviceId, false);
       if (this.publicationTrackStream) {
         this.originalStream = this.publicationTrackStream;
+        this.inputDeviceId = deviceId;
       } else {
         logger.warn({
           logCode: 'livekit_audio_switch_pub_stream_missing',
