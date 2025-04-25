@@ -23,19 +23,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
+import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.*;
 import org.bigbluebutton.api.domain.*;
 import org.jsoup.Jsoup;
@@ -54,7 +47,6 @@ import org.slf4j.LoggerFactory;
 
 public class ParamsProcessorUtil {
     private static Logger log = LoggerFactory.getLogger(ParamsProcessorUtil.class);
-    ObjectMapper objectMapper = new ObjectMapper();
 
     private static final String URLDECODER_SEPARATOR=",";
     private static final String FILTERDECODER_SEPARATOR_ELEMENTS=":";
@@ -114,6 +106,8 @@ public class ParamsProcessorUtil {
     private String defaultAudioBridge = "bbb-webrtc-sfu";
     private String defaultDisabledFeatures;
     private String defaultPluginManifests;
+    private Integer pluginManifestsSourceUrlFetchTimeout;
+    private Integer maxPluginManifestsSourceUrlFetchSize;
     private boolean defaultNotifyRecordingIsOn = false;
     private boolean defaultKeepEvents = false;
     private Boolean useDefaultLogo;
@@ -474,26 +468,47 @@ public class ParamsProcessorUtil {
         return processPluginManifests(pluginManifestsJsonElement);
     }
 
-    private JsonElement processPluginManifestsSourceUrl(String pluginManifestsSourceUrlParam) {
+    private JsonElement processPluginManifestsSourceUrl(String urlStr) {
+        int timeoutConnectionMillis = pluginManifestsSourceUrlFetchTimeout * 1000;
         try {
-            URL url = new URL(pluginManifestsSourceUrlParam);
-            String content;
-            try (BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()))) {
-                content = in.lines().collect(Collectors.joining("\n"));
+            HttpURLConnection conn = (HttpURLConnection) new URL(urlStr).openConnection();
+            conn.setConnectTimeout(timeoutConnectionMillis);
+            conn.setReadTimeout(timeoutConnectionMillis);
+            conn.setRequestProperty("Accept", "application/json");
+
+            if (conn.getResponseCode() != 200) {
+                log.warn("pluginManifestsSourceUrl responded with HTTP {}", conn.getResponseCode());
+                return null;
             }
-            // Parse the JSON content
+
+            StringBuilder sb = new StringBuilder(8192);
+            try (BufferedReader in = new BufferedReader(
+                    new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8))) {
+                char[] buf = new char[4096];
+                int n;
+                int max = maxPluginManifestsSourceUrlFetchSize * 1024; // Default: 1 MiB hard cap
+                while ((n = in.read(buf)) != -1 && max > 0) {
+                    sb.append(buf, 0, n);
+                    max -= n;
+                }
+
+                if (max < 0) {
+                    log.warn(
+                            "Response from pluginManifestsSourceUrl [{}] exceeded maximum allowed payload size ({} KiB); skipping load.",
+                            urlStr, maxPluginManifestsSourceUrlFetchSize);
+                    return null;
+                }
+            }
+
+            String content = sb.toString();
             return new Gson().fromJson(content, JsonElement.class);
+
         } catch (MalformedURLException e) {
-            log.error("Invalid URL for pluginManifestsSourceUrl: {}", pluginManifestsSourceUrlParam, e);
-        } catch (JsonProcessingException e) {
-            log.error("Failed to parse JSON from URL: {}", pluginManifestsSourceUrlParam, e);
+            log.error("Invalid pluginManifestsSourceUrl [{}]", urlStr, e);
         } catch (IOException e) {
-            log.error("I/O error when fetching URL: {}", pluginManifestsSourceUrlParam, e);
+            log.error("I/O error when fetching plugin manifests from [{}]", urlStr, e);
         } catch (Exception e) {
-            log.error(
-                    "Unexpected error processing parameter pluginManifestsSourceUrl ({}): {}",
-                    pluginManifestsSourceUrlParam, e
-            );
+            log.error("Unexpected error while processing pluginManifestsSourceUrl [{}]", urlStr, e);
         }
         return null;
     }
@@ -1742,4 +1757,11 @@ public class ParamsProcessorUtil {
 
     public void setMaxNumPages(Integer maxNumPages) { this.defaultMaxNumPages = maxNumPages; }
 
+    public void setPluginManifestsSourceUrlFetchTimeout(Integer pluginManifestsSourceUrlFetchTimeout) {
+        this.pluginManifestsSourceUrlFetchTimeout = pluginManifestsSourceUrlFetchTimeout;
+    }
+
+    public void setMaxPluginManifestsSourceUrlFetchSize(Integer maxPluginManifestsSourceUrlFetchSize) {
+        this.maxPluginManifestsSourceUrlFetchSize = maxPluginManifestsSourceUrlFetchSize;
+    }
 }
