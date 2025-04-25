@@ -106,6 +106,11 @@ class RedisRecorderActor(
 
       case m: AudioFloorChangedEvtMsg               => handleAudioFloorChangedEvtMsg(m)
 
+      // AudioGroups
+      case m: AudioGroupCreatedEvtMsg               => handleAudioGroupCreatedEvtMsg(m)
+      case m: AudioGroupDestroyedEvtMsg             => handleAudioGroupDestroyedEvtMsg(m)
+      case m: AudioGroupUpdatedEvtMsg               => handleAudioGroupUpdatedEvtMsg(m)
+
       // Caption
       case m: EditCaptionHistoryEvtMsg              => handleEditCaptionHistoryEvtMsg(m)
 
@@ -531,6 +536,29 @@ class RedisRecorderActor(
     ev.setParticipant(msg.body.intId)
     ev.setFloor(msg.body.floor)
     ev.setLastFloorTime(msg.body.lastFloorTime)
+
+    record(msg.header.meetingId, ev.toMap.asJava)
+  }
+
+  private def handleAudioGroupCreatedEvtMsg(msg: AudioGroupCreatedEvtMsg): Unit = {
+    val ev = new AudioGroupCreatedRecordEvent()
+    ev.setGroupId(msg.body.id)
+    ev.setSenders(msg.body.senders)
+
+    record(msg.header.meetingId, ev.toMap.asJava)
+  }
+
+  private def handleAudioGroupDestroyedEvtMsg(msg: AudioGroupDestroyedEvtMsg): Unit = {
+    val ev = new AudioGroupDestroyedRecordEvent()
+    ev.setGroupId(msg.body.id)
+
+    record(msg.header.meetingId, ev.toMap.asJava)
+  }
+
+  private def handleAudioGroupUpdatedEvtMsg(msg: AudioGroupUpdatedEvtMsg): Unit = {
+    val ev = new AudioGroupUpdatedRecordEvent()
+    ev.setGroupId(msg.body.id)
+    ev.setSenders(msg.body.senders)
 
     record(msg.header.meetingId, ev.toMap.asJava)
   }
