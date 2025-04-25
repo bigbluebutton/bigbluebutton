@@ -304,7 +304,8 @@ jobs:
             chown $MY_USER:$MY_USER /run/user/$MY_UID
             echo "permissons ok"
             # sudo -u $MY_USER XDG_RUNTIME_DIR=/run/user/$MY_UID dbus-daemon --session --print-address > /tmp/dbus-address
-            cat /tmp/dbus-address
+            # cat /tmp/dbus-address
+            ls /run/user/$MY_UID
             echo "dbus-daemon --session"
       - name: Install BBB
         env:
