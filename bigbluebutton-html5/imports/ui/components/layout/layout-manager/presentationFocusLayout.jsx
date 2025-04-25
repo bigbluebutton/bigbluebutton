@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { throttle } from '/imports/utils/throttle';
 import { layoutDispatch, layoutSelect, layoutSelectInput } from '/imports/ui/components/layout/context';
-import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
+import DEFAULT_VALUES, { SIDEBAR_CONTENT_VERTICAL_MARGIN, SIDEBAR_CONTENT_MARGIN_TO_MEDIA } from '/imports/ui/components/layout/defaultValues';
 import { INITIAL_INPUT_STATE } from '/imports/ui/components/layout/initState';
 import {
   ACTIONS,
@@ -85,7 +85,7 @@ const PresentationFocusLayout = (props) => {
       value: (prevInput) => {
         const {
           sidebarNavigation, sidebarContent, presentation, cameraDock,
-          externalVideo, genericMainContent, screenShare,
+          externalVideo, genericMainContent, screenShare, sharedNotes,
         } = prevInput;
         const { sidebarContentPanel } = sidebarContent;
         let sidebarContentPanelOverride = sidebarContentPanel;
@@ -137,8 +137,11 @@ const PresentationFocusLayout = (props) => {
               width: screenShare.width,
               height: screenShare.height,
             },
+            sharedNotes: {
+              isPinned: sharedNotes.isPinned,
+            },
           },
-          hasLayoutEngineLoadedOnce && prevLayout === LAYOUT_TYPE.PRESENTATION_FOCUS ? prevInput : INITIAL_INPUT_STATE,
+          hasLayoutEngineLoadedOnce ? prevInput : INITIAL_INPUT_STATE,
         );
       },
     });
@@ -235,7 +238,8 @@ const PresentationFocusLayout = (props) => {
           windowHeight() - cameraDockMinHeight,
         );
       }
-      cameraDockBounds.top = windowHeight() - cameraDockHeight - bannerAreaHeight();
+      cameraDockBounds.top = windowHeight() - cameraDockHeight
+        - bannerAreaHeight() - (SIDEBAR_CONTENT_VERTICAL_MARGIN) + SIDEBAR_CONTENT_MARGIN_TO_MEDIA;
       cameraDockBounds.left = !isRTL ? sidebarNavWidth : 0;
       cameraDockBounds.right = isRTL ? sidebarNavWidth : 0;
       cameraDockBounds.minWidth = sidebarContentWidth;

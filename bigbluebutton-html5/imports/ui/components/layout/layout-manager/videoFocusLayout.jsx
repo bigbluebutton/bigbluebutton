@@ -89,7 +89,7 @@ const VideoFocusLayout = (props) => {
       value: (prevInput) => {
         const {
           sidebarNavigation, sidebarContent, presentation, cameraDock,
-          externalVideo, genericMainContent, screenShare,
+          externalVideo, genericMainContent, screenShare, sharedNotes,
         } = prevInput;
         const { sidebarContentPanel } = sidebarContent;
         let sidebarContentPanelOverride = sidebarContentPanel;
@@ -139,6 +139,9 @@ const VideoFocusLayout = (props) => {
               hasScreenShare: screenShare.hasScreenShare,
               width: screenShare.width,
               height: screenShare.height,
+            },
+            sharedNotes: {
+              isPinned: sharedNotes.isPinned,
             },
           },
           hasLayoutEngineLoadedOnce ? prevInput : INITIAL_INPUT_STATE,
@@ -443,7 +446,7 @@ const VideoFocusLayout = (props) => {
       type: ACTIONS.SET_PRESENTATION_OUTPUT,
       value: {
         display: presentationInput.isOpen,
-        width: mediaBounds.width,
+        width: mediaBounds.width - SIDEBAR_CONTENT_MARGIN_TO_MEDIA,
         height: mediaBounds.height,
         top: mediaBounds.top,
         left: mediaBounds.left,

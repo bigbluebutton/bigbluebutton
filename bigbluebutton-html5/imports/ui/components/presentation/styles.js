@@ -131,8 +131,6 @@ const PresentationContainer = styled.div`
   left: 0;
   right: 0;
   bottom: 0;
-  ${({ isVideoFocus, isRTL }) => isVideoFocus && isRTL && `padding: 0px 0px 0px ${contentSidebarMarginToMedia}`};
-  ${({ isVideoFocus, isRTL }) => isVideoFocus && !isRTL && `padding: 0px ${contentSidebarMarginToMedia} 0px 0px`};
 `;
 
 const Presentation = styled.div`
