@@ -289,6 +289,16 @@ jobs:
             </extension>
           </include>
           EOF
+
+          # Set up dbus-user-session as it's required to run `systemd-run --user` which is used for presentation conversion
+          apt-get install -y dbus-user-session
+          export UID=$(id -u)
+          mkdir -p /run/user/$UID
+          chmod 700 /run/user/$UID
+          chown $USER /run/user/$UID
+          dbus-daemon --session --print-address > /tmp/dbus-address
+          export DBUS_SESSION_BUS_ADDRESS=$(cat /tmp/dbus-address)
+          export XDG_RUNTIME_DIR=/run/user/$UID
           '
       - name: Install BBB
         env:
