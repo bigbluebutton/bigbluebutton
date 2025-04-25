@@ -50,13 +50,11 @@ trait AudioGroupAddParticipantsReqMsgHdlr extends RightsManagementTrait {
           state.audioGroups
         )
         broadcastEvent(ag)
-        System.out.println("AG== Added participants to audio group: " + ag)
-        // TODO: No DB for now - will be used later :tm:
+        // TODO: No DB for now - will be used later - prlanzarin
         val newState = state.update(updatedGroups)
         AudioGroupApp.handleAudioGroupUpdated(ag.id, updatedGroups, liveMeeting, bus.outGW)
         newState
       case None =>
-        System.out.println("AG== Audio group does not exist: " + msg.body.id)
         state
     }
   }

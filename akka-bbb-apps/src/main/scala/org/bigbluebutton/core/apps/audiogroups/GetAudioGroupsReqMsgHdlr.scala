@@ -4,7 +4,6 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.running.LiveMeeting
-import org.bigbluebutton.core.models.AudioGroup
 
 trait GetAudioGroupsReqMsgHdlr {
   this: AudioGroupHdlrs =>
@@ -18,7 +17,7 @@ trait GetAudioGroupsReqMsgHdlr {
         ag.id,
         ag.createdBy,
         ag.findAllSenders(),
-        ag.findAllReceivers(),
+        ag.findAllReceivers()
       )
     }
     val routing = Routing.addMsgToClientRouting(

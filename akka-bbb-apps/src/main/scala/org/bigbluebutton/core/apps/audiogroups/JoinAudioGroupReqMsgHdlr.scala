@@ -47,7 +47,6 @@ trait JoinAudioGroupReqMsgHdlr extends RightsManagementTrait {
       case Some(ag) =>
         ag.findParticipant(participant.id) match {
           case Some(participant) =>
-            System.out.println("AG== Participant already in audio group: " + ag)
             state
           case None =>
             val updatedGroups = AudioGroupApp.addAudioGroupParticipant(
@@ -56,11 +55,10 @@ trait JoinAudioGroupReqMsgHdlr extends RightsManagementTrait {
               state.audioGroups
             )
             broadcastEvent(ag)
-            System.out.println("AG== Participant joined audio group: " + ag)
             AudioGroupUserDAO.insert(
               liveMeeting.props.meetingProp.intId,
               groupId,
-              participant,
+              participant
             )
             val newState = state.update(updatedGroups)
             AudioGroupApp.handleAudioGroupUpdated(ag.id, updatedGroups, liveMeeting, bus.outGW)
@@ -68,7 +66,6 @@ trait JoinAudioGroupReqMsgHdlr extends RightsManagementTrait {
         }
 
       case None =>
-        System.out.println("AG== Audio group does not exist: " + msg.body.id)
         state
     }
   }

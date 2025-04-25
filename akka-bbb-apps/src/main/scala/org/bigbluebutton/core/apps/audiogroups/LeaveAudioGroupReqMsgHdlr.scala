@@ -53,17 +53,14 @@ trait LeaveAudioGroupReqMsgHdlr extends RightsManagementTrait {
             )
             broadcastEvent(ag)
             AudioGroupUserDAO.delete(liveMeeting.props.meetingProp.intId, groupId, participantUserId)
-            System.out.println("AG== Participant left audio group: " + ag)
             val newState = state.update(updatedGroups)
             AudioGroupApp.handleAudioGroupUpdated(ag.id, updatedGroups, liveMeeting, bus.outGW)
             newState
           case None =>
-            System.out.println("AG== Participant does not exist in audio group: " + participantUserId)
             state
         }
 
       case None =>
-        System.out.println("AG== LeaveAudioGroup: group does not exist: " + msg.body.id)
         state
     }
   }

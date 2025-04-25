@@ -1,7 +1,6 @@
 package org.bigbluebutton.core.apps.audiogroups
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 
@@ -120,12 +119,10 @@ object AudioGroupApp {
       userId:      String,
       audioGroups: AudioGroups
   ): AudioGroups = {
-    val updatedGroups = audioGroups.findAllAudioGroups().map { ag =>
+    audioGroups.findAllAudioGroups().foldLeft(audioGroups) { (groups, ag) =>
       val updatedAg = ag.removeSender(userId).removeReceiver(userId)
-      audioGroups.update(updatedAg)
+      groups.update(updatedAg)
     }
-
-    audioGroups
   }
 
   def isParticipantTypeValid(participantType: String): Boolean = {

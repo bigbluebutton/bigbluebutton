@@ -50,11 +50,9 @@ trait AudioGroupRemoveParticipantsReqMsgHdlr extends RightsManagementTrait {
           state.audioGroups
         )
         broadcastEvent(ag)
-        System.out.println("AG== Removed participants from audio group: " + ag)
-        // TODO: No DB for now - will be used later :tm:
+        // TODO: No DB for now - will be used later - prlanzarin
         state.update(updatedGroups)
       case None =>
-        System.out.println("AG== Audio group does not exist: " + msg.body.id)
         state
     }
   }

@@ -540,7 +540,7 @@ class RedisRecorderActor(
     record(msg.header.meetingId, ev.toMap.asJava)
   }
 
-  private def handleAudioGroupCreatedEvtMsg(msg: AudioGroupCreatedEvtMsg) {
+  private def handleAudioGroupCreatedEvtMsg(msg: AudioGroupCreatedEvtMsg): Unit = {
     val ev = new AudioGroupCreatedRecordEvent()
     ev.setGroupId(msg.body.id)
     ev.setSenders(msg.body.senders)
@@ -548,14 +548,14 @@ class RedisRecorderActor(
     record(msg.header.meetingId, ev.toMap.asJava)
   }
 
-  private def handleAudioGroupDestroyedEvtMsg(msg: AudioGroupDestroyedEvtMsg) {
+  private def handleAudioGroupDestroyedEvtMsg(msg: AudioGroupDestroyedEvtMsg): Unit = {
     val ev = new AudioGroupDestroyedRecordEvent()
     ev.setGroupId(msg.body.id)
 
     record(msg.header.meetingId, ev.toMap.asJava)
   }
 
-  private def handleAudioGroupUpdatedEvtMsg(msg: AudioGroupUpdatedEvtMsg) {
+  private def handleAudioGroupUpdatedEvtMsg(msg: AudioGroupUpdatedEvtMsg): Unit = {
     val ev = new AudioGroupUpdatedRecordEvent()
     ev.setGroupId(msg.body.id)
     ev.setSenders(msg.body.senders)

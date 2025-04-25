@@ -43,12 +43,10 @@ trait DestroyAudioGroupReqMsgHdlr extends RightsManagementTrait {
       case Some(ag) =>
         val updatedGroups = AudioGroupApp.deleteAudioGroup(msg.body.id, state.audioGroups)
         broadcastEvent(ag)
-        System.out.println("Destroyed audio group: " + ag)
         AudioGroupDAO.delete(liveMeeting.props.meetingProp.intId, msg.body.id)
         AudioGroupUserDAO.deleteAll(liveMeeting.props.meetingProp.intId, msg.body.id)
         state.update(updatedGroups)
       case None =>
-        System.out.println("Audio group does not exist: " + msg.body.id)
         state
     }
   }

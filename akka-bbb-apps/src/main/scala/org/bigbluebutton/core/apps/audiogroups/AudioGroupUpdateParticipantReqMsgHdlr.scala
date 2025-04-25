@@ -55,17 +55,14 @@ trait AudioGroupUpdateParticipantReqMsgHdlr extends RightsManagementTrait {
               state.audioGroups
             )
             broadcastEvent(ag)
-            System.out.println("AG== Participant updated in audio group: " + ag, oldParticipant, participant, updatedGroups)
             AudioGroupUserDAO.update(liveMeeting.props.meetingProp.intId, groupId, participant)
             val newState = state.update(updatedGroups)
             AudioGroupApp.handleAudioGroupUpdated(ag.id, updatedGroups, liveMeeting, bus.outGW)
             newState
           case None =>
-            System.out.println("AG== Participant not found in audio group: " + ag)
             state
         }
       case None =>
-        System.out.println("AG== Audio group not found: " + groupId)
         state
     }
   }

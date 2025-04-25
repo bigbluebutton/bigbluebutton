@@ -150,6 +150,10 @@ object VoiceApp extends SystemConfiguration {
       voiceUserId = vu.intId,
       vu.deafened
     )
+
+    val event = UserDeafenedVoiceEvtMsg(header, body)
+    val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
+    outGW.send(msgEvent)
   }
 
   def handleUserMutedInVoiceConfEvtMsg(
