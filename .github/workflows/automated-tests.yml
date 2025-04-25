@@ -385,12 +385,12 @@ jobs:
           sed -i "s/\"level\": \"info\"/\"level\": \"debug\"/" /usr/local/bigbluebutton/bbb-pads/config/settings.json
           sed -i "s/exports.DEBUG = false/exports.DEBUG = true/" /usr/local/bigbluebutton/bbb-graphql-actions/config.js
           sudo yq e -i '.log_level = "TRACE"' /usr/share/bbb-graphql-middleware/config.yml
-          sudo chmod 755 /run/user/1000
-          sudo setfacl -m u:bigbluebutton:rwx /run/user/1000
-          sudo setfacl -m u:bigbluebutton:rw /run/user/1000/bus
+          sudo chmod 755 /run/user/1001
+          sudo setfacl -m u:bigbluebutton:rwx /run/user/1001
+          sudo setfacl -m u:bigbluebutton:rw /run/user/1001/bus
           echo "HASURA_GRAPHQL_LOG_LEVEL=debug" | tee -a /etc/bigbluebutton/bbb-graphql-server.env
-          echo "XDG_RUNTIME_DIR=/run/user/1000" | tee -a /etc/default/bbb-web
-          echo "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus" | tee -a /etc/default/bbb-web
+          echo "XDG_RUNTIME_DIR=/run/user/1001" | tee -a /etc/default/bbb-web
+          echo "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1001/bus" | tee -a /etc/default/bbb-web
           cat > /etc/bigbluebutton/bbb-conf/apply-config.sh << HERE
           #!/bin/bash
 
