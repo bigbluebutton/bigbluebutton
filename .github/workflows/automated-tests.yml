@@ -391,6 +391,7 @@ jobs:
           echo "HASURA_GRAPHQL_LOG_LEVEL=debug" | tee -a /etc/bigbluebutton/bbb-graphql-server.env
           echo "XDG_RUNTIME_DIR=/run/user/1001" | tee -a /etc/default/bbb-web
           echo "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1001/bus" | tee -a /etc/default/bbb-web
+          sudo systemctl restart bbb-web
           cat > /etc/bigbluebutton/bbb-conf/apply-config.sh << HERE
           #!/bin/bash
 
