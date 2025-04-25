@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { throttle } from '/imports/utils/throttle';
 import { layoutSelect, layoutSelectInput, layoutDispatch } from '/imports/ui/components/layout/context';
-import DEFAULT_VALUES, { SIDEBAR_CONTENT_MARGIN_TO_MEDIA } from '/imports/ui/components/layout/defaultValues';
+import DEFAULT_VALUES, { SIDEBAR_CONTENT_MARGIN_TO_MEDIA, SIDEBAR_CONTENT_VERTICAL_MARGIN } from '/imports/ui/components/layout/defaultValues';
 import { INITIAL_INPUT_STATE } from '/imports/ui/components/layout/initState';
 import {
   ACTIONS, CAMERADOCK_POSITION, LAYOUT_TYPE, PANELS,
@@ -438,7 +438,8 @@ const CustomLayout = (props) => {
         );
       }
 
-      cameraDockBounds.top = windowHeight() - cameraDockHeight - bannerAreaHeight();
+      cameraDockBounds.top = windowHeight() - cameraDockHeight
+        - bannerAreaHeight() - SIDEBAR_CONTENT_VERTICAL_MARGIN + SIDEBAR_CONTENT_MARGIN_TO_MEDIA;
       cameraDockBounds.left = !isRTL ? sidebarNavWidth : 0;
       cameraDockBounds.right = isRTL ? sidebarNavWidth : 0;
       cameraDockBounds.minWidth = sidebarContentWidth;
