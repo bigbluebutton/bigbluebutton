@@ -91,6 +91,10 @@ const ErrorBoundaryWithReload = ({ children }) => {
       if (event.reason?.message?.toString().indexOf('Permission Denied') !== -1) {
         return;
       }
+      // Ignore errors caused by missing permissions on browser
+      if (event.reason?.name === 'NotAllowedError') {
+        return;
+      }
 
       triggerError();
     };

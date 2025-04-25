@@ -22,6 +22,7 @@ exports.raiseHandBtn = 'button[data-test="raiseHandBtn"]';
 exports.lowerHandBtn = 'button[data-test="lowerHandBtn"]';
 exports.raiseHandRejection = 'button[data-test="raiseHandRejection"]';
 exports.meetingEndedModal = 'div[data-test="meetingEndedModal"]';
+exports.redirectButton = 'button[data-test="redirectButton"]';
 exports.leaveMeetingDropdown = 'button[data-test="leaveMeetingDropdown"]';
 exports.directLogoutButton = 'li[data-test="directLogoutButton"]';
 exports.optionsLogoutButton = 'li[data-test="optionsLogoutButton"]';
@@ -189,6 +190,7 @@ exports.reconnectingBar = '//div[@data-test="notificationBannerBar" and contains
 exports.zoomInBtn = 'button[data-test="zoomInBtn"]';
 exports.recordingIndicator = 'div[data-test="recordingIndicator"]';
 exports.webcamMirroredVideoContainer = 'video[data-test="mirroredVideoContainer"]';
+exports.currentUserLocalStreamVideo = 'video[data-local-stream="true"]';
 exports.usersList = 'div[data-test="userList"]';
 exports.selectCameraQualityId = 'select[id="setQuality"]';
 exports.virtualBackgrounds = 'div[data-test="virtualBackground"]';

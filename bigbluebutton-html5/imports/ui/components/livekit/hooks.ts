@@ -39,15 +39,15 @@ export const useIceServers = (sessionToken: string): UseIceServersResult => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
   const [hasSeenTurnServer, setHasSeenTurnServer] = useState<boolean>(false);
-  const [cacheValidUntil, setCacheValidUntil] = useState<number>(Math.floor(Date.now() / 1000));
+  const [cacheValidUntil, setCacheValidUntil] = useState<number | null>(null);
   const [cachedServers, setCachedServers] = useState<RTCIceServer[] | null>(null);
 
-  const getMappedFallbackStun = useCallback((): RTCIceServer[] => {
+  const getMappedFallbackStun = (): RTCIceServer[] => {
     const FALLBACK_STUN_SERVER = window.meetingClientSettings.public.media.fallbackStunServer;
     return FALLBACK_STUN_SERVER ? [{ urls: FALLBACK_STUN_SERVER }] : [];
-  }, []);
+  };
 
-  const mapIceServers = useCallback((dictionary: IceServersDictionary): RTCIceServer[] => {
+  const mapIceServers = (dictionary: IceServersDictionary): RTCIceServer[] => {
     const rtcStuns = dictionary.stun.map((url) => ({ urls: url }));
     const rtcTurns = dictionary.turn.map((t) => ({
       urls: t.urls,
@@ -55,7 +55,7 @@ export const useIceServers = (sessionToken: string): UseIceServersResult => {
       username: t.username,
     }));
     return rtcStuns.concat(rtcTurns);
-  }, []);
+  };
 
   const fetchIceServers = useCallback(async (): Promise<IceServersDictionary> => {
     let stunServers: StunServer[] = [];
@@ -124,7 +124,7 @@ export const useIceServers = (sessionToken: string): UseIceServersResult => {
       const CACHE_STUN_TURN = MEDIA.cacheStunTurnServers;
       const now = Math.floor(Date.now() / 1000);
 
-      if (cachedServers && CACHE_STUN_TURN && now < cacheValidUntil) {
+      if (cachedServers && CACHE_STUN_TURN && cacheValidUntil && now < cacheValidUntil) {
         setIceServers(cachedServers);
         setIsLoading(false);
         return;
@@ -132,16 +132,17 @@ export const useIceServers = (sessionToken: string): UseIceServersResult => {
 
       const stDictionary = await fetchIceServers();
       const mapped = mapIceServers(stDictionary);
-
-      setCachedServers(mapped);
-      setIceServers(mapped);
+      if (mapped?.length > 0) {
+        setCachedServers(mapped);
+        setIceServers(mapped);
+      }
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Failed to fetch STUN/TURN servers'));
       setIceServers(getMappedFallbackStun());
     } finally {
       setIsLoading(false);
     }
-  }, [fetchIceServers, mapIceServers, getMappedFallbackStun, cacheValidUntil, cachedServers]);
+  }, [fetchIceServers, cacheValidUntil, cachedServers]);
 
   useEffect(() => {
     fetchServers();

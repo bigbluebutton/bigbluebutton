@@ -580,6 +580,7 @@ public:
     maxCustom: 5
     maxTypedAnswerLength: 45
     chatMessage: true
+    quickPollConfirmationStep: true
   captions:
     enabled: true
     id: captions
@@ -935,17 +936,23 @@ public:
       # livekit.selectiveSubscription: whether to use selective subscription all
       # applicable track sources. Default value is false. This overrides autoSubscribe
       # when set to true and in effect (conditional to client behavior).
-      selectiveSubscription: false
+      selectiveSubscription: true
+      logLevel: 3
       roomOptions:
         adaptiveStream: true
         dynacast: true
         stopLocalTrackOnUnpublish: false
       audio:
+        # unpublishOnMute: whether to unpublish audio tracks when muted. Default is true.
+        unpublishOnMute: true
         # publishOptions: see https://docs.livekit.io/client-sdk-js/interfaces/TrackPublishOptions.html
         publishOptions:
-          audioPreset: 'speech'
-          dtx: true
-          red: false
+          audioPreset:
+            maxBitrate: 48000
+            networkPriority: 'high'
+            priority: 'high'
+          dtx: false
+          red: true
           forceStereo: false
       camera:
         publishOptions:
@@ -1042,6 +1049,7 @@ public:
     maxNumberOfAnnotations: 300
     # Limit the number of users who can interact with the whiteboard
     maxNumberOfActiveUsers: 25
+    lockToolbarTools: false
     annotations:
       status:
         start: DRAW_START
@@ -1075,7 +1083,7 @@ public:
         - text
         - note
         - rectangle
-        - delete-all
+        - delete-selected-items
         - highlight
         - more
         - actions
@@ -1088,7 +1096,7 @@ public:
         - text
         - note
         - rectangle
-        - delete-all
+        - delete-selected-items
         - highlight
         - more
         - actions

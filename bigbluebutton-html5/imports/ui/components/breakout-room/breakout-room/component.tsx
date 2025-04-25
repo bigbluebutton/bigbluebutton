@@ -339,7 +339,7 @@ const BreakoutRoomContainer: React.FC = () => {
       isModerator={currentUserData.isModerator ?? false}
       presenter={currentUserData.presenter ?? false}
       durationInSeconds={meetingData.durationInSeconds ?? 0}
-      userJoinedAudio={currentUserData?.voice?.joined ?? false}
+      userJoinedAudio={(currentUserData?.voice?.joined && !currentUserData?.voice?.deafened) ?? false}
       userId={currentUserData.userId ?? ''}
       meetingId={meetingData.meetingId ?? ''}
     />

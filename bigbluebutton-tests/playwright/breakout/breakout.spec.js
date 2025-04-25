@@ -58,7 +58,8 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
       await join.joinAndShareWebcam();
     });
 
-    test('Join Breakout room and share screen', async ({ browser, context, page }) => {
+    test('Join Breakout room and share screen', async ({ browser, context, page, browserName }) => {
+      test.skip(browserName === 'firefox', 'Firefox is too heavy for this test, needs improvement.')
       const join = new Join(browser, context);
       await join.initPages(page);
       await join.create();

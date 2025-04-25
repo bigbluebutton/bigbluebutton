@@ -260,14 +260,7 @@ module BigBlueButton
           end
 
           # Try decoding a frame to detect some types of problems
-          ffmpeg_cmd = [
-            *FFMPEG,
-            '-max_error_rate', '0',
-            '-noaccurate_seek', '-ss', '0', '-i', videofile,
-            '-map', '0:v:0', '-frames:v', '1', '-f', 'null', '-',
-          ]
-          exitstatus = BigBlueButton.execute(ffmpeg_cmd, false)
-          unless exitstatus.success?
+          unless test_video_decode(videofile)
             BigBlueButton.logger.warn("    Failed to run test decode; will attempt to remux")
             try_remux_videos << videofile
           end
@@ -292,7 +285,7 @@ module BigBlueButton
             end
 
             info = video_info(newvideofile)
-            if !info[:video]
+            if !info[:video] || !test_video_decode(newvideofile)
               BigBlueButton.logger.warn("    Result of remux is corrupt, not using it.")
               corrupt_videos << videofile
               next
@@ -396,7 +389,7 @@ module BigBlueButton
       # The methods below are for private use
 
       def self.video_info(filename)
-        IO.popen([*FFPROBE, filename]) do |probe|
+        IO.popen([*FFPROBE, '-select_streams', 'v:0', '-count_frames', '-read_intervals', '%+#10', filename]) do |probe|
           info = nil
           begin
             info = JSON.parse(probe.read, :symbolize_names => true)
@@ -419,6 +412,7 @@ module BigBlueButton
           # Check for corrupt/undecodable video streams
           return {} if info[:video][:pix_fmt].nil?
           return {} if info[:width] == 0 or info[:height] == 0
+          return {} if info[:video][:nb_read_frames].nil? || info[:video][:nb_read_frames] == 'N/A'
 
           info[:sample_aspect_ratio] = Rational(1, 1)
           if !info[:video][:sample_aspect_ratio].nil? and
@@ -446,6 +440,18 @@ module BigBlueButton
           return info
         end
         {}
+      end
+
+      # Try decoding a frame to detect some types of problems
+      def self.test_video_decode(videofile)
+        ffmpeg_cmd = [
+          *FFMPEG,
+          '-max_error_rate', '0',
+          '-noaccurate_seek', '-ss', '0', '-i', videofile,
+          '-map', '0:v:0', '-frames:v', '1', '-f', 'null', '-',
+        ]
+        exitstatus = BigBlueButton.execute(ffmpeg_cmd, false)
+        exitstatus.success?
       end
 
       def self.check_deskshare_timestamp_bug(filename)

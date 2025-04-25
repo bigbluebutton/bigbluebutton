@@ -57,6 +57,7 @@ export const AutoPlayWarning = styled.p`
 export const VideoPlayer = styled(ReactPlayer)`
   width: 100%;
   height: 100%;
+  z-index: 0;
   & > iframe {
     display: flex;
     flex-flow: column;

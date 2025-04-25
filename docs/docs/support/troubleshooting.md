@@ -442,7 +442,7 @@ However, this is not a reliable choice for stun server. Recommend either changin
   <X-PRE-PROCESS cmd="set" data="external_rtp_ip=234.32.3.3"/>
 ```
 
-You can add a line in `/etc/bigbluebutton/bbb-conf/apply-conf.sh` to always apply this value even if the FreeSWITCH package upgrades.
+You can add a line in `/etc/bigbluebutton/bbb-conf/apply-config.sh` to always apply this value even if the FreeSWITCH package upgrades.
 
 ```bash
 xmlstarlet edit --inplace --update '//X-PRE-PROCESS[@cmd="set" and starts-with(@data, "external_rtp_ip=")]/@data' --value "external_rtp_ip=234.32.3.3" /opt/freeswitch/conf/vars.xml

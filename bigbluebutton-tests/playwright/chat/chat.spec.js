@@ -23,7 +23,8 @@ test.describe('Chat', { tag: '@ci' }, () => {
     await chat.clearChat();
   });
 
-  test('Copy chat', async ({ browser, context, page }) => {
+  test('Copy chat', async ({ browser, context, page, browserName }) => {
+    test.skip(browserName === 'firefox', 'Firefox does not support clipboard-write and clipboard-read');
     const chat = new Chat(browser, context);
     await chat.initPages(page);
     await chat.copyChat();
@@ -60,7 +61,8 @@ test.describe('Chat', { tag: '@ci' }, () => {
     await chat.sendEmoji();
   });
 
-  test('Copy chat with emoji', async ({ browser, context, page }) => {
+  test('Copy chat with emoji', async ({ browser, context, page, browserName }) => {
+    test.skip(browserName === 'firefox', 'Firefox does not support clipboard-write and clipboard-read');
     const chat = new Chat(browser, context);
     await chat.initPages(page);
     await chat.emojiCopyChat();
@@ -90,7 +92,8 @@ test.describe('Chat', { tag: '@ci' }, () => {
     await chat.autoConvertEmojiPublicChat();
   });
 
-  test('Copy chat with auto converted emoji', { tag: '@setting-required:chat.autoConvertEmoji' }, async ({ browser, context, page }) => {
+  test('Copy chat with auto converted emoji', { tag: '@setting-required:chat.autoConvertEmoji' }, async ({ browser, context, page, browserName }) => {
+    test.skip(browserName === 'firefox', 'Firefox does not support clipboard-write and clipboard-read');
     const chat = new Chat(browser, context);
     await chat.initPages(page);
     await chat.autoConvertEmojiCopyChat();

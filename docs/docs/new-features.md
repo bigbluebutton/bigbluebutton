@@ -251,6 +251,8 @@ For full details on what is new in BigBlueButton 3.0, see the release notes.
 
 Recent releases:
 
+- [3.0.6](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.6)
+- [3.0.5](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.5)
 - [3.0.4](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.4)
 - [3.0.3](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.3)
 - [3.0.2](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.2)
