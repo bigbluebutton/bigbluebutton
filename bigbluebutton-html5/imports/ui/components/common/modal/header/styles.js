@@ -13,16 +13,16 @@ import {
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
   fontSizeBase,
-  fontSizeLarge,
   headingsFontWeight,
   lineHeightComputed,
 } from '/imports/ui/stylesheets/styled-components/typography';
 
 const Header = styled.header`
   margin: 0;
-  padding: 0;
+  padding: 1rem;
   border: none;
-  display: grid;
+  justify-content: space-between;
+  display: flex;
 
   ${({ $headerOnTop }) => $headerOnTop && `
     grid-template-columns: auto min-content;
@@ -41,13 +41,14 @@ const Header = styled.header`
 `;
 
 const Title = styled(TitleElipsis)`
-  display: block;
-  text-align: center;
-  font-weight: ${headingsFontWeight};
-  font-size: calc(${fontSizeLarge} + 0.05rem);
+  display: flex;
+  align-items: center;
+  font-size: ${fontSizeBase};
   color: ${colorGrayDark};
   white-space: normal;
   margin: 0;
+  font-weight: ${headingsFontWeight};
+  text-transform: uppercase;
   line-height: calc(${lineHeightComputed} * 2);
 
   @media ${smallOnly} {

@@ -10,10 +10,6 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.title',
     description: 'breakout title',
   },
-  breakoutAriaTitle: {
-    id: 'app.createBreakoutRoom.ariaTitle',
-    description: 'breakout aria title',
-  },
   breakoutDuration: {
     id: 'app.createBreakoutRoom.duration',
     description: 'breakout duration time',

@@ -103,7 +103,6 @@ const ChatAlertGraphql: React.FC<ChatAlertGraphqlProps> = (props) => {
   );
 
   const CHAT_CONFIG = window.meetingClientSettings.public.chat;
-  const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
   const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 
   useEffect(() => {
@@ -172,7 +171,7 @@ const ChatAlertGraphql: React.FC<ChatAlertGraphqlProps> = (props) => {
     if (history.current.has(message.messageId)) return null;
     if (message.chatId === idChatOpen) return null;
 
-    const messageChatId = message.chatId === PUBLIC_GROUP_CHAT_ID ? PUBLIC_CHAT_ID : message.chatId;
+    const isPublicChatMessage = message.chatId === PUBLIC_GROUP_CHAT_ID;
     const isPollResult = message.messageType === ChatMessageType.POLL;
     let content;
 
@@ -184,11 +183,11 @@ const ChatAlertGraphql: React.FC<ChatAlertGraphqlProps> = (props) => {
 
     return (
       <ChatPushAlert
-        key={messageChatId}
-        chatId={messageChatId}
+        key={message.chatId}
+        chatId={message.chatId}
         content={content}
         title={
-          messageChatId === PUBLIC_CHAT_ID
+          isPublicChatMessage
             ? <span>{intl.formatMessage(intlMessages.appToastChatPublic)}</span>
             : <span>{intl.formatMessage(intlMessages.appToastChatPrivate)}</span>
         }

@@ -86,7 +86,7 @@ public class Meeting {
 	private String guestLobbyMessage = "";
 	private Map<String,String> usersWithGuestLobbyMessages;
 	private Boolean authenticatedGuest = false;
-    private Boolean allowPromoteGuestToModerator = false;
+	private Boolean allowPromoteGuestToModerator = false;
 	private long waitingGuestUsersTimeout = 30000;
 	private String meetingLayout = MeetingLayout.SMART_LAYOUT;
 	private boolean userHasJoined = false;

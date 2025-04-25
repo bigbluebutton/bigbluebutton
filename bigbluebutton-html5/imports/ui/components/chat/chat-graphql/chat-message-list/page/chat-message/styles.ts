@@ -1,8 +1,6 @@
-import styled, { css } from 'styled-components';
+import styled from 'styled-components';
 
 import {
-  userIndicatorsOffset,
-  smPaddingX,
   smPaddingY,
   lgPadding,
   $3xlPadding,
@@ -10,14 +8,11 @@ import {
   mdPadding,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
-  fontSizeBase,
+  fontSizeSmall,
   fontSizeSmaller,
 } from '/imports/ui/stylesheets/styled-components/typography';
 
 import {
-  colorWhite,
-  userListBg,
-  colorSuccess,
   colorBlueLightest,
   colorGrayLight,
   colorGrayLightest,
@@ -25,9 +20,8 @@ import {
   emphasizedMessageBackgroundColor,
   highlightedMessageBorderColor,
 } from '/imports/ui/stylesheets/styled-components/palette';
-
-import Header from '/imports/ui/components/common/control-header/component';
 import { ChatTime as ChatTimeBase } from './message-header/styles';
+import UserAvatar from '/imports/ui/components/user-avatar/component';
 
 interface ChatWrapperProps {
   sameSender: boolean;
@@ -47,13 +41,6 @@ interface ChatContentProps {
   $emphasizedMessage: boolean;
 }
 
-interface ChatAvatarProps {
-  avatar: string;
-  color: string;
-  moderator: boolean;
-  emoji?: string;
-}
-
 export const FlexColumn = styled.div`
   display: flex;
   flex-flow: column;
@@ -66,7 +53,7 @@ export const ChatWrapper = styled.div<ChatWrapperProps>`
   flex-flow: column;
   gap: ${smPaddingY};
   position: relative;
-  font-size: ${fontSizeBase};
+  font-size: ${fontSizeSmall};
   position: relative;
 
   [dir='rtl'] & {
@@ -137,7 +124,7 @@ export const ChatContentFooter = styled.div`
   bottom: 0.25rem;
   line-height: 1;
   font-size: 95%;
-  display: flex;
+  display: none;
   background-color: inherit;
   border-radius: 0.5rem;
 
@@ -148,96 +135,24 @@ export const ChatContentFooter = styled.div`
   [dir="ltr"] & {
     right: 0.25rem;
   }
+
+  .chat-message-wrapper-focused &,
+  .chat-message-wrapper-keyboard-focused &,
+  .chat-message-content:focus &,
+  .chat-message-content:hover & {
+    display: flex;
+  }
 `;
 
-export const ChatHeader = styled(Header)`
-  ${({ isRTL }) => isRTL && `
-    padding-left: ${smPaddingX};
-  `}
-
-  ${({ isRTL }) => !isRTL && `
-    padding-right: ${smPaddingX};
-  `}
-`;
-
-export const ChatAvatar = styled.div<ChatAvatarProps>`
+export const ChatAvatar = styled(UserAvatar)`
   flex: 0 0 2.25rem;
   margin: 0px calc(0.5rem) 0px 0px;
   box-flex: 0;
   position: relative;
-  height: 2.25rem;
-  width: 2.25rem;
-  border-radius: 50%;
   text-align: center;
   font-size: .85rem;
   border: 2px solid transparent;
   user-select: none;
-  ${({ color }) => css`
-    background-color: ${color};
-  `}
-
-  &:after,
-  &:before {
-    content: "";
-    position: absolute;
-    width: 0;
-    height: 0;
-    padding-top: .5rem;
-    padding-right: 0;
-    padding-left: 0;
-    padding-bottom: 0;
-    color: inherit;
-    top: auto;
-    left: auto;
-    bottom: ${userIndicatorsOffset};
-    right: ${userIndicatorsOffset};
-    border: 1.5px solid ${userListBg};
-    border-radius: 50%;
-    background-color: ${colorSuccess};
-    color: ${colorWhite};
-    opacity: 0;
-    font-family: 'bbb-icons';
-    font-size: .65rem;
-    line-height: 0;
-    text-align: center;
-    vertical-align: middle;
-    letter-spacing: -.65rem;
-    z-index: 1;
-
-    [dir="rtl"] & {
-      left: ${userIndicatorsOffset};
-      right: auto;
-      padding-right: .65rem;
-      padding-left: 0;
-    }
-  }
-
-  ${({ moderator }) => moderator && `
-    border-radius: 5px;
-  `}
-  
-  // ================ image ================
-  ${({ avatar, emoji, color }) => avatar?.length !== 0 && !emoji && css`
-      background-image: url(${avatar});
-      background-repeat: no-repeat;
-      background-size: contain;
-      border: 2px solid ${color};
-    `}
-  // ================ image ================
-
-  // ================ content ================
-  color: ${colorWhite} !important;
-  font-size: 110%;
-  text-transform: capitalize;
-  display: flex;
-  justify-content: center;
-  align-items:center;
-  // ================ content ================
-
-  & .react-loading-skeleton {
-    height: 2.25rem;
-    width: 2.25rem;
-  }
 `;
 
 export const Container = styled.div<{ $sequence: number }>`

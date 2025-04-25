@@ -1,6 +1,12 @@
 import styled, { css, keyframes } from 'styled-components';
 import Button from '/imports/ui/components/common/button/component';
 import {
+  Separator as BaseSeparator,
+  HeaderContainer as BaseHeaderContainer,
+  PanelContent as BasePanelContent,
+} from '/imports/ui/components/sidebar-content/styles';
+import {
+  jumboPaddingY,
   smPaddingX,
   smPaddingY,
   lgPaddingX,
@@ -13,6 +19,9 @@ import {
   pollStatsElementWidth,
   pollResultWidth,
   borderSizeLarge,
+  smPadding,
+  contentSidebarPadding,
+  contentSidebarBottomScrollPadding,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
   colorText,
@@ -31,6 +40,13 @@ import {
   pollStatsBorderColor,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { fontSizeBase, fontSizeSmall } from '/imports/ui/stylesheets/styled-components/typography';
+import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
+
+const HeaderContainer = styled(BaseHeaderContainer)``;
+
+const Separator = styled(BaseSeparator)``;
+
+const PanelContent = styled(BasePanelContent)``;
 
 const ToggleLabel = styled.span`
   margin-right: ${smPaddingX};
@@ -363,7 +379,7 @@ const CustomInputHeading = styled(SectionHeading)`
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  padding-bottom: ${mdPaddingX};
+  padding-bottom: ${jumboPaddingY};
 `;
 
 const CustomInputHeadingCol = styled(Col)`
@@ -561,17 +577,6 @@ const LiveResultButton = styled(Button)`
   white-space: pre-wrap;
 `;
 
-const Separator = styled.div`
-  display: flex;
-  flex: 1 1 100%;
-  height: 1px;
-  min-height: 1px;
-  background-color: ${colorGrayLightest};
-  padding: 0;
-  margin-top: 1rem;
-  margin-bottom: 1rem;
-`;
-
 const THeading = styled.th`
   text-align: left;
 
@@ -590,7 +595,16 @@ const DndTextArea = styled.textarea<{ active: boolean }>`
   `}
 `;
 
+const ContentWrapper = styled(ScrollboxVertical)`
+  margin: 0 ${smPadding} 0;
+  padding: ${contentSidebarPadding} ${contentSidebarPadding} ${contentSidebarBottomScrollPadding};
+  height: 100%;
+`;
+
 export default {
+  HeaderContainer,
+  Separator,
+  PanelContent,
   ToggleLabel,
   PollOptionInput,
   DeletePollOptionButton,
@@ -639,7 +653,7 @@ export default {
   PublishButton,
   CancelButton,
   LiveResultButton,
-  Separator,
   THeading,
   DndTextArea,
+  ContentWrapper,
 };

@@ -42,6 +42,9 @@ const AppContainer = (props) => {
   } = useMeeting((m) => ({
     layout: m.layout,
     componentsFlags: m.componentsFlags,
+    isBreakout: m.isBreakout,
+    name: m.name,
+    meetingId: m.meetingId,
   }));
 
   const { data: currentPageInfo } = useDeduplicatedSubscription(
@@ -71,6 +74,8 @@ const AppContainer = (props) => {
   const presentation = layoutSelectInput((i) => i.presentation);
   const sharedNotesInput = layoutSelectInput((i) => i.sharedNotes);
   const { hideNotificationToasts } = layoutSelectInput((i) => i.notificationsBar);
+  const selectedLayout = layoutSelect((i) => i.layoutType);
+
   const layoutType = layoutSelect((i) => i.layoutType);
   const isNonMediaLayout = [
     LAYOUT_TYPE.CAMERAS_ONLY,
@@ -149,6 +154,10 @@ const AppContainer = (props) => {
           hideNotificationToasts: hideNotificationToasts
             || getFromUserSettings('bbb_hide_notifications', false),
           darkTheme,
+          selectedLayout,
+          isBreakout: currentMeeting?.isBreakout,
+          meetingName: currentMeeting?.name,
+          meetingId: currentMeeting?.meetingId,
         }}
         {...props}
       />

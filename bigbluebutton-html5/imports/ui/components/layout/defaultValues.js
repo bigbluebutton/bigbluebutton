@@ -1,5 +1,14 @@
 import { LAYOUT_TYPE, CAMERADOCK_POSITION, PANELS } from './enums';
 
+export const SIDEBAR_NAVIGATION_PANEL_WIDTH = 60; // px
+export const SIDEBAR_NAVIGATION_MARGIN = 24; // px
+export const SIDEBAR_CONTENT_PANEL_MIN_HEIGHT = 300; // px
+export const SIDEBAR_CONTENT_VERTICAL_MARGIN = 56; // px
+export const SIDEBAR_CONTENT_PANEL_MIN_WIDTH = 70; // px
+export const SIDEBAR_CONTENT_PANEL_MAX_WIDTH = 800; // px
+export const SIDEBAR_CONTENT_MARGIN_TO_MEDIA = 24; // px
+export const SIDEBAR_NAVIGATION_MARGIN_TO_THE_EDGE_MOBILE = 16; // px
+
 const DEFAULT_VALUES = {
   layoutType: LAYOUT_TYPE.CUSTOM_LAYOUT,
   panelType: 'chat',
@@ -26,18 +35,20 @@ const DEFAULT_VALUES = {
   actionBarPadding: 11.2,
   actionBarTabOrder: 6,
 
-  sidebarNavMaxWidth: 240,
-  sidebarNavMinWidth: 70,
-  sidebarNavHeight: '100%',
+  sidebarNavWidth: SIDEBAR_NAVIGATION_PANEL_WIDTH
+    + (2 * SIDEBAR_NAVIGATION_MARGIN),
+  sidebarNavWidthMobile: 48, // px
+  sidebarNavMarginToTheEdgeMobile: 16, // px
+  sidebarNavHeightPercentage: 1,
+  sidebarNavHeightPercentageMobile: 0.80,
   sidebarNavTop: 0,
   sidebarNavLeft: 0,
   sidebarNavTabOrder: 1,
-  sidebarNavPanel: PANELS.USERLIST,
 
-  sidebarContentMaxWidth: 800,
-  sidebarContentMinWidth: 70,
-  sidebarContentMinHeight: 200,
-  sidebarContentHeight: '100%',
+  sidebarContentMaxWidth: SIDEBAR_CONTENT_PANEL_MAX_WIDTH + SIDEBAR_CONTENT_MARGIN_TO_MEDIA,
+  sidebarContentMinWidth: SIDEBAR_CONTENT_PANEL_MIN_WIDTH + SIDEBAR_CONTENT_MARGIN_TO_MEDIA,
+  sidebarContentMinHeight: SIDEBAR_CONTENT_PANEL_MIN_HEIGHT
+    + (2 * SIDEBAR_CONTENT_VERTICAL_MARGIN),
   sidebarContentTop: 0,
   sidebarContentTabOrder: 2,
   sidebarContentPanel: PANELS.NONE,

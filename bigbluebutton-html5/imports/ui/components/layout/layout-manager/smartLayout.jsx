@@ -3,7 +3,9 @@ import { throttle } from '/imports/utils/throttle';
 import { layoutDispatch, layoutSelect, layoutSelectInput } from '/imports/ui/components/layout/context';
 import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
 import { INITIAL_INPUT_STATE } from '/imports/ui/components/layout/initState';
-import { ACTIONS, PANELS, CAMERADOCK_POSITION } from '/imports/ui/components/layout/enums';
+import {
+  ACTIONS, PANELS, LAYOUT_TYPE, CAMERADOCK_POSITION,
+} from '/imports/ui/components/layout/enums';
 import { defaultsDeep } from '/imports/utils/array-utils';
 import Session from '/imports/ui/services/storage/in-memory';
 
@@ -11,7 +13,9 @@ const windowWidth = () => window.document.documentElement.clientWidth;
 const windowHeight = () => window.document.documentElement.clientHeight;
 
 const SmartLayout = (props) => {
-  const { bannerAreaHeight, isMobile, calculatesNavbarHeight } = props;
+  const {
+    prevLayout, bannerAreaHeight, isMobile, calculatesNavbarHeight,
+  } = props;
 
   function usePrevious(value) {
     const ref = useRef();
@@ -81,16 +85,29 @@ const SmartLayout = (props) => {
           sidebarNavigation, sidebarContent, presentation, cameraDock,
           externalVideo, genericMainContent, screenShare, sharedNotes,
         } = prevInput;
+        const { registeredApps, pinnedApps } = sidebarNavigation;
         const { sidebarContentPanel } = sidebarContent;
+        let sidebarContentPanelOverride = sidebarContentPanel;
+        let overrideOpenSidebarPanel = sidebarContentPanel !== PANELS.NONE;
+        let overrideOpenSidebarNavigation = sidebarNavigation.isOpen
+          || sidebarContentPanel !== PANELS.NONE || false;
+        if (prevLayout === LAYOUT_TYPE.CAMERAS_ONLY
+          || prevLayout === LAYOUT_TYPE.PRESENTATION_ONLY
+          || prevLayout === LAYOUT_TYPE.MEDIA_ONLY) {
+          overrideOpenSidebarNavigation = true;
+          overrideOpenSidebarPanel = true;
+          sidebarContentPanelOverride = PANELS.CHAT;
+        }
         return defaultsDeep(
           {
             sidebarNavigation: {
-              isOpen:
-                sidebarNavigation.isOpen || sidebarContentPanel !== PANELS.NONE || false,
+              isOpen: overrideOpenSidebarNavigation,
+              registeredApps,
+              pinnedApps,
             },
             sidebarContent: {
-              isOpen: sidebarContentPanel !== PANELS.NONE,
-              sidebarContentPanel,
+              isOpen: overrideOpenSidebarPanel,
+              sidebarContentPanel: sidebarContentPanelOverride,
             },
             SidebarContentHorizontalResizer: {
               isOpen: false,
@@ -159,10 +176,9 @@ const SmartLayout = (props) => {
 
     cameraDockBounds.isCameraHorizontal = false;
 
-    const mediaBoundsWidth =
-      mediaBounds.width > presentationToolbarMinWidth && !isMobile
-        ? mediaBounds.width
-        : presentationToolbarMinWidth;
+    const mediaBoundsWidth = mediaBounds.width > presentationToolbarMinWidth && !isMobile
+      ? mediaBounds.width
+      : presentationToolbarMinWidth;
 
     cameraDockBounds.top = navBarHeight;
     cameraDockBounds.left = mediaAreaBounds.left;
@@ -271,10 +287,10 @@ const SmartLayout = (props) => {
     }
 
     if (
-      fullscreenElement === 'Presentation' ||
-      fullscreenElement === 'Screenshare' ||
-      fullscreenElement === 'ExternalVideo' ||
-      fullscreenElement === 'GenericContent'
+      fullscreenElement === 'Presentation'
+      || fullscreenElement === 'Screenshare'
+      || fullscreenElement === 'ExternalVideo'
+      || fullscreenElement === 'GenericContent'
     ) {
       mediaBounds.width = windowWidth();
       mediaBounds.height = windowHeight();
@@ -288,7 +304,7 @@ const SmartLayout = (props) => {
     const mediaContentSize = hasScreenShare ? screenShareSize : slideSize;
 
     if (cameraDockInput.numCameras > 0 && !cameraDockInput.isDragging) {
-      if (mediaContentSize.width !== 0 && mediaContentSize.height !== 0 
+      if (mediaContentSize.width !== 0 && mediaContentSize.height !== 0
         && !hasExternalVideo && !genericContentId) {
         if (mediaContentSize.width < mediaAreaBounds.width && !isMobile) {
           if (mediaContentSize.width < mediaAreaBounds.width * 0.8) {
@@ -352,22 +368,24 @@ const SmartLayout = (props) => {
     const sidebarNavHeight = calculatesSidebarNavHeight();
     const sidebarContentWidth = calculatesSidebarContentWidth();
     const sidebarContentHeight = calculatesSidebarContentHeight();
-    const sidebarNavBounds = calculatesSidebarNavBounds();
-    const sidebarContentBounds = calculatesSidebarContentBounds(sidebarNavWidth.width);
+    const sidebarNavBounds = calculatesSidebarNavBounds(sidebarNavHeight);
+    const sidebarContentBounds = calculatesSidebarContentBounds(
+      sidebarNavWidth.horizontalSpaceOccupied,
+    );
     const mediaAreaBounds = calculatesMediaAreaBounds(
-      sidebarNavWidth.width,
-      sidebarContentWidth.width
+      sidebarNavWidth.horizontalSpaceOccupied,
+      sidebarContentWidth.width,
     );
     const navbarBounds = calculatesNavbarBounds(mediaAreaBounds);
     const actionbarBounds = calculatesActionbarBounds(mediaAreaBounds);
     const slideSize = calculatesSlideSize(mediaAreaBounds);
     const screenShareSize = calculatesScreenShareSize(mediaAreaBounds);
-    const sidebarSize = sidebarContentWidth.width + sidebarNavWidth.width;
+    const sidebarSize = sidebarContentWidth.width + sidebarNavWidth.horizontalSpaceOccupied;
     const mediaBounds = calculatesMediaBounds(
       mediaAreaBounds,
       slideSize,
       sidebarSize,
-      screenShareSize
+      screenShareSize,
     );
     const cameraDockBounds = calculatesCameraDockBounds(mediaAreaBounds, mediaBounds, sidebarSize);
     const horizontalCameraDiff = cameraDockBounds.isCameraHorizontal
@@ -429,23 +447,15 @@ const SmartLayout = (props) => {
     });
 
     layoutContextDispatch({
-      type: ACTIONS.SET_SIDEBAR_NAVIGATION_RESIZABLE_EDGE,
-      value: {
-        top: false,
-        right: !isRTL,
-        bottom: false,
-        left: isRTL,
-      },
-    });
-
-    layoutContextDispatch({
       type: ACTIONS.SET_SIDEBAR_CONTENT_OUTPUT,
       value: {
         display: sidebarContentInput.isOpen,
         minWidth: sidebarContentWidth.minWidth,
         width: sidebarContentWidth.width,
         maxWidth: sidebarContentWidth.maxWidth,
+        minHeight: sidebarContentHeight,
         height: sidebarContentHeight,
+        maxHeight: sidebarContentHeight,
         top: sidebarContentBounds.top,
         left: sidebarContentBounds.left,
         right: sidebarContentBounds.right,
@@ -539,7 +549,7 @@ const SmartLayout = (props) => {
         right: isRTL ? mediaBounds.right + horizontalCameraDiff : null,
       },
     });
-    
+
     layoutContextDispatch({
       type: ACTIONS.SET_GENERIC_CONTENT_OUTPUT,
       value: {

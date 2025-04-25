@@ -12,7 +12,15 @@ let lastToast = {
   icon: null,
 };
 
-export function notify(message, type = 'default', icon, options, content, small) {
+export function notify(
+  message,
+  type = 'default',
+  icon,
+  options,
+  content,
+  small,
+  showSeparator,
+) {
   const settings = {
     ...options,
   };
@@ -24,6 +32,8 @@ export function notify(message, type = 'default', icon, options, content, small)
     icon,
     content,
     small,
+    showSeparator,
+    $disablePointer: options?.disablePointer ?? true,
   };
 
   if (!toast.isActive(lastToast.id) || !isEqual(lastToastProps, toastProps)) {

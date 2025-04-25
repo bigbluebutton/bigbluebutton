@@ -19,6 +19,9 @@ import { defineMessages, useIntl } from 'react-intl';
 import { useIsChatEnabled, useIsEditChatMessageEnabled } from '/imports/ui/services/features';
 import { checkText } from 'smile2emoji';
 import { findDOMNode } from 'react-dom';
+import AddReactionIcon from '@mui/icons-material/AddReaction';
+import SendIcon from '@mui/icons-material/Send';
+import Tooltip from '@mui/material/Tooltip';
 
 import Styled from './styles';
 import deviceInfo from '/imports/utils/deviceInfo';
@@ -38,6 +41,11 @@ import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
 import { throttle } from '/imports/utils/throttle';
 import logger from '/imports/startup/client/logger';
 import { CHAT_EDIT_MESSAGE_MUTATION } from '../chat-message-list/page/chat-message/mutations';
+import ChatTypingIndicatorContainer from '../chat-typing-indicator/component';
+import ChatReplyIntention from '../chat-reply-intention/component';
+import ChatEditingWarning from '../chat-editing-warning/component';
+import { btnPrimaryBg } from '/imports/ui/stylesheets/styled-components/palette';
+
 import {
   LastSentMessageData,
   LastSentMessageResponse,
@@ -551,6 +559,8 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
         onSubmit={handleSubmit}
         isRTL={isRTL}
       >
+        <ChatReplyIntention key="chatReplyIntention" />
+        <ChatEditingWarning key="chatEditingWarning" />
         {showEmojiPicker ? (
           <Styled.EmojiPickerWrapper ref={emojiPickerRef}>
             <Styled.EmojiPicker
@@ -596,34 +606,44 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
               async
             />
             {ENABLE_EMOJI_PICKER ? (
-              <Styled.EmojiButton
-                ref={emojiPickerButtonRef}
-                onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                icon="happy"
-                color="light"
-                ghost
-                type="button"
-                circle
-                hideLabel
-                label={intl.formatMessage(messages.emojiButtonLabel)}
-                data-test="emojiPickerButton"
-              />
+              <Tooltip title={<span style={{ fontSize: '0.9rem' }}>{intl.formatMessage(messages.emojiButtonLabel)}</span>} arrow>
+                <Styled.EmojiButton
+                  sx={{
+                    alignSelf: 'center',
+                    height: '100%',
+                    minWidth: 'auto',
+                    color: 'action.active',
+                  }}
+                  onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                  data-test="emojiPickerButton"
+                >
+                  <AddReactionIcon />
+                </Styled.EmojiButton>
+              </Tooltip>
             ) : null}
+            <div style={{ zIndex: 10 }}>
+              <Tooltip title={<span style={{ fontSize: '0.9rem' }}>{intl.formatMessage(messages.submitLabel)}</span>} arrow>
+                <Styled.SendButton
+                  sx={{
+                    alignSelf: 'center',
+                    fontSize: '0.9rem',
+                    height: '100%',
+                    borderRadius: '0 0.75rem 0.75rem 0',
+                    minWidth: 'auto',
+                    padding: '8px',
+                    backgroundColor: btnPrimaryBg,
+                  }}
+                  variant="contained"
+                  disabled={disabled || partnerIsLoggedOut || chatSendMessageLoading}
+                  type="submit"
+                  data-test="sendMessageButton"
+                  aria-label={intl.formatMessage(messages.submitLabel)}
+                >
+                  <SendIcon />
+                </Styled.SendButton>
+              </Tooltip>
+            </div>
           </Styled.InputWrapper>
-          <div style={{ zIndex: 10 }}>
-            <Styled.SendButton
-              hideLabel
-              circle
-              aria-label={intl.formatMessage(messages.submitLabel)}
-              type="submit"
-              disabled={disabled || partnerIsLoggedOut || chatSendMessageLoading}
-              label={intl.formatMessage(messages.submitLabel)}
-              color="primary"
-              icon="send"
-              onClick={() => { }}
-              data-test="sendMessageButton"
-            />
-          </div>
         </Styled.Wrapper>
         {
           error && (
@@ -633,6 +653,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
           )
         }
 
+        <ChatTypingIndicatorContainer />
       </Styled.Form>
     );
   };

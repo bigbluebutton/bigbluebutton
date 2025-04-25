@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { useMutation, useReactiveVar } from '@apollo/client';
 import getFromUserSettings from '/imports/ui/services/users-settings';
@@ -8,7 +8,9 @@ import {
   layoutSelectOutput,
   layoutSelectInput,
   layoutDispatch,
-} from '../layout/context';
+  layoutSelect,
+} from '/imports/ui/components/layout/context';
+import { DEVICE_TYPE, SMALL_VIEWPORT_BREAKPOINT } from '/imports/ui/components/layout/enums';
 import {
   useIsExternalVideoEnabled,
   useIsPollingEnabled,
@@ -21,6 +23,7 @@ import {
   CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
 } from '/imports/ui/components/whiteboard/queries';
 import MediaService from '../media/service';
+import { isDarkThemeEnabled } from '/imports/ui/components/app/service';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { EXTERNAL_VIDEO_STOP } from '../external-video-player/mutations';
@@ -31,7 +34,6 @@ import { useMeetingLayoutUpdater, usePushLayoutUpdater } from '../layout/push-la
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
 import deviceInfo from '/imports/utils/deviceInfo';
-import { SMALL_VIEWPORT_BREAKPOINT } from '../layout/enums';
 
 const isLayeredView = window.matchMedia(`(max-width: ${SMALL_VIEWPORT_BREAKPOINT}px)`);
 
@@ -95,12 +97,14 @@ const ActionsBarContainer = (props) => {
   const { data: pinnedPadData } = useDeduplicatedSubscription(
     PINNED_PAD_SUBSCRIPTION,
   );
+  const isMobile = layoutSelect((i) => i.deviceType) === DEVICE_TYPE.MOBILE;
 
   const allowExternalVideo = useIsExternalVideoEnabled();
   const connected = useReactiveVar(connectionStatus.getConnectedStatusVar());
   const intl = useIntl();
   const isPresentationEnabled = useIsPresentationEnabled();
   const isTimerFeatureEnabled = useIsTimerFeatureEnabled();
+  const [darkModeIsEnabled, setDarkModeIsEnabled] = useState(isDarkThemeEnabled());
   const isPollingEnabled = useIsPollingEnabled() && isPresentationEnabled;
   const applicationSettings = useSettings(SETTINGS.APPLICATION);
   const { pushLayout } = applicationSettings;
@@ -116,6 +120,19 @@ const ActionsBarContainer = (props) => {
   const ariaHidden = sidebarNavigationIsOpen
     && sidebarContentIsOpen
     && (deviceInfo.isPhone || isLayeredView.matches);
+
+  useEffect(() => {
+    const handleDarkModeChange = (event) => {
+      setDarkModeIsEnabled(event.detail.enabled);
+    };
+
+    window.addEventListener('darkmodechange', handleDarkModeChange);
+
+    return () => {
+      window.removeEventListener('darkmodechange', handleDarkModeChange);
+    };
+  }, []);
+
   if (actionsBarStyle.display === false) return null;
   if (!currentMeeting) return null;
   if (!pinnedPadData) return null;
@@ -158,6 +175,8 @@ const ActionsBarContainer = (props) => {
         setMeetingLayout,
         showPushLayout: showPushLayoutButton && applicationSettings.selectedLayout === 'custom',
         ariaHidden,
+        isDarkThemeEnabled: darkModeIsEnabled,
+        isMobile,
       }
     }
     />

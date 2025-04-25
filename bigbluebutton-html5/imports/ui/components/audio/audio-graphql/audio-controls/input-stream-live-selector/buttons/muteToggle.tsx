@@ -5,7 +5,7 @@ import Styled from '../styles';
 import { useShortcut } from '/imports/ui/core/hooks/useShortcut';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import useToggleVoice from '../../../hooks/useToggleVoice';
-import { SET_AWAY } from '/imports/ui/components/user-list/user-list-content/user-participants/user-list-participants/user-actions/mutations';
+import { SET_AWAY } from '/imports/ui/components/user-list/user-list-participants/list-item/mutations';
 import VideoService from '/imports/ui/components/video-provider/service';
 import {
   startPushToTalk,

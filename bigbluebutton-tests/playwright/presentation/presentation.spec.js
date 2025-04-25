@@ -11,7 +11,7 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
     await presentation.skipSlide();
   });
 
-  test('Share Camera As Content', async ({ browser, context, page }) => {
+  test('Share Camera As Content', { tag: '@flaky-3.1' }, async ({ browser, context, page }) => {
     const presentation = new Presentation(browser, context);
     await presentation.initPages(page);
     await presentation.shareCameraAsContent();
@@ -34,7 +34,7 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
   });
 
   // https://docs.bigbluebutton.org/3.0/testing/release-testing/#fit-to-width-option
-  test('Presentation fit to width', async ({ browser, context, page }) => {
+  test('Presentation fit to width', { tag: '@flaky-3.1' }, async ({ browser, context, page }) => {
     const presentation = new Presentation(browser, context);
     await presentation.initModPage(page, true);
     await presentation.initUserPage(true, context);
@@ -69,7 +69,7 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
     await presentation.zoom();
   });
 
-  test('Select Slide', async ({ browser, context, page }) => {
+  test('Select Slide', { tag: '@flaky-3.1' }, async ({ browser, context, page }) => {
     const presentation = new Presentation(browser, context);
     await presentation.initPages(page);
     await presentation.selectSlide();
@@ -97,19 +97,19 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
     });
 
     // https://docs.bigbluebutton.org/3.0/testing/release-testing/#enabling-and-disabling-presentation-download-automated
-    test('Enable and disable original presentation download', async ({ browser, context, page }, testInfo) => {
+    test('Enable and disable original presentation download', { tag: '@flaky-3.1' }, async ({ browser, context, page }, testInfo) => {
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page);
       await presentation.enableAndDisablePresentationDownload(testInfo);
     });
-
-    test('Send presentation in the current state (with annotations) to chat for downloading', async ({ browser, context, page }, testInfo) => {
+    
+    test('Send presentation in the current state (with annotations) to chat for downloading', { tag: '@flaky-3.1' }, async ({ browser, context, page }, testInfo) => {
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page);
       await presentation.sendPresentationToDownload(testInfo);
     });
 
-    test('Remove all presentations', async ({ browser, context, page }) => {
+    test('Remove all presentations', { tag: '@flaky-3.1' }, async ({ browser, context, page }) => {
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page);
       await presentation.removeAllPresentation();

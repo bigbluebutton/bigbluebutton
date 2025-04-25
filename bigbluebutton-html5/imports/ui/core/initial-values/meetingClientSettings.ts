@@ -65,6 +65,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         enabled: false,
         mobile: false,
         provider: 'webspeech',
+        useAppsGallery: false,
         language: {
           available: [
             'en-US',
@@ -82,6 +83,9 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         interval: 200,
         threshold: -50,
         duration: 4000,
+      },
+      appsGallery: {
+        maxPinnedApps: 3,
       },
       remainingTimeThreshold: 30,
       remainingTimeAlertThresholdArray: [
@@ -826,10 +830,12 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       role_moderator: 'MODERATOR',
       role_viewer: 'VIEWER',
       label: {
+        presenter: false,
         moderator: false,
         mobile: true,
         guest: true,
         sharingWebcam: true,
+        bot: false,
       },
     },
     whiteboard: {
@@ -915,12 +921,12 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
     },
     minBrowserVersions: {
       safari: '>=14',
-      chrome: '>=114',
+      chrome: '>=87',
       firefox: '>=80',
       edge: '>=85',
       mobile: {
         safari: '>=14',
-        chrome: '>=114',
+        chrome: '>=87',
       },
     },
   },

@@ -85,14 +85,11 @@ Consider using a Docker setup for a development environment - [https://github.co
 usermod -a -G sudo bigbluebutton
 mkhomedir_helper bigbluebutton # to add homedir to existing user
 chown -R bigbluebutton:bigbluebutton /home/bigbluebutton/
+sudo passwd bigbluebutton # to set password for the user bigbluebutton if not done yet
 sudo su - bigbluebutton
 # if you cannot switch to user bigbluebutton, you may need to switch /bin/false to /bin/bash for user bigbluebutton in /etc/passwd
 # and then retry "sudo su - bigbluebutton"
 # Note that you may want to disable terminal sessions for user bigbluebutton if you will later use the server in production
-```
-
-```bash
-sudo ls
 ```
 
 #### wget

@@ -476,8 +476,9 @@ CREATE INDEX "idx_v_user_meetingId_orderByColumns" ON "user"(
                         )
                 where "user"."currentlyInMeeting" is true;
 
-CREATE OR REPLACE VIEW "v_user_current"
-AS SELECT "user"."userId",
+CREATE OR REPLACE VIEW "v_user_current" AS 
+SELECT 
+    "user"."userId",
     "user"."extId",
     "user"."authToken",
     "user"."meetingId",
@@ -525,8 +526,9 @@ AS SELECT "user"."userId",
     CASE WHEN "user"."role" = 'MODERATOR' THEN true ELSE false END "isModerator",
     "user"."currentlyInMeeting",
     "user"."inactivityWarningDisplay",
-    "user"."inactivityWarningTimeoutSecs"
-   FROM "user";
+    "user"."inactivityWarningTimeoutSecs",
+    "user"."bot"
+FROM "user";
 
 CREATE OR REPLACE VIEW "v_user_guest" AS
 SELECT u."meetingId", u."userId",

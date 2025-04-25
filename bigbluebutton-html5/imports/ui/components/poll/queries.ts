@@ -1,5 +1,13 @@
 import { gql } from '@apollo/client';
 
+export interface GetHasCurrentPresentationResponse {
+  pres_page_aggregate: {
+    aggregate: {
+      count: number;
+    };
+  };
+}
+
 export interface UserInfo {
   user: {
     name: string;

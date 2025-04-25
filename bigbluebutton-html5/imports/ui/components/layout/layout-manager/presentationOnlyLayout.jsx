@@ -110,15 +110,17 @@ const PresentationOnlyLayout = (props) => {
     const sidebarNavWidth = calculatesSidebarNavWidth();
     const sidebarNavHeight = calculatesSidebarNavHeight();
     const sidebarContentWidth = calculatesSidebarContentWidth();
-    const sidebarNavBounds = calculatesSidebarNavBounds();
-    const sidebarContentBounds = calculatesSidebarContentBounds(sidebarNavWidth.width);
+    const sidebarNavBounds = calculatesSidebarNavBounds(sidebarNavHeight);
+    const sidebarContentBounds = calculatesSidebarContentBounds(
+      sidebarNavWidth.horizontalSpaceOccupied,
+    );
     const mediaAreaBounds = calculatesMediaAreaBounds(
-      sidebarNavWidth.width,
+      sidebarNavWidth.horizontalSpaceOccupied,
       sidebarContentWidth.width,
     );
     const navbarBounds = calculatesNavbarBounds(mediaAreaBounds);
     const actionbarBounds = calculatesActionbarBounds(mediaAreaBounds);
-    const sidebarSize = sidebarContentWidth.width + sidebarNavWidth.width;
+    const sidebarSize = sidebarContentWidth.width + sidebarNavWidth.horizontalSpaceOccupied;
     const mediaBounds = calculatesMediaBounds(mediaAreaBounds, sidebarSize);
     const sidebarContentHeight = calculatesSidebarContentHeight();
     const cameraDockBounds = calculatesCameraDockBounds();
@@ -175,16 +177,6 @@ const PresentationOnlyLayout = (props) => {
         tabOrder: DEFAULT_VALUES.sidebarNavTabOrder,
         isResizable: !isMobile && !isTablet,
         zIndex: sidebarNavBounds.zIndex,
-      },
-    });
-
-    layoutContextDispatch({
-      type: ACTIONS.SET_SIDEBAR_NAVIGATION_RESIZABLE_EDGE,
-      value: {
-        top: false,
-        right: !isRTL,
-        bottom: false,
-        left: isRTL,
       },
     });
 
@@ -257,14 +249,14 @@ const PresentationOnlyLayout = (props) => {
       type: ACTIONS.SET_PRESENTATION_OUTPUT,
       value: {
         display: true,
-        width: mediaBounds.width,
-        height: mediaBounds.height,
-        top: mediaBounds.top,
-        left: mediaBounds.left,
-        right: isRTL ? mediaBounds.right : null,
+        width: windowWidth(),
+        height: windowHeight(),
+        top: 0,
+        left: 0,
+        right: 0,
         tabOrder: DEFAULT_VALUES.presentationTabOrder,
         isResizable: false,
-        zIndex: mediaBounds.zIndex,
+        zIndex: 99,
       },
     });
 

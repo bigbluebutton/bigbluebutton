@@ -98,8 +98,6 @@
 }
 .icon-bbb-more:before {
   content: "\e902";
-  display: inline-block;
-  transform: rotate(90deg);
 }
 .icon-bbb-promote:before {
   content: "\e903";
@@ -337,4 +335,55 @@
 }
 .icon-bbb-manage_layout:before {
   content: "\e968";
+}
+.icon-bbb-widgets:before {
+  content: "\e969";
+}
+.icon-bbb-learning_dashboard:before {
+  content: "\e96a";
+}
+.icon-bbb-profile:before {
+  content: "\e96b";
+}
+.icon-bbb-user_list:before {
+  content: "\e96c";
+}
+.icon-bbb-shared_notes:before {
+  content: "\e96d";
+}
+.icon-bbb-questions:before {
+  content: "\e96e";
+}
+.icon-bbb-stream:before {
+  content: "\e96f";
+}
+.icon-bbb-translate:before {
+  content: "\e970";
+}
+.icon-bbb-media-area:before {
+  content: "\e971";
+}
+.icon-bbb-pause:before {
+  content: "\e972";
+}
+.icon-bbb-pen_tool_off:before {
+  content: "\e973";
+}
+.icon-bbb-hand_off:before {
+  content: "\e974";
+}
+.icon-bbb-reactions:before {
+  content: "\e975";
+}
+.icon-bbb-random:before {
+  content: "\e976";
+}
+.icon-bbb-text_decrease:before {
+  content: "\e977";
+}
+.icon-bbb-text_increase:before {
+  content:   "\e978";
+}
+.icon-bbb-menu:before {
+  content:   "\e979";
 }

@@ -61,7 +61,6 @@ export const ACTIONS = {
 
   SET_LAYOUT_INPUT: 'setLayoutInput',
 
-  SET_SIDEBAR_NAVIGATION_PANEL: 'setSidebarNavigationPanel',
   SET_SIDEBAR_CONTENT_PANEL: 'setSidebarcontentPanel',
 
   SET_ID_CHAT_OPEN: 'setIdChatOpen',
@@ -81,9 +80,10 @@ export const ACTIONS = {
 
   SET_SIDEBAR_NAVIGATION_IS_OPEN: 'setSidebarNavigationIsOpen',
   SET_SIDEBAR_NAVIGATION_SIZE: 'setSidebarNavigationSize',
+  REGISTER_SIDEBAR_APP: 'registerSidebarApp',
+  UNREGISTER_SIDEBAR_APP: 'unregisterSidebarApp',
+  SET_SIDEBAR_NAVIGATION_PIN_APP: 'setSidebarNavigationPinApp',
   SET_SIDEBAR_NAVIGATION_OUTPUT: 'setSidebarNavigationOutput',
-  SET_SIDEBAR_NAVIGATION_IS_RESIZABLE: 'setSidebarNavigationIsResizable',
-  SET_SIDEBAR_NAVIGATION_RESIZABLE_EDGE: 'setSidebarNavigationResizableEdge',
 
   SET_SIDEBAR_CONTENT_IS_OPEN: 'setSidebarContentIsOpen',
   SET_SIDEBAR_CONTENT_SIZE: 'setSidebarContentSize',
@@ -132,6 +132,8 @@ export const ACTIONS = {
   SET_SHARED_NOTES_OUTPUT: 'setSharedNotesOutput',
   SET_NOTES_IS_PINNED: 'setNotesIsPinned',
 
+  SET_CAPTIONS_OUTPUT: 'setCaptionsOutput',
+
   SET_PILE_CONTENT_FOR_PRESENTATION_AREA: 'setPileContentForPresentationArea',
 };
 
@@ -144,14 +146,19 @@ export const PRESENTATION_AREA = {
 };
 
 export const PANELS = {
+  PROFILE: 'profile',
   USERLIST: 'userlist',
   CHAT: 'chat',
-  POLL: 'poll',
-  CAPTIONS: 'captions',
-  BREAKOUT: 'breakoutroom',
   SHARED_NOTES: 'shared-notes',
+  APPS_GALLERY: 'apps-gallery',
+  POLL: 'poll',
+  BREAKOUT: 'breakoutroom',
+  LEARNING_DASHBOARD: 'learning-dashboard',
+  SETTINGS: 'settings',
+  CAPTIONS: 'captions',
   TIMER: 'timer',
-  WAITING_USERS: 'waiting-users',
   GENERIC_CONTENT_SIDEKICK: 'generic-content-sidekick',
+  WAITING_USERS: 'waiting-users',
+  AUDIO_CAPTIONS: 'audio-captions',
   NONE: 'none',
 };

@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React, { Dispatch, SetStateAction } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import BBBMenu from '/imports/ui/components/common/menu/component';
-import CreateBreakoutRoomContainerGraphql from '../create-breakout-room/component';
 import Trigger from '/imports/ui/components/common/control-header/right/component';
 
 const intlMessages = defineMessages({
@@ -29,6 +28,7 @@ interface BreakoutDropdownProps {
   isMeteorConnected: boolean;
   amIModerator: boolean;
   isRTL: boolean;
+  setUpdateUsersWhileRunning: Dispatch<SetStateAction<boolean>>,
 }
 
 interface MenuItem {
@@ -45,9 +45,9 @@ const BreakoutDropdown: React.FC<BreakoutDropdownProps> = ({
   isMeteorConnected,
   amIModerator,
   isRTL,
+  setUpdateUsersWhileRunning,
 }) => {
   const intl = useIntl();
-  const [isCreateBreakoutRoomModalOpen, setIsCreateBreakoutRoomModalOpen] = useState(false);
 
   const getAvailableActions = (): MenuItem[] => {
     const menuItems: MenuItem[] = [];
@@ -66,7 +66,7 @@ const BreakoutDropdown: React.FC<BreakoutDropdownProps> = ({
       dataTest: 'openUpdateBreakoutUsersModal',
       label: intl.formatMessage(intlMessages.manageUsers),
       onClick: () => {
-        setIsCreateBreakoutRoomModalOpen(true);
+        setUpdateUsersWhileRunning(true);
       },
     });
 
@@ -83,10 +83,6 @@ const BreakoutDropdown: React.FC<BreakoutDropdownProps> = ({
     }
 
     return menuItems;
-  };
-
-  const setCreateBreakoutRoomModalIsOpen = (value: boolean) => {
-    setIsCreateBreakoutRoomModalOpen(value);
   };
 
   return (
@@ -115,14 +111,6 @@ const BreakoutDropdown: React.FC<BreakoutDropdownProps> = ({
         }}
         actions={getAvailableActions()}
       />
-      {isCreateBreakoutRoomModalOpen ? (
-        <CreateBreakoutRoomContainerGraphql
-          isUpdate
-          priority="low"
-          setIsOpen={setCreateBreakoutRoomModalIsOpen}
-          isOpen={isCreateBreakoutRoomModalOpen}
-        />
-      ) : null}
     </>
   );
 };

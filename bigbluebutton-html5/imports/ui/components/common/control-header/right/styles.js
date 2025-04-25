@@ -16,7 +16,6 @@ const CloseButton = styled(Button)`
     }
   `}
   span:first-of-type {
-    padding: 0;
     margin: 0;
 
     & > i,

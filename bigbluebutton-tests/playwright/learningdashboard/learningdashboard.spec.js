@@ -22,7 +22,7 @@ test.describe('Learning Dashboard', { tag: '@ci' } , async () => {
   });
 
   test('Polls', async () => {
-    await learningDashboard.initUserPage(true, learningDashboard.modPage.context, { isRecording: true });
+    await learningDashboard.initUserPage(true, learningDashboard.modPage.context);
     await learningDashboard.polls();
   });
 

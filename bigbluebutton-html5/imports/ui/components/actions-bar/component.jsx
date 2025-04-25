@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { defineMessages } from 'react-intl';
 import { ActionsBarItemType, ActionsBarPosition } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/actions-bar-item/enums';
 import Styled from './styles';
-import ActionsDropdown from './actions-dropdown/container';
+import MediaAreaDropdown from './media-area-dropdown/container';
 import AudioCaptionsButtonContainer from '/imports/ui/components/audio/audio-graphql/audio-captions/button/component';
 import ScreenshareButtonContainer from '/imports/ui/components/actions-bar/screenshare/container';
 import AudioControlsContainer from '../audio/audio-graphql/audio-controls/component';
@@ -17,6 +17,7 @@ import RaiseHandButtonContainer from '/imports/ui/components/actions-bar/raise-h
 import Selector from '/imports/ui/components/common/selector/component';
 import ToggleGroup from '/imports/ui/components/common/toggle-group/component';
 import Separator from '/imports/ui/components/common/separator/component';
+import AudioCaptionsPanelAppObserver from '../audio-captions/panel/observer/component';
 
 const intlMessages = defineMessages({
   actionsBarLabel: {
@@ -133,6 +134,8 @@ class ActionsBar extends PureComponent {
       setPresentationFitToWidth,
       isPresentationEnabled,
       ariaHidden,
+      isDarkThemeEnabled,
+      isMobile,
       showScreenshareQuickSwapButton,
       isReactionsButtonEnabled,
     } = this.props;
@@ -161,6 +164,8 @@ class ActionsBar extends PureComponent {
             height: actionsBarStyle.height,
             width: actionsBarStyle.width,
             padding: actionsBarStyle.padding,
+            ...(isMobile && { overflowX: 'auto' }),
+            ...(isMobile && { overflowY: 'hidden' }),
           }
         }
       >
@@ -174,29 +179,11 @@ class ActionsBar extends PureComponent {
           }
         >
           <Styled.Left>
-            <ActionsDropdown {...{
-              amIPresenter,
-              amIModerator,
-              isPollingEnabled,
-              allowExternalVideo,
-              intl,
-              isSharingVideo,
-              stopExternalVideoShare,
-              isTimerActive,
-              isTimerEnabled,
-              isMeteorConnected,
-              setMeetingLayout,
-              setPushLayout,
-              presentationIsOpen,
-              showPushLayout,
-              hasCameraAsContent,
-              setPresentationFitToWidth,
-            }}
-            />
-          </Styled.Left>
-          <Styled.Center>
             {this.renderPluginsActionBarItems(ActionsBarPosition.LEFT)}
             <AudioCaptionsButtonContainer />
+            <AudioCaptionsPanelAppObserver />
+          </Styled.Left>
+          <Styled.Center>
             <AudioControlsContainer />
             {shouldShowVideoButton && enableVideo
               ? (
@@ -215,25 +202,46 @@ class ActionsBar extends PureComponent {
             {this.renderPluginsActionBarItems(ActionsBarPosition.RIGHT)}
           </Styled.Center>
           <Styled.Right>
+            <Styled.PresentationButtonsWrapper>
+              {shouldShowPresentationButton && shouldShowOptionsButton
+              && (
+                <PresentationOptionsContainer
+                  presentationIsOpen={presentationIsOpen}
+                  setPresentationIsOpen={setPresentationIsOpen}
+                  layoutContextDispatch={layoutContextDispatch}
+                  hasPresentation={isThereCurrentPresentation}
+                  hasExternalVideo={isSharingVideo}
+                  hasScreenshare={hasScreenshare}
+                  hasPinnedSharedNotes={isSharedNotesPinned}
+                  hasGenericContent={hasGenericContent}
+                  hasCameraAsContent={hasCameraAsContent}
+                  isDarkThemeEnabled={isDarkThemeEnabled}
+                />
+              )}
+              <MediaAreaDropdown {...{
+                amIPresenter,
+                amIModerator,
+                isPollingEnabled,
+                allowExternalVideo,
+                intl,
+                isSharingVideo,
+                stopExternalVideoShare,
+                isTimerActive,
+                isTimerEnabled,
+                isMeteorConnected,
+                setMeetingLayout,
+                setPushLayout,
+                presentationIsOpen,
+                showPushLayout,
+                hasCameraAsContent,
+                setPresentationFitToWidth,
+              }}
+              />
+            </Styled.PresentationButtonsWrapper>
             <Styled.Gap>
               {
                 showScreenshareQuickSwapButton && <SwapPresentationButton />
               }
-              {shouldShowPresentationButton && shouldShowOptionsButton
-                ? (
-                  <PresentationOptionsContainer
-                    presentationIsOpen={presentationIsOpen}
-                    setPresentationIsOpen={setPresentationIsOpen}
-                    layoutContextDispatch={layoutContextDispatch}
-                    hasPresentation={isThereCurrentPresentation}
-                    hasExternalVideo={isSharingVideo}
-                    hasScreenshare={hasScreenshare}
-                    hasPinnedSharedNotes={isSharedNotesPinned}
-                    hasGenericContent={hasGenericContent}
-                    hasCameraAsContent={hasCameraAsContent}
-                  />
-                )
-                : null}
             </Styled.Gap>
           </Styled.Right>
         </Styled.ActionsBar>

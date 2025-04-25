@@ -92,7 +92,6 @@ const GlobalStyle = createGlobalStyle`
     animation-duration: 0.75s;
     -webkit-animation-fill-mode: both;
     animation-fill-mode: both;
-    width: 320px !important;
     cursor: pointer;
     background-color: ${colorWhite};
 
@@ -155,9 +154,6 @@ const GlobalStyle = createGlobalStyle`
     i.close {
       left: none !important;
     }
-  }
-  button[data-testid="tools.more.asset"] {
-    display: none;
   }
 `;
 

@@ -9,13 +9,11 @@ import { btnSpacing } from '/imports/ui/stylesheets/styled-components/general';
 
 const EmojiButtonIcon = styled(Icon)`
   position: absolute;
-  top: 0;
+  top: 1px !important;
   height: 40%;
   left: 0;
   width: 75%;
-  margin-left: 14%;
-  font-size: 50%;
-  margin-top: 30%;
+  font-size: 100%;
   color: ${btnDefaultColor};
 `;
 

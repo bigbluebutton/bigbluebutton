@@ -99,6 +99,9 @@ public:
       mobile: false
       # provider: [webspeech, vosk, gladia]
       provider: webspeech
+      # If true, the transcriptions and captions settings are displayed as an
+      # entry in the apps gallery rather than a button in the actions bar
+      useAppsGallery: false
       language:
         # Available languages will depend on the transcription service
         # Google: https://cloud.google.com/speech-to-text/docs/speech-to-text-supported-languages
@@ -125,11 +128,17 @@ public:
         # [en-US, es-ES, pt-BR,...]: to set a specific locale
         # disabled: to set disabled
         locale: disabled
+      terms:
+        # The URL to the terms of service for the transcription service
+        # Specify the URL for each locale you want: 
+        # en-US: 'https://xxx/SubtitleTerms'
     mutedAlert:
       enabled: true
       interval: 200
       threshold: -50
       duration: 4000
+    appsGallery:
+      maxPinnedApps: 3
     remainingTimeThreshold: 30
     remainingTimeAlertThresholdArray: [1,5]
     enableDebugWindow: true
@@ -800,7 +809,7 @@ public:
     pinnable: true
   layout:
     hidePresentationOnJoin: false
-    showParticipantsOnLogin: true
+    showParticipantsOnLogin: false
     showPushLayoutButton: true
     showPushLayoutToggle: true
     showSessionDetailsOnJoin: true
@@ -1033,10 +1042,12 @@ public:
     role_moderator: MODERATOR
     role_viewer: VIEWER
     label:
-      moderator: false
+      presenter: true
+      moderator: true
       mobile: true
       guest: true
       sharingWebcam: true
+      bot: true
   whiteboard:
     annotationsQueueProcessInterval: 60
     cursorInterval: 150
@@ -1124,12 +1135,12 @@ public:
       - board.jpg
   minBrowserVersions:
     safari: ">=14"
-    chrome: ">=114"
+    chrome: ">=87"
     firefox: ">=80"
     edge: ">=85"
     mobile:
       safari: ">=14"
-      chrome: ">=114"
+      chrome: ">=87"
 private:
   analytics:
     includeChat: true

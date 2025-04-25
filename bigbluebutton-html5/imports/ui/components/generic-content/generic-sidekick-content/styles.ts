@@ -1,14 +1,14 @@
 import styled from 'styled-components';
-import {
-  mdPaddingX,
-} from '/imports/ui/stylesheets/styled-components/general';
 import { colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
-import CommonHeader from '/imports/ui/components/common/control-header/component';
+import {
+  HeaderContainer as BaseHeaderContainer,
+  PanelContent as BasePanelContent,
+  Separator as BaseSeparator,
+} from '/imports/ui/components/sidebar-content/styles';
 
 const Container = styled.div`
   background-color: ${colorWhite};
-  padding: ${mdPaddingX};
   display: flex;
   flex-grow: 1;
   flex-direction: column;
@@ -23,11 +23,18 @@ const Container = styled.div`
   }
 `;
 
-const Header = styled(CommonHeader)`
-  padding-bottom: .2rem;
+const HeaderContainer = styled(BaseHeaderContainer)``;
+
+const PanelContent = styled(BasePanelContent)`
+  display: flex;
+  flex-direction: column;
 `;
+
+const Separator = styled(BaseSeparator)``;
 
 export default {
   Container,
-  Header,
+  HeaderContainer,
+  PanelContent,
+  Separator,
 };

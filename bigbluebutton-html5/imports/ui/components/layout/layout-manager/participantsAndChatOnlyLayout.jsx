@@ -148,19 +148,23 @@ const ParticipantsAndChatOnlyLayout = (props) => {
     } = props;
     const { captionsMargin } = DEFAULT_VALUES;
 
-    const sidebarNavWidth = calculatesSidebarNavWidth();
-    const sidebarContentWidth = calculatesSidebarContentWidth(sidebarNavWidth.width);
+    const sidebarNavWidth = calculatesSidebarNavWidth(0);
+    const sidebarContentWidth = calculatesSidebarContentWidth(
+      sidebarNavWidth.horizontalSpaceOccupied,
+    );
     const sidebarNavBounds = calculatesSidebarNavBounds();
-    const sidebarContentBounds = calculatesSidebarContentBounds(sidebarNavWidth.width);
+    const sidebarContentBounds = calculatesSidebarContentBounds(
+      sidebarNavWidth.horizontalSpaceOccupied,
+    );
     const mediaAreaBounds = {
-      width: sidebarNavWidth.width + sidebarContentWidth.width,
+      width: sidebarNavWidth.horizontalSpaceOccupied + sidebarContentWidth.width,
       left: 0,
     };
     const navbarBounds = calculatesNavbarBounds(mediaAreaBounds);
     const actionbarBounds = calculatesActionbarBounds(mediaAreaBounds);
     const sidebarNavHeight = calculatesSidebarNavHeight(navbarBounds.height,
       actionbarBounds.height);
-    const sidebarSize = sidebarContentWidth.width + sidebarNavWidth.width;
+    const sidebarSize = sidebarContentWidth.width + sidebarNavWidth.horizontalSpaceOccupied;
     const mediaBounds = calculatesMediaBounds(mediaAreaBounds, sidebarSize);
     const sidebarContentHeight = calculatesSidebarContentHeight(navbarBounds.height,
       actionbarBounds.height);
@@ -218,16 +222,6 @@ const ParticipantsAndChatOnlyLayout = (props) => {
         tabOrder: DEFAULT_VALUES.sidebarNavTabOrder,
         isResizable: !isMobile && !isTablet,
         zIndex: sidebarNavBounds.zIndex,
-      },
-    });
-
-    layoutContextDispatch({
-      type: ACTIONS.SET_SIDEBAR_NAVIGATION_RESIZABLE_EDGE,
-      value: {
-        top: false,
-        right: !isRTL,
-        bottom: false,
-        left: isRTL,
       },
     });
 
@@ -381,17 +375,18 @@ const ParticipantsAndChatOnlyLayout = (props) => {
     layoutContextDispatch({
       type: ACTIONS.SET_LAYOUT_INPUT,
       value: (prevInput) => {
-        const { sidebarNavigation, sidebarContent, presentation } = prevInput;
+        const { sidebarContent, presentation } = prevInput;
         const { sidebarContentPanel } = sidebarContent;
+        const sidebarContentPanelOverride = sidebarContentPanel === PANELS.NONE
+          ? PANELS.CHAT : sidebarContentPanel;
         return defaultsDeep(
           {
             sidebarNavigation: {
-              isOpen:
-                sidebarNavigation.isOpen || sidebarContentPanel !== PANELS.NONE || false,
+              isOpen: true,
             },
             sidebarContent: {
-              isOpen: sidebarContentPanel !== PANELS.NONE,
-              sidebarContentPanel,
+              isOpen: true,
+              sidebarContentPanel: sidebarContentPanelOverride,
             },
             SidebarContentHorizontalResizer: {
               isOpen: false,

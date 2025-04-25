@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import { smPaddingX, smPaddingY, barsPadding } from '/imports/ui/stylesheets/styled-components/general';
-import { colorWhite, colorBackground } from '/imports/ui/stylesheets/styled-components/palette';
+import { colorWhite, colorBackground, btnDefaultGhostBg } from '/imports/ui/stylesheets/styled-components/palette';
 import Button from '/imports/ui/components/common/button/component';
 
 const ActionsBar = styled.div`
@@ -18,9 +18,17 @@ const ActionsBarWrapper = styled.section`
   order: 3;
 `;
 
+const ItemsGroup = `
+  display: flex;
+  align-items: center;
+  flex-grow: 1;
+  flex-shrink: 1;
+`;
+
 const Left = styled.div`
-  display: inherit;
-  flex: 0;
+  ${ItemsGroup}
+  flex-basis: 0;
+  justify-content: flex-start;
   > *:not(span) {
     @media ${smallOnly} {
       margin: 0 ${smPaddingY};
@@ -38,10 +46,8 @@ const Left = styled.div`
 `;
 
 const Center = styled.div`
-  display: flex;
-  flex-direction: row;
+  ${ItemsGroup}
   gap: ${smPaddingX};
-  flex: 1;
   justify-content: center;
   > *:not(span):not(:last-child) {
     @media ${smallOnly} {
@@ -51,9 +57,9 @@ const Center = styled.div`
 `;
 
 const Right = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
+  ${ItemsGroup}
+  flex-basis: 0;
+  justify-content: flex-end;
   position: relative;
   [dir="rtl"] & {
     right: auto;
@@ -69,6 +75,12 @@ const Right = styled.div`
       margin: 0 ${smPaddingY};
     }
   }
+`;
+
+const PresentationButtonsWrapper = styled.div`
+  background-color: ${btnDefaultGhostBg};
+  border-radius: 3rem;
+  display: flex;
 `;
 
 const RaiseHandButton = styled(Button)`
@@ -123,6 +135,7 @@ export default {
   Left,
   Center,
   Right,
+  PresentationButtonsWrapper,
   RaiseHandButton,
   ButtonContainer,
   ReactionsDropdown,

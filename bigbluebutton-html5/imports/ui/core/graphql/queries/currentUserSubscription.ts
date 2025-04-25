@@ -38,6 +38,7 @@ subscription userCurrentSubscription {
     speechLocale
     captionLocale
     userId
+    bot
     breakoutRooms {
       hasJoined
       assignedAt
@@ -79,6 +80,11 @@ subscription userCurrentSubscription {
     }
     livekit {
       livekitToken
+    }
+    presPagesWritable {
+      isCurrentPage
+      pageId
+      userId
     }
   }
 }

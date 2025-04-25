@@ -2,12 +2,9 @@ import React, { PureComponent } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import EndMeetingConfirmationContainer from '/imports/ui/components/end-meeting-confirmation/container';
-import AboutContainer from '/imports/ui/components/about/container';
 import MobileAppModal from '/imports/ui/components/mobile-app-modal/mobile-app-modal-graphql/component';
 import LayoutModalContainer from '/imports/ui/components/layout/modal/container';
-import OptionsMenuContainer from '/imports/ui/components/settings/container';
 import BBBMenu from '/imports/ui/components/common/menu/component';
-import ShortcutHelpComponent from '/imports/ui/components/shortcut-help/component';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
 import { colorDanger, colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
 import { OptionsDropdownItemType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/options-dropdown-item/enums';
@@ -17,7 +14,6 @@ import deviceInfo from '/imports/utils/deviceInfo';
 import Session from '/imports/ui/services/storage/in-memory';
 import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
-import Toggle from '/imports/ui/components/common/switch/component';
 
 const intlMessages = defineMessages({
   optionsLabel: {
@@ -31,14 +27,6 @@ const intlMessages = defineMessages({
   settingsLabel: {
     id: 'app.navBar.optionsDropdown.settingsLabel',
     description: 'Open settings option label',
-  },
-  aboutLabel: {
-    id: 'app.navBar.optionsDropdown.aboutLabel',
-    description: 'About option label',
-  },
-  aboutDesc: {
-    id: 'app.navBar.optionsDropdown.aboutDesc',
-    description: 'Describes about option',
   },
   leaveSessionLabel: {
     id: 'app.navBar.optionsDropdown.leaveSessionLabel',
@@ -72,17 +60,9 @@ const intlMessages = defineMessages({
     id: 'app.navBar.optionsDropdown.hotkeysDesc',
     description: 'Describes hotkeys option',
   },
-  helpLabel: {
-    id: 'app.navBar.optionsDropdown.helpLabel',
-    description: 'Help options label',
-  },
   openAppLabel: {
     id: 'app.navBar.optionsDropdown.openAppLabel',
     description: 'Open mobile app label',
-  },
-  helpDesc: {
-    id: 'app.navBar.optionsDropdown.helpDesc',
-    description: 'Describes help option',
   },
   endMeetingLabel: {
     id: 'app.navBar.optionsDropdown.endMeetingForAllLabel',
@@ -103,18 +83,6 @@ const intlMessages = defineMessages({
   layoutModal: {
     id: 'app.actionsBar.actionsDropdown.layoutModal',
     description: 'Label for layouts selection button',
-  },
-  awayLabel: {
-    id: 'app.actionsBar.reactions.away',
-    description: 'Away Label',
-  },
-  availableLabel: {
-    id: 'app.actionsBar.reactions.available',
-    description: 'Available Label',
-  },
-  presenceLabel: {
-    id: 'app.navBar.optionsDropdown.presenceLabel',
-    description: 'Presence Label',
   },
 });
 
@@ -158,9 +126,6 @@ class OptionsDropdown extends PureComponent {
     super(props);
 
     this.state = {
-      isAboutModalOpen: false,
-      isShortcutHelpModalOpen: false,
-      isOptionsMenuModalOpen: false,
       isEndMeetingConfirmationModalOpen: false,
       isMobileAppModalOpen: false,
       isFullscreen: false,
@@ -172,11 +137,8 @@ class OptionsDropdown extends PureComponent {
 
     this.leaveSession = this.leaveSession.bind(this);
     this.onFullscreenChange = this.onFullscreenChange.bind(this);
-    this.setOptionsMenuModalIsOpen = this.setOptionsMenuModalIsOpen.bind(this);
     this.setEndMeetingConfirmationModalIsOpen = this.setEndMeetingConfirmationModalIsOpen.bind(this);
     this.setMobileAppModalIsOpen = this.setMobileAppModalIsOpen.bind(this);
-    this.setAboutModalIsOpen = this.setAboutModalIsOpen.bind(this);
-    this.setShortcutHelpModalIsOpen = this.setShortcutHelpModalIsOpen.bind(this);
     this.setLayoutModalIsOpen = this.setLayoutModalIsOpen.bind(this);
   }
 
@@ -238,22 +200,10 @@ class OptionsDropdown extends PureComponent {
     Session.setItem('codeError', this.LOGOUT_CODE);
   }
 
-  setAboutModalIsOpen(value) {
-    this.setState({isAboutModalOpen: value})
-  }
-  
-  setShortcutHelpModalIsOpen(value) {
-    this.setState({isShortcutHelpModalOpen: value})
-  }
-  
-  setOptionsMenuModalIsOpen(value) {
-    this.setState({isOptionsMenuModalOpen: value})
-  }
-  
   setEndMeetingConfirmationModalIsOpen(value) {
     this.setState({isEndMeetingConfirmationModalOpen: value})
   }
-  
+
   setMobileAppModalIsOpen(value) {
     this.setState({isMobileAppModalOpen: value})
   }
@@ -266,7 +216,7 @@ class OptionsDropdown extends PureComponent {
     const {
       intl, amIModerator, isBreakoutRoom, isMeteorConnected, audioCaptionsEnabled,
       audioCaptionsActive, audioCaptionsSet, isMobile, optionsDropdownItems,
-      isDirectLeaveButtonEnabled, isLayoutsEnabled, away, handleToggleAFK,
+      isDirectLeaveButtonEnabled, isLayoutsEnabled,
     } = this.props;
 
     const { isIos } = deviceInfo;
@@ -274,83 +224,14 @@ class OptionsDropdown extends PureComponent {
     const allowedToEndMeeting = amIModerator && !isBreakoutRoom;
 
     const {
-      showHelpButton: helpButton,
-      helpLink,
       allowLogout: allowLogoutSetting,
     } = window.meetingClientSettings.public.app;
 
     this.menuItems = [];
 
-    const actionCustomStyles = {
-      paddingLeft: 0,
-      paddingRight: 0,
-      paddingTop: isMobile ? '0' : '0.5rem',
-      paddingBottom: isMobile ? '0' : '0.5rem',
-    };
-
-    const ToggleAFKLabel = () => (away
-      ? intl.formatMessage(intlMessages.awayLabel)
-      : intl.formatMessage(intlMessages.availableLabel));
-
-    this.menuItems.push({
-      label: (
-        <Styled.AwayOption>
-          <span>{intl.formatMessage(intlMessages.presenceLabel)} <b>{ToggleAFKLabel()}</b></span>
-          <Styled.ToggleButtonWrapper>
-            <Toggle
-              icons={false}
-              checked={!away}
-              onChange={handleToggleAFK}
-              ariaLabel={ToggleAFKLabel()}
-              showToggleLabel={false}
-            />
-          </Styled.ToggleButtonWrapper>
-        </Styled.AwayOption>
-      ),
-      key: 'none',
-      isToggle: true,
-      customStyles: { ...actionCustomStyles, width: 'auto' },
-    }, {
-      key: 'separator-01',
-      isSeparator: true,
-    });
-
     this.getFullscreenItem(this.menuItems);
 
     const BBB_TABLET_APP_CONFIG = window.meetingClientSettings.public.app.bbbTabletApp;
-
-    this.menuItems.push(
-      {
-        key: 'list-item-settings',
-        icon: 'settings',
-        dataTest: 'settings',
-        label: intl.formatMessage(intlMessages.settingsLabel),
-        description: intl.formatMessage(intlMessages.settingsDesc),
-        onClick: () => this.setOptionsMenuModalIsOpen(true),
-      },
-      {
-        key: 'list-item-about',
-        icon: 'about',
-        dataTest: 'aboutModal',
-        label: intl.formatMessage(intlMessages.aboutLabel),
-        description: intl.formatMessage(intlMessages.aboutDesc),
-        onClick: () => this.setAboutModalIsOpen(true),
-      },
-    );
-
-    if (helpButton) {
-      this.menuItems.push(
-        {
-          key: 'list-item-help',
-          icon: 'help',
-          iconRight: 'popout_window',
-          label: intl.formatMessage(intlMessages.helpLabel),
-          dataTest: 'helpButton',
-          description: intl.formatMessage(intlMessages.helpDesc),
-          onClick: () => window.open(`${helpLink}`),
-        },
-      );
-    }
 
     if (isIos &&
       !isTabletApp &&
@@ -379,16 +260,6 @@ class OptionsDropdown extends PureComponent {
         },
       );
     }
-
-    this.menuItems.push(
-      {
-        key: 'list-item-shortcuts',
-        icon: 'shortcuts',
-        label: intl.formatMessage(intlMessages.hotkeysLabel),
-        description: intl.formatMessage(intlMessages.hotkeysDesc),
-        onClick: () => this.setShortcutHelpModalIsOpen(true),
-      },
-    );
 
     const Settings = getSettingsSingletonInstance();
     const { selectedLayout } = Settings.application;
@@ -487,7 +358,6 @@ class OptionsDropdown extends PureComponent {
     } = this.props;
 
     const {
-      isAboutModalOpen, isShortcutHelpModalOpen, isOptionsMenuModalOpen,
       isEndMeetingConfirmationModalOpen, isMobileAppModalOpen, isLayoutModalOpen,
     } = this.state;
 
@@ -525,15 +395,9 @@ class OptionsDropdown extends PureComponent {
             transformorigin: { vertical: 'top', horizontal: isRTL ? 'left' : 'right' },
           }}
         />
-        {this.renderModal(isAboutModalOpen, this.setAboutModalIsOpen, "low",
-          AboutContainer)}
-        {this.renderModal(isShortcutHelpModalOpen, this.setShortcutHelpModalIsOpen, 
-          "low", ShortcutHelpComponent)}
-        {this.renderModal(isOptionsMenuModalOpen, this.setOptionsMenuModalIsOpen, 
-          "low", OptionsMenuContainer)}
         {this.renderModal(isEndMeetingConfirmationModalOpen, this.setEndMeetingConfirmationModalIsOpen, 
           "low", EndMeetingConfirmationContainer)}
-        {this.renderModal(isMobileAppModalOpen, this.setMobileAppModalIsOpen, "low", 
+        {this.renderModal(isMobileAppModalOpen, this.setMobileAppModalIsOpen, "low",
           MobileAppModal)}
         {this.renderModal(
           isLayoutModalOpen,

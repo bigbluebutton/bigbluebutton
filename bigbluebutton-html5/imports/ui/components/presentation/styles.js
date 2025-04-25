@@ -4,6 +4,8 @@ import {
   toastIconSide,
   smPaddingX,
   smPaddingY,
+  contentSidebarMarginToMedia,
+  lgBorderRadius,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
   colorPrimary,
@@ -129,6 +131,8 @@ const PresentationContainer = styled.div`
   left: 0;
   right: 0;
   bottom: 0;
+  ${({ isVideoFocus, isRTL }) => isVideoFocus && isRTL && `padding: 0px 0px 0px ${contentSidebarMarginToMedia}`};
+  ${({ isVideoFocus, isRTL }) => isVideoFocus && !isRTL && `padding: 0px ${contentSidebarMarginToMedia} 0px 0px`};
 `;
 
 const Presentation = styled.div`
@@ -141,6 +145,7 @@ const Presentation = styled.div`
   width: 100%;
   overflow: hidden;
   position: relative;
+  border-radius: ${lgBorderRadius};
 `;
 
 const SvgContainer = styled.div`
@@ -208,6 +213,12 @@ const ExtraTools = styled.div`
   `}
 `;
 
+const IconWithMask = styled.div.attrs({
+  className: 'tlui-icon',
+})`
+  mask: url(${({ mask }) => mask})  center 100% / 100% no-repeat;
+`;
+
 export default {
   VisuallyHidden,
   PresentationSvg,
@@ -226,4 +237,5 @@ export default {
   ToastSeparator,
   Button,
   ExtraTools,
+  IconWithMask,
 };

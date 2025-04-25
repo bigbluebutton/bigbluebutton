@@ -154,7 +154,7 @@ class LeaveMeetingButton extends PureComponent {
     const customStyles = { top: '1rem' };
 
     return (
-      <>
+      <Styled.LeaveButtonWrapper>
         <BBBMenu
           customStyles={!ismobile ? customStyles : null}
           trigger={(
@@ -191,7 +191,7 @@ class LeaveMeetingButton extends PureComponent {
         {this.renderModal(isEndMeetingConfirmationModalOpen,
           this.setEndMeetingConfirmationModalIsOpen,
           'low', EndMeetingConfirmationContainer)}
-      </>
+      </Styled.LeaveButtonWrapper>
     );
   }
 }

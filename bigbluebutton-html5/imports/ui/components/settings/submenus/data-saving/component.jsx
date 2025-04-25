@@ -1,7 +1,7 @@
 import React from 'react';
-import Toggle from '/imports/ui/components/common/switch/component';
 import { defineMessages, injectIntl } from 'react-intl';
 import BaseMenu from '../base/component';
+import SubMenuStyle from '../styles';
 import Styled from './styles';
 
 const intlMessages = defineMessages({
@@ -36,7 +36,6 @@ class DataSaving extends BaseMenu {
   render() {
     const {
       intl,
-      showToggleLabel,
       displaySettingsStatus,
       isScreenSharingEnabled,
       isVideoEnabled,
@@ -54,24 +53,18 @@ class DataSaving extends BaseMenu {
           {isVideoEnabled
             ? (
               <Styled.Row>
-                <Styled.Col aria-hidden>
-                  <Styled.FormElement>
+                <Styled.Col>
+                  <Styled.FormElementRight>
+                    <SubMenuStyle.MaterialSwitch
+                      icons="false"
+                      checked={viewParticipantsWebcams}
+                      onChange={() => this.handleToggle('viewParticipantsWebcams')}
+                      aria-labelledby="webcamToggle"
+                      aria-label={`${intl.formatMessage(intlMessages.webcamLabel)} - ${displaySettingsStatus(viewParticipantsWebcams, true)}`}
+                    />
                     <Styled.Label>
                       {intl.formatMessage(intlMessages.webcamLabel)}
                     </Styled.Label>
-                  </Styled.FormElement>
-                </Styled.Col>
-                <Styled.Col>
-                  <Styled.FormElementRight>
-                    {displaySettingsStatus(viewParticipantsWebcams)}
-                    <Toggle
-                      icons={false}
-                      defaultChecked={viewParticipantsWebcams}
-                      onChange={() => this.handleToggle('viewParticipantsWebcams')}
-                      ariaLabelledBy="webcamToggle"
-                      ariaLabel={`${intl.formatMessage(intlMessages.webcamLabel)} - ${displaySettingsStatus(viewParticipantsWebcams, true)}`}
-                      showToggleLabel={showToggleLabel}
-                    />
                   </Styled.FormElementRight>
                 </Styled.Col>
               </Styled.Row>
@@ -80,24 +73,18 @@ class DataSaving extends BaseMenu {
           {isScreenSharingEnabled
             ? (
               <Styled.Row>
-                <Styled.Col aria-hidden>
-                  <Styled.FormElement>
+                <Styled.Col>
+                  <Styled.FormElementRight>
+                    <SubMenuStyle.MaterialSwitch
+                      icons="false"
+                      checked={viewScreenshare}
+                      onChange={() => this.handleToggle('viewScreenshare')}
+                      aria-labelledby="screenShare"
+                      aria-label={`${intl.formatMessage(intlMessages.screenShareLabel)} - ${displaySettingsStatus(viewScreenshare, true)}`}
+                    />
                     <Styled.Label>
                       {intl.formatMessage(intlMessages.screenShareLabel)}
                     </Styled.Label>
-                  </Styled.FormElement>
-                </Styled.Col>
-                <Styled.Col>
-                  <Styled.FormElementRight>
-                    {displaySettingsStatus(viewScreenshare)}
-                    <Toggle
-                      icons={false}
-                      defaultChecked={viewScreenshare}
-                      onChange={() => this.handleToggle('viewScreenshare')}
-                      ariaLabelledBy="screenShare"
-                      ariaLabel={`${intl.formatMessage(intlMessages.screenShareLabel)} - ${displaySettingsStatus(viewScreenshare, true)}`}
-                      showToggleLabel={showToggleLabel}
-                    />
                   </Styled.FormElementRight>
                 </Styled.Col>
               </Styled.Row>

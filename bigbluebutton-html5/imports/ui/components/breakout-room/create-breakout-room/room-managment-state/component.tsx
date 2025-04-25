@@ -42,6 +42,10 @@ interface RoomManagmentStateProps {
   isUpdate: boolean;
   setNumberOfRooms: React.Dispatch<React.SetStateAction<number>>;
   groups: getMeetingGroupResponse['meeting_group'];
+  freeJoin: boolean;
+  randomlyAssignFunction: (fn: () => void) => void;
+  resetAssignmentsFunction: (fn: () => void) => void;
+  isMobile: boolean;
 }
 
 const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
@@ -61,6 +65,10 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
   isUpdate,
   setNumberOfRooms,
   groups,
+  freeJoin,
+  randomlyAssignFunction,
+  resetAssignmentsFunction,
+  isMobile,
 }) => {
   const intl = useIntl();
   const [selectedId, setSelectedId] = useState<string>('');
@@ -153,10 +161,18 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
   };
 
   const randomlyAssign = () => {
+    // assign users to rooms in an evenly distributed manner
     const withoutModerators = rooms[0].users.filter((user) => !user.isModerator);
-    const userIds = withoutModerators.map((user) => user.userId);
-    const randomRooms = withoutModerators.map(() => Math.floor(Math.random() * numberOfRooms) + 1);
-    moveUser(userIds, 0, randomRooms);
+    const userIds = withoutModerators.sort(() => Math.random() - 0.5).map((user) => user.userId);
+    const numberOfUsers = withoutModerators.length;
+    const assignments = new Array(numberOfUsers);
+
+    // eslint-disable-next-line no-plusplus
+    for (let i = 0; i < numberOfUsers; i++) {
+      assignments[i] = (i % numberOfRooms) + 1;
+    }
+
+    moveUser(userIds, 0, assignments);
   };
 
   const resetRooms = (cap: number) => {
@@ -247,6 +263,9 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
     }
   }, [users]);
 
+  randomlyAssignFunction(randomlyAssign);
+  resetAssignmentsFunction(() => { resetRooms(0); });
+
   useEffect(() => {
     if (groups.length && init && lastBreakoutData && !(lastBreakoutData.breakoutRoom_createdLatest.length > 0)) {
       setNumberOfRooms(groups.length >= 2 ? groups.length : 2);
@@ -324,7 +343,6 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
             setSelectedId={setSelectedId}
             selectedRoom={selectedRoom}
             setSelectedRoom={setSelectedRoom}
-            randomlyAssign={randomlyAssign}
             resetRooms={resetRooms}
             users={users}
             currentSlidePrefix={currentSlidePrefix}
@@ -334,6 +352,8 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
             getRoomPresentation={getRoomPresentation}
             currentPresentation={currentPresentation}
             isUpdate={isUpdate}
+            freeJoin={freeJoin}
+            isMobile={isMobile}
           />
         ) : null
       }

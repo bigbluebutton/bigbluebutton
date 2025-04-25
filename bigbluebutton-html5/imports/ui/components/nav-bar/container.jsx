@@ -33,7 +33,6 @@ const NavBarContainer = ({ children, ...props }) => {
   const { isPinned: notesIsPinned } = sharedNotes;
 
   const { sidebarContentPanel } = sidebarContent;
-  const { sidebarNavPanel } = sidebarNavigation;
 
   const toggleUserList = useShortcut('toggleUserList');
 
@@ -49,8 +48,6 @@ const NavBarContainer = ({ children, ...props }) => {
     isModerator: user.isModerator,
   }));
   const amIModerator = currentUserData?.isModerator;
-
-  const isExpanded = !!sidebarContentPanel || !!sidebarNavPanel;
 
   const hideNavBar = getFromUserSettings('bbb_hide_nav_bar', false);
 
@@ -108,12 +105,10 @@ const NavBarContainer = ({ children, ...props }) => {
         amIModerator,
         hasUnreadMessages,
         hasUnreadNotes,
-        sidebarNavPanel,
         sidebarContentPanel,
         sidebarNavigation,
         sidebarContent,
         layoutContextDispatch,
-        isExpanded,
         currentUserId: Auth.userID,
         pluginNavBarItems,
         shortcuts: toggleUserList,

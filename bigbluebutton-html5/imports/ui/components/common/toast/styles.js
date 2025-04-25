@@ -137,10 +137,14 @@ const Separator = styled.div`
   background-color: ${colorGrayLighter};
   margin-top: calc(${lineHeightComputed} * .5);
   margin-bottom: calc(${lineHeightComputed} * .5);
+  ${({ visible }) => visible === false && `
+    display: none;
+  `}
 `;
 
 const Toast = styled.div`
   display: flex;
+  cursor: ${(props) => (props.$disablePointer ? 'auto' : 'default')};
 
   ${({ type }) => type === 'default' && `
     & .toastIcon {
@@ -181,8 +185,6 @@ const Toast = styled.div`
 const ToastifyContainer = styled(Toastify)`
   z-index: 998;
   position: fixed;
-  min-width: 240px !important;
-  max-width: 320px !important;
   box-sizing: border-box;
   right: ${jumboPaddingY};
   left: auto;

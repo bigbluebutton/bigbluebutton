@@ -6,14 +6,16 @@ import {
   colorWhite,
   colorGrayLighter,
 } from '/imports/ui/stylesheets/styled-components/palette';
+import { Switch } from '@mui/material';
+import { styled as materialStyled } from '@mui/material/styles';
 import { borderSize, borderSizeLarge } from '/imports/ui/stylesheets/styled-components/general';
 
 const Title = styled.h3`
   color: ${colorGrayDark};
-  font-weight: 400;
-  font-size: 1.3rem;
   margin: 0;
-  margin-bottom: 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0;
 `;
 
 const SubTitle = styled.h4`
@@ -78,7 +80,6 @@ const FormElementCenter = styled.div`
 const Label = styled.span`
   color: ${colorGrayLabel};
   font-size: 0.9rem;
-  margin-bottom: 0.5rem;
 `;
 
 const Select = styled.select`
@@ -104,6 +105,51 @@ const Select = styled.select`
   }
 `;
 
+const MaterialSwitch = materialStyled(Switch)(({ theme }) => ({
+  width: '2.3rem',
+  height: '1.2rem',
+  padding: 0,
+  display: 'flex',
+  '&:active': {
+    '& .MuiSwitch-switchBase.Mui-checked': {
+      transform: 'translateX(1.2rem)',
+    },
+  },
+  '& .MuiSwitch-switchBase': {
+    padding: '0.2rem',
+    '&.Mui-checked': {
+      transform: 'translateX(1.2rem)',
+      color: '#fff',
+      '& + .MuiSwitch-track': {
+        opacity: 1,
+        backgroundColor: colorPrimary,
+        ...theme.applyStyles('dark', {
+          backgroundColor: colorPrimary,
+        }),
+      },
+    },
+  },
+  '& .MuiSwitch-thumb': {
+    boxShadow: '0 2px 4px 0 rgb(0 35 11 / 20%)',
+    width: '0.6rem',
+    height: '0.6rem',
+    borderRadius: '0.5rem',
+    transition: theme.transitions.create(['width'], {
+      duration: 200,
+    }),
+    transform: 'translateY(1px)',
+  },
+  '& .MuiSwitch-track': {
+    borderRadius: '0.6rem',
+    opacity: 1,
+    backgroundColor: 'rgba(0,0,0,.25)',
+    boxSizing: 'border-box',
+    ...theme.applyStyles('dark', {
+      backgroundColor: 'rgba(255,255,255,.35)',
+    }),
+  },
+}));
+
 export default {
   Title,
   SubTitle,
@@ -115,4 +161,5 @@ export default {
   FormElementCenter,
   Label,
   Select,
+  MaterialSwitch,
 };

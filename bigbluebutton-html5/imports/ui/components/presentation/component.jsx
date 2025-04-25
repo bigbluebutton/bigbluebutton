@@ -279,7 +279,7 @@ class Presentation extends PureComponent {
       ) {
         const slideChanged = currentSlide.id !== prevProps.currentSlide.id;
         const positionChanged = slidePosition.viewBoxHeight
-            !== prevProps.slidePosition.viewBoxHeight
+          !== prevProps.slidePosition.viewBoxHeight
           || slidePosition.viewBoxWidth !== prevProps.slidePosition.viewBoxWidth;
         const pollPublished = publishedPoll && !prevProps.publishedPoll;
         if (
@@ -455,6 +455,7 @@ class Presentation extends PureComponent {
   }
 
   getInitialPresentationSizes() {
+    Session.setItem('componentPresentationWillUnmount', false);
     // determining the presentationWidth and presentationHeight (available
     // space for the svg) on the initial load
 
@@ -679,6 +680,7 @@ class Presentation extends PureComponent {
       hasWBAccess,
       currentSlide,
       slidePosition,
+      isRTL,
       presentationBounds,
       fullscreenContext,
       isMobile,
@@ -732,7 +734,7 @@ class Presentation extends PureComponent {
 
     const { presentationToolbarMinWidth } = DEFAULT_VALUES;
 
-    const isLargePresentation = (svgWidth > presentationToolbarMinWidth || isMobile)
+    const isLargePresentation = (svgWidth > presentationToolbarMinWidth)
       && !(
         layoutType === LAYOUT_TYPE.VIDEO_FOCUS
         && numCameras > 0
@@ -742,6 +744,10 @@ class Presentation extends PureComponent {
     const containerWidth = isLargePresentation
       ? svgWidth
       : presentationToolbarMinWidth;
+
+    const mobileAwareContainerWidth = isMobile
+      ? presentationBounds.width
+      : containerWidth;
 
     const slideContent = currentSlide?.content
       ? `${intl.formatMessage(intlMessages.slideContentStart)}
@@ -769,6 +775,8 @@ class Presentation extends PureComponent {
           ref={(ref) => {
             this.refPresentationContainer = ref;
           }}
+          isRTL={isRTL}
+          isVideoFocus={isVideoFocus}
           style={{
             top: presentationBounds.top,
             left: presentationBounds.left,
@@ -810,24 +818,28 @@ class Presentation extends PureComponent {
                 <Styled.VisuallyHidden id="currentSlideText">
                   {slideContent}
                 </Styled.VisuallyHidden>
-                {((userIsPresenter || hasWBAccess) && (!tldrawIsMounting && presentationWidth > 0 && currentSlide)) && <Styled.ExtraTools {...{isToolbarVisible}}>
-                  <TooltipContainer title={intl?.messages["app.shortcut-help.undo"]}>
+                {((userIsPresenter || hasWBAccess) && (!tldrawIsMounting && presentationWidth > 0 && currentSlide)) && (
+                <Styled.ExtraTools {...{ isToolbarVisible }}>
+                  <TooltipContainer title={intl?.messages['app.shortcut-help.undo']}>
                     <Styled.Button
-                      aria-label={intl?.messages["app.shortcut-help.undo"]}
+                      aria-label={intl?.messages['app.shortcut-help.undo']}
                       onClick={() => tldrawAPI?.undo()}
+                      className="tlui-undo"
                     >
-                      <img src={`${window.meetingClientSettings.public.app.basename}/svgs/tldraw/undo.svg`} width="20" height="20" />
+                      <Styled.IconWithMask mask={`${window.meetingClientSettings.public.app.basename}/svgs/tldraw/undo.svg`} />
                     </Styled.Button>
                   </TooltipContainer>
-                  <TooltipContainer title={intl?.messages["app.shortcut-help.redo"]}>
+                  <TooltipContainer title={intl?.messages['app.shortcut-help.redo']}>
                     <Styled.Button
-                      aria-label={intl?.messages["app.shortcut-help.redo"]}
+                      aria-label={intl?.messages['app.shortcut-help.redo']}
                       onClick={() => tldrawAPI?.redo()}
+                      className="tlui-redo"
                     >
-                      <img src={`${window.meetingClientSettings.public.app.basename}/svgs/tldraw/redo.svg`} width="20" height="20" />
+                      <Styled.IconWithMask mask={`${window.meetingClientSettings.public.app.basename}/svgs/tldraw/redo.svg`} />
                     </Styled.Button>
                   </TooltipContainer>
-                </Styled.ExtraTools>}
+                </Styled.ExtraTools>
+                )}
                 {!tldrawIsMounting
                   && presentationWidth > 0
                   && currentSlide
@@ -871,7 +883,7 @@ class Presentation extends PureComponent {
                     this.refPresentationToolbar = ref;
                   }}
                   style={{
-                    width: containerWidth,
+                    width: mobileAwareContainerWidth,
                   }}
                 >
                   {this.renderPresentationToolbar(svgWidth)}
@@ -917,6 +929,7 @@ Presentation.propTypes = {
   presentationIsOpen: PropTypes.bool,
   totalPages: PropTypes.number.isRequired,
   publishedPoll: PropTypes.bool.isRequired,
+  isRTL: PropTypes.bool.isRequired,
   presentationBounds: PropTypes.shape({
     top: PropTypes.number,
     left: PropTypes.number,

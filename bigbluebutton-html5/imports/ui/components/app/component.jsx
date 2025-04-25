@@ -46,6 +46,8 @@ import { notify } from '/imports/ui/services/notification';
 import VoiceActivityAdapter from '../../core/adapters/voice-activity';
 import LayoutObserver from '../layout/observer';
 import BBBLiveKitRoomContainer from '/imports/ui/components/livekit/component';
+import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
+import BreakoutRoomsAppObserver from '../breakout-room/breakout-observer/component';
 
 const intlMessages = defineMessages({
   userListLabel: {
@@ -109,6 +111,9 @@ const intlMessages = defineMessages({
 const propTypes = {
   darkTheme: PropTypes.bool.isRequired,
   hideNotificationToasts: PropTypes.bool.isRequired,
+  isBreakout: PropTypes.bool.isRequired,
+  meetingId: PropTypes.string.isRequired,
+  meetingName: PropTypes.string.isRequired,
 };
 
 class App extends Component {
@@ -118,6 +123,7 @@ class App extends Component {
       isAudioModalOpen: false,
       isVideoPreviewModalOpen: false,
       presentationFitToWidth: false,
+      isJoinLogged: false,
     };
 
     this.timeOffsetInterval = null;
@@ -125,11 +131,13 @@ class App extends Component {
     this.setPresentationFitToWidth = this.setPresentationFitToWidth.bind(this);
     this.setAudioModalIsOpen = this.setAudioModalIsOpen.bind(this);
     this.setVideoPreviewModalIsOpen = this.setVideoPreviewModalIsOpen.bind(this);
+    this.logJoin = this.logJoin.bind(this);
   }
 
   componentDidMount() {
     const { browserName } = browserInfo;
     const { osName } = deviceInfo;
+    const { isJoinLogged } = this.state;
 
     Session.setItem('videoPreviewFirstOpen', true);
 
@@ -146,7 +154,9 @@ class App extends Component {
     window.ondragover = (e) => { e.preventDefault(); };
     window.ondrop = (e) => { e.preventDefault(); };
 
-    logger.info({ logCode: 'app_component_componentdidmount' }, 'Client loaded successfully');
+    if (!isJoinLogged) {
+      this.logJoin();
+    }
   }
 
   componentDidUpdate(prevProps) {
@@ -156,6 +166,8 @@ class App extends Component {
       intl,
       fitToWidth,
     } = this.props;
+
+    const { isJoinLogged } = this.state;
 
     this.renderDarkMode();
 
@@ -177,6 +189,10 @@ class App extends Component {
 
     if (prevProps.fitToWidth !== fitToWidth) {
       this.setState({ presentationFitToWidth: fitToWidth });
+    }
+
+    if (!isJoinLogged) {
+      this.logJoin();
     }
   }
 
@@ -200,6 +216,24 @@ class App extends Component {
 
   setVideoPreviewModalIsOpen(value) {
     this.setState({ isVideoPreviewModalOpen: value });
+  }
+
+  logJoin() {
+    const { isJoinLogged } = this.state;
+    const { meetingId, meetingName, isBreakout } = this.props;
+
+    const logMessage = isBreakout ? 'User joined breakout room' : 'User joined main room';
+
+    if (!isJoinLogged && meetingId) {
+      logger.info({
+        logCode: 'app_component_componentdidmount',
+        extraInfo: {
+          meetingId,
+          meetingName,
+        },
+      }, logMessage);
+      this.setState({ isJoinLogged: true });
+    }
   }
 
   renderDarkMode() {
@@ -261,6 +295,7 @@ class App extends Component {
       pluginConfig,
       genericMainContentId,
       hideNotificationToasts,
+      selectedLayout,
       isNotificationEnabled,
       isNonMediaLayout,
     } = this.props;
@@ -270,17 +305,92 @@ class App extends Component {
       isVideoPreviewModalOpen,
       presentationFitToWidth,
     } = this.state;
+
+    if (selectedLayout !== LAYOUT_TYPE.PRESENTATION_ONLY) {
+      return (
+        <>
+          <BreakoutRoomsAppObserver />
+          <ScreenReaderAlertAdapter />
+          <PluginsEngineManager pluginConfig={pluginConfig} />
+          <FloatingWindowContainer />
+          <TimeSync />
+          <Notifications />
+          <PushLayoutEngine
+            shouldShowScreenshare={shouldShowScreenshare}
+            shouldShowExternalVideo={shouldShowExternalVideo}
+          />
+          <LayoutEngine />
+          <LayoutObserver />
+          <GlobalStyles />
+          <Styled.Layout
+            id="layout"
+            style={{
+              width: '100%',
+              height: '100%',
+            }}
+          >
+            <ActivityCheckContainer />
+            <ScreenReaderAlertContainer />
+            <BannerBarContainer />
+            <NotificationsBarContainer />
+            <SidebarNavigationContainer />
+            <SidebarContentContainer isSharedNotesPinned={isSharedNotesPinned} />
+            <NavBarContainer main="new" />
+            <WebcamContainer />
+            <ExternalVideoPlayerContainer />
+            <GenericContentMainAreaContainer
+              genericMainContentId={genericMainContentId}
+            />
+            {
+              shouldShowPresentation
+                ? (
+                  <PresentationContainer
+                    setPresentationFitToWidth={this.setPresentationFitToWidth}
+                    fitToWidth={presentationFitToWidth}
+                    darkTheme={darkTheme}
+                    presentationIsOpen={presentationIsOpen}
+                  />
+                )
+                : null
+            }
+            <ScreenshareContainer shouldShowScreenshare={shouldShowScreenshare} />
+            {isSharedNotesPinned
+              ? (
+                <NotesContainer
+                  area="media"
+                />
+              ) : null}
+            <AudioCaptionsSpeechContainer />
+            {this.renderAudioCaptions()}
+            {!hideNotificationToasts && <PresentationUploaderToastContainer intl={intl} />}
+            <UploaderContainer />
+            <BreakoutJoinConfirmationContainerGraphQL />
+            <BBBLiveKitRoomContainer />
+            <AudioContainer {...{
+              isAudioModalOpen,
+              setAudioModalIsOpen: this.setAudioModalIsOpen,
+              isVideoPreviewModalOpen,
+              setVideoPreviewModalIsOpen: this.setVideoPreviewModalIsOpen,
+            }}
+            />
+            {!hideNotificationToasts && <ToastContainer rtl />}
+            <ChatAlertContainerGraphql />
+            <RaiseHandNotifier />
+            <ManyWebcamsNotifier />
+            <PollingContainer />
+            <WakeLockContainer />
+            {this.renderActionsBar()}
+            <EmojiRainContainer />
+            <VoiceActivityAdapter />
+          </Styled.Layout>
+        </>
+      );
+    }
+    // only load presentation for presentationOnly
     return (
       <>
         <ScreenReaderAlertAdapter />
         <PluginsEngineManager pluginConfig={pluginConfig} />
-        <FloatingWindowContainer />
-        <TimeSync />
-        <Notifications />
-        <PushLayoutEngine
-          shouldShowScreenshare={shouldShowScreenshare}
-          shouldShowExternalVideo={shouldShowExternalVideo}
-        />
         <LayoutEngine />
         <LayoutObserver />
         <GlobalStyles />
@@ -291,8 +401,14 @@ class App extends Component {
             height: '100%',
           }}
         >
-          <ActivityCheckContainer />
           <ScreenReaderAlertContainer />
+          <PresentationContainer
+            setPresentationFitToWidth={this.setPresentationFitToWidth}
+            fitToWidth={presentationFitToWidth}
+            darkTheme={darkTheme}
+            presentationIsOpen={presentationIsOpen}
+            selectedLayout={selectedLayout}
+          />
           <BannerBarContainer />
           <NotificationsBarContainer />
           <SidebarNavigationContainer />

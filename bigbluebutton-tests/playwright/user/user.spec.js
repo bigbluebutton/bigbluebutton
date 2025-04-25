@@ -7,7 +7,7 @@ const { MobileDevices } = require('./mobileDevices');
 const { Timer } = require('./timer');
 const iPhone11 = devices['iPhone 11'];
 
-test.describe.parallel('User', { tag: '@ci' }, () => {
+test.describe.parallel('User', { tag: ['@ci', '@flaky-3.1'] }, () => {
   test.describe.parallel('Actions', () => {
     // https://docs.bigbluebutton.org/3.0/testing/release-testing/#set-status--raise-hand-automated
     test('Raise and lower Hand', async ({ browser, context, page }) => {

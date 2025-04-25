@@ -1,21 +1,22 @@
 import styled from 'styled-components';
 import {
   smPaddingX,
-  smPaddingY,
-  mdPaddingY,
-  mdPaddingX,
 } from '/imports/ui/stylesheets/styled-components/general';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import {
   colorGrayDark,
   colorPrimary,
+  colorText,
   colorWhite,
+  settingsModalTabSelected,
+  colorBorder,
 } from '/imports/ui/stylesheets/styled-components/palette';
-import { fontSizeLarge } from '/imports/ui/stylesheets/styled-components/typography';
+import { fontSizeLarge, titlesFontWeight, textFontWeight } from '/imports/ui/stylesheets/styled-components/typography';
 import {
   Tab, Tabs, TabList, TabPanel,
 } from 'react-tabs';
 import Icon from '/imports/ui/components/common/icon/component';
+import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 
 const ToggleLabel = styled.span`
   margin-right: ${smPaddingX};
@@ -27,12 +28,16 @@ const ToggleLabel = styled.span`
 
 const SettingsTabs = styled(Tabs)`
   display: flex;
-  flex-flow: row;
-  justify-content: flex-start;
+  flex-direction: row;
+  width: 100%;
+  height: 100%;
 
   @media ${smallOnly} {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
     width: 100%;
-    flex-flow: column;
+    overflow-x: hidden;
   }
 `;
 
@@ -40,33 +45,38 @@ const SettingsTabList = styled(TabList)`
   display: flex;
   flex-flow: column;
   margin: 0;
-  border: none;
+  border-top: 1px solid ${colorBorder};
+  border-bottom: 1px solid ${colorBorder};
   padding: 0;
   width: calc(100% / 3);
+  height: 39rem;
 
   @media ${smallOnly} {
     width: 100%;
-    flex-flow: row;
-    flex-wrap: wrap;
-    justify-content: center;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+    height: auto;
+    border: none;
+    padding: 0;
+    margin: 0 0 0.5rem 0;
+    background: transparent;
+    overflow-y: auto;
   }
 `;
 
 const SettingsTabSelector = styled(Tab)`
   display: flex;
-  flex-flow: row;
-  font-size: 0.9rem;
-  flex: 0 0 auto;
   justify-content: flex-start;
-  border: none !important;
-  padding: ${mdPaddingY} ${mdPaddingX};
-  color: ${colorGrayDark};
-  border-radius: .2rem;
-  cursor: pointer;
-  margin-bottom: ${smPaddingY};
   align-items: center;
-  flex-grow: 0;
-  min-width: 0;
+  font-size: 1rem;
+  flex: none;
+  padding: 1rem;
+  color: ${colorGrayDark};
+  cursor: pointer;
+  border-radius: 10px;
+  margin: 1rem 1.5rem;
+  transition: background-color 0.3s, color 0.3s;
 
   & > span {
     min-width: 0;
@@ -77,25 +87,47 @@ const SettingsTabSelector = styled(Tab)`
   }
 
   @media ${smallOnly} {
-    max-width: 100%;
-    margin: 0 ${smPaddingX} 0 0;
-    & > i {
-      display: none;
+    margin: 0;
+    padding: 0.5rem;
+    font-size: 0.85rem;
+    min-height: 3rem;
+    border-radius: 8px;
+    background: ${colorWhite};
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: all 0.2s ease;
+    margin: 0 2px;
+    text-overflow: ellipsis;
+
+    &:first-child {
+      border-radius: 8px 0 0 8px;
+      margin-left: 0.5rem;
     }
 
-    [dir="rtl"] & {
-       margin: 0 0 0 ${smPaddingX};
+    &:last-child {
+      border-radius: 0 8px 8px 0;
+      margin-right: 0.5rem;
+    }
+
+    &.is-selected {
+      background: ${colorPrimary};
+      color: ${colorWhite};
+      z-index: 2;
+      transform: scale(1.02);
+    }
+
+    & > span {
+      -webkit-line-clamp: 2;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
     }
   }
 
   &.is-selected {
-    color: ${colorWhite};
-    background-color: ${colorPrimary};
+    color: ${colorText};
+    background-color: ${settingsModalTabSelected};
     font-weight: bold;
-
-    & > i {
-      color: ${colorWhite};
-    }
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
   }
 `;
 
@@ -110,7 +142,11 @@ const SettingsIcon = styled(Icon)`
 
 const SettingsTabPanel = styled(TabPanel)`
   display: none;
-  margin: 0 0 0 1rem;
+  flex-grow: 1;
+  padding: 1.5rem 3rem;
+  border-top: 1px solid ${colorBorder};
+  border-left: 1px solid ${colorBorder};
+  border-bottom: 1px solid ${colorBorder};
   width: calc(100% / 3 * 2);
 
   [dir="rtl"] & {
@@ -124,8 +160,117 @@ const SettingsTabPanel = styled(TabPanel)`
   @media ${smallOnly} {
     width: 100%;
     margin: 0;
-    padding-left: 1rem;
-    padding-right: 1rem;
+    padding: 0.5rem 1rem;
+    border: none;
+    height: auto;
+    flex-grow: 1;
+    flex-basis: 0;
+    overflow-x: hidden;
+  }
+`;
+
+const ActionsContainer = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  border-top: 1px solid ${colorBorder};
+
+  @media ${smallOnly} {
+    padding: 1rem;
+    gap: 1rem;
+    position: relative;
+    bottom: auto;
+    background: transparent;
+    box-shadow: none;
+    flex-grow: 0;
+  }
+`;
+
+const ActionButton = styled.button`
+  width: 12.75rem;
+  height: 3.5rem;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 1rem;
+  cursor: pointer;
+  font-size: 16px;
+  color: #fff;
+
+  &:first-child {
+    background-color: transparent; 
+    color: #ccc;
+  }
+
+  &:last-child {
+    background-color: ${colorPrimary};
+  }
+
+  &:hover {
+    opacity: 0.9;
+  }
+
+  &:disabled {
+    background-color: #aaa;
+    cursor: not-allowed;
+  }
+`;
+
+const Modal = styled(ModalSimple)`
+  padding: 0;
+  border-radius: 1rem;
+
+  @media ${smallOnly} {
+    height: 90vh !important;
+    min-height: 90vh;
+    max-height: 90vh;
+    margin: 5vh auto;
+    display: flex;
+    flex-direction: column;
+    & > div {
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+      & > div {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+      }
+    }
+  }
+`;
+
+const UnsavedChangesModal = styled(ModalSimple)`
+  border-radius: 0.5rem;
+  width: 35rem;
+`;
+
+const UnsavedChangesContent = styled.div`
+  padding: 0 1rem;
+`;
+
+const UnsavedChangesText = styled.div`
+  font-weight: ${titlesFontWeight};
+  margin-bottom: 0.25rem;
+`;
+
+const UnsavedChangesIgnoreText = styled.div`
+  font-weight: ${textFontWeight};
+`;
+
+const UnsavedActionsContainer = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  gap: 1.5rem;
+  padding: 1.5rem;
+
+  @media ${smallOnly} {
+    padding: 1rem;
+    gap: 1rem;
+    position: relative;
+    bottom: auto;
+    background: transparent;
+    box-shadow: none;
   }
 `;
 
@@ -136,4 +281,12 @@ export default {
   SettingsTabSelector,
   SettingsIcon,
   SettingsTabPanel,
+  ActionsContainer,
+  ActionButton,
+  Modal,
+  UnsavedChangesModal,
+  UnsavedChangesContent,
+  UnsavedActionsContainer,
+  UnsavedChangesText,
+  UnsavedChangesIgnoreText,
 };

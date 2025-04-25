@@ -72,20 +72,35 @@ function createUseSubscription<T>(
       next(response) {
         const { data, loading } = response;
 
-        if (!data && oldLoadingRef.current === loading) {
+        const hasLoadingChange = oldLoadingRef.current !== loading;
+        if (!data && !hasLoadingChange) {
           return;
         }
-
-        const resultSetKey = Object.keys(data)[0];
-        const newProjectionOfData = data[resultSetKey].map((element: Partial<T>) => projectionFunction(element));
-        if (!R.equals(oldProjectionOfDataRef.current, newProjectionOfData) || oldLoadingRef.current !== loading) {
-          const objectFromProjectionToSave: GraphqlDataHookSubscriptionResponse<Partial<T>[]> = {
-            ...response,
-            loading,
-          };
-          objectFromProjectionToSave.data = newProjectionOfData;
-          oldProjectionOfDataRef.current = newProjectionOfData;
+        let hasResponseChanged = false;
+        let objectFromProjectionToSave: GraphqlDataHookSubscriptionResponse<Partial<T>[]> = {
+          data: oldProjectionOfDataRef.current,
+          loading: oldLoadingRef.current,
+        };
+        if (data) {
+          const resultSetKey = Object.keys(data)[0];
+          const newProjectionOfData = data[resultSetKey].map((element: Partial<T>) => projectionFunction(element));
+          if (!R.equals(oldProjectionOfDataRef.current, newProjectionOfData) || oldLoadingRef.current !== loading) {
+            hasResponseChanged = true;
+            objectFromProjectionToSave = {
+              ...response,
+              loading,
+            };
+            objectFromProjectionToSave.data = newProjectionOfData;
+            oldProjectionOfDataRef.current = newProjectionOfData;
+          }
+        }
+        if (hasLoadingChange) {
+          hasResponseChanged = true;
+          objectFromProjectionToSave.loading = loading;
           oldLoadingRef.current = loading;
+        }
+
+        if (hasResponseChanged) {
           setProjectedData(objectFromProjectionToSave);
         }
       },

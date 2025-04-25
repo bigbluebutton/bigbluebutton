@@ -802,6 +802,8 @@
     "app.audio.listenOnly.closeLabel": "Cerrar",
     "app.audio.permissionsOverlay.title": "Permitir acceso a tu micrófono",
     "app.audio.permissionsOverlay.hint": "Necesitamos tu autorización para acceder tus dipositivos de medios para poder ingresar a la conferencia de voz :)",
+    "app.audio.captions.terms": "Al activar, aceptas: {0}",
+    "app.audio.captions.terms.linkText": "términos de uso de los subtítulos",
     "app.audio.captions.button.start": "Iniciar subtítulos",
     "app.audio.captions.button.stop": "Detener subtítulos",
     "app.audio.captions.button.language": "Idioma",

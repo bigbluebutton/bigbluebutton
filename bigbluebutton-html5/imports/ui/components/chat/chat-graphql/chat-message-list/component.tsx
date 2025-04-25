@@ -22,8 +22,6 @@ import {
 } from './styles';
 import useReactiveRef from '/imports/ui/hooks/useReactiveRef';
 import useStickyScroll from '/imports/ui/hooks/useStickyScroll';
-import ChatReplyIntention from '../chat-reply-intention/component';
-import ChatEditingWarning from '../chat-editing-warning/component';
 import KEY_CODES from '/imports/utils/keyCodes';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
@@ -583,8 +581,6 @@ const ChatMessageList: React.FC<ChatListProps> = ({
             />
           </MessageList>,
           renderUnreadNotification,
-          <ChatReplyIntention key="chatReplyIntention" />,
-          <ChatEditingWarning key="chatEditingWarning" />,
         ]
       }
     </>
