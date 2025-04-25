@@ -172,6 +172,24 @@ class ReceivedJsonMsgHandlerActor(
       case PadPinnedReqMsg.NAME =>
         routeGenericMsg[PadPinnedReqMsg](envelope, jsonNode)
 
+      // Audio groups
+      case GetAudioGroupsReqMsg.NAME =>
+        routeGenericMsg[GetAudioGroupsReqMsg](envelope, jsonNode)
+      case CreateAudioGroupReqMsg.NAME =>
+        routeGenericMsg[CreateAudioGroupReqMsg](envelope, jsonNode)
+      case DestroyAudioGroupReqMsg.NAME =>
+        routeGenericMsg[DestroyAudioGroupReqMsg](envelope, jsonNode)
+      case AudioGroupAddParticipantsReqMsg.NAME =>
+        routeGenericMsg[AudioGroupAddParticipantsReqMsg](envelope, jsonNode)
+      case AudioGroupRemoveParticipantsReqMsg.NAME =>
+        routeGenericMsg[AudioGroupRemoveParticipantsReqMsg](envelope, jsonNode)
+      case JoinAudioGroupReqMsg.NAME =>
+        routeGenericMsg[JoinAudioGroupReqMsg](envelope, jsonNode)
+      case LeaveAudioGroupReqMsg.NAME =>
+        routeGenericMsg[LeaveAudioGroupReqMsg](envelope, jsonNode)
+      case AudioGroupUpdateParticipantReqMsg.NAME =>
+        routeGenericMsg[AudioGroupUpdateParticipantReqMsg](envelope, jsonNode)
+
       // Voice
       case RecordingStartedVoiceConfEvtMsg.NAME =>
         routeVoiceMsg[RecordingStartedVoiceConfEvtMsg](envelope, jsonNode)
@@ -189,6 +207,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[SetUserTalkingReqMsg](envelope, jsonNode)
       case MuteUserCmdMsg.NAME =>
         routeGenericMsg[MuteUserCmdMsg](envelope, jsonNode)
+      case DeafenUserCmdMsg.NAME =>
+        routeGenericMsg[DeafenUserCmdMsg](envelope, jsonNode)
       case MuteAllExceptPresentersCmdMsg.NAME =>
         routeGenericMsg[MuteAllExceptPresentersCmdMsg](envelope, jsonNode)
       case EjectUserFromMeetingCmdMsg.NAME =>
