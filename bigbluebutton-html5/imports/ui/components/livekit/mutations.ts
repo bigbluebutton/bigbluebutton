@@ -9,7 +9,7 @@ export const USER_SET_TALKING = gql`
 `;
 
 export const USER_SET_DEAFENED = gql`
-  mutation UserSetDeafened($userId: String, $deafened: Boolean!) {
+  mutation UserSetDeafened($userId: String!, $deafened: Boolean!) {
     userSetDeafened(
       userId: $userId,
       deafened: $deafened
