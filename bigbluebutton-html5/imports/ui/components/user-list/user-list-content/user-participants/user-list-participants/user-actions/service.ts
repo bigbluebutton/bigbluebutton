@@ -40,7 +40,7 @@ export const generateActionsPermissions = (
 
   const allowedToUnmuteAudio = hasAuthority
     && subjectUserInAudio
-    && !subjectUserVoice.listenOnly
+    && !subjectUserVoice?.listenOnly
     && isMuted
     && (amISubjectUser || usersPolicies?.allowModsToUnmuteUsers);
 

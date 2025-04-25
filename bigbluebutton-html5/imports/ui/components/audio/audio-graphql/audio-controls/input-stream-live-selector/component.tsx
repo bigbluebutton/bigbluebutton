@@ -286,7 +286,7 @@ const InputStreamLiveSelectorContainer: React.FC<InputStreamLiveSelectorContaine
       away: u?.away,
       voice: {
         joined: u?.voice?.joined ?? false,
-        deafeaned: u?.voice?.deafened ?? false,
+        deafened: u?.voice?.deafened ?? false,
         listenOnly: u?.voice?.listenOnly ?? false,
       },
     };
