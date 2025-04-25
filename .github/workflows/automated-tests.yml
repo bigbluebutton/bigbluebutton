@@ -297,12 +297,14 @@ jobs:
             sudo apt-get install -y dbus-user-session
             export MY_UID=$(id -u)
             export MY_USER=$(whoami)
+            echo $MY_UID
+            echo $MY_USER
             mkdir -p /run/user/$MY_UID
             chmod 700 /run/user/$MY_UID
             chown $MY_USER:$MY_USER /run/user/$MY_UID
+            echo "permissons ok"
             sudo -u $MY_USER XDG_RUNTIME_DIR=/run/user/$MY_UID dbus-daemon --session --print-address > /tmp/dbus-address
-            export DBUS_SESSION_BUS_ADDRESS=$(cat /tmp/dbus-address)
-            export XDG_RUNTIME_DIR=/run/user/$MY_UID
+            echo "dbus-daemon --session"
       - name: Install BBB
         env:
           NODE_EXTRA_CA_CERTS: /usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt
@@ -382,6 +384,8 @@ jobs:
           sed -i "s/exports.DEBUG = false/exports.DEBUG = true/" /usr/local/bigbluebutton/bbb-graphql-actions/config.js
           sudo yq e -i '.log_level = "TRACE"' /usr/share/bbb-graphql-middleware/config.yml
           echo "HASURA_GRAPHQL_LOG_LEVEL=debug" | tee -a /etc/bigbluebutton/bbb-graphql-server.env
+          echo "XDG_RUNTIME_DIR=/run/user/1000" | tee -a /etc/default/bbb-web
+          echo "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus" | tee -a /etc/default/bbb-web
           cat > /etc/bigbluebutton/bbb-conf/apply-config.sh << HERE
           #!/bin/bash
 
