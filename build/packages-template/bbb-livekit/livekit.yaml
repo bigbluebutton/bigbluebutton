@@ -3,7 +3,7 @@ log_level: info
 rtc:
   port_range_start: 16384
   port_range_end: 32768
-  use_external_ip: false 
+  use_external_ip: false
   tcp_port: 0
   interfaces:
     excludes:
