@@ -1432,7 +1432,7 @@
     "app.layout.modal.layoutLabel": "Выберите компоновку",
     "app.layout.modal.pushLayoutLabel": "Применить ко всем",
     "app.layout.modal.layoutToastLabel": "Настройки компоновки изменены",
-    "app.layout.modal.layoutSingular": "Макет",
+    "app.layout.modal.layoutSingular": "Компоновка",
     "app.layout.modal.layoutBtnDesc": "Устанавливает макет как выбранный вариант",
     "app.layout.modal.layoutToastLabelAuto": "Включены автоматические обновления макета, обновления макета теперь применяются ко всем",
     "app.layout.modal.layoutToastLabelAutoOff": "Автоматические обновления макета отключены",
