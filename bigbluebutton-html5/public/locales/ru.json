@@ -1436,7 +1436,7 @@
     "app.layout.modal.layoutBtnDesc": "Устанавливает компоновку как выбранный вариант",
     "app.layout.modal.layoutToastLabelAuto": "Автоматические обновления компоновки включены, обновления компоновки теперь применяются ко всем",
     "app.layout.modal.layoutToastLabelAutoOff": "Автоматические обновления компоновки отключены.",
-    "app.layout.style.custom": "Настраиваемая компоновка",
+    "app.layout.style.custom": "Настраиваемая ",
     "app.layout.style.smart": "Умный макет",
     "app.layout.style.presentationFocus": "Фокус на презентации",
     "app.layout.style.videoFocus": "Макет сетки",
