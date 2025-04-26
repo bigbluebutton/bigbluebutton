@@ -579,7 +579,7 @@
     "app.submenu.application.paginationEnabledLabel": "Пагинация видео",
     "app.submenu.application.wakeLockEnabledLabel": "Блокировка пробуждения",
     "app.submenu.application.layoutOptionLabel": "Тип компоновки",
-    "app.submenu.application.pushLayoutLabel": "Применить макет ко всем",
+    "app.submenu.application.pushLayoutLabel": "Применить компоновку ко всем",
     "app.submenu.application.localeDropdown.af": "Африкаанс",
     "app.submenu.application.localeDropdown.ar": "Арабский",
     "app.submenu.application.localeDropdown.az": "Азербайджанский",
