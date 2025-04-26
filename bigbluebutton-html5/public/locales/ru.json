@@ -1424,7 +1424,7 @@
     "app.debugWindow.form.chatLoggerLabel": "Тестировать уровни логгера чата",
     "app.debugWindow.form.button.apply": "Применить",
     "app.layout.modal.title": "Настройки компоновки",
-    "app.layoutUpdate.label": "Обновления макета применены ко всем",
+    "app.layoutUpdate.label": "Компоновка обновлена для всех пользователей",
     "app.layout.modal.update": "Обновить",
     "app.layout.modal.updateAll": "Обновить для всех",
     "app.layout.modal.followPresentersLayout": "Следовать макету ведущего",
