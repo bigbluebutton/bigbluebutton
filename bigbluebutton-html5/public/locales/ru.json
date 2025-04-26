@@ -1440,7 +1440,7 @@
     "app.layout.style.smart": "Автоматическая",
     "app.layout.style.presentationFocus": "Фокус на презентации",
     "app.layout.style.videoFocus": "Фокус на веб-камерах",
-    "app.layout.style.customPush": "Пользовательский (применить макет ко всем)",
+    "app.layout.style.customPush": "Настраиваемая (Применить для всех)",
     "app.layout.style.smartPush": "Умный макет (применить макет ко всем)",
     "app.layout.style.presentationFocusPush": "Фокус на презентации (применить макет ко всем)",
     "app.layout.style.videoFocusPush": "Фокус на видео (применить макет ко всем)",
