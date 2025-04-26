@@ -1427,7 +1427,7 @@
     "app.layoutUpdate.label": "Компоновка обновлена для всех пользователей",
     "app.layout.modal.update": "Обновить",
     "app.layout.modal.updateAll": "Обновить для всех",
-    "app.layout.modal.followPresentersLayout": "Следовать макету ведущего",
+    "app.layout.modal.followPresentersLayout": "Использовать компоновку ведущего",
     "app.layout.modal.pushToggleWarningTooltip": "Включение этого синхронизирует макет для всех участников с макетом ведущего.",
     "app.layout.modal.layoutLabel": "Выберите ваш макет",
     "app.layout.modal.pushLayoutLabel": "Применить ко всем",
