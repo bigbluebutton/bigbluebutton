@@ -1423,7 +1423,7 @@
     "app.debugWindow.form.enableAutoarrangeLayoutDescription": "(будет отключено, если вы перетащите или измените размер области веб-камер)",
     "app.debugWindow.form.chatLoggerLabel": "Тестировать уровни логгера чата",
     "app.debugWindow.form.button.apply": "Применить",
-    "app.layout.modal.title": "Макеты",
+    "app.layout.modal.title": "Настройки компоновки",
     "app.layoutUpdate.label": "Обновления макета применены ко всем",
     "app.layout.modal.update": "Обновить",
     "app.layout.modal.updateAll": "Обновить для всех",
