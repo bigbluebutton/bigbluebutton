@@ -1434,7 +1434,7 @@
     "app.layout.modal.layoutToastLabel": "Настройки компоновки изменены",
     "app.layout.modal.layoutSingular": "Компоновка",
     "app.layout.modal.layoutBtnDesc": "Устанавливает компоновку как выбранный вариант",
-    "app.layout.modal.layoutToastLabelAuto": "Включены автоматические обновления макета, обновления макета теперь применяются ко всем",
+    "app.layout.modal.layoutToastLabelAuto": "Автоматические обновления компоновки включены, обновления компоновки теперь применяются ко всем",
     "app.layout.modal.layoutToastLabelAutoOff": "Автоматические обновления макета отключены",
     "app.layout.style.custom": "Пользовательский макет",
     "app.layout.style.smart": "Умный макет",
