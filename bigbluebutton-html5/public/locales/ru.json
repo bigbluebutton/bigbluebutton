@@ -1437,7 +1437,7 @@
     "app.layout.modal.layoutToastLabelAuto": "Автоматические обновления компоновки включены, обновления компоновки теперь применяются ко всем",
     "app.layout.modal.layoutToastLabelAutoOff": "Автоматические обновления компоновки отключены.",
     "app.layout.style.custom": "Настраиваемая",
-    "app.layout.style.smart": "Умный макет",
+    "app.layout.style.smart": "Автоматическая",
     "app.layout.style.presentationFocus": "Фокус на презентации",
     "app.layout.style.videoFocus": "Макет сетки",
     "app.layout.style.customPush": "Пользовательский (применить макет ко всем)",
