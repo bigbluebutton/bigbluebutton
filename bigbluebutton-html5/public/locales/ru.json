@@ -1441,7 +1441,7 @@
     "app.layout.style.presentationFocus": "Фокус на презентации",
     "app.layout.style.videoFocus": "Фокус на веб-камерах",
     "app.layout.style.customPush": "Настраиваемая (Применить для всех)",
-    "app.layout.style.smartPush": "Автоматический (Применить для всех)",
+    "app.layout.style.smartPush": "Автоматическая (Применить для всех)",
     "app.layout.style.presentationFocusPush": "Фокус на презентации (применить макет ко всем)",
     "app.layout.style.videoFocusPush": "Фокус на видео (применить макет ко всем)",
     "playback.button.about.aria": "О программе",
