@@ -108,23 +108,25 @@ class LockViewers extends MultiUsers {
     await this.userPage.hasElementDisabled(e.sendButton, 'should have the send button on the public chat disabled for the first attendee');
     await hoverLastMessage(this.userPage);
     await this.userPage.wasRemoved(e.messageToolbar, 'should not display the chat message toolbar when locked viewer is hovering a message');
-    // join second user
+    // join second user and send message
     await this.initUserPage2(true);
     await this.userPage2.hasElementDisabled(e.chatBox, 'should have the public chat disabled for the second attendee');
     await this.userPage2.hasElementDisabled(e.sendButton, 'should have the send button on the public chat disabled for the second attendee');
     await this.modPage.type(e.chatBox, e.message);
     await this.modPage.waitAndClick(e.sendButton);
+    // unlock user2
     await this.modPage.waitAndClick(`${e.userListItem}>>nth=1`);
     await this.modPage.waitAndClick(`${e.unlockUserButton}>>nth=1`);
+    // check enabled elements and send new message
     await this.userPage2.hasElementEnabled(e.chatBox, 'should have the public chat enabled for the second attendee', ELEMENT_WAIT_LONGER_TIME);
     await this.userPage2.type(e.chatBox, e.message);
     await this.modPage.hasElement(e.typingIndicator, 'should display the typing indicator element for the moderator');
     await this.userPage2.waitAndClick(e.sendButton);
+    await this.userPage2.hasElementCount(e.chatUserMessageText, 3, 'should display three chat messages on the public chat for the second attendee');
     const lastMessageSentUser2Locator = await this.userPage2.getLocator(e.chatMessageItem).last();
     await lastMessageSentUser2Locator.locator(e.chatUserMessageText).hover();
     await expect(lastMessageSentUser2Locator.locator(e.messageToolbar), 'should display the chat message toolbar when the unlocked viewer is hovering a message').toBeVisible();
-    await this.userPage.waitForSelector(e.chatUserMessageText);
-    await this.userPage.hasElementCount(e.chatUserMessageText, 2, 'should display two user messages on the public chat for the first attendee');
+    await this.userPage.hasElementCount(e.chatUserMessageText, 3, 'should display all messages on the public chat for the first attendee');
   }
 
   async lockSendPrivateChatMessages() {
