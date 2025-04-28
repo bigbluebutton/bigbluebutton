@@ -140,6 +140,7 @@ const webcamPlaceholderBorder = 'var(--webcam-placeholder-border, rgba(255, 255,
 
 const toastWarningColor = `var(--toast-warning-color, ${colorWhite})`;
 const toastWarningBg = `var(--toast-warning-bg, ${colorWarning})`;
+const defaultBorder = 'var(--default-border, #B0BDC9)';
 
 // DARK THEME COLORS
 const colorBackgroundDarkTheme = 'var(--color-background-dark-theme, #181A23)';
@@ -253,6 +254,7 @@ export {
   toastErrorBg,
   toastWarningColor,
   toastWarningBg,
+  defaultBorder,
   webcamBackgroundColor,
   webcamPlaceholderBorder,
   colorBackgroundDarkTheme,
