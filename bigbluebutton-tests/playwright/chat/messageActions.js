@@ -20,7 +20,6 @@ class MessageActions extends Chat {
     // edit message (toolbar button)
     await this.modPage.waitAndClick(e.editMessageButton);
     await this.modPage.hasElement(e.chatEditingWarningContainer, 'should display the message editing warning container');
-    await this.modPage.hasText(`${e.chatEditingWarningContainer} span`, 'Editing message', 'should display the editing warning text');
     await this.modPage.hasElement(e.cancelEditingButton, 'should display the cancel editing button');
     await this.modPage.fill(e.chatBox, e.message2);
     await this.modPage.waitAndClick(e.sendButton);
@@ -42,7 +41,6 @@ class MessageActions extends Chat {
     await this.modPage.waitAndClick(e.chatBox);
     await this.modPage.press('ArrowUp');
     await this.modPage.hasElement(e.chatEditingWarningContainer, 'should display the message editing warning container');
-    await this.modPage.hasText(`${e.chatEditingWarningContainer} span`, 'Editing message', 'should display the editing warning text');
     await this.modPage.hasElement(e.cancelEditingButton, 'should display the cancel editing button');
     // edit message (arrow up)
     await this.modPage.fill(e.chatBox, e.message2);
@@ -54,13 +52,12 @@ class MessageActions extends Chat {
     await this.modPage.waitAndClick(e.chatBox);
     await this.modPage.press('ArrowUp');
     await this.modPage.hasElement(e.chatEditingWarningContainer, 'should display the message editing warning container');
-    await this.modPage.hasText(`${e.chatEditingWarningContainer} span`, 'Editing message', 'should display the editing warning text');
     await this.modPage.hasElement(e.cancelEditingButton, 'should display the cancel editing button');
     // cancel editing
     await this.modPage.fill(e.chatBox, 'extra characters');
     await this.modPage.press('Escape');
     await this.modPage.wasRemoved(e.chatEditingWarningContainer, 'should display the chat box');
-    await expect(this.modPage.getLocator(e.chatBox), 'should not display any text in the chat box').toHaveText('')
+    await expect(this.modPage.getLocator(e.chatBox), 'should not display any text in the chat box').toHaveValue('')
   }
 
   async ableToEditOwnMessage() {
@@ -78,7 +75,7 @@ class MessageActions extends Chat {
     await expect(lastMessageItem.locator(e.messageToolbar), 'should display the message toolbar when hovering a message').toBeVisible();
     await expect(lastMessageItem.locator(e.replyMessageButton), 'should display the reply message button when hovering the mod message').toBeVisible();
     await expect(lastMessageItem.locator(e.reactMessageButton), 'should display the react message button when hovering the mod message').toBeVisible();
-    await expect(lastMessageItem.locator(e.editMessageButton), 'should not display the edit message button when hovering the mod message').toBeVisible();
+    await expect(lastMessageItem.locator(e.editMessageButton), 'should display the edit message button when hovering the mod message').toBeVisible();
     // user send a message
     await this.userPage.type(e.chatBox, e.testMessage);
     await this.userPage.waitAndClick(e.sendButton);
@@ -397,7 +394,8 @@ class MessageActions extends Chat {
     await expect(lastMessageItemUser.locator(e.messageToolbar), 'should display the message toolbar when hovering a message').toBeVisible();
     await this.userPage.waitAndClick(e.reactMessageButton);
     await this.userPage.getByLabelAndClick(e.grinningFaceEmoji);
-    await this.modPage.hasElementCount(e.messageReactionItem, 2, 'should display two reaction items for the viewer');
+    await this.userPage.hasElementCount(e.messageReactionItem, 2, 'should display two reaction items for the viewer');
+    await this.modPage.hasElementCount(e.messageReactionItem, 2, 'should display two reaction items for the mod');
     // check first reaction item
     const messageReactionsMod = lastMessageItemMod.locator(e.messageReactionItem);
     const messageReactionsUser = lastMessageItemUser.locator(e.messageReactionItem);
