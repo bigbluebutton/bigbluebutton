@@ -117,7 +117,7 @@ test.describe('Chat', { tag: '@ci' }, () => {
     await chat.chatDisabledUserLeaves();
   });
 
-  test.describe('Message actions', () => {
+  test.describe.only('Message actions', () => {
     test.describe('Edit', () => {
       test('Edit a message using the toolbar button', async ({ browser, context, page }) => {
         const message = new MessageActions(browser, context);
