@@ -10,9 +10,14 @@ keywords:
 
 We have tools to make it easy for you, a system administrator, to install BigBlueButton on a dedicated Linux server. This document shows you how to install.
 
+
+# BigBlueButton 3.1 is under development. This documentation section is a DRAFT.
+
+
 ## Before you install
 
-We recommend installing BigBlueButton with a 'clean' and dedicated Ubuntu 22.04 64-bit server with no prior software installed. If you want to upgrade from an earlier version of BigBlueButton like 2.7, we recommend setting up a clean server for BigBlueButton 3.0 on Ubuntu 22.04 and, after setup, [migrate over your existing recordings](/administration/customize#transfer-published-recordings-from-another-server).
+We recommend installing BigBlueButton with a 'clean' and dedicated Ubuntu 22.04 64-bit server with no prior software installed. If you want to upgrade from BigBlueButton 3.0, you could upgrade using the [3.1 version of the bbb-install script](https://github.com/bigbluebutton/bbb-install/tree/v3.1.x-release).
+Upgrading from an earlier version of BigBlueButton (2.6, 2.7) directly is not supported. We recommend setting up a clean server for BigBlueButton 3.1 on Ubuntu 22.04 and, after setup, [migrate over your existing recordings](/administration/customize#transfer-published-recordings-from-another-server).
 
 A 'clean' server does not have any previous web servers installed (such as apache) or web applications (such as plesk or webadmin) that are [binding to port 80/443](/support/faq#we-recommend-running-bigbluebutton-on-port-80443). By 'dedicated' we mean that this server won't be used for anything else besides BigBlueButton (and possibly BigBlueButton-related applications such as [Greenlight](/greenlight/v3/install)).
 
@@ -153,34 +158,32 @@ sudo ufw allow 443
 
 Sometimes we get asked "Why are you only supporting Ubuntu 22.04 64-bit?". The answer is based on choosing quality over quantity. Long ago we concluded that its better for the project to have solid, well-tested, well-documented installation for a specific version of Linux that works really, really well than to try and support many variants of Linux and have none of them work well.
 
-At the moment, the requirement for docker may preclude running 3.0 within some virtualized environments; however, it ensures LibreOffice runs within a restricted sandbox for document conversion.  We are exploring if we can run LibreOffice within systemd (such as systemd-nspawn).
+At the moment, the requirement for docker may preclude running 3.1 within some virtualized environments; however, it ensures LibreOffice runs within a restricted sandbox for document conversion.  We are exploring if we can run LibreOffice within systemd (such as systemd-nspawn).
 
 ## Install
 
-To install BigBlueButton, use [bbb-install.sh](https://github.com/bigbluebutton/bbb-install/blob/v3.0.x-release/bbb-install.sh) script. Notice that this command is slightly different than what we recommended in previous versions of BigBlueButton. The script now resides on a branch specifying the version of BigBlueButton, but otherwise the name of the script is identical across different branches. This makes it more maintainable as patches done to the script in one branch can be easily applied to other branches.
+To install BigBlueButton, use [bbb-install.sh](https://github.com/bigbluebutton/bbb-install/blob/v3.1.x-release/bbb-install.sh) script. Notice that this command is slightly different than what we recommended in previous versions of BigBlueButton. The script now resides on a branch specifying the version of BigBlueButton, but otherwise the name of the script is identical across different branches. This makes it more maintainable as patches done to the script in one branch can be easily applied to other branches.
 
-The above link gives detailed information on using the script. As an example, passing several arguments to the script you can easily have both BigBlueButton and Greenlight or LTI installed on the same server. You could specify if you would like a new certificate to be generated. A firewall could be enabled. For the most up-to-date information, please refer to the instructions in the script. Notice that as of BigBlueButton 2.6 we have retired the API demos. We recommend using Greenlight or [API MATE](https://mconf.github.io/api-mate/) instead.
+The above link gives detailed information on using the script. As an example, passing several arguments to the script you can easily have both BigBlueButton and Greenlight or LTI installed on the same server. You could specify if you would like a new certificate to be generated. A firewall could be enabled. For the most up-to-date information, please refer to the instructions in the script. We recommend using Greenlight as a frontend. [API MATE](https://mconf.github.io/api-mate/) can be quite useful when verifying your server is working correctly.
 
 After the `bbb-install.sh` script finishes, you can check the status of your server with `bbb-conf --check`. When you run this command, you should see output similar to the following:
 
 ```bash
 $ sudo bbb-conf --check
-
-root@test30:~# bbb-conf --check
-BigBlueButton Server 3.0.0-alpha.1 (68)
-                    Kernel version: 6.2.0-39-generic
-                      Distribution: Ubuntu 22.04.3 LTS (64-bit)
-                            Memory: 8140 MB
+BigBlueButton Server 3.1.0-beta.1 (161)
+                    Kernel version: 5.15.0-113-generic
+                      Distribution: Ubuntu 22.04.5 LTS (64-bit)
+                            Memory: 8127 MB
                          CPU cores: 4
 
 /etc/bigbluebutton/bbb-web.properties (override for bbb-web)
 /usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties (bbb-web)
-       bigbluebutton.web.serverURL: https://test30.bigbluebutton.org
+       bigbluebutton.web.serverURL: https://test31.bigbluebutton.org
                 defaultGuestPolicy: ALWAYS_ACCEPT
               defaultMeetingLayout: CUSTOM_LAYOUT
 
 /etc/nginx/sites-available/bigbluebutton (nginx)
-                       server_name: dev30.bigbluebutton.org
+                       server_name: test31.bigbluebutton.org
                               port: 80, [::]:80127.0.0.1:82 http2 proxy_protocol, [::1]:82 http2127.0.0.1:81 proxy_protocol, [::1]:81
 
 /opt/freeswitch/etc/freeswitch/vars.xml (FreeSWITCH)
@@ -197,11 +200,11 @@ BigBlueButton Server 3.0.0-alpha.1 (68)
 UDP port ranges
 
                         FreeSWITCH: 16384-24576
-                    bbb-webrtc-sfu: null-null
-                    bbb-webrtc-recorder: null-null
+                    bbb-webrtc-sfu: 24577-32768
+                    bbb-webrtc-recorder: 24577-32768
 
 /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml (record and playback)
-                     playback_host: dev30.bigbluebutton.org
+                     playback_host: test31.bigbluebutton.org
                  playback_protocol: https
                             ffmpeg: 4.4.2-0ubuntu0.22.04.1
 
@@ -214,7 +217,7 @@ UDP port ranges
     mediasoup.webrtc.*.announcedIp: 143.198.37.212
   mediasoup.plainRtp.*.announcedIp: 143.198.37.212
                  freeswitch.sip_ip: 143.198.37.212
-                  recordingAdapter: Kurento
+                  recordingAdapter: bbb-webrtc-recorder
                recordScreenSharing: true
                      recordWebcams: true
                   codec_video_main: VP8
@@ -222,13 +225,13 @@ UDP port ranges
 
 /etc/bbb-webrtc-recorder/bbb-webrtc-recorder.yml (bbb-webrtc-recorder)
 /etc/bigbluebutton/bbb-webrtc-recorder.yml (bbb-webrtc-recorder - override)
-               debug: false
+               debug: null
                recorder.directory: /var/lib/bbb-webrtc-recorder
 
 /usr/share/bigbluebutton/html5-client/private/config/settings.yml (HTML5 client)
 /etc/bigbluebutton/bbb-html5.yml (HTML5 client config override)
-                             build: 13
-                        kurentoUrl: wss://test30.bigbluebutton.org/bbb-webrtc-sfu
+                             build: 64
+                        kurentoUrl: wss://test31.bigbluebutton.org/bbb-webrtc-sfu
             defaultFullAudioBridge: fullaudio
            defaultListenOnlyBridge: fullaudio
                     sipjsHackViaWs: true
@@ -244,23 +247,24 @@ You can also use `sudo bbb-conf --status` to check that all the BigBlueButton pr
 
 ```bash
 $ sudo bbb-conf --status
-nginx ————————————————————————————————► [✔ - active]
-freeswitch ———————————————————————————► [✔ - active]
-redis-server —————————————————————————► [✔ - active]
-bbb-apps-akka ————————————————————————► [✔ - active]
-bbb-fsesl-akka ———————————————————————► [✔ - active]
-bbb-graphql-actions ——————————————————► [✔ - active]
-bbb-graphql-middleware ———————————————► [✔ - active]
-bbb-graphql-server ———————————————————► [✔ - active]
-bbb-webrtc-sfu ———————————————————————► [✔ - active]
-bbb-webrtc-recorder ——————————————————► [✔ - active]
-etherpad —————————————————————————————► [✔ - active]
-bbb-web ——————————————————————————————► [✔ - active]
-bbb-pads —————————————————————————————► [✔ - active]
-bbb-export-annotations ———————————————► [✔ - active]
-bbb-rap-caption-inbox ————————————————► [✔ - active]
-bbb-rap-resque-worker ————————————————► [✔ - active]
-bbb-rap-starter ——————————————————————► [✔ - active]
+nginx ————————————————————————► [✔ - active]
+freeswitch ———————————————————► [✔ - active]
+redis-server —————————————————► [✔ - active]
+bbb-apps-akka ————————————————► [✔ - active]
+bbb-fsesl-akka ———————————————► [✔ - active]
+postgresql ———————————————————► [✔ - active]
+bbb-graphql-actions ——————————► [✔ - active]
+bbb-graphql-middleware ———————► [✔ - active]
+bbb-graphql-server ———————————► [✔ - active]
+bbb-webrtc-sfu ———————————————► [✔ - active]
+bbb-webrtc-recorder ——————————► [✔ - active]
+etherpad —————————————————————► [✔ - active]
+bbb-web ——————————————————————► [✔ - active]
+bbb-pads —————————————————————► [✔ - active]
+bbb-export-annotations ———————► [✔ - active]
+bbb-rap-caption-inbox ————————► [✔ - active]
+bbb-rap-resque-worker ————————► [✔ - active]
+bbb-rap-starter ——————————————► [✔ - active]
 
 ```
 
@@ -268,26 +272,27 @@ You can also use `dpkg -l | grep bbb-` to list all the core BigBlueButton packag
 
 ```bash
 # dpkg -l | grep bbb-
-ii  bbb-apps-akka                      1:3.0-7         all          BigBlueButton Apps (Akka)
-ii  bbb-config                         1:3.0-8         amd64        BigBlueButton configuration utilities
-ii  bbb-etherpad                       1:3.0-1         amd64        The EtherPad Lite components for BigBlueButton
-ii  bbb-export-annotations             1:3.0-2         amd64        BigBlueButton Export Annotations
-ii  bbb-freeswitch-core                2:3.0-1         amd64        BigBlueButton build of FreeSWITCH
-ii  bbb-freeswitch-sounds              1:3.0-1         amd64        FreeSWITCH Sounds
-ii  bbb-fsesl-akka                     1:3.0-5         all          BigBlueButton FS-ESL (Akka)
-ii  bbb-graphql-actions                1:3.0-5         amd64        BigBlueButton GraphQL Actions
-ii  bbb-graphql-middleware             1:3.0-6         amd64        GraphQL middleware component for BigBlueButton
-ii  bbb-graphql-server                 1:3.0-5         amd64        GraphQL server component for BigBlueButton
-ii  bbb-learning-dashboard             1:3.0-1         amd64        BigBlueButton bbb-learning-dashboard
-ii  bbb-libreoffice-docker             1:3.0-1         amd64        BigBlueButton setup for LibreOffice running in docker
-ii  bbb-mkclean                        1:3.0-1         amd64        Clean and optimize Matroska and WebM files
-ii  bbb-pads                           1:3.0-1         amd64        BigBlueButton Pads
-ii  bbb-playback                       1:3.0-1         amd64        Player for BigBlueButton presentation format recordings
-ii  bbb-playback-presentation          1:3.0-1         amd64        BigBlueButton presentation recording format
-ii  bbb-record-core                    1:3.0-1         amd64        BigBlueButton record and playback
-ii  bbb-web                            1:3.0-6         amd64        BigBlueButton API
-ii  bbb-webrtc-recorder                1:3.0-1         amd64        BigBlueButton WebRTC Recorder
-ii  bbb-webrtc-sfu                     1:3.0-1         amd64        BigBlueButton WebRTC SFU
+ii  bbb-apps-akka                      1:3.1-10        all          BigBlueButton Apps (Akka)
+ii  bbb-config                         1:3.1-9         amd64        BigBlueButton configuration utilities
+ii  bbb-etherpad                       1:3.1-3         amd64        The EtherPad Lite components for BigBlueButton
+ii  bbb-export-annotations             1:3.1-3         amd64        BigBlueButton Export Annotations
+ii  bbb-freeswitch-core                2:3.1-3         amd64        BigBlueButton build of FreeSWITCH
+ii  bbb-freeswitch-sounds              1:3.1-1         amd64        FreeSWITCH Sounds
+ii  bbb-fsesl-akka                     1:3.1-6         all          BigBlueButton FS-ESL (Akka)
+ii  bbb-graphql-actions                1:3.1-5         amd64        BigBlueButton GraphQL Actions
+ii  bbb-graphql-middleware             1:3.1-6         amd64        GraphQL middleware component for BigBlueButton
+ii  bbb-graphql-server                 1:3.1-11        amd64        GraphQL server component for BigBlueButton
+ii  bbb-html5                          1:3.1-64        amd64        The HTML5 components for BigBlueButton
+ii  bbb-learning-dashboard             1:3.1-5         amd64        BigBlueButton bbb-learning-dashboard
+ii  bbb-libreoffice-docker             1:3.1-1         amd64        BigBlueButton setup for LibreOffice running in docker
+ii  bbb-mkclean                        1:3.1-4         amd64        Clean and optimize Matroska and WebM files
+ii  bbb-pads                           1:3.1-1         amd64        BigBlueButton Pads
+ii  bbb-playback                       1:3.1-1         amd64        Player for BigBlueButton presentation format recordings
+ii  bbb-playback-presentation          1:3.1-4         amd64        BigBlueButton presentation recording format
+ii  bbb-record-core                    1:3.1-5         amd64        BigBlueButton record and playback
+ii  bbb-web                            1:3.1-7         amd64        BigBlueButton API
+ii  bbb-webrtc-recorder                1:3.1-4         amd64        BigBlueButton WebRTC Recorder
+ii  bbb-webrtc-sfu                     1:3.1-6         amd64        BigBlueButton WebRTC SFU
 
 ```
 
@@ -313,53 +318,13 @@ The link to API-Mate will open a page at [https://mconf.github.io/api-mate/](htt
 
 Do you have a firewall between you and your users? If so, see [configuring your firewall](/administration/firewall-configuration).
 
-### Upgrading BigBlueButton 3.0
+### Upgrading BigBlueButton 3.1
 
-You can upgrade by re-running the `bbb-install.sh` script again -- it will download and install the latest release of BigBlueButton 3.0.
+You can upgrade by re-running the `bbb-install.sh` script again -- it will download and install the latest release of BigBlueButton 3.1.
 
-#### Note about /etc/default/bbb-graphql-server configurations
+### Upgrading from BigBlueButton 3.0
 
-If you encounter the following message while upgrading:
-
-```
-Configuration file '/etc/default/bbb-graphql-server'
- ==> Modified (by you or by a script) since installation.
- ==> Package distributor has shipped an updated version.
- ==> Keeping old config file as default.
-...
-
-```
-
-after the upgrade navigate to `/etc/default` and inspect:
-
-```
-root@test30:~# cd /etc/default/
-root@test30:/etc/default# ls -l bbb*
--rw-r--r-- 1 root root  85 May 10 02:20 bbb-apps-akka
--rw-r--r-- 1 root root  86 May  8 14:25 bbb-fsesl-akka
--rw-r--r-- 1 root root 819 Aug 13 13:45 bbb-graphql-server
--rw-r--r-- 1 root root 747 Aug 30 22:11 bbb-graphql-server.dpkg-dist
--rw-r--r-- 1 root root 139 May 10 14:46 bbb-web
--rw-r--r-- 1 root root  39 Mar 14 22:06 bbb-webrtc-recorder
-```
-
-You will notice that a newer version of the configuration file `bbb-graphql-server` could not be deployed because
-we had modified the original `bbb-graphql-server` after it was installed here. Typically you will only be seeing this
-message / use case if you are upgrading a server which had BigBlueButton 3.0.0-alpha version at some point.
-You can compare the differences between `bbb-graphql-server` and `bbb-graphql-server.dpkg-dist` but in pretty much all
-cases the way to resolve this problem is by only keeping the newer version of the file:
-
-`sudo mv /etc/default/bbb-graphql-server.dpkg-dist /etc/default/bbb-graphql-server`
-
-followed by a restart of BigBlueButton
-
-`sudo bbb-conf --restart`
-
-### Upgrading from BigBlueButton 2.6 or 2.7
-
-If you are upgrading BigBlueButton 2.6 or 2.7 we recommend you set up a new Ubuntu 22.04 server with BigBlueButton 3.0 and then [copy over your existing recordings from the old server](/administration/customize#transfer-published-recordings-from-another-server).
-
-Make sure you read through the ["what's new in 3.0" document](https://docs.bigbluebutton.org/3.0/new-features) and especially [the section covering notable changes](https://docs.bigbluebutton.org/3.0/new-features#other-notable-changes)
+If you were previously running BigBlueButton 3.0 on the server you can upgrade to BigBlueButton 3.1 by running the [3.1 version of the bbb-install script](https://github.com/bigbluebutton/bbb-install/tree/v3.1.x-release) on the server.
 
 ### Restart your server
 
@@ -386,7 +351,7 @@ If this server is intended for production, you should also
 We provide publicly accessible servers that you can use for testing:
 
 - [https://demo.bigbluebutton.org](https://demo.bigbluebutton.org/) - a pool of BigBlueButton servers with the Greenlight front-end (sometimes the pool is a mix of different BigBlueButton releases)
-- [https://test30.bigbluebutton.org](https://test30.bigbluebutton.org) - Runs the general build of BigBlueButton 3.0 - usually a few days behind the repository branch `v3.0.x-release`
+- [https://test31.bigbluebutton.org](https://test31.bigbluebutton.org) - Runs the general build of BigBlueButton 3.1 - usually a few days behind the repository branch `v3.1.x-release`
 
 To learn more about integrating BigBlueButton with your application, check out the [BigBlueButton API documentation](/development/api). To see videos of BigBlueButton HTML5 client, see [https://bigbluebutton.org/html5](https://bigbluebutton.org/html5).
 
@@ -452,4 +417,4 @@ For more details see [this issue](https://github.com/bigbluebutton/bbb-install/i
 
 ## Feedback and reporting bugs
 
-If you found a reproducible bug, please report it in the [GitHub Issues section](https://github.com/bigbluebutton/bigbluebutton/issues) with steps to reproduce (this will make it easier for the developers to fix the bug). Indicate in the body of the bug report that this applies to BigBlueButton 3.0 and give us the client build number, which you can find either with `dpkg -l | grep bbb-html5` or within the client in the `Settings -> About` menu..
+If you found a reproducible bug, please report it in the [GitHub Issues section](https://github.com/bigbluebutton/bigbluebutton/issues) with steps to reproduce (this will make it easier for the developers to fix the bug). Indicate in the body of the bug report that this applies to BigBlueButton 3.1 and give us the client build number, which you can find either with `dpkg -l | grep bbb-html5` or within the client in the `Settings -> About` menu..
