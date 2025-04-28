@@ -165,7 +165,7 @@ exports.editMessageButton = 'button[data-test="editMessageButton"]';
 exports.deleteMessageButton = 'button[data-test="deleteMessageButton"]';
 // Emoji picker
 exports.emojiPickerButton = 'button[data-test="emojiPickerButton"]';
-exports.frequentlyUsedEmoji = '👍';
+exports.thumbsUpEmoji = '👍';
 exports.grinningFaceEmoji = '😀';
 // Auto Convert Emoji
 exports.autoConvertEmojiMessage = ':)';

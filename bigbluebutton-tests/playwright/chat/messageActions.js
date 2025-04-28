@@ -113,7 +113,7 @@ class MessageActions extends Chat {
     await expect(lastMessageItem.locator(e.messageToolbar), 'should display the message toolbar when hovering a message').toBeVisible();
     await this.modPage.hasElement(e.messageToolbar, 'should display the message toolbar when hovering a message');
     await this.modPage.waitAndClick(e.reactMessageButton);
-    await this.modPage.getByLabelAndClick(e.frequentlyUsedEmoji);
+    await this.modPage.getByLabelAndClick(e.thumbsUpEmoji);
     await this.modPage.hasElement(e.messageReactionItem, 'should display the reaction item for the mod');
     // hover and delete message
     await lastMessageItem.hover();
@@ -127,7 +127,6 @@ class MessageActions extends Chat {
     await this.modPage.wasRemoved(e.messageReactionItem, 'should remove the message reaction item from the deleted message');
     await lastMessageItem.hover();
     await expect(lastMessageItem.locator(e.messageToolbar), 'should not display the message toolbar when hovering a deleted message').not.toBeVisible();
-    // await this.modPage.wasRemoved(e.messageToolbar, 'should not display the message toolbar when hovering a deleted message');
   }
 
   async deleteAnotherUserMessage() {
@@ -143,7 +142,7 @@ class MessageActions extends Chat {
     await lastMessageItem.hover();
     await expect(lastMessageItem.locator(e.messageToolbar), 'should display the message toolbar when hovering a message').toBeVisible();
     await this.modPage.waitAndClick(e.reactMessageButton);
-    await this.modPage.getByLabelAndClick(e.frequentlyUsedEmoji);
+    await this.modPage.getByLabelAndClick(e.thumbsUpEmoji);
     await this.modPage.hasElement(e.messageReactionItem, 'should display the reaction item for the mod');
     // hover and delete message
     await lastMessageItem.hover();
@@ -157,7 +156,6 @@ class MessageActions extends Chat {
     await this.modPage.wasRemoved(e.messageReactionItem, 'should remove the message reaction item from the deleted message');
     await lastMessageItem.hover();
     await expect(lastMessageItem.locator(e.messageToolbar), 'should not display the message toolbar when hovering a deleted message').not.toBeVisible();
-    // await this.modPage.wasRemoved(e.messageToolbar, 'should not display the message toolbar when hovering a deleted message');
     // join mod2 and send a message
     await this.initModPage2();
     await this.modPage2.type(e.chatBox, e.message);
@@ -167,7 +165,6 @@ class MessageActions extends Chat {
     await checkLastMessageSent(this.modPage, e.message);
     await lastMessageItem.hover();
     await expect(lastMessageItem.locator(e.messageToolbar), 'should display the message toolbar when hovering a message').toBeVisible();
-    // await this.modPage.hasElement(e.messageToolbar, 'should display the message toolbar when hovering a message');
     await this.modPage.waitAndClick(e.deleteMessageButton);
     await this.modPage.hasElement(e.simpleModal, 'should display the delete message confirmation modal');
     await this.modPage.waitAndClick(e.confirmDeleteChatMessageButton);
@@ -336,16 +333,16 @@ class MessageActions extends Chat {
     await expect(lastMessageItem.locator(e.messageToolbar), 'should display the message toolbar when hovering a message').toBeVisible();
     // click on react button
     await this.modPage.waitAndClick(e.reactMessageButton);
-    await this.modPage.getByLabelAndClick(e.frequentlyUsedEmoji);
+    await this.modPage.getByLabelAndClick(e.thumbsUpEmoji);
     const messageReactionsMod = this.modPage.getLocator(e.chatMessageItem).last().locator(e.messageReactionItem);
     const messageReactionsUser = this.userPage.getLocator(e.chatMessageItem).last().locator(e.messageReactionItem);
     // check reaction item - moderator
     await expect(messageReactionsMod, 'should display a single reaction item for the mod').toHaveCount(1);
-    await expect(messageReactionsMod, 'should display the correct reaction item for the mod').toContainText(e.frequentlyUsedEmoji);
+    await expect(messageReactionsMod, 'should display the correct reaction item for the mod').toContainText(e.thumbsUpEmoji);
     await expect(messageReactionsMod, 'should display the correct reaction count for the mod').toContainText('1');
     // check reaction item - viewer
     await expect(messageReactionsUser, 'should display a single reaction item for the viewer').toHaveCount(1);
-    await expect(messageReactionsUser, 'should display the correct reaction item for the viewer').toContainText(e.frequentlyUsedEmoji);
+    await expect(messageReactionsUser, 'should display the correct reaction item for the viewer').toContainText(e.thumbsUpEmoji);
     await expect(messageReactionsUser, 'should display the correct reaction count for the viewer').toContainText('1');
     // remove reaction
     await messageReactionsMod.click();
@@ -365,7 +362,7 @@ class MessageActions extends Chat {
     await expect(lastMessageItemMod.locator(e.messageToolbar), 'should display the message toolbar when hovering a message').toBeVisible();
     // click on react button
     await this.modPage.waitAndClick(e.reactMessageButton);
-    await this.modPage.getByLabelAndClick(e.frequentlyUsedEmoji);
+    await this.modPage.getByLabelAndClick(e.thumbsUpEmoji);
     const messageReactionsMod = lastMessageItemMod.locator(e.messageReactionItem);
     const messageReactionsUser = this.userPage.getLocator(e.chatMessageItem).last().locator(e.messageReactionItem);
     await expect(messageReactionsMod, 'should display the reaction item for the mod').toBeVisible();
@@ -374,11 +371,11 @@ class MessageActions extends Chat {
     await messageReactionsUser.click();
     // check reaction item incremented - moderator
     await expect(messageReactionsMod, 'should display a single reaction item for the mod').toHaveCount(1);
-    await expect(messageReactionsMod, 'should display the correct reaction item for the mod').toContainText(e.frequentlyUsedEmoji);
+    await expect(messageReactionsMod, 'should display the correct reaction item for the mod').toContainText(e.thumbsUpEmoji);
     await expect(messageReactionsMod, 'should display the correct reaction count for the mod').toContainText('2');
     // check reaction item incremented - viewer
     await expect(messageReactionsMod, 'should display a single reaction item for the viewer').toHaveCount(1);
-    await expect(messageReactionsMod, 'should display the correct reaction item for the viewer').toContainText(e.frequentlyUsedEmoji);
+    await expect(messageReactionsMod, 'should display the correct reaction item for the viewer').toContainText(e.thumbsUpEmoji);
     await expect(messageReactionsMod, 'should display the correct reaction count for the viewer').toContainText('2');
   }
 
@@ -392,7 +389,7 @@ class MessageActions extends Chat {
     await lastMessageItemMod.hover();
     await expect(lastMessageItemMod.locator(e.messageToolbar), 'should display the message toolbar when hovering a message').toBeVisible();
     await this.modPage.waitAndClick(e.reactMessageButton);
-    await this.modPage.getByLabelAndClick(e.frequentlyUsedEmoji);
+    await this.modPage.getByLabelAndClick(e.thumbsUpEmoji);
     await this.modPage.hasElement(e.messageReactionItem, 'should display the reaction item for the mod');
     // user react to message
     const lastMessageItemUser = this.userPage.getLocator(e.chatMessageItem).last();
@@ -404,8 +401,8 @@ class MessageActions extends Chat {
     // check first reaction item
     const messageReactionsMod = lastMessageItemMod.locator(e.messageReactionItem);
     const messageReactionsUser = lastMessageItemUser.locator(e.messageReactionItem);
-    await expect(messageReactionsMod.first(), 'should display the first reaction item added for the mod').toContainText(e.frequentlyUsedEmoji);
-    await expect(messageReactionsUser.first(), 'should display the first reaction item added for the viewer').toContainText(e.frequentlyUsedEmoji);
+    await expect(messageReactionsMod.first(), 'should display the first reaction item added for the mod').toContainText(e.thumbsUpEmoji);
+    await expect(messageReactionsUser.first(), 'should display the first reaction item added for the viewer').toContainText(e.thumbsUpEmoji);
     // mod increment viewer reaction
     await messageReactionsMod.last().click();
     // check reaction item incremented
