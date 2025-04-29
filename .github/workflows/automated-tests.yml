@@ -293,20 +293,10 @@ jobs:
       - name: Set up D-Bus and environment
         run: |
             # Set up dbus-user-session as it is required to run `systemd-run --user` which is used for presentation conversion
-            sudo apt-get update
-            sudo apt-get install -y dbus-user-session
-            export MY_UID=$(id -u)
-            export MY_USER=$(whoami)
-            echo $MY_UID
-            echo $MY_USER
-            mkdir -p /run/user/$MY_UID
-            chmod 700 /run/user/$MY_UID
-            chown $MY_USER:$MY_USER /run/user/$MY_UID
-            echo "permissons ok"
-            # sudo -u $MY_USER XDG_RUNTIME_DIR=/run/user/$MY_UID dbus-daemon --session --print-address > /tmp/dbus-address
-            # cat /tmp/dbus-address
-            ls /run/user/$MY_UID
-            echo "dbus-daemon --session"
+            echo "runner:"
+            echo $(id -u)
+            echo "bigbluebutton:"
+            echo $(id -u bigbluebutton)
       - name: Install BBB
         env:
           NODE_EXTRA_CA_CERTS: /usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt
@@ -385,15 +375,15 @@ jobs:
           sed -i "s/\"level\": \"info\"/\"level\": \"debug\"/" /usr/local/bigbluebutton/bbb-pads/config/settings.json
           sed -i "s/exports.DEBUG = false/exports.DEBUG = true/" /usr/local/bigbluebutton/bbb-graphql-actions/config.js
           sudo yq e -i '.log_level = "TRACE"' /usr/share/bbb-graphql-middleware/config.yml
-          sudo chmod 755 /run/user/1001
-          sudo setfacl -m u:bigbluebutton:rwx /run/user/1001
-          sudo setfacl -m u:bigbluebutton:rw /run/user/1001/bus
+          #sudo chmod 755 /run/user/1001
+          #sudo setfacl -m u:bigbluebutton:rwx /run/user/1001
+          #sudo setfacl -m u:bigbluebutton:rw /run/user/1001/bus
           echo "HASURA_GRAPHQL_LOG_LEVEL=debug" | tee -a /etc/bigbluebutton/bbb-graphql-server.env
-          echo "XDG_RUNTIME_DIR=/run/user/1001" | tee -a /etc/default/bbb-web
-          echo "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1001/bus" | tee -a /etc/default/bbb-web
-          BBB_UID=$(id -u bigbluebutton)
-          echo "UID bbb: $BBB_UID"
-          sudo -u bigbluebutton bash -c 'XDG_RUNTIME_DIR=/run/user/1001 dbus-daemon --session --print-address --nofork > /tmp/dbus-address 2> /tmp/dbus-error.log'
+          # Set up dbus-user-session as it's required to run `systemd-run --user` which is used for presentation conversion
+          sudo loginctl enable-linger bigbluebutton
+          sudo systemctl start user@$(id -u bigbluebutton).service
+          echo "XDG_RUNTIME_DIR=/run/user/1002" | tee -a /etc/default/bbb-web
+          echo "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1002/bus" | tee -a /etc/default/bbb-web
           sudo systemctl restart bbb-web
           cat > /etc/bigbluebutton/bbb-conf/apply-config.sh << HERE
           #!/bin/bash
