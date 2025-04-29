@@ -25,13 +25,13 @@ const renderComponent = (
   <Styled.FloatingWindowContent
     ref={elementRef}
     id={key}
+    className="floating-window-content"
     style={{
       top,
       left,
       backgroundColor,
       boxShadow,
     }}
-    className="floating-window-content"
   />
 );
 
