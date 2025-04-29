@@ -16,10 +16,10 @@ const PluginDataChannelManager: React.ElementType<PluginDataChannelManagerProps>
   props: PluginDataChannelManagerProps,
 ) => {
   const {
-    pluginApi,
+    pluginName: pluginNameInUse,
+    pluginUuid,
   } = props;
 
-  const { pluginName: pluginNameInUse } = pluginApi;
   if (!pluginNameInUse) return (<></>);
   const [
     mapOfDataChannelInformation,
@@ -112,7 +112,7 @@ const PluginDataChannelManager: React.ElementType<PluginDataChannelManagerProps>
                 channelName,
                 subChannelName,
                 dataChannelTypes: mapOfDataChannelInformation.get(keyIdentifier)!.types,
-                pluginApi,
+                pluginUuid,
               }}
             />
           );
