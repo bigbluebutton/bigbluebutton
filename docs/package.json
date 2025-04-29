@@ -12,7 +12,8 @@
   "dependencies": {
     "@docusaurus/core": "^3.3.2",
     "@docusaurus/plugin-client-redirects": "^3.3.2",
-    "@docusaurus/preset-classic": "^3.3.2",
+    "@docusaurus/preset-classic": "^3.5.0",
+    "@docusaurus/theme-mermaid": "^3.7.0",
     "@easyops-cn/docusaurus-search-local": "^0.40.1",
     "@mdx-js/react": "^3.0.0",
     "clsx": "^2.0.0",
@@ -22,7 +23,7 @@
   },
   "devDependencies": {
     "@docusaurus/module-type-aliases": "^3.3.2",
-    "@docusaurus/types": "^3.3.2"
+    "@docusaurus/types": "^3.7.0"
   },
   "browserslist": {
     "production": [
@@ -39,6 +40,5 @@
   "engines": {
     "node": ">=18.0"
   },
-  "overrides": {
-  }
+  "overrides": {}
 }
