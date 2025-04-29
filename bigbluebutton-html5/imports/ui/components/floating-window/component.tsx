@@ -31,6 +31,7 @@ const renderComponent = (
       backgroundColor,
       boxShadow,
     }}
+    className="floating-window-content"
   />
 );
 
