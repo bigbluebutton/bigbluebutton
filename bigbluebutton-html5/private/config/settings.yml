@@ -1087,6 +1087,23 @@ public:
         - highlight
         - more
         - actions
+        - ellipse
+        - diamond
+        - triangle
+        - trapezoid
+        - rhombus
+        - hexagon
+        - cloud
+        - star
+        - oval
+        - x-box
+        - check-box
+        - arrow-left
+        - arrow-up
+        - arrow-down
+        - arrow-right
+        - line
+        - frame
       multiUserTools:
         - select
         - hand
@@ -1100,6 +1117,23 @@ public:
         - highlight
         - more
         - actions
+        - ellipse
+        - diamond
+        - triangle
+        - trapezoid
+        - rhombus
+        - hexagon
+        - cloud
+        - star
+        - oval
+        - x-box
+        - check-box
+        - arrow-left
+        - arrow-up
+        - arrow-down
+        - arrow-right
+        - line
+        - frame
     locales: ['ar', 'ca', 'cs', 'da', 'de', 'en', 'es', 'fa', 'fi', 'fr', 'gl', 'he', 'hi-in', 'hu', 'it', 'ja', 'ko-kr', 'ku', 'main', 'my', 'ne', 'no', 'pl', 'pt-br', 'pt-pt', 'ro', 'ru', 'sv', 'te', 'th', 'tr', 'uk', 'vi', 'zh-cn', 'zh-tw']
   clientLog:
     console:
