@@ -26,6 +26,7 @@ const ChatMessageReplied: React.FC<MessageRepliedProps> = (props) => {
 
   return (
     <Styled.Container
+      data-test="chatMessageReplied"
       onClick={(e) => {
         e.stopPropagation();
         if (e.target instanceof HTMLAnchorElement) {
