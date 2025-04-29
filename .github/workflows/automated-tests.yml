@@ -290,13 +290,6 @@ jobs:
           </include>
           EOF
           '
-      - name: Set up D-Bus and environment
-        run: |
-            # Set up dbus-user-session as it is required to run `systemd-run --user` which is used for presentation conversion
-            echo "runner:"
-            echo $(id -u)
-            echo "bigbluebutton:"
-            echo $(id -u bigbluebutton)
       - name: Install BBB
         env:
           NODE_EXTRA_CA_CERTS: /usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt
@@ -380,10 +373,14 @@ jobs:
           #sudo setfacl -m u:bigbluebutton:rw /run/user/1001/bus
           echo "HASURA_GRAPHQL_LOG_LEVEL=debug" | tee -a /etc/bigbluebutton/bbb-graphql-server.env
           # Set up dbus-user-session as it's required to run `systemd-run --user` which is used for presentation conversion
+          echo "runner:"
+          echo $(id -u)
+          echo "bigbluebutton:"
+          echo $(id -u bigbluebutton)
           sudo loginctl enable-linger bigbluebutton
           sudo systemctl start user@$(id -u bigbluebutton).service
-          echo "XDG_RUNTIME_DIR=/run/user/1002" | tee -a /etc/default/bbb-web
-          echo "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1002/bus" | tee -a /etc/default/bbb-web
+          echo "XDG_RUNTIME_DIR=/run/user/$(id -u bigbluebutton)" | tee -a /etc/default/bbb-web
+          echo "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$(id -u bigbluebutton)/bus" | tee -a /etc/default/bbb-web
           sudo systemctl restart bbb-web
           cat > /etc/bigbluebutton/bbb-conf/apply-config.sh << HERE
           #!/bin/bash
