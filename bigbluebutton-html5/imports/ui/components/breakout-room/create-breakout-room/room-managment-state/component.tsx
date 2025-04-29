@@ -94,33 +94,15 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
   };
 
   const moveUser = (userId: string, from: number, to: number) => {
-    const user = userAssignedRooms[userId];
-
-    const userIsOnFromRoom = user && user.includes(from);
-    const userIsOnToRoom = user && user.includes(to);
     if (from === to) return;
+    const current = new Set(userAssignedRooms[userId] ?? []);
+    current.delete(from); // no-op if not present
+    current.add(to);
 
-    if (userIsOnFromRoom && !userIsOnToRoom) {
-      setUserAssignedRooms((prev) => ({
-        ...prev,
-        [userId]: user.filter((room) => room !== from).concat(to),
-      }));
-    } else if (!userIsOnFromRoom && userIsOnToRoom) {
-      setUserAssignedRooms((prev) => ({
-        ...prev,
-        [userId]: user.concat(to),
-      }));
-    } else if (userIsOnFromRoom && userIsOnToRoom) {
-      setUserAssignedRooms((prev) => ({
-        ...prev,
-        [userId]: user.filter((room) => room !== from),
-      }));
-    } else if (!userIsOnFromRoom && !userIsOnToRoom) {
-      setUserAssignedRooms((prev) => ({
-        ...prev,
-        [userId]: user.concat(to),
-      }));
-    }
+    setUserAssignedRooms((prev) => ({
+      ...prev,
+      [userId]: Array.from(current),
+    }));
 
     recordUserMovement(userId, from, to);
   };
@@ -351,7 +333,7 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
         }
       }
     }
-    setRoomsRef(roomList);
+
     return roomList;
   }, [
     userAssignedRooms,
@@ -359,6 +341,10 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
     roomNames,
     users,
   ]);
+
+  useEffect(() => {
+    setRoomsRef(rooms);
+  }, [rooms, setRoomsRef]);
 
   return (
     <>
