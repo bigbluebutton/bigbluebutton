@@ -2,6 +2,7 @@ import React from 'react';
 import { injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import { debounce } from '/imports/utils/debounce';
+import { throttle } from '/imports/utils/throttle';
 import FullscreenButtonContainer from '/imports/ui/components/common/fullscreen-button/container';
 import SwitchButtonContainer from './switch-button/container';
 import Styled from './styles';
@@ -38,6 +39,7 @@ import { uniqueId } from '/imports/utils/string-utils';
 import Session from '/imports/ui/services/storage/in-memory';
 
 const MOBILE_HOVER_TIMEOUT = 5000;
+const MOBILE_HOVER_INTERVAL = 2000;
 const MEDIA_FLOW_PROBE_INTERVAL = 500;
 const SCREEN_SIZE_DISPATCH_INTERVAL = 500;
 
@@ -86,6 +88,7 @@ class ScreenshareComponent extends React.Component {
       // Volume control hover toolbar
       showHoverToolBar: false,
       screenshareRef: null,
+      videoTagRef: null,
     };
 
     this.onLoadedData = this.onLoadedData.bind(this);
@@ -102,7 +105,7 @@ class ScreenshareComponent extends React.Component {
     this.dispatchScreenShareSize = this.dispatchScreenShareSize.bind(this);
     this.renderScreenshareButtons = this.renderScreenshareButtons.bind(this);
     this.splitPluginItems = this.splitPluginItems.bind(this);
-    this.handleMouseMovement = this.handleMouseMovement.bind(this);
+    this.handleMouseMovement = throttle(this.handleMouseMovement.bind(this), MOBILE_HOVER_INTERVAL);
     this.debouncedDispatchScreenShareSize = debounce(
       this.dispatchScreenShareSize,
       SCREEN_SIZE_DISPATCH_INTERVAL,
@@ -159,7 +162,7 @@ class ScreenshareComponent extends React.Component {
 
   componentDidUpdate(prevProps, prevState) {
     const { isPresenter, outputDeviceId, shouldShowScreenshare } = this.props;
-    const { screenshareRef } = this.state;
+    const { videoTagRef } = this.state;
     if (prevProps.isPresenter && !isPresenter) {
       screenshareHasEnded();
     }
@@ -178,8 +181,8 @@ class ScreenshareComponent extends React.Component {
       setVolume(this.volume);
     }
 
-    if ((prevState.screenshareRef !== screenshareRef) && screenshareRef) {
-      screenshareRef.addEventListener('mousemove', this.handleMouseMovement);
+    if ((prevState.videoTagRef !== videoTagRef) && videoTagRef) {
+      videoTagRef.addEventListener('mousemove', this.handleMouseMovement);
     }
   }
 
@@ -190,7 +193,7 @@ class ScreenshareComponent extends React.Component {
       layoutContextDispatch,
     } = this.props;
     const {
-      screenshareRef,
+      videoTagRef,
     } = this.state;
     screenshareHasEnded();
     window.removeEventListener('screensharePlayFailed', this.handlePlayElementFailed);
@@ -226,8 +229,8 @@ class ScreenshareComponent extends React.Component {
       type: ACTIONS.SET_PRESENTATION_IS_OPEN,
       value: Session.getItem('presentationLastState'),
     });
-    if (screenshareRef) {
-      screenshareRef.removeEventListener('mousemove', this.handleMouseMovement);
+    if (videoTagRef) {
+      videoTagRef.removeEventListener('mousemove', this.handleMouseMovement);
     }
   }
 
@@ -487,7 +490,7 @@ class ScreenshareComponent extends React.Component {
 
   renderVideo(switched) {
     const { isGloballyBroadcasting } = this.props;
-    const { mediaFlowing } = this.state;
+    const { mediaFlowing, videoTagRef } = this.state;
 
     return (
       <Styled.ScreenshareVideo
@@ -502,6 +505,11 @@ class ScreenshareComponent extends React.Component {
         onLoadedMetadata={this.onLoadedMetadata}
         ref={(ref) => {
           this.videoTag = ref;
+          if (!videoTagRef && ref) {
+            this.setState({
+              videoTagRef: ref,
+            });
+          }
         }}
         muted
       />
