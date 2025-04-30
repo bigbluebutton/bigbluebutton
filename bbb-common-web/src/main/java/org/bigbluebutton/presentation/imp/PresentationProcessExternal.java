@@ -1,5 +1,6 @@
 package org.bigbluebutton.presentation.imp;
 
+import org.bigbluebutton.api.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +51,7 @@ public class PresentationProcessExternal {
                 "-p", "ProtectSystem=strict",
                 "-p", "ProtectHome=yes",
                 "-p", "PrivateTmp=true",
-                "-p", "PrivateUsers=true",
+                "-p", "ReadWritePaths=" + Util.getPresentationDir(presentationDir, meetingId, presentationId),
                 "-p", "NoNewPrivileges=true",
                 "-p", "RestrictRealtime=true",
                 "-p", "SystemCallFilter=~@mount",
@@ -88,7 +89,7 @@ public class PresentationProcessExternal {
                 "-p", "ProtectSystem=strict",
                 "-p", "ProtectHome=yes",
                 "-p", "PrivateTmp=true",
-                "-p", "PrivateUsers=true",
+                "-p", "ReadWritePaths=" + Util.getPresentationDir(presentationDir, meetingId, presentationId),
                 "-p", "NoNewPrivileges=true",
                 "-p", "RestrictRealtime=true",
                 "-p", "SystemCallFilter=~@mount",
