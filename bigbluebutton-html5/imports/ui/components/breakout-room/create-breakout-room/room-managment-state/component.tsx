@@ -65,9 +65,6 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
   const intl = useIntl();
   const [selectedId, setSelectedId] = useState<string>('');
   const [selectedRoom, setSelectedRoom] = useState<number>(0);
-  // const [rooms, setRooms] = useState<Rooms>({});
-  // const [init, setInit] = useState<boolean>(false);
-  // const [roomsRestored, setRoomsRestored] = useState<boolean>(false);
   const [movementRegistered, setMovementRegistered] = useState<moveUserRegistery>({});
 
   const [userAssignedRooms, setUserAssignedRooms] = useState<{
