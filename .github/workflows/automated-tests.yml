@@ -368,15 +368,8 @@ jobs:
           sed -i "s/\"level\": \"info\"/\"level\": \"debug\"/" /usr/local/bigbluebutton/bbb-pads/config/settings.json
           sed -i "s/exports.DEBUG = false/exports.DEBUG = true/" /usr/local/bigbluebutton/bbb-graphql-actions/config.js
           sudo yq e -i '.log_level = "TRACE"' /usr/share/bbb-graphql-middleware/config.yml
-          #sudo chmod 755 /run/user/1001
-          #sudo setfacl -m u:bigbluebutton:rwx /run/user/1001
-          #sudo setfacl -m u:bigbluebutton:rw /run/user/1001/bus
           echo "HASURA_GRAPHQL_LOG_LEVEL=debug" | tee -a /etc/bigbluebutton/bbb-graphql-server.env
           # Set up dbus-user-session as it's required to run `systemd-run --user` which is used for presentation conversion
-          echo "runner:"
-          echo $(id -u)
-          echo "bigbluebutton:"
-          echo $(id -u bigbluebutton)
           sudo loginctl enable-linger bigbluebutton
           sudo systemctl start user@$(id -u bigbluebutton).service
           echo "XDG_RUNTIME_DIR=/run/user/$(id -u bigbluebutton)" | tee -a /etc/default/bbb-web
