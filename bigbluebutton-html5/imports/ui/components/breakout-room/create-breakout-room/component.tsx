@@ -487,7 +487,7 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
                   const { value } = e.target;
                   const v = Number.parseInt(value, 10);
                   setDurationTime((v && !(v <= 0)) ? v : MIN_BREAKOUT_TIME);
-                  setDurationIsValid(true);
+                  setDurationIsValid(v >= MIN_BREAKOUT_TIME);
                 }}
                 aria-label={intl.formatMessage(intlMessages.duration)}
                 data-test="durationTime"

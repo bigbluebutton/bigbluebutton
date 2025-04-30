@@ -5,6 +5,8 @@ import BreakoutRemainingTime from '/imports/ui/components/common/remaining-time/
 import Styled from '../styles';
 import { BREAKOUT_ROOM_SET_TIME } from '../../mutations';
 
+const MIN_BREAKOUT_TIME = 5;
+
 const intlMessages = defineMessages({
   breakoutTitle: {
     id: 'app.createBreakoutRoom.title',
@@ -136,7 +138,7 @@ const TimeRemaingPanel: React.FC<TimeRemainingPanelProps> = ({
               onClick={() => {
                 setShowFormError(false);
 
-                if (durationInSeconds !== 0 && newTime > durationInSeconds) {
+                if (((durationInSeconds !== 0 && newTime > durationInSeconds)) || (newTime < MIN_BREAKOUT_TIME)) {
                   setShowFormError(true);
                 } else if (setBreakoutsTime(newTime)) {
                   toggleShowChangeTimeForm(false);
