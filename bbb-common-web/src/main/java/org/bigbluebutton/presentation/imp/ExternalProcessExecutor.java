@@ -26,6 +26,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import com.zaxxer.nuprocess.NuProcess;
+import com.zaxxer.nuprocess.NuProcessBuilder;
+import org.bigbluebutton.presentation.handlers.ExternalProcessExecutorHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,50 +69,27 @@ public class ExternalProcessExecutor {
 	 * @return true if the command terminated in time with an exit value of 0.
 	 */
 	public boolean exec(List<String> cmd, Duration timeout) {
-		ProcessBuilder pb = new ProcessBuilder(cmd);
-		pb.redirectOutput(DISCARD);
-
-		Process proc;
+		ExternalProcessExecutorHandler pHandler = new ExternalProcessExecutorHandler();
+		NuProcessBuilder pb = new NuProcessBuilder(cmd);
+		pb.setProcessListener(pHandler);
+		NuProcess process = pb.start();
 		try {
-			proc = pb.start();
-		} catch (IOException e) {
-			log.error("Failed to execute: {}", String.join(" ", cmd), e);
-			return false;
-		}
-
-		// Capture error output
-		StringBuilder errorOutput = new StringBuilder();
-		Thread errorReader = new Thread(() -> {
-			try (java.io.BufferedReader reader = new java.io.BufferedReader(
-					new java.io.InputStreamReader(proc.getErrorStream()))) {
-				String line;
-				while ((line = reader.readLine()) != null) {
-					errorOutput.append(line).append("\n");
-				}
-			} catch (IOException e) {
-				log.error("Failed to read error output", e);
-			}
-		});
-		errorReader.start();
-
-		try {
-			if (!proc.waitFor(timeout.toMillis(), TimeUnit.MILLISECONDS)) {
-				log.warn("TIMEDOUT executing: {}", String.join(" ", cmd));
-				proc.destroy();
-			}
-
-			int exitCode = proc.exitValue();
-			errorReader.join();
-
-			if (exitCode != 0) {
-				log.error("Command failed with exit code {}: {}\nError output: {}",
-						exitCode, String.join(" ", cmd), errorOutput.toString().trim());
-			}
-			return exitCode == 0;
+			process.waitFor(timeout.toMillis(), TimeUnit.MILLISECONDS);
 		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
-			proc.destroy();
-			return false;
+			log.error("InterruptedException while executing {}", cmd, e);
 		}
+
+		if(pHandler.isCommandTimeout()) {
+			log.error("Command execution ({}) exceeded the {} milliseconds timeout.",cmd, timeout.toMillis());
+		}
+
+		if(!pHandler.isCommandSuccessful()) {
+			log.error("Command failed ({}): {}\n{}",
+					pHandler.getExitCode(),
+					String.join(" ", cmd),
+                    !pHandler.getStderrString().isEmpty() ? pHandler.getStderrString().toString() : "(no stderr)");
+		}
+
+		return pHandler.isCommandSuccessful();
 	}
 }

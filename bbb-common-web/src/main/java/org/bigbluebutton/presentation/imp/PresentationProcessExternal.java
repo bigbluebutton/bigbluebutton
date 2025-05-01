@@ -52,7 +52,6 @@ public class PresentationProcessExternal {
                 "-p", "ProtectHome=yes",
                 "-p", "PrivateTmp=true",
                 "-p", "ReadWritePaths=" + Util.getPresentationDir(presentationDir, meetingId, presentationId),
-                "-p", "PrivateNetwork=true",
                 "-p", "NoNewPrivileges=true",
                 "-p", "RestrictRealtime=true",
                 "-p", "SystemCallFilter=~@mount",
@@ -69,7 +68,9 @@ public class PresentationProcessExternal {
 
 
         log.debug("Starting processing page [{}]", String.join(" ", command));
-        return new ExternalProcessExecutor().exec(command, Duration.ofMillis(maxConversionTime * 60 * 1000));
+
+        //add 1 sec to make this timeout be higher than systemd-run TimeoutSec
+        return new ExternalProcessExecutor().exec(command, Duration.ofMillis((maxConversionTime * 60 * 1000) + 1000));
     }
 
     public boolean processImage(String meetingId, String presentationId, String fileType) {
@@ -91,7 +92,6 @@ public class PresentationProcessExternal {
                 "-p", "ProtectHome=yes",
                 "-p", "PrivateTmp=true",
                 "-p", "ReadWritePaths=" + Util.getPresentationDir(presentationDir, meetingId, presentationId),
-                "-p", "PrivateNetwork=true",
                 "-p", "NoNewPrivileges=true",
                 "-p", "RestrictRealtime=true",
                 "-p", "SystemCallFilter=~@mount",
@@ -108,7 +108,9 @@ public class PresentationProcessExternal {
         );
 
         log.debug("Starting processing image [{}]", String.join(" ", command));
-        return new ExternalProcessExecutor().exec(command, Duration.ofMillis(maxConversionTime * 60 * 1000));
+
+        //add 1 sec to make this timeout be higher than systemd-run TimeoutSec
+        return new ExternalProcessExecutor().exec(command, Duration.ofMillis((maxConversionTime * 60 * 1000) + 1000));
     }
 
     public String booleanToString(boolean value) {
