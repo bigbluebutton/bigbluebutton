@@ -140,8 +140,8 @@ jobs:
       - name: Run Firefox tests
         working-directory: ./bigbluebutton-tests/playwright
         if: |
-          contains(github.event.pull_request.labels.*.name, 'test Firefox') ||
-          contains(github.event.pull_request.labels.*.name, 'Test Firefox')
+          contains(join(github.event.pull_request.labels.*.name, ' '), 'test Firefox') ||
+          contains(join(github.event.pull_request.labels.*.name, ' '), 'Test Firefox')
         env:
           NODE_EXTRA_CA_CERTS: /usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt
           ACTIONS_RUNNER_DEBUG: true

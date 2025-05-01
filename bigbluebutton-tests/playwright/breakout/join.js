@@ -22,7 +22,7 @@ class Join extends Create {
 
     await this.userPage.waitAndClick(e.breakoutRoomsItem);
     await this.userPage.waitAndClick(e.joinRoom1);
-    await this.userPage.hasElement(e.alreadyConnected, 'should display the element alreadyConnected', ELEMENT_WAIT_LONGER_TIME);
+    await this.userPage.hasElement(e.alreadyConnected, 'should display the element alreadyConnected', ELEMENT_WAIT_EXTRA_LONG_TIME);
 
     const breakoutUserPage = await this.userPage.getLastTargetPage(this.context);
     await breakoutUserPage.bringToFront();

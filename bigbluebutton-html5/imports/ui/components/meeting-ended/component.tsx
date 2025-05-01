@@ -240,6 +240,7 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
             onClick={() => confirmRedirect(isBreakout, allowRedirect)}
             /* @eslint-disable-next-line */
             aria-details={intl.formatMessage(intlMessage.confirmDesc)}
+            data-test="redirectButton"
           >
             {intl.formatMessage(intlMessage.buttonOkay)}
           </Styled.MeetingEndedButton>
@@ -284,6 +285,15 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
     }
   }, []);
 
+  useEffect(() => {
+    const { timeoutBeforeRedirectOnMeetingEnd } = window.meetingClientSettings.public.app;
+    if (typeof timeoutBeforeRedirectOnMeetingEnd === 'number' && !skipMeetingEnded) {
+      setTimeout(() => {
+        confirmRedirect(isBreakout, allowRedirect);
+      }, timeoutBeforeRedirectOnMeetingEnd);
+    }
+  }, []);
+
   if (skipMeetingEnded) {
     confirmRedirect(isBreakout, allowRedirect);
     return <></>; // even though well redirect, return empty component and prevent lint error
@@ -315,20 +325,7 @@ const MeetingEndedContainer: React.FC<MeetingEndedContainerProps> = ({
   } = useQuery<MeetingEndDataResponse>(getMeetingEndData);
 
   if (meetingEndLoading || !meetingEndData) {
-    return (
-      <MeetingEnded
-        endedBy=""
-        joinErrorCode=""
-        meetingEndedCode=""
-        allowRedirect={false}
-        skipMeetingEnded={false}
-        learningDashboardAccessToken=""
-        isModerator={false}
-        logoutUrl=""
-        learningDashboardBase=""
-        isBreakout={false}
-      />
-    );
+    return null;
   }
 
   if (meetingEndError) {
