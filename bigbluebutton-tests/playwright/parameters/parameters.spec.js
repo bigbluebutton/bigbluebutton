@@ -479,7 +479,7 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
     });
   });
 
-  test.describe.parallel('Presentation', () => {
+  test.describe.parallel('Hide Presentation On Join Edge Cases', () => {
     test('Hide Presentation on join', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, true, { joinParameter: c.hidePresentationOnJoin });
@@ -487,6 +487,50 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
       await customParam.hidePresentationOnJoin();
     });
 
+    test.only('Hide Presentation on join Screenshare', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { joinParameter: c.hidePresentationOnJoin });
+      await customParam.initUserPage(true, context, { useModMeetingId: true, joinParameter: c.hidePresentationOnJoin });
+      await customParam.hidePresentationOnJoinScreenshare();
+    });
+
+    test.only('Hide presentation on join External video', async({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { joinParameter: c.hidePresentationOnJoin });
+      await customParam.initUserPage(true, context, { useModMeetingId: true, joinParameter: c.hidePresentationOnJoin });
+      await customParam.hidePresentationOnJoinShareExternalVideo();
+    });
+
+    test.only('Hide presentation on join Pin and unpin shared notes', async({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { joinParameter: c.hidePresentationOnJoin });
+      await customParam.initUserPage(true, context, { useModMeetingId: true, joinParameter: c.hidePresentationOnJoin });
+      await customParam.hidePresentationOnJoinPinSharedNotes();
+    });
+
+    test.only('Hide presentation on join Change Layout', async({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { joinParameter: c.hidePresentationOnJoin });
+      await customParam.initUserPage(true, context, { useModMeetingId: true, joinParameter: c.hidePresentationOnJoin });
+      await customParam.hidePresentationOnJoinChangeLayout();
+    });
+
+    test.only('Hide presentation on join Change Layout', async({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { joinParameter: c.hidePresentationOnJoin });
+      await customParam.initUserPage(true, context, { useModMeetingId: true, joinParameter: c.hidePresentationOnJoin });
+      await customParam.hidePresentationOnJoinChangeLayout();
+    });
+
+    test.only('Hide presentation on join, attendes join after meeting starts', async({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { joinParameter: c.hidePresentationOnJoin });
+      await customParam.initUserPage(true, context, { useModMeetingId: true, joinParameter: c.hidePresentationOnJoin });
+      await customParam.hidePresentationOnJoinAttendeesJoinAfterCreation();
+    });
+  });
+
+  test.describe.parallel('Presentation', () => {
     test('Force restore presentation on new events', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page);
