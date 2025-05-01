@@ -374,10 +374,6 @@ jobs:
           #sudo systemctl start user@$(id -u bigbluebutton).service
           #echo "XDG_RUNTIME_DIR=/run/user/$(id -u bigbluebutton)" | tee -a /etc/default/bbb-web
           #echo "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$(id -u bigbluebutton)/bus" | tee -a /etc/default/bbb-web
-          echo "Set up dbus-user-session"
-          ls -l /usr/share/bbb-web/bbb-web-user-session.env
-          cat /usr/share/bbb-web/bbb-web-user-session.env
-          sudo systemctl restart bbb-web
           cat > /etc/bigbluebutton/bbb-conf/apply-config.sh << HERE
           #!/bin/bash
 
