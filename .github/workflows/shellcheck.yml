@@ -17,3 +17,5 @@ jobs:
         with:
             fetch-depth: 1
       - uses: ludeeus/action-shellcheck@master   # runs ShellCheck on **/*.sh by default
+        with:
+            severity: error
