@@ -251,7 +251,7 @@ const Whiteboard = React.memo((props) => {
       // full toolbar
       return toolbarItems;
     },
-  }), [intl, currentUser?.presenter, currentUser?.userId]);
+  }), [intl, currentUser?.presenter, currentUser?.userId, isModerator]);
 
   const presenterChanged = usePrevious(isPresenter) !== isPresenter;
   const pageChanged = usePrevious(curPageId) !== curPageId;
