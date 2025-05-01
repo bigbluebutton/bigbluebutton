@@ -97,12 +97,11 @@ if [ ! "$png_size" -gt 0 ]; then
     exit 1
 fi
 
-base64_png=$(base64 -w 0 "${PNG_FILE}")
-base64_size=${#base64_png}
+png_size=$(stat -c%s "${PNG_FILE}")
 browser_limit=$((4 * 1024 * 1024))
 
-if [ "$base64_size" -gt $browser_limit ]; then
-  echo "Encoded PNG ($base64_size) exceeds the browser size limit ($browser_limit)." >&2
+if [ "$png_size" -gt $browser_limit ]; then
+  echo "PNG ($png_size) exceeds the browser size limit ($browser_limit)." >&2
   exit 1
 else
   # Set default dimensions and update if the PNG file contains valid size information
@@ -113,6 +112,7 @@ else
   }
 
   echo "Embedding PNG data into SVG container."
+  base64_png=$(base64 -w 0 "${PNG_FILE}")
   SVG_CONTENT=$(
     cat <<EOF
 <svg xmlns="http://www.w3.org/2000/svg" width="${png_width}" height="${png_height}">
