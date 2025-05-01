@@ -290,19 +290,6 @@ jobs:
           </include>
           EOF
           '
-      - name: Set up D-Bus and environment
-        run: |
-            # Set up dbus-user-session as it is required to run `systemd-run --user` which is used for presentation conversion
-            sudo apt-get update
-            sudo apt-get install -y dbus-user-session
-            export MY_UID=$(id -u)
-            export MY_USER=$(whoami)
-            mkdir -p /run/user/$MY_UID
-            chmod 700 /run/user/$MY_UID
-            chown $MY_USER:$MY_USER /run/user/$MY_UID
-            sudo -u $MY_USER XDG_RUNTIME_DIR=/run/user/$MY_UID dbus-daemon --session --print-address > /tmp/dbus-address
-            export DBUS_SESSION_BUS_ADDRESS=$(cat /tmp/dbus-address)
-            export XDG_RUNTIME_DIR=/run/user/$MY_UID
       - name: Install BBB
         env:
           NODE_EXTRA_CA_CERTS: /usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt
@@ -424,8 +411,8 @@ jobs:
       - name: Run Firefox tests
         working-directory: ./bigbluebutton-tests/playwright
         if: |
-          contains(github.event.pull_request.labels.*.name, 'test Firefox') ||
-          contains(github.event.pull_request.labels.*.name, 'Test Firefox')
+          contains(join(github.event.pull_request.labels.*.name, ' '), 'test Firefox') ||
+          contains(join(github.event.pull_request.labels.*.name, ' '), 'Test Firefox')
         env:
           NODE_EXTRA_CA_CERTS: /usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt
           ACTIONS_RUNNER_DEBUG: true
