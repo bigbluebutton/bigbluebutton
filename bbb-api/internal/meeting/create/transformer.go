@@ -86,7 +86,7 @@ func (m *MeetingRunningToCreate) Transform(msg pipeline.Message[*meeting.Meeting
 		if err != nil {
 			return pipeline.Message[*meeting.CreateMeetingRequest]{}, core.NewBBBError(responses.InvalidRequestBodyKey, responses.InvalidRequestBodyMsg)
 		}
-		if cso := modules.Get(meetingapi.ClientSettingsOverrideModule); cso != nil && cfg.Override.ClientSettings {
+		if cso, ok := modules.Get(meetingapi.ClientSettingsOverrideModule); ok && cfg.Override.ClientSettings {
 			settings.OverrideClientSettings = cso.Content
 		}
 	}
@@ -406,4 +406,31 @@ func replaceKeywords(message string, dialNumber string, voiceBridge string, meet
 		}
 	}
 	return message
+}
+
+type CreateMeetingToResponse struct{}
+
+func (c *CreateMeetingToResponse) Transform(msg pipeline.Message[*meeting.CreateMeetingResponse]) (pipeline.Message[*meetingapi.CreateMeetingResponse], error) {
+	meetingInfo := msg.Payload.CreatedMeetingInfo
+	resp := &meetingapi.CreateMeetingResponse{
+		ReturnCode:           responses.ReturnCodeSuccess,
+		MeetingId:            meetingInfo.MeetingExtId,
+		InternalMeetingId:    meetingInfo.MeetingIntId,
+		ParentMeetingId:      meetingInfo.ParentMeetingId,
+		AttendeePW:           meetingInfo.AttendeePw,
+		ModeratorPW:          meetingInfo.ModeratorPw,
+		CreateTime:           meetingInfo.CreateTime,
+		VoiceBridge:          meetingInfo.VoiceBridge,
+		DialNumber:           meetingInfo.DialNumber,
+		CreateDate:           meetingInfo.CreateDate,
+		HasUserJoined:        meetingInfo.HasUserJoined,
+		Duration:             meetingInfo.Duration,
+		HasBeenForciblyEnded: meetingInfo.HasBeenForciblyEnded,
+	}
+
+	if meetingInfo.IsDuplicate {
+		resp.MessageKey = responses.CreateMeetingDuplicateKey
+		resp.Message = responses.CreateMeetingDuplicateMsg
+	}
+	return pipeline.NewMessageWithContext(resp, msg.Context()), nil
 }

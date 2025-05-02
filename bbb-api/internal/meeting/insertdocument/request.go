@@ -1,4 +1,4 @@
-package getmeetinginfo
+package insertdocument
 
 import (
 	"context"
@@ -13,16 +13,10 @@ import (
 	meetingapi "github.com/bigbluebutton/bigbluebutton/bbb-api/internal/meeting"
 )
 
-// SendMeetingInfoRequest is an implementation of the pipeline.SenderReceiver
-// interface that is used to send a [MeetingInfoRequest] to Akka Apps and
-// recieve [MeetingInfoResponse].
 type SendMeetingInfoRequest struct {
 	client *meetingapi.Client
 }
 
-// Send make a gRPC request to Akka Apps using the incoming message with a payload
-// of type [MeetingInfoRequest] and returns the response in a new message with
-// a payload of type [MeetingInfoResponse].
 func (s *SendMeetingInfoRequest) Send(msg pipeline.Message[*meeting.MeetingInfoRequest]) (pipeline.Message[*meeting.MeetingInfoResponse], error) {
 	if s.client == nil {
 		return pipeline.Message[*meeting.MeetingInfoResponse]{}, errors.New(responses.NoClientProvided)
@@ -36,5 +30,5 @@ func (s *SendMeetingInfoRequest) Send(msg pipeline.Message[*meeting.MeetingInfoR
 		slog.Error("MeetingInfo gRPC request failed", "error", err)
 		return pipeline.Message[*meeting.MeetingInfoResponse]{}, core.GrpcErrorToBBBError(err)
 	}
-	return pipeline.NewMessage(res), nil
+	return pipeline.NewMessageWithContext(res, msg.Context()), nil
 }

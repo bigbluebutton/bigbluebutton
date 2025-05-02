@@ -3,9 +3,11 @@ package ismeetingrunning
 import (
 	"context"
 	"errors"
+	"log/slog"
 	"time"
 
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/gen/meeting"
+	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core"
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/pipeline"
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/responses"
 	meetingapi "github.com/bigbluebutton/bigbluebutton/bbb-api/internal/meeting"
@@ -31,7 +33,8 @@ func (s *SendMeetingRunningRequest) Send(msg pipeline.Message[*meeting.MeetingRu
 
 	res, err := s.client.IsMeetingRunning(ctx, msg.Payload)
 	if err != nil {
-		return pipeline.Message[*meeting.MeetingRunningResponse]{}, err
+		slog.Error("IsMeetingRunning gRPC request failed", "error", err)
+		return pipeline.Message[*meeting.MeetingRunningResponse]{}, core.GrpcErrorToBBBError(err)
 	}
 	return pipeline.NewMessage(res), nil
 }

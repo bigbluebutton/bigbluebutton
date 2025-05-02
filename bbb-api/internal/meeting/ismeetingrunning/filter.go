@@ -11,12 +11,12 @@ import (
 	meetingv "github.com/bigbluebutton/bigbluebutton/bbb-api/internal/meeting/validation"
 )
 
-// IsMeetingRunningFilter is an impementaion of the pipeline.Filter interface. It verifies
+// RequestFilter is an impementaion of the pipeline.Filter interface. It verifies
 // the validity of the request data for IsMeetingRunning requests.
-type IsMeetingRunningFilter struct{}
+type RequestFilter struct{}
 
 // Filter checks the validity of the checksum and the meeting ID for the incoming request.
-func (f *IsMeetingRunningFilter) Filter(msg pipeline.Message[*http.Request]) error {
+func (f *RequestFilter) Filter(msg pipeline.Message[*http.Request]) error {
 	req := msg.Payload
 	cfg := config.DefaultConfig()
 

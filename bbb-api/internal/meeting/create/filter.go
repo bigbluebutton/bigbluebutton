@@ -14,13 +14,13 @@ import (
 	meetingv "github.com/bigbluebutton/bigbluebutton/bbb-api/internal/meeting/validation"
 )
 
-// CreateMeetingFilter is an impementaion of the pipeline.Filter interface. It verifies
+// RequestFilter is an impementaion of the pipeline.Filter interface. It verifies
 // the validity of the request data for create meeting requests.
-type CreateMeetingFilter struct{}
+type RequestFilter struct{}
 
 // Filter checks the validity of the checksum, meeting ID, meeting name, voice bridge,
 // breakout room, and record parameters for the incoming request.
-func (f *CreateMeetingFilter) Filter(msg pipeline.Message[*http.Request]) error {
+func (f *RequestFilter) Filter(msg pipeline.Message[*http.Request]) error {
 	req := msg.Payload
 	cfg := config.DefaultConfig()
 
@@ -85,6 +85,22 @@ type MeetingRunningResponseFilter struct{}
 func (f *MeetingRunningResponseFilter) Filter(msg pipeline.Message[*meeting.MeetingRunningResponse]) error {
 	if !msg.Payload.MeetingRunning.IsRunning {
 		return core.NewBBBError(responses.ParentMeetingDoesNotExistErrorKey, responses.ParentMeetingDoesNotExistErrorMsg)
+	}
+	return nil
+}
+
+type CreateMeetingResponseFilter struct{}
+
+func (f *CreateMeetingResponseFilter) Filter(msg pipeline.Message[*meeting.CreateMeetingResponse]) error {
+	payload := msg.Payload
+	if payload == nil {
+		return core.NewBBBError(responses.CreateMeetingErrorKey, responses.CreateMeetingErrorMsg)
+	}
+	if payload.CreatedMeetingInfo == nil {
+		return core.NewBBBError(responses.CreateMeetingErrorKey, responses.CreateMeetingErrorMsg)
+	}
+	if !payload.CreatedMeetingInfo.IsValid {
+		return core.NewBBBError(responses.MeetingIDNotUniqueErrorKey, responses.MeetingIDNotUniqueErrorMsg)
 	}
 	return nil
 }

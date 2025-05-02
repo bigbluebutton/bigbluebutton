@@ -3,6 +3,7 @@ package create
 import (
 	"context"
 	"errors"
+	"log/slog"
 	"time"
 
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/gen/common"
@@ -46,7 +47,8 @@ func (s *SendMeetingRunningRequest) Send(msg pipeline.Message[*meeting.MeetingRu
 
 	res, err := s.client.IsMeetingRunning(ctx, msg.Payload)
 	if err != nil {
-		return pipeline.Message[*meeting.MeetingRunningResponse]{}, err
+		slog.Error("IsMeetingRunning gRPC request failed", "error", err)
+		return pipeline.Message[*meeting.MeetingRunningResponse]{}, core.GrpcErrorToBBBError(err)
 	}
 	return pipeline.NewMessageWithContext(res, msg.Context()), nil
 }
@@ -71,7 +73,28 @@ func (s *SendMeetingInfoRequest) Send(msg pipeline.Message[*meeting.MeetingInfoR
 
 	res, err := s.client.GetMeetingInfo(ctx, msg.Payload)
 	if err != nil {
-		return pipeline.Message[*meeting.MeetingInfoResponse]{}, err
+		slog.Error("MeetingInfo gRPC request failed", "error", err)
+		return pipeline.Message[*meeting.MeetingInfoResponse]{}, core.GrpcErrorToBBBError(err)
 	}
 	return pipeline.NewMessageWithContext(res, msg.Context()), nil
+}
+
+type SendCreateMeetingRequest struct {
+	client *meetingapi.Client
+}
+
+func (s *SendCreateMeetingRequest) Send(msg pipeline.Message[*meeting.CreateMeetingRequest]) (pipeline.Message[*meeting.CreateMeetingResponse], error) {
+	if s.client == nil {
+		return pipeline.Message[*meeting.CreateMeetingResponse]{}, errors.New(responses.NoClientProvided)
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+
+	res, err := s.client.CreateMeeting(ctx, msg.Payload)
+	if err != nil {
+		slog.Error("CreateMeeting gRPC request failed", "error", err)
+		return pipeline.Message[*meeting.CreateMeetingResponse]{}, core.GrpcErrorToBBBError(err)
+	}
+	return pipeline.NewMessage(res), nil
 }

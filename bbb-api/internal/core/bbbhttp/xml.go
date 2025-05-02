@@ -33,8 +33,8 @@ func WriteXML(w http.ResponseWriter, status int, data any, headers ...http.Heade
 
 // Modules are a collection of XML modules.
 type Modules struct {
-	XMLName xml.Name  `xml:"modules"`
-	Modules []*Module `xml:"module"`
+	XMLName xml.Name `xml:"modules"`
+	Modules []Module `xml:"module"`
 }
 
 // A Module is a collection of additional data that may
@@ -51,22 +51,23 @@ type Module struct {
 // name of the module is used as a key to retrieve
 // the associated module. Multiple modules may be associated
 // with the same name.
-type RequestModules map[string][]*Module
+type RequestModules map[string][]Module
 
-// Get returns the first module associated with the given
-// key, or nil if no module is associated with the key.
-func (r RequestModules) Get(key string) *Module {
+// Get attempts to return the first Module associated with the
+// given key. An empty module will be returned and found will be
+// false if no modules are associated with the key.
+func (r RequestModules) Get(key string) (module Module, found bool) {
 	vals := r[key]
 	if len(vals) == 0 {
-		return nil
+		return Module{}, false
 	}
-	return vals[0]
+	return vals[0], true
 }
 
 // GetAll returns all of the modules associated with the
 // given key, or nil if no modules are associated with
 // the key.
-func (r RequestModules) GetAll(key string) []*Module {
+func (r RequestModules) GetAll(key string) []Module {
 	vals := r[key]
 	if len(vals) == 0 {
 		return nil
@@ -77,13 +78,13 @@ func (r RequestModules) GetAll(key string) []*Module {
 // Set creates a new association between the given key
 // module. This will overwrite any modules previously
 // associated with the same key.
-func (r RequestModules) Set(key string, value *Module) {
-	r[key] = []*Module{value}
+func (r RequestModules) Set(key string, value Module) {
+	r[key] = []Module{value}
 }
 
 // Add adds the provided module to the collection of
 // modules associated with the given key.
-func (r RequestModules) Add(key string, value *Module) {
+func (r RequestModules) Add(key string, value Module) {
 	r[key] = append(r[key], value)
 }
 

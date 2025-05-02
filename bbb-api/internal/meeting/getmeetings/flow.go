@@ -16,7 +16,7 @@ import (
 // transform the gRPC response into a meeting API response.
 func NewGetMeetingsFlow(client *meetingapi.Client) pipeline.Flow[*http.Request, *meetingapi.Response] {
 	filterTransformGRPC := pipeline.NewStep[*http.Request, *meeting.GetMeetingsStreamRequest]().
-		Filter(&GetMeetingsFilter{}).
+		Filter(&RequestFilter{}).
 		Transform(&HTTPToGRPC{})
 
 	sendReceive := pipeline.NewStep[*meeting.GetMeetingsStreamRequest, []*meeting.MeetingInfoResponse]().SendReceive(&SendGetMeetingsRequest{})

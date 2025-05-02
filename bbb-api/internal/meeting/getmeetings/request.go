@@ -4,9 +4,11 @@ import (
 	"context"
 	"errors"
 	"io"
+	"log/slog"
 	"time"
 
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/gen/meeting"
+	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core"
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/pipeline"
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/responses"
 	meetingapi "github.com/bigbluebutton/bigbluebutton/bbb-api/internal/meeting"
@@ -32,7 +34,8 @@ func (s *SendGetMeetingsRequest) Send(msg pipeline.Message[*meeting.GetMeetingsS
 
 	stream, err := s.client.GetMeetingsStream(ctx, msg.Payload)
 	if err != nil {
-		return pipeline.Message[[]*meeting.MeetingInfoResponse]{}, err
+		slog.Error("GetMeetings gRPC request failed", "error", err)
+		return pipeline.Message[[]*meeting.MeetingInfoResponse]{}, core.GrpcErrorToBBBError(err)
 	}
 
 	meetings := make([]*meeting.MeetingInfoResponse, 0)

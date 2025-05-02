@@ -2,6 +2,10 @@ package core
 
 import (
 	"fmt"
+
+	"github.com/bigbluebutton/bigbluebutton/bbb-api/gen/common"
+	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/responses"
+	"google.golang.org/grpc/status"
 )
 
 // A BBBError is a BigBlueButton specific error that
@@ -24,4 +28,17 @@ func NewBBBError(key string, msg string) *BBBError {
 		Key: key,
 		Msg: msg,
 	}
+}
+
+func GrpcErrorToBBBError(err error) *BBBError {
+	st, ok := status.FromError(err)
+	if ok {
+		for _, detail := range st.Details() {
+			switch t := detail.(type) {
+			case *common.ErrorResponse:
+				return NewBBBError(t.Key, t.Message)
+			}
+		}
+	}
+	return NewBBBError(responses.UnknownErrorKey, responses.UnknownErrorMsg)
 }

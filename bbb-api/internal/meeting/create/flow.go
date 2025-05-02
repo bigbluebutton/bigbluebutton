@@ -20,7 +20,7 @@ import (
 // validate the response and transform it into a meeting API CreateMeetingResponse.
 func NewCreateFlow(client *meetingapi.Client) pipeline.Flow[*http.Request, *meetingapi.CreateMeetingResponse] {
 	filterTransformToMeetingRunning := pipeline.NewStep[*http.Request, *meeting.MeetingRunningRequest]().
-		Filter(&CreateMeetingFilter{}).
+		Filter(&RequestFilter{}).
 		Transform(&RequestToIsMeetingRunning{})
 
 	sendReceiveMeetingRunning := pipeline.NewStep[*meeting.MeetingRunningRequest, *meeting.MeetingRunningResponse]().SendReceive(&SendMeetingRunningRequest{client})
@@ -33,11 +33,11 @@ func NewCreateFlow(client *meetingapi.Client) pipeline.Flow[*http.Request, *meet
 
 	transformToCreateMeeting := pipeline.NewStep[*meeting.MeetingInfoResponse, *meeting.CreateMeetingRequest]().Transform(&MeetingRunningToCreate{})
 
-	sendReceiveCreateMeeting := pipeline.NewStep[*meeting.CreateMeetingRequest, *meeting.CreateMeetingResponse]()
+	sendReceiveCreateMeeting := pipeline.NewStep[*meeting.CreateMeetingRequest, *meeting.CreateMeetingResponse]().SendReceive(&SendCreateMeetingRequest{})
 
 	filterTransformToResponse := pipeline.NewStep[*meeting.CreateMeetingResponse, *meetingapi.CreateMeetingResponse]().
-		Filter(nil).
-		Transform(nil)
+		Filter(&CreateMeetingResponseFilter{}).
+		Transform(&CreateMeetingToResponse{})
 
 	f1 := pipeline.Add(filterTransformToMeetingRunning.Flow(), sendReceiveMeetingRunning)
 	f2 := pipeline.Add(f1, filterTransformToMeetingInfo)
