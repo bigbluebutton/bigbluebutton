@@ -195,7 +195,7 @@
     "app.userList.chatListItem.unreadSingular": "Un nuovo messaggio",
     "app.userList.chatListItem.unreadPlural": "{0} nuovi messaggi",
     "app.userList.more": "Altro",
-    "app.userList.menu.away": "Allontanati",
+    "app.userList.menu.away": "Imposta come assente",
     "app.userList.menu.notAway": "Torna attivo",
     "app.userList.menu.chat.label": "Avvia una chat privata",
     "app.userList.menu.clearStatus.label": "Cancella stato",
