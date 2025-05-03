@@ -29,7 +29,7 @@
     "app.chat.breakoutDurationUpdated": "La scadenza dell'aula separata è ora di {0} minuti",
     "app.chat.breakoutDurationUpdatedModerator": "La scadenza dell'aula separata è ora di {0} minuti ed è stata inviata una notifica.",
     "app.chat.emptyLogLabel": "Il registro chat è vuoto",
-    "app.chat.away": "Si è allontanato",
+    "app.chat.away": "è assente",
     "app.chat.notAway": "è disponibile",
     "app.chat.isPresenter": "{0} è ora il presentatore",
     "app.chat.isPresenterSetBy": "{0} è ora il presentatore, impostato da {1}",
