@@ -526,7 +526,7 @@
     "app.endMeeting.description": "Questa azione terminerà la sessione per {0} utente/i attivo/i. Vuoi veramente terminare questa sessione?",
     "app.endMeeting.noUserDescription": "Vuoi veramente terminare questa sessione?",
     "app.endMeeting.contentWarning": "Messaggi in chat, note condivise, contenuti della lavagna e file condivisi in questa sessione non saranno più accessibili direttamente.",
-    "app.endMeeting.yesLabel": "Sì",
+    "app.endMeeting.yesLabel": "Termina sessione per tutti gli utenti",
     "app.endMeeting.noLabel": "No",
     "app.about.title": "Informazioni",
     "app.about.version": "Versione del client:",
