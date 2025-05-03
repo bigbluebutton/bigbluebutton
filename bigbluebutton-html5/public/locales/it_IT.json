@@ -1021,7 +1021,7 @@
     "app.toast.wakeLock.disclaimer": "{0}. Lo spegnimento dello schermo potrebbe interrompere la chiamata.",
     "app.toast.setEmoji.raiseHand": "Hai alzato la mano",
     "app.toast.setEmoji.lowerHand": "La mano è stata abbassata",
-    "app.toast.setEmoji.away": "Hai segnato di esserti allontanato",
+    "app.toast.setEmoji.away": "Hai impostato il tuo stato su assente",
     "app.toast.setEmoji.notAway": "Il tuo stato di assenza è stato rimosso",
     "app.toast.promotedLabel": "Sei stato promosso a moderatore",
     "app.toast.demotedLabel": "Sei stato retrocesso a partecipante",
