@@ -109,8 +109,8 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
   };
 
   useEffect(() => {
-    // if selectValue is empty means the user has not selected any room yet
-    if (defaultSelectedBreakoutId && !selectValue) {
+    // If User is Moved to w new room, the select value is updated
+    if (defaultSelectedBreakoutId) {
       setSelectValue(defaultSelectedBreakoutId);
     }
   }, [defaultSelectedBreakoutId]);
