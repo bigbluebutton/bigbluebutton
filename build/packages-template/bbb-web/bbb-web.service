@@ -22,4 +22,3 @@ LimitNOFILE=1024
 
 [Install]
 WantedBy=multi-user.target bigbluebutton.target
-
