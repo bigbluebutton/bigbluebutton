@@ -238,20 +238,21 @@ class CustomParameters extends MultiUsers {
     await this.userPage.wasRemoved(e.whiteboard, 'should not display the whiteboard for the attendee');
   }
 
-  async hidePresentationOnJoinAttendeesJoinAfterCreation() {
+  async hidePresentationOnJoinReturnFromBreakouts() {
     await this.modPage.hasElement(e.actions, 'should display the actions button');
     await this.modPage.hasElement(e.restorePresentation, 'should display the restore presentation button for the moderator');
     await this.userPage.hasElement(e.restorePresentation, 'should display the restore presentation button for the attendee');
     await this.userPage.wasRemoved(e.whiteboard, 'should not display the whiteboard for the attendee');
 
-    await this.modPage.waitAndClick(e.optionsButton);
-    await this.modPage.waitAndClick(e.manageLayoutBtn);
-    await this.modPage.waitAndClick(e.focusOnVideo);
-    await this.modPage.waitAndClick(e.updateLayoutBtn);
-    await this.modPage.closeAllToastNotifications();
-    await this.modPage.wasRemoved(e.toastContainer);
+    await util.createBreakoutRooms(this.modPage);
 
-    //await checkScreenshots(this, 'should be the grid layout', [e.webcamContainer, e.webcamMirroredVideoContainer], 'grid-layout');
+    const breakoutUserPage = await util.joinBreakoutRoom(this.userPage);
+    await breakoutUserPage.hasElement(e.presentationTitle, 'should display the presentation title inside the breakout room');
+    await breakoutUserPage.waitForSelector(e.whiteboard);
+    await this.modPage.waitAndClick(e.breakoutRoomsItem);
+    await this.modPage.waitAndClick(e.breakoutOptionsMenu);
+    await this.modPage.closeAllToastNotifications();
+    await this.modPage.waitAndClick(e.endAllBreakouts);
 
     await this.modPage.hasElement(e.restorePresentation, 'should display the restore presentation button for the moderator');
     await this.userPage.hasElement(e.restorePresentation, 'should display the restore presentation button for the attendee');

@@ -97,6 +97,39 @@ async function checkShortcutsArray(test, shortcut) {
   }
 }
 
+async function joinBreakoutRoom(test, shouldJoinAudio = false) {
+  await test.bringToFront();
+  if (shouldJoinAudio) {
+    await test.waitAndClick(e.joinAudio);
+    await test.joinMicrophone();
+  }
+  await test.waitAndClick(e.modalConfirmButton);
+  //await test.waitAndClick(e.closeModal);
+  //await test.hasElement(e.alreadyConnected, 'should display the element alreadyConnected', 15000);
+  const breakoutUserPage = await test.getLastTargetPage(this.context);
+  await breakoutUserPage.bringToFront();
+  if (shouldJoinAudio) {
+    await test.hasElement(e.joinAudio, 'should display the join audio button');
+  } else {
+    await breakoutUserPage.closeAudioModal();
+  }
+  await breakoutUserPage.hasElement(e.presentationTitle, 'should display the presentation title on the breakout room');
+  return breakoutUserPage;
+}
+
+async function createBreakoutRooms(test, captureNotes = false, captureWhiteboard = false) {
+    await test.waitAndClick(e.manageUsers);
+    await test.waitAndClick(e.createBreakoutRooms);
+
+    // assign user to first room
+    await test.dragDropSelector(e.attendeeNotAssigned, e.breakoutBox1);
+
+    if (captureNotes) await test.page.check(e.captureBreakoutSharedNotes);
+    if (captureWhiteboard) await test.page.check(e.captureBreakoutWhiteboard);
+    await test.waitAndClick(e.modalConfirmButton, ELEMENT_WAIT_LONGER_TIME);
+    await test.hasElement(e.breakoutRoomsItem, 'should have the breakout room item');
+  }
+
 exports.zoomIn = zoomIn;
 exports.zoomOut = zoomOut;
 exports.poll = poll;
@@ -108,3 +141,5 @@ exports.encodeCustomParams = encodeCustomParams;
 exports.getAllShortcutParams = getAllShortcutParams;
 exports.checkAccesskey = checkAccesskey;
 exports.checkShortcutsArray = checkShortcutsArray;
+exports.joinBreakoutRoom = joinBreakoutRoom;
+exports.createBreakoutRooms = createBreakoutRooms;
