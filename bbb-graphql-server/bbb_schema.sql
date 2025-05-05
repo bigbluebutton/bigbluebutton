@@ -1888,7 +1888,7 @@ create index "idx_breakoutRoom_user_user_meeting" on "breakoutRoom_user" ("userI
 ALTER TABLE "breakoutRoom_user" ADD COLUMN "showInvitation" boolean GENERATED ALWAYS AS (
     CASE WHEN
             "isLastAssignedRoom" IS true
-            and "isUserCurrentlyInRoom" is null
+            and "isUserCurrentlyInRoom" is not true
             AND ("joinedAt" is null or "assignedAt" > "joinedAt")
             AND ("userJoinedSomeRoomAt" is null or "assignedAt" > "userJoinedSomeRoomAt")
             AND ("inviteDismissedAt" is null or "assignedAt" > "inviteDismissedAt")
