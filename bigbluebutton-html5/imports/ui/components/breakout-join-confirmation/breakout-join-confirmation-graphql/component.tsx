@@ -83,7 +83,8 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
   const defaultSelectedBreakoutId = breakouts.find(({ isLastAssignedRoom }) => isLastAssignedRoom)?.breakoutRoomId
     || firstBreakoutId;
 
-  const [selectValue, setSelectValue] = React.useState(defaultSelectedBreakoutId);
+
+  const [selectValue, setSelectValue] = React.useState('');
 
   const requestJoinURL = (breakoutRoomId: string) => {
     breakoutRoomRequestJoinURL({ variables: { breakoutRoomId } });
@@ -106,6 +107,13 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
       setWaiting(true);
     }
   };
+
+  useEffect(() => {
+    // if selectValue is empty means the user has not selected any room yet
+    if (defaultSelectedBreakoutId && !selectValue) {
+      setSelectValue(defaultSelectedBreakoutId);
+    }
+  }, [defaultSelectedBreakoutId]);
 
   const handleJoinBreakoutConfirmation = useCallback(() => {
     stopMediaOnMainRoom(presenter);
