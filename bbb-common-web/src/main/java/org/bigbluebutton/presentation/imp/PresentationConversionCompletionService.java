@@ -33,28 +33,36 @@ public class PresentationConversionCompletionService {
     }
 
     public void handle(IPresentationCompletionMessage msg) {
+        log.info("Enqueueing presentation conversion message");
         messages.offer(msg);
     }
 
     private void processMessage(IPresentationCompletionMessage msg) {
         if (msg instanceof PresentationConvertMessage) {
+            log.info("Handling PresentationConvertMessage");
             PresentationConvertMessage m = (PresentationConvertMessage) msg;
             PresentationToConvert p = new PresentationToConvert(m.pres);
 
             String presentationToConvertKey = p.getKey() + "_" + m.pres.getMeetingId();
 
+            log.info("Storing presentation with key {}", presentationToConvertKey);
             presentationsToConvert.put(presentationToConvertKey, p);
         } else if (msg instanceof PageConvertProgressMessage) {
+            log.info("Handling PageConvertProgressMessage");
             PageConvertProgressMessage m = (PageConvertProgressMessage) msg;
             String presentationToConvertKey = m.presId + "_" + m.meetingId;
 
             PresentationToConvert p = presentationsToConvert.get(presentationToConvertKey);
             if (p != null) {
+                log.info("Found presentation with key {}", presentationToConvertKey);
                 p.incrementPagesCompleted();
                 notifier.sendConversionUpdateMessage(p.getPagesCompleted(), p.pres, m.page);
                 if (p.getPagesCompleted() == p.pres.getNumberOfPages()) {
+                    log.info("Last presentation page converted");
                     handleEndProcessing(p);
                 }
+            } else {
+                log.error("No presentation found with key {}", presentationToConvertKey);
             }
         }
     }
@@ -120,6 +128,7 @@ public class PresentationConversionCompletionService {
                 public void run() {
                     while (processProgress) {
                         try {
+                            log.info("Taking next presentation conversion message");
                             IPresentationCompletionMessage msg = messages.take();
                             processMessage(msg);
                         } catch (InterruptedException e) {
