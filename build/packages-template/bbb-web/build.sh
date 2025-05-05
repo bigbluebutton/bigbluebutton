@@ -84,6 +84,9 @@ cp ../bbb-web.env "$STAGING"/etc/default/bbb-web
 mkdir -p "$STAGING"/lib/systemd/system
 cp ../bbb-web.service "$STAGING"/lib/systemd/system
 
+cp ../bbb-process-image.sh "$STAGING"/usr/share/bbb-web
+cp ../bbb-process-pdf-page.sh "$STAGING"/usr/share/bbb-web
+
 pushd "$STAGING"/usr/share/bbb-web
 jar -xvf bigbluebutton-0.10.0.war
 rm bigbluebutton-0.10.0.war
