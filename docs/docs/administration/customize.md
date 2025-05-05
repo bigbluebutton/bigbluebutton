@@ -380,10 +380,10 @@ This pattern can be repeated for additional recording formats. Note that it's ve
 
 After you edit the configuration file, you must restart the recording processing queue: `systemctl restart bbb-rap-resque-worker.service` in order to pick up the changes.
 
-The following script will enable the video recording format a BigBlueButton 2.6+ server.
+The following script will enable the video recording format of a BigBlueButton 2.6+ server.
 
 ```
-!/bin/bash
+#!/bin/bash
 mkdir -p /etc/bigbluebutton/recording
 cat > /etc/bigbluebutton/recording/recording.yml << REC
 steps:
