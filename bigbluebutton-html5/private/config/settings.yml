@@ -195,9 +195,10 @@ public:
     # 'local' -> settings are stored in browser localStorage
     userSettingsStorage: session
     defaultSettings:
-      application:
+      layout:
         selectedLayout: 'custom'
         pushLayout: false
+      application:
         animations: true
         chatAudioAlerts: false
         chatPushAlerts: false
