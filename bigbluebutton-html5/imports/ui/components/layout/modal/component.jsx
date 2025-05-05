@@ -1,15 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import { LAYOUT_TYPE, CAMERADOCK_POSITION, HIDDEN_LAYOUTS } from '/imports/ui/components/layout/enums';
+import { LAYOUT_TYPE, CAMERADOCK_POSITION } from '/imports/ui/components/layout/enums';
 import SettingsService from '/imports/ui/components/settings/service';
 import deviceInfo from '/imports/utils/deviceInfo';
 import Button from '/imports/ui/components/common/button/component';
 import Toggle from '/imports/ui/components/common/switch/component';
 import Styled from './styles';
 import Tooltip from '/imports/ui/components/common/tooltip/component';
-import Auth from '/imports/ui/services/auth';
-import Storage from '/imports/ui/services/storage/session';
 import { getSupportedLayouts } from '/imports/ui/components/layout/utils';
 
 const LayoutModalComponent = ({
@@ -17,7 +15,7 @@ const LayoutModalComponent = ({
   setIsOpen,
   isModerator = false,
   isPresenter,
-  application,
+  layoutSettings,
   updateSettings,
   onRequestClose,
   isOpen,
@@ -25,24 +23,14 @@ const LayoutModalComponent = ({
   availableLayouts,
   deviceType,
 }) => {
-  const [selectedLayout, setSelectedLayout] = useState(application.selectedLayout);
+  const [selectedLayout, setSelectedLayout] = useState(layoutSettings.selectedLayout);
   const [layoutOptions, setLayoutOptions] = useState([]);
+  const [keepPushingLayout, setKeepPushingLayout] = useState(layoutSettings.pushLayout);
 
   const isKeepPushingLayoutEnabled = SettingsService.isKeepPushingLayoutEnabled();
 
-  const getKeepPushingLayout = () => {
-    if (!isKeepPushingLayoutEnabled) return false;
-
-    const storageKey = `keepPushingLayout_${Auth.meetingID}`;
-    return Storage.getItem(storageKey) === true;
-  };
-
-  const setKeepPushingLayout = (value) => {
-    const storageKey = `keepPushingLayout_${Auth.meetingID}`;
-    Storage.setItem(storageKey, value);
-  };
-
-  const BASE_NAME = window.meetingClientSettings.public.app.cdn + window.meetingClientSettings.public.app.basename;
+  const BASE_NAME = window.meetingClientSettings.public.app.cdn
+    + window.meetingClientSettings.public.app.basename;
 
   const LAYOUTS_PATH = `${BASE_NAME}/resources/images/layouts/`;
 
@@ -141,11 +129,9 @@ const LayoutModalComponent = ({
   };
 
   const handleUpdateLayout = () => {
-    const keepPushingLayout = getKeepPushingLayout();
-
     const obj = {
-      application:
-        { ...application, selectedLayout, pushLayout: keepPushingLayout },
+      layout:
+        { ...layoutSettings, selectedLayout, pushLayout: keepPushingLayout },
     };
     if ((isModerator || isPresenter) && keepPushingLayout) {
       updateSettings(obj, intlMessages.layoutToastLabelAuto);
@@ -159,8 +145,7 @@ const LayoutModalComponent = ({
   };
 
   const toggleKeepPushingLayout = () => {
-    const current = getKeepPushingLayout();
-    setKeepPushingLayout(!current);
+    setKeepPushingLayout((current) => !current);
   };
 
   const displayToggleStatus = (toggleValue) => (
@@ -170,24 +155,20 @@ const LayoutModalComponent = ({
     </Styled.ToggleLabel>
   );
 
-  const renderToggle = () => {
-    const keepPushingLayout = getKeepPushingLayout();
-
-    return (
-      <Styled.ToggleStatusWrapper>
-        {displayToggleStatus(keepPushingLayout)}
-        <Toggle
-          id="TogglePush"
-          icons={false}
-          defaultChecked={keepPushingLayout}
-          onChange={toggleKeepPushingLayout}
-          ariaLabel="push"
-          data-test="updateEveryoneLayoutToggle"
-          showToggleLabel={false}
-        />
-      </Styled.ToggleStatusWrapper>
-    );
-  };
+  const renderToggle = () => (
+    <Styled.ToggleStatusWrapper>
+      {displayToggleStatus(keepPushingLayout)}
+      <Toggle
+        id="TogglePush"
+        icons={false}
+        defaultChecked={keepPushingLayout}
+        onChange={toggleKeepPushingLayout}
+        ariaLabel="push"
+        data-test="updateEveryoneLayoutToggle"
+        showToggleLabel={false}
+      />
+    </Styled.ToggleStatusWrapper>
+  );
 
   const renderPushLayoutsOptions = () => {
     if (!isModerator && !isPresenter) {
@@ -228,7 +209,8 @@ const LayoutModalComponent = ({
               onClick={() => {
                 if (!supported) return;
                 handleSwitchLayout(layoutKey);
-                if (layoutKey === LAYOUT_TYPE.CUSTOM_LAYOUT && application.selectedLayout !== layoutKey) {
+                if (layoutKey === LAYOUT_TYPE.CUSTOM_LAYOUT
+                  && layoutSettings.selectedLayout !== layoutKey) {
                   document.getElementById('layout')?.setAttribute('data-cam-position', CAMERADOCK_POSITION.CONTENT_TOP);
                 }
               }}
@@ -290,8 +272,9 @@ const propTypes = {
   }).isRequired,
   isModerator: PropTypes.bool.isRequired,
   isPresenter: PropTypes.bool.isRequired,
-  application: PropTypes.shape({
+  layoutSettings: PropTypes.shape({
     selectedLayout: PropTypes.string.isRequired,
+    pushLayout: PropTypes.bool.isRequired,
   }).isRequired,
   updateSettings: PropTypes.func.isRequired,
   setLocalSettings: PropTypes.func.isRequired,

@@ -591,7 +591,7 @@ const WhiteboardContainer = (props) => {
           skipToSlide,
           locale: Settings?.application?.locale,
           darkTheme: Settings?.application?.darkTheme,
-          selectedLayout: Settings?.application?.selectedLayout,
+          selectedLayout: Settings?.layout?.selectedLayout,
           isInfiniteWhiteboard,
           curPageNum,
           setEditor,

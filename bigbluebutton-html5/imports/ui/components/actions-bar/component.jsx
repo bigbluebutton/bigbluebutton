@@ -156,7 +156,7 @@ class ActionsBar extends PureComponent {
     } = this.props;
 
     const Settings = getSettingsSingletonInstance();
-    const { selectedLayout } = Settings.application;
+    const { selectedLayout } = Settings.layout;
     const shouldShowPresentationButton = selectedLayout !== LAYOUT_TYPE.CAMERAS_ONLY
       && selectedLayout !== LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY;
     const shouldShowVideoButton = selectedLayout !== LAYOUT_TYPE.PRESENTATION_ONLY

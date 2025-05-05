@@ -343,7 +343,7 @@ const WebcamContainer: React.FC = () => {
   const { data: currentUserData } = useCurrentUser((user) => ({
     presenter: user.presenter,
   }));
-  const { selectedLayout } = useSettings(SETTINGS.APPLICATION) as { selectedLayout: string };
+  const { selectedLayout } = useSettings(SETTINGS.LAYOUT) as { selectedLayout: string };
 
   const isGridEnabled = selectedLayout === LAYOUT_TYPE.VIDEO_FOCUS;
 

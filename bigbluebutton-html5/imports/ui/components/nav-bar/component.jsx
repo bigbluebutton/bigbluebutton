@@ -309,7 +309,7 @@ class NavBar extends Component {
     const { leftPluginItems, centerPluginItems, rightPluginItems } = this.splitPluginItems();
 
     const Settings = getSettingsSingletonInstance();
-    const { selectedLayout } = Settings.application;
+    const { selectedLayout } = Settings.layout;
     const shouldShowNavBarToggleButton = selectedLayout !== LAYOUT_TYPE.CAMERAS_ONLY
       && selectedLayout !== LAYOUT_TYPE.PRESENTATION_ONLY
       && selectedLayout !== LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY
