@@ -2186,6 +2186,11 @@ SELECT *
 FROM "caption"
 WHERE "createdAt" > current_timestamp - INTERVAL '5 seconds';
 
+--------See all captions from a meeting
+CREATE OR REPLACE VIEW "v_caption_persistent" AS
+SELECT *
+FROM "caption";
+
 CREATE OR REPLACE VIEW "v_caption_activeLocales" AS
 select distinct "meetingId", "locale", "createdBy", "captionType"
 from "caption_locale";
