@@ -2187,7 +2187,7 @@ FROM "caption"
 WHERE "createdAt" > current_timestamp - INTERVAL '5 seconds';
 
 --------See all captions from a meeting
-CREATE OR REPLACE VIEW "v_caption_persistent" AS
+CREATE OR REPLACE VIEW "v_caption_history" AS
 SELECT *
 FROM "caption";
 

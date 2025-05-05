@@ -6,7 +6,7 @@
 - "!include public_v_breakoutRoom_user.yaml"
 - "!include public_v_caption.yaml"
 - "!include public_v_caption_activeLocales.yaml"
-- "!include public_v_caption_persistent.yaml"
+- "!include public_v_caption_history.yaml"
 - "!include public_v_chat.yaml"
 - "!include public_v_chat_message_private.yaml"
 - "!include public_v_chat_message_public.yaml"

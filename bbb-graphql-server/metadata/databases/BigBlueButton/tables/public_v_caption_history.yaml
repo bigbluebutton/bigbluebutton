@@ -1,10 +1,10 @@
 table:
-  name: v_caption_persistent
+  name: v_caption_history
   schema: public
 configuration:
   column_config: {}
   custom_column_names: {}
-  custom_name: caption_persistent
+  custom_name: caption_history
   custom_root_fields: {}
 object_relationships:
   - name: user
