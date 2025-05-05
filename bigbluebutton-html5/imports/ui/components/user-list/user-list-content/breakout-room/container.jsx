@@ -2,7 +2,7 @@ import React from 'react';
 import BreakoutRoomItem from './component';
 import { layoutSelectInput, layoutDispatch } from '../../../layout/context';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
-import { userIsInvited } from './query';
+import { isBreakoutFreeJoin, userIsInvited } from './queries';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { ACTIONS, PANELS } from '../../../layout/enums';
 import logger from '/imports/startup/client/logger';
@@ -21,6 +21,12 @@ const BreakoutRoomContainer = ({ breakoutRoom }) => {
   } = useDeduplicatedSubscription(userIsInvited);
 
   const {
+    data: isBreakoutFreeJoinData,
+    error: isBreakoutFreeJoinError,
+    loading: isBreakoutFreeJoinLoading,
+  } = useDeduplicatedSubscription(isBreakoutFreeJoin);
+
+  const {
     data: currentMeeting,
   } = useMeeting((m) => ({
     componentsFlags: m.componentsFlags,
@@ -32,13 +38,13 @@ const BreakoutRoomContainer = ({ breakoutRoom }) => {
     isModerator: u?.isModerator,
   }));
 
-  if (userIsInvitedError) {
+  if (userIsInvitedError || isBreakoutFreeJoinError) {
     connectionStatus.setSubscriptionFailed(true);
     logger.error(
       {
         logCode: 'subscription_Failed',
         extraInfo: {
-          error: userIsInvitedError,
+          error: userIsInvitedError || isBreakoutFreeJoinError,
         },
       },
       'Subscription failed to load',
@@ -46,7 +52,7 @@ const BreakoutRoomContainer = ({ breakoutRoom }) => {
     return null;
   }
 
-  if (userIsInvitedLoading) return null;
+  if (userIsInvitedLoading || isBreakoutFreeJoinLoading) return null;
 
   const hasBreakoutRoom = currentMeeting?.componentsFlags?.hasBreakoutRoom ?? false;
 
@@ -66,7 +72,13 @@ const BreakoutRoomContainer = ({ breakoutRoom }) => {
       layoutContextDispatch,
       sidebarContentPanel,
       hasBreakoutRoom: hasBreakoutRoom
-      && (userIsInvitedData.breakoutRoom.length > 0 || currentUser?.isModerator),
+      && (
+        (
+          (
+            userIsInvitedData.breakoutRoom.length > 0
+            || isBreakoutFreeJoinData.breakoutRoom.length > 0)
+          || currentMeeting?.breakoutPolicies?.freeJoin)
+        || currentUser?.isModerator),
       breakoutRoom,
     }}
     />

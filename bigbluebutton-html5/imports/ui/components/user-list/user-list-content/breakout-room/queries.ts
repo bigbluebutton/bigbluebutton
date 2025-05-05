@@ -8,6 +8,14 @@ export const userIsInvited = gql`
   }
 `;
 
+export const isBreakoutFreeJoin = gql`
+  subscription breakoutsAreFreeJoin {
+    breakoutRoom(where: {freeJoin: {_eq: true}}) {
+      sequence
+    }
+  }
+`;
+
 export default {
   userIsInvited,
 };
