@@ -32,7 +32,7 @@ const fetchedpresentation = {};
 const PresentationContainer = (props) => {
   const { presentationIsOpen } = props;
   const layoutContextDispatch = layoutDispatch();
-  const { selectedLayout } = useSettings(SETTINGS.APPLICATION);
+  const { selectedLayout } = useSettings(SETTINGS.LAYOUT);
 
   const { data: presentationPageData } = useDeduplicatedSubscription(
     CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
