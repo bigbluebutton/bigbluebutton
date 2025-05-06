@@ -57,7 +57,8 @@ public class PresentationConversionCompletionService {
                 log.info("Found presentation with key {}", presentationToConvertKey);
                 p.incrementPagesCompleted();
                 notifier.sendConversionUpdateMessage(p.getPagesCompleted(), p.pres, m.page);
-                log.info("{} of {} pages successfully converted", p.getPagesCompleted(), p.pres.getNumberOfPages());
+                log.info("{} of {} pages successfully converted for presentation [{}] in meeting [{}]", p.getPagesCompleted(), p.pres.getNumberOfPages(),
+                        ((PageConvertProgressMessage) msg).presId, ((PageConvertProgressMessage) msg).meetingId);
                 if (p.getPagesCompleted() == p.pres.getNumberOfPages()) {
                     log.info("Last presentation page converted");
                     handleEndProcessing(p);
