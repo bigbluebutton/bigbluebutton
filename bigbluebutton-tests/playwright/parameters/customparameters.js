@@ -2,11 +2,12 @@ const { expect, default: test } = require('@playwright/test');
 const { MultiUsers } = require('../user/multiusers');
 const e = require('../core/elements');
 const c = require('./constants');
-const { VIDEO_LOADING_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_TIME } = require('../core/constants');
+const { VIDEO_LOADING_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_TIME, UPLOAD_PDF_WAIT_TIME } = require('../core/constants');
 const util = require('./util');
 const { sleep } = require('../core/helpers');
 const { getSettings } = require('../core/settings');
 const { uploadSinglePresentation } = require('../presentation/util');
+const path = require('path');
 
 class CustomParameters extends MultiUsers {
   constructor(browser, context) {
@@ -244,11 +245,22 @@ class CustomParameters extends MultiUsers {
     await this.userPage.hasElement(e.restorePresentation, 'should display the restore presentation button for the attendee');
     await this.userPage.wasRemoved(e.whiteboard, 'should not display the whiteboard for the attendee');
 
-    await util.createBreakoutRooms(this.modPage);
+    await this.modPage.waitAndClick(e.manageUsers);
+    await this.modPage.waitAndClick(e.createBreakoutRooms);
 
-    const breakoutUserPage = await util.joinBreakoutRoom(this.userPage);
+    await this.modPage.dragDropSelector(e.attendeeNotAssigned, e.breakoutBox1);
+
+    await this.modPage.waitAndClick(e.modalConfirmButton, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.hasElement(e.breakoutRoomsItem, 'should have the breakout room item');
+
+    await this.userPage.bringToFront();
+    await this.userPage.waitAndClick(e.modalConfirmButton);
+    const breakoutUserPage = await this.userPage.getLastTargetPage(this.userPage.context);
+    await breakoutUserPage.bringToFront();
+    await breakoutUserPage.closeAudioModal();
+    
     await breakoutUserPage.hasElement(e.presentationTitle, 'should display the presentation title inside the breakout room');
-    await breakoutUserPage.waitForSelector(e.whiteboard);
+    await breakoutUserPage.wasRemoved(e.whiteboard);
     await this.modPage.waitAndClick(e.breakoutRoomsItem);
     await this.modPage.waitAndClick(e.breakoutOptionsMenu);
     await this.modPage.closeAllToastNotifications();
@@ -257,6 +269,32 @@ class CustomParameters extends MultiUsers {
     await this.modPage.hasElement(e.restorePresentation, 'should display the restore presentation button for the moderator');
     await this.userPage.hasElement(e.restorePresentation, 'should display the restore presentation button for the attendee');
     await this.userPage.wasRemoved(e.whiteboard, 'should not display the whiteboard for the attendee');
+  }
+
+  async hidePresentationOnJoinUploadLargePresentation() {
+    await this.modPage.hasElement(e.actions, 'should display the actions button');
+    await this.modPage.hasElement(e.restorePresentation, 'should display the restore presentation button for the moderator');
+    await this.userPage.hasElement(e.restorePresentation, 'should display the restore presentation button for the attendee');
+    await this.userPage.wasRemoved(e.whiteboard, 'should not display the whiteboard for the attendee');
+
+    await this.modPage.waitAndClick(e.actions);
+    await this.modPage.waitAndClick(e.managePresentations);
+    await this.modPage.hasElement(e.presentationFileUpload, 'should display the presentation space for uploading a new file, when the manage presentations is opened');
+  
+    await this.modPage.page.setInputFiles(e.presentationFileUpload, path.join(__dirname, `../core/media/${e.pdfFileName}`));
+    await this.modPage.hasText('body', e.statingUploadPresentationToast, 'should display the toast message uploading the presentation');
+  
+    await this.modPage.waitAndClick(e.confirmManagePresentation);
+    
+    await this.modPage.hasElement(e.presentationUploadProgressToast, 'should display the toast presentation upload progress after confirming the presentation to be uploaded');
+    await sleep(10000);
+
+    const wbBox = await this.modPage.getLocator(e.whiteboard);
+    await expect(wbBox).toHaveScreenshot('moderator-with-minimalist-large-presentation.png');
+
+    await this.modPage.hasElement(e.minimizePresentation, 'should display the restore presentation button for the moderator');
+    await this.userPage.hasElement(e.minimizePresentation, 'should display the restore presentation button for the attendee');
+    await this.userPage.hasElement(e.whiteboard, 'should not display the whiteboard for the attendee');
   }
 
   async forceRestorePresentationOnNewEvents() {

@@ -515,7 +515,7 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
       await customParam.hidePresentationOnJoinChangeLayout();
     });
 
-    test.only('Hide presentation on join return from breakouts', async({ browser, context, page }) => {
+    test('Hide presentation on join return from breakouts', async({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, true, { joinParameter: c.hidePresentationOnJoin });
       await customParam.initUserPage(true, context, { useModMeetingId: true, joinParameter: c.hidePresentationOnJoin });
