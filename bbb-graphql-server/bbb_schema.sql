@@ -2006,7 +2006,7 @@ CREATE OR REPLACE VIEW "v_breakoutRoom" AS
 SELECT bu."meetingId" as "userMeetingId", bu."userId", b."parentMeetingId", b."breakoutRoomId", b."freeJoin",
             b."sequence", b."name", b."isDefaultName",
             b."shortName", b."startedAt", b."endedAt", b."durationInSeconds", b."sendInvitationToModerators",
-            bu."assignedAt", bu."joinURL", bu."inviteDismissedAt", true as "isModerator",
+            bu."assignedAt", bu."joinURL", bu."inviteDismissedAt",
             bu."isLastAssignedRoom", bu."isLastJoinedRoom", bu."isUserCurrentlyInRoom", bu."showInvitation",
             bu."joinedAt" is not null as "hasJoined"
     FROM "breakoutRoom_user" bu
