@@ -13,6 +13,7 @@ import {
 } from '/imports/ui/components/audio/audio-graphql/audio-controls/input-stream-live-selector/service';
 import apolloContextHolder from '/imports/ui/core/graphql/apolloContextHolder/apolloContextHolder';
 import { MEETING_IS_BREAKOUT } from '/imports/ui/components/audio/audio-graphql/audio-controls/queries';
+import useIsAudioConnected from '/imports/ui/components/audio/audio-graphql/hooks/useIsAudioConnected';
 
 const MUTED_KEY = 'muted';
 export const CLIENT_DID_USER_SELECT_MICROPHONE_KEY = 'clientUserSelectedMicrophone';
@@ -108,8 +109,11 @@ const init = (
   return AudioManager.init(userData, audioEventHandler(toggleVoice), bridges);
 };
 
-const useIsUsingAudio = () => {
-  const isConnected = useReactiveVar(AudioManager._isConnected.value);
+// This hooks should only be used to determine whether there's a system audio
+// connection underway. It should not be used to determine whether the user is
+// connected to audio UI-wise (i.e.: it ignores the deafened state).
+const useIsAudioConnectionUnderway = () => {
+  const isConnected = useIsAudioConnected({ ignoreDeafened: true });
   const isConnecting = useReactiveVar(AudioManager._isConnecting.value);
   const isHangingUp = useReactiveVar(AudioManager._isHangingUp.value);
 
@@ -224,7 +228,7 @@ export default {
     const transferStatus = AudioManager.getBreakoutAudioTransferStatus();
     if (!!transferStatus.breakoutMeetingId
       && transferStatus.breakoutMeetingId !== Auth.meetingID) return false;
-    return AudioManager.isConnected;
+    return AudioManager.isAudioConnected();
   },
   isUsingAudio: () => AudioManager.isUsingAudio(),
   isConnecting: () => AudioManager.isConnecting,
@@ -249,7 +253,7 @@ export default {
   supportsTransparentListenOnly: () => AudioManager.supportsTransparentListenOnly(),
   hasMicrophonePermission,
   notify: (message, error, icon) => { AudioManager.notify(message, error, icon); },
-  useIsUsingAudio,
+  useIsAudioConnectionUnderway,
   didUserSelectMicrophone,
   didUserSelectListenOnly,
   setUserSelectedMicrophone,

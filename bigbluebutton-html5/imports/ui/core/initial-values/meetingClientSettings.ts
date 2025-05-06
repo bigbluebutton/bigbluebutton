@@ -1,4 +1,4 @@
-import { AudioPresets } from 'livekit-client';
+import { AudioPresets, LogLevel } from 'livekit-client';
 import { MeetingClientSettings } from '../../Types/meetingClientSettings';
 
 export const meetingClientSettingsInitialValues: MeetingClientSettings = {
@@ -212,6 +212,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       fallbackOnEmptyLocaleString: true,
       disableWebsocketFallback: true,
       maxMutationPayloadSize: 10485760, // 10MB
+      timeoutBeforeRedirectOnMeetingEnd: 20000,
     },
     externalVideoPlayer: {
       enabled: true,
@@ -679,6 +680,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       livekit: {
         url: `wss://${window.location.hostname}/livekit`,
         selectiveSubscription: false,
+        logLevel: LogLevel.warn,
         roomOptions: {
           adaptiveStream: true,
           dynacast: true,

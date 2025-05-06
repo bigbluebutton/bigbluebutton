@@ -30,6 +30,7 @@ select_permissions:
         - lastFloorTime
         - listenOnly
         - muted
+        - deafened
         - spoke
         - startTime
         - talking
