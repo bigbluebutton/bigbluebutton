@@ -77,7 +77,11 @@ export const useStreams = () => {
     if (!streamId) {
       logger.warn({
         logCode: 'missing_stream_id',
-        extraInfo: { user },
+        extraInfo: {
+          userId: user.userId,
+          role: user.role,
+          clientType: user.clientType,
+        },
       }, 'Stream entry has no streamId.');
     }
 
