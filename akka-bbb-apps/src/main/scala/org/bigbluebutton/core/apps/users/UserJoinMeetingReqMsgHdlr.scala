@@ -178,6 +178,7 @@ trait UserJoinMeetingReqMsgHdlr extends HandlerHelpers {
     for {
       breakoutModel <- state.breakout
       if breakoutModel.rooms.exists(r => r._2.freeJoin)
+      if regUser.role != Roles.MODERATOR_ROLE || breakoutModel.sendInviteToModerators
     } yield {
       BreakoutRoomDAO.assignUserToRandomRoom(regUser.id, breakoutModel, liveMeeting)
     }
