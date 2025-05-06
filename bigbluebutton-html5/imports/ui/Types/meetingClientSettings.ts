@@ -1,6 +1,7 @@
 import type {
   InternalRoomOptions,
   TrackPublishOptions,
+  LogLevel,
 } from 'livekit-client';
 
 export interface MeetingClientSettings {
@@ -105,6 +106,7 @@ export interface App {
   maxMutationPayloadSize: number
   enableApolloDevTools: boolean
   terminateAndRetryConnection: number
+  timeoutBeforeRedirectOnMeetingEnd: number | null
 }
 
 export interface BbbTabletApp {
@@ -654,6 +656,7 @@ export interface LiveKitAudioSettings {
 export interface LiveKitSettings {
   url?: string
   selectiveSubscription?: boolean
+  logLevel?: LogLevel
   roomOptions?: Partial<InternalRoomOptions>
   audio?: LiveKitAudioSettings
   camera?: LiveKitCameraSettings
@@ -749,6 +752,7 @@ export interface Whiteboard {
   maxStickyNoteLength: number
   maxNumberOfAnnotations: number
   maxNumberOfActiveUsers: number
+  lockToolbarTools: boolean
   annotations: Annotations
   allowInfiniteWhiteboard: boolean
   allowInfiniteWhiteboardInBreakouts: boolean

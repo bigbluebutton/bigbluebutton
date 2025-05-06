@@ -1,7 +1,7 @@
 import React, { useEffect, useReducer, useRef } from 'react';
 import { createContext, useContextSelector } from 'use-context-selector';
 import PropTypes from 'prop-types';
-import { equals } from 'ramda';
+import { clone, equals } from 'ramda';
 import { PINNED_PAD_SUBSCRIPTION } from '/imports/ui/components/notes/queries';
 import {
   ACTIONS, PRESENTATION_AREA, PANELS, LAYOUT_TYPE,
@@ -1389,21 +1389,21 @@ const updatePresentationAreaContent = (
   isPresentationEnabled,
 ) => {
   const { layoutType } = layoutContextState;
-  const { sidebarContent } = layoutContextState.input;
+  const { sidebarContent, sharedNotes } = layoutContextState.input;
   const {
     presentationAreaContentActions: currentPresentationAreaContentActions,
   } = layoutContextState;
   if (!equals(
-    currentPresentationAreaContentActions,
-    previousPresentationAreaContentActions.current,
+    currentPresentationAreaContentActions.map((action) => action.value.content),
+    previousPresentationAreaContentActions.current.map((action) => action.value.content),
   ) || layoutType !== previousLayoutType) {
     const CHAT_CONFIG = window.meetingClientSettings.public.chat;
     const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
 
     // eslint-disable-next-line no-param-reassign
-    previousPresentationAreaContentActions.current = currentPresentationAreaContentActions.slice(0);
+    previousPresentationAreaContentActions.current = clone(currentPresentationAreaContentActions);
     const lastIndex = currentPresentationAreaContentActions.length - 1;
-    const lastPresentationContentInPile = currentPresentationAreaContentActions[lastIndex];
+    const lastPresentationContentInPile = clone(currentPresentationAreaContentActions[lastIndex]);
     let shouldOpenPresentation = true;
     switch (lastPresentationContentInPile.value.content) {
       case PRESENTATION_AREA.GENERIC_CONTENT: {
@@ -1450,7 +1450,7 @@ const updatePresentationAreaContent = (
         });
         layoutContextDispatch({
           type: ACTIONS.SET_NOTES_IS_PINNED,
-          value: lastPresentationContentInPile.value.open,
+          value: sharedNotes.isPinned,
         });
         break;
       }
@@ -1544,23 +1544,17 @@ const LayoutContextProvider = (props) => {
   useEffect(() => {
     const isSharedNotesPinned = !!pinnedPadData
       && pinnedPadData.sharedNotes[0]?.pinned;
-    if (isSharedNotesPinned) {
-      layoutContextDispatch({
-        type: ACTIONS.SET_PILE_CONTENT_FOR_PRESENTATION_AREA,
-        value: {
-          content: PRESENTATION_AREA.PINNED_NOTES,
-          open: true,
-        },
-      });
-    } else {
-      layoutContextDispatch({
-        type: ACTIONS.SET_PILE_CONTENT_FOR_PRESENTATION_AREA,
-        value: {
-          content: PRESENTATION_AREA.PINNED_NOTES,
-          open: false,
-        },
-      });
-    }
+    layoutContextDispatch({
+      type: ACTIONS.SET_NOTES_IS_PINNED,
+      value: isSharedNotesPinned,
+    });
+    layoutContextDispatch({
+      type: ACTIONS.SET_PILE_CONTENT_FOR_PRESENTATION_AREA,
+      value: {
+        content: PRESENTATION_AREA.PINNED_NOTES,
+        open: isSharedNotesPinned,
+      },
+    });
   }, [pinnedPadData]);
   useUpdatePresentationAreaContentForPlugin(layoutContextState);
   return (
