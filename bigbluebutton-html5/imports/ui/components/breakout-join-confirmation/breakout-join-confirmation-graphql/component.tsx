@@ -83,7 +83,6 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
   const defaultSelectedBreakoutId = breakouts.find(({ isLastAssignedRoom }) => isLastAssignedRoom)?.breakoutRoomId
     || firstBreakoutId;
 
-
   const [selectValue, setSelectValue] = React.useState('');
 
   const requestJoinURL = (breakoutRoomId: string) => {
