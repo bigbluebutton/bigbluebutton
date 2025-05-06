@@ -29,12 +29,21 @@ public class PresentationConversionCompletionService {
     private BlockingQueue<IPresentationCompletionMessage> messages = new LinkedBlockingQueue<IPresentationCompletionMessage>();
 
     public PresentationConversionCompletionService() {
-        executor = Executors.newSingleThreadExecutor();
+        executor = Executors.newSingleThreadExecutor(r -> {
+            Thread t = new Thread(r, "conv-msg-consumer");
+            t.setUncaughtExceptionHandler((thr, ex) ->
+                    log.error("Uncaught exception in {}", thr.getName(), ex)
+            );
+            return t;
+        });
     }
 
     public void handle(IPresentationCompletionMessage msg) {
         log.info("Enqueueing presentation conversion message");
-        messages.offer(msg);
+        boolean added = messages.offer(msg);
+        if (!added) {
+            log.warn("Conversion message was not added to the queue");
+        }
     }
 
     private void processMessage(IPresentationCompletionMessage msg) {
@@ -125,23 +134,23 @@ public class PresentationConversionCompletionService {
 
         try {
             processProgress = true;
-
-            Runnable messageProcessor = new Runnable() {
-                public void run() {
-                    while (processProgress) {
-                        try {
-                            log.info("Taking next presentation conversion message");
-                            IPresentationCompletionMessage msg = messages.take();
-                            processMessage(msg);
-                        } catch (InterruptedException e) {
-                            log.warn("Error while taking presentation file from queue.");
-                        }
+            executor.submit(() -> {
+                while (processProgress) {
+                    try {
+                        log.info("Taking next presentation conversion message");
+                        IPresentationCompletionMessage msg = messages.take();
+                        processMessage(msg);
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt();
+                        break;
+                    } catch (Throwable t) {
+                        log.error("Conversion message consumer encountered an error but will continue", t);
                     }
                 }
-            };
-            executor.submit(messageProcessor);
+                log.info("Conversion message consumer thread exiting");
+            });
         } catch (Exception e) {
-            log.error("Error processing presentation file: {}", e);
+            log.error("Error processing presentation file:", e);
         }
     }
 
