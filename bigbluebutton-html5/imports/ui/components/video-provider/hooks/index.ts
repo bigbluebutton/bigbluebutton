@@ -73,18 +73,27 @@ export const useStreams = () => {
     });
   }
 
-  const mappedStreams = (data as StreamSubscriptionData[]).map(({ streamId, user, voice }) => ({
-    stream: streamId,
-    deviceId: streamId.split('_')[3],
-    name: user.name,
-    nameSortable: user.nameSortable,
-    userId: user.userId,
-    user,
-    floor: voice?.floor ?? false,
-    lastFloorTime: voice?.lastFloorTime ?? '0',
-    voice,
-    type: VIDEO_TYPES.STREAM,
-  }));
+  const mappedStreams = (data as StreamSubscriptionData[]).map(({ streamId, user, voice }) => {
+    if (!streamId) {
+      logger.warn({
+        logCode: 'missing_stream_id',
+        extraInfo: { user },
+      }, 'Stream entry has no streamId.');
+    }
+
+    return {
+      stream: streamId ?? '',
+      deviceId: streamId?.split?.('_')?.[3] ?? '',
+      name: user.name,
+      nameSortable: user.nameSortable,
+      userId: user.userId,
+      user,
+      floor: voice?.floor ?? false,
+      lastFloorTime: voice?.lastFloorTime ?? '0',
+      voice,
+      type: VIDEO_TYPES.STREAM,
+    }
+  });
 
   return mappedStreams.length > 0 ? mappedStreams : [];
 };
