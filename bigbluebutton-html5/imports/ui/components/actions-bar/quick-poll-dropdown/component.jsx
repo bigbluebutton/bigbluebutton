@@ -82,7 +82,13 @@ const QuickPollDropdown = (props) => {
 
   const questionPattern = /^[a-zA-Z0-9][.)]\s+.*/;
 
-  const optionsPattern = /^\s*(yes\s*\/\s*no|true\s*\/\s*false)\s*$/i;
+  const yesNoPatt = createPattern([yesValue, noValue]);
+  const trueFalsePatt = createPattern([trueValue, falseValue]);
+  // const optionsPattern = /^\s*(yes\s*\/\s*no|true\s*\/\s*false)\s*$/i;
+  const optionsPattern = new RegExp(
+    [yesNoPatt, trueFalsePatt].map((r) => r.source).join('|'),
+    'i',
+  );
 
   const lines = content.split('\n');
   const questionLines = [];
@@ -131,10 +137,8 @@ const QuickPollDropdown = (props) => {
   const doubleQuestionRegex = /\?{2}/gm;
   const doubleQuestion = safeMatch(doubleQuestionRegex, content, false);
 
-  const yesNoPatt = createPattern([yesValue, noValue]);
   const hasYN = safeMatch(yesNoPatt, content, false);
 
-  const trueFalsePatt = createPattern([trueValue, falseValue]);
   const hasTF = safeMatch(trueFalsePatt, content, false);
 
   const pollRegex = /\b[1-9A-Ia-i][.)] .*/g;
