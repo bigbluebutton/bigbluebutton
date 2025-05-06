@@ -293,6 +293,7 @@ type Mutation {
     lockOnJoinConfigurable: Boolean!
     hideViewersCursor: Boolean!
     hideViewersAnnotation: Boolean!
+    disablePresentationUpload: Boolean!
   ): Boolean
 }
 

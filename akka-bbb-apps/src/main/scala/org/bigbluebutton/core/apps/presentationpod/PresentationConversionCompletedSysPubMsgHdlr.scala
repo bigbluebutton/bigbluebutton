@@ -4,7 +4,7 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.db.{NotificationDAO, PresPresentationDAO}
 import org.bigbluebutton.core.domain.MeetingState2x
-import org.bigbluebutton.core.models.PresentationInPod
+import org.bigbluebutton.core.models.{PresentationInPod, Roles, Users2x}
 import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
@@ -17,7 +17,6 @@ trait PresentationConversionCompletedSysPubMsgHdlr {
       liveMeeting: LiveMeeting,
       bus: MessageBus
   ): MeetingState2x = {
-
     val meetingId = liveMeeting.props.meetingProp.intId
     val temporaryPresentationId = msg.body.presentation.temporaryPresentationId
 
@@ -67,6 +66,17 @@ trait PresentationConversionCompletedSysPubMsgHdlr {
         )
         NotificationDAO.insert(notifyEvent)
       }
+
+      val notifyEvent = MsgBuilder.buildNotifyRoleInMeetingEvtMsg(
+        Roles.PRESENTER_ROLE,
+        meetingId,
+        "info",
+        "presentation",
+        "app.presentation.newAvailablePresentationNotification",
+        "Notification when a new presentation is available for use",
+        Vector(s"${pres.name}")
+      )
+      NotificationDAO.insert(notifyEvent)
 
       state.update(pods)
     }
