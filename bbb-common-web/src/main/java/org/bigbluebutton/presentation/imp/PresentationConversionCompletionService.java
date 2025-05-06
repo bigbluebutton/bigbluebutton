@@ -29,32 +29,51 @@ public class PresentationConversionCompletionService {
     private BlockingQueue<IPresentationCompletionMessage> messages = new LinkedBlockingQueue<IPresentationCompletionMessage>();
 
     public PresentationConversionCompletionService() {
-        executor = Executors.newSingleThreadExecutor();
+        executor = Executors.newSingleThreadExecutor(r -> {
+            Thread t = new Thread(r, "conv-msg-consumer");
+            t.setUncaughtExceptionHandler((thr, ex) ->
+                    log.error("Uncaught exception in {}", thr.getName(), ex)
+            );
+            return t;
+        });
     }
 
     public void handle(IPresentationCompletionMessage msg) {
-        messages.offer(msg);
+        log.info("Enqueueing presentation conversion message");
+        boolean added = messages.offer(msg);
+        if (!added) {
+            log.warn("Conversion message was not added to the queue");
+        }
     }
 
     private void processMessage(IPresentationCompletionMessage msg) {
         if (msg instanceof PresentationConvertMessage) {
+            log.info("Handling PresentationConvertMessage");
             PresentationConvertMessage m = (PresentationConvertMessage) msg;
             PresentationToConvert p = new PresentationToConvert(m.pres);
 
             String presentationToConvertKey = p.getKey() + "_" + m.pres.getMeetingId();
 
+            log.info("Storing presentation with key {}", presentationToConvertKey);
             presentationsToConvert.put(presentationToConvertKey, p);
         } else if (msg instanceof PageConvertProgressMessage) {
+            log.info("Handling PageConvertProgressMessage");
             PageConvertProgressMessage m = (PageConvertProgressMessage) msg;
             String presentationToConvertKey = m.presId + "_" + m.meetingId;
 
             PresentationToConvert p = presentationsToConvert.get(presentationToConvertKey);
             if (p != null) {
+                log.info("Found presentation with key {}", presentationToConvertKey);
                 p.incrementPagesCompleted();
                 notifier.sendConversionUpdateMessage(p.getPagesCompleted(), p.pres, m.page);
+                log.info("{} of {} pages successfully converted for presentation [{}] in meeting [{}]", p.getPagesCompleted(), p.pres.getNumberOfPages(),
+                        ((PageConvertProgressMessage) msg).presId, ((PageConvertProgressMessage) msg).meetingId);
                 if (p.getPagesCompleted() == p.pres.getNumberOfPages()) {
+                    log.info("Last presentation page converted");
                     handleEndProcessing(p);
                 }
+            } else {
+                log.error("No presentation found with key {}", presentationToConvertKey);
             }
         }
     }
@@ -115,22 +134,23 @@ public class PresentationConversionCompletionService {
 
         try {
             processProgress = true;
-
-            Runnable messageProcessor = new Runnable() {
-                public void run() {
-                    while (processProgress) {
-                        try {
-                            IPresentationCompletionMessage msg = messages.take();
-                            processMessage(msg);
-                        } catch (InterruptedException e) {
-                            log.warn("Error while taking presentation file from queue.");
-                        }
+            executor.submit(() -> {
+                while (processProgress) {
+                    try {
+                        log.info("Taking next presentation conversion message");
+                        IPresentationCompletionMessage msg = messages.take();
+                        processMessage(msg);
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt();
+                        break;
+                    } catch (Throwable t) {
+                        log.error("Conversion message consumer encountered an error but will continue", t);
                     }
                 }
-            };
-            executor.submit(messageProcessor);
+                log.info("Conversion message consumer thread exiting");
+            });
         } catch (Exception e) {
-            log.error("Error processing presentation file: {}", e);
+            log.error("Error processing presentation file:", e);
         }
     }
 
