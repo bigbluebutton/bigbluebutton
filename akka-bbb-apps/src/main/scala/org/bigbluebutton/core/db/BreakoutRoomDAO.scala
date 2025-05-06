@@ -100,6 +100,10 @@ object BreakoutRoomDAO {
         }
       ).transactionally)
     }
+
+    //Insert all rooms that is visible for users
+    BreakoutRoomUserDAO.refreshBreakoutRoomsVisibleForUsers(liveMeeting.props.meetingProp.intId)
+
   }
 
   //  def update(room: BreakoutRoom2x) = {
