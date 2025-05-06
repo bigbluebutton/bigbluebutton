@@ -782,11 +782,13 @@ public:
       enable: false
     # e.g.: disableEmojis: ['grin','laughing']
     disableEmojis: []
-    allowedElements: ['a', 'code', 'em', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'ol', 'ul', 'p', 'strong']
+    allowedElements: ['a', 'code', 'em', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'ol', 'ul', 'p', 'strong', 'img']
     # available options for toolbar: reply, edit, delete, reactions
     # example: ['reply', 'delete']
     toolbar: ['reply', 'delete', 'edit', 'reactions']
     announcePresenterChangeInChat: true
+    # Possible values: plainText | richEditor
+    inputType: plainText
   userReaction:
     enabled: true
     expire: 30

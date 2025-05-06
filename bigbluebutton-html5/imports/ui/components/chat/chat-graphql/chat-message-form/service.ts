@@ -1,0 +1,107 @@
+import BBBWeb from '/imports/api/bbb-web-api';
+import logger from '/imports/startup/client/logger';
+
+export const uploadImage = async (fileUrl: string): Promise<string> => {
+  const controller = new AbortController();
+  const urlParams = new URLSearchParams(window.location.search);
+  const sessionToken = urlParams.get('sessionToken');
+
+  try {
+    const { data } = await BBBWeb.index(controller.signal);
+    const url = new URL(`${data.graphqlApiUrl}/chatImageUpload`);
+    const response = await fetch(url, {
+      method: 'post',
+      credentials: 'include',
+      body: JSON.stringify({ file: fileUrl }),
+      headers: {
+        'x-session-token': sessionToken ?? '',
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      signal: controller.signal,
+    });
+
+    const result = await response.json();
+    if (result.imageUrl) {
+      logger.info({
+        logCode: 'chat_image_upload',
+      }, `Image uploaded successfully: ${result.imageUrl}`);
+      return `${url.href}?${result.imageUrl}`;
+    }
+    logger.error({
+      logCode: 'chat_image_upload',
+    }, `Error on image upload: ${result.message}`);
+    return '';
+  } catch (error) {
+    if (error instanceof Error) {
+      logger.error({
+        logCode: 'chat_image_upload',
+        extraInfo: {
+          errorName: error.name,
+          errorMessage: error.message,
+        },
+      }, `Error on image upload: ${error.message}`);
+    }
+    throw error;
+  }
+};
+
+export const replaceImageLinks = async (message: string) => {
+  let newMessage = message;
+
+  const IMAGE_REGEX = /!\[([^\]]*)\]\(([^)]*)\)/g;
+
+  const images: string[] = [];
+  newMessage.replace(IMAGE_REGEX, (match, _, p2) => {
+    images.push(p2);
+    return match;
+  });
+
+  const uploadPromises = images.map(async (image) => {
+    const uploaded = await uploadImage(image);
+    newMessage = newMessage.replace(image, uploaded);
+  });
+
+  await Promise.all(uploadPromises);
+
+  return newMessage;
+};
+
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+export const MIME_TYPES_ALLOWED = ['image/jpg', 'image/jpeg', 'image/png'];
+
+export const readFileAsDataURL = (
+  file: File,
+  onLoad: (e: ProgressEvent<FileReader>) => void,
+  onError: (e: Error) => void,
+) => {
+  const { size, type } = file;
+  const sizeInKB = size / 1024;
+
+  if (sizeInKB > MAX_FILE_SIZE) {
+    onError(new Error('Maximum file size exceeded.'));
+    return;
+  }
+
+  if (!MIME_TYPES_ALLOWED.includes(type)) {
+    onError(new Error('File type not allowed.'));
+    return;
+  }
+
+  const reader = new FileReader();
+
+  reader.onload = onLoad;
+
+  reader.onerror = () => {
+    onError(new Error('Something went wrong when reading the file.'));
+  };
+
+  reader.readAsDataURL(file);
+};
+
+export default {
+  uploadImage,
+  replaceImageLinks,
+  readFileAsDataURL,
+  MIME_TYPES_ALLOWED,
+};
