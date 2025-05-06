@@ -92,7 +92,7 @@ export const useStreams = () => {
       lastFloorTime: voice?.lastFloorTime ?? '0',
       voice,
       type: VIDEO_TYPES.STREAM,
-    }
+    };
   });
 
   return mappedStreams.length > 0 ? mappedStreams : [];
