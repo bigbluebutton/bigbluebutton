@@ -10,7 +10,7 @@ interface DragAndDropPros {
 const DragAndDrop: React.FC<DragAndDropPros> = (props) => {
   const { MAX_INPUT_CHARS, handlePollValuesText } = props;
   const [drag, setDrag] = useState(false);
-  const [pollValueText, setPollText] = useState('');
+  const [pollValueText, setPollValueText] = useState('');
   const dropRef = useRef<HTMLTextAreaElement | null>(null);
   const dragCounter = useRef(0);
 
@@ -71,16 +71,16 @@ const DragAndDrop: React.FC<DragAndDropPros> = (props) => {
       const result = e.target?.result;
       if (!result) return;
       const text = typeof result === 'string' ? result : String(result);
-      setPollValueText(text);
+      setPollText(text);
       setPollValues();
     };
     reader.readAsText(file);
   };
 
-  const setPollValueText = (pollText: string) => {
+  const setPollText = (pollText: string) => {
     const arr = pollText.split('\n');
     const text = arr.map((line) => (line.length > MAX_INPUT_CHARS ? line.substring(0, MAX_INPUT_CHARS) : line)).join('\n');
-    setPollText(text);
+    setPollValueText(text);
   };
 
   const getCleanProps = () => {

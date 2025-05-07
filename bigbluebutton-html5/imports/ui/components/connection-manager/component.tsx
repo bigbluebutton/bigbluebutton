@@ -82,7 +82,7 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
 });
 
 const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): React.ReactNode => {
-  const [graphqlUrlApolloClient, setApolloClient] = React.useState<ApolloClient<NormalizedCacheObject> | null>(null);
+  const [apolloClientUrl, setApolloClientUrl] = React.useState<ApolloClient<NormalizedCacheObject> | null>(null);
   const [graphqlUrl, setGraphqlUrl] = React.useState<string>('');
   const loadingContextInfo = useContext(LoadingContext);
   const numberOfAttempts = useRef(20);
@@ -299,7 +299,7 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
           cache: new InMemoryCache(),
           connectToDevTools: (process.env.NODE_ENV === 'development') || enableDevTools,
         });
-        setApolloClient(client);
+        setApolloClientUrl(client);
         apolloContextHolder.setClient(client);
       } catch (error) {
         loadingContextInfo.setLoading(false);
@@ -309,10 +309,10 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
   },
   [graphqlUrl]);
   return (
-    graphqlUrlApolloClient
+    apolloClientUrl
       ? (
         <ApolloProvider
-          client={graphqlUrlApolloClient}
+          client={apolloClientUrl}
         >
           {children}
         </ApolloProvider>
