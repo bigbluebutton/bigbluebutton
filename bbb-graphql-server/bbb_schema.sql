@@ -1968,7 +1968,7 @@ BEGIN
        update "breakoutRoom_user" set "userJoinedSomeRoomAt" = "latestJoinedAt"
           where "breakoutRoom_user"."meetingId" = meetingId
           and "breakoutRoom_user"."userId" = userId
-          and "breakoutRoom_user"."userJoinedSomeRoomAt" != "latestJoinedAt";
+          and "breakoutRoom_user"."userJoinedSomeRoomAt" is distinct from "latestJoinedAt";
 END;
 $$ LANGUAGE plpgsql;
 
