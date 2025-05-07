@@ -415,6 +415,23 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     }
   };
 
+  const handlePlaybackRateChange = async () => {
+    if (isPresenter) {
+      const internalPlayer = playerRef.current?.getInternalPlayer();
+      let rate = internalPlayer instanceof HTMLVideoElement
+        ? internalPlayer.playbackRate
+        : internalPlayer?.getPlaybackRate?.() ?? 1;
+      if (rate instanceof Promise) {
+        rate = await rate;
+      }
+      sendMessage('playbackRateChange', {
+        rate,
+        time: getCurrentTime(),
+        state: playing ? 'playing' : 'paused',
+      });
+    }
+  };
+
   const isMinimized = width === 0 && height === 0;
 
   // @ts-ignore accessing lib private property
@@ -487,6 +504,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
           muted={mute || isEchoTest}
           controls
           previewTabIndex={isPresenter ? 0 : -1}
+          onPlaybackRateChange={handlePlaybackRateChange}
         />
         {
           shouldShowTools() ? (
@@ -545,6 +563,7 @@ const ExternalVideoPlayerContainer: React.FC = () => {
     // don't re-send repeated update messages
     if (
       lastMessageRef.current.event === event
+      && event !== 'playbackRateChange' // playback rate change is always sent
       && Math.abs(lastMessageRef.current.time - data.time) < UPDATE_INTERVAL_THRESHOLD_MS
     ) {
       return;
@@ -649,7 +668,7 @@ const ExternalVideoPlayerContainer: React.FC = () => {
 
   const fullscreenElementId = 'ExternalVideo';
   const externalVideo: ExternalVideo = layoutSelectOutput((i: Output) => i.externalVideo);
-  const hasExternalVideoOnLayout: boolean = layoutSelectInput((i: Input) => i.externalVideo.hasExternalVideo);
+  const hasExternalVideoOnLayout: boolean = layoutSelectInput((i: Input) => i.externalVideo?.hasExternalVideo);
   const cameraDock = layoutSelectInput((i: Input) => i.cameraDock);
   const sidebarContent = layoutSelectInput((i: Input) => i.sidebarContent);
   const { isOpen: isSidebarContentOpen } = sidebarContent;

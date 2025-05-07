@@ -1379,6 +1379,7 @@
     "app.createBreakoutRoom.sendInvitationToMods": "Αποστολή πρόσκλησης σε καθορισμένους συντονιστές",
     "app.createBreakoutRoom.leastOneWarnBreakout": "Πρέπει να προσθέσετε τουλάχιστο έναν χρήστη στο τμήμα αίθουσας διάσκεψης.",
     "app.createBreakoutRoom.minimumDurationWarnBreakout": "Η ελάχιστη διάρκεια του τμήματος αίθουσας διάσκεψης είναι {0} λεπτά.",
+    "app.createBreakoutRoom.timeCannotExceedMainRoom": "Η διάρκεια τμήματος αίθουσας δεν μπορεί να υπερβαίνει τον υπολειπόμενο χρόνο της τηλεδιάσκεψης.",
     "app.createBreakoutRoom.modalDesc": "Συμβουλή: Μπορείτε να σύρετε το όνομα χρήστη για να τον προσθέσετε σε τμήμα αίθουσας διάσκεψης.",
     "app.createBreakoutRoom.roomTime": "{0} λεπτά",
     "app.createBreakoutRoom.numberOfRoomsError": "Δεν είναι έγκυρος ο αριθμός των αιθουσών διάσκεψης.",
