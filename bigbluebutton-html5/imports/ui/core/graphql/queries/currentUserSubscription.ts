@@ -69,6 +69,7 @@ subscription userCurrentSubscription {
       joined
       spoke
       listenOnly
+      deafened
     }
     userLockSettings {
       disablePublicChat
@@ -78,6 +79,11 @@ subscription userCurrentSubscription {
     }
     livekit {
       livekitToken
+    }
+    presPagesWritable {
+      isCurrentPage
+      pageId
+      userId
     }
   }
 }

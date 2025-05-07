@@ -134,7 +134,7 @@ const toggleToolsAnimations = (activeAnim, anim, time, hasWBAccess = false) => {
   }
 
   const checkElementsAndRun = () => {
-    const tlEls = document.querySelectorAll('.tlui-menu-zone, .tlui-toolbar__tools, .tlui-toolbar__extras, .tlui-style-panel__wrapper');
+    const tlEls = document.querySelectorAll('.tlui-menu-zone, .tlui-toolbar__tools, .tlui-toolbar__extras, .tlui-style-panel__wrapper, .tlui-undo, .tlui-redo');
     if (tlEls.length) {
       tlEls?.forEach((el) => {
         el.classList.remove(activeAnim);
@@ -278,7 +278,7 @@ const getCustomAssetUrls = () => {
       undo: `${TL_ICON_PATHS}/undo.svg`,
       redo: `${TL_ICON_PATHS}/redo.svg`,
       trash: `${TL_ICON_PATHS}/trash.svg`,
-      'tool-delete-all': `${TL_ICON_PATHS}/trash.svg`,
+      'tool-delete-selected-items': `${TL_ICON_PATHS}/trash.svg`,
       duplicate: `${TL_ICON_PATHS}/duplicate.svg`,
       unlock: `${TL_ICON_PATHS}/unlock.svg`,
       'arrowhead-none': `${TL_ICON_PATHS}/arrowhead-none.svg`,

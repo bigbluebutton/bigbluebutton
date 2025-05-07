@@ -80,6 +80,18 @@ object VoiceUsers {
     }
   }
 
+  def userDeafened(users: VoiceUsers, voiceUserId: String, deafened: Boolean): Option[VoiceUserState] = {
+    for {
+      u <- findWithVoiceUserId(users, voiceUserId)
+    } yield {
+      val vu = u.modify(_.deafened).setTo(deafened)
+        .modify(_.lastStatusUpdateOn).setTo(System.currentTimeMillis())
+      users.save(vu)
+      UserVoiceDAO.update(vu)
+      vu
+    }
+  }
+
   def userTalking(users: VoiceUsers, voiceUserId: String, talking: Boolean): Option[VoiceUserState] = {
     for {
       u <- findWithVoiceUserId(users, voiceUserId)
@@ -201,6 +213,7 @@ case class VoiceUserVO2x(
     joined:        Boolean,
     locked:        Boolean,
     muted:         Boolean,
+    deafened:      Boolean,
     talking:       Boolean,
     callingWith:   String,
     listenOnly:    Boolean,
@@ -219,6 +232,7 @@ case class VoiceUserState(
     callerNum:          String,
     color:              String,
     muted:              Boolean,
+    deafened:           Boolean,
     talking:            Boolean,
     listenOnly:         Boolean,
     calledInto:         String,

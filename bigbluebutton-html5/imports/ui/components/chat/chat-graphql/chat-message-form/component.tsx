@@ -153,11 +153,10 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const messageRef = useRef<string>('');
   const messageBeforeEditingRef = useRef<string | null>(null);
   messageRef.current = message;
-  const updateUnreadMessages = (chatId: string, message: string) => {
-    const storedData = localStorage.getItem('unsentMessages') || '{}';
-    const unsentMessages = JSON.parse(storedData);
+  const updateUnsentMessages = (chatId: string, message: string) => {
+    const unsentMessages = Storage.getItem('unsentMessages') as Record<string, string> || {};
     unsentMessages[chatId] = message;
-    localStorage.setItem('unsentMessages', JSON.stringify(unsentMessages));
+    Storage.setItem('unsentMessages', unsentMessages);
   };
 
   const [chatSetTyping] = useMutation(CHAT_SET_TYPING);
@@ -202,16 +201,15 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
 
     return () => {
       const unsentMessage = messageRef.current;
-      updateUnreadMessages(chatId, unsentMessage);
+      updateUnsentMessages(chatId, unsentMessage);
     };
   }, []);
 
   useEffect(() => {
-    const storedData = localStorage.getItem('unsentMessages') || '{}';
-    const unsentMessages = JSON.parse(storedData);
+    const unsentMessages = Storage.getItem('unsentMessages') as Record<string, string> || {};
 
     if (prevChatId) {
-      updateUnreadMessages(prevChatId, message);
+      updateUnsentMessages(prevChatId, message);
     }
 
     const unsentMessage = unsentMessages[chatId] || '';
@@ -301,6 +299,12 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   }, [message]);
 
   useEffect(() => {
+    if (editingMessage.current) {
+      textAreaRef.current?.dispatchEvent?.('autosize:update');
+    }
+  }, [message]);
+
+  useEffect(() => {
     const handleReplyIntention = (e: Event) => {
       if (e instanceof CustomEvent) {
         setRepliedMessageId(e.detail.messageId);
@@ -314,9 +318,9 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
           if (messageBeforeEditingRef.current === null) {
             messageBeforeEditingRef.current = messageRef.current;
           }
+          editingMessage.current = e.detail;
           setMessage(e.detail.message);
           textAreaRef.current?.textarea.focus();
-          editingMessage.current = e.detail;
         }
       }
     };
@@ -419,7 +423,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
       }
 
       setMessage('');
-      updateUnreadMessages(chatId, '');
+      updateUnsentMessages(chatId, '');
       setError(null);
       setHasErrors(false);
       setShowEmojiPicker(false);

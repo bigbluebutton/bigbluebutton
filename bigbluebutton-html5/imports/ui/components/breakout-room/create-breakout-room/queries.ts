@@ -96,7 +96,7 @@ export const getBreakoutCount = gql`
 `;
 
 export const getLastBreakouts = gql`
-  query {
+  query getLastBreakouts {
     user {
       lastBreakoutRoom {
         breakoutRoomId

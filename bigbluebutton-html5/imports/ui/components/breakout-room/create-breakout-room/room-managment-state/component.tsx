@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { useQuery } from '@apollo/client';
 import {
@@ -11,7 +11,7 @@ import {
   RoomPresentations,
 } from './types';
 import {
-  breakoutRoom, getBreakoutsResponse, getLastBreakouts, getMeetingGroupResponse, LastBreakoutData,
+  getBreakoutsResponse, getLastBreakouts, getMeetingGroupResponse, LastBreakoutData,
 } from '../queries';
 
 const intlMessages = defineMessages({
@@ -65,120 +65,109 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
   const intl = useIntl();
   const [selectedId, setSelectedId] = useState<string>('');
   const [selectedRoom, setSelectedRoom] = useState<number>(0);
-  const [rooms, setRooms] = useState<Rooms>({});
-  const [init, setInit] = useState<boolean>(false);
-  const [roomsRestored, setRoomsRestored] = useState<boolean>(false);
   const [movementRegistered, setMovementRegistered] = useState<moveUserRegistery>({});
 
-  // accepts one or multiple users
-  const moveUser = (userId: string | string[], from: number | number[], to: number | number[]) => {
-    const userIds = Array.isArray(userId) ? userId : [userId];
-    const fromRooms = Array.isArray(from) ? from : [from];
-    const toRooms = Array.isArray(to) ? to : [to];
+  const [userAssignedRooms, setUserAssignedRooms] = useState<{
+    [key: string]: number[];
+  }>({});
 
+  const [roomNames, setRoomNames] = useState<{
+    [key: number]: string;
+  }>({});
+
+  const recordUserMovement = (userId: string, fromRoom: number, toRoom: number) => {
     let updatedMovementRegistered = { ...movementRegistered };
-    const updatedRooms = { ...rooms };
-
-    userIds.forEach((id, index) => {
-      const fromRoom = fromRooms[index] || fromRooms[0];
-      const toRoom = toRooms[index] || toRooms[0];
-
-      const room = updatedRooms[toRoom];
-      const roomFrom = updatedRooms[Number(fromRoom)];
-
-      if (fromRoom === toRoom) return null;
-
-      updatedMovementRegistered = {
-        ...updatedMovementRegistered,
-        [id]: {
-          fromSequence: fromRoom,
-          toSequence: toRoom,
-          toRoomId: runningRooms?.find((r) => r.sequence === toRoom)?.breakoutRoomId,
-          fromRoomId: runningRooms?.find((r) => r.sequence === fromRoom)?.breakoutRoomId,
-        },
-      };
-
-      if (!updatedRooms[toRoom]) {
-        updatedRooms[fromRoom].users = (updatedRooms[fromRoom].users.filter((user) => user.userId !== id) || []);
-        updatedRooms[toRoom] = {
-          id: toRoom,
-          name: intl.formatMessage(intlMessages.breakoutRoom, {
-            0: toRoom,
-          }),
-          users: [users.find((user) => user.userId === id)].filter((user) => user),
-        } as Room;
-      } else {
-        updatedRooms[toRoom] = {
-          ...room,
-          users: [
-            ...(room?.users ?? []),
-            roomFrom?.users?.find((user) => user.userId === id),
-          ].filter((user) => user),
-        } as Room;
-        updatedRooms[fromRoom] = {
-          ...roomFrom,
-          users: roomFrom?.users.filter((user) => user.userId !== id),
-        } as Room;
-      }
-      return null;
-    });
-
+    updatedMovementRegistered = {
+      ...updatedMovementRegistered,
+      [userId]: {
+        fromSequence: fromRoom,
+        toSequence: toRoom,
+        toRoomId: runningRooms?.find((r) => r.sequence === toRoom)?.breakoutRoomId,
+        fromRoomId: runningRooms?.find((r) => r.sequence === fromRoom)?.breakoutRoomId,
+      },
+    };
     setMovementRegistered(updatedMovementRegistered);
-    setRooms(updatedRooms);
+    setMoveRegisterRef(updatedMovementRegistered);
+  };
+
+  const moveUser = (userId: string, from: number, to: number) => {
+    if (from === to) return;
+    const current = new Set(userAssignedRooms[userId] ?? []);
+    current.delete(from); // no-op if not present
+    current.add(to);
+
+    setUserAssignedRooms((prev) => ({
+      ...prev,
+      [userId]: Array.from(current),
+    }));
+
+    recordUserMovement(userId, from, to);
   };
 
   const roomName = (room: number) => {
     const defaultName = intl.formatMessage(intlMessages.breakoutRoom, {
       0: room,
     });
-    if (rooms[room]) {
-      return rooms[room].name || defaultName;
+    if (roomNames[room]) {
+      return roomNames[room];
     }
     return defaultName;
   };
 
   const changeRoomName = (room: number, name: string) => {
-    setRooms((prevRooms) => {
-      const rooms = { ...prevRooms };
-      if (!rooms[room]) {
-        rooms[room] = {
-          id: room,
-          name: '',
-          users: [],
-        };
-      }
-      rooms[room].name = name;
-      return rooms;
+    setRoomNames((prev) => ({
+      ...prev,
+      [room]: name,
+    }));
+  };
+
+  const resetRooms = (cap: number) => {
+    setUserAssignedRooms((prev) => {
+      const newUserAssignedRooms = { ...prev };
+      Object.keys(newUserAssignedRooms).forEach((userId) => {
+        newUserAssignedRooms[userId] = newUserAssignedRooms[userId].filter((room) => room <= cap);
+      });
+      return newUserAssignedRooms;
     });
   };
 
   const randomlyAssign = () => {
-    const withoutModerators = rooms[0].users.filter((user) => !user.isModerator);
-    const userIds = withoutModerators.map((user) => user.userId);
-    const randomRooms = withoutModerators.map(() => Math.floor(Math.random() * numberOfRooms) + 1);
-    moveUser(userIds, 0, randomRooms);
+    const updatedUserAssignedRooms = { ...userAssignedRooms };
+    const noModerators = users.filter((user) => !user.isModerator);
+    const userIds = noModerators.sort(() => Math.random() - 0.5).map((user) => user.userId);
+    const numberOfUsers = noModerators.length;
+    const assignments = new Array(numberOfUsers);
+
+    // eslint-disable-next-line no-plusplus
+    for (let i = 0; i < numberOfUsers; i++) {
+      assignments[i] = (i % numberOfRooms) + 1;
+    }
+
+    userIds.forEach((userId, index) => {
+      const roomNumber = assignments[index];
+      updatedUserAssignedRooms[userId] = [roomNumber];
+    });
+    setUserAssignedRooms(updatedUserAssignedRooms);
   };
 
-  const resetRooms = (cap: number) => {
-    const greterThanRooms = Object.keys(rooms).filter((room) => Number(room) > cap);
-    greterThanRooms.forEach((room) => {
-      if (rooms && rooms[Number(room)]) {
-        setRooms((prevRooms) => ({
-          ...prevRooms,
-          0: {
-            ...prevRooms[0],
-            users: [
-              ...prevRooms[0].users,
-              ...rooms[Number(room)].users,
-            ].filter((user) => user),
-          },
-          [Number(room)]: {
-            ...prevRooms[Number(room)],
-            users: [],
-          },
-        }));
-      }
-    });
+  const getUserIdsByNumber = (n: number) => {
+    if (n === 0) {
+      // Return keys with empty arrays
+      return Object.keys(userAssignedRooms).filter((key) => {
+        return userAssignedRooms[key].length === 0
+        || userAssignedRooms[key].includes(0);
+      });
+    }
+    // Return keys whose array includes the given number
+    return Object.keys(userAssignedRooms).filter((key) => userAssignedRooms[key].includes(n));
+  };
+
+  const getUsers = (n: number): BreakoutUser[] => {
+    const userIds = getUserIdsByNumber(n);
+    return userIds
+      .map((userId) => users.find((user) => user.userId === userId))
+      .filter((u) => !(u === undefined))
+      ?? [];
   };
 
   const {
@@ -188,155 +177,195 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
   });
 
   useEffect(() => {
-    if (runningRooms?.length && runningRooms.length > 0) return;
-    const lastBreakouts = lastBreakoutData?.breakoutRoom_createdLatest ?? [];
-    if (lastBreakouts.length > 0 && init) {
-      const roomState: Rooms = {};
-      lastBreakouts.forEach((room) => {
-        roomState[room.sequence] = {
-          id: room.sequence,
-          name: room.isDefaultName
-            ? intl.formatMessage(intlMessages.breakoutRoom, { 0: room.sequence })
-            : room.shortName,
-          users: [],
-        };
-      });
-      setNumberOfRooms(Object.keys(roomState).length);
-      setRooms((prevRooms: Rooms) => ({
-        ...(prevRooms ?? {}),
-        ...roomState,
-      }));
-      setRoomsRestored(true);
-    }
-  }, [lastBreakoutData, init]);
-
-  useEffect(() => {
-    if (lastBreakoutData?.user && roomsRestored) {
-      const usersToMove: string[] = [];
-      const toRooms: number[] = [];
-
-      if (runningRooms?.length && runningRooms.length > 0) return;
-
-      lastBreakoutData.user.forEach((user) => {
-        if (user.lastBreakoutRoom?.sequence) {
-          const roomSequence = Number(user.lastBreakoutRoom.sequence);
-
-          usersToMove.push(user.lastBreakoutRoom.userId);
-          toRooms.push(roomSequence);
-        }
-      });
-
-      if (usersToMove.length > 0) {
-        moveUser(usersToMove, 0, toRooms);
-      }
-    }
-  }, [lastBreakoutData, roomsRestored]);
-
-  useEffect(() => {
-    if (users && users.length > 0) {
-      // set users to room 0
-      setInit(true);
-      setRooms((prevRooms: Rooms) => ({
-        ...(prevRooms ?? {}),
-        0: {
-          id: 0,
-          name: intl.formatMessage(intlMessages.notAssigned, { 0: 0 }),
-          users,
-        },
-      }));
+    if (users.length > 0 && Object.keys(userAssignedRooms).length === 0) {
+      setUserAssignedRooms(
+        users.reduce((acc: { [key: string]: number[] }, user) => {
+          const { userId } = user;
+          acc[userId] = [];
+          return acc;
+        }, {}),
+      );
     }
   }, [users]);
 
+  // Manage a running room
   useEffect(() => {
-    if (groups.length && init && lastBreakoutData && !(lastBreakoutData.breakoutRoom_createdLatest.length > 0)) {
-      setNumberOfRooms(groups.length >= 2 ? groups.length : 2);
+    if (
+      runningRooms
+      && runningRooms.length > 0
+      && Object.keys(userAssignedRooms).length > 0) {
+      const assignUsers = runningRooms
+        .reduce((
+          acc: { [key: string]: number[] },
+          room,
+        ) => {
+          room.participants.forEach((user) => {
+            const { userId } = user.user;
+            if (!acc[userId]) {
+              acc[userId] = [room.sequence];
+            } else {
+              acc[userId].push(room.sequence);
+            }
+          });
 
-      // set the rooms based on the groups
-      setRooms((prevRooms: Rooms) => {
-        const rooms = { ...prevRooms };
-        Array.from(groups).forEach((group, index) => {
-          const idx = index + 1;
-          const roomUsers = group.usersExtId
-            .map((id) => users.find((user) => user.extId === id))
-            .filter((user) => user) as BreakoutUser[];
-          rooms[idx] = {
-            id: idx,
-            name: group.name || roomName(idx),
-            users: roomUsers,
-          };
+          return acc;
+        }, {});
 
-          rooms[0].users = rooms[0].users.filter((user) => !roomUsers.find((u) => u.userId === user.userId));
-        });
+      const roomNames = runningRooms.reduce((acc: { [key: number]: string }, room) => {
+        acc[room.sequence] = room.name;
+        return acc;
+      }, {});
 
-        return rooms;
-      });
+      setNumberOfRooms(runningRooms.length);
+      setUserAssignedRooms((prev) => ({
+        ...prev,
+        ...assignUsers,
+      }));
+
+      setRoomNames((prev) => ({
+        ...prev,
+        ...roomNames,
+      }));
     }
-  }, [init, lastBreakoutData]);
+  }, [runningRooms, Object.keys(userAssignedRooms).length]);
 
   useEffect(() => {
-    if (runningRooms && init) {
-      const usersToMove: string[] = [];
-      const toRooms: number[] = [];
+    if (getUserIdsByNumber(0).length === users.length) {
+      setFormIsValid(false);
+    } else {
+      setFormIsValid(true);
+    }
+  }, [userAssignedRooms]);
 
-      runningRooms.forEach((r: breakoutRoom) => {
-        r.participants.forEach((u) => {
-          if (!rooms[r.sequence]?.users?.find((user) => user.userId === u.user.userId)) {
-            usersToMove.push(u.user.userId);
-            toRooms.push(r.sequence);
+  useEffect(() => {
+    if (
+      (lastBreakoutData
+        && lastBreakoutData.breakoutRoom_createdLatest.length > 0)
+      && (runningRooms
+      && runningRooms.length === 0)
+    ) {
+      const assignUsers = lastBreakoutData.user.reduce((acc: { [key: string]: number[] }, user) => {
+        //  means user wasn't either not assigned or not joined a breakout room
+        if (!user.lastBreakoutRoom) return acc;
+        const { userId, sequence } = user.lastBreakoutRoom;
+        if (!acc[userId]) {
+          acc[userId] = [sequence];
+        } else {
+          acc[userId].push(sequence);
+        }
+        return acc;
+      }, {});
+      const roomNames = lastBreakoutData.breakoutRoom_createdLatest.reduce((acc: {[key: number]: string}, room) => {
+        acc[room.sequence] = room.shortName;
+        return acc;
+      }, {});
+
+      setNumberOfRooms(lastBreakoutData.breakoutRoom_createdLatest.length);
+      setUserAssignedRooms((prev) => ({
+        ...prev,
+        ...assignUsers,
+      }));
+      setRoomNames((prev) => ({
+        ...prev,
+        ...roomNames,
+      }));
+    }
+  }, [lastBreakoutData]);
+
+  useEffect(() => {
+    if (
+      groups.length
+      && Object.keys(userAssignedRooms).length > 0
+      && lastBreakoutData
+      && !(lastBreakoutData.breakoutRoom_createdLatest.length > 0)
+    ) {
+      const updatedUserAssignedRooms = { ...userAssignedRooms };
+      const roomNames: {
+        [key: number]: string;
+      } = {};
+      Array.from(groups).forEach((group, index) => {
+        const idx = index + 1;
+        const userIds = group.usersExtId
+          .map((id) => users.find((user) => user.extId === id))
+          .filter((user) => user !== undefined)
+          .map((user) => user.userId);
+        userIds.forEach((userId) => {
+          if (!updatedUserAssignedRooms[userId]) {
+            updatedUserAssignedRooms[userId] = [idx];
+          } else {
+            updatedUserAssignedRooms[userId].push(idx);
           }
         });
+
+        roomNames[idx] = group.name;
       });
 
-      if (usersToMove.length > 0) {
-        moveUser(usersToMove, 0, toRooms);
+      setUserAssignedRooms(updatedUserAssignedRooms);
+      setRoomNames(roomNames);
+    }
+  }, [
+    lastBreakoutData,
+    userAssignedRooms,
+  ]);
+
+  const rooms = useMemo(() => {
+    const roomList: {
+      [key: number]: Room;
+    } = {};
+
+    for (let i = 0; i <= numberOfRooms; i += 1) {
+      if (!roomList[i]) {
+        if (i === 0) {
+          roomList[i] = {
+            id: i,
+            name: intl.formatMessage(intlMessages.notAssigned),
+            users: getUsers(i),
+          };
+        } else {
+          roomList[i] = {
+            id: i,
+            name: roomName(i),
+            users: getUsers(i),
+          };
+        }
       }
     }
-  }, [runningRooms, init]);
+
+    return roomList;
+  }, [
+    userAssignedRooms,
+    numberOfRooms,
+    roomNames,
+    users,
+  ]);
 
   useEffect(() => {
-    if (rooms) {
-      setRoomsRef(rooms);
-      if (!(rooms[0]?.users?.length === users.length)) {
-        setFormIsValid(true);
-      } else {
-        setFormIsValid(false);
-      }
-    }
-  }, [rooms]);
-
-  useEffect(() => {
-    if (movementRegistered) {
-      setMoveRegisterRef(movementRegistered);
-    }
-  }, [movementRegistered]);
+    setRoomsRef(rooms);
+  }, [rooms, setRoomsRef]);
 
   return (
     <>
-      {
-        init ? (
-          <RendererComponent
-            moveUser={moveUser}
-            rooms={rooms}
-            getRoomName={roomName}
-            changeRoomName={changeRoomName}
-            numberOfRooms={numberOfRooms}
-            selectedId={selectedId ?? ''}
-            setSelectedId={setSelectedId}
-            selectedRoom={selectedRoom}
-            setSelectedRoom={setSelectedRoom}
-            randomlyAssign={randomlyAssign}
-            resetRooms={resetRooms}
-            users={users}
-            currentSlidePrefix={currentSlidePrefix}
-            presentations={presentations}
-            roomPresentations={roomPresentations}
-            setRoomPresentations={setRoomPresentations}
-            getRoomPresentation={getRoomPresentation}
-            currentPresentation={currentPresentation}
-            isUpdate={isUpdate}
-          />
-        ) : null
-      }
+      <RendererComponent
+        moveUser={moveUser}
+        rooms={rooms}
+        getRoomName={roomName}
+        changeRoomName={changeRoomName}
+        numberOfRooms={numberOfRooms}
+        selectedId={selectedId ?? ''}
+        setSelectedId={setSelectedId}
+        selectedRoom={selectedRoom}
+        setSelectedRoom={setSelectedRoom}
+        randomlyAssign={randomlyAssign}
+        resetRooms={resetRooms}
+        users={users}
+        currentSlidePrefix={currentSlidePrefix}
+        presentations={presentations}
+        roomPresentations={roomPresentations}
+        setRoomPresentations={setRoomPresentations}
+        getRoomPresentation={getRoomPresentation}
+        currentPresentation={currentPresentation}
+        isUpdate={isUpdate}
+      />
     </>
   );
 };

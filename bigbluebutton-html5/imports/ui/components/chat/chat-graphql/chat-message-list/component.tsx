@@ -388,6 +388,41 @@ const ChatMessageList: React.FC<ChatListProps> = ({
     }
   };
 
+  const scrollToBottom = useCallback(() => {
+    const container = messageListContainerRef.current;
+
+    if (!container) return;
+
+    let initialPosition = 0;
+    let initialTimestamp = 0;
+    let scrollPositionDiff = 0;
+
+    const animateScrollPosition = (timestamp: number) => {
+      const value = (timestamp - initialTimestamp) / 300;
+      if (value <= 1) {
+        container.scrollTop = initialPosition + (value * scrollPositionDiff);
+        requestAnimationFrame(animateScrollPosition);
+      } else {
+        container.scrollTop = container.scrollHeight - container.offsetHeight;
+      }
+    };
+
+    const startScrollAnimation = (timestamp: number) => {
+      const {
+        scrollTop,
+        scrollHeight,
+        offsetHeight,
+      } = container;
+
+      initialTimestamp = timestamp;
+      initialPosition = scrollTop;
+      scrollPositionDiff = scrollHeight - offsetHeight - scrollTop;
+      requestAnimationFrame(animateScrollPosition);
+    };
+
+    requestAnimationFrame(startScrollAnimation);
+  }, []);
+
   const renderUnreadNotification = useMemo(() => {
     if (totalUnread && !followingTail) {
       return (
@@ -397,11 +432,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
           size="sm"
           key="unread-messages"
           label={intl.formatMessage(intlMessages.moreMessages)}
-          onClick={() => {
-            if (endSentinelRef.current) {
-              endSentinelRef.current.scrollIntoView({ behavior: 'smooth' });
-            }
-          }}
+          onClick={scrollToBottom}
         />
       );
     }

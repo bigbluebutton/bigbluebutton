@@ -1,3 +1,4 @@
+import Link from '@docusaurus/Link';
 import React from 'react';
 
 const createEndpointTableData = [
@@ -430,6 +431,9 @@ const createEndpointTableData = [
             <li>
               <code className="language-plaintext highlighter-rouge">infiniteWhiteboard</code> - <b>Infinite Whiteboard (added in BigBlueButton 3.0)</b>
             </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">raiseHand</code> - <b>Raise Hand (added in BigBlueButton 3.0)</b>
+            </li>
           </ul>
         </>
     ),
@@ -470,7 +474,7 @@ const createEndpointTableData = [
     "name": "presentationConversionCacheEnabled",
     "required": false,
     "type": "Boolean",
-    "description": (<>Parameter to decide whether to use the caching system in a S3-based storage system for presentation assets per meeting. If this parameter is true, the other settings related to the caching feature must be configured properly (see section <a href="/administration/customize/#configure-s3-based-cache-for-presentation-assets">Configure S3-based cache for presentation assets</a>).</>)
+    "description": (<>Parameter to decide whether to use the caching system in a S3-based storage system for presentation assets per meeting. If this parameter is true, the other settings related to the caching feature must be configured properly (see section <Link to="/administration/customize/#configure-s3-based-cache-for-presentation-assets">Configure S3-based cache for presentation assets</Link>).</>)
   },
   {
     "name": "recordFullDurationMedia",

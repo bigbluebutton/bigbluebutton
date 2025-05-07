@@ -5,6 +5,7 @@ const PLUGIN_CONFIGURATION_QUERY = gql`query PluginConfigurationQuery {
     name,
     javascriptEntrypointUrl,
     javascriptEntrypointIntegrity,
+    localesBaseUrl,
   }  
 }`;
 

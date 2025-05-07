@@ -2,7 +2,11 @@ import React, { useEffect } from 'react';
 import { useMutation, useReactiveVar } from '@apollo/client';
 import AudioCaptionsLiveContainer from '/imports/ui/components/audio/audio-graphql/audio-captions/live/component';
 import getFromUserSettings from '/imports/ui/services/users-settings';
-import { useIsPresentationEnabled, useIsExternalVideoEnabled } from '/imports/ui/services/features';
+import {
+  useIsPresentationEnabled,
+  useIsExternalVideoEnabled,
+  useIsRaiseHandEnabled,
+} from '/imports/ui/services/features';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import {
@@ -42,6 +46,9 @@ const AppContainer = (props) => {
   } = useMeeting((m) => ({
     layout: m.layout,
     componentsFlags: m.componentsFlags,
+    isBreakout: m.isBreakout,
+    name: m.name,
+    meetingId: m.meetingId,
   }));
 
   const { data: currentPageInfo } = useDeduplicatedSubscription(
@@ -80,9 +87,12 @@ const AppContainer = (props) => {
   const { data: pinnedPadData } = useDeduplicatedSubscription(PINNED_PAD_SUBSCRIPTION);
   const isSharedNotesPinnedFromGraphql = !!pinnedPadData
     && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
-  const isSharedNotesPinned = sharedNotesInput?.isPinned && isSharedNotesPinnedFromGraphql;
+  const isSharedNotesPinned = sharedNotesInput?.isPinned
+    && isSharedNotesPinnedFromGraphql
+    && presentation.isOpen;
   const isExternalVideoEnabled = useIsExternalVideoEnabled();
   const isPresentationEnabled = useIsPresentationEnabled();
+  const isRaiseHandEnabled = useIsRaiseHandEnabled();
   const [showScreenshare] = usePresentationSwap();
   const [setPresentationFitToWidth] = useMutation(SET_PRESENTATION_FIT_TO_WIDTH);
 
@@ -91,7 +101,7 @@ const AppContainer = (props) => {
   const { isOpen } = presentation;
   const presentationIsOpen = isOpen;
 
-  const isSharingVideo = currentMeeting?.componentsFlags.hasExternalVideo;
+  const isSharingVideo = currentMeeting?.componentsFlags?.hasExternalVideo;
 
   const shouldShowExternalVideo = isExternalVideoEnabled && isSharingVideo;
 
@@ -144,11 +154,15 @@ const AppContainer = (props) => {
           isSharedNotesPinned,
           shouldShowPresentation,
           isNotificationEnabled,
+          isRaiseHandEnabled,
           genericMainContentId: genericMainContent.genericContentId,
           audioCaptions: <AudioCaptionsLiveContainer />,
           hideNotificationToasts: hideNotificationToasts
             || getFromUserSettings('bbb_hide_notifications', false),
           darkTheme,
+          isBreakout: currentMeeting?.isBreakout,
+          meetingName: currentMeeting?.name,
+          meetingId: currentMeeting?.meetingId,
         }}
         {...props}
       />

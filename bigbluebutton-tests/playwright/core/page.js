@@ -35,6 +35,7 @@ class Page {
       joinParameter,
       customMeetingId,
       isRecording,
+      skipSessionDetailsModal = true,
       shouldCheckAllInitialSteps,
       shouldAvoidLayoutCheck,
     } = initOptions || {};
@@ -45,8 +46,8 @@ class Page {
 
     if (env.CONSOLE !== undefined) await helpers.setBrowserLogs(this.page);
 
-    this.meetingId = (meetingId) ? meetingId : await helpers.createMeeting(parameters, createParameter, customMeetingId, this.page);
-    const joinUrl = helpers.getJoinURL(this.meetingId, this.initParameters, isModerator, joinParameter);
+    this.meetingId = (meetingId) ? meetingId : await helpers.createMeeting(parameters, createParameter, customMeetingId);
+    const joinUrl = helpers.getJoinURL(this.meetingId, this.initParameters, isModerator, joinParameter, skipSessionDetailsModal);
     const response = await this.page.goto(joinUrl);
     await expect(response.ok()).toBeTruthy();
     const hasErrorLabel = await this.checkElement(e.errorMessageLabel);
@@ -144,8 +145,8 @@ class Page {
     await this.wasRemoved(e.webcamConnecting, VIDEO_LOADING_WAIT_TIME);
   }
 
-  getLocator(selector) {
-    return this.page.locator(selector);
+  getLocator(selector, options = {}) {
+    return this.page.locator(selector, options);
   }
 
   getVisibleLocator(selector) {
@@ -207,6 +208,11 @@ class Page {
     await handle.type(text, { timeout: ELEMENT_WAIT_TIME });
   }
 
+  async fill(selector, text) {
+    const locator = this.getLocator(selector);
+    await locator.fill(text);
+  }
+
   async waitAndClickElement(element, index = 0, timeout = ELEMENT_WAIT_TIME) {
     await this.waitForSelector(element, timeout);
     await this.page.evaluate(([elem, i]) => {
@@ -221,7 +227,7 @@ class Page {
   }
 
   async getByLabelAndClick(label, timeout = ELEMENT_WAIT_TIME) {
-    await this.page.getByLabel(label).click({ timeout });
+    await this.page.getByLabel(label).first().click({ timeout });
   }
 
   async clickOnLocator(locator, timeout = ELEMENT_WAIT_TIME) {
@@ -296,6 +302,10 @@ class Page {
     await this.getLocator(selector).dragTo(this.page.locator(position), { timeout: ELEMENT_WAIT_TIME });
   }
 
+  async hoverElement(selector) {
+    await this.getLocator(selector).hover();
+  }
+
   async dragAndDropWebcams(position) {
     await this.getLocator(e.webcamContainer).first().hover({ timeout: 5000 });
     await this.page.mouse.down();
@@ -304,8 +314,13 @@ class Page {
     await this.page.mouse.up();
   }
 
-  async checkElementCount(selector, count, description) {
-    const locator = await this.page.locator(selector);
+  async hasElementCount(selector, count, description) {
+    const locator = await this.getVisibleLocator(selector);
+    await expect(locator, description).toHaveCount(count, { timeout: ELEMENT_WAIT_TIME });
+  }
+
+  async hasHiddenElementCount(selector, count, description) {
+    const locator = await this.getLocator(selector);
     await expect(locator, description).toHaveCount(count, { timeout: ELEMENT_WAIT_TIME });
   }
 
@@ -352,6 +367,7 @@ class Page {
         console.log('not able to close the toast notification');
       }
     }
+    await this.hasElementCount(e.toastContainer, 0, 'should not display any toast notification');
   }
 
   async setHeightWidthViewPortSize() {

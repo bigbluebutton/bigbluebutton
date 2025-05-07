@@ -26,6 +26,16 @@ class CustomParameters extends MultiUsers {
     await this.modPage.wasRemoved(e.usersList, 'should not display the users list');
   }
 
+  async showSessionDetailsOnJoin() {
+    await this.modPage.hasElement(e.audioModal, 'should display the audio modal on join');
+    const audioModalCloseButton = await this.modPage.getVisibleLocator(e.closeModal); // avoid throwing error due to both modals being in the DOM
+    await audioModalCloseButton.click();
+    await this.modPage.hasElement(e.sessionDetailsModal, 'should display the session details after audio modal is closed');
+    await this.modPage.hasText(e.sessionDetailsModal, this.modPage.meetingId, 'should contain the meeting id on the session details');
+    await this.modPage.waitAndClick(e.closeModal);
+    await this.modPage.wasRemoved(e.sessionDetailsModal, 'should not display the session details after closing the modal');
+  }
+
   async clientTitle() {
     const pageTitle = await this.modPage.page.title();
     expect(pageTitle, 'should display the changed name of the client title').toContain(`${c.docTitle} - `);
@@ -235,22 +245,19 @@ class CustomParameters extends MultiUsers {
   async multiUserPenOnly() {
     await this.modPage.waitAndClick(e.multiUsersWhiteboardOn);
     await this.userPage.hasElement(e.wbToolbar);
-    const toolsCount = await this.userPage.getSelectorCount(`${e.wbToolbar} button:visible`);
-    await expect(toolsCount, 'should display only 1 tool (pen)').toBe(1);
+    await this.userPage.hasElementCount(`${e.wbToolbar} button`, 1, 'should display only 1 tool (pen)');
   }
 
   async presenterTools() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.hasElement(e.wbToolbar);
-    const toolsCount = await this.modPage.getSelectorCount(`${e.wbToolbar} button:visible`);
-    await expect(toolsCount, 'should display only the 3 elements passed in the parameter (select, draw and arrow)').toBe(3);
+    await this.modPage.hasElementCount(`${e.wbToolbar} button`, 3, 'should display only the 3 elements passed in the parameter (select, draw and arrow)');
   }
 
   async multiUserTools() {
     await this.modPage.waitAndClick(e.multiUsersWhiteboardOn);
     await this.userPage.hasElement(e.wbToolbar);
-    const toolsCount = await this.userPage.getSelectorCount(`${e.wbToolbar} button:visible`);
-    await expect(toolsCount, 'should display only the 2 elements passed in the parameter (arrow and text)').toBe(2);
+    await this.userPage.hasElementCount(`${e.wbToolbar} button`, 2, 'should display only the 2 elements passed in the parameter (arrow and text)');
   }
 
   async autoShareWebcam() {
@@ -292,6 +299,16 @@ class CustomParameters extends MultiUsers {
     await this.modPage.hasElement(e.webcamMirroredVideoContainer, 'should display the webcam (mirrored) container after successfully sharing webcam');
     const webcamBackgroundURL = this.modPage.getLocator(e.webcamMirroredVideoContainer);
     await expect(webcamBackgroundURL).toHaveScreenshot('webcam-background-passing-url.png');
+  }
+
+  async logoutURLTest() {
+    //allowDefaultLogoutUrl setting true/false should have no effect if a custom logoutURL is provided
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage.waitAndClick(e.leaveMeetingDropdown);
+    await this.modPage.waitAndClick(e.directLogoutButton);
+    await this.modPage.hasElement(e.meetingEndedModal);
+    await this.modPage.waitAndClick(e.redirectButton);
+    await expect(this.modPage.page.url()).toContain('google.com');
   }
 }
 
