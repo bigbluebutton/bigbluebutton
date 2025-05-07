@@ -222,10 +222,11 @@ const BreakoutJoinConfirmationContainer: React.FC = () => {
   const { data: currentUser } = useCurrentUser((u) => {
     return {
       isModerator: u.isModerator,
-      breakoutRooms: u.breakoutRooms,
+      lastBreakoutRoom: u.lastBreakoutRoom,
       presenter: u.presenter,
     };
   });
+
   const {
     data: breakoutData,
   } = useDeduplicatedSubscription<GetBreakoutDataResponse>(getBreakoutData);
@@ -252,7 +253,7 @@ const BreakoutJoinConfirmationContainer: React.FC = () => {
     <BreakoutJoinConfirmation
       freeJoin={freeJoin}
       breakouts={breakoutData.breakoutRoom}
-      currentUserJoined={currentUser?.breakoutRooms?.isUserCurrentlyInRoom ?? false}
+      currentUserJoined={currentUser?.lastBreakoutRoom?.isUserCurrentlyInRoom ?? false}
       presenter={currentUser?.presenter ?? false}
       firstBreakoutId={breakoutRoomId}
     />

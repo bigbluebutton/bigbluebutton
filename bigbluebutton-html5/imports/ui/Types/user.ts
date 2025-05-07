@@ -45,26 +45,6 @@ export interface UserMetadata {
   value: string;
 }
 
-export interface BreakoutRooms {
-  hasJoined: boolean;
-  assignedAt: string;
-  breakoutRoomId: string;
-  isUserCurrentlyInRoom: boolean | null;
-  isLastAssignedRoom: boolean | null;
-  durationInSeconds: number;
-  endedAt: string | null;
-  freeJoin: boolean;
-  inviteDismissedAt: string | null;
-  isDefaultName: boolean;
-  joinURL: string;
-  name: string;
-  sendInvitationToModerators: boolean;
-  sequence: number;
-  shortName: string;
-  showInvitation: boolean;
-  startedAt: string;
-}
-
 export interface userLockSettings {
   disablePublicChat: boolean;
 }
@@ -121,7 +101,6 @@ export interface User {
   size: number;
   away: boolean;
   raiseHand: boolean;
-  breakoutRooms: BreakoutRooms;
   userLockSettings: userLockSettings;
   sessionCurrent: sessionCurrent;
   livekit?: Livekit;
