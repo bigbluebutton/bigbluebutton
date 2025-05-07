@@ -38,22 +38,6 @@ subscription userCurrentSubscription {
     speechLocale
     captionLocale
     userId
-    breakoutRooms {
-      breakoutRoomId
-      isLastAssignedRoom
-      durationInSeconds
-      freeJoin
-      inviteDismissedAt
-      isDefaultName
-      joinURL
-      name
-      sendInvitationToModerators
-      sequence
-      shortName
-      showInvitation
-      startedAt
-      isUserCurrentlyInRoom
-    }
     lastBreakoutRoom {
       currentlyInRoom
       sequence
