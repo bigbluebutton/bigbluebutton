@@ -9,33 +9,49 @@ import org.bigbluebutton.presentation.messages.PresentationConvertMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.*;
 
 public class PresentationConversionCompletionService {
-    private static Logger log = LoggerFactory.getLogger(PresentationConversionCompletionService.class);
+    private static final Logger log = LoggerFactory.getLogger(PresentationConversionCompletionService.class);
 
     private SlidesGenerationProgressNotifier notifier;
     private S3FileManager s3FileManager;
 
-    private ExecutorService executor;
+    private final ExecutorService executor = Executors.newSingleThreadExecutor(r -> {
+        Thread t = new Thread(r, "conv-msg-consumer");
+        t.setUncaughtExceptionHandler((thr, ex) -> {
+            log.error("Uncaught exception in {}, restarting", thr.getName(), ex);
+            submitNewWorker();
+        });
+        return t;
+    });
+
     private volatile boolean processProgress = false;
 
     private final ConcurrentMap<String, PresentationToConvert> presentationsToConvert
-            = new ConcurrentHashMap<String, PresentationToConvert>();
+            = new ConcurrentHashMap<>();
 
-    private BlockingQueue<IPresentationCompletionMessage> messages = new LinkedBlockingQueue<IPresentationCompletionMessage>();
+    private final BlockingQueue<IPresentationCompletionMessage> messages = new LinkedBlockingQueue<>();
 
-    public PresentationConversionCompletionService() {
-        executor = Executors.newSingleThreadExecutor(r -> {
-            Thread t = new Thread(r, "conv-msg-consumer");
-            t.setUncaughtExceptionHandler((thr, ex) ->
-                    log.error("Uncaught exception in {}", thr.getName(), ex)
-            );
-            return t;
-        });
+    @PostConstruct
+    public void start() {
+        processProgress = true;
+        submitNewWorker();
+    }
+
+    @PreDestroy
+    public void stop() throws InterruptedException {
+        processProgress = false;
+        executor.shutdown();
+        boolean terminated = executor.awaitTermination(30, TimeUnit.SECONDS);
+        if (!terminated) {
+            log.warn("Failed to terminate executor");
+        }
     }
 
     public void handle(IPresentationCompletionMessage msg) {
@@ -47,27 +63,25 @@ public class PresentationConversionCompletionService {
     }
 
     private void processMessage(IPresentationCompletionMessage msg) {
-        if (msg instanceof PresentationConvertMessage) {
+        if (msg instanceof PresentationConvertMessage m) {
             log.info("Handling PresentationConvertMessage");
-            PresentationConvertMessage m = (PresentationConvertMessage) msg;
-            PresentationToConvert p = new PresentationToConvert(m.pres);
 
+            PresentationToConvert p = new PresentationToConvert(m.pres);
             String presentationToConvertKey = p.getKey() + "_" + m.pres.getMeetingId();
 
             log.info("Storing presentation with key {}", presentationToConvertKey);
             presentationsToConvert.put(presentationToConvertKey, p);
-        } else if (msg instanceof PageConvertProgressMessage) {
+        } else if (msg instanceof PageConvertProgressMessage m) {
             log.info("Handling PageConvertProgressMessage");
-            PageConvertProgressMessage m = (PageConvertProgressMessage) msg;
             String presentationToConvertKey = m.presId + "_" + m.meetingId;
-
             PresentationToConvert p = presentationsToConvert.get(presentationToConvertKey);
+
             if (p != null) {
                 log.info("Found presentation with key {}", presentationToConvertKey);
                 p.incrementPagesCompleted();
                 notifier.sendConversionUpdateMessage(p.getPagesCompleted(), p.pres, m.page);
                 log.info("{} of {} pages successfully converted for presentation [{}] in meeting [{}]", p.getPagesCompleted(), p.pres.getNumberOfPages(),
-                        ((PageConvertProgressMessage) msg).presId, ((PageConvertProgressMessage) msg).meetingId);
+                        m.presId, m.meetingId);
                 if (p.getPagesCompleted() == p.pres.getNumberOfPages()) {
                     log.info("Last presentation page converted");
                     handleEndProcessing(p);
@@ -83,8 +97,8 @@ public class PresentationConversionCompletionService {
 
         presentationsToConvert.remove(presentationToConvertKey);
 
-        Map<String, Object> logData = new HashMap<String, Object>();
-        logData = new HashMap<String, Object>();
+        Map<String, Object> logData;
+        logData = new HashMap<>();
         logData.put("podId", p.pres.getPodId());
         logData.put("meetingId", p.pres.getMeetingId());
         logData.put("presId", p.pres.getId());
@@ -120,42 +134,35 @@ public class PresentationConversionCompletionService {
             }
         }
 
-        // Remove pdf of each page (it was necessary just during conversions)
+        // Remove PDF of each page (it was necessary just during conversions)
         String presDir = p.pres.getUploadedFile().getParent();
         for (int page = 1; page <= p.pres.getNumberOfPages(); page++) {
             File pageFile = new File(presDir + "/page" + "-" + page + ".pdf");
             if(pageFile.exists()) {
-                pageFile.delete();
+                boolean deleted = pageFile.delete();
+                if (!deleted) {
+                    log.warn("Failed to delete {}", pageFile.getAbsolutePath());
+                }
             }
         }
     }
-    public void start() {
-        log.info("Ready to process presentation files!");
 
-        try {
-            processProgress = true;
-            executor.submit(() -> {
-                while (processProgress) {
-                    try {
-                        log.info("Taking next presentation conversion message");
-                        IPresentationCompletionMessage msg = messages.take();
-                        processMessage(msg);
-                    } catch (InterruptedException ie) {
-                        Thread.currentThread().interrupt();
-                        break;
-                    } catch (Throwable t) {
-                        log.error("Conversion message consumer encountered an error but will continue", t);
-                    }
+    private void submitNewWorker() {
+        log.info("Submitting new worker to process presentation files");
+        executor.submit(() -> {
+            while (processProgress) {
+                try {
+                    IPresentationCompletionMessage msg = messages.take();
+                    processMessage(msg);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    break;
+                } catch (Throwable t) {
+                    log.error("Worker crashed, will be restarted by handler", t);
+                    throw t;
                 }
-                log.info("Conversion message consumer thread exiting");
-            });
-        } catch (Exception e) {
-            log.error("Error processing presentation file:", e);
-        }
-    }
-
-    public void stop() {
-        processProgress = false;
+            }
+        });
     }
 
     public void setSlidesGenerationProgressNotifier(SlidesGenerationProgressNotifier notifier) {
