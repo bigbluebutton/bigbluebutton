@@ -46,13 +46,10 @@ export interface UserMetadata {
 }
 
 export interface BreakoutRooms {
-  hasJoined: boolean;
-  assignedAt: string;
   breakoutRoomId: string;
   isUserCurrentlyInRoom: boolean | null;
   isLastAssignedRoom: boolean | null;
   durationInSeconds: number;
-  endedAt: string | null;
   freeJoin: boolean;
   inviteDismissedAt: string | null;
   isDefaultName: boolean;

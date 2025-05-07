@@ -39,12 +39,9 @@ subscription userCurrentSubscription {
     captionLocale
     userId
     breakoutRooms {
-      hasJoined
-      assignedAt
       breakoutRoomId
       isLastAssignedRoom
       durationInSeconds
-      endedAt
       freeJoin
       inviteDismissedAt
       isDefaultName
