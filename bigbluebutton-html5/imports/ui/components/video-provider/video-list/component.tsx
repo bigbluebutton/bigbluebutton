@@ -428,6 +428,7 @@ class VideoList extends Component<VideoListProps, VideoListState> {
               gridTemplateColumns: `repeat(${optimalGrid.columns}, 1fr)`,
               gridTemplateRows: `repeat(${optimalGrid.rows}, 1fr)`,
             }}
+            className="video-provider_list"
           >
             {this.renderVideoList()}
           </Styled.VideoList>

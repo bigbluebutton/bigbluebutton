@@ -283,7 +283,7 @@ CREATE UNLOGGED TABLE "user" (
 	"avatar" varchar(500),
     "webcamBackground" varchar(500),
 	"color" varchar(7),
-    "authToken" varchar(16),
+    "authToken" varchar(50),
     "authed" bool,
     "joined" bool,
     "firstJoinedAt" timestamp with time zone,
@@ -1890,7 +1890,7 @@ create index "idx_breakoutRoom_user_user_meeting" on "breakoutRoom_user" ("userI
 ALTER TABLE "breakoutRoom_user" ADD COLUMN "showInvitation" boolean GENERATED ALWAYS AS (
     CASE WHEN
             "isLastAssignedRoom" IS true
-            and "isUserCurrentlyInRoom" is null
+            and "isUserCurrentlyInRoom" is not true
             AND ("joinedAt" is null or "assignedAt" > "joinedAt")
             AND ("userJoinedSomeRoomAt" is null or "assignedAt" > "userJoinedSomeRoomAt")
             AND ("inviteDismissedAt" is null or "assignedAt" > "inviteDismissedAt")
@@ -2187,6 +2187,11 @@ CREATE OR REPLACE VIEW "v_caption" AS
 SELECT *
 FROM "caption"
 WHERE "createdAt" > current_timestamp - INTERVAL '5 seconds';
+
+--------See all captions from a meeting
+CREATE OR REPLACE VIEW "v_caption_history" AS
+SELECT *
+FROM "caption";
 
 CREATE OR REPLACE VIEW "v_caption_activeLocales" AS
 select distinct "meetingId", "locale", "createdBy", "captionType"

@@ -107,6 +107,7 @@ export interface App {
   maxMutationPayloadSize: number
   enableApolloDevTools: boolean
   terminateAndRetryConnection: number
+  timeoutBeforeRedirectOnMeetingEnd: number | null
 }
 
 export interface BbbTabletApp {
@@ -474,6 +475,7 @@ export interface Poll {
   maxCustom: number
   maxTypedAnswerLength: number
   chatMessage: boolean
+  quickPollConfirmationStep: boolean
 }
 
 export interface Captions {
@@ -758,6 +760,7 @@ export interface Whiteboard {
   maxStickyNoteLength: number
   maxNumberOfAnnotations: number
   maxNumberOfActiveUsers: number
+  lockToolbarTools: boolean
   annotations: Annotations
   allowInfiniteWhiteboard: boolean
   allowInfiniteWhiteboardInBreakouts: boolean

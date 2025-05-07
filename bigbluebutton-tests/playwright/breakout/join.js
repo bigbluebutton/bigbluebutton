@@ -22,7 +22,7 @@ class Join extends Create {
 
     await this.userPage.waitAndClick(e.breakoutRoomSidebarButton);
     await this.userPage.waitAndClick(e.joinFirstRoom);
-    await this.userPage.hasElement(e.alreadyConnected, 'should display the element alreadyConnected', ELEMENT_WAIT_LONGER_TIME);
+    await this.userPage.hasElement(e.alreadyConnected, 'should display the element alreadyConnected', ELEMENT_WAIT_EXTRA_LONG_TIME);
 
     const breakoutUserPage = await this.userPage.getLastTargetPage(this.context);
     await breakoutUserPage.bringToFront();
@@ -86,11 +86,11 @@ class Join extends Create {
     await this.modPage.waitAndClick(e.breakoutOptionsMenu);
     await this.modPage.waitAndClick(e.openBreakoutTimeManager);
     await this.modPage.getLocator(e.inputSetTimeSelector).press('Backspace');
-    await this.modPage.type(e.inputSetTimeSelector, '2');
+    await this.modPage.type(e.inputSetTimeSelector, '5');
     await this.modPage.waitAndClick(e.sendButtonDurationTime);
-    await this.modPage.hasText(e.breakoutRemainingTime, /[11-12]:[0-5][0-9]/, 'should have the breakout room time remaining counting down on the main meeting');
+    await this.modPage.hasText(e.breakoutRemainingTime, /[4-5]:[0-5][0-9]/, 'should have the breakout room time remaining counting down on the main meeting');
 
-    await breakoutUserPage.hasText(e.timeRemaining, /[11-12]:[0-5][0-9]/, 'should have the time remaining counting down on the breakout room');
+    await breakoutUserPage.hasText(e.timeRemaining, /[4-5]:[0-5][0-9]/, 'should have the time remaining counting down on the breakout room');
   }
 
   async inviteUserAfterCreatingRooms() {
@@ -117,11 +117,11 @@ class Join extends Create {
     await this.modPage.waitAndClick(e.breakoutOptionsMenu);
     await this.modPage.waitAndClick(e.openBreakoutTimeManager);
     await this.modPage.getLocator(e.inputSetTimeSelector).press('Backspace');
-    await this.modPage.type(e.inputSetTimeSelector, '2');
+    await this.modPage.type(e.inputSetTimeSelector, '5');
     await this.modPage.waitAndClick(e.sendButtonDurationTime);
-    await this.modPage.hasText(e.breakoutRemainingTime, /[11-12]:[0-5][0-9]/, 'should have the breakout room time remaining counting down on the breakout main panel.');
+    await this.modPage.hasText(e.breakoutRemainingTime, /[4-5]:[0-5][0-9]/, 'should have the breakout room time remaining counting down on the breakout main panel.');
 
-    await breakoutUserPage.hasText(e.timeRemaining, /[11-12]:[0-5][0-9]/, 'should display the remaining time inside the breakout room');
+    await breakoutUserPage.hasText(e.timeRemaining, /[4-5]:[0-5][0-9]/, 'should display the remaining time inside the breakout room');
   }
 
   async endAllBreakoutRooms() {

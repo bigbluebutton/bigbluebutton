@@ -232,7 +232,7 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
   useEffect(() => {
     // If chatFocusMessageRequest is a number, do not recalculate scroll position.
     // A reply message was clicked and the replied message will be focused.
-    if (!scrollRef.current || typeof chatFocusMessageRequest === 'number') return;
+    if (!scrollRef.current || typeof chatFocusMessageRequest === 'number' || page !== firstPageToLoad) return;
     // eslint-disable-next-line no-param-reassign
     scrollRef.current.scrollTop = scrollRef.current.scrollHeight - scrollHeightBeforeRender.current;
   }, []);
@@ -347,7 +347,7 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
     callback(page);
   }, [page, loading]);
 
-  if (loading) return <ChatPageLoading />;
+  if (loading && page === firstPageToLoad) return <ChatPageLoading />;
   if (!chatMessageData) return null;
   if (chatMessageData.length > 0 && chatMessageData[chatMessageData.length - 1].user?.userId) {
     setLastSender(page, chatMessageData[chatMessageData.length - 1].user?.userId);

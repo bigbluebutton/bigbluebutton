@@ -33,6 +33,11 @@ const ReactionsButton = (props) => {
       description: 'reactions Label',
       defaultMessage: 'Share a reaction',
     },
+    removeReactionsLabel: {
+      id: 'app.actionsBar.reactions.removeReactionButtonLabel',
+      description: 'remove reaction Label',
+      defaultMessage: 'Remove reaction',
+    },
   });
 
   const handleClose = () => {
@@ -71,8 +76,31 @@ const ReactionsButton = (props) => {
       key: id,
       onClick: () => handleReactionSelect(native),
       customStyles: actionCustomStyles,
-      dataTest: 'reaction'
+      dataTest: 'reaction',
     });
+  });
+
+  actions.push({
+    label: (
+      <Styled.ButtonWrapper>
+        <Styled.ReactionsButton
+          data-test="removeReactionButton"
+          icon="close"
+          label={intl.formatMessage(intlMessages.removeReactionsLabel)}
+          description={intl.formatMessage(intlMessages.removeReactionsLabel)}
+          onKeyPress={() => { }}
+          hideLabel
+          circle
+          disabled={currentUserReaction === 'none'}
+          color="primary"
+          ghost
+        />
+      </Styled.ButtonWrapper>
+    ),
+    key: 'none',
+    onClick: () => (currentUserReaction !== 'none' ? handleReactionSelect('none') : null),
+    customStyles: actionCustomStyles,
+    dataTest: 'remove-reaction',
   });
 
   const svgIcon = currentUserReaction === 'none' ? 'reactions' : null;

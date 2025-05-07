@@ -32,6 +32,8 @@ import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedS
 import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
 import { layoutDispatch } from '/imports/ui/components/layout/context';
 import { notify } from '/imports/ui/services/notification';
+import useTimeSync from '/imports/ui/core/local-states/useTimeSync';
+import { getRemainingMeetingTime, isNewTimeValid } from '/imports/ui/core/utils/calculateRemaingTime';
 
 const MIN_BREAKOUT_ROOMS = 2;
 const MIN_BREAKOUT_TIME = 5;
@@ -57,6 +59,9 @@ interface CreateBreakoutRoomProps extends CreateBreakoutRoomContainerProps {
   isOpen: boolean
   setIsOpen: (value: boolean) => void,
   priority: string,
+  durationInSeconds: number,
+  createdTime: number,
+  timeSync: number,
 }
 
 const intlMessages = defineMessages({
@@ -224,6 +229,10 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.sendInvitationToMods',
     description: 'label for checkbox send invitation to moderators',
   },
+  timeCannotExceedMainRoom: {
+    id: 'app.createBreakoutRoom.timeCannotExceedMainRoom',
+    description: 'label for checkbox send invitation to moderators',
+  },
 });
 
 const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
@@ -238,6 +247,9 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
   currentPresentation,
   setUpdateUsersWhileRunning,
   groups,
+  durationInSeconds,
+  createdTime,
+  timeSync,
 }) => {
   const { isMobile } = deviceInfo;
   const intl = useIntl();
@@ -297,6 +309,15 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
   };
 
   const createRoom = () => {
+    const remainingTime = getRemainingMeetingTime(
+      durationInSeconds,
+      createdTime,
+      timeSync,
+    );
+    if (!isNewTimeValid(remainingTime, durationTime)) {
+      setDurationIsValid(false);
+      return;
+    }
     const rooms = roomsRef.current;
     const roomsArray: RoomToWithSettings[] = [];
     /* eslint no-restricted-syntax: "off" */
@@ -497,26 +518,50 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                 const { value } = e.target;
                 const v = Number.parseInt(value, 10);
+                const remainingTime = getRemainingMeetingTime(
+                  durationInSeconds,
+                  createdTime,
+                  timeSync,
+                );
+                const isValid = isNewTimeValid(remainingTime, v);
                 setDurationTime((v && !(v <= 0) && v >= MIN_BREAKOUT_TIME) ? v : MIN_BREAKOUT_TIME);
-                setDurationIsValid(v >= MIN_BREAKOUT_TIME);
+                setDurationIsValid(isValid);
               }}
               onBlur={(e: React.FocusEvent<HTMLInputElement>) => {
                 const { value } = e.target;
                 const v = Number.parseInt(value, 10);
+                const remainingTime = getRemainingMeetingTime(
+                  durationInSeconds,
+                  createdTime,
+                  timeSync,
+                );
+                const isValid = isNewTimeValid(remainingTime, v);
                 setDurationTime((v && !(v <= 0) && v >= MIN_BREAKOUT_TIME) ? v : MIN_BREAKOUT_TIME);
-                setDurationIsValid(true);
+                setDurationIsValid(isValid);
               }}
               aria-label={intl.formatMessage(intlMessages.duration)}
               data-test="durationTime"
             />
-            <Styled.SpanWarn data-test="minimumDurationWarnBreakout" valid={durationIsValid}>
-              {
-                intl.formatMessage(
-                  intlMessages.minimumDurationWarnBreakout,
-                  { 0: MIN_BREAKOUT_TIME },
-                )
-              }
-            </Styled.SpanWarn>
+            {
+              durationTime <= MIN_BREAKOUT_TIME ? (
+                <Styled.SpanWarn data-test="minimumDurationWarnBreakout" valid={durationIsValid}>
+                  {
+                    intl.formatMessage(
+                      intlMessages.minimumDurationWarnBreakout,
+                      { 0: MIN_BREAKOUT_TIME },
+                    )
+                  }
+                </Styled.SpanWarn>
+              ) : (
+                <Styled.SpanWarn data-test="timeExceed" valid={durationIsValid}>
+                  {
+                    intl.formatMessage(
+                      intlMessages.timeCannotExceedMainRoom,
+                    )
+                  }
+                </Styled.SpanWarn>
+              )
+            }
           </Styled.DurationLabel>
           <Styled.RandomAssignLabel valid={numberOfRooms > 0} htmlFor="randomlyAssignUsers">
             <Styled.LabelText bold={false} aria-hidden>
@@ -651,11 +696,14 @@ const CreateBreakoutRoomContainer: React.FC<CreateBreakoutRoomContainerProps> = 
 }) => {
   const intl = useIntl();
   const [fetchedBreakouts, setFetchedBreakouts] = React.useState(false);
+  const [timeSync] = useTimeSync();
   // isBreakoutRecordable - get from meeting breakout policies breakoutPolicies/record
   const {
     data: currentMeeting,
   } = useMeeting((m) => ({
     breakoutPolicies: m.breakoutPolicies,
+    durationInSeconds: m.durationInSeconds,
+    createdTime: m.createdTime,
   }));
 
   const {
@@ -726,6 +774,9 @@ const CreateBreakoutRoomContainer: React.FC<CreateBreakoutRoomContainerProps> = 
       isOpen={isOpen}
       setIsOpen={setIsOpen}
       priority={priority}
+      durationInSeconds={currentMeeting?.durationInSeconds ?? 0}
+      createdTime={currentMeeting?.createdTime ?? 0}
+      timeSync={timeSync}
     />
   );
 };

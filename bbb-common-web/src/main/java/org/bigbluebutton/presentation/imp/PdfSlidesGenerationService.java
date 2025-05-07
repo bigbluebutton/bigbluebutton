@@ -40,20 +40,24 @@ public class PdfSlidesGenerationService {
   }
 
   public void process(PageToConvert pageToConvert) {
-    Runnable task = new Runnable() {
-      public void run() {
+    executor.submit(() -> {
+      try {
+        log.info("Starting conversion for page {}", pageToConvert.getPageNumber());
         pageToConvert.convert();
+        log.info("Conversion finished for page {}, sending progress message", pageToConvert.getPageNumber());
+
         PageConvertProgressMessage msg = new PageConvertProgressMessage(
                 pageToConvert.getPageNumber(),
                 pageToConvert.getPresId(),
                 pageToConvert.getMeetingId(),
                 new ArrayList<>());
-        presentationConversionCompletionService.handle(msg);
-        // The pdf of the page will be removed after cache storing
-      }
-    };
 
-    executor.execute(task);
+        presentationConversionCompletionService.handle(msg);
+        log.info("Progress message handled for page {} of presentation [{}] in meeting [{}]", pageToConvert.getPageNumber(), pageToConvert.getPresId(), pageToConvert.getMeetingId());
+      } catch (Throwable t) {
+        log.error("Conversion task failed for page {} of presentation [{}] in meeting [{}]", pageToConvert.getPageNumber(), pageToConvert.getPresId(), pageToConvert.getMeetingId(), t);
+      }
+    });
   }
 
   public void setPresentationConversionCompletionService(PresentationConversionCompletionService s) {

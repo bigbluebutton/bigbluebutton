@@ -81,32 +81,31 @@ const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
   const showDivider = (showReplyButton || showReactionsButton) && (showEditButton || showDeleteButton);
 
   const container = (
-    <Container className="chat-message-toolbar">
+    <Container className="chat-message-toolbar" data-test="chatMessageToolbar">
       {showReplyButton && (
         <>
           <Tooltip title={intl.formatMessage(intlMessages.replyTooltip)}>
             <EmojiButton
-              aria-describedby={`chat-reply-btn-label-${messageSequence}`}
+              aria-label={intl.formatMessage(intlMessages.reply, { 0: messageSequence })}
               icon="undo"
               color="light"
               onClick={onReply}
+              data-test="replyMessageButton"
             />
           </Tooltip>
-          <span id={`chat-reply-btn-label-${messageSequence}`} className="sr-only">
-            {intl.formatMessage(intlMessages.reply, { 0: messageSequence })}
-          </span>
         </>
       )}
       {showReactionsButton && (
         <Tooltip title={intl.formatMessage(intlMessages.reactTooltip)}>
           <EmojiButton
+            aria-label={intl.formatMessage(intlMessages.reactTooltip)}
             onClick={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
               e.stopPropagation();
               onReactionPopoverOpenChange(true);
             }}
             svgIcon="reactions"
             color="light"
-            data-test="reactionsPickerButton"
+            data-test="reactMessageButton"
           />
         </Tooltip>
       )}

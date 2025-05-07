@@ -16,6 +16,11 @@ const config = {
     onBrokenMarkdownLinks: 'warn',
     favicon: 'img/favicon.ico',
     trailingSlash: true,
+    markdown: {
+        mermaid: true,
+    },
+    plugins: ['@docusaurus/theme-mermaid'],
+    
 
     // GitHub pages deployment config.
     // If you aren't using GitHub pages, you don't need these.
@@ -71,7 +76,7 @@ const config = {
                     {to: '/administration/install', label: 'Administration', position: 'left'},
                     {to: '/greenlight/v3/install', label: 'Greenlight', position: 'left'},
                     {to: '/new-features', label: 'New Features', position: 'left'},
-                    // {to: '/plugins', label: 'Plugins', position: 'left'},
+                    {to: '/plugins', label: 'Plugins', position: 'left'},
                     {to: '/support/getting-help', label: 'Support', position: 'left'},
                     {
                         type: 'docsVersionDropdown',
