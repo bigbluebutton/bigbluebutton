@@ -37,7 +37,6 @@ const PluginsEngineManager = (props: PluginsEngineManagerProps) => {
         ...p,
         name: p.name,
         url: p.javascriptEntrypointUrl,
-        localesBaseUrl: p.localesBaseUrl,
         uuid: uuidLib.v4(),
       } as EffectivePluginConfig)),
     );
@@ -66,8 +65,8 @@ const PluginsEngineManager = (props: PluginsEngineManagerProps) => {
       <PluginDomElementManipulationManager />
       {
         effectivePluginsConfig?.map((effectivePluginConfig: EffectivePluginConfig) => {
-          const { uuid, name: pluginName, localesBaseUrl } = effectivePluginConfig;
-          const pluginApi: PluginSdk.PluginApi = BbbPluginSdk.getPluginApi(uuid, pluginName, localesBaseUrl);
+          const { uuid, name: pluginName } = effectivePluginConfig;
+          const pluginApi: PluginSdk.PluginApi = BbbPluginSdk.getPluginApi(uuid, pluginName);
           return (
             <div key={uuid}>
               <PluginLoaderManager
