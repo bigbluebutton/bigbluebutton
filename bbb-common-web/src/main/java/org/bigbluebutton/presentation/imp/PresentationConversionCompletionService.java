@@ -105,7 +105,7 @@ public class PresentationConversionCompletionService {
             try {
                 String remoteFileName = p.pres.getUploadedFileHash() + ".tar.gz";
                 Meeting meeting = ServiceUtils.findMeetingFromMeetingID(meetingId);
-                if(meeting.isPresentationConversionCacheEnabled() && !s3FileManager.exists(remoteFileName)) {
+                if(meeting != null && meeting.isPresentationConversionCacheEnabled() && !s3FileManager.exists(remoteFileName)) {
                     File parentDir = new File(p.pres.getUploadedFile().getParent());
                     File compressedFile = TarGzManager.compress(
                             parentDir.getAbsolutePath(),
