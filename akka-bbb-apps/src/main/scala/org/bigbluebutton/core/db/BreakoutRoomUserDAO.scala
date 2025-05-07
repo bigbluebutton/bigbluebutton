@@ -61,8 +61,7 @@ object BreakoutRoomUserDAO {
                 "joinedAt" = current_timestamp
                 WHERE "meetingId" = ${meetingId}
                 AND "userId" = ${userInRoom}
-                AND "breakoutRoomId" = ${breakoutRoom.id}
-                AND "joinedAt" is null"""
+                AND "breakoutRoomId" = ${breakoutRoom.id}"""
       )
     }
   }
