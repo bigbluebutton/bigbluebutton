@@ -149,20 +149,24 @@ public class PresentationConversionCompletionService {
 
     private void submitNewWorker() {
         log.info("Submitting new worker to process presentation files");
-        executor.submit(() -> {
-            while (processProgress) {
-                try {
-                    IPresentationCompletionMessage msg = messages.take();
-                    processMessage(msg);
-                } catch (InterruptedException ie) {
-                    Thread.currentThread().interrupt();
-                    break;
-                } catch (Throwable t) {
-                    log.error("Worker crashed, will be restarted by handler", t);
-                    throw t;
+        if (!executor.isShutdown() && processProgress) {
+            executor.submit(() -> {
+                while (processProgress) {
+                    try {
+                        IPresentationCompletionMessage msg = messages.poll(1, TimeUnit.SECONDS);
+                        processMessage(msg);
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt();
+                        break;
+                    } catch (Throwable t) {
+                        log.error("Worker crashed, will be restarted by handler", t);
+                        throw t;
+                    }
                 }
-            }
-        });
+            });
+        } else {
+            log.info("Executor already shut down - skipping worker restart");
+        }
     }
 
     public void setSlidesGenerationProgressNotifier(SlidesGenerationProgressNotifier notifier) {
