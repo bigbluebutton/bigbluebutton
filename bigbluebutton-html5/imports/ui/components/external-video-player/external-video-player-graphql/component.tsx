@@ -242,6 +242,17 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     return 0;
   }, []);
 
+  const getPlaybackRate = useCallback((player: ReactPlayer) => {
+    if (player) {
+      const internalPlayer = player.getInternalPlayer();
+      if (internalPlayer instanceof HTMLVideoElement) {
+        return internalPlayer.playbackRate;
+      }
+      return internalPlayer?.getPlaybackRate?.() ?? 1;
+    }
+    return 1;
+  }, []);
+
   useEffect(() => {
     const storedVolume = storage.getItem('externalVideoVolume');
     if (storedVolume) {
@@ -393,6 +404,14 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     setLoaded(state.loaded);
     if (playing && isPresenter) {
       currentTime = getPlayerCurrentTime(playerRef.current as ReactPlayer);
+    }
+    const interPlayerPlaybackRate = getPlaybackRate(playerRef.current as ReactPlayer);
+    if (isPresenter && playing && interPlayerPlaybackRate !== playerPlaybackRate) {
+      sendMessage('seek', {
+        rate: interPlayerPlaybackRate,
+        time: currentTime,
+        state: 'playing',
+      });
     }
   };
 
