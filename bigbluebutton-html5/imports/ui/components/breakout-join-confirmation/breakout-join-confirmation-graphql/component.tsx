@@ -260,7 +260,7 @@ const BreakoutJoinConfirmationContainer: React.FC = () => {
     <BreakoutJoinConfirmation
       freeJoin={freeJoin}
       breakouts={breakoutData.breakoutRoom}
-      currentUserJoined={currentUser?.lastBreakoutRoom?.isUserCurrentlyInRoom ?? false}
+      currentUserJoined={currentUser?.lastBreakoutRoom?.currentlyInRoom ?? false}
       presenter={currentUser?.presenter ?? false}
       firstBreakoutId={breakoutRoomId}
     />
