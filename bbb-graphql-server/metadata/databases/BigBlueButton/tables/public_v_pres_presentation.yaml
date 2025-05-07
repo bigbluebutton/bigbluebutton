@@ -44,14 +44,8 @@ select_permissions:
         - uploadTemporaryId
         - uploadUserId
       filter:
-        _and:
-          - _or:
-            - meetingId:
-                _eq: X-Hasura-PresenterInMeeting
-            - meetingId:
-                _eq: X-Hasura-ModeratorInMeeting
-          - _or:
-            - uploadUserId:
-                _eq: X-Hasura-UserId
-            - uploadCompleted:
-                _eq: true
+        _or:
+          - meetingId:
+              _eq: X-Hasura-PresenterInMeeting
+          - meetingId:
+              _eq: X-Hasura-ModeratorInMeeting
