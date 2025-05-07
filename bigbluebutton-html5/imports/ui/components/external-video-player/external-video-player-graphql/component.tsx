@@ -668,7 +668,7 @@ const ExternalVideoPlayerContainer: React.FC = () => {
 
   const fullscreenElementId = 'ExternalVideo';
   const externalVideo: ExternalVideo = layoutSelectOutput((i: Output) => i.externalVideo);
-  const hasExternalVideoOnLayout: boolean = layoutSelectInput((i: Input) => i.externalVideo.hasExternalVideo);
+  const hasExternalVideoOnLayout: boolean = layoutSelectInput((i: Input) => i.externalVideo?.hasExternalVideo);
   const cameraDock = layoutSelectInput((i: Input) => i.cameraDock);
   const sidebarContent = layoutSelectInput((i: Input) => i.sidebarContent);
   const { isOpen: isSidebarContentOpen } = sidebarContent;
