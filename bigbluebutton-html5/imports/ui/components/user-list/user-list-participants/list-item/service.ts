@@ -392,7 +392,7 @@ export const createToolbarOptions = (
         dataTest: 'unmuteUser',
       },
       {
-        allowed: allowedToChangeWhiteboardAccess && pageId,
+        allowed: allowedToChangeWhiteboardAccess && !!pageId,
         key: 'changeWhiteboardAccess',
         label: whiteboardAccess
           ? intl.formatMessage(intlMessages.removeWhiteboardAccess)
