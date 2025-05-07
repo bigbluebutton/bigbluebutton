@@ -1379,6 +1379,7 @@
     "app.createBreakoutRoom.sendInvitationToMods": "Manda un invito ai moderatori assegnati",
     "app.createBreakoutRoom.leastOneWarnBreakout": "Devi posizionare almeno un utente nell'aula separata",
     "app.createBreakoutRoom.minimumDurationWarnBreakout": "La scadenza minima delle aule separate è di {0} minuti.",
+    "app.createBreakoutRoom.timeCannotExceedMainRoom": "La durata della stanza per sottogruppi di lavoro non può superare il tempo rimanente della sessione.",
     "app.createBreakoutRoom.modalDesc": "Suggerimento: trascina il nome di un utente per assegnarlo all'aula prescelta",
     "app.createBreakoutRoom.roomTime": "{0} minuti",
     "app.createBreakoutRoom.numberOfRoomsError": "Il numero di aule non è valido.",

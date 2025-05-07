@@ -9,6 +9,8 @@ import org.bigbluebutton.core.models.PluginModel.getPlugins
 import org.bigbluebutton.core.models.{Plugin, PresentationInPod}
 import org.bigbluebutton.core.running.{LiveMeeting, OutMsgRouter}
 import org.bigbluebutton.core.running.MeetingActor
+
+import java.util
 import scala.jdk.CollectionConverters._
 
 trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
@@ -84,6 +86,7 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
     }
 
     for (breakout <- rooms.values.toVector) {
+
       val roomSlides = if (breakout.allPages) -1 else presSlide;
       val roomDetail = new BreakoutRoomDetail(
         breakout.id, breakout.name,
@@ -106,6 +109,7 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
         breakout.captureNotesFilename,
         breakout.captureSlidesFilename,
         pluginProp = filteredPluginProp,
+        disabledFeatures = new util.ArrayList[String](liveMeeting.props.meetingProp.disabledFeatures.asJava),
         liveMeeting.props.meetingProp.audioBridge,
         liveMeeting.props.meetingProp.cameraBridge,
         liveMeeting.props.meetingProp.screenShareBridge,
