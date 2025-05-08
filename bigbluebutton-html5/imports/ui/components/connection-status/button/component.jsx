@@ -5,8 +5,6 @@ import ConnectionStatusModalComponent from '/imports/ui/components/connection-st
 import ConnectionStatusService from '/imports/ui/components/connection-status/service';
 import Icon from '/imports/ui/components/connection-status/icon/component';
 import Styled from './styles';
-import Auth from '/imports/ui/services/auth';
-import deviceInfo, { isMobile } from '/imports/utils/deviceInfo';
 
 const intlMessages = defineMessages({
   label: {
@@ -28,7 +26,7 @@ class ConnectionStatusButton extends PureComponent {
   }
 
   renderIcon(level = 'normal') {
-    return(
+    return (
       <Styled.IconWrapper>
         <Icon
           level={level}
@@ -38,17 +36,17 @@ class ConnectionStatusButton extends PureComponent {
     );
   }
 
-  setModalIsOpen = (isOpen) => this.setState({ isModalOpen: isOpen }); 
+  setModalIsOpen = (isOpen) => this.setState({ isModalOpen: isOpen });
 
   renderModal(isModalOpen) {
     return (
       isModalOpen ?
-      <ConnectionStatusModalComponent
-        {...{
-          isModalOpen,
-          setModalIsOpen: this.setModalIsOpen,
-        }}
-      /> : null
+        <ConnectionStatusModalComponent
+          {...{
+            isModalOpen,
+            setModalIsOpen: this.setModalIsOpen,
+          }}
+        /> : null
     )
   }
 
@@ -72,7 +70,7 @@ class ConnectionStatusButton extends PureComponent {
             disabled
             ghost
             circle
-            onClick={() => {}}
+            onClick={() => { }}
             data-test="connectionStatusButton"
             isMobile={isMobile}
           />
@@ -112,7 +110,7 @@ class ConnectionStatusButton extends PureComponent {
           size="sm"
           color={color}
           circle
-          onClick={() => this.setState({isModalOpen: true})}
+          onClick={() => this.setState({ isModalOpen: true })}
           data-test="connectionStatusButton"
         />
         {this.renderModal(isModalOpen)}
