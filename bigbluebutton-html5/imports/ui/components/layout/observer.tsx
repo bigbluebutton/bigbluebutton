@@ -171,7 +171,7 @@ const LayoutObserver: React.FC = () => {
     if (
       selectedLayout?.toLowerCase?.()?.includes?.('focus')
       && !sidebarContentIsOpen
-      && deviceType !== DEVICE_TYPE.MOBILE
+      && deviceType !== DEVICE_TYPE.MOBILE && deviceType !== DEVICE_TYPE.TABLET_LANDSCAPE
       && numCameras > 0
       && presentationIsOpen
     ) {
