@@ -140,6 +140,30 @@ object ClientSettings extends SystemConfiguration {
     pluginsFromConfig
   }
 
+  def getPluginSettingValue(
+      pluginSettings: Map[String, Any],
+      pluginName:     String,
+      settingName:    String
+  ): Option[Any] = if (pluginSettings != null) {
+    getConfigPropertyValueByPath(pluginSettings, s"${pluginName}.${settingName}")
+  } else None
+
+  def mergePluginSettingsIntoClientSettings(
+      clientSettingsBeforePluginValidation: Map[String, Object],
+      pluginClientSettings:                 List[Plugin]
+  ): Map[String, Object] = {
+    //Construct a minimal client settings structure containing only plugin overrides
+    val clientSettingsOnlyPlugins: Map[String, Object] = Map[String, Object](
+      "public" -> Map[String, Object](
+        "plugins" -> pluginClientSettings.map(pluginSettings => Map(
+          "name" -> pluginSettings.name
+        ) ++ Map("settings" -> pluginSettings.settings))
+      )
+    )
+    // Override clientSettingsBeforeValidation
+    YamlUtil.mergeImmutableMaps(clientSettingsBeforePluginValidation, clientSettingsOnlyPlugins)
+  }
+
   case class Plugin(name: String, settings: Map[String, Object])
 
 }

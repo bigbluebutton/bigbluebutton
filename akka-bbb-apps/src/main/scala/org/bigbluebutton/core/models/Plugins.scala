@@ -1,11 +1,12 @@
 package org.bigbluebutton.core.models
 
-import com.fasterxml.jackson.annotation.{JsonIgnoreProperties, JsonProperty}
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.{JsonMappingException, ObjectMapper}
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
-import org.bigbluebutton.ClientSettings.{getPluginsFromConfig, logger}
+import org.bigbluebutton.ClientSettings
+import org.bigbluebutton.ClientSettings.getPluginsFromConfig
 import org.bigbluebutton.core.db.PluginDAO
+import org.slf4j.LoggerFactory
 
 import java.util
 
@@ -33,9 +34,11 @@ case class RemoteDataSource(
     permissions: List[String]
 )
 
-case class PluginSettingTemplate(
+case class PluginSettingSchema(
     name: String,
     required: Boolean,
+    defaultValue: Object,
+    label: String,
     `type`: String,
 
 )
@@ -50,7 +53,7 @@ case class PluginManifestContent(
     eventPersistence:              Option[EventPersistence]             = None,
     dataChannels:                  Option[List[DataChannel]]            = None,
     remoteDataSources:             Option[List[RemoteDataSource]]       = None,
-    settingsValidator:             Option[List[PluginSettingTemplate]]  = None,
+    settingsSchema:                Option[List[PluginSettingSchema]]    = None,
 )
 
 case class PluginManifest(
@@ -63,6 +66,7 @@ case class Plugin(
 )
 
 object PluginModel {
+  val logger = LoggerFactory.getLogger(this.getClass)
   val objectMapper: ObjectMapper = new ObjectMapper()
   objectMapper.registerModule(new DefaultScalaModule())
   def getPluginByName(instance: PluginModel, pluginName: String): Option[Plugin] = {
@@ -105,7 +109,102 @@ object PluginModel {
     val pluginWithAbsoluteJsEntrypoint = replaceRelativeJavascriptEntrypoint(plugin)
     replaceRelativeLocalesBaseUrl(pluginWithAbsoluteJsEntrypoint)
   }
-  def createPluginModelFromJson(json: util.Map[String, AnyRef]): PluginModel = {
+
+  private def getSettingType(settingValue: Option[Any]): String = {
+    settingValue match {
+      case Some(_: Int)=> "int"
+      case Some(_: Float)=> "float"
+      case Some(_: String) => "string"
+      case Some(_: Boolean) => "boolean"
+      case Some(_: Map[String, Object]) => "json"
+      // Default case.
+      case _ => "none"
+    }
+  }
+
+  private def checkSettingsType(settingTypeFromSchema: String, settingValue: Option[Any]): Boolean = getSettingType(
+    settingValue) == settingTypeFromSchema
+
+  private def addPluginSettingEntry(currentPluginSettings: Map[String, ClientSettings.Plugin],
+                                      pluginName: String, settingKey: String, settingValue: Object): Map[String, ClientSettings.Plugin]= {
+    val updatedPluginSetting: Map[String, ClientSettings.Plugin] = currentPluginSettings.get(pluginName) match {
+      // Plugin exists: add setting in its existing settings map
+      case Some(
+        pluginSettings: ClientSettings.Plugin
+      ) => Map(pluginName -> ClientSettings.Plugin(pluginName, pluginSettings.settings + (settingKey -> settingValue)))
+      // Plugin not found: create a new plugin entry with the given setting
+      case None => Map(pluginName -> ClientSettings.Plugin(pluginName, Map(settingKey -> settingValue)))
+    }
+    currentPluginSettings ++ updatedPluginSetting
+  }
+
+  // Check plugins' settings against their schemas and add default values if needed.
+  private def validatePluginsBeforeCreateModel(
+                                                instance: PluginModel,
+                                                clientSettings: Map[String, Object]): (PluginModel, List[ClientSettings.Plugin]) = {
+    var pluginSettings = getPluginsFromConfig(clientSettings)
+    instance.plugins = instance.plugins.filter(mapItem => {
+      val plugin = mapItem._2
+      val pluginName = plugin.manifest.content.name
+      logger.info("Validating settings for plugin {}", plugin.manifest.content.name)
+      // Checking for pre-defined schema in manifest.json
+      plugin.manifest.content.settingsSchema match {
+        case Some(settingsSchemaList: List[PluginSettingSchema]) =>
+          settingsSchemaList.forall(settingSchemaObject =>
+            // If setting schema is not required, skip it
+            if (settingSchemaObject.required) {
+              val pluginSettingValueOption = ClientSettings.getPluginSettingValue(
+                pluginSettings, pluginName,
+                settingSchemaObject.name)
+              val schemaTypeMatch = checkSettingsType(settingSchemaObject.`type`, pluginSettingValueOption)
+              pluginSettingValueOption match {
+                case Some(settingSchema) =>
+                  if (!schemaTypeMatch) {
+                    logger.error(
+                      "Plugin [{}]: Setting [{}] has a value [{}] of incorrect type. Expected [{}]. Plugin will not be loaded.",
+                      pluginName,
+                      settingSchemaObject.name,
+                      settingSchema,
+                      settingSchemaObject.`type`
+                    )
+                  }
+                  schemaTypeMatch
+                case None =>
+                  val defaultValueTypeMatch = checkSettingsType(
+                    settingSchemaObject.`type`, Option(settingSchemaObject.defaultValue))
+                  if (defaultValueTypeMatch) {
+                    logger.warn(
+                      "Plugin [{}]: Required setting [{}] not found. Falling back to default value [{}]",
+                      pluginName,
+                      settingSchemaObject.name,
+                      settingSchemaObject.defaultValue
+                    )
+                    // Add the setting to this plugin's settings.
+                    pluginSettings = addPluginSettingEntry(
+                      pluginSettings, pluginName, settingSchemaObject.name, settingSchemaObject.defaultValue)
+                    true
+                  } else {
+                    logger.error(
+                      "Plugin [{}]: Required setting [{}] is missing and default value [{}] does not match expected type [{}]",
+                      pluginName,
+                      settingSchemaObject.name,
+                      settingSchemaObject.defaultValue,
+                      settingSchemaObject.`type`
+                    )
+                    false
+                  }
+              }
+            } else true
+          )
+        // If no settings Schema is provided, no validation is needed
+        case None => true
+      }
+    })
+    (instance, pluginSettings.values.toList)
+  }
+  def createPluginModelFromJson(
+                                 json: util.Map[String, AnyRef],
+                                 clientSettings: Map[String, Object]): (PluginModel, List[ClientSettings.Plugin]) = {
     val instance = new PluginModel()
     var pluginsMap: Map[String, Plugin] = Map.empty[String, Plugin]
     json.forEach { case (pluginName, plugin) =>
@@ -119,61 +218,9 @@ object PluginModel {
       }
     }
     instance.plugins = pluginsMap
-    instance
+    validatePluginsBeforeCreateModel(instance, clientSettings)
   }
-  def getSettingType(settingValue: Option[Any]): String = {
-    settingValue match {
-      case Some(_: Int)=> "int"
-      case Some(_: Float)=> "float"
-      case Some(_: String) => "string"
-      case Some(_: Boolean) => "boolean"
-      case Some(_: Map[String, Object]) => "json"
-      // Default case.
-      case _ => "none"
-    }
-  }
-  private def validatePluginsBeforePersisting(intance: PluginModel, clientSettings: Map[String, Object]) = {
-    val pluginSettings = getPluginsFromConfig(clientSettings)
-    intance.plugins = intance.plugins.filter(mapItem => {
-      val plugin = mapItem._2
-      logger.info("Validating settings for plugin {}", plugin.manifest.content.name)
-      // Checking for pre-defined templates in manifest.json
-      plugin.manifest.content.settingsValidator match {
-        case Some(settingsValidatorList: List[PluginSettingTemplate]) =>
-          // Found template check for plugin, now fetch settings value from clientSettings.
-          val pluginSettingsValues: Map[String, Object] = pluginSettings.get(plugin.manifest.content.name) match {
-            case Some(settingsValues) =>
-              settingsValues.settings
-            case None =>
-              logger.warn("Plugin {} with URL {} hasn't provided any setting", plugin.manifest.content.name, plugin.manifest.url)
-              null
-          }
-          settingsValidatorList.forall(settingTemplate =>
-            // If template setting is not required, skip it
-            if (settingTemplate.required) {
-              if (pluginSettingsValues != null) {
-                val settingTypeFound = getSettingType(
-                  pluginSettingsValues.get(settingTemplate.name))
-                val settingTypeMatch = settingTemplate.`type` == settingTypeFound
-                if (!settingTypeMatch) logger.error("Type mismatch in setting {} for plugin {}. Required {}, but got {}",
-                  settingTemplate.name, plugin.manifest.content.name, settingTemplate.`type`, settingTypeFound)
-                settingTypeMatch
-              } else {
-                logger.error(
-                  "Plugin {} required {}, but no setting has been provided", plugin.manifest.content.name,
-                  settingTemplate.name)
-                false
-              }
-            } else true
-          )
-        // If no settings template is provided, no validation is needed
-        case None => true
-      }
-
-    })
-  }
-  def persistPluginsForClient(meetingId: String, instance: PluginModel, clientSettings: Map[String, Object]): Unit = {
-    validatePluginsBeforePersisting(instance, clientSettings)
+  def persistPluginsForClient(meetingId: String, instance: PluginModel): Unit = {
     instance.plugins.foreach { case (_, plugin) =>
       PluginDAO.insert(meetingId, plugin.manifest.content.name, plugin.manifest.content.javascriptEntrypointUrl,
         plugin.manifest.content.javascriptEntrypointIntegrity.getOrElse(""), plugin.manifest.content.localesBaseUrl)
