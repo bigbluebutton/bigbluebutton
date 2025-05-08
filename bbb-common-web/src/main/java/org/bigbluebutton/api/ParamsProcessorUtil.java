@@ -106,8 +106,8 @@ public class ParamsProcessorUtil {
     private String defaultAudioBridge = "bbb-webrtc-sfu";
     private String defaultDisabledFeatures;
     private String defaultPluginManifests;
-    private Integer pluginManifestsSourceUrlFetchTimeout;
-    private Integer maxPluginManifestsSourceUrlFetchSize;
+    private Integer pluginManifestsFetchUrlResponseTimeout;
+    private Integer maxPluginManifestsFetchUrlPayloadSize;
     private boolean defaultNotifyRecordingIsOn = false;
     private boolean defaultKeepEvents = false;
     private Boolean useDefaultLogo;
@@ -468,16 +468,19 @@ public class ParamsProcessorUtil {
         return processPluginManifests(pluginManifestsJsonElement);
     }
 
-    private JsonElement processPluginManifestsSourceUrl(String urlStr) {
-        int timeoutConnectionMillis = pluginManifestsSourceUrlFetchTimeout * 1000;
+    private JsonElement processPluginManifestsFetchUrl(String urlStr) {
+        int timeoutConnectionMillis = pluginManifestsFetchUrlResponseTimeout * 1000;
         try {
+            log.info("Plugin manifests URL provided: [{}]", urlStr);
+            log.info("Attempting to download plugin manifests from [{}]", urlStr);
+
             HttpURLConnection conn = (HttpURLConnection) new URL(urlStr).openConnection();
             conn.setConnectTimeout(timeoutConnectionMillis);
             conn.setReadTimeout(timeoutConnectionMillis);
             conn.setRequestProperty("Accept", "application/json");
 
             if (conn.getResponseCode() != 200) {
-                log.warn("pluginManifestsSourceUrl responded with HTTP {}", conn.getResponseCode());
+                log.warn("pluginManifestsFetchUrl responded with HTTP {}", conn.getResponseCode());
                 return null;
             }
 
@@ -486,7 +489,7 @@ public class ParamsProcessorUtil {
                     new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8))) {
                 char[] buf = new char[4096];
                 int n;
-                int max = maxPluginManifestsSourceUrlFetchSize * 1024; // Default: 1 MiB hard cap
+                int max = maxPluginManifestsFetchUrlPayloadSize * 1024; // Default: 1 MiB hard cap
                 while ((n = in.read(buf)) != -1 && max > 0) {
                     sb.append(buf, 0, n);
                     max -= n;
@@ -494,21 +497,23 @@ public class ParamsProcessorUtil {
 
                 if (max < 0) {
                     log.warn(
-                            "Response from pluginManifestsSourceUrl [{}] exceeded maximum allowed payload size ({} KiB); skipping load.",
-                            urlStr, maxPluginManifestsSourceUrlFetchSize);
+                            "Response from pluginManifestsFetchUrl [{}] exceeded maximum allowed payload size ({} KiB); skipping load.",
+                            urlStr, maxPluginManifestsFetchUrlPayloadSize);
                     return null;
                 }
             }
 
             String content = sb.toString();
-            return new Gson().fromJson(content, JsonElement.class);
+            JsonElement payloadResult = new Gson().fromJson(content, JsonElement.class);
+            log.info("Successfully downloaded and parsed plugin manifests from [{}]", urlStr);
+            return payloadResult;
 
         } catch (MalformedURLException e) {
-            log.error("Invalid pluginManifestsSourceUrl [{}]", urlStr, e);
+            log.error("Invalid pluginManifestsFetchUrl [{}]", urlStr, e);
         } catch (IOException e) {
             log.error("I/O error when fetching plugin manifests from [{}]", urlStr, e);
         } catch (Exception e) {
-            log.error("Unexpected error while processing pluginManifestsSourceUrl [{}]", urlStr, e);
+            log.error("Unexpected error while processing pluginManifestsFetchUrl [{}]", urlStr, e);
         }
         return null;
     }
@@ -657,10 +662,10 @@ public class ParamsProcessorUtil {
                 ArrayList<PluginManifest> pluginManifestsFromParam = processPluginManifests(pluginManifestsParam);
                 listOfPluginManifests.addAll(pluginManifestsFromParam);
             }
-            String pluginManifestsSourceUrlParam = params.get(ApiParams.PLUGIN_MANIFESTS_SOURCE_URL);
-            if (!StringUtils.isEmpty(pluginManifestsSourceUrlParam)) {
-                JsonElement pluginManifestsFromSourceUrlParam = processPluginManifestsSourceUrl(
-                        pluginManifestsSourceUrlParam
+            String pluginManifestsFetchUrlParam = params.get(ApiParams.PLUGIN_MANIFESTS_FETCH_URL);
+            if (!StringUtils.isEmpty(pluginManifestsFetchUrlParam)) {
+                JsonElement pluginManifestsFromSourceUrlParam = processPluginManifestsFetchUrl(
+                        pluginManifestsFetchUrlParam
                 );
                 if (pluginManifestsFromSourceUrlParam != null) {
                     ArrayList<PluginManifest> pluginManifestsFromParam = processPluginManifests(
@@ -1757,11 +1762,11 @@ public class ParamsProcessorUtil {
 
     public void setMaxNumPages(Integer maxNumPages) { this.defaultMaxNumPages = maxNumPages; }
 
-    public void setPluginManifestsSourceUrlFetchTimeout(Integer pluginManifestsSourceUrlFetchTimeout) {
-        this.pluginManifestsSourceUrlFetchTimeout = pluginManifestsSourceUrlFetchTimeout;
+    public void setPluginManifestsFetchUrlResponseTimeout(Integer pluginManifestsFetchUrlResponseTimeout) {
+        this.pluginManifestsFetchUrlResponseTimeout = pluginManifestsFetchUrlResponseTimeout;
     }
 
-    public void setMaxPluginManifestsSourceUrlFetchSize(Integer maxPluginManifestsSourceUrlFetchSize) {
-        this.maxPluginManifestsSourceUrlFetchSize = maxPluginManifestsSourceUrlFetchSize;
+    public void setMaxPluginManifestsFetchUrlPayloadSize(Integer maxPluginManifestsFetchUrlPayloadSize) {
+        this.maxPluginManifestsFetchUrlPayloadSize = maxPluginManifestsFetchUrlPayloadSize;
     }
 }

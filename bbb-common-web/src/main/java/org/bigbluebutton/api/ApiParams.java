@@ -75,7 +75,7 @@ public class ApiParams {
     public static final String GROUPS = "groups";
     public static final String DISABLED_FEATURES = "disabledFeatures";
     public static final String PLUGIN_MANIFESTS = "pluginManifests";
-    public static final String PLUGIN_MANIFESTS_SOURCE_URL = "pluginManifestsSourceUrl";
+    public static final String PLUGIN_MANIFESTS_FETCH_URL = "pluginManifestsFetchUrl";
     public static final String DISABLED_FEATURES_EXCLUDE = "disabledFeaturesExclude";
     public static final String NOTIFY_RECORDING_IS_ON = "notifyRecordingIsOn";
 
