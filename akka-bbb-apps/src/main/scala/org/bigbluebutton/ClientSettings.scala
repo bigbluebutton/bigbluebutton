@@ -130,7 +130,12 @@ object ClientSettings extends SystemConfiguration {
           if (plugin.contains("name")) {
 
             val pluginName = plugin("name").toString
-            val configs: Map[String, Object] = plugin("settings").asInstanceOf[Map[String, Object]]
+            val configs: Map[String, Object] = plugin
+              .get("settings")
+              .collect { case m: Map[_, _] =>
+                m.asInstanceOf[Map[String, Object]]
+              }
+              .getOrElse(Map.empty[String, Object])
             pluginsFromConfig += (pluginName -> Plugin(pluginName, configs))
           }
         }
@@ -141,12 +146,12 @@ object ClientSettings extends SystemConfiguration {
   }
 
   def getPluginSettingValue(
-      pluginSettings: Map[String, Any],
+      pluginSettings: Map[String, ClientSettings.Plugin],
       pluginName:     String,
       settingName:    String
-  ): Option[Any] = if (pluginSettings != null) {
-    getConfigPropertyValueByPath(pluginSettings, s"${pluginName}.${settingName}")
-  } else None
+  ): Option[Any] = pluginSettings
+    .get(pluginName)
+    .flatMap(_.settings.get(settingName))
 
   def mergePluginSettingsIntoClientSettings(
       clientSettingsBeforePluginValidation: Map[String, Object],
