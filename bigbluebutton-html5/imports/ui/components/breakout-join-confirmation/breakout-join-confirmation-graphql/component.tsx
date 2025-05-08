@@ -83,7 +83,7 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
   const defaultSelectedBreakoutId = breakouts.find(({ isLastAssignedRoom }) => isLastAssignedRoom)?.breakoutRoomId
     || firstBreakoutId;
 
-  const [selectValue, setSelectValue] = React.useState(defaultSelectedBreakoutId);
+  const [selectValue, setSelectValue] = React.useState('');
 
   const requestJoinURL = (breakoutRoomId: string) => {
     breakoutRoomRequestJoinURL({ variables: { breakoutRoomId } });
@@ -106,6 +106,13 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
       setWaiting(true);
     }
   };
+
+  useEffect(() => {
+    // If User is Moved to a new room, the select value is updated
+    if (defaultSelectedBreakoutId) {
+      setSelectValue(defaultSelectedBreakoutId);
+    }
+  }, [defaultSelectedBreakoutId]);
 
   const handleJoinBreakoutConfirmation = useCallback(() => {
     stopMediaOnMainRoom(presenter);
@@ -222,10 +229,11 @@ const BreakoutJoinConfirmationContainer: React.FC = () => {
   const { data: currentUser } = useCurrentUser((u) => {
     return {
       isModerator: u.isModerator,
-      breakoutRooms: u.breakoutRooms,
+      lastBreakoutRoom: u.lastBreakoutRoom,
       presenter: u.presenter,
     };
   });
+
   const {
     data: breakoutData,
   } = useDeduplicatedSubscription<GetBreakoutDataResponse>(getBreakoutData);
@@ -252,7 +260,7 @@ const BreakoutJoinConfirmationContainer: React.FC = () => {
     <BreakoutJoinConfirmation
       freeJoin={freeJoin}
       breakouts={breakoutData.breakoutRoom}
-      currentUserJoined={currentUser?.breakoutRooms?.isUserCurrentlyInRoom ?? false}
+      currentUserJoined={currentUser?.lastBreakoutRoom?.currentlyInRoom ?? false}
       presenter={currentUser?.presenter ?? false}
       firstBreakoutId={breakoutRoomId}
     />

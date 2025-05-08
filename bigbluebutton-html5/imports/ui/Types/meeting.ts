@@ -89,7 +89,7 @@ export interface ExternalVideo {
   externalVideoUrl: string;
   startedSharingAt: number;
   stoppedSharingAt: number;
-  updatedAt: Date;
+  updatedAt: string;
 }
 
 export interface Layout {

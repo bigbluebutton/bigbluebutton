@@ -82,7 +82,7 @@ const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
   const showDivider = (showReplyButton || showReactionsButton) && (showEditButton || showDeleteButton);
 
   const container = (
-    <Container className="chat-message-toolbar">
+    <Container className="chat-message-toolbar" data-test="chatMessageToolbar">
       {showReplyButton && (
       <>
         <Tooltip title={intl.formatMessage(intlMessages.replyTooltip)}>
@@ -91,6 +91,7 @@ const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
             icon="undo"
             color="light"
             onClick={onReply}
+            data-test="replyMessageButton"
           />
         </Tooltip>
       </>
@@ -105,7 +106,7 @@ const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
           }}
           svgIcon="reactions"
           color="light"
-          data-test="reactionsPickerButton"
+          data-test="reactMessageButton"
         />
       </Tooltip>
       )}

@@ -65,7 +65,7 @@ public class PresentationFileProcessor {
             pres.setUploadedFileHash(s3FileManager.generateHash(pres.getUploadedFile()));
             String remoteFileName = pres.getUploadedFileHash() + ".tar.gz";
             Meeting meeting = ServiceUtils.findMeetingFromMeetingID(meetingId);
-            if(meeting.isPresentationConversionCacheEnabled() && s3FileManager.exists(remoteFileName)) {
+            if(meeting != null && meeting.isPresentationConversionCacheEnabled() && s3FileManager.exists(remoteFileName)) {
                 S3Object s3Object = s3FileManager.download(remoteFileName);
                 File parentDir = new File(pres.getUploadedFile().getParent());
                 TarGzManager.decompress(s3Object, parentDir.getAbsolutePath());

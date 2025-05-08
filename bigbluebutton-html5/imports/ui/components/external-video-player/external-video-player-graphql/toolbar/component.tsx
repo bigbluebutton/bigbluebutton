@@ -117,7 +117,7 @@ const ExternalVideoPlayerToolbar: React.FC<ExternalVideoPlayerToolbarProps> = ({
             </Styled.HoverToolbar>
           ),
           (
-            deviceInfo.isMobile && playing) && (
+            deviceInfo.isMobile && playing && !showUnsynchedMsg) && (
               <Styled.MobileControlsOverlay
                 key="mobile-overlay-external-video"
                 onTouchStart={() => {
@@ -134,6 +134,7 @@ const ExternalVideoPlayerToolbar: React.FC<ExternalVideoPlayerToolbarProps> = ({
           ),
           (!showUnsynchedMsg && (
             <ExternalVideoOverlay
+              key="external-video-overlay"
               onVerticalArrow={() => {
                 volumeSliderRef.current?.focus();
               }}

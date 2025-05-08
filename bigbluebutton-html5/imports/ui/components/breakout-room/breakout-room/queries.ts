@@ -9,7 +9,6 @@ export interface BreakoutRoom {
   joinURL: string | null;
   breakoutRoomId: string;
   isDefaultName: boolean;
-  hasJoined: boolean;
   isUserCurrentlyInRoom: boolean;
   participants: Array<{
     userId: string;
@@ -44,7 +43,6 @@ export const getBreakoutData = gql`
       joinURL
       breakoutRoomId
       isDefaultName
-      hasJoined
       isUserCurrentlyInRoom
       participants {
         userId

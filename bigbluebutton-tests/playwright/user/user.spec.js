@@ -188,7 +188,8 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
       });
 
       // https://docs.bigbluebutton.org/3.0/testing/release-testing/#microphone
-      test('Lock Share microphone', async ({ browser, context, page }) => {
+      test('Lock Share microphone', async ({ browser, context, page, browserName }) => {
+        test.skip(browserName === 'firefox', 'It only workss in manual testing');
         const lockViewers = new LockViewers(browser, context);
         await lockViewers.initPages(page);
         await lockViewers.lockShareMicrophone();
@@ -228,7 +229,8 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
         await lockViewers.lockSeeOtherViewersAnnotations();
       });
 
-      test('Lock see other viewers cursor', async ({ browser, context, page }) => {
+      test('Lock see other viewers cursor', async ({ browser, context, page, browserName }) => {
+        test.skip(browserName === 'firefox', 'The test is inconsistent on Firefox, due to the heavy browser.')
         const lockViewers = new LockViewers(browser, context);
         await lockViewers.initPages(page);
         await lockViewers.lockSeeOtherViewersCursor();

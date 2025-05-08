@@ -70,7 +70,7 @@ object FakeUserGenerator {
     ru
   }
 
-  def createFakeVoiceUser(user: RegisteredUser, callingWith: String, muted: Boolean, talking: Boolean,
+  def createFakeVoiceUser(user: RegisteredUser, callingWith: String, muted: Boolean, deafened: Boolean, talking: Boolean,
                           listenOnly: Boolean, floor: Boolean = false): VoiceUserState = {
     val voiceUserId = RandomStringGenerator.randomAlphanumericString(8)
     val lastFloorTime = System.currentTimeMillis().toString();
@@ -83,6 +83,7 @@ object FakeUserGenerator {
       callerNum = user.name,
       "#ff6242",
       muted,
+      deafened,
       talking,
       listenOnly,
       "freeswitch",
@@ -94,7 +95,7 @@ object FakeUserGenerator {
     )
   }
 
-  def createFakeVoiceOnlyUser(meetingId: String, callingWith: String, muted: Boolean, talking: Boolean,
+  def createFakeVoiceOnlyUser(meetingId: String, callingWith: String, muted: Boolean, deafened: Boolean, talking: Boolean,
                               listenOnly: Boolean, floor: Boolean = false): VoiceUserState = {
     val voiceUserId = RandomStringGenerator.randomAlphanumericString(8)
     val intId = "v_" + RandomStringGenerator.randomAlphanumericString(16)
@@ -109,6 +110,7 @@ object FakeUserGenerator {
       callerNum = name,
       "#ff6242",
       muted,
+      deafened,
       talking,
       listenOnly,
       "freeswitch",

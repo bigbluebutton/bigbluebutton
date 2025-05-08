@@ -21,17 +21,21 @@ import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useLockContext from '/imports/ui/components/lock-viewers/hooks/useLockContext';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { useIsAudioTranscriptionEnabled } from '/imports/ui/components/audio/audio-graphql/audio-captions/service';
+import useIsAudioConnected from '/imports/ui/components/audio/audio-graphql/hooks/useIsAudioConnected';
 
 const invalidDialNumbers = ['0', '613-555-1212', '613-555-1234', '0000'];
 
 const AudioModalContainer = (props) => {
+  const { setIsOpen } = props;
   const { data: meeting } = useMeeting((m) => ({
     voiceSettings: m.voiceSettings,
+    audioBridge: m.audioBridge,
   }));
   const { data: currentUserData } = useCurrentUser((user) => ({
     away: user.away,
     isModerator: user.isModerator,
   }));
+  const usingLiveKit = meeting?.audioBridge === 'livekit';
   const getEchoTest = useStorageKey('getEchoTest', 'session');
 
   const away = currentUserData?.away;
@@ -40,7 +44,8 @@ const AudioModalContainer = (props) => {
   const isRTL = document.documentElement.getAttribute('dir') === 'rtl';
   const APP_CONFIG = window.meetingClientSettings.public.app;
   const forceListenOnly = getFromUserSettings('bbb_force_listen_only', APP_CONFIG.forceListenOnly);
-  const listenOnlyMode = getFromUserSettings('bbb_listen_only_mode', APP_CONFIG.listenOnlyMode);
+  const listenOnlyMode = forceListenOnly
+    || (getFromUserSettings('bbb_listen_only_mode', APP_CONFIG.listenOnlyMode) && !usingLiveKit);
   const skipCheck = getFromUserSettings('bbb_skip_check_audio', APP_CONFIG.skipCheck);
   const skipCheckOnJoin = getFromUserSettings('bbb_skip_check_audio_on_first_join', APP_CONFIG.skipCheckOnJoin);
   // Mobile users have significant trouble figuring out correct audio I/O devices
@@ -74,14 +79,14 @@ const AudioModalContainer = (props) => {
   const inputDeviceId = useReactiveVar(AudioManager._inputDeviceId.value);
   const outputDeviceId = useReactiveVar(AudioManager._outputDeviceId.value);
   const showPermissionsOvelay = useReactiveVar(AudioManager._isWaitingPermissions.value);
-  const isUsingAudio = Service.useIsUsingAudio();
   const isConnecting = useReactiveVar(AudioManager._isConnecting.value);
+  const isUsingAudio = Service.useIsAudioConnectionUnderway();
   const isReconnecting = useReactiveVar(AudioManager._isReconnecting.value);
-  const isConnected = useReactiveVar(AudioManager._isConnected.value);
   const isListenOnly = useReactiveVar(AudioManager._isListenOnly.value);
   const isEchoTest = useReactiveVar(AudioManager._isEchoTest.value);
   const autoplayBlocked = useReactiveVar(AudioManager._autoplayBlocked.value);
   const isMuted = useReactiveVar(AudioManager._isMuted.value);
+  const isConnected = useIsAudioConnected();
   const meetingIsBreakout = AppService.useMeetingIsBreakout();
   const supportsTransparentListenOnly = useReactiveVar(
     AudioManager._transparentListenOnlySupported.value,
@@ -93,8 +98,6 @@ const AudioModalContainer = (props) => {
     && Service.inputDeviceId();
   const joinFullAudioImmediately = !isListenOnlyInputDevice
     && (skipCheck || (skipCheckOnJoin && !getEchoTest) || devicesAlreadyConfigured);
-  const { setIsOpen } = props;
-  const close = useCallback(() => closeModal(() => setIsOpen(false)), [setIsOpen]);
   const joinMic = useCallback(
     (options = {}) => joinMicrophone({
       skipEchoTest: options.skipEchoTest || joinFullAudioImmediately,
@@ -102,6 +105,26 @@ const AudioModalContainer = (props) => {
     }),
     [skipCheck, skipCheckOnJoin, meeting],
   );
+  const close = useCallback(() => {
+    const handleJoinError = (error, listenOnly) => {
+      if (!listenOnly
+        && (error.name === 'NotAllowedError' || error.errCode === AudioError.MIC_ERROR.NO_PERMISSION)) {
+        joinListenOnly().catch((loError) => handleJoinError(loError, true));
+      }
+    };
+
+    const callback = () => {
+      setIsOpen(false);
+
+      // When using LiveKit, force joining audio when the modal is closed,
+      // but the user is not connected nor connecting to audio.
+      if (usingLiveKit && !isConnected && !isConnecting) {
+        joinMic().catch((error) => handleJoinError(error, false));
+      }
+    };
+
+    closeModal(callback);
+  }, [isConnected, isConnecting, usingLiveKit, joinMic, setIsOpen]);
   const isTranscriptionEnabled = useIsAudioTranscriptionEnabled();
 
   if (!currentUserData) return null;
