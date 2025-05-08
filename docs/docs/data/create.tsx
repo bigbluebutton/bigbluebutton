@@ -545,8 +545,8 @@ const createEndpointTableData = [
     "type": "String",
     "description": (
       <>
-        Url that points to a pluginManifests Json. This is mainly used to simplify and minimize the size of the <code>create</code> call.
-        The payload that bbb-web expects is a json with the exact same structure as the parameter <code>pluginManifests</code>,
+        URL that points to a JSON file containing an array of plugin manifests. This is mainly used to simplify and minimize the size of the <code>create</code> call.
+        The expected content is a json array with the exact same structure as the parameter <code>pluginManifests</code>,
         see example in the parameter above.
       </>
     )
