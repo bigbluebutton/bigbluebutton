@@ -15,7 +15,6 @@ const EmojiPicker = (props) => {
   const {
     intl,
     onEmojiSelect,
-    onClickOutside,
   } = props;
 
   const i18n = {
@@ -71,7 +70,6 @@ const EmojiPicker = (props) => {
       dynamicWidth
       exceptEmojis={emojisToExclude}
       autoFocus
-      onClickOutside={onClickOutside}
     />
   );
 };
