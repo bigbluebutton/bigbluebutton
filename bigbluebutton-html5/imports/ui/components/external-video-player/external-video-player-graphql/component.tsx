@@ -406,11 +406,11 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
       currentTime = getPlayerCurrentTime(playerRef.current as ReactPlayer);
     }
     const interPlayerPlaybackRate = getPlaybackRate(playerRef.current as ReactPlayer);
-    if (isPresenter && playing && interPlayerPlaybackRate !== playerPlaybackRate) {
+    if (isPresenter && interPlayerPlaybackRate !== playerPlaybackRate) {
       sendMessage('seek', {
         rate: interPlayerPlaybackRate,
         time: currentTime,
-        state: 'playing',
+        state: playing ? 'playing' : '',
       });
     }
   };
@@ -446,7 +446,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
       sendMessage('playbackRateChange', {
         rate,
         time: getCurrentTime(),
-        state: playing ? 'playing' : 'paused',
+        state: playing ? 'playing' : '',
       });
     }
   };
