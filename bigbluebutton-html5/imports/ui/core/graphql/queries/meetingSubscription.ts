@@ -100,6 +100,14 @@ const MEETING_SUBSCRIPTION = gql`
           record
           sequence
         }
+        breakoutRoomsCommonProperties {
+          captureNotes
+          captureSlides
+          durationInSeconds
+          freeJoin
+          sendInvitationToModerators
+          startedAt
+        }
         voiceSettings {
           dialNumber
           muteOnStart

@@ -74,11 +74,19 @@ export interface BreakoutPolicies {
   captureSlides: string;
   captureSlidesFilename: string;
   freeJoin: boolean;
-  meetingId: string;
   parentId: string;
   privateChatEnabled: boolean;
   record: boolean;
   sequence: number;
+}
+
+export interface BreakoutRoomsCommonProperties {
+  captureNotes: string;
+  captureSlides: string;
+  durationInSeconds: number;
+  freeJoin: boolean;
+  sendInvitationToModerators: boolean;
+  startedAt: Date;
 }
 
 export interface ExternalVideo {
@@ -134,6 +142,7 @@ export interface Meeting {
   lockSettings: LockSettings;
   voiceSettings: VoiceSettings;
   breakoutPolicies: BreakoutPolicies;
+  breakoutRoomsCommonProperties: BreakoutRoomsCommonProperties;
   externalVideo: ExternalVideo;
   layout: Layout;
   componentsFlags: ComponentsFlags;
