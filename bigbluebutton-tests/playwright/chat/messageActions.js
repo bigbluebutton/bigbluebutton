@@ -174,17 +174,15 @@ class MessageActions extends Chat {
 
   async breakoutsModDelete() {
     // create breakout rooms
-    await this.modPage.waitAndClick(e.manageUsers);
-    await this.modPage.waitAndClick(e.createBreakoutRooms);
+    await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
     await this.modPage.dragDropSelector(e.attendeeNotAssigned, e.breakoutBox1);
-    await this.modPage.waitAndClick(e.modalConfirmButton);
+    await this.modPage.waitAndClick(e.createBreakoutRoomsButton, ELEMENT_WAIT_LONGER_TIME);
     // join both users in room1
     await this.userPage.waitAndClick(e.modalConfirmButton);
-    await this.userPage.waitAndClick(e.breakoutRoomsItem);
+    await this.userPage.waitAndClick(e.breakoutRoomSidebarButton);
     await this.userPage.hasElement(e.alreadyConnected, 'should display the element alreadyConnected when user join', ELEMENT_WAIT_LONGER_TIME);
     const breakoutUserPage = await this.userPage.getLastTargetPage(this.context);
     await breakoutUserPage.waitAndClick(e.closeModal);
-    await this.modPage.waitAndClick(e.breakoutRoomsItem);
     await this.modPage.waitAndClick(e.askJoinRoom1);
     await this.modPage.hasElement(e.alreadyConnected, 'should display the alreadyConnected element when mod join', ELEMENT_WAIT_LONGER_TIME);
     const breakoutModPage = await this.modPage.getLastTargetPage(this.context);
@@ -267,7 +265,7 @@ class MessageActions extends Chat {
     // cancel reply by clicking on the button
     await this.modPage.waitAndClick(e.closeChatReplyIntentionButton);
     await this.modPage.wasRemoved(e.chatReplyIntentionContainerContent, 'should remove the reply intention container content (by clicking on the cancel button)');
-    await expect(closeReplyBtn, 'should remove the close reply button (by clicking on the cancel button)').toHaveAttribute('tabindex', '-1');
+    await expect(closeReplyBtn, 'should remove the close reply button (by clicking on the cancel button)').not.toBeVisible();
     await this.modPage.wasRemoved(e.chatMessageReplied, 'should not display any message replied message (by clicking on the cancel button)');
     await this.modPage.hasElementCount(e.chatUserMessageText, initialMessagesCount, 'should keep displaying the same number of messages on the public chat');
     // click to reply again
@@ -276,7 +274,7 @@ class MessageActions extends Chat {
     // cancel reply by pressing Escape
     await this.modPage.press('Escape');
     await this.modPage.wasRemoved(e.chatReplyIntentionContainerContent, 'should remove the reply intention container content (by pressing Escape)');
-    await expect(closeReplyBtn, 'should remove the close reply button (by pressing Escape)').toHaveAttribute('tabindex', '-1');
+    await expect(closeReplyBtn, 'should remove the close reply button (by clicking on the cancel button)').not.toBeVisible();
     await this.modPage.wasRemoved(e.chatMessageReplied, 'should not display any message replied message (by pressing Escape)');
     await this.modPage.hasElementCount(e.chatUserMessageText, initialMessagesCount, 'should keep displaying the same number of messages on the public chat');
   }

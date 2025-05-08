@@ -69,6 +69,8 @@ test.describe('Chat', { tag: '@ci' }, () => {
   });
 
   test('Hide public messages', async () => {
+    const chat = new Chat(browser, context);
+    await chat.initModPage(page);
     await chat.hidePublicMessages();
   });
 
