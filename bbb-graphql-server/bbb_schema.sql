@@ -1867,6 +1867,7 @@ CREATE UNLOGGED TABLE "breakoutRoom" (
 
 CREATE INDEX "idx_breakoutRoom_parentMeetingId" ON "breakoutRoom"("parentMeetingId", "externalId");
 CREATE INDEX "idx_breakoutRoom_pk_ended" ON "breakoutRoom"("breakoutRoomId") where "endedAt" is null;
+CREATE INDEX "idx_breakoutRoom_parentMeetingId_ended" ON "breakoutRoom"("parentMeetingId") where "endedAt" is null;
 
 
 CREATE UNLOGGED TABLE "breakoutRoom_user" (
@@ -2013,6 +2014,14 @@ SELECT bu."meetingId" as "userMeetingId", bu."userId", b."parentMeetingId", b."b
     JOIN "breakoutRoom" b ON b."breakoutRoomId" = bu."breakoutRoomId" and b."endedAt" IS NULL
     --JOIN  bu ON bu."meetingId" = u."meetingId" AND bu."userId" = u."userId" AND bu."breakoutRoomId" = b."breakoutRoomId"
     ;
+
+CREATE OR REPLACE VIEW "v_breakoutRoom_commonProperties" AS
+SELECT DISTINCT ON ("parentMeetingId", "freeJoin", "durationInSeconds", "sendInvitationToModerators", "captureNotes", "captureSlides")
+"parentMeetingId" as "meetingId", "freeJoin", "durationInSeconds", "sendInvitationToModerators",
+"captureNotes", "captureSlides", "startedAt"
+FROM "breakoutRoom"
+WHERE "endedAt" IS null;
+
 
 --view used to restore last breakout rooms
 CREATE OR REPLACE VIEW "v_breakoutRoom_createdLatest" AS

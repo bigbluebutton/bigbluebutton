@@ -1,0 +1,22 @@
+table:
+  name: v_breakoutRoom_commonProperties
+  schema: public
+configuration:
+  column_config: {}
+  custom_column_names: {}
+  custom_name: breakoutRoom_commonProperties
+  custom_root_fields: {}
+select_permissions:
+  - role: bbb_client
+    permission:
+      columns:
+        - captureNotes
+        - captureSlides
+        - durationInSeconds
+        - freeJoin
+        - sendInvitationToModerators
+        - startedAt
+      filter:
+        meetingId:
+          _eq: X-Hasura-MeetingId
+    comment: ""
