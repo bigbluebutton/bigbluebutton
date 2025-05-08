@@ -67,7 +67,7 @@ case class Plugin(
 
 object PluginModel {
   val logger = LoggerFactory.getLogger(this.getClass)
-  val objectMapper: ObjectMapper = new ObjectMapper()
+  private val objectMapper: ObjectMapper = new ObjectMapper()
   objectMapper.registerModule(new DefaultScalaModule())
   def getPluginByName(instance: PluginModel, pluginName: String): Option[Plugin] = {
     instance.plugins.get(pluginName)
@@ -138,70 +138,68 @@ object PluginModel {
     currentPluginSettings ++ updatedPluginSetting
   }
 
-  // Check plugins' settings against their schemas and add default values if needed.
+  private def validateAndApplySettingHelper(
+                                       pluginSettingsMap: Map[String, ClientSettings.Plugin],
+                                       pluginName: String,
+                                       schema: PluginSettingSchema
+                                     ): (Boolean, Map[String, ClientSettings.Plugin]) = {
+    val settingValueOpt = ClientSettings.getPluginSettingValue(pluginSettingsMap, pluginName, schema.name)
+    val valueIsCorrectType = checkSettingsType(schema.`type`, settingValueOpt)
+
+    settingValueOpt match {
+      case Some(value) =>
+        if (!valueIsCorrectType) {
+          logger.error("Plugin [{}]: Setting [{}] has a value [{}] of incorrect type. Expected [{}]. Plugin will not be loaded.",
+            pluginName, schema.name, value, schema.`type`)
+        }
+        (valueIsCorrectType, pluginSettingsMap)
+
+      case None =>
+        val defaultValid = checkSettingsType(schema.`type`, Option(schema.defaultValue))
+        if (defaultValid) {
+          logger.warn("Plugin [{}]: Required setting [{}] not found. Falling back to default value [{}]",
+            pluginName, schema.name, schema.defaultValue)
+
+          val updatedpluginSettingMap = addPluginSettingEntry(pluginSettingsMap, pluginName, schema.name, schema.defaultValue)
+          (true, updatedpluginSettingMap)
+        } else {
+          logger.error("Plugin [{}]: Required setting [{}] is missing and default value [{}] does not match expected type [{}]",
+            pluginName, schema.name, schema.defaultValue, schema.`type`)
+          (false, pluginSettingsMap)
+        }
+    }
+  }
+
   private def validatePluginsBeforeCreateModel(
                                                 instance: PluginModel,
-                                                clientSettings: Map[String, Object]): (PluginModel, List[ClientSettings.Plugin]) = {
+                                                clientSettings: Map[String, Object]
+                                              ): (PluginModel, List[ClientSettings.Plugin]) = {
+
     var pluginSettings = getPluginsFromConfig(clientSettings)
-    instance.plugins = instance.plugins.filter(mapItem => {
-      val plugin = mapItem._2
+
+    instance.plugins = instance.plugins.filter { case (_, plugin) =>
       val pluginName = plugin.manifest.content.name
-      logger.info("Validating settings for plugin {}", plugin.manifest.content.name)
-      // Checking for pre-defined schema in manifest.json
+      logger.info("Validating settings for plugin {}", pluginName)
+
       plugin.manifest.content.settingsSchema match {
-        case Some(settingsSchemaList: List[PluginSettingSchema]) =>
-          settingsSchemaList.forall(settingSchemaObject =>
-            // If setting schema is not required, skip it
-            if (settingSchemaObject.required) {
-              val pluginSettingValueOption = ClientSettings.getPluginSettingValue(
-                pluginSettings, pluginName,
-                settingSchemaObject.name)
-              val schemaTypeMatch = checkSettingsType(settingSchemaObject.`type`, pluginSettingValueOption)
-              pluginSettingValueOption match {
-                case Some(settingSchema) =>
-                  if (!schemaTypeMatch) {
-                    logger.error(
-                      "Plugin [{}]: Setting [{}] has a value [{}] of incorrect type. Expected [{}]. Plugin will not be loaded.",
-                      pluginName,
-                      settingSchemaObject.name,
-                      settingSchema,
-                      settingSchemaObject.`type`
-                    )
-                  }
-                  schemaTypeMatch
-                case None =>
-                  val defaultValueTypeMatch = checkSettingsType(
-                    settingSchemaObject.`type`, Option(settingSchemaObject.defaultValue))
-                  if (defaultValueTypeMatch) {
-                    logger.warn(
-                      "Plugin [{}]: Required setting [{}] not found. Falling back to default value [{}]",
-                      pluginName,
-                      settingSchemaObject.name,
-                      settingSchemaObject.defaultValue
-                    )
-                    // Add the setting to this plugin's settings.
-                    pluginSettings = addPluginSettingEntry(
-                      pluginSettings, pluginName, settingSchemaObject.name, settingSchemaObject.defaultValue)
-                    true
-                  } else {
-                    logger.error(
-                      "Plugin [{}]: Required setting [{}] is missing and default value [{}] does not match expected type [{}]",
-                      pluginName,
-                      settingSchemaObject.name,
-                      settingSchemaObject.defaultValue,
-                      settingSchemaObject.`type`
-                    )
-                    false
-                  }
-              }
-            } else true
-          )
-        // If no settings Schema is provided, no validation is needed
+        case Some(schemaList) =>
+          schemaList.forall { schema =>
+            if (!schema.required) true
+            else {
+              val (settingValid, updatedPluginSettingMap) = validateAndApplySettingHelper(
+                pluginSettings, pluginName, schema)
+              pluginSettings = updatedPluginSettingMap
+              if (!settingValid) logger.warn("Plugin [{}] will be skipped due to invalid setting [{}]", pluginName, schema.name)
+              settingValid
+            }
+          }
         case None => true
       }
-    })
+    }
+
     (instance, pluginSettings.values.toList)
   }
+
   def createPluginModelFromJson(
                                  json: util.Map[String, AnyRef],
                                  clientSettings: Map[String, Object]): (PluginModel, List[ClientSettings.Plugin]) = {
