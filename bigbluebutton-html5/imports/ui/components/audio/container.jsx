@@ -193,7 +193,10 @@ const AudioContainer = (props) => {
   const { hasBreakoutRooms: hadBreakoutRooms } = prevProps || {};
   const userIsReturningFromBreakoutRoom = hadBreakoutRooms && !hasBreakoutRooms;
 
-  const { data: currentUser } = useCurrentUser((u) => ({ userId: u.userId }));
+  const { data: currentUser } = useCurrentUser((u) => ({
+    userId: u.userId,
+    voice: u.voice,
+  }));
   const { data: unmutedUsers } = useWhoIsUnmuted();
   const currentUserMuted = currentUser?.userId && !unmutedUsers[currentUser.userId];
 
@@ -213,13 +216,15 @@ const AudioContainer = (props) => {
     // We don't know whether the meeting is a breakout or not.
     // So, postpone the decision.
     if (meetingIsBreakout === undefined) return;
-
-    init().then(() => {
-      if (meetingIsBreakout && !Service.isUsingAudio()) {
-        joinAudio();
-      }
-    });
-  }, [meetingIsBreakout]);
+    // If the user has duplicated the session and has already joined the audio.
+    if (!currentUser?.voice) {
+      init().then(() => {
+        if (meetingIsBreakout && !Service.isUsingAudio()) {
+          joinAudio();
+        }
+      });
+    }
+  }, [meetingIsBreakout, currentUser?.voice]);
 
   useEffect(() => {
     if (userIsReturningFromBreakoutRoom) {
