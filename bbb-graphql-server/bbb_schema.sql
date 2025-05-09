@@ -1988,9 +1988,13 @@ BEGIN
 		   bru."breakoutRoomId", bru."userId", bkroom_user."currentlyInMeeting"
 		   from "user" bkroom_user
 		   join meeting_breakout mb on mb."meetingId" = bkroom_user."meetingId"
-		   join "breakoutRoom" br on br."parentMeetingId" = mb."parentId" and mb."sequence" = br."sequence"
-		   join "user" u on u."meetingId" = br."parentMeetingId"  and bkroom_user."extId" = u."userId" || '-' || br."sequence"
-		   join "breakoutRoom_user" bru on bru."userId" = u."userId" and bru."breakoutRoomId" = br."breakoutRoomId"
+		   join "breakoutRoom" br   on br."parentMeetingId" = mb."parentId"
+		                            and mb."sequence" = br."sequence"
+		                            and br."endedAt" is null
+		   join "user" u    on u."meetingId" = br."parentMeetingId"
+		                    and bkroom_user."extId" = u."userId" || '-' || br."sequence"
+		   join "breakoutRoom_user" bru on bru."userId" = u."userId"
+		                                and bru."breakoutRoomId" = br."breakoutRoomId"
 		   where bkroom_user."userId" = NEW."userId"
 	   ) a
 		where "breakoutRoom_user"."breakoutRoomId" = a."breakoutRoomId"
@@ -2021,7 +2025,6 @@ SELECT DISTINCT ON ("parentMeetingId", "freeJoin", "durationInSeconds", "sendInv
 "captureNotes", "captureSlides", "startedAt"
 FROM "breakoutRoom"
 WHERE "endedAt" IS null;
-
 
 --view used to restore last breakout rooms
 CREATE OR REPLACE VIEW "v_breakoutRoom_createdLatest" AS
@@ -2082,6 +2085,18 @@ where bu."breakoutRoomId" in (
     where u."meetingId" = bu."meetingId"
     and u."userId" = bu."userId"
 );
+
+CREATE OR REPLACE VIEW "v_breakoutRoom_user_summary" AS
+select u."meetingId",
+		u."userId",
+		count(b."breakoutRoomId") as "totalOfBreakoutRooms",
+		sum(case when b."breakoutRoomId" is not null and bru."isUserCurrentlyInRoom" then 1 else 0 end) as "totalOfIsUserCurrentlyInRoom",
+		sum(case when b."breakoutRoomId" is not null and bru."showInvitation" then 1 else 0 end) as "totalOfShowInvitation",
+		sum(case when b."breakoutRoomId" is not null and bru."joinURL" is not null then 1 else 0 end) as "totalOfJoinURL"
+from "user" u
+left join "breakoutRoom_user" bru on bru."meetingId" = u."meetingId" and bru."userId" = u."userId"
+left join "breakoutRoom" b on b."breakoutRoomId" = bru."breakoutRoomId" and b."endedAt" is null
+group by u."meetingId", u."userId";
 
 ------------------------------------
 ----sharedNotes

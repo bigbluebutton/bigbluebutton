@@ -101,8 +101,6 @@ const MEETING_SUBSCRIPTION = gql`
           sequence
         }
         breakoutRoomsCommonProperties {
-          captureNotes
-          captureSlides
           durationInSeconds
           freeJoin
           sendInvitationToModerators

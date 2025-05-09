@@ -81,8 +81,6 @@ export interface BreakoutPolicies {
 }
 
 export interface BreakoutRoomsCommonProperties {
-  captureNotes: string;
-  captureSlides: string;
   durationInSeconds: number;
   freeJoin: boolean;
   sendInvitationToModerators: boolean;

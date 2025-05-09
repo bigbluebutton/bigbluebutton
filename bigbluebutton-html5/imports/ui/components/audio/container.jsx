@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect } from 'react';
-import { useSubscription } from '@apollo/client';
 import PropTypes from 'prop-types';
 import Session from '/imports/ui/services/storage/in-memory';
 import { injectIntl, defineMessages } from 'react-intl';
@@ -23,7 +22,6 @@ import { toggleMuteMicrophone } from '/imports/ui/components/audio/audio-graphql
 import useSettings from '../../services/settings/hooks/useSettings';
 import { SETTINGS } from '../../services/settings/enums';
 import { useStorageKey } from '../../services/storage/hooks';
-import { BREAKOUT_COUNT } from './queries';
 import useMeeting from '../../core/hooks/useMeeting';
 import useWhoIsUnmuted from '../../core/hooks/useWhoIsUnmuted';
 import AudioService, {
@@ -127,8 +125,7 @@ const AudioContainer = (props) => {
   const userSelectedMicrophone = !!useStorageKey(CLIENT_DID_USER_SELECT_MICROPHONE_KEY, 'session');
   const userSelectedListenOnly = !!useStorageKey(CLIENT_DID_USER_SELECT_LISTEN_ONLY_KEY, 'session');
   const { microphoneConstraints } = useSettings(SETTINGS.APPLICATION);
-  const { data: breakoutCountData } = useSubscription(BREAKOUT_COUNT);
-  const hasBreakoutRooms = (breakoutCountData?.breakoutRoom_aggregate?.aggregate?.count ?? 0) > 0;
+
   const meetingIsBreakout = useMeetingIsBreakout();
   const { data: meeting } = useMeeting((m) => ({
     audioBridge: m.audioBridge,
@@ -138,8 +135,15 @@ const AudioContainer = (props) => {
     },
   }));
 
-  const { data: currentUserName } = useCurrentUser((u) => u.name);
-  const { data: speechLocale } = useCurrentUser((u) => u.speechLocale);
+  const { data: currentUser } = useCurrentUser((u) => ({
+    userId: u.userId,
+    name: u.name,
+    speechLocale: u.speechLocale,
+    breakoutRoomsSummary: u.breakoutRoomsSummary,
+  }));
+
+  const hasBreakoutRooms = (currentUser?.breakoutRoomsSummary?.totalOfBreakoutRooms ?? 0) > 0;
+
   // public.media.defaultFullAudioBridge/public.media.defaultListenOnlyBridge
   // are legacy configs. They will be removed in the future. Use
   // audioBridge (bbb-web, create) instead.
@@ -163,9 +167,9 @@ const AudioContainer = (props) => {
       messages,
       intl,
       toggleVoice,
-      speechLocale,
+      currentUser?.speechLocale,
       meeting?.voiceSettings?.voiceConf,
-      currentUserName,
+      currentUser?.name,
       bridges,
     );
 
@@ -193,7 +197,6 @@ const AudioContainer = (props) => {
   const { hasBreakoutRooms: hadBreakoutRooms } = prevProps || {};
   const userIsReturningFromBreakoutRoom = hadBreakoutRooms && !hasBreakoutRooms;
 
-  const { data: currentUser } = useCurrentUser((u) => ({ userId: u.userId }));
   const { data: unmutedUsers } = useWhoIsUnmuted();
   const currentUserMuted = currentUser?.userId && !unmutedUsers[currentUser.userId];
 
