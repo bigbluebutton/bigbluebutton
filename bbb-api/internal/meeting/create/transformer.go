@@ -36,8 +36,8 @@ func (r *RequestToIsMeetingRunning) Transform(msg pipeline.Message[*http.Request
 
 	contentType, _, _ := mime.ParseMediaType(req.Header.Get("Content-Type"))
 	var (
-		applicationXML    = contentType == bbbhttp.ApplicationXML
-		textXML           = contentType == bbbhttp.TextXML
+		applicationXML    = contentType == bbbhttp.ContentTypeApplicationXML
+		textXML           = contentType == bbbhttp.ContentTypeTextXML
 		processXMLModules = applicationXML || textXML
 	)
 

@@ -97,7 +97,7 @@ func CollectParams() func(next http.Handler) http.Handler {
 			contentType, _, _ := mime.ParseMediaType(r.Header.Get("Content-Type"))
 			if contentType != "" {
 				switch contentType {
-				case string(ApplicationFormURLEncoded):
+				case string(ContentTypeApplicationFormURLEncoded):
 					err := r.ParseForm()
 					if err == nil {
 						for k, vs := range r.PostForm {
@@ -110,7 +110,7 @@ func CollectParams() func(next http.Handler) http.Handler {
 							}
 						}
 					}
-				case string(MultipartFormData):
+				case string(ContentTypeMultipartFormData):
 					err := r.ParseMultipartForm(10 << 20)
 					if err == nil {
 						for k, vs := range r.MultipartForm.Value {
