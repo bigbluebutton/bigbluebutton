@@ -1,13 +1,20 @@
 import styled from 'styled-components';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import { smPaddingX, smPaddingY, barsPadding } from '/imports/ui/stylesheets/styled-components/general';
-import { colorWhite, colorBackground, btnDefaultGhostBg } from '/imports/ui/stylesheets/styled-components/palette';
+import {
+  colorWhite,
+  colorBackground,
+  btnDefaultBg,
+  btnDefaultColor,
+  defaultBorder,
+} from '/imports/ui/stylesheets/styled-components/palette';
 import Button from '/imports/ui/components/common/button/component';
 
 const ActionsBar = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
+  height: 100%;
 `;
 
 const ActionsBarWrapper = styled.section`
@@ -49,11 +56,6 @@ const Center = styled.div`
   ${ItemsGroup}
   gap: ${smPaddingX};
   justify-content: center;
-  > *:not(span):not(:last-child) {
-    @media ${smallOnly} {
-      margin: 0 ${smPaddingY};
-    }
-  }
 `;
 
 const Right = styled.div`
@@ -75,12 +77,22 @@ const Right = styled.div`
       margin: 0 ${smPaddingY};
     }
   }
+  height: 100%;
 `;
 
 const PresentationButtonsWrapper = styled.div`
-  background-color: ${btnDefaultGhostBg};
+  color: ${btnDefaultColor};
+  background-color: ${btnDefaultBg};
   border-radius: 3rem;
   display: flex;
+  gap: .2rem;
+  align-items: center;
+  height: 100%;
+`;
+
+const Divider = styled.div`
+  border: .5px solid ${defaultBorder};
+  height: 50%;
 `;
 
 const RaiseHandButton = styled(Button)`
@@ -136,6 +148,7 @@ export default {
   Center,
   Right,
   PresentationButtonsWrapper,
+  Divider,
   RaiseHandButton,
   ButtonContainer,
   ReactionsDropdown,
