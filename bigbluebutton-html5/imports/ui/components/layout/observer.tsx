@@ -154,6 +154,7 @@ const LayoutObserver: React.FC = () => {
       && deviceType !== DEVICE_TYPE.MOBILE
       && numCameras > 0
       && presentationIsOpen
+      && !getFromUserSettings('bbb_hide_sidebar_navigation', false)
     ) {
       setTimeout(() => {
         layoutContextDispatch({
@@ -221,6 +222,18 @@ const LayoutObserver: React.FC = () => {
       if (!checkedUserSettings.current) {
         const Settings = getSettingsSingletonInstance();
         Settings.save(setLocalSettings);
+
+        if (getFromUserSettings('bbb_hide_sidebar_navigation', false)) {
+          layoutContextDispatch({
+            type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
+            value: false,
+          });
+          layoutContextDispatch({
+            type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+            value: false,
+          });
+          return;
+        }
 
         layoutContextDispatch({
           type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
