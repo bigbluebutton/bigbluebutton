@@ -1,7 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages } from 'react-intl';
-import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import ExternalVideoModal from '/imports/ui/components/external-video-player/external-video-player-graphql/modal/component';
 import LayoutModalContainer from '/imports/ui/components/layout/modal/container';
 import BBBMenu from '/imports/ui/components/common/menu/component';

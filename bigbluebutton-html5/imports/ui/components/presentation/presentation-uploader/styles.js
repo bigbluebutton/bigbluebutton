@@ -40,7 +40,6 @@ import {
   colorSuccess,
   colorGrayLightest,
   colorText,
-  colorBlueLight,
   colorOffWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';

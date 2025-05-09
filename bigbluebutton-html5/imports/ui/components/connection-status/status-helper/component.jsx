@@ -1,4 +1,4 @@
-import React, { Fragment, PureComponent } from 'react';
+import React, { PureComponent } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import { useReactiveVar } from '@apollo/client';
 import Styled from './styles';
@@ -86,7 +86,7 @@ class ConnectionStatusIcon extends PureComponent {
           ? (
             <div>
               <Styled.Settings
-              // eslint-disable-next-line
+                // eslint-disable-next-line
                 onClick={this.openAdjustSettings.bind(this)}
                 role="button"
               >
