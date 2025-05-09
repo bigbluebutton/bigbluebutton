@@ -457,14 +457,17 @@ AS SELECT "user"."userId",
   FROM "user"
   WHERE "user"."currentlyInMeeting" is true;
 
+--index for currentlyInMeeting column
 CREATE INDEX "idx_v_user_meetingId" ON "user"("meetingId")
                 where "user"."loggedOut" IS FALSE
                 AND "user"."expired" IS FALSE
                 AND "user"."ejected" IS NOT TRUE
                 and "user"."joined" IS TRUE;
 
+--this index should follow the `UserListSubscription` filters + order by
 CREATE INDEX "idx_v_user_meetingId_orderByColumns" ON "user"(
                         "meetingId",
+                        "bot",
                         "presenter",
                         "role",
                         "raiseHandTime",
