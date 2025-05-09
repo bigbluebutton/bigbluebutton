@@ -31,19 +31,15 @@ export {
 // Array for select component to select different layout
 const suportedLayouts = [
   {
-    layoutKey: LAYOUT_TYPE.SMART_LAYOUT,
-    layoutName: 'Smart Layout',
+    layoutKey: LAYOUT_TYPE.CUSTOM_LAYOUT,
+    layoutName: 'Custom Layout',
     suportedDevices: [
-      DEVICE_TYPE.MOBILE,
-      DEVICE_TYPE.TABLET,
-      DEVICE_TYPE.TABLET_PORTRAIT,
-      DEVICE_TYPE.TABLET_LANDSCAPE,
       DEVICE_TYPE.DESKTOP,
     ],
   },
   {
-    layoutKey: LAYOUT_TYPE.VIDEO_FOCUS,
-    layoutName: 'Video Focus',
+    layoutKey: LAYOUT_TYPE.SMART_LAYOUT,
+    layoutName: 'Smart Layout',
     suportedDevices: [
       DEVICE_TYPE.MOBILE,
       DEVICE_TYPE.TABLET,
@@ -64,9 +60,13 @@ const suportedLayouts = [
     ],
   },
   {
-    layoutKey: LAYOUT_TYPE.CUSTOM_LAYOUT,
-    layoutName: 'Custom Layout',
+    layoutKey: LAYOUT_TYPE.VIDEO_FOCUS,
+    layoutName: 'Video Focus',
     suportedDevices: [
+      DEVICE_TYPE.MOBILE,
+      DEVICE_TYPE.TABLET,
+      DEVICE_TYPE.TABLET_PORTRAIT,
+      DEVICE_TYPE.TABLET_LANDSCAPE,
       DEVICE_TYPE.DESKTOP,
     ],
   },
@@ -124,4 +124,20 @@ const LAYOUTS_SYNC = {
     ],
   },
 };
-export { suportedLayouts, LAYOUTS_SYNC };
+
+// This function checks whether the givenLayout is supported by the deviceType
+const isLayoutSupported = (deviceType, givenLayout) => {
+  if (givenLayout == null || deviceType == null) return false;
+  const layout = suportedLayouts.find((tentative) => tentative.layoutKey === givenLayout);
+  if (layout == null || layout.suportedDevices == null) return false;
+
+  return layout.suportedDevices.includes(deviceType);
+};
+
+const getSupportedLayouts = (deviceType) => suportedLayouts.filter(
+  (layout) => layout.suportedDevices.includes(deviceType),
+);
+
+export {
+  suportedLayouts, LAYOUTS_SYNC, getSupportedLayouts, isLayoutSupported,
+};

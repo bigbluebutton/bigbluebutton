@@ -1469,6 +1469,7 @@
     "app.layout.modal.layoutBtnDesc": "Utilizar layout selecionado",
     "app.layout.modal.layoutToastLabelAuto": "Sincronização de layout ativada, mudanças no layout serão propagadas para todos",
     "app.layout.modal.layoutToastLabelAutoOff": "Sincronização de layout desativada",
+    "app.layout.modal.layoutNotAvailable": "Layout não disponível em seu dispositivo.",
     "app.layout.style.custom": "Personalizado",
     "app.layout.style.smart": "Layout inteligente",
     "app.layout.style.presentationFocus": "Foco na apresentação",

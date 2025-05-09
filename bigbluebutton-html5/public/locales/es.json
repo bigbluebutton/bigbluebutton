@@ -1304,6 +1304,7 @@
     "app.layout.modal.layoutLabel": "Selecciona tu diseño",
     "app.layout.modal.pushLayoutLabel": "Forzar para todos/as",
     "app.layout.modal.layoutToastLabel": "Ha cambiado la configuración del diseño",
+    "app.layout.modal.layoutNotAvailable": "Diseño no disponible en tu dispositivo.",
     "app.layout.modal.layoutSingular": "Diseño",
     "app.layout.modal.layoutBtnDesc": "Establece el diseño como opción seleccionada",
     "app.layout.modal.layoutToastLabelAuto": "Actualizaciones automáticas de diseño activadas, las actualizaciones de diseño se aplican ahora a todos.",
