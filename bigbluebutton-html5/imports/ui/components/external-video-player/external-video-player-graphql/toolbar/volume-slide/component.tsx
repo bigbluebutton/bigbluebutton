@@ -54,7 +54,7 @@ const VolumeSlide = React.forwardRef<HTMLInputElement, VolumeSlideProps>(({
 
   useEffect(() => {
     if (volumeState !== volume) {
-      handleOnChange(volume, muted);
+      setVolume(volume);
     }
 
     if (mutedState !== muted) {
@@ -68,12 +68,13 @@ const VolumeSlide = React.forwardRef<HTMLInputElement, VolumeSlideProps>(({
     <Styled.Slider>
       <Styled.Volume onClick={() => {
         if (!muted) {
-          volumeBeforeMute.current = volumeState;
+          volumeBeforeMute.current = (volumeState || volume);
         }
-        onVolumeChanged(muted ? volumeBeforeMute.current : 0);
-        setVolume(!muted ? 0 : volumeBeforeMute.current || volume);
         setMuted(!muted);
         onMuted(!muted);
+        if (muted) {
+          onVolumeChanged(volumeBeforeMute.current || 1);
+        }
       }}
       >
         <i
