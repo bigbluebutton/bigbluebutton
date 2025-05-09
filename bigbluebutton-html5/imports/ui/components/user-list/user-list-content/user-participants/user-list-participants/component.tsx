@@ -82,7 +82,7 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
   return (
     (
       <Styled.UserListColumn
-      // @ts-ignore
+        // @ts-ignore
         onKeyDown={rove}
         tabIndex={0}
         role="list"
@@ -135,11 +135,9 @@ const UserListParticipantsContainer: React.FC = () => {
   const count = countData?.user_aggregate?.aggregate?.count || 0;
 
   return (
-    <>
-      <UserListParticipants
-        count={count ?? 0}
-      />
-    </>
+    <UserListParticipants
+      count={count ?? 0}
+    />
   );
 };
 
