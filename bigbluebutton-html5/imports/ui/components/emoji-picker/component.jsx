@@ -69,6 +69,7 @@ const EmojiPicker = (props) => {
       theme="light"
       dynamicWidth
       exceptEmojis={emojisToExclude}
+      autoFocus
     />
   );
 };
