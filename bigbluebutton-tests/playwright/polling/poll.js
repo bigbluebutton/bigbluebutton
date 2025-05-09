@@ -33,6 +33,7 @@ class Polling extends MultiUsers {
     // The slide needs to be uploaded and converted, so wait a bit longer for this step
     await this.modPage.hasElement(e.quickPoll, 'should display the quick poll button for the moderator when the presentation is uploaded', ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.waitAndClick(e.quickPoll);
+    await this.modPage.waitAndClick(e.startPoll);
     await this.userPage.hasElement(e.pollingContainer, 'should display the polling container for the attendee when the quick poll starts');
     await this.userPage.hasNElements(e.pollAnswerOptionBtn, 5, 'should display 5 poll answer options for the attendee');
     await this.userPage.waitAndClick(e.pollAnswerOptionBtn);
@@ -171,6 +172,7 @@ class Polling extends MultiUsers {
 
     // Type Response
     await this.modPage.waitAndClick(e.quickPoll, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.waitAndClick(e.startPoll);
     await this.userPage.hasElement(e.responsePollQuestion, 'should display the poll question after quick poll starts');
     await this.userPage.type(e.pollAnswerOptionInput, 'test');
     await this.userPage.waitAndClick(e.pollSubmitAnswer);
@@ -184,6 +186,7 @@ class Polling extends MultiUsers {
     await sleep(500); // avoid error when the tooltip is in front of the button due to layout shift
     await skipSlide(this.modPage);
     await this.modPage.waitAndClick(e.quickPoll);
+    await this.modPage.waitAndClick(e.startPoll);
     await this.userPage.waitAndClick(e.firstPollAnswerDescOption);
     await this.userPage.waitAndClick(e.secondPollAnswerDescOption);
     await this.userPage.waitAndClick(e.submitAnswersMultiple);
@@ -197,6 +200,7 @@ class Polling extends MultiUsers {
     await sleep(500); // avoid error when the tooltip is in front of the button due to layout shift
     await skipSlide(this.modPage);
     await this.modPage.waitAndClick(e.quickPoll);
+    await this.modPage.waitAndClick(e.startPoll);
     await this.userPage.waitAndClick(e.pollAnswerOptionE);
     await this.modPage.hasText(e.userVoteLiveResult, 'E) 22222', 'should display the vote result after the poll is answered');
 
@@ -208,6 +212,7 @@ class Polling extends MultiUsers {
     await skipSlide(this.modPage);
     await this.modPage.waitAndClick(e.yesNoOption);
     await this.modPage.waitAndClick(e.yesNoAbstentionOption)
+    await this.modPage.waitAndClick(e.startPoll);
     await this.userPage.waitAndClick(e.pollAnswerOptionBtn);
     await this.modPage.hasText(e.userVoteLiveResult, 'Yes', 'should display the vote result after the attendee submit the answer');
 
@@ -218,6 +223,7 @@ class Polling extends MultiUsers {
     await sleep(500); // avoid error when the tooltip is in front of the button due to layout shift
     await skipSlide(this.modPage);
     await this.modPage.waitAndClick(e.quickPoll);
+    await this.modPage.waitAndClick(e.startPoll);
     await this.userPage.waitAndClick(e.pollAnswerOptionBtn);
     await this.modPage.hasText(e.userVoteLiveResult, 'True', 'should display the vote result after the attendee submit the answer');
     await this.modPage.waitAndClick(e.publishPollingLabel);

@@ -299,6 +299,16 @@ class CustomParameters extends MultiUsers {
     const webcamBackgroundURL = this.modPage.getLocator(e.webcamMirroredVideoContainer);
     await expect(webcamBackgroundURL).toHaveScreenshot('webcam-background-passing-url.png');
   }
+
+  async logoutURLTest() {
+    //allowDefaultLogoutUrl setting true/false should have no effect if a custom logoutURL is provided
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage.waitAndClick(e.leaveMeetingDropdown);
+    await this.modPage.waitAndClick(e.directLogoutButton);
+    await this.modPage.hasElement(e.meetingEndedModal);
+    await this.modPage.waitAndClick(e.redirectButton);
+    await expect(this.modPage.page.url()).toContain('google.com');
+  }
 }
 
 exports.CustomParameters = CustomParameters;

@@ -58,8 +58,9 @@ object ExternalVideoDAO {
           rate,
           time,
           status match {
-            case "play" => true
-            case "stop" => false
+            case "play"  => true
+            case "start" => true
+            case "stop"  => false
             case _ => state match {
               case 1 => true
               case 0 => false

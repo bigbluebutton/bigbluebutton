@@ -54,7 +54,7 @@ const AvatarsExtra = styled.div`
   border: solid ${borderSize} ${colorWhite};
   margin-left: ${avatarInset};
   text-align: center;
-  padding: 5px 0;
+  padding: 0.75rem 0;
 `;
 
 const ToastContent = styled.div`

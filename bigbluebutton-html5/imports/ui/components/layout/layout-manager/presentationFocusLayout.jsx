@@ -125,6 +125,12 @@ const PresentationFocusLayout = (props) => {
             },
             cameraDock: {
               numCameras: cameraDock.numCameras,
+              height: 0,
+              width: 0,
+              cameraOptimalGridSize: {
+                width: 0,
+                height: 0,
+              },
             },
             externalVideo: {
               hasExternalVideo: externalVideo.hasExternalVideo,

@@ -711,6 +711,8 @@ const CustomLayout = (props) => {
       },
     });
 
+    const isMediaOpen = mediaBounds?.width > 0 && mediaBounds?.height > 0;
+
     layoutContextDispatch({
       type: ACTIONS.SET_CAMERA_DOCK_OUTPUT,
       value: {
@@ -730,16 +732,19 @@ const CustomLayout = (props) => {
         isDraggable: !isMobile && !isTablet && presentationInput.isOpen,
         resizableEdge: {
           top:
-            input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_BOTTOM
+          isMediaOpen
+            && (input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_BOTTOM
             || (input.cameraDock.position === CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM
-              && input.sidebarContent.isOpen),
+            && input.sidebarContent.isOpen)),
           right:
-            (!isRTL && input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_LEFT)
-            || (isRTL && input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_RIGHT),
-          bottom: input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_TOP,
+            isMediaOpen
+            && ((!isRTL && input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_LEFT)
+            || (isRTL && input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_RIGHT)),
+          bottom: isMediaOpen && input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_TOP,
           left:
-            (!isRTL && input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_RIGHT)
-            || (isRTL && input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_LEFT),
+          isMediaOpen
+            && ((!isRTL && input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_RIGHT)
+            || (isRTL && input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_LEFT)),
         },
         zIndex: cameraDockBounds.zIndex,
         focusedId: input.cameraDock.focusedId,

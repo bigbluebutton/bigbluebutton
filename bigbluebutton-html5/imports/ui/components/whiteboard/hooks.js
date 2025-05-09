@@ -28,6 +28,23 @@ const useCursor = (publishCursorUpdate, whiteboardId) => {
   return [cursorPosition, updateCursorPosition];
 };
 
+const getPresentationOptionsMenuItem = () => document.querySelector('li#presentationFullscreen')
+    || document.querySelector('li#presentationSnapshot')
+    || document.querySelector('li#toolVisibility')
+    || null;
+
+const getTldrawOpenMenu = () => {
+  const tlElement = document.querySelectorAll('[id^=radix-]');
+  const tldrawMenu = Array.from(tlElement).find((el) => {
+    const menuClasses = ['tlui-popover__content', 'tlui-menu'];
+    if (el && menuClasses.includes(el.className)) {
+      return el;
+    }
+    return false;
+  });
+  return tldrawMenu;
+};
+
 const useMouseEvents = ({
   whiteboardRef, tlEditorRef, isWheelZoomRef, initialZoomRef, isPresenterRef,
 }, {
@@ -47,7 +64,7 @@ const useMouseEvents = ({
   const fingerCountRef = React.useRef(0);
   const initialPinchDistanceRef = React.useRef(0);
   const isPinchingRef = React.useRef(false);
-
+  const mouseLeaveTimeoutRef = React.useRef();
   const PINCH_THRESHOLD = 10;
 
   const getDistanceBetweenTouches = (touch1, touch2) => {
@@ -110,6 +127,7 @@ const useMouseEvents = ({
   };
 
   const handleMouseEnter = () => {
+    clearTimeout(mouseLeaveTimeoutRef.current);
     if (whiteboardToolbarAutoHide) {
       toggleToolsAnimations(
         'fade-out',
@@ -122,18 +140,47 @@ const useMouseEvents = ({
 
   const handleMouseLeave = () => {
     if (whiteboardToolbarAutoHide) {
-      toggleToolsAnimations(
-        'fade-in',
-        'fade-out',
-        animations ? '3s' : '0s',
-        hasWBAccess || isPresenterRef.current,
-      );
+      clearTimeout(mouseLeaveTimeoutRef.current);
+      const presentationWBOptionsMenuItem = getPresentationOptionsMenuItem();
+      const tldrawMenu = getTldrawOpenMenu();
+      if (presentationWBOptionsMenuItem || tldrawMenu) {
+        if (tldrawMenu) {
+          mouseLeaveTimeoutRef.current = setTimeout(() => {
+            handleMouseLeave();
+          }, 500);
+        } else if (presentationWBOptionsMenuItem) {
+          const ulElement = presentationWBOptionsMenuItem.parentElement;
+          const menuWrapper = ulElement.parentElement;
+          const isVisible = menuWrapper.style.visibility !== 'hidden';
+          if (isVisible) {
+            mouseLeaveTimeoutRef.current = setTimeout(() => {
+              handleMouseLeave();
+            }, 500);
+          } else {
+            toggleToolsAnimations(
+              'fade-in',
+              'fade-out',
+              animations ? '3s' : '0s',
+              hasWBAccess || isPresenterRef.current,
+            );
+          }
+        } else {
+          toggleToolsAnimations(
+            'fade-in',
+            'fade-out',
+            animations ? '3s' : '0s',
+            hasWBAccess || isPresenterRef.current,
+          );
+        }
+      }
     }
 
     setTimeout(() => {
       updateCursorPosition(-1, -1);
     }, 150);
   };
+
+  useEffect(() => () => clearTimeout(mouseLeaveTimeoutRef.current), []);
 
   const handleMouseWheel = throttle({ interval: 175 }, (event) => {
     event.preventDefault();

@@ -216,6 +216,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       fallbackOnEmptyLocaleString: true,
       disableWebsocketFallback: true,
       maxMutationPayloadSize: 10485760, // 10MB
+      timeoutBeforeRedirectOnMeetingEnd: 20000,
     },
     externalVideoPlayer: {
       enabled: true,
@@ -484,6 +485,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       maxCustom: 5,
       maxTypedAnswerLength: 45,
       chatMessage: true,
+      quickPollConfirmationStep: false,
     },
     captions: {
       enabled: true,
@@ -845,6 +847,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       maxStickyNoteLength: 1000,
       maxNumberOfAnnotations: 300,
       maxNumberOfActiveUsers: 25,
+      lockToolbarTools: false,
       allowInfiniteWhiteboard: false,
       allowInfiniteWhiteboardInBreakouts: false,
       annotations: {
@@ -870,7 +873,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           'text',
           'note',
           'rectangle',
-          'delete-all',
+          'delete-selected-items',
           'highlight',
           'more',
           'actions',
@@ -884,7 +887,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           'text',
           'note',
           'rectangle',
-          'delete-all',
+          'delete-selected-items',
           'highlight',
           'more',
           'actions',

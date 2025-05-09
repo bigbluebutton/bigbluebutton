@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { useMutation } from '@apollo/client';
 import { defineMessages, useIntl } from 'react-intl';
 import BreakoutRemainingTime from '/imports/ui/components/common/remaining-time/breakout-duration/component';
+import { getRemainingMeetingTime, isNewTimeValid } from '/imports/ui/core/utils/calculateRemaingTime';
 import Styled from '../styles';
 import { BREAKOUT_ROOM_SET_TIME } from '../../mutations';
+import useTimeSync from '/imports/ui/core/local-states/useTimeSync';
 
 const intlMessages = defineMessages({
   breakoutTitle: {
@@ -73,6 +75,7 @@ interface TimeRemainingPanelProps {
   isModerator: boolean;
   durationInSeconds: number;
   toggleShowChangeTimeForm: (value: boolean) => void;
+  createdTime: number;
 }
 
 const TimeRemaingPanel: React.FC<TimeRemainingPanelProps> = ({
@@ -80,11 +83,13 @@ const TimeRemaingPanel: React.FC<TimeRemainingPanelProps> = ({
   isModerator,
   durationInSeconds,
   toggleShowChangeTimeForm,
+  createdTime,
 }) => {
   const intl = useIntl();
   const durationContainerRef = React.useRef(null);
   const [showFormError, setShowFormError] = useState(false);
   const [newTime, setNewTime] = useState(0);
+  const [timeSync] = useTimeSync();
 
   const [breakoutRoomSetTime] = useMutation(BREAKOUT_ROOM_SET_TIME);
 
@@ -131,8 +136,12 @@ const TimeRemaingPanel: React.FC<TimeRemainingPanelProps> = ({
               label={intl.formatMessage(intlMessages.setTimeLabel)}
               onClick={() => {
                 setShowFormError(false);
-
-                if (durationInSeconds !== 0 && newTime > durationInSeconds) {
+                const remainingTime = getRemainingMeetingTime(
+                  durationInSeconds,
+                  createdTime,
+                  timeSync,
+                );
+                if (!isNewTimeValid(remainingTime, newTime)) {
                   setShowFormError(true);
                 } else if (setBreakoutsTime(newTime)) {
                   toggleShowChangeTimeForm(false);
