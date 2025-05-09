@@ -47,7 +47,7 @@ const DragAndDrop: React.FC<DragAndDropProps> = (props) => {
 
   const [dragging, setDragging] = useState(false);
   const [draggingOver, setDraggingOver] = useState(false);
-  const [isConfirmModalOpen, setConfirmModalIsOpen] = useState(false);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const { dispatch: dispatchCustomBackground } = useContext(CustomVirtualBackgroundsContext);
 
@@ -158,7 +158,7 @@ const DragAndDrop: React.FC<DragAndDropProps> = (props) => {
         }
 
         setFile(file);
-        setConfirmModalIsOpen(true);
+        setIsConfirmModalOpen(true);
       }
       return null;
     };
@@ -192,9 +192,9 @@ const DragAndDrop: React.FC<DragAndDropProps> = (props) => {
           description={intl.formatMessage(intlMessages.confirmationDescription, { 0: file?.name })}
           checkboxMessageId="app.confirmation.skipConfirm"
           {...{
-            onRequestClose: () => setConfirmModalIsOpen(false),
+            onRequestClose: () => setIsConfirmModalOpen(false),
             priority: 'low',
-            setIsOpen: setConfirmModalIsOpen,
+            setIsOpen: setIsConfirmModalOpen,
             isOpen: isConfirmModalOpen,
           }}
         />

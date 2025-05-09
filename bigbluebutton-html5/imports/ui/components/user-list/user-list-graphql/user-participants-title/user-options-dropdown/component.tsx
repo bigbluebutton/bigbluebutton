@@ -169,9 +169,9 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
     uid(8, 'options-'),
     uid(8, 'options-'),
   ]);
-  const [isCreateBreakoutRoomModalOpen, setCreateBreakoutRoomModalIsOpen] = useState(false);
-  const [isGuestPolicyModalOpen, setGuestPolicyModalIsOpen] = useState(false);
-  const [isLockViewersModalOpen, setLockViewersModalIsOpen] = useState(false);
+  const [isCreateBreakoutRoomModalOpen, setIsCreateBreakoutRoomModalOpen] = useState(false);
+  const [isGuestPolicyModalOpen, setIsGuestPolicyModalOpen] = useState(false);
+  const [isLockViewersModalOpen, setIsLockViewersModalOpen] = useState(false);
 
   const [setMuted] = useMutation(SET_MUTED);
   const [getUsers, { data: usersData, error: usersError }] = useLazyQuery(GET_USER_NAMES, { fetchPolicy: 'no-cache' });
@@ -257,7 +257,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
         key: uuids.current[2],
         label: intl.formatMessage(intlMessages.lockViewersLabel),
         description: intl.formatMessage(intlMessages.lockViewersDesc),
-        onClick: () => setLockViewersModalIsOpen(true),
+        onClick: () => setIsLockViewersModalOpen(true),
         icon: 'lock',
         dataTest: 'lockViewersButton',
       },
@@ -267,7 +267,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
         icon: 'user',
         label: intl.formatMessage(intlMessages.guestPolicyLabel),
         description: intl.formatMessage(intlMessages.guestPolicyDesc),
-        onClick: () => setGuestPolicyModalIsOpen(true),
+        onClick: () => setIsGuestPolicyModalOpen(true),
         dataTest: 'guestPolicyLabel',
       },
       {
@@ -289,7 +289,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
         icon: 'rooms',
         label: intl.formatMessage(intlMessages.createBreakoutRoom),
         description: intl.formatMessage(intlMessages.createBreakoutRoomDesc),
-        onClick: () => setCreateBreakoutRoomModalIsOpen(true),
+        onClick: () => setIsCreateBreakoutRoomModalOpen(true),
         dataTest: 'createBreakoutRooms',
       },
       {
@@ -298,7 +298,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
         icon: 'rooms',
         label: intl.formatMessage(intlMessages.invitationLabel),
         description: intl.formatMessage(intlMessages.invitationDesc),
-        onClick: () => setCreateBreakoutRoomModalIsOpen(true),
+        onClick: () => setIsCreateBreakoutRoomModalOpen(true),
         dataTest: 'inviteUsers',
       },
       {
@@ -351,7 +351,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
       />
       {renderModal({
         isOpen: isCreateBreakoutRoomModalOpen,
-        setIsOpen: setCreateBreakoutRoomModalIsOpen,
+        setIsOpen: setIsCreateBreakoutRoomModalOpen,
         priority: 'medium',
         Component: CreateBreakoutRoomContainerGraphql,
         otherOptions: {
@@ -361,7 +361,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
 
       {renderModal({
         isOpen: isGuestPolicyModalOpen,
-        setIsOpen: setGuestPolicyModalIsOpen,
+        setIsOpen: setIsGuestPolicyModalOpen,
         priority: 'low',
         Component: GuestPolicyContainer,
         otherOptions: {},
@@ -369,7 +369,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
 
       {renderModal({
         isOpen: isLockViewersModalOpen,
-        setIsOpen: setLockViewersModalIsOpen,
+        setIsOpen: setIsLockViewersModalOpen,
         priority: 'low',
         Component: LockViewersContainer,
         otherOptions: {},

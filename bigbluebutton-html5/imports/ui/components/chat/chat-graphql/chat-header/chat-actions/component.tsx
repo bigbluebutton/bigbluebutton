@@ -54,7 +54,7 @@ const ChatActions: React.FC = () => {
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
   const uniqueIdsRef = useRef<string[]>([uid(1), uid(2), uid(3), uid(4)]);
   const downloadOrCopyRef = useRef<'download' | 'copy' | null>(null);
-  const [userIsModerator, setUserIsmoderator] = useState<boolean>(false);
+  const [userIsModerator, setUserIsModerator] = useState<boolean>(false);
   const [meetingIsBreakout, setMeetingIsBreakout] = useState<boolean>(false);
   const [chatPublicClearHistory] = useMutation(CHAT_PUBLIC_CLEAR_HISTORY);
   const { data: currentUserData, loading: currentUserLoading } = useCurrentUser((u) => ({
@@ -97,7 +97,7 @@ const ChatActions: React.FC = () => {
 
   useEffect(() => {
     if (currentUserData) {
-      setUserIsmoderator(!!currentUserData.isModerator);
+      setUserIsModerator(!!currentUserData.isModerator);
     }
     if (meetingData) {
       setMeetingIsBreakout(!!meetingData.isBreakout);
