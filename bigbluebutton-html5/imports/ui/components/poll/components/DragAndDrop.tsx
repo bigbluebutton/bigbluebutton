@@ -7,12 +7,14 @@ interface DragAndDropPros {
   [key: string]: unknown;
 }
 
-const DragAndDrop: React.FC<DragAndDropPros> = (props) => {
+const DragAndDrop = React.forwardRef<HTMLTextAreaElement, DragAndDropPros>((props, ref) => {
   const { MAX_INPUT_CHARS, handlePollValuesText } = props;
   const [drag, setDrag] = useState(false);
   const [pollValueText, setPollText] = useState('');
   const dropRef = useRef<HTMLTextAreaElement | null>(null);
   const dragCounter = useRef(0);
+
+  React.useImperativeHandle(ref, () => dropRef.current as HTMLTextAreaElement);
 
   useEffect(() => {
     const handleDrag = (e: DragEvent) => {
@@ -79,7 +81,9 @@ const DragAndDrop: React.FC<DragAndDropPros> = (props) => {
 
   const setPollValueText = (pollText: string) => {
     const arr = pollText.split('\n');
-    const text = arr.map((line) => (line.length > MAX_INPUT_CHARS ? line.substring(0, MAX_INPUT_CHARS) : line)).join('\n');
+    const text = arr.map((line) => (
+      line.length > MAX_INPUT_CHARS ? line.substring(0, MAX_INPUT_CHARS) : line
+    )).join('\n');
     setPollText(text);
   };
 
@@ -102,6 +106,6 @@ const DragAndDrop: React.FC<DragAndDropPros> = (props) => {
       {...getCleanProps()}
     />
   );
-};
+});
 
 export default DragAndDrop;
