@@ -230,12 +230,17 @@ class App extends Component {
   }
 
   customPollShortcutHandler(e) {
-    const { altKey, ctrlKey, keyCode } = e;
+    const { altKey, ctrlKey, metaKey, keyCode } = e;
     const { layoutContextDispatch } = this.props;
-    if (altKey && ctrlKey && keyCode === KEY_CODES.P) {
+    const isPollShortcut =
+      altKey && keyCode === KEY_CODES.P && (ctrlKey || metaKey);
+
+    if (isPollShortcut) {
+      e.preventDefault();
       if (Session.equals('pollInitiated', true)) {
         Session.setItem('resetPollPanel', true);
       }
+
       layoutContextDispatch({
         type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
         value: true,
@@ -244,10 +249,11 @@ class App extends Component {
         type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
         value: PANELS.POLL,
       });
+
       Session.setItem('forcePollOpen', true);
       Session.setItem('customPollShortcut', true);
     }
-  }
+  };
 
   logJoin() {
     const { isJoinLogged } = this.state;
