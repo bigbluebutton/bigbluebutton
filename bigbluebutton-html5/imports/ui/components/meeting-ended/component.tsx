@@ -214,7 +214,11 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
             // Always set cookie in case Dashboard is already opened
             && setLearningDashboardCookie(learningDashboardAccessToken, meetingId, learningDashboardBase) === true
               ? (
-                <Styled.Text>
+                <>
+                  <Styled.Text>
+                    {intl.formatMessage(intlMessage.open_activity_report_btn)}
+                  </Styled.Text>
+
                   <Styled.MeetingEndedButton
                     color="default"
                     onClick={() => openLearningDashboardUrl(learningDashboardAccessToken,
@@ -228,7 +232,7 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
                       iconName="multi_whiteboard"
                     />
                   </Styled.MeetingEndedButton>
-                </Styled.Text>
+                </>
               ) : null
           }
           <Styled.Text>

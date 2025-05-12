@@ -1379,6 +1379,7 @@
     "app.createBreakoutRoom.sendInvitationToMods": "إرسال دعوة إلى المشرفين المعينين",
     "app.createBreakoutRoom.leastOneWarnBreakout": "يجب وضع مستخدم واحد علي الأقل في غرفة جانبية.",
     "app.createBreakoutRoom.minimumDurationWarnBreakout": "الحد الأدنى لمدة الغرفة الجانبية {0} دقيقة.",
+    "app.createBreakoutRoom.timeCannotExceedMainRoom": "لا يمكن أن تتجاوز مدة غرفة الاجتماعات الفرعية الوقت المتبقي للجلسة.",
     "app.createBreakoutRoom.modalDesc": "نصيحة: يمكنك سحب اسم المستخدم وإفلاته لتعيينها إلى غرفة جانبية محددة.",
     "app.createBreakoutRoom.roomTime": "{0} دقيقة",
     "app.createBreakoutRoom.numberOfRoomsError": "عدد الغرف غير صحيح.",
