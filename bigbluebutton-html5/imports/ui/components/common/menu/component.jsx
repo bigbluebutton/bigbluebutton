@@ -219,7 +219,6 @@ class BBBMenu extends React.Component {
       dataTest,
       opts,
       accessKey,
-      open,
       renderOtherComponents,
       customAnchorEl,
       hasRoundedCorners,
