@@ -627,6 +627,9 @@ const Whiteboard = React.memo((props) => {
         },
         '+': handleKeybindZoom.bind(null, 'zoomIn'),
         '-': handleKeybindZoom.bind(null, 'zoomOut'),
+        '=': handleKeybindZoom.bind(null, 'zoomIn'),
+        'add': handleKeybindZoom.bind(null, 'zoomIn'),
+        'subtract': handleKeybindZoom.bind(null, 'zoomOut'),
       };
 
       if (ctrlKeyMap[key]) {
