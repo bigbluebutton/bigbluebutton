@@ -45,13 +45,13 @@ elif [ ! -e "$IMAGE_FILE" ]; then
 fi
 
 # Write default text for the slide
-if [ ! -e $TEXT_OUTPUT ]; then
+if [ ! -e "$TEXT_OUTPUT" ]; then
   echo "No text could be retrieved for the slide" >"${TEXT_OUTPUT}"
 fi
 
 
 # Check image width and height
-IFS=' ' read IMAGE_WIDTH IMAGE_HEIGHT <<<"$(identify -format "%w %h" "${IMAGE_FILE}")" || {
+IFS=' ' read -r IMAGE_WIDTH IMAGE_HEIGHT <<<"$(identify -format "%w %h" "${IMAGE_FILE}")" || {
   echo "Error extracting image dimensions"
   exit 1
 }
@@ -87,7 +87,7 @@ TEMP_PNG=$(mktemp)
 trap 'rm -f "${TEMP_PNG}"*' EXIT
 
 echo "Converting PDF to PNG for rasterized SVG creation."
-pdftocairo -r ${SVG_RESOLUTION_PPI} -png -singlefile -scale-to-x ${RASTERIZE_PNG_WIDTH} -scale-to-y -1 -q -f 1 -l 1 ${PDF_FOR_SVG_OR_PNG} ${TEMP_PNG}
+pdftocairo -r "${SVG_RESOLUTION_PPI}" -png -singlefile -scale-to-x "${RASTERIZE_PNG_WIDTH}" -scale-to-y -1 -q -f 1 -l 1 "${PDF_FOR_SVG_OR_PNG}" "${TEMP_PNG}"
 
 PNG_FILE="${TEMP_PNG}.png"
 png_size=$(stat -c%s "${PNG_FILE}" 2>/dev/null || echo 0)
@@ -105,7 +105,7 @@ if [ "$png_size" -gt $browser_limit ]; then
   exit 1
 else
   # Set default dimensions and update if the PNG file contains valid size information
-  IFS=' ' read png_width png_height <<<"$(identify -format "%w %h" "${PNG_FILE}")" || {
+  IFS=' ' read -r png_width png_height <<<"$(identify -format "%w %h" "${PNG_FILE}")" || {
     echo "Error extracting Png dimensions, using default values instead"
     png_width="${PNG_DEFAULT_WIDTH}"
     png_height="${PNG_DEFAULT_HEIGHT}"

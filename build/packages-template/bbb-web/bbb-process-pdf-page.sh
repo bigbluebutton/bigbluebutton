@@ -26,7 +26,7 @@ PNG_DIR="${BASE_DIR}/pngs"
 SVG_DIR="${BASE_DIR}/svgs"
 SVG_FILE="${SVG_DIR}/slide${PAGE_NUMBER}.svg"
 
-if [ ! -e $PDF_FILE ]; then
+if [ ! -e "$PDF_FILE" ]; then
     echo "PDF not found: $PDF_FILE"
     exit 1
 fi
@@ -39,7 +39,7 @@ fi
 #--------------------------------------------
 # Generate a thumbnail image for the page.
 #--------------------------------------------
-/usr/bin/pdftocairo -png -scale-to "$THUMBNAIL_SCALE" -f "$PAGE_NUMBER" -l "$PAGE_NUMBER" $PDF_FILE "${THUMBNAIL_DIR}/thumb"
+/usr/bin/pdftocairo -png -scale-to "$THUMBNAIL_SCALE" -f "$PAGE_NUMBER" -l "$PAGE_NUMBER" "$PDF_FILE" "${THUMBNAIL_DIR}/thumb"
 # Pdf cairo saves as thumb-01.png, and BBB expects thumb-1.png, renaming
 mv "${THUMBNAIL_DIR}/thumb-0${PAGE_NUMBER}.png" "${THUMBNAIL_DIR}/thumb-${PAGE_NUMBER}.png" 2>/dev/null || true
 
@@ -106,7 +106,7 @@ else
   #--------------------------------------------
   if [ "$FONT_TYPE3_DETECTED" -eq 0 ]; then
     echo "No Type 3 fonts detected. Converting PDF page ${PAGE_NUMBER} to SVG."
-    pdftocairo -r $SVG_RESOLUTION_PPI -svg -q -f ${PAGE_NUMBER} -l ${PAGE_NUMBER} ${PDF_FILE} ${SVG_FILE}
+    pdftocairo -r "$SVG_RESOLUTION_PPI" -svg -q -f "${PAGE_NUMBER}" -l "${PAGE_NUMBER}" "${PDF_FILE}" "${SVG_FILE}"
 
     set +e
 
@@ -178,7 +178,7 @@ if [ "$REQUIRES_RASTERIZE" -eq 1 ]; then
   fi
   echo "PNG file generated with size ${png_size} bytes." >&2
 
-  /usr/share/bbb-web/bbb-process-image.sh ${MEETING_ID} ${PRES_ID} ${PAGE_NUMBER} png
+  /usr/share/bbb-web/bbb-process-image.sh "${MEETING_ID}" "${PRES_ID}" "${PAGE_NUMBER}" png
   exit 0
 
 fi
