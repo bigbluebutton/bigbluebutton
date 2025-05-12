@@ -214,8 +214,10 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
       const internalPlayer = player.getInternalPlayer();
       if (internalPlayer instanceof HTMLVideoElement) {
         internalPlayer.pause();
-      } else {
-        internalPlayer?.pauseVideo?.();
+      } else if (internalPlayer.pauseVideo) {
+        internalPlayer.pauseVideo();
+      } else if (internalPlayer.pause) {
+        internalPlayer?.pause();
       }
     }
   }, []);
@@ -225,19 +227,27 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
       const internalPlayer = player.getInternalPlayer();
       if (internalPlayer instanceof HTMLVideoElement) {
         internalPlayer.play();
-      } else {
-        internalPlayer?.playVideo?.();
+      } else if (internalPlayer.playVideo) {
+        internalPlayer.playVideo();
+      } else if (internalPlayer.play) {
+        internalPlayer.play();
       }
     }
   }, []);
 
-  const getPlayerCurrentTime = useCallback((player: ReactPlayer) => {
+  const getPlayerCurrentTime = useCallback(async (player: ReactPlayer) => {
     if (player) {
       const internalPlayer = player.getInternalPlayer();
       if (internalPlayer instanceof HTMLVideoElement) {
         return internalPlayer.currentTime;
       }
-      return internalPlayer?.getCurrentTime?.() ?? 0;
+      // Vimeo player returns a promise for getCurrentTime
+      try {
+        return (await internalPlayer?.getCurrentTime?.()) ?? 0;
+      } catch (e) {
+        // If the player is not ready yet, we return 0
+        return 0;
+      }
     }
     return 0;
   }, []);
@@ -324,13 +334,13 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     }
   }, [isPresenter]);
 
-  const handleOnStart = () => {
+  const handleOnStart = async () => {
     if (isPresenter) {
       const rate = internalPlayer instanceof HTMLVideoElement
         ? internalPlayer.playbackRate
         : internalPlayer?.getPlaybackRate?.() ?? 1;
 
-      const currentTime = getPlayerCurrentTime(playerRef.current as ReactPlayer);
+      const currentTime = await getPlayerCurrentTime(playerRef.current as ReactPlayer);
       sendMessage('start', {
         rate,
         time: currentTime,
@@ -346,7 +356,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
         ? internalPlayer.playbackRate
         : internalPlayer?.getPlaybackRate?.() ?? 1;
 
-      const currentTime = getPlayerCurrentTime(playerRef.current as ReactPlayer);
+      const currentTime = await getPlayerCurrentTime(playerRef.current as ReactPlayer);
       sendMessage('play', {
         rate,
         time: currentTime,
@@ -376,7 +386,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
         rate = await rate;
       }
 
-      const currentTime = getPlayerCurrentTime(playerRef.current as ReactPlayer);
+      const currentTime = await getPlayerCurrentTime(playerRef.current as ReactPlayer);
       sendMessage('stop', {
         rate,
         time: currentTime,
@@ -388,11 +398,11 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     }
   };
 
-  const handleProgress = (state: OnProgressProps) => {
+  const handleProgress = async (state: OnProgressProps) => {
     setPlayed(state.played);
     setLoaded(state.loaded);
     if (playing && isPresenter) {
-      currentTime = getPlayerCurrentTime(playerRef.current as ReactPlayer);
+      currentTime = await getPlayerCurrentTime(playerRef.current as ReactPlayer);
     }
   };
 
