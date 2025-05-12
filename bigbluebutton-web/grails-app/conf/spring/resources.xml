@@ -211,6 +211,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="pluginManifestsFetchUrlResponseTimeout" value="${pluginManifestsFetchUrlResponseTimeout}"/>
         <property name="maxPluginManifestsFetchUrlPayloadSize" value="${maxPluginManifestsFetchUrlPayloadSize}"/>
         <property name="maxNumPages" value="${maxNumPages}"/>
+        <property name="getJoinUrlUserdataBlocklist" value="${getJoinUrlUserdataBlocklist}"/>
     </bean>
 
     <bean id="presentationService" class="org.bigbluebutton.web.services.PresentationService">

@@ -3,6 +3,7 @@ package org.bigbluebutton.core.domain
 import org.bigbluebutton.core.apps.BreakoutModel
 import org.bigbluebutton.core.models.GroupChats
 import org.bigbluebutton.core.models.PresentationPodManager
+import org.bigbluebutton.core.models.AudioGroups
 
 object MeetingState2x {
 
@@ -14,7 +15,8 @@ case class MeetingState2x(
     breakout:               Option[BreakoutModel],
     lastBreakout:           Option[BreakoutModel],
     expiryTracker:          MeetingExpiryTracker,
-    recordingTracker:       MeetingRecordingTracker
+    recordingTracker:       MeetingRecordingTracker,
+    audioGroups:            AudioGroups
 ) {
 
   def update(groupChats: GroupChats): MeetingState2x = copy(groupChats = groupChats)
@@ -30,6 +32,7 @@ case class MeetingState2x(
   }
   def update(expiry: MeetingExpiryTracker): MeetingState2x = copy(expiryTracker = expiry)
   def update(recordingTracker: MeetingRecordingTracker): MeetingState2x = copy(recordingTracker = recordingTracker)
+  def update(audioGroups: AudioGroups): MeetingState2x = copy(audioGroups = audioGroups)
 }
 
 object MeetingEndReason {

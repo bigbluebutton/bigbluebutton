@@ -87,6 +87,7 @@ interface ExternalVideoPlayerProps {
     state?: string;
   }) => void;
   getCurrentTime(): number;
+  updatedAt: string;
 }
 
 // @ts-ignore - PeerTubePlayer is not typed
@@ -113,6 +114,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   setPlayerKey,
   sendMessage,
   getCurrentTime,
+  updatedAt,
 }) => {
   const intl = useIntl();
   const storage = getStorageSingletonInstance();
@@ -273,7 +275,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     if (playerRef.current && !isPresenter) {
       playerRef.current.seekTo(truncateTime(currentTime), 'seconds');
     }
-  }, [playerRef.current, playing]);
+  }, [playerRef.current, updatedAt]);
 
   // --- Plugin related code ---;
   const internalPlayer = playerRef.current?.getInternalPlayer ? playerRef.current?.getInternalPlayer() : null;
@@ -323,8 +325,17 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   }, [isPresenter]);
 
   const handleOnStart = () => {
-    currentTime = getCurrentTime();
-    playerRef.current?.seekTo(truncateTime(currentTime), 'seconds');
+    if (isPresenter) {
+      const rate = internalPlayer instanceof HTMLVideoElement
+        ? internalPlayer.playbackRate
+        : internalPlayer?.getPlaybackRate?.() ?? 1;
+
+      const currentTime = getPlayerCurrentTime(playerRef.current as ReactPlayer);
+      sendMessage('start', {
+        rate,
+        time: currentTime,
+      });
+    }
   };
 
   const handleOnPlay = async () => {
@@ -404,6 +415,23 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     }
   };
 
+  const handlePlaybackRateChange = async () => {
+    if (isPresenter) {
+      const internalPlayer = playerRef.current?.getInternalPlayer();
+      let rate = internalPlayer instanceof HTMLVideoElement
+        ? internalPlayer.playbackRate
+        : internalPlayer?.getPlaybackRate?.() ?? 1;
+      if (rate instanceof Promise) {
+        rate = await rate;
+      }
+      sendMessage('playbackRateChange', {
+        rate,
+        time: getCurrentTime(),
+        state: playing ? 'playing' : 'paused',
+      });
+    }
+  };
+
   const isMinimized = width === 0 && height === 0;
 
   // @ts-ignore accessing lib private property
@@ -476,6 +504,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
           muted={mute || isEchoTest}
           controls
           previewTabIndex={isPresenter ? 0 : -1}
+          onPlaybackRateChange={handlePlaybackRateChange}
         />
         {
           shouldShowTools() ? (
@@ -534,6 +563,7 @@ const ExternalVideoPlayerContainer: React.FC = () => {
     // don't re-send repeated update messages
     if (
       lastMessageRef.current.event === event
+      && event !== 'playbackRateChange' // playback rate change is always sent
       && Math.abs(lastMessageRef.current.time - data.time) < UPDATE_INTERVAL_THRESHOLD_MS
     ) {
       return;
@@ -638,7 +668,7 @@ const ExternalVideoPlayerContainer: React.FC = () => {
 
   const fullscreenElementId = 'ExternalVideo';
   const externalVideo: ExternalVideo = layoutSelectOutput((i: Output) => i.externalVideo);
-  const hasExternalVideoOnLayout: boolean = layoutSelectInput((i: Input) => i.externalVideo.hasExternalVideo);
+  const hasExternalVideoOnLayout: boolean = layoutSelectInput((i: Input) => i.externalVideo?.hasExternalVideo);
   const cameraDock = layoutSelectInput((i: Input) => i.cameraDock);
   const sidebarContent = layoutSelectInput((i: Input) => i.sidebarContent);
   const { isOpen: isSidebarContentOpen } = sidebarContent;
@@ -650,11 +680,14 @@ const ExternalVideoPlayerContainer: React.FC = () => {
   const [key, setKey] = React.useState(uniqueId('react-player'));
   if (!currentUser || !currentMeeting?.externalVideo || !externalVideo?.display) return null;
   if (!hasExternalVideoOnLayout) return null;
-  const playerPlaybackRate = currentMeeting.externalVideo?.playerPlaybackRate ?? 1;
   const isPresenter = currentUser.presenter ?? false;
   const isGridLayout = currentMeeting.layout?.currentLayoutType === 'VIDEO_FOCUS';
-  const playing = currentMeeting.externalVideo?.playerPlaying ?? false;
-  const videoUrl = currentMeeting.externalVideo?.externalVideoUrl ?? '';
+  const {
+    updatedAt = new Date().toISOString(),
+    playerPlaybackRate = 1,
+    playerPlaying: playing = false,
+    externalVideoUrl: videoUrl = '',
+  } = currentMeeting.externalVideo;
 
   const getCurrentTime = () => calculateCurrentTime(timeSync, currentMeeting.externalVideo);
 
@@ -676,6 +709,7 @@ const ExternalVideoPlayerContainer: React.FC = () => {
       playerKey={key}
       setPlayerKey={setKey}
       sendMessage={sendMessage}
+      updatedAt={updatedAt}
     />
   );
 };

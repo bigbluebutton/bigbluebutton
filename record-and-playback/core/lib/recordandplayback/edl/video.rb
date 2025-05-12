@@ -389,7 +389,7 @@ module BigBlueButton
       # The methods below are for private use
 
       def self.video_info(filename)
-        IO.popen([*FFPROBE, filename]) do |probe|
+        IO.popen([*FFPROBE, '-select_streams', 'v:0', '-count_frames', '-read_intervals', '%+#10', filename]) do |probe|
           info = nil
           begin
             info = JSON.parse(probe.read, :symbolize_names => true)
@@ -412,6 +412,7 @@ module BigBlueButton
           # Check for corrupt/undecodable video streams
           return {} if info[:video][:pix_fmt].nil?
           return {} if info[:width] == 0 or info[:height] == 0
+          return {} if info[:video][:nb_read_frames].nil? || info[:video][:nb_read_frames] == 'N/A'
 
           info[:sample_aspect_ratio] = Rational(1, 1)
           if !info[:video][:sample_aspect_ratio].nil? and

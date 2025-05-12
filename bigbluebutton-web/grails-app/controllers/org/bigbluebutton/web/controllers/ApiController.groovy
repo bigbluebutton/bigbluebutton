@@ -1221,12 +1221,28 @@ class ApiController {
           queryParameters.put("sessionName", params.sessionName);
         }
 
-        // If the user calling getJoinUrl is a moderator (except in breakout rooms), allow to specify additional parameters
-        if (us.role.equals(ROLE_MODERATOR) && !meeting.isBreakout()) {
+        List<String> userdataBlocklistForViewers=Arrays.asList(paramsProcessorUtil.getGetJoinUrlUserdataBlocklist().split(","));
+
+        boolean isModerator = us.role?.equals(ROLE_MODERATOR);
+        boolean blockAllUserdataForViewers = userdataBlocklistForViewers.any { it.equalsIgnoreCase("all") };
+
+        if (!meeting.isBreakout()) {
           request.getParameterMap()
-                  .findAll { key, value -> ["enforceLayout"].contains(key) || key.startsWith("userdata-") }
+                  .findAll { key, value ->
+                    // always allow `enforceLayout`
+                    if (key == "enforceLayout") return true
+
+                    // For prefix userdata-
+                    if (key.startsWith("userdata-")) {
+                      if (isModerator) return true
+                      if (blockAllUserdataForViewers) return false
+                      return !userdataBlocklistForViewers.contains(key - "userdata-")
+                    }
+
+                    return false
+                  }
                   .findAll { key, value -> !StringUtils.isEmpty(value[-1]) }
-                  .each { key, value -> queryParameters.put(key, value[-1]) };
+                  .each { key, value -> queryParameters.put(key, value[-1]) }
         }
 
         String httpQueryString = "";
