@@ -17,7 +17,7 @@ import PluginServerCommandsHandler from './server-commands/handler';
 import PluginLearningAnalyticsDashboardManager from './learning-analytics-dashboard/manager';
 import PluginEventPersistenceManager from './event-persistence/manager';
 
-function createPluginApi(pluginName: string) {
+function createPluginApi(pluginName: string, localesBaseUrl: string) {
   return {
     setUserListDropdownItems: () => [],
     setPresentationToolbarItems: () => [],
@@ -38,6 +38,7 @@ function createPluginApi(pluginName: string) {
       '': () => {},
     },
     pluginName,
+    localesBaseUrl,
   };
 }
 
