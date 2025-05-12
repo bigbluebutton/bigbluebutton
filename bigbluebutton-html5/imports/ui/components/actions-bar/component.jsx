@@ -40,18 +40,32 @@ class ActionsBar extends PureComponent {
         {
           actionBarItems.filter((plugin) => plugin.position === position).map((plugin) => {
             let actionBarItemToReturn;
+            let buttonProps;
             switch (plugin.type) {
               case ActionsBarItemType.BUTTON:
+                buttonProps = {
+                  key: `${plugin.type}-${plugin.id}`,
+                  onClick: plugin.onClick,
+                  hideLabel: true,
+                  color: 'primary',
+                  size: 'lg',
+                  circle: true,
+                  label: plugin.tooltip,
+                };
+                if (plugin?.icon && typeof plugin.icon === 'object' && 'iconName' in plugin.icon) {
+                  buttonProps.icon = plugin.icon.iconName;
+                } else if (plugin?.icon && typeof plugin.icon === 'object' && 'svgContent' in plugin.icon) {
+                  buttonProps.customIcon = (
+                    <i>
+                      {plugin.icon.svgContent}
+                    </i>
+                  );
+                }
                 actionBarItemToReturn = (
                   <Button
-                    key={`${plugin.type}-${plugin.id}`}
-                    onClick={plugin.onClick}
-                    hideLabel
-                    color="primary"
-                    icon={plugin.icon}
-                    size="lg"
-                    circle
-                    label={plugin.tooltip}
+                    {
+                      ...buttonProps
+                    }
                   />
                 );
                 break;
@@ -135,6 +149,7 @@ class ActionsBar extends PureComponent {
       ariaHidden,
       showScreenshareQuickSwapButton,
       isReactionsButtonEnabled,
+      isRaiseHandEnabled,
     } = this.props;
 
     const Settings = getSettingsSingletonInstance();
@@ -211,7 +226,7 @@ class ActionsBar extends PureComponent {
               />
             )}
             {isReactionsButtonEnabled && this.renderReactionsButton()}
-            <RaiseHandButtonContainer />
+            {isRaiseHandEnabled && <RaiseHandButtonContainer />}
             {this.renderPluginsActionBarItems(ActionsBarPosition.RIGHT)}
           </Styled.Center>
           <Styled.Right>

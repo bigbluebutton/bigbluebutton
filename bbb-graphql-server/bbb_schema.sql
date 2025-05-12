@@ -283,7 +283,7 @@ CREATE UNLOGGED TABLE "user" (
 	"avatar" varchar(500),
     "webcamBackground" varchar(500),
 	"color" varchar(7),
-    "authToken" varchar(16),
+    "authToken" varchar(50),
     "authed" bool,
     "joined" bool,
     "firstJoinedAt" timestamp with time zone,
@@ -542,7 +542,8 @@ COALESCE(NULLIF(u."guestLobbyMessage",''),NULLIF(mup."guestLobbyMessage",'')) AS
 FROM "user" u
 JOIN "meeting_usersPolicies" mup using("meetingId")
 where u."guestStatus" = 'WAIT'
-and u."loggedOut" is false;
+and u."loggedOut" is false
+and u."ejected" is not true;
 
 --v_user_ref will be used only as foreign key (not possible to fetch this table directly through graphql)
 --it is necessary because v_user has some conditions like "lockSettings-hideUserList"
@@ -712,6 +713,7 @@ CREATE UNLOGGED TABLE "user_voice" (
 	"joined" boolean,
 	"listenOnly" boolean,
 	"muted" boolean,
+	"deafened" boolean,
 	"spoke" boolean,
 	"talking" boolean,
 	"floor" boolean,
@@ -1361,7 +1363,8 @@ CREATE UNLOGGED TABLE "pres_page" (
     "maxImageWidth" integer,
     "maxImageHeight" integer,
     "uploadCompleted" boolean,
-    "infiniteWhiteboard" boolean
+    "infiniteWhiteboard" boolean,
+    "fitToWidth" boolean
 );
 CREATE INDEX "idx_pres_page_presentationId" ON "pres_page"("presentationId");
 CREATE INDEX "idx_pres_page_presentationId_curr" ON "pres_page"("presentationId") where "current" is true;
@@ -1421,7 +1424,8 @@ SELECT pres_presentation."meetingId",
     (pres_page."width" * pres_page."widthRatio" / 100 * LEAST(pres_page."maxImageWidth" / pres_page."width", pres_page."maxImageHeight" / pres_page."height")) AS "scaledViewBoxWidth",
     (pres_page."height" * pres_page."heightRatio" / 100 * LEAST(pres_page."maxImageWidth" / pres_page."width", pres_page."maxImageHeight" / pres_page."height")) AS "scaledViewBoxHeight",
     pres_page."uploadCompleted",
-    pres_page."infiniteWhiteboard"
+    pres_page."infiniteWhiteboard",
+    pres_page."fitToWidth"
 FROM pres_page
 JOIN pres_presentation ON pres_presentation."presentationId" = pres_page."presentationId";
 
@@ -1455,6 +1459,7 @@ SELECT pres_presentation."meetingId",
     (pres_page."width" * pres_page."widthRatio" / 100 * LEAST(pres_page."maxImageWidth" / pres_page."width", pres_page."maxImageHeight" / pres_page."height")) AS "scaledViewBoxWidth",
     (pres_page."height" * pres_page."heightRatio" / 100 * LEAST(pres_page."maxImageWidth" / pres_page."width", pres_page."maxImageHeight" / pres_page."height")) AS "scaledViewBoxHeight",
     pres_page."infiniteWhiteboard",
+    pres_page."fitToWidth",
     (
         select array_agg("nextPages"."urlsJson"->>'svg')
         from pres_page "nextPages"
@@ -1861,6 +1866,9 @@ CREATE UNLOGGED TABLE "breakoutRoom" (
 );
 
 CREATE INDEX "idx_breakoutRoom_parentMeetingId" ON "breakoutRoom"("parentMeetingId", "externalId");
+CREATE INDEX "idx_breakoutRoom_pk_ended" ON "breakoutRoom"("breakoutRoomId") where "endedAt" is null;
+CREATE INDEX "idx_breakoutRoom_parentMeetingId_ended" ON "breakoutRoom"("parentMeetingId") where "endedAt" is null;
+
 
 CREATE UNLOGGED TABLE "breakoutRoom_user" (
 	"breakoutRoomId" varchar(100) NOT NULL REFERENCES "breakoutRoom"("breakoutRoomId") ON DELETE CASCADE,
@@ -1873,17 +1881,19 @@ CREATE UNLOGGED TABLE "breakoutRoom_user" (
 	"userJoinedSomeRoomAt" timestamp with time zone,
 	"isLastAssignedRoom" boolean,
 	"isLastJoinedRoom" boolean,
-	"isUserCurrentlyInRoom" boolean,
+	"isUserCurrentlyInRoom" boolean not null default false,
 	CONSTRAINT "breakoutRoom_user_pkey" PRIMARY KEY ("breakoutRoomId", "meetingId", "userId"),
 	FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
 );
 create index "idx_breakoutRoom_user_meeting_user" on "breakoutRoom_user" ("meetingId", "userId");
 create index "idx_breakoutRoom_user_user_meeting" on "breakoutRoom_user" ("userId", "meetingId");
+create index "idx_breakoutRoom_user_meeting_user_assigned" on "breakoutRoom_user" ("meetingId", "userId") where "assignedAt" is not null;
+create index "idx_breakoutRoom_user_meeting_user_currentlyInRoom" on "breakoutRoom_user" ("meetingId", "userId") where "isUserCurrentlyInRoom" is true;
 
 ALTER TABLE "breakoutRoom_user" ADD COLUMN "showInvitation" boolean GENERATED ALWAYS AS (
     CASE WHEN
             "isLastAssignedRoom" IS true
-            and "isUserCurrentlyInRoom" is null
+            and "isUserCurrentlyInRoom" is not true
             AND ("joinedAt" is null or "assignedAt" > "joinedAt")
             AND ("userJoinedSomeRoomAt" is null or "assignedAt" > "userJoinedSomeRoomAt")
             AND ("inviteDismissedAt" is null or "assignedAt" > "inviteDismissedAt")
@@ -1891,6 +1901,8 @@ ALTER TABLE "breakoutRoom_user" ADD COLUMN "showInvitation" boolean GENERATED AL
         ELSE false
         END) STORED;
        --AND ("isModerator" is false OR "sendInvitationToModerators")
+
+create index "idx_breakoutRoom_user_meeting_user_invitation" on "breakoutRoom_user" ("meetingId", "userId") where "showInvitation" is true;
 
 --Trigger to populate `isLastAssignedRoom` and `isLastJoinedRoom`
 CREATE OR REPLACE FUNCTION "ins_upd_del_breakoutRoom_user_trigger_func"() RETURNS TRIGGER AS $$
@@ -1957,7 +1969,7 @@ BEGIN
        update "breakoutRoom_user" set "userJoinedSomeRoomAt" = "latestJoinedAt"
           where "breakoutRoom_user"."meetingId" = meetingId
           and "breakoutRoom_user"."userId" = userId
-          and "breakoutRoom_user"."userJoinedSomeRoomAt" != "latestJoinedAt";
+          and "breakoutRoom_user"."userJoinedSomeRoomAt" is distinct from "latestJoinedAt";
 END;
 $$ LANGUAGE plpgsql;
 
@@ -1976,9 +1988,13 @@ BEGIN
 		   bru."breakoutRoomId", bru."userId", bkroom_user."currentlyInMeeting"
 		   from "user" bkroom_user
 		   join meeting_breakout mb on mb."meetingId" = bkroom_user."meetingId"
-		   join "breakoutRoom" br on br."parentMeetingId" = mb."parentId" and mb."sequence" = br."sequence"
-		   join "user" u on u."meetingId" = br."parentMeetingId"  and bkroom_user."extId" = u."userId" || '-' || br."sequence"
-		   join "breakoutRoom_user" bru on bru."userId" = u."userId" and bru."breakoutRoomId" = br."breakoutRoomId"
+		   join "breakoutRoom" br   on br."parentMeetingId" = mb."parentId"
+		                            and mb."sequence" = br."sequence"
+		                            and br."endedAt" is null
+		   join "user" u    on u."meetingId" = br."parentMeetingId"
+		                    and bkroom_user."extId" = u."userId" || '-' || br."sequence"
+		   join "breakoutRoom_user" bru on bru."userId" = u."userId"
+		                                and bru."breakoutRoomId" = br."breakoutRoomId"
 		   where bkroom_user."userId" = NEW."userId"
 	   ) a
 		where "breakoutRoom_user"."breakoutRoomId" = a."breakoutRoomId"
@@ -1992,19 +2008,23 @@ CREATE TRIGGER "update_bkroom_isUserCurrentlyInRoom_trigger" AFTER UPDATE OF "cu
     FOR EACH ROW EXECUTE FUNCTION "update_bkroom_isUserCurrentlyInRoom_trigger_func"();
 
 CREATE OR REPLACE VIEW "v_breakoutRoom" AS
-SELECT u."meetingId" as "userMeetingId", u."userId", b."parentMeetingId", b."breakoutRoomId", b."freeJoin",
+SELECT bu."meetingId" as "userMeetingId", bu."userId", b."parentMeetingId", b."breakoutRoomId", b."freeJoin",
             b."sequence", b."name", b."isDefaultName",
             b."shortName", b."startedAt", b."endedAt", b."durationInSeconds", b."sendInvitationToModerators",
-            bu."assignedAt", bu."joinURL", bu."inviteDismissedAt", u."role" = 'MODERATOR' as "isModerator",
+            bu."assignedAt", bu."joinURL", bu."inviteDismissedAt",
             bu."isLastAssignedRoom", bu."isLastJoinedRoom", bu."isUserCurrentlyInRoom", bu."showInvitation",
             bu."joinedAt" is not null as "hasJoined"
-    FROM "user" u
-    JOIN "breakoutRoom" b ON b."parentMeetingId" = u."meetingId"
-    LEFT JOIN "breakoutRoom_user" bu ON bu."meetingId" = u."meetingId" AND bu."userId" = u."userId" AND bu."breakoutRoomId" = b."breakoutRoomId"
-    WHERE (bu."assignedAt" IS NOT NULL
-            OR b."freeJoin" IS TRUE
-            OR u."role" = 'MODERATOR')
-    AND b."endedAt" IS NULL;
+    FROM "breakoutRoom_user" bu
+    JOIN "breakoutRoom" b ON b."breakoutRoomId" = bu."breakoutRoomId" and b."endedAt" IS NULL
+    --JOIN  bu ON bu."meetingId" = u."meetingId" AND bu."userId" = u."userId" AND bu."breakoutRoomId" = b."breakoutRoomId"
+    ;
+
+CREATE OR REPLACE VIEW "v_breakoutRoom_commonProperties" AS
+SELECT DISTINCT ON ("parentMeetingId", "freeJoin", "durationInSeconds", "sendInvitationToModerators", "captureNotes", "captureSlides")
+"parentMeetingId" as "meetingId", "freeJoin", "durationInSeconds", "sendInvitationToModerators",
+"captureNotes", "captureSlides", "startedAt"
+FROM "breakoutRoom"
+WHERE "endedAt" IS null;
 
 --view used to restore last breakout rooms
 CREATE OR REPLACE VIEW "v_breakoutRoom_createdLatest" AS
@@ -2022,7 +2042,7 @@ SELECT "parentMeetingId", "breakoutRoomId", "userMeetingId", "userId"
 FROM "v_breakoutRoom"
 WHERE "assignedAt" IS NOT NULL;
 
---TODO improve performance (and handle two users with same extId)
+
 CREATE OR REPLACE VIEW "v_breakoutRoom_participant" as
 SELECT DISTINCT
         "parentMeetingId",
@@ -2038,10 +2058,14 @@ select parent_user."meetingId" as "parentMeetingId",
         parent_user."meetingId" as "userMeetingId",
         parent_user."userId",
         true as "isAudioOnly"
-from "user" bk_user
-join "user" parent_user on parent_user."userId" = bk_user."userId" and parent_user."transferredFromParentMeeting" is false
-where bk_user."transferredFromParentMeeting" is true
-and bk_user."loggedOut" is false;
+from "user" parent_user
+join "user" bk_user on parent_user."userId" = bk_user."userId"
+                    and bk_user."transferredFromParentMeeting" is true
+                    and bk_user."currentlyInMeeting" is true
+where parent_user."transferredFromParentMeeting" is false;
+
+create index on "user"("userId") where "transferredFromParentMeeting" is true and "currentlyInMeeting" is true;
+create index on "user"("meetingId") where "transferredFromParentMeeting" is false;
 
 --SELECT DISTINCT br."parentMeetingId", br."breakoutRoomId", "user"."meetingId", "user"."userId"
 --FROM v_user "user"
@@ -2050,6 +2074,7 @@ and bk_user."loggedOut" is false;
 --JOIN "breakoutRoom" br ON br."parentMeetingId" = vmbp."parentId" AND br."externalId" = m."extId";
 
 --User to update "inviteDismissedAt" via Mutation
+--TODO check if it is being used
 CREATE OR REPLACE VIEW "v_breakoutRoom_user" AS
 SELECT bu.*
 FROM "breakoutRoom_user" bu
@@ -2060,6 +2085,18 @@ where bu."breakoutRoomId" in (
     where u."meetingId" = bu."meetingId"
     and u."userId" = bu."userId"
 );
+
+CREATE OR REPLACE VIEW "v_breakoutRoom_user_summary" AS
+select u."meetingId",
+		u."userId",
+		count(b."breakoutRoomId") as "totalOfBreakoutRooms",
+		sum(case when b."breakoutRoomId" is not null and bru."isUserCurrentlyInRoom" then 1 else 0 end) as "totalOfIsUserCurrentlyInRoom",
+		sum(case when b."breakoutRoomId" is not null and bru."showInvitation" then 1 else 0 end) as "totalOfShowInvitation",
+		sum(case when b."breakoutRoomId" is not null and bru."joinURL" is not null then 1 else 0 end) as "totalOfJoinURL"
+from "user" u
+left join "breakoutRoom_user" bru on bru."meetingId" = u."meetingId" and bru."userId" = u."userId"
+left join "breakoutRoom" b on b."breakoutRoomId" = bru."breakoutRoomId" and b."endedAt" is null
+group by u."meetingId", u."userId";
 
 ------------------------------------
 ----sharedNotes
@@ -2180,6 +2217,11 @@ CREATE OR REPLACE VIEW "v_caption" AS
 SELECT *
 FROM "caption"
 WHERE "createdAt" > current_timestamp - INTERVAL '5 seconds';
+
+--------See all captions from a meeting
+CREATE OR REPLACE VIEW "v_caption_history" AS
+SELECT *
+FROM "caption";
 
 CREATE OR REPLACE VIEW "v_caption_activeLocales" AS
 select distinct "meetingId", "locale", "createdBy", "captionType"
@@ -2384,3 +2426,29 @@ CREATE UNLOGGED TABLE "user_livekit"(
 
 CREATE INDEX "idx_user_livekit_token" ON "user_livekit"("livekitToken");
 CREATE VIEW "v_user_livekit" AS SELECT * FROM "user_livekit";
+
+CREATE UNLOGGED TABLE "audioGroup" (
+	"meetingId" 			varchar(100),
+	"groupId"					varchar(100),
+	"createdBy"				varchar(50),
+	CONSTRAINT "audioGroup_pkey" PRIMARY KEY ("meetingId", "groupId"),
+	FOREIGN KEY ("meetingId") REFERENCES "meeting"("meetingId") ON DELETE CASCADE
+);
+
+CREATE VIEW "v_audioGroup" AS SELECT * FROM "audioGroup";
+
+CREATE UNLOGGED TABLE "user_audioGroup" (
+	"meetingId"					varchar(100),
+	"userId"						varchar(50),
+	"groupId"						varchar(100),
+	"participantType"		varchar(50),
+	"active"						boolean,
+	CONSTRAINT "user_audioGroup_pkey" PRIMARY KEY ("meetingId", "userId", "groupId"),
+	FOREIGN KEY ("meetingId", "groupId") REFERENCES "audioGroup"("meetingId", "groupId") ON DELETE CASCADE
+);
+
+CREATE INDEX "idx_user_audioGroup_groupId" ON "user_audioGroup"("meetingId", "groupId");
+CREATE INDEX "idx_user_audioGroup_userId" ON "user_audioGroup"("meetingId", "userId");
+CREATE INDEX "idx_user_audioGroup_userId_reverse" ON "user_audioGroup"("userId", "meetingId");
+CREATE INDEX "idx_user_audioGroup_groupId_participantType" ON "user_audioGroup"("meetingId", "groupId", "participantType");
+CREATE OR REPLACE VIEW "v_user_audioGroup" AS SELECT * FROM "user_audioGroup";

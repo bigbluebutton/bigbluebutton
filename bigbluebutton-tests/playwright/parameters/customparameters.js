@@ -26,6 +26,16 @@ class CustomParameters extends MultiUsers {
     await this.modPage.wasRemoved(e.usersList, 'should not display the users list');
   }
 
+  async showSessionDetailsOnJoin() {
+    await this.modPage.hasElement(e.audioModal, 'should display the audio modal on join');
+    const audioModalCloseButton = await this.modPage.getVisibleLocator(e.closeModal); // avoid throwing error due to both modals being in the DOM
+    await audioModalCloseButton.click();
+    await this.modPage.hasElement(e.sessionDetailsModal, 'should display the session details after audio modal is closed');
+    await this.modPage.hasText(e.sessionDetailsModal, this.modPage.meetingId, 'should contain the meeting id on the session details');
+    await this.modPage.waitAndClick(e.closeModal);
+    await this.modPage.wasRemoved(e.sessionDetailsModal, 'should not display the session details after closing the modal');
+  }
+
   async clientTitle() {
     const pageTitle = await this.modPage.page.title();
     expect(pageTitle, 'should display the changed name of the client title').toContain(`${c.docTitle} - `);
@@ -150,8 +160,14 @@ class CustomParameters extends MultiUsers {
 
   async forceRestorePresentationOnNewEvents() {
     const { presentationHidden, pollEnabled } = getSettings();
-    if (!presentationHidden) await this.userPage.waitAndClick(e.minimizePresentation);
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    if (!presentationHidden) {
+      await this.userPage.waitForSelector(e.whiteboard);
+      await sleep(1000);  // wait for the whiteboard to be fully loaded and stable (zoom)
+      await this.userPage.waitAndClick(e.minimizePresentation);
+    }
     await this.userPage.wasRemoved(e.whiteboard, 'should remove the whiteboard element for the attendee when minimized');
+    await sleep(1000);  // first minimize of presentation takes longer to be fully applied
     // zoom in
     await this.modPage.waitAndClick(e.zoomInButton);
     await this.userPage.hasElement(e.whiteboard, 'should restore presentation when zooming in the slide');
@@ -163,10 +179,12 @@ class CustomParameters extends MultiUsers {
     await this.userPage.hasElement(e.minimizePresentation, 'should display the minimize presentation button when the presentation is restored');
     await this.userPage.waitAndClick(e.minimizePresentation);
     // publish polling
-    if (pollEnabled) await util.poll(this.modPage, this.userPage);
-    await this.userPage.hasElement(e.whiteboard, 'should restore presentation when a poll is posted');
-    await this.userPage.hasElement(e.minimizePresentation, 'should display the minimize presentation button when the presentation is restored');
-    await this.userPage.waitAndClick(e.minimizePresentation);
+    if (pollEnabled) {
+      await util.poll(this.modPage, this.userPage);
+      await this.userPage.hasElement(e.whiteboard, 'should restore presentation when a poll is posted');
+      await this.userPage.hasElement(e.minimizePresentation, 'should display the minimize presentation button when the presentation is restored');
+      await this.userPage.waitAndClick(e.minimizePresentation);
+    }
     // next slide
     await util.nextSlide(this.modPage);
     await this.userPage.hasElement(e.whiteboard, 'should restore presentation when going to the next slide');
@@ -227,22 +245,19 @@ class CustomParameters extends MultiUsers {
   async multiUserPenOnly() {
     await this.modPage.waitAndClick(e.multiUsersWhiteboardOn);
     await this.userPage.hasElement(e.wbToolbar);
-    const toolsCount = await this.userPage.getSelectorCount(`${e.wbToolbar} button:visible`);
-    await expect(toolsCount, 'should display only 1 tool (pen)').toBe(1);
+    await this.userPage.hasElementCount(`${e.wbToolbar} button`, 1, 'should display only 1 tool (pen)');
   }
 
   async presenterTools() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.hasElement(e.wbToolbar);
-    const toolsCount = await this.modPage.getSelectorCount(`${e.wbToolbar} button:visible`);
-    await expect(toolsCount, 'should display only the 3 elements passed in the parameter (select, draw and arrow)').toBe(3);
+    await this.modPage.hasElementCount(`${e.wbToolbar} button`, 3, 'should display only the 3 elements passed in the parameter (select, draw and arrow)');
   }
 
   async multiUserTools() {
     await this.modPage.waitAndClick(e.multiUsersWhiteboardOn);
     await this.userPage.hasElement(e.wbToolbar);
-    const toolsCount = await this.userPage.getSelectorCount(`${e.wbToolbar} button:visible`);
-    await expect(toolsCount, 'should display only the 2 elements passed in the parameter (arrow and text)').toBe(2);
+    await this.userPage.hasElementCount(`${e.wbToolbar} button`, 2, 'should display only the 2 elements passed in the parameter (arrow and text)');
   }
 
   async autoShareWebcam() {
@@ -284,6 +299,16 @@ class CustomParameters extends MultiUsers {
     await this.modPage.hasElement(e.webcamMirroredVideoContainer, 'should display the webcam (mirrored) container after successfully sharing webcam');
     const webcamBackgroundURL = this.modPage.getLocator(e.webcamMirroredVideoContainer);
     await expect(webcamBackgroundURL).toHaveScreenshot('webcam-background-passing-url.png');
+  }
+
+  async logoutURLTest() {
+    //allowDefaultLogoutUrl setting true/false should have no effect if a custom logoutURL is provided
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage.waitAndClick(e.leaveMeetingDropdown);
+    await this.modPage.waitAndClick(e.directLogoutButton);
+    await this.modPage.hasElement(e.meetingEndedModal);
+    await this.modPage.waitAndClick(e.redirectButton);
+    await expect(this.modPage.page.url()).toContain('google.com');
   }
 }
 

@@ -139,11 +139,12 @@ class BBBMenu extends React.Component {
           <Styled.BBBMenuItem
             emoji={emojiSelected ? 'yes' : 'no'}
             key={label}
+            id={dataTest}
             data-test={dataTest}
             data-key={`menuItem-${dataTest}`}
             disableRipple={true}
             disableGutters={true}
-            disabled={disabled}
+            disabled={disabled || isTitle}
             style={customStyles}
             $roundButtons={roundButtons}
             $isToggle={isToggle}
@@ -170,6 +171,7 @@ class BBBMenu extends React.Component {
             key={a.key}
             isTitle={isTitle}
             isGenericContent={!!contentFunction}
+            disabled={disabled || isTitle}
           >
             <Styled.MenuItemWrapper
               hasSpaceBetween={isTitle && titleActions}
@@ -256,7 +258,6 @@ class BBBMenu extends React.Component {
           }}
           accessKey={accessKey}
           ref={(ref) => this.anchorElRef = ref}
-          role="button"
           tabIndex={-1}
         >
           {trigger}

@@ -1,6 +1,7 @@
 import type {
   InternalRoomOptions,
   TrackPublishOptions,
+  LogLevel,
 } from 'livekit-client';
 
 export interface MeetingClientSettings {
@@ -28,6 +29,7 @@ export interface Public {
   whiteboard: Whiteboard
   clientLog: ClientLog
   virtualBackgrounds: VirtualBackgrounds
+  minBrowserVersions: MinBrowserVersions
 }
 export interface Locales {
   locale: string
@@ -86,7 +88,6 @@ export interface App {
   remainingTimeAlertThresholdArray: number[]
   enableDebugWindow: boolean
   breakouts: Breakouts
-  customHeartbeat: boolean
   showAllAvailableLocales: boolean
   showAudioFilters: boolean
   reactionsButton: ReactionsButton
@@ -105,6 +106,7 @@ export interface App {
   maxMutationPayloadSize: number
   enableApolloDevTools: boolean
   terminateAndRetryConnection: number
+  timeoutBeforeRedirectOnMeetingEnd: number | null
 }
 
 export interface BbbTabletApp {
@@ -145,6 +147,8 @@ export interface MutedAlert {
 
 export interface Breakouts {
   allowUserChooseRoomByDefault: boolean
+  offerRecordingForBreakouts: boolean
+  recordRoomByDefault: boolean
   captureWhiteboardByDefault: boolean
   captureSharedNotesByDefault: boolean
   sendInvitationToAssignedModeratorsByDefault: boolean
@@ -465,6 +469,7 @@ export interface Poll {
   maxCustom: number
   maxTypedAnswerLength: number
   chatMessage: boolean
+  quickPollConfirmationStep: boolean
 }
 
 export interface Captions {
@@ -651,6 +656,7 @@ export interface LiveKitAudioSettings {
 export interface LiveKitSettings {
   url?: string
   selectiveSubscription?: boolean
+  logLevel?: LogLevel
   roomOptions?: Partial<InternalRoomOptions>
   audio?: LiveKitAudioSettings
   camera?: LiveKitCameraSettings
@@ -746,6 +752,7 @@ export interface Whiteboard {
   maxStickyNoteLength: number
   maxNumberOfAnnotations: number
   maxNumberOfActiveUsers: number
+  lockToolbarTools: boolean
   annotations: Annotations
   allowInfiniteWhiteboard: boolean
   allowInfiniteWhiteboardInBreakouts: boolean
@@ -823,7 +830,6 @@ export interface VirtualBackgrounds {
 export interface Private {
   analytics: Analytics
   app: App2
-  minBrowserVersions: MinBrowserVersion[]
   prometheus: Prometheus
 }
 
@@ -850,9 +856,17 @@ export interface Channels {
   toThirdParty: string
 }
 
-export interface MinBrowserVersion {
-  browser: string
-  version: number | number[] | string
+export interface mobileBrowsers {
+  safari: string
+  chrome: string
+}
+
+export interface MinBrowserVersions {
+  safari: string
+  chrome: string
+  firefox: string
+  edge: string
+  mobile: mobileBrowsers
 }
 
 export interface Prometheus {

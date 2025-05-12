@@ -407,12 +407,12 @@ jobs:
           ACTIONS_RUNNER_DEBUG: true
           BBB_URL: https://bbb-ci.test/bigbluebutton/api
           BBB_SECRET: bbbci
-        run: npm run test-chromium-ci -- --shard ${{ env.shard }}
+        run: npm run test-chromium-ci -- --shard=${{ env.shard }}
       - name: Run Firefox tests
         working-directory: ./bigbluebutton-tests/playwright
         if: |
-          contains(github.event.pull_request.labels.*.name, 'test Firefox') ||
-          contains(github.event.pull_request.labels.*.name, 'Test Firefox')
+          contains(join(github.event.pull_request.labels.*.name, ' '), 'test Firefox') ||
+          contains(join(github.event.pull_request.labels.*.name, ' '), 'Test Firefox')
         env:
           NODE_EXTRA_CA_CERTS: /usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt
           ACTIONS_RUNNER_DEBUG: true
@@ -422,7 +422,7 @@ jobs:
         run: |
           sh -c '
           find $HOME/.cache/ms-playwright -name libnssckbi.so -exec rm {} \; -exec ln -s /usr/lib/x86_64-linux-gnu/pkcs11/p11-kit-trust.so {} \;
-          npm run test-firefox-ci -- --shard ${{ env.shard }}
+          npm run test-firefox-ci -- --shard=${{ env.shard }}
           '
       - if: always()
         name: Upload blob report to GitHub Actions Artifacts
@@ -484,9 +484,9 @@ jobs:
       hasReportData: ${{ needs.install-and-run-tests.result == 'success' || needs.install-and-run-tests.result == 'failure' }}
     steps:
       - uses: actions/checkout@v4
-      - name: Upload blob report
+      - name: Merge and upload the blob reports
         if: ${{ env.hasReportData }}
-        uses: ./.github/actions/upload-blob-report
+        uses: ./.github/actions/merge-and-upload-blob-reports
       - name: Remove unnecessary artifact
         uses: geekyeggo/delete-artifact@v5
         with:

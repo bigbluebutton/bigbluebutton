@@ -9,7 +9,7 @@ import { toggleMuteMicrophone } from '/imports/ui/components/audio/audio-graphql
 import { useIsPrivateChatEnabled } from '/imports/ui/services/features';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 
-export const isVoiceOnlyUser = (userId: string) => userId.toString().startsWith('v_');
+export const isVoiceOnlyUser = (userId: string) => typeof userId === 'string' && userId.startsWith('v_');
 
 export const isMe = (userId: string) => userId === Auth.userID;
 
@@ -22,7 +22,7 @@ export const generateActionsPermissions = (
   isMuted: boolean,
 ) => {
   const subjectUserVoice = subjectUser.voice;
-
+  const subjectUserInAudio = subjectUserVoice?.joined && !subjectUserVoice?.deafened;
   const amIModerator = currentUser.isModerator;
   const isDialInUser = isVoiceOnlyUser(subjectUser.userId);
   const amISubjectUser = isMe(subjectUser.userId);
@@ -34,13 +34,13 @@ export const generateActionsPermissions = (
   const hasAuthority = currentUser.isModerator || amISubjectUser;
   const allowedToChatPrivately = !amISubjectUser && !isDialInUser && useIsPrivateChatEnabled();
   const allowedToMuteAudio = hasAuthority
-    && subjectUserVoice?.joined
+    && subjectUserInAudio
     && !isMuted
     && !subjectUserVoice?.listenOnly;
 
   const allowedToUnmuteAudio = hasAuthority
-    && subjectUserVoice?.joined
-    && !subjectUserVoice.listenOnly
+    && subjectUserInAudio
+    && !subjectUserVoice?.listenOnly
     && isMuted
     && (amISubjectUser || usersPolicies?.allowModsToUnmuteUsers);
 

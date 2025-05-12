@@ -3,8 +3,6 @@
 
 ## Overview
 
-### This document is still a draft, BigBlueButton 3.0 is under development
-
 BigBlueButton 3.0 offers users improved usability, increased engagement, and more performance.
 
 - **Usability** - making common functions (such as raise hand) easier
@@ -151,7 +149,8 @@ For more information check the [pull request](https://github.com/bigbluebutton/b
 #### S3-based cache for presentation assets
 
 BigBlueButton now supports caching for presentation assets at Amazon S3/Minio or similar.
-For details check the [server customization](/administration/customize/#configure-s3-based-cache-for-presentation-assets) portion of the documents.
+For details check the [server customization](/administration/customize/#configure-s3-based-cache-for-presentation-assets) portion of the documents and see the new `/create` parameter to control it per meeting in the [API reference](/development/api/#get-post-create).
+
 
 #### Support for ClamAV as presentation file scanner
 
@@ -192,6 +191,24 @@ To enable support for LiveKit:
     1. Set the appropriate LiveKit endpoint URL in bbb-html5.yml's `public.media.livekit.url`. See
       the aforementioned [docs section](/administration/cluster-proxy.md#bigbluebutton-servers) for details.
 
+We also *strongly recommend* setting up network interface filtering in LiveKit.
+While optional, this speeds up negotation times and works around an issue with the latest
+LiveKit versions that might cause CPU spikes if there's no filtering in place.
+To set up network interface filtering:
+1. Gather relevant network interfaces names to be used for media communication.
+For most setups, the default network interface is enough. See the `route` command
+to find it (`Destination: default`). If any other network interfaces are needed,
+make note of them.
+2. Set the following in `/etc/bigbluebutton/livekit.yaml`:
+```yaml
+rtc:
+  interfaces:
+    includes:
+      - <network_interface_name_1>
+      - <any_other_network_interface_name>
+```
+3. Restart livekit-server: `$ sudo systemctl restart livekit-server`
+
 Once enabled, LiveKit still won't be used by default. There are two ways to make
 use of it in meetings:
 - Per meeting: set any of the following meeting `/create` parameters
@@ -207,35 +224,10 @@ Those parameters do *not* need to be set concurrently. LiveKit can be enabled fo
 audio only, for example, while keeping the current media framework for camera
 and screen sharing by setting just `audioBridge=livekit`.
 
-To enable recording/capture with LiveKit (optional):
-1. Create **`/etc/bigbluebutton/egress.yaml`**
-    ```yaml
-    log_level: debug
-    redis:
-      address: localhost:6379
-    api_key: YOUR_API_KEY # see /etc/bigbluebutton/livekit.yaml
-    api_secret: YOUR_API_SECRET # see /etc/bigbluebutton/livekit.yaml
-    health_port: 7005
-    ws_url: ws://localhost:7880
-    file_prefix: /var/lib/bbb-webrtc-recorder
-    file_only: true
-    prometheus_port: 6790
-    ```
-2. Set appropriate key and secret in the file above
-3. Change capture directory permissions: **`chmod -R 777 /var/lib/bbb-webrtc-recorder`**
-    - The recorder runs as root in the docker container
-4. Enable egress in bbb-webrtc-sfu : **`yq e -i ".livekit.egress.enabled = true" /etc/bigbluebutton/bbb-webrtc-sfu/production.yml`**
-5. Run egress
-    ```bash
-    docker run -t -d --rm \
-        --name egress \
-        -e EGRESS_CONFIG_FILE=/etc/bigbluebutton/egress.yaml \
-        -v /etc/bigbluebutton/:/etc/bigbluebutton/ \
-        -v /var/lib/bbb-webrtc-recorder:/var/lib/bbb-webrtc-recorder \
-        --network host \
-        livekit/egress
-    ```
-6. Restart bbb-webrtc-sfu
+As of BigBlueButton v3.0.7, recording is enabled by default for LiveKit sessions
+via the bbb-webrtc-recorder application. If `livekit/egress` was previously
+installed in a server, any steps done to enable it should be reverted. Refer to
+the [previous installations steps](https://github.com/bigbluebutton/bigbluebutton/blob/6eab874ffa8d0e82453dad3b06621dea16e15e6d/docs/docs/new-features.md?plain=1#L209-L237).
 
 Keep in mind that the LiveKit integration is still experimental and not feature
 complete. Configuration, API parameters, and other details are subject to change.
@@ -252,6 +244,15 @@ For full details on what is new in BigBlueButton 3.0, see the release notes.
 
 Recent releases:
 
+- [3.0.6](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.6)
+- [3.0.5](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.5)
+- [3.0.4](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.4)
+- [3.0.3](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.3)
+- [3.0.2](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.2)
+- [3.0.1](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.1)
+- [3.0.0](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0)
+- [3.0.0-rc.4](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-rc.4)
+- [3.0.0-rc.3](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-rc.3)
 - [3.0.0-rc.2](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-rc.2)
 - [3.0.0-rc.1](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-rc.1)
 - [3.0.0-beta.7](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-beta.7)
@@ -335,13 +336,56 @@ Retired events
 Modified/added events
 - `ParticipantJoinEvent` - will contain element `userdata` see https://github.com/bigbluebutton/bigbluebutton/pull/20566#pullrequestreview-2142238810
 - the old user status emojis were retired. `emojiStatus` will not be filled anymore. For more information see https://github.com/bigbluebutton/bigbluebutton/pull/20717
+- `SetScreenshareAsContentEvent` - Contains the `screenshareAsContent` field, a boolean that indicates whether the screenshare is in focus. For more information see https://github.com/bigbluebutton/bigbluebutton/pull/22312
 
 #### bbb-web properties changes
 
-- `allowOverrideClientSettingsOnCreateCall=false` added
-- `sessionsCleanupDelayInMinutes=60` added
-- `graphqlWebsocketUrl=${bigbluebutton.web.serverURL}/graphql` added
-- `muteOnStart` default value set to `true` - which helps now that `transparentListenOnly` is enabled by default too. See (PR 20848)[https://github.com/bigbluebutton/bigbluebutton/issues/20848] for more info.
+Removed
+- `breakoutRoomsEnabled` removed (was previously deprecated)
+- `learningDashboardEnabled` removed (was previously deprecated)
+- `defaultGuestWaitURL` removed (now handled on the same page as the client)
+
+Value changed
+- `defaultHTML5ClientUrl` changed -- dropped the `/join` ending
+- `muteOnStart` default value changed to `true` - which helps now that `transparentListenOnly` is enabled by default too. See [PR 20848](https://github.com/bigbluebutton/bigbluebutton/issues/20848) for more info.
+
+Added
+- `pluginManifestFetchTimeout` added
+- `numPluginManifestsFetchingThreads` added
+- `extractTimeoutInMs` added
+- `pngCreationExecTimeoutInMs` added
+- `thumbnailCreationExecTimeoutInMs` added
+- `pdfPageDownscaleExecTimeoutInMs` added
+- `officeDocumentValidationExecTimeoutInMs` added
+- `textFileCreationExecTimeoutInMs` added
+- `presDownloadReadTimeoutInMs` added
+- `pngCreationConversionTimeout` added
+- `pngCreationWait` added
+- `pdfToSvgTimeout` added
+- `imageResizeWait` added
+- `officeDocumentValidationTimeout` added
+- `presOfficeConversionTimeout` added
+- `pdfPageCountWait` added
+- `presentationConversionCacheEnabled` added
+- `presentationConversionCacheS3AccessKeyId` added
+- `presentationConversionCacheS3AccessKeySecret` added
+- `presentationConversionCacheS3BucketName` added
+- `presentationConversionCacheS3Region` added
+- `presentationConversionCacheS3EndpointURL` added
+- `presentationConversionCacheS3PathStyle` added
+- `cameraBridge` added
+- `screenShareBridge` added
+- `audioBridge` added
+- `pluginManifests` added
+- `scanUploadedPresentationFiles` added
+- `allowOverrideClientSettingsOnCreateCall` added
+- `defaultBotAvatarURL` added
+- `graphqlApiUrl` added
+- `graphqlWebsocketUrl` added
+- `sessionsCleanupDelayInMinutes` added
+- `useDefaultDarkLogo` added
+- `defaultDarkLogoURL` added
+- `maxNumPages` added
 
 #### Removed support for POST requests on `join` endpoint and Content-Type headers are now required
 
@@ -354,6 +398,11 @@ We improved the documentation for which types of files we support when uploading
 #### We mirror the webcam preview by default now
 
 We have supported the option to mirror your own webcam while viewing it. Starting with BigBlueButton 3.0.0-beta.6 we mirror it by default (which leads to the same result you would expect if you looked yourself in a physical mirror).
+
+#### Feedback form removed
+
+We have removed the feedback form that used to be part of the client. It was relying on client logs to carry the information and was not particularly flexible. See https://github.com/bigbluebutton/bigbluebutton/pull/22111 for more information.
+A new repository was contributed by Mconf https://github.com/bigbluebutton/custom-feedback with a much more sophisticated feedback form.
 
 ### Development
 

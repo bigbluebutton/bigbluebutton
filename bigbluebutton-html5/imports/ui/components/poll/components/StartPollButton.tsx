@@ -94,7 +94,7 @@ const StartPollButton: React.FC<StartPollButtonProps> = ({
   };
 
   const hasNotMinOptions = type !== pollTypes.Response
-    && optList.filter((o) => o.val.trim().length > 0).length < 2;
+    && optList.filter((o) => o.val.trim().length > 0).length < 1;
 
   return (
     <Styled.StartPollBtn

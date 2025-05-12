@@ -279,6 +279,38 @@ function overlayAnnotations(svg, slideAnnotations) {
 }
 
 /**
+ * Resize an SVG image if it contains an embedded base64 image.
+ * 
+ * `WARNING`: This function is intended to be a hotfix for bad generated SVG's.
+ * It should be removed in the future.
+ * @param {string} file Path of the file.
+ * @param {number} width The new width of the image.
+ * @param {number} height The new height of the image.
+ * @param {number} oldWidth The old width of the image.
+ * @param {number} oldHeight The old height of the image.
+ * @param {number} page Page number.
+ */
+function resizeAssetIfBase64Image(file, width, height, oldWidth, oldHeight, page) {
+  const BASE_64_HREF_REGEX = /href="data:image\/(png|jpg|jpeg);base64,[^"]+"/;
+  const isSvg = file.endsWith('.svg');
+
+  if (!isSvg) return;
+
+  try {
+    let svg = fs.readFileSync(file, { encoding: 'utf-8' });
+    const hasBase64Image = BASE_64_HREF_REGEX.test(svg);
+    if (hasBase64Image) {
+      svg = svg.replaceAll(`width="${oldWidth}"`, `width="${width}"`);
+      svg = svg.replaceAll(`height="${oldHeight}"`, `height="${height}"`);
+      fs.writeFileSync(file, svg);
+    }
+  } catch (error) {
+    logger.error(`Resizing slide ${page}
+      failed for job ${jobId}: ${error.message}`);
+  }
+}
+
+/**
  * Processes presentation slides and associated annotations into
  * a single PDF file.
  * @async
@@ -312,14 +344,14 @@ async function processPresentationAnnotations() {
         `slide${currentSlide.page}.svg`);
 
     let backgroundFormat = '';
-    if (fs.existsSync(svgBackgroundSlide)) {
-      backgroundFormat = 'svg';
-    } else if (fs.existsSync(`${bgImagePath}.png`)) {
+    if (fs.existsSync(`${bgImagePath}.png`)) {
       backgroundFormat = 'png';
     } else if (fs.existsSync(`${bgImagePath}.jpg`)) {
       backgroundFormat = 'jpg';
     } else if (fs.existsSync(`${bgImagePath}.jpeg`)) {
       backgroundFormat = 'jpeg';
+    } else if (fs.existsSync(svgBackgroundSlide)) {
+      backgroundFormat = 'svg';
     } else {
       logger.error(`Skipping slide ${currentSlide.page} (${jobId}): unknown extension`);
       continue;
@@ -356,6 +388,16 @@ async function processPresentationAnnotations() {
           'xmlns': 'http://www.w3.org/2000/svg',
           'xmlns:xlink': 'http://www.w3.org/1999/xlink',
         });
+
+    // Resize the image element
+    resizeAssetIfBase64Image(
+      `${dropbox}/slide${currentSlide.page}.${backgroundFormat}`,
+      scaledWidth,
+      scaledHeight,
+      slideWidth,
+      slideHeight,
+      currentSlide.page,
+    );
 
     // Add the image element
     canvas
@@ -439,7 +481,7 @@ async function processPresentationAnnotations() {
 
   // Launch Notifier Worker depending on job type
   logger.info('Saved PDF at ',
-      `${outputDir}/${jobId}/${serverFilenameWithExtension}`);
+      `${outputDir}/${serverFilenameWithExtension}`);
 
   const notifier = new WorkerStarter({
     jobType: exportJob.jobType, jobId,

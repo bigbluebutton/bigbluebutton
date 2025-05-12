@@ -138,14 +138,13 @@ public:
     # this value to be kept under 16.
     breakouts:
       allowUserChooseRoomByDefault: false
+      offerRecordingForBreakouts: false
+      recordRoomByDefault: false
       captureWhiteboardByDefault: false
       captureSharedNotesByDefault: false
       sendInvitationToAssignedModeratorsByDefault: false
       breakoutRoomLimit: 16
       allowPresentationManagementInBreakouts: true
-    # https://github.com/bigbluebutton/bigbluebutton/pull/10826
-    customHeartbeat: false
-    customHeartbeatUseDataFrames: true
     showAllAvailableLocales: true
     # Show "Audio Filters for Microphone" option in settings menu.
     # When set to true, users are able to enable/disable microphone constraints,
@@ -305,6 +304,9 @@ public:
     # Maximum number of bytes allowed in each mutation message payload.
     # Defaults to 10485760 (10MB)
     maxMutationPayloadSize: 10485760
+    # Timeout before automatically redirecting users to the logout URL (or closing the window if the session is
+    # a breakout room). Either a number (in miliseconds) or null.
+    timeoutBeforeRedirectOnMeetingEnd: 20000
   # plugins:
   #   - name: SamplePresentationToolbarPlugin
   #     url: https://<your-Host>/plugins/SamplePresentationToolbarPlugin.js
@@ -581,6 +583,7 @@ public:
     maxCustom: 5
     maxTypedAnswerLength: 45
     chatMessage: true
+    quickPollConfirmationStep: true
   captions:
     enabled: true
     id: captions
@@ -936,17 +939,23 @@ public:
       # livekit.selectiveSubscription: whether to use selective subscription all
       # applicable track sources. Default value is false. This overrides autoSubscribe
       # when set to true and in effect (conditional to client behavior).
-      selectiveSubscription: false
+      selectiveSubscription: true
+      logLevel: 3
       roomOptions:
         adaptiveStream: true
         dynacast: true
         stopLocalTrackOnUnpublish: false
       audio:
+        # unpublishOnMute: whether to unpublish audio tracks when muted. Default is true.
+        unpublishOnMute: true
         # publishOptions: see https://docs.livekit.io/client-sdk-js/interfaces/TrackPublishOptions.html
         publishOptions:
-          audioPreset: 'speech'
-          dtx: true
-          red: false
+          audioPreset:
+            maxBitrate: 48000
+            networkPriority: 'high'
+            priority: 'high'
+          dtx: false
+          red: true
           forceStereo: false
       camera:
         publishOptions:
@@ -1043,6 +1052,7 @@ public:
     maxNumberOfAnnotations: 300
     # Limit the number of users who can interact with the whiteboard
     maxNumberOfActiveUsers: 25
+    lockToolbarTools: false
     annotations:
       status:
         start: DRAW_START
@@ -1076,6 +1086,8 @@ public:
         - text
         - note
         - rectangle
+        - delete-selected-items
+        - highlight
         - more
         - actions
       multiUserTools:
@@ -1087,8 +1099,11 @@ public:
         - text
         - note
         - rectangle
+        - delete-selected-items
+        - highlight
         - more
         - actions
+    locales: ['ar', 'ca', 'cs', 'da', 'de', 'en', 'es', 'fa', 'fi', 'fr', 'gl', 'he', 'hi-in', 'hu', 'it', 'ja', 'ko-kr', 'ku', 'main', 'my', 'ne', 'no', 'pl', 'pt-br', 'pt-pt', 'ro', 'ru', 'sv', 'te', 'th', 'tr', 'uk', 'vi', 'zh-cn', 'zh-tw']
   clientLog:
     console:
       enabled: true
@@ -1112,6 +1127,14 @@ public:
       - home.jpg
       - coffeeshop.jpg
       - board.jpg
+  minBrowserVersions:
+    safari: ">=14"
+    chrome: ">=87"
+    firefox: ">=80"
+    edge: ">=85"
+    mobile:
+      safari: ">=14"
+      chrome: ">=87"
 private:
   analytics:
     includeChat: true
@@ -1120,31 +1143,6 @@ private:
     localesUrl: /locale-list
     pencilChunkLength: 100
     loadSlidesFromHttpAlways: false
-  minBrowserVersions:
-    - browser: chrome
-      version: 72
-    - browser: chromeMobileIOS
-      version: 94
-    - browser: firefox
-      version: 68
-    - browser: firefoxMobile
-      version: 68
-    - browser: edge
-      version: 79
-    - browser: ie
-      version: Infinity
-    - browser: safari
-      version: [12, 1]
-    - browser: mobileSafari
-      version: [12, 1]
-    - browser: opera
-      version: 50
-    - browser: electron
-      version: [0, 36]
-    - browser: SamsungInternet
-      version: 10
-    - browser: YandexBrowser
-      version: 19
   # Direct Prometheus instrumentation.
   # EXPERIMENTAL, so disabled by default.
   prometheus:

@@ -3,7 +3,7 @@ import { throttle } from '/imports/utils/throttle';
 import { layoutSelect, layoutSelectInput, layoutDispatch } from '/imports/ui/components/layout/context';
 import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
 import { INITIAL_INPUT_STATE } from '/imports/ui/components/layout/initState';
-import { ACTIONS, CAMERADOCK_POSITION, PANELS } from '../enums';
+import { ACTIONS, CAMERADOCK_POSITION, LAYOUT_TYPE, PANELS } from '../enums';
 import Storage from '/imports/ui/services/storage/session';
 import { defaultsDeep } from '/imports/utils/array-utils';
 import Session from '/imports/ui/services/storage/in-memory';
@@ -14,7 +14,10 @@ const min = (value1, value2) => (value1 <= value2 ? value1 : value2);
 const max = (value1, value2) => (value1 >= value2 ? value1 : value2);
 
 const CustomLayout = (props) => {
-  const { bannerAreaHeight, calculatesActionbarHeight, calculatesNavbarHeight, isMobile } = props;
+  const {
+    bannerAreaHeight, calculatesActionbarHeight, calculatesNavbarHeight, isMobile,
+    prevLayout,
+  } = props;
 
   function usePrevious(value) {
     const ref = useRef();
@@ -195,15 +198,25 @@ const CustomLayout = (props) => {
             externalVideo, genericMainContent, screenShare, sharedNotes,
           } = prevInput;
           const { sidebarContentPanel } = sidebarContent;
+          let sidebarContentPanelOverride = sidebarContentPanel;
+          let overrideOpenSidebarPanel = sidebarContentPanel !== PANELS.NONE;
+          let overrideOpenSidebarNavigation = sidebarNavigation.isOpen
+            || sidebarContentPanel !== PANELS.NONE || false;
+          if (prevLayout === LAYOUT_TYPE.CAMERAS_ONLY
+            || prevLayout === LAYOUT_TYPE.PRESENTATION_ONLY
+            || prevLayout === LAYOUT_TYPE.MEDIA_ONLY) {
+            overrideOpenSidebarNavigation = true;
+            overrideOpenSidebarPanel = true;
+            sidebarContentPanelOverride = PANELS.CHAT;
+          }
           return defaultsDeep(
             {
               sidebarNavigation: {
-                isOpen:
-                  sidebarNavigation.isOpen || sidebarContentPanel !== PANELS.NONE || false,
+                isOpen: overrideOpenSidebarNavigation,
               },
               sidebarContent: {
-                isOpen: sidebarContentPanel !== PANELS.NONE,
-                sidebarContentPanel,
+                isOpen: overrideOpenSidebarPanel,
+                sidebarContentPanel: sidebarContentPanelOverride,
               },
               sidebarContentHorizontalResizer: {
                 isOpen: false,
@@ -287,9 +300,10 @@ const CustomLayout = (props) => {
       camerasMargin,
       cameraDockMinHeight,
       cameraDockMinWidth,
-      navBarHeight,
       presentationToolbarMinWidth,
     } = DEFAULT_VALUES;
+
+    const navBarHeight = calculatesNavbarHeight();
 
     const cameraDockBounds = {};
 
@@ -683,6 +697,8 @@ const CustomLayout = (props) => {
       },
     });
 
+    const isMediaOpen = mediaBounds?.width > 0 && mediaBounds?.height > 0;
+
     layoutContextDispatch({
       type: ACTIONS.SET_CAMERA_DOCK_OUTPUT,
       value: {
@@ -702,16 +718,19 @@ const CustomLayout = (props) => {
         isDraggable: !isMobile && !isTablet && presentationInput.isOpen,
         resizableEdge: {
           top:
-            input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_BOTTOM ||
-            (input.cameraDock.position === CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM &&
-              input.sidebarContent.isOpen),
+          isMediaOpen
+            && (input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_BOTTOM
+            || (input.cameraDock.position === CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM
+            && input.sidebarContent.isOpen)),
           right:
-            (!isRTL && input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_LEFT) ||
-            (isRTL && input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_RIGHT),
-          bottom: input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_TOP,
+            isMediaOpen
+            && ((!isRTL && input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_LEFT)
+            || (isRTL && input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_RIGHT)),
+          bottom: isMediaOpen && input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_TOP,
           left:
-            (!isRTL && input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_RIGHT) ||
-            (isRTL && input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_LEFT),
+          isMediaOpen
+            && ((!isRTL && input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_RIGHT)
+            || (isRTL && input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_LEFT)),
         },
         zIndex: cameraDockBounds.zIndex,
         focusedId: input.cameraDock.focusedId,
@@ -753,6 +772,7 @@ const CustomLayout = (props) => {
     layoutContextDispatch({
       type: ACTIONS.SET_EXTERNAL_VIDEO_OUTPUT,
       value: {
+        display: externalVideoInput.hasExternalVideo,
         width: mediaBounds.width,
         height: mediaBounds.height,
         top: mediaBounds.top,
