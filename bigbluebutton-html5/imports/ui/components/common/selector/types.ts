@@ -12,4 +12,5 @@ export interface SelectorProps {
   defaultOption?: Option;
   onChange: (value: string | number, event: SelectChangeEvent<unknown>) => void;
   width?: number;
+  dataTest?: string;
 }
