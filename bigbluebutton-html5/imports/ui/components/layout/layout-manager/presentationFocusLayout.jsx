@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { throttle } from '/imports/utils/throttle';
 import { layoutDispatch, layoutSelect, layoutSelectInput } from '/imports/ui/components/layout/context';
-import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
+import DEFAULT_VALUES, { SIDEBAR_CONTENT_VERTICAL_MARGIN, SIDEBAR_CONTENT_MARGIN_TO_MEDIA } from '/imports/ui/components/layout/defaultValues';
 import { INITIAL_INPUT_STATE } from '/imports/ui/components/layout/initState';
 import {
   ACTIONS,
@@ -11,6 +11,7 @@ import {
 } from '/imports/ui/components/layout/enums';
 import { defaultsDeep } from '/imports/utils/array-utils';
 import Session from '/imports/ui/services/storage/in-memory';
+import getFromUserSettings from '/imports/ui/services/users-settings';
 
 const windowWidth = () => window.document.documentElement.clientWidth;
 const windowHeight = () => window.document.documentElement.clientHeight;
@@ -85,17 +86,19 @@ const PresentationFocusLayout = (props) => {
       value: (prevInput) => {
         const {
           sidebarNavigation, sidebarContent, presentation, cameraDock,
-          externalVideo, genericMainContent, screenShare,
+          externalVideo, genericMainContent, screenShare, sharedNotes,
         } = prevInput;
         const { sidebarContentPanel } = sidebarContent;
         let sidebarContentPanelOverride = sidebarContentPanel;
-        let overrideOpenSidebarPanel = sidebarContentPanel !== PANELS.NONE;
-        let overrideOpenSidebarNavigation = sidebarNavigation.isOpen
-          || sidebarContentPanel !== PANELS.NONE || false;
-        if (
+        let overrideOpenSidebarPanel = !getFromUserSettings('bbb_hide_sidebar_navigation', false)
+          && sidebarContentPanel !== PANELS.NONE;
+        let overrideOpenSidebarNavigation = !getFromUserSettings('bbb_hide_sidebar_navigation', false)
+          && (sidebarNavigation.isOpen || sidebarContentPanel !== PANELS.NONE || false);
+        if ((
           prevLayout === LAYOUT_TYPE.PRESENTATION_ONLY
           || prevLayout === LAYOUT_TYPE.CAMERAS_ONLY
-          || prevLayout === LAYOUT_TYPE.MEDIA_ONLY
+          || prevLayout === LAYOUT_TYPE.MEDIA_ONLY)
+          && !getFromUserSettings('bbb_hide_sidebar_navigation', false)
         ) {
           overrideOpenSidebarNavigation = true;
           overrideOpenSidebarPanel = true;
@@ -125,6 +128,12 @@ const PresentationFocusLayout = (props) => {
             },
             cameraDock: {
               numCameras: cameraDock.numCameras,
+              height: 0,
+              width: 0,
+              cameraOptimalGridSize: {
+                width: 0,
+                height: 0,
+              },
             },
             externalVideo: {
               hasExternalVideo: externalVideo.hasExternalVideo,
@@ -137,8 +146,11 @@ const PresentationFocusLayout = (props) => {
               width: screenShare.width,
               height: screenShare.height,
             },
+            sharedNotes: {
+              isPinned: sharedNotes.isPinned,
+            },
           },
-          hasLayoutEngineLoadedOnce && prevLayout === LAYOUT_TYPE.PRESENTATION_FOCUS ? prevInput : INITIAL_INPUT_STATE,
+          hasLayoutEngineLoadedOnce ? prevInput : INITIAL_INPUT_STATE,
         );
       },
     });
@@ -235,7 +247,8 @@ const PresentationFocusLayout = (props) => {
           windowHeight() - cameraDockMinHeight,
         );
       }
-      cameraDockBounds.top = windowHeight() - cameraDockHeight - bannerAreaHeight();
+      cameraDockBounds.top = windowHeight() - cameraDockHeight
+        - bannerAreaHeight() - (SIDEBAR_CONTENT_VERTICAL_MARGIN) + SIDEBAR_CONTENT_MARGIN_TO_MEDIA;
       cameraDockBounds.left = !isRTL ? sidebarNavWidth : 0;
       cameraDockBounds.right = isRTL ? sidebarNavWidth : 0;
       cameraDockBounds.minWidth = sidebarContentWidth;

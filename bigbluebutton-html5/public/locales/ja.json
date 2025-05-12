@@ -1403,7 +1403,7 @@
     "app.createBreakoutRoom.nextLabel": "次",
     "app.createBreakoutRoom.minusRoomTime": "小会議室の制限時間を減らす",
     "app.createBreakoutRoom.addRoomTime": "小会議室の制限時間を増やす",
-    "app.createBreakoutRoom.addParticipantLabel": "＋参加者を追加",
+    "app.createBreakoutRoom.addParticipantLabel": "参加者を追加",
     "app.createBreakoutRoom.freeJoin": "ユーザーに小会議室を選択させる",
     "app.createBreakoutRoom.manageRoomsLabel": "会議室の管理",
     "app.createBreakoutRoom.captureNotes": "小会議室終了時に共有ノートを保存",

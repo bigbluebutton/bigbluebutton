@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Room } from 'livekit-client';
 import { useAudioPlayback } from '@livekit/components-react';
 import logger from '/imports/startup/client/logger';
@@ -17,8 +17,14 @@ export const useAutoplayState = (liveKitRoom: Room): [AutoplayState, () => Promi
     canPlayAudio,
   });
 
+  useEffect(() => {
+    // Track canPlayAudio as it might save an user interaction
+    if (canPlayAudio) setState((prev) => ({ ...prev, canPlayAudio }));
+  }, [canPlayAudio]);
+
   const handleStartAudio = useCallback(async () => {
     setState((prev) => ({ ...prev, isAttempting: true }));
+
     try {
       await startAudio();
       setState({

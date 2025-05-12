@@ -1403,7 +1403,7 @@
     "app.createBreakoutRoom.nextLabel": "التالي",
     "app.createBreakoutRoom.minusRoomTime": "تقليل وقت الغرفة الجانبية إلى",
     "app.createBreakoutRoom.addRoomTime": "زيادة وقت الغرفة الجانبية إلى",
-    "app.createBreakoutRoom.addParticipantLabel": "+ إضافة مشارك",
+    "app.createBreakoutRoom.addParticipantLabel": "إضافة مشارك",
     "app.createBreakoutRoom.freeJoin": "السماح للمستخدمين باختيار الغرفة الجانبية الذين يودون الالتحاق بها",
     "app.createBreakoutRoom.manageRoomsLabel": "إدارة الغرف",
     "app.createBreakoutRoom.captureNotes": "حفظ الملاحظات المشتركة",

@@ -59,6 +59,7 @@ class AnalyticsActor(val includeChat: Boolean) extends Actor with ActorLogging {
       case m: UserLeftVoiceConfEvtMsg                        => logMessage(msg)
       case m: RecordingStartedVoiceConfEvtMsg                => logMessage(msg)
       case m: MuteUserCmdMsg                                 => logMessage(msg)
+      case m: DeafenUserCmdMsg                               => logMessage(msg)
       case m: MuteUserInVoiceConfSysMsg                      => logMessage(msg)
       case m: DeafUserInVoiceConfSysMsg                      => logMessage(msg)
       case m: HoldUserInVoiceConfSysMsg                      => logMessage(msg)
@@ -92,6 +93,24 @@ class AnalyticsActor(val includeChat: Boolean) extends Actor with ActorLogging {
 
       case m: ChangeUserRoleCmdMsg                           => logMessage(msg)
 
+      // Audio groups
+      case m: CreateAudioGroupReqMsg                         => logMessage(msg)
+      case m: AudioGroupCreatedEvtMsg                        => logMessage(msg)
+      case m: DestroyAudioGroupReqMsg                        => logMessage(msg)
+      case m: AudioGroupDestroyedEvtMsg                      => logMessage(msg)
+      case m: GetAudioGroupsReqMsg                           => logMessage(msg)
+      case m: GetAudioGroupsRespMsg                          => logMessage(msg)
+      case m: AudioGroupAddParticipantsReqMsg                => logMessage(msg)
+      case m: AudioGroupParticipantsAddedEvtMsg              => logMessage(msg)
+      case m: AudioGroupRemoveParticipantsReqMsg             => logMessage(msg)
+      case m: AudioGroupParticipantsRemovedEvtMsg            => logMessage(msg)
+      case m: JoinAudioGroupReqMsg                           => logMessage(msg)
+      case m: AudioGroupParticipantJoinedEvtMsg              => logMessage(msg)
+      case m: LeaveAudioGroupReqMsg                          => logMessage(msg)
+      case m: AudioGroupParticipantLeftEvtMsg                => logMessage(msg)
+      case m: AudioGroupUpdateParticipantReqMsg              => logMessage(msg)
+      case m: AudioGroupParticipantUpdatedEvtMsg             => logMessage(msg)
+
       // Voice
       case m: UserMutedVoiceEvtMsg =>
         logMessage(msg)
@@ -102,6 +121,7 @@ class AnalyticsActor(val includeChat: Boolean) extends Actor with ActorLogging {
       case m: ToggleListenOnlyModeSysMsg => logMessage(msg)
       case m: ListenOnlyModeToggledInSfuEvtMsg => logMessage(msg)
       case m: MeetingMutedEvtMsg => logMessage(msg)
+      case m: AudioFloorChangedEvtMsg => logMessage(msg)
 
       // LiveKit/RTC
       case m: GenerateLiveKitTokenReqMsg => logMessage(msg)
@@ -212,6 +232,9 @@ class AnalyticsActor(val includeChat: Boolean) extends Actor with ActorLogging {
       case m: PadUpdatedEvtMsg => logMessage(msg)
       case m: PadUpdatePubMsg => logMessage(msg)
       case m: PadUpdateCmdMsg => logMessage(msg)
+
+      // Breakouts
+      case m: CreateBreakoutRoomsCmdMsg => logMessage(msg)
 
       case _ => // ignore message
     }

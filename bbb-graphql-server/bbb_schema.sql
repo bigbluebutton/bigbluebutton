@@ -283,7 +283,7 @@ CREATE UNLOGGED TABLE "user" (
 	"avatar" varchar(500),
     "webcamBackground" varchar(500),
 	"color" varchar(7),
-    "authToken" varchar(16),
+    "authToken" varchar(50),
     "authed" bool,
     "joined" bool,
     "firstJoinedAt" timestamp with time zone,
@@ -715,6 +715,7 @@ CREATE UNLOGGED TABLE "user_voice" (
 	"joined" boolean,
 	"listenOnly" boolean,
 	"muted" boolean,
+	"deafened" boolean,
 	"spoke" boolean,
 	"talking" boolean,
 	"floor" boolean,
@@ -1889,7 +1890,7 @@ create index "idx_breakoutRoom_user_user_meeting" on "breakoutRoom_user" ("userI
 ALTER TABLE "breakoutRoom_user" ADD COLUMN "showInvitation" boolean GENERATED ALWAYS AS (
     CASE WHEN
             "isLastAssignedRoom" IS true
-            and "isUserCurrentlyInRoom" is null
+            and "isUserCurrentlyInRoom" is not true
             AND ("joinedAt" is null or "assignedAt" > "joinedAt")
             AND ("userJoinedSomeRoomAt" is null or "assignedAt" > "userJoinedSomeRoomAt")
             AND ("inviteDismissedAt" is null or "assignedAt" > "inviteDismissedAt")
@@ -2187,6 +2188,11 @@ SELECT *
 FROM "caption"
 WHERE "createdAt" > current_timestamp - INTERVAL '5 seconds';
 
+--------See all captions from a meeting
+CREATE OR REPLACE VIEW "v_caption_history" AS
+SELECT *
+FROM "caption";
+
 CREATE OR REPLACE VIEW "v_caption_activeLocales" AS
 select distinct "meetingId", "locale", "createdBy", "captionType"
 from "caption_locale";
@@ -2390,3 +2396,29 @@ CREATE UNLOGGED TABLE "user_livekit"(
 
 CREATE INDEX "idx_user_livekit_token" ON "user_livekit"("livekitToken");
 CREATE VIEW "v_user_livekit" AS SELECT * FROM "user_livekit";
+
+CREATE UNLOGGED TABLE "audioGroup" (
+	"meetingId" 			varchar(100),
+	"groupId"					varchar(100),
+	"createdBy"				varchar(50),
+	CONSTRAINT "audioGroup_pkey" PRIMARY KEY ("meetingId", "groupId"),
+	FOREIGN KEY ("meetingId") REFERENCES "meeting"("meetingId") ON DELETE CASCADE
+);
+
+CREATE VIEW "v_audioGroup" AS SELECT * FROM "audioGroup";
+
+CREATE UNLOGGED TABLE "user_audioGroup" (
+	"meetingId"					varchar(100),
+	"userId"						varchar(50),
+	"groupId"						varchar(100),
+	"participantType"		varchar(50),
+	"active"						boolean,
+	CONSTRAINT "user_audioGroup_pkey" PRIMARY KEY ("meetingId", "userId", "groupId"),
+	FOREIGN KEY ("meetingId", "groupId") REFERENCES "audioGroup"("meetingId", "groupId") ON DELETE CASCADE
+);
+
+CREATE INDEX "idx_user_audioGroup_groupId" ON "user_audioGroup"("meetingId", "groupId");
+CREATE INDEX "idx_user_audioGroup_userId" ON "user_audioGroup"("meetingId", "userId");
+CREATE INDEX "idx_user_audioGroup_userId_reverse" ON "user_audioGroup"("userId", "meetingId");
+CREATE INDEX "idx_user_audioGroup_groupId_participantType" ON "user_audioGroup"("meetingId", "groupId", "participantType");
+CREATE OR REPLACE VIEW "v_user_audioGroup" AS SELECT * FROM "user_audioGroup";

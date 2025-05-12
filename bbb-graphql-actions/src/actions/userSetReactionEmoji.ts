@@ -10,7 +10,7 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
       ]
   )
 
-  if(typeof input.reactionEmoji !== 'string' || !EMOJI_REGEX.test(input.reactionEmoji)) {
+  if (input.reactionEmoji !== "none" && (typeof input.reactionEmoji !== 'string' || !EMOJI_REGEX.test(input.reactionEmoji))) {
     throw new ValidationError(`Parameter 'reactionEmoji' contains an invalid Emoji`, 400);
   }
 

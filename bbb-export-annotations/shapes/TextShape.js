@@ -43,6 +43,7 @@ export class TextShape extends Shape {
     const textGroup = this.shapeGroup;
     const textElement = new Text()
         .text(this.text)
+        .attr({'xml:space': 'preserve'})
         .move(x, y)
         .font({
           'family': this.fontFamily,

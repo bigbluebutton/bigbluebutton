@@ -133,7 +133,7 @@ export const generateActionsPermissions = (
   isPrivateChatEnabled: boolean,
 ) => {
   const subjectUserVoice = subjectUser.voice;
-
+  const subjectUserInAudio = subjectUserVoice?.joined && !subjectUserVoice?.deafened;
   const amIModerator = currentUser.isModerator;
   const isDialInUser = isVoiceOnlyUser(subjectUser.userId);
   const amISubjectUser = isMe(subjectUser.userId);
@@ -157,15 +157,15 @@ export const generateActionsPermissions = (
     && !isBreakout;
 
   const allowedToMuteAudio = hasAuthority
-    && subjectUserVoice?.joined
+    && subjectUserInAudio
     && !isMuted
     && !subjectUserVoice?.listenOnly
     && !isSubjectUserBot
     && !isBreakout;
 
   const allowedToUnmuteAudio = hasAuthority
-    && subjectUserVoice?.joined
-    && !subjectUserVoice.listenOnly
+    && subjectUserInAudio
+    && !subjectUserVoice?.listenOnly
     && isMuted
     && (amISubjectUser || usersPolicies?.allowModsToUnmuteUsers)
     && !lockSettings?.disableMic
@@ -262,6 +262,8 @@ export const handleWhiteboardAccessChange = async (
   getWriters: LazyQueryExecFunction<GetWritersData, GetWritersVariables>,
   presentationSetWriters: MutationFunction,
 ) => {
+  // There is no presentation available, so access cannot be granted.
+  if (!pageId) return;
   try {
     // Fetch the writers data
     const { data } = await getWriters();
@@ -390,7 +392,7 @@ export const createToolbarOptions = (
         dataTest: 'unmuteUser',
       },
       {
-        allowed: allowedToChangeWhiteboardAccess,
+        allowed: allowedToChangeWhiteboardAccess && !!pageId,
         key: 'changeWhiteboardAccess',
         label: whiteboardAccess
           ? intl.formatMessage(intlMessages.removeWhiteboardAccess)

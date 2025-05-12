@@ -21,6 +21,7 @@ import Tooltip from '/imports/ui/components/common/tooltip/component';
 import SessionDetailsModal from '/imports/ui/components/session-details/component';
 import Icon from '/imports/ui/components/common/icon/icon-ts/component';
 import getStorageSingletonInstance from '../../services/storage';
+import getFromUserSettings from '/imports/ui/services/users-settings';
 
 const intlMessages = defineMessages({
   toggleUserListLabel: {
@@ -313,7 +314,8 @@ class NavBar extends Component {
       && selectedLayout !== LAYOUT_TYPE.PRESENTATION_ONLY
       && selectedLayout !== LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY
       && selectedLayout !== LAYOUT_TYPE.MEDIA_ONLY
-      && isPhone === true;
+      && isPhone === true
+      && !getFromUserSettings('bbb_hide_sidebar_navigation', false);
 
     const APP_CONFIG = window.meetingClientSettings?.public?.app;
     const enableTalkingIndicator = APP_CONFIG?.enableTalkingIndicator;

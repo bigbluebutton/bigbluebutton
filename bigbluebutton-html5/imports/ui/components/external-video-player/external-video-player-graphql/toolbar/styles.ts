@@ -30,6 +30,7 @@ const ButtonsWrapper = Styled.div`
   bottom: 0;
   top: 0;
   display: flex;
+  z-index: 3;
 
   [dir="rtl"] & {
     right: 0;
@@ -44,6 +45,7 @@ const MobileControlsOverlay = Styled.span`
   width: 100%;
   height: 100%;
   background-color: transparent;
+  z-index: 3;
 `;
 
 export default {

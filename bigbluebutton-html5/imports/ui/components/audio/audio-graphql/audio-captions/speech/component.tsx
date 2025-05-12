@@ -28,6 +28,7 @@ import {
 } from '../service';
 import { SET_SPEECH_LOCALE } from '/imports/ui/core/graphql/mutations/userMutations';
 import { SUBMIT_TEXT } from './mutations';
+import useIsAudioConnected from '/imports/ui/components/audio/audio-graphql/hooks/useIsAudioConnected';
 
 const THROTTLE_TIMEOUT = 200;
 
@@ -305,10 +306,9 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
 
 const AudioCaptionsSpeechContainer: React.FC = () => {
   /* eslint no-underscore-dangle: 0 */
-  // @ts-ignore - temporary while hybrid (meteor+GraphQl)
-  const isConnected = useReactiveVar(AudioManager._isConnected.value) as boolean;
   // @ts-ignore
   const isMuted = useReactiveVar(AudioManager._isMuted.value) as boolean;
+  const isConnected = useIsAudioConnected();
 
   const {
     data: currentUser,

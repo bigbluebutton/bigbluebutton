@@ -173,7 +173,7 @@ class Chat extends MultiUsers {
     await expect(message, 'should not display any messages on the public chat').toHaveCount(0);
 
     await this.modPage.waitAndClick(e.emojiPickerButton);
-    await this.modPage.getByLabelAndClick(e.frequentlyUsedEmoji);
+    await this.modPage.getByLabelAndClick(e.thumbsUpEmoji);
     await this.modPage.waitAndClick(e.sendButton);
 
     await this.modPage.waitForSelector(e.chatUserMessageText);
@@ -188,14 +188,14 @@ class Chat extends MultiUsers {
       return this.modPage.wasRemoved(e.emojiPickerButton, 'should not display the emoji picker button on the public chat');t
     }
     await this.modPage.waitAndClick(e.emojiPickerButton);
-    await this.modPage.getByLabelAndClick(e.frequentlyUsedEmoji);
+    await this.modPage.getByLabelAndClick(e.thumbsUpEmoji);
     await this.modPage.waitAndClick(e.sendButton);
     await this.modPage.waitAndClick(e.chatOptions);
     await this.modPage.hasElement(e.chatUserMessageText, 'should have one message that contains an emoji on the public chat');
     await this.modPage.grantClipboardPermissions();
     await this.modPage.waitAndClick(e.chatCopy);
     const copiedText = await this.modPage.getCopiedText();
-    await expect(copiedText, 'should the copied text be the same as the message on the chat').toContain(`${this.modPage.username} : MODERATOR]: ${e.frequentlyUsedEmoji}`);
+    await expect(copiedText, 'should the copied text be the same as the message on the chat').toContain(`${this.modPage.username} : MODERATOR]: ${e.thumbsUpEmoji}`);
   }
 
   async hidePublicMessages() {
@@ -220,7 +220,7 @@ class Chat extends MultiUsers {
       return this.modPage.wasRemoved(e.emojiPickerButton, 'should not display the emoji picker button');
     }
     await this.modPage.waitAndClick(e.emojiPickerButton);
-    await this.modPage.getByLabelAndClick(e.frequentlyUsedEmoji);
+    await this.modPage.getByLabelAndClick(e.thumbsUpEmoji);
     await this.modPage.waitAndClick(e.sendButton);
     await this.modPage.hasElement(e.chatUserMessageText, 'should display a message on the public chat with an emoji');
     await this.modPage.waitAndClick(e.chatOptions);
@@ -229,7 +229,7 @@ class Chat extends MultiUsers {
 
     const dataToCheck = [
       this.modPage.username,
-      e.frequentlyUsedEmoji,
+      e.thumbsUpEmoji,
     ];
     await checkTextContent(content, dataToCheck, 'should the save chat message with an emoji be the same as message sent on the public chat');
   }
@@ -246,21 +246,21 @@ class Chat extends MultiUsers {
       return this.modPage.wasRemoved(e.emojiPickerButton, 'should not display the emoji picker button on the public chat');
     }
     await this.modPage.waitAndClick(e.emojiPickerButton);
-    await this.modPage.getByLabelAndClick(e.frequentlyUsedEmoji);
+    await this.modPage.getByLabelAndClick(e.thumbsUpEmoji);
     await this.modPage.waitAndClick(e.sendButton);
     await this.userPage.waitAndClick(e.privateChatButton);
     await this.userPage.waitAndClick(e.privateChatItem);
     await this.userPage.hasElement(e.hideMessagesButton, 'should display the hide messages button when the attendee opens a private chat');
     // check sent messages 
-    await this.modPage.hasText(e.chatUserMessageText, e.frequentlyUsedEmoji, 'should display the emoji sent by the moderator on the private chat');
-    await this.userPage.hasText(e.chatUserMessageText, e.frequentlyUsedEmoji, 'should display for the user the emoji sent by the moderator on the private chat');
+    await this.modPage.hasText(e.chatUserMessageText, e.thumbsUpEmoji, 'should display the emoji sent by the moderator on the private chat');
+    await this.userPage.hasText(e.chatUserMessageText, e.thumbsUpEmoji, 'should display for the user the emoji sent by the moderator on the private chat');
     // userPage send message
     await this.userPage.waitAndClick(e.emojiPickerButton);
-    await this.userPage.getByLabelAndClick(e.frequentlyUsedEmoji);
+    await this.userPage.getByLabelAndClick(e.thumbsUpEmoji);
     await this.userPage.waitAndClick(e.sendButton);
     // check sent messages 
-    await this.modPage.hasText(e.chatUserMessageText, e.frequentlyUsedEmoji, 'should display the emoji sent by the attendee on the private chat');
-    await this.userPage.hasText(e.chatUserMessageText, e.frequentlyUsedEmoji, 'should display the emoji on the private chat for the user');
+    await this.modPage.hasText(e.chatUserMessageText, e.thumbsUpEmoji, 'should display the emoji sent by the attendee on the private chat');
+    await this.userPage.hasText(e.chatUserMessageText, e.thumbsUpEmoji, 'should display the emoji on the private chat for the user');
   }
 
   async autoConvertEmojiPublicChat() {

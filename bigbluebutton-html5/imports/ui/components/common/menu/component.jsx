@@ -141,6 +141,7 @@ class BBBMenu extends React.Component {
           <Styled.BBBMenuItem
             emoji={emojiSelected ? 'yes' : 'no'}
             key={label}
+            id={dataTest}
             data-test={dataTest}
             data-key={`menuItem-${dataTest}`}
             disableRipple={true}
