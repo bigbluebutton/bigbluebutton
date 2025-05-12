@@ -362,6 +362,14 @@ const Whiteboard = React.memo((props) => {
   }, [tlEditorRef]);
 
   const handleKeybindZoom = useCallback((operation) => {
+    if (
+      !tlEditorRef.current
+      || !initialZoomRef.current
+      || !whiteboardRef.current
+    ) {
+      return;
+    }
+
     const MAX_ZOOM_FACTOR = 4; // Represents 400%
     const MIN_ZOOM_FACTOR = isInfiniteWhiteboard ? 0.25 : 1;
     const ZOOM_IN_FACTOR = 0.25;
