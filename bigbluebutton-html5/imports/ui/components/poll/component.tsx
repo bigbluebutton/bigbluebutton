@@ -452,7 +452,7 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
     const cps = Session.getItem('customPollShortcut');
     if (cps) {
       setType(pollTypes.Custom);
-      setCustomInput(cps);
+      setCustomInput(!!cps);
     }
 
     return () => {
