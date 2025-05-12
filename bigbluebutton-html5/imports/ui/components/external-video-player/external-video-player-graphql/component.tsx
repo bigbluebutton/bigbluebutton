@@ -242,7 +242,12 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
         return internalPlayer.currentTime;
       }
       // Vimeo player returns a promise for getCurrentTime
-      return await internalPlayer?.getCurrentTime?.() ?? 0;
+      try {
+        return (await internalPlayer?.getCurrentTime?.()) ?? 0;
+      } catch (e) {
+        // If the player is not ready yet, we return 0
+        return 0;
+      }
     }
     return 0;
   }, []);
