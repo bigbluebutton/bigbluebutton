@@ -723,7 +723,7 @@ CREATE UNLOGGED TABLE "user_voice" (
 	"startTime" bigint,
 	"voiceActivityAt" timestamp with time zone,
 	CONSTRAINT "user_voice_pkey" PRIMARY KEY ("meetingId","userId"),
-    FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
+    FOREIGN KEY ("meetingId") REFERENCES "meeting"("meetingId") ON DELETE CASCADE
 );
 create index "idx_user_voice_pk_reverse" on "user_voice" ("userId", "meetingId");
 
