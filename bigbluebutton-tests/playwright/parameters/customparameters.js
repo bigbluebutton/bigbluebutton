@@ -7,6 +7,7 @@ const util = require('./util');
 const { sleep } = require('../core/helpers');
 const { getSettings } = require('../core/settings');
 const { uploadSinglePresentation } = require('../presentation/util');
+const utilScreenShare = require('../screenshare/util');
 const path = require('path');
 
 class CustomParameters extends MultiUsers {
@@ -164,10 +165,11 @@ class CustomParameters extends MultiUsers {
     await this.modPage.hasElement(e.restorePresentation, 'should display the restore presentation button for the moderator');
     await this.userPage.hasElement(e.restorePresentation, 'should display the restore presentation button for the attendee');
     await this.userPage.wasRemoved(e.whiteboard, 'should not display the whiteboard for the attendee');
-
+    await utilScreenShare.startScreenshare(this.modPage);
+    /*
     await this.modPage.waitAndClick(e.startScreenSharing);
     await this.modPage.hasElement(e.screenShareVideo, '', 20000);
-    await this.modPage.hasElement(e.stopScreenSharing);
+    await this.modPage.hasElement(e.stopScreenSharing);*/
     await this.userPage.hasElement(e.screenShareVideo, 'should display the screenshare element');
     await this.modPage.waitAndClick(e.stopScreenSharing);
     await this.modPage.hasElement(e.actions, 'should display the actions button');
@@ -212,6 +214,7 @@ class CustomParameters extends MultiUsers {
     await this.modPage.waitAndClick(e.pinNotes);
     await this.modPage.hasElement(e.unpinNotes, 'should display the unpin notes button');
     await this.userPage.hasElement(e.minimizePresentation, 'should display the minimize presentation button for the attendee');
+    await this.modPage.closeAllToastNotifications();
     await this.modPage.waitAndClick(e.unpinNotes);
 
     await this.modPage.hasElement(e.restorePresentation, 'should display the restore presentation button for the moderator');
@@ -231,8 +234,6 @@ class CustomParameters extends MultiUsers {
     await this.modPage.waitAndClick(e.updateLayoutBtn);
     await this.modPage.closeAllToastNotifications();
     await this.modPage.wasRemoved(e.toastContainer);
-
-    //await checkScreenshots(this, 'should be the grid layout', [e.webcamContainer, e.webcamMirroredVideoContainer], 'grid-layout');
 
     await this.modPage.hasElement(e.restorePresentation, 'should display the restore presentation button for the moderator');
     await this.userPage.hasElement(e.restorePresentation, 'should display the restore presentation button for the attendee');
@@ -277,24 +278,14 @@ class CustomParameters extends MultiUsers {
     await this.userPage.hasElement(e.restorePresentation, 'should display the restore presentation button for the attendee');
     await this.userPage.wasRemoved(e.whiteboard, 'should not display the whiteboard for the attendee');
 
-    await this.modPage.waitAndClick(e.actions);
-    await this.modPage.waitAndClick(e.managePresentations);
-    await this.modPage.hasElement(e.presentationFileUpload, 'should display the presentation space for uploading a new file, when the manage presentations is opened');
-  
-    await this.modPage.page.setInputFiles(e.presentationFileUpload, path.join(__dirname, `../core/media/${e.pdfFileName}`));
-    await this.modPage.hasText('body', e.statingUploadPresentationToast, 'should display the toast message uploading the presentation');
-  
-    await this.modPage.waitAndClick(e.confirmManagePresentation);
-    
-    await this.modPage.hasElement(e.presentationUploadProgressToast, 'should display the toast presentation upload progress after confirming the presentation to be uploaded');
-    await sleep(10000);
+    await uploadSinglePresentation(this.modPage, e.pdfFileName, UPLOAD_PDF_WAIT_TIME);
 
     const wbBox = await this.modPage.getLocator(e.whiteboard);
     await expect(wbBox).toHaveScreenshot('moderator-with-minimalist-large-presentation.png');
 
     await this.modPage.hasElement(e.minimizePresentation, 'should display the restore presentation button for the moderator');
     await this.userPage.hasElement(e.minimizePresentation, 'should display the restore presentation button for the attendee');
-    await this.userPage.hasElement(e.whiteboard, 'should not display the whiteboard for the attendee');
+    await this.userPage.hasElement(e.whiteboard, 'should display the whiteboard for the attendee');
   }
 
   async forceRestorePresentationOnNewEvents() {
