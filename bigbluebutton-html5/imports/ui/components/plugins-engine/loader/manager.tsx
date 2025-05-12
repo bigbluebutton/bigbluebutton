@@ -33,7 +33,7 @@ const PluginLoaderManager = (props: PluginLoaderManagerProps) => {
         logCode: 'plugin_loaded',
       }, `Loaded plugin ${plugin.name}`);
       // Send pluginApi to plugin constructor
-      window.bbbPluginApiConstructors[uuid](pluginApi);
+      window.bbbPluginApiConstructors[uuid](pluginApi, uuid);
       appendPluginApi(pluginApi, uuid);
     };
     script.onerror = () => {
