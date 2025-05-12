@@ -1,5 +1,6 @@
 package org.bigbluebutton
 
+import java.util.concurrent.TimeUnit
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 
@@ -54,6 +55,15 @@ trait SystemConfiguration {
   lazy val transparentListenOnlyThreshold = Try(config.getInt("voiceConf.transparentListenOnlyThreshold")).getOrElse(0)
   lazy val muteOnStartThreshold = Try(config.getInt("voiceConf.muteOnStartThreshold")).getOrElse(0)
   lazy val dialInEnforceGuestPolicy = Try(config.getBoolean("voiceConf.dialInEnforceGuestPolicy")).getOrElse(true)
+  lazy val floorEnabled = Try(config.getBoolean("voiceConf.floorControl.enabled")).getOrElse(false)
+  lazy val minTalkingDuration = Try(config.getDuration(
+    "voiceConf.floorControl.minTalkingDuration",
+    java.util.concurrent.TimeUnit.MILLISECONDS
+  )).getOrElse(2000L)
+  lazy val floorSwitchCooldown = Try(config.getDuration(
+    "voiceConf.floorControl.floorSwitchCooldown",
+    java.util.concurrent.TimeUnit.MILLISECONDS
+  )).getOrElse(500L)
 
   lazy val recordingChapterBreakLengthInMinutes = Try(config.getInt("recording.chapterBreakLengthInMinutes")).getOrElse(0)
 
