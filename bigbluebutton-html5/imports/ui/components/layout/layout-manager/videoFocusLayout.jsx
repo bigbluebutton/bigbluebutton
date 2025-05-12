@@ -530,7 +530,7 @@ const VideoFocusLayout = (props) => {
     layoutContextDispatch({
       type: ACTIONS.SET_SHARED_NOTES_OUTPUT,
       value: {
-        width: mediaBounds.width - SIDEBAR_CONTENT_MARGIN_TO_MEDIA,
+        width: mediaBounds.width,
         height: mediaBounds.height,
         top: mediaBounds.top,
         left: mediaBounds.left,
