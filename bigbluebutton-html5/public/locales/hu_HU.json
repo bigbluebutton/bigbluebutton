@@ -38,7 +38,7 @@
     "app.timer.toolTipTimerRunning": "Az időzítő fut.",
     "app.timer.toolTipStopwatchStopped": "A stopperóra megállt.",
     "app.timer.toolTipStopwatchRunning": "A stopperóra fut.",
-    "app.timer.toolTipTimerStoppedMod": "Nyomja meg az időzítő szüneteltetéséhez.",
+    "app.timer.toolTipTimerStoppedMod": "Nyomja meg az időzítő folytatásához.",
     "app.timer.toolTipTimerRunningMod": "Nyomja meg az időzítő szüneteltetéséhez.",
     "app.timer.toolTipStopwatchStoppedMod": "Nyomja meg a stopperóra folytatásához.",
     "app.timer.toolTipStopwatchRunningMod": "Nyomja meg a stopperóra szüneteltetéséhez.",
