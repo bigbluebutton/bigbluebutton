@@ -1258,7 +1258,7 @@
     "app.smartMediaShare.externalVideo": "Külső videó(k)",
     "app.update.resetRoom": "Felhasználói szoba alapállapotba állítása",
     "app.externalVideo.start": "Egy új videó megosztása",
-    "app.externalVideo.title": "Egy külső videó megosztása",
+    "app.externalVideo.title": "Külső videó megosztása",
     "app.externalVideo.input": "Külső videó URL",
     "app.externalVideo.urlInput": "Videó URL hozzáadása",
     "app.externalVideo.urlError": "Ez a videó URL nem támogatott",
