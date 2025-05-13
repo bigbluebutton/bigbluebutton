@@ -341,7 +341,7 @@
     "app.presentationUploder.conversion.invalidMimeType": "Érvénytelen formátum (kiterjesztés={0}, tartalomtípus={1})",
     "app.presentationUploder.conversion.conversionTimeout": "{0} diát nem sikerült feldolgozni {1} próbálkozás alatt.",
     "app.presentationUploder.conversion.officeDocConversionInvalid": "Az Office dokumentumot nem sikerült feldolgozni. Kérjük, PDF-fájlt tölts fel.",
-    "app.presentationUploder.conversion.officeDocConversionFailed": "Az office dokumentumot nem sikerült előállítani. Kérjük, PDF-fájlt tölts fel.",
+    "app.presentationUploder.conversion.officeDocConversionFailed": "Az Office dokumentumot nem sikerült feldolgozni. Kérjük, PDF-fájlt tölts fel.",
     "app.presentationUploder.conversion.pdfHasBigPage": "Nem tudtuk konvertálni a PDF-fájlt, kérjük, próbáld meg optimalizálni. Max oldalméret: {0}",
     "app.presentationUploder.conversion.timeout": "Sajnáljuk, az átalakítás túl sokáig tartott",
     "app.presentationUploder.conversion.pageCountFailed": "Az oldalak számát nem sikerült meghatározni.",
