@@ -534,8 +534,20 @@ const createEndpointTableData = [
         A list of the BigBlueButton client plugins you want included for the
         specific session (merged with the list in <code>/etc/bigbluebutton/bbb-web.properties</code> and duplicates dropped){" "}
         <code className="language-plaintext highlighter-rouge">
-          {`pluginManifests=[{"url":"https://someserver.com/plugins/bbb-plugin-pick-random-user/manifest.json"}]`}
+          {`pluginManifests=[{"url":"https://someserver.com/plugins/bbb-plugin-pick-random-user/manifest.json", "checksum": "abc123"}]`}
         </code>
+      </>
+    )
+  },
+  {
+    "name": "pluginManifestsFetchUrl",
+    "required": false,
+    "type": "String",
+    "description": (
+      <>
+        URL that points to a JSON file containing an array of multiple plugin manifest URLs (optionally including file checksums). This is mainly used to simplify and minimize the size of the <code>create</code> request.
+        The expected content is a json array with the exact same structure as the parameter <code>pluginManifests</code>,
+        see example in the parameter above.
       </>
     )
   },
