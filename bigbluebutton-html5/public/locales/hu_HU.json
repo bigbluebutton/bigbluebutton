@@ -457,7 +457,7 @@
     "app.navBar.settingsDropdown.hotkeysDesc": "Gyorsbillentyűk listája",
     "app.navBar.settingsDropdown.helpLabel": "Súgó",
     "app.navBar.settingsDropdown.openAppLabel": "BigBlueButton táblagép-alkalmazás megnyitása",
-    "app.navBar.settingsDropdown.helpDesc": "Megnyitja a videó útmutatókat (új ablakban nyílik meg)",
+    "app.navBar.settingsDropdown.helpDesc": "Link a felhasználói oktatóvideókhoz (új fülön nyílik meg)",
     "app.navBar.settingsDropdown.endMeetingDesc": "A jelenlegi előadást megszakítja",
     "app.navBar.settingsDropdown.endMeetingLabel": "Előadás befejezése",
     "app.navBar.settingsDropdown.endMeetingForAllLabel": "Előadás befejezés mindenkinek",
