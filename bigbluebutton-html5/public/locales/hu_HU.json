@@ -1266,7 +1266,7 @@
     "app.externalVideo.autoPlayWarning": "Játszd le a videót a médiaszinkronizáció engedélyezéséhez",
     "app.externalVideo.refreshLabel": "Videólejátszó frissítése",
     "app.externalVideo.fullscreenLabel": "Videólejátszó",
-    "app.externalVideo.noteLabel": "Megjegyzés: A megosztott külső videó nem jelenik meg a felvételen. A YouTube, Vimeo, Instructure Media, Twitch, Daily Motion és média URL-ek (például https://example.com/xy.mp4) támogatottak.",
+    "app.externalVideo.noteLabel": "Megjegyzés: A megosztott külső videó nem jelenik meg a felvételen. A YouTube, Vimeo, Instructure Media, Twitch, Dailymotion és média URL-ek (például https://example.com/xy.mp4) támogatottak.",
     "app.externalVideo.subtitlesOn": "Kikapcsolás",
     "app.externalVideo.subtitlesOff": "Bekapcsolás (ha elérhető)",
     "app.actionsBar.actionsDropdown.shareExternalVideo": "Egy külső videó megosztása",
