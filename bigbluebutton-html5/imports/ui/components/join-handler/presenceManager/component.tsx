@@ -170,7 +170,7 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   const errorCode = loggedOut ? 'user_logged_out_reason' : joinErrorCode || ejectReasonCode;
 
   if (isSupportedBrowser === false || hasWebrtcSupport === false) {
-    const reason = isSupportedBrowser === false ? 'WEBRTC' : 'USER_AGENT';
+    const reason = isSupportedBrowser === false ? 'USER_AGENT' : 'WEBRTC';
     const message = isSupportedBrowser === false
       ? 'The browser is not supported or is using an outdated version.'
       : 'WebRTC is not supported in this browser.';
