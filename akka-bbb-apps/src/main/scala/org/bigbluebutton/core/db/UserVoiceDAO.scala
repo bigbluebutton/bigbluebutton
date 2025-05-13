@@ -12,6 +12,7 @@ case class UserVoiceDbModel(
     joined:                 Boolean,
     listenOnly:             Boolean,
     muted:                  Boolean,
+    deafened:               Boolean,
     spoke:                  Boolean,
     talking:                Boolean,
     floor:                  Boolean,
@@ -23,7 +24,7 @@ case class UserVoiceDbModel(
 class UserVoiceDbTableDef(tag: Tag) extends Table[UserVoiceDbModel](tag, None, "user_voice") {
   override def * = (
     meetingId, userId, voiceUserId, callerName, callerNum, callingWith, joined, listenOnly,
-    muted, spoke, talking, floor, lastFloorTime, startTime, endTime
+    muted, deafened, spoke, talking, floor, lastFloorTime, startTime, endTime
   ) <> (UserVoiceDbModel.tupled, UserVoiceDbModel.unapply)
   val meetingId = column[String]("meetingId", O.PrimaryKey)
   val userId = column[String]("userId", O.PrimaryKey)
@@ -34,6 +35,7 @@ class UserVoiceDbTableDef(tag: Tag) extends Table[UserVoiceDbModel](tag, None, "
   val joined = column[Boolean]("joined")
   val listenOnly = column[Boolean]("listenOnly")
   val muted = column[Boolean]("muted")
+  val deafened = column[Boolean]("deafened")
   val spoke = column[Boolean]("spoke")
   val talking = column[Boolean]("talking")
   val floor = column[Boolean]("floor")
@@ -61,6 +63,7 @@ object UserVoiceDAO {
           joined = true,
           listenOnly = voiceUserState.listenOnly,
           muted = voiceUserState.muted,
+          deafened = voiceUserState.deafened,
           spoke = false,
           talking = voiceUserState.talking,
           floor = voiceUserState.floor,
@@ -76,8 +79,8 @@ object UserVoiceDAO {
     DatabaseConnection.enqueue(
       TableQuery[UserVoiceDbTableDef]
         .filter(_.userId === voiceUserState.intId)
-        .map(u => (u.listenOnly, u.muted, u.floor, u.lastFloorTime))
-        .update((voiceUserState.listenOnly, voiceUserState.muted, voiceUserState.floor, voiceUserState.lastFloorTime))
+        .map(u => (u.listenOnly, u.muted, u.deafened, u.floor, u.lastFloorTime))
+        .update((voiceUserState.listenOnly, voiceUserState.muted, voiceUserState.deafened, voiceUserState.floor, voiceUserState.lastFloorTime))
     )
   }
 
@@ -116,8 +119,8 @@ object UserVoiceDAO {
       TableQuery[UserVoiceDbTableDef]
         .filter(_.meetingId === meetingId)
         .filter(_.userId === userId)
-        .map(u => (u.muted, u.talking, u.listenOnly, u.joined, u.spoke, u.startTime, u.endTime))
-        .update((true, false, false, false, false, None, None))
+        .map(u => (u.muted, u.deafened, u.talking, u.listenOnly, u.joined, u.spoke, u.startTime, u.endTime))
+        .update((true, false, false, false, false, false, None, None))
     )
   }
 }

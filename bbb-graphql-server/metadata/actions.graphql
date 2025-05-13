@@ -7,6 +7,41 @@ type Mutation {
 }
 
 type Mutation {
+  audioGroupCreate(
+    id: String!
+    senders: [AudioGroupParticipant]
+    receivers: [AudioGroupParticipant]
+  ): Boolean
+}
+
+type Mutation {
+  audioGroupDestroy(
+    id: String!
+  ): Boolean
+}
+
+type Mutation {
+  audioGroupJoin(
+    id: String!
+    participant: AudioGroupParticipant!
+  ): Boolean
+}
+
+type Mutation {
+  audioGroupLeave(
+    id: String!
+    userId: String!
+  ): Boolean
+}
+
+type Mutation {
+  audioGroupUpdateParticipant(
+    id: String!
+    participant: AudioGroupParticipant!
+  ): Boolean
+}
+
+type Mutation {
   breakoutRoomCreate(
     record: Boolean!
     captureNotes: Boolean!
@@ -594,6 +629,13 @@ type Mutation {
 }
 
 type Mutation {
+  userSetDeafened(
+    userId: String!
+    deafened: Boolean!
+  ): Boolean
+}
+
+type Mutation {
   userSetEmojiStatus(
     emoji: String!
   ): Boolean
@@ -699,5 +741,11 @@ input BreakoutRoom {
 input GuestUserApprovalStatus {
   guest: String!
   status: String!
+}
+
+input AudioGroupParticipant {
+  id: String!
+  participantType: String!
+  active: Boolean!
 }
 

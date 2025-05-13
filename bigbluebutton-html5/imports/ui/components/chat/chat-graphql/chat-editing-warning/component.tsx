@@ -51,7 +51,7 @@ const ChatEditingWarning = () => {
 
   return (
     <Root role="note" aria-describedby="cancel-editing-msg">
-      <Container>
+      <Container data-test="chatEditingWarningContainer">
         <Left>
           <Icon iconName="pen_tool" />
           {editingMessage}
@@ -60,11 +60,12 @@ const ChatEditingWarning = () => {
           onClick={() => {
             window.dispatchEvent(new CustomEvent(ChatEvents.CHAT_CANCEL_EDIT_REQUEST));
           }}
+          data-test="cancelEditingButton"
         >
           {cancelMessage.split(CANCEL_KEY_LABEL)[0]}
-        &nbsp;
+          &nbsp;
           <Highlighted>{CANCEL_KEY_LABEL}</Highlighted>
-        &nbsp;
+          &nbsp;
           {cancelMessage.split(CANCEL_KEY_LABEL)[1]}
         </Cancel>
         <span className="sr-only" id="cancel-editing-msg">

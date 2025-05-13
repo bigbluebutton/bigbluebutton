@@ -1255,7 +1255,7 @@ http&#58;//yourserver.com/bigbluebutton/api/sendChatMessage?meetingID=test01&mes
 
 ### `GET` getJoinUrl
 
-The `getJoinUrl` endpoint generates a new `/join` URL that can be used to create a new session for an existing user. By associating the new session token with the same user ID, all sessions will appear as the same user in the user list, ensuring accurate user counts. Moderators can also customize the new session’s layout and user data parameters, allowing flexible control over the session’s environment and functionality.
+The `getJoinUrl` endpoint generates a new `/join` URL that can be used to create a new session for an existing user. By associating the new session token with the same user ID, all sessions will appear as the same user in the user list, ensuring accurate user counts. Users can also customize the new session’s layout and user data parameters, allowing flexible control over the session’s environment and functionality.
 
 This is particularly useful for hybrid environments where multiple screens in the same room each require a distinct session with different layouts.
 

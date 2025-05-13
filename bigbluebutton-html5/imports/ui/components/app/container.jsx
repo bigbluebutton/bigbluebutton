@@ -87,7 +87,9 @@ const AppContainer = (props) => {
   const { data: pinnedPadData } = useDeduplicatedSubscription(PINNED_PAD_SUBSCRIPTION);
   const isSharedNotesPinnedFromGraphql = !!pinnedPadData
     && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
-  const isSharedNotesPinned = sharedNotesInput?.isPinned && isSharedNotesPinnedFromGraphql;
+  const isSharedNotesPinned = sharedNotesInput?.isPinned
+    && isSharedNotesPinnedFromGraphql
+    && presentation.isOpen;
   const isExternalVideoEnabled = useIsExternalVideoEnabled();
   const isPresentationEnabled = useIsPresentationEnabled();
   const isRaiseHandEnabled = useIsRaiseHandEnabled();
@@ -99,7 +101,7 @@ const AppContainer = (props) => {
   const { isOpen } = presentation;
   const presentationIsOpen = isOpen;
 
-  const isSharingVideo = currentMeeting?.componentsFlags.hasExternalVideo;
+  const isSharingVideo = currentMeeting?.componentsFlags?.hasExternalVideo;
 
   const shouldShowExternalVideo = isExternalVideoEnabled && isSharingVideo;
 
