@@ -474,7 +474,7 @@
     "app.endMeeting.title": "{0} előadás befejezése",
     "app.endMeeting.description": "Ez a művelet befejezi az előadást és kilépteti az összes ({0}) résztvevőt a teremből. Biztosan befejezed az előadást?",
     "app.endMeeting.noUserDescription": "Biztosan befejezed az előadást?",
-    "app.endMeeting.contentWarning": "A csevegőüzenetek, a megosztott jegyzetek, a táblák tartalma és a megosztott dokumentumok ehhez a munkamenethez már nem lesznek közvetlenül elérhetők",
+    "app.endMeeting.contentWarning": "A csevegőüzenetek, a megosztott jegyzetek, a rajztábla tartalma és a megosztott dokumentumok ehhez a munkamenethez már nem lesznek közvetlenül elérhetők",
     "app.endMeeting.yesLabel": "Munkamenet befejezése az összes felhasználónál",
     "app.endMeeting.noLabel": "Nem",
     "app.about.title": "Névjegy",
