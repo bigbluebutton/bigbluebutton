@@ -1269,7 +1269,7 @@
     "app.externalVideo.noteLabel": "Megjegyzés: A megosztott külső videó nem jelenik meg a felvételen. A YouTube, Vimeo, Instructure Media, Twitch, Dailymotion és média URL-ek (például https://example.com/xy.mp4) támogatottak.",
     "app.externalVideo.subtitlesOn": "Kikapcsolás",
     "app.externalVideo.subtitlesOff": "Bekapcsolás (ha elérhető)",
-    "app.actionsBar.actionsDropdown.shareExternalVideo": "Egy külső videó megosztása",
+    "app.actionsBar.actionsDropdown.shareExternalVideo": "Külső videó megosztása",
     "app.actionsBar.actionsDropdown.stopShareExternalVideo": "Külső videó megosztásának befejezése",
     "app.legacy.unsupportedBrowser": "Úgy néz ki, hogy a böngésződ nem támogatott. Kérjük, használj {0} vagy {1} böngészőt a teljes támogatás érdekében.",
     "app.legacy.upgradeBrowser": "Úgy néz ki, hogy a böngésződ egy régi verzióját használod. Kérjük, frissítsd a böngésződet a teljes támogatás érdekében.",
