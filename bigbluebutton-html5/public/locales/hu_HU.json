@@ -27,7 +27,7 @@
     "app.chat.emptyLogLabel": "Az üzenetek naplója üres",
     "app.chat.away": "Távol van",
     "app.chat.notAway": "Többé nincs távol",
-    "app.chat.clearPublicChatMessage": "A nyilvános beszélgetés előzményeit csak a szervező törölheti",
+    "app.chat.clearPublicChatMessage": "A nyilvános beszélgetés előzményeit egy szervező törölte",
     "app.chat.multi.typing": "Több résztvevő gépel",
     "app.chat.someone.typing": "Valaki gépel",
     "app.chat.one.typing": "{0} gépel",
