@@ -1,3 +1,5 @@
+#!/bin/bash
+
 declare -A DEBNAME_TO_SOURCEDIR
 
 DEBNAME_TO_SOURCEDIR[bbb-apps-akka]="akka-bbb-apps bbb-common-message"

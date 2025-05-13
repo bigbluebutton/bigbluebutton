@@ -385,7 +385,6 @@ Permission: Restricted to User Viewing Self-Related Data
 - `talking`
 - `userId`
 - `voiceConf`
-- `voiceConfCallState`
 - `voiceUserId`
 ### Relationships:
 - `user: Object` [Type User](#type-user)
