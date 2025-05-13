@@ -736,7 +736,7 @@
     "app.audioModal.echoTestTitle": "Ez a te hangteszted, más nem hallja. Mondj néhány szót. Hallod a hangot?",
     "app.audioModal.settingsTitle": "Hangbeállításaim módosítása",
     "app.audioModal.helpTitle": "Hiba történt a médiaeszközöddel",
-    "app.audioModal.helpSubtitleMic": "Nem tudjuk használni a mikrofonját",
+    "app.audioModal.helpSubtitleMic": "Nem tudjuk bekapcsolni a mikrofonodat",
     "app.audioModal.helpSubtitleGeneric": "Probléma a hangkapcsolat létrehozása során",
     "app.audioModal.helpPermissionStep1": "Amikor csatlakozol egy híváshoz, fogadd el az összes kérést a mikrofon használatához.",
     "app.audioModal.helpPermissionStep2": "Ellenőrizd a böngésző és az eszköz beállításait, hogy a mikrofon-hozzáférés engedélyezett.",
