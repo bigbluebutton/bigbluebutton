@@ -2,6 +2,7 @@ import { useMutation, useQuery } from '@apollo/client';
 import React, { useContext, useEffect, useState } from 'react';
 import Bowser from 'bowser';
 import Session from '/imports/ui/services/storage/in-memory';
+import { isBrowserSupported } from 'livekit-client';
 import {
   getUserCurrent,
   GetUserCurrentResponse,
@@ -50,6 +51,7 @@ interface PresenceManagerProps extends PresenceManagerContainerProps {
     guestLobbyMessage: string | null;
     positionInWaitingQueue: number | null;
     isSupportedBrowser: boolean | undefined;
+    hasWebrtcSupport: boolean;
 }
 
 const PresenceManager: React.FC<PresenceManagerProps> = ({
@@ -77,6 +79,7 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   guestStatus,
   positionInWaitingQueue,
   isSupportedBrowser,
+  hasWebrtcSupport,
 }) => {
   const [allowToRender, setAllowToRender] = React.useState(false);
   const [dispatchUserJoin] = useMutation(userJoinMutation);
@@ -166,13 +169,18 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
 
   const errorCode = loggedOut ? 'user_logged_out_reason' : joinErrorCode || ejectReasonCode;
 
-  if (isSupportedBrowser === false) {
-    logger.info({
+  if (isSupportedBrowser === false || hasWebrtcSupport === false) {
+    const reason = isSupportedBrowser === false ? 'WEBRTC' : 'USER_AGENT';
+    const message = isSupportedBrowser === false
+      ? 'The browser is not supported or is using an outdated version.'
+      : 'WebRTC is not supported in this browser.';
+    logger.warn({
       log_code: 'blocked_client',
       extraInfo: {
-        reason: 'USER_AGENT',
+        reason,
       },
-    }, 'Client blocked.');
+    }, message);
+
     return <Legacy setLoading={loadingContextInfo.setLoading} />;
   }
 
@@ -258,6 +266,7 @@ const PresenceManagerContainer: React.FC<PresenceManagerContainerProps> = ({ chi
   const MIN_BROWSER_CONFIG = window.meetingClientSettings.public.minBrowserVersions;
   const userAgent = window.navigator?.userAgent;
   const isSupportedBrowser = Bowser.getParser(userAgent).satisfies(MIN_BROWSER_CONFIG);
+  const hasWebrtcSupport = isBrowserSupported();
 
   return (
     <PresenceManager
@@ -284,6 +293,7 @@ const PresenceManagerContainer: React.FC<PresenceManagerContainerProps> = ({ chi
       positionInWaitingQueue={guestStatusDetails?.positionInWaitingQueue ?? null}
       guestStatus={guestStatus}
       isSupportedBrowser={isSupportedBrowser}
+      hasWebrtcSupport={hasWebrtcSupport}
     >
       {children}
     </PresenceManager>
