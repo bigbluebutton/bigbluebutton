@@ -207,7 +207,7 @@ rtc:
       - <network_interface_name_1>
       - <any_other_network_interface_name>
 ```
-3. Restart bbb-livekit: `$ sudo systemctl restart bbb-livekit`
+3. Restart livekit-server: `$ sudo systemctl restart livekit-server`
 
 Once enabled, LiveKit still won't be used by default. There are two ways to make
 use of it in meetings:

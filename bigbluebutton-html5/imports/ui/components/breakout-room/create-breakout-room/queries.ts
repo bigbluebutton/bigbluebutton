@@ -85,16 +85,6 @@ export const getBreakouts = gql`
   }
 `;
 
-export const getBreakoutCount = gql`
-  query getBreakoutCount {
-    breakoutRoom_aggregate {
-      aggregate {
-        count
-      }
-    }
-  }
-`;
-
 export const getLastBreakouts = gql`
   query getLastBreakouts {
     user {
@@ -122,7 +112,6 @@ export const getMeetingGroup = gql`
       usersExtId
     }
  }
-
 `;
 
 export default {

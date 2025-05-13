@@ -105,7 +105,7 @@ const AppContainer = (props) => {
   const { isOpen } = presentation;
   const presentationIsOpen = isOpen;
 
-  const isSharingVideo = currentMeeting?.componentsFlags.hasExternalVideo;
+  const isSharingVideo = currentMeeting?.componentsFlags?.hasExternalVideo;
 
   const shouldShowExternalVideo = isExternalVideoEnabled && isSharingVideo;
 
