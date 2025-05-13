@@ -199,7 +199,7 @@
     "app.userList.userOptions.enableCam": " A résztvevők webkamerája engedélyezve van",
     "app.userList.userOptions.enableMic": "A résztvevők mikrofonja engedélyezve van",
     "app.userList.userOptions.enablePrivChat": "A privát üzenetek engedélyezve vannak",
-    "app.userList.userOptions.enablePubChat": "A nyilvános üzenetek engedélyezve van",
+    "app.userList.userOptions.enablePubChat": "A nyilvános üzenetek engedélyezve vannak",
     "app.userList.userOptions.enableNotes": "A megosztott jegyzet engedélyezve van",
     "app.userList.userOptions.showUserList": "A résztvevők látják a résztvevői névsort",
     "app.userList.userOptions.enableOnlyModeratorWebcam": "A webkamerád engedélyezve van, így a többiek láthatnak",
