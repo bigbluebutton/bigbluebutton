@@ -167,6 +167,12 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   const errorCode = loggedOut ? 'user_logged_out_reason' : joinErrorCode || ejectReasonCode;
 
   if (isSupportedBrowser === false) {
+    logger.info({
+      log_code: 'blocked_client',
+      extraInfo: {
+        reason: 'USER_AGENT',
+      },
+    }, 'Client blocked.');
     return <Legacy setLoading={loadingContextInfo.setLoading} />;
   }
 
