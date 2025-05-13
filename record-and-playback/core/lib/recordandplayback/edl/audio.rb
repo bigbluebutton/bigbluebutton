@@ -99,10 +99,54 @@ module BigBlueButton
           BigBlueButton.logger.info "Removing corrupt audio files from EDL"
           edl.each do |event|
             if event[:audios]
-              event[:audios].reject! { |a| corrupt_audios.include?(a[:filename]) }
+              # Remove references to corrupt files from audioinfo as well
+              event[:audios].reject! do |a|
+                if corrupt_audios.include?(a[:filename])
+                  audioinfo.delete(a[:filename])
+                  true
+                else
+                  false
+                end
+              end
             end
           end
           dump(edl)
+        end
+
+        # Get a list of unique audio files that are still valid after corruption check
+        # These are the files that need to be resampled.
+        valid_original_filenames = audioinfo.keys.dup 
+        if valid_original_filenames.any?
+          BigBlueButton.logger.info "Resampling audio files with aresample=async=1000"
+          filename_update_map = resample_audio_files(valid_original_filenames, output_basename)
+
+          # Update EDL to point to new .ogg files
+          if filename_update_map.any?
+            BigBlueButton.logger.info "Updating EDL with resampled audio filenames"
+            edl.each do |entry|
+              if entry[:audios]
+                entry[:audios].each do |a|
+                  if filename_update_map.key?(a[:filename])
+                    a[:filename] = filename_update_map[a[:filename]]
+                  end
+                end
+              end
+            end
+            dump(edl)
+          end
+          
+          # Update audioinfo with the new resampled files
+          BigBlueButton.logger.info "Updating audio information for resampled files"
+          #new_audioinfo = {}
+          filename_update_map.each_value do |new_filename|
+            info = audio_info(new_filename)
+            if !info[:audio] || !info[:duration]
+              BigBlueButton.logger.warn "Resampled audio file #{new_filename} is corrupt or invalid. This should not happen."
+              raise "Resampled audio file #{new_filename} is corrupt or invalid after resampling."
+            else
+              audioinfo[new_filename] = info
+            end
+          end
         end
 
         segment_files = []
@@ -234,6 +278,32 @@ module BigBlueButton
       end
 
       # The methods below should be considered private
+
+      # Resamples a list of audio files to OGG Vorbis into the output_basename directory.
+      # Returns a map of { original_filename => new_resampled_filename }.
+      def self.resample_audio_files(original_filenames, output_dir_basename)
+        filename_update_map = {}
+        original_filenames.each do |original_filename|
+          output_filename_base = File.basename(original_filename, '.*')
+          resampled_file_dir = File.dirname(output_dir_basename)
+          output_filename_ogg = File.join(resampled_file_dir, "#{output_filename_base}_resampled.#{WF_EXT}")
+
+          BigBlueButton.logger.info "Resampling #{original_filename} to #{output_filename_ogg}"
+          
+          resample_cmd = [*FFMPEG, '-i', original_filename,
+                          '-vn', '-acodec', FFMPEG_WF_CODEC, 
+                          '-af', 'aresample=async=1000', output_filename_ogg]
+          
+          exitstatus = BigBlueButton.exec_ret(*resample_cmd)
+          if exitstatus != 0
+            BigBlueButton.logger.error "ffmpeg resampling failed for #{original_filename} to #{output_filename_ogg}, exit code #{exitstatus}."
+            raise "ffmpeg resampling failed for #{original_filename}, exit code #{exitstatus}"
+          else
+            filename_update_map[original_filename] = output_filename_ogg
+          end
+        end
+        filename_update_map
+      end
 
       def self.audio_info(filename)
         IO.popen([*FFPROBE, filename]) do |probe|
