@@ -140,7 +140,7 @@ class CustomParameters extends MultiUsers {
   }
 
   async bannerText() {
-    await this.modPage.hasElemnt(e.actions, 'should display the actions button');
+    await this.modPage.hasElement(e.actions, 'should display the actions button');
     await this.modPage.hasElement(e.notificationBannerBar, 'should display the notification banner bar with a text');
   }
 
@@ -367,9 +367,9 @@ class CustomParameters extends MultiUsers {
 
   async mirrorOwnWebcam() {
     await this.modPage.waitAndClick(e.joinVideo);
-    await this.modPage.hasElement(e.webcamMirroredVideoPreview, 'should display the preview of the webcam video being mirroed');
+    await this.modPage.hasElement(e.webcamMirroredVideoPreview, 'should display the preview of the webcam video being mirrored');
     await this.modPage.waitAndClick(e.startSharingWebcam);
-    await this.modPage.hasElement(e.webcamMirroredVideoContainer, 'should display the webcam mirroed video container after the camera is shared');
+    await this.modPage.hasElement(e.webcamMirroredVideoContainer, 'should display the webcam mirrored video container after the camera is shared');
   }
 
   async multiUserPenOnly() {
