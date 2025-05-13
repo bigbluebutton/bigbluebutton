@@ -193,7 +193,7 @@
     "app.userList.userOptions.disablePubChat": "A nyilvános üzenetek le vannak tiltva",
     "app.userList.userOptions.disableNotes": "A megosztott jegyzetek zárolva vannak",
     "app.userList.userOptions.hideUserList": "A résztvevők nem látják a résztvevői névsort",
-    "app.userList.userOptions.webcamsOnlyForModerator": "Csak Szervezők láthatják a résztvevők webkaméráját (zárolási beállítások miatt)",
+    "app.userList.userOptions.webcamsOnlyForModerator": "Csak Szervezők láthatják a résztvevők webkameráját (zárolási beállítások miatt)",
     "app.userList.content.participants.options.clearedStatus": "Az összes résztvevő állapotát sikeresen törölted",
     "app.userList.content.participants.options.clearedReactions": "Összes felhasználó reakciójának törlése",
     "app.userList.userOptions.enableCam": " A résztvevők webkamerája engedélyezve van",
