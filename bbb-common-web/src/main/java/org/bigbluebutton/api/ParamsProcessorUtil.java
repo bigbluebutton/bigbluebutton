@@ -665,16 +665,17 @@ public class ParamsProcessorUtil {
             }
             String pluginManifestsFetchUrlParam = params.get(ApiParams.PLUGIN_MANIFESTS_FETCH_URL);
             if (!StringUtils.isEmpty(pluginManifestsFetchUrlParam)) {
-                JsonElement pluginManifestsFromSourceUrlParam = processPluginManifestsFetchUrl(
+                JsonElement pluginManifestsFromFetchUrlParam = processPluginManifestsFetchUrl(
                         pluginManifestsFetchUrlParam
                 );
-                if (pluginManifestsFromSourceUrlParam != null) {
+                if (pluginManifestsFromFetchUrlParam != null) {
                     ArrayList<PluginManifest> pluginManifestsFromParam = processPluginManifests(
-                            pluginManifestsFromSourceUrlParam
+                            pluginManifestsFromFetchUrlParam
                     );
                     listOfPluginManifests.addAll(pluginManifestsFromParam);
                 }
             }
+
         }
 
         // Learning Dashboard not allowed for Breakout Rooms
