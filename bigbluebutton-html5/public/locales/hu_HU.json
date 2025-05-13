@@ -1257,7 +1257,7 @@
     "app.updateBreakoutRoom.userChangeRoomNotification": "{0} szobába áthelyeztek.",
     "app.smartMediaShare.externalVideo": "Külső videó(k)",
     "app.update.resetRoom": "Felhasználói szoba alapállapotba állítása",
-    "app.externalVideo.start": "Egy új videó megosztása",
+    "app.externalVideo.start": "Új videó megosztása",
     "app.externalVideo.title": "Külső videó megosztása",
     "app.externalVideo.input": "Külső videó URL",
     "app.externalVideo.urlInput": "Videó URL hozzáadása",
