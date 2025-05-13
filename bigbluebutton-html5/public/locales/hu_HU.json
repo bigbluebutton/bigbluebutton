@@ -1081,7 +1081,7 @@
     "app.video.securityError": "Böngésződ letiltotta a kamera használatát. Próbálkozz másik - Chromium alapú- böngészővel!",
     "app.video.typeError": "Érvénytelen kameraminőségi profil. Fordulj a rendszergazdához",
     "app.video.notFoundError": "A webkamera nem található. Kérem, győződj meg róla, hogy csatlakoztatva van",
-    "app.video.notAllowed": "Hiányzik engedély a kamera megosztásához, kérem, ellenőrizd a böngésződ beállításait",
+    "app.video.notAllowed": "Hiányzik engedély a webkamera megosztásához, kérem, ellenőrizd a böngésződ beállításait",
     "app.video.notSupportedError": "Csak biztonságok forrásból oszthatsz meg webkamerát, ezért kérjük, ellenőrizd, hogy SSL tanúsítványod érvényes-e",
     "app.video.notReadableError": "Nem vesszük a webkamera képét. Kérjük, ellenőrizd, hogy másik program ne használja a webkamerát",
     "app.video.timeoutError": "A böngésző nem válaszolt időben.",
