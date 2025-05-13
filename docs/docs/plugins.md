@@ -41,7 +41,7 @@ you do the following:
 pluginManifests=[{"url": "http://localhost:4701/manifest.json"}]
 ```
 
-*Running from souce code with a remote BBB-server*
+*Running from source code with a remote BBB-server*
 
 If you are running your BBB-server elsewhere, than you can't simply point the manifest URL to a local address, you'll need to either serve the built version into a CDN or serve the dev version using a service to make it public. And for the second option we'd recommend NGROK. Here are the instructions to do that:
 
@@ -115,7 +115,7 @@ In this case, the your manifest URL will be `https://<your-host>/plugins/sampleA
 
 ### Manifest Json
 
-Here is as complete `manifet.json` example with all possible configurations:
+Here is as complete `manifest.json` example with all possible configurations:
 
 ```json
 {
@@ -394,7 +394,7 @@ pluginApi.setterFunctionExample([{
 }])
 ```
 
-See, it is basicaly a function that requires an array as an argument, with which the more items you push to that array, the more of that extensible area you will have.
+See, it is basically a function that requires an array as an argument, with which the more items you push to that array, the more of that extensible area you will have.
 
 That being said, here are the extensible areas we have so far:
 
@@ -416,7 +416,7 @@ That being said, here are the extensible areas we have so far:
 
 Mind that no plugin will interfere into another's extensible area. So feel free to set whatever you need into a certain plugin with no worries.
 
-### Auxiliar functions:
+### Auxiliary functions:
 
 - `getSessionToken`: returns the user session token located on the user's URL.
 - `getJoinUrl`: returns the join url associated with the parameters passed as an argument. Since it fetches the BigBlueButton API, this getter method is asynchronous.
@@ -431,7 +431,7 @@ Mind that no plugin will interfere into another's extensible area. So feel free 
 - `useLoadedChatMessages` hook: provides information regarding the loaded chat messages;
 - `useCustomSubscription` hook: with this hook, the developer can query pretty much anything graphql can provide. Note: Make sure that, on BBB version change, the custom subscriptions you make will work as expected.
 - `usePluginSettings` hook: it provides all the specific settings regarding the current plugin it's been loaded from.
-- `useTalkingIndicator` hook: it gives you invormation on the user-voice data, that is, who is talking or muted.
+- `useTalkingIndicator` hook: it gives you information on the user-voice data, that is, who is talking or muted.
 - `useMeeting` hook: it gives you information on the current meeting that the user is on.
 
 So for these types of hooks, the return will follow the same structure:
@@ -452,8 +452,8 @@ So we have the `data`, which is different for each hook, that's why it's a gener
 
 So for this hook to read the data from the data channel, the developer will be able to choose the format in which they want it.The possible formats are described down below:
 
-- ALL_ITEMS: Fetches all items from specific data-channel and specific subchannel-name since the begining of the meeting from the newest to the latest (It can be used as a history);
-- LATEST_ITEM: Fetches only the latest item pushed to the data-channel within a specific subchannel-name since the begining of the meeting;
+- ALL_ITEMS: Fetches all items from specific data-channel and specific subchannel-name since the beginning of the meeting from the newest to the latest (It can be used as a history);
+- LATEST_ITEM: Fetches only the latest item pushed to the data-channel within a specific subchannel-name since the beginning of the meeting;
 - NEW_ITEMS: Fetches the new items pushed to the data-channel within a specific subchannel-name since the moment that the `useDataChannel` hook has been called (It will not see entries sent previous to that moment);
 
 An interesting thing about this hook is that it is generic, so, you can use a custom type, and this will be  found not only in the consumer part of the data structure returned, but also in functions in which you need to specify an object to be persisted, meaning it will force the object to be of the type you mentioned previously (that is the case for `pushEntry` and `replaceEntry`). One can find examples of usage of this in the data-channel plugin sample or most of the official ones. The syntax is described below:
@@ -463,10 +463,10 @@ const {
   data: response, // Data that will be returned
   pushEntry: pushEntryFunction, // Function to push another item to the data-channel
   deleteEntry: deleteEntryFunction, // Function to delete specific item or wipe all
-  replaceEntry: replaceEntryFunction, // Function replace a specifi item
+  replaceEntry: replaceEntryFunction, // Function replace a specific item
 } = useDataChannel<CustomType>(
   channelName, // Defined according to what is on manifest.json
-  DataChannelTypes.All_ITEMS, // | LATEST_ITEM | NEW_ITEMS -> ALL_ITEMS is default
+  DataChannelTypes.ALL_ITEMS, // | LATEST_ITEM | NEW_ITEMS -> ALL_ITEMS is default
   subChannelName = 'default', // If no subchannelName is specified, it will be 'default'
 );
 ```
@@ -475,7 +475,7 @@ Wiping all data off will delete every item from the specific data-channel within
 
 **Data-channel configuration:**
 
-The data-channel name must be in the `manifest.json` along with all the permissions for writting, reading and deleting, see example below:
+The data-channel name must be in the `manifest.json` along with all the permissions for writing (pushPermission), updating and deleting (replaceOrDeletePermission), see example below:
 
 ```json
 {
@@ -512,14 +512,14 @@ export type ObjectTo = ToUserId | ToRole;
 
 ### Real time ui data consumption
 
-- `useUiData` hook: This will return certain data from the UI depending on the parameter the developer uses. It works just like the useUiEvent hook, but instead of passing a callback as a parameter to be run everytime the event occurs, it will return the data directly, keep in mind that the second parameter is the default value that this function will assume. Possible choices:
+- `useUiData` hook: This will return certain data from the UI depending on the parameter the developer uses. It works just like the useUiEvent hook, but instead of passing a callback as a parameter to be run every time the event occurs, it will return the data directly, keep in mind that the second parameter is the default value that this function will assume. Possible choices:
   - IntlLocaleUiDataNames.CURRENT_LOCALE;
   - ChatFormUiDataNames.CURRENT_CHAT_INPUT_TEXT;
   - ChatFormUiDataNames.CHAT_INPUT_IS_FOCUSED;
   - ExternalVideoVolumeUiDataNames.CURRENT_VOLUME_VALUE;
   - ExternalVideoVolumeUiDataNames.IS_VOLUME_MUTED;
   - UserListUiDataNames.USER_LIST_IS_OPEN;
-  - LayoutPresentatioAreaUiDataNames.CURRENT_ELEMENT;
+  - LayoutPresentationAreaUiDataNames.CURRENT_ELEMENT;
 
 Example of usage:
 
@@ -637,9 +637,9 @@ Going through each parameter to better understand it's structure:
 
 - `name`: It is the name of the remote data source, that is the name you'll use later on in the plugin when developing it;
 - `url`: The Url to which the data will be fetched (it can be hard-coded in the `manifest.json`, but we recommend passing it as a `meta_` parameter);
-- `fetchMode`: It tells the plugin-server if it should fetch the data only when creating the meeting, or everytime the function is called in the plugin portion;
-  - If one chooses `onMeetingCreate`, the data will be fetched when the create endpoint of the meeting is called, then it's cached in the plugin-server so that everytime the plugin wants that data, the plugin-server will respond with the cached data;
-  - On the other hand, if `onDemand` is selected, everytime the plugin calls this method, the plugin-server will fetch the data and then proxy it to the plugin;
+- `fetchMode`: It tells the plugin-server if it should fetch the data only when creating the meeting, or every time the function is called in the plugin portion;
+  - If one chooses `onMeetingCreate`, the data will be fetched when the create endpoint of the meeting is called, then it's cached in the plugin-server so that every time the plugin wants that data, the plugin-server will respond with the cached data;
+  - On the other hand, if `onDemand` is selected, every time the plugin calls this method, the plugin-server will fetch the data and then proxy it to the plugin;
 - `permissions`: This tells the back-end which role of the meeting can access this remote data;
 
 Here is the `/create` parameters you would have to pass to make this remote-data-source api work:
@@ -757,13 +757,13 @@ See example below:
   // All set from this plugin will disappear from the UI;
 ```
 
-**How to propperly build a plugin?**
+**How to properly build a plugin?**
 Just go to your plugin folder, install dependencies and run the build command as follows:
 
 ```bash
 cd my-plugin-folder/
 npm i
-npm run build-bundl
+npm run build-bundle
 ```
 
 At this point, another folder will be created into the plugin directory called "dist/" inside of that folder you will find the plugin itself `MyPlugin.js`. Remember that the name of this file will be the same as defined in the `webpack.config.js`, such as:
