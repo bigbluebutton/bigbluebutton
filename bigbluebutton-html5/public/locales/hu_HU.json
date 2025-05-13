@@ -638,7 +638,7 @@
     "app.talkingIndicator.wasTalking" : "{0} befejezte beszédét",
     "app.actionsBar.actionsDropdown.actionsLabel": "Műveletek",
     "app.actionsBar.actionsDropdown.activateTimerStopwatchLabel": "Időzítő/stopperóra aktiválása",
-    "app.actionsBar.actionsDropdown.deactivateTimerStopwatchLabel": "Időzítő/stoppertóra deaktiválása",
+    "app.actionsBar.actionsDropdown.deactivateTimerStopwatchLabel": "Időzítő/stopperóra deaktiválása",
     "app.actionsBar.actionsDropdown.presentationLabel": "Prezentációk feltöltése/kezelése",
     "app.actionsBar.actionsDropdown.initPollLabel": "Meghívás szavazásra",
     "app.actionsBar.actionsDropdown.desktopShareLabel": "Képernyőm megosztása",
