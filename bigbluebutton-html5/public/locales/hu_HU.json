@@ -1182,7 +1182,7 @@
     "app.feedback.sendFeedback": "Visszajelzés küldése",
     "app.feedback.sendFeedbackDesc": "Visszajelzés küldése és kilépés az előadásból",
     "app.videoDock.webcamMirrorLabel": "Kamerakép tükrözés",
-    "app.videoDock.webcamMirrorDesc": "Kiválasztott kamera tükrözése",
+    "app.videoDock.webcamMirrorDesc": "Kiválasztott webkamera tükrözése",
     "app.videoDock.webcamFocusLabel": "Fókusz",
     "app.videoDock.webcamFocusDesc": "Fókusz a kiválasztott webkamerára",
     "app.videoDock.webcamUnfocusLabel": "Fókusz elvétele",
