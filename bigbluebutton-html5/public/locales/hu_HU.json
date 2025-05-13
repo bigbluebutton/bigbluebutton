@@ -991,7 +991,7 @@
     "app.lock-viewers.button.cancel": "Mégsem",
     "app.lock-viewers.locked": "Zárolt",
     "app.lock-viewers.hideViewersCursor": "A többi felhasználó kurzorának megtekintése",
-    "app.lock-viewers.hideAnnotationsLabel": "Tekintse meg a többi néző kommentárát",
+    "app.lock-viewers.hideAnnotationsLabel": "Tekintse meg a többi néző megjegyzéseit",
     "app.guest-policy.ariaTitle": "Vendégek fogadása",
     "app.guest-policy.title": "Vendégek fogadása",
     "app.guest-policy.description": "Teendő új vendég fogadásakor",
