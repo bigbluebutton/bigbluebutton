@@ -1061,7 +1061,7 @@
     "app.videoPreview.webcamVirtualBackgroundLabel": "Virtuális háttér beállítás",
     "app.videoPreview.webcamVirtualBackgroundDisabledLabel": "Ez az eszköz nem támogatja a virtuális háttereket",
     "app.videoPreview.webcamNotFoundLabel": "Egy webkamera sem található",
-    "app.videoPreview.profileNotFoundLabel": "Egy támogatott kameraprofil sem található",
+    "app.videoPreview.profileNotFoundLabel": "Nem található támogatott kameraprofil",
     "app.videoPreview.brightness": "Fényerő",
     "app.videoPreview.wholeImageBrightnessLabel": "Teljes kép",
     "app.videoPreview.wholeImageBrightnessDesc": "Fényerő alkalmazása az adatfolyamra és a háttérképre",
