@@ -186,12 +186,12 @@ const Whiteboard = React.memo((props) => {
       const updatedTools = {
         ...tools,
         deleteSelectedItems: {
-          id: "delete-selected-items",
-          label: intl?.messages["app.whiteboard.toolbar.delete"],
+          id: 'delete-selected-items',
+          label: intl?.messages['app.whiteboard.toolbar.delete'],
           readonlyOk: false,
-          icon: "tool-delete-selected-items",
+          icon: 'tool-delete-selected-items',
           onSelect() {
-            editor.deleteShapes(editor.getSelectedShapes().map(shape => {
+            editor.deleteShapes(editor.getSelectedShapes().map((shape) => {
               if (currentUser?.presenter || (shape?.meta?.createdBy === currentUser?.userId)) {
                 return shape.id;
               }
@@ -1020,15 +1020,15 @@ const Whiteboard = React.memo((props) => {
 
         // Check for idle states and persist the batch if there are shapes
         if (
-          path === 'note.idle' ||
-          path === 'frame.idle' ||
-          path === 'line.idle' ||
-          path === 'arrow.idle' ||
-          path === 'geo.idle' ||
-          path === 'select.idle' ||
-          path === 'draw.idle' ||
-          path === 'select.editing_shape' ||
-          path === 'highlight.idle'
+          path === 'note.idle'
+          || path === 'frame.idle'
+          || path === 'line.idle'
+          || path === 'arrow.idle'
+          || path === 'geo.idle'
+          || path === 'select.idle'
+          || path === 'draw.idle'
+          || path === 'select.editing_shape'
+          || path === 'highlight.idle'
         ) {
           if (Object.keys(shapeBatchRef.current).length > 0) {
             const shapesToPersist = Object.values(shapeBatchRef.current);
@@ -1219,6 +1219,20 @@ const Whiteboard = React.memo((props) => {
     pollInnerWrapperDimensionsUntilStable(() => {
       adjustCameraOnMount(!isPresenterRef.current);
     });
+
+    // Get the existing SVG
+    const svg = document.querySelector('svg.tl-svg-context');
+
+    // Locate and remove the old cursor hint
+    const oldCursorHint = svg.querySelector('#cursor_hint');
+    if (oldCursorHint) {
+      oldCursorHint.remove();
+    }
+    // Create a <use> element to reference the existing symbol
+    const useRedPointer = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+    useRedPointer.setAttributeNS(null, 'href', '#redPointer');
+    useRedPointer.setAttribute('id', 'cursor_hint');
+    svg.appendChild(useRedPointer);
   };
 
   const syncCameraOnPresenterZoom = () => {
@@ -1798,11 +1812,9 @@ const Whiteboard = React.memo((props) => {
   });
 
   React.useEffect(() => {
-    const baseName =
-      window.meetingClientSettings.public.app.cdn
+    const baseName = window.meetingClientSettings.public.app.cdn
       + window.meetingClientSettings.public.app.basename;
-    const makeCursorUrl = (filename) =>
-      `${baseName}/resources/images/whiteboard-cursor/${filename}`;
+    const makeCursorUrl = (filename) => `${baseName}/resources/images/whiteboard-cursor/${filename}`;
 
     const TOOL_CURSORS = {
       draw: `url('${makeCursorUrl('pencil.png')}') 2 22, default`,
