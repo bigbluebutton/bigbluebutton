@@ -189,7 +189,7 @@
     "app.userList.userOptions.guestPolicyDesc": "Új vendég fogadásakor",
     "app.userList.userOptions.disableCam": "A résztvevők webkamerája le van tiltva",
     "app.userList.userOptions.disableMic": "A résztvevők mikrofonja le van tiltva",
-    "app.userList.userOptions.disablePrivChat": "A privát üzenetek le van tiltva",
+    "app.userList.userOptions.disablePrivChat": "A privát üzenetek le vannak tiltva",
     "app.userList.userOptions.disablePubChat": "A nyilvános üzenetek le van tiltva",
     "app.userList.userOptions.disableNotes": "A megosztott jegyzetek zárolva vannak",
     "app.userList.userOptions.hideUserList": "A résztvevők nem látják a résztvevői névsort",
