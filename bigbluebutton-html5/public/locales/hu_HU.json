@@ -995,7 +995,7 @@
     "app.guest-policy.ariaTitle": "Vendégek fogadása",
     "app.guest-policy.title": "Vendégek fogadása",
     "app.guest-policy.description": "Teendő új vendég fogadásakor",
-    "app.guest-policy.button.askModerator": "Eseti elbírálással",
+    "app.guest-policy.button.askModerator": "Kérj meg egy szervezőt",
     "app.guest-policy.button.alwaysAccept": "Mindenki automatikusan engedélyezve",
     "app.guest-policy.button.alwaysDeny": "Mindenki automatikusan elutasítva",
     "app.guest-policy.policyBtnDesc": "Konferencia résztvevőire vonatkozó szabály beállítása",
