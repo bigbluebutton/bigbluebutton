@@ -545,7 +545,7 @@ const createEndpointTableData = [
     "type": "String",
     "description": (
       <>
-        URL that points to a JSON file containing an array of plugin manifests. This is mainly used to simplify and minimize the size of the <code>create</code> call.
+        URL that points to a JSON file containing an array of multiple plugin manifest URLs (optionally including file checksums). This is mainly used to simplify and minimize the size of the <code>create</code> request.
         The expected content is a json array with the exact same structure as the parameter <code>pluginManifests</code>,
         see example in the parameter above.
       </>
