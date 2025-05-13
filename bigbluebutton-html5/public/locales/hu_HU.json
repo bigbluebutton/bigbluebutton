@@ -1142,7 +1142,7 @@
     "app.whiteboard.annotations.pollResult": "Szavazás eredménye",
     "app.whiteboard.annotations.noResponses": "Egy válasz sincs",
     "app.whiteboard.annotations.notAllowed": "Ezt a módosítást nem végezheted el",
-    "app.whiteboard.annotations.numberExceeded": "A kommentárok száma elérte a korlátot ({0})",
+    "app.whiteboard.annotations.numberExceeded": "A megjegyzések száma elérte a korlátot ({0})",
     "app.whiteboard.toolbar.tools": "Eszközök",
     "app.whiteboard.toolbar.tools.hand": "Mozgatás",
     "app.whiteboard.toolbar.tools.pencil": "Ceruza",
