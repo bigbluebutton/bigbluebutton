@@ -10,7 +10,7 @@
     "app.chat.loadMoreButtonLabel": "Több betöltése",
     "app.chat.inputPlaceholder": "{0} üzenet",
     "app.chat.titlePublic": "Nyilvános üzenetek",
-    "app.chat.titlePrivate": "Privát üzenetek {0} résztvevővel",
+    "app.chat.titlePrivate": "Privát üzenet {0} résztvevővel",
     "app.chat.partnerDisconnected": "{0} kilépett",
     "app.chat.closeChatLabel": "{0} bezárása",
     "app.chat.hideChatLabel": "{0} elrejtése",
