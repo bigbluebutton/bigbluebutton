@@ -1167,7 +1167,7 @@
     "app.whiteboard.toolbar.color.violet": "Ibolya",
     "app.whiteboard.toolbar.color.magenta": "Magenta",
     "app.whiteboard.toolbar.color.silver": "Ezüst",
-    "app.whiteboard.toolbar.undo": "Kommentár visszavonása",
+    "app.whiteboard.toolbar.undo": "Megjegyzés visszavonása",
     "app.whiteboard.toolbar.clear": "Összes kommentár törlése",
     "app.whiteboard.toolbar.clearConfirmation": "Biztos, hogy törlöd az összes kommentárt?",
     "app.whiteboard.toolbar.multiUserOn": "Többfelhasználós rajztábla bekapcsolása",
