@@ -219,7 +219,7 @@
     "app.media.screenshare.autoplayAllowLabel": "Megosztott képernyő megjelenítése",
     "app.media.cameraAsContent.start": "A jelenlegi kamera elindult",
     "app.media.cameraAsContent.end": "A jelenlegi kamera leállt",
-    "app.media.cameraAsContent.endDueToDataSaving": "A jelenlegi kamera leállt az adatok mentése miatt",
+    "app.media.cameraAsContent.endDueToDataSaving": "A jelenlegi kamera leállt adatspórolás céljából",
     "app.media.cameraAsContent.autoplayBlockedDesc": "Engedélyre van szükségünk, hogy az előadó kameráját megjelenítsük Önnél.",
     "app.media.cameraAsContent.autoplayAllowLabel": "Jelenlegi kamera megtekintése",
     "app.screenshare.presenterLoadingLabel": "A képernyőmegosztásod betöltődik",
