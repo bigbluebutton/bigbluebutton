@@ -1101,7 +1101,7 @@
     "app.video.videoMenuDisabled": "Videó menü Webkamera ki van kapcsolva a beállításokban",
     "app.video.videoMenuDesc": "Videó lenyíló menü megnyitása",
     "app.video.pagination.prevPage": "Korábbi videók",
-    "app.video.pagination.nextPage": "további videók",
+    "app.video.pagination.nextPage": "További videók",
     "app.video.clientDisconnected": "A webkamerát nem lehet megosztani kapcsolódási problémák miatt",
     "app.video.virtualBackground.none": "Egyik sem",
     "app.video.virtualBackground.blur": "Elhomályosít",
