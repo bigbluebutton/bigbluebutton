@@ -150,7 +150,7 @@
     "app.userList.chatListItem.unreadPlural": "{0} új üzenet",
     "app.userList.menu.away": "Távol vagyok",
     "app.userList.menu.notAway": "Aktív vagyok",
-    "app.userList.menu.chat.label": "Privát üzenetek indítása",
+    "app.userList.menu.chat.label": "Privát üzenet indítása",
     "app.userList.menu.lockPublicChat.label": "Nyilvános üzenetek zárolása",
     "app.userList.menu.unlockPublicChat.label": "Nyilvános üzenetek zárolásának feloldása",
     "app.userList.menu.clearStatus.label": "Állapot törlése",
