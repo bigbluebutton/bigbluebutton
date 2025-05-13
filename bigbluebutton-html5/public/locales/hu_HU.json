@@ -141,7 +141,7 @@
     "app.userList.byModerator": "(Szervező)",
     "app.userList.label": "Résztvevők listája",
     "app.userList.toggleCompactView.label": "Kompakt nézet be-, kikapcsolása",
-    "app.userList.moderator": "Moderátor",
+    "app.userList.moderator": "Szervező",
     "app.userList.mobile": "Mobil",
     "app.userList.guest": "Vendég",
     "app.userList.sharingWebcam": "Webkamera",
