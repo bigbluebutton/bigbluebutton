@@ -299,7 +299,7 @@
     "app.presentationUploader.sent": "Elküldve",
     "app.presentationUploader.exportingTimeout": "Az exportálás túl sokáig tart...",
     "app.presentationUploader.export": "Küldés üzenetként",
-    "app.presentationUploader.exportCurrentStatePresentation": "Küldjön el egy letöltési linket a előadáshoz, beleértve a rajztábla-kommentárokat",
+    "app.presentationUploader.exportCurrentStatePresentation": "Küldjön el egy letöltési linket a előadáshoz, beleértve a rajztábla-megjegyzéseket",
     "app.presentationUploader.enableOriginalPresentationDownload": "A prezentáció ({0}) letöltésének engedélyezése",
     "app.presentationUploader.disableOriginalPresentationDownload": "Az eredeti prezentáció ({0}) letöltésének tiltása",
     "app.presentationUploader.dropdownExportOptions": "Beállítások exportálása",
