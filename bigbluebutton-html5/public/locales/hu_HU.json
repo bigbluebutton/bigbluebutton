@@ -307,7 +307,7 @@
     "app.presentationUploader.export.downloadButtonAvailable": "A prezentációhoz {0} a letöltés gomb elérhető.",
     "app.presentationUploader.export.notAccessibleWarning": "előfordulhat, hogy nem akadálymentes-kompatibilis",
     "app.presentationUploader.export.originalLabel": "Eredeti",
-    "app.presentationUploader.export.withWhiteboardAnnotations": "rajztábla-kommentárokkal",
+    "app.presentationUploader.export.withWhiteboardAnnotations": "rajztábla-megjegyzésekkel",
     "app.presentationUploader.currentPresentationLabel": "Jelenlegi prezentáció",
     "app.presentationUploder.extraHint": "FONTOS: egyik fájl sem érheti el {0} MB-ot és {1} oldalt.",
     "app.presentationUploder.uploadLabel": "Feltöltés",
