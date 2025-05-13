@@ -238,7 +238,7 @@
     "app.meeting.meetingTimeHasEnded": "Az idő lejárt. Az előadás hamarosan véget ér",
     "app.meeting.endedByUserMessage": "Ezt a munkamenetet {0} befejezte",
     "app.meeting.endedByNoModeratorMessageSingular": "Az előadás véget ért, mert 1 percig nem volt jelen szervező.",
-    "app.meeting.endedByNoModeratorMessagePlural": "Az előadás véget ért, mert {0} percig nem volt jelen moderátor.",
+    "app.meeting.endedByNoModeratorMessagePlural": "Az előadás véget ért, mert {0} percig nem volt jelen szervező.",
     "app.meeting.endedMessage": "Visszairányítunk a kezdőképernyőre",
     "app.meeting.alertMeetingEndsUnderMinutesSingular": "A megbeszélés egy perc múlva véget ér.",
     "app.meeting.alertMeetingEndsUnderMinutesPlural": "A megbeszélés {0} percen belül véget ér.",
