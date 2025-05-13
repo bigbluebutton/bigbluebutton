@@ -540,7 +540,7 @@ const createEndpointTableData = [
     )
   },
   {
-    "name": "pluginManifestsSourceUrl",
+    "name": "pluginManifestsFetchUrl",
     "required": false,
     "type": "String",
     "description": (
