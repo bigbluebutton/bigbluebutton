@@ -326,7 +326,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
         const playerVolume = internalPlayer?.getVolume();
         // the scale fiven by the player is 0 to 100, but the accepted scale is 0 to 1
         // So we need to divide by 100
-        setVolume(playerVolume / 100);
+        setVolume(playerVolume > 1 ? playerVolume / 100 : playerVolume);
       }
 
       clientReloadedRef.current = true;
