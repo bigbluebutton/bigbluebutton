@@ -65,6 +65,7 @@ export const GRID_USERS_SUBSCRIPTION = gql`
             predicate: { _eq: 0 },
           },
         },
+        bot:{ _eq: false },
       },
       limit: $limit,
       order_by: {
