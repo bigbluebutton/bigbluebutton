@@ -909,7 +909,7 @@
     "app.toast.setEmoji.lowerHand": "Már nem jelentkezel",
     "app.toast.setEmoji.away": "Beállította a távol vagy állapotát",
     "app.toast.setEmoji.notAway": "Letörölte a távol vagy állapotát",
-    "app.toast.promotedLabel": "Moderátorrá léptettek elő",
+    "app.toast.promotedLabel": "Szervezővé léptettek elő",
     "app.toast.demotedLabel": "Résztvevővé fokoztak le",
     "app.notification.recordingStart": "Ezt a munkamenetet rögzítjük",
     "app.notification.recordingStop": "Ezt a munkamenetet nem rögzítjük",
