@@ -1169,7 +1169,7 @@
     "app.whiteboard.toolbar.color.silver": "Ezüst",
     "app.whiteboard.toolbar.undo": "Megjegyzés visszavonása",
     "app.whiteboard.toolbar.clear": "Összes megjegyzés törlése",
-    "app.whiteboard.toolbar.clearConfirmation": "Biztos, hogy törlöd az összes kommentárt?",
+    "app.whiteboard.toolbar.clearConfirmation": "Biztos, hogy törlöd az összes megjegyzést?",
     "app.whiteboard.toolbar.multiUserOn": "Többfelhasználós rajztábla bekapcsolása",
     "app.whiteboard.toolbar.multiUserOff": "Többfelhasználós rajztábla kikapcsolása",
     "app.whiteboard.toolbar.palmRejectionOn": "Érintőképernyőn rajzolás elutasítása",
