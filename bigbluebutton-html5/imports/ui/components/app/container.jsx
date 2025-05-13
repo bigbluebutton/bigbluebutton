@@ -6,6 +6,7 @@ import {
   useIsPresentationEnabled,
   useIsExternalVideoEnabled,
   useIsRaiseHandEnabled,
+  useIsPollingEnabled,
 } from '/imports/ui/services/features';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
@@ -13,6 +14,7 @@ import {
   layoutSelect,
   layoutSelectInput,
   layoutSelectOutput,
+  layoutDispatch,
 } from '../layout/context';
 import useSetSpeechOptions from '../audio/audio-graphql/hooks/useSetSpeechOptions';
 import { handleIsNotificationEnabled } from '/imports/ui/components/plugins-engine/ui-commands/notification/handler';
@@ -31,6 +33,8 @@ const AppContainer = (props) => {
     viewScreenshare,
   } = useSettings(SETTINGS.DATA_SAVING);
   const { isNotificationEnabled } = useReactiveVar(handleIsNotificationEnabled);
+  const layoutContextDispatch = layoutDispatch();
+  const isPollingEnabled = useIsPollingEnabled();
 
   const {
     data: currentUser,
@@ -152,6 +156,8 @@ const AppContainer = (props) => {
           shouldShowPresentation,
           isNotificationEnabled,
           isRaiseHandEnabled,
+          layoutContextDispatch,
+          isPollingEnabled,
           genericMainContentId: genericMainContent.genericContentId,
           audioCaptions: <AudioCaptionsLiveContainer />,
           hideNotificationToasts: hideNotificationToasts

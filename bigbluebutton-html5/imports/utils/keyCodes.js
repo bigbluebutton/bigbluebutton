@@ -9,6 +9,7 @@ export const ARROW_LEFT = 37;
 export const PAGE_UP = 33;
 export const PAGE_DOWN = 34;
 export const A = 65;
+export const P = 80;
 
 export default {
   SPACE,
@@ -22,4 +23,5 @@ export default {
   PAGE_UP,
   PAGE_DOWN,
   A,
+  P,
 };
