@@ -1345,7 +1345,7 @@
     "app.learningDashboard.lastUpdatedLabel": "Utolsó módosítás időpontja:",
     "app.learningDashboard.sessionDataDownloadedLabel": "Letöltve!",
     "app.learningDashboard.shareButton": "Megosztás másokkal",
-    "app.learningDashboard.shareLinkCopied": "A linket sikeresen másolta!",
+    "app.learningDashboard.shareLinkCopied": "Link sikeresen másolva!",
     "app.learningDashboard.user": "Résztvevő",
     "app.learningDashboard.indicators.meetingStatusEnded": "Lezárult",
     "app.learningDashboard.indicators.meetingStatusActive": "Aktív",
