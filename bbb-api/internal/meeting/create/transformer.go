@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"io"
 	"log/slog"
-	"mime"
 	"net/http"
 	"regexp"
 	"strconv"
@@ -34,13 +33,6 @@ type RequestToIsMeetingRunning struct{}
 func (r *RequestToIsMeetingRunning) Transform(msg pipeline.Message[*http.Request]) (pipeline.Message[*meeting.MeetingRunningRequest], error) {
 	req := msg.Payload
 
-	contentType, _, _ := mime.ParseMediaType(req.Header.Get("Content-Type"))
-	var (
-		applicationXML    = contentType == bbbhttp.ContentTypeApplicationXML
-		textXML           = contentType == bbbhttp.ContentTypeTextXML
-		processXMLModules = applicationXML || textXML
-	)
-
 	params := req.Context().Value(bbbhttp.ParamsKey).(bbbhttp.Params)
 
 	parentMeetingID := validation.StripCtrlChars(params.Get(meetingapi.ParentMeetingIDParam).Value)
@@ -51,7 +43,6 @@ func (r *RequestToIsMeetingRunning) Transform(msg pipeline.Message[*http.Request
 	}
 
 	ctx := context.WithValue(msg.Context(), core.ParamsKey, params)
-	ctx = context.WithValue(ctx, core.ProcessXMLModulesKey, processXMLModules)
 	ctx = context.WithValue(ctx, core.RequestBodyKey, req.Body)
 
 	return pipeline.NewMessageWithContext(grpcReq, ctx), nil
@@ -74,21 +65,18 @@ type MeetingRunningToCreate struct{}
 
 func (m *MeetingRunningToCreate) Transform(msg pipeline.Message[*meeting.MeetingInfoResponse]) (pipeline.Message[*meeting.CreateMeetingRequest], error) {
 	params := msg.Context().Value(core.ParamsKey).(bbbhttp.Params)
-	processXMLModules := msg.Context().Value(core.ProcessXMLModulesKey).(bool)
 
 	settings := createMeetingSettings(params, msg.Payload.MeetingInfo)
 
 	cfg := config.DefaultConfig()
 
-	if processXMLModules {
-		body := msg.Context().Value(core.RequestBodyKey).(io.ReadCloser)
-		modules, err := bbbhttp.ProcessRequestModules(body)
-		if err != nil {
-			return pipeline.Message[*meeting.CreateMeetingRequest]{}, core.NewBBBError(responses.InvalidRequestBodyKey, responses.InvalidRequestBodyMsg)
-		}
-		if cso, ok := modules.Get(meetingapi.ClientSettingsOverrideModule); ok && cfg.Override.ClientSettings {
-			settings.OverrideClientSettings = cso.Content
-		}
+	body := msg.Context().Value(core.RequestBodyKey).(io.ReadCloser)
+	modules, err := bbbhttp.ProcessRequestModules(body)
+	if err != nil {
+		return pipeline.Message[*meeting.CreateMeetingRequest]{}, core.NewBBBError(responses.InvalidRequestBodyKey, responses.InvalidRequestBodyMsg)
+	}
+	if cso, ok := modules.Get(meetingapi.ClientSettingsOverrideModule); ok && cfg.Override.ClientSettings {
+		settings.OverrideClientSettings = cso.Content
 	}
 
 	return pipeline.NewMessageWithContext(&meeting.CreateMeetingRequest{

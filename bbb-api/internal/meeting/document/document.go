@@ -64,6 +64,23 @@ type PresentationFile struct {
 	Default      bool
 }
 
+type DocumentParser interface {
+	ParseDocuments(modules bbbhttp.RequestModules, params bbbhttp.Params, fromInsertAPI bool) (*ParsedDocuments, error)
+}
+
+type DocumentProcessor interface {
+	ProcessDocuments(docs *ParsedDocuments) []PresentationFile
+	ProcessDocumentFromURL(doc *Document) (*PresentationFile, error)
+	ProcessDocumentFromBytes(doc *Document) (*PresentationFile, error)
+}
+
+type PresentationHandler interface {
+	DocumentParser
+	DocumentProcessor
+}
+
+type DefaultDocumentParser struct{}
+
 func ParseDocuments(modules bbbhttp.RequestModules, params bbbhttp.Params, fromInsertAPI bool) (*ParsedDocuments, error) {
 	cfg := config.DefaultConfig()
 	meetingID := validation.StripCtrlChars(params.Get(meeting.IDParam).Value)
@@ -239,7 +256,14 @@ func ProcessDocumentFromURL(doc *Document) (*PresentationFile, error) {
 	fileName := fmt.Sprintf("%s.%s", presID, fileNameExt)
 	filePath := filepath.Join(presPath, fileName)
 
-	// TODO: download and save presentation
+	content, dlErr := DownloadPresentation(doc.URL)
+	if dlErr != nil {
+		return nil, fmt.Errorf("failed to download presentation: %w", dlErr)
+	}
+
+	if writeErr := os.WriteFile(filePath, content, 0644); writeErr != nil {
+		return nil, fmt.Errorf("failed to write presentation content to file: %w", writeErr)
+	}
 
 	pres, openErr := os.Open(filePath)
 	if openErr != nil {

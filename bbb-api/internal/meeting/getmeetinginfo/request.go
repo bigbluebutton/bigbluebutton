@@ -17,7 +17,7 @@ import (
 // interface that is used to send a [MeetingInfoRequest] to Akka Apps and
 // recieve [MeetingInfoResponse].
 type SendMeetingInfoRequest struct {
-	client *meetingapi.Client
+	client meetingapi.Client
 }
 
 // Send make a gRPC request to Akka Apps using the incoming message with a payload

@@ -14,7 +14,7 @@ import (
 )
 
 type SendMeetingInfoRequest struct {
-	client *meetingapi.Client
+	client meetingapi.Client
 }
 
 func (s *SendMeetingInfoRequest) Send(msg pipeline.Message[*meeting.MeetingInfoRequest]) (pipeline.Message[*meeting.MeetingInfoResponse], error) {

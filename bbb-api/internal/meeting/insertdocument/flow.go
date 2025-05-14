@@ -8,7 +8,7 @@ import (
 	meetingapi "github.com/bigbluebutton/bigbluebutton/bbb-api/internal/meeting"
 )
 
-func NewInsertDocumentFlow(client *meetingapi.Client) pipeline.Flow[*http.Request, *meetingapi.Response] {
+func NewInsertDocumentFlow(client meetingapi.Client) pipeline.Flow[*http.Request, *meetingapi.Response] {
 	filterTransformToMeetingInfo := pipeline.NewStep[*http.Request, *meeting.MeetingInfoRequest]().
 		Filter(&RequestFilter{}).
 		Transform(&RequestToMeetingInfo{})

@@ -20,7 +20,7 @@ import (
 // interface that is used to send a [MeetingRunningRequest] to Akka Apps and
 // recieve [MeetingRunningResponse].
 type SendMeetingRunningRequest struct {
-	client *meetingapi.Client
+	client meetingapi.Client
 }
 
 // Send makes a gRPC request to Akka Apps using the incoming message with a payload
@@ -54,7 +54,7 @@ func (s *SendMeetingRunningRequest) Send(msg pipeline.Message[*meeting.MeetingRu
 }
 
 type SendMeetingInfoRequest struct {
-	client *meetingapi.Client
+	client meetingapi.Client
 }
 
 func (s *SendMeetingInfoRequest) Send(msg pipeline.Message[*meeting.MeetingInfoRequest]) (pipeline.Message[*meeting.MeetingInfoResponse], error) {
@@ -80,7 +80,7 @@ func (s *SendMeetingInfoRequest) Send(msg pipeline.Message[*meeting.MeetingInfoR
 }
 
 type SendCreateMeetingRequest struct {
-	client *meetingapi.Client
+	client meetingapi.Client
 }
 
 func (s *SendCreateMeetingRequest) Send(msg pipeline.Message[*meeting.CreateMeetingRequest]) (pipeline.Message[*meeting.CreateMeetingResponse], error) {

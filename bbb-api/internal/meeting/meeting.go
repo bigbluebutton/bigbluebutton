@@ -5,10 +5,10 @@ package meeting
 
 import (
 	"encoding/xml"
-	"net/http"
 	"time"
 
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/gen/meeting"
+	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/bbbhttp"
 	"google.golang.org/grpc"
 )
 
@@ -157,23 +157,23 @@ func (m MapData) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 	return e.Flush()
 }
 
-type Client struct {
+type Client interface {
 	meeting.MeetingServiceClient
-	noRedirectClient *http.Client
+	bbbhttp.Client
 }
 
-func NewClientWithConn(conn *grpc.ClientConn) *Client {
+type DefaultClient struct {
+	meeting.MeetingServiceClient
+	*bbbhttp.NoRedirectClient
+}
+
+func NewClientWithConn(conn *grpc.ClientConn) *DefaultClient {
 	return NewClientWithServiceClient(meeting.NewMeetingServiceClient(conn))
 }
 
-func NewClientWithServiceClient(serviceClient meeting.MeetingServiceClient) *Client {
-	return &Client{
+func NewClientWithServiceClient(serviceClient meeting.MeetingServiceClient) *DefaultClient {
+	return &DefaultClient{
 		MeetingServiceClient: serviceClient,
-		noRedirectClient: &http.Client{
-			Timeout: time.Minute,
-			CheckRedirect: func(req *http.Request, via []*http.Request) error {
-				return http.ErrUseLastResponse
-			},
-		},
+		NoRedirectClient:     bbbhttp.NewNoRedirectClient(60 * time.Second),
 	}
 }

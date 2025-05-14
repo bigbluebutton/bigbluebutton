@@ -18,7 +18,7 @@ import (
 // transform the response and the original request data into a CreateMeeting gRPC request,
 // send the request to Akka Apps and receive a response,
 // validate the response and transform it into a meeting API CreateMeetingResponse.
-func NewCreateFlow(client *meetingapi.Client) pipeline.Flow[*http.Request, *meetingapi.CreateMeetingResponse] {
+func NewCreateFlow(client meetingapi.Client) pipeline.Flow[*http.Request, *meetingapi.CreateMeetingResponse] {
 	filterTransformToMeetingRunning := pipeline.NewStep[*http.Request, *meeting.MeetingRunningRequest]().
 		Filter(&RequestFilter{}).
 		Transform(&RequestToIsMeetingRunning{})

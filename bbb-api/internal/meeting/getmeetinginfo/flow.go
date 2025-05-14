@@ -14,7 +14,7 @@ import (
 // transform the HTTP request into a MeetingInfoRequest gRPC request,
 // send the request to Akka Apps and receive a response,
 // transform the gRPC response into a GetMeetingInfoResponse.
-func NewGetMeetingInfoFlow(client *meetingapi.Client) pipeline.Flow[*http.Request, *meetingapi.GetMeetingInfoResponse] {
+func NewGetMeetingInfoFlow(client meetingapi.Client) pipeline.Flow[*http.Request, *meetingapi.GetMeetingInfoResponse] {
 	filterTransformGRPC := pipeline.NewStep[*http.Request, *meeting.MeetingInfoRequest]().
 		Filter(&RequestFilter{}).
 		Transform(&HTTPToGRPC{})
