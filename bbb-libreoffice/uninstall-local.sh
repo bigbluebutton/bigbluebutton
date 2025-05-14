@@ -9,8 +9,9 @@ fi;
 
 IMAGE_CHECK=`docker image inspect bbb-soffice 2>&1 > /dev/null && echo 1 || echo 0`
 if [ "$IMAGE_CHECK"  = "1" ]; then
-	echo "Removing image"
-	docker image rm bbb-soffice
+	echo "Removing docker images related to libreoffice"
+	docker images -a | grep "bbb-soffice" | awk '{print $3}' | xargs docker rmi -f
+	docker images -a | grep "bigbluebutton/bbb-libreoffice" | awk '{print $3}' | xargs docker rmi -f
 fi
 
 FOLDER_CHECK=`[ -d /usr/share/bbb-libreoffice-conversion/ ] && echo 1 || echo 0`

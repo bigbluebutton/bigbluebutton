@@ -23,13 +23,16 @@ else
 	echo "Docker already installed";
 fi
 
-IMAGE_CHECK=`docker image inspect bbb-soffice &> /dev/null && echo 1 || echo 0`
-if [ "$IMAGE_CHECK"  = "0" ]; then
-	echo "Docker image doesn't exists, building"
-	docker build -t bbb-soffice docker/
-else
-	echo "Docker image already exists";
-fi
+# ----------- the image gets pulled in post-install step for bbb-libreoffice-docker------
+# IMAGE_CHECK=`docker image inspect bbb-soffice &> /dev/null && echo 1 || echo 0`
+# LIBREOFFICE_TAG=7.5.7-2023-10-19-110211
+# if [ "$IMAGE_CHECK"  = "0" ]; then
+# 	echo "Docker image doesn't exists, pulling"
+# 	docker pull bigbluebutton/bbb-libreoffice:${LIBREOFFICE_TAG}
+# 	docker image tag bigbluebutton/bbb-libreoffice:${LIBREOFFICE_TAG} bbb-soffice:${LIBREOFFICE_TAG} # rename to bbb-soffice
+# else
+# 	echo "Docker image already exists";
+# fi
 
 FOLDER_CHECK=`[ -d /usr/share/bbb-libreoffice-conversion/ ] && echo 1 || echo 0`
 if [ "$FOLDER_CHECK" = "0" ]; then
