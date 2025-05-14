@@ -166,10 +166,7 @@ class CustomParameters extends MultiUsers {
     await this.userPage.hasElement(e.restorePresentation, 'should display the restore presentation button for the attendee');
     await this.userPage.wasRemoved(e.whiteboard, 'should not display the whiteboard for the attendee');
     await utilScreenShare.startScreenshare(this.modPage);
-    /*
-    await this.modPage.waitAndClick(e.startScreenSharing);
-    await this.modPage.hasElement(e.screenShareVideo, '', 20000);
-    await this.modPage.hasElement(e.stopScreenSharing);*/
+    
     await this.userPage.hasElement(e.screenShareVideo, 'should display the screenshare element');
     await this.modPage.waitAndClick(e.stopScreenSharing);
     await this.modPage.hasElement(e.actions, 'should display the actions button');
@@ -192,7 +189,7 @@ class CustomParameters extends MultiUsers {
     const modFrame = await this.modPage.getYoutubeFrame();
     await modFrame.hasElement('video', 'should display the video frame');
 
-    const userFrame = await this.modPage.getYoutubeFrame();
+    const userFrame = await this.userPage.getYoutubeFrame();
     await userFrame.hasElement('video', 'should display the video frame');
 
     await this.modPage.waitAndClick(e.actions);
