@@ -346,16 +346,21 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   }, [isPresenter]);
 
   const handleOnStart = async () => {
-    if (isPresenter) {
+    const currentTime = getCurrentTime();
+    const playerCurrentTime = await getPlayerCurrentTime(playerRef.current as ReactPlayer);
+    if (isPresenter && !playing) {
       const rate = internalPlayer instanceof HTMLVideoElement
         ? internalPlayer.playbackRate
         : internalPlayer?.getPlaybackRate?.() ?? 1;
 
-      const currentTime = await getPlayerCurrentTime(playerRef.current as ReactPlayer);
       sendMessage('start', {
         rate,
         time: currentTime,
       });
+    }
+
+    if (currentTime > playerCurrentTime) {
+      playerRef?.current?.seekTo(currentTime);
     }
   };
 
