@@ -1124,7 +1124,7 @@
     "app.video.meetingCamCapReached": "Az előadás elérte az egyidőben maximálisan megosztható webkamerák számát.",
     "app.video.dropZoneLabel": "Dobja ide",
     "app.fullscreenButton.label": "{0} teljes képernyős módra állítása",
-    "app.layoutUpdate.label": "Az elrendezésfrissítések mindenkire vonatkoznak",
+    "app.layoutUpdate.label": "Az elrendezés frissítése mindenkire megtörtént",
     "app.fullscreenUndoButton.label": "{0} teljes képernyőjének visszaállítása",
     "app.switchButton.expandLabel": "Képernyőmegosztási videó kiterjesztése",
     "app.switchButton.shrinkLabel": "Képernyőmegosztási videó zsugorítása",
