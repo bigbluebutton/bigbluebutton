@@ -1287,7 +1287,7 @@
     "app.layout.modal.layoutLabel": "Válassz elrendezést",
     "app.layout.modal.pushLayoutLabel": "Küldés mindenkinek",
     "app.layout.modal.layoutToastLabel": "Az elrendezés beállításait sikeresen módosítottad",
-    "app.layout.modal.layoutToastLabelAuto": "Automatikus elrendezésfrissítés bekapcsolása, ez mostantól mindenkire vonatkozik",
+    "app.layout.modal.layoutToastLabelAuto": "Automatikus elrendezésfrissítés bekapcsolva, mostantól mindenkire vonatkozik",
     "app.layout.modal.layoutToastLabelAutoOff": "Automatikus elrendezésfrissítés kikapcsolása",
     "app.layout.modal.layoutSingular": "Elrendezés",
     "app.layout.modal.layoutBtnDesc": "Az elrendezés beállítása kiválasztott lehetőségként",
