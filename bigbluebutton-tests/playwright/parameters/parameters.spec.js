@@ -108,6 +108,36 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
     await createParam.overrideDefaultPresentation();
   });
 
+  test.describe.parallel('Layout Parameters', () => {
+    test('CUSTOM_LAYOUT', async ({ browser, context, page }) => {
+      const createParam = new CreateParameters(browser, context);
+      await createParam.initModPage(page, true, { createParameter: c.customLayout });
+      await createParam.initUserPage(true, context);
+      await createParam.customLayout();
+    });
+
+    test('SMART_LAYOUT', async ({ browser, context, page }) => {
+      const createParam = new CreateParameters(browser, context);
+      await createParam.initModPage(page, true, { createParameter: c.smartLayout });
+      await createParam.initUserPage(true, context);
+      await createParam.smartLayout();
+    });
+
+    test('PRESENTATION_FOCUS', async ({ browser, context, page }) => {
+      const createParam = new CreateParameters(browser, context);
+      await createParam.initModPage(page, true, { createParameter: c.presentationFocus });
+      await createParam.initUserPage(true, context);
+      await createParam.presentationFocus();
+    });
+
+    test('VIDEO_FOCUS', async ({ browser, context, page }) => {
+      const createParam = new CreateParameters(browser, context);
+      await createParam.initModPage(page, true, { createParameter: c.videoFocus });
+      await createParam.initUserPage(true, context);
+      await createParam.videoFocus();
+    });
+  });
+
   test.describe.parallel('Disabled Features', () => {
     test.describe.serial(() => {
       test('Breakout rooms', async ({ browser, context, page }) => {

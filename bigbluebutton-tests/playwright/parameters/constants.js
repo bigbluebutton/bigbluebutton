@@ -22,7 +22,10 @@ exports.notifyRecordingIsOn = 'notifyRecordingIsOn=true&notifyRecordingIsOn=true
 exports.preUploadedPresentation = 'preUploadedPresentation=https://dagrs.berkeley.edu/sites/default/files/2020-01/sample.pdf';
 exports.preUploadedPresentationOverrideDefault = 'preUploadedPresentationOverrideDefault=true';
 exports.preUploadedPresentationName = 'preUploadedPresentationName=ScientificPaper.pdf';
-
+exports.customLayout = 'meetingLayout=CUSTOM_LAYOUT';
+exports.smartLayout = 'meetingLayout=SMART_LAYOUT';
+exports.presentationFocus = 'meetingLayout=PRESENTATION_FOCUS';
+exports.videoFocus = 'meetingLayout=VIDEO_FOCUS';
 
 // Custom Parameters
 exports.autoJoin = 'userdata-bbb_auto_join_audio=false';
