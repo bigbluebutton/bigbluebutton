@@ -1,0 +1,21 @@
+name: Run ShellCheck
+on:
+  push:
+    branches:
+      - "develop"
+      - "v2.[5-9].x-release"
+      - "v[3-9].*.x-release"
+  pull_request:
+    types: [opened, synchronize, reopened]
+permissions:
+  contents: read
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+            fetch-depth: 1
+      - uses: ludeeus/action-shellcheck@master   # runs ShellCheck on **/*.sh by default
+        with:
+            severity: error

@@ -449,8 +449,15 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
   };
 
   useEffect(() => {
+    const cps = Session.getItem('customPollShortcut');
+    if (cps) {
+      setType(pollTypes.Custom);
+      setCustomInput(!!cps);
+    }
+
     return () => {
       Session.setItem('secretPoll', false);
+      Session.setItem('customPollShortcut', false);
     };
   }, []);
 
@@ -458,7 +465,7 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
     if (textareaRef.current) {
       textareaRef.current?.focus();
     }
-  }, [textareaRef]);
+  }, [textareaRef, customInput]);
 
   const pollOptions = () => {
     if (hasPoll) return <LiveResultContainer />;

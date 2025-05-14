@@ -1,3 +1,5 @@
+#!/bin/bash
+
 mkdir freeswitch
 cd freeswitch
 git init

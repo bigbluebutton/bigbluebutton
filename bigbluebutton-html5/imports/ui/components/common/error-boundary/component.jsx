@@ -100,7 +100,7 @@ class ErrorBoundary extends Component {
   }
 
   render() {
-    const { error, errorInfo } = this.state;
+    const { error } = this.state;
     const { children, Fallback, errorMessage } = this.props;
 
     const fallbackElement = Fallback && error

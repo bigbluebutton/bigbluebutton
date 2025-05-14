@@ -351,6 +351,8 @@ Value changed
 
 Added
 - `pluginManifestFetchTimeout` added
+- `pluginManifestsFetchUrlResponseTimeout` added
+- `maxPluginManifestsFetchUrlPayloadSize` added
 - `numPluginManifestsFetchingThreads` added
 - `extractTimeoutInMs` added
 - `pngCreationExecTimeoutInMs` added
