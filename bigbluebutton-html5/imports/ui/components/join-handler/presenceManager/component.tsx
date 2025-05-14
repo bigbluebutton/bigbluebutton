@@ -175,7 +175,7 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
       ? 'The browser is not supported or is using an outdated version.'
       : 'WebRTC is not supported in this browser.';
     logger.warn({
-      log_code: 'unsupported_browser',
+      logCode: 'unsupported_browser',
       extraInfo: {
         reason,
       },
