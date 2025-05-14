@@ -406,7 +406,7 @@ A new repository was contributed by Mconf https://github.com/bigbluebutton/custo
 
 #### Custom feedback
 
-In BigBlueButton 3.0 a new way of collecting feedback from users was introduced. It's a standalone, customizable, extensible application that can be integrated into BigBluebutton. Please refer to its [README](https://github.com/bigbluebutton/custom-feedback/blob/master/README.md) for details on how to customize and install it.
+In BigBlueButton 3.0 we replaced the old feedback form with a new way of collecting feedback from users. It's a standalone, customizable, extensible application that can be integrated into BigBlueButton. Please refer to its [README](https://github.com/bigbluebutton/custom-feedback/blob/master/README.md) for details on how to customize and install it.
 
 Below are some screenshots of it:
 
