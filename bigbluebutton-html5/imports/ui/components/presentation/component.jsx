@@ -747,7 +747,7 @@ class Presentation extends PureComponent {
       ? svgWidth
       : presentationToolbarMinWidth;
 
-    const mobileAwareContainerWidth = isMobile
+    const mobileAwareContainerWidth = isMobile || layoutType === LAYOUT_TYPE.VIDEO_FOCUS
       ? presentationBounds.width
       : containerWidth;
 
