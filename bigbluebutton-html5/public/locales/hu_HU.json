@@ -899,7 +899,7 @@
     "app.toast.clearedEmoji.label": "Hangulatjel-állapot törölve",
     "app.toast.setEmoji.label": "Emoji állapota {0}",
     "app.toast.meetingMuteOn.label": "Az összes résztvevőt elnémítottad",
-    "app.toast.meetingMuteOnViewers.label": "Az összes résztvevőt elnémítottad",
+    "app.toast.meetingMuteOnViewers.label": "Az összes néző elnémítva",
     "app.toast.meetingMuteOff.label": "A megbeszélés némaságát kikapcsoltad",
     "app.toast.wakeLock.acquireSuccess": "Az ébresztészár aktív! A beállítások menüben kapcsolhatja ki.",
     "app.toast.wakeLock.acquireFailed": "Hiba az ébresztészár lekérésekor",
