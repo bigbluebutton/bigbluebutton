@@ -114,11 +114,6 @@ export interface ComponentsFlags {
   hasScreenshareAsContent: boolean;
 }
 
-export interface Metadata {
-  name: string;
-  value: string;
-}
-
 export interface Meeting {
   createdTime: number;
   disabledFeatures: Array<string>;
@@ -147,6 +142,5 @@ export interface Meeting {
   endWhenNoModerator: boolean;
   endWhenNoModeratorDelayInMinutes: number;
   loginUrl: string | null;
-  metadata: Array<Metadata>;
   groups: Array<groups>;
 }
