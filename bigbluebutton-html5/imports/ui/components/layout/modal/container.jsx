@@ -6,7 +6,7 @@ import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { layoutSelect } from '../context';
-import { suportedLayouts } from '/imports/ui/components/layout/utils';
+import { suportedLayouts, layoutAllowedInSettings } from '/imports/ui/components/layout/utils';
 
 const LayoutModalContainer = (props) => {
   const {
@@ -30,7 +30,9 @@ const LayoutModalContainer = (props) => {
       isOpen,
       setLocalSettings,
       deviceType: layoutSelect((i) => i.deviceType),
-      availableLayouts: suportedLayouts,
+      availableLayouts: suportedLayouts.filter(
+        (layout) => layoutAllowedInSettings(layout.layoutKey),
+      ),
     }}
     />
   );

@@ -70,6 +70,50 @@ const suportedLayouts = [
       DEVICE_TYPE.DESKTOP,
     ],
   },
+  {
+    layoutKey: LAYOUT_TYPE.CAMERAS_ONLY,
+    layoutName: 'Cameras Only',
+    suportedDevices: [
+      DEVICE_TYPE.MOBILE,
+      DEVICE_TYPE.TABLET,
+      DEVICE_TYPE.TABLET_PORTRAIT,
+      DEVICE_TYPE.TABLET_LANDSCAPE,
+      DEVICE_TYPE.DESKTOP,
+    ],
+  },
+  {
+    layoutKey: LAYOUT_TYPE.PRESENTATION_ONLY,
+    layoutName: 'Presentation Only',
+    suportedDevices: [
+      DEVICE_TYPE.MOBILE,
+      DEVICE_TYPE.TABLET,
+      DEVICE_TYPE.TABLET_PORTRAIT,
+      DEVICE_TYPE.TABLET_LANDSCAPE,
+      DEVICE_TYPE.DESKTOP,
+    ],
+  },
+  {
+    layoutKey: LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY,
+    layoutName: 'Participants and Chat Only',
+    suportedDevices: [
+      DEVICE_TYPE.MOBILE,
+      DEVICE_TYPE.TABLET,
+      DEVICE_TYPE.TABLET_PORTRAIT,
+      DEVICE_TYPE.TABLET_LANDSCAPE,
+      DEVICE_TYPE.DESKTOP,
+    ],
+  },
+  {
+    layoutKey: LAYOUT_TYPE.MEDIA_ONLY,
+    layoutName: 'Media Only',
+    suportedDevices: [
+      DEVICE_TYPE.MOBILE,
+      DEVICE_TYPE.TABLET,
+      DEVICE_TYPE.TABLET_PORTRAIT,
+      DEVICE_TYPE.TABLET_LANDSCAPE,
+      DEVICE_TYPE.DESKTOP,
+    ],
+  },
 ];
 
 const COMMON_ELEMENTS = {
@@ -138,6 +182,11 @@ const getSupportedLayouts = (deviceType) => suportedLayouts.filter(
   (layout) => layout.suportedDevices.includes(deviceType),
 );
 
+const layoutAllowedInSettings = (layout) => layout !== LAYOUT_TYPE.CAMERAS_ONLY
+  && layout !== LAYOUT_TYPE.PRESENTATION_ONLY
+  && layout !== LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY
+  && layout !== LAYOUT_TYPE.MEDIA_ONLY;
+
 export {
-  suportedLayouts, LAYOUTS_SYNC, getSupportedLayouts, isLayoutSupported,
+  suportedLayouts, LAYOUTS_SYNC, getSupportedLayouts, isLayoutSupported, layoutAllowedInSettings,
 };
