@@ -26,6 +26,17 @@ case class PluginDataChannelPushEntryMsgBody(
                                               toUserIds: List[String],
                                             )
 
+object PluginDataChannelPushEntryEvtMsg { val NAME = "PluginDataChannelPushEntryEvtMsg" }
+case class PluginDataChannelPushEntryEvtMsg(header: BbbClientMsgHeader, body: PluginDataChannelPushEntryEvtMsgBody) extends StandardMsg
+case class PluginDataChannelPushEntryEvtMsgBody(
+                                              pluginName: String,
+                                              channelName: String,
+                                              subChannelName: String,
+                                              payloadJson: Map[String, Any],
+                                              entryId: String,
+                                              toRoles: List[String],
+                                              toUserIds: List[String],
+                                            )
 object PluginDataChannelReplaceEntryMsg { val NAME = "PluginDataChannelReplaceEntryMsg" }
 case class PluginDataChannelReplaceEntryMsg(header: BbbClientMsgHeader, body: PluginDataChannelReplaceEntryMsgBody) extends StandardMsg
 case class PluginDataChannelReplaceEntryMsgBody (
