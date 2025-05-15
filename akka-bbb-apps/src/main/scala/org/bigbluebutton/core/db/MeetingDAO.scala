@@ -153,7 +153,6 @@ object MeetingDAO {
     ChatDAO.insert(meetingProps.meetingProp.intId, GroupChatApp.createDefaultPublicGroupChat())
     MeetingUsersPoliciesDAO.insert(meetingProps.meetingProp.intId, meetingProps.usersProp)
     MeetingLockSettingsDAO.insert(meetingProps.meetingProp.intId, meetingProps.lockSettingsProps)
-    MeetingMetadataDAO.insert(meetingProps.meetingProp.intId, meetingProps.metadataProp)
     MeetingRecordingPoliciesDAO.insert(meetingProps.meetingProp.intId, meetingProps.recordProp)
     MeetingVoiceDAO.insert(meetingProps.meetingProp.intId, meetingProps.voiceProp)
     MeetingWelcomeDAO.insert(meetingProps.meetingProp.intId, meetingProps.welcomeProp)

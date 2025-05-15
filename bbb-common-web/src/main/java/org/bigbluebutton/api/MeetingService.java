@@ -828,6 +828,7 @@ public class MeetingService implements MessageListener {
       params.put(ApiParams.CAMERA_BRIDGE, message.cameraBridge);
       params.put(ApiParams.SCREEN_SHARE_BRIDGE, message.screenShareBridge);
       params.put(ApiParams.NOTIFY_RECORDING_IS_ON,parentMeeting.getNotifyRecordingIsOn().toString());
+      params.put(ApiParams.DISABLED_FEATURES,String.join(",", message.disabledFeatures));
 
       Map<String, String> parentMeetingMetadata = parentMeeting.getMetadata();
 

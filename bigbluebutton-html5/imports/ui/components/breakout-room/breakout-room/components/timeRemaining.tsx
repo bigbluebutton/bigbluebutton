@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useMutation } from '@apollo/client';
 import { defineMessages, useIntl } from 'react-intl';
 import BreakoutRemainingTime from '/imports/ui/components/common/remaining-time/breakout-duration/component';
-import { getRemainingMeetingTime, isNewTimeValid } from '/imports/ui/core/utils/calculateRemaingTime';
+import { exceedsRemainingTime, getRemainingMeetingTime } from '/imports/ui/core/utils/calculateRemaingTime';
 import Styled from '../styles';
 import { BREAKOUT_ROOM_SET_TIME } from '../../mutations';
 import useTimeSync from '/imports/ui/core/local-states/useTimeSync';
@@ -145,7 +145,8 @@ const TimeRemaingPanel: React.FC<TimeRemainingPanelProps> = ({
                   createdTime,
                   timeSync,
                 );
-                if (!isNewTimeValid(remainingTime, newTime)) {
+                // Remaining time is in seconds, newTime is in minutes
+                if (exceedsRemainingTime(remainingTime, newTime * 60)) {
                   setShowFormError(true);
                 } else if (setBreakoutsTime(newTime)) {
                   toggleShowChangeTimeForm(false);

@@ -38,29 +38,16 @@ subscription userCurrentSubscription {
     speechLocale
     captionLocale
     userId
-    breakoutRooms {
-      hasJoined
-      assignedAt
-      breakoutRoomId
-      isLastAssignedRoom
-      durationInSeconds
-      endedAt
-      freeJoin
-      inviteDismissedAt
-      isDefaultName
-      joinURL
-      name
-      sendInvitationToModerators
-      sequence
-      shortName
-      showInvitation
-      startedAt
-      isUserCurrentlyInRoom
-    }
     lastBreakoutRoom {
       currentlyInRoom
       sequence
       shortName
+    }
+    breakoutRoomsSummary {
+        totalOfBreakoutRooms
+        totalOfIsUserCurrentlyInRoom
+        totalOfShowInvitation
+        totalOfJoinURL
     }
     cameras {
       streamId

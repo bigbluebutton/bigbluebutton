@@ -1379,6 +1379,7 @@
     "app.createBreakoutRoom.sendInvitationToMods": "司会者を割り当てられた人に招待を送る",
     "app.createBreakoutRoom.leastOneWarnBreakout": "小会議室には最低１人のユーザーが必要です。",
     "app.createBreakoutRoom.minimumDurationWarnBreakout": "小会議室の最小利用時間は{0}分です。",
+    "app.createBreakoutRoom.timeCannotExceedMainRoom": "小会議室の利用時間を、会議全体の残り時間を超えて設定することはできません。",
     "app.createBreakoutRoom.modalDesc": "やり方：ユーザーの名前をドラッグ＆ドロップして、特定の小会議室に割りふってください。",
     "app.createBreakoutRoom.roomTime": "{0} 分",
     "app.createBreakoutRoom.numberOfRoomsError": "会議室の数が正しく設定されていません。",
