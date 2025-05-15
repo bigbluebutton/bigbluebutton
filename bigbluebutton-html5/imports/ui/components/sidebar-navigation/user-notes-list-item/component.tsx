@@ -115,23 +115,33 @@ const UserNotesGraphql: React.FC<UserNotesGraphqlProps> = (props) => {
   }
 
   const renderNotes = () => {
-    const showTitle = isPinned ? intl.formatMessage(intlMessages.sharedNotesPinned)
-      : intl.formatMessage(intlMessages.sharedNotes);
+    let tooltipMessage = '';
+    if (disableNotes) {
+      tooltipMessage = `${intl.formatMessage(intlMessages.sharedNotes)}`
+        + ` ${intl.formatMessage(intlMessages.locked)}`
+        + ` ${intl.formatMessage(intlMessages.byModerator)}`;
+    } else if (isPinned) {
+      tooltipMessage = intl.formatMessage(intlMessages.sharedNotesPinned);
+    } else {
+      tooltipMessage = intl.formatMessage(intlMessages.sharedNotes);
+    }
     return (
       <TooltipContainer
-        title={showTitle}
+        title={tooltipMessage}
         position="right"
       >
         {/* @ts-ignore */}
         <Styled.ListItem
           id="shared-notes-toggle-button"
-          aria-label={showTitle}
+          aria-label={tooltipMessage}
           aria-describedby="lockedNotes"
           role="button"
           tabIndex={0}
           active={notesOpen}
           data-test="sharedNotesSidebarButton"
-          onClick={() => toggleNotesPanel(sidebarContentPanel, layoutContextDispatch)}
+          onClick={() => (!(isPinned || disableNotes)
+            ? toggleNotesPanel(sidebarContentPanel, layoutContextDispatch)
+            : null)}
           // @ts-ignore
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
@@ -139,8 +149,6 @@ const UserNotesGraphql: React.FC<UserNotesGraphqlProps> = (props) => {
             }
           }}
           hasNotification={unread && !isPinned}
-          as={isPinned ? 'button' : 'div'}
-          disabled={isPinned || disableNotes}
           $disabled={isPinned || disableNotes}
         >
           <Icon iconName="shared_notes" />
