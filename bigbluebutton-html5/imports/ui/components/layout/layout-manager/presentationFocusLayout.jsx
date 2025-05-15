@@ -1,7 +1,10 @@
 import { useEffect, useRef } from 'react';
 import { throttle } from '/imports/utils/throttle';
 import { layoutDispatch, layoutSelect, layoutSelectInput } from '/imports/ui/components/layout/context';
-import DEFAULT_VALUES, { SIDEBAR_CONTENT_VERTICAL_MARGIN, SIDEBAR_CONTENT_MARGIN_TO_MEDIA } from '/imports/ui/components/layout/defaultValues';
+import DEFAULT_VALUES, {
+  SIDEBAR_CONTENT_VERTICAL_MARGIN_PERCENTAGE_HEIGHT,
+  SIDEBAR_CONTENT_MARGIN_TO_MEDIA_PERCENTAGE_WIDTH,
+} from '/imports/ui/components/layout/defaultValues';
 import { INITIAL_INPUT_STATE } from '/imports/ui/components/layout/initState';
 import {
   ACTIONS,
@@ -214,6 +217,10 @@ const PresentationFocusLayout = (props) => {
     const cameraDockBounds = {};
 
     let cameraDockHeight = 0;
+    const sidebarContentMediaMargin = windowWidth()
+      * SIDEBAR_CONTENT_MARGIN_TO_MEDIA_PERCENTAGE_WIDTH;
+    const sidebarContentVerticalMargin = windowHeight()
+      * SIDEBAR_CONTENT_VERTICAL_MARGIN_PERCENTAGE_HEIGHT;
 
     if (isMobile) {
       cameraDockBounds.top = mediaAreaBounds.top + mediaBounds.height;
@@ -253,7 +260,7 @@ const PresentationFocusLayout = (props) => {
         );
       }
       cameraDockBounds.top = windowHeight() - cameraDockHeight
-        - bannerAreaHeight() - (SIDEBAR_CONTENT_VERTICAL_MARGIN) + SIDEBAR_CONTENT_MARGIN_TO_MEDIA;
+        - bannerAreaHeight() - sidebarContentVerticalMargin + sidebarContentMediaMargin;
       cameraDockBounds.left = !isRTL ? sidebarNavWidth : 0;
       cameraDockBounds.right = isRTL ? sidebarNavWidth : 0;
       cameraDockBounds.minWidth = sidebarContentWidth;

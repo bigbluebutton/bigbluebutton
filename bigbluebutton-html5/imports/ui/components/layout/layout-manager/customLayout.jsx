@@ -1,7 +1,10 @@
 import { useEffect, useRef } from 'react';
 import { throttle } from '/imports/utils/throttle';
 import { layoutSelect, layoutSelectInput, layoutDispatch } from '/imports/ui/components/layout/context';
-import DEFAULT_VALUES, { SIDEBAR_CONTENT_MARGIN_TO_MEDIA, SIDEBAR_CONTENT_VERTICAL_MARGIN } from '/imports/ui/components/layout/defaultValues';
+import DEFAULT_VALUES, {
+  SIDEBAR_CONTENT_MARGIN_TO_MEDIA_PERCENTAGE_WIDTH,
+  SIDEBAR_CONTENT_VERTICAL_MARGIN_PERCENTAGE_HEIGHT,
+} from '/imports/ui/components/layout/defaultValues';
 import { INITIAL_INPUT_STATE } from '/imports/ui/components/layout/initState';
 import {
   ACTIONS, CAMERADOCK_POSITION, LAYOUT_TYPE, PANELS,
@@ -85,8 +88,10 @@ const CustomLayout = (props) => {
   const calculatesDropAreas = (sidebarNavWidth, sidebarContentWidth, cameraDockBounds) => {
     const { height: actionBarHeight } = calculatesActionbarHeight();
     const mediaAreaHeight = windowHeight() - (DEFAULT_VALUES.navBarHeight + actionBarHeight);
+    const sidebarContentMarginToMedia = windowWidth()
+      * SIDEBAR_CONTENT_MARGIN_TO_MEDIA_PERCENTAGE_WIDTH;
     const mediaAreaWidth = windowWidth()
-      - (sidebarNavWidth + sidebarContentWidth) - SIDEBAR_CONTENT_MARGIN_TO_MEDIA;
+      - (sidebarNavWidth + sidebarContentWidth) - sidebarContentMarginToMedia;
     const DROP_ZONE_DEFAUL_SIZE = 100;
     const dropZones = {};
     const sidebarSize = sidebarNavWidth + sidebarContentWidth;
@@ -254,7 +259,8 @@ const CustomLayout = (props) => {
                 isPinned: sharedNotes.isPinned,
               },
             },
-            hasLayoutEngineLoadedOnce ? prevInput : INITIAL_INPUT_STATE,
+            hasLayoutEngineLoadedOnce && prevLayout !== LAYOUT_TYPE.MEDIA_ONLY
+              ? prevInput : INITIAL_INPUT_STATE,
           );
         },
       });
@@ -342,10 +348,12 @@ const CustomLayout = (props) => {
     if (stoppedResizing) {
       const isCameraTopOrBottom = cameraDockInput.position === CAMERADOCK_POSITION.CONTENT_TOP
         || cameraDockInput.position === CAMERADOCK_POSITION.CONTENT_BOTTOM;
+      const sidebarContentMarginToMedia = windowWidth()
+        * SIDEBAR_CONTENT_MARGIN_TO_MEDIA_PERCENTAGE_WIDTH;
 
       Storage.setItem('webcamSize', {
         width: isCameraTopOrBottom || (
-          isCameraSidebar ? lastWidth : cameraDockInput.width - SIDEBAR_CONTENT_MARGIN_TO_MEDIA
+          isCameraSidebar ? lastWidth : cameraDockInput.width - sidebarContentMarginToMedia
         ),
         height: isCameraTopOrBottom || isCameraSidebar ? cameraDockInput.height : lastHeight,
       });
@@ -414,11 +422,11 @@ const CustomLayout = (props) => {
 
       if (isCameraRight) {
         const sizeValue = mediaAreaBounds.left + mediaAreaBounds.width - cameraDockWidth;
-        cameraDockBounds.left = !isRTL ? sizeValue - camerasMargin : 0;
-        cameraDockBounds.right = isRTL ? sizeValue + sidebarSize - camerasMargin : null;
+        cameraDockBounds.left = !isRTL ? sizeValue : 0;
+        cameraDockBounds.right = isRTL ? sizeValue + sidebarSize : null;
       } else if (isCameraLeft) {
-        cameraDockBounds.left = mediaAreaBounds.left + camerasMargin;
-        cameraDockBounds.right = isRTL ? sidebarSize + camerasMargin * 2 : null;
+        cameraDockBounds.left = mediaAreaBounds.left;
+        cameraDockBounds.right = isRTL ? sidebarSize : null;
       }
 
       return cameraDockBounds;
@@ -437,9 +445,13 @@ const CustomLayout = (props) => {
           windowHeight() - cameraDockMinHeight,
         );
       }
+      const sidebarContentVerticalMargin = windowHeight()
+        * SIDEBAR_CONTENT_VERTICAL_MARGIN_PERCENTAGE_HEIGHT;
+      const sidebarContentMarginToMedia = windowWidth()
+        * SIDEBAR_CONTENT_MARGIN_TO_MEDIA_PERCENTAGE_WIDTH;
 
       cameraDockBounds.top = windowHeight() - cameraDockHeight
-        - bannerAreaHeight() - SIDEBAR_CONTENT_VERTICAL_MARGIN + SIDEBAR_CONTENT_MARGIN_TO_MEDIA;
+        - bannerAreaHeight() - sidebarContentVerticalMargin + sidebarContentMarginToMedia;
       cameraDockBounds.left = !isRTL ? sidebarNavWidth : 0;
       cameraDockBounds.right = isRTL ? sidebarNavWidth : 0;
       cameraDockBounds.minWidth = sidebarContentWidth;
@@ -463,8 +475,10 @@ const CustomLayout = (props) => {
     const navBarHeight = calculatesNavbarHeight();
     const mediaAreaHeight = windowHeight()
       - (DEFAULT_VALUES.navBarHeight + actionBarHeight + bannerAreaHeight());
+    const sidebarContentMarginToMedia = windowWidth()
+      * SIDEBAR_CONTENT_MARGIN_TO_MEDIA_PERCENTAGE_WIDTH;
     const mediaAreaWidth = windowWidth()
-      - (sidebarNavWidth + sidebarContentWidth) - SIDEBAR_CONTENT_MARGIN_TO_MEDIA;
+      - (sidebarNavWidth + sidebarContentWidth) - sidebarContentMarginToMedia;
     const mediaBounds = {};
     const { element: fullscreenElement } = fullscreen;
     const { camerasMargin } = DEFAULT_VALUES;
@@ -706,7 +720,8 @@ const CustomLayout = (props) => {
     layoutContextDispatch({
       type: ACTIONS.SET_MEDIA_AREA_SIZE,
       value: {
-        width: windowWidth() - sidebarNavWidth.width - sidebarContentWidth.width,
+        width: windowWidth() - sidebarNavWidth.width - sidebarContentWidth.width
+          - (windowWidth() * SIDEBAR_CONTENT_MARGIN_TO_MEDIA_PERCENTAGE_WIDTH),
         height: windowHeight() - DEFAULT_VALUES.navBarHeight - actionBarHeight,
       },
     });

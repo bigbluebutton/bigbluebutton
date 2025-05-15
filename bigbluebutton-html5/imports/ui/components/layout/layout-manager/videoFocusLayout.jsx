@@ -6,7 +6,7 @@ import {
   layoutSelectInput,
   layoutSelectOutput,
 } from '/imports/ui/components/layout/context';
-import DEFAULT_VALUES, { SIDEBAR_CONTENT_MARGIN_TO_MEDIA } from '/imports/ui/components/layout/defaultValues';
+import DEFAULT_VALUES, { SIDEBAR_CONTENT_MARGIN_TO_MEDIA_PERCENTAGE_WIDTH } from '/imports/ui/components/layout/defaultValues';
 import { INITIAL_INPUT_STATE } from '/imports/ui/components/layout/initState';
 import {
   ACTIONS, PANELS, LAYOUT_TYPE, DEVICE_TYPE,
@@ -296,12 +296,14 @@ const VideoFocusLayout = (props) => {
         mediaBounds.right = isRTL ? sidebarSize : null;
         mediaBounds.zIndex = 1;
       } else {
+        const sidebarContentMarginToMedia = windowWidth()
+          * SIDEBAR_CONTENT_MARGIN_TO_MEDIA_PERCENTAGE_WIDTH;
         mediaBounds.height = windowHeight()
-          - sidebarContentHeight - bannerAreaHeight() - SIDEBAR_CONTENT_MARGIN_TO_MEDIA;
+          - sidebarContentHeight - bannerAreaHeight() - sidebarContentMarginToMedia;
         mediaBounds.left = !isRTL ? sidebarNavWidth : 0;
         mediaBounds.right = isRTL ? sidebarNavWidth : 0;
-        mediaBounds.top = sidebarContentHeight + bannerAreaHeight() - SIDEBAR_CONTENT_MARGIN_TO_MEDIA;
-        mediaBounds.width = sidebarContentWidth - SIDEBAR_CONTENT_MARGIN_TO_MEDIA;
+        mediaBounds.top = sidebarContentHeight + bannerAreaHeight() - sidebarContentMarginToMedia;
+        mediaBounds.width = sidebarContentWidth - sidebarContentMarginToMedia;
         mediaBounds.zIndex = 1;
       }
     } else if (!presentationInput.isOpen) {

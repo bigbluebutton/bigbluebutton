@@ -1,7 +1,7 @@
 import {
-  SIDEBAR_CONTENT_VERTICAL_MARGIN,
-  SIDEBAR_CONTENT_MARGIN_TO_MEDIA,
-  SIDEBAR_NAVIGATION_MARGIN,
+  SIDEBAR_CONTENT_VERTICAL_MARGIN_PERCENTAGE_HEIGHT,
+  SIDEBAR_CONTENT_MARGIN_TO_MEDIA_PERCENTAGE_WIDTH,
+  SIDEBAR_NAVIGATION_MARGIN_PERCENTAGE_WIDTH,
 } from '/imports/ui/components/layout/defaultValues';
 
 const borderSizeSmall = '1px';
@@ -35,8 +35,8 @@ const contentSidebarUserListPadding = '0.5rem';
 const contentSidebarBottomScrollPadding = '2rem';
 const contentSidebarHeight = '92%';
 const contentSidebarBorderRadius = '1rem';
-const contentSidebarVerticalMargin = `${SIDEBAR_CONTENT_VERTICAL_MARGIN}px`;
-const contentSidebarMarginToMedia = `${SIDEBAR_CONTENT_MARGIN_TO_MEDIA}px`;
+const contentSidebarVerticalMargin = `${SIDEBAR_CONTENT_VERTICAL_MARGIN_PERCENTAGE_HEIGHT * 100}vh`;
+const contentSidebarMarginToMedia = `${SIDEBAR_CONTENT_MARGIN_TO_MEDIA_PERCENTAGE_WIDTH * 100}vw`;
 const minModalHeight = '20rem';
 const descriptionMargin = '3.5rem';
 const navbarHeight = '3.9375rem';
@@ -47,7 +47,7 @@ const navigationSidebarListItemsGap = '0.8rem';
 const navigationSidebarListItemsWidth = '65%';
 const navigationSidebarBorderRadius = '48px';
 const navigationSidebarPaddingY = '20px';
-const navigationSidebarMargin = `${SIDEBAR_NAVIGATION_MARGIN}px`;
+const navigationSidebarMargin = `${SIDEBAR_NAVIGATION_MARGIN_PERCENTAGE_WIDTH * 100}vw`;
 const pollHeaderOffset = '-0.875rem';
 const toastContentWidth = '98%';
 const modalMargin = '3rem';

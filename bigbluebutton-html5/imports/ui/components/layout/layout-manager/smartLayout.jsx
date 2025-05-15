@@ -191,7 +191,6 @@ const SmartLayout = (props) => {
       cameraDockBounds.maxWidth = mediaAreaBounds.width * 0.8;
       cameraDockBounds.height = mediaAreaBounds.height;
       cameraDockBounds.maxHeight = mediaAreaBounds.height;
-      cameraDockBounds.left += camerasMargin;
       cameraDockBounds.width -= camerasMargin * 2;
       cameraDockBounds.isCameraHorizontal = true;
       cameraDockBounds.position = CAMERADOCK_POSITION.CONTENT_LEFT;
@@ -302,6 +301,7 @@ const SmartLayout = (props) => {
     }
 
     const mediaContentSize = hasScreenShare ? screenShareSize : slideSize;
+    const { camerasMargin } = DEFAULT_VALUES;
 
     if (cameraDockInput.numCameras > 0 && !cameraDockInput.isDragging) {
       if (mediaContentSize.width !== 0 && mediaContentSize.height !== 0
@@ -314,7 +314,8 @@ const SmartLayout = (props) => {
           }
           mediaBounds.height = mediaAreaBounds.height;
           mediaBounds.top = mediaAreaBounds.top;
-          const sizeValue = mediaAreaBounds.left + (mediaAreaBounds.width - mediaBounds.width);
+          const sizeValue = mediaAreaBounds.left
+            + (mediaAreaBounds.width - mediaBounds.width - camerasMargin / 2);
           mediaBounds.left = !isRTL ? sizeValue : null;
           mediaBounds.right = isRTL ? sidebarSize : null;
         } else {
