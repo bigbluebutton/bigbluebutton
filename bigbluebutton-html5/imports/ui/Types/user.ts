@@ -47,11 +47,6 @@ export interface Voice {
   startTime: number;
 }
 
-export interface UserMetadata {
-  parameter: string;
-  value: string;
-}
-
 export interface userLockSettings {
   disablePublicChat: boolean;
 }

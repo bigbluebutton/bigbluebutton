@@ -24,10 +24,6 @@ const MEETING_SUBSCRIPTION = gql`
           lockOnJoin
           lockOnJoinConfigurable
         }
-        metadata {
-          name
-          value
-        }
         maxPinnedCameras
         meetingCameraCap
         cameraBridge
