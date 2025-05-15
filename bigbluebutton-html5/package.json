@@ -57,6 +57,7 @@
     "autoprefixer": "^10.4.4",
     "axios": "^1.8.3",
     "babel-runtime": "~6.26.0",
+    "bbb-html5-client": "file:",
     "bigbluebutton-html-plugin-sdk": "0.0.79",
     "bowser": "^2.11.0",
     "browser-bunyan": "^1.8.0",
