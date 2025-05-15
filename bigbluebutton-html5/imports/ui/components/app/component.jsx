@@ -338,7 +338,10 @@ class App extends Component {
             <SidebarContentContainer isSharedNotesPinned={isSharedNotesPinned} />
             <NavBarContainer main="new" />
             <WebcamContainer />
-            <ExternalVideoPlayerContainer />
+            {
+              !isNonMediaLayout
+                && <ExternalVideoPlayerContainer />
+            }
             <GenericContentMainAreaContainer
               genericMainContentId={genericMainContentId}
             />
@@ -354,7 +357,10 @@ class App extends Component {
                 )
                 : null
             }
-            <ScreenshareContainer shouldShowScreenshare={shouldShowScreenshare} />
+            {
+              !isNonMediaLayout
+              && <ScreenshareContainer shouldShowScreenshare={shouldShowScreenshare} />
+            }
             {isSharedNotesPinned
               ? (
                 <NotesContainer
@@ -363,7 +369,9 @@ class App extends Component {
               ) : null}
             <AudioCaptionsSpeechContainer />
             {this.renderAudioCaptions()}
-            {!hideNotificationToasts && <PresentationUploaderToastContainer intl={intl} />}
+            {(
+              !hideNotificationToasts
+              && isNotificationEnabled) && <PresentationUploaderToastContainer intl={intl} />}
             <UploaderContainer />
             <BreakoutJoinConfirmationContainerGraphQL />
             <BBBLiveKitRoomContainer />
@@ -374,9 +382,11 @@ class App extends Component {
               setVideoPreviewModalIsOpen: this.setVideoPreviewModalIsOpen,
             }}
             />
-            {!hideNotificationToasts && <ToastContainer rtl />}
+            {(
+              !hideNotificationToasts
+              && isNotificationEnabled) && <ToastContainer rtl />}
             <ChatAlertContainerGraphql />
-            <RaiseHandNotifier />
+            {isRaiseHandEnabled && <RaiseHandNotifier />}
             <ManyWebcamsNotifier />
             <PollingContainer />
             <WakeLockContainer />
@@ -410,68 +420,6 @@ class App extends Component {
             presentationIsOpen={presentationIsOpen}
             selectedLayout={selectedLayout}
           />
-          <BannerBarContainer />
-          <NotificationsBarContainer />
-          <SidebarNavigationContainer />
-          <SidebarContentContainer isSharedNotesPinned={isSharedNotesPinned} />
-          <NavBarContainer main="new" />
-          <WebcamContainer />
-          {
-            !isNonMediaLayout
-              && <ExternalVideoPlayerContainer />
-          }
-          <GenericContentMainAreaContainer
-            genericMainContentId={genericMainContentId}
-          />
-          {
-          shouldShowPresentation
-            ? (
-              <PresentationContainer
-                setPresentationFitToWidth={this.setPresentationFitToWidth}
-                fitToWidth={presentationFitToWidth}
-                darkTheme={darkTheme}
-                presentationIsOpen={presentationIsOpen}
-              />
-            )
-            : null
-            }
-          {
-            !isNonMediaLayout
-            && <ScreenshareContainer shouldShowScreenshare={shouldShowScreenshare} />
-          }
-
-          {isSharedNotesPinned
-            ? (
-              <NotesContainer
-                area="media"
-              />
-            ) : null}
-          <AudioCaptionsSpeechContainer />
-          {this.renderAudioCaptions()}
-          { (
-            !hideNotificationToasts
-            && isNotificationEnabled) && <PresentationUploaderToastContainer intl={intl} /> }
-          <UploaderContainer />
-          <BreakoutJoinConfirmationContainerGraphQL />
-          <BBBLiveKitRoomContainer />
-          <AudioContainer {...{
-            isAudioModalOpen,
-            setAudioModalIsOpen: this.setAudioModalIsOpen,
-            isVideoPreviewModalOpen,
-            setVideoPreviewModalIsOpen: this.setVideoPreviewModalIsOpen,
-          }}
-          />
-          { (
-            !hideNotificationToasts
-            && isNotificationEnabled) && <ToastContainer rtl /> }
-          <ChatAlertContainerGraphql />
-          {isRaiseHandEnabled && <RaiseHandNotifier />}
-          <ManyWebcamsNotifier />
-          <PollingContainer />
-          <WakeLockContainer />
-          {this.renderActionsBar()}
-          <EmojiRainContainer />
-          <VoiceActivityAdapter />
         </Styled.Layout>
       </>
     );
