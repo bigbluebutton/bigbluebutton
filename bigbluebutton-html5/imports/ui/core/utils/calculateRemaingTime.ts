@@ -11,8 +11,6 @@ export function getRemainingMeetingTime(durationInSeconds:number, createdTime:nu
 }
 
 export function exceedsRemainingTime(remainingTime: number, newTimeInSeconds: number): boolean {
-  console.log("🚀 -> exceedsRemainingTime -> remainingTime:", remainingTime)
-  console.log("🚀 -> exceedsRemainingTime -> newTimeInSeconds:", newTimeInSeconds)
   if (remainingTime === 0) return false;
   return newTimeInSeconds >= remainingTime;
 }
