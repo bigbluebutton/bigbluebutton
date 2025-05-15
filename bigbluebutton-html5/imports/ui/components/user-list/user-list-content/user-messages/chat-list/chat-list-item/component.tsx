@@ -154,7 +154,7 @@ const ChatListItem = (props: ChatListItemProps) => {
                 avatar={chat.participant?.avatar}
                 color={chat.participant?.color}
               >
-                {chat.participant?.avatar.length === 0 ? chat.participant?.name.toLowerCase().slice(0, 2) : ''}
+                {chat.participant?.avatar?.length === 0 ? chat.participant?.name?.toLowerCase().slice(0, 2) : ''}
               </Styled.UserAvatar>
             )}
         </Styled.ChatIcon>
