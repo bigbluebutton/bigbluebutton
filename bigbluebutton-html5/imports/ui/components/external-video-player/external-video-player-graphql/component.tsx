@@ -72,6 +72,7 @@ interface ExternalVideoPlayerProps {
   isEchoTest: boolean;
   isGridLayout: boolean;
   isPresenter: boolean;
+  isBot: boolean;
   videoUrl: string;
   isResizing: boolean;
   fullscreenContext: boolean;
@@ -107,6 +108,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   fullscreenContext,
   videoUrl,
   isPresenter,
+  isBot,
   playing,
   playerPlaybackRate,
   isEchoTest,
@@ -139,7 +141,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
       playerOptions: {
         autoPlay: true,
         playsInline: true,
-        controls: true,
+        controls: !isBot,
       },
       file: {
         attributes: {
@@ -149,11 +151,11 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
         },
       },
       facebook: {
-        controls: true,
+        controls: !isBot,
       },
       dailymotion: {
         params: {
-          controls: true,
+          controls: !isBot,
         },
       },
       youtube: {
@@ -163,7 +165,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
           autohide: 1,
           rel: 0,
           ecver: 2,
-          controls: 1,
+          controls: isBot ? 0 : 1,
           cc_lang_pref: document.getElementsByTagName('html')[0].lang.substring(0, 2),
         },
         embedOptions: {
@@ -175,14 +177,14 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
       },
       twitch: {
         options: {
-          controls: true,
+          controls: !isBot,
         },
         playerId: 'externalVideoPlayerTwitch',
       },
       preload: true,
       showHoverToolBar: false,
     };
-  }, []);
+  }, [isBot]);
 
   const [showUnsynchedMsg, setShowUnsynchedMsg] = React.useState(false);
   const [showHoverToolBar, setShowHoverToolBar] = React.useState(false);
@@ -449,6 +451,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   }
 
   const shouldShowTools = () => {
+    if (isBot) return false;
     if (isPresenter || (!isPresenter && isGridLayout && !isSidebarContentOpen) || !videoUrl) {
       return false;
     }
@@ -502,7 +505,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
           onPause={handleOnStop}
           onEnded={handleOnStop}
           muted={mute || isEchoTest}
-          controls
+          controls={!isBot}
           previewTabIndex={isPresenter ? 0 : -1}
           onPlaybackRateChange={handlePlaybackRateChange}
         />
@@ -540,6 +543,7 @@ const ExternalVideoPlayerContainer: React.FC = () => {
   const isEchoTest = useReactiveVar(audioManager._isEchoTest.value) as boolean;
   const { data: currentUser } = useCurrentUser((user) => ({
     presenter: user.presenter,
+    bot: user.bot,
   }));
   const { data: currentMeeting } = useMeeting((m) => ({
     externalVideo: m.externalVideo,
@@ -681,6 +685,7 @@ const ExternalVideoPlayerContainer: React.FC = () => {
   if (!currentUser || !currentMeeting?.externalVideo || !externalVideo?.display) return null;
   if (!hasExternalVideoOnLayout) return null;
   const isPresenter = currentUser.presenter ?? false;
+  const isBot = currentUser.bot ?? false;
   const isGridLayout = currentMeeting.layout?.currentLayoutType === 'VIDEO_FOCUS';
   const {
     updatedAt = new Date().toISOString(),
@@ -698,7 +703,8 @@ const ExternalVideoPlayerContainer: React.FC = () => {
       currentVolume={currentVolume}
       isMuted={isMuted}
       isEchoTest={isEchoTest}
-      isPresenter={isPresenter ?? false}
+      isPresenter={isPresenter}
+      isBot={isBot}
       videoUrl={videoUrl}
       playing={playing}
       playerPlaybackRate={playerPlaybackRate}

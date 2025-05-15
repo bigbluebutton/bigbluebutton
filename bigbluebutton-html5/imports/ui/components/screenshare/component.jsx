@@ -394,11 +394,16 @@ class ScreenshareComponent extends React.Component {
   }
 
   renderFullscreenButton() {
-    const { intl, fullscreenElementId, fullscreenContext } = this.props;
+    const {
+      intl,
+      fullscreenElementId,
+      fullscreenContext,
+      isBot,
+    } = this.props;
 
     const ALLOW_FULLSCREEN = window.meetingClientSettings.public.app.allowFullscreen;
 
-    if (!ALLOW_FULLSCREEN) return null;
+    if (!ALLOW_FULLSCREEN || isBot) return null;
 
     return (
       <Styled.FullscreenButtonWrapperForScreenshare>
@@ -462,7 +467,10 @@ class ScreenshareComponent extends React.Component {
   }
 
   renderVolumeSlider() {
+    const { isBot } = this.props;
     const { showHoverToolBar } = this.state;
+
+    if (isBot) return null;
 
     let toolbarStyle = 'hoverToolbar';
 
@@ -740,4 +748,5 @@ ScreenshareComponent.propTypes = {
   enableVolumeControl: PropTypes.bool.isRequired,
   outputDeviceId: PropTypes.string,
   streamId: PropTypes.string.isRequired,
+  isBot: PropTypes.bool.isRequired,
 };
