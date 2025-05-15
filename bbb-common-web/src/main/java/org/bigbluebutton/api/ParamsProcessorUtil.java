@@ -108,6 +108,7 @@ public class ParamsProcessorUtil {
     private String defaultPluginManifests;
     private Integer pluginManifestsFetchUrlResponseTimeout;
     private Integer maxPluginManifestsFetchUrlPayloadSize;
+    private String htmlPluginSdkVersion;
     private boolean defaultNotifyRecordingIsOn = false;
     private boolean defaultKeepEvents = false;
     private Boolean useDefaultLogo;
@@ -464,7 +465,7 @@ public class ParamsProcessorUtil {
         return pluginManifests;
     }
 
-    private ArrayList<PluginManifest> processPluginManifests(String pluginManifestsParam) {
+    private ArrayList<PluginManifest> processPluginManifests(String pluginManifestsParam) throws JsonSyntaxException {
         JsonElement pluginManifestsJsonElement = new Gson().fromJson(pluginManifestsParam, JsonElement.class);
         return processPluginManifests(pluginManifestsJsonElement);
     }
@@ -651,22 +652,31 @@ public class ParamsProcessorUtil {
 
         // Parse Plugins Manifests from config and param
         ArrayList<PluginManifest> listOfPluginManifests = new ArrayList<PluginManifest>();
+        PluginManifest.setHtmlPluginSdkVersion(htmlPluginSdkVersion);
         if (!isBreakout){
             //Process plugins from config
             if (defaultPluginManifests != null && !defaultPluginManifests.isEmpty()) {
-                ArrayList<PluginManifest> pluginManifestsFromConfig = processPluginManifests(defaultPluginManifests);
-                listOfPluginManifests.addAll(pluginManifestsFromConfig);
+                try {
+                    ArrayList<PluginManifest> pluginManifestsFromConfig = processPluginManifests(defaultPluginManifests);
+                    listOfPluginManifests.addAll(pluginManifestsFromConfig);
+                } catch (JsonSyntaxException err) {
+                    log.error("PluginManifests json from the properties file is malformed: {}", err.getMessage());
+                }
             }
             // Process plugins from /create params
             String pluginManifestsParam = params.get(ApiParams.PLUGIN_MANIFESTS);
             if (!StringUtils.isEmpty(pluginManifestsParam)) {
-                ArrayList<PluginManifest> pluginManifestsFromParam = processPluginManifests(pluginManifestsParam);
-                listOfPluginManifests.addAll(pluginManifestsFromParam);
+                try {
+                    ArrayList<PluginManifest> pluginManifestsFromParam = processPluginManifests(pluginManifestsParam);
+                    listOfPluginManifests.addAll(pluginManifestsFromParam);
+                } catch (JsonSyntaxException err) {
+                    log.error("PluginManifests json from the create parameter is malformed: {}", err.getMessage());
+                }
             }
             String pluginManifestsFetchUrlParam = params.get(ApiParams.PLUGIN_MANIFESTS_FETCH_URL);
             if (!StringUtils.isEmpty(pluginManifestsFetchUrlParam)) {
                 JsonElement pluginManifestsFromFetchUrlParam = processPluginManifestsFetchUrl(
-                        pluginManifestsFetchUrlParam
+                        PluginManifest.replaceAllPlaceholdersInManifestUrls(pluginManifestsFetchUrlParam)
                 );
                 if (pluginManifestsFromFetchUrlParam != null) {
                     ArrayList<PluginManifest> pluginManifestsFromParam = processPluginManifests(
@@ -1741,6 +1751,14 @@ public class ParamsProcessorUtil {
 	public void setPluginManifests(String pluginManifests) {
 		this.defaultPluginManifests = pluginManifests;
 	}
+
+    public void setHtmlPluginSdkVersion(String htmlPluginSdkVersion) {
+        this.htmlPluginSdkVersion = htmlPluginSdkVersion;
+    }
+
+    public String getHtmlPluginSdkVersion() {
+        return this.htmlPluginSdkVersion;
+    }
 
 	public void setNotifyRecordingIsOn(Boolean notifyRecordingIsOn) {
 		this.defaultNotifyRecordingIsOn = notifyRecordingIsOn;

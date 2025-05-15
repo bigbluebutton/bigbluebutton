@@ -38,10 +38,12 @@ you do the following:
 2. Add reference to it on BigBlueButton's `/create` call or add it on `/etc/bigbluebutton/bbb-web.properties`:
 
 ```
-pluginManifests=[{"url": "http://localhost:4701/manifest.json"}]
+pluginManifests=[{"url": "http://<your-URL>/manifest.json"}]
 ```
 
-*Running from souce code with a remote BBB-server*
+*Reminder:* Don't use the `localhost` URL that the `npm start` will create for you, Akka will not be able to access your manifest files this way (even if you are developing with a local bbb-docker environment). Therefore, what we recommend is to follow instructions on the next section to test the plugin as if it is in a remote BBB server (heads up: you'll be using NGROK).
+
+*Running from source code with a remote BBB-server*
 
 If you are running your BBB-server elsewhere, than you can't simply point the manifest URL to a local address, you'll need to either serve the built version into a CDN or serve the dev version using a service to make it public. And for the second option we'd recommend NGROK. Here are the instructions to do that:
 
@@ -112,6 +114,63 @@ pluginManifests=[{"url":"<your-domain>/path/to/manifest.json"}]
 While the plugin can be hosted on any Server, it is also possible to host the bundled file directly on
 a BigBlueButton server. For that you copy `dist/SampleActionButtonDropdownPlugin.js` and `dist/manifest.json` to the folder `/var/www/bigbluebutton-default/assets/plugins/sampleActionButtonDropdownPlugin`.
 In this case, the your manifest URL will be `https://<your-host>/plugins/sampleActionButtonDropdownPlugin/manifest.json`.
+
+### Comments
+
+#### Ways to load a plugin into a meeting
+
+As described in earlier sections, there are several ways to load a plugin into a meeting:
+
+- `/create` parameter `pluginManifests` – Applies only to the meeting being created. You must explicitly list the plugins in the request.
+- `/create` parameter `pluginManifestsFetchUrl` – Also applies only to the meeting being created, but instead of listing plugins directly, you provide a URL that returns the plugin manifest list. This helps reduce the size of the `/create` request.
+- `pluginManifests` in `/etc/bigbluebutton/bbb-web.properties` – Applies globally to all meetings on the server.
+
+All plugin sources are combined into a single list with duplicates removed. This means plugins are merged, not overridden.
+
+#### Using Placeholders in Plugin URLs
+
+You can use placeholders in the plugin URLs defined in any of the previously mentioned configurations. Currently, the only supported placeholder is:
+
+- %%HTML_PLUGIN_SDK_VERSION%% – This will be automatically replaced by the version of the `bigbluebutton-html-plugin-sdk` used by bbb-html5.
+
+This is useful for referencing versioned plugin files without hardcoding the SDK version.
+
+Examples:
+
+```properties
+pluginManifests=[{"url":"https://my-cdn.com/%%HTML_PLUGIN_SDK_VERSION%%/pick-random-user/manifest.json"}]
+```
+
+Or
+
+```properties
+pluginManifestsFetchUrl=https://my-cdn.com/%%HTML_PLUGIN_SDK_VERSION%%/all-my-plugins/list-of-plugins.json
+```
+
+If your `bbb-html5` client uses version `0.0.79` of the bigbluebutton-html-plugin-sdk (as seen in its `package.json`):
+
+```json
+{
+  "dependencies": {
+    "bigbluebutton-html-plugin-sdk": "0.0.79",
+  },
+}
+```
+Then `BBB-Web` will automatically transform the URLs as follows:
+
+```properties
+pluginManifests=[{"url":"https://my-cdn.com/0.0.79/pick-random-user/manifest.json"}]
+```
+
+Or
+
+```properties
+pluginManifestsFetchUrl=https://my-cdn.com/0.0.79/all-my-plugins/list-of-plugins.json
+```
+
+`BBB-Web` will then fetch the plugin manifests using these resolved URLs.
+
+In the future, support for additional placeholders may be added.
 
 ### Manifest Json
 
