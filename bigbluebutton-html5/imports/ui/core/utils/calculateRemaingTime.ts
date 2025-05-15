@@ -10,16 +10,18 @@ export function getRemainingMeetingTime(durationInSeconds:number, createdTime:nu
   return remainingSeconds;
 }
 
-export function doesNotExceedRemainingTime(remainingTime: number, newTimeInSeconds: number): boolean {
-  if (remainingTime === 0) return true;
-  return newTimeInSeconds <= remainingTime;
+export function exceedsRemainingTime(remainingTime: number, newTimeInSeconds: number): boolean {
+  console.log("🚀 -> exceedsRemainingTime -> remainingTime:", remainingTime)
+  console.log("🚀 -> exceedsRemainingTime -> newTimeInSeconds:", newTimeInSeconds)
+  if (remainingTime === 0) return false;
+  return newTimeInSeconds >= remainingTime;
 }
 
 export function isNewTimeValid(remainingTime: number, newTime: number) {
   const FIVE_MINUTES = 300; // 5 minutes in seconds
   const newTimeInSeconds = newTime * 60; // Convert newTime from minutes to seconds
   if (remainingTime === 0) return newTimeInSeconds >= FIVE_MINUTES;
-  if (!doesNotExceedRemainingTime(remainingTime, newTimeInSeconds)) {
+  if (exceedsRemainingTime(remainingTime, newTimeInSeconds)) {
     return false;
   }
 
@@ -34,5 +36,5 @@ export function isNewTimeValid(remainingTime: number, newTime: number) {
 export default {
   getRemainingMeetingTime,
   isNewTimeValid,
-  doesNotExceedRemainingTime,
+  exceedsRemainingTime,
 };
