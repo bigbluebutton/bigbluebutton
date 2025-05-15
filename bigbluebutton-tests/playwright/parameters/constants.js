@@ -26,6 +26,10 @@ exports.customLayout = 'meetingLayout=CUSTOM_LAYOUT';
 exports.smartLayout = 'meetingLayout=SMART_LAYOUT';
 exports.presentationFocus = 'meetingLayout=PRESENTATION_FOCUS';
 exports.videoFocus = 'meetingLayout=VIDEO_FOCUS';
+exports.camerasOnly = 'meetingLayout=CAMERAS_ONLY';
+exports.presentationOnly = 'meetingLayout=PRESENTATION_ONLY';
+exports.participantsAndChatOnly = 'meetingLayout=PARTICIPANTS_AND_CHAT_ONLY';
+exports.mediaOnly = 'meetingLayout=MEDIA_ONLY';
 
 // Custom Parameters
 exports.autoJoin = 'userdata-bbb_auto_join_audio=false';

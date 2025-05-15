@@ -136,6 +136,34 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
       await createParam.initUserPage(true, context);
       await createParam.videoFocus();
     });
+
+    test('CAMERAS_ONLY', async ({ browser, context, page }) => {
+      const createParam = new CreateParameters(browser, context);
+      await createParam.initModPage(page, true, { createParameter: c.camerasOnly });
+      await createParam.initUserPage(true, context);
+      await createParam.camerasOnly();
+    });
+
+    test('PRESENTATION_ONLY', async ({ browser, context, page }) => {
+      const createParam = new CreateParameters(browser, context);
+      await createParam.initModPage(page, true, { createParameter: c.presentationOnly });
+      await createParam.initUserPage(true, context);
+      await createParam.presentationOnly();
+    });
+
+    test('PARTICIPANTS_AND_CHAT_ONLY', async ({ browser, context, page }) => {
+      const createParam = new CreateParameters(browser, context);
+      await createParam.initModPage(page, true, { createParameter: c.participantsAndChatOnly });
+      await createParam.initUserPage(true, context);
+      await createParam.participantsAndChatOnly();
+    });
+
+    test('MEDIA_ONLY', async ({ browser, context, page }) => {
+      const createParam = new CreateParameters(browser, context);
+      await createParam.initModPage(page, true, { createParameter: c.mediaOnly });
+      await createParam.initUserPage(true, context);
+      await createParam.mediaOnly();
+    });
   });
 
   test.describe.parallel('Disabled Features', () => {

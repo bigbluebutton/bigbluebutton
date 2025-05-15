@@ -206,6 +206,59 @@ class CreateParameters extends MultiUsers {
 
     await checkScreenshots(this, 'should be the video focus layout', [e.webcamContainer, e.webcamMirroredVideoContainer], 'video-focus');
   }
+
+  async camerasOnly() {
+    await this.modPage.wasRemoved(e.whiteboard);
+    await this.userPage.wasRemoved(e.whiteboard);
+
+    await this.modPage.shareWebcam();
+    await this.userPage.shareWebcam();
+    
+
+    await checkScreenshots(this, 'should be the cameras only layout', [e.webcamContainer, e.webcamMirroredVideoContainer], 'cameras-only');
+  }
+
+  async presentationOnly() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.userPage.waitForSelector(e.whiteboard);
+
+    await this.modPage.wasRemoved(e.joinVideo);
+    await this.userPage.wasRemoved(e.joinVideo);
+    await sleep(1000);
+
+    await checkScreenshots(this, 'should be the cameras only layout', [e.webcamContainer, e.webcamMirroredVideoContainer], 'presentation-only');
+  }
+
+  async participantsAndChatOnly() {
+    await this.modPage.wasRemoved(e.whiteboard);
+    await this.userPage.wasRemoved(e.whiteboard);
+    await this.modPage.wasRemoved(e.joinVideo);
+    await this.userPage.wasRemoved(e.joinVideo);
+
+    await this.modPage.hasElement(e.chatMessages);
+    await this.modPage.hasElement(e.userListContent);
+    await this.userPage.hasElement(e.chatMessages);
+    await this.userPage.hasElement(e.userListContent);
+
+    await checkScreenshots(this, 'should be the participants and chat only layout', [e.webcamContainer, e.webcamMirroredVideoContainer], 'participants-and-chat-only');
+  }
+
+  async mediaOnly() {
+    await this.modPage.hasElement(e.whiteboard);
+    await this.userPage.hasElement(e.whiteboard);
+    await this.modPage.hasElement(e.joinVideo);
+    await this.userPage.hasElement(e.joinVideo);
+    await this.modPage.hasElement(e.startScreenSharing);
+
+    await this.modPage.wasRemoved(e.chatMessages);
+    await this.modPage.wasRemoved(e.userListContent);
+    await this.userPage.wasRemoved(e.chatMessages);
+    await this.userPage.wasRemoved(e.userListContent);
+
+    await sleep(1000);
+
+    await checkScreenshots(this, 'should be the media only layout', [e.webcamContainer, e.webcamMirroredVideoContainer], 'media-only');
+  }
 }
 
 exports.CreateParameters = CreateParameters;
