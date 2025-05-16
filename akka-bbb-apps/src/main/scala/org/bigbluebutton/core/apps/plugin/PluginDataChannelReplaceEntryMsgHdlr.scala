@@ -4,9 +4,9 @@ import org.bigbluebutton.common2.msgs.PluginDataChannelReplaceEntryMsg
 import org.bigbluebutton.core.apps.plugin.PluginHdlrHelpers.{checkPermission, dataChannelCheckingLogic, defaultCreatorCheck}
 import org.bigbluebutton.core.db.{JsonUtils, PluginDataChannelEntryDAO}
 import org.bigbluebutton.core.domain.MeetingState2x
-import org.bigbluebutton.core.running.{HandlerHelpers, LiveMeeting}
+import org.bigbluebutton.core.running.{HandlerHelpers, LiveMeeting, LogHelper}
 
-trait PluginDataChannelReplaceEntryMsgHdlr extends HandlerHelpers {
+trait PluginDataChannelReplaceEntryMsgHdlr extends HandlerHelpers with LogHelper {
 
   def handle(msg: PluginDataChannelReplaceEntryMsg, state: MeetingState2x, liveMeeting: LiveMeeting): Unit = {
 
@@ -15,7 +15,12 @@ trait PluginDataChannelReplaceEntryMsgHdlr extends HandlerHelpers {
         meetingId, msg.body, msg.header.userId))
 
       if (!hasPermission.contains(true)) {
-        println(s"No permission to write in plugin: '${msg.body.pluginName}', data channel: '${msg.body.channelName}'.")
+        log.warning(
+          "No permission to update data-channel entry with ID [{}] for plugin [{}] and data-channel [{}].",
+          msg.body.entryId,
+          msg.body.pluginName,
+          msg.body.channelName
+        )
       } else {
         PluginDataChannelEntryDAO.replace(
           msg.header.meetingId,
@@ -24,6 +29,10 @@ trait PluginDataChannelReplaceEntryMsgHdlr extends HandlerHelpers {
           msg.body.subChannelName,
           msg.body.entryId,
           JsonUtils.mapToJson(msg.body.payloadJson),
+        )
+        log.info(
+          "Successfully updated entry with ID [{}] for plugin [{}] and data-channel [{}].",
+          msg.body.entryId, msg.body.pluginName, msg.body.channelName
         )
       }
     })
