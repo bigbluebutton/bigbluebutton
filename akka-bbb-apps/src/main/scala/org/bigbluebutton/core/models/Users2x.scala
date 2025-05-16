@@ -285,6 +285,13 @@ object Users2x {
     }
   }
 
+  def isModerator(intId: String, users: Users2x): Boolean = {
+    findWithIntId(users, intId) match {
+      case Some(u) => u.role == Roles.MODERATOR_ROLE
+      case None    => false
+    }
+  }
+
   def findPresenter(users: Users2x): Option[UserState] = {
     users.toVector.find(u => u.presenter)
   }
