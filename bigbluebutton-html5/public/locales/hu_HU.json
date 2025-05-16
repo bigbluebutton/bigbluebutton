@@ -1477,6 +1477,7 @@
     "app.layout.modal.layoutBtnDesc": "Az elrendezés beállítása kiválasztott lehetőségként",
     "app.layout.modal.layoutToastLabelAuto": "Automatikus elrendezésfrissítés bekapcsolva, mostantól mindenkire vonatkozik",
     "app.layout.modal.layoutToastLabelAutoOff": "Automatikus elrendezésfrissítés kikapcsolva",
+    "app.layout.modal.layoutNotAvailable": "Ez az elrendezés nem áll rendelkezésre az eszközödön.",
     "app.layout.style.custom": "Egyéni",
     "app.layout.style.smart": "Intelligens elrendezés",
     "app.layout.style.presentationFocus": "Prezentáció a fókuszban",
