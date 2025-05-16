@@ -1477,6 +1477,7 @@
     "app.layout.modal.layoutBtnDesc": "Imposta la disposizione selezionata",
     "app.layout.modal.layoutToastLabelAuto": "Modifica automatica della disposizione attiva, i cambi di disposizione saranno ora applicati a tutti",
     "app.layout.modal.layoutToastLabelAutoOff": "Modifica automatica della disposizione disattivata",
+    "app.layout.modal.layoutNotAvailable": "Layout non disponibile sul tuo dispositivo.",
     "app.layout.style.custom": "Personalizzata",
     "app.layout.style.smart": "Disposizione intelligente",
     "app.layout.style.presentationFocus": "Metti in evidenza presentazione",
