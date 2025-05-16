@@ -28,6 +28,9 @@ import deviceInfo from '/imports/utils/deviceInfo';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 import useChat from '/imports/ui/core/hooks/useChat';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import {
+  replaceImageLinks,
+} from './service';
 import { Chat } from '/imports/ui/Types/chat';
 import { Layout } from '../../../layout/layoutTypes';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
@@ -54,6 +57,7 @@ import {
 } from './queries';
 import Auth from '/imports/ui/services/auth';
 import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
+import ChatRichTextEditor from './editor/component';
 
 const CLOSED_CHAT_LIST_KEY = 'closedChatList';
 const START_TYPING_THROTTLE_INTERVAL = 1000;
@@ -184,6 +188,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const AUTO_CONVERT_EMOJI = window.meetingClientSettings.public.chat.autoConvertEmoji;
   const ENABLE_EMOJI_PICKER = window.meetingClientSettings.public.chat.emojiPicker.enable;
   const ENABLE_TYPING_INDICATOR = CHAT_CONFIG.typingIndicator.enabled;
+  const ALLOWED_ELEMENTS = CHAT_CONFIG.allowedElements;
 
   const handleUserTyping = (hasError?: boolean) => {
     if (hasError || !ENABLE_TYPING_INDICATOR) return;
@@ -370,10 +375,15 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
     const formRef = useRef<HTMLFormElement | null>(null);
     const CHAT_EDIT_ENABLED = useIsEditChatMessageEnabled();
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement> | React.KeyboardEvent<HTMLInputElement> | Event) => {
+    type SubmitEvent =
+      | React.FormEvent<HTMLFormElement>
+      | React.KeyboardEvent<HTMLInputElement>
+      | Event
+
+    const handleSubmit = async (e: SubmitEvent) => {
       e.preventDefault();
 
-      const msg = message;
+      let msg = message;
 
       if (msg.length < minMessageLength || chatSendMessageLoading) return;
 
@@ -415,6 +425,10 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
           }, `Editing the message failed: ${e?.message}`);
         });
       } else if (!chatSendMessageLoading) {
+        if (ALLOWED_ELEMENTS.includes('img')) {
+          msg = await replaceImageLinks(msg);
+        }
+
         chatSendMessage({
           variables: {
             chatMessageInMarkdownFormat: msg,
@@ -741,6 +755,24 @@ const ChatMessageFormContainer: React.FC = () => {
   const CHAT_CONFIG = window.meetingClientSettings.public.chat;
 
   const disabled = locked && !isModerator && disablePrivateChat && !isPublicChat && !chat?.participant?.isModerator;
+
+  if (CHAT_CONFIG.inputType === 'richEditor') {
+    return (
+      <ChatRichTextEditor
+        {...{
+          minMessageLength: CHAT_CONFIG.min_message_length,
+          maxMessageLength: CHAT_CONFIG.max_message_length,
+          chatId: idChatOpen,
+          connected: true, // TODO: monitoring network status
+          disabled: locked ?? false,
+          title,
+          isRTL,
+          partnerIsLoggedOut: chat?.participant ? !chat?.participant?.currentlyInMeeting : false,
+          locked: locked ?? false,
+        }}
+      />
+    );
+  }
 
   return (
     <ChatMessageForm
