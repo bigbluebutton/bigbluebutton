@@ -371,7 +371,6 @@ module BigBlueButton
           outio.write("ffconcat version 1.0\n")
           concat.each do |segment|
             outio.write("file #{segment[:file]}\n")
-            outio.write("duration #{ms_to_s(segment[:duration])}\n")
           end
         end
 
