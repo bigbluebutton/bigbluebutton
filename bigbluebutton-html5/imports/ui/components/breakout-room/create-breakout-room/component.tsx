@@ -5,14 +5,15 @@ import { uniqueId } from '/imports/utils/string-utils';
 import { useIsImportPresentationWithAnnotationsFromBreakoutRoomsEnabled, useIsImportSharedNotesFromBreakoutRoomsEnabled } from '/imports/ui/services/features';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { useLazyQuery, useQuery, useMutation } from '@apollo/client';
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import Styled from './styles';
 import {
   getBreakouts,
   getBreakoutsResponse,
   getMeetingGroup,
   getMeetingGroupResponse,
-  getUser,
-  getUserResponse,
+  getUsersResponse,
+  getUsersSubscription,
 } from './queries';
 import { PRESENTATIONS_SUBSCRIPTION } from '/imports/ui/components/whiteboard/queries';
 import logger from '/imports/startup/client/logger';
@@ -28,7 +29,6 @@ import {
   RoomPresentations,
 } from './room-managment-state/types';
 import { BREAKOUT_ROOM_CREATE, BREAKOUT_ROOM_MOVE_USER } from '../mutations';
-import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
 import { layoutDispatch } from '/imports/ui/components/layout/context';
 import { notify } from '/imports/ui/services/notification';
@@ -287,8 +287,8 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
 
   const roomsRef = React.useRef<Rooms>({});
   const moveRegisterRef = React.useRef<moveUserRegistery>({});
-  const randomlyAssignFunction = React.useRef<() => void>(() => {});
-  const resetAssignmentsFunction = React.useRef<() => void>(() => {});
+  const randomlyAssignFunction = React.useRef<() => void>(() => { });
+  const resetAssignmentsFunction = React.useRef<() => void>(() => { });
 
   const setRoomsRef = (rooms: Rooms) => {
     roomsRef.current = rooms;
@@ -710,9 +710,7 @@ const CreateBreakoutRoomContainer: React.FC<CreateBreakoutRoomContainerProps> = 
     data: usersData,
     loading: usersLoading,
     error: usersError,
-  } = useQuery<getUserResponse>(getUser, {
-    fetchPolicy: 'network-only',
-  });
+  } = useDeduplicatedSubscription<getUsersResponse>(getUsersSubscription);
 
   const [
     loadBreakouts,
