@@ -228,16 +228,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="extractTimeoutInMs" value="${extractTimeoutInMs}"/>
     </bean>
 
-    <bean id="pngCreatorImp" class="org.bigbluebutton.presentation.imp.PngCreatorImp">
-        <property name="convTimeout" value="${pngCreationConversionTimeout}"/>
-        <property name="wait" value="${pngCreationWait}"/>
-        <property name="execTimeout" value="${pngCreationExecTimeoutInMs}"/>
-    </bean>
-
-    <bean id="thumbnailCreatorImp" class="org.bigbluebutton.presentation.imp.ThumbnailCreatorImp">
-        <property name="execTimeout" value="${thumbnailCreationExecTimeoutInMs}"/>
-    </bean>
-
     <bean id="pdfPageDownscaler" class="org.bigbluebutton.presentation.imp.PdfPageDownscaler">
         <property name="execTimeout" value="${pdfPageDownscaleExecTimeoutInMs}"/>
     </bean>
@@ -259,14 +249,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="wait" value="${pdfPageCountWait}"/>
     </bean>
 
-    <bean id="svgImageCreatorImp" class="org.bigbluebutton.presentation.imp.SvgImageCreatorImp">
-        <property name="convPdfToSvgTimeout" value="${pdfToSvgTimeout}"/>
-        <property name="pdfFontsTimeout" value="${pdfFontsTimeout}"/>
-    </bean>
-
-    <bean id="textFileCreatorImp" class="org.bigbluebutton.presentation.imp.TextFileCreatorImp">
-        <property name="execTimeout" value="${textFileCreationExecTimeoutInMs}"/>
-    </bean>
 
     <import resource="doc-conversion.xml"/>
     <import resource="bbb-redis-messaging.xml"/>

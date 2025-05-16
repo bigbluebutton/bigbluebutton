@@ -72,30 +72,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="pageCounter" ref="pageCounter"/>
     </bean>
 
-    <bean id="thumbCreator" class="org.bigbluebutton.presentation.imp.ThumbnailCreatorImp">
-        <property name="imageMagickDir" value="${imageMagickDir}"/>
-        <property name="blankThumbnail" value="${BLANK_THUMBNAIL}"/>
-    </bean>
-
-    <bean id="pngCreator" class="org.bigbluebutton.presentation.imp.PngCreatorImp">
-        <property name="blankPng" value="${BLANK_PNG}"/>
-        <property name="slideWidth" value="${pngSlideWidth}"/>
-    </bean>
-
-    <bean id="textFileCreator" class="org.bigbluebutton.presentation.imp.TextFileCreatorImp"/>
-
-    <bean id="svgImageCreator" class="org.bigbluebutton.presentation.imp.SvgImageCreatorImp">
-    	<property name="slidesGenerationProgressNotifier" ref="slidesGenerationProgressNotifier"/>
+    <bean id="presentationProcessExternal" class="org.bigbluebutton.presentation.imp.PresentationProcessExternal">
+        <property name="presentationDir" value="${presentationDir}"/>
+        <property name="maxConversionTime" value="${maxConversionTime}"/>
+        <property name="pageConversionMemoryHigh" value="${pageConversionMemoryHigh}"/>
+        <property name="pageConversionMemoryMax" value="${pageConversionMemoryMax}"/>
+        <property name="generatePngs" value="${generatePngs}"/>
+        <property name="maxImageWidth" value="${maxImageWidth}"/>
+        <property name="maxImageHeight" value="${maxImageHeight}"/>
+        <property name="placementsThreshold" value="${placementsThreshold}"/>
         <property name="imageTagThreshold" value="${imageTagThreshold}"/>
-        <property name="pathsThreshold" value="${placementsThreshold}"/>
-        <property name="blankSvg" value="${BLANK_SVG}"/>
-        <property name="convPdfToSvgTimeout" value="${svgConversionTimeout}"/>
         <property name="pdfFontsTimeout" value="${pdfFontsTimeout}"/>
-        <property name="maxNumberOfAttempts" value="${maxNumberOfAttemptsForPdfFonts}"/>
-        <property name="svgResolutionPpi" value="${svgPresentationResolutionPpi}"/>
+        <property name="maxNumberOfAttemptsForPdfFonts" value="${maxNumberOfAttemptsForPdfFonts}"/>
+        <property name="svgPresentationResolutionPpi" value="${svgPresentationResolutionPpi}"/>
         <property name="forceRasterizeSlides" value="${forceRasterizeSlides}"/>
         <property name="pngWidthRasterizedSlides" value="${pngWidthRasterizedSlides}"/>
-        <property name="imageResizer" ref="imageResizer"/>
     </bean>
 
     <bean id="generatedSlidesInfoHelper" class="org.bigbluebutton.presentation.GeneratedSlidesInfoHelperImp"/>
@@ -109,35 +100,30 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <bean id="presentationFileProcessor"
           class="org.bigbluebutton.presentation.imp.PresentationFileProcessor">
         <constructor-arg index="0" value="${numFileProcessorThreads}"/>
-        <property name="thumbnailCreator" ref="thumbCreator"/>
-        <property name="pngCreator" ref="pngCreator"/>
-        <property name="textFileCreator" ref="textFileCreator"/>
-        <property name="svgImageCreator" ref="svgImageCreator"/>
         <property name="pageExtractor" ref="pageExtractor"/>
-        <property name="maxConversionTime" value="${maxConversionTime}"/>
-        <property name="bigPdfSize" value="${bigPdfSize}"/>
         <property name="maxBigPdfPageSize" value="${maxBigPdfPageSize}"/>
         <property name="slidesGenerationProgressNotifier" ref="slidesGenerationProgressNotifier"/>
+        <property name="presentationProcessExternal" ref="presentationProcessExternal"/>
         <property name="generatePngs" value="${generatePngs}"/>
         <property name="presentationConversionCompletionService" ref="presentationConversionCompletionService"/>
         <property name="imageSlidesGenerationService" ref="imageSlidesGenerationService"/>
         <property name="counterService" ref="pageCounterService"/>
         <property name="pdfSlidesGenerationService" ref="pdfSlidesGenerationService"/>
         <property name="s3FileManager" ref="s3FileManager"/>
+        <property name="blankThumbnail" value="${BLANK_THUMBNAIL}"/>
+        <property name="blankPng" value="${BLANK_PNG}"/>
+        <property name="blankSvg" value="${BLANK_SVG}"/>
     </bean>
 
     <bean id="imageSlidesGenerationService"
           class="org.bigbluebutton.presentation.imp.ImageSlidesGenerationService">
-        <property name="svgImageCreator" ref="svgImageCreator"/>
-        <property name="thumbnailCreator" ref="thumbCreator"/>
-        <property name="pngCreator" ref="pngCreator"/>
-        <property name="textFileCreator" ref="textFileCreator"/>
-        <property name="maxConversionTime" value="${maxConversionTime}"/>
         <property name="slidesGenerationProgressNotifier" ref="slidesGenerationProgressNotifier"/>
         <property name="imageResizer" ref="imageResizer"/>
-        <property name="maxImageWidth" value="${maxImageWidth}"/>
-        <property name="maxImageHeight" value="${maxImageHeight}"/>
         <property name="generatePngs" value="${generatePngs}"/>
+        <property name="blankThumbnail" value="${BLANK_THUMBNAIL}"/>
+        <property name="blankPng" value="${BLANK_PNG}"/>
+        <property name="blankSvg" value="${BLANK_SVG}"/>
+        <property name="presentationProcessExternal" ref="presentationProcessExternal"/>
     </bean>
 
     <bean id="slidesGenerationProgressNotifier"
