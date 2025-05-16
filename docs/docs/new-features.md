@@ -1,13 +1,12 @@
-
 ![BigBlueButton 3.0 runs on Ubuntu 22.04](/img/30_BBB_header.png)
 
 ## Overview
 
-BigBlueButton 3.0 offers users improved usability, increased engagement, and more performance.
+BigBlueButton 3.0 offers users improved usability, increased engagement, and enhanced performance.
 
-- **Usability** - making common functions (such as raise hand) easier
-- **Engagement** - giving the instructor more ways to engage students
-- **Performance** - increasing overall performance and scalability
+- **Usability** – making common functions (such as raising a hand) easier
+- **Engagement** – giving the instructor more ways to engage students
+- **Performance** – increasing overall performance and scalability
 
 Here's a breakdown of what's new in 3.0.
 
@@ -15,14 +14,13 @@ Here's a breakdown of what's new in 3.0.
 
 #### Upgraded whiteboard
 
-We have done significant work to adopt the newly released version 2 of tl;draw. It comes with even more tools and capabilities and has allowed us to embark on more ambitious whiteboard projects, for example a prototype of an Infinite Canvas.
+We have made significant improvements by adopting the newly released version 2 of tl;draw. It comes with even more tools and capabilities, allowing us to work on more ambitious whiteboard projects, such as a prototype of an Infinite Canvas.
 
-#### Improved UX for joining audio for transparentListenOnly
+#### Improved UX for joining audio with transparentListenOnly
 
 When transparentListenOnly is enabled on the server (enabled by default starting with BigBlueButton 3.0.0-rc.1), users can now switch seamlessly between Listen Only and Microphone modes without needing to rejoin audio.
 
-To further improve the user experience, you can disable listenOnlyMode (`public.app.listenOnlyMode` in `/etc/bigbluebutton/bbb-html5.yml` or `userdata-bbb_listen_only_mode`). 
-This removes the need to choose between Microphone or Listen Only mode when joining audio in a session. Instead, you are taken directly to the audio configuration screen.
+To further improve the user experience, you can disable listenOnlyMode (`public.app.listenOnlyMode` in `/etc/bigbluebutton/bbb-html5.yml` or `userdata-bbb_listen_only_mode`). This removes the need to choose between Microphone or Listen Only mode when joining audio in a session. Instead, you are taken directly to the audio configuration screen.
 
 ![audio controls when joining audio](/img/30/30-ui-join-audio.png)
 
@@ -32,13 +30,13 @@ Once you are joined in audio, you can dynamically change your audio device confi
 
 #### Chat improvements
 
-BigBlueButton 3.0's chat gained several new functionalities! Users are now able to edit their own messages in case a typo was made, they can react to chat messages and also reply to a previous message. The option to delete a message is available both to the original author and to moderators in the session.
+BigBlueButton 3.0's chat gained several new functionalities! Users are now able to edit their own messages in case a typo was made, react to chat messages, and reply to previous messages. The option to delete a message is available both to the original author and to moderators in the session.
 
 ![delete or edit a message, add an emoji or reply to a message](/img/30/30-chat-improvements.png)
 
 #### New layouts for specific integration scenarios
 
-Several new layouts have been added ("Cameras Only", "Presentation Only", "Participants and Chat Only", and "Media Only") to address various use cases of hybrid education - for example splitting views of the BigBlueButton session to be visible on different physical screens.
+Several new layouts have been added ("Cameras Only", "Presentation Only", "Participants and Chat Only", and "Media Only") to address various use cases in hybrid education, for example, splitting views of the BigBlueButton session to be visible on different physical screens.
 
 #### Improved Away mode
 
@@ -46,29 +44,27 @@ We have moved the trigger to set yourself away to the three-dots menu and improv
 
 ![currently active](/img/30/30-currently-active.png)
 
-Note that when you set yourself as away, the client mutes your microphone, masks the webcam, adds an icon on your user avatar and appends a note in the public chat.
+Note that when you set yourself as away, the client mutes your microphone, masks the webcam, adds an icon to your user avatar, and appends a note in the public chat.
 
 ![set yourself active](/img/30/30-currently-away.png)
 
 #### Welcome message relocated
 
-The information previously displayed in the public chat on join is now located in its own dialog - Session details.
-To view the welcome message, moderator only message, a link to the session or a phone number for dial-in please click on the meeting name.
-By default this dialog is open on initial joining of the client.
+The information previously displayed in the public chat on join is now located in its own dialog – Session details. To view the welcome message, moderator-only message, a link to the session, or a phone number for dial-in, please click on the meeting name. By default, this dialog is open when joining the client.
 
 ![moderator view of the session details](/img/30/30-welcome-message-full.png)
 
-Viewers do not see the link to invite others nor the moderator only message.
+Viewers do not see the link to invite others nor the moderator-only message.
 
 ![viewers see a bit less of the session details](/img/30/30-welcome-message.png)
 
 #### Leave meeting button
 
-A contribution from community member Jan Kessler, the direct Leave Meeting button was first introduced in BigBlueButton 2.7.5. Starting with BigBlueButton 3.0 we are making it enabled by default and have modified it slightly to ensure moderators are not ending the session when they try to leave.
+A contribution from community member Jan Kessler, the direct Leave Meeting button was first introduced in BigBlueButton 2.7.5. Starting with BigBlueButton 3.0, we are making it enabled by default and have modified it slightly to ensure moderators are not ending the session when they try to leave.
 
 ![leave the meeting red button](/img/30/30-leave-meeting.png)
 
-Viewers can leave the meeting by using this new red button, previously hidden near the Setting menu. For moderators, the button includes the option to end the meeting as well. 
+Viewers can leave the meeting by using this new red button, previously hidden near the Settings menu. For moderators, the button includes the option to end the meeting as well.
 
 #### Better looking polling results
 
@@ -80,17 +76,15 @@ It matches the results displayed in the public chat!
 
 ![better polling results](/img/30/30-poll-chat.png)
 
-
 #### Private chat messages have a "seen" indicator
 
 We have added an indicator showing when your private chat recipient has seen the message.
 
 ![checkmark beside the message indicating it was seen](/img/30/30-seen-message.png)
 
-#### Push to talk was added
+#### Push to talk added
 
-You can now use the "M" shortcut while in a conference to control how long your microphone is open. If the option for push to talk is enabled in settings.yml holding "M" will keep your microphone unmuted for as long you hold the key down. Releasing it will mute you again.
-
+You can now use the "M" shortcut while in a conference to control how long your microphone is open. If the option for push-to-talk is enabled in `settings.yml`, holding "M" will keep your microphone unmuted for as long as you hold the key down. Releasing it will mute you again.
 
 ### Engagement
 
@@ -98,14 +92,13 @@ You can now use the "M" shortcut while in a conference to control how long your 
 
 <!-- ### Analytics -->
 
-
 ### Behind the scenes
 
 #### Introduction of plugins
 
-We have made significant changes to the architecture of BigBlueButton and have introduced support to plugins -- optional custom modules included in the client which allow expanding the capabilities of BigBlueButton. A data channel is provided to allow for data exchange between clients. See the [HTML5 Plugin SDK](https://github.com/bigbluebutton/bigbluebutton-html-plugin-sdk) for examples and more information.
+We have made significant changes to the architecture of BigBlueButton and introduced support for plugins – optional custom modules included in the client that allow for expanding the capabilities of BigBlueButton. A data channel is provided to allow for data exchange between clients. See the [HTML5 Plugin SDK](https://github.com/bigbluebutton/bigbluebutton-html-plugin-sdk) for examples and more information.
 
-At the moment of writing this documentation, the official list of plugins includes: 
+At the time of writing this documentation, the official list of plugins includes:
 - [Select Random User](https://github.com/bigbluebutton/plugin-pick-random-user)
 - [Share a link](https://github.com/bigbluebutton/plugin-generic-link-share)
 - [H5P plugin for BigBlueButton](https://github.com/bigbluebutton/plugin-h5p)
@@ -117,51 +110,45 @@ At the moment of writing this documentation, the official list of plugins includ
 - [Chat mention](https://github.com/bigbluebutton/plugin-chat-mention)
 - [Media popout](https://github.com/bigbluebutton/plugin-media-popout)
 
-For the most accurate information check the [plugins reporisory](https://github.com/bigbluebutton/plugins) where all the plugins are listed.
+For the most accurate information, check the [plugins repository](https://github.com/bigbluebutton/plugins), where all the plugins are listed.
 
 #### Replaced Akka framework with Pekko
 
-Following the license change of Akka back in September 2022 we considered several options and decided to replace our use of Akka with [Apache Pekko](https://github.com/apache/incubator-pekko) More on the transition: https://github.com/bigbluebutton/bigbluebutton/pull/18694
+Following the license change of Akka back in September 2022, we considered several options and decided to replace our use of Akka with [Apache Pekko](https://github.com/apache/incubator-pekko). More on the transition: https://github.com/bigbluebutton/bigbluebutton/pull/18694
 
-#### Override client settings through API /create call
+#### Override client settings through API create call
 
-Administrators will appreciate that we now allow passing of custom client settings through the meeting create API call. You no longer need separate servers to accommodate for sessions requiring vastly different settings.yml configuration
+Administrators will appreciate that we now allow the passing of custom client settings through the meeting create API call. You no longer need separate servers to accommodate sessions requiring vastly different `settings.yml` configurations.
 
 #### Removal of Meteor and MongoDB
 
-For years we have discussed internally the topic of replacing Meteor.js with other technologies in order to improve scalability, performance, etc. In the last year we have introduced several different new components to replace Meteor.
-These new components are: `bbb-graphql-server`, `bbb-graphql-middleware`, `bbb-graphql-actions`, database Postgres, GraphQL server Hasura. As of BigBlueButton 3.0.0-beta.1 we are no longer using Meteor or MongoDB.
+For years, we have discussed internally the topic of replacing Meteor.js with other technologies in order to improve scalability, performance, etc. Over the last year, we have introduced several different new components to replace Meteor. These new components are: `bbb-graphql-server`, `bbb-graphql-middleware`, `bbb-graphql-actions`, PostgreSQL database, and the GraphQL server Hasura. As of BigBlueButton 3.0.0-beta.1, we are no longer using Meteor or MongoDB.
 
-Note: The services `bbb-html5-backend`, `bbb-html5-frontend`, `bbb-html5` and `mongod` have been removed. The client code is compacted and served by NginX. The service `disable-transparent-huge-pages.service` was also removed as it was used to improve performance of MongoDB and is now obsolete.
-The package `bbb-html5-nodejs` is no longer needed.
+Note: The services `bbb-html5-backend`, `bbb-html5-frontend`, `bbb-html5`, and `mongod` have been removed. The client code is compacted and served by NginX. The service `disable-transparent-huge-pages.service` was also removed as it was used to improve performance for MongoDB and is now obsolete. The package `bbb-html5-nodejs` is no longer needed.
 
-**Important**: Please make sure you're no longer carrying around NodeJS v14 which we used to deploy in `bbb-html5-nodejs`. Your directory `/usr/lib/bbb-html5/node` should not exist.
+**Important**: Please make sure you're no longer carrying around NodeJS v14, which we used to deploy in `bbb-html5-nodejs`. Your directory `/usr/lib/bbb-html5/node` should not exist.
 
 #### We have forked the tldraw project and use our fork
 
-We upgraded tl;draw from version 1 to version 2.0.0-alpha.19 (the last version on Apache 2.0 licence). That was quite a significant task but brought better performance, better looks, improved stylus support and many more. Note that we have forked tldraw's project as of their version 2.0.0-alpha.19 to ensure we remain on the Apache 2.0 license. We will be maintaining the fork so that BigBlueButton has a stable whiteboard in the future.
+We upgraded tl;draw from version 1 to version 2.0.0-alpha.19 (the last version under the Apache 2.0 license). This was quite a significant task but brought better performance, improved aesthetics, enhanced stylus support, and more. Note that we have forked tldraw’s project as of their version 2.0.0-alpha.19 to ensure we remain on the Apache 2.0 license. We will be maintaining the fork to ensure BigBlueButton has a stable whiteboard in the future.
 
 #### Support for Collabora Online as document converter
 
-Collabora Productivity contributed the support for an alternative conversion script where Collabora Online (deployed locally [as a docker container] or running remotely) can be used for document conversion.
-For more information check the [pull request](https://github.com/bigbluebutton/bigbluebutton/pull/18783)
+Collabora Productivity contributed support for an alternative conversion script where Collabora Online (deployed locally [as a docker container] or running remotely) can be used for document conversion. For more information, check the [pull request](https://github.com/bigbluebutton/bigbluebutton/pull/18783).
 
 #### S3-based cache for presentation assets
 
-BigBlueButton now supports caching for presentation assets at Amazon S3/Minio or similar.
-For details check the [server customization](/administration/customize/#configure-s3-based-cache-for-presentation-assets) portion of the documents and see the new `/create` parameter to control it per meeting in the [API reference](/development/api/#get-post-create).
-
+BigBlueButton now supports caching for presentation assets on Amazon S3/Minio or similar. For details, check the [server customization](/administration/customize/#configure-s3-based-cache-for-presentation-assets) section of the documentation and see the new `/create` parameter to control it per meeting in the [API reference](/development/api/#get-post-create).
 
 #### Support for ClamAV as presentation file scanner
 
-BigBlueButton now supports file scanning (virus detection) for presentation files using ClamAV.
-For details check the [ClamAV section](/administration/customize#support-for-clamav-as-presentation-file-scanner) of the server customization documentation.
+BigBlueButton now supports file scanning (virus detection) for presentation files using ClamAV. For details, check the [ClamAV section](/administration/customize#support-for-clamav-as-presentation-file-scanner) in the server customization documentation.
 
 ### Experimental
 
 #### Infinite Whiteboard (experimental)
 
-We have added initial support for infinite whiteboard in the live session. Only the presenter can trigger it. It allows for annotations to be created in the margins, or to write content without being limited by space.
+We have added initial support for the infinite whiteboard in the live session. Only the presenter can trigger it. It allows for annotations to be created in the margins or for writing content without being limited by space.
 
 ![the trigger for infinite whiteboard is in the middle of the presenter toolbar](/img/30/30-trigger-for-infinite-wb.png)
 
@@ -169,7 +156,7 @@ Everyone sees the margins and follows the presenter's point of view. If multi-us
 
 ![with infinite whiteboard enabled annotations can be made on the margins and more](/img/30/30-infinite-wb-in-action.png)
 
-Recording is not yet implemented, meaning that if you enable this experimental feature on your server and use it in a recorded session, the recording will most likely have broken whiteboard at best. The recording (and playback) work is planned for after BigBlueButton 3.0.
+Recording is not yet implemented, meaning that if you enable this experimental feature on your server and use it in a recorded session, the recording will most likely have a broken whiteboard at best. Recording and playback work for this feature is planned for after BigBlueButton 3.0.
 
 #### Integration with LiveKit
 
@@ -244,6 +231,7 @@ For full details on what is new in BigBlueButton 3.0, see the release notes.
 
 Recent releases:
 
+- [3.0.7](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.7)
 - [3.0.6](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.6)
 - [3.0.5](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.5)
 - [3.0.4](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.4)
