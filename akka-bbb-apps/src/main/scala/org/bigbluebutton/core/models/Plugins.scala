@@ -1,10 +1,10 @@
 package org.bigbluebutton.core.models
 
-import com.fasterxml.jackson.annotation.{ JsonIgnoreProperties, JsonProperty }
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.{ JsonMappingException, ObjectMapper }
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import org.bigbluebutton.core.db.PluginDAO
+import org.slf4j.LoggerFactory
 
 import java.util
 
@@ -54,6 +54,7 @@ case class Plugin(
 )
 
 object PluginModel {
+  val logger = LoggerFactory.getLogger(this.getClass)
   val objectMapper: ObjectMapper = new ObjectMapper()
   objectMapper.registerModule(new DefaultScalaModule())
   def getPluginByName(instance: PluginModel, pluginName: String): Option[Plugin] = {
@@ -96,17 +97,52 @@ object PluginModel {
     val pluginWithAbsoluteJsEntrypoint = replaceRelativeJavascriptEntrypoint(plugin)
     replaceRelativeLocalesBaseUrl(pluginWithAbsoluteJsEntrypoint)
   }
-  def createPluginModelFromJson(json: util.Map[String, AnyRef]): PluginModel = {
+
+  private def checkPluginSdkVersionDevMode(pluginSdkVersion: String): Boolean =
+    pluginSdkVersion.startsWith("http://codeload")
+
+  private def versioningComparison(v1: String, v2: String): Int = {
+    def parsePart(s: String): Int =
+      s.takeWhile(_.isDigit).toIntOption.getOrElse(0)
+
+    val parts1 = v1.split("\\.")
+    val parts2 = v2.split("\\.")
+    parts1.zipAll(parts2, "", "").map { case (a, b) => parsePart(a) - parsePart(b) }
+      .find(_ != 0).getOrElse(0)
+  }
+
+  private def hasMatchingSdkVersion(htmlPluginSdkVersion: String, manifestPluginSdkVersion: String): Boolean = {
+    // Returns `true` if:
+    // - Both versions are URLs starting with "http://codeload" (development mode).
+    // - OR the manifest plugin-sdk version is less than or equal to the HTML plugin-sdk version.
+    (checkPluginSdkVersionDevMode(htmlPluginSdkVersion)
+      && checkPluginSdkVersionDevMode(manifestPluginSdkVersion)) || (
+        versioningComparison(manifestPluginSdkVersion, htmlPluginSdkVersion) <= 0
+      )
+  }
+
+  def createPluginModelFromJson(json: util.Map[String, AnyRef], htmlPluginSdkVersion: String): PluginModel = {
     val instance = new PluginModel()
     var pluginsMap: Map[String, Plugin] = Map.empty[String, Plugin]
     json.forEach { case (pluginName, plugin) =>
       try {
         val pluginObject = objectMapper.readValue(objectMapper.writeValueAsString(plugin), classOf[Plugin])
         val pluginObjectWithAbsoluteUrls = replaceAllRelativeUrls(pluginObject)
-        pluginsMap = pluginsMap + (pluginName -> pluginObjectWithAbsoluteUrls)
+        val hasMatchingVersions = hasMatchingSdkVersion(
+          htmlPluginSdkVersion, pluginObjectWithAbsoluteUrls.manifest.content.requiredSdkVersion
+        )
+        if (hasMatchingVersions) {
+          pluginsMap = pluginsMap + (pluginName -> pluginObjectWithAbsoluteUrls)
+        } else {
+          logger.error(s"Could not load plugin $pluginName due to version mismatch")
+        }
       } catch {
-        case err @ (_: JsonProcessingException | _: JsonMappingException) => println("Error while processing plugin " +
-          pluginName + ": ", err)
+        case err @ (_: JsonProcessingException | _: JsonMappingException) => logger.error(
+          s"Error while processing plugin $pluginName: $err"
+        )
+        case err @ (_: NumberFormatException) => logger.error(
+          s"Plugin SDK version of either HTML5 or plugin manifest couldn't be parsed ($pluginName): $err"
+        )
       }
     }
     instance.plugins = pluginsMap
