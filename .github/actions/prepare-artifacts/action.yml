@@ -1,8 +1,10 @@
 name: 'Prepare artifacts (configs and logs)'
 description: 'Action to prepare artifacts for workflows'
 runs:
+  using: 'composite'
   steps:
     - name: Prepare artifacts (configs and logs)
+      shell: bash
       run: |
         sudo -i <<EOF
         mkdir configs

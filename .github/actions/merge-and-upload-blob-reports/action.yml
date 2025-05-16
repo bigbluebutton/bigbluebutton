@@ -25,7 +25,7 @@ runs:
     - name: Merge into HTML Report
       shell: bash
       working-directory: ./bigbluebutton-tests/playwright
-      run: npx playwright merge-reports --reporter html ./all-blob-reports
+      run: npx playwright merge-reports --reporter html ./all-blob-reports -c playwright.config.js
     - name: Upload HTML tests report
       uses: actions/upload-artifact@v4
       with:
