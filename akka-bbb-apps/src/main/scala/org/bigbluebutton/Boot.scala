@@ -12,7 +12,7 @@ import org.bigbluebutton.core.pubsub.senders.ReceivedJsonMsgHandlerActor
 import org.bigbluebutton.core2.{AnalyticsActor, FromAkkaAppsMsgSenderActor}
 import org.bigbluebutton.endpoint.redis._
 import org.bigbluebutton.service.{HealthzService, MeetingInfoActor, MeetingInfoService, UserInfoService}
-import org.bigbluebutton.service.{CoreServiceImpl, HealthzService, MeetingInfoActor, MeetingInfoService, UserInfoService}
+import org.bigbluebutton.service.{MeetingServiceImpl, HealthzService, MeetingInfoActor, MeetingInfoService, UserInfoService}
 import org.bigbluebutton.protos._
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -128,7 +128,7 @@ class GrpcServer(system: ActorSystem, bbbActor: ActorRef, host: String, port: In
     implicit val ec: ExecutionContext = sys.dispatcher
     implicit val bbb: ActorRef = bbbActor
 
-    val service: HttpRequest => Future[HttpResponse] = CoreServiceHandler(new CoreServiceImpl())
+    val service: HttpRequest => Future[HttpResponse] = MeetingServiceHandler(new MeetingServiceImpl())
     val binding = Http().newServerAt(host, port).bind(service)
     binding.foreach { binding => println(s"gRPC server bound to ${binding.localAddress}")}
     binding
