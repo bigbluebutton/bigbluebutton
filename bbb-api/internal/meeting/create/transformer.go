@@ -20,6 +20,7 @@ import (
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/validation"
 	meetingapi "github.com/bigbluebutton/bigbluebutton/bbb-api/internal/meeting"
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/meeting/config"
+	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/meeting/document"
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/random"
 )
 
@@ -61,7 +62,9 @@ func (m *MeetingRunningToMeetingInfo) Transform(msg pipeline.Message[*meeting.Me
 	return pipeline.NewMessageWithContext(req, msg.Context()), nil
 }
 
-type MeetingRunningToCreate struct{}
+type MeetingRunningToCreate struct {
+	proc document.Processor
+}
 
 func (m *MeetingRunningToCreate) Transform(msg pipeline.Message[*meeting.MeetingInfoResponse]) (pipeline.Message[*meeting.CreateMeetingRequest], error) {
 	params := msg.Context().Value(core.ParamsKey).(bbbhttp.Params)
@@ -75,13 +78,30 @@ func (m *MeetingRunningToCreate) Transform(msg pipeline.Message[*meeting.Meeting
 	if err != nil {
 		return pipeline.Message[*meeting.CreateMeetingRequest]{}, core.NewBBBError(responses.InvalidRequestBodyKey, responses.InvalidRequestBodyMsg)
 	}
+
 	if cso, ok := modules.Get(meetingapi.ClientSettingsOverrideModule); ok && cfg.Override.ClientSettings {
 		settings.OverrideClientSettings = cso.Content
 	}
 
-	return pipeline.NewMessageWithContext(&meeting.CreateMeetingRequest{
+	req := &meeting.CreateMeetingRequest{
 		CreateMeetingSettings: settings,
-	}, msg.Context()), nil
+	}
+
+	parsedDocs, err := m.proc.Parse(modules, params, false)
+	if err != nil {
+		slog.Error("Failed to parse documents from request", "error", err)
+		return pipeline.NewMessageWithContext(req, msg.Context()), nil
+	}
+
+	presentations, err := m.proc.Process(parsedDocs)
+	if err != nil {
+		slog.Error("Failed to process documents from request", "error", err)
+		return pipeline.NewMessageWithContext(req, msg.Context()), nil
+	}
+
+	ctx := context.WithValue(msg.Context(), core.ParamsKey, presentations)
+
+	return pipeline.NewMessageWithContext(req, ctx), nil
 }
 
 func createMeetingSettings(params bbbhttp.Params, parentMeetingInfo *common.MeetingInfo) *common.CreateMeetingSettings {
@@ -419,6 +439,9 @@ func (c *CreateMeetingToResponse) Transform(msg pipeline.Message[*meeting.Create
 	if meetingInfo.IsDuplicate {
 		resp.MessageKey = responses.CreateMeetingDuplicateKey
 		resp.Message = responses.CreateMeetingDuplicateMsg
+	} else {
+		// TODO: Convert presentations
 	}
+
 	return pipeline.NewMessageWithContext(resp, msg.Context()), nil
 }

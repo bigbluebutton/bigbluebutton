@@ -1,16 +1,17 @@
 package document
 
 import (
+	"bufio"
 	"encoding/base64"
 	"encoding/xml"
 	"fmt"
+	"io"
 	"log/slog"
 	"net/http"
 	"net/url"
 	"os"
 	"path"
 	"path/filepath"
-	"slices"
 	"strings"
 
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core"
@@ -51,7 +52,7 @@ type ParsedDocuments struct {
 	FromInsertAPI bool
 }
 
-type PresentationFile struct {
+type Presentation struct {
 	PodID        string
 	MeetingID    string
 	PresID       string
@@ -64,317 +65,306 @@ type PresentationFile struct {
 	Default      bool
 }
 
-type DocumentParser interface {
-	ParseDocuments(modules bbbhttp.RequestModules, params bbbhttp.Params, fromInsertAPI bool) (*ParsedDocuments, error)
+type Processor interface {
+	Parse(modules bbbhttp.RequestModules, params bbbhttp.Params, fromInsert bool) (*ParsedDocuments, error)
+	Process(parsed *ParsedDocuments) ([]Presentation, error)
+	WriteAndValidate(src DocSource, doc *Document) (*Presentation, error)
+	bbbhttp.Client
 }
 
-type DocumentProcessor interface {
-	ProcessDocuments(docs *ParsedDocuments) []PresentationFile
-	ProcessDocumentFromURL(doc *Document) (*PresentationFile, error)
-	ProcessDocumentFromBytes(doc *Document) (*PresentationFile, error)
+type DefaultProcessor struct {
+	cfg config.Config
+	bbbhttp.Client
 }
 
-type PresentationHandler interface {
-	DocumentParser
-	DocumentProcessor
+type DocSource interface {
+	Name() string
+	ReadAll() ([]byte, error)
+	FromParam() bool
 }
 
-type DefaultDocumentParser struct{}
+type URLDocSource struct {
+	Doc  *Document
+	Proc Processor
+}
 
-func ParseDocuments(modules bbbhttp.RequestModules, params bbbhttp.Params, fromInsertAPI bool) (*ParsedDocuments, error) {
-	cfg := config.DefaultConfig()
+func (u URLDocSource) Name() string {
+	return u.Doc.FileName
+}
+
+func (u URLDocSource) ReadAll() ([]byte, error) {
+	return u.Proc.Download(u.Doc.URL)
+}
+
+func (u URLDocSource) FromParam() bool {
+	return u.Doc.PresFromParam
+}
+
+type BytesDocSource struct {
+	doc *Document
+}
+
+func (b BytesDocSource) Name() string {
+	return b.doc.Name
+}
+func (b BytesDocSource) ReadAll() ([]byte, error) {
+	return base64.StdEncoding.DecodeString(b.doc.Content)
+}
+func (b BytesDocSource) FromParam() bool { return false }
+
+type DefaultDocSource struct {
+	doc  Document
+	proc Processor
+}
+
+func (d DefaultDocSource) Name() string {
+	if d.doc.FileName != "" {
+		return d.doc.FileName
+	}
+	return ExtractFileNameFromURL(d.doc.URL)
+}
+
+func (d DefaultDocSource) ReadAll() ([]byte, error) {
+	return d.proc.Download(d.doc.URL)
+}
+
+func (d DefaultDocSource) FromParam() bool {
+	return false
+}
+
+func NewDefaultProcessor(cfg config.Config, client bbbhttp.Client) Processor {
+	return &DefaultProcessor{
+		cfg:    cfg,
+		Client: client,
+	}
+}
+
+func (p *DefaultProcessor) Parse(modules bbbhttp.RequestModules, params bbbhttp.Params, fromInsert bool) (*ParsedDocuments, error) {
 	meetingID := validation.StripCtrlChars(params.Get(meeting.IDParam).Value)
+	preDoc, hasParam := PreUploadedDocument(params, meetingID)
+	overrideDefault := ResolveOverride(params, fromInsert, p.cfg)
 
-	preUploadedPresOverrideDefault := true
-	if !fromInsertAPI {
-		if override := validation.StripCtrlChars(params.Get("preUploadedPresentationOverrideDefault").Value); override != "" {
-			preUploadedPresOverrideDefault = core.GetBoolOrDefaultValue(override, preUploadedPresOverrideDefault)
-		} else {
-			preUploadedPresOverrideDefault = cfg.Override.DefaultPresentation
+	modDocs, hasModCurrent, err := LoadModuleDocs(modules, meetingID)
+	if err != nil {
+		if fromInsert {
+			return nil, fmt.Errorf("insert document API called without payload")
 		}
+		out := append([]Document{}, *preDoc)
+		if !overrideDefault || !hasParam {
+			out = append(out, Document{
+				Name:         "default",
+				URL:          p.cfg.DefaultPresentation(),
+				Current:      true,
+				MeetingID:    meetingID,
+				Downloadable: true,
+				Removable:    false,
+			})
+			hasModCurrent = true
+		}
+		return &ParsedDocuments{Documents: out, HasCurrent: hasModCurrent, FromInsertAPI: fromInsert}, nil
 	}
 
-	documents := make([]Document, 0)
-	presListHasCurrent := false
-	hasPresURLInParam := false
+	combined := append([]Document{}, *preDoc)
+	combined = append(combined, modDocs...)
 
-	preUploadedPres := params.Get("preUploadedPresentation").Value
-	preUploadedPresName := params.Get("preUploadedPresentationName").Value
-
-	if preUploadedPres != "" {
-		hasPresURLInParam = true
-		var fileName string
-		if preUploadedPresName == "" {
-			if fileName = ExtractFileNameFromURL(preUploadedPresName); fileName == "" {
-				fileName = "untitled"
-			}
-		} else {
-			fileName = preUploadedPresName
-		}
-		documents = append(documents, Document{
-			Removable:    true,
-			Downloadable: false,
-			URL:          preUploadedPres,
-			FileName:     fileName,
+	if !overrideDefault && !fromInsert {
+		defaultDoc := Document{
+			Name:         "default",
+			URL:          p.cfg.DefaultPresentation(),
+			Current:      false,
 			MeetingID:    meetingID,
-		})
+			Downloadable: true,
+			Removable:    false,
+		}
+
+		if !hasParam && !hasModCurrent {
+			defaultDoc.Current = true
+			hasModCurrent = true
+		}
+		combined = append(combined, defaultDoc)
 	}
 
-	if pm, ok := modules.Get("presentation"); !ok {
-		if fromInsertAPI {
-			return nil, fmt.Errorf("insert document API called without a payload")
-		}
-		if hasPresURLInParam {
-			if !preUploadedPresOverrideDefault {
-				documents = append(documents, Document{Name: "default", Current: true, MeetingID: meetingID})
-			}
-		} else {
-			documents = append(documents, Document{Name: "default", Current: true, MeetingID: meetingID})
-		}
-	} else {
-		hasCurrent := hasPresURLInParam
-		var presModule PresentationModule
-		err := xml.Unmarshal([]byte(pm.Content), &presModule)
-		if err != nil {
-			return nil, fmt.Errorf("failed to unmarshal presentation module: %w", err)
-		}
-		for _, doc := range presModule.Documents {
-			doc.MeetingID = meetingID
-			if doc.Current && !hasCurrent {
-				documents = slices.Insert(documents, 0, doc)
-			} else {
-				documents = append(documents, doc)
-			}
-		}
-		uploadDefault := !preUploadedPresOverrideDefault && !fromInsertAPI
-		if uploadDefault {
-			if !hasCurrent {
-				documents = slices.Insert(documents, 0, Document{Name: "default", Current: true, MeetingID: meetingID})
-			} else {
-				documents = append(documents, Document{Name: "default", Current: false, MeetingID: meetingID})
-			}
-			hasCurrent = true
-		}
-		presListHasCurrent = hasCurrent
+	if !hasParam && !hasModCurrent && len(combined) > 0 {
+		combined[0].Current = true
+		hasModCurrent = true
 	}
 
 	return &ParsedDocuments{
-		Documents:     documents,
-		HasCurrent:    presListHasCurrent,
-		FromInsertAPI: fromInsertAPI,
+		Documents:     combined,
+		HasCurrent:    hasModCurrent,
+		FromInsertAPI: fromInsert,
 	}, nil
 }
 
-func ProcessDocuments(docs *ParsedDocuments) []PresentationFile {
-	cfg := config.DefaultConfig()
+func (p *DefaultProcessor) Process(parsed *ParsedDocuments) ([]Presentation, error) {
+	var out []Presentation
 
-	presFiles := make([]PresentationFile, 0, len(docs.Documents))
+	for _, doc := range parsed.Documents {
+		var src DocSource
 
-	for i, doc := range docs.Documents {
-		if doc.Name == "default" {
-			if cfg.DefaultPresentation() != "" {
-				if doc.Current {
-					doc.Default = true
-				}
-				presFile, err := ProcessDocumentFromURL(&doc)
-				if err != nil {
-					slog.Error("failed to process document", "name", doc.Name, "meeting ID", doc.MeetingID, "error", err)
-					continue
-				}
-				presFiles = append(presFiles, *presFile)
-			} else {
-				slog.Error("no default presentation specified in configuration")
+		switch {
+		case doc.Name == "default":
+			if p.cfg.DefaultPresentation() == "" {
+				slog.Error("no default presentation configured")
+				continue
 			}
-		} else {
-			if i == 0 && docs.FromInsertAPI {
-				if docs.HasCurrent {
-					doc.Current = true
-				}
-			} else if i == 0 && !docs.FromInsertAPI {
-				doc.Default = true
-				doc.Current = true
-			}
+			src = DefaultDocSource{doc: doc, proc: p}
 
-			if doc.URL != "" {
-				presFile, err := ProcessDocumentFromURL(&doc)
-				if err != nil {
-					slog.Error("failed to process document", "URL", doc.URL, "meeting ID", doc.MeetingID, "error", err)
-					continue
-				}
-				presFiles = append(presFiles, *presFile)
-			} else if doc.Name != "" {
-				decBytes, decErr := base64.StdEncoding.DecodeString(doc.Content)
-				if decErr != nil {
-					slog.Error("failed to decode document content", "name", doc.Name, "meeting ID", doc.MeetingID, "error", decErr)
-					continue
-				}
+		case doc.URL != "":
+			src = URLDocSource{Doc: &doc, Proc: p}
 
-				doc.DecodedBytes = decBytes
-				presFile, procErr := ProcessDocumentFromBytes(&doc)
-				if procErr != nil {
-					slog.Error("failed to process document", "name", doc.Name, "meeting ID", doc.MeetingID, "error", procErr)
-					continue
-				}
-				presFiles = append(presFiles, *presFile)
-			} else {
-				slog.Error("presentation module found, but it did not contain a URL or name attribute")
-			}
+		case doc.Content != "":
+			src = BytesDocSource{doc: &doc}
+
+		default:
+			slog.Error("document missing URL or content", "meeting", doc.MeetingID, "doc", doc.Name)
+			continue
 		}
-	}
 
-	return presFiles
-}
-
-func ProcessDocumentFromURL(doc *Document) (*PresentationFile, error) {
-	cfg := config.DefaultConfig()
-
-	var presOrigFileName string
-	if doc.FileName == "" {
-		decodedName, err := DecodeFileName(doc.URL)
+		pres, err := p.WriteAndValidate(src, &doc)
 		if err != nil {
-			return nil, fmt.Errorf("failed to decode uploaded file name: %w", err)
-		}
-		presOrigFileName = decodedName
-	} else {
-		presOrigFileName = doc.FileName
-	}
-
-	presFileName, fileNameExt := SplitFileName(presOrigFileName)
-
-	if presFileName == "" || (fileNameExt == "" && !doc.PresFromParam) {
-		return nil, fmt.Errorf("presentation is null by default")
-	}
-
-	basePresDir := cfg.Presentation.Upload.Directory
-	presID := random.PresentationID(presFileName)
-
-	presPath, mkErr := MakePresentationDir(basePresDir, doc.MeetingID, presID)
-	if mkErr != nil {
-		return nil, fmt.Errorf("failed to obtain presentation directory path: %w", mkErr)
-	}
-
-	fileName := fmt.Sprintf("%s.%s", presID, fileNameExt)
-	filePath := filepath.Join(presPath, fileName)
-
-	content, dlErr := DownloadPresentation(doc.URL)
-	if dlErr != nil {
-		return nil, fmt.Errorf("failed to download presentation: %w", dlErr)
-	}
-
-	if writeErr := os.WriteFile(filePath, content, 0644); writeErr != nil {
-		return nil, fmt.Errorf("failed to write presentation content to file: %w", writeErr)
-	}
-
-	pres, openErr := os.Open(filePath)
-	if openErr != nil {
-		return nil, fmt.Errorf("failed to open presentation file: %w", openErr)
-	}
-	defer pres.Close()
-
-	b := make([]byte, 512)
-	_, readErr := pres.Read(b)
-	if readErr != nil {
-		return nil, fmt.Errorf("failed to read contents of presentation file: %w", readErr)
-	}
-
-	contentType := http.DetectContentType(b)
-
-	if doc.PresFromParam && fileNameExt == "" {
-		fileExt, extErr := FileExtFromContentType(contentType)
-		if extErr != nil {
-			return nil, fmt.Errorf("failed to obtain file extension from content type: %w", extErr)
+			slog.Error("failed to process document", "doc", doc.Name, "err", err)
+			continue
 		}
 
-		oldFilePath := filePath
-		fileName = fmt.Sprintf("%s.%s", presID, fileExt)
-		filePath = filepath.Join(presPath, fileName)
-		fileNameExt = fileExt
-		presFileName = fmt.Sprintf("%s.%s", presFileName, fileExt)
-		renameErr := os.Rename(oldFilePath, filePath)
-		if renameErr != nil {
-			slog.Error("failed to rename presentation from URL parameter; consider sending it through /insertDocument", "destination", filePath, "error", renameErr)
-		}
+		pres.Current = doc.Current
+		pres.Downloadable = doc.Downloadable
+		pres.Removable = doc.Removable
+		pres.Default = (doc.Name == "default") && doc.Current
+
+		out = append(out, *pres)
 	}
 
-	if vErr := ValidateContentType(contentType, fileNameExt); vErr != nil {
-		parentDir := filepath.Dir(filePath)
-		if rmErr := os.RemoveAll(parentDir); rmErr != nil {
-			slog.Error("failed to remove directory", "directory", parentDir, "error", rmErr)
-		}
-		return nil, fmt.Errorf("uploaded document %s is not supported as a presentation: %w", doc.URL, vErr)
+	return out, nil
+}
+
+func (p *DefaultProcessor) WriteAndValidate(src DocSource, doc *Document) (*Presentation, error) {
+	name, ext := SplitFileName(src.Name())
+	if name == "" {
+		return nil, fmt.Errorf("invalid file name %q", src.Name())
 	}
 
-	return &PresentationFile{
-		PodID:        PodIDDefault,
-		MeetingID:    doc.MeetingID,
-		PresID:       presID,
-		FileName:     presFileName,
-		FilePath:     filePath,
-		Current:      doc.Current,
-		AuthzToken:   AuthzTokenDefault,
-		Downloadable: doc.Downloadable,
-		Removable:    doc.Removable,
-		Default:      doc.Default,
+	presID := random.PresentationID(name)
+	presDir, err := MakePresentationDir(p.cfg.Presentation.Upload.Directory, doc.MeetingID, presID)
+	if err != nil {
+		return nil, fmt.Errorf("create dir: %w", err)
+	}
+
+	data, err := src.ReadAll()
+	if err != nil {
+		return nil, fmt.Errorf("read data: %w", err)
+	}
+	fileName := presID
+	if ext != "" {
+		fileName = fmt.Sprintf("%s.%s", presID, ext)
+	}
+	fp := filepath.Join(presDir, fileName)
+	if err := os.WriteFile(fp, data, 0755); err != nil {
+		return nil, fmt.Errorf("write file: %w", err)
+	}
+
+	ct, err := ContentType(fp)
+	if err != nil {
+		return nil, err
+	}
+
+	if ext == "" && src.FromParam() {
+		newExt, xerr := FileExtFromContentType(ct)
+		if xerr != nil {
+			return nil, fmt.Errorf("determine extension: %w", xerr)
+		}
+		old := fp
+		fileName = fmt.Sprintf("%s.%s", presID, newExt)
+		fp = filepath.Join(presDir, fileName)
+		if err := os.Rename(old, fp); err != nil {
+			slog.Warn("could not rename file to add ext", "old", old, "new", fp, "err", err)
+		}
+		ext = newExt
+	}
+
+	if verr := ValidateContentType(ct, ext); verr != nil {
+		os.RemoveAll(presDir)
+		return nil, fmt.Errorf("unsupported content type %s: %w", ct, verr)
+	}
+
+	return &Presentation{
+		PodID:     PodIDDefault,
+		MeetingID: doc.MeetingID,
+		PresID:    presID,
+		FileName:  name,
+		FilePath:  fp,
 	}, nil
 }
 
-func ProcessDocumentFromBytes(doc *Document) (*PresentationFile, error) {
-	presFileName, fileNameExt := SplitFileName(doc.Name)
-	if presFileName == "" || fileNameExt == "" {
-		return nil, fmt.Errorf("invalid file name %s", doc.Name)
+func PreUploadedDocument(params bbbhttp.Params, meetingID string) (*Document, bool) {
+	u := validation.StripCtrlChars(params.Get("preUploadedPresentation").Value)
+	if u == "" {
+		return nil, false
 	}
 
-	cfg := config.DefaultConfig()
-
-	basePresDir := cfg.Presentation.Upload.Directory
-	presID := random.PresentationID(presFileName)
-
-	presPath, mkErr := MakePresentationDir(basePresDir, doc.MeetingID, presID)
-	if mkErr != nil {
-		return nil, fmt.Errorf("failed to obtain presentation directory path: %w", mkErr)
-	}
-
-	fileName := fmt.Sprintf("%s.%s", presID, fileNameExt)
-	filePath := filepath.Join(presPath, fileName)
-
-	if writeErr := os.WriteFile(filePath, doc.DecodedBytes, 0644); writeErr != nil {
-		slog.Error("error while writing to presentation data to file", "file", filePath, "error", writeErr)
-	}
-
-	pres, openErr := os.Open(filePath)
-	if openErr != nil {
-		return nil, fmt.Errorf("failed to open presentation file: %w", openErr)
-	}
-	defer pres.Close()
-
-	b := make([]byte, 512)
-	_, readErr := pres.Read(b)
-	if readErr != nil {
-		return nil, fmt.Errorf("failed to read contents of presentation file: %w", readErr)
-	}
-
-	contentType := http.DetectContentType(b)
-
-	if vErr := ValidateContentType(contentType, fileNameExt); vErr != nil {
-		parentDir := filepath.Dir(filePath)
-		if rmErr := os.RemoveAll(parentDir); rmErr != nil {
-			slog.Error("failed to remove directory", "directory", parentDir, "error", rmErr)
+	name := validation.StripCtrlChars(params.Get("preUploadedPresentationName").Value)
+	if name == "" {
+		name = ExtractFileNameFromURL(u)
+		if name == "" {
+			name = "untitled"
 		}
-		return nil, fmt.Errorf("uploaded document %s is not supported as a presentation: %w", doc.URL, vErr)
 	}
 
-	return &PresentationFile{
-		PodID:        PodIDDefault,
-		MeetingID:    doc.MeetingID,
-		PresID:       presID,
-		FileName:     presFileName,
-		FilePath:     filePath,
-		Current:      doc.Current,
-		AuthzToken:   AuthzTokenDefault,
-		Downloadable: doc.Downloadable,
-		Removable:    doc.Removable,
-		Default:      doc.Default,
-	}, nil
+	return &Document{
+		URL:           u,
+		FileName:      name,
+		Removable:     true,
+		Downloadable:  false,
+		PresFromParam: true,
+		MeetingID:     meetingID,
+	}, true
+}
+
+func ResolveOverride(params bbbhttp.Params, fromInsert bool, cfg config.Config) bool {
+	ov := true
+	if !fromInsert {
+		raw := validation.StripCtrlChars(params.Get("preUploadedPresentationOverrideDefault").Value)
+		if raw != "" {
+			ov = core.GetBoolOrDefaultValue(raw, ov)
+		} else {
+			ov = cfg.Override.DefaultPresentation
+		}
+	}
+	return ov
+}
+
+func LoadModuleDocs(modules bbbhttp.RequestModules, meetingID string) (docs []Document, hasCurrent bool, err error) {
+	pm, ok := modules.Get("presentation")
+	if !ok {
+		return nil, false, fmt.Errorf("no presentation module")
+	}
+	var mod PresentationModule
+	if err := xml.Unmarshal([]byte(pm.Content), &mod); err != nil {
+		return nil, false, fmt.Errorf("unmarshal presentation XML: %w", err)
+	}
+
+	for _, d := range mod.Documents {
+		d.MeetingID = meetingID
+		docs = append(docs, d)
+		if d.Current {
+			hasCurrent = true
+		}
+	}
+	return docs, hasCurrent, nil
+}
+
+func ContentType(fp string) (string, error) {
+	f, err := os.Open(fp)
+	if err != nil {
+		return "", err
+	}
+	defer f.Close()
+	r := bufio.NewReader(f)
+	peek, err := r.Peek(512)
+	if err != nil && err != io.EOF {
+		return "", err
+	}
+	return http.DetectContentType(peek), nil
 }
 
 func ExtractFileNameFromURL(s string) string {
@@ -408,7 +398,7 @@ func SplitFileName(s string) (name, ext string) {
 
 func MakePresentationDir(basePresDir, meetingID, presID string) (string, error) {
 	presPath := filepath.Join(basePresDir, meetingID, meetingID, presID)
-	if err := os.MkdirAll(presPath, 0644); err != nil {
+	if err := os.MkdirAll(presPath, 0755); err != nil {
 		return "", fmt.Errorf("failed to create presentation directory: %w", err)
 	}
 	return presPath, nil
