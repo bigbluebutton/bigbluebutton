@@ -1477,6 +1477,7 @@
     "app.layout.modal.layoutBtnDesc": "تعيين التخطيط كخيار محدد",
     "app.layout.modal.layoutToastLabelAuto": "تم تمكين تحديثات التخطيط التلقائية، ويتم الآن تطبيق تحديثات التخطيط على الجميع",
     "app.layout.modal.layoutToastLabelAutoOff": "تم تعطيل تحديثات التخطيط التلقائي",
+    "app.layout.modal.layoutNotAvailable": "التخطيط غير متاح على جهازك.",
     "app.layout.style.custom": "مخصص",
     "app.layout.style.smart": "واجهة ذكية",
     "app.layout.style.presentationFocus": "ركز على العرض",
