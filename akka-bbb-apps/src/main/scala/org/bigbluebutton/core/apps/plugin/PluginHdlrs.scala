@@ -11,5 +11,4 @@ class PluginHdlrs(implicit val context: ActorContext)
   with PluginDataChannelResetMsgHdlr
   with PluginPersistEventMsgHdlr {
 
-  val log = Logging(context.system, getClass)
 }

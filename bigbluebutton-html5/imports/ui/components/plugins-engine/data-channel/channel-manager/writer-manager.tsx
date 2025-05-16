@@ -16,6 +16,7 @@ import {
   PLUGIN_DATA_CHANNEL_DELETE_MUTATION, PLUGIN_DATA_CHANNEL_PUSH_MUTATION,
   PLUGIN_DATA_CHANNEL_REPLACE_MUTATION, PLUGIN_DATA_CHANNEL_RESET_MUTATION,
 } from '../mutations';
+import logger from '/imports/startup/client/logger';
 
 export interface DataChannelItemManagerWriterProps {
   pluginName: string;
@@ -62,6 +63,17 @@ const DataChannelItemManagerWriter: React.ElementType<DataChannelItemManagerWrit
     } = options || {
       receivers: undefined,
     };
+    if (!msg) {
+      logger.error({
+        logCode: 'plugin_data_channel',
+        extraInfo: {
+          pluginName,
+          channelName,
+          subChannelName,
+        },
+      }, `Payload for plugin data-channel ${channelName} is null, ignoring entry.`);
+      return;
+    }
     const argumentsOfPushEntryFunction = {
       variables: {
         pluginName,
@@ -94,6 +106,14 @@ const DataChannelItemManagerWriter: React.ElementType<DataChannelItemManagerWrit
       if (usersTo.length > 0) argumentsOfPushEntryFunction.variables.toUserIds = usersTo;
     }
     pushEntryFunctionPluginDataChannel(argumentsOfPushEntryFunction);
+    logger.debug({
+      logCode: 'plugin_data_channel',
+      extraInfo: {
+        pluginName,
+        channelName,
+        subChannelName,
+      },
+    }, `Payload [${JSON.stringify(msg)}] for data-channel '${channelName}' sent to server.`);
   }) as PushEntryFunction;
 
   pluginApi.mapOfPushEntryFunctions[dataChannelIdentifier] = useDataChannelHandlerFunction;
@@ -103,25 +123,61 @@ const DataChannelItemManagerWriter: React.ElementType<DataChannelItemManagerWrit
     (event: HookEventWrapper<void>) => {
       if (event.detail.hook === DataChannelHooks.DATA_CHANNEL_DELETE) {
         const eventDetails = event.detail as UpdatedEventDetails<string>;
-        const hookArguments = eventDetails?.hookArguments as DataChannelArguments | undefined;
-        deleteEntryFunctionPluginDataChannel({
-          variables: {
-            pluginName: hookArguments?.pluginName,
-            channelName: hookArguments?.channelName,
-            entryId: eventDetails.data,
-            subChannelName,
-          },
-        });
+        const {
+          pluginName: comingPluginName,
+          channelName: comingChannelName,
+          subChannelName: comingSubChannelName,
+        } = eventDetails?.hookArguments as DataChannelArguments;
+        if (
+          comingPluginName === pluginName
+          && comingChannelName === channelName
+          && comingSubChannelName === subChannelName
+        ) {
+          deleteEntryFunctionPluginDataChannel({
+            variables: {
+              pluginName,
+              channelName,
+              entryId: eventDetails.data,
+              subChannelName,
+            },
+          });
+          logger.debug({
+            logCode: 'plugin_data_channel',
+            extraInfo: {
+              pluginName,
+              channelName,
+              subChannelName,
+            },
+          }, `Delete message for data-channel '${channelName}' with entryId=${eventDetails.data} sent to server.`);
+        }
       } else if (event.detail.hook === DataChannelHooks.DATA_CHANNEL_RESET) {
         const eventDetails = event.detail as UpdatedEventDetails<void>;
-        const hookArguments = eventDetails?.hookArguments as DataChannelArguments | undefined;
-        resetFunctionPluginDataChannel({
-          variables: {
-            pluginName: hookArguments?.pluginName,
-            channelName: hookArguments?.channelName,
-            subChannelName,
-          },
-        });
+        const {
+          pluginName: comingPluginName,
+          channelName: comingChannelName,
+          subChannelName: comingSubChannelName,
+        } = eventDetails?.hookArguments as DataChannelArguments;
+        if (
+          comingPluginName === pluginName
+          && comingChannelName === channelName
+          && comingSubChannelName === subChannelName
+        ) {
+          resetFunctionPluginDataChannel({
+            variables: {
+              pluginName,
+              channelName,
+              subChannelName,
+            },
+          });
+          logger.debug({
+            logCode: 'plugin_data_channel',
+            extraInfo: {
+              pluginName,
+              channelName,
+              subChannelName,
+            },
+          }, `Reset message for data-channel '${channelName}' sent to server`);
+        }
       }
     }) as EventListener;
 
@@ -129,16 +185,26 @@ const DataChannelItemManagerWriter: React.ElementType<DataChannelItemManagerWrit
     (event: HookEventWrapper<void>) => {
       if (event.detail.hook === DataChannelHooks.DATA_CHANNEL_REPLACE) {
         const eventDetails = event.detail as UpdatedEventDetails<ReplaceEntryFunctionArguments<object>>;
-        const hookArguments = eventDetails?.hookArguments as DataChannelArguments | undefined;
-        replaceEntryFunctionPluginDataChannel({
-          variables: {
-            pluginName: hookArguments?.pluginName,
-            channelName: hookArguments?.channelName,
-            subChannelName: hookArguments?.subChannelName,
-            entryId: eventDetails.data.entryId,
-            payloadJson: eventDetails.data.payloadJson,
-          },
-        });
+        const {
+          pluginName: comingPluginName,
+          channelName: comingChannelName,
+          subChannelName: comingSubChannelName,
+        } = eventDetails?.hookArguments as DataChannelArguments;
+        if (
+          comingPluginName === pluginName
+          && comingChannelName === channelName
+          && comingSubChannelName === subChannelName
+        ) {
+          replaceEntryFunctionPluginDataChannel({
+            variables: {
+              pluginName,
+              channelName,
+              subChannelName,
+              entryId: eventDetails.data.entryId,
+              payloadJson: eventDetails.data.payloadJson,
+            },
+          });
+        }
       }
     }) as EventListener;
 
