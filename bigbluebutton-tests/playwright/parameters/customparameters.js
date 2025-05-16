@@ -2,11 +2,13 @@ const { expect, default: test } = require('@playwright/test');
 const { MultiUsers } = require('../user/multiusers');
 const e = require('../core/elements');
 const c = require('./constants');
-const { VIDEO_LOADING_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_TIME } = require('../core/constants');
+const { VIDEO_LOADING_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_TIME, UPLOAD_PDF_WAIT_TIME } = require('../core/constants');
 const util = require('./util');
 const { sleep } = require('../core/helpers');
 const { getSettings } = require('../core/settings');
 const { uploadSinglePresentation } = require('../presentation/util');
+const utilScreenShare = require('../screenshare/util');
+const path = require('path');
 
 class CustomParameters extends MultiUsers {
   constructor(browser, context) {
@@ -138,7 +140,7 @@ class CustomParameters extends MultiUsers {
   }
 
   async bannerText() {
-    await this.modPage.hasElemnt(e.actions, 'should display the actions button');
+    await this.modPage.hasElement(e.actions, 'should display the actions button');
     await this.modPage.hasElement(e.notificationBannerBar, 'should display the notification banner bar with a text');
   }
 
@@ -156,6 +158,131 @@ class CustomParameters extends MultiUsers {
     await this.modPage.hasElement(e.restorePresentation, 'should display the restore presentation button for the moderator');
     await this.userPage.hasElement(e.restorePresentation, 'should display the restore presentation button for the attendee');
     await this.userPage.wasRemoved(e.whiteboard, 'should not display the whiteboard for the attendee');
+  }
+
+  async hidePresentationOnJoinScreenshare() {
+    await this.modPage.hasElement(e.actions, 'should display the actions button');
+    await this.modPage.hasElement(e.restorePresentation, 'should display the restore presentation button for the moderator');
+    await this.userPage.hasElement(e.restorePresentation, 'should display the restore presentation button for the attendee');
+    await this.userPage.wasRemoved(e.whiteboard, 'should not display the whiteboard for the attendee');
+    await utilScreenShare.startScreenshare(this.modPage);
+    
+    await this.userPage.hasElement(e.screenShareVideo, 'should display the screenshare element');
+    await this.modPage.waitAndClick(e.stopScreenSharing);
+    await this.modPage.hasElement(e.actions, 'should display the actions button');
+    await this.modPage.hasElement(e.restorePresentation, 'should display the restore presentation button for the moderator');
+    await this.userPage.hasElement(e.restorePresentation, 'should display the restore presentation button for the attendee');
+    await this.userPage.wasRemoved(e.whiteboard, 'should not display the whiteboard for the attendee');
+  }
+
+  async hidePresentationOnJoinShareExternalVideo() {
+    await this.modPage.hasElement(e.actions, 'should display the actions button');
+    await this.modPage.hasElement(e.restorePresentation, 'should display the restore presentation button for the moderator');
+    await this.userPage.hasElement(e.restorePresentation, 'should display the restore presentation button for the attendee');
+    await this.userPage.wasRemoved(e.whiteboard, 'should not display the whiteboard for the attendee');
+
+    await this.modPage.waitAndClick(e.actions);
+    await this.modPage.waitAndClick(e.shareExternalVideoBtn);
+    await this.modPage.type(e.videoModalInput, e.youtubeLink);
+    await this.modPage.waitAndClick(e.startShareVideoBtn);
+
+    const modFrame = await this.modPage.getYoutubeFrame();
+    await modFrame.hasElement('video', 'should display the video frame');
+
+    const userFrame = await this.userPage.getYoutubeFrame();
+    await userFrame.hasElement('video', 'should display the video frame');
+
+    await this.modPage.waitAndClick(e.actions);
+    await this.modPage.waitAndClick(e.shareExternalVideoBtn);
+
+    await this.modPage.hasElement(e.restorePresentation, 'should display the restore presentation button for the moderator');
+    await this.userPage.hasElement(e.restorePresentation, 'should display the restore presentation button for the attendee');
+    await this.userPage.wasRemoved(e.whiteboard, 'should not display the whiteboard for the attendee');
+  }
+
+  async hidePresentationOnJoinPinSharedNotes() {
+    await this.modPage.hasElement(e.actions, 'should display the actions button');
+    await this.modPage.hasElement(e.restorePresentation, 'should display the restore presentation button for the moderator');
+    await this.userPage.hasElement(e.restorePresentation, 'should display the restore presentation button for the attendee');
+    await this.userPage.wasRemoved(e.whiteboard, 'should not display the whiteboard for the attendee');
+
+    await this.modPage.waitAndClick(e.sharedNotes);
+    await this.modPage.waitAndClick(e.notesOptions);
+    await this.modPage.waitAndClick(e.pinNotes);
+    await this.modPage.hasElement(e.unpinNotes, 'should display the unpin notes button');
+    await this.userPage.hasElement(e.minimizePresentation, 'should display the minimize presentation button for the attendee');
+    await this.modPage.closeAllToastNotifications();
+    await this.modPage.waitAndClick(e.unpinNotes);
+
+    await this.modPage.hasElement(e.restorePresentation, 'should display the restore presentation button for the moderator');
+    await this.userPage.hasElement(e.restorePresentation, 'should display the restore presentation button for the attendee');
+    await this.userPage.wasRemoved(e.whiteboard, 'should not display the whiteboard for the attendee');
+  }
+
+  async hidePresentationOnJoinChangeLayout() {
+    await this.modPage.hasElement(e.actions, 'should display the actions button');
+    await this.modPage.hasElement(e.restorePresentation, 'should display the restore presentation button for the moderator');
+    await this.userPage.hasElement(e.restorePresentation, 'should display the restore presentation button for the attendee');
+    await this.userPage.wasRemoved(e.whiteboard, 'should not display the whiteboard for the attendee');
+
+    await this.modPage.waitAndClick(e.optionsButton);
+    await this.modPage.waitAndClick(e.manageLayoutBtn);
+    await this.modPage.waitAndClick(e.focusOnVideo);
+    await this.modPage.waitAndClick(e.updateLayoutBtn);
+    await this.modPage.closeAllToastNotifications();
+    await this.modPage.wasRemoved(e.toastContainer);
+
+    await this.modPage.hasElement(e.restorePresentation, 'should display the restore presentation button for the moderator');
+    await this.userPage.hasElement(e.restorePresentation, 'should display the restore presentation button for the attendee');
+    await this.userPage.wasRemoved(e.whiteboard, 'should not display the whiteboard for the attendee');
+  }
+
+  async hidePresentationOnJoinReturnFromBreakouts() {
+    await this.modPage.hasElement(e.actions, 'should display the actions button');
+    await this.modPage.hasElement(e.restorePresentation, 'should display the restore presentation button for the moderator');
+    await this.userPage.hasElement(e.restorePresentation, 'should display the restore presentation button for the attendee');
+    await this.userPage.wasRemoved(e.whiteboard, 'should not display the whiteboard for the attendee');
+
+    await this.modPage.waitAndClick(e.manageUsers);
+    await this.modPage.waitAndClick(e.createBreakoutRooms);
+
+    await this.modPage.dragDropSelector(e.attendeeNotAssigned, e.breakoutBox1);
+
+    await this.modPage.waitAndClick(e.modalConfirmButton, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.hasElement(e.breakoutRoomsItem, 'should have the breakout room item');
+
+    await this.userPage.bringToFront();
+    await this.userPage.waitAndClick(e.modalConfirmButton);
+    const breakoutUserPage = await this.userPage.getLastTargetPage(this.userPage.context);
+    await breakoutUserPage.bringToFront();
+    await breakoutUserPage.closeAudioModal();
+    
+    await breakoutUserPage.hasElement(e.presentationTitle, 'should display the presentation title inside the breakout room');
+    await breakoutUserPage.wasRemoved(e.whiteboard);
+    await this.modPage.waitAndClick(e.breakoutRoomsItem);
+    await this.modPage.waitAndClick(e.breakoutOptionsMenu);
+    await this.modPage.closeAllToastNotifications();
+    await this.modPage.waitAndClick(e.endAllBreakouts);
+
+    await this.modPage.hasElement(e.restorePresentation, 'should display the restore presentation button for the moderator');
+    await this.userPage.hasElement(e.restorePresentation, 'should display the restore presentation button for the attendee');
+    await this.userPage.wasRemoved(e.whiteboard, 'should not display the whiteboard for the attendee');
+  }
+
+  async hidePresentationOnJoinUploadLargePresentation() {
+    await this.modPage.hasElement(e.actions, 'should display the actions button');
+    await this.modPage.hasElement(e.restorePresentation, 'should display the restore presentation button for the moderator');
+    await this.userPage.hasElement(e.restorePresentation, 'should display the restore presentation button for the attendee');
+    await this.userPage.wasRemoved(e.whiteboard, 'should not display the whiteboard for the attendee');
+
+    await uploadSinglePresentation(this.modPage, e.pdfFileName, UPLOAD_PDF_WAIT_TIME);
+
+    const wbBox = await this.modPage.getLocator(e.whiteboard);
+    await expect(wbBox).toHaveScreenshot('moderator-with-minimalist-large-presentation.png');
+
+    await this.modPage.hasElement(e.minimizePresentation, 'should display the restore presentation button for the moderator');
+    await this.userPage.hasElement(e.minimizePresentation, 'should display the restore presentation button for the attendee');
+    await this.userPage.hasElement(e.whiteboard, 'should display the whiteboard for the attendee');
   }
 
   async forceRestorePresentationOnNewEvents() {
@@ -237,9 +364,9 @@ class CustomParameters extends MultiUsers {
 
   async mirrorOwnWebcam() {
     await this.modPage.waitAndClick(e.joinVideo);
-    await this.modPage.hasElement(e.webcamMirroredVideoPreview, 'should display the preview of the webcam video being mirroed');
+    await this.modPage.hasElement(e.webcamMirroredVideoPreview, 'should display the preview of the webcam video being mirrored');
     await this.modPage.waitAndClick(e.startSharingWebcam);
-    await this.modPage.hasElement(e.webcamMirroredVideoContainer, 'should display the webcam mirroed video container after the camera is shared');
+    await this.modPage.hasElement(e.webcamMirroredVideoContainer, 'should display the webcam mirrored video container after the camera is shared');
   }
 
   async multiUserPenOnly() {

@@ -4,6 +4,7 @@ const { DisabledFeatures } = require('./disabledFeatures');
 const c = require('./constants');
 const { encodeCustomParams, getAllShortcutParams, hexToRgb } = require('./util');
 const { CreateParameters } = require('./createParameters');
+const { linkIssue } = require('../core/helpers');
 
 test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
   test('Record Meeting', async ({ browser, context, page }) => {
@@ -479,7 +480,7 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
     });
   });
 
-  test.describe.parallel('Presentation', () => {
+  test.describe.parallel('Hide Presentation On Join', () => {
     test('Hide Presentation on join', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, true, { joinParameter: c.hidePresentationOnJoin });
@@ -487,6 +488,52 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
       await customParam.hidePresentationOnJoin();
     });
 
+    test('After Sharing Screen', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { joinParameter: c.hidePresentationOnJoin });
+      await customParam.initUserPage(true, context, { useModMeetingId: true, joinParameter: c.hidePresentationOnJoin });
+      await customParam.hidePresentationOnJoinScreenshare();
+    });
+
+    test('After Sharing External video', { tag: '@flaky' }, async({ browser, context, page }) => {
+      //requiring logged user to start external video on CI environment
+      linkIssue(21589);
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { joinParameter: c.hidePresentationOnJoin });
+      await customParam.initUserPage(true, context, { useModMeetingId: true, joinParameter: c.hidePresentationOnJoin });
+      await customParam.hidePresentationOnJoinShareExternalVideo();
+    });
+
+    test('After Pinning and unpinning shared notes', async({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { joinParameter: c.hidePresentationOnJoin });
+      await customParam.initUserPage(true, context, { useModMeetingId: true, joinParameter: c.hidePresentationOnJoin });
+      await customParam.hidePresentationOnJoinPinSharedNotes();
+    });
+
+    test('After Changing Layout', async({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { joinParameter: c.hidePresentationOnJoin });
+      await customParam.initUserPage(true, context, { useModMeetingId: true, joinParameter: c.hidePresentationOnJoin });
+      await customParam.hidePresentationOnJoinChangeLayout();
+    });
+
+    test('After Returning from breakouts', async({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { joinParameter: c.hidePresentationOnJoin });
+      await customParam.initUserPage(true, context, { useModMeetingId: true, joinParameter: c.hidePresentationOnJoin });
+      await customParam.hidePresentationOnJoinReturnFromBreakouts();
+    });
+
+    test('After Uploading large presentation', async({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { joinParameter: c.hidePresentationOnJoin });
+      await customParam.initUserPage(true, context, { useModMeetingId: true, joinParameter: c.hidePresentationOnJoin });
+      await customParam.hidePresentationOnJoinUploadLargePresentation();
+    });
+  });
+
+  test.describe.parallel('Presentation', () => {
     test('Force restore presentation on new events', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page);
