@@ -1295,7 +1295,7 @@ class AudioManager {
     const audioAlert = new Audio(url);
 
     audioAlert.addEventListener('ended', () => {
-      audioAlert.src = null;
+      audioAlert.src = '';
     });
 
     const { outputDeviceId } = this.bridge;
