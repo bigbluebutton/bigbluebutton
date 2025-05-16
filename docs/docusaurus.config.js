@@ -18,9 +18,7 @@ const config = {
     trailingSlash: true,
     markdown: {
         mermaid: true,
-    },
-    plugins: ['@docusaurus/theme-mermaid'],
-    
+    },    
 
     // GitHub pages deployment config.
     // If you aren't using GitHub pages, you don't need these.
@@ -76,6 +74,7 @@ const config = {
     ],
 
     plugins: [
+        '@docusaurus/theme-mermaid',
         [
             "@docusaurus/plugin-client-redirects",
             {
