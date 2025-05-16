@@ -121,7 +121,6 @@ module BigBlueButton
           f.write("ffconcat version 1.0\n") 
           segment_files.each do |segment|
             f.write("file #{segment[:file]}\n") 
-            f.write("duration #{ms_to_s(segment[:duration])}\n") 
           end
         end
 
