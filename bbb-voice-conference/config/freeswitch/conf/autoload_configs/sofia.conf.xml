@@ -24,6 +24,7 @@
   -->
   <profiles>
     <X-PRE-PROCESS cmd="include" data="../sip_profiles/*.xml"/>
+    <X-PRE-PROCESS cmd="include" data="/etc/bigbluebutton/freeswitch/sip_profiles/*.xml"/>
   </profiles>
 
 </configuration>
