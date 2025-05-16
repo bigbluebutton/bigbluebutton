@@ -367,7 +367,7 @@ const UserActions: React.FC<UserActionsProps> = ({
           === PluginSdk.UserListDropdownSeparatorPosition.BEFORE)),
     )),
     {
-      allowed: user.cameras.length > 0
+      allowed: user?.cameras?.length > 0
         && isVideoPinEnabledForCurrentUser(currentUser, isBreakout),
       key: 'pinVideo',
       label: user.pinned
@@ -565,7 +565,7 @@ const UserActions: React.FC<UserActionsProps> = ({
     },
     {
       allowed: allowedToEjectCameras
-        && user.cameras.length > 0
+        && user?.cameras?.length > 0
         && !isBreakout,
       key: 'ejectUserCameras',
       label: intl.formatMessage(messages.ejectUserCamerasLabel),
