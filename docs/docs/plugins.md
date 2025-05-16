@@ -321,6 +321,7 @@ The answer is: **No**! The JavaScript file (plugin) is delivered to the client a
 The plugin loading process is divided into two main phases: meeting creation and client loading.
 
 1. Meeting Creation Phase
+
 ```mermaid
 sequenceDiagram
   participant Client
