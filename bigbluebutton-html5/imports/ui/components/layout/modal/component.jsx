@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import { LAYOUT_TYPE, CAMERADOCK_POSITION, HIDDEN_LAYOUTS } from '/imports/ui/components/layout/enums';
@@ -10,6 +10,7 @@ import Styled from './styles';
 import Tooltip from '/imports/ui/components/common/tooltip/component';
 import Auth from '/imports/ui/services/auth';
 import Storage from '/imports/ui/services/storage/session';
+import { getSupportedLayouts } from '/imports/ui/components/layout/utils';
 
 const LayoutModalComponent = ({
   intl,
@@ -21,8 +22,11 @@ const LayoutModalComponent = ({
   onRequestClose,
   isOpen,
   setLocalSettings,
+  availableLayouts,
+  deviceType,
 }) => {
   const [selectedLayout, setSelectedLayout] = useState(application.selectedLayout);
+  const [layoutOptions, setLayoutOptions] = useState([]);
 
   const isKeepPushingLayoutEnabled = SettingsService.isKeepPushingLayoutEnabled();
 
@@ -41,6 +45,21 @@ const LayoutModalComponent = ({
   const BASE_NAME = window.meetingClientSettings.public.app.cdn + window.meetingClientSettings.public.app.basename;
 
   const LAYOUTS_PATH = `${BASE_NAME}/resources/images/layouts/`;
+
+  useEffect(() => {
+    // Returns an object hash in the form of { [layoutKey]: {layout} }```
+    const supported = getSupportedLayouts(deviceType).reduce((acc, layout) => {
+      acc[layout.layoutKey] = layout;
+      return acc;
+    }, {});
+
+    const options = availableLayouts.map((layout) => ({
+      layoutKey: layout.layoutKey,
+      supported: Boolean(supported[layout.layoutKey]),
+    }));
+
+    setLayoutOptions(options);
+  }, [deviceType]);
 
   const intlMessages = defineMessages({
     title: {
@@ -111,6 +130,10 @@ const LayoutModalComponent = ({
       id: 'app.switch.offLabel',
       description: 'label for toggle switch off state',
     },
+    layoutNotAvailableTooltip: {
+      id: 'app.layout.modal.layoutNotAvailable',
+      description: 'tooltip for disabled layouts in layout picker',
+    },
   });
 
   const handleSwitchLayout = (e) => {
@@ -163,7 +186,7 @@ const LayoutModalComponent = ({
           showToggleLabel={false}
         />
       </Styled.ToggleStatusWrapper>
-    )
+    );
   };
 
   const renderPushLayoutsOptions = () => {
@@ -190,32 +213,38 @@ const LayoutModalComponent = ({
 
   const renderLayoutButtons = () => (
     <Styled.ButtonsContainer>
-      {Object.values(LAYOUT_TYPE)
-        .filter((layout) => !HIDDEN_LAYOUTS.includes(layout))
-        .map((layout) => (
-          <Styled.ButtonLayoutContainer key={layout}>
+      {layoutOptions
+        .map(({ layoutKey, supported }) => (
+          <Styled.ButtonLayoutContainer key={layoutKey}>
             <Styled.LayoutBtn
-              layout={layout}
+              layout={layoutKey}
               label=""
               customIcon={(
                 <Styled.IconSvg
-                  src={`${LAYOUTS_PATH}${layout}.svg`}
-                  alt={`${layout} ${intl.formatMessage(intlMessages.layoutSingular)}`}
+                  src={`${LAYOUTS_PATH}${layoutKey}.svg`}
+                  alt={`${layoutKey} ${intl.formatMessage(intlMessages.layoutSingular)}`}
                 />
               )}
               onClick={() => {
-                handleSwitchLayout(layout);
-                if (layout === LAYOUT_TYPE.CUSTOM_LAYOUT && application.selectedLayout !== layout) {
+                if (!supported) return;
+                handleSwitchLayout(layoutKey);
+                if (layoutKey === LAYOUT_TYPE.CUSTOM_LAYOUT && application.selectedLayout !== layoutKey) {
                   document.getElementById('layout')?.setAttribute('data-cam-position', CAMERADOCK_POSITION.CONTENT_TOP);
                 }
               }}
-              active={(layout === selectedLayout).toString()}
+              active={(layoutKey === selectedLayout).toString()}
               aria-describedby="layout-btn-desc"
-              data-test={`${layout}Layout`}
+              disabled={!supported}
+              tooltipLabel={!supported
+                ? intl.formatMessage(intlMessages.layoutNotAvailableTooltip)
+                : null}
+              data-test={`${layoutKey}Layout`}
             />
             <Styled.LabelLayoutNames
-              layout={layout}
-              aria-hidden>{intl.formatMessage(intlMessages[`${layout}Layout`])}
+              layout={layoutKey}
+              aria-hidden
+            >
+              {intl.formatMessage(intlMessages[`${layoutKey}Layout`])}
             </Styled.LabelLayoutNames>
           </Styled.ButtonLayoutContainer>
         ))}
@@ -266,6 +295,10 @@ const propTypes = {
   }).isRequired,
   updateSettings: PropTypes.func.isRequired,
   setLocalSettings: PropTypes.func.isRequired,
+  deviceType: PropTypes.string.isRequired,
+  availableLayouts: PropTypes.arrayOf(PropTypes.shape({
+    layoutKey: PropTypes.string,
+  })).isRequired,
 };
 
 LayoutModalComponent.propTypes = propTypes;

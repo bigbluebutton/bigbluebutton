@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
-import deviceInfo from '/imports/utils/deviceInfo';
+import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import Button from '/imports/ui/components/common/button/component';
 import {
@@ -344,9 +344,9 @@ class PresentationToolbar extends PureComponent {
       tldrawAPI,
       maxNumberOfActiveUsers,
       numberOfJoinedUsers,
+      isMobile,
+      layoutType,
     } = this.props;
-
-    const { isMobile } = deviceInfo;
 
     const startOfSlides = !(currentSlideNum > 1);
     const endOfSlides = !(currentSlideNum < numberOfSlides);
@@ -383,7 +383,7 @@ class PresentationToolbar extends PureComponent {
     return (
       <Styled.PresentationToolbarWrapper
         id="presentationToolbarWrapper"
-        isMobile={isMobile}
+        isMobile={isMobile || layoutType === LAYOUT_TYPE.VIDEO_FOCUS}
       >
         {this.renderAriaDescs()}
         <Styled.QuickPollButtonWrapper>
@@ -589,6 +589,8 @@ PresentationToolbar.propTypes = {
   multiUserSize: PropTypes.number.isRequired,
   maxNumberOfActiveUsers: PropTypes.number.isRequired,
   numberOfJoinedUsers: PropTypes.number.isRequired,
+  isMobile: PropTypes.bool.isRequired,
+  layoutType: PropTypes.string.isRequired,
 };
 
 PresentationToolbar.defaultProps = {

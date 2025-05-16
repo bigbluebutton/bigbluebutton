@@ -1,12 +1,12 @@
 import { LAYOUT_TYPE, CAMERADOCK_POSITION, PANELS } from './enums';
 
 export const SIDEBAR_NAVIGATION_PANEL_WIDTH = 60; // px
-export const SIDEBAR_NAVIGATION_MARGIN = 24; // px
+export const SIDEBAR_NAVIGATION_MARGIN_PERCENTAGE_WIDTH = 0.01;
 export const SIDEBAR_CONTENT_PANEL_MIN_HEIGHT = 300; // px
-export const SIDEBAR_CONTENT_VERTICAL_MARGIN = 56; // px
+export const SIDEBAR_CONTENT_VERTICAL_MARGIN_PERCENTAGE_HEIGHT = 0.04;
 export const SIDEBAR_CONTENT_PANEL_MIN_WIDTH = 70; // px
 export const SIDEBAR_CONTENT_PANEL_MAX_WIDTH = 800; // px
-export const SIDEBAR_CONTENT_MARGIN_TO_MEDIA = 24; // px
+export const SIDEBAR_CONTENT_MARGIN_TO_MEDIA_PERCENTAGE_WIDTH = 0.01;
 export const SIDEBAR_NAVIGATION_MARGIN_TO_THE_EDGE_MOBILE = 16; // px
 
 const DEFAULT_VALUES = {
@@ -35,8 +35,6 @@ const DEFAULT_VALUES = {
   actionBarPadding: 11.2,
   actionBarTabOrder: 6,
 
-  sidebarNavWidth: SIDEBAR_NAVIGATION_PANEL_WIDTH
-    + (2 * SIDEBAR_NAVIGATION_MARGIN),
   sidebarNavWidthMobile: 48, // px
   sidebarNavMarginToTheEdgeMobile: 16, // px
   sidebarNavHeightPercentage: 1,
@@ -45,10 +43,9 @@ const DEFAULT_VALUES = {
   sidebarNavLeft: 0,
   sidebarNavTabOrder: 1,
 
-  sidebarContentMaxWidth: SIDEBAR_CONTENT_PANEL_MAX_WIDTH + SIDEBAR_CONTENT_MARGIN_TO_MEDIA,
-  sidebarContentMinWidth: SIDEBAR_CONTENT_PANEL_MIN_WIDTH + SIDEBAR_CONTENT_MARGIN_TO_MEDIA,
-  sidebarContentMinHeight: SIDEBAR_CONTENT_PANEL_MIN_HEIGHT
-    + (2 * SIDEBAR_CONTENT_VERTICAL_MARGIN),
+  sidebarContentMaxWidth: SIDEBAR_CONTENT_PANEL_MAX_WIDTH,
+  sidebarContentMinWidth: SIDEBAR_CONTENT_PANEL_MIN_WIDTH,
+  sidebarContentMinHeight: SIDEBAR_CONTENT_PANEL_MIN_HEIGHT,
   sidebarContentTop: 0,
   sidebarContentTabOrder: 2,
   sidebarContentPanel: PANELS.NONE,

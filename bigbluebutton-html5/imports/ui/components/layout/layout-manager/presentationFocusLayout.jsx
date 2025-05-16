@@ -1,13 +1,17 @@
 import { useEffect, useRef } from 'react';
 import { throttle } from '/imports/utils/throttle';
 import { layoutDispatch, layoutSelect, layoutSelectInput } from '/imports/ui/components/layout/context';
-import DEFAULT_VALUES, { SIDEBAR_CONTENT_VERTICAL_MARGIN, SIDEBAR_CONTENT_MARGIN_TO_MEDIA } from '/imports/ui/components/layout/defaultValues';
+import DEFAULT_VALUES, {
+  SIDEBAR_CONTENT_VERTICAL_MARGIN_PERCENTAGE_HEIGHT,
+  SIDEBAR_CONTENT_MARGIN_TO_MEDIA_PERCENTAGE_WIDTH,
+} from '/imports/ui/components/layout/defaultValues';
 import { INITIAL_INPUT_STATE } from '/imports/ui/components/layout/initState';
 import {
   ACTIONS,
   PANELS,
   CAMERADOCK_POSITION,
   LAYOUT_TYPE,
+  DEVICE_TYPE,
 } from '/imports/ui/components/layout/enums';
 import { defaultsDeep } from '/imports/utils/array-utils';
 import Session from '/imports/ui/services/storage/in-memory';
@@ -50,6 +54,7 @@ const PresentationFocusLayout = (props) => {
   const layoutContextDispatch = layoutDispatch();
 
   const prevDeviceType = usePrevious(deviceType);
+  const isTabletLandscape = deviceType === DEVICE_TYPE.TABLET_LANDSCAPE;
   const { isPresentationEnabled, prevLayout } = props;
 
   const throttledCalculatesLayout = throttle(() => calculatesLayout(),
@@ -178,7 +183,7 @@ const PresentationFocusLayout = (props) => {
         height = windowHeight() - navBarHeight - bannerAreaHeight();
         minHeight = height;
         maxHeight = height;
-      } else if (cameraDockInput.numCameras > 0 && isOpen && !isGeneralMediaOff) {
+      } else if (cameraDockInput.numCameras > 0 && isOpen && !isGeneralMediaOff && !isTabletLandscape) {
         if (sidebarContentInput.height === 0) {
           height = windowHeight() * 0.75 - bannerAreaHeight();
         } else {
@@ -221,6 +226,10 @@ const PresentationFocusLayout = (props) => {
     const cameraDockBounds = {};
 
     let cameraDockHeight = 0;
+    const sidebarContentMediaMargin = windowWidth()
+      * SIDEBAR_CONTENT_MARGIN_TO_MEDIA_PERCENTAGE_WIDTH;
+    const sidebarContentVerticalMargin = windowHeight()
+      * SIDEBAR_CONTENT_VERTICAL_MARGIN_PERCENTAGE_HEIGHT;
 
     if (isMobile) {
       cameraDockBounds.top = mediaAreaBounds.top + mediaBounds.height;
@@ -232,6 +241,18 @@ const PresentationFocusLayout = (props) => {
       cameraDockBounds.minHeight = cameraDockMinHeight;
       cameraDockBounds.height = mediaAreaBounds.height - mediaBounds.height;
       cameraDockBounds.maxHeight = mediaAreaBounds.height - mediaBounds.height;
+    } else if (isTabletLandscape && presentationInput.isOpen) {
+      // don't show camera dock if presentation is open in tablet landscape mode
+      // the sidebar height gets too small, so only one or the other is shown
+      cameraDockBounds.top = 0;
+      cameraDockBounds.left = 0;
+      cameraDockBounds.right = 0;
+      cameraDockBounds.width = 0;
+      cameraDockBounds.height = 0;
+      cameraDockBounds.minWidth = 0;
+      cameraDockBounds.maxWidth = 0;
+      cameraDockBounds.minHeight = 0;
+      cameraDockBounds.maxHeight = 0;
     } else {
       if (cameraDockInput.height === 0) {
         cameraDockHeight = min(
@@ -248,7 +269,7 @@ const PresentationFocusLayout = (props) => {
         );
       }
       cameraDockBounds.top = windowHeight() - cameraDockHeight
-        - bannerAreaHeight() - (SIDEBAR_CONTENT_VERTICAL_MARGIN) + SIDEBAR_CONTENT_MARGIN_TO_MEDIA;
+        - bannerAreaHeight() - sidebarContentVerticalMargin + sidebarContentMediaMargin;
       cameraDockBounds.left = !isRTL ? sidebarNavWidth : 0;
       cameraDockBounds.right = isRTL ? sidebarNavWidth : 0;
       cameraDockBounds.minWidth = sidebarContentWidth;

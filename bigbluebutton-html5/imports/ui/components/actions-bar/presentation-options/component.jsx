@@ -3,9 +3,9 @@ import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import Styled from './styles';
 import Session from '/imports/ui/services/storage/in-memory';
-import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
+import { ACTIONS, PANELS, DEVICE_TYPE } from '/imports/ui/components/layout/enums';
 import {
-  layoutSelectInput,
+  layoutSelectInput, layoutSelect,
 } from '/imports/ui/components/layout/context';
 import { useStorageKey } from '/imports/ui/services/storage/hooks';
 
@@ -69,6 +69,7 @@ const PresentationOptionsContainer = ({
   const isChatOpen = sidebarContent.sidebarContentPanel === PANELS.CHAT;
   const PUBLIC_GROUP_CHAT_ID = window.meetingClientSettings.public.chat.public_group_id;
   const isGridLayout = useStorageKey('isGridEnabled');
+  const isTabletLandscape = layoutSelect((i) => i.deviceType) === DEVICE_TYPE.TABLET_LANDSCAPE;
   return (
     <Styled.PresentationButton
       icon={`${buttonType}${!presentationIsOpen ? '_off' : ''}`}
@@ -86,7 +87,7 @@ const PresentationOptionsContainer = ({
       size="lg"
       onClick={(e) => {
         e.currentTarget.blur();
-        if (!isChatOpen && isGridLayout && !presentationIsOpen) {
+        if (!isChatOpen && isGridLayout && !presentationIsOpen && !isTabletLandscape) {
           layoutContextDispatch({
             type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
             value: PANELS.CHAT,

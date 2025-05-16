@@ -684,6 +684,7 @@ class Presentation extends PureComponent {
       presentationBounds,
       fullscreenContext,
       isMobile,
+      isTabledLandscape,
       layoutType,
       numCameras,
       currentPresentationId,
@@ -739,13 +740,14 @@ class Presentation extends PureComponent {
         layoutType === LAYOUT_TYPE.VIDEO_FOCUS
         && numCameras > 0
         && !fullscreenContext
+        && !isTabledLandscape
       );
 
     const containerWidth = isLargePresentation
       ? svgWidth
       : presentationToolbarMinWidth;
 
-    const mobileAwareContainerWidth = isMobile
+    const mobileAwareContainerWidth = isMobile || layoutType === LAYOUT_TYPE.VIDEO_FOCUS
       ? presentationBounds.width
       : containerWidth;
 
