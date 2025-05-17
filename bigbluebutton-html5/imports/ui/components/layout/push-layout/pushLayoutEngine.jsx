@@ -435,7 +435,8 @@ const PushLayoutEngineContainer = (props) => {
     cameraDockOutput,
     cameraDockInput,
     presentationInput,
-    applicationSettings,
+    selectedLayout,
+    pushLayout,
   );
 
   const validateEnforceLayout = (currUser) => {
