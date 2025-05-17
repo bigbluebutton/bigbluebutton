@@ -297,12 +297,8 @@ const PushLayoutEngine = (props) => {
     if ((isModerator || isPresenter)
       && pushLayoutMeetingDidChange
       && pushLayoutMeeting !== pushLayout) {
-      updateSettings({
-        application: {
-          ...Settings.application,
-          pushLayout: pushLayoutMeeting,
-        },
-      }, null, setLocalSettings);
+      const storageKey = `keepPushingLayout_${Auth.meetingID}`;
+      Storage.setItem(storageKey, pushLayoutMeeting);
     }
 
     // REPLICATE LAYOUT
