@@ -8,7 +8,6 @@ import VideoPreviewService from '/imports/ui/components/video-preview/service';
 import Storage from '/imports/ui/services/storage/session';
 import { getStorageSingletonInstance } from '/imports/ui/services/storage';
 import logger from '/imports/startup/client/logger';
-import getFromMeetingSettings from '/imports/ui/services/meeting-settings';
 import {
   setVideoState,
   setConnectingStream,
@@ -43,8 +42,6 @@ class VideoService {
 
   private record: boolean | null;
 
-  private hackRecordViewer: boolean | null;
-
   private deviceId: string | null = null;
 
   private activePeers: Record<string, RTCPeerConnection>;
@@ -57,7 +54,6 @@ class VideoService {
     this.isSafari = browserInfo.isSafari;
     this.numberOfDevices = 0;
     this.record = null;
-    this.hackRecordViewer = null;
     this.clientSessionUUID = '0';
 
     if (navigator.mediaDevices) {
@@ -204,8 +200,8 @@ class VideoService {
   }
 
   static getMediaServerAdapter() {
-    const DEFAULT_VIDEO_MEDIA_SERVER = window.meetingClientSettings.public.kurento.videoMediaServer;
-    return getFromMeetingSettings('media-server-video', DEFAULT_VIDEO_MEDIA_SERVER);
+    const { videoMediaServer } = window.meetingClientSettings.public.kurento;
+    return videoMediaServer;
   }
 
   static getRoleModerator() {
@@ -231,12 +227,7 @@ class VideoService {
       this.record = getFromUserSettings('bbb_record_video', true);
     }
 
-    if (this.hackRecordViewer === null) {
-      const value = getFromMeetingSettings('hack-record-viewer-video', null);
-      this.hackRecordViewer = value ? value.toLowerCase() === 'true' : true;
-    }
-
-    const hackRecord = myRole === ROLE_MODERATOR || this.hackRecordViewer;
+    const hackRecord = myRole === ROLE_MODERATOR;
 
     return this.record && hackRecord;
   }
