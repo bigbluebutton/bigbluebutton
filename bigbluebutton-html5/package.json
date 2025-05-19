@@ -46,7 +46,7 @@
     "@emotion/react": "^11.10.8",
     "@emotion/styled": "^11.10.8",
     "@jitsi/sdp-interop": "0.1.14",
-    "@livekit/components-react": "2.8.1",
+    "@livekit/components-react": "2.9.4",
     "@mconf/bbb-diff": "^1.2.0",
     "@mui/base": "^5.0.0-beta.58",
     "@mui/material": "^5.12.2",
