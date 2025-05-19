@@ -284,7 +284,13 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
         // if not new connection is made
         apolloClient.setLink(ApolloLink.empty());
         // closes the connection
-        ws.terminate();
+        //ws.terminate();
+        if (typeof ws.dispose === 'function') {
+            ws.dispose(); // <-- este é o certo
+          } else {
+            console.warn('ws.dispose() não está disponível. Usando fallback.');
+            ws.terminate?.();
+          }
       }, 5000);
     }
   }, []);

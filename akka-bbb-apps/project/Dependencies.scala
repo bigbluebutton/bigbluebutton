@@ -52,6 +52,7 @@ object Dependencies {
     val logback = "ch.qos.logback" % "logback-classic" % Versions.logback
     val commonsCodec = "commons-codec" % "commons-codec" % Versions.codec
     val sprayJson = "io.spray" % "spray-json_2.13" % Versions.spray
+    val semver = "com.github.zafarkhaja" % "java-semver" % "0.10.2"
 
     val pekkoStream = "org.apache.pekko" %% "pekko-stream" % Versions.pekkoVersion
     val pekkoHttp = "org.apache.pekko" %% "pekko-http" % Versions.pekkoHttpVersion
@@ -97,6 +98,7 @@ object Dependencies {
     Compile.logback,
     Compile.commonsCodec,
     Compile.sprayJson,
+    Compile.semver,
     Compile.apacheLang,
     Compile.pekkoHttp,
     Compile.pekkoHttpSprayJson,

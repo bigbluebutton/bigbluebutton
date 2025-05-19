@@ -82,7 +82,7 @@ public class Meeting {
 	private String defaultWebcamBackgroundURL;
 	private Map<String, Object> plugins;
 	private  ArrayList<PluginManifest> pluginManifests;
-	private String htmlPluginSdkVersion;
+	private String html5PluginSdkVersion;
 	private String guestPolicy = GuestPolicy.ASK_MODERATOR;
 	private String guestLobbyMessage = "";
 	private Map<String,String> usersWithGuestLobbyMessages;
@@ -139,7 +139,7 @@ public class Meeting {
         intMeetingId = builder.internalId;
 		disabledFeatures = builder.disabledFeatures;
 		pluginManifests = builder.pluginManifests;
-		htmlPluginSdkVersion = builder.htmlPluginSdkVersion;
+		html5PluginSdkVersion = builder.html5PluginSdkVersion;
 		notifyRecordingIsOn = builder.notifyRecordingIsOn;
 		presentationUploadExternalDescription = builder.presentationUploadExternalDescription;
 		presentationUploadExternalUrl = builder.presentationUploadExternalUrl;
@@ -463,8 +463,8 @@ public class Meeting {
 		return plugins;
 	}
 
-	public String getHtmlPluginSdkVersion() {
-		return htmlPluginSdkVersion;
+	public String getHtml5PluginSdkVersion() {
+		return html5PluginSdkVersion;
 	}
 
 	public void setPlugins(Map<String, Object> p) {
@@ -987,7 +987,7 @@ public class Meeting {
     	private String learningDashboardAccessToken;
 		private ArrayList<String> disabledFeatures;
 		private ArrayList<PluginManifest> pluginManifests;
-		private String htmlPluginSdkVersion;
+		private String html5PluginSdkVersion;
 		private Boolean notifyRecordingIsOn;
 		private String presentationUploadExternalDescription;
 		private String presentationUploadExternalUrl;
@@ -1151,8 +1151,8 @@ public class Meeting {
 			return this;
 		}
 
-		public Builder withHtmlPluginSdkVersion(String version) {
-			this.htmlPluginSdkVersion = version;
+		public Builder withHtml5PluginSdkVersion(String version) {
+			this.html5PluginSdkVersion = version;
 			return this;
 		}
 
