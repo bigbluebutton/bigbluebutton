@@ -1,4 +1,4 @@
-name: Plugin SDK - Match version from html5 package with bigbluebutton.properties
+name: Plugin SDK - Match version of html5 package.json with bigbluebutton.properties
 on:
   push:
     branches:
