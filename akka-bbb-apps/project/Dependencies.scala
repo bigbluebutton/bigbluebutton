@@ -19,6 +19,7 @@ object Dependencies {
     val logback = "1.2.13"
     val quicklens = "1.7.5"
     val spray = "1.3.6"
+    val semver = "0.10.2"
 
     // Apache Commons
     val lang = "3.12.0"
@@ -52,7 +53,7 @@ object Dependencies {
     val logback = "ch.qos.logback" % "logback-classic" % Versions.logback
     val commonsCodec = "commons-codec" % "commons-codec" % Versions.codec
     val sprayJson = "io.spray" % "spray-json_2.13" % Versions.spray
-    val semver = "com.github.zafarkhaja" % "java-semver" % "0.10.2"
+    val semver = "com.github.zafarkhaja" % "java-semver" % Versions.semver
 
     val pekkoStream = "org.apache.pekko" %% "pekko-stream" % Versions.pekkoVersion
     val pekkoHttp = "org.apache.pekko" %% "pekko-http" % Versions.pekkoHttpVersion

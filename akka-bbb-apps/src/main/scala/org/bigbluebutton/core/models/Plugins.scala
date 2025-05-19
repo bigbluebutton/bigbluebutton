@@ -102,25 +102,23 @@ object PluginModel {
   private def checkPluginSdkVersionDevMode(pluginSdkVersion: String): Boolean =
     pluginSdkVersion.startsWith("http://codeload")
 
-  private def isVersionMoreRecent(v1: String, v2: String): Int = {
-    def parsePart(s: String): Int =
-      s.takeWhile(_.isDigit).toIntOption.getOrElse(0)
-
-    val parts1 = v1.split("\\.")
-    val parts2 = v2.split("\\.")
-    parts1.zipAll(parts2, "", "")
-      .map { case (a, b) => parsePart(a) - parsePart(b) }
-      .find(_ != 0).getOrElse(0)
+  private def html5SdkSatisfiesPluginRequiredVersion(bbbHtml5SdkVersion: String, pluginHtml5SdkRequirement: String): Boolean = {
+    try {
+      val v = Version.valueOf(bbbHtml5SdkVersion)
+      v.satisfies(pluginHtml5SdkRequirement)
+    } catch {
+      case e: Exception =>
+        logger.error(s"Unexpected error while parsing SDK versions: $e")
+        false
+    }
   }
 
-  private def isServerSdkCompatibleWithPlugin(html5PluginSdkVersion: String, manifestPluginSdkVersion: String): Boolean = {
+  private def isServerSdkCompatibleWithPlugin(html5PluginSdkVersion: String, pluginManifestRequiredSdkVersion: String): Boolean = {
     // Returns `true` if:
     // - Both versions are URLs starting with "http://codeload" (development mode).
     // - OR the manifest plugin-sdk version is less than or equal to the HTML plugin-sdk version.
-    (checkPluginSdkVersionDevMode(html5PluginSdkVersion)
-      && checkPluginSdkVersionDevMode(manifestPluginSdkVersion)) || (
-        isVersionMoreRecent(manifestPluginSdkVersion, html5PluginSdkVersion) <= 0
-      )
+    (checkPluginSdkVersionDevMode(html5PluginSdkVersion) && checkPluginSdkVersionDevMode(pluginManifestRequiredSdkVersion)) ||
+      html5SdkSatisfiesPluginRequiredVersion(html5PluginSdkVersion, pluginManifestRequiredSdkVersion)
   }
 
   def createPluginModelFromJson(json: util.Map[String, AnyRef], html5PluginSdkVersion: String): PluginModel = {
@@ -136,7 +134,12 @@ object PluginModel {
         if (hasMatchingVersions) {
           pluginsMap = pluginsMap + (pluginName -> pluginObjectWithAbsoluteUrls)
         } else {
-          logger.error(s"Could not load plugin $pluginName due to version mismatch")
+          logger.error(
+            s"Cannot load plugin {}: system SDK version '{}' does not satisfy plugin requirement '{}'.",
+            pluginName,
+            html5PluginSdkVersion,
+            pluginObjectWithAbsoluteUrls.manifest.content.requiredSdkVersion
+          )
         }
       } catch {
         case err @ (_: JsonProcessingException | _: JsonMappingException) => logger.error(
