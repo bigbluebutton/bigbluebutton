@@ -30,6 +30,15 @@ jobs:
           echo "SDK version from package-lock.json: $VERSION"
           echo "HTML5_SDK_VERSION=$VERSION" >> $GITHUB_ENV
 
+
+      - name: Fail if SDK version points to a commit URL
+        working-directory: bigbluebutton-html5
+        run: |
+          if [[ $HTML5_SDK_VERSION == https://codeload* ]]; then
+            echo "The bigbluebutton-html-plugin-sdk is pointing to a commit in the SDK's repository"
+            exit 1
+          fi
+
       - name: Extract plugin-sdk version from bigbluebutton.properties
         working-directory: bigbluebutton-web
         run: |
@@ -44,5 +53,4 @@ jobs:
             echo "Mismatch: HTML5 SDK version ($HTML5_SDK_VERSION) != Properties SDK version ($PROPERTIES_SDK_VERSION)"
             exit 1
           fi
-
           echo "Versions match!"
