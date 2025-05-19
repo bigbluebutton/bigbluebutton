@@ -74,7 +74,7 @@
     "html-to-image": "^1.11.13",
     "immutability-helper": "~2.8.1",
     "langmap": "0.0.16",
-    "livekit-client": "2.9.9",
+    "livekit-client": "2.13.0",
     "makeup-screenreader-trap": "0.0.5",
     "mobx": "6.4.2",
     "pg": "^8.11.3",
