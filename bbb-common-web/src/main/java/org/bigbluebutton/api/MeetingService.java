@@ -588,7 +588,7 @@ public class MeetingService implements MessageListener {
             m.breakoutRoomsParams, m.lockSettingsParams, m.getLoginUrl(), m.getLogoutUrl(), m.getCustomLogoURL(), m.getCustomDarkLogoURL(),
             m.getBannerText(), m.getBannerColor(), m.getGroups(), m.getDisabledFeatures(), m.getNotifyRecordingIsOn(),
             m.getPresentationUploadExternalDescription(), m.getPresentationUploadExternalUrl(), m.getPlugins(),
-            m.getHtmlPluginSdkVersion(), m.getOverrideClientSettings());
+            m.getHtml5PluginSdkVersion(), m.getOverrideClientSettings());
   }
 
   private String formatPrettyDate(Long timestamp) {

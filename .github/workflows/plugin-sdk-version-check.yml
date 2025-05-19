@@ -1,4 +1,4 @@
-name: Plugin SDK - Match version from html5 package with bigbluebutton.properties
+name: Plugin SDK - Match version of html5 package.json with bigbluebutton.properties
 on:
   push:
     branches:
@@ -16,32 +16,32 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 1
-          
+
       - name: Ensure jq is installed
         run: sudo apt-get update && sudo apt-get install -y jq
 
       - name: Merge branches
         uses: ./.github/actions/merge-branches
 
-      - name: Extract plugin-sdk version from html5 
+      - name: Extract plugin-sdk version from html5
         working-directory: bigbluebutton-html5
         run: |
           VERSION=$(jq -r '.dependencies["bigbluebutton-html-plugin-sdk"]' package.json | sed 's/^[^0-9]*//')
           echo "SDK version from package.json: $VERSION"
-          echo "HTML_SDK_VERSION=$VERSION" >> $GITHUB_ENV
+          echo "HTML5_SDK_VERSION=$VERSION" >> $GITHUB_ENV
 
-      - name: Extract plugin-sdk version from bigbluebutton.properties 
+      - name: Extract plugin-sdk version from bigbluebutton.properties
         working-directory: bigbluebutton-web
         run: |
-          VERSION=$(grep '^htmlPluginSdkVersion=' grails-app/conf/bigbluebutton.properties | cut -d'=' -f2 | tr -d '[:space:]')
+          VERSION=$(grep '^html5PluginSdkVersion=' grails-app/conf/bigbluebutton.properties | cut -d'=' -f2 | tr -d '[:space:]')
           echo "SDK version from bigbluebutton.properties: $VERSION"
           echo "PROPERTIES_SDK_VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Check plugin-sdk version of html5 against bigbluebutton.properties
         run: |
           echo "Comparing versions..."
-          if [ "$HTML_SDK_VERSION" != "$PROPERTIES_SDK_VERSION" ]; then
-            echo "Mismatch: HTML5 SDK version ($HTML_SDK_VERSION) != Properties SDK version ($PROPERTIES_SDK_VERSION)"
+          if [ "$HTML5_SDK_VERSION" != "$PROPERTIES_SDK_VERSION" ]; then
+            echo "Mismatch: HTML5 SDK version ($HTML5_SDK_VERSION) != Properties SDK version ($PROPERTIES_SDK_VERSION)"
             exit 1
           fi
 

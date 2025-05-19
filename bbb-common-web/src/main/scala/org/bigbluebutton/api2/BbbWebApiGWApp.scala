@@ -172,7 +172,7 @@ class BbbWebApiGWApp(
                     presentationUploadExternalDescription:  String,
                     presentationUploadExternalUrl:          String,
                     plugins:                                util.Map[String, AnyRef],
-                    htmlPluginSdkVersion:                   String,
+                    html5PluginSdkVersion:                   String,
                     overrideClientSettings:                 String): Unit = {
 
     val disabledFeaturesAsVector: Vector[String] = disabledFeatures.asScala.toVector
@@ -268,13 +268,13 @@ class BbbWebApiGWApp(
         case c: String => c
         case _ => ""
       },
+      html5PluginSdkVersion,
     )
 
     val groupsAsVector: Vector[GroupProps] = groups.asScala.toVector.map(g => GroupProps(g.getGroupId(), g.getName(), g.getUsersExtId().asScala.toVector))
 
     val defaultProps = DefaultProps(
       plugins,
-      htmlPluginSdkVersion,
       meetingProp,
       breakoutProps,
       durationProps,
@@ -287,7 +287,7 @@ class BbbWebApiGWApp(
       lockSettingsProps,
       systemProps,
       groupsAsVector,
-      overrideClientSettings
+      overrideClientSettings,
     )
 
     //meetingManagerActorRef ! new CreateMeetingMsg(defaultProps)

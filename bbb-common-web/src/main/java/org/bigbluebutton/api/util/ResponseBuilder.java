@@ -53,7 +53,7 @@ public class ResponseBuilder {
     }
 
     public String buildMeetingVersion(String apiVersion, String bbbVersion, String graphqlWebsocketUrl,
-                                      String htmlPluginSdkVersion, String graphqlApiUrl, String returnCode) {
+                                      String html5PluginSdkVersion, String graphqlApiUrl, String returnCode) {
         StringWriter xmlText = new StringWriter();
 
         Map<String, Object> data = new HashMap<String, Object>();
@@ -62,7 +62,7 @@ public class ResponseBuilder {
         data.put("apiVersion", apiVersion);
         data.put("bbbVersion", bbbVersion);
         data.put("graphqlWebsocketUrl", graphqlWebsocketUrl);
-        data.put("htmlPluginSdkVersion", htmlPluginSdkVersion);
+        data.put("html5PluginSdkVersion", html5PluginSdkVersion);
         data.put("graphqlApiUrl", graphqlApiUrl);
 
         processData(getTemplate("api-version.ftlx"), data, xmlText);
