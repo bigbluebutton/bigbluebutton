@@ -100,11 +100,11 @@ object PluginModel {
   }
 
   private def checkPluginSdkVersionDevMode(pluginSdkVersion: String): Boolean =
-    pluginSdkVersion.startsWith("http://codeload")
+    pluginSdkVersion.startsWith("https://codeload")
 
   private def html5SdkSatisfiesPluginRequiredVersion(bbbHtml5SdkVersion: String, pluginHtml5SdkRequirement: String): Boolean = {
     try {
-      val v = Version.valueOf(bbbHtml5SdkVersion)
+      val v = Version.parse(bbbHtml5SdkVersion)
       v.satisfies(pluginHtml5SdkRequirement)
     } catch {
       case e: Exception =>
@@ -115,8 +115,8 @@ object PluginModel {
 
   private def isServerSdkCompatibleWithPlugin(html5PluginSdkVersion: String, pluginManifestRequiredSdkVersion: String): Boolean = {
     // Returns `true` if:
-    // - Both versions are URLs starting with "http://codeload" (development mode).
-    // - OR the manifest plugin-sdk version is less than or equal to the HTML plugin-sdk version.
+    // - Both versions are URLs starting with "https://codeload" (development mode).
+    // - OR bbb-html5 SDK version satisfies the manifest's required SDK version.
     (checkPluginSdkVersionDevMode(html5PluginSdkVersion) && checkPluginSdkVersionDevMode(pluginManifestRequiredSdkVersion)) ||
       html5SdkSatisfiesPluginRequiredVersion(html5PluginSdkVersion, pluginManifestRequiredSdkVersion)
   }

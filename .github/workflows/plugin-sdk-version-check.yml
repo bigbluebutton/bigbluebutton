@@ -27,7 +27,7 @@ jobs:
         working-directory: bigbluebutton-html5
         run: |
           VERSION=$(jq -r '.packages["node_modules/bigbluebutton-html-plugin-sdk"]["version"]' package-lock.json | sed 's/^[^0-9]*//')
-          echo "SDK version from package.json: $VERSION"
+          echo "SDK version from package-lock.json: $VERSION"
           echo "HTML5_SDK_VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Extract plugin-sdk version from bigbluebutton.properties
