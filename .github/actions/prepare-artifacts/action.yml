@@ -7,7 +7,7 @@ runs:
       shell: bash
       run: |
         sudo -i <<EOF
-        mkdir configs
+        mkdir -p configs
         cp /etc/haproxy/haproxy.cfg configs/haproxy.cfg
         touch /etc/bigbluebutton/turn-stun-servers.xml
         cp /etc/bigbluebutton/turn-stun-servers.xml configs/turn-stun-servers.xml

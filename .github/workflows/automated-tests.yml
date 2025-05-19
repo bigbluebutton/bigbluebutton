@@ -215,7 +215,7 @@ jobs:
       - name: Checkout SDK to the same BBB Core version
         working-directory: ./bigbluebutton-html-plugin-sdk
         run: |
-          if [ $IS_SDK_TAG_VERSION = "true" ]; then
+          if [ "$IS_SDK_TAG_VERSION" = "true" ]; then
             git fetch --tags
             git checkout  $SDK_DEP  # Checkout tag
           else

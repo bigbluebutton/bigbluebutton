@@ -179,6 +179,7 @@ export default class Button extends BaseButton {
       circle,
       block,
       loading,
+      dataTest,
       ...otherProps
     } = this.props;
 
@@ -194,6 +195,7 @@ export default class Button extends BaseButton {
         className={className}
         iconRight={iconRight}
         loading={loading}
+        data-test={dataTest}
         {...remainingProps}
       >
         {this.renderIcon()}
