@@ -139,3 +139,11 @@ export function useIsPrivateChatEnabled() {
 export function useIsRaiseHandEnabled() {
   return useDisabledFeatures().indexOf('raiseHand') === -1;
 }
+
+export function useIsReactionsButtonEnabled() {
+  const REACTIONS_BUTTON_ENABLED = window.meetingClientSettings.public.app.reactionsButton.enabled;
+  const USER_REACTIONS_ENABLED = window.meetingClientSettings.public.userReaction.enabled;
+  return useDisabledFeatures().indexOf('reactionsButton') === -1
+    && REACTIONS_BUTTON_ENABLED
+    && USER_REACTIONS_ENABLED;
+}
