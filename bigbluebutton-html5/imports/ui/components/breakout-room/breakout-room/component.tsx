@@ -30,6 +30,7 @@ interface BreakoutRoomProps {
   userJoinedAudio: boolean;
   userId: string;
   meetingId: string;
+  createdTime: number;
 }
 
 const intlMessages = defineMessages({
@@ -107,6 +108,7 @@ const BreakoutRoom: React.FC<BreakoutRoomProps> = ({
   userJoinedAudio,
   userId,
   meetingId,
+  createdTime,
 }) => {
   const [breakoutRoomEndAll] = useMutation(BREAKOUT_ROOM_END_ALL);
   const [breakoutRoomTransfer] = useMutation(USER_TRANSFER_VOICE_TO_MEETING);
@@ -190,6 +192,7 @@ const BreakoutRoom: React.FC<BreakoutRoomProps> = ({
         showChangeTimeForm={showChangeTimeForm}
         isModerator={isModerator}
         durationInSeconds={durationInSeconds}
+        createdTime={createdTime}
         toggleShowChangeTimeForm={setShowChangeTimeForm}
       />
       {isModerator ? <BreakoutMessageForm /> : null}
@@ -295,6 +298,7 @@ const BreakoutRoomContainer: React.FC = () => {
     data: meetingData,
   } = useMeeting((m) => ({
     durationInSeconds: m.durationInSeconds,
+    createdTime: m.createdTime,
     meetingId: m.meetingId,
   }));
 
@@ -313,7 +317,6 @@ const BreakoutRoomContainer: React.FC = () => {
     loading: breakoutLoading,
     error: breakoutError,
   } = useDeduplicatedSubscription<GetBreakoutDataResponse>(getBreakoutData);
-
   if (
     breakoutLoading
     || currentUserLoading
@@ -333,6 +336,7 @@ const BreakoutRoomContainer: React.FC = () => {
     return null;
   }
   if (!currentUserData || !breakoutData || !meetingData) return null; // or loading spinner or error
+
   return (
     <BreakoutRoom
       breakouts={breakoutData.breakoutRoom || []}
@@ -342,6 +346,7 @@ const BreakoutRoomContainer: React.FC = () => {
       userJoinedAudio={(currentUserData?.voice?.joined && !currentUserData?.voice?.deafened) ?? false}
       userId={currentUserData.userId ?? ''}
       meetingId={meetingData.meetingId ?? ''}
+      createdTime={meetingData.createdTime ?? 0}
     />
   );
 };

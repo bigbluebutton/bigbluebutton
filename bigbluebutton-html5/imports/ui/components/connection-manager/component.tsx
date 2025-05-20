@@ -82,7 +82,7 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
 });
 
 const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): React.ReactNode => {
-  const [graphqlUrlApolloClient, setApolloClient] = React.useState<ApolloClient<NormalizedCacheObject> | null>(null);
+  const [apolloClient, setApolloClient] = React.useState<ApolloClient<NormalizedCacheObject> | null>(null);
   const [graphqlUrl, setGraphqlUrl] = React.useState<string>('');
   const loadingContextInfo = useContext(LoadingContext);
   const numberOfAttempts = useRef(20);
@@ -247,7 +247,10 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
             closed: (e) => {
               // Check if it's a CloseEvent (which includes HTTP errors during WebSocket handshake)
               if (e instanceof CloseEvent) {
-                logger.error(`WebSocket closed with code ${e.code}: ${e.reason}`);
+                // if the code is 1000, it means the connection was closed normally
+                if (e.code !== 1000) {
+                  logger.error(`WebSocket closed with code ${e.code}: ${e.reason}`);
+                }
                 connectionStatus.setConnectedStatus(false);
               }
             },
@@ -309,10 +312,10 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
   },
   [graphqlUrl]);
   return (
-    graphqlUrlApolloClient
+    apolloClient
       ? (
         <ApolloProvider
-          client={graphqlUrlApolloClient}
+          client={apolloClient}
         >
           {children}
         </ApolloProvider>

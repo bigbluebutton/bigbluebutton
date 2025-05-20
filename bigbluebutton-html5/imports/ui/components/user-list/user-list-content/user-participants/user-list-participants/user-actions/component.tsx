@@ -211,7 +211,7 @@ const UserActions: React.FC<UserActionsProps> = ({
   usersPolicies,
   isBreakout,
   children,
-  pageId,
+  pageId = '',
   userListDropdownItems,
   open,
   setOpenUserAction,
@@ -232,6 +232,8 @@ const UserActions: React.FC<UserActionsProps> = ({
   const isChatEnabled = useIsChatEnabled();
 
   const handleWhiteboardAccessChange = async () => {
+    // There is no presentation available, so access cannot be granted.
+    if (!pageId) return;
     try {
       // Fetch the writers data
       const { data } = await getWriters();
@@ -365,7 +367,7 @@ const UserActions: React.FC<UserActionsProps> = ({
           === PluginSdk.UserListDropdownSeparatorPosition.BEFORE)),
     )),
     {
-      allowed: user.cameras.length > 0
+      allowed: user?.cameras?.length > 0
         && isVideoPinEnabledForCurrentUser(currentUser, isBreakout),
       key: 'pinVideo',
       label: user.pinned
@@ -471,7 +473,8 @@ const UserActions: React.FC<UserActionsProps> = ({
     {
       allowed: allowedToChangeWhiteboardAccess
         && !user.presenter
-        && !isVoiceOnlyUser(user.userId),
+        && !isVoiceOnlyUser(user.userId)
+        && pageId,
       key: 'changeWhiteboardAccess',
       label: hasWhiteboardAccess
         ? intl.formatMessage(messages.removeWhiteboardAccess)
@@ -562,7 +565,7 @@ const UserActions: React.FC<UserActionsProps> = ({
     },
     {
       allowed: allowedToEjectCameras
-        && user.cameras.length > 0
+        && user?.cameras?.length > 0
         && !isBreakout,
       key: 'ejectUserCameras',
       label: intl.formatMessage(messages.ejectUserCamerasLabel),

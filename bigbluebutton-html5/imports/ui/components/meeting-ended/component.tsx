@@ -214,7 +214,11 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
             // Always set cookie in case Dashboard is already opened
             && setLearningDashboardCookie(learningDashboardAccessToken, meetingId, learningDashboardBase) === true
               ? (
-                <Styled.Text>
+                <>
+                  <Styled.Text>
+                    {intl.formatMessage(intlMessage.open_activity_report_btn)}
+                  </Styled.Text>
+
                   <Styled.MeetingEndedButton
                     color="default"
                     onClick={() => openLearningDashboardUrl(learningDashboardAccessToken,
@@ -228,7 +232,7 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
                       iconName="multi_whiteboard"
                     />
                   </Styled.MeetingEndedButton>
-                </Styled.Text>
+                </>
               ) : null
           }
           <Styled.Text>
@@ -280,8 +284,17 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
         // if not new connection is made
         apolloClient.setLink(ApolloLink.empty());
         // closes the connection
-        ws.terminate();
+        ws.dispose();
       }, 5000);
+    }
+  }, []);
+
+  useEffect(() => {
+    const { timeoutBeforeRedirectOnMeetingEnd } = window.meetingClientSettings.public.app;
+    if (typeof timeoutBeforeRedirectOnMeetingEnd === 'number' && !skipMeetingEnded) {
+      setTimeout(() => {
+        confirmRedirect(isBreakout, allowRedirect);
+      }, timeoutBeforeRedirectOnMeetingEnd);
     }
   }, []);
 
@@ -316,20 +329,7 @@ const MeetingEndedContainer: React.FC<MeetingEndedContainerProps> = ({
   } = useQuery<MeetingEndDataResponse>(getMeetingEndData);
 
   if (meetingEndLoading || !meetingEndData) {
-    return (
-      <MeetingEnded
-        endedBy=""
-        joinErrorCode=""
-        meetingEndedCode=""
-        allowRedirect={false}
-        skipMeetingEnded={false}
-        learningDashboardAccessToken=""
-        isModerator={false}
-        logoutUrl=""
-        learningDashboardBase=""
-        isBreakout={false}
-      />
-    );
+    return null;
   }
 
   if (meetingEndError) {

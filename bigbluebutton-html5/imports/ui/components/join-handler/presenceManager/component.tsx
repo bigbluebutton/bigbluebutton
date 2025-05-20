@@ -18,6 +18,7 @@ import logger from '/imports/startup/client/logger';
 import deviceInfo from '/imports/utils/deviceInfo';
 import GuestWaitContainer, { GUEST_STATUSES } from '../guest-wait/component';
 import Legacy from '/imports/ui/components/legacy/component';
+import PluginTopLevelManager from '/imports/ui/components/plugin-top-level-manager/component';
 
 const connectionTimeout = 60000;
 const MESSAGE_TIMEOUT = 3000;
@@ -170,9 +171,14 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
     return <Legacy setLoading={loadingContextInfo.setLoading} />;
   }
 
+  const userCurrentlyInMeeting = allowToRender && !(meetingEnded || joinErrorCode || ejectReasonCode || loggedOut);
+
   return (
     <>
-      {allowToRender && !(meetingEnded || joinErrorCode || ejectReasonCode || loggedOut) ? children : null}
+      <PluginTopLevelManager
+        currentUserCurrentlyInMeeting={userCurrentlyInMeeting}
+      />
+      {userCurrentlyInMeeting ? children : null}
       {
         meetingEnded || joinErrorCode || ejectReasonCode || loggedOut
           ? (

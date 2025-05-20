@@ -358,7 +358,12 @@ const PresentationMenu = (props) => {
                 const width = svgElem?.width?.baseVal?.value ?? window.screen.width;
                 const height = svgElem?.height?.baseVal?.value ?? window.screen.height;
 
-                const data = await toPng(svgElem, { width, height, backgroundColor: '#FFF' });
+                const data = await toPng(svgElem, {
+                  width,
+                  height,
+                  backgroundColor: '#FFF',
+                  skipFonts: true,
+                });
 
                 const anchor = document.createElement('a');
                 anchor.href = data;
