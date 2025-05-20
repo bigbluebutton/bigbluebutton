@@ -220,16 +220,12 @@ class VideoService {
     return PAGE_CHANGE_DEBOUNCE_TIME;
   }
 
-  getRecord(myRole?: string) {
-    const ROLE_MODERATOR = VideoService.getRoleModerator();
-
+  getRecord() {
     if (this.record === null) {
       this.record = getFromUserSettings('bbb_record_video', true);
     }
 
-    const hackRecord = myRole === ROLE_MODERATOR;
-
-    return this.record && hackRecord;
+    return this.record;
   }
 
   static mirrorOwnWebcam(userId: string | null = null) {
@@ -604,7 +600,7 @@ export default {
   joinedVideo: () => VideoService.joinedVideo(),
   exitedVideo: () => videoService.exitedVideo(),
   getPreloadedStream: () => videoService.getPreloadedStream(),
-  getRecord: (myRole?: string) => videoService.getRecord(myRole),
+  getRecord: () => videoService.getRecord(),
   getPageChangeDebounceTime: () => VideoService.getPageChangeDebounceTime(),
   getUserParameterProfile: () => videoService.getUserParameterProfile(),
   isMultipleCamerasEnabled: () => videoService.isMultipleCamerasEnabled(),
