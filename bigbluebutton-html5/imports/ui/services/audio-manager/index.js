@@ -1301,10 +1301,31 @@ class AudioManager {
     const { outputDeviceId } = this.bridge;
 
     if (outputDeviceId && typeof audioAlert.setSinkId === 'function') {
-      return audioAlert.setSinkId(outputDeviceId).then(() => audioAlert.play());
+      return audioAlert
+        .setSinkId(outputDeviceId)
+        .then(() => this.canAutoplayAudioElement(audioAlert));
     }
 
-    return audioAlert.play();
+    return this.canAutoplayAudioElement(audioAlert);
+  }
+
+  canAutoplayAudioElement(element) {
+    return new Promise((resolve) => {
+      if (!(element instanceof HTMLMediaElement)) {
+        // Provided element is not a valid audio/video element.
+        resolve(false);
+        return;
+      }
+
+      element.play().then(() => {
+        resolve(true);
+      }).catch(() => {
+        this.handlePlayElementFailed({
+          detail: { mediaElement: element, callback: resolve },
+        });
+        resolve(false);
+      });
+    });
   }
 
   async updateAudioConstraints(constraints) {
