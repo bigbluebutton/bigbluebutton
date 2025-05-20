@@ -193,6 +193,7 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
 
   const confirmRedirect = (isBreakout: boolean, allowRedirect: boolean) => {
     if (isBreakout) window.close();
+
     if (allowRedirect) {
       if (isURL(logoutUrl)) {
         const reason = generateEndMessage(joinErrorCode, meetingEndedCode, endedBy);
@@ -200,7 +201,11 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
           ? `${logoutUrl}${logoutUrl.includes('?') ? '&' : '?'}reason=${encodeURIComponent(reason)}`
           : logoutUrl;
         window.location.href = finalUrl;
+      } else {
+        logger.warn(`logout URL "${logoutUrl}" is not a valid URL: `);
       }
+    } else {
+      logger.warn('Redirect to logout URL is not allowed');
     }
   };
 
