@@ -34,7 +34,8 @@ jobs:
       - name: Fail if SDK version points to a commit URL
         working-directory: bigbluebutton-html5
         run: |
-          if [[ $HTML5_SDK_VERSION == https://codeload* ]]; then
+          PACKAGE_VERSION=$(jq -r '.dependencies["bigbluebutton-html-plugin-sdk"]' package.json)
+          if [[ "$PACKAGE_VERSION" == https://codeload.github.com/* ]]; then
             echo "The bigbluebutton-html-plugin-sdk is pointing to a commit in the SDK's repository"
             exit 1
           fi
