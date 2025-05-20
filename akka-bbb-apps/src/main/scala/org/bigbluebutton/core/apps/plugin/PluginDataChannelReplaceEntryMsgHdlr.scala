@@ -16,11 +16,13 @@ trait PluginDataChannelReplaceEntryMsgHdlr extends HandlerHelpers with LogHelper
 
       if (!hasPermission.contains(true)) {
         log.warning(
-          "No permission to update data-channel entry with ID [{}] for plugin [{}] and data-channel [{}].",
+          s"User [${msg.header.userId}] in meeting [{}] lacks permission to update entry [{}] for plugin [{}] in data channel [{}].",
+          msg.header.meetingId,
           msg.body.entryId,
           msg.body.pluginName,
           msg.body.channelName
         )
+
       } else {
         PluginDataChannelEntryDAO.replace(
           msg.header.meetingId,
@@ -30,9 +32,9 @@ trait PluginDataChannelReplaceEntryMsgHdlr extends HandlerHelpers with LogHelper
           msg.body.entryId,
           JsonUtils.mapToJson(msg.body.payloadJson),
         )
-        log.info(
-          "Successfully updated entry with ID [{}] for plugin [{}] and data-channel [{}].",
-          msg.body.entryId, msg.body.pluginName, msg.body.channelName
+        log.debug(
+          "Successfully updated entry [{}] for plugin [{}] and data-channel [{}]. (meetingId: [{}])",
+          msg.body.entryId, msg.body.pluginName, msg.body.channelName, msg.header.meetingId
         )
       }
     })

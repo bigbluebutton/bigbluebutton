@@ -14,9 +14,8 @@ trait PluginDataChannelResetMsgHdlr extends HandlerHelpers with LogHelper {
 
       if (!hasPermission.contains(true)) {
         log.warning(
-          "No permission to reset data-channel [{}] for plugin [{}].",
-          msg.body.channelName,
-          msg.body.pluginName,
+          "User [{}] in meeting [{}] lacks permission to reset data-channel [{}] from plugin [{}].",
+          msg.header.userId, msg.header.meetingId, msg.body.channelName, msg.body.pluginName
         )
       } else {
         PluginDataChannelEntryDAO.reset(
@@ -25,9 +24,9 @@ trait PluginDataChannelResetMsgHdlr extends HandlerHelpers with LogHelper {
           msg.body.channelName,
           msg.body.subChannelName
         )
-        log.info(
-          "Successfully reset data-channel [{}] for plugin [{}].",
-          msg.body.channelName, msg.body.pluginName
+        log.debug(
+          "Successfully reset data-channel [{}] for plugin [{}]. (meetingId: [{}])",
+          msg.body.channelName, msg.body.pluginName, msg.header.meetingId
         )
       }
     })

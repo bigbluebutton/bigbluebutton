@@ -14,7 +14,10 @@ trait PluginDataChannelDeleteEntryMsgHdlr extends HandlerHelpers with LogHelper 
         meetingId, msg.body, msg.header.userId
       ))
       if (!hasPermission.contains(true)) {
-        log.warning("No permission to delete data-channel entry for plugin [{}] in data-channel [{}].", msg.body.pluginName, msg.body.channelName)
+        log.warning(
+          "User [{}] in meeting [{}] lacks permission to delete entry for data-channel [{}] from plugin [{}].",
+          msg.header.userId, msg.header.meetingId, msg.body.channelName, msg.body.pluginName
+        )
       } else {
         PluginDataChannelEntryDAO.delete(
           meetingId,
@@ -23,9 +26,9 @@ trait PluginDataChannelDeleteEntryMsgHdlr extends HandlerHelpers with LogHelper 
           msg.body.subChannelName,
           msg.body.entryId
         )
-        log.info(
-          "Successfully deleted entry with ID [{}] for plugin [{}] and data-channel [{}].",
-          msg.body.entryId, msg.body.pluginName, msg.body.channelName
+        log.debug(
+          "Successfully deleted entry [{}] for plugin [{}] in data-channel [{}] (meetingId: [{}]).",
+          msg.body.entryId, msg.body.pluginName, msg.body.channelName, msg.header.meetingId
         )
       }
     })
