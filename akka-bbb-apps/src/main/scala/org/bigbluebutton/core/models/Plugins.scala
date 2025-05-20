@@ -99,9 +99,6 @@ object PluginModel {
     replaceRelativeLocalesBaseUrl(pluginWithAbsoluteJsEntrypoint)
   }
 
-  private def checkPluginSdkVersionDevMode(pluginSdkVersion: String): Boolean =
-    pluginSdkVersion.startsWith("https://codeload")
-
   private def html5SdkSatisfiesPluginRequiredVersion(bbbHtml5SdkVersion: String, pluginHtml5SdkRequirement: String): Boolean = {
     try {
       val v = Version.parse(bbbHtml5SdkVersion)
@@ -115,10 +112,8 @@ object PluginModel {
 
   private def isServerSdkCompatibleWithPlugin(html5PluginSdkVersion: String, pluginManifestRequiredSdkVersion: String): Boolean = {
     // Returns `true` if:
-    // - Both versions are URLs starting with "https://codeload" (development mode).
-    // - OR bbb-html5 SDK version satisfies the manifest's required SDK version.
-    (checkPluginSdkVersionDevMode(html5PluginSdkVersion) && checkPluginSdkVersionDevMode(pluginManifestRequiredSdkVersion)) ||
-      html5SdkSatisfiesPluginRequiredVersion(html5PluginSdkVersion, pluginManifestRequiredSdkVersion)
+    // - bbb-html5 SDK version satisfies the manifest's required SDK version.
+    html5SdkSatisfiesPluginRequiredVersion(html5PluginSdkVersion, pluginManifestRequiredSdkVersion)
   }
 
   def createPluginModelFromJson(json: util.Map[String, AnyRef], html5PluginSdkVersion: String): PluginModel = {
