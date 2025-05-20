@@ -186,12 +186,12 @@ const Whiteboard = React.memo((props) => {
       const updatedTools = {
         ...tools,
         deleteSelectedItems: {
-          id: "delete-selected-items",
-          label: intl?.messages["app.whiteboard.toolbar.delete"],
+          id: 'delete-selected-items',
+          label: intl?.messages['app.whiteboard.toolbar.delete'],
           readonlyOk: false,
-          icon: "tool-delete-selected-items",
+          icon: 'tool-delete-selected-items',
           onSelect() {
-            editor.deleteShapes(editor.getSelectedShapes().map(shape => {
+            editor.deleteShapes(editor.getSelectedShapes().map((shape) => {
               if (currentUser?.presenter || (shape?.meta?.createdBy === currentUser?.userId)) {
                 return shape.id;
               }
@@ -361,6 +361,54 @@ const Whiteboard = React.memo((props) => {
     }
   }, [tlEditorRef]);
 
+  const handleKeybindZoom = useCallback((operation) => {
+    if (
+      !tlEditorRef.current
+      || !initialZoomRef.current
+      || !whiteboardRef.current
+    ) {
+      return;
+    }
+
+    const MAX_ZOOM_FACTOR = 4; // Represents 400%
+    const MIN_ZOOM_FACTOR = isInfiniteWhiteboard ? 0.25 : 1;
+    const ZOOM_IN_FACTOR = 0.25;
+    const ZOOM_OUT_FACTOR = 0.25;
+
+    // Get the current camera position and zoom level
+    const { x: cx, y: cy, z: cz } = tlEditorRef.current.getCamera();
+
+    let currentZoomLevel = cz / initialZoomRef.current;
+    if (operation === 'zoomIn') {
+      currentZoomLevel = Math.min(currentZoomLevel + ZOOM_IN_FACTOR, MAX_ZOOM_FACTOR);
+    } else {
+      currentZoomLevel = Math.max(currentZoomLevel - ZOOM_OUT_FACTOR, MIN_ZOOM_FACTOR);
+    }
+
+    // Convert zoom level to a percentage for backend
+    const zoomPercentage = currentZoomLevel * 100;
+    zoomChanger(zoomPercentage);
+
+    // Calculate the new camera zoom factor
+    const newCameraZoomFactor = currentZoomLevel * initialZoomRef.current;
+
+    // Calculate the mouse position in canvas space using whiteboardRef
+    const rect = whiteboardRef.current?.getBoundingClientRect();
+    const centerX = (rect?.width || 0) / 2;
+    const centerY = (rect?.height || 0) / 2;
+    const canvasMouseX = (centerX + (rect?.left || 0)) / cz + cx;
+    const canvasMouseY = (centerY + (rect?.top || 0)) / cz + cy;
+
+    // Calculate the new camera position to keep the mouse position under the cursor
+    const nextCamera = {
+      x: canvasMouseX - (canvasMouseX - cx) * (newCameraZoomFactor / cz),
+      y: canvasMouseY - (canvasMouseY - cy) * (newCameraZoomFactor / cz),
+      z: newCameraZoomFactor,
+    };
+
+    tlEditorRef.current.setCamera(nextCamera, { duration: 175 });
+  }, [isInfiniteWhiteboard, zoomChanger]);
+
   const handleCut = useCallback((shouldCopy) => {
     const selectedShapes = tlEditorRef.current?.getSelectedShapes();
     if (!selectedShapes || selectedShapes.length === 0) {
@@ -443,8 +491,41 @@ const Whiteboard = React.memo((props) => {
 
     // Mapping of simple key shortcuts to tldraw functions
     const simpleKeyMap = {
+      // Combos
+      1: () => tlEditorRef.current?.setCurrentTool('select'),
+      2: () => tlEditorRef.current?.setCurrentTool('draw'),
+      3: () => tlEditorRef.current?.setCurrentTool('eraser'),
+      4: () => {
+        tlEditorRef.current?.setStyleForNextShapes(GeoShapeGeoStyle, 'rectangle');
+        tlEditorRef.current?.setCurrentTool('geo');
+      },
+      5: () => {
+        tlEditorRef.current?.setStyleForNextShapes(GeoShapeGeoStyle, 'ellipse');
+        tlEditorRef.current?.setCurrentTool('geo');
+      },
+      6: () => {
+        tlEditorRef.current?.setStyleForNextShapes(GeoShapeGeoStyle, 'triangle');
+        tlEditorRef.current?.setCurrentTool('geo');
+      },
+      7: () => tlEditorRef.current?.setCurrentTool('line'),
+      8: () => tlEditorRef.current?.setCurrentTool('arrow'),
+      9: () => tlEditorRef.current?.setCurrentTool('text'),
+      0: () => tlEditorRef.current?.setCurrentTool('note'),
+
+      // Alternatives
       v: () => tlEditorRef.current?.setCurrentTool('select'),
       d: () => tlEditorRef.current?.setCurrentTool('draw'),
+      p: () => tlEditorRef.current?.setCurrentTool('draw'),
+      g: () => {
+        tlEditorRef.current?.setStyleForNextShapes(GeoShapeGeoStyle, 'triangle');
+        tlEditorRef.current?.setCurrentTool('geo');
+      },
+      '[': () => {
+        tlEditorRef.current?.sendBackward(tlEditorRef.current?.getSelectedShapes());
+      },
+      ']': () => {
+        tlEditorRef.current?.bringForward(tlEditorRef.current?.getSelectedShapes());
+      },
       e: () => tlEditorRef.current?.setCurrentTool('eraser'),
       h: () => {
         if (isPresenterRef.current) {
@@ -464,7 +545,43 @@ const Whiteboard = React.memo((props) => {
       t: () => tlEditorRef.current?.setCurrentTool('text'),
       f: () => tlEditorRef.current?.setCurrentTool('frame'),
       n: () => tlEditorRef.current?.setCurrentTool('note'),
+      s: () => tlEditorRef.current?.setCurrentTool('note'),
     };
+
+    if (
+      event.shiftKey
+      && !event.ctrlKey
+      && !event.metaKey
+      && !event.altKey
+    ) {
+      const shiftKeyMap = {
+        d: () => {
+          tlEditorRef.current?.setCurrentTool('highlight');
+        },
+        h: () => {
+          tlEditorRef.current?.flipShapes(tlEditorRef.current?.getSelectedShapes(), 'horizontal');
+        },
+        v: () => {
+          tlEditorRef.current?.flipShapes(tlEditorRef.current?.getSelectedShapes(), 'vertical');
+        },
+        '}': () => {
+          tlEditorRef.current?.bringToFront(tlEditorRef.current?.getSelectedShapes());
+        },
+        '{': () => {
+          tlEditorRef.current?.sendToBack(tlEditorRef.current?.getSelectedShapes());
+        },
+        '!': () => {
+          zoomChanger(HUNDRED_PERCENT);
+        },
+      };
+
+      if (shiftKeyMap[key]) {
+        event.preventDefault();
+        event.stopPropagation();
+        shiftKeyMap[key]();
+        return;
+      }
+    }
 
     if (event.ctrlKey || event.metaKey) {
       if (key === 'z') {
@@ -477,6 +594,13 @@ const Whiteboard = React.memo((props) => {
           // Undo (Ctrl + z)
           tlEditorRef.current?.undo();
         }
+        return;
+      }
+
+      if (key === 'l' && event.shiftKey) {
+        event.preventDefault();
+        event.stopPropagation();
+        tlEditorRef.current?.toggleLock(tlEditorRef.current?.getSelectedShapes());
         return;
       }
 
@@ -501,6 +625,11 @@ const Whiteboard = React.memo((props) => {
             handlePaste();
           }
         },
+        '+': handleKeybindZoom.bind(null, 'zoomIn'),
+        '-': handleKeybindZoom.bind(null, 'zoomOut'),
+        '=': handleKeybindZoom.bind(null, 'zoomIn'),
+        'add': handleKeybindZoom.bind(null, 'zoomIn'),
+        'subtract': handleKeybindZoom.bind(null, 'zoomOut'),
       };
 
       if (ctrlKeyMap[key]) {
@@ -541,6 +670,7 @@ const Whiteboard = React.memo((props) => {
     }
   }, [
     tlEditorRef, isPresenterRef, hasWBAccessRef, previousTool, handleCut, handleCopy, handlePaste,
+    isInfiniteWhiteboard, zoomChanger,
   ]);
 
   const createPage = (currentPageId) => [
@@ -1020,15 +1150,15 @@ const Whiteboard = React.memo((props) => {
 
         // Check for idle states and persist the batch if there are shapes
         if (
-          path === 'note.idle' ||
-          path === 'frame.idle' ||
-          path === 'line.idle' ||
-          path === 'arrow.idle' ||
-          path === 'geo.idle' ||
-          path === 'select.idle' ||
-          path === 'draw.idle' ||
-          path === 'select.editing_shape' ||
-          path === 'highlight.idle'
+          path === 'note.idle'
+          || path === 'frame.idle'
+          || path === 'line.idle'
+          || path === 'arrow.idle'
+          || path === 'geo.idle'
+          || path === 'select.idle'
+          || path === 'draw.idle'
+          || path === 'select.editing_shape'
+          || path === 'highlight.idle'
         ) {
           if (Object.keys(shapeBatchRef.current).length > 0) {
             const shapesToPersist = Object.values(shapeBatchRef.current);
@@ -1798,11 +1928,9 @@ const Whiteboard = React.memo((props) => {
   });
 
   React.useEffect(() => {
-    const baseName =
-      window.meetingClientSettings.public.app.cdn
+    const baseName = window.meetingClientSettings.public.app.cdn
       + window.meetingClientSettings.public.app.basename;
-    const makeCursorUrl = (filename) =>
-      `${baseName}/resources/images/whiteboard-cursor/${filename}`;
+    const makeCursorUrl = (filename) => `${baseName}/resources/images/whiteboard-cursor/${filename}`;
 
     const TOOL_CURSORS = {
       draw: `url('${makeCursorUrl('pencil.png')}') 2 22, default`,
