@@ -110,6 +110,7 @@ const PresentationOptionsContainer = ({
       disabled={!isThereCurrentPresentation}
       data-test={!presentationIsOpen ? 'restorePresentation' : 'minimizePresentation'}
       isDarkThemeEnabled={isDarkThemeEnabled}
+      actionsBarButton
     />
   );
 };

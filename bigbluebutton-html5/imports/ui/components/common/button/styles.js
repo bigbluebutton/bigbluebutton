@@ -56,6 +56,7 @@ import {
   btnMutedBg,
   colorWhite,
   colorGray,
+  listItemBgHover,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import BaseButton from './base/component';
 
@@ -394,7 +395,8 @@ const ButtonSpan = styled.span`
     outline-style: dotted;
     outline-width: ${borderSize};
     text-decoration: none;
-    background-color: ${btnPrimaryHoverBg};
+    ${({ actionsBarButton }) => actionsBarButton
+      && `background-color: ${listItemBgHover};`}
   }
 
   &:active,

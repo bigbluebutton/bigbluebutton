@@ -57,6 +57,7 @@ const RaiseHandButton = (props) => {
       hideLabel
       circle
       size="lg"
+      actionsBarButton
     />
   );
 };

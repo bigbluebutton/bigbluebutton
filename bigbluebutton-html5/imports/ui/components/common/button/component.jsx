@@ -87,6 +87,8 @@ const propTypes = {
    * @defaultValue false
    */
   loading: PropTypes.bool,
+
+  actionsBarButton: PropTypes.bool,
 };
 
 const defaultProps = {
@@ -100,6 +102,7 @@ const defaultProps = {
   hideLabel: false,
   tooltipLabel: '',
   loading: false,
+  actionsBarButton: false,
 };
 
 export default class Button extends BaseButton {
@@ -171,6 +174,7 @@ export default class Button extends BaseButton {
       circle,
       block,
       loading,
+      actionsBarButton,
       ...otherProps
     } = this.props;
 
@@ -186,6 +190,7 @@ export default class Button extends BaseButton {
         className={className}
         iconRight={iconRight}
         loading={loading}
+        actionsBarButton={actionsBarButton}
         {...remainingProps}
       >
         {this.renderIcon()}
@@ -205,6 +210,7 @@ export default class Button extends BaseButton {
       circle,
       block,
       loading,
+      actionsBarButton,
       ...otherProps
     } = this.props;
 
@@ -232,6 +238,7 @@ export default class Button extends BaseButton {
           ghost={ghost}
           circle={circle}
           block={block}
+          actionsBarButton={actionsBarButton}
         >
           {this.renderIcon()}
         </Styled.ButtonSpan>

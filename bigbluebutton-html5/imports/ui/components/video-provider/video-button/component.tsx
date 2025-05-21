@@ -230,6 +230,7 @@ const JoinVideoButton: React.FC<JoinVideoButtonProps> = ({
           circle
           disabled={!!disableReason}
           loading={videoConnecting}
+          actionsBarButton
         />
         {renderUserActions()}
       </Styled.OffsetBottom>

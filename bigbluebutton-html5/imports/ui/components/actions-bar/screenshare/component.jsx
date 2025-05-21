@@ -249,6 +249,7 @@ const ScreenshareButton = ({
                     }
                   }}
                 id={amIBroadcasting ? 'unshare-screen-button' : 'share-screen-button'}
+                actionsBarButton
               />
             </Styled.Container>
           ) : null

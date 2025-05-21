@@ -49,6 +49,7 @@ export const ListenOnly: React.FC<ListenOnlyProps> = ({
           e.stopPropagation();
           handleLeaveAudio(meetingIsBreakout);
         }}
+      actionsBarButton
     />
   );
 };

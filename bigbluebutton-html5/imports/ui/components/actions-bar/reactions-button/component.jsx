@@ -128,6 +128,7 @@ const ReactionsButton = (props) => {
             hideLabel
             circle
             size="lg"
+            actionsBarButton
           />
         </Styled.ReactionsDropdown>
       )}

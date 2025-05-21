@@ -100,6 +100,7 @@ const AudioControls: React.FC<AudioControlsProps> = ({
         circle
         accessKey={joinAudioShortcut}
         loading={isConnecting}
+        actionsBarButton
       />
     );
   }, [isConnected, disabled, joinAudioShortcut, away, intl.locale]);

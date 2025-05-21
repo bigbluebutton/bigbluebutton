@@ -355,6 +355,7 @@ class MediaAreaDropdown extends PureComponent {
               size="lg"
               circle
               onClick={this.handleToggleMenu}
+              actionsBarButton
             />
           )}
           actions={children}

@@ -40,6 +40,7 @@ const SwapPresentationButton = () => {
       hideLabel
       circle
       size="lg"
+      actionsBarButton
     />
   );
 };

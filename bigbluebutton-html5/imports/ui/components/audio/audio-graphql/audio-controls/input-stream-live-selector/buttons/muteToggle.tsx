@@ -163,6 +163,7 @@ export const MuteToggle: React.FC<MuteToggleProps> = ({
       animations={animations}
       loading={isMuteLoading}
       data-test={muted ? 'unmuteMicButton' : 'muteMicButton'}
+      actionsBarButton
     />
   );
 };
