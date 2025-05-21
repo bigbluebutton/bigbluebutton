@@ -539,15 +539,29 @@ Example:
 }
 ```
  
-You can obtain the commit hash via `git log` or from the commit summary on your GitHub `bigbluebutton-html-plugin-sdk` PR.
+You can get the commit hash from `git log` or directly from the commit list in your `bigbluebutton-html-plugin-sdk` pull request.
+
+Alternatively, it is possible to reference the PR from the `bigbluebutton-html-plugin-sdk` directly. (This implies that you need to first send the PR for this repository and then the PR for `bigbluebutton/bigbluebutton`)
+
+The resulting `package.json` would be:
+
+```json
+"dependencies": {
+  ...
+  "bigbluebutton-html-plugin-sdk": "https://codeload.github.com/bigbluebutton/bigbluebutton-html-plugin-sdk/tar.gz/refs/pull/<pr-number>/head"
+}
+```
+
+Replace <pr-number> with your actual pull request number.
 
 After adding it, run:
 
 ```bash
+# From bigbluebutton-html5
 npm install
 ```
 
-This will update `package-lock.json` accordingly.
+This will update the `bigbluebutton-html5/package-lock.json` accordingly.
 
 - Publish the branches to the origin by running `git push --set-upstream origin <branch-name>` for both repositories;
 - Submit a **separate pull request for each repository** (`bigbluebutton-html-plugin-sdk` and `bigbluebutton`).
