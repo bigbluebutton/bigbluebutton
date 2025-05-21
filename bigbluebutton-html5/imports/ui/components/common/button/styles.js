@@ -56,7 +56,6 @@ import {
   btnMutedBg,
   colorWhite,
   colorGray,
-  listItemBgHover,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import BaseButton from './base/component';
 
