@@ -215,23 +215,6 @@ class ConnectionStatusComponent extends PureComponent {
     });
   }
 
-  stopMonitoringNetwork() {
-    clearInterval(this.rateInterval);
-    this.rateInterval = null;
-    clearTimeout(this.copyNetworkDataTimeout);
-    this.copyNetworkDataTimeout = null;
-  }
-
-  shouldLogMediaStats() {
-    const { logMediaStats, isModalOpen } = this.props;
-    const { networkData } = this.state;
-    const { audio, video } = networkData;
-
-    return logMediaStats
-      && !isModalOpen
-      && (Object.keys(audio).length > 0 || Object.keys(video).length > 0);
-  }
-
   /**
    * Copy network data to clipboard
    * @return {Promise}   A Promise that is resolved after data is copied.

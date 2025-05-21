@@ -3,7 +3,7 @@ import {
   useEffect,
 } from 'react';
 import statsManager from '/imports/ui/core/singletons/statsManager';
-import { Probe } from '../components/stats/types';
+import { Probe } from '/imports/ui/components/stats/types';
 
 const useWebRTCStats = () => {
   const [lastProbe, setLastProbe] = useState<Probe>({ audio: {}, video: {}, screenshare: {} });

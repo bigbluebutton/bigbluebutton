@@ -712,9 +712,14 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       interval: 10000,
       probes: 5,
       timeout: 30000,
-      log: true,
       logMediaStats: {
         enabled: false,
+        additionalStatsTypes: {
+          common: [],
+          audio: [],
+          video: [],
+          screenshare: [],
+        },
       },
       notification: {
         warning: false,

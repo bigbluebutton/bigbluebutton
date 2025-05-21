@@ -1,5 +1,5 @@
 import { calculateJitterBufferAverage, getDataType } from '/imports/utils/stats';
-import { calculateBitsPerSecond, calculateBitsPerSecondFromMultipleData } from '../connection-status/service';
+import { calculateBitsPerSecond, calculateBitsPerSecondFromMultipleData } from '/imports/ui/components/connection-status/service';
 import logger from '/imports/startup/client/logger';
 import {
   MetricsData,

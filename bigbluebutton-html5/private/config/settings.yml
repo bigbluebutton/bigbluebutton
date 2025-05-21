@@ -967,38 +967,27 @@ public:
     enabled: true
     interval: 10000
     timeout: 10000
-    probes: 5 
-    # Server-side stats event logging. Everytime a connection status event update
-    # is received by Meteor, it'll be logged *by the server*.
-    log: true
+    probes: 5
     # Client-side WebRTC stats logging. If enabled, the client will log periodic
     # WebRTC stats information to the configured logging transports.
     # Disabled by default. This log is verbose and may incur in additional network
     # usage if external logging targets are configured.
     # The effective stats logging frequency is determined by the ratio of
-    # stats.interval to stats.probesd (interval / probes).
+    # stats.interval to stats.probes (interval / probes).
     logMediaStats:
       enabled: false
-      # Defines additional WebRTC stats to extract from getStats(), beyond the default ones.
+      # additionalStatsTypes: Defines additional WebRTC stats to extract from getStats(),
+      # beyond the default ones.
       # Applied only when logMediaStats.enabled is true.
-      # 
-      # - Values must be provided as arrays.
-      # - 'common' stats apply to all media types: audio, video, and screenshare.
-      # - Stats under 'audio', 'video', or 'screenshare' apply only to their respective media type.
-      # 
-      # Example:
-      # common:
-      #   - 'candidate-pair' 
-      #   - 'data-channel'
-      # video:
-      #   - 'remote-inbound-rtp'
-      #
+      #   - Values must be provided as arrays.
+      #   - 'common' stats apply to all media types: audio, video, and screenshare.
+      #   - Stats under 'audio', 'video', or 'screenshare' apply only to their respective media type.
       # Valid values: any type from https://developer.mozilla.org/en-US/docs/Web/API/RTCStatsReport#the_statistic_types
       additionalStatsTypes:
-        # common:
-        # audio:
-        # video:
-        # screenshare:
+        common: []
+        audio: []
+        video: []
+        screenshare: []
     notification:
       warning: false
       error: true

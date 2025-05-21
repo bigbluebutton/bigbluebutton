@@ -3,8 +3,8 @@ import logger from '/imports/startup/client/logger';
 import AudioManager from '/imports/ui/services/audio-manager';
 import ScreenshareService from '/imports/ui/components/screenshare/service';
 import VideoService from '/imports/ui/components/video-provider/service';
-import { Probe, Probes } from '../../components/stats/types';
-import meetingClientSettingsInitialValues from '../initial-values/meetingClientSettings';
+import { Probe, Probes } from '/imports/ui/components/stats/types';
+import meetingClientSettingsInitialValues from '/imports/ui/core/initial-values/meetingClientSettings';
 import { StatsTypes } from '/imports/ui/Types/meetingClientSettings';
 
 type Options = {
@@ -35,11 +35,11 @@ const DEFAULT_INTERVAL = meetingClientSettingsInitialValues.public.stats.interva
 class StatsManager {
   private intervalId: NodeJS.Timeout | null;
 
-  private listeners: Set<Dispatch<SetStateAction<Probe>>>;
+  private readonly listeners: Set<Dispatch<SetStateAction<Probe>>>;
 
   private gatheredStats: Probes;
 
-  private statsSources: BridgesMap;
+  private readonly statsSources: BridgesMap;
 
   constructor() {
     this.statsSources = {
@@ -71,13 +71,15 @@ class StatsManager {
   static getAdditionalStatsTypesToBeIncluded(bridgeKey: string) {
     const key = bridgeKey as keyof StatsTypes;
     const {
-      statsTypes = {},
+      additionalStatsTypes = {},
       enabled,
     } = window.meetingClientSettings.public.stats.logMediaStats;
     if (!enabled) return [];
-    const { common = [] } = statsTypes;
-    const specific = statsTypes[key] || [];
+
+    const { common = [] } = additionalStatsTypes;
+    const specific = additionalStatsTypes[key] || [];
     const statsTypesToFilter = [...common, ...specific];
+
     return statsTypesToFilter;
   }
 
