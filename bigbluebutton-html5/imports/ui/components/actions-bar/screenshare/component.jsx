@@ -16,6 +16,7 @@ import {
 } from '/imports/ui/components/screenshare/service';
 import { SCREENSHARING_ERRORS } from '/imports/api/screenshare/client/bridge/errors';
 import Button from '/imports/ui/components/common/button/component';
+import { listItemBgHover } from '/imports/ui/stylesheets/styled-components/palette';
 import { EXTERNAL_VIDEO_STOP } from '../../external-video-player/mutations';
 
 const { isMobile } = deviceInfo;
@@ -249,7 +250,7 @@ const ScreenshareButton = ({
                     }
                   }}
                 id={amIBroadcasting ? 'unshare-screen-button' : 'share-screen-button'}
-                actionsBarButton
+                hoverColor={listItemBgHover}
               />
             </Styled.Container>
           ) : null

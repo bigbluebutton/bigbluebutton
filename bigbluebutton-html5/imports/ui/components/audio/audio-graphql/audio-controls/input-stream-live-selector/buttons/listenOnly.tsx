@@ -2,6 +2,7 @@ import React from 'react';
 import { useShortcut } from '/imports/ui/core/hooks/useShortcut';
 import { defineMessages, useIntl } from 'react-intl';
 import Button from '/imports/ui/components/common/button/component';
+import { listItemBgHover } from '/imports/ui/stylesheets/styled-components/palette';
 
 const intlMessages = defineMessages({
   leaveAudio: {
@@ -49,7 +50,7 @@ export const ListenOnly: React.FC<ListenOnlyProps> = ({
           e.stopPropagation();
           handleLeaveAudio(meetingIsBreakout);
         }}
-      actionsBarButton
+      hoverColor={listItemBgHover}
     />
   );
 };

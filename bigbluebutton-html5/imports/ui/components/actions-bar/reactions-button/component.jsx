@@ -7,6 +7,7 @@ import data from '@emoji-mart/data';
 import { init } from 'emoji-mart';
 import { SET_REACTION_EMOJI } from '/imports/ui/core/graphql/mutations/userMutations';
 import { useMutation } from '@apollo/client';
+import { listItemBgHover } from '/imports/ui/stylesheets/styled-components/palette';
 import Styled from './styles';
 
 const ReactionsButton = (props) => {
@@ -128,7 +129,7 @@ const ReactionsButton = (props) => {
             hideLabel
             circle
             size="lg"
-            actionsBarButton
+            hoverColor={listItemBgHover}
           />
         </Styled.ReactionsDropdown>
       )}

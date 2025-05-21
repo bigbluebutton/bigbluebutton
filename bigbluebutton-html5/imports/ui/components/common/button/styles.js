@@ -395,8 +395,8 @@ const ButtonSpan = styled.span`
     outline-style: dotted;
     outline-width: ${borderSize};
     text-decoration: none;
-    ${({ actionsBarButton }) => actionsBarButton
-      && `background-color: ${listItemBgHover};`}
+    ${({ hoverColor }) => hoverColor
+      && `background-color: ${hoverColor};`}
   }
 
   &:active,

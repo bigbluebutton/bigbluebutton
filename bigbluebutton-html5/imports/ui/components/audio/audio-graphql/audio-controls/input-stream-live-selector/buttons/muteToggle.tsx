@@ -16,6 +16,7 @@ import {
   muteLoadingState,
   useIsMuteLoading,
 } from '/imports/ui/components/audio/audio-graphql/audio-controls/input-stream-live-selector/service';
+import { listItemBgHover } from '/imports/ui/stylesheets/styled-components/palette';
 
 const intlMessages = defineMessages({
   muteAudio: {
@@ -163,7 +164,7 @@ export const MuteToggle: React.FC<MuteToggleProps> = ({
       animations={animations}
       loading={isMuteLoading}
       data-test={muted ? 'unmuteMicButton' : 'muteMicButton'}
-      actionsBarButton
+      hoverColor={listItemBgHover}
     />
   );
 };

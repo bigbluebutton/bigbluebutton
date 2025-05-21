@@ -88,7 +88,11 @@ const propTypes = {
    */
   loading: PropTypes.bool,
 
-  actionsBarButton: PropTypes.bool,
+  /*
+  * Defines a custom hover color
+  * @defaultValue undefined
+  */
+  hovercolor: PropTypes.string,
 };
 
 const defaultProps = {
@@ -102,7 +106,6 @@ const defaultProps = {
   hideLabel: false,
   tooltipLabel: '',
   loading: false,
-  actionsBarButton: false,
 };
 
 export default class Button extends BaseButton {
@@ -118,6 +121,7 @@ export default class Button extends BaseButton {
     delete remainingProps.block;
     delete remainingProps.hideLabel;
     delete remainingProps.tooltipLabel;
+    delete remainingProps.hoverColor;
 
     return remainingProps;
   }
@@ -174,7 +178,7 @@ export default class Button extends BaseButton {
       circle,
       block,
       loading,
-      actionsBarButton,
+      hoverColor,
       ...otherProps
     } = this.props;
 
@@ -190,7 +194,7 @@ export default class Button extends BaseButton {
         className={className}
         iconRight={iconRight}
         loading={loading}
-        actionsBarButton={actionsBarButton}
+        hoverColor={hoverColor}
         {...remainingProps}
       >
         {this.renderIcon()}
@@ -210,7 +214,7 @@ export default class Button extends BaseButton {
       circle,
       block,
       loading,
-      actionsBarButton,
+      hoverColor,
       ...otherProps
     } = this.props;
 
@@ -238,7 +242,7 @@ export default class Button extends BaseButton {
           ghost={ghost}
           circle={circle}
           block={block}
-          actionsBarButton={actionsBarButton}
+          hoverColor={hoverColor}
         >
           {this.renderIcon()}
         </Styled.ButtonSpan>
