@@ -24,7 +24,6 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import org.apache.commons.io.FilenameUtils;
-import scala.xml.Null;
 
 public final class UploadedPresentation {
   private final String podId;
