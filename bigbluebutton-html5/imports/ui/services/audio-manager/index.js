@@ -67,6 +67,22 @@ const checkMediaDevicesTarget = () => {
 };
 
 class AudioManager {
+  static playAudioElement(element) {
+    return new Promise((resolve) => {
+      if (!(element instanceof HTMLMediaElement)) {
+        // Provided element is not a valid audio/video element.
+        resolve(false);
+        return;
+      }
+
+      element.play().then(() => {
+        resolve(true);
+      }).catch(() => {
+        resolve(false);
+      });
+    });
+  }
+
   constructor() {
     this._breakoutAudioTransferStatus = {
       status: BREAKOUT_AUDIO_TRANSFER_STATES.DISCONNECTED,
@@ -1303,29 +1319,10 @@ class AudioManager {
     if (outputDeviceId && typeof audioAlert.setSinkId === 'function') {
       return audioAlert
         .setSinkId(outputDeviceId)
-        .then(() => this.canAutoplayAudioElement(audioAlert));
+        .then(() => AudioManager.playAudioElement(audioAlert));
     }
 
-    return this.canAutoplayAudioElement(audioAlert);
-  }
-
-  canAutoplayAudioElement(element) {
-    return new Promise((resolve) => {
-      if (!(element instanceof HTMLMediaElement)) {
-        // Provided element is not a valid audio/video element.
-        resolve(false);
-        return;
-      }
-
-      element.play().then(() => {
-        resolve(true);
-      }).catch(() => {
-        this.handlePlayElementFailed({
-          detail: { mediaElement: element, callback: resolve },
-        });
-        resolve(false);
-      });
-    });
+    return AudioManager.playAudioElement(audioAlert);
   }
 
   async updateAudioConstraints(constraints) {
