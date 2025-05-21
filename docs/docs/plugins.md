@@ -397,8 +397,6 @@ As an example, let's walk through a feature that affects both: **adding a `data-
 
 After deciding the repositories in which the changes are needed, it is necessary to have a fork to contribute.
 
-![Plugin fork button](/img/plugins/plugin-sdk-repo-fork.png)
-
 1. Fork the [bigbluebutton-html-plugin-sdk](https://github.com/bigbluebutton/bigbluebutton-html-plugin-sdk) repository;
 2. Fork the [main bigbluebutton](https://github.com/bigbluebutton/bigbluebutton) repository;
 3. Clone the forks locally;
