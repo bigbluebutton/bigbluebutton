@@ -381,7 +381,7 @@ plugin {
 
 ### Developing the `bigbluebutton-html-plugin-sdk`
 
-This guide explains how to contribute to the `plugin-sdk`, including adding new features or fixing existing issues. It also covers how to integrate those changes with the BigBlueButton client when necessary.
+This guide explains how to contribute to the [`bigbluebutton-html-plugin-sdk`](https://github.com/bigbluebutton/bigbluebutton-html-plugin-sdk), including adding new features or fixing existing issues. It also covers how to integrate those changes with the BigBlueButton client when necessary.
 
 ---
 
@@ -393,18 +393,34 @@ As an example, let's walk through a feature that affects both: **adding a `data-
 
 ---
 
-#### 2. Setting Up Your Environment
+#### 2. Fork necessary repositories
 
-Make sure you have both repositories cloned locally:
+After deciding the repositories in which the changes are needed, it is necessary to have a fork to contribute.
+
+![Plugin fork button](/img/plugins/plugin-sdk-repo-fork.png)
+
+1. Fork the [bigbluebutton-html-plugin-sdk](https://github.com/bigbluebutton/bigbluebutton-html-plugin-sdk) repository;
+2. Fork the [main bigbluebutton](https://github.com/bigbluebutton/bigbluebutton) repository;
+3. Clone the forks locally;
+
+```bash
+git clone https://github.com/YourUsername/bigbluebutton-html-plugin-sdk
+```
+
+---
+
+#### 3. Setting Up Your Environment
+
+After having cloned both repositories cloned locally:
 
 - `bigbluebutton-html-plugin-sdk`
-- `bigbluebutton-html5`
+- `bigbluebutton`
 
 Create a development branch in both repositories (ideally with the same name) to keep changes organized.
 
 ---
 
-#### 3. Make Changes in the Plugin SDK
+#### 4. Make Changes in the Plugin SDK
 
 Start by implementing the required changes in the SDK. In our example, we’ll add a new `dataTest` string property to the `FloatingWindow` component:
 
@@ -442,7 +458,7 @@ export interface FloatingWindowProps {
 
 ---
 
-#### 4. Publish the changes to the projects needed
+#### 5. Publish the changes to the projects needed
 
 To verify your change, you’ll need to test it in a sample plugin and in the BigBlueButton client.
 
@@ -478,9 +494,9 @@ This ensures the changes in the SDK are applied to both the BigBlueButton client
 
 ---
 
-#### 5. Update the BigBlueButton Client (`bbb-html5`)
+#### 6. Update the BigBlueButton Client (`bbb-html5`)
 
-Now apply the necessary changes in the `bbb-html5` repository. For our example, update the following files to pass and use the new `dataTest` prop:
+Now make the necessary changes to the `bigbluebutton/bigbluebutton` repository in the `bigbluebutton-html5` directory. For our example, update the following files to pass and use the new `dataTest` prop:
 
 **File:** `imports/ui/components/floating-window/component.tsx`
 
@@ -503,18 +519,18 @@ Update the container (`imports/ui/components/floating-window/container.tsx`) log
 
 ---
 
-#### 6. Update the Sample Plugin
+#### 7. Update the Sample Plugin
 
-After the SDK is built and published, you can update the sample plugin to use the new `dataTest` property accordingly. And test it (using the [development mode](#running-the-plugin-from-source), for example) against the `bbb-html5`.
+After the SDK is built and published, you can update the sample plugin to use the new `dataTest` property accordingly. And test it (using the [development mode](#running-the-plugin-from-source), for example) against the BigBlueButton's client (`bigbluebutton-html5`).
 
 ---
 
-#### 7. Submitting Pull Requests
+#### 8. Submitting Pull Requests
 
 Once all changes are complete and tested:
 
-- Submit a **separate pull request for each repository** (`plugin-sdk`, `bbb-html5`).
-- In the `bbb-html5` PR, **do not reference a version number** for the SDK in `package.json` yet. Instead, use the commit hash from your SDK changes.
+- Commit the changes in the `bigbluebutton-html-plugin-sdk` (all needed to run the feature/fix and the changes made to the sample);
+- In the `bigbluebutton-html5` client **do not reference a version number** for the SDK in `package.json` yet. Instead, use the commit hash from your SDK changes
 
 Example:
 
@@ -524,8 +540,8 @@ Example:
   "bigbluebutton-html-plugin-sdk": "https://codeload.github.com/bigbluebutton/bigbluebutton-html-plugin-sdk/tar.gz/<commit-hash-id>"
 }
 ```
-
-You can obtain the commit hash via `git log` or from the commit summary on your GitHub PR.
+ 
+You can obtain the commit hash via `git log` or from the commit summary on your GitHub `bigbluebutton-html-plugin-sdk` PR.
 
 After adding it, run:
 
@@ -535,15 +551,18 @@ npm install
 
 This will update `package-lock.json` accordingly.
 
+- Publish the branches to the origin by running `git push --set-upstream origin <branch-name>` for both repositories;
+- Submit a **separate pull request for each repository** (`bigbluebutton-html-plugin-sdk` and `bigbluebutton`).
+
 ---
 
-#### 8. Finalizing with an Official SDK Version
+#### 9. Finalizing with an Official SDK Version
 
 Once your PRs are approved:
 
 1. The maintainers will merge the SDK PR first.
 2. A new version will be published to [npmjs.com](https://npmjs.com) (e.g.: `0.0.99`).
-3. You’ll then update the `package.json` in `bbb-html5` to use the official version:
+3. You’ll then update the `package.json` in `bigbluebutton-html5` to use the official version:
 
 ```json
 "dependencies": {
@@ -567,6 +586,16 @@ html5PluginSdkVersion=0.0.99
 ```
 
 ---
+
+6. Now you stage these last changes, likely, those will be just:
+
+```
+bigbluebutton-web/grails-app/conf/bigbluebutton.properties
+bigbluebutton-html5/package.json
+bigbluebutton-html5/package-lock.json
+```
+
+7. Commit the staged changes and push to origin to update the `bigbluebutton/bigbluebutton` PR.
 
 With that, your feature or fix will be ready for release. 🎉
 
