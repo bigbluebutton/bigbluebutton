@@ -38,6 +38,7 @@ const propTypes = {
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
   amIModerator: PropTypes.bool,
+  isRTL: PropTypes.bool,
   isBreakoutRoom: PropTypes.bool,
   connected: PropTypes.bool.isRequired,
   isDropdownOpen: PropTypes.bool,
@@ -150,6 +151,7 @@ class LeaveMeetingButton extends PureComponent {
     } = this.props;
 
     const { isEndMeetingConfirmationModalOpen } = this.state;
+    const enableExitLabel = window?.meetingClientSettings?.public?.app?.leaveLabel?.enabled;
 
     const customStyles = { top: '1rem' };
 
@@ -170,7 +172,7 @@ class LeaveMeetingButton extends PureComponent {
               icon="logout"
               color="danger"
               size="lg"
-              hideLabel
+              hideLabel={!enableExitLabel}
               // FIXME: Without onClick react proptypes keep warning
               // even after the DropdownTrigger inject an onClick handler
               onClick={() => null}

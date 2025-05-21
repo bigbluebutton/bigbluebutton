@@ -23,8 +23,10 @@ const LeaveButton = styled(Button)`
   ${({ state }) => state === 'closed' && `
     border-radius: 1.1rem;
     font-size: 1rem;
-    line-height: 1.1rem;
     font-weight: 400;
+    display: flex;
+    flex-direction: row-reverse;
+    gap: 0.35rem;
     z-index: 3;
   `}
 `;

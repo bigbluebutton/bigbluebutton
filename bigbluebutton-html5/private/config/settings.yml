@@ -139,6 +139,8 @@ public:
       duration: 4000
     appsGallery:
       maxPinnedApps: 3
+    leaveLabel:
+      enabled: false
     remainingTimeThreshold: 30
     remainingTimeAlertThresholdArray: [1,5]
     enableDebugWindow: true
