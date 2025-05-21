@@ -100,6 +100,7 @@ class ApiController {
             bbbVersion paramsProcessorUtil.getBbbVersion()
             graphqlWebsocketUrl paramsProcessorUtil.getGraphqlWebsocketUrl()
             graphqlApiUrl paramsProcessorUtil.getGraphqlApiUrl()
+            html5PluginSdkVersion paramsProcessorUtil.getHtml5PluginSdkVersion()
           }
           render(contentType: "application/json", text: builder.toPrettyString())
         }
@@ -111,6 +112,7 @@ class ApiController {
                   paramsProcessorUtil.getApiVersion(),
                   paramsProcessorUtil.getBbbVersion(),
                   paramsProcessorUtil.getGraphqlWebsocketUrl(),
+                  paramsProcessorUtil.getHtml5PluginSdkVersion(),
                   paramsProcessorUtil.getGraphqlApiUrl(),
                   RESP_CODE_SUCCESS),
                   contentType: "text/xml")
