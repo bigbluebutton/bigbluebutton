@@ -20,8 +20,11 @@
 package org.bigbluebutton.presentation;
 
 import java.io.File;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import org.apache.commons.io.FilenameUtils;
+import scala.xml.Null;
 
 public final class UploadedPresentation {
   private final String podId;
@@ -61,7 +64,13 @@ public final class UploadedPresentation {
     this.meetingId = meetingId;
     this.id = id;
     this.temporaryPresentationId = temporaryPresentationId;
-    this.name = name;
+    
+    String encodedName = "";
+    try {
+      encodedName = URLEncoder.encode(name, StandardCharsets.UTF_8);
+    } catch (NullPointerException ignored) {}
+    this.name = encodedName;
+    
     this.baseUrl = baseUrl;
     this.isDownloadable = false;
     this.current = current;
