@@ -30,9 +30,9 @@ trait ChangeUserReactionEmojiReqMsgHdlr extends RightsManagementTrait {
       outGW.send(msgEventChange)
     }
 
-    val reactionsButtonIsDisabled = liveMeeting.props.meetingProp.disabledFeatures.contains("reactionsButton")
+    val userReactionsIsDisabled = liveMeeting.props.meetingProp.disabledFeatures.contains("userReactions")
 
-    if (reactionsButtonIsDisabled) {
+    if (userReactionsIsDisabled) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to change reaction."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)
