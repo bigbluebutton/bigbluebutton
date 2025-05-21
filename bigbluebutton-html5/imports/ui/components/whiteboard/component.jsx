@@ -628,8 +628,8 @@ const Whiteboard = React.memo((props) => {
         '+': handleKeybindZoom.bind(null, 'zoomIn'),
         '-': handleKeybindZoom.bind(null, 'zoomOut'),
         '=': handleKeybindZoom.bind(null, 'zoomIn'),
-        'add': handleKeybindZoom.bind(null, 'zoomIn'),
-        'subtract': handleKeybindZoom.bind(null, 'zoomOut'),
+        add: handleKeybindZoom.bind(null, 'zoomIn'),
+        subtract: handleKeybindZoom.bind(null, 'zoomOut'),
       };
 
       if (ctrlKeyMap[key]) {
@@ -1350,19 +1350,13 @@ const Whiteboard = React.memo((props) => {
       adjustCameraOnMount(!isPresenterRef.current);
     });
 
-    // Get the existing SVG
-    const svg = document.querySelector('svg.tl-svg-context');
-
-    // Locate and remove the old cursor hint
-    const oldCursorHint = svg.querySelector('#cursor_hint');
-    if (oldCursorHint) {
-      oldCursorHint.remove();
+    // New cursor hint shape: circle
+    const newD = 'M 8,5 A 3,3 0 1,0 2,5 A 3,3 0 1,0 8,5';
+    // Fetch the cursor hint element and update its path
+    const cursorHint = document.getElementById('cursor_hint');
+    if (cursorHint) {
+      cursorHint.setAttribute('d', newD);
     }
-    // Create a <use> element to reference the existing symbol
-    const useRedPointer = document.createElementNS('http://www.w3.org/2000/svg', 'use');
-    useRedPointer.setAttributeNS(null, 'href', '#redPointer');
-    useRedPointer.setAttribute('id', 'cursor_hint');
-    svg.appendChild(useRedPointer);
   };
 
   const syncCameraOnPresenterZoom = () => {
