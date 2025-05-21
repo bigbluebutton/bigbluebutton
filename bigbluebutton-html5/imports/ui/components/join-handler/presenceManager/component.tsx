@@ -1,6 +1,7 @@
 import { useMutation, useQuery } from '@apollo/client';
 import React, { useContext, useEffect, useState } from 'react';
 import Bowser from 'bowser';
+import { isBrowserSupported } from 'livekit-client';
 import Session from '/imports/ui/services/storage/in-memory';
 import {
   getUserCurrent,
@@ -19,7 +20,6 @@ import deviceInfo from '/imports/utils/deviceInfo';
 import GuestWaitContainer, { GUEST_STATUSES } from '../guest-wait/component';
 import Legacy from '/imports/ui/components/legacy/component';
 import PluginTopLevelManager from '/imports/ui/components/plugin-top-level-manager/component';
-import { isBrowserSupported } from 'livekit-client';
 
 const connectionTimeout = 60000;
 const MESSAGE_TIMEOUT = 3000;
