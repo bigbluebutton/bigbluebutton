@@ -818,6 +818,7 @@ public:
     showPushLayoutToggle: true
     showSessionDetailsOnJoin: true
     showScreenshareQuickSwapButton: false
+    showLeaveSessionLabel: false
   pads:
     url: ETHERPAD_HOST
   media:

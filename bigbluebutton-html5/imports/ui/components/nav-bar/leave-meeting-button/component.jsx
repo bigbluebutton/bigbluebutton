@@ -150,6 +150,7 @@ class LeaveMeetingButton extends PureComponent {
     } = this.props;
 
     const { isEndMeetingConfirmationModalOpen } = this.state;
+    const enableExitLabel = window?.meetingClientSettings?.public?.layout?.showLeaveSessionLabel;
 
     const customStyles = { top: '1rem' };
 
@@ -170,7 +171,7 @@ class LeaveMeetingButton extends PureComponent {
               icon="logout"
               color="danger"
               size="lg"
-              hideLabel
+              hideLabel={!enableExitLabel}
               // FIXME: Without onClick react proptypes keep warning
               // even after the DropdownTrigger inject an onClick handler
               onClick={() => null}
