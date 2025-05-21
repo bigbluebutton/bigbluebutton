@@ -11,6 +11,7 @@ import PreviewService from '/imports/ui/components/video-preview/service';
 import { CameraSettingsDropdownItemType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/camera-settings-dropdown-item/enums';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { CameraSettingsDropdownInterface } from 'bigbluebutton-html-plugin-sdk';
+import { listItemBgHover } from '/imports/ui/stylesheets/styled-components/palette';
 import VideoService from '../service';
 import Styled from './styles';
 
@@ -230,6 +231,7 @@ const JoinVideoButton: React.FC<JoinVideoButtonProps> = ({
           circle
           disabled={!!disableReason}
           loading={videoConnecting}
+          hoverColor={listItemBgHover}
         />
         {renderUserActions()}
       </Styled.OffsetBottom>

@@ -61,7 +61,7 @@ const btnDefaultGhostActiveBg = 'var(--btn-default-active-bg, rgba(255, 255, 255
 const btnPrimaryBorder = 'var(--btn-primary-border, rgba(15, 112, 215, 0.5))'; // colorPrimary, 50%
 const btnPrimaryColor = `var(--btn-primary-color, ${colorWhite})`;
 const btnPrimaryBg = `var(--btn-primary-bg, ${colorPrimary})`;
-const btnPrimaryHoverBg = `var(--btn-primary-hover-bg, ${colorBlueAux})`;
+const btnPrimaryHoverBg = 'var(--btn-primary-hover-bg, #0C57A7)';
 const btnPrimaryActiveBg = 'var(--btn-primary-active-bg, #0A4B8F)';
 
 const btnSuccessBorder = `var(--btn-success-border, ${colorSuccess})`;

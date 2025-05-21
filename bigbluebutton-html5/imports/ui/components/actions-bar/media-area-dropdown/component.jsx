@@ -6,7 +6,7 @@ import LayoutModalContainer from '/imports/ui/components/layout/modal/container'
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import { ActionButtonDropdownItemType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/action-button-dropdown-item/enums';
 import Styled from './styles';
-import { colorPrimary } from '/imports/ui/stylesheets/styled-components/palette';
+import { colorPrimary, listItemBgHover } from '/imports/ui/stylesheets/styled-components/palette';
 import { LAYOUT_TYPE } from '../../layout/enums';
 import { uniqueId } from '/imports/utils/string-utils';
 import VideoPreviewContainer from '/imports/ui/components/video-preview/container';
@@ -355,6 +355,7 @@ class MediaAreaDropdown extends PureComponent {
               size="lg"
               circle
               onClick={this.handleToggleMenu}
+              hoverColor={listItemBgHover}
             />
           )}
           actions={children}

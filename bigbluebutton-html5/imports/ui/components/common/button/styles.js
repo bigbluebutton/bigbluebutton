@@ -394,7 +394,8 @@ const ButtonSpan = styled.span`
     outline-style: dotted;
     outline-width: ${borderSize};
     text-decoration: none;
-    background-color: ${btnPrimaryHoverBg};
+    ${({ hoverColor }) => hoverColor
+      && `background-color: ${hoverColor};`}
   }
 
   &:active,

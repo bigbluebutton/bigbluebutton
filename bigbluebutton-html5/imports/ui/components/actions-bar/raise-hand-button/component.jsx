@@ -6,6 +6,7 @@ import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import { init } from 'emoji-mart';
 import { SET_RAISE_HAND } from '/imports/ui/core/graphql/mutations/userMutations';
 import { useMutation } from '@apollo/client';
+import { listItemBgHover } from '/imports/ui/stylesheets/styled-components/palette';
 import Styled from './styles';
 
 const RaiseHandButton = (props) => {
@@ -57,6 +58,7 @@ const RaiseHandButton = (props) => {
       hideLabel
       circle
       size="lg"
+      hoverColor={listItemBgHover}
     />
   );
 };

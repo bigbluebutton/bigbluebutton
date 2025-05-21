@@ -17,6 +17,7 @@ import InputStreamLiveSelectorContainer from './input-stream-live-selector/compo
 import { UPDATE_ECHO_TEST_RUNNING } from './queries';
 import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
 import useIsAudioConnected from '/imports/ui/components/audio/audio-graphql/hooks/useIsAudioConnected';
+import { listItemBgHover } from '/imports/ui/stylesheets/styled-components/palette';
 
 const intlMessages = defineMessages({
   joinAudio: {
@@ -100,6 +101,7 @@ const AudioControls: React.FC<AudioControlsProps> = ({
         circle
         accessKey={joinAudioShortcut}
         loading={isConnecting}
+        hoverColor={listItemBgHover}
       />
     );
   }, [isConnected, disabled, joinAudioShortcut, away, intl.locale]);

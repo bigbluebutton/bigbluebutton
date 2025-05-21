@@ -8,6 +8,7 @@ import {
   layoutSelectInput, layoutSelect,
 } from '/imports/ui/components/layout/context';
 import { useStorageKey } from '/imports/ui/services/storage/hooks';
+import { listItemBgHover } from '/imports/ui/stylesheets/styled-components/palette';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -110,6 +111,7 @@ const PresentationOptionsContainer = ({
       disabled={!isThereCurrentPresentation}
       data-test={!presentationIsOpen ? 'restorePresentation' : 'minimizePresentation'}
       isDarkThemeEnabled={isDarkThemeEnabled}
+      hoverColor={listItemBgHover}
     />
   );
 };

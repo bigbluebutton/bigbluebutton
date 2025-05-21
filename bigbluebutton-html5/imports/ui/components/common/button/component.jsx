@@ -87,6 +87,12 @@ const propTypes = {
    * @defaultValue false
    */
   loading: PropTypes.bool,
+
+  /*
+  * Defines a custom hover color
+  * @defaultValue undefined
+  */
+  hovercolor: PropTypes.string,
 };
 
 const defaultProps = {
@@ -115,6 +121,7 @@ export default class Button extends BaseButton {
     delete remainingProps.block;
     delete remainingProps.hideLabel;
     delete remainingProps.tooltipLabel;
+    delete remainingProps.hoverColor;
 
     return remainingProps;
   }
@@ -171,6 +178,7 @@ export default class Button extends BaseButton {
       circle,
       block,
       loading,
+      hoverColor,
       ...otherProps
     } = this.props;
 
@@ -186,6 +194,7 @@ export default class Button extends BaseButton {
         className={className}
         iconRight={iconRight}
         loading={loading}
+        hoverColor={hoverColor}
         {...remainingProps}
       >
         {this.renderIcon()}
@@ -205,6 +214,7 @@ export default class Button extends BaseButton {
       circle,
       block,
       loading,
+      hoverColor,
       ...otherProps
     } = this.props;
 
@@ -232,6 +242,7 @@ export default class Button extends BaseButton {
           ghost={ghost}
           circle={circle}
           block={block}
+          hoverColor={hoverColor}
         >
           {this.renderIcon()}
         </Styled.ButtonSpan>
