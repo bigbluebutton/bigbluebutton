@@ -15,7 +15,7 @@ import {
   useIsPresentationEnabled,
   useIsTimerFeatureEnabled,
   useIsRaiseHandEnabled,
-  useIsReactionsButtonEnabled,
+  useIsUserReactionsEnabled,
 } from '/imports/ui/services/features';
 
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
@@ -98,7 +98,7 @@ const ActionsBarContainer = (props) => {
   const isTimerFeatureEnabled = useIsTimerFeatureEnabled();
   const isPollingEnabled = useIsPollingEnabled() && isPresentationEnabled;
   const isRaiseHandEnabled = useIsRaiseHandEnabled();
-  const isReactionsButtonEnabled = useIsReactionsButtonEnabled();
+  const isReactionsButtonEnabled = useIsUserReactionsEnabled();
   const applicationSettings = useSettings(SETTINGS.APPLICATION);
   const { pushLayout } = applicationSettings;
   const setPushLayout = usePushLayoutUpdater(pushLayout);
