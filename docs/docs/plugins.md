@@ -379,6 +379,196 @@ plugin {
 
 - Using this information, the client fetches the plugin’s JavaScript bundle from the plugin storage server and loads it into the React component tree.
 
+### Developing the `bigbluebutton-html-plugin-sdk`
+
+This guide explains how to contribute to the `plugin-sdk`, including adding new features or fixing existing issues. It also covers how to integrate those changes with the BigBlueButton client when necessary.
+
+---
+
+#### 1. Determine the Scope of the Change
+
+Before starting development, assess whether your change affects only the `plugin-sdk` repository or also requires changes to the main BigBlueButton (`bbb-html5`) repository.
+
+As an example, let's walk through a feature that affects both: **adding a `data-test` attribute to the floating window extensible area.**
+
+---
+
+#### 2. Setting Up Your Environment
+
+Make sure you have both repositories cloned locally:
+
+- `bigbluebutton-html-plugin-sdk`
+- `bigbluebutton-html5`
+
+Create a development branch in both repositories (ideally with the same name) to keep changes organized.
+
+---
+
+#### 3. Make Changes in the Plugin SDK
+
+Start by implementing the required changes in the SDK. In our example, we’ll add a new `dataTest` string property to the `FloatingWindow` component:
+
+**File:** `src/extensible-areas/floating-window/component.ts`
+
+```ts
+export class FloatingWindow implements FloatingWindowInterface {
+  id: string = '';
+  type: FloatingWindowType;
+  dataTest: string;
+
+  constructor({
+    id,
+    dataTest,
+    ...
+  }: FloatingWindowProps) {
+    if (id) this.id = id;
+    this.dataTest = dataTest;
+    ...
+  }
+}
+```
+
+Also update the type definition to reflect this new property:
+
+**File:** `src/extensible-areas/floating-window/types.ts`
+
+```ts
+export interface FloatingWindowProps {
+  id: string;
+  dataTest: string;
+  ...
+}
+```
+
+---
+
+#### 4. Publish the changes to the projects needed
+
+To verify your change, you’ll need to test it in a sample plugin and in the BigBlueButton client.
+
+For new features, it’s best to create a new sample plugin. However, in this example, we'll use the existing `sample-floating-window-plugin`.
+
+Follow these steps to build and publish the SDK to both the sample plugin and `bbb-html5`:
+
+```bash
+# From the SDK root
+npm install
+npm run build
+
+# Ensure dependencies are installed in both target projects
+cd ~/path/to/bigbluebutton-html5
+npm install
+cd -
+
+cd samples/sample-floating-window-plugin
+npm install
+cd -
+
+# Publish SDK changes to both the BBB client and the sample plugin
+./scripts/publish-to-project-folder.sh ~/path/to/bbb-html5
+./scripts/publish-to-project-folder.sh samples/sample-floating-window-plugin
+```
+
+This ensures the changes in the SDK are applied to both the BigBlueButton client and the plugin sample.
+
+> **Optional:** To publish the SDK to all sample plugins at once, use:
+> ```bash
+> ./scripts/publish-to-samples.sh
+> ```
+
+---
+
+#### 5. Update the BigBlueButton Client (`bbb-html5`)
+
+Now apply the necessary changes in the `bbb-html5` repository. For our example, update the following files to pass and use the new `dataTest` prop:
+
+**File:** `imports/ui/components/floating-window/component.tsx`
+
+```tsx
+const renderComponent = (
+  elementRef: React.MutableRefObject<null>,
+  ...
+  dataTest: string,
+) => (
+  <Styled.FloatingWindowContent
+    ref={elementRef}
+    id={key}
+    data-test={dataTest}
+    ...
+  />
+);
+```
+
+Update the container (`imports/ui/components/floating-window/container.tsx`) logic to pass `dataTest` down to the `renderComponent`.
+
+---
+
+#### 6. Update the Sample Plugin
+
+After the SDK is built and published, you can update the sample plugin to use the new `dataTest` property accordingly. And test it (using the [development mode](#running-the-plugin-from-source), for example) against the `bbb-html5`.
+
+---
+
+#### 7. Submitting Pull Requests
+
+Once all changes are complete and tested:
+
+- Submit a **separate pull request for each repository** (`plugin-sdk`, `bbb-html5`).
+- In the `bbb-html5` PR, **do not reference a version number** for the SDK in `package.json` yet. Instead, use the commit hash from your SDK changes.
+
+Example:
+
+```json
+"dependencies": {
+  ...
+  "bigbluebutton-html-plugin-sdk": "https://codeload.github.com/bigbluebutton/bigbluebutton-html-plugin-sdk/tar.gz/<commit-hash-id>"
+}
+```
+
+You can obtain the commit hash via `git log` or from the commit summary on your GitHub PR.
+
+After adding it, run:
+
+```bash
+npm install
+```
+
+This will update `package-lock.json` accordingly.
+
+---
+
+#### 8. Finalizing with an Official SDK Version
+
+Once your PRs are approved:
+
+1. The maintainers will merge the SDK PR first.
+2. A new version will be published to [npmjs.com](https://npmjs.com) (e.g.: `0.0.99`).
+3. You’ll then update the `package.json` in `bbb-html5` to use the official version:
+
+```json
+"dependencies": {
+  ...
+  "bigbluebutton-html-plugin-sdk": "0.0.99"
+}
+```
+
+4. Run:
+
+```bash
+npm install
+```
+
+5. Finally, update the SDK version in the following file in the `bigbluebutton-web` project:
+
+**File:** `bigbluebutton-web/grails-app/conf/bigbluebutton.properties`
+
+```properties
+html5PluginSdkVersion=0.0.99
+```
+
+---
+
+With that, your feature or fix will be ready for release. 🎉
 
 ## API
 
@@ -758,13 +948,13 @@ See example below:
   // All set from this plugin will disappear from the UI;
 ```
 
-**How to propperly build a plugin?**
+**How to properly build a plugin?**
 Just go to your plugin folder, install dependencies and run the build command as follows:
 
 ```bash
 cd my-plugin-folder/
 npm i
-npm run build-bundl
+npm run build-bundle
 ```
 
 At this point, another folder will be created into the plugin directory called "dist/" inside of that folder you will find the plugin itself `MyPlugin.js`. Remember that the name of this file will be the same as defined in the `webpack.config.js`, such as:
