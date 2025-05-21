@@ -552,7 +552,7 @@ The resulting `package.json` would be:
 }
 ```
 
-Replace <pr-number> with your actual pull request number.
+Replace `<pr-number>` with your actual pull request number.
 
 After adding it, run:
 
