@@ -108,7 +108,7 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
     await createParam.overrideDefaultPresentation();
   });
 
-  test.describe.parallel('Layout Parameters', () => {
+  test.describe.parallel('Meeting Layout(default)', () => {
     test('CUSTOM_LAYOUT', async ({ browser, context, page }) => {
       const createParam = new CreateParameters(browser, context);
       await createParam.initModPage(page, true, { createParameter: c.customLayout });
