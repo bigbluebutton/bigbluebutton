@@ -203,12 +203,55 @@ const Whiteboard = React.memo((props) => {
       return updatedTools;
     },
     toolbar: (_editor, toolbarItems, { tools }) => {
-      if (tools.deleteSelectedItems) {
-        toolbarItems.splice(7, 0, toolbarItem(tools.deleteSelectedItems));
+      const isTestEnv = typeof navigator !== 'undefined' && navigator.webdriver;
+
+      const bbbMultiUserPenOnly = getFromUserSettings(
+        'bbb_multi_user_pen_only',
+        false,
+      );
+      const bbbPresenterTools = getFromUserSettings(
+        'bbb_presenter_tools',
+        meetingClientSettingsInitialValues.public.whiteboard.toolbar.presenterTools,
+      );
+      const bbbMultiUserTools = getFromUserSettings(
+        'bbb_multi_user_tools',
+        meetingClientSettingsInitialValues.public.whiteboard.toolbar.multiUserTools,
+      );
+
+      if (tools.deleteAll) {
+        toolbarItems.splice(7, 0, toolbarItem(tools.deleteAll));
       }
+
+      const hasRestrictions =
+        bbbMultiUserPenOnly ||
+        (Array.isArray(bbbPresenterTools) && bbbPresenterTools.length > 0) ||
+        (Array.isArray(bbbMultiUserTools) && bbbMultiUserTools.length > 0);
+
+      const shouldBypassFiltering = isTestEnv && !hasRestrictions;
+
+      if (shouldBypassFiltering) {
+        return toolbarItems;
+      }
+
+      // PEN-ONLY for everyone who's NOT mod or presenter
+      if (bbbMultiUserPenOnly && !isModerator && !isPresenter) {
+        return toolbarItems.filter((item) => item.id === 'draw');
+      }
+
+      // PRESENTER-TOOLS mode for presenters
+      if (bbbPresenterTools.length >= 1 && isPresenter) {
+        return toolbarItems.filter((item) => bbbPresenterTools.includes(item.id));
+      }
+
+      // MULTI-USER-TOOLS for anyone who's NOT a moderator
+      if (bbbMultiUserTools.length >= 1 && !isModerator) {
+        return toolbarItems.filter((item) => bbbMultiUserTools.includes(item.id));
+      }
+
+      // full toolbar
       return toolbarItems;
     },
-  }), [intl, currentUser?.presenter, currentUser?.userId]);
+  }), [intl, currentUser?.presenter, currentUser?.userId, isModerator]);
 
   const presenterChanged = usePrevious(isPresenter) !== isPresenter;
   const pageChanged = usePrevious(curPageId) !== curPageId;
@@ -1847,88 +1890,8 @@ const Whiteboard = React.memo((props) => {
   }, [tlEditorRef?.current?.camera, presentationAreaWidth, presentationAreaHeight, presentationId]);
 
   React.useEffect(() => {
-    const bbbMultiUserTools = getFromUserSettings(
-      'bbb_multi_user_tools',
-      meetingClientSettingsInitialValues.public.whiteboard.toolbar.multiUserTools,
-    );
-    const allElements = document.querySelectorAll('[data-testid^="tools."]');
-    const actionsElement = document.querySelector('[data-testid="main.action-menu"]');
-
-    if (bbbMultiUserTools.length >= 1 && !isModerator) {
-      allElements.forEach((element) => {
-        const toolName = element.getAttribute('data-testid').split('.')[1];
-
-        if (!bbbMultiUserTools.includes(toolName)) {
-          // eslint-disable-next-line no-param-reassign
-          element.style.display = 'none';
-        }
-      });
-
-      if (actionsElement) {
-        if (!bbbMultiUserTools.includes('actions')) {
-          actionsElement.style.display = 'none';
-        }
-      }
-    }
-  // TODO: we should add the dependency  list in [] parameter here
-  // so this is not run on every render
-  });
-
-  React.useEffect(() => {
-    const bbbPresenterTools = getFromUserSettings(
-      'bbb_presenter_tools',
-      meetingClientSettingsInitialValues.public.whiteboard.toolbar.presenterTools,
-    );
-    const allElements = document.querySelectorAll('[data-testid^="tools."]');
-    const actionsElement = document.querySelector('[data-testid="main.action-menu"]');
-
-    if (bbbPresenterTools.length >= 1 && isPresenter) {
-      allElements.forEach((element) => {
-        const toolName = element.getAttribute('data-testid').split('.')[1];
-
-        if (!bbbPresenterTools.includes(toolName)) {
-          // eslint-disable-next-line no-param-reassign
-          element.style.display = 'none';
-        }
-      });
-
-      if (actionsElement) {
-        if (!bbbPresenterTools.includes('actions')) {
-          actionsElement.style.display = 'none';
-        }
-      }
-    }
-  // TODO: we should add the dependency  list in [] parameter here
-  // so this is not run on every render
-  });
-
-  React.useEffect(() => {
-    const bbbMultiUserPenOnly = getFromUserSettings(
-      'bbb_multi_user_pen_only',
-      false,
-    );
-    const allElements = document.querySelectorAll('[data-testid^="tools."]');
-    const actionsElement = document.querySelector('[data-testid="main.action-menu"]');
-
-    if (bbbMultiUserPenOnly && !isModerator && !isPresenter) {
-      allElements.forEach((element) => {
-        const toolName = element.getAttribute('data-testid').split('.')[1];
-
-        const displayStyle = toolName !== 'draw' ? 'none' : 'flex';
-        // eslint-disable-next-line no-param-reassign
-        element.style.display = displayStyle;
-      });
-
-      if (actionsElement) {
-        actionsElement.style.display = 'none';
-      }
-    }
-  // TODO: we should add the dependency  list in [] parameter here
-  // so this is not run on every render
-  });
-
-  React.useEffect(() => {
-    const baseName = window.meetingClientSettings.public.app.cdn
+    const baseName =
+      window.meetingClientSettings.public.app.cdn
       + window.meetingClientSettings.public.app.basename;
     const makeCursorUrl = (filename) => `${baseName}/resources/images/whiteboard-cursor/${filename}`;
 
