@@ -2,7 +2,6 @@ import React, { PureComponent } from 'react';
 import { FormattedTime, defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
-import CommonIcon from '/imports/ui/components/common/icon/component';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import Icon from '/imports/ui/components/connection-status/icon/component';
 import { getHelp } from '../service';

@@ -1,8 +1,8 @@
-import React from "react";
-import PropTypes from "prop-types";
-import { defineMessages, injectIntl } from "react-intl";
-import { Divider } from "@mui/material";
-import Icon from "/imports/ui/components/common/icon/component";
+import React from 'react';
+import PropTypes from 'prop-types';
+import { defineMessages, injectIntl } from 'react-intl';
+import { Divider } from '@mui/material';
+import Icon from '/imports/ui/components/common/icon/component';
 import { SMALL_VIEWPORT_BREAKPOINT } from '/imports/ui/components/layout/enums';
 import KEY_CODES from '/imports/utils/keyCodes';
 import MenuSkeleton from './skeleton';
@@ -64,7 +64,7 @@ class BBBMenu extends React.Component {
       const menuItems = Array.from(document.querySelectorAll('[data-key^="menuItem-"]'));
       if (menuItems.length === 0) return;
 
-      const focusedIndex = menuItems.findIndex(item => item === document.activeElement);
+      const focusedIndex = menuItems.findIndex((item) => item === document.activeElement);
       const nextIndex = event.which === previousKey ? focusedIndex - 1 : focusedIndex + 1;
       let indexToFocus = 0;
       if (nextIndex < 0) {
@@ -77,13 +77,13 @@ class BBBMenu extends React.Component {
 
       menuItems[indexToFocus].focus();
     }
-  };
+  }
 
   handleClick(event) {
     const { disabled } = this.props;
     if (disabled) return;
     this.setState({ anchorEl: event.currentTarget });
-  };
+  }
 
   handleClose(event) {
     const { onCloseCallback } = this.props;
@@ -98,15 +98,19 @@ class BBBMenu extends React.Component {
         }, 0);
       }
     }
-  };
+  }
 
   makeMenuItems() {
-    const { actions, selectedEmoji, intl, isHorizontal, isEmoji, isMobile, roundButtons, keepOpen } = this.props;
+    const {
+      actions, selectedEmoji, intl, isHorizontal, isEmoji, isMobile, roundButtons, keepOpen,
+    } = this.props;
 
-    return actions?.map(a => {
-      const { dataTest, label, onClick, key, disabled,
+    return actions?.map((a) => {
+      const {
+        dataTest, label, onClick, key, disabled,
         description, selected, textColor, isToggle, loading,
-        isTitle, titleActions, contentFunction } = a;
+        isTitle, titleActions, contentFunction,
+      } = a;
       const emojiSelected = key?.toLowerCase()?.includes(selectedEmoji?.toLowerCase());
 
       let customStyles = {
@@ -142,8 +146,8 @@ class BBBMenu extends React.Component {
             id={dataTest}
             data-test={dataTest}
             data-key={`menuItem-${dataTest}`}
-            disableRipple={true}
-            disableGutters={true}
+            disableRipple
+            disableGutters
             disabled={disabled || isTitle}
             style={customStyles}
             $roundButtons={roundButtons}
@@ -154,7 +158,8 @@ class BBBMenu extends React.Component {
               // prevent menu close for sub menu actions
               if (close) this.handleClose(event);
               event.stopPropagation();
-            }}>
+            }}
+          >
             <Styled.MenuItemWrapper
               isMobile={isMobile}
               isEmoji={isEmoji}
@@ -177,25 +182,25 @@ class BBBMenu extends React.Component {
               hasSpaceBetween={isTitle && titleActions}
             >
               {!contentFunction ? (
-                  <>
-                    {a.icon ? <Icon color={textColor} iconName={a.icon} key="icon" /> : null}
-                    <Styled.Option hasIcon={!!(a.icon)} isTitle={isTitle} textColor={textColor} isHorizontal={isHorizontal} isMobile={isMobile} aria-describedby={`${key}-option-desc`} $isToggle={isToggle}>{label}</Styled.Option>
-                    {a.iconRight ? <Styled.IconRight color={textColor} iconName={a.iconRight} key="iconRight" /> : null}
-                    {(isTitle && titleActions?.length > 0) ? (
-                      titleActions.map((item, index) => (
-                        <Styled.TitleAction
-                          key={item.id || index}
-                          tooltipplacement="right"
-                          size="md"
-                          onClick={item.onClick}
-                          circle
-                          tooltipLabel={item.tooltip}
-                          hideLabel
-                          icon={item.icon}
-                        />
-                      ))
-                    ) : null}
-                  </>
+                <>
+                  {a.icon ? <Icon color={textColor} iconName={a.icon} key="icon" /> : null}
+                  <Styled.Option hasIcon={!!(a.icon)} isTitle={isTitle} textColor={textColor} isHorizontal={isHorizontal} isMobile={isMobile} aria-describedby={`${key}-option-desc`} $isToggle={isToggle}>{label}</Styled.Option>
+                  {a.iconRight ? <Styled.IconRight color={textColor} iconName={a.iconRight} key="iconRight" /> : null}
+                  {(isTitle && titleActions?.length > 0) ? (
+                    titleActions.map((item, index) => (
+                      <Styled.TitleAction
+                        key={item.id || index}
+                        tooltipplacement="right"
+                        size="md"
+                        onClick={item.onClick}
+                        circle
+                        tooltipLabel={item.tooltip}
+                        hideLabel
+                        icon={item.icon}
+                      />
+                    ))
+                  ) : null}
+                </>
               ) : (
                 <GenericContentItem
                   width="100%"
@@ -205,7 +210,7 @@ class BBBMenu extends React.Component {
             </Styled.MenuItemWrapper>
           </Styled.BBBMenuInformation>
         ),
-        a.isSeparator && <Divider disabled />
+        a.isSeparator && <Divider disabled />,
       ];
     }) ?? [];
   }
@@ -219,7 +224,6 @@ class BBBMenu extends React.Component {
       dataTest,
       opts,
       accessKey,
-      open,
       renderOtherComponents,
       customAnchorEl,
       hasRoundedCorners,
@@ -237,7 +241,7 @@ class BBBMenu extends React.Component {
 
     if (isHorizontal) {
       const horizontalStyles = { display: 'flex' };
-      menuStyles = { ...menuStyles, ...horizontalStyles};
+      menuStyles = { ...menuStyles, ...horizontalStyles };
     }
 
     return (
@@ -266,7 +270,7 @@ class BBBMenu extends React.Component {
         <Styled.MenuWrapper
           {...opts}
           {...this.optsToMerge}
-          anchorEl={customAnchorEl ? customAnchorEl : anchorEl}
+          anchorEl={customAnchorEl || anchorEl}
           open={Boolean(anchorEl)}
           onClose={this.handleClose}
           style={menuStyles}
@@ -280,14 +284,15 @@ class BBBMenu extends React.Component {
         >
           {actionsItems}
           {renderOtherComponents}
-          {!overrideMobileStyles && anchorEl && window.innerWidth < SMALL_VIEWPORT_BREAKPOINT &&
-            <Styled.CloseButton
-              label={intl.formatMessage(intlMessages.close)}
-              size="lg"
-              color="default"
-              onClick={this.handleClose}
-            />
-          }
+          {!overrideMobileStyles && anchorEl && window.innerWidth < SMALL_VIEWPORT_BREAKPOINT
+            && (
+              <Styled.CloseButton
+                label={intl.formatMessage(intlMessages.close)}
+                size="lg"
+                color="default"
+                onClick={this.handleClose}
+              />
+            )}
         </Styled.MenuWrapper>
       </>
     );
@@ -296,13 +301,13 @@ class BBBMenu extends React.Component {
 
 BBBMenu.defaultProps = {
   opts: {
-    id: "default-dropdown-menu",
+    id: 'default-dropdown-menu',
     autoFocus: false,
     keepMounted: true,
     transitionDuration: 0,
     elevation: 3,
     getcontentanchorel: null,
-    fullwidth: "true",
+    fullwidth: 'true',
     anchorOrigin: { vertical: 'top', horizontal: 'right' },
     transformorigin: { vertical: 'top', horizontal: 'right' },
   },

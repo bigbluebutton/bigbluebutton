@@ -81,7 +81,7 @@ const NotificationsBarContainer = () => {
   if (meeting) {
     const { isBreakout, componentsFlags } = meeting;
 
-    if (componentsFlags.showRemainingTime && !isBreakout) {
+    if (componentsFlags?.showRemainingTime && !isBreakout) {
       data.message = (
         <MeetingRemainingTime />
       );

@@ -1,10 +1,7 @@
 import React from 'react';
 import RemainingTime from '/imports/ui/components/common/remaining-time/component';
 import { defineMessages, useIntl } from 'react-intl';
-import { FIRST_BREAKOUT_DURATION_DATA_SUBSCRIPTION, breakoutDataResponse } from './queries';
-import logger from '/imports/startup/client/logger';
-import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
-import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
 
 const intlMessages = defineMessages({
   calculatingBreakoutTimeRemaining: {
@@ -34,31 +31,18 @@ const BreakoutRemainingTimeContainer: React.FC<BreakoutRemainingTimeContainerPro
   };
 
   const {
-    data: breakoutData,
-    loading: breakoutLoading,
-    error: breakoutError,
-  } = useDeduplicatedSubscription<breakoutDataResponse>(FIRST_BREAKOUT_DURATION_DATA_SUBSCRIPTION);
+    data: currentMeeting,
+    loading: currentMeetingLoading,
+  } = useMeeting((m) => ({
+    breakoutRoomsCommonProperties: m.breakoutRoomsCommonProperties,
+  }));
 
-  if (breakoutLoading) return loadingRemainingTime();
-  if (!breakoutData) return null;
+  if (currentMeetingLoading) return loadingRemainingTime();
+  if (!currentMeeting?.breakoutRoomsCommonProperties) return null;
 
-  if (breakoutError) {
-    connectionStatus.setSubscriptionFailed(true);
-    logger.error(
-      {
-        logCode: 'subscription_Failed',
-        extraInfo: {
-          error: breakoutError,
-        },
-      },
-      'Subscription failed to load',
-    );
-    return null;
-  }
-
-  const breakoutDuration: number = breakoutData.breakoutRoom[0]?.durationInSeconds;
-  const breakoutStartedAt: string = breakoutData.breakoutRoom[0]?.startedAt;
-  const breakoutStartedTime = new Date(breakoutStartedAt).getTime();
+  const breakoutDuration: number = currentMeeting?.breakoutRoomsCommonProperties?.durationInSeconds;
+  const breakoutStartedAt: Date = new Date(currentMeeting?.breakoutRoomsCommonProperties?.startedAt ?? '');
+  const breakoutStartedTime = breakoutStartedAt.getTime();
 
   const durationLabel = intlMessages.breakoutDuration;
 

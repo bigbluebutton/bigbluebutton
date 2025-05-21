@@ -3,7 +3,6 @@ import React, { Component } from 'react';
 import {
   defineMessages, injectIntl, FormattedMessage,
 } from 'react-intl';
-import Button from '/imports/ui/components/common/button/component';
 import VirtualBgSelector from '/imports/ui/components/video-preview/virtual-background/component'
 import logger from '/imports/startup/client/logger';
 import browserInfo from '/imports/utils/browserInfo';

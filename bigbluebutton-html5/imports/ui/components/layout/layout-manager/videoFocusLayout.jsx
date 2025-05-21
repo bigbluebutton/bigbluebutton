@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { throttle } from '/imports/utils/throttle';
-import { 
+import {
   layoutDispatch,
   layoutSelect,
   layoutSelectInput,
@@ -17,7 +17,7 @@ const windowHeight = () => window.document.documentElement.clientHeight;
 
 const VideoFocusLayout = (props) => {
   const {
-    prevLayout, bannerAreaHeight, isMobile, calculatesNavbarHeight
+    prevLayout, bannerAreaHeight, isMobile, calculatesNavbarHeight,
   } = props;
 
   function usePrevious(value) {
@@ -43,7 +43,6 @@ const VideoFocusLayout = (props) => {
 
   const sidebarNavigationInput = layoutSelectInput((i) => i.sidebarNavigation);
   const sidebarContentInput = layoutSelectInput((i) => i.sidebarContent);
-  const cameraDockInput = layoutSelectInput((i) => i.cameraDock);
   const actionbarInput = layoutSelectInput((i) => i.actionBar);
   const navbarInput = layoutSelectInput((i) => i.navBar);
   const layoutContextDispatch = layoutDispatch();
@@ -240,16 +239,16 @@ const VideoFocusLayout = (props) => {
     cameraDockBounds,
     sidebarNavWidth,
     sidebarContentWidth,
-    sidebarContentHeight
+    sidebarContentHeight,
   ) => {
     const mediaBounds = {};
     const { element: fullscreenElement } = fullscreen;
 
     if (
-      fullscreenElement === 'Presentation' ||
-      fullscreenElement === 'Screenshare' ||
-      fullscreenElement === 'ExternalVideo' ||
-      fullscreenElement === 'GenericContent'
+      fullscreenElement === 'Presentation'
+      || fullscreenElement === 'Screenshare'
+      || fullscreenElement === 'ExternalVideo'
+      || fullscreenElement === 'GenericContent'
     ) {
       mediaBounds.width = windowWidth();
       mediaBounds.height = windowHeight();
@@ -303,7 +302,7 @@ const VideoFocusLayout = (props) => {
     const sidebarContentBounds = calculatesSidebarContentBounds(sidebarNavWidth.width);
     const mediaAreaBounds = calculatesMediaAreaBounds(
       sidebarNavWidth.width,
-      sidebarContentWidth.width
+      sidebarContentWidth.width,
     );
     const navbarBounds = calculatesNavbarBounds(mediaAreaBounds);
     const actionbarBounds = calculatesActionbarBounds(mediaAreaBounds);
@@ -315,7 +314,7 @@ const VideoFocusLayout = (props) => {
       cameraDockBounds,
       sidebarNavWidth.width,
       sidebarContentWidth.width,
-      sidebarContentHeight.height
+      sidebarContentHeight.height,
     );
 
     layoutContextDispatch({

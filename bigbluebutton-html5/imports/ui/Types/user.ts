@@ -21,6 +21,13 @@ export interface LastBreakoutRoom {
     userId: string;
 }
 
+export interface BreakoutRoomsSummary {
+  totalOfBreakoutRooms: number;
+  totalOfIsUserCurrentlyInRoom: number;
+  totalOfShowInvitation: number;
+  totalOfJoinURL: number;
+}
+
 export interface Voice {
   joined: boolean;
   listenOnly: boolean;
@@ -38,11 +45,6 @@ export interface Voice {
   meetingId: string;
   spoke: boolean;
   startTime: number;
-}
-
-export interface UserMetadata {
-  parameter: string;
-  value: string;
 }
 
 export interface userLockSettings {
@@ -93,6 +95,7 @@ export interface User {
   registeredAt: string;
   hasDrawPermissionOnCurrentPage: boolean;
   lastBreakoutRoom?: LastBreakoutRoom;
+  breakoutRoomsSummary?: BreakoutRoomsSummary;
   cameras: Array<Cameras>;
   presPagesWritable: Array<PresPagesWritable>;
   speechLocale: string;

@@ -24,10 +24,6 @@ const MEETING_SUBSCRIPTION = gql`
           lockOnJoin
           lockOnJoinConfigurable
         }
-        metadata {
-          name
-          value
-        }
         maxPinnedCameras
         meetingCameraCap
         cameraBridge
@@ -99,6 +95,12 @@ const MEETING_SUBSCRIPTION = gql`
           privateChatEnabled
           record
           sequence
+        }
+        breakoutRoomsCommonProperties {
+          durationInSeconds
+          freeJoin
+          sendInvitationToModerators
+          startedAt
         }
         voiceSettings {
           dialNumber

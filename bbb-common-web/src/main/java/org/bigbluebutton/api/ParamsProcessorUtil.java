@@ -19,9 +19,11 @@
 
 package org.bigbluebutton.api;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
+import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -104,6 +106,9 @@ public class ParamsProcessorUtil {
     private String defaultAudioBridge = "bbb-webrtc-sfu";
     private String defaultDisabledFeatures;
     private String defaultPluginManifests;
+    private Integer pluginManifestsFetchUrlResponseTimeout;
+    private Integer maxPluginManifestsFetchUrlPayloadSize;
+    private String html5PluginSdkVersion;
     private boolean defaultNotifyRecordingIsOn = false;
     private boolean defaultKeepEvents = false;
     private Boolean useDefaultLogo;
@@ -434,9 +439,8 @@ public class ParamsProcessorUtil {
         return groups;
     }
 
-    private ArrayList<PluginManifest> processPluginManifests(String pluginManifestsParam) {
+    private ArrayList<PluginManifest> processPluginManifests(JsonElement pluginManifestsJsonElement) {
         ArrayList<PluginManifest> pluginManifests = new ArrayList<PluginManifest>();
-        JsonElement pluginManifestsJsonElement = new Gson().fromJson(pluginManifestsParam, JsonElement.class);
         try {
             if (pluginManifestsJsonElement != null && pluginManifestsJsonElement.isJsonArray()) {
                 JsonArray pluginManifestsJson = pluginManifestsJsonElement.getAsJsonArray();
@@ -459,6 +463,61 @@ public class ParamsProcessorUtil {
         }
 
         return pluginManifests;
+    }
+
+    private ArrayList<PluginManifest> processPluginManifests(String pluginManifestsParam) {
+        JsonElement pluginManifestsJsonElement = new Gson().fromJson(pluginManifestsParam, JsonElement.class);
+        return processPluginManifests(pluginManifestsJsonElement);
+    }
+
+    private JsonElement processPluginManifestsFetchUrl(String urlStr) {
+        int timeoutConnectionMillis = pluginManifestsFetchUrlResponseTimeout * 1000;
+        try {
+            log.info("Plugin manifests URL provided: [{}]", urlStr);
+            log.info("Attempting to download plugin manifests from [{}]", urlStr);
+
+            HttpURLConnection conn = (HttpURLConnection) new URL(urlStr).openConnection();
+            conn.setConnectTimeout(timeoutConnectionMillis);
+            conn.setReadTimeout(timeoutConnectionMillis);
+            conn.setRequestProperty("Accept", "application/json");
+
+            if (conn.getResponseCode() != 200) {
+                log.warn("pluginManifestsFetchUrl responded with HTTP {}", conn.getResponseCode());
+                return null;
+            }
+
+            StringBuilder sb = new StringBuilder(8192);
+            try (BufferedReader in = new BufferedReader(
+                    new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8))) {
+                char[] buf = new char[4096];
+                int n;
+                int max = maxPluginManifestsFetchUrlPayloadSize * 1024; // Default: 1 MiB hard cap
+                while ((n = in.read(buf)) != -1 && max > 0) {
+                    sb.append(buf, 0, n);
+                    max -= n;
+                }
+
+                if (max < 0) {
+                    log.warn(
+                            "Response from pluginManifestsFetchUrl [{}] exceeded maximum allowed payload size ({} KiB); skipping load.",
+                            urlStr, maxPluginManifestsFetchUrlPayloadSize);
+                    return null;
+                }
+            }
+
+            String content = sb.toString();
+            JsonElement payloadResult = new Gson().fromJson(content, JsonElement.class);
+            log.info("Successfully downloaded and parsed plugin manifests from [{}]", urlStr);
+            return payloadResult;
+
+        } catch (MalformedURLException e) {
+            log.error("Invalid pluginManifestsFetchUrl [{}]", urlStr, e);
+        } catch (IOException e) {
+            log.error("I/O error when fetching plugin manifests from [{}]", urlStr, e);
+        } catch (Exception e) {
+            log.error("Unexpected error while processing pluginManifestsFetchUrl [{}]", urlStr, e);
+        }
+        return null;
     }
 
     public Meeting processCreateParams(Map<String, String> params) {
@@ -599,12 +658,25 @@ public class ParamsProcessorUtil {
                 ArrayList<PluginManifest> pluginManifestsFromConfig = processPluginManifests(defaultPluginManifests);
                 listOfPluginManifests.addAll(pluginManifestsFromConfig);
             }
-            //Process plugins from /create param
+            // Process plugins from /create params
             String pluginManifestsParam = params.get(ApiParams.PLUGIN_MANIFESTS);
             if (!StringUtils.isEmpty(pluginManifestsParam)) {
                 ArrayList<PluginManifest> pluginManifestsFromParam = processPluginManifests(pluginManifestsParam);
                 listOfPluginManifests.addAll(pluginManifestsFromParam);
             }
+            String pluginManifestsFetchUrlParam = params.get(ApiParams.PLUGIN_MANIFESTS_FETCH_URL);
+            if (!StringUtils.isEmpty(pluginManifestsFetchUrlParam)) {
+                JsonElement pluginManifestsFromFetchUrlParam = processPluginManifestsFetchUrl(
+                        pluginManifestsFetchUrlParam
+                );
+                if (pluginManifestsFromFetchUrlParam != null) {
+                    ArrayList<PluginManifest> pluginManifestsFromParam = processPluginManifests(
+                            pluginManifestsFromFetchUrlParam
+                    );
+                    listOfPluginManifests.addAll(pluginManifestsFromParam);
+                }
+            }
+
         }
 
         // Learning Dashboard not allowed for Breakout Rooms
@@ -837,6 +909,7 @@ public class ParamsProcessorUtil {
                 .withLearningDashboardAccessToken(learningDashboardAccessToken)
                 .withGroups(groups)
                 .withPluginManifests(listOfPluginManifests)
+                .withHtml5PluginSdkVersion(html5PluginSdkVersion)
                 .withDisabledFeatures(listOfDisabledFeatures)
                 .withNotifyRecordingIsOn(notifyRecordingIsOn)
                 .withPresentationUploadExternalDescription(presentationUploadExternalDescription)
@@ -1671,6 +1744,14 @@ public class ParamsProcessorUtil {
 		this.defaultPluginManifests = pluginManifests;
 	}
 
+    public void setHtml5PluginSdkVersion(String html5PluginSdkVersion) {
+		this.html5PluginSdkVersion = html5PluginSdkVersion;
+	}
+
+    public String getHtml5PluginSdkVersion() {
+		return this.html5PluginSdkVersion;
+	}
+
 	public void setNotifyRecordingIsOn(Boolean notifyRecordingIsOn) {
 		this.defaultNotifyRecordingIsOn = notifyRecordingIsOn;
 	}
@@ -1695,10 +1776,18 @@ public class ParamsProcessorUtil {
 		this.allowOverrideClientSettingsOnCreateCall = allowOverrideClientSettingsOnCreateCall;
 	}
 
-    public void setMaxNumPages(Integer maxNumPages) { this.defaultMaxNumPages = maxNumPages; }
+	public void setMaxNumPages(Integer maxNumPages) { this.defaultMaxNumPages = maxNumPages; }
 
-    public void setGetJoinUrlUserdataBlocklist(String getJoinUrlUserdataBlocklist) {
-        this.getJoinUrlUserdataBlocklist = getJoinUrlUserdataBlocklist;
-    }
+	public void setPluginManifestsFetchUrlResponseTimeout(Integer pluginManifestsFetchUrlResponseTimeout) {
+		this.pluginManifestsFetchUrlResponseTimeout = pluginManifestsFetchUrlResponseTimeout;
+	}
 
+	public void setMaxPluginManifestsFetchUrlPayloadSize(Integer maxPluginManifestsFetchUrlPayloadSize) {
+		this.maxPluginManifestsFetchUrlPayloadSize = maxPluginManifestsFetchUrlPayloadSize;
+	}
+
+	public void setGetJoinUrlUserdataBlocklist(String getJoinUrlUserdataBlocklist) {
+		this.getJoinUrlUserdataBlocklist = getJoinUrlUserdataBlocklist;
+	}
+  
 }

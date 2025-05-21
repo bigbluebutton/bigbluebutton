@@ -43,6 +43,12 @@ subscription userCurrentSubscription {
       sequence
       shortName
     }
+    breakoutRoomsSummary {
+        totalOfBreakoutRooms
+        totalOfIsUserCurrentlyInRoom
+        totalOfShowInvitation
+        totalOfJoinURL
+    }
     cameras {
       streamId
     }
