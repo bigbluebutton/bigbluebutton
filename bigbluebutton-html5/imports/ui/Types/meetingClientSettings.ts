@@ -595,6 +595,7 @@ export interface Layout {
   showPushLayoutButton: boolean
   showPushLayoutToggle: boolean
   showScreenshareQuickSwapButton: boolean
+  showLeaveSessionLabel: boolean
 }
 
 export interface Pads {
