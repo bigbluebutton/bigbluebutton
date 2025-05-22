@@ -217,53 +217,52 @@ const LayoutObserver: React.FC = () => {
   }, [videoStream.length]);
 
   useEffect(() => {
-    if (Session.equals('layoutReady', true) && (sidebarContentPanel === PANELS.NONE)) {
+    if ((Session.equals('layoutReady', true) && (sidebarContentPanel === PANELS.NONE))) {
       if (!checkedUserSettings.current) {
         const Settings = getSettingsSingletonInstance();
         Settings.save(setLocalSettings);
+        checkedUserSettings.current = true;
+      }
 
-        if (getFromUserSettings('bbb_show_participants_on_login', window.meetingClientSettings.public.layout.showParticipantsOnLogin) && !deviceInfo.isPhone) {
-          if (isChatEnabled && getFromUserSettings('bbb_show_public_chat_on_login', !window.meetingClientSettings.public.chat.startClosed)) {
-            const PUBLIC_CHAT_ID = window.meetingClientSettings.public.chat.public_group_id;
+      if (getFromUserSettings('bbb_show_participants_on_login', window.meetingClientSettings.public.layout.showParticipantsOnLogin) && !deviceInfo.isPhone) {
+        if (isChatEnabled && getFromUserSettings('bbb_show_public_chat_on_login', !window.meetingClientSettings.public.chat.startClosed)) {
+          const PUBLIC_CHAT_ID = window.meetingClientSettings.public.chat.public_group_id;
 
-            layoutContextDispatch({
-              type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
-              value: true,
-            });
-            layoutContextDispatch({
-              type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-              value: true,
-            });
-            layoutContextDispatch({
-              type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-              value: PANELS.CHAT,
-            });
-            layoutContextDispatch({
-              type: ACTIONS.SET_ID_CHAT_OPEN,
-              value: PUBLIC_CHAT_ID,
-            });
-          } else {
-            layoutContextDispatch({
-              type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
-              value: true,
-            });
-            layoutContextDispatch({
-              type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-              value: false,
-            });
-          }
+          layoutContextDispatch({
+            type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
+            value: true,
+          });
+          layoutContextDispatch({
+            type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+            value: true,
+          });
+          layoutContextDispatch({
+            type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+            value: PANELS.CHAT,
+          });
+          layoutContextDispatch({
+            type: ACTIONS.SET_ID_CHAT_OPEN,
+            value: PUBLIC_CHAT_ID,
+          });
         } else {
           layoutContextDispatch({
             type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
-            value: false,
+            value: true,
           });
           layoutContextDispatch({
             type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
             value: false,
           });
         }
-
-        checkedUserSettings.current = true;
+      } else {
+        layoutContextDispatch({
+          type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
+          value: false,
+        });
+        layoutContextDispatch({
+          type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+          value: false,
+        });
       }
     }
   });
