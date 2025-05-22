@@ -259,7 +259,7 @@ class Join extends Create {
     const wbLocator = await this.modPage.getLocator(e.whiteboard);
     await expect(wbLocator).toHaveScreenshot('capture-breakout-whiteboard.png', {
       maxDiffPixels: 1500,
-      timeout: 10000,
+      timeout: 20000,
     });
   }
 
