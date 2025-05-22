@@ -71,14 +71,14 @@ bbb_config() {
 
   echo "Creating drop-in for $SERVICE_NAME..."
 
-  if [ -f $DROPIN_FILE ]; then
+  if [ -f "$DROPIN_FILE" ]; then
       echo "Removing old drop-in for $SERVICE_NAME: $DROPIN_FILE"
       rm $DROPIN_FILE
   fi
 
-  sudo mkdir -p "$DROPIN_DIR"
+  mkdir -p "$DROPIN_DIR"
 
-  sudo tee "$DROPIN_FILE" > /dev/null <<EOF
+  tee "$DROPIN_FILE" > /dev/null <<EOF
 [Service]
 Environment="XDG_RUNTIME_DIR=/run/user/${BIGBLUEBUTTON_UID}"
 Environment="DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/${BIGBLUEBUTTON_UID}/bus"
