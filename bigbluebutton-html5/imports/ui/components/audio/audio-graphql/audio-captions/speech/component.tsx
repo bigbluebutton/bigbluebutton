@@ -234,6 +234,10 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
       logger.debug('Starting browser speech recognition');
       speechRecognitionRef.current.lang = settedLocale;
 
+      if (settedLocale !== localeRef.current) {
+        localeRef.current = settedLocale;
+      }
+
       if (speechHasStarted.started) {
         logger.warn('Already starting return');
         return;
