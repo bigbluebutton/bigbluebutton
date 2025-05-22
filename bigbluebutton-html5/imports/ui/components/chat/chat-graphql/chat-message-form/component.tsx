@@ -135,8 +135,6 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   isRTL,
   getUserLastSentMessage,
 }) => {
-  const isChatEnabled = useIsChatEnabled();
-  if (!isChatEnabled) return null;
   const intl = useIntl();
   const [hasErrors, setHasErrors] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
@@ -718,6 +716,8 @@ const ChatMessageFormContainer: React.FC = () => {
   const CHAT_CONFIG = window.meetingClientSettings.public.chat;
 
   const disabled = locked && !isModerator && disablePrivateChat && !isPublicChat && !chat?.participant?.isModerator;
+  const isChatEnabled = useIsChatEnabled();
+  if (!isChatEnabled) return null;
 
   return (
     <ChatMessageForm
