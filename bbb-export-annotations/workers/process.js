@@ -291,14 +291,18 @@ function overlayAnnotations(svg, slideAnnotations) {
  * @param {number} page Page number.
  */
 function resizeAssetIfBase64Image(file, width, height, oldWidth, oldHeight, page) {
-  const BASE_64_HREF_REGEX = /href="data:image\/(png|jpg|jpeg);base64,[^"]+"/;
+  const BASE_64_HREF_REGEX = /href="data:image\/(png|jpg|jpeg);base64,[^"]+"/g;
   const isSvg = file.endsWith('.svg');
 
   if (!isSvg) return;
 
   try {
     let svg = fs.readFileSync(file, { encoding: 'utf-8' });
-    const hasBase64Image = BASE_64_HREF_REGEX.test(svg);
+    let count = 0;
+    while (BASE_64_HREF_REGEX.exec(svg) !== null) {
+      count++;
+    }
+    const hasBase64Image = count === 1;
     if (hasBase64Image) {
       svg = svg.replaceAll(`width="${oldWidth}"`, `width="${width}"`);
       svg = svg.replaceAll(`height="${oldHeight}"`, `height="${height}"`);
