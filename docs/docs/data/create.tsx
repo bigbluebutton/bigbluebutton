@@ -434,6 +434,9 @@ const createEndpointTableData = [
             <li>
               <code className="language-plaintext highlighter-rouge">raiseHand</code> - <b>Raise Hand (added in BigBlueButton 3.0)</b>
             </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">userReactions</code> - <b>Enable/Disable user reactions (added in BigBlueButton 3.0)</b>
+            </li>
           </ul>
         </>
     ),
