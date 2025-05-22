@@ -13,7 +13,7 @@ const LayoutModalContainer = (props) => {
     intl, setIsOpen, onRequestClose, isOpen,
   } = props;
   const setLocalSettings = useUserChangedLocalSettings();
-  const application = useSettings(SETTINGS.APPLICATION);
+  const layoutSettings = useSettings(SETTINGS.LAYOUT);
   const { data: currentUser } = useCurrentUser((u) => ({
     presenter: u.presenter,
     isModerator: u.isModerator,
@@ -24,7 +24,7 @@ const LayoutModalContainer = (props) => {
       setIsOpen,
       isModerator: currentUser?.isModerator ?? false,
       isPresenter: currentUser?.presenter ?? false,
-      application,
+      layoutSettings,
       updateSettings,
       onRequestClose,
       isOpen,

@@ -39,7 +39,7 @@ const LayoutObserver: React.FC = () => {
   const { sidebarContentPanel } = sidebarContent;
 
   const [, setEnableResize] = useState(!window.matchMedia(MOBILE_MEDIA).matches);
-  const { selectedLayout } = useSettings(SETTINGS.APPLICATION) as { selectedLayout: string };
+  const { selectedLayout } = useSettings(SETTINGS.LAYOUT) as { selectedLayout: string };
   const {
     data: currentMeeting,
   } = useMeeting((m) => ({

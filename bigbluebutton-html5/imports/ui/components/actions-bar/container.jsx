@@ -108,14 +108,14 @@ const ActionsBarContainer = (props) => {
   const [darkModeIsEnabled, setDarkModeIsEnabled] = useState(isDarkThemeEnabled());
   const isPollingEnabled = useIsPollingEnabled() && isPresentationEnabled;
   const isRaiseHandEnabled = useIsRaiseHandEnabled();
-  const applicationSettings = useSettings(SETTINGS.APPLICATION);
-  const { pushLayout } = applicationSettings;
+  const layoutSettings = useSettings(SETTINGS.LAYOUT);
+  const { pushLayout } = layoutSettings;
   const setPushLayout = usePushLayoutUpdater(pushLayout);
   const setMeetingLayout = useMeetingLayoutUpdater(
     cameraDockOutput,
     cameraDockInput,
     presentationInput,
-    applicationSettings,
+    layoutSettings,
   );
   const { isOpen: sidebarNavigationIsOpen } = sidebarNavigation;
   const { isOpen: sidebarContentIsOpen } = sidebarContent;
@@ -176,7 +176,7 @@ const ActionsBarContainer = (props) => {
         hasGenericContent: isThereGenericMainContent,
         setPushLayout,
         setMeetingLayout,
-        showPushLayout: showPushLayoutButton && applicationSettings.selectedLayout === 'custom',
+        showPushLayout: showPushLayoutButton && layoutSettings.selectedLayout === 'custom',
         ariaHidden,
         isDarkThemeEnabled: darkModeIsEnabled,
         isMobile,
