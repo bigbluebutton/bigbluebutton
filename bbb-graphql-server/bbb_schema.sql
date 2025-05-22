@@ -182,20 +182,6 @@ SELECT "meeting_usersPolicies"."meetingId",
    FROM "meeting_usersPolicies"
    JOIN "meeting" using("meetingId");
 
-create unlogged table "meeting_metadata" (
-	"meetingId" 		varchar(100) references "meeting"("meetingId") ON DELETE CASCADE,
-    "name"              varchar(255),
-    "value"             varchar(1000),
-    CONSTRAINT "meeting_metadata_pkey" PRIMARY KEY ("meetingId","name")
-);
-create index "idx_meeting_metadata_meetingId" on "meeting_metadata"("meetingId");
-
-CREATE OR REPLACE VIEW "v_meeting_metadata" AS
-SELECT "meeting_metadata"."meetingId",
-    "meeting_metadata"."name",
-    "meeting_metadata"."value"
-   FROM "meeting_metadata";
-
 create unlogged table "meeting_lockSettings" (
 	"meetingId" 		varchar(100) primary key references "meeting"("meetingId") ON DELETE CASCADE,
     "disableCam"             boolean,

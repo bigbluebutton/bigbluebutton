@@ -144,7 +144,7 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings, index }
       </span>,
     );
   }
-  if (user.cameras.length > 0 && LABEL.sharingWebcam) {
+  if (user?.cameras?.length > 0 && LABEL.sharingWebcam) {
     subs.push(
       <span key={uniqueId('breakout-')}>
         {user.pinned === true

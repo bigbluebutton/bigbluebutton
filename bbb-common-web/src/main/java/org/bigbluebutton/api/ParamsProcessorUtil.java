@@ -108,7 +108,7 @@ public class ParamsProcessorUtil {
     private String defaultPluginManifests;
     private Integer pluginManifestsFetchUrlResponseTimeout;
     private Integer maxPluginManifestsFetchUrlPayloadSize;
-    private String htmlPluginSdkVersion;
+    private String html5PluginSdkVersion;
     private boolean defaultNotifyRecordingIsOn = false;
     private boolean defaultKeepEvents = false;
     private Boolean useDefaultLogo;
@@ -918,6 +918,7 @@ public class ParamsProcessorUtil {
                 .withLearningDashboardAccessToken(learningDashboardAccessToken)
                 .withGroups(groups)
                 .withPluginManifests(listOfPluginManifests)
+                .withHtml5PluginSdkVersion(html5PluginSdkVersion)
                 .withDisabledFeatures(listOfDisabledFeatures)
                 .withNotifyRecordingIsOn(notifyRecordingIsOn)
                 .withPresentationUploadExternalDescription(presentationUploadExternalDescription)
@@ -1752,13 +1753,13 @@ public class ParamsProcessorUtil {
 		this.defaultPluginManifests = pluginManifests;
 	}
 
-    public void setHtmlPluginSdkVersion(String htmlPluginSdkVersion) {
-        this.htmlPluginSdkVersion = htmlPluginSdkVersion;
-    }
+    public void setHtml5PluginSdkVersion(String html5PluginSdkVersion) {
+		this.html5PluginSdkVersion = html5PluginSdkVersion;
+	}
 
-    public String getHtmlPluginSdkVersion() {
-        return this.htmlPluginSdkVersion;
-    }
+    public String getHtml5PluginSdkVersion() {
+		return this.html5PluginSdkVersion;
+	}
 
 	public void setNotifyRecordingIsOn(Boolean notifyRecordingIsOn) {
 		this.defaultNotifyRecordingIsOn = notifyRecordingIsOn;
