@@ -439,7 +439,7 @@ public class ParamsProcessorUtil {
         return groups;
     }
 
-    private ArrayList<PluginManifest> processPluginManifests(JsonElement pluginManifestsJsonElement) {
+    private ArrayList<PluginManifest> processPluginManifests(JsonElement pluginManifestsJsonElement, String meetingId) {
         ArrayList<PluginManifest> pluginManifests = new ArrayList<PluginManifest>();
         try {
             if (pluginManifestsJsonElement != null && pluginManifestsJsonElement.isJsonArray()) {
@@ -450,6 +450,7 @@ public class ParamsProcessorUtil {
                         if (pluginManifestJsonObj.has("url")) {
                             String url = pluginManifestJsonObj.get("url").getAsString();
                             PluginManifest newPlugin = new PluginManifest(url);
+                            newPlugin.setMeetingId(meetingId);
                             if (pluginManifestJsonObj.has("checksum")) {
                                 newPlugin.setChecksum(pluginManifestJsonObj.get("checksum").getAsString());
                             }
@@ -465,9 +466,9 @@ public class ParamsProcessorUtil {
         return pluginManifests;
     }
 
-    private ArrayList<PluginManifest> processPluginManifests(String pluginManifestsParam) throws JsonSyntaxException {
+    private ArrayList<PluginManifest> processPluginManifests(String pluginManifestsParam, String meetingId) throws JsonSyntaxException {
         JsonElement pluginManifestsJsonElement = new Gson().fromJson(pluginManifestsParam, JsonElement.class);
-        return processPluginManifests(pluginManifestsJsonElement);
+        return processPluginManifests(pluginManifestsJsonElement, meetingId);
     }
 
     private JsonElement processPluginManifestsFetchUrl(String urlStr) {
@@ -652,12 +653,16 @@ public class ParamsProcessorUtil {
 
         // Parse Plugins Manifests from config and param
         ArrayList<PluginManifest> listOfPluginManifests = new ArrayList<PluginManifest>();
-        PluginManifest.setHtmlPluginSdkVersion(htmlPluginSdkVersion);
+        PluginManifest.setHtml5PluginSdkVersion(html5PluginSdkVersion);
+        PluginManifest.setBbbVersion(bbbVersion);
         if (!isBreakout){
             //Process plugins from config
             if (defaultPluginManifests != null && !defaultPluginManifests.isEmpty()) {
                 try {
-                    ArrayList<PluginManifest> pluginManifestsFromConfig = processPluginManifests(defaultPluginManifests);
+                    ArrayList<PluginManifest> pluginManifestsFromConfig = processPluginManifests(
+                            defaultPluginManifests,
+                            externalMeetingId
+                    );
                     listOfPluginManifests.addAll(pluginManifestsFromConfig);
                 } catch (JsonSyntaxException err) {
                     log.error("PluginManifests json from the properties file is malformed: {}", err.getMessage());
@@ -667,7 +672,10 @@ public class ParamsProcessorUtil {
             String pluginManifestsParam = params.get(ApiParams.PLUGIN_MANIFESTS);
             if (!StringUtils.isEmpty(pluginManifestsParam)) {
                 try {
-                    ArrayList<PluginManifest> pluginManifestsFromParam = processPluginManifests(pluginManifestsParam);
+                    ArrayList<PluginManifest> pluginManifestsFromParam = processPluginManifests(
+                            pluginManifestsParam,
+                            externalMeetingId
+                    );
                     listOfPluginManifests.addAll(pluginManifestsFromParam);
                 } catch (JsonSyntaxException err) {
                     log.error("PluginManifests json from the create parameter is malformed: {}", err.getMessage());
@@ -676,11 +684,11 @@ public class ParamsProcessorUtil {
             String pluginManifestsFetchUrlParam = params.get(ApiParams.PLUGIN_MANIFESTS_FETCH_URL);
             if (!StringUtils.isEmpty(pluginManifestsFetchUrlParam)) {
                 JsonElement pluginManifestsFromFetchUrlParam = processPluginManifestsFetchUrl(
-                        PluginManifest.replaceAllPlaceholdersInManifestUrls(pluginManifestsFetchUrlParam)
+                        PluginManifest.replaceAllPlaceholdersInManifestUrls(pluginManifestsFetchUrlParam, externalMeetingId)
                 );
                 if (pluginManifestsFromFetchUrlParam != null) {
                     ArrayList<PluginManifest> pluginManifestsFromParam = processPluginManifests(
-                            pluginManifestsFromFetchUrlParam
+                            pluginManifestsFromFetchUrlParam, externalMeetingId
                     );
                     listOfPluginManifests.addAll(pluginManifestsFromParam);
                 }
@@ -1774,7 +1782,7 @@ public class ParamsProcessorUtil {
 	}
 
 	public void setBbbVersion(String version) {
-      this.bbbVersion = this.allowRevealOfBBBVersion ? version : "";
+      this.bbbVersion = version;
 	}
 
 	public void setAllowRevealOfBBBVersion(Boolean allowVersion) {

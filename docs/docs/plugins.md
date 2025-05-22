@@ -131,20 +131,22 @@ All plugin sources are combined into a single list with duplicates removed. This
 
 You can use placeholders in the plugin URLs defined in any of the previously mentioned configurations. Currently, the only supported placeholder is:
 
-- %%HTML_PLUGIN_SDK_VERSION%% – This will be automatically replaced by the version of the `bigbluebutton-html-plugin-sdk` used by bbb-html5.
+- `%%HTML5_PLUGIN_SDK_VERSION%%` – This will be automatically replaced by the version of the `bigbluebutton-html-plugin-sdk` used by `bigbluebutton-html5`.
+- `%%BBB_VERSION%%` – This will be automatically replaced by the complete BigBlueButton server version (e.g.: `3.0.6`) from which the URL is called.
+- `%%MEETING_ID%%` – This will be automatically replaced by the external meeting ID.
 
 This is useful for referencing versioned plugin files without hardcoding the SDK version.
 
 Examples:
 
 ```properties
-pluginManifests=[{"url":"https://my-cdn.com/%%HTML_PLUGIN_SDK_VERSION%%/pick-random-user/manifest.json"}]
+pluginManifests=[{"url":"https://my-cdn.com/%%HTML5_PLUGIN_SDK_VERSION%%/pick-random-user/manifest.json"}]
 ```
 
 Or
 
 ```properties
-pluginManifestsFetchUrl=https://my-cdn.com/%%HTML_PLUGIN_SDK_VERSION%%/all-my-plugins/list-of-plugins.json
+pluginManifestsFetchUrl=https://my-cdn.com/%%HTML5_PLUGIN_SDK_VERSION%%/all-my-plugins/list-of-plugins.json
 ```
 
 If your `bbb-html5` client uses version `0.0.79` of the bigbluebutton-html-plugin-sdk (as seen in its `package.json`):
