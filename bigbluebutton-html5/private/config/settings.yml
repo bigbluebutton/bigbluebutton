@@ -1166,6 +1166,7 @@ public:
     chrome: ">=87"
     firefox: ">=80"
     edge: ">=85"
+    miui: "<0"
     mobile:
       safari: ">=14"
       chrome: ">=87"
