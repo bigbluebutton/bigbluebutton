@@ -641,6 +641,7 @@ const ChatMessageFormContainer: React.FC = () => {
   const idChatOpen: string = layoutSelect((i: Layout) => i.idChatOpen);
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
   const isConnected = useReactiveVar(connectionStatus.getConnectedStatusVar());
+  const isChatEnabled = useIsChatEnabled();
   const { data: chat } = useChat((c: Partial<Chat>) => ({
     participant: c?.participant,
     chatId: c?.chatId,
@@ -716,7 +717,6 @@ const ChatMessageFormContainer: React.FC = () => {
   const CHAT_CONFIG = window.meetingClientSettings.public.chat;
 
   const disabled = locked && !isModerator && disablePrivateChat && !isPublicChat && !chat?.participant?.isModerator;
-  const isChatEnabled = useIsChatEnabled();
   if (!isChatEnabled) return null;
 
   return (
