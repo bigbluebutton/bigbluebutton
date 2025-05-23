@@ -31,6 +31,7 @@ import java.util.regex.Pattern;
 
 import com.google.gson.*;
 import org.bigbluebutton.api.domain.*;
+import org.bigbluebutton.api.util.PluginUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.safety.Safelist;
@@ -156,6 +157,8 @@ public class ParamsProcessorUtil {
 
     private Integer defaultMaxNumPages;
     private String getJoinUrlUserdataBlocklist;
+
+    private PluginUtils pluginUtils;
 
   	private String formatConfNum(String s) {
   		if (s.length() > 5) {
@@ -445,18 +448,11 @@ public class ParamsProcessorUtil {
             if (pluginManifestsJsonElement != null && pluginManifestsJsonElement.isJsonArray()) {
                 JsonArray pluginManifestsJson = pluginManifestsJsonElement.getAsJsonArray();
                 for (JsonElement pluginManifestJson : pluginManifestsJson) {
-                    if (pluginManifestJson.isJsonObject()) {
-                        JsonObject pluginManifestJsonObj = pluginManifestJson.getAsJsonObject();
-                        if (pluginManifestJsonObj.has("url")) {
-                            String url = pluginManifestJsonObj.get("url").getAsString();
-                            PluginManifest newPlugin = new PluginManifest(url);
-                            newPlugin.setMeetingId(meetingId);
-                            if (pluginManifestJsonObj.has("checksum")) {
-                                newPlugin.setChecksum(pluginManifestJsonObj.get("checksum").getAsString());
-                            }
-                            pluginManifests.add(newPlugin);
-                        }
-                    }
+                    PluginManifest newPluginManifest = pluginUtils.createPluginManifestFromJson(
+                        pluginManifestJson,
+                        meetingId
+                    );
+                    if (newPluginManifest != null) pluginManifests.add(newPluginManifest);
                 }
             }
         } catch(JsonSyntaxException err){
@@ -466,7 +462,7 @@ public class ParamsProcessorUtil {
         return pluginManifests;
     }
 
-    private ArrayList<PluginManifest> processPluginManifests(String pluginManifestsParam, String meetingId) throws JsonSyntaxException {
+    private List<PluginManifest> processPluginManifests(String pluginManifestsParam, String meetingId) throws JsonSyntaxException {
         JsonElement pluginManifestsJsonElement = new Gson().fromJson(pluginManifestsParam, JsonElement.class);
         return processPluginManifests(pluginManifestsJsonElement, meetingId);
     }
@@ -653,13 +649,11 @@ public class ParamsProcessorUtil {
 
         // Parse Plugins Manifests from config and param
         ArrayList<PluginManifest> listOfPluginManifests = new ArrayList<PluginManifest>();
-        PluginManifest.setHtml5PluginSdkVersion(html5PluginSdkVersion);
-        PluginManifest.setBbbVersion(bbbVersion);
         if (!isBreakout){
             //Process plugins from config
             if (defaultPluginManifests != null && !defaultPluginManifests.isEmpty()) {
                 try {
-                    ArrayList<PluginManifest> pluginManifestsFromConfig = processPluginManifests(
+                    List<PluginManifest> pluginManifestsFromConfig = processPluginManifests(
                             defaultPluginManifests,
                             externalMeetingId
                     );
@@ -672,7 +666,7 @@ public class ParamsProcessorUtil {
             String pluginManifestsParam = params.get(ApiParams.PLUGIN_MANIFESTS);
             if (!StringUtils.isEmpty(pluginManifestsParam)) {
                 try {
-                    ArrayList<PluginManifest> pluginManifestsFromParam = processPluginManifests(
+                    List<PluginManifest> pluginManifestsFromParam = processPluginManifests(
                             pluginManifestsParam,
                             externalMeetingId
                     );
@@ -684,7 +678,7 @@ public class ParamsProcessorUtil {
             String pluginManifestsFetchUrlParam = params.get(ApiParams.PLUGIN_MANIFESTS_FETCH_URL);
             if (!StringUtils.isEmpty(pluginManifestsFetchUrlParam)) {
                 JsonElement pluginManifestsFromFetchUrlParam = processPluginManifestsFetchUrl(
-                        PluginManifest.replaceAllPlaceholdersInManifestUrls(pluginManifestsFetchUrlParam, externalMeetingId)
+                    pluginUtils.replaceAllPlaceholdersInManifestUrls(pluginManifestsFetchUrlParam, externalMeetingId)
                 );
                 if (pluginManifestsFromFetchUrlParam != null) {
                     ArrayList<PluginManifest> pluginManifestsFromParam = processPluginManifests(
@@ -1781,9 +1775,9 @@ public class ParamsProcessorUtil {
 		this.defaultPresentationUploadExternalUrl = presentationUploadExternalUrl;
 	}
 
-	public void setBbbVersion(String version) {
-      this.bbbVersion = version;
-	}
+    public void setBbbVersion(String version) {
+        this.bbbVersion = this.allowRevealOfBBBVersion ? version : "";
+    }
 
 	public void setAllowRevealOfBBBVersion(Boolean allowVersion) {
 		this.allowRevealOfBBBVersion = allowVersion;
@@ -1806,5 +1800,8 @@ public class ParamsProcessorUtil {
 	public void setGetJoinUrlUserdataBlocklist(String getJoinUrlUserdataBlocklist) {
 		this.getJoinUrlUserdataBlocklist = getJoinUrlUserdataBlocklist;
 	}
-  
+
+    public void setPluginUtils(PluginUtils pluginUtils) {
+        this.pluginUtils = pluginUtils;
+    }
 }
