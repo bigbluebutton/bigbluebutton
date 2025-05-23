@@ -228,6 +228,11 @@ const PresentationContainer = (props) => {
 
   if (layoutType === 'videoFocus' && presentation?.width === 0) return null;
 
+  const presentationUri = currentPresentationPage?.downloadFileUri?.replace(
+    /(filename=)([^&]+)/,
+    (_, prefix, filename) => prefix + encodeURIComponent(filename),
+  );
+
   return (
     <Presentation
       {
@@ -244,7 +249,7 @@ const PresentationContainer = (props) => {
           currentSlide,
           slidePosition,
           hasWBAccess: multiUserData.hasAccess,
-          downloadPresentationUri: `${APP_CONFIG.bbbWebBase}/${currentPresentationPage?.downloadFileUri}`,
+          downloadPresentationUri: `${APP_CONFIG.bbbWebBase}/${presentationUri}`,
           multiUser: (multiUserData.hasAccess || multiUserData.active) && presentationIsOpen,
           presentationIsDownloadable: currentPresentationPage?.downloadable,
           mountPresentation: !!currentSlide,
