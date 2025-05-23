@@ -63,13 +63,7 @@ public final class UploadedPresentation {
     this.meetingId = meetingId;
     this.id = id;
     this.temporaryPresentationId = temporaryPresentationId;
-    
-    String encodedName = "";
-    try {
-      encodedName = URLEncoder.encode(name, StandardCharsets.UTF_8);
-    } catch (NullPointerException ignored) {}
-    this.name = encodedName;
-    
+    this.name = name;
     this.baseUrl = baseUrl;
     this.isDownloadable = false;
     this.current = current;

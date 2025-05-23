@@ -12,6 +12,8 @@ import org.bigbluebutton.core.util.RandomStringGenerator
 import org.bigbluebutton.core.models.{ PresentationInPod, PresentationPage, PresentationPod }
 
 import java.io.File
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
   this: PresentationPodHdlrs =>
@@ -172,8 +174,8 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
         bus.outGW.send(buildStoreAnnotationsInRedisSysMsg(annotations, liveMeeting))
       } else {
         // Return existing uploaded file directly
-        val convertedFileName = currentPres.get.filenameConverted
-        val originalFilename = currentPres.get.name
+        val convertedFileName = URLEncoder.encode(currentPres.get.filenameConverted, StandardCharsets.UTF_8)
+        val originalFilename = URLEncoder.encode(currentPres.get.name, StandardCharsets.UTF_8)
         val originalFileExt = originalFilename.split("\\.").last
         val convertedFileExt = if (convertedFileName != "") convertedFileName.split("\\.").last else ""
 
