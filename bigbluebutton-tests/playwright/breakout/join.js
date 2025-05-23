@@ -198,6 +198,7 @@ class Join extends Create {
     await shareNotesPDF.click();
     await hasCurrentPresentationToastElement(this.modPage, 'should display the current presentation toast when changing to the whiteboard exported file');
     // visual assertion
+    await sleep(2000); // ensure whiteboard zoom is stabilized
     const wbLocator = await this.modPage.getLocator(e.whiteboard);
     await expect(wbLocator).toHaveScreenshot('capture-breakout-notes.png', {
       maxDiffPixels: 1500,
@@ -256,6 +257,7 @@ class Join extends Create {
     await whiteboardPDF.click();
     await hasCurrentPresentationToastElement(this.modPage, 'should display the current presentation toast when changing to the whiteboard exported file');
     // visual assertion
+    await sleep(2000); // ensure whiteboard zoom is stabilized
     const wbLocator = await this.modPage.getLocator(e.whiteboard);
     await expect(wbLocator).toHaveScreenshot('capture-breakout-whiteboard.png', {
       maxDiffPixels: 1500,
