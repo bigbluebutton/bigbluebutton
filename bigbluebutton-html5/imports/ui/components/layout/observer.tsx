@@ -219,7 +219,7 @@ const LayoutObserver: React.FC = () => {
 
   useEffect(() => {
     if (layoutIsReady) {
-      if (isChatEnabled && getFromUserSettings('bbb_show_public_chat_on_login', !window.meetingClientSettings.public.chat.startClosed)) {
+      if (isChatEnabled && getFromUserSettings('bbb_show_public_chat_on_login', !window.meetingClientSettings.public.chat.startClosed) && !deviceInfo.isPhone) {
         const PUBLIC_CHAT_ID = window.meetingClientSettings.public.chat.public_group_id;
         layoutContextDispatch({
           type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
