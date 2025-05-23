@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/common/button/component';
-import ConnectionStatusModalComponent from '/imports/ui/components/connection-status/modal/container';
+import ConnectionStatusModalContainer from '/imports/ui/components/connection-status/modal/container';
 import ConnectionStatusService from '/imports/ui/components/connection-status/service';
 import Icon from '/imports/ui/components/connection-status/icon/component';
 import Styled from './styles';
@@ -23,7 +23,8 @@ class ConnectionStatusButton extends PureComponent {
     super(props);
     this.state = {
       isModalOpen: false,
-    }
+    };
+    this.setModalIsOpen = this.setModalIsOpen.bind(this);
   }
 
   renderIcon(level = 'normal') {
@@ -37,12 +38,14 @@ class ConnectionStatusButton extends PureComponent {
     );
   }
 
-  setModalIsOpen = (isOpen) => this.setState({ isModalOpen: isOpen });
+  setModalIsOpen(isOpen) {
+    this.setState({ isModalOpen: isOpen });
+  }
 
   renderModal(isModalOpen) {
     return (
-      isModalOpen ?
-        <ConnectionStatusModalComponent
+      (isModalOpen) ?
+        <ConnectionStatusModalContainer
           {...{
             isModalOpen,
             setModalIsOpen: this.setModalIsOpen,

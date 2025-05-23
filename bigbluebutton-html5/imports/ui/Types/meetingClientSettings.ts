@@ -696,13 +696,26 @@ export interface Delay {
 export interface Stats {
   enabled: boolean
   interval: number
+  probes: number
   timeout: number
-  log: boolean
+  logMediaStats: LogMediaStats
   notification: Notification
   loss: number[]
   rtt: number[]
   level: string[]
   help: string
+}
+
+export interface LogMediaStats {
+  enabled: boolean;
+  additionalStatsTypes: StatsTypes;
+}
+
+export interface StatsTypes {
+  common?: string[];
+  audio?: string[];
+  video?: string[];
+  screenshare?: string[];
 }
 
 export interface Notification {
