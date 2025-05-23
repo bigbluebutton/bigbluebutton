@@ -78,9 +78,9 @@ export const useStreams = () => {
       logger.warn({
         logCode: 'missing_stream_id',
         extraInfo: {
-          userId: user.userId,
-          role: user.role,
-          clientType: user.clientType,
+          userId: user?.userId || '',
+          role: user?.role || '',
+          clientType: user?.clientType || '',
         },
       }, 'Stream entry has no streamId.');
     }
@@ -88,9 +88,9 @@ export const useStreams = () => {
     return {
       stream: streamId ?? '',
       deviceId: streamId?.split?.('_')?.[3] ?? '',
-      name: user.name,
-      nameSortable: user.nameSortable,
-      userId: user.userId,
+      name: user?.name || '',
+      nameSortable: user?.nameSortable || '',
+      userId: user?.userId || '',
       user,
       floor: voice?.floor ?? false,
       lastFloorTime: voice?.lastFloorTime ?? '0',
