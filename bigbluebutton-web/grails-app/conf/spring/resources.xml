@@ -82,6 +82,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="recordingServiceGW" ref="recordingServiceGW"/>
     </bean>
 
+    <bean id="pluginUtils" class="org.bigbluebutton.api.util.PluginUtils">
+        <property name="html5PluginSdkVersion" value="${html5PluginSdkVersion}"/>
+    </bean>
+
     <bean id="recordingServiceGW" class="org.bigbluebutton.api2.util.RecMetaXmlHelper">
         <constructor-arg index="0" ref="bbbWebApiGWApp"/>
     </bean>
@@ -211,6 +215,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="pluginManifestsFetchUrlResponseTimeout" value="${pluginManifestsFetchUrlResponseTimeout}"/>
         <property name="maxPluginManifestsFetchUrlPayloadSize" value="${maxPluginManifestsFetchUrlPayloadSize}"/>
         <property name="html5PluginSdkVersion" value="${html5PluginSdkVersion}"/>
+        <property name="pluginUtils" ref="pluginUtils"/>
         <property name="maxNumPages" value="${maxNumPages}"/>
         <property name="getJoinUrlUserdataBlocklist" value="${getJoinUrlUserdataBlocklist}"/>
     </bean>

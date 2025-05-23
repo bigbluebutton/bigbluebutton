@@ -43,6 +43,7 @@ import org.bigbluebutton.api.messaging.converters.messages.PublishedRecordingMes
 import org.bigbluebutton.api.messaging.converters.messages.UnpublishedRecordingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.DeletedRecordingMessage;
 import org.bigbluebutton.api.messaging.messages.*;
+import org.bigbluebutton.api.util.PluginUtils;
 import org.bigbluebutton.api2.IBbbWebApiGWApp;
 import org.bigbluebutton.api2.domain.UploadedTrack;
 import org.bigbluebutton.common2.redis.RedisStorageService;
@@ -406,10 +407,10 @@ public class MeetingService implements MessageListener {
     // The maximum number of threads can be adjusted later on
     ExecutorService executorService = Executors.newFixedThreadPool(numPluginManifestsFetchingThreads);
     for (PluginManifest pluginManifest : m.getPluginManifests()) {
+      String pluginManifestUrlString = pluginManifest.getUrl();
       CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
         try {
-          String urlString = pluginManifest.getUrl();
-          URL url = new URL(urlString);
+          URL url = new URL(pluginManifestUrlString);
           String content;
           try (BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()))) {
             content = in.lines().collect(Collectors.joining("\n"));
@@ -423,9 +424,8 @@ public class MeetingService implements MessageListener {
           if (!StringUtils.isEmpty(paramChecksum)) {
             String hash = DigestUtils.sha256Hex(content);
             if (!paramChecksum.equals(hash)) {
-              log.info("Plugin's manifest.json checksum mismatch with that of the URL parameter for {}.",
-                      pluginManifest.getUrl());
-              log.info("Plugin {} is not going to be loaded", pluginManifest.getUrl());
+              log.info("Plugin's manifest.json checksum mismatch with that of the URL parameter for {}.", pluginManifestUrlString);
+              log.info("Plugin {} is not going to be loaded", pluginManifestUrlString);
               return;
             }
           }
@@ -435,12 +435,12 @@ public class MeetingService implements MessageListener {
           if (jsonNode.has("name")) {
             name = jsonNode.get("name").asText();
           } else {
-            throw new NoSuchFieldException("For url " + urlString + " there is no name field configured.");
+            throw new NoSuchFieldException("For url " + pluginManifestUrlString + " there is no name field configured.");
           }
 
           String pluginKey = name;
           HashMap<String, Object> manifestObject = new HashMap<>();
-          manifestObject.put("url", urlString);
+          manifestObject.put("url", pluginManifestUrlString);
           String manifestContent = replaceMetaParametersIntoManifestTemplate(content, metadata);
 
           Map<String, Object> mappedManifestContent = objectMapper.readValue(manifestContent, new TypeReference<Map<String, Object>>() {});
@@ -450,20 +450,20 @@ public class MeetingService implements MessageListener {
           manifestWrapper.put("manifest", manifestObject);
           urlContents.put(pluginKey, manifestWrapper);
         } catch (MalformedURLException e) {
-          log.error("Invalid URL: {}", pluginManifest.getUrl(), e);
+          log.error("Invalid URL: {}", pluginManifestUrlString, e);
         } catch (JsonProcessingException e) {
-          log.error("Failed to parse JSON from URL: {}", pluginManifest.getUrl(), e);
+          log.error("Failed to parse JSON from URL: {}", pluginManifestUrlString, e);
         } catch (IOException e) {
-          log.error("I/O error when fetching URL: {}", pluginManifest.getUrl(), e);
+          log.error("I/O error when fetching URL: {}", pluginManifestUrlString, e);
         } catch (Exception e) {
-          log.error("Unexpected error processing plugin manifest from URL: {}", pluginManifest.getUrl(), e);
+          log.error("Unexpected error processing plugin manifest from URL: {}", pluginManifestUrlString, e);
         }
       }, executorService).orTimeout(pluginManifestFetchTimeout, TimeUnit.SECONDS)
       .exceptionally(ex -> {
         if (ex instanceof TimeoutException) {
-          log.warn("Timeout occurred when fetching URL: {}", pluginManifest.getUrl());
+          log.warn("Timeout occurred when fetching URL: {}", pluginManifestUrlString);
         } else {
-          log.error("Unexpected error for plugin {}: {}", pluginManifest.getUrl(), ex);
+          log.error("Unexpected error for plugin {}: {}", pluginManifestUrlString, ex);
         }
         return null;
       });
@@ -1472,6 +1472,7 @@ public class MeetingService implements MessageListener {
       String apiVersionFromFile = reader.readLine();
 
       paramsProcessorUtil.setBbbVersion(apiVersionFromFile);
+      PluginUtils.setBbbVersion(apiVersionFromFile);
       Runnable messageReceiver = new Runnable() {
         public void run() {
           while (processMessage) {

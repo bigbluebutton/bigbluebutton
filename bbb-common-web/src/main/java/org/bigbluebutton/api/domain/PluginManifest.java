@@ -1,7 +1,6 @@
 package org.bigbluebutton.api.domain;
 
 public class PluginManifest {
-
     private String url = "";
     private String checksum = "";
     public PluginManifest(
@@ -12,7 +11,7 @@ public class PluginManifest {
     }
     public PluginManifest(
             String url) {
-        this.url = url;
+        this(url, "");
     }
 
     public String getUrl() {
