@@ -8,6 +8,7 @@ import {
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import { layoutDispatch, layoutSelectInput } from '/imports/ui/components/layout/context';
 import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
+import sortAppKeysByName from './service';
 import Icon from '/imports/ui/components/common/icon/component';
 import Styled from './styles';
 
@@ -19,6 +20,7 @@ const PinnedApps = ({ sidebarNavigationInput }: PinnedAppsProps) => {
   const { registeredApps = {}, pinnedApps = [] } = sidebarNavigationInput;
   const layoutContextDispatch = layoutDispatch();
   const { sidebarContentPanel } = layoutSelectInput((i: Input) => i.sidebarContent);
+  const sortedPinnedApps = sortAppKeysByName(pinnedApps, registeredApps);
   const openPanel = (pinnedAppKey: string) => {
     layoutContextDispatch({
       type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
@@ -32,7 +34,7 @@ const PinnedApps = ({ sidebarNavigationInput }: PinnedAppsProps) => {
     });
   };
 
-  return pinnedApps.map((pinnedAppKey: string) => {
+  return sortedPinnedApps.map((pinnedAppKey: string) => {
     const pinnedAppInfo = registeredApps[pinnedAppKey];
     const { name, icon } = pinnedAppInfo;
     // type guard
