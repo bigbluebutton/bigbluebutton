@@ -1904,7 +1904,7 @@ const Whiteboard = React.memo((props) => {
     const makeCursorUrl = (filename) => `${baseName}/resources/images/whiteboard-cursor/${filename}`;
 
     const TOOL_CURSORS = {
-      draw: `url('${makeCursorUrl('pencil.png')}') 2 22, default`,
+      draw: `url('${makeCursorUrl('pencil.png')}') 0 0, default`,
       line: `url('${makeCursorUrl('line.png')}'), default`,
       text: `url('${makeCursorUrl('text.png')}'), default`,
       note: `url('${makeCursorUrl('square.png')}'), default`,
