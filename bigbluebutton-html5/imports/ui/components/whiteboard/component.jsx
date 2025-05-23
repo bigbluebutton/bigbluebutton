@@ -1441,6 +1441,11 @@ const Whiteboard = React.memo((props) => {
 
     if (slideShape) {
       const prevZoomCamera = camera.z;
+
+      if (zoomValueRef.current === prevZoomValueRef.current) {
+        return;
+      }
+
       const prevCenteredCameraX = -slideShape.x
         + (viewportWidth - slideShape.props.w * prevZoomCamera) / (2 * prevZoomCamera);
       const prevCenteredCameraY = -slideShape.y
@@ -1641,7 +1646,7 @@ const Whiteboard = React.memo((props) => {
       && isPresenter
       && !isWheelZoomRef.current
     ) {
-      if (!isMounting && prevZoomValueRef.current !== zoomValue) {
+      if (!isMounting) {
         syncCameraOnPresenterZoom();
       }
     }
