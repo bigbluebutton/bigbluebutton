@@ -113,28 +113,33 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
   };
 
   const renderedPinnedApps = useMemo(() => (
-    pinnedApps.map((pinnedAppKey) => {
-      const { name, icon } = registeredApps[pinnedAppKey];
-      // type guard
-      const { onClick } = registeredApps[pinnedAppKey] as InjectedAppGalleryItem;
-      return renderApp(pinnedAppKey, name, icon, true, onClick);
-    })
+    [...pinnedApps]
+      .sort((a, b) => {
+        const nameA = registeredApps[a]?.name || '';
+        const nameB = registeredApps[b]?.name || '';
+        return nameA.localeCompare(nameB);
+      })
+      .map((pinnedAppKey) => {
+        const { name, icon } = registeredApps[pinnedAppKey];
+        const { onClick } = registeredApps[pinnedAppKey] as InjectedAppGalleryItem;
+        return renderApp(pinnedAppKey, name, icon, true, onClick);
+      })
   ), [registeredApps, pinnedApps]);
 
   const renderedUnpinnedApps = useMemo(() => (
-    Object.keys(registeredApps)
-      .filter((registeredObjectKey) => !pinnedApps.includes(registeredObjectKey))
-      .map((unpinnedAppKey) => {
-        const { name, icon } = registeredApps[unpinnedAppKey];
-        // type guard
-        const { onClick } = registeredApps[unpinnedAppKey] as InjectedAppGalleryItem;
+    Object.entries(registeredApps)
+      .filter(([key]) => !pinnedApps.includes(key))
+      .sort(([, a], [, b]) => a.name.localeCompare(b.name))
+      .map(([unpinnedAppKey, app]) => {
+        const { name, icon } = app;
+        const { onClick } = app as InjectedAppGalleryItem;
         return renderApp(unpinnedAppKey, name, icon, false, onClick);
       })
   ), [registeredApps, pinnedApps]);
 
   return (
     <>
-      { error && (
+      {error && (
         <TooManyPinnedAppsModal
           setError={setError}
           pinnedAppsNumber={pinnedApps.length}
