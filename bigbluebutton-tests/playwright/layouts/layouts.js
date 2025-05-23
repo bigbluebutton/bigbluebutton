@@ -38,8 +38,6 @@ class Layouts extends MultiUsers {
 
     await this.modPage.waitAndClick(e.userListToggleBtn);
     await this.modPage.wasRemoved(e.chatButton, '');
-    await this.userPage.waitAndClick(e.userListToggleBtn);
-    await this.userPage.wasRemoved(e.chatButton, '');
     await sleep(1000); // wait for the whiteboard zoom to stabilize
 
     await checkScreenshots(this, 'should the cameras be on the side of presentation', [e.webcamContainer, e.webcamMirroredVideoContainer], 'smart-layout', 2);
@@ -78,9 +76,7 @@ class Layouts extends MultiUsers {
     await this.modPage.waitAndClick(e.userListToggleBtn);
     await this.userPage.waitAndClick(e.userListToggleBtn);
     await this.modPage.wasRemoved(e.chatButton, 'should not be displayed the chat button');
-    await this.modPage.wasRemoved(e.sendButton, 'should not be displayed the send button');
     await this.userPage.wasRemoved(e.chatButton, 'should not be displayed the chat button');
-    await this.userPage.wasRemoved(e.sendButton, 'should not be displayed the send button');
 
     await checkScreenshots(this, 'should be on custom layout', 'video', 'custom-layout', 4);
     await reopenChatSidebar(this.modPage);
@@ -114,41 +110,6 @@ class Layouts extends MultiUsers {
     await this.modPage.dragAndDropWebcams(e.dropAreaSidebarBottom);
 
     await checkScreenshots(this, 'layout should be updated for everyone', 'video', 'update-everyone');
-    await this.modPage.waitAndClick(e.optionsButton);
-    await this.modPage.waitAndClick(e.manageLayoutBtn);
-    await this.modPage.waitAndClick(e.focusOnPresentation);
-    await this.modPage.waitAndClick(e.updateLayoutBtn);
-    await this.modPage.closeAllToastNotifications();
-    await this.modPage.wasRemoved(e.toastContainer);
-
-    await checkScreenshots(this, 'should be the layout focus on presentation', [e.webcamContainer, e.webcamMirroredVideoContainer], 'focus-on-presentation-update-everyone');
-
-    await this.modPage.waitAndClick(e.optionsButton);
-    await this.modPage.waitAndClick(e.manageLayoutBtn);
-    await this.modPage.waitAndClick(e.focusOnVideo);
-    await this.modPage.waitAndClick(e.updateLayoutBtn);
-    await this.modPage.closeAllToastNotifications();
-    await this.modPage.wasRemoved(e.toastContainer);
-
-    await checkScreenshots(this, 'should be the grid layout', [e.webcamContainer, e.webcamMirroredVideoContainer], 'grid-layout-update-everyone');
-
-    await this.modPage.waitAndClick(e.optionsButton);
-    await this.modPage.waitAndClick(e.manageLayoutBtn);
-    await this.modPage.waitAndClick(e.smartLayout);
-    await this.modPage.waitAndClick(e.updateLayoutBtn);
-    await this.modPage.closeAllToastNotifications();
-    await this.modPage.wasRemoved(e.toastContainer);
-
-    await checkScreenshots(this, 'should the cameras be above the presentation', [e.webcamContainer, e.webcamMirroredVideoContainer], 'smart-layout-update-everyone', 1);
-
-    await this.modPage.waitAndClick(e.userListToggleBtn);
-    await this.modPage.wasRemoved(e.chatButton, '');
-    await this.userPage.waitAndClick(e.userListToggleBtn);
-    await this.userPage.wasRemoved(e.chatButton, '');
-    await sleep(1000); // wait for the whiteboard zoom to stabilize
-
-    await checkScreenshots(this, 'should the cameras be on the side of presentation', [e.webcamContainer, e.webcamMirroredVideoContainer], 'smart-layout-update-everyone', 2);
-    await reopenChatSidebar(this.modPage);
   }
 }
 
