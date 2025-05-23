@@ -1,9 +1,14 @@
-import { PluginLoaderManagerProps } from './types';
 import { useEffect } from 'react';
 import logger from '/imports/startup/client/logger';
+import { PluginBrowserWindow } from 'bigbluebutton-html-plugin-sdk';
+import { PluginLoaderManagerProps } from './types';
+import { appendPluginApi } from '../plugin-api/singleton';
+
+declare const window: PluginBrowserWindow;
 
 const PluginLoaderManager = (props: PluginLoaderManagerProps) => {
   const {
+    pluginApi,
     uuid,
     containerRef,
     setNumberOfLoadedPlugins,
@@ -27,6 +32,9 @@ const PluginLoaderManager = (props: PluginLoaderManagerProps) => {
       logger.info({
         logCode: 'plugin_loaded',
       }, `Loaded plugin ${plugin.name}`);
+      // Send pluginApi to plugin constructor
+      window.bbbPluginApiConstructors[uuid](pluginApi, uuid);
+      appendPluginApi(pluginApi, uuid);
     };
     script.onerror = () => {
       logger.error({
@@ -43,7 +51,18 @@ const PluginLoaderManager = (props: PluginLoaderManagerProps) => {
     if (plugin.javascriptEntrypointIntegrity) {
       script.setAttribute('integrity', plugin.javascriptEntrypointIntegrity);
     }
-    document.head.appendChild(script);
+
+    if (!window.bbbPluginApiConstructors[uuid]) {
+      document.head.appendChild(script);
+    } else {
+      logger.error({
+        logCode: 'plugin_load_error',
+        extraInfo: {
+          pluginName: plugin.name,
+          pluginUrl: plugin.url,
+        },
+      }, `Constructor for plugin ${plugin.name} already set. Not loading...`);
+    }
   }, [plugin, containerRef]);
   return null;
 };

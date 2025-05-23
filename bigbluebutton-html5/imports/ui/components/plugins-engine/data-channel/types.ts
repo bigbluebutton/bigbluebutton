@@ -1,8 +1,8 @@
-import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import { DataChannelTypes } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-channel/enums';
 
 export interface PluginDataChannelManagerProps {
-  pluginApi: PluginSdk.PluginApi;
+  pluginName: string;
+  pluginUuid: string;
 }
 
 export interface MapInformation {
