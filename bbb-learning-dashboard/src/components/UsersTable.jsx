@@ -355,7 +355,7 @@ class UsersTable extends React.Component {
                               title={`${percentage.toString()}%`}
                             >
                               <div
-                                aria-label=" "
+                                aria-label="Online time"
                                 className="bg-gradient-to-br from-green-100 to-green-600 transition-colors duration-900 h-1.5"
                                 style={{ width: `${percentage.toString()}%` }}
                                 role="progressbar"
