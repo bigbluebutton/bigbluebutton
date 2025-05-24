@@ -129,7 +129,7 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
       await join.exportBreakoutNotes();
     });
 
-    test('Export breakout room whiteboard annotations', { tag: '@flaky' }, async ({ browser, context, page }) => {
+    test('Export breakout room whiteboard annotations', async ({ browser, context, page }) => {
       const join = new Join(browser, context);
       await join.initPages(page);
       await join.create(false, true);
