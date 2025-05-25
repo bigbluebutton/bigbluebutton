@@ -20,8 +20,6 @@
 package org.bigbluebutton.presentation;
 
 import java.io.File;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import org.apache.commons.io.FilenameUtils;
 
