@@ -375,7 +375,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     }
 
     if (currentTime > playerCurrentTime) {
-      playerRef?.current?.seekTo(currentTime);
+      playerRef?.current?.seekTo(currentTime, 'seconds');
     }
   };
 
