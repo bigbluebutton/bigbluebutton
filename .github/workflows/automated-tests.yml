@@ -194,35 +194,27 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install BBB
         uses: ./.github/actions/install-bbb
-      - name: Extract SDK version information from bigbluebutton-html5/package.json
-        id: sdk-version
+      - name: Extract download URL of the SDK version information from bigbluebutton-html5/package.json
         working-directory: ./bigbluebutton-html5
         run: |
           SDK_DEP=$(jq -r '.dependencies["bigbluebutton-html-plugin-sdk"]' package.json)
           if echo "$SDK_DEP" | grep -q "codeload.github.com"; then
-            echo "IS_SDK_TAG_VERSION=false" >> $GITHUB_ENV
-            echo "SDK_COMMIT_AUTHOR=$(echo "$SDK_DEP" | sed -E 's|https://codeload.github.com/([^/]+)/.*|\1|')" >> $GITHUB_ENV
-            echo "SDK_COMMIT_HASH=$(echo "$SDK_DEP" | sed -E 's|.*/tar.gz/([^/]+)|\1|')" >> $GITHUB_ENV
+            echo "SDK_URL=\"$SDK_DEP\"" >> $GITHUB_ENV
           else
-            echo "IS_SDK_TAG_VERSION=true" >> $GITHUB_ENV
-            echo "SDK_DEP=$SDK_DEP" >> $GITHUB_ENV
+            SDK_VERSION=$(jq -r '.packages["node_modules/bigbluebutton-html-plugin-sdk"]["version"]' package-lock.json)
+            echo "SDK_URL=https://github.com/bigbluebutton/bigbluebutton-html-plugin-sdk/archive/refs/tags/v${SDK_VERSION}.tar.gz" >> $GITHUB_ENV
           fi
-      - name: Clone plugins SDK repository
+      - name: Download plugins SDK
+        working-directory: ../bigbluebutton-tests/playwright
         run: |
-          cd /home/runner/work/bigbluebutton/bigbluebutton
-          git clone https://github.com/bigbluebutton/bigbluebutton-html-plugin-sdk.git
-          cd bigbluebutton-html-plugin-sdk
-      - name: Checkout SDK to the same BBB Core version
+          wget -O bigbluebutton-html-plugin-sdk.tar.gz $SDK_URL
+          mkdir -p bigbluebutton-html-plugin-sdk
+          tar -xzf bigbluebutton-html-plugin-sdk.tar.gz -C bigbluebutton-html-plugin-sdk --strip-components=1
+      - name: Install plugins SDK dependencies
         working-directory: ./bigbluebutton-html-plugin-sdk
         run: |
-          if [ "$IS_SDK_TAG_VERSION" = "true" ]; then
-            git fetch --tags
-            git checkout  $SDK_DEP  # Checkout tag
-          else
-            git remote add fork https://github.com/$SDK_COMMIT_AUTHOR/bigbluebutton-html-plugin-sdk.git
-            git fetch fork
-            git checkout $SDK_COMMIT_HASH  # Checkout commit
-          fi
+          echo "Installing plugins SDK dependencies"
+          npm ci
       - name: Install sample plugin dependencies
         working-directory: ./bigbluebutton-html-plugin-sdk
         run: |
@@ -231,7 +223,7 @@ jobs:
             if [ -d "./samples/$sample" ]; then
               echo "Installing dependencies for sample: $sample"
               cd "./samples/$sample"
-              npm ci --silent
+              npm ci
               cd - > /dev/null
             else
               echo "Sample not found: $sample"
@@ -240,7 +232,7 @@ jobs:
       - name: Build plugins SDK and publish to samples
         working-directory: ./bigbluebutton-html-plugin-sdk
         run: |
-          npm ci --silent
+          npm ci
           npm run build
           ./scripts/publish-to-samples.sh
       - name: Build sample plugins (that contain tests) and copy built files to the plugin assets directory
