@@ -417,55 +417,64 @@ const reducer = (state, action) => {
         onClick = undefined,
       } = action.value;
       const { sidebarNavigation } = state.input;
-      const { registeredApps } = sidebarNavigation;
+      const { registeredApps = {}, pinnedApps = [] } = sidebarNavigation;
+
+      const newRegisteredApps = {
+        ...registeredApps,
+        [id]: {
+          name,
+          icon,
+          ...(contentFunction && { contentFunction }),
+          ...(onClick && { onClick }),
+        },
+      };
+
+      const sortedRegisteredApps = Object.fromEntries(Object.entries(newRegisteredApps)
+        .sort(([, a], [, b]) => a.name.localeCompare(b.name)));
+
+      const sortedPinnedApps = pinnedApps
+        .slice()
+        .sort((a, b) => newRegisteredApps[a].name.localeCompare(newRegisteredApps[b].name));
+
       return {
         ...state,
         input: {
           ...state.input,
           sidebarNavigation: {
             ...sidebarNavigation,
-            registeredApps: {
-              ...registeredApps,
-              [id]: {
-                name,
-                icon,
-                ...(contentFunction && { contentFunction }),
-                ...(onClick && { onClick }),
-              },
-            },
+            registeredApps: sortedRegisteredApps,
+            pinnedApps: sortedPinnedApps,
           },
         },
       };
     }
     case ACTIONS.UNREGISTER_SIDEBAR_APP: {
-      const {
-        id,
-      } = action;
+      const { id } = action;
       const { sidebarNavigation } = state.input;
-      const { registeredApps, pinnedApps } = sidebarNavigation;
+      const { registeredApps = {}, pinnedApps = [] } = sidebarNavigation;
+
       if (!(id in registeredApps)) {
         logger.warn({
           logCode: 'unregister_not_found_app',
-          extraInfo: {
-            id,
-          },
+          extraInfo: { id },
         }, `Layout Context: Attempting to unregister an app "${id}" that is not registered.`);
         return state;
       }
+
       const updatedRegisteredApps = { ...registeredApps };
       delete updatedRegisteredApps[id];
+
       // Also remove it from pinned apps
       const updatedPinnedApps = pinnedApps.filter((pinnedApp) => pinnedApp !== id);
+
       return {
         ...state,
         input: {
           ...state.input,
           sidebarNavigation: {
             ...sidebarNavigation,
+            registeredApps: updatedRegisteredApps,
             pinnedApps: updatedPinnedApps,
-            registeredApps: {
-              ...updatedRegisteredApps,
-            },
           },
         },
       };
@@ -475,21 +484,19 @@ const reducer = (state, action) => {
       const MAX_PINNED_APPS_GALLERY = APP_CONFIG.appsGallery.maxPinnedApps;
       const { id: appId, pin } = action.value;
       const { sidebarNavigation } = state.input;
-      const { pinnedApps, registeredApps } = sidebarNavigation;
+      const { pinnedApps, registeredApps = [] } = sidebarNavigation;
 
       const isAppRegistered = appId in registeredApps;
       const isAppPinned = pinnedApps.includes(appId);
 
       if (!isAppRegistered) return state;
-      if ((pin && isAppPinned) || (!pin && !isAppPinned)) {
-        return state;
-      }
-      if (pin && pinnedApps.length === MAX_PINNED_APPS_GALLERY) {
-        return state;
-      }
+      if ((pin && isAppPinned) || (!pin && !isAppPinned)) return state;
+      if (pin && pinnedApps.length === MAX_PINNED_APPS_GALLERY) return state;
 
       const updatedPinnedApps = pin
-        ? [...pinnedApps, appId]
+        ? [...pinnedApps, appId].sort(
+          (a, b) => registeredApps[a].name.localeCompare(registeredApps[b].name),
+        )
         : pinnedApps.filter((pinnedApp) => pinnedApp !== appId);
 
       return {
