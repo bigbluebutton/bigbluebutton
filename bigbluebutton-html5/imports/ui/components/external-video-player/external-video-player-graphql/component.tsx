@@ -375,7 +375,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     }
 
     if (currentTime > playerCurrentTime) {
-      playerRef?.current?.seekTo(currentTime);
+      playerRef?.current?.seekTo(currentTime, 'seconds');
     }
   };
 
@@ -387,10 +387,13 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
         ? internalPlayer.playbackRate
         : internalPlayer?.getPlaybackRate?.() ?? 1;
 
-      const currentTime = await getPlayerCurrentTime(playerRef.current as ReactPlayer);
+      const currentTime = getCurrentTime();
+      const playerCurrentTime = await getPlayerCurrentTime(playerRef.current as ReactPlayer);
       sendMessage('play', {
         rate,
-        time: currentTime,
+        // if currentTime is greater than playerCurrentTime, means the video was already played
+        // and the presenter refreshed his client
+        time: currentTime > playerCurrentTime ? currentTime : playerCurrentTime,
       });
     }
 
