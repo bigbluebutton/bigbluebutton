@@ -535,7 +535,6 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
         <Styled.VideoPlayer
           config={videoPlayConfig}
           autoPlay
-          // playsInline
           url={videoUrl}
           playing={playing}
           playbackRate={playerPlaybackRate}
