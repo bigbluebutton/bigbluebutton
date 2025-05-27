@@ -2,9 +2,9 @@
 
 TARGET=$(basename "$(pwd)")
 
-SERVER_VERSION=1.8.4
+SERVER_VERSION=v1.8.4
 CLI_VERSION=2.3.1
-SIP_VERSION=0.9.0
+SIP_VERSION=v0.9.0
 
 PACKAGE=$(echo "$TARGET" | cut -d'_' -f1)
 VERSION=$(echo "$TARGET" | cut -d'_' -f2)
@@ -34,14 +34,54 @@ chmod 644 "$DESTDIR/usr/share/livekit-server/livekit"*.yaml
 
 mkdir -p "$DESTDIR/usr/bin"
 
-curl "https://github.com/livekit/livekit/releases/download/v${SERVER_VERSION}/livekit_${SERVER_VERSION}_linux_amd64.tar.gz" -Lo - | tar -C "$DESTDIR/usr/bin" -xzf - livekit-server
+# Pull built lk cli from github
 curl "https://github.com/livekit/livekit-cli/releases/download/v${CLI_VERSION}/lk_${CLI_VERSION}_linux_amd64.tar.gz" -Lo - | tar -C "$DESTDIR/usr/bin" -xzf - lk
 
+# Build livekit-server
+buildbase=$(mktemp -d)
+curl "https://github.com/livekit/livekit/archive/${SERVER_VERSION}.tar.gz" -Lo - | tar -xzf - -C "$buildbase"
+# Get livekit-server's directory name from the extracted archive
+LIVEKIT_DIR=$(find "$buildbase" -maxdepth 1 -type d -name "livekit-*" | head -n 1)
+
+if [ -z "$LIVEKIT_DIR" ]; then
+    echo "Error: Could not find livekit-server directory in extracted archive"
+    exit 1
+fi
+
+# Build in an isolated shell as the GO* envs need to be overridden and I'd
+# prefer not to leak them to the main shell.- prlanzarin
+(
+    # These are needed by the mage build
+    export GOPATH="/tmp/go-${TARGET}"
+    export GOBIN="$GOPATH/bin"
+    mkdir -p "$GOBIN"
+    export PATH="$GOBIN:$PATH"
+
+    pushd "$LIVEKIT_DIR" > /dev/null
+    ./bootstrap.sh
+    mage
+    popd > /dev/null
+)
+
+cp "$LIVEKIT_DIR/bin/livekit-server" "$DESTDIR/usr/bin"
+rm -rf "$buildbase"
+
+# End of livekit-server build
+
+# Build livekit-sip
 apt update && apt install -y pkg-config libopus-dev libopusfile-dev libsoxr-dev
 
 buildbase=$(mktemp -d)
-curl "https://github.com/livekit/sip/archive/refs/tags/v${SIP_VERSION}.tar.gz" -Lo - | tar -xzf - -C "$buildbase"
-pushd "$buildbase/sip-${SIP_VERSION}" > /dev/null
+curl "https://github.com/livekit/sip/archive/${SIP_VERSION}.tar.gz" -Lo - | tar -xzf - -C "$buildbase"
+# Get livekit-sip's directory name from the extracted archive
+SIP_DIR=$(find "$buildbase" -maxdepth 1 -type d -name "sip-*" | head -n 1)
+
+if [ -z "$SIP_DIR" ]; then
+    echo "Error: Could not find livekit-sip directory in extracted archive"
+    exit 1
+fi
+
+pushd "$SIP_DIR" > /dev/null
 
 if [ "$TARGETPLATFORM" = "linux/arm64" ]; then
     GOARCH=arm64
@@ -52,9 +92,9 @@ fi
 CGO_ENABLED=1 GOOS=linux GOARCH="${GOARCH}" GO111MODULE=on go build -a -o livekit-sip ./cmd/livekit-sip
 
 cp livekit-sip "$DESTDIR/usr/bin"
-
 popd > /dev/null
 rm -rf "$buildbase"
+# End of livekit-sip build
 
 # shellcheck disable=SC2086
 fpm -s dir -C "$DESTDIR" -n "$PACKAGE" \
