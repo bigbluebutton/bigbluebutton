@@ -1,4 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback, useEffect, useRef, useState,
+} from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import Header from '/imports/ui/components/common/control-header/component';
@@ -17,6 +19,7 @@ import ResponseTypes from './components/ResponseTypes';
 import PollQuestionArea from './components/PollQuestionArea';
 import LiveResultContainer from './components/LiveResult';
 import Session from '/imports/ui/services/storage/in-memory';
+import SessionStorage from '/imports/ui/services/storage/session';
 import { useStorageKey } from '../../services/storage/hooks';
 
 const intlMessages = defineMessages({
@@ -335,6 +338,65 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
     Session.removeItem('quickPollVariables');
   }, []);
 
+  const getPollCurrentState = useCallback(() => {
+    return {
+      customInput,
+      question,
+      questionAndOptions,
+      optList,
+      error,
+      isMultipleResponse,
+      secretPoll,
+      warning,
+      type,
+    };
+  }, [
+    customInput, question, questionAndOptions, optList,
+    isMultipleResponse, secretPoll, warning, type, error,
+  ]);
+
+  useEffect(() => () => {
+    SessionStorage.setItem('pollSavedState', getPollCurrentState());
+  }, [getPollCurrentState]);
+
+  useEffect(() => {
+    const pollSavedState = SessionStorage.getItem('pollSavedState') as {
+      customInput: boolean;
+      question: string[] | string;
+      questionAndOptions: string[] | string;
+      optList: { val: string }[];
+      error: string;
+      isMultipleResponse: boolean;
+      secretPoll: boolean;
+      warning: string;
+      type: string;
+    };
+
+    if (pollSavedState) {
+      const {
+        customInput,
+        isMultipleResponse,
+        optList,
+        error,
+        question,
+        questionAndOptions,
+        secretPoll,
+        type,
+        warning,
+      } = pollSavedState;
+
+      setCustomInput(customInput);
+      setIsMultipleResponse(isMultipleResponse);
+      setOptList(optList);
+      setError(error);
+      setQuestion(question);
+      setQuestionAndOptions(questionAndOptions);
+      setSecretPoll(secretPoll);
+      setType(type);
+      setWarning(warning);
+    }
+  }, []);
+
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement>,
     index: number,
@@ -449,8 +511,15 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
   };
 
   useEffect(() => {
+    const cps = Session.getItem('customPollShortcut');
+    if (cps) {
+      setType(pollTypes.Custom);
+      setCustomInput(!!cps);
+    }
+
     return () => {
       Session.setItem('secretPoll', false);
+      Session.setItem('customPollShortcut', false);
     };
   }, []);
 
@@ -458,7 +527,7 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
     if (textareaRef.current) {
       textareaRef.current?.focus();
     }
-  }, [textareaRef]);
+  }, [textareaRef, customInput]);
 
   const pollOptions = () => {
     if (hasPoll) return <LiveResultContainer />;

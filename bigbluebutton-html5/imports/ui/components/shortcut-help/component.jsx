@@ -263,6 +263,10 @@ const intlMessages = defineMessages({
     id: 'app.shortcut-help.fingerTap',
     description: 'label for tap shotcut',
   },
+  openCustomPoll: {
+    id: 'app.shortcut-help.openCustomPoll',
+    description: 'label for opening custom poll panel shotcut',
+  },
 });
 
 
@@ -335,7 +339,12 @@ const ShortcutHelpComponent = ({
     `${intl.formatMessage(intlMessages.pushToTalkDesc)}`,
     `M`
   );
+
   generalShortcutItems.splice(3, 0, ptt);
+  generalShortcutItems.push( renderItem(
+    `${intl.formatMessage(intlMessages.openCustomPoll)}`,
+    isMacos ? `Cmd + Opt + P` : `Ctrl + Alt + P`
+  ));
 
   const shortcutItems = [];
   shortcutItems.push(renderItem(intl.formatMessage(intlMessages.togglePan),

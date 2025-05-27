@@ -220,6 +220,7 @@ class SharedNotes extends MultiUsers {
     await startSharedNotes(this.modPage);
     const notesLocator = getNotesLocator(this.modPage);
     await notesLocator.type('Hello');
+    await sleep(1000);  // avoid pinning notes before the text is fully applied
     // pin notes
     await this.modPage.waitAndClick(e.notesOptions);
     await this.modPage.waitAndClick(e.pinNotes);

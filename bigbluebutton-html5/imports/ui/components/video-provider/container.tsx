@@ -11,7 +11,6 @@ import {
   useIsUserLocked,
   useLockUser,
   useMyPageSize,
-  useMyRole,
   useStopVideo,
   useVideoStreams,
 } from './hooks';
@@ -125,7 +124,6 @@ const VideoProviderContainer: React.FC<VideoProviderContainerProps> = (props) =>
   const lockUser = useLockUser();
   const stopVideo = useStopVideo();
   const info = useInfo();
-  const myRole = useMyRole();
   const myPageSize = useMyPageSize();
   const { numberOfPages } = useVideoState();
   const isPaginationEnabled = useIsPaginationEnabled();
@@ -185,7 +183,6 @@ const VideoProviderContainer: React.FC<VideoProviderContainerProps> = (props) =>
     lockUser,
     stopVideo,
     applyCameraProfile,
-    myRole,
   };
 
   switch (currentMeeting?.cameraBridge) {

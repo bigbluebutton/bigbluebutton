@@ -434,6 +434,9 @@ const createEndpointTableData = [
             <li>
               <code className="language-plaintext highlighter-rouge">raiseHand</code> - <b>Raise Hand (added in BigBlueButton 3.0)</b>
             </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">userReactions</code> - <b>Enable/Disable user reactions (added in BigBlueButton 3.0)</b>
+            </li>
           </ul>
         </>
     ),
@@ -532,10 +535,27 @@ const createEndpointTableData = [
     "description": (
       <>
         A list of the BigBlueButton client plugins you want included for the
-        specific session (merged with the list in <code>/etc/bigbluebutton/bbb-web.properties</code> and duplicates dropped){" "}
+        specific session (merged with the list in <code>/etc/bigbluebutton/bbb-web.properties</code> and duplicates dropped){" "}.
+        It is possible to add a placeholder in the URL for the plugin-sdk version being used in the server.
+        For more information see section of placeholders in <Link to="/plugins#using-placeholders-in-plugin-urls">Plugins</Link>.
+        <br/>
         <code className="language-plaintext highlighter-rouge">
-          {`pluginManifests=[{"url":"https://someserver.com/plugins/bbb-plugin-pick-random-user/manifest.json"}]`}
+          {`pluginManifests=[{"url":"https://someserver.com/plugins/bbb-plugin-pick-random-user/manifest.json", "checksum": "abc123"}]`}
         </code>
+      </>
+    )
+  },
+  {
+    "name": "pluginManifestsFetchUrl",
+    "required": false,
+    "type": "String",
+    "description": (
+      <>
+        URL that points to a JSON file containing an array of multiple plugin manifest URLs (optionally including file checksums). This is mainly used to simplify and minimize the size of the <code>create</code> request.
+        The expected content is a json array with the exact same structure as the parameter <code>pluginManifests</code>,
+        see example in the parameter above.
+        It is possible to add a placeholder in the URL for the plugin-sdk version being used in the server.
+        For more information see section of placeholders in <Link to="/plugins#using-placeholders-in-plugin-urls">Plugins</Link>.
       </>
     )
   },

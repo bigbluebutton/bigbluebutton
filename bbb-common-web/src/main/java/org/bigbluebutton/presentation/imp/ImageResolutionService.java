@@ -37,7 +37,8 @@ public class ImageResolutionService {
   public ImageResolution identifyImageResolution(File presentationFile) {
 
     NuProcessBuilder imageResolution = new NuProcessBuilder(
-        Arrays.asList("identify", "-format","%w %h", presentationFile.getAbsolutePath()));
+        Arrays.asList("/usr/share/bbb-web/run-in-systemd.sh", String.valueOf(wait),
+                "identify", "-format","%w %h", presentationFile.getAbsolutePath()));
 
     ImageResolutionServiceHandler imgResHandler = new ImageResolutionServiceHandler();
     imageResolution.setProcessListener(imgResHandler);

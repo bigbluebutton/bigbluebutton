@@ -252,10 +252,36 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     return 0;
   }, []);
 
+  const getPlaybackRate = useCallback((player: ReactPlayer) => {
+    if (player) {
+      const internalPlayer = player.getInternalPlayer();
+      if (internalPlayer instanceof HTMLVideoElement) {
+        return internalPlayer.playbackRate;
+      }
+      return internalPlayer?.getPlaybackRate?.() ?? 1;
+    }
+    return 1;
+  }, []);
+
+  const getVolume = useCallback((player: ReactPlayer) => {
+    if (player) {
+      const internalPlayer = player.getInternalPlayer();
+      if (internalPlayer instanceof HTMLVideoElement) {
+        return internalPlayer.volume;
+      }
+
+      if (internalPlayer?.getVolume) {
+        return internalPlayer.getVolume();
+      }
+    }
+    return 1;
+  }, []);
+
   useEffect(() => {
     const storedVolume = storage.getItem('externalVideoVolume');
     if (storedVolume) {
-      setVolume(storedVolume as number);
+      const volumeValue = parseFloat(storedVolume as string);
+      setVolume(volumeValue > 1 ? volumeValue / 100 : volumeValue);
     }
   }, []);
 
@@ -324,9 +350,9 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
         && typeof internalPlayer?.getVolume === 'function'
         && internalPlayer?.getVolume() !== currentVolume.current) {
         const playerVolume = internalPlayer?.getVolume();
-        // the scale fiven by the player is 0 to 100, but the accepted scale is 0 to 1
+        // the scale given by the player is 0 to 100, but the accepted scale is 0 to 1
         // So we need to divide by 100
-        setVolume(playerVolume / 100);
+        setVolume(playerVolume > 1 ? playerVolume / 100 : playerVolume);
       }
 
       clientReloadedRef.current = true;
@@ -335,16 +361,21 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   }, [isPresenter]);
 
   const handleOnStart = async () => {
-    if (isPresenter) {
+    const currentTime = getCurrentTime();
+    const playerCurrentTime = await getPlayerCurrentTime(playerRef.current as ReactPlayer);
+    if (isPresenter && !playing) {
       const rate = internalPlayer instanceof HTMLVideoElement
         ? internalPlayer.playbackRate
         : internalPlayer?.getPlaybackRate?.() ?? 1;
 
-      const currentTime = await getPlayerCurrentTime(playerRef.current as ReactPlayer);
       sendMessage('start', {
         rate,
         time: currentTime,
       });
+    }
+
+    if (currentTime > playerCurrentTime) {
+      playerRef?.current?.seekTo(currentTime, 'seconds');
     }
   };
 
@@ -356,10 +387,13 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
         ? internalPlayer.playbackRate
         : internalPlayer?.getPlaybackRate?.() ?? 1;
 
-      const currentTime = await getPlayerCurrentTime(playerRef.current as ReactPlayer);
+      const currentTime = getCurrentTime();
+      const playerCurrentTime = await getPlayerCurrentTime(playerRef.current as ReactPlayer);
       sendMessage('play', {
         rate,
-        time: currentTime,
+        // if currentTime is greater than playerCurrentTime, means the video was already played
+        // and the presenter refreshed his client
+        time: currentTime > playerCurrentTime ? currentTime : playerCurrentTime,
       });
     }
 
@@ -404,6 +438,22 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     if (playing && isPresenter) {
       currentTime = await getPlayerCurrentTime(playerRef.current as ReactPlayer);
     }
+    const interPlayerPlaybackRate = getPlaybackRate(playerRef.current as ReactPlayer);
+    if (isPresenter && interPlayerPlaybackRate !== playerPlaybackRate) {
+      sendMessage('seek', {
+        rate: interPlayerPlaybackRate,
+        time: currentTime,
+        state: playing ? 'playing' : '',
+      });
+    }
+
+    const storedVolume = storage.getItem('externalVideoVolume');
+    const playerVolume = getVolume(playerRef.current as ReactPlayer);
+    // The value used to restore the volume is get from the browser storage
+    // So update the state isn't necessary as it's not saved on component unmount
+    if (storedVolume !== playerVolume) {
+      storage.setItem('externalVideoVolume', playerVolume);
+    }
   };
 
   const handleOnSeek = async (seconds: number) => {
@@ -437,7 +487,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
       sendMessage('playbackRateChange', {
         rate,
         time: getCurrentTime(),
-        state: playing ? 'playing' : 'paused',
+        state: playing ? 'playing' : '',
       });
     }
   };

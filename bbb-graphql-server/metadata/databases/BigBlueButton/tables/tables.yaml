@@ -25,7 +25,6 @@
 - "!include public_v_meeting_group.yaml"
 - "!include public_v_meeting_learningDashboard.yaml"
 - "!include public_v_meeting_lockSettings.yaml"
-- "!include public_v_meeting_metadata.yaml"
 - "!include public_v_meeting_recording.yaml"
 - "!include public_v_meeting_recordingPolicies.yaml"
 - "!include public_v_meeting_usersPolicies.yaml"

@@ -15,6 +15,7 @@ import {
   useIsPresentationEnabled,
   useIsTimerFeatureEnabled,
   useIsRaiseHandEnabled,
+  useIsUserReactionsEnabled,
 } from '/imports/ui/services/features';
 
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
@@ -35,13 +36,6 @@ import deviceInfo from '/imports/utils/deviceInfo';
 import { SMALL_VIEWPORT_BREAKPOINT } from '../layout/enums';
 
 const isLayeredView = window.matchMedia(`(max-width: ${SMALL_VIEWPORT_BREAKPOINT}px)`);
-
-const isReactionsButtonEnabled = () => {
-  const USER_REACTIONS_ENABLED = window.meetingClientSettings.public.userReaction.enabled;
-  const REACTIONS_BUTTON_ENABLED = window.meetingClientSettings.public.app.reactionsButton.enabled;
-
-  return USER_REACTIONS_ENABLED && REACTIONS_BUTTON_ENABLED;
-};
 
 const ActionsBarContainer = (props) => {
   const NOTES_CONFIG = window.meetingClientSettings.public.notes;
@@ -104,6 +98,7 @@ const ActionsBarContainer = (props) => {
   const isTimerFeatureEnabled = useIsTimerFeatureEnabled();
   const isPollingEnabled = useIsPollingEnabled() && isPresentationEnabled;
   const isRaiseHandEnabled = useIsRaiseHandEnabled();
+  const isReactionsButtonEnabled = useIsUserReactionsEnabled();
   const applicationSettings = useSettings(SETTINGS.APPLICATION);
   const { pushLayout } = applicationSettings;
   const setPushLayout = usePushLayoutUpdater(pushLayout);
@@ -134,7 +129,7 @@ const ActionsBarContainer = (props) => {
         showScreenshareQuickSwapButton: window.meetingClientSettings
           .public.layout.showScreenshareQuickSwapButton,
         multiUserTools: getFromUserSettings('bbb_multi_user_tools', window.meetingClientSettings.public.whiteboard.toolbar.multiUserTools),
-        isReactionsButtonEnabled: isReactionsButtonEnabled(),
+        isReactionsButtonEnabled,
         setPresentationIsOpen: MediaService.setPresentationIsOpen,
         hasScreenshare: currentMeeting?.componentsFlags?.hasScreenshare ?? false,
         isMeteorConnected: connected,
@@ -154,7 +149,7 @@ const ActionsBarContainer = (props) => {
         isSharingVideo,
         stopExternalVideoShare,
         isSharedNotesPinned,
-        isTimerActive: currentMeeting.componentsFlags.hasTimer,
+        isTimerActive: currentMeeting?.componentsFlags?.hasTimer,
         isTimerEnabled: isTimerFeatureEnabled,
         hasGenericContent: isThereGenericMainContent,
         setPushLayout,
