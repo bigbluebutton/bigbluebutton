@@ -269,8 +269,21 @@ public class ParamsProcessorUtil {
 		return false;
 	}
 
+    private static final Pattern PLUGIN_PREFIX_PATTERN = Pattern.compile("plugin_[a-zA-Z][a-zA-Z0-9-_]*$");
+	public static Boolean isPluginParameterValid(String param) {
+		Matcher pluginPrefixMatcher = PLUGIN_PREFIX_PATTERN.matcher(param);
+        if (pluginPrefixMatcher.matches()) {
+            return true;
+        }
+        return false;
+	}
+
 	public static String removeMetaString(String param) {
 		return StringUtils.removeStart(param, "meta_");
+	}
+
+    public static String removePluginPrefixString(String param) {
+		return StringUtils.removeStart(param, "plugin_");
 	}
 
     public static Map<String, String> processMetaParam(Map<String, String> params) {
@@ -285,6 +298,20 @@ public class ParamsProcessorUtil {
         }
 
         return metas;
+    }
+
+    public static Map<String, String> processPluginMetaParam(Map<String, String> params) {
+        Map<String, String> pluginParams  = new HashMap<>();
+        for (Map.Entry<String, String> entry : params.entrySet()) {
+            if (isPluginParameterValid(entry.getKey())) {
+                // Need to lowercase to maintain backward compatibility with
+                // 0.81
+                String pluginMetaName = removePluginPrefixString(entry.getKey()).toLowerCase();
+                pluginParams.put(pluginMetaName, entry.getValue());
+            }
+        }
+
+        return pluginParams;
     }
 
 		private BreakoutRoomsParams processBreakoutRoomsParams(Map<String, String> params) {
@@ -847,6 +874,10 @@ public class ParamsProcessorUtil {
         // store if meeting is recorded.
         Map<String, String> meetingInfo = processMetaParam(params);
 
+        // Collect plugin metadata for this meeting that the third-party app wants to
+        // replace manifest.json placeholders.
+        Map<String, String> pluginMetadataParameters = processPluginMetaParam(params);
+
         // Create a unique internal id by appending the current time. This way,
         // the 3rd-party
         // app can reuse the external meeting id.
@@ -904,6 +935,7 @@ public class ParamsProcessorUtil {
                 .withScreenShareBridge(screenShareBridge)
                 .withAudioBridge(audioBridge)
                 .withMetadata(meetingInfo)
+                .withPluginMetadataParameters(pluginMetadataParameters)
                 .withWelcomeMessageTemplate(welcomeMessageTemplate)
                 .withWelcomeMessage(welcomeMessage)
                 .withIsBreakout(isBreakout)

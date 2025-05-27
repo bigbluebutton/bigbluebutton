@@ -966,6 +966,27 @@ This is not part of the API, but it's a way of passing information to the manife
 
 This feature is mainly used for security purposes, see [external data section](#external-data-resources). But can be used for customization reasons as well.
 
+### Plugin_ parameters
+
+`plugin_` parameters work similarly to `meta_` parameters, allowing data to be passed dynamically to the manifest. While they can serve the same purposes — like security or customization — they are specifically scoped to individual plugins.
+
+**Format:**
+
+```
+plugin_<pluginName>_<parameter-name>
+```
+
+- `<pluginName>` — The name of the plugin as defined in `manifest.json`.  
+- `<parameter-name>` — The parameter's name. It may include letters (uppercase or lowercase), numbers, hyphens (`-`), and underscores (`_`).
+
+This naming convention ensures that each plugin has its own namespace for parameters. Other plugins cannot access values outside their own namespace. For example:
+
+```
+plugin_pickRandomUserPlugin_url-to-fetch-data=https://...
+```
+
+This isolates the parameter to `pickRandomUserPlugin` and avoids conflicts with other plugins.
+
 ### Event persistence
 
 This feature will allow the developer to save an information (which is basically an event) in the `event.xml` file of the meeting if it's being recorded.
