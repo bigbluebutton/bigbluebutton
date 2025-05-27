@@ -30,7 +30,7 @@ jobs:
         uses: ./.github/actions/merge-branches
       - name: run npm ci
         working-directory: bigbluebutton-html5
-        run: npm ci
+        run: npm ci --verbose
       - name: typescript code compilation
         working-directory: bigbluebutton-html5
         run: npx tsc
