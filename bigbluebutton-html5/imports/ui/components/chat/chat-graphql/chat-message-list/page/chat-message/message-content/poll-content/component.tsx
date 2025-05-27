@@ -49,6 +49,14 @@ const intlMessages = defineMessages({
     id: 'app.poll.abstention',
     description: 'Poll Abstention option value',
   },
+  vote: {
+    id: 'app.chat.content.pollVote',
+    description: 'Vote label',
+  },
+  votes: {
+    id: 'app.chat.content.pollVotes',
+    description: 'Votes label',
+  },
 });
 
 function assertAsMetadata(metadata: unknown): asserts metadata is Metadata {
@@ -118,19 +126,19 @@ const ChatPollContent: React.FC<ChatPollContentProps> = ({
           </BarChart>
         </ResponsiveContainer>
       </Styled.PollWrapper>
-      <table className="sr-only" id={`poll-result-${pollData.id}`}>
-        <caption>{pollData.questionText}</caption>
-        <tbody>
-          {translatedAnswers.map((ans: Answers & { pollAnswer: string }) => {
-            return (
-              <tr key={ans.id}>
-                <th scope="row">{ans.pollAnswer}</th>
-                <td>{ans.numVotes}</td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+      <p className="sr-only">
+        {pollData.questionText ? `${pollData.questionText}: ` : ''}
+        {`${translatedAnswers
+          .map((a: Answers & { pollAnswer: string }) => `${a.pollAnswer}: ${a.numVotes} ${
+            a.numVotes === 1 ? intl.formatMessage(intlMessages.vote) : intl.formatMessage(intlMessages.votes)
+          }`)
+          .join(', ')}.`}
+      </p>
+      <ul className="sr-only">
+        {translatedAnswers.map((a: Answers & { pollAnswer: string }) => (
+          <li key={a.pollAnswer}>{`${a.pollAnswer} — ${a.numVotes}`}</li>
+        ))}
+      </ul>
     </>
   );
 };

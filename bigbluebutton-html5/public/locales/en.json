@@ -61,6 +61,8 @@
     "app.chat.header.tooltipReply": "Reply to message",
     "app.chat.header.tooltipDelete": "Delete message",
     "app.chat.header.tooltipReact": "React to message",
+    "app.chat.content.pollVote": "vote",
+    "app.chat.content.pollVotes": "votes",
     "app.timer.toolTipTimerStopped": "The timer has stopped.",
     "app.timer.toolTipTimerRunning": "The timer is running.",
     "app.timer.toolTipStopwatchStopped": "The stopwatch has stopped.",
