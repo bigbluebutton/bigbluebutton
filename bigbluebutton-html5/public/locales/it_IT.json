@@ -61,6 +61,8 @@
     "app.chat.header.tooltipReply": "Rispondi al messaggio",
     "app.chat.header.tooltipDelete": "Elimina messaggio",
     "app.chat.header.tooltipReact": "Reagisci al messaggio",
+    "app.chat.content.pollVote": "voto",
+    "app.chat.content.pollVotes": "voti",
     "app.timer.toolTipTimerStopped": "Il contaminuti è stato fermato.",
     "app.timer.toolTipTimerRunning": "Il contaminuti è avviato.",
     "app.timer.toolTipStopwatchStopped": "Il cronometro è stato fermato.",
