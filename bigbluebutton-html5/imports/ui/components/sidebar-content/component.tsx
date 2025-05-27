@@ -18,8 +18,8 @@ import { layoutSelect } from '/imports/ui/components/layout/context';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import { SidebarContentProps } from './types';
 import {
-  SIDEBAR_CONTENT_MARGIN_TO_MEDIA,
-  SIDEBAR_CONTENT_VERTICAL_MARGIN,
+  SIDEBAR_CONTENT_MARGIN_TO_MEDIA_PERCENTAGE_WIDTH,
+  SIDEBAR_CONTENT_VERTICAL_MARGIN_PERCENTAGE_HEIGHT,
 } from '/imports/ui/components/layout/defaultValues';
 import AudioCaptionsPanel from '../audio-captions/panel/component';
 
@@ -80,13 +80,16 @@ const SidebarContent = (props: SidebarContentProps) => {
 
   if (sidebarContentPanel === PANELS.NONE) return null;
 
+  const sidebarContentMarginToMedia = window.innerWidth * SIDEBAR_CONTENT_MARGIN_TO_MEDIA_PERCENTAGE_WIDTH;
+  const sidebarContentVerticalMargin = window.innerHeight * SIDEBAR_CONTENT_VERTICAL_MARGIN_PERCENTAGE_HEIGHT;
+
   const innerPanel = !isMobile ? {
-    minWidth: minWidth - SIDEBAR_CONTENT_MARGIN_TO_MEDIA,
-    maxWidth: maxWidth - SIDEBAR_CONTENT_MARGIN_TO_MEDIA,
-    minHeight: minHeight - (2 * SIDEBAR_CONTENT_VERTICAL_MARGIN),
-    maxHeight: maxHeight - (2 * SIDEBAR_CONTENT_VERTICAL_MARGIN),
-    width: width - SIDEBAR_CONTENT_MARGIN_TO_MEDIA,
-    height: height - (2 * SIDEBAR_CONTENT_VERTICAL_MARGIN),
+    minWidth: minWidth - sidebarContentMarginToMedia,
+    maxWidth: maxWidth - sidebarContentMarginToMedia,
+    minHeight: minHeight - (2 * sidebarContentVerticalMargin),
+    maxHeight: maxHeight - (2 * sidebarContentVerticalMargin),
+    width: width - sidebarContentMarginToMedia,
+    height: height - (2 * sidebarContentVerticalMargin),
   } : {
     minWidth,
     maxWidth,

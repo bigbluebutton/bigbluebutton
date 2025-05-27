@@ -143,8 +143,8 @@ class Page {
     await this.wasRemoved(e.webcamConnecting, VIDEO_LOADING_WAIT_TIME);
   }
 
-  getLocator(selector) {
-    return this.page.locator(selector);
+  getLocator(selector, options = {}) {
+    return this.page.locator(selector, options);
   }
 
   getVisibleLocator(selector) {
@@ -201,6 +201,11 @@ class Page {
     await handle.type(text, { timeout: ELEMENT_WAIT_TIME });
   }
 
+  async fill(selector, text) {
+    const locator = this.getLocator(selector);
+    await locator.fill(text);
+  }
+
   async waitAndClickElement(element, index = 0, timeout = ELEMENT_WAIT_TIME) {
     await this.waitForSelector(element, timeout);
     await this.page.evaluate(([elem, i]) => {
@@ -215,7 +220,7 @@ class Page {
   }
 
   async getByLabelAndClick(label, timeout = ELEMENT_WAIT_TIME) {
-    await this.page.getByLabel(label).click({ timeout });
+    await this.page.getByLabel(label).first().click({ timeout });
   }
 
   async clickOnLocator(locator, timeout = ELEMENT_WAIT_TIME) {
@@ -299,6 +304,10 @@ class Page {
 
   async dragDropSelector(selector, position) {
     await this.getLocator(selector).dragTo(this.page.locator(position), { timeout: ELEMENT_WAIT_TIME });
+  }
+
+  async hoverElement(selector) {
+    await this.getLocator(selector).hover();
   }
 
   async dragAndDropWebcams(position) {

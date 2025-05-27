@@ -5,8 +5,10 @@ import {
 } from './enums';
 import {
   isMobile, isTablet, isTabletPortrait, isTabletLandscape, isDesktop,
+  isLayoutSupported,
 } from './utils';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
+import { updateSettings } from '/imports/ui/components/settings/service';
 import { Input, Layout } from './layoutTypes';
 import { throttle } from '/imports/utils/throttle';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
@@ -19,6 +21,7 @@ import { useIsChatEnabled, useIsPresentationEnabled, useIsScreenSharingEnabled }
 import useUserChangedLocalSettings from '/imports/ui/services/settings/hooks/useUserChangedLocalSettings';
 import Session from '/imports/ui/services/storage/in-memory';
 import deviceInfo from '/imports/utils/deviceInfo';
+import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 
@@ -27,6 +30,7 @@ const LayoutObserver: React.FC = () => {
   const checkedUserSettings = useRef(false);
   const layoutContextDispatch = layoutDispatch();
   const deviceType = layoutSelect((i: Layout) => i.deviceType);
+  const previousDeviceType = usePreviousValue(deviceType);
   const cameraDockInput = layoutSelectInput((i: Input) => i.cameraDock);
   const sidebarContentInput = layoutSelectInput((i: Input) => i.sidebarContent);
   const presentationInput = layoutSelectInput((i: Input) => i.presentation);
@@ -35,7 +39,7 @@ const LayoutObserver: React.FC = () => {
   const { sidebarContentPanel } = sidebarContent;
 
   const [, setEnableResize] = useState(!window.matchMedia(MOBILE_MEDIA).matches);
-  const { selectedLayout } = useSettings(SETTINGS.APPLICATION) as { selectedLayout: string };
+  const { selectedLayout } = useSettings(SETTINGS.LAYOUT) as { selectedLayout: string };
   const {
     data: currentMeeting,
   } = useMeeting((m) => ({
@@ -79,6 +83,22 @@ const LayoutObserver: React.FC = () => {
     () => setDeviceType(),
     50, { trailing: true, leading: true },
   );
+
+  useEffect(() => {
+    if (deviceType !== previousDeviceType) {
+      const Settings = getSettingsSingletonInstance();
+      const currentLayout = Settings.application.selectedLayout;
+      if (!isLayoutSupported(deviceType, currentLayout)) {
+        updateSettings({
+          application: {
+            ...Settings.application,
+            selectedLayout: LAYOUT_TYPE.SMART_LAYOUT,
+          },
+        }, null, setLocalSettings);
+      }
+    }
+    return () => { };
+  }, [deviceType, previousDeviceType, selectedLayout]);
 
   useEffect(() => {
     const Settings = getSettingsSingletonInstance();
@@ -151,9 +171,10 @@ const LayoutObserver: React.FC = () => {
     if (
       selectedLayout?.toLowerCase?.()?.includes?.('focus')
       && !sidebarContentIsOpen
-      && deviceType !== DEVICE_TYPE.MOBILE
+      && deviceType !== DEVICE_TYPE.MOBILE && deviceType !== DEVICE_TYPE.TABLET_LANDSCAPE
       && numCameras > 0
       && presentationIsOpen
+      && !getFromUserSettings('bbb_hide_sidebar_navigation', false)
     ) {
       setTimeout(() => {
         layoutContextDispatch({
@@ -192,11 +213,27 @@ const LayoutObserver: React.FC = () => {
   }, [meetingLayout, layoutContextDispatch, layoutType]);
 
   useEffect(() => {
-    layoutContextDispatch({
-      type: ACTIONS.SET_LAYOUT_TYPE,
-      value: selectedLayout,
-    });
-  }, [selectedLayout]);
+    const layoutSupported = isLayoutSupported(deviceType, selectedLayout);
+    if (layoutSupported) {
+      layoutContextDispatch({
+        type: ACTIONS.SET_LAYOUT_TYPE,
+        value: selectedLayout,
+      });
+    } else {
+      // fallback to smart layout
+      layoutContextDispatch({
+        type: ACTIONS.SET_LAYOUT_TYPE,
+        value: LAYOUT_TYPE.SMART_LAYOUT,
+      });
+      const Settings = getSettingsSingletonInstance();
+      updateSettings({
+        application: {
+          ...Settings.application,
+          selectedLayout: LAYOUT_TYPE.SMART_LAYOUT,
+        },
+      }, null, setLocalSettings);
+    }
+  }, [deviceType, selectedLayout]);
 
   useEffect(() => {
     MediaService.buildLayoutWhenPresentationAreaIsDisabled(
@@ -221,6 +258,18 @@ const LayoutObserver: React.FC = () => {
       if (!checkedUserSettings.current) {
         const Settings = getSettingsSingletonInstance();
         Settings.save(setLocalSettings);
+
+        if (getFromUserSettings('bbb_hide_sidebar_navigation', false)) {
+          layoutContextDispatch({
+            type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
+            value: false,
+          });
+          layoutContextDispatch({
+            type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+            value: false,
+          });
+          return;
+        }
 
         layoutContextDispatch({
           type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,

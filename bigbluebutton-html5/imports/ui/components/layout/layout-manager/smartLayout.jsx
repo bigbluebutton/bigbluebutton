@@ -8,6 +8,7 @@ import {
 } from '/imports/ui/components/layout/enums';
 import { defaultsDeep } from '/imports/utils/array-utils';
 import Session from '/imports/ui/services/storage/in-memory';
+import getFromUserSettings from '/imports/ui/services/users-settings';
 
 const windowWidth = () => window.document.documentElement.clientWidth;
 const windowHeight = () => window.document.documentElement.clientHeight;
@@ -88,12 +89,15 @@ const SmartLayout = (props) => {
         const { registeredApps, pinnedApps } = sidebarNavigation;
         const { sidebarContentPanel } = sidebarContent;
         let sidebarContentPanelOverride = sidebarContentPanel;
-        let overrideOpenSidebarPanel = sidebarContentPanel !== PANELS.NONE;
-        let overrideOpenSidebarNavigation = sidebarNavigation.isOpen
-          || sidebarContentPanel !== PANELS.NONE || false;
-        if (prevLayout === LAYOUT_TYPE.CAMERAS_ONLY
+        let overrideOpenSidebarPanel = !getFromUserSettings('bbb_hide_sidebar_navigation', false)
+          && sidebarContentPanel !== PANELS.NONE;
+        let overrideOpenSidebarNavigation = !getFromUserSettings('bbb_hide_sidebar_navigation', false)
+          && (sidebarNavigation.isOpen || sidebarContentPanel !== PANELS.NONE || false);
+        if ((prevLayout === LAYOUT_TYPE.CAMERAS_ONLY
           || prevLayout === LAYOUT_TYPE.PRESENTATION_ONLY
-          || prevLayout === LAYOUT_TYPE.MEDIA_ONLY) {
+          || prevLayout === LAYOUT_TYPE.MEDIA_ONLY)
+          && !getFromUserSettings('bbb_hide_sidebar_navigation', false)
+        ) {
           overrideOpenSidebarNavigation = true;
           overrideOpenSidebarPanel = true;
           sidebarContentPanelOverride = PANELS.CHAT;
@@ -191,7 +195,6 @@ const SmartLayout = (props) => {
       cameraDockBounds.maxWidth = mediaAreaBounds.width * 0.8;
       cameraDockBounds.height = mediaAreaBounds.height;
       cameraDockBounds.maxHeight = mediaAreaBounds.height;
-      cameraDockBounds.left += camerasMargin;
       cameraDockBounds.width -= camerasMargin * 2;
       cameraDockBounds.isCameraHorizontal = true;
       cameraDockBounds.position = CAMERADOCK_POSITION.CONTENT_LEFT;
@@ -302,6 +305,7 @@ const SmartLayout = (props) => {
     }
 
     const mediaContentSize = hasScreenShare ? screenShareSize : slideSize;
+    const { camerasMargin } = DEFAULT_VALUES;
 
     if (cameraDockInput.numCameras > 0 && !cameraDockInput.isDragging) {
       if (mediaContentSize.width !== 0 && mediaContentSize.height !== 0
@@ -314,7 +318,8 @@ const SmartLayout = (props) => {
           }
           mediaBounds.height = mediaAreaBounds.height;
           mediaBounds.top = mediaAreaBounds.top;
-          const sizeValue = mediaAreaBounds.left + (mediaAreaBounds.width - mediaBounds.width);
+          const sizeValue = mediaAreaBounds.left
+            + (mediaAreaBounds.width - mediaBounds.width - camerasMargin / 2);
           mediaBounds.left = !isRTL ? sizeValue : null;
           mediaBounds.right = isRTL ? sidebarSize : null;
         } else {

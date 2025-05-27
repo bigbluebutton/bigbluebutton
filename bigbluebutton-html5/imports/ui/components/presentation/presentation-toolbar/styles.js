@@ -68,6 +68,31 @@ const PresentationToolbarWrapper = styled.div`
     justify-content: center;
     align-items: center;
   }
+
+  // Fancy scroll
+  &::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+  &::-webkit-scrollbar-button {
+    width: 0;
+    height: 0;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: rgba(0,0,0,.25);
+    border: none;
+    border-radius: 50px;
+  }
+  &::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,.5); }
+  &::-webkit-scrollbar-thumb:active { background: rgba(0,0,0,.25); }
+  &::-webkit-scrollbar-track {
+    background: rgba(0,0,0,.25);
+    border: none;
+    border-radius: 50px;
+  }
+  &::-webkit-scrollbar-track:hover { background: rgba(0,0,0,.25); }
+  &::-webkit-scrollbar-track:active { background: rgba(0,0,0,.25); }
+  &::-webkit-scrollbar-corner { background: 0 0; }
 `;
 
 const QuickPollButton = styled(QuickPollDropdownContainer)`

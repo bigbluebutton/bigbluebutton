@@ -195,9 +195,10 @@ public:
     # 'local' -> settings are stored in browser localStorage
     userSettingsStorage: session
     defaultSettings:
-      application:
+      layout:
         selectedLayout: 'custom'
         pushLayout: false
+      application:
         animations: true
         chatAudioAlerts: false
         chatPushAlerts: false
@@ -313,6 +314,9 @@ public:
     # Maximum number of bytes allowed in each mutation message payload.
     # Defaults to 10485760 (10MB)
     maxMutationPayloadSize: 10485760
+    # Timeout before automatically redirecting users to the logout URL (or closing the window if the session is
+    # a breakout room). Either a number (in miliseconds) or null.
+    timeoutBeforeRedirectOnMeetingEnd: 20000
   # plugins:
   #   - name: SamplePresentationToolbarPlugin
   #     url: https://<your-Host>/plugins/SamplePresentationToolbarPlugin.js
@@ -589,6 +593,7 @@ public:
     maxCustom: 5
     maxTypedAnswerLength: 45
     chatMessage: true
+    quickPollConfirmationStep: true
   captions:
     enabled: true
     id: captions
@@ -814,6 +819,7 @@ public:
     showPushLayoutToggle: true
     showSessionDetailsOnJoin: true
     showScreenshareQuickSwapButton: false
+    showLeaveSessionLabel: false
   pads:
     url: ETHERPAD_HOST
   media:
@@ -1059,6 +1065,7 @@ public:
     maxNumberOfAnnotations: 300
     # Limit the number of users who can interact with the whiteboard
     maxNumberOfActiveUsers: 25
+    lockToolbarTools: false
     annotations:
       status:
         start: DRAW_START
@@ -1092,7 +1099,7 @@ public:
         - text
         - note
         - rectangle
-        - delete-all
+        - delete-selected-items
         - highlight
         - more
         - actions
@@ -1105,7 +1112,7 @@ public:
         - text
         - note
         - rectangle
-        - delete-all
+        - delete-selected-items
         - highlight
         - more
         - actions
@@ -1138,6 +1145,7 @@ public:
     chrome: ">=87"
     firefox: ">=80"
     edge: ">=85"
+    miui: "<0"
     mobile:
       safari: ">=14"
       chrome: ">=87"

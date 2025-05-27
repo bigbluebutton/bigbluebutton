@@ -2,8 +2,14 @@ import { makeVar } from '@apollo/client';
 import { isEmpty } from 'radash';
 import LocalStorage from '/imports/ui/services/storage/local';
 import SessionStorage from '/imports/ui/services/storage/session';
-import { CHANGED_SETTINGS, DEFAULT_SETTINGS, SETTINGS } from './enums';
+import {
+  CHANGED_SETTINGS,
+  DEFAULT_SETTINGS,
+  SETTINGS,
+  MEETING_SCOPED_SETTINGS,
+} from './enums';
 import getFromUserSettings from '/imports/ui/services/users-settings';
+import Auth from '/imports/ui/services/auth';
 
 class Settings {
   constructor(defaultValues = {}) {
@@ -50,6 +56,14 @@ class Settings {
     this.loadChanged();
   }
 
+  static getStorageKey({ prepend = '', value }) {
+    const cleanKeyValue = value.replace('_', '');
+    if (MEETING_SCOPED_SETTINGS.includes(cleanKeyValue)) {
+      return `${prepend}${value}-${Auth.meetingID}`;
+    }
+    return `${prepend}${value}`;
+  }
+
   setDefault(defaultValues) {
     Object.keys(defaultValues).forEach((key) => {
       this[key] = defaultValues[key];
@@ -66,7 +80,8 @@ class Settings {
     const savedSettings = {};
 
     Object.values(SETTINGS).forEach((s) => {
-      savedSettings[s] = Storage.getItem(`${CHANGED_SETTINGS}_${s}`);
+      const storageKey = Settings.getStorageKey({ prepend: CHANGED_SETTINGS, value: `_${s}` });
+      savedSettings[s] = Storage.getItem(storageKey);
     });
 
     Object.keys(savedSettings).forEach((key) => {
@@ -96,8 +111,9 @@ class Settings {
             [item]: values[item],
           }), {});
 
-        if (isEmpty(changedValues)) Storage.removeItem(`${settings}${k}`);
-        Storage.setItem(`${settings}${k}`, changedValues);
+        const storageKey = Settings.getStorageKey({ prepend: settings, value: k });
+        if (isEmpty(changedValues)) Storage.removeItem(storageKey);
+        Storage.setItem(storageKey, changedValues);
       });
     } else {
       Object.keys(this).forEach((k) => {

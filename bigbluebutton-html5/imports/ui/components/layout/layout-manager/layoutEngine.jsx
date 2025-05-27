@@ -1,6 +1,10 @@
 import React, { useEffect } from 'react';
 import { layoutSelect, layoutSelectInput, layoutSelectOutput } from '/imports/ui/components/layout/context';
-import DEFAULT_VALUES, { SIDEBAR_CONTENT_MARGIN_TO_MEDIA } from '/imports/ui/components/layout/defaultValues';
+import DEFAULT_VALUES, {
+  SIDEBAR_CONTENT_MARGIN_TO_MEDIA_PERCENTAGE_WIDTH,
+  SIDEBAR_NAVIGATION_PANEL_WIDTH,
+  SIDEBAR_NAVIGATION_MARGIN_PERCENTAGE_WIDTH,
+} from '/imports/ui/components/layout/defaultValues';
 import { LAYOUT_TYPE, DEVICE_TYPE } from '/imports/ui/components/layout/enums';
 
 import CustomLayout from '/imports/ui/components/layout/layout-manager/customLayout';
@@ -183,7 +187,6 @@ const LayoutEngine = () => {
 
   const calculatesSidebarNavWidth = () => {
     const {
-      sidebarNavWidth,
       sidebarNavWidthMobile,
     } = DEFAULT_VALUES;
 
@@ -199,8 +202,9 @@ const LayoutEngine = () => {
         // position of other layout elements.
         horizontalSpaceOccupied = 0;
       } else {
-        width = sidebarNavWidth;
-        horizontalSpaceOccupied = sidebarNavWidth;
+        const margin = windowWidth() * SIDEBAR_NAVIGATION_MARGIN_PERCENTAGE_WIDTH;
+        width = SIDEBAR_NAVIGATION_PANEL_WIDTH + (2 * margin);
+        horizontalSpaceOccupied = width;
       }
     }
     return {
@@ -319,6 +323,8 @@ const LayoutEngine = () => {
   ) => {
     const { height: actionBarHeight } = calculatesActionbarHeight();
     const navBarHeight = calculatesNavbarHeight();
+    const sidebarContentMarginToMedia = windowWidth()
+      * SIDEBAR_CONTENT_MARGIN_TO_MEDIA_PERCENTAGE_WIDTH;
 
     let left = 0;
     let width = 0;
@@ -327,7 +333,8 @@ const LayoutEngine = () => {
     } else {
       left = !isRTL ? sidebarNavWidth + sidebarContentWidth : 0;
       width = windowWidth()
-        - sidebarNavWidth - sidebarContentWidth - SIDEBAR_CONTENT_MARGIN_TO_MEDIA;
+        - sidebarNavWidth - sidebarContentWidth
+        - (margin || selectedLayout === LAYOUT_TYPE.CAMERAS_ONLY ? 0 : sidebarContentMarginToMedia);
     }
 
     return {

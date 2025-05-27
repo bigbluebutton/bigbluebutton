@@ -80,13 +80,13 @@ const QuickPollDropdown = (props) => {
     content,
   } = currentSlide;
 
-  let lines = content.split('\n');
-  let questions = [];
+  const lines = content.split('\n');
+  const questions = [];
   let questionLines = [];
 
-  for (let line of lines) {
-    let startsWithCapital = /^[A-Z]/.test(line);
-    let isEndOfQuestion = /\?$/.test(line);
+  for (const line of lines) {
+    const startsWithCapital = /^[A-Z]/.test(line);
+    const isEndOfQuestion = /\?$/.test(line);
 
     if (startsWithCapital) {
       if (questionLines.length > 0) {
@@ -107,7 +107,7 @@ const QuickPollDropdown = (props) => {
     questions.push(questionLines.join(' '));
   }
 
-  const question = questions.filter(q => /^[A-Z].*\?$/.test(q?.trim()));
+  const question = questions.filter((q) => /^[A-Z].*\?$/.test(q?.trim()));
 
   if (question?.length > 0) {
     question[0] = question[0]?.replace(/\n/g, ' ');

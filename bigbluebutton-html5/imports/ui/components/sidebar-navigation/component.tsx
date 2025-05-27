@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import CustomLogo from './custom-logo/component';
 import ProfileListItem from './profile-list-item/component';
 import getFromUserSettings from '/imports/ui/services/users-settings';
@@ -39,6 +39,27 @@ const SidebarNavigation = ({
   const showBrandingArea = getFromUserSettings('bbb_display_branding_area', window.meetingClientSettings.public.app.branding.displayBrandingArea);
   const isChatEnabled = useIsChatEnabled();
 
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [hasScrollbar, setHasScrollbar] = useState(false);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (el) {
+      const checkScrollbar = () => {
+        setHasScrollbar(el.scrollHeight > el.clientHeight);
+      };
+
+      checkScrollbar();
+
+      // Optionally watch resize
+      const resizeObserver = new ResizeObserver(checkScrollbar);
+      resizeObserver.observe(el);
+
+      return () => resizeObserver.disconnect();
+    }
+    return () => {};
+  }, []);
+
   return (
     <Styled.NavigationSidebarBackdrop
       isMobile={isMobile}
@@ -52,7 +73,10 @@ const SidebarNavigation = ({
       }}
     >
       <Styled.NavigationSidebar data-test="navigationSidebarContainer" isMobile={isMobile}>
-        <Styled.NavigationSidebarListItemsContainer>
+        <Styled.NavigationSidebarListItemsContainer
+          ref={scrollRef}
+          hasScrollbar={hasScrollbar}
+        >
           <Styled.Top>
             {showBrandingArea && <CustomLogo />}
             <ProfileListItem />

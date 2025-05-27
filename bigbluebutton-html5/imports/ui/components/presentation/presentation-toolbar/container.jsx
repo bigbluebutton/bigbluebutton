@@ -11,6 +11,8 @@ import Session from '/imports/ui/services/storage/in-memory';
 import { useMeetingIsBreakout } from '/imports/ui/components/app/service';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import { USER_AGGREGATE_COUNT_SUBSCRIPTION } from '/imports/ui/core/graphql/queries/users';
+import { layoutSelect } from '/imports/ui/components/layout/context';
+import { DEVICE_TYPE } from '/imports/ui/components/layout/enums';
 
 const infiniteWhiteboardIcon = (isinfiniteWhiteboard) => {
   if (isinfiniteWhiteboard) {
@@ -168,18 +170,29 @@ const PresentationToolbarContainer = (props) => {
   const startPoll = (pollType, pollId, answers = [], question, isMultipleResponse = false) => {
     Session.setItem('openPanel', 'poll');
     Session.setItem('forcePollOpen', true);
-    window.dispatchEvent(new Event('panelChanged'));
 
-    createPoll({
-      variables: {
+    if (window.meetingClientSettings.public.poll.quickPollConfirmationStep) {
+      Session.setItem('quickPollVariables', {
         pollType,
-        pollId: `${pollId}/${new Date().getTime()}`,
         secretPoll: false,
         question,
         isMultipleResponse,
         answers,
-      },
-    });
+      });
+    } else {
+      createPoll({
+        variables: {
+          pollType,
+          pollId: `${pollId}/${new Date().getTime()}`,
+          secretPoll: false,
+          question,
+          isMultipleResponse,
+          answers,
+        },
+      });
+    }
+
+    window.dispatchEvent(new Event('panelChanged'));
   };
 
   const isPollingEnabled = useIsPollingEnabled();
@@ -187,6 +200,8 @@ const PresentationToolbarContainer = (props) => {
   const allowInfiniteWhiteboard = useIsInfiniteWhiteboardEnabled();
   const { data: countData } = useDeduplicatedSubscription(USER_AGGREGATE_COUNT_SUBSCRIPTION);
   const numberOfJoinedUsers = countData?.user_aggregate?.aggregate?.count || 0;
+  const isMobile = layoutSelect((i) => i.deviceType) === DEVICE_TYPE.MOBILE;
+  const layoutType = layoutSelect((i) => i.layoutType);
 
   if (userIsPresenter && !layoutSwapped) {
     // Only show controls if user is presenter and layout isn't swapped
@@ -219,6 +234,8 @@ const PresentationToolbarContainer = (props) => {
           infiniteWhiteboardIcon,
           resetSlide,
           meetingIsBreakout,
+          isMobile,
+          layoutType,
         }}
       />
     );

@@ -26,6 +26,7 @@ const LeaveButton = styled(Button)`
     line-height: 1.1rem;
     font-weight: 400;
     z-index: 3;
+    display: flex;
   `}
 `;
 const LeaveButtonWrapper = styled.div`

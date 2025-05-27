@@ -107,7 +107,7 @@ const ScreenshareContainer = (props) => {
   const { data: currentMeeting } = useMeeting((m) => ({
     screenShareBridge: m.screenShareBridge,
   }));
-  const { data: currentUserData } = useCurrentUser((u) => ({ presenter: u.presenter }));
+  const { data: currentUserData } = useCurrentUser((u) => ({ presenter: u.presenter, bot: u.bot }));
   const [bridgeIsReady, setBridgeIsReady] = useState(false);
   const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
   const [pinSharedNotes] = useMutation(PIN_NOTES);
@@ -133,14 +133,15 @@ const ScreenshareContainer = (props) => {
   const isSharedNotesPinned = !!pinnedPadData
     && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
 
-  const isPresenter = currentUserData?.presenter;
+  const isPresenter = currentUserData?.presenter || false;
+  const isBot = currentUserData?.bot || false;
 
   const info = {
     screenshare: {
       icon: 'desktop',
       locales: screenshareIntlMessages,
       startPreviewSizeBig: false,
-      showSwitchPreviewSizeButton: true,
+      showSwitchPreviewSizeButton: !isBot,
     },
     camera: {
       icon: 'video',
@@ -201,6 +202,7 @@ const ScreenshareContainer = (props) => {
           isPresenter,
           streamId,
           shouldShowScreenshare,
+          isBot,
         }
         }
       />

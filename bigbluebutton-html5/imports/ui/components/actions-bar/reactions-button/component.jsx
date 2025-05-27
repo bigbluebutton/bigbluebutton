@@ -7,6 +7,7 @@ import data from '@emoji-mart/data';
 import { init } from 'emoji-mart';
 import { SET_REACTION_EMOJI } from '/imports/ui/core/graphql/mutations/userMutations';
 import { useMutation } from '@apollo/client';
+import { listItemBgHover } from '/imports/ui/stylesheets/styled-components/palette';
 import Styled from './styles';
 
 const ReactionsButton = (props) => {
@@ -32,6 +33,11 @@ const ReactionsButton = (props) => {
       id: 'app.actionsBar.reactions.reactionsButtonLabel',
       description: 'reactions Label',
       defaultMessage: 'Share a reaction',
+    },
+    removeReactionsLabel: {
+      id: 'app.actionsBar.reactions.removeReactionButtonLabel',
+      description: 'remove reaction Label',
+      defaultMessage: 'Remove reaction',
     },
   });
 
@@ -71,8 +77,31 @@ const ReactionsButton = (props) => {
       key: id,
       onClick: () => handleReactionSelect(native),
       customStyles: actionCustomStyles,
-      dataTest: 'reaction'
+      dataTest: 'reaction',
     });
+  });
+
+  actions.push({
+    label: (
+      <Styled.ButtonWrapper>
+        <Styled.ReactionsButton
+          data-test="removeReactionButton"
+          icon="close"
+          label={intl.formatMessage(intlMessages.removeReactionsLabel)}
+          description={intl.formatMessage(intlMessages.removeReactionsLabel)}
+          onKeyPress={() => { }}
+          hideLabel
+          circle
+          disabled={currentUserReaction === 'none'}
+          color="primary"
+          ghost
+        />
+      </Styled.ButtonWrapper>
+    ),
+    key: 'none',
+    onClick: () => (currentUserReaction !== 'none' ? handleReactionSelect('none') : null),
+    customStyles: actionCustomStyles,
+    dataTest: 'remove-reaction',
   });
 
   const svgIcon = currentUserReaction === 'none' ? 'reactions' : null;
@@ -100,6 +129,7 @@ const ReactionsButton = (props) => {
             hideLabel
             circle
             size="lg"
+            hoverColor={listItemBgHover}
           />
         </Styled.ReactionsDropdown>
       )}

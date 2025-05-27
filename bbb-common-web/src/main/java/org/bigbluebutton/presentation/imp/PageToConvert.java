@@ -2,47 +2,43 @@ package org.bigbluebutton.presentation.imp;
 
 
 import org.bigbluebutton.presentation.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.io.File;
-import java.util.concurrent.TimeoutException;
 
 public class PageToConvert {
+  private static Logger log = LoggerFactory.getLogger(PageToConvert.class);
+
+  private String blankThumbnail;
+  private String blankPng;
+  private String blankSvg;
 
   private UploadedPresentation pres;
   private int page;
 
-  private boolean svgImagesRequired=true;
   private boolean generatePngs;
   private PageExtractor pageExtractor;
 
-
-  private TextFileCreator textFileCreator;
-  private SvgImageCreator svgImageCreator;
-  private ThumbnailCreator thumbnailCreator;
-  private PngCreator pngCreator;
-  private SlidesGenerationProgressNotifier notifier;
   private File pageFile;
   private String messageErrorInConversion;
+  private PresentationProcessExternal presentationProcessExternal;
 
   public PageToConvert(UploadedPresentation pres,
                        int page,
                        File pageFile,
-                       boolean svgImagesRequired,
                        boolean generatePngs,
-                       TextFileCreator textFileCreator,
-                       SvgImageCreator svgImageCreator,
-                       ThumbnailCreator thumbnailCreator,
-                       PngCreator pngCreator,
-                       SlidesGenerationProgressNotifier notifier) {
+                       PresentationProcessExternal presentationProcessExternal,
+                       String blankThumbnail,
+                       String blankPng,
+                       String blankSvg) {
     this.pres = pres;
     this.page = page;
     this.pageFile = pageFile;
-    this.svgImagesRequired = svgImagesRequired;
     this.generatePngs = generatePngs;
-    this.textFileCreator = textFileCreator;
-    this.svgImageCreator = svgImageCreator;
-    this.thumbnailCreator = thumbnailCreator;
-    this.pngCreator = pngCreator;
-    this.notifier = notifier;
+    this.presentationProcessExternal = presentationProcessExternal;
+    this.blankThumbnail = blankThumbnail;
+    this.blankPng = blankPng;
+    this.blankSvg = blankSvg;
   }
 
   public File getPageFile() {
@@ -70,46 +66,32 @@ public class PageToConvert {
   }
 
   public PageToConvert convert() {
+    File textfilesDir = Util.determineTextfilesDirectory(pres.getUploadedFile());
+    if (!textfilesDir.exists())
+      textfilesDir.mkdir();
 
-    /* adding accessibility */
-    createThumbnails(pres, page, pageFile);
+    File thumbsDir = Util.determineThumbnailDirectory(pres.getUploadedFile());
+    if (!thumbsDir.exists())
+      thumbsDir.mkdir();
 
-    createTextFiles(pres, page);
+    File pngDir = Util.determinePngDirectory(pres.getUploadedFile());
+    if (!pngDir.exists())
+      pngDir.mkdir();
 
-    // only create SVG images if the configuration requires it
-    if (svgImagesRequired) {
-      try{
-        createSvgImages(pres, page);
-      } catch (TimeoutException e) {
-        messageErrorInConversion = e.getMessage();
-      }
-    }
+    File svgDir = Util.determineSvgImagesDirectory(pres.getUploadedFile());
+    if (!svgDir.exists())
+      svgDir.mkdir();
 
-    // only create PNG images if the configuration requires it
+    // Call external application to process the page in a sandbox
+    presentationProcessExternal.processPage(pres.getMeetingId(), pres.getId(), page);
+
+    Util.createBlankThumbnail(thumbsDir, page, blankThumbnail);
     if (generatePngs) {
-      createPngImages(pres, page, pageFile);
+      Util.createBlankPng(pngDir, page, blankPng);
     }
+    Util.createBlankSvg(svgDir, page, blankSvg);
 
     return this;
-  }
-
-  private void createThumbnails(UploadedPresentation pres, int page, File pageFile) {
-    //notifier.sendCreatingThumbnailsUpdateMessage(pres);
-    thumbnailCreator.createThumbnail(pres, page, pageFile);
-  }
-
-  private void createTextFiles(UploadedPresentation pres, int page) {
-    //notifier.sendCreatingTextFilesUpdateMessage(pres);
-    textFileCreator.createTextFile(pres, page);
-  }
-
-  private void createSvgImages(UploadedPresentation pres, int page) throws TimeoutException {
-    //notifier.sendCreatingSvgImagesUpdateMessage(pres);
-    svgImageCreator.createSvgImage(pres, page);
-  }
-
-  private void createPngImages(UploadedPresentation pres, int page, File pageFile) {
-    pngCreator.createPng(pres, page, pageFile);
   }
 
 }

@@ -6,11 +6,14 @@ import {
   layoutSelectInput,
   layoutSelectOutput,
 } from '/imports/ui/components/layout/context';
-import DEFAULT_VALUES, { SIDEBAR_CONTENT_MARGIN_TO_MEDIA } from '/imports/ui/components/layout/defaultValues';
+import DEFAULT_VALUES, { SIDEBAR_CONTENT_MARGIN_TO_MEDIA_PERCENTAGE_WIDTH } from '/imports/ui/components/layout/defaultValues';
 import { INITIAL_INPUT_STATE } from '/imports/ui/components/layout/initState';
-import { ACTIONS, PANELS, LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
+import {
+  ACTIONS, PANELS, LAYOUT_TYPE, DEVICE_TYPE,
+} from '/imports/ui/components/layout/enums';
 import { defaultsDeep } from '/imports/utils/array-utils';
 import Session from '/imports/ui/services/storage/in-memory';
+import getFromUserSettings from '/imports/ui/services/users-settings';
 
 const windowWidth = () => window.document.documentElement.clientWidth;
 const windowHeight = () => window.document.documentElement.clientHeight;
@@ -51,6 +54,7 @@ const VideoFocusLayout = (props) => {
   const sidebarContentOutput = layoutSelectOutput((i) => i.sidebarContent);
 
   const prevDeviceType = usePrevious(deviceType);
+  const isTabletLandscape = deviceType === DEVICE_TYPE.TABLET_LANDSCAPE;
   const { isPresentationEnabled } = props;
 
   const throttledCalculatesLayout = throttle(() => calculatesLayout(), 50, {
@@ -93,12 +97,14 @@ const VideoFocusLayout = (props) => {
         } = prevInput;
         const { sidebarContentPanel } = sidebarContent;
         let sidebarContentPanelOverride = sidebarContentPanel;
-        let overrideOpenSidebarPanel = sidebarContentPanel !== PANELS.NONE;
-        let overrideOpenSidebarNavigation = sidebarNavigation.isOpen
-          || sidebarContentPanel !== PANELS.NONE || false;
-        if (prevLayout === LAYOUT_TYPE.CAMERAS_ONLY
+        let overrideOpenSidebarPanel = !getFromUserSettings('bbb_hide_sidebar_navigation', false)
+          && sidebarContentPanel !== PANELS.NONE;
+        let overrideOpenSidebarNavigation = !getFromUserSettings('bbb_hide_sidebar_navigation', false)
+          && (sidebarNavigation.isOpen || sidebarContentPanel !== PANELS.NONE || false);
+        if ((prevLayout === LAYOUT_TYPE.CAMERAS_ONLY
           || prevLayout === LAYOUT_TYPE.PRESENTATION_ONLY
-          || prevLayout === LAYOUT_TYPE.MEDIA_ONLY
+          || prevLayout === LAYOUT_TYPE.MEDIA_ONLY)
+          && !getFromUserSettings('bbb_hide_sidebar_navigation', false)
         ) {
           overrideOpenSidebarNavigation = true;
           overrideOpenSidebarPanel = true;
@@ -120,7 +126,7 @@ const VideoFocusLayout = (props) => {
               isOpen: false,
             },
             presentation: {
-              isOpen: presentation.isOpen,
+              isOpen: isTabletLandscape ? false : presentation.isOpen,
               slidesLength: presentation.slidesLength,
               currentSlide: {
                 ...presentation.currentSlide,
@@ -172,7 +178,7 @@ const VideoFocusLayout = (props) => {
         height = windowHeight() - navBarHeight - bannerAreaHeight();
         minHeight = height;
         maxHeight = height;
-      } else if (isOpen && !isGeneralMediaOff) {
+      } else if (isOpen && !isGeneralMediaOff && !isTabletLandscape) {
         if (sidebarContentInput.height > 0 && sidebarContentInput.height < windowHeight()) {
           height = sidebarContentInput.height - bannerAreaHeight();
         } else {
@@ -238,6 +244,17 @@ const VideoFocusLayout = (props) => {
     cameraDockBounds.maxWidth = mediaAreaBounds.width;
     cameraDockBounds.zIndex = 1;
 
+    if (isTabletLandscape && presentationInput.isOpen) {
+      // don't show camera dock if presentation is open in tablet landscape mode
+      // the sidebar height gets too small, so only one or the other is shown
+      cameraDockBounds.width = 0;
+      cameraDockBounds.height = 0;
+      cameraDockBounds.minWidth = 0;
+      cameraDockBounds.maxWidth = 0;
+      cameraDockBounds.minHeight = 0;
+      cameraDockBounds.maxHeight = 0;
+    }
+
     return cameraDockBounds;
   };
 
@@ -250,6 +267,7 @@ const VideoFocusLayout = (props) => {
   ) => {
     const mediaBounds = {};
     const { element: fullscreenElement } = fullscreen;
+    const sidebarSize = sidebarContentWidth.width + sidebarNavWidth.horizontalSpaceOccupied;
 
     if (
       fullscreenElement === 'Presentation'
@@ -272,13 +290,25 @@ const VideoFocusLayout = (props) => {
       mediaBounds.top = mediaAreaBounds.top + cameraDockBounds.height;
       mediaBounds.width = mediaAreaBounds.width;
     } else if (presentationInput.isOpen) {
-      mediaBounds.height = windowHeight()
-        - sidebarContentHeight - bannerAreaHeight() - SIDEBAR_CONTENT_MARGIN_TO_MEDIA;
-      mediaBounds.left = !isRTL ? sidebarNavWidth : 0;
-      mediaBounds.right = isRTL ? sidebarNavWidth : 0;
-      mediaBounds.top = sidebarContentHeight + bannerAreaHeight() - SIDEBAR_CONTENT_MARGIN_TO_MEDIA;
-      mediaBounds.width = sidebarContentWidth;
-      mediaBounds.zIndex = 1;
+      // in tablet landscape, the presentation is shown in the media area
+      if (isTabletLandscape) {
+        mediaBounds.height = mediaAreaBounds.height;
+        mediaBounds.width = mediaAreaBounds.width;
+        mediaBounds.top = DEFAULT_VALUES.navBarHeight + bannerAreaHeight();
+        mediaBounds.left = !isRTL ? mediaAreaBounds.left : null;
+        mediaBounds.right = isRTL ? sidebarSize : null;
+        mediaBounds.zIndex = 1;
+      } else {
+        const sidebarContentMarginToMedia = windowWidth()
+          * SIDEBAR_CONTENT_MARGIN_TO_MEDIA_PERCENTAGE_WIDTH;
+        mediaBounds.height = windowHeight()
+          - sidebarContentHeight - bannerAreaHeight() - sidebarContentMarginToMedia;
+        mediaBounds.left = !isRTL ? sidebarNavWidth : 0;
+        mediaBounds.right = isRTL ? sidebarNavWidth : 0;
+        mediaBounds.top = sidebarContentHeight + bannerAreaHeight() - sidebarContentMarginToMedia;
+        mediaBounds.width = sidebarContentWidth - sidebarContentMarginToMedia;
+        mediaBounds.zIndex = 1;
+      }
     } else if (!presentationInput.isOpen) {
       mediaBounds.width = 0;
       mediaBounds.height = 0;
@@ -446,7 +476,7 @@ const VideoFocusLayout = (props) => {
       type: ACTIONS.SET_PRESENTATION_OUTPUT,
       value: {
         display: presentationInput.isOpen,
-        width: mediaBounds.width - SIDEBAR_CONTENT_MARGIN_TO_MEDIA,
+        width: mediaBounds.width,
         height: mediaBounds.height,
         top: mediaBounds.top,
         left: mediaBounds.left,
@@ -505,7 +535,7 @@ const VideoFocusLayout = (props) => {
     layoutContextDispatch({
       type: ACTIONS.SET_SHARED_NOTES_OUTPUT,
       value: {
-        width: mediaBounds.width - SIDEBAR_CONTENT_MARGIN_TO_MEDIA,
+        width: mediaBounds.width,
         height: mediaBounds.height,
         top: mediaBounds.top,
         left: mediaBounds.left,

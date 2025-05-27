@@ -5,6 +5,7 @@ import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import { CURRENT_PRESENTATION_PAGE_SUBSCRIPTION } from '../../whiteboard/queries';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import { listItemBgHover } from '/imports/ui/stylesheets/styled-components/palette';
 
 const SwapPresentationButton = () => {
   const [showScreenShare, swapPresentation] = usePresentationSwap();
@@ -40,6 +41,7 @@ const SwapPresentationButton = () => {
       hideLabel
       circle
       size="lg"
+      hoverColor={listItemBgHover}
     />
   );
 };

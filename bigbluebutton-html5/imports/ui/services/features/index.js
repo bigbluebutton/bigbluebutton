@@ -135,3 +135,7 @@ export function useIsChatMessageReactionsEnabled() {
 export function useIsPrivateChatEnabled() {
   return useDisabledFeatures().indexOf('privateChat') === -1;
 }
+
+export function useIsRaiseHandEnabled() {
+  return useDisabledFeatures().indexOf('raiseHand') === -1;
+}

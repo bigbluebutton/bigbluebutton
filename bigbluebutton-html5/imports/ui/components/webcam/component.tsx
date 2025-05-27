@@ -266,11 +266,10 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
               });
             }}
             enable={{
-              top: !isFullscreen && !isDragging && !swapLayout && cameraDock?.resizableEdge?.top,
-              bottom: !isFullscreen && !isDragging && !swapLayout
-              && cameraDock?.resizableEdge?.bottom,
-              left: !isFullscreen && !isDragging && !swapLayout && cameraDock?.resizableEdge?.left,
-              right: !isFullscreen && !isDragging && !swapLayout && cameraDock?.resizableEdge?.right,
+              top: !isFullscreen && !isDragging && cameraDock?.resizableEdge?.top,
+              bottom: !isFullscreen && !isDragging && cameraDock?.resizableEdge?.bottom,
+              left: !isFullscreen && !isDragging && cameraDock?.resizableEdge?.left,
+              right: !isFullscreen && !isDragging && cameraDock?.resizableEdge?.right,
               topLeft: false,
               topRight: false,
               bottomLeft: false,
@@ -344,7 +343,7 @@ const WebcamContainer: React.FC = () => {
   const { data: currentUserData } = useCurrentUser((user) => ({
     presenter: user.presenter,
   }));
-  const { selectedLayout } = useSettings(SETTINGS.APPLICATION) as { selectedLayout: string };
+  const { selectedLayout } = useSettings(SETTINGS.LAYOUT) as { selectedLayout: string };
 
   const isGridEnabled = selectedLayout === LAYOUT_TYPE.VIDEO_FOCUS;
 

@@ -32,7 +32,7 @@ const fetchedpresentation = {};
 const PresentationContainer = (props) => {
   const { presentationIsOpen } = props;
   const layoutContextDispatch = layoutDispatch();
-  const { selectedLayout } = useSettings(SETTINGS.APPLICATION);
+  const { selectedLayout } = useSettings(SETTINGS.LAYOUT);
 
   const { data: presentationPageData } = useDeduplicatedSubscription(
     CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
@@ -242,6 +242,7 @@ const PresentationContainer = (props) => {
           fullscreenContext,
           fullscreenElementId,
           isMobile: deviceType === DEVICE_TYPE.MOBILE,
+          isTabledLandscape: deviceType === DEVICE_TYPE.TABLET_LANDSCAPE,
           isIphone,
           currentSlide,
           slidePosition,

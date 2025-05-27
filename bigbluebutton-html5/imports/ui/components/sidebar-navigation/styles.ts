@@ -40,7 +40,7 @@ const NavigationSidebar = styled.div<{isMobile: boolean}>`
   ${({ isMobile }) => isMobile && 'box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2)'};
 `;
 
-const NavigationSidebarListItemsContainer = styled(ScrollboxVertical)`
+const NavigationSidebarListItemsContainer = styled(ScrollboxVertical)<{hasScrollbar: boolean}>`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -48,6 +48,7 @@ const NavigationSidebarListItemsContainer = styled(ScrollboxVertical)`
   overflow-y: auto;
   border-radius: ${navigationSidebarBorderRadius};
   gap: ${navigationSidebarListItemsContainerGap};
+  ${({ hasScrollbar }) => !hasScrollbar && 'background: transparent !important;'}
 
   @media ${smallHeight} {
     gap: 1.25rem;

@@ -18,7 +18,7 @@ BigBlueButton's components use various configuration files which are included wi
 
 For the full list of the configuration files and their overriding counterpart, see [Configuration Files](/administration/configuration-files#local-overrides-for-configuration-settings)
 
-### Preserving customizations using apply-conf.sh
+### Preserving customizations using apply-config.sh
 
 **Note that starting with BigBlueButton 2.6 we strongly recommend adding your custom settings to `/etc/bigbluebutton` instead. See [the list of override files](/administration/configuration-files#local-overrides-for-configuration-settings)**
 
@@ -26,7 +26,7 @@ Whenever you upgrade a server to the latest version of BigBlueButton, either usi
 
 To make it easier to apply your configuration changes, you can create a BASH script at `/etc/bigbluebutton/bbb-conf/apply-config.sh` that contains commands to apply your changes. The `bbb-conf` script, which is run as part of the last steps in a manual upgrade steps or using `bbb-install.sh`, will detect `apply-config.sh` and invoke it just before starting all of BigBlueButton's components.
 
-In this way, you can use `apply-conf.sh` to apply your custom configuration changes after all packages have updated but just before BigBlueButton starts.
+In this way, you can use `apply-config.sh` to apply your custom configuration changes after all packages have updated but just before BigBlueButton starts.
 
 For example, if you create `/etc/bigbluebutton/bbb-conf/apply-config.sh` with the following contents and make it executable with `chmod +x /etc/bigbluebutton/bbb-conf/apply-config.sh`
 
@@ -39,7 +39,7 @@ source /etc/bigbluebutton/bbb-conf/apply-lib.sh
 enableUFWRules
 ```
 
-then when called by `bbb-conf`, the above `apply-conf.sh` script will
+then when called by `bbb-conf`, the above `apply-config.sh` script will
 
 - use the helper function `enableUFWRules` to restrict access to specific ports, and
 
@@ -336,7 +336,7 @@ If you run `systemctl status bbb-rap-resque-worker.service` now, you will see th
 
 #### Install additional recording processing formats
 
-In addition to the `presentation` format that is installed and enabled by default, there are several optional recording formats available for BigBlueButton 2.6:
+In addition to the `presentation` format that is installed and enabled by default, there are several optional recording formats available for BigBlueButton:
 
 - `notes`: Makes the shared notes from the meeting available as a document.
 - `screenshare`: Generate a single video file from the screensharing and meeting audio.
@@ -347,11 +347,11 @@ The processing scripts and playback support files for these recording formats ca
 
 There is currently an issue where the recording formats are not automatically enabled when they are installed - see [#12241](https://github.com/bigbluebutton/bigbluebutton/issues/12241) for details.
 
-In order to enable the recording formats manually, you need to edit the file `/usr/local/bigbluebutton/core/scripts/bigbluebutton.yml`. Look for the section named `steps:`. In this section, the recording processing workflow is defined, including what recording processing steps are performed, and what order they need to be performed in.
+In order to enable the recording formats manually, you need to edit the file `/usr/local/bigbluebutton/core/scripts/bigbluebutton.yml`. Look for the section named `steps:`. In this section, the recording processing workflow is defined, including what recording processing steps are performed, and what order they need to be performed in. To ensure that your modifications are not lost when a new version of the packages is installed, you can [create the file and] write your changes to `/etc/bigbluebutton/recording/recording.yml`.
 
 To enable a new recording format, you need to add a new step named `process:formatname` that runs after the step named captions, and a new step named `publish:formatname` that runs after `process:formatname`. You may have to convert some of the steps to list format.
 
-For example, here are the stock steps in BigBlueButton 2.6 with the `presentation` format enabled:
+For example, here are the stock steps in BigBlueButton 3.0 with the `presentation` format enabled:
 
 ```yml
 steps:
@@ -362,6 +362,8 @@ steps:
 ```
 
 If you additionally enable the `video` recording format, the steps will have to be changed to look like this:
+
+`cat /etc/bigbluebutton/recording/recording.yml`
 
 ```yml
 steps:
@@ -378,10 +380,10 @@ This pattern can be repeated for additional recording formats. Note that it's ve
 
 After you edit the configuration file, you must restart the recording processing queue: `systemctl restart bbb-rap-resque-worker.service` in order to pick up the changes.
 
-The following script will enable the video recording format a BigBlueButton 2.6+ server.
+The following script will enable the video recording format of a BigBlueButton 2.6+ server.
 
 ```
-!/bin/bash
+#!/bin/bash
 mkdir -p /etc/bigbluebutton/recording
 cat > /etc/bigbluebutton/recording/recording.yml << REC
 steps:
@@ -674,7 +676,7 @@ If you want to have all users join muted, you can add an overwrite in `/etc/bigb
 
 ```properties
 # Mute the meeting on start
-muteOnStart=false
+muteOnStart=true
 ```
 
 After making them modification, restart your server with `sudo bbb-conf --restart` to apply the changes.
@@ -1105,7 +1107,7 @@ tcp6       0      0 :::22                   :::*                    LISTEN      
 ```
 
 To restrict external access minimal needed ports for BigBlueButton.
-BigBlueButton supplies a helper function that you can call in `/etc/bigbluebutton/bbb-conf/apply-conf.sh`
+BigBlueButton supplies a helper function that you can call in `/etc/bigbluebutton/bbb-conf/apply-config.sh`
 to setup a minimal firewall (see [Setup Firewall](#setup-firewall)).
 
 You can also do it manually with the following commands
