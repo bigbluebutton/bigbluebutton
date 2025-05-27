@@ -99,7 +99,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
             dest = imagePresentationDir.getAbsolutePath() + File.separator + "slide-1.pdf";
 
             NuProcessBuilder convertImgToSvg = new NuProcessBuilder(
-                    Arrays.asList("timeout", convPdfToSvgTimeout + "s", "convert", source, "-auto-orient", dest));
+                    Arrays.asList("/usr/share/bbb-web/run-in-systemd.sh", convPdfToSvgTimeout + "s", "convert", source, "-auto-orient", dest));
 
             Png2SvgConversionHandler pHandler = new Png2SvgConversionHandler();
             convertImgToSvg.setProcessListener(pHandler);
@@ -284,7 +284,8 @@ public class SvgImageCreatorImp implements SvgImageCreator {
                 if(destsvg.length() > 0) {
                     // Step 3: Add SVG namespace to the destination file
                     // Check : https://phabricator.wikimedia.org/T43174
-                    NuProcessBuilder addNameSpaceToSVG = new NuProcessBuilder(Arrays.asList("timeout", convPdfToSvgTimeout + "s",
+                    NuProcessBuilder addNameSpaceToSVG = new NuProcessBuilder(Arrays.asList(
+                            "/usr/share/bbb-web/run-in-systemd.sh", convPdfToSvgTimeout + "s",
                             "/bin/sh", "-c",
                             "sed -i "
                                     + "'4s|>| xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" version=\"1.2\">|' "
@@ -353,7 +354,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
             rawCommand += " | egrep 'data:image/png;base64|<path' | sed 's/  / /g' | cut -d' ' -f 1 | sort | uniq -cw 2";
         }
 
-        return new NuProcessBuilder(Arrays.asList("timeout", convPdfToSvgTimeout + "s", "/bin/sh", "-c", rawCommand));
+        return new NuProcessBuilder(Arrays.asList("/usr/share/bbb-web/run-in-systemd.sh", convPdfToSvgTimeout + "s", "/bin/sh", "-c", rawCommand));
     }
 
     private NuProcessBuilder createDetectFontType3Process(String source, int page) {
@@ -361,7 +362,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
         rawCommand += " | grep -m 1 'Type 3'";
         rawCommand += " | wc -l";
 
-        return new NuProcessBuilder(Arrays.asList("timeout", pdfFontsTimeout + "s", "/bin/sh", "-c", rawCommand));
+        return new NuProcessBuilder(Arrays.asList("/usr/share/bbb-web/run-in-systemd.sh", pdfFontsTimeout + "s", "/bin/sh", "-c", rawCommand));
     }
 
     private File determineSvgImagesDirectory(File presentationFile) {

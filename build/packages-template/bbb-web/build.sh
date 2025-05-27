@@ -95,6 +95,9 @@ mkdir -p "$STAGING"/usr/share/bigbluebutton/nginx
 cp bbb-web.nginx "$STAGING"/usr/share/bigbluebutton/nginx/web
 cp loadbalancer.nginx "$STAGING"/usr/share/bigbluebutton/nginx/loadbalancer.nginx
 
+# Copy script to run commands through `system-run --user`
+cp run-in-systemd.sh "$STAGING"/usr/share/bbb-web
+
 mkdir -p "$STAGING"/var/log/bigbluebutton
 # Copy directive for serving SVG files (HTML5) from nginx
 if [ -f nginx-confs/presentation-slides.nginx ]; then

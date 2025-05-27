@@ -404,7 +404,23 @@ We have supported the option to mirror your own webcam while viewing it. Startin
 #### Feedback form removed
 
 We have removed the feedback form that used to be part of the client. It was relying on client logs to carry the information and was not particularly flexible. See https://github.com/bigbluebutton/bigbluebutton/pull/22111 for more information.
-A new repository was contributed by Mconf https://github.com/bigbluebutton/custom-feedback with a much more sophisticated feedback form.
+A new repository was contributed by Mconf https://github.com/bigbluebutton/custom-feedback with a much more sophisticated feedback form (see below).
+
+#### Custom feedback
+
+In BigBlueButton 3.0 we replaced the old feedback form with a new way of collecting feedback from users. It's a standalone, customizable, extensible application that can be integrated into BigBlueButton. Please refer to its [README](https://github.com/bigbluebutton/custom-feedback/blob/master/README.md) for details on how to customize and install it.
+
+Below are some screenshots of it:
+
+![first screen of the default custom feedback experience](/img/30/30-custom-feedback-1.png)
+
+![second screen of the default custom feedback experience](/img/30/30-custom-feedback-2.png)
+
+![third screen of the default custom feedback experience](/img/30/30-custom-feedback-3.png)
+
+![fourth screen of the default custom feedback experience](/img/30/30-custom-feedback-4.png)
+
+![fifth screen of the default custom feedback experience](/img/30/30-custom-feedback-5.png)
 
 ### Development
 

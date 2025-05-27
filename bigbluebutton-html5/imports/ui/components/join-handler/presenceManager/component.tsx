@@ -1,6 +1,7 @@
 import { useMutation, useQuery } from '@apollo/client';
 import React, { useContext, useEffect, useState } from 'react';
 import Bowser from 'bowser';
+import { isBrowserSupported } from 'livekit-client';
 import Session from '/imports/ui/services/storage/in-memory';
 import {
   getUserCurrent,
@@ -51,6 +52,7 @@ interface PresenceManagerProps extends PresenceManagerContainerProps {
     guestLobbyMessage: string | null;
     positionInWaitingQueue: number | null;
     isSupportedBrowser: boolean | undefined;
+    hasWebrtcSupport: boolean;
 }
 
 const PresenceManager: React.FC<PresenceManagerProps> = ({
@@ -78,6 +80,7 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   guestStatus,
   positionInWaitingQueue,
   isSupportedBrowser,
+  hasWebrtcSupport,
 }) => {
   const [allowToRender, setAllowToRender] = React.useState(false);
   const [dispatchUserJoin] = useMutation(userJoinMutation);
@@ -167,7 +170,18 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
 
   const errorCode = loggedOut ? 'user_logged_out_reason' : joinErrorCode || ejectReasonCode;
 
-  if (isSupportedBrowser === false) {
+  if (isSupportedBrowser === false || hasWebrtcSupport === false) {
+    const reason = isSupportedBrowser === false ? 'USER_AGENT' : 'WEBRTC';
+    const message = isSupportedBrowser === false
+      ? 'The browser is not supported or is using an outdated version.'
+      : 'WebRTC is not supported in this browser.';
+    logger.warn({
+      logCode: 'unsupported_browser',
+      extraInfo: {
+        reason,
+      },
+    }, message);
+
     return <Legacy setLoading={loadingContextInfo.setLoading} />;
   }
 
@@ -258,6 +272,7 @@ const PresenceManagerContainer: React.FC<PresenceManagerContainerProps> = ({ chi
   const MIN_BROWSER_CONFIG = window.meetingClientSettings.public.minBrowserVersions;
   const userAgent = window.navigator?.userAgent;
   const isSupportedBrowser = Bowser.getParser(userAgent).satisfies(MIN_BROWSER_CONFIG);
+  const hasWebrtcSupport = isBrowserSupported();
 
   return (
     <PresenceManager
@@ -284,6 +299,7 @@ const PresenceManagerContainer: React.FC<PresenceManagerContainerProps> = ({ chi
       positionInWaitingQueue={guestStatusDetails?.positionInWaitingQueue ?? null}
       guestStatus={guestStatus}
       isSupportedBrowser={isSupportedBrowser}
+      hasWebrtcSupport={hasWebrtcSupport}
     >
       {children}
     </PresenceManager>

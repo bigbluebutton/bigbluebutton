@@ -99,7 +99,7 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
   const connectionState = useConnectionState(liveKitRoom);
   const cameraTracks = useTracks([Track.Source.Camera], {
     room: liveKitRoom,
-    onlySubscribed: true,
+    onlySubscribed: false,
     updateOnlyOn: [
       RoomEvent.TrackPublished, RoomEvent.TrackUnpublished,
       RoomEvent.TrackSubscribed, RoomEvent.TrackUnsubscribed,

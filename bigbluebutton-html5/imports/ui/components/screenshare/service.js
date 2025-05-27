@@ -7,7 +7,6 @@ import BridgeService from '/imports/api/screenshare/client/bridge/service';
 import logger from '/imports/startup/client/logger';
 import AudioService from '/imports/ui/components/audio/service';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
-import ConnectionStatusService from '/imports/ui/components/connection-status/service';
 import browserInfo from '/imports/utils/browserInfo';
 import createUseSubscription from '/imports/ui/core/hooks/createUseSubscription';
 import { SCREENSHARE_SUBSCRIPTION } from './queries';
@@ -400,21 +399,8 @@ export const getStats = async (statsTypes = DEFAULT_SCREENSHARE_STATS_TYPES) => 
   return { screenshareStats };
 };
 
-// This method may throw errors
-export const isMediaFlowing = (previousStats, currentStats) => {
-  const bpsData = ConnectionStatusService.calculateBitsPerSecond(
-    currentStats?.screenshareStats,
-    previousStats?.screenshareStats,
-  );
-  const bpsDataAggr = Object.values(bpsData)
-    .reduce((sum, partialBpsData = 0) => sum + parseFloat(partialBpsData), 0);
-
-  return bpsDataAggr > 0;
-};
-
 export default {
   SCREENSHARE_MEDIA_ELEMENT_NAME,
-  isMediaFlowing,
   screenshareHasEnded,
   screenshareHasStarted,
   shareScreen,

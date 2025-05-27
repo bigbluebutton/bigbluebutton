@@ -48,8 +48,10 @@ public class ImageResizerImp implements ImageResizer {
         Boolean conversionSuccess = true;
 
         log.debug("Rescaling file {} with {} ratio", path, ratio);
-        NuProcessBuilder imgResize = new NuProcessBuilder(Arrays.asList("convert", "-resize", ratio,
-                path, path));
+        NuProcessBuilder imgResize = new NuProcessBuilder(Arrays.asList(
+                        "/usr/share/bbb-web/run-in-systemd.sh", String.valueOf(wait),
+                        "convert", "-resize", ratio, path, path
+                ));
 
         ImageResizerHandler pHandler = new ImageResizerHandler();
         imgResize.setProcessListener(pHandler);
