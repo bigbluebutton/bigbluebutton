@@ -278,13 +278,9 @@ public class ParamsProcessorUtil {
         return false;
 	}
 
-	public static String removeMetaString(String param) {
-		return StringUtils.removeStart(param, "meta_");
-	}
-
-    public static String removePluginPrefixString(String param) {
-		return StringUtils.removeStart(param, "plugin_");
-	}
+    public static String removePrefixString(String param, String prefix) {
+        return StringUtils.removeStart(param, prefix);
+    }
 
     public static Map<String, String> processMetaParam(Map<String, String> params) {
         Map<String, String> metas = new HashMap<>();
@@ -292,7 +288,7 @@ public class ParamsProcessorUtil {
             if (isMetaValid(entry.getKey())) {
                 // Need to lowercase to maintain backward compatibility with
                 // 0.81
-                String metaName = removeMetaString(entry.getKey()).toLowerCase();
+                String metaName = removePrefixString(entry.getKey(), "meta_").toLowerCase();
                 metas.put(metaName, entry.getValue());
             }
         }
@@ -306,7 +302,7 @@ public class ParamsProcessorUtil {
             if (isPluginParameterValid(entry.getKey())) {
                 // Need to lowercase to maintain backward compatibility with
                 // 0.81
-                String pluginMetaName = removePluginPrefixString(entry.getKey()).toLowerCase();
+                String pluginMetaName = removePrefixString(entry.getKey(), "plugin_").toLowerCase();
                 pluginParams.put(pluginMetaName, entry.getValue());
             }
         }

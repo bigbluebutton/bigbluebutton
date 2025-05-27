@@ -960,13 +960,17 @@ pluginApi.getRemoteData('allUsers').then((response: Response) => {
 });
 ```
 
-### Meta_ parameters
+### Customize manifest.json
+
+The following sections explain how you can dynamically customize your manifest.json for different runs.
+
+#### Meta_ parameters
 
 This is not part of the API, but it's a way of passing information to the manifest. Any value can be passed like this, one just needs to put something like `${meta_nameOfParameter}` in a specific config of the manifest, and in the `/create` call, set this meta-parameter to whatever is preferred, like `meta_nameOfParameter="Sample message"`
 
 This feature is mainly used for security purposes, see [external data section](#external-data-resources). But can be used for customization reasons as well.
 
-### Plugin_ parameters
+#### Plugin_ parameters
 
 `plugin_` parameters work similarly to `meta_` parameters, allowing data to be passed dynamically to the manifest. While they can serve the same purposes — like security or customization — they are specifically scoped to individual plugins.
 
@@ -986,6 +990,29 @@ plugin_pickRandomUserPlugin_url-to-fetch-data=https://...
 ```
 
 This isolates the parameter to `pickRandomUserPlugin` and avoids conflicts with other plugins.
+
+#### Comments
+
+If a plugin expects a placeholder (via `meta_ `or `plugin_`) but doesn't receive a value, the plugin will fail to load. To prevent this, both types of placeholders support default values. This allows the system administrator to define fallback values, ensuring the plugin loads correctly.
+
+**Example with a default value (`manifest.json`):**
+```json
+{
+  "requiredSdkVersion": "~0.0.77",
+  "name": "MyPlugin",
+  "javascriptEntrypointUrl": "MyPlugin.js",
+  "localesBaseUrl": "https://cdn.domain.com/my-plugin/", // Optional
+  "dataChannels":[
+    {
+      "name": "${plugin_MyPlugin_data-channel-name:storeState}",
+      "pushPermission": ["moderator","presenter"], // "moderator","presenter", "all"
+      "replaceOrDeletePermission": ["moderator", "creator"] // "moderator", "presenter","all", "creator"
+    }
+  ]
+}
+```
+
+In this example, if the parameter `plugin_MyPlugin_data-channel-name` is not provided during the `/create` call, it will fallback to "storeState".
 
 ### Event persistence
 

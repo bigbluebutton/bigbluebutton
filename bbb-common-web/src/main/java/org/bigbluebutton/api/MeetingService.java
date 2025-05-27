@@ -375,6 +375,7 @@ public class MeetingService implements MessageListener {
     ExecutorService executorService = Executors.newFixedThreadPool(numPluginManifestsFetchingThreads);
     for (PluginManifest pluginManifest : m.getPluginManifests()) {
       String pluginManifestUrlString = pluginManifest.getUrl();
+      log.info("Fetching plugin [{}].", pluginManifestUrlString);
       CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
         try {
           URL url = new URL(pluginManifestUrlString);

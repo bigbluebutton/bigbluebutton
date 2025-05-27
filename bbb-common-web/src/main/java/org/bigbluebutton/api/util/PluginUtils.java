@@ -16,7 +16,7 @@ public class PluginUtils {
     private static final String HTML5_PLUGIN_SDK_VERSION = "%%HTML5_PLUGIN_SDK_VERSION%%";
     private static final String BBB_VERSION = "%%BBB_VERSION%%";
     private static final String MEETING_ID = "%%MEETING_ID%%";
-    private static final Pattern METADATA_PLACEHOLDER_PATTERN = Pattern.compile("\\$\\{([\\w\\-]+)\\}");
+    private static final Pattern METADATA_PLACEHOLDER_PATTERN = Pattern.compile("\\$\\{([\\w\\-]+)(:.*)?\\}");
     private static String bbbVersion;
     private String html5PluginSdkVersion;
 
@@ -48,6 +48,27 @@ public class PluginUtils {
         return pluginPrefixMatcher.matches();
     }
 
+    private static String resolveParameter(
+        String rawParameterName,
+        Map<String, String> source,
+        String defaultValue,
+        String prefixToRemove,
+        String errorMessage
+    ) throws NoSuchFieldException {
+        String key = ParamsProcessorUtil.removePrefixString(rawParameterName, prefixToRemove).toLowerCase();
+        if (source.containsKey(key)) {
+            String replacementValue = source.get(key);
+            log.debug("{} parameter [{}] identified, value: [{}]", prefixToRemove, rawParameterName, replacementValue);
+            return replacementValue;
+        } else if (defaultValue != null) {
+            log.debug("{} parameter [{}] not found, using default [{}]", prefixToRemove, rawParameterName, defaultValue);
+            return defaultValue;
+        } else {
+            throw new NoSuchFieldException(errorMessage);
+        }
+    }
+
+
     private static void validateAndReplaceMetadataParameters(
         String pluginName,
         Matcher matcher,
@@ -55,27 +76,33 @@ public class PluginUtils {
         Map<String, String> pluginMetadata,
         StringBuilder result
     ) throws NoSuchFieldException {
+        // First capturing group of regex is parameterName
         String metadataParameterName = matcher.group(1);
+        // Second capturing group of regex is default value if exists
+        String defaultValue = matcher.group(2) != null ? matcher.group(2).substring(1) : null;
+
         String replacement;
         // Checking if placeholder is a meta_ parameter
         if (ParamsProcessorUtil.isMetaValid(metadataParameterName)) {
             // Remove "meta_" and convert to lower case
-            metadataParameterName = ParamsProcessorUtil.removeMetaString(metadataParameterName).toLowerCase();
-            if (metadata.containsKey(metadataParameterName)) {
-                replacement = metadata.get(metadataParameterName);
-                log.debug("meta_ parameter [{}] identified, value: [{}]", metadataParameterName, replacement);
-            }
-            else throw new NoSuchFieldException("Metadata " + metadataParameterName + " not found in URL parameters");
+            replacement = resolveParameter(
+                metadataParameterName,
+                metadata,
+                defaultValue,
+                "meta_",
+                "Metadata " + metadataParameterName + " not found in URL parameters"
+            );
 
         // Checking if placeholder is a plugin_ parameter
         } else if (matchesPluginParameterFormat(metadataParameterName, pluginName)) {
             // Remove "plugin_" and convert to lower case
-            metadataParameterName = ParamsProcessorUtil.removePluginPrefixString(metadataParameterName).toLowerCase();
-            if (pluginMetadata.containsKey(metadataParameterName)) {
-                replacement = pluginMetadata.get(metadataParameterName);
-                log.debug("plugin_ parameter [{}] identified, value: [{}]", metadataParameterName, replacement);
-            }
-            else throw new NoSuchFieldException("Plugin metadata parameter named " + metadataParameterName + " not found in URL parameters");
+            replacement = resolveParameter(
+                metadataParameterName,
+                pluginMetadata,
+                defaultValue,
+                "plugin_",
+                "Plugin metadata parameter named " + metadataParameterName + " not found in URL parameters"
+            );
 
         } else {
             throw new NoSuchFieldException("Metadata " + metadataParameterName + " is malformed, please provide a valid one");
