@@ -32,7 +32,7 @@ const LKAutoplayModalContent = styled.div`
   }
 
   button:only-child {
-    margin: inherit 0 inherit inherit;
+    margin: 0 !important;
 
     [dir="rtl"] & {
       margin: inherit inherit inherit 0 !important;
