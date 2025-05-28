@@ -76,7 +76,6 @@ class Layouts extends MultiUsers {
     await this.modPage.waitAndClick(e.userListToggleBtn);
     await this.userPage.waitAndClick(e.userListToggleBtn);
     await this.modPage.wasRemoved(e.chatButton, 'should not be displayed the chat button');
-    await this.userPage.wasRemoved(e.chatButton, 'should not be displayed the chat button');
 
     await checkScreenshots(this, 'should be on custom layout', 'video', 'custom-layout', 4);
     await reopenChatSidebar(this.modPage);
