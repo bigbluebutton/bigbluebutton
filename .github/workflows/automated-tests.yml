@@ -205,18 +205,18 @@ jobs:
             echo "SDK_URL=https://github.com/bigbluebutton/bigbluebutton-html-plugin-sdk/archive/refs/tags/v${SDK_VERSION}.tar.gz" >> $GITHUB_ENV
           fi
       - name: Download plugins SDK
-        working-directory: bigbluebutton-tests/playwright
+        working-directory: bigbluebutton-tests
         run: |
           wget -O bigbluebutton-html-plugin-sdk.tar.gz $SDK_URL
           mkdir -p bigbluebutton-html-plugin-sdk
           tar -xzf bigbluebutton-html-plugin-sdk.tar.gz -C bigbluebutton-html-plugin-sdk --strip-components=1
       - name: Install plugins SDK dependencies
-        working-directory: ./bigbluebutton-tests/playwright/bigbluebutton-html-plugin-sdk
+        working-directory: ./bigbluebutton-tests/bigbluebutton-html-plugin-sdk
         run: |
           echo "Installing plugins SDK dependencies"
           npm ci
       - name: Install sample plugin dependencies
-        working-directory: ./bigbluebutton-tests/playwright/bigbluebutton-html-plugin-sdk
+        working-directory: ./bigbluebutton-tests/bigbluebutton-html-plugin-sdk
         run: |
           echo "Installing plugin samples dependencies"
           for sample in $SAMPLES_WITH_TESTS; do
@@ -230,13 +230,13 @@ jobs:
             fi
           done
       - name: Build plugins SDK and publish to samples
-        working-directory: ./bigbluebutton-tests/playwright/bigbluebutton-html-plugin-sdk
+        working-directory: ./bigbluebutton-tests/bigbluebutton-html-plugin-sdk
         run: |
           npm ci
           npm run build
           ./scripts/publish-to-samples.sh
       - name: Build sample plugins (that contain tests) and copy built files to the plugin assets directory
-        working-directory: ./bigbluebutton-tests/playwright/bigbluebutton-html-plugin-sdk
+        working-directory: ./bigbluebutton-tests/bigbluebutton-html-plugin-sdk
         run: |
           echo "Building all samples inside the 'samples' directory that contain tests"
           for sample in $SAMPLES_WITH_TESTS; do
@@ -252,14 +252,14 @@ jobs:
             fi
           done
       - name: Install test dependencies
-        working-directory: ./bigbluebutton-tests/playwright/bigbluebutton-html-plugin-sdk
+        working-directory: ./bigbluebutton-tests/bigbluebutton-html-plugin-sdk
         timeout-minutes: 25
         run: |
           npm ci
           npx playwright install-deps
           npx playwright install
       - name: Run tests
-        working-directory: ./bigbluebutton-tests/playwright/bigbluebutton-html-plugin-sdk
+        working-directory: ./bigbluebutton-tests/bigbluebutton-html-plugin-sdk
         timeout-minutes: 25
         env:
           NODE_EXTRA_CA_CERTS: /usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt
@@ -272,18 +272,18 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: blob-report-plugins
-          path: bigbluebutton-html-plugin-sdk/blob-report
+          path: bigbluebutton-tests/bigbluebutton-html-plugin-sdk/blob-report
       - if: always()
         name: Generate the plugins HTML report from blob report
         shell: bash
-        working-directory: ./bigbluebutton-tests/playwright/bigbluebutton-html-plugin-sdk
+        working-directory: ./bigbluebutton-tests/bigbluebutton-html-plugin-sdk
         run: npx playwright merge-reports --reporter html ./blob-report
       - if: always()
         name: Upload shard HTML report to GitHub Actions Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: test-report_plugins
-          path: bigbluebutton-html-plugin-sdk/playwright-report
+          path: bigbluebutton-tests/bigbluebutton-html-plugin-sdk/playwright-report
       - if: failure()
         name: Prepare artifacts
         uses: ./.github/actions/prepare-artifacts
