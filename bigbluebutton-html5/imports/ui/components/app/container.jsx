@@ -80,6 +80,7 @@ const AppContainer = (props) => {
   const genericMainContent = layoutSelectInput((i) => i.genericMainContent);
   const captionsStyle = layoutSelectOutput((i) => i.captions);
   const presentation = layoutSelectInput((i) => i.presentation);
+  const sharedNotesInput = layoutSelectInput((i) => i.sharedNotes);
   const { hideNotificationToasts } = layoutSelectInput((i) => i.notificationsBar);
   const layoutType = layoutSelect((i) => i.layoutType);
   const isNonMediaLayout = [
@@ -90,7 +91,9 @@ const AppContainer = (props) => {
   const { data: pinnedPadData } = useDeduplicatedSubscription(PINNED_PAD_SUBSCRIPTION);
   const isSharedNotesPinnedFromGraphql = !!pinnedPadData
     && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
-  const isSharedNotesPinned = isSharedNotesPinnedFromGraphql && presentation.isOpen;
+  const isSharedNotesPinned = sharedNotesInput?.isPinned
+    && isSharedNotesPinnedFromGraphql
+    && presentation.isOpen;
   const isExternalVideoEnabled = useIsExternalVideoEnabled();
   const isPresentationEnabled = useIsPresentationEnabled();
   const isRaiseHandEnabled = useIsRaiseHandEnabled();
