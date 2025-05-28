@@ -196,7 +196,6 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
   const presenterRef = useRef(isPresenter);
   const [reactPlayerPlaying, setReactPlayerPlaying] = React.useState(false);
-  const clientReloadedRef = useRef(false);
   const firstPlayRef = useRef(true);
 
   let currentTime = getCurrentTime();
@@ -356,7 +355,6 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
         setVolume(playerVolume > 1 ? playerVolume / 100 : playerVolume);
       }
 
-      clientReloadedRef.current = true;
       presenterRef.current = isPresenter;
     }
   }, [isPresenter]);
@@ -383,7 +381,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   const handleOnPlay = async () => {
     setReactPlayerPlaying(true);
     const internalPlayer = playerRef.current?.getInternalPlayer();
-    if (isPresenter && !playing && !clientReloadedRef.current) {
+    if (isPresenter && !playing) {
       const rate = internalPlayer instanceof HTMLVideoElement
         ? internalPlayer.playbackRate
         : internalPlayer?.c?.() ?? 1;
@@ -400,12 +398,6 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
 
     if (!playing && !isPresenter) {
       stopVideo(playerRef.current as ReactPlayer);
-    }
-    if (clientReloadedRef.current) {
-      clientReloadedRef.current = false;
-      if (!mute && isPresenter) {
-        playerRef.current?.getInternalPlayer().unMute();
-      }
     }
 
     if (firstPlayRef.current) {
@@ -551,7 +543,6 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
         <Styled.VideoPlayer
           config={videoPlayConfig}
           autoPlay
-          playsInline
           url={videoUrl}
           playing={playing}
           playbackRate={playerPlaybackRate}
