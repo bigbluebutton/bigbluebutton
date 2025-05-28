@@ -61,6 +61,8 @@
     "app.chat.header.tooltipReply": "الرد على الرسالة",
     "app.chat.header.tooltipDelete": "حذف الرسالة",
     "app.chat.header.tooltipReact": "الرد على الرسالة",
+    "app.chat.content.pollVote": "صوت",
+    "app.chat.content.pollVotes": "أصوات",
     "app.timer.toolTipTimerStopped": "لقد توقف المؤقت.",
     "app.timer.toolTipTimerRunning": "تم تشغيل المؤقت.",
     "app.timer.toolTipStopwatchStopped": "لقد توقفت ساعة الإيقاف.",
