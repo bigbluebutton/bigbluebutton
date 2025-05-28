@@ -197,6 +197,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   const presenterRef = useRef(isPresenter);
   const [reactPlayerPlaying, setReactPlayerPlaying] = React.useState(false);
   const clientReloadedRef = useRef(false);
+  const firstPlayRef = useRef(true);
 
   let currentTime = getCurrentTime();
 
@@ -385,7 +386,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     if (isPresenter && !playing && !clientReloadedRef.current) {
       const rate = internalPlayer instanceof HTMLVideoElement
         ? internalPlayer.playbackRate
-        : internalPlayer?.getPlaybackRate?.() ?? 1;
+        : internalPlayer?.c?.() ?? 1;
 
       const currentTime = getCurrentTime();
       const playerCurrentTime = await getPlayerCurrentTime(playerRef.current as ReactPlayer);
@@ -393,7 +394,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
         rate,
         // if currentTime is greater than playerCurrentTime, means the video was already played
         // and the presenter refreshed his client
-        time: currentTime > playerCurrentTime ? currentTime : playerCurrentTime,
+        time: (currentTime > playerCurrentTime) && firstPlayRef.current ? currentTime : playerCurrentTime,
       });
     }
 
@@ -405,6 +406,10 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
       if (!mute && isPresenter) {
         playerRef.current?.getInternalPlayer().unMute();
       }
+    }
+
+    if (firstPlayRef.current) {
+      firstPlayRef.current = false;
     }
   };
 
