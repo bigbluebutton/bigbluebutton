@@ -384,7 +384,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     if (isPresenter && !playing) {
       const rate = internalPlayer instanceof HTMLVideoElement
         ? internalPlayer.playbackRate
-        : internalPlayer?.c?.() ?? 1;
+        : internalPlayer?.getPlaybackRate?.() ?? 1;
 
       const currentTime = getCurrentTime();
       const playerCurrentTime = await getPlayerCurrentTime(playerRef.current as ReactPlayer);
