@@ -57,7 +57,7 @@
     "autoprefixer": "^10.4.4",
     "axios": "^1.8.3",
     "babel-runtime": "~6.26.0",
-    "bigbluebutton-html-plugin-sdk": "https://codeload.github.com/antonbsa/bigbluebutton-html-plugin-sdk/tar.gz/3c479c98d7b74496d833a4fb1fb81299b468cf3e",
+    "bigbluebutton-html-plugin-sdk": "https://codeload.github.com/antonbsa/bigbluebutton-html-plugin-sdk/tar.gz/23072d2cc938b32afb01ee7f21f9c45de385af6a",
     "bowser": "^2.11.0",
     "browser-bunyan": "^1.8.0",
     "classnames": "^2.2.6",
