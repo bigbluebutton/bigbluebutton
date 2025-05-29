@@ -259,7 +259,7 @@
     "app.media.screenshare.notSupported": "La condivisione dello schermo non è supportata in questo browser.",
     "app.media.screenshare.autoplayBlockedDesc": "Abbiamo bisogno del tuo permesso per mostrarti lo schermo del relatore",
     "app.media.screenshare.autoplayAllowLabel": "Visualizza schermo condiviso",
-    "app.media.cameraAsContent.start": "Presentazione telecamera avviata",
+    "app.media.cameraAsContent.start": "La fotocamera attuale è stata avviata",
     "app.media.cameraAsContent.end": "Presentazione telecamera terminata",
     "app.media.cameraAsContent.endDueToDataSaving": "Presentazione telecamera interrotta per limitare i dati",
     "app.media.cameraAsContent.autoplayBlockedDesc": "È necessario concedere l'autorizzazione per vedere la telecamera del relatore.",
