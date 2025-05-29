@@ -1246,7 +1246,7 @@
     "app.video.virtualBackground.backgroundWithIndex": "Sfondo {0}",
     "app.video.virtualBackground.custom": "Carica dal mio computer",
     "app.video.virtualBackground.remove": "Elimina l'immagine caricata",
-    "app.video.virtualBackground.genericError": "Applicazione dell’effetto alla telecamera fallito. Prova di nuovo.",
+    "app.video.virtualBackground.genericError": "Impossibile applicare l'effetto per la fotocamera. Riprova.",
     "app.video.virtualBackground.camBgAriaDesc": "Imposta lo sfondo virtuale della webcam su {0}",
     "app.video.virtualBackground.maximumFileSizeExceeded": "Dimensione massima superata. ({0}MB)",
     "app.video.virtualBackground.typeNotAllowed": "Tipo di file non permesso.",
