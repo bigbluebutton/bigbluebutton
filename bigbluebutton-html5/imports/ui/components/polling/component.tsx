@@ -1,6 +1,7 @@
 import React, {
   useEffect, useMemo, useRef, useState,
 } from 'react';
+import ReactDOM from 'react-dom';
 import { useMutation } from '@apollo/client';
 import { defineMessages, useIntl } from 'react-intl';
 import Checkbox from '/imports/ui/components/common/checkbox/component';
@@ -95,11 +96,24 @@ const PollingGraphql: React.FC<PollingGraphqlProps> = (props) => {
   const responseInput = useRef<HTMLInputElement>(null);
   const pollingContainer = useRef<HTMLElement>(null);
 
+  if (!document.getElementById('pollingContainer')) {
+    const container = document.createElement('div');
+    container.id = 'pollingContainer';
+    document.body.appendChild(container);
+  }
+
   useEffect(() => {
     playAlert();
     if (pollingContainer.current) {
       pollingContainer.current.focus();
     }
+
+    return () => {
+      const container = document.getElementById('pollingContainer');
+      if (container) {
+        document.body.removeChild(container);
+      }
+    };
   }, []);
 
   const handleUpdateResponseInput = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -303,7 +317,7 @@ const PollingGraphql: React.FC<PollingGraphqlProps> = (props) => {
     );
   };
 
-  return (
+  return ReactDOM.createPortal(
     <Styled.Overlay>
       <Styled.PollingContainer
         autoWidth={poll.stackOptions}
@@ -326,7 +340,8 @@ const PollingGraphql: React.FC<PollingGraphqlProps> = (props) => {
           ? renderCheckboxAnswers()
           : renderButtonAnswers()}
       </Styled.PollingContainer>
-    </Styled.Overlay>
+    </Styled.Overlay>,
+    document.getElementById('pollingContainer')!,
   );
 };
 
