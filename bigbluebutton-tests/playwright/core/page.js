@@ -66,7 +66,6 @@ class Page {
           font-family: 'Liberation Sans', Arial, sans-serif;
         }`,
     });
-    await this.setHeightWidthViewPortSize();
   }
 
   async handleDownload(locator, testInfo, timeout = ELEMENT_WAIT_TIME) {
@@ -368,10 +367,6 @@ class Page {
       }
     }
     await this.hasElementCount(e.toastContainer, 0, 'should not display any toast notification');
-  }
-
-  async setHeightWidthViewPortSize() {
-    await this.page.setViewportSize({ width: 1366, height: 768 });
   }
 
   async getYoutubeFrame() {

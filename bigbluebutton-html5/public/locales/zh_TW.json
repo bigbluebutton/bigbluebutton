@@ -61,6 +61,8 @@
     "app.chat.header.tooltipReply": "回覆訊息",
     "app.chat.header.tooltipDelete": "刪除訊息",
     "app.chat.header.tooltipReact": "與訊息互動",
+    "app.chat.content.pollVote": "投票",
+    "app.chat.content.pollVotes": "投票",
     "app.timer.toolTipTimerStopped": "計時器已經停止了。",
     "app.timer.toolTipTimerRunning": "計時器在運作。",
     "app.timer.toolTipStopwatchStopped": "倒數計時已經停止了。",
