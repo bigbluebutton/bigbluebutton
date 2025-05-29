@@ -4,7 +4,9 @@ import {
   borderSizeLarge,
   toastContentWidth,
   borderRadius,
+  smPadding,
   contentSidebarPadding,
+  contentSidebarBottomScrollPadding,
 } from '../../../stylesheets/styled-components/general';
 import {
   colorGrayDark,
@@ -17,6 +19,7 @@ import {
 } from '../../../stylesheets/styled-components/palette';
 import { TextElipsis } from '../../../stylesheets/styled-components/placeholders';
 import Button from '/imports/ui/components/common/button/component';
+import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
 import {
   HeaderContainer as BaseHeaderContainer,
   Separator as BaseSeparator,
@@ -74,7 +77,6 @@ const TimerContent = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
-  height: 100%;
   padding: ${contentSidebarPadding};
 `;
 
@@ -229,6 +231,12 @@ const TimerInput = styled.input`
   }
 `;
 
+const TimerScrollableContent = styled(ScrollboxVertical)`
+  margin: 0 ${smPadding} 0;
+  padding: ${contentSidebarPadding} ${contentSidebarPadding} ${contentSidebarBottomScrollPadding};
+  height: 100%;
+`;
+
 export default {
   HeaderContainer,
   Separator,
@@ -250,4 +258,5 @@ export default {
   TimerControls,
   TimerControlButton,
   TimerInput,
+  TimerScrollableContent,
 };
