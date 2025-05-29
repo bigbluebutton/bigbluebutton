@@ -1367,7 +1367,7 @@
     "app.videoDock.webcamUnfocusLabel": "Non mettere in evidenza",
     "app.videoDock.webcamUnfocusDesc": "Non mettere in evidenza la webcam selezionata",
     "app.videoDock.webcamDisableLabel": "Nascondi il mio video",
-    "app.videoDock.webcamDisableLabelAllCams": "Nascondi (a ciascuno) il proprio video",
+    "app.videoDock.webcamDisableLabelAllCams": "Disattiva la visualizzazione automatica (tutte le fotocamere)",
     "app.videoDock.webcamEnableLabel": "Abilita la visione del proprio video",
     "app.videoDock.webcamDisableDesc": "Disabilita la visione del proprio video",
     "app.videoDock.webcamDisableWarning": "La tua webcam è ancora visibile agli altri! Solo la visione locale è disabilitata.",
