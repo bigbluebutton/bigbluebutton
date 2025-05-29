@@ -1211,7 +1211,7 @@
     "app.video.permissionError": "Errore nella condivisione webcam. Controllare i permessi",
     "app.video.sharingError": "Errore nella condivisione della webcam",
     "app.video.abortError": "Si è verificato un problema sconosciuto che ha impedito l'utilizzo della fotocamera",
-    "app.video.overconstrainedError": "Nessun dispositivo candidato che soddisfaceva i criteri richiesti",
+    "app.video.overconstrainedError": "La tua fotocamera non supporta questo profilo di qualità",
     "app.video.securityError": "Il supporto dei media è disabilitato sul documento",
     "app.video.typeError": "La lista dei vincoli specificata è vuota oppure tutti i vincoli sono impostati su falso",
     "app.video.notFoundError": "Impossibile trovare la webcam. Assicurati che sia connessa",
