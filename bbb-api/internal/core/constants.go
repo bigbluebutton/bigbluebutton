@@ -14,4 +14,5 @@ const (
 	ParamsKey            pipeline.ContextKey = "params"
 	ProcessXMLModulesKey pipeline.ContextKey = "processXMLModules"
 	RequestBodyKey       pipeline.ContextKey = "requestBody"
+	PresentationKey      pipeline.ContextKey = "presentation"
 )

@@ -7,13 +7,13 @@ const (
 	UnknownErrorKey = "unknownError"
 	UnknownErrorMsg = "An unknown error occurred"
 
-	ValidationErrorKey string = "validationError"
+	ValidationErrorKey = "validationError"
 
-	ChecksumErrorKey string = "checksumError"
-	ChecksumErrorMsg string = "Checksums do not match."
+	ChecksumErrorKey = "checksumError"
+	ChecksumErrorMsg = "Checksums do not match."
 
-	ContentTypeErrorKey string = "unsupportedContentType"
-	ContentTypeErrorMsg string = "POST request Content-Type is missing or unsupported"
+	ContentTypeErrorKey = "unsupportedContentType"
+	ContentTypeErrorMsg = "POST request Content-Type is missing or unsupported"
 
 	MeetingIDMissingErrorKey = "missingParamMeetingID"
 	MeetingIDMissingErrorMsg = "You must provide a meeting ID."
@@ -72,6 +72,12 @@ const (
 	InvalidStringLength = "invalid string length"
 	InvalidBoolean      = "invalid boolean"
 
-	InvalidRequestBodyKey string = "invalidRequestBody"
-	InvalidRequestBodyMsg string = "Invalid request body"
+	InvalidRequestBodyKey = "invalidRequestBody"
+	InvalidRequestBodyMsg = "Invalid request body"
+
+	DocProcessingFailedKey = "docProcessingFailed"
+	DocProcessingFailedMsg = "document processing failed"
+
+	PresentationUploadedKey = "presentationUploaded"
+	PresentationUploadedMsg = "Presentation is being uploaded"
 )

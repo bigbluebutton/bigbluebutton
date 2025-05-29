@@ -91,4 +91,6 @@ const (
 	LearningDashboardFeature = "learningDashboard"
 
 	ClientSettingsOverrideModule = "clientSettingsOverride"
+
+	PluginManifests = "pluginManifests"
 )

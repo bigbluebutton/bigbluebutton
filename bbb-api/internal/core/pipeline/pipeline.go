@@ -96,7 +96,7 @@ type Transformer[T, U any] interface {
 
 // A SenderReceiver is a processor that performs a synchronous call to a remote service using the payload of type
 // T from the incoming [Message] and returns a response in the form of a new [Message] with a payload of
-// type U. If invokation of the remote service fails, an error should be returned to abort further processing.
+// type U. If invocation of the remote service fails, an error should be returned to abort further processing.
 type SenderReceiver[T any, U any] interface {
 	Send(req Message[T]) (Message[U], error)
 }

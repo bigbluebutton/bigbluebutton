@@ -16,12 +16,13 @@ import (
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core"
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/bbbhttp"
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/pipeline"
+	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/plugin"
+	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/random"
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/responses"
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/validation"
 	meetingapi "github.com/bigbluebutton/bigbluebutton/bbb-api/internal/meeting"
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/meeting/config"
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/meeting/document"
-	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/random"
 )
 
 // RequestToIsMeetingRunning is a pipleline.Transformer implementation that is used
@@ -87,6 +88,11 @@ func (m *MeetingRunningToCreate) Transform(msg pipeline.Message[*meeting.Meeting
 		CreateMeetingSettings: settings,
 	}
 
+	if m.proc == nil {
+		slog.Warn("Could not process document; no document process was provided")
+		return pipeline.NewMessageWithContext(req, msg.Context()), nil
+	}
+
 	parsedDocs, err := m.proc.Parse(modules, params, false)
 	if err != nil {
 		slog.Error("Failed to parse documents from request", "error", err)
@@ -123,6 +129,7 @@ func createMeetingSettings(params bbbhttp.Params, parentMeetingInfo *common.Meet
 	settings.LockSettings = lockSettings(params)
 	settings.SystemSettings = systemSettings(params)
 	settings.GroupSettings = groupSettings(params)
+	settings.PluginSettings = pluginSettings(params)
 
 	return settings
 }
@@ -397,6 +404,35 @@ func groupSettings(params bbbhttp.Params) []*common.GroupSettings {
 		}
 	}
 	return groupProps
+}
+
+func pluginSettings(params bbbhttp.Params) *common.PluginSettings {
+	cfg := config.DefaultConfig()
+
+	var pluginManifests []*common.PluginManifest
+	for _, m := range cfg.Plugins.Manifests {
+		pluginManifests = append(pluginManifests, &common.PluginManifest{
+			Url: m,
+		})
+	}
+
+	if manifestData := core.GetStringOrDefaultValue(validation.StripCtrlChars(params.Get(meetingapi.PluginManifests).Value), ""); manifestData != "" {
+		manifests, err := plugin.Parse(manifestData)
+		if err != nil {
+			slog.Error("Failed to parse plugin manifest data", "data", manifestData, "error", err)
+		}
+
+		for _, m := range manifests {
+			pluginManifests = append(pluginManifests, &common.PluginManifest{
+				Url:      m.URL,
+				Checksum: m.URL,
+			})
+		}
+	}
+
+	return &common.PluginSettings{
+		PluginManifests: pluginManifests,
+	}
 }
 
 func replaceKeywords(message string, dialNumber string, voiceBridge string, meetingName string, url string) string {

@@ -6,6 +6,8 @@ import (
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/gen/meeting"
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/pipeline"
 	meetingapi "github.com/bigbluebutton/bigbluebutton/bbb-api/internal/meeting"
+	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/meeting/config"
+	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/meeting/document"
 )
 
 func NewInsertDocumentFlow(client meetingapi.Client) pipeline.Flow[*http.Request, *meetingapi.Response] {
@@ -17,7 +19,7 @@ func NewInsertDocumentFlow(client meetingapi.Client) pipeline.Flow[*http.Request
 
 	filterTransformToResponse := pipeline.NewStep[*meeting.MeetingInfoResponse, *meetingapi.Response]().
 		Filter(&MeetingInfoResponseFilter{}).
-		Transform(nil)
+		Transform(&MeetingInfoToResponse{document.NewDefaultProcessor(config.DefaultConfig(), client)})
 
 	f1 := pipeline.Add(filterTransformToMeetingInfo.Flow(), sendReceiveMeetingInfo)
 	f2 := pipeline.Add(f1, filterTransformToResponse)

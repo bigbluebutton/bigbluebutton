@@ -10,8 +10,8 @@ import (
 	"strings"
 
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core"
+	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/random"
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/responses"
-	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/random"
 )
 
 // ValidateChecksum ensures that the checksum provided in the query string

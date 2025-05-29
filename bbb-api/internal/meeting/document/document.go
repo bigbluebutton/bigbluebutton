@@ -1,25 +1,22 @@
 package document
 
 import (
-	"bufio"
 	"encoding/base64"
 	"encoding/xml"
 	"fmt"
-	"io"
 	"log/slog"
-	"net/http"
 	"net/url"
 	"os"
 	"path"
 	"path/filepath"
-	"strings"
 
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core"
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/bbbhttp"
+	coredoc "github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/document"
+	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/random"
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/validation"
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/meeting"
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/meeting/config"
-	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/random"
 )
 
 type PresentationModule struct {
@@ -52,23 +49,10 @@ type ParsedDocuments struct {
 	FromInsertAPI bool
 }
 
-type Presentation struct {
-	PodID        string
-	MeetingID    string
-	PresID       string
-	FileName     string
-	FilePath     string
-	Current      bool
-	AuthzToken   string
-	Downloadable bool
-	Removable    bool
-	Default      bool
-}
-
 type Processor interface {
 	Parse(modules bbbhttp.RequestModules, params bbbhttp.Params, fromInsert bool) (*ParsedDocuments, error)
-	Process(parsed *ParsedDocuments) ([]Presentation, error)
-	WriteAndValidate(src DocSource, doc *Document) (*Presentation, error)
+	Process(parsed *ParsedDocuments) ([]coredoc.Presentation, error)
+	WriteAndValidate(src DocSource, doc *Document) (*coredoc.Presentation, error)
 	bbbhttp.Client
 }
 
@@ -196,8 +180,8 @@ func (p *DefaultProcessor) Parse(modules bbbhttp.RequestModules, params bbbhttp.
 	}, nil
 }
 
-func (p *DefaultProcessor) Process(parsed *ParsedDocuments) ([]Presentation, error) {
-	var out []Presentation
+func (p *DefaultProcessor) Process(parsed *ParsedDocuments) ([]coredoc.Presentation, error) {
+	var out []coredoc.Presentation
 
 	for _, doc := range parsed.Documents {
 		var src DocSource
@@ -238,8 +222,8 @@ func (p *DefaultProcessor) Process(parsed *ParsedDocuments) ([]Presentation, err
 	return out, nil
 }
 
-func (p *DefaultProcessor) WriteAndValidate(src DocSource, doc *Document) (*Presentation, error) {
-	name, ext := SplitFileName(src.Name())
+func (p *DefaultProcessor) WriteAndValidate(src DocSource, doc *Document) (*coredoc.Presentation, error) {
+	name, ext := coredoc.SplitFileName(src.Name())
 	if name == "" {
 		return nil, fmt.Errorf("invalid file name %q", src.Name())
 	}
@@ -263,13 +247,13 @@ func (p *DefaultProcessor) WriteAndValidate(src DocSource, doc *Document) (*Pres
 		return nil, fmt.Errorf("write file: %w", err)
 	}
 
-	ct, err := ContentType(fp)
+	ct, err := coredoc.ContentType(fp)
 	if err != nil {
 		return nil, err
 	}
 
 	if ext == "" && src.FromParam() {
-		newExt, xerr := FileExtFromContentType(ct)
+		newExt, xerr := coredoc.FileExtFromContentType(ct)
 		if xerr != nil {
 			return nil, fmt.Errorf("determine extension: %w", xerr)
 		}
@@ -282,15 +266,15 @@ func (p *DefaultProcessor) WriteAndValidate(src DocSource, doc *Document) (*Pres
 		ext = newExt
 	}
 
-	if verr := ValidateContentType(ct, ext); verr != nil {
+	if verr := coredoc.ValidateContentType(ct, ext); verr != nil {
 		os.RemoveAll(presDir)
 		return nil, fmt.Errorf("unsupported content type %s: %w", ct, verr)
 	}
 
-	return &Presentation{
-		PodID:     PodIDDefault,
+	return &coredoc.Presentation{
+		ID:        presID,
+		PodID:     coredoc.PodIDDefault,
 		MeetingID: doc.MeetingID,
-		PresID:    presID,
 		FileName:  name,
 		FilePath:  fp,
 	}, nil
@@ -353,20 +337,6 @@ func LoadModuleDocs(modules bbbhttp.RequestModules, meetingID string) (docs []Do
 	return docs, hasCurrent, nil
 }
 
-func ContentType(fp string) (string, error) {
-	f, err := os.Open(fp)
-	if err != nil {
-		return "", err
-	}
-	defer f.Close()
-	r := bufio.NewReader(f)
-	peek, err := r.Peek(512)
-	if err != nil && err != io.EOF {
-		return "", err
-	}
-	return http.DetectContentType(peek), nil
-}
-
 func ExtractFileNameFromURL(s string) string {
 	if parsed, err := url.Parse(s); err == nil {
 		return filepath.Base(parsed.Path)
@@ -381,19 +351,6 @@ func DecodeFileName(address string) (string, error) {
 		return "", fmt.Errorf("failed to decode %q: %w", base, err)
 	}
 	return decoded, nil
-}
-
-func SplitFileName(s string) (name, ext string) {
-	base := path.Base(s)
-	dotExt := path.Ext(base)
-	if dotExt != "" {
-		ext = dotExt[1:]
-		name = strings.TrimSuffix(base, dotExt)
-	} else {
-		name = base
-		ext = ""
-	}
-	return
 }
 
 func MakePresentationDir(basePresDir, meetingID, presID string) (string, error) {

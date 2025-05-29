@@ -51,14 +51,14 @@ func FindConfig() {
 	}
 }
 
-// LoadConfig reads and parses the configuration from the named file for the
-// given API. Configuration data will be unmarshalled into the out value.
-// The configuration data must be provied in a .yaml file. May return an error
-// if reading of the file or unmarshalling of the data fails.
-func LoadConfig(api string, file string, out any) error {
+// LoadConfig reads and parses the configuration from the specified file for the
+// given configuration name. Configuration data will be unmarshalled into the out
+// value. The configuration data must be provied in a .yaml file. May return an
+// error if reading of the file or unmarshalling of the data fails.
+func LoadConfig(name string, file string, out any) error {
 	apiCfgPath := cfgsPath
-	if api != "" {
-		apiCfgPath = path.Join(apiCfgPath, api)
+	if name != "" {
+		apiCfgPath = path.Join(apiCfgPath, name)
 	}
 	apiCfgPath = path.Join(apiCfgPath, file)
 
