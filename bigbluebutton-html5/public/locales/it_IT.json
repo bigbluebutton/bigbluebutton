@@ -565,7 +565,7 @@
     "app.actionsBar.muteLabel": "Silenzia",
     "app.actionsBar.unmuteLabel": "Riattiva",
     "app.actionsBar.unmuteAndSetActiveLabel": "Riattiva l'audio e impostati come attivo",
-    "app.actionsBar.camOffLabel": "Disattiva webcam",
+    "app.actionsBar.camOffLabel": "Fotocamera disattivata",
     "app.actionsBar.raiseLabel": "Alza la mano",
     "app.actionsBar.label": "Barra delle azioni",
     "app.actionsBar.actionsDropdown.restorePresentationLabel": "Ripristina presentazione",
