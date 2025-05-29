@@ -1191,7 +1191,7 @@
     "app.videoPreview.webcamPreviewLabel": "Anteprima webcam",
     "app.videoPreview.webcamSettingsTitle": "Impostazioni webcam",
     "app.videoPreview.webcamEffectsTitle": "Effetti webcam",
-    "app.videoPreview.cameraAsContentSettingsTitle": "Presenta la telecamera",
+    "app.videoPreview.cameraAsContentSettingsTitle": "Presenta fotocamera",
     "app.videoPreview.webcamVirtualBackgroundLabel": "Impostazione sfondo virtuale",
     "app.videoPreview.webcamVirtualBackgroundDisabledLabel": "Il dispositivo non è compatibile con gli sfondi virtuali",
     "app.videoPreview.webcamNotFoundLabel": "Webcam non trovata",
