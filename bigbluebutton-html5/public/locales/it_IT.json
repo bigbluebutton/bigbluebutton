@@ -1255,7 +1255,7 @@
     "app.video.virtualBackground.uploading": "In caricamento...",
     "app.video.virtualBackground.button.customDesc": "Aggiungi una nuovo sfondo virtuale",
     "app.video.camCapReached": "Non puoi condividere più fotocamere",
-    "app.video.meetingCamCapReached": "La sessione ha raggiunto il limite di webcam simultanee",
+    "app.video.meetingCamCapReached": "La sessione ha raggiunto il limite di fotocamere simultanee",
     "app.video.dropZoneLabel": "Trascina qui",
     "app.video.cameraAriaLabel": "Webcam",
     "app.fullscreenButton.label": "Metti {0} a schermo intero",
