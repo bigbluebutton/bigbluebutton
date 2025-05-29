@@ -1,0 +1,179 @@
+// Package meeting provides the functionality for handling
+// requests to the BigBlueButton meeting API and communicating
+// with Akka Apps.
+package meeting
+
+import (
+	"encoding/xml"
+	"time"
+
+	"github.com/bigbluebutton/bigbluebutton/bbb-api/gen/meeting"
+	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/bbbhttp"
+	"google.golang.org/grpc"
+)
+
+type Response struct {
+	XMLName    xml.Name  `xml:"response"`
+	ReturnCode string    `xml:"returncode"`
+	MessageKey string    `xml:"messageKey,omitempty"`
+	Message    string    `xml:"message,omitempty"`
+	Running    *bool     `xml:"running,omitempty"`
+	Meetings   *Meetings `xml:"meetings,omitempty"`
+}
+
+type MapData struct {
+	Data    map[string]string
+	TagName string
+}
+
+type Meetings struct {
+	Meetings []Meeting `xml:"meetings"`
+}
+
+type Users struct {
+	Users []User `xml:"attendee"`
+}
+
+type User struct {
+	XMLName         xml.Name `xml:"attendee"`
+	UserId          string   `xml:"userID"`
+	FullName        string   `xml:"fullName"`
+	Role            string   `xml:"role"`
+	IsPresenter     bool     `xml:"isPresenter"`
+	IsListeningOnly bool     `xml:"isListeningOnly"`
+	HasJoinedVoice  bool     `xml:"hasJoinedVoice"`
+	HasVideo        bool     `xml:"hasVideo"`
+	ClientType      string   `xml:"clientType"`
+	CustomData      MapData
+}
+
+type BreakoutRooms struct {
+	XMLName  xml.Name `xml:"breakoutRooms"`
+	Breakout []string `xml:"breakout"`
+}
+
+type Meeting struct {
+	XMLName               xml.Name `xml:"meeting"`
+	MeetingName           string   `xml:"meetingName"`
+	MeetingId             string   `xml:"meetingID"`
+	InternalMeetingId     string   `xml:"internalMeetingID"`
+	CreateTime            int64    `xml:"createTime"`
+	CreateDate            string   `xml:"createDate"`
+	VoiceBridge           string   `xml:"voiceBridge"`
+	DialNumber            string   `xml:"dialNumber"`
+	AttendeePW            string   `xml:"attendeePW"`
+	ModeratorPW           string   `xml:"moderatorPW"`
+	Running               bool     `xml:"running"`
+	Duration              int32    `xml:"duration"`
+	HasUserJoined         bool     `xml:"hasUserJoined"`
+	Recording             bool     `xml:"recording"`
+	HasBeenForciblyEnded  bool     `xml:"hasBeenForciblyEnded"`
+	StartTime             int64    `xml:"startTime"`
+	EndTime               int64    `xml:"endTime"`
+	ParticipantCount      int32    `xml:"participantCount"`
+	ListenerCount         int32    `xml:"listenerCount"`
+	VoiceParticipantCount int32    `xml:"voiceParticipantCount"`
+	VideoCount            int32    `xml:"videoCount"`
+	MaxUsers              int32    `xml:"maxUsers"`
+	ModeratorCount        int32    `xml:"moderatorCount"`
+	Users                 Users    `xml:"attendees"`
+	Metadata              MapData
+	IsBreakout            bool          `xml:"isBreakout"`
+	BreakoutRooms         BreakoutRooms `xml:"breakoutRooms"`
+}
+
+type GetMeetingInfoResponse struct {
+	XMLName               xml.Name `xml:"response"`
+	ReturnCode            string   `xml:"returncode"`
+	MeetingName           string   `xml:"meetingName"`
+	MeetingId             string   `xml:"meetingID"`
+	InternalMeetingId     string   `xml:"internalMeetingID"`
+	CreateTime            int64    `xml:"createTime"`
+	CreateDate            string   `xml:"createDate"`
+	VoiceBridge           string   `xml:"voiceBridge"`
+	DialNumber            string   `xml:"dialNumber"`
+	AttendeePW            string   `xml:"attendeePW"`
+	ModeratorPW           string   `xml:"moderatorPW"`
+	Running               bool     `xml:"running"`
+	Duration              int32    `xml:"duration"`
+	HasUserJoined         bool     `xml:"hasUserJoined"`
+	Recording             bool     `xml:"recording"`
+	HasBeenForciblyEnded  bool     `xml:"hasBeenForciblyEnded"`
+	StartTime             int64    `xml:"startTime"`
+	EndTime               int64    `xml:"endTime"`
+	ParticipantCount      int32    `xml:"participantCount"`
+	ListenerCount         int32    `xml:"listenerCount"`
+	VoiceParticipantCount int32    `xml:"voiceParticipantCount"`
+	VideoCount            int32    `xml:"videoCount"`
+	MaxUsers              int32    `xml:"maxUsers"`
+	ModeratorCount        int32    `xml:"moderatorCount"`
+	Users                 Users    `xml:"attendees"`
+	Metadata              MapData
+	IsBreakout            bool `xml:"isBreakout"`
+	BreakoutRooms         BreakoutRooms
+}
+
+type CreateMeetingResponse struct {
+	XMLName              xml.Name `xml:"response"`
+	ReturnCode           string   `xml:"returnCode"`
+	MeetingId            string   `xml:"meetingID"`
+	InternalMeetingId    string   `xml:"internalMeetingID"`
+	ParentMeetingId      string   `xml:"parentMeetingID"`
+	AttendeePW           string   `xml:"attendeePW,omitempty"`
+	ModeratorPW          string   `xml:"moderatorPw,omitempty"`
+	CreateTime           int64    `xml:"createTime"`
+	VoiceBridge          string   `xml:"voiceBridge"`
+	DialNumber           string   `xml:"dialNumber"`
+	CreateDate           string   `xml:"createDate"`
+	HasUserJoined        bool     `xml:"hasUserJoined"`
+	Duration             int32    `xml:"duration"`
+	HasBeenForciblyEnded bool     `xml:"hasBeenForciblyEnded"`
+	MessageKey           string   `xml:"messageKey"`
+	Message              string   `xml:"message"`
+}
+
+func (m MapData) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
+	tagName := "metadata"
+	if m.TagName != "" {
+		tagName = m.TagName
+	}
+
+	start.Name = xml.Name{Local: tagName}
+	tokens := []xml.Token{start}
+
+	for k, v := range m.Data {
+		t := xml.StartElement{Name: xml.Name{Local: k}}
+		tokens = append(tokens, t, xml.CharData(v), xml.EndElement{Name: t.Name})
+	}
+
+	tokens = append(tokens, xml.EndElement{Name: start.Name})
+
+	for _, t := range tokens {
+		if err := e.EncodeToken(t); err != nil {
+			return err
+		}
+	}
+
+	return e.Flush()
+}
+
+type Client interface {
+	meeting.MeetingServiceClient
+	bbbhttp.Client
+}
+
+type DefaultClient struct {
+	meeting.MeetingServiceClient
+	*bbbhttp.NoRedirectClient
+}
+
+func NewClientWithConn(conn *grpc.ClientConn) *DefaultClient {
+	return NewClientWithServiceClient(meeting.NewMeetingServiceClient(conn))
+}
+
+func NewClientWithServiceClient(serviceClient meeting.MeetingServiceClient) *DefaultClient {
+	return &DefaultClient{
+		MeetingServiceClient: serviceClient,
+		NoRedirectClient:     bbbhttp.NewNoRedirectClient(60 * time.Second),
+	}
+}
