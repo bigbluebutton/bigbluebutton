@@ -61,10 +61,7 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
     await presentation.hidePresentationToolbar();
   });
 
-  test('Zoom In, Zoom Out, Reset Zoom', { tag: '@flaky' }, async ({ browser, context, page }) => {
-    // Oct, 24 => Recent failures in CI runs. doesn't seem to be reproducible locally
-    // see issue below
-    linkIssue(21266);
+  test('Zoom In, Zoom Out, Reset Zoom', async ({ browser, context, page }) => {
     const presentation = new Presentation(browser, context);
     await presentation.initPages(page);
     await presentation.zoom();
