@@ -96,24 +96,11 @@ const PollingGraphql: React.FC<PollingGraphqlProps> = (props) => {
   const responseInput = useRef<HTMLInputElement>(null);
   const pollingContainer = useRef<HTMLElement>(null);
 
-  if (!document.getElementById('pollingContainer')) {
-    const container = document.createElement('div');
-    container.id = 'pollingContainer';
-    document.body.appendChild(container);
-  }
-
   useEffect(() => {
     playAlert();
     if (pollingContainer.current) {
       pollingContainer.current.focus();
     }
-
-    return () => {
-      const container = document.getElementById('pollingContainer');
-      if (container) {
-        document.body.removeChild(container);
-      }
-    };
   }, []);
 
   const handleUpdateResponseInput = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -341,7 +328,7 @@ const PollingGraphql: React.FC<PollingGraphqlProps> = (props) => {
           : renderButtonAnswers()}
       </Styled.PollingContainer>
     </Styled.Overlay>,
-    document.getElementById('pollingContainer')!,
+    document.getElementById('polling-container') || document.body,
   );
 };
 
