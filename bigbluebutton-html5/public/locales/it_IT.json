@@ -1210,7 +1210,7 @@
     "app.recording.notify.leave": "Lascia sessione",
     "app.recording.notify.continueLabel": "Accetta la registrazione e continua",
     "app.recording.notify.leaveLabel": "Non accettare la registrazione e abbandonare la sessione",
-    "app.videoPreview.cameraLabel": "Telecamera",
+    "app.videoPreview.cameraLabel": "Fotocamera",
     "app.videoPreview.profileLabel": "Qualità",
     "app.videoPreview.quality.low": "Bassa",
     "app.videoPreview.quality.medium": "Media",
