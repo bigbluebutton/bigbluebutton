@@ -246,7 +246,7 @@
     "app.media.screenshare.autoplayAllowLabel": "Visualizza schermo condiviso",
     "app.media.cameraAsContent.start": "La fotocamera attuale è stata avviata",
     "app.media.cameraAsContent.end": "La fotocamera attuale è spenta",
-    "app.media.cameraAsContent.endDueToDataSaving": "Presentazione telecamera interrotta per limitare i dati",
+    "app.media.cameraAsContent.endDueToDataSaving": "La fotocamera attuale si è fermata a causa del risparmio di dati",
     "app.media.cameraAsContent.autoplayBlockedDesc": "È necessario concedere l'autorizzazione per vedere la telecamera del relatore.",
     "app.media.cameraAsContent.autoplayAllowLabel": "Mostra telecamera presentata",
     "app.screenshare.presenterLoadingLabel": "Caricamento della condivisione schermo",
