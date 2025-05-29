@@ -603,6 +603,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
                 hideLabel
                 label={intl.formatMessage(messages.emojiButtonLabel)}
                 data-test="emojiPickerButton"
+                disabled={disabled || partnerIsLoggedOut || chatSendMessageLoading}
               />
             ) : null}
           </Styled.InputWrapper>
