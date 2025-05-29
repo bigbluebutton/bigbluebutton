@@ -259,7 +259,7 @@
     "app.screenshare.screensharePermissionError": "Codice {0}. Devi fornire il permesso di registrare lo schermo.",
     "app.screenshare.screenshareToastHelpLabel": "Ulteriori informazioni", 
     "app.cameraAsContent.presenterLoadingLabel": "La tua fotocamera si sta avviando",
-    "app.cameraAsContent.viewerLoadingLabel": "La telecamera del relatore si sta avviando",
+    "app.cameraAsContent.viewerLoadingLabel": "La fotocamera del relatore si sta avviando",
     "app.cameraAsContent.presenterSharingLabel": "Stai presentando la tua telecamera",
     "app.meeting.ended": "La sessione è terminata",
     "app.meeting.endedFromAPI": "La sessione è stata terminata dal sistema",
