@@ -260,7 +260,7 @@
     "app.screenshare.screenshareToastHelpLabel": "Ulteriori informazioni", 
     "app.cameraAsContent.presenterLoadingLabel": "La tua fotocamera si sta avviando",
     "app.cameraAsContent.viewerLoadingLabel": "La fotocamera del relatore si sta avviando",
-    "app.cameraAsContent.presenterSharingLabel": "Stai presentando la tua telecamera",
+    "app.cameraAsContent.presenterSharingLabel": "Ora stai presentando la tua fotocamera",
     "app.meeting.ended": "La sessione è terminata",
     "app.meeting.endedFromAPI": "La sessione è stata terminata dal sistema",
     "app.meeting.endedWhenNoUserJoined": "La sessione è stata terminata perché nessun utente è entrato",
