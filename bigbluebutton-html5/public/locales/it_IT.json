@@ -208,7 +208,7 @@
     "app.userList.menu.webcamUnpin.label": "Rimuovi la webcam dell'utente fissato",
     "app.userList.menu.giveWhiteboardAccess.label": "Consenti l’accesso alla lavagna",
     "app.userList.menu.removeWhiteboardAccess.label": "Rimuovi l’accesso alla lavagna",
-    "app.userList.menu.ejectUserCameras.label": "Chiudi telecamere",
+    "app.userList.menu.ejectUserCameras.label": "Chiudi fotocamere",
     "app.userList.userAriaLabel": "{0} {1} {2} Stato {3}",
     "app.userList.menu.promoteUser.label": "Promuovi a moderatore",
     "app.userList.menu.demoteUser.label": "Retrocedi a partecipante",
