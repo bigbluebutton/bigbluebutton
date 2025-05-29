@@ -1257,7 +1257,7 @@
     "app.video.camCapReached": "Non puoi condividere più fotocamere",
     "app.video.meetingCamCapReached": "La sessione ha raggiunto il limite di fotocamere simultanee",
     "app.video.dropZoneLabel": "Trascina qui",
-    "app.video.cameraAriaLabel": "Webcam",
+    "app.video.cameraAriaLabel": "Fotocamere",
     "app.fullscreenButton.label": "Metti {0} a schermo intero",
     "app.fullscreenUndoButton.label": "Annulla {0} a schermo intero",
     "app.switchButton.expandLabel": "Espandi video condivisione schermo",
