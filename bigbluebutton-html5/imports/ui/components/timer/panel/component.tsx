@@ -381,10 +381,7 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
   }, [songTrack, stopwatch, time, running]);
 
   return (
-    <Styled.TimerSidebarContent
-      data-test={`${stopwatch ? 'stopwatch' : 'timer'}Container`}
-    >
-      {/* @ts-ignore - JS code */}
+    <>
       <Styled.HeaderContainer
         title={intl.formatMessage(intlMessages.title)}
         leftButtonProps={{
@@ -402,38 +399,40 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
         data-test="timerHeader"
       />
       <Styled.Separator />
-      <Styled.TimerContent>
-        <Styled.TimerCurrent
-          aria-hidden
-          data-test="timerCurrent"
-        >
-          {humanizeSeconds(Math.floor(runningTime / 1000))}
-        </Styled.TimerCurrent>
-        <Styled.TimerType>
-          <Styled.TimerSwitchButton
-            label={intl.formatMessage(intlMessages.stopwatch)}
-            onClick={() => {
-              timerStop();
-              switchTimer(true);
-            }}
-            disabled={stopwatch}
-            color={stopwatch ? 'primary' : 'secondary'}
-            data-test="stopwatchButton"
-          />
-          <Styled.TimerSwitchButton
-            label={intl.formatMessage(intlMessages.timer)}
-            onClick={() => {
-              timerStop();
-              switchTimer(false);
-            }}
-            disabled={!stopwatch}
-            color={!stopwatch ? 'primary' : 'secondary'}
-            data-test="timerButton"
-          />
-        </Styled.TimerType>
-        {timerControls}
-      </Styled.TimerContent>
-    </Styled.TimerSidebarContent>
+      <Styled.TimerScrollableContent id="timer-scroll-box">
+        <Styled.TimerContent>
+          <Styled.TimerCurrent
+            aria-hidden
+            data-test="timerCurrent"
+          >
+            {humanizeSeconds(Math.floor(runningTime / 1000))}
+          </Styled.TimerCurrent>
+          <Styled.TimerType>
+            <Styled.TimerSwitchButton
+              label={intl.formatMessage(intlMessages.stopwatch)}
+              onClick={() => {
+                timerStop();
+                switchTimer(true);
+              }}
+              disabled={stopwatch}
+              color={stopwatch ? 'primary' : 'secondary'}
+              data-test="stopwatchButton"
+            />
+            <Styled.TimerSwitchButton
+              label={intl.formatMessage(intlMessages.timer)}
+              onClick={() => {
+                timerStop();
+                switchTimer(false);
+              }}
+              disabled={!stopwatch}
+              color={!stopwatch ? 'primary' : 'secondary'}
+              data-test="timerButton"
+            />
+          </Styled.TimerType>
+          {timerControls}
+        </Styled.TimerContent>
+      </Styled.TimerScrollableContent>
+    </>
   );
 };
 
