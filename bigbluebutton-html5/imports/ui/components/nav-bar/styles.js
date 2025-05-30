@@ -1,15 +1,12 @@
 import styled from 'styled-components';
-import { barsPadding, borderSize } from '/imports/ui/stylesheets/styled-components/general';
+import { barsPadding } from '/imports/ui/stylesheets/styled-components/general';
 import {
   colorWhite,
-  colorDanger,
-  colorGrayDark,
   colorBackground,
   colorGray,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
 import { phoneLandscape, smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
-import Button from '/imports/ui/components/common/button/component';
 
 const Navbar = styled.header`
   position: absolute;
@@ -104,27 +101,6 @@ const Bottom = styled.div`
   }
 `;
 
-const NavbarToggleButton = styled(Button)`
-  margin: 0;
-  z-index: 3;
-
-  ${({ hasNotification }) => hasNotification && `
-    position: relative;
-
-    &:after {
-      content: '';
-      position: absolute;
-      border-radius: 50%;
-      width: 12px;
-      height: 12px;
-      bottom: ${borderSize};
-      right: 3px;
-      background-color: ${colorDanger};
-      border: ${borderSize} solid ${colorGrayDark};
-    }
-  `}
-`;
-
 export default {
   Navbar,
   Top,
@@ -133,7 +109,6 @@ export default {
   PresentationTitle,
   Right,
   Bottom,
-  NavbarToggleButton,
   PluginInfoComponent,
   PluginComponentWrapper,
   PluginSeparatorWrapper,

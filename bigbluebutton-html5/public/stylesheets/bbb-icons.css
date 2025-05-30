@@ -387,3 +387,9 @@
 .icon-bbb-menu:before {
   content:   "\e979";
 }
+.icon-bbb-menu_down:before {
+  content: "\e97A";
+}
+.icon-bbb-menu_up:before {
+  content: "\e97B";
+}
