@@ -18,20 +18,17 @@
  */
 package org.bigbluebutton.web.controllers
 
-import grails.converters.*
+
+import org.apache.commons.io.FilenameUtils
+import org.bigbluebutton.api.MeetingService
+import org.bigbluebutton.api.ParamsProcessorUtil
+import org.bigbluebutton.api.Util
 import org.bigbluebutton.api.messaging.messages.PresentationUploadToken
+import org.bigbluebutton.api.util.ParamsUtil
 import org.bigbluebutton.presentation.SupportedFileTypes
-import org.grails.web.mime.DefaultMimeUtility
-import org.bigbluebutton.api.ParamsProcessorUtil;
-
-import java.nio.charset.StandardCharsets
-
-import org.apache.commons.io.FilenameUtils;
-import org.bigbluebutton.web.services.PresentationService
 import org.bigbluebutton.presentation.UploadedPresentation
-import org.bigbluebutton.api.MeetingService;
-import org.bigbluebutton.api.util.ParamsUtil;
-import org.bigbluebutton.api.Util;
+import org.bigbluebutton.web.services.PresentationService
+import org.grails.web.mime.DefaultMimeUtility
 
 class PresentationController {
   MeetingService meetingService
@@ -358,7 +355,10 @@ class PresentationController {
         def mimeName = mimeType != null ? mimeType.name : 'application/octet-stream'
 
         response.contentType = mimeName
-        response.addHeader("content-disposition", "attachment; filename=" + URLEncoder.encode(responseName, StandardCharsets.UTF_8.name()))
+        response.addHeader(
+                "content-disposition",
+                "attachment; filename=" + new URI(null, null, responseName, null).getRawPath()
+        )
         response.addHeader("Cache-Control", "no-cache")
         response.outputStream << bytes;
       } else {

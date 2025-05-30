@@ -1,17 +1,18 @@
 package org.bigbluebutton.core.apps.presentationpod
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.api.{ CapturePresentationReqInternalMsg }
+import org.bigbluebutton.core.api.CapturePresentationReqInternalMsg
 import org.bigbluebutton.core.apps.groupchats.GroupChatApp
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.db.{ ChatMessageDAO, PresPresentationDAO }
 import org.bigbluebutton.core.domain.MeetingState2x
+import org.bigbluebutton.core.models.{ PresentationInPod, PresentationPage, PresentationPod }
 import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.core.util.RandomStringGenerator
-import org.bigbluebutton.core.models.{ PresentationInPod, PresentationPage, PresentationPod }
 
 import java.io.File
+import java.net.URI
 
 trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
   this: PresentationPodHdlrs =>
@@ -172,16 +173,16 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
         bus.outGW.send(buildStoreAnnotationsInRedisSysMsg(annotations, liveMeeting))
       } else {
         // Return existing uploaded file directly
-        val convertedFileName = currentPres.get.filenameConverted
-        val originalFilename = currentPres.get.name
+        val convertedFileName = new URI(null, null, currentPres.get.filenameConverted, null).getRawPath
+        val originalFilename = new URI(null, null, currentPres.get.name, null).getRawPath
         val originalFileExt = originalFilename.split("\\.").last
         val convertedFileExt = if (convertedFileName != "") convertedFileName.split("\\.").last else ""
 
         val convertedFileURI = if (convertedFileName != "") List("presentation", "download", meetingId,
-          s"${presId}?presFilename=${presId}.${convertedFileExt}&filename=${convertedFileName}").mkString("", File.separator, "")
+          s"${presId}?presFilename=${presId}.${convertedFileExt}&filename=$convertedFileName").mkString("", File.separator, "")
         else ""
         val originalFileURI = List("presentation", "download", meetingId,
-          s"${presId}?presFilename=${presId}.${originalFileExt}&filename=${originalFilename}").mkString("", File.separator, "")
+          s"${presId}?presFilename=${presId}.${originalFileExt}&filename=$originalFilename").mkString("", File.separator, "")
 
         val event = buildNewPresFileAvailable("", originalFileURI, convertedFileURI, presId,
           m.body.fileStateType)
