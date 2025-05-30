@@ -5,6 +5,7 @@ import Styled from './styles';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { isUrlValid } from './service';
 import { EXTERNAL_VIDEO_START } from '../../mutations';
+import { PIN_NOTES } from '/imports/ui/components/notes/mutations';
 
 const intlMessages = defineMessages({
   start: {
@@ -59,6 +60,7 @@ const ExternalVideoPlayerModal: React.FC<ExternalVideoPlayerModalProps> = ({
   const { animations } = Settings.application;
   const [videoUrl, setVideoUrl] = React.useState('');
   const [startExternalVideo] = useMutation(EXTERNAL_VIDEO_START);
+  const [pinSharedNotes] = useMutation(PIN_NOTES);
 
   const startWatching = (url: string) => {
     let externalVideoUrl = url;
@@ -72,6 +74,8 @@ const ExternalVideoPlayerModal: React.FC<ExternalVideoPlayerModalProps> = ({
         externalVideoUrl = `https://${m[1]}/Podcast/Social/${m[3]}.mp4`;
       }
     }
+    // stop pinned notes so they don't interfere with the video
+    pinSharedNotes({ variables: { pinned: false } });
 
     startExternalVideo({ variables: { externalVideoUrl } });
   };
