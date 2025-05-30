@@ -27,8 +27,10 @@ import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedS
 const PresentationUploaderContainer = (props) => {
   const { data: currentUserData } = useCurrentUser((user) => ({
     presenter: user.presenter,
+    isModerator: user.isModerator,
   }));
   const userIsPresenter = currentUserData?.presenter;
+  const userIsModerator = currentUserData?.isModerator;
 
   const { data: presentationData } = useDeduplicatedSubscription(PRESENTATIONS_SUBSCRIPTION);
   const presentations = presentationData?.pres_presentation || [];
@@ -75,10 +77,11 @@ const PresentationUploaderContainer = (props) => {
   const isOpen = (useStorageKey('showUploadPresentationView') || false) && presentationEnabled;
   const selectedToBeNextCurrent = useStorageKey('selectedToBeNextCurrent') || null;
 
-  return userIsPresenter && (
+  return (userIsPresenter || userIsModerator) && (
     <ErrorBoundary Fallback={FallbackModal}>
       <PresentationUploader
         isPresenter={userIsPresenter}
+        isModerator={userIsModerator}
         presentations={presentations}
         currentPresentation={currentPresentation}
         exportPresentation={exportPresentation}

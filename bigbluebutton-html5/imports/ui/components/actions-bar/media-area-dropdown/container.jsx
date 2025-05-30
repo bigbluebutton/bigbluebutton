@@ -17,6 +17,8 @@ import { SET_PRESENTER } from '/imports/ui/core/graphql/mutations/userMutations'
 import Auth from '/imports/ui/services/auth';
 import { PRESENTATION_SET_CURRENT } from '../../presentation/mutations';
 import { useMeetingIsBreakout } from '/imports/ui/components/app/service';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
 
 const MediaAreaDropdownContainer = (props) => {
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
@@ -62,6 +64,14 @@ const MediaAreaDropdownContainer = (props) => {
 
   const isPresentationEnabled = useIsPresentationEnabled();
   const isCameraAsContentEnabled = useIsCameraAsContentEnabled();
+  const { data: currentUser } = useCurrentUser((u) => ({
+    locked: u.locked,
+  }));
+  const { data: meeting } = useMeeting((m) => ({
+    lockSettings: m.lockSettings,
+  }));
+  const isPresentationUploadDisabled = currentUser?.locked
+    && meeting?.lockSettings?.disablePresentationUpload;
 
   return (
     <MediaAreaDropdown
@@ -79,6 +89,7 @@ const MediaAreaDropdownContainer = (props) => {
         shortcuts: openActions,
         isPresentationEnabled,
         isPresentationManagementDisabled,
+        isPresentationUploadDisabled,
         ...props,
       }}
     />
