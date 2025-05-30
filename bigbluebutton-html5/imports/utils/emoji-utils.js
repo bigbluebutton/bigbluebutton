@@ -4,6 +4,7 @@ export const getAllShortCodes = async (shortcode) => {
   const shortcodes = [];
 
   const emoji = await getEmojiDataFromNative(shortcode);
+  if (!emoji) return shortcodes;
 
   if (emoji.aliases && emoji.aliases.length > 0) {
     emoji.aliases.forEach((alias) => {
@@ -21,8 +22,9 @@ export const getAllShortCodes = async (shortcode) => {
       }
     } else if (Array.isArray(emoji.shortcodes)) {
       emoji.shortcodes.forEach((code) => {
-        if (!shortcodes.includes(code)) {
-          shortcodes.push(shortcode.replace(/^:|:$/g, ''));
+        const normalizedCode = code.replace(/^:|:$/g, '');
+        if (!shortcodes.includes(normalizedCode)) {
+          shortcodes.push(normalizedCode);
         }
       });
     }

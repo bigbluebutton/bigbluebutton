@@ -221,6 +221,27 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   }, []);
 
   useEffect(() => {
+    const loadExcludedEmojis = async () => {
+      let allExcluded = [...DISABLE_EMOJIS];
+
+      // eslint-disable-next-line no-restricted-syntax
+      for (const shortcode of DISABLE_EMOJIS) {
+        // eslint-disable-next-line no-await-in-loop
+        const shortcodes = await getAllShortCodes(shortcode);
+        allExcluded = [...allExcluded, ...shortcodes];
+      }
+
+      const newEmojisToExclude = Array.from(new Set(allExcluded));
+
+      setEmojisToExclude(newEmojisToExclude);
+    };
+
+    if (DISABLE_EMOJIS?.length > 0) {
+      loadExcludedEmojis();
+    }
+  }, [DISABLE_EMOJIS]);
+
+  useEffect(() => {
     const unsentMessages = Storage.getItem('unsentMessages') as Record<string, string> || {};
 
     if (prevChatId) {
