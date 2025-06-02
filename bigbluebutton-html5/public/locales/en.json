@@ -210,6 +210,7 @@
     "app.userList.userOptions.usersJoinMutedDisableDesc": "Joining users are not muted by default",
     "app.userList.userOptions.clearAllReactionsLabel": "Clear all reactions",
     "app.userList.userOptions.clearAllReactionsDesc": "Clears all reaction emojis from users",
+    "app.userList.userOptions.clearedReactions": "Cleared all user reactions",
     "app.userList.userOptions.muteAllExceptPresenterLabel": "Mute all users except presenter",
     "app.userList.userOptions.muteAllExceptPresenterDesc": "Mutes all users in the session except the presenter",
     "app.userList.userOptions.lockViewersLabel": "Lock viewers",
