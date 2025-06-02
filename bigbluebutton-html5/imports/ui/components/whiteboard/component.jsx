@@ -1649,6 +1649,12 @@ const Whiteboard = React.memo((props) => {
   }, [zoomValue, pageChanged, tlEditorRef.current, isWheelZoomRef.current]);
 
   React.useEffect(() => {
+    if (!isWheelZoomRef.current && !isMounting) {
+      syncCameraOnPresenterZoom();
+    }
+  }, [isWheelZoomRef.current]);
+
+  React.useEffect(() => {
     if (isPresenter) {
       zoomChanger(HUNDRED_PERCENT);
       zoomSlide(HUNDRED_PERCENT, HUNDRED_PERCENT, 0, 0);
