@@ -349,7 +349,6 @@ const Whiteboard = React.memo((props) => {
           currentPresentationPageRef.current.scaledHeight;
       }
 
-      initialZoomRef.current = initialZoom;
       prevZoomValueRef.current = zoomValue;
     }
   }, 200);
@@ -844,6 +843,7 @@ const Whiteboard = React.memo((props) => {
     };
 
     tlEditorRef.current.store.put([updatedCurrentCam]);
+    initialZoomRef.current = baseZoom;
   };
 
   const calculateZoomWithGapValue = (
