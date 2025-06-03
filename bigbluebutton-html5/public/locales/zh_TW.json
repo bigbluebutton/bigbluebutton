@@ -210,6 +210,7 @@
     "app.userList.userOptions.usersJoinMutedDisableDesc": "加入的使用者不會預設為靜音",
     "app.userList.userOptions.clearAllReactionsLabel": "清除所有反應",
     "app.userList.userOptions.clearAllReactionsDesc": "從使用者清除所有反應表情符號",
+    "app.userList.userOptions.clearedReactions": "清除所有使用者反應",
     "app.userList.userOptions.muteAllExceptPresenterLabel": "將所有使用者靜音，除了主持人",
     "app.userList.userOptions.muteAllExceptPresenterDesc": "除了主持人之外，將會議中所有使用者靜音",
     "app.userList.userOptions.lockViewersLabel": "鎖定觀眾",
