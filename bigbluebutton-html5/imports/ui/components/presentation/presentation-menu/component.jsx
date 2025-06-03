@@ -203,7 +203,7 @@ const PresentationMenu = (props) => {
       try {
         const data = await extractSlideContentToImage();
         window.dispatchEvent(new CustomEvent(
-          PluginSdk.PresentationWhiteboardUiDataNames.CURRENT_WHITEBOARD_PNG_WITH_ANNOTATIONS, {
+          PluginSdk.PresentationWhiteboardUiDataNames.CURRENT_PAGE_SNAPSHOT, {
             detail: {
               base64Png: data,
             },
@@ -214,19 +214,19 @@ const PresentationMenu = (props) => {
           logCode: 'plugin_ui_data_getter_error',
           extraInfo: {
             uiDataGetter:
-              PluginSdk.PresentationWhiteboardUiDataNames.CURRENT_WHITEBOARD_PNG_WITH_ANNOTATIONS,
+              PluginSdk.PresentationWhiteboardUiDataNames.CURRENT_PAGE_SNAPSHOT,
           },
-        }, `UI data getter failed to fetch [${PluginSdk.PresentationWhiteboardUiDataNames.CURRENT_WHITEBOARD_PNG_WITH_ANNOTATIONS}]`);
+        }, `UI data getter failed to fetch [${PluginSdk.PresentationWhiteboardUiDataNames.CURRENT_PAGE_SNAPSHOT}]`);
       }
     };
 
     window.addEventListener(
-      `${UI_DATA_GETTER_SUBSCRIBED}-${PluginSdk.PresentationWhiteboardUiDataNames.CURRENT_WHITEBOARD_PNG_WITH_ANNOTATIONS}`,
+      `${UI_DATA_GETTER_SUBSCRIBED}-${PluginSdk.PresentationWhiteboardUiDataNames.CURRENT_PAGE_SNAPSHOT}`,
       updateUiDataHookPCurrentWhiteboardSVGWithAnnotationsForPlugin,
     );
     return () => {
       window.removeEventListener(
-        `${UI_DATA_GETTER_SUBSCRIBED}-${PluginSdk.PresentationWhiteboardUiDataNames.CURRENT_WHITEBOARD_PNG_WITH_ANNOTATIONS}`,
+        `${UI_DATA_GETTER_SUBSCRIBED}-${PluginSdk.PresentationWhiteboardUiDataNames.CURRENT_PAGE_SNAPSHOT}`,
         updateUiDataHookPCurrentWhiteboardSVGWithAnnotationsForPlugin,
       );
     };
