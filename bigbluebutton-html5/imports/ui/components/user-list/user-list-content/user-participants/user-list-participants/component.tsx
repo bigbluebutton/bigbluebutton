@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo } from 'react';
 
-import { UI_DATA_LISTENER_SUBSCRIBED } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data-hooks/consts';
-import { UserListUiDataPayloads } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data-hooks/user-list/types';
+import { UI_DATA_LISTENER_SUBSCRIBED } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data/hooks/consts';
+import { UserListUiDataPayloads } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data/domain/user-list/types';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import { User } from '/imports/ui/Types/user';
 import Styled from './styles';

@@ -831,6 +831,24 @@ Mind that foreach enum we have, a different type of fallback is needed as the se
 
 One other thing is that the type of the return is precisely the same type required as the second argument.
 
+### Fetch ui data on demand
+
+- `getUiData` async function: This will return certain data from the UI depending on the parameter the developer uses. Unlike the `useUiData` this function does not return real-time information as it changes. See the currently supported:
+  - PresentationWhiteboardUiDataNames.CURRENT_PAGE_SNAPSHOT;
+
+Example of usage:
+
+```ts
+  const { pngBase64 } = pluginApi.getUiData(
+    PresentationWhiteboardUiDataNames.CURRENT_PAGE_SNAPSHOT,
+  );
+  // Do something with the currentLocale:
+  console.log('This is an example fetching the base64 PNG', pngBase64);
+
+```
+
+As seen for the `useUiData`, the return type is well defined by the enum chosen (in other words, name of the ui-data). So I encourage you to take a look into the previous section to know more about it.
+
 ### Ui Commands to automatize tasks in BBB
 
 `uiCommands` object: It basically contains all the possible commands available to the developer to interact with the core BBB UI, see the ones implemented down below:

@@ -14,9 +14,9 @@ import { ExternalVideoVolumeCommandsEnum } from 'bigbluebutton-html-plugin-sdk/d
 import { SetExternalVideoVolumeCommandArguments } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-commands/external-video/volume/types';
 import { OnProgressProps } from 'react-player/base';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
-import { UI_DATA_LISTENER_SUBSCRIBED } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data-hooks/consts';
+import { UI_DATA_LISTENER_SUBSCRIBED } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data/hooks/consts';
 import { ExternalVideoVolumeUiDataNames } from 'bigbluebutton-html-plugin-sdk';
-import { ExternalVideoVolumeUiDataPayloads } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data-hooks/external-video/volume/types';
+import { ExternalVideoVolumeUiDataPayloads } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data/domain/external-video/volume/types';
 
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import {
