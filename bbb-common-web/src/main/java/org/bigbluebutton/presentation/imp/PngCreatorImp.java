@@ -103,7 +103,7 @@ public class PngCreatorImp implements PngCreator {
 			NuProcessBuilder convertImgToSvg = new NuProcessBuilder(
 					Arrays.asList("/usr/share/bbb-web/run-in-systemd.sh", convTimeout + "s", "convert", source, "-auto-orient", dest));
 
-			Png2SvgConversionHandler pHandler = new Png2SvgConversionHandler();
+			Png2SvgConversionHandler pHandler = new Png2SvgConversionHandler("png2svg-" + pres.getId() + "-" + page);
 			convertImgToSvg.setProcessListener(pHandler);
 
 			NuProcess process = convertImgToSvg.start();

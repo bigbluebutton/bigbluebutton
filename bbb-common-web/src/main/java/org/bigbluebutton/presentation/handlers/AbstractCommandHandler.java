@@ -51,9 +51,11 @@ public abstract class AbstractCommandHandler extends
 
   @Override
   public void onStdout(ByteBuffer buffer, boolean closed) {
-    if (buffer != null) {
+    if (buffer != null && buffer.remaining() > 0) {
       CharBuffer charBuffer = StandardCharsets.UTF_8.decode(buffer);
-      stdoutBuilder.append(charBuffer);
+      String chunk = charBuffer.toString();
+      stdoutBuilder.append(chunk);
+      log.debug("[{}] {}", getIdTag(), chunk.trim());
     }
   }
 
@@ -61,13 +63,16 @@ public abstract class AbstractCommandHandler extends
   public void onStderr(ByteBuffer buffer, boolean closed) {
     if (buffer != null) {
       CharBuffer charBuffer = StandardCharsets.UTF_8.decode(buffer);
-      stderrBuilder.append(charBuffer);
+      String chunk = charBuffer.toString();
+      stderrBuilder.append(chunk);
+      log.error("[{}] {}", getIdTag(), chunk.trim());
     }
   }
 
   @Override
   public void onExit(int statusCode) {
     exitCode = statusCode;
+    log.info("[{}] Process exited with code {}", getIdTag(), statusCode);
   }
 
   /**
@@ -98,4 +103,19 @@ public abstract class AbstractCommandHandler extends
     return exitCode == 124;
   }
 
+  public String getStdout() {
+    return stdoutBuilder.toString().trim();
+  }
+
+  public String getStdErr() {
+    return stderrBuilder.toString().trim();
+  }
+
+  protected String getIdTag() {
+    if (nuProcess != null) {
+      return String.valueOf(nuProcess.getPID());
+    } else {
+      return "unknown-pid";
+    }
+  }
 }

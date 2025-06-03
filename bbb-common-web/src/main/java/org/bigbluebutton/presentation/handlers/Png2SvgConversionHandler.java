@@ -8,21 +8,32 @@ import java.nio.charset.StandardCharsets;
 
 public class Png2SvgConversionHandler extends AbstractCommandHandler {
 
-    private final StringBuilder stderr = new StringBuilder();
+//    private final StringBuilder stderr = new StringBuilder();
+//
+//    @Override
+//    public void onStderr(ByteBuffer buffer, boolean closed) {
+//        if (!closed) {
+//            byte[] bytes = new byte[buffer.remaining()];
+//            buffer.get(bytes);
+//            stderr.append(new String(bytes, StandardCharsets.UTF_8));
+//        }
+//    }
 
-    @Override
-    public void onStderr(ByteBuffer buffer, boolean closed) {
-        if (!closed) {
-            byte[] bytes = new byte[buffer.remaining()];
-            buffer.get(bytes);
-            stderr.append(new String(bytes, StandardCharsets.UTF_8));
-        }
-    }
-
-    public String getStderrString() {
-        return stderr.toString();
-    }
+//    public String getStderrString() {
+//        return stderr.toString();
+//    }
 
 
     private static Logger log = LoggerFactory.getLogger(Png2SvgConversionHandler.class);
+
+    private final String id;
+
+    public Png2SvgConversionHandler(String id) {
+        this.id = id;
+    }
+
+    @Override
+    protected String getIdTag() {
+        return id;
+    }
 }
