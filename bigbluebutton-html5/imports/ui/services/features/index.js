@@ -147,3 +147,9 @@ export function useIsUserReactionsEnabled() {
     && REACTIONS_BUTTON_ENABLED
     && USER_REACTIONS_ENABLED;
 }
+
+export function useIsEmojiPickerEnabled() {
+  const EMOJI_PICKER_ENABLED = window.meetingClientSettings.public.chat.emojiPicker.enable;
+  return useDisabledFeatures().indexOf('chatEmojiPicker') === -1
+    && EMOJI_PICKER_ENABLED;
+}
