@@ -167,7 +167,7 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
     });
   });
 
-  test.describe.parallel.only('Enforce Layout', () => {
+  test.describe.parallel('Enforce Layout', () => {
     test('SMART_LAYOUT', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, true, { joinParameter: c.enforceSmartLayout });
