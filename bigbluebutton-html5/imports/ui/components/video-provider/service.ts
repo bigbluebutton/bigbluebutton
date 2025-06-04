@@ -513,16 +513,31 @@ class VideoService {
 
     await Promise.all(
       Object.keys(this.activePeers).map(async (peerId) => {
-        const peerStats = await this.activePeers[peerId].getStats();
+        try {
+          const activePeer = this.activePeers[peerId];
 
-        const videoStats: Record<string, unknown> = {};
+          if (!activePeer || typeof activePeer?.getStats !== 'function') return;
 
-        peerStats.forEach((stat) => {
-          if (statsToFilter.includes(stat.type)) {
-            videoStats[stat.type] = stat;
-          }
-        });
-        stats[peerId] = videoStats;
+          const peerStats = await this.activePeers[peerId].getStats();
+          const videoStats: Record<string, unknown> = {};
+
+          peerStats.forEach((stat) => {
+            if (statsToFilter.includes(stat.type)) {
+              videoStats[stat.type] = stat;
+            }
+          });
+          stats[peerId] = videoStats;
+        } catch (error) {
+          logger.warn({
+            logCode: 'video_provider_getstats_error',
+            extraInfo: {
+              peerId,
+              errorName: (error as Error)?.name,
+              errorMessage: (error as Error)?.message,
+              errorStack: (error as Error)?.stack,
+            },
+          }, `Failed to get stats for peer ${peerId}: ${(error as Error)?.message}`);
+        }
       }),
     );
 
