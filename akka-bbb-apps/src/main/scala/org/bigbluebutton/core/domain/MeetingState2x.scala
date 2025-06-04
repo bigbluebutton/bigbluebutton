@@ -10,13 +10,14 @@ object MeetingState2x {
 }
 
 case class MeetingState2x(
-    groupChats:             GroupChats,
-    presentationPodManager: PresentationPodManager,
-    breakout:               Option[BreakoutModel],
-    lastBreakout:           Option[BreakoutModel],
-    expiryTracker:          MeetingExpiryTracker,
-    recordingTracker:       MeetingRecordingTracker,
-    audioGroups:            AudioGroups
+    groupChats:              GroupChats,
+    presentationPodManager:  PresentationPodManager,
+    breakout:                Option[BreakoutModel],
+    lastBreakout:            Option[BreakoutModel],
+    expiryTracker:           MeetingExpiryTracker,
+    recordingTracker:        MeetingRecordingTracker,
+    audioGroups:             AudioGroups,
+    presentationConversions: Map[String, Long]
 ) {
 
   def update(groupChats: GroupChats): MeetingState2x = copy(groupChats = groupChats)
@@ -33,6 +34,7 @@ case class MeetingState2x(
   def update(expiry: MeetingExpiryTracker): MeetingState2x = copy(expiryTracker = expiry)
   def update(recordingTracker: MeetingRecordingTracker): MeetingState2x = copy(recordingTracker = recordingTracker)
   def update(audioGroups: AudioGroups): MeetingState2x = copy(audioGroups = audioGroups)
+  def update(presentationConversions: Map[String, Long]): MeetingState2x = copy(presentationConversions = presentationConversions)
 }
 
 object MeetingEndReason {
