@@ -210,6 +210,7 @@
     "app.userList.userOptions.usersJoinMutedDisableDesc": "لا يتم كتم صوت المستخدمين المنضمين افتراضيًا",
     "app.userList.userOptions.clearAllReactionsLabel": "مسح جميع التفاعلات",
     "app.userList.userOptions.clearAllReactionsDesc": "مسح جميع رموز ردود الفعل من المستخدمين",
+    "app.userList.userOptions.clearedReactions": "تم مسح جميع ردود أفعال المستخدم",
     "app.userList.userOptions.muteAllExceptPresenterLabel": "كتم صوت جميع المستخدمين إلا المقدم",
     "app.userList.userOptions.muteAllExceptPresenterDesc": "كتم صوت جميع المستخدمين في الجلسة باستثناء مقدم العرض",
     "app.userList.userOptions.lockViewersLabel": "قفل المشاهدين",
