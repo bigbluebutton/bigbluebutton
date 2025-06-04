@@ -15,7 +15,7 @@ case class ScreenshareRtmpBroadcastStartedVoiceConfEvtMsg(
     body:   ScreenshareRtmpBroadcastStartedVoiceConfEvtMsgBody
 )
   extends VoiceStandardMsg
-case class ScreenshareRtmpBroadcastStartedVoiceConfEvtMsgBody(voiceConf: String, screenshareConf: String,
+case class ScreenshareRtmpBroadcastStartedVoiceConfEvtMsgBody(voiceConf: String, screenshareConf: String, userId: String,
                                                               stream: String, vidWidth: Int, vidHeight: Int,
                                                               timestamp: String, hasAudio: Boolean, contentType: String)
 
@@ -28,7 +28,7 @@ case class ScreenshareRtmpBroadcastStartedEvtMsg(
     body:   ScreenshareRtmpBroadcastStartedEvtMsgBody
 )
   extends BbbCoreMsg
-case class ScreenshareRtmpBroadcastStartedEvtMsgBody(voiceConf: String, screenshareConf: String,
+case class ScreenshareRtmpBroadcastStartedEvtMsgBody(voiceConf: String, screenshareConf: String, userId: String,
                                                      stream: String, vidWidth: Int, vidHeight: Int,
                                                      timestamp: String, hasAudio: Boolean, contentType: String)
 
@@ -40,7 +40,7 @@ case class ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg(
     header: BbbCoreVoiceConfHeader,
     body:   ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsgBody
 ) extends VoiceStandardMsg
-case class ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsgBody(voiceConf: String, screenshareConf: String,
+case class ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsgBody(voiceConf: String, screenshareConf: String, userId: String,
                                                               stream: String, vidWidth: Int, vidHeight: Int,
                                                               timestamp: String)
 
@@ -53,7 +53,7 @@ case class ScreenshareRtmpBroadcastStoppedEvtMsg(
     body:   ScreenshareRtmpBroadcastStoppedEvtMsgBody
 )
   extends BbbCoreMsg
-case class ScreenshareRtmpBroadcastStoppedEvtMsgBody(voiceConf: String, screenshareConf: String,
+case class ScreenshareRtmpBroadcastStoppedEvtMsgBody(voiceConf: String, screenshareConf: String, userId: String,
                                                      stream: String, vidWidth: Int, vidHeight: Int,
                                                      timestamp: String)
 
@@ -129,6 +129,7 @@ case class ScreenBroadcastStopSysMsg(
 case class ScreenBroadcastStopSysMsgBody(
     meetingId: String,
     voiceConf: String,
+    userId:    String,
     streamId:  String
 )
 
