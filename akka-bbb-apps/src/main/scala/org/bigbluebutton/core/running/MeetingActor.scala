@@ -851,8 +851,8 @@ class MeetingActor(
 
     val presentationConversions = state.presentationConversions.filter { case (presId, startTime) =>
       val start = Instant.ofEpochMilli(startTime)
-      if (java.time.Duration.between(start, now).abs().compareTo(maxDuration) > 0) {
-        log.warning(s"Presentation $presId failed to convert in $maxDuration. Presentation conversion may be down on this server!")
+      if (java.time.Duration.between(start, now).compareTo(maxDuration) > 0) {
+        log.warning(s"Presentation $presId has been converting for longer than $maxDuration. Presentation conversion may be down on this server!")
         false
       } else {
         true
@@ -860,7 +860,6 @@ class MeetingActor(
     }
 
     state.update(presentationConversions)
-    state
   }
 
   private def clearExpiredReactionEmojis(): Unit = {

@@ -8,6 +8,8 @@ import org.bigbluebutton.core.models.PresentationInPod
 import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
+import java.time._
+
 trait PresentationConversionCompletedSysPubMsgHdlr {
   this: PresentationPodHdlrs =>
 
@@ -69,6 +71,10 @@ trait PresentationConversionCompletedSysPubMsgHdlr {
       }
 
       state.update(pods)
+
+      val start = Instant.ofEpochMilli(state.presentationConversions.getOrElse(pres.id, System.currentTimeMillis()))
+      val duration = Duration.between(start, Instant.now())
+      log.info(s"Presentation ${pres.id} with ${pres.pages.size} pages finished converting after $duration")
 
       val presentationConversions: Map[String, Long] = state.presentationConversions - pres.id
       state.update(presentationConversions)
