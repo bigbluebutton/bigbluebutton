@@ -196,6 +196,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
   const presenterRef = useRef(isPresenter);
   const [reactPlayerPlaying, setReactPlayerPlaying] = React.useState(false);
+  const firstPlayRef = useRef(true);
 
   let currentTime = getCurrentTime();
 
@@ -391,12 +392,16 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
         rate,
         // if currentTime is greater than playerCurrentTime, means the video was already played
         // and the presenter refreshed his client
-        time: currentTime > playerCurrentTime ? currentTime : playerCurrentTime,
+        time: (currentTime > playerCurrentTime) && firstPlayRef.current ? currentTime : playerCurrentTime,
       });
     }
 
     if (!playing && !isPresenter) {
       stopVideo(playerRef.current as ReactPlayer);
+    }
+
+    if (firstPlayRef.current) {
+      firstPlayRef.current = false;
     }
   };
 
