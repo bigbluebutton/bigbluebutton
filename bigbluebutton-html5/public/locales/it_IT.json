@@ -1,8 +1,8 @@
 {
-    "app.home.greeting": "La presentazione comincerà tra poco ...",
+    "app.home.greeting": "La tua presentazione comincerà tra poco ...",
     "app.sidebarContent.minimizePanelLabel": "Minimizza {0}",
     "app.chat.submitLabel": "Invia messaggio",
-    "app.chat.loading": "Messaggi caricati: {0}",
+    "app.chat.loading": "Messaggi di chat caricati: {0}%",
     "app.chat.errorMaxMessageLength": "Il messaggio è troppo lungo, ha superato il massimo di {0} caratteri",
     "app.chat.errorMinMessageLength": "Digitare un messaggio di almeno {0} caratteri",
     "app.chat.errorOnSendMessage": "Errore nell'invio del messaggio di chat",
