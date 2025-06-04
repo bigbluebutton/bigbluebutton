@@ -531,10 +531,9 @@ module BigBlueButton
 
       # Resamples video files by identifying all large PTS gaps, cutting at surrounding keyframes,
       # re-encoding gappy segments (by replacing with blank video), and stream-copying stable segments.
-      # Outputs an MKV file.
       def self.resample_video_files(files_and_gap_info_map, target_directory, videoinfo_h)
         filename_update_map = {}
-        intermediate_format = 'webm' # Intermediate parts can remain webm
+        intermediate_format = 'webm'
 
         files_and_gap_info_map.each do |original_filename, _first_gap_info_ignored| # First gap info is ignored, we find all gaps
           original_basename = File.basename(original_filename, '.*')
@@ -549,7 +548,7 @@ module BigBlueButton
           end
           original_total_duration_s = videoinfo_h[original_filename][:duration] / 1000.0
 
-          output_ext = 'webm' # Reverted from 'mkv' back to 'webm'
+          output_ext = 'webm'
           final_resampled_filename = File.join(target_directory, "#{original_basename}_segmented_resampled.#{output_ext}")
           
           BigBlueButton.logger.info "Segmented resampling for '#{original_filename}' (codec: #{original_video_codec_info}, duration: #{original_total_duration_s.round(3)}s). Output: '#{final_resampled_filename}'"
