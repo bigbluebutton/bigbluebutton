@@ -3,8 +3,6 @@ import { defineMessages } from 'react-intl';
 import PropTypes from 'prop-types';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import { convertRemToPixels } from '/imports/utils/dom-utils';
-import data from '@emoji-mart/data';
-import { init } from 'emoji-mart';
 import { SET_REACTION_EMOJI } from '/imports/ui/core/graphql/mutations/userMutations';
 import { useMutation } from '@apollo/client';
 import Styled from './styles';
@@ -19,9 +17,6 @@ const ReactionsButton = (props) => {
   } = props;
 
   const REACTIONS = window.meetingClientSettings.public.userReaction.reactions;
-
-  // initialize emoji-mart data, need for the new version
-  init({ data });
 
   const [setReactionEmoji] = useMutation(SET_REACTION_EMOJI);
 
@@ -68,11 +63,15 @@ const ReactionsButton = (props) => {
     padding: '4px',
   };
 
-  let actions = [];
+  const actions = [];
 
   REACTIONS.forEach(({ id, native }) => {
     actions.push({
-      label: <Styled.ButtonWrapper active={currentUserReaction === native}><em-emoji key={native} native={native} {...emojiProps} /></Styled.ButtonWrapper>,
+      label: (
+        <Styled.ButtonWrapper active={currentUserReaction === native}>
+          <em-emoji key={native} native={native} {...emojiProps} />
+        </Styled.ButtonWrapper>
+      ),
       key: id,
       onClick: () => handleReactionSelect(native),
       customStyles: actionCustomStyles,
@@ -109,7 +108,14 @@ const ReactionsButton = (props) => {
   let customIcon = null;
 
   if (!svgIcon) {
-    customIcon = <em-emoji key={currentUserReactionEmoji?.id} native={currentUserReactionEmoji?.native} emoji={{ id: currentUserReactionEmoji?.id }} {...emojiProps} />;
+    customIcon = (
+      <em-emoji
+        key={currentUserReactionEmoji?.id}
+        native={currentUserReactionEmoji?.native}
+        emoji={{ id: currentUserReactionEmoji?.id }}
+        {...emojiProps}
+      />
+    );
   }
 
   return (
