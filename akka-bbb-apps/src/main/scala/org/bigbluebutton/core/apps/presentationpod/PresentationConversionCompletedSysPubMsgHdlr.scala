@@ -69,6 +69,9 @@ trait PresentationConversionCompletedSysPubMsgHdlr {
       }
 
       state.update(pods)
+
+      val presentationConversions: Map[String, Long] = state.presentationConversions - pres.id
+      state.update(presentationConversions)
     }
 
     newState match {

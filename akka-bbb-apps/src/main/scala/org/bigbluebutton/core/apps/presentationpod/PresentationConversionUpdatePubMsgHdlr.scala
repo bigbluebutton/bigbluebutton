@@ -19,6 +19,7 @@ trait PresentationConversionUpdatePubMsgHdlr {
 
     PresPresentationDAO.updateConversionStarted(liveMeeting.props.meetingProp.intId, pres)
 
-    state
+    val presentationConversions: Map[String, Long] = state.presentationConversions + (presentationId -> System.currentTimeMillis())
+    state.update(presentationConversions)
   }
 }
