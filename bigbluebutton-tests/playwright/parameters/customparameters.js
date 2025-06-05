@@ -503,7 +503,7 @@ class CustomParameters extends MultiUsers {
     await this.modPage.wasRemoved(e.joinVideo);
     await sleep(1000);
 
-    await checkScreenshots(this, 'should be the cameras only layout', [e.webcamContainer, e.webcamMirroredVideoContainer], 'enforce-presentation-only');
+    await checkScreenshots(this, 'should be the presentation only layout', [e.webcamContainer, e.webcamMirroredVideoContainer], 'enforce-presentation-only');
   }
 
   async enforceMediaOnly() {
