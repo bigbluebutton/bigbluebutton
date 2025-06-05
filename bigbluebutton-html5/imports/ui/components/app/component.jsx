@@ -163,6 +163,8 @@ class App extends Component {
     if (!isJoinLogged) {
       this.logJoin();
     }
+
+    AppService.initializeEmojiData();
   }
 
   componentDidUpdate(prevProps) {
