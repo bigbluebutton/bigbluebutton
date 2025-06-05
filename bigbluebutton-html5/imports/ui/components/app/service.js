@@ -66,9 +66,12 @@ export const initializeEmojiData = () => {
     allowedEmojis[e.id] = e;
   });
 
-  data.emojis = allowedEmojis;
+  const filteredData = {
+    ...data,
+    emojis: allowedEmojis,
+  };
 
-  init({ data });
+  init({ data: filteredData });
 };
 
 export default {
