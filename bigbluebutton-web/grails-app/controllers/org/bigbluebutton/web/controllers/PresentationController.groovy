@@ -30,6 +30,8 @@ import org.bigbluebutton.presentation.UploadedPresentation
 import org.bigbluebutton.web.services.PresentationService
 import org.grails.web.mime.DefaultMimeUtility
 
+import java.nio.charset.StandardCharsets
+
 class PresentationController {
   MeetingService meetingService
   PresentationService presentationService
@@ -354,10 +356,13 @@ class PresentationController {
         def mimeType = grailsMimeUtility.getMimeTypeForURI(responseName)
         def mimeName = mimeType != null ? mimeType.name : 'application/octet-stream'
 
+        def encoded = URLEncoder.encode(responseName, StandardCharsets.UTF_8).replace("+", "%20")
+
         response.contentType = mimeName
         response.addHeader(
                 "content-disposition",
-                "attachment; filename=" + new URI(null, null, responseName, null).getRawPath()
+                "attachment; filename=\"" + responseName + "\"; " +
+                "filename*=UTF-8''" + encoded
         )
         response.addHeader("Cache-Control", "no-cache")
         response.outputStream << bytes;
