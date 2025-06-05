@@ -107,7 +107,7 @@ jobs:
         with:
           name: artifacts_${{ matrix.package }}.tar
           path: artifacts.tar
-  install-and-run-tests:
+  install-and-run-bbb-tests:
     needs: build-package
     runs-on: ubuntu-22.04
     strategy:
@@ -119,286 +119,15 @@ jobs:
       MATRIX_SHARD_UNDERSCORED: ${{ matrix.shard }}_8
     steps:
       - uses: actions/checkout@v4
-      - name: Merge branches
-        uses: ./.github/actions/merge-branches
-      - run: ./build/get_external_dependencies.sh
-      - name: Download artifacts_bbb-apps-akka
-        uses: actions/download-artifact@v4
-        with:
-          name: artifacts_bbb-apps-akka.tar
-      - run: tar xf artifacts.tar
-      - name: Download artifacts_bbb-config
-        uses: actions/download-artifact@v4
-        with:
-          name: artifacts_bbb-config.tar
-      - run: tar xf artifacts.tar
-      - name: Download artifacts_bbb-export-annotations
-        uses: actions/download-artifact@v4
-        with:
-          name: artifacts_bbb-export-annotations.tar
-      - run: tar xf artifacts.tar
-      - name: Download artifacts_bbb-learning-dashboard
-        uses: actions/download-artifact@v4
-        with:
-          name: artifacts_bbb-learning-dashboard.tar
-      - run: tar xf artifacts.tar
-      - name: Download artifacts_bbb-playback-record
-        uses: actions/download-artifact@v4
-        with:
-          name: artifacts_bbb-playback-record.tar
-      - run: tar xf artifacts.tar
-      - name: Download artifacts_bbb-graphql-server
-        uses: actions/download-artifact@v4
-        with:
-          name: artifacts_bbb-graphql-server.tar
-      - run: tar xf artifacts.tar
-      - name: Download artifacts_bbb-etherpad
-        uses: actions/download-artifact@v4
-        with:
-          name: artifacts_bbb-etherpad.tar
-      - run: tar xf artifacts.tar
-      - name: Download artifacts_bbb-freeswitch
-        uses: actions/download-artifact@v4
-        with:
-          name: artifacts_bbb-freeswitch.tar
-      - run: tar xf artifacts.tar
-      - name: Download artifacts_bbb-webrtc
-        uses: actions/download-artifact@v4
-        with:
-          name: artifacts_bbb-webrtc.tar
-      - run: tar xf artifacts.tar
-      - name: Download artifacts_bbb-web
-        uses: actions/download-artifact@v4
-        with:
-          name: artifacts_bbb-web.tar
-      - run: tar xf artifacts.tar
-      - name: Download artifacts_bbb-fsesl-akka
-        uses: actions/download-artifact@v4
-        with:
-          name: artifacts_bbb-fsesl-akka.tar
-      - run: tar xf artifacts.tar
-      - name: Download artifacts_bbb-html5
-        uses: actions/download-artifact@v4
-        with:
-          name: artifacts_bbb-html5.tar
-      - run: tar xf artifacts.tar
-      - name: Download artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: artifacts_others.tar
-      - run: tar xf artifacts.tar
-      - name: Extracting files .tar
-        run: |
-          set -e
-          pwd
-          echo "----ls artifacts/----"
-          ls artifacts/
-          echo "Done"
-      - name: Generate CA
-        run: |
-          sudo -i <<EOF
-          set -e
-          mkdir /root/bbb-ci-ssl/
-          cd /root/bbb-ci-ssl/
-          openssl rand -base64 48 > /root/bbb-ci-ssl/bbb-dev-ca.pass ;
-          chmod 600 /root/bbb-ci-ssl/bbb-dev-ca.pass ;
-          openssl genrsa -des3 -out bbb-dev-ca.key -passout file:/root/bbb-ci-ssl/bbb-dev-ca.pass 2048 ;
-          openssl req -x509 -new -nodes -key bbb-dev-ca.key -sha256 -days 1460 -passin file:/root/bbb-ci-ssl/bbb-dev-ca.pass -out bbb-dev-ca.crt -subj "/C=CA/ST=BBB/L=BBB/O=BBB/OU=BBB/CN=BBB-DEV" ;
-          EOF
-      - name: Trust CA
-        run: |
-          sudo -i <<EOF
-          set -e
-          sudo mkdir /usr/local/share/ca-certificates/bbb-dev/
-          sudo cp /root/bbb-ci-ssl/bbb-dev-ca.crt /usr/local/share/ca-certificates/bbb-dev/
-          sudo chmod 644 /usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt
-          sudo update-ca-certificates
-          EOF
-      - name: Generate certificate
-        run: |
-          sudo sh -c '
-          cd /root/bbb-ci-ssl/
-          echo "$(hostname -I | cut -d" " -f1) bbb-ci.test" >> /etc/hosts
-          openssl genrsa -out bbb-ci.test.key 2048
-          rm -f bbb-ci.test.csr bbb-ci.test.crt bbb-ci.test.key
-          cat > bbb-ci.test.ext << EOF
-          authorityKeyIdentifier=keyid,issuer
-          basicConstraints=CA:FALSE
-          keyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment
-          subjectAltName = @alt_names
-          [alt_names]
-          DNS.1 = bbb-ci.test
-          EOF
-          openssl req -nodes -newkey rsa:2048 -keyout bbb-ci.test.key -out bbb-ci.test.csr -subj "/C=CA/ST=BBB/L=BBB/O=BBB/OU=BBB/CN=bbb-ci.test" -addext "subjectAltName = DNS:bbb-ci.test"
-          openssl x509 -req -in bbb-ci.test.csr -CA bbb-dev-ca.crt -CAkey bbb-dev-ca.key -CAcreateserial -out bbb-ci.test.crt -days 825 -sha256 -passin file:/root/bbb-ci-ssl/bbb-dev-ca.pass -extfile bbb-ci.test.ext
-          cd
-
-          mkdir -p /local/certs/
-          cp /root/bbb-ci-ssl/bbb-dev-ca.crt /local/certs/
-          cat /root/bbb-ci-ssl/bbb-ci.test.crt > /local/certs/fullchain.pem
-          cat /root/bbb-ci-ssl/bbb-dev-ca.crt >> /local/certs/fullchain.pem
-          cat /root/bbb-ci-ssl/bbb-ci.test.key > /local/certs/privkey.pem
-          '
-      - name: Setup local repository
-        shell: bash
-        run: |
-          sudo -i <<EOF
-          set -e
-          apt install -yq dpkg-dev
-          cd /root && wget -nv http://ci.bbb.imdt.dev/cache-3rd-part-packages.tar
-          cp -r /home/runner/work/bigbluebutton/bigbluebutton/artifacts/ /artifacts/
-          cd /artifacts && tar xf /root/cache-3rd-part-packages.tar
-          cd /artifacts && dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz
-          echo "deb [trusted=yes] file:/artifacts/ ./" >> /etc/apt/sources.list
-          EOF
-      - name: Prepare for install
-        run: |
-          sudo sh -c '
-          apt --purge -y remove apache2-bin
-          apt-mark hold firefox #hold ff as bbb-install frequently stuck at `Installing the firefox snap`
-
-          #bbb-webrtc-sfu: removes the special scheduling policies
-          mkdir -p /etc/systemd/system/bbb-webrtc-sfu.service.d/
-          tee /etc/systemd/system/bbb-webrtc-sfu.service.d/override.conf > /dev/null <<EOL
-          [Service]
-          CPUSchedulingPolicy=other
-          Nice=19
-          EOL
-          systemctl daemon-reload
-
-          #Install Sipp for dial-in tests
-          apt install -y pkg-config dh-autoreconf ncurses-dev build-essential libssl-dev libpcap-dev libncurses5-dev libsctp-dev lksctp-tools cmake
-          git clone --recurse-submodules https://github.com/SIPp/sipp.git /opt/sipp
-          cd /opt/sipp
-          git checkout 4682fdba2b63007f13a632c6eb06f0ece84cb7df #Set an old commit as the current code is not working
-          cmake . -DUSE_SSL=1 -DUSE_SCTP=1 -DUSE_PCAP=1 -DUSE_GSL=1
-          make
-          sudo make install
-          rm -r /opt/sipp/gtest
-          rm -r /opt/sipp/src
-
-          # Set dial plan for internal calls
-          mkdir -p /opt/freeswitch/conf/dialplan/public/
-          cat << EOF > "/opt/freeswitch/conf/dialplan/public/bbb_sip.xml"
-          <include>
-            <extension name="bbb_sp_call" continue="true">
-                <condition field="network_addr" expression="\${domain}" break="on-false">
-                    <action application="set" data="bbb_authorized=true"/>
-                    <action application="transfer" data="\${destination_number} XML default"/>
-                </condition>
-            </extension>
-          </include>
-          EOF
-          '
       - name: Install BBB
-        env:
-          NODE_EXTRA_CA_CERTS: /usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt
-          ACTIONS_RUNNER_DEBUG: true
-        run: |
-          sudo -i <<'EOF'
-          set -e
-          cd /root/
-          wget -nv https://raw.githubusercontent.com/bigbluebutton/bbb-install/v3.0.x-release/bbb-install.sh -O bbb-install.sh
-          sed -i "s|> /etc/apt/sources.list.d/bigbluebutton.list||g" bbb-install.sh
-          chmod +x bbb-install.sh
-
-          COMMAND="./bbb-install.sh -v jammy-30-dev -s bbb-ci.test -j -d /certs/"
-          TIMEOUT=1500  # 25 minutes
-          MAX_RETRIES=3
-          RETRY_INTERVAL=60
-          RETRY_COUNT=0
-          SUCCESS=0
-
-          while [[ $RETRY_COUNT -lt $MAX_RETRIES ]]; do
-            echo "Attempt $((RETRY_COUNT + 1)) of $MAX_RETRIES to install BBB..."
-
-            # Run the command with timeout and handle its exit code
-            # Capture both stdout and stderr
-            COMMAND_EXIT_CODE=0
-            timeout $TIMEOUT $COMMAND || COMMAND_EXIT_CODE=$?
-
-            if [[ $COMMAND_EXIT_CODE -eq 0 ]]; then
-              SUCCESS=1
-              break
-            elif [[ $COMMAND_EXIT_CODE -eq 124 ]]; then
-              echo "Installation timed out after ${TIMEOUT} seconds. Retrying..."
-            else
-              echo "Installation failed with exit code $COMMAND_EXIT_CODE"
-              echo "Retrying installation within $RETRY_INTERVAL seconds..."
-              sleep $RETRY_INTERVAL
-            fi
-
-            echo "Check if there is some process still locking:1"
-            ps aux | grep -E 'dpkg|apt'
-
-            echo "Stop any ongoing processes related to apt-get or dpkg that might be stuck"
-            # Use -q to suppress "no process found" messages
-            # Kill any apt-get or dpkg processes that might be hanging
-            killall -9 -q apt-get || true
-            killall -9 -q dpkg || true
-
-            echo "Remove the lock files that may have been left behind"
-            # Group lock file removal for better readability
-            rm -f /var/lib/dpkg/lock-frontend
-            rm -f /var/lib/dpkg/lock
-            rm -f /var/cache/apt/archives/lock
-            rm -f /var/cache/debconf/config.dat
-
-            echo "Reconfigure the package manager"
-            dpkg --configure -a
-
-            echo "Clean up any partially installed packages"
-            apt-get clean
-            apt-get autoremove
-
-            echo "Check if there is some process still locking:2"
-            ps aux | grep -E 'dpkg|apt'
-
-            RETRY_COUNT=$((RETRY_COUNT + 1))
-          done
-
-          if [[ $SUCCESS -eq 0 ]]; then
-            echo "All attempts to install BBB failed."
-            exit 1
-          fi
-
-          bbb-conf --salt bbbci
-          sed -i "s/\"minify\": true,/\"minify\": false,/" /usr/share/etherpad-lite/settings.json
-          sed -i "s/\"loglevel\": \"INFO\"/\"loglevel\": \"DEBUG\"/" /usr/share/etherpad-lite/settings.json
-          sed -i "s/\"level\": \"info\"/\"level\": \"debug\"/" /usr/local/bigbluebutton/bbb-pads/config/settings.json
-          sed -i "s/exports.DEBUG = false/exports.DEBUG = true/" /usr/local/bigbluebutton/bbb-graphql-actions/config.js
-          sudo yq e -i '.log_level = "TRACE"' /usr/share/bbb-graphql-middleware/config.yml
-          echo "HASURA_GRAPHQL_LOG_LEVEL=debug" | tee -a /etc/bigbluebutton/bbb-graphql-server.env
-          cat > /etc/bigbluebutton/bbb-conf/apply-config.sh << HERE
-          #!/bin/bash
-
-          # Pull in the helper functions for configuring BigBlueButton
-          source /etc/bigbluebutton/bbb-conf/apply-lib.sh
-
-          # Available configuration options
-
-          enableHTML5ClientLog
-          #enableUFWRules
-
-          HERE
-          chmod +x /etc/bigbluebutton/bbb-conf/apply-config.sh
-          bbb-conf --restart
-          EOF
-      - name: List systemctl services
-        timeout-minutes: 1
-        run: |
-          sudo -i <<EOF
-          systemctl --type=service --state=running,exited,failed --all --no-pager --no-legend
-          EOF
+        uses: ./.github/actions/install-bbb
       - name: Install test dependencies
         working-directory: ./bigbluebutton-tests/playwright
         timeout-minutes: 25
         run: |
-          sh -c '
           npm ci
           npx playwright install-deps
           npx playwright install
-          '
       - name: Run tests
         working-directory: ./bigbluebutton-tests/playwright
         timeout-minutes: 25
@@ -420,10 +149,8 @@ jobs:
           BBB_SECRET: bbbci
         # patch playwright's firefox so that it uses the system's root certificate authority
         run: |
-          sh -c '
           find $HOME/.cache/ms-playwright -name libnssckbi.so -exec rm {} \; -exec ln -s /usr/lib/x86_64-linux-gnu/pkcs11/p11-kit-trust.so {} \;
           npm run test-firefox-ci -- --shard=${{ env.shard }}
-          '
       - if: always()
         name: Upload blob report to GitHub Actions Artifacts
         uses: actions/upload-artifact@v4
@@ -442,46 +169,144 @@ jobs:
           name: test-report_shard-${{ matrix.shard }}
           path: bigbluebutton-tests/playwright/playwright-report
       - if: failure()
-        name: Prepare artifacts (configs and logs)
-        run: |
-          sudo -i <<EOF
-          mkdir configs
-          cp /etc/haproxy/haproxy.cfg configs/haproxy.cfg
-          touch /etc/bigbluebutton/turn-stun-servers.xml
-          cp /etc/bigbluebutton/turn-stun-servers.xml configs/turn-stun-servers.xml
-          cp /opt/freeswitch/etc/freeswitch/vars.xml configs/freeswitch_vars.xml
-          cp /opt/freeswitch/etc/freeswitch/sip_profiles/external.xml configs/freeswitch_sip_profiles_external.xml
-          cp /etc/bigbluebutton/bbb-apps-akka.conf configs/bbb-apps-akka.conf
-          cp /etc/bigbluebutton/bbb-fsesl-akka.conf configs/bbb-fsesl-akka.conf
-          cp /etc/bigbluebutton/bbb-html5.yml configs/bbb-html5.yml
-          cp /etc/bigbluebutton/bbb-web.properties configs/bbb-web.properties
-          cp /etc/bigbluebutton/bigbluebutton-release configs/bigbluebutton-release
-          cp /etc/bigbluebutton/turn-stun-servers.xml configs/turn-stun-servers.xml
-          cp /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml configs/bbb-webrtc-sfu-default.yml
-          cp /etc/bbb-webrtc-recorder/bbb-webrtc-recorder.yml configs/bbb-webrtc-recorder-default.yml
-          cp /usr/share/bigbluebutton/nginx/sip.nginx configs/nginx_sip.nginx
-          cp /etc/hosts /configs/hosts
-          mv configs /home/runner/work/bigbluebutton/bigbluebutton/configs
-          chmod a+r -R /home/runner/work/bigbluebutton/bigbluebutton/configs
-          bbb-conf --zip
-          ls -t /root/*.tar.gz | head -1 | xargs -I '{}' cp '{}' /home/runner/work/bigbluebutton/bigbluebutton/bbb-logs.tar.gz
-          EOF
+        name: Prepare artifacts
+        uses: ./.github/actions/prepare-artifacts
       - if: failure()
+        name: Upload bbb-configs artifact
         uses: actions/upload-artifact@v4
         with:
           name: bbb-configs-${{ env.MATRIX_SHARD_UNDERSCORED }}
           path: configs
       - if: failure()
+        name: Upload bbb-logs artifact
         uses: actions/upload-artifact@v4
         with:
           name: bbb-logs-${{ env.MATRIX_SHARD_UNDERSCORED }}
           path: ./bbb-logs.tar.gz
+  install-and-run-plugin-tests:
+    needs: build-package
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+    env:
+      SAMPLES_WITH_TESTS: "sample-action-button-dropdown-plugin sample-actions-bar-plugin"
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install BBB
+        uses: ./.github/actions/install-bbb
+      - name: Extract download URL of the SDK version information from bigbluebutton-html5/package.json
+        working-directory: ./bigbluebutton-html5
+        run: |
+          SDK_DEP=$(jq -r '.dependencies["bigbluebutton-html-plugin-sdk"]' package.json)
+          if echo "$SDK_DEP" | grep -q "codeload.github.com"; then
+            echo "SDK_URL=$SDK_DEP" >> $GITHUB_ENV
+          else
+            SDK_VERSION=$(jq -r '.packages["node_modules/bigbluebutton-html-plugin-sdk"]["version"]' package-lock.json)
+            echo "SDK_URL=https://github.com/bigbluebutton/bigbluebutton-html-plugin-sdk/archive/refs/tags/v${SDK_VERSION}.tar.gz" >> $GITHUB_ENV
+          fi
+      - name: Download plugins SDK
+        working-directory: bigbluebutton-tests
+        run: |
+          wget -O bigbluebutton-html-plugin-sdk.tar.gz $SDK_URL
+          mkdir -p bigbluebutton-html-plugin-sdk
+          tar -xzf bigbluebutton-html-plugin-sdk.tar.gz -C bigbluebutton-html-plugin-sdk --strip-components=1
+      - name: Install plugins SDK dependencies
+        working-directory: ./bigbluebutton-tests/bigbluebutton-html-plugin-sdk
+        run: |
+          echo "Installing plugins SDK dependencies"
+          npm ci
+      - name: Install sample plugin dependencies
+        working-directory: ./bigbluebutton-tests/bigbluebutton-html-plugin-sdk
+        run: |
+          echo "Installing plugin samples dependencies"
+          for sample in $SAMPLES_WITH_TESTS; do
+            if [ -d "./samples/$sample" ]; then
+              echo "Installing dependencies for sample: $sample"
+              cd "./samples/$sample"
+              npm ci
+              cd - > /dev/null
+            else
+              echo "Sample not found: $sample"
+            fi
+          done
+      - name: Build plugins SDK and publish to samples
+        working-directory: ./bigbluebutton-tests/bigbluebutton-html-plugin-sdk
+        run: |
+          npm ci
+          npm run build
+          ./scripts/publish-to-samples.sh
+      - name: Build sample plugins (that contain tests) and copy built files to the plugin assets directory
+        working-directory: ./bigbluebutton-tests/bigbluebutton-html-plugin-sdk
+        run: |
+          echo "Building all samples inside the 'samples' directory that contain tests"
+          for sample in $SAMPLES_WITH_TESTS; do
+            if [ -d "./samples/$sample" ]; then
+              echo "Building sample: $sample"
+              cd "./samples/$sample"
+              npm run build-bundle
+              sudo mkdir -p /var/www/bigbluebutton-default/assets/plugins/$sample
+              sudo cp -r dist /var/www/bigbluebutton-default/assets/plugins/$sample/
+              cd - > /dev/null
+            else
+              echo "Sample not found: $sample"
+            fi
+          done
+      - name: Install test dependencies
+        working-directory: ./bigbluebutton-tests/bigbluebutton-html-plugin-sdk
+        timeout-minutes: 25
+        run: |
+          npm ci
+          npx playwright install-deps
+          npx playwright install
+      - name: Run tests
+        working-directory: ./bigbluebutton-tests/bigbluebutton-html-plugin-sdk
+        timeout-minutes: 25
+        env:
+          NODE_EXTRA_CA_CERTS: /usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt
+          ACTIONS_RUNNER_DEBUG: true
+          BBB_URL: https://bbb-ci.test/bigbluebutton/api
+          BBB_SECRET: bbbci
+        run: npm run test-chromium-ci
+      - if: always()
+        name: Upload blob report to GitHub Actions Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: blob-report-plugins
+          path: bigbluebutton-tests/bigbluebutton-html-plugin-sdk/blob-report
+      - if: always()
+        name: Generate the plugins HTML report from blob report
+        shell: bash
+        working-directory: ./bigbluebutton-tests/bigbluebutton-html-plugin-sdk
+        run: npx playwright merge-reports --reporter html ./blob-report
+      - if: always()
+        name: Upload shard HTML report to GitHub Actions Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report_plugins
+          path: bigbluebutton-tests/bigbluebutton-html-plugin-sdk/playwright-report
+      - if: failure()
+        name: Prepare artifacts
+        uses: ./.github/actions/prepare-artifacts
+      - if: failure()
+        name: Upload bbb-configs artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bbb-configs-plugins
+          path: configs
+      - if: failure()
+        name: Upload bbb-logs artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bbb-logs-plugins
+          path: ./bbb-logs.tar.gz
   upload-report:
     if: always() && !contains(github.event.head_commit.message, 'Merge pull request')
-    needs: install-and-run-tests
+    needs:
+      - install-and-run-bbb-tests
+      - install-and-run-plugin-tests
     runs-on: ubuntu-22.04
     env:
-      hasReportData: ${{ needs.install-and-run-tests.result == 'success' || needs.install-and-run-tests.result == 'failure' }}
+      hasReportData: ${{ needs.install-and-run-bbb-tests.result == 'success' || needs.install-and-run-bbb-tests.result == 'failure' && needs.install-and-run-plugin-tests.result == 'success' || needs.install-and-run-plugin-tests.result == 'failure' }}
     steps:
       - uses: actions/checkout@v4
       - name: Merge and upload the blob reports

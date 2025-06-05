@@ -20,11 +20,17 @@ import {
 } from './service';
 import { User } from '/imports/ui/Types/user';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import { useIsBreakoutRoomsEnabled, useIsLearningDashboardEnabled } from '/imports/ui/services/features';
+import {
+  useIsBreakoutRoomsEnabled,
+  useIsLearningDashboardEnabled,
+  useIsReactionsEnabled,
+} from '/imports/ui/services/features';
 import { useMutation, useLazyQuery } from '@apollo/client';
 import { SET_MUTED } from './mutations';
+import { CLEAR_ALL_REACTION } from '/imports/ui/core/graphql/mutations/userMutations';
 import { GET_USER_NAMES } from '/imports/ui/core/graphql/queries/users';
 import logger from '/imports/startup/client/logger';
+import { notify } from '/imports/ui/services/notification';
 
 const intlMessages = defineMessages({
   optionsLabel: {
@@ -107,6 +113,18 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.actionsDropdown.breakoutRoomInvitationDesc',
     description: 'Invitation item description',
   },
+  clearAllReactionsLabel: {
+    id: 'app.userList.userOptions.clearAllReactionsLabel',
+    description: 'Clear all reactions label',
+  },
+  clearAllReactionsDesc: {
+    id: 'app.userList.userOptions.clearAllReactionsDesc',
+    description: 'Clear all reactions description',
+  },
+  clearReactionsMessage: {
+    id: 'app.userList.userOptions.clearedReactions',
+    description: 'Used in toast notification when reactions have been cleared',
+  },
 });
 
 interface RenderModalProps {
@@ -174,10 +192,12 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
   const [isLockViewersModalOpen, setIsLockViewersModalOpen] = useState(false);
 
   const [setMuted] = useMutation(SET_MUTED);
+  const [clearAllReaction] = useMutation(CLEAR_ALL_REACTION);
   const [getUsers, { data: usersData, error: usersError }] = useLazyQuery(GET_USER_NAMES, { fetchPolicy: 'no-cache' });
   const users = usersData?.user || [];
   const isLearningDashboardEnabled = useIsLearningDashboardEnabled();
   const isBreakoutRoomsEnabled = useIsBreakoutRoomsEnabled();
+  const isReactionsEnabled = useIsReactionsEnabled();
   const canInviteUsers = isModerator
   && !isBreakout
   && hasBreakoutRooms;
@@ -224,6 +244,11 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
       },
       logMessage,
     );
+  };
+
+  const clearReactions = () => {
+    clearAllReaction();
+    notify(intl.formatMessage(intlMessages.clearReactionsMessage), 'info', 'clear_status');
   };
 
   const { dynamicGuestPolicy } = window.meetingClientSettings.public.app;
@@ -277,6 +302,14 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
         onClick: () => getUsers(),
         icon: 'download',
         dataTest: 'downloadUserNamesList',
+      },
+      {
+        allow: isReactionsEnabled && isModerator,
+        key: uuids.current[5],
+        label: intl.formatMessage(intlMessages.clearAllReactionsLabel),
+        description: intl.formatMessage(intlMessages.clearAllReactionsDesc),
+        onClick: () => clearReactions(),
+        icon: 'clear_status',
       },
       {
         key: 'separator-01',
