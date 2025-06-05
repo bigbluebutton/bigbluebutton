@@ -131,6 +131,7 @@ const Whiteboard = React.memo((props) => {
     isPhone,
     setEditor,
     lockToolbarTools,
+    layoutChanged,
   } = props;
 
   clearTldrawCache();
@@ -171,6 +172,7 @@ const Whiteboard = React.memo((props) => {
   const presentationIdRef = React.useRef(presentationId);
   const innerWrapperPollingFrameRef = React.useRef(null);
   const isMountedPollingFrameRef = React.useRef(null);
+  const hasZoomSyncedRef = useRef(false);
 
   const [pageZoomMap, setPageZoomMap] = useState(() => {
     try {
@@ -312,6 +314,44 @@ const Whiteboard = React.memo((props) => {
       });
     }
   }, 175);
+
+  const debouncedSetInitialZoom = debounce(() => {
+    if (
+      currentPresentationPageRef.current.scaledWidth > 0 &&
+      currentPresentationPageRef.current.scaledHeight > 0 &&
+      presentationAreaWidth > 0 &&
+      presentationAreaHeight > 0
+    ) {
+      const adjustedPresentationAreaHeight = isPresenterRef.current
+        ? presentationAreaHeight - 40
+        : presentationAreaHeight;
+
+      const slideAspectRatio =
+        currentPresentationPageRef.current.scaledWidth /
+        currentPresentationPageRef.current.scaledHeight;
+
+      const presentationAreaAspectRatio =
+        presentationAreaWidth / adjustedPresentationAreaHeight;
+
+      let initialZoom;
+
+      if (
+        slideAspectRatio > presentationAreaAspectRatio ||
+        (fitToWidthRef.current && isPresenterRef.current)
+      ) {
+        initialZoom =
+          presentationAreaWidth /
+          currentPresentationPageRef.current.scaledWidth;
+      } else {
+        initialZoom =
+          adjustedPresentationAreaHeight /
+          currentPresentationPageRef.current.scaledHeight;
+      }
+
+      initialZoomRef.current = initialZoom;
+      prevZoomValueRef.current = zoomValue;
+    }
+  }, 200);
 
   React.useEffect(() => {
     localStorage.setItem('pageZoomMap', JSON.stringify(pageZoomMap));
@@ -1181,8 +1221,29 @@ const Whiteboard = React.memo((props) => {
               editor?.getViewportPageBounds()?.h,
               currentPresentationPageRef.current?.scaledHeight,
             );
+            const tlCamPercent = Math.round(
+              (nextCam.z / (initialZoomRef.current || 1)) * 100
+            );
 
-            if (isMountedRef.current) {
+            if (tlCamPercent !== zoomValueRef.current) {
+              hasZoomSyncedRef.current = false;
+            }
+
+            if (isWheelZoomRef.current) {
+              zoomSlide(
+                viewedRegionW, viewedRegionH, nextCam.x, nextCam.y,
+                currentPresentationPageRef.current,
+              );
+              return;
+            }
+
+            if (
+              tlCamPercent === zoomValueRef.current &&
+              (!hasZoomSyncedRef.current || (hasZoomSyncedRef.current && panned)) &&
+              isMountedRef.current
+            ) {
+              hasZoomSyncedRef.current = true;
+
               zoomSlide(
                 viewedRegionW, viewedRegionH, nextCam.x, nextCam.y,
                 currentPresentationPageRef.current,
@@ -1656,35 +1717,7 @@ const Whiteboard = React.memo((props) => {
   }, [fitToWidth]);
 
   React.useEffect(() => {
-    if (
-      currentPresentationPageRef.current.scaledWidth > 0
-      && currentPresentationPageRef.current.scaledHeight > 0
-      && presentationAreaWidth > 0
-      && presentationAreaHeight > 0
-    ) {
-      const adjustedPresentationAreaHeight = isPresenterRef.current
-        ? presentationAreaHeight - 40
-        : presentationAreaHeight;
-      const slideAspectRatio = currentPresentationPageRef.current.scaledWidth
-        / currentPresentationPageRef.current.scaledHeight;
-      const presentationAreaAspectRatio = presentationAreaWidth / adjustedPresentationAreaHeight;
-
-      let initialZoom;
-
-      if (
-        slideAspectRatio > presentationAreaAspectRatio
-        || (fitToWidthRef.current && isPresenterRef.current)
-      ) {
-        initialZoom = presentationAreaWidth
-          / currentPresentationPageRef.current.scaledWidth;
-      } else {
-        initialZoom = adjustedPresentationAreaHeight
-          / currentPresentationPageRef.current.scaledHeight;
-      }
-
-      initialZoomRef.current = initialZoom;
-      prevZoomValueRef.current = zoomValue;
-    }
+    debouncedSetInitialZoom();
   }, [
     presentationAreaWidth,
     presentationAreaHeight,
@@ -1693,6 +1726,8 @@ const Whiteboard = React.memo((props) => {
     isPresenter,
     presentationId,
     fitToWidth,
+    layoutChanged,
+    pageChanged,
   ]);
 
   React.useEffect(() => {
