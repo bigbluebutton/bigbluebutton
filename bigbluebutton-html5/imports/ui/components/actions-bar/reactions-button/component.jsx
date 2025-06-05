@@ -17,6 +17,7 @@ const ReactionsButton = (props) => {
   } = props;
 
   const REACTIONS = window.meetingClientSettings.public.userReaction.reactions;
+  const DISABLE_EMOJIS = window.meetingClientSettings.public.chat.disableEmojis;
 
   const [setReactionEmoji] = useMutation(SET_REACTION_EMOJI);
 
@@ -66,6 +67,7 @@ const ReactionsButton = (props) => {
   const actions = [];
 
   REACTIONS.forEach(({ id, native }) => {
+    if (DISABLE_EMOJIS.includes(id)) return;
     actions.push({
       label: (
         <Styled.ButtonWrapper active={currentUserReaction === native}>
