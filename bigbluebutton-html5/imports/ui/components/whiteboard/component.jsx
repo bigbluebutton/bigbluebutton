@@ -317,6 +317,7 @@ const Whiteboard = React.memo((props) => {
 
   const debouncedSetInitialZoom = debounce(() => {
     if (
+      currentPresentationPageRef.current &&
       currentPresentationPageRef.current.scaledWidth > 0 &&
       currentPresentationPageRef.current.scaledHeight > 0 &&
       presentationAreaWidth > 0 &&
