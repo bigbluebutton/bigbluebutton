@@ -52,6 +52,7 @@ get_external_dependencies:
       - bbb-pads
       - bbb-playback
       - bbb-transcription-controller
+      - bbb-livekit
     expire_in: 1h 30min
 
 # template job for build step
