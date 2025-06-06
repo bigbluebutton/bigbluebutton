@@ -746,7 +746,7 @@ class MeetingActor(
         updateUserLastActivity(m.header.userId)
 
       // Plugin
-      case m: PluginDataChannelPushEntryMsg    => pluginHdlrs.handle(m, state, liveMeeting)
+      case m: PluginDataChannelPushEntryMsg    => pluginHdlrs.handle(m, state, liveMeeting, msgBus)
       case m: PluginDataChannelReplaceEntryMsg => pluginHdlrs.handle(m, state, liveMeeting)
       case m: PluginDataChannelDeleteEntryMsg  => pluginHdlrs.handle(m, state, liveMeeting)
       case m: PluginDataChannelResetMsg        => pluginHdlrs.handle(m, state, liveMeeting)

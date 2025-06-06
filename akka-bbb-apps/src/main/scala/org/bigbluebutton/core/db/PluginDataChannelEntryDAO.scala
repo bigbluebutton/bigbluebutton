@@ -42,11 +42,12 @@ class PluginDataChannelEntryDbTableDef(tag: Tag) extends Table[PluginDataChannel
 
 object PluginDataChannelEntryDAO {
   def insert(meetingId: String, pluginName: String, channelName: String, subChannelName: String, createdBy: String,
-             payloadJson: Map[String, Any], toRoles: List[String], toUserIds: List[String]) = {
+             payloadJson: Map[String, Any], toRoles: List[String], toUserIds: List[String]) : String = {
+    val entryId = RandomStringGenerator.randomAlphanumericString(50)
     DatabaseConnection.enqueue(
       TableQuery[PluginDataChannelEntryDbTableDef].forceInsert(
         PluginDataChannelEntryDbModel(
-          entryId = Some(RandomStringGenerator.randomAlphanumericString(50)),
+          entryId = Some(entryId),
           meetingId = meetingId,
           pluginName = pluginName,
           channelName = channelName,
@@ -63,6 +64,7 @@ object PluginDataChannelEntryDAO {
         )
       )
     )
+    entryId
   }
 
   def reset(meetingId: String, pluginName: String,
