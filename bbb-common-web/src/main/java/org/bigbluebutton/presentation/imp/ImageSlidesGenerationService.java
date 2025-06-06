@@ -19,7 +19,6 @@
 
 package org.bigbluebutton.presentation.imp;
 
-import java.io.File;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeoutException;
@@ -30,16 +29,19 @@ import org.slf4j.LoggerFactory;
 
 public class ImageSlidesGenerationService {
 	private static Logger log = LoggerFactory.getLogger(ImageSlidesGenerationService.class);
-
-	private String blankThumbnail;
-	private String blankPng;
-	private String blankSvg;
-
+	
 	private ExecutorService executor;
 	private SlidesGenerationProgressNotifier notifier;
+	private SvgImageCreator svgImageCreator;
+	private ThumbnailCreator thumbnailCreator;
+	private TextFileCreator textFileCreator;
+	private PngCreator pngCreator;
 	private ImageResizer imageResizer;
+	private long maxImageWidth = 2048;
+	private long maxImageHeight = 1536;
+	private long MAX_CONVERSION_TIME = 5*60*1000L;
+	private boolean svgImagesRequired=true;
 	private boolean generatePngs;
-	private PresentationProcessExternal presentationProcessExternal;
 	
 	public ImageSlidesGenerationService() {
 		int numThreads = Runtime.getRuntime().availableProcessors();
@@ -50,31 +52,22 @@ public class ImageSlidesGenerationService {
 
 		for (int page = 1; page <= pres.getNumberOfPages(); page++) {
 			/* adding accessibility */
+			createTextFiles(pres, page);
+			createThumbnails(pres, page);
 
-			File textfilesDir = Util.determineTextfilesDirectory(pres.getUploadedFile());
-			if (!textfilesDir.exists())
-				textfilesDir.mkdir();
-
-			File thumbsDir = Util.determineThumbnailDirectory(pres.getUploadedFile());
-			if (!thumbsDir.exists())
-				thumbsDir.mkdir();
-
-			File pngDir = Util.determinePngDirectory(pres.getUploadedFile());
-			if (!pngDir.exists())
-				pngDir.mkdir();
-
-			File svgDir = Util.determineSvgImagesDirectory(pres.getUploadedFile());
-			if (!svgDir.exists())
-				svgDir.mkdir();
-
-			// Call external application to process the image in a sandbox
-			presentationProcessExternal.processImage(pres.getMeetingId(), pres.getId(), pres.getFileType());
-
-			Util.createBlankThumbnail(thumbsDir, page, blankThumbnail);
-			if (generatePngs) {
-				Util.createBlankPng(pngDir, page, blankPng);
+			if (svgImagesRequired) {
+				try {
+					createSvgImages(pres, page);
+				} catch (TimeoutException e) {
+					log.error("Slide {} was not converted due to TimeoutException, ending process.", page, e);
+					notifier.sendUploadFileTimedout(pres, page);
+					break;
+				}
 			}
-			Util.createBlankSvg(svgDir, page, blankSvg);
+
+			if (generatePngs) {
+				createPngImages(pres, page);
+			}
 
 			notifier.sendConversionUpdateMessage(page, pres, page);
 		}
@@ -84,12 +77,73 @@ public class ImageSlidesGenerationService {
 
 	}
 
+	private void createTextFiles(UploadedPresentation pres, int page) {
+		log.debug("Creating textfiles for accessibility.");
+		notifier.sendCreatingTextFilesUpdateMessage(pres);
+		textFileCreator.createTextFile(pres, page);
+	}
+	
+	private void createThumbnails(UploadedPresentation pres, int page) {
+		log.debug("Creating thumbnails.");
+		notifier.sendCreatingThumbnailsUpdateMessage(pres);
+		thumbnailCreator.createThumbnail(pres, page, pres.getUploadedFile());
+	}
+	
+	private void createSvgImages(UploadedPresentation pres, int page) throws TimeoutException{
+		log.debug("Creating SVG images.");
+
+		try {
+			ImageResolutionService imgResService = new ImageResolutionService();
+			ImageResolution imageResolution = imgResService.identifyImageResolution(pres.getUploadedFile());
+
+			log.debug("Identified image {} width={} and height={}", pres.getName(), imageResolution.getWidth(), imageResolution.getHeight());
+
+			if(imageResolution.getWidth() > maxImageWidth || imageResolution.getHeight() > maxImageHeight) {
+				log.info("The image exceeds max dimension allowed, it will be resized.");
+				resizeImage(pres, maxImageWidth + "x" + maxImageHeight);
+			}
+		} catch (Exception e) {
+			log.error("Exception while resizing image {}", pres.getName(), e);
+		}
+
+		notifier.sendCreatingSvgImagesUpdateMessage(pres);
+		svgImageCreator.createSvgImage(pres, page);
+	}
+	
+   private void createPngImages(UploadedPresentation pres, int page) {
+        pngCreator.createPng(pres, page, pres.getUploadedFile());
+   }
+
 	private void resizeImage(UploadedPresentation pres, String ratio) {
 	    imageResizer.resize(pres, ratio);
 	}
 
+	public void setThumbnailCreator(ThumbnailCreator thumbnailCreator) {
+		this.thumbnailCreator = thumbnailCreator;
+	}
+
+	public void setTextFileCreator(TextFileCreator textFileCreator) {
+		this.textFileCreator = textFileCreator;
+	}
+
+	public void setPngCreator(PngCreator pngCreator) {
+	  this.pngCreator = pngCreator;
+	}
+	
+	public void setSvgImageCreator(SvgImageCreator svgImageCreator) {
+		this.svgImageCreator = svgImageCreator;
+	}
+	
 	public void setGeneratePngs(boolean generatePngs) {
 	  this.generatePngs = generatePngs;
+	}
+
+	public void setSvgImagesRequired(boolean svg) {
+	  this.svgImagesRequired = svg;
+	}
+	
+	public void setMaxConversionTime(int minutes) {
+		MAX_CONVERSION_TIME = minutes * 60 * 1000L;
 	}
 
 	public void setSlidesGenerationProgressNotifier(SlidesGenerationProgressNotifier notifier) {
@@ -99,18 +153,11 @@ public class ImageSlidesGenerationService {
 	public void setImageResizer(ImageResizer imageResizer) {
 	    this.imageResizer = imageResizer;
 	}
-
-	public void setBlankThumbnail(String blankThumbnail) {
-		this.blankThumbnail = blankThumbnail;
+	
+	public void setMaxImageWidth(long maxImageWidth) {
+	    this.maxImageWidth = maxImageWidth;
 	}
-	public void setBlankPng(String blankPng) {
-		this.blankPng = blankPng;
-	}
-	public void setBlankSvg(String blankSvg) {
-		this.blankSvg = blankSvg;
-	}
-
-	public void setPresentationProcessExternal(PresentationProcessExternal presentationProcessExternal) {
-		this.presentationProcessExternal = presentationProcessExternal;
+	public void setMaxImageHeight(long maxImageHeight) {
+		this.maxImageHeight = maxImageHeight;
 	}
 }

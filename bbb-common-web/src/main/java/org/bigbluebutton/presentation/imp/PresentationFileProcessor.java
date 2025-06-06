@@ -25,15 +25,19 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class PresentationFileProcessor {
     private static Logger log = LoggerFactory.getLogger(PresentationFileProcessor.class);
 
+    private boolean svgImagesRequired=true;
     private boolean generatePngs;
     private PageExtractor pageExtractor;
 
-    private String blankThumbnail;
-    private String blankPng;
-    private String blankSvg;
+    private long bigPdfSize;
     private long maxBigPdfPageSize;
 
-    private PresentationProcessExternal presentationProcessExternal;
+    private long MAX_CONVERSION_TIME = 5 * 60 * 1000L;
+
+    private TextFileCreator textFileCreator;
+    private SvgImageCreator svgImageCreator;
+    private ThumbnailCreator thumbnailCreator;
+    private PngCreator pngCreator;
     private SlidesGenerationProgressNotifier notifier;
     private PageCounterService counterService;
     private PresentationConversionCompletionService presentationConversionCompletionService;
@@ -135,11 +139,13 @@ public class PresentationFileProcessor {
                     pres,
                     page,
                     pageFile,
+                    svgImagesRequired,
                     generatePngs,
-                    presentationProcessExternal,
-                    blankThumbnail,
-                    blankPng,
-                    blankSvg
+                    textFileCreator,
+                    svgImageCreator,
+                    thumbnailCreator,
+                    pngCreator,
+                    notifier
             );
 
             pdfSlidesGenerationService.process(pageToConvert);
@@ -317,8 +323,36 @@ public class PresentationFileProcessor {
         this.generatePngs = generatePngs;
     }
 
+    public void setBigPdfSize(long bigPdfSize) {
+        this.bigPdfSize = bigPdfSize;
+    }
+
     public void setMaxBigPdfPageSize(long maxBigPdfPageSize) {
         this.maxBigPdfPageSize = maxBigPdfPageSize;
+    }
+
+    public void setSvgImagesRequired(boolean svgImagesRequired) {
+        this.svgImagesRequired = svgImagesRequired;
+    }
+
+    public void setThumbnailCreator(ThumbnailCreator thumbnailCreator) {
+        this.thumbnailCreator = thumbnailCreator;
+    }
+
+    public void setPngCreator(PngCreator pngCreator) {
+        this.pngCreator = pngCreator;
+    }
+
+    public void setTextFileCreator(TextFileCreator textFileCreator) {
+        this.textFileCreator = textFileCreator;
+    }
+
+    public void setSvgImageCreator(SvgImageCreator svgImageCreator) {
+        this.svgImageCreator = svgImageCreator;
+    }
+
+    public void setMaxConversionTime(int minutes) {
+        MAX_CONVERSION_TIME = minutes * 60 * 1000L * 1000L * 1000L;
     }
 
     public void setImageSlidesGenerationService(ImageSlidesGenerationService s) {
@@ -335,19 +369,5 @@ public class PresentationFileProcessor {
 
     public void setS3FileManager(S3FileManager s3FileManager) {
         this.s3FileManager = s3FileManager;
-    }
-
-    public void setPresentationProcessExternal(PresentationProcessExternal presentationProcessExternal) {
-        this.presentationProcessExternal = presentationProcessExternal;
-    }
-
-    public void setBlankThumbnail(String blankThumbnail) {
-        this.blankThumbnail = blankThumbnail;
-    }
-    public void setBlankPng(String blankPng) {
-        this.blankPng = blankPng;
-    }
-    public void setBlankSvg(String blankSvg) {
-        this.blankSvg = blankSvg;
     }
 }

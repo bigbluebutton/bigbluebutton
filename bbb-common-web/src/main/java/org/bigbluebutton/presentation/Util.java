@@ -19,12 +19,10 @@
 
 package org.bigbluebutton.presentation;
 
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
 
 public final class Util {
@@ -63,69 +61,4 @@ public final class Util {
 		}
 	}
 
-	public static File determineTextfilesDirectory(File presentationFile) {
-		return new File(
-				presentationFile.getParent() + File.separatorChar + "textfiles");
-	}
-
-	public static File determineThumbnailDirectory(File presentationFile) {
-		return new File(
-				presentationFile.getParent() + File.separatorChar + "thumbnails");
-	}
-
-	public static File determinePngDirectory(File presentationFile) {
-		return new File(presentationFile.getParent() + File.separatorChar + "pngs");
-	}
-
-	public static File determineSvgImagesDirectory(File presentationFile) {
-		return new File(presentationFile.getParent() + File.separatorChar + "svgs");
-	}
-
-	public static void createBlankThumbnail(File dir, int page, String blankThumb) {
-		File thumb = new File(dir.getAbsolutePath() + File.separatorChar + "thumb-" + page + ".png");
-		if (!thumb.exists()) {
-			log.info("Copying blank thumbnail for slide {}", page);
-			copyBlankThumbnail(thumb, blankThumb);
-		}
-	}
-
-	private static void copyBlankThumbnail(File thumb, String blankThumb) {
-		try {
-			FileUtils.copyFile(new File(blankThumb), thumb);
-		} catch (IOException e) {
-			log.error("IOException while copying blank thumbnail.", e);
-		}
-	}
-
-	public static void createBlankPng(File dir, int page, String blankPng) {
-		File png = new File(dir.getAbsolutePath() + File.separator + "slide-" + page + ".png");
-		if (!png.exists()) {
-			log.info("Copying blank png for slide {}", page);
-			copyBlankPng(png, blankPng);
-		}
-	}
-
-	private static void copyBlankPng(File png, String blankPng) {
-		try {
-			FileUtils.copyFile(new File(blankPng), png);
-		} catch (IOException e) {
-			log.error("IOException while copying blank PNG.");
-		}
-	}
-
-	public static void createBlankSvg(File dir, int page, String blankSvg) {
-		File svg = new File(dir.getAbsolutePath() + File.separator + "slide" + page + ".svg");
-		if (!svg.exists()) {
-			log.info("Copying blank svg for slide {}", page);
-			copyBlankSvg(svg, blankSvg);
-		}
-	}
-
-	private static void copyBlankSvg(File svg, String blankSvg) {
-		try {
-			FileUtils.copyFile(new File(blankSvg), svg);
-		} catch (IOException e) {
-			log.error("IOException while copying blank SVG.");
-		}
-	}
 }
