@@ -43,6 +43,7 @@ import TimeSync from './app-graphql/time-sync/component';
 import PresentationUploaderToastContainer from '/imports/ui/components/presentation/presentation-toast/presentation-uploader-toast/container';
 import BreakoutJoinConfirmationContainerGraphQL from '../breakout-join-confirmation/breakout-join-confirmation-graphql/component';
 import FloatingWindowContainer from '/imports/ui/components/floating-window/container';
+import WebRTCStatsObserver from '/imports/ui/components/stats/component';
 import ChatAlertContainerGraphql from '../chat/chat-graphql/alert/component';
 import { notify } from '/imports/ui/services/notification';
 import VoiceActivityAdapter from '../../core/adapters/voice-activity';
@@ -346,6 +347,7 @@ class App extends Component {
     } = this.state;
     return (
       <>
+        <WebRTCStatsObserver />
         <ScreenReaderAlertAdapter />
         <PluginsEngineManager pluginConfig={pluginConfig} />
         <FloatingWindowContainer />
