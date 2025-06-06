@@ -257,6 +257,13 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
       await multiusers.initUserPage(false);
       await multiusers.muteAllUsersExceptPresenter();
     });
+
+    test('Clear all status icon', async ({ browser, context, page }) => {
+      const multiusers = new MultiUsers(browser, context);
+      await multiusers.initModPage(page, true);
+      await multiusers.initModPage2(true);
+      await multiusers.clearAllStatusIcon();
+    });
   });
 
   test.describe.parallel('Mobile devices', () => {
