@@ -179,11 +179,6 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
   focused,
 }, ref) => {
   const intl = useIntl();
-  const markMessageAsSeenOnScrollEnd = useCallback(() => {
-    if (messageRef.current && isInViewport(messageRef.current)) {
-      markMessageAsSeen(message);
-    }
-  }, [message, messageRef]);
   const messageContentRef = React.useRef<HTMLDivElement>(null);
   const [isToolbarReactionPopoverOpen, setIsToolbarReactionPopoverOpen] = React.useState(false);
   const [keyboardFocused, setKeyboardFocused] = React.useState(false);
@@ -292,7 +287,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
     });
   }, [messageContentRef]);
 
-  const scrollEndFrameRef = React.useRef<number | void>();
+  const scrollEndFrameRef = React.useRef<number>();
 
   const pollScrollEndEvent = useCallback((
     setFrameId: (id: number) => void,
@@ -318,11 +313,12 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
     if (messageRef.current && isInViewport(messageRef.current)) {
       markMessageAsSeen(message);
     }
-  }, []);
+  }, [markMessageAsSeen, message]);
 
   const startScrollEndEventPolling = useCallback(() => {
     if (scrollEndFrameRef.current != null) {
-      scrollEndFrameRef.current = cancelAnimationFrame(scrollEndFrameRef.current);
+      cancelAnimationFrame(scrollEndFrameRef.current);
+      scrollEndFrameRef.current = undefined;
     }
     scrollEndFrameRef.current = requestAnimationFrame(() => {
       pollScrollEndEvent((frameId) => {
@@ -344,8 +340,12 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
     }
     return () => {
       scrollRef?.current?.removeEventListener('scroll', callbackFunction);
+      if (scrollEndFrameRef.current !== undefined) {
+        cancelAnimationFrame(scrollEndFrameRef.current);
+        scrollEndFrameRef.current = undefined;
+      }
     };
-  }, [message, messageRef, markMessageAsSeenOnScrollEnd]);
+  }, [message, messageRef, startScrollEndEventPolling, markMessageAsSeen]);
 
   useEffect(() => {
     if (focused) {
