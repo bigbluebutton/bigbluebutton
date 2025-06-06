@@ -2,7 +2,7 @@
 
 TARGET=$(basename "$(pwd)")
 
-SERVER_VERSION=v1.8.4
+SERVER_VERSION=v1.9.0
 CLI_VERSION=2.3.1
 SIP_VERSION=v0.9.0
 
