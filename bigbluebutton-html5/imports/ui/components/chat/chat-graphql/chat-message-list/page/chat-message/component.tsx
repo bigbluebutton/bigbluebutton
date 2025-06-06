@@ -291,21 +291,59 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
       return messages;
     });
   }, [messageContentRef]);
+
+  const scrollEndFrameRef = React.useRef<number | void>();
+
+  const pollScrollEndEvent = useCallback((
+    setFrameId: (id: number) => void,
+    {
+      stabilityFrames,
+      currentFrame,
+    } = {
+      stabilityFrames: 20,
+      currentFrame: 0,
+    },
+  ) => {
+    if (currentFrame < stabilityFrames) {
+      const frameId = requestAnimationFrame(() => {
+        pollScrollEndEvent(setFrameId, {
+          stabilityFrames,
+          currentFrame: currentFrame + 1,
+        });
+      });
+      setFrameId(frameId);
+      return;
+    }
+
+    if (messageRef.current && isInViewport(messageRef.current)) {
+      markMessageAsSeen(message);
+    }
+  }, []);
+
+  const startScrollEndEventPolling = useCallback(() => {
+    if (scrollEndFrameRef.current != null) {
+      scrollEndFrameRef.current = cancelAnimationFrame(scrollEndFrameRef.current);
+    }
+    scrollEndFrameRef.current = requestAnimationFrame(() => {
+      pollScrollEndEvent((frameId) => {
+        scrollEndFrameRef.current = frameId;
+      });
+    });
+  }, []);
+
   useEffect(() => {
     const callbackFunction = () => {
-      if (messageRef.current && isInViewport(messageRef.current)) {
-        markMessageAsSeen(message); // Pass the 'message' argument here
-      }
+      startScrollEndEventPolling();
     };
     if (message && scrollRef.current && messageRef.current) {
       if (isInViewport(messageRef.current)) {
         markMessageAsSeen(message);
       } else {
-        scrollRef.current.addEventListener('scrollend', callbackFunction);
+        scrollRef.current.addEventListener('scroll', callbackFunction);
       }
     }
     return () => {
-      scrollRef?.current?.removeEventListener('scrollend', callbackFunction);
+      scrollRef?.current?.removeEventListener('scroll', callbackFunction);
     };
   }, [message, messageRef, markMessageAsSeenOnScrollEnd]);
 
