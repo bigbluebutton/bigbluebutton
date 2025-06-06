@@ -216,18 +216,19 @@ const LayoutEngine = () => {
   const calculatesSidebarNavHeight = () => {
     const {
       sidebarNavHeightPercentage,
-      sidebarNavHeightPercentageMobile,
     } = DEFAULT_VALUES;
     const { isOpen } = sidebarNavigationInput;
+    const sidebarBottomPadding = 20; // px
+    const actionsBarHeight = calculatesActionbarHeight().height;
 
     let sidebarNavigationHeight = 0;
     let availableHeight = windowHeight();
     if (isOpen) {
       if (isMobile) {
-        // The navigation sidebar is a floating tile on mobile, so it should
-        // not take into account the banner and navbar height when calculating
-        // its height.
-        sidebarNavigationHeight = availableHeight * sidebarNavHeightPercentageMobile;
+        // The navigation sidebar is a floating tile on mobile.
+        const spaceToActionsBar = (0.02 * availableHeight);
+        sidebarNavigationHeight = availableHeight - actionsBarHeight
+          - sidebarBottomPadding - spaceToActionsBar;
       } else {
         availableHeight -= bannerAreaHeight();
         sidebarNavigationHeight = availableHeight * sidebarNavHeightPercentage;
@@ -236,8 +237,9 @@ const LayoutEngine = () => {
     return sidebarNavigationHeight;
   };
 
-  const calculatesSidebarNavBounds = (sidebarNavHeight) => {
+  const calculatesSidebarNavBounds = () => {
     const {
+      navBarTop,
       sidebarNavMarginToTheEdgeMobile,
     } = DEFAULT_VALUES;
 
@@ -248,9 +250,12 @@ const LayoutEngine = () => {
     } else {
       left = isMobile ? sidebarNavMarginToTheEdgeMobile : 0;
     }
+    const navBarPadding = 0.8 * fontSize;
 
     return {
-      top: isMobile ? (windowHeight() - sidebarNavHeight) / 2 : bannerAreaHeight(),
+      top: isMobile
+        ? navBarTop + bannerAreaHeight() + navBarPadding
+        : bannerAreaHeight(),
       left,
       right,
       zIndex: isMobile ? 12 : 2,

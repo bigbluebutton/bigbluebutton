@@ -118,8 +118,6 @@ const NavBarContainer = ({ children, ...props }) => {
         breakoutName,
         meetingName,
         isDirectLeaveButtonEnabled: IS_DIRECT_LEAVE_BUTTON_ENABLED,
-        // TODO: Remove/Replace
-        isMeteorConnected: true,
         hideTopRow: navBar.hideTopRow,
         showSessionDetailsOnJoin: SHOW_SESSION_DETAILS_ON_JOIN,
         ...props,

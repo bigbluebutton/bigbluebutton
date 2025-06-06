@@ -11,35 +11,14 @@ import ConnectionStatus from '/imports/ui/components/connection-status/component
 import ConnectionStatusService from '/imports/ui/components/connection-status/service';
 import OptionsDropdownContainer from './options-dropdown/container';
 import TimerIndicatorContainer from '/imports/ui/components/timer/indicator/component';
-import browserInfo from '/imports/utils/browserInfo';
-import deviceInfo from '/imports/utils/deviceInfo';
-import { ACTIONS, LAYOUT_TYPE } from '../layout/enums';
 import Button from '/imports/ui/components/common/button/component';
 import LeaveMeetingButtonContainer from './leave-meeting-button/container';
-import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import Tooltip from '/imports/ui/components/common/tooltip/component';
 import SessionDetailsModal from '/imports/ui/components/session-details/component';
 import Icon from '/imports/ui/components/common/icon/icon-ts/component';
 import getStorageSingletonInstance from '../../services/storage';
-import getFromUserSettings from '/imports/ui/services/users-settings';
 
 const intlMessages = defineMessages({
-  toggleUserListLabel: {
-    id: 'app.navBar.userListToggleBtnLabel',
-    description: 'Toggle button label',
-  },
-  toggleUserListAria: {
-    id: 'app.navBar.toggleUserList.ariaLabel',
-    description: 'description of the lists inside the userlist',
-  },
-  newMessages: {
-    id: 'app.navBar.toggleUserList.newMessages',
-    description: 'label for toggleUserList btn when showing red notification',
-  },
-  newMsgAria: {
-    id: 'app.navBar.toggleUserList.newMsgAria',
-    description: 'label for new message screen reader alert',
-  },
   defaultBreakoutName: {
     id: 'app.createBreakoutRoom.room',
     description: 'default breakout room name',
@@ -64,8 +43,6 @@ const intlMessages = defineMessages({
 
 const propTypes = {
   presentationTitle: PropTypes.string,
-  hasUnreadMessages: PropTypes.bool,
-  shortcuts: PropTypes.string,
   breakoutNum: PropTypes.number,
   breakoutName: PropTypes.string,
   meetingName: PropTypes.string,
@@ -78,13 +55,10 @@ const propTypes = {
   sidebarContent: PropTypes.shape({
     isOpen: PropTypes.boolean,
   }).isRequired,
-  layoutContextDispatch: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
   presentationTitle: 'Default Room Title',
-  hasUnreadMessages: false,
-  shortcuts: '',
 };
 
 const renderPluginItems = (pluginItems) => {
@@ -165,7 +139,6 @@ class NavBar extends Component {
   constructor(props) {
     super(props);
 
-    this.handleToggleUserList = this.handleToggleUserList.bind(this);
     this.splitPluginItems = this.splitPluginItems.bind(this);
     this.setModalIsOpen = this.setModalIsOpen.bind(this);
 
@@ -192,7 +165,6 @@ class NavBar extends Component {
 
   componentDidMount() {
     const {
-      shortcuts: TOGGLE_USERLIST_AK,
       intl,
       breakoutNum,
       breakoutName,
@@ -212,21 +184,6 @@ class NavBar extends Component {
         }
       }
     }
-
-    const { isFirefox } = browserInfo;
-    const { isMacos } = deviceInfo;
-
-    // accessKey U does not work on firefox for macOS for some unknown reason
-    if (isMacos && isFirefox && TOGGLE_USERLIST_AK === 'U') {
-      document.addEventListener('keyup', (event) => {
-        const { key, code } = event;
-        const eventKey = key?.toUpperCase();
-        const eventCode = code;
-        if (event?.altKey && (eventKey === TOGGLE_USERLIST_AK || eventCode === `Key${TOGGLE_USERLIST_AK}`)) {
-          this.handleToggleUserList();
-        }
-      });
-    }
   }
 
   componentWillUnmount() {
@@ -239,18 +196,6 @@ class NavBar extends Component {
       getStorageSingletonInstance().setItem('alreadyShowSessionDetailsOnJoin', meetingId);
     }
     this.setState({ isModalOpen: isOpen });
-  }
-
-  handleToggleUserList() {
-    const {
-      sidebarNavigation,
-      layoutContextDispatch,
-    } = this.props;
-
-    layoutContextDispatch({
-      type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
-      value: !sidebarNavigation.isOpen,
-    });
   }
 
   splitPluginItems() {
@@ -280,42 +225,19 @@ class NavBar extends Component {
 
   render() {
     const {
-      hasUnreadMessages,
-      hasUnreadNotes,
       intl,
-      shortcuts: TOGGLE_USERLIST_AK,
       presentationTitle,
       amIModerator,
       style,
       main,
-      isPinned,
-      sidebarNavigation,
       currentUserId,
       isDirectLeaveButtonEnabled,
-      isMeteorConnected,
       hideTopRow,
     } = this.props;
 
     const { isModalOpen } = this.state;
 
-    const hasNotification = hasUnreadMessages || (hasUnreadNotes && !isPinned);
-
-    let ariaLabel = intl.formatMessage(intlMessages.toggleUserListAria);
-    ariaLabel += hasNotification ? (` ${intl.formatMessage(intlMessages.newMessages)}`) : '';
-
-    const isExpanded = sidebarNavigation.isOpen;
-    const { isPhone } = deviceInfo;
-
     const { leftPluginItems, centerPluginItems, rightPluginItems } = this.splitPluginItems();
-
-    const Settings = getSettingsSingletonInstance();
-    const { selectedLayout } = Settings.layout;
-    const shouldShowNavBarToggleButton = selectedLayout !== LAYOUT_TYPE.CAMERAS_ONLY
-      && selectedLayout !== LAYOUT_TYPE.PRESENTATION_ONLY
-      && selectedLayout !== LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY
-      && selectedLayout !== LAYOUT_TYPE.MEDIA_ONLY
-      && isPhone === true
-      && !getFromUserSettings('bbb_hide_sidebar_navigation', false);
 
     const APP_CONFIG = window.meetingClientSettings?.public?.app;
     const enableTalkingIndicator = APP_CONFIG?.enableTalkingIndicator;
@@ -342,24 +264,6 @@ class NavBar extends Component {
         {!hideTopRow && (
           <Styled.Top>
             <Styled.Left>
-              {shouldShowNavBarToggleButton && (
-                <Styled.NavbarToggleButton
-                  tooltipplacement="right"
-                  onClick={this.handleToggleUserList}
-                  color={isPhone && isExpanded ? 'primary' : 'dark'}
-                  size="md"
-                  circle
-                  hideLabel
-                  data-test={hasNotification ? 'hasUnreadMessages' : 'toggleUserList'}
-                  label={intl.formatMessage(intlMessages.toggleUserListLabel)}
-                  tooltipLabel={intl.formatMessage(intlMessages.toggleUserListLabel)}
-                  aria-label={ariaLabel}
-                  icon="menu"
-                  aria-expanded={isExpanded}
-                  accessKey={TOGGLE_USERLIST_AK}
-                  hasNotification={hasNotification}
-                />
-              )}
               {renderPluginItems(leftPluginItems)}
             </Styled.Left>
             <Styled.Center>
@@ -387,7 +291,7 @@ class NavBar extends Component {
               {renderPluginItems(rightPluginItems)}
               {ConnectionStatusService.isEnabled() ? <ConnectionStatusButton /> : null}
               {ConnectionStatusService.isEnabled() ? <ConnectionStatus /> : null}
-              {isDirectLeaveButtonEnabled && isMeteorConnected
+              {isDirectLeaveButtonEnabled
                 ? <LeaveMeetingButtonContainer amIModerator={amIModerator} /> : null}
               <OptionsDropdownContainer
                 amIModerator={amIModerator}

@@ -373,7 +373,7 @@ const SmartLayout = (props) => {
     const sidebarNavHeight = calculatesSidebarNavHeight();
     const sidebarContentWidth = calculatesSidebarContentWidth();
     const sidebarContentHeight = calculatesSidebarContentHeight();
-    const sidebarNavBounds = calculatesSidebarNavBounds(sidebarNavHeight);
+    const sidebarNavBounds = calculatesSidebarNavBounds();
     const sidebarContentBounds = calculatesSidebarContentBounds(
       sidebarNavWidth.horizontalSpaceOccupied,
     );
