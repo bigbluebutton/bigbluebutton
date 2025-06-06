@@ -27,4 +27,15 @@ public class ImageResizerHandler extends AbstractCommandHandler {
   private static Logger log = LoggerFactory
       .getLogger(ImageResizerHandler.class);
 
+  private final String id;
+
+  public ImageResizerHandler(String id) {
+    this.id = id;
+  }
+
+  @Override
+  protected String getIdTag() {
+    return id;
+  }
+
 }
