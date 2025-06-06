@@ -34,7 +34,8 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
         lockOnJoin = msg.body.lockOnJoin,
         lockOnJoinConfigurable = msg.body.lockOnJoinConfigurable,
         hideViewersCursor = msg.body.hideViewersCursor,
-        hideViewersAnnotation = msg.body.hideViewersAnnotation
+        hideViewersAnnotation = msg.body.hideViewersAnnotation,
+        disablePresentationUpload = msg.body.disablePresentationUpload
       )
 
       if (!MeetingStatus2x.permissionsEqual(liveMeeting.status, settings) || !MeetingStatus2x.permisionsInitialized(liveMeeting.status)) {
@@ -233,6 +234,33 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
           }
         }
 
+        if (oldPermissions.disablePresentationUpload != settings.disablePresentationUpload) {
+          if (settings.disablePresentationUpload) {
+            val notifyEvent = MsgBuilder.buildNotifyRoleInMeetingEvtMsg(
+              Roles.PRESENTER_ROLE,
+              liveMeeting.props.meetingProp.intId,
+              "info",
+              "presentation",
+              "app.userList.userOptions.disablePresentationUpload",
+              "Label to disable presentation upload notification",
+              Vector()
+            )
+            outGW.send(notifyEvent)
+            NotificationDAO.insert(notifyEvent)
+          } else {
+            val notifyEvent = MsgBuilder.buildNotifyAllInMeetingEvtMsg(
+              liveMeeting.props.meetingProp.intId,
+              "info",
+              "presentation",
+              "app.userList.userOptions.enablePresentationUpload",
+              "Label to enable presentation upload notification",
+              Vector()
+            )
+            outGW.send(notifyEvent)
+            NotificationDAO.insert(notifyEvent)
+          }
+        }
+
         val routing = Routing.addMsgToClientRouting(
           MessageTypes.BROADCAST_TO_MEETING,
           props.meetingProp.intId,
@@ -253,7 +281,8 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
           lockOnJoinConfigurable = settings.lockOnJoinConfigurable,
           hideViewersCursor = settings.hideViewersCursor,
           hideViewersAnnotation = settings.hideViewersAnnotation,
-          msg.body.setBy
+          msg.body.setBy,
+          disablePresentationUpload = settings.disablePresentationUpload
         )
         val header = BbbClientMsgHeader(
           LockSettingsInMeetingChangedEvtMsg.NAME,
