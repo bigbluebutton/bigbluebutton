@@ -464,11 +464,17 @@ class CustomParameters extends MultiUsers {
 
   async enforceVideoFocus() {
     await this.modPage.waitForSelector(e.whiteboard);
+    await this.userPage.waitForSelector(e.whiteboard);
     
     await this.modPage.waitAndClick(e.joinVideo); 
     await this.modPage.bringToFront();
     await this.modPage.hasElement(e.webcamMirroredVideoPreview, 'should display the video preview when sharing webcam ', ELEMENT_WAIT_TIME);
     await this.modPage.waitAndClick(e.startSharingWebcam);
+
+    await this.userPage.waitAndClick(e.joinVideo); 
+    await this.userPage.bringToFront();
+    await this.userPage.hasElement(e.webcamMirroredVideoPreview, 'should display the video preview when sharing webcam ', ELEMENT_WAIT_TIME);
+    await this.userPage.waitAndClick(e.startSharingWebcam);
         
     await this.modPage.waitForSelector(e.webcamMirroredVideoContainer, VIDEO_LOADING_WAIT_TIME);
     await this.modPage.waitForSelector(e.leaveVideo, VIDEO_LOADING_WAIT_TIME);
@@ -525,7 +531,7 @@ class CustomParameters extends MultiUsers {
     await this.modPage.shareWebcam();
     await this.userPage.shareWebcam();
 
-    await checkScreenshots(this, 'should be on custom layout', 'video', 'enforce-custom-layout', 1);
+    await checkScreenshots(this, 'should be on custom layout', [e.webcamContainer, e.webcamMirroredVideoContainer], 'enforce-custom-layout', 1);
 
     // checking the default location being reset when dropping into a non-available location
     await this.modPage.getLocator(e.webcamContainer).first().hover({ timeout: 5000 });
@@ -541,17 +547,17 @@ class CustomParameters extends MultiUsers {
     await this.modPage.page.mouse.up();
     
     await this.modPage.dragAndDropWebcams(e.dropAreaSidebarBottom);
-    await checkScreenshots(this, 'should be on custom layout', 'video', 'enforce-custom-layout', 2);
+    await checkScreenshots(this, 'should be on custom layout', [e.webcamContainer, e.webcamMirroredVideoContainer], 'enforce-custom-layout', 2);
 
     await this.modPage.dragAndDropWebcams(e.dropAreaSidebarBottom);
-    await checkScreenshots(this, 'should be on custom layout', 'video', 'enforce-custom-layout', 3);
+    await checkScreenshots(this, 'should be on custom layout', [e.webcamContainer, e.webcamMirroredVideoContainer], 'enforce-custom-layout', 3);
 
     await this.modPage.waitAndClick(e.userListToggleBtn);
     await this.modPage.wasRemoved(e.chatButton, 'should not be displayed the chat button');
     await this.modPage.wasRemoved(e.sendButton, 'should not be displayed the send button');
     await sleep(1000);
 
-    await checkScreenshots(this, 'should be on custom layout', 'video', 'enforce-custom-layout', 4);
+    await checkScreenshots(this, 'should be on custom layout', [e.webcamContainer, e.webcamMirroredVideoContainer], 'enforce-custom-layout', 4);
     await reopenChatSidebar(this.modPage);
   }
 }
