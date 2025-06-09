@@ -416,7 +416,7 @@
     "app.poll.activePollInstruction": "Leave this panel open to see live responses to your poll. When you are ready, select 'Publish polling results' to publish the results and end the poll.",
     "app.poll.dragDropPollInstruction": "To fill the poll values, drag a text file with the poll values onto the highlighted field",
     "app.poll.customPollTextArea": "Fill poll values",
-    "app.poll.publishLabel": "Publish poll",
+    "app.poll.publishLabel": "Publish results",
     "app.poll.cancelPollLabel": "Cancel",
     "app.poll.backLabel": "Start A Poll",
     "app.poll.closeLabel": "Close",
