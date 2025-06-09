@@ -38,7 +38,7 @@ module BigBlueButton
       ]
       WF_EXT = 'mp4'
       # Max PTS gap in ms to trigger video resampling
-      MAX_GAP_FOR_RESAMPLE_MS = 60_000 # 1 minute
+      MAX_GAP_FOR_RESAMPLE_MS = 30_000 # 30 seconds
 
       def self.dump(edl)
         BigBlueButton.logger.debug "EDL Dump:"
