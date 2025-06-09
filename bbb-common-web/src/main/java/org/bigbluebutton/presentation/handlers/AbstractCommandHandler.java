@@ -75,7 +75,7 @@ public abstract class AbstractCommandHandler extends
   @Override
   public void onExit(int statusCode) {
     exitCode = statusCode;
-    log.info("[{}] Process exited with code {}", getIdTag(), statusCode);
+    log.debug("[{}] Process exited with code {}", getIdTag(), statusCode);
   }
 
   /**
