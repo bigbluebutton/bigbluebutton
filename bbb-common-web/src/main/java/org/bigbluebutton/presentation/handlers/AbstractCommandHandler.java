@@ -65,7 +65,10 @@ public abstract class AbstractCommandHandler extends
       CharBuffer charBuffer = StandardCharsets.UTF_8.decode(buffer);
       String chunk = charBuffer.toString();
       stderrBuilder.append(chunk);
-      log.error("[{}] {}", getIdTag(), chunk.trim());
+      String trimmed = chunk.trim();
+      if (!trimmed.isEmpty()) {
+        log.error("[{}] {}", getIdTag(), trimmed);
+      }
     }
   }
 
