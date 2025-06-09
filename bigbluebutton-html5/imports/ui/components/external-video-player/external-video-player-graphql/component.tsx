@@ -453,7 +453,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     }
   };
 
-  const handleOnSeek = async (seconds: number) => {
+  const handleOnSeek = async (cursor: { position: number } | number) => {
     if (isPresenter) {
       const internalPlayer = playerRef.current?.getInternalPlayer();
       let rate = internalPlayer instanceof HTMLVideoElement
@@ -465,7 +465,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
 
       sendMessage('seek', {
         rate,
-        time: seconds,
+        time: typeof cursor === 'number' ? cursor : cursor.position,
       });
     } else {
       playVideo(playerRef.current as ReactPlayer);

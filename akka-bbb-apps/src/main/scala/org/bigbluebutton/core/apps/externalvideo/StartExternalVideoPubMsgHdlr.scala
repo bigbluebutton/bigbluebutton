@@ -6,6 +6,7 @@ import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x.requestBroadcastStop
 import org.bigbluebutton.core.db.ExternalVideoDAO
+import org.bigbluebutton.core.util.UrlTimeExtractor
 
 trait StartExternalVideoPubMsgHdlr extends RightsManagementTrait {
   this: ExternalVideoApp2x =>
@@ -38,9 +39,9 @@ trait StartExternalVideoPubMsgHdlr extends RightsManagementTrait {
       // Request a screen broadcast stop (goes to SFU, comes back through
       // ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg)
       requestBroadcastStop(bus.outGW, liveMeeting)
-
-      ExternalVideoModel.setURL(liveMeeting.externalVideoModel, msg.body.externalVideoUrl)
-      ExternalVideoDAO.insert(liveMeeting.props.meetingProp.intId, msg.body.externalVideoUrl)
+      val (url, seconds) = UrlTimeExtractor.extractTime(msg.body.externalVideoUrl)
+      ExternalVideoModel.setURL(liveMeeting.externalVideoModel, url)
+      ExternalVideoDAO.insert(liveMeeting.props.meetingProp.intId, url, seconds)
       broadcastEvent(msg)
     }
   }
