@@ -43,7 +43,7 @@ public class PluginUtils {
     }
 
     private static boolean matchesPluginParameterFormat(String pluginParameter, String pluginName) {
-        Pattern PLUGIN_PREFIX_PATTERN = Pattern.compile("plugin_" + pluginName + "_[a-zA-Z][a-zA-Z0-9-_]*$");
+        Pattern PLUGIN_PREFIX_PATTERN = Pattern.compile("plugin_" + pluginName + "-[a-zA-Z][a-zA-Z0-9_]*$");
         Matcher pluginPrefixMatcher = PLUGIN_PREFIX_PATTERN.matcher(pluginParameter);
         return pluginPrefixMatcher.matches();
     }
