@@ -131,7 +131,7 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
       await createParam.presentationFocus();
     });
 
-    test('VIDEO_FOCUS', async ({ browser, context, page }) => {
+    test.only('VIDEO_FOCUS', async ({ browser, context, page }) => {
       const createParam = new CreateParameters(browser, context);
       await createParam.initModPage(page, true, { createParameter: c.videoFocus });
       await createParam.initUserPage(true, context);
