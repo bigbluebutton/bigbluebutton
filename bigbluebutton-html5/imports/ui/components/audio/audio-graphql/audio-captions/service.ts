@@ -4,6 +4,7 @@ import { useIsLiveTranscriptionEnabled } from '/imports/ui/services/features';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import { Caption } from './live/queries';
 import Session from '/imports/ui/services/storage/in-memory';
+import { hasSpeechRecognitionSupport } from './speech/service';
 
 export const splitTranscript = (obj: Caption) => {
   const CAPTIONS_CONFIG = window.meetingClientSettings.public.captions;
@@ -67,8 +68,7 @@ export const isGladia = () => getSpeechProvider() === 'gladia';
 export const getSpeechVoices = () => {
   const LANGUAGES = window.meetingClientSettings.public.app.audioCaptions.language.available;
   if (!isWebSpeechApi()) return LANGUAGES;
-
-  if (!window.speechSynthesis) return null;
+  if (!hasSpeechRecognitionSupport()) return null;
 
   return unique(
     window

@@ -17,6 +17,7 @@ export const hasSpeechRecognitionSupport = () => {
   const VALID_ENVIRONMENT = !deviceInfo.isMobile || CONFIG.mobile;
 
   return typeof SpeechRecognitionAPI !== 'undefined'
+  && typeof window.speechSynthesis !== 'undefined'
   && VALID_ENVIRONMENT;
 };
 
