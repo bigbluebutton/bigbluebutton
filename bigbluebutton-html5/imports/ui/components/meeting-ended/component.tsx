@@ -193,24 +193,19 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
 
   const confirmRedirect = (isBreakout: boolean, allowRedirect: boolean) => {
     if (isBreakout) window.close();
-
     if (allowRedirect) {
-      if (isURL(logoutUrl)) {
-        const reason = generateEndMessage(joinErrorCode, meetingEndedCode, endedBy);
-        const finalUrl = reason
-          ? `${logoutUrl}${logoutUrl.includes('?') ? '&' : '?'}reason=${encodeURIComponent(reason)}`
-          : logoutUrl;
-        window.location.href = finalUrl;
-      } else {
-        logger.warn(`logout URL "${logoutUrl}" is not a valid URL: `);
-      }
-    } else {
-      logger.warn('Redirect to logout URL is not allowed');
+      const reason = generateEndMessage(joinErrorCode, meetingEndedCode, endedBy);
+      const finalUrl = reason
+        ? `${logoutUrl}${logoutUrl.includes('?') ? '&' : '?'}reason=${encodeURIComponent(reason)}`
+        : logoutUrl;
+      window.location.href = finalUrl;
     }
   };
 
   const logoutButton = useMemo(() => {
     const { locale } = intl;
+    
+    console.log("🚀 -> logoutButton -> learningDashboardAccessToken:", isURL(logoutUrl, { allow_numeric_tld: true }))
     return (
       (
         <Styled.Wrapper>
@@ -243,20 +238,29 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
           <Styled.Text>
             {intl.formatMessage(intlMessage.messageEnded)}
           </Styled.Text>
+          {
+            isURL(logoutUrl, {
+              // This option is merged with isFQDN
+              // so it's not a valid ts error /validator/lib/isURL.js line 153
+              // @ts-ignore
+              allow_numeric_tld: true,
+            }) ? (
+              <Styled.MeetingEndedButton
+                color="primary"
+                onClick={() => confirmRedirect(isBreakout, allowRedirect)}
+                /* @eslint-disable-next-line */
+                aria-details={intl.formatMessage(intlMessage.confirmDesc)}
+                data-test="redirectButton"
+              >
+                {intl.formatMessage(intlMessage.buttonOkay)}
+              </Styled.MeetingEndedButton>
+              ) : null
+          }
 
-          <Styled.MeetingEndedButton
-            color="primary"
-            onClick={() => confirmRedirect(isBreakout, allowRedirect)}
-            /* @eslint-disable-next-line */
-            aria-details={intl.formatMessage(intlMessage.confirmDesc)}
-            data-test="redirectButton"
-          >
-            {intl.formatMessage(intlMessage.buttonOkay)}
-          </Styled.MeetingEndedButton>
         </Styled.Wrapper>
       )
     );
-  }, [learningDashboardAccessToken, isModerator, meetingId, authToken, learningDashboardBase]);
+  }, [learningDashboardAccessToken, isModerator, meetingId, authToken, learningDashboardBase, logoutUrl]);
 
   useEffect(() => {
     // Sets Loading to falsed and removes loading splash screen
@@ -376,6 +380,8 @@ const MeetingEndedContainer: React.FC<MeetingEndedContainerProps> = ({
   } = clientSettings;
 
   const allowRedirect = allowRedirectToLogoutURL(logoutUrl);
+  console.log("🚀 -> allowRedirect:", allowRedirect)
+  console.log("🚀 -> logoutUrl:", logoutUrl)
 
   return (
     <MeetingEnded
