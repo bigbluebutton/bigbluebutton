@@ -204,8 +204,7 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
 
   const logoutButton = useMemo(() => {
     const { locale } = intl;
-    
-    console.log("🚀 -> logoutButton -> learningDashboardAccessToken:", isURL(logoutUrl, { allow_numeric_tld: true }))
+
     return (
       (
         <Styled.Wrapper>
@@ -380,8 +379,6 @@ const MeetingEndedContainer: React.FC<MeetingEndedContainerProps> = ({
   } = clientSettings;
 
   const allowRedirect = allowRedirectToLogoutURL(logoutUrl);
-  console.log("🚀 -> allowRedirect:", allowRedirect)
-  console.log("🚀 -> logoutUrl:", logoutUrl)
 
   return (
     <MeetingEnded
