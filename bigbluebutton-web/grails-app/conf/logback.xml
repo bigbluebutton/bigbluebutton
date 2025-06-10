@@ -12,7 +12,7 @@
 		<File>logs/bbb-web.log</File>
 		<rollingPolicy
 			class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-			<FileNamePattern>/var/log/bigbluebutton/bbb-web.%d{yyyy-MM-dd}.log
+			<FileNamePattern>/var/log/bigbluebutton/bbb-web.%d{yyyy-MM-dd}.log.gz
 			</FileNamePattern>
 			<!-- keep 14 days worth of history -->
 			<MaxHistory>14</MaxHistory>

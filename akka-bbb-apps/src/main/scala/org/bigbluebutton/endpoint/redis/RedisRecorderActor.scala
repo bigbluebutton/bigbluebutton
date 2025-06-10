@@ -127,6 +127,8 @@ class RedisRecorderActor(
       case m: MeetingEndingEvtMsg                   => handleMeetingEndingEvtMsg(m)
       case m: MeetingCreatedEvtMsg                  => handleStarterConfigurations(m)
       case m: SetScreenshareAsContentEvtMsg         => handleSetScreenshareAsContent(m)
+      case m: ScreenshareRtmpBroadcastStartedEvtMsg => handleScreenshareRtmpBroadcastStartedEvtMsg(m)
+      case m: ScreenshareRtmpBroadcastStoppedEvtMsg => handleScreenshareRtmpBroadcastStoppedEvtMsg(m)
 
       // Recording
       case m: RecordingChapterBreakSysMsg           => handleRecordingChapterBreakSysMsg(m)
@@ -806,4 +808,21 @@ class RedisRecorderActor(
     record(msg.header.meetingId, ev.toMap().asJava)
   }
 
+  private def handleScreenshareRtmpBroadcastStartedEvtMsg(msg: ScreenshareRtmpBroadcastStartedEvtMsg): Unit = {
+    handleUserStatusChange(
+      msg.header.meetingId,
+      msg.body.userId,
+      "hasScreenShare",
+      s"true,stream=${msg.body.stream}"
+    )
+  }
+
+  private def handleScreenshareRtmpBroadcastStoppedEvtMsg(msg: ScreenshareRtmpBroadcastStoppedEvtMsg): Unit = {
+    handleUserStatusChange(
+      msg.header.meetingId,
+      msg.body.userId,
+      "hasScreenShare",
+      s"false,stream=${msg.body.stream}"
+    )
+  }
 }

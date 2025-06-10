@@ -521,6 +521,9 @@ const WhiteboardContainer = (props) => {
   const { isRTL } = Settings.application;
   const width = layoutSelect((i) => i?.output?.presentation?.width);
   const height = layoutSelect((i) => i?.output?.presentation?.height);
+  const layoutType = layoutSelect((i) => i?.layoutType);
+  const layoutChanged = usePrevious(layoutType) !== layoutType;
+
   const sidebarNavigationWidth = layoutSelect(
     (i) => i?.output?.sidebarNavigation?.width,
   );
@@ -608,6 +611,7 @@ const WhiteboardContainer = (props) => {
           isInfiniteWhiteboard,
           curPageNum,
           setEditor,
+          layoutChanged,
         }}
         {...props}
         meetingId={Auth.meetingID}
