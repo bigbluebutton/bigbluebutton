@@ -33,8 +33,16 @@ const useAudioGroupStreamsSubscription = createUseSubscription(
 );
 
 const PARTICIPANTS_UPDATE_FILTER = [
+  RoomEvent.ParticipantConnected,
+  RoomEvent.ParticipantDisconnected,
+  RoomEvent.ConnectionStateChanged,
   RoomEvent.TrackPublished,
   RoomEvent.TrackUnpublished,
+  RoomEvent.TrackSubscriptionPermissionChanged,
+  RoomEvent.TrackSubscriptionStatusChanged,
+  RoomEvent.TrackSubscribed,
+  RoomEvent.TrackUnsubscribed,
+  RoomEvent.TrackSubscriptionFailed,
 ];
 
 const isValidSource = (source: Track.Source) => (
