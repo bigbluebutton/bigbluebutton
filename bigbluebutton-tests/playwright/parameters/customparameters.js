@@ -8,7 +8,7 @@ const { sleep } = require('../core/helpers');
 const { getSettings } = require('../core/settings');
 const { uploadSinglePresentation } = require('../presentation/util');
 const utilScreenShare = require('../screenshare/util');
-const { reopenChatSidebar, checkScreenshots } = require('../layouts/util');
+const { reopenChatSidebar, checkScreenshots, checkDefaultLocationReset } = require('../layouts/util');
 const path = require('path');
 
 class CustomParameters extends MultiUsers {
@@ -534,18 +534,7 @@ class CustomParameters extends MultiUsers {
     await checkScreenshots(this, 'should be on custom layout', [e.webcamContainer, e.webcamMirroredVideoContainer], 'enforce-custom-layout', 1);
 
     // checking the default location being reset when dropping into a non-available location
-    await this.modPage.getLocator(e.webcamContainer).first().hover({ timeout: 5000 });
-    await this.modPage.page.mouse.down();
-    await this.modPage.getLocator(e.whiteboard).hover({ timeout: 5000 });
-    
-    // checking all dropAreas being displayed
-    await this.modPage.hasElement(e.dropAreaBottom);
-    await this.modPage.hasElement(e.dropAreaLeft);
-    await this.modPage.hasElement(e.dropAreaRight);
-    await this.modPage.hasElement(e.dropAreaTop);
-    await this.modPage.hasElement(e.dropAreaSidebarBottom);
-    await this.modPage.page.mouse.up();
-    
+    await checkDefaultLocationReset(this.modPage);
     await this.modPage.dragAndDropWebcams(e.dropAreaSidebarBottom);
     await checkScreenshots(this, 'should be on custom layout', [e.webcamContainer, e.webcamMirroredVideoContainer], 'enforce-custom-layout', 2);
 
