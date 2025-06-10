@@ -42,7 +42,7 @@ public class PdfPageCounter implements PageCounter {
     NuProcessBuilder pdfInfo = new NuProcessBuilder(
         Arrays.asList("/usr/share/bbb-web/run-in-systemd.sh","10","pdfinfo", presentationFile.getAbsolutePath()));
 
-    PdfPageCounterHandler pHandler = new PdfPageCounterHandler();
+    PdfPageCounterHandler pHandler = new PdfPageCounterHandler("pdfpagecount-" + presentationFile.getName());
     pdfInfo.setProcessListener(pHandler);
 
     NuProcess process = pdfInfo.start();

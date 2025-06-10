@@ -3,26 +3,18 @@ package org.bigbluebutton.presentation.handlers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
-
 public class Png2SvgConversionHandler extends AbstractCommandHandler {
 
-    private final StringBuilder stderr = new StringBuilder();
+    private static Logger log = LoggerFactory.getLogger(Png2SvgConversionHandler.class);
+
+    private final String id;
+
+    public Png2SvgConversionHandler(String id) {
+        this.id = id;
+    }
 
     @Override
-    public void onStderr(ByteBuffer buffer, boolean closed) {
-        if (!closed) {
-            byte[] bytes = new byte[buffer.remaining()];
-            buffer.get(bytes);
-            stderr.append(new String(bytes, StandardCharsets.UTF_8));
-        }
+    protected String getIdTag() {
+        return id;
     }
-
-    public String getStderrString() {
-        return stderr.toString();
-    }
-
-
-    private static Logger log = LoggerFactory.getLogger(Png2SvgConversionHandler.class);
 }
