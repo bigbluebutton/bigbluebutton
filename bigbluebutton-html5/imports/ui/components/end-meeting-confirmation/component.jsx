@@ -42,10 +42,10 @@ class EndMeetingComponent extends PureComponent {
       isOpen, onRequestClose, priority, setIsOpen,
     } = this.props;
 
-    const title = intl.formatMessage(intlMessages.endMeetingTitle, { 0: meetingTitle });
+    const title = intl.formatMessage(intlMessages.endMeetingTitle, { meetingTitle });
 
     let description = users > 1
-      ? intl.formatMessage(intlMessages.endMeetingDescription, { 0: users - 1 })
+      ? intl.formatMessage(intlMessages.endMeetingDescription, { numberOfUsers: users - 1 })
       : intl.formatMessage(intlMessages.endMeetingNoUserDescription);
 
     const { warnAboutUnsavedContentOnMeetingEnd } = window.meetingClientSettings.public.app;

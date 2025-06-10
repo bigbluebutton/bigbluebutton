@@ -492,7 +492,7 @@ export const PresentationUploaderToast = ({
         && p?.exportToChatStatus === EXPORT_STATUSES.EXPORTED
         && prevPropPres?.exportToChatStatus !== p?.exportToChatStatus
       ) {
-        notify(intl.formatMessage(intlMessages.linkAvailable, { 0: p.name }), 'success');
+        notify(intl.formatMessage(intlMessages.linkAvailable, { presentationName: p.name }), 'success');
         handleDismissToast(exportToastIdRef.current);
       }
       return p;
