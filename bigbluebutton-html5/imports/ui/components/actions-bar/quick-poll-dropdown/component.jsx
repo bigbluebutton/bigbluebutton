@@ -99,7 +99,7 @@ const QuickPollDropdown = (props) => {
   lines.forEach((line) => {
     const trimmedLine = line.trim();
 
-    if (questionPattern.test(trimmedLine) || optionsPattern.test(trimmedLine)) {
+    if (questionPattern.test(trimmedLine) || optionsPattern.test(trimmedLine.replace(/\s+/g, ''))) {
       // We've found explicit options (e.g., "a) Yes" or "Yes / No")
       isOptionSection = true;
       options.push(trimmedLine);
@@ -109,8 +109,27 @@ const QuickPollDropdown = (props) => {
     }
   });
 
-  // Join lines into a single question string
-  const question = [questionLines.join(' ').trim()];
+  if (questionLines.length === 0) {
+    const lastNonEmptyLine = [...lines].reverse().find((line) => line.trim().length > 0);
+    if (lastNonEmptyLine && lastNonEmptyLine.trim().endsWith('?')) {
+      questionLines.push(lastNonEmptyLine.trim());
+    }
+  }
+  let questionText = questionLines.join(' ').trim();
+
+  if (!options.length) {
+    // Prefer first line that ends with a ?
+    const firstQuestionLine = lines.find((line) => line.trim().endsWith('?'));
+    if (firstQuestionLine) {
+      questionText = firstQuestionLine.trim();
+    }
+  }
+
+  const urlRegex = /\bhttps?:\/\/\S+\b/g;
+  const hasUrl = safeMatch(urlRegex, questionText, '');
+  if (hasUrl.length > 0) questionText = ''; // Strip URL-only questions
+
+  const question = [questionText];
 
   // Check explicitly if options exist or if the question ends with '?'
   const hasExplicitQuestionMark = /\?$/.test(question);
@@ -125,8 +144,6 @@ const QuickPollDropdown = (props) => {
 
   if (question?.length > 0) {
     question[0] = question[0]?.replace(/\n/g, ' ');
-    const urlRegex = /\bhttps?:\/\/\S+\b/g;
-    const hasUrl = safeMatch(urlRegex, question[0], '');
     if (hasUrl.length > 0) question.pop();
   }
 
@@ -169,17 +186,17 @@ const QuickPollDropdown = (props) => {
     }
 
     const {
-      options,
+      options: opt,
     } = lastElement;
 
-    const lastOption = options[options.length - 1];
+    const lastOption = opt[opt.length - 1];
 
     const isLastOptionInteger = !!parseInt(lastOption.charAt(1), 10);
     const isCurrentValueInteger = !!parseInt(currentValue.charAt(1), 10);
 
     if (isLastOptionInteger === isCurrentValueInteger) {
       if (currentValue.toLowerCase().charCodeAt(1) > lastOption.toLowerCase().charCodeAt(1)) {
-        options.push(currentValue);
+        opt.push(currentValue);
       } else {
         acc.push({
           options: [currentValue],
@@ -192,8 +209,8 @@ const QuickPollDropdown = (props) => {
     }
     return acc;
   }, []).filter(({
-    options,
-  }) => options.length > 1 && options.length < 10).forEach((p) => {
+    options: opt,
+  }) => opt.length > 1 && opt.length < 10).forEach((p) => {
     const poll = p;
     if (doubleQuestion) poll.multiResp = true;
     if (poll.options.length <= 5 || MAX_CUSTOM_FIELDS <= 5) {
@@ -268,7 +285,7 @@ const QuickPollDropdown = (props) => {
   };
 
   const getAvailableQuickPolls = (
-    slideId, parsedSlides, funcStartPoll, _pollTypes, _layoutContextDispatch,
+    sId, parsedSlides, funcStartPoll, _pollTypes, _layoutContextDispatch,
   ) => {
     const pollItemElements = parsedSlides.map((poll) => {
       const { poll: label } = poll;
@@ -287,7 +304,7 @@ const QuickPollDropdown = (props) => {
               }
               setTimeout(() => {
                 handleClickQuickPoll(_layoutContextDispatch);
-                funcStartPoll(type, slideId, letterAnswers, pollData?.question);
+                funcStartPoll(type, sId, letterAnswers, pollData?.question);
               }, CANCELED_POLL_DELAY);
             }}
             question={pollData?.question}
@@ -298,11 +315,11 @@ const QuickPollDropdown = (props) => {
       if (type !== _pollTypes.YesNo
           && type !== _pollTypes.YesNoAbstention
           && type !== _pollTypes.TrueFalse) {
-        const { options } = itemLabel;
-        itemLabel = options.join('/').replace(/[\n.)]/g, '');
+        const { options: opt } = itemLabel;
+        itemLabel = opt.join('/').replace(/[\n.)]/g, '');
         if (type === _pollTypes.Custom) {
-          for (let i = 0; i < options.length; i += 1) {
-            const letterOption = options[i]?.replace(/[\r.)]/g, '').toUpperCase();
+          for (let i = 0; i < opt.length; i += 1) {
+            const letterOption = opt[i]?.replace(/[\r.)]/g, '').toUpperCase();
             if (letterAnswers.length < MAX_CUSTOM_FIELDS) {
               letterAnswers.push(letterOption);
             } else {
