@@ -539,8 +539,8 @@ const UserActions: React.FC<UserActionsProps> = ({
     {
       allowed: allowedToChangeUserLockStatus,
       key: 'unlockUser',
-      label: userLocked ? intl.formatMessage(messages.UnlockUserLabel, { 0: user.name })
-        : intl.formatMessage(messages.LockUserLabel, { 0: user.name }),
+      label: userLocked ? intl.formatMessage(messages.UnlockUserLabel, { userName: user.name })
+        : intl.formatMessage(messages.LockUserLabel, { userName: user.name }),
       onClick: () => {
         setLocked({
           variables: {
