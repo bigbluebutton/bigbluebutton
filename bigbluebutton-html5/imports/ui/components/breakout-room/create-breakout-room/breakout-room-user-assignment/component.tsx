@@ -374,7 +374,7 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
               type="text"
               readOnly
               value={
-                intl.formatMessage(intlMessages.notAssigned, { 0: 0 })
+                intl.formatMessage(intlMessages.notAssigned, { userCount: rooms[0]?.users?.length })
               }
             />
           </Styled.FreeJoinLabel>

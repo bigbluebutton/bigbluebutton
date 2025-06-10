@@ -210,7 +210,7 @@ const BreakoutRoom: React.FC<BreakoutRoomProps> = ({
                 <Styled.Content key={`breakoutRoomList-${breakout.breakoutRoomId}`}>
                   <Styled.BreakoutRoomListNameLabel data-test={breakout.shortName} aria-hidden>
                     {breakout.isDefaultName
-                      ? intl.formatMessage(intlMessages.breakoutRoom, { 0: breakout.sequence })
+                      ? intl.formatMessage(intlMessages.breakoutRoom, { roomNumber: breakout.sequence })
                       : breakout.shortName}
                     <Styled.UsersAssignedNumberLabel>
                       (
