@@ -879,6 +879,8 @@
     "app.audio.captions.speech.title": "Automatic transcription",
     "app.audio.captions.speech.tip": "For other users to see your captions, you need to enable transcription.",
     "app.audio.captions.speech.captions": "Captions",
+    "app.audio.captions.speech.captionsToggleTooltip": "Caption language tracks become available as users enable their transcription.",
+    "app.audio.captions.speech.noAvailableCaptions": "No captions available. Language tracks become available as users enable transcription.",
     "app.audio.captions.speech.transcriptionDescription": "For other users to see your captions, you need to enable transcription.",
     "app.audio.captions.speech.disabled": "Disabled",
     "app.audio.captions.speech.unsupported": "Your browser doesn't support speech recognition. Your audio won't be transcribed",

@@ -1,9 +1,10 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import {
   getCaptionsTermsLink,
-  getSpeechVoices,
 } from '/imports/ui/components/audio/audio-graphql/audio-captions/service';
+import { ActiveCaptionsResponse, GET_ACTIVE_CAPTIONS } from '/imports/ui/components/audio/audio-graphql/audio-captions/button/queries';
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import { layoutDispatch, layoutSelect } from '/imports/ui/components/layout/context';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
@@ -45,14 +46,18 @@ const AudioCaptionsPanel = () => {
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
   const [active] = useAudioCaptionEnable();
   const captionsTermsLink = getCaptionsTermsLink(intl.locale);
-  const [voicesList, setVoicesList] = React.useState<string[]>([]);
-  const voices = getSpeechVoices();
-  useEffect(() => {
-    if (voices && voicesList.length === 0) {
-      setVoicesList(voices);
-    }
-  }, [voices]);
-  const speechVoices = voices || voicesList;
+
+  const {
+    data: activeCaptionsData,
+    loading: activeCaptionsLoading,
+  } = useDeduplicatedSubscription<ActiveCaptionsResponse>(GET_ACTIVE_CAPTIONS);
+
+  if (activeCaptionsLoading) return null;
+  if (!currentUser) return null;
+  if (!activeCaptionsData) return null;
+
+  const availableCaptions = activeCaptionsData.caption_activeLocales.map((caption) => caption.locale);
+  const currentCaptionLocale = currentUser.captionLocale || '';
 
   return (
     <>
@@ -102,8 +107,8 @@ const AudioCaptionsPanel = () => {
           <AudioCaptionsTextControls
             intl={intl}
             textActive={active}
-            captionLocale={currentUser?.captionLocale || ''}
-            speechVoices={speechVoices}
+            captionLocale={currentCaptionLocale}
+            availableCaptions={availableCaptions}
           />
         </Styled.CaptionsContainer>
       </Styled.AudioCaptions>

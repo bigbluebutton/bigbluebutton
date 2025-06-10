@@ -1,5 +1,5 @@
 export interface AudioCaptionsTextSelectorProps {
   captionLocale: string;
-  speechVoices: string[];
+  availableCaptions: string[];
   captionActive: boolean;
 }
