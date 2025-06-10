@@ -3,8 +3,8 @@ name: BigBlueButton
 applicationSuite: BigBlueButton
 url: https://github.com/bigbluebutton/bigbluebutton
 landingURL: https://bigbluebutton.org/
-softwareVersion: 3.0.5
-releaseDate: 2025-04-02
+softwareVersion: 3.0.8
+releaseDate: 2025-05-28
 logo: https://bigbluebutton.org/wp-content/uploads/2021/01/BigBlueButton_icon.svg.png
 platforms:
   - linux
