@@ -170,7 +170,7 @@ class MeetingActor(
     expiryTracker,
     recordingTracker,
     new AudioGroups(Map.empty),
-    Map.empty
+    PresentationConversions(Map.empty)
   )
 
   var lastRttTestSentOn = System.currentTimeMillis()
@@ -849,10 +849,11 @@ class MeetingActor(
 
   private def handleCheckPresentationConversions(): MeetingState2x = {
     val now = Instant.now()
-    val maxDuration = java.time.Duration.ofMinutes(20)
 
-    val presentationConversions = state.presentationConversions.filter { case (presId, startTime) =>
-      val start = Instant.ofEpochMilli(startTime)
+    def conversionFilter(entry: (String, PresentationConversion)): Boolean = {
+      val (presId, conversion) = entry
+      val start = Instant.ofEpochMilli(conversion.startTime)
+      val maxDuration = java.time.Duration.ofMinutes(conversion.maxDuration)
       if (java.time.Duration.between(start, now).compareTo(maxDuration) > 0) {
         log.warning(s"Presentation $presId in meeting ${props.meetingProp.intId} has been converting for longer than $maxDuration. Presentation conversion may be down on this server!")
         false
@@ -861,6 +862,7 @@ class MeetingActor(
       }
     }
 
+    val presentationConversions = state.presentationConversions.filter(conversionFilter)
     state.update(presentationConversions)
   }
 

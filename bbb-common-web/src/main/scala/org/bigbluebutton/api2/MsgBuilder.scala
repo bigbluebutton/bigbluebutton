@@ -197,7 +197,7 @@ object MsgBuilder {
     val header = BbbClientMsgHeader(PresentationConversionUpdateSysPubMsg.NAME, msg.meetingId, msg.authzToken)
     val body = PresentationConversionUpdateSysPubMsgBody(podId = msg.podId, messageKey = msg.key,
       code = msg.key, presentationId = msg.presId, presName = msg.filename,
-      temporaryPresentationId = msg.temporaryPresentationId)
+      temporaryPresentationId = msg.temporaryPresentationId, maxDuration = msg.maxConversionTime)
     val req = PresentationConversionUpdateSysPubMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, req)
   }

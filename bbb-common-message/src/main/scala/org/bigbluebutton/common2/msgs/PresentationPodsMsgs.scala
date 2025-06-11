@@ -63,7 +63,8 @@ case class PresentationConversionUpdateSysPubMsgBody(
     code:                    String,
     presentationId:          String,
     presName:                String,
-    temporaryPresentationId: String
+    temporaryPresentationId: String,
+    maxDuration: Long,
 )
 
 object PresentationPageCountErrorSysPubMsg { val NAME = "PresentationPageCountErrorSysPubMsg" }
