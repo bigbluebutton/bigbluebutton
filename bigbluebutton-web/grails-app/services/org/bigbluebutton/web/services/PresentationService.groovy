@@ -40,6 +40,7 @@ class PresentationService {
 	def presentationBaseUrl
 	def preUploadedPresentationOverrideDefault
 	def scanUploadedPresentationFiles
+	def maxConversionTime
 
 	def deletePresentation = {conf, room, filename ->
 		def directory = new File(roomDirectory(conf, room).absolutePath + File.separatorChar + filename)
@@ -87,6 +88,12 @@ class PresentationService {
 		def scheduler = Executors.newSingleThreadScheduledExecutor()
 		def startTime = System.currentTimeMillis()
 		def timeout = 10000 // 10 secs
+
+		def mct = 0L
+		try {
+			mct = Long.parseLong(maxConversionTime)
+		} catch (Exception ignored) {}
+		uploadedPres.setMaxConversionTime(mct)
 
 		scheduler.scheduleWithFixedDelay({
 			long elapsedTime = System.currentTimeMillis() - startTime
@@ -193,8 +200,6 @@ class PresentationService {
 }
 
 /*** Helper classes **/
-import java.io.FilenameFilter;
-import java.io.File;
 class SvgFilter implements FilenameFilter {
 	public boolean accept(File dir, String name) {
 		return (name.endsWith(".svg"));
