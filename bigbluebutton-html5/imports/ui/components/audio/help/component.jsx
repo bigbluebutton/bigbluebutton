@@ -182,7 +182,7 @@ class Help extends Component {
           {intl.formatMessage(intlMessages.unknownError)}
         </Styled.Text>
         <Styled.UnknownError>
-          {intl.formatMessage(intlMessages.errorCode, { 0: code, 1: message || 'UnknownError' })}
+          {intl.formatMessage(intlMessages.errorCode, { code, message: message || 'UnknownError' })}
         </Styled.UnknownError>
       </>
     );

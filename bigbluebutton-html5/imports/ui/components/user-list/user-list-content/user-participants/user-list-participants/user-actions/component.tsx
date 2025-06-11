@@ -259,7 +259,7 @@ const UserActions: React.FC<UserActionsProps> = ({
         notify(
           intl.formatMessage(
             messages.multiUserLimitHasBeenReachedNotification,
-            { 0: WHITEBOARD_CONFIG.maxNumberOfActiveUsers },
+            { numberOfUsers: WHITEBOARD_CONFIG.maxNumberOfActiveUsers },
           ),
           'info',
           'pen_tool',

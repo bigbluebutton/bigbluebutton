@@ -372,7 +372,7 @@ class PresentationToolbar extends PureComponent {
     if (disableStartingMultiUser) {
       multiUserLabel = intl.formatMessage(
         intlMessages.multiUserLimitHasBeenReached,
-        { 0: maxNumberOfActiveUsers },
+        { numberOfUsers: maxNumberOfActiveUsers },
       );
     } else if (multiUser) {
       multiUserLabel = intl.formatMessage(intlMessages.toolbarMultiUserOff);

@@ -180,12 +180,12 @@ const PollingGraphql: React.FC<PollingGraphqlProps> = (props) => {
                     />
                     <Styled.Hidden id={`pollAnswerLabel${option.optionDesc}`}>
                       {intl.formatMessage(intlMessages.pollAnswerLabel, {
-                        0: label,
+                        option: label,
                       })}
                     </Styled.Hidden>
                     <Styled.Hidden id={`pollAnswerDesc${option.optionDesc}`}>
                       {intl.formatMessage(intlMessages.pollAnswerDesc, {
-                        0: label,
+                        option: label,
                       })}
                     </Styled.Hidden>
                   </Styled.PollButtonWrapper>

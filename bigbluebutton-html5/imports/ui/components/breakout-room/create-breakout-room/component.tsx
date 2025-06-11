@@ -532,7 +532,7 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
                   {
                     intl.formatMessage(
                       intlMessages.minimumDurationWarnBreakout,
-                      { 0: MIN_BREAKOUT_TIME },
+                      { timeInMinutes: MIN_BREAKOUT_TIME },
                     )
                   }
                 </Styled.SpanWarn>
