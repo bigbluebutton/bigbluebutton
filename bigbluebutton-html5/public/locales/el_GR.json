@@ -61,7 +61,7 @@
     "app.chat.header.tooltipReply": "Απάντηση στο μήνυμα",
     "app.chat.header.tooltipDelete": "Διαγραφή μηνύματος",
     "app.chat.header.tooltipReact": "Αντίδραση στο μήνυμα",
-    "app.chat.content.pollVote": "ψήφοφορία",
+    "app.chat.content.pollVote": "ψηφοφορία",
     "app.chat.content.pollVotes": "ψήφοι",
     "app.timer.toolTipTimerStopped": "Ο χρόνος σταμάτησε.",
     "app.timer.toolTipTimerRunning": "Ο χρόνος λειτουργεί.",
