@@ -202,10 +202,6 @@ object PluginModel {
     (instance, pluginSettings.values.toList)
   }
 
-  def createPluginModelFromJson(
-                                 json: util.Map[String, AnyRef],
-                                 clientSettings: Map[String, Object]): (PluginModel, List[ClientSettings.Plugin]) = {
-
   private def html5SdkSatisfiesPluginRequiredVersion(bbbHtml5SdkVersion: String, pluginHtml5SdkRequirement: String): Boolean = {
     try {
       val v = Version.parse(bbbHtml5SdkVersion)
@@ -223,7 +219,9 @@ object PluginModel {
     html5SdkSatisfiesPluginRequiredVersion(html5PluginSdkVersion, pluginManifestRequiredSdkVersion)
   }
 
-  def createPluginModelFromJson(json: util.Map[String, AnyRef], html5PluginSdkVersion: String): PluginModel = {
+    def createPluginModelFromJson(json: util.Map[String, AnyRef],
+                                   html5PluginSdkVersion: String,
+                                   clientSettings: Map[String, Object]): (PluginModel, List[ClientSettings.Plugin]) = {
     val instance = new PluginModel()
     var pluginsMap: Map[String, Plugin] = Map.empty[String, Plugin]
     json.forEach { case (pluginName, plugin) =>
