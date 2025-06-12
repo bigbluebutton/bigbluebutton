@@ -150,6 +150,10 @@ const messages = defineMessages({
     id: 'app.whiteboard.toolbar.multiUserLimitHasBeenReachedNotification',
     description: 'message for when the maximum number of whiteboard writers has been reached',
   },
+  removeUserConfirmation: {
+    id: 'app.userList.menu.removeConfirmation.label',
+    description: 'Confirmation message for removing a user from the meeting',
+  },
 });
 const makeDropdownPluginItem: (
   userDropdownItems: PluginSdk.UserListDropdownInterface[]) => DropdownItem[] = (
@@ -630,8 +634,7 @@ const UserActions: React.FC<UserActionsProps> = ({
       {isConfirmationModalOpen ? (
         <ConfirmationModal
           intl={intl}
-          titleMessageId="app.userList.menu.removeConfirmation.label"
-          titleMessageExtra={user.name}
+          title={intl.formatMessage(messages.removeUserConfirmation, { userName: user.name })}
           checkboxMessageId="app.userlist.menu.removeConfirmation.desc"
           confirmParam={user.userId}
           onConfirm={removeUser}
