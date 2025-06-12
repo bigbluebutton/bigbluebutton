@@ -1,32 +1,21 @@
 package org.bigbluebutton.core.util
 
-import java.net.{ URL, URLDecoder }
 import scala.util.matching.Regex
+import org.apache.http.client.utils.URIBuilder
+import scala.jdk.CollectionConverters._
 
 object UrlTimeExtractor {
+  private val reHmsParam: Regex = """(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s)?""".r
+  private val reHhmmssParam: Regex = """(?:(\d+):)?(\d+):(\d+)""".r
 
   def extractTime(urlStr: String): (String, Int) = {
-    def getParam(params: Map[String, String], keys: String*): Option[String] =
-      keys.flatMap(k => params.get(k)).headOption
-
-    def parseQuery(query: String): Map[String, String] =
-      Option(query).getOrElse("").split("&").flatMap { param =>
-        param.split("=", 2) match {
-          case Array(key, value) => Some(key -> URLDecoder.decode(value, "UTF-8"))
-          case _                 => None
-        }
-      }.toMap
-
-    def timeToSeconds(s: String): Int = {
-      val hms: Regex = """(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s)?""".r
-      val hhmmss: Regex = """(?:(\d+):)?(\d+):(\d+)""".r
-
+    def timeParamToSeconds(s: String): Int = {
       s match {
-        case hms(h, m, sec) =>
+        case reHmsParam(h, m, sec) =>
           Option(h).getOrElse("0").toInt * 3600 +
             Option(m).getOrElse("0").toInt * 60 +
             Option(sec).getOrElse("0").toInt
-        case hhmmss(h, m, s) =>
+        case reHhmmssParam(h, m, s) =>
           Option(h).getOrElse("0").toInt * 3600 +
             m.toInt * 60 + s.toInt
         case sec if sec.forall(_.isDigit) =>
@@ -35,51 +24,77 @@ object UrlTimeExtractor {
       }
     }
 
-    val url = new URL(urlStr)
-    val domain = url.getHost
-    val path = url.getPath
-    val params = parseQuery(url.getQuery)
+    def cleanUrlRemoveParams(uriBuilder: URIBuilder, keysToRemove: Set[String]): String = {
+      val queryParams = uriBuilder.getQueryParams.asScala
+      uriBuilder.clearParameters()
+      queryParams
+        .filterNot(param => keysToRemove.contains(param.getName))
+        .foreach(param => uriBuilder.addParameter(param.getName, param.getValue))
+      uriBuilder.build().toString
+    }
 
-    val (cleanUrl, timeSec) = domain match {
+    val uri = new URIBuilder(urlStr)
+    val domain = uri.getHost
+
+    val params: Map[String, String] = uri.getQueryParams.asScala
+      .map(param => param.getName -> param.getValue)
+      .toMap
+
+    domain match {
+      //&t=382
       case d if d.contains("youtube.com") || d.contains("youtu.be") =>
-        val timeStr = getParam(params, "t").orElse(url.getRef match {
-          case s if s != null && s.startsWith("t=") => Some(s.stripPrefix("t="))
-          case _                                    => None
-        })
-        (urlStr.replaceAll("[&?#]t=[^&]*", ""), timeStr.map(timeToSeconds).getOrElse(0))
+        (
+          cleanUrlRemoveParams(uri, Set("t")),
+          timeParamToSeconds(params.getOrElse("t", ""))
+        )
 
+      //?start=1h48m20s
       case d if d.contains("peertube") =>
-        val timeStr = getParam(params, "start")
-        (urlStr.replaceAll("[&?#]start=[^&]*", ""), timeStr.map(timeToSeconds).getOrElse(0))
+        (
+          cleanUrlRemoveParams(uri, Set("start")),
+          timeParamToSeconds(params.getOrElse("start", ""))
+        )
 
+      //?wtime=10
       case d if d.contains("wistia") =>
-        val timeStr = getParam(params, "wtime")
-        (urlStr.replaceAll("[&?#]wtime=[^&]*", ""), timeStr.map(timeToSeconds).getOrElse(0))
+        (
+          cleanUrlRemoveParams(uri, Set("wtime")),
+          timeParamToSeconds(params.getOrElse("wtime", ""))
+        )
 
+      //#t=00:01:30
       case d if d.contains("soundcloud") =>
-        val t = Option(url.getRef).getOrElse("").stripPrefix("t=")
-        val cleaned = urlStr.replaceAll("#t=[^&]*", "")
-        (cleaned, if (t.nonEmpty) timeToSeconds(t) else 0)
+        val timeOpt: Option[String] =
+          Option(uri.getFragment)
+            .filter(_.startsWith("t="))
+            .map(_.drop(2))
 
+        val cleaned = uri.setFragment(null).build().toString
+        (cleaned, timeOpt.map(timeParamToSeconds).getOrElse(0))
+
+      //?t=14
       case d if d.contains("streamable") =>
-        val timeStr = getParam(params, "t")
-        (urlStr.replaceAll("[&?#]t=[^&]*", ""), timeStr.map(timeToSeconds).getOrElse(0))
+        (
+          cleanUrlRemoveParams(uri, Set("t")),
+          timeParamToSeconds(params.getOrElse("t", ""))
+        )
 
+      //?t=05h32m25s
       case d if d.contains("twitch.tv") =>
-        val t = getParam(params, "t").orElse {
-          val idx = urlStr.indexOf("?t=")
-          if (idx >= 0) Some(urlStr.substring(idx + 3)) else None
-        }
-        (urlStr.replaceAll("[&?#]t=[^&]*", ""), t.map(timeToSeconds).getOrElse(0))
+        (
+          cleanUrlRemoveParams(uri, Set("t")),
+          timeParamToSeconds(params.getOrElse("t", ""))
+        )
 
+      //?st=80
       case d if d.contains("kaltura") =>
-        val t = getParam(params, "st")
-        (urlStr.replaceAll("[&?#]st=[^&]*", ""), t.map(timeToSeconds).getOrElse(0))
+        (
+          cleanUrlRemoveParams(uri, Set("st")),
+          timeParamToSeconds(params.getOrElse("st", ""))
+        )
 
       case _ =>
         (urlStr, 0)
     }
-
-    (cleanUrl.replaceAll("[&?]$", ""), timeSec)
   }
 }
