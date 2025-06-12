@@ -42,7 +42,7 @@ object NotificationDAO {
       case event: NotifyUserInMeetingEvtMsg =>
         (event.body.meetingId, event.body.notificationType, event.body.icon, event.body.messageId, event.body.messageDescription, event.body.messageValues, None, Some(event.body.userId))
       case _ =>
-        ("","", "", "", "", Vector(""), None, None)
+        ("","", "", "", "", Map(""->""), None, None)
     }
 
     if (notificationType != "") {
@@ -54,7 +54,7 @@ object NotificationDAO {
             icon,
             messageId,
             messageDescription,
-            JsonUtils.vectorToJson(messageValues),
+            JsonUtils.mapToJson(messageValues),
             role,
             userMeetingId = userId match {
               case Some(u) => Some(meetingId)
