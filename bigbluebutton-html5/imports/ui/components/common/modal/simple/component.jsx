@@ -110,10 +110,12 @@ class ModalSimple extends Component {
       // if anchorElement is provided, position of the modal to be centered below it
       const { isMobile } = deviceInfo;
 
+      const marginX = 10;
       const anchorRect = anchorElement.getBoundingClientRect();
       const anchorCenterX = anchorRect.left + anchorRect.width / 2;
       const modalWidth = 600;
-      const modalLeft = anchorCenterX - modalWidth / 2;
+      const modalLeft = Math.max(anchorCenterX - modalWidth / 2, marginX);
+      const windowWidth = document.documentElement.clientWidth;
 
       modalStyles = {
         content: {
@@ -121,6 +123,7 @@ class ModalSimple extends Component {
           left: isMobile ? null : `${modalLeft + window.scrollX}px`,
           overflow: 'visible',
           position: 'fixed',
+          maxWidth: windowWidth - (isMobile ? 0 : modalLeft + window.scrollX) - marginX * 2,
         },
       };
     }

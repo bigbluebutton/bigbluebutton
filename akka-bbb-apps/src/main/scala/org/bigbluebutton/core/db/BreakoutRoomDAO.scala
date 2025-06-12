@@ -3,7 +3,7 @@ package org.bigbluebutton.core.db
 import org.bigbluebutton.core.apps.BreakoutModel
 import org.bigbluebutton.core.apps.breakout.BreakoutHdlrHelpers
 import org.bigbluebutton.core.domain.BreakoutRoom2x
-import org.bigbluebutton.core.models.{Roles, Users2x}
+import org.bigbluebutton.core.models.{RegisteredUser, Roles, Users2x}
 import org.bigbluebutton.core.running.LiveMeeting
 import slick.jdbc.PostgresProfile.api._
 
@@ -106,22 +106,27 @@ object BreakoutRoomDAO {
     BreakoutRoomUserDAO.refreshBreakoutRoomsVisibleForUsers(liveMeeting.props.meetingProp.intId)
   }
 
-  def assignUserToRandomRoom(userId: String, breakout: BreakoutModel, liveMeeting: LiveMeeting): Unit = {
-    if(breakout.rooms.values.nonEmpty) {
-      val roomsSeq = breakout.rooms.values.toSeq
-      val randomIndex = Random.nextInt(roomsSeq.length)
+  def assignUserToRandomRoom(regUser: RegisteredUser, breakoutModel: BreakoutModel, liveMeeting: LiveMeeting): Unit = {
+    if(breakoutModel.rooms.values.nonEmpty) {
 
-      for {
-        room <- Some(roomsSeq(randomIndex))
-        (redirectToHtml5JoinURL, redirectJoinURL) <- BreakoutHdlrHelpers.getRedirectUrls(liveMeeting, userId, room.externalId, room.sequence.toString())
-      } yield {
-        DatabaseConnection.enqueue(
-          BreakoutRoomUserDAO.prepareInsert(room.id, liveMeeting.props.meetingProp.intId, userId, redirectToHtml5JoinURL, wasAssignedByMod = true)
-        )
+      //Check if it should assign the user to a room
+      if (breakoutModel.rooms.exists(r => r._2.freeJoin) &&
+        (regUser.role != Roles.MODERATOR_ROLE || breakoutModel.sendInviteToModerators)
+      ) {
+        val rooms = breakoutModel.rooms.values.toSeq
+        val room = rooms(Random.nextInt(rooms.length))
 
-        //Insert all rooms that is visible for users
-        BreakoutRoomUserDAO.refreshBreakoutRoomsVisibleForUsers(liveMeeting.props.meetingProp.intId, userId)
+        for {
+          (redirectToHtml5JoinURL, _) <- BreakoutHdlrHelpers.getRedirectUrls(liveMeeting, regUser.id, room.externalId, room.sequence.toString)
+        } yield {
+          DatabaseConnection.enqueue(
+            BreakoutRoomUserDAO.prepareInsert(room.id, liveMeeting.props.meetingProp.intId, regUser.id, redirectToHtml5JoinURL, wasAssignedByMod = true)
+          )
+        }
       }
+
+      //Insert all rooms that is visible for users
+      BreakoutRoomUserDAO.refreshBreakoutRoomsVisibleForUsers(liveMeeting.props.meetingProp.intId, regUser.id)
     }
   }
 

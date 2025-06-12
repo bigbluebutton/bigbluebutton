@@ -847,6 +847,9 @@ public:
     callHangupMaximumRetries: 10
     echoTestNumber: 'echo'
     listenOnlyCallTimeout: 15000
+    # skipInitialCamEnumeration: whether to skip the initial camera enumeration
+    # See https://github.com/bigbluebutton/bigbluebutton/issues/21746
+    skipInitialCamEnumeration: false
     # transparentListenOnly: whether the client should use the transparent 
     # listen only mechanism. 
     # It does not remove the "Listen Only" option from the audio modal
@@ -1090,6 +1093,23 @@ public:
         - highlight
         - more
         - actions
+        - ellipse
+        - diamond
+        - triangle
+        - trapezoid
+        - rhombus
+        - hexagon
+        - cloud
+        - star
+        - oval
+        - x-box
+        - check-box
+        - arrow-left
+        - arrow-up
+        - arrow-down
+        - arrow-right
+        - line
+        - frame
       multiUserTools:
         - select
         - hand
@@ -1103,6 +1123,23 @@ public:
         - highlight
         - more
         - actions
+        - ellipse
+        - diamond
+        - triangle
+        - trapezoid
+        - rhombus
+        - hexagon
+        - cloud
+        - star
+        - oval
+        - x-box
+        - check-box
+        - arrow-left
+        - arrow-up
+        - arrow-down
+        - arrow-right
+        - line
+        - frame
     locales: ['ar', 'ca', 'cs', 'da', 'de', 'en', 'es', 'fa', 'fi', 'fr', 'gl', 'he', 'hi-in', 'hu', 'it', 'ja', 'ko-kr', 'ku', 'main', 'my', 'ne', 'no', 'pl', 'pt-br', 'pt-pt', 'ro', 'ru', 'sv', 'te', 'th', 'tr', 'uk', 'vi', 'zh-cn', 'zh-tw']
   clientLog:
     console:
@@ -1132,6 +1169,7 @@ public:
     chrome: ">=87"
     firefox: ">=80"
     edge: ">=85"
+    miui: "<0"
     mobile:
       safari: ">=14"
       chrome: ">=87"

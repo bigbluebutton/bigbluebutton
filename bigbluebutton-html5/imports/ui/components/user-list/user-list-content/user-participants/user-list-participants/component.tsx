@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo } from 'react';
 
-import { UI_DATA_LISTENER_SUBSCRIBED } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data-hooks/consts';
-import { UserListUiDataPayloads } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data-hooks/user-list/types';
+import { UI_DATA_LISTENER_SUBSCRIBED } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data/hooks/consts';
+import { UserListUiDataPayloads } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data/domain/user-list/types';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import { User } from '/imports/ui/Types/user';
 import Styled from './styles';
@@ -82,7 +82,7 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
   return (
     (
       <Styled.UserListColumn
-      // @ts-ignore
+        // @ts-ignore
         onKeyDown={rove}
         tabIndex={0}
         role="list"
@@ -135,11 +135,9 @@ const UserListParticipantsContainer: React.FC = () => {
   const count = countData?.user_aggregate?.aggregate?.count || 0;
 
   return (
-    <>
-      <UserListParticipants
-        count={count ?? 0}
-      />
-    </>
+    <UserListParticipants
+      count={count ?? 0}
+    />
   );
 };
 

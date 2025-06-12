@@ -62,7 +62,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
         //Pdftocairo has problem to convert Pdf to Svg when text contains font Type 3
         //Case detects type 3, rasterize will be forced to avoid the problem
         NuProcessBuilder detectFontType3Process = this.createDetectFontType3Process(source, page);
-        PdfFontType3DetectorHandler detectFontType3tHandler = new PdfFontType3DetectorHandler();
+        PdfFontType3DetectorHandler detectFontType3tHandler = new PdfFontType3DetectorHandler("font3pdf-" + pres.getMeetingId() + "-" + pres.getId() + "-" + page);
         detectFontType3Process.setProcessListener(detectFontType3tHandler);
 
         NuProcess processDetectFontType3 = detectFontType3Process.start();
@@ -99,9 +99,9 @@ public class SvgImageCreatorImp implements SvgImageCreator {
             dest = imagePresentationDir.getAbsolutePath() + File.separator + "slide-1.pdf";
 
             NuProcessBuilder convertImgToSvg = new NuProcessBuilder(
-                    Arrays.asList("timeout", convPdfToSvgTimeout + "s", "convert", source, "-auto-orient", dest));
+                    Arrays.asList("/usr/share/bbb-web/run-in-systemd.sh", convPdfToSvgTimeout + "s", "convert", source, "-auto-orient", dest));
 
-            Png2SvgConversionHandler pHandler = new Png2SvgConversionHandler();
+            Png2SvgConversionHandler pHandler = new Png2SvgConversionHandler("png2svg-" + pres.getMeetingId() + "-" + pres.getId() + "-" + page);
             convertImgToSvg.setProcessListener(pHandler);
 
             NuProcess process = convertImgToSvg.start();
@@ -146,7 +146,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
             rasterizeCurrSlide = true;
         }
 
-        SvgConversionHandler pHandler = new SvgConversionHandler();
+        SvgConversionHandler pHandler = new SvgConversionHandler("pdf2svg-" + pres.getMeetingId() + "-" + pres.getId() + "-" + page);
 
         if(rasterizeCurrSlide == false) {
             NuProcessBuilder convertPdfToSvg = createConversionProcess("-svg", page, source, destsvg.getAbsolutePath(),
@@ -227,7 +227,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
             NuProcessBuilder convertPdfToPng = createConversionProcess("-png", page, source,
                         tempPng.getAbsolutePath().substring(0, tempPng.getAbsolutePath().lastIndexOf('.')), false);
 
-            Pdf2PngPageConverterHandler pngHandler = new Pdf2PngPageConverterHandler();
+            Pdf2PngPageConverterHandler pngHandler = new Pdf2PngPageConverterHandler("pdf2png-" + pres.getMeetingId() + "-" + pres.getId() + "-" + page);
             convertPdfToPng.setProcessListener(pngHandler);
             NuProcess pngProcess = convertPdfToPng.start();
             try {
@@ -284,13 +284,14 @@ public class SvgImageCreatorImp implements SvgImageCreator {
                 if(destsvg.length() > 0) {
                     // Step 3: Add SVG namespace to the destination file
                     // Check : https://phabricator.wikimedia.org/T43174
-                    NuProcessBuilder addNameSpaceToSVG = new NuProcessBuilder(Arrays.asList("timeout", convPdfToSvgTimeout + "s",
+                    NuProcessBuilder addNameSpaceToSVG = new NuProcessBuilder(Arrays.asList(
+                            "/usr/share/bbb-web/run-in-systemd.sh", convPdfToSvgTimeout + "s",
                             "/bin/sh", "-c",
                             "sed -i "
                                     + "'4s|>| xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" version=\"1.2\">|' "
                                     + destsvg.getAbsolutePath()));
 
-                    AddNamespaceToSvgHandler namespaceHandler = new AddNamespaceToSvgHandler();
+                    AddNamespaceToSvgHandler namespaceHandler = new AddNamespaceToSvgHandler("svg-namespace-" + pres.getMeetingId() + "-" + pres.getId() + "-" + page);
                     addNameSpaceToSVG.setProcessListener(namespaceHandler);
                     NuProcess namespaceProcess = addNameSpaceToSVG.start();
                     try {
@@ -353,7 +354,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
             rawCommand += " | egrep 'data:image/png;base64|<path' | sed 's/  / /g' | cut -d' ' -f 1 | sort | uniq -cw 2";
         }
 
-        return new NuProcessBuilder(Arrays.asList("timeout", convPdfToSvgTimeout + "s", "/bin/sh", "-c", rawCommand));
+        return new NuProcessBuilder(Arrays.asList("/usr/share/bbb-web/run-in-systemd.sh", convPdfToSvgTimeout + "s", "/bin/sh", "-c", rawCommand));
     }
 
     private NuProcessBuilder createDetectFontType3Process(String source, int page) {
@@ -361,7 +362,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
         rawCommand += " | grep -m 1 'Type 3'";
         rawCommand += " | wc -l";
 
-        return new NuProcessBuilder(Arrays.asList("timeout", pdfFontsTimeout + "s", "/bin/sh", "-c", rawCommand));
+        return new NuProcessBuilder(Arrays.asList("/usr/share/bbb-web/run-in-systemd.sh", pdfFontsTimeout + "s", "/bin/sh", "-c", rawCommand));
     }
 
     private File determineSvgImagesDirectory(File presentationFile) {

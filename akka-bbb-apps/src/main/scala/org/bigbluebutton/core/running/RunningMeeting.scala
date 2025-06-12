@@ -19,6 +19,7 @@ class RunningMeeting(val props: DefaultProps, outGW: OutMessageGateway,
                      eventBus: InternalEventBus)(implicit val context: ActorContext) {
   private val externalVideoModel = new ExternalVideoModel()
   private val chatModel = new ChatModel()
+  private val plugins = PluginModel.createPluginModelFromJson(props.pluginProp, props.systemProps.html5PluginSdkVersion)
   private val layouts = new Layouts()
   private val pads = new Pads()
   private val wbModel = new WhiteboardModel()

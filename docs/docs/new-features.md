@@ -83,14 +83,14 @@ It matches the results displayed in the public chat!
 
 #### Private chat messages have a "seen" indicator
 
-We have added an indicator showing when your private chat recipient has seen the message.
+We have added an indicator showing when your private chat recipient has seen the message. To enable, see `public.chat.privateMessageReadFeedback.enabled` https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.8/bigbluebutton-html5/private/config/settings.yml#L774
 
 ![checkmark beside the message indicating it was seen](/img/30/30-seen-message.png)
 
 #### Push to talk was added
 
 You can now use the "M" shortcut while in a conference to control how long your microphone is open. If the option for push to talk is enabled in settings.yml holding "M" will keep your microphone unmuted for as long you hold the key down. Releasing it will mute you again.
-
+To enable see `public.app.defaultSettings.application.pushToTalkEnabled` https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.8/bigbluebutton-html5/private/config/settings.yml#L206
 
 ### Engagement
 
@@ -169,6 +169,8 @@ Everyone sees the margins and follows the presenter's point of view. If multi-us
 
 ![with infinite whiteboard enabled annotations can be made on the margins and more](/img/30/30-infinite-wb-in-action.png)
 
+You can enable infinite whiteboard via `public.whiteboard.allowInfiniteWhiteboard` https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.8/bigbluebutton-html5/private/config/settings.yml#L1047
+
 Recording is not yet implemented, meaning that if you enable this experimental feature on your server and use it in a recorded session, the recording will most likely have broken whiteboard at best. The recording (and playback) work is planned for after BigBlueButton 3.0.
 
 #### Integration with LiveKit
@@ -207,7 +209,7 @@ rtc:
       - <network_interface_name_1>
       - <any_other_network_interface_name>
 ```
-3. Restart bbb-livekit: `$ sudo systemctl restart bbb-livekit`
+3. Restart livekit-server: `$ sudo systemctl restart livekit-server`
 
 Once enabled, LiveKit still won't be used by default. There are two ways to make
 use of it in meetings:
@@ -244,6 +246,8 @@ For full details on what is new in BigBlueButton 3.0, see the release notes.
 
 Recent releases:
 
+- [3.0.8](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.8)
+- [3.0.7](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.7)
 - [3.0.6](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.6)
 - [3.0.5](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.5)
 - [3.0.4](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.4)
@@ -351,6 +355,8 @@ Value changed
 
 Added
 - `pluginManifestFetchTimeout` added
+- `pluginManifestsFetchUrlResponseTimeout` added
+- `maxPluginManifestsFetchUrlPayloadSize` added
 - `numPluginManifestsFetchingThreads` added
 - `extractTimeoutInMs` added
 - `pngCreationExecTimeoutInMs` added
@@ -402,7 +408,23 @@ We have supported the option to mirror your own webcam while viewing it. Startin
 #### Feedback form removed
 
 We have removed the feedback form that used to be part of the client. It was relying on client logs to carry the information and was not particularly flexible. See https://github.com/bigbluebutton/bigbluebutton/pull/22111 for more information.
-A new repository was contributed by Mconf https://github.com/bigbluebutton/custom-feedback with a much more sophisticated feedback form.
+A new repository was contributed by Mconf https://github.com/bigbluebutton/custom-feedback with a much more sophisticated feedback form (see below).
+
+#### Custom feedback
+
+In BigBlueButton 3.0 we replaced the old feedback form with a new way of collecting feedback from users. It's a standalone, customizable, extensible application that can be integrated into BigBlueButton. Please refer to its [README](https://github.com/bigbluebutton/custom-feedback/blob/master/README.md) for details on how to customize and install it.
+
+Below are some screenshots of it:
+
+![first screen of the default custom feedback experience](/img/30/30-custom-feedback-1.png)
+
+![second screen of the default custom feedback experience](/img/30/30-custom-feedback-2.png)
+
+![third screen of the default custom feedback experience](/img/30/30-custom-feedback-3.png)
+
+![fourth screen of the default custom feedback experience](/img/30/30-custom-feedback-4.png)
+
+![fifth screen of the default custom feedback experience](/img/30/30-custom-feedback-5.png)
 
 ### Development
 

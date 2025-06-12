@@ -59,7 +59,7 @@ func StartRedisListener() {
 			messageBodyAsMap := messageCoreAsMap["body"].(map[string]interface{})
 			sessionTokenToInvalidate := messageBodyAsMap["sessionToken"]
 			reason := messageBodyAsMap["reason"]
-			log.Debugf("Received reconnection request for sessionToken %v (%v)", sessionTokenToInvalidate, reason)
+			log.Infof("Received reconnection request for sessionToken %v (%v)", sessionTokenToInvalidate, reason)
 
 			go InvalidateSessionTokenHasuraConnections(sessionTokenToInvalidate.(string))
 		}
@@ -70,7 +70,7 @@ func StartRedisListener() {
 			sessionTokenToInvalidate := messageBodyAsMap["sessionToken"]
 			reason := messageBodyAsMap["reason"]
 			reasonMsgId := messageBodyAsMap["reasonMessageId"]
-			log.Debugf("Received disconnection request for sessionToken %v (%s - %s)", sessionTokenToInvalidate, reasonMsgId, reason)
+			log.Infof("Received disconnection request for sessionToken %v (%s - %s)", sessionTokenToInvalidate, reasonMsgId, reason)
 
 			//Not being used yet
 			go InvalidateSessionTokenBrowserConnections(sessionTokenToInvalidate.(string), reasonMsgId.(string), reason.(string))

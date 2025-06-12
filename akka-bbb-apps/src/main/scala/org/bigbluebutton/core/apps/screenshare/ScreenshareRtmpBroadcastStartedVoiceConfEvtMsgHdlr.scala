@@ -13,7 +13,7 @@ trait ScreenshareRtmpBroadcastStartedVoiceConfEvtMsgHdlr {
   this: ScreenshareApp2x =>
 
   def handle(msg: ScreenshareRtmpBroadcastStartedVoiceConfEvtMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
-    def broadcastEvent(voiceConf: String, screenshareConf: String, stream: String, vidWidth: Int, vidHeight: Int,
+    def broadcastEvent(voiceConf: String, screenshareConf: String, userId: String, stream: String, vidWidth: Int, vidHeight: Int,
                        timestamp: String, hasAudio: Boolean, contentType: String): BbbCommonEnvCoreMsg = {
 
       val routing = Routing.addMsgToClientRouting(
@@ -26,7 +26,7 @@ trait ScreenshareRtmpBroadcastStartedVoiceConfEvtMsgHdlr {
         liveMeeting.props.meetingProp.intId, "not-used"
       )
 
-      val body = ScreenshareRtmpBroadcastStartedEvtMsgBody(voiceConf, screenshareConf,
+      val body = ScreenshareRtmpBroadcastStartedEvtMsgBody(voiceConf, screenshareConf, userId,
         stream, vidWidth, vidHeight, timestamp, hasAudio, contentType)
       val event = ScreenshareRtmpBroadcastStartedEvtMsg(header, body)
       BbbCommonEnvCoreMsg(envelope, event)
@@ -59,6 +59,7 @@ trait ScreenshareRtmpBroadcastStartedVoiceConfEvtMsgHdlr {
         ScreenshareModel.setTimestamp(liveMeeting.screenshareModel, msg.body.timestamp)
         ScreenshareModel.setHasAudio(liveMeeting.screenshareModel, msg.body.hasAudio)
         ScreenshareModel.setContentType(liveMeeting.screenshareModel, msg.body.contentType)
+        ScreenshareModel.setUserId(liveMeeting.screenshareModel, msg.body.userId)
 
         log.info("START broadcast ALLOWED when isBroadcastingRTMP=false")
 
@@ -74,7 +75,7 @@ trait ScreenshareRtmpBroadcastStartedVoiceConfEvtMsgHdlr {
         }
 
         // Notify viewers in the meeting that there's an rtmp stream to view
-        val msgEvent = broadcastEvent(msg.body.voiceConf, msg.body.screenshareConf, msg.body.stream,
+        val msgEvent = broadcastEvent(msg.body.voiceConf, msg.body.screenshareConf, msg.body.userId, msg.body.stream,
           msg.body.vidWidth, msg.body.vidHeight, msg.body.timestamp, msg.body.hasAudio, msg.body.contentType)
         bus.outGW.send(msgEvent)
       } else {

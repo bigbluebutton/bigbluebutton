@@ -59,6 +59,9 @@ import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStat
 
 const FORCE_RESTORE_PRESENTATION_ON_NEW_EVENTS = 'bbb_force_restore_presentation_on_new_events';
 
+const RECONNECT_SYNC_DELAY_MS = 750;
+const VISIBILITY_REFETCH_DELAY_MS = 500;
+
 const WhiteboardContainer = (props) => {
   const {
     zoomChanger,
@@ -80,6 +83,8 @@ const WhiteboardContainer = (props) => {
   const shapesQueueRef = useRef([]);
   const removedQueueRef = useRef([]);
   const flushScheduledRef = useRef(false);
+
+  const historyVarsRef = useRef(null);
 
   // Aggregates the queues and updates state at once.
   const flushUpdates = useCallback(() => {
@@ -275,74 +280,69 @@ const WhiteboardContainer = (props) => {
   const connectedStatus = useReactiveVar(connectionStatus.getConnectedStatusVar());
 
   useEffect(() => {
-    if (curPageId && editor && connectedStatus) {
-      (async () => {
-        try {
-          const result = await refetchInitialPageAnnotations();
-          const serverAnnotations = result?.data?.pres_annotation_curr || [];
-          const serverMap = new Map();
-          serverAnnotations.forEach((ann) => {
-            const meta = ann.annotationInfo?.meta || {};
-            serverMap.set(ann.annotationId, { ...ann, meta });
-          });
+    setTimeout(async () => {
+      if (!curPageId || !editor || !connectedStatus) return;
+      try {
+        const result = await refetchInitialPageAnnotations();
+        const serverAnnotations = result?.data?.pres_annotation_curr || [];
+        const serverMap = new Map();
+        serverAnnotations.forEach((ann) => {
+          const meta = ann.annotationInfo?.meta || {};
+          serverMap.set(ann.annotationId, { ...ann, meta });
+        });
 
-          const localShapes = editor.getCurrentPageShapes();
+        const localShapes = editor.getCurrentPageShapes();
+        const shapesToRemove = [];
+        const shapesToResync = [];
 
-          const shapesToRemove = [];
-          const shapesToResync = [];
-
-          localShapes.forEach((shape) => {
-            // Always keep background shapes.
-            if (shape.id.startsWith('shape:BG-')) return;
-
-            const serverAnn = serverMap.get(shape.id);
-
-            if (!serverAnn) {
-              if (isMultiUserActive && hasWBAccess) {
-                shapesToResync.push(shape);
-              } else {
-                shapesToRemove.push(shape.id);
-              }
+        localShapes.forEach((shape) => {
+          if (shape.id.startsWith('shape:BG-')) return;
+          const serverAnn = serverMap.get(shape.id);
+          if (!serverAnn) {
+            if (isMultiUserActive && hasWBAccess) {
+              shapesToResync.push(shape);
             } else {
-              const localMeta = shape.meta || {};
-              const serverMeta = serverAnn.meta || {};
-              if (
-                serverMeta.synced === true
-                && (serverMeta.version && localMeta.version !== serverMeta.version)
-              ) {
-                shapesToRemove.push(shape.id);
-              }
+              shapesToRemove.push(shape.id);
             }
-          });
-
-          if (shapesToResync.length > 0) {
-            const newAnnotations = shapesToResync.map((shape) => ({
-              annotationId: shape.id,
-              annotationInfo: JSON.stringify(shape),
-            }));
-
-            try {
-              await submitAnnotations(newAnnotations);
-            } catch (err) {
-              logger.error(
-                { logCode: 'wbShapeSyncSubmit' },
-                `Error sending shapes to persist: ${err}`,
-              );
+          } else {
+            const localMeta = shape.meta || {};
+            const serverMeta = serverAnn.meta || {};
+            if (
+              serverMeta.synced === true
+              && serverMeta.version
+              && localMeta.version !== serverMeta.version
+            ) {
+              shapesToRemove.push(shape.id);
             }
           }
+        });
 
-          if (shapesToRemove.length > 0) {
-            removedQueueRef.current.push(shapesToRemove);
-            scheduleFlush();
+        if (shapesToResync.length > 0) {
+          const newAnnotations = shapesToResync.map((shape) => ({
+            annotationId: shape.id,
+            annotationInfo: JSON.stringify(shape),
+          }));
+          try {
+            await submitAnnotations(newAnnotations);
+          } catch (err) {
+            logger.error(
+              { logCode: 'wbShapeSyncSubmit' },
+              `Error sending shapes: ${err}`,
+            );
           }
-        } catch (error) {
-          logger.error(
-            { logCode: 'wbShapeSync' },
-            `Error during reconnection sync: ${error}`,
-          );
         }
-      })();
-    }
+
+        if (shapesToRemove.length > 0) {
+          removedQueueRef.current.push(shapesToRemove);
+          scheduleFlush();
+        }
+      } catch (error) {
+        logger.error(
+          { logCode: 'wbShapeSync' },
+          `Error during reconnection sync: ${error}`,
+        );
+      }
+    }, RECONNECT_SYNC_DELAY_MS);
   }, [
     connectedStatus,
     curPageId,
@@ -353,6 +353,8 @@ const WhiteboardContainer = (props) => {
   ]);
 
   const lastUpdatedAt = useMemo(() => {
+    if (!initialPageAnnotations) return null;
+
     if (!initialPageAnnotations?.pres_annotation_curr?.length) {
       return currentMeeting?.createdTime
         ? new Date(currentMeeting.createdTime).toISOString()
@@ -364,9 +366,18 @@ const WhiteboardContainer = (props) => {
     }, new Date(0)).toISOString();
   }, [initialPageAnnotations]);
 
+  useEffect(() => {
+    if (!curPageId || !lastUpdatedAt) return;
+    if (!historyVarsRef.current || historyVarsRef.current?.pageId !== curPageId) {
+      historyVarsRef.current = { pageId: curPageId, updatedAt: lastUpdatedAt };
+    }
+  }, [curPageId, lastUpdatedAt]);
+
+  const canStream = !!lastUpdatedAt;
+
   useSubscription(ANNOTATION_HISTORY_STREAM, {
-    variables: { updatedAt: lastUpdatedAt, pageId: curPageId },
-    skip: !curPageId || !lastUpdatedAt,
+    variables: historyVarsRef.current ?? { pageId: curPageId, updatedAt: lastUpdatedAt },
+    skip: !curPageId || !canStream,
     onData: ({ data: subscriptionData }) => {
       const annotationStream = subscriptionData.data?.pres_annotation_history_curr_stream || [];
 
@@ -417,10 +428,12 @@ const WhiteboardContainer = (props) => {
   });
 
   useEffect(() => {
-    if (isTabVisible && curPageId) {
+    if (!isTabVisible || !curPageId || !connectedStatus) return;
+
+    setTimeout(() => {
       refetchInitialPageAnnotations();
-    }
-  }, [isTabVisible, presentationId, fitToWidth]);
+    }, VISIBILITY_REFETCH_DELAY_MS);
+  }, [isTabVisible, connectedStatus, fitToWidth]);
 
   const processAnnotations = (data) => {
     let annotationsToBeRemoved = [];
@@ -508,6 +521,9 @@ const WhiteboardContainer = (props) => {
   const { isRTL } = Settings.application;
   const width = layoutSelect((i) => i?.output?.presentation?.width);
   const height = layoutSelect((i) => i?.output?.presentation?.height);
+  const layoutType = layoutSelect((i) => i?.layoutType);
+  const layoutChanged = usePrevious(layoutType) !== layoutType;
+
   const sidebarNavigationWidth = layoutSelect(
     (i) => i?.output?.sidebarNavigation?.width,
   );
@@ -595,6 +611,7 @@ const WhiteboardContainer = (props) => {
           isInfiniteWhiteboard,
           curPageNum,
           setEditor,
+          layoutChanged,
         }}
         {...props}
         meetingId={Auth.meetingID}

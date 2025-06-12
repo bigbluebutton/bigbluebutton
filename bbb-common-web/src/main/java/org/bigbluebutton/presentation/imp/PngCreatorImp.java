@@ -101,9 +101,9 @@ public class PngCreatorImp implements PngCreator {
 			dest = pngsDir.getAbsolutePath() + File.separator + "slide-1.pdf";
 
 			NuProcessBuilder convertImgToSvg = new NuProcessBuilder(
-					Arrays.asList("timeout", convTimeout + "s", "convert", source, "-auto-orient", dest));
+					Arrays.asList("/usr/share/bbb-web/run-in-systemd.sh", convTimeout + "s", "convert", source, "-auto-orient", dest));
 
-			Png2SvgConversionHandler pHandler = new Png2SvgConversionHandler();
+			Png2SvgConversionHandler pHandler = new Png2SvgConversionHandler("png2svg-" + pres.getMeetingId() + "-" + pres.getId() + "-" + page);
 			convertImgToSvg.setProcessListener(pHandler);
 
 			NuProcess process = convertImgToSvg.start();

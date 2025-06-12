@@ -1,0 +1,30 @@
+name: 'Prepare artifacts (configs and logs)'
+description: 'Action to prepare artifacts for workflows'
+runs:
+  using: 'composite'
+  steps:
+    - name: Prepare artifacts (configs and logs)
+      shell: bash
+      run: |
+        sudo -i <<EOF
+        mkdir -p configs
+        cp /etc/haproxy/haproxy.cfg configs/haproxy.cfg
+        touch /etc/bigbluebutton/turn-stun-servers.xml
+        cp /etc/bigbluebutton/turn-stun-servers.xml configs/turn-stun-servers.xml
+        cp /opt/freeswitch/etc/freeswitch/vars.xml configs/freeswitch_vars.xml
+        cp /opt/freeswitch/etc/freeswitch/sip_profiles/external.xml configs/freeswitch_sip_profiles_external.xml
+        cp /etc/bigbluebutton/bbb-apps-akka.conf configs/bbb-apps-akka.conf
+        cp /etc/bigbluebutton/bbb-fsesl-akka.conf configs/bbb-fsesl-akka.conf
+        cp /etc/bigbluebutton/bbb-html5.yml configs/bbb-html5.yml
+        cp /etc/bigbluebutton/bbb-web.properties configs/bbb-web.properties
+        cp /etc/bigbluebutton/bigbluebutton-release configs/bigbluebutton-release
+        cp /etc/bigbluebutton/turn-stun-servers.xml configs/turn-stun-servers.xml
+        cp /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml configs/bbb-webrtc-sfu-default.yml
+        cp /etc/bbb-webrtc-recorder/bbb-webrtc-recorder.yml configs/bbb-webrtc-recorder-default.yml
+        cp /usr/share/bigbluebutton/nginx/sip.nginx configs/nginx_sip.nginx
+        cp /etc/hosts /configs/hosts
+        mv configs /home/runner/work/bigbluebutton/bigbluebutton/configs
+        chmod a+r -R /home/runner/work/bigbluebutton/bigbluebutton/configs
+        bbb-conf --zip
+        ls -t /root/*.tar.gz | head -1 | xargs -I '{}' cp '{}' /home/runner/work/bigbluebutton/bigbluebutton/bbb-logs.tar.gz
+        EOF

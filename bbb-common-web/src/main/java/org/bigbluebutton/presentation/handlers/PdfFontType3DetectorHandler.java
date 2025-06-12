@@ -27,6 +27,12 @@ public class PdfFontType3DetectorHandler extends AbstractCommandHandler {
   private static Logger log = LoggerFactory
       .getLogger(PdfFontType3DetectorHandler.class);
 
+  private final String id;
+
+  public PdfFontType3DetectorHandler(String id) {
+    this.id = id;
+  }
+
   /**
    *
    * @return If pdf page contains one or more texts with font Type 3.
@@ -39,4 +45,8 @@ public class PdfFontType3DetectorHandler extends AbstractCommandHandler {
     return false;
   }
 
+  @Override
+  protected String getIdTag() {
+    return id;
+  }
 }

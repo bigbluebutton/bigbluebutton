@@ -74,11 +74,17 @@ export interface BreakoutPolicies {
   captureSlides: string;
   captureSlidesFilename: string;
   freeJoin: boolean;
-  meetingId: string;
   parentId: string;
   privateChatEnabled: boolean;
   record: boolean;
   sequence: number;
+}
+
+export interface BreakoutRoomsCommonProperties {
+  durationInSeconds: number;
+  freeJoin: boolean;
+  sendInvitationToModerators: boolean;
+  startedAt: Date;
 }
 
 export interface ExternalVideo {
@@ -108,11 +114,6 @@ export interface ComponentsFlags {
   hasScreenshareAsContent: boolean;
 }
 
-export interface Metadata {
-  name: string;
-  value: string;
-}
-
 export interface Meeting {
   createdTime: number;
   disabledFeatures: Array<string>;
@@ -134,12 +135,12 @@ export interface Meeting {
   lockSettings: LockSettings;
   voiceSettings: VoiceSettings;
   breakoutPolicies: BreakoutPolicies;
+  breakoutRoomsCommonProperties: BreakoutRoomsCommonProperties;
   externalVideo: ExternalVideo;
   layout: Layout;
   componentsFlags: ComponentsFlags;
   endWhenNoModerator: boolean;
   endWhenNoModeratorDelayInMinutes: number;
   loginUrl: string | null;
-  metadata: Array<Metadata>;
   groups: Array<groups>;
 }

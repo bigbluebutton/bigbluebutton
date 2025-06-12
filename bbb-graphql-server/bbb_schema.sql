@@ -182,20 +182,6 @@ SELECT "meeting_usersPolicies"."meetingId",
    FROM "meeting_usersPolicies"
    JOIN "meeting" using("meetingId");
 
-create unlogged table "meeting_metadata" (
-	"meetingId" 		varchar(100) references "meeting"("meetingId") ON DELETE CASCADE,
-    "name"              varchar(255),
-    "value"             varchar(1000),
-    CONSTRAINT "meeting_metadata_pkey" PRIMARY KEY ("meetingId","name")
-);
-create index "idx_meeting_metadata_meetingId" on "meeting_metadata"("meetingId");
-
-CREATE OR REPLACE VIEW "v_meeting_metadata" AS
-SELECT "meeting_metadata"."meetingId",
-    "meeting_metadata"."name",
-    "meeting_metadata"."value"
-   FROM "meeting_metadata";
-
 create unlogged table "meeting_lockSettings" (
 	"meetingId" 		varchar(100) primary key references "meeting"("meetingId") ON DELETE CASCADE,
     "disableCam"             boolean,
@@ -717,14 +703,11 @@ CREATE UNLOGGED TABLE "user_voice" (
 	"floor" boolean,
 	"lastFloorTime" varchar(25),
 	"voiceConf" varchar(100),
-	"voiceConfCallSession" varchar(50),
-	"voiceConfClientSession" varchar(10),
-	"voiceConfCallState" varchar(30),
 	"endTime" bigint,
 	"startTime" bigint,
 	"voiceActivityAt" timestamp with time zone,
 	CONSTRAINT "user_voice_pkey" PRIMARY KEY ("meetingId","userId"),
-    FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
+    FOREIGN KEY ("meetingId") REFERENCES "meeting"("meetingId") ON DELETE CASCADE
 );
 create index "idx_user_voice_pk_reverse" on "user_voice" ("userId", "meetingId");
 
@@ -1865,6 +1848,7 @@ CREATE UNLOGGED TABLE "breakoutRoom" (
 
 CREATE INDEX "idx_breakoutRoom_parentMeetingId" ON "breakoutRoom"("parentMeetingId", "externalId");
 CREATE INDEX "idx_breakoutRoom_pk_ended" ON "breakoutRoom"("breakoutRoomId") where "endedAt" is null;
+CREATE INDEX "idx_breakoutRoom_parentMeetingId_ended" ON "breakoutRoom"("parentMeetingId") where "endedAt" is null;
 
 
 CREATE UNLOGGED TABLE "breakoutRoom_user" (
@@ -1966,7 +1950,7 @@ BEGIN
        update "breakoutRoom_user" set "userJoinedSomeRoomAt" = "latestJoinedAt"
           where "breakoutRoom_user"."meetingId" = meetingId
           and "breakoutRoom_user"."userId" = userId
-          and "breakoutRoom_user"."userJoinedSomeRoomAt" != "latestJoinedAt";
+          and "breakoutRoom_user"."userJoinedSomeRoomAt" is distinct from "latestJoinedAt";
 END;
 $$ LANGUAGE plpgsql;
 
@@ -1985,9 +1969,13 @@ BEGIN
 		   bru."breakoutRoomId", bru."userId", bkroom_user."currentlyInMeeting"
 		   from "user" bkroom_user
 		   join meeting_breakout mb on mb."meetingId" = bkroom_user."meetingId"
-		   join "breakoutRoom" br on br."parentMeetingId" = mb."parentId" and mb."sequence" = br."sequence"
-		   join "user" u on u."meetingId" = br."parentMeetingId"  and bkroom_user."extId" = u."userId" || '-' || br."sequence"
-		   join "breakoutRoom_user" bru on bru."userId" = u."userId" and bru."breakoutRoomId" = br."breakoutRoomId"
+		   join "breakoutRoom" br   on br."parentMeetingId" = mb."parentId"
+		                            and mb."sequence" = br."sequence"
+		                            and br."endedAt" is null
+		   join "user" u    on u."meetingId" = br."parentMeetingId"
+		                    and bkroom_user."extId" = u."userId" || '-' || br."sequence"
+		   join "breakoutRoom_user" bru on bru."userId" = u."userId"
+		                                and bru."breakoutRoomId" = br."breakoutRoomId"
 		   where bkroom_user."userId" = NEW."userId"
 	   ) a
 		where "breakoutRoom_user"."breakoutRoomId" = a."breakoutRoomId"
@@ -2011,6 +1999,13 @@ SELECT bu."meetingId" as "userMeetingId", bu."userId", b."parentMeetingId", b."b
     JOIN "breakoutRoom" b ON b."breakoutRoomId" = bu."breakoutRoomId" and b."endedAt" IS NULL
     --JOIN  bu ON bu."meetingId" = u."meetingId" AND bu."userId" = u."userId" AND bu."breakoutRoomId" = b."breakoutRoomId"
     ;
+
+CREATE OR REPLACE VIEW "v_breakoutRoom_commonProperties" AS
+SELECT DISTINCT ON ("parentMeetingId", "freeJoin", "durationInSeconds", "sendInvitationToModerators", "captureNotes", "captureSlides")
+"parentMeetingId" as "meetingId", "freeJoin", "durationInSeconds", "sendInvitationToModerators",
+"captureNotes", "captureSlides", "startedAt"
+FROM "breakoutRoom"
+WHERE "endedAt" IS null;
 
 --view used to restore last breakout rooms
 CREATE OR REPLACE VIEW "v_breakoutRoom_createdLatest" AS
@@ -2071,6 +2066,18 @@ where bu."breakoutRoomId" in (
     where u."meetingId" = bu."meetingId"
     and u."userId" = bu."userId"
 );
+
+CREATE OR REPLACE VIEW "v_breakoutRoom_user_summary" AS
+select u."meetingId",
+		u."userId",
+		count(b."breakoutRoomId") as "totalOfBreakoutRooms",
+		sum(case when b."breakoutRoomId" is not null and bru."isUserCurrentlyInRoom" then 1 else 0 end) as "totalOfIsUserCurrentlyInRoom",
+		sum(case when b."breakoutRoomId" is not null and bru."showInvitation" then 1 else 0 end) as "totalOfShowInvitation",
+		sum(case when b."breakoutRoomId" is not null and bru."joinURL" is not null then 1 else 0 end) as "totalOfJoinURL"
+from "user" u
+left join "breakoutRoom_user" bru on bru."meetingId" = u."meetingId" and bru."userId" = u."userId"
+left join "breakoutRoom" b on b."breakoutRoomId" = bru."breakoutRoomId" and b."endedAt" is null
+group by u."meetingId", u."userId";
 
 ------------------------------------
 ----sharedNotes

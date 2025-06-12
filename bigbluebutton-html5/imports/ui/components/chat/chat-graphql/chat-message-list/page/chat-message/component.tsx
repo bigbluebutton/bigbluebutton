@@ -179,11 +179,6 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
   focused,
 }, ref) => {
   const intl = useIntl();
-  const markMessageAsSeenOnScrollEnd = useCallback(() => {
-    if (messageRef.current && isInViewport(messageRef.current)) {
-      markMessageAsSeen(message);
-    }
-  }, [message, messageRef]);
   const messageContentRef = React.useRef<HTMLDivElement>(null);
   const [isToolbarReactionPopoverOpen, setIsToolbarReactionPopoverOpen] = React.useState(false);
   const [keyboardFocused, setKeyboardFocused] = React.useState(false);
@@ -291,23 +286,66 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
       return messages;
     });
   }, [messageContentRef]);
+
+  const scrollEndFrameRef = React.useRef<number>();
+
+  const pollScrollEndEvent = useCallback((
+    setFrameId: (id: number) => void,
+    {
+      stabilityFrames,
+      currentFrame,
+    } = {
+      stabilityFrames: 20,
+      currentFrame: 0,
+    },
+  ) => {
+    if (currentFrame < stabilityFrames) {
+      const frameId = requestAnimationFrame(() => {
+        pollScrollEndEvent(setFrameId, {
+          stabilityFrames,
+          currentFrame: currentFrame + 1,
+        });
+      });
+      setFrameId(frameId);
+      return;
+    }
+
+    if (messageRef.current && isInViewport(messageRef.current)) {
+      markMessageAsSeen(message);
+    }
+  }, [markMessageAsSeen, message]);
+
+  const startScrollEndEventPolling = useCallback(() => {
+    if (scrollEndFrameRef.current != null) {
+      cancelAnimationFrame(scrollEndFrameRef.current);
+      scrollEndFrameRef.current = undefined;
+    }
+    scrollEndFrameRef.current = requestAnimationFrame(() => {
+      pollScrollEndEvent((frameId) => {
+        scrollEndFrameRef.current = frameId;
+      });
+    });
+  }, []);
+
   useEffect(() => {
     const callbackFunction = () => {
-      if (messageRef.current && isInViewport(messageRef.current)) {
-        markMessageAsSeen(message); // Pass the 'message' argument here
-      }
+      startScrollEndEventPolling();
     };
     if (message && scrollRef.current && messageRef.current) {
       if (isInViewport(messageRef.current)) {
         markMessageAsSeen(message);
       } else {
-        scrollRef.current.addEventListener('scrollend', callbackFunction);
+        scrollRef.current.addEventListener('scroll', callbackFunction);
       }
     }
     return () => {
-      scrollRef?.current?.removeEventListener('scrollend', callbackFunction);
+      scrollRef?.current?.removeEventListener('scroll', callbackFunction);
+      if (scrollEndFrameRef.current !== undefined) {
+        cancelAnimationFrame(scrollEndFrameRef.current);
+        scrollEndFrameRef.current = undefined;
+      }
     };
-  }, [message, messageRef, markMessageAsSeenOnScrollEnd]);
+  }, [message, messageRef, startScrollEndEventPolling, markMessageAsSeen]);
 
   useEffect(() => {
     if (focused) {
@@ -742,7 +780,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
     </Popover>
   );
 
-  const focusable = !deleteTime && !messageContent.isSystemSender;
+  const focusable = !deleteTime && (!messageContent.isSystemSender || message.messageType === ChatMessageType.POLL);
 
   return (
     <Container

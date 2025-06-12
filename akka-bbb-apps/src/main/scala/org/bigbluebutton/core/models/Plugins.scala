@@ -7,6 +7,7 @@ import org.bigbluebutton.ClientSettings
 import org.bigbluebutton.ClientSettings.getPluginsFromConfig
 import org.bigbluebutton.core.db.PluginDAO
 import org.slf4j.LoggerFactory
+import com.github.zafarkhaja.semver.Version
 
 import java.util
 
@@ -68,6 +69,7 @@ case class Plugin(
 object PluginModel {
   val logger = LoggerFactory.getLogger(this.getClass)
   private val objectMapper: ObjectMapper = new ObjectMapper()
+
   objectMapper.registerModule(new DefaultScalaModule())
   def getPluginByName(instance: PluginModel, pluginName: String): Option[Plugin] = {
     instance.plugins.get(pluginName)
@@ -203,16 +205,51 @@ object PluginModel {
   def createPluginModelFromJson(
                                  json: util.Map[String, AnyRef],
                                  clientSettings: Map[String, Object]): (PluginModel, List[ClientSettings.Plugin]) = {
+
+  private def html5SdkSatisfiesPluginRequiredVersion(bbbHtml5SdkVersion: String, pluginHtml5SdkRequirement: String): Boolean = {
+    try {
+      val v = Version.parse(bbbHtml5SdkVersion)
+      v.satisfies(pluginHtml5SdkRequirement)
+    } catch {
+      case e: Exception =>
+        logger.error(s"Unexpected error while parsing SDK versions: $e")
+        false
+    }
+  }
+
+  private def isServerSdkCompatibleWithPlugin(html5PluginSdkVersion: String, pluginManifestRequiredSdkVersion: String): Boolean = {
+    // Returns `true` if:
+    // - bbb-html5 SDK version satisfies the manifest's required SDK version.
+    html5SdkSatisfiesPluginRequiredVersion(html5PluginSdkVersion, pluginManifestRequiredSdkVersion)
+  }
+
+  def createPluginModelFromJson(json: util.Map[String, AnyRef], html5PluginSdkVersion: String): PluginModel = {
     val instance = new PluginModel()
     var pluginsMap: Map[String, Plugin] = Map.empty[String, Plugin]
     json.forEach { case (pluginName, plugin) =>
       try {
         val pluginObject = objectMapper.readValue(objectMapper.writeValueAsString(plugin), classOf[Plugin])
         val pluginObjectWithAbsoluteUrls = replaceAllRelativeUrls(pluginObject)
-        pluginsMap = pluginsMap + (pluginName -> pluginObjectWithAbsoluteUrls)
+        val hasMatchingVersions = isServerSdkCompatibleWithPlugin(
+          html5PluginSdkVersion, pluginObjectWithAbsoluteUrls.manifest.content.requiredSdkVersion
+        )
+        if (hasMatchingVersions) {
+          pluginsMap = pluginsMap + (pluginName -> pluginObjectWithAbsoluteUrls)
+        } else {
+          logger.error(
+            s"Cannot load plugin {}: system SDK version '{}' does not satisfy plugin requirement '{}'.",
+            pluginName,
+            html5PluginSdkVersion,
+            pluginObjectWithAbsoluteUrls.manifest.content.requiredSdkVersion
+          )
+        }
       } catch {
-        case err @ (_: JsonProcessingException | _: JsonMappingException) => println("Error while processing plugin " +
-          pluginName + ": ", err)
+        case err @ (_: JsonProcessingException | _: JsonMappingException) => logger.error(
+          s"Error while processing plugin $pluginName: $err"
+        )
+        case err @ (_: NumberFormatException) => logger.error(
+          s"Plugin SDK version of either HTML5 or plugin manifest couldn't be parsed ($pluginName): $err"
+        )
       }
     }
     instance.plugins = pluginsMap

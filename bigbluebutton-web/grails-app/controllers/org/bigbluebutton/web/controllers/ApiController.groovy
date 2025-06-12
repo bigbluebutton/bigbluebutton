@@ -100,6 +100,7 @@ class ApiController {
             bbbVersion paramsProcessorUtil.getBbbVersion()
             graphqlWebsocketUrl paramsProcessorUtil.getGraphqlWebsocketUrl()
             graphqlApiUrl paramsProcessorUtil.getGraphqlApiUrl()
+            html5PluginSdkVersion paramsProcessorUtil.getHtml5PluginSdkVersion()
           }
           render(contentType: "application/json", text: builder.toPrettyString())
         }
@@ -111,6 +112,7 @@ class ApiController {
                   paramsProcessorUtil.getApiVersion(),
                   paramsProcessorUtil.getBbbVersion(),
                   paramsProcessorUtil.getGraphqlWebsocketUrl(),
+                  paramsProcessorUtil.getHtml5PluginSdkVersion(),
                   paramsProcessorUtil.getGraphqlApiUrl(),
                   RESP_CODE_SUCCESS),
                   contentType: "text/xml")
@@ -1226,24 +1228,22 @@ class ApiController {
         boolean isModerator = us.role?.equals(ROLE_MODERATOR);
         boolean blockAllUserdataForViewers = userdataBlocklistForViewers.any { it.equalsIgnoreCase("all") };
 
-        if (!meeting.isBreakout()) {
-          request.getParameterMap()
-                  .findAll { key, value ->
-                    // always allow `enforceLayout`
-                    if (key == "enforceLayout") return true
+        request.getParameterMap()
+                .findAll { key, value ->
+                  // always allow `enforceLayout`
+                  if (key == "enforceLayout") return true
 
-                    // For prefix userdata-
-                    if (key.startsWith("userdata-")) {
-                      if (isModerator) return true
-                      if (blockAllUserdataForViewers) return false
-                      return !userdataBlocklistForViewers.contains(key - "userdata-")
-                    }
-
-                    return false
+                  // For prefix userdata-
+                  if (key.startsWith("userdata-")) {
+                    if (isModerator && !meeting.isBreakout()) return true
+                    if (blockAllUserdataForViewers) return false
+                    return !userdataBlocklistForViewers.contains(key - "userdata-")
                   }
-                  .findAll { key, value -> !StringUtils.isEmpty(value[-1]) }
-                  .each { key, value -> queryParameters.put(key, value[-1]) }
-        }
+
+                  return false
+                }
+                .findAll { key, value -> !StringUtils.isEmpty(value[-1]) }
+                .each { key, value -> queryParameters.put(key, value[-1]) }
 
         String httpQueryString = "";
         for(String parameterName : queryParameters.keySet()) {

@@ -40,9 +40,9 @@ public class PdfPageCounter implements PageCounter {
     int numPages = 0; // total numbers of this pdf
 
     NuProcessBuilder pdfInfo = new NuProcessBuilder(
-        Arrays.asList("pdfinfo", presentationFile.getAbsolutePath()));
+        Arrays.asList("/usr/share/bbb-web/run-in-systemd.sh","10","pdfinfo", presentationFile.getAbsolutePath()));
 
-    PdfPageCounterHandler pHandler = new PdfPageCounterHandler();
+    PdfPageCounterHandler pHandler = new PdfPageCounterHandler("pdfpagecount-" + presentationFile.getName());
     pdfInfo.setProcessListener(pHandler);
 
     NuProcess process = pdfInfo.start();

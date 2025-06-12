@@ -5,8 +5,6 @@ import Styled from './styles';
 import ModalFullscreen from '/imports/ui/components/common/modal/fullscreen/component';
 import {
   BreakoutRoom,
-  getBreakoutCount,
-  GetBreakoutCountResponse,
   getBreakoutData,
   GetBreakoutDataResponse,
   handleInviteDismissedAt,
@@ -18,6 +16,7 @@ import { rejoinAudio } from '../../breakout-room/breakout-room/service';
 import { useBreakoutExitObserver } from './hooks';
 import { useStopMediaOnMainRoom } from '/imports/ui/components/breakout-room/hooks';
 import logger from '/imports/startup/client/logger';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
 
 const intlMessages = defineMessages({
   title: {
@@ -63,7 +62,6 @@ interface BreakoutJoinConfirmationProps {
   breakouts: BreakoutRoom[];
   currentUserJoined: boolean,
   presenter: boolean;
-  firstBreakoutId: string;
 }
 
 const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
@@ -71,7 +69,6 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
   breakouts,
   currentUserJoined,
   presenter,
-  firstBreakoutId,
 }) => {
   const [breakoutRoomRequestJoinURL] = useMutation(BREAKOUT_ROOM_REQUEST_JOIN_URL);
   const [callHandleInviteDismissedAt] = useMutation(handleInviteDismissedAt);
@@ -80,8 +77,15 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
   const [waiting, setWaiting] = React.useState(false);
   const [isOpen, setIsOpen] = React.useState(false);
 
-  const defaultSelectedBreakoutId = breakouts.find(({ isLastAssignedRoom }) => isLastAssignedRoom)?.breakoutRoomId
-    || firstBreakoutId;
+  const uniqueMatch = (arr: BreakoutRoom[], predicate: (item: BreakoutRoom) => boolean) => {
+    const matches = arr.filter(predicate);
+    return matches.length === 1 ? matches[0] : null;
+  };
+
+  const defaultSelectedBreakoutId = uniqueMatch(breakouts, (br) => br.showInvitation)?.breakoutRoomId
+      || uniqueMatch(breakouts, (br) => br.isLastAssignedRoom)?.breakoutRoomId
+      || breakouts.find((br) => br.joinURL != null)?.breakoutRoomId
+      || breakouts[0]?.breakoutRoomId;
 
   const [selectValue, setSelectValue] = React.useState('');
 
@@ -90,7 +94,7 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
   };
 
   // request join url if free join is enabled and user is not assigned to any room
-  if (defaultSelectedBreakoutId === firstBreakoutId) {
+  if (defaultSelectedBreakoutId === breakouts[0].breakoutRoomId) {
     const selectedBreakout = breakouts.find(({ breakoutRoomId }) => breakoutRoomId === defaultSelectedBreakoutId);
     if (!selectedBreakout?.joinURL && !waiting) {
       requestJoinURL(defaultSelectedBreakoutId);
@@ -229,13 +233,18 @@ const BreakoutJoinConfirmationContainer: React.FC = () => {
   const { data: currentUser } = useCurrentUser((u) => {
     return {
       isModerator: u.isModerator,
-      breakoutRooms: u.breakoutRooms,
+      lastBreakoutRoom: u.lastBreakoutRoom,
       presenter: u.presenter,
+      breakoutRoomsSummary: u.breakoutRoomsSummary,
     };
   });
-  const {
-    data: breakoutData,
-  } = useDeduplicatedSubscription<GetBreakoutDataResponse>(getBreakoutData);
+
+  const hasInvitationToShow = (currentUser?.breakoutRoomsSummary?.totalOfShowInvitation ?? 0) > 0;
+
+  const { data: currentMeeting } = useMeeting((m) => ({
+    breakoutRoomsCommonProperties: m.breakoutRoomsCommonProperties,
+  }));
+
   const breakoutExitObserver = useBreakoutExitObserver();
   useEffect(() => {
     breakoutExitObserver.setCallback('rejoinAudio', rejoinAudio);
@@ -243,25 +252,24 @@ const BreakoutJoinConfirmationContainer: React.FC = () => {
       breakoutExitObserver.removeCallback('rejoinAudio');
     };
   }, []);
+
   const {
-    data: breakoutCountData,
-  } = useDeduplicatedSubscription<GetBreakoutCountResponse>(getBreakoutCount);
-  if (!breakoutCountData || !breakoutCountData.breakoutRoom_aggregate.aggregate.count) return null;
+    data: breakoutData,
+  } = useDeduplicatedSubscription<GetBreakoutDataResponse>(getBreakoutData, { skip: !hasInvitationToShow });
+
+  if (!hasInvitationToShow) return null;
+
+  if (currentUser?.isModerator
+      && !currentMeeting?.breakoutRoomsCommonProperties?.sendInvitationToModerators) return null;
+
   if (!breakoutData || breakoutData.breakoutRoom.length === 0) return null;
-  const firstBreakout = breakoutData.breakoutRoom[0];
-  const {
-    freeJoin,
-    sendInvitationToModerators,
-    breakoutRoomId,
-  } = firstBreakout;
-  if (!sendInvitationToModerators && currentUser?.isModerator) return null;
+
   return (
     <BreakoutJoinConfirmation
-      freeJoin={freeJoin}
+      freeJoin={currentMeeting?.breakoutRoomsCommonProperties?.freeJoin ?? false}
       breakouts={breakoutData.breakoutRoom}
-      currentUserJoined={currentUser?.breakoutRooms?.isUserCurrentlyInRoom ?? false}
+      currentUserJoined={currentUser?.lastBreakoutRoom?.currentlyInRoom ?? false}
       presenter={currentUser?.presenter ?? false}
-      firstBreakoutId={breakoutRoomId}
     />
   );
 };

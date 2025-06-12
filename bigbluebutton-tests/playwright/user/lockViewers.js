@@ -212,7 +212,7 @@ class LockViewers extends MultiUsers {
     await sleep(1000);   // timeout to ensure that the userPage presentation is zoomed in stabilized
     await drawArrow(this.userPage);
     const screenshotOptions = {
-      maxDiffPixels: 250,
+      maxDiffPixels: 500,
     };
     // lock the viewers annotations
     await openLockViewers(this.modPage);

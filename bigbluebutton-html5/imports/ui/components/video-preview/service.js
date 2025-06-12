@@ -5,6 +5,7 @@ import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import VideoService from '/imports/ui/components/video-provider/service';
 import BBBVideoStream from '/imports/ui/services/webrtc-base/bbb-video-stream';
 import browserInfo from '/imports/utils/browserInfo';
+import logger from '/imports/startup/client/logger';
 
 // GUM retry + delay params (Chrome only for now)
 const GUM_MAX_RETRIES = 5;
@@ -205,8 +206,32 @@ const doGUM = (deviceId, profile) => {
   }
 
   const postProcessedgUM = (cts) => {
-    const ppGUM = () => navigator.mediaDevices.getUserMedia(cts)
-      .then((stream) => new BBBVideoStream(stream));
+    const ppGUM = async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia(cts);
+
+        return new BBBVideoStream(stream);
+      } catch (error) {
+        logger.error({
+          logCode: 'video_preview_dogum_error',
+          extraInfo: {
+            errorMessage: error.message,
+            errorName: error.name,
+            errorStack: error.stack,
+            constraints: cts,
+          },
+        }, `Error in video getUserMedia: ${error.name} - ${error.message}`);
+
+        // This is probably a deviceId mistmatch. Retry with base constraints
+        // without an exact deviceId.
+        if (error.name === 'OverconstrainedError') {
+          return navigator.mediaDevices.getUserMedia({ video: true })
+            .then((stream) => new BBBVideoStream(stream));
+        }
+
+        throw error;
+      }
+    };
 
     // Chrome/Edge sometimes bork gUM calls when switching camera
     // profiles. This looks like a browser bug. Track release not
@@ -235,6 +260,29 @@ const terminateCameraStream = (bbbVideoStream, deviceId) => {
   }
 };
 
+const doEnumerateDevices = ({ priorityDeviceId }) => navigator.mediaDevices.enumerateDevices()
+  .then((devices) => {
+    const {
+      webcams,
+      areLabelled,
+      areIdentified,
+    } = digestVideoDevices(devices, priorityDeviceId);
+    logger.debug({
+      logCode: 'video_preview_enumerate_devices',
+      extraInfo: {
+        devices,
+        webcams,
+      },
+    }, `Enumerate devices came back. There are ${devices.length} devices and ${webcams.length} are video inputs`);
+
+    return {
+      devices,
+      digestedWebcams: webcams,
+      areLabelled,
+      areIdentified,
+    };
+  });
+
 export default {
   promiseTimeout,
   changeWebcam: (deviceId) => {
@@ -259,4 +307,5 @@ export default {
   getCameraProfile,
   doGUM,
   terminateCameraStream,
+  doEnumerateDevices,
 };

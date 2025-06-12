@@ -32,7 +32,7 @@ func HasuraConnectionReader(hc *common.HasuraConnection, wg *sync.WaitGroup) {
 				hc.BrowserConn.Logger.Debugf("Closing Hasura ws connection as Context was cancelled!")
 			} else if errors.As(err, &closeError) {
 				hc.WebsocketCloseError = closeError
-				hc.BrowserConn.Logger.Debug("WebSocket connection closed: status = %v, reason = %s", closeError.Code, closeError.Reason)
+				hc.BrowserConn.Logger.Debug("Hasura WebSocket connection closed: status = %v, reason = %s", closeError.Code, closeError.Reason)
 				//TODO check if it should send {"type":"connection_error","payload":"Authentication hook unauthorized this request"}
 			} else {
 				if websocket.CloseStatus(err) == -1 {
