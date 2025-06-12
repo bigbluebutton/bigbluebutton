@@ -140,7 +140,7 @@ export class PeerTubePlayer extends Component {
   }
 
   getVolume() {
-    return this._player.getVolume();
+    return this._player?.props?.volume ?? 1; // Default volume is 1 (100%)
   }
 
   setLoop(loop) {
@@ -204,6 +204,7 @@ export class PeerTubePlayer extends Component {
         allow="autoplay; fullscreen"
         sandbox="allow-same-origin allow-scripts allow-popups"
         ref={(container) => {
+          console.log("🚀 -> PeerTubePlayer -> render -> container:", container)
           this.container = container;
         }}
       >
