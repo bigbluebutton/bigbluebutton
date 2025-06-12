@@ -3,8 +3,8 @@ package org.bigbluebutton.api.model.constraint;
 import org.bigbluebutton.api.model.constraint.list.SizeList;
 import org.bigbluebutton.api.model.validator.SizeValidator;
 
-import javax.validation.Constraint;
-import javax.validation.Payload;
+import jakarta.validation.Constraint;
+import jakarta.validation.Payload;
 import java.lang.annotation.*;
 
 @Target({ElementType.METHOD, ElementType.FIELD, ElementType.ANNOTATION_TYPE, ElementType.CONSTRUCTOR, ElementType.PARAMETER, ElementType.TYPE_USE})

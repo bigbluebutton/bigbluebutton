@@ -1,6 +1,7 @@
 package org.bigbluebutton.api.model.request;
 
 import org.bigbluebutton.api.model.constraint.UserSessionConstraint;
+import org.sitemesh.webapp.contentfilter.HttpServletRequestFilterable;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
@@ -20,7 +21,7 @@ public class Feedback extends RequestWithSession<Feedback.Params> {
     @UserSessionConstraint
     private String sessionToken;
 
-    public Feedback(HttpServletRequest servletRequest) {
+    public Feedback(HttpServletRequestFilterable servletRequest) {
         super(servletRequest);
     }
 

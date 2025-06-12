@@ -81,9 +81,11 @@ dependencies {
   runtimeOnly "com.bertramlabs.plugins:asset-pipeline-grails:5.0.6"
 
 //  implementation "org.grails.plugins:external-config:1.2.2"
-  implementation "org.yaml:snakeyaml:1.33"
+//  implementation "org.yaml:snakeyaml:1.33"
 
   implementation "jakarta.validation:jakarta.validation-api:3.0.2"
+  implementation "org.hibernate.validator:hibernate-validator:8.0.1.Final"
+  implementation "org.glassfish:jakarta.el:4.0.2"
 
   implementation "org.apache.xmlbeans:xmlbeans:5.0.3"
   implementation "org.apache.groovy:groovy-xml"
@@ -97,15 +99,11 @@ dependencies {
   implementation "io.projectreactor:reactor-core:3.6.0"
   implementation "org.reactivestreams:reactive-streams:1.0.4"
 
-  implementation "org.freemarker:freemarker:2.3.32"
+  implementation "org.freemarker:freemarker:2.3.34"
   implementation "com.google.code.gson:gson:2.11.0"
   implementation "org.json:json:20241224"
   implementation "com.zaxxer:nuprocess:2.0.6"
   implementation "net.java.dev.jna:jna:5.14.0"
-
-  implementation ("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.18.2") {
-    exclude group: "org.yaml", module: "snakeyaml"
-  }
 
   console "org.grails:grails-console:${grailsVersion}"
   profile "org.grails.profiles:web"
@@ -120,7 +118,6 @@ dependencies {
 
 configurations.all {
   resolutionStrategy {
-    force "org.yaml:snakeyaml:1.33"
     dependencySubstitution {
       substitute module('org.apache.commons:commons-lang3') using module('org.apache.commons:commons-lang3:3.17.0') because 'commons-compress requires >= 3.12'
     }
@@ -137,6 +134,7 @@ configurations.implementation {
   exclude group: 'org.graalvm.sdk', module: 'graal-sdk'
   exclude group: 'io.github.gradle-nexus', module: 'publish-plugin'
   exclude group: 'org.grails', module: 'grails-shell'
+  exclude group: "javax.validation", module: "validation-api"
 }
 
 configurations {

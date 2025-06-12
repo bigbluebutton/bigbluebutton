@@ -49,6 +49,7 @@ import org.bigbluebutton.web.services.turn.RemoteIceCandidate
 import org.codehaus.groovy.util.ListHashMap
 import org.json.JSONArray
 
+import org.sitemesh.webapp.contentfilter.HttpServletRequestFilterable
 
 import javax.servlet.ServletRequest
 import javax.servlet.http.HttpServletRequest
@@ -1996,7 +1997,8 @@ class ApiController {
     redirect(url: newUri)
   }
 
-  private Map.Entry<String, String> validateRequest(ValidationService.ApiCall apiCall, HttpServletRequest request) {
+  private Map.Entry<String, String> validateRequest(ValidationService.ApiCall apiCall, HttpServletRequestFilterable request) {
+    request.getQueryString()
     Map<String, String> violations = validationService.validate(apiCall, request)
     Map.Entry<String, String> response = null
 
