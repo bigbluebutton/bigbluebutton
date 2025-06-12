@@ -1699,7 +1699,7 @@ const Whiteboard = React.memo((props) => {
       && isPresenter
       && !isWheelZoomRef.current
     ) {
-      if (!isMounting && prevZoomValueRef.current !== zoomValue) {
+      if (!isMounting) {
         syncCameraOnPresenterZoom();
       }
     }
