@@ -323,16 +323,12 @@ const Whiteboard = React.memo((props) => {
       presentationAreaWidth > 0 &&
       presentationAreaHeight > 0
     ) {
-      const adjustedPresentationAreaHeight = isPresenterRef.current
-        ? presentationAreaHeight - 40
-        : presentationAreaHeight;
-
       const slideAspectRatio =
         currentPresentationPageRef.current.scaledWidth /
         currentPresentationPageRef.current.scaledHeight;
 
       const presentationAreaAspectRatio =
-        presentationAreaWidth / adjustedPresentationAreaHeight;
+        presentationAreaWidth / presentationAreaHeight;
 
       let initialZoom;
 
@@ -345,10 +341,11 @@ const Whiteboard = React.memo((props) => {
           currentPresentationPageRef.current.scaledWidth;
       } else {
         initialZoom =
-          adjustedPresentationAreaHeight /
+          presentationAreaHeight /
           currentPresentationPageRef.current.scaledHeight;
       }
 
+      initialZoomRef.current = initialZoom;
       prevZoomValueRef.current = zoomValue;
     }
   }, 200);
@@ -843,7 +840,6 @@ const Whiteboard = React.memo((props) => {
     };
 
     tlEditorRef.current.store.put([updatedCurrentCam]);
-    initialZoomRef.current = baseZoom;
   };
 
   const calculateZoomWithGapValue = (
