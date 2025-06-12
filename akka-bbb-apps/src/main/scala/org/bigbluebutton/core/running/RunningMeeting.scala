@@ -19,7 +19,6 @@ class RunningMeeting(val props: DefaultProps, outGW: OutMessageGateway,
                      eventBus: InternalEventBus)(implicit val context: ActorContext) {
   private val externalVideoModel = new ExternalVideoModel()
   private val chatModel = new ChatModel()
-  private val plugins = PluginModel.createPluginModelFromJson(props.pluginProp, props.systemProps.html5PluginSdkVersion)
   private val layouts = new Layouts()
   private val pads = new Pads()
   private val wbModel = new WhiteboardModel()
@@ -35,7 +34,7 @@ class RunningMeeting(val props: DefaultProps, outGW: OutMessageGateway,
   private val audioCaptions = new AudioCaptions
   private val timerModel = new TimerModel
   private val clientSettingsBeforePluginValidation: Map[String, Object] = ClientSettings.getClientSettingsWithOverride(props.overrideClientSettings)
-  private val (plugins, pluginSettings) = PluginModel.createPluginModelFromJson(props.pluginProp, clientSettingsBeforePluginValidation)
+  private val (plugins, pluginSettings) = PluginModel.createPluginModelFromJson(props.pluginProp, props.systemProps.html5PluginSdkVersion, clientSettingsBeforePluginValidation)
   val clientSettings: Map[String, Object] = ClientSettings.mergePluginSettingsIntoClientSettings(
     clientSettingsBeforePluginValidation, pluginSettings)
 
