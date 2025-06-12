@@ -204,7 +204,6 @@ export class PeerTubePlayer extends Component {
         allow="autoplay; fullscreen"
         sandbox="allow-same-origin allow-scripts allow-popups"
         ref={(container) => {
-          console.log("🚀 -> PeerTubePlayer -> render -> container:", container)
           this.container = container;
         }}
       >
