@@ -53,6 +53,7 @@ case class UsersProp(
     guestPolicy:                  String,
     meetingLayout:                String,
     allowModsToUnmuteUsers:       Boolean,
+    modsRequestToUnmuteUsers:     Boolean,
     allowModsToEjectCameras:      Boolean,
     authenticatedGuest:           Boolean,
     allowPromoteGuestToModerator: Boolean,

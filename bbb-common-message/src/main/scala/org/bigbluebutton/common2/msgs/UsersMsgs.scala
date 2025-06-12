@@ -444,6 +444,12 @@ case class UserInactivityInspectMsgBody(meetingId: String, responseDelay: Long)
 object UserActivitySignCmdMsg { val NAME = "UserActivitySignCmdMsg" }
 case class UserActivitySignCmdMsg(header: BbbClientMsgHeader, body: UserActivitySignCmdMsgBody) extends StandardMsg
 case class UserActivitySignCmdMsgBody(userId: String)
+/**
+ * Sent from the client to the server with user answer
+ */
+object UnmuteRequestAnswerEvtMsg { val NAME = "UnmuteRequestAnswerEvtMsg" }
+case class UnmuteRequestAnswerEvtMsg(header: BbbClientMsgHeader, body: UnmuteRequestAnswerEvtMsgBody) extends StandardMsg
+case class UnmuteRequestAnswerEvtMsgBody(userId: String)
 
 object SetUserSpeechLocaleReqMsg { val NAME = "SetUserSpeechLocaleReqMsg" }
 case class SetUserSpeechLocaleReqMsg(header: BbbClientMsgHeader, body: SetUserSpeechLocaleReqMsgBody) extends StandardMsg

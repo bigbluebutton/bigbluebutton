@@ -98,6 +98,7 @@ public class ParamsProcessorUtil {
     private Integer defaultMaxPinnedCameras = 3;
     private boolean defaultMuteOnStart = false;
     private boolean defaultAllowModsToUnmuteUsers = false;
+    private boolean defaultModsRequestToUnmuteUsers = false;
     private boolean defaultAllowModsToEjectCameras = false;
     private String defaultCameraBridge = "bbb-webrtc-sfu";
     private String defaultScreenShareBridge = "bbb-webrtc-sfu";
@@ -921,6 +922,12 @@ public class ParamsProcessorUtil {
         }
         meeting.setAllowModsToUnmuteUsers(allowModsToUnmuteUsers);
 
+        Boolean modsRequestToUnmuteUsers = defaultModsRequestToUnmuteUsers;
+        if (!StringUtils.isEmpty(params.get(ApiParams.MODS_REQUEST_TO_UNMUTE_USERS))) {
+            modsRequestToUnmuteUsers = Boolean.parseBoolean(params.get(ApiParams.MODS_REQUEST_TO_UNMUTE_USERS));
+        }
+        meeting.setModsRequestToUnmuteUsers(modsRequestToUnmuteUsers);
+
         if (!StringUtils.isEmpty(params.get(ApiParams.ALLOW_REQUESTS_WITHOUT_SESSION))) {
             meeting.setAllowRequestsWithoutSession(Boolean.parseBoolean(params.get(ApiParams.ALLOW_REQUESTS_WITHOUT_SESSION)));
         }
@@ -1534,6 +1541,14 @@ public class ParamsProcessorUtil {
 
 	public Boolean getAllowModsToUnmuteUsers() {
 		return defaultAllowModsToUnmuteUsers;
+	}
+
+    public void setModsRequestToUnmuteUsers(Boolean value) {
+		defaultModsRequestToUnmuteUsers = value;
+	}
+
+	public Boolean getModsRequestToUnmuteUsers() {
+		return defaultModsRequestToUnmuteUsers;
 	}
 
   public void setAllowModsToEjectCameras(Boolean value) {
