@@ -165,6 +165,7 @@ const CustomLayout = (props) => {
                 },
               },
               cameraDock: {
+                position: CAMERADOCK_POSITION.CONTENT_TOP,
                 numCameras: cameraDock.numCameras,
               },
               externalVideo: {
@@ -223,6 +224,7 @@ const CustomLayout = (props) => {
                 },
               },
               cameraDock: {
+                position: CAMERADOCK_POSITION.CONTENT_TOP,
                 numCameras: cameraDock.numCameras,
               },
               externalVideo: {

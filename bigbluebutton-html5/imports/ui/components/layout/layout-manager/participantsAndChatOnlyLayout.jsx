@@ -404,6 +404,7 @@ const ParticipantsAndChatOnlyLayout = (props) => {
               height: 0,
             },
             cameraDock: {
+              position: CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM,
               numCameras: 0,
             },
             externalVideo: {

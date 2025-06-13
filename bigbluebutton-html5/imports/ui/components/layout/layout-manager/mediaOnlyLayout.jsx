@@ -118,6 +118,7 @@ const MediaOnlyLayout = (props) => {
     const cameraDockBounds = {};
 
     cameraDockBounds.isCameraHorizontal = false;
+    cameraDockBounds.position = CAMERADOCK_POSITION.CONTENT_TOP;
 
     const mediaBoundsWidth = mediaBounds.width > presentationToolbarMinWidth
       && !isMobile
@@ -479,6 +480,7 @@ const MediaOnlyLayout = (props) => {
               },
             },
             cameraDock: {
+              position: CAMERADOCK_POSITION.CONTENT_LEFT,
               numCameras: cameraDock.numCameras,
             },
             externalVideo: {
