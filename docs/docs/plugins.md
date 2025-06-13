@@ -981,7 +981,7 @@ plugin_<pluginName>_<parameter-name>
 ```
 
 - `<pluginName>` — The name of the plugin as defined in `manifest.json`.  
-- `<parameter-name>` — The parameter's name. It may include letters (uppercase or lowercase), numbers, hyphens (`-`), and underscores (`_`).
+- `<parameter-name>` — The parameter's name. It may include letters (uppercase or lowercase), numbers and hyphens (`-`).
 
 This naming convention ensures that each plugin has its own namespace for parameters. Other plugins cannot access values outside their own namespace. For example:
 
