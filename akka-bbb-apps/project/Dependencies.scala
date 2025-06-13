@@ -24,6 +24,7 @@ object Dependencies {
     // Apache Commons
     val lang = "3.12.0"
     val codec = "1.15"
+    val httpcomponents = "4.5.14"
 
     // BigBlueButton
     val bbbCommons = "0.0.22-SNAPSHOT"
@@ -60,6 +61,7 @@ object Dependencies {
     val pekkoHttpSprayJson = "org.apache.pekko" %% "pekko-http-spray-json" % Versions.pekkoHttpVersion
 
     val apacheLang = "org.apache.commons" % "commons-lang3" % Versions.lang
+    val apacheHttpComponents = "org.apache.httpcomponents" % "httpclient" % Versions.httpcomponents
 
     val bbbCommons = "org.bigbluebutton" % "bbb-common-message_2.13" % Versions.bbbCommons
 
@@ -101,6 +103,7 @@ object Dependencies {
     Compile.sprayJson,
     Compile.semver,
     Compile.apacheLang,
+    Compile.apacheHttpComponents,
     Compile.pekkoHttp,
     Compile.pekkoHttpSprayJson,
     Compile.bbbCommons,
