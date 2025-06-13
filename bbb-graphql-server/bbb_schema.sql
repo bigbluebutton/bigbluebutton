@@ -2212,7 +2212,7 @@ CREATE UNLOGGED TABLE "layout" (
 	"cameraDockIsResizing"	boolean,
 	"cameraDockPlacement" 	varchar(100),
 	"cameraDockAspectRatio" numeric,
-	"cameraWithFocus" 		varchar(100),
+	"cameraWithFocus" 		varchar(255),
 	"propagateLayout" 		boolean,
 	"screenshareAsContent" 	boolean,
 	"updatedAt" 			timestamp with time zone
