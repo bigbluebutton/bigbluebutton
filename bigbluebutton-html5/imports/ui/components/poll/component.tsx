@@ -47,10 +47,6 @@ const intlMessages = defineMessages({
     id: 'app.poll.dragDropPollInstruction',
     description: 'instructions for upload poll options via drag and drop',
   },
-  ariaInputCount: {
-    id: 'app.poll.ariaInputCount',
-    description: 'aria label for custom poll input field',
-  },
   customPlaceholder: {
     id: 'app.poll.customPlaceholder',
     description: 'custom poll input field placeholder text',

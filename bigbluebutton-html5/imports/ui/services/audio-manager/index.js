@@ -880,7 +880,7 @@ class AudioManager {
           status: BREAKOUT_AUDIO_TRANSFER_STATES.DISCONNECTED,
         });
         const errorKey = this.messages.error[error] || this.messages.error.GENERIC_ERROR;
-        const errorMsg = this.intl.formatMessage(errorKey, { 0: bridgeError });
+        const errorMsg = this.intl.formatMessage(errorKey, { reason: bridgeError });
         const secondsToAudioFailure = this._calculateAudioJoinTime();
         this.error = !!error;
         logger.error({
