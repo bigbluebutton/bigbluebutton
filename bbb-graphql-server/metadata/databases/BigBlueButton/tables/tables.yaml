@@ -58,6 +58,7 @@
 - "!include public_v_user_connectionStatus.yaml"
 - "!include public_v_user_connectionStatusHistory.yaml"
 - "!include public_v_user_connectionStatusReport.yaml"
+- "!include public_v_user_connectionStatusSummary.yaml"
 - "!include public_v_user_current.yaml"
 - "!include public_v_user_guest.yaml"
 - "!include public_v_user_livekit.yaml"
