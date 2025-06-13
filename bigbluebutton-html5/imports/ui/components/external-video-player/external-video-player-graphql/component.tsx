@@ -197,6 +197,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   const presenterRef = useRef(isPresenter);
   const [reactPlayerPlaying, setReactPlayerPlaying] = React.useState(false);
   const firstPlayRef = useRef(true);
+  const [playerUrl, setPlayerUrl] = React.useState('');
 
   let currentTime = getCurrentTime();
 
@@ -206,6 +207,39 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     if (newVolume > 0) {
       const internalPlayer = playerRef.current?.getInternalPlayer();
       internalPlayer?.unMute?.();
+    }
+  };
+  // Work around for Twitch, because twitch doesn't have a no cookie domain
+  // causing the video star in the wrong position between sessions
+  const addTimeParamToTwitchUrl = (videoUrl: string, timeInSeconds: number) => {
+    const convertSecondsToHHMMSS = (seconds: number) => {
+      const totalSeconds = Math.floor(seconds);
+      const hours = Math.floor(totalSeconds / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const secs = totalSeconds % 60;
+
+      const hh = String(hours).padStart(2, '0');
+      const mm = String(minutes).padStart(2, '0');
+      const ss = String(secs).padStart(2, '0');
+
+      return `${hh}h${mm}m${ss}s`;
+    };
+
+    try {
+      const url = new URL(videoUrl);
+
+      const isTwitch = url.hostname === 'twitch.tv' || url.hostname === 'www.twitch.tv';
+
+      if (isTwitch) {
+        const formattedTime = convertSecondsToHHMMSS(timeInSeconds);
+        url.searchParams.set('t', formattedTime);
+        return url.toString();
+      }
+
+      return videoUrl;
+    } catch (e) {
+      // if the URL is invalid, return the original videoUrl
+      return videoUrl;
     }
   };
 
@@ -276,6 +310,12 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     }
     return 1;
   }, []);
+
+  useEffect(() => {
+    if (playerUrl !== videoUrl) {
+      setPlayerUrl(addTimeParamToTwitchUrl(videoUrl, getCurrentTime()));
+    }
+  }, [videoUrl]);
 
   useEffect(() => {
     const storedVolume = storage.getItem('externalVideoVolume');
@@ -433,7 +473,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     setPlayed(state.played);
     setLoaded(state.loaded);
     if (playing && isPresenter) {
-      currentTime = await getPlayerCurrentTime(playerRef.current as ReactPlayer);
+      currentTime = getCurrentTime();
     }
     const interPlayerPlaybackRate = getPlaybackRate(playerRef.current as ReactPlayer);
     if (isPresenter && interPlayerPlaybackRate !== playerPlaybackRate) {
@@ -540,28 +580,33 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
             )
             : ''
         }
-        <Styled.VideoPlayer
-          config={videoPlayConfig}
-          autoPlay
-          url={videoUrl}
-          playing={playing}
-          playbackRate={playerPlaybackRate}
-          key={playerKey}
-          height="100%"
-          width="100%"
-          ref={playerRef}
-          volume={volume}
-          onStart={handleOnStart}
-          onPlay={handleOnPlay}
-          onSeek={handleOnSeek}
-          onProgress={handleProgress}
-          onPause={handleOnStop}
-          onEnded={handleOnStop}
-          muted={mute || isEchoTest}
-          controls
-          previewTabIndex={isPresenter ? 0 : -1}
-          onPlaybackRateChange={handlePlaybackRateChange}
-        />
+
+        {
+          playerUrl ? (
+            <Styled.VideoPlayer
+              config={videoPlayConfig}
+              autoPlay
+              url={playerUrl}
+              playing={playing}
+              playbackRate={playerPlaybackRate}
+              key={playerKey}
+              height="100%"
+              width="100%"
+              ref={playerRef}
+              volume={volume}
+              onStart={handleOnStart}
+              onPlay={handleOnPlay}
+              onSeek={handleOnSeek}
+              onProgress={handleProgress}
+              onPause={handleOnStop}
+              onEnded={handleOnStop}
+              muted={mute || isEchoTest}
+              controls
+              previewTabIndex={isPresenter ? 0 : -1}
+              onPlaybackRateChange={handlePlaybackRateChange}
+            />
+          ) : null
+        }
         {
           shouldShowTools() ? (
             <ExternalVideoPlayerToolbar
