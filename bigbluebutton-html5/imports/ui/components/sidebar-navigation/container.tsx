@@ -13,7 +13,9 @@ import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useTimer from '/imports/ui/core/hooks/useTImer';
 import { TIMER_ICON, TIMER_LABEL, TIMER_APP_KEY } from '/imports/ui/components/timer/constants';
 import { POLLS_ICON, POLLS_LABEL, POLLS_APP_KEY } from '/imports/ui/components/poll/constants';
-import { ACTIONS, DEVICE_TYPE } from '/imports/ui/components/layout/enums';
+import { ACTIONS, DEVICE_TYPE, PANELS } from '/imports/ui/components/layout/enums';
+import useHasUnreadNotes from '/imports/ui/components/notes/hooks/useHasUnreadNotes';
+import useChat from '/imports/ui/core/hooks/useChat';
 
 const SidebarNavigationContainer = () => {
   const { data: currentUser } = useCurrentUser((u: Partial<User>) => (
@@ -29,8 +31,11 @@ const SidebarNavigationContainer = () => {
     data: timerData,
   } = useTimer();
   const intl = useIntl();
+  const unread = useHasUnreadNotes();
   const sidebarNavigationInput = layoutSelectInput((i: Input) => i.sidebarNavigation);
   const sidebarNavigation = layoutSelectOutput((i: Output) => i.sidebarNavigation);
+  const sidebarContent = layoutSelectInput((i: Input) => i.sidebarContent);
+  const sharedNotes = layoutSelectInput((i: Input) => i.sharedNotes);
   const deviceType = layoutSelect((i: Layout) => i.deviceType);
   const isMobile = deviceType === DEVICE_TYPE.MOBILE;
   const layoutContextDispatch = layoutDispatch();
@@ -49,6 +54,18 @@ const SidebarNavigationContainer = () => {
     Object.keys(registeredApps).includes(POLLS_APP_KEY)), [registeredApps]);
   const timerIsRegistered = useMemo(() => (
     Object.keys(registeredApps).includes(TIMER_APP_KEY)), [registeredApps]);
+
+  const { sidebarContentPanel } = sidebarContent;
+  const { isPinned: notesIsPinned } = sharedNotes;
+  const hasUnreadNotes = sidebarContentPanel !== PANELS.SHARED_NOTES && unread && !notesIsPinned;
+  const { data: chats } = useChat((chat) => ({
+    totalUnread: chat.totalUnread,
+  }));
+
+  const hasUnreadMessages = (chats
+    && (Array.isArray(chats) ? chats : [chats])
+      .reduce((acc, chat) => acc + (chat?.totalUnread ?? 0), 0) > 0)
+    ?? false;
 
   const registerApp = (id: string, name: string, icon: string) => {
     layoutContextDispatch({
@@ -124,6 +141,9 @@ const SidebarNavigationContainer = () => {
       height={height}
       sidebarNavigationInput={sidebarNavigationInput}
       isModerator={isModerator}
+      hasUnreadMessages={hasUnreadMessages}
+      hasUnreadNotes={hasUnreadNotes}
+      sidebarContentPanel={sidebarContentPanel}
     />
   );
 };

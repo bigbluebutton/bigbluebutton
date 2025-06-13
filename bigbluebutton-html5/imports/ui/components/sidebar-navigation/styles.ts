@@ -21,38 +21,99 @@ import {
   colorBackground,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
+import Button from '/imports/ui/components/common/button/component';
 
 const smallHeight = '(max-height: 40em)';
 
-const NavigationSidebarBackdrop = styled.div<{isMobile: boolean}>`
+const NavigationSidebarBackdrop = styled.div<{animations: boolean, isMobile: boolean, isExpanded: boolean}>`
   position: absolute;
-  background-color: ${({ isMobile }) => (!isMobile ? `${colorBackground}` : 'transparent')};
-  ${({ isMobile }) => !isMobile && `padding: ${navigationSidebarMargin}`};
+
+  ${({ isMobile }) => !isMobile && `
+    background-color: ${colorBackground};
+    padding: ${navigationSidebarMargin};
+  `}
+  ${({ isMobile, animations }) => isMobile && `
+    background-color: transparent;
+    ${animations && 'transition: height 0.2s ease-out, background-color 0.4s ease-out;'}
+  `}
 `;
 
-const NavigationSidebar = styled.div<{isMobile: boolean}>`
+const NavigationSidebar = styled.div<{animations: boolean, isMobile: boolean, isExpanded: boolean}>`
   background-color: ${colorWhite};
   border-radius: ${navigationSidebarBorderRadius};
-  padding: ${navigationSidebarPaddingY} 0;
   display: flex;
   flex-direction: column;
   height: 100%;
-  ${({ isMobile }) => isMobile && 'box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2)'};
+
+  ${({ isMobile, isExpanded, animations }) => (isMobile ? `
+    gap: 1rem;
+    padding-bottom: ${navigationSidebarPaddingY};
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+    ${!isExpanded && 'background-color: transparent;'}
+    ${animations && 'transition: background-color 0.2s ease-out;'}
+  ` : `
+    padding: ${navigationSidebarPaddingY} 0;
+  `)}
 `;
 
-const NavigationSidebarListItemsContainer = styled(ScrollboxVertical)<{hasScrollbar: boolean}>`
+// @ts-ignore - js component
+const NavigationToggleButton = styled(Button)`
+  margin: 0;
+  z-index: 3;
+  align-self: center;
+  ${({ hasNotification }) => hasNotification && `
+    position: relative;
+
+    &:after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      width: 12px;
+      height: 12px;
+      bottom: ${borderSize};
+      right: 3px;
+      background-color: ${colorDanger};
+      border: ${borderSize} solid ${colorGrayDark};
+    }
+  `}
+`;
+
+const NavigationSidebarListItemsContainer = styled(ScrollboxVertical)<{
+  animations: boolean,
+  isMobile: boolean,
+  hasScrollbar: boolean,
+  isExpanded: boolean,
+}>`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   flex-grow: 1;
-  overflow-y: auto;
   border-radius: ${navigationSidebarBorderRadius};
   gap: ${navigationSidebarListItemsContainerGap};
-  ${({ hasScrollbar }) => !hasScrollbar && 'background: transparent !important;'}
-
   @media ${smallHeight} {
     gap: 1.25rem;
   }
+
+  ${({ isExpanded }) => (isExpanded ? `
+    mmax-height: 100%;
+    opacity: 1;
+  ` : `
+    height: 0;
+    opacity: 0;
+    overflow: hidden;
+    background: transparent !important;
+  `)}
+
+  ${({ hasScrollbar }) => !hasScrollbar && `
+    background: transparent !important;
+  `}
+
+  ${({ isMobile, animations }) => (animations && isMobile && `
+    overflow: hidden;
+    transition: height 0.2s ease-out,
+     opacity 0.2s ease-out,
+     background 0.2s ease-out;
+  `)}
 `;
 
 const PositionedDiv = styled.div`
@@ -150,6 +211,7 @@ const ListItem = styled.div<ListItemProps>`
 export default {
   NavigationSidebarBackdrop,
   NavigationSidebar,
+  NavigationToggleButton,
   NavigationSidebarListItemsContainer,
   Top,
   Center,

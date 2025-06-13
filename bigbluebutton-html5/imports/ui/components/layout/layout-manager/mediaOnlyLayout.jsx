@@ -249,7 +249,7 @@ const MediaOnlyLayout = (props) => {
     } = props;
     const { camerasMargin } = DEFAULT_VALUES;
 
-    const sidebarNavBounds = calculatesSidebarNavBounds(0);
+    const sidebarNavBounds = calculatesSidebarNavBounds();
     const sidebarContentBounds = calculatesSidebarContentBounds(0);
     const mediaAreaBounds = calculatesMediaAreaBounds(0, 0, MEDIA_ONLY_LAYOUT_MARGIN);
     const navbarBounds = calculatesNavbarBounds(mediaAreaBounds);
