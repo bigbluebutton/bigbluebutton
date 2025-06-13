@@ -1,5 +1,3 @@
-import logger from '/imports/startup/client/logger';
-
 export const JoinErrorCodeTable = {
   NOT_EJECT: 'not_eject_reason',
   DUPLICATE_USER: 'duplicate_user_in_meeting_eject_reason',
@@ -107,16 +105,12 @@ export const allowRedirectToLogoutURL = (logoutURL: string) => {
     const urlWithoutProtocolForAuthLogout = logoutURL.replace(protocolPattern, '');
     const urlWithoutProtocolForLocationOrigin = window.location.origin.replace(protocolPattern, '');
     if (urlWithoutProtocolForAuthLogout === urlWithoutProtocolForLocationOrigin) {
-      if (!ALLOW_DEFAULT_LOGOUT_URL) {
-        logger.warn('Default logout url is not allowed for this session.');
-      }
       return ALLOW_DEFAULT_LOGOUT_URL;
     }
     // custom logoutURL
     return true;
   }
 
-  logger.warn('logoutURL is not defined.', logoutURL);
   // no logout url
   return false;
 };
