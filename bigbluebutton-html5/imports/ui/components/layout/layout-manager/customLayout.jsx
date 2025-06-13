@@ -171,9 +171,6 @@ const CustomLayout = (props) => {
                 isOpen: overrideOpenSidebarPanel,
                 sidebarContentPanel: sidebarContent.sidebarContentPanel,
               },
-              sidebarContentHorizontalResizer: {
-                isOpen: false,
-              },
               presentation: {
                 isOpen: presentation.isOpen,
                 slidesLength: presentation.slidesLength,
@@ -236,9 +233,6 @@ const CustomLayout = (props) => {
               sidebarContent: {
                 isOpen: overrideOpenSidebarPanel,
                 sidebarContentPanel: sidebarContentPanelOverride,
-              },
-              sidebarContentHorizontalResizer: {
-                isOpen: false,
               },
               presentation: {
                 isOpen: presentation.isOpen,

@@ -461,9 +461,6 @@ const MediaOnlyLayout = (props) => {
               isOpen: false,
               sidebarContentPanel: PANELS.NONE,
             },
-            SidebarContentHorizontalResizer: {
-              isOpen: false,
-            },
             presentation: {
               isOpen: presentation.isOpen,
               slidesLength: presentation.slidesLength,

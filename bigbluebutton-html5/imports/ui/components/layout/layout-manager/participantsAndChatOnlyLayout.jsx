@@ -388,9 +388,6 @@ const ParticipantsAndChatOnlyLayout = (props) => {
               isOpen: true,
               sidebarContentPanel: sidebarContentPanelOverride,
             },
-            SidebarContentHorizontalResizer: {
-              isOpen: false,
-            },
             presentation: {
               isOpen: false,
               slidesLength: presentation.slidesLength,

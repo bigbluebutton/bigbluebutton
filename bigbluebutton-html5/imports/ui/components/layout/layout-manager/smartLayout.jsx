@@ -113,9 +113,6 @@ const SmartLayout = (props) => {
               isOpen: overrideOpenSidebarPanel,
               sidebarContentPanel: sidebarContentPanelOverride,
             },
-            SidebarContentHorizontalResizer: {
-              isOpen: false,
-            },
             presentation: {
               isOpen: presentation.isOpen,
               slidesLength: presentation.slidesLength,
