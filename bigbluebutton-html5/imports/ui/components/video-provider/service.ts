@@ -507,21 +507,37 @@ class VideoService {
     this.activePeers = activePeers;
   }
 
-  async getStats() {
+  async getStats(additionalStatsTypes = []) {
     const stats: Record<string, unknown> = {};
+    const statsToFilter = [...FILTER_VIDEO_STATS, ...additionalStatsTypes];
 
     await Promise.all(
       Object.keys(this.activePeers).map(async (peerId) => {
-        const peerStats = await this.activePeers[peerId].getStats();
+        try {
+          const activePeer = this.activePeers[peerId];
 
-        const videoStats: Record<string, unknown> = {};
+          if (!activePeer || typeof activePeer?.getStats !== 'function') return;
 
-        peerStats.forEach((stat) => {
-          if (FILTER_VIDEO_STATS.includes(stat.type)) {
-            videoStats[stat.type] = stat;
-          }
-        });
-        stats[peerId] = videoStats;
+          const peerStats = await this.activePeers[peerId].getStats();
+          const videoStats: Record<string, unknown> = {};
+
+          peerStats.forEach((stat) => {
+            if (statsToFilter.includes(stat.type)) {
+              videoStats[stat.type] = stat;
+            }
+          });
+          stats[peerId] = videoStats;
+        } catch (error) {
+          logger.warn({
+            logCode: 'video_provider_getstats_error',
+            extraInfo: {
+              peerId,
+              errorName: (error as Error)?.name,
+              errorMessage: (error as Error)?.message,
+              errorStack: (error as Error)?.stack,
+            },
+          }, `Failed to get stats for peer ${peerId}: ${(error as Error)?.message}`);
+        }
       }),
     );
 
@@ -531,7 +547,7 @@ class VideoService {
         // @ts-expect-error -> Untyped object.
         const { id, type: statType, kind } = stat;
 
-        if (FILTER_VIDEO_STATS.includes(statType) && (!kind || kind === 'video')) {
+        if (statsToFilter.includes(statType) && (!kind || kind === 'video')) {
           stats[id] = { [statType]: stat };
         }
       });
@@ -546,7 +562,7 @@ class VideoService {
       }, `Failed to get LiveKit video stats: ${(error as Error).message}`);
     }
 
-    return stats;
+    return Object.keys(stats).length === 0 ? null : stats;
   }
 
   static async startVirtualBackground(
@@ -620,7 +636,7 @@ export default {
   getPrefix: videoService.getPrefix.bind(videoService),
   isPinEnabled: VideoService.isPinEnabled,
   updateActivePeers: (streams: StreamItem[]) => videoService.updateActivePeers(streams),
-  getStats: () => videoService.getStats(),
+  getStats: (additionalStatsTypes = []) => videoService.getStats(additionalStatsTypes),
   buildStreamName: (deviceId: string) => videoService.buildStreamName(deviceId),
   startVirtualBackground: VideoService.startVirtualBackground,
 };
