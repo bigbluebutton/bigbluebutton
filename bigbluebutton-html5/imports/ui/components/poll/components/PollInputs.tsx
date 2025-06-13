@@ -77,7 +77,7 @@ const PollInputs: React.FC<PollInputsProps> = ({
           <span className="sr-only" id={`option-${i}`}>
             {intl.formatMessage(
               intlMessages.deleteRespDesc,
-              { 0: o.val || intl.formatMessage(intlMessages.emptyPollOpt) },
+              { option: o.val || intl.formatMessage(intlMessages.emptyPollOpt) },
             )}
           </span>
         </Styled.OptionWrapper>

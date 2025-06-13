@@ -47,10 +47,6 @@ const intlMessages = defineMessages({
     id: 'app.poll.dragDropPollInstruction',
     description: 'instructions for upload poll options via drag and drop',
   },
-  ariaInputCount: {
-    id: 'app.poll.ariaInputCount',
-    description: 'aria label for custom poll input field',
-  },
   customPlaceholder: {
     id: 'app.poll.customPlaceholder',
     description: 'custom poll input field placeholder text',
@@ -484,7 +480,7 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
       ? questionAndOptionsList.join('\n') : '');
     setWarning(clearWarning ? null : warning);
     addAlert(`${intl.formatMessage(intlMessages.removePollOpt,
-      { 0: removed.val || intl.formatMessage(intlMessages.emptyPollOpt) })}`);
+      { option: removed.val || intl.formatMessage(intlMessages.emptyPollOpt) })}`);
   };
 
   const handleAddOption = () => {

@@ -374,7 +374,7 @@ const GuestUsersManagementPanel: React.FC<GuestUsersManagementPanelProps> = ({
         </Styled.ModeratorActions>
         {renderPendingUsers(
           intl.formatMessage(intlMessages.pendingUsers,
-            { 0: authedGuestUsers.length }),
+            { usersCount: authedGuestUsers.length }),
           authedGuestUsers,
           guestUsersCall,
           privateMessageVisible,
@@ -384,7 +384,7 @@ const GuestUsersManagementPanel: React.FC<GuestUsersManagementPanelProps> = ({
         )}
         {renderPendingUsers(
           intl.formatMessage(intlMessages.pendingGuestUsers,
-            { 0: unauthedGuestUsers.length }),
+            { usersCount: unauthedGuestUsers.length }),
           unauthedGuestUsers,
           guestUsersCall,
           privateMessageVisible,

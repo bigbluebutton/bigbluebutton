@@ -139,7 +139,7 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings, index }
         <Icon iconName="rooms" />
         &nbsp;
         {user.lastBreakoutRoom?.shortName
-          ? intl.formatMessage(messages.breakoutRoom, { 0: user.lastBreakoutRoom?.sequence })
+          ? intl.formatMessage(messages.breakoutRoom, { roomNumber: user.lastBreakoutRoom?.sequence })
           : user.lastBreakoutRoom?.shortName}
       </span>,
     );

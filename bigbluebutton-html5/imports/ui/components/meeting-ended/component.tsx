@@ -183,7 +183,7 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
 
   const generateEndMessage = useCallback((joinErrorCode: string, meetingEndedCode: string, endedBy: string) => {
     if (!isEmpty(endedBy)) {
-      return intl.formatMessage(intlMessage.messageEndedByUser, { 0: endedBy });
+      return intl.formatMessage(intlMessage.messageEndedByUser, { userName: endedBy });
     }
     // OR opetaror always returns the first truthy value
 

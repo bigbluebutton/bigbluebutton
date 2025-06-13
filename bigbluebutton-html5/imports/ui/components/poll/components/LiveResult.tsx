@@ -109,8 +109,8 @@ const LiveResult: React.FC<LiveResultProps> = ({
             ? (
               <span>
                 {`${intl.formatMessage(intlMessages.waitingLabel, {
-                  0: numberOfAnswerCount,
-                  1: usersCount,
+                  current: numberOfAnswerCount,
+                  total: usersCount,
                 })} `}
               </span>
             )

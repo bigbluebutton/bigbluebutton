@@ -133,7 +133,7 @@ const ChatListItem = ({
 
   const arialabel = `${localizedChatName} ${
     stateUreadCount > 1
-      ? intl.formatMessage(intlMessages.unreadPlural, { 0: stateUreadCount })
+      ? intl.formatMessage(intlMessages.unreadPlural, { unreadCount: stateUreadCount })
       : intl.formatMessage(intlMessages.unreadSingular)}`;
 
   return (

@@ -116,7 +116,7 @@ const notifyNotAllowedChange = (intl) => {
 };
 
 const notifyShapeNumberExceeded = (intl, limit) => {
-  if (intl) notify(intl.formatMessage(intlMessages.shapeNumberExceeded, { 0: limit }), 'warning', 'whiteboard');
+  if (intl) notify(intl.formatMessage(intlMessages.shapeNumberExceeded, { limit }), 'warning', 'whiteboard');
 };
 
 const toggleToolsAnimations = (activeAnim, anim, time, hasWBAccess = false) => {

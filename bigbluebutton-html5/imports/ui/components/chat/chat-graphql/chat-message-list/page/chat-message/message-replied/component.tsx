@@ -54,7 +54,7 @@ const ChatMessageReplied: React.FC<MessageRepliedProps> = (props) => {
       )}
       {deletedByUser && (
         <DeleteMessage>
-          {intl.formatMessage(intlMessages.deleteMessage, { 0: deletedByUser })}
+          {intl.formatMessage(intlMessages.deleteMessage, { userName: deletedByUser })}
         </DeleteMessage>
       )}
     </Styled.Container>

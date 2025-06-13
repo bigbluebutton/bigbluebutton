@@ -54,8 +54,6 @@ class ConfirmationModal extends Component {
       setIsOpen,
       onConfirm,
       title,
-      titleMessageId,
-      titleMessageExtra,
       checkboxMessageId,
       confirmButtonColor,
       confirmButtonLabel,
@@ -80,7 +78,7 @@ class ConfirmationModal extends Component {
       <Styled.ConfirmationModal
         onRequestClose={() => setIsOpen(false)}
         contentLabel={title}
-        title={title || intl.formatMessage({ id: titleMessageId }, { 0: titleMessageExtra })}
+        title={title}
         {...{
           isOpen,
           onRequestClose,

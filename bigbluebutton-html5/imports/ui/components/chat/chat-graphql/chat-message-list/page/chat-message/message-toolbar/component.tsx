@@ -86,7 +86,7 @@ const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
       {showReplyButton && (
         <Tooltip title={intl.formatMessage(intlMessages.replyTooltip)}>
           <EmojiButton
-            aria-label={intl.formatMessage(intlMessages.reply, { 0: messageSequence })}
+            aria-label={intl.formatMessage(intlMessages.reply, { messageSequence })}
             icon="undo"
             color="light"
             onClick={onReply}

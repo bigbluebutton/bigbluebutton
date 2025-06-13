@@ -251,7 +251,7 @@ class Presentation extends PureComponent {
     ) {
       addAlert(
         intl.formatMessage(intlMessages.slideContentChanged, {
-          0: currentSlide.num,
+          slideNumber: currentSlide.num,
         }),
       );
     }

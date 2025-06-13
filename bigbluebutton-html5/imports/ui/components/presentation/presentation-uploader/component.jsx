@@ -234,14 +234,6 @@ const intlMessages = defineMessages({
     id: 'app.presentationUploder.completed',
     description: 'uploads complete label for toast notification',
   },
-  item: {
-    id: 'app.presentationUploder.item',
-    description: 'single item label',
-  },
-  itemPlural: {
-    id: 'app.presentationUploder.itemPlural',
-    description: 'plural item label',
-  },
   clearErrors: {
     id: 'app.presentationUploder.clearErrors',
     description: 'button label for clearing upload errors',
@@ -775,8 +767,8 @@ class PresentationUploader extends Component {
     } = this.props;
 
     const options = {
-      0: fileSizeMax / 1000000,
-      1: filePagesMax,
+      maxFileSize: fileSizeMax / 1000000,
+      maxFilePages: filePagesMax,
     };
 
     return (

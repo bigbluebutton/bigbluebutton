@@ -80,13 +80,13 @@ const RemainingTime: React.FC<RemainingTimeProps> = (props) => {
       if (alertsInSeconds.includes(remainingTime) && remainingTime !== lastAlertTime && alertLabel) {
         const timeInMinutes = remainingTime / 60;
         const msg = { id: `${alertLabel.id}${timeInMinutes === 1 ? 'Singular' : 'Plural'}` };
-        const alertMessage = intl.formatMessage(msg, { 0: timeInMinutes });
+        const alertMessage = intl.formatMessage(msg, { timeInMinutes });
 
         lastAlertTime = remainingTime;
         notify(alertMessage, 'info', 'rooms');
       }
 
-      meetingTimeMessage.current = intl.formatMessage(durationLabel, { 0: humanizeSeconds(remainingTime) });
+      meetingTimeMessage.current = intl.formatMessage(durationLabel, { remainingTime: humanizeSeconds(remainingTime) });
       if (isBreakout) {
         return (
           <span data-test="timeRemaining">

@@ -46,7 +46,7 @@ const ChatEditingWarning = () => {
 
   if (!show) return null;
 
-  const cancelMessage = intl.formatMessage(intlMessages.cancel, { 0: CANCEL_KEY_LABEL });
+  const cancelMessage = intl.formatMessage(intlMessages.cancel, { cancelKey: CANCEL_KEY_LABEL });
   const editingMessage = intl.formatMessage(intlMessages.editing);
 
   return (

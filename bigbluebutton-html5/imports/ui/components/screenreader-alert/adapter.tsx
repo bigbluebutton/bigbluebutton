@@ -35,7 +35,7 @@ const ScreenReaderAlertAdapter = () => {
 
         if (!previousChat || chat.totalUnread > previousChat.totalUnread) {
           const name = chat.participant?.name ?? intl.formatMessage(intlMessages.publicChatName);
-          addAlert(`${intl.formatMessage(intlMessages.newMsgAria, { 0: name })}`);
+          addAlert(`${intl.formatMessage(intlMessages.newMsgAria, { chatName: name })}`);
         }
       });
     }

@@ -177,7 +177,7 @@ const ScreenshareButton = ({
     const toastType = getToastType(errorCode);
 
     if (localizedError) {
-      notify(intl.formatMessage(localizedError, { 0: errorCode }), toastType, 'desktop', { ...helpInfo });
+      notify(intl.formatMessage(localizedError, { errorCode }), toastType, 'desktop', { ...helpInfo });
       logger.error({
         logCode: 'screenshare_failed',
         extraInfo: { errorCode, errorMessage },

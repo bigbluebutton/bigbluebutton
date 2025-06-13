@@ -55,7 +55,7 @@ const TypingIndicator: React.FC<TypingIndicatorProps> = ({
         id="app.chat.one.typing"
         description="label used when one user is typing"
         values={{
-          0:
+          userName:
   <Styled.SingleTyper>
     {`${name}`}
     &nbsp;
@@ -74,12 +74,12 @@ const TypingIndicator: React.FC<TypingIndicatorProps> = ({
         id="app.chat.two.typing"
         description="label used when two users are typing"
         values={{
-          0:
+          userName1:
   <Styled.CoupleTyper>
     {`${name}`}
     &nbsp;
   </Styled.CoupleTyper>,
-          1:
+          userName2:
   <Styled.CoupleTyper>
     &nbsp;
     {`${name2}`}
