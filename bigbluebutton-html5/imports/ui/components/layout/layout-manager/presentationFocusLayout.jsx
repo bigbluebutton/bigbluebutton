@@ -129,6 +129,7 @@ const PresentationFocusLayout = (props) => {
               },
             },
             cameraDock: {
+              position: CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM,
               numCameras: cameraDock.numCameras,
               height: 0,
               width: 0,

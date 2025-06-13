@@ -121,6 +121,7 @@ const SmartLayout = (props) => {
               },
             },
             cameraDock: {
+              position: CAMERADOCK_POSITION.CONTENT_TOP,
               numCameras: cameraDock.numCameras,
             },
             externalVideo: {
@@ -176,6 +177,7 @@ const SmartLayout = (props) => {
     const cameraDockBounds = {};
 
     cameraDockBounds.isCameraHorizontal = false;
+    cameraDockBounds.position = CAMERADOCK_POSITION.CONTENT_TOP;
 
     const mediaBoundsWidth = mediaBounds.width > presentationToolbarMinWidth && !isMobile
       ? mediaBounds.width
