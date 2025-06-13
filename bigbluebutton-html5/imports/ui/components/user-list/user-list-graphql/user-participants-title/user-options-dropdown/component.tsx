@@ -310,6 +310,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
         description: intl.formatMessage(intlMessages.clearAllReactionsDesc),
         onClick: () => clearReactions(),
         icon: 'clear_status',
+        dataTest: 'clearStatus',
       },
       {
         key: 'separator-01',
