@@ -2,6 +2,7 @@ export interface LockSettings {
   disableCam: boolean;
   disableMic: boolean;
   disableNotes: boolean;
+  disablePresentationUpload: boolean;
   disablePrivateChat: boolean;
   disablePublicChat: boolean;
   hasActiveLockSetting: boolean;

@@ -42,6 +42,10 @@ select_permissions:
         - uploadErrorMsgKey
         - uploadInProgress
         - uploadTemporaryId
+        - uploadUserId
       filter:
-        meetingId:
-          _eq: X-Hasura-PresenterInMeeting
+        _or:
+          - meetingId:
+              _eq: X-Hasura-PresenterInMeeting
+          - meetingId:
+              _eq: X-Hasura-ModeratorInMeeting

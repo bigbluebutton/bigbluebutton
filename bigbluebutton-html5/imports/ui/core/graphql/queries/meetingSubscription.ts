@@ -14,6 +14,7 @@ const MEETING_SUBSCRIPTION = gql`
           disableCam
           disableMic
           disableNotes
+          disablePresentationUpload
           disablePrivateChat
           disablePublicChat
           hasActiveLockSetting
