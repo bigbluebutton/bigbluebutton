@@ -189,7 +189,7 @@ jobs:
     strategy:
       fail-fast: false
     env:
-      SAMPLES_WITH_TESTS: "sample-action-button-dropdown-plugin sample-actions-bar-plugin"
+      SAMPLES_WITH_TESTS: "sample-action-button-dropdown-plugin sample-actions-bar-plugin sample-audio-settings-dropdown-plugin sample-camera-settings-dropdown-plugin sample-custom-subscription-hook sample-data-channel-plugin"
     steps:
       - uses: actions/checkout@v4
       - name: Install BBB
