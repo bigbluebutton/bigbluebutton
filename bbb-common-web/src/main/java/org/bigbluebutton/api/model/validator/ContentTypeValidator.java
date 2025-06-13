@@ -3,10 +3,10 @@ package org.bigbluebutton.api.model.validator;
 import org.apache.http.entity.ContentType;
 import org.bigbluebutton.api.model.constraint.ContentTypeConstraint;
 import org.bigbluebutton.api.model.request.Request;
+import org.sitemesh.webapp.contentfilter.HttpServletRequestFilterable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
@@ -19,7 +19,7 @@ public class ContentTypeValidator implements ConstraintValidator<ContentTypeCons
 
     @Override
     public boolean isValid(Request request, ConstraintValidatorContext context) {
-        HttpServletRequest servletRequest = request.getServletRequest();
+        HttpServletRequestFilterable servletRequest = request.getServletRequest();
         String requestMethod = servletRequest.getMethod();
         String contentType = servletRequest.getContentType();
         String contentTypeHeader = servletRequest.getHeader("Content-Type");
