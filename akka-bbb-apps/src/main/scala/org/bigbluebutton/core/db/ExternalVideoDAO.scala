@@ -30,7 +30,7 @@ class ExternalVideoDbTableDef(tag: Tag) extends Table[ExternalVideoDbModel](tag,
 }
 
 object ExternalVideoDAO {
-  def insert(meetingId: String, externalVideoUrl: String, timestamp: Double): Unit = {
+  def insert(meetingId: String, externalVideoUrl: String, initialTime: Double): Unit = {
     DatabaseConnection.enqueue(
       TableQuery[ExternalVideoDbTableDef].forceInsert(
         ExternalVideoDbModel(
@@ -41,7 +41,7 @@ object ExternalVideoDAO {
           stoppedSharingAt = None,
           updatedAt = new java.sql.Timestamp(System.currentTimeMillis()),
           playerPlaybackRate = 1,
-          playerCurrentTime = timestamp,
+          playerCurrentTime = initialTime,
           playerPlaying = true
         )
       )
