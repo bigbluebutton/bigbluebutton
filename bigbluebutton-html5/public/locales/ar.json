@@ -416,7 +416,7 @@
     "app.poll.activePollInstruction": "اترك هذه اللوحة مفتوحة لمشاهدة الردود المباشرة على التصويت الخاص بك. عندما تكون جاهزًا ، حدّد 'نشر نتائج التصويت' لنشر النتائج وإنهاء التصويت.",
     "app.poll.dragDropPollInstruction": "لتعبئة قيم التصويت ، اسحب ملفًا نصيًا بقيم التصويت إلى الحقل المميز",
     "app.poll.customPollTextArea": "قم بتعبئة قيم التصويت",
-    "app.poll.publishLabel": "نشر التصويت",
+    "app.poll.publishLabel": "نشر النتائج",
     "app.poll.cancelPollLabel": "إلغاء",
     "app.poll.backLabel": "بدء التصويت",
     "app.poll.closeLabel": "إغلاق",

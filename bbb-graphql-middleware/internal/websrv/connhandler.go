@@ -125,10 +125,10 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		BrowserConnectionsMutex.Unlock()
 
-		thisConnection.Logger.Infof("connection removed")
+		thisConnection.Logger.Infof("browser connection removed")
 	}()
 
-	thisConnection.Logger.Infof("connection accepted")
+	thisConnection.Logger.Infof("browser connection accepted")
 
 	// Configure the wait group (to hold this routine execution until both are completed)
 	var wgAll sync.WaitGroup

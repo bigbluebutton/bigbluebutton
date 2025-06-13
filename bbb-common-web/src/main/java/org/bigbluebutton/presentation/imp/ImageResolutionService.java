@@ -40,7 +40,7 @@ public class ImageResolutionService {
         Arrays.asList("/usr/share/bbb-web/run-in-systemd.sh", String.valueOf(wait),
                 "identify", "-format","%w %h", presentationFile.getAbsolutePath()));
 
-    ImageResolutionServiceHandler imgResHandler = new ImageResolutionServiceHandler();
+    ImageResolutionServiceHandler imgResHandler = new ImageResolutionServiceHandler("imgresolution-" + presentationFile.getName());
     imageResolution.setProcessListener(imgResHandler);
 
     NuProcess process = imageResolution.start();
