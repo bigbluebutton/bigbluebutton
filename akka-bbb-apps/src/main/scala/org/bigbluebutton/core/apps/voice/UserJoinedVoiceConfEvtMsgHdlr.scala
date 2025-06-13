@@ -39,7 +39,7 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
         "user",
         "app.userList.guest.pendingGuestAlert",
         "Notification that a new guest user joined the session",
-        Vector(s"${guest.name}")
+        Map("0" -> s"${guest.name}")
       )
       outGW.send(notifyEvent)
       NotificationDAO.insert(notifyEvent)

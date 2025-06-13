@@ -1103,7 +1103,7 @@ class MeetingActor(
           "user",
           "app.notification.userLeavePushAlert",
           "Notification for a user leaves the meeting",
-          Vector(s"${u.name}")
+          Map("0" -> s"${u.name}")
         )
         outGW.send(notifyEvent)
         NotificationDAO.insert(notifyEvent)
