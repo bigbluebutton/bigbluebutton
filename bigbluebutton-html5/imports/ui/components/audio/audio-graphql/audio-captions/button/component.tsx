@@ -15,7 +15,7 @@ import useAudioCaptionEnable from '/imports/ui/core/local-states/useAudioCaption
 import { User } from '/imports/ui/Types/user';
 import { SET_CAPTION_LOCALE } from '/imports/ui/core/graphql/mutations/userMutations';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
-import { ActiveCaptionsResponse, getactiveCaptions } from './queries';
+import { ActiveCaptionsResponse, GET_ACTIVE_CAPTIONS } from './queries';
 import AudioCaptionsService from '/imports/ui/components/audio/audio-graphql/audio-captions/service';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import { TRANSCRIPTION_LOCALE } from '/imports/ui/components/audio/audio-graphql/audio-captions/transcriptionLocale';
@@ -293,7 +293,7 @@ const AudioCaptionsButtonContainer: React.FC = () => {
   const {
     data: activeCaptionsData,
     loading: activeCaptionsLoading,
-  } = useDeduplicatedSubscription<ActiveCaptionsResponse>(getactiveCaptions);
+  } = useDeduplicatedSubscription<ActiveCaptionsResponse>(GET_ACTIVE_CAPTIONS);
 
   if (currentUserLoading) return null;
   if (currentMeetingLoading) return null;

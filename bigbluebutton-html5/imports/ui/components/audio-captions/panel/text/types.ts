@@ -4,5 +4,5 @@ export interface AudioCaptionsTextControlsProps {
   intl: IntlShape;
   textActive: boolean;
   captionLocale: string;
-  speechVoices: string[];
+  availableCaptions: string[];
 }

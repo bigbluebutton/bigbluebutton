@@ -14,7 +14,7 @@ export interface ActiveCaptionsResponse {
   }>;
 }
 
-export const getactiveCaptions = gql`
+export const GET_ACTIVE_CAPTIONS = gql`
   subscription activeCaptions {
     caption_activeLocales {
       locale
@@ -34,5 +34,5 @@ export const GET_AUDIO_CAPTIONS_COUNT = gql`
 
 export default {
   GET_AUDIO_CAPTIONS_COUNT,
-  getactiveCaptions,
+  GET_ACTIVE_CAPTIONS,
 };

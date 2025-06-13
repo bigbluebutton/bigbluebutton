@@ -38,7 +38,7 @@ Object.keys(TRANSCRIPTION_LOCALE).forEach((key: string) => {
 
 const AudioCaptionsTextSelector: React.FC<AudioCaptionsTextSelectorProps> = ({
   captionLocale,
-  speechVoices,
+  availableCaptions,
   captionActive,
 }) => {
   const useLocaleHook = useFixedLocale();
@@ -91,14 +91,14 @@ const AudioCaptionsTextSelector: React.FC<AudioCaptionsTextSelectorProps> = ({
         }}
         value={captionLocale || ''}
       >
-        {speechVoices.map((voice) => (
+        {availableCaptions.map((caption) => (
           <MenuItem
-            key={voice}
-            value={voice}
+            key={caption}
+            value={caption}
           >
-            {intlMessages[voice as keyof typeof intlMessages]
-              ? intl.formatMessage(intlMessages[voice as keyof typeof intlMessages])
-              : getLocaleName(voice)}
+            {intlMessages[caption as keyof typeof intlMessages]
+              ? intl.formatMessage(intlMessages[caption as keyof typeof intlMessages])
+              : getLocaleName(caption)}
           </MenuItem>
         ))}
       </Styled.CaptionsSelector>
