@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { injectIntl } from 'react-intl';
-import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
 
 const propTypes = {
@@ -60,7 +59,6 @@ const EmojiPicker = (props) => {
 
   return (
     <Picker
-      data={data}
       onEmojiSelect={(emojiObject, event) => onEmojiSelect(emojiObject, event)}
       emojiSize={24}
       i18n={i18n}

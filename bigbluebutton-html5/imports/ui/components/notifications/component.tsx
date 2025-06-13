@@ -71,7 +71,7 @@ const Notifications: React.FC = () => {
     // special guest alert notification, with user name as title
     if (notification.messageId === 'app.userList.guest.pendingGuestAlert') {
       notify(
-        <Styled.TitleMessage>{notification.messageValues[0]}</Styled.TitleMessage>,
+        <Styled.TitleMessage>{notification.messageValues['0']}</Styled.TitleMessage>,
         notification.notificationType,
         notification.icon,
         null,

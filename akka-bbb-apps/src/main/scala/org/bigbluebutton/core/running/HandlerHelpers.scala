@@ -89,7 +89,7 @@ trait HandlerHelpers extends SystemConfiguration {
               "user",
               "app.notification.userJoinPushAlert",
               "Notification for a user joins the meeting",
-              Vector(s"${newUser.name}")
+              Map("0"->s"${newUser.name}")
             )
             outGW.send(notifyEvent)
             NotificationDAO.insert(notifyEvent)

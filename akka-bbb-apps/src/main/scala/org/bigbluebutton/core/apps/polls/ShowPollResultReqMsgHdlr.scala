@@ -66,7 +66,7 @@ trait ShowPollResultReqMsgHdlr extends RightsManagementTrait {
           "polling",
           "app.whiteboard.annotations.poll",
           "Message displayed when a poll is published",
-          Vector()
+          Map()
         )
         bus.outGW.send(notifyEvent)
         NotificationDAO.insert(notifyEvent)
