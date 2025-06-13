@@ -406,7 +406,7 @@
     "app.presentationUploder.uploadViewTitle": "تحميل العرض",
     "app.poll.questionAndoptions.label": "نص السؤال المطلوب عرضه.\nأ. خيار الاستطلاع *\nب. خيار الاستطلاع (اختياري)\nج. خيار الاستطلاع (اختياري)\nد. خيار الاستطلاع (اختياري)\nهـ. خيار الاستطلاع (اختياري)",
     "app.poll.customInput.label": "إدخال مخصص",
-    "app.poll.customInputInstructions.label": "تم تمكين الإدخال المخصص - اكتب سؤال الاستطلاع والخيارات بالتنسيق المحدد أو اسحب وأفلِت ملف نصي بنفس التنسيق.",
+    "app.poll.customInputInstructions.label": "تم تمكين الإدخال المخصص - اكتب سؤال الاستطلاع والخيار(ات) بالتنسيق المحدد أو اسحب وأفلِت ملف نصي بنفس التنسيق.",
     "app.poll.maxOptionsWarning.label": "لا يمكن استخدام سوى الخيارات الخمسة الأولى!",
     "app.poll.pollPaneTitle": "تصويت",
     "app.poll.enableMultipleResponseLabel": "السماح بإجابات متعددة لكل مستجيب؟",
