@@ -487,7 +487,10 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
       case ChatMessageType.USER_IS_PRESENTER_MSG: {
         const { assignedBy } = JSON.parse(message.messageMetadata);
         const userIsPresenterMsg = (assignedBy)
-          ? `${intl.formatMessage(intlMessages.userIsPresenterSetBy, { presenterName: message.senderName, assignedByName: assignedBy })}`
+          ? `${intl.formatMessage(intlMessages.userIsPresenterSetBy, {
+            presenterName: message.senderName,
+            assignedByName: assignedBy,
+          })}`
           : `${intl.formatMessage(intlMessages.userIsPresenter, { presenterName: message.senderName })}`;
         return {
           name: message.senderName,

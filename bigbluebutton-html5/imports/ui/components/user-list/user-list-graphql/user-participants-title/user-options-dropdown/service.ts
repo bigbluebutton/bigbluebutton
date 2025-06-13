@@ -31,7 +31,7 @@ export const onSaveUserNames = (intl: IntlShape, meetingName: string, users: [Us
 
   getUserNamesLink(
     intl.formatMessage(intlMessages.savedNamesListTitle, {
-      meetingName: meetingName,
+      meetingName,
       dateAndTime: `${dateString}:${timeString}`,
     }),
     intl.formatMessage(intlMessages.sortedFirstNameHeading),

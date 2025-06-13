@@ -69,7 +69,10 @@ export const generateExportedMessages = (
         const { assignedBy } = JSON.parse(message.messageMetadata);
 
         messageText = (assignedBy)
-          ? `${intl.formatMessage(intlMessages.userIsPresenterSetBy, { presenterName: message.senderName, assignedByName: assignedBy })}`
+          ? `${intl.formatMessage(intlMessages.userIsPresenterSetBy, {
+            presenterName: message.senderName,
+            assignedByName: assignedBy,
+          })}`
           : `${intl.formatMessage(intlMessages.userIsPresenter, { presenterName: message.senderName })}`;
         break;
       }

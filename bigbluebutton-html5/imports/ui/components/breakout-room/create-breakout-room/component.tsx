@@ -324,7 +324,7 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
         });
       } else {
         const defaultName = intl.formatMessage(intlMessages.breakoutRoom, {
-          roomNumber: roomNumber,
+          roomNumber,
         });
 
         roomsArray.push({
