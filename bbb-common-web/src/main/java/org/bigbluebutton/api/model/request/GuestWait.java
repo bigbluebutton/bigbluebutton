@@ -7,7 +7,9 @@ import org.bigbluebutton.api.model.constraint.UserSessionConstraint;
 import org.bigbluebutton.api.service.SessionService;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
+import org.sitemesh.webapp.contentfilter.HttpServletRequestFilterable;
+
 import java.util.Map;
 
 @ContentTypeConstraint
@@ -32,7 +34,7 @@ public class GuestWait extends RequestWithSession<GuestWait.Params>{
 
     private SessionService sessionService;
 
-    public GuestWait(HttpServletRequest servletRequest) {
+    public GuestWait(HttpServletRequestFilterable servletRequest) {
         super(servletRequest);
         sessionService = new SessionService();
     }

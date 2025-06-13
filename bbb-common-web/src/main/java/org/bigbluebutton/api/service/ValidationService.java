@@ -8,11 +8,10 @@ import org.bigbluebutton.api.util.ParamsUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.Validator;
-import javax.validation.ValidatorFactory;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -20,6 +19,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import org.sitemesh.webapp.contentfilter.HttpServletRequestFilterable;
 
 public class ValidationService {
 
@@ -71,7 +71,7 @@ public class ValidationService {
         validator = validatorFactory.getValidator();
     }
 
-    public Map<String, String> validate(ApiCall apiCall, HttpServletRequest servletRequest) {
+    public Map<String, String> validate(ApiCall apiCall, HttpServletRequestFilterable servletRequest) {
         String queryString = servletRequest.getQueryString();
         Map<String, String[]> params = servletRequest.getParameterMap();
         log.info("Validating {} request with query string {}", apiCall.getName(), queryString);
@@ -109,7 +109,7 @@ public class ValidationService {
         }
     }
 
-    private Request initializeRequest(ApiCall apiCall, Map<String, String[]> params, String queryString, HttpServletRequest servletRequest) {
+    private Request initializeRequest(ApiCall apiCall, Map<String, String[]> params, String queryString, HttpServletRequestFilterable servletRequest) {
         Request request = null;
         Checksum checksum;
 

@@ -3,6 +3,7 @@ package org.bigbluebutton.api.model.request;
 import org.bigbluebutton.api.model.constraint.ContentTypeConstraint;
 import org.bigbluebutton.api.model.constraint.MeetingIDConstraint;
 import org.bigbluebutton.api.model.shared.Checksum;
+import org.sitemesh.webapp.contentfilter.HttpServletRequestFilterable;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
@@ -23,7 +24,7 @@ public class MeetingRunning extends RequestWithChecksum<MeetingRunning.Params> {
     @MeetingIDConstraint
     private String meetingID;
 
-    public MeetingRunning(Checksum checksum, HttpServletRequest servletRequest) {
+    public MeetingRunning(Checksum checksum, HttpServletRequestFilterable servletRequest) {
         super(checksum, servletRequest);
     }
 

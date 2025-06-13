@@ -1,10 +1,8 @@
 package org.bigbluebutton.api.model.shared;
 
-import org.bigbluebutton.api.model.constraint.ContentTypeConstraint;
 import org.bigbluebutton.api.model.constraint.NotEmpty;
 import org.bigbluebutton.api.util.ParamsUtil;
-
-import javax.servlet.http.HttpServletRequest;
+import org.sitemesh.webapp.contentfilter.HttpServletRequestFilterable;
 
 public abstract class Checksum {
 
@@ -16,9 +14,9 @@ public abstract class Checksum {
 
     protected String queryStringWithoutChecksum;
 
-    protected HttpServletRequest request;
+    protected HttpServletRequestFilterable request;
 
-    public Checksum(String apiCall, String checksum, HttpServletRequest request) {
+    public Checksum(String apiCall, String checksum, HttpServletRequestFilterable request) {
         this.apiCall = ParamsUtil.sanitizeString(apiCall);
         this.checksum = ParamsUtil.sanitizeString(checksum);
         this.request = request;
@@ -48,11 +46,11 @@ public abstract class Checksum {
         this.queryStringWithoutChecksum = queryStringWithoutChecksum;
     }
 
-    public void setRequest(HttpServletRequest request) {
+    public void setRequest(HttpServletRequestFilterable request) {
         this.request = request;
     }
 
-    public HttpServletRequest getRequest() {
+    public HttpServletRequestFilterable getRequest() {
         return request;
     }
 }

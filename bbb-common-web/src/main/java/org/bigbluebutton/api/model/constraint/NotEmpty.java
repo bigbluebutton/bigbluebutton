@@ -3,8 +3,8 @@ package org.bigbluebutton.api.model.constraint;
 import org.bigbluebutton.api.model.constraint.list.NotEmptyList;
 import org.bigbluebutton.api.model.validator.NotEmptyValidator;
 
-import javax.validation.Constraint;
-import javax.validation.Payload;
+import jakarta.validation.Constraint;
+import jakarta.validation.Payload;
 import java.lang.annotation.*;
 
 @Constraint(validatedBy = NotEmptyValidator.class)
