@@ -249,6 +249,17 @@ object Users2x {
     }
   }
 
+  def resetUserUnmuteRequested(users: Users2x, intId: String): Option[UserState] = {
+    for {
+      u <- findWithIntId(users, intId)
+    } yield {
+      val newUser = u.modify(_.requestedUnmuteByMod).setTo(false)
+      users.save(newUser)
+      UserStateDAO.update(newUser)
+      newUser
+    }
+  }
+
   def setUserSpeechLocale(users: Users2x, intId: String, locale: String): Option[UserState] = {
     for {
       u <- findWithIntId(users, intId)
@@ -447,6 +458,7 @@ case class UserState(
     roleChangedOn:         Long                = System.currentTimeMillis(),
     lastActivityTime:      Long                = System.currentTimeMillis(),
     lastInactivityInspect: Long                = 0,
+    requestedUnmuteByMod:  Boolean             = false,
     clientType:            String,
     userLeftFlag:          UserLeftFlag,
     speechLocale:          String              = "",

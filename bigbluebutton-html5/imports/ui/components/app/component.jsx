@@ -8,6 +8,7 @@ import Session from '/imports/ui/services/storage/in-memory';
 import PollingContainer from '/imports/ui/components/polling/container';
 import logger from '/imports/startup/client/logger';
 import ActivityCheckContainer from '/imports/ui/components/activity-check/container';
+import RequestUnmuteContainer from '/imports/ui/components/request-unmute-modal/container';
 import ToastContainer from '/imports/ui/components/common/toast/container';
 import WakeLockContainer from '../wake-lock/container';
 import NotificationsBarContainer from '../notifications-bar/container';
@@ -331,6 +332,7 @@ class App extends Component {
             }}
           >
             <ActivityCheckContainer />
+            <RequestUnmuteContainer />
             <ScreenReaderAlertContainer />
             <BannerBarContainer />
             <NotificationsBarContainer />

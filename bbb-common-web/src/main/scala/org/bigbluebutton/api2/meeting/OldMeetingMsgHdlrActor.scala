@@ -30,6 +30,7 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
       case m: UserLeftMeetingEvtMsg             => handleUserLeftMeetingEvtMsg(m)
       case m: UserJoinedVoiceConfToClientEvtMsg => handleUserJoinedVoiceConfToClientEvtMsg(m)
       case m: UserLeftVoiceConfToClientEvtMsg   => handleUserLeftVoiceConfToClientEvtMsg(m)
+      case m: UnmuteRequestAnswerEvtMsg         => handleUnmuteRequestAnswerEvtMsg(m)
       case m: UserRoleChangedEvtMsg             => handleUserRoleChangedEvtMsg(m)
       case m: UserLockedInMeetingEvtMsg         => handleUserLockedInMeetingEvtMsg(m)
       case m: UserBroadcastCamStartedEvtMsg     => handleUserBroadcastCamStartedEvtMsg(m)
@@ -171,6 +172,10 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
 
   def handleUserLeftVoiceConfToClientEvtMsg(msg: UserLeftVoiceConfToClientEvtMsg): Unit = {
     olgMsgGW.handle(new UserLeftVoice(msg.header.meetingId, msg.body.intId))
+  }
+
+  def handleUnmuteRequestAnswerEvtMsg(msg: UnmuteRequestAnswerEvtMsg): Unit = {
+    olgMsgGW.handle(new UnmuteRequestAnswer(msg.header.meetingId, msg.body.userId))
   }
 
   def handleUserBroadcastCamStartedEvtMsg(msg: UserBroadcastCamStartedEvtMsg): Unit = {

@@ -19,6 +19,7 @@ subscription userCurrentSubscription {
     hasDrawPermissionOnCurrentPage
     inactivityWarningDisplay
     inactivityWarningTimeoutSecs
+    requestedUnmuteByMod
     isDialIn
     isModerator
     currentlyInMeeting

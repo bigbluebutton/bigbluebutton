@@ -662,6 +662,12 @@ type Mutation {
 }
 
 type Mutation {
+  userUnmuteRequestAnswer(
+    userId: String
+  ): Boolean
+}
+
+type Mutation {
   userSetPresenter(
     userId: String!
   ): Boolean
