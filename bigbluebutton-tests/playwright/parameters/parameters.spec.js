@@ -167,6 +167,64 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
     });
   });
 
+  test.describe.parallel('Enforce Layout', () => {
+    test('CUSTOM_LAYOUT', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { createParameter: c.presentationFocus, joinParameter: c.enforceCustomLayout });
+      await customParam.initUserPage(true, context);
+      await customParam.enforceCustomLayout();
+    });
+
+    test('SMART_LAYOUT', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { joinParameter: c.enforceSmartLayout });
+      await customParam.initUserPage(true, context);
+      await customParam.enforceSmartLayout();
+    });
+
+    test('PRESENTATION_FOCUS', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { joinParameter: c.enforcePresentationFocus });
+      await customParam.initUserPage(true, context);
+      await customParam.enforcePresentationFocus();
+    });
+
+    test('VIDEO_FOCUS', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { joinParameter: c.enforceVideoFocus });
+      await customParam.initUserPage(true, context);
+      await customParam.enforceVideoFocus();
+    });
+
+    test('CAMERAS_ONLY', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { joinParameter: c.enforceCamerasOnly });
+      await customParam.initUserPage(true, context);
+      await customParam.enforceCamerasOnly();
+    });
+
+    test('PARTICIPANTS_AND_CHAT_ONLY', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { joinParameter: c.enforceParticipantsAndChatOnly });
+      await customParam.initUserPage(true, context);
+      await customParam.enforceParticipantsAndChatOnly();
+    });
+
+    test('PRESENTATION_ONLY', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { joinParameter: c.enforcePresentationOnly });
+      await customParam.initUserPage(true, context);
+      await customParam.enforcePresentationOnly();
+    });
+
+    test('MEDIA_ONLY', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { joinParameter: c.enforceMediaOnly });
+      await customParam.initUserPage(true, context);
+      await customParam.enforceMediaOnly();
+    });
+  });
+
   test.describe.parallel('Disabled Features', () => {
     test.describe.serial(() => {
       test('Breakout rooms', async ({ browser, context, page }) => {
