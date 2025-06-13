@@ -281,7 +281,7 @@ const PollingGraphql: React.FC<PollingGraphqlProps> = (props) => {
                   </label>
                   <Styled.Hidden id={`pollAnswerDesc${option.optionDesc}`}>
                     {intl.formatMessage(intlMessages.pollAnswerDesc, {
-                      0: label,
+                      option: label,
                     })}
                   </Styled.Hidden>
                 </Styled.MultipleResponseAnswersTableAnswerText>
