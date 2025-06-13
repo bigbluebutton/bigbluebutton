@@ -218,7 +218,14 @@ const LiveResult: React.FC<LiveResultProps> = ({
                   users.map((user) => (
                     <tr key={user.user.userId}>
                       <Styled.ResultLeft>{user.user.name}</Styled.ResultLeft>
-                      <Styled.ResultRight data-test="userVoteLiveResult">{user.optionDescIds.join()}</Styled.ResultRight>
+                      <Styled.ResultRight data-test="userVoteLiveResult">
+                        {
+                          user.optionDescIds.map((optDesc) => {
+                            const translationKey = intlMessages[optDesc.toLowerCase() as keyof typeof intlMessages];
+                            return translationKey ? intl.formatMessage(translationKey) : optDesc;
+                          }).join()
+                        }
+                      </Styled.ResultRight>
                     </tr>
                   ))
                 }
