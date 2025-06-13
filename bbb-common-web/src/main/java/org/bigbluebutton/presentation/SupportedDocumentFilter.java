@@ -62,7 +62,7 @@ public class SupportedDocumentFilter {
       DocConversionProgress progress = new DocConversionProgress(pres.getPodId(), pres.getMeetingId(),
         pres.getId(), pres.getId(),
         pres.getName(), "notUsedYet", "notUsedYet",
-        pres.isDownloadable(), pres.isRemovable(),  msgKey, pres.getTemporaryPresentationId());
+        pres.isDownloadable(), pres.isRemovable(),  msgKey, pres.getTemporaryPresentationId(), pres.getMaxConversionTime());
 
       gw.sendDocConversionMsg(progress);
 

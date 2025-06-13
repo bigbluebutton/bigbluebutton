@@ -4,7 +4,7 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.db.PresPresentationDAO
 import org.bigbluebutton.core.domain.MeetingState2x
-import org.bigbluebutton.core.models.PresentationInPod
+import org.bigbluebutton.core.models.{ PresentationConversion, PresentationInPod }
 import org.bigbluebutton.core.running.LiveMeeting
 
 trait PresentationConversionUpdatePubMsgHdlr {
@@ -19,6 +19,19 @@ trait PresentationConversionUpdatePubMsgHdlr {
 
     PresPresentationDAO.updateConversionStarted(liveMeeting.props.meetingProp.intId, pres)
 
-    state
+    val updatedState = state.presentationConversions.find(presentationId) match {
+      case Some(_) =>
+        state
+      case None =>
+        val pc = PresentationConversion(
+          presId = presentationId,
+          startTime = System.currentTimeMillis(),
+          maxDuration = msg.body.maxDuration
+        )
+        val presentationConversions = state.presentationConversions.add(pc)
+        state.update(presentationConversions)
+    }
+
+    updatedState
   }
 }

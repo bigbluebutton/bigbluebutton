@@ -230,6 +230,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="presentationBaseUrl" value="${presentationBaseURL}"/>
         <property name="preUploadedPresentationOverrideDefault" value="${beans.presentationService.preUploadedPresentationOverrideDefault}"/>
         <property name="scanUploadedPresentationFiles" value="${scanUploadedPresentationFiles}"/>
+        <property name="maxConversionTime" value="${maxConversionTime}"/>
     </bean>
 
     <bean id="pageExtractorImp" class="org.bigbluebutton.presentation.imp.PageExtractorImp">
