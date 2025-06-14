@@ -524,7 +524,7 @@
     "app.navBar.optionsDropdown.endMeetingLabel": "Termina sessione",
     "app.navBar.optionsDropdown.endMeetingForAllLabel": "Termina la sessione per tutti",
     "app.navBar.optionsDropdown.presenceLabel": "Presenza",
-    "app.sidebarNavigation.toggle.btnLabel": "Attiva la barra laterale di navigazione",
+    "app.sidebarNavigation.toggle.btnLabel": "Attivare la barra laterale di navigazione",
     "app.sidebarNavigation.toggle.ariaLabel": "Attiva la barra laterale di navigazione",
     "app.sidebarNavigation.toggle.newMessages": "con notifica di nuovi messaggi",
     "app.sidebarNavigation.toggle.newMsgAria": "Nuovo messaggio da {0}",
