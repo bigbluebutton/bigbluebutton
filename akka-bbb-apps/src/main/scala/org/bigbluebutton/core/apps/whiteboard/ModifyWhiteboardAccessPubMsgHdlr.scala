@@ -37,7 +37,7 @@ trait ModifyWhiteboardAccessPubMsgHdlr extends RightsManagementTrait {
           "pen_tool",
           "app.whiteboard.available",
           "Notification to when the user received whiteboard access",
-          Vector()
+          Map()
         )
         bus.outGW.send(notifyEvent)
         NotificationDAO.insert(notifyEvent)
@@ -51,7 +51,7 @@ trait ModifyWhiteboardAccessPubMsgHdlr extends RightsManagementTrait {
           "pen_tool",
           "app.whiteboard.unavailable",
           "Notification to when the user lost whiteboard access",
-          Vector()
+          Map()
         )
         bus.outGW.send(notifyEvent)
         NotificationDAO.insert(notifyEvent)

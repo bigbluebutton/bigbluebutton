@@ -510,7 +510,7 @@ object MsgBuilder {
       icon:               String,
       messageId:          String,
       messageDescription: String,
-      messageValues:      Vector[String]
+      messageValues:      Map[String, String]
   ): BbbCommonEnvCoreMsg = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
     val envelope = BbbCoreEnvelope(NotifyAllInMeetingEvtMsg.NAME, routing)
@@ -528,7 +528,7 @@ object MsgBuilder {
       icon:               String,
       messageId:          String,
       messageDescription: String,
-      messageValues:      Vector[String]
+      messageValues:      Map[String, String]
   ): BbbCommonEnvCoreMsg = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
     val envelope = BbbCoreEnvelope(NotifyRoleInMeetingEvtMsg.NAME, routing)
@@ -546,7 +546,7 @@ object MsgBuilder {
       icon:               String,
       messageId:          String,
       messageDescription: String,
-      messageValues:      Vector[String]
+      messageValues:      Map[String, String]
   ): BbbCommonEnvCoreMsg = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
     val envelope = BbbCoreEnvelope(NotifyUserInMeetingEvtMsg.NAME, routing)

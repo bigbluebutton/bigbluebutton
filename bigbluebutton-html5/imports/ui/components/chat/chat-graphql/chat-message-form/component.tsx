@@ -16,7 +16,7 @@ import { ChatFormUiDataPayloads } from 'bigbluebutton-html-plugin-sdk/dist/cjs/u
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import { defineMessages, useIntl } from 'react-intl';
-import { useIsChatEnabled, useIsEditChatMessageEnabled } from '/imports/ui/services/features';
+import { useIsChatEnabled, useIsEditChatMessageEnabled, useIsEmojiPickerEnabled } from '/imports/ui/services/features';
 import { checkText } from 'smile2emoji';
 import { findDOMNode } from 'react-dom';
 
@@ -173,7 +173,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
   const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
   const AUTO_CONVERT_EMOJI = window.meetingClientSettings.public.chat.autoConvertEmoji;
-  const ENABLE_EMOJI_PICKER = window.meetingClientSettings.public.chat.emojiPicker.enable;
+  const ENABLE_EMOJI_PICKER = useIsEmojiPickerEnabled();
   const ENABLE_TYPING_INDICATOR = CHAT_CONFIG.typingIndicator.enabled;
   const DISABLE_EMOJIS = CHAT_CONFIG.disableEmojis;
 

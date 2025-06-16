@@ -32,6 +32,12 @@ public class PdfPageCounterHandler extends AbstractCommandHandler {
   private static final Pattern PAGE_NUMBER_PATTERN = Pattern
       .compile("Pages:(?:\\s*)(\\d*)");
 
+  private final String id;
+
+  public PdfPageCounterHandler(String id) {
+    this.id = id;
+  }
+
   /**
    * @return The number of pages inside the scanned PDF document
    */
@@ -44,5 +50,10 @@ public class PdfPageCounterHandler extends AbstractCommandHandler {
       log.error("Exception counting pages", e);
       return 0;
     }
+  }
+
+  @Override
+  protected String getIdTag() {
+    return id;
   }
 }
