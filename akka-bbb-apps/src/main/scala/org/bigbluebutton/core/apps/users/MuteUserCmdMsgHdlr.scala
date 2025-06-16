@@ -54,7 +54,7 @@ trait MuteUserCmdMsgHdlr extends RightsManagementTrait {
 
             val isUnmuting = !msg.body.mute
             val isActingOnOtherUser = msg.body.userId != msg.header.userId
-            val settingRequiresRequest = liveMeeting.props.usersProp.modsRequestToUnmuteUsers;
+            val settingRequiresRequest = liveMeeting.props.usersProp.requireUserConsentBeforeUnmuting;
 
             val shouldRequestUnmute = isUnmuting && isActingOnOtherUser && settingRequiresRequest
 

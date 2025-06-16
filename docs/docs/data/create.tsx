@@ -182,11 +182,11 @@ const createEndpointTableData = [
     "description": (<>Setting to <code className="language-plaintext highlighter-rouge">true</code> will allow moderators to unmute other users in the meeting. (added 2.2)</>)
   },
   {
-    "name": "modsRequestToUnmuteUsers",
+    "name": "requireUserConsentBeforeUnmuting",
     "required": false,
     "type": "Boolean",
     "default": "false",
-    "description": (<>Setting to <code className="language-plaintext highlighter-rouge">true</code> will allow moderators to unmute other users in the meeting. (added 2.2)</>)
+    "description": (<>Setting to <code className="language-plaintext highlighter-rouge">true</code> will allow moderators to ask participants to unmute themselves. (added 2.2)</>)
   },
   {
     "name": "lockSettingsDisableCam",

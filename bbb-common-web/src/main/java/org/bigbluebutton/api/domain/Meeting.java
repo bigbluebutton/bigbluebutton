@@ -107,7 +107,7 @@ public class Meeting {
 	private String screenShareBridge = "bbb-webrtc-sfu";
 	private String audioBridge = "bbb-webrtc-sfu";
 	private Boolean allowModsToUnmuteUsers = false;
-	private Boolean modsRequestToUnmuteUsers = false;
+	private Boolean requireUserConsentBeforeUnmuting = false;
 	private Boolean allowRequestsWithoutSession = false;
 	private Boolean allowModsToEjectCameras = false;
 	private Boolean meetingKeepEvents;
@@ -745,12 +745,12 @@ public class Meeting {
 		return allowModsToUnmuteUsers;
 	}
 
-	public void setModsRequestToUnmuteUsers(Boolean value) {
-		modsRequestToUnmuteUsers = value;
+	public void setRequireUserConsentBeforeUnmuting(Boolean value) {
+		requireUserConsentBeforeUnmuting = value;
 	}
 
-	public Boolean getModsRequestToUnmuteUsers() {
-		return modsRequestToUnmuteUsers;
+	public Boolean getRequireUserConsentBeforeUnmuting() {
+		return requireUserConsentBeforeUnmuting;
 	}
 
 	public void setAllowRequestsWithoutSession(Boolean value) {

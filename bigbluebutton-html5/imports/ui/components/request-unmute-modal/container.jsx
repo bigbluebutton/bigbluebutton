@@ -17,7 +17,7 @@ const RequestUnmuteContainer = ({ intl }) => {
     userId: user.userId,
   }));
 
-  if (!currentUserData || !currentUserData.requestedUnmuteByMod) {
+  if (!currentUserData?.requestedUnmuteByMod) {
     return null;
   }
 

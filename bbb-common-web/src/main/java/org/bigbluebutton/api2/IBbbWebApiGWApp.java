@@ -57,7 +57,7 @@ public interface IBbbWebApiGWApp {
                      Integer endWhenNoModeratorDelayInMinutes,
                      Boolean muteOnStart,
                      Boolean allowModsToUnmuteUsers,
-                     Boolean modsRequestToUnmuteUsers,
+                     Boolean requireUserConsentBeforeUnmuting,
                      Boolean allowModsToEjectCameras,
                      Boolean keepEvents,
                      BreakoutRoomsParams breakoutParams,

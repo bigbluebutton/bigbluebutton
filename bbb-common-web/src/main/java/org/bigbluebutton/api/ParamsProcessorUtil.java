@@ -98,7 +98,7 @@ public class ParamsProcessorUtil {
     private Integer defaultMaxPinnedCameras = 3;
     private boolean defaultMuteOnStart = false;
     private boolean defaultAllowModsToUnmuteUsers = false;
-    private boolean defaultModsRequestToUnmuteUsers = false;
+    private boolean defaultRequireUserConsentBeforeUnmuting = false;
     private boolean defaultAllowModsToEjectCameras = false;
     private String defaultCameraBridge = "bbb-webrtc-sfu";
     private String defaultScreenShareBridge = "bbb-webrtc-sfu";
@@ -922,11 +922,11 @@ public class ParamsProcessorUtil {
         }
         meeting.setAllowModsToUnmuteUsers(allowModsToUnmuteUsers);
 
-        Boolean modsRequestToUnmuteUsers = defaultModsRequestToUnmuteUsers;
-        if (!StringUtils.isEmpty(params.get(ApiParams.MODS_REQUEST_TO_UNMUTE_USERS))) {
-            modsRequestToUnmuteUsers = Boolean.parseBoolean(params.get(ApiParams.MODS_REQUEST_TO_UNMUTE_USERS));
+        Boolean requireUserConsentBeforeUnmuting = defaultRequireUserConsentBeforeUnmuting;
+        if (!StringUtils.isEmpty(params.get(ApiParams.REQUIRE_USER_CONSENT_BEFORE_UNMUTING))) {
+            requireUserConsentBeforeUnmuting = Boolean.parseBoolean(params.get(ApiParams.REQUIRE_USER_CONSENT_BEFORE_UNMUTING));
         }
-        meeting.setModsRequestToUnmuteUsers(modsRequestToUnmuteUsers);
+        meeting.setRequireUserConsentBeforeUnmuting(requireUserConsentBeforeUnmuting);
 
         if (!StringUtils.isEmpty(params.get(ApiParams.ALLOW_REQUESTS_WITHOUT_SESSION))) {
             meeting.setAllowRequestsWithoutSession(Boolean.parseBoolean(params.get(ApiParams.ALLOW_REQUESTS_WITHOUT_SESSION)));
@@ -1543,12 +1543,12 @@ public class ParamsProcessorUtil {
 		return defaultAllowModsToUnmuteUsers;
 	}
 
-    public void setModsRequestToUnmuteUsers(Boolean value) {
-		defaultModsRequestToUnmuteUsers = value;
+    public void setRequireUserConsentBeforeUnmuting(Boolean value) {
+		defaultRequireUserConsentBeforeUnmuting = value;
 	}
 
-	public Boolean getModsRequestToUnmuteUsers() {
-		return defaultModsRequestToUnmuteUsers;
+	public Boolean getRequireUserConsentBeforeUnmuting() {
+		return defaultRequireUserConsentBeforeUnmuting;
 	}
 
   public void setAllowModsToEjectCameras(Boolean value) {
