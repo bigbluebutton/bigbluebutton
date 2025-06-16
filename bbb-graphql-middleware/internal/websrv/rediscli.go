@@ -127,8 +127,10 @@ func sendBbbCoreMsgToRedis(name string, body map[string]interface{}) {
 		return
 	}
 
-	if bodyAsJson, err := json.Marshal(body); err == nil {
-		log.Infof("Redis message sent %s: %s", name, bodyAsJson)
+	if log.IsLevelEnabled(log.DebugLevel) {
+		if bodyAsJson, err := json.Marshal(body); err == nil {
+			log.Debugf("Redis message sent %s: %s", name, bodyAsJson)
+		}
 	}
 	log.Tracef("JSON message sent to channel %s:\n%s\n", channelName, string(messageJSON))
 }

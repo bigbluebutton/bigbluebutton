@@ -11,7 +11,9 @@ import java.util.concurrent.Executors
 import scala.concurrent.ExecutionContext
 
 object DatabaseConnection {
-  val dbEc = ExecutionContext.fromExecutorService(Executors.newSingleThreadExecutor())
+  private val dbExecutionContext = ExecutionContext.fromExecutorService(
+    Executors.newSingleThreadExecutor(r => new Thread(r, "db-execution-context"))
+  )
 
   val db = Database.forConfig("postgres")
   val logger = LoggerFactory.getLogger(this.getClass)
@@ -24,15 +26,17 @@ object DatabaseConnection {
   val system = org.apache.pekko.actor.ActorSystem("DBActionBatchSystem")
   system.scheduler.scheduleWithFixedDelay(50.millis, 50.millis)(new Runnable {
     def run(): Unit = tryProcessBatch()
-  })(dbEc)
+  })(dbExecutionContext)
+
+  system.registerOnTermination(() => dbExecutionContext.shutdown())
 
   def initialize(): Unit = {
     db.run(sql"SELECT current_timestamp".as[java.sql.Timestamp]).map { timestamp =>
       logger.debug(s"Database initialized, current timestamp is: $timestamp")
-    }(dbEc).recover {
+    }(dbExecutionContext).recover {
       case ex: Exception =>
         logger.error(s"Failed to initialize database: ${ex.getMessage}")
-    }(dbEc)
+    }(dbExecutionContext)
   }
 
   def enqueue(action: DBIO[_]): Unit = {
@@ -73,7 +77,7 @@ object DatabaseConnection {
           logger.error(s"Error executing batch actions: $e")
           isProcessing.set(false)
           if (!queue.isEmpty) tryProcessBatch()
-      }(dbEc)
+      }(dbExecutionContext)
     } else {
       isProcessing.set(false)
     }
