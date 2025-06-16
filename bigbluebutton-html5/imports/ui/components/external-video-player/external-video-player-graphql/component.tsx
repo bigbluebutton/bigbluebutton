@@ -45,6 +45,7 @@ import { ArcPlayer } from '../custom-players/arc-player';
 import getStorageSingletonInstance from '/imports/ui/services/storage';
 
 const AUTO_PLAY_BLOCK_DETECTION_TIMEOUT_SECONDS = 5;
+const TWITCH_VIDEO_SEEK_TIME_WINDOW = 1; // Twitch video seek time in seconds
 const UPDATE_INTERVAL_THRESHOLD_MS = 500;
 
 const intlMessages = defineMessages({
@@ -96,19 +97,6 @@ Styled.VideoPlayer.addCustomPlayer(PeerTube);
 Styled.VideoPlayer.addCustomPlayer(ArcPlayer);
 
 const truncateTime = (time: number) => (time < 1 ? 0 : time);
-
-  const convertSecondsToHuman = (seconds: number) => {
-      const totalSeconds = Math.floor(seconds);
-      const hours = Math.floor(totalSeconds / 3600);
-      const minutes = Math.floor((totalSeconds % 3600) / 60);
-      const secs = totalSeconds % 60;
-
-      const hh = String(hours).padStart(2, '0');
-      const mm = String(minutes).padStart(2, '0');
-      const ss = String(secs).padStart(2, '0');
-
-      return `${hh}h${mm}m${ss}s`;
-    };
 
 const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   isGridLayout,
@@ -447,7 +435,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
       const playerCurrentTime = await getPlayerCurrentTime(playerRef.current as ReactPlayer);
       const playerSeekTime = isTwitch
         && lastCursorRef.current.updateAt
-        && Date.now() - lastCursorRef.current.updateAt < 1 * 1000
+        && Date.now() - lastCursorRef.current.updateAt < TWITCH_VIDEO_SEEK_TIME_WINDOW * 1000
         ? lastCursorRef.current.position
         : playerCurrentTime;
       sendMessage('play', {
