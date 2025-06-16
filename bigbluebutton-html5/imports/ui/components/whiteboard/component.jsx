@@ -653,6 +653,40 @@ const Whiteboard = React.memo((props) => {
         '!': () => {
           zoomChanger(HUNDRED_PERCENT);
         },
+        '@': () => {
+          const selectedShapes = tlEditorRef.current?.getSelectedShapes();
+          const axisX = selectedShapes.map((shape) => shape.x);
+          const axisY = selectedShapes.map((shape) => shape.y);
+          const topLeftPoint = [Math.min(...axisX), Math.min(...axisY)];
+          const bottomRightPoint = [Math.max(...axisX), Math.max(...axisY)];
+          const selectionHeight = Math.abs(bottomRightPoint[1] - topLeftPoint[1]);
+          const selectionWidth = Math.abs(bottomRightPoint[0] - topLeftPoint[0]);
+          const selectionAspectRatio = selectionWidth / selectionHeight;
+          const presentationAreaAspectRatio = presentationWidth / presentationHeight;
+
+          let baseZoomToFitIn;
+
+          if (
+            selectionAspectRatio > presentationAreaAspectRatio
+            || (fitToWidthRef.current && isPresenterRef.current)
+          ) {
+            baseZoomToFitIn = presentationWidth / selectionWidth;
+          } else {
+            baseZoomToFitIn = presentationHeight / selectionHeight;
+          }
+
+          const adjustedBaseZoomToFitIn = (Math.max(baseZoomToFitIn, initialZoomRef.current)) / initialZoomRef.current;
+          const zoomPercentage = adjustedBaseZoomToFitIn * 100;
+          zoomChanger(zoomPercentage);
+
+          const nextCamera = {
+            x: topLeftPoint[0],
+            y: topLeftPoint[1],
+            z: adjustedBaseZoomToFitIn,
+          };
+
+          tlEditorRef.current.setCamera(nextCamera, { duration: 175 });
+        },
       };
 
       if (shiftKeyMap[key]) {
@@ -750,7 +784,7 @@ const Whiteboard = React.memo((props) => {
     }
   }, [
     tlEditorRef, isPresenterRef, hasWBAccessRef, previousTool, handleCut, handleCopy, handlePaste,
-    isInfiniteWhiteboard, zoomChanger,
+    isInfiniteWhiteboard, zoomChanger, presentationHeight, presentationWidth,
   ]);
 
   const createPage = (currentPageId) => [
@@ -771,9 +805,11 @@ const Whiteboard = React.memo((props) => {
     }
 
     return () => {
-      whiteboardRef.current?.removeEventListener('keydown', handleKeyDown);
+      whiteboardRef.current?.removeEventListener('keydown', handleKeyDown, {
+        capture: true,
+      });
     };
-  }, [whiteboardRef.current]);
+  }, [whiteboardRef.current, handleKeyDown]);
 
   const language = React.useMemo(() => mapLanguage(locale?.toLowerCase() || 'en'), [locale]);
 
