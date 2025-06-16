@@ -9,7 +9,7 @@
   <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
     <File>logs/bbb-fsesl-akka.log</File>
     <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-      <FileNamePattern>logs/bbb-fsesl-akka.%d{yyyy-MM-dd}.log</FileNamePattern>
+      <FileNamePattern>logs/bbb-fsesl-akka.%d{yyyy-MM-dd}.log.gz</FileNamePattern>
       <!-- keep 14 days worth of history -->
       <MaxHistory>14</MaxHistory>
     </rollingPolicy>

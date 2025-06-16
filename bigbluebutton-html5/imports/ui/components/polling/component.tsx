@@ -1,6 +1,7 @@
 import React, {
   useEffect, useMemo, useRef, useState,
 } from 'react';
+import ReactDOM from 'react-dom';
 import { useMutation } from '@apollo/client';
 import { defineMessages, useIntl } from 'react-intl';
 import Checkbox from '/imports/ui/components/common/checkbox/component';
@@ -303,7 +304,7 @@ const PollingGraphql: React.FC<PollingGraphqlProps> = (props) => {
     );
   };
 
-  return (
+  return ReactDOM.createPortal(
     <Styled.Overlay>
       <Styled.PollingContainer
         autoWidth={poll.stackOptions}
@@ -326,7 +327,8 @@ const PollingGraphql: React.FC<PollingGraphqlProps> = (props) => {
           ? renderCheckboxAnswers()
           : renderButtonAnswers()}
       </Styled.PollingContainer>
-    </Styled.Overlay>
+    </Styled.Overlay>,
+    document.getElementById('polling-container') || document.body,
   );
 };
 

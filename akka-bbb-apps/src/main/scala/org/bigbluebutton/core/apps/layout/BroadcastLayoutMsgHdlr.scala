@@ -70,7 +70,7 @@ trait BroadcastLayoutMsgHdlr extends RightsManagementTrait {
         "user",
         "app.layoutUpdate.label",
         "Notification to when the presenter changes size of cams",
-        Vector()
+        Map()
       )
       outGW.send(notifyEvent)
       NotificationDAO.insert(notifyEvent)

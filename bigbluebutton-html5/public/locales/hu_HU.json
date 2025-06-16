@@ -61,6 +61,8 @@
     "app.chat.header.tooltipReply": "Válasz az üzenetre",
     "app.chat.header.tooltipDelete": "Üzenet törlése",
     "app.chat.header.tooltipReact": "Üzenetre reagálás",
+    "app.chat.content.pollVote": "szavazat",
+    "app.chat.content.pollVotes": "szavazatok",
     "app.timer.toolTipTimerStopped": "Az időzítő megállt.",
     "app.timer.toolTipTimerRunning": "Az időzítő fut.",
     "app.timer.toolTipStopwatchStopped": "A stopperóra megállt.",

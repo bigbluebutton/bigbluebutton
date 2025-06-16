@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import { toPng, toSvg } from 'html-to-image';
 import { toast } from 'react-toastify';
+import { UI_DATA_GETTER_SUBSCRIBED } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data/getters/consts';
+import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import logger from '/imports/startup/client/logger';
 import {
   PresentationDropdownItemType,
@@ -153,6 +155,82 @@ const PresentationMenu = (props) => {
     loading: false,
   });
 
+  const extractSlideContentToImage = async () => {
+    const { isIos } = deviceInfo;
+    const { isSafari } = browserInfo;
+    const backgroundShape = tldrawAPI.getCurrentPageShapes().find((s) => s.id === `shape:BG-${slideNum}`);
+    const shapes = tldrawAPI.getCurrentPageShapes();
+    const pollShape = shapes.find((shape) => shape.type === 'poll');
+    const svgElem = await tldrawAPI.getSvg(
+      shapes
+        .filter((shape) => shape.type !== 'poll')
+        .map((shape) => shape.id),
+    );
+    svgElem.setAttribute('width', backgroundShape.props.w);
+    svgElem.setAttribute('height', backgroundShape.props.h);
+    svgElem.setAttribute('viewBox', `1 1 ${backgroundShape.props.w} ${backgroundShape.props.h}`);
+    if (pollShape) {
+      const pollShapeElement = document.getElementById(pollShape.id);
+      const pollShapeSvg = await toSvg(pollShapeElement);
+      const pollShapeImage = document.createElementNS('http://www.w3.org/2000/svg', 'image');
+      pollShapeImage.setAttribute('href', pollShapeSvg);
+      pollShapeImage.setAttribute('width', pollShape.props.w);
+      pollShapeImage.setAttribute('height', pollShape.props.h);
+      pollShapeImage.setAttribute('x', pollShape.x);
+      pollShapeImage.setAttribute('y', pollShape.y);
+      svgElem.appendChild(pollShapeImage);
+    }
+
+    if (isIos || isSafari) {
+      const svgString = new XMLSerializer().serializeToString(svgElem);
+      const blob = new Blob([svgString], { type: 'image/svg+xml' });
+
+      return URL.createObjectURL(blob);
+    }
+    const width = svgElem?.width?.baseVal?.value ?? window.screen.width;
+    const height = svgElem?.height?.baseVal?.value ?? window.screen.height;
+
+    return toPng(svgElem, {
+      width,
+      height,
+      backgroundColor: '#FFF',
+      skipFonts: true,
+    });
+  };
+
+  useEffect(() => {
+    const updateUiDataHookPCurrentWhiteboardSVGWithAnnotationsForPlugin = async () => {
+      try {
+        const data = await extractSlideContentToImage();
+        window.dispatchEvent(new CustomEvent(
+          PluginSdk.PresentationWhiteboardUiDataNames.CURRENT_PAGE_SNAPSHOT, {
+            detail: {
+              base64Png: data,
+            },
+          },
+        ));
+      } catch (e) {
+        logger.error({
+          logCode: 'plugin_ui_data_getter_error',
+          extraInfo: {
+            uiDataGetter:
+              PluginSdk.PresentationWhiteboardUiDataNames.CURRENT_PAGE_SNAPSHOT,
+          },
+        }, `UI data getter failed to fetch [${PluginSdk.PresentationWhiteboardUiDataNames.CURRENT_PAGE_SNAPSHOT}]`);
+      }
+    };
+
+    window.addEventListener(
+      `${UI_DATA_GETTER_SUBSCRIBED}-${PluginSdk.PresentationWhiteboardUiDataNames.CURRENT_PAGE_SNAPSHOT}`,
+      updateUiDataHookPCurrentWhiteboardSVGWithAnnotationsForPlugin,
+    );
+    return () => {
+      window.removeEventListener(
+        `${UI_DATA_GETTER_SUBSCRIBED}-${PluginSdk.PresentationWhiteboardUiDataNames.CURRENT_PAGE_SNAPSHOT}`,
+        updateUiDataHookPCurrentWhiteboardSVGWithAnnotationsForPlugin,
+      );
+    };
+  }, []);
   const [isClearModalOpen, setIsClearModalOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const toastId = useRef('presentation-menu-toast');
@@ -315,64 +393,18 @@ const PresentationMenu = (props) => {
               closeOnClick: true,
               toastId: toastId.current,
             });
-
             try {
-              // filter shapes that are inside the slide
-              const backgroundShape = tldrawAPI.getCurrentPageShapes().find((s) => s.id === `shape:BG-${slideNum}`);
-              const shapes = tldrawAPI.getCurrentPageShapes();
-              const pollShape = shapes.find((shape) => shape.type === 'poll');
-              const svgElem = await tldrawAPI.getSvg(
-                shapes
-                  .filter((shape) => shape.type !== 'poll')
-                  .map((shape) => shape.id),
+              const data = await extractSlideContentToImage();
+              const fileName = (isIos || isSafari)
+                ? `${elementName}_${meetingName}_${new Date().toISOString()}.svg`
+                : `${elementName}_${meetingName}_${new Date().toISOString()}.png`;
+              const anchor = document.createElement('a');
+              anchor.href = data;
+              anchor.setAttribute(
+                'download',
+                fileName,
               );
-              svgElem.setAttribute('width', backgroundShape.props.w);
-              svgElem.setAttribute('height', backgroundShape.props.h);
-              svgElem.setAttribute('viewBox', `1 1 ${backgroundShape.props.w} ${backgroundShape.props.h}`);
-              if (pollShape) {
-                const pollShapeElement = document.getElementById(pollShape.id);
-                const pollShapeSvg = await toSvg(pollShapeElement);
-                const pollShapeImage = document.createElementNS('http://www.w3.org/2000/svg', 'image');
-                pollShapeImage.setAttribute('href', pollShapeSvg);
-                pollShapeImage.setAttribute('width', pollShape.props.w);
-                pollShapeImage.setAttribute('height', pollShape.props.h);
-                pollShapeImage.setAttribute('x', pollShape.x);
-                pollShapeImage.setAttribute('y', pollShape.y);
-                svgElem.appendChild(pollShapeImage);
-              }
-
-              // workaround for ios
-              if (isIos || isSafari) {
-                const svgString = new XMLSerializer().serializeToString(svgElem);
-                const blob = new Blob([svgString], { type: 'image/svg+xml' });
-
-                const data = URL.createObjectURL(blob);
-                const anchor = document.createElement('a');
-                anchor.href = data;
-                anchor.setAttribute(
-                  'download',
-                  `${elementName}_${meetingName}_${new Date().toISOString()}.svg`,
-                );
-                anchor.click();
-              } else {
-                const width = svgElem?.width?.baseVal?.value ?? window.screen.width;
-                const height = svgElem?.height?.baseVal?.value ?? window.screen.height;
-
-                const data = await toPng(svgElem, {
-                  width,
-                  height,
-                  backgroundColor: '#FFF',
-                  skipFonts: true,
-                });
-
-                const anchor = document.createElement('a');
-                anchor.href = data;
-                anchor.setAttribute(
-                  'download',
-                  `${elementName}_${meetingName}_${new Date().toISOString()}.png`,
-                );
-                anchor.click();
-              }
+              anchor.click();
 
               setState({
                 loading: false,

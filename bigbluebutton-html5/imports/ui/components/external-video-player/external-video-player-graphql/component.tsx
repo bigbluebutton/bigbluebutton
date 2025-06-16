@@ -14,9 +14,9 @@ import { ExternalVideoVolumeCommandsEnum } from 'bigbluebutton-html-plugin-sdk/d
 import { SetExternalVideoVolumeCommandArguments } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-commands/external-video/volume/types';
 import { OnProgressProps } from 'react-player/base';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
-import { UI_DATA_LISTENER_SUBSCRIBED } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data-hooks/consts';
+import { UI_DATA_LISTENER_SUBSCRIBED } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data/hooks/consts';
 import { ExternalVideoVolumeUiDataNames } from 'bigbluebutton-html-plugin-sdk';
-import { ExternalVideoVolumeUiDataPayloads } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data-hooks/external-video/volume/types';
+import { ExternalVideoVolumeUiDataPayloads } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data/domain/external-video/volume/types';
 
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import {
@@ -196,6 +196,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
   const presenterRef = useRef(isPresenter);
   const [reactPlayerPlaying, setReactPlayerPlaying] = React.useState(false);
+  const firstPlayRef = useRef(true);
 
   let currentTime = getCurrentTime();
 
@@ -391,12 +392,16 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
         rate,
         // if currentTime is greater than playerCurrentTime, means the video was already played
         // and the presenter refreshed his client
-        time: currentTime > playerCurrentTime ? currentTime : playerCurrentTime,
+        time: (currentTime > playerCurrentTime) && firstPlayRef.current ? currentTime : playerCurrentTime,
       });
     }
 
     if (!playing && !isPresenter) {
       stopVideo(playerRef.current as ReactPlayer);
+    }
+
+    if (firstPlayRef.current) {
+      firstPlayRef.current = false;
     }
   };
 

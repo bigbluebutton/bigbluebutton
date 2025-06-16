@@ -63,7 +63,7 @@ trait SetPresentationDownloadablePubMsgHdlr extends RightsManagementTrait {
             "presentation",
             "app.presentation.downloadEnabledNotification",
             "Notification when the download of the presentation has been enabled",
-            Vector(s"${pres.name}")
+            Map("0" -> s"${pres.name}")
           )
           NotificationDAO.insert(notifyEvent)
         }

@@ -274,11 +274,15 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
       } = quickPollVariables;
       const isCustom = pollType === pollTypes.Custom;
 
+      const questionAndOptionsList = isCustom
+        ? [question, ...answers].join('\n')
+        : '';
+
       setError(null);
       setWarning(null);
       setCustomInput(isCustom);
       setIsMultipleResponse(isMultipleResponse);
-      setQuestionAndOptions(isCustom ? answers.join('\n') : '');
+      setQuestionAndOptions(questionAndOptionsList);
       setQuestion(question);
       setSecretPoll(secretPoll);
       setType(

@@ -1,4 +1,6 @@
 import * as DarkReader from 'darkreader';
+import data from '@emoji-mart/data';
+import { init } from 'emoji-mart';
 import Styled from './styles';
 import logger from '/imports/startup/client/logger';
 import useMeeting from '../../core/hooks/useMeeting';
@@ -51,8 +53,30 @@ export const setDarkTheme = (value) => {
 
 export const isDarkThemeEnabled = () => DarkReader.isEnabled();
 
+export const initializeEmojiData = () => {
+  const DISABLE_EMOJIS = window.meetingClientSettings.public.chat.disableEmojis;
+  const emojis = Object.values(data.emojis);
+  const allowedEmojis = {};
+
+  // We manually filter it here because there's a bug in the Picker component.
+  // See: https://github.com/missive/emoji-mart/issues/810
+  const filteredEmojis = emojis.filter((e) => !DISABLE_EMOJIS.includes(e.id));
+
+  filteredEmojis.forEach((e) => {
+    allowedEmojis[e.id] = e;
+  });
+
+  const filteredData = {
+    ...data,
+    emojis: allowedEmojis,
+  };
+
+  init({ data: filteredData });
+};
+
 export default {
   setDarkTheme,
   isDarkThemeEnabled,
   useMeetingIsBreakout,
+  initializeEmojiData,
 };

@@ -103,6 +103,8 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
     updateOnlyOn: [
       RoomEvent.TrackPublished, RoomEvent.TrackUnpublished,
       RoomEvent.TrackSubscribed, RoomEvent.TrackUnsubscribed,
+      RoomEvent.TrackSubscriptionStatusChanged, RoomEvent.TrackSubscriptionPermissionChanged,
+      RoomEvent.TrackSubscriptionFailed,
     ],
   });
   const [meetingSettings] = useMeetingSettings();

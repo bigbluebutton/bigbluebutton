@@ -11,17 +11,18 @@ import { useLazyQuery, useMutation, useReactiveVar } from '@apollo/client';
 import TextareaAutosize from 'react-autosize-textarea';
 import { ChatFormCommandsEnum } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-commands/chat/form/enums';
 import { FillChatFormCommandArguments } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-commands/chat/form/types';
-import { UI_DATA_LISTENER_SUBSCRIBED } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data-hooks/consts';
-import { ChatFormUiDataPayloads } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data-hooks/chat/form/types';
+import { UI_DATA_LISTENER_SUBSCRIBED } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data/hooks/consts';
+import { ChatFormUiDataPayloads } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data/domain/chat/form/types';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import { defineMessages, useIntl } from 'react-intl';
-import { useIsChatEnabled, useIsEditChatMessageEnabled } from '/imports/ui/services/features';
+import { useIsChatEnabled, useIsEditChatMessageEnabled, useIsEmojiPickerEnabled } from '/imports/ui/services/features';
 import { checkText } from 'smile2emoji';
 import { findDOMNode } from 'react-dom';
 
 import Styled from './styles';
 import deviceInfo from '/imports/utils/deviceInfo';
+import { getAllShortCodes } from '/imports/utils/emoji-utils';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 import useChat from '/imports/ui/core/hooks/useChat';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
@@ -144,6 +145,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const emojiPickerButtonRef = useRef(null);
   const [isTextAreaFocused, setIsTextAreaFocused] = React.useState(false);
   const [repliedMessageId, setRepliedMessageId] = React.useState<string | null>(null);
+  const [emojisToExclude, setEmojisToExclude] = React.useState<string[]>([]);
   const editingMessage = React.useRef<EditingMessage | null>(null);
   const textAreaRef: RefObject<TextareaAutosize> = useRef<TextareaAutosize>(null);
   const { isMobile } = deviceInfo;
@@ -171,8 +173,9 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
   const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
   const AUTO_CONVERT_EMOJI = window.meetingClientSettings.public.chat.autoConvertEmoji;
-  const ENABLE_EMOJI_PICKER = window.meetingClientSettings.public.chat.emojiPicker.enable;
+  const ENABLE_EMOJI_PICKER = useIsEmojiPickerEnabled();
   const ENABLE_TYPING_INDICATOR = CHAT_CONFIG.typingIndicator.enabled;
+  const DISABLE_EMOJIS = CHAT_CONFIG.disableEmojis;
 
   const handleUserTyping = (hasError?: boolean) => {
     if (hasError || !ENABLE_TYPING_INDICATOR) return;
@@ -202,6 +205,41 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
       updateUnsentMessages(chatId, unsentMessage);
     };
   }, []);
+
+  useEffect(() => {
+    // load all shortcodes and aliases for emojis to exclude
+    let emojisToExclude = [
+      ...DISABLE_EMOJIS,
+    ];
+
+    emojisToExclude.forEach(async (shortcode) => {
+      const shortcodes = await getAllShortCodes(shortcode);
+
+      emojisToExclude = Array.from(new Set([...emojisToExclude, ...shortcodes]));
+      setEmojisToExclude(emojisToExclude);
+    });
+  }, []);
+
+  useEffect(() => {
+    const loadExcludedEmojis = async () => {
+      let allExcluded = [...DISABLE_EMOJIS];
+
+      // eslint-disable-next-line no-restricted-syntax
+      for (const shortcode of DISABLE_EMOJIS) {
+        // eslint-disable-next-line no-await-in-loop
+        const shortcodes = await getAllShortCodes(shortcode);
+        allExcluded = [...allExcluded, ...shortcodes];
+      }
+
+      const newEmojisToExclude = Array.from(new Set(allExcluded));
+
+      setEmojisToExclude(newEmojisToExclude);
+    };
+
+    if (DISABLE_EMOJIS?.length > 0) {
+      loadExcludedEmojis();
+    }
+  }, [DISABLE_EMOJIS]);
 
   useEffect(() => {
     const unsentMessages = Storage.getItem('unsentMessages') as Record<string, string> || {};
@@ -267,11 +305,31 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
     setTimeout(() => txtArea.setSelectionRange(newCursor, newCursor), 10);
   };
 
+  const customCheckText = (input: string): string => {
+    const placeholderMap: Record<string, string> = {};
+
+    emojisToExclude.forEach((shortcode, index) => {
+      const placeholder = `__EXCLUDE_${index}__`;
+      const target = `:${shortcode}:`;
+      placeholderMap[placeholder] = target;
+      // eslint-disable-next-line no-param-reassign
+      input = input.split(target).join(placeholder);
+    });
+
+    let result = checkText(input);
+
+    Object.entries(placeholderMap).forEach(([placeholder, original]) => {
+      result = result.split(placeholder).join(original);
+    });
+
+    return result;
+  };
+
   const handleMessageChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     let newMessage = null;
     let newError = null;
     if (AUTO_CONVERT_EMOJI) {
-      newMessage = checkText(e.target.value);
+      newMessage = customCheckText(e.target.value);
     } else {
       newMessage = e.target.value;
     }
