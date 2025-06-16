@@ -15,10 +15,10 @@ trait GetUserApiMsgHdlr extends HandlerHelpers {
   def handleGetUserApiMsg(msg: GetUserApiMsg, actorRef: ActorRef): Unit = {
     RegisteredUsers.findWithSessionToken(msg.sessionToken, liveMeeting.registeredUsers) match {
       case Some(regUser) =>
-        log.debug("replying GetUserApiMsg with success")
+        log.debug("replying GetUserApiMsg with success ({}). User: {}", msg.sessionToken, regUser.id)
         actorRef ! ApiResponseSuccess("User found!", UserInfosApiMsg(getUserInfoResponse(regUser, msg.sessionToken)))
       case None =>
-        log.debug("User not found, sending failure message")
+        log.debug("User not found, sending failure message ({}).", msg.sessionToken)
         actorRef ! ApiResponseFailure("User not found", "user_not_found", Map())
     }
   }
