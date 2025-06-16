@@ -394,12 +394,12 @@ In the body part, you would append a simple XML like the example below:
 
 When you need to provide a document using a URL, and the document URL does not contain an extension, you can use the `filename` parameter, such as `filename=test-results.pdf` to help the BigBlueButton server determine the file type (in this example it would be a PDF file).
 
-**From `2.5.x` and on** there is also 2 parameters one can provide the payload to ensure that the document they are uploading can be downloaded or removed from the meeting, those parameters are:
+**From `2.5.x` and on** there are also 2 parameters one can provide the payload to ensure that the document they are uploading can be downloaded or removed from the meeting, those parameters are:
 
 | Parameter      | Description                                    | Default Value |
 | -------------- | ---------------------------------------------- | ------------- |
-| `downloadable` | Dictates if the presentation can be downloaded | `true`        |
-| `removable`    | dictates if one can remove the presentation.   | `false`       |
+| `downloadable` | Dictates if the presentation can be downloaded | `false`        |
+| `removable`    | dictates if one can remove the presentation.   | `true`       |
 
 In the payload the variables are passed inside each `<document>` tag of the xml, as follows:
 
