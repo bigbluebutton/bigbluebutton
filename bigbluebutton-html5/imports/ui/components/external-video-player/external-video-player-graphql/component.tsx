@@ -46,7 +46,6 @@ import getStorageSingletonInstance from '/imports/ui/services/storage';
 
 const AUTO_PLAY_BLOCK_DETECTION_TIMEOUT_SECONDS = 5;
 const TWITCH_VIDEO_SEEK_TIME_WINDOW = 1; // Twitch video seek time in seconds
-const UPDATE_INTERVAL_THRESHOLD_MS = 500;
 
 const intlMessages = defineMessages({
   autoPlayWarning: {
@@ -412,6 +411,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
       sendMessage('start', {
         rate,
         time: currentTime,
+        state: 'playing',
       });
     }
 
@@ -443,6 +443,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
         // if currentTime is greater than playerCurrentTime, means the video was already played
         // and the presenter refreshed his client
         time: (currentTime > playerCurrentTime) && firstPlayRef.current ? currentTime : playerSeekTime,
+        state: 'playing',
       });
     }
     if (!playing && !isPresenter) {
@@ -515,6 +516,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
       sendMessage('seek', {
         rate,
         time: typeof cursor === 'number' ? cursor : cursor.position,
+        state: playing ? 'playing' : '',
       });
 
       lastCursorRef.current = {
