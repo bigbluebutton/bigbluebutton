@@ -416,7 +416,7 @@
     "app.poll.activePollInstruction": "保持此面板打開，以查看投票的實時回應。準備好後，選擇“發布投票結果”以發布結果並結束投票。",
     "app.poll.dragDropPollInstruction": "要填寫投票值，將具有投票值的文本文件拖放到突出顯示的字段上",
     "app.poll.customPollTextArea": "填寫投票值",
-    "app.poll.publishLabel": "發布投票",
+    "app.poll.publishLabel": "發佈結果",
     "app.poll.cancelPollLabel": "取消",
     "app.poll.backLabel": "開始投票",
     "app.poll.closeLabel": "關閉",
