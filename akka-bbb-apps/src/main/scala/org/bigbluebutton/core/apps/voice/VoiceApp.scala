@@ -469,6 +469,8 @@ object VoiceApp extends SystemConfiguration {
     for {
       user <- VoiceUsers.findWithVoiceUserId(liveMeeting.voiceUsers, voiceUserId)
     } yield {
+      Users2x.resetUserUnmuteRequested(liveMeeting.users2x, user.intId)
+
       VoiceUsers.removeWithIntId(liveMeeting.voiceUsers, user.meetingId, user.intId)
       broadcastEvent(user)
 
