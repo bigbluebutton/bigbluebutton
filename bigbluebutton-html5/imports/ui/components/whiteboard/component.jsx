@@ -654,14 +654,8 @@ const Whiteboard = React.memo((props) => {
           zoomChanger(HUNDRED_PERCENT);
         },
         '@': () => {
-          const selectedShapes = tlEditorRef.current?.getSelectedShapes();
-          const axisX = selectedShapes.map((shape) => shape.x);
-          const axisY = selectedShapes.map((shape) => shape.y);
-          const topLeftPoint = [Math.min(...axisX), Math.min(...axisY)];
-          const bottomRightPoint = [Math.max(...axisX), Math.max(...axisY)];
-          const selectionHeight = Math.abs(bottomRightPoint[1] - topLeftPoint[1]);
-          const selectionWidth = Math.abs(bottomRightPoint[0] - topLeftPoint[0]);
-          const selectionAspectRatio = selectionWidth / selectionHeight;
+          const selectionBounds = tlEditorRef.current?.getSelectionPageBounds();
+          const selectionAspectRatio = selectionBounds.w / selectionBounds.h;
           const presentationAreaAspectRatio = presentationWidth / presentationHeight;
 
           let baseZoomToFitIn;
@@ -670,9 +664,9 @@ const Whiteboard = React.memo((props) => {
             selectionAspectRatio > presentationAreaAspectRatio
             || (fitToWidthRef.current && isPresenterRef.current)
           ) {
-            baseZoomToFitIn = presentationWidth / selectionWidth;
+            baseZoomToFitIn = presentationWidth / selectionBounds.w;
           } else {
-            baseZoomToFitIn = presentationHeight / selectionHeight;
+            baseZoomToFitIn = presentationHeight / selectionBounds.h;
           }
 
           const adjustedBaseZoomToFitIn = (Math.max(baseZoomToFitIn, initialZoomRef.current)) / initialZoomRef.current;
@@ -680,8 +674,8 @@ const Whiteboard = React.memo((props) => {
           zoomChanger(zoomPercentage);
 
           const nextCamera = {
-            x: topLeftPoint[0],
-            y: topLeftPoint[1],
+            x: selectionBounds.x,
+            y: selectionBounds.y,
             z: adjustedBaseZoomToFitIn,
           };
 
