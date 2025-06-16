@@ -32,4 +32,8 @@ test.describe('Layout', { tag: '@ci' }, () => {
   test("Update everyone's layout", async () => {
     await layouts.updateEveryone();
   });
+
+  test("Pagination", async () => {
+    await layouts.pagination();
+  });
 });

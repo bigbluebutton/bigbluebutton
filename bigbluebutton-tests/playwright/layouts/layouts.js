@@ -110,6 +110,41 @@ class Layouts extends MultiUsers {
 
     await checkScreenshots(this, 'layout should be updated for everyone', 'video', 'update-everyone');
   }
+
+  async pagination() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.userPage.waitForSelector(e.whiteboard);
+
+    await this.modPage.waitAndClick(e.optionsButton);
+    await this.modPage.waitAndClick(e.manageLayoutBtn);
+    await this.modPage.waitAndClick(e.focusOnPresentation);
+    await this.modPage.waitAndClickElement(e.updateEveryoneLayoutToggle);
+    await this.modPage.waitAndClick(e.updateLayoutBtn);
+    await this.modPage.closeAllToastNotifications();
+    await this.modPage.wasRemoved(e.toastContainer);
+
+    const user1 = await this.initUserPage3(true);
+    await user1.hasElement(e.whiteboard);
+    await user1.shareWebcam();
+
+    const user2 = await this.initUserPage3(true);
+    await user2.hasElement(e.whiteboard);
+    await user2.shareWebcam();
+
+    const user3 = await this.initUserPage3(true);
+    await user3.hasElement(e.whiteboard);
+    await user3.shareWebcam();
+
+    const user4 = await this.initUserPage3(true);
+    await user4.hasElement(e.whiteboard);
+    await user4.shareWebcam();
+
+    const user5 = await this.initUserPage3(true);
+    await user5.hasElement(e.whiteboard);
+    await user5.shareWebcam();
+  
+    await checkScreenshots(this, 'pagination should work for the attendees', 'video', 'pagination');
+  }
 }
 
 exports.Layouts = Layouts;
