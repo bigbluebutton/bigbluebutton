@@ -422,7 +422,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
 
   const handleOnPlay = async () => {
     setReactPlayerPlaying(true);
-    const internalPlayer = playerRef.current?.getInternalPlayer(); 
+    const internalPlayer = playerRef.current?.getInternalPlayer();
     const url = new URL(videoUrl);
     const isTwitch = url.hostname === 'twitch.tv' || url.hostname === 'www.twitch.tv';
     if (isPresenter && !playing) {
