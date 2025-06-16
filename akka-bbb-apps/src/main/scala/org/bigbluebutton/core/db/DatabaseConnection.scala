@@ -5,11 +5,14 @@ import slick.jdbc.PostgresProfile.api._
 
 import scala.concurrent.duration._
 import java.util.concurrent.ConcurrentLinkedQueue
-import scala.concurrent.ExecutionContext.Implicits.global
 import java.util.concurrent.atomic.AtomicBoolean
 import scala.util.control.Breaks._
+import java.util.concurrent.Executors
+import scala.concurrent.ExecutionContext
 
 object DatabaseConnection {
+  val dbEc = ExecutionContext.fromExecutorService(Executors.newSingleThreadExecutor())
+
   val db = Database.forConfig("postgres")
   val logger = LoggerFactory.getLogger(this.getClass)
 
@@ -21,15 +24,15 @@ object DatabaseConnection {
   val system = org.apache.pekko.actor.ActorSystem("DBActionBatchSystem")
   system.scheduler.scheduleWithFixedDelay(50.millis, 50.millis)(new Runnable {
     def run(): Unit = tryProcessBatch()
-  })
+  })(dbEc)
 
   def initialize(): Unit = {
     db.run(sql"SELECT current_timestamp".as[java.sql.Timestamp]).map { timestamp =>
       logger.debug(s"Database initialized, current timestamp is: $timestamp")
-    }.recover {
+    }(dbEc).recover {
       case ex: Exception =>
         logger.error(s"Failed to initialize database: ${ex.getMessage}")
-    }
+    }(dbEc)
   }
 
   def enqueue(action: DBIO[_]): Unit = {
@@ -70,7 +73,7 @@ object DatabaseConnection {
           logger.error(s"Error executing batch actions: $e")
           isProcessing.set(false)
           if (!queue.isEmpty) tryProcessBatch()
-      }
+      }(dbEc)
     } else {
       isProcessing.set(false)
     }
