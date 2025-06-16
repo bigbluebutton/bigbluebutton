@@ -380,8 +380,8 @@ class App extends React.Component {
               && (
                 <>
                   <span className="text-sm font-light font-base mt-0">
-                    {intl.formatMessage({ id: 'app.learningDashboard.learnMore', defaultMessage: 'Learn more about the use of the Dashboard in {0} from our Knowledge Base.' }, {
-                      0: (
+                    {intl.formatMessage({ id: 'app.learningDashboard.learnMore', defaultMessage: 'Learn more about the use of the Dashboard in {learnMoreLink} from our Knowledge Base.' }, {
+                      learnMoreLink: (
                         <a
                           target="_blank"
                           rel="noreferrer"
@@ -657,8 +657,8 @@ class App extends React.Component {
           && (
             <>
               <div className="mt-6 mb-4 text-sm font-light font-base text-gray-500">
-                { intl.formatMessage({ id: 'app.learningDashboard.feedback', defaultMessage: 'How has your experience been with this feature? We would love to hear your opinion and even suggestions on how we can improve it. Share with us by clicking {0}.' }, {
-                  0: (
+                { intl.formatMessage({ id: 'app.learningDashboard.feedback', defaultMessage: 'How has your experience been with this feature? We would love to hear your opinion and even suggestions on how we can improve it. Share with us by clicking {feedbackLink}.' }, {
+                  feedbackLink: (
                     <a
                       target="_blank"
                       rel="noreferrer"

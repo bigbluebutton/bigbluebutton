@@ -133,7 +133,7 @@ const withFileReader = (
       notify(
         intl.formatMessage(
           intlMessages.maximumSizeExceeded,
-          { 0: (maxFileSize / 1000).toFixed(0) },
+          { maxFileSize: (maxFileSize / 1000).toFixed(0) },
         ),
         'error',
       );

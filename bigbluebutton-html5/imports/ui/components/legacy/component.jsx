@@ -182,8 +182,8 @@ export default class Legacy extends Component {
                 id={messageId}
                 description="Warning when someone joins with a browser that isn't supported"
                 values={{
-                  0: <a href="https://www.google.com/chrome/">Chrome</a>,
-                  1: <a href="https://getfirefox.com">Firefox</a>,
+                  supportedBrowser1: <a href="https://www.google.com/chrome/">Chrome</a>,
+                  supportedBrowser2: <a href="https://getfirefox.com">Firefox</a>,
                 }}
               />
             </p>

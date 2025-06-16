@@ -107,7 +107,7 @@ const renderGuestUserItem = (
           <TextInput
             maxLength={128}
             placeholder={intl.formatMessage(intlMessages.privateInputPlaceholder,
-              { 0: name })}
+              { userName: name })}
             send={setPrivateGuestLobbyMessage}
           />
           <p>

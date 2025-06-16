@@ -148,7 +148,7 @@ trait UserJoinMeetingReqMsgHdlr extends HandlerHelpers {
       "promote",
       "app.mobileAppModal.userConnectedWithSameId",
       "Notification to warn that user connect again from other browser/device",
-      Map("0" -> newUser.name)
+      Map("userName" -> newUser.name)
     )
     outGW.send(notifyUserEvent)
     NotificationDAO.insert(notifyUserEvent)

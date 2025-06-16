@@ -189,7 +189,7 @@ const DragAndDrop: React.FC<DragAndDropProps> = (props) => {
           intl={intl}
           onConfirm={callback}
           title={intl.formatMessage(intlMessages.confirmationTitle)}
-          description={intl.formatMessage(intlMessages.confirmationDescription, { 0: file?.name })}
+          description={intl.formatMessage(intlMessages.confirmationDescription, { fileName: file?.name })}
           checkboxMessageId="app.confirmation.skipConfirm"
           {...{
             onRequestClose: () => setIsConfirmModalOpen(false),

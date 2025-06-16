@@ -50,7 +50,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
       data-test="chatTitle"
       leftButtonProps={{
         accessKey: chatId !== 'public' ? HIDE_CHAT_AK : null,
-        'aria-label': intl.formatMessage(intlMessages.hideChatLabel, { 0: title }),
+        'aria-label': intl.formatMessage(intlMessages.hideChatLabel, { chatName: title }),
         'data-test': isPublicChat ? 'hidePublicChat' : 'hidePrivateChat',
         label: title,
         onClick: () => {
@@ -70,10 +70,10 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
       }}
       rightButtonProps={{
         accessKey: CLOSE_CHAT_AK,
-        'aria-label': intl.formatMessage(intlMessages.closeChatLabel, { 0: title }),
+        'aria-label': intl.formatMessage(intlMessages.closeChatLabel, { chatName: title }),
         'data-test': 'closePrivateChat',
         icon: 'close',
-        label: intl.formatMessage(intlMessages.closeChatLabel, { 0: title }),
+        label: intl.formatMessage(intlMessages.closeChatLabel, { chatName: title }),
         onClick: () => {
           updateVisible({ variables: { chatId, visible: false } });
           closePrivateChat(chatId);
@@ -132,7 +132,7 @@ const ChatHeaderContainer: React.FC = () => {
   }
   const isPublicChat = chatData.chat[0]?.public;
   const title = isPublicChat ? intl.formatMessage(intlMessages.titlePublic)
-    : intl.formatMessage(intlMessages.titlePrivate, { 0: chatData?.chat[0]?.participant?.name });
+    : intl.formatMessage(intlMessages.titlePrivate, { participantName: chatData?.chat[0]?.participant?.name });
   return (
     <>
       <h2 className="sr-only">{title}</h2>
