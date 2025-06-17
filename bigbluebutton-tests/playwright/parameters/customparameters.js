@@ -478,6 +478,7 @@ class CustomParameters extends MultiUsers {
         
     await this.modPage.waitForSelector(e.webcamMirroredVideoContainer, VIDEO_LOADING_WAIT_TIME);
     await this.modPage.waitForSelector(e.leaveVideo, VIDEO_LOADING_WAIT_TIME);
+    await this.modPage.hasNElements('video', 2, 'should display the 2 video elements after both users shared their webcams');
 
     await checkScreenshots(this, 'should be the video focus layout', [e.webcamContainer, e.webcamMirroredVideoContainer], 'enforce-video-focus');
   }
