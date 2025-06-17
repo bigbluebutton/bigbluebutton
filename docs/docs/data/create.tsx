@@ -186,7 +186,7 @@ const createEndpointTableData = [
     "required": false,
     "type": "Boolean",
     "default": "false",
-    "description": (<>Setting to <code className="language-plaintext highlighter-rouge">true</code> will allow moderators to ask participants to unmute themselves. (added 2.2)</>)
+    "description": (<>Setting to <code className="language-plaintext highlighter-rouge">true</code> will allow participants to accept or decline when a moderator asks them to unmute. (added 3.1)</>)
   },
   {
     "name": "lockSettingsDisableCam",
