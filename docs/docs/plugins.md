@@ -233,9 +233,9 @@ The settingsSchema serves two main purposes:
 | **Name**       | **Required** | **Description**                                                                                                |
 | -------------- | ------------ | -------------------------------------------------------------------------------------------------------------- |
 | `name`         | Yes          | The name of the setting as defined in the YAML file                                                            |
-| `label`        | Yes          | A user-facing label that appears in the integration UI                                                         |
+| `label`        | No           | A user-facing label that appears in the integration UI                                                         |
 | `required`     | Yes          | Indicates whether this setting must be provided (`true` or `false`)                                            |
-| `defaultValue` | Yes          | The default value to use if no setting is explicitly defined                                                   |
+| `defaultValue` | No           | The default value to use if no setting is explicitly defined                                                   |
 | `type`         | Yes          | The expected data type for the setting. Possible values: `"int"`, `"float"`, `"string"`, `"boolean"`, `"json"` |
 
 **Example**
