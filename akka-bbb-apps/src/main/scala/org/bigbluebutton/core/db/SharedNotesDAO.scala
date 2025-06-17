@@ -44,6 +44,7 @@ object SharedNotesDAO {
       TableQuery[SharedNotesDbTableDef]
         .filter(_.meetingId === meetingId)
         .filter(_.sharedNotesExtId === sharedNotesExtId)
+        .filter(_.pinned =!= pinned)
         .map(n => n.pinned)
         .update(pinned)
     )
