@@ -206,11 +206,51 @@ Here is as complete `manifest.json` example with all possible configurations:
       "fetchMode": "onMeetingCreate", // Possible values: "onMeetingCreate", "onDemand" 
       "permissions": ["moderator", "viewer"]
     }
+  ],
+  "settingsSchema": [
+    {
+      "name": "myJson",
+      "label": "myJson",
+      "required": true,
+      "defaultValue": {
+        "abc": 123
+      },
+      "type": "json" // Possible values: "int", "float", "string", "boolean", "json"
+    }
   ]
 }
 ```
 
 To better understand remote-data-sources, please, refer to [this section](#external-data-resources)
+
+**settingsSchema:**
+
+The settingsSchema serves two main purposes:
+
+1. **Validation:** Ensures that all required settings are provided for a plugin. If any required setting is missing, the plugin will not load.
+2. **Configuration Exposure:** Lists all available settings for the plugin, enabling external systems—such as a Learning Management System (LMS)—to present these settings to a meeting organizer. This allows the organizer to configure the plugin manually before the meeting begins.
+
+| **Name**       | **Required** | **Description**                                                                                                |
+| -------------- | ------------ | -------------------------------------------------------------------------------------------------------------- |
+| `name`         | Yes          | The name of the setting as defined in the YAML file                                                            |
+| `label`        | No           | A user-facing label that appears in the integration UI                                                         |
+| `required`     | Yes          | Indicates whether this setting must be provided (`true` or `false`)                                            |
+| `defaultValue` | No           | The default value to use if no setting is explicitly defined                                                   |
+| `type`         | Yes          | The expected data type for the setting. Possible values: `"int"`, `"float"`, `"string"`, `"boolean"`, `"json"` |
+
+**Example**
+
+Given the `settingsSchema` defined in the `manifest.json` seen, the corresponding YAML configuration file (`/etc/bigbluebutton/bbb-html5.yml`) would look like:
+
+```yml
+public:
+  plugins:
+    - name: MyPlugin
+      settings:
+        myJson:
+          abc: my123
+          def: 3234
+```
 
 ## Examples
 

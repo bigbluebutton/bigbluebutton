@@ -127,55 +127,16 @@ object ClientSettings extends SystemConfiguration {
         for {
           plugin <- plugins
         } yield {
-          if (plugin.contains("name") && plugin.contains("url")) {
+          if (plugin.contains("name")) {
 
             val pluginName = plugin("name").toString
-            val pluginUrl = plugin("url").toString
-            var pluginDataChannels: Map[String, DataChannel] = Map()
-            if (plugin.contains("dataChannels")) {
-              plugin("dataChannels") match {
-                case dataChannels: List[Map[String, Any]] =>
-                  for {
-                    dataChannel <- dataChannels
-                  } yield {
-                    if (dataChannel.contains("name")) {
-                      val channelName = dataChannel("name").toString
-                      val pushPermission = {
-                        if (dataChannel.contains("pushPermission")) {
-                          dataChannel("pushPermission") match {
-                            case wPerm: List[String] => wPerm
-                            case _ => {
-                              logger.warn(s"Invalid pushPermission for channel $channelName in plugin $pluginName")
-                              List()
-                            }
-                          }
-                        } else {
-                          logger.warn(s"Missing config pushPermission for channel $channelName in plugin $pluginName")
-                          List()
-                        }
-                      }
-                      val replaceOrDeletePermission = {
-                        if (dataChannel.contains("replaceOrDeletePermission")) {
-                          dataChannel("replaceOrDeletePermission") match {
-                            case dPerm: List[String] => dPerm
-                            case _ => {
-                              logger.warn(s"Invalid replaceOrDeletePermission for channel $channelName in plugin $pluginName")
-                              List()
-                            }
-                          }
-                        } else {
-                          List()
-                        }
-                      }
-
-                      pluginDataChannels += (channelName -> DataChannel(channelName, pushPermission, replaceOrDeletePermission))
-                    }
-                  }
-                case _ => logger.warn(s"Plugin $pluginName has an invalid dataChannels format")
+            val configs: Map[String, Object] = plugin
+              .get("settings")
+              .collect { case m: Map[_, _] =>
+                m.asInstanceOf[Map[String, Object]]
               }
-            }
-
-            pluginsFromConfig += (pluginName -> Plugin(pluginName, pluginUrl, pluginDataChannels))
+              .getOrElse(Map.empty[String, Object])
+            pluginsFromConfig += (pluginName -> Plugin(pluginName, configs))
           }
         }
       case _ => logger.warn(s"Invalid plugins config found.")
@@ -184,7 +145,22 @@ object ClientSettings extends SystemConfiguration {
     pluginsFromConfig
   }
 
-  case class DataChannel(name: String, pushPermission: List[String], replaceOrDeletePermission: List[String])
-  case class Plugin(name: String, url: String, dataChannels: Map[String, DataChannel])
+  def mergePluginSettingsIntoClientSettings(
+      clientSettingsBeforePluginValidation: Map[String, Object],
+      pluginClientSettings:                 List[Plugin]
+  ): Map[String, Object] = {
+    //Construct a minimal client settings structure containing only plugin overrides
+    val clientSettingsOnlyPlugins: Map[String, Object] = Map[String, Object](
+      "public" -> Map[String, Object](
+        "plugins" -> pluginClientSettings.map(pluginSettings => Map(
+          "name" -> pluginSettings.name
+        ) ++ Map("settings" -> pluginSettings.settings))
+      )
+    )
+    // Override clientSettingsBeforeValidation
+    YamlUtil.mergeImmutableMaps(clientSettingsBeforePluginValidation, clientSettingsOnlyPlugins)
+  }
+
+  case class Plugin(name: String, settings: Map[String, Any])
 
 }

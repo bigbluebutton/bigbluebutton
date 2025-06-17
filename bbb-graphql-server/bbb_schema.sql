@@ -237,9 +237,7 @@ CREATE VIEW "v_meeting_clientSettings" AS SELECT * FROM "meeting_clientSettings"
 create view "v_meeting_clientPluginSettings" as
 select "meetingId",
        plugin->>'name' as "name",
-       plugin->>'url' as "url",
-       (plugin->>'settings')::jsonb as "settings",
-       (plugin->>'dataChannels')::jsonb as "dataChannels"
+       (plugin->>'settings')::jsonb as "settings"
 from (
     select "meetingId", jsonb_array_elements("clientSettingsJson"->'public'->'plugins') AS plugin
     from "meeting_clientSettings"
