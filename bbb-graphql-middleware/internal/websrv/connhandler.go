@@ -412,11 +412,11 @@ func connectionInitHandler(browserConnection *common.BrowserConnection) (error, 
 			}
 
 			if errCheckAuthorization != nil {
-				return fmt.Errorf("error on trying to check authorization"), "user_not_found"
+				return fmt.Errorf("error on trying to check authorization"), "check_authorization_error"
 			}
 
 			if meetingId == "" {
-				return fmt.Errorf("error on trying to check authorization"), "user_not_found"
+				return fmt.Errorf("error on trying to check authorization"), "meeting_not_found"
 			}
 			browserConnection.Logger = browserConnection.Logger.WithField("meetingId", meetingId)
 

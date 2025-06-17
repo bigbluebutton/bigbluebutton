@@ -83,7 +83,7 @@ func StartRedisListener() {
 			messageBodyAsMap := messageCoreAsMap["body"].(map[string]interface{})
 			middlewareUID := messageBodyAsMap["middlewareUID"]
 			if middlewareUID == common.GetUniqueID() {
-				log.Debugf("Received ping message from akka-apps")
+				log.Infof("Received ping message from akka-apps")
 				go SendCheckGraphqlMiddlewareAlivePongSysMsg()
 			}
 		}
@@ -127,6 +127,11 @@ func sendBbbCoreMsgToRedis(name string, body map[string]interface{}) {
 		return
 	}
 
+	if log.IsLevelEnabled(log.DebugLevel) {
+		if bodyAsJson, err := json.Marshal(body); err == nil {
+			log.Debugf("Redis message sent %s: %s", name, bodyAsJson)
+		}
+	}
 	log.Tracef("JSON message sent to channel %s:\n%s\n", channelName, string(messageJSON))
 }
 
