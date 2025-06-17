@@ -61,7 +61,7 @@ const BreakoutMessageForm: React.FC = () => {
   const verifyForErrors = useCallback((message: string) => {
     if (message.length < minMessageLength) {
       if (!hasErrors) setHasErrors(true);
-      setError(intl.formatMessage(intlMessages.errorMaxMessageLength, { minMessageLength }));
+      setError(intl.formatMessage(intlMessages.errorMinMessageLength, { minMessageLength }));
     } else if ((message.length > maxMessageLength) && !hasErrors) {
       if (!hasErrors) setHasErrors(true);
       setError(intl.formatMessage(intlMessages.errorMaxMessageLength, { maxMessageLength }));
@@ -123,8 +123,8 @@ const BreakoutMessageForm: React.FC = () => {
         <Styled.Input
           id="message-input"
           innerRef={(ref) => { textAreaRef.current = ref; }}
-          placeholder={intl.formatMessage(intlMessages.inputPlaceholder, { 0: chatTitle.current })}
-          aria-label={intl.formatMessage(intlMessages.inputLabel, { 0: chatTitle.current })}
+          placeholder={intl.formatMessage(intlMessages.inputPlaceholder, { chatName: chatTitle.current })}
+          aria-label={intl.formatMessage(intlMessages.inputLabel, { chatName: chatTitle.current })}
           aria-invalid={hasErrors ? 'true' : 'false'}
           autoCorrect="off"
           autoComplete="off"

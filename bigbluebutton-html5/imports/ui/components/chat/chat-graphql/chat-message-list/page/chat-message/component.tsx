@@ -487,8 +487,11 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
       case ChatMessageType.USER_IS_PRESENTER_MSG: {
         const { assignedBy } = JSON.parse(message.messageMetadata);
         const userIsPresenterMsg = (assignedBy)
-          ? `${intl.formatMessage(intlMessages.userIsPresenterSetBy, { 0: message.senderName, 1: assignedBy })}`
-          : `${intl.formatMessage(intlMessages.userIsPresenter, { 0: message.senderName })}`;
+          ? `${intl.formatMessage(intlMessages.userIsPresenterSetBy, {
+            presenterName: message.senderName,
+            assignedByName: assignedBy,
+          })}`
+          : `${intl.formatMessage(intlMessages.userIsPresenter, { presenterName: message.senderName })}`;
         return {
           name: message.senderName,
           color: '#0F70D7',
@@ -734,7 +737,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
       )}
       {deleteTime && (
         <DeleteMessage>
-          {intl.formatMessage(intlMessages.deleteMessage, { 0: message.deletedBy?.name })}
+          {intl.formatMessage(intlMessages.deleteMessage, { userName: message.deletedBy?.name })}
         </DeleteMessage>
       )}
     </ChatContent>

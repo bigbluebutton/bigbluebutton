@@ -105,7 +105,7 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
 
     const ariaLabel = intl.formatMessage(talking
       ? intlMessages.isTalking : intlMessages.wasTalking, {
-      0: name,
+      userName: name,
     });
     let icon = talking ? 'unmute' : 'blank';
     icon = muted ? 'mute' : icon;
@@ -170,7 +170,7 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
 
     const ariaLabel = intl.formatMessage(nobodyTalking
       ? moreThanMaxIndicatorsWereTalking : moreThanMaxIndicatorsTalking, {
-      0: filteredTalkingUsers.length,
+      userCount: filteredTalkingUsers.length,
     });
 
     return (
