@@ -37,11 +37,10 @@ case class RemoteDataSource(
 
 case class PluginSettingSchema(
     name: String,
-    required: Boolean,
-    defaultValue: Object,
-    label: String,
     `type`: String,
-
+    required: Boolean            = false,
+    defaultValue: Option[Any]    = None,
+    label:        Option[String] = None
 )
 
 case class PluginManifestContent(
@@ -124,11 +123,10 @@ object PluginModel {
     }
   }
 
-  private def checkSettingsType(settingTypeFromSchema: String, settingValue: Option[Any]): Boolean = getSettingType(
-    settingValue) == settingTypeFromSchema
+
 
   private def addPluginSettingEntry(currentPluginSettings: Map[String, ClientSettings.Plugin],
-                                      pluginName: String, settingKey: String, settingValue: Object): Map[String, ClientSettings.Plugin]= {
+                                      pluginName: String, settingKey: String, settingValue: Any): Map[String, ClientSettings.Plugin]= {
     val updatedPluginSetting: Map[String, ClientSettings.Plugin] = currentPluginSettings.get(pluginName) match {
       // Plugin exists: add setting in its existing settings map
       case Some(
@@ -141,32 +139,36 @@ object PluginModel {
   }
 
   private def validateAndApplySettingHelper(
-                                       pluginSettingsMap: Map[String, ClientSettings.Plugin],
-                                       pluginName: String,
-                                       schema: PluginSettingSchema
+                                             pluginSettingsMap: Map[String, ClientSettings.Plugin],
+                                             pluginName: String,
+                                             settingSchemaEntry: PluginSettingSchema
                                      ): (Boolean, Map[String, ClientSettings.Plugin]) = {
-    val settingValueOpt = ClientSettings.getPluginSettingValue(pluginSettingsMap, pluginName, schema.name)
-    val valueIsCorrectType = checkSettingsType(schema.`type`, settingValueOpt)
+    // Get plugin settings values - Option[Object]
+    val settingValueOpt = pluginSettingsMap.get(pluginName).flatMap(_.settings.get(settingSchemaEntry.name))
+    val valueIsCorrectType = getSettingType(settingValueOpt) == settingSchemaEntry.`type`
 
     settingValueOpt match {
       case Some(value) =>
         if (!valueIsCorrectType) {
           logger.error("Plugin [{}]: Setting [{}] has a value [{}] of incorrect type. Expected [{}]. Plugin will not be loaded.",
-            pluginName, schema.name, value, schema.`type`)
+            pluginName, settingSchemaEntry.name, value, settingSchemaEntry.`type`)
         }
         (valueIsCorrectType, pluginSettingsMap)
 
       case None =>
-        val defaultValid = checkSettingsType(schema.`type`, Option(schema.defaultValue))
+        val defaultSettingType = getSettingType(settingSchemaEntry.defaultValue)
+        val defaultValid = defaultSettingType == settingSchemaEntry.`type`
         if (defaultValid) {
+          val settingsDefaultValue = settingSchemaEntry.defaultValue.get
           logger.warn("Plugin [{}]: Required setting [{}] not found. Falling back to default value [{}]",
-            pluginName, schema.name, schema.defaultValue)
+            pluginName, settingSchemaEntry.name, settingSchemaEntry.defaultValue)
 
-          val updatedpluginSettingMap = addPluginSettingEntry(pluginSettingsMap, pluginName, schema.name, schema.defaultValue)
-          (true, updatedpluginSettingMap)
+          val updatedPluginSettingMap = addPluginSettingEntry(pluginSettingsMap, pluginName, settingSchemaEntry.name,
+            settingsDefaultValue)
+          (true, updatedPluginSettingMap)
         } else {
-          logger.error("Plugin [{}]: Required setting [{}] is missing and default value [{}] does not match expected type [{}]",
-            pluginName, schema.name, schema.defaultValue, schema.`type`)
+          logger.error("Plugin [{}]: Required setting [{}] is missing and default value [{}] of type [{}] does not match expected type [{}]",
+            pluginName, settingSchemaEntry.name, settingSchemaEntry.defaultValue, defaultSettingType, settingSchemaEntry.`type`)
           (false, pluginSettingsMap)
         }
     }
@@ -185,13 +187,14 @@ object PluginModel {
 
       plugin.manifest.content.settingsSchema match {
         case Some(schemaList) =>
-          schemaList.forall { schema =>
-            if (!schema.required) true
+          schemaList.forall { settingSchemaEntry =>
+            if (!settingSchemaEntry.required) true
             else {
               val (settingValid, updatedPluginSettingMap) = validateAndApplySettingHelper(
-                pluginSettings, pluginName, schema)
+                pluginSettings, pluginName, settingSchemaEntry)
               pluginSettings = updatedPluginSettingMap
-              if (!settingValid) logger.warn("Plugin [{}] will be skipped due to invalid setting [{}]", pluginName, schema.name)
+              if (!settingValid) logger.warn("Plugin [{}] will be skipped due to invalid setting [{}]",
+                pluginName, settingSchemaEntry.name)
               settingValid
             }
           }

@@ -145,14 +145,6 @@ object ClientSettings extends SystemConfiguration {
     pluginsFromConfig
   }
 
-  def getPluginSettingValue(
-      pluginSettings: Map[String, ClientSettings.Plugin],
-      pluginName:     String,
-      settingName:    String
-  ): Option[Any] = pluginSettings
-    .get(pluginName)
-    .flatMap(_.settings.get(settingName))
-
   def mergePluginSettingsIntoClientSettings(
       clientSettingsBeforePluginValidation: Map[String, Object],
       pluginClientSettings:                 List[Plugin]
@@ -169,6 +161,6 @@ object ClientSettings extends SystemConfiguration {
     YamlUtil.mergeImmutableMaps(clientSettingsBeforePluginValidation, clientSettingsOnlyPlugins)
   }
 
-  case class Plugin(name: String, settings: Map[String, Object])
+  case class Plugin(name: String, settings: Map[String, Any])
 
 }
