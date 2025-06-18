@@ -213,11 +213,11 @@ const Whiteboard = React.memo((props) => {
       );
       const bbbPresenterTools = getFromUserSettings(
         'bbb_presenter_tools',
-        meetingClientSettingsInitialValues.public.whiteboard.toolbar.presenterTools,
+        window.meetingClientSettings.public.whiteboard.toolbar.presenterTools,
       );
       const bbbMultiUserTools = getFromUserSettings(
         'bbb_multi_user_tools',
-        meetingClientSettingsInitialValues.public.whiteboard.toolbar.multiUserTools,
+        window.meetingClientSettings.public.whiteboard.toolbar.multiUserTools,
       );
 
       if (tools.deleteAll) {
