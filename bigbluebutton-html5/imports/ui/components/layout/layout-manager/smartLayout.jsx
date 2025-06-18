@@ -110,7 +110,7 @@ const SmartLayout = (props) => {
               },
             },
             cameraDock: {
-              position: CAMERADOCK_POSITION.CONTENT_TOP,
+              position: cameraDock.position || CAMERADOCK_POSITION.CONTENT_TOP,
               numCameras: cameraDock.numCameras,
             },
             externalVideo: {
