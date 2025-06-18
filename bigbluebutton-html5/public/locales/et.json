@@ -247,7 +247,7 @@
     "app.meeting.endedDueServiceInterruption": "Sessioon lõppes ajutise teenusekatkestuse tõttu",
     "app.meeting.meetingTimeRemaining": "Sessiooni järelejäänud aeg: {remainingTime}",
     "app.meeting.meetingTimeHasEnded": "Aeg sai läbi. Sessioon sulgub kohe",
-    "app.meeting.endedByUserMessage": "{userName} lõpetas sessiooni",
+    "app.meeting.endedByUserMessage": "{userName} lõpetas selle sessiooni",
     "app.meeting.endedByNoModeratorMessageSingular": "Sessioon lõppes, sest ühe minuti jooksul ei olnud ükski moderaator kohal",
     "app.meeting.endedByNoModeratorMessagePlural": "Sessioon lõppes, sest {0} minuti jooksul ei olnud ükski moderaator kohal",
     "app.meeting.endedMessage": "Klõpsa nuppu, et minna avalehele",
