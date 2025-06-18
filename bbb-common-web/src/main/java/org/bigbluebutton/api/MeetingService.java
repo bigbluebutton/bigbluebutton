@@ -20,6 +20,7 @@ package org.bigbluebutton.api;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.MalformedParametersException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -426,6 +427,8 @@ public class MeetingService implements MessageListener {
           log.error("I/O error when fetching URL: {}", pluginManifestUrlString, e);
         } catch (NoSuchFieldException e) {
           log.error("Missing required metadata (meta_ or plugin_ parameter) in plugin manifest URL [{}]. Plugin not loaded.", pluginManifestUrlString, e);
+        } catch (MalformedParametersException e) {
+          log.error("Malformed metadata parameter for plugin manifest URL [{}]. Plugin not loaded.", pluginManifestUrlString, e);
         } catch (Exception e) {
           log.error("Unexpected error processing plugin manifest from URL: {}", pluginManifestUrlString, e);
         }

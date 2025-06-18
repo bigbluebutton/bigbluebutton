@@ -7,6 +7,7 @@ import org.bigbluebutton.api.domain.PluginManifest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.MalformedParametersException;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -78,7 +79,7 @@ public class PluginUtils {
         Map<String, String> metadata,
         Map<String, String> pluginMetadata,
         StringBuilder result
-    ) throws NoSuchFieldException {
+    ) throws NoSuchFieldException, MalformedParametersException {
         // First capturing group of regex is parameterName
         String metadataParameterName = matcher.group(1);
         // Second capturing group of regex is default value if exists
@@ -110,7 +111,7 @@ public class PluginUtils {
             );
 
         } else {
-            throw new NoSuchFieldException("Metadata " + metadataParameterName + " is malformed, please provide a valid one");
+            throw new MalformedParametersException("Metadata " + metadataParameterName + " is malformed, please provide a valid one");
         }
         // Replace the placeholder with the value from the map
         matcher.appendReplacement(result, Matcher.quoteReplacement(replacement));
@@ -122,7 +123,7 @@ public class PluginUtils {
         String manifestContent,
         Map<String, String> metadataParametersMap,
         Map<String, String> pluginMetadataParametersMap
-    ) throws NoSuchFieldException {
+    ) throws NoSuchFieldException, MalformedParametersException {
         Matcher matcher = METADATA_PLACEHOLDER_PATTERN.matcher(manifestContent);
         StringBuilder result = new StringBuilder();
         // Iterate over all matches
