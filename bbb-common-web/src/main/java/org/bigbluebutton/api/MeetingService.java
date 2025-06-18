@@ -584,7 +584,7 @@ public class MeetingService implements MessageListener {
             m.getMeetingExpireIfNoUserJoinedInMinutes(), m.getMeetingExpireWhenLastUserLeftInMinutes(),
             m.getUserInactivityInspectTimerInMinutes(), m.getUserInactivityThresholdInMinutes(),
             m.getUserActivitySignResponseDelayInMinutes(), m.getEndWhenNoModerator(), m.getEndWhenNoModeratorDelayInMinutes(),
-            m.getMuteOnStart(), m.getAllowModsToUnmuteUsers(), m.getAllowModsToEjectCameras(), m.getMeetingKeepEvents(),
+            m.getMuteOnStart(), m.getAllowModsToUnmuteUsers(), m.getRequireUserConsentBeforeUnmuting(), m.getAllowModsToEjectCameras(), m.getMeetingKeepEvents(),
             m.breakoutRoomsParams, m.lockSettingsParams, m.getLoginUrl(), m.getLogoutUrl(), m.getCustomLogoURL(), m.getCustomDarkLogoURL(),
             m.getBannerText(), m.getBannerColor(), m.getGroups(), m.getDisabledFeatures(), m.getNotifyRecordingIsOn(),
             m.getPresentationUploadExternalDescription(), m.getPresentationUploadExternalUrl(), m.getPlugins(),

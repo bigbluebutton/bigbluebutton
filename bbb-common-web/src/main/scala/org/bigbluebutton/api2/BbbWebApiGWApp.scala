@@ -156,6 +156,7 @@ class BbbWebApiGWApp(
                     endWhenNoModeratorDelayInMinutes:       java.lang.Integer,
                     muteOnStart:                            java.lang.Boolean,
                     allowModsToUnmuteUsers:                 java.lang.Boolean,
+                    requireUserConsentBeforeUnmuting:       java.lang.Boolean,
                     allowModsToEjectCameras:                java.lang.Boolean,
                     keepEvents:                             java.lang.Boolean,
                     breakoutParams:                         BreakoutRoomsParams,
@@ -231,7 +232,7 @@ class BbbWebApiGWApp(
       webcamsOnlyForModerator = webcamsOnlyForModerator.booleanValue(),
       userCameraCap = userCameraCap.intValue(),
       guestPolicy = guestPolicy, meetingLayout = meetingLayout, allowModsToUnmuteUsers = allowModsToUnmuteUsers.booleanValue(),
-      allowModsToEjectCameras = allowModsToEjectCameras.booleanValue(),
+      requireUserConsentBeforeUnmuting = requireUserConsentBeforeUnmuting.booleanValue(), allowModsToEjectCameras = allowModsToEjectCameras.booleanValue(),
       authenticatedGuest = authenticatedGuest.booleanValue(),
       allowPromoteGuestToModerator = allowPromoteGuestToModerator.booleanValue(),
       waitingGuestUsersTimeout = waitingGuestUsersTimeout.longValue()

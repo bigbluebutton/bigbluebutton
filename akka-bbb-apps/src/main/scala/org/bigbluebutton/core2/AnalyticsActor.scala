@@ -122,6 +122,7 @@ class AnalyticsActor(val includeChat: Boolean) extends Actor with ActorLogging {
       case m: ListenOnlyModeToggledInSfuEvtMsg => logMessage(msg)
       case m: MeetingMutedEvtMsg => logMessage(msg)
       case m: AudioFloorChangedEvtMsg => logMessage(msg)
+      case m: UnmuteRequestAnswerEvtMsg => logMessage(msg)
 
       // LiveKit/RTC
       case m: GenerateLiveKitTokenReqMsg => logMessage(msg)

@@ -380,6 +380,7 @@ Permission: Restricted to User Viewing Self-Related Data
 - `lastFloorTime`
 - `listenOnly`
 - `muted`
+- `requestedUnmuteByMod`
 - `deafened`
 - `spoke`
 - `startTime`

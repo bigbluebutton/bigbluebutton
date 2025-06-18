@@ -14,7 +14,7 @@ trait MuteUserCmdMsgHdlr extends RightsManagementTrait {
   val outGW: OutMsgRouter
 
   def handleMuteUserCmdMsg(msg: MuteUserCmdMsg) {
-    val unmuteDisabled = !liveMeeting.props.usersProp.allowModsToUnmuteUsers && msg.body.mute == false
+    val unmuteDisabled = !liveMeeting.props.usersProp.allowModsToUnmuteUsers && !msg.body.mute
     if (msg.body.userId != msg.header.userId && (unmuteDisabled || permissionFailed(
       PermissionCheck.MOD_LEVEL,
       PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId
@@ -51,16 +51,31 @@ trait MuteUserCmdMsgHdlr extends RightsManagementTrait {
         } else {
           if (u.muted != msg.body.mute) {
             log.info("Send mute user request. meetingId=" + meetingId + " userId=" + u.intId + " user=" + u)
-            VoiceApp.muteUserInVoiceConf(
-              liveMeeting,
-              outGW,
-              u.intId,
-              msg.body.mute
-            )
+
+            val isUnmuting = !msg.body.mute
+            val isActingOnOtherUser = msg.body.userId != msg.header.userId
+            val settingRequiresRequest = liveMeeting.props.usersProp.requireUserConsentBeforeUnmuting;
+
+            val shouldRequestUnmute = isUnmuting && isActingOnOtherUser && settingRequiresRequest
+
+            if (shouldRequestUnmute) {
+              log.info("Requesting user to unmute. meetingId=" + meetingId + " userId=" + u.intId)
+              VoiceApp.requestUnmute(
+                liveMeeting,
+                u.intId
+              )
+            } else {
+              log.info("Directly muting/unmuting user. meetingId=" + meetingId + " userId=" + u.intId + " mute=" + msg.body.mute)
+              VoiceApp.muteUserInVoiceConf(
+                liveMeeting,
+                outGW,
+                u.intId,
+                msg.body.mute
+              )
+            }
           }
         }
       }
     }
-
   }
 }

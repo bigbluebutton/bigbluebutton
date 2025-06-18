@@ -43,6 +43,7 @@ trait TestFixtures {
   val maxUsers = 25
   val muteOnStart = false
   val allowModsToUnmuteUsers = false
+  val requireUserConsentBeforeUnmuting = false
   val allowModsToEjectCameras = false
   val keepEvents = false
   val guestPolicy = "ALWAYS_ASK"
@@ -78,7 +79,7 @@ trait TestFixtures {
   val voiceProp = VoiceProp(telVoice = voiceConfId, voiceConf = voiceConfId, dialNumber = dialNumber, muteOnStart = muteOnStart)
   val usersProp = UsersProp(maxUsers = maxUsers, webcamsOnlyForModerator = webcamsOnlyForModerator,
     userCameraCap = userCameraCap,
-    guestPolicy = guestPolicy, allowModsToUnmuteUsers = allowModsToUnmuteUsers, allowModsToEjectCameras = allowModsToEjectCameras, authenticatedGuest = authenticatedGuest, allowPromoteGuestToModerator = allowPromoteGuestToModerator)
+    guestPolicy = guestPolicy, allowModsToUnmuteUsers = allowModsToUnmuteUsers, requireUserConsentBeforeUnmuting = requireUserConsentBeforeUnmuting, allowModsToEjectCameras = allowModsToEjectCameras, authenticatedGuest = authenticatedGuest, allowPromoteGuestToModerator = allowPromoteGuestToModerator)
   val metadataProp = new MetadataProp(metadata)
   val defaultProps = DefaultProps(meetingProp, breakoutProps, durationProps, password, recordProp, welcomeProp, voiceProp,
     usersProp, metadataProp)

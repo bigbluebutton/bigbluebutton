@@ -158,6 +158,7 @@ create unlogged table "meeting_usersPolicies" (
     "guestLobbyMessage"            text,
     "meetingLayout"                varchar(100),
     "allowModsToUnmuteUsers"       boolean,
+    "requireUserConsentBeforeUnmuting"     boolean,
     "allowModsToEjectCameras"      boolean,
     "authenticatedGuest"           boolean,
     "allowPromoteGuestToModerator" boolean
@@ -174,6 +175,7 @@ SELECT "meeting_usersPolicies"."meetingId",
     "meeting_usersPolicies"."guestLobbyMessage",
     "meeting_usersPolicies"."meetingLayout",
     "meeting_usersPolicies"."allowModsToUnmuteUsers",
+    "meeting_usersPolicies"."requireUserConsentBeforeUnmuting",
     "meeting_usersPolicies"."allowModsToEjectCameras",
     "meeting_usersPolicies"."authenticatedGuest",
     "meeting_usersPolicies"."allowPromoteGuestToModerator",
@@ -323,6 +325,7 @@ CREATE UNLOGGED TABLE "user" (
 	"captionLocale" varchar(255),
 	"inactivityWarningDisplay" bool default FALSE,
 	"inactivityWarningTimeoutSecs" numeric,
+    "requestedUnmuteByMod" bool default FALSE,
 	"hasDrawPermissionOnCurrentPage" bool default FALSE,
 	"echoTestRunningAt" timestamp with time zone,
 	CONSTRAINT "user_pkey" PRIMARY KEY ("meetingId","userId"),
@@ -530,6 +533,7 @@ SELECT
     "user"."currentlyInMeeting",
     "user"."inactivityWarningDisplay",
     "user"."inactivityWarningTimeoutSecs",
+    "user"."requestedUnmuteByMod",
     "user"."bot"
 FROM "user";
 

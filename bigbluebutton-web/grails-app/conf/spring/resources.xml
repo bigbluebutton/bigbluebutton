@@ -185,6 +185,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="screenShareBridge" value="${screenShareBridge}"/>
         <property name="audioBridge" value="${audioBridge}"/>
         <property name="allowModsToUnmuteUsers" value="${allowModsToUnmuteUsers}"/>
+        <property name="requireUserConsentBeforeUnmuting" value="${requireUserConsentBeforeUnmuting}"/>
         <property name="allowModsToEjectCameras" value="${allowModsToEjectCameras}"/>
         <property name="breakoutRoomsRecord" value="${breakoutRoomsRecord}"/>
         <property name="breakoutRoomsPrivateChatEnabled" value="${breakoutRoomsPrivateChatEnabled}"/>

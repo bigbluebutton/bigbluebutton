@@ -52,6 +52,7 @@ public class ApiParams {
     public static final String AUDIO_BRIDGE = "audioBridge";
     public static final String MEETING_KEEP_EVENTS = "meetingKeepEvents";
     public static final String ALLOW_MODS_TO_UNMUTE_USERS = "allowModsToUnmuteUsers";
+    public static final String REQUIRE_USER_CONSENT_BEFORE_UNMUTING = "requireUserConsentBeforeUnmuting";
     public static final String ALLOW_REQUESTS_WITHOUT_SESSION = "allowRequestsWithoutSession";
     public static final String ALLOW_MODS_TO_EJECT_CAMERAS = "allowModsToEjectCameras";
     public static final String NAME = "name";
