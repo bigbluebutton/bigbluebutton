@@ -159,13 +159,28 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
       logCode: 'captions_speech_recognition_ended',
     }, 'Captions speech recognition ended by browser');
 
-    stop();
+    speechHasStarted.started = false;
     if (!mutedRef.current) {
-      logger.debug("Speech recogniction ended by browser, but we're not muted. Restart it");
-      start(localeRef.current);
+      logger.debug("Speech recognition ended by browser, but we're not muted. Restart it");
+      const timeSinceLastStart = new Date().getTime() - lastStartedAt.current;
+      if (timeSinceLastStart < 1000) {
+        setTimeout(() => {
+          start(localeRef.current);
+        }, 1000 - timeSinceLastStart);
+      } else {
+        start(localeRef.current);
+      }
     }
   }, []);
   const onError = useCallback((event: SpeechRecognitionErrorEvent) => {
+    if (isLocaleChangeRef.current && event.error === 'aborted') return;
+
+    // This error 'no-speech' is expected because speech recognition is set to automatically
+    // restart whenever the browser stops it — tipically due to silence timeout. As a result,
+    // while the user is unmuted, recognition will keep running even if they're silent and
+    // there's nothing to transcribe.
+    if (event.error === 'no-speech') return;
+
     logger.error({
       logCode: 'captions_speech_recognition_error',
       extraInfo: {
@@ -192,10 +207,10 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
     resultRef.current.isFinal = isFinal;
 
     if (isFinal) {
-      updateFinalTranscript(id, transcript, localeRef.current);
+      updateFinalTranscript(id, transcript, speechRecognitionRef.current.lang);
       resultRef.current.id = generateId();
     } else {
-      transcriptUpdate(id, transcript, localeRef.current, false);
+      transcriptUpdate(id, transcript, speechRecognitionRef.current.lang, false);
     }
   }, [localeRef]);
 
@@ -225,7 +240,7 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
 
   const start = (settedLocale: string) => {
     if (speechRecognitionRef.current && isLocaleValid(settedLocale)) {
-      logger.debug('Starting browser speech recognition');
+      logger.debug('Starting browser speech recognition for locale: ', settedLocale);
       speechRecognitionRef.current.lang = settedLocale;
 
       if (speechHasStarted.started) {
@@ -233,10 +248,12 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
         return;
       }
 
+      lastStartedAt.current = new Date().getTime();
       try {
         resultRef.current.id = generateId();
         speechRecognitionRef.current.start();
         speechHasStarted.started = true;
+        isLocaleChangeRef.current = false;
       } catch (event: unknown) {
         onError(event as SpeechRecognitionErrorEvent);
       }
@@ -257,6 +274,8 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
 
   const connectedRef = useRef(connected);
   const mutedRef = useRef(muted);
+  const isLocaleChangeRef = useRef(false);
+  const lastStartedAt = useRef<number>(0);
 
   useEffect(() => {
     // Disabled
@@ -273,8 +292,8 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
 
       // Locale changed
       if (connectedRef.current && connected) {
+        isLocaleChangeRef.current = true;
         stop();
-        start(locale);
         localeRef.current = locale;
       }
     }
