@@ -368,8 +368,8 @@ class MultiUsers {
     await this.modPage.waitAndClick(e.manageUsers);
     await this.modPage.waitAndClick(e.clearStatus);
 
-    await this.modPage.hasText(e.moderatorAvatar, 'mo');
-    await this.modPage2.hasText(e.moderatorAvatar, 'mo');
+    await this.modPage.hasText(e.moderatorAvatar, 'mo', 'should not display the emoji after clearing all icons');
+    await this.modPage2.hasText(e.moderatorAvatar, 'mo', 'should not display the emoji after clearing all icons');
   }
 }
 
