@@ -13,6 +13,7 @@ select_permissions:
         - disableCam
         - disableMic
         - disableNotes
+        - disablePresentationUpload
         - disablePrivateChat
         - disablePublicChat
         - hasActiveLockSetting

@@ -80,6 +80,10 @@ const intlMessages = defineMessages({
     id: 'app.lock-viewers.hideAnnotationsLabel',
     description: 'label for other viewers annotation',
   },
+  presentationUpload: {
+    id: 'app.lock-viewers.presentationUpload',
+    description: 'label for presentation upload',
+  },
 });
 
 const propTypes = {
@@ -382,6 +386,28 @@ class LockViewersComponent extends Component {
                 <Styled.FormElement>
                   <Styled.Label>
                     {intl.formatMessage(intlMessages.hideAnnotationsLabel)}
+                  </Styled.Label>
+                </Styled.FormElement>
+              </Styled.Col>
+            </Styled.Row>
+
+            <Styled.Row data-test="lockUploadPresentation">
+              <Styled.ColToggle>
+                <Styled.FormElementLeft>
+                  <Styled.MaterialSwitch
+                    checked={!lockSettingsProps.disablePresentationUpload}
+                    onChange={() => this.toggleLockSettings('disablePresentationUpload')}
+                    inputProps={{
+                      'aria-label': intl.formatMessage(intlMessages.presentationUpload),
+                      'data-test': 'hideViewersAnnotation',
+                    }}
+                  />
+                </Styled.FormElementLeft>
+              </Styled.ColToggle>
+              <Styled.Col aria-hidden="true">
+                <Styled.FormElement>
+                  <Styled.Label>
+                    {intl.formatMessage(intlMessages.presentationUpload)}
                   </Styled.Label>
                 </Styled.FormElement>
               </Styled.Col>

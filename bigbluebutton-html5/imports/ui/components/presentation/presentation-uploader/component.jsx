@@ -841,10 +841,6 @@ class PresentationUploader extends Component {
     );
   }
 
-
-
-
-
   renderDownloadableWithAnnotationsHint() {
     const {
       intl,
@@ -868,13 +864,14 @@ class PresentationUploader extends Component {
       allowDownloadConverted,
       allowDownloadWithAnnotations,
       renderPresentationItemStatus,
+      isPresenter,
     } = this.props;
 
     const isActualCurrent = selectedToBeNextCurrent
       ? item.presentationId === selectedToBeNextCurrent
       : item.current;
     const isUploading = !item.uploadCompleted;
-    const uploadInProgress = item.uploadInProgress;
+    const { uploadInProgress } = item;
     const hasError = !!item.uploadErrorMsgKey || !!item.uploadErrorDetailsJson;
     const isProcessing = (isUploading || uploadInProgress) && !hasError;
 
@@ -921,7 +918,7 @@ class PresentationUploader extends Component {
             checked={item.current}
             keyValue={item.presentationId}
             onChange={() => this.handleCurrentChange(item.presentationId)}
-            disabled={disableActions || hasError}
+            disabled={disableActions || hasError || !isPresenter}
           />
         </Styled.SetCurrentAction>
         <Styled.TableItemName colSpan={!isActualCurrent ? 2 : 0}>
@@ -975,7 +972,8 @@ class PresentationUploader extends Component {
               />
             ) : null}
           </Styled.TableItemActions>
-        )}
+        )
+        }
       </Styled.PresentationItem>
     );
   }
@@ -984,6 +982,7 @@ class PresentationUploader extends Component {
     const {
       intl,
       fileValidMimeTypes,
+      isPresenter,
     } = this.props;
 
     const { disableActions } = this.state;
@@ -1011,7 +1010,14 @@ class PresentationUploader extends Component {
         activeClassName="dropzoneActive"
         accept={fileValidMimeTypes.map((fileValid) => fileValid.extension)}
         disablepreview="true"
-        onDrop={(files, files2) => this.handleFiledrop(files, files2, this, intl, intlMessages)}
+        onDrop={(files, files2) => this.handleFiledrop(
+          files,
+          files2,
+          this,
+          intl,
+          intlMessages,
+          isPresenter,
+        )}
       >
         <Styled.DropzoneIcon iconName="upload" />
         <Styled.DropzoneMessage>
@@ -1056,6 +1062,7 @@ class PresentationUploader extends Component {
   renderPicDropzone() {
     const {
       intl,
+      isPresenter,
     } = this.props;
 
     const { disableActions } = this.state;
@@ -1080,7 +1087,14 @@ class PresentationUploader extends Component {
         accept="image/*"
         disablepreview="true"
         data-test="fileUploadDropZone"
-        onDrop={(files, files2) => this.handleFiledrop(files, files2, this, intl, intlMessages)}
+        onDrop={(files, files2) => this.handleFiledrop(
+          files,
+          files2,
+          this,
+          intl,
+          intlMessages,
+          isPresenter,
+        )}
       >
         <Styled.DropzoneIcon iconName="upload" />
         <Styled.DropzoneMessage>
@@ -1098,16 +1112,19 @@ class PresentationUploader extends Component {
     const {
       isOpen,
       isPresenter,
+      isModerator,
       intl,
       fileUploadConstraintsHint,
     } = this.props;
-    if (!isPresenter) return null;
+    if (!isPresenter && !isModerator) return null;
     const { presentations, disableActions } = this.state;
 
     let hasNewUpload = false;
 
     presentations.forEach((item) => {
-      if (item?.presentationId.indexOf(item.name) !== -1 && item.totalPagesUploaded === 0) hasNewUpload = true;
+      if (item?.presentationId.indexOf(item.name) !== -1 && item.totalPagesUploaded === 0) {
+        hasNewUpload = true;
+      }
     });
 
     return (

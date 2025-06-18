@@ -9,6 +9,7 @@ import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.db.PresPresentationDAO
 import org.bigbluebutton.core.util.RandomStringGenerator
+import org.bigbluebutton.core2.MeetingStatus2x
 
 trait PresentationUploadTokenReqMsgHdlr extends RightsManagementTrait {
   this: PresentationPodHdlrs =>
@@ -55,13 +56,16 @@ trait PresentationUploadTokenReqMsgHdlr extends RightsManagementTrait {
 
     def userIsAllowedToUploadInPod(podId: String, userId: String): Boolean = {
       var allowed = false
+      val permissions = MeetingStatus2x.getPermissions(liveMeeting.status)
 
       for {
         user <- Users2x.findWithIntId(liveMeeting.users2x, userId)
         pod <- PresentationPodsApp.getPresentationPod(state, podId)
       } yield {
         if (Users2x.userIsInPresenterGroup(liveMeeting.users2x, userId)) {
-          allowed = pod.currentPresenter == userId
+          allowed = pod.currentPresenter == userId && !permissions.disablePresentationUpload
+        } else if (Users2x.isModerator(userId, liveMeeting.users2x)) {
+          allowed = true
         }
       }
 
@@ -78,7 +82,8 @@ trait PresentationUploadTokenReqMsgHdlr extends RightsManagementTrait {
       val reason = "Presentation is disabled for this meeting"
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
     } else if (filterPresentationMessage(liveMeeting.users2x, msg.header.userId) &&
-      permissionFailed(PermissionCheck.GUEST_LEVEL, PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
+      (permissionFailed(PermissionCheck.GUEST_LEVEL, PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId) &&
+        permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId))) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to request presentation upload token."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)

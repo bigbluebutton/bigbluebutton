@@ -145,6 +145,7 @@ const persistPresentationChanges = (
   uploadEndpoint,
   setPresentation,
   removePresentation,
+  isPresenter,
 ) => {
   const presentationsToUpload = newState.filter((p) => !p.uploadCompleted);
   const presentationsToRemove = oldState.filter((p) => !newState.find(
@@ -164,7 +165,7 @@ const persistPresentationChanges = (
       return Promise.resolve(presentations);
     })
     .then((presentations) => {
-      if (currentPresentation === undefined) {
+      if (currentPresentation === undefined && isPresenter) {
         setPresentation('');
         return Promise.resolve();
       }
@@ -180,7 +181,7 @@ const persistPresentationChanges = (
         return Promise.resolve();
       }
 
-      return setPresentation(currentPresentation?.presentationId);
+      return isPresenter && setPresentation(currentPresentation?.presentationId);
     })
     .then(removePresentations.bind(null, presentationsToRemove, removePresentation));
 };
@@ -193,6 +194,7 @@ const handleSavePresentation = (
   setPresentation,
   removePresentation,
   isPresentationEnabled,
+  isPresenter,
 ) => {
   if (!isPresentationEnabled) {
     return null;
@@ -219,6 +221,7 @@ const handleSavePresentation = (
     PRESENTATION_CONFIG.uploadEndpoint,
     setPresentation,
     removePresentation,
+    isPresenter,
   );
 };
 
@@ -239,7 +242,7 @@ const useExternalUploadData = () => {
   };
 };
 
-function handleFiledrop(files, files2, that, intl, intlMessages) {
+function handleFiledrop(files, files2, that, intl, intlMessages, isPresenter) {
   if (that) {
     const { fileValidMimeTypes } = that.props;
     const { toUploadCount } = that.state;
@@ -298,7 +301,7 @@ function handleFiledrop(files, files2, that, intl, intlMessages) {
     }), () => {
       // after the state is set (files have been dropped),
       // make the first of the new presentations current
-      if (presentationsToUpload && presentationsToUpload.length) {
+      if (presentationsToUpload && presentationsToUpload.length && isPresenter) {
         that.handleCurrentChange(presentationsToUpload[0].presentationId);
       }
     });

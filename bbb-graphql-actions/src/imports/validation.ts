@@ -12,6 +12,12 @@ export const throwErrorIfNotPresenter = (sessionVariables: Record<string, unknow
     }
 };
 
+export const throwErrorIfNotPresenterNorModerator = (sessionVariables: Record<string, unknown>) => {
+    if(sessionVariables['x-hasura-presenterinmeeting'] == "" && sessionVariables['x-hasura-moderatorinmeeting'] == "") {
+        throw new ValidationError('Permission Denied (not presenter nor moderator).', 403);
+    }
+};
+
 export const isModerator = (sessionVariables: Record<string, unknown>) => {
     return (sessionVariables['x-hasura-moderatorinmeeting'] !== "");
 };

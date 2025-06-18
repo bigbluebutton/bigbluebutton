@@ -1,9 +1,9 @@
 import { RedisMessage } from '../types';
-import {throwErrorIfInvalidInput, throwErrorIfNotPresenter} from "../imports/validation";
+import {throwErrorIfInvalidInput, throwErrorIfNotPresenterNorModerator} from "../imports/validation";
 import { ValidationError } from '../types/ValidationError';
 
 export default function buildRedisMessage(sessionVariables: Record<string, unknown>, input: Record<string, unknown>): RedisMessage {
-  throwErrorIfNotPresenter(sessionVariables);
+  throwErrorIfNotPresenterNorModerator(sessionVariables);
   throwErrorIfInvalidInput(input,
       [
         {name: 'podId', type: 'string', required: true},

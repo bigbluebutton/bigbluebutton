@@ -155,6 +155,7 @@ class MediaAreaDropdown extends PureComponent {
       presentations,
       isPresentationEnabled,
       isPresentationManagementDisabled,
+      isPresentationUploadDisabled,
     } = this.props;
 
     const { presentationLabel, takePresenter } = intlMessages;
@@ -163,7 +164,11 @@ class MediaAreaDropdown extends PureComponent {
 
     const actions = [];
 
-    if (amIPresenter && !isPresentationManagementDisabled && isPresentationEnabled) {
+    if (
+      (amIPresenter || amIModerator)
+      && !isPresentationManagementDisabled
+      && isPresentationEnabled
+    ) {
       if (presentations && presentations.length > 1) {
         actions.push({
           key: 'separator-01',
@@ -176,6 +181,7 @@ class MediaAreaDropdown extends PureComponent {
         label: formatMessage(presentationLabel),
         key: this.presentationItemId,
         onClick: handlePresentationClick,
+        disabled: isPresentationUploadDisabled,
       });
     }
 
