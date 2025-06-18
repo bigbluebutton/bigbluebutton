@@ -991,7 +991,7 @@ plugin_pickRandomUserPlugin_url-to-fetch-data=https://...
 
 This isolates the parameter to `pickRandomUserPlugin` and avoids conflicts with other plugins.
 
-#### Comments
+#### Default value (fallback) for missing placeholder's parameters
 
 If a plugin expects a placeholder (via `meta_ `or `plugin_`) but doesn't receive a value, the plugin will fail to load. To prevent this, both types of placeholders support default values. This allows the system administrator to define fallback values, ensuring the plugin loads correctly.
 
