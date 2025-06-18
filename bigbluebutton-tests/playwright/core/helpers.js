@@ -39,7 +39,7 @@ function apiCallUrl(name, callParams) {
   const query = new URLSearchParams(callParams).toString();
   const apiCall = `${name}${query}${parameters.secret}`;
   const checksum = getChecksum(apiCall, parameters.secret);
-  const url = `${parameters.server}/${name}?${query}&checksum=${checksum}`;
+  const url = `${parameters.server}/api/${name}?${query}&checksum=${checksum}`;
   return url;
 }
 
@@ -57,7 +57,7 @@ function createMeetingUrl(params, createParameter, customMeetingId) {
   const query = createParameter !== undefined ? `${baseQuery}&${createParameter}` : baseQuery;
   const apiCall = `create${query}${params.secret}`;
   const checksum = getChecksum(apiCall, parameters.secret);
-  const url = `${params.server}/create?${query}&checksum=${checksum}`;
+  const url = `${params.server}/api/create?${query}&checksum=${checksum}`;
   return url;
 }
 
@@ -81,7 +81,7 @@ function getJoinURL(meetingID, params, moderator, joinParameter, skipSessionDeta
   const query = joinParameter !== undefined ? `${baseQuery}&${joinParameter}` : baseQuery;
   const apiCall = `join${query}${params.secret}`;
   const checksum = getChecksum(apiCall, parameters.secret);
-  return `${params.server}/join?${query}&checksum=${checksum}`;
+  return `${params.server}/api/join?${query}&checksum=${checksum}`;
 }
 
 async function checkRootPermission() {
