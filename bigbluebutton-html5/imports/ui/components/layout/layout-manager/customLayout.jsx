@@ -171,9 +171,6 @@ const CustomLayout = (props) => {
                 isOpen: overrideOpenSidebarPanel,
                 sidebarContentPanel: sidebarContent.sidebarContentPanel,
               },
-              sidebarContentHorizontalResizer: {
-                isOpen: false,
-              },
               presentation: {
                 isOpen: presentation.isOpen,
                 slidesLength: presentation.slidesLength,
@@ -182,6 +179,7 @@ const CustomLayout = (props) => {
                 },
               },
               cameraDock: {
+                position: cameraDock.position || CAMERADOCK_POSITION.CONTENT_TOP,
                 numCameras: cameraDock.numCameras,
               },
               externalVideo: {
@@ -237,9 +235,6 @@ const CustomLayout = (props) => {
                 isOpen: overrideOpenSidebarPanel,
                 sidebarContentPanel: sidebarContentPanelOverride,
               },
-              sidebarContentHorizontalResizer: {
-                isOpen: false,
-              },
               presentation: {
                 isOpen: presentation.isOpen,
                 slidesLength: presentation.slidesLength,
@@ -248,6 +243,7 @@ const CustomLayout = (props) => {
                 },
               },
               cameraDock: {
+                position: CAMERADOCK_POSITION.CONTENT_TOP,
                 numCameras: cameraDock.numCameras,
               },
               externalVideo: {

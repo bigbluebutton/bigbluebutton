@@ -107,11 +107,9 @@ const CamerasOnlyLayout = (props) => {
     const sidebarNavBounds = calculatesSidebarNavBounds();
     const sidebarContentBounds = calculatesSidebarContentBounds(
       sidebarNavWidth.horizontalSpaceOccupied,
-      sidebarNavWidth.width,
     );
     const mediaAreaBounds = calculatesMediaAreaBounds(
       sidebarNavWidth.horizontalSpaceOccupied,
-      sidebarNavWidth.width,
       sidebarContentWidth.width,
     );
     const navbarBounds = calculatesNavbarBounds(mediaAreaBounds);
@@ -363,9 +361,6 @@ const CamerasOnlyLayout = (props) => {
               isOpen: false,
               width: 0,
               height: 0,
-            },
-            SidebarContentHorizontalResizer: {
-              isOpen: false,
             },
             presentation: {
               isOpen: false,

@@ -122,9 +122,6 @@ const VideoFocusLayout = (props) => {
               isOpen: overrideOpenSidebarPanel,
               sidebarContentPanel: sidebarContentPanelOverride,
             },
-            SidebarContentHorizontalResizer: {
-              isOpen: false,
-            },
             presentation: {
               isOpen: isTabletLandscape ? false : presentation.isOpen,
               slidesLength: presentation.slidesLength,

@@ -87,11 +87,11 @@ const LayoutObserver: React.FC = () => {
   useEffect(() => {
     if (deviceType !== previousDeviceType) {
       const Settings = getSettingsSingletonInstance();
-      const currentLayout = Settings.application.selectedLayout;
+      const currentLayout = Settings.layout.selectedLayout;
       if (!isLayoutSupported(deviceType, currentLayout)) {
         updateSettings({
-          application: {
-            ...Settings.application,
+          layout: {
+            ...Settings.layout,
             selectedLayout: LAYOUT_TYPE.SMART_LAYOUT,
           },
         }, null, setLocalSettings);
