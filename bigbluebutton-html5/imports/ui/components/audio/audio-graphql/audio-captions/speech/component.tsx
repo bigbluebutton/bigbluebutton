@@ -35,6 +35,11 @@ const THROTTLE_TIMEOUT = 200;
 type SpeechRecognitionEvent = {
   resultIndex: number;
   results: SpeechRecognitionResult[];
+  target: Target;
+}
+
+type Target = {
+  lang: string;
 }
 
 type SpeechRecognitionErrorEvent = {
@@ -59,6 +64,7 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
     id: generateId(),
     transcript: '',
     isFinal: true,
+    lang: '',
   });
 
   const localeRef = useRef(locale);
@@ -194,23 +200,27 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
     const {
       resultIndex,
       results,
+      target,
     } = event;
 
-    logger.debug('Transcription event', event);
+    logger.debug('Transcription event', resultIndex, results, target);
 
     const { id } = resultRef.current;
 
     const { transcript } = results[resultIndex][0];
     const { isFinal } = results[resultIndex];
+    const { lang } = target;
 
+    console.log('EVENTO VINDO AÍ', event);
     resultRef.current.transcript = transcript;
     resultRef.current.isFinal = isFinal;
+    resultRef.current.lang = lang;
 
     if (isFinal) {
-      updateFinalTranscript(id, transcript, speechRecognitionRef.current.lang);
+      updateFinalTranscript(id, transcript, lang);
       resultRef.current.id = generateId();
     } else {
-      transcriptUpdate(id, transcript, speechRecognitionRef.current.lang, false);
+      transcriptUpdate(id, transcript, lang, false);
     }
   }, [localeRef]);
 
@@ -224,11 +234,12 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
       const {
         isFinal,
         transcript,
+        lang,
       } = resultRef.current;
 
       if (!isFinal) {
         const { id } = resultRef.current;
-        updateFinalTranscript(id, transcript, localeRef.current);
+        updateFinalTranscript(id, transcript, lang);
         resultRef.current.isFinal = true;
         speechRecognitionRef.current.abort();
       } else {
