@@ -16,7 +16,7 @@ public class PluginUtils {
     private static final String HTML5_PLUGIN_SDK_VERSION = "%%HTML5_PLUGIN_SDK_VERSION%%";
     private static final String BBB_VERSION = "%%BBB_VERSION%%";
     private static final String MEETING_ID = "%%MEETING_ID%%";
-    private static final Pattern METADATA_PLACEHOLDER_PATTERN = Pattern.compile("\\$\\{([\\w\\-]+)(:.*)?\\}");
+    private static final Pattern METADATA_PLACEHOLDER_PATTERN = Pattern.compile("\\$\\{([\\w-]+)(?::([^}]*))?\\}");
     private static String bbbVersion;
     private String html5PluginSdkVersion;
 
@@ -43,12 +43,13 @@ public class PluginUtils {
     }
 
     private static boolean matchesPluginParameterFormat(String pluginParameter, String pluginName) {
-        Pattern PLUGIN_PREFIX_PATTERN = Pattern.compile("plugin_" + pluginName + "_[a-zA-Z][a-zA-Z0-9-]*$");
+        Pattern PLUGIN_PREFIX_PATTERN = Pattern.compile("plugin_" + Pattern.quote(pluginName) + "_[a-zA-Z][a-zA-Z0-9-]*$");
         Matcher pluginPrefixMatcher = PLUGIN_PREFIX_PATTERN.matcher(pluginParameter);
         return pluginPrefixMatcher.matches();
     }
 
     private static String resolveParameter(
+        String pluginName,
         String rawParameterName,
         Map<String, String> source,
         String defaultValue,
@@ -58,10 +59,12 @@ public class PluginUtils {
         String key = ParamsProcessorUtil.removePrefixString(rawParameterName, prefixToRemove).toLowerCase();
         if (source.containsKey(key)) {
             String replacementValue = source.get(key);
-            log.debug("{} parameter [{}] identified, value: [{}]", prefixToRemove, rawParameterName, replacementValue);
+            log.debug("plugin [{}] - {} parameter [{}] identified, value: [{}]",
+                    pluginName, prefixToRemove, rawParameterName, replacementValue);
             return replacementValue;
         } else if (defaultValue != null) {
-            log.debug("{} parameter [{}] not found, using default [{}]", prefixToRemove, rawParameterName, defaultValue);
+            log.debug("plugin [{}] - {} parameter [{}] not found, using default [{}]",
+                    pluginName, prefixToRemove, rawParameterName, defaultValue);
             return defaultValue;
         } else {
             throw new NoSuchFieldException(errorMessage);
@@ -79,13 +82,14 @@ public class PluginUtils {
         // First capturing group of regex is parameterName
         String metadataParameterName = matcher.group(1);
         // Second capturing group of regex is default value if exists
-        String defaultValue = matcher.group(2) != null ? matcher.group(2).substring(1) : null;
+        String defaultValue = matcher.group(2) != null ? matcher.group(2) : null;
 
         String replacement;
         // Checking if placeholder is a meta_ parameter
         if (ParamsProcessorUtil.isMetaValid(metadataParameterName)) {
             // Remove "meta_" and convert to lower case
             replacement = resolveParameter(
+                pluginName,
                 metadataParameterName,
                 metadata,
                 defaultValue,
@@ -97,6 +101,7 @@ public class PluginUtils {
         } else if (matchesPluginParameterFormat(metadataParameterName, pluginName)) {
             // Remove "plugin_" and convert to lower case
             replacement = resolveParameter(
+                pluginName,
                 metadataParameterName,
                 pluginMetadata,
                 defaultValue,

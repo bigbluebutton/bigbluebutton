@@ -93,7 +93,7 @@ public class Meeting {
 	private boolean userHasJoined = false;
 	private Map<String, String> guestUsersWithPositionInWaitingLine;
 	private Map<String, String> metadata;
-	private Map<String, String> pluginMetadataParametersMap;
+	private final Map<String, String> pluginMetadataParametersMap;
 	private Map<String, Object> userCustomData;
 	private final ConcurrentMap<String, User> users;
 	private final ConcurrentMap<String, RegisteredUser> registeredUsers;
@@ -181,7 +181,9 @@ public class Meeting {
         welcomeMsg = builder.welcomeMsg;
         dialNumber = builder.dialNumber;
         metadata = builder.metadata;
-		pluginMetadataParametersMap = builder.pluginMetadataParametersMap;
+		pluginMetadataParametersMap = builder.pluginMetadataParametersMap != null
+			? new HashMap<>(builder.pluginMetadataParametersMap)
+			: new HashMap<>();
         createdTime = builder.createdTime;
         isBreakout = builder.isBreakout;
         guestPolicy = builder.guestPolicy;

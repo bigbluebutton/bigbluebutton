@@ -1012,7 +1012,7 @@ If a plugin expects a placeholder (via `meta_ `or `plugin_`) but doesn't receive
 }
 ```
 
-In this example, if the parameter `plugin_MyPlugin_data-channel-name` is not provided during the `/create` call, it will fallback to "storeState".
+In this example, if the parameter `plugin_MyPlugin_data-channel-name` is not provided during the `/create` call, it will fall back to "storeState".
 
 ### Event persistence
 
