@@ -394,9 +394,6 @@ const ParticipantsAndChatOnlyLayout = (props) => {
               isOpen: true,
               sidebarContentPanel: sidebarContentPanelOverride,
             },
-            SidebarContentHorizontalResizer: {
-              isOpen: false,
-            },
             presentation: {
               isOpen: false,
               slidesLength: presentation.slidesLength,
@@ -407,6 +404,7 @@ const ParticipantsAndChatOnlyLayout = (props) => {
               height: 0,
             },
             cameraDock: {
+              position: CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM,
               numCameras: 0,
             },
             externalVideo: {

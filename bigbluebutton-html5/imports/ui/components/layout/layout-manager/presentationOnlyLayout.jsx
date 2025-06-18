@@ -365,9 +365,6 @@ const PresentationOnlyLayout = (props) => {
               width: 0,
               height: 0,
             },
-            SidebarContentHorizontalResizer: {
-              isOpen: false,
-            },
             presentation: {
               isOpen: true,
               slidesLength: presentation.slidesLength,
