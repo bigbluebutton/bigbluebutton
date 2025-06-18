@@ -93,6 +93,7 @@ public class Meeting {
 	private boolean userHasJoined = false;
 	private Map<String, String> guestUsersWithPositionInWaitingLine;
 	private Map<String, String> metadata;
+	private final Map<String, String> pluginMetadataParametersMap;
 	private Map<String, Object> userCustomData;
 	private final ConcurrentMap<String, User> users;
 	private final ConcurrentMap<String, RegisteredUser> registeredUsers;
@@ -180,6 +181,9 @@ public class Meeting {
         welcomeMsg = builder.welcomeMsg;
         dialNumber = builder.dialNumber;
         metadata = builder.metadata;
+		pluginMetadataParametersMap = builder.pluginMetadataParametersMap != null
+			? new HashMap<>(builder.pluginMetadataParametersMap)
+			: new HashMap<>();
         createdTime = builder.createdTime;
         isBreakout = builder.isBreakout;
         guestPolicy = builder.guestPolicy;
@@ -963,6 +967,10 @@ public class Meeting {
 	public void setMaxNumPages(int maxNumPages) { this.maxNumPages = maxNumPages; }
 	public int getMaxNumPages() { return maxNumPages; }
 
+    public Map<String, String> getPluginMetadataParametersMap() {
+        return pluginMetadataParametersMap;
+    }
+
     /***
 	 * Meeting Builder
 	 *
@@ -1005,6 +1013,7 @@ public class Meeting {
 			private String audioBridge;
     	private int logoutTimer;
     	private Map<String, String> metadata;
+    	private Map<String, String> pluginMetadataParametersMap;
     	private String dialNumber;
     	private String defaultAvatarURL;
     	private String defaultBotAvatarURL;
@@ -1228,6 +1237,11 @@ public class Meeting {
 
     	public Builder withMetadata(Map<String, String> m) {
     		metadata = m;
+    		return this;
+    	}
+
+		public Builder withPluginMetadataParameters(Map<String, String> m) {
+			pluginMetadataParametersMap = m;
     		return this;
     	}
 
