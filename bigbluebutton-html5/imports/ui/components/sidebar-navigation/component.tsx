@@ -50,6 +50,8 @@ const intlMessages = defineMessages({
   },
 });
 
+const CSS_ANIMATION_DURATION_MS = 200;
+
 const SidebarNavigation = ({
   isMobile,
   top,
@@ -69,8 +71,11 @@ const SidebarNavigation = ({
   const showBrandingArea = getFromUserSettings('bbb_display_branding_area', window.meetingClientSettings.public.app.branding.displayBrandingArea);
 
   const scrollRef = useRef<HTMLDivElement>(null);
-  const [hasScrollbar, setHasScrollbar] = useState(false);
+  // Prevents vertical scrollbox background to be shown on dark mode when there is no scroll
+  const [noVirtualScrollboxBackground, setNoVirtualScrollboxBackground] = useState(false);
   const [isExpanded, setIsExpanded] = useState<boolean>(!isMobile);
+  // Prevents scroll bar during sidebar navigation expand animation on mobile endpoints
+  const [enableScrollBar, setEnableScrollBar] = useState<boolean>(!isMobile);
   const Settings = getSettingsSingletonInstance();
   const animations = Settings?.application?.animations;
   const hasNotification = hasUnreadMessages || hasUnreadNotes;
@@ -79,7 +84,7 @@ const SidebarNavigation = ({
     const el = scrollRef.current;
     if (el) {
       const checkScrollbar = () => {
-        setHasScrollbar(el.scrollHeight > el.clientHeight);
+        setNoVirtualScrollboxBackground(el.scrollHeight <= el.clientHeight);
       };
 
       checkScrollbar();
@@ -92,6 +97,24 @@ const SidebarNavigation = ({
     }
     return () => {};
   }, []);
+
+  useEffect(() => {
+    if (!isMobile) {
+      if (!isExpanded) {
+        // restore sidebar expanded state if device is not mobile anymore
+        setIsExpanded(true);
+      }
+      return;
+    }
+
+    if (isExpanded !== enableScrollBar) {
+      if (isExpanded) {
+        setTimeout(() => setEnableScrollBar(true), CSS_ANIMATION_DURATION_MS);
+      } else {
+        setEnableScrollBar(false);
+      }
+    }
+  }, [isExpanded, isMobile, enableScrollBar]);
 
   useEffect(() => {
     if (!isMobile) return;
@@ -142,9 +165,10 @@ const SidebarNavigation = ({
         <Styled.NavigationSidebarListItemsContainer
           ref={scrollRef}
           isMobile={isMobile}
-          hasScrollbar={hasScrollbar}
+          noVirtualScrollboxBackground={noVirtualScrollboxBackground}
           isExpanded={isExpanded}
           animations={animations}
+          enableScrollBar={enableScrollBar}
         >
           <Styled.Top>
             {showBrandingArea && <CustomLogo />}

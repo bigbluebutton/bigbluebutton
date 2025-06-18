@@ -81,8 +81,9 @@ const NavigationToggleButton = styled(Button)`
 const NavigationSidebarListItemsContainer = styled(ScrollboxVertical)<{
   animations: boolean,
   isMobile: boolean,
-  hasScrollbar: boolean,
+  noVirtualScrollboxBackground: boolean,
   isExpanded: boolean,
+  enableScrollBar: boolean,
 }>`
   display: flex;
   flex-direction: column;
@@ -95,25 +96,27 @@ const NavigationSidebarListItemsContainer = styled(ScrollboxVertical)<{
   }
 
   ${({ isExpanded }) => (isExpanded ? `
-    mmax-height: 100%;
+    max-height: 100%;
     opacity: 1;
   ` : `
     height: 0;
     opacity: 0;
-    overflow: hidden;
     background: transparent !important;
   `)}
 
-  ${({ hasScrollbar }) => !hasScrollbar && `
+  ${({ noVirtualScrollboxBackground }) => noVirtualScrollboxBackground && `
     background: transparent !important;
   `}
 
   ${({ isMobile, animations }) => (animations && isMobile && `
-    overflow: hidden;
     transition: height 0.2s ease-out,
      opacity 0.2s ease-out,
      background 0.2s ease-out;
   `)}
+
+  ${({ enableScrollBar }) => !enableScrollBar && `
+    overflow: hidden;
+  `}
 `;
 
 const PositionedDiv = styled.div`
