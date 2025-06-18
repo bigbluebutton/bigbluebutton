@@ -247,7 +247,7 @@
     "app.meeting.endedDueServiceInterruption": "The session has terminated due to a temporary service interruption",
     "app.meeting.meetingTimeRemaining": "Session time remaining: {remainingTime}",
     "app.meeting.meetingTimeHasEnded": "Time ended. Session will close soon",
-    "app.meeting.endedByUserMessage": "This session has ended by action of {userName}",
+    "app.meeting.endedByUserMessage": "{userName} has ended this session",
     "app.meeting.endedByNoModeratorMessageSingular": "The session has ended because no moderator has been present for one minute",
     "app.meeting.endedByNoModeratorMessagePlural": "The session has ended because no moderator has been present for {0} minutes",
     "app.meeting.endedMessage": "Press the button to continue to the home screen.",
