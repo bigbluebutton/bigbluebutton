@@ -23,7 +23,6 @@ import '@bigbluebutton/tldraw/tldraw.css';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { compressToBase64, decompressFromBase64 } from 'lz-string';
 import SlideCalcUtil, { HUNDRED_PERCENT } from '/imports/utils/slideCalcUtils';
-import meetingClientSettingsInitialValues from '/imports/ui/core/initial-values/meetingClientSettings';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import KEY_CODES from '/imports/utils/keyCodes';
 import { debounce } from '/imports/utils/debounce';
@@ -1443,7 +1442,14 @@ const Whiteboard = React.memo((props) => {
       if (!isPresenterRef.current && !hasWBAccessRef.current) {
         editor?.setCurrentTool('noop');
       } else {
-        editor?.setCurrentTool('draw');
+        const { initialSelectedTool, presenterTools, multiUserTools } = window.meetingClientSettings.public.whiteboard.toolbar;
+        if (isPresenterRef.current) {
+          const initialPresenterTool = presenterTools.includes(initialSelectedTool) ? initialSelectedTool : 'noop';
+          editor?.setCurrentTool(initialPresenterTool);
+        } else {
+          const initialTool = multiUserTools.includes(initialSelectedTool) ? initialSelectedTool : 'noop';
+          editor?.setCurrentTool(initialTool);
+        }
       }
     }
 
