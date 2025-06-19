@@ -26,7 +26,7 @@ import {
   isVoiceOnlyUser,
 } from './service';
 
-import { useIsChatEnabled } from '/imports/ui/services/features';
+import { useIsChatEnabled, useIsPrivateChatEnabled } from '/imports/ui/services/features';
 import { layoutDispatch } from '/imports/ui/components/layout/context';
 import { PANELS, ACTIONS } from '/imports/ui/components/layout/enums';
 
@@ -234,6 +234,7 @@ const UserActions: React.FC<UserActionsProps> = ({
   );
   const voiceToggle = useToggleVoice();
   const isChatEnabled = useIsChatEnabled();
+  const isPrivateChatEnabled = useIsPrivateChatEnabled();
 
   const handleWhiteboardAccessChange = async () => {
     // There is no presentation available, so access cannot be granted.
@@ -393,14 +394,13 @@ const UserActions: React.FC<UserActionsProps> = ({
         const preventSelfChat = user.userId !== currentUser.userId;
         const moderatorOverride = currentUser.isModerator
           && allowedToChatPrivately;
-        const regularUserCondition = (isChatEnabled
+        const regularUserCondition = (isPrivateChatEnabled
           && !lockSettings?.disablePrivateChat
           && !isVoiceOnlyUser(user.userId)
           && !isBreakout)
           || user.isModerator;
 
-        const isAllowed = isChatEnabled
-          && preventSelfChat
+        const isAllowed = preventSelfChat
           && (moderatorOverride || regularUserCondition || !currentUser.locked);
 
         return isAllowed;
