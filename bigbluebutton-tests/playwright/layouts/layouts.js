@@ -1,4 +1,5 @@
 const { MultiUsers } = require("../user/multiusers");
+const Page = require('../core/page');
 const e = require('../core/elements');
 const { reopenChatSidebar, checkScreenshots, checkDefaultLocationReset } = require('./util');
 const { sleep } = require("../core/helpers");
@@ -99,6 +100,47 @@ class Layouts extends MultiUsers {
     await this.modPage.dragAndDropWebcams(e.dropAreaSidebarBottom);
 
     await checkScreenshots(this, 'layout should be updated for everyone', 'video', 'update-everyone');
+  }
+
+  async getNewPageTab(browser) {
+    return browser.newPage();
+  }
+
+  async videoPagination(browser) {
+    const pages = [];
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.userPage.waitForSelector(e.whiteboard);
+
+    await this.modPage.waitAndClick(e.optionsButton);
+    await this.modPage.waitAndClick(e.manageLayoutBtn);
+    await this.modPage.waitAndClick(e.focusOnPresentation);
+    await this.modPage.waitAndClickElement(e.updateEveryoneLayoutToggle);
+    await this.modPage.waitAndClick(e.updateLayoutBtn);
+    await this.modPage.closeAllToastNotifications();
+    await this.modPage.wasRemoved(e.toastContainer);
+
+    for (let i = 1; i <= 5; i++) {
+      const userName = `User-${i}`;
+      const newPage = await this.getNewPageTab(browser);
+      const userPage = new Page(browser, newPage);
+      await userPage.init(false, true, { fullName: userName, meetingId: this.modPage.meetingId });
+      await userPage.waitForSelector(e.whiteboard);
+      await userPage.shareWebcam();
+      pages.push(userPage);
+    }
+
+    await this.modPage.hasElementCount(e.webcamVideoItem, 7);
+    await this.modPage.wasRemoved(e.nextPage);
+    await this.modPage.wasRemoved(e.previousPage);
+
+    for (const page of pages) {
+      page.hasElement(e.whiteboard);
+      page.hasElement(e.previousPage);
+    }
+      
+    await checkScreenshots(this, 'pagination should work for the attendees', 'video', 'pagination');
+    await this.userPage.waitAndClick(e.nextPage);
+    await checkScreenshots(this, 'pagination should work for the attendees', 'video', 'pagination-second-page');
   }
 }
 
