@@ -858,6 +858,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       },
       toolbar: {
         multiUserPenOnly: false,
+        initialSelectedTool: 'draw',
         presenterTools: [
           'select',
           'hand',

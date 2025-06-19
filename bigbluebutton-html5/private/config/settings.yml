@@ -1080,6 +1080,7 @@ public:
         family: script
     toolbar:
       multiUserPenOnly: false
+      initialSelectedTool: draw
       presenterTools:
         - select
         - hand
