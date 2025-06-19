@@ -1,0 +1,74 @@
+name: Build all docker images
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - "**"
+    tags:
+      - "v*.*.*"
+
+jobs:
+  html5-client:
+    uses: ./.github/workflows/build-docker-image.yml
+    with:
+      image_name: "html5-client"
+      docker_context: "./bigbluebutton-html5"
+
+  learning-dashboard:
+    uses: ./.github/workflows/build-docker-image.yml
+    with:
+      image_name: "learning-dashboard"
+      docker_context: "./bbb-learning-dashboard"
+
+  graphql-actions:
+    uses: ./.github/workflows/build-docker-image.yml
+    with:
+      image_name: "graphql-actions"
+      docker_context: "./bbb-graphql-actions"
+
+  graphql-middleware:
+    uses: ./.github/workflows/build-docker-image.yml
+    with:
+      image_name: "graphql-middleware"
+      docker_context: "./bbb-graphql-middleware"
+
+  graphql-server:
+    uses: ./.github/workflows/build-docker-image.yml
+    with:
+      image_name: "graphql-server"
+      docker_context: "./bbb-graphql-server"
+
+  export-annotations:
+    uses: ./.github/workflows/build-docker-image.yml
+    with:
+      image_name: "export-annotations"
+      docker_context: "./bbb-export-annotations"
+
+  etherpad:
+    uses: ./.github/workflows/build-docker-image.yml
+    with:
+      image_name: "bbb-etherpad"
+      docker_context: "./docker/etherpad"
+
+  bbb-common-message:
+    uses: ./.github/workflows/build-docker-image.yml
+    with:
+      image_name: "bbb-common-message"
+      docker_context: "./bbb-common-message"
+
+  bbb-java-base:
+    uses: ./.github/workflows/build-docker-image.yml
+    with:
+      image_name: "bbb-java-base"
+      docker_context: "./docker/java-base"
+
+  apps-akka:
+    needs: [bbb-java-base, bbb-common-message]
+    uses: ./.github/workflows/build-docker-image.yml
+    with:
+      image_name: "apps-akka"
+      docker_context: "./akka-bbb-apps"
+      build_args: |
+        "JAVA_BASE_TAG=${{ needs.bbb-java-base.outputs.image_tag }}"
+        "COMMON_MESSAGE_TAG=${{ needs.bbb-common-message.outputs.image_tag }}"
