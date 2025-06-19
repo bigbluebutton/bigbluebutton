@@ -350,6 +350,27 @@ class MultiUsers {
     await sleep(1000);
     await expect(emojiRainLocator, 'should stop displaying the emoji rain element after a second').toHaveCount(0, { timeout: ELEMENT_WAIT_TIME });
   }
+
+  async clearAllStatusIcon() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage2.waitForSelector(e.whiteboard);
+    
+    await this.modPage.waitAndClick(e.reactionsButton);
+    await this.modPage.waitAndClick(`${e.singleReactionButton}:nth-child(1)`);
+    await this.modPage.hasText(e.moderatorAvatar, '😃', 'should display the smiling emoji in the moderator avatar for the moderator');
+    await this.modPage.hasText(e.reactionsButton, '😃', 'should display the smiling emoji on the reactions button when used');
+
+    await this.modPage2.waitAndClick(e.reactionsButton);
+    await this.modPage2.waitAndClick(`${e.singleReactionButton}:nth-child(1)`);
+    await this.modPage2.hasText(e.moderatorAvatar, '😃', 'should display the smiling emoji in the moderator avatar for the moderator');
+    await this.modPage2.hasText(e.reactionsButton, '😃', 'should display the smiling emoji on the reactions button when used');
+
+    await this.modPage.waitAndClick(e.manageUsers);
+    await this.modPage.waitAndClick(e.clearStatus);
+
+    await this.modPage.hasText(e.moderatorAvatar, 'mo', 'should not display the emoji after clearing all icons');
+    await this.modPage2.hasText(e.moderatorAvatar, 'mo', 'should not display the emoji after clearing all icons');
+  }
 }
 
 exports.MultiUsers = MultiUsers;

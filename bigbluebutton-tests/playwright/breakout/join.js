@@ -168,7 +168,8 @@ class Join extends Create {
     // join room and type on the shared notes
     const breakoutUserPage = await this.joinRoom();
     await breakoutUserPage.hasElement(e.presentationTitle, 'should display the presentation title inside the breakout room');
-    await breakoutUserPage.waitForSelector(e.whiteboard);
+    await breakoutUserPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await sleep(2000); // wait for the whiteboard to stabilize
     await breakoutUserPage.waitAndClick(e.sharedNotes);
     await breakoutUserPage.hasElement(e.hideNotesLabel, 'should display the hide notes element when shared notes is opened');
     const notesLocator = getNotesLocator(breakoutUserPage);
