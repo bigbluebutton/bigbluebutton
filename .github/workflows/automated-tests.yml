@@ -134,7 +134,7 @@ jobs:
         env:
           NODE_EXTRA_CA_CERTS: /usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt
           ACTIONS_RUNNER_DEBUG: true
-          BBB_URL: https://bbb-ci.test/bigbluebutton/api
+          BBB_URL: https://bbb-ci.test/bigbluebutton/
           BBB_SECRET: bbbci
         run: npm run test-chromium-ci -- --shard=${{ env.shard }}
       - name: Run Firefox tests
@@ -145,7 +145,7 @@ jobs:
         env:
           NODE_EXTRA_CA_CERTS: /usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt
           ACTIONS_RUNNER_DEBUG: true
-          BBB_URL: https://bbb-ci.test/bigbluebutton/api
+          BBB_URL: https://bbb-ci.test/bigbluebutton/
           BBB_SECRET: bbbci
         # patch playwright's firefox so that it uses the system's root certificate authority
         run: |
@@ -264,7 +264,7 @@ jobs:
         env:
           NODE_EXTRA_CA_CERTS: /usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt
           ACTIONS_RUNNER_DEBUG: true
-          BBB_URL: https://bbb-ci.test/bigbluebutton/api
+          BBB_URL: https://bbb-ci.test/bigbluebutton/
           BBB_SECRET: bbbci
         run: npm run test-chromium-ci
       - if: always()
