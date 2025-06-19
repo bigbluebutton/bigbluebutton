@@ -33,7 +33,7 @@ test.describe('Layout', { tag: '@ci' }, () => {
     await layouts.updateEveryone();
   });
 
-  test("Pagination", async () => {
-    await layouts.pagination();
+  test("Video Pagination", async ({ browser }) => {
+    await layouts.videoPagination(browser);
   });
 });

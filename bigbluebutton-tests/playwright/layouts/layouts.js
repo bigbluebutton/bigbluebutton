@@ -1,4 +1,5 @@
 const { MultiUsers } = require("../user/multiusers");
+const Page = require('../core/page');
 const e = require('../core/elements');
 const { reopenChatSidebar, checkScreenshots } = require('./util');
 const { sleep } = require("../core/helpers");
@@ -111,7 +112,12 @@ class Layouts extends MultiUsers {
     await checkScreenshots(this, 'layout should be updated for everyone', 'video', 'update-everyone');
   }
 
-  async pagination() {
+  async getNewPageTab(browser) {
+    return browser.newPage();
+  }
+
+  async videoPagination(browser) {
+    const pages = [];
     await this.modPage.waitForSelector(e.whiteboard);
     await this.userPage.waitForSelector(e.whiteboard);
 
@@ -123,27 +129,28 @@ class Layouts extends MultiUsers {
     await this.modPage.closeAllToastNotifications();
     await this.modPage.wasRemoved(e.toastContainer);
 
-    const user1 = await this.initUserPage3(true);
-    await user1.hasElement(e.whiteboard);
-    await user1.shareWebcam();
+    for (let i = 1; i <= 5; i++) {
+      const userName = `User-${i}`;
+      const newPage = await this.getNewPageTab(browser);
+      const userPage = new Page(browser, newPage);
+      await userPage.init(false, true, { fullName: userName, meetingId: this.modPage.meetingId });
+      await userPage.waitForSelector(e.whiteboard);
+      await userPage.shareWebcam();
+      pages.push(userPage);
+    }
 
-    const user2 = await this.initUserPage3(true);
-    await user2.hasElement(e.whiteboard);
-    await user2.shareWebcam();
+    await this.modPage.hasElementCount(e.webcamVideoItem, 7);
+    await this.modPage.wasRemoved(e.nextPage);
+    await this.modPage.wasRemoved(e.previousPage);
 
-    const user3 = await this.initUserPage3(true);
-    await user3.hasElement(e.whiteboard);
-    await user3.shareWebcam();
-
-    const user4 = await this.initUserPage3(true);
-    await user4.hasElement(e.whiteboard);
-    await user4.shareWebcam();
-
-    const user5 = await this.initUserPage3(true);
-    await user5.hasElement(e.whiteboard);
-    await user5.shareWebcam();
-  
+    for (const page of pages) {
+      page.hasElement(e.whiteboard);
+      page.hasElement(e.previousPage);
+    }
+      
     await checkScreenshots(this, 'pagination should work for the attendees', 'video', 'pagination');
+    await this.userPage.waitAndClick(e.nextPage);
+    await checkScreenshots(this, 'pagination should work for the attendees', 'video', 'pagination-second-page');
   }
 }
 

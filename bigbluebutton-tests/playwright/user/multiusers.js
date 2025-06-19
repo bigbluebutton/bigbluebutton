@@ -76,19 +76,6 @@ class MultiUsers {
     await this.userPage2.init(false, shouldCloseAudioModal, options);
   }
 
-  async initUserPage3(shouldCloseAudioModal = true, { fullName='Attendee', useModMeetingId = true, ...restOptions } = {}) {
-    const options = {
-      ...restOptions,
-      fullName,
-      meetingId: (useModMeetingId) ? this.modPage.meetingId : undefined,
-    };
-
-    const pwPage = await (await playwright.chromium.launch()).newPage();
-    const newPage = new Page(this.browser, pwPage);
-    await newPage.init(false, shouldCloseAudioModal, options);
-    return newPage;
-  }
-
   async userPresence() {
     await this.modPage.hasElementCount(e.currentUser, 1, 'should contain one current user for the moderator');
     await this.modPage.hasElementCount(e.userListItem, 1, 'should contain one user on user list for the moderator');
