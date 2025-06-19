@@ -7,8 +7,9 @@ import { SCREENSHARING_ERRORS } from './errors';
 import { shouldForceRelay } from '/imports/ui/services/bbb-webrtc-sfu/utils';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import { notifyStreamStateChange } from '/imports/ui/services/bbb-webrtc-sfu/stream-state-service';
+import { getRTCStatsLogMetadata } from '/imports/utils/stats';
 
-const BRIDGE_NAME = 'kurento'
+const BRIDGE_NAME = 'kurento';
 const SCREENSHARE_VIDEO_TAG = 'screenshareVideo';
 const SEND_ROLE = 'send';
 const RECV_ROLE = 'recv';
@@ -97,6 +98,61 @@ export default class KurentoScreenshareBridge {
         // eslint-disable-next-line no-param-reassign
         track.enabled = enabled;
       });
+    }
+  }
+
+  /**
+   * Get stats about all active screenshare peers.
+   *
+   * For more information see:
+   *  - https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/getStats
+   *  - https://developer.mozilla.org/en-US/docs/Web/API/RTCStatsReport
+   * @param {Array} [additionalStatsTypes] - A list of additional stats types to be included
+   * in the parsing.
+   *
+   * @returns {Object} The information about each active screen sharing peer.
+   *          The returned format follows the format returned by video's service
+   *          getStats, which considers more than one peer connection to be returned.
+   *          The format is given by:
+   *          {
+   *            peerIdString: RTCStatsReport
+   *          }
+   */
+  async getStats(additionalStatsTypes = []) {
+    let peerStats = null;
+    const peer = this.getPeerConnection();
+
+    if (!peer) return null;
+
+    try {
+      peerStats = await peer.getStats();
+    } catch (error) {
+      return null;
+    }
+    return BridgeService.parseStats({
+      stats: peerStats,
+      peer,
+      additionalStatsTypes,
+      bridgeName: BRIDGE_NAME,
+      role: this.role,
+    });
+  }
+
+  async getStatsLogData() {
+    try {
+      const screenshareStats = await this.getStats();
+
+      return getRTCStatsLogMetadata(screenshareStats);
+    } catch (error) {
+      logger.warn({
+        logCode: 'sfuaudio_stats_log_error',
+        extraInfo: {
+          errorMessage: error.message,
+          bridge: this.bridgeName,
+          role: this.role,
+        },
+      }, 'Failed to get audio stats log data');
+      return null;
     }
   }
 
@@ -222,43 +278,56 @@ export default class KurentoScreenshareBridge {
     this.startedOnce = true;
     this.clearReconnectionTimeout();
     this.connectionAttempts = 0;
+    this.getStatsLogData().then((stats) => {
+      logger.info({
+        logCode: 'screenshare_viewer_start_success',
+        extraInfo: {
+          role: this.broker?.role || this.role,
+          bridge: BRIDGE_NAME,
+          stats,
+        },
+      }, 'Screenshare presenter started succesfully');
+    });
   }
 
   handleBrokerFailure(error) {
     mapErrorCode(error);
     const { errorMessage, errorCode } = error;
 
-    logger.error({
-      logCode: 'screenshare_broker_failure',
-      extraInfo: {
-        errorCode,
-        errorMessage,
-        role: this.broker.role,
-        started: this.broker.started,
-        reconnecting: this.reconnecting,
-        bridge: BRIDGE_NAME,
-      },
-    }, `Screenshare broker failure: ${errorMessage}`);
+    return this.getStatsLogData().then((stats) => {
+      logger.error({
+        logCode: 'screenshare_broker_failure',
+        extraInfo: {
+          errorCode,
+          errorMessage,
+          role: this.role,
+          started: this.broker?.started,
+          reconnecting: this.reconnecting,
+          bridge: BRIDGE_NAME,
+          stats,
+        },
+      }, `Screenshare broker failure: ${errorMessage}`);
 
-    notifyStreamStateChange('screenshare', 'failed');
-    // Screensharing was already successfully negotiated and error occurred during
-    // during call; schedule a reconnect
-    if (this._shouldReconnect()) {
-      // this.broker.started => whether the reconnect should happen immediately.
-      // If this session previously established connection (N-sessions back)
-      // and it failed abruptly, then the timeout is overridden to a intermediate value
-      // (BASE_RECONNECTION_TIMEOUT)
-      let overrideTimeout;
-      if (this.broker?.started) {
-        overrideTimeout = 0;
-      } else if (this.startedOnce) {
-        overrideTimeout = BridgeService.BASE_RECONNECTION_TIMEOUT();
+      notifyStreamStateChange('screenshare', 'failed');
+      // Screensharing was already successfully negotiated and error occurred during
+      // during call; schedule a reconnect
+      if (this._shouldReconnect()) {
+        // this.broker.started => whether the reconnect should happen immediately.
+        // If this session previously established connection (N-sessions back)
+        // and it failed abruptly, then the timeout is overridden to a intermediate value
+        // (BASE_RECONNECTION_TIMEOUT)
+        let overrideTimeout;
+        if (this.broker?.started) {
+          overrideTimeout = 0;
+        } else if (this.startedOnce) {
+          overrideTimeout = BridgeService.BASE_RECONNECTION_TIMEOUT();
+        }
+
+        this.scheduleReconnect({ overrideTimeout });
       }
 
-      this.scheduleReconnect({ overrideTimeout });
-    }
-
-    return error;
+      return error;
+    });
   }
 
   async view(streamId, options = {
@@ -310,13 +379,20 @@ export default class KurentoScreenshareBridge {
   }
 
   handlePresenterStart() {
-    logger.info({
-      logCode: 'screenshare_presenter_start_success',
-    }, 'Screenshare presenter started succesfully');
     this.clearReconnectionTimeout();
     this.startedOnce = true;
     this.reconnecting = false;
     this.connectionAttempts = 0;
+    this.getStatsLogData().then((stats) => {
+      logger.info({
+        logCode: 'screenshare_presenter_start_success',
+        extraInfo: {
+          role: this.broker?.role || this.role,
+          bridge: BRIDGE_NAME,
+          stats,
+        },
+      }, 'Screenshare presenter started succesfully');
+    });
   }
 
   handleEnded() {
@@ -342,8 +418,8 @@ export default class KurentoScreenshareBridge {
       this.hasAudio = BridgeService.streamHasAudioTrack(stream);
       this.gdmStream = stream;
 
-      const onerror = (error) => {
-        const normalizedError = this.handleBrokerFailure(error);
+      const onerror = async (error) => {
+        const normalizedError = await this.handleBrokerFailure(error);
         if (!this.broker.started) {
         // Broker hasn't started - if there are retries left, try again.
           if (this.maxConnectionAttemptsReached()) {

@@ -1,9 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { useMutation } from '@apollo/client';
 import { UPDATE_CONNECTION_ALIVE_AT } from './mutations';
-import {
-  handleAudioStatsEvent,
-} from '/imports/ui/components/connection-status/service';
 import connectionStatus from '../../core/graphql/singletons/connectionStatus';
 
 import getBaseUrl from '/imports/ui/core/utils/getBaseUrl';
@@ -107,22 +104,6 @@ const ConnectionStatus = ({
     timeoutRef.current = setTimeout(() => {
       handleUpdateConnectionAliveAt();
     }, STATS_INTERVAL / 2);
-
-    const STATS_ENABLED = window.meetingClientSettings.public.stats.enabled;
-
-    if (STATS_ENABLED) {
-      // This will generate metrics usage to determine alert statuses based
-      // on WebRTC stats
-      window.addEventListener('audiostats', handleAudioStatsEvent);
-    }
-
-    return () => {
-      window.removeEventListener('audiostats', handleAudioStatsEvent);
-
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-    };
   }, []);
 
   return null;
