@@ -209,7 +209,7 @@ const Whiteboard = React.memo((props) => {
 
       const bbbMultiUserPenOnly = getFromUserSettings(
         'bbb_multi_user_pen_only',
-        false,
+        window.meetingClientSettings.public.whiteboard.toolbar.multiUserPenOnly,
       );
       const bbbPresenterTools = getFromUserSettings(
         'bbb_presenter_tools',
