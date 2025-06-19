@@ -1442,7 +1442,15 @@ const Whiteboard = React.memo((props) => {
       if (!isPresenterRef.current && !hasWBAccessRef.current) {
         editor?.setCurrentTool('noop');
       } else {
-        const { initialSelectedTool, presenterTools, multiUserTools } = window.meetingClientSettings.public.whiteboard.toolbar;
+        const {
+          initialSelectedTool: initialSelectedToolFromConfig,
+          presenterTools,
+          multiUserTools,
+        } = window.meetingClientSettings.public.whiteboard.toolbar;
+        const initialSelectedTool = getFromUserSettings(
+          'bbb_initial_selected_tool',
+          initialSelectedToolFromConfig,
+        );
         if (isPresenterRef.current) {
           const initialPresenterTool = presenterTools.includes(initialSelectedTool) ? initialSelectedTool : 'noop';
           editor?.setCurrentTool(initialPresenterTool);
