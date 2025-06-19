@@ -36,7 +36,7 @@ jobs:
             }
             const pullRequestNumber = items[0].number
             return pullRequestNumber
-      - name: Download PR artifact
+      - name: Download pr-comment-data artifact
         if: ${{ fromJson(env.isCompleted) }}
         uses: actions/github-script@v7
         with:
@@ -65,7 +65,7 @@ jobs:
             } catch (error) {
               console.log('Error downloading artifact:', error);
             }
-      - name: Check if artifact data was provided
+      - name: Check pr-comment-data artifact
         if: ${{ fromJson(env.isCompleted) }}
         id: check-artifact
         run: |
@@ -74,7 +74,7 @@ jobs:
           else
             echo "ARTIFACT_DATA_PROVIDED=false" >> "$GITHUB_ENV"
           fi
-      - name: Unzip artifact
+      - name: Unzip pr-comment-data artifact
         if: ${{ fromJson(env.isCompleted) && env.ARTIFACT_DATA_PROVIDED == 'true' }}
         run: unzip pr-comment-data.zip
       - name: Set env variables from artifact
