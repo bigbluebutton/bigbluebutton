@@ -3,6 +3,7 @@ package org.bigbluebutton.web.controllers
 import com.github.javafaker.Faker
 import grails.testing.web.controllers.ControllerUnitTest
 import groovy.json.JsonSlurper
+import groovy.xml.XmlSlurper
 import org.apache.commons.codec.digest.DigestUtils
 import org.bigbluebutton.api.ApiParams
 import org.bigbluebutton.api.MeetingService

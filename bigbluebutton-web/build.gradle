@@ -113,7 +113,9 @@ dependencies {
   testImplementation "org.grails:grails-web-testing-support"
   testRuntimeOnly "org.seleniumhq.selenium:selenium-chrome-driver:4.20.0"
   //testRuntimeOnly "net.sourceforge.htmlunit:htmlunit:3.10.0"
-  testImplementation "com.github.javafaker:javafaker:1.0.2"
+  testImplementation ("com.github.javafaker:javafaker:1.0.2") {
+    exclude group: "org.yaml"
+  }
 }
 
 configurations.all {
@@ -125,6 +127,10 @@ configurations.all {
 }
 
 tasks.named('bootWar') {
+  dependsOn tasks.named('compileGsonViews')
+}
+
+tasks.named('compileTestGroovy') {
   dependsOn tasks.named('compileGsonViews')
 }
 
