@@ -1260,14 +1260,16 @@ def process_external_video_events(_events, package_dir)
     external_video_events.each do |event|
       BigBlueButton.logger.info("Processing rec event #{re} and external video event #{event}")
       start_timestamp = event[:start_timestamp]
+      stop_timestamp = event[:stop_timestamp]
       timestamp = (translate_timestamp(start_timestamp) / 1000).to_i
       # do not add same external_video twice
       next if external_videos.find { |ev| ev[:timestamp] == timestamp }
 
       re_start_timestamp = re[:start_timestamp]
       re_stop_timestamp = re[:stop_timestamp]
-      next unless ((start_timestamp >= re_start_timestamp) && (start_timestamp <= re_stop_timestamp)) ||
-                  ((start_timestamp < re_start_timestamp) && (re_stop_timestamp >= re_start_timestamp))
+      next unless ((start_timestamp >= re_start_timestamp) && (start_timestamp < re_stop_timestamp)) ||
+                  ((stop_timestamp > re_start_timestamp) && (stop_timestamp <= re_stop_timestamp)) ||
+                  ((start_timestamp <= re_start_timestamp) && (stop_timestamp >= re_stop_timestamp) && (re_stop_timestamp > re_start_timestamp))
 
       external_videos << {
         timestamp: timestamp,
