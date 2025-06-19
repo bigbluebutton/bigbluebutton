@@ -29,7 +29,7 @@ trait SendGroupChatMessageMsgHdlr extends HandlerHelpers {
     val replyChatMessageDisabled: Boolean = liveMeeting.props.meetingProp.disabledFeatures.contains("replyChatMessage")
     var chatLocked: Boolean = false
     var chatLockedForUser: Boolean = false
-    var hasModMembers: Boolean = true
+    var hasModMembers: Boolean = false
 
     for {
       user <- Users2x.findWithIntId(liveMeeting.users2x, msg.header.userId)
@@ -53,7 +53,8 @@ trait SendGroupChatMessageMsgHdlr extends HandlerHelpers {
           // don't lock private chats that involve a moderator
           if (modMembers.isEmpty) {
             chatLocked = permissions.disablePrivChat
-            hasModMembers = false
+          } else {
+            hasModMembers = true
           }
         } else {
           chatLocked = permissions.disablePubChat

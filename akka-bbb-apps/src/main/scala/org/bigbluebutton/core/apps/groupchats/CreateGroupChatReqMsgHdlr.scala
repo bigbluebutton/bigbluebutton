@@ -22,7 +22,7 @@ trait CreateGroupChatReqMsgHdlr extends SystemConfiguration {
 
     var privateChatDisabled: Boolean = false
     var chatLocked: Boolean = false
-    var hasModMembers: Boolean = true
+    var hasModMembers: Boolean = false
 
     if (msg.body.access == GroupChatAccess.PRIVATE) {
       privateChatDisabled = liveMeeting.props.meetingProp.disabledFeatures.contains("privateChat")
@@ -41,7 +41,8 @@ trait CreateGroupChatReqMsgHdlr extends SystemConfiguration {
           // don't lock creation of private chats that involve a moderator
           if (modMembers.length == 0) {
             chatLocked = user.locked && permissions.disablePrivChat
-            hasModMembers = false
+          } else {
+            hasModMembers = true
           }
         } else {
           chatLocked = true
