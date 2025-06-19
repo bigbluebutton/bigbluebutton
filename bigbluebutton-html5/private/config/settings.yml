@@ -776,6 +776,7 @@ public:
     emojiPicker:
       enable: false
     # e.g.: disableEmojis: ['grin','laughing']
+    # use the id of the emojis from https://raw.githubusercontent.com/missive/emoji-mart/16978d04a766eec6455e2e8bb21cd8dc0b3c7436/packages/emoji-mart-data/sets/1/all.json
     disableEmojis: []
     allowedElements: ['a', 'code', 'em', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'ol', 'ul', 'p', 'strong']
     # available options for toolbar: reply, edit, delete, reactions
