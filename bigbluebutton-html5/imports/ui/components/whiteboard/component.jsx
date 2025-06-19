@@ -653,6 +653,34 @@ const Whiteboard = React.memo((props) => {
         '!': () => {
           zoomChanger(HUNDRED_PERCENT);
         },
+        '@': () => {
+          const selectionBounds = tlEditorRef.current?.getSelectionPageBounds();
+          const selectionAspectRatio = selectionBounds.w / selectionBounds.h;
+          const presentationAreaAspectRatio = presentationWidth / presentationHeight;
+
+          let baseZoomToFitIn;
+
+          if (
+            selectionAspectRatio > presentationAreaAspectRatio
+            || (fitToWidthRef.current && isPresenterRef.current)
+          ) {
+            baseZoomToFitIn = presentationWidth / selectionBounds.w;
+          } else {
+            baseZoomToFitIn = presentationHeight / selectionBounds.h;
+          }
+
+          const adjustedBaseZoomToFitIn = (Math.max(baseZoomToFitIn, initialZoomRef.current)) / initialZoomRef.current;
+          const zoomPercentage = adjustedBaseZoomToFitIn * 100;
+          zoomChanger(zoomPercentage);
+
+          const nextCamera = {
+            x: selectionBounds.x,
+            y: selectionBounds.y,
+            z: adjustedBaseZoomToFitIn,
+          };
+
+          tlEditorRef.current.setCamera(nextCamera, { duration: 175 });
+        },
       };
 
       if (shiftKeyMap[key]) {
@@ -750,7 +778,7 @@ const Whiteboard = React.memo((props) => {
     }
   }, [
     tlEditorRef, isPresenterRef, hasWBAccessRef, previousTool, handleCut, handleCopy, handlePaste,
-    isInfiniteWhiteboard, zoomChanger,
+    isInfiniteWhiteboard, zoomChanger, presentationHeight, presentationWidth,
   ]);
 
   const createPage = (currentPageId) => [
@@ -771,9 +799,11 @@ const Whiteboard = React.memo((props) => {
     }
 
     return () => {
-      whiteboardRef.current?.removeEventListener('keydown', handleKeyDown);
+      whiteboardRef.current?.removeEventListener('keydown', handleKeyDown, {
+        capture: true,
+      });
     };
-  }, [whiteboardRef.current]);
+  }, [whiteboardRef.current, handleKeyDown]);
 
   const language = React.useMemo(() => mapLanguage(locale?.toLowerCase() || 'en'), [locale]);
 
