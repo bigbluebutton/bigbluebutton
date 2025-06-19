@@ -251,6 +251,7 @@ class PresentationToolbar extends PureComponent {
               label={ppb.label}
               onClick={ppb.onClick}
               tooltipLabel={ppb.tooltip}
+              dataTest={ppb.dataTest}
             />
           );
           break;
