@@ -1,6 +1,6 @@
 import org.bigbluebutton.build._
 
-version := "0.0.4-SNAPSHOT"
+version := "0.0.5-SNAPSHOT"
 
 val compileSettings = Seq(
   organization := "org.bigbluebutton",

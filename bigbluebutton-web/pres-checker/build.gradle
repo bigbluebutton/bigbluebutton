@@ -9,8 +9,7 @@ archivesBaseName = 'bbb-pres-check'
 
 task resolveDeps(type: Copy) {
     into('lib')
-    from configurations.default
-    from configurations.default.allArtifacts.file
+    from configurations.runtimeClasspath
     doLast { println '[bbb:task] Resolved dependencies for pres-checker application' }
 }
 

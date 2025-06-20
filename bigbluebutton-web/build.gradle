@@ -93,7 +93,7 @@ dependencies {
   implementation 'org.apache.commons:commons-compress:1.27.0'
 
   implementation "org.bigbluebutton:bbb-common-message_2.13:0.0.22-SNAPSHOT"
-  implementation "org.bigbluebutton:bbb-common-web:0.0.4-SNAPSHOT"
+  implementation "org.bigbluebutton:bbb-common-web:0.0.5-SNAPSHOT"
 
   implementation "io.lettuce:lettuce-core:6.3.1.RELEASE"
   implementation "io.projectreactor:reactor-core:3.6.0"
