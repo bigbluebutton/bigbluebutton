@@ -61,7 +61,7 @@ class Chat extends MultiUsers {
     // clear
     await this.modPage.waitAndClick(e.chatOptions);
     await this.modPage.waitAndClick(e.chatClear);
-    await this.modPage.hasText(e.chatNotificationMessageText, 'The public chat history was cleared by a moderator', 'should display the message where the chat has been cleared');
+    await this.modPage.hasText(e.chatNotificationMessageText, 'The public chat history has been cleared by a moderator', 'should display the message where the chat has been cleared');
   }
 
   async copyChat() {

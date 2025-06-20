@@ -51,7 +51,6 @@ export const SYNC = {
 };
 
 export const ACTIONS = {
-  SET_AUTO_ARRANGE_LAYOUT: 'setAutoArrangeLayout',
   SET_IS_RTL: 'setIsRTL',
   SET_LAYOUT_TYPE: 'setLayoutType',
   SET_DEVICE_TYPE: 'setDeviceType',

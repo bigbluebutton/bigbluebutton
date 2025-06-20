@@ -8,6 +8,7 @@ const { sleep } = require('../core/helpers');
 const { getSettings } = require('../core/settings');
 const { uploadSinglePresentation } = require('../presentation/util');
 const utilScreenShare = require('../screenshare/util');
+const { reopenChatSidebar, checkScreenshots, checkDefaultLocationReset } = require('../layouts/util');
 const path = require('path');
 
 class CustomParameters extends MultiUsers {
@@ -436,6 +437,118 @@ class CustomParameters extends MultiUsers {
     await this.modPage.hasElement(e.meetingEndedModal);
     await this.modPage.waitAndClick(e.redirectButton);
     await expect(this.modPage.page.url()).toContain('google.com');
+  }
+
+  async enforceSmartLayout() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.userPage.waitForSelector(e.whiteboard);
+    await checkScreenshots(this, 'should the cameras be above the presentation', [e.webcamContainer, e.webcamMirroredVideoContainer], 'smart-layout', 1);
+    
+    await this.modPage.waitAndClick(e.userListToggleBtn);
+    await this.modPage.wasRemoved(e.chatButton, '');
+    await sleep(1000); // wait for the whiteboard zoom to stabilize
+
+    await checkScreenshots(this, 'should the cameras be on the side of presentation', [e.webcamContainer, e.webcamMirroredVideoContainer], 'smart-layout', 2);
+    await reopenChatSidebar(this.modPage);
+  }
+
+  async enforcePresentationFocus() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.userPage.waitForSelector(e.whiteboard);
+
+    await this.modPage.shareWebcam();
+    await this.userPage.shareWebcam();
+
+    await checkScreenshots(this, 'should be the layout focus on presentation', [e.webcamContainer, e.webcamMirroredVideoContainer], 'enforce-focus-on-presentation');
+  }
+
+  async enforceVideoFocus() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.userPage.waitForSelector(e.whiteboard);
+    
+    await this.modPage.waitAndClick(e.joinVideo); 
+    await this.modPage.bringToFront();
+    await this.modPage.hasElement(e.webcamMirroredVideoPreview, 'should display the video preview when sharing webcam ', ELEMENT_WAIT_TIME);
+    await this.modPage.waitAndClick(e.startSharingWebcam);
+
+    await this.userPage.waitAndClick(e.joinVideo); 
+    await this.userPage.bringToFront();
+    await this.userPage.hasElement(e.webcamMirroredVideoPreview, 'should display the video preview when sharing webcam ', ELEMENT_WAIT_TIME);
+    await this.userPage.waitAndClick(e.startSharingWebcam);
+        
+    await this.modPage.waitForSelector(e.webcamMirroredVideoContainer, VIDEO_LOADING_WAIT_TIME);
+    await this.modPage.waitForSelector(e.leaveVideo, VIDEO_LOADING_WAIT_TIME);
+    await this.modPage.hasNElements('video', 2, 'should display the 2 video elements after both users shared their webcams');
+
+    await checkScreenshots(this, 'should be the video focus layout', [e.webcamContainer, e.webcamMirroredVideoContainer], 'enforce-video-focus');
+  }
+
+  async enforceCamerasOnly() {
+    await this.modPage.wasRemoved(e.whiteboard);
+
+    await this.modPage.shareWebcam();
+    await this.userPage.shareWebcam();
+    
+
+    await checkScreenshots(this, 'should be the cameras only layout', [e.webcamContainer, e.webcamMirroredVideoContainer], 'enforce-cameras-only');
+  }
+
+  async enforceParticipantsAndChatOnly() {
+    await this.modPage.wasRemoved(e.whiteboard);
+    await this.modPage.wasRemoved(e.joinVideo);
+
+    await this.modPage.hasElement(e.chatMessages);
+    await this.modPage.hasElement(e.userListContent);
+
+    await checkScreenshots(this, 'should be the participants and chat only layout', [e.webcamContainer, e.webcamMirroredVideoContainer], 'enforce-participants-and-chat-only');
+  }
+
+  async enforcePresentationOnly() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.userPage.waitForSelector(e.whiteboard);
+
+    await this.modPage.wasRemoved(e.joinVideo);
+    await sleep(1000);
+
+    await checkScreenshots(this, 'should be the presentation only layout', [e.webcamContainer, e.webcamMirroredVideoContainer], 'enforce-presentation-only');
+  }
+
+  async enforceMediaOnly() {
+    await this.modPage.hasElement(e.whiteboard);
+    await this.modPage.hasElement(e.joinVideo);
+    await this.modPage.hasElement(e.startScreenSharing);
+
+    await this.modPage.wasRemoved(e.chatMessages);
+    await this.modPage.wasRemoved(e.userListContent);
+    await sleep(1000);
+
+    await checkScreenshots(this, 'should be the media only layout', [e.webcamContainer, e.webcamMirroredVideoContainer], 'enforce-media-only');
+  }
+
+  async enforceCustomLayout() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.userPage.waitForSelector(e.whiteboard);
+
+    await this.modPage.shareWebcam();
+    await this.userPage.shareWebcam();
+
+    await checkScreenshots(this, 'should be on custom layout', [e.webcamContainer, e.webcamMirroredVideoContainer], 'enforce-custom-layout', 1);
+
+    // checking the default location being reset when dropping into a non-available location
+    await checkDefaultLocationReset(this.modPage);
+    await this.modPage.dragAndDropWebcams(e.dropAreaSidebarBottom);
+    await checkScreenshots(this, 'should be on custom layout', [e.webcamContainer, e.webcamMirroredVideoContainer], 'enforce-custom-layout', 2);
+
+    await this.modPage.dragAndDropWebcams(e.dropAreaSidebarBottom);
+    await checkScreenshots(this, 'should be on custom layout', [e.webcamContainer, e.webcamMirroredVideoContainer], 'enforce-custom-layout', 3);
+
+    await this.modPage.waitAndClick(e.userListToggleBtn);
+    await this.modPage.wasRemoved(e.chatButton, 'should not be displayed the chat button');
+    await this.modPage.wasRemoved(e.sendButton, 'should not be displayed the send button');
+    await sleep(1000);
+
+    await checkScreenshots(this, 'should be on custom layout', [e.webcamContainer, e.webcamMirroredVideoContainer], 'enforce-custom-layout', 4);
+    await reopenChatSidebar(this.modPage);
   }
 }
 

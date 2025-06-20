@@ -237,9 +237,7 @@ CREATE VIEW "v_meeting_clientSettings" AS SELECT * FROM "meeting_clientSettings"
 create view "v_meeting_clientPluginSettings" as
 select "meetingId",
        plugin->>'name' as "name",
-       plugin->>'url' as "url",
-       (plugin->>'settings')::jsonb as "settings",
-       (plugin->>'dataChannels')::jsonb as "dataChannels"
+       (plugin->>'settings')::jsonb as "settings"
 from (
     select "meetingId", jsonb_array_elements("clientSettingsJson"->'public'->'plugins') AS plugin
     from "meeting_clientSettings"
@@ -2222,7 +2220,7 @@ CREATE UNLOGGED TABLE "layout" (
 	"cameraDockIsResizing"	boolean,
 	"cameraDockPlacement" 	varchar(100),
 	"cameraDockAspectRatio" numeric,
-	"cameraWithFocus" 		varchar(100),
+	"cameraWithFocus" 		varchar(255),
 	"propagateLayout" 		boolean,
 	"screenshareAsContent" 	boolean,
 	"updatedAt" 			timestamp with time zone

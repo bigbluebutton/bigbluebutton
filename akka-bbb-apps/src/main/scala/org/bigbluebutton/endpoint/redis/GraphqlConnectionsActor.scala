@@ -7,10 +7,10 @@ import org.bigbluebutton.core.api.{UserClosedAllGraphqlConnectionsInternalMsg, U
 import org.bigbluebutton.core.bus.{BigBlueButtonEvent, InternalEventBus}
 import org.bigbluebutton.core.db.UserGraphqlConnectionDAO
 import org.bigbluebutton.core2.message.senders.MsgBuilder
+import java.time.Instant
 
-import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
-import ExecutionContext.Implicits.global
+import org.apache.pekko.actor.Timers
 
 case object MiddlewareHealthCheckScheduler10Sec
 
@@ -43,18 +43,20 @@ case class GraphqlUserConnection(
                  user:                GraphqlUser,
                )
 
-
 class GraphqlConnectionsActor(
     system:         ActorSystem,
     val eventBus:   InternalEventBus,
     val outGW:      OutMessageGateway,
-) extends Actor with ActorLogging {
+) extends Actor with ActorLogging with Timers {
 
   private var users: Map[String, GraphqlUser] = Map()
   private var graphqlConnections: Map[String, GraphqlUserConnection] = Map()
   private var pendingResponseMiddlewareUIDs: Map[String, BigInt] = Map()
 
-  system.scheduler.schedule(10.seconds, 10.seconds, self, MiddlewareHealthCheckScheduler10Sec)
+  override def preStart(): Unit = {
+    timers.startTimerAtFixedRate("graphql-middleware-health-check", MiddlewareHealthCheckScheduler10Sec, 10.seconds)
+  }
+
   private val maxMiddlewareInactivityInMillis = 11000
 
   def receive = {
@@ -160,13 +162,13 @@ class GraphqlConnectionsActor(
   private def sendPingMessageToAllMiddlewareServices(): Unit = {
     graphqlConnections.map(c => {
       c._2.middlewareUID
-    }).toVector.distinct.map(middlewareUID => {
+    }).toVector.distinct.foreach(middlewareUID => {
       val event = MsgBuilder.buildCheckGraphqlMiddlewareAlivePingSysMsg(middlewareUID)
       outGW.send(event)
-      log.debug(s"Sent ping message from graphql middleware ${middlewareUID}.")
+      log.debug("Sent ping message to graphql middleware {}.", middlewareUID)
       pendingResponseMiddlewareUIDs.get(middlewareUID) match {
         case None => pendingResponseMiddlewareUIDs += (middlewareUID -> System.currentTimeMillis)
-        case _ => //Ignore
+        case Some(pingSentAt) => log.debug("There is already a pending response from middleware {} since {}.", middlewareUID, Instant.ofEpochMilli(pingSentAt.longValue))
       }
     })
   }
@@ -176,7 +178,7 @@ class GraphqlConnectionsActor(
       (middlewareUid, pingSentAt) <- pendingResponseMiddlewareUIDs
       if (System.currentTimeMillis - pingSentAt) > maxMiddlewareInactivityInMillis
     } yield {
-      log.info("Removing connections from the middleware {} due to inactivity of the service.",middlewareUid)
+      log.info("Removing connections from the middleware {} due to inactivity of the service (waiting response since {}).",middlewareUid, Instant.ofEpochMilli(pingSentAt.longValue))
       for {
         (_, graphqlConn) <- graphqlConnections
         if graphqlConn.middlewareUID == middlewareUid
@@ -189,7 +191,7 @@ class GraphqlConnectionsActor(
   }
 
   private def handleCheckGraphqlMiddlewareAlivePongSysMsg(msg: CheckGraphqlMiddlewareAlivePongSysMsg): Unit = {
-    log.debug(s"Received pong message from graphql middleware ${msg.body.middlewareUID}.")
+    log.debug("Received pong message from graphql middleware {}.",msg.body.middlewareUID)
     pendingResponseMiddlewareUIDs -= msg.body.middlewareUID
   }
 

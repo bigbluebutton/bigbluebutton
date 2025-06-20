@@ -30,6 +30,14 @@ exports.camerasOnly = 'meetingLayout=CAMERAS_ONLY';
 exports.presentationOnly = 'meetingLayout=PRESENTATION_ONLY';
 exports.participantsAndChatOnly = 'meetingLayout=PARTICIPANTS_AND_CHAT_ONLY';
 exports.mediaOnly = 'meetingLayout=MEDIA_ONLY';
+exports.enforceCustomLayout = 'enforceLayout=CUSTOM_LAYOUT';
+exports.enforcePresentationFocus = 'enforceLayout=PRESENTATION_FOCUS';
+exports.enforceSmartLayout = 'enforceLayout=SMART_LAYOUT';
+exports.enforceVideoFocus = 'enforceLayout=VIDEO_FOCUS';
+exports.enforceCamerasOnly = 'enforceLayout=CAMERAS_ONLY';
+exports.enforcePresentationOnly = 'enforceLayout=PRESENTATION_ONLY';
+exports.enforceParticipantsAndChatOnly = 'enforceLayout=PARTICIPANTS_AND_CHAT_ONLY';
+exports.enforceMediaOnly = 'enforceLayout=MEDIA_ONLY';
 
 // Custom Parameters
 exports.autoJoin = 'userdata-bbb_auto_join_audio=false';

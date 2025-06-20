@@ -59,8 +59,8 @@ const ReactionItem: React.FC<ReactionItemProps> = (props) => {
   }
 
   const label = intl.formatMessage(intlMessages.reactionLabel, {
-    0: usersLabel,
-    1: shortcodes,
+    userName: usersLabel,
+    reaction: shortcodes,
   });
 
   return (

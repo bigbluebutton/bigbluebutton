@@ -68,7 +68,7 @@ const RoomUserList: React.FC<RoomUserListProps> = ({
     <Styled.SelectUserScreen>
       <Styled.Header>
         <Styled.Title>
-          {intl.formatMessage(intlMessages.breakoutRoomLabel, { 0: selectedRoom })}
+          {intl.formatMessage(intlMessages.breakoutRoomLabel, { roomNumber: selectedRoom })}
         </Styled.Title>
         <Styled.ButtonAdd
           size="md"

@@ -12,6 +12,7 @@ import {
   Track,
   Room,
   RoomEvent,
+  ParticipantEvent,
   LocalTrackPublication,
   RemoteTrackPublication,
   LocalTrack,
@@ -110,6 +111,7 @@ export default class LiveKitScreenshareBridge {
     this.screenPublications = new Map();
     this.audioPublications = new Map();
 
+    this.handleLocalTrackPublished = this.handleLocalTrackPublished.bind(this);
     this.handleTrackPublished = this.handleTrackPublished.bind(this);
     this.handleTrackUnpublished = this.handleTrackUnpublished.bind(this);
     this.handleTrackSubscribed = this.handleTrackSubscribed.bind(this);
@@ -213,21 +215,10 @@ export default class LiveKitScreenshareBridge {
     this.subscriptions.clear();
   }
 
-  private publicationStarted(): void {
-    logger.info({
-      logCode: 'livekit_screenshare_published',
-      extraInfo: {
-        bridgeName: BRIDGE_NAME,
-        streamId: this.streamId,
-        role: this.role,
-      },
-    }, 'LiveKit: screen share published');
-  }
-
   private publicationEnded(publication: LocalTrackPublication | RemoteTrackPublication): void {
     if (!LiveKitScreenshareBridge.isScreenSharePublication(publication)) return;
 
-    const { trackSid, source } = publication;
+    const { trackSid, source, trackName } = publication;
 
     if (this.role === SEND_ROLE) {
       logger.info({
@@ -235,15 +226,35 @@ export default class LiveKitScreenshareBridge {
         extraInfo: {
           bridgeName: BRIDGE_NAME,
           streamId: this.streamId,
-          trackSid,
           role: this.role,
+          trackSid,
+          trackName,
+          streamData: MediaStreamUtils.getMediaStreamLogData(this.gdmStream),
         },
-      }, 'LiveKit: screen share unpublished');
+      }, `LiveKit: screen share unpublished - ${trackSid}`);
     }
 
     // We only want to alert the user once when the screen share ends, so
     // only do it for the main screen share track (not the audio track)
     if (source === Track.Source.ScreenShare) screenShareEndAlert();
+  }
+
+  private handleLocalTrackPublished(publication: LocalTrackPublication): void {
+    if (!LiveKitScreenshareBridge.isScreenSharePublication(publication)) return;
+
+    const { trackSid, trackName } = publication;
+
+    logger.info({
+      logCode: 'livekit_screenshare_published',
+      extraInfo: {
+        bridgeName: BRIDGE_NAME,
+        streamId: this.streamId,
+        role: this.role,
+        trackSid,
+        trackName,
+        streamData: MediaStreamUtils.getMediaStreamLogData(this.gdmStream),
+      },
+    }, `LiveKit: screen share published - ${trackSid}`);
   }
 
   private handleTrackPublished(publication: LocalTrackPublication | RemoteTrackPublication): void {
@@ -268,19 +279,20 @@ export default class LiveKitScreenshareBridge {
   ): void {
     if (!LiveKitScreenshareBridge.isScreenShareTrack(track)) return;
 
-    const { trackSid, source } = publication;
+    const { trackSid, source, trackName } = publication;
     this.setSubscription(trackSid, track, publication);
     if (trackSid === this.streamId) this.handleViewerStart(trackSid);
     logger.debug({
       logCode: 'livekit_screenshare_subscribed',
       extraInfo: {
         bridgeName: this.bridgeName,
-        streamId: trackSid,
+        streamId: this.streamId,
+        trackSid,
         role: this.role,
+        trackName,
         source,
-        trackName: publication?.trackName,
       },
-    }, `LiveKit: ${source} subscribed - ${trackSid}`);
+    }, `LiveKit: screen share subscribed - ${trackSid} (${source})`);
   }
 
   private handleTrackUnsubscribed(
@@ -289,16 +301,19 @@ export default class LiveKitScreenshareBridge {
   ): void {
     if (!LiveKitScreenshareBridge.isScreenShareTrack(track)) return;
 
-    const { trackSid } = publication;
+    const { trackSid, source, trackName } = publication;
     this.removeSubscription(trackSid);
     logger.debug({
       logCode: 'livekit_screenshare_unsubscribed',
       extraInfo: {
         bridgeName: this.bridgeName,
-        streamId: trackSid,
+        streamId: this.streamId,
         role: this.role,
+        trackSid,
+        trackName,
+        source,
       },
-    }, `LiveKit: screen share unsubscribed - ${trackSid}`);
+    }, `LiveKit: screen share unsubscribed - ${trackSid} (${source})`);
   }
 
   private findInitialRemotePublications(): void {
@@ -322,6 +337,7 @@ export default class LiveKitScreenshareBridge {
     this.liveKitRoom.on(RoomEvent.LocalTrackUnpublished, this.handleTrackUnpublished);
     this.liveKitRoom.on(RoomEvent.TrackSubscribed, this.handleTrackSubscribed);
     this.liveKitRoom.on(RoomEvent.TrackUnsubscribed, this.handleTrackUnsubscribed);
+    this.liveKitRoom.localParticipant.on(ParticipantEvent.LocalTrackPublished, this.handleLocalTrackPublished);
     this.findInitialRemotePublications();
   }
 
@@ -333,6 +349,7 @@ export default class LiveKitScreenshareBridge {
     this.liveKitRoom.off(RoomEvent.LocalTrackUnpublished, this.handleTrackUnpublished);
     this.liveKitRoom.off(RoomEvent.TrackSubscribed, this.handleTrackSubscribed);
     this.liveKitRoom.off(RoomEvent.TrackUnsubscribed, this.handleTrackUnsubscribed);
+    this.liveKitRoom.localParticipant.off(ParticipantEvent.LocalTrackPublished, this.handleLocalTrackPublished);
     this.clearPublications();
     this.clearSubscriptions();
   }
@@ -513,6 +530,7 @@ export default class LiveKitScreenshareBridge {
           errorStack: error.stack,
           bridgeName: this.bridgeName,
           role: this.role,
+          streamId: this.streamId,
         },
       }, `LiveKit: screen subscribe failed: ${error.message}`);
     };
@@ -571,6 +589,9 @@ export default class LiveKitScreenshareBridge {
           errorStack: error.stack,
           bridgeName: this.bridgeName,
           role: this.role,
+          streamId: this.streamId,
+          contentType,
+          streamData: MediaStreamUtils.getMediaStreamLogData(stream),
         },
       }, `LiveKit: activate screenshare failed: ${error.message}`);
       onFailure(error);
@@ -593,9 +614,7 @@ export default class LiveKitScreenshareBridge {
 
       this.waitForRoomConnection()
         .then(() => Promise.all(publishers.map((publish) => publish())))
-        .then(() => {
-          this.publicationStarted();
-        }).catch(handleInitError);
+        .catch(handleInitError);
     } catch (publishError) {
       handleInitError(publishError as Error);
     }
@@ -611,11 +630,13 @@ export default class LiveKitScreenshareBridge {
         logger.error({
           logCode: 'livekit_screenshare_exit_error',
           extraInfo: {
+
             errorName: (error as Error).name,
             errorMessage: (error as Error).message,
             errorStack: (error as Error).stack,
             bridgeName: this.bridgeName,
             role: this.role,
+            streamId: this.streamId,
           },
         }, 'Failed to exit screenshare');
       }

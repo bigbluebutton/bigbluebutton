@@ -45,7 +45,7 @@ const UserTitle: React.FC<UserTitleProps> = ({
           {intl.formatMessage(
             userListLabel,
             {
-              0: count.toLocaleString('en-US', { notation: 'standard' }),
+              userCount: count.toLocaleString('en-US', { notation: 'standard' }),
             },
           )}
         </span>

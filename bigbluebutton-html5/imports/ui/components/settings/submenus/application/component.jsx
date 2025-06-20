@@ -437,7 +437,7 @@ class ApplicationMenu extends BaseMenu {
       '20px': '125%',
     };
 
-    const ariaValueLabel = intl.formatMessage(intlMessages.currentValue, { 0: `${pixelPercentage[settings.fontSize]}` });
+    const ariaValueLabel = intl.formatMessage(intlMessages.currentValue, { size: `${pixelPercentage[settings.fontSize]}` });
 
     const showSelect = allLocales && allLocales.length > 0;
     const Settings = getSettingsSingletonInstance();

@@ -27,7 +27,7 @@ trait MuteAllExceptPresentersCmdMsgHdlr extends RightsManagementTrait {
           "mute",
           "app.toast.muteAllViewers.label",
           "Message used when viewers of a meeting have been muted",
-          Vector()
+          Map()
         )
         outGW.send(notifyEvent)
         NotificationDAO.insert(notifyEvent)

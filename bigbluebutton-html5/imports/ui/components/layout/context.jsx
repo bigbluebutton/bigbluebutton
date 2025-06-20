@@ -88,18 +88,6 @@ const reducer = (state, action) => {
       };
     }
 
-    case ACTIONS.SET_AUTO_ARRANGE_LAYOUT: {
-      const { autoarrAngeLayout } = state.input;
-      if (autoarrAngeLayout === action.value) return state;
-      return {
-        ...state,
-        input: {
-          ...state.input,
-          autoarrAngeLayout: action.value,
-        },
-      };
-    }
-
     case ACTIONS.SET_IS_RTL: {
       const { isRTL } = state;
       if (isRTL === action.value) return state;

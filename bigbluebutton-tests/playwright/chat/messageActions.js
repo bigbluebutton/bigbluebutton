@@ -118,7 +118,7 @@ class MessageActions extends Chat {
     await this.modPage.hasElement(e.simpleModal, 'should display the delete message confirmation modal');
     await this.modPage.waitAndClick(e.confirmDeleteChatMessageButton);
     // check deleted message
-    await expect(lastMessageItem, 'should display the message deleted label after deleting a message').toContainText(`This message was deleted by ${this.modPage.username}`);
+    await expect(lastMessageItem, 'should display the message deleted label after deleting a message').toContainText(`This message has been deleted by ${this.modPage.username}`);
     await this.modPage.wasRemoved(e.chatUserMessageText, 'should remove the message content from the public chat');
     await this.modPage.hasElementCount(e.chatMessageItem, initialMessageItemsCount, 'should keep displaying the deleted message item on the public chat');
     await this.modPage.wasRemoved(e.messageReactionItem, 'should remove the message reaction item from the deleted message');
@@ -147,7 +147,7 @@ class MessageActions extends Chat {
     await this.modPage.hasElement(e.simpleModal, 'should display the delete message confirmation modal');
     await this.modPage.waitAndClick(e.confirmDeleteChatMessageButton);
     // check deleted message
-    await expect(lastMessageItem, 'should display the message deleted label after deleting a message').toContainText(`This message was deleted by ${this.modPage.username}`);
+    await expect(lastMessageItem, 'should display the message deleted label after deleting a message').toContainText(`This message has been deleted by ${this.modPage.username}`);
     await this.modPage.wasRemoved(e.chatUserMessageText, 'should remove the message content from the public chat');
     await this.modPage.hasElementCount(e.chatMessageItem, initialMessageItemsCount, 'should keep displaying the deleted message item on the public chat');
     await this.modPage.wasRemoved(e.messageReactionItem, 'should remove the message reaction item from the deleted message');
@@ -167,7 +167,7 @@ class MessageActions extends Chat {
     await this.modPage.waitAndClick(e.confirmDeleteChatMessageButton);
     // check deleted message
     const lastMessageItem2 = this.modPage.getLocator(e.chatMessageItem).last();
-    await expect(lastMessageItem2, 'should display the message deleted label after deleting a message').toContainText(`This message was deleted by ${this.modPage.username}`);
+    await expect(lastMessageItem2, 'should display the message deleted label after deleting a message').toContainText(`This message has been deleted by ${this.modPage.username}`);
     await this.modPage.wasRemoved(e.chatUserMessageText, 'should remove the message content from the public chat');
     await this.modPage.hasElementCount(e.chatMessageItem, initialMessageItemsCount + 1, 'should keep displaying the mod2 deleted message item on the public chat');
   }
@@ -213,9 +213,9 @@ class MessageActions extends Chat {
     await breakoutModPage.waitAndClick(e.confirmDeleteChatMessageButton);
     // check deleted message
     const lastMessageItemMod = await breakoutModPage.getLocator(e.chatMessageItem).last();
-    await expect(lastMessageItemMod, 'should display the message deleted label after deleting a message for the mod').toContainText(`This message was deleted by ${this.modPage.username}`);
+    await expect(lastMessageItemMod, 'should display the message deleted label after deleting a message for the mod').toContainText(`This message has been deleted by ${this.modPage.username}`);
     const lastMessageItemUser = await breakoutUserPage.getLocator(e.chatMessageItem).last();
-    await expect(lastMessageItemUser, 'should display the message deleted label after deleting a message for the viewer').toContainText(`This message was deleted by ${this.modPage.username}`);
+    await expect(lastMessageItemUser, 'should display the message deleted label after deleting a message for the viewer').toContainText(`This message has been deleted by ${this.modPage.username}`);
   }
 
   async replyMessage() {

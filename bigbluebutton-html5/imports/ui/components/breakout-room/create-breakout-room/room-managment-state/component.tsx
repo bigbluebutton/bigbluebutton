@@ -106,7 +106,7 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
 
   const roomName = (room: number) => {
     const defaultName = intl.formatMessage(intlMessages.breakoutRoom, {
-      0: room,
+      roomNumber: room,
     });
     if (roomNames[room]) {
       return roomNames[room];

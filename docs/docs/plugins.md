@@ -206,11 +206,51 @@ Here is as complete `manifest.json` example with all possible configurations:
       "fetchMode": "onMeetingCreate", // Possible values: "onMeetingCreate", "onDemand" 
       "permissions": ["moderator", "viewer"]
     }
+  ],
+  "settingsSchema": [
+    {
+      "name": "myJson",
+      "label": "myJson",
+      "required": true,
+      "defaultValue": {
+        "abc": 123
+      },
+      "type": "json" // Possible values: "int", "float", "string", "boolean", "json"
+    }
   ]
 }
 ```
 
 To better understand remote-data-sources, please, refer to [this section](#external-data-resources)
+
+**settingsSchema:**
+
+The settingsSchema serves two main purposes:
+
+1. **Validation:** Ensures that all required settings are provided for a plugin. If any required setting is missing, the plugin will not load.
+2. **Configuration Exposure:** Lists all available settings for the plugin, enabling external systems—such as a Learning Management System (LMS)—to present these settings to a meeting organizer. This allows the organizer to configure the plugin manually before the meeting begins.
+
+| **Name**       | **Required** | **Description**                                                                                                |
+| -------------- | ------------ | -------------------------------------------------------------------------------------------------------------- |
+| `name`         | Yes          | The name of the setting as defined in the YAML file                                                            |
+| `label`        | No           | A user-facing label that appears in the integration UI                                                         |
+| `required`     | Yes          | Indicates whether this setting must be provided (`true` or `false`)                                            |
+| `defaultValue` | No           | The default value to use if no setting is explicitly defined                                                   |
+| `type`         | Yes          | The expected data type for the setting. Possible values: `"int"`, `"float"`, `"string"`, `"boolean"`, `"json"` |
+
+**Example**
+
+Given the `settingsSchema` defined in the `manifest.json` seen, the corresponding YAML configuration file (`/etc/bigbluebutton/bbb-html5.yml`) would look like:
+
+```yml
+public:
+  plugins:
+    - name: MyPlugin
+      settings:
+        myJson:
+          abc: my123
+          def: 3234
+```
 
 ## Examples
 
@@ -978,11 +1018,59 @@ pluginApi.getRemoteData('allUsers').then((response: Response) => {
 });
 ```
 
-### Meta_ parameters
+### Customize manifest.json
+
+The following sections explain how you can dynamically customize your manifest.json for different runs.
+
+#### Meta_ parameters
 
 This is not part of the API, but it's a way of passing information to the manifest. Any value can be passed like this, one just needs to put something like `${meta_nameOfParameter}` in a specific config of the manifest, and in the `/create` call, set this meta-parameter to whatever is preferred, like `meta_nameOfParameter="Sample message"`
 
 This feature is mainly used for security purposes, see [external data section](#external-data-resources). But can be used for customization reasons as well.
+
+#### Plugin_ parameters
+
+`plugin_` parameters work similarly to `meta_` parameters, allowing data to be passed dynamically to the manifest. While they can serve the same purposes — like security or customization — they are specifically scoped to individual plugins.
+
+**Format:**
+
+```
+plugin_<pluginName>_<parameter-name>
+```
+
+- `<pluginName>` — The name of the plugin as defined in `manifest.json`.  
+- `<parameter-name>` — The parameter's name. It may include letters (uppercase or lowercase), numbers and hyphens (`-`).
+
+This naming convention ensures that each plugin has its own namespace for parameters. Other plugins cannot access values outside their own namespace. For example:
+
+```
+plugin_pickRandomUserPlugin_url-to-fetch-data=https://...
+```
+
+This isolates the parameter to `pickRandomUserPlugin` and avoids conflicts with other plugins.
+
+#### Default value (fallback) for missing placeholder's parameters
+
+If a plugin expects a placeholder (via `meta_ `or `plugin_`) but doesn't receive a value, the plugin will fail to load. To prevent this, both types of placeholders support default values. This allows the system administrator to define fallback values, ensuring the plugin loads correctly.
+
+**Example with a default value (`manifest.json`):**
+```json
+{
+  "requiredSdkVersion": "~0.0.77",
+  "name": "MyPlugin",
+  "javascriptEntrypointUrl": "MyPlugin.js",
+  "localesBaseUrl": "https://cdn.domain.com/my-plugin/", // Optional
+  "dataChannels":[
+    {
+      "name": "${plugin_MyPlugin_data-channel-name:storeState}",
+      "pushPermission": ["moderator","presenter"], // "moderator","presenter", "all"
+      "replaceOrDeletePermission": ["moderator", "creator"] // "moderator", "presenter","all", "creator"
+    }
+  ]
+}
+```
+
+In this example, if the parameter `plugin_MyPlugin_data-channel-name` is not provided during the `/create` call, it will fall back to "storeState".
 
 ### Event persistence
 

@@ -6,6 +6,8 @@ import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x.requestBroadcastStop
 import org.bigbluebutton.core.db.ExternalVideoDAO
+import org.bigbluebutton.core.apps.pads.PadsApp2x.setPinned
+import org.bigbluebutton.core.util.UrlTimeExtractor
 
 trait StartExternalVideoPubMsgHdlr extends RightsManagementTrait {
   this: ExternalVideoApp2x =>
@@ -13,8 +15,7 @@ trait StartExternalVideoPubMsgHdlr extends RightsManagementTrait {
   def handle(msg: StartExternalVideoPubMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
     log.info("Received StartExternalVideoPubMsgr meetingId={} url={}", liveMeeting.props.meetingProp.intId, msg.body.externalVideoUrl)
 
-    def broadcastEvent(msg: StartExternalVideoPubMsg) {
-
+    def broadcastEvent(msg: StartExternalVideoPubMsg): Unit = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, liveMeeting.props.meetingProp.intId, "nodeJSapp")
       val envelope = BbbCoreEnvelope(StartExternalVideoEvtMsg.NAME, routing)
       val header = BbbClientMsgHeader(StartExternalVideoEvtMsg.NAME, liveMeeting.props.meetingProp.intId, msg.header.userId)
@@ -34,13 +35,17 @@ trait StartExternalVideoPubMsgHdlr extends RightsManagementTrait {
       val reason = "You need to be the presenter to start external videos"
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
     } else {
-
       // Request a screen broadcast stop (goes to SFU, comes back through
       // ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg)
       requestBroadcastStop(bus.outGW, liveMeeting)
 
-      ExternalVideoModel.setURL(liveMeeting.externalVideoModel, msg.body.externalVideoUrl)
-      ExternalVideoDAO.insert(liveMeeting.props.meetingProp.intId, msg.body.externalVideoUrl)
+      // Request Shared Notes to unpin
+      setPinned(bus.outGW, liveMeeting, "notes", pinned = false)
+
+      val (videoUrl, initialSecond) = UrlTimeExtractor.extractTime(msg.body.externalVideoUrl)
+      ExternalVideoModel.setURL(liveMeeting.externalVideoModel, videoUrl)
+      ExternalVideoDAO.insert(liveMeeting.props.meetingProp.intId, videoUrl, initialSecond)
+
       broadcastEvent(msg)
     }
   }

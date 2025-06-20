@@ -125,7 +125,7 @@ class PresentationDownloadDropdown extends PureComponent {
           key: this.actionsKey[0],
           dataTest: 'disableOriginalPresentationDownload',
           label: intl.formatMessage(intlMessages.disableOriginalPresentationDownload,
-            { 0: originalFileExtension }),
+            { fileExtension: originalFileExtension }),
           onClick: () => changeDownloadOriginalOrConvertedPresentation(false, 'Original'),
         });
       } else {
@@ -133,7 +133,7 @@ class PresentationDownloadDropdown extends PureComponent {
           key: this.actionsKey[0],
           dataTest: 'enableOriginalPresentationDownload',
           label: intl.formatMessage(intlMessages.enableOriginalPresentationDownload,
-            { 0: originalFileExtension }),
+            { fileExtension: originalFileExtension }),
           onClick: () => changeDownloadOriginalOrConvertedPresentation(true, 'Original'),
         });
       }
@@ -147,7 +147,7 @@ class PresentationDownloadDropdown extends PureComponent {
             key: this.actionsKey[0],
             dataTest: 'disableOriginalPresentationDownload',
             label: intl.formatMessage(intlMessages.disableOriginalPresentationDownload,
-              { 0: convertedFileExtension }),
+              { fileExtension: convertedFileExtension }),
             onClick: () => changeDownloadOriginalOrConvertedPresentation(false, 'Converted'),
           });
         } else {
@@ -155,7 +155,7 @@ class PresentationDownloadDropdown extends PureComponent {
             key: this.actionsKey[0],
             dataTest: 'enableOriginalPresentationDownload',
             label: intl.formatMessage(intlMessages.enableOriginalPresentationDownload,
-              { 0: convertedFileExtension }),
+              { fileExtension: convertedFileExtension }),
             onClick: () => changeDownloadOriginalOrConvertedPresentation(true, 'Converted'),
           });
         }

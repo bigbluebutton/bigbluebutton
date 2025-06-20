@@ -4,7 +4,7 @@ import PostgresProfile.api._
 import org.bigbluebutton.core.db.DatabaseConnection.{db, logger}
 import org.bigbluebutton.core.util.RandomStringGenerator
 import spray.json.JsValue
-import scala.concurrent.{Await}
+import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 
 object Permission {

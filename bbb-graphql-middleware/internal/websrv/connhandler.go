@@ -125,10 +125,10 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		BrowserConnectionsMutex.Unlock()
 
-		thisConnection.Logger.Infof("connection removed")
+		thisConnection.Logger.Infof("browser connection removed")
 	}()
 
-	thisConnection.Logger.Infof("connection accepted")
+	thisConnection.Logger.Infof("browser connection accepted")
 
 	// Configure the wait group (to hold this routine execution until both are completed)
 	var wgAll sync.WaitGroup
@@ -412,11 +412,11 @@ func connectionInitHandler(browserConnection *common.BrowserConnection) (error, 
 			}
 
 			if errCheckAuthorization != nil {
-				return fmt.Errorf("error on trying to check authorization"), "user_not_found"
+				return fmt.Errorf("error on trying to check authorization"), "check_authorization_error"
 			}
 
 			if meetingId == "" {
-				return fmt.Errorf("error on trying to check authorization"), "user_not_found"
+				return fmt.Errorf("error on trying to check authorization"), "meeting_not_found"
 			}
 			browserConnection.Logger = browserConnection.Logger.WithField("meetingId", meetingId)
 

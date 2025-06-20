@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-// authHookUrl is the authentication hook URL obtained from an environment variable.
+// authHookUrl is the authentication hook URL obtained from config file.
 var authHookUrl = config.GetConfig().AuthHook.Url
 
 func BBBWebCheckAuthorization(browserConnectionId string, sessionToken string, cookies []*http.Cookie) (string, string, error) {
@@ -31,7 +31,7 @@ func BBBWebCheckAuthorization(browserConnectionId string, sessionToken string, c
 
 	// Check if the authentication hook URL is set.
 	if authHookUrl == "" {
-		return "", "", fmt.Errorf("BBB_GRAPHQL_MIDDLEWARE_AUTH_HOOK_URL not set")
+		return "", "", fmt.Errorf("Config auth_hook.url not set")
 	}
 
 	// Create a new HTTP request to the authentication hook URL.

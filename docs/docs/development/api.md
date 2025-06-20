@@ -112,7 +112,7 @@ Updated in 2.7:
 
 Updated in 3.0:
 
-- **create** - **Added parameters:** `allowOverrideClientSettingsOnCreateCall`, `loginURL`, `pluginManifests`, `pluginManifestsFetchUrl`, `presentationConversionCacheEnabled`, `maxNumPages`. **Removed:** `breakoutRoomsEnabled`, `learningDashboardEnabled`, `virtualBackgroundsDisabled`. Parameter `meetingLayout` supports a few new options: CAMERAS_ONLY, PARTICIPANTS_CHAT_ONLY, PRESENTATION_ONLY, MEDIA_ONLY; **Added POST module:** `clientSettingsOverride`; **Added:** `disabledFeatures` options `infiniteWhiteboard`, `deleteChatMessage`, `editChatMessage`, `replyChatMessage`, `chatMessageReactions`, `raiseHand`, `userReactions`;
+- **create** - **Added parameters:** `allowOverrideClientSettingsOnCreateCall`, `loginURL`, `pluginManifests`, `pluginManifestsFetchUrl`, `presentationConversionCacheEnabled`, `maxNumPages`. **Removed:** `breakoutRoomsEnabled`, `learningDashboardEnabled`, `virtualBackgroundsDisabled`. Parameter `meetingLayout` supports a few new options: CAMERAS_ONLY, PARTICIPANTS_CHAT_ONLY, PRESENTATION_ONLY, MEDIA_ONLY; **Added POST module:** `clientSettingsOverride`; **Added:** `disabledFeatures` options `infiniteWhiteboard`, `deleteChatMessage`, `editChatMessage`, `replyChatMessage`, `chatMessageReactions`, `raiseHand`, `userReactions`, `chatEmojiPicker`;
 - **join** - **Added:** `bot`, `enforceLayout`, `logoutURL`, `firstName`, `lastName`, `userdata-bbb_default_layout`, `userdata-bbb_skip_echotest_if_previous_device`, `userdata-bbb_prefer_dark_theme`. `userdata-bbb_hide_notifications`, `userdata-bbb_hide_controls`, **Removed:** `defaultLayout` (replaced by `userdata-bbb_default_layout`) and removed support for all HTTP request methods except GET, `userdata-bbb_ask_for_feedback_on_logout`.
 - **sendChatMessage** endpoint was first introduced.
 - **getJoinUrl** endpoint was first introduced.
@@ -394,12 +394,12 @@ In the body part, you would append a simple XML like the example below:
 
 When you need to provide a document using a URL, and the document URL does not contain an extension, you can use the `filename` parameter, such as `filename=test-results.pdf` to help the BigBlueButton server determine the file type (in this example it would be a PDF file).
 
-**From `2.5.x` and on** there is also 2 parameters one can provide the payload to ensure that the document they are uploading can be downloaded or removed from the meeting, those parameters are:
+**From `2.5.x` and on** there are also 2 parameters one can provide the payload to ensure that the document they are uploading can be downloaded or removed from the meeting, those parameters are:
 
 | Parameter      | Description                                    | Default Value |
 | -------------- | ---------------------------------------------- | ------------- |
-| `downloadable` | Dictates if the presentation can be downloaded | `true`        |
-| `removable`    | dictates if one can remove the presentation.   | `false`       |
+| `downloadable` | Dictates if the presentation can be downloaded | `false`        |
+| `removable`    | dictates if one can remove the presentation.   | `true`       |
 
 In the payload the variables are passed inside each `<document>` tag of the xml, as follows:
 

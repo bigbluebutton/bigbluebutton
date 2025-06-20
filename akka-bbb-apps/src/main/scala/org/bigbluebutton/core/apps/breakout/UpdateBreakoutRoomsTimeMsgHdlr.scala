@@ -60,7 +60,7 @@ trait UpdateBreakoutRoomsTimeMsgHdlr extends RightsManagementTrait {
               "about",
               "app.chat.breakoutDurationUpdated",
               "Used when the breakout duration is updated",
-              Vector(s"${msg.body.timeInMinutes}")
+              Map("timeInMinutes" -> s"${msg.body.timeInMinutes}")
             )
             outGW.send(notifyEvent)
             NotificationDAO.insert(notifyEvent)
@@ -73,7 +73,7 @@ trait UpdateBreakoutRoomsTimeMsgHdlr extends RightsManagementTrait {
             "promote",
             "app.chat.breakoutDurationUpdatedModerator",
             "Sent to the moderator that requested breakout duration change",
-            Vector(s"${msg.body.timeInMinutes}")
+            Map("timeInMinutes" -> s"${msg.body.timeInMinutes}")
           )
           outGW.send(notifyUserEvent)
           NotificationDAO.insert(notifyUserEvent)

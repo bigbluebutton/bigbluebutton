@@ -83,14 +83,14 @@ It matches the results displayed in the public chat!
 
 #### Private chat messages have a "seen" indicator
 
-We have added an indicator showing when your private chat recipient has seen the message.
+We have added an indicator showing when your private chat recipient has seen the message. To enable, see `public.chat.privateMessageReadFeedback.enabled` https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.8/bigbluebutton-html5/private/config/settings.yml#L774
 
 ![checkmark beside the message indicating it was seen](/img/30/30-seen-message.png)
 
 #### Push to talk was added
 
 You can now use the "M" shortcut while in a conference to control how long your microphone is open. If the option for push to talk is enabled in settings.yml holding "M" will keep your microphone unmuted for as long you hold the key down. Releasing it will mute you again.
-
+To enable see `public.app.defaultSettings.application.pushToTalkEnabled` https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.8/bigbluebutton-html5/private/config/settings.yml#L206
 
 ### Engagement
 
@@ -169,6 +169,8 @@ Everyone sees the margins and follows the presenter's point of view. If multi-us
 
 ![with infinite whiteboard enabled annotations can be made on the margins and more](/img/30/30-infinite-wb-in-action.png)
 
+You can enable infinite whiteboard via `public.whiteboard.allowInfiniteWhiteboard` https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.8/bigbluebutton-html5/private/config/settings.yml#L1047
+
 Recording is not yet implemented, meaning that if you enable this experimental feature on your server and use it in a recorded session, the recording will most likely have broken whiteboard at best. The recording (and playback) work is planned for after BigBlueButton 3.0.
 
 #### Integration with LiveKit
@@ -244,6 +246,9 @@ For full details on what is new in BigBlueButton 3.0, see the release notes.
 
 Recent releases:
 
+- [3.0.9](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.9)
+- [3.0.8](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.8)
+- [3.0.7](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.7)
 - [3.0.6](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.6)
 - [3.0.5](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.5)
 - [3.0.4](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.4)

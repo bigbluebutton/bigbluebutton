@@ -40,7 +40,7 @@ trait SendMessageToAllBreakoutRoomsMsgHdlr extends RightsManagementTrait {
           "group_chat",
           "app.createBreakoutRoom.msgToBreakoutsSent",
           "Message for chat sent successfully",
-          Vector(s"${breakoutModel.rooms.size}")
+          Map("numberOfBreakouts" -> s"${breakoutModel.rooms.size}")
         )
         outGW.send(notifyUserEvent)
         NotificationDAO.insert(notifyUserEvent)

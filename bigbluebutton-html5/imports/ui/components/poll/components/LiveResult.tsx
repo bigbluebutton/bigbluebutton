@@ -58,6 +58,26 @@ const intlMessages = defineMessages({
     id: 'app.poll.activePollInstruction',
     description: 'instructions displayed when a poll is active',
   },
+  true: {
+    id: 'app.poll.t',
+    description: 'Poll true option value',
+  },
+  false: {
+    id: 'app.poll.f',
+    description: 'Poll false option value',
+  },
+  yes: {
+    id: 'app.poll.y',
+    description: 'Poll yes option value',
+  },
+  no: {
+    id: 'app.poll.n',
+    description: 'Poll no option value',
+  },
+  abstention: {
+    id: 'app.poll.abstention',
+    description: 'Poll Abstention option value',
+  },
 });
 
 interface LiveResultProps {
@@ -97,6 +117,15 @@ const LiveResult: React.FC<LiveResultProps> = ({
     });
   }, []);
 
+  const translatedResponses = responses.map((response) => {
+    const translationKey = intlMessages[response.optionDesc.toLowerCase() as keyof typeof intlMessages];
+    const optionDesc = translationKey ? intl.formatMessage(translationKey) : response.optionDesc;
+    return {
+      ...response,
+      optionDesc,
+    };
+  });
+
   return (
     <div>
       <Styled.Instructions>
@@ -109,8 +138,8 @@ const LiveResult: React.FC<LiveResultProps> = ({
             ? (
               <span>
                 {`${intl.formatMessage(intlMessages.waitingLabel, {
-                  0: numberOfAnswerCount,
-                  1: usersCount,
+                  current: numberOfAnswerCount,
+                  total: usersCount,
                 })} `}
               </span>
             )
@@ -120,7 +149,7 @@ const LiveResult: React.FC<LiveResultProps> = ({
         </Styled.Status>
         <ResponsiveContainer width="90%" height={250}>
           <BarChart
-            data={responses}
+            data={translatedResponses}
             layout="vertical"
           >
             <XAxis type="number" allowDecimals={false} />
@@ -189,7 +218,14 @@ const LiveResult: React.FC<LiveResultProps> = ({
                   users.map((user) => (
                     <tr key={user.user.userId}>
                       <Styled.ResultLeft>{user.user.name}</Styled.ResultLeft>
-                      <Styled.ResultRight data-test="userVoteLiveResult">{user.optionDescIds.join()}</Styled.ResultRight>
+                      <Styled.ResultRight data-test="userVoteLiveResult">
+                        {
+                          user.optionDescIds.map((optDesc) => {
+                            const translationKey = intlMessages[optDesc.toLowerCase() as keyof typeof intlMessages];
+                            return translationKey ? intl.formatMessage(translationKey) : optDesc;
+                          }).join()
+                        }
+                      </Styled.ResultRight>
                     </tr>
                   ))
                 }

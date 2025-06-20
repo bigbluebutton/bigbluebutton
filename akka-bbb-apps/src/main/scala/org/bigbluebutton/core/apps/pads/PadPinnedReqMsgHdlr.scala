@@ -1,9 +1,9 @@
 package org.bigbluebutton.core.apps.pads
 
 import org.bigbluebutton.common2.msgs._
+import org.bigbluebutton.core.apps.pads.PadsApp2x.setPinned
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.bus.MessageBus
-import org.bigbluebutton.core.db.SharedNotesDAO
 import org.bigbluebutton.core.models.Pads
 import org.bigbluebutton.core.running.LiveMeeting
 
@@ -11,17 +11,6 @@ trait PadPinnedReqMsgHdlr extends RightsManagementTrait {
   this: PadsApp2x =>
 
   def handle(msg: PadPinnedReqMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
-
-    def broadcastEvent(groupId: String, pinned: Boolean): Unit = {
-      val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
-      val envelope = BbbCoreEnvelope(PadPinnedEvtMsg.NAME, routing)
-      val header = BbbClientMsgHeader(PadPinnedEvtMsg.NAME, liveMeeting.props.meetingProp.intId, "not-used")
-      val body = PadPinnedEvtMsgBody(groupId, pinned)
-      val event = PadPinnedEvtMsg(header, body)
-      val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
-
-      bus.outGW.send(msgEvent)
-    }
 
     if (Pads.hasAccess(liveMeeting, msg.body.externalId, msg.header.userId)) {
       if (permissionFailed(PermissionCheck.GUEST_LEVEL, PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
@@ -31,8 +20,7 @@ trait PadPinnedReqMsgHdlr extends RightsManagementTrait {
       } else {
         Pads.getGroup(liveMeeting.pads, msg.body.externalId) match {
           case Some(group) => {
-            SharedNotesDAO.updatePinned(liveMeeting.props.meetingProp.intId, msg.body.externalId, msg.body.pinned)
-            broadcastEvent(group.externalId, msg.body.pinned)
+            setPinned(bus.outGW, liveMeeting, msg.body.externalId, msg.body.pinned)
           }
           case _ =>
         }

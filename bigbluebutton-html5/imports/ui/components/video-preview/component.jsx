@@ -300,51 +300,26 @@ class VideoPreview extends Component {
 
     this._isMounted = true;
 
-    if (deviceInfo.hasMediaDevices) {
-      navigator.mediaDevices.enumerateDevices().then(async (devices) => {
-        VideoService.updateNumberOfDevices(devices);
-        // Tries to skip video preview - this can happen if:
-        // 1. skipVideoPreview, skipVideoPreviewOnFirstJoin, or
-        //  skipVideoPreviewIfPreviousDevice flags are enabled and meet their
-        //  own conditions
-        // 2. forceOpen flag was not specified to this component
-        //
-        // This will fail if no skip conditions are met, or if an unexpected
-        // failure occurs during the process. In that case, the error will be
-        // handled and the component will display the default video preview UI
-        if (this.shouldSkipVideoPreview()) {
-          try {
-            await this.skipVideoPreview()
-            return;
-          } catch (error) {
-            logger.warn({
-              logCode: 'video_preview_skip_failure',
-              extraInfo: {
-                errorName: error.name,
-                errorMessage: error.message,
-              },
-            }, 'Skipping video preview failed');
-          }
-        }
-        // Late enumerateDevices resolution, stop.
-        if (!this._isMounted) return;
+ const populatePreview = ({
+      digestedWebcams = [],
+      devices,
+      areLabelled,
+      areIdentified,
+    } = { }) => {
+      if (devices) VideoService.updateNumberOfDevices(devices);
+      // Video preview skip is activated, short circuit via a simpler procedure
+      if (PreviewService.getSkipVideoPreview() && !forceOpen) {
+        this.skipVideoPreview();
+        return;
+      }
+      // Late enumerateDevices resolution, stop.
+      if (!this._isMounted) return;
 
-        let {
-          webcams,
-          areLabelled,
-          areIdentified
-        } = PreviewService.digestVideoDevices(devices, webcamDeviceId);
+      let processedCamerasList = digestedWebcams;
+      const initialDeviceId = processedCamerasList[0]?.deviceId || webcamDeviceId;
 
-        logger.debug({
-          logCode: 'video_preview_enumerate_devices',
-          extraInfo: {
-            devices,
-            webcams,
-          },
-        }, `Enumerate devices came back. There are ${devices.length} devices and ${webcams.length} are video inputs`);
-
-        if (webcams.length > 0) {
-          await this.getInitialCameraStream(webcams[0].deviceId);
+      this.getInitialCameraStream(initialDeviceId)
+        .then(async () => {
           // Late gUM resolve, stop.
           if (!this._isMounted) return;
 
@@ -354,8 +329,12 @@ class VideoPreview extends Component {
             // Why: fingerprinting countermeasures obfuscate those when
             // no permission was granted via gUM
             try {
-              const newDevices = await navigator.mediaDevices.enumerateDevices();
-              webcams = PreviewService.digestVideoDevices(newDevices, webcamDeviceId).webcams;
+              const {
+                devices: newDevices,
+                digestedWebcams: newDigestedWebcams,
+              } = await PreviewService.doEnumerateDevices({ priorityDeviceId: webcamDeviceId });
+              processedCamerasList = newDigestedWebcams;
+              VideoService.updateNumberOfDevices(newDevices);
             } catch (error) {
               // Not a critical error beucase it should only affect UI; log it
               // and go ahead
@@ -368,20 +347,46 @@ class VideoPreview extends Component {
             }
           }
 
-          this.setState({
-            availableWebcams: webcams,
-            viewState: VIEW_STATES.found,
+          if (processedCamerasList.length > 0) {
+            this.setState({
+              availableWebcams: processedCamerasList,
+              viewState: VIEW_STATES.found,
+            });
+            this.displayPreview();
+          } else {
+            // There were no webcams coming from enumerateDevices. Throw an error.
+            const noWebcamsError = new Error('NotFoundError');
+            this.handleDeviceError('enumerate', noWebcamsError, ': no webcams found');
+          }
+        });
+    };
+
+     if (deviceInfo.hasMediaDevices) {
+      const SKIP_INITIAL_ENUM = window.meetingClientSettings.public.media.skipInitialCamEnumeration;
+      if (SKIP_INITIAL_ENUM) {
+        populatePreview({
+          digestedWebcams: [],
+          devices: [],
+          areLabelled: false,
+          areIdentified: false,
+        });
+      } else {
+        PreviewService.doEnumerateDevices({ priorityDeviceId: webcamDeviceId })
+          .then(populatePreview)
+          .catch((error) => {
+            // Late enumerateDevices rejection, stop.
+            logger.error({
+              logCode: 'video_preview_enumerate_failure',
+              extraInfo: {
+                errorName: error.name,
+                errorMessage: error.message,
+                errorStack: error.stack,
+              },
+            }, 'video-preview: enumerateDevices failed');
+            // Try populating the preview anyways after an initial gUM is run.
+            populatePreview();
           });
-          this.displayPreview();
-        } else {
-          // There were no webcams coming from enumerateDevices. Throw an error.
-          const noWebcamsError = new Error('NotFoundError');
-          this.handleDeviceError('enumerate', noWebcamsError, ': no webcams found');
-        }
-      }).catch((error) => {
-        // enumerateDevices failed
-        this.handleDeviceError('enumerate', error, 'enumerating devices');
-      });
+      }
     } else {
       // Top-level navigator.mediaDevices is not supported.
       // The session went through the version checking, but somehow ended here.
@@ -690,9 +695,11 @@ class VideoPreview extends Component {
     logger.error({
       logCode: 'video_preview_gum_failure',
       extraInfo: {
-        errorName: error.name, errorMessage: error.message,
+        errorName: error.name,
+        errorMessage: error.message,
+        errorStack: error.stack,
       },
-    }, 'getUserMedia failed in video-preview');
+    }, `getUserMedia failed in video-preview: ${error.name} - ${error.message}`);
 
     const intlError = intlMessages[error.name] || intlMessages[error.message];
     if (intlError) {
@@ -700,7 +707,7 @@ class VideoPreview extends Component {
     }
 
     return intl.formatMessage(intlMessages.genericError,
-      { 0: `${error.name}: ${error.message}` });
+      { error: `${error.name}: ${error.message}` });
   }
 
   terminateCameraStream(stream, deviceId) {
@@ -1312,8 +1319,8 @@ class VideoPreview extends Component {
               id="app.audioModal.unsupportedBrowserLabel"
               description="Warning when someone joins with a browser that isn't supported"
               values={{
-                0: <a href="https://www.google.com/chrome/">Chrome</a>,
-                1: <a href="https://getfirefox.com">Firefox</a>,
+                supportedBrowser1: <a href="https://www.google.com/chrome/">Chrome</a>,
+                supportedBrowser2: <a href="https://getfirefox.com">Firefox</a>,
               }}
             />
           </Styled.BrowserWarning>

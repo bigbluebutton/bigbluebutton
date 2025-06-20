@@ -124,7 +124,7 @@ const ChatListItem = (props: ChatListItemProps) => {
     : chat.participant?.name;
 
   const arialabel = `${localizedChatName} ${countUnreadMessages > 1
-    ? intl.formatMessage(intlMessages.unreadPlural, { 0: countUnreadMessages })
+    ? intl.formatMessage(intlMessages.unreadPlural, { unreadCount: countUnreadMessages })
     : intl.formatMessage(intlMessages.unreadSingular)}`;
 
   return (

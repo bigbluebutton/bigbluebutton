@@ -74,7 +74,7 @@ trait ChangeUserBreakoutReqMsgHdlr extends RightsManagementTrait {
             "promote",
             "app.updateBreakoutRoom.userChangeRoomNotification",
             "Notification to warn user was moved to another room",
-            Vector(roomTo.shortName)
+            Map("roomName" -> roomTo.shortName)
           )
           outGW.send(notifyUserEvent)
           NotificationDAO.insert(notifyUserEvent)
