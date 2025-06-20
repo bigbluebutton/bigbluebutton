@@ -3,6 +3,7 @@ package org.bigbluebutton.api.model.request;
 import jakarta.ws.rs.core.MediaType;
 import org.bigbluebutton.api.model.constraint.*;
 import org.bigbluebutton.api.model.shared.Checksum;
+import org.sitemesh.webapp.contentfilter.HttpServletRequestFilterable;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
@@ -24,7 +25,7 @@ public class InsertDocument extends RequestWithChecksum<InsertDocument.Params> {
     @MeetingIDConstraint
     private String meetingID;
 
-    public InsertDocument(Checksum checksum, HttpServletRequest servletRequest) {
+    public InsertDocument(Checksum checksum, HttpServletRequestFilterable servletRequest) {
         super(checksum, servletRequest);
     }
 

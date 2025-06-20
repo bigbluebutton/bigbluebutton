@@ -1,16 +1,23 @@
+repositories {
+  mavenCentral()
+  mavenLocal()
+  maven { url "https://repo.grails.org/grails/core" }
+}
+
 buildscript {
   repositories {
     mavenCentral()
     mavenLocal()
-    maven { url "https://repo1.maven.org/maven2" }
-    maven { url "https://repo.grails.org/artifactory/core" }
     maven { url "https://repo.grails.org/grails/core" }
   }
   dependencies {
-    classpath "org.grails:grails-gradle-plugin:${grailsGradlePluginVersion}"
-    classpath "org.grails.plugins:hibernate5:${gormVersion}"
-    classpath "com.bertramlabs.plugins:asset-pipeline-gradle:4.3.0"
-    classpath "gradle.plugin.com.github.erdi.webdriver-binaries:webdriver-binaries-gradle-plugin:2.6"
+    classpath ("org.grails:grails-gradle-plugin:${grailsGradlePluginVersion}") {
+      exclude group: 'org.grails.plugins', module: 'views-gradle'
+    }
+
+    classpath "com.bertramlabs.plugins:asset-pipeline-gradle:5.0.9"
+    classpath "com.github.erdi:webdriver-binaries-gradle-plugin:3.2"
+
     classpath "org.grails.plugins:views-gradle:2.1.1"
     classpath "org.grails.plugins:views-json:2.1.1"
   }
@@ -23,120 +30,117 @@ apply plugin: "eclipse"
 apply plugin: "idea"
 apply plugin: "war"
 apply plugin: "org.grails.grails-web"
-apply plugin: "com.bertramlabs.asset-pipeline"
 apply plugin: "org.grails.grails-gsp"
+apply plugin: "com.bertramlabs.asset-pipeline"
 apply plugin: "com.github.erdi.webdriver-binaries"
 apply plugin: "org.grails.plugins.views-json"
 
 task resolveDeps(type: Copy) {
-  into('lib')
-  from configurations.default
-  from configurations.default.allArtifacts.file
-  doLast { println '[bbb:task] Resolved dependencies for bigbluebutton-web application' }
+  into("lib")
+  from configurations.runtimeClasspath
+  doLast {
+    println '[bbb:task] Resolved dependencies for bigbluebutton-web application'
+  }
 }
 
-// Task that creates the index file which lists all extra libs
 task copyWebInf(type: Copy) {
   into("${project.buildDir}/resources/main/")
   from("src/main/webapp")
 }
-
-// make  processResources depends on copyWebInf task
 processResources.dependsOn copyWebInf
 
 repositories {
   mavenCentral()
   mavenLocal()
-  maven { url "https://repo1.maven.org/maven2" }
-  maven { url "https://repo.grails.org/artifactory/core" }
   maven { url "https://repo.grails.org/grails/core" }
 }
 
 dependencies {
-  runtimeOnly "com.bertramlabs.plugins:asset-pipeline-grails:4.3.0"
+  // Asset‑Pipeline runtime (aligns with 5.x plugin)
+  runtimeOnly "com.bertramlabs.plugins:asset-pipeline-grails:5.0.9"
 
-  implementation "org.springframework:spring-core:5.3.31"
-  implementation "org.springframework:spring-context:5.3.31"
+  // Spring Boot managed libs – version comes from `springVersion` property
   implementation "org.springframework.boot:spring-boot:${springVersion}"
-  implementation "org.springframework.boot:spring-boot-starter-logging:${springVersion}"
   implementation "org.springframework.boot:spring-boot-autoconfigure:${springVersion}"
-  implementation "org.grails:grails-core:${grailsVersion}"
+  implementation "org.springframework.boot:spring-boot-starter-logging:${springVersion}"
   implementation "org.springframework.boot:spring-boot-starter-actuator:${springVersion}"
   implementation "org.springframework.boot:spring-boot-starter-tomcat:${springVersion}"
 
-  implementation "org.grails:grails-web-boot:5.2.5"
-  implementation "org.springframework:spring-webmvc:5.3.31"
-  implementation 'org.apache.commons:commons-compress:1.27.0'
-
+  implementation "org.grails:grails-core"
   implementation "org.grails:grails-logging"
-  implementation "org.grails:grails-plugin-rest:5.2.5"
-  implementation "org.grails:grails-plugin-databinding:5.3.4"
+  implementation "org.grails:grails-plugin-rest"
+  implementation "org.grails:grails-plugin-databinding"
   implementation "org.grails:grails-plugin-i18n"
   implementation "org.grails:grails-plugin-services"
   implementation "org.grails:grails-plugin-url-mappings"
   implementation "org.grails:grails-plugin-interceptors"
-  implementation 'org.grails.plugins:external-config:1.2.2'
-  implementation "org.yaml:snakeyaml:1.31"
-  implementation "org.grails.plugins:views-json:2.1.1"
+
+  implementation "org.grails.plugins:views-json:4.0.0-M1"
   implementation "org.grails.plugins:cache"
+
+  runtimeOnly "com.bertramlabs.plugins:asset-pipeline-grails:5.0.6"
+
+//  implementation "org.grails.plugins:external-config:1.2.2"
+//  implementation "org.yaml:snakeyaml:1.33"
+
+  implementation "jakarta.validation:jakarta.validation-api:3.0.2"
+  implementation "org.hibernate.validator:hibernate-validator:8.0.1.Final"
+  implementation "org.glassfish:jakarta.el:4.0.2"
+
   implementation "org.apache.xmlbeans:xmlbeans:5.0.3"
-  implementation "org.grails:grails-gradle-plugin:${grailsGradlePluginVersion}"
-  implementation "org.grails.plugins:async"
-  implementation "org.grails.plugins:scaffolding"
-  implementation "org.grails.plugins:events"
-  implementation "org.grails.plugins:gsp"
-  implementation "org.apache.tomcat.embed:tomcat-embed-core:${tomcatEmbedVersion}"
-  implementation "org.apache.tomcat.embed:tomcat-embed-el:${tomcatEmbedVersion}"
-  implementation "org.apache.tomcat.embed:tomcat-embed-websocket:${tomcatEmbedVersion}"
-  implementation "org.apache.tomcat:tomcat-annotations-api:${tomcatEmbedVersion}"
-  //--- BigBlueButton Dependencies Start - Transitive dependencies have to be re-defined below
+  implementation "org.apache.groovy:groovy-xml"
+  implementation "commons-lang:commons-lang:2.6"
+  implementation 'org.apache.commons:commons-compress:1.27.0'
+
   implementation "org.bigbluebutton:bbb-common-message_2.13:0.0.22-SNAPSHOT"
-  implementation "org.bigbluebutton:bbb-common-web:0.0.4-SNAPSHOT"
-  implementation "io.lettuce:lettuce-core:6.1.9.RELEASE"
-  implementation "org.reactivestreams:reactive-streams:1.0.3"
-  implementation "io.projectreactor:reactor-core:3.4.12"
-  implementation "org.freemarker:freemarker:2.3.31"
-  implementation "com.google.code.gson:gson:2.8.9"
-  implementation "org.json:json:20231013"
+  implementation "org.bigbluebutton:bbb-common-web:0.0.5-SNAPSHOT"
+
+  implementation "io.lettuce:lettuce-core:6.3.1.RELEASE"
+  implementation "io.projectreactor:reactor-core:3.6.0"
+  implementation "org.reactivestreams:reactive-streams:1.0.4"
+
+  implementation "org.freemarker:freemarker:2.3.34"
+  implementation "com.google.code.gson:gson:2.11.0"
+  implementation "org.json:json:20241224"
   implementation "com.zaxxer:nuprocess:2.0.6"
-  implementation "net.java.dev.jna:jna:5.10.0"
-  implementation "org.springframework.data:spring-data-commons:2.7.6"
+  implementation "net.java.dev.jna:jna:5.14.0"
 
-  implementation 'javax.validation:validation-api:2.0.1.Final'
-  implementation "org.springframework.boot:spring-boot-starter-validation:${springVersion}"
-  implementation 'org.postgresql:postgresql:42.7.2'
-  implementation 'org.hibernate:hibernate-core:5.6.1.Final'
-
-  //--- BigBlueButton Dependencies End
-  console "org.grails:grails-console:5.2.0"
+  console "org.grails:grails-console:${grailsVersion}"
   profile "org.grails.profiles:web"
-  runtimeOnly "com.bertramlabs.plugins:asset-pipeline-grails:4.3.0"
+
   testImplementation "org.grails:grails-gorm-testing-support"
   testImplementation "org.grails.plugins:geb"
   testImplementation "org.grails:grails-web-testing-support"
-  testRuntimeOnly "org.seleniumhq.selenium:selenium-chrome-driver:4.0.0"
-  testRuntimeOnly "org.seleniumhq.selenium:selenium-htmlunit-driver:2.47.1"
-  testRuntimeOnly "net.sourceforge.htmlunit:htmlunit:2.63.0"
-  testImplementation "com.github.javafaker:javafaker:0.12"
+  testRuntimeOnly "org.seleniumhq.selenium:selenium-chrome-driver:4.20.0"
+  //testRuntimeOnly "net.sourceforge.htmlunit:htmlunit:3.10.0"
+  testImplementation ("com.github.javafaker:javafaker:1.0.2") {
+    exclude group: "org.yaml"
+  }
 }
 
 configurations.all {
   resolutionStrategy {
     dependencySubstitution {
-      substitute module('org.apache.commons:commons-lang3') using module('org.apache.commons:commons-lang3:3.17.0') because 'commons-compress requires this version'
+      substitute module('org.apache.commons:commons-lang3') using module('org.apache.commons:commons-lang3:3.17.0') because 'commons-compress requires >= 3.12'
     }
   }
 }
-tasks.named('bootWarMainClassName') {
-    it.mustRunAfter(tasks.named('compileGsonViews'))
+
+tasks.named('bootWar') {
+  dependsOn tasks.named('compileGsonViews')
+}
+
+tasks.named('compileTestGroovy') {
+  dependsOn tasks.named('compileGsonViews')
 }
 
 configurations.implementation {
-    exclude group: 'io.micronaut', module: 'micronaut-aop'
-    exclude group: 'com.h2database', module: 'h2'
-    exclude group: 'org.graalvm.sdk', module: 'graal-sdk'
-    exclude group: 'io.github.gradle-nexus', module: 'publish-plugin'
-    exclude group: 'org.grails', module: 'grails-shell'
+  exclude group: 'io.micronaut', module: 'micronaut-aop'
+  exclude group: 'com.h2database', module: 'h2'
+  exclude group: 'org.graalvm.sdk', module: 'graal-sdk'
+  exclude group: 'io.github.gradle-nexus', module: 'publish-plugin'
+  exclude group: 'org.grails', module: 'grails-shell'
+  exclude group: "javax.validation", module: "validation-api"
 }
 
 configurations {
@@ -147,8 +151,8 @@ configurations {
 }
 
 bootRun {
-  jvmArgs('-Dspring.output.ansi.enabled=always')
-  jvmArgs('-Dspring.main.allow-circular-references=true')
+  jvmArgs '-Dspring.output.ansi.enabled=always'
+  jvmArgs '-Dspring.main.allow-circular-references=true'
   sourceResources sourceSets.main
   String springProfilesActive = 'spring.profiles.active'
   systemProperty springProfilesActive, System.getProperty(springProfilesActive)
@@ -161,11 +165,7 @@ assets {
 
 test {
   testLogging {
-    events = ["passed", "failed", "skipped"]
-
-    // Make sure output from
-    // standard out or error is shown
-    // in Gradle output.
+    events "passed", "failed", "skipped"
     showStandardStreams = true
     showExceptions = true
     showCauses = true

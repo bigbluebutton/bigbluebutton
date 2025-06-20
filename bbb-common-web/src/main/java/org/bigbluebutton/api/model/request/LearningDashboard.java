@@ -3,7 +3,9 @@ package org.bigbluebutton.api.model.request;
 import org.bigbluebutton.api.model.constraint.UserSessionConstraint;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
+import org.sitemesh.webapp.contentfilter.HttpServletRequestFilterable;
+
 import java.util.Map;
 
 public class LearningDashboard extends RequestWithSession<LearningDashboard.Params> {
@@ -21,7 +23,7 @@ public class LearningDashboard extends RequestWithSession<LearningDashboard.Para
     @UserSessionConstraint
     private String sessionToken;
 
-    public LearningDashboard(HttpServletRequest servletRequest) {
+    public LearningDashboard(HttpServletRequestFilterable servletRequest) {
         super(servletRequest);
     }
 

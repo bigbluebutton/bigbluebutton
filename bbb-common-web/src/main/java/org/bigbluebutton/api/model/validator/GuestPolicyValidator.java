@@ -6,8 +6,8 @@ import org.bigbluebutton.api.domain.UserSession;
 import org.bigbluebutton.api.model.constraint.GuestPolicyConstraint;
 import org.bigbluebutton.api.service.ServiceUtils;
 
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 
 public class GuestPolicyValidator implements ConstraintValidator<GuestPolicyConstraint, String> {
 

@@ -12,4 +12,4 @@ echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 
 sudo service bbb-web stop
 
-exec grails prod run-app --port 8090 -reloading
+exec ./gradlew bootRun --args='--server.port=8090'

@@ -1,6 +1,6 @@
 import org.bigbluebutton.build._
 
-version := "0.0.4-SNAPSHOT"
+version := "0.0.5-SNAPSHOT"
 
 val compileSettings = Seq(
   organization := "org.bigbluebutton",
@@ -102,7 +102,7 @@ licenses := Seq("LGPL-3.0" -> url("http://opensource.org/licenses/LGPL-3.0"))
 homepage := Some(url("http://www.bigbluebutton.org"))
 
 libraryDependencies ++= Seq(
-  "javax.validation" % "validation-api" % "2.0.1.Final",
+  "jakarta.validation" % "jakarta.validation-api" % "3.0.2",
   "org.springframework.boot" % "spring-boot-starter-validation" % "2.7.17",
   "org.springframework.data" % "spring-data-commons" % "2.7.6",
   "org.apache.httpcomponents" % "httpclient" % "4.5.13",
@@ -115,5 +115,7 @@ libraryDependencies ++= Seq(
   "org.apache.tika" % "tika-parsers-standard-package" % "3.0.0",
   "org.scala-lang.modules" %% "scala-xml" % "2.2.0",
   "jakarta.ws.rs" % "jakarta.ws.rs-api" % "3.1.0",
-  "xyz.capybara" % "clamav-client" % "2.1.2"
+  "xyz.capybara" % "clamav-client" % "2.1.2",
+  "org.sitemesh" % "sitemesh" % "3.2.2",
+  "jakarta.servlet" % "jakarta.servlet-api" % "6.0.0" % "provided"
 )
