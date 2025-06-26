@@ -40,7 +40,6 @@ class PresentationService {
 	def presentationBaseUrl
 	def preUploadedPresentationOverrideDefault
 	def scanUploadedPresentationFiles
-	def maxPageConversionTime
 
 	def deletePresentation = {conf, room, filename ->
 		def directory = new File(roomDirectory(conf, room).absolutePath + File.separatorChar + filename)
@@ -88,12 +87,6 @@ class PresentationService {
 		def scheduler = Executors.newSingleThreadScheduledExecutor()
 		def startTime = System.currentTimeMillis()
 		def timeout = 10000 // 10 secs
-
-		def mct = 0L
-		try {
-			mct = Long.parseLong(maxPageConversionTime)
-		} catch (Exception ignored) {}
-		uploadedPres.setMaxPageConversionTime(mct)
 
 		scheduler.scheduleWithFixedDelay({
 			long elapsedTime = System.currentTimeMillis() - startTime

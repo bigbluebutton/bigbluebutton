@@ -49,17 +49,12 @@ public class ImageSlidesGenerationService {
 		executor = Executors.newFixedThreadPool(numThreads);
 	}
 
-	public void generateSlides(UploadedPresentation pres, AtomicBoolean cancelled) {
+	public void generateSlides(UploadedPresentation pres) {
 		for (int page = 1; page <= pres.getNumberOfPages(); page++) {
-			if (cancelled.get()) return;
-
 			/* adding accessibility */
 			createTextFiles(pres, page);
-
-			if (cancelled.get()) return;
 			createThumbnails(pres, page);
 
-			if (cancelled.get()) return;
 			if (svgImagesRequired) {
 				try {
 					createSvgImages(pres, page);
@@ -70,7 +65,6 @@ public class ImageSlidesGenerationService {
 				}
 			}
 
-			if (cancelled.get()) return;
 			if (generatePngs) {
 				createPngImages(pres, page);
 			}

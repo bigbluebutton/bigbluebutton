@@ -44,6 +44,7 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
   private IBbbWebApiGWApp gw;
   private OfficeToPdfConversionService officeToPdfConversionService;
   private SlidesGenerationProgressNotifier notifier;
+  private long maxPageConversionTime;
 
   private PresentationFileProcessor presentationFileProcessor;
 
@@ -82,6 +83,7 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
   }
 
   public void processDocumentStart(UploadedPresentation pres) {
+    pres.setMaxPageConversionTime(maxPageConversionTime);
     SupportedDocumentFilter sdf = new SupportedDocumentFilter(gw);
     if (sdf.isSupported(pres)) {
       String fileType = pres.getFileType();
@@ -211,5 +213,13 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
 
   public void setPresentationFileProcessor(PresentationFileProcessor presentationFileProcessor) {
       this.presentationFileProcessor = presentationFileProcessor;
+  }
+
+  public long getMaxPageConversionTime() {
+    return maxPageConversionTime;
+  }
+
+  public void setMaxPageConversionTime(long maxPageConversionTime) {
+    this.maxPageConversionTime = maxPageConversionTime;
   }
 }

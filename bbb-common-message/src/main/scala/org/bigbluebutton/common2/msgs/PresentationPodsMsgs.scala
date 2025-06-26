@@ -256,6 +256,21 @@ case class PresentationUploadedFileScanFailedErrorSysPubMsgBody(
   presentationId: String,
 )
 
+object PresentationUploadedConversionCancelledErrorSysPubMsg { val NAME = "PresentationUploadedConversionCancelledErrorSysPubMsg" }
+case class PresentationUploadedConversionCancelledErrorSysPubMsg(
+  header: BbbClientMsgHeader,
+  body: PresentationUploadedConversionCancelledErrorSysPubMsgBody
+) extends StandardMsg
+case class PresentationUploadedConversionCancelledErrorSysPubMsgBody(
+  podId: String,
+  meetingId: String,
+  presentationName: String,
+  messageKey: String,
+  temporaryPresentationId: String,
+  presentationId: String,
+  maxConversionTime: Long,
+)
+
 // ------------ bbb-common-web to akka-apps ------------
 
 // ------------ akka-apps to client ------------
@@ -330,10 +345,15 @@ case class PresentationUploadedFileVirusErrorEvtMsg(header: BbbClientMsgHeader, 
 case class PresentationUploadedFileVirusErrorEvtMsgBody(podId: String, meetingId: String, presentationName: String,
                                                         messageKey: String, temporaryPresentationId: String, presentationId: String)
 
-object PresentationUploadedFileScanFailedErrorEvtMsg { val NAME = "PresentationUploadedFileScanFailedErrorEvtMsg"}
+object PresentationUploadedFileScanFailedErrorEvtMsg { val NAME = "PresentationUploadedFileScanFailedErrorEvtMsg" }
 case class PresentationUploadedFileScanFailedErrorEvtMsg(header: BbbClientMsgHeader, body: PresentationUploadedFileScanFailedErrorEvtMsgBody) extends BbbCoreMsg
 case class PresentationUploadedFileScanFailedErrorEvtMsgBody(podId: String, meetingId: String, presentationName: String,
                                                              messageKey: String, temporaryPresentationId: String, presentationId: String)
+
+object PresentationUploadedConversionCancelledErrorEvtMsg { val NAME = "PresentationUploadedConversionCancelledErrorEvtMsg" }
+case class PresentationUploadedConversionCancelledErrorEvtMsg(header: BbbClientMsgHeader, body: PresentationUploadedConversionCancelledErrorEvtMsgBody) extends BbbCoreMsg
+case class PresentationUploadedConversionCancelledErrorEvtMsgBody(podId: String, meetingId: String, presentationName: String,
+                                                                messageKey: String, temporaryPresentationId: String, presentationId: String)
 
 object PresentationConversionRequestReceivedEventMsg { val NAME = "PresentationConversionRequestReceivedEventMsg" }
 case class PresentationConversionRequestReceivedEventMsg(

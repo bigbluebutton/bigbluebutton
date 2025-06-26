@@ -452,4 +452,17 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, req)
   }
 
+  def buildPresentationUploadedConversionCancelledErrorSysPubMsg(msg: UploadConversionCancelledMessage): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-web")
+    val envelope = BbbCoreEnvelope(PresentationUploadedConversionCancelledErrorSysPubMsg.NAME, routing)
+    val header = BbbClientMsgHeader(PresentationUploadedConversionCancelledErrorSysPubMsg.NAME, msg.meetingId, "not-used")
+
+    val body = PresentationUploadedConversionCancelledErrorSysPubMsgBody(podId = msg.podId, presentationName = msg.fileName,
+      meetingId = msg.meetingId, messageKey = msg.messageKey, temporaryPresentationId = msg.temporaryPresentationId,
+      presentationId = msg.presentationId, maxConversionTime = msg.maxConversionTime)
+
+    val req = PresentationUploadedConversionCancelledErrorSysPubMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, req)
+  }
+
 }

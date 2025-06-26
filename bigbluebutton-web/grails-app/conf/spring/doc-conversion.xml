@@ -39,6 +39,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="officeToPdfConversionService" ref="officeToPdfConversionService"/>
         <property name="presentationFileProcessor" ref="presentationFileProcessor"/>
         <property name="slidesGenerationProgressNotifier" ref="slidesGenerationProgressNotifier"/>
+        <property name="maxPageConversionTime" value="${maxPageConversionTime}"/>
     </bean>
 
     <bean id="officeDocumentValidator" class="org.bigbluebutton.presentation.imp.OfficeDocumentValidator2">

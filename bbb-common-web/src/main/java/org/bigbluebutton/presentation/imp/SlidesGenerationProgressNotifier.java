@@ -88,6 +88,19 @@ public class SlidesGenerationProgressNotifier {
     messagingService.sendDocConversionMsg(message);
   }
 
+  public void sendUploadConversionCancelled(UploadedPresentation pres) {
+    UploadConversionCancelledMessage message = new UploadConversionCancelledMessage(
+            pres.getPodId(),
+            pres.getMeetingId(),
+            pres.getName(),
+            ConversionMessageConstants.CONVERSION_CANCELLED_KEY,
+            pres.getTemporaryPresentationId(),
+            pres.getId(),
+            pres.getMaxTotalConversionTime()
+    );
+    messagingService.sendDocConversionMsg(message);
+  }
+
   public void sendUploadFileScanFailed(UploadedPresentation pres) {
     UploadFileScanFailedMessage message = new UploadFileScanFailedMessage(
             pres.getPodId(),

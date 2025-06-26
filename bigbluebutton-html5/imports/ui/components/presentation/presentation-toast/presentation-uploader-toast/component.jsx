@@ -58,6 +58,10 @@ const intlMessages = defineMessages({
     id: 'app.presentationUploder.upload.scanFailed',
     description: 'error that the file could not be uploaded because scanning failed',
   },
+  CONVERSION_CANCELLED: {
+    id: 'app.presentationUploder.upload.conversionCancelled',
+    description: 'presentation did not convert in the maximum amount of time and was cancelled'
+  },
   CONVERSION_TIMEOUT: {
     id: 'app.presentationUploder.conversion.conversionTimeout',
     description: 'warns the user that the presentation timed out in the back-end in specific page of the document',
