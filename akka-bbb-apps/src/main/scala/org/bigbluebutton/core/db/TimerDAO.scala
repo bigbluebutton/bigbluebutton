@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.db
 
 import org.bigbluebutton.core.apps.TimerModel
-import org.bigbluebutton.core.apps.TimerModel.{getAccumulated, getIsActive, isRunning, getStartedAt, isStopwatch, getTime, getTrack}
+import org.bigbluebutton.core.apps.TimerModel.{getAccumulated, getIsActive, isRunning, getStartedAt, isStopwatch, getTime, getTrack, isElapsed}
 import slick.jdbc.PostgresProfile.api._
 
 case class TimerDbModel(
@@ -11,8 +11,9 @@ case class TimerDbModel(
     active:           Boolean,
     time:             Long,
     accumulated:      Long,
-    startedOn:        Long,
+    startedAt:        Option[Long],
     songTrack:        String,
+    elapsed:          Boolean,
 )
 
 class TimerDbTableDef(tag: Tag) extends Table[TimerDbModel](tag, None, "timer") {
@@ -22,9 +23,10 @@ class TimerDbTableDef(tag: Tag) extends Table[TimerDbModel](tag, None, "timer") 
   val active = column[Boolean]("active")
   val time = column[Long]("time")
   val accumulated = column[Long]("accumulated")
-  val startedOn = column[Long]("startedOn")
+  val startedAt = column[Option[Long]]("startedAt")
   val songTrack = column[String]("songTrack")
-  override def * = (meetingId, stopwatch, running, active, time, accumulated, startedOn, songTrack) <> (TimerDbModel.tupled, TimerDbModel.unapply)
+  val elapsed = column[Boolean]("elapsed")
+  override def * = (meetingId, stopwatch, running, active, time, accumulated, startedAt, songTrack, elapsed) <> (TimerDbModel.tupled, TimerDbModel.unapply)
 }
 
 object TimerDAO {
@@ -38,8 +40,9 @@ object TimerDAO {
           active = getIsActive(model),
           time = getTime(model),
           accumulated = getAccumulated(model),
-          startedOn = getStartedAt(model),
+          startedAt = getStartedAt(model).map(_.getTime),
           songTrack = getTrack(model),
+          elapsed = isElapsed(model),
         )
       )
     )
@@ -49,10 +52,10 @@ object TimerDAO {
     DatabaseConnection.enqueue(
       TableQuery[TimerDbTableDef]
         .filter(_.meetingId === meetingId)
-        .map(t => (t.stopwatch, t.running, t.active, t.time, t.accumulated, t.startedOn, t.songTrack))
+        .map(t => (t.stopwatch, t.running, t.active, t.time, t.accumulated, t.startedAt, t.songTrack, t.elapsed))
         .update(
           (isStopwatch(timerModel), isRunning(timerModel), getIsActive(timerModel), getTime(timerModel),
-          getAccumulated(timerModel), getStartedAt(timerModel), getTrack(timerModel))
+          getAccumulated(timerModel), getStartedAt(timerModel).map(_.getTime), getTrack(timerModel), isElapsed(timerModel))
         )
     )
   }

@@ -8,6 +8,7 @@ import { layoutSelectInput } from '../../layout/context';
 import { Input } from '../../layout/layoutTypes';
 import { TIMER_START, TIMER_STOP } from '../mutations';
 import useTimer from '/imports/ui/core/hooks/useTimer';
+import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 
 interface TimerIndicatorProps {
   timePassed: number;
@@ -36,6 +37,7 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
   const [startTimerMutation] = useMutation(TIMER_START);
   const [stopTimerMutation] = useMutation(TIMER_STOP);
   const [songTrackState, setSongTrackState] = useState<string>(songTrack);
+  const prevElapsed = usePreviousValue<boolean | undefined>(elapsed);
 
   const CDN = window.meetingClientSettings.public.app.cdn;
   const BASENAME = window.meetingClientSettings.public.app.basename;
@@ -83,7 +85,10 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
   }, []);
 
   useEffect(() => {
-    if (elapsed) {
+    // Prevent the alarm from triggering for users that join the conference
+    // after the timer has elapsed. It only triggers for users that see the
+    // elapsed property of timer change from false to true
+    if (elapsed && prevElapsed === false) {
       if (!alreadyNotified.current) {
         triggered.current = false;
         alreadyNotified.current = true;

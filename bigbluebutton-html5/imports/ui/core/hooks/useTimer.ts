@@ -30,9 +30,8 @@ export const useTimer = (isIndicator = false) => {
     time = 0,
     stopwatch = false,
     running = false,
-    startedOn = 0,
     startedAt = 0,
-    elapsed = false,
+    elapsed,
   } = response.data?.[0] || {};
 
   return {
@@ -45,7 +44,6 @@ export const useTimer = (isIndicator = false) => {
       time,
       stopwatch,
       running,
-      startedOn,
       startedAt,
       elapsed,
       timePassed,

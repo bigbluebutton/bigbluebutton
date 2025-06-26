@@ -87,21 +87,21 @@ class TimerSingleton {
     const {
       accumulated = 0,
       running = false,
-      startedOn,
+      startedAt,
       stopwatch = false,
       time = 0,
     } = this.timer || {};
 
     const clientNow = Date.now();
     const serverNow = clientNow + this.timeSync;
-    const startedOnTime = startedOn || serverNow;
+    const startedAtTime = startedAt || serverNow;
     let elapsedTime = accumulated;
     if (running) {
-      elapsedTime += serverNow - startedOnTime;
+      elapsedTime += serverNow - startedAtTime;
     }
     const timePassed = stopwatch
-      ? Math.floor(elapsedTime)
-      : Math.floor(time - elapsedTime);
+      ? Math.max(0, Math.floor(elapsedTime))
+      : Math.max(0, Math.floor(time - elapsedTime));
 
     if (listener) {
       // When notify is called for a specific listener, we pass the timePassed directly
