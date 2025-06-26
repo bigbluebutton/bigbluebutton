@@ -504,6 +504,7 @@ export interface Timer {
   interval: Interval
   time: number
   tabIndicator: boolean
+  serverSyncTimeInterval: number
 }
 
 export interface Music {
