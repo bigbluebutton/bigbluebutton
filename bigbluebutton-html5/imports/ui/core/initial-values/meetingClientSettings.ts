@@ -520,12 +520,8 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         track2: 'CalmMusic',
         track3: 'aristocratDrums',
       },
-      interval: {
-        clock: 100,
-        offset: 60000,
-      },
       time: 5,
-      tabIndicator: false,
+      serverSyncTimeInterval: 300000, // 5 minutes
     },
     chat: {
       enabled: true,
