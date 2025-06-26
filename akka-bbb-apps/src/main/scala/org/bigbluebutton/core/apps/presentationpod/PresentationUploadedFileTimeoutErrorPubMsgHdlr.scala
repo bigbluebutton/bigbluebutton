@@ -7,6 +7,8 @@ import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models.PresentationInPod
 import org.bigbluebutton.core.running.LiveMeeting
 
+import java.time.{Instant, Duration}
+
 trait PresentationUploadedFileTimeoutErrorPubMsgHdlr {
   this: PresentationPodHdlrs =>
 
@@ -48,6 +50,15 @@ trait PresentationUploadedFileTimeoutErrorPubMsgHdlr {
       pods = pods.addPresentationToPod(pod.id, presWithError)
 
       state.update(pods)
+
+      val conversion = state.presentationConversions.find(pres.id)
+      conversion match {
+        case Some(_) =>
+          val presentationConversions = state.presentationConversions.remove(pres.id)
+          state.update(presentationConversions)
+        case None =>
+          state
+      }
     }
 
     PresPresentationDAO.updateErrors(msg.body.presentationId, msg.body.messageKey, errorDetails)

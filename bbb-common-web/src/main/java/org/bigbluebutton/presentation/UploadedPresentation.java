@@ -43,7 +43,7 @@ public final class UploadedPresentation {
   private boolean current = false;
   private String authzToken;
   private boolean conversionStarted = false;
-  private long maxConversionTime;
+  private long maxPageConversionTime;
 
   private boolean defaultPresentation;
 
@@ -238,9 +238,18 @@ public final class UploadedPresentation {
     this.filenameConverted = nameWithoutExtension.concat("." + newExtension);
   }
 
-  public void setMaxConversionTime(long maxConversionTime) {
-    this.maxConversionTime = maxConversionTime;
+  public long getMaxPageConversionTime() {
+    return maxPageConversionTime;
   }
 
-  public long getMaxConversionTime() { return maxConversionTime; }
+  public void setMaxPageConversionTime(long maxPageConversionTime) {
+    this.maxPageConversionTime = maxPageConversionTime;
+  }
+
+  public long getMaxTotalConversionTime() {
+    if (numberOfPages == 0) {
+      return maxPageConversionTime;
+    }
+    return maxPageConversionTime * numberOfPages;
+  }
 }

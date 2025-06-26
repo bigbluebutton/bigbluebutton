@@ -125,7 +125,7 @@ public class SlidesGenerationProgressNotifier {
       pres.getId(), pres.getId(),
       pres.getName(), "notUsedYet", "notUsedYet",
       pres.isDownloadable(), pres.isRemovable(), ConversionMessageConstants.GENERATING_THUMBNAIL_KEY,
-      pres.getTemporaryPresentationId(), pres.getMaxConversionTime());
+      pres.getTemporaryPresentationId());
     messagingService.sendDocConversionMsg(progress);
   }
 
@@ -164,7 +164,7 @@ public class SlidesGenerationProgressNotifier {
       pres.getId(), pres.getId(),
       pres.getName(), "notUsedYet", "notUsedYet",
       pres.isDownloadable(), pres.isRemovable(), ConversionMessageConstants.GENERATING_TEXTFILES_KEY,
-      pres.getTemporaryPresentationId(), pres.getMaxConversionTime());
+      pres.getTemporaryPresentationId());
     messagingService.sendDocConversionMsg(progress);
   }
 
@@ -173,7 +173,7 @@ public class SlidesGenerationProgressNotifier {
       pres.getId(), pres.getId(),
       pres.getName(), "notUsedYet", "notUsedYet",
       pres.isDownloadable(), pres.isRemovable(), ConversionMessageConstants.GENERATING_SVGIMAGES_KEY,
-      pres.getTemporaryPresentationId(), pres.getMaxConversionTime());
+      pres.getTemporaryPresentationId());
     messagingService.sendDocConversionMsg(progress);
   }
 }

@@ -230,7 +230,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="presentationBaseUrl" value="${presentationBaseURL}"/>
         <property name="preUploadedPresentationOverrideDefault" value="${beans.presentationService.preUploadedPresentationOverrideDefault}"/>
         <property name="scanUploadedPresentationFiles" value="${scanUploadedPresentationFiles}"/>
-        <property name="maxConversionTime" value="${maxConversionTime}"/>
+        <property name="maxPageConversionTime" value="${maxPageConversionTime}"/>
     </bean>
 
     <bean id="pdfPageDownscaler" class="org.bigbluebutton.presentation.imp.PdfPageDownscaler">

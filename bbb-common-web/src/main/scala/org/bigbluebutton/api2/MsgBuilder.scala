@@ -197,8 +197,18 @@ object MsgBuilder {
     val header = BbbClientMsgHeader(PresentationConversionUpdateSysPubMsg.NAME, msg.meetingId, msg.authzToken)
     val body = PresentationConversionUpdateSysPubMsgBody(podId = msg.podId, messageKey = msg.key,
       code = msg.key, presentationId = msg.presId, presName = msg.filename,
-      temporaryPresentationId = msg.temporaryPresentationId, maxDuration = msg.maxConversionTime)
+      temporaryPresentationId = msg.temporaryPresentationId)
     val req = PresentationConversionUpdateSysPubMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, req)
+  }
+
+  def buildPresentationConversionStartedSysPubMsg(msg: DocConversionStarted): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-web")
+    val envelope = BbbCoreEnvelope(PresentationConversionStartedSysPubMsg.NAME, routing)
+    val header = BbbClientMsgHeader(PresentationConversionStartedSysPubMsg.NAME, msg.meetingId, msg.authzToken)
+    val body = PresentationConversionStartedSysPubMsgBody(podId = msg.podId, presentationId = msg.presId,
+      presName = msg.filename, temporaryPresentationId = msg.temporaryPresentationId, maxDuration = msg.maxConversionTime)
+    val req = PresentationConversionStartedSysPubMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, req)
   }
 

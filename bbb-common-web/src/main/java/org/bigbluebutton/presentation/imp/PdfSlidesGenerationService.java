@@ -43,7 +43,13 @@ public class PdfSlidesGenerationService {
     executor.submit(() -> {
       try {
         log.info("Starting conversion for page {}", pageToConvert.getPageNumber());
-        pageToConvert.convert();
+        boolean success = pageToConvert.convert();
+
+        if (!success) {
+          log.warn("Conversion cancelled for page {}", pageToConvert.getPageNumber());
+          return;
+        }
+
         log.info("Conversion finished for page {}, sending progress message", pageToConvert.getPageNumber());
 
         PageConvertProgressMessage msg = new PageConvertProgressMessage(

@@ -80,6 +80,8 @@ trait PresentationConversionCompletedSysPubMsgHdlr {
           log.info(s"Presentation ${pres.id} with ${pres.pages.size} pages finished converting after $duration")
           val presentationConversions = state.presentationConversions.remove(pres.id)
           state.update(presentationConversions)
+        case None =>
+          state
       }
     }
 

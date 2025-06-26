@@ -17,10 +17,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 // Presentation files are processed using two separate thread pools.
 // One thread pool handles the preparation of PDF and image documents
@@ -56,13 +54,15 @@ public class PresentationFileProcessor {
     private PdfSlidesGenerationService pdfSlidesGenerationService;
     private S3FileManager s3FileManager;
 
-    private ExecutorService executor;
+    private final ExecutorService executor;
+    private final ExecutorService supervisor;
     private volatile boolean processPresentation = false;
 
     private BlockingQueue<UploadedPresentation> presentations = new LinkedBlockingQueue<UploadedPresentation>();
 
     public PresentationFileProcessor(int numConversionThreads) {
         executor = Executors.newFixedThreadPool(numConversionThreads);
+        supervisor = Executors.newCachedThreadPool();
     }
 
     public synchronized void process(UploadedPresentation pres) {
@@ -86,12 +86,40 @@ public class PresentationFileProcessor {
             log.error("Error while downloading presentations outputs from cache: {}", e.getMessage());
         }
 
-        Runnable messageProcessor = new Runnable() {
-            public void run() {
-                processUploadedPresentation(pres);
+        if (SupportedFileTypes.isPdfFile(pres.getFileType())) {
+            boolean isNumberOfPagesOk = determineNumberOfPages(pres);
+            if (!isNumberOfPagesOk) {
+                return;
             }
-        };
-        executor.submit(messageProcessor);
+        } else if (SupportedFileTypes.isImageFile(pres.getFileType())) {
+            pres.setNumberOfPages(1);
+        }
+
+        AtomicBoolean cancelled = new AtomicBoolean(false);
+        Runnable messageProcessor = () -> processUploadedPresentation(pres, cancelled);
+        Future<?> future = executor.submit(messageProcessor);
+
+        long maxConversionTime = pres.getMaxTotalConversionTime();
+        DocConversionStarted started = new DocConversionStarted(pres.getPodId(), pres.getId(), pres.getName(), pres.getTemporaryPresentationId(), maxConversionTime, pres.getMeetingId(), pres.getAuthzToken());
+        notifier.sendDocConversionProgress(started);
+
+        supervisor.submit(() -> {
+            try {
+                future.get(maxConversionTime, TimeUnit.MILLISECONDS);
+            } catch (ExecutionException e) {
+                log.error("Presentation conversion failed to execute: {}", e.getMessage());
+            } catch (InterruptedException e) {
+                log.error("Presentation conversion interrupted: {}", e.getMessage());
+            } catch (TimeoutException e) {
+                log.error("Presentation conversion failed to convert in {} milliseconds", maxConversionTime);
+                cancelled.set(true);
+                boolean success = future.cancel(true);
+                if (!success) {
+                    log.warn("Failed to cancel conversion task");
+                }
+                notifier.sendUploadFileTimedout(pres, 1);
+            }
+        });
     }
 
     private void processMakePresentationDownloadableMsg(UploadedPresentation pres) {
@@ -111,24 +139,20 @@ public class PresentationFileProcessor {
         }
     }
 
-    private void processUploadedPresentation(UploadedPresentation pres) {
+    private void processUploadedPresentation(UploadedPresentation pres, AtomicBoolean cancelled) {
         if (SupportedFileTypes.isPdfFile(pres.getFileType())) {
             pres.generateFilenameConverted("pdf");
-            boolean isNumberOfPagesOk = determineNumberOfPages(pres);
-            if (isNumberOfPagesOk) {
-                sendDocPageConversionStartedProgress(pres);
-                PresentationConvertMessage msg = new PresentationConvertMessage(pres);
-                presentationConversionCompletionService.handle(msg);
-                extractIntoPages(pres);
-            }
-        } else if (SupportedFileTypes.isImageFile(pres.getFileType())) {
-            pres.setNumberOfPages(1); // There should be only one image to convert.
             sendDocPageConversionStartedProgress(pres);
-            imageSlidesGenerationService.generateSlides(pres);
+            PresentationConvertMessage msg = new PresentationConvertMessage(pres);
+            presentationConversionCompletionService.handle(msg);
+            extractIntoPages(pres, cancelled);
+        } else if (SupportedFileTypes.isImageFile(pres.getFileType())) {
+            sendDocPageConversionStartedProgress(pres);
+            imageSlidesGenerationService.generateSlides(pres, cancelled);
         }
     }
 
-    private void extractIntoPages(UploadedPresentation pres) {
+    private void extractIntoPages(UploadedPresentation pres, AtomicBoolean cancelled) {
         String presDir = pres.getUploadedFile().getParent();
 
         List<PageToConvert> listOfPagesConverted = new ArrayList<>();
@@ -156,15 +180,14 @@ public class PresentationFileProcessor {
                     svgImageCreator,
                     thumbnailCreator,
                     pngCreator,
-                    notifier
+                    notifier,
+                    cancelled
             );
 
             pdfSlidesGenerationService.process(pageToConvert);
             listOfPagesConverted.add(pageToConvert);
             PageToConvert timeoutErrorMessage =
-            listOfPagesConverted.stream().filter(item -> {
-                return item.getMessageErrorInConversion() != null;
-            }).findAny().orElse(null);
+            listOfPagesConverted.stream().filter(item -> item.getMessageErrorInConversion() != null).findAny().orElse(null);
 
             if (timeoutErrorMessage != null) {
                 log.error(timeoutErrorMessage.getMessageErrorInConversion());
@@ -301,7 +324,8 @@ public class PresentationFileProcessor {
                     while (processPresentation) {
                         try {
                             UploadedPresentation pres = presentations.take();
-                            processUploadedPresentation(pres);
+                            AtomicBoolean cancelled = new AtomicBoolean(false);
+                            processUploadedPresentation(pres, cancelled);
                         } catch (InterruptedException e) {
                             log.warn("Error while taking presentation file from queue.");
                         }

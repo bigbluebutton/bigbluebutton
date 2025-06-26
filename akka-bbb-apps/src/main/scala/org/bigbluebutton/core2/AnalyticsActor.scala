@@ -154,6 +154,7 @@ class AnalyticsActor(val includeChat: Boolean) extends Actor with ActorLogging {
       //case m: PresentationPageGeneratedEvtMsg => logMessage(msg)
       //case m: ResizeAndMovePagePubMsg => logMessage(msg)
       case m: PresentationConversionUpdateSysPubMsg => logMessage(msg)
+      case m: PresentationConversionStartedSysPubMsg => logMessage(msg)
       case m: PresentationConversionUpdateEvtMsgBody => logMessage(msg)
       case m: PresentationPageCountErrorSysPubMsg => logMessage(msg)
       case m: PresentationPageCountErrorEvtMsg => logMessage(msg)

@@ -19,19 +19,6 @@ trait PresentationConversionUpdatePubMsgHdlr {
 
     PresPresentationDAO.updateConversionStarted(liveMeeting.props.meetingProp.intId, pres)
 
-    val updatedState = state.presentationConversions.find(presentationId) match {
-      case Some(_) =>
-        state
-      case None =>
-        val pc = PresentationConversion(
-          presId = presentationId,
-          startTime = System.currentTimeMillis(),
-          maxDuration = msg.body.maxDuration
-        )
-        val presentationConversions = state.presentationConversions.add(pc)
-        state.update(presentationConversions)
-    }
-
-    updatedState
+    state
   }
 }

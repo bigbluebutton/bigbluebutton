@@ -74,8 +74,7 @@ public class OfficeToPdfConversionSuccessFilter {
       pres.isDownloadable(),
       pres.isRemovable(),
       pres.getConversionStatus(),
-      pres.getTemporaryPresentationId(),
-      pres.getMaxConversionTime());
+      pres.getTemporaryPresentationId());
     gw.sendDocConversionMsg(progress);
   }
 

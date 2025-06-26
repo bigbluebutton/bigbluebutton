@@ -64,7 +64,19 @@ case class PresentationConversionUpdateSysPubMsgBody(
     presentationId:          String,
     presName:                String,
     temporaryPresentationId: String,
-    maxDuration: Long
+)
+
+object PresentationConversionStartedSysPubMsg { val NAME = "PresentationConversionStartedSysPubMsg" }
+case class PresentationConversionStartedSysPubMsg(
+    header: BbbClientMsgHeader,
+    body: PresentationConversionStartedSysPubMsgBody
+) extends StandardMsg
+case class PresentationConversionStartedSysPubMsgBody (
+  podId:                   String,
+  presentationId:          String,
+  presName:                String,
+  temporaryPresentationId: String,
+  maxDuration:             Long
 )
 
 object PresentationPageCountErrorSysPubMsg { val NAME = "PresentationPageCountErrorSysPubMsg" }

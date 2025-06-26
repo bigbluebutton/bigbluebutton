@@ -22,6 +22,7 @@ package org.bigbluebutton.presentation.imp;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.bigbluebutton.presentation.*;
 import org.slf4j.Logger;
@@ -42,19 +43,23 @@ public class ImageSlidesGenerationService {
 	private long MAX_CONVERSION_TIME = 5*60*1000L;
 	private boolean svgImagesRequired=true;
 	private boolean generatePngs;
-	
-	public ImageSlidesGenerationService() {
+
+    public ImageSlidesGenerationService() {
 		int numThreads = Runtime.getRuntime().availableProcessors();
 		executor = Executors.newFixedThreadPool(numThreads);
 	}
 
-	public void generateSlides(UploadedPresentation pres) {
-
+	public void generateSlides(UploadedPresentation pres, AtomicBoolean cancelled) {
 		for (int page = 1; page <= pres.getNumberOfPages(); page++) {
+			if (cancelled.get()) return;
+
 			/* adding accessibility */
 			createTextFiles(pres, page);
+
+			if (cancelled.get()) return;
 			createThumbnails(pres, page);
 
+			if (cancelled.get()) return;
 			if (svgImagesRequired) {
 				try {
 					createSvgImages(pres, page);
@@ -65,6 +70,7 @@ public class ImageSlidesGenerationService {
 				}
 			}
 
+			if (cancelled.get()) return;
 			if (generatePngs) {
 				createPngImages(pres, page);
 			}

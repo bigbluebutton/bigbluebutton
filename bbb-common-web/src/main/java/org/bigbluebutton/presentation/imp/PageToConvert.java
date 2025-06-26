@@ -4,6 +4,7 @@ package org.bigbluebutton.presentation.imp;
 import org.bigbluebutton.presentation.*;
 import java.io.File;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class PageToConvert {
 
@@ -23,6 +24,8 @@ public class PageToConvert {
   private File pageFile;
   private String messageErrorInConversion;
 
+  private final AtomicBoolean cancelled;
+
   public PageToConvert(UploadedPresentation pres,
                        int page,
                        File pageFile,
@@ -32,7 +35,7 @@ public class PageToConvert {
                        SvgImageCreator svgImageCreator,
                        ThumbnailCreator thumbnailCreator,
                        PngCreator pngCreator,
-                       SlidesGenerationProgressNotifier notifier) {
+                       SlidesGenerationProgressNotifier notifier, AtomicBoolean cancelled) {
     this.pres = pres;
     this.page = page;
     this.pageFile = pageFile;
@@ -43,6 +46,7 @@ public class PageToConvert {
     this.thumbnailCreator = thumbnailCreator;
     this.pngCreator = pngCreator;
     this.notifier = notifier;
+    this.cancelled = cancelled;
   }
 
   public File getPageFile() {
@@ -69,12 +73,17 @@ public class PageToConvert {
     this.messageErrorInConversion = messageErrorInConversion;
   }
 
-  public PageToConvert convert() {
+  public boolean convert() {
+    if (cancelled.get()) return false;
 
     /* adding accessibility */
     createThumbnails(pres, page, pageFile);
 
+    if (cancelled.get()) return false;
+
     createTextFiles(pres, page);
+
+    if (cancelled.get()) return false;
 
     // only create SVG images if the configuration requires it
     if (svgImagesRequired) {
@@ -85,30 +94,36 @@ public class PageToConvert {
       }
     }
 
+    if (cancelled.get()) return false;
+
     // only create PNG images if the configuration requires it
     if (generatePngs) {
       createPngImages(pres, page, pageFile);
     }
 
-    return this;
+    return true;
   }
 
   private void createThumbnails(UploadedPresentation pres, int page, File pageFile) {
     //notifier.sendCreatingThumbnailsUpdateMessage(pres);
+    if (cancelled.get()) return;
     thumbnailCreator.createThumbnail(pres, page, pageFile);
   }
 
   private void createTextFiles(UploadedPresentation pres, int page) {
     //notifier.sendCreatingTextFilesUpdateMessage(pres);
+    if (cancelled.get()) return;
     textFileCreator.createTextFile(pres, page);
   }
 
   private void createSvgImages(UploadedPresentation pres, int page) throws TimeoutException {
     //notifier.sendCreatingSvgImagesUpdateMessage(pres);
+    if (cancelled.get()) return;
     svgImageCreator.createSvgImage(pres, page);
   }
 
   private void createPngImages(UploadedPresentation pres, int page, File pageFile) {
+    if (cancelled.get()) return;
     pngCreator.createPng(pres, page, pageFile);
   }
 
