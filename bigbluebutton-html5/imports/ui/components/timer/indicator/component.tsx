@@ -41,6 +41,7 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
   const BASENAME = window.meetingClientSettings.public.app.basename;
   const HOST = CDN + BASENAME;
   const trackName = window.meetingClientSettings.public.timer.music;
+  const MUSIC_VOLUME = window.meetingClientSettings.public.timer.music.volume;
 
   type ObjectKey = keyof typeof trackName;
 
@@ -58,6 +59,7 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
     }
     if (songTrack in trackName) {
       music.current = new Audio(`${HOST}/resources/sounds/${trackName[songTrack as ObjectKey]}.mp3`);
+      music.current.volume = MUSIC_VOLUME;
       setSongTrackState(songTrack);
       music.current.addEventListener('timeupdate', () => {
         const buffer = 0.19;
