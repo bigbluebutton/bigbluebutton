@@ -112,7 +112,7 @@ public class PresentationFileProcessor {
             } catch (InterruptedException e) {
                 log.error("Presentation conversion interrupted: {}", e.getMessage());
             } catch (TimeoutException e) {
-                log.error("Presentation conversion failed to convert in {} milliseconds", maxConversionTime);
+                log.error("Presentation conversion failed to convert in {} seconds", maxConversionTime);
                 cancelled.set(true);
                 boolean success = future.cancel(true);
                 if (!success) {
