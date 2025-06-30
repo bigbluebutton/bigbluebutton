@@ -62,7 +62,7 @@ public class PresentationFileProcessor {
 
     public PresentationFileProcessor(int numConversionThreads) {
         executor = Executors.newFixedThreadPool(numConversionThreads);
-        supervisor = Executors.newCachedThreadPool();
+        supervisor = Executors.newFixedThreadPool(numConversionThreads);
     }
 
     public synchronized void process(UploadedPresentation pres) {
@@ -100,12 +100,13 @@ public class PresentationFileProcessor {
         Future<?> future = executor.submit(messageProcessor);
 
         long maxConversionTime = pres.getMaxTotalConversionTime();
-        DocConversionStarted started = new DocConversionStarted(pres.getPodId(), pres.getId(), pres.getName(), pres.getTemporaryPresentationId(), maxConversionTime, pres.getMeetingId(), pres.getAuthzToken());
+        DocConversionStarted started = new DocConversionStarted(pres.getPodId(), pres.getId(), pres.getName(),
+                pres.getTemporaryPresentationId(), maxConversionTime, pres.getMeetingId(), pres.getAuthzToken());
         notifier.sendDocConversionProgress(started);
 
         supervisor.submit(() -> {
             try {
-                future.get(maxConversionTime, TimeUnit.MILLISECONDS);
+                future.get(maxConversionTime, TimeUnit.SECONDS);
             } catch (ExecutionException e) {
                 log.error("Presentation conversion failed to execute: {}", e.getMessage());
             } catch (InterruptedException e) {
@@ -118,6 +119,7 @@ public class PresentationFileProcessor {
                     log.warn("Failed to cancel conversion task");
                 }
                 notifier.sendUploadConversionCancelled(pres);
+                org.bigbluebutton.presentation.Util.deleteDirectoryFromFileHandlingErrors(pres.getUploadedFile());
             }
         });
     }
@@ -148,7 +150,7 @@ public class PresentationFileProcessor {
             extractIntoPages(pres, cancelled);
         } else if (SupportedFileTypes.isImageFile(pres.getFileType())) {
             sendDocPageConversionStartedProgress(pres);
-            imageSlidesGenerationService.generateSlides(pres);
+            imageSlidesGenerationService.generateSlides(pres, cancelled);
         }
     }
 

@@ -7,8 +7,6 @@ import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models.PresentationInPod
 import org.bigbluebutton.core.running.LiveMeeting
 
-import java.time.{Instant, Duration}
-
 trait PresentationUploadedFileTimeoutErrorPubMsgHdlr {
   this: PresentationPodHdlrs =>
 

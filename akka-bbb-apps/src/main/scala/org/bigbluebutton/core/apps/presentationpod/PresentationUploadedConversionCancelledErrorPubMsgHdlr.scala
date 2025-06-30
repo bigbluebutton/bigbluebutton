@@ -20,9 +20,10 @@ trait PresentationUploadedConversionCancelledErrorPubMsgHdlr {
       val header = BbbClientMsgHeader(PresentationUploadedConversionCancelledErrorEvtMsg.NAME,
         liveMeeting.props.meetingProp.intId, msg.header.userId)
 
-      val body = PresentationUploadedConversionCancelledErrorEvtMsgBody(msg.body.podId, msg.body.meetingId,
-        msg.body.presentationName, msg.body.messageKey, msg.body.temporaryPresentationId,
-        msg.body.presentationId)
+      val common = PresentationConversionCommonBody(msg.body.common.podId, msg.body.common.meetingId,
+        msg.body.common.presentationName, msg.body.common.messageKey, msg.body.common.temporaryPresentationId,
+        msg.body.common.presentationId)
+      val body = PresentationUploadedConversionCancelledErrorEvtMsgBody(common = common)
       val event = PresentationUploadedConversionCancelledErrorEvtMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
       bus.outGW.send(msgEvent)
@@ -35,11 +36,11 @@ trait PresentationUploadedConversionCancelledErrorPubMsgHdlr {
     )
 
     val newState = for {
-      pod <- PresentationPodsApp.getPresentationPod(state, msg.body.podId)
-      pres <- pod.getPresentation(msg.body.presentationId)
+      pod <- PresentationPodsApp.getPresentationPod(state, msg.body.common.podId)
+      pres <- pod.getPresentation(msg.body.common.presentationId)
     } yield {
       val presWithError = PresentationInPod(pres.id, pres.name, pres.default, pres.current, pres.pages, pres.downloadable,
-        "", pres.removable, pres.filenameConverted, pres.uploadCompleted, pres.numPages, msg.body.messageKey, errorDetails)
+        "", pres.removable, pres.filenameConverted, pres.uploadCompleted, pres.numPages, msg.body.common.messageKey, errorDetails)
       var pods = state.presentationPodManager.addPod(pod)
       pods = pods.addPresentationToPod(pod.id, presWithError)
 
@@ -55,7 +56,7 @@ trait PresentationUploadedConversionCancelledErrorPubMsgHdlr {
       }
     }
 
-    PresPresentationDAO.updateErrors(msg.body.presentationId, msg.body.messageKey, errorDetails)
+    PresPresentationDAO.updateErrors(msg.body.common.presentationId, msg.body.common.messageKey, errorDetails)
     broadcastEvent(msg)
 
     newState match {

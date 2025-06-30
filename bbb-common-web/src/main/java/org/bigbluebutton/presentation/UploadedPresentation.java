@@ -243,6 +243,7 @@ public final class UploadedPresentation {
   }
 
   public void setMaxPageConversionTime(long maxPageConversionTime) {
+    if (maxPageConversionTime <= 0) maxPageConversionTime = 30L;
     this.maxPageConversionTime = maxPageConversionTime;
   }
 

@@ -11,7 +11,7 @@ trait PresentationConversionStartedSysPubMsgHdlr {
 
   def handle(msg: PresentationConversionStartedSysPubMsg, state: MeetingState2x,
              liveMeeting: LiveMeeting, bus: MessageBus): MeetingState2x = {
-    val presentationId = msg.body.presentationId
+    val presentationId = msg.body.common.presentationId
 
     val updatedState = state.presentationConversions.find(presentationId) match {
       case Some(_) =>

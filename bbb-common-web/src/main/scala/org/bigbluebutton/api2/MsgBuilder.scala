@@ -206,8 +206,9 @@ object MsgBuilder {
     val routing = collection.immutable.HashMap("sender" -> "bbb-web")
     val envelope = BbbCoreEnvelope(PresentationConversionStartedSysPubMsg.NAME, routing)
     val header = BbbClientMsgHeader(PresentationConversionStartedSysPubMsg.NAME, msg.meetingId, msg.authzToken)
-    val body = PresentationConversionStartedSysPubMsgBody(podId = msg.podId, presentationId = msg.presId,
-      presName = msg.filename, temporaryPresentationId = msg.temporaryPresentationId, maxDuration = msg.maxConversionTime)
+    val common = PresentationConversionCommonBody(podId = msg.podId, meetingId = msg.meetingId, presentationId = msg.presId,
+      presentationName = msg.filename, messageKey = "", temporaryPresentationId = msg.temporaryPresentationId)
+    val body = PresentationConversionStartedSysPubMsgBody(common = common, maxDuration = msg.maxConversionTime)
     val req = PresentationConversionStartedSysPubMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, req)
   }
@@ -457,9 +458,10 @@ object MsgBuilder {
     val envelope = BbbCoreEnvelope(PresentationUploadedConversionCancelledErrorSysPubMsg.NAME, routing)
     val header = BbbClientMsgHeader(PresentationUploadedConversionCancelledErrorSysPubMsg.NAME, msg.meetingId, "not-used")
 
-    val body = PresentationUploadedConversionCancelledErrorSysPubMsgBody(podId = msg.podId, presentationName = msg.fileName,
+    val common = PresentationConversionCommonBody(podId = msg.podId, presentationName = msg.fileName,
       meetingId = msg.meetingId, messageKey = msg.messageKey, temporaryPresentationId = msg.temporaryPresentationId,
-      presentationId = msg.presentationId, maxConversionTime = msg.maxConversionTime)
+      presentationId = msg.presentationId)
+    val body = PresentationUploadedConversionCancelledErrorSysPubMsgBody(common = common, maxConversionTime = msg.maxConversionTime)
 
     val req = PresentationUploadedConversionCancelledErrorSysPubMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, req)

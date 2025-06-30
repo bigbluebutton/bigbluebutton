@@ -855,7 +855,7 @@ class MeetingActor(
     def conversionFilter(entry: (String, PresentationConversion)): Boolean = {
       val (presId, conversion) = entry
       val start = Instant.ofEpochMilli(conversion.startTime)
-      val maxDuration = java.time.Duration.ofMinutes(conversion.maxDuration)
+      val maxDuration = java.time.Duration.ofSeconds(conversion.maxDuration)
       if (java.time.Duration.between(start, now).compareTo(maxDuration) > 0) {
         log.warning(s"Presentation $presId in meeting ${props.meetingProp.intId} has been converting for longer than $maxDuration. Presentation conversion may be down on this server!")
         false
