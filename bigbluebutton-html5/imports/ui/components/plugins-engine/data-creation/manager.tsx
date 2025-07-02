@@ -4,9 +4,18 @@ import {
   GraphqlResponseWrapper, HookEventWrapper,
 } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
 import { useEffect, useState } from 'react';
+import { makeCustomHookIdentifier } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-consumption/utils';
 import { MutationSubscriptionObject } from './types';
 import MutationTriggerHandler from './mutation-trigger-handler/handler';
 import { mutationSubscriptionHelper } from './utils';
+import ErrorBoundary from '../../common/error-boundary/component';
+
+const ERROR_MESSAGE_ON_MUTATION_CREATION = 'Possible error while creating mutation for plugin';
+
+const ERROR_METADATA_ON_MUTATION_CREATION = {
+  logCode: 'plugin_custom_mutation_creation_error',
+  logMessage: ERROR_MESSAGE_ON_MUTATION_CREATION,
+};
 
 const PluginDataCreationManager: React.FC = () => {
   const [
@@ -52,12 +61,34 @@ const PluginDataCreationManager: React.FC = () => {
   return (
     Object.entries(mutationSubscriptionCountObject).map(
       ([key, subscriptionCount]) => subscriptionCount.count > 0 && (
-      <MutationTriggerHandler
+      <ErrorBoundary
         key={key}
-        mutation={subscriptionCount.mutation}
-        options={subscriptionCount.options}
-        count={subscriptionCount.count}
-      />
+        Fallback={() => {
+          setMutationSubscriptionCountObject((currentState) => {
+            const mutationIdentifier = makeCustomHookIdentifier(subscriptionCount.mutation, subscriptionCount.options);
+            const newMutationCountObject = JSON.parse(JSON.stringify(currentState)) as MutationSubscriptionObject;
+            // Delete problematic entry from object
+            if (newMutationCountObject[mutationIdentifier]) delete newMutationCountObject[mutationIdentifier];
+            return newMutationCountObject;
+          });
+        }}
+        logMetadata={ERROR_METADATA_ON_MUTATION_CREATION}
+        errorMessage={ERROR_MESSAGE_ON_MUTATION_CREATION}
+        errorInfo={
+          {
+            mutationData: {
+              mutation: subscriptionCount.mutation,
+              options: subscriptionCount.options,
+            },
+          }
+        }
+      >
+        <MutationTriggerHandler
+          mutation={subscriptionCount.mutation}
+          options={subscriptionCount.options}
+          count={subscriptionCount.count}
+        />
+      </ErrorBoundary>
       ),
     )
   );

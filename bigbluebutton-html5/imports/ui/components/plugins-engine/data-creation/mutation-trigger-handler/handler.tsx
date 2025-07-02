@@ -15,71 +15,59 @@ const MutationTriggerHandler: React.FC<MutationTriggerHandlerProps> = (props: Mu
     options,
     count,
   } = props;
-  try {
-    const graphqlMutation = gql(mutation);
-    const [mutate, result] = useMutation(graphqlMutation, options);
+  const graphqlMutation = gql(mutation);
+  const [mutate, result] = useMutation(graphqlMutation, options);
 
-    useUpdateMutationResultForPlugin(result, mutation, options);
+  useUpdateMutationResultForPlugin(result, mutation, options);
 
-    const handleMutationTrigger = ((event: CustomEvent<UpdatedEventDetails<
-        MutationVariablesWrapper<object>
-      >>) => {
-      const { hook, hookArguments, data } = event.detail;
-      const {
-        mutation: mutationReceived,
-        options: optionsReceived,
-      } = (hookArguments || { mutation: null, options: null }) as UseCustomMutationArguments;
+  const handleMutationTrigger = ((event: CustomEvent<UpdatedEventDetails<
+      MutationVariablesWrapper<object>
+    >>) => {
+    const { hook, hookArguments, data } = event.detail;
+    const {
+      mutation: mutationReceived,
+      options: optionsReceived,
+    } = (hookArguments || { mutation: null, options: null }) as UseCustomMutationArguments;
 
-      if (hook === DataCreationHookEnums.TRIGGER_MUTATION
-        && makeCustomHookIdentifier(mutationReceived, optionsReceived)
-            === makeCustomHookIdentifier(mutation, options)) {
-        mutate(data).catch(() => {
-          logger.error({
-            logCode: 'plugin_custom_mutation_execution_error',
-            extraInfo: {
-              mutationData: {
-                mutation,
-                options,
-                data,
-              },
-            },
-          }, 'Error while executing mutation, ignoring...');
-        });
-      }
-    }) as EventListener;
-
-    useEffect(() => {
-      window.addEventListener(HookEvents.PLUGIN_SENT_CHANGES_TO_BBB_CORE, handleMutationTrigger);
-      return () => {
-        window.removeEventListener(HookEvents.PLUGIN_SENT_CHANGES_TO_BBB_CORE, handleMutationTrigger);
-      };
-    }, []);
-
-    useEffect(() => {
-      window.dispatchEvent(
-        new CustomEvent<UpdatedEventDetails<void>>(HookEvents.BBB_CORE_UPDATED_STATE, {
-          detail: {
-            hook: DataCreationHookEnums.MUTATION_READY,
-            hookArguments: {
+    if (hook === DataCreationHookEnums.TRIGGER_MUTATION
+      && makeCustomHookIdentifier(mutationReceived, optionsReceived)
+          === makeCustomHookIdentifier(mutation, options)) {
+      mutate(data).catch(() => {
+        logger.error({
+          logCode: 'plugin_custom_mutation_execution_error',
+          extraInfo: {
+            mutationData: {
               mutation,
               options,
+              data,
             },
-            data: undefined,
           },
-        }),
-      );
-    }, [count]);
-  } catch (error) {
-    logger.error({
-      logCode: 'plugin_custom_mutation_creation_error',
-      extraInfo: {
-        mutationData: {
-          mutation,
-          options,
+        }, 'Error while executing mutation, ignoring...');
+      });
+    }
+  }) as EventListener;
+
+  useEffect(() => {
+    window.addEventListener(HookEvents.PLUGIN_SENT_CHANGES_TO_BBB_CORE, handleMutationTrigger);
+    return () => {
+      window.removeEventListener(HookEvents.PLUGIN_SENT_CHANGES_TO_BBB_CORE, handleMutationTrigger);
+    };
+  }, []);
+
+  useEffect(() => {
+    window.dispatchEvent(
+      new CustomEvent<UpdatedEventDetails<void>>(HookEvents.BBB_CORE_UPDATED_STATE, {
+        detail: {
+          hook: DataCreationHookEnums.MUTATION_READY,
+          hookArguments: {
+            mutation,
+            options,
+          },
+          data: undefined,
         },
-      },
-    }, 'Error while creating mutation: ', error);
-  }
+      }),
+    );
+  }, [count]);
   return null;
 };
 
