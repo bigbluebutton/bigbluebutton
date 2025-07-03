@@ -63,7 +63,6 @@ object TimerModel {
       val accumulated = getAccumulated(model) + 
         getStartedAt(model).map(ts => Math.abs(now - ts.getTime).toInt).getOrElse(0)
       setAccumulated(model, accumulated)
-      setStartedAt(model, None)
     }
 
     // If the timer is not running and will start, set the start time
