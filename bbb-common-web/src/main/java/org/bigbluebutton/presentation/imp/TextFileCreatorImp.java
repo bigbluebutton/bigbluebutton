@@ -53,7 +53,7 @@ public class TextFileCreatorImp implements TextFileCreator {
     try {
       success = generateTextFile(textfilesDir, pres, page);
     } catch (InterruptedException e) {
-      log.error("Interrupted Exception while generating thumbnails {}", pres.getName(), e);
+      log.error("Interrupted Exception while generating text files {}", pres.getName(), e);
       success = false;
     }
 

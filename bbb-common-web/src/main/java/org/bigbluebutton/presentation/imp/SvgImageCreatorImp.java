@@ -54,6 +54,15 @@ public class SvgImageCreatorImp implements SvgImageCreator {
             success = false;
         }
 
+        if (!success) {
+            File destSvg = new File(svgImagesPresentationDir.getAbsolutePath() + File.separatorChar + "slide" + page + ".svg");
+            if (destSvg.exists()) {
+                destSvg.delete();
+            }
+            copyBlankSvg(destSvg);
+        }
+
+
         return success;
     }
 

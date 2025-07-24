@@ -39,8 +39,8 @@ public class PdfSlidesGenerationService {
     executor = Executors.newFixedThreadPool(numConversionThreads);
   }
 
-  public void process(PageToConvert pageToConvert) {
-    executor.submit(() -> {
+  public Future<?> process(PageToConvert pageToConvert) {
+    return executor.submit(() -> {
       try {
         log.info("Starting conversion for page {}", pageToConvert.getPageNumber());
         boolean success = pageToConvert.convert();

@@ -95,33 +95,35 @@ public class PresentationFileProcessor {
             pres.setNumberOfPages(1);
         }
 
-        AtomicBoolean cancelled = new AtomicBoolean(false);
-        Runnable messageProcessor = () -> processUploadedPresentation(pres, cancelled);
+        Runnable messageProcessor = () -> processUploadedPresentation(pres);
         Future<?> future = executor.submit(messageProcessor);
+        supervisor.submit(monitorConversionRunningTime(future, pres.getMaxTotalConversionTime(), TimeUnit.SECONDS));
 
         long maxConversionTime = pres.getMaxTotalConversionTime();
         DocConversionStarted started = new DocConversionStarted(pres.getPodId(), pres.getId(), pres.getName(),
                 pres.getTemporaryPresentationId(), maxConversionTime, pres.getMeetingId(), pres.getAuthzToken());
         notifier.sendDocConversionProgress(started);
 
-        supervisor.submit(() -> {
+    }
+
+    private Runnable monitorConversionRunningTime(Future<?> future, long timeout, TimeUnit unit) {
+        return () -> {
             try {
-                future.get(maxConversionTime, TimeUnit.SECONDS);
+                future.get(timeout, unit);
             } catch (ExecutionException e) {
                 log.error("Presentation conversion failed to execute: {}", e.getMessage());
             } catch (InterruptedException e) {
-                log.error("Presentation conversion interrupted: {}", e.getMessage());
+                log.error("Supervising thread interrupted: {}", e.getMessage());
             } catch (TimeoutException e) {
-                log.error("Presentation conversion failed to convert in {} seconds", maxConversionTime);
-                cancelled.set(true);
+                log.error("Presentation conversion failed to convert in {} seconds", timeout);
                 boolean success = future.cancel(true);
                 if (!success) {
                     log.warn("Failed to cancel conversion task");
                 }
-                notifier.sendUploadConversionCancelled(pres);
-                org.bigbluebutton.presentation.Util.deleteDirectoryFromFileHandlingErrors(pres.getUploadedFile());
+            } catch (CancellationException e) {
+                log.warn("Presentation conversion cancelled: {}", e.getMessage());
             }
-        });
+        };
     }
 
     private void processMakePresentationDownloadableMsg(UploadedPresentation pres) {
@@ -141,20 +143,20 @@ public class PresentationFileProcessor {
         }
     }
 
-    private void processUploadedPresentation(UploadedPresentation pres, AtomicBoolean cancelled) {
+    private void processUploadedPresentation(UploadedPresentation pres) {
         if (SupportedFileTypes.isPdfFile(pres.getFileType())) {
             pres.generateFilenameConverted("pdf");
             sendDocPageConversionStartedProgress(pres);
             PresentationConvertMessage msg = new PresentationConvertMessage(pres);
             presentationConversionCompletionService.handle(msg);
-            extractIntoPages(pres, cancelled);
+            extractIntoPages(pres);
         } else if (SupportedFileTypes.isImageFile(pres.getFileType())) {
             sendDocPageConversionStartedProgress(pres);
-            imageSlidesGenerationService.generateSlides(pres, cancelled);
+            imageSlidesGenerationService.generateSlides(pres);
         }
     }
 
-    private void extractIntoPages(UploadedPresentation pres, AtomicBoolean cancelled) {
+    private void extractIntoPages(UploadedPresentation pres) {
         String presDir = pres.getUploadedFile().getParent();
 
         List<PageToConvert> listOfPagesConverted = new ArrayList<>();
@@ -182,11 +184,12 @@ public class PresentationFileProcessor {
                     svgImageCreator,
                     thumbnailCreator,
                     pngCreator,
-                    notifier,
-                    cancelled
+                    notifier
             );
 
-            pdfSlidesGenerationService.process(pageToConvert);
+            Future<?> future = pdfSlidesGenerationService.process(pageToConvert);
+            supervisor.submit(monitorConversionRunningTime(future, pres.getMaxPageConversionTime(), TimeUnit.SECONDS));
+
             listOfPagesConverted.add(pageToConvert);
             PageToConvert timeoutErrorMessage =
             listOfPagesConverted.stream().filter(item -> item.getMessageErrorInConversion() != null).findAny().orElse(null);
@@ -326,8 +329,7 @@ public class PresentationFileProcessor {
                     while (processPresentation) {
                         try {
                             UploadedPresentation pres = presentations.take();
-                            AtomicBoolean cancelled = new AtomicBoolean(false);
-                            processUploadedPresentation(pres, cancelled);
+                            processUploadedPresentation(pres);
                         } catch (InterruptedException e) {
                             log.warn("Error while taking presentation file from queue.");
                         }
