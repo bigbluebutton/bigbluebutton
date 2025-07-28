@@ -57,11 +57,26 @@ public class TextFileCreatorImp implements TextFileCreator {
       success = false;
     }
 
-    // TODO: in case that it doesn't generated the textfile, we should create a
-    // textfile with some message
-    // createUnavailableTextFile
+    if (!success) {
+      createBlankTextFile(textfilesDir, page);
+    }
 
     return success;
+  }
+
+  @Override
+  public void createBlank(UploadedPresentation pres, int page) {
+    File dir =  determineTextfilesDirectory(pres.getUploadedFile());
+
+    if (!dir.exists()) {
+      boolean created = dir.mkdir();
+      if (!created) {
+        log.warn("Failed to create text file directory");
+        return;
+      }
+    }
+
+    createBlankTextFile(dir, page);
   }
 
   private boolean generateTextFile(File textfilesDir,
@@ -128,6 +143,20 @@ public class TextFileCreatorImp implements TextFileCreator {
   private File determineTextfilesDirectory(File presentationFile) {
     return new File(
         presentationFile.getParent() + File.separatorChar + "textfiles");
+  }
+
+  private void createBlankTextFile(File textFilesDir, int page) {
+    File textFile = new File(textFilesDir.getAbsolutePath() + File.separatorChar + "slide-" + page + ".txt");
+    try {
+      boolean created = textFile.createNewFile();
+      if (created) {
+        String text = "No text could be retrieved for the slide";
+        Writer writer = new BufferedWriter(new FileWriter(textFile));
+        writer.write(text);
+      }
+    } catch (Exception e) {
+      log.warn("Failed to create blank text file:", e);
+    }
   }
 
   private void cleanDirectory(File directory) {

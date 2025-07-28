@@ -119,6 +119,21 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
     return false;
   }
 
+  @Override
+  public void createBlank(UploadedPresentation pres, int page) {
+    File dir = determineThumbnailDirectory(pres.getUploadedFile());
+
+    if (!dir.exists()) {
+      boolean created = dir.mkdir();
+      if (!created) {
+        log.warn("Failed to create thumbnail directory");
+        return;
+      }
+    }
+
+    createBlankThumbnail(dir, page);
+  }
+
   private File determineThumbnailDirectory(File presentationFile) {
     return new File(
         presentationFile.getParent() + File.separatorChar + "thumbnails");
@@ -172,8 +187,6 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
   }
 
   private void createBlankThumbnail(File thumbsDir, int page) {
-    File[] thumbs = thumbsDir.listFiles();
-
     File thumb = new File(thumbsDir.getAbsolutePath() + File.separatorChar + "thumb-" + page + ".png");
     if (!thumb.exists()) {
       log.info("Copying blank thumbnail for slide {}", page);

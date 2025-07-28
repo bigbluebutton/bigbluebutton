@@ -54,6 +54,8 @@ public class PageToConvert {
     return page;
   }
 
+  public UploadedPresentation getPres() { return this.pres; }
+
   public String getPresId() {
     return pres.getId();
   }
@@ -91,6 +93,13 @@ public class PageToConvert {
     }
 
     return true;
+  }
+
+  public void createBlanks() {
+    thumbnailCreator.createBlank(pres, page);
+    textFileCreator.createBlank(pres, page);
+    if (svgImagesRequired) svgImageCreator.createBlank(pres, page);
+    if (generatePngs) pngCreator.createBlank(pres, page);
   }
 
   private void createThumbnails(UploadedPresentation pres, int page, File pageFile) {

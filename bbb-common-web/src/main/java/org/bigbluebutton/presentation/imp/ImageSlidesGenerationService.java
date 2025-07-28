@@ -30,8 +30,7 @@ import org.slf4j.LoggerFactory;
 
 public class ImageSlidesGenerationService {
 	private static Logger log = LoggerFactory.getLogger(ImageSlidesGenerationService.class);
-	
-	private ExecutorService executor;
+
 	private SlidesGenerationProgressNotifier notifier;
 	private SvgImageCreator svgImageCreator;
 	private ThumbnailCreator thumbnailCreator;
@@ -44,14 +43,8 @@ public class ImageSlidesGenerationService {
 	private boolean svgImagesRequired=true;
 	private boolean generatePngs;
 
-    public ImageSlidesGenerationService() {
-		int numThreads = Runtime.getRuntime().availableProcessors();
-		executor = Executors.newFixedThreadPool(numThreads);
-	}
-
 	public void generateSlides(UploadedPresentation pres) {
 		for (int page = 1; page <= pres.getNumberOfPages(); page++) {
-
 			/* adding accessibility */
 			createTextFiles(pres, page);
 			createThumbnails(pres, page);
@@ -75,7 +68,13 @@ public class ImageSlidesGenerationService {
 
 		System.out.println("****** Conversion complete for " + pres.getName());
 		notifier.sendConversionCompletedMessage(pres);
+	}
 
+	public void createBlanks(UploadedPresentation pres) {
+		textFileCreator.createBlank(pres, 1);
+		thumbnailCreator.createBlank(pres, 1);
+		if (svgImagesRequired) svgImageCreator.createBlank(pres, 1);
+		if (generatePngs) pngCreator.createBlank(pres, 1);
 	}
 
 	private void createTextFiles(UploadedPresentation pres, int page) {

@@ -84,6 +84,21 @@ public class PngCreatorImp implements PngCreator {
 		return success;
 	}
 
+	@Override
+	public void createBlank(UploadedPresentation pres, int page) {
+		File dir = determinePngDirectory(pres.getUploadedFile());
+
+		if (!dir.exists()) {
+			boolean created = dir.mkdir();
+			if (!created) {
+				log.warn("Failed to create PNG directory");
+				return;
+			}
+		}
+
+		createBlankPng(dir, page);
+	}
+
 	private boolean generatePng(File pngsDir, UploadedPresentation pres, int page, File pageFile)
 					throws InterruptedException {
 		String source = pageFile.getAbsolutePath();

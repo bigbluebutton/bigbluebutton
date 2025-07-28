@@ -18,7 +18,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 // Presentation files are processed using two separate thread pools.
 // One thread pool handles the preparation of PDF and image documents
@@ -62,7 +61,7 @@ public class PresentationFileProcessor {
 
     public PresentationFileProcessor(int numConversionThreads) {
         executor = Executors.newFixedThreadPool(numConversionThreads);
-        supervisor = Executors.newFixedThreadPool(numConversionThreads);
+        supervisor = Executors.newFixedThreadPool(2 * numConversionThreads);
     }
 
     public synchronized void process(UploadedPresentation pres) {
@@ -95,35 +94,13 @@ public class PresentationFileProcessor {
             pres.setNumberOfPages(1);
         }
 
-        Runnable messageProcessor = () -> processUploadedPresentation(pres);
-        Future<?> future = executor.submit(messageProcessor);
-        supervisor.submit(monitorConversionRunningTime(future, pres.getMaxTotalConversionTime(), TimeUnit.SECONDS));
-
         long maxConversionTime = pres.getMaxTotalConversionTime();
+        processUploadedPresentation(pres);
+
         DocConversionStarted started = new DocConversionStarted(pres.getPodId(), pres.getId(), pres.getName(),
                 pres.getTemporaryPresentationId(), maxConversionTime, pres.getMeetingId(), pres.getAuthzToken());
         notifier.sendDocConversionProgress(started);
 
-    }
-
-    private Runnable monitorConversionRunningTime(Future<?> future, long timeout, TimeUnit unit) {
-        return () -> {
-            try {
-                future.get(timeout, unit);
-            } catch (ExecutionException e) {
-                log.error("Presentation conversion failed to execute: {}", e.getMessage());
-            } catch (InterruptedException e) {
-                log.error("Supervising thread interrupted: {}", e.getMessage());
-            } catch (TimeoutException e) {
-                log.error("Presentation conversion failed to convert in {} seconds", timeout);
-                boolean success = future.cancel(true);
-                if (!success) {
-                    log.warn("Failed to cancel conversion task");
-                }
-            } catch (CancellationException e) {
-                log.warn("Presentation conversion cancelled: {}", e.getMessage());
-            }
-        };
     }
 
     private void processMakePresentationDownloadableMsg(UploadedPresentation pres) {
@@ -149,11 +126,67 @@ public class PresentationFileProcessor {
             sendDocPageConversionStartedProgress(pres);
             PresentationConvertMessage msg = new PresentationConvertMessage(pres);
             presentationConversionCompletionService.handle(msg);
-            extractIntoPages(pres);
+            executor.submit(() -> extractIntoPages(pres));
         } else if (SupportedFileTypes.isImageFile(pres.getFileType())) {
             sendDocPageConversionStartedProgress(pres);
-            imageSlidesGenerationService.generateSlides(pres);
+            Future<?> future = executor.submit(() -> imageSlidesGenerationService.generateSlides(pres));
+
+            supervisor.submit(monitorPresentationConversion(
+                    future,
+                    pres,
+                    null,
+                    pres.getMaxPageConversionTime()
+            ));
         }
+    }
+
+    private Runnable monitorPresentationConversion(
+            Future<?> future,
+            UploadedPresentation pres,
+            PageToConvert page,
+            long timeout
+    ) {
+        return () -> {
+            boolean createBlanks = false;
+
+            try {
+                future.get(timeout, TimeUnit.SECONDS);
+            } catch (ExecutionException e) {
+                log.error("Presentation conversion failed to execute: {}", e.getMessage());
+                createBlanks = true;
+            } catch (InterruptedException e) {
+                log.error("Supervising thread interrupted: {}", e.getMessage());
+            } catch (TimeoutException e) {
+                log.error("Presentation conversion failed to convert in {} seconds", timeout);
+
+                boolean success = future.cancel(true);
+                if (!success) {
+                    log.warn("Failed to cancel conversion task");
+                }
+
+                createBlanks = true;
+            } catch (CancellationException e) {
+                log.warn("Presentation conversion cancelled: {}", e.getMessage());
+                createBlanks = true;
+            }
+
+            if (SupportedFileTypes.isPdfFile(pres.getFileType()) && page != null) {
+                if (createBlanks) page.createBlanks();
+
+                PageConvertProgressMessage msg = new PageConvertProgressMessage(
+                        page.getPageNumber(),
+                        page.getPresId(),
+                        page.getMeetingId(),
+                        new ArrayList<>()
+                );
+
+                pdfSlidesGenerationService.sendMessage(msg);
+            } else if (SupportedFileTypes.isImageFile(pres.getFileType())) {
+                if (createBlanks) imageSlidesGenerationService.createBlanks(pres);
+                notifier.sendConversionUpdateMessage(1, pres, 1);
+                notifier.sendConversionCompletedMessage(pres);
+            }
+        };
     }
 
     private void extractIntoPages(UploadedPresentation pres) {
@@ -188,7 +221,13 @@ public class PresentationFileProcessor {
             );
 
             Future<?> future = pdfSlidesGenerationService.process(pageToConvert);
-            supervisor.submit(monitorConversionRunningTime(future, pres.getMaxPageConversionTime(), TimeUnit.SECONDS));
+
+            supervisor.submit(monitorPresentationConversion(
+                    future,
+                    pres,
+                    pageToConvert,
+                    pres.getMaxPageConversionTime()
+            ));
 
             listOfPagesConverted.add(pageToConvert);
             PageToConvert timeoutErrorMessage =
@@ -338,7 +377,7 @@ public class PresentationFileProcessor {
             };
             executor.submit(messageProcessor);
         } catch (Exception e) {
-            log.error("Error processing presentation file: {}", e);
+            log.error("Error processing presentation file:", e);
         }
     }
 

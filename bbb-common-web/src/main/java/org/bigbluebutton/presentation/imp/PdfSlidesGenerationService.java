@@ -22,6 +22,8 @@ package org.bigbluebutton.presentation.imp;
 
 import java.util.ArrayList;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.bigbluebutton.presentation.messages.PageConvertProgressMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,13 +54,13 @@ public class PdfSlidesGenerationService {
 
         log.info("Conversion finished for page {}, sending progress message", pageToConvert.getPageNumber());
 
-        PageConvertProgressMessage msg = new PageConvertProgressMessage(
-                pageToConvert.getPageNumber(),
-                pageToConvert.getPresId(),
-                pageToConvert.getMeetingId(),
-                new ArrayList<>());
-
-        presentationConversionCompletionService.handle(msg);
+//        PageConvertProgressMessage msg = new PageConvertProgressMessage(
+//                pageToConvert.getPageNumber(),
+//                pageToConvert.getPresId(),
+//                pageToConvert.getMeetingId(),
+//                new ArrayList<>());
+//
+//        presentationConversionCompletionService.handle(msg);
         log.info("Progress message handled for page {} of presentation [{}] in meeting [{}]", pageToConvert.getPageNumber(), pageToConvert.getPresId(), pageToConvert.getMeetingId());
       } catch (Throwable t) {
         log.error("Conversion task failed for page {} of presentation [{}] in meeting [{}]", pageToConvert.getPageNumber(), pageToConvert.getPresId(), pageToConvert.getMeetingId(), t);
@@ -68,5 +70,9 @@ public class PdfSlidesGenerationService {
 
   public void setPresentationConversionCompletionService(PresentationConversionCompletionService s) {
     this.presentationConversionCompletionService = s;
+  }
+
+  public void sendMessage(PageConvertProgressMessage msg) {
+    presentationConversionCompletionService.handle(msg);
   }
 }

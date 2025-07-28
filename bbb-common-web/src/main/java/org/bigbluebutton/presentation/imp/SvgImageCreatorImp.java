@@ -66,6 +66,22 @@ public class SvgImageCreatorImp implements SvgImageCreator {
         return success;
     }
 
+    @Override
+    public void createBlank(UploadedPresentation pres, int page) {
+        File dir = determineSvgImagesDirectory(pres.getUploadedFile());
+
+        if (!dir.exists()) {
+            boolean created = dir.mkdir();
+            if (!created) {
+                log.warn("Failed to create SVG directory");
+                return;
+            }
+        }
+
+        File destSvg = new File(dir.getAbsolutePath() + File.separatorChar + "slide" + page + ".svg");
+        copyBlankSvg(destSvg);
+    }
+
     private PdfFontType3DetectorHandler createDetectFontType3tHandler(boolean done, int page, String source, UploadedPresentation pres) {
         //Detect if PDF contains text with font Type 3
         //Pdftocairo has problem to convert Pdf to Svg when text contains font Type 3
