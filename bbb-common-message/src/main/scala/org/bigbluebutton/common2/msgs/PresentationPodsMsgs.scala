@@ -262,16 +262,6 @@ case class PresentationUploadedFileScanFailedErrorSysPubMsgBody(
   presentationId: String,
 )
 
-object PresentationUploadedConversionCancelledErrorSysPubMsg { val NAME = "PresentationUploadedConversionCancelledErrorSysPubMsg" }
-case class PresentationUploadedConversionCancelledErrorSysPubMsg(
-  header: BbbClientMsgHeader,
-  body: PresentationUploadedConversionCancelledErrorSysPubMsgBody
-) extends StandardMsg
-case class PresentationUploadedConversionCancelledErrorSysPubMsgBody(
-  common:      PresentationConversionCommonBody,
-  maxConversionTime: Long,
-)
-
 // ------------ bbb-common-web to akka-apps ------------
 
 // ------------ akka-apps to client ------------

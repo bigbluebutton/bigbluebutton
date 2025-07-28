@@ -347,7 +347,6 @@
     "app.presentationUploder.genericError": "Oops, Something went wrong ...",
     "app.presentationUploder.upload.fileVirus": "Upload failed: Virus detected! Please check your file and retry.",
     "app.presentationUploder.upload.scanFailed": "Upload failed: the file could not be scanned",
-    "app.presentationUploder.upload.conversionCancelled": "Conversion cancelled: presentation failed to convert in the maximum amount of time",
     "app.presentationUploder.upload.408": "Request upload token timeout.",
     "app.presentationUploder.upload.404": "404: Invalid upload token",
     "app.presentationUploder.upload.401": "Request presentation upload token failed.",

@@ -143,10 +143,6 @@ const intlMessages = defineMessages({
     id: 'app.presentationUploder.upload.scanFailed',
     description: 'error that the file could not be uploaded because scanning failed'
   },
-  CONVERSION_CANCELLED: {
-    id: 'app.presentationUploder.upload.conversionCancelled',
-    description: 'presentation did not convert in the maximum amount of time and was cancelled'
-  },
   conversionProcessingSlides: {
     id: 'app.presentationUploder.conversion.conversionProcessingSlides',
     description: 'indicates how many slides were converted',

@@ -44,7 +44,7 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
   private IBbbWebApiGWApp gw;
   private OfficeToPdfConversionService officeToPdfConversionService;
   private SlidesGenerationProgressNotifier notifier;
-  private long maxPageConversionTime = 30L;
+  private long maxPageConversionTime = 60L;
 
   private PresentationFileProcessor presentationFileProcessor;
 

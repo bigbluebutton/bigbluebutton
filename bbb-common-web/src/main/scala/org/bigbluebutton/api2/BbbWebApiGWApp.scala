@@ -425,9 +425,6 @@ class BbbWebApiGWApp(
     } else if (msg.isInstanceOf[DocConversionStarted]) {
       val event = MsgBuilder.buildPresentationConversionStartedSysPubMsg(msg.asInstanceOf[DocConversionStarted])
       msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
-    } else if (msg.isInstanceOf[UploadConversionCancelledMessage]) {
-      val event = MsgBuilder.buildPresentationUploadedConversionCancelledErrorSysPubMsg(msg.asInstanceOf[UploadConversionCancelledMessage])
-      msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
     }
   }
 
