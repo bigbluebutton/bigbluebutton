@@ -60,6 +60,7 @@ class ConfirmationModal extends Component {
       cancelButtonLabel,
       hideConfirmButton,
       confirmButtonDataTest,
+      confirmationModalDataTest,
       confirmParam,
       disableConfirmButton,
       description,
@@ -76,6 +77,7 @@ class ConfirmationModal extends Component {
 
     return (
       <Styled.ConfirmationModal
+        data-test={confirmationModalDataTest}
         onRequestClose={() => setIsOpen(false)}
         contentLabel={title}
         title={title}

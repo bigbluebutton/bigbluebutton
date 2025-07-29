@@ -63,6 +63,7 @@ class EndMeetingComponent extends PureComponent {
         description={description}
         confirmButtonColor="danger"
         confirmButtonDataTest="confirmEndMeeting"
+        confirmationModalDataTest="confirmEndMeetingModal"
         confirmButtonLabel={intl.formatMessage(intlMessages.confirmButtonLabel)}
         {...{
           isOpen,
