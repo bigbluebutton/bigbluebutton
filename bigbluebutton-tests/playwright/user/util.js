@@ -1,7 +1,7 @@
 const e = require('../core/elements');
 
 async function openLockViewers(test) {
-  await test.waitAndClick(e.manageUsers);
+  await test.waitAndClick(e.usersListSidebarButton);
   await test.waitAndClick(e.lockViewersButton);
 }
 
