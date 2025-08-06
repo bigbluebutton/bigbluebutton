@@ -3,13 +3,13 @@ import Button from '/imports/ui/components/common/button/component';
 import usePresentationSwap from '../../../core/hooks/usePresentationSwap';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
-import { CURRENT_PRESENTATION_PAGE_SUBSCRIPTION } from '../../whiteboard/queries';
+import { CURRENT_PRESENTATION_PAGE_SUBSCRIPTION, CurrentPresentationPagesSubscriptionResponse } from '../../whiteboard/queries';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 
 const SwapPresentationButton = () => {
   const [showScreenShare, swapPresentation] = usePresentationSwap();
 
-  const { data: presentationPageData } = useDeduplicatedSubscription(
+  const { data: presentationPageData } = useDeduplicatedSubscription<CurrentPresentationPagesSubscriptionResponse>(
     CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
   );
 

@@ -1,5 +1,13 @@
 import { gql } from '@apollo/client';
 
+export interface UsersCountSubscriptionResponse {
+  user_aggregate: {
+    aggregate: {
+      count: number;
+    };
+  };
+}
+
 export const USER_LIST_SUBSCRIPTION = gql`
 subscription UserListSubscription($offset: Int!, $limit: Int!) {
   user(limit:$limit, offset: $offset, 

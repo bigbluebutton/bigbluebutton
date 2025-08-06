@@ -1,4 +1,18 @@
 import { gql } from '@apollo/client';
+import type { Meeting as MeetingBase } from 'imports/ui/Types/meeting';
+
+export interface UsersCountSubscriptionResponse {
+  user_aggregate: {
+    aggregate: {
+      count: number;
+    };
+  };
+}
+export interface MeetingPermissionsSubscriptionResponse {
+  meeting: MeetingPermission[];
+}
+
+export interface MeetingPermission extends Pick<MeetingBase, 'meetingId' | 'isBreakout' | 'lockSettings' | 'usersPolicies'> {}
 
 export const MEETING_PERMISSIONS_SUBSCRIPTION = gql`
 subscription MeetingPermissions {

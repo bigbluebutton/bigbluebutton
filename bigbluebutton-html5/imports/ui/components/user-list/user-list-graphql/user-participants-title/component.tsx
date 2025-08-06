@@ -1,10 +1,10 @@
 import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import { USER_AGGREGATE_COUNT_SUBSCRIPTION } from '/imports/ui/core/graphql/queries/users';
+import { USER_AGGREGATE_COUNT_SUBSCRIPTION, UsersCountSubscriptionResponse } from '/imports/ui/core/graphql/queries/users';
 import UserTitleOptionsContainer from './user-options-dropdown/component';
 import Styled from './styles';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
-import { USER_WITH_AUDIO_AGGREGATE_COUNT_SUBSCRIPTION } from './queries';
+import { USER_WITH_AUDIO_AGGREGATE_COUNT_SUBSCRIPTION, UsersWithAudioCountSubscriptionResponse } from './queries';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { User } from '/imports/ui/Types/user';
@@ -57,14 +57,18 @@ const UserTitle: React.FC<UserTitleProps> = ({
 
 const UserTitleContainer: React.FC = () => {
   const getCountData = () => {
-    const { data: countData } = useDeduplicatedSubscription(USER_AGGREGATE_COUNT_SUBSCRIPTION);
+    const { data: countData } = useDeduplicatedSubscription<UsersCountSubscriptionResponse>(
+      USER_AGGREGATE_COUNT_SUBSCRIPTION,
+    );
     const count = countData?.user_aggregate?.aggregate?.count || 0;
     return count;
   };
 
   const {
     data: audioUsersCountData,
-  } = useDeduplicatedSubscription(USER_WITH_AUDIO_AGGREGATE_COUNT_SUBSCRIPTION);
+  } = useDeduplicatedSubscription<UsersWithAudioCountSubscriptionResponse>(
+    USER_WITH_AUDIO_AGGREGATE_COUNT_SUBSCRIPTION,
+  );
 
   const countWithAudio = audioUsersCountData?.user_aggregate?.aggregate?.count || 0;
 

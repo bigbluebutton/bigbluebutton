@@ -13,7 +13,7 @@ import Auth from '/imports/ui/services/auth';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { partition } from '/imports/utils/array-utils';
-import { USER_AGGREGATE_COUNT_SUBSCRIPTION } from '/imports/ui/core/graphql/queries/users';
+import { USER_AGGREGATE_COUNT_SUBSCRIPTION, UsersCountSubscriptionResponse } from '/imports/ui/core/graphql/queries/users';
 import {
   getSortingMethod,
   sortVideoStreams,
@@ -30,6 +30,7 @@ import {
   GRID_USERS_SUBSCRIPTION,
   VIEWERS_IN_WEBCAM_COUNT_SUBSCRIPTION,
   VIDEO_STREAMS_SUBSCRIPTION,
+  ViewerVideoStreamsSubscriptionResponse,
 } from '/imports/ui/components/video-provider/queries';
 import videoService from '/imports/ui/components/video-provider/service';
 import { CAMERA_BROADCAST_STOP } from '/imports/ui/components/video-provider/mutations';
@@ -202,7 +203,7 @@ export const useDisableCam = () => {
 };
 
 const getCountData = () => {
-  const { data: countData } = useDeduplicatedSubscription(
+  const { data: countData } = useDeduplicatedSubscription<UsersCountSubscriptionResponse>(
     USER_AGGREGATE_COUNT_SUBSCRIPTION,
   );
   return countData?.user_aggregate?.aggregate?.count || 0;
@@ -506,7 +507,9 @@ export const useExitVideo = (forceExit = false) => {
 };
 
 export const useViewersInWebcamCount = (): number => {
-  const { data } = useDeduplicatedSubscription(VIEWERS_IN_WEBCAM_COUNT_SUBSCRIPTION);
+  const { data } = useDeduplicatedSubscription<ViewerVideoStreamsSubscriptionResponse>(
+    VIEWERS_IN_WEBCAM_COUNT_SUBSCRIPTION,
+  );
   return data?.user_camera_aggregate?.aggregate?.count || 0;
 };
 

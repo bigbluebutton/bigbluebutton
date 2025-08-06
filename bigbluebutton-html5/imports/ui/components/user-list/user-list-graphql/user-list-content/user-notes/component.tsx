@@ -8,6 +8,7 @@ import { notify } from '/imports/ui/services/notification';
 import { layoutSelectInput, layoutDispatch } from '/imports/ui/components/layout/context';
 import {
   PINNED_PAD_SUBSCRIPTION,
+  PinnedPadSubscriptionResponse,
 } from '/imports/ui/components/notes/queries';
 import Styled from './styles';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
@@ -197,7 +198,7 @@ const UserNotesGraphql: React.FC<UserNotesGraphqlProps> = (props) => {
 const UserNotesContainerGraphql: React.FC<UserNotesContainerGraphqlProps> = (props) => {
   const { userLocks } = props;
   const disableNotes = userLocks.userNotes;
-  const { data: pinnedPadData } = useDeduplicatedSubscription(
+  const { data: pinnedPadData } = useDeduplicatedSubscription<PinnedPadSubscriptionResponse>(
     PINNED_PAD_SUBSCRIPTION,
   );
   const NOTES_CONFIG = window.meetingClientSettings.public.notes;

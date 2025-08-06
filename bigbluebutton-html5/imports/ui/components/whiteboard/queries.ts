@@ -32,6 +32,67 @@ export interface CursorSubscriptionResponse {
   pres_page_cursor: Array<userCursorResponse>;
 }
 
+export interface CurrentPresentationPagesSubscriptionResponse {
+  pres_page_curr: PresentationPage[];
+}
+
+export interface PresentationPage {
+  height: number;
+  isCurrentPage: boolean;
+  num: number;
+  pageId: string;
+  scaledHeight: number;
+  scaledViewBoxHeight: number;
+  scaledViewBoxWidth: number;
+  scaledWidth: number;
+  svgUrl: string;
+  width: number;
+  xOffset: number;
+  yOffset: number;
+  presentationId: string;
+  content: string;
+  downloadFileUri: string;
+  totalPages: number;
+  downloadable: boolean;
+  presentationName: string;
+  isDefaultPresentation: boolean;
+  infiniteWhiteboard: boolean;
+  nextPagesSvg: string;
+  fitToWidth: boolean;
+}
+
+export interface PresentationsSubscriptionResponse {
+  pres_presentation: Presentation[];
+}
+
+export interface Presentation {
+  uploadTemporaryId: string | null;
+  uploadInProgress: boolean;
+  current: boolean;
+  downloadFileUri: string | null;
+  downloadable: boolean;
+  uploadErrorDetailsJson: string | null;
+  uploadErrorMsgKey: string | null;
+  filenameConverted: boolean;
+  isDefault: boolean;
+  name: string;
+  totalPages: number;
+  totalPagesUploaded: number;
+  presentationId: string;
+  removable: boolean;
+  uploadCompleted: boolean;
+}
+
+export interface ProcessedPresentationsSubscriptionResponse {
+  pres_presentation: ProcessedPresentation[];
+}
+
+export interface ProcessedPresentation {
+  current: boolean;
+  name: string;
+  presentationId: string;
+}
+
 export const CURRENT_PRESENTATION_PAGE_SUBSCRIPTION = gql`subscription CurrentPresentationPagesSubscription {
   pres_page_curr {
     height
