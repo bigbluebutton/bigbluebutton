@@ -163,9 +163,9 @@ const AppContainer = (props) => {
           hideNotificationToasts: hideNotificationToasts
             || getFromUserSettings('bbb_hide_notifications', false),
           darkTheme,
-          isBreakout: currentMeeting?.isBreakout,
-          meetingName: currentMeeting?.name,
-          meetingId: currentMeeting?.meetingId,
+          isBreakout: currentMeeting?.isBreakout ?? false,
+          meetingName: currentMeeting?.name ?? '',
+          meetingId: currentMeeting?.meetingId ?? '',
         }}
         {...props}
       />
