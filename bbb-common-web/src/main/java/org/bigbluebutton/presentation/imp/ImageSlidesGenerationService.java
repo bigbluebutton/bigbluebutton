@@ -39,7 +39,6 @@ public class ImageSlidesGenerationService {
 	private ImageResizer imageResizer;
 	private long maxImageWidth = 2048;
 	private long maxImageHeight = 1536;
-	private long MAX_CONVERSION_TIME = 5*60*1000L;
 	private boolean svgImagesRequired=true;
 	private boolean generatePngs;
 
@@ -140,10 +139,6 @@ public class ImageSlidesGenerationService {
 
 	public void setSvgImagesRequired(boolean svg) {
 	  this.svgImagesRequired = svg;
-	}
-	
-	public void setMaxConversionTime(int minutes) {
-		MAX_CONVERSION_TIME = minutes * 60 * 1000L;
 	}
 
 	public void setSlidesGenerationProgressNotifier(SlidesGenerationProgressNotifier notifier) {

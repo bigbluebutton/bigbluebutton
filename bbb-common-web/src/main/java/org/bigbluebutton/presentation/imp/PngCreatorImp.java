@@ -101,6 +101,16 @@ public class PngCreatorImp implements PngCreator {
 
 	private boolean generatePng(File pngsDir, UploadedPresentation pres, int page, File pageFile)
 					throws InterruptedException {
+		long convTimeout = this.convTimeout;
+		if (convTimeout > pres.getMaxPageConversionTime()) {
+			convTimeout = (int) pres.getMaxPageConversionTime();
+		}
+
+		long execTimeout = this.execTimeout;
+		if (execTimeout > pres.getMaxPageConversionTime()) {
+			execTimeout = pres.getMaxPageConversionTime();
+		}
+
 		String source = pageFile.getAbsolutePath();
 		String dest = pngsDir.getAbsolutePath() + File.separator + "slide-" + page + ".png";
 

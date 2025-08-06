@@ -83,6 +83,11 @@ public class SvgImageCreatorImp implements SvgImageCreator {
     }
 
     private PdfFontType3DetectorHandler createDetectFontType3tHandler(boolean done, int page, String source, UploadedPresentation pres) {
+        long pdfFontsTimeout = this.pdfFontsTimeout;
+        if (pdfFontsTimeout > pres.getMaxPageConversionTime()) {
+            pdfFontsTimeout = pres.getMaxPageConversionTime();
+        }
+
         //Detect if PDF contains text with font Type 3
         //Pdftocairo has problem to convert Pdf to Svg when text contains font Type 3
         //Case detects type 3, rasterize will be forced to avoid the problem
@@ -103,6 +108,16 @@ public class SvgImageCreatorImp implements SvgImageCreator {
 
     private boolean generateSvgImage(File imagePresentationDir, UploadedPresentation pres, int page)
             throws InterruptedException, TimeoutException {
+        long convPdfToSvgTimeout = this.convPdfToSvgTimeout;
+        if (convPdfToSvgTimeout > pres.getMaxPageConversionTime()) {
+            convPdfToSvgTimeout = pres.getMaxPageConversionTime();
+        }
+
+        long pdfFontsTimeout = this.pdfFontsTimeout;
+        if (pdfFontsTimeout > pres.getMaxPageConversionTime()) {
+            pdfFontsTimeout = pres.getMaxPageConversionTime();
+        }
+
         String source = pres.getUploadedFile().getAbsolutePath();
         String dest;
 
@@ -131,11 +146,11 @@ public class SvgImageCreatorImp implements SvgImageCreator {
 
             NuProcess process = convertImgToSvg.start();
             try {
-                process.waitFor(convPdfToSvgTimeout + 1, TimeUnit.SECONDS);
+                process.waitFor(convPdfToSvgTimeout, TimeUnit.SECONDS);
                 done = true;
             } catch (InterruptedException e) {
-                done = false;
                 log.error("InterruptedException while converting to SVG {}", dest, e);
+                return done;
             }
 
             if(pHandler.isCommandTimeout()) {
@@ -175,16 +190,17 @@ public class SvgImageCreatorImp implements SvgImageCreator {
 
         if(rasterizeCurrSlide == false) {
             NuProcessBuilder convertPdfToSvg = createConversionProcess("-svg", page, source, destsvg.getAbsolutePath(),
-                    true);
+                    true, convPdfToSvgTimeout);
 
             convertPdfToSvg.setProcessListener(pHandler);
 
             NuProcess process = convertPdfToSvg.start();
             try {
-                process.waitFor(convPdfToSvgTimeout + 1, TimeUnit.SECONDS);
+                process.waitFor(convPdfToSvgTimeout, TimeUnit.SECONDS);
                 done = true;
             } catch (InterruptedException e) {
                 log.error("Interrupted Exception while generating SVG slides {}", pres.getName(), e);
+                return false;
             }
 
             if(pHandler.isCommandTimeout()) {
@@ -250,7 +266,8 @@ public class SvgImageCreatorImp implements SvgImageCreator {
 
             // Step 1: Convert a PDF page to PNG using a raw pdftocairo
             NuProcessBuilder convertPdfToPng = createConversionProcess("-png", page, source,
-                        tempPng.getAbsolutePath().substring(0, tempPng.getAbsolutePath().lastIndexOf('.')), false);
+                        tempPng.getAbsolutePath().substring(0, tempPng.getAbsolutePath().lastIndexOf('.')), false,
+                    convPdfToSvgTimeout);
 
             Pdf2PngPageConverterHandler pngHandler = new Pdf2PngPageConverterHandler("pdf2png-" + pres.getMeetingId() + "-" + pres.getId() + "-" + page);
             convertPdfToPng.setProcessListener(pngHandler);
@@ -259,6 +276,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
                 pngProcess.waitFor(convPdfToSvgTimeout + 1, TimeUnit.SECONDS);
             } catch (InterruptedException e) {
                 log.error("Interrupted Exception while generating PNG image {}", pres.getName(), e);
+                return false;
             }
 
             if(pngHandler.isCommandTimeout()) {
@@ -323,6 +341,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
                         namespaceProcess.waitFor(convPdfToSvgTimeout + 1, TimeUnit.SECONDS);
                     } catch (InterruptedException e) {
                         log.error("Interrupted Exception while adding SVG namespace {}", pres.getName(), e);
+                        return false;
                     }
                     if (namespaceHandler.isCommandTimeout()) {
                         log.error("Command execution (addNameSpaceToSVG) exceeded the {} secs timeout for {} page {}.", convPdfToSvgTimeout, pres.getName(), page);
@@ -365,7 +384,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
     }
 
     private NuProcessBuilder createConversionProcess(String format, int page, String source, String destFile,
-            boolean analyze) {
+            boolean analyze, long timeout) {
         String rawCommand = "pdftocairo -r " + this.svgResolutionPpi + " " + format + (analyze ? "" : " -singlefile");
 
         //Resize png resolution to avoid too large files
@@ -379,7 +398,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
             rawCommand += " | egrep 'data:image/png;base64|<path' | sed 's/  / /g' | cut -d' ' -f 1 | sort | uniq -cw 2";
         }
 
-        return new NuProcessBuilder(Arrays.asList("/usr/share/bbb-web/run-in-systemd.sh", convPdfToSvgTimeout + "s", "/bin/sh", "-c", rawCommand));
+        return new NuProcessBuilder(Arrays.asList("/usr/share/bbb-web/run-in-systemd.sh", timeout + "s", "/bin/sh", "-c", rawCommand));
     }
 
     private NuProcessBuilder createDetectFontType3Process(String source, int page) {

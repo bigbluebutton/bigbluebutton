@@ -98,6 +98,11 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
 
     //System.out.println(COMMAND);
 
+    long execTimeout = this.execTimeout;
+    if (execTimeout > pres.getMaxPageConversionTime()) {
+      execTimeout = pres.getMaxPageConversionTime();
+    }
+
     boolean done = new ExternalProcessExecutor().exec(COMMAND, execTimeout);
 
     if (done) {

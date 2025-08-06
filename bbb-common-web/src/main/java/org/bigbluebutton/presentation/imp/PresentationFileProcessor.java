@@ -40,8 +40,6 @@ public class PresentationFileProcessor {
     private long bigPdfSize;
     private long maxBigPdfPageSize;
 
-    private long MAX_CONVERSION_TIME = 5 * 60 * 1000L;
-
     private TextFileCreator textFileCreator;
     private SvgImageCreator svgImageCreator;
     private ThumbnailCreator thumbnailCreator;
@@ -427,10 +425,6 @@ public class PresentationFileProcessor {
 
     public void setSvgImageCreator(SvgImageCreator svgImageCreator) {
         this.svgImageCreator = svgImageCreator;
-    }
-
-    public void setMaxConversionTime(int minutes) {
-        MAX_CONVERSION_TIME = minutes * 60 * 1000L * 1000L * 1000L;
     }
 
     public void setImageSlidesGenerationService(ImageSlidesGenerationService s) {
