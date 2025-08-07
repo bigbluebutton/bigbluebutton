@@ -204,7 +204,7 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
       });
 
       // https://docs.bigbluebutton.org/3.0/testing/release-testing/#shared-notes-1
-      test.only('Lock Edit Shared Notes', async ({ browser, context, page }) => {
+      test('Lock Edit Shared Notes', async ({ browser, context, page }) => {
         const lockViewers = new LockViewers(browser, context);
         await lockViewers.initPages(page);
         await lockViewers.lockEditSharedNotes();
