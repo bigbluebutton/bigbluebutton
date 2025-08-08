@@ -52,14 +52,14 @@ export class TextShape extends Shape {
         })
         .fill(this.shapeColor);
 
-    const lines = this.wrapText(this.text, this.w);
+    const lines = this.wrapText(this.text ?? '', this.w ?? 200);
 
-    lines.forEach((line) => {
+    lines.forEach((line, idx) => {
       const tspan = new Tspan()
           .text(line)
           .attr({
             x,
-            dy: this.fontSize,
+            dy: idx === 0 ? 0 : this.fontSize,
           });
 
       textElement.add(tspan);
