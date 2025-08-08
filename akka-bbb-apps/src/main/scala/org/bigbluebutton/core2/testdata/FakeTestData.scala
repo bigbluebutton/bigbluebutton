@@ -31,16 +31,16 @@ trait FakeTestData {
 
     val meetingId = liveMeeting.props.meetingProp.intId
 
-    val vu1 = FakeUserGenerator.createFakeVoiceOnlyUser(meetingId, CallingWith.PHONE, muted = false, deafened = false, talking = false, listenOnly = false)
+    val vu1 = FakeUserGenerator.createFakeVoiceOnlyUser(meetingId, CallingWith.PHONE, muted = false, listenOnlyInputDevice = false, deafened = false, talking = false, listenOnly = false)
     VoiceUsers.add(liveMeeting.voiceUsers, vu1)
 
-    val vu2 = FakeUserGenerator.createFakeVoiceOnlyUser(meetingId, CallingWith.PHONE, muted = false, deafened = false, talking = false, listenOnly = false)
+    val vu2 = FakeUserGenerator.createFakeVoiceOnlyUser(meetingId, CallingWith.PHONE, muted = false, listenOnlyInputDevice = false, deafened = false, talking = false, listenOnly = false)
     VoiceUsers.add(liveMeeting.voiceUsers, vu2)
-    val vu3 = FakeUserGenerator.createFakeVoiceOnlyUser(meetingId, CallingWith.PHONE, muted = false, deafened = false, talking = false, listenOnly = false)
+    val vu3 = FakeUserGenerator.createFakeVoiceOnlyUser(meetingId, CallingWith.PHONE, muted = false, listenOnlyInputDevice = false, deafened = false, talking = false, listenOnly = false)
     VoiceUsers.add(liveMeeting.voiceUsers, vu3)
-    val vu4 = FakeUserGenerator.createFakeVoiceOnlyUser(meetingId, CallingWith.PHONE, muted = false, deafened = false, talking = false, listenOnly = false)
+    val vu4 = FakeUserGenerator.createFakeVoiceOnlyUser(meetingId, CallingWith.PHONE, muted = false, listenOnlyInputDevice = false, deafened = false, talking = false, listenOnly = false)
     VoiceUsers.add(liveMeeting.voiceUsers, vu4)
-    val vu5 = FakeUserGenerator.createFakeVoiceOnlyUser(meetingId, CallingWith.PHONE, muted = false, deafened = false, talking = false, listenOnly = false)
+    val vu5 = FakeUserGenerator.createFakeVoiceOnlyUser(meetingId, CallingWith.PHONE, muted = false, listenOnlyInputDevice = false, deafened = false, talking = false, listenOnly = false)
     VoiceUsers.add(liveMeeting.voiceUsers, vu5)
 
     for (i <- 1 to 50) {
@@ -55,7 +55,7 @@ trait FakeTestData {
 
     val ruser1 = FakeUserGenerator.createFakeRegisteredUser(liveMeeting.registeredUsers, Roles.MODERATOR_ROLE, bot = false, true, false, liveMeeting.props.meetingProp.intId)
 
-    val vuser1 = FakeUserGenerator.createFakeVoiceUser(ruser1, "webrtc", muted = false, deafened = false, talking = true, listenOnly = false)
+    val vuser1 = FakeUserGenerator.createFakeVoiceUser(ruser1, "webrtc", muted = false, listenOnlyInputDevice = false, deafened = false, talking = true, listenOnly = false)
     VoiceUsers.add(liveMeeting.voiceUsers, vuser1)
 
     val rusers = Users2x.findAll(liveMeeting.users2x)

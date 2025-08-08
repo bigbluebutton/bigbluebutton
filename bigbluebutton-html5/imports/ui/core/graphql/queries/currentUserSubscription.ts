@@ -57,6 +57,7 @@ subscription userCurrentSubscription {
       spoke
       listenOnly
       deafened
+      listenOnlyInputDevice
     }
     userLockSettings {
       disablePublicChat

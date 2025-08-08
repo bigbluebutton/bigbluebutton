@@ -48,6 +48,7 @@ subscription UserListSubscription($offset: Int!, $limit: Int!) {
       deafened
       listenOnly
       voiceUserId
+      listenOnlyInputDevice
     }
     cameras {
       streamId

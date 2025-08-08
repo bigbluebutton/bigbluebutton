@@ -59,6 +59,7 @@ class AnalyticsActor(val includeChat: Boolean) extends Actor with ActorLogging {
       case m: UserLeftVoiceConfEvtMsg                        => logMessage(msg)
       case m: RecordingStartedVoiceConfEvtMsg                => logMessage(msg)
       case m: MuteUserCmdMsg                                 => logMessage(msg)
+      case m: SetUserListenOnlyInputCmdMsg                   => logMessage(msg)
       case m: DeafenUserCmdMsg                               => logMessage(msg)
       case m: MuteUserInVoiceConfSysMsg                      => logMessage(msg)
       case m: DeafUserInVoiceConfSysMsg                      => logMessage(msg)

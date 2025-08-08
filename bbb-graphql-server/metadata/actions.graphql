@@ -663,6 +663,12 @@ type Mutation {
 }
 
 type Mutation {
+  userSetListenOnlyInput(
+    listenOnlyInputDevice: Boolean!
+  ): Boolean
+}
+
+type Mutation {
   userSetPresenter(
     userId: String!
   ): Boolean

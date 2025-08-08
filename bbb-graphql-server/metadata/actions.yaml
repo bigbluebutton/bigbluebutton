@@ -594,6 +594,12 @@ actions:
       handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
     permissions:
       - role: bbb_client
+  - name: userSetListenOnlyInput
+    definition:
+      kind: synchronous
+      handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
+    permissions:
+      - role: bbb_client
   - name: userSetPresenter
     definition:
       kind: synchronous
