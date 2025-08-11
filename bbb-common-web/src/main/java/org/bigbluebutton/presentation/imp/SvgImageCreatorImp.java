@@ -91,7 +91,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
         //Detect if PDF contains text with font Type 3
         //Pdftocairo has problem to convert Pdf to Svg when text contains font Type 3
         //Case detects type 3, rasterize will be forced to avoid the problem
-        NuProcessBuilder detectFontType3Process = this.createDetectFontType3Process(source, page);
+        NuProcessBuilder detectFontType3Process = this.createDetectFontType3Process(source, page, pdfFontsTimeout);
         PdfFontType3DetectorHandler detectFontType3tHandler = new PdfFontType3DetectorHandler("font3pdf-" + pres.getMeetingId() + "-" + pres.getId() + "-" + page);
         detectFontType3Process.setProcessListener(detectFontType3tHandler);
 
@@ -401,12 +401,12 @@ public class SvgImageCreatorImp implements SvgImageCreator {
         return new NuProcessBuilder(Arrays.asList("/usr/share/bbb-web/run-in-systemd.sh", timeout + "s", "/bin/sh", "-c", rawCommand));
     }
 
-    private NuProcessBuilder createDetectFontType3Process(String source, int page) {
+    private NuProcessBuilder createDetectFontType3Process(String source, int page, long timeout) {
         String rawCommand  = "pdffonts -f " + String.valueOf(page) + " -l " + String.valueOf(page) + " " + source;
         rawCommand += " | grep -m 1 'Type 3'";
         rawCommand += " | wc -l";
 
-        return new NuProcessBuilder(Arrays.asList("/usr/share/bbb-web/run-in-systemd.sh", pdfFontsTimeout + "s", "/bin/sh", "-c", rawCommand));
+        return new NuProcessBuilder(Arrays.asList("/usr/share/bbb-web/run-in-systemd.sh", timeout + "s", "/bin/sh", "-c", rawCommand));
     }
 
     private File determineSvgImagesDirectory(File presentationFile) {
