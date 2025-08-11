@@ -71,7 +71,7 @@ Right after that, NGROK will create an interface into your terminal and will dis
 
 Here's an example of URL: `https://<uuid>.ngrok-free.app`
 
-You can already interact with this URL and access both 
+You can already interact with this URL and access both
 
 `https://<uuid>.ngrok-free.app/manifest.json`
 
@@ -185,6 +185,7 @@ Here is as complete `manifest.json` example with all possible configurations:
   "requiredSdkVersion": "~0.0.77",
   "name": "MyPlugin",
   "javascriptEntrypointUrl": "MyPlugin.js",
+  "javascriptEntrypointIntegrity": "sha384-Bwsz2rxm...", // Optional
   "localesBaseUrl": "https://cdn.domain.com/my-plugin/", // Optional
   "dataChannels":[
     {
@@ -194,18 +195,13 @@ Here is as complete `manifest.json` example with all possible configurations:
     }
   ], // One can enable more data-channels to better organize client communication
   "eventPersistence": {
-    "isEnabled": true, // By default it is not enabled
-    "maximumPayloadSizeInBytes": 1024,
-    "rateLimiting": {
-      "messagesAllowedPerSecond": 10,
-      "messagesAllowedPerMinute": 20
-    }
+    "isEnabled": true // By default it is not enabled
   },
   "remoteDataSources": [
     {
       "name": "allUsers",
       "url": "${meta_pluginSettingsUserInformation}",
-      "fetchMode": "onMeetingCreate", // Possible values: "onMeetingCreate", "onDemand" 
+      "fetchMode": "onMeetingCreate", // Possible values: "onMeetingCreate", "onDemand"
       "permissions": ["moderator", "viewer"]
     }
   ],
@@ -462,8 +458,8 @@ sequenceDiagram
   GraphqlServer->>DataBase: query PluginConfigurationQuery
   DataBase->>GraphqlServer: return PluginConfigurationQuery data
   GraphqlServer->>Client: return PluginConfigurationQuery data
-  Client->>PluginStorageServer: Request Plugin Javascript bundle 
-  PluginStorageServer->>Client: Return Plugin Javascript bundle 
+  Client->>PluginStorageServer: Request Plugin Javascript bundle
+  PluginStorageServer->>Client: Return Plugin Javascript bundle
 ```
 
 As for the second part, when the user joins the meeting:
@@ -641,7 +637,7 @@ Example:
   "bigbluebutton-html-plugin-sdk": "https://codeload.github.com/bigbluebutton/bigbluebutton-html-plugin-sdk/tar.gz/<commit-hash-id>"
 }
 ```
- 
+
 You can get the commit hash from `git log` or directly from the commit list in your `bigbluebutton-html-plugin-sdk` pull request.
 
 Alternatively, it is possible to reference the PR from the `bigbluebutton-html-plugin-sdk` directly. (This implies that you need to first send the PR for this repository and then the PR for `bigbluebutton/bigbluebutton`)
@@ -905,7 +901,7 @@ The data-channel name must be in the `manifest.json` along with all the permissi
     }
   ]
 }
-``` 
+```
 
 If no permission is mentioned in that file (writing or deleting), no one will be able proceed with that specific action:
 
@@ -1007,9 +1003,9 @@ See usage ahead:
 So the idea is that we have a `uiCommands` object and at a point, there will be the command to do the intended action, such as open the chat form and/or fill it, as demonstrated above
 
 ### Server Commands
-  
+
   `serverCommands` object: It contains all the possible commands available to the developer to interact with the BBB core server, see the ones implemented down below:
-  
+
   - chat:
     - sendPublicMessage: This function sends a message to the public chat on behalf of the currently logged-in user.
 
@@ -1059,7 +1055,7 @@ This is possible by simply configuring the dataResource name in the manifest and
       {
           "name": "allUsers",
           "url": "${meta_pluginSettingsUserInformation}",
-          "fetchMode": "onMeetingCreate", // Possible values: "onMeetingCreate", "onDemand" 
+          "fetchMode": "onMeetingCreate", // Possible values: "onMeetingCreate", "onDemand"
           "permissions": ["moderator", "viewer"] // Possible values: "moderator", "viewer", "presenter"
       }
   ]
@@ -1120,7 +1116,7 @@ This feature is mainly used for security purposes, see [external data section](#
 plugin_<pluginName>_<parameter-name>
 ```
 
-- `<pluginName>` — The name of the plugin as defined in `manifest.json`.  
+- `<pluginName>` — The name of the plugin as defined in `manifest.json`.
 - `<parameter-name>` — The parameter's name. It may include letters (uppercase or lowercase), numbers and hyphens (`-`).
 
 This naming convention ensures that each plugin has its own namespace for parameters. Other plugins cannot access values outside their own namespace. For example:
@@ -1164,12 +1160,7 @@ To use it, one first need to add the following lines to their `manifest.json`:
 {
   // ...rest of manifest configuration
   "eventPersistence": {
-      "isEnabled": true,
-      "maximumPayloadSizeInBytes": 1024,
-      "rateLimiting": {
-          "messagesAllowedPerSecond": 10,
-          "messagesAllowedPerMinute": 20
-      }
+      "isEnabled": true
   }
 }
 ```
