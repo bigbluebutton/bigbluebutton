@@ -299,6 +299,8 @@ exports.submitAnswersMultiple = 'button[data-test="submitAnswersMultiple"]';
 exports.userVoteLiveResult = 'td[data-test="userVoteLiveResult"]';
 exports.errorNoValueInput = 'div[data-test="errorNoValueInput"]';
 exports.smartSlides1 = 'smartSlidesPresentation.pdf';
+exports.smartSlides2 = 'SmartSlides.pdf';
+
 exports.responsePollQuestion = 'div[data-test="pollQuestion"]';
 const pollAnswersOption = 'div[data-test="optionsAnswers"]';
 exports.firstPollAnswerOptionBtn = `${pollAnswersOption}>>nth=0`;
@@ -307,6 +309,7 @@ exports.firstCheckboxInput = `${pollAnswersOption}`;
 exports.closePollingBtn = 'button[data-test="closePolling"]';
 exports.yesNoOption = 'button[data-test="yesNoQuickPoll"]';
 exports.yesNoAbstentionOption = 'li[role="menuitem"]>>nth=1';
+exports.pollAnswerOptionD = 'button[data-test="pollAnswerOption"]>>nth=3';
 exports.pollAnswerOptionE = 'button[data-test="pollAnswerOption"]>>nth=4';
 
 // Presentation
