@@ -34,11 +34,81 @@ class UsersTable extends React.Component {
       onlineTimeOrder: 'desc',
       talkTimeOrder: 'desc',
       webcamTimeOrder: 'desc',
-      activityscoreOrder: 'desc',
+      activityScoreOrder: 'desc',
       lastFieldClicked: 'userOrder',
+      usersActivityScore: {},
     };
 
     this.openUserModal = this.openUserModal.bind(this);
+    this.sortingFunctions = {
+      userOrder: this.userOrder.bind(this),
+      onlineTimeOrder: this.onlineTimeOrder.bind(this),
+      talkTimeOrder: this.talkTimeOrder.bind(this),
+      webcamTimeOrder: this.webcamTimeOrder.bind(this),
+      activityScoreOrder: this.activityScoreOrder.bind(this),
+    };
+  }
+
+  componentDidMount() {
+    const { allUsers, totalOfPolls } = this.props;
+    const usersActivityScore = {};
+    Object.values(allUsers || {}).forEach((user) => {
+      usersActivityScore[user.userKey] = getActivityScore(user, allUsers, totalOfPolls);
+    });
+    this.setState({ usersActivityScore });
+  }
+
+  componentDidUpdate(prevProps) {
+    const { allUsers, totalOfPolls } = this.props;
+    if (prevProps.allUsers !== allUsers) {
+      const usersActivityScore = {};
+      Object.values(allUsers || {}).forEach((user) => {
+        usersActivityScore[user.userKey] = getActivityScore(user, allUsers, totalOfPolls);
+      });
+      this.setState({ usersActivityScore });
+    }
+  }
+
+  onlineTimeOrder(a, b) {
+    const { onlineTimeOrder } = this.state;
+    const onlineTimeA = Object.values(a.intIds).reduce((prev, intId) => (
+      prev + intId.sessions.reduce((prev2, session) => (
+        prev2 + (session.leftOn > 0
+          ? session.leftOn
+          : (new Date()).getTime()) - session.registeredOn), 0)
+    ), 0);
+
+    const onlineTimeB = Object.values(b.intIds).reduce((prev, intId) => (
+      prev + intId.sessions.reduce((prev2, session) => (
+        prev2 + (session.leftOn > 0
+          ? session.leftOn
+          : (new Date()).getTime()) - session.registeredOn), 0)
+    ), 0);
+
+    if (onlineTimeA < onlineTimeB) {
+      return onlineTimeOrder === 'desc' ? 1 : -1;
+    }
+
+    if (onlineTimeA > onlineTimeB) {
+      return onlineTimeOrder === 'desc' ? -1 : 1;
+    }
+
+    return 0;
+  }
+
+  getOnlinePercentage(registeredOn, leftOn) {
+    const { totalOfActivityTime } = this.props;
+    const totalUserOnlineTime = ((leftOn > 0 ? leftOn : (new Date()).getTime())) - registeredOn;
+    return Math.ceil((totalUserOnlineTime / totalOfActivityTime) * 100);
+  }
+
+  openUserModal(user) {
+    const { dispatch } = this.context;
+
+    dispatch({
+      type: 'changeUser',
+      user,
+    });
   }
 
   toggleOrder(field) {
@@ -54,115 +124,76 @@ class UsersTable extends React.Component {
     if (tab === 'overview') this.setState({ lastFieldClicked: field });
   }
 
-  openUserModal(user) {
-    const { dispatch } = this.context;
+  userOrder(a, b) {
+    const { userOrder } = this.state;
+    if (a.name.toLowerCase() < b.name.toLowerCase()) {
+      return userOrder === 'desc' ? 1 : -1;
+    }
+    if (a.name.toLowerCase() > b.name.toLowerCase()) {
+      return userOrder === 'desc' ? -1 : 1;
+    }
+    return 0;
+  }
 
-    dispatch({
-      type: 'changeUser',
-      user,
-    });
+  talkTimeOrder(a, b) {
+    const { talkTimeOrder } = this.state;
+    const talkTimeA = a.talk.totalTime;
+    const talkTimeB = b.talk.totalTime;
+
+    if (talkTimeA < talkTimeB) {
+      return talkTimeOrder === 'desc' ? 1 : -1;
+    }
+
+    if (talkTimeA > talkTimeB) {
+      return talkTimeOrder === 'desc' ? -1 : 1;
+    }
+
+    return 0;
+  }
+
+  webcamTimeOrder(a, b) {
+    const { webcamTimeOrder } = this.state;
+    const webcamTimeA = getSumOfTime(a.webcams);
+    const webcamTimeB = getSumOfTime(b.webcams);
+
+    if (webcamTimeA < webcamTimeB) {
+      return webcamTimeOrder === 'desc' ? 1 : -1;
+    }
+
+    if (webcamTimeA > webcamTimeB) {
+      return webcamTimeOrder === 'desc' ? -1 : 1;
+    }
+
+    return 0;
+  }
+
+  activityScoreOrder(a, b) {
+    const { activityScoreOrder, usersActivityScore } = this.state;
+    if (usersActivityScore[a.userKey] < usersActivityScore[b.userKey]) {
+      return activityScoreOrder === 'desc' ? 1 : -1;
+    }
+    if (usersActivityScore[a.userKey] > usersActivityScore[b.userKey]) {
+      return activityScoreOrder === 'desc' ? -1 : 1;
+    }
+    if (a.isModerator === false && b.isModerator === true) return 1;
+    if (a.isModerator === true && b.isModerator === false) return -1;
+    return 0;
   }
 
   render() {
     const {
-      allUsers, totalOfActivityTime, totalOfPolls, tab,
+      allUsers, tab,
     } = this.props;
 
     const {
-      activityscoreOrder, userOrder, onlineTimeOrder,
-      talkTimeOrder, webcamTimeOrder, lastFieldClicked,
+      activityScoreOrder, userOrder, onlineTimeOrder,
+      talkTimeOrder, webcamTimeOrder, lastFieldClicked, usersActivityScore,
     } = this.state;
 
     const usersReactionsSummary = {};
     Object.values(allUsers || {}).forEach((user) => {
       usersReactionsSummary[user.userKey] = getUserReactionsSummary(user);
     });
-
-    function getOnlinePercentage(registeredOn, leftOn) {
-      const totalUserOnlineTime = ((leftOn > 0 ? leftOn : (new Date()).getTime())) - registeredOn;
-      return Math.ceil((totalUserOnlineTime / totalOfActivityTime) * 100);
-    }
-
-    const usersActivityScore = {};
-    Object.values(allUsers || {}).forEach((user) => {
-      usersActivityScore[user.userKey] = getActivityScore(user, allUsers, totalOfPolls);
-    });
-
-    const sortFunctions = {
-      userOrder(a, b) {
-        if (a.name.toLowerCase() < b.name.toLowerCase()) {
-          return userOrder === 'desc' ? 1 : -1;
-        }
-        if (a.name.toLowerCase() > b.name.toLowerCase()) {
-          return userOrder === 'desc' ? -1 : 1;
-        }
-        return 0;
-      },
-      onlineTimeOrder(a, b) {
-        const onlineTimeA = Object.values(a.intIds).reduce((prev, intId) => (
-          prev + intId.sessions.reduce((prev2, session) => (
-            prev2 + (session.leftOn > 0
-              ? session.leftOn
-              : (new Date()).getTime()) - session.registeredOn), 0)
-        ), 0);
-
-        const onlineTimeB = Object.values(b.intIds).reduce((prev, intId) => (
-          prev + intId.sessions.reduce((prev2, session) => (
-            prev2 + (session.leftOn > 0
-              ? session.leftOn
-              : (new Date()).getTime()) - session.registeredOn), 0)
-        ), 0);
-
-        if (onlineTimeA < onlineTimeB) {
-          return onlineTimeOrder === 'desc' ? 1 : -1;
-        }
-
-        if (onlineTimeA > onlineTimeB) {
-          return onlineTimeOrder === 'desc' ? -1 : 1;
-        }
-
-        return 0;
-      },
-      talkTimeOrder(a, b) {
-        const talkTimeA = a.talk.totalTime;
-        const talkTimeB = b.talk.totalTime;
-
-        if (talkTimeA < talkTimeB) {
-          return talkTimeOrder === 'desc' ? 1 : -1;
-        }
-
-        if (talkTimeA > talkTimeB) {
-          return talkTimeOrder === 'desc' ? -1 : 1;
-        }
-
-        return 0;
-      },
-      webcamTimeOrder(a, b) {
-        const webcamTimeA = getSumOfTime(a.webcams);
-        const webcamTimeB = getSumOfTime(b.webcams);
-
-        if (webcamTimeA < webcamTimeB) {
-          return webcamTimeOrder === 'desc' ? 1 : -1;
-        }
-
-        if (webcamTimeA > webcamTimeB) {
-          return webcamTimeOrder === 'desc' ? -1 : 1;
-        }
-
-        return 0;
-      },
-      activityscoreOrder(a, b) {
-        if (usersActivityScore[a.userKey] < usersActivityScore[b.userKey]) {
-          return activityscoreOrder === 'desc' ? 1 : -1;
-        }
-        if (usersActivityScore[a.userKey] > usersActivityScore[b.userKey]) {
-          return activityscoreOrder === 'desc' ? -1 : 1;
-        }
-        if (a.isModerator === false && b.isModerator === true) return 1;
-        if (a.isModerator === true && b.isModerator === false) return -1;
-        return 0;
-      },
-    };
 
     return (
       <table className="w-full">
@@ -215,11 +246,11 @@ class UsersTable extends React.Component {
             </th>
             <th
               className={`px-3.5 2xl:px-4 py-3 text-center ${tab === 'overview_activityscore' ? 'cursor-pointer' : ''}`}
-              onClick={() => { if (tab === 'overview_activityscore') this.toggleOrder('activityscoreOrder'); }}
+              onClick={() => { if (tab === 'overview_activityscore') this.toggleOrder('activityScoreOrder'); }}
             >
               <FormattedMessage id="app.learningDashboard.usersTable.colActivityScore" defaultMessage="Activity Score" />
               { tab === 'overview_activityscore'
-                ? renderArrow(activityscoreOrder)
+                ? renderArrow(activityScoreOrder)
                 : null }
             </th>
             <th className="px-3.5 2xl:px-4 py-3 text-center">
@@ -230,7 +261,7 @@ class UsersTable extends React.Component {
         <tbody className="bg-white divide-y whitespace-nowrap">
           { typeof allUsers === 'object' && Object.values(allUsers || {}).length > 0 ? (
             Object.values(allUsers || {})
-              .sort(tab === 'overview' ? sortFunctions[lastFieldClicked] : sortFunctions.activityscoreOrder)
+              .sort(tab === 'overview' ? this.sortingFunctions[lastFieldClicked] : this.sortingFunctions.activityScoreOrder)
               .map((user) => {
                 const opacity = user.leftOn > 0 ? 'opacity-75' : '';
                 return (
@@ -337,11 +368,11 @@ class UsersTable extends React.Component {
                           : prev2 + (new Date()).getTime()) - session.registeredOn), 0)), 0)) }
                       <br />
                       {
-                        (function getPercentage() {
+                        ((function getPercentage() {
                           const { intIds } = user;
                           const percentage = Object.values(intIds || {}).reduce((prev, intId) => (
                             prev + intId.sessions.reduce((prev2, session) => (
-                              prev2 + getOnlinePercentage(session.registeredOn, session.leftOn)
+                              prev2 + this.getOnlinePercentage(session.registeredOn, session.leftOn)
                             ), 0)
                           ), 0);
 
@@ -358,7 +389,7 @@ class UsersTable extends React.Component {
                               />
                             </div>
                           );
-                        }())
+                        }).bind(this)())
                       }
                     </td>
                     <td className={`px-4 py-3 text-sm text-center items-center ${opacity}`} data-test="userTotalTalkTimeDashboard">
