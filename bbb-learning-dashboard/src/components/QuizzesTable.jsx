@@ -383,11 +383,7 @@ const QuizzesTable = (props) => {
             <>
               {symbols[type]}
               &nbsp;
-              {responses.map((response) => {
-                const key = pollAnswerIds[response.toLowerCase()]
-                  ? [intl.formatMessage(pollAnswerIds[response.toLowerCase()])] : response;
-                return key;
-              }).join(', ')}
+              {responses}
             </>
           )}
           {type === 'default' && intl.formatMessage({
@@ -406,13 +402,7 @@ const QuizzesTable = (props) => {
           >
             <Paper elevation={1}>
               <Typography variant="body2" style={{ padding: 8, whiteSpace: 'nowrap' }}>
-                {responses.length ? (
-                  responses.map((response) => {
-                    const key = pollAnswerIds[response.toLowerCase()]
-                      ? [intl.formatMessage(pollAnswerIds[response.toLowerCase()])] : response;
-                    return key;
-                  }).join(', ')
-                ) : intl.formatMessage({
+                {responses.length ? responses : intl.formatMessage({
                   id: 'app.learningDashboard.quizzes.noResponse',
                   defaultMessage: 'No response',
                 })}
@@ -457,7 +447,11 @@ const QuizzesTable = (props) => {
       sortable: true,
       valueGetter: (params) => {
         const { userAnswers } = params?.value;
-        return userAnswers || [];
+        return userAnswers.map((response) => {
+          const key = pollAnswerIds[response.toLowerCase()]
+            ? [intl.formatMessage(pollAnswerIds[response.toLowerCase()])] : response;
+          return key;
+        }).join(', ');
       },
       renderCell: (params) => {
         let type = 'default';
@@ -483,7 +477,7 @@ const QuizzesTable = (props) => {
           <GridCellExpand
             type={type}
             anonymous={v?.anonymous}
-            responses={params?.value || []}
+            responses={params?.value || ''}
             width={params?.colDef?.computedWidth}
           />
         );
