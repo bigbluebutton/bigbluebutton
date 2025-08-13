@@ -448,8 +448,9 @@ const QuizzesTable = (props) => {
       valueGetter: (params) => {
         const { userAnswers } = params?.value;
         return userAnswers.map((response) => {
-          const key = pollAnswerIds[response.toLowerCase()]
-            ? [intl.formatMessage(pollAnswerIds[response.toLowerCase()])] : response;
+          const responseInLowerCase = response.toLowerCase();
+          const key = pollAnswerIds[responseInLowerCase]
+            ? intl.formatMessage(pollAnswerIds[responseInLowerCase]) : response;
           return key;
         }).join(', ');
       },
