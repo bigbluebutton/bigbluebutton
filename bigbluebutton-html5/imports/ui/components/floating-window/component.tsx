@@ -1,13 +1,15 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom/client';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Draggable from 'react-draggable';
 import Styled from './styles';
+import { Position } from './types';
+import useEnforceBoundariesOnWindowResize from './hooks';
 
 interface FloatingWindowProps {
   left: number;
   top: number;
-  key: string;
+  id: string;
   backgroundColor: string;
   boxShadow: string;
   isDraggable: boolean;
@@ -15,20 +17,16 @@ interface FloatingWindowProps {
 }
 
 const renderComponent = (
-  elementRef: React.MutableRefObject<null>,
-  key: string,
-  top: number,
-  left: number,
+  elementRef: React.RefObject<HTMLDivElement>,
+  id: string,
   backgroundColor: string,
   boxShadow: string,
 ) => (
   <Styled.FloatingWindowContent
     ref={elementRef}
-    id={key}
+    id={id}
     className="floating-window-content"
     style={{
-      top,
-      left,
       backgroundColor,
       boxShadow,
     }}
@@ -38,18 +36,20 @@ const renderComponent = (
 const FloatingWindow: React.FC<FloatingWindowProps> = ({
   left,
   top,
-  key,
+  id,
   backgroundColor,
   boxShadow,
   isDraggable,
   renderFunction,
-}: FloatingWindowProps) => {
-  const elementRef = useRef(null);
+}) => {
+  const contentRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [position, setPosition] = useState<Position>({ x: left, y: top });
 
   useEffect(() => {
     let rootRef: ReactDOM.Root | null;
-    if (elementRef.current && renderFunction) {
-      rootRef = renderFunction(elementRef.current);
+    if (contentRef.current && renderFunction) {
+      rootRef = renderFunction(contentRef.current);
     }
 
     return () => {
@@ -58,24 +58,35 @@ const FloatingWindow: React.FC<FloatingWindowProps> = ({
       // instance of ReactDOM
       if (rootRef) rootRef.unmount();
     };
-  }, [elementRef]);
+  }, [contentRef]);
+
+  useEnforceBoundariesOnWindowResize(
+    containerRef,
+    contentRef,
+    setPosition,
+  );
 
   const componentToRender = renderComponent(
-    elementRef,
-    key,
-    top,
-    left,
+    contentRef,
+    id,
     backgroundColor,
     boxShadow,
   );
 
   return (
-    isDraggable
-      ? (
-        <Draggable>
+    <div ref={containerRef} style={{ width: '100%', height: '100%', zIndex: '-5' }}>
+      {isDraggable ? (
+        <Draggable
+          bounds="parent"
+          position={position}
+          onDrag={(_, data) => setPosition({ x: data.x, y: data.y })}
+        >
           {componentToRender}
         </Draggable>
-      ) : componentToRender
+      ) : (
+        componentToRender
+      )}
+    </div>
   );
 };
 
