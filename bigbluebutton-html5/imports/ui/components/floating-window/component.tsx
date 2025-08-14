@@ -43,7 +43,6 @@ const FloatingWindow: React.FC<FloatingWindowProps> = ({
   renderFunction,
 }) => {
   const contentRef = useRef<HTMLDivElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState<Position>({ x: left, y: top });
 
   useEffect(() => {
@@ -61,7 +60,6 @@ const FloatingWindow: React.FC<FloatingWindowProps> = ({
   }, [contentRef]);
 
   useEnforceBoundariesOnWindowResize(
-    containerRef,
     contentRef,
     setPosition,
   );
@@ -74,19 +72,17 @@ const FloatingWindow: React.FC<FloatingWindowProps> = ({
   );
 
   return (
-    <div ref={containerRef} style={{ width: '100%', height: '100%', zIndex: '-5' }}>
-      {isDraggable ? (
-        <Draggable
-          bounds="parent"
-          position={position}
-          onDrag={(_, data) => setPosition({ x: data.x, y: data.y })}
-        >
-          {componentToRender}
-        </Draggable>
-      ) : (
-        componentToRender
-      )}
-    </div>
+    isDraggable ? (
+      <Draggable
+        bounds="parent"
+        position={position}
+        onDrag={(_, data) => setPosition({ x: data.x, y: data.y })}
+      >
+        {componentToRender}
+      </Draggable>
+    ) : (
+      componentToRender
+    )
   );
 };
 

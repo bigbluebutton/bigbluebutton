@@ -2,30 +2,30 @@ import { useEffect } from 'react';
 import { Position } from './types';
 
 const useEnforceBoundariesOnWindowResize = (
-  containerRef: React.RefObject<HTMLDivElement>,
   contentRef: React.RefObject<HTMLDivElement>,
   setPosition: React.Dispatch<React.SetStateAction<Position>>,
 ) => {
   useEffect(() => {
     const handleResize = () => {
-      if (!containerRef.current || !contentRef.current) return;
+      if (!contentRef.current) return;
 
-      const parentRect = containerRef.current.getBoundingClientRect();
       const elemRect = (contentRef.current as HTMLElement).getBoundingClientRect();
 
+      const windowWidth = window.innerWidth;
+      const windowHeight = window.innerHeight;
       setPosition((prev) => {
         let newX = prev.x;
         let newY = prev.y;
 
         // Clamp horizontally
-        if (newX + elemRect.width > parentRect.width) {
-          newX = parentRect.width - elemRect.width;
+        if (newX + elemRect.width > windowWidth) {
+          newX = windowWidth - elemRect.width;
         }
         if (newX < 0) newX = 0;
 
         // Clamp vertically
-        if (newY + elemRect.height > parentRect.height) {
-          newY = parentRect.height - elemRect.height;
+        if (newY + elemRect.height > windowHeight) {
+          newY = windowHeight - elemRect.height;
         }
         if (newY < 0) newY = 0;
 
