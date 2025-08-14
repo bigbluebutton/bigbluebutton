@@ -338,7 +338,7 @@ const QuickPollDropdown = (props) => {
         const { options } = itemLabel;
         itemLabel = options.join('/').replace(/[\n.)]/g, '');
         if (type === _pollTypes.Custom) {
-          letterAnswers = optionGroupsWithLabels[idx].slice(0, MAX_CUSTOM_FIELDS);
+          letterAnswers = (optionGroupsWithLabels[idx] || []).slice(0, MAX_CUSTOM_FIELDS);
         }
       }
 
@@ -438,7 +438,7 @@ const QuickPollDropdown = (props) => {
             startPoll(
               pollTypes.Custom,
               currentSlide.id,
-              optionGroupsWithLabels[0],
+              (optionGroupsWithLabels[0] || []),
               pollQuestion,
               multiResponse,
               correctAnswer?.length > 0,
