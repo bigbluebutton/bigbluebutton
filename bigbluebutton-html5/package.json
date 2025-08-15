@@ -4,7 +4,7 @@
   "license": "LGPL-3.0",
   "scripts": {
     "postinstall": "grep -q '\"bigbluebutton-html-plugin-sdk\" *: *\"https://codeload' package.json || exit 0 && echo executing postInstall... && cd node_modules/bigbluebutton-html-plugin-sdk && npm ci && npm run build && rm -rf node_modules",
-    "start": "NODE_ENV=development DETAILED_LOGS=true webpack serve --open --config webpack.config.js",
+    "start": "NODE_ENV=development DETAILED_LOGS=true HOT_RELOAD=true webpack serve --open --config webpack.config.js",
     "build": "NODE_ENV=production TARGET=default webpack --config webpack.config.js --mode production",
     "build-safari": "NODE_ENV=production TARGET=safari webpack --config webpack.config.js --mode production",
     "tscheck": "tsc",

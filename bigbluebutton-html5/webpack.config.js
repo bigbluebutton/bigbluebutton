@@ -8,7 +8,7 @@ const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin'
 
 const env = process.env.NODE_ENV || 'development';
 const detailedLogs = process.env.DETAILED_LOGS || false;
-
+const hotReload = String(process.env.HOT_RELOAD).toLowerCase() === 'true';
 const prodEnv = 'production';
 const devEnv = 'development';
 const isDev = env === devEnv;
@@ -67,7 +67,7 @@ const config = {
       'process.env.NODE_ENV': JSON.stringify(env),
       'process.env.DETAILED_LOGS': detailedLogs,
     }),
-    isDev && new ReactRefreshWebpackPlugin({
+    (isDev && hotReload) && new ReactRefreshWebpackPlugin({
       overlay: false,
     }),
   ],
@@ -93,7 +93,7 @@ const config = {
         use: {
           loader: 'babel-loader',
           options: {
-            plugins: [isDev && require.resolve('react-refresh/babel')].filter(Boolean),
+            plugins: [(isDev && hotReload) && require.resolve('react-refresh/babel')].filter(Boolean),
           },
         },
       },
