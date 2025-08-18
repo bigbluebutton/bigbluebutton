@@ -159,7 +159,7 @@ const QuickPollDropdown = (props) => {
 
   const hasTF = safeMatch(trueFalsePatt, content, false);
 
-  const pollRegex = /\b[1-9A-Ia-i][.)] .*/g;
+  const pollRegex = /\b(?:[1-9]|1[0-9]|[A-Sa-s])[.)]\s*.*/g;
   let optionsPoll = safeMatch(pollRegex, content, []);
 
   const optionsWithLabels = [];
@@ -176,7 +176,7 @@ const QuickPollDropdown = (props) => {
 
       const formattedOpt = cleanedOpt.substring(0, MAX_CHAR_LIMIT);
       optionsWithLabels.push(formattedOpt);
-      const labelChar = formattedOpt[0] || ''; // protect against empty strings
+      const labelChar = formattedOpt.replace(/[.)].*/,'') || ''; // protect against empty strings
       return `\r${labelChar}.`;
     });
   }
@@ -202,25 +202,50 @@ const QuickPollDropdown = (props) => {
 
     const lastOption = options[options.length - 1];
 
-    const isLastOptionInteger = !!parseInt(lastOption.charAt(1), 10);
-    const isCurrentValueInteger = !!parseInt(currentValue.charAt(1), 10);
+    const tokenRegex = /^\s*(\d{1,2}|[A-Sa-s])/;
+    const lastMatch = lastOption.match(tokenRegex);
+    const currentMatch = currentValue.match(tokenRegex);
 
-    if (isLastOptionInteger === isCurrentValueInteger) {
-      if (currentValue.toLowerCase().charCodeAt(1) > lastOption.toLowerCase().charCodeAt(1)) {
-        options.push(currentValue);
-        lastElementWithLabels.push(optionsWithLabels.shift());
+    if (!lastMatch || !currentMatch) {
+      acc.push({ options: [currentValue] });
+      optionGroupsWithLabels.push(
+        [optionsWithLabels.shift()]
+      );
+      return acc;
+    }
+
+    const lastToken = lastMatch[1];
+    const currentToken = currentMatch[1];
+
+    const isLastInteger = /^\d+$/.test(lastToken);
+    const isCurrentInteger = /^\d+$/.test(currentToken);
+
+    if (isLastInteger === isCurrentInteger) {
+      if (isLastInteger) {
+        // Number
+        if (parseInt(currentToken, 10) > parseInt(lastToken, 10)) {
+          options.push(currentValue);
+          lastElementWithLabels.push(optionsWithLabels.shift());
+        } else {
+          acc.push({ options: [currentValue] });
+          optionGroupsWithLabels.push(
+            [optionsWithLabels.shift()]
+          );
+        }
       } else {
-        acc.push({
-          options: [currentValue],
-        });
-        optionGroupsWithLabels.push(
-          [optionsWithLabels.shift()]
-        );
+        // Alphabet
+        if (currentToken.toLowerCase().charCodeAt(0) > lastToken.toLowerCase().charCodeAt(0)) {
+          options.push(currentValue);
+          lastElementWithLabels.push(optionsWithLabels.shift());
+        } else {
+          acc.push({ options: [currentValue] });
+          optionGroupsWithLabels.push(
+            [optionsWithLabels.shift()]
+          );
+        }
       }
     } else {
-      acc.push({
-        options: [currentValue],
-      });
+      acc.push({ options: [currentValue] });
       optionGroupsWithLabels.push(
         [optionsWithLabels.shift()]
       );
@@ -228,7 +253,7 @@ const QuickPollDropdown = (props) => {
     return acc;
   }, []).filter(({
     options,
-  }) => options.length > 1 && options.length < 10).forEach((p) => {
+  }) => options.length > 1 && options.length < 20).forEach((p) => {
     const poll = p;
     if (doubleQuestion) poll.multiResp = true;
     if (poll.options.length <= 5 || MAX_CUSTOM_FIELDS <= 5) {
@@ -346,12 +371,13 @@ const QuickPollDropdown = (props) => {
       itemLabel = itemLabel?.replace(/\s+/g, '').toUpperCase();
 
       const numChars = {
-        1: 'A', 2: 'B', 3: 'C', 4: 'D', 5: 'E', 6: 'F', 7: 'G', 8: 'H', 9: 'I',
+        1: 'A', 2: 'B', 3: 'C', 4: 'D', 5: 'E', 6: 'F', 7: 'G', 8: 'H', 9: 'I', 10: 'J',
+        11: 'K', 12: 'L', 13: 'M', 14: 'N', 15: 'O', 16: 'P', 17: 'Q', 18: 'R', 19: 'S',
       };
-      itemLabel = itemLabel.split('').map((c) => {
+      itemLabel = itemLabel.split('/').map((c) => {
         if (numChars[c]) return numChars[c];
         return c;
-      }).join('');
+      }).join('/');
 
       return (
         <Dropdown.DropdownListItem
