@@ -18,6 +18,7 @@ select_permissions:
         - hasPoll
         - hasScreenshare
         - hasScreenshareAsContent
+        - hasSharedNotes
         - hasTimer
         - isSharedNotedPinned
         - showRemainingTime

@@ -649,6 +649,12 @@ type Mutation {
 }
 
 type Mutation {
+  userSetListenOnlyInput(
+    listenOnlyInputDevice: Boolean!
+  ): Boolean
+}
+
+type Mutation {
   userSetLocked(
     userId: String!
     locked: Boolean!
@@ -659,12 +665,6 @@ type Mutation {
   userSetMuted(
     userId: String
     muted: Boolean!
-  ): Boolean
-}
-
-type Mutation {
-  userSetListenOnlyInput(
-    listenOnlyInputDevice: Boolean!
   ): Boolean
 }
 

@@ -2384,6 +2384,12 @@ select "meeting"."meetingId",
             select 1
             from "sharedNotes"
             where "sharedNotes"."meetingId" = "meeting"."meetingId"
+            and "sharedNotesExtId" = 'notes'
+        ) as "hasSharedNotes",
+        exists (
+            select 1
+            from "sharedNotes"
+            where "sharedNotes"."meetingId" = "meeting"."meetingId"
             and "sharedNotes"."pinned" is true
         ) as "isSharedNotedPinned",
         exists (
