@@ -262,12 +262,12 @@ const AudioContainer = (props) => {
 
   return (
     <>
-      {isAudioModalOpen ? (
+      {isAudioModalOpen && !isVideoPreviewModalOpen ? (
         <AudioModalContainer
           {...{
             priority: 'medium',
             setIsOpen: setAudioModalIsOpen,
-            isOpen: isAudioModalOpen,
+            isOpen: isAudioModalOpen && !isVideoPreviewModalOpen,
           }}
         />
       ) : null}
