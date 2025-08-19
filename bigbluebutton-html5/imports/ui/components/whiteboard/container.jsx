@@ -345,7 +345,6 @@ const WhiteboardContainer = (props) => {
     }, RECONNECT_SYNC_DELAY_MS);
   }, [
     connectedStatus,
-    curPageId,
     isMultiUserActive,
     hasWBAccess,
     presenterChanged,
