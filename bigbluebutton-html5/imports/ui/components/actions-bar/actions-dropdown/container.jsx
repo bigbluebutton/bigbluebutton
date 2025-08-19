@@ -11,7 +11,7 @@ import {
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import { useShortcut } from '/imports/ui/core/hooks/useShortcut';
 import {
-  PROCESSED_PRESENTATIONS_SUBSCRIPTION,
+  PRESENTATIONS_SUBSCRIPTION,
 } from '/imports/ui/components/whiteboard/queries';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import { SET_PRESENTER } from '/imports/ui/core/graphql/mutations/userMutations';
@@ -42,7 +42,7 @@ const ActionsDropdownContainer = (props) => {
   const openActions = useShortcut('openActions');
 
   const { data: presentationData } = useDeduplicatedSubscription(
-    PROCESSED_PRESENTATIONS_SUBSCRIPTION,
+    PRESENTATIONS_SUBSCRIPTION,
   );
   const presentations = presentationData?.pres_presentation || [];
 
@@ -102,7 +102,7 @@ const ActionsDropdownContainer = (props) => {
         isMobile,
         isRTL,
         actionButtonDropdownItems,
-        presentations,
+        presentations: presentations.filter((p) => p).filter((p) => p.uploadCompleted),
         isTimerFeatureEnabled,
         isDropdownOpen,
         setPresentation,

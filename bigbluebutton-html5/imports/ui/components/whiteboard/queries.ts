@@ -80,7 +80,13 @@ export interface Presentation {
   totalPagesUploaded: number;
   presentationId: string;
   removable: boolean;
+  uploadCompletionNotified: boolean;
   uploadCompleted: boolean;
+  exportToChatInProgress: boolean;
+  exportToChatStatus: string;
+  exportToChatCurrentPage: number;
+  exportToChatHasError: boolean;
+
 }
 
 export interface ProcessedPresentationsSubscriptionResponse {
@@ -120,57 +126,32 @@ export const CURRENT_PRESENTATION_PAGE_SUBSCRIPTION = gql`subscription CurrentPr
   }  
 }`;
 
-export const PRESENTATIONS_SUBSCRIPTION = gql`subscription PresentationsSubscription {
-  pres_presentation {
-    uploadTemporaryId
-    uploadInProgress
-    current
-    downloadFileUri
-    downloadable
-    uploadErrorDetailsJson
-    uploadErrorMsgKey
-    filenameConverted
-    isDefault
-    name
-    totalPages
-    totalPagesUploaded
-    presentationId
-    removable
-    uploadCompleted
-  }  
-}`;
-
-export const EXPORTING_PRESENTATIONS_SUBSCRIPTION = gql`subscription PresentationsSubscription {
-  pres_presentation {
-    uploadInProgress
-    current
-    downloadFileUri
-    downloadable
-    uploadErrorDetailsJson
-    uploadErrorMsgKey
-    filenameConverted
-    isDefault
-    name
-    totalPages
-    totalPagesUploaded
-    presentationId
-    removable
-    uploadCompletionNotified
-    uploadCompleted
-    exportToChatInProgress
-    exportToChatStatus
-    exportToChatCurrentPage
-    exportToChatHasError
-  }  
-}`;
-
-export const PROCESSED_PRESENTATIONS_SUBSCRIPTION = gql`subscription ProcessedPresentationsSubscription {
-  pres_presentation(where: { uploadCompleted: { _eq: true } }) {
-    current
-    name
-    presentationId
+export const PRESENTATIONS_SUBSCRIPTION = gql`
+  subscription PresentationsSubscription {
+    pres_presentation {
+      uploadTemporaryId
+      uploadInProgress
+      current
+      downloadFileUri
+      downloadable
+      uploadErrorDetailsJson
+      uploadErrorMsgKey
+      filenameConverted
+      isDefault
+      name
+      totalPages
+      totalPagesUploaded
+      presentationId
+      removable
+      uploadCompletionNotified
+      uploadCompleted
+      exportToChatInProgress
+      exportToChatStatus
+      exportToChatCurrentPage
+      exportToChatHasError
+    }
   }
-}`;
+`;
 
 export const CURRENT_PAGE_ANNOTATIONS_QUERY = gql`query CurrentPageAnnotationsQuery($pageId: String!) {
   pres_annotation_curr(
