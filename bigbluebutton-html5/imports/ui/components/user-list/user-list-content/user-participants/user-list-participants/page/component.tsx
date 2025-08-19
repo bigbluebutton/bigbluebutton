@@ -14,6 +14,7 @@ import { layoutSelect } from '/imports/ui/components/layout/context';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import SkeletonUserListItem from '../list-item/skeleton/component';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
 
 interface UserListParticipantsContainerProps {
   index: number;
@@ -28,6 +29,8 @@ interface UsersListParticipantsPage {
   currentUser: Partial<User>;
   pageId: string;
   offset: number;
+  isBreakout: boolean;
+  parentId: string;
 }
 
 const UsersListParticipantsPage: React.FC<UsersListParticipantsPage> = ({
@@ -36,6 +39,8 @@ const UsersListParticipantsPage: React.FC<UsersListParticipantsPage> = ({
   meeting,
   pageId,
   offset,
+  isBreakout,
+  parentId,
 }) => {
   const [openUserAction, setOpenUserAction] = React.useState<string | null>(null);
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
@@ -58,11 +63,12 @@ const UsersListParticipantsPage: React.FC<UsersListParticipantsPage> = ({
                 currentUser={currentUser as User}
                 lockSettings={meeting.lockSettings}
                 usersPolicies={meeting.usersPolicies}
-                isBreakout={meeting.isBreakout}
                 pageId={pageId}
                 userListDropdownItems={userListDropdownItems}
                 open={user.userId === openUserAction}
                 setOpenUserAction={setOpenUserAction}
+                isBreakout={isBreakout}
+                parentId={parentId}
               >
                 <ListItem index={offset + idx} user={user} lockSettings={meeting.lockSettings} />
               </UserActions>
@@ -82,6 +88,13 @@ const UserListParticipantsPageContainer: React.FC<UserListParticipantsContainerP
 }) => {
   const offset = index * 50;
   const limit = useRef(50);
+
+  const {
+    data: meetingInfo,
+  } = useMeeting((m) => ({
+    isBreakout: m.isBreakout,
+    breakoutPolicies: m.breakoutPolicies,
+  }));
 
   const {
     data: meetingData,
@@ -177,6 +190,8 @@ const UserListParticipantsPageContainer: React.FC<UserListParticipantsContainerP
       currentUser={currentUser ?? {}}
       pageId={pageId ?? ''}
       offset={offset}
+      isBreakout={meetingInfo?.isBreakout ?? false}
+      parentId={meetingInfo?.breakoutPolicies?.parentId ?? ''}
     />
   );
 };

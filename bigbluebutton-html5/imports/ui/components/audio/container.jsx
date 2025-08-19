@@ -133,6 +133,8 @@ const AudioContainer = (props) => {
       voiceConf: m?.voiceSettings?.voiceConf,
       muteOnStart: m?.voiceSettings?.muteOnStart,
     },
+    isBreakout: m.isBreakout,
+    breakoutPolicies: m.breakoutPolicies,
   }));
 
   const { data: currentUser } = useCurrentUser((u) => ({
@@ -171,6 +173,8 @@ const AudioContainer = (props) => {
       meeting?.voiceSettings?.voiceConf,
       currentUser?.name,
       bridges,
+      meetingIsBreakout,
+      meeting?.breakoutPolicies?.parentId,
     );
 
     if ((!autoJoin || didMountAutoJoin)) {
@@ -254,7 +258,12 @@ const AudioContainer = (props) => {
   useEffect(() => {
     if (Service.isConnected() && !Service.isListenOnly()) {
       if (userLocks.userMic && !currentUserMuted) {
-        toggleMuteMicrophone(!currentUserMuted, toggleVoice);
+        toggleMuteMicrophone(
+          !currentUserMuted,
+          toggleVoice,
+          meeting?.isBreakout,
+          meeting?.breakoutPolicies?.parentId,
+        );
         notify(intl.formatMessage(intlMessages.reconectingAsListener), 'info', 'volume_level_2');
       }
     }

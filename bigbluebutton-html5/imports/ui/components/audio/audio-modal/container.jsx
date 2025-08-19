@@ -186,6 +186,8 @@ const AudioModalContainer = (props) => {
       hasMicrophonePermission={Service.hasMicrophonePermission}
       permissionStatus={permissionStatus}
       isTranscriptionEnabled={isTranscriptionEnabled}
+      isBreakout={meeting?.isBreakout}
+      parentId={meeting?.breakoutPolicies?.parentId}
       {...props}
     />
   );
