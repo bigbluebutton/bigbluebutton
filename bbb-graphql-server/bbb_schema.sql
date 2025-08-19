@@ -2391,7 +2391,7 @@ select "meeting"."meetingId",
             from "sharedNotes"
             where "sharedNotes"."meetingId" = "meeting"."meetingId"
             and "sharedNotes"."pinned" is true
-        ) as "isSharedNotedPinned",
+        ) as "isSharedNotesPinned",
         exists (
             select 1
             from "v_pres_page_curr"
