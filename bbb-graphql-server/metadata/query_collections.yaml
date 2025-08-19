@@ -16,3 +16,72 @@
               value
             }
           }
+      - name: meetingStaticData
+        query: |
+          query meetingStaticData {
+            meeting {
+              meetingId
+              extId
+              name
+              disabledFeatures
+              isBreakout
+              endWhenNoModerator
+              endWhenNoModeratorDelayInMinutes
+              createdTime
+              maxPinnedCameras
+              meetingCameraCap
+              cameraBridge
+              screenShareBridge
+              audioBridge
+              loginUrl
+              logoutUrl
+              bannerColor
+              bannerText
+              customLogoUrl
+              customDarkLogoUrl
+              notifyRecordingIsOn
+              presentationUploadExternalDescription
+              presentationUploadExternalUrl
+              recordingPolicies {
+                allowStartStopRecording
+                autoStartRecording
+                record
+                keepEvents
+              }
+              usersPolicies {
+                allowModsToEjectCameras
+                allowModsToUnmuteUsers
+                authenticatedGuest
+                guestPolicy
+                maxUserConcurrentAccesses
+                maxUsers
+                meetingLayout
+                moderatorsCanMuteAudio
+                moderatorsCanUnmuteAudio
+                userCameraCap
+                webcamsOnlyForModerator
+                guestLobbyMessage
+              }
+              breakoutPolicies {
+                breakoutRooms
+                captureNotes
+                captureNotesFilename
+                captureSlides
+                captureSlidesFilename
+                freeJoin
+                parentId
+                privateChatEnabled
+                record
+                sequence
+              }
+              voiceSettings {
+                dialNumber
+                muteOnStart
+                voiceConf
+                telVoice
+              }
+              clientSettings {
+                clientSettingsJson
+              }
+            }
+          }

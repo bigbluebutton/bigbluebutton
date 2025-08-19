@@ -10,8 +10,10 @@ import BBBWeb from '/imports/api/bbb-web-api';
 const connectionTimeout = 60000;
 
 interface Response {
-  meeting_clientSettings: Array<{
-    clientSettingsJson: MeetingClientSettings,
+  meeting: Array<{
+    clientSettings: {
+        clientSettingsJson: MeetingClientSettings,
+    }
   }>;
 }
 
@@ -56,7 +58,7 @@ const SettingsLoader: React.FC<SettingsLoaderProps> = (props) => {
 
     BBBWeb.index(controller.signal)
       .then(({ data }) => {
-        const url = new URL(`${data.graphqlApiUrl}/clientSettings`);
+        const url = new URL(`${data.graphqlApiUrl}/meetingStaticData`);
         fetch(url, {
           method: 'get',
           credentials: 'include',
@@ -68,7 +70,7 @@ const SettingsLoader: React.FC<SettingsLoaderProps> = (props) => {
           .then((resp) => resp.json())
           .then((data: Response) => {
             clearTimeout(timeoutRef.current);
-            const settings = data?.meeting_clientSettings[0].clientSettingsJson;
+            const settings = data?.meeting[0].clientSettings.clientSettingsJson;
             window.meetingClientSettings = JSON.parse(JSON.stringify(settings));
             setMeetingSettings(settings);
             setLoading(false);

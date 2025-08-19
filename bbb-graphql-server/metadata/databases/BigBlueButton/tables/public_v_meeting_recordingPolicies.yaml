@@ -17,3 +17,14 @@ select_permissions:
       filter:
         meetingId:
           _eq: X-Hasura-MeetingId
+  - role: bbb_client_not_in_meeting
+    permission:
+      columns:
+        - allowStartStopRecording
+        - autoStartRecording
+        - keepEvents
+        - record
+      filter:
+        meetingId:
+          _eq: X-Hasura-UserId
+    comment: ""
