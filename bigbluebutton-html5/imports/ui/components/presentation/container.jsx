@@ -18,7 +18,6 @@ import {
   CURRENT_PAGE_WRITERS_SUBSCRIPTION,
   CURRENT_PAGE_ANNOTATIONS_STREAM,
 } from '/imports/ui/components/whiteboard/queries';
-import POLL_SUBSCRIPTION from '/imports/ui/core/graphql/queries/pollSubscription';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { PRESENTATION_SET_ZOOM, PRESENTATION_SET_WRITERS } from './mutations';
@@ -136,10 +135,6 @@ const PresentationContainer = (props) => {
     hasAccess: whiteboardWriters?.some((writer) => writer.userId === Auth.userID),
   };
 
-  const { data: pollData } = useDeduplicatedSubscription(POLL_SUBSCRIPTION);
-  const poll = pollData?.poll[0] || {};
-  const hasPoll = pollData?.poll?.length > 0;
-
   const currentSlide = currentPresentationPage ? {
     content: currentPresentationPage.content,
     current: currentPresentationPage.isCurrentPage,
@@ -252,7 +247,6 @@ const PresentationContainer = (props) => {
           totalPages: currentPresentationPage?.totalPages || 0,
           notify,
           zoomSlide,
-          publishedPoll: poll?.published || false,
           restoreOnUpdate: getFromUserSettings(
             'bbb_force_restore_presentation_on_new_events',
             window.meetingClientSettings.public.presentation.restoreOnUpdate,
@@ -265,7 +259,6 @@ const PresentationContainer = (props) => {
           isDefaultPresentation: currentPresentationPage?.isDefaultPresentation,
           presentationAreaSize,
           currentUser,
-          hasPoll,
           currentPresentationPage,
           layoutType: selectedLayout || '',
         }

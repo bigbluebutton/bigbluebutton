@@ -4,7 +4,7 @@ import { useMutation } from '@apollo/client';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
 import { useIsInfiniteWhiteboardEnabled, useIsPollingEnabled, useIsQuizEnabled } from '/imports/ui/services/features';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
-import { POLL_CANCEL, POLL_CREATE } from '/imports/ui/components/poll/mutations';
+import { POLL_CREATE } from '/imports/ui/components/poll/mutations';
 import { PRESENTATION_SET_ZOOM, PRESENTATION_SET_PAGE, PRESENTATION_SET_PAGE_INFINITE_WHITEBOARD } from '../mutations';
 import PresentationToolbar from './component';
 import Session from '/imports/ui/services/storage/in-memory';
@@ -94,14 +94,12 @@ const PresentationToolbarContainer = (props) => {
     currentSlideNum,
     presentationId,
     numberOfSlides,
-    hasPoll,
     currentSlide,
     currentPresentationPage,
   } = props;
 
   const handleToggleFullScreen = (ref) => FullscreenService.toggleFullScreen(ref);
 
-  const [stopPoll] = useMutation(POLL_CANCEL);
   const [createPoll] = useMutation(POLL_CREATE);
   const [presentationSetZoom] = useMutation(PRESENTATION_SET_ZOOM);
   const [presentationSetPage] = useMutation(PRESENTATION_SET_PAGE);
@@ -122,10 +120,6 @@ const PresentationToolbarContainer = (props) => {
         heightRatio: 100,
       },
     });
-  };
-
-  const endCurrentPoll = () => {
-    if (hasPoll) stopPoll();
   };
 
   const setPresentationPage = (pageId) => {
@@ -224,7 +218,6 @@ const PresentationToolbarContainer = (props) => {
       <PresentationToolbar
         {...props}
         amIPresenter={userIsPresenter}
-        endCurrentPoll={endCurrentPoll}
         isPollingEnabled={isPollingEnabled}
         allowInfiniteWhiteboardInBreakouts={WHITEBOARD_CONFIG?.allowInfiniteWhiteboardInBreakouts}
         allowInfiniteWhiteboard={allowInfiniteWhiteboard}
