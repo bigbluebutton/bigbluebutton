@@ -70,7 +70,8 @@ export const useScreenshare = () => {
   const { data, loading, error } = useDeduplicatedSubscription(
     SCREENSHARE_SUBSCRIPTION,
     {
-      skip: meetingLoading || !meeting.componentsFlags?.hasScreenshare,
+      skip: meetingLoading
+      || !(meeting.componentsFlags?.hasScreenshare || meeting.componentsFlags?.hasCameraAsContent),
     },
   );
 
