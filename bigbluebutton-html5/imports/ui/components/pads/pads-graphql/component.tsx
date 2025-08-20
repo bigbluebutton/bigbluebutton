@@ -27,7 +27,7 @@ interface PadContainerGraphqlProps {
   isRTL: boolean;
 }
 
-interface PadGraphqlProps extends Omit<PadContainerGraphqlProps, 'hasPermission'> {
+interface PadGraphqlProps extends PadContainerGraphqlProps {
   hasSession: boolean;
   sessionIds: Array<string>;
   padId: string | undefined;
@@ -41,6 +41,7 @@ const PadGraphql: React.FC<PadGraphqlProps> = (props) => {
     isRTL,
     sessionIds,
     padId,
+    hasPermission,
   } = props;
   const [padURL, setPadURL] = useState<string | undefined>();
   const intl = useIntl();
@@ -53,10 +54,10 @@ const PadGraphql: React.FC<PadGraphqlProps> = (props) => {
     setPadURL(Service.buildPadURL(padId, sessionIds));
   }, [isRTL, hasSession, intl.locale]);
 
-  if (!hasSession) {
+  if (!hasPermission) {
     return <PadContent externalId={externalId} />;
   }
-
+  if (!hasSession || !padURL) return null;
   return (
     <Styled.Pad>
       <Styled.IFrame
@@ -114,6 +115,7 @@ const PadContainerGraphql: React.FC<PadContainerGraphqlProps> = (props) => {
       isResizing={isResizing}
       sessionIds={Array.from(sessionIds)}
       padId={session?.sharedNotes?.padId}
+      hasPermission={hasPermission}
     />
   );
 };
