@@ -28,6 +28,7 @@ import { updateHookUsage } from './utils';
 import { ObjectToCustomQueryHookContainerMap, QueryHookWithArgumentContainerToRender, QueryHookWithArgumentsContainerProps } from './domain/shared/custom-query/types';
 import CustomQueryHookContainer from './domain/shared/custom-query/hook-manager';
 import CustomDataConsumptionHooksErrorBoundary from './error-boundary/handler';
+import UsersBasicInfoHookContainer from './domain/users/users-basic-info/hook-manager';
 
 const hooksMap:{
   [key: string]: React.FunctionComponent<GeneralHookManagerProps>
@@ -38,6 +39,7 @@ const hooksMap:{
   [DataConsumptionHooks.CURRENT_USER]: CurrentUserHookContainer,
   [DataConsumptionHooks.CURRENT_PRESENTATION]: CurrentPresentationHookContainer,
   [DataConsumptionHooks.MEETING]: MeetingHookContainer,
+  [DataConsumptionHooks.USERS_BASIC_INFO]: UsersBasicInfoHookContainer,
 };
 
 const SubscriptionHooksMapWithArguments: {

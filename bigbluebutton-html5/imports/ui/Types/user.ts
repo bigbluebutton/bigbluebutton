@@ -109,3 +109,14 @@ export interface User {
   sessionCurrent: sessionCurrent;
   livekit?: Livekit;
 }
+
+export interface UserBasicInfo {
+  userId: string;
+  extId: string;
+  name: string;
+  isModerator: boolean;
+  role: string;
+  color: string;
+  avatar: string;
+  presenter?: boolean;
+}
