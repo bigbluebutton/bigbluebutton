@@ -2,8 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
 import {
-  HAS_PAD_SUBSCRIPTION,
-  HasPadSubscriptionResponse,
   PAD_SESSION_SUBSCRIPTION,
   PadSessionSubscriptionResponse,
 } from './queries';
@@ -12,6 +10,7 @@ import Service from './service';
 import Styled from './styles';
 import PadContent from './content/component';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
 
 const intlMessages = defineMessages({
   hint: {
@@ -86,10 +85,9 @@ const PadContainerGraphql: React.FC<PadContainerGraphqlProps> = (props) => {
     isResizing,
   } = props;
 
-  const { data: hasPadData } = useDeduplicatedSubscription<HasPadSubscriptionResponse>(
-    HAS_PAD_SUBSCRIPTION,
-    { variables: { externalId } },
-  );
+  const { data: meeting } = useMeeting((m) => ({
+    componentsFlags: m.componentsFlags,
+  }));
   const { data: padSessionData } = useDeduplicatedSubscription<PadSessionSubscriptionResponse>(
     PAD_SESSION_SUBSCRIPTION,
   );
@@ -97,7 +95,7 @@ const PadContainerGraphql: React.FC<PadContainerGraphqlProps> = (props) => {
 
   const sessionData = padSessionData?.sharedNotes_session ?? [];
   const session = sessionData.find((s) => s.sharedNotesExtId === externalId);
-  const hasPad = !!hasPadData && hasPadData.sharedNotes.length > 0;
+  const hasPad = meeting?.componentsFlags?.hasSharedNotes;
   const hasSession = session?.sessionId !== undefined;
   const sessionIds = new Set<string>(sessionData.map((s) => s.sessionId));
 
