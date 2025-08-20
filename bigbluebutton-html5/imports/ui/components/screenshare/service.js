@@ -8,8 +8,9 @@ import logger from '/imports/startup/client/logger';
 import AudioService from '/imports/ui/components/audio/service';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import browserInfo from '/imports/utils/browserInfo';
-import createUseSubscription from '/imports/ui/core/hooks/createUseSubscription';
 import { SCREENSHARE_SUBSCRIPTION } from './queries';
+import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
+import useMeeting from '../../core/hooks/useMeeting';
 
 let screenShareBridge = sfuScreenShareBridge;
 
@@ -58,7 +59,27 @@ export const isSharingVar = makeVar(false);
 export const sharingContentTypeVar = makeVar(false);
 export const cameraAsContentDeviceIdTypeVar = makeVar('');
 
-export const useScreenshare = createUseSubscription(SCREENSHARE_SUBSCRIPTION, {}, true);
+export const useScreenshare = () => {
+  const {
+    data: meeting,
+    loading: meetingLoading,
+  } = useMeeting((m) => ({
+    componentsFlags: m.componentsFlags,
+  }));
+
+  const { data, loading, error } = useDeduplicatedSubscription(
+    SCREENSHARE_SUBSCRIPTION,
+    {
+      skip: meetingLoading || !meeting.componentsFlags?.hasScreenshare,
+    },
+  );
+
+  return {
+    data: data?.screenshare || [],
+    loading,
+    error,
+  };
+};
 
 export const useIsSharing = () => useReactiveVar(isSharingVar);
 export const useSharingContentType = () => useReactiveVar(sharingContentTypeVar);
