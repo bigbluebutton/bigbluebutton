@@ -52,7 +52,6 @@
                 allowModsToEjectCameras
                 allowModsToUnmuteUsers
                 authenticatedGuest
-                guestPolicy
                 maxUserConcurrentAccesses
                 maxUsers
                 meetingLayout
@@ -60,7 +59,6 @@
                 moderatorsCanUnmuteAudio
                 userCameraCap
                 webcamsOnlyForModerator
-                guestLobbyMessage
               }
               breakoutPolicies {
                 breakoutRooms
