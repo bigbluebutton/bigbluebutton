@@ -5,15 +5,33 @@ import useCreateUseSubscription from './createUseSubscription';
 import MEETING_SUBSCRIPTION from '../graphql/queries/meetingSubscription';
 import { Meeting } from '../../Types/meeting';
 import MeetingStaticDataStore from '/imports/ui/core/singletons/meetingStaticData';
+import { MeetingStaticData } from '/imports/ui/Types/meetingStaticData';
 
+// ---------- internal helpers (DeepPartial only inside the hook)
 type DeepPartial<T> = {
   [K in keyof T]?: T[K] extends (infer U)[]
-    ? U[]
+    ? DeepPartial<U>[]
     : T[K] extends object
       ? DeepPartial<T[K]>
       : T[K];
 };
+type Prettify<T> = { [K in keyof T]: T[K] } & object;
+type Overlap = keyof Meeting & keyof MeetingStaticData;
 
+// Overlaps are unions (so Meeting-only or Static-only shapes both assign)
+type Combined = Prettify<
+  Omit<Meeting, Overlap> &
+  Omit<MeetingStaticData, Overlap> & {
+    [K in Overlap]: Meeting[K] | MeetingStaticData[K];
+  }
+>;
+
+// For projection results: allow *top-level* props to be partial if they are objects.
+// (We stay shallow for the public type.)
+type DistributePartial<T> = T extends object ? Partial<T> : T;
+type Loose<T> = { [K in keyof T]?: DistributePartial<T[K]> };
+
+// subscription remains on Meeting
 const useMeetingSubscription = useCreateUseSubscription<Meeting>(
   MEETING_SUBSCRIPTION,
   {},
@@ -21,59 +39,58 @@ const useMeetingSubscription = useCreateUseSubscription<Meeting>(
 );
 
 function isNilOrEmptyObject(v: unknown) {
-  return v == null || (typeof v === 'object' && v !== null && isEmpty(v as unknown));
+  return v == null || (typeof v === 'object' && v !== null && isEmpty(v as object));
 }
 
-function safeProject<T>(
-  obj: Partial<T> | undefined,
-  projectionFn: (c: Partial<T>) => Partial<T>,
-): Partial<T> | undefined {
+/**
+ * safeProject: take a (deep-partial) source, call the projection with a *shallow* Combined view,
+ * and keep only keys that exist on the source (to avoid leaking)
+ */
+function safeProject<
+  Src extends object,
+  Out extends Loose<Combined>
+>(
+  obj: DeepPartial<Src> | undefined,
+  projectionFn: (c: Partial<Combined>) => Out,
+): Out | undefined {
   if (!obj) return undefined;
-
   try {
-    const projected = projectionFn(obj);
-    // Verify: only keep keys that exist in the original object
+    const projected = projectionFn(obj as unknown as Partial<Combined>);
     const filtered = Object.fromEntries(
-      Object.entries(projected).filter(([key]) => key in obj),
-    ) as Partial<T>;
-
+      Object.entries(projected as object).filter(([key]) => key in (obj as object)),
+    ) as Out;
     return Object.keys(filtered).length > 0 ? filtered : undefined;
-  } catch (err) {
+  } catch {
     return undefined;
   }
 }
 
-export const useMeeting = (fn: (c: Partial<Meeting>) => Partial<Meeting>) => {
+export function useMeeting<T extends Loose<Combined> = Partial<Combined>>(
+  fn?: (c: Partial<Combined>) => T,
+) {
   const response = useMeetingSubscription();
 
-  const data = useMemo(() => {
-    // sources
-    const live = (response.data?.[0] ?? {});
-    const stat = (MeetingStaticDataStore.getMeetingData() ?? {});
+  const data = useMemo<T | undefined>(() => {
+    const live = (response.data?.[0] ?? {}) as DeepPartial<Meeting>;
+    const stat = (MeetingStaticDataStore.getMeetingData() ?? {}) as DeepPartial<MeetingStaticData>;
 
-    // run projection on each source independently
-    const projectedStatic = safeProject(stat, fn);
-    const projectedLive = safeProject(live, fn);
+    const project = (fn ?? ((c: Partial<Combined>) => c as T)) as (c: Partial<Combined>) => T;
 
-    // decide what to return
-    if (isNilOrEmptyObject(projectedStatic) && isNilOrEmptyObject(projectedLive)) {
-      return undefined;
-    }
-    if (isNilOrEmptyObject(projectedStatic)) {
-      return projectedLive;
-    }
-    if (isNilOrEmptyObject(projectedLive)) {
-      return projectedStatic;
-    }
+    const projectedStatic = safeProject(stat, project);
+    const projectedLive = safeProject(live, project);
 
-    // both present → deep merge (right/live overrides)
-    return mergeDeepRight(
-      projectedStatic as DeepPartial<Meeting>,
-      projectedLive as DeepPartial<Meeting>,
-    ) as Partial<Meeting>;
-  }, [response.data, MeetingStaticDataStore.hasData(), fn]);
+    if (isNilOrEmptyObject(projectedStatic) && isNilOrEmptyObject(projectedLive)) return undefined;
+    if (isNilOrEmptyObject(projectedStatic)) return projectedLive as T;
+    if (isNilOrEmptyObject(projectedLive)) return projectedStatic as T;
 
-  return useMemo(() => ({ ...response, data }), [response, data]);
-};
+    // merge (live/right overrides)
+    return mergeDeepRight(projectedStatic as object, projectedLive as object) as T;
+  }, [response.data, fn]);
+
+  return useMemo(() => ({
+    ...response,
+    data,
+  }), [response, data]);
+}
 
 export default useMeeting;
