@@ -26,5 +26,5 @@ select_permissions:
         - record
       filter:
         meetingId:
-          _eq: X-Hasura-UserId
+          _eq: X-Hasura-MeetingId
     comment: ""
