@@ -24,6 +24,9 @@ import {
 import humanizeSeconds from '/imports/utils/humanizeSeconds';
 import useTimer from '/imports/ui/core/hooks/useTimer';
 import { TimerData } from '/imports/ui/core/graphql/queries/timer';
+import logger from '/imports/startup/client/logger';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import Auth from '/imports/ui/services/auth';
 
 const MAX_HOURS = 23;
 const MILLI_IN_HOUR = 3600000;
@@ -197,7 +200,7 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
     const value = parseInt(event.target.value || (hasHourOrMinutes ? '0' : '1'), 10);
     if (Number.isNaN(value)) return;
     const newSeconds = Math.max(hasHourOrMinutes ? 0 : 1, Math.min(value, 59));
-    syncTimeWithBackend(hours, hours, newSeconds);
+    syncTimeWithBackend(hours, minutes, newSeconds);
   };
 
   const changeTime = useCallback((amountInSeconds: number) => {
@@ -482,44 +485,43 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
 
 const TimerPanelContaier: React.FC = () => {
   const [timerActivate] = useMutation(TIMER_ACTIVATE);
-  const [hasActivated, setHasActivated] = useState(() => {
-    return localStorage.getItem('timer-has-activated') === 'true';
-  });
-
   const { data: timerData } = useTimer();
+  const { data: currentUser } = useCurrentUser();
+
+  const amIModerator = !!currentUser?.isModerator;
 
   const activateTimer = useCallback(() => {
-    if (hasActivated) {
+    if ((timerData?.active) || !amIModerator) return;
+
+    const TIMER_CONFIG = window.meetingClientSettings.public.timer;
+    const meetingId = Auth.meetingID;
+    if (!meetingId) {
+      logger.warn({ logCode: 'timer_activate_no_meetingid' }, 'Timer activation skipped: no meetingId');
       return;
     }
-    
-    const TIMER_CONFIG = window.meetingClientSettings.public.timer;
-    const stopwatch = false;
-    const running = false;
-    const time = TIMER_CONFIG.time * MILLI_IN_MINUTE;
-    
-    timerActivate({ variables: { stopwatch, running, time } })
-      .then(() => {
-        setHasActivated(true);
-        localStorage.setItem('timer-has-activated', 'true');
-      })
-      .catch((error) => {
-        console.error('Erro ao ativar timer:', error);
-      });
-  }, [timerActivate, hasActivated]);
+
+    timerActivate({
+      variables: {
+        stopwatch: false,
+        running: false,
+        time: TIMER_CONFIG.time * MILLI_IN_MINUTE,
+        meetingId,
+      },
+    }).catch((error) => {
+      if (!error.message?.includes('already active')) {
+        logger.error(
+          { logCode: 'timer_activate_failed', extraInfo: { errorMessage: error?.message } },
+          `Timer activation failed: ${error?.message}`,
+        );
+      }
+    });
+  }, [timerActivate, timerData, amIModerator]);
 
   useEffect(() => {
-    if (timerData && !timerData.active && hasActivated) {
-      localStorage.removeItem('timer-has-activated');
-      setHasActivated(false);
-    }
-  }, [timerData?.active, hasActivated]);
-
-  useEffect(() => {
-    if (!timerData?.active && !hasActivated) {
+    if (timerData?.active === false && amIModerator) {
       activateTimer();
     }
-  }, [timerData?.active, hasActivated, activateTimer]);
+  }, [timerData?.active, amIModerator, activateTimer]);
 
   const currentTimer = timerData;
 
@@ -544,7 +546,6 @@ const TimerPanelContaier: React.FC = () => {
       />
     );
   }
-  
   return null;
 };
 

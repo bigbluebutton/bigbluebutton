@@ -123,7 +123,7 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
         <Styled.TimerButton
           running={running}
           disabled={!isModerator}
-          hide={sidebarNavigationIsOpen && sidebarContentIsOpen}
+          hide={sidebarNavigationIsOpen && sidebarContentIsOpen && !running}
           role="button"
           tabIndex={0}
           onClick={isModerator ? onClick : () => {}}
