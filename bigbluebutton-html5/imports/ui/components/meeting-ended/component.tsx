@@ -150,9 +150,13 @@ interface MeetingEndedContainerProps {
   endedBy: string;
   meetingEndedCode: string;
   joinErrorCode: string;
+  isBot: boolean;
 }
 
-interface MeetingEndedProps extends MeetingEndedContainerProps {
+interface MeetingEndedProps {
+  endedBy: string;
+  meetingEndedCode: string;
+  joinErrorCode: string;
   skipMeetingEnded: boolean;
   learningDashboardAccessToken: string;
   isModerator: boolean;
@@ -329,6 +333,7 @@ const MeetingEndedContainer: React.FC<MeetingEndedContainerProps> = ({
   endedBy,
   meetingEndedCode,
   joinErrorCode,
+  isBot,
 }) => {
   const {
     loading: meetingEndLoading,
@@ -378,7 +383,7 @@ const MeetingEndedContainer: React.FC<MeetingEndedContainerProps> = ({
     learningDashboardBase,
   } = clientSettings;
 
-  const allowRedirect = allowRedirectToLogoutURL(logoutUrl);
+  const allowRedirect = allowRedirectToLogoutURL(logoutUrl) && !isBot;
 
   return (
     <MeetingEnded

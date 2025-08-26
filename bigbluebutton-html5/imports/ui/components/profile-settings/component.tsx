@@ -218,9 +218,9 @@ const intlMessages: { [key: string]: { id: string; description?: string } } = de
     id: 'app.actionsBar.reactions.away',
     description: 'Away Label',
   },
-  presentLabel: {
-    id: 'app.actionsBar.reactions.present',
-    description: 'Active Label',
+  availableLabel: {
+    id: 'app.actionsBar.reactions.available',
+    description: 'Available Label',
   },
 });
 
@@ -976,7 +976,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
         <Styled.UserPresenceRoot>
           <Styled.UserPresenceContainer>
             <Styled.UserPresenceButton active={!currentUserData?.away} onClick={handleToggleAFK}>
-              <Styled.UserPresenceText>{formatMessage(intlMessages.presentLabel)}</Styled.UserPresenceText>
+              <Styled.UserPresenceText>{formatMessage(intlMessages.availableLabel)}</Styled.UserPresenceText>
             </Styled.UserPresenceButton>
             <Styled.UserPresenceDivider />
             <Styled.UserPresenceButton active={currentUserData?.away} onClick={handleToggleAFK}>

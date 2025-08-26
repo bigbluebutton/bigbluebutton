@@ -94,8 +94,8 @@ const ButtonFrame = styled(ButtonBase)<ButtonFrameProps>`
 // Positioned settings icon in the top right corner of the button.
 const SettingsContainer = styled.div`
   position: absolute;
-  top: 0.1rem;
-  right: 0.1rem;
+  top: 0rem;
+  right: -0.1rem;
 
   ${({ color }) => color === 'default' && `
     color: ${btnDefaultColor} !important;

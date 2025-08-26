@@ -271,6 +271,7 @@ select_permissions:
         - registeredAt
         - registeredOn
         - userId
+        - bot
       filter:
         _and:
           - meetingId:

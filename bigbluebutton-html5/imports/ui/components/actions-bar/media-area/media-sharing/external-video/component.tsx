@@ -24,9 +24,13 @@ const intlMessages = defineMessages({
     id: 'app.externalVideo.urlInput',
     description: 'URL input field placeholder',
   },
-  note: {
-    id: 'app.externalVideo.noteLabel',
-    description: 'provides hint about Shared External videos',
+  noteSupported: {
+    id: 'app.externalVideo.noteLabelSupported',
+    description: 'provides hint about supported Shared External videos',
+  },
+  noteWarning: {
+    id: 'app.externalVideo.noteLabelWarning',
+    description: 'provides hint that shared videos are not in the recording',
   },
 });
 
@@ -94,7 +98,10 @@ const ExternalVideoView: React.FC<ExternalVideoViewProps> = ({
             variant="standard"
             fullWidth
           />
-          {intl.formatMessage(intlMessages.note)}
+          <Styled.NoteContainer>
+            <span>{intl.formatMessage(intlMessages.noteSupported)}</span>
+            <span>{intl.formatMessage(intlMessages.noteWarning)}</span>
+          </Styled.NoteContainer>
         </ModalStyled.SubViewContentText>
       </Styled.Content>
       <ModalStyled.FooterContainer>

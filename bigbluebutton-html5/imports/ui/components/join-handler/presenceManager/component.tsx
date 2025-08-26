@@ -53,6 +53,7 @@ interface PresenceManagerProps extends PresenceManagerContainerProps {
     positionInWaitingQueue: number | null;
     isSupportedBrowser: boolean | undefined;
     hasWebrtcSupport: boolean;
+    isBot: boolean;
 }
 
 const PresenceManager: React.FC<PresenceManagerProps> = ({
@@ -81,6 +82,7 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   positionInWaitingQueue,
   isSupportedBrowser,
   hasWebrtcSupport,
+  isBot,
 }) => {
   const [allowToRender, setAllowToRender] = React.useState(false);
   const [dispatchUserJoin] = useMutation(userJoinMutation);
@@ -200,6 +202,7 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
               meetingEndedCode={endedReasonCode}
               endedBy={endedBy}
               joinErrorCode={errorCode}
+              isBot={isBot}
             />
           )
           : null
@@ -267,7 +270,12 @@ const PresenceManagerContainer: React.FC<PresenceManagerContainerProps> = ({ chi
     customLogoUrl,
     customDarkLogoUrl,
   } = userInfoData.meeting[0];
-  const { extId, name: userName, userId } = userInfoData.user_current[0];
+  const {
+    extId,
+    name: userName,
+    userId,
+    bot,
+  } = userInfoData.user_current[0];
 
   const MIN_BROWSER_CONFIG = window.meetingClientSettings.public.minBrowserVersions;
   const userAgent = window.navigator?.userAgent;
@@ -300,6 +308,7 @@ const PresenceManagerContainer: React.FC<PresenceManagerContainerProps> = ({ chi
       guestStatus={guestStatus}
       isSupportedBrowser={isSupportedBrowser}
       hasWebrtcSupport={hasWebrtcSupport}
+      isBot={bot}
     >
       {children}
     </PresenceManager>

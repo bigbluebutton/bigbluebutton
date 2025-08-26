@@ -120,9 +120,9 @@ const messages = defineMessages({
     id: 'app.chat.titlePublic',
     description: 'Public chat title',
   },
-  titlePrivate: {
-    id: 'app.chat.titlePrivate',
-    description: 'Private chat title',
+  titlePrivateToUser: {
+    id: 'app.chat.titlePrivateToUser',
+    description: 'Private chat title displayed on a conversation with another user',
   },
 });
 
@@ -728,7 +728,7 @@ const ChatMessageFormContainer: React.FC = () => {
   }));
 
   const title = chat?.participant?.name
-    ? intl.formatMessage(messages.titlePrivate)
+    ? intl.formatMessage(messages.titlePrivateToUser, { participantName: chat.participant.name })
     : intl.formatMessage(messages.titlePublic);
 
   const { data: meeting } = useMeeting((m) => ({

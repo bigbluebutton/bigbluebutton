@@ -8,6 +8,15 @@ const Content = styled.div`
   }
 `;
 
+const NoteContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+`;
+
 export default {
   Content,
+  NoteContainer,
 };

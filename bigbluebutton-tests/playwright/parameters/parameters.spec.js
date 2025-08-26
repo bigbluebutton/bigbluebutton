@@ -14,7 +14,7 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
   });
 
   test.describe.parallel('Banner', () => {
-    test('Banner Text', { tag: '@flaky-3.1' }, async ({ browser, context, page }) => {
+    test('Banner Text', async ({ browser, context, page }) => {
       const createParam = new CreateParameters(browser, context);
       await createParam.initModPage(page, true, { createParameter: c.bannerText });
       await createParam.bannerText();
@@ -60,7 +60,7 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
     await createParam.muteOnStart();
   });
 
-  test('Allow Mods To Unmute Users', { tag: '@flaky-3.1' }, async ({ browser, context, page }) => {
+  test('Allow Mods To Unmute Users', async ({ browser, context, page }) => {
     const createParam = new CreateParameters(browser, context);
     await createParam.initModPage(page, true, { createParameter: c.allowModsToUnmuteUsers });
     await createParam.allowModsToUnmuteUsers(context);
@@ -87,7 +87,7 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
     await createParam.lockSettingsDisablePublicChat();
   });
 
-  test('Lock Settings Hide User List', { tag: '@flaky-3.1' }, async ({ browser, context, page }) => {
+  test('Lock Settings Hide User List', async ({ browser, context, page }) => {
     const createParam = new CreateParameters(browser, context);
     await createParam.initModPage(page, true, { createParameter: c.lockSettingsHideUserList });
     await createParam.initUserPage(true, context);
@@ -95,7 +95,7 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
     await createParam.lockSettingsHideUserList();
   });
 
-  test('Allow Moderator To Eject Cameras', { tag: '@flaky-3.1' }, async ({ browser, context, page }) => {
+  test('Allow Moderator To Eject Cameras', async ({ browser, context, page }) => {
     const createParam = new CreateParameters(browser, context);
     await createParam.initModPage(page, true, { createParameter: c.allowModsToEjectCameras });
     await createParam.initUserPage(true, context);
@@ -466,7 +466,7 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
 });
 
 test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
-  test('Show Public Chat On Login', { tag: '@flaky-3.1' }, async ({ browser, context, page }) => {
+  test('Show Public Chat On Login', async ({ browser, context, page }) => {
     const customParam = new CustomParameters(browser, context);
     await customParam.initModPage(page, true, { joinParameter: c.showPublicChatOnLogin });
     await customParam.showPublicChatOnLogin();
@@ -490,7 +490,7 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
     await customParam.clientTitle();
   });
 
-  test('Display Branding Area', { tag: '@flaky-3.1' }, async ({ browser, context, page }) => {
+  test('Display Branding Area', async ({ browser, context, page }) => {
     const customParam = new CustomParameters(browser, context);
     await customParam.initModPage(page, true, { createParameter: `${c.displayBrandingArea}&${encodeCustomParams(c.logo)}` });
     await customParam.displayBrandingArea();
@@ -504,19 +504,19 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
     await customParam.shortcuts();
   });
 
-  test('Custom Styles: CSS code', { tag: '@flaky-3.1' }, async ({ browser, context, page }) => {
+  test('Custom Styles: CSS code', async ({ browser, context, page }) => {
     const customParam = new CustomParameters(browser, context);
     await customParam.initModPage(page, true, { joinParameter: encodeCustomParams(c.customStyle) });
     await customParam.customStyle();
   });
 
-  test('Custom Styles: URL', { tag: '@flaky-3.1' }, async ({ browser, context, page }) => {
+  test('Custom Styles: URL', async ({ browser, context, page }) => {
     const customParam = new CustomParameters(browser, context);
     await customParam.initModPage(page, true, { joinParameter: encodeCustomParams(c.customStyleUrl) });
     await customParam.customStyle();
   });
 
-  test('Auto Swap Layout', { tag: '@flaky-3.1' }, async ({ browser, context, page }) => {
+  test('Auto Swap Layout', async ({ browser, context, page }) => {
     const customParam = new CustomParameters(browser, context);
     await customParam.initModPage(page, true, { joinParameter: c.autoSwapLayout });
     await customParam.autoSwapLayout();
@@ -528,7 +528,7 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
     await customParam.hideActionsBarTest();
   });
 
-  test('Override Default Locale', { tag: '@flaky-3.1' }, async ({ browser, context, page }) => {
+  test('Override Default Locale', async ({ browser, context, page }) => {
     const customParam = new CustomParameters(browser, context);
     await customParam.initModPage(page, true, { joinParameter: c.overrideDefaultLocale });
     await customParam.overrideDefaultLocaleTest();

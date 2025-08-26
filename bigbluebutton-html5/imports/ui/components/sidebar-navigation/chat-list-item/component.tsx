@@ -84,7 +84,7 @@ const ChatListItem = (props: ChatListItemProps) => {
       position="right"
     >
       <Styled.ListItem
-        data-test="chatButton"
+        data-test="messagesSidebarButton"
         role="button"
         aria-expanded={sidebarContentPanel === CURRENT_PANEL}
         active={sidebarContentPanel === CURRENT_PANEL}

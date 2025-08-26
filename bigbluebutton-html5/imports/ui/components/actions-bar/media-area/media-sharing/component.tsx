@@ -212,7 +212,6 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
             <MediaButton
               dataTest="cameraAsContent"
               color={hasCameraAsContent ? 'primary' : 'default'}
-              showSettingsIcon
               text={intl.formatMessage(intlMessages.shareCameraAsContent)}
               icon={<Icon iconName="video" />}
               onClick={handleCameraAsContentClick}

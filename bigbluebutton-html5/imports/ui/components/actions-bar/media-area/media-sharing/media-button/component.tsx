@@ -39,7 +39,7 @@ export const MediaButton: FunctionComponent<MediaButtonProps> = ({
               size="small"
               sx={{ color: settingsIconColor }}
             >
-              <SettingsIcon fontSize="small" />
+              <SettingsIcon sx={{ fontSize: '1rem' }} />
             </IconButton>
           </Styled.SettingsContainer>
         )}

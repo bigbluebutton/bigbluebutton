@@ -39,6 +39,10 @@ const intlMessages = defineMessages({
     id: 'app.chat.titlePrivate',
     description: 'Private chat title',
   },
+  titlePrivateToUser: {
+    id: 'app.chat.titlePrivateToUser',
+    description: 'Private chat title displayed when conversation with a specific user is opened',
+  },
 });
 
 interface ChatProps {
@@ -157,6 +161,10 @@ const Chat: React.FC<ChatProps> = ({
     );
   };
 
+  const privateChatButtonLabel = isPrivateChat
+    ? intl.formatMessage(intlMessages.titlePrivateToUser, { participantName })
+    : intl.formatMessage(intlMessages.titlePrivate);
+
   return (
     <>
       <ChatHeader />
@@ -226,7 +234,7 @@ const Chat: React.FC<ChatProps> = ({
               }}
               onClick={() => handleClickSelectChat(false)}
             >
-              {intl.formatMessage(intlMessages.titlePrivate)}
+              {privateChatButtonLabel}
               {privateUnreadMessages && (
                 <span
                   style={{

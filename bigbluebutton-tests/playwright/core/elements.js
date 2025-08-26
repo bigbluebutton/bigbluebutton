@@ -39,6 +39,7 @@ exports.shareCameraAsContent = 'div[data-test="cameraAsContent"]';
 exports.closePopup = 'button[data-test="closePopup"]';
 exports.restoreWelcomeMessages = 'li[data-test="restoreWelcomeMessages"]';
 exports.navigationSidebarContainer = 'div[data-test="navigationSidebarContainer"]';
+exports.appsGallerySidebarButton = 'div[data-test="appsGallerySidebarButton"]';
 
 // Accesskey
 exports.userListButton = 'button[accesskey="U"]';
@@ -122,8 +123,7 @@ exports.currentSlideBreakoutOption = 'option[data-test="currentSlideBreakoutOpti
 exports.chatBox = 'textarea[id="message-input"]';
 exports.chatMessageItem = 'div[data-test="chatMessageItem"]';
 exports.partnerDisconnectedMessage = 'span[data-test="partnerDisconnected"]';
-exports.chatButton = 'div[data-test="chatButton"]';
-exports.messagesSidebarButton = 'div[data-test="chatButton"]';
+exports.messagesSidebarButton = 'div[data-test="messagesSidebarButton"]';
 exports.sendButton = 'button[data-test="sendMessageButton"]';
 exports.chatPollMessageText = 'div[data-test="chatPollMessageText"]';
 exports.chatMessages = 'div[data-test="chatMessages"]';
@@ -430,7 +430,7 @@ exports.confirmationCheckbox = 'input[id="confirmationCheckbox"]';
 exports.userBannedMessage1 = 'div[id="app"] >> div >> div:nth-child(1)';
 exports.userBannedMessage2 = 'div[id="app"] >> div >> div:nth-child(2)';
 exports.meetingEndedModalTitle = 'div[data-test="meetingEndedModal"]';
-exports.unmuteUser = 'li[data-test="unmuteUser"]';
+exports.unmuteUser = 'div[data-test="unmuteUser"]';
 exports.ejectCamera = 'li[data-test="ejectCamera"]';
 exports.closeUserList = 'button[data-test="closeUserList"]';
 exports.userListPanel = 'div[data-test="userListPanel"]';
@@ -465,6 +465,8 @@ exports.joinVideo = 'button[data-test="joinVideo"]';
 exports.leaveVideo = 'button[data-test="leaveVideo"]';
 exports.videoPreview = 'video[data-test="videoPreview"]';
 exports.startSharingWebcam = 'button[data-test="startSharingWebcam"]';
+exports.startCameraAsContent = 'button[data-test="StartCameraAsContent"]';
+exports.closeIcon = 'svg[data-testid="CloseIcon"]';
 exports.webcamConnecting = 'div[data-test="webcamConnecting"]';
 exports.webcamContainer = 'video[data-test="videoContainer"]';
 exports.webcamVideoItem = 'div[data-test="webcamVideoItem"]';
@@ -488,6 +490,7 @@ exports.dropAreaRight = 'div[data-test="dropArea-contentRight"]';
 exports.dropAreaTop = 'div[data-test="dropArea-contentTop"]';
 exports.dropAreaSidebarBottom = 'div[data-test="dropArea-sidebarContentBottom"]';
 exports.selfViewDisableBtn = 'li[data-test="selfViewDisableBtn"]';
+exports.profileSidebarButton = 'div[data-test="profileSidebarButton"]';
 
 exports.videoQualitySelector = 'select[id="setQuality"]';
 exports.webcamItemTalkingUser = 'div[data-test="webcamItemTalkingUser"]';

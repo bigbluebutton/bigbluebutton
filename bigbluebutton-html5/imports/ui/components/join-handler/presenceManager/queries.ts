@@ -38,6 +38,7 @@ export interface GetUserInfoResponse {
     extId: string;
     name: string;
     userId: string;
+    bot: boolean;
   }>;
 }
 
@@ -56,6 +57,7 @@ query getUserInfo {
     extId
     name
     userId
+    bot
   }
 }
 `;

@@ -9,7 +9,8 @@ class DisabledFeatures extends MultiUsers {
   }
 
   async breakoutRooms() {
-    await this.modPage.wasRemoved(e.breakoutRoomSidebarButton, 'should not display the option to create breakout rooms on the manage users');
+    await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
+    await this.modPage.wasRemoved(e.createBreakoutRoomsButton, 'should not display the option to create breakout rooms on the manage users');
   }
 
   async speechRecognition() {

@@ -109,6 +109,7 @@ const ContentContainer = styled.div`
 // Grid layout for displaying media options.
 const MediaGrid = styled.div<{ isMobile: boolean }>`
   padding: ${({ isMobile }) => (isMobile ? '0.5rem' : '1rem')};
+  gap: ${({ isMobile }) => (isMobile ? '0.5rem' : '1rem')};
   display: grid;
   grid-template-columns: ${({ isMobile }) => (isMobile ? 'repeat(3, 1fr)' : 'repeat(4, 1fr)')};
   text-align: center;

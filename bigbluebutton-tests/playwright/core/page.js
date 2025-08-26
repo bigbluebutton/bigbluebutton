@@ -385,6 +385,12 @@ class Page {
     const ytFrame = new Page(this.page.browser, frame);
     return ytFrame;
   }
+
+  async checkTooltip(selector, text) {
+    await this.hoverElement(selector);
+    const locatorTooltip = await this.getLocator(`text=${text}`, { state: 'visible' });
+    await expect(locatorTooltip).toBeVisible({ timeout: 10000});
+  }
 }
 
 module.exports = exports = Page;
