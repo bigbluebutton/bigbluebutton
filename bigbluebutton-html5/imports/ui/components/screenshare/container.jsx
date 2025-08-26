@@ -22,8 +22,6 @@ import ScreenshareComponent from './component';
 import { layoutSelect, layoutSelectOutput, layoutDispatch } from '../layout/context';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import { EXTERNAL_VIDEO_STOP } from '../external-video-player/mutations';
-import { PINNED_PAD_SUBSCRIPTION } from '../notes/queries';
-import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 import AudioManager from '/imports/ui/services/audio-manager';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { PIN_NOTES } from '../notes/mutations';
@@ -106,6 +104,7 @@ const ScreenshareContainer = (props) => {
   const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
   const { data: currentMeeting } = useMeeting((m) => ({
     screenShareBridge: m.screenShareBridge,
+    componentsFlags: m.componentsFlags,
   }));
   const { data: currentUserData } = useCurrentUser((u) => ({ presenter: u.presenter }));
   const [bridgeIsReady, setBridgeIsReady] = useState(false);
@@ -114,7 +113,6 @@ const ScreenshareContainer = (props) => {
   const unpinSharedNotes = useCallback(() => {
     pinSharedNotes({ variables: { pinned: false } });
   }, [pinSharedNotes]);
-  const { data: pinnedPadData } = useDeduplicatedSubscription(PINNED_PAD_SUBSCRIPTION);
 
   const { element } = fullscreen;
   const fullscreenElementId = 'Screenshare';
@@ -127,11 +125,9 @@ const ScreenshareContainer = (props) => {
     }
   }, [currentMeeting?.screenShareBridge]);
 
-  const NOTES_CONFIG = window.meetingClientSettings.public.notes;
   const LAYOUT_CONFIG = window.meetingClientSettings.public.layout;
 
-  const isSharedNotesPinned = !!pinnedPadData
-    && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
+  const isSharedNotesPinned = currentMeeting?.componentsFlags?.isSharedNotesPinned;
 
   const isPresenter = currentUserData?.presenter;
 

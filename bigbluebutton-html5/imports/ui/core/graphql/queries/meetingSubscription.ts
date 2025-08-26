@@ -67,17 +67,20 @@ const MEETING_SUBSCRIPTION = gql`
         }
 
         componentsFlags {
-          hasCaption
           hasBreakoutRoom
+          hasCameraAsContent
+          hasCaption
+          hasCurrentPresentation
           hasExternalVideo
           hasPoll
           hasScreenshare
-          hasTimer
-          showRemainingTime
-          hasCameraAsContent
           hasScreenshareAsContent
-        }
-      }
+          hasSharedNotes
+          hasTimer
+          isSharedNotesPinned
+          showRemainingTime
+          }
+    }
   }
 `;
 

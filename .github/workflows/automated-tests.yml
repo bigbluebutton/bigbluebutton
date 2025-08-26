@@ -120,6 +120,25 @@ jobs:
         with:
           name: artifacts_${{ matrix.package }}
           path: artifacts/
+  bbb-libreoffice-image:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set cache-key vars
+        run: |
+          echo "BBB_LIBREOFFICE_IMAGE_NAME=$(head -n 1 bbb-libreoffice/docker/Dockerfile | cut -d ' ' -f 2)" >> $GITHUB_ENV
+      - name: Restore base image cache
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: bbb-libreoffice.tar
+          key: ${{ env.BBB_LIBREOFFICE_IMAGE_NAME }}
+      - name: Pull (first time / cache miss)
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: docker pull docker.io/${{ env.BBB_LIBREOFFICE_IMAGE_NAME }}
+      - name: Save docker image to cache (first time)
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: docker save docker.io/${{ env.BBB_LIBREOFFICE_IMAGE_NAME }} -o bbb-libreoffice.tar
   unify-artifacts:
     needs: build-package
     runs-on: ubuntu-22.04
@@ -219,7 +238,9 @@ jobs:
             artifacts_others
           failOnError: false
   install-and-run-bbb-tests:
-    needs: unify-artifacts
+    needs:
+      - unify-artifacts
+      - bbb-libreoffice-image
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
@@ -231,7 +252,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install BBB
+        timeout-minutes: 60
         uses: ./.github/actions/install-bbb
+      - uses: actions/setup-node@v4
+        with:
+          cache: 'npm'
+          cache-dependency-path: bigbluebutton-tests/playwright/package-lock.json
+      - name: Restore playwright binaries from cache
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: /home/runner/.cache/ms-playwright/
+          key: ${{ runner.os }}-playwright-${{ hashFiles('bigbluebutton-html-plugin-sdk/package-lock.json') }}
       - name: Install test dependencies
         working-directory: ./bigbluebutton-tests/playwright
         timeout-minutes: 25
@@ -295,7 +327,9 @@ jobs:
           name: bbb-logs-${{ env.MATRIX_SHARD_UNDERSCORED }}
           path: ./bbb-logs.tar.gz
   install-and-run-plugin-tests:
-    needs: unify-artifacts
+    needs:
+      - unify-artifacts
+      - bbb-libreoffice-image
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
@@ -304,6 +338,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install BBB
+        timeout-minutes: 60
         uses: ./.github/actions/install-bbb
       - name: Extract download URL of the SDK version information from bigbluebutton-html5/package.json
         working-directory: ./bigbluebutton-html5
@@ -315,13 +350,20 @@ jobs:
             SDK_VERSION=$(jq -r '.packages["node_modules/bigbluebutton-html-plugin-sdk"]["version"]' package-lock.json)
             echo "SDK_URL=https://github.com/bigbluebutton/bigbluebutton-html-plugin-sdk/archive/refs/tags/v${SDK_VERSION}.tar.gz" >> $GITHUB_ENV
           fi
-      - name: Download plugins SDK
+      - name: Plugins SDK - Download bigbluebutton-html-plugin-sdk.tar.gz
         working-directory: bigbluebutton-tests
         run: |
           wget -O bigbluebutton-html-plugin-sdk.tar.gz $SDK_URL
           mkdir -p bigbluebutton-html-plugin-sdk
           tar -xzf bigbluebutton-html-plugin-sdk.tar.gz -C bigbluebutton-html-plugin-sdk --strip-components=1
-      - name: Install plugins SDK dependencies
+      - name: Plugins SDK - Cache node dependencies
+        uses: actions/setup-node@v4
+        with:
+          cache: 'npm'
+          cache-dependency-path: |
+                bigbluebutton-tests/bigbluebutton-html-plugin-sdk/package-lock.json
+                bigbluebutton-tests/bigbluebutton-html-plugin-sdk/samples/**/package-lock.json
+      - name: Plugins SDK - Install node dependencies
         working-directory: ./bigbluebutton-tests/bigbluebutton-html-plugin-sdk
         run: |
           echo "Installing plugins SDK dependencies"

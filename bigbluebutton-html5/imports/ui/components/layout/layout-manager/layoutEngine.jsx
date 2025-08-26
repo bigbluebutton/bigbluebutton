@@ -14,6 +14,7 @@ import { useIsPresentationEnabled } from '/imports/ui/services/features';
 import Session from '/imports/ui/services/storage/in-memory';
 import MediaOnlyLayout from './mediaOnlyLayout';
 import { usePrevious } from '../../whiteboard/utils';
+import { getWaitLayout } from '../utils';
 
 const LayoutEngine = () => {
   const bannerBarInput = layoutSelectInput((i) => i.bannerBar);
@@ -29,6 +30,10 @@ const LayoutEngine = () => {
   const genericMainContentInput = layoutSelectInput((i) => i.genericMainContent);
   const screenShareInput = layoutSelectInput((i) => i.screenShare);
   const sharedNotesInput = layoutSelectInput((i) => i.sharedNotes);
+
+  const shouldWaitForLayout = getWaitLayout();
+  const layoutLoading = layoutSelect((i) => i.layoutLoading);
+  const skipLayoutEngineRender = shouldWaitForLayout && layoutLoading;
 
   const fullscreen = layoutSelect((i) => i.fullscreen);
   const isRTL = layoutSelect((i) => i.isRTL);
@@ -345,7 +350,7 @@ const LayoutEngine = () => {
   };
 
   const layout = document.getElementById('layout');
-
+  if (skipLayoutEngineRender) return null;
   switch (selectedLayout) {
     case LAYOUT_TYPE.CUSTOM_LAYOUT:
       layout?.setAttribute('data-layout', LAYOUT_TYPE.CUSTOM_LAYOUT);

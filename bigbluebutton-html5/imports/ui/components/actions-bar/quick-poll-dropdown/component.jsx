@@ -126,7 +126,7 @@ const QuickPollDropdown = (props) => {
   // Join lines into a single question string
   const question = [questionLines.join(' ').trim()];
 
-  const correctAnswer = lines.find((line) => line.endsWith(QUICK_POLL_CORRECT_ANSWER_SUFFIX)
+  const correctAnswer = lines.map(line => line.trimStart()).find((line) => line.endsWith(QUICK_POLL_CORRECT_ANSWER_SUFFIX)
   && !question.includes(line))?.slice(0, -QUICK_POLL_CORRECT_ANSWER_SUFFIX.length);
 
   // Check explicitly if options exist or if the question ends with '?'

@@ -39,7 +39,7 @@ class MultiUsers {
     this.modPage2 = new Page(this.browser, page);
     await this.modPage2.init(true, shouldCloseAudioModal, options);
   }
-    
+
   async initUserPage(shouldCloseAudioModal = true, context = this.context, { fullName = 'Attendee', useModMeetingId = true, ...restOptions } = {}) {
     const options = {
       ...restOptions,
@@ -219,6 +219,41 @@ class MultiUsers {
     await this.userPage.hasText(`:nth-match(${e.dropdownWebcamButton}, 2)`, this.userPage.username, 'should display the username of Attendee on the second pinned webcam for Attendee');
   }
 
+  async focusUnfocusWebcam() {
+    await this.modPage.shareWebcam();
+    await this.userPage2.shareWebcam();
+
+    const user2DropdownWebcamButtonForModerator =
+      await this.modPage.getLocator(e.dropdownWebcamButton).filter({ hasText: this.userPage2.username })
+
+    await user2DropdownWebcamButtonForModerator.click();
+
+    await this.modPage.wasRemoved(e.focusWebcamBtn, 'should not display the focus webcam button to the moderator when there are less than 3 webcams shared');
+
+    await this.userPage.shareWebcam();
+
+    await user2DropdownWebcamButtonForModerator.click();
+    await this.modPage.getVisibleLocator(e.focusWebcamBtn).click();
+
+    await this.modPage.hasText(`:nth-match(${e.dropdownWebcamButton}, 1)`, this.userPage2.username, 'should display the username of User2 on the focused webcam for Moderator');
+    await this.userPage2.hasText(`:nth-match(${e.dropdownWebcamButton}, 1)`, this.userPage2.username, 'should display the username of User2 on the first webcam for User2');
+
+    const user2DropdownWebcamButtonForUser1 =
+      await this.userPage.getLocator(e.dropdownWebcamButton).filter({ hasText: this.userPage2.username })
+
+    await user2DropdownWebcamButtonForUser1.click()
+    await this.userPage.getVisibleLocator(e.focusWebcamBtn).click();
+
+    await this.userPage.hasText(`:nth-match(${e.dropdownWebcamButton}, 1)`, this.userPage2.username, 'should display the username of User2 on the focused webcam for User1');
+
+    await user2DropdownWebcamButtonForModerator.click();
+    await this.modPage.getVisibleLocator(e.unfocusWebcamBtn).click();
+
+    await this.modPage.hasText(`:nth-match(${e.dropdownWebcamButton}, 1)`, this.modPage.username, 'should display the username of Moderator on the first webcam for Moderator');
+    await this.userPage2.hasText(`:nth-match(${e.dropdownWebcamButton}, 1)`, this.userPage2.username, 'should display the username of User2 on the first webcam for User2');
+    await this.userPage.hasText(`:nth-match(${e.dropdownWebcamButton}, 1)`, this.userPage2.username, 'should display the username of User2 on the first webcam for User1');
+  }
+
   async giveAndRemoveWhiteboardAccess() {
     await this.modPage.waitForSelector(e.whiteboard);
     await this.modPage.waitAndClick(e.userListItem);
@@ -251,7 +286,7 @@ class MultiUsers {
     await this.userPage2.hasElement(e.isTalking, 'should display the talking indicator for the second user');
   }
 
-  async muteAllUsersExceptPresenter(){
+  async muteAllUsersExceptPresenter() {
     // join audio
     await this.modPage.joinMicrophone();
     await this.modPage2.joinMicrophone();
@@ -354,7 +389,7 @@ class MultiUsers {
   async clearAllStatusIcon() {
     await this.modPage.waitForSelector(e.whiteboard);
     await this.modPage2.waitForSelector(e.whiteboard);
-    
+
     await this.modPage.waitAndClick(e.reactionsButton);
     await this.modPage.waitAndClick(`${e.singleReactionButton}:nth-child(1)`);
     await this.modPage.hasText(e.moderatorAvatar, '😃', 'should display the smiling emoji in the moderator avatar for the moderator');
@@ -370,6 +405,19 @@ class MultiUsers {
 
     await this.modPage.hasText(e.moderatorAvatar, 'mo', 'should not display the emoji after clearing all icons');
     await this.modPage2.hasText(e.moderatorAvatar, 'mo', 'should not display the emoji after clearing all icons');
+  }
+
+  async endMeeting() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.userPage.waitForSelector(e.whiteboard);
+
+    await this.modPage.waitAndClick(e.leaveMeetingDropdown);
+    await this.modPage.waitAndClick(e.endMeetingButton);
+    await this.modPage.hasElement(e.simpleModal, 'should display the confirm meeting end modal');
+
+    await this.modPage.waitAndClick(e.confirmEndMeetingButton);
+    await this.modPage.hasElement(e.meetingEndedModal, 'should display the meeting ended modal for the moderator');
+    await this.userPage.hasElement(e.meetingEndedModal, 'should display the meeting ended modal for the attendee');
   }
 }
 

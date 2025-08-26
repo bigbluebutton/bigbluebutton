@@ -1,26 +1,30 @@
 package writer
 
 import (
-	"bbb-graphql-middleware/config"
-	"bbb-graphql-middleware/internal/common"
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"slices"
+	"strings"
+	"sync"
+	"time"
+
+	"bbb-graphql-middleware/config"
+	"bbb-graphql-middleware/internal/common"
+
 	"github.com/graphql-go/graphql/language/ast"
 	"github.com/graphql-go/graphql/language/parser"
 	"github.com/graphql-go/graphql/language/source"
 	"github.com/prometheus/client_golang/prometheus"
 	"nhooyr.io/websocket"
-	"slices"
-	"strings"
-	"sync"
-	"time"
 )
 
-var allowedSubscriptions []string
-var deniedSubscriptions []string
-var jsonPatchDisabled = config.GetConfig().Server.JsonPatchDisabled
+var (
+	allowedSubscriptions []string
+	deniedSubscriptions  []string
+	jsonPatchDisabled    = config.GetConfig().Server.JsonPatchDisabled
+)
 
 func init() {
 	if config.GetConfig().Server.SubscriptionAllowedList != "" {
@@ -41,14 +45,14 @@ func HasuraConnectionWriter(hc *common.HasuraConnection, wg *sync.WaitGroup, ini
 	defer hc.ContextCancelFunc()
 	defer hc.BrowserConn.Logger.Debugf("finished")
 
-	//Send authentication (init) message at first
-	//It will not use the channel (fromBrowserToHasuraChannel) because this msg must bypass ChannelFreeze
+	// Send authentication (init) message at first
+	// It will not use the channel (fromBrowserToHasuraChannel) because this msg must bypass ChannelFreeze
 	if initMessage == nil {
 		hc.BrowserConn.Logger.Errorf("it can't start Hasura Connection because initMessage is null")
 		return
 	}
 
-	//Send init connection message to Hasura to start
+	// Send init connection message to Hasura to start
 	err := hc.Websocket.Write(hc.Context, websocket.MessageText, initMessage)
 	if err != nil {
 		hc.BrowserConn.Logger.Errorf("error on write authentication (init) message (we're disconnected from hasura): %v", err)
@@ -66,7 +70,7 @@ RangeLoop:
 					continue
 				}
 
-				//var fromBrowserMessageAsMap = fromBrowserMessage.(map[string]interface{})
+				// var fromBrowserMessageAsMap = fromBrowserMessage.(map[string]interface{})
 
 				var browserMessage common.BrowserSubscribeMessage
 				err := json.Unmarshal(fromBrowserMessage, &browserMessage)
@@ -76,9 +80,9 @@ RangeLoop:
 				}
 
 				if browserMessage.Type == "subscribe" {
-					var queryId = browserMessage.ID
+					queryId := browserMessage.ID
 
-					//Rate limiter from config max_connection_queries_per_minute
+					// Rate limiter from config max_connection_queries_per_minute
 					ctxRateLimiter, _ := context.WithTimeout(hc.Context, 30*time.Second)
 					if err := hc.BrowserConn.FromBrowserToHasuraRateLimiter.Wait(ctxRateLimiter); err != nil {
 						sendErrorMessage(
@@ -90,7 +94,7 @@ RangeLoop:
 						continue
 					}
 
-					//Identify type based on query string
+					// Identify type based on query string
 					messageType := common.Query
 					var lastReceivedDataChecksum uint32
 					streamCursorField := ""
@@ -139,7 +143,7 @@ RangeLoop:
 								}
 							}
 
-							//Validate if subscription is allowed
+							// Validate if subscription is allowed
 							if len(allowedSubscriptions) > 0 {
 								subscriptionAllowed := false
 								for _, s := range allowedSubscriptions {
@@ -155,7 +159,7 @@ RangeLoop:
 								}
 							}
 
-							//Validate if subscription is allowed
+							// Validate if subscription is allowed
 							if len(deniedSubscriptions) > 0 {
 								subscriptionAllowed := true
 								for _, s := range deniedSubscriptions {
@@ -188,8 +192,8 @@ RangeLoop:
 								if !queryIdExists {
 									streamCursorField, streamCursorVariableName, streamCursorInitialValue = common.GetStreamCursorPropsFromBrowserMessage(browserMessage)
 
-									//It's necessary to assure the cursor field will return in the result of the query
-									//To be able to store the last received cursor value
+									// It's necessary to assure the cursor field will return in the result of the query
+									// To be able to store the last received cursor value
 									browserMessage.Payload.Query = common.PatchQueryIncludingCursorField(query, streamCursorField)
 
 									newMessageJson, _ := json.Marshal(browserMessage)
@@ -207,8 +211,8 @@ RangeLoop:
 						}
 					}
 
-					//Identify if the client that requested this subscription expects to receive json-patch
-					//Client append `Patched_` to the query operationName to indicate that it supports
+					// Identify if the client that requested this subscription expects to receive json-patch
+					// Client append `Patched_` to the query operationName to indicate that it supports
 					jsonPatchSupported := false
 					if !jsonPatchDisabled && strings.HasPrefix(browserMessage.Payload.OperationName, "Patched_") {
 						jsonPatchSupported = true
@@ -230,46 +234,47 @@ RangeLoop:
 					// hc.BrowserConn.Logger.Tracef("Current queries: %v", browserConnection.ActiveSubscriptions)
 					browserConnection.ActiveSubscriptionsMutex.Unlock()
 
-					//Add Prometheus Metrics
+					// Add Prometheus Metrics
 					common.GqlSubscribeCounter.
 						With(prometheus.Labels{
 							"type":          string(messageType),
-							"operationName": browserMessage.Payload.OperationName}).
+							"operationName": browserMessage.Payload.OperationName,
+						}).
 						Inc()
 
-					//Dump of all subscriptions for analysis purpose
-					//queryCounter++
-					//saveItToFile(fmt.Sprintf("%02d-%s-%s", queryCounter, string(messageType), browserMessage.Payload.OperationName), fromBrowserMessage)
-					//saveItToFile(fmt.Sprintf("%s-%s-%02s", string(messageType), operationName, queryId), fromBrowserMessage)
+					// Dump of all subscriptions for analysis purpose
+					// queryCounter++
+					// saveItToFile(fmt.Sprintf("%02d-%s-%s", queryCounter, string(messageType), browserMessage.Payload.OperationName), fromBrowserMessage)
+					// saveItToFile(fmt.Sprintf("%s-%s-%02s", string(messageType), operationName, queryId), fromBrowserMessage)
 				}
 
 				if browserMessage.Type == "complete" {
-					//Remove subscriptions from ActivitiesOverview here once Hasura-Reader will ignore "complete" msg for them
+					// Remove subscriptions from ActivitiesOverview here once Hasura-Reader will ignore "complete" msg for them
 					browserConnection.ActiveSubscriptionsMutex.Lock()
 					delete(browserConnection.ActiveSubscriptions, browserMessage.ID)
 					// hc.BrowserConn.Logger.Tracef("Current queries: %v", browserConnection.ActiveSubscriptions)
 					browserConnection.ActiveSubscriptionsMutex.Unlock()
+
+					browserConnection.ActiveStreamingsMutex.Lock()
+					if browserConnection.ActiveStreamings["getCursorCoordinatesStream"] == browserMessage.ID {
+						delete(browserConnection.ActiveStreamings, "getCursorCoordinatesStream")
+					}
+					browserConnection.ActiveStreamingsMutex.Unlock()
 				}
 
 				if browserMessage.Type == "connection_init" {
-					//browserConnection.ConnectionInitMessage = fromBrowserMessageAsMap
-					//Skip message once it is handled by ConnInitHandler already
+					// browserConnection.ConnectionInitMessage = fromBrowserMessageAsMap
+					// Skip message once it is handled by ConnInitHandler already
 					continue
 				}
 
-				//Check if user is in meeting and avoid sending to Hasura subscriptions that user doesn't have permission
-				userCurrentlyInMeeting := false
-				if hasuraRole, exists := hc.BrowserConn.BBBWebSessionVariables["x-hasura-role"]; exists {
-					userCurrentlyInMeeting = hasuraRole == "bbb_client"
-				}
-
-				if !userCurrentlyInMeeting &&
+				if !hc.BrowserConn.CurrentlyInMeeting && // avoid sending to Hasura subscriptions that user doesn't have permission
 					browserMessage.Type == "subscribe" &&
 					!slices.Contains(config.AllowedSubscriptionsForNotInMeetingUsers, browserMessage.Payload.OperationName) {
 					hc.BrowserConn.Logger.Debugf("Not sending to Hasura %s because the user is not in meeting", browserMessage.Payload.OperationName)
 					continue
 				} else {
-					//Sending to Hasura
+					// Sending to Hasura
 					hc.BrowserConn.Logger.Tracef("sending to hasura: %s", string(fromBrowserMessage))
 					errWrite := hc.Websocket.Write(hc.Context, websocket.MessageText, fromBrowserMessage)
 					if errWrite != nil {
@@ -360,7 +365,7 @@ func traverseSelectionSet(selectionSet *ast.SelectionSet, currentDepth int) int 
 func sendErrorMessage(browserConnection *common.BrowserConnection, messageId string, errorMessage string) {
 	browserConnection.Logger.Errorf(errorMessage)
 
-	//Error on sending action, return error msg to client
+	// Error on sending action, return error msg to client
 	browserResponseData := map[string]interface{}{
 		"id":   messageId,
 		"type": "error",
@@ -373,7 +378,7 @@ func sendErrorMessage(browserConnection *common.BrowserConnection, messageId str
 	jsonDataError, _ := json.Marshal(browserResponseData)
 	browserConnection.FromHasuraToBrowserChannel.Send(jsonDataError)
 
-	//Return complete msg to client
+	// Return complete msg to client
 	browserResponseComplete := map[string]interface{}{
 		"id":   messageId,
 		"type": "complete",

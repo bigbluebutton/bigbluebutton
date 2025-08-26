@@ -971,23 +971,33 @@ As seen for the `useUiData`, the return type is well defined by the enum chosen 
 
 `uiCommands` object: It basically contains all the possible commands available to the developer to interact with the core BBB UI, see the ones implemented down below:
 
+- actions-bar:
+  - setDisplayActionBar: this function decides whether to display the actions bar
+- camera:
+  - setSelfViewDisableAllDevices: Sets the self-view camera disabled/enabled for all camera devices of a user;
+  - setSelfViewDisable: Sets the self-view camera disabled/enabled for specific camera.
 - chat:
   - form:
     - open: this function will open the sidebar chat panel automatically;
     - fill: this function will fill the form input field of the chat passed in the argument as `{text: string}`
+- conference:
+  - setSpeakerLevel: this function will set the speaker volume level(audio output) of the conference to a certain number between 0 and 1;
 - external-video:
   - volume:
     - set: this function will set the external video volume to a certain number between 0 and 1 (that is 0% and);
-- sidekick-options-container:
-  - open: this function will open the sidekick options panel automatically;
-  - close: this function will close the sidekick options panel automatically (and also the sidebar content if open, to avoid inconsistencies in ui);
+- layout:
+  - changeEnforcedLayout: (deprecated) Changes the enforced layout 
+  - setEnforcedLayout: Sets the enforced layout
+- navBar:
+  - setDisplayNavBar: Sets the displayNavBar to true (show it) or false (hide it).
+- notification:
+  - send: This function will send a notification for the client to render, keep in mind that it's only client-side. Should you want it to be rendered in multiple clients, use this with a data-channel;
 - presentation-area:
   - open: this function will open the presentation area content automatically;
   - close: this function will close the presentation area content automatically;
-- conference:
-  - setSpeakerLevel: this function will set the speaker volume level(audio output) of the conference to a certain number between 0 and 1;
-- notification:
-  - send: This function will send a notification for the client to render, keep in mind that it's only client-side. Should you want it to be rendered in multiple clients, use this with a data-channel;
+- sidekick-options-container:
+  - open: this function will open the sidekick options panel automatically;
+  - close: this function will close the sidekick options panel automatically (and also the sidebar content if open, to avoid inconsistencies in ui);
 - user-status:
   - setAwayStatus: this function will set the away status of the user to a certain status;
 
