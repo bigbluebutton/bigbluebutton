@@ -11,8 +11,6 @@ import {
   toggleMuteMicrophone,
   toggleMuteMicrophoneSystem,
 } from '/imports/ui/components/audio/audio-graphql/audio-controls/input-stream-live-selector/service';
-import apolloContextHolder from '/imports/ui/core/graphql/apolloContextHolder/apolloContextHolder';
-import { MEETING_IS_BREAKOUT } from '/imports/ui/components/audio/audio-graphql/audio-controls/queries';
 import useIsAudioConnected from '/imports/ui/components/audio/audio-graphql/hooks/useIsAudioConnected';
 
 const MUTED_KEY = 'muted';
@@ -35,7 +33,7 @@ export const didUserSelectListenOnly = () => (
   !!Storage.getItem(CLIENT_DID_USER_SELECT_LISTEN_ONLY_KEY)
 );
 
-const recoverMicState = (toggleVoice) => {
+const recoverMicState = (toggleVoice, isBreakout, parentId) => {
   const recover = (storageKey) => {
     const muted = Storage.getItem(storageKey);
 
@@ -49,32 +47,22 @@ const recoverMicState = (toggleVoice) => {
     toggleVoice(Auth.userID, muted);
   };
 
-  apolloContextHolder.getClient().query({
-    query: MEETING_IS_BREAKOUT,
-    fetchPolicy: 'cache-first',
-  }).then((result) => {
-    const meeting = result?.data?.meeting?.[0];
-    const meetingId = meeting?.isBreakout && meeting?.breakoutPolicies?.parentId
-      ? meeting.breakoutPolicies.parentId
-      : Auth.meetingID;
-    const storageKey = `${MUTED_KEY}_${meetingId}`;
+  const meetingId = isBreakout && parentId
+    ? parentId
+    : Auth.meetingID;
+  const storageKey = `${MUTED_KEY}_${meetingId}`;
 
-    recover(storageKey);
-  }).catch(() => {
-    // Fallback
-    const storageKey = `${MUTED_KEY}_${Auth.meetingID}`;
-    recover(storageKey);
-  });
+  recover(storageKey);
 };
 
-const audioEventHandler = (toggleVoice) => (event) => {
+const audioEventHandler = (toggleVoice, isBreakout, parentId) => (event) => {
   if (!event) {
     return;
   }
 
   switch (event.name) {
     case 'started':
-      if (!event.isListenOnly) recoverMicState(toggleVoice);
+      if (!event.isListenOnly) recoverMicState(toggleVoice, isBreakout, parentId);
       break;
     default:
       break;
@@ -89,6 +77,8 @@ const init = (
   voiceConf,
   username,
   bridges,
+  isBreakout = false,
+  parentId = null,
 ) => {
   AudioManager.setAudioMessages(messages, intl);
   if (AudioManager.initialized) return Promise.resolve(false);
@@ -106,7 +96,7 @@ const init = (
     speechLocale,
   };
 
-  return AudioManager.init(userData, audioEventHandler(toggleVoice), bridges);
+  return AudioManager.init(userData, audioEventHandler(toggleVoice, isBreakout, parentId), bridges);
 };
 
 // This hooks should only be used to determine whether there's a system audio
@@ -214,8 +204,8 @@ export default {
     outputDeviceId,
     isLive,
   ) => AudioManager.changeOutputDevice(outputDeviceId, isLive),
-  updateInputDevices: (devices) => { AudioManager.inputDevices = devices },
-  updateOutputDevices: (devices) => { AudioManager.outputDevices = devices },
+  updateInputDevices: (devices) => { AudioManager.inputDevices = devices; },
+  updateOutputDevices: (devices) => { AudioManager.outputDevices = devices; },
   toggleMuteMicrophone,
   toggleMuteMicrophoneSystem,
   isConnectedToBreakout: () => {

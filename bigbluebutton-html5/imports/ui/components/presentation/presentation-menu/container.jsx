@@ -36,7 +36,6 @@ const PresentationMenuContainer = (props) => {
   const { data: whiteboardWritersData } = useDeduplicatedSubscription(
     CURRENT_PAGE_WRITERS_SUBSCRIPTION,
     {
-      variables: { pageId: whiteboardId },
       skip: !whiteboardId,
     },
   );
@@ -76,5 +75,6 @@ const PresentationMenuContainer = (props) => {
 export default PresentationMenuContainer;
 
 PresentationMenuContainer.propTypes = {
+  whiteboardId: PropTypes.string.isRequired,
   elementId: PropTypes.string.isRequired,
 };

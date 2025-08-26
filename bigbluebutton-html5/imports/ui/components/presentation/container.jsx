@@ -18,7 +18,6 @@ import {
   CURRENT_PAGE_WRITERS_SUBSCRIPTION,
   CURRENT_PAGE_ANNOTATIONS_STREAM,
 } from '/imports/ui/components/whiteboard/queries';
-import POLL_SUBSCRIPTION from '/imports/ui/core/graphql/queries/pollSubscription';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { PRESENTATION_SET_ZOOM, PRESENTATION_SET_WRITERS } from './mutations';
@@ -62,7 +61,6 @@ const PresentationContainer = (props) => {
   const { data: whiteboardWritersData } = useDeduplicatedSubscription(
     CURRENT_PAGE_WRITERS_SUBSCRIPTION,
     {
-      variables: { pageId: currentPresentationPage?.pageId },
       skip: !currentPresentationPage?.pageId,
     },
   );
@@ -131,14 +129,10 @@ const PresentationContainer = (props) => {
   const isViewersAnnotationsLocked = meeting ? meeting.lockSettings?.hideViewersAnnotation : true;
 
   const multiUserData = {
-    active: whiteboardWriters?.length > 0,
+    active: whiteboardWriters?.filter((u) => !u.user.presenter).length > 0,
     size: whiteboardWriters?.length || 0,
     hasAccess: whiteboardWriters?.some((writer) => writer.userId === Auth.userID),
   };
-
-  const { data: pollData } = useDeduplicatedSubscription(POLL_SUBSCRIPTION);
-  const poll = pollData?.poll[0] || {};
-  const hasPoll = pollData?.poll?.length > 0;
 
   const currentSlide = currentPresentationPage ? {
     content: currentPresentationPage.content,
@@ -245,14 +239,13 @@ const PresentationContainer = (props) => {
           slidePosition,
           hasWBAccess: multiUserData.hasAccess,
           downloadPresentationUri: `${APP_CONFIG.bbbWebBase}/${currentPresentationPage?.downloadFileUri}`,
-          multiUser: (multiUserData.hasAccess || multiUserData.active) && presentationIsOpen,
+          multiUser: multiUserData.active && presentationIsOpen,
           presentationIsDownloadable: currentPresentationPage?.downloadable,
           mountPresentation: !!currentSlide,
           currentPresentationId: currentPresentationPage?.presentationId,
           totalPages: currentPresentationPage?.totalPages || 0,
           notify,
           zoomSlide,
-          publishedPoll: poll?.published || false,
           restoreOnUpdate: getFromUserSettings(
             'bbb_force_restore_presentation_on_new_events',
             window.meetingClientSettings.public.presentation.restoreOnUpdate,
@@ -265,7 +258,6 @@ const PresentationContainer = (props) => {
           isDefaultPresentation: currentPresentationPage?.isDefaultPresentation,
           presentationAreaSize,
           currentUser,
-          hasPoll,
           currentPresentationPage,
           layoutType: selectedLayout || '',
         }

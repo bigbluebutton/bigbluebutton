@@ -26,7 +26,6 @@ import MediaService from '../media/service';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { EXTERNAL_VIDEO_STOP } from '../external-video-player/mutations';
-import { PINNED_PAD_SUBSCRIPTION } from '../notes/queries';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 import connectionStatus from '../../core/graphql/singletons/connectionStatus';
 import { useMeetingLayoutUpdater, usePushLayoutUpdater } from '../layout/push-layout/hooks';
@@ -38,7 +37,6 @@ import { SMALL_VIEWPORT_BREAKPOINT } from '../layout/enums';
 const isLayeredView = window.matchMedia(`(max-width: ${SMALL_VIEWPORT_BREAKPOINT}px)`);
 
 const ActionsBarContainer = (props) => {
-  const NOTES_CONFIG = window.meetingClientSettings.public.notes;
   const LAYOUT_CONFIG = window.meetingClientSettings.public.layout;
   const { showPushLayoutButton } = LAYOUT_CONFIG;
   const actionsBarStyle = layoutSelectOutput((i) => i.actionBar);
@@ -87,9 +85,6 @@ const ActionsBarContainer = (props) => {
   };
   const amIPresenter = currentUserData?.presenter;
   const amIModerator = currentUserData?.isModerator;
-  const { data: pinnedPadData } = useDeduplicatedSubscription(
-    PINNED_PAD_SUBSCRIPTION,
-  );
 
   const allowExternalVideo = useIsExternalVideoEnabled();
   const connected = useReactiveVar(connectionStatus.getConnectedStatusVar());
@@ -115,10 +110,8 @@ const ActionsBarContainer = (props) => {
     && (deviceInfo.isPhone || isLayeredView.matches);
   if (actionsBarStyle.display === false) return null;
   if (!currentMeeting) return null;
-  if (!pinnedPadData) return null;
 
-  const isSharedNotesPinnedFromGraphql = !!pinnedPadData
-  && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
+  const isSharedNotesPinnedFromGraphql = currentMeeting?.componentsFlags?.isSharedNotesPinned;
 
   const isSharedNotesPinned = isSharedNotesPinnedFromGraphql;
   return (

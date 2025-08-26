@@ -6,16 +6,12 @@ import lockContextContainer from '/imports/ui/components/lock-viewers/context/co
 import { PANELS } from '/imports/ui/components/layout/enums';
 import { notify } from '/imports/ui/services/notification';
 import { layoutSelectInput, layoutDispatch } from '/imports/ui/components/layout/context';
-import {
-  PINNED_PAD_SUBSCRIPTION,
-  PinnedPadSubscriptionResponse,
-} from '/imports/ui/components/notes/queries';
 import Styled from './styles';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 import useRev from '/imports/ui/components/pads/pads-graphql/hooks/useRev';
 import useNotesLastRev from '../../../../notes/hooks/useNotesLastRev';
 import useHasUnreadNotes from '../../../../notes/hooks/useHasUnreadNotes';
-import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
 
 const intlMessages = defineMessages({
   title: {
@@ -198,9 +194,13 @@ const UserNotesGraphql: React.FC<UserNotesGraphqlProps> = (props) => {
 const UserNotesContainerGraphql: React.FC<UserNotesContainerGraphqlProps> = (props) => {
   const { userLocks } = props;
   const disableNotes = userLocks.userNotes;
-  const { data: pinnedPadData } = useDeduplicatedSubscription<PinnedPadSubscriptionResponse>(
-    PINNED_PAD_SUBSCRIPTION,
-  );
+
+  const {
+    data: currentMeeting,
+  } = useMeeting((meeting) => ({
+    componentsFlags: meeting.componentsFlags,
+  }));
+
   const NOTES_CONFIG = window.meetingClientSettings.public.notes;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -214,9 +214,8 @@ const UserNotesContainerGraphql: React.FC<UserNotesContainerGraphqlProps> = (pro
   const hasUnreadNotes = useHasUnreadNotes();
   const markNotesAsRead = () => setNotesLastRev(rev);
   const isEnabled = NotesService.useIsEnabled();
-  if (!pinnedPadData) return null;
 
-  const isPinned = !!pinnedPadData && pinnedPadData?.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
+  const isPinned = currentMeeting?.componentsFlags?.isSharedNotesPinned ?? false;
   return (
     <UserNotesGraphql
       disableNotes={disableNotes}
