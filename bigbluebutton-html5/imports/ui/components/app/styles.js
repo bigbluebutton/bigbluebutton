@@ -88,7 +88,7 @@ const DtfInvert = `
     background-color: unset !important;
   }
   textarea {
-    caret-color: black !important;
+    caret-color: white !important;
   }
   #connectionBars > div {
     background-color: var(--darkreader-neutral-text) !important;
