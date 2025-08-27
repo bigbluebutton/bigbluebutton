@@ -558,12 +558,10 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
       || lastSenderPreviousPage) === message?.user?.userId) && pluginMessageNotCustom;
 
   const shouldRenderAvatar = messageContent.showAvatar
-    && !sameSender
-    && !isCustomPluginMessage;
+    && !sameSender;
 
   const shouldRenderHeader = messageContent.showHeading
-    && !sameSender
-    && !isCustomPluginMessage;
+    && !sameSender;
 
   const deactivateFocusTrap = useCallback(() => {
     setKeyboardFocused(false);
@@ -682,7 +680,6 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
       className="chat-message-content"
       ref={messageContentRef}
       sameSender={message?.user ? sameSender : false}
-      isCustomPluginMessage={isCustomPluginMessage}
       $isSystemSender={messageContent.isSystemSender}
       data-chat-message-id={message?.messageId}
       $highlight={hasToolbar && messageContent.showToolbar && !deleteTime}

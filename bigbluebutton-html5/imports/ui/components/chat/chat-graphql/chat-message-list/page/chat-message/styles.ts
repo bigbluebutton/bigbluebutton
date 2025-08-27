@@ -38,7 +38,6 @@ interface ChatWrapperProps {
 
 interface ChatContentProps {
   sameSender: boolean;
-  isCustomPluginMessage: boolean;
   $isSystemSender: boolean;
   $editing: boolean;
   $highlight: boolean;
