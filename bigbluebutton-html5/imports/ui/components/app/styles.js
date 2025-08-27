@@ -5,7 +5,7 @@ import {
   colorOverlaysDarkTheme,
   colorTextDarkTheme,
   colorPrimaryDarkTheme,
-  sidebarButtonHoverBgDark,
+  colorHoverBgDark,
   colorToggleBgDisabledDarkTheme,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
@@ -35,9 +35,9 @@ const DtfInvert = `
     --darkreader-bg--color-primary: ${colorPrimaryDarkTheme} !important;
     --darkreader-text--color-primary: ${colorPrimaryDarkTheme} !important;
     --darkreader-bg--item-focus-border: ${colorPrimaryDarkTheme} !important;
-    --darkreader-bg--list-item-bg-hover: ${sidebarButtonHoverBgDark} !important;
-    --list-item-bg-hover: ${sidebarButtonHoverBgDark} !important; 
-  } 
+    --darkreader-bg--list-item-bg-hover: ${colorHoverBgDark} !important;
+    --list-item-bg-hover: ${colorHoverBgDark} !important;
+  }
   }
   }
   body {
