@@ -147,6 +147,7 @@ const colorBackgroundDarkTheme = 'var(--color-background-dark-theme, #181A23)';
 const colorOverlaysDarkTheme = 'var(--color-overlays-dark-theme, #2D2F38)';
 const colorTextDarkTheme = `var(--color-text-dark-theme, ${colorWhite})`;
 const colorPrimaryDarkTheme = `var(--color-primary-dark-theme, ${colorPrimary})`;
+const sidebarButtonHoverBgDark = 'var(--sidebar-button-hover-bg-dark, #393C48)';
 
 const SegmentedButtonRingOffsetShadow = 'var(--ring-offset-shadow, 0 0 #0000)';
 const SegmentedButtonRingShadow = 'var(--ring-shadow, 0 0 #0000)';
@@ -280,6 +281,7 @@ export {
   colorOverlaysDarkTheme,
   colorTextDarkTheme,
   colorPrimaryDarkTheme,
+  sidebarButtonHoverBgDark,
   SegmentedButtonRingOffsetShadow,
   SegmentedButtonRingShadow,
   SegmentedButtonBoxShadowSm,

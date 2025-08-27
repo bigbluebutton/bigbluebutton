@@ -5,6 +5,7 @@ import {
   colorOverlaysDarkTheme,
   colorTextDarkTheme,
   colorPrimaryDarkTheme,
+  sidebarButtonHoverBgDark,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
 const CaptionsWrapper = styled.div`
@@ -33,6 +34,7 @@ const DtfInvert = `
     --darkreader-bg--color-primary: ${colorPrimaryDarkTheme} !important;
     --darkreader-text--color-primary: ${colorPrimaryDarkTheme} !important;
     --darkreader-bg--item-focus-border: ${colorPrimaryDarkTheme} !important;
+    --darkreader-bg--list-item-bg-hover: ${sidebarButtonHoverBgDark} !important;
   }
   }
   body {
