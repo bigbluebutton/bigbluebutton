@@ -6,6 +6,7 @@ import {
   colorTextDarkTheme,
   colorPrimaryDarkTheme,
   sidebarButtonHoverBgDark,
+  colorToggleBgDisabledDarkTheme,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
 const CaptionsWrapper = styled.div`
@@ -109,6 +110,9 @@ const DtfInvert = `
     & > span > i {
       color: var(--darkreader-text--btn-default-color) !important;
     }
+  }
+  .MuiSwitch-switchBase:not(.Mui-checked) + .MuiSwitch-track {
+    background-color: ${colorToggleBgDisabledDarkTheme} !important;
   }
 `;
 

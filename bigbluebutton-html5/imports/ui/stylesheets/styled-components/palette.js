@@ -147,13 +147,14 @@ const colorBackgroundDarkTheme = 'var(--color-background-dark-theme, #181A23)';
 const colorOverlaysDarkTheme = 'var(--color-overlays-dark-theme, #2D2F38)';
 const colorTextDarkTheme = `var(--color-text-dark-theme, ${colorWhite})`;
 const colorPrimaryDarkTheme = `var(--color-primary-dark-theme, ${colorPrimary})`;
-const sidebarButtonHoverBgDark = 'var(--sidebar-button-hover-bg-dark, #393C48)';
 
 const SegmentedButtonRingOffsetShadow = 'var(--ring-offset-shadow, 0 0 #0000)';
 const SegmentedButtonRingShadow = 'var(--ring-shadow, 0 0 #0000)';
 const SegmentedButtonBoxShadowSm = 'var(--shadow, 0 1px 2px 0 rgba(0, 0, 0, 0.05))';
 const slate900 = 'var(--slate-900, #111827)';
 const darkCyanLime = 'var(--dark-cyan-lime, #16A34A)';
+const sidebarButtonHoverBgDark = 'var(--sidebar-button-hover-bg-dark, #393C48)';
+const colorToggleBgDisabledDarkTheme = 'var(--toggle-bg-disabled-dark-theme, #909CAF)';
 
 const colorInfoBoxQuizText = 'var(--color-info-box-quiz-text, #15803D)';
 const colorInfoBoxQuizBg = 'var(--color-info-box-quiz-bg, #F0FDF4)';
@@ -279,6 +280,7 @@ export {
   webcamPlaceholderBorder,
   colorBackgroundDarkTheme,
   colorOverlaysDarkTheme,
+  colorToggleBgDisabledDarkTheme,
   colorTextDarkTheme,
   colorPrimaryDarkTheme,
   sidebarButtonHoverBgDark,
