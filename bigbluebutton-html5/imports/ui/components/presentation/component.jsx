@@ -205,7 +205,6 @@ class Presentation extends PureComponent {
       slidePosition,
       presentationIsOpen,
       currentSlide,
-      publishedPoll,
       setPresentationIsOpen,
       restoreOnUpdate,
       layoutContextDispatch,
@@ -281,11 +280,9 @@ class Presentation extends PureComponent {
         const positionChanged = slidePosition.viewBoxHeight
             !== prevProps.slidePosition.viewBoxHeight
           || slidePosition.viewBoxWidth !== prevProps.slidePosition.viewBoxWidth;
-        const pollPublished = publishedPoll && !prevProps.publishedPoll;
         if (
           slideChanged
           || positionChanged
-          || pollPublished
           || (presentationChanged && (hadPresentation || !isDefaultPresentation))
         ) {
           setPresentationIsOpen(layoutContextDispatch, !presentationIsOpen);
@@ -918,7 +915,6 @@ Presentation.propTypes = {
   currentPresentationId: PropTypes.string,
   presentationIsOpen: PropTypes.bool,
   totalPages: PropTypes.number.isRequired,
-  publishedPoll: PropTypes.bool.isRequired,
   presentationBounds: PropTypes.shape({
     top: PropTypes.number,
     left: PropTypes.number,

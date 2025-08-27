@@ -3,8 +3,6 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { User } from '/imports/ui/Types/user';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import useMeeting from '/imports/ui/core/hooks/useMeeting';
-import { Meeting } from '/imports/ui/Types/meeting';
 import { useShortcut } from '/imports/ui/core/hooks/useShortcut';
 import { useMutation, useReactiveVar } from '@apollo/client';
 import { defineMessages, useIntl } from 'react-intl';
@@ -160,9 +158,7 @@ export const AudioControlsContainer: React.FC = () => {
     voice: u.voice,
     away: u.away,
   }));
-  const { data: currentMeeting } = useMeeting((m: Partial<Meeting>) => ({
-    lockSettings: m.lockSettings,
-  }));
+
   const [updateEchoTestRunningMutation] = useMutation(UPDATE_ECHO_TEST_RUNNING);
 
   const updateEchoTestRunning = useCallback(() => {
@@ -187,7 +183,7 @@ export const AudioControlsContainer: React.FC = () => {
 
   const isClientConnected = useReactiveVar(connectionStatus.getConnectedStatusVar());
 
-  if (!currentUser || !currentMeeting) return null;
+  if (!currentUser) return null;
 
   return (
     <AudioControls

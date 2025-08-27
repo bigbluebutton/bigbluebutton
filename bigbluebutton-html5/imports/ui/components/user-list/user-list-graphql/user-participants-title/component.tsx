@@ -8,7 +8,6 @@ import { USER_WITH_AUDIO_AGGREGATE_COUNT_SUBSCRIPTION, UsersWithAudioCountSubscr
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { User } from '/imports/ui/Types/user';
-import { Meeting } from '/imports/ui/Types/meeting';
 
 interface UserTitleProps {
   count: number;
@@ -76,7 +75,7 @@ const UserTitleContainer: React.FC = () => {
     locked: u?.locked ?? false,
   }));
 
-  const { data: currentMeeting } = useMeeting((m: Partial<Meeting>) => ({
+  const { data: currentMeeting } = useMeeting((m) => ({
     lockSettings: m.lockSettings,
   }));
 

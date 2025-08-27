@@ -18,7 +18,6 @@ export const MEETING_PERMISSIONS_SUBSCRIPTION = gql`
 subscription MeetingPermissions {
   meeting {
     meetingId
-    isBreakout
     lockSettings {
       disableCam
       disableMic

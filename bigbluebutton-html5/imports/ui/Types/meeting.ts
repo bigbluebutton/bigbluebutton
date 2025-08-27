@@ -112,6 +112,9 @@ export interface ComponentsFlags {
   showRemainingTime: boolean;
   hasCameraAsContent: boolean;
   hasScreenshareAsContent: boolean;
+  hasCurrentPresentation: boolean;
+  hasSharedNotes: boolean;
+  isSharedNotesPinned: boolean;
 }
 
 export interface Meeting {

@@ -20,7 +20,7 @@ select_permissions:
         - hasScreenshareAsContent
         - hasSharedNotes
         - hasTimer
-        - isSharedNotedPinned
+        - isSharedNotesPinned
         - showRemainingTime
       filter:
         meetingId:

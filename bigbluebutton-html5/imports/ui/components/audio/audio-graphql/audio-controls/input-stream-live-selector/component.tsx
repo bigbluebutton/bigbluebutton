@@ -9,15 +9,13 @@ import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { User } from '/imports/ui/Types/user';
 import { defineMessages, useIntl } from 'react-intl';
 import {
+  getToggleMuteMicrophone,
   handleLeaveAudio,
   liveChangeInputDevice,
   liveChangeOutputDevice,
   notify,
-  toggleMuteMicrophone,
-  toggleMuteMicrophoneSystem,
 } from './service';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
-import { Meeting } from '/imports/ui/Types/meeting';
 import logger from '/imports/startup/client/logger';
 import MutedAlert from '/imports/ui/components/muted-alert/component';
 import MuteToggle from './buttons/muteToggle';
@@ -83,6 +81,8 @@ interface InputStreamLiveSelectorProps extends InputStreamLiveSelectorContainerP
   supportsTransparentListenOnly: boolean;
   updateInputDevices: (devices: InputDeviceInfo[]) => void;
   updateOutputDevices: (devices: MediaDeviceInfo[]) => void;
+  isBreakout: boolean;
+  parentId: string;
 }
 
 const InputStreamLiveSelector: React.FC<InputStreamLiveSelectorProps> = ({
@@ -106,6 +106,8 @@ const InputStreamLiveSelector: React.FC<InputStreamLiveSelectorProps> = ({
   openAudioSettings,
   updateInputDevices,
   updateOutputDevices,
+  isBreakout,
+  parentId,
 }) => {
   const intl = useIntl();
   const toggleVoice = useToggleVoice();
@@ -113,6 +115,10 @@ const InputStreamLiveSelector: React.FC<InputStreamLiveSelectorProps> = ({
   const [inputDevices, setInputDevices] = React.useState<InputDeviceInfo[]>([]);
   const [outputDevices, setOutputDevices] = React.useState<MediaDeviceInfo[]>([]);
   const { isMobile } = deviceInfo;
+  const [
+    toggleMuteMicrophone,
+    toggleMuteMicrophoneSystem,
+  ] = getToggleMuteMicrophone(isBreakout, parentId);
 
   // @ts-ignore - temporary, while meteor exists in the project
   const { enableDynamicAudioDeviceSelection } = window.meetingClientSettings.public.app;
@@ -186,7 +192,6 @@ const InputStreamLiveSelector: React.FC<InputStreamLiveSelectorProps> = ({
         }, `Error enumerating audio devices: ${error.message}`);
       });
   }, [inAudio, inputDevices, outputDevices, updateRemovedDevices]);
-
   useEffect(() => {
     if (hasMediaDevicesEventTarget()) navigator.mediaDevices.addEventListener('devicechange', updateDevices);
 
@@ -300,10 +305,11 @@ const InputStreamLiveSelectorContainer: React.FC<InputStreamLiveSelectorContaine
   const talking = Boolean(currentUser?.userId && talkingUsers[currentUser.userId]);
   const muted = Boolean(currentUser?.userId && !unmutedUsers[currentUser.userId]);
 
-  const { data: currentMeeting } = useMeeting((m: Partial<Meeting>) => {
+  const { data: currentMeeting } = useMeeting((m) => {
     return {
       lockSettings: m?.lockSettings,
       isBreakout: m?.isBreakout,
+      breakoutPolicies: m.breakoutPolicies,
     };
   });
   // @ts-ignore - temporary while hybrid (meteor+GraphQl)
@@ -354,6 +360,8 @@ const InputStreamLiveSelectorContainer: React.FC<InputStreamLiveSelectorContaine
       supportsTransparentListenOnly={supportsTransparentListenOnly}
       updateInputDevices={updateInputDevices}
       updateOutputDevices={updateOutputDevices}
+      isBreakout={currentMeeting?.isBreakout ?? false}
+      parentId={currentMeeting?.breakoutPolicies?.parentId ?? ''}
     />
   );
 };

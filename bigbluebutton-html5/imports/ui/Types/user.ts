@@ -4,7 +4,6 @@ export interface Cameras {
 
 export interface PresPagesWritable {
   isCurrentPage: boolean;
-  changedModeOn: number;
   meetingId: string;
   pageId: string;
   presentationId: string;

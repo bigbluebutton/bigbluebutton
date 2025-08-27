@@ -219,6 +219,41 @@ class MultiUsers {
     await this.userPage.hasText(`:nth-match(${e.dropdownWebcamButton}, 2)`, this.userPage.username, 'should display the username of Attendee on the second pinned webcam for Attendee');
   }
 
+  async focusUnfocusWebcam() {
+    await this.modPage.shareWebcam();
+    await this.userPage2.shareWebcam();
+
+    const user2DropdownWebcamButtonForModerator =
+      await this.modPage.getLocator(e.dropdownWebcamButton).filter({ hasText: this.userPage2.username })
+
+    await user2DropdownWebcamButtonForModerator.click();
+
+    await this.modPage.wasRemoved(e.focusWebcamBtn, 'should not display the focus webcam button to the moderator when there are less than 3 webcams shared');
+
+    await this.userPage.shareWebcam();
+
+    await user2DropdownWebcamButtonForModerator.click();
+    await this.modPage.getVisibleLocator(e.focusWebcamBtn).click();
+
+    await this.modPage.hasText(`:nth-match(${e.dropdownWebcamButton}, 1)`, this.userPage2.username, 'should display the username of User2 on the focused webcam for Moderator');
+    await this.userPage2.hasText(`:nth-match(${e.dropdownWebcamButton}, 1)`, this.userPage2.username, 'should display the username of User2 on the first webcam for User2');
+
+    const user2DropdownWebcamButtonForUser1 =
+      await this.userPage.getLocator(e.dropdownWebcamButton).filter({ hasText: this.userPage2.username })
+
+    await user2DropdownWebcamButtonForUser1.click()
+    await this.userPage.getVisibleLocator(e.focusWebcamBtn).click();
+
+    await this.userPage.hasText(`:nth-match(${e.dropdownWebcamButton}, 1)`, this.userPage2.username, 'should display the username of User2 on the focused webcam for User1');
+
+    await user2DropdownWebcamButtonForModerator.click();
+    await this.modPage.getVisibleLocator(e.unfocusWebcamBtn).click();
+
+    await this.modPage.hasText(`:nth-match(${e.dropdownWebcamButton}, 1)`, this.modPage.username, 'should display the username of Moderator on the first webcam for Moderator');
+    await this.userPage2.hasText(`:nth-match(${e.dropdownWebcamButton}, 1)`, this.userPage2.username, 'should display the username of User2 on the first webcam for User2');
+    await this.userPage.hasText(`:nth-match(${e.dropdownWebcamButton}, 1)`, this.userPage2.username, 'should display the username of User2 on the first webcam for User1');
+  }
+
   async giveAndRemoveWhiteboardAccess() {
     await this.modPage.waitForSelector(e.whiteboard);
     await this.modPage.waitAndClick(e.userListItem);
