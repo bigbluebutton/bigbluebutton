@@ -268,7 +268,7 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
       });
     });
 
-    test.describe.serial('', { tag: '@flaky-3.1' }, () => {
+    test.describe.serial('', () => {
       test('Chat', async ({ browser, context, page }) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
         await disabledFeatures.initModPage(page, true, { createParameter: c.chatDisabled });
@@ -281,7 +281,7 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
       });
     });
 
-    test.describe.serial('', { tag: '@flaky-3.1' }, () => {
+    test.describe.serial('', () => {
       test('External Videos', async ({ browser, context, page }) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
         await disabledFeatures.initModPage(page, true, { createParameter: c.externalVideosDisabled });
@@ -346,7 +346,7 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
       });
     });
 
-    test.describe.serial('', { tag: '@flaky-3.1' }, () => {
+    test.describe.serial('', () => {
       test('Shared Notes', async ({ browser, context, page }) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
         await disabledFeatures.initModPage(page, true, { createParameter: c.sharedNotesDisabled });
@@ -372,7 +372,7 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
       });
     });
 
-    test.describe.serial('', { tag: '@flaky-3.1' }, () => {
+    test.describe.serial('', () => {
       test('Download Presentation With Annotations', async ({ browser, context, page }) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
         await disabledFeatures.initModPage(page, true, { createParameter: c.downloadPresentationWithAnnotationsDisabled });
@@ -385,7 +385,7 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
       });
     });
 
-    test.describe.serial('', { tag: '@flaky-3.1' }, () => {
+    test.describe.serial('', () => {
       test('Import Presentation With Annotations From Breakout Rooms', async ({ browser, context, page }) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
         await disabledFeatures.initModPage(page, true, { createParameter: c.importPresentationWithAnnotationsFromBreakoutRoomsDisabled });
@@ -398,7 +398,7 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
       });
     });
 
-    test.describe.serial('', { tag: '@flaky-3.1' }, () => {
+    test.describe.serial('', () => {
       test('Import Shared Notes From Breakout Rooms', async ({ browser, context, page }) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
         await disabledFeatures.initModPage(page, true, { createParameter: c.importSharedNotesFromBreakoutRoomsDisabled });
@@ -450,7 +450,7 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
       });
     });
 
-    test.describe.serial('', { tag: '@flaky-3.1' }, () => {
+    test.describe.serial('', () => {
       test('Camera As Content', async ({ browser, context, page }) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
         await disabledFeatures.initModPage(page, true, { createParameter: c.cameraAsContent });
