@@ -434,6 +434,11 @@ class ApiController {
     //Return a Map with the user custom data
     Map<String, String> userCustomData = meetingService.getUserCustomData(meeting, externUserID, params);
 
+    String clientIp = request.getHeader("X-Forwarded-For")
+    String userAgent = request.getHeader('User-Agent')
+    String referer = request.getHeader('Referer')
+
+
     //Currently, it's associated with the externalUserID
     meetingService.addUserCustomData(meeting.getInternalId(), externUserID, userCustomData);
 
@@ -535,6 +540,9 @@ class ApiController {
         us.leftGuestLobby,
         us.enforceLayout,
         us.logoutUrl,
+        clientIp,
+        userAgent,
+        referer,
         meeting.getUserCustomData(us.externUserID)
     )
 
