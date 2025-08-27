@@ -36,6 +36,8 @@ const DtfInvert = `
     --darkreader-text--color-primary: ${colorPrimaryDarkTheme} !important;
     --darkreader-bg--item-focus-border: ${colorPrimaryDarkTheme} !important;
     --darkreader-bg--list-item-bg-hover: ${sidebarButtonHoverBgDark} !important;
+    --list-item-bg-hover: ${sidebarButtonHoverBgDark} !important; 
+  } 
   }
   }
   body {
