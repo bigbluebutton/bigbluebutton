@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { throttle } from 'radash';
 
-const hasBackgroundImageUrl = (el) => {
-  const style = window.getComputedStyle(el);
+const hasBackgroundImageUrl = (el, isDetached = false, p) => {
+  const style = isDetached ? p.getComputedStyle(el) : window.getComputedStyle(el);
   const bg = style.backgroundImage || '';
   return bg.includes('url(');
 };
@@ -28,13 +28,14 @@ const useCursor = (publishCursorUpdate, whiteboardId) => {
   return [cursorPosition, updateCursorPosition];
 };
 
-const getPresentationOptionsMenuItem = () => document.querySelector('li#presentationFullscreen')
-    || document.querySelector('li#presentationSnapshot')
-    || document.querySelector('li#toolVisibility')
+const getPresentationOptionsMenuItem = (isDetached = false, p) =>
+       (isDetached ? p.document.querySelector('li#presentationFullscreen') : document.querySelector('li#presentationFullscreen'))
+    || (isDetached ? p.document.querySelector('li#presentationSnapshot') : document.querySelector('li#presentationSnapshot'))
+    || (isDetached ? p.document.querySelector('li#toolVisibility') : document.querySelector('li#toolVisibility'))
     || null;
 
-const getTldrawOpenMenu = () => {
-  const tlElement = document.querySelectorAll('[id^=radix-]');
+const getTldrawOpenMenu = (isDetached = false, p) => {
+  const tlElement = isDetached ? p.document.querySelectorAll('[id^=radix-]') : document.querySelectorAll('[id^=radix-]');
   const tldrawMenu = Array.from(tlElement).find((el) => {
     const menuClasses = ['tlui-popover__content', 'tlui-menu'];
     if (el && menuClasses.includes(el.className)) {
@@ -59,6 +60,8 @@ const useMouseEvents = ({
   setIsWheelZoom,
   setWheelZoomTimeout,
   isInfiniteWhiteboard,
+  isPresentationDetached,
+  popupWindow,
 }) => {
   const timeoutIdRef = React.useRef();
   const fingerCountRef = React.useRef(0);
@@ -103,6 +106,9 @@ const useMouseEvents = ({
     const { target } = event;
     const editor = tlEditorRef.current;
     const presentationInnerWrapper = document.getElementById('presentationInnerWrapper');
+    const presentationInnerWrapper = isPresentationDetached ?
+      popupWindow.document.getElementById('presentationInnerWrapper') :
+      document.getElementById('presentationInnerWrapper');
 
     if (!(presentationInnerWrapper && presentationInnerWrapper.contains(target))) {
       if (editor?.getEditingShape()) {
@@ -117,7 +123,7 @@ const useMouseEvents = ({
       && editor?.getCurrentToolId() === 'select'
       && !target.matches('[data-testid*="selection.resize"]')
       && !target.matches('[data-testid*="selection.target"]')
-      && hasBackgroundImageUrl(target)
+      && hasBackgroundImageUrl(target, isPresentationDetached, popupWindow)
     ) {
       editor.selectNone();
       return editor.complete();
@@ -134,6 +140,8 @@ const useMouseEvents = ({
         'fade-in',
         animations ? '.3s' : '0s',
         hasWBAccess || isPresenterRef.current,
+        isPresentationDetached,
+        popupWindow,
       );
     }
   };
@@ -141,8 +149,8 @@ const useMouseEvents = ({
   const handleMouseLeave = () => {
     if (whiteboardToolbarAutoHide) {
       clearTimeout(mouseLeaveTimeoutRef.current);
-      const presentationWBOptionsMenuItem = getPresentationOptionsMenuItem();
-      const tldrawMenu = getTldrawOpenMenu();
+      const presentationWBOptionsMenuItem = getPresentationOptionsMenuItem(isPresentationDetached, popupWindow);
+      const tldrawMenu = getTldrawOpenMenu(isPresentationDetached, popupWindow);
       if (presentationWBOptionsMenuItem || tldrawMenu) {
         if (tldrawMenu) {
           mouseLeaveTimeoutRef.current = setTimeout(() => {
@@ -162,6 +170,8 @@ const useMouseEvents = ({
               'fade-out',
               animations ? '3s' : '0s',
               hasWBAccess || isPresenterRef.current,
+              isPresentationDetached,
+              popupWindow,
             );
           }
         } else {
@@ -170,6 +180,8 @@ const useMouseEvents = ({
             'fade-out',
             animations ? '3s' : '0s',
             hasWBAccess || isPresenterRef.current,
+            isPresentationDetached,
+            popupWindow,
           );
         }
       }
@@ -288,6 +300,8 @@ const useMouseEvents = ({
         'fade-out',
         animations ? '3s' : '0s',
         hasWBAccess || isPresenterRef.current,
+        isPresentationDetached,
+        popupWindow,
       );
     } else {
       toggleToolsAnimations(
@@ -295,13 +309,22 @@ const useMouseEvents = ({
         'fade-in',
         animations ? '.3s' : '0s',
         hasWBAccess || isPresenterRef.current,
+        isPresentationDetached,
+        popupWindow,
       );
     }
   }, [whiteboardToolbarAutoHide]);
 
   React.useEffect(() => {
-    const presentationWrapper = document.getElementById('presentationInnerWrapper');
-    window.addEventListener('mousedown', handleMouseDownWindow);
+    const presentationWrapper = isPresentationDetached ?
+      popupWindow.document.getElementById('presentationInnerWrapper') :
+      document.getElementById('presentationInnerWrapper');
+    if (isPresentationDetached) {
+      popupWindow.addEventListener('mousedown', handleMouseDownWindow);
+    } else {
+      window.addEventListener('mousedown', handleMouseDownWindow);
+    }
+
     if (presentationWrapper) {
       presentationWrapper.addEventListener('mousedown', handleMouseDownWhiteboard);
       presentationWrapper.addEventListener('mouseup', handleMouseUp);
@@ -324,7 +347,11 @@ const useMouseEvents = ({
         presentationWrapper.removeEventListener('touchend', handleTouchEnd);
         presentationWrapper.removeEventListener('touchmove', handleTouchMove);
       }
-      window.removeEventListener('mousedown', handleMouseDownWindow);
+      if (isPresentationDetached) {
+        popupWindow.removeEventListener('mousedown', handleMouseDownWindow);
+      } else {
+        window.removeEventListener('mousedown', handleMouseDownWindow);
+      }
     };
   }, [
     tlEditorRef,
