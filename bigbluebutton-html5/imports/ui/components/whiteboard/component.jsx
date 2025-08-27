@@ -170,6 +170,8 @@ const Whiteboard = React.memo((props) => {
     setEditor,
     lockToolbarTools,
     layoutChanged,
+    isPresentationDetached,
+    popupWindow,
   } = props;
 
   clearTldrawCache();
@@ -590,7 +592,10 @@ const Whiteboard = React.memo((props) => {
       return;
     }
     // ignore if the edit link dialog is open
-    if (document.querySelector('h2.tlui-dialog__header__title')?.textContent === 'Edit link') {
+    const elDialog = isPresentationDetached ?
+      popupWindow.document.querySelector('h2.tlui-dialog__header__title')?.textContent :
+      document.querySelector('h2.tlui-dialog__header__title')?.textContent;
+    if (elDialog === 'Edit link') {
       return;
     }
 
@@ -880,8 +885,12 @@ const Whiteboard = React.memo((props) => {
   };
 
   const getContainerDimensions = () => {
-    const container = document.querySelector('[data-test="presentationContainer"]');
-    const innerWrapper = document.getElementById('presentationInnerWrapper');
+    const container = isPresentationDetached ?
+      popupWindow.document.querySelector('[data-test="presentationContainer"]') :
+      document.querySelector('[data-test="presentationContainer"]');
+    const innerWrapper = isPresentationDetached ?
+      popupWindow.document.getElementById('presentationInnerWrapper') :
+      document.getElementById('presentationInnerWrapper');
     const containerWidth = container ? container.offsetWidth : 0;
     const innerWrapperWidth = innerWrapper ? innerWrapper.offsetWidth : 0;
     const widthGap = Math.max(containerWidth - innerWrapperWidth, 0);
@@ -1065,8 +1074,12 @@ const Whiteboard = React.memo((props) => {
     stableCount = 0,
     lastDimensions = { width: 0, height: 0 },
   ) => {
-    const container = document.querySelector('[data-test="presentationContainer"]');
-    const innerWrapper = document.getElementById('presentationInnerWrapper');
+    const container = isPresentationDetached ?
+      popupWindow.document.querySelector('[data-test="presentationContainer"]') :
+      document.querySelector('[data-test="presentationContainer"]');
+    const innerWrapper = isPresentationDetached ?
+      popupWindow.document.getElementById('presentationInnerWrapper') :
+      document.getElementById('presentationInnerWrapper');
 
     const containerWidth = container ? container.offsetWidth : 0;
     const containerHeight = container ? container.offsetHeight : 0;
@@ -1457,6 +1470,8 @@ const Whiteboard = React.memo((props) => {
                 'fade-out',
                 '0s',
                 hasWBAccessRef.current || isPresenterRef.current,
+                isPresentationDetached,
+                popupWindow,
               );
             } else if (visibilityState === 'hidden') {
               toggleToolsAnimations(
@@ -1464,6 +1479,8 @@ const Whiteboard = React.memo((props) => {
                 'fade-in',
                 '0s',
                 hasWBAccessRef.current || isPresenterRef.current,
+                isPresentationDetached,
+                popupWindow,
               );
             }
             lastVisibilityStateRef.current = visibilityState;
@@ -1747,6 +1764,8 @@ const Whiteboard = React.memo((props) => {
       setIsWheelZoom,
       setWheelZoomTimeout,
       isInfiniteWhiteboard,
+      isPresentationDetached,
+      popupWindow,
     },
   );
 
@@ -1913,6 +1932,34 @@ const Whiteboard = React.memo((props) => {
   }, [currentPresentationPage, isPresenter]);
 
   React.useEffect(() => {
+    // Set red pointer cursor for the popup presentation,
+    //  which would be better displayed in a face-to-face lecture.
+    if (!(isPresenter && isPresentationDetached)) return;
+    if (!popupWindow) return;
+
+    const observer = new MutationObserver(() => {
+      const el = popupWindow.document.querySelector('.tl-container');
+      if (!el) return;
+
+      const varMap = {
+        '--tl-cursor-grab': '--tl-cursor-pointer',
+        '--tl-cursor-grabbing': '--tl-cursor-grabbing',
+      };
+
+      Object.entries(varMap).forEach(([baseVar, replaceVar]) => {
+        const dataUrl = getComputedStyle(el).getPropertyValue(replaceVar).trim();
+        if (dataUrl) {
+          const tinted = dataUrl.replace(/fill='white'/g, "fill='red'");
+          el.style.setProperty(baseVar, tinted);
+        }
+      });
+    })
+
+    observer.observe(popupWindow.document.body, { childList: true, subtree: true })
+      return () => observer.disconnect()
+  }, [isPresenter, isPresentationDetached, popupWindow]);
+
+  React.useEffect(() => {
     if (tlEditorRef.current) {
       const useElement = document.querySelector('.tl-cursor use');
       if (useElement && !isMultiUserActive && !isPresenter) {
@@ -2002,7 +2049,7 @@ const Whiteboard = React.memo((props) => {
 
   const toggleToolbarIfNeeded = () => {
     if (whiteboardToolbarAutoHide && toggleToolsAnimations) {
-      toggleToolsAnimations('fade-in', 'fade-out', '0s', hasWBAccessRef.current || isPresenterRef.current);
+      toggleToolsAnimations('fade-in', 'fade-out', '0s', hasWBAccessRef.current || isPresenterRef.current, isPresentationDetached, popupWindow);
     }
   };
 
@@ -2186,3 +2233,4 @@ Whiteboard.propTypes = {
   isInfiniteWhiteboard: PropTypes.bool,
   whiteboardWriters: PropTypes.arrayOf(PropTypes.shape).isRequired,
 };
+
