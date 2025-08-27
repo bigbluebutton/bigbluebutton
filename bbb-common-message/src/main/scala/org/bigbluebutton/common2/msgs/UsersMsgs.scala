@@ -9,7 +9,7 @@ case class RegisterUserReqMsgBody(meetingId: String, intUserId: String, name: St
                                   role: String, extUserId: String, authToken: String, sessionToken: String, avatarURL: String,
                                   webcamBackgroundURL: String, bot: Boolean, guest: Boolean, authed: Boolean,
                                   guestStatus: String, excludeFromDashboard: Boolean, enforceLayout: String,
-                                  logoutUrl: String, userMetadata: Map[String, String])
+                                  logoutUrl: String, ipAddress: String, userAgent: String, referer: String, userMetadata: Map[String, String])
 
 object UserRegisteredRespMsg { val NAME = "UserRegisteredRespMsg" }
 case class UserRegisteredRespMsg(
@@ -104,6 +104,9 @@ case class UserJoinedMeetingEvtMsgBody(
     webcamBackground: String,
     color:            String,
     clientType:       String,
+    ipAddress:        String,
+    userAgent:        String,
+    referer:          String,
     userMetadata:     Map[String, String]
 )
 

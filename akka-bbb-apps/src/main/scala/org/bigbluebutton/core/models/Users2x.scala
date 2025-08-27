@@ -451,6 +451,9 @@ case class UserState(
     userLeftFlag:          UserLeftFlag,
     speechLocale:          String              = "",
     captionLocale:         String              = "",
+    ipAddress:             String              = "",
+    userAgent:             String              = "",
+    referer:               String              = "",
     userMetadata:          Map[String, String] = Map.empty,
     userLockSettings:      UserLockSettings    = UserLockSettings()
 )

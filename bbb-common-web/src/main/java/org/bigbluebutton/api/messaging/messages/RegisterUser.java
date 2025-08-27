@@ -24,13 +24,16 @@ public class RegisterUser implements IMessage {
 	public final Boolean leftGuestLobby;
 	public final String enforceLayout;
 	public final String logoutUrl;
+	public final String ipAddress;
+    public final String userAgent;
+    public final String referer;
 	public final Map<String, String> userMetadata;
 
 	public RegisterUser(String meetingID, String internalUserId, String fullname, String firstName, String lastName,
 						String role, String externUserID,
 						String authToken, String sessionToken, String avatarURL, String webcamBackgroundURL, Boolean bot, Boolean guest,
 						Boolean authed, String guestStatus, Boolean excludeFromDashboard, Boolean leftGuestLobby,
-						String enforceLayout, String logoutUrl, Map<String, String> userMetadata) {
+						String enforceLayout, String logoutUrl, String ipAddress, String userAgent, String referer, Map<String, String> userMetadata) {
 		this.meetingID = meetingID;
 		this.internalUserId = internalUserId;
 		this.fullname = fullname;
@@ -50,6 +53,9 @@ public class RegisterUser implements IMessage {
 		this.leftGuestLobby = leftGuestLobby;
 		this.enforceLayout = enforceLayout;
 		this.logoutUrl = logoutUrl;
+		this.ipAddress = ipAddress;
+        this.userAgent = userAgent;
+        this.referer = referer;
 		this.userMetadata = userMetadata;
 	}
 }
