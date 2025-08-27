@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useMutation, useReactiveVar } from '@apollo/client';
 import AudioCaptionsLiveContainer from '/imports/ui/components/audio/audio-graphql/audio-captions/live/component';
 import getFromUserSettings from '/imports/ui/services/users-settings';
@@ -106,9 +106,24 @@ const AppContainer = (props) => {
   const shouldShowScreenshare = (viewScreenshare || isPresenter)
   && (currentMeeting?.componentsFlags?.hasScreenshare
     || currentMeeting?.componentsFlags?.hasCameraAsContent) && showScreenshare;
-  const shouldShowPresentation = (!shouldShowScreenshare && !isSharedNotesPinned
-      && !shouldShowExternalVideo && !shouldShowGenericMainContent
-      && (presentationIsOpen || presentationRestoreOnUpdate)) && isPresentationEnabled;
+
+  const [popupWindow, setPopupWindow] = useState(null);
+  const [isPresentationDetached, setIsPresentationDetached] = useState(false);
+
+  const toggleDetachPresentation = (popup) => {
+    setPopupWindow(popup);
+    setIsPresentationDetached(Boolean(popup));
+  };
+
+  const hasPresentationContent =
+    (presentationIsOpen || presentationRestoreOnUpdate) && isPresentationEnabled;
+  const noOtherMainContent =
+    !shouldShowScreenshare && !isSharedNotesPinned &&
+    !shouldShowExternalVideo && !shouldShowGenericMainContent;
+  const shouldShowPresentation = isPresentationDetached
+    ? hasPresentationContent
+    : noOtherMainContent && hasPresentationContent;
+  
   const currentPageInfoData = currentPageInfo?.pres_page_curr[0] ?? {};
   const fitToWidth = currentPageInfoData?.fitToWidth ?? false;
   const pageId = currentPageInfoData?.pageId ?? '';
@@ -161,6 +176,9 @@ const AppContainer = (props) => {
           isBreakout: currentMeeting?.isBreakout ?? false,
           meetingName: currentMeeting?.name ?? '',
           meetingId: currentMeeting?.meetingId ?? '',
+          isPresentationDetached,
+          popupWindow,
+          toggleDetachPresentation,
         }}
         {...props}
       />
