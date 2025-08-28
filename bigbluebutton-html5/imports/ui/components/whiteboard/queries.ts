@@ -12,24 +12,17 @@ export interface CursorCoordinatesResponse {
   pres_page_cursor_stream: CursorCoordinates[];
 }
 
-export interface UserCursor {
-  name: string;
-  presenter: boolean;
-  role: string;
-}
-
-export interface userCursorResponse {
+export interface UsersCurrentPageWritersResponse {
   userId: string;
-  isCurrentPage: boolean;
-  lastUpdatedAt: string;
-  pageId: string;
-  presentationId: string;
-  user: UserCursor;
+  user: {
+    name: string;
+    presenter: boolean;
+  };
 }
 
-// Interface for the pres_page_cursor subscription
-export interface CursorSubscriptionResponse {
-  pres_page_cursor: Array<userCursorResponse>;
+// Interface for the pres_page_writers subscription
+export interface CurrentPageWritersResponse {
+  pres_page_writers: Array<UsersCurrentPageWritersResponse>;
 }
 
 export interface CurrentPresentationPagesSubscriptionResponse {
@@ -80,7 +73,13 @@ export interface Presentation {
   totalPagesUploaded: number;
   presentationId: string;
   removable: boolean;
+  uploadCompletionNotified: boolean;
   uploadCompleted: boolean;
+  exportToChatInProgress: boolean;
+  exportToChatStatus: string;
+  exportToChatCurrentPage: number;
+  exportToChatHasError: boolean;
+
 }
 
 export interface ProcessedPresentationsSubscriptionResponse {
@@ -117,60 +116,35 @@ export const CURRENT_PRESENTATION_PAGE_SUBSCRIPTION = gql`subscription CurrentPr
     infiniteWhiteboard
     nextPagesSvg
     fitToWidth
-  }  
-}`;
-
-export const PRESENTATIONS_SUBSCRIPTION = gql`subscription PresentationsSubscription {
-  pres_presentation {
-    uploadTemporaryId
-    uploadInProgress
-    current
-    downloadFileUri
-    downloadable
-    uploadErrorDetailsJson
-    uploadErrorMsgKey
-    filenameConverted
-    isDefault
-    name
-    totalPages
-    totalPagesUploaded
-    presentationId
-    removable
-    uploadCompleted
-  }  
-}`;
-
-export const EXPORTING_PRESENTATIONS_SUBSCRIPTION = gql`subscription PresentationsSubscription {
-  pres_presentation {
-    uploadInProgress
-    current
-    downloadFileUri
-    downloadable
-    uploadErrorDetailsJson
-    uploadErrorMsgKey
-    filenameConverted
-    isDefault
-    name
-    totalPages
-    totalPagesUploaded
-    presentationId
-    removable
-    uploadCompletionNotified
-    uploadCompleted
-    exportToChatInProgress
-    exportToChatStatus
-    exportToChatCurrentPage
-    exportToChatHasError
-  }  
-}`;
-
-export const PROCESSED_PRESENTATIONS_SUBSCRIPTION = gql`subscription ProcessedPresentationsSubscription {
-  pres_presentation(where: { uploadCompleted: { _eq: true } }) {
-    current
-    name
-    presentationId
   }
 }`;
+
+export const PRESENTATIONS_SUBSCRIPTION = gql`
+  subscription PresentationsSubscription {
+    pres_presentation {
+      uploadTemporaryId
+      uploadInProgress
+      current
+      downloadFileUri
+      downloadable
+      uploadErrorDetailsJson
+      uploadErrorMsgKey
+      filenameConverted
+      isDefault
+      name
+      totalPages
+      totalPagesUploaded
+      presentationId
+      removable
+      uploadCompletionNotified
+      uploadCompleted
+      exportToChatInProgress
+      exportToChatStatus
+      exportToChatCurrentPage
+      exportToChatHasError
+    }
+  }
+`;
 
 export const CURRENT_PAGE_ANNOTATIONS_QUERY = gql`query CurrentPageAnnotationsQuery($pageId: String!) {
   pres_annotation_curr(
@@ -182,7 +156,7 @@ export const CURRENT_PAGE_ANNOTATIONS_QUERY = gql`query CurrentPageAnnotationsQu
     pageId
     presentationId
     userId
-  }  
+  }
 }`;
 
 export const CURRENT_PAGE_ANNOTATIONS_STREAM = gql`subscription annotationsStream($lastUpdatedAt: timestamptz){
@@ -213,14 +187,6 @@ export const ANNOTATION_HISTORY_STREAM = gql`
   }
 `;
 
-export const CURRENT_PAGE_WRITERS_SUBSCRIPTION = gql`
-  subscription currentPageWritersSubscription($pageId: String!) {
-    pres_page_writers(where: { pageId: { _eq: $pageId } }) {
-      userId
-    }
-  }
-`;
-
 export const CURRENT_PAGE_WRITERS_QUERY = gql`
   query currentPageWritersQuery($pageId: String!) {
     pres_page_writers(where: { pageId: { _eq: $pageId } }) {
@@ -230,30 +196,29 @@ export const CURRENT_PAGE_WRITERS_QUERY = gql`
   }
 `;
 
-export const cursorUserSubscription = gql`
-  subscription CursorSubscription {
-    pres_page_cursor(
-      where: {isCurrentPage: {_eq: true}}
+export const CURRENT_PAGE_WRITERS_SUBSCRIPTION = gql`
+  subscription currentPageWritersSubscription {
+    pres_page_writers(
+      where: { isCurrentPage: {_eq: true} },
       order_by: { userId: asc }
     ) {
       userId
       user {
         name
         presenter
-        role
       }
-    }  
+    }
   }
 `;
 
-export const getCursorsCoordinatesStream = gql`
+// This subscription is handled by bbb-graphql-middleware and its content should not be modified
+export const CURRENT_PAGE_CURSORS_COORDINATES_STREAM = gql`
   subscription getCursorCoordinatesStream {
-    pres_page_cursor_stream(cursor: {initial_value: {lastUpdatedAt: "2020-01-01"}}, 
-                            where: {isCurrentPage: {_eq: true}}, 
+    pres_page_cursor_stream(cursor: {initial_value: {lastUpdatedAt: "2020-01-01"}},
+                            where: {isCurrentPage: {_eq: true}},
                             batch_size: 100) {
       xPercent
       yPercent
-      lastUpdatedAt
       userId
     }
   }

@@ -38,6 +38,7 @@
     "preserveSymlinks": true
   },
   "exclude": [
+    "./dist/*",
     "./.meteor/**",
     "./packages/**",
     "node_modules",

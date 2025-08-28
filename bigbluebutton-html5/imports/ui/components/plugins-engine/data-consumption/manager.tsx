@@ -22,12 +22,12 @@ import { GeneralHookManagerProps } from './types';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { User } from '/imports/ui/Types/user';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
-import { Meeting } from '/imports/ui/Types/meeting';
 import MeetingHookContainer from './domain/meeting/from-core/hook-manager';
 import { updateHookUsage } from './utils';
 import { ObjectToCustomQueryHookContainerMap, QueryHookWithArgumentContainerToRender, QueryHookWithArgumentsContainerProps } from './domain/shared/custom-query/types';
 import CustomQueryHookContainer from './domain/shared/custom-query/hook-manager';
 import CustomDataConsumptionHooksErrorBoundary from './error-boundary/handler';
+import UsersBasicInfoHookContainer from './domain/users/users-basic-info/hook-manager';
 
 const hooksMap:{
   [key: string]: React.FunctionComponent<GeneralHookManagerProps>
@@ -38,6 +38,7 @@ const hooksMap:{
   [DataConsumptionHooks.CURRENT_USER]: CurrentUserHookContainer,
   [DataConsumptionHooks.CURRENT_PRESENTATION]: CurrentPresentationHookContainer,
   [DataConsumptionHooks.MEETING]: MeetingHookContainer,
+  [DataConsumptionHooks.USERS_BASIC_INFO]: UsersBasicInfoHookContainer,
 };
 
 const SubscriptionHooksMapWithArguments: {
@@ -153,7 +154,7 @@ const PluginDataConsumptionManager: React.FC = () => {
       extId: currentUser.extId,
     }),
   );
-  const meetingInformation = useMeeting((meeting: Partial<Meeting>) => ({
+  const meetingInformation = useMeeting((meeting) => ({
     name: meeting?.name,
     loginUrl: meeting?.loginUrl,
     meetingId: meeting?.meetingId,
@@ -184,6 +185,7 @@ const PluginDataConsumptionManager: React.FC = () => {
           const HookComponent = hookWithArguments.componentToRender;
           return (
             <CustomDataConsumptionHooksErrorBoundary
+              key={makeCustomHookIdentifierFromArgs(hookWithArguments.hookArguments)}
               hookWithArguments={hookWithArguments}
               dataConsumptionHook={DataConsumptionHooks.CUSTOM_SUBSCRIPTION}
               setDataConsumptionHookWithArgumentUtilizationCount={setSubscriptionHookWithArgumentUtilizationCount}
@@ -202,6 +204,7 @@ const PluginDataConsumptionManager: React.FC = () => {
           const HookComponent = hookWithArguments.componentToRender;
           return (
             <CustomDataConsumptionHooksErrorBoundary
+              key={makeCustomHookIdentifierFromArgs(hookWithArguments.hookArguments)}
               hookWithArguments={hookWithArguments}
               dataConsumptionHook={DataConsumptionHooks.CUSTOM_QUERY}
               setDataConsumptionHookWithArgumentUtilizationCount={setQueryHookWithArgumentUtilizationCount}

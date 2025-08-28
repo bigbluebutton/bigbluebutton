@@ -151,10 +151,7 @@ export const useLocalVideoStreamsCount = () => {
 
 export const useInfo = () => {
   const { data } = useMeeting((m) => ({
-    voiceSettings: {
-      // @ts-expect-error -> There seems to be a design issue on the projection portion.
-      voiceConf: m.voiceSettings?.voiceConf,
-    },
+    voiceSettings: m.voiceSettings,
   }));
   const voiceBridge = data?.voiceSettings ? data.voiceSettings.voiceConf : null;
   return {
@@ -169,10 +166,7 @@ export const useInfo = () => {
 export const useHasCapReached = () => {
   const { data: meeting } = useMeeting((m) => ({
     meetingCameraCap: m.meetingCameraCap,
-    usersPolicies: {
-      // @ts-expect-error -> There seems to be a design issue on the projection portion.
-      userCameraCap: m.usersPolicies?.userCameraCap,
-    },
+    usersPolicies: m.usersPolicies,
   }));
   const videoStreamsCount = useVideoStreamsCount();
   const localVideoStreamsCount = useLocalVideoStreamsCount();
@@ -180,13 +174,12 @@ export const useHasCapReached = () => {
   // If the meeting prop data is unreachable, force a safe return
   if (
     meeting?.usersPolicies === undefined
-    || !meeting?.meetingCameraCap === undefined
+    || meeting?.meetingCameraCap === undefined
   ) return true;
   const { meetingCameraCap } = meeting;
   const { userCameraCap } = meeting.usersPolicies;
 
-  // @ts-expect-error -> There seems to be a design issue on the projection portion.
-  const meetingCap = meetingCameraCap !== 0 && videoStreamsCount >= meetingCameraCap;
+  const meetingCap = meetingCameraCap !== 0 && videoStreamsCount >= (meetingCameraCap as number);
   const userCap = userCameraCap !== 0 && localVideoStreamsCount >= userCameraCap;
 
   return meetingCap || userCap;
@@ -194,10 +187,7 @@ export const useHasCapReached = () => {
 
 export const useDisableCam = () => {
   const { data: meeting } = useMeeting((m) => ({
-    lockSettings: {
-      // @ts-expect-error -> There seems to be a design issue on the projection portion.
-      disableCam: m.lockSettings?.disableCam,
-    },
+    lockSettings: m.lockSettings,
   }));
   return meeting?.lockSettings ? meeting?.lockSettings.disableCam : false;
 };

@@ -41,3 +41,29 @@ select_permissions:
       filter:
         meetingId:
           _eq: X-Hasura-MeetingId
+  - role: bbb_client_not_in_meeting
+    permission:
+      columns:
+        - callerName
+        - callerNum
+        - callingWith
+        - endTime
+        - floor
+        - joined
+        - lastFloorTime
+        - listenOnly
+        - muted
+        - listenOnlyInputDevice
+        - deafened
+        - spoke
+        - startTime
+        - talking
+        - userId
+        - voiceConf
+        - voiceUserId
+      filter:
+        _and:
+          - meetingId:
+              _eq: X-Hasura-MeetingId
+          - userId:
+              _eq: X-Hasura-UserId

@@ -22,6 +22,12 @@ test.describe.parallel('Webcam', { tag: '@ci' }, () => {
     await webcam.talkingIndicator();
   });
 
+  test('Mirror webcam', async ({ browser, page }, testInfo) => {
+    const webcam = new Webcam(browser, page);
+    await webcam.init(true, true, { testInfo });
+    await webcam.mirrorWebcam();
+  });
+
   test('Pinning and unpinning webcams', async ({ browser, context, page, browserName }, testInfo) => {
     test.skip(browserName === 'firefox', 'It only works manually on Firefox');
     const webcam = new MultiUsers(browser, context);
@@ -31,7 +37,7 @@ test.describe.parallel('Webcam', { tag: '@ci' }, () => {
     await webcam.pinningWebcams();
   });
 
-  test('Change video quality', { tag: '@flaky' } , async ({ browser, page }, testInfo) => {
+  test('Change video quality', { tag: '@flaky' }, async ({ browser, page }, testInfo) => {
     // Current approach is not reliable enough to ensure the video quality is changed
     const webcam = new Webcam(browser, page);
     await webcam.init(true, true, { testInfo });
@@ -48,6 +54,14 @@ test.describe.parallel('Webcam', { tag: '@ci' }, () => {
     const webcam = new Webcam(browser, page);
     await webcam.init(true, true, { testInfo });
     await webcam.disableSelfView();
+  });
+
+  test('Focus and Unfocus webcam', async ({ browser, context, page }, testInfo) => {
+    const webcam = new MultiUsers(browser, context);
+    await webcam.initModPage(page, true, { testInfo });
+    await webcam.initUserPage(true, context, { testInfo });
+    await webcam.initUserPage2(true, context, { testInfo });
+    await webcam.focusUnfocusWebcam();
   });
 
   test.describe('Webcam background', () => {

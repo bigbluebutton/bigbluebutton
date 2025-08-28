@@ -39,7 +39,6 @@ public:
       enabled: true
       iosAppStoreUrl: 'https://apps.apple.com/us/app/bigbluebutton-tablet/id1641156756'
       iosAppUrlScheme: 'bigbluebutton-tablet'
-    lockOnJoin: true
     cdn: ''
     basename: '/html5client'
     # the base location of the BBB API. If you use a cluster setup with a load

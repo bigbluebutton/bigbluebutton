@@ -28,15 +28,15 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
       await multiusers.toggleUserList();
     });
 
-    test('Stopwatch', async ({ browser, context, page }, testInfo)=> {
+    test('Stopwatch', async ({ browser, context, page }, testInfo) => {
       const timer = new Timer(browser, context);
       await timer.initModPage(page, true, { testInfo });
       await timer.stopwatchTest();
     });
 
-    test('Timer', async ({ browser, context, page }, testInfo)=> {
+    test('Timer', async ({ browser, context, page }, testInfo) => {
       const timer = new Timer(browser, context);
-      await timer.initModPage(page, true, testInfo);
+      await timer.initModPage(page, true, { testInfo });
       await timer.timerTest();
     });
   });
@@ -263,6 +263,13 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
       await multiusers.initModPage(page, true, { testInfo });
       await multiusers.initModPage2(true, context, { testInfo });
       await multiusers.clearAllStatusIcon();
+    });
+
+    test('End meeting', async ({ browser, context, page }) => {
+      const multiusers = new MultiUsers(browser, context);
+      await multiusers.initModPage(page, true);
+      await multiusers.initUserPage(true, context);
+      await multiusers.endMeeting();
     });
   });
 

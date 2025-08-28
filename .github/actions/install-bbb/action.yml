@@ -3,6 +3,11 @@ description: "Install BigBlueButton"
 runs:
   using: "composite"
   steps:
+    - name: Git config - disable warnings
+      shell: bash
+      run: |
+        git config --global advice.defaultBranchName false
+        git config --global advice.detachedHead false
     - name: Merge branches
       uses: ./.github/actions/merge-branches
     - run: ./build/get_external_dependencies.sh
@@ -18,7 +23,33 @@ runs:
         set -e
         echo "----ls artifacts/----"
         ls artifacts/
-        echo "Done"
+    - name: LIBREOFFICE CACHE - Set cache-key vars
+      shell: bash
+      run: |
+        echo "BBB_LIBREOFFICE_IMAGE_NAME=$(head -n 1 bbb-libreoffice/docker/Dockerfile | cut -d ' ' -f 2)" >> $GITHUB_ENV
+    - name: LIBREOFFICE CACHE - Restore bbb-libreoffice.tar from cache
+      id: libreoffice-cache
+      uses: actions/cache@v4
+      with:
+        path: bbb-libreoffice.tar
+        key: ${{ env.BBB_LIBREOFFICE_IMAGE_NAME }}
+    - name: LIBREOFFICE CACHE - Load docker image from bbb-libreoffice.tar
+      shell: bash
+      if: steps.libreoffice-cache.outputs.cache-hit == 'true'
+      run: docker load -i bbb-libreoffice.tar
+    - name: APT CACHE - Prepare directory and permissions
+      shell: bash
+      run: |
+        sudo mkdir -p /var/cache/apt/archives/partial
+        sudo chown -R "$USER":"$USER" /var/cache/apt
+        sudo chmod -R u+rwX /var/cache/apt
+    - name: APT CACHE - Restore from cache (if exists)
+      uses: actions/cache/restore@v4
+      with:
+        path: /var/cache/apt/archives
+        key: ${{ runner.os }}-apt-${{ hashFiles('bigbluebutton-config/bigbluebutton-release') }}
+        restore-keys: |
+              ${{ runner.os }}-apt-${{ hashFiles('bigbluebutton-config/bigbluebutton-release') }}
     - name: Generate CA
       shell: bash
       run: |
@@ -132,65 +163,7 @@ runs:
         sed -i "s|> /etc/apt/sources.list.d/bigbluebutton.list||g" bbb-install.sh
         chmod +x bbb-install.sh
 
-        COMMAND="./bbb-install.sh -v jammy-30-dev -s bbb-ci.test -j -d /certs/"
-        TIMEOUT=1500  # 25 minutes
-        MAX_RETRIES=3
-        RETRY_INTERVAL=60
-        RETRY_COUNT=0
-        SUCCESS=0
-
-        while [[ $RETRY_COUNT -lt $MAX_RETRIES ]]; do
-          echo "Attempt $((RETRY_COUNT + 1)) of $MAX_RETRIES to install BBB..."
-
-          # Run the command with timeout and handle its exit code
-          # Capture both stdout and stderr
-          COMMAND_EXIT_CODE=0
-          timeout $TIMEOUT $COMMAND || COMMAND_EXIT_CODE=$?
-
-          if [[ $COMMAND_EXIT_CODE -eq 0 ]]; then
-            SUCCESS=1
-            break
-          elif [[ $COMMAND_EXIT_CODE -eq 124 ]]; then
-            echo "Installation timed out after ${TIMEOUT} seconds. Retrying..."
-          else
-            echo "Installation failed with exit code $COMMAND_EXIT_CODE"
-            echo "Retrying installation within $RETRY_INTERVAL seconds..."
-            sleep $RETRY_INTERVAL
-          fi
-
-          echo "Check if there is some process still locking:1"
-          ps aux | grep -E 'dpkg|apt'
-
-          echo "Stop any ongoing processes related to apt-get or dpkg that might be stuck"
-          # Use -q to suppress "no process found" messages
-          # Kill any apt-get or dpkg processes that might be hanging
-          killall -9 -q apt-get || true
-          killall -9 -q dpkg || true
-
-          echo "Remove the lock files that may have been left behind"
-          # Group lock file removal for better readability
-          rm -f /var/lib/dpkg/lock-frontend
-          rm -f /var/lib/dpkg/lock
-          rm -f /var/cache/apt/archives/lock
-          rm -f /var/cache/debconf/config.dat
-
-          echo "Reconfigure the package manager"
-          dpkg --configure -a
-
-          echo "Clean up any partially installed packages"
-          apt-get clean
-          apt-get autoremove
-
-          echo "Check if there is some process still locking:2"
-          ps aux | grep -E 'dpkg|apt'
-
-          RETRY_COUNT=$((RETRY_COUNT + 1))
-        done
-
-        if [[ $SUCCESS -eq 0 ]]; then
-          echo "All attempts to install BBB failed."
-          exit 1
-        fi
+        ./bbb-install.sh -v jammy-30-dev -s bbb-ci.test -j -d /certs/
 
         bbb-conf --salt bbbci
         sed -i "s/\"minify\": true,/\"minify\": false,/" /usr/share/etherpad-lite/settings.json

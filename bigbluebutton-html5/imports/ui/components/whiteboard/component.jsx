@@ -1,6 +1,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useRef, useCallback, useState } from 'react';
+import { defineMessages } from 'react-intl';
 import { isEqual } from 'radash';
 import {
   Tldraw,
@@ -35,11 +36,13 @@ import {
   getDifferences,
 } from './utils';
 import { useMouseEvents, useCursor } from './hooks';
-import { notifyShapeNumberExceeded, getCustomEditorAssetUrls, getCustomAssetUrls } from './service';
+import {
+  notifyShapeNumberExceeded, getCustomEditorAssetUrls, getCustomAssetUrls,
+  debouncedUpdateShapes, sanitizeShape,
+} from './service';
 import NoopTool from './custom-tools/noop-tool/component';
 import DeleteSelectedItemsTool from './custom-tools/delete-selected-items/component';
 import SessionStorage from '/imports/ui/services/storage/session';
-import { defineMessages } from 'react-intl';
 
 const CAMERA_TYPE = 'camera';
 const colorStyles = [
@@ -86,13 +89,6 @@ const createLookup = (arr) => arr.reduce((acc, entry) => {
   acc[entry.id] = entry;
   return acc;
 }, {});
-
-const sanitizeShape = (shape) => {
-  const { isModerator, questionType, ...rest } = shape;
-  return {
-    ...rest,
-  };
-};
 
 const defaultUser = {
   userId: '',
@@ -341,30 +337,6 @@ const Whiteboard = React.memo((props) => {
     }
   };
 
-  const debouncedUpdateShapes = debounce(() => {
-    if (shapes && Object.keys(shapes).length > 0) {
-      prevShapesRef.current = shapes;
-      tlEditorRef.current?.store.mergeRemoteChanges(() => {
-        const remoteShapesArray = Object.values(prevShapesRef.current).reduce((acc, shape) => {
-          if (
-            shape.meta?.presentationId === presentationIdRef.current
-            || shape?.whiteboardId?.includes(presentationIdRef.current)
-          ) {
-            acc.push(sanitizeShape(shape));
-          }
-          return acc;
-        }, []);
-
-        if (pageChanged) {
-          tlEditorRef.current?.store.put(assets);
-          tlEditorRef.current?.store.put(bgShape);
-        }
-
-        tlEditorRef.current?.store.put(remoteShapesArray);
-      });
-    }
-  }, 175);
-
   const debouncedSetInitialZoom = debounce(() => {
     if (
       currentPresentationPageRef.current &&
@@ -468,7 +440,12 @@ const Whiteboard = React.memo((props) => {
   }, [fitToWidth]);
 
   React.useEffect(() => {
-    debouncedUpdateShapes();
+    if (shapes && Object.keys(shapes).length > 0) {
+      prevShapesRef.current = shapes;
+    }
+    debouncedUpdateShapes(
+      shapes, tlEditorRef, presentationIdRef, pageChanged, assets, bgShape,
+    );
   }, [shapes]);
 
   React.useEffect(() => {
