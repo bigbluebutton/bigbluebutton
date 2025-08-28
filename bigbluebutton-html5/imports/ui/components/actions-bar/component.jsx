@@ -162,11 +162,12 @@ class ActionsBar extends PureComponent {
       && selectedLayout !== LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY;
     const shouldShowVideoButton = selectedLayout !== LAYOUT_TYPE.PRESENTATION_ONLY
       && selectedLayout !== LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY;
+    const shouldRenderActionBar = selectedLayout !== LAYOUT_TYPE.PLUGINS_ONLY;
 
     const shouldShowOptionsButton = (isPresentationEnabled && isThereCurrentPresentation)
       || isSharingVideo || hasScreenshare || isSharedNotesPinned;
 
-    return (
+    return shouldRenderActionBar && (
       <Styled.ActionsBarWrapper
         id="ActionsBar"
         role="region"

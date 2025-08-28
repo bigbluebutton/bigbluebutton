@@ -6,6 +6,7 @@ export const LAYOUT_TYPE = {
   CAMERAS_ONLY: 'camerasOnly',
   PRESENTATION_ONLY: 'presentationOnly',
   PARTICIPANTS_AND_CHAT_ONLY: 'participantsAndChatOnly',
+  PLUGINS_ONLY: 'pluginsOnly',
   MEDIA_ONLY: 'mediaOnly',
 };
 
@@ -35,6 +36,7 @@ export const HIDDEN_LAYOUTS = [
   LAYOUT_TYPE.PRESENTATION_ONLY,
   LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY,
   LAYOUT_TYPE.MEDIA_ONLY,
+  LAYOUT_TYPE.PLUGINS_ONLY,
 ];
 
 export const LAYOUT_ELEMENTS = {

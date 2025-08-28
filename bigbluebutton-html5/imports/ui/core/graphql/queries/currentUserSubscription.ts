@@ -21,6 +21,7 @@ subscription userCurrentSubscription {
     inactivityWarningTimeoutSecs
     isDialIn
     isModerator
+    logoutUrl
     currentlyInMeeting
     joinErrorCode
     joinErrorMessage
@@ -38,6 +39,12 @@ subscription userCurrentSubscription {
     speechLocale
     captionLocale
     userId
+    meeting {
+      ended
+      endedReasonCode
+      endedByUserName
+      logoutUrl
+    }
     lastBreakoutRoom {
       currentlyInRoom
       sequence

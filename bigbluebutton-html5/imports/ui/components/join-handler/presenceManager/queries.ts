@@ -1,25 +1,11 @@
 import { gql } from '@apollo/client';
 
-export interface GetUserCurrentResponse {
+export interface GetGuestLobbyInfo {
   user_current: Array<{
-    userId: string;
-    authToken: string;
-    joined: boolean;
-    joinErrorCode: string;
-    joinErrorMessage: string;
-    ejectReasonCode: string;
-    loggedOut: boolean;
-    guestStatus: string;
     guestStatusDetails: {
       guestLobbyMessage: string | null;
       positionInWaitingQueue: number;
       isAllowed: boolean;
-    } | null;
-    meeting: {
-      ended: boolean;
-      endedReasonCode: string;
-      endedByUserName: string;
-      logoutUrl: string;
     };
   }>;
 }
@@ -52,31 +38,12 @@ query getUserInfo {
     customLogoUrl
     customDarkLogoUrl
   }
-  user_current {
-    extId
-    name
-    userId
-  }
 }
 `;
 
-export const getUserCurrent = gql`
-subscription getUserCurrent {
+export const getGuestLobbyInfo = gql`
+subscription getGuestLobbyInfo {
     user_current {
-      userId
-      authToken
-      joinErrorCode
-      joinErrorMessage
-      joined
-      ejectReasonCode
-      loggedOut
-      guestStatus
-      meeting {
-        ended
-        endedReasonCode
-        endedByUserName
-        logoutUrl
-      }
       guestStatusDetails {
         guestLobbyMessage
         positionInWaitingQueue
@@ -95,7 +62,6 @@ mutation UserJoin($authToken: String!, $clientType: String!, $clientIsMobile: Bo
 }
 `;
 export default {
-  getUserCurrent,
   userJoinMutation,
   getUserInfo,
 };
