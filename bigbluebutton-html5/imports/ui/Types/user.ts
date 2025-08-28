@@ -28,7 +28,7 @@ export interface BreakoutRoomsSummary {
   totalOfJoinURL: number;
 }
 
-export interface Meeting {
+export interface UserMeeting {
   ended: boolean;
   endedReasonCode: string;
   endedByUserName: string;
@@ -116,7 +116,7 @@ export interface User {
   userLockSettings: userLockSettings;
   sessionCurrent: sessionCurrent;
   livekit?: Livekit;
-  meeting: Meeting;
+  meeting: UserMeeting;
 }
 
 export interface UserBasicInfo {
