@@ -1179,13 +1179,16 @@ class VideoPreview extends Component {
     } = window.meetingClientSettings.public.virtualBackgrounds;
     
     return (
-      <VirtualBgSelector
-        handleVirtualBgSelected={this.handleVirtualBgSelected}
-        locked={isStartSharingDisabled}
-        showThumbnails={SHOW_THUMBNAILS}
-        initialVirtualBgState={initialVirtualBgState}
-        isCustomVirtualBackgroundsEnabled={isCustomVirtualBackgroundsEnabled}
-      />
+      <Styled.Fragment>
+        <VirtualBgSelector
+          handleVirtualBgSelected={this.handleVirtualBgSelected}
+          locked={isStartSharingDisabled}
+          showThumbnails={SHOW_THUMBNAILS}
+          initialVirtualBgState={initialVirtualBgState}
+          isCustomVirtualBackgroundsEnabled={isCustomVirtualBackgroundsEnabled}
+          renderSettingsLabel={false}
+        />
+      </Styled.Fragment>
     );
   }
 

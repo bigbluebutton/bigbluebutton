@@ -406,6 +406,10 @@ const StopAllButton = styled(Button)`
   height: 2.5rem;
 `;
 
+const Fragment = styled.div`
+  overflow-y: scroll;
+`;
+
 export default {
   Warning,
   Main,
@@ -442,4 +446,5 @@ export default {
   MarkerDynamic,
   MarkerWrapper,
   MarkerDynamicWrapper,
+  Fragment,
 };
