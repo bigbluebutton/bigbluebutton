@@ -34,7 +34,7 @@ export const setDarkTheme = (value) => {
       { brightness: 100, contrast: 90, sepia: 0 },
       {
         invert,
-        ignoreInlineStyle: [Styled.DtfCss],
+        ignoreInlineStyle: [Styled.DtfCss, Styled.DtfAvatars],
         ignoreImageAnalysis: [Styled.DtfImages],
       },
     );

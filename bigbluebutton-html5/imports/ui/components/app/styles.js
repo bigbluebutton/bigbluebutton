@@ -145,6 +145,20 @@ const DtfCss = `
   .tl-arrow-label__inner
 `;
 
+const DtfAvatars = `
+  [data-test="moderatorAvatar"],
+  [data-test="viewerAvatar"],
+  [data-test="moderatorAvatar"] *,
+  [data-test="viewerAvatar"] *,
+  div[class*="avatar"],
+  div[class*="Avatar"],
+  div[class*="talking"],
+  div[class*="Talking"],
+  div[class*="pulse"],
+  *[style*="animation"],
+  *[style*="box-shadow"]
+`;
+
 const DtfImages = `
   svg
 `;
@@ -155,5 +169,6 @@ export default {
   DtfInvert,
   DtfBrandingInvert,
   DtfCss,
+  DtfAvatars,
   DtfImages,
 };
