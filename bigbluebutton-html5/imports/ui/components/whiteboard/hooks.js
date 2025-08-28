@@ -105,7 +105,6 @@ const useMouseEvents = ({
   const handleMouseDownWindow = (event) => {
     const { target } = event;
     const editor = tlEditorRef.current;
-    const presentationInnerWrapper = document.getElementById('presentationInnerWrapper');
     const presentationInnerWrapper = isPresentationDetached ?
       popupWindow.document.getElementById('presentationInnerWrapper') :
       document.getElementById('presentationInnerWrapper');
