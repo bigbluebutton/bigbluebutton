@@ -12,6 +12,7 @@ import {
   toggleMuteMicrophoneSystem,
 } from '/imports/ui/components/audio/audio-graphql/audio-controls/input-stream-live-selector/service';
 import useIsAudioConnected from '/imports/ui/components/audio/audio-graphql/hooks/useIsAudioConnected';
+import meetingStaticData from '../../core/singletons/meetingStaticData';
 
 const MUTED_KEY = 'muted';
 export const CLIENT_DID_USER_SELECT_MICROPHONE_KEY = 'clientUserSelectedMicrophone';
@@ -33,7 +34,8 @@ export const didUserSelectListenOnly = () => (
   !!Storage.getItem(CLIENT_DID_USER_SELECT_LISTEN_ONLY_KEY)
 );
 
-const recoverMicState = (toggleVoice, isBreakout, parentId) => {
+const recoverMicState = (toggleVoice) => {
+  const meetingStaticStore = meetingStaticData.getMeetingData();
   const recover = (storageKey) => {
     const muted = Storage.getItem(storageKey);
 
@@ -47,6 +49,9 @@ const recoverMicState = (toggleVoice, isBreakout, parentId) => {
     toggleVoice(Auth.userID, muted);
   };
 
+  const isBreakout = meetingStaticStore?.isBreakout;
+  const parentId = meetingStaticStore?.breakoutPolicies?.parentId;
+
   const meetingId = isBreakout && parentId
     ? parentId
     : Auth.meetingID;
@@ -55,14 +60,14 @@ const recoverMicState = (toggleVoice, isBreakout, parentId) => {
   recover(storageKey);
 };
 
-const audioEventHandler = (toggleVoice, isBreakout, parentId) => (event) => {
+const audioEventHandler = (toggleVoice) => (event) => {
   if (!event) {
     return;
   }
 
   switch (event.name) {
     case 'started':
-      if (!event.isListenOnly) recoverMicState(toggleVoice, isBreakout, parentId);
+      if (!event.isListenOnly) recoverMicState(toggleVoice);
       break;
     default:
       break;
@@ -77,8 +82,6 @@ const init = (
   voiceConf,
   username,
   bridges,
-  isBreakout = false,
-  parentId = null,
 ) => {
   AudioManager.setAudioMessages(messages, intl);
   if (AudioManager.initialized) return Promise.resolve(false);
@@ -96,7 +99,7 @@ const init = (
     speechLocale,
   };
 
-  return AudioManager.init(userData, audioEventHandler(toggleVoice, isBreakout, parentId), bridges);
+  return AudioManager.init(userData, audioEventHandler(toggleVoice), bridges);
 };
 
 // This hooks should only be used to determine whether there's a system audio

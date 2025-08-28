@@ -11,6 +11,7 @@ import {
   setUserSelectedMicrophone,
   setUserSelectedListenOnly,
 } from '/imports/ui/components/audio/service';
+import meetingStaticData from '/imports/ui/core/singletons/meetingStaticData';
 
 const MUTED_KEY = 'muted';
 const DEVICE_LABEL_MAX_LENGTH = 40;
@@ -49,9 +50,8 @@ const toggleMute = (
   muted: boolean,
   toggleVoice: (userId: string, muted: boolean) => void,
   actionType = 'user_action',
-  isBreakout: boolean = false,
-  parentId: string,
 ) => {
+  const meetingStaticStore = meetingStaticData.getMeetingData();
   const toggle = (storageKey: string) => {
     if (muted) {
       if (AudioManager.inputDeviceId === 'listen-only') {
@@ -76,6 +76,9 @@ const toggleMute = (
     }
   };
 
+  const parentId = meetingStaticStore?.breakoutPolicies.parentId || '';
+  const isBreakout = meetingStaticStore?.isBreakout || false;
+
   const meetingId = isBreakout && parentId
     ? parentId
     : Auth.meetingID;
@@ -94,46 +97,25 @@ const toggleMuteMicrophoneDebounced = debounce(toggleMuteMicrophoneThrottled, TO
 
 export const toggleMuteMicrophone = (
   muted: boolean,
-  toggleVoice: (userId: string, muted: boolean, isBreakout: boolean, parentId: string) => void,
-  isBreakout: boolean = false,
-  parentId: string = '',
+  toggleVoice: (userId: string, muted: boolean) => void,
 ) => {
-  return toggleMuteMicrophoneDebounced(muted, toggleVoice, isBreakout, parentId);
+  return toggleMuteMicrophoneDebounced(muted, toggleVoice);
 };
 
 // Debounce is not needed here, as this function should only called by the system.
 export const toggleMuteMicrophoneSystem = (
   muted: boolean,
   toggleVoice: (userId: string, muted: boolean) => void,
-  isBreakout: boolean,
-  parentId: string,
 ) => {
-  return toggleMute(muted, toggleVoice, 'system_action', isBreakout, parentId);
+  return toggleMute(muted, toggleVoice, 'system_action');
 };
 
-export const getToggleMuteMicrophone = (isBreakout: boolean, parentId: string) => {
-  return [
-    (muted: boolean, toggleVoice: (userId: string, muted: boolean) => void) => {
-      return toggleMuteMicrophone(muted, toggleVoice, isBreakout, parentId);
-    },
-    (muted: boolean, toggleVoice: (userId: string, muted: boolean) => void) => {
-      return toggleMuteMicrophoneSystem(muted, toggleVoice, isBreakout, parentId);
-    },
-  ];
+export const startPushToTalk = (toggleVoice: (userId: string, muted: boolean) => void) => {
+  toggleMute(true, toggleVoice);
 };
 
-export const startPushToTalk = (
-  toggleVoice: (userId: string, muted: boolean) => void,
-  callback: (mute: boolean, toggleVoice: (userId: string, muted: boolean) => void) => void,
-) => {
-  callback(true, toggleVoice);
-};
-
-export const stopPushToTalk = (
-  toggleVoice: (userId: string, muted: boolean) => void,
-  callback: (mute: boolean, toggleVoice: (userId: string, muted: boolean) => void) => void,
-) => {
-  callback(false, toggleVoice);
+export const stopPushToTalk = (toggleVoice: (userId: string, muted: boolean) => void) => {
+  toggleMute(false, toggleVoice);
 };
 
 export const truncateDeviceName = (deviceName: string) => {
@@ -210,5 +192,4 @@ export default {
   setSpeakerLevel,
   startPushToTalk,
   stopPushToTalk,
-  getToggleMuteMicrophone,
 };

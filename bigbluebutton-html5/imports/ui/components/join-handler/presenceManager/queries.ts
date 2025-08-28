@@ -10,37 +10,6 @@ export interface GetGuestLobbyInfo {
   }>;
 }
 
-export interface GetUserInfoResponse {
-  meeting: Array<{
-    meetingId: string;
-    name: string;
-    logoutUrl: string;
-    bannerColor: string;
-    bannerText: string;
-    customLogoUrl: string;
-    customDarkLogoUrl: string;
-  }>;
-  user_current: Array<{
-    extId: string;
-    name: string;
-    userId: string;
-  }>;
-}
-
-export const getUserInfo = gql`
-query getUserInfo {
-  meeting {
-    meetingId
-    name
-    logoutUrl
-    bannerColor
-    bannerText
-    customLogoUrl
-    customDarkLogoUrl
-  }
-}
-`;
-
 export const getGuestLobbyInfo = gql`
 subscription getGuestLobbyInfo {
     user_current {
@@ -63,5 +32,4 @@ mutation UserJoin($authToken: String!, $clientType: String!, $clientIsMobile: Bo
 `;
 export default {
   userJoinMutation,
-  getUserInfo,
 };

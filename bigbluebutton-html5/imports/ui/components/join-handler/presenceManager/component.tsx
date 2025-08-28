@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from '@apollo/client';
+import { useMutation } from '@apollo/client';
 import React, { useContext, useEffect, useState } from 'react';
 import Bowser from 'bowser';
 import { isBrowserSupported } from 'livekit-client';
@@ -6,8 +6,6 @@ import Session from '/imports/ui/services/storage/in-memory';
 import {
   GetGuestLobbyInfo,
   getGuestLobbyInfo,
-  getUserInfo,
-  GetUserInfoResponse,
   userJoinMutation,
 } from './queries';
 import { setAuthData } from '/imports/ui/core/local-states/useAuthData';
@@ -20,6 +18,7 @@ import deviceInfo from '/imports/utils/deviceInfo';
 import GuestWaitContainer, { GUEST_STATUSES } from '../guest-wait/component';
 import Legacy from '/imports/ui/components/legacy/component';
 import PluginTopLevelManager from '/imports/ui/components/plugin-top-level-manager/component';
+import meetingStaticData from '/imports/ui/core/singletons/meetingStaticData';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 
 const connectionTimeout = 60000;
@@ -244,29 +243,15 @@ const PresenceManagerContainer: React.FC<PresenceManagerContainerProps> = ({ chi
     skip: !!currentUserLoading || !!currentUserErrors || (!!currentUserData && currentUserData.guestStatus === 'ALLOW'),
   });
 
-  const {
-    loading: userInfoLoading,
-    error: userInfoError,
-    data: userInfoData,
-  } = useQuery<GetUserInfoResponse>(getUserInfo);
+  const meetingStaticStore = meetingStaticData.getMeetingData();
 
   const loadingContextInfo = useContext(LoadingContext);
-  if (userInfoLoading) return null;
-  if (error || userInfoError) {
+  if (error) {
     loadingContextInfo.setLoading(false);
     logger.debug(`Error on user authentication: ${error}`);
   }
 
-  if (
-    !userInfoLoading
-    && (userInfoData?.meeting.length === 0)
-  ) {
-    throw new Error('Meeting Not Found.', { cause: 'meeting_not_found' });
-  }
-
-  if (!currentUserData) return null;
-  if (!userInfoData
-      || userInfoData.meeting.length === 0) return null;
+  if (!currentUserData || !meetingStaticStore) return null;
   const {
     authToken,
     joinErrorCode,
@@ -291,7 +276,7 @@ const PresenceManagerContainer: React.FC<PresenceManagerContainerProps> = ({ chi
     bannerText,
     customLogoUrl,
     customDarkLogoUrl,
-  } = userInfoData.meeting[0];
+  } = meetingStaticStore;
 
   const MIN_BROWSER_CONFIG = window.meetingClientSettings.public.minBrowserVersions;
   const userAgent = window.navigator?.userAgent;
