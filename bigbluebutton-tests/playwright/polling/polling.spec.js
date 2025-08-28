@@ -7,8 +7,8 @@ test.describe('Polling', { tag: '@ci' }, async () => {
   const polling = new Polling();
 
   test.describe.configure({ mode: fullyParallel ? 'parallel' : 'serial' });
-  test[fullyParallel ? 'beforeEach' : 'beforeAll'](async ({ browser }) => {
-    await initializePages(polling, browser, { isMultiUser: true });
+  test[fullyParallel ? 'beforeEach' : 'beforeAll'](async ({ browser }, testInfo) => {
+    await initializePages(polling, browser, { isMultiUser: true, testInfo });
   });
 
   // Manage

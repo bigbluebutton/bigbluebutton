@@ -7,8 +7,8 @@ const { checkIsPresenter } = require('../user/util');
 const { createMeeting } = require('../core/helpers');
 
 class Stress {
-  constructor(browser, context, page) {
-    this.modPage = new Page(browser, page);
+  constructor(browser, context, page, testInfo) {
+    this.modPage = new Page(browser, page, testInfo);
     this.browser = browser;
     this.context = context;
     this.userPages = [];
@@ -121,7 +121,7 @@ class Stress {
     })
   }
 
-  async usersJoinExceddingParticipantsLimit() {
+  async usersJoinExceedingParticipantsLimit() {
     for (let i = 1; i <= c.JOIN_TWO_USERS_EXCEEDING_MAX_PARTICIPANTS; i++) {
       console.log(`loop ${i} of ${c.JOIN_TWO_USERS_EXCEEDING_MAX_PARTICIPANTS}`);
 

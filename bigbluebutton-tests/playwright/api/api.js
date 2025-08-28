@@ -13,8 +13,8 @@ function getMeetingInfo(meetingID) {
 }
 
 class API {
-  constructor(browser, context, page) {
-    this.modPage = new Page(browser, page);
+  constructor(browser, context, page, testInfo) {
+    this.modPage = new Page(browser, page, testInfo);
     this.browser = browser;
     this.context = context;
     this.userPages = [];
