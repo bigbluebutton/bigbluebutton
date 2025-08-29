@@ -29,7 +29,6 @@ class LockViewers extends MultiUsers {
     await this.initUserPage2(true);
     await this.userPage2.hasElementDisabled(e.joinVideo, 'should the join video button to be disabled for the second attendee');
     await this.modPage.waitAndClick(`${e.moreOptionsUserItemButton}>>nth=1`);
-    //await this.modPage.waitAndClick(e.moreOptionsUserItemButton);
     await this.modPage.waitAndClick(`${e.unlockUserButton}>>nth=1`);
     await this.userPage2.waitAndClick(e.joinVideo);
     await this.userPage2.waitAndClick(e.startSharingWebcam);
