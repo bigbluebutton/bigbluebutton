@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"hash/crc32"
+	"strings"
 	"sync"
 	"time"
 
@@ -140,6 +141,8 @@ func handleMessageReceivedFromHasura(hc *common.HasuraConnection, message []byte
 							if connectionStatusMessage.TraceLog != "" {
 								newTrace := fmt.Sprintf("%s@pg|%s@gqlmiddleware|%s", connectionStatusMessage.TraceLog, connectionStatusMessage.StatusUpdatedAt, now.Format("2006-01-02T15:04:05.000Z"))
 								hc.BrowserConn.Logger.Infof("Received %s meetingId=%s userId=%s", newTrace, connectionStatusMessage.MeetingId, connectionStatusMessage.UserId)
+
+								go includePromotheusMetrics(newTrace, connectionStatusMessage.MeetingId, hc.BrowserConn.Logger)
 
 								message = bytes.Replace(message, []byte(connectionStatusMessage.TraceLog), []byte(newTrace), 1)
 							}
@@ -289,4 +292,81 @@ func getHasuraMessage(message []byte, subscription common.GraphQlSubscription, l
 	}
 
 	return dataChecksum, dataKey, hasuraMessage
+}
+
+func includePromotheusMetrics(traceLog string, meetingId string, logger *logrus.Entry) {
+	traceLogApplications := strings.Split(traceLog, "@")
+	traceLogApplications = traceLogApplications[1:] // ignore first item `traceLog`
+
+	var prevApplication string
+	var prevTime time.Time
+	var firstTime time.Time
+	for i, applicationTraceLog := range traceLogApplications {
+		// split "app|timestamp"
+		sub := strings.Split(applicationTraceLog, "|")
+		if len(sub) != 2 {
+			continue
+		}
+		applicationName := sub[0]
+		applicationDate := sub[1]
+
+		if currTime, timeParseErr := getTime(applicationDate); timeParseErr == nil {
+			if i == 0 {
+				firstTime = currTime
+				prevApplication = applicationName
+				prevTime = currTime
+				continue
+			} else {
+				// diff in ms
+				diff := currTime.Sub(prevTime).Milliseconds()
+				fmt.Printf("%s->%s took %dms\n", prevApplication, applicationName, diff)
+				logger.Debugf("%s->%s took %dms\n", prevApplication, applicationName, diff)
+
+				// Add Prometheus metrics
+				common.ApplicationsLatency.
+					With(prometheus.Labels{
+						"application": fmt.Sprintf("%d-%s", i, applicationName),
+					}).
+					Observe(float64(diff))
+
+				prevApplication = applicationName
+				prevTime = currTime
+			}
+
+			prevApplication = applicationName
+			prevTime = currTime
+		}
+	}
+
+	// Add Prometheus metrics
+	diffTotal := prevTime.Sub(firstTime).Milliseconds()
+	common.ApplicationsLatency.
+		With(prometheus.Labels{
+			"application": "end-to-end",
+		}).
+		Observe(float64(diffTotal))
+}
+
+func getTime(ts string) (time.Time, error) {
+	// try different timestamp layouts
+	layouts := []string{
+		time.RFC3339Nano,
+		time.RFC3339,
+		"2006-01-02T15:04:05.999999999Z07:00", // generic
+	}
+
+	var t time.Time
+	var err error
+	for _, l := range layouts {
+		t, err = time.Parse(l, ts)
+		if err == nil {
+			break
+		}
+	}
+	if err != nil {
+		fmt.Printf("error on parse timestamp %s: %v\n", ts, err)
+		return t, err
+	}
+
+	return t, nil
 }
