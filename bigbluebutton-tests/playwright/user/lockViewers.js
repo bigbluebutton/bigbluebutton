@@ -146,10 +146,12 @@ class LockViewers extends MultiUsers {
     await this.modPage.waitAndClick(e.applyLockSettings);
     // join second user
     await this.initUserPage2();
-    await this.modPage.waitAndClick(`${e.moreOptionsUserItemButton}>>nth=0`);
-    await this.modPage.waitAndClick(`${e.unlockUserButton}>>nth=0`);
+    const attendeeRow = await this.modPage.getLocator(e.userListItem).first();
+    await attendeeRow.locator(e.moreOptionsUserItemButton).click();
+    await this.modPage.waitAndClick(e.unlockUserButton);
     await this.userPage.waitAndClick(e.usersListSidebarButton);
-    await this.userPage.waitAndClick(`${e.startPrivateChat}>>nth=1`);
+    const userStartPrivateChat = await this.userPage.getLocator(e.userListItem).last();
+    await userStartPrivateChat.locator(e.startPrivateChat).click();
     await this.userPage.hasElementEnabled(e.chatBox, 'should have the private chat enabled for the first attendee');
     await this.userPage.hasElementEnabled(e.sendButton, 'should have the send button on the private chat enabled for the first attendee');
     await this.userPage.type(e.chatBox, 'Test');
@@ -187,8 +189,9 @@ class LockViewers extends MultiUsers {
     await this.userPage.waitAndClick(e.sharedNotesSidebarButton);
     await this.userPage.wasRemoved(e.etherpadFrame, 'should not display the etherpad frame for the first attendee');
 
-    await this.modPage.waitAndClick(`${e.moreOptionsUserItemButton}>>nth=1`);
-    await this.modPage.waitAndClick(`${e.unlockUserButton}>>nth=1`);
+    const attendeeRow = await this.modPage.getLocator(e.userListItem).first();
+    await attendeeRow.locator(e.moreOptionsUserItemButton).click();
+    await this.modPage.waitAndClick(e.unlockUserButton);
   }
 
   async lockSeeOtherViewersUserList() {
@@ -202,9 +205,10 @@ class LockViewers extends MultiUsers {
     await this.userPage.waitAndClick(e.usersListSidebarButton);
     await this.userPage.hasElementCount(e.userListItem, 1, 'should contain one user on the user list for the first attendee');
 
-    await this.modPage.waitAndClick(`${e.moreOptionsUserItemButton}>>nth=1`);
-    await this.modPage.waitAndClick(`${e.unlockUserButton}>>nth=1`);
-    await this.userPage2.hasElementCount(e.userListItem, 2, 'should contain two users on the user list for the second attendee');
+    const attendeeRow = await this.modPage.getLocator(e.userListItem).first();
+    await attendeeRow.locator(e.moreOptionsUserItemButton).click();
+    await this.modPage.waitAndClick(e.unlockUserButton);
+    await this.userPage.hasElementCount(e.userListItem, 2, 'should contain two users on the user list for the first attendee');
   }
 
   async lockSeeOtherViewersAnnotations() {
@@ -250,8 +254,9 @@ class LockViewers extends MultiUsers {
     await sleep(1000);  // expected timeout for cursor indicator to disappear
     await expect(user2WbLocator, 'should not display the new annotation for the other viewer').toHaveScreenshot('viewer2-no-rectangle.png', screenshotOptions);
     // unlock user2
-    await this.modPage.waitAndClick(`${e.moreOptionsUserItemButton}>>nth=1`);
-    await this.modPage.waitAndClick(`${e.unlockUserButton}>>nth=1`);
+    const attendee2Row = await this.modPage.getLocator(e.userListItem).last();
+    await attendee2Row.locator(e.moreOptionsUserItemButton).click();
+    await this.modPage.getLocator(e.unlockUserButton).last().click();
     // check if previous annotations is displayed after unlocking user
     await this.userPage2.hasElement(e.wbDrawnArrow, 'should display the arrow drawn before user join');
     await this.userPage2.hasElement(e.wbDrawnShape, 'should display the rectangle drawn before unlocking user');
@@ -286,8 +291,9 @@ class LockViewers extends MultiUsers {
       'should contain no whiteboard cursor indicator for the second attendee when joining a meeting with the setting locked'
     );
     // Unlock user2
-    await this.modPage.waitAndClick(`${e.moreOptionsUserItemButton}>>nth=1`);
-    await this.modPage.waitAndClick(`${e.unlockUserButton}>>nth=1`);
+    const attendee2Row = await this.modPage.getLocator(e.userListItem).last();
+    await attendee2Row.locator(e.moreOptionsUserItemButton).click();
+    await this.modPage.getLocator(e.unlockUserButton).last().click();
     await sleep(1000);  // ensure the unlock settings are applied
     await this.modPage.getLocator(e.whiteboard).hover(); // hover modPage cursor on the whiteboard to ensure a new location
     await this.modPage.getLocator(e.messagesSidebarButton).hover(); // ensure modPage cursor WILL NOT be visible on the screenshot
