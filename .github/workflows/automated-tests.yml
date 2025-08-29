@@ -259,7 +259,7 @@ jobs:
       - uses: actions/setup-node@v4
         name: PLAYRIGHT CACHE - Restore Playright node modules from cache
         with:
-          cache: 'npm'
+          cache: "npm"
           cache-dependency-path: bigbluebutton-tests/playwright/package-lock.json
       - name: PLAYRIGHT CACHE - Restore Playright binaries from cache
         id: cache
@@ -318,7 +318,7 @@ jobs:
         name: Upload logs folder
         uses: actions/upload-artifact@v4
         with:
-          name: browser-logs
+          name: browser-logs-${{ matrix.shard }}
           path: bigbluebutton-tests/playwright/logs
       - if: failure()
         name: Prepare artifacts
@@ -385,10 +385,10 @@ jobs:
       - name: PLAYRIGHT CACHE (Plugins SDK) - Restore Playright node modules from cache
         uses: actions/setup-node@v4
         with:
-          cache: 'npm'
+          cache: "npm"
           cache-dependency-path: |
-                bigbluebutton-tests/bigbluebutton-html-plugin-sdk/package-lock.json
-                bigbluebutton-tests/bigbluebutton-html-plugin-sdk/samples/**/package-lock.json
+            bigbluebutton-tests/bigbluebutton-html-plugin-sdk/package-lock.json
+            bigbluebutton-tests/bigbluebutton-html-plugin-sdk/samples/**/package-lock.json
       - name: PLAYRIGHT CACHE - Restore Playright binaries from cache
         id: cache
         uses: actions/cache@v4
@@ -475,6 +475,7 @@ jobs:
         with:
           name: browser-logs-plugin
           path: bigbluebutton-tests/bigbluebutton-html-plugin-sdk/logs
+          if-no-files-found: ignore
       - if: failure()
         name: Prepare artifacts
         uses: ./.github/actions/prepare-artifacts
