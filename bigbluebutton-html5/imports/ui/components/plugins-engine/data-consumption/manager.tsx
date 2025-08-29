@@ -14,7 +14,7 @@ import LoadedUserListHookContainer from './domain/users/loaded-user-list/hook-ma
 import CurrentUserHookContainer from './domain/users/current-user/hook-manager';
 import CustomSubscriptionHookContainer from './domain/shared/custom-subscription/hook-manager';
 
-import { ObjectToCustomHookContainerMap, HookWithArgumentsContainerProps, HookWithArgumentContainerToRender } from './domain/shared/custom-subscription/types';
+import { HookWithArgumentsContainerProps, HookWithArgumentContainerToRender, ObjectToCustomHookContainerMap } from './domain/shared/custom-subscription/types';
 import CurrentPresentationHookContainer from './domain/presentations/current-presentation/hook-manager';
 import LoadedChatMessagesHookContainer from './domain/chat/loaded-chat-messages/hook-manager';
 import TalkingIndicatorHookContainer from './domain/user-voice/talking-indicator/hook-manager';
@@ -24,6 +24,7 @@ import { User } from '/imports/ui/Types/user';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { Meeting } from '/imports/ui/Types/meeting';
 import MeetingHookContainer from './domain/meeting/from-core/hook-manager';
+import { EssentialHookInformation } from './domain/shared/types';
 
 const hooksMap:{
   [key: string]: React.FunctionComponent<GeneralHookManagerProps>
@@ -44,13 +45,13 @@ const HooksMapWithArguments:{
 
 const PluginDataConsumptionManager: React.FC = () => {
   const [
-    hookUtilizationCount,
-    setHookUtilizationCount,
-  ] = useState(new Map<string, number>());
+    hookInfo,
+    setHookInfo,
+  ] = useState(new Map<string, EssentialHookInformation>());
 
   const [
-    hookWithArgumentUtilizationCount,
-    setHookWithArgumentUtilizationCount,
+    hookWithArgumentInfo,
+    setHookWithArgumentInfo,
   ] = useState(new Map<string, Map<string, ObjectToCustomHookContainerMap>>());
 
   useEffect(() => {
@@ -58,27 +59,31 @@ const PluginDataConsumptionManager: React.FC = () => {
       hookName: string, delta: number, hookArguments?: CustomSubscriptionArguments,
     ): void => {
       if (hookName !== DataConsumptionHooks.CUSTOM_SUBSCRIPTION) {
-        setHookUtilizationCount((mapObj) => {
-          const newMap = new Map<string, number>(mapObj.entries());
-          newMap.set(hookName, (mapObj.get(hookName) || 0) + delta);
+        setHookInfo((mapObj) => {
+          const newMap = new Map<string, EssentialHookInformation>(mapObj.entries());
+          const current = newMap.get(hookName) || { count: 0, version: 0 };
+          newMap.set(hookName, { count: current.count + delta, version: current.version + 1 });
           return newMap;
         });
       } else {
-        setHookWithArgumentUtilizationCount((mapObj) => {
+        setHookWithArgumentInfo((mapObj) => {
           if (hookArguments) {
             const hookArgumentsAsKey = makeCustomHookIdentifierFromArgs(hookArguments);
             // Create object from the hook with argument
-            const mapToBeSet = new Map<string, ObjectToCustomHookContainerMap>(mapObj.get(hookName)?.entries());
+            const mapToBeSet = new Map<string, ObjectToCustomHookContainerMap>((mapObj.get(hookName)?.entries() || []));
+            const current = mapToBeSet.get(hookArgumentsAsKey) || { count: 0, version: 0, hookArguments };
             mapToBeSet.set(hookArgumentsAsKey, {
-              count: (mapObj.get(hookName)?.get(hookArgumentsAsKey)?.count || 0) + delta,
+              count: current.count + delta,
+              version: current.version + 1,
               hookArguments,
-            } as ObjectToCustomHookContainerMap);
+            });
 
             // Create new map with argument
             const newMap = new Map<string, Map<string, ObjectToCustomHookContainerMap>>(mapObj.entries());
             newMap.set(hookName, mapToBeSet);
             return newMap;
-          } return mapObj;
+          }
+          return mapObj;
         });
       }
     };
@@ -112,13 +117,14 @@ const PluginDataConsumptionManager: React.FC = () => {
 
   const HooksWithArgumentContainerToRun: HookWithArgumentContainerToRender[] = [];
   Object.keys(HooksMapWithArguments).forEach((hookName) => {
-    if (hookWithArgumentUtilizationCount.get(hookName)) {
-      hookWithArgumentUtilizationCount.get(hookName)?.forEach((object) => {
+    if (hookWithArgumentInfo.get(hookName)) {
+      hookWithArgumentInfo.get(hookName)?.forEach((object) => {
         if (object.count > 0) {
           HooksWithArgumentContainerToRun.push({
             componentToRender: HooksMapWithArguments[hookName],
             hookArguments: object.hookArguments,
             numberOfUses: object.count,
+            version: object.version,
           });
         }
       });
@@ -145,18 +151,18 @@ const PluginDataConsumptionManager: React.FC = () => {
     <>
       {
         Object.keys(hooksMap)
-          .filter((hookName: string) => hookUtilizationCount.get(hookName)
-            && hookUtilizationCount.get(hookName)! > 0)
+          .filter((hookName: string) => hookInfo.get(hookName)
+            && hookInfo.get(hookName)!.count > 0)
           .map((hookName: string) => {
             let data;
             const HookComponent = hooksMap[hookName];
             if (hookName === DataConsumptionHooks.CURRENT_USER) data = currentUser;
             if (hookName === DataConsumptionHooks.MEETING) data = meetingInformation;
-            const countOfUses = hookUtilizationCount.get(hookName) || 0;
+            const usage = hookInfo.get(hookName)!;
             return (
               <HookComponent
-                numberOfUses={countOfUses}
-                key={hookName}
+                numberOfUses={usage.count}
+                key={`${hookName}-${usage.version}`}
                 data={data}
               />
             );
@@ -168,7 +174,7 @@ const PluginDataConsumptionManager: React.FC = () => {
           return (
             <HookComponent
               numberOfUses={hookWithArguments.numberOfUses}
-              key={makeCustomHookIdentifierFromArgs(hookWithArguments.hookArguments)}
+              key={`${makeCustomHookIdentifierFromArgs(hookWithArguments.hookArguments)}-${hookWithArguments.version}`}
               hookArguments={hookWithArguments.hookArguments}
             />
           );
