@@ -29,6 +29,7 @@ const ConnectionStatus = ({
     { skip: !user.presenter },
   );
 
+  // Log application rtt
   useEffect(() => {
     if (connectionStatusData
       && 'user_connectionStatus' in connectionStatusData
@@ -39,6 +40,7 @@ const ConnectionStatus = ({
         const firstClientTraceLog = traceLogApplications[1].split('|');
         const firstClientTraceLogDate = new Date(firstClientTraceLog[1]);
         const now = new Date();
+        const diffBetweenSentAndNow = now - firstClientTraceLogDate;
         logger.debug({
           logCode: 'stats_application_rtt',
           extraInfo: {
@@ -46,7 +48,17 @@ const ConnectionStatus = ({
             networkRttInMs: connectionStatusCurrentData?.networkRttInMs,
             traceLog: `${connectionStatusCurrentData?.traceLog}@client|${new Date().toISOString()}`,
           },
-        }, `Metrics - Current application RTT is ${now - firstClientTraceLogDate}`);
+        }, `Metrics - Current application RTT is ${diffBetweenSentAndNow}`);
+        if (diffBetweenSentAndNow > 2000) {
+          logger.error({
+            logCode: 'stats_application_rtt',
+            extraInfo: {
+              applicationRttInMs: now - firstClientTraceLogDate,
+              networkRttInMs: connectionStatusCurrentData?.networkRttInMs,
+              traceLog: `${connectionStatusCurrentData?.traceLog}@client|${new Date().toISOString()}`,
+            },
+          }, `Application RTT is very high: ${diffBetweenSentAndNow}`);
+        }
       }
     }
   }, [connectionStatusData]);
