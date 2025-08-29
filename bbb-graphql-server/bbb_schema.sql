@@ -792,13 +792,31 @@ CREATE UNLOGGED TABLE "user_connectionStatus" (
     "connectionAliveAt" timestamp with time zone,
     "networkRttInMs" numeric,
     "status" varchar(25),
+    "traceLog" varchar(500),
     "statusUpdatedAt" timestamp with time zone,
     CONSTRAINT "user_connectionStatus_pkey" PRIMARY KEY ("meetingId","userId"),
     FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
 );
 create index "idx_user_connectionStatus_pk_reverse" on "user_connectionStatus"("userId", "meetingId");
 
+-- populate statusUpdatedAt
+CREATE OR REPLACE FUNCTION "update_statusUpdatedAt"()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW."statusUpdatedAt" := NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER "trigger_update_statusUpdatedAt"
+BEFORE INSERT OR UPDATE ON "user_connectionStatus"
+FOR EACH ROW
+EXECUTE FUNCTION "update_statusUpdatedAt"();
+
+
 create view "v_user_connectionStatus" as select * from "user_connectionStatus";
+
+
 
 
 --Populate connectionAliveAtMaxIntervalMs to calc clientNotResponding

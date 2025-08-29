@@ -1,10 +1,13 @@
 import React, { useEffect, useRef } from 'react';
 import { useMutation } from '@apollo/client';
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import { UPDATE_CONNECTION_ALIVE_AT } from './mutations';
+import { CONNECTION_STATUS_SUBSCRIPTION } from './queries';
 import {
   handleAudioStatsEvent,
 } from '/imports/ui/components/connection-status/service';
 import connectionStatus from '../../core/graphql/singletons/connectionStatus';
+import PropTypes from 'prop-types';
 
 import getBaseUrl from '/imports/ui/core/utils/getBaseUrl';
 import useCurrentUser from '../../core/hooks/useCurrentUser';
@@ -20,6 +23,33 @@ const ConnectionStatus = ({
   const timeoutRef = useRef(null);
 
   const [updateConnectionAliveAtM] = useMutation(UPDATE_CONNECTION_ALIVE_AT);
+
+  const { data: connectionStatusData } = useDeduplicatedSubscription(
+    CONNECTION_STATUS_SUBSCRIPTION,
+    { skip: !user.presenter },
+  );
+
+  useEffect(() => {
+    if (connectionStatusData
+      && 'user_connectionStatus' in connectionStatusData
+      && connectionStatusData.user_connectionStatus.length > 0) {
+      const connectionStatusCurrentData = connectionStatusData.user_connectionStatus[0];
+      if ((connectionStatusCurrentData?.traceLog ?? '') !== '') {
+        const traceLogApplications = connectionStatusCurrentData?.traceLog.split('@');
+        const firstClientTraceLog = traceLogApplications[1].split('|');
+        const firstClientTraceLogDate = new Date(firstClientTraceLog[1]);
+        const now = new Date();
+        logger.debug({
+          logCode: 'stats_application_rtt',
+          extraInfo: {
+            applicationRttInMs: now - firstClientTraceLogDate,
+            networkRttInMs: connectionStatusCurrentData?.networkRttInMs,
+            traceLog: `${connectionStatusCurrentData?.traceLog}@client|${new Date().toISOString()}`,
+          },
+        }, `Metrics - Current application RTT is ${now - firstClientTraceLogDate}`);
+      }
+    }
+  }, [connectionStatusData]);
 
   const setErrorOnRtt = (error) => {
     logger.error({
@@ -46,13 +76,16 @@ const ConnectionStatus = ({
       .then((res) => {
         if (res.ok && res.status === 200) {
           try {
+            const traceLog = user.presenter ? `traceLog@client|${new Date().toISOString()}` : '';
             const rttLevels = window.meetingClientSettings.public.stats.rtt;
             const endTime = performance.now();
             const networkRtt = Math.round(endTime - startTime);
             networkRttInMs.current = networkRtt;
+
             updateConnectionAliveAtM({
               variables: {
                 networkRttInMs: networkRtt,
+                traceLog,
               },
             });
             const rttStatus = getStatus(rttLevels, networkRtt);
@@ -128,6 +161,17 @@ const ConnectionStatus = ({
   return null;
 };
 
+ConnectionStatus.propTypes = {
+  user: PropTypes.shape({
+    userId: PropTypes.string.isRequired,
+    avatar: PropTypes.string,
+    isModerator: PropTypes.bool,
+    presenter: PropTypes.bool,
+    color: PropTypes.string,
+    currentlyInMeeting: PropTypes.bool,
+  }).isRequired,
+};
+
 const ConnectionStatusContainer = () => {
   const {
     data,
@@ -136,6 +180,7 @@ const ConnectionStatusContainer = () => {
     userId: u.userId,
     avatar: u.avatar,
     isModerator: u.isModerator,
+    presenter: u.presenter,
     color: u.color,
     currentlyInMeeting: u.currentlyInMeeting,
   }));

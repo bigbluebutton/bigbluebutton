@@ -16,6 +16,21 @@ trait UserConnectionAliveReqMsgHdlr extends RightsManagementTrait {
   def handleUserConnectionAliveReqMsg(msg: UserConnectionAliveReqMsg): Unit = {
     log.info("handleUserConnectionAliveReqMsg: networkRttInMs={} userId={}", msg.body.networkRttInMs, msg.body.userId)
 
+    val traceLog = {
+      if (msg.body.traceLog != "") {
+        log.info(
+          "Received {} meetingId={} userId={}",
+          msg.body.traceLog,
+          liveMeeting.props.meetingProp.intId,
+          msg.body.userId
+        )
+
+        msg.body.traceLog + "@bbbapps|" + java.time.Instant.now().toString
+      } else {
+        ""
+      }
+    }
+
     for {
       user <- Users2x.findWithIntId(liveMeeting.users2x, msg.body.userId)
     } yield {
@@ -26,7 +41,7 @@ trait UserConnectionAliveReqMsgHdlr extends RightsManagementTrait {
 
       val status = getLevelFromRtt(msg.body.networkRttInMs)
 
-      UserConnectionStatusDAO.updateUserAlive(user.meetingId, user.intId, rtt, status)
+      UserConnectionStatusDAO.updateUserAlive(user.meetingId, user.intId, rtt, status, traceLog)
     }
   }
 

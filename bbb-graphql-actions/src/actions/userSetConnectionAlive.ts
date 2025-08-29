@@ -5,6 +5,7 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
   throwErrorIfInvalidInput(input,
       [
         {name: 'networkRttInMs', type: 'number', required: true},
+        {name: 'traceLog', type: 'string', required: false},
       ]
   )
 
@@ -15,16 +16,25 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
     userId: sessionVariables['x-hasura-userid'] as String
   };
 
-  const header = { 
+  const header = {
     name: eventName,
     meetingId: routing.meetingId,
     userId: routing.userId
   };
 
+  var traceLog = '';
+  if('traceLog' in input && input.traceLog != null && input.traceLog != '') {
+    console.info(`Received ${input.traceLog} meetingId=${routing.meetingId} userId=${routing.userId}`);
+    traceLog = input.traceLog + '@gqlactions|' + new Date().toISOString();
+  }
+
   const body = {
     userId: routing.userId,
-    networkRttInMs: input.networkRttInMs
+    networkRttInMs: input.networkRttInMs,
+    traceLog
   };
+
+
 
   return { eventName, routing, header, body };
 }
