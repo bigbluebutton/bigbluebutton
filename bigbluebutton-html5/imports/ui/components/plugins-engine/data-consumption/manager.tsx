@@ -28,6 +28,7 @@ import { ObjectToCustomQueryHookContainerMap, QueryHookWithArgumentContainerToRe
 import CustomQueryHookContainer from './domain/shared/custom-query/hook-manager';
 import CustomDataConsumptionHooksErrorBoundary from './error-boundary/handler';
 import UsersBasicInfoHookContainer from './domain/users/users-basic-info/hook-manager';
+import { EssentialHookInformation } from './domain/shared/types';
 
 const hooksMap:{
   [key: string]: React.FunctionComponent<GeneralHookManagerProps>
@@ -55,18 +56,18 @@ const QueryHooksMapWithArguments: {
 
 const PluginDataConsumptionManager: React.FC = () => {
   const [
-    hookUtilizationCount,
-    setHookUtilizationCount,
-  ] = useState(new Map<string, number>());
+    hookInfo,
+    setHookInfo,
+  ] = useState(new Map<string, EssentialHookInformation>());
 
   const [
-    subscriptionHookWithArgumentUtilizationCount,
-    setSubscriptionHookWithArgumentUtilizationCount,
+    subscriptionHookWithArgumentInfo,
+    setSubscriptionHookWithArgumentInfo,
   ] = useState(new Map<string, Map<string, ObjectToCustomSubscriptionHookContainerMap>>());
 
   const [
-    queryHookWithArgumentUtilizationCount,
-    setQueryHookWithArgumentUtilizationCount,
+    queryHookWithArgumentInfo,
+    setQueryHookWithArgumentInfo,
   ] = useState(new Map<string, Map<string, ObjectToCustomQueryHookContainerMap>>());
 
   useEffect(() => {
@@ -81,9 +82,9 @@ const PluginDataConsumptionManager: React.FC = () => {
           hookArguments = detail.hookArguments as DataConsumptionArguments;
         }
         updateHookUsage(
-          setHookUtilizationCount,
-          setSubscriptionHookWithArgumentUtilizationCount,
-          setQueryHookWithArgumentUtilizationCount,
+          setHookInfo,
+          setSubscriptionHookWithArgumentInfo,
+          setQueryHookWithArgumentInfo,
           event.detail.hook, 1, hookArguments,
         );
       }) as EventListener;
@@ -98,9 +99,9 @@ const PluginDataConsumptionManager: React.FC = () => {
           hookArguments = detail.hookArguments as DataConsumptionArguments;
         }
         updateHookUsage(
-          setHookUtilizationCount,
-          setSubscriptionHookWithArgumentUtilizationCount,
-          setQueryHookWithArgumentUtilizationCount,
+          setHookInfo,
+          setSubscriptionHookWithArgumentInfo,
+          setQueryHookWithArgumentInfo,
           event.detail.hook, -1, hookArguments,
         );
       }) as EventListener;
@@ -115,13 +116,14 @@ const PluginDataConsumptionManager: React.FC = () => {
 
   const SubscriptionHooksWithArgumentContainerToRun: SubscriptionHookWithArgumentContainerToRender[] = [];
   Object.keys(SubscriptionHooksMapWithArguments).forEach((hookName) => {
-    if (subscriptionHookWithArgumentUtilizationCount.get(hookName)) {
-      subscriptionHookWithArgumentUtilizationCount.get(hookName)?.forEach((object) => {
+    if (subscriptionHookWithArgumentInfo.get(hookName)) {
+      subscriptionHookWithArgumentInfo.get(hookName)?.forEach((object) => {
         if (object.count > 0) {
           SubscriptionHooksWithArgumentContainerToRun.push({
             componentToRender: SubscriptionHooksMapWithArguments[hookName],
             hookArguments: object.hookArguments,
             numberOfUses: object.count,
+            version: object.version,
           });
         }
       });
@@ -130,13 +132,13 @@ const PluginDataConsumptionManager: React.FC = () => {
 
   const QueryHooksWithArgumentContainerToRun: QueryHookWithArgumentContainerToRender[] = [];
   Object.keys(QueryHooksMapWithArguments).forEach((hookName) => {
-    if (queryHookWithArgumentUtilizationCount.get(hookName)) {
-      queryHookWithArgumentUtilizationCount.get(hookName)?.forEach((object) => {
+    if (queryHookWithArgumentInfo.get(hookName)) {
+      queryHookWithArgumentInfo.get(hookName)?.forEach((object) => {
         if (object.count > 0) {
           QueryHooksWithArgumentContainerToRun.push({
             componentToRender: QueryHooksMapWithArguments[hookName],
             hookArguments: object.hookArguments,
-            numberOfUses: object.count,
+            version: object.version,
           });
         }
       });
@@ -163,18 +165,18 @@ const PluginDataConsumptionManager: React.FC = () => {
     <>
       {
         Object.keys(hooksMap)
-          .filter((hookName: string) => hookUtilizationCount.get(hookName)
-            && hookUtilizationCount.get(hookName)! > 0)
+          .filter((hookName: string) => hookInfo.get(hookName)
+            && hookInfo.get(hookName)!.count > 0)
           .map((hookName: string) => {
             let data;
             const HookComponent = hooksMap[hookName];
             if (hookName === DataConsumptionHooks.CURRENT_USER) data = currentUser;
             if (hookName === DataConsumptionHooks.MEETING) data = meetingInformation;
-            const countOfUses = hookUtilizationCount.get(hookName) || 0;
+            const usage = hookInfo.get(hookName)!;
             return (
               <HookComponent
-                numberOfUses={countOfUses}
-                key={hookName}
+                numberOfUses={usage.count}
+                key={`${hookName}-${usage.version}`}
                 data={data}
               />
             );
@@ -185,13 +187,15 @@ const PluginDataConsumptionManager: React.FC = () => {
           const HookComponent = hookWithArguments.componentToRender;
           return (
             <CustomDataConsumptionHooksErrorBoundary
-              key={makeCustomHookIdentifierFromArgs(hookWithArguments.hookArguments)}
+              key={`${makeCustomHookIdentifierFromArgs(hookWithArguments.hookArguments)}-${hookWithArguments.version}`}
               hookWithArguments={hookWithArguments}
               dataConsumptionHook={DataConsumptionHooks.CUSTOM_SUBSCRIPTION}
-              setDataConsumptionHookWithArgumentUtilizationCount={setSubscriptionHookWithArgumentUtilizationCount}
+              setDataConsumptionHookWithArgumentUtilizationCount={setSubscriptionHookWithArgumentInfo}
             >
               <HookComponent
-                key={makeCustomHookIdentifierFromArgs(hookWithArguments.hookArguments)}
+                key={
+                  `${makeCustomHookIdentifierFromArgs(hookWithArguments.hookArguments)}-${hookWithArguments.version}`
+                }
                 numberOfUses={hookWithArguments.numberOfUses}
                 hookArguments={hookWithArguments.hookArguments}
               />
@@ -204,16 +208,18 @@ const PluginDataConsumptionManager: React.FC = () => {
           const HookComponent = hookWithArguments.componentToRender;
           return (
             <CustomDataConsumptionHooksErrorBoundary
-              key={makeCustomHookIdentifierFromArgs(hookWithArguments.hookArguments)}
+              key={`${makeCustomHookIdentifierFromArgs(hookWithArguments.hookArguments)}-${hookWithArguments.version}`}
               hookWithArguments={hookWithArguments}
               dataConsumptionHook={DataConsumptionHooks.CUSTOM_QUERY}
-              setDataConsumptionHookWithArgumentUtilizationCount={setQueryHookWithArgumentUtilizationCount}
+              setDataConsumptionHookWithArgumentUtilizationCount={setQueryHookWithArgumentInfo}
             >
               <HookComponent
-                key={makeCustomHookIdentifierFromArgs(hookWithArguments.hookArguments)}
+                key={
+                  `${makeCustomHookIdentifierFromArgs(hookWithArguments.hookArguments)}-${hookWithArguments.version}`
+                }
                 hookArguments={hookWithArguments.hookArguments}
                 resolveQuery={() => {
-                  updateHookUsage(() => {}, () => {}, setQueryHookWithArgumentUtilizationCount,
+                  updateHookUsage(() => {}, () => {}, setQueryHookWithArgumentInfo,
                     DataConsumptionHooks.CUSTOM_QUERY, -1, hookWithArguments.hookArguments);
                 }}
               />
