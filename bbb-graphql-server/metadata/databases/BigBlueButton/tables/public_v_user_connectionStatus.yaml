@@ -37,6 +37,7 @@ select_permissions:
         - networkRttInMs
         - status
         - statusUpdatedAt
+        - traceLog
         - userId
       filter:
         _and:
