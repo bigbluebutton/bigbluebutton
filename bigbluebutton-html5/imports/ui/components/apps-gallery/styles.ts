@@ -51,7 +51,12 @@ const PinnedAppsWrapper = styled.div`
 const UnpinnedAppsWrapper = PinnedAppsWrapper;
 
 const AppTitle = styled.div`
-  flex-grow: 1;
+  flex: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 const RegisteredAppContent = styled.div`
@@ -91,6 +96,7 @@ const ClickableArea = styled.div`
   align-items: center;
   gap: ${lgPadding};
   cursor: pointer;
+  overflow: hidden;
 
   &:hover > ${OpenButton} {
     filter: brightness(90%);
