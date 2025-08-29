@@ -51,13 +51,13 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
     test.skip(browserName === 'firefox', 'Firefox does not support download.')
     const presentation = new Presentation(browser, context);
     await presentation.initPages(page, testInfo);
-    await presentation.presentationSnapshot(testInfo);
+    await presentation.presentationSnapshot();
   });
 
   test('Hide Presentation Toolbar', async ({ browser, context, page }, testInfo) => {
     const presentation = new Presentation(browser, context);
     await presentation.initModPage(page, true, { testInfo });
-    await presentation.initUserPage(page, context, { testInfo });
+    await presentation.initUserPage(true, context, { testInfo });
     await presentation.hidePresentationToolbar();
   });
 

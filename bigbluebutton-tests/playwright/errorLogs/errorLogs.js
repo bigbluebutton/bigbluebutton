@@ -11,11 +11,6 @@ class ErrorLogs extends MultiUsers {
     super(browser, context);
   }
 
-  async initErrorLogsPages() {
-    await this.initModPage(page1, true, { testInfo, forceErrorLogFailure: true });
-    await this.initUserPage(true, this.context, { testInfo, forceErrorLogFailure: true });
-  }
-
   monitorErrorLogs() {
     // avoid double thrown errors (default function already throws error based on env.CONSOLE_FAIL)
     if (env.CONSOLE_FAIL === 'true') return;

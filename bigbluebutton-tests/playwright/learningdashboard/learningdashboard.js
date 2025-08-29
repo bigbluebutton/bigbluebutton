@@ -22,7 +22,7 @@ class LearningDashboard extends MultiUsers {
     ]);
 
     await expect(dashboardPage).toHaveTitle(/Dashboard/);
-    this.dashboardPage = new Page(this.modPage.context, dashboardPage);
+    this.dashboardPage = new Page(this.modPage.context, dashboardPage, this.modPage.testInfo);
   }
 
   async writeOnPublicChat() {
@@ -155,12 +155,12 @@ class LearningDashboard extends MultiUsers {
     await expect(userStatusCheck).toHaveText(/Online/, { timeout: ELEMENT_WAIT_EXTRA_LONG_TIME });
   }
 
-  async downloadSessionLearningDashboard(testInfo) {
+  async downloadSessionLearningDashboard() {
     await this.modPage.logoutFromMeeting();
     await this.modPage.waitAndClick('button');
 
     const downloadSessionLocator = this.dashboardPage.getLocator(e.downloadSessionLearningDashboard);
-    const dataCSV = await this.dashboardPage.handleDownload(downloadSessionLocator, testInfo);
+    const dataCSV = await this.dashboardPage.handleDownload(downloadSessionLocator, this.modPage.testInfo);
 
     const dataToCheck = [
       'Moderator',

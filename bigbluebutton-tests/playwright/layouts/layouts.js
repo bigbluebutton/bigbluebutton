@@ -123,8 +123,8 @@ class Layouts extends MultiUsers {
     for (let i = 1; i <= 5; i++) {
       const userName = `User-${i}`;
       const newPage = await this.getNewPageTab(browser);
-      const userPage = new Page(browser, newPage);
-      await userPage.init(false, true, { fullName: userName, meetingId: this.modPage.meetingId });
+      const userPage = new Page(browser, newPage, this.modPage.testInfo);
+      await userPage.init(false, true, { fullName: userName, meetingId: this.modPage.meetingId, testInfo: this.modPage.testInfo });
       await userPage.waitForSelector(e.whiteboard);
       await userPage.shareWebcam();
       pages.push(userPage);

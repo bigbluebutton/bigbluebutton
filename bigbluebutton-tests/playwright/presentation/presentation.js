@@ -407,11 +407,11 @@ class Presentation extends MultiUsers {
     await expect(heightFullscreen, 'should the height of the presentation fullscreen to be greater than the normal presentation height').toBeGreaterThan(height);
   }
 
-  async presentationSnapshot(testInfo) {
+  async presentationSnapshot() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.waitAndClick(e.whiteboardOptionsButton);
     const presentationSnapshotLocator = this.modPage.getLocator(e.presentationSnapshot);
-    await this.modPage.handleDownload(presentationSnapshotLocator, testInfo);
+    await this.modPage.handleDownload(presentationSnapshotLocator, this.modPage.testInfo);
   }
 
   async hidePresentationToolbar() {

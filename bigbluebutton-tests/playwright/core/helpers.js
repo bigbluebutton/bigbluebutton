@@ -137,10 +137,15 @@ async function sanitizeLog(msg, { colorize, drop_references } = {}) {
 }
 
 async function console_format(msg, CONSOLE_options) {
-  let sanitizedLog = await sanitizeLog(msg, {
-    colorize: true,
-    drop_references: true,
-  });
+  let sanitizedLog;
+  if (typeof msg === 'string') {
+    sanitizedLog = msg;
+  } else {
+    sanitizedLog = await sanitizeLog(msg, {
+      colorize: true,
+      drop_references: true,
+    });
+  }
 
   if (CONSOLE_options.drop_references) {
     // For Firefox, we "drop references" by discarding a URL at the end of the line

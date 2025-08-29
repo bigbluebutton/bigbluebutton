@@ -16,6 +16,7 @@ class Page {
     this.page = page;
     this.initParameters = Object.assign({}, parameters);
     this.logger = new Logger(this);
+    this.testInfo = testInfo || null;
     if (testInfo) {
       this.logger.setTestInfo(testInfo);
     }
@@ -30,7 +31,7 @@ class Page {
 
   async getLastTargetPage(context) {
     const contextPages = await context.pages();
-    return new Page(this.browser, contextPages[contextPages.length - 1]);
+    return new Page(this.browser, contextPages[contextPages.length - 1], this.testInfo);
   }
 
   async init(isModerator, shouldCloseAudioModal, initOptions) {
@@ -383,7 +384,7 @@ class Page {
     const iframeElement = await this.getLocator('iframe').elementHandle();
     const frame = await iframeElement.contentFrame();
     await frame.waitForURL(/youtube/, { timeout: ELEMENT_WAIT_TIME });
-    const ytFrame = new Page(this.page.browser, frame);
+    const ytFrame = new Page(this.page.browser, frame, this.testInfo);
     return ytFrame;
   }
 }

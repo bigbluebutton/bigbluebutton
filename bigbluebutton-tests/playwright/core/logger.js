@@ -8,6 +8,9 @@ class Logger {
     this.logsDir = path.join(__dirname, "../logs");
     this.logFiles = new Map();
     this.testInfo = null;
+    this.page?.once("close", () => {
+      try { this.#closeAll(); } catch (_) {}
+    });
   }
 
   static #getTimestamp() {
@@ -24,17 +27,15 @@ class Logger {
   }
 
   generateTestPath() {
-    if (!this?.testInfo?.outputDir) {
-      return "unknown-test";
-    }
-
-    return this.testInfo.outputDir.split('/').pop().toLowerCase();
+    if (!this?.testInfo?.outputDir) return "unknown-test";
+    return path.basename(this.testInfo.outputDir).toLowerCase();
   }
 
   getLogFile() {
     const testPath = this.generateTestPath();
     const logKey = `${testPath}:${this.pageInstance.username}`;
-    const sanitizedUsername = this?.pageInstance?.username.replace(/[^a-zA-Z0-9-_]/g, "_");
+    const username = this.pageInstance?.username || "unknown";
+    const sanitizedUsername = username.replace(/[^a-zA-Z0-9-_]/g, "_");
 
     if (!this.logFiles.has(logKey)) {
       const testDir = path.join(this.logsDir, testPath);
@@ -67,6 +68,13 @@ class Logger {
         logFile.write(`  ${line}\n`);
       });
     }
+  }
+
+  #closeAll() {
+    for (const s of this.logFiles.values()) {
+      try { s.end(); } catch (_) {}
+    }
+    this.logFiles.clear();
   }
 }
 

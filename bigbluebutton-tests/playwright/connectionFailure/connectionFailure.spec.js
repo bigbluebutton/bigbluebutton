@@ -10,7 +10,7 @@ const deepEqual = require('deep-equal');
 
 test.describe.parallel('Connection failure', () => {
   // https://docs.bigbluebutton.org/3.0/testing/release-testing/#sharing-screen-in-full-screen-mode-automated
-  test.only('Screen share', async ({ browser, browserName, page }, testInfo) => {
+  test('Screen share', async ({ browser, browserName, page }, testInfo) => {
     await checkRootPermission(); // check sudo permission before starting test
     test.skip(browserName === 'firefox',
       "Screenshare tests not able in Firefox browser without desktop",

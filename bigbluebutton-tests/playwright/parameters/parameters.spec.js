@@ -31,6 +31,7 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
   test('Max Participants', async ({ browser, context, page }, testInfo) => {
     const createParam = new CreateParameters(browser, context);
     await createParam.initModPage(page, true, { createParameter: c.maxParticipants, testInfo });
+    await createParam.initModPage2(true, context, { testInfo });
     await createParam.maxParticipants();
   });
 
@@ -42,7 +43,7 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
 
   test('Message Only To Moderators', async ({ browser, context, page }, testInfo) => {
     const createParam = new CreateParameters(browser, context);
-    await createParam.initModPage(page, true, { createParameter: c.moderatorOnlyMessage, testInfo });
+    await createParam.initModPage(page, true, { createParameter: encodeCustomParams(c.moderatorOnlyMessage), testInfo });
     await createParam.moderatorOnlyMessage();
   });
 
@@ -169,7 +170,7 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
   test.describe.parallel('Enforce Layout', () => {
     test('CUSTOM_LAYOUT', async ({ browser, context, page }, testInfo) => {
       const customParam = new CustomParameters(browser, context);
-      await customParam.initModPage(page, true, { createParameter: c.presentationFocus, joinParameter: c.enforceCustomLayout, testInfo, testInfo });
+      await customParam.initModPage(page, true, { createParameter: c.presentationFocus, joinParameter: c.enforceCustomLayout, testInfo });
       await customParam.initUserPage(true, context, { testInfo });
       await customParam.enforceCustomLayout();
     });
@@ -551,7 +552,7 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
     await customParam.webcamBackgroundURL();
   });
 
-  test('Logout URL', async ({ browser, context, page}) => {
+  test('Logout URL', async ({ browser, context, page }, testInfo) => {
     const customParam = new CustomParameters(browser, context);
     await customParam.initModPage(page, true, { joinParameter: c.logoutURL, testInfo });
     await customParam.logoutURLTest();
@@ -610,7 +611,7 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
       await customParam.hidePresentationOnJoinScreenshare();
     });
 
-    test('After Sharing External video', { tag: '@flaky' }, async({ browser, context, page }) => {
+    test('After Sharing External video', { tag: '@flaky' }, async({ browser, context, page }, testInfo) => {
       //requiring logged user to start external video on CI environment
       linkIssue(21589);
       const customParam = new CustomParameters(browser, context);
@@ -619,28 +620,28 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
       await customParam.hidePresentationOnJoinShareExternalVideo();
     });
 
-    test('After Pinning and unpinning shared notes', async({ browser, context, page }) => {
+    test('After Pinning and unpinning shared notes', async({ browser, context, page }, testInfo) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, true, { joinParameter: c.hidePresentationOnJoin, testInfo });
       await customParam.initUserPage(true, context, { useModMeetingId: true, joinParameter: c.hidePresentationOnJoin, testInfo });
       await customParam.hidePresentationOnJoinPinSharedNotes();
     });
 
-    test('After Changing Layout', async({ browser, context, page }) => {
+    test('After Changing Layout', async({ browser, context, page }, testInfo) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, true, { joinParameter: c.hidePresentationOnJoin, testInfo });
       await customParam.initUserPage(true, context, { useModMeetingId: true, joinParameter: c.hidePresentationOnJoin, testInfo });
       await customParam.hidePresentationOnJoinChangeLayout();
     });
 
-    test('After Returning from breakouts', async({ browser, context, page }) => {
+    test('After Returning from breakouts', async({ browser, context, page }, testInfo) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, true, { joinParameter: c.hidePresentationOnJoin, testInfo });
       await customParam.initUserPage(true, context, { useModMeetingId: true, joinParameter: c.hidePresentationOnJoin, testInfo });
       await customParam.hidePresentationOnJoinReturnFromBreakouts();
     });
 
-    test('After Uploading large presentation', async({ browser, context, page }) => {
+    test('After Uploading large presentation', async({ browser, context, page }, testInfo) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, true, { joinParameter: c.hidePresentationOnJoin, testInfo });
       await customParam.initUserPage(true, context, { useModMeetingId: true, joinParameter: c.hidePresentationOnJoin, testInfo });
@@ -651,7 +652,7 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
   test.describe.parallel('Presentation', () => {
     test('Force restore presentation on new events', async ({ browser, context, page }, testInfo) => {
       const customParam = new CustomParameters(browser, context);
-      await customParam.initModPage(page);
+      await customParam.initModPage(page, true, { testInfo });
       await customParam.initUserPage(true, context, { useModMeetingId: true, joinParameter: c.forceRestorePresentationOnNewEvents, testInfo });
       await customParam.forceRestorePresentationOnNewEvents();
     });

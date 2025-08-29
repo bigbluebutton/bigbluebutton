@@ -93,7 +93,7 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
 
     test('Give and remove whiteboard access', async ({ browser, context, page }, testInfo) => {
       const multiusers = new MultiUsers(browser, context);
-      await multiusers.initPages(page, true, { testInfo });
+      await multiusers.initPages(page, testInfo);
       await multiusers.giveAndRemoveWhiteboardAccess();
     });
 
@@ -106,7 +106,7 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
 
     test('Remove user and prevent rejoining', async ({ browser, context, page }, testInfo) => {
       const multiusers = new MultiUsers(browser, context);
-      await multiusers.initModPage(page, true, testInfo);
+      await multiusers.initModPage(page, true, { testInfo });
       await multiusers.initModPage2(true, context, { joinParameter: 'userID=Moderator2', testInfo });
       await multiusers.removeUserAndPreventRejoining(context);
     });

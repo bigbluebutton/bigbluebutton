@@ -28,7 +28,7 @@ async function validateEnvironmentAndAPI() {
     // Test the /create endpoint with a temporary meeting
     const testMeetingId = `validation-test-${Date.now()}`;
     const createUrl = helpers.createMeetingUrl(parameters, undefined, testMeetingId);
-    const createResponse = await requestContext.get(createUrl);
+    const createResponse = await requestContext.get(createUrl, { timeout: 15000 });
 
     if (!createResponse.ok()) {
       const msg = `Failed to validate /create endpoint. HTTP status: ${createResponse.status()}.`;
@@ -38,7 +38,7 @@ async function validateEnvironmentAndAPI() {
 
     // Test the /join endpoint (will return an error for non-existent meeting, but validates the endpoint works)
     const joinUrl = helpers.getJoinURL(testMeetingId, parameters, true);
-    const joinResponse = await requestContext.get(joinUrl);
+    const joinResponse = await requestContext.get(joinUrl, { timeout: 15000 });
 
     // For /join, we expect either success (200) or a valid BBB error response
     if (!joinResponse.ok() && joinResponse.status() !== 404) {

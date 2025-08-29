@@ -34,7 +34,7 @@ test.describe('Learning Dashboard', { tag: '@ci' } , async () => {
     await learningDashboard.overview();
   });
 
-  test('Download Session Learning Dashboard', async ({}, testInfo) => {
-    await learningDashboard.downloadSessionLearningDashboard(testInfo);
+  test('Download Session Learning Dashboard', async () => {
+    await learningDashboard.downloadSessionLearningDashboard();
   });  
 });
