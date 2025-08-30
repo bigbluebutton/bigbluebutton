@@ -885,14 +885,15 @@ const Whiteboard = React.memo((props) => {
   };
 
   const getContainerDimensions = () => {
-    const container = document.querySelector('[data-test="presentationContainer"]');
-    const innerWrapper = document.getElementById('presentationInnerWrapper');
-    //const container = isPresentationDetached ?
-    //  popupWindow.document.querySelector('[data-test="presentationContainer"]') :
-    //  document.querySelector('[data-test="presentationContainer"]');
-    //const innerWrapper = isPresentationDetached ?
-    //  popupWindow.document.getElementById('presentationInnerWrapper') :
-    //  document.getElementById('presentationInnerWrapper');
+    // This change affects the behaviour when resize and fullscreen the popupWindow.
+    //const container = document.querySelector('[data-test="presentationContainer"]');
+    //const innerWrapper = document.getElementById('presentationInnerWrapper');
+    const container = isPresentationDetached ?
+      popupWindow.document.querySelector('[data-test="presentationContainer"]') :
+      document.querySelector('[data-test="presentationContainer"]');
+    const innerWrapper = isPresentationDetached ?
+      popupWindow.document.getElementById('presentationInnerWrapper') :
+      document.getElementById('presentationInnerWrapper');
     const containerWidth = container ? container.offsetWidth : 0;
     const innerWrapperWidth = innerWrapper ? innerWrapper.offsetWidth : 0;
     const widthGap = Math.max(containerWidth - innerWrapperWidth, 0);
@@ -1076,6 +1077,9 @@ const Whiteboard = React.memo((props) => {
     stableCount = 0,
     lastDimensions = { width: 0, height: 0 },
   ) => {
+    // This change affects the behaviour when resize and fullscreen the popupWindow.
+    //const container = document.querySelector('[data-test="presentationContainer"]');
+    //const innerWrapper = document.getElementById('presentationInnerWrapper');
     const container = isPresentationDetached ?
       popupWindow.document.querySelector('[data-test="presentationContainer"]') :
       document.querySelector('[data-test="presentationContainer"]');
@@ -2264,6 +2268,7 @@ Whiteboard.propTypes = {
   isInfiniteWhiteboard: PropTypes.bool,
   whiteboardWriters: PropTypes.arrayOf(PropTypes.shape).isRequired,
 };
+
 
 
 
