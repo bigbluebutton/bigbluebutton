@@ -483,16 +483,16 @@ class Presentation extends PureComponent {
       // When screenshare, sharing camera as contents, or sharing media is started,
       //  the contents of popup is removed, yet leaving a blank popup.
       //  -> fixed. This may not be necessary.
-      const observedTarget = popup.document.body;
-      const nullObserver = new MutationObserver(() => {
-        if (observedTarget.innerHTML.trim() === '<div></div>') {
-          console.log("Popup content removed. Closing...");
-          popup.close();
-          toggleDetachPresentation(null);
-          nullObserver.disconnect();
-        }
-      });
-      nullObserver.observe(observedTarget, { childList: true, subtree: true, characterData: true });
+      //const observedTarget = popup.document.body;
+      //const nullObserver = new MutationObserver(() => {
+      //  if (observedTarget.innerHTML.trim() === '<div></div>') {
+      //    console.log("Popup content removed. Closing...");
+      //    popup.close();
+      //    toggleDetachPresentation(null);
+      //    nullObserver.disconnect();
+      //  }
+      //});
+      //nullObserver.observe(observedTarget, { childList: true, subtree: true, characterData: true });
 
       toggleDetachPresentation(popup);
       popup.addEventListener('beforeunload', () => {
