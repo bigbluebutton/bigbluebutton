@@ -49,7 +49,6 @@ interface UserActionsProps {
   lockSettings: LockSettings;
   usersPolicies: UsersPolicies;
   isBreakout: boolean;
-  parentId: string;
   children: React.ReactNode;
   pageId: string;
   open: boolean;
@@ -220,7 +219,6 @@ const UserActions: React.FC<UserActionsProps> = ({
   userListDropdownItems,
   open,
   setOpenUserAction,
-  parentId,
 }) => {
   const intl = useIntl();
   const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
@@ -460,7 +458,7 @@ const UserActions: React.FC<UserActionsProps> = ({
       key: 'mute',
       label: intl.formatMessage(messages.MuteUserAudioLabel),
       onClick: () => {
-        toggleVoice(user.userId, true, voiceToggle, isBreakout, parentId);
+        toggleVoice(user.userId, true, voiceToggle);
         setOpenUserAction(null);
       },
       icon: 'mute',
@@ -472,7 +470,7 @@ const UserActions: React.FC<UserActionsProps> = ({
       key: 'unmute',
       label: intl.formatMessage(messages.UnmuteUserAudioLabel),
       onClick: () => {
-        toggleVoice(user.userId, false, voiceToggle, isBreakout, parentId);
+        toggleVoice(user.userId, false, voiceToggle);
         setOpenUserAction(null);
       },
       icon: 'unmute',

@@ -3,19 +3,16 @@ import { throttle } from '/imports/utils/throttle';
 import { layoutDispatch, layoutSelect, layoutSelectInput } from '/imports/ui/components/layout/context';
 import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
 import { INITIAL_INPUT_STATE } from '/imports/ui/components/layout/initState';
+
 import {
   ACTIONS,
-  PANELS,
   CAMERADOCK_POSITION,
 } from '/imports/ui/components/layout/enums';
 import { defaultsDeep } from '/imports/utils/array-utils';
 import Session from '/imports/ui/services/storage/in-memory';
 
-const windowWidth = () => window.document.documentElement.clientWidth;
-const windowHeight = () => window.document.documentElement.clientHeight;
-
-const ParticipantsAndChatOnlyLayout = (props) => {
-  const { bannerAreaHeight, isMobile } = props;
+const PluginsOnlyLayout = (props) => {
+  const { isMobile } = props;
 
   function usePrevious(value) {
     const ref = useRef();
@@ -34,7 +31,6 @@ const ParticipantsAndChatOnlyLayout = (props) => {
 
   const presentationInput = layoutSelectInput((i) => i.presentation);
 
-  const sidebarNavigationInput = layoutSelectInput((i) => i.sidebarNavigation);
   const sidebarContentInput = layoutSelectInput((i) => i.sidebarContent);
   const cameraDockInput = layoutSelectInput((i) => i.cameraDock);
   const actionbarInput = layoutSelectInput((i) => i.actionBar);
@@ -43,50 +39,19 @@ const ParticipantsAndChatOnlyLayout = (props) => {
 
   const prevDeviceType = usePrevious(deviceType);
 
-  const calculatesSidebarNavHeight = (navbarHeight, actionbarHeight) => {
-    let sidebarNavHeight = 0;
-    if (isMobile) {
-      sidebarNavHeight = windowHeight() - navbarHeight - bannerAreaHeight() - actionbarHeight;
-    } else {
-      sidebarNavHeight = windowHeight() - bannerAreaHeight() - navbarHeight - actionbarHeight;
-    }
-    return sidebarNavHeight;
-  };
+  const calculatesSidebarNavHeight = () => 0;
 
-  const calculatesSidebarContentHeight = (navbarHeight, actionbarHeight) => {
-    let height = 0;
-    let minHeight = 0;
-    let maxHeight = 0;
-    height = windowHeight() - bannerAreaHeight() - navbarHeight - actionbarHeight;
-    minHeight = height;
-    maxHeight = height;
-    return {
-      height,
-      minHeight,
-      maxHeight,
-    };
-  };
+  const calculatesSidebarContentHeight = () => ({
+    height: 0,
+    minHeight: 0,
+    maxHeight: 0,
+  });
 
-  const calculatesSidebarContentWidth = (sidebarNavWidth) => {
-    let minWidth = 0;
-    let width = 0;
-    let maxWidth = 0;
-
-    if (isMobile) {
-      minWidth = windowWidth();
-      width = windowWidth();
-      maxWidth = windowWidth();
-    } else {
-      minWidth = windowWidth() - sidebarNavWidth;
-      width = windowWidth() - sidebarNavWidth;
-      maxWidth = windowWidth() - sidebarNavWidth;
-    }
-    return {
-      minWidth,
-      width,
-      maxWidth,
-    };
-  };
+  const calculatesSidebarContentWidth = () => ({
+    minWidth: 0,
+    width: 0,
+    maxWidth: 0,
+  });
 
   const calculatesCameraDockBounds = () => {
     const cameraDockBounds = {};
@@ -104,38 +69,14 @@ const ParticipantsAndChatOnlyLayout = (props) => {
     return cameraDockBounds;
   };
 
-  const calculatesMediaBounds = (mediaAreaBounds, sidebarSize) => {
-    const mediaBounds = {};
-    const { element: fullscreenElement } = fullscreen;
-
-    if (
-      fullscreenElement === 'Presentation'
-      || fullscreenElement === 'Screenshare'
-      || fullscreenElement === 'ExternalVideo'
-      || fullscreenElement === 'GenericContent'
-    ) {
-      mediaBounds.width = windowWidth();
-      mediaBounds.height = windowHeight();
-      mediaBounds.top = 0;
-      mediaBounds.left = !isRTL ? 0 : null;
-      mediaBounds.right = isRTL ? 0 : null;
-      mediaBounds.zIndex = 99;
-      return mediaBounds;
-    }
-
-    if (isMobile && cameraDockInput.numCameras > 0) {
-      mediaBounds.height = mediaAreaBounds.height * 0.7;
-    } else {
-      mediaBounds.height = mediaAreaBounds.height;
-    }
-    mediaBounds.width = mediaAreaBounds.width;
-    mediaBounds.top = DEFAULT_VALUES.navBarHeight + bannerAreaHeight();
-    mediaBounds.left = !isRTL ? mediaAreaBounds.left : null;
-    mediaBounds.right = isRTL ? sidebarSize : null;
-    mediaBounds.zIndex = 1;
-
-    return mediaBounds;
-  };
+  const calculatesMediaBounds = () => ({
+    width: 0,
+    height: 0,
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 0,
+  });
 
   const calculatesLayout = () => {
     const {
@@ -149,21 +90,19 @@ const ParticipantsAndChatOnlyLayout = (props) => {
     const { captionsMargin } = DEFAULT_VALUES;
 
     const sidebarNavWidth = calculatesSidebarNavWidth();
-    const sidebarContentWidth = calculatesSidebarContentWidth(sidebarNavWidth.width);
+    const sidebarContentWidth = calculatesSidebarContentWidth();
     const sidebarNavBounds = calculatesSidebarNavBounds();
     const sidebarContentBounds = calculatesSidebarContentBounds(sidebarNavWidth.width);
     const mediaAreaBounds = {
-      width: sidebarNavWidth.width + sidebarContentWidth.width,
+      width: 0,
       left: 0,
     };
     const navbarBounds = calculatesNavbarBounds(mediaAreaBounds);
     const actionbarBounds = calculatesActionbarBounds(mediaAreaBounds);
-    const sidebarNavHeight = calculatesSidebarNavHeight(navbarBounds.height,
-      actionbarBounds.height);
+    const sidebarNavHeight = calculatesSidebarNavHeight();
     const sidebarSize = sidebarContentWidth.width + sidebarNavWidth.width;
-    const mediaBounds = calculatesMediaBounds(mediaAreaBounds, sidebarSize);
-    const sidebarContentHeight = calculatesSidebarContentHeight(navbarBounds.height,
-      actionbarBounds.height);
+    const mediaBounds = calculatesMediaBounds();
+    const sidebarContentHeight = calculatesSidebarContentHeight();
     const cameraDockBounds = calculatesCameraDockBounds();
     const { isOpen } = presentationInput;
 
@@ -200,14 +139,14 @@ const ParticipantsAndChatOnlyLayout = (props) => {
       value: {
         left: !isRTL ? sidebarSize + captionsMargin : null,
         right: isRTL ? sidebarSize + captionsMargin : null,
-        maxWidth: mediaAreaBounds.width - captionsMargin * 2,
+        maxWidth: mediaAreaBounds.width,
       },
     });
 
     layoutContextDispatch({
       type: ACTIONS.SET_SIDEBAR_NAVIGATION_OUTPUT,
       value: {
-        display: sidebarNavigationInput.isOpen,
+        display: false,
         minWidth: sidebarNavWidth.minWidth,
         width: sidebarNavWidth.width,
         maxWidth: sidebarNavWidth.maxWidth,
@@ -365,7 +304,7 @@ const ParticipantsAndChatOnlyLayout = (props) => {
     50, { trailing: true, leading: true });
 
   useEffect(() => {
-    window.addEventListener('resize', () => {
+    const handleWindowResize = () => {
       layoutContextDispatch({
         type: ACTIONS.SET_BROWSER_SIZE,
         value: {
@@ -373,7 +312,11 @@ const ParticipantsAndChatOnlyLayout = (props) => {
           height: window.document.documentElement.clientHeight,
         },
       });
-    });
+    };
+    window.addEventListener('resize', handleWindowResize);
+    return () => {
+      window.removeEventListener('resize', handleWindowResize);
+    };
   }, []);
 
   const init = () => {
@@ -381,18 +324,15 @@ const ParticipantsAndChatOnlyLayout = (props) => {
     layoutContextDispatch({
       type: ACTIONS.SET_LAYOUT_INPUT,
       value: (prevInput) => {
-        const { sidebarContent, presentation } = prevInput;
-        const { sidebarContentPanel } = sidebarContent;
-        const sidebarContentPanelOverride = sidebarContentPanel === PANELS.NONE
-          ? PANELS.CHAT : sidebarContentPanel;
+        const { presentation } = prevInput;
         return defaultsDeep(
           {
             sidebarNavigation: {
-              isOpen: true,
+              isOpen: prevInput.sidebarContent.isOpen,
             },
             sidebarContent: {
-              isOpen: true,
-              sidebarContentPanel: sidebarContentPanelOverride,
+              isOpen: false,
+              sidebarContentPanel: prevInput.sidebarContent.sidebarContentPanel,
             },
             presentation: {
               isOpen: false,
@@ -447,4 +387,4 @@ const ParticipantsAndChatOnlyLayout = (props) => {
   return null;
 };
 
-export default ParticipantsAndChatOnlyLayout;
+export default PluginsOnlyLayout;

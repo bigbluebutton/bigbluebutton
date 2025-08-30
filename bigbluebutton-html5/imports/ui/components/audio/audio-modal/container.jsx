@@ -31,8 +31,6 @@ const AudioModalContainer = (props) => {
   const { data: meeting } = useMeeting((m) => ({
     voiceSettings: m.voiceSettings,
     audioBridge: m.audioBridge,
-    isBreakout: m.isBreakout,
-    breakoutPolicies: m.breakoutPolicies,
   }));
   const { data: currentUserData } = useCurrentUser((user) => ({
     away: user.away,
@@ -188,8 +186,6 @@ const AudioModalContainer = (props) => {
       hasMicrophonePermission={Service.hasMicrophonePermission}
       permissionStatus={permissionStatus}
       isTranscriptionEnabled={isTranscriptionEnabled}
-      isBreakout={meeting?.isBreakout}
-      parentId={meeting?.breakoutPolicies?.parentId}
       {...props}
     />
   );

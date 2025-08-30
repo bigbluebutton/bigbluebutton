@@ -88,10 +88,10 @@ export const MuteToggle: React.FC<MuteToggleProps> = ({
 
     if (action === 'down' && !isKeyDown.current) {
       isKeyDown.current = true;
-      startPushToTalk(toggleVoice, toggleMuteMicrophone);
+      startPushToTalk(toggleVoice);
     } else if (action === 'up') {
       isKeyDown.current = false;
-      stopPushToTalk(toggleVoice, toggleMuteMicrophone);
+      stopPushToTalk(toggleVoice);
       cooldownActive.current = true;
       cooldownTimerRef.current = setTimeout(() => {
         cooldownActive.current = false;

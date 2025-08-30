@@ -217,8 +217,6 @@ const AudioModal = ({
   isTranscriptionEnabled,
   updateInputDevices,
   updateOutputDevices,
-  isBreakout,
-  parentId,
 }) => {
   const [content, setContent] = useState(initialContent);
   const [hasError, setHasError] = useState(false);
@@ -556,8 +554,6 @@ const AudioModal = ({
         skipAudioOptions={skipAudioOptions}
         updateInputDevices={updateInputDevices}
         updateOutputDevices={updateOutputDevices}
-        isBreakout={isBreakout}
-        parentId={parentId}
       />
     );
   };

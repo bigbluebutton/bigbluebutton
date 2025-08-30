@@ -3,21 +3,15 @@ description: "Install BigBlueButton"
 runs:
   using: "composite"
   steps:
+    - name: Git config - disable warnings
+      shell: bash
+      run: |
+        git config --global advice.defaultBranchName false
+        git config --global advice.detachedHead false
     - name: Merge branches
       uses: ./.github/actions/merge-branches
     - run: ./build/get_external_dependencies.sh
       shell: bash
-    - name: Add apt ppa for BBB dependencies
-      shell: bash
-      run: |
-        sudo LC_CTYPE=C.UTF-8 add-apt-repository -y ppa:rmescandon/yq
-        sudo LC_CTYPE=C.UTF-8 add-apt-repository -y ppa:bigbluebutton/support
-        sudo LC_CTYPE=C.UTF-8 add-apt-repository -y ppa:martin-uni-mainz/coturn
-        sudo apt update
-    - name: Download all BBB dependencies from cache
-      uses: Eeems-Org/apt-cache-action@v1
-      with:
-        packages: cairosvg ffmpeg fonts-arkpandora fonts-crosextra-caladea fonts-crosextra-carlito fonts-droid-fallback fonts-noto fonts-noto-cjk fonts-noto-cjk-extra fonts-noto-core fonts-noto-extra fonts-noto-mono fonts-noto-ui-core fonts-noto-ui-extra fonts-noto-unhinted fonts-urw-base35 ghostscript gir1.2-harfbuzz-0.0 gir1.2-pango-1.0 i965-va-driver intel-media-va-driver libaacs0 libass9 libasyncns0 libavc1394-0 libavcodec58 libavdevice58 libavfilter7 libavformat58 libavutil56 libbdplus0 libbluray2 libbs2b0 libcaca0 libcdio-cdda2 libcdio-paranoia2 libcdio19 libchromaprint1 libcodec2-1.0 libdc1394-25 libdecor-0-0 libdecor-0-plugin-1-cairo libflac8 libflite1 libgme0 libgs9 libgs9-common libgsm1 libidn12 libiec61883-0 libigdgmm12 libijs-0.35 libimagequant0 libjack-jackd2-0 libjbig2dec0 libjemalloc2 libldns3 liblilv-0-0 liblua5.1-0 liblua5.2-0 liblzf1 libmfx1 libmp3lame0 libmpg123-0 libmysofa1 libncurses5 libopenal-data libopenal1 libopenmpt0 libopus0 libopusenc0 libopusfile0 libpangoxft-1.0-0 libpocketsphinx3 libpoppler118 libpostproc55 libpotrace0 libpulse0 libraqm0 libraw1394-11 librubberband2 libsamplerate0 libsdl2-2.0-0 libserd-0-0 libshine3 libsndfile1 libsndio7.0 libsord-0-0 libsoxr0 libspeex1 libspeexdsp1 libsphinxbase3 libsratom-0-0 libsrt1.4-gnutls libssh-gcrypt-4 libswresample3 libswscale5 libtheora0 libtinfo5 libtwolame0 libudfread0 libva-drm2 libva-x11-2 libva2 libvdpau1 libvidstab1.1 libvorbisenc2 libvpx7 libx264-163 libxvidcore4 libzimg2 libzvbi-common libzvbi0 lua-bitop lua-cjson mesa-va-drivers mesa-vdpau-drivers nodejs ocl-icd-libopencl1 openjdk-17-jdk openjdk-17-jdk-headless pocketsphinx-en-us poppler-data poppler-utils postgresql-contrib potrace python-tinycss2-common python3-bs4 python3-cairo python3-cairocffi python3-cairosvg python3-cffi python3-cssselect2 python3-defusedxml python3-gi-cairo python3-html5lib python3-icu python3-lxml python3-olefile python3-pil python3-ply python3-pycparser python3-soupsieve python3-tinycss2 python3-webencodings python3-xcffib redis-server redis-tools ruby-bundler stun-client va-driver-all vdpau-driver-all xmlstarlet autopoint cmake cmake-data dh-autoreconf dh-elpa-helper libdbus-1-dev libdebhelper-perl libjsoncpp25 libncurses5-dev libpcap-dev libpcap0.8-dev librhash0 libsctp-dev libsctp1 lksctp-tools pkg-config apparmor-utils python3-apparmor python3-libapparmor yq gnupg-agent ca-certificates-java libatk-wrapper-java libatk-wrapper-java-jni libpcsclite1 libxcb-shape0 libxv1 libxxf86dga1 openjdk-17-jre openjdk-17-jre-headless x11-utils build-essential fonts-freefont-ttf fonts-ipafont-gothic fonts-tlwg-loma-otf fonts-unifont fonts-wqy-zenhei gstreamer1.0-libav gstreamer1.0-plugins-bad gstreamer1.0-plugins-base gstreamer1.0-plugins-good libaa1 libcdparanoia0 libdca0 libdv4 libdvdnav4 libdvdread8 libegl-mesa0 libegl1 libevdev2 libevent-2.1-7 libfaad2 libffi7 libfluidsynth3 libfreeaptx0 libgles2 libgssdp-1.2-0 libgstreamer-gl1.0-0 libgstreamer-plugins-bad1.0-0 libgstreamer-plugins-base1.0-0 libgstreamer-plugins-good1.0-0 libgupnp-1.2-1 libgupnp-igd-1.0-4 libharfbuzz-icu0 libhyphen0 libinstpatch-1.0-2 libkate1 libldacbt-enc2 libltc11 libmanette-0.2-0 libmjpegutils-2.1-0 libmodplug1 libmpcdec6 libmpeg2encpp-2.1-0 libmplex2-2.1-0 libnice10 libnotify4 libopengl0 libopenh264-6 libopenni2-0 liborc-0.4-0 libqrencode4 libsbc1 libshout3 libsoundtouch1 libsoup-3.0-0 libsoup-3.0-common libspandsp2 libsrtp2-1 libtag1v5 libtag1v5-vanilla libv4l-0 libv4lconvert0 libvisual-0.4-0 libvo-aacenc0 libvo-amrwbenc0 libwavpack1 libwebrtc-audio-processing1 libwildmidi2 libwoff1 libzbar0 libzxingcore1 timgm6mb-soundfont xfonts-cyrillic xfonts-encodings xfonts-scalable
     - name: Download all BBB artifacts
       uses: actions/download-artifact@v4
       with:
@@ -29,20 +23,33 @@ runs:
         set -e
         echo "----ls artifacts/----"
         ls artifacts/
-    - name: Set libreoffice docker image cache-key vars
+    - name: LIBREOFFICE CACHE - Set cache-key vars
       shell: bash
       run: |
         echo "BBB_LIBREOFFICE_IMAGE_NAME=$(head -n 1 bbb-libreoffice/docker/Dockerfile | cut -d ' ' -f 2)" >> $GITHUB_ENV
-    - name: Restore bbb-libreoffice.tar from cache
-      id: cache
+    - name: LIBREOFFICE CACHE - Restore bbb-libreoffice.tar from cache
+      id: libreoffice-cache
       uses: actions/cache@v4
       with:
         path: bbb-libreoffice.tar
         key: ${{ env.BBB_LIBREOFFICE_IMAGE_NAME }}
-    - name: Load docker image from bbb-libreoffice.tar
+    - name: LIBREOFFICE CACHE - Load docker image from bbb-libreoffice.tar
       shell: bash
-      if: steps.cache.outputs.cache-hit == 'true'
+      if: steps.libreoffice-cache.outputs.cache-hit == 'true'
       run: docker load -i bbb-libreoffice.tar
+    - name: APT CACHE - Prepare directory and permissions
+      shell: bash
+      run: |
+        sudo mkdir -p /var/cache/apt/archives/partial
+        sudo chown -R "$USER":"$USER" /var/cache/apt
+        sudo chmod -R u+rwX /var/cache/apt
+    - name: APT CACHE - Restore from cache (if exists)
+      uses: actions/cache/restore@v4
+      with:
+        path: /var/cache/apt/archives
+        key: ${{ runner.os }}-apt-${{ hashFiles('bigbluebutton-config/bigbluebutton-release') }}
+        restore-keys: |
+              ${{ runner.os }}-apt-${{ hashFiles('bigbluebutton-config/bigbluebutton-release') }}
     - name: Generate CA
       shell: bash
       run: |
