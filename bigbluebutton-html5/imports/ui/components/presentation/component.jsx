@@ -560,6 +560,7 @@ class Presentation extends PureComponent {
         presentationHeight: popupWindow.innerHeight - toolbarHeight,
         presentationWidth: popupWindow.innerWidth,
       };
+      // Just a test
       //this.zoomChanger(200);
       //tldrawAPI.setZoom(5.0);
     } else {
