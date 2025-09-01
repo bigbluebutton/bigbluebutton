@@ -1147,6 +1147,7 @@ public:
     locales: ['ar', 'ca', 'cs', 'da', 'de', 'en', 'es', 'fa', 'fi', 'fr', 'gl', 'he', 'hi-in', 'hu', 'it', 'ja', 'ko-kr', 'ku', 'main', 'my', 'ne', 'no', 'pl', 'pt-br', 'pt-pt', 'ro', 'ru', 'sv', 'te', 'th', 'tr', 'uk', 'vi', 'zh-cn', 'zh-tw']
   clientLog:
     console:
+      enableRuntimeErrorLogging: false
       enabled: true
       level: debug
     external:
