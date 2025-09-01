@@ -1,4 +1,3 @@
-const { default: test } = require('@playwright/test');
 const Page = require('../core/page');
 const { MultiUsers } = require('../user/multiusers');
 const { startScreenshare } = require('./util');

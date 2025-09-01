@@ -35,7 +35,7 @@ function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min)) + min;
 }
 
-function apiCallUrl(name, callParams) {
+function getApiCallUrl(name, callParams) {
   const query = new URLSearchParams(callParams).toString();
   const apiCall = `${name}${query}${parameters.secret}`;
   const checksum = getChecksum(apiCall, parameters.secret);
@@ -44,7 +44,7 @@ function apiCallUrl(name, callParams) {
 }
 
 function apiCall(name, callParams) {
-  const url = apiCallUrl(name, callParams);
+  const url = getApiCallUrl(name, callParams);
   return axios.get(url, { adapter: 'http' }).then(response => xml2js.parseStringPromise(response.data));
 }
 
@@ -79,7 +79,7 @@ function getJoinURL(meetingID, params, moderator, joinParameter, skipSessionDeta
   const shouldSkipSessionDetailsModal = skipSessionDetailsModal ? '&userdata-bbb_show_session_details_on_join=false' : '';  // default value in settings.yml is true
   const baseQuery = `fullName=${params.fullName}&meetingID=${meetingID}&password=${pw}${shouldSkipSessionDetailsModal}`;
   const query = joinParameter !== undefined ? `${baseQuery}&${joinParameter}` : baseQuery;
-  const apiCall = `join${query}${params.secret}`;
+  const apiCall = `join${query}${parameters.secret}`;
   const checksum = getChecksum(apiCall, parameters.secret);
   return `${params.server}/api/join?${query}&checksum=${checksum}`;
 }
@@ -189,8 +189,7 @@ async function initializePages(testInstance, browser, initOptions) {
   if (isMultiUser) await testInstance.initUserPage(true, context, { createParameter, joinParameter });
 }
 
-exports.getRandomInt = getRandomInt;
-exports.apiCallUrl = apiCallUrl;
+exports.getApiCallUrl = getApiCallUrl;
 exports.apiCall = apiCall;
 exports.createMeetingUrl = createMeetingUrl;
 exports.createMeetingPromise = createMeetingPromise;
