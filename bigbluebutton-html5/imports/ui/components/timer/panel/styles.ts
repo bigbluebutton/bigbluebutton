@@ -86,7 +86,7 @@ const TimerCurrent = styled.span`
   display: flex;
   font-size: 2.5rem;
   justify-content: center;
-  padding: 0.5rem 0;
+  padding: 0.5rem 0 1.45rem 0;
 `;
 
 const TimerType = styled.div`
@@ -111,7 +111,7 @@ const TimeInputWrapper = styled.div`
   margin-top: 0;
   width: 100%;
   border-bottom: 1px solid ${colorBorder};
-  padding: 0.5rem 0;
+  padding: 0.5rem 0 1.3rem 0;
 `;
 
 const TimeInputGroup = styled.div`
@@ -125,12 +125,12 @@ const TimeInputGroup = styled.div`
 // @ts-ignore - JS code
 const IncrementDecrementButton = styled(Button)`
   border-radius: ${lgBorderRadius};
-  width: 2.5rem;
-  height: 2rem;
+  width: 2.6rem;
+  height: 1.2rem;
   min-width: 0;
   padding: 0;
   font-size: 1rem;
-  line-height: 1;
+  line-height: 0.9;
 `;
 
 const TimeInputColon = styled.span`
