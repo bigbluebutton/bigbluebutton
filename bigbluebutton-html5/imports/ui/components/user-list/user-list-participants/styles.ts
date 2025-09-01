@@ -109,5 +109,3 @@ export default {
   VirtualizedList,
   UserListItem,
 };
-
-
