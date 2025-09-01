@@ -36,7 +36,6 @@ const UserItemContents = styled.div<UserItemContentsProps>`
   overflow: hidden;
   min-height: 3rem;
 
-
   ${({ selected }) => selected && `
     background-color: ${listItemBgHover};
     border-top-left-radius: ${smPaddingY};
