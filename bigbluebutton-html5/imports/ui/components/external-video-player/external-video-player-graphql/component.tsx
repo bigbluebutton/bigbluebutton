@@ -503,7 +503,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     if (playing && isPresenter) {
       currentTime = getServerCurrentTime();
     }
-    const interPlayerPlaybackRate = getPlaybackRate(playerRef.current as ReactPlayer);
+    const interPlayerPlaybackRate = await getPlaybackRate(playerRef.current as ReactPlayer);
     if (isPresenter && interPlayerPlaybackRate !== playerPlaybackRate) {
       sendMessage('seek', {
         rate: interPlayerPlaybackRate,
