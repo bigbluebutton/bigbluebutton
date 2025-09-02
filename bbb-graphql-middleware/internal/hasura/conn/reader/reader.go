@@ -321,7 +321,6 @@ func includePromotheusMetrics(traceLog string, meetingId string, logger *logrus.
 			} else {
 				// diff in ms
 				diff := currTime.Sub(prevTime).Milliseconds()
-				fmt.Printf("%s->%s took %dms\n", prevApplication, applicationName, diff)
 				logger.Debugf("%s->%s took %dms\n", prevApplication, applicationName, diff)
 
 				// Add Prometheus metrics
