@@ -126,11 +126,13 @@ func handleMessageReceivedFromHasura(hc *common.HasuraConnection, message []byte
 				_, _, messageData := getHasuraMessage(message, subscription, hc.BrowserConn.Logger)
 				if _, existsConnectionStatusKey := messageData.Payload.Data["user_connectionStatus"]; existsConnectionStatusKey {
 					type ConnectionStatusMessage struct {
-						MeetingId       string `json:"meetingId"`
-						UserId          string `json:"userId"`
-						TraceLog        string `json:"traceLog"`
-						NetworkRttInMs  int32  `json:"networkRttInMs"`
-						StatusUpdatedAt string `json:"statusUpdatedAt"`
+						MeetingId          string `json:"meetingId"`
+						UserId             string `json:"userId"`
+						SessionToken       string `json:"sessionToken"`
+						TraceLog           string `json:"traceLog"`
+						NetworkRttInMs     int32  `json:"networkRttInMs"`
+						ApplicationRttInMs int32  `json:"applicationRttInMs"`
+						StatusUpdatedAt    string `json:"statusUpdatedAt"`
 					}
 
 					var connectionStatusMessages []ConnectionStatusMessage
@@ -140,7 +142,7 @@ func handleMessageReceivedFromHasura(hc *common.HasuraConnection, message []byte
 						for _, connectionStatusMessage := range connectionStatusMessages {
 							if connectionStatusMessage.TraceLog != "" {
 								newTrace := fmt.Sprintf("%s@pg|%s@gqlmiddleware|%s", connectionStatusMessage.TraceLog, connectionStatusMessage.StatusUpdatedAt, now.Format("2006-01-02T15:04:05.000Z"))
-								hc.BrowserConn.Logger.Infof("Received %s meetingId=%s userId=%s", newTrace, connectionStatusMessage.MeetingId, connectionStatusMessage.UserId)
+								hc.BrowserConn.Logger.Infof("Received %s meetingId=%s userId=%s sessionToken=%s", newTrace, connectionStatusMessage.MeetingId, connectionStatusMessage.UserId, connectionStatusMessage.SessionToken)
 
 								go includePromotheusMetrics(newTrace, connectionStatusMessage.MeetingId, hc.BrowserConn.Logger)
 

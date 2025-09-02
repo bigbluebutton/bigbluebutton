@@ -110,7 +110,6 @@ object UserDAO {
       )
     )
 
-    UserConnectionStatusDAO.insert(meetingId, regUser.id)
     UserMetadataDAO.insert(meetingId, regUser.id, "", regUser.userMetadata)
     UserLockSettingsDAO.insertOrUpdate(meetingId, regUser.id, UserLockSettings())
     UserClientSettingsDAO.insertOrUpdate(meetingId, regUser.id, JsonUtils.stringToJson("{}"))

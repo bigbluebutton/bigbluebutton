@@ -34,7 +34,10 @@ select_permissions:
       columns:
         - connectionAliveAt
         - meetingId
+        - sessionToken
+        - clientSessionUUID
         - networkRttInMs
+        - applicationRttInMs
         - status
         - statusUpdatedAt
         - traceLog
@@ -45,3 +48,5 @@ select_permissions:
               _eq: X-Hasura-MeetingId
           - userId:
               _eq: X-Hasura-UserId
+          - sessionToken:
+              _eq: X-Hasura-SessionToken

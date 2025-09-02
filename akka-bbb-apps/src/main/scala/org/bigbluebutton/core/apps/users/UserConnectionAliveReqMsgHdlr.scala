@@ -34,14 +34,16 @@ trait UserConnectionAliveReqMsgHdlr extends RightsManagementTrait {
     for {
       user <- Users2x.findWithIntId(liveMeeting.users2x, msg.body.userId)
     } yield {
-      val rtt: Option[Double] = msg.body.networkRttInMs match {
-        case 0           => None
-        case rtt: Double => Some(rtt)
-      }
-
-      val status = getLevelFromRtt(msg.body.networkRttInMs)
-
-      UserConnectionStatusDAO.updateUserAlive(user.meetingId, user.intId, rtt, status, traceLog)
+      UserConnectionStatusDAO.updateUserAlive(
+        user.meetingId,
+        user.intId,
+        msg.body.sessionToken,
+        msg.body.clientSessionUUID,
+        msg.body.networkRttInMs,
+        msg.body.applicationRttInMs,
+        traceLog,
+        getLevelFromRtt(msg.body.networkRttInMs)
+      )
     }
   }
 
