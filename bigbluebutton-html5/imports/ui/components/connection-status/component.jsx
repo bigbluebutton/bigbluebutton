@@ -13,20 +13,26 @@ import getBaseUrl from '/imports/ui/core/utils/getBaseUrl';
 import useCurrentUser from '../../core/hooks/useCurrentUser';
 import getStatus from '../../core/utils/getStatus';
 import logger from '/imports/startup/client/logger';
+import useTimeSync, { setTimeSync } from '/imports/ui/core/local-states/useTimeSync';
 
 const ConnectionStatus = ({
   user,
 }) => {
   const STATS_INTERVAL = window.meetingClientSettings.public.stats.interval;
   const STATS_TIMEOUT = window.meetingClientSettings.public.stats.timeout;
-  const networkRttInMs = useRef(0); // Ref to store the last rtt
+  const networkRttInMs = useRef(0); // Ref to store the last network rtt
+  const applicationRttInMs = useRef(0); // Ref to store the last application rtt
   const timeoutRef = useRef(null);
+  const [timeSync] = useTimeSync();
 
   const [updateConnectionAliveAtM] = useMutation(UPDATE_CONNECTION_ALIVE_AT);
 
   const { data: connectionStatusData } = useDeduplicatedSubscription(
     CONNECTION_STATUS_SUBSCRIPTION,
-    { skip: !user.presenter },
+    {
+      variables: { clientSessionUUID: sessionStorage.getItem('clientSessionUUID') || '0' },
+      skip: !user.presenter,
+    },
   );
 
   // Log application rtt
@@ -39,25 +45,26 @@ const ConnectionStatus = ({
         const traceLogApplications = connectionStatusCurrentData?.traceLog.split('@');
         const firstClientTraceLog = traceLogApplications[1].split('|');
         const firstClientTraceLogDate = new Date(firstClientTraceLog[1]);
-        const now = new Date();
-        const diffBetweenSentAndNow = now - firstClientTraceLogDate;
+        const nowSyncedWithServer = new Date(Date.now() + timeSync);
+        applicationRttInMs.current = nowSyncedWithServer - firstClientTraceLogDate;
+
         logger.debug({
           logCode: 'stats_application_rtt',
           extraInfo: {
-            applicationRttInMs: now - firstClientTraceLogDate,
+            applicationRttInMs: applicationRttInMs.current,
             networkRttInMs: connectionStatusCurrentData?.networkRttInMs,
-            traceLog: `${connectionStatusCurrentData?.traceLog}@client|${new Date().toISOString()}`,
+            traceLog: `${connectionStatusCurrentData?.traceLog}@client|${nowSyncedWithServer.toISOString()}`,
           },
-        }, `Metrics - Current application RTT is ${diffBetweenSentAndNow}`);
-        if (diffBetweenSentAndNow > 2000) {
+        }, `Metrics - Current application RTT is ${applicationRttInMs.current}`);
+        if (applicationRttInMs.current > 2000) {
           logger.error({
             logCode: 'stats_application_rtt',
             extraInfo: {
-              applicationRttInMs: now - firstClientTraceLogDate,
+              applicationRttInMs: applicationRttInMs.current,
               networkRttInMs: connectionStatusCurrentData?.networkRttInMs,
-              traceLog: `${connectionStatusCurrentData?.traceLog}@client|${new Date().toISOString()}`,
+              traceLog: `${connectionStatusCurrentData?.traceLog}@client|${nowSyncedWithServer.toISOString()}`,
             },
-          }, `Application RTT is very high: ${diffBetweenSentAndNow}`);
+          }, `Application RTT is very high: ${applicationRttInMs.current}`);
         }
       }
     }
@@ -88,15 +95,29 @@ const ConnectionStatus = ({
       .then((res) => {
         if (res.ok && res.status === 200) {
           try {
-            const traceLog = user.presenter ? `traceLog@client|${new Date().toISOString()}` : '';
+            const nowSyncedWithServer = new Date(Date.now() + timeSync);
+            const traceLog = user.presenter ? `traceLog@client|${nowSyncedWithServer.toISOString()}` : '';
             const rttLevels = window.meetingClientSettings.public.stats.rtt;
             const endTime = performance.now();
             const networkRtt = Math.round(endTime - startTime);
+
+            // Calc and set latency between client and server
+            if (timeSync === 0) {
+              const clientNowEpoch = Date.now();
+              const serverEpochMsec = Number(res.headers.get('X-Server-Epoch-Msec'))
+              const oneWay = networkRtt / 2; // aproximation NTP
+              const skew = ((serverEpochMsec * 1000) + oneWay) - clientNowEpoch;
+              logger.debug(`Latency between server and client: ${skew}`);
+              setTimeSync(skew);
+            }
+
             networkRttInMs.current = networkRtt;
 
             updateConnectionAliveAtM({
               variables: {
+                clientSessionUUID: sessionStorage.getItem('clientSessionUUID') || '0',
                 networkRttInMs: networkRtt,
+                applicationRttInMs: applicationRttInMs.current,
                 traceLog,
               },
             });

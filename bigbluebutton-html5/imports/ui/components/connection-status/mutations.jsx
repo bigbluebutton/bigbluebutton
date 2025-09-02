@@ -1,9 +1,11 @@
 import { gql } from '@apollo/client';
 
 export const UPDATE_CONNECTION_ALIVE_AT = gql`
-  mutation UpdateConnectionAliveAt($networkRttInMs: Float!, $traceLog: String) {
+  mutation UpdateConnectionAliveAt($clientSessionUUID: String!, $networkRttInMs: Float!, $applicationRttInMs: String, $traceLog: String) {
     userSetConnectionAlive(
+      clientSessionUUID: $clientSessionUUID
       networkRttInMs: $networkRttInMs
+      applicationRttInMs: $applicationRttInMs
       traceLog: $traceLog
     )
   }`;
