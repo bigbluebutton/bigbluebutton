@@ -46,7 +46,7 @@ const ConnectionStatus = ({
         const firstClientTraceLog = traceLogApplications[1].split('|');
         const firstClientTraceLogDate = new Date(firstClientTraceLog[1]);
         const nowSyncedWithServer = new Date(Date.now() + timeSync);
-        applicationRttInMs.current = nowSyncedWithServer - firstClientTraceLogDate;
+        applicationRttInMs.current = Math.round(nowSyncedWithServer - firstClientTraceLogDate);
 
         logger.debug({
           logCode: 'stats_application_rtt',
@@ -104,7 +104,7 @@ const ConnectionStatus = ({
             // Calc and set latency between client and server
             if (timeSync === 0) {
               const clientNowEpoch = Date.now();
-              const serverEpochMsec = Number(res.headers.get('X-Server-Epoch-Msec'))
+              const serverEpochMsec = Number(res.headers.get('X-Server-Epoch-Msec'));
               const oneWay = networkRtt / 2; // aproximation NTP
               const skew = ((serverEpochMsec * 1000) + oneWay) - clientNowEpoch;
               logger.debug(`Latency between server and client: ${skew}`);

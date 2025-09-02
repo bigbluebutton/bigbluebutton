@@ -26,7 +26,7 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
     userId: routing.userId
   };
 
-  var traceLog = '';
+  let traceLog = '';
   if('traceLog' in input && input.traceLog != null && input.traceLog != '') {
     console.info(`Received ${input.traceLog} meetingId=${routing.meetingId} userId=${routing.userId}`);
     traceLog = input.traceLog + '@gqlactions|' + new Date().toISOString();
