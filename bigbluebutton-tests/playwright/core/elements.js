@@ -159,12 +159,14 @@ exports.chatReplyIntentionContainerContent = 'div[data-test="chatReplyIntentionC
 exports.closeChatReplyIntentionButton = 'button[data-test="closeChatReplyIntentionButton"]';
 exports.chatMessageReplied = 'div[data-test="chatMessageReplied"]';
 exports.messageReactionItem = 'button[data-test="messageReactionItem"]';
+
 // Message toolbar
 exports.messageToolbar = 'div[data-test="chatMessageToolbar"]';
 exports.replyMessageButton = 'button[data-test="replyMessageButton"]';
 exports.reactMessageButton = 'button[data-test="reactMessageButton"]';
 exports.editMessageButton = 'button[data-test="editMessageButton"]';
 exports.deleteMessageButton = 'button[data-test="deleteMessageButton"]';
+
 // Emoji picker
 exports.emojiPickerButton = 'button[data-test="emojiPickerButton"]';
 exports.thumbsUpEmoji = '👍';
@@ -172,6 +174,7 @@ exports.grinningFaceEmoji = '😀';
 // Auto Convert Emoji
 exports.autoConvertEmojiMessage = ':)';
 exports.convertedEmojiMessage = '😊';
+
 // Messages
 exports.message = 'Hello World!';
 exports.testMessage = 'Just a test';
@@ -244,6 +247,7 @@ exports.processingPresentationItem = 'span[data-test="processingPresentationItem
 exports.uploadDoneIcon = 'i[data-test="uploadDoneIcon"]';
 exports.noButton = 'button[aria-label="No"]';
 exports.yesButton = 'button[aria-label="Yes"]';
+
 // Toasts
 exports.savedSettingsToast = 'Settings have been saved';
 exports.publicChatToast = 'New Public Chat message';
@@ -256,6 +260,7 @@ exports.attendeeJoinedToast = 'Attendee joined the session';
 exports.raisingHandToast = 'You have raised your hand';
 exports.loweringHandToast = 'Your hand has been lowered';
 exports.noActiveMicrophoneToast = 'No active microphone. Share your microphone to add audio to this recording.';
+
 // Icons
 const baseBbbIcon = 'i.icon-bbb-';
 exports.unmuteIcon = `${baseBbbIcon}unmute`;
@@ -302,7 +307,6 @@ exports.userVoteLiveResult = 'td[data-test="userVoteLiveResult"]';
 exports.errorNoValueInput = 'div[data-test="errorNoValueInput"]';
 exports.smartSlides1 = 'smartSlidesPresentation.pdf';
 exports.smartSlides2 = 'SmartSlides.pdf';
-
 exports.responsePollQuestion = 'div[data-test="pollQuestion"]';
 const pollAnswersOption = 'div[data-test="optionsAnswers"]';
 exports.firstPollAnswerOptionBtn = `${pollAnswersOption}>>nth=0`;
@@ -352,11 +356,13 @@ exports.whiteboardOptionsButton = 'button[data-test="whiteboardOptionsButton"]';
 exports.presentationFullscreen = 'li[data-test="presentationFullscreen"]';
 exports.presentationSnapshot = 'li[data-test="presentationSnapshot"]';
 exports.toolVisibility = 'li[data-test="toolVisibility"]';
+
 // YouTube frame
 exports.youtubeLink = 'https://www.youtube.com/watch?v=Wjx5_IONaNg&t=158s&ab_channel=BigBlueButton';
 // The title we match for here is the title of the test video specified by youtubeLink
 exports.youtubeFrame = 'div[data-test="videoPlayer"]';
 exports.ytFrameTitle = 'a[class^="ytp-title-link"]';
+
 // Toasts
 exports.statingUploadPresentationToast = 'To be uploaded ...';
 exports.convertingPresentationFileToast = 'Converting file';
@@ -478,7 +484,6 @@ exports.dropAreaSidebarBottom = 'div[data-test="dropArea-sidebarContentBottom"]'
 exports.selfViewDisableBtn = 'li[data-test="selfViewDisableBtn"]';
 exports.nextPageVideoPagination = 'button[data-test="nextPageVideoPaginationBtn"]';
 exports.previousPageVideoPagination = 'button[data-test="previousPageVideoPaginationBtn"]';
-
 exports.videoQualitySelector = 'select[id="setQuality"]';
 exports.webcamItemTalkingUser = 'div[data-test="webcamItemTalkingUser"]';
 exports.webcamSettingsModal = 'div[data-test="webcamSettingsModal"]';
@@ -530,6 +535,7 @@ exports.wbMoveToFront = 'button[data-testid="menu-item.bring-to-front"]';
 exports.wbPaste = 'button[data-testid="menu-item.paste"]';
 exports.wbTextTrue = 'div[data-hastext="true"]';
 exports.wbDrawnArrow = 'div[data-shape-type="arrow"]';
+exports.wbAutoHideToggleBtn = 'input[data-test="autoHideToolbarToggleBtn"]';
 
 // About modal
 exports.showAboutModalButton = 'li[data-test="aboutModal"]';
@@ -545,7 +551,6 @@ exports.actionsBarBackground = 'section[id="ActionsBar"]';
 exports.navbarBackground = 'header[id="Navbar"]';
 exports.fullscreenModal = 'div[id="fsmodal"]';
 exports.sharedNotesBackground = 'div[data-test="notes"]';
-exports.whiteboardOptionsButton = 'button[data-test="whiteboardOptionsButton"]';
 
 // Layout management
 exports.manageLayoutBtn = 'li[data-test="manageLayoutBtn"]';
