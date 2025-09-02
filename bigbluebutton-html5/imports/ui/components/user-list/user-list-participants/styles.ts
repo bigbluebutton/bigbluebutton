@@ -97,7 +97,6 @@ const pulse = (color: string) => keyframes`
 const VirtualizedList = styled.div`
   display: flex;
   flex-flow: column;
-  gap: 1rem;
   padding: 0px;
 `;
 
