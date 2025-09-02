@@ -30,4 +30,8 @@ test.describe('Options', { tag: '@ci' }, () => {
   test('Font size', async () => {
     await options.fontSizeTest();
   });
+
+  test('Auto hide whiteboard toolbar', async () => {
+    await options.autoHideWhiteboardToolbar();
+  });
 });

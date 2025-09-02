@@ -159,6 +159,29 @@ class Options extends MultiUsers {
       await expect(modPageLocator, 'should the meeting display the font size increased').toHaveScreenshot('moderator-page-font-size.png', screenshotOptions);
     }
   }
+
+  async autoHideWhiteboardToolbar() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage.hasElement(e.wbToolbar, 'should display the whiteboard toolbar');
+
+    const whiteboardLocator = await this.modPage.getLocator(e.whiteboard);
+    await expect(whiteboardLocator).toHaveScreenshot('whiteboard-with-toolbar-visible.png');
+
+    await openSettings(this.modPage);
+    await this.modPage.waitAndClickElement(e.wbAutoHideToggleBtn);
+    await this.modPage.hasElementEnabled(e.wbAutoHideToggleBtn, 'should display the auto hide whiteboard toolbar toggle enabled');
+
+    await this.modPage.waitAndClick(e.modalConfirmButton);
+    await sleep(500);
+    await this.modPage.hoverElement(e.whiteboard);
+    await this.modPage.hasElement(e.wbToolbar, 'should display the whiteboard toolbar when hover the whiteboard');
+
+    await this.modPage.hoverElement(e.chatButton)
+    await sleep(1000);
+    await expect(whiteboardLocator).toHaveScreenshot('whiteboard-with-toolbar-hidden.png', {
+      maxDiffPixels: 1000,
+    });
+  }
 }
 
 exports.Options = Options;
