@@ -457,8 +457,8 @@ const QuizzesTable = (props) => {
       renderCell: (params) => {
         let type = 'default';
         const {
-          ended, userAnswers, correctOption,
-        } = params.row && params.field ? params.row[params.field] : {};
+          ended = false, userAnswers = [], correctOption = '',
+        } = params?.row && params?.field && typeof params.row[params.field] === 'object' ? params.row[params.field] : {};
         const userResponded = !!userAnswers.length;
         const hasCorrectOption = !!correctOption;
         if (userResponded && ended) {
