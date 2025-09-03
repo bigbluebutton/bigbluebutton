@@ -39,6 +39,14 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
       await timer.initModPage(page, true);
       await timer.timerTest();
     });
+
+    test('Leave Meeting', async ({ browser, context, page }) => {
+      const multiusers = new MultiUsers(browser, context);
+      await multiusers.initModPage(page, true);
+      await multiusers.initUserPage(true, context);
+      await multiusers.initUserPage2(true, context);
+      await multiusers.leaveMeeting();
+    });
   });
 
   test.describe.parallel('Reactions', () => {

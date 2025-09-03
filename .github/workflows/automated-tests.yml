@@ -53,9 +53,11 @@ jobs:
             cache-files-list: bbb-learning-dashboard
           - package: bbb-playback-record
             build-list: bbb-playback bbb-playback-notes bbb-playback-podcast bbb-playback-presentation bbb-playback-screenshare bbb-playback-video bbb-record-core
+            cache-files-list: bbb-playback.placeholder.sh bbb-presentation-video.placeholder.sh record-and-playback
           - package: bbb-graphql-server
             build-name: bbb-graphql-server
             build-list: bbb-graphql-server bbb-graphql-middleware bbb-graphql-actions
+            cache-files-list: bbb-graphql-server bbb-graphql-middleware bbb-graphql-actions
           - package: bbb-etherpad
             cache-files-list: bbb-etherpad.placeholder.sh
             cache-urls-list: https://api.github.com/repos/mconf/ep_pad_ttl/commits https://api.github.com/repos/alangecker/bbb-etherpad-plugin/commits https://api.github.com/repos/mconf/ep_redis_publisher/commits https://api.github.com/repos/alangecker/bbb-etherpad-skin/commits
@@ -75,6 +77,7 @@ jobs:
             cache-files-list: bbb-webrtc-sfu.placeholder.sh bbb-webrtc-recorder.placeholder.sh
           - package: others
             build-list: bbb-mkclean bbb-pads bbb-libreoffice-docker bbb-transcription-controller bigbluebutton bbb-livekit
+            cache-files-list: bbb-pads.placeholder.sh bbb-libreoffice bbb-transcription-controller.placeholder.sh
     steps:
       - uses: actions/checkout@v4
       - name: Merge branches
@@ -124,21 +127,20 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
-      - name: Set cache-key vars
+      - name: LIBREOFFICE CACHE - Set cache-key vars
         run: |
           echo "BBB_LIBREOFFICE_IMAGE_NAME=$(head -n 1 bbb-libreoffice/docker/Dockerfile | cut -d ' ' -f 2)" >> $GITHUB_ENV
-      - name: Restore base image cache
-        id: cache
+      - name: LIBREOFFICE CACHE - Restore docker image from cache
+        id: libreoffice-cache
         uses: actions/cache@v4
         with:
           path: bbb-libreoffice.tar
           key: ${{ env.BBB_LIBREOFFICE_IMAGE_NAME }}
-      - name: Pull (first time / cache miss)
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: docker pull docker.io/${{ env.BBB_LIBREOFFICE_IMAGE_NAME }}
-      - name: Save docker image to cache (first time)
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: docker save docker.io/${{ env.BBB_LIBREOFFICE_IMAGE_NAME }} -o bbb-libreoffice.tar
+      - name: LIBREOFFICE CACHE - Pull and save docker image (first time / cache miss)
+        if: steps.libreoffice-cache.outputs.cache-hit != 'true'
+        run: |
+          docker pull docker.io/${{ env.BBB_LIBREOFFICE_IMAGE_NAME }}
+          docker save docker.io/${{ env.BBB_LIBREOFFICE_IMAGE_NAME }} -o bbb-libreoffice.tar
   unify-artifacts:
     needs: build-package
     runs-on: ubuntu-22.04
@@ -255,15 +257,16 @@ jobs:
         timeout-minutes: 60
         uses: ./.github/actions/install-bbb
       - uses: actions/setup-node@v4
+        name: PLAYRIGHT CACHE - Restore Playright node modules from cache
         with:
           cache: 'npm'
           cache-dependency-path: bigbluebutton-tests/playwright/package-lock.json
-      - name: Restore playwright binaries from cache
+      - name: PLAYRIGHT CACHE - Restore Playright binaries from cache
         id: cache
         uses: actions/cache@v4
         with:
           path: /home/runner/.cache/ms-playwright/
-          key: ${{ runner.os }}-playwright-${{ hashFiles('bigbluebutton-html-plugin-sdk/package-lock.json') }}
+          key: ${{ runner.os }}-playwright-bins-${{ hashFiles('bigbluebutton-tests/playwright/package-lock.json') }}
       - name: Install test dependencies
         working-directory: ./bigbluebutton-tests/playwright
         timeout-minutes: 25
@@ -326,6 +329,23 @@ jobs:
         with:
           name: bbb-logs-${{ env.MATRIX_SHARD_UNDERSCORED }}
           path: ./bbb-logs.tar.gz
+      - name: APT CACHE - Check for changes using packages hash
+        if: success() && matrix.shard == 1
+        id: apt-manifest
+        shell: bash
+        run: |
+          sudo chown -R "$USER:$USER" /var/cache/apt/archives || true
+          sudo chmod 755 /var/cache/apt/archives /var/cache/apt/archives/partial 2>/dev/null || true
+          find /var/cache/apt/archives -type f -name '*.deb' -print0 \
+            | sort -z \
+            | xargs -0 -r sha256sum > apt-manifest-end.txt
+          echo "hash=$(sha256sum apt-manifest-end.txt | cut -d' ' -f1)" >> $GITHUB_OUTPUT
+      - name: APT CACHE - Upload new packages (if changed)
+        if: success() && matrix.shard == 1
+        uses: actions/cache/save@v4
+        with:
+          path: /var/cache/apt/archives
+          key: ${{ runner.os }}-apt-${{ hashFiles('bigbluebutton-config/bigbluebutton-release') }}-${{ steps.apt-manifest.outputs.hash }}
   install-and-run-plugin-tests:
     needs:
       - unify-artifacts
@@ -356,13 +376,19 @@ jobs:
           wget -O bigbluebutton-html-plugin-sdk.tar.gz $SDK_URL
           mkdir -p bigbluebutton-html-plugin-sdk
           tar -xzf bigbluebutton-html-plugin-sdk.tar.gz -C bigbluebutton-html-plugin-sdk --strip-components=1
-      - name: Plugins SDK - Cache node dependencies
+      - name: PLAYRIGHT CACHE (Plugins SDK) - Restore Playright node modules from cache
         uses: actions/setup-node@v4
         with:
           cache: 'npm'
           cache-dependency-path: |
                 bigbluebutton-tests/bigbluebutton-html-plugin-sdk/package-lock.json
                 bigbluebutton-tests/bigbluebutton-html-plugin-sdk/samples/**/package-lock.json
+      - name: PLAYRIGHT CACHE - Restore Playright binaries from cache
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: /home/runner/.cache/ms-playwright/
+          key: ${{ runner.os }}-playwright-bins-${{ hashFiles('bigbluebutton-tests/bigbluebutton-html-plugin-sdk/package-lock.json') }}
       - name: Plugins SDK - Install node dependencies
         working-directory: ./bigbluebutton-tests/bigbluebutton-html-plugin-sdk
         run: |

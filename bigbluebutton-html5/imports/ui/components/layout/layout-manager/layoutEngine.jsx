@@ -10,6 +10,7 @@ import VideoFocusLayout from '/imports/ui/components/layout/layout-manager/video
 import CamerasOnlyLayout from '/imports/ui/components/layout/layout-manager/camerasOnly';
 import PresentationOnlyLayout from '/imports/ui/components/layout/layout-manager/presentationOnlyLayout';
 import ParticipantsAndChatOnlyLayout from '/imports/ui/components/layout/layout-manager/participantsAndChatOnlyLayout';
+import PluginsOnlyLayout from '/imports/ui/components/layout/layout-manager/pluginsOnly';
 import { useIsPresentationEnabled } from '/imports/ui/services/features';
 import Session from '/imports/ui/services/storage/in-memory';
 import MediaOnlyLayout from './mediaOnlyLayout';
@@ -376,6 +377,9 @@ const LayoutEngine = () => {
     case LAYOUT_TYPE.MEDIA_ONLY:
       layout?.setAttribute('data-layout', LAYOUT_TYPE.MEDIA_ONLY);
       return <MediaOnlyLayout {...common} isPresentationEnabled={isPresentationEnabled} />;
+    case LAYOUT_TYPE.PLUGINS_ONLY:
+      layout?.setAttribute('data-layout', LAYOUT_TYPE.PLUGINS_ONLY);
+      return <PluginsOnlyLayout {...common} isPresentationEnabled={isPresentationEnabled} />;
     default:
       layout?.setAttribute('data-layout', LAYOUT_TYPE.CUSTOM_LAYOUT);
       return <CustomLayout {...common} isPresentationEnabled={isPresentationEnabled} />;

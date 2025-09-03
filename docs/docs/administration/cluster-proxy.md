@@ -108,6 +108,8 @@ graphqlWebsocketUrl=wss://bbb-01.example.com/graphql
 graphqlApiUrl=https://bbb-01.example.com/api/rest
 ```
 
+---
+
 Add the following options to `/etc/bigbluebutton/bbb-html5.yml`:
 
 ```yaml
@@ -133,7 +135,9 @@ public:
     url: 'https://bbb-01.example.com/pad'
 ```
 
-Create a new file in `/etc/bigbluebutton/nginx/bbb-cluster.nginx` 
+---
+
+Create a new file in `/etc/bigbluebutton/nginx/bbb-cluster.nginx`
 and prepend the mount point of bbb-html5 in all location sections:
 
 ```
@@ -153,8 +157,10 @@ location /bbb-01/html5client/locales {
 
 ```
 
-**Note:** It is important that the location configuration is equal between the
-BigBlueButton server and the proxy.
+_**Note:** It is important that the location configuration is equal between the
+BigBlueButton server and the proxy._
+
+---
 
 Add a route for the locales handler for the guest lobby. The guest lobby is served directly from the BBB node.
 
@@ -164,6 +170,8 @@ location =/html5client/locale {
   return 301 /bbb-01$request_uri;
 }
 ```
+
+---
 
 Create the file `/etc/bigbluebutton/etherpad.json` with the following content:
 
@@ -175,12 +183,16 @@ Create the file `/etc/bigbluebutton/etherpad.json` with the following content:
 }
 ```
 
+---
+
 Create the file `/etc/systemd/system/bbb-web.service.d/override.conf` and add the following Environment setting:
 
 ```shell
 [Service]
 Environment="JDK_JAVA_OPTIONS=-Dgrails.cors.enabled=true -Dgrails.cors.allowCredentials=true -Dgrails.cors.allowedOrigins=https://bbb-proxy.example.com,https://bbb-01.example.com"
 ```
+
+---
 
 Create the file `/etc/bigbluebutton/bbb-graphql-middleware.yml` with the following content:
 
@@ -191,7 +203,9 @@ server:
   authorized_cross_origin: bbb-proxy.example.com
 ```
 
-Pay attention that this one is without protocol, just the hostname.
+_**Note:** Pay attention that this one is without protocol, just the hostname._
+
+---
 
 Adjust the CORS setting in `/etc/bigbluebutton/bbb-graphql-server.env`:
 
@@ -199,7 +213,24 @@ Adjust the CORS setting in `/etc/bigbluebutton/bbb-graphql-server.env`:
 HASURA_GRAPHQL_CORS_DOMAIN="https://bbb-proxy.example.com"
 ```
 
-This one includes the protocol.
+_**Note:** This one includes the protocol._
+
+---
+
+If your proxy server uses a different root domain than your BBB server, you’ll need an additional configuration.
+Add the following settings to `/usr/share/bbb-web/WEB-INF/classes/application.yml`:
+
+```yaml
+server:
+  servlet:
+    session:
+      cookie:
+        secure: true
+        SameSite: none
+```
+_**Note:** This change will be reverted with subsequent bbb-web updates. If you rely on the override, look to include it in a post-installation routine._
+
+---
 
 Reload systemd and restart BigBlueButton:
 

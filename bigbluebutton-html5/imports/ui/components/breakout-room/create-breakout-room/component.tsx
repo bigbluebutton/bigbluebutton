@@ -676,7 +676,9 @@ const CreateBreakoutRoomContainer: React.FC<CreateBreakoutRoomContainerProps> = 
     data: meetingGroupData,
     loading: meetingGroupLoading,
     error: meetingGroupError,
-  } = useQuery<getMeetingGroupResponse>(getMeetingGroup);
+  } = useQuery<getMeetingGroupResponse>(getMeetingGroup, {
+    fetchPolicy: 'cache-first',
+  });
 
   const { data: presentationData } = useDeduplicatedSubscription<PresentationsSubscriptionResponse>(
     PRESENTATIONS_SUBSCRIPTION,

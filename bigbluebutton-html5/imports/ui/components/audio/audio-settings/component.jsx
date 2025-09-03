@@ -156,8 +156,6 @@ class AudioSettings extends React.Component {
       checkMicrophonePermission,
       toggleVoice,
       permissionStatus,
-      isBreakout,
-      parentId,
     } = this.props;
 
     Session.setItem('inEchoTest', true);
@@ -183,7 +181,7 @@ class AudioSettings extends React.Component {
     // If connected and unmuted, we need to mute the audio and revert it
     // back to the original state on exit.
     if (isConnected && !isMuted) {
-      toggleMuteMicrophoneSystem(isMuted, toggleVoice, isBreakout, parentId);
+      toggleMuteMicrophoneSystem(isMuted, toggleVoice);
       // We only need to revert the mute state if the user is not listen-only
       if (inputDeviceId !== 'listen-only') this.setState({ unmuteOnExit: true });
     }
@@ -448,13 +446,11 @@ class AudioSettings extends React.Component {
     const {
       toggleMuteMicrophoneSystem,
       toggleVoice,
-      isBreakout,
-      parentId,
     } = this.props;
     const { unmuteOnExit } = this.state;
 
     // Unmutes microphone if flagged to do so
-    if (unmuteOnExit) toggleMuteMicrophoneSystem(true, toggleVoice, isBreakout, parentId);
+    if (unmuteOnExit) toggleMuteMicrophoneSystem(true, toggleVoice);
   }
 
   generateInputStream(inputDeviceId) {

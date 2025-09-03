@@ -116,11 +116,9 @@ export const toggleVoice = (
   userId: string,
   muted: boolean,
   voiceToggle: (userId: string, muted: boolean) => void,
-  isBreakout: boolean,
-  parentId: string,
 ) => {
   if (userId === Auth.userID) {
-    toggleMuteMicrophone(!muted, voiceToggle, isBreakout, parentId);
+    toggleMuteMicrophone(!muted, voiceToggle);
   } else {
     voiceToggle(userId, muted);
     logger.info({

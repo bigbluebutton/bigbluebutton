@@ -15,7 +15,10 @@ class MeetingStaticDataStore {
   }
 
   // Retrieve stored meeting data
-  getMeetingData(): MeetingStaticData | null {
+  getMeetingData(): MeetingStaticData {
+    if (!this.data) {
+      throw new Error('Meeting data is not initialized');
+    }
     return this.data;
   }
 
