@@ -72,6 +72,7 @@ export const VideoPlayer = styled(ReactPlayer)`
   }
 `;
 
+// @ts-ignore - as button comes from JS, we can't provide its props
 export const ExternalVideoCloseButton = styled(Button)`
   z-index: 1;
   position: absolute;
