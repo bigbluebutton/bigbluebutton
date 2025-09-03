@@ -28,7 +28,7 @@ class LockViewers extends MultiUsers {
 
     await this.initUserPage2(true);
     await this.userPage2.hasElementDisabled(e.joinVideo, 'should the join video button to be disabled for the second attendee');
-    await this.modPage.waitAndClick(`${e.userListItem}>>nth=1`);
+    await this.modPage.waitAndClick(`${e.moreOptionsUserItemButton}>>nth=1`);
     await this.modPage.waitAndClick(`${e.unlockUserButton}>>nth=1`);
     await this.userPage2.waitAndClick(e.joinVideo);
     await this.userPage2.waitAndClick(e.startSharingWebcam);
@@ -53,7 +53,7 @@ class LockViewers extends MultiUsers {
 
     await this.userPage2.shareWebcam();
 
-    await this.modPage.waitAndClick(`${e.userListItem}>>nth=1`);
+    await this.modPage.waitAndClick(`${e.moreOptionsUserItemButton}>>nth=1`);
     await this.modPage.waitAndClick(`${e.unlockUserButton}>>nth=1`);
 
     await this.modPage.hasElementCount(e.webcamContainer, 2, 'should display 2 webcams container for the moderator');
@@ -77,7 +77,7 @@ class LockViewers extends MultiUsers {
     await this.userPage2.hasElement(e.unmuteMicButton, 'should display the unmute button for the second attendee when joined, indicating audio connected');
     await expect(unmuteMicButtonUser2, 'should display the unmute button disabled as the user is locked').toBeDisabled();
     // unlock second user
-    await this.modPage.waitAndClick(`${e.userListItem}>>nth=1`);
+    await this.modPage.waitAndClick(`${e.moreOptionsUserItemButton}>>nth=1`);
     await this.modPage.waitAndClick(`${e.unlockUserButton}>>nth=1`);
     // check second user audio after unlocking
     await this.userPage2.waitAndClick(e.audioDropdownMenu);
@@ -112,25 +112,29 @@ class LockViewers extends MultiUsers {
     await this.initUserPage2(true);
     await this.userPage2.hasElementDisabled(e.chatBox, 'should have the public chat disabled for the second attendee');
     await this.userPage2.hasElementDisabled(e.sendButton, 'should have the send button on the public chat disabled for the second attendee');
+    await this.modPage.waitAndClick(e.messagesSidebarButton);
     await this.modPage.type(e.chatBox, e.message);
     await this.modPage.waitAndClick(e.sendButton);
     // unlock user2
-    await this.modPage.waitAndClick(`${e.userListItem}>>nth=1`);
+    await this.modPage.waitAndClick(e.usersListSidebarButton);
+    await this.modPage.waitAndClick(`${e.moreOptionsUserItemButton}>>nth=1`);
     await this.modPage.waitAndClick(`${e.unlockUserButton}>>nth=1`);
     // check enabled elements and send new message
     await this.userPage2.hasElementEnabled(e.chatBox, 'should have the public chat enabled for the second attendee', ELEMENT_WAIT_LONGER_TIME);
     await this.userPage2.type(e.chatBox, e.message);
+    await this.modPage.waitAndClick(e.messagesSidebarButton);
     await this.modPage.hasElement(e.typingIndicator, 'should display the typing indicator element for the moderator');
     await this.userPage2.waitAndClick(e.sendButton);
     await this.userPage2.hasElementCount(e.chatUserMessageText, 3, 'should display three chat messages on the public chat for the second attendee');
     const lastMessageSentUser2Locator = await this.userPage2.getLocator(e.chatMessageItem).last();
-    await lastMessageSentUser2Locator.locator(e.chatUserMessageText).hover();
+    await lastMessageSentUser2Locator.hover({ force: true });
     await expect(lastMessageSentUser2Locator.locator(e.messageToolbar), 'should display the chat message toolbar when the unlocked viewer is hovering a message').toBeVisible();
     await this.userPage.hasElementCount(e.chatUserMessageText, 3, 'should display all messages on the public chat for the first attendee');
   }
 
   async lockSendPrivateChatMessages() {
     // user start private chat with mod and send a message
+    await this.userPage.waitAndClick(e.usersListSidebarButton);
     const lastUserItemLocator = this.userPage.getLocatorByIndex(e.userListItem, -1);
     await this.userPage.clickOnLocator(lastUserItemLocator);
     const startPrivateChatButton = this.userPage.getLocatorByIndex(e.startPrivateChat, -1);
@@ -141,10 +145,12 @@ class LockViewers extends MultiUsers {
     await this.modPage.waitAndClick(e.applyLockSettings);
     // join second user
     await this.initUserPage2();
-    await this.modPage.getLocator(e.userListItem).filter({ hasNotText: this.userPage2.username }).click();
+    const attendeeRow = await this.modPage.getLocator(e.userListItem).first();
+    await attendeeRow.locator(e.moreOptionsUserItemButton).click();
     await this.modPage.waitAndClick(e.unlockUserButton);
-    await this.userPage.getLocator(e.userListItem).filter({ hasText: this.userPage2.username }).click();
-    await this.userPage.waitAndClick(`${e.startPrivateChat} >> visible=true`);
+    await this.userPage.waitAndClick(e.usersListSidebarButton);
+    const userStartPrivateChat = await this.userPage.getLocator(e.userListItem).last();
+    await userStartPrivateChat.locator(e.startPrivateChat).click();
     await this.userPage.hasElementEnabled(e.chatBox, 'should have the private chat enabled for the first attendee');
     await this.userPage.hasElementEnabled(e.sendButton, 'should have the send button on the private chat enabled for the first attendee');
     await this.userPage.type(e.chatBox, 'Test');
@@ -152,14 +158,15 @@ class LockViewers extends MultiUsers {
     // check message sent and toolbar
     await this.userPage.hasElement(e.chatUserMessageText);
     const privateChatMessaSentUser = await this.userPage.getLocator(e.chatMessageItem).last();
-    await privateChatMessaSentUser.locator(e.chatUserMessageText).hover();
+    await privateChatMessaSentUser.locator(e.chatUserMessageText).hover({ force: true });
     await expect(privateChatMessaSentUser.locator(e.messageToolbar), 'should display the chat message toolbar when hovering the message').toBeVisible();
     // check if the private chat is locked for the second attendee
-    await this.userPage2.getLocator(e.chatButton).filter({ hasText: this.userPage.username }).click();
+    await this.userPage2.waitAndClick(e.privateChatButton);
+    await this.userPage2.waitAndClick(e.privateChats);
     await this.userPage2.hasElementDisabled(e.chatBox, 'should have the private chat disabled for the second attendee');
     await this.userPage2.hasElementDisabled(e.sendButton, 'should have the send button on the private chat disabled for the second attendee');
     const privateChatMessaSentUser2 = await this.userPage2.getLocator(e.chatMessageItem).last();
-    await privateChatMessaSentUser2.locator(e.chatUserMessageText).hover();
+    await privateChatMessaSentUser2.locator(e.chatUserMessageText).hover({ force: true });
     await expect(privateChatMessaSentUser2.locator(e.messageToolbar), 'should not display the chat message toolbar when locked user is hovering the message').not.toBeVisible();
   }
 
@@ -181,8 +188,9 @@ class LockViewers extends MultiUsers {
     await this.userPage.waitAndClick(e.sharedNotesSidebarButton);
     await this.userPage.wasRemoved(e.etherpadFrame, 'should not display the etherpad frame for the first attendee');
 
-    await this.modPage.waitAndClick(`${e.userListItem}>>nth=1`);
-    await this.modPage.waitAndClick(`${e.unlockUserButton}>>nth=1`);
+    const attendeeRow = await this.modPage.getLocator(e.userListItem).first();
+    await attendeeRow.locator(e.moreOptionsUserItemButton).click();
+    await this.modPage.waitAndClick(e.unlockUserButton);
   }
 
   async lockSeeOtherViewersUserList() {
@@ -190,13 +198,16 @@ class LockViewers extends MultiUsers {
     await this.modPage.waitAndClickElement(e.lockUserList);
     await this.modPage.waitAndClick(e.applyLockSettings);
     await this.initUserPage2(true);
-    await this.userPage2.hasElementCount(e.userListItem, 1, 'should contain one user on the user list for the second attendee');
+    await this.userPage2.waitAndClick(e.usersListSidebarButton);
+    await this.userPage2.hasElementCount(e.userListItem, 1, 'should contain one user on the user list for the second attendee', 10000);
     await sleep(1000);
+    await this.userPage.waitAndClick(e.usersListSidebarButton);
     await this.userPage.hasElementCount(e.userListItem, 1, 'should contain one user on the user list for the first attendee');
 
-    await this.modPage.waitAndClick(`${e.userListItem}>>nth=1`);
-    await this.modPage.waitAndClick(`${e.unlockUserButton}>>nth=1`);
-    await this.userPage2.hasElementCount(e.userListItem, 2, 'should contain two users on the user list for the second attendee');
+    const attendeeRow = await this.modPage.getLocator(e.userListItem).first();
+    await attendeeRow.locator(e.moreOptionsUserItemButton).click();
+    await this.modPage.waitAndClick(e.unlockUserButton);
+    await this.userPage.hasElementCount(e.userListItem, 2, 'should contain two users on the user list for the first attendee');
   }
 
   async lockSeeOtherViewersAnnotations() {
@@ -228,33 +239,34 @@ class LockViewers extends MultiUsers {
     await this.userPage2.hasElement(e.whiteboard);
     await sleep(1000);   // timeout to ensure the user2 presentation is zoomed correctly
     await this.userPage2.wasRemoved(e.wbDrawnArrow, 'should not display the other viewer annotation for the viewer who just joined');
-    await this.modPage.getLocator(e.chatButton).hover();
-    await this.userPage.getLocator(e.chatButton).hover(); // ensure userPage cursor won't be visible on the screenshot
+    await this.modPage.getLocator(e.messagesSidebarButton).hover();
+    await this.userPage.getLocator(e.messagesSidebarButton).hover(); // ensure userPage cursor won't be visible on the screenshot
     await sleep(1000);  // expected timeout for cursor indicator to disappear
     await expect(user2WbLocator, 'should not display the other viewer annotation for the viewer who just joined').toHaveScreenshot('viewer2-just-joined.png', screenshotOptions);
     // draw a rectangle and check if it is displayed
     await this.userPage.waitAndClick(e.wbShapesButton);
     await this.userPage.waitAndClick(e.wbRectangleShape);
     await this.userPage.waitAndClick(e.whiteboard);
-    await this.modPage.getLocator(e.chatButton).hover();
-    await this.userPage.getLocator(e.chatButton).hover(); // ensure userPage cursor won't be visible on the screenshot
+    await this.modPage.getLocator(e.messagesSidebarButton).hover();
+    await this.userPage.getLocator(e.messagesSidebarButton).hover(); // ensure userPage cursor won't be visible on the screenshot
     await this.userPage2.wasRemoved(e.wbDrawnShape, 'should not display the new annotation for the other viewer');
     await sleep(1000);  // expected timeout for cursor indicator to disappear
     await expect(user2WbLocator, 'should not display the new annotation for the other viewer').toHaveScreenshot('viewer2-no-rectangle.png', screenshotOptions);
     // unlock user2
-    await this.modPage.waitAndClick(`${e.userListItem}>>nth=1`);
-    await this.modPage.waitAndClick(`${e.unlockUserButton}>>nth=1`);
+    const attendee2Row = await this.modPage.getLocator(e.userListItem).last();
+    await attendee2Row.locator(e.moreOptionsUserItemButton).click();
+    await this.modPage.getLocator(e.unlockUserButton).last().click();
     // check if previous annotations is displayed after unlocking user
     await this.userPage2.hasElement(e.wbDrawnArrow, 'should display the arrow drawn before user join');
     await this.userPage2.hasElement(e.wbDrawnShape, 'should display the rectangle drawn before unlocking user');
-    await this.modPage.getLocator(e.chatButton).hover();
-    await this.userPage2.getLocator(e.chatButton).hover(); // ensure userPage cursor won't be visible on the screenshot
+    await this.modPage.getLocator(e.messagesSidebarButton).hover();
+    await this.userPage2.getLocator(e.messagesSidebarButton).hover(); // ensure userPage cursor won't be visible on the screenshot
     await sleep(1000);  // expected timeout for cursor indicator to disappear
     await expect(user2WbLocator, 'should display the other viewer annotations when unlocking specific user').toHaveScreenshot('viewer2-previous-shapes.png', screenshotOptions);
     // check if new annotations is displayed after unlocking user
     await drawArrow(this.userPage);
-    await this.modPage.getLocator(e.chatButton).hover();
-    await this.userPage.getLocator(e.chatButton).hover(); // ensure userPage cursor will be visible on the screenshot
+    await this.modPage.getLocator(e.messagesSidebarButton).hover();
+    await this.userPage.getLocator(e.messagesSidebarButton).hover(); // ensure userPage cursor will be visible on the screenshot
     await this.userPage2.hasElementCount(e.wbDrawnArrow, 2, 'should display all arrows drawn for unlocked user');
     await sleep(1000);  // expected timeout for cursor indicator to disappear
     await expect(user2WbLocator, 'should display all arrows drawn for unlocked user').toHaveScreenshot('viewer2-new-arrow.png', screenshotOptions);
@@ -278,11 +290,12 @@ class LockViewers extends MultiUsers {
       'should contain no whiteboard cursor indicator for the second attendee when joining a meeting with the setting locked'
     );
     // Unlock user2
-    await this.modPage.waitAndClick(`${e.userListItem}>>nth=1`);
-    await this.modPage.waitAndClick(`${e.unlockUserButton}>>nth=1`);
+    const attendee2Row = await this.modPage.getLocator(e.userListItem).last();
+    await attendee2Row.locator(e.moreOptionsUserItemButton).click();
+    await this.modPage.getLocator(e.unlockUserButton).last().click();
     await sleep(1000);  // ensure the unlock settings are applied
     await this.modPage.getLocator(e.whiteboard).hover(); // hover modPage cursor on the whiteboard to ensure a new location
-    await this.modPage.getLocator(e.chatButton).hover(); // ensure modPage cursor WILL NOT be visible on the screenshot
+    await this.modPage.getLocator(e.messagesSidebarButton).hover(); // ensure modPage cursor WILL NOT be visible on the screenshot
     await this.userPage.getLocator(e.whiteboard).hover(); // ensure userPage cursor WILL be visible on the screenshot
     await this.userPage.waitAndClick(e.whiteboard);
     await this.userPage2.hasElementCount(e.whiteboardCursorIndicator, 1, 'should be displayed the other viewer whiteboard cursor indicator when unlocking user is unlocked');
