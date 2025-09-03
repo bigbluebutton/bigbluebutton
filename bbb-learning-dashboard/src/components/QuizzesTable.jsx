@@ -446,7 +446,7 @@ const QuizzesTable = (props) => {
       ...commonColProps,
       sortable: true,
       valueGetter: (params) => {
-        const { userAnswers } = params?.value;
+        const { userAnswers = [] } = params?.value ?? {};
         return userAnswers.map((response) => {
           const responseInLowerCase = response.toLowerCase();
           const key = pollAnswerIds[responseInLowerCase]
@@ -458,7 +458,7 @@ const QuizzesTable = (props) => {
         let type = 'default';
         const {
           ended, userAnswers, correctOption,
-        } = params?.row[params?.field];
+        } = params.row && params.field ? params.row[params.field] : {};
         const userResponded = !!userAnswers.length;
         const hasCorrectOption = !!correctOption;
         if (userResponded && ended) {
