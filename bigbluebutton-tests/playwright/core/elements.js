@@ -587,3 +587,18 @@ exports.userStatusDashboard = 'td[data-test="userStatusDashboard"]';
 exports.userActivityScoreDashboard = 'td[data-test="userActivityScoreDashboard"]';
 exports.activityScorePanelDashboard = 'button[data-test="activityScorePanelDashboard"]';
 exports.downloadSessionLearningDashboard = 'button[data-test="downloadSessionDataDashboard"]';
+
+// Recording playback
+exports.playbackElements = {
+  sectionLeftButton: 'button[data-test="section-left"]',
+  lightThemeButton: 'button[data-test="theme-light"]',
+  darkThemeButton: 'button[data-test="theme-dark"]',
+  searchButton: 'button[data-test="search-button"]',
+  swapContentButton: 'button[data-test="swap-content"]',
+  topBar: 'div.top-bar',
+  title: 'span.title',
+  mediaArea: 'div.media',
+  applicationArea: 'div.application',
+  topContentArea: 'div.top-content',
+  bottomContentArea: 'div.bottom-content',
+}

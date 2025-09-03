@@ -8,4 +8,11 @@ test.describe.parallel('Recording', { tag: '@ci' }, () => {
     await recording.initModPage(page, true, { createParameter: c.recordMeeting });
     await recording.recordMeeting();
   });
+
+  test('Dark mode', async ({ browser, context, page }) => {
+    const recording = new Recording(browser, context);
+    await recording.initModPage(page, true, { createParameter: c.recordMeeting });
+    await recording.recordMeeting();
+    await recording.darkMode();
+  });
 });

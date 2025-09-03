@@ -3,6 +3,9 @@ const e = require('../core/elements');
 const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 const { expect } = require('playwright/test');
 const { apiCall, sleep } = require("../core/helpers");
+const Page = require('../core/page');
+
+const { playbackElements } = e;
 
 class Recording extends MultiUsers {
   constructor(browser, context) {
@@ -22,7 +25,8 @@ class Recording extends MultiUsers {
       if (response.returncode[0] === 'SUCCESS' && 
           response.messageKey?.[0] !== 'noRecordings' && 
           response.recordings && 
-          response.recordings.length > 0) {
+          response.recordings.length > 0
+        ) {
         return { response };
       }
 
@@ -81,13 +85,70 @@ class Recording extends MultiUsers {
     expect(playbackUrl, 'playback URL should contain "/playback/presentation/"').toContain('/playback/presentation/');
 
     // Access playback URL in a new tab and verify it returns 200
-    const newPage = await this.modPage.context.newPage();
+    const playbackPage = await this.modPage.context.newPage();
     try {
-      const response = await newPage.goto(playbackUrl);
+      const response = await playbackPage.goto(playbackUrl);
       await expect(response.ok(), 'playback URL should be accessible').toBeTruthy();
     } finally {
-      await newPage.close();
+      this.playbackPage = new Page(this.modPage.browser, playbackPage);
     }
+  }
+
+  async darkMode() {
+    const getBackgroundColorComputed = (node) => getComputedStyle(node).backgroundColor;
+    const getTextColorComputed = (node) => getComputedStyle(node).color;
+
+    // set all locators
+    const [
+      topBarLocator,
+      mediaAreaLocator,
+      applicationAreaLocator,
+      topContentAreaLocator,
+      bottomContentAreaLocator,
+      titleLocator,
+      sectionLeftLocator,
+      searchButtonLocator,
+      swapContentLocator,
+    ] = [
+      playbackElements.topBar,
+      playbackElements.mediaArea,
+      playbackElements.applicationArea,
+      playbackElements.topContentArea,
+      playbackElements.bottomContentArea,
+      `${playbackElements.topBar} ${playbackElements.title}`,
+      playbackElements.sectionLeftButton,
+      playbackElements.searchButton,
+      playbackElements.swapContentButton,
+    ].map(e => this.playbackPage.getLocator(e));
+
+    // background color elements that should be changed (light mode)
+    const topBarBackgroundColor = await topBarLocator.evaluate(getBackgroundColorComputed);
+    const mediaAreaBackgroundColor = await mediaAreaLocator.evaluate(getBackgroundColorComputed);
+    const applicationAreaBackgroundColor = await applicationAreaLocator.evaluate(getBackgroundColorComputed);
+    const topContentAreaBackgroundColor = await topContentAreaLocator.evaluate(getBackgroundColorComputed);
+    const bottomContentAreaBackgroundColor = await bottomContentAreaLocator.evaluate(getBackgroundColorComputed);
+    // text colors that should be changed (light mode)
+    const titleColor = await titleLocator.evaluate(getTextColorComputed);
+    const sectionLeftColor = await sectionLeftLocator.evaluate(getTextColorComputed);
+    const searchButtonColor = await searchButtonLocator.evaluate(getTextColorComputed);
+    const swapContentColor = await swapContentLocator.evaluate(getTextColorComputed);
+
+    // Toggle to dark mode
+    await this.playbackPage.hasElement(playbackElements.darkThemeButton, 'should display the toggle theme to dark mode');
+    await this.playbackPage.waitAndClick(playbackElements.darkThemeButton);
+    await this.playbackPage.wasRemoved(playbackElements.darkThemeButton, 'should remove the dark mode button');
+    await this.playbackPage.hasElement(playbackElements.lightThemeButton, 'should display the toggle theme to light mode when dark mode is active');
+
+    // Assert light mode element styles
+    expect.soft(topBarBackgroundColor).not.toEqual(await topBarLocator.evaluate(getBackgroundColorComputed), 'should the top bar background color be changed');
+    expect.soft(mediaAreaBackgroundColor).not.toEqual(await mediaAreaLocator.evaluate(getBackgroundColorComputed), 'should the media area background color be changed');
+    expect.soft(applicationAreaBackgroundColor).not.toEqual(await applicationAreaLocator.evaluate(getBackgroundColorComputed), 'should the application area background color be changed');
+    expect.soft(topContentAreaBackgroundColor).not.toEqual(await topContentAreaLocator.evaluate(getBackgroundColorComputed), 'should the top content area background color be changed');
+    expect.soft(bottomContentAreaBackgroundColor).not.toEqual(await bottomContentAreaLocator.evaluate(getBackgroundColorComputed), 'should the bottom content area background color be changed');
+    expect.soft(titleColor).not.toEqual(await titleLocator.evaluate(getTextColorComputed), 'should the title color be changed');
+    expect.soft(sectionLeftColor).not.toEqual(await sectionLeftLocator.evaluate(getTextColorComputed), 'should the section left color be changed');
+    expect.soft(searchButtonColor).not.toEqual(await searchButtonLocator.evaluate(getTextColorComputed), 'should the search button color be changed');
+    expect.soft(swapContentColor).not.toEqual(await swapContentLocator.evaluate(getTextColorComputed), 'should the swap content color be changed');
   }
 }
 
