@@ -10,11 +10,8 @@ const testWithValidation = base.test.extend({
     // before test
     await use();
     // after test
-    if (fullyParallel) {
-      while (browser.contexts().length > 0) {
-        await browser.contexts()[0].close();
-      }
-    }
+    const contexts = browser.contexts();
+    await Promise.all(contexts.map(context => context.close()));
   }, { scope: 'test', auto: true }],
 });
 
