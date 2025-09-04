@@ -33,4 +33,10 @@ test.describe.parallel('Recording', { tag: '@ci' }, () => {
     recording.playbackPage = new Page(browser, page);
     await recording.darkMode();
   });
+
+  test('Swap content', async ({ browser, context, page }) => {
+    const recording = new Recording(browser, context);
+    recording.playbackPage = new Page(browser, page);
+    await recording.swapContent();
+  });
 });

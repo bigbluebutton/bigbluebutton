@@ -596,7 +596,7 @@ exports.playbackElements = {
   searchButton: 'button[data-test="search-button"]',
   swapContentButton: 'button[data-test="swap-content"]',
   topBar: 'div.top-bar',
-  title: 'span.title',
+  title: 'span[data-test="about-title"]',
   mediaArea: 'div.media',
   applicationArea: 'div.application',
   topContentArea: 'div.top-content',

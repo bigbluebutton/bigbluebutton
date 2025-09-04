@@ -158,6 +158,19 @@ class Recording extends MultiUsers {
     expect.soft(searchButtonColor).not.toEqual(await searchButtonLocator.evaluate(getTextColorComputed), 'should the search button color be changed');
     expect.soft(swapContentColor).not.toEqual(await swapContentLocator.evaluate(getTextColorComputed), 'should the swap content color be changed');
   }
+
+  async swapContent() {
+    await this.playbackPage.hasElement(playbackElements.title, 'should display the playback title');
+    const titleLocator = this.playbackPage.getLocator(playbackElements.title);
+    await expect(this.playbackPage.page, 'top content area should be visible').toHaveScreenshot('default-content-disposition.png', {
+      mask: [titleLocator],
+    });
+
+    await this.playbackPage.waitAndClick(playbackElements.swapContentButton);
+    await expect(this.playbackPage.page, 'bottom content area should be visible after swapping content').toHaveScreenshot('swapped-content-disposition.png', {
+      mask: [titleLocator],
+    });
+  }
 }
 
 exports.Recording = Recording;
