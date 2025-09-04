@@ -1,18 +1,36 @@
 const { test } = require('../fixtures');
-const c = require('../parameters/constants')
+const Page = require('../core/page');
+const c = require('../parameters/constants');
 const { Recording } = require('./recording');
+const { expect } = require('playwright/test');
 
 test.describe.parallel('Recording', { tag: '@ci' }, () => {
-  test('Generate a valid and accessible playback recording link', async ({ browser, context, page }) => {
+  let generatedRecordingPlaybackUrl;
+
+  test.beforeAll(async ({ browser }) => {
+    const context = await browser.newContext();
+    const page = await context.newPage();
     const recording = new Recording(browser, context);
     await recording.initModPage(page, true, { createParameter: c.recordMeeting });
-    await recording.recordMeeting();
+    generatedRecordingPlaybackUrl = await recording.recordMeeting();
+  });
+
+  test.beforeEach(async ({ page }) => {
+    const response = await page.goto(generatedRecordingPlaybackUrl);
+    expect(response.ok(), 'playback URL should be accessible').toBeTruthy();
+    await page.waitForLoadState('domcontentloaded');
+  });
+
+  test('Generate a valid and accessible playback recording link', async ({ browser, context, page }) => {
+    // recording generation is done in beforeAll hook
+    const recording = new Recording(browser, context);
+    recording.playbackPage = new Page(browser, page);
+    await recording.accessPlayback(generatedRecordingPlaybackUrl);
   });
 
   test('Dark mode', async ({ browser, context, page }) => {
     const recording = new Recording(browser, context);
-    await recording.initModPage(page, true, { createParameter: c.recordMeeting });
-    await recording.recordMeeting();
+    recording.playbackPage = new Page(browser, page);
     await recording.darkMode();
   });
 });

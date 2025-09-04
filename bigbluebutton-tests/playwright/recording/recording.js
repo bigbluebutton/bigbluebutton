@@ -40,7 +40,7 @@ class Recording extends MultiUsers {
   }
 
   async recordMeeting() {
-    // Check recording modal
+    // check recording modal
     const recordingIndicatorButton = this.modPage.getLocator(`${e.recordingIndicator} button`);
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.hasElement(e.recordingIndicator, 'should the recording indicator to be displayed once the user join the meeting');
@@ -49,7 +49,7 @@ class Recording extends MultiUsers {
       'recording indicator button should not have any background color when not recording'
     ).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
 
-    // Start recording
+    // start recording
     await this.modPage.waitAndClick(e.recordingIndicator);
     await this.modPage.hasElement(e.simpleModal, 'should display the recording modal');
     await this.modPage.hasElement(e.noButton, 'should display the "No" button in the recording modal');
@@ -60,7 +60,7 @@ class Recording extends MultiUsers {
       'recording indicator button should have a red background color when recording'
     ).toHaveCSS('background-color', 'rgb(174, 16, 16)');
 
-    // Stop recording and end meeting
+    // stop recording and end meeting
     await expect(
       recordingIndicatorButton,
       'should display 2 seconds on the recording button counter'
@@ -71,27 +71,35 @@ class Recording extends MultiUsers {
     await this.modPage.waitAndClick(e.confirmEndMeetingButton);
     await this.modPage.hasElement(e.meetingEndedModal, 'should display the meeting ended modal for the moderator');
 
-    // Request recording API endpoint with retry logic
+    // request recording API endpoint with retry logic
     const { response } = await this.getRecordingsWithRetry();
     const recordingData = response.recordings[0].recording[0];
     expect(response.returncode[0], 'getRecordings API call should return "SUCCESS"').toEqual('SUCCESS');
     expect(recordingData.metadata[0].isBreakout[0], 'metadata.isBreakout should not be true').toEqual('false');
-    // Validate recording format
+    // validate recording format
     const playbackData = recordingData.playback[0].format[0];
     expect(playbackData.type[0], 'playback type should be presentation').toEqual('presentation');
-    // Validate playback URL
+    // validate playback URL
     const playbackUrl = playbackData.url[0];
     expect(() => new URL(playbackUrl), 'playback URL should be valid').not.toThrow();
     expect(playbackUrl, 'playback URL should contain "/playback/presentation/"').toContain('/playback/presentation/');
+    return playbackUrl;
+  }
 
-    // Access playback URL in a new tab and verify it returns 200
-    const playbackPage = await this.modPage.context.newPage();
-    try {
-      const response = await playbackPage.goto(playbackUrl);
-      await expect(response.ok(), 'playback URL should be accessible').toBeTruthy();
-    } finally {
-      this.playbackPage = new Page(this.modPage.browser, playbackPage);
-    }
+  async accessPlayback(playbackUrl) {
+    const response = await this.playbackPage.page.goto(playbackUrl);
+    expect(response.ok(), 'playback URL should be accessible').toBeTruthy();
+    await this.playbackPage.page.waitForLoadState('domcontentloaded');
+    // check elements
+    await this.playbackPage.hasElement(playbackElements.topBar, 'should display the playback top bar');
+    await this.playbackPage.hasElement(playbackElements.mediaArea, 'should display the playback media area');
+    await this.playbackPage.hasElement(playbackElements.applicationArea, 'should display the playback application area');
+    await this.playbackPage.hasElement(playbackElements.topContentArea, 'should display the playback top content area');
+    await this.playbackPage.hasElement(playbackElements.bottomContentArea, 'should display the playback bottom content area');
+    await this.playbackPage.hasElement(playbackElements.sectionLeftButton, 'should display the playback section left button');
+    await this.playbackPage.hasElement(playbackElements.searchButton, 'should display the playback search button');
+    await this.playbackPage.hasElement(playbackElements.swapContentButton, 'should display the playback swap content button');
+    await this.playbackPage.hasElement(playbackElements.darkThemeButton, 'should display the playback dark theme button');
   }
 
   async darkMode() {
@@ -133,13 +141,13 @@ class Recording extends MultiUsers {
     const searchButtonColor = await searchButtonLocator.evaluate(getTextColorComputed);
     const swapContentColor = await swapContentLocator.evaluate(getTextColorComputed);
 
-    // Toggle to dark mode
+    // toggle to dark mode
     await this.playbackPage.hasElement(playbackElements.darkThemeButton, 'should display the toggle theme to dark mode');
     await this.playbackPage.waitAndClick(playbackElements.darkThemeButton);
     await this.playbackPage.wasRemoved(playbackElements.darkThemeButton, 'should remove the dark mode button');
     await this.playbackPage.hasElement(playbackElements.lightThemeButton, 'should display the toggle theme to light mode when dark mode is active');
 
-    // Assert light mode element styles
+    // assert light mode element styles
     expect.soft(topBarBackgroundColor).not.toEqual(await topBarLocator.evaluate(getBackgroundColorComputed), 'should the top bar background color be changed');
     expect.soft(mediaAreaBackgroundColor).not.toEqual(await mediaAreaLocator.evaluate(getBackgroundColorComputed), 'should the media area background color be changed');
     expect.soft(applicationAreaBackgroundColor).not.toEqual(await applicationAreaLocator.evaluate(getBackgroundColorComputed), 'should the application area background color be changed');
