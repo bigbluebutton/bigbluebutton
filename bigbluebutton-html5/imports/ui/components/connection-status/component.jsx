@@ -24,6 +24,7 @@ const ConnectionStatus = ({
   const applicationRttInMs = useRef(0); // Ref to store the last application rtt
   const timeoutRef = useRef(null);
   const [timeSync] = useTimeSync();
+  const timeSyncRef = useRef(timeSync);
 
   const [updateConnectionAliveAtM] = useMutation(UPDATE_CONNECTION_ALIVE_AT);
 
@@ -95,20 +96,21 @@ const ConnectionStatus = ({
       .then((res) => {
         if (res.ok && res.status === 200) {
           try {
-            const nowSyncedWithServer = new Date(Date.now() + timeSync);
+            const nowSyncedWithServer = new Date(Date.now() + timeSyncRef.current);
             const traceLog = user.presenter ? `traceLog@client|${nowSyncedWithServer.toISOString()}` : '';
             const rttLevels = window.meetingClientSettings.public.stats.rtt;
             const endTime = performance.now();
             const networkRtt = Math.round(endTime - startTime);
 
             // Calc and set latency between client and server
-            if (timeSync === 0) {
+            if (timeSyncRef.current === 0) {
               const clientNowEpoch = Date.now();
               const serverEpochMsec = Number(res.headers.get('X-Server-Epoch-Msec'));
               const oneWay = networkRtt / 2; // aproximation NTP
               const skew = ((serverEpochMsec * 1000) + oneWay) - clientNowEpoch;
               logger.debug(`Latency between server and client: ${skew}`);
               setTimeSync(skew);
+              timeSyncRef.current = skew;
             }
 
             networkRttInMs.current = networkRtt;
