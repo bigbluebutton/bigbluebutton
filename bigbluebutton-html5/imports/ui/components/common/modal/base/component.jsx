@@ -1,4 +1,6 @@
 import React, { useCallback, useEffect } from 'react';
+import { setHideDialogs } from '/imports/ui/components/plugins-engine/ui-commands/dialogs/handler';
+import { useReactiveVar } from '@apollo/client';
 import Styled from './styles';
 
 const BaseModal = (props) => {
@@ -32,6 +34,10 @@ const BaseModal = (props) => {
     };
   }, []);
   const priorityValue = priority || 'low';
+
+  const shouldHideDialogs = useReactiveVar(setHideDialogs);
+
+  if (shouldHideDialogs) return null;
 
   return (
     <Styled.BaseModal
