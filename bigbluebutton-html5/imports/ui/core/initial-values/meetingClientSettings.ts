@@ -482,7 +482,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       chatMessage: true,
       quickPollConfirmationStep: false,
       quiz: {
-        enabled: false,
+        enabled: true,
         quickPollCorrectAnswerSuffix: '__',
       },
     },

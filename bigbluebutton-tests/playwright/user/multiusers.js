@@ -407,6 +407,37 @@ class MultiUsers {
     await this.modPage2.hasText(e.moderatorAvatar, 'mo', 'should not display the emoji after clearing all icons');
   }
 
+  async leaveMeeting() {
+    await this.modPage.waitForSelector(e.whiteboard);
+
+    const modPageUserList = await this.modPage.getLocator(e.userListItem);
+
+    await expect(modPageUserList).toHaveCount(2);
+    await this.modPage.hasElementCount(e.userListItem, 2, 'should display the two users on the user list for the moderator, self not included in the count');
+
+    await this.modPage.waitAndClick(e.leaveMeetingDropdown);
+    await this.modPage.waitAndClick(e.directLogoutButton);
+
+    await this.modPage.hasElement(e.meetingEndedModal, 'should display the meeting ended modal for the moderator');
+    await this.modPage.hasElement(e.redirectButton, 'should display the redirect button in the meeting ended modal');
+
+    const user1PageUserList = await this.userPage.getLocator(e.userListItem);
+
+    await expect(user1PageUserList).toHaveCount(1);
+    await this.userPage.hasElementCount(e.userListItem, 1, 'should display the two users on the user list for User1, self not included in the count');
+
+    await this.userPage.waitAndClick(e.leaveMeetingDropdown);
+    await this.userPage.waitAndClick(e.directLogoutButton);
+
+    await this.userPage.hasElement(e.meetingEndedModal, 'should display the meeting ended modal for the attendee');
+    await this.userPage.hasElement(e.redirectButton, 'should display the redirect button in the meeting ended modal');
+
+    const user2PageUserList = await this.userPage2.getLocator(e.userListItem);
+
+    await expect(user2PageUserList).toHaveCount(0);
+    await this.userPage2.hasElementCount(e.userListItem, 0, 'should display one user(self) for the User2, self not included in the count');
+  }
+
   async endMeeting() {
     await this.modPage.waitForSelector(e.whiteboard);
     await this.userPage.waitForSelector(e.whiteboard);
