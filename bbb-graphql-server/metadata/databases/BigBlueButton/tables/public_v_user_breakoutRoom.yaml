@@ -18,7 +18,7 @@ select_permissions:
         - sequence
       filter:
         meetingId:
-          _eq: X-Hasura-MeetingId
+          _eq: X-Hasura-ModeratorInMeeting
   - role: bbb_client_not_in_meeting
     permission:
       columns:
