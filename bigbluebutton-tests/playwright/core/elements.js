@@ -601,4 +601,8 @@ exports.playbackElements = {
   applicationArea: 'div.application',
   topContentArea: 'div.top-content',
   bottomContentArea: 'div.bottom-content',
+  chatContentArea: 'div#chat',
+  chatButton: 'button[data-test="chat-button"]',
+  notesContentArea: 'div#notes',
+  notesButton: 'div[data-test="notes-button"]',
 }

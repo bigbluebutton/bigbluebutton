@@ -39,4 +39,10 @@ test.describe.parallel('Recording', { tag: '@ci' }, () => {
     recording.playbackPage = new Page(browser, page);
     await recording.swapContent();
   });
+
+  test('Toggle chat and notes', async ({ browser, context, page }) => {
+    const recording = new Recording(browser, context);
+    recording.playbackPage = new Page(browser, page);
+    await recording.toggleChatNotes();
+  });
 });

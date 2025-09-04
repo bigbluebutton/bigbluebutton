@@ -1,9 +1,11 @@
 const { MultiUsers } = require("../user/multiusers");
 const e = require('../core/elements');
-const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
+const { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } = require('../core/constants');
 const { expect } = require('playwright/test');
 const { apiCall, sleep } = require("../core/helpers");
 const Page = require('../core/page');
+const { openPublicChat } = require("../chat/util");
+const { startSharedNotes, getNotesLocator } = require("../sharednotes/util");
 
 const { playbackElements } = e;
 
@@ -60,11 +62,23 @@ class Recording extends MultiUsers {
       'recording indicator button should have a red background color when recording'
     ).toHaveCSS('background-color', 'rgb(174, 16, 16)');
 
+    // send chat message
+    await openPublicChat(this.modPage);
+    await this.modPage.type(e.chatBox, e.message);
+    await this.modPage.waitAndClick(e.sendButton);
+    await this.modPage.hasElementCount(e.chatUserMessageText, 1, 'should have on message on the public chat');
+
+    // type on shared notes
+    await startSharedNotes(this.modPage);
+    const notesLocator = getNotesLocator(this.modPage);
+    await notesLocator.type(e.testMessage);
+    await expect(notesLocator, 'should contain the typed text on shared notes').toContainText(e.testMessage, { timeout: ELEMENT_WAIT_TIME });
+
     // stop recording and end meeting
     await expect(
       recordingIndicatorButton,
-      'should display 2 seconds on the recording button counter'
-    ).toContainText('00:02', { timeout: ELEMENT_WAIT_LONGER_TIME });
+      'should display 5 seconds on the recording button counter'
+    ).toContainText('00:05', { timeout: ELEMENT_WAIT_LONGER_TIME });
     await this.modPage.waitAndClick(e.leaveMeetingDropdown);
     await this.modPage.waitAndClick(e.endMeetingButton);
     await this.modPage.hasElement(e.simpleModal, 'should display the confirm meeting end modal');
@@ -170,6 +184,18 @@ class Recording extends MultiUsers {
     await expect(this.playbackPage.page, 'bottom content area should be visible after swapping content').toHaveScreenshot('swapped-content-disposition.png', {
       mask: [titleLocator],
     });
+  }
+
+  async toggleChatNotes() {
+    // check chat - expected by default
+    await this.playbackPage.hasElement(playbackElements.chatContentArea, 'should display the chat content area by default');
+    await this.playbackPage.wasRemoved(playbackElements.notesContentArea, 'should not display the notes content area when chat is visible');
+    await this.playbackPage.hasText(playbackElements.chatContentArea, e.message, 'should display the chat message sent during the meeting');
+    // toggle to notes
+    await this.playbackPage.waitAndClick(playbackElements.notesButton);
+    await this.playbackPage.hasElement(playbackElements.notesContentArea, 'should display the notes content area when notes button is clicked');
+    await this.playbackPage.wasRemoved(playbackElements.chatContentArea, 'should not display the chat content area when notes is visible');
+    await this.playbackPage.hasText(playbackElements.notesContentArea, e.testMessage, 'should display the notes text typed during the meeting');
   }
 }
 
