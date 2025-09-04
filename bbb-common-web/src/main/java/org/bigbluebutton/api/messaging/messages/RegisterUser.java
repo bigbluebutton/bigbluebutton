@@ -54,8 +54,8 @@ public class RegisterUser implements IMessage {
 		this.enforceLayout = enforceLayout;
 		this.logoutUrl = logoutUrl;
 		this.ipAddress = ipAddress;
-        this.userAgent = userAgent;
-        this.referer = referer;
+		this.userAgent = userAgent;
+		this.referer = referer;
 		this.userMetadata = userMetadata;
 	}
 }
