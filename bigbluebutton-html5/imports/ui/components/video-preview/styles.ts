@@ -173,7 +173,7 @@ const Footer = styled.div`
   flex-direction: column;
 `;
 
-const FooterContainer = styled.div`
+const FooterContainer = styled.div<{showStopAllButton: boolean}>`
   display: flex;
   align-items: center;
   justify-content: ${({ showStopAllButton }) => (showStopAllButton ? 'flex-start' : 'flex-end')};
@@ -225,7 +225,10 @@ const ExtraActions = styled.div`
   }
 `;
 
-const VideoPreviewModal = styled(ModalSimple)`
+const VideoPreviewModal = styled(ModalSimple)<{
+  isPhone: boolean,
+  isBlurred: boolean
+}>`
   padding: 1rem;
   min-height: 25rem;
   max-height: 100vh;
@@ -266,7 +269,7 @@ const ellipsis = keyframes`
   }
 `;
 
-const FetchingAnimation = styled.span`
+const FetchingAnimation = styled.span<{ animations: boolean }>`
   margin: auto;
   display: inline-block;
   width: 1.5em;
@@ -285,7 +288,7 @@ const FetchingAnimation = styled.span`
   }
 `;
 
-const VideoPreview = styled.video`
+const VideoPreview = styled.video<{mirroredVideo: boolean}>`
   height: 100%;
   width: 100%;
 
@@ -381,7 +384,7 @@ const BottomSeparator = styled.div`
   margin-bottom: calc(${lineHeightComputed} * 1.25);
 `;
 
-const IconSvg = styled.img`
+const IconSvg = styled.img<{darkThemeState: boolean}>`
   height: ${fontSizeLarger};
   border-radius: 5px;
   margin: 5px;
@@ -392,16 +395,19 @@ const IconSvg = styled.img`
 
 `;
 
+// @ts-ignore - Button is JSX element
 const SharingButton = styled(Button)`
   margin: 0 0.5rem;
   height: 2.5rem;
 `;
 
+// @ts-ignore - Button is JSX element
 const CancelButton = styled(Button)`
   margin: 0 0.5rem;
   height: 2.5rem;
 `;
 
+// @ts-ignore - Button is JSX element
 const StopAllButton = styled(Button)`
   margin: 0 0.5rem;
   height: 2.5rem;
