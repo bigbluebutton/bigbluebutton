@@ -4,7 +4,6 @@ export interface Cameras {
 
 export interface PresPagesWritable {
   isCurrentPage: boolean;
-  changedModeOn: number;
   meetingId: string;
   pageId: string;
   presentationId: string;
@@ -28,11 +27,19 @@ export interface BreakoutRoomsSummary {
   totalOfJoinURL: number;
 }
 
+export interface UserMeeting {
+  ended: boolean;
+  endedReasonCode: string;
+  endedByUserName: string;
+  logoutUrl: string;
+}
+
 export interface Voice {
   joined: boolean;
   listenOnly: boolean;
   talking: boolean;
   muted: boolean;
+  listenOnlyInputDevice: boolean;
   deafened: boolean;
   voiceUserId: string;
   callerName: string;
@@ -45,6 +52,7 @@ export interface Voice {
   meetingId: string;
   spoke: boolean;
   startTime: number;
+  requestedUnmuteByMod: boolean;
 }
 
 export interface userLockSettings {
@@ -60,6 +68,7 @@ export interface Livekit {
 }
 
 export interface User {
+  logoutUrl: string;
   authToken: string;
   userId: string;
   extId: string;
@@ -107,4 +116,16 @@ export interface User {
   userLockSettings: userLockSettings;
   sessionCurrent: sessionCurrent;
   livekit?: Livekit;
+  meeting: UserMeeting;
+}
+
+export interface UserBasicInfo {
+  userId: string;
+  extId: string;
+  name: string;
+  isModerator: boolean;
+  role: string;
+  color: string;
+  avatar: string;
+  presenter?: boolean;
 }

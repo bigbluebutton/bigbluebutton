@@ -251,6 +251,8 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
       const internalPlayer = player.getInternalPlayer();
       if (internalPlayer instanceof HTMLVideoElement) {
         internalPlayer.pause();
+      } else if (internalPlayer instanceof HTMLAudioElement) {
+        internalPlayer.pause();
       } else if (internalPlayer.pauseVideo) {
         internalPlayer.pauseVideo();
       } else if (internalPlayer.pause) {
@@ -263,6 +265,8 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     if (player) {
       const internalPlayer = player.getInternalPlayer();
       if (internalPlayer instanceof HTMLVideoElement) {
+        internalPlayer.play();
+      } else if (internalPlayer instanceof HTMLAudioElement) {
         internalPlayer.play();
       } else if (internalPlayer.playVideo) {
         internalPlayer.playVideo();
@@ -278,6 +282,11 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
       if (internalPlayer instanceof HTMLVideoElement) {
         return internalPlayer.currentTime;
       }
+
+      if (internalPlayer instanceof HTMLAudioElement) {
+        return internalPlayer.currentTime;
+      }
+
       // Vimeo player returns a promise for getCurrentTime
       try {
         return (await internalPlayer?.getCurrentTime?.()) ?? 0;
@@ -295,6 +304,11 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
       if (internalPlayer instanceof HTMLVideoElement) {
         return internalPlayer.playbackRate;
       }
+
+      if (internalPlayer instanceof HTMLAudioElement) {
+        return internalPlayer.playbackRate;
+      }
+
       return internalPlayer?.getPlaybackRate?.() ?? 1;
     }
     return 1;
@@ -304,6 +318,10 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     if (player) {
       const internalPlayer = player.getInternalPlayer();
       if (internalPlayer instanceof HTMLVideoElement) {
+        return internalPlayer.volume;
+      }
+
+      if (internalPlayer instanceof HTMLAudioElement) {
         return internalPlayer.volume;
       }
 
@@ -408,7 +426,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     const currentTime = getServerCurrentTime();
     const playerCurrentTime = await getPlayerCurrentTime(playerRef.current as ReactPlayer);
     if (isPresenter && !playing) {
-      const rate = internalPlayer instanceof HTMLVideoElement
+      const rate = (internalPlayer instanceof HTMLVideoElement || internalPlayer instanceof HTMLAudioElement)
         ? internalPlayer.playbackRate
         : internalPlayer?.getPlaybackRate?.() ?? 1;
 
@@ -430,7 +448,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     const url = new URL(videoUrl);
     const isTwitch = url.hostname === 'twitch.tv' || url.hostname === 'www.twitch.tv';
     if (isPresenter && !playing) {
-      const rate = internalPlayer instanceof HTMLVideoElement
+      const rate = (internalPlayer instanceof HTMLVideoElement || internalPlayer instanceof HTMLAudioElement)
         ? internalPlayer.playbackRate
         : internalPlayer?.getPlaybackRate?.() ?? 1;
 
@@ -463,7 +481,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     setReactPlayerPlaying(false);
     if (isPresenter && playing) {
       const internalPlayer = playerRef.current?.getInternalPlayer();
-      let rate = internalPlayer instanceof HTMLVideoElement
+      let rate = (internalPlayer instanceof HTMLVideoElement || internalPlayer instanceof HTMLAudioElement)
         ? internalPlayer.playbackRate
         : internalPlayer?.getPlaybackRate?.() ?? 1;
 
@@ -510,7 +528,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   const handleOnSeek = async (cursor: { position: number } | number) => {
     if (isPresenter) {
       const internalPlayer = playerRef.current?.getInternalPlayer();
-      let rate = internalPlayer instanceof HTMLVideoElement
+      let rate = (internalPlayer instanceof HTMLVideoElement || internalPlayer instanceof HTMLAudioElement)
         ? internalPlayer.playbackRate
         : internalPlayer?.getPlaybackRate?.() ?? 1;
       if (rate instanceof Promise) {
@@ -535,7 +553,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   const handlePlaybackRateChange = async () => {
     if (isPresenter) {
       const internalPlayer = playerRef.current?.getInternalPlayer();
-      let rate = internalPlayer instanceof HTMLVideoElement
+      let rate = (internalPlayer instanceof HTMLVideoElement || internalPlayer instanceof HTMLAudioElement)
         ? internalPlayer.playbackRate
         : internalPlayer?.getPlaybackRate?.() ?? 1;
       if (rate instanceof Promise) {
@@ -765,7 +783,6 @@ const ExternalVideoPlayerContainer: React.FC = () => {
       `${UI_DATA_LISTENER_SUBSCRIBED}-${PluginSdk.ExternalVideoVolumeUiDataNames.IS_VOLUME_MUTED}`,
       updateUiDataHookIsMutedPlugin,
     );
-
     // Before component unmount, remove event listeners for plugin ui data hooks
     return () => {
       window.removeEventListener(

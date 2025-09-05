@@ -9,7 +9,7 @@ declare global {
   }
 }
 export interface EmojiProps {
-  emoji: { id: string, native: string; };
+  emoji: { native: string; };
   native: string;
   size: number;
 }

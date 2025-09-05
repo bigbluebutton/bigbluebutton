@@ -191,6 +191,16 @@ case class MuteUserCmdMsg(
 case class MuteUserCmdMsgBody(userId: String, mutedBy: String, mute: Boolean)
 
 /**
+ * Sent by client to set input id listen only value for user in the voice conference.
+ */
+object SetUserListenOnlyInputCmdMsg { val NAME = "SetUserListenOnlyInputCmdMsg" }
+case class SetUserListenOnlyInputCmdMsg(
+    header: BbbClientMsgHeader,
+    body:   SetUserListenOnlyInputCmdMsgBody
+) extends StandardMsg
+case class SetUserListenOnlyInputCmdMsgBody(listenOnlyInputDevice: Boolean)
+
+/**
  * Sent to FS to get the users in the voice conference.
  */
 object GetUsersInVoiceConfSysMsg { val NAME = "GetUsersInVoiceConfSysMsg" }
@@ -244,6 +254,21 @@ case class MeetingMutedEvtMsg(
     body:   MeetingMutedEvtMsgBody
 ) extends BbbCoreMsg
 case class MeetingMutedEvtMsgBody(muted: Boolean, mutedBy: String)
+
+/**
+ * Send to client to set user listen only input in the voice conference.
+ */
+object SetListenOnlyInputInVoiceConfSysMsg { val NAME = "SetListenOnlyInputInVoiceConfSysMsg" }
+case class SetListenOnlyInputInVoiceConfSysMsg(
+    header: BbbCoreHeaderWithMeetingId,
+    body:   SetListenOnlyInputInVoiceConfSysMsgBody
+) extends BbbCoreMsg
+case class SetListenOnlyInputInVoiceConfSysMsgBody(
+    voiceConf:             String,
+    intId:                 String,
+    voiceUserId:           String,
+    listenOnlyInputDevice: Boolean
+)
 
 /**
  * Send to FS to deaf user in the voice conference.

@@ -97,6 +97,7 @@ cp loadbalancer.nginx "$STAGING"/usr/share/bigbluebutton/nginx/loadbalancer.ngin
 
 # Copy script to run commands through `system-run --user`
 cp run-in-systemd.sh "$STAGING"/usr/share/bbb-web
+chmod 755 "$STAGING"/usr/share/bbb-web
 
 mkdir -p "$STAGING"/var/log/bigbluebutton
 # Copy directive for serving SVG files (HTML5) from nginx

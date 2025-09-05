@@ -23,6 +23,8 @@ done
 
 mkdir -p staging/usr/local/bigbluebutton/core
 cp -r scripts staging/usr/local/bigbluebutton/core
+chmod -R a+rX staging/usr/local/bigbluebutton/core
+chmod 755 staging/usr/local/bigbluebutton/core/scripts/*/*.rb
 
 mkdir -p staging/var/bigbluebutton
 cp -r playback staging/var/bigbluebutton

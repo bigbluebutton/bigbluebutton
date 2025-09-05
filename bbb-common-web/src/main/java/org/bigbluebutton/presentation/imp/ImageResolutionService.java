@@ -45,7 +45,7 @@ public class ImageResolutionService {
 
     NuProcess process = imageResolution.start();
     try {
-      process.waitFor(wait, TimeUnit.SECONDS);
+      process.waitFor(wait + 1, TimeUnit.SECONDS);
     } catch (InterruptedException e) {
       log.error("InterruptedException while identifying image resolution {}", presentationFile.getName(), e);
     }

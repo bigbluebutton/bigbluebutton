@@ -19,3 +19,18 @@ select_permissions:
       filter:
         meetingId:
           _eq: X-Hasura-MeetingId
+  - role: bbb_client_not_in_meeting
+    permission:
+      columns:
+        - isDefaultName
+        - currentlyInRoom
+        - breakoutRoomId
+        - shortName
+        - userId
+        - sequence
+      filter:
+        _and:
+          - meetingId:
+              _eq: X-Hasura-MeetingId
+          - userId:
+              _eq: X-Hasura-UserId

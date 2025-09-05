@@ -12,17 +12,19 @@ const QuickPollDropdownContainer = (props) => {
   const activePoll = useStorageKey('pollInitiated') || false;
 
   const [stopPoll] = useMutation(POLL_CANCEL);
+  console.log('QuickPollDropdown:', QuickPollDropdown);
 
   return (
-    <QuickPollDropdown
-      {...{
-        layoutContextDispatch,
-        pollTypes,
-        stopPoll,
-        activePoll,
-        ...props,
-      }}
-    />
+    null
+    // <QuickPollDropdown
+    //   {...{
+    //     layoutContextDispatch,
+    //     pollTypes,
+    //     stopPoll,
+    //     activePoll,
+    //     ...props,
+    //   }}
+    // />
   );
 };
 

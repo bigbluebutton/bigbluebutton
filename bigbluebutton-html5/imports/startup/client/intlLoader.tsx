@@ -165,7 +165,15 @@ const IntlLoader: React.FC<IntlLoaderProps> = ({
 
   useEffect(() => {
     if (fetching) {
-      logger.info('Fetching locale');
+      logger.info(
+        {
+          logCode: 'LOCALE_FETCH_INIT',
+          extraInfo: {
+            requestedLocale: currentLocale,
+          },
+        },
+        'Fetching locale',
+      );
     }
   }, [fetching]);
 

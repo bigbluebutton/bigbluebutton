@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import { gql } from '@apollo/client';
-import logger from '/imports/startup/client/logger';
 import { CustomSubscriptionArguments } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-consumption/domain/shared/custom-subscription/types';
 import { UpdatedEventDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
 import {
@@ -18,18 +17,9 @@ const CustomSubscriptionHookContainer = (props: HookWithArgumentsContainerProps)
   const { query: queryFromPlugin, variables } = hookArguments;
   const previousNumberOfUses = usePreviousValue(numberOfUses);
 
-  let customSubscriptionData: any;
-  try {
-    const subscriptionResult = useDeduplicatedSubscription(gql`${queryFromPlugin}`, {
-      variables,
-    });
-    customSubscriptionData = subscriptionResult;
-  } catch (err) {
-    logger.error(
-      `Error while querying custom subscriptions for plugins (query: ${queryFromPlugin}) (Error: ${err})`,
-    );
-    customSubscriptionData = 'Error';
-  }
+  const customSubscriptionData = useDeduplicatedSubscription(gql`${queryFromPlugin}`, {
+    variables,
+  });
 
   const updateCustomSubscriptionForPlugin = () => {
     window.dispatchEvent(

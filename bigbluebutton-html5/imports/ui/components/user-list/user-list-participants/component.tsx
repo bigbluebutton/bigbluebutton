@@ -4,15 +4,16 @@ import { UserListUiDataPayloads } from 'bigbluebutton-html-plugin-sdk/dist/cjs/u
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import { User } from '/imports/ui/Types/user';
 import Styled from './styles';
+import {
+  USER_AGGREGATE_COUNT_SUBSCRIPTION,
+  UsersCountSubscriptionResponse,
+} from './queries';
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import UserListParticipantsPageContainer from './page/component';
 import IntersectionWatcher from './intersection-watcher/intersectionWatcher';
 import { setLocalUserList } from '/imports/ui/core/hooks/useLoadedUserList';
 import roveBuilder from '/imports/ui/core/utils/keyboardRove';
 import { USERS_PER_USER_LIST_PAGE } from '/imports/ui/components/user-list/user-list-participants/constants';
-
-interface UserListParticipantsContainerProps {
-  count: number;
-}
 
 interface UserListParticipantsProps {
   count: number;
@@ -126,7 +127,12 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
   );
 };
 
-const UserListParticipantsContainer: React.FC<UserListParticipantsContainerProps> = ({ count }) => {
+const UserListParticipantsContainer: React.FC = () => {
+  const {
+    data: countData,
+  } = useDeduplicatedSubscription<UsersCountSubscriptionResponse>(USER_AGGREGATE_COUNT_SUBSCRIPTION);
+  const count = countData?.user_aggregate?.aggregate?.count || 0;
+
   return (
     <>
       <UserListParticipants

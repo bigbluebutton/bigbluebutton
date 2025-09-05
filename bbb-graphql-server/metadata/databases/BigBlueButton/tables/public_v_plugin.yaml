@@ -14,6 +14,8 @@ select_permissions:
         - javascriptEntrypointUrl
         - name
         - localesBaseUrl
+        - loadFailureReason
+        - loadFailureSource
       filter:
         meetingId:
           _eq: X-Hasura-MeetingId
@@ -25,6 +27,8 @@ select_permissions:
         - javascriptEntrypointUrl
         - name
         - localesBaseUrl
+        - loadFailureReason
+        - loadFailureSource
       filter:
         meetingId:
           _eq: X-Hasura-MeetingId

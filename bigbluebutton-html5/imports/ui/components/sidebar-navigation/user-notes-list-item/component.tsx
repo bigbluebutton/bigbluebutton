@@ -6,18 +6,15 @@ import NotesService from '/imports/ui/components/notes/service';
 import { PANELS } from '/imports/ui/components/layout/enums';
 import { notify } from '/imports/ui/services/notification';
 import { layoutSelectInput, layoutDispatch } from '/imports/ui/components/layout/context';
-import {
-  PINNED_PAD_SUBSCRIPTION,
-  PinnedPadSubscriptionResponse,
-} from '/imports/ui/components/notes/queries';
 import Styled from './styles';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 import useRev from '/imports/ui/components/pads/pads-graphql/hooks/useRev';
-import useNotesLastRev from '../../notes/hooks/useNotesLastRev';
-import useHasUnreadNotes from '../../notes/hooks/useHasUnreadNotes';
-import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
-import TooltipContainer from '../../common/tooltip/container';
+import useNotesLastRev from '/imports/ui/components/notes/hooks/useNotesLastRev';
+import useHasUnreadNotes from '/imports/ui/components/notes/hooks/useHasUnreadNotes';
+import TooltipContainer from '/imports/ui/components/common/tooltip/container';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { DispatcherFunction } from '/imports/ui/components/layout/layoutTypes';
+import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
 
 const intlMessages = defineMessages({
   title: {
@@ -56,6 +53,7 @@ const intlMessages = defineMessages({
 
 interface UserNotesGraphqlProps {
   isPinned: boolean,
+  disableNotes: boolean,
   sidebarContentPanel: string,
   layoutContextDispatch: DispatcherFunction,
   hasUnreadNotes: boolean,
@@ -65,9 +63,15 @@ interface UserNotesGraphqlProps {
   isEnabled: boolean,
 }
 
+interface UserNotesContainerGraphqlProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  userLocks: any;
+}
+
 const UserNotesGraphql: React.FC<UserNotesGraphqlProps> = (props) => {
   const {
     isPinned,
+    disableNotes,
     sidebarContentPanel,
     layoutContextDispatch,
     isEnabled,
@@ -141,6 +145,17 @@ const UserNotesGraphql: React.FC<UserNotesGraphqlProps> = (props) => {
           hasNotification={unread && !isPinned}
           $disabled={isPinned}
         >
+          {disableNotes
+            ? (
+              <Styled.NotesLock>
+                {/* @ts-ignore */}
+                <span id="lockedNotes">
+                  <Icon iconName="lock" />
+                  &nbsp;
+                  {`${intl.formatMessage(intlMessages.locked)} ${intl.formatMessage(intlMessages.byModerator)}`}
+                </span>
+              </Styled.NotesLock>
+            ) : null}
           <Icon iconName="shared_notes" />
         </Styled.ListItem>
       </TooltipContainer>
@@ -152,11 +167,16 @@ const UserNotesGraphql: React.FC<UserNotesGraphqlProps> = (props) => {
   return renderNotes();
 };
 
-const UserNotesListItemContainerGraphql: React.FC = () => {
-  const { data: pinnedPadData } = useDeduplicatedSubscription<
-  PinnedPadSubscriptionResponse>(
-    PINNED_PAD_SUBSCRIPTION,
-  );
+const UserNotesListItemContainerGraphql: React.FC<UserNotesContainerGraphqlProps> = (props) => {
+  const { userLocks } = props;
+  const disableNotes = userLocks.userNotes;
+
+  const {
+    data: currentMeeting,
+  } = useMeeting((meeting) => ({
+    componentsFlags: meeting.componentsFlags,
+  }));
+
   const NOTES_CONFIG = window.meetingClientSettings.public.notes;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -170,12 +190,12 @@ const UserNotesListItemContainerGraphql: React.FC = () => {
   const hasUnreadNotes = useHasUnreadNotes();
   const markNotesAsRead = () => setNotesLastRev(rev);
   const isEnabled = NotesService.useIsEnabled();
-  if (!pinnedPadData) return null;
 
-  const isPinned = !!pinnedPadData && pinnedPadData?.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
+  const isPinned = currentMeeting?.componentsFlags?.isSharedNotesPinned ?? false;
   return (
     <UserNotesGraphql
       isPinned={isPinned}
+      disableNotes={disableNotes}
       layoutContextDispatch={layoutContextDispatch}
       sidebarContentPanel={sidebarContentPanel}
       hasUnreadNotes={hasUnreadNotes}
@@ -186,4 +206,4 @@ const UserNotesListItemContainerGraphql: React.FC = () => {
   );
 };
 
-export default UserNotesListItemContainerGraphql;
+export default lockContextContainer(UserNotesListItemContainerGraphql);

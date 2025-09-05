@@ -9,12 +9,15 @@ do
     fi
 done
 
-if [ ! -d ./node_modules ] ; then
-	npm install
+# Check for missing dependencies
+if [ ! -d ./node_modules ] || ! npm ls --depth=0 > /dev/null 2>&1; then
+  echo "Running npm install..."
+  npm install
 fi
 
 npm run build
-cp -r build/* /var/bigbluebutton/learning-dashboard
+sudo cp -r build/* /var/bigbluebutton/learning-dashboard
+sudo cp learning-dashboard.nginx /usr/share/bigbluebutton/nginx/learning-dashboard.nginx
 sudo systemctl restart nginx
 echo ''
 echo ''

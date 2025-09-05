@@ -22,7 +22,6 @@ import { GeneralHookManagerProps } from './types';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { User } from '/imports/ui/Types/user';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
-import { Meeting } from '/imports/ui/Types/meeting';
 import MeetingHookContainer from './domain/meeting/from-core/hook-manager';
 import { EssentialHookInformation } from './domain/shared/types';
 
@@ -37,7 +36,7 @@ const hooksMap:{
   [DataConsumptionHooks.MEETING]: MeetingHookContainer,
 };
 
-const HooksMapWithArguments:{
+const HooksMapWithArguments: {
   [key: string]: React.FunctionComponent<HookWithArgumentsContainerProps>
 } = {
   [DataConsumptionHooks.CUSTOM_SUBSCRIPTION]: CustomSubscriptionHookContainer,
@@ -142,7 +141,7 @@ const PluginDataConsumptionManager: React.FC = () => {
       extId: currentUser.extId,
     }),
   );
-  const meetingInformation = useMeeting((meeting: Partial<Meeting>) => ({
+  const meetingInformation = useMeeting((meeting) => ({
     name: meeting?.name,
     loginUrl: meeting?.loginUrl,
     meetingId: meeting?.meetingId,

@@ -45,6 +45,7 @@ const Main: React.FC = () => {
               Fallback={ErrorScreen}
               logMetadata={STARTUP_CRASH_METADATA}
               isCritical
+              captureGlobalLogs
             >
               <LoadingScreenHOC>
                 <ConnectionManager>

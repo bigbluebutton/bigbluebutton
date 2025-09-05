@@ -322,7 +322,11 @@ export const handleWhiteboardAccessChange = async (
   }
 };
 
-export const toggleVoice = (userId: string, muted: boolean, voiceToggle: (userId: string, muted: boolean) => void) => {
+export const toggleVoice = (
+  userId: string,
+  muted: boolean,
+  voiceToggle: (userId: string, muted: boolean) => void,
+) => {
   if (isMe(userId)) {
     toggleMuteMicrophone(!muted, voiceToggle);
   } else {
@@ -376,7 +380,7 @@ export const createToolbarOptions = (
   const audioStateOption = useMemo(() => {
     if (!subjectUserInAudio) return null;
 
-    const isListenOnly = user.voice?.listenOnly;
+    const isListenOnly = user.voice?.listenOnly || user.voice?.listenOnlyInputDevice;
 
     if (isListenOnly) {
       return {

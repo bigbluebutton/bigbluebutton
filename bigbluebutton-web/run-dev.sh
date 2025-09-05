@@ -10,6 +10,19 @@ echo " chmod -R 777 /var/bigbluebutton/"
 echo " "
 echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 
+
+for var in "$@"
+do
+    if [[ $var == --build ]] ; then
+       echo "Performing a full re-build..."
+       cd ~/src/bbb-common-web
+       ./deploy.sh
+       cd ~/src/bigbluebutton-web/
+       ./build.sh;
+    fi
+done
+
+
 sudo service bbb-web stop
 
 exec grails prod run-app --port 8090 -reloading
