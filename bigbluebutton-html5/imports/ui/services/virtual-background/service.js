@@ -93,14 +93,28 @@ const setCameraBrightnessInfo = (deviceId, brightness, wholeImageBrightness) => 
   getStorageSingletonInstance().setItem(`CameraBrightnessInfo_${deviceId}`, { brightness, wholeImageBrightness });
 };
 
+/**
+ * @param {string} deviceId
+ * @returns {{type: string, name: string, uniqueId: (string | null)} | null}
+ */
 const getSessionVirtualBackgroundInfo = (deviceId) => getStorageSingletonInstance().getItem(`VirtualBackgroundInfo_${deviceId}`);
 
 const getCameraBrightnessInfo = (deviceId) => getStorageSingletonInstance().getItem(`CameraBrightnessInfo_${deviceId}`);
 
+/**
+ * @param {string} deviceId
+ * @returns {{brightness: number, wholeImageBrightness: boolean}}
+ */
+const getCameraBrightnessInfoWithDefault = (deviceId) => getStorageSingletonInstance()
+  .getItem(`CameraBrightnessInfo_${deviceId}`) || {
+  brightness: 100,
+  wholeImageBrightness: false,
+};
+
 const getSessionVirtualBackgroundInfoWithDefault = (deviceId) => getStorageSingletonInstance()
   .getItem(`VirtualBackgroundInfo_${deviceId}`) || {
-  type: EFFECT_TYPES.BLUR_TYPE,
-  name: BLUR_FILENAME,
+  type: EFFECT_TYPES.NONE_TYPE,
+  name: EFFECT_TYPES.NONE_TYPE,
 };
 
 const removeSessionVirtualBackgroundInfo = (deviceId) => getStorageSingletonInstance()
@@ -127,6 +141,7 @@ export {
   getSessionVirtualBackgroundInfo,
   getSessionVirtualBackgroundInfoWithDefault,
   getCameraBrightnessInfo,
+  getCameraBrightnessInfoWithDefault,
   removeSessionVirtualBackgroundInfo,
   isVirtualBackgroundSupported,
   createVirtualBackgroundStream,

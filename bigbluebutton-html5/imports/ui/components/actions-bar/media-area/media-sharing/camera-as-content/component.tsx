@@ -79,6 +79,7 @@ const CameraAsContentView: React.FC<CameraAsContentViewProps> = ({
     initialDeviceId: initialWebcamDeviceId,
     initialProfileId: PreviewService.getCameraAsContentProfile()?.id || '',
     isCameraAsContent: true,
+    forceOpen: true,
   });
 
   function renderWebcamPreview(): React.ReactNode {

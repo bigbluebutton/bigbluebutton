@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, {
+  useState, useEffect, useRef, useCallback,
+} from 'react';
 import {
   defineMessages, useIntl, FormattedMessage,
 } from 'react-intl';
 import VirtualBgSelector from '/imports/ui/components/video-preview/virtual-background/component';
-import logger from '/imports/startup/client/logger';
 import browserInfo from '/imports/utils/browserInfo';
 import PreviewService from './service';
 import VideoService from '/imports/ui/components/video-provider/service';
@@ -11,7 +12,6 @@ import Styled from './styles';
 import deviceInfo from '/imports/utils/deviceInfo';
 import {
   EFFECT_TYPES,
-  removeSessionVirtualBackgroundInfo,
   isVirtualBackgroundSupported,
   getSessionVirtualBackgroundInfoWithDefault,
 } from '/imports/ui/services/virtual-background/service';
@@ -168,12 +168,12 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
 }) => {
   const intl = useIntl();
   const [selectedTab, setSelectedTab] = useState(0);
-  const [skipPreviewFailed, setSkipPreviewFailed] = useState(false);
   const brightnessMarker = useRef<HTMLDivElement>(null);
   const isMounted = useRef(false);
 
-  const isAlreadyShared = (webcamId: string | null) => webcamId
-    && (sharedDevices.includes(webcamId) || webcamId === cameraAsContentDeviceId);
+  const isAlreadyShared = useCallback((webcamId: string | null) => webcamId
+    && (sharedDevices.includes(webcamId) || webcamId === cameraAsContentDeviceId),
+  [sharedDevices, cameraAsContentDeviceId]);
 
   const {
     webcamDeviceId,
@@ -188,17 +188,16 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
     videoRef,
     currentVideoStream,
     VIEW_STATES,
-    getInitialCameraStream,
+    shouldSkipVideoPreview,
     handleSelectWebcam,
     handleSelectProfile,
     handleVirtualBgSelected,
     setCameraBrightness,
     handleBrightnessAreaChange,
     stopVirtualBackground,
-    updateVirtualBackgroundInfo,
-    updateCameraBrightnessInfo,
     terminateCameraStream,
     cleanupStreamAndVideo,
+    handleStartSharing,
   } = useVideoPreview({
     initialDeviceId: initialWebcamDeviceId,
     initialProfileId: !cameraAsContent
@@ -206,73 +205,13 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
       : PreviewService.getCameraAsContentProfile()?.id || '',
     isCameraAsContent: cameraAsContent,
     isCameraShared: !!isAlreadyShared(initialWebcamDeviceId),
+    forceOpen,
+    startSharing,
+    startSharingCameraAsContent,
   });
-
-  const shouldSkipVideoPreview = () => PreviewService.getSkipVideoPreview()
-    && !forceOpen && !skipPreviewFailed && !isAlreadyShared(webcamDeviceId);
-
-  // const shouldSkipVideoPreview = () => { return true; };
-
-  const handleStartSharing = async (deviceId: string) => {
-    if (!currentVideoStream.current) return;
-
-    // Only streams that will be shared should be stored in the service.
-    // If the store call returns false, we're duplicating stuff. So clean this one
-    // up because it's an impostor.
-    if (!PreviewService.storeStream(deviceId, currentVideoStream.current)) {
-      currentVideoStream.current.stop();
-    }
-
-    if (
-      currentVideoStream.current?.virtualBgService
-      && brightness === 100
-      && currentVideoStream.current?.virtualBgType === EFFECT_TYPES.NONE_TYPE
-    ) {
-      stopVirtualBackground(currentVideoStream.current);
-    }
-
-    if (!cameraAsContent) {
-      // Store selected profile, camera ID and virtual background in the storage for future use
-      PreviewService.changeProfile(selectedProfile);
-      PreviewService.changeWebcam(deviceId);
-      updateVirtualBackgroundInfo();
-      updateCameraBrightnessInfo();
-      cleanupStreamAndVideo();
-      startSharing(deviceId as string);
-    } else {
-      cleanupStreamAndVideo();
-      startSharingCameraAsContent(deviceId as string);
-    }
-  };
-
-  const skipVideoPreview = () => {
-    getInitialCameraStream(webcamDeviceId)
-      .then((newDeviceId) => {
-        if (isMounted.current && newDeviceId) {
-          handleStartSharing(newDeviceId);
-        }
-      })
-      .catch((error) => {
-        logger.warn({
-          logCode: 'video_preview_skip_failure',
-          extraInfo: { errorName: (error as Error & { name: string }).name, errorMessage: error.message },
-        }, 'Skipping video preview failed');
-        PreviewService.clearWebcamDeviceId();
-        PreviewService.clearWebcamProfileId();
-        removeSessionVirtualBackgroundInfo(webcamDeviceId);
-        cleanupStreamAndVideo();
-        // Mark the skip as failed so that the component will override any option
-        // to skip the video preview and display the default UI
-        if (isMounted.current) setSkipPreviewFailed(true);
-        throw error;
-      });
-  };
 
   useEffect(() => {
     isMounted.current = true;
-    if (shouldSkipVideoPreview()) {
-      skipVideoPreview();
-    }
     return () => {
       isMounted.current = false;
       Session.setItem('videoPreviewFirstOpen', false);
@@ -295,9 +234,12 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
     }
   }, [brightness]);
 
-  const isCameraAsContentDevice = (deviceId: string | null) => deviceId === cameraAsContentDeviceId;
+  const isCameraAsContentDevice = useCallback(
+    (deviceId: string | null) => deviceId === cameraAsContentDeviceId,
+    [cameraAsContentDeviceId],
+  );
 
-  const handleStopSharing = () => {
+  const handleStopSharing = useCallback(() => {
     if (isCameraAsContentDevice(webcamDeviceId)) {
       stopSharingCameraAsContent();
     } else {
@@ -306,14 +248,21 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
       cleanupStreamAndVideo();
     }
     if (resolve) resolve();
-  };
+  }, [
+    webcamDeviceId,
+    isCameraAsContentDevice,
+    stopSharing,
+    stopSharingCameraAsContent,
+    cleanupStreamAndVideo,
+    resolve,
+  ]);
 
-  const handleStopSharingAll = () => {
+  const handleStopSharingAll = useCallback(() => {
     stopSharing();
     if (resolve) resolve();
-  };
+  }, [stopSharing, resolve]);
 
-  const handleProceed = () => {
+  const handleProceed = useCallback(() => {
     const shared = isAlreadyShared(webcamDeviceId);
 
     if (
@@ -328,9 +277,20 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
     terminateCameraStream(currentVideoStream.current, webcamDeviceId);
     closeModal();
     if (resolve) resolve();
-  };
+  }, [
+    webcamDeviceId,
+    isAlreadyShared,
+    currentVideoStream,
+    brightness,
+    stopVirtualBackground,
+    terminateCameraStream,
+    closeModal,
+    resolve,
+  ]);
 
-  const getFallbackLabel = (index: number) => `${intl.formatMessage(intlMessages.cameraLabel)} ${index}`;
+  const getFallbackLabel = useCallback((index: number) => {
+    return `${intl.formatMessage(intlMessages.cameraLabel)} ${index}`;
+  }, [intl]);
 
   const renderQualitySelector = () => {
     const shared = isAlreadyShared(webcamDeviceId);

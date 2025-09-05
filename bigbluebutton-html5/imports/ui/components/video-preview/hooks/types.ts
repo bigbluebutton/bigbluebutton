@@ -47,6 +47,9 @@ export interface UseVideoPreviewProps {
   initialProfileId: string;
   isCameraAsContent?: boolean;
   isCameraShared?: boolean;
+  forceOpen?: boolean;
+  startSharing?: (deviceId: string) => void;
+  startSharingCameraAsContent?: (deviceId: string) => void;
   onStreamChange?: (stream: BBBVideoStream | null) => void;
 }
 
@@ -68,15 +71,19 @@ export interface UseVideoPreviewReturn {
   displayPreview: () => void;
   handleSelectWebcam: (event: React.ChangeEvent<HTMLSelectElement>) => Promise<void>;
   handleSelectProfile: (event: React.ChangeEvent<HTMLSelectElement>) => Promise<void>;
-  handleVirtualBgSelected: (type: string, name?: string, customParams?: CustomBgParams) => Promise<boolean>;
-  setCameraBrightness: (newBrightness: number) => Promise<void>;
+  handleVirtualBgSelected: (
+    type: string, name?: string, customParams?: CustomBgParams, deviceId?: string | null
+  ) => Promise<boolean>;
+  setCameraBrightness: (newBrightness: number, deviceId?: string | null) => Promise<void>;
   handleBrightnessAreaChange: () => Promise<void>;
   stopVirtualBackground: (bbbVideoStream: BBBVideoStream | null) => void;
-  updateVirtualBackgroundInfo: () => void;
+  updateVirtualBackgroundInfo: (deviceId: string | undefined) => void;
   updateCameraBrightnessInfo: () => void;
   terminateCameraStream: (stream: BBBVideoStream | null, deviceId: string | null) => void;
   cleanupStreamAndVideo: () => void;
   setCurrentVideoStream: (stream: BBBVideoStream | null) => void;
+  handleStartSharing: (deviceId: string) => void;
+  shouldSkipVideoPreview: () => boolean;
   VIEW_STATES: typeof VIEW_STATES;
 }
 

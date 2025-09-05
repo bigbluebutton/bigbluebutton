@@ -107,25 +107,29 @@ export const useVideoPreview = ({
   initialProfileId,
   isCameraAsContent = false,
   isCameraShared = false,
+  forceOpen,
   onStreamChange,
+  startSharing,
+  startSharingCameraAsContent,
 }: UseVideoPreviewProps): UseVideoPreviewReturn => {
   const intl = useIntl();
   const isMounted = useRef(true);
   const customVirtualBackgroundsContext = useContext(CustomVirtualBackgroundsContext);
 
-  const [webcamDeviceId, setWebcamDeviceId] = useState<string | null>(initialDeviceId);
   const [virtualBackgroundActive, setVirtualBackgroundActive] = useState<boolean>(false);
   const [availableWebcams, setAvailableWebcams] = useState<WebcamDevice[]>([]);
   const [selectedProfile, setSelectedProfile] = useState<string>(initialProfileId);
   const [viewState, setViewState] = useState<string>(VIEW_STATES.finding);
   const [deviceError, setDeviceError] = useState<string | null>(null);
   const [previewError, setPreviewError] = useState<string | null>(null);
+  const [skipPreviewFailed, setSkipPreviewFailed] = useState(false);
   const [isCameraLoading, setIsCameraLoading] = useState<boolean>(true);
   const [brightness, setBrightness] = useState<number>(DEFAULT_BRIGHTNESS_STATE.brightness);
   const [wholeImageBrightness, setWholeImageBrightness] = useState<boolean>(
     DEFAULT_BRIGHTNESS_STATE.wholeImageBrightness,
   );
 
+  const webcamDeviceId = useRef<string | null>(initialDeviceId);
   const videoRef = useRef<HTMLVideoElement>(null);
   const currentVideoStream = useRef<BBBVideoStream | null>(null);
 
@@ -218,17 +222,17 @@ export const useVideoPreview = ({
     notify(intl.formatMessage(intlMessages.virtualBgGenericError), 'error', 'video');
   }, [intl]);
 
-  const updateVirtualBackgroundInfo = useCallback(() => {
+  const updateVirtualBackgroundInfo = useCallback((deviceId?: string | null) => {
     if (currentVideoStream.current) {
       setSessionVirtualBackgroundInfo(
-        webcamDeviceId,
+        deviceId || webcamDeviceId.current,
         currentVideoStream.current.virtualBgType,
         currentVideoStream.current.virtualBgName,
         // @ts-ignore
         currentVideoStream.current.virtualBgUniqueId,
       );
     }
-  }, [webcamDeviceId]);
+  }, [webcamDeviceId.current]);
 
   const stopVirtualBackground = useCallback((bbbVideoStream: BBBVideoStream | null) => {
     if (bbbVideoStream) {
@@ -263,6 +267,7 @@ export const useVideoPreview = ({
     type: string,
     name?: string,
     customParams?: CustomBgParams,
+    deviceId?: string | null,
   ): Promise<boolean> => {
     // @ts-ignore
     const ENABLE_CAMERA_BRIGHTNESS = window.meetingClientSettings.public.app.enableCameraBrightness;
@@ -270,21 +275,23 @@ export const useVideoPreview = ({
 
     if (type !== EFFECT_TYPES.NONE_TYPE || (CAMERA_BRIGHTNESS_AVAILABLE && brightness !== 100)) {
       const switched = await startVirtualBackground(currentVideoStream.current, type, name, customParams);
-      if (switched) updateVirtualBackgroundInfo();
-      setVirtualBackgroundActive(true);
+      if (switched) updateVirtualBackgroundInfo(deviceId);
+      if (type !== EFFECT_TYPES.NONE_TYPE) {
+        setVirtualBackgroundActive(true);
+      }
       return switched;
     }
     stopVirtualBackground(currentVideoStream.current);
-    updateVirtualBackgroundInfo();
+    updateVirtualBackgroundInfo(deviceId);
     return Promise.resolve(true);
   }, [brightness, startVirtualBackground, stopVirtualBackground, updateVirtualBackgroundInfo]);
 
   const applyStoredVirtualBg = useCallback(async (deviceId: string | null = null) => {
-    const webcamDeviceIdToUse = deviceId || webcamDeviceId;
+    const webcamDeviceIdToUse = deviceId || webcamDeviceId.current;
 
     // Apply the virtual background stored in Local/Session Storage, if any
     // If it fails, remove the stored background.
-    const virtualBackground = getSessionVirtualBackgroundInfo(webcamDeviceIdToUse) as {
+    const virtualBackground = getSessionVirtualBackgroundInfo(webcamDeviceIdToUse as string) as {
       type: string, name: string, uniqueId: string
     };
 
@@ -310,7 +317,8 @@ export const useVideoPreview = ({
             handleFailure(new Error('Missing virtual background data'));
             return;
           }
-          handleVirtualBgSelected(type, name, customParams).then(resolve as () => void, handleFailure);
+          handleVirtualBgSelected(type, name, customParams, webcamDeviceIdToUse)
+            .then(resolve as () => void, handleFailure);
         };
 
         // If uniqueId is defined, this is a custom background. Fetch the custom
@@ -329,7 +337,8 @@ export const useVideoPreview = ({
         }
 
         // Built-in background, just apply it.
-        handleVirtualBgSelected(type, name, customParams).then(resolve as () => void, handleFailure);
+        handleVirtualBgSelected(type, name, customParams, webcamDeviceIdToUse)
+          .then(resolve as () => void, handleFailure);
       });
     } if (customVirtualBackgroundsContext.backgrounds.webcamBackgroundURL) {
       // Apply custom background from JOIN URL parameter automatically
@@ -344,11 +353,12 @@ export const useVideoPreview = ({
           removeSessionVirtualBackgroundInfo(webcamDeviceIdToUse);
           reject(error);
         };
-        handleVirtualBgSelected(type, filename, customParams).then(resolve as () => void, handleFailure);
+        handleVirtualBgSelected(type, filename, customParams, webcamDeviceIdToUse)
+          .then(resolve as () => void, handleFailure);
       });
     }
     return Promise.resolve();
-  }, [webcamDeviceId, customVirtualBackgroundsContext, handleVirtualBgSelected, handleVirtualBgError]);
+  }, [webcamDeviceId.current, customVirtualBackgroundsContext, handleVirtualBgSelected, handleVirtualBgError]);
 
   const updateDeviceId = useCallback((deviceId: string | null) => {
     let actualDeviceId = deviceId;
@@ -358,15 +368,15 @@ export const useVideoPreview = ({
         'video',
       );
     }
-    setWebcamDeviceId(actualDeviceId);
+    webcamDeviceId.current = actualDeviceId;
     return actualDeviceId;
   }, []);
 
   const updateCameraBrightnessInfo = useCallback(() => {
     if (currentVideoStream.current) {
-      setCameraBrightnessInfo(webcamDeviceId, brightness, wholeImageBrightness);
+      setCameraBrightnessInfo(webcamDeviceId.current, brightness, wholeImageBrightness);
     }
-  }, [webcamDeviceId, brightness, wholeImageBrightness]);
+  }, [webcamDeviceId.current, brightness, wholeImageBrightness]);
 
   const startCameraBrightness = useCallback(async (initialState = DEFAULT_BRIGHTNESS_STATE) => {
     // @ts-ignore
@@ -397,7 +407,7 @@ export const useVideoPreview = ({
     }
   }, [startVirtualBackground]);
 
-  const setCameraBrightnessCb = useCallback(async (newBrightness: number) => {
+  const setCameraBrightnessCb = useCallback(async (newBrightness: number, deviceId?: string | null) => {
     // @ts-ignore
     const ENABLE_CAMERA_BRIGHTNESS = window.meetingClientSettings.public.app.enableCameraBrightness;
     const CAMERA_BRIGHTNESS_AVAILABLE = ENABLE_CAMERA_BRIGHTNESS && isVirtualBackgroundSupported();
@@ -409,10 +419,10 @@ export const useVideoPreview = ({
       currentVideoStream.current.changeCameraBrightness(newBrightness);
       setBrightness(newBrightness);
       if (isCameraShared) {
-        setCameraBrightnessInfo(webcamDeviceId, newBrightness, wholeImageBrightness);
+        setCameraBrightnessInfo(deviceId || webcamDeviceId.current, newBrightness, wholeImageBrightness);
       }
     }
-  }, [startCameraBrightness, wholeImageBrightness, isCameraShared, webcamDeviceId]);
+  }, [startCameraBrightness, wholeImageBrightness, isCameraShared, webcamDeviceId.current]);
 
   const handleBrightnessAreaChange = useCallback(async () => {
     // @ts-ignore
@@ -427,15 +437,15 @@ export const useVideoPreview = ({
         }
         currentVideoStream.current?.toggleCameraBrightnessArea(newWholeImageBrightness);
         if (isCameraShared) {
-          setCameraBrightnessInfo(webcamDeviceId, brightness, newWholeImageBrightness);
+          setCameraBrightnessInfo(webcamDeviceId.current, brightness, newWholeImageBrightness);
         }
         return newWholeImageBrightness;
       });
     }
-  }, [startCameraBrightness, brightness, isCameraShared, webcamDeviceId]);
+  }, [startCameraBrightness, brightness, isCameraShared, webcamDeviceId.current]);
 
   const applyStoredBrightness = useCallback(async (deviceId: string | null = null) => {
-    const webcamDeviceIdToUse = deviceId || webcamDeviceId;
+    const webcamDeviceIdToUse = deviceId || webcamDeviceId.current;
     const cameraBrightness = getCameraBrightnessInfo(webcamDeviceIdToUse) as {
       brightness: number, wholeImageBrightness: boolean
     };
@@ -446,7 +456,7 @@ export const useVideoPreview = ({
     setBrightness(stateToApply.brightness);
     setWholeImageBrightness(stateToApply.wholeImageBrightness);
     await startCameraBrightness(stateToApply);
-  }, [webcamDeviceId, startCameraBrightness]);
+  }, [startCameraBrightness]);
 
   const getCameraStream = useCallback(async (
     deviceId: string | null,
@@ -455,11 +465,8 @@ export const useVideoPreview = ({
     setSelectedProfile(profile.id);
     setPreviewError(null);
     setIsCameraLoading(true);
-    // State reset: crucial to prevent applying old state to the new stream
-    setBrightness(DEFAULT_BRIGHTNESS_STATE.brightness);
-    setWholeImageBrightness(DEFAULT_BRIGHTNESS_STATE.wholeImageBrightness);
 
-    terminateCameraStream(currentVideoStream.current, webcamDeviceId);
+    terminateCameraStream(currentVideoStream.current, webcamDeviceId.current);
     cleanupStreamAndVideo();
 
     let bbbVideoStream;
@@ -476,8 +483,13 @@ export const useVideoPreview = ({
       }
       finalDeviceId = updatedDevice;
     } catch (error) {
-      handlePreviewError('do_gum_preview', error as Error & { name: string }, 'displaying final selection');
-      throw error;
+      // When video preview is set to skip, we need some way to bubble errors
+      // up to users; so re-throw the error
+      if (!shouldSkipVideoPreview()) {
+        handlePreviewError('do_gum_preview', error as Error & { name: string }, 'displaying final selection');
+      } else {
+        throw error;
+      }
     }
 
     // Restore virtual background and brightness if it was stored in Local/Session Storage
@@ -487,7 +499,12 @@ export const useVideoPreview = ({
         await applyStoredBrightness(finalDeviceId);
       }
     } catch (error) {
-      // Failures are not critical unless skipping preview
+      // Only bubble up errors in this case if we're skipping the video preview
+      // This is because virtual background failures are deemed critical when
+      // skipping the video preview, but not otherwise
+      if (shouldSkipVideoPreview()) {
+        throw error;
+      }
     }
 
     // Late VBG resolve, clean up tracks, stop.
@@ -500,7 +517,7 @@ export const useVideoPreview = ({
     setIsCameraLoading(false);
     return finalDeviceId;
   }, [
-    webcamDeviceId, isCameraAsContent,
+    isCameraAsContent,
     terminateCameraStream, cleanupStreamAndVideo, setCurrentVideoStream,
     updateDeviceId, handlePreviewError, applyStoredVirtualBg, applyStoredBrightness,
   ]);
@@ -531,11 +548,16 @@ export const useVideoPreview = ({
     areIdentified?: boolean;
   } = {}) => {
     if (devices) VideoService.updateNumberOfDevices(devices);
+    // Video preview skip is activated, short circuit via a simpler procedure
+    if (PreviewService.getSkipVideoPreview() && !forceOpen) {
+      skipVideoPreview();
+      return;
+    }
     // Late enumerateDevices resolution, stop.
     if (!isMounted.current) return;
 
     let processedCamerasList = digestedWebcams;
-    const initialDeviceId = processedCamerasList[0]?.deviceId || webcamDeviceId;
+    const initialDeviceId = processedCamerasList[0]?.deviceId || webcamDeviceId.current;
 
     await getInitialCameraStream(initialDeviceId);
     // Late gUM resolve, stop.
@@ -550,7 +572,7 @@ export const useVideoPreview = ({
         const {
           devices: newDevices,
           digestedWebcams: newDigestedWebcams,
-        } = await PreviewService.doEnumerateDevices({ priorityDeviceId: webcamDeviceId });
+        } = await PreviewService.doEnumerateDevices({ priorityDeviceId: webcamDeviceId.current });
         processedCamerasList = newDigestedWebcams;
         VideoService.updateNumberOfDevices(newDevices);
       } catch (error) {
@@ -576,8 +598,9 @@ export const useVideoPreview = ({
     }
   }, [
     isMounted,
-    webcamDeviceId,
-    getInitialCameraStream,
+    webcamDeviceId.current,
+    isCameraAsContent,
+    getCameraStream,
     handleDeviceError,
     setAvailableWebcams,
     setViewState,
@@ -596,7 +619,7 @@ export const useVideoPreview = ({
           areIdentified: false,
         });
       } else {
-        PreviewService.doEnumerateDevices({ priorityDeviceId: webcamDeviceId })
+        PreviewService.doEnumerateDevices({ priorityDeviceId: webcamDeviceId.current })
           .then(populatePreview)
           .catch((error) => {
             // Late enumerateDevices rejection, stop.
@@ -619,7 +642,7 @@ export const useVideoPreview = ({
       const error = new Error('NotSupportedError');
       handleDeviceError('mount', error, ': navigator.mediaDevices unavailable');
     }
-  }, [populatePreview, webcamDeviceId, handleDeviceError]);
+  }, [populatePreview, webcamDeviceId.current, handleDeviceError]);
 
   useEffect(() => {
     isMounted.current = true;
@@ -628,7 +651,7 @@ export const useVideoPreview = ({
 
     return () => {
       isMounted.current = false;
-      terminateCameraStream(currentVideoStream.current, webcamDeviceId);
+      terminateCameraStream(currentVideoStream.current, webcamDeviceId.current);
       cleanupStreamAndVideo();
     };
   }, []);
@@ -641,20 +664,9 @@ export const useVideoPreview = ({
 
   const handleSelectWebcam = useCallback(async (event: React.ChangeEvent<HTMLSelectElement>) => {
     const deviceId = event.target.value;
-    const profile = isCameraAsContent
-      ? PreviewService.getCameraAsContentProfile()
-      : PreviewService.getCameraProfile(selectedProfile);
-
-    if (!profile) {
-      logger.warn({
-        logCode: 'video_preview_profile_missing',
-        extraInfo: { selectedProfile, isCameraAsContent },
-      }, 'Camera profile not found for selected webcam change');
-      return;
-    }
-    await getCameraStream(deviceId, profile);
+    await getInitialCameraStream(deviceId);
     displayPreview();
-  }, [selectedProfile, isCameraAsContent, getCameraStream, displayPreview]);
+  }, [getInitialCameraStream, displayPreview]);
 
   const handleSelectProfile = useCallback(async (event: React.ChangeEvent<HTMLSelectElement>) => {
     const profileId = event.target.value;
@@ -666,13 +678,83 @@ export const useVideoPreview = ({
       }, 'Camera profile not found for selected webcam change');
       return;
     }
-    await getCameraStream(webcamDeviceId, profile);
+    await getCameraStream(webcamDeviceId.current, profile);
     displayPreview();
-  }, [webcamDeviceId, getCameraStream, displayPreview]);
+  }, [webcamDeviceId.current, getCameraStream, displayPreview]);
+
+  const handleStartSharing = useCallback(async (deviceId: string) => {
+    if (!currentVideoStream.current) return;
+
+    // Only streams that will be shared should be stored in the service.
+    // If the store call returns false, we're duplicating stuff. So clean this one
+    // up because it's an impostor.
+    if (!PreviewService.storeStream(deviceId, currentVideoStream.current)) {
+      currentVideoStream.current.stop();
+    }
+
+    if (
+      currentVideoStream.current?.virtualBgService
+        && brightness === 100
+        && currentVideoStream.current?.virtualBgType === EFFECT_TYPES.NONE_TYPE
+    ) {
+      stopVirtualBackground(currentVideoStream.current);
+    }
+
+    if (!isCameraAsContent) {
+      // Store selected profile, camera ID and virtual background in the storage for future use
+      PreviewService.changeProfile(selectedProfile);
+      PreviewService.changeWebcam(deviceId);
+      updateVirtualBackgroundInfo();
+      updateCameraBrightnessInfo();
+      cleanupStreamAndVideo();
+      if (startSharing) startSharing(deviceId as string);
+    } else {
+      cleanupStreamAndVideo();
+      if (startSharingCameraAsContent) startSharingCameraAsContent(deviceId as string);
+    }
+  }, [
+    currentVideoStream,
+    brightness,
+    isCameraAsContent,
+    selectedProfile,
+    stopVirtualBackground,
+    updateVirtualBackgroundInfo,
+    updateCameraBrightnessInfo,
+    cleanupStreamAndVideo,
+    startSharing,
+    startSharingCameraAsContent,
+  ]);
+
+  const skipVideoPreview = useCallback(() => {
+    getInitialCameraStream(webcamDeviceId.current)
+      .then((newDeviceId) => {
+        if (isMounted.current && newDeviceId) {
+          handleStartSharing(newDeviceId);
+        }
+      })
+      .catch((error) => {
+        logger.warn({
+          logCode: 'video_preview_skip_failure',
+          extraInfo: { errorName: (error as Error & { name: string }).name, errorMessage: error.message },
+        }, 'Skipping video preview failed');
+        PreviewService.clearWebcamDeviceId();
+        PreviewService.clearWebcamProfileId();
+        removeSessionVirtualBackgroundInfo(webcamDeviceId.current);
+        cleanupStreamAndVideo();
+        // Mark the skip as failed so that the component will override any option
+        // to skip the video preview and display the default UI
+        if (isMounted.current) setSkipPreviewFailed(true);
+        throw error;
+      });
+  }, [getInitialCameraStream, handleStartSharing, cleanupStreamAndVideo]);
+
+  const shouldSkipVideoPreview = useCallback(() => {
+    return PreviewService.getSkipVideoPreview() && !forceOpen && !skipPreviewFailed && !isCameraShared;
+  }, [forceOpen, skipPreviewFailed, isCameraShared]);
 
   return {
     // state
-    webcamDeviceId,
+    webcamDeviceId: webcamDeviceId.current,
     virtualBackgroundActive,
     availableWebcams,
     selectedProfile,
@@ -686,7 +768,6 @@ export const useVideoPreview = ({
     currentVideoStream,
     // functions
     initializeCameras,
-    getInitialCameraStream,
     displayPreview,
     handleSelectWebcam,
     handleSelectProfile,
@@ -699,6 +780,9 @@ export const useVideoPreview = ({
     terminateCameraStream,
     cleanupStreamAndVideo,
     setCurrentVideoStream,
+    getInitialCameraStream,
+    shouldSkipVideoPreview,
+    handleStartSharing,
     VIEW_STATES,
   };
 };
