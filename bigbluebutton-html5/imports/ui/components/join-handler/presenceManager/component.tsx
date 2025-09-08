@@ -268,7 +268,7 @@ const PresenceManagerContainer: React.FC<PresenceManagerContainerProps> = ({ chi
     userId,
     extId,
     name,
-    bot,
+    bot = false,
   } = currentUserData;
 
   const guestStatusDetails = data?.user_current?.[0]?.guestStatusDetails;

@@ -12,7 +12,6 @@ import { userIsInvited } from '/imports/ui/components/breakout-room/breakout-roo
 import { BREAKOUTS_ICON, BREAKOUTS_LABEL, BREAKOUTS_APP_KEY } from '/imports/ui/components/breakout-room/constants';
 import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
-import { Meeting } from '/imports/ui/Types/meeting';
 import CreateBreakoutRoomContainer from '../create-breakout-room/component';
 import { UserIsInvitedSubscriptionResponse } from '/imports/ui/components/breakout-room/breakout-rooms-list-item/types';
 
@@ -33,7 +32,7 @@ const BreakoutRoomsAppObserver = () => {
 
   const {
     data: currentMeeting,
-  } = useMeeting((m: Partial<Meeting>) => ({
+  } = useMeeting((m) => ({
     componentsFlags: m.componentsFlags,
     isBreakout: m.isBreakout,
   }));
