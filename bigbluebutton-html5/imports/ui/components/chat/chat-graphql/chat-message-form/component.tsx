@@ -20,8 +20,6 @@ import {
   useIsEditChatMessageEnabled, useIsEmojiPickerEnabled,
 } from '/imports/ui/services/features';
 import { checkText } from 'smile2emoji';
-import { findDOMNode } from 'react-dom';
-
 import Styled from './styles';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { getAllShortCodes } from '/imports/utils/emoji-utils';
@@ -140,7 +138,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const [message, setMessage] = React.useState('');
   const [showEmojiPicker, setShowEmojiPicker] = React.useState(false);
   const emojiPickerRef = useRef<HTMLDivElement>(null);
-  const emojiPickerButtonRef = useRef(null);
+  const emojiPickerButtonRef = useRef<HTMLDivElement>(null);
   const [isTextAreaFocused, setIsTextAreaFocused] = React.useState(false);
   const [repliedMessageId, setRepliedMessageId] = React.useState<string | null>(null);
   const [emojisToExclude, setEmojisToExclude] = React.useState<string[]>([]);
@@ -604,8 +602,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
 
     useEffect(() => {
       const handleClickOutside = (event: MouseEvent) => {
-        // eslint-disable-next-line react/no-find-dom-node
-        const button = findDOMNode(emojiPickerButtonRef.current);
+        const button = emojiPickerButtonRef.current;
         if (
           (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target as Node))
           && (button && !button.contains(event.target as Node))
@@ -671,19 +668,20 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
               async
             />
             {ENABLE_EMOJI_PICKER ? (
-              <Styled.EmojiButton
-                ref={emojiPickerButtonRef}
-                onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                icon="happy"
-                color="light"
-                ghost
-                type="button"
-                circle
-                hideLabel
-                label={intl.formatMessage(messages.emojiButtonLabel)}
-                data-test="emojiPickerButton"
-                disabled={disabled || partnerIsLoggedOut || chatSendMessageLoading}
-              />
+              <div ref={emojiPickerButtonRef}>
+                <Styled.EmojiButton
+                  onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                  icon="happy"
+                  color="light"
+                  ghost
+                  type="button"
+                  circle
+                  hideLabel
+                  label={intl.formatMessage(messages.emojiButtonLabel)}
+                  data-test="emojiPickerButton"
+                  disabled={disabled || partnerIsLoggedOut || chatSendMessageLoading}
+                />
+              </div>
             ) : null}
           </Styled.InputWrapper>
           <div style={{ zIndex: 10 }}>
