@@ -30,9 +30,8 @@ const ReactionsButton = (props) => {
       defaultMessage: 'Share a reaction',
     },
     removeReactionsLabel: {
-      id: 'app.actionsBar.reactions.removeReactionButtonLabel',
+      id: 'app.actionsBar.reactions.removeReactionLabel',
       description: 'remove reaction Label',
-      defaultMessage: 'Remove reaction',
     },
   });
 
