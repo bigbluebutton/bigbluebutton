@@ -6,6 +6,7 @@ const { apiCall, sleep } = require("../core/helpers");
 const Page = require('../core/page');
 const { openPublicChat } = require("../chat/util");
 const { startSharedNotes, getNotesLocator } = require("../sharednotes/util");
+const { skipSlide } = require("../presentation/util");
 
 const { playbackElements } = e;
 
@@ -68,6 +69,9 @@ class Recording extends MultiUsers {
     await this.modPage.waitAndClick(e.sendButton);
     await this.modPage.hasElementCount(e.chatUserMessageText, 1, 'should have on message on the public chat');
 
+    // skip slide
+    await skipSlide(this.modPage);
+
     // type on shared notes
     await startSharedNotes(this.modPage);
     const notesLocator = getNotesLocator(this.modPage);
@@ -100,10 +104,7 @@ class Recording extends MultiUsers {
     return playbackUrl;
   }
 
-  async accessPlayback(playbackUrl) {
-    const response = await this.playbackPage.page.goto(playbackUrl);
-    expect(response.ok(), 'playback URL should be accessible').toBeTruthy();
-    await this.playbackPage.page.waitForLoadState('domcontentloaded');
+  async accessPlayback() {
     // check elements
     await this.playbackPage.hasElement(playbackElements.topBar, 'should display the playback top bar');
     await this.playbackPage.hasElement(playbackElements.mediaArea, 'should display the playback media area');
@@ -196,6 +197,80 @@ class Recording extends MultiUsers {
     await this.playbackPage.hasElement(playbackElements.notesContentArea, 'should display the notes content area when notes button is clicked');
     await this.playbackPage.wasRemoved(playbackElements.chatContentArea, 'should not display the chat content area when notes is visible');
     await this.playbackPage.hasText(playbackElements.notesContentArea, e.testMessage, 'should display the notes text typed during the meeting');
+  }
+
+  async playPause() {
+    await this.playbackPage.waitForSelector(playbackElements.title);
+    const titleLocator = this.playbackPage.getLocator(playbackElements.title);
+
+    // Assert that progress bar width is 0 at the start
+    const progressBarLocator = this.playbackPage.getLocator(playbackElements.progressBar);
+    const progressBarInitialWidth = await progressBarLocator.evaluate(el => el.offsetWidth);
+    expect(progressBarInitialWidth, 'progress bar width should be 0 at the start').toEqual(0);
+    await expect(this.playbackPage.page, 'placeholder BBB icon should be visible').toHaveScreenshot('placeholder.png', {
+      mask: [titleLocator],
+    });
+
+    // Resume 500ms playback to display first slide
+    await this.playbackPage.waitAndClick(playbackElements.playPauseButton);
+    await sleep(500);
+    await this.playbackPage.waitAndClick(playbackElements.playPauseButton);
+    await expect(this.playbackPage.page, 'first slide should be visible').toHaveScreenshot('first-slide.png', {
+      mask: [titleLocator],
+    });
+
+    // Resume playback to the next slide
+    await this.playbackPage.waitAndClick(playbackElements.playPauseButton);
+    await sleep(2000);
+    const progressBarResumed = await progressBarLocator.evaluate(el => el.offsetWidth);
+    expect(progressBarResumed, 'progress bar width should not be 0 after resuming playback').not.toEqual(0);
+    await expect(this.playbackPage.page, 'second slide should be visible').toHaveScreenshot('slide-changed.png', {
+      mask: [titleLocator],
+    });
+
+    // wait 2 seconds and check paused playback
+    await this.playbackPage.waitAndClick(playbackElements.playPauseButton);
+    const progressBarPaused = await progressBarLocator.evaluate(el => el.offsetWidth);
+    await sleep(2000);
+    expect(progressBarPaused,
+      'progress bar width should not change when playback is paused'
+    ).toEqual(await progressBarLocator.evaluate(el => el.offsetWidth));
+    await expect(this.playbackPage.page, 'should display the same slide when paused').toHaveScreenshot('playback-paused.png', {
+      mask: [titleLocator],
+    });
+  }
+
+  async seekBarForwardBackward() {
+    await this.playbackPage.waitForSelector(playbackElements.title);
+    const titleLocator = this.playbackPage.getLocator(playbackElements.title);
+
+    // Assert that progress bar width is 0 at the start
+    const progressBarLocator = this.playbackPage.getLocator(playbackElements.progressBar);
+    const progressBarInitialWidth = await progressBarLocator.evaluate(el => el.offsetWidth);
+    expect(progressBarInitialWidth, 'progress bar width should be 0 at the start').toEqual(0);
+    await expect(this.playbackPage.page, 'placeholder BBB icon should be visible').toHaveScreenshot('placeholder.png', {
+      mask: [titleLocator],
+    });
+
+    // play video and seek forward
+    await this.playbackPage.waitAndClick(playbackElements.playPauseButton);
+    await sleep(500);
+    await this.playbackPage.waitAndClick(playbackElements.seekForwardButton);
+    await sleep(500); // wait for the seek action to be processed
+    const progressBarFull = await progressBarLocator.evaluate(el => el.style.width);
+    await expect(progressBarFull, 'progress bar width should be 100% after seeking forward').toBe('100%');
+    await expect(this.playbackPage.page, 'second slide should be visible when seeking forward till the end').toHaveScreenshot('seek-forward.png', {
+      mask: [titleLocator],
+    });
+
+    // seek backward
+    await this.playbackPage.waitAndClick(playbackElements.seekBackButton);
+    await sleep(500);
+    const progressBarBackward = await progressBarLocator.evaluate(el => el.offsetWidth);
+    expect(progressBarBackward, 'progress bar width should be 0 after seeking backward').toEqual(0);
+    await expect(this.playbackPage.page, 'first slide should be visible when seeking backward').toHaveScreenshot('seek-backward.png', {
+      mask: [titleLocator],
+    });
   }
 }
 

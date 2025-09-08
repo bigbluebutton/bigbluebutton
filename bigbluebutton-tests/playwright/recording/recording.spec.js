@@ -45,4 +45,18 @@ test.describe.parallel('Recording', { tag: '@ci' }, () => {
     recording.playbackPage = new Page(browser, page);
     await recording.toggleChatNotes();
   });
+
+  test.describe.parallel('Player', () => {
+    test('Play/Pause', async ({ browser, context, page }) => {
+      const recording = new Recording(browser, context);
+      recording.playbackPage = new Page(browser, page);
+      await recording.playPause();
+    });
+
+    test('Seek forward and backward', async ({ browser, context, page }) => {
+      const recording = new Recording(browser, context);
+      recording.playbackPage = new Page(browser, page);
+      await recording.seekBarForwardBackward();
+    });
+  });
 });

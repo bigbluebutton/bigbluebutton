@@ -589,6 +589,7 @@ exports.activityScorePanelDashboard = 'button[data-test="activityScorePanelDashb
 exports.downloadSessionLearningDashboard = 'button[data-test="downloadSessionDataDashboard"]';
 
 // Recording playback
+const videoControlBar = 'div.vjs-control-bar';
 exports.playbackElements = {
   sectionLeftButton: 'button[data-test="section-left"]',
   lightThemeButton: 'button[data-test="theme-light"]',
@@ -605,4 +606,9 @@ exports.playbackElements = {
   chatButton: 'button[data-test="chat-button"]',
   notesContentArea: 'div#notes',
   notesButton: 'div[data-test="notes-button"]',
+  videoControlBar: videoControlBar,
+  playPauseButton: `${videoControlBar} button.vjs-play-control`,
+  seekBackButton: `${videoControlBar} button.vjs-seek-button.skip-back`,
+  seekForwardButton: `${videoControlBar} button.vjs-seek-button.skip-forward`,
+  progressBar: `${videoControlBar} div.vjs-play-progress`,
 }
