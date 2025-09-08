@@ -9,10 +9,11 @@ const updateCountState = (
   mutation: string, options?: object,
 ) => {
   const mutationIdentifier = makeCustomHookIdentifier(mutation, options);
-  const newMutationCountObject = JSON.parse(JSON.stringify(mutationObject)) as MutationSubscriptionObject;
+  const newMutationCountObject = { ...mutationObject };
+
   newMutationCountObject[mutationIdentifier] = {
     count: (mutationObject[mutationIdentifier]?.count || 0) + delta,
-    options,
+    options: options ? { ...options } : options,
     mutation,
   };
   return newMutationCountObject;

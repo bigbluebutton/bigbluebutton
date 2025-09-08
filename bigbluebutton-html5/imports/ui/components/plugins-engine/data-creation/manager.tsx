@@ -59,38 +59,40 @@ const PluginDataCreationManager: React.FC = () => {
     };
   }, []);
   return (
-    Object.entries(mutationSubscriptionCountObject).map(
-      ([key, subscriptionCount]) => subscriptionCount.count > 0 && (
-      <ErrorBoundary
-        key={key}
-        Fallback={() => {
-          setMutationSubscriptionCountObject((currentState) => {
-            const mutationIdentifier = makeCustomHookIdentifier(subscriptionCount.mutation, subscriptionCount.options);
-            const newMutationCountObject = JSON.parse(JSON.stringify(currentState)) as MutationSubscriptionObject;
-            // Delete problematic entry from object
-            if (newMutationCountObject[mutationIdentifier]) delete newMutationCountObject[mutationIdentifier];
-            return newMutationCountObject;
-          });
-        }}
-        logMetadata={ERROR_METADATA_ON_MUTATION_CREATION}
-        errorMessage={ERROR_MESSAGE_ON_MUTATION_CREATION}
-        errorInfo={
-          {
-            mutationData: {
-              mutation: subscriptionCount.mutation,
-              options: subscriptionCount.options,
-            },
+    Object.entries(mutationSubscriptionCountObject)
+      .filter(([, subscriptionCount]) => subscriptionCount.count > 0)
+      .map(([key, subscriptionCount]) => (
+        <ErrorBoundary
+          key={key}
+          Fallback={() => {
+            setMutationSubscriptionCountObject((currentState) => {
+              const mutationIdentifier = makeCustomHookIdentifier(
+                subscriptionCount.mutation, subscriptionCount.options,
+              );
+              const newMutationCountObject = { ...currentState };
+              // Delete problematic entry from object
+              if (newMutationCountObject[mutationIdentifier]) delete newMutationCountObject[mutationIdentifier];
+              return newMutationCountObject;
+            });
+          }}
+          logMetadata={ERROR_METADATA_ON_MUTATION_CREATION}
+          errorMessage={ERROR_MESSAGE_ON_MUTATION_CREATION}
+          errorInfo={
+            {
+              mutationData: {
+                mutation: subscriptionCount.mutation,
+                options: subscriptionCount.options,
+              },
+            }
           }
-        }
-      >
-        <MutationTriggerHandler
-          mutation={subscriptionCount.mutation}
-          options={subscriptionCount.options}
-          count={subscriptionCount.count}
-        />
-      </ErrorBoundary>
-      ),
-    )
+        >
+          <MutationTriggerHandler
+            mutation={subscriptionCount.mutation}
+            options={subscriptionCount.options}
+            count={subscriptionCount.count}
+          />
+        </ErrorBoundary>
+      ))
   );
 };
 

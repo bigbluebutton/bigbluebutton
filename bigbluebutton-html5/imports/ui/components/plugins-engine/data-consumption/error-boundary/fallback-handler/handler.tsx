@@ -5,7 +5,7 @@ import { HookEvents } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/enum';
 import { CustomSubscriptionArguments } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-consumption/domain/shared/custom-subscription/types';
 import { CustomQueryArguments } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-consumption/domain/shared/custom-query/types';
 import { DataConsumptionFallbackHandlerProps } from './types';
-import { deleteDataConsumptionHookEntry } from '../../utils';
+import { deleteDataConsumptionHookEntry } from '/imports/ui/components/plugins-engine/data-consumption/utils';
 
 const FallbackHandler: React.FC<DataConsumptionFallbackHandlerProps> = (props: DataConsumptionFallbackHandlerProps) => {
   const {

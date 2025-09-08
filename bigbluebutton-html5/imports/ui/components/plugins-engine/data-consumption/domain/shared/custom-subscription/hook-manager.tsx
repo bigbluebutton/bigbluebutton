@@ -7,12 +7,12 @@ import {
 } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/enum';
 import { DataConsumptionHooks } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-consumption/enums';
 
-import { HookWithArgumentsContainerProps } from './types';
+import { SubscriptionHookWithArgumentsContainerProps } from './types';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-const CustomSubscriptionHookContainer = (props: HookWithArgumentsContainerProps) => {
+const CustomSubscriptionHookContainer = (props: SubscriptionHookWithArgumentsContainerProps) => {
   const { hookArguments, numberOfUses } = props;
   const { query: queryFromPlugin, variables } = hookArguments;
   const previousNumberOfUses = usePreviousValue(numberOfUses);

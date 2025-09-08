@@ -4,18 +4,18 @@ import {
 import React from 'react';
 import { EssentialHookInformation } from '../types';
 
-export interface HookWithArgumentsContainerProps {
-  key: string;
+/* eslint-disable @typescript-eslint/no-explicit-any */
+export interface SubscriptionHookWithArgumentsContainerProps {
   numberOfUses: number;
   hookArguments: CustomSubscriptionArguments;
 }
 
-export interface ObjectToCustomHookContainerMap extends EssentialHookInformation{
+export interface ObjectToCustomSubscriptionHookContainerMap extends EssentialHookInformation {
   hookArguments: CustomSubscriptionArguments;
 }
 
-export interface HookWithArgumentContainerToRender {
-  componentToRender: React.FunctionComponent<HookWithArgumentsContainerProps>;
+export interface SubscriptionHookWithArgumentContainerToRender {
+  componentToRender: React.FunctionComponent<SubscriptionHookWithArgumentsContainerProps>;
   hookArguments: CustomSubscriptionArguments;
   numberOfUses: number;
   version: number;
