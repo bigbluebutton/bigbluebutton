@@ -150,6 +150,7 @@ export const PRESENTATIONS_SUBSCRIPTION = gql`
       exportToChatStatus
       exportToChatCurrentPage
       exportToChatHasError
+      firstPageThumbnailUrl
     }
   }
 `;
