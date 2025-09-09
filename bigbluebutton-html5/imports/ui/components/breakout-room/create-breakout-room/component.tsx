@@ -15,7 +15,7 @@ import {
   getUser,
   getUserResponse,
 } from './queries';
-import { PRESENTATIONS_SUBSCRIPTION } from '/imports/ui/components/whiteboard/queries';
+import { PRESENTATIONS_SUBSCRIPTION, PresentationsSubscriptionResponse } from '/imports/ui/components/whiteboard/queries';
 import logger from '/imports/startup/client/logger';
 import BreakoutRoomUserAssignment from './breakout-room-user-assignment/component';
 import deviceInfo from '/imports/utils/deviceInfo';
@@ -676,9 +676,13 @@ const CreateBreakoutRoomContainer: React.FC<CreateBreakoutRoomContainerProps> = 
     data: meetingGroupData,
     loading: meetingGroupLoading,
     error: meetingGroupError,
-  } = useQuery<getMeetingGroupResponse>(getMeetingGroup);
+  } = useQuery<getMeetingGroupResponse>(getMeetingGroup, {
+    fetchPolicy: 'cache-first',
+  });
 
-  const { data: presentationData } = useDeduplicatedSubscription(PRESENTATIONS_SUBSCRIPTION);
+  const { data: presentationData } = useDeduplicatedSubscription<PresentationsSubscriptionResponse>(
+    PRESENTATIONS_SUBSCRIPTION,
+  );
   const presentations = presentationData?.pres_presentation || [];
   const currentPresentation = presentations.find((p: Presentation) => p.current)?.presentationId || '';
 

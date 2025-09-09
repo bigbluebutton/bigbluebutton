@@ -37,6 +37,7 @@ case class User(
                  intIds:             Map[String,UserId] = Map(),
                  name:               String,
                  isModerator:        Boolean,
+                 color:              String,
                  isDialIn:           Boolean = false,
                  avatar:             String = null,
                  currentIntId:       String = null,
@@ -348,6 +349,7 @@ class LearningDashboardActor(
             userLeftFlagged.last.isModerator,
             userLeftFlagged.last.isDialIn,
             userLeftFlagged.last.avatar,
+            userLeftFlagged.last.color,
           )
         }
       }
@@ -362,7 +364,8 @@ class LearningDashboardActor(
       msg.body.name,
       (msg.body.role == Roles.MODERATOR_ROLE),
       isDialIn = false,
-      msg.body.avatar)
+      msg.body.avatar,
+      msg.body.color)
   }
 
   private def handleUserLeaveReqMsg(msg: UserLeaveReqMsg): Unit = {
@@ -505,7 +508,8 @@ class LearningDashboardActor(
         msg.body.callerName,
         isModerator = false,
         isDialIn = true,
-        avatar = null)
+        avatar = null,
+        msg.body.color)
     }
   }
 
@@ -777,7 +781,7 @@ class LearningDashboardActor(
     )
   }
 
-  private def addUserToMeeting(meetingIntId: String, intId: String, extId: String, name: String, isModerator: Boolean, isDialIn: Boolean, avatar: String): Unit = {
+  private def addUserToMeeting(meetingIntId: String, intId: String, extId: String, name: String, isModerator: Boolean, isDialIn: Boolean, avatar: String, color: String): Unit = {
     for {
       meeting <- meetings.values.find(m => m.intId == meetingIntId)
     } yield {
@@ -793,6 +797,7 @@ class LearningDashboardActor(
                 Map(),
                 name,
                 isModerator,
+                color,
                 isDialIn,
                 avatar match {
                   case "" => null

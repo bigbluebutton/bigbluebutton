@@ -328,20 +328,20 @@ trait HandlerHelpers extends SystemConfiguration {
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
-  def buildGroupChatMessageReactionSentEvtMsg(meetingId: String, userId: String, chatId: String, messageId: String, reactionEmoji: String, reactionEmojiId: String): BbbCommonEnvCoreMsg = {
+  def buildGroupChatMessageReactionSentEvtMsg(meetingId: String, userId: String, chatId: String, messageId: String, reactionEmoji: String): BbbCommonEnvCoreMsg = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
     val envelope = BbbCoreEnvelope(GroupChatMessageReactionSentEvtMsg.NAME, routing)
     val header = BbbClientMsgHeader(GroupChatMessageReactionSentEvtMsg.NAME, meetingId, userId)
-    val body = GroupChatMessageReactionSentEvtMsgBody(chatId, messageId, reactionEmoji, reactionEmojiId)
+    val body = GroupChatMessageReactionSentEvtMsgBody(chatId, messageId, reactionEmoji)
     val event = GroupChatMessageReactionSentEvtMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
-  def buildGroupChatMessageReactionDeletedEvtMsg(meetingId: String, userId: String, chatId: String, messageId: String, reactionEmoji: String, reactionEmojiId: String): BbbCommonEnvCoreMsg = {
+  def buildGroupChatMessageReactionDeletedEvtMsg(meetingId: String, userId: String, chatId: String, messageId: String, reactionEmoji: String): BbbCommonEnvCoreMsg = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
     val envelope = BbbCoreEnvelope(GroupChatMessageReactionDeletedEvtMsg.NAME, routing)
     val header = BbbClientMsgHeader(GroupChatMessageReactionDeletedEvtMsg.NAME, meetingId, userId)
-    val body = GroupChatMessageReactionDeletedEvtMsgBody(chatId, messageId, reactionEmoji, reactionEmojiId)
+    val body = GroupChatMessageReactionDeletedEvtMsgBody(chatId, messageId, reactionEmoji)
     val event = GroupChatMessageReactionDeletedEvtMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, event)
   }

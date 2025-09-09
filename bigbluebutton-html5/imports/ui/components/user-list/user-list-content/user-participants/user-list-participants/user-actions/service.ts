@@ -112,7 +112,11 @@ export const isVideoPinEnabledForCurrentUser = (
 // so this code is duplicated from the old userlist service
 // session for chats the current user started
 
-export const toggleVoice = (userId: string, muted: boolean, voiceToggle: (userId: string, muted: boolean) => void) => {
+export const toggleVoice = (
+  userId: string,
+  muted: boolean,
+  voiceToggle: (userId: string, muted: boolean) => void,
+) => {
   if (userId === Auth.userID) {
     toggleMuteMicrophone(!muted, voiceToggle);
   } else {

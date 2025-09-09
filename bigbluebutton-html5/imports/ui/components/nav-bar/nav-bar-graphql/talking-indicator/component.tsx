@@ -1,9 +1,6 @@
 import React, { useEffect, useMemo } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import {
-  IsBreakoutSubscriptionData,
-  MEETING_ISBREAKOUT_SUBSCRIPTION,
-} from './queries';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { uniqueId } from '/imports/utils/string-utils';
 import Styled from './styles';
 import { User } from '/imports/ui/Types/user';
@@ -11,7 +8,6 @@ import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { muteUser } from './service';
 import useToggleVoice from '../../../audio/audio-graphql/hooks/useToggleVoice';
 import { setTalkingIndicatorList } from '/imports/ui/core/hooks/useTalkingIndicator';
-import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import { VoiceActivityResponse } from '/imports/ui/core/graphql/queries/whoIsTalking';
 import useTalkingUsers from '/imports/ui/core/hooks/useTalkingUsers';
 import { partition } from '/imports/utils/array-utils';
@@ -213,10 +209,12 @@ const TalkingIndicatorContainer: React.FC = () => {
   }));
 
   const {
-    data: isBreakoutData,
+    data: currentMeeting,
     loading: isBreakoutLoading,
-    error: isBreakoutError,
-  } = useDeduplicatedSubscription<IsBreakoutSubscriptionData>(MEETING_ISBREAKOUT_SUBSCRIPTION);
+    errors: isBreakoutError,
+  } = useMeeting((m) => ({
+    isBreakout: m.isBreakout,
+  }));
 
   const toggleVoice = useToggleVoice();
   const { data: talkingUsersData, loading: talkingUsersLoading } = useTalkingUsers();
@@ -267,7 +265,7 @@ const TalkingIndicatorContainer: React.FC = () => {
     return null;
   }
 
-  const isBreakout = isBreakoutData?.meeting[0]?.isBreakout ?? false;
+  const isBreakout = currentMeeting?.isBreakout ?? false;
   setTalkingIndicatorList(talkingUsers.map(({ user, ...rest }) => ({ ...rest, ...user })));
   return (
     <TalkingIndicator

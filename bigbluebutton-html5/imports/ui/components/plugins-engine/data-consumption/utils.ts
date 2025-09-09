@@ -9,6 +9,7 @@ import {
 import { ObjectToCustomSubscriptionHookContainerMap } from './domain/shared/custom-subscription/types';
 import { ObjectToCustomQueryHookContainerMap } from './domain/shared/custom-query/types';
 import { ObjectToCustomHookContainerMap } from './types';
+import { EssentialHookInformation } from './domain/shared/types';
 
 const hookUsageSetStateCallback = (
   removeEntry: boolean, mapObj: Map<string, Map<string, ObjectToCustomHookContainerMap>>,
@@ -23,6 +24,7 @@ const hookUsageSetStateCallback = (
     } else {
       mapToBeSet.set(hookArgumentsAsKey, {
         count: (mapObj.get(hookName)?.get(hookArgumentsAsKey)?.count || 0) + delta,
+        version: (mapObj.get(hookName)?.get(hookArgumentsAsKey)?.version || 0) + 1,
         hookArguments,
       });
     }
@@ -35,7 +37,7 @@ const hookUsageSetStateCallback = (
 };
 
 const updateHookUsage = (
-  setHookUtilizationCount: React.Dispatch<React.SetStateAction<Map<string, number>>>,
+  setHookUtilizationCount: React.Dispatch<React.SetStateAction<Map<string, EssentialHookInformation>>>,
   setSubscriptionHookWithArgumentUtilizationCount: React.Dispatch<
     React.SetStateAction<Map<string, Map<string, ObjectToCustomSubscriptionHookContainerMap>>>>,
   setQueryHookWithArgumentUtilizationCount: React.Dispatch<
@@ -45,8 +47,11 @@ const updateHookUsage = (
   if (hookName !== DataConsumptionHooks.CUSTOM_SUBSCRIPTION
     && hookName !== DataConsumptionHooks.CUSTOM_QUERY) {
     setHookUtilizationCount((mapObj) => {
-      const newMap = new Map<string, number>(mapObj.entries());
-      newMap.set(hookName, (mapObj.get(hookName) || 0) + delta);
+      const newMap = new Map<string, EssentialHookInformation>(mapObj.entries());
+      newMap.set(hookName, {
+        count: (mapObj.get(hookName)?.count || 0) + delta,
+        version: (mapObj.get(hookName)?.version || 0) + 1,
+      });
       return newMap;
     });
   } else if (hookName === DataConsumptionHooks.CUSTOM_QUERY) {

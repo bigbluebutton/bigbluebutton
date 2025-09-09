@@ -383,11 +383,7 @@ const QuizzesTable = (props) => {
             <>
               {symbols[type]}
               &nbsp;
-              {responses.map((response) => {
-                const key = pollAnswerIds[response.toLowerCase()]
-                  ? [intl.formatMessage(pollAnswerIds[response.toLowerCase()])] : response;
-                return key;
-              }).join(', ')}
+              {responses}
             </>
           )}
           {type === 'default' && intl.formatMessage({
@@ -406,13 +402,7 @@ const QuizzesTable = (props) => {
           >
             <Paper elevation={1}>
               <Typography variant="body2" style={{ padding: 8, whiteSpace: 'nowrap' }}>
-                {responses.length ? (
-                  responses.map((response) => {
-                    const key = pollAnswerIds[response.toLowerCase()]
-                      ? [intl.formatMessage(pollAnswerIds[response.toLowerCase()])] : response;
-                    return key;
-                  }).join(', ')
-                ) : intl.formatMessage({
+                {responses.length ? responses : intl.formatMessage({
                   id: 'app.learningDashboard.quizzes.noResponse',
                   defaultMessage: 'No response',
                 })}
@@ -456,14 +446,19 @@ const QuizzesTable = (props) => {
       ...commonColProps,
       sortable: true,
       valueGetter: (params) => {
-        const { userAnswers } = params?.value;
-        return userAnswers || [];
+        const { userAnswers = [] } = params?.value ?? {};
+        return userAnswers.map((response) => {
+          const responseInLowerCase = response.toLowerCase();
+          const key = pollAnswerIds[responseInLowerCase]
+            ? intl.formatMessage(pollAnswerIds[responseInLowerCase]) : response;
+          return key;
+        }).join(', ');
       },
       renderCell: (params) => {
         let type = 'default';
         const {
-          ended, userAnswers, correctOption,
-        } = params?.row[params?.field];
+          ended = false, userAnswers = [], correctOption = '',
+        } = params?.row && params?.field && typeof params.row[params.field] === 'object' ? params.row[params.field] : {};
         const userResponded = !!userAnswers.length;
         const hasCorrectOption = !!correctOption;
         if (userResponded && ended) {
@@ -483,7 +478,7 @@ const QuizzesTable = (props) => {
           <GridCellExpand
             type={type}
             anonymous={v?.anonymous}
-            responses={params?.value || []}
+            responses={params?.value || ''}
             width={params?.colDef?.computedWidth}
           />
         );

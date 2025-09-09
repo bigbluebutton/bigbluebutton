@@ -39,10 +39,6 @@ const propTypes = {
   handleFiledrop: PropTypes.func.isRequired,
   selectedToBeNextCurrent: PropTypes.string,
   renderPresentationItemStatus: PropTypes.func.isRequired,
-  externalUploadData: PropTypes.shape({
-    presentationUploadExternalDescription: PropTypes.string,
-    presentationUploadExternalUrl: PropTypes.string.isRequired,
-  }).isRequired,
   isPresenter: PropTypes.bool.isRequired,
   exportPresentation: PropTypes.func.isRequired,
 };

@@ -561,6 +561,8 @@ class MeetingActor(
       case m: MuteUserCmdMsg =>
         usersApp.handleMuteUserCmdMsg(m)
         updateUserLastActivity(m.body.mutedBy)
+      case m: SetUserListenOnlyInputCmdMsg =>
+        handleSetUserListenOnlyInputCmdMsg(m)
       case m: MuteAllExceptPresentersCmdMsg =>
         handleMuteAllExceptPresentersCmdMsg(m)
         updateUserLastActivity(m.body.mutedBy)

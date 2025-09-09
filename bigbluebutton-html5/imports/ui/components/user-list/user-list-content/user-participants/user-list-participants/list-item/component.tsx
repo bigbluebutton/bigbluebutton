@@ -54,7 +54,7 @@ const messages = defineMessages({
 const { isChrome, isFirefox, isEdge } = browserInfo;
 
 interface EmojiProps {
-  emoji: { id: string; native: string; };
+  emoji: { native: string; };
   native: string;
   size: number;
 }
@@ -239,7 +239,7 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings, index }
         presenter={user.presenter}
         talking={voiceUser?.talking}
         muted={voiceUser?.muted}
-        listenOnly={voiceUser?.listenOnly}
+        listenOnly={voiceUser?.listenOnly || voiceUser?.listenOnlyInputDevice}
         voice={voiceUser?.joined}
         noVoice={!voiceUser?.joined}
         color={user.color}

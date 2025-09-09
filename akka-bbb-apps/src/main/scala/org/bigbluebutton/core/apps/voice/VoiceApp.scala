@@ -255,6 +255,7 @@ object VoiceApp extends SystemConfiguration {
                 ColorPicker.nextColor(liveMeeting.props.meetingProp.intId),
                 cvu.muted,
                 false,
+                false,
                 cvu.talking,
                 cvu.calledInto,
                 cvu.hold,
@@ -307,6 +308,7 @@ object VoiceApp extends SystemConfiguration {
       callerIdNum:  String,
       color:        String,
       muted:        Boolean,
+      listenOnlyInputDevice: Boolean,
       deafened:     Boolean,
       talking:      Boolean,
       callingInto:  String,
@@ -366,6 +368,7 @@ object VoiceApp extends SystemConfiguration {
       callerIdNum,
       color,
       muted,
+      listenOnlyInputDevice,
       deafened,
       talking,
       listenOnly = isListenOnly,
@@ -766,6 +769,31 @@ object VoiceApp extends SystemConfiguration {
           outGW.send(muteEvent)
         }
       }
+  }
+
+  def setListenOnlyInputInVoiceConf(
+    liveMeeting:              LiveMeeting,
+    outGW:                    OutMsgRouter,
+    userId:                   String,
+    listenOnlyInputDevice:    Boolean
+  ): Unit = {
+    for {
+      u <- VoiceUsers.findWithIntId(
+        liveMeeting.voiceUsers,
+        userId
+      )
+    } yield {
+      val event = MsgBuilder.buildSetListenOnlyInputInVoiceConfSysMsg(
+        liveMeeting.props.meetingProp.intId,
+        liveMeeting.props.voiceProp.voiceConf,
+        userId,
+        u.voiceUserId,
+        listenOnlyInputDevice
+      )
+      outGW.send(event)
+
+      VoiceUsers.userUpdatedListenOnlyInputDevice(liveMeeting.voiceUsers, u.voiceUserId, listenOnlyInputDevice)
+    }
   }
 
   def deafenUserInVoiceConf(

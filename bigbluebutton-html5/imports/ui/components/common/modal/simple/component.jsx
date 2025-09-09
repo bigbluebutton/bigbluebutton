@@ -80,7 +80,7 @@ class ModalSimple extends Component {
 
   handleOutsideClick(e) {
     const { modalIsOpen } = this.props;
-    if (this.modalRef.current && !this.modalRef.current.contains(e.target) && modalIsOpen) {
+    if (this.modalRef.current && e.target?.contains(this.modalRef.current) && modalIsOpen) {
       this.handleRequestClose(e);
     }
   }

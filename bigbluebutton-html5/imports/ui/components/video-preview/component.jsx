@@ -855,9 +855,11 @@ class VideoPreview extends Component {
     this.terminateCameraStream(this.currentVideoStream, webcamDeviceId);
     this.cleanupStreamAndVideo();
 
+    let bbbVideoStream;
+
     try {
       // The return of doGUM is an instance of BBBVideoStream (a thin wrapper over a MediaStream)
-      let bbbVideoStream = await PreviewService.doGUM(deviceId, profile);
+      bbbVideoStream = await PreviewService.doGUM(deviceId, profile);
       this.currentVideoStream = bbbVideoStream;
       const updatedDevice = this.updateDeviceId(deviceId);
 

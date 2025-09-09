@@ -675,6 +675,7 @@ CREATE UNLOGGED TABLE "user_voice" (
 	"callingWith" varchar(100),
 	"joined" boolean,
 	"listenOnly" boolean,
+	"listenOnlyInputDevice" boolean NOT NULL DEFAULT false,
 	"muted" boolean,
 	"deafened" boolean,
 	"spoke" boolean,
@@ -1264,7 +1265,6 @@ CREATE UNLOGGED TABLE "chat_message_reaction" (
 	"messageId" varchar(100) REFERENCES "chat_message"("messageId") ON DELETE CASCADE,
 	"userId" varchar(100) not null,
 	"reactionEmoji" varchar(25),
-    "reactionEmojiId" varchar(50),
 	"createdAt" timestamp with time zone,
     CONSTRAINT chat_message_reaction_pk PRIMARY KEY ("messageId", "userId", "reactionEmoji"),
     FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
@@ -1506,11 +1506,25 @@ create index "idx_pres_page_writers_userID_rev" on "pres_page_writers"("userId",
 CREATE OR REPLACE VIEW "v_pres_page_writers" AS
 SELECT
 	"pres_presentation"."presentationId",
-	"pres_page_writers" .*,
+	"pres_page_writers"."meetingId",
+	"pres_page_writers"."pageId",
+	"pres_page_writers"."userId",
 	CASE WHEN pres_presentation."current" IS true AND pres_page."current" IS true THEN true ELSE false END AS "isCurrentPage"
 FROM "pres_page_writers"
 JOIN "pres_page" ON "pres_page"."pageId" = "pres_page_writers"."pageId"
-JOIN "pres_presentation" ON "pres_presentation"."presentationId"  = "pres_page"."presentationId" ;
+JOIN "pres_presentation" ON "pres_presentation"."presentationId"  = "pres_page"."presentationId"
+UNION
+SELECT
+	"pres_presentation"."presentationId",
+	"pres_presentation"."meetingId",
+	"pres_page"."pageId",
+	"user"."userId",
+	CASE WHEN pres_presentation."current" IS true AND pres_page."current" IS true THEN true ELSE false END AS "isCurrentPage"
+FROM pres_presentation
+JOIN pres_page ON pres_page."presentationId"::text = pres_presentation."presentationId"::text
+JOIN "user" on "user"."meetingId" = "pres_presentation"."meetingId"
+            and "user".presenter IS TRUE;
+;
 
 CREATE OR REPLACE VIEW "v_pres_presentation_uploadToken" AS
 SELECT "meetingId", "presentationId", "uploadUserId", "uploadTemporaryId", "uploadToken"
@@ -2277,6 +2291,8 @@ create unlogged table "plugin" (
     "localesBaseUrl" varchar(500),
 	"javascriptEntrypointUrl" varchar(500),
 	"javascriptEntrypointIntegrity" varchar(500),
+	"loadFailureReason" varchar(500),
+	"loadFailureSource" varchar(50),
     CONSTRAINT "plugin_pk" PRIMARY KEY ("meetingId","name"),
     FOREIGN KEY ("meetingId") REFERENCES "meeting"("meetingId") ON DELETE CASCADE
 );
@@ -2382,8 +2398,14 @@ select "meeting"."meetingId",
             select 1
             from "sharedNotes"
             where "sharedNotes"."meetingId" = "meeting"."meetingId"
+            and "sharedNotesExtId" = 'notes'
+        ) as "hasSharedNotes",
+        exists (
+            select 1
+            from "sharedNotes"
+            where "sharedNotes"."meetingId" = "meeting"."meetingId"
             and "sharedNotes"."pinned" is true
-        ) as "isSharedNotedPinned",
+        ) as "isSharedNotesPinned",
         exists (
             select 1
             from "v_pres_page_curr"

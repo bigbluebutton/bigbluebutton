@@ -118,7 +118,12 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
       loadingContextInfo.setLoading(false);
       throw new Error('Error fetching GraphQL URL: '.concat(error.message || ''));
     });
-    logger.info('Fetching GraphQL URL');
+    logger.info(
+      {
+        logCode: 'GRAPHQL_URL_FETCH',
+      },
+      'Fetching GraphQL URL',
+    );
     loadingContextInfo.setLoading(true);
   }, []);
 
@@ -172,7 +177,16 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
   }, [terminalError]);
 
   useEffect(() => {
-    logger.info('Connecting to GraphQL server');
+    logger.info(
+      {
+        logCode: 'GRAPHQL_CONNECTION_INIT',
+        extraInfo: {
+          endpoint: graphqlUrl,
+          retryAttempt: numberOfAttempts.current,
+        },
+      },
+      'Connecting to GraphQL server',
+    );
     loadingContextInfo.setLoading(true);
     if (graphqlUrl) {
       const urlParams = new URLSearchParams(window.location.search);

@@ -2,6 +2,8 @@ import React from 'react';
 import {
   IS_TYPING_PUBLIC_SUBSCRIPTION,
   IS_TYPING_PRIVATE_SUBSCRIPTION,
+  IsTypingPublicSubscriptionResponse,
+  IsTypingPrivateSubscriptionResponse,
 } from './queries';
 import {
   defineMessages,
@@ -213,14 +215,14 @@ const TypingIndicatorContainer: React.FC = () => {
     return null;
   }
 
-  const publicTypingUsers = typingUsersData?.user_typing_public || [];
-  const privateTypingUsers = typingUsersData?.user_typing_private || [];
+  const publicTypingUsers = (typingUsersData as IsTypingPublicSubscriptionResponse)?.user_typing_public || [];
+  const privateTypingUsers = (typingUsersData as IsTypingPrivateSubscriptionResponse)?.user_typing_private || [];
 
   const typingUsers = privateTypingUsers.concat(publicTypingUsers);
 
   const typingUsersArray = typingUsers
     .filter((user: { user: object; userId: string; }) => user?.user && user?.userId !== currentUser?.userId)
-    .map((user: { user: object; }) => user.user);
+    .map((user: { user: object; }) => user.user) as Array<User>;
 
   if (locked || !TYPING_INDICATOR_ENABLED || !typingUsers) return null;
 

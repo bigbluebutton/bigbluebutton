@@ -28,7 +28,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         iosAppStoreUrl: 'https://apps.apple.com/us/app/bigbluebutton-tablet/id1641156756',
         iosAppUrlScheme: 'bigbluebutton-tablet',
       },
-      lockOnJoin: true,
       cdn: '',
       basename: '/html5client',
       bbbWebBase: '/bigbluebutton',
@@ -483,7 +482,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       chatMessage: true,
       quickPollConfirmationStep: false,
       quiz: {
-        enabled: false,
+        enabled: true,
         quickPollCorrectAnswerSuffix: '__',
       },
     },

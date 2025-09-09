@@ -2,6 +2,7 @@ import {
   CustomQueryArguments,
 } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-consumption/domain/shared/custom-query/types';
 import React from 'react';
+import { EssentialHookInformation } from '../types';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export interface QueryHookWithArgumentsContainerProps {
@@ -10,13 +11,12 @@ export interface QueryHookWithArgumentsContainerProps {
   resolveQuery: () => void;
 }
 
-export interface ObjectToCustomQueryHookContainerMap {
-  count: number;
+export interface ObjectToCustomQueryHookContainerMap extends EssentialHookInformation {
   hookArguments: CustomQueryArguments;
 }
 
 export interface QueryHookWithArgumentContainerToRender {
   componentToRender: React.FunctionComponent<QueryHookWithArgumentsContainerProps>;
   hookArguments: CustomQueryArguments;
-  numberOfUses: number;
+  version: number;
 }

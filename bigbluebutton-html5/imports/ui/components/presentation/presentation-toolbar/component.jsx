@@ -205,6 +205,11 @@ class PresentationToolbar extends PureComponent {
   switchSlide(event) {
     const { target, which } = event;
     const isBody = target.nodeName === 'BODY';
+    const isWhiteboard = target.classList.contains('tl-container');
+
+    if (which === KEY_CODES.ENTER && (isWhiteboard || isBody)) {
+      return this.fullscreenToggleHandler();
+    }
 
     if (isBody) {
       switch (which) {
@@ -215,9 +220,6 @@ class PresentationToolbar extends PureComponent {
         case KEY_CODES.ARROW_RIGHT:
         case KEY_CODES.PAGE_DOWN:
           this.nextSlideHandler();
-          break;
-        case KEY_CODES.ENTER:
-          this.fullscreenToggleHandler();
           break;
         default:
       }

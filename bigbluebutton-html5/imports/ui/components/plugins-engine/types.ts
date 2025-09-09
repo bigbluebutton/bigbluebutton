@@ -7,6 +7,8 @@ export interface PluginsEngineComponentProps {
 export interface PluginConfigFromGraphql {
     javascriptEntrypointUrl: string;
     localesBaseUrl: string;
+    loadFailureReason: string;
+    loadFailureSource: string;
     name: string;
 }
 

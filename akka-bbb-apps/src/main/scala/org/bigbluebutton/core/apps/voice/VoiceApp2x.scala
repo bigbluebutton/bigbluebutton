@@ -23,7 +23,7 @@ trait VoiceApp2x extends UserJoinedVoiceConfEvtMsgHdlr
   with UserStatusVoiceConfEvtMsgHdlr
   with ChannelHoldChangedVoiceConfEvtMsgHdlr
   with ListenOnlyModeToggledInSfuEvtMsgHdlr
-  with DeafenUserCmdMsgHdlr {
-
+  with DeafenUserCmdMsgHdlr
+  with SetUserListenOnlyInputCmdMsgHdlr {
   this: MeetingActor =>
 }

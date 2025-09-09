@@ -43,7 +43,7 @@
   - `hasPoll: Boolean`
   - `hasScreenshare: Boolean`
   - `hasTimer: Boolean`
-  - `isSharedNotedPinned: Boolean`
+  - `isSharedNotesPinned: Boolean`
   - `showRemainingTime: Boolean`
 - `externalVideo: Object` [Type externalVideo](#type-externalVideo)
 - `groups: Array` [Type meeting_group](#type-meeting_group)
@@ -152,7 +152,6 @@ Permission: Restricted to User Viewing Self-Related Data
 - `reactions: Array` **Type chat_message_reaction**
   - `createdAt`
   - `reactionEmoji`
-  - `reactionEmojiId`
   - `userId`
   - `user: Object` [Type User](#type-user)
 - `replyToMessage: Object` [Type chat_message_private](#type-chat_message_private)
@@ -179,7 +178,6 @@ Permission: Restricted to User Viewing Self-Related Data
 - `reactions: Array` **Type chat_message_reaction**
   - `createdAt`
   - `reactionEmoji`
-  - `reactionEmojiId`
   - `userId`
   - `user: Object` [Type User](#type-user)
 - `replyToMessage: Object` [Type type-chat_message_public](#type-chat_message_public)
@@ -300,7 +298,7 @@ Permission: Restricted to User Viewing Self-Related Data
 - `hasPoll`
 - `hasScreenshare`
 - `hasTimer`
-- `isSharedNotedPinned`
+- `isSharedNotesPinned`
 - `showRemainingTime`
 
 ## Type: pres_page
@@ -698,11 +696,12 @@ Permission: Restricted to User Viewing Self-Related Data
 
 ## Type: pres_page_writers
 ### Fields:
-- `changedModeOn`
 - `isCurrentPage`
 - `pageId`
 - `presentationId`
 - `userId`
+### Relationships:
+- `user: Object` [Type User](#type-user)
 
 ## Type: screenshare
 ### Fields:
@@ -919,4 +918,3 @@ Permission: Restricted to User Viewing Self-Related Data
 - `enforceLayout`
 - `sessionName`
 - `sessionToken`
-
