@@ -99,3 +99,9 @@ export interface CameraProfileProps {
     frameRate?: number;
   };
 }
+export interface CustomBackground {
+  uniqueId: string;
+  name: string;
+  type: string;
+  data?: File | Blob;
+}

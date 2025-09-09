@@ -29,6 +29,7 @@ import {
   WebcamDevice,
   DEFAULT_BRIGHTNESS_STATE,
   CameraProfileProps,
+  CustomBackground,
 } from './types';
 
 const intlMessages: { [key: string]: { id: string; description?: string } } = defineMessages({
@@ -286,6 +287,41 @@ export const useVideoPreview = ({
     return Promise.resolve(true);
   }, [brightness, startVirtualBackground, stopVirtualBackground, updateVirtualBackgroundInfo]);
 
+  const applyCustomVirtualBg = useCallback(async (
+    type: string,
+    name: string,
+    uniqueId: string,
+    webcamDeviceIdToUse: string | null,
+  ) => {
+    const { backgrounds, loaded } = customVirtualBackgroundsContext;
+    let customParams: CustomBgParams | undefined;
+
+    const getCustomParams = (bgs: { [key: string]: CustomBackground }): CustomBgParams => {
+      const background = bgs[uniqueId] || Object.values(bgs).find((bg) => bg.uniqueId === uniqueId);
+      if (background?.data) {
+        return { uniqueId, file: background.data };
+      }
+      throw new Error('Missing virtual background data');
+    };
+
+    if (backgrounds[uniqueId]) {
+      customParams = getCustomParams(backgrounds as { [key: string]: CustomBackground });
+    } else if (!loaded) {
+      // Virtual BG context might not be loaded yet (in case this is
+      // skipping the video preview). Load it manually.
+      customParams = await new Promise<CustomBgParams>((resolve, reject) => {
+        VBGSelectorService.load(
+          reject,
+          (loadedBgs: { [key: string]: CustomBackground }) => resolve(getCustomParams(loadedBgs)),
+        );
+      });
+    } else {
+      throw new Error('Missing virtual background');
+    }
+
+    await handleVirtualBgSelected(type, name, customParams, webcamDeviceIdToUse);
+  }, [customVirtualBackgroundsContext, handleVirtualBgSelected]);
+
   const applyStoredVirtualBg = useCallback(async (deviceId: string | null = null) => {
     const webcamDeviceIdToUse = deviceId || webcamDeviceId.current;
 
@@ -295,70 +331,43 @@ export const useVideoPreview = ({
       type: string, name: string, uniqueId: string
     };
 
-    if (virtualBackground) {
-      const { type, name, uniqueId } = virtualBackground;
-      return new Promise<void>((resolve, reject) => {
-        let customParams;
-        const handleFailure = (error: Error) => {
-          handleVirtualBgError(error, type, name);
-          removeSessionVirtualBackgroundInfo(webcamDeviceIdToUse);
-          reject(error);
-        };
-        const applyCustomVirtualBg = (backgrounds: Record<string, {
-          uniqueId: string;
-          data: File | Blob;
-        }>) => {
-          const background = backgrounds[uniqueId]
-            || Object.values(backgrounds).find((bg) => bg.uniqueId === uniqueId);
-
-          if (background && background.data) {
-            customParams = { uniqueId, file: background?.data };
-          } else {
-            handleFailure(new Error('Missing virtual background data'));
-            return;
-          }
-          handleVirtualBgSelected(type, name, customParams, webcamDeviceIdToUse)
-            .then(resolve as () => void, handleFailure);
-        };
-
+    try {
+      if (virtualBackground) {
+        const { type, name, uniqueId } = virtualBackground;
         // If uniqueId is defined, this is a custom background. Fetch the custom
         // params from the context and apply them
         if (uniqueId) {
-          if (customVirtualBackgroundsContext.backgrounds[uniqueId]) {
-            applyCustomVirtualBg(customVirtualBackgroundsContext.backgrounds);
-          } else if (!customVirtualBackgroundsContext.loaded) {
-            // Virtual BG context might not be loaded yet (in case this is
-            // skipping the video preview). Load it manually.
-            VBGSelectorService.load(handleFailure, applyCustomVirtualBg);
-          } else {
-            handleFailure(new Error('Missing virtual background'));
-          }
-          return;
+          await applyCustomVirtualBg(type, name, uniqueId, webcamDeviceIdToUse);
+        } else {
+          // Built-in background, just apply it.
+          await handleVirtualBgSelected(type, name, undefined, webcamDeviceIdToUse);
         }
+        return;
+      }
 
-        // Built-in background, just apply it.
-        handleVirtualBgSelected(type, name, customParams, webcamDeviceIdToUse)
-          .then(resolve as () => void, handleFailure);
-      });
-    } if (customVirtualBackgroundsContext.backgrounds.webcamBackgroundURL) {
-      // Apply custom background from JOIN URL parameter automatically
-      // only if there's not any session background yet.
-      const {
-        filename, data, type, uniqueId,
-      } = customVirtualBackgroundsContext.backgrounds.webcamBackgroundURL;
-      const customParams = { file: data, uniqueId };
-      return new Promise<void>((resolve, reject) => {
-        const handleFailure = (error: Error) => {
-          handleVirtualBgError(error, type, filename);
-          removeSessionVirtualBackgroundInfo(webcamDeviceIdToUse);
-          reject(error);
-        };
-        handleVirtualBgSelected(type, filename, customParams, webcamDeviceIdToUse)
-          .then(resolve as () => void, handleFailure);
-      });
+      const { webcamBackgroundURL } = customVirtualBackgroundsContext.backgrounds;
+      if (webcamBackgroundURL) {
+        // Apply custom background from JOIN URL parameter automatically
+        // only if there's not any session background yet.
+        const {
+          filename, data, type, uniqueId,
+        } = webcamBackgroundURL;
+        const customParams = { file: data, uniqueId };
+        await handleVirtualBgSelected(type, filename, customParams, webcamDeviceIdToUse);
+      }
+    } catch (error) {
+      const { type, name } = virtualBackground || customVirtualBackgroundsContext.backgrounds.webcamBackgroundURL || {};
+      handleVirtualBgError(error as Error, type, name);
+      removeSessionVirtualBackgroundInfo(webcamDeviceIdToUse);
+      throw error;
     }
-    return Promise.resolve();
-  }, [webcamDeviceId.current, customVirtualBackgroundsContext, handleVirtualBgSelected, handleVirtualBgError]);
+  }, [
+    webcamDeviceId.current,
+    customVirtualBackgroundsContext,
+    handleVirtualBgSelected,
+    handleVirtualBgError,
+    applyCustomVirtualBg,
+  ]);
 
   const updateDeviceId = useCallback((deviceId: string | null) => {
     let actualDeviceId = deviceId;
@@ -707,10 +716,10 @@ export const useVideoPreview = ({
       updateVirtualBackgroundInfo();
       updateCameraBrightnessInfo();
       cleanupStreamAndVideo();
-      if (startSharing) startSharing(deviceId as string);
+      if (startSharing) startSharing(deviceId);
     } else {
       cleanupStreamAndVideo();
-      if (startSharingCameraAsContent) startSharingCameraAsContent(deviceId as string);
+      if (startSharingCameraAsContent) startSharingCameraAsContent(deviceId);
     }
   }, [
     currentVideoStream,

@@ -109,6 +109,20 @@ interface CameraSection {
   };
 }
 
+const createCameraSection = (deviceId: string | null): CameraSection => {
+  const vbgInfo = deviceId ? getSessionVirtualBackgroundInfo(deviceId) : null;
+  const brightnessInfo = deviceId
+    ? getCameraBrightnessInfoWithDefault(deviceId)
+    : { brightness: 100 };
+
+  return {
+    deviceId,
+    brightness: brightnessInfo.brightness,
+    virtualBackgroundChecked: vbgInfo ? vbgInfo.type !== EFFECT_TYPES.NONE_TYPE : false,
+    virtualBackground: vbgInfo || { type: EFFECT_TYPES.NONE_TYPE, name: 'None' },
+  };
+};
+
 interface ProfileSettingsProps {
 }
 const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
@@ -204,82 +218,50 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
     }
 
     setCameraSections((prevSections) => {
-      let newSections = [...prevSections];
+      let newSections: CameraSection[];
 
-      // On first load, initialize with shared devices or default
       if (prevSharedDevices === undefined) {
+        // On first load, initialize with shared devices or default
         if (sharedDevices.length > 0) {
-          // @ts-ignore js code
-          newSections = sharedDevices.map((deviceId) => {
-            const vbgInfo = getSessionVirtualBackgroundInfo(deviceId);
-            return {
-              deviceId,
-              brightness: getCameraBrightnessInfoWithDefault(deviceId).brightness,
-              virtualBackgroundChecked: vbgInfo ? vbgInfo.type !== EFFECT_TYPES.NONE_TYPE : false,
-              virtualBackground: vbgInfo || { type: EFFECT_TYPES.NONE_TYPE, name: 'None' },
-            };
-          });
+          newSections = sharedDevices.map(createCameraSection);
         } else {
-          const vbgInfo = lastUsedWebcamDeviceId ? getSessionVirtualBackgroundInfo(lastUsedWebcamDeviceId) : null;
-          const brightnessInfo = lastUsedWebcamDeviceId
-            ? getCameraBrightnessInfoWithDefault(lastUsedWebcamDeviceId)
-            : { brightness: 100 };
-          newSections = [{
-            deviceId: lastUsedWebcamDeviceId,
-            brightness: brightnessInfo.brightness,
-            virtualBackgroundChecked: vbgInfo ? vbgInfo.type !== EFFECT_TYPES.NONE_TYPE : false,
-            virtualBackground: vbgInfo || { type: EFFECT_TYPES.NONE_TYPE, name: 'None' },
-          }];
+          newSections = [createCameraSection(lastUsedWebcamDeviceId)];
         }
       } else {
+        // Handle device changes
+        let currentSections = [...prevSections];
         // Handle stopped devices
         if (stoppedDeviceIds.length > 0) {
-          newSections = newSections.filter((s) => !s.deviceId || !stoppedDeviceIds.includes(s.deviceId));
+          currentSections = currentSections.filter((s) => !s.deviceId
+            || !stoppedDeviceIds.includes(s.deviceId));
         }
 
         // Handle newly shared devices
         newlySharedDeviceIds.forEach((deviceId) => {
-          if (!newSections.some((s) => s.deviceId === deviceId)) {
-            const vbgInfo = getSessionVirtualBackgroundInfo(deviceId);
-            newSections.push({
-              deviceId,
-              brightness: getCameraBrightnessInfoWithDefault(deviceId).brightness,
-              virtualBackgroundChecked: vbgInfo ? vbgInfo.type !== EFFECT_TYPES.NONE_TYPE : false,
-              virtualBackground: vbgInfo || { type: EFFECT_TYPES.NONE_TYPE, name: 'None' },
-            });
+          if (!currentSections.some((s) => s.deviceId === deviceId)) {
+            currentSections.push(createCameraSection(deviceId));
           }
         });
+        newSections = currentSections;
       }
 
-      // If all sections were removed (e.g. last shared device stopped), add default
+      // If all sections were removed, add default
       if (newSections.length === 0) {
-        const vbgInfo = (lastUsedWebcamDeviceId
-          ? getSessionVirtualBackgroundInfo(lastUsedWebcamDeviceId)
-          : null) || { type: EFFECT_TYPES.NONE_TYPE, name: 'None' };
-        const brightnessInfo = lastUsedWebcamDeviceId
-          ? getCameraBrightnessInfoWithDefault(lastUsedWebcamDeviceId)
-          : { brightness: 100 };
-
-        newSections.push({
-          deviceId: lastUsedWebcamDeviceId,
-          brightness: brightnessInfo.brightness,
-          virtualBackgroundChecked: vbgInfo.type !== EFFECT_TYPES.NONE_TYPE,
-          virtualBackground: vbgInfo,
-        });
+        newSections.push(createCameraSection(lastUsedWebcamDeviceId));
       }
 
-      // Deduplicate sections by deviceId
+      // Deduplicate and sort sections
       let finalSections = Array.from(new Map(newSections.map((s) => [s.deviceId, s])).values());
-
-      if (JSON.stringify(finalSections) === JSON.stringify(prevSections)) {
-        return prevSections;
-      }
 
       // if there is a shared camera, the first section should always be that camera
       if (sharedDevices.length > 0) {
         const sharedSections = finalSections.filter((s) => sharedDevices.includes(s.deviceId as string));
         const unsharedSections = finalSections.filter((s) => !sharedDevices.includes(s.deviceId as string));
         finalSections = [...sharedSections, ...unsharedSections];
+      }
+
+      if (JSON.stringify(finalSections) === JSON.stringify(prevSections)) {
+        return prevSections;
       }
 
       return finalSections;

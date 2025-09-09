@@ -288,6 +288,10 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
     resolve,
   ]);
 
+  useEffect(() => {
+    if (isCamLocked === true) handleProceed();
+  }, [isCamLocked, handleProceed]);
+
   const getFallbackLabel = useCallback((index: number) => {
     return `${intl.formatMessage(intlMessages.cameraLabel)} ${index}`;
   }, [intl]);
@@ -606,10 +610,7 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
     </div>
   );
 
-  if (isCamLocked) {
-    handleProceed();
-    return null;
-  }
+  if (isCamLocked === true) return null;
 
   if (shouldSkipVideoPreview()) {
     return null;
