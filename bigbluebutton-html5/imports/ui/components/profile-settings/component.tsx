@@ -123,6 +123,63 @@ const createCameraSection = (deviceId: string | null): CameraSection => {
   };
 };
 
+const updateCameraSections = (
+  prevSections: CameraSection[],
+  sharedDevices: string[],
+  prevSharedDevices: string[] | undefined,
+  lastUsedWebcamDeviceId: string | null,
+  stoppedDeviceIds: string[],
+  newlySharedDeviceIds: string[],
+): CameraSection[] => {
+  let newSections: CameraSection[];
+
+  if (prevSharedDevices === undefined) {
+    // On first load, initialize with shared devices or default
+    if (sharedDevices.length > 0) {
+      newSections = sharedDevices.map(createCameraSection);
+    } else {
+      newSections = [createCameraSection(lastUsedWebcamDeviceId)];
+    }
+  } else {
+    // Handle device changes
+    let currentSections = [...prevSections];
+    // Handle stopped devices
+    if (stoppedDeviceIds.length > 0) {
+      currentSections = currentSections.filter((s) => !s.deviceId
+        || !stoppedDeviceIds.includes(s.deviceId));
+    }
+
+    // Handle newly shared devices
+    newlySharedDeviceIds.forEach((deviceId) => {
+      if (!currentSections.some((s) => s.deviceId === deviceId)) {
+        currentSections.push(createCameraSection(deviceId));
+      }
+    });
+    newSections = currentSections;
+  }
+
+  // If all sections were removed, add default
+  if (newSections.length === 0) {
+    newSections.push(createCameraSection(lastUsedWebcamDeviceId));
+  }
+
+  // Deduplicate and sort sections
+  let finalSections = Array.from(new Map(newSections.map((s) => [s.deviceId, s])).values());
+
+  // if there is a shared camera, the first section should always be that camera
+  if (sharedDevices.length > 0) {
+    const sharedSections = finalSections.filter((s) => sharedDevices.includes(s.deviceId as string));
+    const unsharedSections = finalSections.filter((s) => !sharedDevices.includes(s.deviceId as string));
+    finalSections = [...sharedSections, ...unsharedSections];
+  }
+
+  if (JSON.stringify(finalSections) === JSON.stringify(prevSections)) {
+    return prevSections;
+  }
+
+  return finalSections;
+};
+
 interface ProfileSettingsProps {
 }
 const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
@@ -217,55 +274,14 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
       return;
     }
 
-    setCameraSections((prevSections) => {
-      let newSections: CameraSection[];
-
-      if (prevSharedDevices === undefined) {
-        // On first load, initialize with shared devices or default
-        if (sharedDevices.length > 0) {
-          newSections = sharedDevices.map(createCameraSection);
-        } else {
-          newSections = [createCameraSection(lastUsedWebcamDeviceId)];
-        }
-      } else {
-        // Handle device changes
-        let currentSections = [...prevSections];
-        // Handle stopped devices
-        if (stoppedDeviceIds.length > 0) {
-          currentSections = currentSections.filter((s) => !s.deviceId
-            || !stoppedDeviceIds.includes(s.deviceId));
-        }
-
-        // Handle newly shared devices
-        newlySharedDeviceIds.forEach((deviceId) => {
-          if (!currentSections.some((s) => s.deviceId === deviceId)) {
-            currentSections.push(createCameraSection(deviceId));
-          }
-        });
-        newSections = currentSections;
-      }
-
-      // If all sections were removed, add default
-      if (newSections.length === 0) {
-        newSections.push(createCameraSection(lastUsedWebcamDeviceId));
-      }
-
-      // Deduplicate and sort sections
-      let finalSections = Array.from(new Map(newSections.map((s) => [s.deviceId, s])).values());
-
-      // if there is a shared camera, the first section should always be that camera
-      if (sharedDevices.length > 0) {
-        const sharedSections = finalSections.filter((s) => sharedDevices.includes(s.deviceId as string));
-        const unsharedSections = finalSections.filter((s) => !sharedDevices.includes(s.deviceId as string));
-        finalSections = [...sharedSections, ...unsharedSections];
-      }
-
-      if (JSON.stringify(finalSections) === JSON.stringify(prevSections)) {
-        return prevSections;
-      }
-
-      return finalSections;
-    });
+    setCameraSections((prevSections) => updateCameraSections(
+      prevSections,
+      sharedDevices,
+      prevSharedDevices,
+      lastUsedWebcamDeviceId,
+      stoppedDeviceIds,
+      newlySharedDeviceIds,
+    ));
   }, [sharedDevices, lastUsedWebcamDeviceId]);
 
   // Sync the active preview section with the current webcam device.
