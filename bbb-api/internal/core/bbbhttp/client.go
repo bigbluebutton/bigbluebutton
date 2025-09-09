@@ -9,17 +9,24 @@ import (
 	"time"
 )
 
+// A Client is an interface that wraps the basic HTTP functionality
+// of following redirects from an initial URL and downloading
+// remote resources.
 type Client interface {
 	Download(address string) ([]byte, error)
 	Follow(address string, count, max int) (string, error)
 	URLValidator
 }
 
+// A NoRedirectClient is a [Client] implementation that does not
+// automatically follow redirects.
 type NoRedirectClient struct {
 	*http.Client
 	URLValidator
 }
 
+// NewNoRedirectClient creates a new NoRedirectClient that uses the
+// speified timeout for requests and a default validator for URLs.
 func NewNoRedirectClient(timeout time.Duration) *NoRedirectClient {
 	return &NoRedirectClient{
 		Client: &http.Client{
@@ -32,6 +39,10 @@ func NewNoRedirectClient(timeout time.Duration) *NoRedirectClient {
 	}
 }
 
+// Download sends a request to the provided address attempting to
+// download any resources made available at that URL. Returns
+// either the raw content bytes of the resource or an error if
+// the request fails.
 func (c *NoRedirectClient) Download(address string) ([]byte, error) {
 	resp, err := c.Get(address)
 	if err != nil {
@@ -51,6 +62,10 @@ func (c *NoRedirectClient) Download(address string) ([]byte, error) {
 	return content, nil
 }
 
+// Follow recursively follows redirects starting from the provided address
+// until one of the following occurs: a final non-redirect address is reached,
+// the max number of redirects is reached, or one of the HTTP requests fails.
+// Returns the final address if it is reached or an error otherwise.
 func (c *NoRedirectClient) Follow(address string, count, max int) (string, error) {
 	if count > max {
 		return "", errors.New("maximum number of redirects reached")

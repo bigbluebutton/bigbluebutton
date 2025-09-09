@@ -13,13 +13,20 @@ import (
 
 type Client interface {
 	meeting.MeetingServiceClient
-	// TODO implement presentation service
+	// TODO: implement presentation service
 }
 
 type DefaultClient struct {
 	meeting.MeetingServiceClient
 }
 
+// ContentType attempts to determine the MIME type
+// of the file located at the provided file path.
+// Returns an error if the file cannot be opened
+// or the data in the file cannot be read. Otherwise,
+// a valid MIME type will be returned. If the MIME
+// type cannot be determined "application/octet-stream"
+// will be returned by default.
 func ContentType(fp string) (string, error) {
 	f, err := os.Open(fp)
 	if err != nil {
@@ -34,6 +41,10 @@ func ContentType(fp string) (string, error) {
 	return http.DetectContentType(peek), nil
 }
 
+// SplitFileName breaks apart the given file
+// path string into file name and file
+// extension strings. For example, "a/b/c.pdf"
+// returns "c" and ".pdf".
 func SplitFileName(s string) (name, ext string) {
 	base := path.Base(s)
 	dotExt := path.Ext(base)

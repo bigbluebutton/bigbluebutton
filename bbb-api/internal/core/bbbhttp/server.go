@@ -65,7 +65,8 @@ func NewDefaultServer(opts ...ServerOption) *Server {
 }
 
 // AddRoute adds a new route pattern for the given HTTP method that executes the
-// provided handler function when called.
+// provided handler function when called. If no HTTP method is provided or the
+// provided method is unrecognized the route pattern will use GET.
 func (s *Server) AddRoute(method string, pattern string, handlerFn http.HandlerFunc) {
 	switch method {
 	case http.MethodPost:

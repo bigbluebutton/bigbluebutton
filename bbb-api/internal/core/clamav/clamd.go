@@ -14,6 +14,8 @@ const (
 	chunkSize = 1024 * 64
 )
 
+// A ClamdClient provides functionality for interacting
+// with a system's ClamAV daemon.
 type ClamdClient interface {
 	Dial() (net.Conn, error)
 	Ping() (string, error)
@@ -22,12 +24,17 @@ type ClamdClient interface {
 	ScanFile(path string) (string, error)
 }
 
+// A DefaultClamdClient is a basic ClamdClient implementation
+// that can communicate with a ClamAV daemon over TCP or Unix
+// domain socket.
 type DefaultClamdClient struct {
 	Network string
 	Address string
 	Timeout time.Duration
 }
 
+// NewDefaultTCPClamdClient creates a new DefaultClamdClient
+// that communicates with the system's ClamAV daemon over TCP.
 func NewDefaultTCPClamdClient(addr string) *DefaultClamdClient {
 	return &DefaultClamdClient{
 		Network: "tcp",
@@ -36,6 +43,9 @@ func NewDefaultTCPClamdClient(addr string) *DefaultClamdClient {
 	}
 }
 
+// NewDefaultUnixClamdClient creates a new DefaulyClamdClient
+// that communicates with the system's ClamAV daemon over a
+// Unix domain socket.
 func NewDefaultUnixClamdClient(addr string) *DefaultClamdClient {
 	return &DefaultClamdClient{
 		Network: "unix",
@@ -44,11 +54,15 @@ func NewDefaultUnixClamdClient(addr string) *DefaultClamdClient {
 	}
 }
 
+// Dial attemps to open a connection to the ClamAV daemon.
+// Returns the connection and possibly an error.
 func (c *DefaultClamdClient) Dial() (net.Conn, error) {
 	dialer := net.Dialer{Timeout: c.Timeout}
 	return dialer.Dial(c.Network, c.Address)
 }
 
+// Ping attempts to check the status of the ClamAV daemon.
+// Returns any response from ClamAV or an error.
 func (c *DefaultClamdClient) Ping() (string, error) {
 	conn, err := c.Dial()
 	if err != nil {
@@ -67,6 +81,9 @@ func (c *DefaultClamdClient) Ping() (string, error) {
 	return reply, err
 }
 
+// Version attempts to obtain the version of the running
+// ClamAV daemon. Returns any response from ClamAV or
+// an error.
 func (c *DefaultClamdClient) Version() (string, error) {
 	conn, err := c.Dial()
 	if err != nil {
@@ -84,6 +101,9 @@ func (c *DefaultClamdClient) Version() (string, error) {
 	return reply, nil
 }
 
+// InStream attempts to send a stream of data to the ClamAV daemon
+// for scanning and malware detection. Returns any response from
+// ClamAV or an error.
 func (c *DefaultClamdClient) InStream(r io.Reader) (string, error) {
 	conn, err := c.Dial()
 	if err != nil {
@@ -122,6 +142,10 @@ func (c *DefaultClamdClient) InStream(r io.Reader) (string, error) {
 	return reply, nil
 }
 
+// ScanFile uses the ClamAV daemon to scan the file located
+// at the provided path. Returns an error if the file cannot
+// opened. Otherwise, returns any response from ClamAV and
+// possibly an error.
 func (c *DefaultClamdClient) ScanFile(path string) (string, error) {
 	f, err := os.Open(path)
 	if err != nil {

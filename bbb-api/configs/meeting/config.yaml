@@ -132,8 +132,13 @@ presentation:
       description:
       url:
     directory: /var/bigbluebutton # Directory where BigBlueButton stores uploaded slides
+    # List of supported protocols for hosts to download presentations from.
+    # By default only HTTPS is supported. To enable support for all protocols 
+    # (NOT RECOMMENDED) use 'all' instead
     protocols:
       - https
+    # List of hosts that presentations cannot be downloaded from.
+    # By default localhost is blocked.    
     blocked_hosts:
       - localhost
   conversion:
