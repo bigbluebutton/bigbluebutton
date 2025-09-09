@@ -37,7 +37,7 @@ import useTimeSync from '/imports/ui/core/local-states/useTimeSync';
 import ExternalVideoPlayerToolbar from './toolbar/component';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { ACTIONS, PRESENTATION_AREA } from '../../layout/enums';
-import { EXTERNAL_VIDEO_UPDATE } from '../mutations';
+import { EXTERNAL_VIDEO_UPDATE, EXTERNAL_VIDEO_STOP } from '../mutations';
 import { calculateCurrentTime } from '/imports/ui/components/external-video-player/service';
 
 import PeerTube from '../custom-players/peertube';
@@ -63,6 +63,9 @@ const intlMessages = defineMessages({
   },
   subtitlesOff: {
     id: 'app.externalVideo.subtitlesOff',
+  },
+  closeExternalVideoLabel: {
+    id: 'app.externalVideo.stopShareExternalVideo',
   },
 });
 
@@ -199,6 +202,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   const firstPlayRef = useRef(true);
   const [playerUrl, setPlayerUrl] = React.useState('');
   const lastCursorRef = useRef<{ position: number, updateAt: number }>({ position: 0, updateAt: 0 });
+  const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
 
   let currentTime = getServerCurrentTime();
 
@@ -661,6 +665,19 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
               subtitlesOn={subtitlesOn}
               hideVolume={hideVolume[playerName as keyof typeof hideVolume]}
               showUnsynchedMsg={showUnsynchedMsg}
+            />
+          ) : null
+        }
+        {
+          isPresenter ? (
+            <Styled.ExternalVideoCloseButton
+              color="primary"
+              icon="close"
+              size="sm"
+              onClick={stopExternalVideoShare}
+              label={intl.formatMessage(intlMessages.closeExternalVideoLabel)}
+              hideLabel
+              className={Styled.ExternalVideoCloseButton}
             />
           ) : null
         }
