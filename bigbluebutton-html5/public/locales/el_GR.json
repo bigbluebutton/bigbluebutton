@@ -1401,6 +1401,7 @@
     "app.externalVideo.noteLabel": "Σημείωση: Τα διαμοιρασμένα εξωτερικά βίντεο δε θα εμφανιστούν στην καταγραφή. Τα YouTube, Vimeo, Instructure Media, Twitch, Dailymotion και σύνδεσμοι αρχείων πολυμέσων (π.χ. https://example.com/xy.mp4) υποστηρίζονται.",
     "app.externalVideo.subtitlesOn": "Απενεργοποίηση",
     "app.externalVideo.subtitlesOff": "Ενεργοποίηση (εάν είναι διαθέσιμο)",
+    "app.externalVideo.stopShareExternalVideo": "Τερματισμός διαμοιρασμού εξωτερικού βίντεο",
     "app.actionsBar.actionsDropdown.shareExternalVideo": "Διαμοιρασμός εξωτερικού βίντεο",
     "app.actionsBar.actionsDropdown.stopShareExternalVideo": "Τερματισμός διαμοιρασμού εξωτερικού βίντεο",
     "app.legacy.unsupportedBrowser": "Φαίνεται ότι χρησιμοποιείτε ένα πρόγραμμα περιήγησης που δεν υποστηρίζεται. Χρησιμοποιήστε μια πρόσφατη έκδοση του {supportedBrowser1} ή του {supportedBrowser2} για πλήρη υποστήριξη.",
