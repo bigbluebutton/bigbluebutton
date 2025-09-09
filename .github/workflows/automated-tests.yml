@@ -474,6 +474,44 @@ jobs:
           npm ci
           npx playwright install-deps
           npx playwright install
+      - name: Prepare flaky test exclusions
+        working-directory: ./bigbluebutton-tests/bigbluebutton-html-plugin-sdk
+        run: |
+          # Read flaky tests from core repo and build a grep-invert parameter
+          FLAKY_TESTS_FILE="sdk-flaky-tests.txt"
+          FLAKY_TESTS_LINES=""
+
+          if [ -f "$FLAKY_TESTS_FILE" ]; then
+            echo "Reading flaky tests from $FLAKY_TESTS_FILE"
+
+            # Process the file:
+            # - remove CRLF if present (Windows line endings)
+            # - ignore comments (#...) and empty lines
+            # - escape regex metacharacters to avoid breaking grep
+            # - replace " › " with ".*" to allow flexible matching
+            # - join all patterns into a single alternation regex separated by '|'
+
+            FLAKY_TESTS_LINES="$(
+              sed 's/\r$//' "$FLAKY_TESTS_FILE" \
+              | grep -Ev '^[[:space:]]*(#|$)' \
+              | sed -E 's/[][(){}.^$*+?|\]/\\&/g' \
+              | sed 's/ › /.*/g' \
+              | paste -sd'|' -
+            )"
+
+            # If we have patterns, print them; otherwise, say none found
+            if [ -n "$FLAKY_TESTS_LINES" ]; then
+              echo "Will skip flaky tests: $FLAKY_TESTS_LINES"
+            else
+              echo "No flaky tests to skip"
+            fi
+          else
+            # If the file does not exist, just run all tests
+            echo "Flaky tests file not found, running all tests"
+          fi
+
+          # Export the variable so it can be used in later GitHub Actions steps
+          echo "SDK_FLAKY_TESTS=$FLAKY_TESTS_LINES" >> "$GITHUB_ENV"
       - name: Run tests
         working-directory: ./bigbluebutton-tests/bigbluebutton-html-plugin-sdk
         timeout-minutes: 25
@@ -482,7 +520,7 @@ jobs:
           ACTIONS_RUNNER_DEBUG: true
           BBB_URL: https://bbb-ci.test/bigbluebutton/
           BBB_SECRET: bbbci
-        run: npm run test-chromium-ci
+        run: npm run test-chromium-ci -- --grep-invert "$SDK_FLAKY_TESTS"
       - if: always()
         name: Upload blob report to GitHub Actions Artifacts
         uses: actions/upload-artifact@v4
