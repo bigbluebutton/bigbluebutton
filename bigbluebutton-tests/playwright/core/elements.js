@@ -589,23 +589,22 @@ exports.activityScorePanelDashboard = 'button[data-test="activityScorePanelDashb
 exports.downloadSessionLearningDashboard = 'button[data-test="downloadSessionDataDashboard"]';
 
 // Recording playback
+const topBar = 'div.top-bar';
 const videoControlBar = 'div.vjs-control-bar';
 exports.playbackElements = {
-  sectionLeftButton: 'button[data-test="section-left"]',
-  lightThemeButton: 'button[data-test="theme-light"]',
-  darkThemeButton: 'button[data-test="theme-dark"]',
-  searchButton: 'button[data-test="search-button"]',
-  swapContentButton: 'button[data-test="swap-content"]',
-  topBar: 'div.top-bar',
-  title: 'span[data-test="about-title"]',
+  sectionLeftButton: `${topBar} .left button`,
+  toggleThemeButton: `${topBar} .right button[aria-label="Toggle theme"]`,
+  searchButton: `${topBar} .right button[aria-label="Search"]`,
+  swapContentButton: `${topBar} .right button[aria-label="Swap content"]`,
+  topBar: topBar,
+  title: `${topBar} .center span.title`,
   mediaArea: 'div.media',
   applicationArea: 'div.application',
   topContentArea: 'div.top-content',
   bottomContentArea: 'div.bottom-content',
   chatContentArea: 'div#chat',
-  chatButton: 'button[data-test="chat-button"]',
+  applicationControlButton: 'div.application-control div',
   notesContentArea: 'div#notes',
-  notesButton: 'div[data-test="notes-button"]',
   videoControlBar: videoControlBar,
   playPauseButton: `${videoControlBar} button.vjs-play-control`,
   seekBackButton: `${videoControlBar} button.vjs-seek-button.skip-back`,

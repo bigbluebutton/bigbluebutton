@@ -3,7 +3,6 @@ const e = require('../core/elements');
 const { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } = require('../core/constants');
 const { expect } = require('playwright/test');
 const { apiCall, sleep } = require("../core/helpers");
-const Page = require('../core/page');
 const { openPublicChat } = require("../chat/util");
 const { startSharedNotes, getNotesLocator } = require("../sharednotes/util");
 const { skipSlide } = require("../presentation/util");
@@ -114,7 +113,7 @@ class Recording extends MultiUsers {
     await this.playbackPage.hasElement(playbackElements.sectionLeftButton, 'should display the playback section left button');
     await this.playbackPage.hasElement(playbackElements.searchButton, 'should display the playback search button');
     await this.playbackPage.hasElement(playbackElements.swapContentButton, 'should display the playback swap content button');
-    await this.playbackPage.hasElement(playbackElements.darkThemeButton, 'should display the playback dark theme button');
+    await this.playbackPage.hasElementCount(playbackElements.applicationControlButton, 2, 'should display both chat and notes application buttons');
   }
 
   async darkMode() {
@@ -138,7 +137,7 @@ class Recording extends MultiUsers {
       playbackElements.applicationArea,
       playbackElements.topContentArea,
       playbackElements.bottomContentArea,
-      `${playbackElements.topBar} ${playbackElements.title}`,
+      playbackElements.title,
       playbackElements.sectionLeftButton,
       playbackElements.searchButton,
       playbackElements.swapContentButton,
@@ -157,10 +156,10 @@ class Recording extends MultiUsers {
     const swapContentColor = await swapContentLocator.evaluate(getTextColorComputed);
 
     // toggle to dark mode
-    await this.playbackPage.hasElement(playbackElements.darkThemeButton, 'should display the toggle theme to dark mode');
-    await this.playbackPage.waitAndClick(playbackElements.darkThemeButton);
-    await this.playbackPage.wasRemoved(playbackElements.darkThemeButton, 'should remove the dark mode button');
-    await this.playbackPage.hasElement(playbackElements.lightThemeButton, 'should display the toggle theme to light mode when dark mode is active');
+    await this.playbackPage.hasElement(`${playbackElements.toggleThemeButton} span.icon-dark`, 'should display the toggle theme with the dark mode icon by default');
+    await this.playbackPage.waitAndClick(playbackElements.toggleThemeButton);
+    await this.playbackPage.hasElement(`${playbackElements.toggleThemeButton} span.icon-light`, 'should display the light icon when in dark mode');
+    await this.playbackPage.wasRemoved(`${playbackElements.toggleThemeButton} span.icon-dark`, 'should remove the dark mode icon when in dark mode');
 
     // assert light mode element styles
     expect.soft(topBarBackgroundColor).not.toEqual(await topBarLocator.evaluate(getBackgroundColorComputed), 'should the top bar background color be changed');
@@ -188,15 +187,23 @@ class Recording extends MultiUsers {
   }
 
   async toggleChatNotes() {
-    // check chat - expected by default
-    await this.playbackPage.hasElement(playbackElements.chatContentArea, 'should display the chat content area by default');
-    await this.playbackPage.wasRemoved(playbackElements.notesContentArea, 'should not display the notes content area when chat is visible');
-    await this.playbackPage.hasText(playbackElements.chatContentArea, e.message, 'should display the chat message sent during the meeting');
-    // toggle to notes
-    await this.playbackPage.waitAndClick(playbackElements.notesButton);
+    const notesButtonLocator = this.playbackPage.getLocator(
+      playbackElements.applicationControlButton
+    ).filter({ has: this.playbackPage.getLocator('span.icon-notes') });
+    const chatButtonLocator = this.playbackPage.getLocator(
+      playbackElements.applicationControlButton
+    ).filter({ has: this.playbackPage.getLocator('span.icon-chat') });
+
+    // toggle to notes - expected chat by default
+    await notesButtonLocator.click();
     await this.playbackPage.hasElement(playbackElements.notesContentArea, 'should display the notes content area when notes button is clicked');
     await this.playbackPage.wasRemoved(playbackElements.chatContentArea, 'should not display the chat content area when notes is visible');
     await this.playbackPage.hasText(playbackElements.notesContentArea, e.testMessage, 'should display the notes text typed during the meeting');
+    // check chat
+    await chatButtonLocator.click();
+    await this.playbackPage.hasElement(playbackElements.chatContentArea, 'should display the chat content area by default');
+    await this.playbackPage.wasRemoved(playbackElements.notesContentArea, 'should not display the notes content area when chat is visible');
+    await this.playbackPage.hasText(playbackElements.chatContentArea, e.message, 'should display the chat message sent during the meeting');
   }
 
   async playPause() {
