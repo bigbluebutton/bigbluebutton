@@ -59,7 +59,8 @@ interface ButtonProps {
 
 const PanelSeparator = styled(BaseSeparator)``;
 
-const BoxContainer = styled.div`
+const BoxContainer = styled(ScrollboxVertical)`
+  overflow-x: auto;
   display: grid;
   @media ${smallUp} {
     grid-template-columns: repeat(2, 1fr);
@@ -152,6 +153,7 @@ const BreakoutNameInput = styled.input`
 
 const BreakoutBox = styled(ScrollboxVertical)`
   min-height: 10rem;
+  min-width: 8rem;
   border-radius: 1rem;
   padding: ${lgPaddingY} 0;
   background: ${colorGrayUserListToolbar};
@@ -510,6 +512,7 @@ const Modal = styled(ModalSimple)`
   min-width: 50vw;
   max-width: 80vw;
   max-height: 95vh;
+  overflow-x: hidden;
 
   @media ${smallOnly} {
     min-width: 100% !important;
