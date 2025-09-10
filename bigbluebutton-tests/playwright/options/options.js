@@ -163,6 +163,7 @@ class Options extends MultiUsers {
   async autoHideWhiteboardToolbar() {
     await this.modPage.waitForSelector(e.whiteboard);
     await this.modPage.hasElement(e.wbToolbar, 'should display the whiteboard toolbar');
+    await this.modPage.closeAllToastNotifications();
 
     const whiteboardLocator = await this.modPage.getLocator(e.whiteboard);
     await expect(whiteboardLocator).toHaveScreenshot('whiteboard-with-toolbar-visible.png');
@@ -173,11 +174,23 @@ class Options extends MultiUsers {
 
     await this.modPage.waitAndClick(e.modalConfirmButton);
     await sleep(500);
+
+    const wbTollbarLocator = await this.modPage.getLocator(e.wbToolbar)
+
     await this.modPage.hoverElement(e.whiteboard);
+    const hasFadeInClass = wbTollbarLocator.evaluate(node =>
+      node.classList.contains('fade-in')
+    );
+    expect(hasFadeInClass, 'should have fade-in class after hoovering inside of the whiteboard').toBeTruthy();
     await this.modPage.hasElement(e.wbToolbar, 'should display the whiteboard toolbar when hover the whiteboard');
 
     await this.modPage.hoverElement(e.chatButton)
-    await sleep(1000);
+
+    const hasFadeOutClass = wbTollbarLocator.evaluate(node =>
+      node.classList.contains('fade-out')
+    );
+    expect(hasFadeOutClass, 'should have fade-out class after hoovering out of the whiteboard').toBeTruthy();
+
     await expect(whiteboardLocator).toHaveScreenshot('whiteboard-with-toolbar-hidden.png', {
       maxDiffPixels: 1000,
     });
