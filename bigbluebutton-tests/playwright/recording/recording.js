@@ -1,7 +1,7 @@
 const { MultiUsers } = require("../user/multiusers");
 const e = require('../core/elements');
 const { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } = require('../core/constants');
-const { expect } = require('playwright/test');
+const { expect } = require('@playwright/test');
 const { apiCall, sleep } = require("../core/helpers");
 const { openPublicChat } = require("../chat/util");
 const { startSharedNotes, getNotesLocator } = require("../sharednotes/util");
@@ -10,10 +10,6 @@ const { skipSlide } = require("../presentation/util");
 const { playbackElements } = e;
 
 class Recording extends MultiUsers {
-  constructor(browser, context) {
-    super(browser, context);
-  }
-
   async getRecordingsApi() {
     return apiCall('getRecordings', { meetingID: this.modPage.meetingId });
   }

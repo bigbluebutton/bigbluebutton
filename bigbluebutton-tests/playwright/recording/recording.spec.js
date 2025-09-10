@@ -2,7 +2,7 @@ const { test } = require('../fixtures');
 const Page = require('../core/page');
 const c = require('../parameters/constants');
 const { Recording } = require('./recording');
-const { expect } = require('playwright/test');
+const { expect } = require('@playwright/test');
 
 test.describe.parallel('Recording', { tag: '@ci' }, () => {
   let generatedRecordingPlaybackUrl;
