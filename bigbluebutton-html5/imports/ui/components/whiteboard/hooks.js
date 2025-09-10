@@ -143,7 +143,7 @@ const useMouseEvents = ({
         clientY: e.clientY,
         button: e.button,
       });
-      // Send a generic pointerup event both to the style-panel and to the main window,
+      // Inject a generic pointerup event both to the style-panel and to the main window,
       //  hitting handlePointerUp in tldraw/src/lib/ui/components/primitives/ButtonPicker.tsx,
       //  which is attached to the main window.
       e.target.dispatchEvent(pointerUpEvent);
