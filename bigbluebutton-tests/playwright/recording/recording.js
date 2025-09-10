@@ -20,9 +20,10 @@ class Recording extends MultiUsers {
       const { response } = await this.getRecordingsApi();
 
       // Check a successful response with recordings
-      if (response.returncode[0] === 'SUCCESS' && 
-          response.messageKey?.[0] !== 'noRecordings' && 
-          response.recordings && 
+      if (response?.returncode?.[0] === 'SUCCESS' && 
+          response?.messageKey?.[0] !== 'noRecordings' && 
+          response?.recordings &&
+          Array.isArray(response.recordings) && 
           response.recordings.length > 0
         ) {
         return { response };
@@ -86,14 +87,21 @@ class Recording extends MultiUsers {
 
     // request recording API endpoint with retry logic
     const { response } = await this.getRecordingsWithRetry();
-    const recordingData = response.recordings[0].recording[0];
-    expect(response.returncode[0], 'getRecordings API call should return "SUCCESS"').toEqual('SUCCESS');
-    expect(recordingData.metadata[0].isBreakout[0], 'metadata.isBreakout should not be true').toEqual('false');
+    const recordings = response?.recordings?.[0];
+    const recordingData = recordings?.recording?.[0];
+    if (!recordingData) {
+      throw new Error('Invalid recording data structure in API response');
+    }
+    expect(response?.returncode?.[0], 'getRecordings API call should return "SUCCESS"').toEqual('SUCCESS');
+    expect(recordingData?.metadata?.[0]?.isBreakout?.[0], 'metadata.isBreakout should not be true').toEqual('false');
     // validate recording format
-    const playbackData = recordingData.playback[0].format[0];
-    expect(playbackData.type[0], 'playback type should be presentation').toEqual('presentation');
+    const playbackData = recordingData?.playback?.[0]?.format?.[0];
+    expect(playbackData?.type?.[0], 'playback type should be presentation').toEqual('presentation');
     // validate playback URL
-    const playbackUrl = playbackData.url[0];
+    const playbackUrl = playbackData?.url?.[0];
+    if (!playbackUrl) {
+      throw new Error('Playback URL not found in API response');
+    }
     expect(() => new URL(playbackUrl), 'playback URL should be valid').not.toThrow();
     expect(playbackUrl, 'playback URL should contain "/playback/presentation/"').toContain('/playback/presentation/');
     return playbackUrl;
