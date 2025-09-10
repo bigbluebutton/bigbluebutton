@@ -11,7 +11,7 @@
     "app.chat.inputLabel": "Campo de mensagem para o chat {chatName}",
     "app.chat.emojiButtonLabel": "Incluir Emoji",
     "app.chat.loadMoreButtonLabel": "Ver Mais",
-    "app.chat.inputPlaceholder": "Message {chatName}",
+    "app.chat.inputPlaceholder": "Enviar ao {chatName}",
     "app.chat.titlePublic": "Bate-papo público",
     "app.chat.titlePrivate": "Bate-papo privado",
     "app.chat.titlePrivateToUser": "Bate-papo privado com {participantName}",
