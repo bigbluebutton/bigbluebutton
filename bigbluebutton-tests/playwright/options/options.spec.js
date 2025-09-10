@@ -1,13 +1,11 @@
 const { test } = require('../fixtures');
-const { fullyParallel } = require('../playwright.config');
 const { Options } = require('./options');
 const { initializePages } = require('../core/helpers');
 
-test.describe('Options', { tag: '@ci' }, () => {
+test.describe.parallel('Options', { tag: '@ci' }, () => {
   const options = new Options();
 
-  test.describe.configure({ mode: fullyParallel ? 'parallel' : 'serial' });
-  test[fullyParallel ? 'beforeEach' : 'beforeAll'](async ({ browser }) => {
+  test.beforeEach(async ({ browser }) => {
     await initializePages(options, browser);
   });
 
