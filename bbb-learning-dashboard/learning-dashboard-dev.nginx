@@ -1,0 +1,13 @@
+location /learning-analytics-dashboard {
+    proxy_pass http://127.0.0.1:3100;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "Upgrade";
+}
+
+location /learning-analytics-dashboard/ws {
+    proxy_pass http://127.0.0.1:3100/ws;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "Upgrade";
+}

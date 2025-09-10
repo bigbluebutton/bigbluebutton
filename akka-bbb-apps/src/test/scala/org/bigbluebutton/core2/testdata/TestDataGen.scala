@@ -25,7 +25,7 @@ object TestDataGen {
     ru
   }
 
-  def createVoiceUserForUser(user: RegisteredUser, callingWith: String, muted: Boolean, deafened: Boolean, talking: Boolean,
+  def createVoiceUserForUser(user: RegisteredUser, callingWith: String, muted: Boolean, listenOnlyInputDevice: Boolean, deafened: Boolean, talking: Boolean,
                              listenOnly: Boolean): VoiceUserState = {
     val voiceUserId = RandomStringGenerator.randomAlphanumericString(8)
     VoiceUserState(
@@ -37,6 +37,7 @@ object TestDataGen {
       callerNum = user.name,
       color = "#ff6242",
       muted,
+      listenOnlyInputDevice,
       deafened,
       talking,
       listenOnly,
@@ -48,7 +49,7 @@ object TestDataGen {
       "9b3f4504-275d-4315-9922-21174262d88c")
   }
 
-  def createFakeVoiceOnlyUser(meetingId: String, callingWith: String, muted: Boolean, deafened: Boolean, talking: Boolean,
+  def createFakeVoiceOnlyUser(meetingId: String, callingWith: String, muted: Boolean, listenOnlyInputDevice: Boolean, deafened: Boolean, talking: Boolean,
                               listenOnly: Boolean, name: String): VoiceUserState = {
     val voiceUserId = RandomStringGenerator.randomAlphanumericString(8)
     val intId = "v_" + RandomStringGenerator.randomAlphanumericString(16)
@@ -61,6 +62,7 @@ object TestDataGen {
       callerNum = name,
       color = "#ff6242",
       muted,
+      listenOnlyInputDevice,
       deafened,
       talking,
       listenOnly,

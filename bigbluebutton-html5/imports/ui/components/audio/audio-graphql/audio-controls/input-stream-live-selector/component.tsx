@@ -17,7 +17,6 @@ import {
   toggleMuteMicrophoneSystem,
 } from './service';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
-import { Meeting } from '/imports/ui/Types/meeting';
 import logger from '/imports/startup/client/logger';
 import MutedAlert from '/imports/ui/components/muted-alert/component';
 import MuteToggle from './buttons/muteToggle';
@@ -113,7 +112,6 @@ const InputStreamLiveSelector: React.FC<InputStreamLiveSelectorProps> = ({
   const [inputDevices, setInputDevices] = React.useState<InputDeviceInfo[]>([]);
   const [outputDevices, setOutputDevices] = React.useState<MediaDeviceInfo[]>([]);
   const { isMobile } = deviceInfo;
-
   // @ts-ignore - temporary, while meteor exists in the project
   const { enableDynamicAudioDeviceSelection } = window.meetingClientSettings.public.app;
   // @ts-ignore - temporary, while meteor exists in the project
@@ -186,7 +184,6 @@ const InputStreamLiveSelector: React.FC<InputStreamLiveSelectorProps> = ({
         }, `Error enumerating audio devices: ${error.message}`);
       });
   }, [inAudio, inputDevices, outputDevices, updateRemovedDevices]);
-
   useEffect(() => {
     if (hasMediaDevicesEventTarget()) navigator.mediaDevices.addEventListener('devicechange', updateDevices);
 
@@ -300,7 +297,7 @@ const InputStreamLiveSelectorContainer: React.FC<InputStreamLiveSelectorContaine
   const talking = Boolean(currentUser?.userId && talkingUsers[currentUser.userId]);
   const muted = Boolean(currentUser?.userId && !unmutedUsers[currentUser.userId]);
 
-  const { data: currentMeeting } = useMeeting((m: Partial<Meeting>) => {
+  const { data: currentMeeting } = useMeeting((m) => {
     return {
       lockSettings: m?.lockSettings,
       isBreakout: m?.isBreakout,

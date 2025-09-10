@@ -50,7 +50,7 @@ const MeetingHookContainer: React.FunctionComponent<
     if (numberOfUses > previousNumberOfUsesValue) {
       updateMeetingForPlugin();
     }
-  }, [previousNumberOfUses]);
+  }, [numberOfUses]);
 
   return null;
 };

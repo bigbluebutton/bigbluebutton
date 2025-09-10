@@ -13,7 +13,7 @@ class ScreenShare extends Page {
   async startSharing() {
     const { screensharingEnabled } = getSettings();
 
-    if(!screensharingEnabled) {
+    if (!screensharingEnabled) {
       await this.hasElement(e.joinVideo, 'should display the join video button');
       return this.wasRemoved(e.startScreenSharing, 'should not display the start screenshare button');
     }
@@ -30,7 +30,7 @@ class ScreenShare extends Page {
 
     await this.waitForSelector(e.whiteboard);
 
-    if(!screensharingEnabled) {
+    if (!screensharingEnabled) {
       await this.hasElement(e.joinVideo, 'should display the join video button');
       return this.wasRemoved(e.startScreenSharing, 'should not display the screenshare button');
     }
@@ -51,6 +51,17 @@ class ScreenShare extends Page {
     await this.waitAndClick(e.stopScreenSharing);
     await this.hasElement(e.whiteboard, 'should display the whiteboard');
   }
+
+  async stopSharing() {
+    // Stop screenshare
+    await this.waitAndClick(e.stopScreenSharing);
+
+    // Verify screenshare is stopped
+    await this.wasRemoved(e.isSharingScreen, 'should not display the screenshare element after stopping');
+    await this.wasRemoved(e.stopScreenSharing, 'should not display the stop screenshare button after stopping');
+    await this.hasElement(e.startScreenSharing, 'should display the start screenshare button after stopping');
+    await this.hasElement(e.whiteboard, 'should display the whiteboard after stopping screenshare');
+  }
 }
 
 class MultiUserScreenShare extends MultiUsers {
@@ -61,7 +72,7 @@ class MultiUserScreenShare extends MultiUsers {
   async startSharing(page) {
     const { screensharingEnabled } = getSettings();
 
-    if(!screensharingEnabled) {
+    if (!screensharingEnabled) {
       await this.hasElement(e.joinVideo, 'should display the join video button');
       return this.wasRemoved(e.startScreenSharing, 'should not display the start screenshare button');
     }

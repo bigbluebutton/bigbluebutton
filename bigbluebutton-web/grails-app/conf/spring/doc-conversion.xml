@@ -42,6 +42,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     </bean>
 
     <bean id="officeDocumentValidator" class="org.bigbluebutton.presentation.imp.OfficeDocumentValidator2">
+        <property name="presCheckTimeout" value="${officeDocumentValidationTimeout}"/>
+        <property name="execTimeout" value="${officeDocumentValidationExecTimeoutInMs}"/>
         <property name="presCheckExec" value="${presCheckExec}"/>
     </bean>
 
@@ -62,11 +64,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="presOfficeConversionMaxConcurrents" value="${officeToPdfMaxConcurrentConversions}"/>
     </bean>
 
-    <bean id="pageExtractor" class="org.bigbluebutton.presentation.imp.PageExtractorImp"/>
+    <bean id="pageExtractor" class="org.bigbluebutton.presentation.imp.PageExtractorImp">
+        <property name="extractTimeoutInMs" value="${extractTimeoutInMs}"/>
+    </bean>
 
-    <bean id="pageCounter" class="org.bigbluebutton.presentation.imp.PdfPageCounter"/>
+    <bean id="pageCounter" class="org.bigbluebutton.presentation.imp.PdfPageCounter">
+        <property name="wait" value="${pdfPageCountWait}"/>
+    </bean>
 
-    <bean id="imageResizer" class="org.bigbluebutton.presentation.imp.ImageResizerImp"/>
+    <bean id="imageResizer" class="org.bigbluebutton.presentation.imp.ImageResizerImp">
+        <property name="wait" value="${imageResizeWait}"/>
+    </bean>
 
     <bean id="pageCounterService" class="org.bigbluebutton.presentation.imp.PageCounterService">
         <property name="pageCounter" ref="pageCounter"/>
@@ -75,14 +83,19 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <bean id="thumbCreator" class="org.bigbluebutton.presentation.imp.ThumbnailCreatorImp">
         <property name="imageMagickDir" value="${imageMagickDir}"/>
         <property name="blankThumbnail" value="${BLANK_THUMBNAIL}"/>
+        <property name="execTimeout" value="${thumbnailCreationExecTimeoutInMs}"/>
     </bean>
 
     <bean id="pngCreator" class="org.bigbluebutton.presentation.imp.PngCreatorImp">
         <property name="blankPng" value="${BLANK_PNG}"/>
         <property name="slideWidth" value="${pngSlideWidth}"/>
+        <property name="convTimeout" value="${pngCreationConversionTimeout}"/>
+        <property name="execTimeout" value="${pngCreationExecTimeoutInMs}"/>
     </bean>
 
-    <bean id="textFileCreator" class="org.bigbluebutton.presentation.imp.TextFileCreatorImp"/>
+    <bean id="textFileCreator" class="org.bigbluebutton.presentation.imp.TextFileCreatorImp">
+        <property name="execTimeout" value="${textFileCreationExecTimeoutInMs}"/>
+    </bean>
 
     <bean id="svgImageCreator" class="org.bigbluebutton.presentation.imp.SvgImageCreatorImp">
     	<property name="slidesGenerationProgressNotifier" ref="slidesGenerationProgressNotifier"/>

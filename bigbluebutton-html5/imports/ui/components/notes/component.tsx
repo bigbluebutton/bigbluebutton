@@ -13,16 +13,15 @@ import { layoutSelectInput, layoutDispatch, layoutSelectOutput } from '/imports/
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useHasPermission from './hooks/useHasPermission';
 import Styled from './styles';
-import { PINNED_PAD_SUBSCRIPTION, PinnedPadSubscriptionResponse } from './queries';
 import { PIN_NOTES } from './mutations';
 import { EXTERNAL_VIDEO_STOP } from '/imports/ui/components/external-video-player/mutations';
 import {
   screenshareHasEnded,
   useIsScreenBroadcasting,
 } from '/imports/ui/components/screenshare/service';
-import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 import { useIsPresentationEnabled } from '../../services/features';
 import { useStorageKey } from '/imports/ui/services/storage/hooks';
+import useMeeting from '../../core/hooks/useMeeting';
 
 const intlMessages = defineMessages({
   hide: {
@@ -180,10 +179,13 @@ const NotesContainerGraphql: React.FC<NotesContainerGraphqlProps> = (props) => {
   const { area, isToSharedNotesBeShow } = props;
 
   const hasPermission = useHasPermission();
-  const { data: pinnedPadData } = useDeduplicatedSubscription<PinnedPadSubscriptionResponse>(PINNED_PAD_SUBSCRIPTION);
 
   const { data: currentUserData } = useCurrentUser((user) => ({
     presenter: user.presenter,
+  }));
+
+  const { data: currentMeeting } = useMeeting((meeting) => ({
+    componentsFlags: meeting.componentsFlags,
   }));
   const [pinSharedNotes] = useMutation(PIN_NOTES);
 
@@ -197,16 +199,12 @@ const NotesContainerGraphql: React.FC<NotesContainerGraphqlProps> = (props) => {
   const layoutContextDispatch = layoutDispatch();
   const amIPresenter = !!currentUserData?.presenter;
 
-  const NOTES_CONFIG = window.meetingClientSettings.public.notes;
-
   const isRTL = document.documentElement.getAttribute('dir') === 'rtl';
   const { isOpen: isSidebarContentOpen } = sidebarContent;
   const isGridLayout = useStorageKey('isGridEnabled');
 
-  const shouldShowSharedNotesOnPresentationArea = isGridLayout ? !!pinnedPadData
-    && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id
-    && isSidebarContentOpen : !!pinnedPadData
-    && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
+  const shouldShowSharedNotesOnPresentationArea = isGridLayout ? !!currentMeeting?.componentsFlags?.isSharedNotesPinned
+    && isSidebarContentOpen : !!currentMeeting?.componentsFlags?.isSharedNotesPinned;
 
   const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
   const isScreenBroadcasting = useIsScreenBroadcasting();

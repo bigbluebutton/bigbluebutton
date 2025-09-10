@@ -48,7 +48,6 @@ public class PngCreatorImp implements PngCreator {
 	private String BLANK_PNG;
 	private int slideWidth = 800;
 	private int convTimeout = 7;
-	private int wait = 7;
 	private long execTimeout = 10000;
 
 	private static final String TEMP_PNG_NAME = "temp-png";
@@ -108,7 +107,7 @@ public class PngCreatorImp implements PngCreator {
 
 			NuProcess process = convertImgToSvg.start();
 			try {
-				process.waitFor(wait, TimeUnit.SECONDS);
+				process.waitFor(convTimeout + 1, TimeUnit.SECONDS);
 			} catch (InterruptedException e) {
 				log.error("InterruptedException while converting to PDF {}", dest, e);
 				return false;
@@ -218,16 +217,12 @@ public class PngCreatorImp implements PngCreator {
 		BLANK_PNG = blankPng;
 	}
 
-	public void setSlideWidth(int width) {
-		slideWidth = width;
+	public void setSlideWidth(int slideWidth) {
+		this.slideWidth = slideWidth;
 	}
 
 	public void setConvTimeout(int convTimeout) {
 		this.convTimeout = convTimeout;
-	}
-
-	public void setWait(int wait) {
-		this.wait = wait;
 	}
 
 	public void setExecTimeout(long execTimeout) {

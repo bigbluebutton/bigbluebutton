@@ -10,8 +10,6 @@ export interface LockSettings {
   hideViewersAnnotation: false,
   meetingId: boolean;
   webcamsOnlyForModerator: boolean;
-  lockOnJoin: boolean;
-  lockOnJoinConfigurable: boolean;
 }
 
 export interface groups {
@@ -112,6 +110,9 @@ export interface ComponentsFlags {
   showRemainingTime: boolean;
   hasCameraAsContent: boolean;
   hasScreenshareAsContent: boolean;
+  hasCurrentPresentation: boolean;
+  hasSharedNotes: boolean;
+  isSharedNotesPinned: boolean;
 }
 
 export interface Meeting {

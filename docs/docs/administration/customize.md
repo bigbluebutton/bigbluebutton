@@ -468,6 +468,8 @@ The settings for `bitrate` are in kbits/sec (i.e. 100 kbits/sec). After your mod
 
 If you have sessions that like to share lots of webcams, such as ten or more, then setting the `bitrate` for `low` to 50 and `medium` to 100 will help reduce the overall bandwidth on the server. When many webcams are shared, the size of the webcams get so small that the reduction in `bitrate` will not be noticeable during the live sessions.
 
+To ensure that your modifications are not lost when a new version of the packages is installed, you can [create the file and] write your changes to `/etc/bigbluebutton/bbb-html5.yml`.
+
 #### Disable webcams
 
 You can disable webcams by setting `enableVideo` to `false` in the `/etc/bigbluebutton/bbb-html5.yml` file for the HTML5 client.
@@ -932,7 +934,7 @@ $ sudo bbb-conf --restart
 
 The default maximum file upload size for an uploaded presentation is 30 MB.
 
-The first step is to change the size restriction in nginx. Edit `/etc/bigbluebutton/nginx/web.nginx` (2.4) or `/usr/share/bigbluebutton/nginx/web.nginx` (2.5) and modify the values for `client_max_body_size`.
+The first step is to change the size restriction in nginx. Edit `/etc/bigbluebutton/nginx/web.nginx` (2.4) or `/usr/share/bigbluebutton/nginx/web.nginx` (from 2.5 on) and modify the values for `client_max_body_size`.
 
 ```nginx
        location ~ "^\/bigbluebutton\/presentation\/(?<prestoken>[a-zA-Z0-9_-]+)/upload$" {
@@ -957,7 +959,7 @@ Next change the restriction in bbb-web. Add an overwrite rule in `/etc/bigbluebu
 maxFileSizeUpload=30000000
 ```
 
-You will have to additionally increase the size for the HTML5 client, edit `/usr/share/bigbluebutton/html5-client/private/config/settings.yml` and modify `uploadSizeMax`.
+You will have to additionally increase the size for the HTML5 client, edit `/usr/share/bigbluebutton/html5-client/private/config/settings.yml` or `/etc/bigbluebutton/bbb-html5.yml` (recommended) and modify `uploadSizeMax`.
 
 Restart BigBlueButton with `sudo bbb-conf --restart`. You should now be able to upload larger presentations within the new limit.
 
@@ -1186,11 +1188,46 @@ mediasoup:
 
 #### Apply custom settings for TURN server
 
-If always want a specific TURN server configuration, the following to [apply-config.sh](#preserving-customizations-using-apply-confsh) and modify `aaa.bbb.ccc.ddd` and `secret` with your values.
+If you always want a specific TURN server configuration, add the following to [apply-config.sh](#preserving-customizations-using-apply-configsh) and modify `aaa.bbb.ccc.ddd` and `secret` with your values.
 
 ```bash
 echo "  - Update TURN server configuration turn-stun-servers.xml"
   cat <<HERE > /usr/share/bbb-web/WEB-INF/classes/spring/turn-stun-servers.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+    <bean id="stun0" class="org.bigbluebutton.web.services.turn.StunServer">
+        <constructor-arg index="0" value="stun:aaa.bbb.ccc.ddd"/>
+    </bean>
+    <bean id="turn0" class="org.bigbluebutton.web.services.turn.TurnServer">
+        <constructor-arg index="0" value="secret"/>
+        <constructor-arg index="1" value="turns:aaa.bbb.ccc.ddd:443?transport=tcp"/>
+        <constructor-arg index="2" value="86400"/>
+    </bean>
+    <bean id="stunTurnService"
+            class="org.bigbluebutton.web.services.turn.StunTurnService">
+        <property name="stunServers">
+            <set>
+                <ref bean="stun0"/>
+            </set>
+        </property>
+        <property name="turnServers">
+            <set>
+                <ref bean="turn0"/>
+            </set>
+        </property>
+    </bean>
+</beans>
+HERE
+```
+
+To ensure that your modifications are not lost when a new version of the packages is installed, tweak the snippet above to `cat` the content to `/etc/bigbluebutton/turn-stun-servers.xml` instead of `/usr/share/bbb-web/WEB-INF/classes/spring/turn-stun-servers.xml`:
+
+```bash
+echo "  - Update TURN server configuration turn-stun-servers.xml"
+  cat <<HERE > /etc/bigbluebutton/turn-stun-servers.xml
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -1330,6 +1367,8 @@ Do the same in `/usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties` in 
 defaultHTML5ClientUrl=${bigbluebutton.web.serverURL}/html5client
 ```
 
+You can overwrite that value in `/etc/bigbluebutton/bbb-web.properties` (recommended).
+
 In configuration file for the HTML5 client, located in `/usr/share/bigbluebutton/html5-client/private/config/settings.yml`, change the entry for `public.app.basename`:
 
 ```
@@ -1338,6 +1377,8 @@ public:
     ...
     basename: '/html5client'
 ```
+
+You can overwrite that value in `/etc/bigbluebutton/bbb-html5.yml` (recommended).
 
 Finally, run the following command to reload configuration:
 
@@ -1515,7 +1556,7 @@ Useful tools for development:
 | `userdata-bbb_multi_user_pen_only=` | If set to `true`, only the pen tool will be available to non-participants when multi-user whiteboard is enabled | `false`       |
 | `userdata-bbb_presenter_tools=`     | Pass in an array of permitted tools from `settings.yml`. The options we support are: `select`, `hand`, `draw`, `eraser`, `arrow`, `text`, `note`, `rectangle` and *`more`. Example: `userdata-bbb_presenter_tools=['eraser', 'note']` will allow only the eraser and note tools.                                                     | all enabled   |
 | `userdata-bbb_multi_user_tools=`    | Pass in an array of permitted tools for non-presenters from `settings.yml`. The options we support are: `select`, `hand`, `draw`, `eraser`, `arrow`, `text`, `note`, `rectangle` and *`more`. Example: `userdata-bbb_multi_user_tools=['eraser', 'note']` will allow only the eraser and note tools.                                          | all enabled   |
-| `userdata-bbb_initial_selected_tool=`     | Pass in the id of the tool to be initially selected on client startup.                                                     | draw   |
+| `userdata-bbb_initial_selected_tool=`     | Pass in the id of the tool to be initially selected when the user first joins a session. This option will not persist across page refreshs and may be overridden if the user selects another tool.                                                     | draw   |
 *more: More includes the rest of the extra shapes, those being: `rectangle`, `ellipse`, `diamond`, `triangle`, `trapezoid`, `rhombus`, `hexagon`, `cloud`, `star`, `oval`, `x-box`, `check-box`, `arrow-left`, `arrow-up`, `arrow-down`, `arrow-right`, `frame`, `line`, `laser`.
 
 The use of *more will include all shapes listed above.

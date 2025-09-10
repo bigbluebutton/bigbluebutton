@@ -19,7 +19,7 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
 
     const breakoutRooms = input['rooms'] as Array<Record<string, unknown>>;
     if(breakoutRooms.length < 2) {
-        throw new ValidationError('It is required to set two or more rooms.', 400);
+        throw new ValidationError('It is required to set two or more rooms', 400);
     }
 
   throwErrorIfInvalidInput(breakoutRooms[0],

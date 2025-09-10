@@ -745,6 +745,7 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
     <div>
       <Header
         data-test="pollPaneTitle"
+        bottomless
         leftButtonProps={{
           'aria-label': intl.formatMessage(intlMessages.hidePollDesc),
           'data-test': 'hidePollDesc',

@@ -12,6 +12,7 @@
     "resolveJsonModule":true,
     "skipLibCheck": true,
     "types": [],
+    "tsBuildInfoFile": "./node_modules/.cache/.tsbuildinfo",
 
     /* Strict Type-Checking Options */
     "strict": true,
@@ -37,6 +38,7 @@
     "preserveSymlinks": true
   },
   "exclude": [
+    "./dist/*",
     "./.meteor/**",
     "./packages/**",
     "node_modules",

@@ -1,6 +1,5 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import { isEmpty } from 'radash';
 import MeetingRemainingTime from '/imports/ui/components/common/remaining-time/meeting-duration/component';
 import { useReactiveVar } from '@apollo/client';
 import { layoutSelectInput, layoutDispatch } from '../layout/context';
@@ -9,6 +8,7 @@ import { ACTIONS } from '../layout/enums';
 import NotificationsBar from './component';
 import connectionStatus from '../../core/graphql/singletons/connectionStatus';
 import useMeeting from '../../core/hooks/useMeeting';
+import logger from '/imports/startup/client/logger';
 
 const intlMessages = defineMessages({
   connectionCode3001: {
@@ -41,76 +41,132 @@ const STATUS_CRITICAL = 'critical';
 const COLOR_PRIMARY = 'primary';
 
 const NotificationsBarContainer = () => {
-  const data = {};
-  data.alert = true;
-  data.color = COLOR_PRIMARY;
   const intl = useIntl();
-  const subscriptionFailed = useReactiveVar(connectionStatus.getSubscriptionFailedVar());
-  const connected = useReactiveVar(connectionStatus.getConnectedStatusVar());
-  const serverIsResponding = useReactiveVar(connectionStatus.getServerIsRespondingVar());
-  const pingIsComing = useReactiveVar(connectionStatus.getPingIsComingVar());
-  const lastRttRequestSuccess = useReactiveVar(connectionStatus.getLastRttRequestSuccessVar());
-  const rttStatus = useReactiveVar(connectionStatus.getRttStatusVar());
-  const isCritical = rttStatus === STATUS_CRITICAL;
-  // if connection failed x attempts a error will be thrown
-  if (!connected) {
-    data.message = isCritical
-      ? intl.formatMessage(intlMessages.connectionCode3002)
-      : intl.formatMessage(intlMessages.connectionCode3001);
-  } else if (connected && !serverIsResponding) {
-    data.message = isCritical
-      ? intl.formatMessage(intlMessages.connectionCode3004)
-      : intl.formatMessage(intlMessages.connectionCode3003);
-  } else if (connected && serverIsResponding && !pingIsComing && lastRttRequestSuccess) {
-    data.message = intl.formatMessage(intlMessages.connectionCode3005);
-  } else if (connected && serverIsResponding && pingIsComing && subscriptionFailed) {
-    data.message = intl.formatMessage(intlMessages.connectionCode3006);
-  }
+
+  const { hasNotification } = layoutSelectInput((i) => i.notificationsBar);
+  const dispatch = layoutDispatch();
 
   const { data: meeting } = useMeeting((m) => ({
     isBreakout: m.isBreakout,
     componentsFlags: m.componentsFlags,
   }));
 
-  if (meeting?.isBreakout) {
-    data.message = (
-      <MeetingRemainingTime />
-    );
-  }
+  const subscriptionFailed = useReactiveVar(connectionStatus.getSubscriptionFailedVar());
+  const connected = useReactiveVar(connectionStatus.getConnectedStatusVar());
+  const serverIsResponding = useReactiveVar(connectionStatus.getServerIsRespondingVar());
+  const pingIsComing = useReactiveVar(connectionStatus.getPingIsComingVar());
+  const lastRttRequestSuccess = useReactiveVar(connectionStatus.getLastRttRequestSuccessVar());
+  const rttStatus = useReactiveVar(connectionStatus.getRttStatusVar());
 
-  if (meeting) {
-    const { isBreakout, componentsFlags } = meeting;
+  const errorMessage = useMemo(() => {
+    const isCritical = rttStatus === STATUS_CRITICAL;
 
-    if (componentsFlags?.showRemainingTime && !isBreakout) {
-      data.message = (
-        <MeetingRemainingTime />
+    if (!connected) {
+      const code = isCritical ? 3002 : 3001;
+      const msg = intl.formatMessage(
+        isCritical ? intlMessages.connectionCode3002 : intlMessages.connectionCode3001,
       );
+
+      logger.warn({
+        logCode: 'connection_disconnected',
+        extraInfo: {
+          errorCode: code,
+          isCritical,
+          connected,
+        },
+      }, `NotificationsBar: ${msg} (connected=${connected}, isCritical=${isCritical})`);
+
+      return msg;
     }
-  }
 
-  const notificationsBar = layoutSelectInput((i) => i.notificationsBar);
-  const layoutContextDispatch = layoutDispatch();
+    if (connected && !serverIsResponding) {
+      const code = isCritical ? 3004 : 3003;
+      const msg = intl.formatMessage(
+        isCritical ? intlMessages.connectionCode3004 : intlMessages.connectionCode3003,
+      );
 
-  const { hasNotification } = notificationsBar;
+      logger.warn({
+        logCode: 'connection_server_unresponsive',
+        extraInfo: {
+          errorCode: code,
+          isCritical,
+          serverIsResponding,
+        },
+      }, `NotificationsBar: ${msg} (serverIsResponding=${serverIsResponding}, isCritical=${isCritical})`);
+
+      return msg;
+    }
+
+    if (connected && serverIsResponding && !pingIsComing && lastRttRequestSuccess) {
+      const code = 3005;
+      const msg = intl.formatMessage(intlMessages.connectionCode3005);
+
+      logger.warn({
+        logCode: 'connection_slow_data',
+        extraInfo: {
+          errorCode: code,
+          pingIsComing,
+          lastRttRequestSuccess,
+        },
+      }, `NotificationsBar: ${msg} (pingIsComing=${pingIsComing}, lastRttSuccess=${lastRttRequestSuccess})`);
+
+      return msg;
+    }
+
+    if (connected && serverIsResponding && pingIsComing && subscriptionFailed) {
+      const code = 3006;
+      const msg = intl.formatMessage(intlMessages.connectionCode3006);
+
+      logger.warn({
+        logCode: 'connection_subscription_failed',
+        extraInfo: {
+          errorCode: code,
+          subscriptionFailed,
+        },
+      }, `NotificationsBar: ${msg} (subscriptionFailed=${subscriptionFailed})`);
+
+      return msg;
+    }
+
+    return null;
+  }, [
+    connected,
+    serverIsResponding,
+    pingIsComing,
+    lastRttRequestSuccess,
+    rttStatus,
+    subscriptionFailed,
+    intl,
+  ]);
+
+  const meetingMessage = useMemo(() => {
+    if (!meeting) return null;
+
+    if (meeting.isBreakout) {
+      return <MeetingRemainingTime />;
+    }
+
+    if (meeting.componentsFlags?.showRemainingTime) {
+      return <MeetingRemainingTime />;
+    }
+
+    return null;
+  }, [meeting?.isBreakout, meeting?.componentsFlags?.showRemainingTime]);
+
+  const message = errorMessage || meetingMessage;
 
   useEffect(() => {
-    const localHasNotification = !!data.message;
-
-    if (localHasNotification !== hasNotification) {
-      layoutContextDispatch({
-        type: ACTIONS.SET_HAS_NOTIFICATIONS_BAR,
-        value: localHasNotification,
-      });
+    const wantsNotification = !!message;
+    if (wantsNotification !== hasNotification) {
+      dispatch({ type: ACTIONS.SET_HAS_NOTIFICATIONS_BAR, value: wantsNotification });
     }
-  }, [data.message, hasNotification]);
+  }, [message, hasNotification, dispatch]);
 
-  if (isEmpty(data.message)) {
-    return null;
-  }
+  if (!message) return null;
 
   return (
-    <NotificationsBar color={data.color} showReloadButton={subscriptionFailed}>
-      {data.message}
+    <NotificationsBar color={COLOR_PRIMARY} showReloadButton={subscriptionFailed}>
+      {message}
     </NotificationsBar>
   );
 };

@@ -39,7 +39,6 @@ public:
       enabled: true
       iosAppStoreUrl: 'https://apps.apple.com/us/app/bigbluebutton-tablet/id1641156756'
       iosAppUrlScheme: 'bigbluebutton-tablet'
-    lockOnJoin: true
     cdn: ''
     basename: '/html5client'
     # the base location of the BBB API. If you use a cluster setup with a load
@@ -587,7 +586,7 @@ public:
       confirmationStep: true
       confirmationStepModifierKey: shift # shift|ctrl|alt
     quiz:
-      enabled: false
+      enabled: true
       quickPollCorrectAnswerSuffix: "__"
   captions:
     enabled: true
@@ -1150,6 +1149,7 @@ public:
     locales: ['ar', 'ca', 'cs', 'da', 'de', 'en', 'es', 'fa', 'fi', 'fr', 'gl', 'he', 'hi-in', 'hu', 'it', 'ja', 'ko-kr', 'ku', 'main', 'my', 'ne', 'no', 'pl', 'pt-br', 'pt-pt', 'ro', 'ru', 'sv', 'te', 'th', 'tr', 'uk', 'vi', 'zh-cn', 'zh-tw']
   clientLog:
     console:
+      enableRuntimeErrorLogging: false
       enabled: true
       level: debug
     external:

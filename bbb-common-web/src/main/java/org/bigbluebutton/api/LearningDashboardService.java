@@ -53,7 +53,7 @@ public class LearningDashboardService {
             fileOutput = new FileOutputStream(jsonFile);
             fileOutput.write(activityJson.getBytes(StandardCharsets.UTF_8));
 
-            log.info("Learning Dashboard ({}) updated for meeting {}.",jsonFile.getAbsolutePath(),meetingId);
+            log.debug("Learning Dashboard ({}) updated for meeting {}.",jsonFile.getAbsolutePath(),meetingId);
         } catch(Exception e) {
             log.error("Error on updating Learning Dashboard file for meeting [{}]: {}",meetingId, e.getMessage());
         } finally {
