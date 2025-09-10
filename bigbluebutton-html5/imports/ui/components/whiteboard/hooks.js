@@ -131,6 +131,29 @@ const useMouseEvents = ({
     return undefined;
   };
 
+  const handlePointerDownStylePanel = (event) => {
+    const panel = event.currentTarget;
+    const handlePointerUpStylePanel = (e) => {
+      //console.log("pointerup detected inside style panel", e);
+      const pointerUpEvent = new PointerEvent("pointerup", {
+        bubbles: true,
+        cancelable: true,
+        pointerId: e.pointerId || 1,
+        clientX: e.clientX,
+        clientY: e.clientY,
+        button: e.button,
+      });
+      // Send a generic pointerup event both to the style-panel and to the main window,
+      //  hitting handlePointerUp in tldraw/src/lib/ui/components/primitives/ButtonPicker.tsx,
+      //  which is attached to the main window.
+      e.target.dispatchEvent(pointerUpEvent);
+      window.dispatchEvent(pointerUpEvent);
+
+      panel.removeEventListener("pointerup", handlePointerUpStylePanel);
+    };
+    panel.addEventListener("pointerup", handlePointerUpStylePanel);
+  };
+
   const handleMouseEnter = () => {
     clearTimeout(mouseLeaveTimeoutRef.current);
     if (whiteboardToolbarAutoHide) {
@@ -322,6 +345,15 @@ const useMouseEvents = ({
       popupWindow.addEventListener('mousedown', handleMouseDownWindow);
     } else {
       window.addEventListener('mousedown', handleMouseDownWindow);
+    }
+
+    // Solving a problem that the style changer on the popup continues to select every button
+    //  as pointerup event is stolen by the main window to which tldraw attaches the event.
+    if (isPresentationDetached) {
+      const stylePanelPopup = popupWindow.document.getElementsByClassName('tlui-style-panel')[0];
+      if (stylePanelPopup) {
+        stylePanelPopup.addEventListener('pointerdown', handlePointerDownStylePanel);
+      }
     }
 
     if (presentationWrapper) {
