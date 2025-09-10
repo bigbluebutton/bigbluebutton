@@ -287,7 +287,7 @@ jobs:
       - uses: actions/setup-node@v4
         name: PLAYRIGHT CACHE - Restore Playright node modules from cache
         with:
-          cache: 'npm'
+          cache: "npm"
           cache-dependency-path: bigbluebutton-tests/playwright/package-lock.json
       - name: PLAYRIGHT CACHE - Restore Playright binaries from cache
         id: cache
@@ -331,11 +331,17 @@ jobs:
         with:
           name: blob-report-${{ matrix.shard }}
           path: bigbluebutton-tests/playwright/blob-report
+          if-no-files-found: ignore
       - if: always()
         name: Generate the shard HTML report from blob report
         shell: bash
         working-directory: ./bigbluebutton-tests/playwright
-        run: npx playwright merge-reports --reporter html ./blob-report
+        run: |
+          if [ -d "./blob-report" ]; then
+            npx playwright merge-reports --reporter html ./blob-report
+          else
+            echo "blob-report directory not found, skipping HTML report generation"
+          fi
       - if: always()
         name: Upload shard HTML report to GitHub Actions Artifacts
         uses: actions/upload-artifact@v4
@@ -416,10 +422,10 @@ jobs:
       - name: PLAYRIGHT CACHE (Plugins SDK) - Restore Playright node modules from cache
         uses: actions/setup-node@v4
         with:
-          cache: 'npm'
+          cache: "npm"
           cache-dependency-path: |
-                bigbluebutton-tests/bigbluebutton-html-plugin-sdk/package-lock.json
-                bigbluebutton-tests/bigbluebutton-html-plugin-sdk/samples/**/package-lock.json
+            bigbluebutton-tests/bigbluebutton-html-plugin-sdk/package-lock.json
+            bigbluebutton-tests/bigbluebutton-html-plugin-sdk/samples/**/package-lock.json
       - name: PLAYRIGHT CACHE - Restore Playright binaries from cache
         id: cache
         uses: actions/cache@v4
@@ -531,7 +537,12 @@ jobs:
         name: Generate the plugins HTML report from blob report
         shell: bash
         working-directory: ./bigbluebutton-tests/bigbluebutton-html-plugin-sdk
-        run: npx playwright merge-reports --reporter html ./blob-report
+        run: |
+          if [ -d "./blob-report" ]; then
+            npx playwright merge-reports --reporter html ./blob-report
+          else
+            echo "blob-report directory not found, skipping HTML report generation"
+          fi
       - if: always()
         name: Upload shard HTML report to GitHub Actions Artifacts
         uses: actions/upload-artifact@v4
