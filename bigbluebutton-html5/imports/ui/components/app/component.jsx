@@ -127,12 +127,14 @@ class App extends Component {
     };
 
     this.timeOffsetInterval = null;
+    this.isPopupOnPreparation = false;
 
     this.setPresentationFitToWidth = this.setPresentationFitToWidth.bind(this);
     this.setAudioModalIsOpen = this.setAudioModalIsOpen.bind(this);
     this.setVideoPreviewModalIsOpen = this.setVideoPreviewModalIsOpen.bind(this);
     this.customPollShortcutHandler = this.customPollShortcutHandler.bind(this);
     this.logJoin = this.logJoin.bind(this);
+    this.handlePopupPreparing = this.handlePopupPreparing.bind(this);
   }
 
   componentDidMount() {
@@ -275,6 +277,10 @@ class App extends Component {
     }
   }
 
+  handlePopupPreparing(b) {
+    this.isPopupOnPreparation = b;
+  }
+
   renderDarkMode() {
     const { darkTheme } = this.props;
 
@@ -373,7 +379,7 @@ class App extends Component {
           <ActivityCheckContainer />
           <ScreenReaderAlertContainer />
           <BannerBarContainer />
-          <NotificationsBarContainer />
+          <NotificationsBarContainer isPopupOnPreparation={this.isPopupOnPreparation} />
           <SidebarNavigationContainer />
           <SidebarContentContainer isSharedNotesPinned={isSharedNotesPinned} />
           <NavBarContainer main="new" />
@@ -396,6 +402,7 @@ class App extends Component {
                 popupWindow={popupWindow}
                 isPresentationDetached={isPresentationDetached}
                 toggleDetachPresentation={toggleDetachPresentation}
+                onPopupPreparing={this.handlePopupPreparing}
               />
             )
             : null

@@ -380,6 +380,7 @@ class Presentation extends PureComponent {
       isPresentationDetached,
       popupWindow,
       toggleDetachPresentation,
+      onPopupPreparing,
     } = this.props;
 
     if (!isPresentationDetached) {
@@ -391,6 +392,10 @@ class Presentation extends PureComponent {
       popup.document.title = 'BigBlueButton Portal Window';
       const container = popup.document.createElement('div');
       popup.document.body.appendChild(container);
+
+      // popup window is still in preparation, so some graphql transaction drops,
+      //  which then will show the notification bar. We want to surpress it.
+      onPopupPreparing?.(true);
 
       // headの中身をコピー
       const headElements = document.head.cloneNode(true).childNodes;
@@ -496,6 +501,7 @@ class Presentation extends PureComponent {
 
       toggleDetachPresentation(popup);
       popup.addEventListener('beforeunload', () => {
+        onPopupPreparing?.(false); // Only when the popup is closed very quickly, but may not be necessary..
         toggleDetachPresentation(null);
       });
       
@@ -516,6 +522,19 @@ class Presentation extends PureComponent {
         }
         // Then normal fullscreen change (by button or ESC)
         this.onFullscreenChange();
+
+        // when the canvas of tldraw is drawn on the popup,
+        //  we will set false to isPopupOnPreparation.
+        // Then the notification bar with 3006 error becomes accepted again.
+        const observer = new MutationObserver((mutations, obs) => {
+          const tlCanvas = popup.document.querySelector('.tl-canvas');
+          if (tlCanvas) {
+            onPopupPreparing?.(false);
+            obs.disconnect();
+          }
+        });
+        observer.observe(popup.document.body, { childList: true, subtree: true });
+        
       });
     } else {
       // to explicitely exit fullsreen; we do not need setState "isFullscreen: false".
@@ -524,6 +543,7 @@ class Presentation extends PureComponent {
         type: ACTIONS.SET_FULLSCREEN_ELEMENT,
         value: { element: '', group: '' },
       });
+      // Basically the app does not reach here...
       popupWindow?.close();
       toggleDetachPresentation(null);
     }
