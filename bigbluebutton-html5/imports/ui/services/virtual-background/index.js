@@ -306,7 +306,7 @@ class VirtualBackgroundService {
         this._segmentationMaskCanvas = document.createElement('canvas');
         this._segmentationMaskCanvas.width = this._options.width;
         this._segmentationMaskCanvas.height = this._options.height;
-        this._segmentationMaskCtx = this._segmentationMaskCanvas.getContext('2d');
+        this._segmentationMaskCtx = this._segmentationMaskCanvas.getContext('2d', { willReadFrequently: true });
 
         this._outputCanvasElement.width = parseInt(width, 10);
         this._outputCanvasElement.height = parseInt(height, 10);
