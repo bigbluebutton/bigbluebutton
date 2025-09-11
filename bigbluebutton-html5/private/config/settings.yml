@@ -584,7 +584,6 @@ public:
     chatMessage: true
     quickPoll:
       confirmationStep: true
-      confirmationStepModifierKey: shift # shift|ctrl|alt
     quiz:
       enabled: true
       quickPollCorrectAnswerSuffix: "__"

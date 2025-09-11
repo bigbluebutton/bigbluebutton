@@ -470,7 +470,6 @@ export interface Poll {
   chatMessage: boolean
   quickPoll: {
     confirmationStep: boolean
-    confirmationStepModifierKey: 'shift' | 'ctrl' | 'alt'
   }
   quiz: {
     enabled: boolean

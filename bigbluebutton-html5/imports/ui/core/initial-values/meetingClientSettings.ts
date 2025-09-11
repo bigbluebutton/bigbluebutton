@@ -482,7 +482,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       chatMessage: true,
       quickPoll: {
         confirmationStep: true,
-        confirmationStepModifierKey: 'shift',
       },
       quiz: {
         enabled: true,

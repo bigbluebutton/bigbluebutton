@@ -69,11 +69,7 @@ const QuickPollDropdown = (props) => {
   // Function to create a regex pattern
   const createPattern = (values) => new RegExp(`.*(${escapeRegExp(values[0])}\\/${escapeRegExp(values[1])}|${escapeRegExp(values[1])}\\/${escapeRegExp(values[0])}).*`, 'gmi');
 
-  const hasModifierKey = (e) => {
-    const POLL_CONFIG = window.meetingClientSettings.public.poll;
-    const modifierKey = POLL_CONFIG.quickPoll.confirmationStepModifierKey;
-    return e[`${modifierKey}Key`];
-  };
+  const hasModifierKey = (e) => e.shiftKey;
 
   const yesValue = intl.formatMessage(intlMessages.yesOptionLabel);
   const noValue = intl.formatMessage(intlMessages.noOptionLabel);
