@@ -275,8 +275,15 @@ const intlMessages = defineMessages({
     id: 'app.shortcut-help.openCustomPoll',
     description: 'label for opening custom poll panel shotcut',
   },
+  quickPollDesc: {
+    id: 'app.shortcut-help.quickPollDesc',
+    description: 'label for creating a quick poll shortcut',
+  },
+  quickPollKey: {
+    id: 'app.shortcut-help.quickPollKey',
+    description: 'describes the quick poll shortcut key',
+  },
 });
-
 
 const renderItem = (func, key) => {
   return (
@@ -363,6 +370,10 @@ const ShortcutHelpComponent = ({
    intl.formatMessage(intlMessages.nextSlideKey)));
   shortcutItems.push(renderItem(intl.formatMessage(intlMessages.previousSlideDesc),
    intl.formatMessage(intlMessages.previousSlideKey)));
+  shortcutItems.push(renderItem(
+    intl.formatMessage(intlMessages.quickPollDesc),
+    intl.formatMessage(intlMessages.quickPollKey),
+  ));
 
   const gestureItems = [];
   gestureItems.push(renderItem(intl.formatMessage(intlMessages.undo),
