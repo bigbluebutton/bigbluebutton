@@ -306,7 +306,10 @@ class VirtualBackgroundService {
         this._segmentationMaskCanvas = document.createElement('canvas');
         this._segmentationMaskCanvas.width = this._options.width;
         this._segmentationMaskCanvas.height = this._options.height;
-        this._segmentationMaskCtx = this._segmentationMaskCanvas.getContext('2d', { willReadFrequently: true });
+
+        const willReadFrequentlySetting = window.meetingClientSettings?.public?.virtualBackgrounds?.willReadFrequently;
+
+        this._segmentationMaskCtx = this._segmentationMaskCanvas.getContext('2d', { willReadFrequently: willReadFrequentlySetting });
 
         this._outputCanvasElement.width = parseInt(width, 10);
         this._outputCanvasElement.height = parseInt(height, 10);
