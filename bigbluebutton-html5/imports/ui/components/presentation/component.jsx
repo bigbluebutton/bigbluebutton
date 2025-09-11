@@ -393,7 +393,7 @@ class Presentation extends PureComponent {
       const container = popup.document.createElement('div');
       popup.document.body.appendChild(container);
 
-      // popup window is still in preparation, so some graphql transaction drops,
+      // popup window is still in preparation, so some graphql subscription fails,
       //  which then will show the notification bar. We want to surpress it.
       onPopupPreparing?.(true);
 
