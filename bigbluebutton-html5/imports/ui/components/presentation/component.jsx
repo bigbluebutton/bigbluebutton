@@ -501,6 +501,7 @@ class Presentation extends PureComponent {
 
       toggleDetachPresentation(popup);
       popup.addEventListener('beforeunload', () => {
+        onPopupPreparing?.(false); // Only when the popup is closed very quickly, but may not be necessary..
         toggleDetachPresentation(null);
       });
       
