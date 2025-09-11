@@ -1384,7 +1384,7 @@
     "app.videoDock.webcamUnfocusDesc": "Arrêter de centrer sur la webcam sélectionnée",
     "app.videoDock.webcamDisableLabel": "Désactiver l'affichage de sa webcam sur son écran",
     "app.videoDock.webcamDisableLabelAllCams": "Désactiver l'affichage de soi (toutes les caméras)",
-    "app.videoDock.webcamEnableLabel": "Activer la vision de soi",
+    "app.videoDock.webcamEnableLabel": "Activer l'affichage de votre webcam sur votre écran",
     "app.videoDock.webcamDisableDesc": "Vision de soi désactivée",
     "app.videoDock.webcamDisableWarning": "Votre webcam est toujours visible pour les autres ! Seule votre vue locale est désactivée.",
     "app.videoDock.webcamPinLabel": "Épingler",
