@@ -39,6 +39,7 @@ class Polling extends MultiUsers {
 
     // The slide needs to be uploaded and converted, so wait a bit longer for this step
     await this.modPage.waitAndClick(e.quickPoll, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.waitAndClick(e.startPoll);
     await this.modPage.hasElement(e.pollMenuButton, 'should display the poll menu button');
 
     await this.userPage.hasElement(e.pollingContainer, 'should display the polling container for the attendee to answer it');
@@ -194,6 +195,7 @@ class Polling extends MultiUsers {
     // A/B/C/D/E - One option answer
     await this.modPage.hasElement(e.quickPoll, 'should display the quick poll button when the presentation finishes uploading', ELEMENT_WAIT_EXTRA_LONG_TIME);
     await this.modPage.waitAndClick(e.quickPoll, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.waitAndClick(e.startPoll);
     await this.userPage.hasElement(e.pollingContainer, 'should display the poll question after quick poll starts');
     await this.userPage.waitAndClick(e.pollAnswerOptionE);
     await this.modPage.hasText(e.userVoteLiveResult, 'E. Gummy bears', 'should display the vote result after the poll is answered');
@@ -204,6 +206,7 @@ class Polling extends MultiUsers {
     await this.modPage.hasText(e.skipSlide, 'Slide 3');
      // Multiple Choices - Two question marks
     await this.modPage.waitAndClick(e.quickPoll, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.waitAndClick(e.startPoll);
     await this.userPage.hasElement(e.pollingContainer, 'should display the poll question after quick poll starts');
     await this.userPage.waitAndClick(e.firstPollAnswerDescOption);
     await this.userPage.waitAndClick(e.secondPollAnswerDescOption);
@@ -219,6 +222,7 @@ class Polling extends MultiUsers {
     // True/False
     await sleep(500); // avoid error when the tooltip is in front of the button due to layout shift
     await this.modPage.waitAndClick(e.quickPoll);
+    await this.modPage.waitAndClick(e.startPoll);
     await this.userPage.waitAndClick(e.pollAnswerOptionBtn);
     await this.modPage.hasText(e.userVoteLiveResult, 'True', 'should display the vote result after the attendee submit the answer');
     await this.modPage.waitAndClick(e.publishPollingLabel);
@@ -229,6 +233,7 @@ class Polling extends MultiUsers {
     await sleep(500); // avoid error when the tooltip is in front of the button due to layout shift
     await this.modPage.hasText(e.skipSlide, 'Slide 5');
     await this.modPage.waitAndClick(e.quickPoll);
+    await this.modPage.waitAndClick(e.startPoll);
     await this.userPage.waitAndClick(e.pollAnswerOptionBtn);
     await this.modPage.hasText(e.userVoteLiveResult, 'Yes', 'should display the vote result after the attendee submit the answer');
 
@@ -240,6 +245,7 @@ class Polling extends MultiUsers {
     // Type Response
     await this.modPage.hasText(e.skipSlide, 'Slide 6');
     await this.modPage.waitAndClick(e.quickPoll);
+    await this.modPage.waitAndClick(e.startPoll);
     await this.userPage.hasElement(e.pollingContainer, 'should display the polling container for the user to answer it');
     await this.userPage.type(e.pollAnswerOptionInput, e.answerMessage);
     await this.userPage.waitAndClick(e.pollSubmitAnswer);
@@ -253,6 +259,7 @@ class Polling extends MultiUsers {
     await this.modPage.selectSlide('Slide 8');
     await this.modPage.hasElement(e.quickPoll, 'should display the quick poll button when the presentation finishes uploading');
     await this.modPage.waitAndClick(e.quickPoll, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.waitAndClick(e.startPoll);
     await this.userPage.hasElement(e.pollingContainer, 'should display the poll question after quick poll starts');
     await this.userPage.waitAndClick(e.pollAnswerOptionD);
     await this.modPage.hasText(e.userVoteLiveResult, 'D. Very confident', 'should display the vote result after the poll is answered');
@@ -263,6 +270,7 @@ class Polling extends MultiUsers {
     await this.modPage.selectSlide('Slide 9');
     await this.modPage.hasElement(e.quickPoll, 'should display the quick poll button when the presentation finishes uploading');
     await this.modPage.waitAndClick(e.quickPoll, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.waitAndClick(e.startPoll);
     await this.userPage.hasElement(e.pollingContainer, 'should display the poll question after quick poll starts');
     await this.userPage.waitAndClick(e.pollAnswerOptionD);
     await this.modPage.hasText(e.userVoteLiveResult, 'D. Very confident', 'should display the vote result after the poll is answered');
