@@ -147,16 +147,7 @@ const DtfCss = `
 
 const DtfAvatars = `
   [data-test="moderatorAvatar"],
-  [data-test="viewerAvatar"],
-  [data-test="moderatorAvatar"] *,
-  [data-test="viewerAvatar"] *,
-  div[class*="avatar"],
-  div[class*="Avatar"],
-  div[class*="talking"],
-  div[class*="Talking"],
-  div[class*="pulse"],
-  *[style*="animation"],
-  *[style*="box-shadow"]
+  [data-test="viewerAvatar"]
 `;
 
 const DtfImages = `
