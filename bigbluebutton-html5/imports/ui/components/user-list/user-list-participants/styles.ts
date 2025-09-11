@@ -100,7 +100,7 @@ const VirtualizedList = styled.div`
   padding: 0px;
 `;
 
-const UserListItem = styled.div``;
+const UserListItem = styled.li``;
 
 export default {
   Avatar,
