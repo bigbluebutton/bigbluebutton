@@ -55,7 +55,7 @@
     "app.chat.toolbar.edit.cancel": "Appuyez sur {cancelKey} pour annuler.",
     "app.chat.toolbar.edit.edited": "Édité",
     "app.chat.toolbar.delete.cancelLabel": "Annuler",
-    "app.chat.toolbar.delete.confirmationTitle": "Êtes-vous sûr ?",
+    "app.chat.toolbar.delete.confirmationTitle": "Êtes-vous sûr·e ?",
     "app.chat.toolbar.delete.confirmationDescription": "Cette action est permanente, vous ne pourrez plus accéder à ce message.",
     "app.chat.header.tooltipEdit": "Éditer le message",
     "app.chat.header.tooltipReply": "Répondre au message",
