@@ -39,7 +39,6 @@ const DtfInvert = `
     --list-item-bg-hover: ${colorHoverBgDark} !important;
   }
   }
-  }
   body {
     background-color: var(--darkreader-bg-neutral-background) !important;
   }
