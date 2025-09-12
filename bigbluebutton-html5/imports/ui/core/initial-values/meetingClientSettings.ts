@@ -215,7 +215,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
     },
     externalVideoPlayer: {
       enabled: true,
-      allowedFiles: [],
+      allowedFileFormats: [],
     },
     kurento: {
       wsUrl: 'HOST',

@@ -117,7 +117,7 @@ const ExternalVideoPlayerModal: React.FC<ExternalVideoPlayerModalProps> = ({
           </label>
           <Styled.ExternalVideoNote id="external-video-note">
             <p>{intl.formatMessage(intlMessages.note)}</p>
-            <p>{`${intl.formatMessage(intlMessages.supportedFormats)} ${window.meetingClientSettings.public.externalVideoPlayer.allowedFiles.join(', ')}`}</p>
+            <p>{`${intl.formatMessage(intlMessages.supportedFormats)} ${window.meetingClientSettings.public.externalVideoPlayer.allowedFileFormats.join(', ')}`}</p>
           </Styled.ExternalVideoNote>
         </Styled.VideoUrl>
         <div>

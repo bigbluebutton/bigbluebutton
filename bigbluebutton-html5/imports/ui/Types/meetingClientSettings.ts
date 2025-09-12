@@ -297,7 +297,7 @@ export interface Branding {
 
 export interface ExternalVideoPlayer {
   enabled: boolean
-  allowedFiles: string[]
+  allowedFileFormats: string[]
 }
 
 export interface Kurento {

@@ -6,7 +6,7 @@ const DAILYMOTION_MATCH_URL = /https?:\/\/(?:www\.)?dailymotion\.com\/video\/[a-
 
 const getAllowedExtensions = (): string[] => {
   return (
-    window?.meetingClientSettings?.public?.externalVideoPlayer?.allowedFiles || []
+    window?.meetingClientSettings?.public?.externalVideoPlayer?.allowedFileFormats || []
   );
 };
 
