@@ -311,7 +311,7 @@ public:
   #     url: https://<your-Host>/plugins/SamplePresentationToolbarPlugin.js
   externalVideoPlayer:
     enabled: true
-    # A list of supported formats. Adding a new one will make the client accept it, 
+    # A list of supported formats. Adding a new one will make the system accept it, 
     # but it may not work as it's untested and might not be supported by all browsers
     allowedFileFormats:
       - mp4
