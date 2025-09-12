@@ -65,7 +65,10 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
     var rooms = new collection.immutable.HashMap[String, BreakoutRoom2x]
     val filteredPluginProp = liveMeeting.props.pluginProp.asScala
       .filter { case (key, _) =>
-        getPlugins(liveMeeting.plugins).get(key).exists(_.manifest.content.enabledForBreakoutRooms)
+        getPlugins(liveMeeting.plugins).get(key).exists(_.manifest.content match {
+          case Some(pluginManifestContent) => pluginManifestContent.enabledForBreakoutRooms
+          case None => false
+        })
       }
       .asJava
 

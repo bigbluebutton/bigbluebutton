@@ -3,6 +3,7 @@ import PollService from '/imports/ui/components/poll/service';
 import { defineMessages } from 'react-intl';
 import { notify } from '/imports/ui/services/notification';
 import caseInsensitiveReducer from '/imports/utils/caseInsensitiveReducer';
+import { debounce } from '/imports/utils/debounce';
 
 const intlMessages = defineMessages({
   notifyNotAllowedChange: {
@@ -375,6 +376,38 @@ const getCustomAssetUrls = () => {
   };
 };
 
+const sanitizeShape = (shape) => {
+  const { isModerator, questionType, ...rest } = shape;
+  return {
+    ...rest,
+  };
+};
+
+const debouncedUpdateShapes = debounce((
+  shapes, tlEditorRef, presentationIdRef, pageChanged, assets, bgShape,
+) => {
+  if (shapes && Object.keys(shapes).length > 0) {
+    tlEditorRef.current?.store.mergeRemoteChanges(() => {
+      const remoteShapesArray = Object.values(shapes).reduce((acc, shape) => {
+        if (
+          shape.meta?.presentationId === presentationIdRef.current
+          || shape?.whiteboardId?.includes(presentationIdRef.current)
+        ) {
+          acc.push(sanitizeShape(shape));
+        }
+        return acc;
+      }, []);
+
+      if (pageChanged) {
+        tlEditorRef.current?.store.put(assets);
+        tlEditorRef.current?.store.put(bgShape);
+      }
+
+      tlEditorRef.current?.store.put(remoteShapesArray);
+    });
+  }
+}, 175);
+
 export {
   initDefaultPages,
   sendAnnotation,
@@ -385,4 +418,6 @@ export {
   formatAnnotations,
   getCustomEditorAssetUrls,
   getCustomAssetUrls,
+  debouncedUpdateShapes,
+  sanitizeShape,
 };

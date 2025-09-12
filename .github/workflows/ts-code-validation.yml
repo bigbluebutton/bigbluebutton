@@ -23,11 +23,16 @@ jobs:
   ts-code-validation:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout PR's source merged into its target branch
+        if: github.event_name == 'pull_request'
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 1
-      - name: Merge branches
-        uses: ./.github/actions/merge-branches
+          ref: refs/pull/${{ github.event.number }}/merge
+      - name: Checkout commit/branch
+        if: github.event_name != 'pull_request'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
       - name: install npm dependencies
         working-directory: bigbluebutton-html5
         run: npm ci

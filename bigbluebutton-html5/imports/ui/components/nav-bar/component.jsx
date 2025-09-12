@@ -337,11 +337,12 @@ class NavBar extends Component {
       && selectedLayout !== LAYOUT_TYPE.PRESENTATION_ONLY
       && selectedLayout !== LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY
       && selectedLayout !== LAYOUT_TYPE.MEDIA_ONLY;
+    const shouldShowNavbar = LAYOUT_TYPE.PLUGINS_ONLY !== selectedLayout;
 
     const APP_CONFIG = window.meetingClientSettings?.public?.app;
     const enableTalkingIndicator = APP_CONFIG?.enableTalkingIndicator;
 
-    return (
+    return shouldShowNavbar && (
       <Styled.Navbar
         id="Navbar"
         style={

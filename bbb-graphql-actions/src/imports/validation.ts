@@ -69,7 +69,7 @@ export const throwErrorIfInvalidInput = (input: Record<string, unknown>, expecte
                         const jsonString = JSON.stringify(value);
                         JSON.parse(jsonString);
                     } catch (e) {
-                        throw new ValidationError(`Parameter '${param.name}' contains an invalid Json.`, 400);
+                        throw new ValidationError(`Parameter '${param.name}' contains an invalid Json`, 400);
                     }
                     break;
                 case 'jsonArray':

@@ -11,9 +11,8 @@ import {
   toggleMuteMicrophone,
   toggleMuteMicrophoneSystem,
 } from '/imports/ui/components/audio/audio-graphql/audio-controls/input-stream-live-selector/service';
-import apolloContextHolder from '/imports/ui/core/graphql/apolloContextHolder/apolloContextHolder';
-import { MEETING_IS_BREAKOUT } from '/imports/ui/components/audio/audio-graphql/audio-controls/queries';
 import useIsAudioConnected from '/imports/ui/components/audio/audio-graphql/hooks/useIsAudioConnected';
+import meetingStaticData from '../../core/singletons/meetingStaticData';
 
 const MUTED_KEY = 'muted';
 export const CLIENT_DID_USER_SELECT_MICROPHONE_KEY = 'clientUserSelectedMicrophone';
@@ -36,6 +35,7 @@ export const didUserSelectListenOnly = () => (
 );
 
 const recoverMicState = (toggleVoice) => {
+  const meetingStaticStore = meetingStaticData.getMeetingData();
   const recover = (storageKey) => {
     const muted = Storage.getItem(storageKey);
 
@@ -49,22 +49,15 @@ const recoverMicState = (toggleVoice) => {
     toggleVoice(Auth.userID, muted);
   };
 
-  apolloContextHolder.getClient().query({
-    query: MEETING_IS_BREAKOUT,
-    fetchPolicy: 'cache-first',
-  }).then((result) => {
-    const meeting = result?.data?.meeting?.[0];
-    const meetingId = meeting?.isBreakout && meeting?.breakoutPolicies?.parentId
-      ? meeting.breakoutPolicies.parentId
-      : Auth.meetingID;
-    const storageKey = `${MUTED_KEY}_${meetingId}`;
+  const isBreakout = meetingStaticStore?.isBreakout;
+  const parentId = meetingStaticStore?.breakoutPolicies?.parentId;
 
-    recover(storageKey);
-  }).catch(() => {
-    // Fallback
-    const storageKey = `${MUTED_KEY}_${Auth.meetingID}`;
-    recover(storageKey);
-  });
+  const meetingId = isBreakout && parentId
+    ? parentId
+    : Auth.meetingID;
+  const storageKey = `${MUTED_KEY}_${meetingId}`;
+
+  recover(storageKey);
 };
 
 const audioEventHandler = (toggleVoice) => (event) => {
@@ -214,8 +207,8 @@ export default {
     outputDeviceId,
     isLive,
   ) => AudioManager.changeOutputDevice(outputDeviceId, isLive),
-  updateInputDevices: (devices) => { AudioManager.inputDevices = devices },
-  updateOutputDevices: (devices) => { AudioManager.outputDevices = devices },
+  updateInputDevices: (devices) => { AudioManager.inputDevices = devices; },
+  updateOutputDevices: (devices) => { AudioManager.outputDevices = devices; },
   toggleMuteMicrophone,
   toggleMuteMicrophoneSystem,
   isConnectedToBreakout: () => {

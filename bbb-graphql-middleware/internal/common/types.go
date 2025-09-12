@@ -3,11 +3,12 @@ package common
 import (
 	"context"
 	"encoding/json"
-	"github.com/sirupsen/logrus"
-	"golang.org/x/time/rate"
 	"net/http"
 	"sync"
 	"time"
+
+	"github.com/sirupsen/logrus"
+	"golang.org/x/time/rate"
 
 	"nhooyr.io/websocket"
 )
@@ -38,11 +39,12 @@ type GraphQlSubscription struct {
 
 type BrowserConnection struct {
 	sync.RWMutex
-	Id                                 string             // browser connection id
-	Websocket                          *websocket.Conn    // websocket of browser connection
-	SessionToken                       string             // session token of this connection
-	MeetingId                          string             // auth info provided by bbb-web
-	UserId                             string             // auth info provided by bbb-web
+	Id                                 string          // browser connection id
+	Websocket                          *websocket.Conn // websocket of browser connection
+	SessionToken                       string          // session token of this connection
+	MeetingId                          string          // auth info provided by bbb-web
+	UserId                             string          // auth info provided by bbb-web
+	CurrentlyInMeeting                 bool
 	BBBWebSessionVariables             map[string]string  // graphql session variables provided by akka-apps
 	ClientSessionUUID                  string             // self-generated unique id for this client
 	Context                            context.Context    // browser connection context
@@ -50,6 +52,8 @@ type BrowserConnection struct {
 	BrowserRequestCookies              []*http.Cookie
 	ActiveSubscriptions                map[string]GraphQlSubscription // active subscriptions of this connection (start, but no stop)
 	ActiveSubscriptionsMutex           sync.RWMutex                   // mutex to control the map usage
+	ActiveStreamings                   map[string]string              // active streamings of this connection (start, but no stop)
+	ActiveStreamingsMutex              sync.RWMutex                   // mutex to control the map usage
 	ConnectionInitMessage              []byte                         // init message received in this connection (to be used on hasura reconnect)
 	HasuraConnection                   *HasuraConnection              // associated hasura connection
 	Disconnected                       bool                           // indicate if the connection is gone
@@ -91,4 +95,15 @@ type BrowserSubscribeMessage struct {
 		Query         string                 `json:"query"`
 		Variables     map[string]interface{} `json:"variables"`
 	} `json:"payload"`
+}
+
+type RedisMessage struct {
+	Core struct {
+		Header struct {
+			Name      string `json:"name"`
+			MeetingId string `json:"meetingId"`
+			UserId    string `json:"userId"`
+		} `json:"header"`
+		Body map[string]any `json:"body"`
+	} `json:"core"`
 }

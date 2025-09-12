@@ -320,6 +320,22 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
+  def buildSetListenOnlyInputInVoiceConfSysMsg(
+    meetingId: String,
+    voiceConf: String,
+    userId: String,
+    voiceUserId: String,
+    listenOnlyInputDevice: Boolean
+  ): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val envelope = BbbCoreEnvelope(SetListenOnlyInputInVoiceConfSysMsg.NAME, routing)
+    val body = SetListenOnlyInputInVoiceConfSysMsgBody(voiceConf, userId, voiceUserId, listenOnlyInputDevice)
+    val header = BbbCoreHeaderWithMeetingId(SetListenOnlyInputInVoiceConfSysMsg.NAME, meetingId)
+    val event = SetListenOnlyInputInVoiceConfSysMsg(header, body)
+
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
   def buildDeafUserInVoiceConfSysMsg(
     meetingId: String,
     voiceConf: String,

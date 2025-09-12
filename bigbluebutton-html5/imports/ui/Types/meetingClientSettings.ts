@@ -54,7 +54,6 @@ export interface App {
   helpLink: string
   delayForUnmountOfSharedNote: number
   bbbTabletApp: BbbTabletApp
-  lockOnJoin: boolean
   cdn: string
   basename: string
   bbbWebBase: string

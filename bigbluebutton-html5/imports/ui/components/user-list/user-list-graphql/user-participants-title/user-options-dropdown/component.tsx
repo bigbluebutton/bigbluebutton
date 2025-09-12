@@ -14,7 +14,6 @@ import { layoutSelect } from '/imports/ui/components/layout/context';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import { uid } from 'radash';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
-import { Meeting } from '/imports/ui/Types/meeting';
 import {
   onSaveUserNames, openLearningDashboardUrl,
 } from './service';
@@ -415,7 +414,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
 
 const UserTitleOptionsContainer: React.FC = () => {
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
-  const { data: meetingInfo } = useMeeting((meeting: Partial<Meeting>) => ({
+  const { data: meetingInfo } = useMeeting((meeting) => ({
     voiceSettings: meeting?.voiceSettings,
     isBreakout: meeting?.isBreakout,
     componentsFlags: meeting?.componentsFlags,

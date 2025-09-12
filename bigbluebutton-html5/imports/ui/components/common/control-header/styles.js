@@ -5,7 +5,9 @@ const Header = styled.header`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-bottom: ${jumboPaddingY};
+  ${({ bottomless }) => (!bottomless && `
+    padding-bottom: ${jumboPaddingY};
+  `)}
 `;
 
 const RightWrapper = styled.div`

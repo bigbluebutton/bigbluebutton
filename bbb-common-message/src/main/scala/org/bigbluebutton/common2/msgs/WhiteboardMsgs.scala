@@ -82,7 +82,7 @@ case class ModifyWhiteboardAccessEvtMsgBody(whiteboardId: String, multiUser: Arr
 
 object SendCursorPositionEvtMsg { val NAME = "SendCursorPositionEvtMsg" }
 case class SendCursorPositionEvtMsg(header: BbbClientMsgHeader, body: SendCursorPositionEvtMsgBody) extends BbbCoreMsg
-case class SendCursorPositionEvtMsgBody(whiteboardId: String, xPercent: Double, yPercent: Double)
+case class SendCursorPositionEvtMsgBody(whiteboardId: String, userIsViewer: Boolean, xPercent: Double, yPercent: Double)
 
 object SendWhiteboardAnnotationsEvtMsg { val NAME = "SendWhiteboardAnnotationsEvtMsg" }
 case class SendWhiteboardAnnotationsEvtMsg(header: BbbClientMsgHeader, body: SendWhiteboardAnnotationsEvtMsgBody) extends BbbCoreMsg

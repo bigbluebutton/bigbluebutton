@@ -105,8 +105,8 @@ const PluginDataChannelManager: React.ElementType<PluginDataChannelManagerProps>
           );
           return (
             <DataChannelItemManager
+              key={identifier}
               {...{
-                key: identifier,
                 identifier,
                 pluginName: pluginNameInUse,
                 channelName,

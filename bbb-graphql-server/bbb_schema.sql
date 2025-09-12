@@ -65,7 +65,6 @@ create unlogged table "meeting_breakout" (
     "captureNotesFilename" varchar(100),
     "captureSlidesFilename" varchar(100)
 );
-create index "idx_meeting_breakout_meetingId" on "meeting_breakout"("meetingId");
 create view "v_meeting_breakoutPolicies" as select * from meeting_breakout;
 
 create unlogged table "meeting_recordingPolicies" (
@@ -86,7 +85,6 @@ create unlogged table "meeting_recording" (
     "recordedTimeInSeconds" integer,
     CONSTRAINT "meeting_recording_pkey" PRIMARY KEY ("meetingId","startedAt")
 );
-create index "idx_meeting_recording_meetingId" on "meeting_recording"("meetingId");
 
 --Set recordedTimeInSeconds when stoppedAt is updated
 CREATE OR REPLACE FUNCTION "update_meeting_recording_trigger_func"() RETURNS TRIGGER AS $$
@@ -136,7 +134,6 @@ create unlogged table "meeting_welcome" (
 	"welcomeMsg" text,
 	"welcomeMsgForModerators" text
 );
-create index "idx_meeting_welcome_meetingId" on "meeting_welcome"("meetingId");
 
 create unlogged table "meeting_voice" (
 	"meetingId" 		varchar(100) primary key references "meeting"("meetingId") ON DELETE CASCADE,
@@ -145,7 +142,6 @@ create unlogged table "meeting_voice" (
 	"dialNumber" varchar(100),
 	"muteOnStart" boolean
 );
-create index "idx_meeting_voice_meetingId" on "meeting_voice"("meetingId");
 create view "v_meeting_voiceSettings" as select * from meeting_voice;
 
 create unlogged table "meeting_usersPolicies" (
@@ -162,7 +158,6 @@ create unlogged table "meeting_usersPolicies" (
     "authenticatedGuest"           boolean,
     "allowPromoteGuestToModerator" boolean
 );
-create index "idx_meeting_usersPolicies_meetingId" on "meeting_usersPolicies"("meetingId");
 
 CREATE OR REPLACE VIEW "v_meeting_usersPolicies" AS
 SELECT "meeting_usersPolicies"."meetingId",
@@ -183,7 +178,7 @@ SELECT "meeting_usersPolicies"."meetingId",
    JOIN "meeting" using("meetingId");
 
 create unlogged table "meeting_lockSettings" (
-	"meetingId" 		varchar(100) primary key references "meeting"("meetingId") ON DELETE CASCADE,
+	"meetingId"              varchar(100) primary key references "meeting"("meetingId") ON DELETE CASCADE,
     "disableCam"             boolean,
     "disableMic"             boolean,
     "disablePrivateChat"     boolean,
@@ -195,7 +190,6 @@ create unlogged table "meeting_lockSettings" (
     "hideViewersCursor"      boolean,
     "hideViewersAnnotation"  boolean
 );
-create index "idx_meeting_lockSettings_meetingId" on "meeting_lockSettings"("meetingId");
 
 CREATE OR REPLACE VIEW "v_meeting_lockSettings" AS
 SELECT
@@ -251,7 +245,6 @@ create unlogged table "meeting_group" (
     "usersExtId" varchar[],
     CONSTRAINT "meeting_group_pkey" PRIMARY KEY ("meetingId","groupId")
 );
-create index "idx_meeting_group_meetingId" on "meeting_group"("meetingId");
 create view "v_meeting_group" as select * from meeting_group;
 
 -- ========== User tables
@@ -312,9 +305,8 @@ CREATE UNLOGGED TABLE "user" (
 	CONSTRAINT "user_pkey" PRIMARY KEY ("meetingId","userId"),
 	FOREIGN KEY ("meetingId", "guestStatusSetByModerator") REFERENCES "user"("meetingId","userId") ON DELETE SET NULL
 );
-create index "idx_user_pk_reverse" on "user" ("userId", "meetingId");
-CREATE INDEX "idx_user_meetingId" ON "user"("meetingId");
-CREATE INDEX "idx_user_extId" ON "user"("meetingId", "extId");
+CREATE INDEX "idx_user_pk_reverse" on "user" ("userId", "meetingId");
+CREATE INDEX "idx_user_meetingId_extId" ON "user"("meetingId", "extId");
 
 -- user (on update raiseHand or away: set new time)
 CREATE OR REPLACE FUNCTION update_user_raiseHand_away_time_trigger_func()
@@ -353,8 +345,10 @@ ALTER TABLE "user" ADD COLUMN "isDialIn" boolean GENERATED ALWAYS AS ("clientTyp
 ALTER TABLE "user" ADD COLUMN "isWaiting" boolean GENERATED ALWAYS AS ("guestStatus" = 'WAIT') STORED;
 ALTER TABLE "user" ADD COLUMN "isAllowed" boolean GENERATED ALWAYS AS ("guestStatus" = 'ALLOW') STORED;
 ALTER TABLE "user" ADD COLUMN "isDenied" boolean GENERATED ALWAYS AS ("guestStatus" = 'DENY') STORED;
-
 ALTER TABLE "user" ADD COLUMN "registeredAt" timestamp with time zone GENERATED ALWAYS AS (to_timestamp("registeredOn"::double precision / 1000)) STORED;
+
+CREATE INDEX "idx_user_waiting" ON "user"("meetingId", "userId") where "isWaiting" is true;
+
 
 --Populate column `firstJoinedAt` to register if the user has joined in the meeting (once column `joined` turn false when user leaves)
 CREATE OR REPLACE FUNCTION "set_user_firstJoinedAt_trigger_func"()
@@ -382,8 +376,6 @@ EXECUTE FUNCTION "set_user_firstJoinedAt_trigger_func"();
 ALTER TABLE "user" ADD COLUMN "nameSortable" varchar(255) GENERATED ALWAYS AS (trim(remove_emojis(immutable_lower_unaccent("name")))) STORED;
 ALTER TABLE "user" ADD COLUMN "firstNameSortable" varchar(255) GENERATED ALWAYS AS (trim(remove_emojis(immutable_lower_unaccent("firstName")))) STORED;
 ALTER TABLE "user" ADD COLUMN "lastNameSortable" varchar(255) GENERATED ALWAYS AS (trim(remove_emojis(immutable_lower_unaccent("lastName")))) STORED;
-
-CREATE INDEX "idx_user_waiting" ON "user"("meetingId") where "isWaiting" is true;
 
 ALTER TABLE "user" ADD COLUMN "isModerator" boolean GENERATED ALWAYS AS (CASE WHEN "role" = 'MODERATOR' THEN true ELSE false END) STORED;
 ALTER TABLE "user" ADD COLUMN "currentlyInMeeting" boolean GENERATED ALWAYS AS (
@@ -441,11 +433,6 @@ AS SELECT "user"."userId",
   FROM "user"
   WHERE "user"."currentlyInMeeting" is true;
 
-CREATE INDEX "idx_v_user_meetingId" ON "user"("meetingId")
-                where "user"."loggedOut" IS FALSE
-                AND "user"."expired" IS FALSE
-                AND "user"."ejected" IS NOT TRUE
-                and "user"."joined" IS TRUE;
 
 CREATE INDEX "idx_v_user_meetingId_orderByColumns" ON "user"(
                         "meetingId",
@@ -595,15 +582,12 @@ CREATE UNLOGGED TABLE "user_sessionToken" (
 	FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
 );
 
-CREATE INDEX "idx_user_sessionToken_sessionToken" ON "user_sessionToken"("sessionToken");
+CREATE INDEX "idx_user_sessionToken_pk_reverse" ON "user_sessionToken" ("sessionToken", "userId", "meetingId");
 
 --Index for v_user_session
-CREATE INDEX "idx_user_sessionToken_not_removed"
-ON "user_sessionToken" ("meetingId", "userId", "sessionToken")
-WHERE "removedAt" IS NULL;
+CREATE INDEX "idx_user_sessionToken_not_removed" ON "user_sessionToken" ("meetingId", "userId", "sessionToken") WHERE "removedAt" IS NULL;
 
---Index for v_user_metadata
-CREATE INDEX "idx_user_sessionToken_pk_reverse" ON "user_sessionToken" ("sessionToken", "userId", "meetingId");
+
 
 create view "v_user_sessionToken" as select * from "user_sessionToken";
 create view "v_user_session_current" as select * from "user_sessionToken";
@@ -620,11 +604,7 @@ CREATE UNLOGGED TABLE "user_graphqlConnection" (
 	"closedAt" timestamp with time zone
 );
 
-CREATE INDEX "idx_user_graphqlConnectionSessionToken" ON "user_graphqlConnection"("sessionToken");
-
---Index for v_user_session
-CREATE INDEX "idx_user_graphqlConnection_sessionToken_closedAt"
-ON "user_graphqlConnection" ("sessionToken", "closedAt");
+CREATE INDEX "idx_user_graphqlConnection_sessionToken_closedAt" ON "user_graphqlConnection" ("sessionToken", "closedAt");
 
 
 create view "v_user_session" as
@@ -643,8 +623,7 @@ create unlogged table "user_metadata"(
 	CONSTRAINT "user_metadata_pkey" PRIMARY KEY ("meetingId", "userId", "sessionToken", "parameter"),
 	FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
 );
-create index "idx_user_metadata_pk_reverse" on "user_metadata" ("userId", "meetingId");
-create index "idx_user_metadata_sessionToken" on "user_metadata" ("meetingId", "userId", "sessionToken");
+create index "idx_user_metadata_pk_reverse" on "user_metadata" ("userId", "meetingId", "sessionToken", "parameter");
 
 CREATE VIEW "v_user_metadata" AS
 SELECT DISTINCT ON (ust."sessionToken", ust."meetingId", ust."userId", umd."parameter")
@@ -696,6 +675,7 @@ CREATE UNLOGGED TABLE "user_voice" (
 	"callingWith" varchar(100),
 	"joined" boolean,
 	"listenOnly" boolean,
+	"listenOnlyInputDevice" boolean NOT NULL DEFAULT false,
 	"muted" boolean,
 	"deafened" boolean,
 	"spoke" boolean,
@@ -807,19 +787,39 @@ SELECT * FROM "user_breakoutRoom";
 CREATE UNLOGGED TABLE "user_connectionStatus" (
 	"meetingId" varchar(100),
     "userId" varchar(50),
+    "sessionToken" varchar(16),
+	"clientSessionUUID" varchar(36),
     "lastEntriesCap" integer,
     "connectionAliveAtMaxIntervalMs" numeric,
     "connectionAliveAt" timestamp with time zone,
     "networkRttInMs" numeric,
+    "applicationRttInMs" numeric, --presenter only
+    "traceLog" varchar(500), --presenter only
     "status" varchar(25),
     "statusUpdatedAt" timestamp with time zone,
-    CONSTRAINT "user_connectionStatus_pkey" PRIMARY KEY ("meetingId","userId"),
+    CONSTRAINT "user_connectionStatus_pkey" PRIMARY KEY ("meetingId","userId","sessionToken","clientSessionUUID"),
     FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
 );
 create index "idx_user_connectionStatus_pk_reverse" on "user_connectionStatus"("userId", "meetingId");
-create index "idx_user_connectionStatus_meetingId" on "user_connectionStatus"("meetingId");
+
+-- populate statusUpdatedAt
+CREATE OR REPLACE FUNCTION "update_statusUpdatedAt"()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW."statusUpdatedAt" := NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER "trigger_update_statusUpdatedAt"
+BEFORE INSERT OR UPDATE ON "user_connectionStatus"
+FOR EACH ROW
+EXECUTE FUNCTION "update_statusUpdatedAt"();
+
 
 create view "v_user_connectionStatus" as select * from "user_connectionStatus";
+
+
 
 
 --Populate connectionAliveAtMaxIntervalMs to calc clientNotResponding
@@ -846,6 +846,8 @@ EXECUTE FUNCTION "update_connectionAliveAtMaxIntervalMs"();
 CREATE UNLOGGED TABLE "user_connectionStatusHistory" (
     "meetingId" varchar(100),
 	"userId" varchar(50),
+	"sessionToken" varchar(16),
+	"clientSessionUUID" varchar(36),
 	"networkRttInMs" numeric,
 	"status" varchar(25),
 	"statusUpdatedAt" timestamp with time zone,
@@ -853,12 +855,15 @@ CREATE UNLOGGED TABLE "user_connectionStatusHistory" (
 );
 create index "idx_user_connectionStatusHistory" on "user_connectionStatusHistory"("meetingId", "userId", "statusUpdatedAt");
 create index "idx_user_connectionStatusHistory_reverse" on "user_connectionStatusHistory"("userId", "meetingId", "statusUpdatedAt");
+create index "idx_userSession_connectionStatusHistory" on "user_connectionStatusHistory"("meetingId", "userId","sessionToken","clientSessionUUID", "statusUpdatedAt");
+create index "idx_userSession_connectionStatusHistory_reverse" on "user_connectionStatusHistory"("userId", "meetingId","sessionToken","clientSessionUUID", "statusUpdatedAt");
 
 create view "v_user_connectionStatusHistory" as select * from "user_connectionStatusHistory";
 
 CREATE UNLOGGED TABLE "user_connectionStatusMetrics" (
 	"meetingId" varchar(100),
     "userId" varchar(50),
+    "sessionToken" varchar(16),
 	"status" varchar(25),
 	"occurrencesCount" integer,
 	"firstOccurrenceAt" timestamp with time zone,
@@ -866,7 +871,7 @@ CREATE UNLOGGED TABLE "user_connectionStatusMetrics" (
 	"lowestNetworkRttInMs" numeric,
     "highestNetworkRttInMs" numeric,
     "lastNetworkRttInMs" numeric,
-	CONSTRAINT "user_connectionStatusMetrics_pkey" PRIMARY KEY ("meetingId","userId","status"),
+	CONSTRAINT "user_connectionStatusMetrics_pkey" PRIMARY KEY ("meetingId","userId","sessionToken","status"),
 	FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
 );
 create index "idx_user_connectionStatusMetrics_pk_reverse" on "user_connectionStatusMetrics"("userId", "meetingId");
@@ -885,24 +890,28 @@ BEGIN
     "lowestNetworkRttInMs" = LEAST("user_connectionStatusMetrics"."lowestNetworkRttInMs",NEW."networkRttInMs"),
     "lastNetworkRttInMs" = NEW."networkRttInMs",
     "lastOccurrenceAt" = current_timestamp
-    WHERE "meetingId"=NEW."meetingId" AND "userId"=NEW."userId" AND "status"= NEW."status" RETURNING *)
-    INSERT INTO "user_connectionStatusMetrics"("meetingId","userId","status","occurrencesCount", "firstOccurrenceAt", "lastOccurrenceAt",
+    WHERE "meetingId"=NEW."meetingId"
+    AND "userId"=NEW."userId"
+    AND "sessionToken"=NEW."sessionToken"
+    AND "status"= NEW."status" RETURNING *)
+    INSERT INTO "user_connectionStatusMetrics"("meetingId","userId","sessionToken","status","occurrencesCount", "firstOccurrenceAt", "lastOccurrenceAt",
     "highestNetworkRttInMs", "lowestNetworkRttInMs", "lastNetworkRttInMs")
-    SELECT NEW."meetingId", NEW."userId", NEW."status", 1, current_timestamp, current_timestamp,
+    SELECT NEW."meetingId", NEW."userId", NEW."sessionToken", NEW."status", 1, current_timestamp, current_timestamp,
     NEW."networkRttInMs", NEW."networkRttInMs", NEW."networkRttInMs"
     WHERE NOT EXISTS (SELECT * FROM upsert);
 
     --Store history into user_connectionStatusHistory
-    INSERT INTO "user_connectionStatusHistory"("meetingId","userId","networkRttInMs","status","statusUpdatedAt")
-    SELECT NEW."meetingId", NEW."userId", NEW."networkRttInMs", NEW."status", NEW."statusUpdatedAt";
+    INSERT INTO "user_connectionStatusHistory"("meetingId","userId","sessionToken","networkRttInMs","status","statusUpdatedAt")
+    SELECT NEW."meetingId", NEW."userId", NEW."sessionToken", NEW."networkRttInMs", NEW."status", NEW."statusUpdatedAt";
 
     --Keep only the `lastEntriesCap`
     DELETE FROM "user_connectionStatusHistory"
-    WHERE ("meetingId", "userId", "statusUpdatedAt") IN (
-        SELECT "meetingId", "userId", "statusUpdatedAt"
+    WHERE ("meetingId", "userId", "sessionToken", "statusUpdatedAt") IN (
+        SELECT "meetingId", "userId", "sessionToken", "statusUpdatedAt"
         FROM "user_connectionStatusHistory"
         WHERE "meetingId" = NEW."meetingId"
         AND "userId" = NEW."userId"
+        AND "sessionToken" = NEW."sessionToken"
         ORDER BY "statusUpdatedAt" DESC
         OFFSET NEW."lastEntriesCap"
     );
@@ -918,6 +927,7 @@ CREATE OR REPLACE VIEW "v_user_connectionStatusReport" AS
 SELECT distinct on (u."meetingId", u."userId")
 u."meetingId",
 u."userId",
+cs."sessionToken",
 cs."connectionAliveAt",
 cs."status" AS "currentStatus",
 CASE WHEN
@@ -931,7 +941,7 @@ csm."lastOccurrenceAt" AS "lastUnstableStatusAt"
 FROM "user" u
 JOIN "user_connectionStatus" cs ON cs."meetingId" = u."meetingId" and cs."userId" = u."userId"
 LEFT JOIN "user_connectionStatusMetrics" csm ON csm."meetingId" = u."meetingId" AND csm."userId" = u."userId" AND csm."status" != 'normal'
-order by u."meetingId", u."userId", csm."lastOccurrenceAt" desc;
+order by u."meetingId", u."userId", cs."sessionToken", csm."lastOccurrenceAt" desc;
 
 CREATE INDEX "idx_user_connectionStatusMetrics_UnstableReport" ON "user_connectionStatusMetrics" ("meetingId", "userId") WHERE "status" != 'normal';
 
@@ -960,7 +970,6 @@ CREATE UNLOGGED TABLE "user_clientSettings"(
     FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
 );
 CREATE INDEX "idx_user_clientSettings_pk_reverse" ON "user_clientSettings"("userId", "meetingId");
-CREATE INDEX "idx_user_clientSettings_meetingId" ON "user_clientSettings"("meetingId");
 
 create view "v_user_clientSettings" as select * from "user_clientSettings";
 
@@ -1015,7 +1024,6 @@ CREATE UNLOGGED TABLE "user_transcriptionError"(
     FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
 );
 CREATE INDEX "idx_user_transcriptionError_pk_reverse" ON "user_transcriptionError"("userId", "meetingId");
-CREATE INDEX "idx_user_transcriptionError_meetingId" ON "user_transcriptionError"("meetingId");
 
 create view "v_user_transcriptionError" as select * from "user_transcriptionError";
 
@@ -1043,7 +1051,6 @@ CREATE UNLOGGED TABLE "chat" (
 	CONSTRAINT "chat_pkey" PRIMARY KEY ("meetingId", "chatId")
 );
 CREATE INDEX "idx_chat_pk_reverse" ON "chat"("chatId","meetingId");
-CREATE INDEX "idx_chat_meetingId" ON "chat"("meetingId");
 
 CREATE UNLOGGED TABLE "chat_user" (
 	"chatId" varchar(100),
@@ -1088,10 +1095,6 @@ CREATE INDEX "idx_chat_user_typing_public" ON "chat_user"("meetingId", "lastTypi
 CREATE INDEX "idx_chat_user_typing_private" ON "chat_user"("meetingId", "userId", "chatId", "lastTypingAt")
         WHERE "chatId" != 'MAIN-PUBLIC-GROUP-CHAT'
         AND "visible" is true;
-
-CREATE INDEX "idx_chat_with_user_typing_private" ON "chat_user"("meetingId", "userId", "chatId", "lastTypingAt")
-        WHERE "chatId" != 'MAIN-PUBLIC-GROUP-CHAT'
-        AND "lastTypingAt" is not null;
 
 CREATE OR REPLACE VIEW "v_user_typing_public" AS
 SELECT "meetingId", "chatId", "userId", "lastTypingAt", "startedTypingAt",
@@ -1199,7 +1202,6 @@ CREATE UNLOGGED TABLE "chat_message_history" (
 	"movedToHistoryAt" timestamp with time zone default current_timestamp,
     CONSTRAINT chat_message_history_pk PRIMARY KEY ("messageId", "messageVersionSequence")
 );
-CREATE INDEX "chat_message_history_seq_idx" ON "chat_message_history"("messageId","messageVersionSequence");
 
 CREATE OR REPLACE VIEW "v_chat_message_history" AS SELECT * FROM "chat_message_history";
 
@@ -1294,7 +1296,6 @@ CREATE UNLOGGED TABLE "chat_message_reaction" (
 	"messageId" varchar(100) REFERENCES "chat_message"("messageId") ON DELETE CASCADE,
 	"userId" varchar(100) not null,
 	"reactionEmoji" varchar(25),
-    "reactionEmojiId" varchar(50),
 	"createdAt" timestamp with time zone,
     CONSTRAINT chat_message_reaction_pk PRIMARY KEY ("messageId", "userId", "reactionEmoji"),
     FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
@@ -1334,9 +1335,8 @@ CREATE UNLOGGED TABLE "pres_presentation" (
     "exportToChatHasError" boolean,
     "createdAt" timestamp with time zone DEFAULT now()
 );
-CREATE INDEX "idx_pres_presentation_meetingId" ON "pres_presentation"("meetingId");
-CREATE INDEX "idx_pres_presentation_meetingId_curr" ON "pres_presentation"("meetingId") where "current" is true;
 CREATE INDEX "idx_pres_presentation_meetingId_uploadUserId" ON "pres_presentation"("meetingId","uploadUserId");
+CREATE INDEX "idx_pres_presentation_meetingId_curr" ON "pres_presentation"("meetingId") where "current" is true;
 
 --Populate preloadNextPages, which will be used to provide the SVG of next slides at pres_page_curr
 CREATE OR REPLACE FUNCTION "update_preloadNextPages"() RETURNS TRIGGER AS $$
@@ -1487,8 +1487,7 @@ CREATE UNLOGGED TABLE "pres_annotation" (
 	"annotationInfo" TEXT,
 	"lastUpdatedAt" timestamp with time zone
 );
-CREATE INDEX "idx_pres_annotation_pageId" ON "pres_annotation"("pageId");
-CREATE INDEX "idx_pres_annotation_updatedAt" ON "pres_annotation"("pageId","lastUpdatedAt");
+CREATE INDEX "idx_pres_annotation_pageId_updatedAt" ON "pres_annotation"("pageId","lastUpdatedAt");
 create index "idx_pres_annotation_user_meeting" on "pres_annotation" ("userId", "meetingId");
 
 CREATE UNLOGGED TABLE "pres_annotation_history" (
@@ -1538,11 +1537,25 @@ create index "idx_pres_page_writers_userID_rev" on "pres_page_writers"("userId",
 CREATE OR REPLACE VIEW "v_pres_page_writers" AS
 SELECT
 	"pres_presentation"."presentationId",
-	"pres_page_writers" .*,
+	"pres_page_writers"."meetingId",
+	"pres_page_writers"."pageId",
+	"pres_page_writers"."userId",
 	CASE WHEN pres_presentation."current" IS true AND pres_page."current" IS true THEN true ELSE false END AS "isCurrentPage"
 FROM "pres_page_writers"
 JOIN "pres_page" ON "pres_page"."pageId" = "pres_page_writers"."pageId"
-JOIN "pres_presentation" ON "pres_presentation"."presentationId"  = "pres_page"."presentationId" ;
+JOIN "pres_presentation" ON "pres_presentation"."presentationId"  = "pres_page"."presentationId"
+UNION
+SELECT
+	"pres_presentation"."presentationId",
+	"pres_presentation"."meetingId",
+	"pres_page"."pageId",
+	"user"."userId",
+	CASE WHEN pres_presentation."current" IS true AND pres_page."current" IS true THEN true ELSE false END AS "isCurrentPage"
+FROM pres_presentation
+JOIN pres_page ON pres_page."presentationId"::text = pres_presentation."presentationId"::text
+JOIN "user" on "user"."meetingId" = "pres_presentation"."meetingId"
+            and "user".presenter IS TRUE;
+;
 
 CREATE OR REPLACE VIEW "v_pres_presentation_uploadToken" AS
 SELECT "meetingId", "presentationId", "uploadUserId", "uploadTemporaryId", "uploadToken"
@@ -1656,10 +1669,9 @@ CREATE UNLOGGED TABLE "pres_page_cursor" (
     CONSTRAINT "pres_page_cursor_pkey" PRIMARY KEY ("pageId","meetingId","userId"),
     FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
 );
-create index "idx_pres_page_cursor_pageId" on "pres_page_cursor"("pageId");
+create index "idx_pres_page_cursor_pageId_lastUpdatedAt" on "pres_page_cursor"("pageId","lastUpdatedAt");
 create index "idx_pres_page_cursor_userID" on "pres_page_cursor"("meetingId","userId");
 create index "idx_pres_page_cursor_userID_rev" on "pres_page_cursor"("userId", "meetingId");
-create index "idx_pres_page_cursor_lastUpdatedAt" on "pres_page_cursor"("pageId","lastUpdatedAt");
 
 CREATE VIEW "v_pres_page_cursor" AS
 SELECT pres_page."presentationId", c.*,
@@ -1688,10 +1700,8 @@ CREATE UNLOGGED TABLE "poll" (
 "createdAt" timestamp with time zone not null default current_timestamp,
 FOREIGN KEY ("meetingId", "ownerId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
 );
-CREATE INDEX "idx_poll_meetingId" ON "poll"("meetingId");
-CREATE INDEX "idx_poll_ownerId" ON "poll"("meetingId","ownerId");
+CREATE INDEX "idx_poll_meetingId_ownerId" ON "poll"("meetingId","ownerId");
 CREATE INDEX "idx_poll_meetingId_active" ON "poll"("meetingId") where ended is false;
-CREATE INDEX "idx_poll_meetingId_published" ON "poll"("meetingId") where published is true;
 
 CREATE UNLOGGED TABLE "poll_option" (
 	"pollId" varchar(100) REFERENCES "poll"("pollId") ON DELETE CASCADE,
@@ -1700,7 +1710,6 @@ CREATE UNLOGGED TABLE "poll_option" (
 	"correctOption" boolean,
 	CONSTRAINT "poll_option_pkey" PRIMARY KEY ("pollId", "optionId")
 );
-CREATE INDEX "idx_poll_option_pollId" ON "poll_option"("pollId");
 
 CREATE UNLOGGED TABLE "poll_response" (
 	"pollId" varchar(100),
@@ -1710,10 +1719,9 @@ CREATE UNLOGGED TABLE "poll_response" (
 	FOREIGN KEY ("pollId", "optionId") REFERENCES "poll_option"("pollId", "optionId") ON DELETE CASCADE,
 	FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
 );
-CREATE INDEX "idx_poll_response_pollId" ON "poll_response"("pollId");
+CREATE INDEX "idx_poll_response_pollId_userId" ON "poll_response"("pollId", "meetingId", "userId");
 CREATE INDEX "idx_poll_response_userId" ON "poll_response"("meetingId", "userId");
 CREATE INDEX "idx_poll_response_userId_reverse" ON "poll_response"("userId", "meetingId");
-CREATE INDEX "idx_poll_response_pollId_userId" ON "poll_response"("pollId", "meetingId", "userId");
 
 CREATE OR REPLACE VIEW "v_poll_response" AS
 SELECT
@@ -2155,11 +2163,10 @@ create unlogged table "sharedNotes_session" (
     "sharedNotesExtId" varchar(25),
     "userId" varchar(50),
     "sessionId" varchar(50),
-    constraint "pk_sharedNotes_session" primary key ("meetingId", "sharedNotesExtId", "userId"),
+    constraint "pk_sharedNotes_session" primary key ("meetingId", "userId", "sharedNotesExtId"),
     FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
 );
-create index "sharedNotes_session_userId" on "sharedNotes_session"("meetingId", "userId");
-create index "sharedNotes_session_userId_rev" on "sharedNotes_session"("userId", "meetingId");
+create index "sharedNotes_session_userId_rev" on "sharedNotes_session"("userId", "meetingId", "sharedNotesExtId");
 
 create view "v_sharedNotes" as
 SELECT sn.*, max(snr.rev) "lastRev"
@@ -2192,7 +2199,6 @@ CREATE UNLOGGED TABLE "caption_locale" (
     CONSTRAINT "caption_locale_pk" primary key ("meetingId","locale","captionType"),
     FOREIGN KEY ("meetingId", "createdBy") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
 );
-create index "idx_caption_locale_pk_reverse" on "caption_locale"("locale","meetingId","captionType");
 create index "idx_caption_locale_pk_reverse_b" on "caption_locale"("captionType","meetingId","locale");
 
 CREATE UNLOGGED TABLE "caption" (
@@ -2316,6 +2322,8 @@ create unlogged table "plugin" (
     "localesBaseUrl" varchar(500),
 	"javascriptEntrypointUrl" varchar(500),
 	"javascriptEntrypointIntegrity" varchar(500),
+	"loadFailureReason" varchar(500),
+	"loadFailureSource" varchar(50),
     CONSTRAINT "plugin_pk" PRIMARY KEY ("meetingId","name"),
     FOREIGN KEY ("meetingId") REFERENCES "meeting"("meetingId") ON DELETE CASCADE
 );
@@ -2421,8 +2429,14 @@ select "meeting"."meetingId",
             select 1
             from "sharedNotes"
             where "sharedNotes"."meetingId" = "meeting"."meetingId"
+            and "sharedNotesExtId" = 'notes'
+        ) as "hasSharedNotes",
+        exists (
+            select 1
+            from "sharedNotes"
+            where "sharedNotes"."meetingId" = "meeting"."meetingId"
             and "sharedNotes"."pinned" is true
-        ) as "isSharedNotedPinned",
+        ) as "isSharedNotesPinned",
         exists (
             select 1
             from "v_pres_page_curr"
@@ -2463,8 +2477,6 @@ CREATE UNLOGGED TABLE "user_audioGroup" (
 	FOREIGN KEY ("meetingId", "groupId") REFERENCES "audioGroup"("meetingId", "groupId") ON DELETE CASCADE
 );
 
-CREATE INDEX "idx_user_audioGroup_groupId" ON "user_audioGroup"("meetingId", "groupId");
-CREATE INDEX "idx_user_audioGroup_userId" ON "user_audioGroup"("meetingId", "userId");
 CREATE INDEX "idx_user_audioGroup_userId_reverse" ON "user_audioGroup"("userId", "meetingId");
 CREATE INDEX "idx_user_audioGroup_groupId_participantType" ON "user_audioGroup"("meetingId", "groupId", "participantType");
 CREATE OR REPLACE VIEW "v_user_audioGroup" AS SELECT * FROM "user_audioGroup";

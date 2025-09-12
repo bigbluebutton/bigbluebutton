@@ -113,7 +113,7 @@ const QuizzesChart = (props) => {
                 <Paper style={{ visibility: isVisible ? 'visible' : 'hidden' }} className="p-2">
                   {isVisible && (
                     <>
-                      <p className="font-bold space-y-2">
+                      <div className="space-y-2">
                         {payload[0]?.payload.users.map((user) => (
                           <div key={user.userKey} className="flex items-center">
                             {user.avatar ? (
@@ -127,10 +127,10 @@ const QuizzesChart = (props) => {
                                 <UserAvatar user={user} />
                               </div>
                             )}
-                            <span>{user.name}</span>
+                            <span className="font-bold">{user.name}</span>
                           </div>
                         ))}
-                      </p>
+                      </div>
                       <p className="text-gray-600">
                         {`${intl.formatMessage({
                           id: 'app.learningDashboard.quizzes.activityLevel',
@@ -163,16 +163,17 @@ const QuizzesChart = (props) => {
               const {
                 x, y, width, height,
               } = data;
-              const avatars = data?.users?.map((user) => user.avatar) || [];
-              const avatar = avatars[0];
-              const imageSize = avatar ? IMAGE_SIZE : FALLBACK_IMAGE_SIZE;
+              const pickedUser = data?.users?.[0];
+              const imageSize = pickedUser?.avatar ? IMAGE_SIZE : FALLBACK_IMAGE_SIZE;
               const adjustedX = (x - Math.abs(imageSize - width) / 2).toFixed(2);
               const adjustedY = (y - Math.abs(imageSize - height) / 2).toFixed(2);
 
-              return avatar ? (
+              if (!pickedUser) return null;
+
+              return pickedUser.avatar ? (
                 <>
                   <image
-                    href={avatar}
+                    href={pickedUser.avatar}
                     x={adjustedX}
                     y={adjustedY}
                     width={IMAGE_SIZE}
@@ -181,13 +182,14 @@ const QuizzesChart = (props) => {
                   />
                 </>
               ) : (
-                <image
-                  href="svgs/user-circle.svg"
+                <foreignObject
                   x={adjustedX}
                   y={adjustedY}
                   width={FALLBACK_IMAGE_SIZE}
                   height={FALLBACK_IMAGE_SIZE}
-                />
+                >
+                  <UserAvatar user={pickedUser} />
+                </foreignObject>
               );
             }}
           />

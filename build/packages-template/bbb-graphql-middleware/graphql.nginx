@@ -8,8 +8,29 @@ location /graphql {
 	proxy_pass         http://127.0.0.1:8378; #Graphql Middleware
 }
 
-#Set cache system for client settings
+#DEPRECATED:
+#This endpoint is being replaced by /api/rest/meetingStaticData (which contain clientSettings and more)
+#It will be removed in BBB 3.1
 location /api/rest/clientSettings {
+    auth_request /bigbluebutton/connection/checkGraphqlAuthorization;
+    auth_request_set $meeting_id $sent_http_meeting_id;
+
+    proxy_cache client_settings_cache;
+    proxy_cache_key "$uri|$meeting_id";
+    proxy_cache_use_stale updating;
+    proxy_cache_valid 24h;
+    proxy_cache_lock on;
+    add_header X-Cached $upstream_cache_status;
+
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "Upgrade";
+    proxy_set_header Host $host;
+    proxy_pass http://127.0.0.1:8185; #Hasura
+}
+
+#Set cache system for meeting static data
+location /api/rest/meetingStaticData {
     auth_request /bigbluebutton/connection/checkGraphqlAuthorization;
     auth_request_set $meeting_id $sent_http_meeting_id;
 

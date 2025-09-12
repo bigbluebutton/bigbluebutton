@@ -71,8 +71,8 @@ interface ChatMessageProps {
   chatEditEnabled: boolean;
   chatReactionsEnabled: boolean;
   focused: boolean;
-  sendReaction: (reactionEmoji: string, reactionEmojiId: string, chatId: string, messageId: string) => void;
-  deleteReaction: (reactionEmoji: string, reactionEmojiId: string, chatId: string, messageId: string) => void;
+  sendReaction: (reactionEmoji: string, chatId: string, messageId: string) => void;
+  deleteReaction: (reactionEmoji: string, chatId: string, messageId: string) => void;
 }
 
 export interface ChatMessageRef {
@@ -657,8 +657,8 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
     }
   }, [deactivateFocusTrap, keyboardFocused]);
 
-  const onEmojiSelected = useCallback((emoji: { id: string; native: string }) => {
-    sendReaction(emoji.native, emoji.id, message.chatId, message.messageId);
+  const onEmojiSelected = useCallback((emoji: { native: string }) => {
+    sendReaction(emoji.native, message.chatId, message.messageId);
     setIsToolbarReactionPopoverOpen(false);
     deactivateFocusTrap();
   }, [message.chatId, message.messageId, sendReaction]);

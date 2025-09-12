@@ -19,7 +19,6 @@ import {
 import useSetSpeechOptions from '../audio/audio-graphql/hooks/useSetSpeechOptions';
 import { handleIsNotificationEnabled } from '/imports/ui/components/plugins-engine/ui-commands/notification/handler';
 import App from './component';
-import { PINNED_PAD_SUBSCRIPTION } from '../notes/queries';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 import useSettings from '../../services/settings/hooks/useSettings';
 import { SETTINGS } from '../../services/settings/enums';
@@ -69,8 +68,6 @@ const AppContainer = (props) => {
     window.meetingClientSettings.public.presentation.restoreOnUpdate,
   );
 
-  const NOTES_CONFIG = window.meetingClientSettings.public.notes;
-
   const {
     darkTheme,
   } = useSettings(SETTINGS.APPLICATION);
@@ -87,9 +84,7 @@ const AppContainer = (props) => {
     LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY,
   ].includes(layoutType);
   const setSpeechOptions = useSetSpeechOptions();
-  const { data: pinnedPadData } = useDeduplicatedSubscription(PINNED_PAD_SUBSCRIPTION);
-  const isSharedNotesPinnedFromGraphql = !!pinnedPadData
-    && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
+  const isSharedNotesPinnedFromGraphql = currentMeeting?.componentsFlags?.isSharedNotesPinned;
   const isSharedNotesPinned = isSharedNotesPinnedFromGraphql && presentation.isOpen;
   const isExternalVideoEnabled = useIsExternalVideoEnabled();
   const isPresentationEnabled = useIsPresentationEnabled();
@@ -163,9 +158,9 @@ const AppContainer = (props) => {
           hideNotificationToasts: hideNotificationToasts
             || getFromUserSettings('bbb_hide_notifications', false),
           darkTheme,
-          isBreakout: currentMeeting?.isBreakout,
-          meetingName: currentMeeting?.name,
-          meetingId: currentMeeting?.meetingId,
+          isBreakout: currentMeeting?.isBreakout ?? false,
+          meetingName: currentMeeting?.name ?? '',
+          meetingId: currentMeeting?.meetingId ?? '',
         }}
         {...props}
       />

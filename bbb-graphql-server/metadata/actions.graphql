@@ -149,7 +149,6 @@ type Mutation {
     chatId: String!
     messageId: String!
     reactionEmoji: String!
-    reactionEmojiId: String!
   ): Boolean
 }
 
@@ -185,7 +184,6 @@ type Mutation {
     chatId: String!
     messageId: String!
     reactionEmoji: String!
-    reactionEmojiId: String!
   ): Boolean
 }
 
@@ -627,7 +625,10 @@ type Mutation {
 
 type Mutation {
   userSetConnectionAlive(
+    clientSessionUUID: String!
     networkRttInMs: Float!
+    applicationRttInMs: Float
+    traceLog: String
   ): Boolean
 }
 
@@ -647,6 +648,12 @@ type Mutation {
 type Mutation {
   userSetExitReason(
     exitReason: String!
+  ): Boolean
+}
+
+type Mutation {
+  userSetListenOnlyInput(
+    listenOnlyInputDevice: Boolean!
   ): Boolean
 }
 
@@ -751,4 +758,3 @@ input AudioGroupParticipant {
   participantType: String!
   active: Boolean!
 }
-

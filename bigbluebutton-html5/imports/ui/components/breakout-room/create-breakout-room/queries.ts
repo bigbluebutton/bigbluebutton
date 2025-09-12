@@ -52,12 +52,13 @@ export const getUser = gql`
     user(
       where: { bot: {_eq: false } }
       order_by: [
+        {presenter: desc},
         {role: asc},
         {raiseHandTime: asc_nulls_last},
-        {awayTime: asc_nulls_last},
         {isDialIn: desc},
         {hasDrawPermissionOnCurrentPage: desc},
         {nameSortable: asc},
+        {registeredAt: asc},
         {userId: asc}
       ]) {
       extId

@@ -1,5 +1,13 @@
 import { gql } from '@apollo/client';
 
+export interface ViewerVideoStreamsSubscriptionResponse {
+  user_camera_aggregate: {
+    aggregate: {
+      count: number;
+    };
+  };
+}
+
 export const VIDEO_STREAMS_SUBSCRIPTION = gql`
   subscription VideoStreams {
     user_camera {

@@ -246,6 +246,9 @@ For full details on what is new in BigBlueButton 3.0, see the release notes.
 
 Recent releases:
 
+- [3.0.14](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.14)
+- [3.0.13](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.13)
+- [3.0.12](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.12)
 - [3.0.11](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.11)
 - [3.0.10](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.10)
 - [3.0.9](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.9)
@@ -369,8 +372,6 @@ Added
 - `textFileCreationExecTimeoutInMs` added
 - `presDownloadReadTimeoutInMs` added
 - `pngCreationConversionTimeout` added
-- `pngCreationWait` added
-- `pdfToSvgTimeout` added
 - `imageResizeWait` added
 - `officeDocumentValidationTimeout` added
 - `presOfficeConversionTimeout` added

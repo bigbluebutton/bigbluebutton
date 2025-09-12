@@ -248,27 +248,52 @@ select_permissions:
       columns:
         - authToken
         - authed
+        - avatar
+        - away
         - banned
+        - captionLocale
+        - clientType
         - color
+        - currentlyInMeeting
         - disconnected
+        - echoTestRunningAt
         - ejectReason
         - ejectReasonCode
         - ejected
+        - enforceLayout
         - expired
-        - logoutUrl
-        - currentlyInMeeting
-        - isModerator
         - extId
+        - firstName
+        - firstNameSortable
         - guest
         - guestStatus
+        - hasDrawPermissionOnCurrentPage
+        - inactivityWarningDisplay
+        - inactivityWarningTimeoutSecs
+        - isDialIn
+        - isModerator
+        - isRunningEchoTest
         - joinErrorCode
         - joinErrorMessage
         - joined
+        - lastName
+        - lastNameSortable
+        - locked
         - loggedOut
+        - logoutUrl
+        - mobile
         - name
+        - nameSortable
+        - pinned
+        - presenter
+        - raiseHand
+        - reactionEmoji
         - registeredAt
         - registeredOn
+        - role
+        - speechLocale
         - userId
+        - webcamBackground
       filter:
         _and:
           - meetingId:

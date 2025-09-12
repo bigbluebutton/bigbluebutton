@@ -34,6 +34,7 @@ systemd-run --user --pipe --wait --quiet --same-dir                   \
   --property=MemoryHigh="${BBB_PRESENTATION_CONVERSION_MEMORY_HIGH}"  \
   --property=MemoryMax="${BBB_PRESENTATION_CONVERSION_MEMORY_MAX}"    \
   --property=MemorySwapMax=0                                          \
+  --property=UMask=0022                                               \
   "$@"
 
 exit $?   # propagate the child’s exit status

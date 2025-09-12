@@ -6,8 +6,9 @@ import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import org.bigbluebutton.ClientSettings
 import org.bigbluebutton.ClientSettings.getPluginsFromConfig
 import org.bigbluebutton.core.db.PluginDAO
-import org.slf4j.LoggerFactory
+import org.slf4j.{Logger, LoggerFactory}
 import com.github.zafarkhaja.semver.Version
+import org.bigbluebutton.core.exceptions.PluginHtml5VersionValidationException
 
 import java.util
 
@@ -50,48 +51,59 @@ case class PluginManifestContent(
 )
 
 case class PluginManifest(
-    url:     String,
-    content: PluginManifestContent
+    url:                    String,
+    content:                Option[PluginManifestContent],
 )
 
 case class Plugin(
-    manifest: PluginManifest
+    manifest: PluginManifest,
+    loadFailureReason: Option[String],
+    loadFailureSource: Option[String]
 )
 
 object PluginModel {
-  val logger = LoggerFactory.getLogger(this.getClass)
+  val logger: Logger = LoggerFactory.getLogger(this.getClass)
   private val objectMapper: ObjectMapper = new ObjectMapper()
 
   objectMapper.registerModule(new DefaultScalaModule())
   objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-  def getPluginByName(instance: PluginModel, pluginName: String): Option[Plugin] = {
-    instance.plugins.get(pluginName)
+  def getPluginManifestContentByName(instance: PluginModel, pluginName: String): Option[PluginManifestContent] = {
+    instance.plugins.get(pluginName) match {
+      case Some(p) => p.manifest.content
+      case None => None
+    }
   }
   def getPlugins(instance: PluginModel): Map[String, Plugin] = {
     instance.plugins
   }
   private def replaceRelativeJavascriptEntrypoint(plugin: Plugin): Plugin = {
-    val jsEntrypoint = plugin.manifest.content.javascriptEntrypointUrl
-    if (jsEntrypoint.startsWith("http://") || jsEntrypoint.startsWith("https://")) {
-      plugin
-    } else {
-      val absoluteJavascriptEntrypoint = makeAbsoluteUrl(plugin, jsEntrypoint)
-      val newPluginManifestContent = plugin.manifest.content.copy(javascriptEntrypointUrl = absoluteJavascriptEntrypoint)
-      val newPluginManifest = plugin.manifest.copy(content = newPluginManifestContent)
-      plugin.copy(manifest = newPluginManifest)
+    plugin.manifest.content match {
+      case Some(pluginScalaContent) =>
+        val jsEntrypoint = pluginScalaContent.javascriptEntrypointUrl
+        if (!jsEntrypoint.startsWith("http://") && !jsEntrypoint.startsWith("https://")) {
+          val absoluteJavascriptEntrypoint = makeAbsoluteUrl(plugin, jsEntrypoint)
+          val newPluginManifestContent = pluginScalaContent.copy(javascriptEntrypointUrl = absoluteJavascriptEntrypoint)
+          val newPluginManifest = plugin.manifest.copy(content = Some(newPluginManifestContent))
+          return plugin.copy(manifest = newPluginManifest)
+        }
     }
+    plugin
   }
   private def replaceRelativeLocalesBaseUrl(plugin: Plugin): Plugin = {
-    val localesBaseUrl = plugin.manifest.content.localesBaseUrl
-    localesBaseUrl match {
-      case Some(value: String) =>
-        if (value.startsWith("http://") || value.startsWith("https://")) {
-          plugin
-        } else {
-          val absoluteLocalesBaseUrl = makeAbsoluteUrl(plugin = plugin, relativeUrl = value)
-          val newPluginManifestContent = plugin.manifest.content.copy(localesBaseUrl = Some(absoluteLocalesBaseUrl))
-          val newPluginManifest = plugin.manifest.copy(content = newPluginManifestContent)
-          plugin.copy(manifest = newPluginManifest)
+    plugin.manifest.content match {
+      case Some(pluginManifestContent) =>
+        val localesBaseUrl = pluginManifestContent.localesBaseUrl
+        localesBaseUrl match {
+          case Some(value: String) =>
+            if (value.startsWith("http://") || value.startsWith("https://")) {
+              plugin
+            } else {
+              val absoluteLocalesBaseUrl = makeAbsoluteUrl(plugin = plugin, relativeUrl = value)
+              val newPluginManifestContent = pluginManifestContent.copy(localesBaseUrl = Some(absoluteLocalesBaseUrl))
+              val newPluginManifest = plugin.manifest.copy(content = Some(newPluginManifestContent))
+              plugin.copy(manifest = newPluginManifest)
+            }
+          case None => plugin
         }
       case None => plugin
     }
@@ -175,27 +187,33 @@ object PluginModel {
 
     var pluginSettings = getPluginsFromConfig(clientSettings)
 
-    instance.plugins = instance.plugins.filter { case (_, plugin) =>
-      val pluginName = plugin.manifest.content.name
-      logger.info("Validating settings for plugin {}", pluginName)
-
-      plugin.manifest.content.settingsSchema match {
-        case Some(schemaList) =>
-          schemaList.forall { settingSchemaEntry =>
-            if (!settingSchemaEntry.required) true
-            else {
-              val (settingValid, updatedPluginSettingMap) = validateAndApplySettingHelper(
-                pluginSettings, pluginName, settingSchemaEntry)
-              pluginSettings = updatedPluginSettingMap
-              if (!settingValid) logger.warn("Plugin [{}] will be skipped due to invalid setting [{}]",
-                pluginName, settingSchemaEntry.name)
-              settingValid
-            }
+    instance.plugins = instance.plugins.map { case (pluginName, plugin) =>
+      plugin.manifest.content match {
+        case Some(pluginManifest) =>
+          val pluginName = pluginManifest.name
+          logger.info("Validating settings for plugin {}", pluginName)
+          if (pluginManifest.settingsSchema match {
+            case Some(schemaList) =>
+              schemaList.forall { settingSchemaEntry =>
+                if (!settingSchemaEntry.required) true
+                else {
+                  val (settingValid, updatedPluginSettingMap) = validateAndApplySettingHelper(
+                    pluginSettings, pluginName, settingSchemaEntry)
+                  pluginSettings = updatedPluginSettingMap
+                  if (!settingValid) logger.warn("Plugin [{}] will be skipped due to invalid setting [{}]",
+                    pluginName, settingSchemaEntry.name)
+                  settingValid
+                }
+              }
+            case None => true
+          }) (pluginName, plugin)
+          else {
+            val errorMessage = s"Plugin [$pluginName] will not be loaded due to invalid setting"
+            (pluginName, plugin.copy(loadFailureReason = Some(errorMessage)))
           }
-        case None => true
+        case None => (pluginName, plugin)
       }
     }
-
     (instance, pluginSettings.values.toList)
   }
 
@@ -205,8 +223,10 @@ object PluginModel {
       v.satisfies(pluginHtml5SdkRequirement)
     } catch {
       case e: Exception =>
-        logger.error(s"Unexpected error while parsing SDK versions: $e")
-        false
+        val errorMessage = s"Unexpected error while parsing SDK versions: $e"
+        logger.error(errorMessage)
+        throw PluginHtml5VersionValidationException(errorMessage)
+
     }
   }
 
@@ -216,44 +236,87 @@ object PluginModel {
     html5SdkSatisfiesPluginRequiredVersion(html5PluginSdkVersion, pluginManifestRequiredSdkVersion)
   }
 
-    def createPluginModelFromJson(json: util.Map[String, AnyRef],
-                                   html5PluginSdkVersion: String,
-                                   clientSettings: Map[String, Object]): (PluginModel, List[ClientSettings.Plugin]) = {
+  private def createEmptyPluginWithAkkaError(errorMessage: String): Plugin = {
+    Plugin(
+      PluginManifest(
+        "",
+        None,
+      ),
+      Some(errorMessage),
+      Some("bbb-apps-akka")
+    )
+  }
+
+  def createPluginModelFromJson(pluginList: util.Map[String, AnyRef],
+                                html5PluginSdkVersion: String,
+                                clientSettings: Map[String, Object]): (PluginModel, List[ClientSettings.Plugin]) = {
     val instance = new PluginModel()
     var pluginsMap: Map[String, Plugin] = Map.empty[String, Plugin]
-    json.forEach { case (pluginName, plugin) =>
+    pluginList.forEach { case (pluginName, plugin) =>
       try {
         val pluginObject = objectMapper.readValue(objectMapper.writeValueAsString(plugin), classOf[Plugin])
-        val pluginObjectWithAbsoluteUrls = replaceAllRelativeUrls(pluginObject)
-        val hasMatchingVersions = isServerSdkCompatibleWithPlugin(
-          html5PluginSdkVersion, pluginObjectWithAbsoluteUrls.manifest.content.requiredSdkVersion
-        )
-        if (hasMatchingVersions) {
-          pluginsMap = pluginsMap + (pluginName -> pluginObjectWithAbsoluteUrls)
-        } else {
-          logger.error(
-            s"Cannot load plugin {}: system SDK version '{}' does not satisfy plugin requirement '{}'.",
-            pluginName,
-            html5PluginSdkVersion,
-            pluginObjectWithAbsoluteUrls.manifest.content.requiredSdkVersion
+        if (pluginObject.loadFailureReason.isEmpty) {
+          val pluginObjectWithAbsoluteUrls = replaceAllRelativeUrls(pluginObject)
+          val hasMatchingVersions = isServerSdkCompatibleWithPlugin(
+            html5PluginSdkVersion, pluginObjectWithAbsoluteUrls.manifest.content.get.requiredSdkVersion
           )
-        }
+          if (hasMatchingVersions) {
+            pluginsMap = pluginsMap + (pluginName -> pluginObjectWithAbsoluteUrls)
+          } else {
+            val errorMessage = s"Cannot load plugin [$pluginName]:" +
+              s" system SDK version [$html5PluginSdkVersion] does not satisfy plugin" +
+              s" requirement [${pluginObjectWithAbsoluteUrls.manifest.content.get.requiredSdkVersion}]."
+            logger.error(errorMessage)
+            pluginsMap = pluginsMap + (
+              pluginName -> pluginObjectWithAbsoluteUrls.copy(
+                loadFailureReason = Some(errorMessage), loadFailureSource = Some("bbb-apps-akka")
+              ))
+          }
+        } else pluginsMap = pluginsMap + (pluginName -> Plugin(
+          PluginManifest(
+            pluginObject.manifest.url,
+            None,
+          ),
+          pluginObject.loadFailureReason,
+          pluginObject.loadFailureSource
+        ))
       } catch {
-        case err @ (_: JsonProcessingException | _: JsonMappingException) => logger.error(
-          s"Error while processing plugin $pluginName: $err"
-        )
-        case err @ (_: NumberFormatException) => logger.error(
-          s"Plugin SDK version of either HTML5 or plugin manifest couldn't be parsed ($pluginName): $err"
-        )
+        case err @ (_: JsonProcessingException | _: JsonMappingException) =>
+          val errorMessage = s"Error while processing plugin [$pluginName]: $err"
+          pluginsMap = pluginsMap + (pluginName -> createEmptyPluginWithAkkaError(errorMessage))
+          logger.error(errorMessage)
+        case err @ (_: NumberFormatException) =>
+          val errorMessage = s"Plugin SDK version of either HTML5 or plugin manifest couldn't be parsed [$pluginName]: $err"
+          pluginsMap = pluginsMap + (pluginName -> createEmptyPluginWithAkkaError(errorMessage))
+          logger.error(errorMessage)
+        case err @ (_: PluginHtml5VersionValidationException) =>
+          val errorMessage = err.message
+          pluginsMap = pluginsMap + (pluginName -> createEmptyPluginWithAkkaError(errorMessage))
+        case err @ (_: Exception) =>
+          val errorMessage = s"Generic exception in akka for plugin [$pluginName]: ${err.getMessage}"
+          pluginsMap = pluginsMap + (pluginName -> createEmptyPluginWithAkkaError(errorMessage))
+          logger.error(errorMessage, err)
       }
     }
     instance.plugins = pluginsMap
     validatePluginsBeforeCreateModel(instance, clientSettings)
   }
+
   def persistPluginsForClient(meetingId: String, instance: PluginModel): Unit = {
-    instance.plugins.foreach { case (_, plugin) =>
-      PluginDAO.insert(meetingId, plugin.manifest.content.name, plugin.manifest.content.javascriptEntrypointUrl,
-        plugin.manifest.content.javascriptEntrypointIntegrity.getOrElse(""), plugin.manifest.content.localesBaseUrl)
+    instance.plugins.foreach { case (pluginNameRaw, plugin) =>
+      val pluginName = if (plugin.manifest.url == pluginNameRaw) "unidentified-plugin" else pluginNameRaw
+      plugin.manifest.content match {
+        case Some(pluginManifestContent) =>
+          PluginDAO.insert(meetingId, pluginName, pluginManifestContent.javascriptEntrypointUrl,
+            pluginManifestContent.javascriptEntrypointIntegrity.getOrElse(""), pluginManifestContent.localesBaseUrl,
+            plugin.loadFailureReason, plugin.loadFailureSource,
+          )
+        case None =>
+          PluginDAO.insert(meetingId, pluginName, "",
+            "", None, plugin.loadFailureReason, plugin.loadFailureSource
+          )
+      }
+
     }
   }
 }

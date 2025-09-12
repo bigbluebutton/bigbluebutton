@@ -81,6 +81,7 @@ const RecordingNotifyModal: React.FC<RecordingNotifyModalProps> = ({
       {...{
         isOpen,
         priority,
+        modalIsOpen: isOpen,
       }}
     >
       <Styled.Container>
