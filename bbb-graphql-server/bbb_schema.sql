@@ -428,24 +428,24 @@ AS SELECT "user"."userId",
     "user"."captionLocale",
     CASE WHEN "user"."echoTestRunningAt" > current_timestamp - INTERVAL '3 seconds' THEN TRUE ELSE FALSE END "isRunningEchoTest",
     "user"."hasDrawPermissionOnCurrentPage",
-    CASE WHEN "user"."role" = 'MODERATOR' THEN true ELSE false END "isModerator",
+    "user"."isModerator",
     "user"."currentlyInMeeting"
   FROM "user"
   WHERE "user"."currentlyInMeeting" is true;
 
-
 CREATE INDEX "idx_v_user_meetingId_orderByColumns" ON "user"(
-                        "meetingId",
-                        "presenter",
-                        "role",
-                        "raiseHandTime",
-                        "isDialIn",
-                        "hasDrawPermissionOnCurrentPage",
-                        "nameSortable",
-                        "registeredAt",
-                        "userId"
-                        )
-                where "user"."currentlyInMeeting" is true;
+    "meetingId",
+    "presenter" DESC NULLS FIRST,
+    "role" ASC NULLS LAST,
+    "raiseHandTime" ASC NULLS LAST,
+    "isDialIn" DESC NULLS FIRST,
+    "hasDrawPermissionOnCurrentPage" DESC NULLS FIRST,
+    "nameSortable" ASC NULLS LAST,
+    "registeredAt" ASC NULLS LAST,
+    "userId" ASC NULLS LAST
+)
+WHERE "currentlyInMeeting" IS TRUE;
+
 
 CREATE OR REPLACE VIEW "v_user_current"
 AS SELECT "user"."userId",
@@ -493,7 +493,7 @@ AS SELECT "user"."userId",
     "user"."hasDrawPermissionOnCurrentPage",
     "user"."echoTestRunningAt",
     CASE WHEN "user"."echoTestRunningAt" > current_timestamp - INTERVAL '3 seconds' THEN TRUE ELSE FALSE END "isRunningEchoTest",
-    CASE WHEN "user"."role" = 'MODERATOR' THEN true ELSE false END "isModerator",
+    "user"."isModerator",
     "user"."currentlyInMeeting",
     "user"."inactivityWarningDisplay",
     "user"."inactivityWarningTimeoutSecs"
@@ -555,7 +555,7 @@ AS SELECT
     "user"."speechLocale",
     "user"."captionLocale",
     "user"."hasDrawPermissionOnCurrentPage",
-    CASE WHEN "user"."role" = 'MODERATOR' THEN true ELSE false END "isModerator",
+    "user"."isModerator",
     "user"."currentlyInMeeting"
    FROM "user";
 
@@ -565,7 +565,7 @@ AS SELECT
     "user"."meetingId",
     "user"."userId",
     "user"."extId",
-    CASE WHEN "user"."role" = 'MODERATOR' THEN true ELSE false END "isModerator",
+    "user"."isModerator",
     "user"."currentlyInMeeting"
 FROM "user"
 where "firstJoinedAt" is not null;
