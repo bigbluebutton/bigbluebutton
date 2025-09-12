@@ -59,21 +59,26 @@ interface ButtonProps {
 
 const PanelSeparator = styled(BaseSeparator)``;
 
-const BoxContainer = styled(ScrollboxVertical)`
-  overflow-x: auto;
+const BoxContainer = styled.div`
   display: grid;
   @media ${smallUp} {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   grid-gap: 1.6rem 1rem;
   box-sizing: border-box;
   padding-bottom: 1rem;
+
+  .grid > * {
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
 `;
 
 const ContentContainer = styled.div`
   @media ${smallUp} {
     display: grid;
-    grid-template-columns: 1fr 2fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
     grid-template-areas: "sidebar content";
   }
   @media ${smallOnly} {
@@ -81,6 +86,12 @@ const ContentContainer = styled.div`
     flex-direction: column;
   }
   grid-gap: 1rem;
+
+  .grid > * {
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
 `;
 
 const Alert = styled.div<withValidProp>`
@@ -153,7 +164,6 @@ const BreakoutNameInput = styled.input`
 
 const BreakoutBox = styled(ScrollboxVertical)`
   min-height: 10rem;
-  min-width: 8rem;
   border-radius: 1rem;
   padding: ${lgPaddingY} 0;
   background: ${colorGrayUserListToolbar};
@@ -512,7 +522,6 @@ const Modal = styled(ModalSimple)`
   min-width: 50vw;
   max-width: 80vw;
   max-height: 95vh;
-  overflow-x: hidden;
 
   @media ${smallOnly} {
     min-width: 100% !important;
