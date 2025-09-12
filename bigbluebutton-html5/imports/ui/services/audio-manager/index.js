@@ -20,6 +20,7 @@ import {
 } from '/imports/api/audio/client/bridge/service';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import { makeVar } from '@apollo/client';
+import { hasMediaDevicesEventTarget } from '/imports/ui/services/webrtc-base/utils';
 import AudioErrors from '/imports/ui/services/audio-manager/error-codes';
 import GrahqlSubscriptionStore, { stringToHash } from '/imports/ui/core/singletons/subscriptionStore';
 import VOICE_ACTIVITY from '../../core/graphql/queries/whoIsTalking';
@@ -54,7 +55,34 @@ const FILTER_AUDIO_STATS = [
   'transport',
 ];
 
+const checkMediaDevicesTarget = () => {
+  if (!hasMediaDevicesEventTarget()) {
+    logger.warn({
+      logCode: 'media_devices_event_target_unavailable',
+      extraInfo: {
+        hasMediaDevicesIface: typeof navigator?.mediaDevices !== 'undefined',
+      },
+    }, 'navigator.mediaDevices EventTarget unavailable');
+  }
+};
+
 class AudioManager {
+  static playAudioElement(element) {
+    return new Promise((resolve) => {
+      if (!(element instanceof HTMLMediaElement)) {
+        // Provided element is not a valid audio/video element.
+        resolve(false);
+        return;
+      }
+
+      element.play().then(() => {
+        resolve(true);
+      }).catch(() => {
+        resolve(false);
+      });
+    });
+  }
+
   constructor() {
     this._breakoutAudioTransferStatus = {
       status: BREAKOUT_AUDIO_TRANSFER_STATES.DISCONNECTED,
@@ -69,6 +97,7 @@ class AudioManager {
       isListenOnly: makeVar(false),
       isEchoTest: makeVar(false),
       isTalking: makeVar(false),
+      isDeafened: makeVar(true),
       isWaitingPermissions: makeVar(false),
       error: makeVar(null),
       autoplayBlocked: makeVar(false),
@@ -91,15 +120,18 @@ class AudioManager {
     this.failedMediaElements = [];
     this.BREAKOUT_AUDIO_TRANSFER_STATES = BREAKOUT_AUDIO_TRANSFER_STATES;
     this._voiceActivityObserver = null;
+    this._inputStreamInactivityTrackers = new Map();
 
     this.handlePlayElementFailed = this.handlePlayElementFailed.bind(this);
     this.monitor = this.monitor.bind(this);
     this.isUsingAudio = this.isUsingAudio.bind(this);
     this.callStateCallback = this.callStateCallback.bind(this);
     this.onBeforeUnload = this.onBeforeUnload.bind(this);
+    this.handleMediaStreamInactive = this.handleMediaStreamInactive.bind(this);
 
     window.addEventListener('StopAudioTracks', () => this.forceExitAudio());
     window.addEventListener('beforeunload', this.onBeforeUnload);
+    checkMediaDevicesTarget();
   }
 
   onBeforeUnload() {
@@ -247,6 +279,10 @@ class AudioManager {
     return this.outputDevices.map((device) => device.toJSON());
   }
 
+  isAudioConnected() {
+    return this.isConnected && !this.isDeafened;
+  }
+
   async enumerateDevices() {
     try {
       const devices = await navigator.mediaDevices.enumerateDevices();
@@ -310,9 +346,9 @@ class AudioManager {
     this.userData = userData;
     this.inputDeviceId = getStoredAudioInputDeviceId() || DEFAULT_INPUT_DEVICE_ID;
     this.outputDeviceId = getCurrentAudioSinkId();
-    this._applyCachedOutputDeviceId();
     this._trackPermissionStatus();
     this.loadBridges(bridges, userData);
+    this._applyCachedOutputDeviceId();
     this.transparentListenOnlySupported = this.supportsTransparentListenOnly();
     this.audioEventHandler = audioEventHandler;
     this.observeVoiceActivity();
@@ -682,10 +718,17 @@ class AudioManager {
     }
   }
 
-  onAudioJoin() {
+  onAudioJoin({ deafened = false } = {}) {
     this.isConnected = true;
+    this.isDeafened = deafened;
     this.isConnecting = false;
+    this.isHangingUp = false;
     const STATS = window.meetingClientSettings.public.stats;
+
+    // If the user is deafened, we don't want to proceed any further until
+    // undeafened. Callers that specify deafened = true should handle this case
+    // accordingly by calling this method again when the user is undeafened.
+    if (deafened) return;
 
     try {
       if (!this.isListenOnly) {
@@ -779,9 +822,10 @@ class AudioManager {
     this.isConnecting = false;
     this.isHangingUp = false;
     this.autoplayBlocked = false;
+    this.isDeafened = true;
     this.failedMediaElements = [];
 
-    if (this.inputStream) {
+    if (this.inputStream && this.bridge?.bridgeName !== 'livekit') {
       this.inputStream.getTracks().forEach((track) => track.stop());
       this.inputStream = null;
     }
@@ -836,7 +880,7 @@ class AudioManager {
           status: BREAKOUT_AUDIO_TRANSFER_STATES.DISCONNECTED,
         });
         const errorKey = this.messages.error[error] || this.messages.error.GENERIC_ERROR;
-        const errorMsg = this.intl.formatMessage(errorKey, { 0: bridgeError });
+        const errorMsg = this.intl.formatMessage(errorKey, { reason: bridgeError });
         const secondsToAudioFailure = this._calculateAudioJoinTime();
         this.error = !!error;
         logger.error({
@@ -903,6 +947,81 @@ class AudioManager {
     return Boolean(this.isConnected || this.isConnecting || this.isHangingUp);
   }
 
+  handleMediaStreamInactive(stream) {
+    logger.warn({
+      logCode: 'audiomanager_stream_inactive',
+      extraInfo: {
+        currentStreamData: MediaStreamUtils.getMediaStreamLogData(this.inputStream),
+        streamData: MediaStreamUtils.getMediaStreamLogData(stream),
+      },
+    }, 'Audio stream has become inactive');
+
+    if (stream === this.inputStream) {
+      this.inputStream = null;
+
+      // Reset the input device (and consequently the stream) if it's inactive
+      if (this.isUsingAudio()) {
+        this.liveChangeInputDevice(DEFAULT_INPUT_DEVICE_ID).catch((error) => {
+          logger.error({
+            logCode: 'audiomanager_stream_inactive_device_reset_failed',
+            extraInfo: {
+              errorName: error.name,
+              errorMessage: error.message,
+            },
+          }, `Failed to reset input device after stream became inactive: ${error.message}`);
+        });
+      }
+    }
+  }
+
+  trackStreamTermination(stream) {
+    if (!stream || !stream?.active) return;
+
+    try {
+      if (this._inputStreamInactivityTrackers.has(stream.id)) {
+        const prevHandler = this._inputStreamInactivityTrackers.get(stream.id);
+
+        stream.removeEventListener('inactive', prevHandler);
+        stream.getAudioTracks().forEach((track) => {
+          track.removeEventListener('ended', prevHandler);
+          // eslint-disable-next-line no-param-reassign
+          track.onended = null;
+        });
+        this._inputStreamInactivityTrackers.delete(stream.id);
+      }
+
+      const handler = () => {
+        if (this._inputStreamInactivityTrackers.has(stream.id)) {
+          this.handleMediaStreamInactive(stream);
+          this._inputStreamInactivityTrackers.delete(stream.id);
+        }
+      };
+
+      this._inputStreamInactivityTrackers.set(stream.id, handler);
+
+      if (stream.oninactive === null) {
+        stream.addEventListener('inactive', handler, { once: true });
+      } else {
+        const track = stream.getAudioTracks(stream)[0];
+
+        if (track) {
+          track.addEventListener('ended', handler, { once: true });
+          // Extra safeguard: Firefox doesn't fire the 'ended' when it should
+          // but it invokes the callback (?), so hook up to both
+          track.onended = handler;
+        }
+      }
+    } catch (error) {
+      logger.error({
+        logCode: 'audiomanager_stream_termination_tracking_failed',
+        extraInfo: {
+          errorName: error.name,
+          errorMessage: error.message,
+        },
+      }, `Failed to track stream termination - {${error.name}: ${error.message}}`);
+    }
+  }
+
   changeInputDevice(deviceId) {
     if (deviceId === this.inputDeviceId) return this.inputDeviceId;
 
@@ -930,7 +1049,7 @@ class AudioManager {
         this.inputStream = stream;
         const extractedDeviceId = MediaStreamUtils.extractDeviceIdFromStream(
           this.inputStream,
-          'audio'
+          'audio',
         );
         if (extractedDeviceId && extractedDeviceId !== this.inputDeviceId) {
           this.changeInputDevice(extractedDeviceId);
@@ -938,7 +1057,7 @@ class AudioManager {
         // Live input device change - add device ID to session storage so it
         // can be re-used on refreshes/other sessions
         storeAudioInputDeviceId(extractedDeviceId);
-        this.setSenderTrackEnabled(!this.isMuted);
+        if (this.isMuted) this.setSenderTrackEnabled(false);
       })
       .catch((error) => {
         logger.error({
@@ -1025,11 +1144,24 @@ class AudioManager {
   }
 
   set inputStream(stream) {
+    const previousStream = this.inputStream;
+
     // We store reactive information about input stream
     // because mutedalert component needs to track when it changes
     // and then update hark with the new value for inputStream
-
     this._inputStream(stream);
+
+    if (!stream) {
+      this._inputStreamInactivityTrackers.clear();
+
+      return;
+    }
+
+    if (previousStream && previousStream?.id !== stream?.id) {
+      this._inputStreamInactivityTrackers.delete(previousStream.id);
+    }
+
+    this.trackStreamTermination(stream);
   }
 
   /**
@@ -1179,16 +1311,18 @@ class AudioManager {
     const audioAlert = new Audio(url);
 
     audioAlert.addEventListener('ended', () => {
-      audioAlert.src = null;
+      audioAlert.src = '';
     });
 
     const { outputDeviceId } = this.bridge;
 
     if (outputDeviceId && typeof audioAlert.setSinkId === 'function') {
-      return audioAlert.setSinkId(outputDeviceId).then(() => audioAlert.play());
+      return audioAlert
+        .setSinkId(outputDeviceId)
+        .then(() => AudioManager.playAudioElement(audioAlert));
     }
 
-    return audioAlert.play();
+    return AudioManager.playAudioElement(audioAlert);
   }
 
   async updateAudioConstraints(constraints) {

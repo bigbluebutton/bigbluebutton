@@ -24,6 +24,17 @@ const getCurrentAudioSessionNumber = () => sessionStorage.getItem(AUDIO_SESSION_
 const reloadAudioElement = (audioElement) => {
   if (audioElement && (audioElement.readyState > 0)) {
     audioElement.load();
+    if (audioElement.paused) {
+      audioElement.play().catch((error) => {
+        logger.error({
+          logCode: 'audio_reload_element_play_error',
+          extraInfo: {
+            errorName: error.name,
+            errorMessage: error.message,
+          },
+        }, 'Error playing audio element after reload');
+      });
+    }
     return true;
   }
 

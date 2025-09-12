@@ -1,30 +1,26 @@
 import { gql } from '@apollo/client';
 
 export interface BreakoutRoom {
-  freeJoin: boolean;
   shortName: string;
-  sendInvitationToModerators: boolean;
   sequence: number;
   showInvitation: boolean;
   isLastAssignedRoom: boolean;
-  isUserCurrentlyInRoom: boolean;
-  isDefaultName: boolean;
   joinURL: string | null;
   breakoutRoomId: string;
+  isDefaultName: boolean;
+  isUserCurrentlyInRoom: boolean;
+  participants: Array<{
+    userId: string;
+    isAudioOnly: string;
+    user: {
+      name: string;
+      nameSortable: string;
+    }
+  }>
 }
 
 export interface GetBreakoutDataResponse {
   breakoutRoom: BreakoutRoom[];
-}
-
-export interface BreakoutRoomAggregate {
-  aggregate: {
-    count: number;
-  };
-}
-
-export interface GetBreakoutCountResponse {
-  breakoutRoom_aggregate: BreakoutRoomAggregate;
 }
 
 export const handleInviteDismissedAt = gql`
@@ -33,34 +29,29 @@ export const handleInviteDismissedAt = gql`
   }
 `;
 
-export const getBreakoutCount = gql`
-  subscription getBreakoutCount  {
-    breakoutRoom_aggregate (where: {showInvitation: {_eq: true}}) {
-      aggregate {
-        count
+export const getBreakoutData = gql`
+  subscription Patched_getBreakoutData {
+    breakoutRoom(order_by: {sequence: asc}){
+      shortName
+      sequence
+      showInvitation
+      isLastAssignedRoom
+      joinURL
+      breakoutRoomId
+      isDefaultName
+      isUserCurrentlyInRoom
+      participants(order_by: {userId: asc}) {
+        userId
+        isAudioOnly
+        user {
+          name
+          nameSortable
+        }
       }
     }
   }
 `;
 
-export const getBreakoutData = gql`
-  subscription getBreakoutData {
-    breakoutRoom {
-      freeJoin
-      shortName
-      sendInvitationToModerators
-      sequence
-      showInvitation
-      isLastAssignedRoom
-      isUserCurrentlyInRoom
-      isDefaultName
-      joinURL
-      breakoutRoomId
-    }
-  }
-`;
-
 export default {
-  getBreakoutCount,
   getBreakoutData,
 };

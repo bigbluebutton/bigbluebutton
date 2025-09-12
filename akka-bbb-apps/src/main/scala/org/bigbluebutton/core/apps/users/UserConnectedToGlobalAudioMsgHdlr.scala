@@ -39,6 +39,8 @@ trait UserConnectedToGlobalAudioMsgHdlr {
         callerNum = user.name,
         color = user.color,
         muted = true,
+        listenOnlyInputDevice = false,
+        deafened = false,
         talking = false,
         listenOnly = true,
         "kms",

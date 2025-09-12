@@ -1,8 +1,7 @@
 import React, { useEffect, useReducer, useRef } from 'react';
 import { createContext, useContextSelector } from 'use-context-selector';
 import PropTypes from 'prop-types';
-import { equals } from 'ramda';
-import { PINNED_PAD_SUBSCRIPTION } from '/imports/ui/components/notes/queries';
+import { clone, equals } from 'ramda';
 import {
   ACTIONS, PRESENTATION_AREA, PANELS, LAYOUT_TYPE,
 } from '/imports/ui/components/layout/enums';
@@ -10,9 +9,9 @@ import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
 import { INITIAL_INPUT_STATE, INITIAL_OUTPUT_STATE } from './initState';
 import useUpdatePresentationAreaContentForPlugin from '/imports/ui/components/plugins-engine/ui-data-hooks/layout/presentation-area/utils';
 import { useIsPresentationEnabled } from '/imports/ui/services/features';
-import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 import { usePrevious } from '../whiteboard/utils';
 import Session from '/imports/ui/services/storage/in-memory';
+import useMeeting from '../../core/hooks/useMeeting';
 
 // variable to debug in console log
 const debug = false;
@@ -49,6 +48,7 @@ const initState = {
   deviceType: null,
   isRTL: DEFAULT_VALUES.isRTL,
   layoutType: DEFAULT_VALUES.layoutType,
+  layoutLoading: true,
   fontSize: DEFAULT_VALUES.fontSize,
   idChatOpen: '',
   fullscreen: {
@@ -85,18 +85,6 @@ const reducer = (state, action) => {
       return {
         ...state,
         input: typeof action.value === 'function' ? action.value(state.input) : action.value,
-      };
-    }
-
-    case ACTIONS.SET_AUTO_ARRANGE_LAYOUT: {
-      const { autoarrAngeLayout } = state.input;
-      if (autoarrAngeLayout === action.value) return state;
-      return {
-        ...state,
-        input: {
-          ...state.input,
-          autoarrAngeLayout: action.value,
-        },
       };
     }
 
@@ -1170,7 +1158,7 @@ const reducer = (state, action) => {
     // EXTERNAL VIDEO
     case ACTIONS.SET_HAS_EXTERNAL_VIDEO: {
       const { externalVideo } = state.input;
-      if (externalVideo.hasExternalVideo === action.value) {
+      if (externalVideo?.hasExternalVideo === action.value) {
         return state;
       }
       return {
@@ -1241,6 +1229,18 @@ const reducer = (state, action) => {
             display,
           },
         },
+      };
+    }
+
+    // LAYOUT TYPE MANAGEMENT
+    case ACTIONS.SET_LAYOUT_LOADING: {
+      const { layoutLoading } = state;
+      if (layoutLoading === action.value) {
+        return state;
+      }
+      return {
+        ...state,
+        layoutLoading: action.value,
       };
     }
 
@@ -1389,21 +1389,21 @@ const updatePresentationAreaContent = (
   isPresentationEnabled,
 ) => {
   const { layoutType } = layoutContextState;
-  const { sidebarContent } = layoutContextState.input;
+  const { sidebarContent, sharedNotes } = layoutContextState.input;
   const {
     presentationAreaContentActions: currentPresentationAreaContentActions,
   } = layoutContextState;
   if (!equals(
-    currentPresentationAreaContentActions,
-    previousPresentationAreaContentActions.current,
+    currentPresentationAreaContentActions.map((action) => action.value.content),
+    previousPresentationAreaContentActions.current.map((action) => action.value.content),
   ) || layoutType !== previousLayoutType) {
     const CHAT_CONFIG = window.meetingClientSettings.public.chat;
     const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
 
     // eslint-disable-next-line no-param-reassign
-    previousPresentationAreaContentActions.current = currentPresentationAreaContentActions.slice(0);
+    previousPresentationAreaContentActions.current = clone(currentPresentationAreaContentActions);
     const lastIndex = currentPresentationAreaContentActions.length - 1;
-    const lastPresentationContentInPile = currentPresentationAreaContentActions[lastIndex];
+    const lastPresentationContentInPile = clone(currentPresentationAreaContentActions[lastIndex]);
     let shouldOpenPresentation = true;
     switch (lastPresentationContentInPile.value.content) {
       case PRESENTATION_AREA.GENERIC_CONTENT: {
@@ -1450,7 +1450,7 @@ const updatePresentationAreaContent = (
         });
         layoutContextDispatch({
           type: ACTIONS.SET_NOTES_IS_PINNED,
-          value: lastPresentationContentInPile.value.open,
+          value: sharedNotes.isPinned,
         });
         break;
       }
@@ -1524,7 +1524,12 @@ const LayoutContextProvider = (props) => {
       },
     }],
   );
-  const { data: pinnedPadData } = useDeduplicatedSubscription(PINNED_PAD_SUBSCRIPTION);
+
+  const { data: currentMeeting } = useMeeting((m) => ({
+    componentsFlags: m.componentsFlags,
+  }));
+
+  const isSharedNotesPinned = currentMeeting?.componentsFlags?.isSharedNotesPinned;
 
   const [layoutContextState, layoutContextDispatch] = useReducer(reducer, initState);
   const isPresentationEnabled = useIsPresentationEnabled();
@@ -1542,26 +1547,20 @@ const LayoutContextProvider = (props) => {
     );
   }, [layoutContextState, isPresentationEnabled]);
   useEffect(() => {
-    const isSharedNotesPinned = !!pinnedPadData
-      && pinnedPadData.sharedNotes[0]?.pinned;
-    if (isSharedNotesPinned) {
+    if (typeof isSharedNotesPinned === 'boolean') {
       layoutContextDispatch({
-        type: ACTIONS.SET_PILE_CONTENT_FOR_PRESENTATION_AREA,
-        value: {
-          content: PRESENTATION_AREA.PINNED_NOTES,
-          open: true,
-        },
+        type: ACTIONS.SET_NOTES_IS_PINNED,
+        value: isSharedNotesPinned,
       });
-    } else {
       layoutContextDispatch({
         type: ACTIONS.SET_PILE_CONTENT_FOR_PRESENTATION_AREA,
         value: {
           content: PRESENTATION_AREA.PINNED_NOTES,
-          open: false,
+          open: isSharedNotesPinned,
         },
       });
     }
-  }, [pinnedPadData]);
+  }, [isSharedNotesPinned]);
   useUpdatePresentationAreaContentForPlugin(layoutContextState);
   return (
     <LayoutContextSelector.Provider value={

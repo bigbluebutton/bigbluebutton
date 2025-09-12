@@ -53,15 +53,30 @@ public class TextFileCreatorImp implements TextFileCreator {
     try {
       success = generateTextFile(textfilesDir, pres, page);
     } catch (InterruptedException e) {
-      log.error("Interrupted Exception while generating thumbnails {}", pres.getName(), e);
+      log.error("Interrupted Exception while generating text files {}", pres.getName(), e);
       success = false;
     }
 
-    // TODO: in case that it doesn't generated the textfile, we should create a
-    // textfile with some message
-    // createUnavailableTextFile
+    if (!success) {
+      createBlankTextFile(textfilesDir, page);
+    }
 
     return success;
+  }
+
+  @Override
+  public void createBlank(UploadedPresentation pres, int page) {
+    File dir =  determineTextfilesDirectory(pres.getUploadedFile());
+
+    if (!dir.exists()) {
+      boolean created = dir.mkdir();
+      if (!created) {
+        log.warn("Failed to create text file directory");
+        return;
+      }
+    }
+
+    createBlankTextFile(dir, page);
   }
 
   private boolean generateTextFile(File textfilesDir,
@@ -99,10 +114,15 @@ public class TextFileCreatorImp implements TextFileCreator {
 
     } else {
       // sudo apt-get install xpdf-utils
-        COMMAND = "pdftotext -raw -nopgbrk -enc UTF-8 -f " + page + " -l " + page
+        COMMAND = "pdftotext -layout -nopgbrk -enc UTF-8 -f " + page + " -l " + page
             + " " + source + " " + dest;
 
         //System.out.println(COMMAND);
+
+      long execTimeout = this.execTimeout;
+      if (execTimeout > pres.getMaxPageConversionTime()) {
+        execTimeout = pres.getMaxPageConversionTime();
+      }
 
         boolean done = new ExternalProcessExecutor().exec(COMMAND, execTimeout);
         if (!done) {
@@ -128,6 +148,20 @@ public class TextFileCreatorImp implements TextFileCreator {
   private File determineTextfilesDirectory(File presentationFile) {
     return new File(
         presentationFile.getParent() + File.separatorChar + "textfiles");
+  }
+
+  private void createBlankTextFile(File textFilesDir, int page) {
+    File textFile = new File(textFilesDir.getAbsolutePath() + File.separatorChar + "slide-" + page + ".txt");
+    try {
+      boolean created = textFile.createNewFile();
+      if (created) {
+        String text = "No text could be retrieved for the slide";
+        Writer writer = new BufferedWriter(new FileWriter(textFile));
+        writer.write(text);
+      }
+    } catch (Exception e) {
+      log.warn("Failed to create blank text file:", e);
+    }
   }
 
   private void cleanDirectory(File directory) {

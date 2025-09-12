@@ -14,6 +14,8 @@ import {
   useIsPollingEnabled,
   useIsPresentationEnabled,
   useIsTimerFeatureEnabled,
+  useIsRaiseHandEnabled,
+  useIsUserReactionsEnabled,
 } from '/imports/ui/services/features';
 
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
@@ -24,7 +26,6 @@ import MediaService from '../media/service';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { EXTERNAL_VIDEO_STOP } from '../external-video-player/mutations';
-import { PINNED_PAD_SUBSCRIPTION } from '../notes/queries';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 import connectionStatus from '../../core/graphql/singletons/connectionStatus';
 import { useMeetingLayoutUpdater, usePushLayoutUpdater } from '../layout/push-layout/hooks';
@@ -35,15 +36,7 @@ import { SMALL_VIEWPORT_BREAKPOINT } from '../layout/enums';
 
 const isLayeredView = window.matchMedia(`(max-width: ${SMALL_VIEWPORT_BREAKPOINT}px)`);
 
-const isReactionsButtonEnabled = () => {
-  const USER_REACTIONS_ENABLED = window.meetingClientSettings.public.userReaction.enabled;
-  const REACTIONS_BUTTON_ENABLED = window.meetingClientSettings.public.app.reactionsButton.enabled;
-
-  return USER_REACTIONS_ENABLED && REACTIONS_BUTTON_ENABLED;
-};
-
 const ActionsBarContainer = (props) => {
-  const NOTES_CONFIG = window.meetingClientSettings.public.notes;
   const LAYOUT_CONFIG = window.meetingClientSettings.public.layout;
   const { showPushLayoutButton } = LAYOUT_CONFIG;
   const actionsBarStyle = layoutSelectOutput((i) => i.actionBar);
@@ -92,9 +85,6 @@ const ActionsBarContainer = (props) => {
   };
   const amIPresenter = currentUserData?.presenter;
   const amIModerator = currentUserData?.isModerator;
-  const { data: pinnedPadData } = useDeduplicatedSubscription(
-    PINNED_PAD_SUBSCRIPTION,
-  );
 
   const allowExternalVideo = useIsExternalVideoEnabled();
   const connected = useReactiveVar(connectionStatus.getConnectedStatusVar());
@@ -102,6 +92,8 @@ const ActionsBarContainer = (props) => {
   const isPresentationEnabled = useIsPresentationEnabled();
   const isTimerFeatureEnabled = useIsTimerFeatureEnabled();
   const isPollingEnabled = useIsPollingEnabled() && isPresentationEnabled;
+  const isRaiseHandEnabled = useIsRaiseHandEnabled();
+  const isReactionsButtonEnabled = useIsUserReactionsEnabled();
   const applicationSettings = useSettings(SETTINGS.APPLICATION);
   const { pushLayout } = applicationSettings;
   const setPushLayout = usePushLayoutUpdater(pushLayout);
@@ -118,10 +110,8 @@ const ActionsBarContainer = (props) => {
     && (deviceInfo.isPhone || isLayeredView.matches);
   if (actionsBarStyle.display === false) return null;
   if (!currentMeeting) return null;
-  if (!pinnedPadData) return null;
 
-  const isSharedNotesPinnedFromGraphql = !!pinnedPadData
-  && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
+  const isSharedNotesPinnedFromGraphql = currentMeeting?.componentsFlags?.isSharedNotesPinned;
 
   const isSharedNotesPinned = isSharedNotesPinnedFromGraphql;
   return (
@@ -132,7 +122,7 @@ const ActionsBarContainer = (props) => {
         showScreenshareQuickSwapButton: window.meetingClientSettings
           .public.layout.showScreenshareQuickSwapButton,
         multiUserTools: getFromUserSettings('bbb_multi_user_tools', window.meetingClientSettings.public.whiteboard.toolbar.multiUserTools),
-        isReactionsButtonEnabled: isReactionsButtonEnabled(),
+        isReactionsButtonEnabled,
         setPresentationIsOpen: MediaService.setPresentationIsOpen,
         hasScreenshare: currentMeeting?.componentsFlags?.hasScreenshare ?? false,
         isMeteorConnected: connected,
@@ -141,6 +131,7 @@ const ActionsBarContainer = (props) => {
         allowExternalVideo,
         isPollingEnabled,
         isPresentationEnabled,
+        isRaiseHandEnabled,
         currentUser,
         amIModerator,
         layoutContextDispatch,
@@ -151,7 +142,7 @@ const ActionsBarContainer = (props) => {
         isSharingVideo,
         stopExternalVideoShare,
         isSharedNotesPinned,
-        isTimerActive: currentMeeting.componentsFlags.hasTimer,
+        isTimerActive: currentMeeting?.componentsFlags?.hasTimer,
         isTimerEnabled: isTimerFeatureEnabled,
         hasGenericContent: isThereGenericMainContent,
         setPushLayout,

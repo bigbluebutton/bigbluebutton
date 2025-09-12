@@ -2,6 +2,7 @@ import React from 'react';
 import { injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import { debounce } from '/imports/utils/debounce';
+import { throttle } from '/imports/utils/throttle';
 import FullscreenButtonContainer from '/imports/ui/components/common/fullscreen-button/container';
 import SwitchButtonContainer from './switch-button/container';
 import Styled from './styles';
@@ -14,7 +15,6 @@ import playAndRetry from '/imports/utils/mediaElementPlayRetry';
 import { notify } from '/imports/ui/services/notification';
 import {
   SCREENSHARE_MEDIA_ELEMENT_NAME,
-  isMediaFlowing,
   screenshareHasEnded,
   screenshareHasStarted,
   setOutputDeviceId,
@@ -23,14 +23,8 @@ import {
   attachLocalPreviewStream,
   setVolume,
   getVolume,
-  getStats,
   setStreamEnabled,
 } from '/imports/ui/components/screenshare/service';
-import {
-  isStreamStateHealthy,
-  subscribeToStreamStateChange,
-  unsubscribeFromStreamStateChange,
-} from '/imports/ui/services/bbb-webrtc-sfu/stream-state-service';
 import { ACTIONS, PRESENTATION_AREA } from '/imports/ui/components/layout/enums';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import deviceInfo from '/imports/utils/deviceInfo';
@@ -38,7 +32,7 @@ import { uniqueId } from '/imports/utils/string-utils';
 import Session from '/imports/ui/services/storage/in-memory';
 
 const MOBILE_HOVER_TIMEOUT = 5000;
-const MEDIA_FLOW_PROBE_INTERVAL = 500;
+const MOBILE_HOVER_INTERVAL = 2000;
 const SCREEN_SIZE_DISPATCH_INTERVAL = 500;
 
 const renderPluginItems = (pluginItems, bottom, right) => {
@@ -81,11 +75,11 @@ class ScreenshareComponent extends React.Component {
     this.state = {
       loaded: false,
       autoplayBlocked: false,
-      mediaFlowing: true,
       switched: false,
       // Volume control hover toolbar
       showHoverToolBar: false,
       screenshareRef: null,
+      videoTagRef: null,
     };
 
     this.onLoadedData = this.onLoadedData.bind(this);
@@ -94,7 +88,6 @@ class ScreenshareComponent extends React.Component {
     this.handleAllowAutoplay = this.handleAllowAutoplay.bind(this);
     this.handlePlayElementFailed = this.handlePlayElementFailed.bind(this);
     this.failedMediaElements = [];
-    this.onStreamStateChange = this.onStreamStateChange.bind(this);
     this.onSwitched = this.onSwitched.bind(this);
     this.handleOnVolumeChanged = this.handleOnVolumeChanged.bind(this);
     this.dispatchScreenShareSize = this.dispatchScreenShareSize.bind(this);
@@ -102,7 +95,7 @@ class ScreenshareComponent extends React.Component {
     this.dispatchScreenShareSize = this.dispatchScreenShareSize.bind(this);
     this.renderScreenshareButtons = this.renderScreenshareButtons.bind(this);
     this.splitPluginItems = this.splitPluginItems.bind(this);
-    this.handleMouseMovement = this.handleMouseMovement.bind(this);
+    this.handleMouseMovement = throttle(this.handleMouseMovement.bind(this), MOBILE_HOVER_INTERVAL);
     this.debouncedDispatchScreenShareSize = debounce(
       this.dispatchScreenShareSize,
       SCREEN_SIZE_DISPATCH_INTERVAL,
@@ -115,7 +108,6 @@ class ScreenshareComponent extends React.Component {
 
     this.volume = getVolume();
     this.mobileHoverSetTimeout = null;
-    this.mediaFlowMonitor = null;
   }
 
   componentDidMount() {
@@ -134,8 +126,6 @@ class ScreenshareComponent extends React.Component {
     screenshareHasStarted(streamId, hasAudio, isPresenter, { outputDeviceId });
     // Autoplay failure handling
     window.addEventListener('screensharePlayFailed', this.handlePlayElementFailed);
-    // Stream health state tracker to propagate UI changes on reconnections
-    subscribeToStreamStateChange('screenshare', this.onStreamStateChange);
     // Attaches the local stream if it exists to serve as the local presenter preview
     attachLocalPreviewStream(getMediaElement());
 
@@ -159,7 +149,7 @@ class ScreenshareComponent extends React.Component {
 
   componentDidUpdate(prevProps, prevState) {
     const { isPresenter, outputDeviceId, shouldShowScreenshare } = this.props;
-    const { screenshareRef } = this.state;
+    const { videoTagRef } = this.state;
     if (prevProps.isPresenter && !isPresenter) {
       screenshareHasEnded();
     }
@@ -178,8 +168,8 @@ class ScreenshareComponent extends React.Component {
       setVolume(this.volume);
     }
 
-    if ((prevState.screenshareRef !== screenshareRef) && screenshareRef) {
-      screenshareRef.addEventListener('mousemove', this.handleMouseMovement);
+    if ((prevState.videoTagRef !== videoTagRef) && videoTagRef) {
+      videoTagRef.addEventListener('mousemove', this.handleMouseMovement);
     }
   }
 
@@ -190,11 +180,10 @@ class ScreenshareComponent extends React.Component {
       layoutContextDispatch,
     } = this.props;
     const {
-      screenshareRef,
+      videoTagRef,
     } = this.state;
     screenshareHasEnded();
     window.removeEventListener('screensharePlayFailed', this.handlePlayElementFailed);
-    unsubscribeFromStreamStateChange('screenshare', this.onStreamStateChange);
 
     const Settings = getSettingsSingletonInstance();
     if (Settings.dataSaving.viewScreenshare) {
@@ -221,13 +210,12 @@ class ScreenshareComponent extends React.Component {
       });
     }
 
-    this.clearMediaFlowingMonitor();
     layoutContextDispatch({
       type: ACTIONS.SET_PRESENTATION_IS_OPEN,
       value: Session.getItem('presentationLastState'),
     });
-    if (screenshareRef) {
-      screenshareRef.removeEventListener('mousemove', this.handleMouseMovement);
+    if (videoTagRef) {
+      videoTagRef.removeEventListener('mousemove', this.handleMouseMovement);
     }
   }
 
@@ -238,13 +226,6 @@ class ScreenshareComponent extends React.Component {
       () => this.setState({ showHoverToolBar: false }),
       MOBILE_HOVER_TIMEOUT,
     );
-  }
-
-  clearMediaFlowingMonitor() {
-    if (this.mediaFlowMonitor) {
-      clearInterval(this.mediaFlowMonitor);
-      this.mediaFlowMonitor = null;
-    }
   }
 
   handleAllowAutoplay() {
@@ -286,34 +267,6 @@ class ScreenshareComponent extends React.Component {
 
       this.setState({ autoplayBlocked: true });
     }
-  }
-
-  async monitorMediaFlow() {
-    let previousStats = await getStats();
-    this.mediaFlowMonitor = setInterval(async () => {
-      const { mediaFlowing: prevMediaFlowing } = this.state;
-      let mediaFlowing;
-
-      const currentStats = await getStats();
-
-      try {
-        mediaFlowing = isMediaFlowing(previousStats, currentStats);
-      } catch (error) {
-        // Stats processing failed for whatever reason - maintain previous state
-        mediaFlowing = prevMediaFlowing;
-        logger.warn({
-          logCode: 'screenshare_media_monitor_stats_failed',
-          extraInfo: {
-            errorName: error.name,
-            errorMessage: error.message,
-          },
-        }, 'Failed to collect screenshare stats, flow monitor');
-      }
-
-      previousStats = currentStats;
-
-      if (prevMediaFlowing !== mediaFlowing) this.setState({ mediaFlowing });
-    }, MEDIA_FLOW_PROBE_INTERVAL);
   }
 
   dispatchScreenShareSize() {
@@ -373,20 +326,6 @@ class ScreenshareComponent extends React.Component {
     // Debounced version of the dispatcher to pace things out - we don't want
     // to hog the CPU just for resize recalculations...
     this.debouncedDispatchScreenShareSize();
-  }
-
-  onStreamStateChange(event) {
-    const { streamState } = event.detail;
-    const { mediaFlowing } = this.state;
-
-    const isStreamHealthy = isStreamStateHealthy(streamState);
-    event.stopPropagation();
-
-    if (isStreamHealthy) {
-      this.clearMediaFlowingMonitor();
-      // Current state is media not flowing - stream is now healthy so flip it
-      if (!mediaFlowing) this.setState({ mediaFlowing: isStreamHealthy });
-    } else if (this.mediaFlowMonitor == null) this.monitorMediaFlow();
   }
 
   renderFullscreenButton() {
@@ -487,13 +426,13 @@ class ScreenshareComponent extends React.Component {
 
   renderVideo(switched) {
     const { isGloballyBroadcasting } = this.props;
-    const { mediaFlowing } = this.state;
+    const { videoTagRef } = this.state;
 
     return (
       <Styled.ScreenshareVideo
         id={SCREENSHARE_MEDIA_ELEMENT_NAME}
         key={SCREENSHARE_MEDIA_ELEMENT_NAME}
-        unhealthyStream={!isGloballyBroadcasting || !mediaFlowing}
+        unhealthyStream={!isGloballyBroadcasting}
         style={switched
           ? { maxHeight: '100%', width: '100%', height: '100%' }
           : { maxHeight: '25%', width: '25%', height: '25%' }}
@@ -502,6 +441,11 @@ class ScreenshareComponent extends React.Component {
         onLoadedMetadata={this.onLoadedMetadata}
         ref={(ref) => {
           this.videoTag = ref;
+          if (!videoTagRef && ref) {
+            this.setState({
+              videoTagRef: ref,
+            });
+          }
         }}
         muted
       />
@@ -633,7 +577,6 @@ class ScreenshareComponent extends React.Component {
     const {
       loaded,
       autoplayBlocked,
-      mediaFlowing,
       switched,
       screenshareRef,
     } = this.state;
@@ -650,15 +593,11 @@ class ScreenshareComponent extends React.Component {
       shouldShowScreenshare,
     } = this.props;
 
-    // Conditions to render the (re)connecting dots and the unhealthy stream
-    // grayscale:
+    // Conditions to render the connecting animation
     // 1 - The local media tag has not received any stream data yet
     // 2 - The user is a presenter and the stream wasn't globally broadcasted yet
-    // 3 - The media was loaded, the stream was globally broadcasted BUT the stream
-    // state transitioned to an unhealthy stream. tl;dr: screen sharing reconnection
     const shouldRenderConnectingState = !loaded
-    || (isPresenter && !isGloballyBroadcasting)
-    || (!mediaFlowing && loaded && isGloballyBroadcasting);
+      || (isPresenter && !isGloballyBroadcasting);
 
     const display = (width > 0 && height > 0) && shouldShowScreenshare ? 'inherit' : 'none';
     const Settings = getSettingsSingletonInstance();

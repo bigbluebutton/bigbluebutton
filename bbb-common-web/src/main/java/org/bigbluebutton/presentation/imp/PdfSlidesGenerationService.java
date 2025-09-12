@@ -22,6 +22,8 @@ package org.bigbluebutton.presentation.imp;
 
 import java.util.ArrayList;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.bigbluebutton.presentation.messages.PageConvertProgressMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,24 +41,38 @@ public class PdfSlidesGenerationService {
     executor = Executors.newFixedThreadPool(numConversionThreads);
   }
 
-  public void process(PageToConvert pageToConvert) {
-    Runnable task = new Runnable() {
-      public void run() {
-        pageToConvert.convert();
-        PageConvertProgressMessage msg = new PageConvertProgressMessage(
-                pageToConvert.getPageNumber(),
-                pageToConvert.getPresId(),
-                pageToConvert.getMeetingId(),
-                new ArrayList<>());
-        presentationConversionCompletionService.handle(msg);
-        // The pdf of the page will be removed after cache storing
-      }
-    };
+  public Future<?> process(PageToConvert pageToConvert) {
+    return executor.submit(() -> {
+      try {
+        log.info("Starting conversion for page {}", pageToConvert.getPageNumber());
+        boolean success = pageToConvert.convert();
 
-    executor.execute(task);
+        if (!success) {
+          log.warn("Conversion cancelled for page {}", pageToConvert.getPageNumber());
+          return;
+        }
+
+        log.info("Conversion finished for page {}, sending progress message", pageToConvert.getPageNumber());
+
+//        PageConvertProgressMessage msg = new PageConvertProgressMessage(
+//                pageToConvert.getPageNumber(),
+//                pageToConvert.getPresId(),
+//                pageToConvert.getMeetingId(),
+//                new ArrayList<>());
+//
+//        presentationConversionCompletionService.handle(msg);
+        log.info("Progress message handled for page {} of presentation [{}] in meeting [{}]", pageToConvert.getPageNumber(), pageToConvert.getPresId(), pageToConvert.getMeetingId());
+      } catch (Throwable t) {
+        log.error("Conversion task failed for page {} of presentation [{}] in meeting [{}]", pageToConvert.getPageNumber(), pageToConvert.getPresId(), pageToConvert.getMeetingId(), t);
+      }
+    });
   }
 
   public void setPresentationConversionCompletionService(PresentationConversionCompletionService s) {
     this.presentationConversionCompletionService = s;
+  }
+
+  public void sendMessage(PageConvertProgressMessage msg) {
+    presentationConversionCompletionService.handle(msg);
   }
 }

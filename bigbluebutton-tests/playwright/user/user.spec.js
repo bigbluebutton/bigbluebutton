@@ -28,16 +28,24 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
       await multiusers.toggleUserList();
     });
 
-    test('Stopwatch', async ({ browser, context, page })=> {
+    test('Stopwatch', async ({ browser, context, page }) => {
       const timer = new Timer(browser, context);
       await timer.initModPage(page, true);
       await timer.stopwatchTest();
     });
 
-    test('Timer', async ({ browser, context, page })=> {
+    test('Timer', async ({ browser, context, page }) => {
       const timer = new Timer(browser, context);
       await timer.initModPage(page, true);
       await timer.timerTest();
+    });
+
+    test('Leave Meeting', async ({ browser, context, page }) => {
+      const multiusers = new MultiUsers(browser, context);
+      await multiusers.initModPage(page, true);
+      await multiusers.initUserPage(true, context);
+      await multiusers.initUserPage2(true, context);
+      await multiusers.leaveMeeting();
     });
   });
 
@@ -188,7 +196,8 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
       });
 
       // https://docs.bigbluebutton.org/3.0/testing/release-testing/#microphone
-      test('Lock Share microphone', async ({ browser, context, page }) => {
+      test('Lock Share microphone', async ({ browser, context, page, browserName }) => {
+        test.skip(browserName === 'firefox', 'It only workss in manual testing');
         const lockViewers = new LockViewers(browser, context);
         await lockViewers.initPages(page);
         await lockViewers.lockShareMicrophone();
@@ -222,13 +231,14 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
         await lockViewers.lockSeeOtherViewersUserList();
       });
 
-      test('Lock see other viewers annotations', { tag: '@flaky' }, async ({ browser, context, page }) => {
+      test('Lock see other viewers annotations', async ({ browser, context, page }) => {
         const lockViewers = new LockViewers(browser, context);
         await lockViewers.initPages(page);
         await lockViewers.lockSeeOtherViewersAnnotations();
       });
 
-      test('Lock see other viewers cursor', async ({ browser, context, page }) => {
+      test('Lock see other viewers cursor', async ({ browser, context, page, browserName }) => {
+        test.skip(browserName === 'firefox', 'The test is inconsistent on Firefox, due to the heavy browser.')
         const lockViewers = new LockViewers(browser, context);
         await lockViewers.initPages(page);
         await lockViewers.lockSeeOtherViewersCursor();
@@ -254,6 +264,20 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
       await multiusers.initModPage2(false);
       await multiusers.initUserPage(false);
       await multiusers.muteAllUsersExceptPresenter();
+    });
+
+    test('Clear all status icon', async ({ browser, context, page }) => {
+      const multiusers = new MultiUsers(browser, context);
+      await multiusers.initModPage(page, true);
+      await multiusers.initModPage2(true);
+      await multiusers.clearAllStatusIcon();
+    });
+
+    test('End meeting', async ({ browser, context, page }) => {
+      const multiusers = new MultiUsers(browser, context);
+      await multiusers.initModPage(page, true);
+      await multiusers.initUserPage(true, context);
+      await multiusers.endMeeting();
     });
   });
 

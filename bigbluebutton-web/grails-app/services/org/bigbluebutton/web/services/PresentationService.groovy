@@ -193,8 +193,6 @@ class PresentationService {
 }
 
 /*** Helper classes **/
-import java.io.FilenameFilter;
-import java.io.File;
 class SvgFilter implements FilenameFilter {
 	public boolean accept(File dir, String name) {
 		return (name.endsWith(".svg"));

@@ -30,7 +30,7 @@ class ExternalVideoDbTableDef(tag: Tag) extends Table[ExternalVideoDbModel](tag,
 }
 
 object ExternalVideoDAO {
-  def insert(meetingId: String, externalVideoUrl: String) = {
+  def insert(meetingId: String, externalVideoUrl: String, initialTime: Double): Unit = {
     DatabaseConnection.enqueue(
       TableQuery[ExternalVideoDbTableDef].forceInsert(
         ExternalVideoDbModel(
@@ -41,7 +41,7 @@ object ExternalVideoDAO {
           stoppedSharingAt = None,
           updatedAt = new java.sql.Timestamp(System.currentTimeMillis()),
           playerPlaybackRate = 1,
-          playerCurrentTime = 0,
+          playerCurrentTime = initialTime,
           playerPlaying = true
         )
       )
@@ -58,8 +58,9 @@ object ExternalVideoDAO {
           rate,
           time,
           status match {
-            case "play" => true
-            case "stop" => false
+            case "play"  => true
+            case "start" => true
+            case "stop"  => false
             case _ => state match {
               case 1 => true
               case 0 => false

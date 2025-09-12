@@ -1,5 +1,13 @@
 import { gql } from '@apollo/client';
 
+export interface UsersCountSubscriptionResponse {
+  user_aggregate: {
+    aggregate: {
+      count: number;
+    };
+  };
+}
+
 export const USER_LIST_SUBSCRIPTION = gql`
 subscription UserListSubscription($offset: Int!, $limit: Int!) {
   user(limit:$limit, offset: $offset, 
@@ -15,6 +23,7 @@ subscription UserListSubscription($offset: Int!, $limit: Int!) {
                 ]) {
     isDialIn
     userId
+    meetingId
     extId
     name
     isModerator
@@ -37,8 +46,10 @@ subscription UserListSubscription($offset: Int!, $limit: Int!) {
     loggedOut
     voice {
       joined
+      deafened
       listenOnly
       voiceUserId
+      listenOnlyInputDevice
     }
     cameras {
       streamId

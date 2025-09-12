@@ -39,7 +39,7 @@ function apiCallUrl(name, callParams) {
   const query = new URLSearchParams(callParams).toString();
   const apiCall = `${name}${query}${parameters.secret}`;
   const checksum = getChecksum(apiCall, parameters.secret);
-  const url = `${parameters.server}/${name}?${query}&checksum=${checksum}`;
+  const url = `${parameters.server}/api/${name}?${query}&checksum=${checksum}`;
   return url;
 }
 
@@ -57,7 +57,7 @@ function createMeetingUrl(params, createParameter, customMeetingId) {
   const query = createParameter !== undefined ? `${baseQuery}&${createParameter}` : baseQuery;
   const apiCall = `create${query}${params.secret}`;
   const checksum = getChecksum(apiCall, parameters.secret);
-  const url = `${params.server}/create?${query}&checksum=${checksum}`;
+  const url = `${params.server}/api/create?${query}&checksum=${checksum}`;
   return url;
 }
 
@@ -66,21 +66,22 @@ function createMeetingPromise(params, createParameter, customMeetingId) {
   return axios.get(url, { adapter: 'http' });
 }
 
-async function createMeeting(params, createParameter, page) {
-  const promise = createMeetingPromise(params, createParameter);
+async function createMeeting(params, createParameter, customMeetingId) {
+  const promise = createMeetingPromise(params, createParameter, customMeetingId);
   const response = await promise;
   expect(response.status).toEqual(200);
   const xmlResponse = await xml2js.parseStringPromise(response.data);
   return xmlResponse.response.meetingID[0];
 }
 
-function getJoinURL(meetingID, params, moderator, joinParameter) {
+function getJoinURL(meetingID, params, moderator, joinParameter, skipSessionDetailsModal) {
   const pw = moderator ? params.moderatorPW : params.attendeePW;
-  const baseQuery = `fullName=${params.fullName}&meetingID=${meetingID}&password=${pw}&userdata-bbb_show_session_details_on_join=false`;
+  const shouldSkipSessionDetailsModal = skipSessionDetailsModal ? '&userdata-bbb_show_session_details_on_join=false' : '';  // default value in settings.yml is true
+  const baseQuery = `fullName=${params.fullName}&meetingID=${meetingID}&password=${pw}${shouldSkipSessionDetailsModal}`;
   const query = joinParameter !== undefined ? `${baseQuery}&${joinParameter}` : baseQuery;
   const apiCall = `join${query}${params.secret}`;
   const checksum = getChecksum(apiCall, parameters.secret);
-  return `${params.server}/join?${query}&checksum=${checksum}`;
+  return `${params.server}/api/join?${query}&checksum=${checksum}`;
 }
 
 async function checkRootPermission() {

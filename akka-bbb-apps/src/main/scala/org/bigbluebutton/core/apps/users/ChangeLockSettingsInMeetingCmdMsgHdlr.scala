@@ -76,7 +76,7 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
               "lock",
               "app.userList.userOptions.disableCam",
               "Label to disable cam notification",
-              Vector()
+              Map()
             )
             outGW.send(notifyEvent)
             NotificationDAO.insert(notifyEvent)
@@ -89,7 +89,7 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
               "lock",
               "app.userList.userOptions.enableCam",
               "Label to enable cam notification",
-              Vector()
+              Map()
             )
             outGW.send(notifyEvent)
             NotificationDAO.insert(notifyEvent)
@@ -104,7 +104,7 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
               "lock",
               "app.userList.userOptions.disableMic",
               "Label to disable mic notification",
-              Vector()
+              Map()
             )
             outGW.send(notifyEvent)
             NotificationDAO.insert(notifyEvent)
@@ -122,7 +122,7 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
               "lock",
               "app.userList.userOptions.enableMic",
               "Label to enable mic notification",
-              Vector()
+              Map()
             )
             outGW.send(notifyEvent)
             NotificationDAO.insert(notifyEvent)
@@ -137,7 +137,7 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
               "lock",
               "app.userList.userOptions.disablePrivChat",
               "Label to disable private chat notification",
-              Vector()
+              Map()
             )
             outGW.send(notifyEvent)
             NotificationDAO.insert(notifyEvent)
@@ -148,7 +148,7 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
               "lock",
               "app.userList.userOptions.enablePrivChat",
               "Label to enable private chat notification",
-              Vector()
+              Map()
             )
             outGW.send(notifyEvent)
             NotificationDAO.insert(notifyEvent)
@@ -163,7 +163,7 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
               "lock",
               "app.userList.userOptions.disablePubChat",
               "Label to disable public chat notification",
-              Vector()
+              Map()
             )
             outGW.send(notifyEvent)
             NotificationDAO.insert(notifyEvent)
@@ -174,7 +174,7 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
               "lock",
               "app.userList.userOptions.enablePubChat",
               "Label to enable public chat notification",
-              Vector()
+              Map()
             )
             outGW.send(notifyEvent)
             NotificationDAO.insert(notifyEvent)
@@ -189,7 +189,7 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
               "lock",
               "app.userList.userOptions.disableNotes",
               "Label to disable shared notes notification",
-              Vector()
+              Map()
             )
             outGW.send(notifyEvent)
             NotificationDAO.insert(notifyEvent)
@@ -200,7 +200,7 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
               "lock",
               "app.userList.userOptions.enableNotes",
               "Label to enable shared notes notification",
-              Vector()
+              Map()
             )
             outGW.send(notifyEvent)
             NotificationDAO.insert(notifyEvent)
@@ -215,7 +215,7 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
               "lock",
               "app.userList.userOptions.hideUserList",
               "Label to disable user list notification",
-              Vector()
+              Map()
             )
             outGW.send(notifyEvent)
             NotificationDAO.insert(notifyEvent)
@@ -226,7 +226,7 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
               "lock",
               "app.userList.userOptions.showUserList",
               "Label to enable user list notification",
-              Vector()
+              Map()
             )
             outGW.send(notifyEvent)
             NotificationDAO.insert(notifyEvent)

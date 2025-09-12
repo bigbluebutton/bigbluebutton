@@ -8,22 +8,21 @@ import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models.Polls
 import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.core.apps.{PermissionCheck, RightsManagementTrait}
-import org.bigbluebutton.core.db.{ChatMessageDAO, JsonUtils, NotificationDAO}
+import org.bigbluebutton.core.db.{ChatMessageDAO, NotificationDAO}
 import org.bigbluebutton.core2.message.senders.MsgBuilder
-import spray.json.DefaultJsonProtocol.jsonFormat2
 
 trait ShowPollResultReqMsgHdlr extends RightsManagementTrait {
   this: PollApp2x =>
 
   def handle(msg: ShowPollResultReqMsg, state: MeetingState2x, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
 
-    def broadcastEvent(msg: ShowPollResultReqMsg, result: SimplePollResultOutVO): Unit = {
+    def broadcastEvent(msg: ShowPollResultReqMsg, result: SimplePollResultOutVO, isQuiz: Boolean): Unit = {
       // PollShowResultEvtMsg
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, msg.header.userId)
       val envelope = BbbCoreEnvelope(PollShowResultEvtMsg.NAME, routing)
       val header = BbbClientMsgHeader(PollShowResultEvtMsg.NAME, liveMeeting.props.meetingProp.intId, msg.header.userId)
 
-      val body = PollShowResultEvtMsgBody(msg.header.userId, msg.body.pollId, result)
+      val body = PollShowResultEvtMsgBody(msg.header.userId, msg.body.pollId, result, msg.body.showAnswer)
       val event = PollShowResultEvtMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
       bus.outGW.send(msgEvent)
@@ -35,6 +34,7 @@ trait ShowPollResultReqMsgHdlr extends RightsManagementTrait {
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
     } else {
       for {
+        (poll) <- Polls.getPoll(msg.body.pollId, liveMeeting.polls)
         (result) <- Polls.getPollResult(msg.body.pollId, liveMeeting)
       } yield {
         //it will be used to render the chat message (will be stored as json in chat-msg metadata)
@@ -42,6 +42,7 @@ trait ShowPollResultReqMsgHdlr extends RightsManagementTrait {
           "id" -> result.id,
           "questionType" -> result.questionType,
           "questionText" -> result.questionText.getOrElse(""),
+          "quiz" -> poll.questions(0).quiz,
           "answers" -> {
             for {
               answer <- result.answers
@@ -49,7 +50,12 @@ trait ShowPollResultReqMsgHdlr extends RightsManagementTrait {
               Map(
                 "id" -> answer.id,
                 "key" -> answer.key,
-                "numVotes" -> answer.numVotes
+                "numVotes" -> answer.numVotes,
+                "isCorrectAnswer" -> (
+                    poll.questions(0).quiz &&
+                    msg.body.showAnswer &&
+                    result.correctAnswer.getOrElse("") == answer.key
+                  )
               )
             }
           },
@@ -57,7 +63,7 @@ trait ShowPollResultReqMsgHdlr extends RightsManagementTrait {
           "numResponders" -> result.numResponders,
         )
 
-        broadcastEvent(msg, result)
+        broadcastEvent(msg, result, poll.questions(0).quiz)
 
         //Send notification
         val notifyEvent = MsgBuilder.buildNotifyAllInMeetingEvtMsg(
@@ -66,19 +72,21 @@ trait ShowPollResultReqMsgHdlr extends RightsManagementTrait {
           "polling",
           "app.whiteboard.annotations.poll",
           "Message displayed when a poll is published",
-          Vector()
+          Map()
         )
         bus.outGW.send(notifyEvent)
         NotificationDAO.insert(notifyEvent)
 
         // Add Chat message with result
         ChatMessageDAO.insertSystemMsg(liveMeeting.props.meetingProp.intId, GroupChatApp.MAIN_PUBLIC_CHAT, "", GroupChatMessageType.POLL, resultAsSimpleMap, "")
+
+        //Add whiteboard annotation
         for {
           pod <- state.presentationPodManager.getDefaultPod()
           currentPres <- pod.getCurrentPresentation()
         } {
           if (currentPres.current) {
-            Polls.handleShowPollResultReqMsgForAnnotation(state, msg.header.userId, msg.body.pollId, liveMeeting, result, bus)
+            Polls.handleShowPollResultReqMsgForAnnotation(state, msg.header.userId, msg.body.pollId, msg.body.showAnswer, liveMeeting, result, bus)
           }
         }
 

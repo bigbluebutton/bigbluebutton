@@ -9,6 +9,7 @@ import PollingContainer from '/imports/ui/components/polling/container';
 import logger from '/imports/startup/client/logger';
 import ActivityCheckContainer from '/imports/ui/components/activity-check/container';
 import ToastContainer from '/imports/ui/components/common/toast/container';
+import KEY_CODES from '/imports/utils/keyCodes';
 import WakeLockContainer from '../wake-lock/container';
 import NotificationsBarContainer from '../notifications-bar/container';
 import AudioContainer from '../audio/container';
@@ -32,12 +33,12 @@ import SidebarNavigationContainer from '../sidebar-navigation/container';
 import SidebarContentContainer from '../sidebar-content/container';
 import PluginsEngineManager from '../plugins-engine/manager';
 import Notifications from '../notifications/component';
+import { PANELS, ACTIONS } from '../layout/enums';
 import GlobalStyles from '/imports/ui/stylesheets/styled-components/globalStyles';
 import ActionsBarContainer from '../actions-bar/container';
 import PushLayoutEngine from '../layout/push-layout/pushLayoutEngine';
 import NotesContainer from '/imports/ui/components/notes/component';
 import AppService from '/imports/ui/components/app/service';
-import TimeSync from './app-graphql/time-sync/component';
 import PresentationUploaderToastContainer from '/imports/ui/components/presentation/presentation-toast/presentation-uploader-toast/container';
 import BreakoutJoinConfirmationContainerGraphQL from '../breakout-join-confirmation/breakout-join-confirmation-graphql/component';
 import FloatingWindowContainer from '/imports/ui/components/floating-window/container';
@@ -109,6 +110,9 @@ const intlMessages = defineMessages({
 const propTypes = {
   darkTheme: PropTypes.bool.isRequired,
   hideNotificationToasts: PropTypes.bool.isRequired,
+  isBreakout: PropTypes.bool.isRequired,
+  meetingId: PropTypes.string.isRequired,
+  meetingName: PropTypes.string.isRequired,
 };
 
 class App extends Component {
@@ -118,6 +122,7 @@ class App extends Component {
       isAudioModalOpen: false,
       isVideoPreviewModalOpen: false,
       presentationFitToWidth: false,
+      isJoinLogged: false,
     };
 
     this.timeOffsetInterval = null;
@@ -125,11 +130,15 @@ class App extends Component {
     this.setPresentationFitToWidth = this.setPresentationFitToWidth.bind(this);
     this.setAudioModalIsOpen = this.setAudioModalIsOpen.bind(this);
     this.setVideoPreviewModalIsOpen = this.setVideoPreviewModalIsOpen.bind(this);
+    this.customPollShortcutHandler = this.customPollShortcutHandler.bind(this);
+    this.logJoin = this.logJoin.bind(this);
   }
 
   componentDidMount() {
     const { browserName } = browserInfo;
     const { osName } = deviceInfo;
+    const { isJoinLogged } = this.state;
+    const { isPollingEnabled } = this.props;
 
     Session.setItem('videoPreviewFirstOpen', true);
 
@@ -146,7 +155,15 @@ class App extends Component {
     window.ondragover = (e) => { e.preventDefault(); };
     window.ondrop = (e) => { e.preventDefault(); };
 
-    logger.info({ logCode: 'app_component_componentdidmount' }, 'Client loaded successfully');
+    if (isPollingEnabled) {
+      window.addEventListener('keydown', this.customPollShortcutHandler);
+    }
+
+    if (!isJoinLogged) {
+      this.logJoin();
+    }
+
+    AppService.initializeEmojiData();
   }
 
   componentDidUpdate(prevProps) {
@@ -156,6 +173,8 @@ class App extends Component {
       intl,
       fitToWidth,
     } = this.props;
+
+    const { isJoinLogged } = this.state;
 
     this.renderDarkMode();
 
@@ -178,13 +197,22 @@ class App extends Component {
     if (prevProps.fitToWidth !== fitToWidth) {
       this.setState({ presentationFitToWidth: fitToWidth });
     }
+
+    if (!isJoinLogged) {
+      this.logJoin();
+    }
   }
 
   componentWillUnmount() {
+    const { isPollingEnabled } = this.props;
     window.onbeforeunload = null;
 
     if (this.timeOffsetInterval) {
       clearInterval(this.timeOffsetInterval);
+    }
+
+    if (isPollingEnabled) {
+      window.removeEventListener('keydown', this.customPollShortcutHandler);
     }
   }
 
@@ -200,6 +228,50 @@ class App extends Component {
 
   setVideoPreviewModalIsOpen(value) {
     this.setState({ isVideoPreviewModalOpen: value });
+  }
+
+  customPollShortcutHandler(e) {
+    const {
+      altKey, ctrlKey, metaKey, keyCode,
+    } = e;
+    const { layoutContextDispatch } = this.props;
+    const isPollShortcut = altKey && keyCode === KEY_CODES.P && (ctrlKey || metaKey);
+
+    if (isPollShortcut) {
+      if (Session.equals('pollInitiated', true)) {
+        Session.setItem('resetPollPanel', true);
+      }
+
+      layoutContextDispatch({
+        type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+        value: true,
+      });
+      layoutContextDispatch({
+        type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+        value: PANELS.POLL,
+      });
+
+      Session.setItem('forcePollOpen', true);
+      Session.setItem('customPollShortcut', true);
+    }
+  }
+
+  logJoin() {
+    const { isJoinLogged } = this.state;
+    const { meetingId, meetingName, isBreakout } = this.props;
+
+    const logMessage = isBreakout ? 'User joined breakout room' : 'User joined main room';
+
+    if (!isJoinLogged && meetingId) {
+      logger.info({
+        logCode: 'app_component_componentdidmount',
+        extraInfo: {
+          meetingId,
+          meetingName,
+        },
+      }, logMessage);
+      this.setState({ isJoinLogged: true });
+    }
   }
 
   renderDarkMode() {
@@ -263,6 +335,7 @@ class App extends Component {
       hideNotificationToasts,
       isNotificationEnabled,
       isNonMediaLayout,
+      isRaiseHandEnabled,
     } = this.props;
 
     const {
@@ -275,7 +348,6 @@ class App extends Component {
         <ScreenReaderAlertAdapter />
         <PluginsEngineManager pluginConfig={pluginConfig} />
         <FloatingWindowContainer />
-        <TimeSync />
         <Notifications />
         <PushLayoutEngine
           shouldShowScreenshare={shouldShowScreenshare}
@@ -348,7 +420,7 @@ class App extends Component {
             !hideNotificationToasts
             && isNotificationEnabled) && <ToastContainer rtl /> }
           <ChatAlertContainerGraphql />
-          <RaiseHandNotifier />
+          {isRaiseHandEnabled && <RaiseHandNotifier />}
           <ManyWebcamsNotifier />
           <PollingContainer />
           <WakeLockContainer />

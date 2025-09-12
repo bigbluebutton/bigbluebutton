@@ -9,7 +9,7 @@ import { DataChannelHooks, DataChannelTypes } from 'bigbluebutton-html-plugin-sd
 import createUseSubscription from '/imports/ui/core/hooks/createUseSubscription';
 import { HookEvents } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/enum';
 import { DataChannelArguments } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-channel/types';
-import { PLUGIN_DATA_CHANNEL_LATEST_ITEM, PLUGIN_DATA_CHANNEL_NEW_ITEMS, PLUGIN_DATA_CHANNEL_All_ITEMS } from '../subscriptions';
+import { PLUGIN_DATA_CHANNEL_LATEST_ITEM, PLUGIN_DATA_CHANNEL_NEW_ITEMS, PLUGIN_DATA_CHANNEL_ALL_ITEMS } from '../subscriptions';
 
 export interface DataChannelItemManagerReaderProps {
   pluginName: string;
@@ -55,11 +55,11 @@ export const DataChannelItemManagerReader: React.ElementType<DataChannelItemMana
       variables.createdAt = cursor.current.toISOString();
       usePatchedSubscription = false;
       break;
-    case DataChannelTypes.All_ITEMS:
-      subscription = PLUGIN_DATA_CHANNEL_All_ITEMS;
+    case DataChannelTypes.ALL_ITEMS:
+      subscription = PLUGIN_DATA_CHANNEL_ALL_ITEMS;
       break;
     default:
-      subscription = PLUGIN_DATA_CHANNEL_All_ITEMS;
+      subscription = PLUGIN_DATA_CHANNEL_ALL_ITEMS;
       break;
   }
 

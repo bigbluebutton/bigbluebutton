@@ -3,6 +3,7 @@ import PollService from '/imports/ui/components/poll/service';
 import { defineMessages } from 'react-intl';
 import { notify } from '/imports/ui/services/notification';
 import caseInsensitiveReducer from '/imports/utils/caseInsensitiveReducer';
+import { debounce } from '/imports/utils/debounce';
 
 const intlMessages = defineMessages({
   notifyNotAllowedChange: {
@@ -116,7 +117,7 @@ const notifyNotAllowedChange = (intl) => {
 };
 
 const notifyShapeNumberExceeded = (intl, limit) => {
-  if (intl) notify(intl.formatMessage(intlMessages.shapeNumberExceeded, { 0: limit }), 'warning', 'whiteboard');
+  if (intl) notify(intl.formatMessage(intlMessages.shapeNumberExceeded, { limit }), 'warning', 'whiteboard');
 };
 
 const toggleToolsAnimations = (activeAnim, anim, time, hasWBAccess = false) => {
@@ -134,7 +135,7 @@ const toggleToolsAnimations = (activeAnim, anim, time, hasWBAccess = false) => {
   }
 
   const checkElementsAndRun = () => {
-    const tlEls = document.querySelectorAll('.tlui-menu-zone, .tlui-toolbar__tools, .tlui-toolbar__extras, .tlui-style-panel__wrapper');
+    const tlEls = document.querySelectorAll('.tlui-menu-zone, .tlui-toolbar__tools, .tlui-toolbar__extras, .tlui-style-panel__wrapper, .tlui-undo, .tlui-redo');
     if (tlEls.length) {
       tlEls?.forEach((el) => {
         el.classList.remove(activeAnim);
@@ -278,7 +279,7 @@ const getCustomAssetUrls = () => {
       undo: `${TL_ICON_PATHS}/undo.svg`,
       redo: `${TL_ICON_PATHS}/redo.svg`,
       trash: `${TL_ICON_PATHS}/trash.svg`,
-      'tool-delete-all': `${TL_ICON_PATHS}/trash.svg`,
+      'tool-delete-selected-items': `${TL_ICON_PATHS}/trash.svg`,
       duplicate: `${TL_ICON_PATHS}/duplicate.svg`,
       unlock: `${TL_ICON_PATHS}/unlock.svg`,
       'arrowhead-none': `${TL_ICON_PATHS}/arrowhead-none.svg`,
@@ -375,6 +376,38 @@ const getCustomAssetUrls = () => {
   };
 };
 
+const sanitizeShape = (shape) => {
+  const { isModerator, questionType, ...rest } = shape;
+  return {
+    ...rest,
+  };
+};
+
+const debouncedUpdateShapes = debounce((
+  shapes, tlEditorRef, presentationIdRef, pageChanged, assets, bgShape,
+) => {
+  if (shapes && Object.keys(shapes).length > 0) {
+    tlEditorRef.current?.store.mergeRemoteChanges(() => {
+      const remoteShapesArray = Object.values(shapes).reduce((acc, shape) => {
+        if (
+          shape.meta?.presentationId === presentationIdRef.current
+          || shape?.whiteboardId?.includes(presentationIdRef.current)
+        ) {
+          acc.push(sanitizeShape(shape));
+        }
+        return acc;
+      }, []);
+
+      if (pageChanged) {
+        tlEditorRef.current?.store.put(assets);
+        tlEditorRef.current?.store.put(bgShape);
+      }
+
+      tlEditorRef.current?.store.put(remoteShapesArray);
+    });
+  }
+}, 175);
+
 export {
   initDefaultPages,
   sendAnnotation,
@@ -385,4 +418,6 @@ export {
   formatAnnotations,
   getCustomEditorAssetUrls,
   getCustomAssetUrls,
+  debouncedUpdateShapes,
+  sanitizeShape,
 };

@@ -97,7 +97,7 @@ class ActivityCheck extends Component {
       >
         <Styled.ActivityModalContent>
           <h1>{intl.formatMessage(intlMessages.activityCheckTitle)}</h1>
-          <p>{intl.formatMessage(intlMessages.activityCheckLabel, { 0: responseDelay })}</p>
+          <p>{intl.formatMessage(intlMessages.activityCheckLabel, { responseDelay })}</p>
           <Button
             color="primary"
             disabled={responseDelay <= 0}

@@ -64,7 +64,7 @@ public class PageCounterService {
 		return false;
 	}
 	
-	private int countPages(UploadedPresentation pres) {
+	public int countPages(UploadedPresentation pres) {
 		int numPages = 0;
 		
 		if (pageCounter == null) {

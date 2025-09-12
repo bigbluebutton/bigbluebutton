@@ -1,15 +1,13 @@
 import { gql } from '@apollo/client';
 
 export interface BreakoutRoom {
-  freeJoin: boolean;
   shortName: string;
-  sendInvitationToModerators: boolean;
   sequence: number;
   showInvitation: boolean;
+  isLastAssignedRoom: boolean;
   joinURL: string | null;
   breakoutRoomId: string;
   isDefaultName: boolean;
-  hasJoined: boolean;
   isUserCurrentlyInRoom: boolean;
   participants: Array<{
     userId: string;
@@ -25,28 +23,18 @@ export interface GetBreakoutDataResponse {
   breakoutRoom: BreakoutRoom[];
 }
 
-export interface GetIsUserCurrentlyInBreakoutRoomResponse {
-  breakoutRoom_aggregate:{
-  aggregate: {
-    count: number;
-  }
-};
-}
-
 export const getBreakoutData = gql`
-  subscription getBreakoutData {
+  subscription Patched_getBreakoutData {
     breakoutRoom(order_by: {sequence: asc}){
-      freeJoin
       shortName
-      sendInvitationToModerators
       sequence
       showInvitation
+      isLastAssignedRoom
       joinURL
       breakoutRoomId
       isDefaultName
-      hasJoined
       isUserCurrentlyInRoom
-      participants {
+      participants(order_by: {userId: asc}) {
         userId
         isAudioOnly
         user {
@@ -58,17 +46,6 @@ export const getBreakoutData = gql`
   }
 `;
 
-export const getIsUserCurrentlyInBreakoutRoom = gql`
-  subscription getIsUserCurrentlyInBreakoutRoom {
-    breakoutRoom_aggregate(where: {isUserCurrentlyInRoom: {_eq: true}}) {
-      aggregate {
-        count
-      }
-    }
-  }
-`;
-
 export default {
   getBreakoutData,
-  getIsUserCurrentlyInBreakoutRoom,
 };

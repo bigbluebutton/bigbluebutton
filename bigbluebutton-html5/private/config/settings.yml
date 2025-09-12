@@ -39,7 +39,6 @@ public:
       enabled: true
       iosAppStoreUrl: 'https://apps.apple.com/us/app/bigbluebutton-tablet/id1641156756'
       iosAppUrlScheme: 'bigbluebutton-tablet'
-    lockOnJoin: true
     cdn: ''
     basename: '/html5client'
     # the base location of the BBB API. If you use a cluster setup with a load
@@ -138,6 +137,7 @@ public:
     # this value to be kept under 16.
     breakouts:
       allowUserChooseRoomByDefault: false
+      offerRecordingForBreakouts: false
       recordRoomByDefault: false
       captureWhiteboardByDefault: false
       captureSharedNotesByDefault: false
@@ -303,6 +303,9 @@ public:
     # Maximum number of bytes allowed in each mutation message payload.
     # Defaults to 10485760 (10MB)
     maxMutationPayloadSize: 10485760
+    # Timeout before automatically redirecting users to the logout URL (or closing the window if the session is
+    # a breakout room). Either a number (in miliseconds) or null.
+    timeoutBeforeRedirectOnMeetingEnd: 20000
   # plugins:
   #   - name: SamplePresentationToolbarPlugin
   #     url: https://<your-Host>/plugins/SamplePresentationToolbarPlugin.js
@@ -579,6 +582,10 @@ public:
     maxCustom: 5
     maxTypedAnswerLength: 45
     chatMessage: true
+    quickPollConfirmationStep: true
+    quiz:
+      enabled: true
+      quickPollCorrectAnswerSuffix: "__"
   captions:
     enabled: true
     id: captions
@@ -771,6 +778,7 @@ public:
     emojiPicker:
       enable: false
     # e.g.: disableEmojis: ['grin','laughing']
+    # use the id of the emojis from https://raw.githubusercontent.com/missive/emoji-mart/16978d04a766eec6455e2e8bb21cd8dc0b3c7436/packages/emoji-mart-data/sets/1/all.json
     disableEmojis: []
     allowedElements: ['a', 'code', 'em', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'ol', 'ul', 'p', 'strong']
     # available options for toolbar: reply, edit, delete, reactions
@@ -842,6 +850,9 @@ public:
     callHangupMaximumRetries: 10
     echoTestNumber: 'echo'
     listenOnlyCallTimeout: 15000
+    # skipInitialCamEnumeration: whether to skip the initial camera enumeration
+    # See https://github.com/bigbluebutton/bigbluebutton/issues/21746
+    skipInitialCamEnumeration: false
     # transparentListenOnly: whether the client should use the transparent 
     # listen only mechanism. 
     # It does not remove the "Listen Only" option from the audio modal
@@ -934,17 +945,23 @@ public:
       # livekit.selectiveSubscription: whether to use selective subscription all
       # applicable track sources. Default value is false. This overrides autoSubscribe
       # when set to true and in effect (conditional to client behavior).
-      selectiveSubscription: false
+      selectiveSubscription: true
+      logLevel: 3
       roomOptions:
         adaptiveStream: true
         dynacast: true
         stopLocalTrackOnUnpublish: false
       audio:
+        # unpublishOnMute: whether to unpublish audio tracks when muted. Default is true.
+        unpublishOnMute: true
         # publishOptions: see https://docs.livekit.io/client-sdk-js/interfaces/TrackPublishOptions.html
         publishOptions:
-          audioPreset: 'speech'
-          dtx: true
-          red: false
+          audioPreset:
+            maxBitrate: 48000
+            networkPriority: 'high'
+            priority: 'high'
+          dtx: false
+          red: true
           forceStereo: false
       camera:
         publishOptions:
@@ -1041,6 +1058,7 @@ public:
     maxNumberOfAnnotations: 300
     # Limit the number of users who can interact with the whiteboard
     maxNumberOfActiveUsers: 25
+    lockToolbarTools: false
     annotations:
       status:
         start: DRAW_START
@@ -1065,6 +1083,7 @@ public:
         family: script
     toolbar:
       multiUserPenOnly: false
+      initialSelectedTool: draw
       presenterTools:
         - select
         - hand
@@ -1074,10 +1093,27 @@ public:
         - text
         - note
         - rectangle
-        - delete-all
+        - delete-selected-items
         - highlight
         - more
         - actions
+        - ellipse
+        - diamond
+        - triangle
+        - trapezoid
+        - rhombus
+        - hexagon
+        - cloud
+        - star
+        - oval
+        - x-box
+        - check-box
+        - arrow-left
+        - arrow-up
+        - arrow-down
+        - arrow-right
+        - line
+        - frame
       multiUserTools:
         - select
         - hand
@@ -1087,13 +1123,31 @@ public:
         - text
         - note
         - rectangle
-        - delete-all
+        - delete-selected-items
         - highlight
         - more
         - actions
+        - ellipse
+        - diamond
+        - triangle
+        - trapezoid
+        - rhombus
+        - hexagon
+        - cloud
+        - star
+        - oval
+        - x-box
+        - check-box
+        - arrow-left
+        - arrow-up
+        - arrow-down
+        - arrow-right
+        - line
+        - frame
     locales: ['ar', 'ca', 'cs', 'da', 'de', 'en', 'es', 'fa', 'fi', 'fr', 'gl', 'he', 'hi-in', 'hu', 'it', 'ja', 'ko-kr', 'ku', 'main', 'my', 'ne', 'no', 'pl', 'pt-br', 'pt-pt', 'ro', 'ru', 'sv', 'te', 'th', 'tr', 'uk', 'vi', 'zh-cn', 'zh-tw']
   clientLog:
     console:
+      enableRuntimeErrorLogging: false
       enabled: true
       level: debug
     external:
@@ -1117,12 +1171,13 @@ public:
       - board.jpg
   minBrowserVersions:
     safari: ">=14"
-    chrome: ">=114"
+    chrome: ">=87"
     firefox: ">=80"
     edge: ">=85"
+    miui: "<0"
     mobile:
       safari: ">=14"
-      chrome: ">=114"
+      chrome: ">=87"
 private:
   analytics:
     includeChat: true

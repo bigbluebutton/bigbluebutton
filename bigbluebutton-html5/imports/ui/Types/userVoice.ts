@@ -13,6 +13,8 @@ export interface UserVoice {
   listenOnly: boolean;
   meetingId: string;
   muted: boolean;
+  listenOnlyInputDevice: boolean;
+  deafened: boolean;
   spoke: boolean;
   startTime: number;
   talking: boolean;

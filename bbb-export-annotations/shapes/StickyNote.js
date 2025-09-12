@@ -24,6 +24,7 @@ export class StickyNote extends Shape {
     this.verticalAlign = this.props?.verticalAlign;
     this.growY = this.props?.growY;
     this.shapeColor = Shape.colorToHex(this.color, ColorTypes.StickyColor);
+    this.padding = 10;
   }
 
   /**
@@ -35,7 +36,7 @@ export class StickyNote extends Shape {
    */
   draw() {
     const stickyNote = this.shapeGroup;
-    const rectW = 200;
+    const rectW = 200 + this.padding * 2;
     const rectH = 200 + this.growY;
     const cornerRadius = 10;
 

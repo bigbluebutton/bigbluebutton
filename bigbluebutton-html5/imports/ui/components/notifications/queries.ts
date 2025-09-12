@@ -4,7 +4,7 @@ export interface Notification {
   notificationType: string;
   icon: string;
   messageId: string;
-  messageValues: string[];
+  messageValues: Record<string, string>;
   isSingleUserNotification: boolean;
   createdAt: string; // You might want to use a Date type if you're parsing this string into a Date object
   notificationId: number;

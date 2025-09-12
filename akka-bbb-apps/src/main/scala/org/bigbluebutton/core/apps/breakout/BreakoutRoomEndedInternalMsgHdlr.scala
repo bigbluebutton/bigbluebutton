@@ -34,7 +34,7 @@ trait BreakoutRoomEndedInternalMsgHdlr {
             "rooms",
             "app.toast.breakoutRoomEnded",
             "Message when the breakout room is ended",
-            Vector()
+            Map()
           )
           outGW.send(notifyEvent)
           NotificationDAO.insert(notifyEvent)

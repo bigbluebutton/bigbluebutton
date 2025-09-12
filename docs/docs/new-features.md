@@ -83,14 +83,14 @@ It matches the results displayed in the public chat!
 
 #### Private chat messages have a "seen" indicator
 
-We have added an indicator showing when your private chat recipient has seen the message.
+We have added an indicator showing when your private chat recipient has seen the message. To enable, see `public.chat.privateMessageReadFeedback.enabled` https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.8/bigbluebutton-html5/private/config/settings.yml#L774
 
 ![checkmark beside the message indicating it was seen](/img/30/30-seen-message.png)
 
 #### Push to talk was added
 
 You can now use the "M" shortcut while in a conference to control how long your microphone is open. If the option for push to talk is enabled in settings.yml holding "M" will keep your microphone unmuted for as long you hold the key down. Releasing it will mute you again.
-
+To enable see `public.app.defaultSettings.application.pushToTalkEnabled` https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.8/bigbluebutton-html5/private/config/settings.yml#L206
 
 ### Engagement
 
@@ -169,6 +169,8 @@ Everyone sees the margins and follows the presenter's point of view. If multi-us
 
 ![with infinite whiteboard enabled annotations can be made on the margins and more](/img/30/30-infinite-wb-in-action.png)
 
+You can enable infinite whiteboard via `public.whiteboard.allowInfiniteWhiteboard` https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.8/bigbluebutton-html5/private/config/settings.yml#L1047
+
 Recording is not yet implemented, meaning that if you enable this experimental feature on your server and use it in a recorded session, the recording will most likely have broken whiteboard at best. The recording (and playback) work is planned for after BigBlueButton 3.0.
 
 #### Integration with LiveKit
@@ -191,6 +193,24 @@ To enable support for LiveKit:
     1. Set the appropriate LiveKit endpoint URL in bbb-html5.yml's `public.media.livekit.url`. See
       the aforementioned [docs section](/administration/cluster-proxy.md#bigbluebutton-servers) for details.
 
+We also *strongly recommend* setting up network interface filtering in LiveKit.
+While optional, this speeds up negotation times and works around an issue with the latest
+LiveKit versions that might cause CPU spikes if there's no filtering in place.
+To set up network interface filtering:
+1. Gather relevant network interfaces names to be used for media communication.
+For most setups, the default network interface is enough. See the `route` command
+to find it (`Destination: default`). If any other network interfaces are needed,
+make note of them.
+2. Set the following in `/etc/bigbluebutton/livekit.yaml`:
+```yaml
+rtc:
+  interfaces:
+    includes:
+      - <network_interface_name_1>
+      - <any_other_network_interface_name>
+```
+3. Restart livekit-server: `$ sudo systemctl restart livekit-server`
+
 Once enabled, LiveKit still won't be used by default. There are two ways to make
 use of it in meetings:
 - Per meeting: set any of the following meeting `/create` parameters
@@ -206,35 +226,10 @@ Those parameters do *not* need to be set concurrently. LiveKit can be enabled fo
 audio only, for example, while keeping the current media framework for camera
 and screen sharing by setting just `audioBridge=livekit`.
 
-To enable recording/capture with LiveKit (optional):
-1. Create **`/etc/bigbluebutton/egress.yaml`**
-    ```yaml
-    log_level: debug
-    redis:
-      address: localhost:6379
-    api_key: YOUR_API_KEY # see /etc/bigbluebutton/livekit.yaml
-    api_secret: YOUR_API_SECRET # see /etc/bigbluebutton/livekit.yaml
-    health_port: 7005
-    ws_url: ws://localhost:7880
-    file_prefix: /var/lib/bbb-webrtc-recorder
-    file_only: true
-    prometheus_port: 6790
-    ```
-2. Set appropriate key and secret in the file above
-3. Change capture directory permissions: **`chmod -R 777 /var/lib/bbb-webrtc-recorder`**
-    - The recorder runs as root in the docker container
-4. Enable egress in bbb-webrtc-sfu : **`yq e -i ".livekit.egress.enabled = true" /etc/bigbluebutton/bbb-webrtc-sfu/production.yml`**
-5. Run egress
-    ```bash
-    docker run -t -d --rm \
-        --name egress \
-        -e EGRESS_CONFIG_FILE=/etc/bigbluebutton/egress.yaml \
-        -v /etc/bigbluebutton/:/etc/bigbluebutton/ \
-        -v /var/lib/bbb-webrtc-recorder:/var/lib/bbb-webrtc-recorder \
-        --network host \
-        livekit/egress
-    ```
-6. Restart bbb-webrtc-sfu
+As of BigBlueButton v3.0.7, recording is enabled by default for LiveKit sessions
+via the bbb-webrtc-recorder application. If `livekit/egress` was previously
+installed in a server, any steps done to enable it should be reverted. Refer to
+the [previous installations steps](https://github.com/bigbluebutton/bigbluebutton/blob/6eab874ffa8d0e82453dad3b06621dea16e15e6d/docs/docs/new-features.md?plain=1#L209-L237).
 
 Keep in mind that the LiveKit integration is still experimental and not feature
 complete. Configuration, API parameters, and other details are subject to change.
@@ -251,6 +246,19 @@ For full details on what is new in BigBlueButton 3.0, see the release notes.
 
 Recent releases:
 
+- [3.0.14](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.14)
+- [3.0.13](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.13)
+- [3.0.12](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.12)
+- [3.0.11](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.11)
+- [3.0.10](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.10)
+- [3.0.9](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.9)
+- [3.0.8](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.8)
+- [3.0.7](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.7)
+- [3.0.6](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.6)
+- [3.0.5](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.5)
+- [3.0.4](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.4)
+- [3.0.3](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.3)
+- [3.0.2](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.2)
 - [3.0.1](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.1)
 - [3.0.0](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0)
 - [3.0.0-rc.4](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-rc.4)
@@ -353,6 +361,8 @@ Value changed
 
 Added
 - `pluginManifestFetchTimeout` added
+- `pluginManifestsFetchUrlResponseTimeout` added
+- `maxPluginManifestsFetchUrlPayloadSize` added
 - `numPluginManifestsFetchingThreads` added
 - `extractTimeoutInMs` added
 - `pngCreationExecTimeoutInMs` added
@@ -362,8 +372,6 @@ Added
 - `textFileCreationExecTimeoutInMs` added
 - `presDownloadReadTimeoutInMs` added
 - `pngCreationConversionTimeout` added
-- `pngCreationWait` added
-- `pdfToSvgTimeout` added
 - `imageResizeWait` added
 - `officeDocumentValidationTimeout` added
 - `presOfficeConversionTimeout` added
@@ -400,6 +408,27 @@ We improved the documentation for which types of files we support when uploading
 #### We mirror the webcam preview by default now
 
 We have supported the option to mirror your own webcam while viewing it. Starting with BigBlueButton 3.0.0-beta.6 we mirror it by default (which leads to the same result you would expect if you looked yourself in a physical mirror).
+
+#### Feedback form removed
+
+We have removed the feedback form that used to be part of the client. It was relying on client logs to carry the information and was not particularly flexible. See https://github.com/bigbluebutton/bigbluebutton/pull/22111 for more information.
+A new repository was contributed by Mconf https://github.com/bigbluebutton/custom-feedback with a much more sophisticated feedback form (see below).
+
+#### Custom feedback
+
+In BigBlueButton 3.0 we replaced the old feedback form with a new way of collecting feedback from users. It's a standalone, customizable, extensible application that can be integrated into BigBlueButton. Please refer to its [README](https://github.com/bigbluebutton/custom-feedback/blob/master/README.md) for details on how to customize and install it.
+
+Below are some screenshots of it:
+
+![first screen of the default custom feedback experience](/img/30/30-custom-feedback-1.png)
+
+![second screen of the default custom feedback experience](/img/30/30-custom-feedback-2.png)
+
+![third screen of the default custom feedback experience](/img/30/30-custom-feedback-3.png)
+
+![fourth screen of the default custom feedback experience](/img/30/30-custom-feedback-4.png)
+
+![fifth screen of the default custom feedback experience](/img/30/30-custom-feedback-5.png)
 
 ### Development
 

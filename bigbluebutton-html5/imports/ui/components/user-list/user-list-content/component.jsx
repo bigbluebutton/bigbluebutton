@@ -38,7 +38,6 @@ class UserContent extends PureComponent {
       currentUser,
       isTimerActive,
       compact,
-      isChatEnabled,
     } = this.props;
 
     const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
@@ -48,7 +47,7 @@ class UserContent extends PureComponent {
         {isMobile || (isMobile && isPortrait) ? (
           <Styled.ScrollableList role="tabpanel" tabIndex={0}>
             <Styled.List>
-              {isChatEnabled ? <ChatList /> : null}
+              <ChatList />
               <UserNotesContainer />
               {isTimerActive
               && <TimerContainer isModerator={currentUser?.role === ROLE_MODERATOR} />}
@@ -62,7 +61,7 @@ class UserContent extends PureComponent {
           </Styled.ScrollableList>
         ) : (
           <>
-            {isChatEnabled ? <ChatList /> : null}
+            <ChatList />
             <UserNotesContainer />
             {isTimerActive && <TimerContainer isModerator={currentUser?.role === ROLE_MODERATOR} />}
             {currentUser?.role === ROLE_MODERATOR ? <GuestPanelOpenerContainer /> : null}

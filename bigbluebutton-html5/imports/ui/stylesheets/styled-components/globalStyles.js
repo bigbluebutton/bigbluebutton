@@ -147,6 +147,10 @@ const GlobalStyle = createGlobalStyle`
       left: none !important;
     }
   }
+    
+  .recharts-surface {
+    overflow: visible;
+  }
 
   .raiseHandToast {
     background-color: ${colorWhite};
@@ -155,9 +159,6 @@ const GlobalStyle = createGlobalStyle`
     i.close {
       left: none !important;
     }
-  }
-  button[data-testid="tools.more.asset"] {
-    display: none;
   }
 `;
 

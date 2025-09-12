@@ -21,13 +21,13 @@ test.describe('Audio', { tag: '@ci' }, () => {
     await audio.joinMicrophone();
   });
 
-  test('Change audio input and keep it connected', async () => {
+  test('Change audio input and keep it connected', async ({ browserName }) => {
+    test.skip(browserName === 'firefox', 'Firefox does not support fake audio to simulate de audio.')
     await audio.changeAudioInput();
   });
 
   // https://docs.bigbluebutton.org/3.0/testing/release-testing/#muteunmute
-  // Ci failure: not being muted when clicking the mute button (isTalking element keep displayed)
-  test('Mute yourself by clicking the mute button', { tag: '@flaky' }, async () => {
+  test('Mute yourself by clicking the mute button', async () => {
     await audio.muteYourselfByButton();
   });
 

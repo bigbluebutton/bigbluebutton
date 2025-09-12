@@ -15,7 +15,8 @@ test.describe('Shared Notes', { tag: '@ci' }, () => {
     await sharedNotes.openSharedNotes();
   });
 
-  test('Type in shared notes', async () => {
+  test('Type in shared notes', async ({ browserName }) => {
+    test.skip(browserName === 'firefox', 'Firefox has different fonts on local and ci');
     await sharedNotes.typeInSharedNotes();
   });
 
@@ -42,7 +43,8 @@ test.describe('Shared Notes', { tag: '@ci' }, () => {
   // different failures in CI and local
   // local: not able to click on "unpin" button
   // CI: not restoring presentation for viewer after unpinning notes
-  test('Pin and unpin notes onto whiteboard', { tag: '@flaky' }, async () => {
+  test('Pin and unpin notes onto whiteboard', async ({ browserName }) => {
+    test.skip(browserName === 'firefox', 'Webcams does not work properly, due to heavy firefoxx for testing');
     await sharedNotes.pinAndUnpinNotesOntoWhiteboard();
   });
 });

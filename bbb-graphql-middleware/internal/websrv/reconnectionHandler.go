@@ -19,7 +19,7 @@ func ReconnectionHandler(w http.ResponseWriter, r *http.Request) {
 
 	reason := r.URL.Query().Get("reason")
 
-	log.Debugf("Reconnection request received for sessionToken: %s, reason: %s", sessionToken, reason)
+	log.Infof("Reconnection request received for sessionToken: %s, reason: %s", sessionToken, reason)
 
 	go InvalidateSessionTokenHasuraConnections(sessionToken)
 }

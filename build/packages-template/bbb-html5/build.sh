@@ -62,17 +62,17 @@ else
 fi
 cd ..
 
-# Compress CSS, Javascript and tensorflow WASM binaries used for virtual backgrounds. Keep the
-# uncompressed versions as well so it works with mismatched nginx location blocks
-find dist -name '*.js' -exec gzip -k -f -9 '{}' \;
-find dist -name '*.css' -exec gzip -k -f -9 '{}' \;
-find dist -name '*.wasm' -exec gzip -k -f -9 '{}' \;
-
 # replace v=VERSION with build number in head and css files
 if [ -f dist/index.html ] || [ -f dist/stylesheets/fonts.css ]; then
   sed -i "s/VERSION/$(($BUILD))/g" dist/index.html
   sed -i "s/VERSION/$(($BUILD))/g" dist/stylesheets/fonts.css
 fi
+
+# Compress CSS, Javascript and tensorflow WASM binaries used for virtual backgrounds. Keep the
+# uncompressed versions as well so it works with mismatched nginx location blocks
+find dist -name '*.js' -exec gzip -k -f -9 '{}' \;
+find dist -name '*.css' -exec gzip -k -f -9 '{}' \;
+find dist -name '*.wasm' -exec gzip -k -f -9 '{}' \;
 
 cp -r dist/* staging/usr/share/bigbluebutton/html5-client
 

@@ -4,6 +4,7 @@ const { DisabledFeatures } = require('./disabledFeatures');
 const c = require('./constants');
 const { encodeCustomParams, getAllShortcutParams, hexToRgb } = require('./util');
 const { CreateParameters } = require('./createParameters');
+const { linkIssue } = require('../core/helpers');
 
 test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
   test('Record Meeting', async ({ browser, context, page }) => {
@@ -106,6 +107,122 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
     await createParam.initModPage(page, true, { createParameter: `${c.preUploadedPresentation}&${c.preUploadedPresentationOverrideDefault}&${c.preUploadedPresentationName}` });
     await createParam.initUserPage(true, context);
     await createParam.overrideDefaultPresentation();
+  });
+
+  test.describe.parallel('Meeting Layout(default)', () => {
+    test('CUSTOM_LAYOUT', async ({ browser, context, page }) => {
+      const createParam = new CreateParameters(browser, context);
+      await createParam.initModPage(page, true, { createParameter: c.customLayout });
+      await createParam.initUserPage(true, context);
+      await createParam.customLayout();
+    });
+
+    test('SMART_LAYOUT', async ({ browser, context, page }) => {
+      const createParam = new CreateParameters(browser, context);
+      await createParam.initModPage(page, true, { createParameter: c.smartLayout });
+      await createParam.initUserPage(true, context);
+      await createParam.smartLayout();
+    });
+
+    test('PRESENTATION_FOCUS', async ({ browser, context, page }) => {
+      const createParam = new CreateParameters(browser, context);
+      await createParam.initModPage(page, true, { createParameter: c.presentationFocus });
+      await createParam.initUserPage(true, context);
+      await createParam.presentationFocus();
+    });
+
+    test('VIDEO_FOCUS', async ({ browser, context, page }) => {
+      const createParam = new CreateParameters(browser, context);
+      await createParam.initModPage(page, true, { createParameter: c.videoFocus });
+      await createParam.initUserPage(true, context);
+      await createParam.videoFocus();
+    });
+
+    test('CAMERAS_ONLY', async ({ browser, context, page }) => {
+      const createParam = new CreateParameters(browser, context);
+      await createParam.initModPage(page, true, { createParameter: c.camerasOnly });
+      await createParam.initUserPage(true, context);
+      await createParam.camerasOnly();
+    });
+
+    test('PRESENTATION_ONLY', async ({ browser, context, page }) => {
+      const createParam = new CreateParameters(browser, context);
+      await createParam.initModPage(page, true, { createParameter: c.presentationOnly });
+      await createParam.initUserPage(true, context);
+      await createParam.presentationOnly();
+    });
+
+    test('PARTICIPANTS_AND_CHAT_ONLY', async ({ browser, context, page }) => {
+      const createParam = new CreateParameters(browser, context);
+      await createParam.initModPage(page, true, { createParameter: c.participantsAndChatOnly });
+      await createParam.initUserPage(true, context);
+      await createParam.participantsAndChatOnly();
+    });
+
+    test('MEDIA_ONLY', async ({ browser, context, page }) => {
+      const createParam = new CreateParameters(browser, context);
+      await createParam.initModPage(page, true, { createParameter: c.mediaOnly });
+      await createParam.initUserPage(true, context);
+      await createParam.mediaOnly();
+    });
+  });
+
+  test.describe.parallel('Enforce Layout', () => {
+    test('CUSTOM_LAYOUT', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { createParameter: c.presentationFocus, joinParameter: c.enforceCustomLayout });
+      await customParam.initUserPage(true, context);
+      await customParam.enforceCustomLayout();
+    });
+
+    test('SMART_LAYOUT', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { joinParameter: c.enforceSmartLayout });
+      await customParam.initUserPage(true, context);
+      await customParam.enforceSmartLayout();
+    });
+
+    test('PRESENTATION_FOCUS', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { joinParameter: c.enforcePresentationFocus });
+      await customParam.initUserPage(true, context);
+      await customParam.enforcePresentationFocus();
+    });
+
+    test('VIDEO_FOCUS', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { joinParameter: c.enforceVideoFocus });
+      await customParam.initUserPage(true, context);
+      await customParam.enforceVideoFocus();
+    });
+
+    test('CAMERAS_ONLY', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { joinParameter: c.enforceCamerasOnly });
+      await customParam.initUserPage(true, context);
+      await customParam.enforceCamerasOnly();
+    });
+
+    test('PARTICIPANTS_AND_CHAT_ONLY', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { joinParameter: c.enforceParticipantsAndChatOnly });
+      await customParam.initUserPage(true, context);
+      await customParam.enforceParticipantsAndChatOnly();
+    });
+
+    test('PRESENTATION_ONLY', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { joinParameter: c.enforcePresentationOnly });
+      await customParam.initUserPage(true, context);
+      await customParam.enforcePresentationOnly();
+    });
+
+    test('MEDIA_ONLY', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { joinParameter: c.enforceMediaOnly });
+      await customParam.initUserPage(true, context);
+      await customParam.enforceMediaOnly();
+    });
   });
 
   test.describe.parallel('Disabled Features', () => {
@@ -361,6 +478,12 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
     await customParam.showParticipantsOnLogin();
   });
 
+  test('Show Session Details on Join', async ({ browser, context, page }) => {
+    const customParam = new CustomParameters(browser, context);
+    await customParam.initModPage(page, false, { joinParameter: c.showSessionDetailsOnJoin, skipSessionDetailsModal: false });
+    await customParam.showSessionDetailsOnJoin();
+  });
+
   test('Client title', async ({ browser, context, page }) => {
     const customParam = new CustomParameters(browser, context);
     await customParam.initModPage(page, true, { joinParameter: c.clientTitle });
@@ -429,6 +552,12 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
     await customParam.webcamBackgroundURL();
   });
 
+  test('Logout URL', async ({ browser, context, page}) => {
+    const customParam = new CustomParameters(browser, context);
+    await customParam.initModPage(page, true, { joinParameter: c.logoutURL });
+    await customParam.logoutURLTest();
+  });
+
   test.describe.parallel('Audio', () => {
     test('Auto join', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
@@ -467,7 +596,7 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
     });
   });
 
-  test.describe.parallel('Presentation', () => {
+  test.describe.parallel('Hide Presentation On Join', () => {
     test('Hide Presentation on join', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, true, { joinParameter: c.hidePresentationOnJoin });
@@ -475,6 +604,52 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
       await customParam.hidePresentationOnJoin();
     });
 
+    test('After Sharing Screen', async ({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { joinParameter: c.hidePresentationOnJoin });
+      await customParam.initUserPage(true, context, { useModMeetingId: true, joinParameter: c.hidePresentationOnJoin });
+      await customParam.hidePresentationOnJoinScreenshare();
+    });
+
+    test('After Sharing External video', { tag: '@flaky' }, async({ browser, context, page }) => {
+      //requiring logged user to start external video on CI environment
+      linkIssue(21589);
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { joinParameter: c.hidePresentationOnJoin });
+      await customParam.initUserPage(true, context, { useModMeetingId: true, joinParameter: c.hidePresentationOnJoin });
+      await customParam.hidePresentationOnJoinShareExternalVideo();
+    });
+
+    test('After Pinning and unpinning shared notes', async({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { joinParameter: c.hidePresentationOnJoin });
+      await customParam.initUserPage(true, context, { useModMeetingId: true, joinParameter: c.hidePresentationOnJoin });
+      await customParam.hidePresentationOnJoinPinSharedNotes();
+    });
+
+    test('After Changing Layout', async({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { joinParameter: c.hidePresentationOnJoin });
+      await customParam.initUserPage(true, context, { useModMeetingId: true, joinParameter: c.hidePresentationOnJoin });
+      await customParam.hidePresentationOnJoinChangeLayout();
+    });
+
+    test('After Returning from breakouts', async({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { joinParameter: c.hidePresentationOnJoin });
+      await customParam.initUserPage(true, context, { useModMeetingId: true, joinParameter: c.hidePresentationOnJoin });
+      await customParam.hidePresentationOnJoinReturnFromBreakouts();
+    });
+
+    test('After Uploading large presentation', async({ browser, context, page }) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, true, { joinParameter: c.hidePresentationOnJoin });
+      await customParam.initUserPage(true, context, { useModMeetingId: true, joinParameter: c.hidePresentationOnJoin });
+      await customParam.hidePresentationOnJoinUploadLargePresentation();
+    });
+  });
+
+  test.describe.parallel('Presentation', () => {
     test('Force restore presentation on new events', async ({ browser, context, page }) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page);

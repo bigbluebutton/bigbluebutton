@@ -5,11 +5,16 @@ import slick.jdbc.PostgresProfile.api._
 
 import scala.concurrent.duration._
 import java.util.concurrent.ConcurrentLinkedQueue
-import scala.concurrent.ExecutionContext.Implicits.global
 import java.util.concurrent.atomic.AtomicBoolean
 import scala.util.control.Breaks._
+import java.util.concurrent.Executors
+import scala.concurrent.ExecutionContext
 
 object DatabaseConnection {
+  private val dbExecutionContext = ExecutionContext.fromExecutorService(
+    Executors.newSingleThreadExecutor(r => new Thread(r, "db-execution-context"))
+  )
+
   val db = Database.forConfig("postgres")
   val logger = LoggerFactory.getLogger(this.getClass)
 
@@ -21,15 +26,17 @@ object DatabaseConnection {
   val system = org.apache.pekko.actor.ActorSystem("DBActionBatchSystem")
   system.scheduler.scheduleWithFixedDelay(50.millis, 50.millis)(new Runnable {
     def run(): Unit = tryProcessBatch()
-  })
+  })(dbExecutionContext)
+
+  system.registerOnTermination(() => dbExecutionContext.shutdown())
 
   def initialize(): Unit = {
     db.run(sql"SELECT current_timestamp".as[java.sql.Timestamp]).map { timestamp =>
       logger.debug(s"Database initialized, current timestamp is: $timestamp")
-    }.recover {
+    }(dbExecutionContext).recover {
       case ex: Exception =>
         logger.error(s"Failed to initialize database: ${ex.getMessage}")
-    }
+    }(dbExecutionContext)
   }
 
   def enqueue(action: DBIO[_]): Unit = {
@@ -63,14 +70,18 @@ object DatabaseConnection {
         case scala.util.Success(_) =>
           val endTime = System.nanoTime()
           val duration = (endTime - startTime) / 1e6 // convert to milliseconds
-          logger.debug(s"${batch.size} actions executed in the database in $duration ms.")
+          if (duration > 2000) {
+            logger.warn(s"${batch.size} actions executed in the database in $duration ms.")
+          } else {
+            logger.debug(s"${batch.size} actions executed in the database in $duration ms.")
+          }
           isProcessing.set(false)
           if (!queue.isEmpty) tryProcessBatch()
         case scala.util.Failure(e) =>
           logger.error(s"Error executing batch actions: $e")
           isProcessing.set(false)
           if (!queue.isEmpty) tryProcessBatch()
-      }
+      }(dbExecutionContext)
     } else {
       isProcessing.set(false)
     }

@@ -21,6 +21,7 @@ subscription userCurrentSubscription {
     inactivityWarningTimeoutSecs
     isDialIn
     isModerator
+    logoutUrl
     currentlyInMeeting
     joinErrorCode
     joinErrorMessage
@@ -38,29 +39,22 @@ subscription userCurrentSubscription {
     speechLocale
     captionLocale
     userId
-    breakoutRooms {
-      hasJoined
-      assignedAt
-      breakoutRoomId
-      isLastAssignedRoom
-      durationInSeconds
-      endedAt
-      freeJoin
-      inviteDismissedAt
-      isDefaultName
-      joinURL
-      name
-      sendInvitationToModerators
-      sequence
-      shortName
-      showInvitation
-      startedAt
-      isUserCurrentlyInRoom
+    meeting {
+      ended
+      endedReasonCode
+      endedByUserName
+      logoutUrl
     }
     lastBreakoutRoom {
       currentlyInRoom
       sequence
       shortName
+    }
+    breakoutRoomsSummary {
+        totalOfBreakoutRooms
+        totalOfIsUserCurrentlyInRoom
+        totalOfShowInvitation
+        totalOfJoinURL
     }
     cameras {
       streamId
@@ -69,6 +63,8 @@ subscription userCurrentSubscription {
       joined
       spoke
       listenOnly
+      deafened
+      listenOnlyInputDevice
     }
     userLockSettings {
       disablePublicChat
@@ -78,6 +74,11 @@ subscription userCurrentSubscription {
     }
     livekit {
       livekitToken
+    }
+    presPagesWritable {
+      isCurrentPage
+      pageId
+      userId
     }
   }
 }

@@ -113,7 +113,6 @@ interface VideoProviderProps {
   stopVideo: (cameraId?: string) => void;
   applyCameraProfile: (peer: WebRtcPeer, profileId: string) => void;
   intl: IntlShape;
-  myRole: string | undefined;
 }
 
 class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
@@ -838,7 +837,6 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
   }
 
   async createWebRTCPeer(stream: string, isLocal: boolean) {
-    const { myRole } = this.props;
     let iceServers = [];
     const role = VideoService.getRole(isLocal);
     const peerBuilderFunc = isLocal
@@ -912,7 +910,7 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
           role,
           sdpOffer: offer,
           bitrate,
-          record: VideoService.getRecord(myRole),
+          record: VideoService.getRecord(),
           mediaServer: VideoService.getMediaServerAdapter(),
         };
 

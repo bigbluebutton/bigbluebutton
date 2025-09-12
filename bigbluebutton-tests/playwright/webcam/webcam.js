@@ -31,10 +31,41 @@ class Webcam extends Page {
 
   async talkingIndicator() {
     await this.webcamLayoutStart();
-    await this.waitForSelector(e.webcamMirroredVideoContainer, VIDEO_LOADING_WAIT_TIME);
+    await this.waitForSelector(e.currentUserLocalStreamVideo, VIDEO_LOADING_WAIT_TIME);
     await this.waitForSelector(e.leaveVideo, VIDEO_LOADING_WAIT_TIME);
     await this.waitForSelector(e.isTalking);
     await this.hasElement(e.webcamItemTalkingUser, 'should display the webcam item talking user');
+  }
+
+  async mirrorWebcam() {
+    await this.waitForSelector(e.whiteboard);
+    await this.waitAndClick(e.joinVideo);
+    await this.hasElement(e.webcamMirroredVideoPreview, 'should display the preview of the webcam video, starts mirrored for self');
+    await this.waitAndClick(e.startSharingWebcam);
+    await this.waitForSelector(e.leaveVideo, VIDEO_LOADING_WAIT_TIME);
+    await this.hasElement(e.webcamMirroredVideoContainer, 'should display the webcam mirrored video container after the camera is shared');
+
+    const mirroredWebcamLocator = await this.getLocator(e.webcamMirroredVideoContainer);
+    await expect(mirroredWebcamLocator).toHaveScreenshot('webcam-mirrored-view.png');
+
+    const dropdownWebcamButton = await this.getLocator(e.dropdownWebcamButton).filter({ hasText: this.username })
+
+    await dropdownWebcamButton.click();
+    await this.hasElement(e.mirrorWebcamBtn, 'should display the webcam mirror button');
+    await this.hasText(e.mirrorWebcamBtn, 'Disable webcam mirroring', 'should display the text to disable webcam mirroring');
+
+    await this.getVisibleLocator(e.mirrorWebcamBtn).click();
+    await this.hasElement(e.webcamContainer, 'should display the video container after disabling webcam mirroring');
+
+    const webcamLocator = await this.getLocator(e.webcamContainer);
+    await expect(webcamLocator).toHaveScreenshot('webcam-view.png');
+
+    await dropdownWebcamButton.click();
+    await this.hasElement(e.mirrorWebcamBtn, 'should display the webcam mirror button');
+    await this.hasText(e.mirrorWebcamBtn, 'Enable webcam mirroring', 'should display the text to enable webcam mirroring');
+
+    await this.getVisibleLocator(e.mirrorWebcamBtn).click();
+    await this.hasElement(e.webcamMirroredVideoContainer, 'should display the video container after enabling webcam mirroring');
   }
 
   async changeVideoQuality() {
@@ -45,7 +76,7 @@ class Webcam extends Page {
       await this.waitForSelector(e.videoQualitySelector);
       const langDropdown = await this.page.$(e.videoQualitySelector);
       await langDropdown.selectOption({ value });
-      await this.waitForSelector(e.webcamMirroredVideoPreview, videoPreviewTimeout);
+      await this.waitForSelector(e.currentUserLocalStreamVideo, videoPreviewTimeout);
       await this.waitAndClick(e.startSharingWebcam);
       await this.waitForSelector(e.webcamConnecting);
       await this.waitForSelector(e.leaveVideo, VIDEO_LOADING_WAIT_TIME);
@@ -68,8 +99,8 @@ class Webcam extends Page {
     await this.waitAndClick(`${e.selectDefaultBackground}[aria-label="Home"]`);
     await sleep(1000);
     await this.waitAndClick(e.startSharingWebcam);
-    await this.waitForSelector(e.webcamMirroredVideoContainer);
-    const webcamVideoLocator = await this.getLocator(e.webcamMirroredVideoContainer);
+    await this.waitForSelector(e.currentUserLocalStreamVideo);
+    const webcamVideoLocator = await this.getLocator(e.currentUserLocalStreamVideo);
     await expect(webcamVideoLocator).toHaveScreenshot('webcam-with-home-background.png');
   }
 
@@ -100,7 +131,7 @@ class Webcam extends Page {
     await this.waitAndClick(e.selectCustomBackground);
     await sleep(1000);
     await this.waitAndClick(e.startSharingWebcam);
-    await this.waitForSelector(e.webcamMirroredVideoContainer);
+    await this.waitForSelector(e.currentUserLocalStreamVideo);
 
     await this.waitAndClick(e.dropdownWebcamButton);
     await this.waitAndClick(e.selfViewDisableBtn);
@@ -121,8 +152,8 @@ class Webcam extends Page {
     await this.waitAndClick(e.selectCustomBackground);
     await sleep(1000);
     await this.waitAndClick(e.startSharingWebcam);
-    await this.waitForSelector(e.webcamMirroredVideoContainer);
-    const webcamVideoLocator = await this.getLocator(e.webcamMirroredVideoContainer);
+    await this.waitForSelector(e.currentUserLocalStreamVideo);
+    const webcamVideoLocator = await this.getLocator(e.currentUserLocalStreamVideo);
     await expect(webcamVideoLocator).toHaveScreenshot('webcam-with-new-background.png');
 
     // Remove

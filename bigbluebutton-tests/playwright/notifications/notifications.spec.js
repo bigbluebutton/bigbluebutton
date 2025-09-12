@@ -30,6 +30,12 @@ test.describe.parallel('Notifications', { tag: '@ci' }, () => {
     await notifications.raiseAndLowerHandNotification();
   });
 
+  test('Leave notification', async ({ browser, context, page }) => {
+    const notifications = new Notifications(browser, context);
+    await notifications.initModPage(page);
+    await notifications.userLeaveNotifications();
+  });
+
   test.describe.parallel('Chat', () => {
     test('Public Chat notification', async ({ browser, context, page }) => {
       const chatNotifications = new ChatNotifications(browser, context);

@@ -1,0 +1,160 @@
+publiccodeYmlVersion: "0.4"
+name: BigBlueButton
+applicationSuite: BigBlueButton
+url: https://github.com/bigbluebutton/bigbluebutton
+landingURL: https://bigbluebutton.org/
+softwareVersion: 3.0.8
+releaseDate: 2025-05-28
+logo: https://bigbluebutton.org/wp-content/uploads/2021/01/BigBlueButton_icon.svg.png
+platforms:
+  - linux
+  - web
+categories:
+  - web-conferencing
+  - video-conferencing
+  - education
+usedBy:
+  - French Ministry of Education
+  - European Commission
+  - OpenForum Europe
+  - Universität Osnabrück
+  - Technische Universität Berlin
+  - Technische Hochschule Mittelhessen
+  - Johannes Gutenberg-Universität Mainz
+  - Humboldt-Universität zu Berlin
+  - Brazilian National Research and Education Network
+developmentStatus: stable
+softwareType: standalone/web
+description:
+  en:
+    localisedName: BigBlueButton
+    shortDescription: >
+      A scalable, extensible, open source web conferencing platform
+      designed for online meetings and classes.
+    longDescription: >
+      BigBlueButton is a global platform designed for both online meetings and
+      virtual classes
+
+      For meetings, it fosters rich engagement through real-time sharing of
+      audio, video, slides, chat, and screen. Built-in collaboration features
+      include a multi-user digital whiteboard for live annotations and drawing,
+      as well as polling, breakout rooms, and shared notes.
+
+      For virtual classrooms, BigBlueButton goes further — empowering educators
+      with built-in tools for active learning and live analytics to ensure
+      every student learns.
+    documentation: https://docs.bigbluebutton.org/
+    apiDocumentation: https://docs.bigbluebutton.org/development/api/
+    features:
+      - Record of sessions as a single .mp4 file
+      - Moderator role to manage users and session
+      - Built in whiteboard based on tldraw
+      - Localized into more than 65 languages
+      - Moodle, the worlds most popular LMS, built BigBlueButton into the core
+    genericName: Videoconferencing
+    screenshots:
+      - https://bigbluebutton.org/wp-content/uploads/shared-images/shot1.png
+      - https://bigbluebutton.org/wp-content/uploads/shared-images/shot2.png
+      - https://bigbluebutton.org/wp-content/uploads/shared-images/shot3.png
+      - https://bigbluebutton.org/wp-content/uploads/shared-images/shot4.png
+      - https://bigbluebutton.org/wp-content/uploads/shared-images/shot5.png
+    videos:
+      - https://www.youtube.com/watch?v=Aw3Ajuy3kyk
+    awards:
+      - https://bigbluebutton.org/articles/bigbluebutton-wins-moodle-certified-partner-award/
+legal:
+  license: LGPL-3.0-only
+maintenance:
+  type: Community and Commercial Support
+  contacts:
+    - name: Timo Nogueira Brockmeyer
+      email: timo.nogueira.brockmeyer@uni-osnabrueck.de
+      affiliation: German Community Contact
+    - name: Steven Muegge
+      email: smuegge@bigbluebutton.org
+      website: https://bigbluebutton.org
+      affiliation: Executive Director, BigBlueButton Inc.
+  contractors:
+    - name: Blindside Networks
+      email: team@blindsidenetworks.com
+      website: https://blindsidenetworks.com
+      affiliation: Commercial Support
+      until: '2030-06-01'
+    - name: Mconf
+      email: contact@mconf.com
+      website: https://mconf.com/
+      affiliation: Commercial Support
+      until: '2030-06-01'
+    - name: iMDT
+      email: contato@imdt.com.br
+      website: https://international.imdt.com.br/
+      affiliation: Commercial Support
+      until: '2030-06-01'
+    - name: think modular
+      email: info@think-modular.com
+      website: https://think-modular.com/
+      affiliation: Commercial Support
+      until: '2030-06-01'
+localisation:
+  localisationReady: true
+  availableLanguages:
+    - af
+    - ar
+    - az
+    - bg-BG
+    - bn
+    - ca
+    - cs-CZ
+    - da
+    - de
+    - dv
+    - el-GR
+    - en
+    - eo
+    - es
+    - es-419
+    - es-ES
+    - es-MX
+    - et
+    - eu
+    - fa-IR
+    - fi
+    - fr
+    - gl
+    - he
+    - hi-IN
+    - hr
+    - hu-HU
+    - hy
+    - id
+    - it-IT
+    - ja
+    - ka
+    - km
+    - kn
+    - ko-KR
+    - lo-LA
+    - lt-LT
+    - lv
+    - ml
+    - mn-MN
+    - nb-NO
+    - nl
+    - oc
+    - pl-PL
+    - pt
+    - pt-BR
+    - ro-RO
+    - ru
+    - sk-SK
+    - sl
+    - sr
+    - sv-SE
+    - ta
+    - te
+    - th
+    - tr-TR
+    - uk-UA
+    - vi-VN
+    - zh-CN
+    - zh-TW

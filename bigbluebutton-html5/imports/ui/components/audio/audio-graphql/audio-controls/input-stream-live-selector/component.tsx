@@ -3,6 +3,7 @@
 import { useReactiveVar } from '@apollo/client';
 import React, { useCallback, useEffect } from 'react';
 import deviceInfo from '/imports/utils/deviceInfo';
+import { hasMediaDevicesEventTarget } from '/imports/ui/services/webrtc-base/utils';
 import AudioManager from '/imports/ui/services/audio-manager';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { User } from '/imports/ui/Types/user';
@@ -16,7 +17,6 @@ import {
   toggleMuteMicrophoneSystem,
 } from './service';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
-import { Meeting } from '/imports/ui/Types/meeting';
 import logger from '/imports/startup/client/logger';
 import MutedAlert from '/imports/ui/components/muted-alert/component';
 import MuteToggle from './buttons/muteToggle';
@@ -25,6 +25,7 @@ import LiveSelection from './buttons/LiveSelection';
 import useWhoIsTalking from '/imports/ui/core/hooks/useWhoIsTalking';
 import useWhoIsUnmuted from '/imports/ui/core/hooks/useWhoIsUnmuted';
 import useToggleVoice from '/imports/ui/components/audio/audio-graphql/hooks/useToggleVoice';
+import useIsAudioConnected from '/imports/ui/components/audio/audio-graphql/hooks/useIsAudioConnected';
 
 const AUDIO_INPUT = 'audioinput';
 const AUDIO_OUTPUT = 'audiooutput';
@@ -111,7 +112,6 @@ const InputStreamLiveSelector: React.FC<InputStreamLiveSelectorProps> = ({
   const [inputDevices, setInputDevices] = React.useState<InputDeviceInfo[]>([]);
   const [outputDevices, setOutputDevices] = React.useState<MediaDeviceInfo[]>([]);
   const { isMobile } = deviceInfo;
-
   // @ts-ignore - temporary, while meteor exists in the project
   const { enableDynamicAudioDeviceSelection } = window.meetingClientSettings.public.app;
   // @ts-ignore - temporary, while meteor exists in the project
@@ -184,12 +184,13 @@ const InputStreamLiveSelector: React.FC<InputStreamLiveSelectorProps> = ({
         }, `Error enumerating audio devices: ${error.message}`);
       });
   }, [inAudio, inputDevices, outputDevices, updateRemovedDevices]);
-
   useEffect(() => {
-    navigator.mediaDevices.addEventListener('devicechange', updateDevices);
+    if (hasMediaDevicesEventTarget()) navigator.mediaDevices.addEventListener('devicechange', updateDevices);
 
     return () => {
-      navigator.mediaDevices.removeEventListener('devicechange', updateDevices);
+      if (hasMediaDevicesEventTarget()) {
+        navigator.mediaDevices.removeEventListener('devicechange', updateDevices);
+      }
     };
   }, [updateDevices]);
 
@@ -284,6 +285,8 @@ const InputStreamLiveSelectorContainer: React.FC<InputStreamLiveSelectorContaine
       locked: u?.locked ?? false,
       away: u?.away,
       voice: {
+        joined: u?.voice?.joined ?? false,
+        deafened: u?.voice?.deafened ?? false,
         listenOnly: u?.voice?.listenOnly ?? false,
       },
     };
@@ -294,14 +297,12 @@ const InputStreamLiveSelectorContainer: React.FC<InputStreamLiveSelectorContaine
   const talking = Boolean(currentUser?.userId && talkingUsers[currentUser.userId]);
   const muted = Boolean(currentUser?.userId && !unmutedUsers[currentUser.userId]);
 
-  const { data: currentMeeting } = useMeeting((m: Partial<Meeting>) => {
+  const { data: currentMeeting } = useMeeting((m) => {
     return {
       lockSettings: m?.lockSettings,
       isBreakout: m?.isBreakout,
     };
   });
-  // @ts-ignore - temporary while hybrid (meteor+GraphQl)
-  const isConnected = useReactiveVar(AudioManager._isConnected.value) as boolean;
   // @ts-ignore - temporary while hybrid (meteor+GraphQl)
   const isConnecting = useReactiveVar(AudioManager._isConnecting.value) as boolean;
   // @ts-ignore - temporary while hybrid (meteor+GraphQl)
@@ -317,12 +318,15 @@ const InputStreamLiveSelectorContainer: React.FC<InputStreamLiveSelectorContaine
   const permissionStatus = useReactiveVar(AudioManager._permissionStatus.value) as string;
   // @ts-ignore - temporary while hybrid (meteor+GraphQl)
   const supportsTransparentListenOnly = useReactiveVar(AudioManager._transparentListenOnlySupported.value) as boolean;
+  const isConnected = useIsAudioConnected();
+
   const updateInputDevices = (devices: InputDeviceInfo[] = []) => {
     AudioManager.inputDevices = devices;
   };
   const updateOutputDevices = (devices: MediaDeviceInfo[] = []) => {
     AudioManager.outputDevices = devices;
   };
+  const inAudio = (currentUser?.voice?.joined && !currentUser?.voice?.deafened) ?? false;
 
   return (
     <InputStreamLiveSelector
@@ -333,8 +337,8 @@ const InputStreamLiveSelectorContainer: React.FC<InputStreamLiveSelectorContaine
       listenOnly={currentUser?.voice?.listenOnly ?? false}
       muted={muted}
       talking={talking}
-      inAudio={!!currentUser?.voice ?? false}
-      showMute={(!!currentUser?.voice && !currentMeeting?.lockSettings?.disableMic) ?? false}
+      inAudio={inAudio}
+      showMute={(inAudio && !currentMeeting?.lockSettings?.disableMic) ?? false}
       isConnected={isConnected}
       disabled={isConnecting || isHangingUp}
       inputDeviceId={inputDeviceId}

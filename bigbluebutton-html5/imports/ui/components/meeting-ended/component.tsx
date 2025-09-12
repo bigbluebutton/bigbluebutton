@@ -13,6 +13,7 @@ import {
   MeetingEndedTable,
   openLearningDashboardUrl,
   setLearningDashboardCookie,
+  allowRedirectToLogoutURL,
 } from './service';
 import { MeetingEndDataResponse, getMeetingEndData } from './queries';
 import useAuthData from '/imports/ui/core/local-states/useAuthData';
@@ -21,6 +22,8 @@ import Styled from './styles';
 import { LoadingContext } from '../common/loading-screen/loading-screen-HOC/component';
 import logger from '/imports/startup/client/logger';
 import apolloContextHolder from '/imports/ui/core/graphql/apolloContextHolder/apolloContextHolder';
+import useMeeting from '../../core/hooks/useMeeting';
+import useCurrentUser from '../../core/hooks/useCurrentUser';
 
 const intlMessage = defineMessages({
   410: {
@@ -152,26 +155,26 @@ interface MeetingEndedContainerProps {
 }
 
 interface MeetingEndedProps extends MeetingEndedContainerProps {
-  allowDefaultLogoutUrl: boolean;
   skipMeetingEnded: boolean;
   learningDashboardAccessToken: string;
   isModerator: boolean;
   logoutUrl: string;
   learningDashboardBase: string;
   isBreakout: boolean;
+  allowRedirect: boolean;
 }
 
 const MeetingEnded: React.FC<MeetingEndedProps> = ({
   endedBy,
   joinErrorCode,
   meetingEndedCode,
-  allowDefaultLogoutUrl,
   skipMeetingEnded,
   learningDashboardAccessToken,
   isModerator,
   logoutUrl,
   learningDashboardBase,
   isBreakout,
+  allowRedirect,
 }) => {
   const loadingContextInfo = useContext(LoadingContext);
   const intl = useIntl();
@@ -182,7 +185,7 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
 
   const generateEndMessage = useCallback((joinErrorCode: string, meetingEndedCode: string, endedBy: string) => {
     if (!isEmpty(endedBy)) {
-      return intl.formatMessage(intlMessage.messageEndedByUser, { 0: endedBy });
+      return intl.formatMessage(intlMessage.messageEndedByUser, { userName: endedBy });
     }
     // OR opetaror always returns the first truthy value
 
@@ -193,18 +196,17 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
   const confirmRedirect = (isBreakout: boolean, allowRedirect: boolean) => {
     if (isBreakout) window.close();
     if (allowRedirect) {
-      if (isURL(logoutUrl)) {
-        const reason = generateEndMessage(joinErrorCode, meetingEndedCode, endedBy);
-        const finalUrl = reason
-          ? `${logoutUrl}${logoutUrl.includes('?') ? '&' : '?'}reason=${encodeURIComponent(reason)}`
-          : logoutUrl;
-        window.location.href = finalUrl;
-      }
+      const reason = generateEndMessage(joinErrorCode, meetingEndedCode, endedBy);
+      const finalUrl = reason
+        ? `${logoutUrl}${logoutUrl.includes('?') ? '&' : '?'}reason=${encodeURIComponent(reason)}`
+        : logoutUrl;
+      window.location.href = finalUrl;
     }
   };
 
   const logoutButton = useMemo(() => {
     const { locale } = intl;
+
     return (
       (
         <Styled.Wrapper>
@@ -213,7 +215,11 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
             // Always set cookie in case Dashboard is already opened
             && setLearningDashboardCookie(learningDashboardAccessToken, meetingId, learningDashboardBase) === true
               ? (
-                <Styled.Text>
+                <>
+                  <Styled.Text>
+                    {intl.formatMessage(intlMessage.open_activity_report_btn)}
+                  </Styled.Text>
+
                   <Styled.MeetingEndedButton
                     color="default"
                     onClick={() => openLearningDashboardUrl(learningDashboardAccessToken,
@@ -227,25 +233,35 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
                       iconName="multi_whiteboard"
                     />
                   </Styled.MeetingEndedButton>
-                </Styled.Text>
+                </>
               ) : null
           }
           <Styled.Text>
             {intl.formatMessage(intlMessage.messageEnded)}
           </Styled.Text>
+          {
+            isURL(logoutUrl, {
+              // This option is merged with isFQDN
+              // so it's not a valid ts error /validator/lib/isURL.js line 153
+              // @ts-ignore
+              allow_numeric_tld: true,
+            }) ? (
+              <Styled.MeetingEndedButton
+                color="primary"
+                onClick={() => confirmRedirect(isBreakout, allowRedirect)}
+                /* @eslint-disable-next-line */
+                aria-details={intl.formatMessage(intlMessage.confirmDesc)}
+                data-test="redirectButton"
+              >
+                {intl.formatMessage(intlMessage.buttonOkay)}
+              </Styled.MeetingEndedButton>
+              ) : null
+          }
 
-          <Styled.MeetingEndedButton
-            color="primary"
-            onClick={() => confirmRedirect(isBreakout, allowDefaultLogoutUrl)}
-            /* @eslint-disable-next-line */
-            aria-details={intl.formatMessage(intlMessage.confirmDesc)}
-          >
-            {intl.formatMessage(intlMessage.buttonOkay)}
-          </Styled.MeetingEndedButton>
         </Styled.Wrapper>
       )
     );
-  }, [learningDashboardAccessToken, isModerator, meetingId, authToken, learningDashboardBase]);
+  }, [learningDashboardAccessToken, isModerator, meetingId, authToken, learningDashboardBase, logoutUrl]);
 
   useEffect(() => {
     // Sets Loading to falsed and removes loading splash screen
@@ -278,13 +294,22 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
         // if not new connection is made
         apolloClient.setLink(ApolloLink.empty());
         // closes the connection
-        ws.terminate();
+        ws.dispose();
       }, 5000);
     }
   }, []);
 
+  useEffect(() => {
+    const { timeoutBeforeRedirectOnMeetingEnd } = window.meetingClientSettings.public.app;
+    if (typeof timeoutBeforeRedirectOnMeetingEnd === 'number' && !skipMeetingEnded) {
+      setTimeout(() => {
+        confirmRedirect(isBreakout, allowRedirect);
+      }, timeoutBeforeRedirectOnMeetingEnd);
+    }
+  }, []);
+
   if (skipMeetingEnded) {
-    confirmRedirect(isBreakout, allowDefaultLogoutUrl);
+    confirmRedirect(isBreakout, allowRedirect);
     return <></>; // even though well redirect, return empty component and prevent lint error
   }
 
@@ -295,7 +320,7 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
           <Styled.Title>
             {generateEndMessage(joinErrorCode, meetingEndedCode, endedBy)}
           </Styled.Title>
-          {allowDefaultLogoutUrl ? logoutButton : null}
+          {allowRedirect ? logoutButton : null}
         </Styled.Content>
       </Styled.Modal>
     </Styled.Parent>
@@ -313,31 +338,33 @@ const MeetingEndedContainer: React.FC<MeetingEndedContainerProps> = ({
     data: meetingEndData,
   } = useQuery<MeetingEndDataResponse>(getMeetingEndData);
 
-  if (meetingEndLoading || !meetingEndData) {
-    return (
-      <MeetingEnded
-        endedBy=""
-        joinErrorCode=""
-        meetingEndedCode=""
-        allowDefaultLogoutUrl={false}
-        skipMeetingEnded={false}
-        learningDashboardAccessToken=""
-        isModerator={false}
-        logoutUrl=""
-        learningDashboardBase=""
-        isBreakout={false}
-      />
-    );
+  const {
+    data: meetingData,
+  } = useMeeting((m) => ({
+    isBreakout: m.isBreakout,
+  }));
+
+  const {
+    data: currentUserData,
+    loading: currentUserLoading,
+    errors: currentUserErrors,
+  } = useCurrentUser((u) => ({
+    isModerator: u.isModerator,
+    logoutUrl: u.logoutUrl,
+  }));
+
+  if (meetingEndLoading || !meetingEndData || currentUserLoading || !currentUserData) {
+    return null;
   }
 
-  if (meetingEndError) {
+  if (meetingEndError || currentUserErrors) {
     logger.error('Error on fetching meeting end data: ', meetingEndError);
     return (
       <MeetingEnded
         endedBy=""
         joinErrorCode=""
         meetingEndedCode=""
-        allowDefaultLogoutUrl={false}
+        allowRedirect={false}
         skipMeetingEnded={false}
         learningDashboardAccessToken=""
         isModerator={false}
@@ -354,33 +381,31 @@ const MeetingEndedContainer: React.FC<MeetingEndedContainerProps> = ({
   const {
     isModerator,
     logoutUrl,
-    meeting,
-  } = user_current[0];
+  } = currentUserData;
 
   const {
     learningDashboard,
-    isBreakout,
-    clientSettings,
-  } = meeting;
+  } = user_current[0].meeting;
 
   const {
-    allowDefaultLogoutUrl,
     skipMeetingEnded,
     learningDashboardBase,
-  } = clientSettings;
+  } = window.meetingClientSettings.public.app;
+
+  const allowRedirect = allowRedirectToLogoutURL(logoutUrl ?? '');
 
   return (
     <MeetingEnded
       endedBy={endedBy}
       joinErrorCode={joinErrorCode}
       meetingEndedCode={meetingEndedCode}
-      allowDefaultLogoutUrl={allowDefaultLogoutUrl}
+      allowRedirect={allowRedirect}
       skipMeetingEnded={skipMeetingEnded}
       learningDashboardAccessToken={learningDashboard?.learningDashboardAccessToken}
-      isModerator={isModerator}
-      logoutUrl={logoutUrl}
+      isModerator={isModerator ?? false}
+      logoutUrl={logoutUrl ?? ''}
       learningDashboardBase={learningDashboardBase}
-      isBreakout={isBreakout}
+      isBreakout={meetingData?.isBreakout ?? false}
     />
   );
 };

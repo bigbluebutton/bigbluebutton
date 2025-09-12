@@ -7,11 +7,11 @@ We actively support BigBlueButton through the community forums and through secur
 | Version | Supported          |
 | ------- | ------------------ |
 | 2.6.x (or earlier)  | :x:    |
-| 2.7.x   | :white_check_mark: |
+| 2.7.x   | :x: |
 | 3.0.x   | :white_check_mark: |
 | 3.1.x   | :x: |
 
-We have released 3.0 to the community and are going to support 3.0 for the coming months, while 2.7 will receive BigBlueButton patches until April 2025 when Ubuntu 20.04 will see its community support end.  Also, BigBlueButton 2.6 is now end of life.
+We have released 3.0 to the community and are going to support 3.0 for the coming months.  Previous versions BigBlueButton 2.7 and 2.6 were on 20.04, which is now end of life and hence we no longer support those releases.
 
 As such, we recommend that all administrators deploy 3.0 going forward.  You'll find [many improvements](https://docs.bigbluebutton.org/3.0/new-features) in this newer version.
 

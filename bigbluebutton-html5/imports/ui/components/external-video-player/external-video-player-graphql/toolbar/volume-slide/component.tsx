@@ -9,13 +9,13 @@ interface VolumeSlideProps {
   hideVolume: boolean;
 }
 
-const VolumeSlide: React.FC<VolumeSlideProps> = ({
+const VolumeSlide = React.forwardRef<HTMLInputElement, VolumeSlideProps>(({
   onVolumeChanged,
   onMuted,
   volume,
   muted,
   hideVolume,
-}) => {
+}, ref) => {
   const [volumeState, setVolume] = React.useState(volume);
   const [mutedState, setMuted] = React.useState(muted);
 
@@ -54,7 +54,7 @@ const VolumeSlide: React.FC<VolumeSlideProps> = ({
 
   useEffect(() => {
     if (volumeState !== volume) {
-      handleOnChange(volume, muted);
+      setVolume(volume);
     }
 
     if (mutedState !== muted) {
@@ -68,12 +68,13 @@ const VolumeSlide: React.FC<VolumeSlideProps> = ({
     <Styled.Slider>
       <Styled.Volume onClick={() => {
         if (!muted) {
-          volumeBeforeMute.current = volumeState;
+          volumeBeforeMute.current = (volumeState || volume);
         }
-        onVolumeChanged(muted ? volumeBeforeMute.current : 0);
-        setVolume(!muted ? 0 : volumeBeforeMute.current || volume);
         setMuted(!muted);
         onMuted(!muted);
+        if (muted) {
+          onVolumeChanged(volumeBeforeMute.current || 1);
+        }
       }}
       >
         <i
@@ -82,6 +83,7 @@ const VolumeSlide: React.FC<VolumeSlideProps> = ({
         />
       </Styled.Volume>
       <Styled.VolumeSlider
+        ref={ref}
         type="range"
         min={0}
         max={1}
@@ -91,6 +93,6 @@ const VolumeSlide: React.FC<VolumeSlideProps> = ({
       />
     </Styled.Slider>
   );
-};
+});
 
 export default VolumeSlide;

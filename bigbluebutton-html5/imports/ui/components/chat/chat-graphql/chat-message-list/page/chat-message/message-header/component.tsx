@@ -53,7 +53,7 @@ const ChatMessageHeader: React.FC<ChatMessageHeaderProps> = ({
         <Styled.Center />
         {!deleteTime && editTime && (
           <Tooltip title={intl.formatTime(editTime, { hour12: false })}>
-            <Styled.EditLabel>
+            <Styled.EditLabel data-test="chatMessageEditedLabel">
               <Icon iconName="pen_tool" />
               <span>{intl.formatMessage(intlMessages.edited)}</span>
             </Styled.EditLabel>

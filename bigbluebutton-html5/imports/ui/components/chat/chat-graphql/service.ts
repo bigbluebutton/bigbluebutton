@@ -2,7 +2,7 @@ export const messageToMarkdown = (message: string) => {
   const parsedMessage = message || '';
 
   // this function is mostly used to convert links to markdown, so it can skip if it doesn't contain http
-  if (parsedMessage.indexOf('http') === -1) {
+  if (parsedMessage.toLowerCase().indexOf('http') === -1) {
     return parsedMessage;
   }
 
@@ -11,9 +11,9 @@ export const messageToMarkdown = (message: string) => {
   // Regex definitions
   const MULTI_LINE_CODE_BLOCK_REGEX = /```([\s\S]*?)```/g;
   const INLINE_CODE_REGEX = /`([^`]+)`/g;
-  const EMPTY_LINK_REGEX = /\[\]\((https?:\/\/[^)]+)\)/g;
+  const EMPTY_LINK_REGEX = /\[\]\((https?:\/\/[^)]+)\)/gi;
   const IMAGE_REGEX = /!\[([^\]]*)\]\(([^)]*)\)/g;
-  const URL_REGEX = /(http(s)?:\/\/)[-a-zA-Z0-9@:%._+~#=,ß]{2,256}\.[a-z0-9]{2,6}\b([-a-zA-Z0-9@:%_+.~#!?&//=,ß]*)?/g;
+  const URL_REGEX = /(http(s)?:\/\/)[-a-zA-Z0-9@:%._+~#=,ß]{2,256}\.[a-z0-9]{2,6}\b([-a-zA-Z0-9@:%_+.~#!?&//=,ß]*)?/gi;
   const MARKDOWN_LINK_REGEX = /\[([^\]]+)\]\(([^)]+)\)/g;
 
   // First pass: extract multi-line code blocks.

@@ -44,6 +44,7 @@ export class Shape {
     this.dash = this.props?.dash;
     this.fill = this.props?.fill;
     this.text = this.props?.text;
+    this.padding = this.props?.padding ?? 0;
 
     // Derived SVG properties
     this.thickness = Shape.getStrokeWidth(this.size);
@@ -287,11 +288,11 @@ export class Shape {
    * two decimal places. Coordinates are relative to the container.
    * @static
   */
-  static alignHorizontally(align, width) {
+  static alignHorizontally(align, width, padding) {
     switch (align) {
       case 'middle': return (width / 2).toFixed(2);
       case 'end': return (width).toFixed(2);
-      default: return '0';
+      default: return padding ?? '0';
     }
   }
 
@@ -391,10 +392,37 @@ export class Shape {
           fontSize);
 
       if (testWidth > width) {
-        if (line !== '') {
-          lines.push(line);
+        if (!(line + word).includes(' ')) {
+          let lineToWrap = line + word;
+          while (this.measureTextWidth(
+            lineToWrap,
+            parsedFont,
+            fontSize,
+          ) > width) {
+            let prefix = '';
+            let rest = '';
+            for (let i = 1; i < lineToWrap.length; i++) {
+              const textWidth = this.measureTextWidth(
+                lineToWrap.substring(0, i),
+                parsedFont,
+                fontSize,
+              );
+              if (textWidth > width) break;
+              prefix = lineToWrap.substring(0, i);
+              rest = lineToWrap.substring(i, lineToWrap.length);
+            }
+            if (prefix !== '') {
+              lines.push(prefix);
+            }
+            lineToWrap = rest;
+          }
+          line = lineToWrap + ' ';
+        } else {
+          if (line !== '') {
+            lines.push(line);
+          }
+          line = word + ' ';
         }
-        line = word + ' ';
       } else {
         line = testLine;
       }
@@ -437,7 +465,7 @@ export class Shape {
     const width = this.w;
     const height = this.h + this.growY;
 
-    const x = Shape.alignHorizontally(this.align, width);
+    const x = Shape.alignHorizontally(this.align, width, this.padding);
     let y = Shape.alignVertically(this.verticalAlign, height);
     const lineHeight = Shape.determineFontSize(this.size);
     const fontFamily = Shape.determineFontFromFamily(this.props?.font);

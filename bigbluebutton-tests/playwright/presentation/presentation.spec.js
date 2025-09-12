@@ -47,7 +47,8 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
     await presentation.presentationFullscreen();
   });
 
-  test('Presentation snapshot', async ({ browser, context, page }, testInfo) => {
+  test('Presentation snapshot', async ({ browser, context, page, browserName }, testInfo) => {
+    test.skip(browserName === 'firefox', 'Firefox does not support download.')
     const presentation = new Presentation(browser, context);
     await presentation.initPages(page);
     await presentation.presentationSnapshot(testInfo);
@@ -61,9 +62,6 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
   });
 
   test('Zoom In, Zoom Out, Reset Zoom', { tag: '@flaky' }, async ({ browser, context, page }) => {
-    // Oct, 24 => Recent failures in CI runs. doesn't seem to be reproducible locally
-    // see issue below
-    linkIssue(21266);
     const presentation = new Presentation(browser, context);
     await presentation.initPages(page);
     await presentation.zoom();

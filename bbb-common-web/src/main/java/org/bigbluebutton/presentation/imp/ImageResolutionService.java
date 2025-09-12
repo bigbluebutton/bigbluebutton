@@ -37,14 +37,15 @@ public class ImageResolutionService {
   public ImageResolution identifyImageResolution(File presentationFile) {
 
     NuProcessBuilder imageResolution = new NuProcessBuilder(
-        Arrays.asList("identify", "-format","%w %h", presentationFile.getAbsolutePath()));
+        Arrays.asList("/usr/share/bbb-web/run-in-systemd.sh", String.valueOf(wait),
+                "identify", "-format","%w %h", presentationFile.getAbsolutePath()));
 
-    ImageResolutionServiceHandler imgResHandler = new ImageResolutionServiceHandler();
+    ImageResolutionServiceHandler imgResHandler = new ImageResolutionServiceHandler("imgresolution-" + presentationFile.getName());
     imageResolution.setProcessListener(imgResHandler);
 
     NuProcess process = imageResolution.start();
     try {
-      process.waitFor(wait, TimeUnit.SECONDS);
+      process.waitFor(wait + 1, TimeUnit.SECONDS);
     } catch (InterruptedException e) {
       log.error("InterruptedException while identifying image resolution {}", presentationFile.getName(), e);
     }

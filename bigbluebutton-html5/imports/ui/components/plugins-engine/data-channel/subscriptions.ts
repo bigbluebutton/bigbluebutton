@@ -23,7 +23,7 @@ const PLUGIN_DATA_CHANNEL_NEW_ITEMS = gql`
   }
 `;
 
-const PLUGIN_DATA_CHANNEL_All_ITEMS = gql`
+const PLUGIN_DATA_CHANNEL_ALL_ITEMS = gql`
   subscription FetchPluginDataChannelEntry($pluginName: String!,
     $channelName: String!, $subChannelName: String!
   ){
@@ -72,4 +72,4 @@ const PLUGIN_DATA_CHANNEL_LATEST_ITEM = gql`
   }
 `;
 
-export { PLUGIN_DATA_CHANNEL_LATEST_ITEM, PLUGIN_DATA_CHANNEL_NEW_ITEMS, PLUGIN_DATA_CHANNEL_All_ITEMS };
+export { PLUGIN_DATA_CHANNEL_LATEST_ITEM, PLUGIN_DATA_CHANNEL_NEW_ITEMS, PLUGIN_DATA_CHANNEL_ALL_ITEMS };

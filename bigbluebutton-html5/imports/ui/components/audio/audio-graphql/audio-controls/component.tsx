@@ -3,8 +3,6 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { User } from '/imports/ui/Types/user';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import useMeeting from '/imports/ui/core/hooks/useMeeting';
-import { Meeting } from '/imports/ui/Types/meeting';
 import { useShortcut } from '/imports/ui/core/hooks/useShortcut';
 import { useMutation, useReactiveVar } from '@apollo/client';
 import { defineMessages, useIntl } from 'react-intl';
@@ -15,7 +13,9 @@ import { joinListenOnly } from './service';
 import Styled from './styles';
 import InputStreamLiveSelectorContainer from './input-stream-live-selector/component';
 import { UPDATE_ECHO_TEST_RUNNING } from './queries';
+import { SET_LISTEN_ONLY_INPUT_DEVICE } from '/imports/ui/components/user-list/user-list-content/user-participants/user-list-participants/user-actions/mutations';
 import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
+import useIsAudioConnected from '/imports/ui/components/audio/audio-graphql/hooks/useIsAudioConnected';
 
 const intlMessages = defineMessages({
   joinAudio: {
@@ -48,6 +48,7 @@ interface AudioControlsProps {
   updateEchoTestRunning: () => void;
   away: boolean;
   isConnecting?: boolean;
+  audioInputDevice: string | null;
 }
 
 const AudioControls: React.FC<AudioControlsProps> = ({
@@ -58,6 +59,7 @@ const AudioControls: React.FC<AudioControlsProps> = ({
   updateEchoTestRunning,
   away,
   isConnecting,
+  audioInputDevice,
 }) => {
   const intl = useIntl();
   const joinAudioShortcut = useShortcut('joinAudio');
@@ -66,6 +68,8 @@ const AudioControls: React.FC<AudioControlsProps> = ({
   const [isAudioModalOpen, setIsAudioModalOpen] = React.useState(false);
   const [audioModalContent, setAudioModalContent] = React.useState<string | null>(null);
   const [audioModalProps, setAudioModalProps] = React.useState<{ unmuteOnExit?: boolean } | null>(null);
+
+  const [setListenOnlyInputDevice] = useMutation(SET_LISTEN_ONLY_INPUT_DEVICE);
 
   const handleJoinAudio = useCallback((connected: boolean) => {
     if (connected) {
@@ -113,6 +117,17 @@ const AudioControls: React.FC<AudioControlsProps> = ({
     }
   }, [isEchoTest]);
 
+  useEffect(() => {
+    if (isConnected && audioInputDevice && audioInputDevice !== '') {
+      const listenOnlyInputDevice = audioInputDevice === 'listen-only';
+      setListenOnlyInputDevice({
+        variables: {
+          listenOnlyInputDevice,
+        },
+      });
+    }
+  }, [isConnected, audioInputDevice]);
+
   const setIsOpen = useCallback(() => {
     setIsAudioModalOpen(false);
     setAudioModalContent(null);
@@ -144,9 +159,6 @@ export const AudioControlsContainer: React.FC = () => {
     away: u.away,
   }));
 
-  const { data: currentMeeting } = useMeeting((m: Partial<Meeting>) => ({
-    lockSettings: m.lockSettings,
-  }));
   const [updateEchoTestRunningMutation] = useMutation(UPDATE_ECHO_TEST_RUNNING);
 
   const updateEchoTestRunning = useCallback(() => {
@@ -157,28 +169,32 @@ export const AudioControlsContainer: React.FC = () => {
   // so we doesn't broke the client that uses the value directly
   // and I can use it to make my component reactive
 
+  const isConnected = useIsAudioConnected();
   // @ts-ignore - temporary while hybrid (meteor+GraphQl)
-  const isConnected = useReactiveVar(AudioManager._isConnected.value) as boolean;
+  const isDeafened = useReactiveVar(AudioManager._isDeafened.value) as boolean;
   // @ts-ignore - temporary while hybrid (meteor+GraphQl)
   const isConnecting = useReactiveVar(AudioManager._isConnecting.value) as boolean;
   // @ts-ignore - temporary while hybrid (meteor+GraphQl)
   const isHangingUp = useReactiveVar(AudioManager._isHangingUp.value) as boolean;
   // @ts-ignore - temporary while hybrid (meteor+GraphQl)
   const isEchoTest = useReactiveVar(AudioManager._isEchoTest.value) as boolean;
+  // @ts-ignore
+  const audioInputDevice = useReactiveVar(AudioManager._inputDeviceId.value);
 
   const isClientConnected = useReactiveVar(connectionStatus.getConnectedStatusVar());
 
-  if (!currentUser || !currentMeeting) return null;
+  if (!currentUser) return null;
 
   return (
     <AudioControls
-      inAudio={!!currentUser.voice}
+      inAudio={(!!currentUser.voice && !isDeafened)}
       isConnected={isConnected}
       disabled={(isConnecting || isHangingUp || !isClientConnected)}
       isEchoTest={isEchoTest}
       updateEchoTestRunning={updateEchoTestRunning}
       away={currentUser.away ?? false}
       isConnecting={isConnecting}
+      audioInputDevice={audioInputDevice}
     />
   );
 };

@@ -1,0 +1,61 @@
+name: Plugin SDK - Match version of html5 package.json with bigbluebutton.properties
+on:
+  push:
+    branches:
+      - "develop"
+      - "v2.[5-9].x-release"
+      - "v[3-9].*.x-release"
+  pull_request:
+    types: [opened, synchronize, reopened]
+permissions:
+  contents: read
+jobs:
+  plugin-sdk-version-check:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout PR's source merged into its target branch
+        if: github.event_name == 'pull_request'
+        uses: actions/checkout@v4
+        with:
+          ref: refs/pull/${{ github.event.number }}/merge
+      - name: Checkout commit/branch
+        if: github.event_name != 'pull_request'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+
+      - name: Ensure jq is installed
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Extract plugin-sdk version from html5
+        working-directory: bigbluebutton-html5
+        run: |
+          VERSION=$(jq -r '.packages["node_modules/bigbluebutton-html-plugin-sdk"]["version"]' package-lock.json | sed 's/^[^0-9]*//')
+          echo "SDK version from package-lock.json: $VERSION"
+          echo "HTML5_SDK_VERSION=$VERSION" >> $GITHUB_ENV
+
+
+      - name: Fail if SDK version points to a commit URL
+        working-directory: bigbluebutton-html5
+        run: |
+          PACKAGE_VERSION=$(jq -r '.dependencies["bigbluebutton-html-plugin-sdk"]' package.json)
+          if [[ "$PACKAGE_VERSION" == https://codeload.github.com/* ]]; then
+            echo "The bigbluebutton-html-plugin-sdk is pointing to a commit in the SDK's repository"
+            exit 1
+          fi
+
+      - name: Extract plugin-sdk version from bigbluebutton.properties
+        working-directory: bigbluebutton-web
+        run: |
+          VERSION=$(grep '^html5PluginSdkVersion=' grails-app/conf/bigbluebutton.properties | cut -d'=' -f2 | tr -d '[:space:]')
+          echo "SDK version from bigbluebutton.properties: $VERSION"
+          echo "PROPERTIES_SDK_VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Check plugin-sdk version of html5 against bigbluebutton.properties
+        run: |
+          echo "Comparing versions..."
+          if [ "$HTML5_SDK_VERSION" != "$PROPERTIES_SDK_VERSION" ]; then
+            echo "Mismatch: HTML5 SDK version ($HTML5_SDK_VERSION) != Properties SDK version ($PROPERTIES_SDK_VERSION)"
+            exit 1
+          fi
+          echo "Versions match!"

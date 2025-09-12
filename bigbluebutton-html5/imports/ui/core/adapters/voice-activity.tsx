@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useReactiveVar } from '@apollo/client';
 import useVoiceActivity from '/imports/ui/core/hooks/useVoiceActivity';
 import {
   setWhoIsUnmutedLoading,
@@ -15,6 +16,7 @@ import {
   setTalkingUserLoading,
   useTalkingUserConsumersCount,
 } from '/imports/ui/core/hooks/useTalkingUsers';
+import ConnectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
 
 const VoiceActivityAdapter = () => {
   const whoIsUnmutedConsumersCount = useWhoIsUnmutedConsumersCount();
@@ -26,6 +28,7 @@ const VoiceActivityAdapter = () => {
     + talkingUserConsumersCount > 0
   );
   const { data: voiceActivity, loading } = useVoiceActivity(skip);
+  const connected = useReactiveVar(ConnectionStatus.getConnectedStatusVar());
 
   useEffect(() => {
     dispatchWhoIsUnmutedUpdate(voiceActivity);
@@ -38,6 +41,14 @@ const VoiceActivityAdapter = () => {
     setWhoIsTalkingLoading(loading);
     setTalkingUserLoading(loading);
   }, [loading]);
+
+  useEffect(() => {
+    if (!connected) {
+      dispatchWhoIsUnmutedUpdate(undefined);
+      dispatchWhoIsTalkingUpdate(undefined);
+      dispatchTalkingUserUpdate(undefined);
+    }
+  }, [connected]);
 
   return null;
 };

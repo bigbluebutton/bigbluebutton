@@ -10,6 +10,7 @@ import { uniqueId } from '/imports/utils/string-utils';
 import { layoutSelect } from '../../../layout/context';
 import { Layout } from '../../../layout/layoutTypes';
 import ExternalVideoPlayerProgressBar from './progress-bar/component';
+import ExternalVideoOverlay from './overlay/component';
 
 const intlMessages = defineMessages({
   refreshLabel: {
@@ -43,6 +44,7 @@ interface ExternalVideoPlayerToolbarProps {
   playerParent: HTMLDivElement | null;
   played: number;
   loaded: number;
+  showUnsynchedMsg: boolean;
 }
 
 const ExternalVideoPlayerToolbar: React.FC<ExternalVideoPlayerToolbarProps> = ({
@@ -62,9 +64,11 @@ const ExternalVideoPlayerToolbar: React.FC<ExternalVideoPlayerToolbarProps> = ({
   playerParent,
   played,
   loaded,
+  showUnsynchedMsg,
 }) => {
   const intl = useIntl();
   const mobileTimout = React.useRef<ReturnType<typeof setTimeout>>();
+  const volumeSliderRef = React.useRef<HTMLInputElement>(null);
 
   const fullscreen = layoutSelect((i: Layout) => i.fullscreen);
   const { element } = fullscreen;
@@ -82,6 +86,7 @@ const ExternalVideoPlayerToolbar: React.FC<ExternalVideoPlayerToolbarProps> = ({
                 muted={muted || mutedByEchoTest}
                 onMuted={handleOnMuted}
                 onVolumeChanged={handleVolumeChanged}
+                ref={volumeSliderRef}
               />
               <Styled.ButtonsWrapper>
                 <ReloadButton
@@ -112,7 +117,7 @@ const ExternalVideoPlayerToolbar: React.FC<ExternalVideoPlayerToolbarProps> = ({
             </Styled.HoverToolbar>
           ),
           (
-            deviceInfo.isMobile && playing) && (
+            deviceInfo.isMobile && playing && !showUnsynchedMsg) && (
               <Styled.MobileControlsOverlay
                 key="mobile-overlay-external-video"
                 onTouchStart={() => {
@@ -127,6 +132,14 @@ const ExternalVideoPlayerToolbar: React.FC<ExternalVideoPlayerToolbarProps> = ({
                 }}
               />
           ),
+          (!showUnsynchedMsg && (
+            <ExternalVideoOverlay
+              key="external-video-overlay"
+              onVerticalArrow={() => {
+                volumeSliderRef.current?.focus();
+              }}
+            />
+          )),
         ]
       }
     </>

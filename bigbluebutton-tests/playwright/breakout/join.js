@@ -22,7 +22,7 @@ class Join extends Create {
 
     await this.userPage.waitAndClick(e.breakoutRoomsItem);
     await this.userPage.waitAndClick(e.joinRoom1);
-    await this.userPage.hasElement(e.alreadyConnected, 'should display the element alreadyConnected', ELEMENT_WAIT_LONGER_TIME);
+    await this.userPage.hasElement(e.alreadyConnected, 'should display the element alreadyConnected', ELEMENT_WAIT_EXTRA_LONG_TIME);
 
     const breakoutUserPage = await this.userPage.getLastTargetPage(this.context);
     await breakoutUserPage.bringToFront();
@@ -33,6 +33,7 @@ class Join extends Create {
       await breakoutUserPage.closeAudioModal();
     }
     await breakoutUserPage.hasElement(e.presentationTitle, 'should display the presentation title on the breakout room');
+    await breakoutUserPage.hasText(e.timeRemaining, /1[4-5]:[0-5][0-9]/, 'should have the time remaining counting down on the breakout room');
     return breakoutUserPage;
   }
 
@@ -92,11 +93,11 @@ class Join extends Create {
     await this.modPage.waitAndClick(e.breakoutOptionsMenu);
     await this.modPage.waitAndClick(e.openBreakoutTimeManager);
     await this.modPage.getLocator(e.inputSetTimeSelector).press('Backspace');
-    await this.modPage.type(e.inputSetTimeSelector, '2');
+    await this.modPage.type(e.inputSetTimeSelector, '5');
     await this.modPage.waitAndClick(e.sendButtonDurationTime);
-    await this.modPage.hasText(e.breakoutRemainingTime, /[11-12]:[0-5][0-9]/, 'should have the breakout room time remaining counting down on the main meeting');
+    await this.modPage.hasText(e.breakoutRemainingTime, /[4-5]:[0-5][0-9]/, 'should have the breakout room time remaining counting down on the main meeting');
 
-    await breakoutUserPage.hasText(e.timeRemaining, /[11-12]:[0-5][0-9]/, 'should have the time remaining counting down on the breakout room');
+    await breakoutUserPage.hasText(e.timeRemaining, /[4-5]:[0-5][0-9]/, 'should have the time remaining counting down on the breakout room');
   }
 
   async inviteUserAfterCreatingRooms() {
@@ -125,11 +126,11 @@ class Join extends Create {
     await this.modPage.waitAndClick(e.breakoutOptionsMenu);
     await this.modPage.waitAndClick(e.openBreakoutTimeManager);
     await this.modPage.getLocator(e.inputSetTimeSelector).press('Backspace');
-    await this.modPage.type(e.inputSetTimeSelector, '2');
+    await this.modPage.type(e.inputSetTimeSelector, '5');
     await this.modPage.waitAndClick(e.sendButtonDurationTime);
-    await this.modPage.hasText(e.breakoutRemainingTime, /[11-12]:[0-5][0-9]/, 'should have the breakout room time remaining counting down on the breakout main panel.');
+    await this.modPage.hasText(e.breakoutRemainingTime, /[4-5]:[0-5][0-9]/, 'should have the breakout room time remaining counting down on the breakout main panel.');
 
-    await breakoutUserPage.hasText(e.timeRemaining, /[11-12]:[0-5][0-9]/, 'should display the remaining time inside the breakout room');
+    await breakoutUserPage.hasText(e.timeRemaining, /[4-5]:[0-5][0-9]/, 'should display the remaining time inside the breakout room');
   }
 
   async endAllBreakoutRooms() {
@@ -167,7 +168,9 @@ class Join extends Create {
     }
     // join room and type on the shared notes
     const breakoutUserPage = await this.joinRoom();
-    await breakoutUserPage.hasElement(e.presentationTitle, 'should display the presentation title inside the breakout room.');
+    await breakoutUserPage.hasElement(e.presentationTitle, 'should display the presentation title inside the breakout room');
+    await breakoutUserPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await sleep(2000); // wait for the whiteboard to stabilize
     await breakoutUserPage.waitAndClick(e.sharedNotes);
     await breakoutUserPage.hasElement(e.hideNotesLabel, 'should display the hide notes element when shared notes is opened');
     const notesLocator = getNotesLocator(breakoutUserPage);
@@ -193,10 +196,11 @@ class Join extends Create {
       "Activate timer/stopwatch",
       "Share camera as content",
     ];
-    await this.modPage.checkElementCount(e.actionsItem, expectedActionItems.length);
+    await this.modPage.hasElementCount(e.actionsItem, expectedActionItems.length);
     await shareNotesPDF.click();
     await hasCurrentPresentationToastElement(this.modPage, 'should display the current presentation toast when changing to the whiteboard exported file');
     // visual assertion
+    await sleep(2000); // ensure whiteboard zoom is stabilized
     const wbLocator = await this.modPage.getLocator(e.whiteboard);
     await expect(wbLocator).toHaveScreenshot('capture-breakout-notes.png', {
       maxDiffPixels: 1500,
@@ -241,7 +245,7 @@ class Join extends Create {
       "Activate timer/stopwatch",
       "Share camera as content",
     ];
-    await this.modPage.checkElementCount(e.actionsItem, expectedActionItems.length);
+    await this.modPage.hasElementCount(e.actionsItem, expectedActionItems.length);
     await this.modPage.press('Escape'); // close the actions menu
     await this.modPage.hasElement(e.presentationUploadProgressToast, 'should display the presentation upload progress toast with the exported whiteboard');
     await this.modPage.getLocator(e.presentationUploadProgressToast).click({
@@ -255,6 +259,7 @@ class Join extends Create {
     await whiteboardPDF.click();
     await hasCurrentPresentationToastElement(this.modPage, 'should display the current presentation toast when changing to the whiteboard exported file');
     // visual assertion
+    await sleep(2000); // ensure whiteboard zoom is stabilized
     const wbLocator = await this.modPage.getLocator(e.whiteboard);
     await expect(wbLocator).toHaveScreenshot('capture-breakout-whiteboard.png', {
       maxDiffPixels: 1500,
@@ -266,9 +271,9 @@ class Join extends Create {
 
     await this.userPage.hasElementEnabled(e.selectBreakoutRoomBtn);
     await this.userPage.hasElementEnabled(e.modalConfirmButton);
-    await this.userPage.checkElementCount(e.roomOption, 2);
+    await this.userPage.hasHiddenElementCount(e.roomOption, 2);
 
-    await this.userPage.getLocator(`${e.fullscreenModal} >> select`).selectOption({index: 1});
+    await this.userPage.getLocator(e.selectBreakoutRoomBtn).selectOption({index: 1});
     await this.userPage.waitAndClick(e.modalConfirmButton);
 
     const breakoutUserPage = await this.userPage.getLastTargetPage(this.context);

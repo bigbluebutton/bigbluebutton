@@ -10,9 +10,17 @@ const intlMessages = defineMessages({
     id: 'app.poll.start.label',
     description: '',
   },
+  startQuizLabel: {
+    id: 'app.poll.quiz.start.label',
+    description: '',
+  },
   questionErr: {
     id: 'app.poll.questionErr',
     description: 'question text area error label',
+  },
+  quizErr: {
+    id: 'app.poll.quiz.error',
+    description: 'quiz error label',
   },
   optionErr: {
     id: 'app.poll.optionErr',
@@ -51,7 +59,9 @@ interface StartPollButtonProps {
   setError: (err: string) => void;
   setIsPolling: (isPolling: boolean) => void;
   secretPoll: boolean;
-  isMultipleResponse: boolean;
+  multipleResponse: boolean;
+  isQuiz: boolean;
+  correctAnswerText: string;
 }
 
 const StartPollButton: React.FC<StartPollButtonProps> = ({
@@ -61,7 +71,9 @@ const StartPollButton: React.FC<StartPollButtonProps> = ({
   setError,
   setIsPolling,
   secretPoll,
-  isMultipleResponse,
+  multipleResponse,
+  isQuiz = false,
+  correctAnswerText = '',
 }) => {
   const CHAT_CONFIG = window.meetingClientSettings.public.chat;
   const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
@@ -76,7 +88,9 @@ const StartPollButton: React.FC<StartPollButtonProps> = ({
     pollType: string | null,
     secretPoll: boolean,
     question: string | string[],
-    isMultipleResponse: boolean,
+    multipleResponse: boolean,
+    isQuiz: boolean = false,
+    correctAnswerText: string = '',
     answers: (string | null)[] = [],
   ) => {
     const pollId = PUBLIC_CHAT_KEY;
@@ -87,22 +101,24 @@ const StartPollButton: React.FC<StartPollButtonProps> = ({
         pollId: `${pollId}/${new Date().getTime()}`,
         secretPoll,
         question,
-        isMultipleResponse,
+        multipleResponse,
+        quiz: isQuiz,
         answers,
+        correctAnswer: correctAnswerText,
       },
     });
   };
 
-  const hasNotMinOptions = type !== pollTypes.Response
-    && optList.filter((o) => o.val.trim().length > 0).length < 1;
-
+  const hasNotMinOptions = (type !== pollTypes.Response
+    && optList.filter((o) => o.val.trim().length > 0).length < 1);
+  const quizHasNoCorrectAnswer = (isQuiz && correctAnswerText.trim().length === 0);
   return (
     <Styled.StartPollBtn
       data-test="startPoll"
-      label={intl.formatMessage(intlMessages.startPollLabel)}
+      label={isQuiz ? intl.formatMessage(intlMessages.startQuizLabel) : intl.formatMessage(intlMessages.startPollLabel)}
       color="primary"
-      disabled={hasNotMinOptions}
-      title={hasNotMinOptions ? intl.formatMessage(intlMessages.minOptionsErr) : ''}
+      disabled={hasNotMinOptions || quizHasNoCorrectAnswer}
+      title={`${hasNotMinOptions ? intl.formatMessage(intlMessages.minOptionsErr) : ''}\n${quizHasNoCorrectAnswer ? intl.formatMessage(intlMessages.quizErr) : ''}`}
       onClick={() => {
         const optionsList = optList.slice(0, MAX_CUSTOM_FIELDS);
         let hasVal = false;
@@ -143,11 +159,20 @@ const StartPollButton: React.FC<StartPollButtonProps> = ({
               verifiedPollType,
               secretPoll,
               question,
-              isMultipleResponse,
+              multipleResponse,
+              isQuiz,
+              correctAnswerText,
               verifiedOptions?.filter(Boolean),
             );
           } else {
-            startPoll(verifiedPollType, secretPoll, question, isMultipleResponse);
+            startPoll(
+              verifiedPollType,
+              secretPoll,
+              question,
+              multipleResponse,
+              isQuiz,
+              correctAnswerText,
+            );
           }
         }
       }}

@@ -73,11 +73,6 @@ const Option = styled.div`
     font-weight: ${headingsFontWeight};
   `}
 
-  [dir="rtl"] & {
-    margin-right: .5rem;
-    margin-left: 1.65rem;
-  }
-
   ${({ textColor }) => textColor && `
     color: ${textColor};
   `}

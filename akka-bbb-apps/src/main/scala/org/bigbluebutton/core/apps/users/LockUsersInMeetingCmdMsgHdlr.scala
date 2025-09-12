@@ -32,7 +32,7 @@ trait LockUsersInMeetingCmdMsgHdlr extends RightsManagementTrait {
         for {
           uvo <- Users2x.setUserLocked(liveMeeting.users2x, utl.intId, msg.body.lock)
         } yield {
-          log.info("Lock user.  meetingId=" + props.meetingProp.intId + " userId=" + uvo.intId + " locked=" + uvo.locked)
+          log.info("Lock user.  meetingId=" + props.meetingProp.intId + " userId=" + uvo.intId + " locked=" + uvo.locked + " performedByUserId=" + msg.body.lockedBy)
           val event = build(props.meetingProp.intId, uvo.intId, msg.body.lockedBy, uvo.locked)
           outGW.send(event)
         }

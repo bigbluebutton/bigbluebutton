@@ -38,14 +38,11 @@ trait ChangeUserBreakoutReqMsgHdlr extends RightsManagementTrait {
           })
         }
 
-        val isSameRoom = msg.body.fromBreakoutId == msg.body.toBreakoutId
-        val removePreviousRoomFromDb = !breakoutModel.rooms.exists(r => r._2.freeJoin) && !isSameRoom
-
         //Get join URL for room To
         val redirectToHtml5JoinURL = (
             for {
               roomTo <- breakoutModel.rooms.get(msg.body.toBreakoutId)
-              (redirectToHtml5JoinURL, redirectJoinURL) <- getRedirectUrls(liveMeeting, msg.body.userId, roomTo.externalId, roomTo.sequence.toString())
+              (redirectToHtml5JoinURL, redirectJoinURL) <- getRedirectUrls(liveMeeting, msg.body.userId, roomTo.externalId, roomTo.sequence.toString)
             } yield redirectToHtml5JoinURL
           ).getOrElse("")
 
@@ -59,13 +56,11 @@ trait ChangeUserBreakoutReqMsgHdlr extends RightsManagementTrait {
         )
 
         //Update database
-        BreakoutRoomUserDAO.updateRoomChanged(
+        BreakoutRoomUserDAO.updateUserMovedToRoom(
           meetingId,
           msg.body.userId,
-          msg.body.fromBreakoutId,
           msg.body.toBreakoutId,
-          redirectToHtml5JoinURL,
-          removePreviousRoomFromDb)
+          redirectToHtml5JoinURL)
 
         //Send notification to moved User
         for {
@@ -79,7 +74,7 @@ trait ChangeUserBreakoutReqMsgHdlr extends RightsManagementTrait {
             "promote",
             "app.updateBreakoutRoom.userChangeRoomNotification",
             "Notification to warn user was moved to another room",
-            Vector(roomTo.shortName)
+            Map("roomName" -> roomTo.shortName)
           )
           outGW.send(notifyUserEvent)
           NotificationDAO.insert(notifyUserEvent)

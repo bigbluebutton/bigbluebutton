@@ -87,6 +87,13 @@ jobs:
           else
             echo "Required files not found in artifact"
           fi
+  publish-test-results:
+    runs-on: ubuntu-latest
+    needs: get-pr-data
+    if: ${{ needs.get-pr-data.outputs.pr-number && needs.get-pr-data.outputs.workflow-id }}
+    steps:
+      - name: Publish Test Results
+        run: echo "hello world"
   comment-pr:
     runs-on: ubuntu-latest
     permissions:

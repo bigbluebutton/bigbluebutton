@@ -55,7 +55,7 @@ trait SetRecordingStatusCmdMsgHdlr extends RightsManagementTrait {
             "record",
             "app.notification.recordingStart",
             "Notification for when the recording starts",
-            Vector()
+            Map()
           )
           outGW.send(notifyEvent)
           NotificationDAO.insert(notifyEvent)
@@ -82,7 +82,7 @@ trait SetRecordingStatusCmdMsgHdlr extends RightsManagementTrait {
             "record",
             "app.notification.recordingPaused",
             "Notification for when the recording stops",
-            Vector()
+            Map()
           )
           outGW.send(notifyEvent)
           NotificationDAO.insert(notifyEvent)

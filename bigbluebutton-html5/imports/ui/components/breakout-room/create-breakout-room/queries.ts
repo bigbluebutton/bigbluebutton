@@ -52,12 +52,13 @@ export const getUser = gql`
     user(
       where: { bot: {_eq: false } }
       order_by: [
+        {presenter: desc},
         {role: asc},
         {raiseHandTime: asc_nulls_last},
-        {awayTime: asc_nulls_last},
         {isDialIn: desc},
         {hasDrawPermissionOnCurrentPage: desc},
         {nameSortable: asc},
+        {registeredAt: asc},
         {userId: asc}
       ]) {
       extId
@@ -85,18 +86,8 @@ export const getBreakouts = gql`
   }
 `;
 
-export const getBreakoutCount = gql`
-  query getBreakoutCount {
-    breakoutRoom_aggregate {
-      aggregate {
-        count
-      }
-    }
-  }
-`;
-
 export const getLastBreakouts = gql`
-  query {
+  query getLastBreakouts {
     user {
       lastBreakoutRoom {
         breakoutRoomId
@@ -122,7 +113,6 @@ export const getMeetingGroup = gql`
       usersExtId
     }
  }
-
 `;
 
 export default {

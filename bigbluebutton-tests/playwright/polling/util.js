@@ -11,7 +11,7 @@ async function openPoll(testPage) {
   await testPage.waitAndClick(e.polling);
   await testPage.hasElement(e.hidePollDesc, 'should display the hide poll description when creating a new poll');
   await testPage.waitAndClick(e.pollLetterAlternatives);
-  await testPage.checkElementCount(e.pollOptionItem, 4, 'should display the poll options item for the poll answers');
+  await testPage.hasElementCount(e.pollOptionItem, 4, 'should display the poll options item for the poll answers');
 }
 
 async function startPoll(test, isAnonymous = false) {

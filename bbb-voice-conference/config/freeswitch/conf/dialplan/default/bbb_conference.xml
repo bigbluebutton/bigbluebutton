@@ -1,4 +1,34 @@
 <include>
+   <extension name="reject_empty_cid">
+      <!-- This condition should never be removed as far as BBB is concerned -->
+      <condition field="${caller_id_number}" expression="^$" break="on-true">
+        <action application="log" data="WARNING Rejecting call with empty Caller-ID-Number" />
+        <action application="hangup" data="CALL_REJECTED" />
+      </condition>
+   </extension>
+   <!-- The reject_anonymous extension can be removed if you don't want to reject anonymous calls -->
+   <extension name="reject_anonymous">
+      <condition field="${caller_id_name}" expression="^$" break="on-true">
+        <action application="log" data="WARNING Rejecting call with empty Caller-ID-Name" />
+        <action application="hangup" data="CALL_REJECTED" />
+      </condition>
+      <condition field="caller_id_number" expression="^(?i)(0000000000|anonymous|unknown|private|restricted|withheld)$" break="on-true">
+         <action application="log" data="WARNING Rejecting call from anonymous User-Agent (cid)" />
+         <action application="hangup" data="CALL_REJECTED" />
+      </condition>
+      <condition field="caller_id_name" expression="^(?i)(0000000000|anonymous|unknown|private|restricted|withheld)$" break="on-true">
+         <action application="log" data="WARNING Rejecting call from anonymous User-Agent (cin)" />
+         <action application="hangup" data="CALL_REJECTED" />
+      </condition>
+      <condition field="privacy_hide_name" expression="true" break="on-true">
+         <action application="log" data="WARNING Blocked call due to CLIR anonymity headers" />
+         <action application="hangup" data="CALL_REJECTED" />
+      </condition>
+      <condition field="privacy_hide_number" expression="true" break="on-true">
+         <action application="log" data="WARNING Blocked call due to CLIR anonymity headers" />
+         <action application="hangup" data="CALL_REJECTED" />
+      </condition>
+   </extension>
    <extension name="bbb_conferences_ws">
       <condition field="${bbb_authorized}" expression="true" break="on-false" />
       <condition field="${sip_via_protocol}" expression="^wss?$" />

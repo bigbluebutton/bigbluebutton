@@ -19,6 +19,7 @@ import {
   MessageList,
   UnreadButton,
   PageWrapper,
+  Content,
 } from './styles';
 import useReactiveRef from '/imports/ui/hooks/useReactiveRef';
 import useStickyScroll from '/imports/ui/hooks/useStickyScroll';
@@ -37,6 +38,8 @@ import { CHAT_DELETE_REACTION_MUTATION, CHAT_SEND_REACTION_MUTATION } from './pa
 import logger from '/imports/startup/client/logger';
 import { ChatLoading } from '../component';
 import Storage from '/imports/ui/services/storage/in-memory';
+import browserInfo from '/imports/utils/browserInfo';
+import deviceInfo from '/imports/utils/deviceInfo';
 
 const PAGE_SIZE = 50;
 const CLEANUP_TIMEOUT = 3000;
@@ -205,6 +208,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
   const [focusedMessageElement, setFocusedMessageElement] = React.useState<HTMLElement | null>();
   const [loadingPages, setLoadingPages] = useState(new Set<number>());
   const [lockLoadingNewPages, setLockLoadingNewPages] = useState(true);
+  const [isScrollingDisabled, setIsScrollingDisabled] = useState(false);
   const allPagesLoaded = loadingPages.size === 0;
   const {
     childRefProxy: endSentinelRefProxy,
@@ -246,7 +250,6 @@ const ChatMessageList: React.FC<ChatListProps> = ({
 
   const sendReaction = useCallback((
     reactionEmoji: string,
-    reactionEmojiId: string,
     chatId: string,
     messageId: string,
   ) => {
@@ -255,7 +258,6 @@ const ChatMessageList: React.FC<ChatListProps> = ({
         chatId,
         messageId,
         reactionEmoji,
-        reactionEmojiId,
       },
     }).catch((e) => {
       logger.error({
@@ -270,7 +272,6 @@ const ChatMessageList: React.FC<ChatListProps> = ({
 
   const deleteReaction = useCallback((
     reactionEmoji: string,
-    reactionEmojiId: string,
     chatId: string,
     messageId: string,
   ) => {
@@ -279,7 +280,6 @@ const ChatMessageList: React.FC<ChatListProps> = ({
         chatId,
         messageId,
         reactionEmoji,
-        reactionEmojiId,
       },
     }).catch((e) => {
       logger.error({
@@ -388,6 +388,44 @@ const ChatMessageList: React.FC<ChatListProps> = ({
     }
   };
 
+  const scrollToBottom = useCallback(() => {
+    const container = messageListContainerRef.current;
+
+    if (!container) return;
+
+    let initialPosition = 0;
+    let initialTimestamp = 0;
+    let scrollPositionDiff = 0;
+
+    setIsScrollingDisabled(true);
+
+    const animateScrollPosition = (timestamp: number) => {
+      const value = (timestamp - initialTimestamp) / 300;
+      if (value <= 1) {
+        container.scrollTop = initialPosition + (value * scrollPositionDiff);
+        requestAnimationFrame(animateScrollPosition);
+      } else {
+        container.scrollTop = container.scrollHeight - container.offsetHeight;
+        setIsScrollingDisabled(false);
+      }
+    };
+
+    const startScrollAnimation = (timestamp: number) => {
+      const {
+        scrollTop,
+        scrollHeight,
+        offsetHeight,
+      } = container;
+
+      initialTimestamp = timestamp;
+      initialPosition = scrollTop;
+      scrollPositionDiff = scrollHeight - offsetHeight - scrollTop;
+      requestAnimationFrame(animateScrollPosition);
+    };
+
+    requestAnimationFrame(startScrollAnimation);
+  }, []);
+
   const renderUnreadNotification = useMemo(() => {
     if (totalUnread && !followingTail) {
       return (
@@ -397,11 +435,8 @@ const ChatMessageList: React.FC<ChatListProps> = ({
           size="sm"
           key="unread-messages"
           label={intl.formatMessage(intlMessages.moreMessages)}
-          onClick={() => {
-            if (endSentinelRef.current) {
-              endSentinelRef.current.scrollIntoView({ behavior: 'smooth' });
-            }
-          }}
+          onClick={scrollToBottom}
+          isRTL={isRTL}
         />
       );
     }
@@ -485,44 +520,211 @@ const ChatMessageList: React.FC<ChatListProps> = ({
     setLockLoadingNewPages(loadingPages.size !== 0);
   }, [loadingPages]);
 
+  const scrollEndFrameRef = React.useRef<number>();
+  const userStartedScrollingAt = React.useRef<number | null>(null);
+  const scrollEventCount = React.useRef(0);
+  const scrollActivityCheckInterval = React.useRef<ReturnType<typeof setInterval>>();
+
+  const pollScrollEndEvent = useCallback((
+    setFrameId: (id: number) => void,
+    onScrollEnd: () => void,
+    {
+      stabilityFrames,
+      currentFrame,
+    } = {
+      stabilityFrames: 20,
+      currentFrame: 0,
+    },
+  ) => {
+    if (currentFrame < stabilityFrames) {
+      const frameId = requestAnimationFrame(() => {
+        pollScrollEndEvent(setFrameId, onScrollEnd, {
+          stabilityFrames,
+          currentFrame: currentFrame + 1,
+        });
+      });
+      setFrameId(frameId);
+      return;
+    }
+
+    onScrollEnd();
+  }, []);
+
+  const startScrollEndEventPolling = useCallback((onScrollEnd: () => void) => {
+    if (scrollEndFrameRef.current != null) {
+      cancelAnimationFrame(scrollEndFrameRef.current);
+      scrollEndFrameRef.current = undefined;
+    }
+    scrollEndFrameRef.current = requestAnimationFrame(() => {
+      pollScrollEndEvent((frameId) => {
+        scrollEndFrameRef.current = frameId;
+      }, onScrollEnd);
+    });
+  }, []);
+
+  const startScrollActivityCheck = useCallback(() => {
+    userStartedScrollingAt.current = Date.now();
+
+    scrollActivityCheckInterval.current = setInterval(() => {
+      if (userStartedScrollingAt.current === null) return;
+      const now = Date.now();
+      const timeEllapsedInSeconds = (now - userStartedScrollingAt.current) / 1000;
+      const scrollRatio = scrollEventCount.current / timeEllapsedInSeconds;
+      if (scrollRatio > 100) {
+        const messageElements = Array.from(document.querySelectorAll('#chat-list [data-message-type]')) as HTMLElement[];
+        const messageTypeCount = messageElements.reduce((acc, element) => {
+          const { messageType } = element.dataset;
+          if (messageType) {
+            if (acc[messageType]) {
+              acc[messageType] += 1;
+            } else {
+              acc[messageType] = 1;
+            }
+          }
+          return acc;
+        }, {} as Record<string, number | undefined>);
+
+        logger.warn({
+          logCode: 'high_scroll_activity_in_chat',
+          extraInfo: {
+            userLoadedMessagesByType: {
+              totalMessages: messageElements.length,
+              ...messageTypeCount,
+            },
+            userId: currentUser?.userId,
+            browserName: browserInfo.browserName,
+            browserVersion: browserInfo.browserVersion,
+            deviceName: deviceInfo.osName,
+            deviceVersion: deviceInfo.osVersion,
+            scrollRatio,
+          },
+        }, 'User performed high scroll activity in chat');
+      }
+    }, 1000);
+  }, [currentUser?.userId]);
+
+  useEffect(() => () => {
+    if (scrollActivityCheckInterval.current) {
+      clearInterval(scrollActivityCheckInterval.current);
+    }
+    if (scrollEndFrameRef.current) {
+      cancelAnimationFrame(scrollEndFrameRef.current);
+    }
+  }, []);
+
   return (
     <>
       {
         [
-          <MessageList
-            id="chat-list"
-            key="message-list-wrapper"
-            onMouseUp={() => {
-              setScrollToTailEventHandler();
-            }}
-            onTouchEnd={() => {
-              setScrollToTailEventHandler();
-            }}
-            onScroll={(e) => {
-              if (e.target instanceof HTMLDivElement) {
-                const userScrolledUp = Math.ceil(e.target.scrollTop + e.target.clientHeight) < e.target.scrollHeight;
-                setShowStartSentinel(userScrolledUp);
-              }
-            }}
-            onWheel={(e) => {
-              if (e.deltaY < 0 && isStartSentinelVisible && !lockLoadingNewPages) {
-                setUserLoadedBackUntilPage((prev) => {
-                  if (typeof prev === 'number' && prev > 0) {
-                    setLockLoadingNewPages(true);
-                    return prev - 1;
-                  }
-                  return prev;
+          <Content key="message-list-content">
+            <MessageList
+              id="chat-list"
+              key="message-list-wrapper"
+              onMouseUp={() => {
+                setScrollToTailEventHandler();
+              }}
+              onTouchEnd={() => {
+                setScrollToTailEventHandler();
+              }}
+              onScroll={(e) => {
+                if (isScrollingDisabled) {
+                  e.preventDefault();
+                  return;
+                }
+                const {
+                  scrollTop,
+                  clientHeight,
+                  scrollHeight,
+                } = e.currentTarget;
+                const userScrolledUp = Math.ceil(scrollTop + clientHeight) < scrollHeight;
+                if (userScrolledUp !== showStartSentinel) {
+                  setShowStartSentinel(userScrolledUp);
+                }
+                if (scrollActivityCheckInterval.current == null) {
+                  startScrollActivityCheck();
+                }
+                startScrollEndEventPolling(() => {
+                  userStartedScrollingAt.current = null;
+                  scrollEventCount.current = 0;
+                  clearInterval(scrollActivityCheckInterval.current);
+                  scrollActivityCheckInterval.current = undefined;
                 });
-              }
-            }}
-            data-test="chatMessages"
-            isRTL={isRTL}
-            ref={updateRefs}
-            $hasMessageToolbar={hasMessageToolbar}
-          >
-            {showStartSentinel && (
+                scrollEventCount.current += 1;
+              }}
+              onWheel={(e) => {
+                if (isScrollingDisabled) {
+                  e.preventDefault();
+                  return;
+                }
+                if (e.deltaY < 0 && isStartSentinelVisible && !lockLoadingNewPages) {
+                  setUserLoadedBackUntilPage((prev) => {
+                    if (typeof prev === 'number' && prev > 0) {
+                      setLockLoadingNewPages(true);
+                      return prev - 1;
+                    }
+                    return prev;
+                  });
+                }
+              }}
+              data-test="chatMessages"
+              isRTL={isRTL}
+              ref={updateRefs}
+              $hasMessageToolbar={hasMessageToolbar}
+            >
+              {showStartSentinel && (
+                <div
+                  ref={startSentinelRefProxy}
+                  style={{
+                    height: 1,
+                    background: 'none',
+                  }}
+                  tabIndex={-1}
+                  aria-hidden
+                />
+              )}
+              <PageWrapper
+                role="list"
+                aria-live="polite"
+                ref={messageListRef}
+                tabIndex={hasMessageToolbar ? 0 : -1}
+                onKeyDown={rove}
+              >
+                {Array.from({ length: pagesToLoad }, (_v, k) => k + (firstPageToLoad)).map((page) => {
+                  return (
+                    <ChatListPage
+                      firstPageToLoad={firstPageToLoad}
+                      key={`page-${page}`}
+                      page={page}
+                      pageSize={PAGE_SIZE}
+                      setLastSender={() => setLastSender(lastSenderPerPage.current)}
+                      lastSenderPreviousPage={page ? lastSenderPerPage.current.get(page - 1) : undefined}
+                      chatId={chatId}
+                      markMessageAsSeen={markMessageAsSeen}
+                      scrollRef={messageListContainerRef}
+                      meetingDisablePublicChat={!!meeting?.lockSettings?.disablePublicChat}
+                      meetingDisablePrivateChat={!!meeting?.lockSettings?.disablePrivateChat}
+                      currentUserDisablePublicChat={!!currentUser?.userLockSettings?.disablePublicChat}
+                      currentUserId={currentUser?.userId ?? ''}
+                      currentUserIsLocked={!!currentUser?.locked}
+                      currentUserIsModerator={!!currentUser?.isModerator}
+                      isBreakoutRoom={!!meeting?.isBreakout}
+                      messageToolbarIsEnabled={messageToolbarIsEnabled}
+                      chatDeleteEnabled={CHAT_DELETE_ENABLED}
+                      chatEditEnabled={CHAT_EDIT_ENABLED}
+                      chatReactionsEnabled={CHAT_REACTIONS_ENABLED}
+                      chatReplyEnabled={CHAT_REPLY_ENABLED}
+                      deleteReaction={deleteReaction}
+                      sendReaction={sendReaction}
+                      focusedSequence={Number(focusedMessageElement?.dataset.sequence)}
+                      clearPageLoading={clearPageLoading}
+                      setPageLoading={setPageLoading}
+                      allPagesLoaded={allPagesLoaded}
+                    />
+                  );
+                })}
+              </PageWrapper>
               <div
-                ref={startSentinelRefProxy}
+                ref={endSentinelRefProxy}
                 style={{
                   height: 1,
                   background: 'none',
@@ -530,59 +732,9 @@ const ChatMessageList: React.FC<ChatListProps> = ({
                 tabIndex={-1}
                 aria-hidden
               />
-            )}
-            <PageWrapper
-              role="list"
-              aria-live="polite"
-              ref={messageListRef}
-              tabIndex={hasMessageToolbar ? 0 : -1}
-              onKeyDown={rove}
-            >
-              {Array.from({ length: pagesToLoad }, (_v, k) => k + (firstPageToLoad)).map((page) => {
-                return (
-                  <ChatListPage
-                    firstPageToLoad={firstPageToLoad}
-                    key={`page-${page}`}
-                    page={page}
-                    pageSize={PAGE_SIZE}
-                    setLastSender={() => setLastSender(lastSenderPerPage.current)}
-                    lastSenderPreviousPage={page ? lastSenderPerPage.current.get(page - 1) : undefined}
-                    chatId={chatId}
-                    markMessageAsSeen={markMessageAsSeen}
-                    scrollRef={messageListContainerRef}
-                    meetingDisablePublicChat={!!meeting?.lockSettings?.disablePublicChat}
-                    meetingDisablePrivateChat={!!meeting?.lockSettings?.disablePrivateChat}
-                    currentUserDisablePublicChat={!!currentUser?.userLockSettings?.disablePublicChat}
-                    currentUserId={currentUser?.userId ?? ''}
-                    currentUserIsLocked={!!currentUser?.locked}
-                    currentUserIsModerator={!!currentUser?.isModerator}
-                    isBreakoutRoom={!!meeting?.isBreakout}
-                    messageToolbarIsEnabled={messageToolbarIsEnabled}
-                    chatDeleteEnabled={CHAT_DELETE_ENABLED}
-                    chatEditEnabled={CHAT_EDIT_ENABLED}
-                    chatReactionsEnabled={CHAT_REACTIONS_ENABLED}
-                    chatReplyEnabled={CHAT_REPLY_ENABLED}
-                    deleteReaction={deleteReaction}
-                    sendReaction={sendReaction}
-                    focusedSequence={Number(focusedMessageElement?.dataset.sequence)}
-                    clearPageLoading={clearPageLoading}
-                    setPageLoading={setPageLoading}
-                    allPagesLoaded={allPagesLoaded}
-                  />
-                );
-              })}
-            </PageWrapper>
-            <div
-              ref={endSentinelRefProxy}
-              style={{
-                height: 1,
-                background: 'none',
-              }}
-              tabIndex={-1}
-              aria-hidden
-            />
-          </MessageList>,
-          renderUnreadNotification,
+            </MessageList>
+            {renderUnreadNotification}
+          </Content>,
           <ChatReplyIntention key="chatReplyIntention" />,
           <ChatEditingWarning key="chatEditingWarning" />,
         ]
