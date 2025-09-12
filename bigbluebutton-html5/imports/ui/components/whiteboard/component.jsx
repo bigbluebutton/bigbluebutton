@@ -2193,6 +2193,17 @@ const Whiteboard = React.memo((props) => {
     SessionStorage.setItem('whiteboardToolbarSavedState', getToolbarCurrentState());
   }, [getToolbarCurrentState]);
 
+  // https://github.com/bigbluebutton/bigbluebutton/pull/23888/files
+  React.useEffect(() => {
+    if (!whiteboardToolbarAutoHide) {
+      const doc = isPresentationDetached ? popupWindow.document : document;
+      const optionsDropdown = doc.getElementById('WhiteboardOptionButton');
+      if (optionsDropdown?.classList.contains('fade-in')) {
+        optionsDropdown.classList.remove('fade-in');
+      }
+    }
+  }, [whiteboardToolbarAutoHide, isPresentationDetached]);
+
   return (
     <div
       ref={whiteboardRef}
@@ -2277,6 +2288,7 @@ Whiteboard.propTypes = {
   isInfiniteWhiteboard: PropTypes.bool,
   whiteboardWriters: PropTypes.arrayOf(PropTypes.shape).isRequired,
 };
+
 
 
 
