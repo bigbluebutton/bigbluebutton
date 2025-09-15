@@ -162,7 +162,7 @@ class Options extends MultiUsers {
 
   async autoHideWhiteboardToolbar() {
     await this.modPage.waitForSelector(e.whiteboard);
-    await this.modPage.hasElement(e.wbToolbar, 'should display the whiteboard toolbar');
+    await this.modPage.hasElement(e.wbToolbar, 'should display the whiteboard toolbar when meeting stats');
     await this.modPage.closeAllToastNotifications();
 
     const whiteboardLocator = await this.modPage.getLocator(e.whiteboard);
@@ -170,27 +170,19 @@ class Options extends MultiUsers {
 
     await openSettings(this.modPage);
     await this.modPage.waitAndClickElement(e.wbAutoHideToggleBtn);
-    await this.modPage.hasElementEnabled(e.wbAutoHideToggleBtn, 'should display the auto hide whiteboard toolbar toggle enabled');
+    await this.modPage.hasElementEnabled(e.wbAutoHideToggleBtn, 'should display the auto hide whiteboard toolbar toggle enabled after clicking it');
 
     await this.modPage.waitAndClick(e.modalConfirmButton);
-    await sleep(500);
+    await this.modPage.waitForSelector(e.whiteboard);
 
-    const wbTollbarLocator = await this.modPage.getLocator(e.wbToolbar)
-
+    const wbToolbarLocator = this.modPage.getLocator(e.wbToolbar);
     await this.modPage.hoverElement(e.whiteboard);
-    const hasFadeInClass = wbTollbarLocator.evaluate(node =>
-      node.classList.contains('fade-in')
-    );
-    expect(hasFadeInClass, 'should have fade-in class after hoovering inside of the whiteboard').toBeTruthy();
+    await expect(wbToolbarLocator).toHaveClass(/fade-in/);
     await this.modPage.hasElement(e.wbToolbar, 'should display the whiteboard toolbar when hover the whiteboard');
 
     await this.modPage.hoverElement(e.chatButton)
-
-    const hasFadeOutClass = wbTollbarLocator.evaluate(node =>
-      node.classList.contains('fade-out')
-    );
-    expect(hasFadeOutClass, 'should have fade-out class after hoovering out of the whiteboard').toBeTruthy();
-
+    await expect(wbToolbarLocator).toHaveClass(/fade-out/);
+    
     await expect(whiteboardLocator).toHaveScreenshot('whiteboard-with-toolbar-hidden.png', {
       maxDiffPixels: 1000,
     });
