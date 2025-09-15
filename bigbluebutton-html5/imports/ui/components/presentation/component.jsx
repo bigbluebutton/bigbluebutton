@@ -445,15 +445,22 @@ class Presentation extends PureComponent {
       //  this fix the inconsistency of var(--tl-font-draw) between popup and main window.
       const fonts = [
         { name: 'tldraw_draw', url: '/html5client/fonts/tldraw/Shantell_Sans-Tldrawish.woff2' },
-        { name: 'tldraw_draw', url: '/html5client/fonts/KosugiMaru/KosugiMaru-Regular.woff2' },
+        { name: 'KosugiMaruSubset', url: '/html5client/fonts/KosugiMaru/KosugiMaru-Regular.woff2' },
         { name: 'tldraw_sans', url: '/html5client/fonts/tldraw/IBMPlexSans-Medium.woff2' },
         { name: 'tldraw_serif', url: '/html5client/fonts/tldraw/IBMPlexSerif-Medium.woff2' },
         { name: 'tldraw_mono', url: '/html5client/fonts/tldraw/IBMPlexMono-Medium.woff2' },
       ];
       fonts.forEach(({ name, url }) => {
-        const font = new FontFace(name, `url(${window.location.origin}${url})`, { weight: '500' });
+        const font = new FontFace(name, `url(${window.location.origin}${url})`);
         font.load().then(loaded => popup.document.fonts.add(loaded));
       });
+      const drawFontstyle = popup.document.createElement('style');
+      drawFontstyle.textContent = `
+        .tl-text-shape__wrapper[data-font='draw'] {
+          font-family: 'tldraw_draw', 'KosugiMaruSubset', sans-serif;
+        }
+      `;
+      popup.document.head.appendChild(drawFontstyle);
 
       // Remove cursor style from the class tl-canvas,
       //  otherwise cursor stays the same when pencil, text, line, note
