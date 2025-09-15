@@ -2138,20 +2138,21 @@ const Whiteboard = React.memo((props) => {
   // To use Kosugi-Maru fonts also in the main window, as all the viewers do.
   // To use the font, you need to install the font under public/fonts/KosugiMaru and
   //  add sentences at public/stylesheets/fonts.css as done together in this PR.
-  React.useEffect(() => {
-    const kosugi = new FontFace(
-      'tldraw_draw',
-      `url(${window.location.origin}/html5client/fonts/KosugiMaru/KosugiMaru-Regular.woff2)`,
-      { weight: '400', style: 'normal' }
-    );
-    kosugi.load()
-      .then((loaded) => {
-        document.fonts.add(loaded);
-      })
-      .catch((err) => {
-        console.error('Failed to load KosugiMaru font:', err);
-      });
-  }, []);
+  //   -> moved to styles.css
+  //React.useEffect(() => {
+  //  const kosugi = new FontFace(
+  //    'tldraw_draw',
+  //    `url(${window.location.origin}/html5client/fonts/KosugiMaru/KosugiMaru-Regular.woff2)`,
+  //    { weight: '400', style: 'normal' }
+  //  );
+  //  kosugi.load()
+  //    .then((loaded) => {
+  //      document.fonts.add(loaded);
+  //    })
+  //    .catch((err) => {
+  //      console.error('Failed to load KosugiMaru font:', err);
+  //    });
+  //, []);
 
   React.useEffect(() => {
     setTldrawIsMounting(true);
@@ -2306,5 +2307,6 @@ Whiteboard.propTypes = {
   isInfiniteWhiteboard: PropTypes.bool,
   whiteboardWriters: PropTypes.arrayOf(PropTypes.shape).isRequired,
 };
+
 
 
