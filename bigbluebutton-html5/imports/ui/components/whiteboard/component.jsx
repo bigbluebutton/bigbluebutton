@@ -176,6 +176,13 @@ const Whiteboard = React.memo((props) => {
 
   clearTldrawCache();
 
+  const raf = isPresentationDetached
+    ? popupWindow.requestAnimationFrame
+    : window.requestAnimationFrame;
+  const caf = isPresentationDetached
+    ? popupWindow.cancelAnimationFrame
+    : window.cancelAnimationFrame;
+
   const [isMounting, setIsMounting] = React.useState(true);
   const [cursorType, setCursorType] = React.useState('');
 
@@ -1116,7 +1123,7 @@ const Whiteboard = React.memo((props) => {
     }
 
     if (currentTry < options.maxTries) {
-      const frameId = requestAnimationFrame(() => {
+      const frameId = raf(() => {
         pollInnerWrapperDimensionsUntilStable(
           onReady,
           options,
@@ -1151,7 +1158,7 @@ const Whiteboard = React.memo((props) => {
     if (isMountedRef.current) {
       onReady();
     } else if (currentTry <= options.maxTries) {
-      const frameId = requestAnimationFrame(() => {
+      const frameId = raf(() => {
         pollUntilMounted(onReady, onFail, ref, options, currentTry + 1);
       });
       if (_ref) {
@@ -1899,14 +1906,14 @@ const Whiteboard = React.memo((props) => {
 
   React.useEffect(() => {
     if (isMountedPollingFrameRef.current !== null) {
-      cancelAnimationFrame(isMountedPollingFrameRef.current);
+      caf(isMountedPollingFrameRef.current);
     }
-    isMountedPollingFrameRef.current = requestAnimationFrame(() => {
+    isMountedPollingFrameRef.current = raf(() => {
       pollUntilMounted(() => {
         if (innerWrapperPollingFrameRef.current !== null) {
-          cancelAnimationFrame(innerWrapperPollingFrameRef.current);
+          caf(innerWrapperPollingFrameRef.current);
         }
-        innerWrapperPollingFrameRef.current = requestAnimationFrame(() => {
+        innerWrapperPollingFrameRef.current = raf(() => {
           pollInnerWrapperDimensionsUntilStable(() => {
             syncCameraWithPresentationArea();
           }, {
@@ -2307,6 +2314,7 @@ Whiteboard.propTypes = {
   isInfiniteWhiteboard: PropTypes.bool,
   whiteboardWriters: PropTypes.arrayOf(PropTypes.shape).isRequired,
 };
+
 
 
 
