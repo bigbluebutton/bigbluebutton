@@ -22,10 +22,10 @@ const LKAutoplayModalContainer: React.FC = () => {
     setIsOpen(true);
   }, [isOpen]);
 
-  const runAutoplayCallback = useCallback(async () => {
+  const runAutoplayCallback = useCallback(async (indirect = false) => {
     try {
       if (!autoplayState.canPlayAudio) {
-        await handleStartAudio();
+        await handleStartAudio(indirect);
       }
       logger.info({
         logCode: 'livekit_audio_autoplayed',
@@ -33,13 +33,14 @@ const LKAutoplayModalContainer: React.FC = () => {
 
       return true;
     } catch (error) {
+      const errorMessage = (error as Error)?.message ?? 'unknown error';
       logger.error({
         logCode: 'livekit_audio_autoplay_handle_failed',
         extraInfo: {
-          errorMessage: (error as Error).message,
+          errorMessage,
           errorStack: (error as Error).stack,
         },
-      }, 'LiveKit: failed to handle autoplay');
+      }, `LiveKit: failed to handle autoplay: ${errorMessage}`);
 
       return false;
     }
@@ -64,7 +65,11 @@ const LKAutoplayModalContainer: React.FC = () => {
 
   useEffect(() => {
     if (shouldOpen()) {
-      runAutoplayCallback().then((success) => {
+      // Try to run the autoplay callback immediately without a prompt as
+      // this might save an user interaction. Since it's indirect (i.e. no user
+      // interaction), we mark it (arg true) to avoid flagging an attempt.
+      // Attempts are only registered when the user interacts with the modal.
+      runAutoplayCallback(true).then((success) => {
         if (!success) openLKAutoplayModal();
       });
     }

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import Resizable from 're-resizable';
+import { Resizable } from 're-resizable';
 import { ACTIONS } from '../layout/enums';
 import UserListContainer from '../user-list/container';
 

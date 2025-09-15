@@ -61,6 +61,8 @@ class ConnectionController {
   }
 
   def checkGraphqlAuthorization = {
+    String sessionToken = ""
+
     try {
       /* the graphql connection in cluster setups is a CORS request. The OPTIONS
        * call is done as a preflight quest by the browser and does not contain
@@ -75,7 +77,7 @@ class ConnectionController {
           response.outputStream << 'graphql-success';
           return;
       }
-      String sessionToken = request.getHeader("x-session-token")
+      sessionToken = request.getHeader("x-session-token")
 
       UserSession userSession = meetingService.getUserSessionWithSessionToken(sessionToken)
       Boolean allowRequestsWithoutSession = meetingService.getAllowRequestsWithoutSession(sessionToken)
@@ -144,7 +146,7 @@ class ConnectionController {
         throw new Exception("Invalid sessionToken")
       }
     } catch (Exception e) {
-      log.debug("Error while authenticating graphql connection: " + e.getMessage())
+      log.debug("Error while authenticating graphql connection {"+sessionToken+"}: " + e.getMessage())
       response.setStatus(401)
       withFormat {
         json {

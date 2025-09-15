@@ -49,6 +49,8 @@ mkdir -p staging/usr/share/bigbluebutton/nginx
 
 cp include_default.nginx staging/usr/share/bigbluebutton/
 
+cp plugins-assets-cors.nginx staging/usr/share/bigbluebutton/nginx/
+
 cp bigbluebutton.target staging/usr/lib/systemd/system/
 
 # inject dependency to bigbluebutton.target

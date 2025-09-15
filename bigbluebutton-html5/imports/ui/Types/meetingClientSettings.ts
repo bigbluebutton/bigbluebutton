@@ -54,7 +54,6 @@ export interface App {
   helpLink: string
   delayForUnmountOfSharedNote: number
   bbbTabletApp: BbbTabletApp
-  lockOnJoin: boolean
   cdn: string
   basename: string
   bbbWebBase: string
@@ -106,6 +105,7 @@ export interface App {
   maxMutationPayloadSize: number
   enableApolloDevTools: boolean
   terminateAndRetryConnection: number
+  timeoutBeforeRedirectOnMeetingEnd: number | null
 }
 
 export interface BbbTabletApp {
@@ -469,6 +469,10 @@ export interface Poll {
   maxTypedAnswerLength: number
   chatMessage: boolean
   quickPollConfirmationStep: boolean
+  quiz: {
+    enabled: boolean
+    quickPollCorrectAnswerSuffix: string
+  }
 }
 
 export interface Captions {
@@ -779,6 +783,7 @@ export interface Text {
 
 export interface Toolbar {
   multiUserPenOnly: boolean
+  initialSelectedTool: string
   presenterTools: string[]
   multiUserTools: string[]
 }

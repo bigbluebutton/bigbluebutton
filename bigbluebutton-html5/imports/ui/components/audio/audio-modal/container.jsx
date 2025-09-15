@@ -22,6 +22,7 @@ import useLockContext from '/imports/ui/components/lock-viewers/hooks/useLockCon
 import deviceInfo from '/imports/utils/deviceInfo';
 import { useIsAudioTranscriptionEnabled } from '/imports/ui/components/audio/audio-graphql/audio-captions/service';
 import useIsAudioConnected from '/imports/ui/components/audio/audio-graphql/hooks/useIsAudioConnected';
+import { getStoredAudioInputDeviceId } from '/imports/api/audio/client/bridge/service';
 
 const invalidDialNumbers = ['0', '613-555-1212', '613-555-1234', '0000'];
 
@@ -95,7 +96,7 @@ const AudioModalContainer = (props) => {
   const { userLocks } = useLockContext();
   const isListenOnlyInputDevice = Service.inputDeviceId() === 'listen-only';
   const devicesAlreadyConfigured = skipEchoTestIfPreviousDevice
-    && Service.inputDeviceId();
+    && !!getStoredAudioInputDeviceId();
   const joinFullAudioImmediately = !isListenOnlyInputDevice
     && (skipCheck || (skipCheckOnJoin && !getEchoTest) || devicesAlreadyConfigured);
   const joinMic = useCallback(

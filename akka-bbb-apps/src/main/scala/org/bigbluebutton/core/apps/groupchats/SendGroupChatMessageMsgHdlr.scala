@@ -29,6 +29,8 @@ trait SendGroupChatMessageMsgHdlr extends HandlerHelpers {
     val replyChatMessageDisabled: Boolean = liveMeeting.props.meetingProp.disabledFeatures.contains("replyChatMessage")
     var chatLocked: Boolean = false
     var chatLockedForUser: Boolean = false
+    var hasModMembers: Boolean = false
+    var isPrivateChat: Boolean = false
 
     for {
       user <- Users2x.findWithIntId(liveMeeting.users2x, msg.header.userId)
@@ -36,6 +38,7 @@ trait SendGroupChatMessageMsgHdlr extends HandlerHelpers {
     } yield {
       if (groupChat.access == GroupChatAccess.PRIVATE) {
         privateChatDisabled = liveMeeting.props.meetingProp.disabledFeatures.contains("privateChat")
+        isPrivateChat = true
       }
 
       if (groupChat.access == GroupChatAccess.PUBLIC && user.userLockSettings.disablePublicChat && user.role != Roles.MODERATOR_ROLE) {
@@ -52,15 +55,19 @@ trait SendGroupChatMessageMsgHdlr extends HandlerHelpers {
           // don't lock private chats that involve a moderator
           if (modMembers.isEmpty) {
             chatLocked = permissions.disablePrivChat
+          } else {
+            hasModMembers = true
           }
         } else {
           chatLocked = permissions.disablePubChat
         }
+      } else {
+        hasModMembers = true
       }
     }
 
-    if (!chatDisabled &&
-      !privateChatDisabled &&
+    if (!(!isPrivateChat && chatDisabled) &&
+      !(isPrivateChat && privateChatDisabled && !hasModMembers) &&
       !(applyPermissionCheck && chatLocked) &&
       !chatLockedForUser) {
       val newState = for {

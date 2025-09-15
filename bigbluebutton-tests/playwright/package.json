@@ -1,7 +1,7 @@
 {
   "scripts": {
     "test": "npx playwright test",
-    "test:ssh": "set -e; fn () { target=$1; shift; secret=$(ssh $target sudo bbb-conf --secret); env=$(echo \"$secret\" | sed -e 's/^ *URL: /BBB_URL=/' -e '/^BBB_URL/s/$/api/' -e 's/^ *Secret: /BBB_SECRET=/' -e '/^BBB/p' -e d); env $env npx playwright test $@; }; fn",
+    "test:ssh": "set -e; fn () { target=$1; shift; secret=$(ssh $target sudo bbb-conf --secret); env=$(echo \"$secret\" | sed -e 's/^ *URL: /BBB_URL=/' -e 's/^ *Secret: /BBB_SECRET=/' -e '/^BBB/p' -e d); env $env npx playwright test $@; }; fn",
     "test:filter": "npx playwright test -g",
     "test:headed": "npx playwright test --headed",
     "test:debug": "npx playwright test --debug -g",
@@ -18,7 +18,7 @@
     "deep-equal": "^2.2.3",
     "dotenv": "^16.4.5",
     "playwright": "^1.45.1",
-    "sha.js": "^2.4.11",
+    "sha.js": "^2.4.12",
     "xml2js": "^0.6.2"
   }
 }

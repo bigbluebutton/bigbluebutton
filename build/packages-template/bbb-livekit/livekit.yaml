@@ -5,6 +5,7 @@ rtc:
   port_range_end: 32768
   use_external_ip: false
   tcp_port: 0
+  allow_tcp_fallback: false
   interfaces:
     excludes:
       - docker0
@@ -14,12 +15,14 @@ webhook:
   urls:
     - http://127.0.0.1:3040/livekit-webhook
 audio:
-  active_level: 55
+  active_level: 50
   min_percentile: 10
   update_interval: 500
   smooth_intervals: 0
 room:
   enabled_codecs:
     - mime: audio/opus
+    - mime: audio/red
     - mime: video/vp8
+    - mime: video/rtx
   enable_remote_unmute: true

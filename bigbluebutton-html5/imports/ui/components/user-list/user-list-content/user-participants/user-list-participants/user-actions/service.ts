@@ -9,7 +9,7 @@ import { toggleMuteMicrophone } from '/imports/ui/components/audio/audio-graphql
 import { useIsPrivateChatEnabled } from '/imports/ui/services/features';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 
-export const isVoiceOnlyUser = (userId: string) => userId.toString().startsWith('v_');
+export const isVoiceOnlyUser = (userId: string) => typeof userId === 'string' && userId.startsWith('v_');
 
 export const isMe = (userId: string) => userId === Auth.userID;
 
@@ -112,7 +112,11 @@ export const isVideoPinEnabledForCurrentUser = (
 // so this code is duplicated from the old userlist service
 // session for chats the current user started
 
-export const toggleVoice = (userId: string, muted: boolean, voiceToggle: (userId: string, muted: boolean) => void) => {
+export const toggleVoice = (
+  userId: string,
+  muted: boolean,
+  voiceToggle: (userId: string, muted: boolean) => void,
+) => {
   if (userId === Auth.userID) {
     toggleMuteMicrophone(!muted, voiceToggle);
   } else {

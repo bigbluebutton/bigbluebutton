@@ -66,7 +66,6 @@ class Page {
           font-family: 'Liberation Sans', Arial, sans-serif;
         }`,
     });
-    await this.setHeightWidthViewPortSize();
   }
 
   async handleDownload(locator, testInfo, timeout = ELEMENT_WAIT_TIME) {
@@ -145,8 +144,8 @@ class Page {
     await this.wasRemoved(e.webcamConnecting, VIDEO_LOADING_WAIT_TIME);
   }
 
-  getLocator(selector) {
-    return this.page.locator(selector);
+  getLocator(selector, options = {}) {
+    return this.page.locator(selector, options);
   }
 
   getVisibleLocator(selector) {
@@ -208,6 +207,11 @@ class Page {
     await handle.type(text, { timeout: ELEMENT_WAIT_TIME });
   }
 
+  async fill(selector, text) {
+    const locator = this.getLocator(selector);
+    await locator.fill(text);
+  }
+
   async waitAndClickElement(element, index = 0, timeout = ELEMENT_WAIT_TIME) {
     await this.waitForSelector(element, timeout);
     await this.page.evaluate(([elem, i]) => {
@@ -222,7 +226,7 @@ class Page {
   }
 
   async getByLabelAndClick(label, timeout = ELEMENT_WAIT_TIME) {
-    await this.page.getByLabel(label).click({ timeout });
+    await this.page.getByLabel(label).first().click({ timeout });
   }
 
   async clickOnLocator(locator, timeout = ELEMENT_WAIT_TIME) {
@@ -297,6 +301,10 @@ class Page {
     await this.getLocator(selector).dragTo(this.page.locator(position), { timeout: ELEMENT_WAIT_TIME });
   }
 
+  async hoverElement(selector) {
+    await this.getLocator(selector).hover();
+  }
+
   async dragAndDropWebcams(position) {
     await this.getLocator(e.webcamContainer).first().hover({ timeout: 5000 });
     await this.page.mouse.down();
@@ -359,10 +367,6 @@ class Page {
       }
     }
     await this.hasElementCount(e.toastContainer, 0, 'should not display any toast notification');
-  }
-
-  async setHeightWidthViewPortSize() {
-    await this.page.setViewportSize({ width: 1366, height: 768 });
   }
 
   async getYoutubeFrame() {

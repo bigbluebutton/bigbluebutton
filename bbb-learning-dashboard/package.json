@@ -16,7 +16,9 @@
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-intl": "^5.20.6",
-    "react-scripts": "^5.0.0"
+    "react-scripts": "^5.0.0",
+    "react-markdown": "^8.0.7",
+    "recharts": "^2.15.4"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -52,7 +54,7 @@
     "eslint-plugin-jsx-a11y": "^6.4.1",
     "eslint-plugin-react": "^7.24.0",
     "eslint-plugin-react-hooks": "^4.2.0",
-    "postcss": "^8.5.3",
+    "postcss": "^8.5.6",
     "tailwindcss": "^3.0.11"
   }
 }

@@ -561,6 +561,8 @@ class MeetingActor(
       case m: MuteUserCmdMsg =>
         usersApp.handleMuteUserCmdMsg(m)
         updateUserLastActivity(m.body.mutedBy)
+      case m: SetUserListenOnlyInputCmdMsg =>
+        handleSetUserListenOnlyInputCmdMsg(m)
       case m: MuteAllExceptPresentersCmdMsg =>
         handleMuteAllExceptPresentersCmdMsg(m)
         updateUserLastActivity(m.body.mutedBy)
@@ -1103,7 +1105,7 @@ class MeetingActor(
           "user",
           "app.notification.userLeavePushAlert",
           "Notification for a user leaves the meeting",
-          Vector(s"${u.name}")
+          Map("userName" -> s"${u.name}")
         )
         outGW.send(notifyEvent)
         NotificationDAO.insert(notifyEvent)

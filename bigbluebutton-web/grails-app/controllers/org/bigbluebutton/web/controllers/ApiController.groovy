@@ -19,7 +19,6 @@
 package org.bigbluebutton.web.controllers
 
 import com.google.gson.Gson
-import com.google.gson.JsonObject
 import grails.web.context.ServletContextHolder
 import groovy.json.JsonBuilder
 import groovy.xml.MarkupBuilder
@@ -32,7 +31,6 @@ import org.bigbluebutton.api.*
 import org.bigbluebutton.api.domain.GuestPolicy
 import org.bigbluebutton.api.domain.Meeting
 import org.bigbluebutton.api.domain.UserSession
-import org.bigbluebutton.api.domain.UserSessionBasicData
 import org.bigbluebutton.api.service.ValidationService
 import org.bigbluebutton.api.service.ServiceUtils
 import org.bigbluebutton.api.util.ParamsUtil
@@ -100,6 +98,7 @@ class ApiController {
             bbbVersion paramsProcessorUtil.getBbbVersion()
             graphqlWebsocketUrl paramsProcessorUtil.getGraphqlWebsocketUrl()
             graphqlApiUrl paramsProcessorUtil.getGraphqlApiUrl()
+            html5PluginSdkVersion paramsProcessorUtil.getHtml5PluginSdkVersion()
           }
           render(contentType: "application/json", text: builder.toPrettyString())
         }
@@ -111,6 +110,7 @@ class ApiController {
                   paramsProcessorUtil.getApiVersion(),
                   paramsProcessorUtil.getBbbVersion(),
                   paramsProcessorUtil.getGraphqlWebsocketUrl(),
+                  paramsProcessorUtil.getHtml5PluginSdkVersion(),
                   paramsProcessorUtil.getGraphqlApiUrl(),
                   RESP_CODE_SUCCESS),
                   contentType: "text/xml")
@@ -546,7 +546,7 @@ class ApiController {
     // Keep track of the client url in case this needs to wait for
     // approval as guest. We need to be able to send the user to the
     // client after being approved by moderator.
-    us.clientUrl = clientURL + "?sessionToken=" + sessionToken
+    us.clientUrl = handleCreateUserClientUrl(sessionToken, us)
 
     session[sessionToken] = sessionToken
     meetingService.addUserSession(sessionToken, us)
@@ -559,7 +559,7 @@ class ApiController {
 
     // Process if we send the user directly to the client or
     // have it wait for approval.
-    String destUrl = clientURL + "?sessionToken=" + sessionToken
+    String destUrl = us.clientUrl
     if (guestStatusVal == GuestPolicy.DENY) {
       invalid("guestDeniedAccess", "You have been denied access to this meeting based on the meeting's guest policy", redirectClient, errorRedirectUrl)
       return
@@ -676,7 +676,7 @@ class ApiController {
     // Keep track of the client url in case this needs to wait for
     // approval as guest. We need to be able to send the user to the
     // client after being approved by moderator.
-    us.clientUrl = clientURL + "?sessionToken=" + sessionToken
+    us.clientUrl = handleCreateUserClientUrl(sessionToken, us)
 
     session[sessionToken] = sessionToken
     meetingService.addUserSession(sessionToken, us)
@@ -689,7 +689,7 @@ class ApiController {
 
     // Process if we send the user directly to the client or
     // have it wait for approval.
-    String destUrl = clientURL + "?sessionToken=" + sessionToken
+    String destUrl = us.clientUrl
 
     Map<String, Object> logData = new HashMap<String, Object>();
     logData.put("meetingid", us.meetingID);
@@ -717,6 +717,17 @@ class ApiController {
         }
       }
     }
+  }
+
+  String handleCreateUserClientUrl(String sessionToken, UserSession session) {
+    String clientUrl = paramsProcessorUtil.getDefaultHTML5ClientUrl()
+    String redirectUrl = clientUrl
+    if (!StringUtils.isEmpty(session.getEnforceLayout())) {
+      redirectUrl = redirectUrl + "?waitLayout=1&sessionToken=" + sessionToken
+    } else {
+      redirectUrl = redirectUrl + "?sessionToken=" + sessionToken
+    }
+    return redirectUrl
   }
 
   /*******************************************
@@ -1226,24 +1237,22 @@ class ApiController {
         boolean isModerator = us.role?.equals(ROLE_MODERATOR);
         boolean blockAllUserdataForViewers = userdataBlocklistForViewers.any { it.equalsIgnoreCase("all") };
 
-        if (!meeting.isBreakout()) {
-          request.getParameterMap()
-                  .findAll { key, value ->
-                    // always allow `enforceLayout`
-                    if (key == "enforceLayout") return true
+        request.getParameterMap()
+                .findAll { key, value ->
+                  // always allow `enforceLayout`
+                  if (key == "enforceLayout") return true
 
-                    // For prefix userdata-
-                    if (key.startsWith("userdata-")) {
-                      if (isModerator) return true
-                      if (blockAllUserdataForViewers) return false
-                      return !userdataBlocklistForViewers.contains(key - "userdata-")
-                    }
-
-                    return false
+                  // For prefix userdata-
+                  if (key.startsWith("userdata-")) {
+                    if (isModerator && !meeting.isBreakout()) return true
+                    if (blockAllUserdataForViewers) return false
+                    return !userdataBlocklistForViewers.contains(key - "userdata-")
                   }
-                  .findAll { key, value -> !StringUtils.isEmpty(value[-1]) }
-                  .each { key, value -> queryParameters.put(key, value[-1]) }
-        }
+
+                  return false
+                }
+                .findAll { key, value -> !StringUtils.isEmpty(value[-1]) }
+                .each { key, value -> queryParameters.put(key, value[-1]) }
 
         String httpQueryString = "";
         for(String parameterName : queryParameters.keySet()) {

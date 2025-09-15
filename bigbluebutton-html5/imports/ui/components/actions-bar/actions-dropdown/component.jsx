@@ -1,7 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages } from 'react-intl';
-import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import ExternalVideoModal from '/imports/ui/components/external-video-player/external-video-player-graphql/modal/component';
 import LayoutModalContainer from '/imports/ui/components/layout/modal/container';
 import BBBMenu from '/imports/ui/components/common/menu/component';
@@ -81,6 +80,10 @@ const intlMessages = defineMessages({
   pollBtnLabel: {
     id: 'app.actionsBar.actionsDropdown.pollBtnLabel',
     description: 'poll menu toggle button label',
+  },
+  pollQuizBtnLabel: {
+    id: 'app.actionsBar.actionsDropdown.pollQuizBtnLabel',
+    description: 'poll/quiz menu toggle button label',
   },
   pollBtnDesc: {
     id: 'app.actionsBar.actionsDropdown.pollBtnDesc',
@@ -184,9 +187,15 @@ class ActionsDropdown extends PureComponent {
       presentations,
       isPresentationEnabled,
       isPresentationManagementDisabled,
+      isQuizEnabled,
     } = this.props;
 
-    const { pollBtnLabel, presentationLabel, takePresenter } = intlMessages;
+    const {
+      pollBtnLabel,
+      presentationLabel,
+      takePresenter,
+      pollQuizBtnLabel,
+    } = intlMessages;
 
     const { formatMessage } = intl;
 
@@ -212,7 +221,7 @@ class ActionsDropdown extends PureComponent {
       actions.push({
         icon: 'polling',
         dataTest: 'polling',
-        label: formatMessage(pollBtnLabel),
+        label: isQuizEnabled ? formatMessage(pollQuizBtnLabel) : formatMessage(pollBtnLabel),
         key: this.pollId,
         onClick: () => {
           if (Session.equals('pollInitiated', true)) {
@@ -290,6 +299,7 @@ class ActionsDropdown extends PureComponent {
             key: actionButtonItem.id,
             onClick: actionButtonItem.onClick,
             allowed: actionButtonItem.allowed,
+            dataTest: actionButtonItem.dataTest,
           });
           break;
         case ActionButtonDropdownItemType.SEPARATOR:
@@ -297,6 +307,7 @@ class ActionsDropdown extends PureComponent {
             key: actionButtonItem.id,
             allowed: actionButtonItem.allowed,
             isSeparator: true,
+            dataTest: actionButtonItem.dataTest,
           });
           break;
         default:

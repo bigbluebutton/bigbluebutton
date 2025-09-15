@@ -18,6 +18,7 @@ import {TextShape} from '../shapes/TextShape.js';
 import {StickyNote} from '../shapes/StickyNote.js';
 import {createGeoObject} from '../shapes/geoFactory.js';
 import {Frame} from '../shapes/Frame.js';
+import {Poll} from '../shapes/Poll.js';
 
 const jobId = workerData.jobId;
 const logger = new Logger('presAnn Process Worker');
@@ -166,6 +167,19 @@ function overlayFrame(svg, annotation) {
 }
 
 /**
+ * Adds a poll shape to the canvas.
+ * @function overlayPoll
+ * @param {Object} svg - The SVG element where the poll will be added.
+ * @param {Object} annotation - JSON poll data.
+ * @return {void}
+ */
+function overlayPoll(svg, annotation) {
+  const pollShape = new Poll(annotation);
+  const poll = pollShape.draw();
+  svg.add(poll);
+}
+
+/**
  * Determines the annotation type and overlays the corresponding shape
  * onto the SVG element. It delegates the rendering to the specific
  * overlay function based on the annotation type.
@@ -200,6 +214,9 @@ export function overlayAnnotation(svg, annotation) {
         break;
       case 'frame':
         overlayFrame(svg, annotation);
+        break;
+      case 'poll':
+        overlayPoll(svg, annotation);
         break;
       default:
         logger.info(`Unknown annotation type ${annotation.type}.`);
@@ -275,38 +292,6 @@ function overlayAnnotations(svg, slideAnnotations) {
           overlayAnnotation(svg, annotation.annotationInfo);
         }
     }
-  }
-}
-
-/**
- * Resize an SVG image if it contains an embedded base64 image.
- * 
- * `WARNING`: This function is intended to be a hotfix for bad generated SVG's.
- * It should be removed in the future.
- * @param {string} file Path of the file.
- * @param {number} width The new width of the image.
- * @param {number} height The new height of the image.
- * @param {number} oldWidth The old width of the image.
- * @param {number} oldHeight The old height of the image.
- * @param {number} page Page number.
- */
-function resizeAssetIfBase64Image(file, width, height, oldWidth, oldHeight, page) {
-  const BASE_64_HREF_REGEX = /href="data:image\/(png|jpg|jpeg);base64,[^"]+"/;
-  const isSvg = file.endsWith('.svg');
-
-  if (!isSvg) return;
-
-  try {
-    let svg = fs.readFileSync(file, { encoding: 'utf-8' });
-    const hasBase64Image = BASE_64_HREF_REGEX.test(svg);
-    if (hasBase64Image) {
-      svg = svg.replaceAll(`width="${oldWidth}"`, `width="${width}"`);
-      svg = svg.replaceAll(`height="${oldHeight}"`, `height="${height}"`);
-      fs.writeFileSync(file, svg);
-    }
-  } catch (error) {
-    logger.error(`Resizing slide ${page}
-      failed for job ${jobId}: ${error.message}`);
   }
 }
 
@@ -388,16 +373,6 @@ async function processPresentationAnnotations() {
           'xmlns': 'http://www.w3.org/2000/svg',
           'xmlns:xlink': 'http://www.w3.org/1999/xlink',
         });
-
-    // Resize the image element
-    resizeAssetIfBase64Image(
-      `${dropbox}/slide${currentSlide.page}.${backgroundFormat}`,
-      scaledWidth,
-      scaledHeight,
-      slideWidth,
-      slideHeight,
-      currentSlide.page,
-    );
 
     // Add the image element
     canvas

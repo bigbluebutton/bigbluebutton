@@ -1,3 +1,5 @@
+#!/bin/bash
+
 . ./opts-global.sh
 
 AKKA_APPS="bbb-fsesl-akka,bbb-apps-akka"

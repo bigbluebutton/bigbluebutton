@@ -7,7 +7,6 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
         {name: 'chatId', type: 'string', required: true},
         {name: 'messageId', type: 'string', required: true},
         {name: 'reactionEmoji', type: 'string', required: true},
-        {name: 'reactionEmojiId', type: 'string', required: true},
       ]
   )
 
@@ -27,7 +26,6 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
     chatId: input.chatId,
     messageId: input.messageId,
     reactionEmoji: input.reactionEmoji,
-    reactionEmojiId: input.reactionEmojiId,
   };
 
   return { eventName, routing, header, body };

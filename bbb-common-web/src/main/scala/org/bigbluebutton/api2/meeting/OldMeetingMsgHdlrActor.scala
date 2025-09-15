@@ -128,6 +128,7 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
       msg.body.room.captureNotesFilename,
       msg.body.room.captureSlidesFilename,
       msg.body.room.pluginProp,
+      msg.body.room.disabledFeatures,
       msg.body.room.audioBridge,
       msg.body.room.cameraBridge,
       msg.body.room.screenShareBridge,

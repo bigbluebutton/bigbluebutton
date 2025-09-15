@@ -65,6 +65,19 @@ class Notifications extends MultiUsers {
     await util.enableUserJoinPopup(page);
     await util.saveSettings(page);
   }
+
+  async userLeaveNotifications() {
+    await this.modPage.closeAllToastNotifications();
+    // User leaves
+    await this.modPage.waitAndClick(e.leaveMeetingDropdown, ELEMENT_WAIT_LONGER_TIME)
+    await this.modPage.hasElement(e.directLogoutButton, 'should display the leave session button')
+    await this.modPage.waitAndClick(e.directLogoutButton, ELEMENT_WAIT_LONGER_TIME);
+
+    // Verify leave notification
+    await this.modPage.hasElement(e.meetingEndedModal, ELEMENT_WAIT_LONGER_TIME)
+    await this.modPage.hasElement(e.redirectButton, 'should display the redirect button')
+
+  }
 }
 
 exports.Notifications = Notifications;

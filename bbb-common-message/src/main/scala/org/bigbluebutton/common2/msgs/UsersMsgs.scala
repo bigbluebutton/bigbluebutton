@@ -130,7 +130,10 @@ case class GetRecordingStatusRespMsgBody(
     recorded:                Boolean,
     recording:               Boolean,
     recordFullDurationMedia: Boolean,
-    requestedBy:             String
+    requestedBy:             String,
+    recordUserAudio:         Boolean,
+    recordUserCameras:       Boolean,
+    recordUserScreenShare:   Boolean
 )
 
 /**

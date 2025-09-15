@@ -6,9 +6,9 @@ interface HoverToolbarProps {
 
 const HoverToolbar = Styled.div<HoverToolbarProps>`
   ${({ toolbarStyle }) => toolbarStyle === 'hoverToolbar' && `
-    display: flex;
+    display: none;
     z-index: 3;
-    :hover > & {
+    [data-test="videoPlayer"]:hover & {
       display: flex;
     }
   `}

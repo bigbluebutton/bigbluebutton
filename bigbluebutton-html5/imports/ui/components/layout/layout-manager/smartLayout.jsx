@@ -102,9 +102,6 @@ const SmartLayout = (props) => {
               isOpen: overrideOpenSidebarPanel,
               sidebarContentPanel: sidebarContentPanelOverride,
             },
-            SidebarContentHorizontalResizer: {
-              isOpen: false,
-            },
             presentation: {
               isOpen: presentation.isOpen,
               slidesLength: presentation.slidesLength,
@@ -113,6 +110,7 @@ const SmartLayout = (props) => {
               },
             },
             cameraDock: {
+              position: cameraDock.position || CAMERADOCK_POSITION.CONTENT_TOP,
               numCameras: cameraDock.numCameras,
             },
             externalVideo: {
@@ -168,6 +166,7 @@ const SmartLayout = (props) => {
     const cameraDockBounds = {};
 
     cameraDockBounds.isCameraHorizontal = false;
+    cameraDockBounds.position = CAMERADOCK_POSITION.CONTENT_TOP;
 
     const mediaBoundsWidth =
       mediaBounds.width > presentationToolbarMinWidth && !isMobile

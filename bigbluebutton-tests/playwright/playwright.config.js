@@ -20,6 +20,7 @@ const config = {
     screenshot: 'on',
     video: CI ? 'retain-on-failure' : 'on',
     actionTimeout: ELEMENT_WAIT_LONGER_TIME,
+    viewport: { width: 1366, height: 768 },
   },
   projects: [
     chromiumConfig,

@@ -69,8 +69,11 @@ export const generateExportedMessages = (
         const { assignedBy } = JSON.parse(message.messageMetadata);
 
         messageText = (assignedBy)
-          ? `${intl.formatMessage(intlMessages.userIsPresenterSetBy, { 0: message.senderName, 1: assignedBy })}`
-          : `${intl.formatMessage(intlMessages.userIsPresenter, { 0: message.senderName })}`;
+          ? `${intl.formatMessage(intlMessages.userIsPresenterSetBy, {
+            presenterName: message.senderName,
+            assignedByName: assignedBy,
+          })}`
+          : `${intl.formatMessage(intlMessages.userIsPresenter, { presenterName: message.senderName })}`;
         break;
       }
       case ChatMessageType.USER_AWAY_STATUS_MSG: {
@@ -85,7 +88,7 @@ export const generateExportedMessages = (
       default:
         messageText = message.message
           ? htmlDecode(message.message)
-          : intl.formatMessage(intlMessages.deleteMessage, { 0: message.deletedBy?.name });
+          : intl.formatMessage(intlMessages.deleteMessage, { userName: message.deletedBy?.name });
         break;
     }
     return `${acc}${hourMin} ${userName}${messageText}\n`;

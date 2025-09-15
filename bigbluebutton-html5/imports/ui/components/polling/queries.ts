@@ -3,6 +3,7 @@ import { gql } from '@apollo/client';
 export interface HasPendingPollResponse {
   meeting: Array<{
     polls: Array<{
+      quiz: boolean;
       users: Array<{
         userId: string;
         responded: boolean;
@@ -31,11 +32,12 @@ export const hasPendingPoll = gql`
           userCurrent: { responded: { _eq: false } }
         }
       ) {
+        quiz
         users {
           responded
           userId
         }
-        options {
+        options(order_by: {optionId: asc}) {
           optionDesc
           optionId
           pollId

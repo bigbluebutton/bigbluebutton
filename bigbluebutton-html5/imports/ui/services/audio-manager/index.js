@@ -67,6 +67,22 @@ const checkMediaDevicesTarget = () => {
 };
 
 class AudioManager {
+  static playAudioElement(element) {
+    return new Promise((resolve) => {
+      if (!(element instanceof HTMLMediaElement)) {
+        // Provided element is not a valid audio/video element.
+        resolve(false);
+        return;
+      }
+
+      element.play().then(() => {
+        resolve(true);
+      }).catch(() => {
+        resolve(false);
+      });
+    });
+  }
+
   constructor() {
     this._breakoutAudioTransferStatus = {
       status: BREAKOUT_AUDIO_TRANSFER_STATES.DISCONNECTED,
@@ -330,9 +346,9 @@ class AudioManager {
     this.userData = userData;
     this.inputDeviceId = getStoredAudioInputDeviceId() || DEFAULT_INPUT_DEVICE_ID;
     this.outputDeviceId = getCurrentAudioSinkId();
-    this._applyCachedOutputDeviceId();
     this._trackPermissionStatus();
     this.loadBridges(bridges, userData);
+    this._applyCachedOutputDeviceId();
     this.transparentListenOnlySupported = this.supportsTransparentListenOnly();
     this.audioEventHandler = audioEventHandler;
     this.observeVoiceActivity();
@@ -864,7 +880,7 @@ class AudioManager {
           status: BREAKOUT_AUDIO_TRANSFER_STATES.DISCONNECTED,
         });
         const errorKey = this.messages.error[error] || this.messages.error.GENERIC_ERROR;
-        const errorMsg = this.intl.formatMessage(errorKey, { 0: bridgeError });
+        const errorMsg = this.intl.formatMessage(errorKey, { reason: bridgeError });
         const secondsToAudioFailure = this._calculateAudioJoinTime();
         this.error = !!error;
         logger.error({
@@ -1295,16 +1311,18 @@ class AudioManager {
     const audioAlert = new Audio(url);
 
     audioAlert.addEventListener('ended', () => {
-      audioAlert.src = null;
+      audioAlert.src = '';
     });
 
     const { outputDeviceId } = this.bridge;
 
     if (outputDeviceId && typeof audioAlert.setSinkId === 'function') {
-      return audioAlert.setSinkId(outputDeviceId).then(() => audioAlert.play());
+      return audioAlert
+        .setSinkId(outputDeviceId)
+        .then(() => AudioManager.playAudioElement(audioAlert));
     }
 
-    return audioAlert.play();
+    return AudioManager.playAudioElement(audioAlert);
   }
 
   async updateAudioConstraints(constraints) {

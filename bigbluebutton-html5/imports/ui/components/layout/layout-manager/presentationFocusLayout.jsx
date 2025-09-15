@@ -110,9 +110,6 @@ const PresentationFocusLayout = (props) => {
               isOpen: overrideOpenSidebarPanel,
               sidebarContentPanel: sidebarContentPanelOverride,
             },
-            SidebarContentHorizontalResizer: {
-              isOpen: false,
-            },
             presentation: {
               isOpen: presentation.isOpen,
               slidesLength: presentation.slidesLength,
@@ -121,7 +118,14 @@ const PresentationFocusLayout = (props) => {
               },
             },
             cameraDock: {
+              position: cameraDock.position || CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM,
               numCameras: cameraDock.numCameras,
+              height: 0,
+              width: 0,
+              cameraOptimalGridSize: {
+                width: 0,
+                height: 0,
+              },
             },
             externalVideo: {
               hasExternalVideo: externalVideo.hasExternalVideo,
@@ -135,7 +139,7 @@ const PresentationFocusLayout = (props) => {
               height: screenShare.height,
             },
           },
-          hasLayoutEngineLoadedOnce && prevLayout === LAYOUT_TYPE.PRESENTATION_FOCUS ? prevInput : INITIAL_INPUT_STATE,
+          hasLayoutEngineLoadedOnce ? prevInput : INITIAL_INPUT_STATE,
         );
       },
     });

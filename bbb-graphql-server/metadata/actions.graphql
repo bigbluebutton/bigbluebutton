@@ -149,7 +149,6 @@ type Mutation {
     chatId: String!
     messageId: String!
     reactionEmoji: String!
-    reactionEmojiId: String!
   ): Boolean
 }
 
@@ -185,7 +184,6 @@ type Mutation {
     chatId: String!
     messageId: String!
     reactionEmoji: String!
-    reactionEmojiId: String!
   ): Boolean
 }
 
@@ -378,14 +376,17 @@ type Mutation {
     pollType: String!
     secretPoll: Boolean!
     question: String!
-    isMultipleResponse: Boolean!
+    multipleResponse: Boolean!
+    quiz: Boolean!
     answers: [String]
+    correctAnswer: String
   ): Boolean
 }
 
 type Mutation {
   pollPublishResult(
     pollId: String!
+    showAnswer: Boolean
   ): Boolean
 }
 
@@ -644,6 +645,12 @@ type Mutation {
 type Mutation {
   userSetExitReason(
     exitReason: String!
+  ): Boolean
+}
+
+type Mutation {
+  userSetListenOnlyInput(
+    listenOnlyInputDevice: Boolean!
   ): Boolean
 }
 

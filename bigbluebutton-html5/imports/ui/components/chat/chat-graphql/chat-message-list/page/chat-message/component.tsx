@@ -71,8 +71,8 @@ interface ChatMessageProps {
   chatEditEnabled: boolean;
   chatReactionsEnabled: boolean;
   focused: boolean;
-  sendReaction: (reactionEmoji: string, reactionEmojiId: string, chatId: string, messageId: string) => void;
-  deleteReaction: (reactionEmoji: string, reactionEmojiId: string, chatId: string, messageId: string) => void;
+  sendReaction: (reactionEmoji: string, chatId: string, messageId: string) => void;
+  deleteReaction: (reactionEmoji: string, chatId: string, messageId: string) => void;
 }
 
 export interface ChatMessageRef {
@@ -137,6 +137,10 @@ const intlMessages = defineMessages({
     id: 'app.chat.toolbar.delete.confirmationDescription',
     description: '',
   },
+  quizResult: {
+    id: 'app.chat.quizResult',
+    description: 'Quiz result label in chat',
+  },
 });
 
 function isInViewport(el: HTMLDivElement) {
@@ -179,11 +183,6 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
   focused,
 }, ref) => {
   const intl = useIntl();
-  const markMessageAsSeenOnScrollEnd = useCallback(() => {
-    if (messageRef.current && isInViewport(messageRef.current)) {
-      markMessageAsSeen(message);
-    }
-  }, [message, messageRef]);
   const messageContentRef = React.useRef<HTMLDivElement>(null);
   const [isToolbarReactionPopoverOpen, setIsToolbarReactionPopoverOpen] = React.useState(false);
   const [keyboardFocused, setKeyboardFocused] = React.useState(false);
@@ -291,23 +290,66 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
       return messages;
     });
   }, [messageContentRef]);
+
+  const scrollEndFrameRef = React.useRef<number>();
+
+  const pollScrollEndEvent = useCallback((
+    setFrameId: (id: number) => void,
+    {
+      stabilityFrames,
+      currentFrame,
+    } = {
+      stabilityFrames: 20,
+      currentFrame: 0,
+    },
+  ) => {
+    if (currentFrame < stabilityFrames) {
+      const frameId = requestAnimationFrame(() => {
+        pollScrollEndEvent(setFrameId, {
+          stabilityFrames,
+          currentFrame: currentFrame + 1,
+        });
+      });
+      setFrameId(frameId);
+      return;
+    }
+
+    if (messageRef.current && isInViewport(messageRef.current)) {
+      markMessageAsSeen(message);
+    }
+  }, [markMessageAsSeen, message]);
+
+  const startScrollEndEventPolling = useCallback(() => {
+    if (scrollEndFrameRef.current != null) {
+      cancelAnimationFrame(scrollEndFrameRef.current);
+      scrollEndFrameRef.current = undefined;
+    }
+    scrollEndFrameRef.current = requestAnimationFrame(() => {
+      pollScrollEndEvent((frameId) => {
+        scrollEndFrameRef.current = frameId;
+      });
+    });
+  }, []);
+
   useEffect(() => {
     const callbackFunction = () => {
-      if (messageRef.current && isInViewport(messageRef.current)) {
-        markMessageAsSeen(message); // Pass the 'message' argument here
-      }
+      startScrollEndEventPolling();
     };
     if (message && scrollRef.current && messageRef.current) {
       if (isInViewport(messageRef.current)) {
         markMessageAsSeen(message);
       } else {
-        scrollRef.current.addEventListener('scrollend', callbackFunction);
+        scrollRef.current.addEventListener('scroll', callbackFunction);
       }
     }
     return () => {
-      scrollRef?.current?.removeEventListener('scrollend', callbackFunction);
+      scrollRef?.current?.removeEventListener('scroll', callbackFunction);
+      if (scrollEndFrameRef.current !== undefined) {
+        cancelAnimationFrame(scrollEndFrameRef.current);
+        scrollEndFrameRef.current = undefined;
+      }
     };
-  }, [message, messageRef, markMessageAsSeenOnScrollEnd]);
+  }, [message, messageRef, startScrollEndEventPolling, markMessageAsSeen]);
 
   useEffect(() => {
     if (focused) {
@@ -348,9 +390,11 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
     showToolbar: boolean;
   } = useMemo(() => {
     switch (message.messageType) {
-      case ChatMessageType.POLL:
+      case ChatMessageType.POLL: {
+        const pollData = JSON.parse(message.messageMetadata) as { quiz: boolean;};
         return {
-          name: intl.formatMessage(intlMessages.pollResult),
+          name: pollData.quiz
+            ? intl.formatMessage(intlMessages.quizResult) : intl.formatMessage(intlMessages.pollResult),
           color: '#3B48A9',
           isModerator: true,
           component: (
@@ -362,6 +406,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
           showToolbar: false,
           isSystemSender: true,
         };
+      }
       case ChatMessageType.PRESENTATION:
         return {
           name: '',
@@ -449,8 +494,11 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
       case ChatMessageType.USER_IS_PRESENTER_MSG: {
         const { assignedBy } = JSON.parse(message.messageMetadata);
         const userIsPresenterMsg = (assignedBy)
-          ? `${intl.formatMessage(intlMessages.userIsPresenterSetBy, { 0: message.senderName, 1: assignedBy })}`
-          : `${intl.formatMessage(intlMessages.userIsPresenter, { 0: message.senderName })}`;
+          ? `${intl.formatMessage(intlMessages.userIsPresenterSetBy, {
+            presenterName: message.senderName,
+            assignedByName: assignedBy,
+          })}`
+          : `${intl.formatMessage(intlMessages.userIsPresenter, { presenterName: message.senderName })}`;
         return {
           name: message.senderName,
           color: '#0F70D7',
@@ -609,8 +657,8 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
     }
   }, [deactivateFocusTrap, keyboardFocused]);
 
-  const onEmojiSelected = useCallback((emoji: { id: string; native: string }) => {
-    sendReaction(emoji.native, emoji.id, message.chatId, message.messageId);
+  const onEmojiSelected = useCallback((emoji: { native: string }) => {
+    sendReaction(emoji.native, message.chatId, message.messageId);
     setIsToolbarReactionPopoverOpen(false);
     deactivateFocusTrap();
   }, [message.chatId, message.messageId, sendReaction]);
@@ -641,7 +689,6 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
       $editing={editing}
       $keyboardFocused={keyboardFocused}
       $reactionPopoverIsOpen={isToolbarReactionPopoverOpen}
-      data-test="chatMessageItem"
       $emphasizedMessage={message.chatEmphasizedText}
       role="listitem"
     >
@@ -664,41 +711,41 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
         onReply={onReply}
       />
       {message.replyToMessage && !deleteTime && (
-      <ChatMessageReplied
-        message={message.replyToMessage.message || ''}
-        sequence={message.replyToMessage.messageSequence}
-        deletedByUser={message.replyToMessage.deletedBy?.name ?? null}
-      />
+        <ChatMessageReplied
+          message={message.replyToMessage.message || ''}
+          sequence={message.replyToMessage.messageSequence}
+          deletedByUser={message.replyToMessage.deletedBy?.name ?? null}
+        />
       )}
       {!deleteTime && (
-      <MessageItemWrapper>
-        {messageContent.component}
-        {messageReadFeedbackEnabled && (
-        <MessageReadConfirmation
-          message={message}
-        />
-        )}
-      </MessageItemWrapper>
+        <MessageItemWrapper>
+          {messageContent.component}
+          {messageReadFeedbackEnabled && (
+            <MessageReadConfirmation
+              message={message}
+            />
+          )}
+        </MessageItemWrapper>
       )}
       {sameSender && (
-      <ChatContentFooter>
-        {!deleteTime && editTime && (
-        <Tooltip title={intl.formatTime(editTime, { hour12: false })}>
-          <EditLabel>
-            <Icon iconName="pen_tool" />
-            <span>{intl.formatMessage(intlMessages.edited)}</span>
-          </EditLabel>
-        </Tooltip>
-        )}
-        <ChatTime>
-          <FormattedTime value={dateTime} hour12={false} />
-        </ChatTime>
-      </ChatContentFooter>
+        <ChatContentFooter>
+          {!deleteTime && editTime && (
+            <Tooltip title={intl.formatTime(editTime, { hour12: false })}>
+              <EditLabel>
+                <Icon iconName="pen_tool" />
+                <span>{intl.formatMessage(intlMessages.edited)}</span>
+              </EditLabel>
+            </Tooltip>
+          )}
+          <ChatTime>
+            <FormattedTime value={dateTime} hour12={false} />
+          </ChatTime>
+        </ChatContentFooter>
       )}
       {deleteTime && (
-      <DeleteMessage>
-        {intl.formatMessage(intlMessages.deleteMessage, { 0: message.deletedBy?.name })}
-      </DeleteMessage>
+        <DeleteMessage>
+          {intl.formatMessage(intlMessages.deleteMessage, { userName: message.deletedBy?.name })}
+        </DeleteMessage>
       )}
     </ChatContent>
   );
@@ -743,16 +790,18 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
     </Popover>
   );
 
-  const focusable = !deleteTime && !messageContent.isSystemSender;
+  const focusable = !deleteTime && (!messageContent.isSystemSender || message.messageType === ChatMessageType.POLL);
 
   return (
     <Container
+      data-test="chatMessageItem"
       className={classNames('chat-message-container', {
         'chat-message-container-keyboard-focused': keyboardFocused,
       })}
       ref={containerRef}
       $sequence={message.messageSequence}
       data-sequence={message.messageSequence}
+      data-message-type={message.messageType}
       data-focusable={focusable}
       onKeyDown={(e) => {
         const isTargetElement = e.target === e.currentTarget;
@@ -834,6 +883,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
           description={intl.formatMessage(intlMessages.confirmationDescription)}
           confirmButtonColor="danger"
           priority="high"
+          confirmButtonDataTest="confirmDeleteChatMessageButton"
         />
       )}
     </Container>

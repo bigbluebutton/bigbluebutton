@@ -67,6 +67,7 @@ const ChatMessagePresentationContent: React.FC<ChatMessagePresentationContentPro
         type="application/pdf"
         rel="noopener, noreferrer"
         download={`${parsedFileName}.pdf`}
+        target="_blank"
       >
         {intl.formatMessage(intlMessages.download)}
       </Styled.ChatLink>

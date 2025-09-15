@@ -115,7 +115,7 @@ restartService() {
 }
 
 #
-# Adapted from SBT scripts.  See 
+# Adapted from SBT scripts.  See
 #  https://github.com/sbt/sbt-native-packager/blob/master/src/main/resources/com/typesafe/sbt/packager/linux/control-functions
 #
 

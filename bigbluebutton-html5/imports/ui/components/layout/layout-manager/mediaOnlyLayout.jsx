@@ -118,6 +118,7 @@ const MediaOnlyLayout = (props) => {
     const cameraDockBounds = {};
 
     cameraDockBounds.isCameraHorizontal = false;
+    cameraDockBounds.position = CAMERADOCK_POSITION.CONTENT_TOP;
 
     const mediaBoundsWidth = mediaBounds.width > presentationToolbarMinWidth
       && !isMobile
@@ -471,9 +472,6 @@ const MediaOnlyLayout = (props) => {
               isOpen: false,
               sidebarContentPanel: PANELS.NONE,
             },
-            SidebarContentHorizontalResizer: {
-              isOpen: false,
-            },
             presentation: {
               isOpen: presentation.isOpen,
               slidesLength: presentation.slidesLength,
@@ -482,6 +480,7 @@ const MediaOnlyLayout = (props) => {
               },
             },
             cameraDock: {
+              position: cameraDock.position || CAMERADOCK_POSITION.CONTENT_LEFT,
               numCameras: cameraDock.numCameras,
             },
             externalVideo: {

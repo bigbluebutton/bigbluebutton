@@ -27,8 +27,7 @@ test.describe('Audio', { tag: '@ci' }, () => {
   });
 
   // https://docs.bigbluebutton.org/3.0/testing/release-testing/#muteunmute
-  // Ci failure: not being muted when clicking the mute button (isTalking element keep displayed)
-  test('Mute yourself by clicking the mute button', { tag: '@flaky' }, async () => {
+  test('Mute yourself by clicking the mute button', async () => {
     await audio.muteYourselfByButton();
   });
 

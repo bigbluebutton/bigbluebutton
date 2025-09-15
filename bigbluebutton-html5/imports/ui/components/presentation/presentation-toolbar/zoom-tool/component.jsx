@@ -207,7 +207,7 @@ class ZoomTool extends PureComponent {
               hideLabel
             />
             <div id="resetZoomDescription" hidden>
-              {intl.formatMessage(intlMessages.currentValue, ({ 0: stateZoomPct }))}
+              {intl.formatMessage(intlMessages.currentValue, ({ size: stateZoomPct }))}
             </div>
           </span>
         ),

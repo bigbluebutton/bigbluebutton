@@ -99,7 +99,7 @@ public class TextFileCreatorImp implements TextFileCreator {
 
     } else {
       // sudo apt-get install xpdf-utils
-        COMMAND = "pdftotext -raw -nopgbrk -enc UTF-8 -f " + page + " -l " + page
+        COMMAND = "pdftotext -layout -nopgbrk -enc UTF-8 -f " + page + " -l " + page
             + " " + source + " " + dest;
 
         //System.out.println(COMMAND);

@@ -1,9 +1,7 @@
 import React from 'react';
 import { defineMessages } from 'react-intl';
 import PropTypes from 'prop-types';
-import data from '@emoji-mart/data';
 import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
-import { init } from 'emoji-mart';
 import { SET_RAISE_HAND } from '/imports/ui/core/graphql/mutations/userMutations';
 import { useMutation } from '@apollo/client';
 import Styled from './styles';
@@ -15,9 +13,6 @@ const RaiseHandButton = (props) => {
     raiseHand,
     shortcuts,
   } = props;
-
-  // initialize emoji-mart data, need for the new version
-  init({ data });
 
   const [setRaiseHand] = useMutation(SET_RAISE_HAND);
 

@@ -70,6 +70,7 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
     this.handleTrackSubscribed = this.handleTrackSubscribed.bind(this);
     this.handleTrackUnsubscribed = this.handleTrackUnsubscribed.bind(this);
     this.handleTrackSubscriptionFailed = this.handleTrackSubscriptionFailed.bind(this);
+    this.handleTrackSubscriptionStatusChanged = this.handleTrackSubscriptionStatusChanged.bind(this);
     this.handleLocalTrackMuted = this.handleLocalTrackMuted.bind(this);
     this.handleLocalTrackUnmuted = this.handleLocalTrackUnmuted.bind(this);
     this.handleLocalTrackPublished = this.handleLocalTrackPublished.bind(this);
@@ -206,6 +207,26 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
     }, `LiveKit: failed to subscribe to microphone - ${trackSid}`);
   }
 
+  private handleTrackSubscriptionStatusChanged(
+    publication: RemoteTrackPublication,
+    status: TrackPublication.SubscriptionStatus,
+  ): void {
+    if (!LiveKitAudioBridge.isMicrophonePublication(publication)) return;
+
+    const { trackSid, trackName } = publication;
+
+    logger.debug({
+      logCode: 'livekit_audio_subscription_status_changed',
+      extraInfo: {
+        bridgeName: this.bridgeName,
+        trackSid,
+        trackName,
+        role: this.role,
+        status,
+      },
+    }, `LiveKit: microphone subscription status changed - ${trackSid} to ${status}`);
+  }
+
   private handleLocalTrackMuted(publication: TrackPublication): void {
     if (!LiveKitAudioBridge.isMicrophonePublication(publication)) return;
 
@@ -283,6 +304,7 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
     this.liveKitRoom.on(RoomEvent.TrackSubscribed, this.handleTrackSubscribed);
     this.liveKitRoom.on(RoomEvent.TrackUnsubscribed, this.handleTrackUnsubscribed);
     this.liveKitRoom.on(RoomEvent.TrackSubscriptionFailed, this.handleTrackSubscriptionFailed);
+    this.liveKitRoom.on(RoomEvent.TrackSubscriptionStatusChanged, this.handleTrackSubscriptionStatusChanged);
     this.liveKitRoom.localParticipant.on(ParticipantEvent.TrackMuted, this.handleLocalTrackMuted);
     this.liveKitRoom.localParticipant.on(ParticipantEvent.TrackUnmuted, this.handleLocalTrackUnmuted);
     this.liveKitRoom.localParticipant.on(ParticipantEvent.LocalTrackPublished, this.handleLocalTrackPublished);
@@ -295,6 +317,7 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
     this.liveKitRoom.off(RoomEvent.TrackSubscribed, this.handleTrackSubscribed);
     this.liveKitRoom.off(RoomEvent.TrackUnsubscribed, this.handleTrackUnsubscribed);
     this.liveKitRoom.off(RoomEvent.TrackSubscriptionFailed, this.handleTrackSubscriptionFailed);
+    this.liveKitRoom.off(RoomEvent.TrackSubscriptionStatusChanged, this.handleTrackSubscriptionStatusChanged);
     this.liveKitRoom.localParticipant.off(ParticipantEvent.TrackMuted, this.handleLocalTrackMuted);
     this.liveKitRoom.localParticipant.off(ParticipantEvent.TrackUnmuted, this.handleLocalTrackUnmuted);
     this.liveKitRoom.localParticipant.off(ParticipantEvent.LocalTrackPublished, this.handleLocalTrackPublished);

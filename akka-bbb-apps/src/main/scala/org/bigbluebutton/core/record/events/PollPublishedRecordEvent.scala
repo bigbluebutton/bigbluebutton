@@ -35,6 +35,14 @@ class PollPublishedRecordEvent extends AbstractPollRecordEvent {
     eventMap.put(ANSWERS, JsonUtil.toJson(answers))
   }
 
+  def setIsQuiz(isQuiz: Boolean) {
+    eventMap.put(IS_QUIZ, isQuiz.toString)
+  }
+
+  def setShowCorrectAnswer(showCorrectAnswer: Boolean) {
+    eventMap.put(SHOW_CORRECT_ANSWER, showCorrectAnswer.toString)
+  }
+
   def setNumRespondents(numRespondents: Int) {
     eventMap.put(NUM_RESPONDENTS, Integer.toString(numRespondents))
   }
@@ -48,6 +56,8 @@ object PollPublishedRecordEvent {
   protected final val USER_ID = "userId"
   protected final val QUESTION = "question"
   protected final val ANSWERS = "answers"
+  protected final val IS_QUIZ = "isQuiz"
+  protected final val SHOW_CORRECT_ANSWER = "showCorrectAnswer"
   protected final val NUM_RESPONDENTS = "numRespondents"
   protected final val NUM_RESPONDERS = "numResponders"
 }

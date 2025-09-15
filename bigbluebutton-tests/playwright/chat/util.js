@@ -25,11 +25,22 @@ async function openPrivateChat(testPage) {
   await testPage.clickOnLocator(lastUserStartPrivateChat);
 }
 
+async function getLastMessageSent(testPage) {
+  return testPage.getLocator(e.chatUserMessageText).last();
+}
+
 async function checkLastMessageSent(testPage, expectedMessage) {
-  const lastMessageSent = await testPage.getLocator(e.chatUserMessageText).last();
-  await expect(lastMessageSent, 'should display the last message sent on the chat').toHaveText(expectedMessage);
+  const lastMessageSentLocator = await getLastMessageSent(testPage);
+  await expect(lastMessageSentLocator, 'should display the last message sent on the chat').toHaveText(expectedMessage);
+}
+
+async function hoverLastMessage(testPage) {
+  const lastMessageSentLocator = await getLastMessageSent(testPage);
+  await lastMessageSentLocator.hover();
 }
 
 exports.openPublicChat = openPublicChat;
 exports.openPrivateChat = openPrivateChat;
+exports.getLastMessageSent = getLastMessageSent;
 exports.checkLastMessageSent = checkLastMessageSent;
+exports.hoverLastMessage = hoverLastMessage;

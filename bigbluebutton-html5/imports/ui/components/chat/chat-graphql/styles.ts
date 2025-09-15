@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import { colorWhite, colorPrimary } from '/imports/ui/stylesheets/styled-components/palette';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
-import { smPaddingX } from '/imports/ui/stylesheets/styled-components/general';
+import { smPaddingX, smPaddingY } from '/imports/ui/stylesheets/styled-components/general';
 
 interface ChatProps {
   isChrome: boolean;
@@ -11,7 +11,7 @@ interface ChatProps {
 export const Chat = styled.div<ChatProps>`
   background-color: ${colorWhite};
   padding: ${smPaddingX};
-  padding-bottom: 0;
+  padding-bottom: ${smPaddingY};
   display: flex;
   flex-grow: 1;
   flex-direction: column;

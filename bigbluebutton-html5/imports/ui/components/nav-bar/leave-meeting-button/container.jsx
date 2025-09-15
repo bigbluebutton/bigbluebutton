@@ -1,8 +1,7 @@
 import React from 'react';
 import { useMutation, useReactiveVar } from '@apollo/client';
 import LeaveMeetingButton from './component';
-import { layoutSelectInput, layoutSelect } from '../../layout/context';
-import { SMALL_VIEWPORT_BREAKPOINT } from '../../layout/enums';
+import { layoutSelect } from '../../layout/context';
 import { USER_LEAVE_MEETING } from '/imports/ui/core/graphql/mutations/userMutations';
 import { useStorageKey } from '/imports/ui/services/storage/hooks';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';

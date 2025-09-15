@@ -39,7 +39,7 @@ trait ChangeUserRoleCmdMsgHdlr extends RightsManagementTrait {
             "user",
             "app.toast.promotedLabel",
             "Notification message when promoted",
-            Vector()
+            Map()
           )
           outGW.send(notifyEvent)
           NotificationDAO.insert(notifyEvent)
@@ -55,7 +55,7 @@ trait ChangeUserRoleCmdMsgHdlr extends RightsManagementTrait {
             "user",
             "app.toast.demotedLabel",
             "Notification message when demoted",
-            Vector()
+            Map()
           )
           outGW.send(notifyEvent)
           NotificationDAO.insert(notifyEvent)

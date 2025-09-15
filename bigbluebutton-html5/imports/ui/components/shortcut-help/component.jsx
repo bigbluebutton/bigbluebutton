@@ -163,6 +163,14 @@ const intlMessages = defineMessages({
     id: 'app.shortcut-help.note',
     description: 'describes the sticky note shortcut key',
   },
+  hand: {
+    id: 'app.shortcut-help.hand',
+    description: 'describes the hand shortcut key',
+  },
+  highlight: {
+    id: 'app.shortcut-help.highlight',
+    description: 'describes the highlight shortcut key',
+  },
   general: {
     id: 'app.shortcut-help.general',
     description: 'general tab heading',
@@ -263,6 +271,10 @@ const intlMessages = defineMessages({
     id: 'app.shortcut-help.fingerTap',
     description: 'label for tap shotcut',
   },
+  openCustomPoll: {
+    id: 'app.shortcut-help.openCustomPoll',
+    description: 'label for opening custom poll panel shotcut',
+  },
 });
 
 
@@ -335,7 +347,12 @@ const ShortcutHelpComponent = ({
     `${intl.formatMessage(intlMessages.pushToTalkDesc)}`,
     `M`
   );
+
   generalShortcutItems.splice(3, 0, ptt);
+  generalShortcutItems.push( renderItem(
+    `${intl.formatMessage(intlMessages.openCustomPoll)}`,
+    isMacos ? `Cmd + Opt + P` : `Ctrl + Alt + P`
+  ));
 
   const shortcutItems = [];
   shortcutItems.push(renderItem(intl.formatMessage(intlMessages.togglePan),
@@ -364,7 +381,9 @@ const ShortcutHelpComponent = ({
   whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.line), '7', 'L'));
   whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.arrow), '8', 'A'));
   whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.text), '9', 'T'));
-  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.note), '0', 'S'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.note), '0', 'N, S'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.hand), '', 'H'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.highlight), '', 'Shift D'));
   //views
   whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.zoomIn), 'Ctrl +', 'Ctrl M. Wheel up'));
   whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.zoomOut), 'Ctrl -', 'Ctrl M. Wheel down'));

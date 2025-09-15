@@ -7,10 +7,10 @@ import BridgeService from '/imports/api/screenshare/client/bridge/service';
 import logger from '/imports/startup/client/logger';
 import AudioService from '/imports/ui/components/audio/service';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
-import ConnectionStatusService from '/imports/ui/components/connection-status/service';
 import browserInfo from '/imports/utils/browserInfo';
-import createUseSubscription from '/imports/ui/core/hooks/createUseSubscription';
 import { SCREENSHARE_SUBSCRIPTION } from './queries';
+import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
+import useMeeting from '../../core/hooks/useMeeting';
 
 let screenShareBridge = sfuScreenShareBridge;
 
@@ -59,7 +59,28 @@ export const isSharingVar = makeVar(false);
 export const sharingContentTypeVar = makeVar(false);
 export const cameraAsContentDeviceIdTypeVar = makeVar('');
 
-export const useScreenshare = createUseSubscription(SCREENSHARE_SUBSCRIPTION, {}, true);
+export const useScreenshare = () => {
+  const {
+    data: meeting,
+    loading: meetingLoading,
+  } = useMeeting((m) => ({
+    componentsFlags: m.componentsFlags,
+  }));
+
+  const { data, loading, error } = useDeduplicatedSubscription(
+    SCREENSHARE_SUBSCRIPTION,
+    {
+      skip: meetingLoading
+      || !(meeting?.componentsFlags?.hasScreenshare || meeting.componentsFlags?.hasCameraAsContent),
+    },
+  );
+
+  return {
+    data: data?.screenshare || [],
+    loading,
+    error,
+  };
+};
 
 export const useIsSharing = () => useReactiveVar(isSharingVar);
 export const useSharingContentType = () => useReactiveVar(sharingContentTypeVar);
@@ -400,21 +421,8 @@ export const getStats = async (statsTypes = DEFAULT_SCREENSHARE_STATS_TYPES) => 
   return { screenshareStats };
 };
 
-// This method may throw errors
-export const isMediaFlowing = (previousStats, currentStats) => {
-  const bpsData = ConnectionStatusService.calculateBitsPerSecond(
-    currentStats?.screenshareStats,
-    previousStats?.screenshareStats,
-  );
-  const bpsDataAggr = Object.values(bpsData)
-    .reduce((sum, partialBpsData = 0) => sum + parseFloat(partialBpsData), 0);
-
-  return bpsDataAggr > 0;
-};
-
 export default {
   SCREENSHARE_MEDIA_ELEMENT_NAME,
-  isMediaFlowing,
   screenshareHasEnded,
   screenshareHasStarted,
   shareScreen,

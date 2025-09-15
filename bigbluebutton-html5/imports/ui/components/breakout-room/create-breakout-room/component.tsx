@@ -15,7 +15,7 @@ import {
   getUser,
   getUserResponse,
 } from './queries';
-import { PRESENTATIONS_SUBSCRIPTION } from '/imports/ui/components/whiteboard/queries';
+import { PRESENTATIONS_SUBSCRIPTION, PresentationsSubscriptionResponse } from '/imports/ui/components/whiteboard/queries';
 import logger from '/imports/startup/client/logger';
 import BreakoutRoomUserAssignment from './breakout-room-user-assignment/component';
 import deviceInfo from '/imports/utils/deviceInfo';
@@ -32,6 +32,8 @@ import {
 import { BREAKOUT_ROOM_CREATE, BREAKOUT_ROOM_MOVE_USER } from '../mutations';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import { notify } from '/imports/ui/services/notification';
+import useTimeSync from '/imports/ui/core/local-states/useTimeSync';
+import { getRemainingMeetingTime, isNewTimeValid } from '/imports/ui/core/utils/calculateRemaingTime';
 
 const MIN_BREAKOUT_ROOMS = 2;
 const MIN_BREAKOUT_TIME = 5;
@@ -52,6 +54,9 @@ interface CreateBreakoutRoomProps extends CreateBreakoutRoomContainerProps {
   presentations: Array<Presentation>,
   currentPresentation: string,
   groups: getMeetingGroupResponse['meeting_group'],
+  durationInSeconds: number,
+  createdTime: number,
+  timeSync: number,
 }
 
 const intlMessages = defineMessages({
@@ -179,10 +184,6 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.record',
     description: 'label for checkbox to allow record',
   },
-  roomTime: {
-    id: 'app.createBreakoutRoom.roomTime',
-    description: 'used to provide current room time for aria label',
-  },
   numberOfRoomsIsValid: {
     id: 'app.createBreakoutRoom.numberOfRoomsError',
     description: 'Label an error message',
@@ -207,16 +208,16 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.roomNameInputDesc',
     description: 'aria description for room name change',
   },
-  movedUserLabel: {
-    id: 'app.createBreakoutRoom.movedUserLabel',
-    description: 'screen reader alert when users are moved to rooms',
-  },
   manageRooms: {
     id: 'app.createBreakoutRoom.manageRoomsLabel',
     description: 'Label for manage rooms',
   },
   sendInvitationToMods: {
     id: 'app.createBreakoutRoom.sendInvitationToMods',
+    description: 'label for checkbox send invitation to moderators',
+  },
+  timeCannotExceedMainRoom: {
+    id: 'app.createBreakoutRoom.timeCannotExceedMainRoom',
     description: 'label for checkbox send invitation to moderators',
   },
 });
@@ -232,6 +233,9 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
   presentations,
   currentPresentation,
   groups,
+  durationInSeconds,
+  createdTime,
+  timeSync,
 }) => {
   const { isMobile } = deviceInfo;
   const intl = useIntl();
@@ -287,7 +291,28 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
     return `${CURRENT_SLIDE_PREFIX}${currentPresentation}`;
   };
 
+  const getCaptureFilename = (roomName: string, slides: boolean = true) => {
+    const captureType = slides
+      ? intl.formatMessage(intlMessages.captureSlidesType)
+      : intl.formatMessage(intlMessages.captureNotesType);
+
+    const fileName = `${roomName.replace(/\s/g, '_')}_${captureType}`.replace(/ /g, '_');
+
+    const fileNameDuplicatedCount = presentations.filter((pres) => pres.name?.startsWith(fileName)).length;
+
+    return fileNameDuplicatedCount === 0 ? fileName : `${fileName}(${fileNameDuplicatedCount + 1})`;
+  };
+
   const createRoom = () => {
+    const remainingTime = getRemainingMeetingTime(
+      durationInSeconds,
+      createdTime,
+      timeSync,
+    );
+    if (!isNewTimeValid(remainingTime, durationTime)) {
+      setDurationIsValid(false);
+      return;
+    }
     const rooms = roomsRef.current;
     const roomsArray: RoomToWithSettings[] = [];
     /* eslint no-restricted-syntax: "off" */
@@ -298,10 +323,10 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
         roomsArray.push({
           name: r.name,
           sequence: r.id,
-          captureNotesFilename: `${r.name.replace(/\s/g, '_')}_${intl.formatMessage(intlMessages.captureNotesType)}`,
-          captureSlidesFilename: `${r.name.replace(/\s/g, '_')}_${intl.formatMessage(intlMessages.captureSlidesType)}`,
+          captureNotesFilename: getCaptureFilename(r.name, false),
+          captureSlidesFilename: getCaptureFilename(r.name, true),
           isDefaultName: r.name === intl.formatMessage(intlMessages.breakoutRoom, {
-            0: r.id,
+            roomNumber: r.id,
           }),
           users: r.users.map((u) => u.userId),
           freeJoin,
@@ -311,14 +336,14 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
         });
       } else {
         const defaultName = intl.formatMessage(intlMessages.breakoutRoom, {
-          0: roomNumber,
+          roomNumber,
         });
 
         roomsArray.push({
           name: defaultName,
           sequence: roomNumber,
-          captureNotesFilename: `${defaultName.replace(/\s/g, '_')}_${intl.formatMessage(intlMessages.captureNotesType)}`,
-          captureSlidesFilename: `${defaultName.replace(/\s/g, '_')}_${intl.formatMessage(intlMessages.captureSlidesType)}`,
+          captureNotesFilename: getCaptureFilename(defaultName, false),
+          captureSlidesFilename: getCaptureFilename(defaultName, true),
           isDefaultName: true,
           freeJoin,
           shortName: defaultName,
@@ -480,27 +505,51 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                   const { value } = e.target;
                   const v = Number.parseInt(value, 10);
+                  const remainingTime = getRemainingMeetingTime(
+                    durationInSeconds,
+                    createdTime,
+                    timeSync,
+                  );
+                  const isValid = isNewTimeValid(remainingTime, v);
                   setDurationTime(v);
-                  setDurationIsValid(v >= MIN_BREAKOUT_TIME);
+                  setDurationIsValid(isValid);
                 }}
                 onBlur={(e: React.FocusEvent<HTMLInputElement>) => {
                   const { value } = e.target;
                   const v = Number.parseInt(value, 10);
+                  const remainingTime = getRemainingMeetingTime(
+                    durationInSeconds,
+                    createdTime,
+                    timeSync,
+                  );
+                  const isValid = isNewTimeValid(remainingTime, v);
                   setDurationTime((v && !(v <= 0)) ? v : MIN_BREAKOUT_TIME);
-                  setDurationIsValid(true);
+                  setDurationIsValid(isValid);
                 }}
                 aria-label={intl.formatMessage(intlMessages.duration)}
                 data-test="durationTime"
               />
             </Styled.DurationArea>
-            <Styled.SpanWarn data-test="minimumDurationWarnBreakout" valid={durationIsValid}>
-              {
-                intl.formatMessage(
-                  intlMessages.minimumDurationWarnBreakout,
-                  { 0: MIN_BREAKOUT_TIME },
-                )
-              }
-            </Styled.SpanWarn>
+            {
+              durationTime <= MIN_BREAKOUT_TIME ? (
+                <Styled.SpanWarn data-test="minimumDurationWarnBreakout" valid={durationIsValid}>
+                  {
+                    intl.formatMessage(
+                      intlMessages.minimumDurationWarnBreakout,
+                      { timeInMinutes: MIN_BREAKOUT_TIME },
+                    )
+                  }
+                </Styled.SpanWarn>
+              ) : (
+                <Styled.SpanWarn data-test="timeExceed" valid={durationIsValid}>
+                  {
+                    intl.formatMessage(
+                      intlMessages.timeCannotExceedMainRoom,
+                    )
+                  }
+                </Styled.SpanWarn>
+              )
+            }
           </Styled.DurationLabel>
           <Styled.CheckBoxesContainer key="breakout-checkboxes">
             {checkboxesInfo
@@ -594,11 +643,14 @@ const CreateBreakoutRoomContainer: React.FC<CreateBreakoutRoomContainerProps> = 
 }) => {
   const intl = useIntl();
   const [fetchedBreakouts, setFetchedBreakouts] = React.useState(false);
+  const [timeSync] = useTimeSync();
   // isBreakoutRecordable - get from meeting breakout policies breakoutPolicies/record
   const {
     data: currentMeeting,
   } = useMeeting((m) => ({
     breakoutPolicies: m.breakoutPolicies,
+    durationInSeconds: m.durationInSeconds,
+    createdTime: m.createdTime,
   }));
 
   const {
@@ -624,9 +676,13 @@ const CreateBreakoutRoomContainer: React.FC<CreateBreakoutRoomContainerProps> = 
     data: meetingGroupData,
     loading: meetingGroupLoading,
     error: meetingGroupError,
-  } = useQuery<getMeetingGroupResponse>(getMeetingGroup);
+  } = useQuery<getMeetingGroupResponse>(getMeetingGroup, {
+    fetchPolicy: 'cache-first',
+  });
 
-  const { data: presentationData } = useDeduplicatedSubscription(PRESENTATIONS_SUBSCRIPTION);
+  const { data: presentationData } = useDeduplicatedSubscription<PresentationsSubscriptionResponse>(
+    PRESENTATIONS_SUBSCRIPTION,
+  );
   const presentations = presentationData?.pres_presentation || [];
   const currentPresentation = presentations.find((p: Presentation) => p.current)?.presentationId || '';
 
@@ -668,6 +724,9 @@ const CreateBreakoutRoomContainer: React.FC<CreateBreakoutRoomContainerProps> = 
       presentations={presentations}
       currentPresentation={currentPresentation}
       groups={meetingGroupData?.meeting_group ?? []}
+      durationInSeconds={currentMeeting?.durationInSeconds ?? 0}
+      createdTime={currentMeeting?.createdTime ?? 0}
+      timeSync={timeSync}
     />
   );
 };

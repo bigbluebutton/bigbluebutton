@@ -8,6 +8,7 @@ import { Chat } from '/imports/ui/Types/chat';
 import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
 import deviceInfo from '/imports/utils/deviceInfo';
 import roveBuilder from '/imports/ui/core/utils/keyboardRove';
+import { useIsChatEnabled } from '/imports/ui/services/features';
 
 const { isMobile } = deviceInfo;
 
@@ -79,9 +80,13 @@ const ChatList: React.FC<ChatListProps> = ({ chats }) => {
 
 const ChatListContainer: React.FC = () => {
   const { data: chats } = useChat((chat) => chat) as GraphqlDataHookSubscriptionResponse<Chat[]>;
-  if (chats) {
+  const isChatEnabled = useIsChatEnabled();
+  const CHAT_CONFIG = window.meetingClientSettings.public.chat;
+  const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
+  const allowedChats = isChatEnabled ? chats : chats?.filter((c) => c.chatId !== PUBLIC_GROUP_CHAT_ID);
+  if (allowedChats && allowedChats.length) {
     return (
-      <ChatList chats={chats} />
+      <ChatList chats={allowedChats} />
     );
   } return <></>;
 };

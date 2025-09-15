@@ -53,9 +53,9 @@ public class PdfSlidesGenerationService {
                 new ArrayList<>());
 
         presentationConversionCompletionService.handle(msg);
-        log.info("Progress message handled for page {}", pageToConvert.getPageNumber());
+        log.info("Progress message handled for page {} of presentation [{}] in meeting [{}]", pageToConvert.getPageNumber(), pageToConvert.getPresId(), pageToConvert.getMeetingId());
       } catch (Throwable t) {
-        log.error("Conversion task failed for page {}", pageToConvert.getPageNumber(), t);
+        log.error("Conversion task failed for page {} of presentation [{}] in meeting [{}]", pageToConvert.getPageNumber(), pageToConvert.getPresId(), pageToConvert.getMeetingId(), t);
       }
     });
   }

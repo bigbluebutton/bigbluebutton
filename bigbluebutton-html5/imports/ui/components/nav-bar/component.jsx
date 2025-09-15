@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
 import { defineMessages, injectIntl } from 'react-intl';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import { NavBarItemType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/nav-bar-item/enums';
@@ -170,15 +169,17 @@ class NavBar extends Component {
   }
 
   renderModal(isOpen, setIsOpen, priority, Component, otherOptions) {
-    return isOpen ? <Component
-      {...{
-        ...otherOptions,
-        onRequestClose: () => setIsOpen(false),
-        priority,
-        setIsOpen,
-        isOpen
-      }}
-    /> : null
+    return isOpen ? (
+      <Component
+        {...{
+          ...otherOptions,
+          onRequestClose: () => setIsOpen(false),
+          priority,
+          setIsOpen,
+          isOpen,
+        }}
+      />
+    ) : null;
   }
 
   componentDidMount() {
@@ -193,7 +194,7 @@ class NavBar extends Component {
     if (breakoutNum && breakoutNum > 0) {
       if (breakoutName && meetingName) {
         const defaultBreakoutName = intl.formatMessage(intlMessages.defaultBreakoutName, {
-          0: breakoutNum,
+          roomNumber: breakoutNum,
         });
 
         if (breakoutName === defaultBreakoutName) {
@@ -336,11 +337,12 @@ class NavBar extends Component {
       && selectedLayout !== LAYOUT_TYPE.PRESENTATION_ONLY
       && selectedLayout !== LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY
       && selectedLayout !== LAYOUT_TYPE.MEDIA_ONLY;
+    const shouldShowNavbar = LAYOUT_TYPE.PLUGINS_ONLY !== selectedLayout;
 
     const APP_CONFIG = window.meetingClientSettings?.public?.app;
     const enableTalkingIndicator = APP_CONFIG?.enableTalkingIndicator;
 
-    return (
+    return shouldShowNavbar && (
       <Styled.Navbar
         id="Navbar"
         style={
@@ -371,7 +373,7 @@ class NavBar extends Component {
                   tooltipplacement="right"
                   onClick={this.handleToggleUserList}
                   color={isPhone && isExpanded ? 'primary' : 'dark'}
-                  size='md'
+                  size="md"
                   circle
                   hideLabel
                   data-test={hasNotification ? 'hasUnreadMessages' : 'toggleUserList'}
@@ -403,7 +405,7 @@ class NavBar extends Component {
                   </span>
                 </Tooltip>
               </Styled.PresentationTitle>
-              {this.renderModal(isModalOpen, this.setModalIsOpen, "low", SessionDetailsModal)}
+              {this.renderModal(isModalOpen, this.setModalIsOpen, 'low', SessionDetailsModal)}
               <RecordingIndicator
                 amIModerator={amIModerator}
                 currentUserId={currentUserId}

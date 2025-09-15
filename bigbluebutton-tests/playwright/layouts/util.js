@@ -27,5 +27,20 @@ async function checkScreenshots(layoutTest, description, maskedSelectors, screen
   });
 }
 
+async function checkDefaultLocationReset(test) {
+  await test.getLocator(e.webcamContainer).first().hover({ timeout: 5000 });
+  await test.page.mouse.down();
+  await test.getLocator(e.whiteboard).hover({ timeout: 5000 });
+  
+  // checking all dropAreas being displayed
+  await test.hasElement(e.dropAreaBottom);
+  await test.hasElement(e.dropAreaLeft);
+  await test.hasElement(e.dropAreaRight);
+  await test.hasElement(e.dropAreaTop);
+  await test.hasElement(e.dropAreaSidebarBottom);
+  await test.page.mouse.up();
+}
+
 exports.reopenChatSidebar = reopenChatSidebar;
 exports.checkScreenshots = checkScreenshots;
+exports.checkDefaultLocationReset = checkDefaultLocationReset;
