@@ -211,10 +211,6 @@ class ScreenshareComponent extends React.Component {
       });
     }
 
-    layoutContextDispatch({
-      type: ACTIONS.SET_PRESENTATION_IS_OPEN,
-      value: Session.getItem('presentationLastState'),
-    });
     if (videoTagRef) {
       videoTagRef.removeEventListener('mousemove', this.handleMouseMovement);
     }
