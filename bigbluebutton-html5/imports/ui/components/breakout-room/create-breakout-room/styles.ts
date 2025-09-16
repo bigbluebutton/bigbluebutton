@@ -62,17 +62,23 @@ const PanelSeparator = styled(BaseSeparator)``;
 const BoxContainer = styled.div`
   display: grid;
   @media ${smallUp} {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   grid-gap: 1.6rem 1rem;
   box-sizing: border-box;
   padding-bottom: 1rem;
+
+  .grid > * {
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
 `;
 
 const ContentContainer = styled.div`
   @media ${smallUp} {
     display: grid;
-    grid-template-columns: 1fr 2fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
     grid-template-areas: "sidebar content";
   }
   @media ${smallOnly} {
@@ -80,6 +86,12 @@ const ContentContainer = styled.div`
     flex-direction: column;
   }
   grid-gap: 1rem;
+
+  .grid > * {
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
 `;
 
 const Alert = styled.div<withValidProp>`
