@@ -64,6 +64,7 @@ trait HandlerHelpers extends SystemConfiguration {
         color = regUser.color,
         clientType = clientType,
         userLeftFlag = UserLeftFlag(false, 0),
+        sessionToken = regUser.sessionToken,
         ipAddress = regUser.ipAddress,
         userAgent = regUser.userAgent,
         referer = regUser.referer,
