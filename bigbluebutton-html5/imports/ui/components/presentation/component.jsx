@@ -406,10 +406,31 @@ class Presentation extends PureComponent {
         }
       });
 
-      // Add base URL (perhaps only necessary for Firefox to show tldraw icons
-      const base = popup.document.createElement('base');
-      base.href = window.location.origin + '/';
-      popup.document.head.appendChild(base);
+      // Firefox specific configuration
+      const isFirefox = navigator.userAgent.toLowerCase().includes('firefox');
+      if (isFirefox) {
+        // Add base URL (perhaps only necessary for Firefox to show tldraw icons
+        const base = popup.document.createElement('base');
+        base.href = window.location.origin + '/';
+        popup.document.head.appendChild(base);
+
+        // Explicitely copy bbb-icons.css to show bbb-icons
+        fetch('stylesheets/bbb-icons.css')
+          .then(res => res.text())
+          .then(css => {
+            const style = popup.document.createElement('style');
+            style.textContent = css;
+            popup.document.head.appendChild(style);
+          });
+        // Explicitly set FontFace to show bbb-icons
+        const fonts = [
+          { name: 'bbb-icons', url: '/html5client/fonts/BbbIcons/bbb-icons.woff2' },
+        ];
+        fonts.forEach(({ name, url }) => {
+          const font = new FontFace(name, `url(${window.location.origin}${url})`);
+          font.load().then(loaded => popup.document.fonts.add(loaded));
+        });
+      }
 
       // 追加: document.styleSheets からすべての stylesheet を popup に複製
       //Array.from(document.styleSheets).forEach((styleSheet) => {
