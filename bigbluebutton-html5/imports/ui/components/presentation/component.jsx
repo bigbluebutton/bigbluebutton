@@ -397,6 +397,26 @@ class Presentation extends PureComponent {
       //  which then will show the notification bar. We want to surpress it.
       onPopupPreparing?.(true);
 
+      // Copying the attributes of <html>, so that the bbb-icons font looks a bit smaller
+      const mainHtml = document.documentElement; // メインウィンドウの <html>
+      const popupHtml = popup.document.documentElement;
+      // class
+      popupHtml.className = mainHtml.className;
+      // style, which includes font-size: 14px
+      popupHtml.style.cssText = mainHtml.style.cssText;
+      // dir
+      if (mainHtml.hasAttribute('dir')) {
+        popupHtml.setAttribute('dir', mainHtml.getAttribute('dir'));
+      } else {
+        popupHtml.removeAttribute('dir');
+      }
+      // lang
+      if (mainHtml.hasAttribute('lang')) {
+        popupHtml.setAttribute('lang', mainHtml.getAttribute('lang'));
+      } else {
+        popupHtml.removeAttribute('dir');
+      }
+
       // headの中身をコピー
       const headElements = document.head.cloneNode(true).childNodes;
       headElements.forEach((node) => {
