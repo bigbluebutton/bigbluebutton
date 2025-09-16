@@ -451,6 +451,7 @@ case class UserState(
     userLeftFlag:          UserLeftFlag,
     speechLocale:          String              = "",
     captionLocale:         String              = "",
+    sessionToken:          Vector[String]      = Vector(""),
     ipAddress:             String              = "",
     userAgent:             String              = "",
     referer:               String              = "",

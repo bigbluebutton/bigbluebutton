@@ -104,6 +104,7 @@ case class UserJoinedMeetingEvtMsgBody(
     webcamBackground: String,
     color:            String,
     clientType:       String,
+    sessionToken:     Vector[String],
     ipAddress:        String,
     userAgent:        String,
     referer:          String,
