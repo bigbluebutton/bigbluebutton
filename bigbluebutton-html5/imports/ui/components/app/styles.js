@@ -114,6 +114,17 @@ const DtfInvert = `
   .MuiSwitch-switchBase:not(.Mui-checked) + .MuiSwitch-track {
     background-color: ${colorToggleBgDisabledDarkTheme} !important;
   }
+  [data-test="selectDefaultBackground"],
+  [data-test="selectCustomBackground"] {
+    background-image: var(--original-background-image) !important;
+  }
+  [data-test="selectDefaultBackground"][style*="background-image"],
+  [data-test="selectCustomBackground"][style*="background-image"] {
+    background-image: inherit !important;
+  }
+  button[data-test*="Background"][style*="background-image"] {
+    background-image: var(--original-background-image, inherit) !important;
+  }
 `;
 
 const DtfBrandingInvert = `
@@ -140,7 +151,11 @@ const DtfCss = `
   .tl-note__container,
   .tl-text.tl-text-content,
   .tl-arrow-label,
-  .tl-arrow-label__inner
+  .tl-arrow-label__inner,
+  [data-test="selectDefaultBackground"],
+  [data-test="selectCustomBackground"],
+  [data-test="noneBackgroundButton"],
+  [data-test="inputBackgroundButton"]
 `;
 
 const DtfAvatars = `
@@ -149,7 +164,11 @@ const DtfAvatars = `
 `;
 
 const DtfImages = `
-  svg
+  svg,
+  [data-test="selectDefaultBackground"],
+  [data-test="selectCustomBackground"],
+  [data-test="noneBackgroundButton"],
+  [data-test="inputBackgroundButton"]
 `;
 
 export default {

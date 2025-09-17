@@ -14,7 +14,6 @@ import {
   colorPrimary,
   colorWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
-import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
 import { fontSizeSmallest } from '/imports/ui/stylesheets/styled-components/typography';
 import { smallOnly, mediumOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import Button from '/imports/ui/components/common/button/component';
@@ -23,26 +22,21 @@ const VirtualBackgroundRowThumbnail = styled.div`
   margin: 0.4rem;
 `;
 
-const BgWrapper = styled(ScrollboxVertical)`
+const BgWrapper = styled.div`
   display: flex;
   justify-content: flex-start;
-  //max-width: 272px;
-  max-height: 216px;
   flex-wrap: wrap;
-  overflow-y: auto;
-  //margin: ${borderSizeLarge};
   padding: ${borderSizeLarge};
 
   @media ${smallOnly}, ${mediumOnly} {
     justify-content: center;
-    max-height: 22vh;
   }
 `;
 
 const BgNoneButton = styled(Button)`
   border-radius: ${borderSizeLarge};
-  height: 90px;
-  width: 90px;
+  height: 80px;
+  width: 80px;
   border: ${borderSizeSmall} solid ${userThumbnailBorder};
   margin: 0.5rem 0.5rem;
   flex-shrink: 0;
@@ -57,8 +51,8 @@ const ThumbnailButton = styled(Button)`
   align-items: center;
   border-radius: ${borderSizeLarge};
   cursor: pointer;
-  height: 90px;
-  width: 90px;
+  height: 80px;
+  width: 80px;
   z-index: 1;
   background-color: transparent;
   border: ${borderSizeSmall} solid ${userThumbnailBorder};

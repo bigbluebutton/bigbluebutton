@@ -286,9 +286,11 @@ const VirtualBgSelector = ({
           disabled={disabled}
           ref={(ref) => { inputElementsRef.current[index] = ref; }}
           onClick={() => _virtualBgSelected(EFFECT_TYPES.BLUR_TYPE, 'Blur', index)}
+          style={{ '--original-background-image': `url(${getVirtualBackgroundThumbnail(BLUR_FILENAME)})` }}
         />
         <div aria-hidden className="sr-only" id="vr-cam-btn-blur">
-          {intl.formatMessage(intlMessages.camBgAriaDesc, { backgroundName: EFFECT_TYPES.BLUR_TYPE })}
+          {intl.formatMessage(intlMessages.camBgAriaDesc,
+            { backgroundName: EFFECT_TYPES.BLUR_TYPE })}
         </div>
       </Styled.ThumbnailButtonWrapper>
     );
@@ -317,6 +319,7 @@ const VirtualBgSelector = ({
             disabled={disabled}
             background={getVirtualBackgroundThumbnail(imageName)}
             data-test="selectDefaultBackground"
+            style={{ '--original-background-image': `url(${getVirtualBackgroundThumbnail(imageName)})` }}
           />
           <div aria-hidden className="sr-only" id={`vr-cam-btn-${index + 1}`}>
             {intl.formatMessage(intlMessages.camBgAriaDesc, { backgroundName: label })}
@@ -354,6 +357,7 @@ const VirtualBgSelector = ({
             disabled={disabled}
             background={data}
             data-test="selectCustomBackground"
+            style={{ '--original-background-image': `url(${data})` }}
           />
           <Styled.ButtonWrapper>
             <Styled.ButtonRemove
@@ -427,7 +431,8 @@ const VirtualBgSelector = ({
           data-test="noneBackgroundButton"
         />
         <div aria-hidden className="sr-only" id="vr-cam-btn-none">
-          {intl.formatMessage(intlMessages.camBgAriaDesc, { backgroundName: EFFECT_TYPES.NONE_TYPE })}
+          {intl.formatMessage(intlMessages.camBgAriaDesc,
+            { backgroundName: EFFECT_TYPES.NONE_TYPE })}
         </div>
       </>
     );
