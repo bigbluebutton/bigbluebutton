@@ -573,7 +573,7 @@ const PresentationMenu = (props) => {
             }
             return '';
           })?.filter((s) => s?.length > 0));
-          tldrawAPI?.history.clear();
+          tldrawAPI?.history?.clear?.();
           setIsClearModalOpen(false);
         }}
         priority="0"
