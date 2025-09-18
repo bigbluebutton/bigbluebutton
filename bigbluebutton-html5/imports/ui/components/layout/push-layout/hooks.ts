@@ -71,7 +71,12 @@ const useSetLayoutTypeWithFallback = () => {
     settingsMutation: MutationFunction,
   ): void => {
     if (!deviceType) {
-      logger.info(`Trying to set layout type but device type is invalid: ${deviceType}. Skipping.`);
+      logger.info({
+        logCode: 'layout_invalid_device_type',
+        extraInfo: {
+          deviceType,
+        },
+      }, `Trying to set layout type but device type is invalid: ${deviceType}. Skipping.`);
       return;
     }
 
@@ -79,18 +84,33 @@ const useSetLayoutTypeWithFallback = () => {
     const layoutToBeApplied = layoutSupported ? desiredLayout : LAYOUT_TYPE.SMART_LAYOUT;
 
     if (!layoutSupported) {
-      logger.info(
-        `Layout type ${desiredLayout} is not supported on ${deviceType}. `
-        + `Falling back to ${LAYOUT_TYPE.SMART_LAYOUT}.`,
-      );
+      logger.info({
+        logCode: 'layout_not_supported_fallback',
+        extraInfo: {
+          deviceType,
+          desiredLayout,
+          fallback: LAYOUT_TYPE.SMART_LAYOUT,
+        },
+      },
+      `Layout type ${desiredLayout} is not supported on ${deviceType}. Falling back to ${LAYOUT_TYPE.SMART_LAYOUT}.`);
     }
 
     if (layoutTypeFromSettings === layoutTypeFromContext && layoutTypeFromSettings === layoutToBeApplied) {
-      logger.debug(`Selected layout ${layoutToBeApplied} is already active. No change needed.`);
+      logger.debug({
+        logCode: 'layout_no_change_needed',
+        extraInfo: {
+          layout: layoutToBeApplied,
+        },
+      }, `Selected layout ${layoutToBeApplied} is already active. No change needed.`);
       return;
     }
 
-    logger.debug(`Applying layout: ${layoutToBeApplied}`);
+    logger.debug({
+      logCode: 'layout_applying',
+      extraInfo: {
+        layout: layoutToBeApplied,
+      },
+    }, `Applying layout: ${layoutToBeApplied}`);
 
     layoutContextDispatch({
       type: ACTIONS.SET_LAYOUT_TYPE,
