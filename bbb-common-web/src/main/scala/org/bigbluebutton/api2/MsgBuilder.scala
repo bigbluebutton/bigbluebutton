@@ -1,22 +1,18 @@
 package org.bigbluebutton.api2
 
-import scala.collection.JavaConverters._
 import org.bigbluebutton.api.messaging.converters.messages._
-import org.bigbluebutton.api.messaging.messages.{ ChatMessageFromApi, RegisterUserSessionToken }
+import org.bigbluebutton.api.messaging.messages.{ChatMessageFromApi, RegisterUserSessionToken}
 import org.bigbluebutton.api.service.ServiceUtils
 import org.bigbluebutton.api2.meeting.RegisterUser
-import org.bigbluebutton.common2.domain.{ DefaultProps, PageVO, PresentationPageConvertedVO, PresentationVO }
+import org.bigbluebutton.common2.domain.{DefaultProps, PageVO, PresentationPageConvertedVO, PresentationVO}
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.presentation.messages._
 
-import java.io.{ BufferedReader, InputStreamReader }
 import java.net.URL
 import java.nio.charset.StandardCharsets
-import java.util.stream.Collectors
-import javax.xml.stream.{ XMLInputFactory, XMLStreamConstants }
-import scala.io.Source
-import scala.util.{ Try, Using }
-import scala.xml.XML
+import javax.xml.stream.{XMLInputFactory, XMLStreamConstants}
+import scala.jdk.CollectionConverters._
+import scala.util.Try
 
 object MsgBuilder {
   def buildDestroyMeetingSysCmdMsg(msg: DestroyMeetingMessage): BbbCommonEnvCoreMsg = {
