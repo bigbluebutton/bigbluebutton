@@ -19,6 +19,7 @@ import {
   colorGrayDark,
   emphasizedMessageBackgroundColor,
   highlightedMessageBorderColor,
+  systemMessageBorderColor,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { ChatTime as ChatTimeBase } from './message-header/styles';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
@@ -61,11 +62,9 @@ export const ChatWrapper = styled.div<ChatWrapperProps>`
   }
 
   ${({ isPresentationUpload }) => isPresentationUpload && `
-      border-left: 2px solid #0F70D7;
-      margin-top: 1rem;
-      padding: 0.5rem;
-      word-break: break-word;
-      background-color: #F3F6F9;
+      border: 1px solid ${systemMessageBorderColor};
+      border-radius: 8px;
+      background-color: #ffffff;
     `}
   ${({ isSystemSender }) => isSystemSender && `
     background-color: #fef9f1;

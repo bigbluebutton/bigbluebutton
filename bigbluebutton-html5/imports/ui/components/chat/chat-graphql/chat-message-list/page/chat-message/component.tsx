@@ -421,8 +421,8 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
             />
           ),
           avatarIcon: 'icon-bbb-download',
-          showAvatar: true,
-          showHeading: true,
+          showAvatar: false,
+          showHeading: false,
           showToolbar: false,
         };
       case ChatMessageType.CHAT_CLEAR:
