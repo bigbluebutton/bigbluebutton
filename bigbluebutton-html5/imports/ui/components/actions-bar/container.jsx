@@ -100,7 +100,7 @@ const ActionsBarContainer = (props) => {
   const isRaiseHandEnabled = useIsRaiseHandEnabled();
   const isReactionsButtonEnabled = useIsUserReactionsEnabled();
   const layoutSettings = useSettings(SETTINGS.LAYOUT);
-  const { pushLayout } = layoutSettings;
+  const { pushLayout, selectedLayout } = layoutSettings;
   const setPushLayout = usePushLayoutUpdater(pushLayout);
   const setMeetingLayout = useMeetingLayoutUpdater(
     cameraDockOutput,
@@ -169,6 +169,7 @@ const ActionsBarContainer = (props) => {
         ariaHidden,
         isDarkThemeEnabled: darkModeIsEnabled,
         isMobile,
+        selectedLayout,
       }
     }
     />

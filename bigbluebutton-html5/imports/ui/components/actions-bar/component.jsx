@@ -10,7 +10,6 @@ import JoinVideoOptionsContainer from '../video-provider/video-button/container'
 import PresentationOptionsContainer from './presentation-options/component';
 import SwapPresentationButton from './swap-presentation/component';
 import Button from '/imports/ui/components/common/button/component';
-import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { LAYOUT_TYPE } from '../layout/enums';
 import ReactionsButtonContainer from '/imports/ui/components/actions-bar/reactions-button/container';
 import RaiseHandButtonContainer from '/imports/ui/components/actions-bar/raise-hand-button/container';
@@ -157,10 +156,9 @@ class ActionsBar extends PureComponent {
       showScreenshareQuickSwapButton,
       isReactionsButtonEnabled,
       isRaiseHandEnabled,
+      selectedLayout,
     } = this.props;
 
-    const Settings = getSettingsSingletonInstance();
-    const { selectedLayout } = Settings.layout;
     const shouldShowPresentationButton = selectedLayout !== LAYOUT_TYPE.CAMERAS_ONLY
       && selectedLayout !== LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY;
     const shouldShowVideoButton = selectedLayout !== LAYOUT_TYPE.PRESENTATION_ONLY
