@@ -134,6 +134,10 @@ class AudioManager {
     checkMediaDevicesTarget();
   }
 
+  isUsingLiveKit() {
+    return this.bridge?.bridgeName === 'livekit';
+  }
+
   onBeforeUnload() {
     const CONFIRMATION_ON_LEAVE = window.meetingClientSettings.public.app.askForConfirmationOnLeave;
     if (!CONFIRMATION_ON_LEAVE) {

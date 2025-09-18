@@ -58,12 +58,15 @@ export const leaveEchoTest = () => {
 };
 
 export const closeModal = (callback) => {
+  // eslint-disable-next-line max-len
   const ALLOW_AUDIO_JOIN_CANCEL = window.meetingClientSettings.public.media.audio.allowAudioJoinCancel;
 
   if (Service.isConnecting()) {
     if (!ALLOW_AUDIO_JOIN_CANCEL) return;
 
-    Service.forceExitAudio();
+    if (!Service.isUsingLiveKit()) {
+      Service.forceExitAudio();
+    }
   }
 
   callback();
