@@ -153,6 +153,8 @@ const SegmentedButtonRingShadow = 'var(--ring-shadow, 0 0 #0000)';
 const SegmentedButtonBoxShadowSm = 'var(--shadow, 0 1px 2px 0 rgba(0, 0, 0, 0.05))';
 const slate900 = 'var(--slate-900, #111827)';
 const darkCyanLime = 'var(--dark-cyan-lime, #16A34A)';
+const colorHoverBgDark = 'var(--color-hover-bg-dark, #393C48)';
+const colorToggleBgDisabledDarkTheme = 'var(--toggle-bg-disabled-dark-theme, #909CAF)';
 
 const colorInfoBoxQuizText = 'var(--color-info-box-quiz-text, #15803D)';
 const colorInfoBoxQuizBg = 'var(--color-info-box-quiz-bg, #F0FDF4)';
@@ -278,8 +280,10 @@ export {
   webcamPlaceholderBorder,
   colorBackgroundDarkTheme,
   colorOverlaysDarkTheme,
+  colorToggleBgDisabledDarkTheme,
   colorTextDarkTheme,
   colorPrimaryDarkTheme,
+  colorHoverBgDark,
   SegmentedButtonRingOffsetShadow,
   SegmentedButtonRingShadow,
   SegmentedButtonBoxShadowSm,

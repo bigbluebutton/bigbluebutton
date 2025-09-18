@@ -5,6 +5,8 @@ import {
   colorOverlaysDarkTheme,
   colorTextDarkTheme,
   colorPrimaryDarkTheme,
+  colorHoverBgDark,
+  colorToggleBgDisabledDarkTheme,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
 const CaptionsWrapper = styled.div`
@@ -33,6 +35,8 @@ const DtfInvert = `
     --darkreader-bg--color-primary: ${colorPrimaryDarkTheme} !important;
     --darkreader-text--color-primary: ${colorPrimaryDarkTheme} !important;
     --darkreader-bg--item-focus-border: ${colorPrimaryDarkTheme} !important;
+    --darkreader-bg--list-item-bg-hover: ${colorHoverBgDark} !important;
+    --list-item-bg-hover: ${colorHoverBgDark} !important;
   }
   body {
     background-color: var(--darkreader-bg-neutral-background) !important;
@@ -84,7 +88,7 @@ const DtfInvert = `
     background-color: unset !important;
   }
   textarea {
-    caret-color: black !important;
+    caret-color: white !important;
   }
   #connectionBars > div {
     background-color: var(--darkreader-neutral-text) !important;
@@ -106,6 +110,9 @@ const DtfInvert = `
     & > span > i {
       color: var(--darkreader-text--btn-default-color) !important;
     }
+  }
+  .MuiSwitch-switchBase:not(.Mui-checked) + .MuiSwitch-track {
+    background-color: ${colorToggleBgDisabledDarkTheme} !important;
   }
   [data-test="selectDefaultBackground"],
   [data-test="selectCustomBackground"] {
@@ -151,6 +158,11 @@ const DtfCss = `
   [data-test="inputBackgroundButton"]
 `;
 
+const DtfAvatars = `
+  [data-test="moderatorAvatar"],
+  [data-test="viewerAvatar"]
+`;
+
 const DtfImages = `
   svg,
   [data-test="selectDefaultBackground"],
@@ -165,5 +177,6 @@ export default {
   DtfInvert,
   DtfBrandingInvert,
   DtfCss,
+  DtfAvatars,
   DtfImages,
 };
