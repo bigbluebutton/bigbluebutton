@@ -120,9 +120,11 @@ const notifyShapeNumberExceeded = (intl, limit) => {
   if (intl) notify(intl.formatMessage(intlMessages.shapeNumberExceeded, { limit }), 'warning', 'whiteboard');
 };
 
-const toggleToolsAnimations = (activeAnim, anim, time, hasWBAccess = false) => {
+const toggleToolsAnimations = (activeAnim, anim, time, hasWBAccess = false, isDetached, p) => {
   const handleOptionsDropdown = () => {
-    const optionsDropdown = document.getElementById('WhiteboardOptionButton');
+    const optionsDropdown = isDetached ?
+      p.document.getElementById('WhiteboardOptionButton') :
+      document.getElementById('WhiteboardOptionButton');
     if (optionsDropdown) {
       optionsDropdown.classList.remove(activeAnim);
       optionsDropdown.style.transition = `opacity ${time} ease-in-out`;
@@ -135,7 +137,9 @@ const toggleToolsAnimations = (activeAnim, anim, time, hasWBAccess = false) => {
   }
 
   const checkElementsAndRun = () => {
-    const tlEls = document.querySelectorAll('.tlui-menu-zone, .tlui-toolbar__tools, .tlui-toolbar__extras, .tlui-style-panel__wrapper, .tlui-undo, .tlui-redo');
+    const tlEls = isDetached ?
+      p.document.querySelectorAll('.tlui-menu-zone, .tlui-toolbar__tools, .tlui-toolbar__extras, .tlui-style-panel__wrapper, .tlui-undo, .tlui-redo') :
+      document.querySelectorAll('.tlui-menu-zone, .tlui-toolbar__tools, .tlui-toolbar__extras, .tlui-style-panel__wrapper, .tlui-undo, .tlui-redo');
     if (tlEls.length) {
       tlEls?.forEach((el) => {
         el.classList.remove(activeAnim);

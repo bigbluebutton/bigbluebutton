@@ -40,7 +40,7 @@ const intlMessages = defineMessages({
 const STATUS_CRITICAL = 'critical';
 const COLOR_PRIMARY = 'primary';
 
-const NotificationsBarContainer = () => {
+const NotificationsBarContainer = ({ isPopupOnPreparation }) => {
   const intl = useIntl();
 
   const { hasNotification } = layoutSelectInput((i) => i.notificationsBar);
@@ -60,6 +60,14 @@ const NotificationsBarContainer = () => {
 
   const errorMessage = useMemo(() => {
     const isCritical = rttStatus === STATUS_CRITICAL;
+
+    // When subscriptionFailed error comes when the popup is under preparation,
+    //  return null and clear the stacked subscriptionFaied error.
+    if (isPopupOnPreparation && subscriptionFailed) {
+      console.log("Warning: Ignoring an initial graphql subscription failure (3006) on popup.");
+      connectionStatus.getSubscriptionFailedVar()(false);
+      return null;
+    }
 
     if (!connected) {
       const code = isCritical ? 3002 : 3001;
@@ -137,6 +145,7 @@ const NotificationsBarContainer = () => {
     rttStatus,
     subscriptionFailed,
     intl,
+    isPopupOnPreparation,
   ]);
 
   const meetingMessage = useMemo(() => {

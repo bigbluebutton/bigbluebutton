@@ -93,6 +93,16 @@ const intlMessages = defineMessages({
     id: 'app.presentation.modal.clearAnnotationsConfirmLabel',
     description: 'Label for the confirm button',
   },
+  detachPopupDesc: {
+    id: 'app.presentation.options.detachPopup',
+    description: 'Popup the presentation area label',
+    defaultMessage: 'Popup presentation',
+  },
+  mergePopupDesc: {
+    id: 'app.presentation.options.mergePopup',
+    description: 'Merge the detached presentation area label',
+    defaultMessage: 'Merge presentation popup',
+  },
 });
 
 const propTypes = {
@@ -100,6 +110,7 @@ const propTypes = {
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
   allowSnapshotOfCurrentSlide: PropTypes.bool,
+  allowPopupPresentation: PropTypes.bool,
   handleToggleFullscreen: PropTypes.func.isRequired,
   isFullscreen: PropTypes.bool,
   elementName: PropTypes.string,
@@ -142,12 +153,15 @@ const PresentationMenu = (props) => {
     isToolbarVisible,
     setIsToolbarVisible,
     allowSnapshotOfCurrentSlide = false,
+    allowPopupPresentation = false,
     presentationDropdownItems,
     slideNum,
     currentUser,
     whiteboardId,
     persistShape,
     hasWBAccess,
+    popupWindow,
+    isPresentationDetached,
   } = props;
 
   const [state, setState] = useState({
@@ -244,6 +258,11 @@ const PresentationMenu = (props) => {
   const formattedVisibilityLabel = (visible) => (visible
     ? intl.formatMessage(intlMessages.hideToolsDesc)
     : intl.formatMessage(intlMessages.showToolsDesc)
+  );
+
+  const formattedDetachedLabel = (detached) => (detached
+    ? intl.formatMessage(intlMessages.mergePopupDesc)
+    : intl.formatMessage(intlMessages.detachPopupDesc)
   );
 
   const extractShapes = (savedState) => {
@@ -354,7 +373,7 @@ const PresentationMenu = (props) => {
           label: formattedLabel(isFullscreen),
           icon: isFullscreen ? 'exit_fullscreen' : 'fullscreen',
           onClick: () => {
-            handleToggleFullscreen(fullscreenRef);
+            handleToggleFullscreen(fullscreenRef, isPresentationDetached, popupWindow);
             const newElement = (elementId === currentElement) ? '' : elementId;
             const newGroup = (elementGroup === currentGroup) ? '' : elementGroup;
 
@@ -452,6 +471,17 @@ const PresentationMenu = (props) => {
           },
         },
       );
+    }
+
+    if (props.amIPresenter && allowPopupPresentation) {
+      menuItems.push({
+        key: 'list-item-detach-presentation',
+        //label: intl.formatMessage({ id: 'app.presentation.detachPresentation' }),
+        label: formattedDetachedLabel(isPresentationDetached),
+        icon: 'external-link',
+        icon: isPresentationDetached ? 'minus' : 'popout_window',
+        onClick: props.detachPresentation,
+      });
     }
 
     // if (props.amIPresenter) {

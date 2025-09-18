@@ -170,9 +170,18 @@ const Whiteboard = React.memo((props) => {
     setEditor,
     lockToolbarTools,
     layoutChanged,
+    isPresentationDetached,
+    popupWindow,
   } = props;
 
   clearTldrawCache();
+
+  const raf = isPresentationDetached
+    ? popupWindow.requestAnimationFrame
+    : window.requestAnimationFrame;
+  const caf = isPresentationDetached
+    ? popupWindow.cancelAnimationFrame
+    : window.cancelAnimationFrame;
 
   const [isMounting, setIsMounting] = React.useState(true);
   const [cursorType, setCursorType] = React.useState('');
@@ -590,7 +599,10 @@ const Whiteboard = React.memo((props) => {
       return;
     }
     // ignore if the edit link dialog is open
-    if (document.querySelector('h2.tlui-dialog__header__title')?.textContent === 'Edit link') {
+    const elDialog = isPresentationDetached ?
+      popupWindow.document.querySelector('h2.tlui-dialog__header__title')?.textContent :
+      document.querySelector('h2.tlui-dialog__header__title')?.textContent;
+    if (elDialog === 'Edit link') {
       return;
     }
 
@@ -880,8 +892,15 @@ const Whiteboard = React.memo((props) => {
   };
 
   const getContainerDimensions = () => {
-    const container = document.querySelector('[data-test="presentationContainer"]');
-    const innerWrapper = document.getElementById('presentationInnerWrapper');
+    // This change affects the behaviour when resize and fullscreen the popupWindow.
+    //const container = document.querySelector('[data-test="presentationContainer"]');
+    //const innerWrapper = document.getElementById('presentationInnerWrapper');
+    const container = isPresentationDetached ?
+      popupWindow.document.querySelector('[data-test="presentationContainer"]') :
+      document.querySelector('[data-test="presentationContainer"]');
+    const innerWrapper = isPresentationDetached ?
+      popupWindow.document.getElementById('presentationInnerWrapper') :
+      document.getElementById('presentationInnerWrapper');
     const containerWidth = container ? container.offsetWidth : 0;
     const innerWrapperWidth = innerWrapper ? innerWrapper.offsetWidth : 0;
     const widthGap = Math.max(containerWidth - innerWrapperWidth, 0);
@@ -1065,8 +1084,15 @@ const Whiteboard = React.memo((props) => {
     stableCount = 0,
     lastDimensions = { width: 0, height: 0 },
   ) => {
-    const container = document.querySelector('[data-test="presentationContainer"]');
-    const innerWrapper = document.getElementById('presentationInnerWrapper');
+    // This change affects the behaviour when resize and fullscreen the popupWindow.
+    //const container = document.querySelector('[data-test="presentationContainer"]');
+    //const innerWrapper = document.getElementById('presentationInnerWrapper');
+    const container = isPresentationDetached ?
+      popupWindow.document.querySelector('[data-test="presentationContainer"]') :
+      document.querySelector('[data-test="presentationContainer"]');
+    const innerWrapper = isPresentationDetached ?
+      popupWindow.document.getElementById('presentationInnerWrapper') :
+      document.getElementById('presentationInnerWrapper');
 
     const containerWidth = container ? container.offsetWidth : 0;
     const containerHeight = container ? container.offsetHeight : 0;
@@ -1097,7 +1123,7 @@ const Whiteboard = React.memo((props) => {
     }
 
     if (currentTry < options.maxTries) {
-      const frameId = requestAnimationFrame(() => {
+      const frameId = raf(() => {
         pollInnerWrapperDimensionsUntilStable(
           onReady,
           options,
@@ -1132,7 +1158,7 @@ const Whiteboard = React.memo((props) => {
     if (isMountedRef.current) {
       onReady();
     } else if (currentTry <= options.maxTries) {
-      const frameId = requestAnimationFrame(() => {
+      const frameId = raf(() => {
         pollUntilMounted(onReady, onFail, ref, options, currentTry + 1);
       });
       if (_ref) {
@@ -1457,6 +1483,8 @@ const Whiteboard = React.memo((props) => {
                 'fade-out',
                 '0s',
                 hasWBAccessRef.current || isPresenterRef.current,
+                isPresentationDetached,
+                popupWindow,
               );
             } else if (visibilityState === 'hidden') {
               toggleToolsAnimations(
@@ -1464,6 +1492,8 @@ const Whiteboard = React.memo((props) => {
                 'fade-in',
                 '0s',
                 hasWBAccessRef.current || isPresenterRef.current,
+                isPresentationDetached,
+                popupWindow,
               );
             }
             lastVisibilityStateRef.current = visibilityState;
@@ -1756,6 +1786,8 @@ const Whiteboard = React.memo((props) => {
       setIsWheelZoom,
       setWheelZoomTimeout,
       isInfiniteWhiteboard,
+      isPresentationDetached,
+      popupWindow,
     },
   );
 
@@ -1874,14 +1906,14 @@ const Whiteboard = React.memo((props) => {
 
   React.useEffect(() => {
     if (isMountedPollingFrameRef.current !== null) {
-      cancelAnimationFrame(isMountedPollingFrameRef.current);
+      caf(isMountedPollingFrameRef.current);
     }
-    isMountedPollingFrameRef.current = requestAnimationFrame(() => {
+    isMountedPollingFrameRef.current = raf(() => {
       pollUntilMounted(() => {
         if (innerWrapperPollingFrameRef.current !== null) {
-          cancelAnimationFrame(innerWrapperPollingFrameRef.current);
+          caf(innerWrapperPollingFrameRef.current);
         }
-        innerWrapperPollingFrameRef.current = requestAnimationFrame(() => {
+        innerWrapperPollingFrameRef.current = raf(() => {
           pollInnerWrapperDimensionsUntilStable(() => {
             syncCameraWithPresentationArea();
           }, {
@@ -1920,6 +1952,63 @@ const Whiteboard = React.memo((props) => {
       );
     }
   }, [currentPresentationPage, isPresenter]);
+
+  React.useEffect(() => {
+    // Set red pointer cursor for the popup presentation,
+    //  which would be better displayed in a face-to-face lecture.
+    if (!(isPresenter && isPresentationDetached)) return;
+    if (!popupWindow) return;
+
+    const observer = new MutationObserver(() => {
+      const el = popupWindow.document.querySelector('.tl-container');
+      if (!el) return;
+
+      const varMap = {
+        '--tl-cursor-grab': '--tl-cursor-pointer',
+        '--tl-cursor-grabbing': '--tl-cursor-grabbing',
+      };
+
+      Object.entries(varMap).forEach(([baseVar, replaceVar]) => {
+        const dataUrl = getComputedStyle(el).getPropertyValue(replaceVar).trim();
+        if (dataUrl) {
+          const tinted = dataUrl.replace(/fill='white'/g, "fill='red'");
+          el.style.setProperty(baseVar, tinted);
+        }
+      });
+    })
+
+    observer.observe(popupWindow.document.body, { childList: true, subtree: true })
+      return () => observer.disconnect()
+  }, [isPresenter, isPresentationDetached, popupWindow]);
+
+  // HTMLElement injection
+  // The tldraw module uses HTMLElement variable, which is not from the popup.
+  // Thus some tldraw functions such as fullscreen and resize a drawing
+  //  does not work on the popup window.
+  // This actually modify a global variable, possibly causing other problems
+  const originalHTMLElementRef = React.useRef(null);
+  React.useEffect(() => {
+    if (!isPresenter) return;
+
+    if (isPresentationDetached && popupWindow?.HTMLElement) {
+      if (!originalHTMLElementRef.current) {
+        originalHTMLElementRef.current = window.HTMLElement;
+      }
+      window.HTMLElement = popupWindow.HTMLElement;
+    } else {
+      if (originalHTMLElementRef.current) {
+        window.HTMLElement = originalHTMLElementRef.current;
+        originalHTMLElementRef.current = null;
+      }
+    }
+
+    return () => {
+      if (originalHTMLElementRef.current) {
+        window.HTMLElement = originalHTMLElementRef.current;
+        originalHTMLElementRef.current = null;
+      }
+    };
+  }, [isPresentationDetached, popupWindow]);
 
   React.useEffect(() => {
     if (tlEditorRef.current) {
@@ -2011,7 +2100,7 @@ const Whiteboard = React.memo((props) => {
 
   const toggleToolbarIfNeeded = () => {
     if (whiteboardToolbarAutoHide && toggleToolsAnimations) {
-      toggleToolsAnimations('fade-in', 'fade-out', '0s', hasWBAccessRef.current || isPresenterRef.current);
+      toggleToolsAnimations('fade-in', 'fade-out', '0s', hasWBAccessRef.current || isPresenterRef.current, isPresentationDetached, popupWindow);
     }
   };
 
@@ -2052,6 +2141,25 @@ const Whiteboard = React.memo((props) => {
       resetSlideState();
     }
   }, [curPageId]);
+
+  // To use Kosugi-Maru fonts also in the main window, as all the viewers do.
+  // To use the font, you need to install the font under public/fonts/KosugiMaru and
+  //  add sentences at public/stylesheets/fonts.css as done together in this PR.
+  //   -> moved to styles.css
+  //React.useEffect(() => {
+  //  const kosugi = new FontFace(
+  //    'tldraw_draw',
+  //    `url(${window.location.origin}/html5client/fonts/KosugiMaru/KosugiMaru-Regular.woff2)`,
+  //    { weight: '400', style: 'normal' }
+  //  );
+  //  kosugi.load()
+  //    .then((loaded) => {
+  //      document.fonts.add(loaded);
+  //    })
+  //    .catch((err) => {
+  //      console.error('Failed to load KosugiMaru font:', err);
+  //    });
+  //, []);
 
   React.useEffect(() => {
     setTldrawIsMounting(true);
@@ -2113,12 +2221,13 @@ const Whiteboard = React.memo((props) => {
 
   React.useEffect(() => {
     if (!whiteboardToolbarAutoHide) {
-      const optionsDropdown = document.getElementById('WhiteboardOptionButton');
+      const doc = isPresentationDetached ? popupWindow.document : document;
+      const optionsDropdown = doc.getElementById('WhiteboardOptionButton');
       if (optionsDropdown?.classList.contains('fade-in')) {
         optionsDropdown.classList.remove('fade-in');
       }
     }
-  }, [whiteboardToolbarAutoHide]);
+  }, [whiteboardToolbarAutoHide, isPresentationDetached]);
 
   return (
     <div
@@ -2204,3 +2313,7 @@ Whiteboard.propTypes = {
   isInfiniteWhiteboard: PropTypes.bool,
   whiteboardWriters: PropTypes.arrayOf(PropTypes.shape).isRequired,
 };
+
+
+
+

@@ -214,3 +214,16 @@
        url('../fonts/SourceSansPro/SourceSansPro-BoldItalic.woff?v=VERSION') format('woff');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215, U+E0FF, U+EFFD, U+F000;
 }
+/* Japanese pop font for var(--tl-font-draw) */
+@font-face {
+  font-family: 'KosugiMaruSubset';
+  font-style: normal;
+  font-weight: 400;
+  src: url('/html5client/fonts/KosugiMaru/KosugiMaru-Regular.woff2') format('woff2');
+  /* CJK統合漢字 + ひらがな + カタカナ */
+  unicode-range:
+    U+3000-303F,  /* 記号 (句読点など) */
+    U+3040-309F,  /* ひらがな */
+    U+30A0-30FF,  /* カタカナ */
+    U+4E00-9FFF;  /* 漢字 */
+}
