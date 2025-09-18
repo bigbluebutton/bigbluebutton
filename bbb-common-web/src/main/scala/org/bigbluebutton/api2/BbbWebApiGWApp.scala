@@ -422,6 +422,9 @@ class BbbWebApiGWApp(
     } else if (msg.isInstanceOf[UploadFileScanFailedMessage]) {
       val event = MsgBuilder.buildPresentationUploadedFileScanFailedErrorSysPubMsg(msg.asInstanceOf[UploadFileScanFailedMessage])
       msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
+    } else if (msg.isInstanceOf[DocConversionStarted]) {
+      val event = MsgBuilder.buildPresentationConversionStartedSysPubMsg(msg.asInstanceOf[DocConversionStarted])
+      msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
     }
   }
 

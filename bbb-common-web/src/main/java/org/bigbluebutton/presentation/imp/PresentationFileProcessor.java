@@ -17,10 +17,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.*;
 
 // Presentation files are processed using two separate thread pools.
 // One thread pool handles the preparation of PDF and image documents
@@ -43,8 +40,6 @@ public class PresentationFileProcessor {
     private long bigPdfSize;
     private long maxBigPdfPageSize;
 
-    private long MAX_CONVERSION_TIME = 5 * 60 * 1000L;
-
     private TextFileCreator textFileCreator;
     private SvgImageCreator svgImageCreator;
     private ThumbnailCreator thumbnailCreator;
@@ -56,13 +51,15 @@ public class PresentationFileProcessor {
     private PdfSlidesGenerationService pdfSlidesGenerationService;
     private S3FileManager s3FileManager;
 
-    private ExecutorService executor;
+    private final ExecutorService executor;
+    private final ExecutorService supervisor;
     private volatile boolean processPresentation = false;
 
     private BlockingQueue<UploadedPresentation> presentations = new LinkedBlockingQueue<UploadedPresentation>();
 
     public PresentationFileProcessor(int numConversionThreads) {
         executor = Executors.newFixedThreadPool(numConversionThreads);
+        supervisor = Executors.newFixedThreadPool(2 * numConversionThreads);
     }
 
     public synchronized void process(UploadedPresentation pres) {
@@ -86,12 +83,22 @@ public class PresentationFileProcessor {
             log.error("Error while downloading presentations outputs from cache: {}", e.getMessage());
         }
 
-        Runnable messageProcessor = new Runnable() {
-            public void run() {
-                processUploadedPresentation(pres);
+        if (SupportedFileTypes.isPdfFile(pres.getFileType())) {
+            boolean isNumberOfPagesOk = determineNumberOfPages(pres);
+            if (!isNumberOfPagesOk) {
+                return;
             }
-        };
-        executor.submit(messageProcessor);
+        } else if (SupportedFileTypes.isImageFile(pres.getFileType())) {
+            pres.setNumberOfPages(1);
+        }
+
+        long maxConversionTime = pres.getMaxTotalConversionTime();
+        processUploadedPresentation(pres);
+
+        DocConversionStarted started = new DocConversionStarted(pres.getPodId(), pres.getId(), pres.getName(),
+                pres.getTemporaryPresentationId(), maxConversionTime, pres.getMeetingId(), pres.getAuthzToken());
+        notifier.sendDocConversionProgress(started);
+
     }
 
     private void processMakePresentationDownloadableMsg(UploadedPresentation pres) {
@@ -114,18 +121,70 @@ public class PresentationFileProcessor {
     private void processUploadedPresentation(UploadedPresentation pres) {
         if (SupportedFileTypes.isPdfFile(pres.getFileType())) {
             pres.generateFilenameConverted("pdf");
-            boolean isNumberOfPagesOk = determineNumberOfPages(pres);
-            if (isNumberOfPagesOk) {
-                sendDocPageConversionStartedProgress(pres);
-                PresentationConvertMessage msg = new PresentationConvertMessage(pres);
-                presentationConversionCompletionService.handle(msg);
-                extractIntoPages(pres);
-            }
-        } else if (SupportedFileTypes.isImageFile(pres.getFileType())) {
-            pres.setNumberOfPages(1); // There should be only one image to convert.
             sendDocPageConversionStartedProgress(pres);
-            imageSlidesGenerationService.generateSlides(pres);
+            PresentationConvertMessage msg = new PresentationConvertMessage(pres);
+            presentationConversionCompletionService.handle(msg);
+            executor.submit(() -> extractIntoPages(pres));
+        } else if (SupportedFileTypes.isImageFile(pres.getFileType())) {
+            sendDocPageConversionStartedProgress(pres);
+            Future<?> future = executor.submit(() -> imageSlidesGenerationService.generateSlides(pres));
+
+            supervisor.submit(monitorPresentationConversion(
+                    future,
+                    pres,
+                    null,
+                    pres.getMaxPageConversionTime()
+            ));
         }
+    }
+
+    private Runnable monitorPresentationConversion(
+            Future<?> future,
+            UploadedPresentation pres,
+            PageToConvert page,
+            long timeout
+    ) {
+        return () -> {
+            boolean createBlanks = false;
+
+            try {
+                future.get(timeout, TimeUnit.SECONDS);
+            } catch (ExecutionException e) {
+                log.error("Presentation conversion failed to execute: {}", e.getMessage());
+                createBlanks = true;
+            } catch (InterruptedException e) {
+                log.error("Supervising thread interrupted: {}", e.getMessage());
+            } catch (TimeoutException e) {
+                log.error("Presentation conversion failed to convert in {} seconds", timeout);
+
+                boolean success = future.cancel(true);
+                if (!success) {
+                    log.warn("Failed to cancel conversion task");
+                }
+
+                createBlanks = true;
+            } catch (CancellationException e) {
+                log.warn("Presentation conversion cancelled: {}", e.getMessage());
+                createBlanks = true;
+            }
+
+            if (SupportedFileTypes.isPdfFile(pres.getFileType()) && page != null) {
+                if (createBlanks) page.createBlanks();
+
+                PageConvertProgressMessage msg = new PageConvertProgressMessage(
+                        page.getPageNumber(),
+                        page.getPresId(),
+                        page.getMeetingId(),
+                        new ArrayList<>()
+                );
+
+                pdfSlidesGenerationService.sendMessage(msg);
+            } else if (SupportedFileTypes.isImageFile(pres.getFileType())) {
+                if (createBlanks) imageSlidesGenerationService.createBlanks(pres);
+                notifier.sendConversionUpdateMessage(1, pres, 1);
+                notifier.sendConversionCompletedMessage(pres);
+            }
+        };
     }
 
     private void extractIntoPages(UploadedPresentation pres) {
@@ -159,12 +218,18 @@ public class PresentationFileProcessor {
                     notifier
             );
 
-            pdfSlidesGenerationService.process(pageToConvert);
+            Future<?> future = pdfSlidesGenerationService.process(pageToConvert);
+
+            supervisor.submit(monitorPresentationConversion(
+                    future,
+                    pres,
+                    pageToConvert,
+                    pres.getMaxPageConversionTime()
+            ));
+
             listOfPagesConverted.add(pageToConvert);
             PageToConvert timeoutErrorMessage =
-            listOfPagesConverted.stream().filter(item -> {
-                return item.getMessageErrorInConversion() != null;
-            }).findAny().orElse(null);
+            listOfPagesConverted.stream().filter(item -> item.getMessageErrorInConversion() != null).findAny().orElse(null);
 
             if (timeoutErrorMessage != null) {
                 log.error(timeoutErrorMessage.getMessageErrorInConversion());
@@ -310,7 +375,7 @@ public class PresentationFileProcessor {
             };
             executor.submit(messageProcessor);
         } catch (Exception e) {
-            log.error("Error processing presentation file: {}", e);
+            log.error("Error processing presentation file:", e);
         }
     }
 
@@ -360,10 +425,6 @@ public class PresentationFileProcessor {
 
     public void setSvgImageCreator(SvgImageCreator svgImageCreator) {
         this.svgImageCreator = svgImageCreator;
-    }
-
-    public void setMaxConversionTime(int minutes) {
-        MAX_CONVERSION_TIME = minutes * 60 * 1000L * 1000L * 1000L;
     }
 
     public void setImageSlidesGenerationService(ImageSlidesGenerationService s) {

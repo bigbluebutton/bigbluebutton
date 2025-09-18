@@ -79,14 +79,24 @@ jobs:
             build-list: bbb-mkclean bbb-pads bbb-libreoffice-docker bbb-transcription-controller bigbluebutton bbb-livekit
             cache-files-list: bbb-pads.placeholder.sh bbb-libreoffice bbb-transcription-controller.placeholder.sh
     steps:
-      - uses: actions/checkout@v4
-      - name: Merge branches
-        uses: ./.github/actions/merge-branches
+      - name: Checkout PR's source merged into its target branch
+        if: github.event_name == 'pull_request'
+        uses: actions/checkout@v4
+        with:
+          ref: refs/pull/${{ github.event.number }}/merge
+      - name: Checkout commit/branch
+        if: github.event_name != 'pull_request'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
       - name: Set cache-key vars
         run: |
           BUILD_DIRS="$(echo '${{ matrix.build-list || matrix.package }}' | sed 's/[^ ]\+/build\/packages-template\/&/g')"
           echo "Including build dirs: $BUILD_DIRS"
-          echo "CACHE_KEY_FILES=$(echo '${{ matrix.cache-files-list }} '$BUILD_DIRS' .gitlab-ci.yml build/deb-helper.sh' | xargs -n1 git log -1 --format=%h -- | tr '\n' '-' | sed 's/-$//')" >> $GITHUB_ENV
+          LIST="${{ matrix.cache-files-list }} $BUILD_DIRS .gitlab-ci.yml build/deb-helper.sh"
+          TREE_HASHES=$(echo $LIST | tr ' ' '\n' | xargs -I {} git rev-parse HEAD:{} 2>/dev/null)
+          CACHE_DIGEST=$(printf "%s" "$TREE_HASHES" | (sha256sum 2>/dev/null || shasum -a 256) | awk '{print $1}')
+          echo "CACHE_KEY_FILES=$CACHE_DIGEST" >> $GITHUB_ENV
           echo "CACHE_KEY_URLS=$(echo '${{ matrix.cache-urls-list }}' | xargs -r -n 1 curl -Is | grep -i 'Last-Modified' | md5sum | cut -c1-10)" >> $GITHUB_ENV
           cat bigbluebutton-config/bigbluebutton-release >> $GITHUB_ENV
           echo "FORCE_GIT_REV=0" >> $GITHUB_ENV #used by setup.sh
@@ -126,7 +136,16 @@ jobs:
   bbb-libreoffice-image:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout PR's source merged into its target branch
+        if: github.event_name == 'pull_request'
+        uses: actions/checkout@v4
+        with:
+          ref: refs/pull/${{ github.event.number }}/merge
+      - name: Checkout commit/branch
+        if: github.event_name != 'pull_request'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
       - name: LIBREOFFICE CACHE - Set cache-key vars
         run: |
           echo "BBB_LIBREOFFICE_IMAGE_NAME=$(head -n 1 bbb-libreoffice/docker/Dockerfile | cut -d ' ' -f 2)" >> $GITHUB_ENV
@@ -252,14 +271,23 @@ jobs:
       shard: ${{ matrix.shard }}/8
       MATRIX_SHARD_UNDERSCORED: ${{ matrix.shard }}_8
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout PR's source merged into its target branch
+        if: github.event_name == 'pull_request'
+        uses: actions/checkout@v4
+        with:
+          ref: refs/pull/${{ github.event.number }}/merge
+      - name: Checkout commit/branch
+        if: github.event_name != 'pull_request'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
       - name: Install BBB
         timeout-minutes: 60
         uses: ./.github/actions/install-bbb
       - uses: actions/setup-node@v4
         name: PLAYRIGHT CACHE - Restore Playright node modules from cache
         with:
-          cache: 'npm'
+          cache: "npm"
           cache-dependency-path: bigbluebutton-tests/playwright/package-lock.json
       - name: PLAYRIGHT CACHE - Restore Playright binaries from cache
         id: cache
@@ -303,11 +331,17 @@ jobs:
         with:
           name: blob-report-${{ matrix.shard }}
           path: bigbluebutton-tests/playwright/blob-report
+          if-no-files-found: ignore
       - if: always()
         name: Generate the shard HTML report from blob report
         shell: bash
         working-directory: ./bigbluebutton-tests/playwright
-        run: npx playwright merge-reports --reporter html ./blob-report
+        run: |
+          if [ -d "./blob-report" ]; then
+            npx playwright merge-reports --reporter html ./blob-report
+          else
+            echo "blob-report directory not found, skipping HTML report generation"
+          fi
       - if: always()
         name: Upload shard HTML report to GitHub Actions Artifacts
         uses: actions/upload-artifact@v4
@@ -356,7 +390,16 @@ jobs:
     env:
       SAMPLES_WITH_TESTS: "sample-action-button-dropdown-plugin sample-actions-bar-plugin sample-audio-settings-dropdown-plugin sample-camera-settings-dropdown-plugin sample-custom-subscription-hook sample-data-channel-plugin"
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout PR's source merged into its target branch
+        if: github.event_name == 'pull_request'
+        uses: actions/checkout@v4
+        with:
+          ref: refs/pull/${{ github.event.number }}/merge
+      - name: Checkout commit/branch
+        if: github.event_name != 'pull_request'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
       - name: Install BBB
         timeout-minutes: 60
         uses: ./.github/actions/install-bbb
@@ -379,10 +422,10 @@ jobs:
       - name: PLAYRIGHT CACHE (Plugins SDK) - Restore Playright node modules from cache
         uses: actions/setup-node@v4
         with:
-          cache: 'npm'
+          cache: "npm"
           cache-dependency-path: |
-                bigbluebutton-tests/bigbluebutton-html-plugin-sdk/package-lock.json
-                bigbluebutton-tests/bigbluebutton-html-plugin-sdk/samples/**/package-lock.json
+            bigbluebutton-tests/bigbluebutton-html-plugin-sdk/package-lock.json
+            bigbluebutton-tests/bigbluebutton-html-plugin-sdk/samples/**/package-lock.json
       - name: PLAYRIGHT CACHE - Restore Playright binaries from cache
         id: cache
         uses: actions/cache@v4
@@ -437,6 +480,44 @@ jobs:
           npm ci
           npx playwright install-deps
           npx playwright install
+      - name: Prepare flaky test exclusions
+        working-directory: ./bigbluebutton-tests/bigbluebutton-html-plugin-sdk
+        run: |
+          # Read flaky tests from core repo and build a grep-invert parameter
+          FLAKY_TESTS_FILE="sdk-flaky-tests.txt"
+          FLAKY_TESTS_LINES=""
+
+          if [ -f "$FLAKY_TESTS_FILE" ]; then
+            echo "Reading flaky tests from $FLAKY_TESTS_FILE"
+
+            # Process the file:
+            # - remove CRLF if present (Windows line endings)
+            # - ignore comments (#...) and empty lines
+            # - escape regex metacharacters to avoid breaking grep
+            # - replace " › " with ".*" to allow flexible matching
+            # - join all patterns into a single alternation regex separated by '|'
+
+            FLAKY_TESTS_LINES="$(
+              sed 's/\r$//' "$FLAKY_TESTS_FILE" \
+              | grep -Ev '^[[:space:]]*(#|$)' \
+              | sed -E 's/[][(){}.^$*+?|\]/\\&/g' \
+              | sed 's/ › /.*/g' \
+              | paste -sd'|' -
+            )"
+
+            # If we have patterns, print them; otherwise, say none found
+            if [ -n "$FLAKY_TESTS_LINES" ]; then
+              echo "Will skip flaky tests: $FLAKY_TESTS_LINES"
+            else
+              echo "No flaky tests to skip"
+            fi
+          else
+            # If the file does not exist, just run all tests
+            echo "Flaky tests file not found, running all tests"
+          fi
+
+          # Export the variable so it can be used in later GitHub Actions steps
+          echo "SDK_FLAKY_TESTS=$FLAKY_TESTS_LINES" >> "$GITHUB_ENV"
       - name: Run tests
         working-directory: ./bigbluebutton-tests/bigbluebutton-html-plugin-sdk
         timeout-minutes: 25
@@ -445,7 +526,7 @@ jobs:
           ACTIONS_RUNNER_DEBUG: true
           BBB_URL: https://bbb-ci.test/bigbluebutton/
           BBB_SECRET: bbbci
-        run: npm run test-chromium-ci
+        run: npm run test-chromium-ci -- --grep-invert "$SDK_FLAKY_TESTS"
       - if: always()
         name: Upload blob report to GitHub Actions Artifacts
         uses: actions/upload-artifact@v4
@@ -456,7 +537,12 @@ jobs:
         name: Generate the plugins HTML report from blob report
         shell: bash
         working-directory: ./bigbluebutton-tests/bigbluebutton-html-plugin-sdk
-        run: npx playwright merge-reports --reporter html ./blob-report
+        run: |
+          if [ -d "./blob-report" ]; then
+            npx playwright merge-reports --reporter html ./blob-report
+          else
+            echo "blob-report directory not found, skipping HTML report generation"
+          fi
       - if: always()
         name: Upload shard HTML report to GitHub Actions Artifacts
         uses: actions/upload-artifact@v4
@@ -487,7 +573,6 @@ jobs:
     env:
       hasReportData: ${{ needs.install-and-run-bbb-tests.result == 'success' || needs.install-and-run-bbb-tests.result == 'failure' && needs.install-and-run-plugin-tests.result == 'success' || needs.install-and-run-plugin-tests.result == 'failure' }}
     steps:
-      - uses: actions/checkout@v4
       # temporarily disabled as merged blob reports are not being used
       # - name: Merge and upload the blob reports
       # if: ${{ env.hasReportData }}

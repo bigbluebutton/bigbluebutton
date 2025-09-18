@@ -58,7 +58,6 @@
                 moderatorsCanMuteAudio
                 moderatorsCanUnmuteAudio
                 userCameraCap
-                webcamsOnlyForModerator
               }
               breakoutPolicies {
                 breakoutRooms

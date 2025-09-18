@@ -625,7 +625,10 @@ type Mutation {
 
 type Mutation {
   userSetConnectionAlive(
+    clientSessionUUID: String!
     networkRttInMs: Float!
+    applicationRttInMs: Float
+    traceLog: String
   ): Boolean
 }
 
@@ -755,4 +758,3 @@ input AudioGroupParticipant {
   participantType: String!
   active: Boolean!
 }
-

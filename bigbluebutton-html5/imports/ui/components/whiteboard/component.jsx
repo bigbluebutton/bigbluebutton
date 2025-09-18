@@ -2219,7 +2219,6 @@ const Whiteboard = React.memo((props) => {
     SessionStorage.setItem('whiteboardToolbarSavedState', getToolbarCurrentState());
   }, [getToolbarCurrentState]);
 
-  // https://github.com/bigbluebutton/bigbluebutton/pull/23888/files
   React.useEffect(() => {
     if (!whiteboardToolbarAutoHide) {
       const doc = isPresentationDetached ? popupWindow.document : document;

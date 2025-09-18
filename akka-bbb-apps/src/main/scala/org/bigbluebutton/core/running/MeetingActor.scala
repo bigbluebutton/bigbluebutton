@@ -49,6 +49,7 @@ import org.bigbluebutton.core.models.Webcams.findAll
 import org.bigbluebutton.core2.MeetingStatus2x.hasAuthedUserJoined
 import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender }
 
+import java.time._
 import java.util.concurrent.TimeUnit
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -100,6 +101,7 @@ class MeetingActor(
   object MeetingTasksExecutor
   object MeetingInfoAnalyticsMsg
   object MeetingInfoAnalyticsLogMsg
+  object CheckPresentationConversions
 
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
     case e: Exception => {
@@ -167,7 +169,8 @@ class MeetingActor(
     None,
     expiryTracker,
     recordingTracker,
-    new AudioGroups(Map.empty)
+    new AudioGroups(Map.empty),
+    PresentationConversions(Map.empty)
   )
 
   var lastRttTestSentOn = System.currentTimeMillis()
@@ -250,6 +253,13 @@ class MeetingActor(
     MeetingTasksExecutor
   )
 
+  context.system.scheduler.scheduleWithFixedDelay(
+    60 seconds,
+    60 seconds,
+    self,
+    CheckPresentationConversions
+  )
+
   def receive = {
     case SyncVoiceUserStatusInternalMsg =>
       checkVoiceConfUsersStatus()
@@ -261,6 +271,8 @@ class MeetingActor(
       handleMeetingInfoAnalyticsService()
     case MeetingTasksExecutor =>
       handleMeetingTasksExecutor()
+    case CheckPresentationConversions =>
+      state = handleCheckPresentationConversions()
     //=============================
 
     // 2x messages
@@ -654,6 +666,7 @@ class MeetingActor(
       case m: RemovePresentationPubMsg                         => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: SetPresentationDownloadablePubMsg                => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: PresentationConversionUpdateSysPubMsg            => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: PresentationConversionStartedSysPubMsg           => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: PresentationUploadedFileTooLargeErrorSysPubMsg   => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: PresentationHasInvalidMimeTypeErrorSysPubMsg     => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: PresentationUploadedFileTimeoutErrorSysPubMsg    => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
@@ -833,6 +846,25 @@ class MeetingActor(
     clearExpiredReactionEmojis()
     stopFinishedTimer()
     endTimedOutBreakoutRooms()
+  }
+
+  private def handleCheckPresentationConversions(): MeetingState2x = {
+    val now = Instant.now()
+
+    def conversionFilter(entry: (String, PresentationConversion)): Boolean = {
+      val (presId, conversion) = entry
+      val start = Instant.ofEpochMilli(conversion.startTime)
+      val maxDuration = java.time.Duration.ofSeconds(conversion.maxDuration)
+      if (java.time.Duration.between(start, now).compareTo(maxDuration) > 0) {
+        log.warning(s"Presentation $presId in meeting ${props.meetingProp.intId} has been converting for longer than $maxDuration. Presentation conversion may be down on this server!")
+        false
+      } else {
+        true
+      }
+    }
+
+    val presentationConversions = state.presentationConversions.filter(conversionFilter)
+    state.update(presentationConversions)
   }
 
   private def clearExpiredReactionEmojis(): Unit = {

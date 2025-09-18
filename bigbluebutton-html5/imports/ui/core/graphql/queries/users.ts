@@ -23,6 +23,7 @@ subscription UserListSubscription($offset: Int!, $limit: Int!) {
                 ]) {
     isDialIn
     userId
+    meetingId
     extId
     name
     isModerator

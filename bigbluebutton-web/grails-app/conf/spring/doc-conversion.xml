@@ -39,6 +39,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="officeToPdfConversionService" ref="officeToPdfConversionService"/>
         <property name="presentationFileProcessor" ref="presentationFileProcessor"/>
         <property name="slidesGenerationProgressNotifier" ref="slidesGenerationProgressNotifier"/>
+        <property name="maxPageConversionTime" value="${maxPageConversionTime}"/>
     </bean>
 
     <bean id="officeDocumentValidator" class="org.bigbluebutton.presentation.imp.OfficeDocumentValidator2">
@@ -127,7 +128,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="textFileCreator" ref="textFileCreator"/>
         <property name="svgImageCreator" ref="svgImageCreator"/>
         <property name="pageExtractor" ref="pageExtractor"/>
-        <property name="maxConversionTime" value="${maxConversionTime}"/>
         <property name="bigPdfSize" value="${bigPdfSize}"/>
         <property name="maxBigPdfPageSize" value="${maxBigPdfPageSize}"/>
         <property name="slidesGenerationProgressNotifier" ref="slidesGenerationProgressNotifier"/>
@@ -145,7 +145,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="thumbnailCreator" ref="thumbCreator"/>
         <property name="pngCreator" ref="pngCreator"/>
         <property name="textFileCreator" ref="textFileCreator"/>
-        <property name="maxConversionTime" value="${maxConversionTime}"/>
         <property name="slidesGenerationProgressNotifier" ref="slidesGenerationProgressNotifier"/>
         <property name="imageResizer" ref="imageResizer"/>
         <property name="maxImageWidth" value="${maxImageWidth}"/>

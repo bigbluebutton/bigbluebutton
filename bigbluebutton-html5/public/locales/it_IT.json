@@ -1401,6 +1401,7 @@
     "app.externalVideo.noteLabel": "Nota: i video esterni non appariranno nella registrazione. Sono supportati YouTube, Vimeo, Instructure Media, Twitch, Dailymotion and URL di file multimediali (es. https://example.com/xy.mp4).",
     "app.externalVideo.subtitlesOn": "Disattiva",
     "app.externalVideo.subtitlesOff": "Attiva (se disponibile)",
+    "app.externalVideo.stopShareExternalVideo": "Interrompere la condivisione di video esterni",
     "app.actionsBar.actionsDropdown.shareExternalVideo": "Condividi un video esterno",
     "app.actionsBar.actionsDropdown.stopShareExternalVideo": "Interrompi la condivisione di un video esterno",
     "app.legacy.unsupportedBrowser": "Sembra che tu stia utilizzando un browser non supportato. Utilizza una versione recente di {supportedBrowser1} o {supportedBrowser2} per un supporto completo.",
