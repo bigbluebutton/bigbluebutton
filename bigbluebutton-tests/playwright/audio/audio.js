@@ -2,7 +2,6 @@ const e = require('../core/elements');
 const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 const { connectMicrophone, isAudioItemSelected, ensureUnmuted } = require('./util');
 const { MultiUsers } = require('../user/multiusers');
-const { generateSettingsData } = require('../core/settings');
 const { expect } = require('@playwright/test');
 const { sleep } = require('../core/helpers');
 
@@ -19,10 +18,8 @@ class Audio extends MultiUsers {
 
   async joinAudio() {
     const {
-      autoJoinAudioModal,
       listenOnlyCallTimeout
     } = this.modPage.settings;
-    if (!autoJoinAudioModal) await this.modPage.waitAndClick(e.joinAudio);
     await this.modPage.waitAndClick(e.joinAudio);
     await this.modPage.waitAndClick(e.listenOnlyButton);
     await this.modPage.waitForSelector(e.establishingAudioLabel);
