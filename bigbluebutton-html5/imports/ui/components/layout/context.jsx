@@ -13,6 +13,7 @@ import { usePrevious } from '../whiteboard/utils';
 import Session from '/imports/ui/services/storage/in-memory';
 import logger from '/imports/startup/client/logger';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import { getDeviceType } from './utils';
 
 // variable to debug in console log
 const debug = false;
@@ -46,7 +47,7 @@ const initPresentationAreaContentActions = [{
 
 const initState = {
   presentationAreaContentActions: initPresentationAreaContentActions,
-  deviceType: null,
+  deviceType: getDeviceType(),
   isRTL: DEFAULT_VALUES.isRTL,
   layoutType: DEFAULT_VALUES.layoutType,
   layoutLoading: true,
