@@ -29,7 +29,7 @@ test.describe.parallel('Stress', () => {
 
     test('Join 2 users exceeding max participants limit', async ({ browser, context }) => {
       const stress = new Stress(browser, context);
-      await stress.usersJoinExceddingParticipantsLimit();
+      await stress.usersJoinExceedingParticipantsLimit();
     });
   });
 });

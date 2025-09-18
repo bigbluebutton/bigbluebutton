@@ -121,7 +121,7 @@ class Stress {
     })
   }
 
-  async usersJoinExceddingParticipantsLimit() {
+  async usersJoinExceedingParticipantsLimit() {
     for (let i = 1; i <= c.JOIN_TWO_USERS_EXCEEDING_MAX_PARTICIPANTS; i++) {
       console.log(`loop ${i} of ${c.JOIN_TWO_USERS_EXCEEDING_MAX_PARTICIPANTS}`);
 
