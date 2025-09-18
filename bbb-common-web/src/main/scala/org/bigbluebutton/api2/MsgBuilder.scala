@@ -3,7 +3,7 @@ package org.bigbluebutton.api2
 import scala.collection.JavaConverters._
 import org.bigbluebutton.api.messaging.converters.messages._
 import org.bigbluebutton.api.messaging.messages.{ ChatMessageFromApi, RegisterUserSessionToken }
-import org.bigbluebutton.api.service.ServiceUtils;
+import org.bigbluebutton.api.service.ServiceUtils
 import org.bigbluebutton.api2.meeting.RegisterUser
 import org.bigbluebutton.common2.domain.{ DefaultProps, PageVO, PresentationPageConvertedVO, PresentationVO }
 import org.bigbluebutton.common2.msgs._
@@ -13,8 +13,9 @@ import java.io.{ BufferedReader, InputStreamReader }
 import java.net.URL
 import java.nio.charset.StandardCharsets
 import java.util.stream.Collectors
+import javax.xml.stream.{ XMLInputFactory, XMLStreamConstants }
 import scala.io.Source
-import scala.util.Using
+import scala.util.{ Try, Using }
 import scala.xml.XML
 
 object MsgBuilder {
@@ -92,70 +93,73 @@ object MsgBuilder {
   }
 
   def generatePresentationPage(presId: String, numPages: Int, presBaseUrl: String, page: Int): PresentationPageConvertedVO = {
-    val id = presId + "/" + page
-    val current = if (page == 1) true else false
     val thumbUrl = presBaseUrl + "/thumbnail/" + page
-
     val txtUrl = presBaseUrl + "/textfiles/" + page
     val svgUrl = presBaseUrl + "/svg/" + page
     val pngUrl = presBaseUrl + "/png/" + page
 
     val urls = Map("thumb" -> thumbUrl, "text" -> txtUrl, "svg" -> svgUrl, "png" -> pngUrl)
 
-    val result = Using.Manager { use =>
-      val contentUrl = new URL(txtUrl)
-      val stream = use(new InputStreamReader(contentUrl.openStream(), StandardCharsets.UTF_8))
-      val reader = use(new BufferedReader(stream))
-      val content = reader.lines().collect(Collectors.joining("\n"))
+    val dims = readSvgDims(svgUrl).getOrElse(SvgDimensions(1440, 1080))
 
-      val svgSource = Source.fromURL(new URL(svgUrl))
-      val svgContent = svgSource.mkString
-      svgSource.close()
+    val content = Try {
+      val c = new URL(txtUrl).openConnection()
+      c.setConnectTimeout(5000); c.setReadTimeout(5000)
+      scala.io.Source.fromInputStream(c.getInputStream, "UTF-8").mkString
+    }.getOrElse("")
 
-      // XML parser configuration in use disallows the DOCTYPE declaration within the XML document
-      // Sanitize the XML content removing DOCTYPE
-      val sanitizedSvgContent = "(?i)<!DOCTYPE[^>]*>".r.replaceAllIn(svgContent, "")
+    //    val result = Using.Manager { use =>
+    //      val contentUrl = new URL(txtUrl)
+    //      val stream = use(new InputStreamReader(contentUrl.openStream(), StandardCharsets.UTF_8))
+    //      val reader = use(new BufferedReader(stream))
+    //      val content = reader.lines().collect(Collectors.joining("\n"))
+    //
+    //      val svgSource = Source.fromURL(new URL(svgUrl))
+    //      val svgContent = svgSource.mkString
+    //      svgSource.close()
+    //
+    //      // XML parser configuration in use disallows the DOCTYPE declaration within the XML document
+    //      // Sanitize the XML content removing DOCTYPE
+    //      val sanitizedSvgContent = "(?i)<!DOCTYPE[^>]*>".r.replaceAllIn(svgContent, "")
+    //
+    //      val xmlContent = XML.loadString(sanitizedSvgContent)
+    //
+    //      val w = (xmlContent \ "@width").text.replaceAll("[^.0-9]", "")
+    //      val h = (xmlContent \ "@height").text.replaceAll("[^.0-9]", "")
+    //
+    //      val width = w.toDouble
+    //      val height = h.toDouble
+    //
+    //      PresentationPageConvertedVO(
+    //        id = id,
+    //        num = page,
+    //        urls = urls,
+    //        content = content,
+    //        current = current,
+    //        width = width,
+    //        height = height
+    //      )
+    //    } recover {
+    //      case e: Exception =>
+    //        e.printStackTrace()
+    //        PresentationPageConvertedVO(
+    //          id = id,
+    //          num = page,
+    //          urls = urls,
+    //          content = "",
+    //          current = current
+    //        )
+    //    }
 
-      val xmlContent = XML.loadString(sanitizedSvgContent)
-
-      val w = (xmlContent \ "@width").text.replaceAll("[^.0-9]", "")
-      val h = (xmlContent \ "@height").text.replaceAll("[^.0-9]", "")
-
-      val width = w.toDouble
-      val height = h.toDouble
-
-      PresentationPageConvertedVO(
-        id = id,
-        num = page,
-        urls = urls,
-        content = content,
-        current = current,
-        width = width,
-        height = height
-      )
-    } recover {
-      case e: Exception =>
-        e.printStackTrace()
-        PresentationPageConvertedVO(
-          id = id,
-          num = page,
-          urls = urls,
-          content = "",
-          current = current
-        )
-    }
-
-    val presentationPage = result.getOrElse(
-      PresentationPageConvertedVO(
-        id = id,
-        num = page,
-        urls = urls,
-        content = "",
-        current = current
-      )
+    PresentationPageConvertedVO(
+      id = s"$presId/$page",
+      num = page,
+      urls = urls,
+      content = content,
+      current = page == 1,
+      width = dims.width,
+      height = dims.height
     )
-
-    presentationPage
   }
 
   def buildPresentationPageConvertedSysMsg(msg: DocPageGeneratedProgress): BbbCommonEnvCoreMsg = {
@@ -451,5 +455,62 @@ object MsgBuilder {
 
     val req = PresentationUploadedFileScanFailedErrorSysPubMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, req)
+  }
+
+  private final case class SvgDimensions(width: Double, height: Double)
+
+  private def parseNumber(s: String): Option[Double] = {
+    Option(s).map(_.trim).filter(_.nonEmpty).flatMap { raw =>
+      val cleaned = raw.replaceAll("(?i)px|pt|cm|mm|in|%", "").trim
+      Try(cleaned.toDouble).toOption
+    }
+  }
+
+  private def dimsFromViewBox(vb: String): Option[SvgDimensions] = {
+    val parts = vb.trim.split("\\s+")
+    if (parts.length >= 4) {
+      for {
+        w <- Try(parts(2).toDouble).toOption
+        h <- Try(parts(3).toDouble).toOption
+      } yield SvgDimensions(w, h)
+    } else None
+  }
+
+  private def readSvgDims(svgUrl: String, maxBytes: Long = 10L * 1024 * 1024): Option[SvgDimensions] = {
+    val url = new URL(svgUrl)
+    val conn = url.openConnection()
+    conn.setConnectTimeout(5000)
+    conn.setReadTimeout(5000)
+
+    val len = Try(conn.getContentLengthLong).toOption.getOrElse(-1L)
+    if (len > 0 && len > maxBytes) return None
+
+    val factory = XMLInputFactory.newInstance()
+    factory.setProperty(XMLInputFactory.SUPPORT_DTD, false)
+    factory.setProperty("javax.xml.stream.isSupportingExternalEntities", Boolean.box(false))
+    factory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.box(false))
+
+    val is = conn.getInputStream
+    try {
+      val reader = factory.createXMLStreamReader(is, StandardCharsets.UTF_8.name())
+      try {
+        while (reader.hasNext) {
+          reader.next() match {
+            case XMLStreamConstants.START_ELEMENT if reader.getLocalName.equalsIgnoreCase("svg") =>
+              val wAttr = Option(reader.getAttributeValue(null, "width"))
+              val hAttr = Option(reader.getAttributeValue(null, "height"))
+              val vbAttr = Option(reader.getAttributeValue(null, "viewBox"))
+              val dims =
+                (wAttr.flatMap(parseNumber), hAttr.flatMap(parseNumber)) match {
+                  case (Some(w), Some(h)) => Some(SvgDimensions(w, h))
+                  case _                  => vbAttr.flatMap(dimsFromViewBox)
+                }
+              return dims
+            case _ =>
+          }
+        }
+        None
+      } finally reader.close()
+    } finally is.close()
   }
 }
