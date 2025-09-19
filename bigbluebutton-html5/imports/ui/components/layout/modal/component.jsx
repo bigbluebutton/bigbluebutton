@@ -10,18 +10,93 @@ import Styled from './styles';
 import Tooltip from '/imports/ui/components/common/tooltip/component';
 import { getSupportedLayouts } from '/imports/ui/components/layout/utils';
 
+const intlMessages = defineMessages({
+  title: {
+    id: 'app.layout.modal.title',
+    description: 'Modal title',
+  },
+  update: {
+    id: 'app.layout.modal.update',
+    description: 'Modal confirm button',
+  },
+  updateAll: {
+    id: 'app.layout.modal.updateAll',
+    description: 'Label for the push layout toggle when presenter',
+  },
+  followPresentersLayout: {
+    id: 'app.layout.modal.followPresentersLayout',
+    description: 'Label for the push layout toggle when not presenter',
+  },
+  pushToggleWarningTooltip: {
+    id: 'app.layout.modal.pushToggleWarningTooltip',
+    description: 'Tooltip for the push layout toggle when not presenter',
+  },
+  layoutLabel: {
+    id: 'app.layout.modal.layoutLabel',
+    description: 'Layout label',
+  },
+  layoutToastLabelAuto: {
+    id: 'app.layout.modal.layoutToastLabelAuto',
+    description: 'Layout toast label',
+  },
+  layoutToastLabelAutoOff: {
+    id: 'app.layout.modal.layoutToastLabelAutoOff',
+    description: 'Layout toast label',
+  },
+  layoutToastLabel: {
+    id: 'app.layout.modal.layoutToastLabel',
+    description: 'Layout toast label',
+  },
+  customLayout: {
+    id: 'app.layout.style.custom',
+    description: 'label for custom layout style',
+  },
+  smartLayout: {
+    id: 'app.layout.style.smart',
+    description: 'label for smart layout style',
+  },
+  presentationFocusLayout: {
+    id: 'app.layout.style.presentationFocus',
+    description: 'label for presentationFocus layout style',
+  },
+  videoFocusLayout: {
+    id: 'app.layout.style.videoFocus',
+    description: 'label for videoFocus layout style',
+  },
+  layoutSingular: {
+    id: 'app.layout.modal.layoutSingular',
+    description: 'label for singular layout',
+  },
+  layoutBtnDesc: {
+    id: 'app.layout.modal.layoutBtnDesc',
+    description: 'label for singular layout',
+  },
+  on: {
+    id: 'app.switch.onLabel',
+    description: 'label for toggle switch on state',
+  },
+  off: {
+    id: 'app.switch.offLabel',
+    description: 'label for toggle switch off state',
+  },
+  layoutNotAvailableTooltip: {
+    id: 'app.layout.modal.layoutNotAvailable',
+    description: 'tooltip for disabled layouts in layout picker',
+  },
+});
+
 const LayoutModalComponent = ({
   intl,
   setIsOpen,
   isModerator = false,
   isPresenter,
   layoutSettings,
-  updateSettings,
   onRequestClose,
   isOpen,
   setLocalSettings,
   availableLayouts,
   deviceType,
+  updateLayout,
 }) => {
   const [selectedLayout, setSelectedLayout] = useState(layoutSettings.selectedLayout);
   const [layoutOptions, setLayoutOptions] = useState([]);
@@ -49,98 +124,21 @@ const LayoutModalComponent = ({
     setLayoutOptions(options);
   }, [deviceType]);
 
-  const intlMessages = defineMessages({
-    title: {
-      id: 'app.layout.modal.title',
-      description: 'Modal title',
-    },
-    update: {
-      id: 'app.layout.modal.update',
-      description: 'Modal confirm button',
-    },
-    updateAll: {
-      id: 'app.layout.modal.updateAll',
-      description: 'Label for the push layout toggle when presenter',
-    },
-    followPresentersLayout: {
-      id: 'app.layout.modal.followPresentersLayout',
-      description: 'Label for the push layout toggle when not presenter',
-    },
-    pushToggleWarningTooltip: {
-      id: 'app.layout.modal.pushToggleWarningTooltip',
-      description: 'Tooltip for the push layout toggle when not presenter',
-    },
-    layoutLabel: {
-      id: 'app.layout.modal.layoutLabel',
-      description: 'Layout label',
-    },
-    layoutToastLabelAuto: {
-      id: 'app.layout.modal.layoutToastLabelAuto',
-      description: 'Layout toast label',
-    },
-    layoutToastLabelAutoOff: {
-      id: 'app.layout.modal.layoutToastLabelAutoOff',
-      description: 'Layout toast label',
-    },
-    layoutToastLabel: {
-      id: 'app.layout.modal.layoutToastLabel',
-      description: 'Layout toast label',
-    },
-    customLayout: {
-      id: 'app.layout.style.custom',
-      description: 'label for custom layout style',
-    },
-    smartLayout: {
-      id: 'app.layout.style.smart',
-      description: 'label for smart layout style',
-    },
-    presentationFocusLayout: {
-      id: 'app.layout.style.presentationFocus',
-      description: 'label for presentationFocus layout style',
-    },
-    videoFocusLayout: {
-      id: 'app.layout.style.videoFocus',
-      description: 'label for videoFocus layout style',
-    },
-    layoutSingular: {
-      id: 'app.layout.modal.layoutSingular',
-      description: 'label for singular layout',
-    },
-    layoutBtnDesc: {
-      id: 'app.layout.modal.layoutBtnDesc',
-      description: 'label for singular layout',
-    },
-    on: {
-      id: 'app.switch.onLabel',
-      description: 'label for toggle switch on state',
-    },
-    off: {
-      id: 'app.switch.offLabel',
-      description: 'label for toggle switch off state',
-    },
-    layoutNotAvailableTooltip: {
-      id: 'app.layout.modal.layoutNotAvailable',
-      description: 'tooltip for disabled layouts in layout picker',
-    },
-  });
-
   const handleSwitchLayout = (e) => {
     setSelectedLayout(e);
   };
 
   const handleUpdateLayout = () => {
-    const obj = {
-      layout:
-        { ...layoutSettings, selectedLayout, pushLayout: keepPushingLayout },
-    };
+    let message = intlMessages.layoutToastLabel;
     if ((isModerator || isPresenter) && keepPushingLayout) {
-      updateSettings(obj, intlMessages.layoutToastLabelAuto);
+      message = intlMessages.layoutToastLabelAuto;
     } else if ((isModerator || isPresenter) && !keepPushingLayout) {
-      updateSettings(obj, intlMessages.layoutToastLabelAutoOff);
-    } else {
-      updateSettings(obj, intlMessages.layoutToastLabel);
+      message = intlMessages.layoutToastLabelAutoOff;
     }
-    updateSettings(obj, intlMessages.layoutToastLabel, setLocalSettings);
+    updateLayout({
+      targetLayout: selectedLayout,
+      targetPushLayout: keepPushingLayout,
+    }, setLocalSettings, message);
     setIsOpen(false);
   };
 
@@ -276,12 +274,12 @@ const propTypes = {
     selectedLayout: PropTypes.string.isRequired,
     pushLayout: PropTypes.bool.isRequired,
   }).isRequired,
-  updateSettings: PropTypes.func.isRequired,
   setLocalSettings: PropTypes.func.isRequired,
   deviceType: PropTypes.string.isRequired,
   availableLayouts: PropTypes.arrayOf(PropTypes.shape({
     layoutKey: PropTypes.string,
   })).isRequired,
+  updateLayout: PropTypes.func.isRequired,
 };
 
 LayoutModalComponent.propTypes = propTypes;

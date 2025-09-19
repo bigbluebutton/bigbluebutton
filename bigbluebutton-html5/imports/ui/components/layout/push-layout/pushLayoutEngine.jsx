@@ -29,7 +29,7 @@ import {
   layoutSelectOutput,
 } from '../context';
 import { calculatePresentationVideoRate } from './service';
-import { useMeetingLayoutUpdater, usePushLayoutUpdater, useSetLayoutTypeWithFallback } from './hooks';
+import { useMeetingLayoutUpdater, usePushLayoutUpdater, useLayoutUpdater } from './hooks';
 import { setEnforcedLayout } from '/imports/ui/components/plugins-engine/ui-commands/layout/handler';
 import { useIsChatEnabled } from '/imports/ui/services/features';
 
@@ -73,7 +73,7 @@ const propTypes = {
 
 const PushLayoutEngine = (props) => {
   const prevProps = usePreviousValue(props) || {};
-  const setLayoutTypeWithFallback = useSetLayoutTypeWithFallback();
+  const setLayoutType = useLayoutUpdater();
 
   const {
     cameraWidth,
@@ -121,7 +121,7 @@ const PushLayoutEngine = (props) => {
 
     Session.setItem('isGridEnabled', currentLayout === LAYOUT_TYPE.VIDEO_FOCUS);
 
-    setLayoutTypeWithFallback(
+    setLayoutType(
       contextLayout,
       setLocalSettings,
     );
@@ -211,7 +211,7 @@ const PushLayoutEngine = (props) => {
 
     const replicateLayoutType = () => {
       const contextLayout = LAYOUT_TYPE[enforceLayoutResult] || meetingLayout;
-      setLayoutTypeWithFallback(
+      setLayoutType(
         contextLayout,
         setLocalSettings,
       );
