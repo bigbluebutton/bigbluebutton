@@ -1986,6 +1986,7 @@ const Whiteboard = React.memo((props) => {
   // Thus some tldraw functions such as fullscreen and resize a drawing
   //  does not work on the popup window.
   // This actually modify a global variable, possibly causing other problems
+  //  -> Indeed. Now the original HTMLElement is backed up and used elsewhere.
   const originalHTMLElementRef = React.useRef<typeof HTMLElement | null>(window.HTMLElement);
   React.useEffect(() => {
     if (!isPresenter) return;
@@ -2306,6 +2307,7 @@ Whiteboard.propTypes = {
   isInfiniteWhiteboard: PropTypes.bool,
   whiteboardWriters: PropTypes.arrayOf(PropTypes.shape).isRequired,
 };
+
 
 
 
