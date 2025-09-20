@@ -40,6 +40,7 @@ import { ChatLoading } from '../component';
 import Storage from '/imports/ui/services/storage/in-memory';
 import browserInfo from '/imports/utils/browserInfo';
 import deviceInfo from '/imports/utils/deviceInfo';
+import { originalHTMLElement } from '/imports/utils/HTMLElementBackup';
 
 const PAGE_SIZE = 50;
 const CLEANUP_TIMEOUT = 3000;
@@ -71,7 +72,7 @@ interface ChatListProps {
 }
 
 const isElement = (el: unknown): el is HTMLElement => {
-  return el instanceof HTMLElement;
+  return el instanceof originalHTMLElement;
 };
 
 const isMap = (map: unknown): map is Map<number, string> => {
