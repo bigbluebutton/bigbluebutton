@@ -41,6 +41,7 @@ import Storage from '/imports/ui/services/storage/in-memory';
 import browserInfo from '/imports/utils/browserInfo';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { originalHTMLElement } from '/imports/utils/HTMLElementBackup';
+import { originalRAF, originalCAF } from '/imports/utils/animationFrameBackup';
 
 const PAGE_SIZE = 50;
 const CLEANUP_TIMEOUT = 3000;
@@ -404,7 +405,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
       const value = (timestamp - initialTimestamp) / 300;
       if (value <= 1) {
         container.scrollTop = initialPosition + (value * scrollPositionDiff);
-        requestAnimationFrame(animateScrollPosition);
+        originalRAF(animateScrollPosition);
       } else {
         container.scrollTop = container.scrollHeight - container.offsetHeight;
         setIsScrollingDisabled(false);
@@ -421,10 +422,10 @@ const ChatMessageList: React.FC<ChatListProps> = ({
       initialTimestamp = timestamp;
       initialPosition = scrollTop;
       scrollPositionDiff = scrollHeight - offsetHeight - scrollTop;
-      requestAnimationFrame(animateScrollPosition);
+      originalRAF(animateScrollPosition);
     };
 
-    requestAnimationFrame(startScrollAnimation);
+    originalRAF(startScrollAnimation);
   }, []);
 
   const renderUnreadNotification = useMemo(() => {
@@ -538,7 +539,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
     },
   ) => {
     if (currentFrame < stabilityFrames) {
-      const frameId = requestAnimationFrame(() => {
+      const frameId = originalRAF(() => {
         pollScrollEndEvent(setFrameId, onScrollEnd, {
           stabilityFrames,
           currentFrame: currentFrame + 1,
@@ -553,10 +554,10 @@ const ChatMessageList: React.FC<ChatListProps> = ({
 
   const startScrollEndEventPolling = useCallback((onScrollEnd: () => void) => {
     if (scrollEndFrameRef.current != null) {
-      cancelAnimationFrame(scrollEndFrameRef.current);
+      originalCAF(scrollEndFrameRef.current);
       scrollEndFrameRef.current = undefined;
     }
-    scrollEndFrameRef.current = requestAnimationFrame(() => {
+    scrollEndFrameRef.current = originalRAF(() => {
       pollScrollEndEvent((frameId) => {
         scrollEndFrameRef.current = frameId;
       }, onScrollEnd);
@@ -609,7 +610,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
       clearInterval(scrollActivityCheckInterval.current);
     }
     if (scrollEndFrameRef.current) {
-      cancelAnimationFrame(scrollEndFrameRef.current);
+      originalCAF(scrollEndFrameRef.current);
     }
   }, []);
 
