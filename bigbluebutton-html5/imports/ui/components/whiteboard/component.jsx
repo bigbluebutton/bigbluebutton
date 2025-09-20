@@ -1987,19 +1987,26 @@ const Whiteboard = React.memo((props) => {
   //  does not work on the popup window.
   // This actually modify a global variable, possibly causing other problems
   //  -> Indeed. Now the original HTMLElement is backed up and used elsewhere.
-  const originalHTMLElementRef = React.useRef<typeof HTMLElement | null>(window.HTMLElement);
+  const originalHTMLElementRef = React.useRef(null);
   React.useEffect(() => {
     if (!isPresenter) return;
 
     if (isPresentationDetached && popupWindow?.HTMLElement) {
+      if (!originalHTMLElementRef.current) {
+        originalHTMLElementRef.current = window.HTMLElement;
+      }
       window.HTMLElement = popupWindow.HTMLElement;
-    } else if (originalHTMLElementRef.current) {
-      window.HTMLElement = originalHTMLElementRef.current;
+    } else {
+      if (originalHTMLElementRef.current) {
+        window.HTMLElement = originalHTMLElementRef.current;
+        originalHTMLElementRef.current = null;
+      }
     }
 
     return () => {
       if (originalHTMLElementRef.current) {
         window.HTMLElement = originalHTMLElementRef.current;
+        originalHTMLElementRef.current = null;
       }
     };
   }, [isPresentationDetached, popupWindow]);
@@ -2307,6 +2314,7 @@ Whiteboard.propTypes = {
   isInfiniteWhiteboard: PropTypes.bool,
   whiteboardWriters: PropTypes.arrayOf(PropTypes.shape).isRequired,
 };
+
 
 
 
