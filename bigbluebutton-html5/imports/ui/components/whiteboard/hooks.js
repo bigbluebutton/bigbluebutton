@@ -146,7 +146,10 @@ const useMouseEvents = ({
       // Inject a generic pointerup event both to the style-panel and to the main window,
       //  hitting handlePointerUp in tldraw/src/lib/ui/components/primitives/ButtonPicker.tsx,
       //  which is attached to the main window.
-      e.target.dispatchEvent(pointerUpEvent);
+      
+      //e.target.dispatchEvent(pointerUpEvent); // Removed after HTMLElement was hacked.
+                                                // This triggers a infinite loop for measuring text size
+                                                //  when changing the font style from the style panel.
       window.dispatchEvent(pointerUpEvent);
 
       panel.removeEventListener("pointerup", handlePointerUpStylePanel);
