@@ -47,6 +47,7 @@ import { EmojiPicker, EmojiPickerWrapper } from './message-toolbar/styles';
 import { isMobile } from '/imports/utils/deviceInfo';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
+import { originalRAF, originalCAF } from '/imports/utils/animationFrameBackup';
 
 interface ChatMessageProps {
   message: Message;
@@ -228,7 +229,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
   useImperativeHandle(ref, () => ({
     requestFocus() {
       setTimeout(() => {
-        requestAnimationFrame(startScrollAnimation);
+        originalRAF(startScrollAnimation);
       }, 0);
     },
     sequence: message.messageSequence,
@@ -236,20 +237,20 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
 
   const startScrollAnimation = (timestamp: number) => {
     if ((containerRef.current?.offsetTop || 0) > (scrollRef.current?.scrollTop || 0)) {
-      requestAnimationFrame(startBackgroundAnimation);
+      originalRAF(startBackgroundAnimation);
       return;
     }
     animationInitialScrollPosition.current = scrollRef.current?.scrollTop || 0;
     animationScrollPositionDiff.current = (scrollRef.current?.scrollTop || 0)
       - ((containerRef.current?.offsetTop || 0) - ((scrollRef.current?.offsetHeight || 0) / 2));
     animationInitialTimestamp.current = timestamp;
-    requestAnimationFrame(animateScrollPosition);
+    originalRAF(animateScrollPosition);
   };
 
   const startBackgroundAnimation = (timestamp: number) => {
     animationInitialTimestamp.current = timestamp;
     animationInitialBgColor.current = containerRef.current?.style.backgroundColor ?? '';
-    requestAnimationFrame(animateBackgroundColor);
+    originalRAF(animateBackgroundColor);
   };
 
   const animateScrollPosition = (timestamp: number) => {
@@ -261,10 +262,10 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
     if (!scrollContainer || !messageContainer) return;
     if (value <= 1) {
       scrollContainer.scrollTop = initialPosition - (value * diff);
-      requestAnimationFrame(animateScrollPosition);
+      originalRAF(animateScrollPosition);
     } else {
       scrollContainer.scrollTop = initialPosition - diff;
-      requestAnimationFrame(startBackgroundAnimation);
+      originalRAF(startBackgroundAnimation);
     }
   };
 
@@ -273,7 +274,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
     const value = (timestamp - animationInitialTimestamp.current) / ANIMATION_DURATION;
     if (value < 1) {
       messageContentRef.current.style.backgroundColor = `rgb(${colorBlueLighterChannel} / ${1 - value})`;
-      requestAnimationFrame(animateBackgroundColor);
+      originalRAF(animateBackgroundColor);
     } else {
       messageContentRef.current.style.backgroundColor = animationInitialBgColor.current;
     }
@@ -304,7 +305,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
     },
   ) => {
     if (currentFrame < stabilityFrames) {
-      const frameId = requestAnimationFrame(() => {
+      const frameId = originalRAF(() => {
         pollScrollEndEvent(setFrameId, {
           stabilityFrames,
           currentFrame: currentFrame + 1,
@@ -321,10 +322,10 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
 
   const startScrollEndEventPolling = useCallback(() => {
     if (scrollEndFrameRef.current != null) {
-      cancelAnimationFrame(scrollEndFrameRef.current);
+      originalCAF(scrollEndFrameRef.current);
       scrollEndFrameRef.current = undefined;
     }
-    scrollEndFrameRef.current = requestAnimationFrame(() => {
+    scrollEndFrameRef.current = originalRAF(() => {
       pollScrollEndEvent((frameId) => {
         scrollEndFrameRef.current = frameId;
       });
@@ -345,7 +346,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
     return () => {
       scrollRef?.current?.removeEventListener('scroll', callbackFunction);
       if (scrollEndFrameRef.current !== undefined) {
-        cancelAnimationFrame(scrollEndFrameRef.current);
+        originalCAF(scrollEndFrameRef.current);
         scrollEndFrameRef.current = undefined;
       }
     };
