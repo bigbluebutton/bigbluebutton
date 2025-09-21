@@ -528,7 +528,7 @@ const WhiteboardContainer = (props) => {
   const { maxStickyNoteLength, maxNumberOfAnnotations, lockToolbarTools } = WHITEBOARD_CONFIG;
   const fontFamily = WHITEBOARD_CONFIG.styles.text.family;
   const {
-    colorStyle, dashStyle, fillStyle, fontStyle, sizeStyle,
+    colorStyle, dashStyle, fillStyle, fontStyle, sizeStyle, CJKdrawFontLocale,
   } = WHITEBOARD_CONFIG.styles;
   const handleToggleFullScreen = (ref) => FullscreenService.toggleFullScreen(ref);
 
@@ -577,6 +577,7 @@ const WhiteboardContainer = (props) => {
           fillStyle,
           fontStyle,
           sizeStyle,
+          CJKdrawFontLocale,
           handleToggleFullScreen,
           sidebarNavigationWidth,
           layoutContextDispatch,
