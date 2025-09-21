@@ -214,7 +214,7 @@
        url('../fonts/SourceSansPro/SourceSansPro-BoldItalic.woff?v=VERSION') format('woff');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215, U+E0FF, U+EFFD, U+F000;
 }
-/* CJK rounded Japanese-oriented */
+/* CJK rounded with Japanese-style Chinese-character */
 @font-face {
   font-family: 'Resource Han Rounded JA';
   font-style: normal;
@@ -228,7 +228,7 @@
     U+31F0-31FF,   /* Katakana extended */
     U+FF00-FFEF;   /* 2 byte symbols */
 }
-/* CJK rounded Korean-oriented */
+/* CJK rounded Korean-style Chinese-character */
 @font-face {
   font-family: 'Resource Han Rounded KR';
   font-style: normal;
@@ -240,7 +240,7 @@
     U+3130-318F,   /* Hangeul compatible */
     U+AC00-D7AF;   /* Hangeul sound */
 }
-/* CJK rounded simplified Chinese-oriented */
+/* CJK rounded simplified Chinese-style Chinese-character */
 @font-face {
   font-family: 'Resource Han Rounded CN';
   font-style: normal;
@@ -251,7 +251,7 @@
     U+3400-4DBF,   /* CJK extended A */
     U+20000-2A6DF; /* CJK extended B */
 }
-/* CJK rounded traditional Chinese-oriented */
+/* CJK rounded traditional Chinese-style Chinese-characterd */
 @font-face {
   font-family: 'Resource Han Rounded TW';
   font-style: normal;
