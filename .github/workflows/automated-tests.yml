@@ -284,6 +284,53 @@ jobs:
       - name: Install BBB
         timeout-minutes: 60
         uses: ./.github/actions/install-bbb
+      - name: Enable video format on recordings
+        run: |
+          # https://docs.bigbluebutton.org/administration/customize/#install-additional-recording-processing-formats
+          sudo mkdir -p /etc/bigbluebutton/recording
+          sudo cat > /etc/bigbluebutton/recording/recording.yml << 'REC'
+          steps:
+            archive: "sanity"
+            sanity: "captions"
+            captions:
+              - process:presentation
+              - process:video
+            process:presentation: publish:presentation
+            process:video: publish:video
+          REC
+          if ! dpkg -l | grep -q bbb-playback-video; then
+            sudo apt install -y bbb-playback-video
+            sudo systemctl restart bbb-rap-resque-worker.service
+          fi
+      - name: Configure video format settings
+        run: |
+          # webm format should be enabled for automated tests - decoded by chromium
+          # and should be the first as it's used as source for playback video
+
+          FILE="/usr/local/bigbluebutton/core/scripts/video.yml"
+
+          # keep everything up to and including formats:
+          sudo sed -i '/^formats:/q' "$FILE"
+
+          # append your block
+          sudo tee -a "$FILE" > /dev/null <<'EOF'
+            - mimetype: 'video/webm;codecs="vp09.00.41.08,opus"'
+              extension: webm
+              parameters:
+                # Default single-pass encode
+                - [ '-c:v', 'libvpx-vp9', '-level', '4.1', '-b:v', '1800K', '-minrate', '900K', '-maxrate', '2610K',
+                    '-crf', '31', '-quality', 'good', '-speed', '2', '-tile-columns', '2', '-threads', '2',
+                    '-force_key_frames', 'expr:gte(t,n_forced*10)',
+                    '-c:a', 'libopus', '-b:a', '64K',
+                    '-f', 'webm' ]
+            - mimetype: 'video/mp4'
+              extension: m4v
+              parameters:
+                - [ '-c:v', 'copy', # Use working format codec defined in core/lib/recordandplayback/edl/video.rb
+                    '-c:a', 'aac', '-b:a', '128K',
+                    '-f', 'mp4', '-movflags', 'faststart' ]
+              postprocess: []
+          EOF
       - uses: actions/setup-node@v4
         name: PLAYRIGHT CACHE - Restore Playright node modules from cache
         with:
