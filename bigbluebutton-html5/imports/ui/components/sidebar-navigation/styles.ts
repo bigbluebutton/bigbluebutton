@@ -211,6 +211,22 @@ const ListItem = styled.div<ListItemProps>`
   }
 `;
 
+const BadgeCircle = styled.div`
+  position: absolute;
+  border-radius: 50%;
+  width: 12px;
+  height: 12px;
+  bottom: ${borderSize};
+  right: 3px;
+  background-color: ${colorDanger};
+  border: ${borderSize} solid ${colorGrayDark};
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: .7rem;
+  color: white;
+`;
+
 export default {
   NavigationSidebarBackdrop,
   NavigationSidebar,
@@ -220,4 +236,5 @@ export default {
   Center,
   Bottom,
   ListItem,
+  BadgeCircle,
 };

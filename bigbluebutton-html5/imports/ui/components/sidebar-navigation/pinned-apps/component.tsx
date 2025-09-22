@@ -5,11 +5,10 @@ import {
   Input,
   SidebarNavigation,
 } from '/imports/ui/components/layout/layoutTypes';
-import TooltipContainer from '/imports/ui/components/common/tooltip/container';
+import PinnedAppBase from './pinned-app-list-item/component';
+import ExternalPinnedApp from './external-pinned-app-list-item/component';
 import { layoutDispatch, layoutSelectInput } from '/imports/ui/components/layout/context';
 import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
-import Icon from '/imports/ui/components/common/icon/component';
-import Styled from './styles';
 
 interface PinnedAppsProps {
   sidebarNavigationInput: SidebarNavigation;
@@ -34,25 +33,20 @@ const PinnedApps = ({ sidebarNavigationInput }: PinnedAppsProps) => {
 
   return pinnedApps.map((pinnedAppKey: string) => {
     const pinnedAppInfo = registeredApps[pinnedAppKey];
-    const { name, icon } = pinnedAppInfo;
-    // type guard
-    const { onClick } = (pinnedAppInfo as InjectedAppGalleryItem);
+    const isActive = sidebarContentPanel === pinnedAppKey;
+
+    const Component = pinnedAppKey.startsWith(PANELS.GENERIC_CONTENT_SIDEKICK)
+      ? ExternalPinnedApp
+      : PinnedAppBase;
+
     return (
-      <TooltipContainer
-        title={name}
-        position="right"
+      <Component
         key={pinnedAppKey}
-      >
-        <Styled.ListItem
-          role="button"
-          tabIndex={0}
-          active={sidebarContentPanel === pinnedAppKey}
-          data-test={`${pinnedAppKey}SidebarButton`}
-          onClick={onClick || (() => openPanel(pinnedAppKey))}
-        >
-          <Icon iconName={icon} />
-        </Styled.ListItem>
-      </TooltipContainer>
+        appKey={pinnedAppKey}
+        appInfo={pinnedAppInfo}
+        active={isActive}
+        onActivate={openPanel}
+      />
     );
   });
 };
