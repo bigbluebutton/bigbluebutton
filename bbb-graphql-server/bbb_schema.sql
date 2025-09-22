@@ -431,32 +431,24 @@ AS SELECT "user"."userId",
     "user"."captionLocale",
     CASE WHEN "user"."echoTestRunningAt" > current_timestamp - INTERVAL '3 seconds' THEN TRUE ELSE FALSE END "isRunningEchoTest",
     "user"."hasDrawPermissionOnCurrentPage",
-    CASE WHEN "user"."role" = 'MODERATOR' THEN true ELSE false END "isModerator",
+    "user"."isModerator",
     "user"."currentlyInMeeting"
   FROM "user"
   WHERE "user"."currentlyInMeeting" is true;
 
---index for currentlyInMeeting column
-CREATE INDEX "idx_v_user_meetingId" ON "user"("meetingId")
-                where "user"."loggedOut" IS FALSE
-                AND "user"."expired" IS FALSE
-                AND "user"."ejected" IS NOT TRUE
-                and "user"."joined" IS TRUE;
-
---this index should follow the `UserListSubscription` filters + order by
 CREATE INDEX "idx_v_user_meetingId_orderByColumns" ON "user"(
-                        "meetingId",
-                        "bot",
-                        "presenter",
-                        "role",
-                        "raiseHandTime",
-                        "isDialIn",
-                        "hasDrawPermissionOnCurrentPage",
-                        "nameSortable",
-                        "registeredAt",
-                        "userId"
-                        )
-                where "user"."currentlyInMeeting" is true;
+    "meetingId",
+    "presenter" DESC NULLS FIRST,
+    "role" ASC NULLS LAST,
+    "raiseHandTime" ASC NULLS LAST,
+    "isDialIn" DESC NULLS FIRST,
+    "hasDrawPermissionOnCurrentPage" DESC NULLS FIRST,
+    "nameSortable" ASC NULLS LAST,
+    "registeredAt" ASC NULLS LAST,
+    "userId" ASC NULLS LAST
+)
+WHERE "currentlyInMeeting" IS TRUE;
+
 
 CREATE OR REPLACE VIEW "v_user_current" AS 
 SELECT 
@@ -505,7 +497,7 @@ SELECT
     "user"."hasDrawPermissionOnCurrentPage",
     "user"."echoTestRunningAt",
     CASE WHEN "user"."echoTestRunningAt" > current_timestamp - INTERVAL '3 seconds' THEN TRUE ELSE FALSE END "isRunningEchoTest",
-    CASE WHEN "user"."role" = 'MODERATOR' THEN true ELSE false END "isModerator",
+    "user"."isModerator",
     "user"."currentlyInMeeting",
     "user"."inactivityWarningDisplay",
     "user"."inactivityWarningTimeoutSecs",
@@ -569,7 +561,7 @@ AS SELECT
     "user"."speechLocale",
     "user"."captionLocale",
     "user"."hasDrawPermissionOnCurrentPage",
-    CASE WHEN "user"."role" = 'MODERATOR' THEN true ELSE false END "isModerator",
+    "user"."isModerator",
     "user"."currentlyInMeeting"
    FROM "user";
 
@@ -579,7 +571,7 @@ AS SELECT
     "user"."meetingId",
     "user"."userId",
     "user"."extId",
-    CASE WHEN "user"."role" = 'MODERATOR' THEN true ELSE false END "isModerator",
+    "user"."isModerator",
     "user"."currentlyInMeeting"
 FROM "user"
 where "firstJoinedAt" is not null;
@@ -801,18 +793,39 @@ SELECT * FROM "user_breakoutRoom";
 CREATE UNLOGGED TABLE "user_connectionStatus" (
 	"meetingId" varchar(100),
     "userId" varchar(50),
+    "sessionToken" varchar(16),
+	"clientSessionUUID" varchar(36),
     "lastEntriesCap" integer,
     "connectionAliveAtMaxIntervalMs" numeric,
     "connectionAliveAt" timestamp with time zone,
     "networkRttInMs" numeric,
+    "applicationRttInMs" numeric, --presenter only
+    "traceLog" varchar(500), --presenter only
     "status" varchar(25),
     "statusUpdatedAt" timestamp with time zone,
-    CONSTRAINT "user_connectionStatus_pkey" PRIMARY KEY ("meetingId","userId"),
+    CONSTRAINT "user_connectionStatus_pkey" PRIMARY KEY ("meetingId","userId","sessionToken","clientSessionUUID"),
     FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
 );
 create index "idx_user_connectionStatus_pk_reverse" on "user_connectionStatus"("userId", "meetingId");
 
+-- populate statusUpdatedAt
+CREATE OR REPLACE FUNCTION "update_statusUpdatedAt"()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW."statusUpdatedAt" := NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER "trigger_update_statusUpdatedAt"
+BEFORE INSERT OR UPDATE ON "user_connectionStatus"
+FOR EACH ROW
+EXECUTE FUNCTION "update_statusUpdatedAt"();
+
+
 create view "v_user_connectionStatus" as select * from "user_connectionStatus";
+
+
 
 
 --Populate connectionAliveAtMaxIntervalMs to calc clientNotResponding
@@ -839,6 +852,8 @@ EXECUTE FUNCTION "update_connectionAliveAtMaxIntervalMs"();
 CREATE UNLOGGED TABLE "user_connectionStatusHistory" (
     "meetingId" varchar(100),
 	"userId" varchar(50),
+	"sessionToken" varchar(16),
+	"clientSessionUUID" varchar(36),
 	"networkRttInMs" numeric,
 	"status" varchar(25),
 	"statusUpdatedAt" timestamp with time zone,
@@ -846,12 +861,15 @@ CREATE UNLOGGED TABLE "user_connectionStatusHistory" (
 );
 create index "idx_user_connectionStatusHistory" on "user_connectionStatusHistory"("meetingId", "userId", "statusUpdatedAt");
 create index "idx_user_connectionStatusHistory_reverse" on "user_connectionStatusHistory"("userId", "meetingId", "statusUpdatedAt");
+create index "idx_userSession_connectionStatusHistory" on "user_connectionStatusHistory"("meetingId", "userId","sessionToken","clientSessionUUID", "statusUpdatedAt");
+create index "idx_userSession_connectionStatusHistory_reverse" on "user_connectionStatusHistory"("userId", "meetingId","sessionToken","clientSessionUUID", "statusUpdatedAt");
 
 create view "v_user_connectionStatusHistory" as select * from "user_connectionStatusHistory";
 
 CREATE UNLOGGED TABLE "user_connectionStatusMetrics" (
 	"meetingId" varchar(100),
     "userId" varchar(50),
+    "sessionToken" varchar(16),
 	"status" varchar(25),
 	"occurrencesCount" integer,
 	"firstOccurrenceAt" timestamp with time zone,
@@ -859,7 +877,7 @@ CREATE UNLOGGED TABLE "user_connectionStatusMetrics" (
 	"lowestNetworkRttInMs" numeric,
     "highestNetworkRttInMs" numeric,
     "lastNetworkRttInMs" numeric,
-	CONSTRAINT "user_connectionStatusMetrics_pkey" PRIMARY KEY ("meetingId","userId","status"),
+	CONSTRAINT "user_connectionStatusMetrics_pkey" PRIMARY KEY ("meetingId","userId","sessionToken","status"),
 	FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
 );
 create index "idx_user_connectionStatusMetrics_pk_reverse" on "user_connectionStatusMetrics"("userId", "meetingId");
@@ -878,24 +896,28 @@ BEGIN
     "lowestNetworkRttInMs" = LEAST("user_connectionStatusMetrics"."lowestNetworkRttInMs",NEW."networkRttInMs"),
     "lastNetworkRttInMs" = NEW."networkRttInMs",
     "lastOccurrenceAt" = current_timestamp
-    WHERE "meetingId"=NEW."meetingId" AND "userId"=NEW."userId" AND "status"= NEW."status" RETURNING *)
-    INSERT INTO "user_connectionStatusMetrics"("meetingId","userId","status","occurrencesCount", "firstOccurrenceAt", "lastOccurrenceAt",
+    WHERE "meetingId"=NEW."meetingId"
+    AND "userId"=NEW."userId"
+    AND "sessionToken"=NEW."sessionToken"
+    AND "status"= NEW."status" RETURNING *)
+    INSERT INTO "user_connectionStatusMetrics"("meetingId","userId","sessionToken","status","occurrencesCount", "firstOccurrenceAt", "lastOccurrenceAt",
     "highestNetworkRttInMs", "lowestNetworkRttInMs", "lastNetworkRttInMs")
-    SELECT NEW."meetingId", NEW."userId", NEW."status", 1, current_timestamp, current_timestamp,
+    SELECT NEW."meetingId", NEW."userId", NEW."sessionToken", NEW."status", 1, current_timestamp, current_timestamp,
     NEW."networkRttInMs", NEW."networkRttInMs", NEW."networkRttInMs"
     WHERE NOT EXISTS (SELECT * FROM upsert);
 
     --Store history into user_connectionStatusHistory
-    INSERT INTO "user_connectionStatusHistory"("meetingId","userId","networkRttInMs","status","statusUpdatedAt")
-    SELECT NEW."meetingId", NEW."userId", NEW."networkRttInMs", NEW."status", NEW."statusUpdatedAt";
+    INSERT INTO "user_connectionStatusHistory"("meetingId","userId","sessionToken","networkRttInMs","status","statusUpdatedAt")
+    SELECT NEW."meetingId", NEW."userId", NEW."sessionToken", NEW."networkRttInMs", NEW."status", NEW."statusUpdatedAt";
 
     --Keep only the `lastEntriesCap`
     DELETE FROM "user_connectionStatusHistory"
-    WHERE ("meetingId", "userId", "statusUpdatedAt") IN (
-        SELECT "meetingId", "userId", "statusUpdatedAt"
+    WHERE ("meetingId", "userId", "sessionToken", "statusUpdatedAt") IN (
+        SELECT "meetingId", "userId", "sessionToken", "statusUpdatedAt"
         FROM "user_connectionStatusHistory"
         WHERE "meetingId" = NEW."meetingId"
         AND "userId" = NEW."userId"
+        AND "sessionToken" = NEW."sessionToken"
         ORDER BY "statusUpdatedAt" DESC
         OFFSET NEW."lastEntriesCap"
     );
@@ -911,6 +933,7 @@ CREATE OR REPLACE VIEW "v_user_connectionStatusReport" AS
 SELECT distinct on (u."meetingId", u."userId")
 u."meetingId",
 u."userId",
+cs."sessionToken",
 cs."connectionAliveAt",
 cs."status" AS "currentStatus",
 CASE WHEN
@@ -924,7 +947,7 @@ csm."lastOccurrenceAt" AS "lastUnstableStatusAt"
 FROM "user" u
 JOIN "user_connectionStatus" cs ON cs."meetingId" = u."meetingId" and cs."userId" = u."userId"
 LEFT JOIN "user_connectionStatusMetrics" csm ON csm."meetingId" = u."meetingId" AND csm."userId" = u."userId" AND csm."status" != 'normal'
-order by u."meetingId", u."userId", csm."lastOccurrenceAt" desc;
+order by u."meetingId", u."userId", cs."sessionToken", csm."lastOccurrenceAt" desc;
 
 CREATE INDEX "idx_user_connectionStatusMetrics_UnstableReport" ON "user_connectionStatusMetrics" ("meetingId", "userId") WHERE "status" != 'normal';
 

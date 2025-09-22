@@ -1465,6 +1465,7 @@
     "app.externalVideo.noteLabelWarning": "Shared videos are not included in the recording.",
     "app.externalVideo.subtitlesOn": "Turn off",
     "app.externalVideo.subtitlesOff": "Turn on (if available)",
+    "app.externalVideo.stopShareExternalVideo": "Stop sharing external video",
     "app.actionsBar.actionsDropdown.shareExternalVideo": "Share an external video",
     "app.actionsBar.actionsDropdown.stopShareExternalVideo": "Stop sharing external video",
     "app.legacy.unsupportedBrowser": "It looks like you're using a browser that is not supported. Please use a recent version of either {supportedBrowser1} or {supportedBrowser2} for full support.",

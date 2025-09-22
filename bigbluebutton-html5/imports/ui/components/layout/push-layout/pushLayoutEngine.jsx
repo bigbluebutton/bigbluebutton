@@ -12,7 +12,6 @@ import {
   SYNC,
   LAYOUT_ELEMENTS,
   PANELS,
-  CAMERADOCK_POSITION,
 } from '../enums';
 import { LAYOUTS_SYNC } from '../utils';
 import { updateSettings } from '/imports/ui/components/settings/service';
@@ -32,6 +31,7 @@ import { calculatePresentationVideoRate } from './service';
 import { useMeetingLayoutUpdater, usePushLayoutUpdater, useLayoutUpdater } from './hooks';
 import { setEnforcedLayout } from '/imports/ui/components/plugins-engine/ui-commands/layout/handler';
 import { useIsChatEnabled } from '/imports/ui/services/features';
+import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
 
 const equalDouble = (n1, n2) => {
   const precision = 0.01;
@@ -146,7 +146,7 @@ const PushLayoutEngine = (props) => {
 
         layoutContextDispatch({
           type: ACTIONS.SET_CAMERA_DOCK_POSITION,
-          value: meetingLayoutCameraPosition || CAMERADOCK_POSITION.CONTENT_TOP,
+          value: meetingLayoutCameraPosition || DEFAULT_VALUES.cameraPosition,
           isLocalChange: false,
         });
         if (shouldOpenChat && !hasLayoutEngineLoadedOnce) {
@@ -243,7 +243,7 @@ const PushLayoutEngine = (props) => {
         || meetingLayoutUpdatedAt !== prevProps.meetingLayoutUpdatedAt) {
         layoutContextDispatch({
           type: ACTIONS.SET_CAMERA_DOCK_POSITION,
-          value: meetingLayoutCameraPosition,
+          value: meetingLayoutCameraPosition || DEFAULT_VALUES.cameraPosition,
           isLocalChange: false,
         });
       }

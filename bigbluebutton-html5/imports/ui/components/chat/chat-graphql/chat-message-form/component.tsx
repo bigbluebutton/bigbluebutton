@@ -610,7 +610,6 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
 
     useEffect(() => {
       const handleClickOutside = (event: MouseEvent) => {
-        // eslint-disable-next-line react/no-find-dom-node
         const button = emojiPickerButtonRef.current;
         if (
           (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target as Node))
@@ -686,7 +685,9 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
                     color: 'action.active',
                   }}
                   onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                  type="button"
                   data-test="emojiPickerButton"
+                  disabled={disabled || partnerIsLoggedOut || chatSendMessageLoading}
                   ref={emojiPickerButtonRef}
                 >
                   <AddReactionIcon />

@@ -38,6 +38,7 @@ const MEETING_SUBSCRIPTION = gql`
         usersPolicies {
           guestPolicy
           guestLobbyMessage
+          webcamsOnlyForModerator
         }
         layout {
           cameraDockAspectRatio

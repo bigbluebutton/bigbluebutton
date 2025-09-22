@@ -8,8 +8,6 @@ runs:
       run: |
         git config --global advice.defaultBranchName false
         git config --global advice.detachedHead false
-    - name: Merge branches
-      uses: ./.github/actions/merge-branches
     - run: ./build/get_external_dependencies.sh
       shell: bash
     - name: Download all BBB artifacts

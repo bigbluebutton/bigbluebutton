@@ -202,6 +202,17 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, req)
   }
 
+  def buildPresentationConversionStartedSysPubMsg(msg: DocConversionStarted): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-web")
+    val envelope = BbbCoreEnvelope(PresentationConversionStartedSysPubMsg.NAME, routing)
+    val header = BbbClientMsgHeader(PresentationConversionStartedSysPubMsg.NAME, msg.meetingId, msg.authzToken)
+    val common = PresentationConversionCommonBody(podId = msg.podId, meetingId = msg.meetingId, presentationId = msg.presId,
+      presentationName = msg.filename, messageKey = "", temporaryPresentationId = msg.temporaryPresentationId)
+    val body = PresentationConversionStartedSysPubMsgBody(common = common, maxDuration = msg.maxConversionTime)
+    val req = PresentationConversionStartedSysPubMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, req)
+  }
+
   def buildOfficeToPdfConversionFailedMsg(msg: OfficeToPdfConversionFailed): BbbCommonEnvCoreMsg = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-web")
     val envelope = BbbCoreEnvelope(PresentationConversionFailedErrorSysPubMsg.NAME, routing)
@@ -441,5 +452,4 @@ object MsgBuilder {
     val req = PresentationUploadedFileScanFailedErrorSysPubMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, req)
   }
-
 }

@@ -1,8 +1,9 @@
-const { test } = require('@playwright/test');
+const { test, expect } = require('@playwright/test');
 const { uploadSinglePresentation } = require('../presentation/util');
 const e = require('../core/elements.js');
 const { getSettings } = require('../core/settings.js');
 const path = require('path');
+const { ELEMENT_WAIT_TIME } = require('../core/constants');
 
 async function openPoll(testPage) {
   const { pollEnabled } = getSettings();
@@ -25,6 +26,12 @@ async function uploadSPresentationForTestingPolls(test, fileName) {
   await uploadSinglePresentation(test, fileName);
 }
 
+async function countingVotes(testPage, selector, count, textFilter) {
+  const locator = await testPage.page.locator(selector, { hasText: textFilter });
+  await expect(locator, 'should display the counting votes').toHaveCount(count, { timeout: ELEMENT_WAIT_TIME });
+}
+
 exports.openPoll = openPoll;
 exports.startPoll = startPoll;
 exports.uploadSPresentationForTestingPolls = uploadSPresentationForTestingPolls;
+exports.countingVotes = countingVotes;

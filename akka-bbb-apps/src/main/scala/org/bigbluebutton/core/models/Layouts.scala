@@ -82,7 +82,7 @@ class Layouts {
   private var pushLayout: Boolean = false;
   private var presentationIsOpen: Boolean = true;
   private var isResizing: Boolean = false;
-  private var cameraPosition: String = "contentTop";
+  private var cameraPosition: String = "";
   private var focusedCamera: String = "none";
   private var presentationVideoRate: Double = 0;
   private var screenshareAsContent: Boolean = false;

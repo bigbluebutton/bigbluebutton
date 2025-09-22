@@ -22,4 +22,5 @@ import java.io.File;
 
 public interface PngCreator {
 	public boolean createPng(UploadedPresentation pres, int page, File pageFile);
+	public void createBlank(UploadedPresentation pres, int page);
 }
