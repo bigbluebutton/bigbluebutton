@@ -646,6 +646,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
                   },
                 }));
               }}
+              maxRows={5}
               onChange={handleMessageChange}
               onKeyDown={handleMessageKeyDown}
               onPaste={(e) => { e.stopPropagation(); }}

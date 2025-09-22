@@ -46,14 +46,13 @@ const Input = styled(TextareaAutosize)`
   margin: ${xsPadding} 0 ${xsPadding} ${xsPadding};
   color: ${colorGrayLight};
   -webkit-appearance: none;
-  padding: calc(${smPaddingY} * 2.5) 0 calc(${smPaddingX} * 1.25) calc(${smPaddingY} * 2.5);
+  padding: calc(${smPaddingY} * 2.5) calc(${smPaddingX} * 1.25) calc(${smPaddingX} * 1.25) calc(${smPaddingY} * 2.5);
   resize: none;
   transition: color 0.3s ease;
   border-radius: ${borderRadius};
   font-size: ${fontSizeBase};
   line-height: 1;
   min-height: 2.5rem;
-  max-height: 3.5rem;
   overflow-y: auto;
   border: ${colorBorder};
   box-shadow: none;
@@ -159,7 +158,7 @@ z-index: 1000;
       display: inline-block !important;
     }
   }
-  @media ${smallOnly} { 
+  @media ${smallOnly} {
     em-emoji-picker {
       height: 200px !important;
     }
