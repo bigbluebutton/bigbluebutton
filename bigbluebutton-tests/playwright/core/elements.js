@@ -597,6 +597,7 @@ exports.downloadSessionLearningDashboard = 'button[data-test="downloadSessionDat
 const topBar = 'div.top-bar';
 const videoControlBar = 'div.vjs-control-bar';
 exports.playbackElements = {
+  // presentation
   sectionLeftButton: `${topBar} .left button`,
   toggleThemeButton: `${topBar} .right button[aria-label="Toggle theme"]`,
   searchButton: `${topBar} .right button[aria-label="Search"]`,
@@ -615,4 +616,9 @@ exports.playbackElements = {
   seekBackButton: `${videoControlBar} button.vjs-seek-button.skip-back`,
   seekForwardButton: `${videoControlBar} button.vjs-seek-button.skip-forward`,
   progressBar: `${videoControlBar} div.vjs-play-progress`,
+  bigPlayButton: 'button.vjs-big-play-button',
+  // video
+  mainArea: 'div#main-area',
+  chatArea: 'div#chat-area',
+  chatMessageItem: 'div#chat .chat-message',
 }
