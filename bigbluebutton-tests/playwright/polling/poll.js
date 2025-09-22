@@ -169,7 +169,7 @@ class Polling extends MultiUsers {
   async smartSlidesQuestions() {
     await this.modPage.hasElement(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await util.uploadSPresentationForTestingPolls(this.modPage, e.smartSlides2);
-    await this.userPage.hasElement(e.userListItem, 'should display the user list item for the attendee');
+    await this.userPage.hasElement(e.chatMessages, 'should display the chat messages for the attendee');
     await this.modPage.closeAllToastNotifications();
     await sleep(10000);
     
