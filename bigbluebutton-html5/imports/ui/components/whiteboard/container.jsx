@@ -6,17 +6,13 @@ import React, {
   useCallback,
 } from 'react';
 import PropTypes from 'prop-types';
-import {
-  useMutation, useQuery, useSubscription, useReactiveVar,
-} from '@apollo/client';
+import { useMutation, useReactiveVar } from '@apollo/client';
 import {
   AssetRecordType,
 } from '@bigbluebutton/tldraw';
 import { throttle } from 'radash';
 import {
   CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
-  ANNOTATION_HISTORY_STREAM,
-  CURRENT_PAGE_ANNOTATIONS_QUERY,
   CURRENT_PAGE_WRITERS_SUBSCRIPTION,
 } from './queries';
 import {
@@ -51,13 +47,9 @@ import {
 import { useMergedCursorData } from './hooks.ts';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 import MediaService from '/imports/ui/components/media/service';
-import getFromUserSettings from '/imports/ui/services/users-settings';
 import { debounce } from '/imports/utils/debounce';
 import useLockContext from '/imports/ui/components/lock-viewers/hooks/useLockContext';
-import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
-
-const FORCE_RESTORE_PRESENTATION_ON_NEW_EVENTS = 'bbb_force_restore_presentation_on_new_events';
 
 const RECONNECT_SYNC_DELAY_MS = 750;
 const VISIBILITY_REFETCH_DELAY_MS = 500;
@@ -66,6 +58,10 @@ const WhiteboardContainer = (props) => {
   const {
     zoomChanger,
     fitToWidth,
+    initialPageAnnotations,
+    refetchInitialPageAnnotations,
+    annotationStreamData = [],
+    restoreOnUpdate,
   } = props;
 
   const WHITEBOARD_CONFIG = window.meetingClientSettings.public.whiteboard;
@@ -83,8 +79,6 @@ const WhiteboardContainer = (props) => {
   const shapesQueueRef = useRef([]);
   const removedQueueRef = useRef([]);
   const flushScheduledRef = useRef(false);
-
-  const historyVarsRef = useRef(null);
 
   // Aggregates the queues and updates state at once.
   const flushUpdates = useCallback(() => {
@@ -262,19 +256,6 @@ const WhiteboardContainer = (props) => {
 
   const isMultiUserActive = whiteboardWriters.filter((u) => !u.user.presenter)?.length > 0;
   const cursorArray = useMergedCursorData();
-  const {
-    data: currentMeeting,
-  } = useMeeting((m) => ({
-    createdTime: m.createdTime,
-  }));
-
-  const { data: initialPageAnnotations, refetch: refetchInitialPageAnnotations } = useQuery(
-    CURRENT_PAGE_ANNOTATIONS_QUERY,
-    {
-      variables: { pageId: curPageId },
-      skip: !curPageId,
-    },
-  );
 
   const connectedStatus = useReactiveVar(connectionStatus.getConnectedStatusVar());
 
@@ -350,80 +331,44 @@ const WhiteboardContainer = (props) => {
     wBAccessChanged,
   ]);
 
-  const lastUpdatedAt = useMemo(() => {
-    if (!initialPageAnnotations) return null;
-
-    if (!initialPageAnnotations?.pres_annotation_curr?.length) {
-      return currentMeeting?.createdTime
-        ? new Date(currentMeeting.createdTime).toISOString()
-        : null;
-    }
-    return initialPageAnnotations.pres_annotation_curr.reduce((latest, annotation) => {
-      const updatedAt = new Date(annotation.lastUpdatedAt);
-      return updatedAt > latest ? updatedAt : latest;
-    }, new Date(0)).toISOString();
-  }, [initialPageAnnotations]);
-
   useEffect(() => {
-    if (!curPageId || !lastUpdatedAt) return;
-    if (!historyVarsRef.current || historyVarsRef.current?.pageId !== curPageId) {
-      historyVarsRef.current = { pageId: curPageId, updatedAt: lastUpdatedAt };
+    const processedAnnotationIds = new Set();
+    const validShapes = [];
+    const annotationsToBeRemoved = new Set();
+
+    for (let i = annotationStreamData.length - 1; i >= 0; i -= 1) {
+      const annotation = annotationStreamData[i];
+      const { annotationId, annotationInfo } = annotation;
+
+      // Only process if we haven't seen this annotationId yet.
+      if (!processedAnnotationIds.has(annotationId)) {
+        processedAnnotationIds.add(annotationId);
+        if (!annotationInfo) {
+          annotationsToBeRemoved.add(annotationId);
+        } else {
+          validShapes.push({
+            ...annotationInfo,
+            id: annotationId,
+            meta: { ...annotationInfo.meta },
+          });
+        }
+      }
     }
-  }, [curPageId, lastUpdatedAt]);
 
-  const canStream = !!lastUpdatedAt;
+    // If there are valid shape updates, push them into the queue.
+    if (validShapes.length > 0) {
+      shapesQueueRef.current.push(validShapes);
+    }
+    // If there are removals, push them into the removal queue.
+    if (annotationsToBeRemoved.size > 0) {
+      removedQueueRef.current.push([...annotationsToBeRemoved]);
+    }
 
-  useSubscription(ANNOTATION_HISTORY_STREAM, {
-    variables: historyVarsRef.current ?? { pageId: curPageId, updatedAt: lastUpdatedAt },
-    skip: !curPageId || !canStream,
-    onData: ({ data: subscriptionData }) => {
-      const annotationStream = subscriptionData.data?.pres_annotation_history_curr_stream || [];
-
-      const processedAnnotationIds = new Set();
-      const validShapes = [];
-      const annotationsToBeRemoved = new Set();
-
-      for (let i = annotationStream.length - 1; i >= 0; i -= 1) {
-        const annotation = annotationStream[i];
-        const { annotationId, annotationInfo } = annotation;
-
-        // Only process if we haven't seen this annotationId yet.
-        if (!processedAnnotationIds.has(annotationId)) {
-          processedAnnotationIds.add(annotationId);
-          if (!annotationInfo) {
-            annotationsToBeRemoved.add(annotationId);
-          } else {
-            validShapes.push({
-              ...annotationInfo,
-              id: annotationId,
-              meta: { ...annotationInfo.meta },
-            });
-          }
-        }
-      }
-
-      // If there are valid shape updates, push them into the queue.
-      if (validShapes.length > 0) {
-        shapesQueueRef.current.push(validShapes);
-        const restoreOnUpdate = getFromUserSettings(
-          FORCE_RESTORE_PRESENTATION_ON_NEW_EVENTS,
-          window.meetingClientSettings.public.presentation.restoreOnUpdate,
-        );
-        if (restoreOnUpdate) {
-          MediaService.setPresentationIsOpen(layoutContextDispatch, true);
-        }
-      }
-      // If there are removals, push them into the removal queue.
-      if (annotationsToBeRemoved.size > 0) {
-        removedQueueRef.current.push([...annotationsToBeRemoved]);
-      }
-
-      // Schedule a flush on the next animation frame. This ensures that all rapid
-      // subscription updates are batched together into a single state update,
-      // synchronizing updates with the browser's rendering cycle.
-      scheduleFlush();
-    },
-  });
+    // Schedule a flush on the next animation frame. This ensures that all rapid
+    // subscription updates are batched together into a single state update,
+    // synchronizing updates with the browser's rendering cycle.
+    scheduleFlush();
+  }, [annotationStreamData]);
 
   useEffect(() => {
     if (!isTabVisible || !curPageId || !connectedStatus) return;
@@ -476,11 +421,6 @@ const WhiteboardContainer = (props) => {
     ]);
 
     if (updatedAnnotations.length > 0 || newAnnotations.length > 0) {
-      const restoreOnUpdate = getFromUserSettings(
-        FORCE_RESTORE_PRESENTATION_ON_NEW_EVENTS,
-        window.meetingClientSettings.public.presentation.restoreOnUpdate,
-      );
-
       if (restoreOnUpdate) {
         MediaService.setPresentationIsOpen(layoutContextDispatch, true);
       }

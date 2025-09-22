@@ -159,17 +159,6 @@ export const CURRENT_PAGE_ANNOTATIONS_QUERY = gql`query CurrentPageAnnotationsQu
   }
 }`;
 
-export const CURRENT_PAGE_ANNOTATIONS_STREAM = gql`subscription annotationsStream($lastUpdatedAt: timestamptz){
-  pres_annotation_curr_stream(batch_size: 1000, cursor: {initial_value: {lastUpdatedAt: $lastUpdatedAt}}) {
-    annotationId
-    annotationInfo
-    lastUpdatedAt
-    pageId
-    presentationId
-    userId
-  }
-}`;
-
 export const ANNOTATION_HISTORY_STREAM = gql`
   subscription annotationHistoryStream($updatedAt: timestamptz, $pageId: String!) {
     pres_annotation_history_curr_stream(
