@@ -84,8 +84,33 @@ public class PngCreatorImp implements PngCreator {
 		return success;
 	}
 
+	@Override
+	public void createBlank(UploadedPresentation pres, int page) {
+		File dir = determinePngDirectory(pres.getUploadedFile());
+
+		if (!dir.exists()) {
+			boolean created = dir.mkdir();
+			if (!created) {
+				log.warn("Failed to create PNG directory");
+				return;
+			}
+		}
+
+		createBlankPng(dir, page);
+	}
+
 	private boolean generatePng(File pngsDir, UploadedPresentation pres, int page, File pageFile)
 					throws InterruptedException {
+		long convTimeout = this.convTimeout;
+		if (convTimeout > pres.getMaxPageConversionTime()) {
+			convTimeout = (int) pres.getMaxPageConversionTime();
+		}
+
+		long execTimeout = this.execTimeout;
+		if (execTimeout > pres.getMaxPageConversionTime()) {
+			execTimeout = pres.getMaxPageConversionTime();
+		}
+
 		String source = pageFile.getAbsolutePath();
 		String dest = pngsDir.getAbsolutePath() + File.separator + "slide-" + page + ".png";
 

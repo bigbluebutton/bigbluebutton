@@ -33,6 +33,7 @@ import { setEnforcedLayout } from '/imports/ui/components/plugins-engine/ui-comm
 import { useIsChatEnabled } from '/imports/ui/services/features';
 import Auth from '/imports/ui/services/auth';
 import Storage from '/imports/ui/services/storage/session';
+import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
 
 const equalDouble = (n1, n2) => {
   const precision = 0.01;
@@ -148,7 +149,7 @@ const PushLayoutEngine = (props) => {
 
         layoutContextDispatch({
           type: ACTIONS.SET_CAMERA_DOCK_POSITION,
-          value: meetingLayoutCameraPosition || 'contentTop',
+          value: meetingLayoutCameraPosition || DEFAULT_VALUES.cameraPosition,
         });
         if (shouldOpenChat && !hasLayoutEngineLoadedOnce) {
           layoutContextDispatch({
@@ -256,7 +257,7 @@ const PushLayoutEngine = (props) => {
         || meetingLayoutUpdatedAt !== prevProps.meetingLayoutUpdatedAt) {
         layoutContextDispatch({
           type: ACTIONS.SET_CAMERA_DOCK_POSITION,
-          value: meetingLayoutCameraPosition,
+          value: meetingLayoutCameraPosition || DEFAULT_VALUES.cameraPosition,
         });
       }
     };

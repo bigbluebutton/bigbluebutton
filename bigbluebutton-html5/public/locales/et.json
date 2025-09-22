@@ -1401,6 +1401,7 @@
     "app.externalVideo.noteLabel": "Märkus: jagatud väliseid videoid sessiooni salvestisse ei kaasata. Toetatakse keskkondi YouTube, Vimeo, Instructure Media, Twitch ja Dailymotion ning meediafailide URLe (nt https://example.com/xy.mp4).",
     "app.externalVideo.subtitlesOn": "Lülita välja",
     "app.externalVideo.subtitlesOff": "Lülita sisse (kui saadaval)",
+    "app.externalVideo.stopShareExternalVideo": "Lõpeta välise video jagamine",
     "app.actionsBar.actionsDropdown.shareExternalVideo": "Jaga välist videot",
     "app.actionsBar.actionsDropdown.stopShareExternalVideo": "Lõpeta välise video jagamine",
     "app.legacy.unsupportedBrowser": "Paistab, et kasutad brauserit, mida ei toetata. Täielikuks toetuseks palun kasuta brauseri {supportedBrowser1} või {supportedBrowser2} viimast versiooni.",

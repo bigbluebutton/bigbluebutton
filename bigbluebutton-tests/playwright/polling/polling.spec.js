@@ -48,7 +48,7 @@ test.describe('Polling', { tag: '@ci' }, async () => {
     await polling.allowMultipleChoices();
   });
 
-  test('Smart slides questions', { tag: '@flaky' }, async () => {
+  test('Smart slides questions', async () => {
     await polling.smartSlidesQuestions();
   });
 

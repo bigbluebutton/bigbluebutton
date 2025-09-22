@@ -2111,6 +2111,15 @@ const Whiteboard = React.memo((props) => {
     SessionStorage.setItem('whiteboardToolbarSavedState', getToolbarCurrentState());
   }, [getToolbarCurrentState]);
 
+  React.useEffect(() => {
+    if (!whiteboardToolbarAutoHide) {
+      const optionsDropdown = document.getElementById('WhiteboardOptionButton');
+      if (optionsDropdown?.classList.contains('fade-in')) {
+        optionsDropdown.classList.remove('fade-in');
+      }
+    }
+  }, [whiteboardToolbarAutoHide]);
+
   return (
     <div
       ref={whiteboardRef}

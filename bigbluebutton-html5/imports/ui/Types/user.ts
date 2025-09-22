@@ -70,6 +70,7 @@ export interface User {
   logoutUrl: string;
   authToken: string;
   userId: string;
+  meetingId: string;
   extId: string;
   name: string;
   nameSortable: string;

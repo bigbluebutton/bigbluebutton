@@ -1165,6 +1165,9 @@ public:
     showThumbnails: true
     imagesPath: /resources/images/virtual-backgrounds/
     thumbnailsPath: /resources/images/virtual-backgrounds/thumbnails/
+    # willReadFrequently: Defines the optimization hint for the virtual background canvas.
+    # If commented out (default), the browser decides the best strategy.
+    #willReadFrequently: true
     fileNames:
       - home.jpg
       - coffeeshop.jpg

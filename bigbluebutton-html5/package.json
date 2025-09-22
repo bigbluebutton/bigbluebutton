@@ -56,7 +56,6 @@
     "@types/ramda": "^0.29.2",
     "@types/react": "^18.2.18",
     "autoprefixer": "^10.4.4",
-    "axios": "^1.8.3",
     "babel-runtime": "~6.26.0",
     "bigbluebutton-html-plugin-sdk": "0.0.94",
     "bowser": "^2.12.0",

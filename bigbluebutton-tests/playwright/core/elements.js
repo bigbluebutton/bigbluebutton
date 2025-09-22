@@ -587,3 +587,27 @@ exports.userStatusDashboard = 'td[data-test="userStatusDashboard"]';
 exports.userActivityScoreDashboard = 'td[data-test="userActivityScoreDashboard"]';
 exports.activityScorePanelDashboard = 'button[data-test="activityScorePanelDashboard"]';
 exports.downloadSessionLearningDashboard = 'button[data-test="downloadSessionDataDashboard"]';
+
+// Recording playback
+const topBar = 'div.top-bar';
+const videoControlBar = 'div.vjs-control-bar';
+exports.playbackElements = {
+  sectionLeftButton: `${topBar} .left button`,
+  toggleThemeButton: `${topBar} .right button[aria-label="Toggle theme"]`,
+  searchButton: `${topBar} .right button[aria-label="Search"]`,
+  swapContentButton: `${topBar} .right button[aria-label="Swap content"]`,
+  topBar: topBar,
+  title: `${topBar} .center span.title`,
+  mediaArea: 'div.media',
+  applicationArea: 'div.application',
+  topContentArea: 'div.top-content',
+  bottomContentArea: 'div.bottom-content',
+  chatContentArea: 'div#chat',
+  applicationControlButton: 'div.application-control div',
+  notesContentArea: 'div#notes',
+  videoControlBar: videoControlBar,
+  playPauseButton: `${videoControlBar} button.vjs-play-control`,
+  seekBackButton: `${videoControlBar} button.vjs-seek-button.skip-back`,
+  seekForwardButton: `${videoControlBar} button.vjs-seek-button.skip-forward`,
+  progressBar: `${videoControlBar} div.vjs-play-progress`,
+}
