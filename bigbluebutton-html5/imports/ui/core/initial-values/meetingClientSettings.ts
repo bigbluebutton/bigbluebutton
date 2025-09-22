@@ -844,6 +844,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       maxStickyNoteLength: 1000,
       maxNumberOfAnnotations: 300,
       maxNumberOfActiveUsers: 25,
+      maxHistoryStackSize: 400,
       lockToolbarTools: false,
       allowInfiniteWhiteboard: false,
       allowInfiniteWhiteboardInBreakouts: false,

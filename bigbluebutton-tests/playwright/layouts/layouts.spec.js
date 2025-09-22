@@ -5,8 +5,8 @@ const { initializePages } = require('../core/helpers');
 test.describe.parallel('Layout', { tag: '@ci' }, () => {
   const layouts = new Layouts();
 
-  test.beforeEach(async ({ browser }) => {
-    await initializePages(layouts, browser, { isMultiUser: true });
+  test.beforeEach(async ({ browser }, testInfo) => {
+    await initializePages(layouts, browser, { isMultiUser: true, testInfo });
     await layouts.modPage.shareWebcam();
     await layouts.userPage.shareWebcam();
   });

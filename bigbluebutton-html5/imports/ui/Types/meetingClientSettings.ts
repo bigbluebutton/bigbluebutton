@@ -755,6 +755,7 @@ export interface Whiteboard {
   maxStickyNoteLength: number
   maxNumberOfAnnotations: number
   maxNumberOfActiveUsers: number
+  maxHistoryStackSize: number
   lockToolbarTools: boolean
   annotations: Annotations
   allowInfiniteWhiteboard: boolean

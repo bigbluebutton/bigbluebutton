@@ -270,10 +270,10 @@ export class Shape {
   */
   static determineFontSize(size) {
     const fontSizes = {
-      's': 26,
-      'm': 36,
-      'l': 54,
-      'xl': 64,
+      's': 24,
+      'm': 34,
+      'l': 52,
+      'xl': 62,
     };
 
     return fontSizes[size] || 16;
@@ -284,6 +284,7 @@ export class Shape {
    *
    * @param {string} align - One of ('start', 'middle', 'end').
    * @param {number} width - The width of the container.
+   * @param {number} [padding] - Optional padding from the left edge.
    * @return {string} The calculated horizontal position as a string with
    * two decimal places. Coordinates are relative to the container.
    * @static
@@ -368,8 +369,7 @@ export class Shape {
     const font = this.props?.font || 'draw';
     const fontPath = config.fonts[font];
 
-    const words = text.split(' ');
-    let line = '';
+    const textLines = text.split('\n');
     const lines = [];
 
     // Read the font file into a Buffer
@@ -384,60 +384,52 @@ export class Shape {
     const parsedFont = opentype.parse(arrayBuffer);
     const fontSize = Shape.determineFontSize(this.size);
 
-    for (const word of words) {
-      const testLine = line + word + ' ';
-      const testWidth = this.measureTextWidth(
-          testLine,
-          parsedFont,
-          fontSize);
+    const _wrapText = (token, availableWidth) => {
+      let prefix = '';
+      let suffix = token;
 
-      if (testWidth > width) {
-        if (!(line + word).includes(' ')) {
-          let lineToWrap = line + word;
-          while (this.measureTextWidth(
-            lineToWrap,
+      for (let i = 1; i < token.length; i++) {
+        const textWidth = this.measureTextWidth(
+            token.substring(0, i),
             parsedFont,
-            fontSize,
-          ) > width) {
-            let prefix = '';
-            let rest = '';
-            for (let i = 1; i < lineToWrap.length; i++) {
-              const textWidth = this.measureTextWidth(
-                lineToWrap.substring(0, i),
-                parsedFont,
-                fontSize,
-              );
-              if (textWidth > width) break;
-              prefix = lineToWrap.substring(0, i);
-              rest = lineToWrap.substring(i, lineToWrap.length);
-            }
-            if (prefix !== '') {
-              lines.push(prefix);
-            }
-            lineToWrap = rest;
+            fontSize);
+        if (textWidth > availableWidth) break;
+        prefix = token.substring(0, i);
+        suffix = token.substring(i, token.length);
+      }
+
+      return {prefix, suffix};
+    };
+
+    for (const textLine of textLines) {
+      const textLineTokens = textLine.split(/\b/);
+      let textAccum = '';
+      for (const token of textLineTokens) {
+        const testLine = textAccum + token;
+        const testWidth = this.measureTextWidth(
+            testLine,
+            parsedFont,
+            fontSize);
+        if (testWidth > width) {
+          if (!textAccum.endsWith(' ') || !/\S/.test(token)) {
+            const {prefix, suffix} = _wrapText(textAccum + token, width);
+            lines.push(prefix);
+            textAccum = suffix;
+          } else {
+            lines.push(textAccum);
+            textAccum = token;
           }
-          line = lineToWrap + ' ';
         } else {
-          if (line !== '') {
-            lines.push(line);
-          }
-          line = word + ' ';
+          textAccum += token;
         }
-      } else {
-        line = testLine;
+      }
+      if (textAccum !== '') {
+        lines.push(textAccum);
+        textAccum = '';
       }
     }
 
-    if (line !== '') {
-      lines.push(line.trim());
-    }
-
-    // Split newlines into separate lines
-    const brokenLines = lines
-        .map((line) => line.split('\n'))
-        .flat();
-
-    return brokenLines;
+    return lines;
   }
 
   /**

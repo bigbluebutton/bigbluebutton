@@ -582,7 +582,16 @@ object VoiceApp extends SystemConfiguration {
     )
     outGW.send(muteEvent)
 
-    deafenUserInVoiceConf(liveMeeting, outGW, intId, !enabled)
+    // Directly deafen the user here as guest lobby policies mean an user
+    // might not be fully registered yet.
+    val deafEvent = MsgBuilder.buildDeafUserInVoiceConfSysMsg(
+      liveMeeting.props.meetingProp.intId,
+      liveMeeting.props.voiceProp.voiceConf,
+      intId,
+      voiceUserId,
+      !enabled
+    )
+    outGW.send(deafEvent)
   }
 
   def removeToggleListenOnlyTask(userId: String): Unit = {
@@ -796,6 +805,10 @@ object VoiceApp extends SystemConfiguration {
     }
   }
 
+  /*
+   * Deafens a web conference user in the voice conference.
+   * Does not apply to voice-only users (e.g.: dial-in)
+   */
   def deafenUserInVoiceConf(
     liveMeeting: LiveMeeting,
     outGW:       OutMsgRouter,

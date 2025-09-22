@@ -5,8 +5,8 @@ const { initializePages } = require('../core/helpers');
 test.describe.parallel('Polling', { tag: '@ci' }, async () => {
   const polling = new Polling();
 
-  test.beforeEach(async ({ browser }) => {
-    await initializePages(polling, browser, { isMultiUser: true });
+  test.beforeEach(async ({ browser }, testInfo) => {
+    await initializePages(polling, browser, { isMultiUser: true, testInfo });
   });
 
   // Manage
@@ -46,7 +46,7 @@ test.describe.parallel('Polling', { tag: '@ci' }, async () => {
     await polling.allowMultipleChoices();
   });
 
-  test('Smart slides questions', { tag: '@flaky' }, async () => {
+  test('Smart slides questions', async () => {
     await polling.smartSlidesQuestions();
   });
 

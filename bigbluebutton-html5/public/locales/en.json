@@ -640,6 +640,7 @@
     "app.submenu.notification.userJoinLabel": "User Join",
     "app.submenu.notification.userLeaveLabel": "User Leave",
     "app.submenu.notification.guestWaitingLabel": "Guest Waiting Approval",
+    "app.submenu.notification.muteUnmuteLabel": "Mute/Unmute Microphone",
     "app.submenu.audio.micSourceLabel": "Microphone",
     "app.submenu.audio.speakerSourceLabel": "Speaker",
     "app.submenu.audio.streamVolumeLabel": "Your audio stream volume",

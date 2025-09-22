@@ -5,8 +5,8 @@ const { initializePages } = require('../core/helpers');
 test.describe.parallel('Options', { tag: '@ci' }, () => {
   const options = new Options();
 
-  test.beforeEach(async ({ browser }) => {
-    await initializePages(options, browser);
+  test.beforeEach(async ({ browser }, testInfo) => {
+    await initializePages(options, browser, { testInfo });
   });
 
   test('Open about modal', async () => {
@@ -27,5 +27,9 @@ test.describe.parallel('Options', { tag: '@ci' }, () => {
 
   test('Font size', async () => {
     await options.fontSizeTest();
+  });
+
+  test('Auto hide whiteboard toolbar', async () => {
+    await options.autoHideWhiteboardToolbar();
   });
 });

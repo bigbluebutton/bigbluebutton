@@ -14,7 +14,7 @@ BigBlueButton has many configuration files that offer you opportunities to custo
 
 ### Preserving changes to configuration files
 
-BigBlueButton's components use various configuration files which are included with the installation packages. If you were to make a change to these configuration files, your changes would be lost when an updated version of the package is installed during upgrades. To prevent this loss of customizations, most components also accept overriding configuration files from `/etc/bigbluebutton`. That directory is not interfered with by BigBlueButton (except in cases when using the command `bbb-conf --setip` or `--setsecret` placing new values you specify). 
+BigBlueButton's components use various configuration files which are included with the installation packages. If you were to make a change to these configuration files, your changes would be lost when an updated version of the package is installed during upgrades. To prevent this loss of customizations, most components also accept overriding configuration files from `/etc/bigbluebutton`. That directory is not interfered with by BigBlueButton (except in cases when using the command `bbb-conf --setip` or `--setsecret` placing new values you specify).
 
 For the full list of the configuration files and their overriding counterpart, see [Configuration Files](/administration/configuration-files#local-overrides-for-configuration-settings)
 
@@ -296,7 +296,7 @@ and do `systemctl daemon-reload`. This file overrides the timing of when systemd
 
 #### Allow all recordings to be returned
 
-In 2.6.x a new configuration property, `allowFetchAllRecordings`, was added to `bigbluebutton.properties`. This property determines whether every recording on the server can be returned in a single response from a `getRecordings` call. By default this property is set to `true`. On a server with a large number of recordings an attempt to return every recording in a single response can cause a large amount of load on the server and therefore it is advised that this property be switched to `false`. When this is done any request to `getRecordings` that does not specify any recording or meeting IDs as well as no pagination parameters will return no recordings to prevent all recordings from being returned. 
+In 2.6.x a new configuration property, `allowFetchAllRecordings`, was added to `bigbluebutton.properties`. This property determines whether every recording on the server can be returned in a single response from a `getRecordings` call. By default this property is set to `true`. On a server with a large number of recordings an attempt to return every recording in a single response can cause a large amount of load on the server and therefore it is advised that this property be switched to `false`. When this is done any request to `getRecordings` that does not specify any recording or meeting IDs as well as no pagination parameters will return no recordings to prevent all recordings from being returned.
 
 #### Increase the number of recording workers
 
@@ -304,7 +304,7 @@ In 2.6.x a new configuration property, `allowFetchAllRecordings`, was added to `
 > **Warning**
 >
 > If the `defaultKeepEvents` or `meetingKeepEvents` setting in bbb-web is enabled, you must not increase the number of BigBlueButton recording workers. Doing so could result in data loss, as meeting events will not be correctly archived.
-> 
+>
 > For more information, see [BigBlueButton issue #12503](https://github.com/bigbluebutton/bigbluebutton/issues/12503).
 
 Run `systemctl edit bbb-rap-resque-worker.service`, and insert the following into the editor, replacing the number with the desired number of recordings to process concurrently.
@@ -685,7 +685,7 @@ After making them modification, restart your server with `sudo bbb-conf --restar
 
 #### Turn off "you are now muted"
 
-You can remove this sound for all users by editing `/opt/freeswitch/etc/freeswitch/autoload_configs/conference.conf.xml` and moving the lines containing `muted-sound` and `unmuted-sound` into the commented section.
+When using audio through FreeSWITCH and/or mediasoup, you can remove this sound for all users by editing `/opt/freeswitch/etc/freeswitch/autoload_configs/conference.conf.xml` and moving the lines containing `muted-sound` and `unmuted-sound` into the commented section.
 
 ```xml
     <profile name="cdquality">
@@ -725,6 +725,16 @@ You can remove this sound for all users by editing `/opt/freeswitch/etc/freeswit
 
     </profile>
 ```
+
+If you're using audio through LiveKit, you can turn off the mute sound via /etc/bigbluebutton/bbb-html5.yml:
+```
+public:
+  app:
+    defaultSettings:
+      application:
+        muteUnmuteAudioAlerts: false
+```
+Afterwards, restart bbb-apps-akka: `$ sudo systemctl restart bbb-apps-akka`.
 
 #### Enable background music when only one person is in a session
 
@@ -1408,7 +1418,7 @@ Restart BigBlueButton with `sudo bbb-conf --restart` and you should now see the 
 
 To use gladia.io for automatic speech-to-text transcriptions, you first need to obtain an API key from [gladia.io](https://www.gladia.io).  You can sign up for free credentials to test the integration.
 
-Next, you must be using BigBlueButton 2.7.4+ (pass `-v focal-270`) or BigBlueButton 3.0.0-alpha.7+ (pass `-v jammy-300`) or later on a BigBlueButton server with a public IP and hostname.  
+Next, you must be using BigBlueButton 2.7.4+ (pass `-v focal-270`) or BigBlueButton 3.0.0-alpha.7+ (pass `-v jammy-300`) or later on a BigBlueButton server with a public IP and hostname.
 
 Once you have BigBlueButton installed, run `sudo apt install bbb-transcription-controller` to install BigBlueButton's transcription service which supports gladia.io.
 
@@ -1510,7 +1520,7 @@ Useful tools for development:
 | `userdata-bbb_skip_echotest_if_previous_device=` | (Introduced in BigBlueButton 3.0) If set to `true`, the user will not see the "echo test" if session has valid input/output devices stored previously | `false`       |
 | `userdata-bbb_override_default_locale=`        | (Introduced in BigBlueButton 2.3) If set to `de`, the user's browser preference will be ignored - the client will be shown in 'de' (i.e. German) regardless of the otherwise preferred locale 'en' (or other)                                                                                                                   | `null`        |
 | `userdata-bbb_direct_leave_button` | (Introduced in BigBlueButton 2.7) If set to `true` it will make a button to leave the meeting appear to the left of the Options menu. | `false`  |
-| `userdata-bbb_parent_room_moderator=` | (Introduced in BigBlueButton 3.0) Only used in breakouts: if set to `true`, user will have permission to kick other users inside the breakout | `false`                                                                      
+| `userdata-bbb_parent_room_moderator=` | (Introduced in BigBlueButton 3.0) Only used in breakouts: if set to `true`, user will have permission to kick other users inside the breakout | `false`
 | `userdata-bbb_record_permission=` | (Introduced in BigBlueButton 3.0) If set to `true`, the user will be able to control the recording start/stop. If set to `false`, the user will not be allowed to control the recording start/stop even if their role is moderator. Otherwise only moderators will have the control (default).                                                                                                                   | `null`        |
 | `userdata-bbb_record_permission_tooltip=` | (Introduced in BigBlueButton 3.0) If set, the tooltip of the recording indicator shown when the user don't have permission to record will be replaced by its content.                                                                                                                   | `null`        |
 | `userdata-bbb_show_session_details_on_join=` | (Introduced in BigBlueButton 3.0) If set to `false` , the session details window will not be displayed when a user joins the session.                                                                                                                   | `null`        |

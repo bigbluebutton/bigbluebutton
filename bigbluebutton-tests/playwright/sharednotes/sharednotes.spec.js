@@ -5,8 +5,8 @@ const { initializePages } = require('../core/helpers');
 test.describe.parallel('Shared Notes', { tag: '@ci' }, () => {
   const sharedNotes = new SharedNotes();
 
-  test.beforeEach(async ({ browser }) => {
-    await initializePages(sharedNotes, browser, { isMultiUser: true });
+  test.beforeEach(async ({ browser }, testInfo) => {
+    await initializePages(sharedNotes, browser, { isMultiUser: true, testInfo });
   });
 
   test('Open shared notes', async () => {

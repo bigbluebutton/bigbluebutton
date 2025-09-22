@@ -6,8 +6,8 @@ const { initializePages } = require('../core/helpers');
 test.describe.parallel('Learning Dashboard', { tag: '@ci' } , async () => {
   const learningDashboard = new LearningDashboard();
 
-  test.beforeEach(async ({ browser }) => {
-    await initializePages(learningDashboard, browser, { createParameter: c.recordMeeting });
+  test.beforeEach(async ({ browser }, testInfo) => {
+    await initializePages(learningDashboard, browser, { createParameter: c.recordMeeting, testInfo });
     await learningDashboard.getDashboardPage();
   });
 
@@ -19,8 +19,8 @@ test.describe.parallel('Learning Dashboard', { tag: '@ci' } , async () => {
     await learningDashboard.userTimeOnMeeting();
   });
 
-  test('Polls', { tag: '@flaky' }, async () => {
-    await learningDashboard.initUserPage(true, learningDashboard.modPage.context, { isRecording: true });
+  test('Polls', { tag: '@flaky' }, async ({}, testInfo) => {
+    await learningDashboard.initUserPage(true, learningDashboard.modPage.context, { isRecording: true, testInfo });
     await learningDashboard.polls();
   });
 
@@ -32,7 +32,7 @@ test.describe.parallel('Learning Dashboard', { tag: '@ci' } , async () => {
     await learningDashboard.overview();
   });
 
-  test('Download Session Learning Dashboard', async ({}, testInfo) => {
-    await learningDashboard.downloadSessionLearningDashboard(testInfo);
+  test('Download Session Learning Dashboard', async () => {
+    await learningDashboard.downloadSessionLearningDashboard();
   });  
 });

@@ -11,7 +11,7 @@ const config = {
   ],
   reportSlowTests: null,
   forbidOnly: CI,
-  fullyParallel: true,
+  globalSetup: require.resolve('./global-setup.js'),
   use: {
     headless: true,
     trace: 'on',

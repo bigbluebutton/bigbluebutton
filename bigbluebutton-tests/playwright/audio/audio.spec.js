@@ -5,8 +5,8 @@ const { initializePages } = require('../core/helpers');
 test.describe.parallel('Audio', { tag: '@ci' }, () => {
   const audio = new Audio();
 
-  test.beforeEach(async ({ browser }) => {
-    await initializePages(audio, browser, { isMultiUser: true });
+  test.beforeEach(async ({ browser }, testInfo) => {
+    await initializePages(audio, browser, { isMultiUser: true, testInfo });
   });
 
   // https://docs.bigbluebutton.org/3.0/testing/release-testing/#listen-only-mode-automated

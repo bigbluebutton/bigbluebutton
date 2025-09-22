@@ -15,9 +15,10 @@ import (
 	"bbb-graphql-middleware/internal/hasura/retransmiter"
 	"bbb-graphql-middleware/internal/msgpatch"
 
+	"github.com/coder/websocket"
+
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
-	"nhooyr.io/websocket"
 )
 
 // HasuraConnectionReader consumes messages from Hasura connection and add send to the browser channel
@@ -173,7 +174,7 @@ func handleMessageReceivedFromHasura(hc *common.HasuraConnection, message []byte
 		}
 
 		// Forward the message to browser
-		hc.BrowserConn.FromHasuraToBrowserChannel.Send(message)
+		hc.BrowserConn.FromHasuraToBrowserChannel.SendWait(hc.Context, message)
 	}
 }
 
@@ -236,7 +237,7 @@ func handleConnectionAckMessage(hc *common.HasuraConnection, message []byte) {
 
 	// Avoid to send `connection_ack` to the browser when it's a reconnection
 	if hc.BrowserConn.ConnAckSentToBrowser == false {
-		hc.BrowserConn.FromHasuraToBrowserChannel.Send(message)
+		hc.BrowserConn.FromHasuraToBrowserChannel.SendWait(hc.Context, message)
 		hc.BrowserConn.ConnAckSentToBrowser = true
 	}
 

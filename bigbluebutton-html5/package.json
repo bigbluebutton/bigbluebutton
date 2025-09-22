@@ -37,7 +37,7 @@
   "dependencies": {
     "@apollo/client": "^3.10.4",
     "@babel/runtime": "^7.26.10",
-    "@bigbluebutton/tldraw": "^2.0.0-alpha.30",
+    "@bigbluebutton/tldraw": "^2.0.0-alpha.31",
     "@browser-bunyan/console-formatted-stream": "^1.8.0",
     "@browser-bunyan/console-raw-stream": "^1.8.0",
     "@browser-bunyan/levels": "^1.8.0",
@@ -56,7 +56,6 @@
     "@types/ramda": "^0.29.2",
     "@types/react": "^18.2.18",
     "autoprefixer": "^10.4.4",
-    "axios": "^1.8.3",
     "babel-runtime": "~6.26.0",
     "bigbluebutton-html-plugin-sdk": "0.0.94",
     "bowser": "^2.12.0",

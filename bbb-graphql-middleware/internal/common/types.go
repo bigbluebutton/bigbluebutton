@@ -7,10 +7,9 @@ import (
 	"sync"
 	"time"
 
+	"github.com/coder/websocket"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/time/rate"
-
-	"nhooyr.io/websocket"
 )
 
 type QueryType string
