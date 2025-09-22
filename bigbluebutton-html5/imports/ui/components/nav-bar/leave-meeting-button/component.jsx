@@ -23,6 +23,14 @@ const intlMessages = defineMessages({
     id: 'app.navBar.optionsDropdown.leaveSessionDesc',
     description: 'Describes leave session option',
   },
+  returnToMainRoomLabel: {
+    id: 'app.navBar.optionsDropdown.returnToMainRoomLabel',
+    description: 'Go back to the main room label',
+  },
+  returnToMainRoomDesc: {
+    id: 'app.navBar.optionsDropdown.returnToMainRoomDesc',
+    description: 'Describes option to return to the main room',
+  },
   endMeetingLabel: {
     id: 'app.navBar.optionsDropdown.endMeetingForAllLabel',
     description: 'End meeting button label',
@@ -91,16 +99,18 @@ class LeaveMeetingButton extends PureComponent {
     this.menuItems = [];
 
     if (allowLogoutSetting && connected) {
-      this.menuItems.push(
-        {
-          key: 'list-item-logout',
-          dataTest: 'directLogoutButton',
-          icon: 'logout',
-          label: intl.formatMessage(intlMessages.leaveSessionLabel),
-          description: intl.formatMessage(intlMessages.leaveSessionDesc),
-          onClick: () => this.leaveSession(),
-        },
-      );
+      this.menuItems.push({
+        key: isBreakoutRoom ? 'list-item-return-main-room' : 'list-item-logout',
+        dataTest: isBreakoutRoom ? 'returnToMainRoomButton' : 'directLogoutButton',
+        icon: isBreakoutRoom ? 'undo' : 'logout',
+        label: intl.formatMessage(isBreakoutRoom
+          ? intlMessages.returnToMainRoomLabel
+          : intlMessages.leaveSessionLabel),
+        description: intl.formatMessage(isBreakoutRoom
+          ? intlMessages.returnToMainRoomDesc
+          : intlMessages.leaveSessionDesc),
+        onClick: () => this.leaveSession(),
+      });
     }
 
     if (allowedToEndMeeting && connected) {
