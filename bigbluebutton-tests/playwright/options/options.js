@@ -162,7 +162,7 @@ class Options extends MultiUsers {
 
   async autoHideWhiteboardToolbar() {
     await this.modPage.waitForSelector(e.whiteboard);
-    await this.modPage.hasElement(e.wbToolbar, 'should display the whiteboard toolbar when meeting stats');
+    await this.modPage.hasElement(e.wbToolbar, 'should display the whiteboard toolbar when meeting starts');
     await this.modPage.closeAllToastNotifications();
 
     const whiteboardLocator = await this.modPage.getLocator(e.whiteboard);
