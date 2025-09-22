@@ -219,7 +219,7 @@
   font-family: 'Resource Han Rounded JA';
   font-style: normal;
   font-weight: 400;
-  src: url('/html5client/fonts/HanRounded/Resource-Han-Rounded-JA-Regular.woff2') format('woff2');
+  src: url('../fonts/HanRounded/Resource-Han-Rounded-JA-Regular.woff2') format('woff2');
   unicode-range:
     U+4E00-9FFF,   /* Common Chinese character */
     U+3000-303F,   /* CJK symbols*/
@@ -233,7 +233,7 @@
   font-family: 'Resource Han Rounded KR';
   font-style: normal;
   font-weight: 400;
-  src: url('/html5client/fonts/HanRounded/Resource-Han-Rounded-KR-Regular.woff2') format('woff2');
+  src: url('../fonts/HanRounded/Resource-Han-Rounded-KR-Regular.woff2') format('woff2');
   unicode-range:
     U+4E00-9FFF,   /* Common Chinese character */
     U+1100-11FF,   /* Hangeul */
@@ -245,7 +245,7 @@
   font-family: 'Resource Han Rounded CN';
   font-style: normal;
   font-weight: 400;
-  src: url('/html5client/fonts/HanRounded/Resource-Han-Rounded-CN-Regular.woff2') format('woff2');
+  src: url('../fonts/HanRounded/Resource-Han-Rounded-CN-Regular.woff2') format('woff2');
   unicode-range:
     U+4E00-9FFF,   /* Common Chinese character */
     U+3400-4DBF,   /* CJK extended A */
@@ -256,7 +256,7 @@
   font-family: 'Resource Han Rounded TW';
   font-style: normal;
   font-weight: 400;
-  src: url('/html5client/fonts/HanRounded/Resource-Han-Rounded-TW-Regular.woff2') format('woff2');
+  src: url('../fonts/HanRounded/Resource-Han-Rounded-TW-Regular.woff2') format('woff2');
   unicode-range:
   U+4E00-9FFF,   /* Common Chinese character */
   U+3400-4DBF,   /* CJK extended A */
