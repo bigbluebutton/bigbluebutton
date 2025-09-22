@@ -200,6 +200,7 @@ const WhiteboardContainer = (props) => {
   };
 
   const removeShapes = (shapeIds) => {
+    if (!isPresenter && !isModerator) return;
     presentationDeleteAnnotations({
       variables: {
         pageId: curPageIdRef.current,
@@ -555,7 +556,7 @@ const WhiteboardContainer = (props) => {
     typeName: 'shape',
   });
 
-  if (!currentPresentationPage) return null;
+  if (!currentPresentationPage || !currentUser) return null;
 
   return (
     <ErrorBoundaryWithReload>
