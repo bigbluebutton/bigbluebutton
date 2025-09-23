@@ -595,14 +595,14 @@ class Presentation extends PureComponent {
       // when the canvas of tldraw is drawn on the popup,
       //  we will set false to isPopupOnPreparation.
       // Then the notification bar with 3006 error becomes accepted again.
-      const observer = new MutationObserver((mutations, obs) => {
+      const observerTlCanvas = new MutationObserver((mutations, obs) => {
         const tlCanvas = popup.document.querySelector('.tl-canvas');
         if (tlCanvas) {
           onPopupPreparing?.(false);
           obs.disconnect();
         }
       });
-      observer.observe(popup.document.body, { childList: true, subtree: true });
+      observerTlCanvas.observe(popup.document.body, { childList: true, subtree: true });
         
     } else {
       // to explicitely exit fullsreen; we do not need setState "isFullscreen: false".
