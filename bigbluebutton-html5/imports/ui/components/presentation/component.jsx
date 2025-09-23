@@ -1199,23 +1199,20 @@ class Presentation extends PureComponent {
 
     const presentationContent = this.renderPresentationContents();
 
-    return (
-      <>
-        {isPresentationDetached && /*popupContainer &&*/ popupWindow?.document?.head
-            ?  ReactDOM.createPortal(
-                /* Use StyleSheetManager to inject dynamic stylesheet elements of styled component */
-                /*  such as isToolbarVisible of Styled.TldrawV2GlobalStyle in whiteboard/styles.js */
-                <StyleSheetManager
-                  target={popupWindow.document.head}
-                >
-                  {presentationContent}
-                </StyleSheetManager>,
-                /*popupContainer,*/
-                popupWindow.document.body.firstChild,
-              )
-            : presentationContent}
-      </>
-    )
+    if (isPresentationDetached && popupWindow?.document?.head) {
+      return ReactDOM.createPortal(
+        /* Use StyleSheetManager to inject dynamic stylesheet elements of styled component */
+        /*  such as isToolbarVisible of Styled.TldrawV2GlobalStyle in whiteboard/styles.js */
+        <StyleSheetManager
+          target={popupWindow.document.head}
+        >   
+          {presentationContent}
+        </StyleSheetManager>,
+        popupWindow.document.body
+      );
+    }
+    
+    return presentationContent;
   }
 }
 
