@@ -8,12 +8,18 @@ const { env } = require('node:process');
 const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME, VIDEO_LOADING_WAIT_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME } = require('./constants');
 const { checkElement, checkElementLengthEqualTo } = require('./util');
 const { generateSettingsData } = require('./settings');
+const Logger = require('./logger');
 
 class Page {
-  constructor(browser, page) {
+  constructor(browser, page, testInfo = null) {
     this.browser = browser;
     this.page = page;
     this.initParameters = Object.assign({}, parameters);
+    this.logger = new Logger(this);
+    this.testInfo = testInfo || null;
+    if (testInfo) {
+      this.logger.setTestInfo(testInfo);
+    }
     try {
       this.context = page.context();
     } catch { } // page doesn't have context - likely an iframe
@@ -25,11 +31,12 @@ class Page {
 
   async getLastTargetPage(context) {
     const contextPages = await context.pages();
-    return new Page(this.browser, contextPages[contextPages.length - 1]);
+    return new Page(this.browser, contextPages[contextPages.length - 1], this.testInfo);
   }
 
   async init(isModerator, shouldCloseAudioModal, initOptions) {
-    const { fullName,
+    const {
+      fullName,
       meetingId,
       createParameter,
       joinParameter,
@@ -38,13 +45,16 @@ class Page {
       skipSessionDetailsModal = true,
       shouldCheckAllInitialSteps,
       shouldAvoidLayoutCheck,
+      forceErrorLogFailure, // TODO remove option once all tests are covered and all tests should fail on error logs
     } = initOptions || {};
 
     if (!isModerator) this.initParameters.moderatorPW = '';
     if (fullName) this.initParameters.fullName = fullName;
-    this.username = this.initParameters.fullName;
 
-    if (env.CONSOLE !== undefined) await helpers.setBrowserLogs(this.page);
+    this.username = this.initParameters.fullName;
+    this.isModerator = isModerator;
+
+    await helpers.setBrowserLogs(this, forceErrorLogFailure);
 
     this.meetingId = (meetingId) ? meetingId : await helpers.createMeeting(parameters, createParameter, customMeetingId);
     const joinUrl = helpers.getJoinURL(this.meetingId, this.initParameters, isModerator, joinParameter, skipSessionDetailsModal);
@@ -374,7 +384,7 @@ class Page {
     const iframeElement = await this.getLocator('iframe').elementHandle();
     const frame = await iframeElement.contentFrame();
     await frame.waitForURL(/youtube/, { timeout: ELEMENT_WAIT_TIME });
-    const ytFrame = new Page(this.page.browser, frame);
+    const ytFrame = new Page(this.page.browser, frame, this.testInfo);
     return ytFrame;
   }
 }

@@ -252,13 +252,13 @@ create view "v_meeting_group" as select * from meeting_group;
 CREATE UNLOGGED TABLE "user" (
     "meetingId" varchar(100) references "meeting"("meetingId") ON DELETE CASCADE,
 	"userId" varchar(50) NOT NULL,
-	"extId" varchar(50),
-	"name" varchar(255),
-	"firstName" varchar(255),
-	"lastName" varchar(255),
+	"extId" text,
+	"name" text,
+	"firstName" text,
+	"lastName" text,
 	"role" varchar(20),
-	"avatar" varchar(500),
-    "webcamBackground" varchar(500),
+	"avatar" text,
+    "webcamBackground" text,
 	"color" varchar(7),
     "authToken" varchar(50),
     "authed" bool,
@@ -274,7 +274,7 @@ CREATE UNLOGGED TABLE "user" (
     "registeredOn" bigint,
     "excludeFromDashboard" bool,
     "enforceLayout" varchar(50),
-    "logoutUrl" varchar(500),
+    "logoutUrl" text,
     --columns of user state below
     "raiseHand" bool default false,
     "raiseHandTime" timestamp with time zone,
@@ -373,9 +373,9 @@ WHEN (OLD."joined" IS DISTINCT FROM NEW."joined")
 EXECUTE FUNCTION "set_user_firstJoinedAt_trigger_func"();
 
 --Used to sort the Userlist
-ALTER TABLE "user" ADD COLUMN "nameSortable" varchar(255) GENERATED ALWAYS AS (trim(remove_emojis(immutable_lower_unaccent("name")))) STORED;
-ALTER TABLE "user" ADD COLUMN "firstNameSortable" varchar(255) GENERATED ALWAYS AS (trim(remove_emojis(immutable_lower_unaccent("firstName")))) STORED;
-ALTER TABLE "user" ADD COLUMN "lastNameSortable" varchar(255) GENERATED ALWAYS AS (trim(remove_emojis(immutable_lower_unaccent("lastName")))) STORED;
+ALTER TABLE "user" ADD COLUMN "nameSortable" text GENERATED ALWAYS AS (trim(remove_emojis(immutable_lower_unaccent("name")))) STORED;
+ALTER TABLE "user" ADD COLUMN "firstNameSortable" text GENERATED ALWAYS AS (trim(remove_emojis(immutable_lower_unaccent("firstName")))) STORED;
+ALTER TABLE "user" ADD COLUMN "lastNameSortable" text GENERATED ALWAYS AS (trim(remove_emojis(immutable_lower_unaccent("lastName")))) STORED;
 
 ALTER TABLE "user" ADD COLUMN "isModerator" boolean GENERATED ALWAYS AS (CASE WHEN "role" = 'MODERATOR' THEN true ELSE false END) STORED;
 ALTER TABLE "user" ADD COLUMN "currentlyInMeeting" boolean GENERATED ALWAYS AS (

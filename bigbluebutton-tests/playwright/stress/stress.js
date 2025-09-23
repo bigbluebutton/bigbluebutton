@@ -7,8 +7,8 @@ const { checkIsPresenter } = require('../user/util');
 const { createMeeting } = require('../core/helpers');
 
 class Stress {
-  constructor(browser, context, page) {
-    this.modPage = new Page(browser, page);
+  constructor(browser, context, page, testInfo) {
+    this.modPage = new Page(browser, page, testInfo);
     this.browser = browser;
     this.context = context;
     this.userPages = [];
@@ -44,8 +44,8 @@ class Stress {
     for (let i = 1; i <= c.BREAKOUT_ROOM_INVITATION_TEST_ROUNDS; i++) {
       const userName = `User-${i}`;
       const newPage = await this.getNewPageTab();
-      const userPage = new Page(this.browser, newPage);
-      await userPage.init(false, true, { fullName: userName, meetingId: this.modPage.meetingId });
+      const userPage = new Page(this.browser, newPage, this.modPage.testInfo);
+      await userPage.init(false, true, { fullName: userName, meetingId: this.modPage.meetingId, testInfo: this.modPage.testInfo });
       console.log(`${userName} joined`);
       this.userPages.push(userPage);
     }
@@ -85,8 +85,8 @@ class Stress {
     for (let i = 1; i <= c.JOIN_TWO_USERS_ROUNDS; i++) {
       console.log(`loop ${i} of ${c.JOIN_TWO_USERS_ROUNDS}`);
       const meetingId = await createMeeting(parameters);
-      const modPage = new Page(this.browser, await this.getNewPageTab());
-      const userPage = new Page(this.browser, await this.getNewPageTab());
+      const modPage = new Page(this.browser, await this.getNewPageTab(), this.modPage.testInfo);
+      const userPage = new Page(this.browser, await this.getNewPageTab(), this.modPage.testInfo);
       await Promise.all([
         modPage.init(true, false, { meetingId }),
         userPage.init(false, false, { meetingId }),
@@ -104,8 +104,8 @@ class Stress {
 
     for (let i = 1; i <= c.JOIN_TWO_USERS_KEEPING_CONNECTED_ROUNDS / 2; i++) {
       console.log(`joining ${i * 2} users of ${c.JOIN_TWO_USERS_KEEPING_CONNECTED_ROUNDS}`);
-      const modPage = new Page(this.browser, await this.getNewPageTab());
-      const userPage = new Page(this.browser, await this.getNewPageTab());
+      const modPage = new Page(this.browser, await this.getNewPageTab(), this.modPage.testInfo);
+      const userPage = new Page(this.browser, await this.getNewPageTab(), this.modPage.testInfo);
       pages.push(modPage);
       pages.push(userPage);
       await Promise.all([
@@ -121,7 +121,7 @@ class Stress {
     })
   }
 
-  async usersJoinExceddingParticipantsLimit() {
+  async usersJoinExceedingParticipantsLimit() {
     for (let i = 1; i <= c.JOIN_TWO_USERS_EXCEEDING_MAX_PARTICIPANTS; i++) {
       console.log(`loop ${i} of ${c.JOIN_TWO_USERS_EXCEEDING_MAX_PARTICIPANTS}`);
 
@@ -129,7 +129,7 @@ class Stress {
       const meetingId = await createMeeting(parameters, `maxParticipants=${c.MAX_PARTICIPANTS_TO_JOIN}`);
 
       for (let j = 1; j <= c.MAX_PARTICIPANTS_TO_JOIN + 1; j++) {
-        pages.push(new Page(this.browser, await this.getNewPageTab()));
+        pages.push(new Page(this.browser, await this.getNewPageTab(), this.modPage.testInfo));
       }
 
       for (let j = 1; j < c.MAX_PARTICIPANTS_TO_JOIN; j++) {

@@ -7,8 +7,8 @@ test.describe('Layout', { tag: '@ci' }, () => {
   const layouts = new Layouts();
 
   test.describe.configure({ mode: fullyParallel ? 'parallel' : 'serial' });
-  test[fullyParallel ? 'beforeEach' : 'beforeAll'](async ({ browser }) => {
-    await initializePages(layouts, browser, { isMultiUser: true });
+  test[fullyParallel ? 'beforeEach' : 'beforeAll'](async ({ browser }, testInfo) => {
+    await initializePages(layouts, browser, { isMultiUser: true, testInfo });
     await layouts.modPage.shareWebcam();
     await layouts.userPage.shareWebcam();
   });

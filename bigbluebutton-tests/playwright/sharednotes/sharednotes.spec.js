@@ -7,8 +7,8 @@ test.describe('Shared Notes', { tag: '@ci' }, () => {
   const sharedNotes = new SharedNotes();
 
   test.describe.configure({ mode: fullyParallel ? 'parallel' : 'serial' });
-  test[fullyParallel ? 'beforeEach' : 'beforeAll'](async ({ browser }) => {
-    await initializePages(sharedNotes, browser, { isMultiUser: true });
+  test[fullyParallel ? 'beforeEach' : 'beforeAll'](async ({ browser }, testInfo) => {
+    await initializePages(sharedNotes, browser, { isMultiUser: true, testInfo });
   });
 
   test('Open shared notes', async () => {

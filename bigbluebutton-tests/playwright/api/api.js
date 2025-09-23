@@ -13,10 +13,11 @@ function getMeetingInfo(meetingID) {
 }
 
 class API {
-  constructor(browser, context, page) {
-    this.modPage = new Page(browser, page);
+  constructor(browser, context, page, testInfo = null) {
+    this.modPage = new Page(browser, page, testInfo);
     this.browser = browser;
     this.context = context;
+    this.testInfo = testInfo || null;
     this.userPages = [];
   }
 
@@ -26,8 +27,8 @@ class API {
 
   async testGetMeetings() {
     const meetingId = await createMeeting(parameters);
-    const modPage = new Page(this.browser, await this.getNewPageTab());
-    const userPage = new Page(this.browser, await this.getNewPageTab());
+    const modPage = new Page(this.browser, await this.getNewPageTab(), this.testInfo);
+    const userPage = new Page(this.browser, await this.getNewPageTab(), this.testInfo);
     await Promise.all([
       modPage.init(true, false, { meetingId, fullName: 'Moderator' }),
       userPage.init(false, false, { meetingId, fullName: 'Attendee' }),
@@ -73,8 +74,8 @@ class API {
 
   async testGetMeetingInfo() {
     const meetingId = await createMeeting(parameters);
-    const modPage = new Page(this.browser, await this.getNewPageTab());
-    const userPage = new Page(this.browser, await this.getNewPageTab());
+    const modPage = new Page(this.browser, await this.getNewPageTab(), this.testInfo);
+    const userPage = new Page(this.browser, await this.getNewPageTab(), this.testInfo);
     await Promise.all([
       modPage.init(true, false, { meetingId, fullName: 'Moderator' }),
       userPage.init(false, false, { meetingId, fullName: 'Attendee' }),

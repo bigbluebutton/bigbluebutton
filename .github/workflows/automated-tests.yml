@@ -348,6 +348,12 @@ jobs:
         with:
           name: test-report_shard-${{ matrix.shard }}
           path: bigbluebutton-tests/playwright/playwright-report
+      - if: always()
+        name: Upload logs folder
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-logs-${{ matrix.shard }}
+          path: bigbluebutton-tests/playwright/logs
       - if: failure()
         name: Prepare artifacts
         uses: ./.github/actions/prepare-artifacts
@@ -549,6 +555,13 @@ jobs:
         with:
           name: test-report_plugins
           path: bigbluebutton-tests/bigbluebutton-html-plugin-sdk/playwright-report
+      - if: always()
+        name: Upload logs folder
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-logs-plugin
+          path: bigbluebutton-tests/bigbluebutton-html-plugin-sdk/logs
+          if-no-files-found: ignore
       - if: failure()
         name: Prepare artifacts
         uses: ./.github/actions/prepare-artifacts

@@ -640,6 +640,7 @@
     "app.submenu.notification.userJoinLabel": "Kasutaja liitumine",
     "app.submenu.notification.userLeaveLabel": "Kasutaja lahkumine",
     "app.submenu.notification.guestWaitingLabel": "Külaline ootab heakskiitu",
+    "app.submenu.notification.muteUnmuteLabel": "Sulge/Ava mikrofon",
     "app.submenu.audio.micSourceLabel": "Mikrofon",
     "app.submenu.audio.speakerSourceLabel": "Kõlar",
     "app.submenu.audio.streamVolumeLabel": "Audiovoo helitugevus",
