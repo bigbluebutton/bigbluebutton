@@ -195,7 +195,7 @@ const UserActions: React.FC<UserActionProps> = (props) => {
         label: intl.formatMessage(intlMessages[`${isFocusedIntlKey}Label`]),
         description: intl.formatMessage(intlMessages[`${isFocusedIntlKey}Desc`]),
         onClick: () => onHandleVideoFocus?.(cameraId),
-        dataTest: 'FocusWebcamBtn',
+        dataTest: !focused ? 'focusWebcamBtn' : 'unfocusWebcamBtn',
       });
     }
 

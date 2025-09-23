@@ -47,7 +47,7 @@ The BigBlueButton source code is at [https://github.com/bigbluebutton/bigbluebut
 
 ### What is the open source license used in BigBlueButton?
 
-We use the LGPL license Version 3.0. Some of the open source components we build on use different licenses, such as red5phone uses the GPL license.
+We use the LGPL license Version 3.0.
 
 ### Will BigBlueButton always stay open source?
 

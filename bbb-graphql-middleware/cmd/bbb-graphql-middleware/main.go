@@ -1,16 +1,19 @@
 package main
 
 import (
-	"bbb-graphql-middleware/config"
-	"bbb-graphql-middleware/internal/common"
-	"bbb-graphql-middleware/internal/websrv"
 	"context"
 	"errors"
 	"fmt"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
-	log "github.com/sirupsen/logrus"
 	"net/http"
 	"time"
+
+	"bbb-graphql-middleware/config"
+	"bbb-graphql-middleware/internal/common"
+	"bbb-graphql-middleware/internal/websrv"
+
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+	log "github.com/sirupsen/logrus"
+	"golang.org/x/time/rate"
 )
 
 func main() {
@@ -45,7 +48,8 @@ func main() {
 
 	// Websocket listener
 
-	rateLimiter := common.NewCustomRateLimiter(cfg.Server.MaxConnectionsPerSecond)
+	rateLimiter := rate.NewLimiter(rate.Limit(cfg.Server.MaxConnectionsPerSecond), cfg.Server.MaxConnectionsPerSecond)
+
 	http.HandleFunc("/graphql", func(w http.ResponseWriter, r *http.Request) {
 		ctx, cancel := context.WithTimeout(r.Context(), 120*time.Second)
 		defer cancel()

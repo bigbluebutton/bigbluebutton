@@ -19,8 +19,11 @@
 
 package org.bigbluebutton.presentation;
 
+import org.bigbluebutton.presentation.imp.PageToConvert;
+
 import java.io.File;
 
 public interface ThumbnailCreator {
 	public boolean createThumbnail(UploadedPresentation pres, int page, File pageFile);
+	public void createBlank(UploadedPresentation pres, int page);
 }

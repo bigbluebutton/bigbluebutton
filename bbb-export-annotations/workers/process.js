@@ -18,6 +18,7 @@ import {TextShape} from '../shapes/TextShape.js';
 import {StickyNote} from '../shapes/StickyNote.js';
 import {createGeoObject} from '../shapes/geoFactory.js';
 import {Frame} from '../shapes/Frame.js';
+import {Poll} from '../shapes/Poll.js';
 
 const jobId = workerData.jobId;
 const logger = new Logger('presAnn Process Worker');
@@ -166,6 +167,19 @@ function overlayFrame(svg, annotation) {
 }
 
 /**
+ * Adds a poll shape to the canvas.
+ * @function overlayPoll
+ * @param {Object} svg - The SVG element where the poll will be added.
+ * @param {Object} annotation - JSON poll data.
+ * @return {void}
+ */
+function overlayPoll(svg, annotation) {
+  const pollShape = new Poll(annotation);
+  const poll = pollShape.draw();
+  svg.add(poll);
+}
+
+/**
  * Determines the annotation type and overlays the corresponding shape
  * onto the SVG element. It delegates the rendering to the specific
  * overlay function based on the annotation type.
@@ -200,6 +214,9 @@ export function overlayAnnotation(svg, annotation) {
         break;
       case 'frame':
         overlayFrame(svg, annotation);
+        break;
+      case 'poll':
+        overlayPoll(svg, annotation);
         break;
       default:
         logger.info(`Unknown annotation type ${annotation.type}.`);

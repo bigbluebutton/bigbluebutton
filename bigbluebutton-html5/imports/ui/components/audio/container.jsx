@@ -254,7 +254,10 @@ const AudioContainer = (props) => {
   useEffect(() => {
     if (Service.isConnected() && !Service.isListenOnly()) {
       if (userLocks.userMic && !currentUserMuted) {
-        toggleMuteMicrophone(!currentUserMuted, toggleVoice);
+        toggleMuteMicrophone(
+          !currentUserMuted,
+          toggleVoice,
+        );
         notify(intl.formatMessage(intlMessages.reconectingAsListener), 'info', 'volume_level_2');
       }
     }
@@ -262,12 +265,12 @@ const AudioContainer = (props) => {
 
   return (
     <>
-      {isAudioModalOpen ? (
+      {isAudioModalOpen && !isVideoPreviewModalOpen ? (
         <AudioModalContainer
           {...{
             priority: 'medium',
             setIsOpen: setAudioModalIsOpen,
-            isOpen: isAudioModalOpen,
+            isOpen: isAudioModalOpen && !isVideoPreviewModalOpen,
           }}
         />
       ) : null}

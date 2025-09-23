@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import Resizable from 're-resizable';
+import { Resizable } from 're-resizable';
 import Draggable, { DraggableEvent } from 'react-draggable';
 import { useVideoStreams } from '/imports/ui/components/video-provider/hooks';
 import {

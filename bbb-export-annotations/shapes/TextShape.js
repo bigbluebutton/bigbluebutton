@@ -1,4 +1,4 @@
-import {Text} from '@svgdotjs/svg.js';
+import {Text, Tspan} from '@svgdotjs/svg.js';
 import {Shape} from './Shape.js';
 
 /**
@@ -42,7 +42,6 @@ export class TextShape extends Shape {
 
     const textGroup = this.shapeGroup;
     const textElement = new Text()
-        .text(this.text)
         .attr({'xml:space': 'preserve'})
         .move(x, y)
         .font({
@@ -52,6 +51,19 @@ export class TextShape extends Shape {
           'alignment-baseline': 'middle',
         })
         .fill(this.shapeColor);
+
+    const lines = this.wrapText(this.text ?? '', this.w ?? 200);
+
+    lines.forEach((line, idx) => {
+      const tspan = new Tspan()
+          .text(line)
+          .attr({
+            x,
+            dy: idx === 0 ? 0 : this.fontSize,
+          });
+
+      textElement.add(tspan);
+    });
 
     textGroup.add(textElement);
 

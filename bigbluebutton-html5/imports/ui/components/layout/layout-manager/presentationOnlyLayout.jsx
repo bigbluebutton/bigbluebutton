@@ -365,7 +365,7 @@ const PresentationOnlyLayout = (props) => {
               },
             },
             cameraDock: {
-              numCameras: 0,
+              numCameras: prevInput.cameraDock.numCameras,
             },
             externalVideo: {
               hasExternalVideo: externalVideo.hasExternalVideo,

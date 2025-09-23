@@ -208,6 +208,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[SetUserTalkingReqMsg](envelope, jsonNode)
       case MuteUserCmdMsg.NAME =>
         routeGenericMsg[MuteUserCmdMsg](envelope, jsonNode)
+      case SetUserListenOnlyInputCmdMsg.NAME =>
+        routeGenericMsg[SetUserListenOnlyInputCmdMsg](envelope, jsonNode)
       case DeafenUserCmdMsg.NAME =>
         routeGenericMsg[DeafenUserCmdMsg](envelope, jsonNode)
       case MuteAllExceptPresentersCmdMsg.NAME =>
@@ -343,6 +345,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[PresentationUploadedFileScanFailedErrorSysPubMsg](envelope, jsonNode)
       case PresentationConversionUpdateSysPubMsg.NAME =>
         routeGenericMsg[PresentationConversionUpdateSysPubMsg](envelope, jsonNode)
+      case PresentationConversionStartedSysPubMsg.NAME =>
+        routeGenericMsg[PresentationConversionStartedSysPubMsg](envelope, jsonNode)
       case PresentationPageCountErrorSysPubMsg.NAME =>
         routeGenericMsg[PresentationPageCountErrorSysPubMsg](envelope, jsonNode)
       case PresentationPageGeneratedSysPubMsg.NAME =>

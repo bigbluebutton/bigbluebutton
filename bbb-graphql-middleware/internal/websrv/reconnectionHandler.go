@@ -1,8 +1,9 @@
 package websrv
 
 import (
-	log "github.com/sirupsen/logrus"
 	"net/http"
+
+	log "github.com/sirupsen/logrus"
 )
 
 func ReconnectionHandler(w http.ResponseWriter, r *http.Request) {
@@ -19,7 +20,7 @@ func ReconnectionHandler(w http.ResponseWriter, r *http.Request) {
 
 	reason := r.URL.Query().Get("reason")
 
-	log.Infof("Reconnection request received for sessionToken: %s, reason: %s", sessionToken, reason)
+	log.Debugf("Reconnection request received for sessionToken: %s, reason: %s", sessionToken, reason)
 
 	go InvalidateSessionTokenHasuraConnections(sessionToken)
 }

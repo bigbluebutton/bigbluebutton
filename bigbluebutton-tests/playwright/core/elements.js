@@ -30,6 +30,8 @@ exports.redirectButton = 'button[data-test="redirectButton"]';
 exports.leaveMeetingDropdown = 'button[data-test="leaveMeetingDropdown"]';
 exports.directLogoutButton = 'li[data-test="directLogoutButton"]';
 exports.optionsLogoutButton = 'li[data-test="optionsLogoutButton"]';
+exports.endMeetingButton = 'li[data-test="endMeetingButton"]';
+exports.confirmEndMeetingButton = 'button[data-test="confirmEndMeeting"]';
 exports.rating = 'div[data-test="rating"]';
 exports.sendFeedbackButton = 'button[data-test="sendFeedbackButton"]';
 exports.feedbackCommentInput = 'textarea#feedbackComment';
@@ -313,6 +315,8 @@ exports.submitAnswersMultiple = 'button[data-test="submitAnswersMultiple"]';
 exports.userVoteLiveResult = 'td[data-test="userVoteLiveResult"]';
 exports.errorNoValueInput = 'div[data-test="errorNoValueInput"]';
 exports.smartSlides1 = 'smartSlidesPresentation.pdf';
+exports.smartSlides2 = 'SmartSlides.pdf';
+
 exports.responsePollQuestion = 'div[data-test="pollQuestion"]';
 const pollAnswersOption = 'div[data-test="optionsAnswers"]';
 exports.firstPollAnswerOptionBtn = `${pollAnswersOption}>>nth=0`;
@@ -320,6 +324,7 @@ exports.secondPollAnswerOptionBtn = `${pollAnswersOption}>>nth=1`;
 exports.firstCheckboxInput = `${pollAnswersOption}`;
 exports.yesNoOption = 'button[data-test="yesNoQuickPoll"]';
 exports.yesNoAbstentionOption = 'li[role="menuitem"]>>nth=1';
+exports.pollAnswerOptionD = 'button[data-test="pollAnswerOption"]>>nth=3';
 exports.pollAnswerOptionE = 'button[data-test="pollAnswerOption"]>>nth=4';
 
 // Presentation
@@ -475,6 +480,7 @@ exports.videoDropdownMenu = 'button[data-test="videoDropdownMenu"]';
 exports.advancedVideoSettingsBtn = 'li[data-test="advancedVideoSettingsButton"]';
 exports.mirrorWebcamBtn = 'li[data-test="mirrorWebcamBtn"]';
 exports.focusWebcamBtn = 'li[data-test="focusWebcamBtn"]';
+exports.unfocusWebcamBtn = 'li[data-test="unfocusWebcamBtn"]';
 exports.pinWebcamBtn = 'li[data-test="pinWebcamBtn"]';
 exports.pinVideoButton = 'button[data-test="pinVideoButton"]';
 exports.webcamsFullscreenButton = 'li[data-test="webcamsFullscreenButton"]';

@@ -2,7 +2,7 @@ const { expect } = require('@playwright/test');
 const { MultiUsers } = require('../user/multiusers');
 const e = require('../core/elements');
 const util = require('./util.js');
-const { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } = require('../core/constants');
+const { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME } = require('../core/constants');
 const { getSettings } = require('../core/settings');
 const { skipSlide } = require('../presentation/util');
 const { sleep } = require('../core/helpers.js');
@@ -167,69 +167,102 @@ class Polling extends MultiUsers {
   }
 
   async smartSlidesQuestions() {
-    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
-    await util.uploadSPresentationForTestingPolls(this.modPage, e.smartSlides1);
-
-    // Type Response
+    await this.modPage.hasElement(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await util.uploadSPresentationForTestingPolls(this.modPage, e.smartSlides2);
+    await this.userPage.hasElement(e.chatMessages, 'should display the chat messages for the attendee');
+    await this.modPage.closeAllToastNotifications();
+    await sleep(10000);
+    
+    // A/B/C/D/E - One option answer
+    await this.modPage.waitAndClick(e.nextSlide);
+    await this.modPage.hasElement(e.quickPoll, 'should display the quick poll button when the presentation finishes uploading', ELEMENT_WAIT_EXTRA_LONG_TIME);
     await this.modPage.waitAndClick(e.quickPoll, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.waitAndClick(e.startPoll);
-    await this.userPage.hasElement(e.responsePollQuestion, 'should display the poll question after quick poll starts');
-    await this.userPage.type(e.pollAnswerOptionInput, 'test');
-    await this.userPage.waitAndClick(e.pollSubmitAnswer);
-    await this.userPage.wasRemoved(e.pollingContainer, 'should not display the polling container after the attendee answer the poll', ELEMENT_WAIT_LONGER_TIME);
-    await this.modPage.hasText(e.userVoteLiveResult, 'test');
-
+    await this.userPage.hasElement(e.pollingContainer, 'should display the poll question after quick poll starts');
+    await this.userPage.waitAndClick(e.pollAnswerOptionE);
+    await this.modPage.hasText(e.userVoteLiveResult, 'E. Gummy bears', 'should display the vote result after the poll is answered');
+    await util.countingVotes(this.modPage, e.userVoteLiveResult, 1, 'E. Gummy bears');
     await this.modPage.waitAndClick(e.publishPollingLabel);
-    await this.modPage.wasRemoved(e.pollingContainer, 'should not display the polling container after the poll be published');
+    await this.modPage.wasRemoved(e.pollingContainer, 'should not display the polling container after the poll is published');
 
-    // Multiple Choices
-    await sleep(500); // avoid error when the tooltip is in front of the button due to layout shift
-    await skipSlide(this.modPage);
-    await this.modPage.waitAndClick(e.quickPoll);
+    // Multiple Choices - Two question marks
+    await this.modPage.waitAndClick(e.nextSlide);
+    await this.modPage.hasText(e.skipSlide, 'Slide 3');
+    await this.modPage.waitAndClick(e.quickPoll, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.waitAndClick(e.startPoll);
+    await this.userPage.hasElement(e.pollingContainer, 'should display the poll question after quick poll starts');
     await this.userPage.waitAndClick(e.firstPollAnswerDescOption);
     await this.userPage.waitAndClick(e.secondPollAnswerDescOption);
     await this.userPage.waitAndClick(e.submitAnswersMultiple);
-    await this.modPage.hasText(e.userVoteLiveResult, 'A) 2222', 'should display the live vote result for the answers after the attendee answer the multiple choices polling ');
-    await this.modPage.hasText(e.userVoteLiveResult, 'B) 3333', 'should display the live vote result for the answers after the attendee answer the multiple choices polling ');
-
+    await this.modPage.hasText(e.userVoteLiveResult, 'A. Sodium', 'should display the live vote result for the awswers after the attende answer the multiple choices polling ');
+    await this.modPage.hasText(e.userVoteLiveResult, 'B. Calcium', 'should display the live vote result for the awswers after the attende answer the multiple choices polling ');
+    await util.countingVotes(this.modPage, e.userVoteLiveResult, 1, 'A. Sodium');
+    await util.countingVotes(this.modPage, e.userVoteLiveResult, 1, 'B. Calcium');
     await this.modPage.waitAndClick(e.publishPollingLabel);
     await this.modPage.wasRemoved(e.pollingContainer, 'should not display the polling container after the poll is published');
-
-    // One option answer
-    await sleep(500); // avoid error when the tooltip is in front of the button due to layout shift
-    await skipSlide(this.modPage);
-    await this.modPage.waitAndClick(e.quickPoll);
-    await this.modPage.waitAndClick(e.startPoll);
-    await this.userPage.waitAndClick(e.pollAnswerOptionE);
-    await this.modPage.hasText(e.userVoteLiveResult, 'E) 22222', 'should display the vote result after the poll is answered');
-
-    await this.modPage.waitAndClick(e.publishPollingLabel);
-    await this.modPage.wasRemoved(e.pollingContainer, 'should not display the polling container after the poll is published');
-
-    // Yes/No/Abstention
-    await sleep(500); // avoid error when the tooltip is in front of the button due to layout shift
-    await skipSlide(this.modPage);
-    await this.modPage.waitAndClick(e.yesNoOption);
-    await this.modPage.waitAndClick(e.yesNoAbstentionOption)
-    await this.modPage.waitAndClick(e.startPoll);
-    await this.userPage.waitAndClick(e.pollAnswerOptionBtn);
-    await this.modPage.hasText(e.userVoteLiveResult, 'Yes', 'should display the vote result after the attendee submit the answer');
-
-    await this.modPage.waitAndClick(e.publishPollingLabel);
-    await this.modPage.wasRemoved(e.pollingContainer);
-
+    
     // True/False
+    await this.modPage.waitAndClick(e.nextSlide);
     await sleep(500); // avoid error when the tooltip is in front of the button due to layout shift
-    await skipSlide(this.modPage);
+    await this.modPage.hasText(e.skipSlide, 'Slide 4');
     await this.modPage.waitAndClick(e.quickPoll);
     await this.modPage.waitAndClick(e.startPoll);
     await this.userPage.waitAndClick(e.pollAnswerOptionBtn);
     await this.modPage.hasText(e.userVoteLiveResult, 'True', 'should display the vote result after the attendee submit the answer');
+    await util.countingVotes(this.modPage, e.userVoteLiveResult, 1, 'True');
     await this.modPage.waitAndClick(e.publishPollingLabel);
+    await this.modPage.wasRemoved(e.pollingContainer, 'should not display the pollling container after all the smart slides questions is finished');
+    
 
-    await this.modPage.hasElementDisabled(e.nextSlide, 'should display the next slide button disabled since the smart slides has finished with all the questions');
-    await this.modPage.wasRemoved(e.pollingContainer, 'should not display the polling container after all the smart slides questions is finished');
+    // Yes/No
+    await this.modPage.waitAndClick(e.nextSlide);
+    await sleep(500); // avoid error when the tooltip is in front of the button due to layout shift
+    await this.modPage.hasText(e.skipSlide, 'Slide 5');
+    await this.modPage.waitAndClick(e.quickPoll);
+    await this.modPage.waitAndClick(e.startPoll);
+    await this.userPage.waitAndClick(e.pollAnswerOptionBtn);
+    await this.modPage.hasText(e.userVoteLiveResult, 'Yes', 'should display the vote result after the attendee submit the answer');
+    await util.countingVotes(this.modPage, e.userVoteLiveResult, 1, 'Yes');
+    await this.modPage.waitAndClick(e.publishPollingLabel);
+    await this.modPage.wasRemoved(e.pollingContainer);
+
+    // Type Response
+    await this.modPage.waitAndClick(e.nextSlide);
+    await this.modPage.hasText(e.skipSlide, 'Slide 6');
+    await this.modPage.waitAndClick(e.quickPoll);
+    await this.modPage.waitAndClick(e.startPoll);
+    await this.userPage.hasElement(e.pollingContainer, 'should display the polling container for the user to answer it');
+    await this.userPage.type(e.pollAnswerOptionInput, e.answerMessage);
+    await this.userPage.waitAndClick(e.pollSubmitAnswer);
+    await this.modPage.hasText(e.userVoteLiveResult, e.answerMessage, 'should display the answer sent by the attendee');
+    await util.countingVotes(this.modPage, e.userVoteLiveResult, 1, 'All good!');
+    await this.modPage.waitAndClick(e.publishPollingLabel);
+    await this.modPage.wasRemoved(e.pollingContainer, 'should close the polling container after publishing the label');
+
+    // Hiding pools - Poll anywhere in the slide
+    await this.modPage.selectSlide('Slide 8');
+    await this.modPage.hasElement(e.quickPoll, 'should display the quick poll button when the presentation finishes uploading');
+    await this.modPage.waitAndClick(e.quickPoll, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.waitAndClick(e.startPoll);
+    await this.userPage.hasElement(e.pollingContainer, 'should display the poll question after quick poll starts');
+    await this.userPage.waitAndClick(e.pollAnswerOptionD);
+    await this.modPage.hasText(e.userVoteLiveResult, 'D. Very confident', 'should display the vote result after the poll is answered');
+    await util.countingVotes(this.modPage, e.userVoteLiveResult, 1, 'D. Very confident');
+    await this.modPage.waitAndClick(e.publishPollingLabel);
+    await this.modPage.wasRemoved(e.pollingContainer, 'should not display the polling container after the poll is published');
+
+    // Hiding poll - white box
+    await this.modPage.selectSlide('Slide 9');
+    await this.modPage.hasElement(e.quickPoll, 'should display the quick poll button when the presentation finishes uploading');
+    await this.modPage.waitAndClick(e.quickPoll, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.waitAndClick(e.startPoll);
+    await this.userPage.hasElement(e.pollingContainer, 'should display the poll question after quick poll starts');
+    await this.userPage.waitAndClick(e.pollAnswerOptionD);
+    await this.modPage.hasText(e.userVoteLiveResult, 'D. Very confident', 'should display the vote result after the poll is answered');
+    await util.countingVotes(this.modPage, e.userVoteLiveResult, 1, 'D. Very confident');
+    await this.modPage.waitAndClick(e.publishPollingLabel);
+    await this.modPage.wasRemoved(e.pollingContainer, 'should not display the polling container after the poll is published');
+
   }
 
   async pollResultsOnChat() {

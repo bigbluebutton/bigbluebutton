@@ -21,8 +21,8 @@ test.describe('Learning Dashboard', { tag: '@ci' } , async () => {
     await learningDashboard.userTimeOnMeeting();
   });
 
-  test('Polls', async () => {
-    await learningDashboard.initUserPage(true, learningDashboard.modPage.context);
+  test('Polls', { tag: '@flaky' }, async () => {
+    await learningDashboard.initUserPage(true, learningDashboard.modPage.context, { isRecording: true });
     await learningDashboard.polls();
   });
 

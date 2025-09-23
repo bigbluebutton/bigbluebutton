@@ -1,13 +1,13 @@
 import React, { memo, useMemo, useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { AppsGalleryProps } from './types';
-import Icon from '/imports/ui/components/common/icon/component';
 import { layoutDispatch, layoutSelect } from '/imports/ui/components/layout/context';
 import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
 import { InjectedAppGalleryItem, Layout } from '/imports/ui/components/layout/layoutTypes';
 import Styled from './styles';
 import TooManyPinnedAppsModal from './modal/component';
-import TooltipContainer from '/imports/ui/components/common/tooltip/container';
+import AppItem from './app-item/component';
+import ExternalAppItem from './external-app-item/component';
 
 const intlMessages = defineMessages({
   appsGalleryTitle: {
@@ -44,82 +44,28 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
   const title = intl.formatMessage(intlMessages.appsGalleryTitle);
   const [error, setError] = useState(false);
 
-  const renderApp = (
-    appKey: string,
-    name: string,
-    icon: string,
-    isPinned: boolean,
-    onClick?: undefined | (() => void),
-  ) => {
-    const togglePinApp = (event: React.MouseEvent<HTMLDivElement> | React.KeyboardEvent<HTMLDivElement>) => {
-      event.stopPropagation();
-      if (!isPinned && pinnedApps.length >= MAX_PINNED_APPS_GALLERY) {
-        setError(true);
-        return;
-      }
-      layoutContextDispatch({
-        type: ACTIONS.SET_SIDEBAR_NAVIGATION_PIN_APP,
-        value: {
-          id: appKey,
-          pin: !isPinned,
-        },
-      });
-    };
-    const openAppPanel = () => {
-      layoutContextDispatch({
-        type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-        value: true,
-      });
-      layoutContextDispatch({
-        type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-        value: appKey,
-      });
-    };
-    const functionToBeCalled = typeof onClick === 'function' ? onClick : openAppPanel;
-    return (
-      <Styled.RegisteredAppContent
-        key={`${appKey}${isPinned}`}
-      >
-        <Styled.ClickableArea
-          onClick={functionToBeCalled}
-        >
-          <Styled.OpenButton
-            key={`OPEN${appKey}`}
-            color="primary"
-            type="button"
-            icon={icon}
-            $pinned={isPinned}
-            label=""
-            onClick={() => {}}
-          />
-          <Styled.AppTitle>
-            {name}
-          </Styled.AppTitle>
-        </Styled.ClickableArea>
-        <TooltipContainer
-          title={isPinned
-            ? intl.formatMessage(intlMessages.unpinTooltip)
-            : intl.formatMessage(intlMessages.pinTooltip)}
-        >
-          <Styled.PinApp
-            role="button"
-            onClick={togglePinApp}
-            tabIndex={0}
-            pinned={isPinned}
-          >
-            <Icon iconName={isPinned ? 'pin-video_on' : 'pin-video_off'} />
-          </Styled.PinApp>
-        </TooltipContainer>
-      </Styled.RegisteredAppContent>
-    );
-  };
-
   const renderedPinnedApps = useMemo(() => (
     pinnedApps.map((pinnedAppKey) => {
       const { name, icon } = registeredApps[pinnedAppKey];
       // type guard
       const { onClick } = registeredApps[pinnedAppKey] as InjectedAppGalleryItem;
-      return renderApp(pinnedAppKey, name, icon, true, onClick);
+      const isPluginInjectedApp = pinnedAppKey.startsWith(PANELS.GENERIC_CONTENT_SIDEKICK);
+      const Component = isPluginInjectedApp ? ExternalAppItem : AppItem;
+      return (
+        <Component
+          key={`${pinnedAppKey}true`}
+          appKey={pinnedAppKey}
+          name={name}
+          icon={icon}
+          isPinned
+          onClick={onClick}
+          pinnedAppsLength={pinnedApps.length}
+          maxPinned={MAX_PINNED_APPS_GALLERY}
+          setError={setError}
+          pinTooltip={intl.formatMessage(intlMessages.pinTooltip)}
+          unpinTooltip={intl.formatMessage(intlMessages.unpinTooltip)}
+        />
+      );
     })
   ), [registeredApps, pinnedApps]);
 
@@ -130,7 +76,23 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
         const { name, icon } = registeredApps[unpinnedAppKey];
         // type guard
         const { onClick } = registeredApps[unpinnedAppKey] as InjectedAppGalleryItem;
-        return renderApp(unpinnedAppKey, name, icon, false, onClick);
+        const isPluginInjectedApp = unpinnedAppKey.startsWith(PANELS.GENERIC_CONTENT_SIDEKICK);
+        const Component = isPluginInjectedApp ? ExternalAppItem : AppItem;
+        return (
+          <Component
+            key={`${unpinnedAppKey}false`}
+            appKey={unpinnedAppKey}
+            name={name}
+            icon={icon}
+            isPinned={false}
+            onClick={onClick}
+            pinnedAppsLength={pinnedApps.length}
+            maxPinned={MAX_PINNED_APPS_GALLERY}
+            setError={setError}
+            pinTooltip={intl.formatMessage(intlMessages.pinTooltip)}
+            unpinTooltip={intl.formatMessage(intlMessages.unpinTooltip)}
+          />
+        );
       })
   ), [registeredApps, pinnedApps]);
 

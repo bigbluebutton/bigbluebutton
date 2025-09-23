@@ -28,10 +28,18 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
       await timer.stopwatchTest();
     });
 
-    test('Timer', async ({ browser, context, page })=> {
+    test('Timer', async ({ browser, context, page }) => {
       const timer = new Timer(browser, context);
       await timer.initModPage(page, true);
       await timer.timerTest();
+    });
+
+    test('Leave Meeting', async ({ browser, context, page }) => {
+      const multiusers = new MultiUsers(browser, context);
+      await multiusers.initModPage(page, true);
+      await multiusers.initUserPage(true, context);
+      await multiusers.initUserPage2(true, context);
+      await multiusers.leaveMeeting();
     });
   });
 
@@ -257,6 +265,13 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
       await multiusers.initModPage(page, true);
       await multiusers.initModPage2(true);
       await multiusers.clearAllStatusIcon();
+    });
+
+    test('End meeting', async ({ browser, context, page }) => {
+      const multiusers = new MultiUsers(browser, context);
+      await multiusers.initModPage(page, true);
+      await multiusers.initUserPage(true, context);
+      await multiusers.endMeeting();
     });
   });
 

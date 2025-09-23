@@ -6,7 +6,10 @@ import Trigger from '/imports/ui/components/common/control-header/right/componen
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { uniqueId } from '/imports/utils/string-utils';
 import { layoutSelect } from '/imports/ui/components/layout/context';
-import { PROCESSED_PRESENTATIONS_SUBSCRIPTION, ProcessedPresentationResponse } from '/imports/ui/components/whiteboard/queries';
+import {
+  PRESENTATIONS_SUBSCRIPTION,
+  PresentationsSubscriptionResponse,
+} from '/imports/ui/components/whiteboard/queries';
 import Service from './service';
 import { GET_PAD_ID, GetPadIdQueryResponse } from './queries';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
@@ -131,7 +134,8 @@ const NotesDropdownContainerGraphql: React.FC<NotesDropdownContainerGraphqlProps
   const isRTL = layoutSelect((i: any) => i.isRTL);
 
   const { data: presentationData } = useDeduplicatedSubscription<
-    ProcessedPresentationResponse>(PROCESSED_PRESENTATIONS_SUBSCRIPTION);
+    PresentationsSubscriptionResponse
+  >(PRESENTATIONS_SUBSCRIPTION);
   const presentations = presentationData?.pres_presentation || [];
 
   const NOTES_CONFIG = window.meetingClientSettings.public.notes;
@@ -148,7 +152,7 @@ const NotesDropdownContainerGraphql: React.FC<NotesDropdownContainerGraphqlProps
     <NotesDropdownGraphql
       amIPresenter={amIPresenter}
       isRTL={isRTL}
-      presentations={presentations}
+      presentations={presentations.filter((p) => p && p.uploadCompleted)}
       handlePinSharedNotes={handlePinSharedNotes}
       presentationEnabled={presentationEnabled}
       padId={padId}

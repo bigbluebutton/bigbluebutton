@@ -255,6 +255,7 @@ object VoiceApp extends SystemConfiguration {
                 ColorPicker.nextColor(liveMeeting.props.meetingProp.intId),
                 cvu.muted,
                 false,
+                false,
                 cvu.talking,
                 cvu.calledInto,
                 cvu.hold,
@@ -307,6 +308,7 @@ object VoiceApp extends SystemConfiguration {
       callerIdNum:  String,
       color:        String,
       muted:        Boolean,
+      listenOnlyInputDevice: Boolean,
       deafened:     Boolean,
       talking:      Boolean,
       callingInto:  String,
@@ -366,6 +368,7 @@ object VoiceApp extends SystemConfiguration {
       callerIdNum,
       color,
       muted,
+      listenOnlyInputDevice,
       deafened,
       talking,
       listenOnly = isListenOnly,
@@ -581,7 +584,16 @@ object VoiceApp extends SystemConfiguration {
     )
     outGW.send(muteEvent)
 
-    deafenUserInVoiceConf(liveMeeting, outGW, intId, !enabled)
+    // Directly deafen the user here as guest lobby policies mean an user
+    // might not be fully registered yet.
+    val deafEvent = MsgBuilder.buildDeafUserInVoiceConfSysMsg(
+      liveMeeting.props.meetingProp.intId,
+      liveMeeting.props.voiceProp.voiceConf,
+      intId,
+      voiceUserId,
+      !enabled
+    )
+    outGW.send(deafEvent)
   }
 
   def removeToggleListenOnlyTask(userId: String): Unit = {
@@ -787,6 +799,35 @@ object VoiceApp extends SystemConfiguration {
       }
   }
 
+  def setListenOnlyInputInVoiceConf(
+    liveMeeting:              LiveMeeting,
+    outGW:                    OutMsgRouter,
+    userId:                   String,
+    listenOnlyInputDevice:    Boolean
+  ): Unit = {
+    for {
+      u <- VoiceUsers.findWithIntId(
+        liveMeeting.voiceUsers,
+        userId
+      )
+    } yield {
+      val event = MsgBuilder.buildSetListenOnlyInputInVoiceConfSysMsg(
+        liveMeeting.props.meetingProp.intId,
+        liveMeeting.props.voiceProp.voiceConf,
+        userId,
+        u.voiceUserId,
+        listenOnlyInputDevice
+      )
+      outGW.send(event)
+
+      VoiceUsers.userUpdatedListenOnlyInputDevice(liveMeeting.voiceUsers, u.voiceUserId, listenOnlyInputDevice)
+    }
+  }
+
+  /*
+   * Deafens a web conference user in the voice conference.
+   * Does not apply to voice-only users (e.g.: dial-in)
+   */
   def deafenUserInVoiceConf(
     liveMeeting: LiveMeeting,
     outGW:       OutMsgRouter,

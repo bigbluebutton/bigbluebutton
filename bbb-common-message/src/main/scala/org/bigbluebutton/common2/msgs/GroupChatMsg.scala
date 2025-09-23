@@ -139,19 +139,19 @@ case class GroupChatMessageDeletedEvtMsgBody(chatId: String, messageId: String)
 
 object SendGroupChatMessageReactionReqMsg { val NAME = "SendGroupChatMessageReactionReqMsg" }
 case class SendGroupChatMessageReactionReqMsg(header: BbbClientMsgHeader, body: SendGroupChatMessageReactionReqMsgBody) extends StandardMsg
-case class SendGroupChatMessageReactionReqMsgBody(chatId: String, messageId: String, reactionEmoji: String, reactionEmojiId: String)
+case class SendGroupChatMessageReactionReqMsgBody(chatId: String, messageId: String, reactionEmoji: String)
 
 object GroupChatMessageReactionSentEvtMsg { val NAME = "GroupChatMessageReactionSentEvtMsg" }
 case class GroupChatMessageReactionSentEvtMsg(header: BbbClientMsgHeader, body: GroupChatMessageReactionSentEvtMsgBody) extends BbbCoreMsg
-case class GroupChatMessageReactionSentEvtMsgBody(chatId: String, messageId: String, reactionEmoji: String, reactionEmojiId: String)
+case class GroupChatMessageReactionSentEvtMsgBody(chatId: String, messageId: String, reactionEmoji: String)
 
 object DeleteGroupChatMessageReactionReqMsg { val NAME = "DeleteGroupChatMessageReactionReqMsg" }
 case class DeleteGroupChatMessageReactionReqMsg(header: BbbClientMsgHeader, body: DeleteGroupChatMessageReactionReqMsgBody) extends StandardMsg
-case class DeleteGroupChatMessageReactionReqMsgBody(chatId: String, messageId: String, reactionEmoji: String, reactionEmojiId: String)
+case class DeleteGroupChatMessageReactionReqMsgBody(chatId: String, messageId: String, reactionEmoji: String)
 
 object GroupChatMessageReactionDeletedEvtMsg { val NAME = "GroupChatMessageReactionDeletedEvtMsg" }
 case class GroupChatMessageReactionDeletedEvtMsg(header: BbbClientMsgHeader, body: GroupChatMessageReactionDeletedEvtMsgBody) extends BbbCoreMsg
-case class GroupChatMessageReactionDeletedEvtMsgBody(chatId: String, messageId: String, reactionEmoji: String, reactionEmojiId: String)
+case class GroupChatMessageReactionDeletedEvtMsgBody(chatId: String, messageId: String, reactionEmoji: String)
 
 object UserTypingPubMsg { val NAME = "UserTypingPubMsg" }
 case class UserTypingPubMsg(header: BbbClientMsgHeader, body: UserTypingPubMsgBody) extends StandardMsg

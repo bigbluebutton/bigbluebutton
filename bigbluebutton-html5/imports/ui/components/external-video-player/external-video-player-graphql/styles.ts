@@ -2,6 +2,7 @@ import styled from 'styled-components';
 import ReactPlayer from 'react-player';
 import React from 'react';
 import { lgBorderRadius } from '/imports/ui/stylesheets/styled-components/general';
+import Button from '/imports/ui/components/common/button/component';
 
 type VideoPlayerWrapperProps = {
   fullscreen: boolean;
@@ -73,9 +74,24 @@ export const VideoPlayer = styled(ReactPlayer)`
   }
 `;
 
+// @ts-ignore - as button comes from JS, we can't provide its props
+export const ExternalVideoCloseButton = styled(Button)`
+  z-index: 1;
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: auto;
+  cursor: pointer;
+  [dir="rtl"] & {
+    right: auto;
+    left :0;
+  }
+`;
+
 export default {
   VideoPlayerWrapper,
   AutoPlayWarning,
   VideoPlayer,
   Container,
+  ExternalVideoCloseButton,
 };
