@@ -201,10 +201,13 @@ const WhiteboardContainer = (props) => {
 
   const removeShapes = (shapeIds) => {
     if (!isPresenter && !isModerator) return;
+    const currentShapeIds = new Set(shapes.map((s) => s.id));
+    const filteredShapeIds = shapeIds.filter((id) => currentShapeIds.has(id));
+    if (filteredShapeIds.length === 0) return;
     presentationDeleteAnnotations({
       variables: {
         pageId: curPageIdRef.current,
-        annotationsIds: shapeIds,
+        annotationsIds: filteredShapeIds,
       },
     });
   };
