@@ -653,6 +653,18 @@ class Presentation extends PureComponent {
       // Just a test
       //this.zoomChanger(200);
       //tldrawAPI.setZoom(5.0);
+      
+      // To fix a problem that a slide does not follow the window resizing,
+      //  drawing a large bg SVG behind the small un-resized bgSVG when expanding the window.
+      // This problem only happens in the popup window of MacOS Safari..
+      if (/^((?!chrome|android).)*safari/i.test(navigator.userAgent)) {
+        const images = popupWindow.document.querySelectorAll('.tl-image');
+        if (images.length > 0) {
+          images.forEach(div => {
+            div.style.webkitTransform = 'translateZ(0)'; // this forces redrawing.
+          });
+        }
+      }
     } else {
       presentationSizes = this.getPresentationSizesAvailable();
     }
