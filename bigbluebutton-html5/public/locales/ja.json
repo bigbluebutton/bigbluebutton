@@ -640,6 +640,7 @@
     "app.submenu.notification.userJoinLabel": "ユーザーの参加",
     "app.submenu.notification.userLeaveLabel": "ユーザーの退室",
     "app.submenu.notification.guestWaitingLabel": "承認待ちのゲスト",
+    "app.submenu.notification.muteUnmuteLabel": "マイクのミュート／ミュート解除",
     "app.submenu.audio.micSourceLabel": "マイク",
     "app.submenu.audio.speakerSourceLabel": "スピーカー",
     "app.submenu.audio.streamVolumeLabel": "入力音量",

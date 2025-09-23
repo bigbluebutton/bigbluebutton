@@ -103,7 +103,7 @@ RangeLoop:
 						},
 					}
 					jsonDataNext, _ := json.Marshal(browserResponseData)
-					browserConnection.FromHasuraToBrowserChannel.Send(jsonDataNext)
+					browserConnection.FromHasuraToBrowserChannel.SendWait(browserConnection.Context, jsonDataNext)
 
 					// Return complete msg to client
 					browserResponseComplete := map[string]interface{}{
@@ -111,7 +111,7 @@ RangeLoop:
 						"type": "complete",
 					}
 					jsonDataComplete, _ := json.Marshal(browserResponseComplete)
-					browserConnection.FromHasuraToBrowserChannel.Send(jsonDataComplete)
+					browserConnection.FromHasuraToBrowserChannel.SendWait(browserConnection.Context, jsonDataComplete)
 				}
 
 				// Fallback to Hasura was disabled (keeping the code temporarily)
@@ -258,7 +258,7 @@ func sendErrorMessage(browserConnection *common.BrowserConnection, messageId str
 		},
 	}
 	jsonDataError, _ := json.Marshal(browserResponseData)
-	browserConnection.FromHasuraToBrowserChannel.Send(jsonDataError)
+	browserConnection.FromHasuraToBrowserChannel.SendWait(browserConnection.Context, jsonDataError)
 
 	// Return complete msg to client
 	browserResponseComplete := map[string]interface{}{
@@ -266,5 +266,5 @@ func sendErrorMessage(browserConnection *common.BrowserConnection, messageId str
 		"type": "complete",
 	}
 	jsonDataComplete, _ := json.Marshal(browserResponseComplete)
-	browserConnection.FromHasuraToBrowserChannel.Send(jsonDataComplete)
+	browserConnection.FromHasuraToBrowserChannel.SendWait(browserConnection.Context, jsonDataComplete)
 }

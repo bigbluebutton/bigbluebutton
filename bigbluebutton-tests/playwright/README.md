@@ -123,7 +123,6 @@ $ CONSOLE= npm test chat -- --project=firefox
 | label  | label each line with the BigBlueButton user |
 | norefs | remove JavaScript reference URLs |
 | nots   | remove timestamps |
-| nocl   | remove "clientLogger:" strings |
 
 ## Check test results
 

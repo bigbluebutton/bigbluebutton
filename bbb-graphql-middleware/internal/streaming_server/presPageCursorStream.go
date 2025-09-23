@@ -39,22 +39,27 @@ func HandleSendCursorPositionEvtMsg(receivedMessage common.RedisMessage, browser
 	}
 	jsonDataNext, _ := json.Marshal(browserResponseData)
 
+	browserConnectionsToSendCursor := make([]*common.BrowserConnection, 0)
 	browserConnectionsMutex.RLock()
-	for _, browserConnection := range browserConnections {
-		if browserConnection.MeetingId == receivedMessage.Core.Header.MeetingId {
-			userHasViewersCursorLocked := browserConnection.BBBWebSessionVariables["x-hasura-cursorlockeduserid"] == browserConnection.UserId
-
+	for _, bc := range browserConnections {
+		if bc.MeetingId == receivedMessage.Core.Header.MeetingId {
+			userHasViewersCursorLocked := bc.BBBWebSessionVariables["x-hasura-cursorlockeduserid"] == bc.UserId
 			if !receivedCursorIsFromViewer || !userHasViewersCursorLocked { // check for lock settings "See other viewers cursors"
-				browserConnection.ActiveStreamingsMutex.RLock()
-				if queryId, exists := browserConnection.ActiveStreamings["getCursorCoordinatesStream"]; exists {
-					queryIdInBytes := []byte(queryId)
-					browserConnection.FromHasuraToBrowserChannel.Send(bytes.Replace(jsonDataNext, QueryIdPlaceholderInBytes, queryIdInBytes, 1))
-				}
-				browserConnection.ActiveStreamingsMutex.RUnlock()
+				browserConnectionsToSendCursor = append(browserConnectionsToSendCursor, bc)
 			}
 		}
 	}
 	browserConnectionsMutex.RUnlock()
+
+	for _, bc := range browserConnectionsToSendCursor {
+		bc.ActiveStreamingsMutex.RLock()
+		queryId, existsCursorStream := bc.ActiveStreamings["getCursorCoordinatesStream"]
+		bc.ActiveStreamingsMutex.RUnlock()
+		if existsCursorStream {
+			payload := bytes.Replace(jsonDataNext, QueryIdPlaceholderInBytes, []byte(queryId), 1)
+			bc.FromHasuraToBrowserChannel.TrySend(payload)
+		}
+	}
 
 	StoreCursorsCache(
 		receivedMessage.Core.Header.MeetingId,
@@ -81,7 +86,7 @@ func SendPreviousCursorPosition(browserConnection *common.BrowserConnection, que
 			},
 		}
 		jsonDataNext, _ := json.Marshal(browserResponseData)
-		browserConnection.FromHasuraToBrowserChannel.Send(jsonDataNext)
+		browserConnection.FromHasuraToBrowserChannel.SendWait(browserConnection.Context, jsonDataNext)
 	}
 }
 

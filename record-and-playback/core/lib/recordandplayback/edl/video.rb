@@ -509,8 +509,7 @@ module BigBlueButton
         ffmpeg_inputs = []
         ffmpeg_input_pipes = {}
         ffmpeg_filter = String.new
-        xstack_inputs = []
-        xstack_layout = []
+        ffmpeg_filter << "color=c=white:s=#{layout[:width]}x#{layout[:height]}:r=#{layout[:framerate]}"
 
         # Check for obscured (completely hidden) video areas, and skip processing for those areas
         layout[:areas].each_with_index do |layout_area, i|
@@ -544,6 +543,8 @@ module BigBlueButton
           tile_height = 0
           total_area = 0
 
+          ffmpeg_filter << "[#{layout_area[:name]}_in];\n"
+
           # Do an exhaustive search to maximize video areas
           for tmp_tiles_v in 1..video_count
             tmp_tiles_h = (video_count / tmp_tiles_v.to_f).ceil
@@ -568,13 +569,16 @@ module BigBlueButton
             end
           end
 
-          tile_offset_x = layout_area[:x] + (2 * ((layout_area[:width] - (tiles_h * tile_width)) / 4).floor)
-          tile_offset_y = layout_area[:y] + (2 * ((layout_area[:height] - (tiles_v * tile_height)) / 4).floor)
+          tile_offset_x = (2 * ((layout_area[:width] - (tiles_h * tile_width)) / 4).floor)
+          tile_offset_y = (2 * ((layout_area[:height] - (tiles_v * tile_height)) / 4).floor)
 
           tile_x = 0
           tile_y = 0
 
           BigBlueButton.logger.debug "    Tiling in a #{tiles_h}x#{tiles_v} grid"
+
+          xstack_inputs = []
+          xstack_layout = []
 
           area.each do |video|
             this_videoinfo = videoinfo[video[:filename]]
@@ -711,25 +715,24 @@ module BigBlueButton
             ffmpeg_filter << "trim=end=#{ms_to_s(duration)}"
             ffmpeg_filter << "[#{pad_name}];"
           end
-        end
 
-        # Create the xstack filter to composite the video elements
-        xstack_inputs.each do |xstack_input|
-          ffmpeg_filter << xstack_input
-        end
-        ffmpeg_filter <<
-          if xstack_inputs.length >= 2
-            "xstack=fill=white:inputs=#{xstack_inputs.length}:layout=#{xstack_layout.join('|')}"
-          elsif xstack_inputs.length == 1
-            # xstack doesn't support 1 input; a kind of odd omission
-            'null'
-          else
-            "color=c=white:s=#{layout[:width]}x#{layout[:height]}:r=#{layout[:framerate]}"
+          # Create the xstack filter to composite the video elements
+          xstack_inputs.each do |xstack_input|
+            ffmpeg_filter << xstack_input
           end
+          ffmpeg_filter <<
+            if xstack_inputs.length >= 2
+              "xstack=fill=white:inputs=#{xstack_inputs.length}:layout=#{xstack_layout.join('|')}"
+            else
+              # xstack doesn't support 1 input; a kind of odd omission
+              'null'
+            end
 
-        # xstack might not extend the video frame to the desired size if the right or bottom parts of the layout are
-        # empty, so pad the frame to size.
-        ffmpeg_filter << ",pad=w=#{layout[:width]}:h=#{layout[:height]}:x=0:y=0:color=white"
+          # Overlay this area on top of the input video
+          ffmpeg_filter << "[#{layout_area[:name]}];\n"
+          ffmpeg_filter << "[#{layout_area[:name]}_in][#{layout_area[:name]}]overlay=x=#{layout_area[:x]}:y=#{layout_area[:y]}"
+        end
+
         # As a safety measure, crop anything that might have made the frame too large.
         ffmpeg_filter << ",crop=w=#{layout[:width]}:h=#{layout[:height]}:x=0:y=0"
         ffmpeg_filter << ",trim=end=#{ms_to_s(duration)}"

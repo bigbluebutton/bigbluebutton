@@ -640,6 +640,7 @@
     "app.submenu.notification.userJoinLabel": "Entra un utente",
     "app.submenu.notification.userLeaveLabel": "Esce un utente",
     "app.submenu.notification.guestWaitingLabel": "Ospite in attesa di ammissione",
+    "app.submenu.notification.muteUnmuteLabel": "Disattiva/Riattiva microfono",
     "app.submenu.audio.micSourceLabel": "Microfono",
     "app.submenu.audio.speakerSourceLabel": "Altoparlante",
     "app.submenu.audio.streamVolumeLabel": "Volume dell'audio trasmesso",

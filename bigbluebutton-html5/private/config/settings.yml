@@ -199,6 +199,7 @@ public:
         raiseHandPushAlerts: true
         guestWaitingAudioAlerts: true
         guestWaitingPushAlerts: true
+        muteUnmuteAudioAlerts: true
         wakeLock: true
         paginationEnabled: true
         whiteboardToolbarAutoHide: false
@@ -1058,6 +1059,7 @@ public:
     maxNumberOfAnnotations: 300
     # Limit the number of users who can interact with the whiteboard
     maxNumberOfActiveUsers: 25
+    maxHistoryStackSize: 400
     lockToolbarTools: false
     annotations:
       status:
@@ -1165,6 +1167,9 @@ public:
     showThumbnails: true
     imagesPath: /resources/images/virtual-backgrounds/
     thumbnailsPath: /resources/images/virtual-backgrounds/thumbnails/
+    # willReadFrequently: Defines the optimization hint for the virtual background canvas.
+    # If commented out (default), the browser decides the best strategy.
+    #willReadFrequently: true
     fileNames:
       - home.jpg
       - coffeeshop.jpg
