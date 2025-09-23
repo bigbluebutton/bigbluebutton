@@ -590,20 +590,20 @@ class Presentation extends PureComponent {
         }
         // Then normal fullscreen change (by button or ESC)
         this.onFullscreenChange();
-
-        // when the canvas of tldraw is drawn on the popup,
-        //  we will set false to isPopupOnPreparation.
-        // Then the notification bar with 3006 error becomes accepted again.
-        const observer = new MutationObserver((mutations, obs) => {
-          const tlCanvas = popup.document.querySelector('.tl-canvas');
-          if (tlCanvas) {
-            onPopupPreparing?.(false);
-            obs.disconnect();
-          }
-        });
-        observer.observe(popup.document.body, { childList: true, subtree: true });
-        
       });
+      
+      // when the canvas of tldraw is drawn on the popup,
+      //  we will set false to isPopupOnPreparation.
+      // Then the notification bar with 3006 error becomes accepted again.
+      const observer = new MutationObserver((mutations, obs) => {
+        const tlCanvas = popup.document.querySelector('.tl-canvas');
+        if (tlCanvas) {
+          onPopupPreparing?.(false);
+          obs.disconnect();
+        }
+      });
+      observer.observe(popup.document.body, { childList: true, subtree: true });
+        
     } else {
       // to explicitely exit fullsreen; we do not need setState "isFullscreen: false".
       //  (in case user directly merge popup when it is fullscreen)
