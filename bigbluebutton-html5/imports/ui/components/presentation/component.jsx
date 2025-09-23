@@ -495,13 +495,6 @@ class Presentation extends PureComponent {
         const font = new FontFace(name, `url(${window.location.origin}${url})`);
         font.load().then(loaded => popup.document.fonts.add(loaded));
       });
-      //const drawFontstyle = popup.document.createElement('style');
-      //drawFontstyle.textContent = `
-      //  .tl-text-shape__wrapper[data-font='draw'] {
-      //    font-family: 'tldraw_draw', 'KosugiMaruSubset', sans-serif;
-      // }
-      //`;
-      //popup.document.head.appendChild(drawFontstyle);
 
       // Remove cursor style from the class tl-canvas,
       //  otherwise cursor stays the same when pencil, text, line, note
