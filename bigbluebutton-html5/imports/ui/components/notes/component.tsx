@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import { useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client/react';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import PadContainer from '/imports/ui/components/pads/pads-graphql/component';
 import browserInfo from '/imports/utils/browserInfo';
@@ -139,7 +139,7 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
     >
       {!isOnMediaArea ? (
         // @ts-ignore Until everything in Typescript
-        <>
+        (<>
           <h2 className="sr-only">{intl.formatMessage(intlMessages.title)}</h2>
           <Header
             leftButtonProps={{
@@ -163,7 +163,7 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
               <NotesDropdown handlePinSharedNotes={handlePinSharedNotes} presentationEnabled={isPresentationEnabled} />
           }
           />
-        </>
+        </>)
       ) : renderHeaderOnMedia()}
       <PadContainer
         externalId={NOTES_CONFIG.id}

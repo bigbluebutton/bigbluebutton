@@ -1,5 +1,5 @@
 import React from 'react';
-import { useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client/react';
 import EndMeetingComponent from './component';
 import logger from '/imports/startup/client/logger';
 import { MEETING_END } from './mutations';

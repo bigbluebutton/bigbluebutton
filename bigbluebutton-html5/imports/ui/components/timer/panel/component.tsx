@@ -6,9 +6,7 @@ import React, {
   useState,
 } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import {
-  useMutation,
-} from '@apollo/client';
+import { useMutation } from '@apollo/client/react';
 import Header from '/imports/ui/components/common/control-header/component';
 import Styled from './styles';
 import GET_TIMER, { GetTimerResponse, TimerData } from '../../../core/graphql/queries/timer';

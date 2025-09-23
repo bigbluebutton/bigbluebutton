@@ -1,5 +1,7 @@
 /* eslint-disable no-underscore-dangle */
-import { useReactiveVar } from '@apollo/client';
+
+
+import { useReactiveVar } from '@apollo/client/react';
 import AudioManager from '/imports/ui/services/audio-manager';
 
 export const useIsAudioConnected = ({ ignoreDeafened = false } = {}): boolean => {

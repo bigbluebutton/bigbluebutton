@@ -35,7 +35,7 @@
     }
   },
   "dependencies": {
-    "@apollo/client": "^3.10.4",
+    "@apollo/client": "^4.0.5",
     "@babel/runtime": "^7.26.10",
     "@bigbluebutton/tldraw": "^2.0.0-alpha.30",
     "@browser-bunyan/console-formatted-stream": "^1.8.0",
@@ -68,8 +68,8 @@
     "fast-json-patch": "^3.1.1",
     "flat": "^5.0.2",
     "focus-trap-react": "^10.2.1",
-    "graphql": "^16.8.1",
-    "graphql-ws": "^5.16.0",
+    "graphql": "^16.11.0",
+    "graphql-ws": "^6.0.6",
     "hark": "^1.2.3",
     "html-to-image": "^1.11.13",
     "immutability-helper": "~2.8.1",
@@ -98,6 +98,7 @@
     "react-transition-group": "^4.4.5",
     "recharts": "^2.15.1",
     "reconnecting-websocket": "~v4.4.0",
+    "rxjs": "^7.8.2",
     "sanitize-html": "2.12.1",
     "sdp-transform": "2.7.0",
     "smile2emoji": "^3.8.3",

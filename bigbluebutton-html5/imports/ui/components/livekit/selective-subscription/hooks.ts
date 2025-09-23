@@ -9,7 +9,7 @@ import {
   Track,
   type RemoteTrackPublication,
 } from 'livekit-client';
-import { useReactiveVar } from '@apollo/client';
+import { useReactiveVar } from '@apollo/client/react';
 import { useRemoteParticipants } from '@livekit/components-react';
 import { liveKitRoom } from '/imports/ui/services/livekit';
 import logger from '/imports/startup/client/logger';

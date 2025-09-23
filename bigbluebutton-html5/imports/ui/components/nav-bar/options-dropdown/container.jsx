@@ -6,7 +6,7 @@ import FullscreenService from '/imports/ui/components/common/fullscreen-button/s
 import { layoutSelect } from '../../layout/context';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import { USER_LEAVE_MEETING } from '/imports/ui/core/graphql/mutations/userMutations';
-import { useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client/react';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { useShortcut } from '/imports/ui/core/hooks/useShortcut';
 import { useStorageKey } from '/imports/ui/services/storage/hooks';

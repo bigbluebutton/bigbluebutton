@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import GrahqlSubscriptionStore, { stringToHash, SubscriptionStructure } from '/imports/ui/core/singletons/subscriptionStore';
 import { DocumentNode, TypedQueryDocumentNode } from 'graphql';
-import {
-  OperationVariables, SubscriptionHookOptions, makeVar, useReactiveVar, ReactiveVar,
-} from '@apollo/client';
+import { OperationVariables, makeVar, ReactiveVar } from '@apollo/client';
+
+import { useReactiveVar, useSubscription } from '@apollo/client/react';
 
 const initialEmptySub = makeVar<SubscriptionStructure<unknown>>({
   count: 0,
@@ -15,7 +15,7 @@ const initialEmptySub = makeVar<SubscriptionStructure<unknown>>({
 
 const useDeduplicatedSubscription = <T>(
   subscription: DocumentNode | TypedQueryDocumentNode,
-  options?: SubscriptionHookOptions<NoInfer<T>, NoInfer<OperationVariables>>,
+  options?: useSubscription.Options<NoInfer<T>, NoInfer<OperationVariables>>,
 ) => {
   const subscriptionHash = stringToHash(JSON.stringify({
     subscription,

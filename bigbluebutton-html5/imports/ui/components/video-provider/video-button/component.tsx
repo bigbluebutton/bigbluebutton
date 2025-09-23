@@ -1,5 +1,5 @@
 import React, { memo, useEffect, useState } from 'react';
-import { FetchResult } from '@apollo/client';
+import { ApolloClient } from '@apollo/client';
 import ButtonEmoji from '/imports/ui/components/common/button/button-emoji/ButtonEmoji';
 import { IntlShape, defineMessages, injectIntl } from 'react-intl';
 import deviceInfo from '/imports/utils/deviceInfo';
@@ -65,7 +65,7 @@ interface JoinVideoButtonProps {
   ) => void;
   disableReason: string | undefined;
   status: string;
-  setLocalSettings: (settings: Record<string, unknown>) => Promise<FetchResult<object>>;
+  setLocalSettings: (settings: Record<string, unknown>) => Promise<ApolloClient.MutateResult<unknown>>;
   exitVideo: () => void;
   stopVideo: (cameraId?: string | undefined) => void;
   intl: IntlShape;

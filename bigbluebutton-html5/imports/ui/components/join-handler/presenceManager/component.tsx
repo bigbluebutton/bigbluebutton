@@ -1,4 +1,4 @@
-import { useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client/react';
 import React, { useContext, useEffect, useState } from 'react';
 import Bowser from 'bowser';
 import { isBrowserSupported } from 'livekit-client';

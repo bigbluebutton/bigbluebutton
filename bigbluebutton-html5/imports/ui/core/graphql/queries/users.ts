@@ -8,6 +8,15 @@ export interface UsersCountSubscriptionResponse {
   };
 }
 
+export interface GetUserNamesResponse {
+  user: {
+    name: string;
+    nameSortable: string;
+    firstNameSortable: string;
+    lastNameSortable: string;
+  }[];
+}
+
 export const USER_LIST_SUBSCRIPTION = gql`
 subscription UserListSubscription($offset: Int!, $limit: Int!) {
   user(limit:$limit, offset: $offset, 

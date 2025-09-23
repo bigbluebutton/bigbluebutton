@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { CaptionSaveCommandArguments } from 'bigbluebutton-html-plugin-sdk/dist/cjs/server-commands/caption/types';
-import { useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client/react';
 import * as uuidLib from 'uuid';
 import {
   CaptionCommandsEnum,

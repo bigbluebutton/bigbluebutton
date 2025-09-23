@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client/react';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import { UPDATE_CONNECTION_ALIVE_AT } from './mutations';
 import { CONNECTION_STATUS_SUBSCRIPTION } from './queries';

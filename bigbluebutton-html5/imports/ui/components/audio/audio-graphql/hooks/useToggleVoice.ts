@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client/react';
 import { USER_SET_MUTED } from '../mutations';
 import logger from '/imports/startup/client/logger';
 

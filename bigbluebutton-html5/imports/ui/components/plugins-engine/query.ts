@@ -1,13 +1,13 @@
 import { gql } from '@apollo/client';
 
-const PLUGIN_CONFIGURATION_QUERY = gql`query PluginConfigurationQuery {
+const PLUGIN_CONFIGURATION_QUERY = gql`subscription PluginConfiguration {
   plugin {
-    name,
-    javascriptEntrypointUrl,
-    javascriptEntrypointIntegrity,
-    localesBaseUrl,
-    loadFailureReason,
+    javascriptEntrypointIntegrity
+    javascriptEntrypointUrl
+    loadFailureReason
     loadFailureSource
+    localesBaseUrl
+    name
   }
 }`;
 

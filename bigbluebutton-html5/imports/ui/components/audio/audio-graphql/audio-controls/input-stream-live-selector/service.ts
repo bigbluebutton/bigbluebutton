@@ -1,4 +1,5 @@
-import { ReactiveVar, makeVar, useReactiveVar } from '@apollo/client';
+import { ReactiveVar, makeVar } from '@apollo/client';
+import { useReactiveVar } from '@apollo/client/react';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import Storage from '/imports/ui/services/storage/session';
 import logger from '/imports/startup/client/logger';

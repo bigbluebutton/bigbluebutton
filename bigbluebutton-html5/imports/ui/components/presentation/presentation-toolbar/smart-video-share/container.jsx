@@ -1,5 +1,5 @@
 import React from 'react';
-import { useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client/react';
 import { SmartMediaShare } from './component';
 import Panopto from '../../../external-video-player/custom-players/panopto';
 import { EXTERNAL_VIDEO_START } from '../../../external-video-player/mutations';

@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import { useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client/react';
 
 import {
   getSpeechVoices,

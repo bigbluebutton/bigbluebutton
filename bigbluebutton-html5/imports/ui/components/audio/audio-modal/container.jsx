@@ -1,5 +1,5 @@
 import React, { memo, useCallback } from 'react';
-import { useReactiveVar } from '@apollo/client';
+import { useReactiveVar } from '@apollo/client/react';
 import { isEqual } from 'radash';
 import browserInfo from '/imports/utils/browserInfo';
 import getFromUserSettings from '/imports/ui/services/users-settings';

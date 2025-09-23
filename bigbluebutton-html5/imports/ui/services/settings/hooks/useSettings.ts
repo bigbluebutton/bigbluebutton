@@ -1,4 +1,4 @@
-import { useReactiveVar } from '@apollo/client';
+import { useReactiveVar } from '@apollo/client/react';
 import { SETTINGS } from '../enums';
 import { getSettingsSingletonInstance } from '..';
 

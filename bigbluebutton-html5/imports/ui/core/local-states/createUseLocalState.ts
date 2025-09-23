@@ -1,4 +1,6 @@
-import { ReactiveVar, makeVar, useReactiveVar } from '@apollo/client';
+import { ReactiveVar, makeVar } from '@apollo/client';
+
+import { useReactiveVar } from '@apollo/client/react';
 
 function createUseLocalState<T>(initialValue: T):
 [

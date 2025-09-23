@@ -2,7 +2,8 @@ import { DocumentNode, TypedQueryDocumentNode } from 'graphql';
 import {
   useRef, useState, useEffect, useMemo,
 } from 'react';
-import { FetchResult, gql, useApolloClient } from '@apollo/client';
+import { gql, ApolloLink } from '@apollo/client';
+import { useApolloClient } from '@apollo/client/react';
 import * as R from 'ramda';
 import { applyPatch, deepClone } from 'fast-json-patch';
 import { GraphqlDataHookSubscriptionResponse } from '../../Types/hook';
@@ -148,7 +149,7 @@ export const useSubscription = <T>(
   const oldDataToRetunRef = useRef<GraphqlDataHookSubscriptionResponse<Partial<T>[]>>();
   const dataRef = useRef<T[]>([]);
   const paramsDidChange = useDeepComparison(query, variables, patched);
-  const [response, setResponse] = useState<FetchResult<unknown>>();
+  const [response, setResponse] = useState<ApolloLink.Result<unknown>>();
   let newSubscriptionGql = query;
 
   if (patched) {

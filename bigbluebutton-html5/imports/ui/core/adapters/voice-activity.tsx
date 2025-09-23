@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useReactiveVar } from '@apollo/client';
+import { useReactiveVar } from '@apollo/client/react';
 import useVoiceActivity from '/imports/ui/core/hooks/useVoiceActivity';
 import {
   setWhoIsUnmutedLoading,

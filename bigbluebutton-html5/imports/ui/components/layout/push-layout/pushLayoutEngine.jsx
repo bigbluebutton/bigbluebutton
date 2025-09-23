@@ -1,8 +1,6 @@
 import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
-import {
-  useReactiveVar,
-} from '@apollo/client';
+import { useReactiveVar } from '@apollo/client/react';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import MediaService from '/imports/ui/components/media/service';

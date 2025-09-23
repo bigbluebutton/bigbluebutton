@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client/react';
 import useMeeting from './useMeeting';
 import { SWAP_SCREENSHARE } from '../graphql/mutations/userMutations';
 

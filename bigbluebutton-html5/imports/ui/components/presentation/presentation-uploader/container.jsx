@@ -1,7 +1,7 @@
 import React from 'react';
 import ErrorBoundary from '/imports/ui/components/common/error-boundary/component';
 import FallbackModal from '/imports/ui/components/common/fallback-errors/fallback-modal/component';
-import { useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client/react';
 import Service from './service';
 import PresUploaderToast from '/imports/ui/components/presentation/presentation-toast/presentation-uploader-toast/component';
 import PresentationUploader from './component';

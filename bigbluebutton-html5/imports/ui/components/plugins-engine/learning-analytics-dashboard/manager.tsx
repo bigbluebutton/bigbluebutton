@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { LearningAnalyticsDashboardEventDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/learning-analytics-dashboard/types';
 import { LearningAnalyticsDashboardEvents } from 'bigbluebutton-html-plugin-sdk/dist/cjs/learning-analytics-dashboard/enums';
-import { useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client/react';
 import PLUGIN_LEARNING_ANALYTICS_DASHBOARD_SEND_GENERIC_DATA_MUTATION from './mutations';
 import { PluginLearningAnalyticsDashboardManagerProps } from './types';
 

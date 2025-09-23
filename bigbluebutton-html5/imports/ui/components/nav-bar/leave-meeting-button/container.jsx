@@ -1,5 +1,5 @@
 import React from 'react';
-import { useMutation, useReactiveVar } from '@apollo/client';
+import { useMutation, useReactiveVar } from '@apollo/client/react';
 import LeaveMeetingButton from './component';
 import { layoutSelect } from '../../layout/context';
 import { USER_LEAVE_MEETING } from '/imports/ui/core/graphql/mutations/userMutations';

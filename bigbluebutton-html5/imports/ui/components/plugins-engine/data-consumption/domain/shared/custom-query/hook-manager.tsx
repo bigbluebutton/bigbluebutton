@@ -1,8 +1,6 @@
 import { useEffect } from 'react';
-import {
-  gql,
-  useQuery,
-} from '@apollo/client';
+import { gql } from '@apollo/client';
+import { useQuery } from '@apollo/client/react';
 import { UpdatedEventDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
 import {
   HookEvents,

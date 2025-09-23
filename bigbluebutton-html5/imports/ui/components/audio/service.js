@@ -2,7 +2,7 @@ import Auth from '/imports/ui/services/auth';
 import AudioManager from '/imports/ui/services/audio-manager';
 import logger from '/imports/startup/client/logger';
 import Storage from '../../services/storage/session';
-import { useReactiveVar } from '@apollo/client';
+import { useReactiveVar } from '@apollo/client/react';
 import {
   getAudioConstraints,
   doGUM,
