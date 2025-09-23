@@ -27,7 +27,7 @@ export const joinMicrophone = (options = {}) => {
   });
 
   return call.then(() => {
-    document.dispatchEvent(new Event("CLOSE_MODAL_AUDIO"));
+    document.dispatchEvent(new Event('CLOSE_MODAL_AUDIO'));
   }).catch((error) => {
     throw error;
   });
@@ -43,7 +43,7 @@ export const joinListenOnly = () => {
     // prop transitions to a state where it was handled OR the user opts
     // to close the modal.
     if (!Service.autoplayBlocked()) {
-      document.dispatchEvent(new Event("CLOSE_MODAL_AUDIO"));
+      document.dispatchEvent(new Event('CLOSE_MODAL_AUDIO'));
     }
   }).catch((error) => {
     throw error;
@@ -58,12 +58,18 @@ export const leaveEchoTest = () => {
 };
 
 export const closeModal = (callback) => {
+  // eslint-disable-next-line max-len
   const ALLOW_AUDIO_JOIN_CANCEL = window.meetingClientSettings.public.media.audio.allowAudioJoinCancel;
 
   if (Service.isConnecting()) {
     if (!ALLOW_AUDIO_JOIN_CANCEL) return;
 
-    Service.forceExitAudio();
+    // The LiveKit audio join flow succeeds or fails independently.
+    // There's no option to cancel it.
+    // Avoid calling forceExitAudio to prevent an extraneous exit sound.
+    if (!Service.isUsingLiveKit()) {
+      Service.forceExitAudio();
+    }
   }
 
   callback();
