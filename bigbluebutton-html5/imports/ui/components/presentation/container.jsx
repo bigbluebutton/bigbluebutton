@@ -88,7 +88,7 @@ const PresentationContainer = (props) => {
       const updatedAt = new Date(annotation.lastUpdatedAt);
       return updatedAt > latest ? updatedAt : latest;
     }, new Date(0)).toISOString();
-  }, [initialPageAnnotations]);
+  }, [initialPageAnnotations, currentMeeting?.createdTime]);
 
   useEffect(() => {
     if (!currentPageId || !lastUpdatedAt) return;
