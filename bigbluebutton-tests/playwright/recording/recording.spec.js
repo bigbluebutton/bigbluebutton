@@ -43,7 +43,7 @@ test.describe.parallel('Recording', { tag: '@ci' }, () => {
     });
 
     test('Dark mode', async ({ browser, context, page }) => {
-      recording = new Recording(browser, context);
+      const recording = new Recording(browser, context);
       recording.playbackPage = new Page(browser, page);
       await recording.darkMode();
     });

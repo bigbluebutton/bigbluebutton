@@ -288,7 +288,7 @@ jobs:
         run: |
           # https://docs.bigbluebutton.org/administration/customize/#install-additional-recording-processing-formats
           sudo mkdir -p /etc/bigbluebutton/recording
-          sudo cat > /etc/bigbluebutton/recording/recording.yml << 'REC'
+          sudo tee /etc/bigbluebutton/recording/recording.yml > /dev/null << 'REC'
           steps:
             archive: "sanity"
             sanity: "captions"
@@ -298,10 +298,36 @@ jobs:
             process:presentation: publish:presentation
             process:video: publish:video
           REC
-          if ! dpkg -l | grep -q bbb-playback-video; then
-            sudo apt install -y bbb-playback-video
-            sudo systemctl restart bbb-rap-resque-worker.service
-          fi
+      - name: Get bbb-presentation-video release info
+        id: get-release-info
+        run: |
+          # Get the latest release tag to use as cache key
+          RELEASE_TAG=$(curl -s https://api.github.com/repos/bigbluebutton/bbb-presentation-video/releases/latest | jq -r '.tag_name')
+          echo "release-tag=$RELEASE_TAG" >> $GITHUB_OUTPUT
+          echo "Latest bbb-presentation-video release: $RELEASE_TAG"
+      - name: Cache bbb-presentation-video package
+        id: cache-presentation-video
+        uses: actions/cache@v4
+        with:
+          path: bbb-presentation-video.deb
+          key: bbb-presentation-video-${{ steps.get-release-info.outputs.release-tag }}
+      - name: Download and extract bbb-presentation-video
+        if: steps.cache-presentation-video.outputs.cache-hit != 'true'
+        run: |
+          # Download the latest bbb-presentation-video release - required for bbb-playback-video
+          LATEST_RELEASE_URL=$(curl -s https://api.github.com/repos/bigbluebutton/bbb-presentation-video/releases/latest | jq -r '.assets[] | select(.name=="ubuntu-22.04.zip") | .browser_download_url')
+
+          # Download and extract the zip file
+          wget -O bbb-presentation-video.zip "$LATEST_RELEASE_URL"
+          unzip bbb-presentation-video.zip
+
+          # Move the .deb file to the expected location for caching
+          mv *.deb bbb-presentation-video.deb
+      - name: Install bbb-presentation-video
+        run: |
+          # Install the .deb package (either from cache or just downloaded)
+          sudo apt-get update
+          sudo apt install -y ./bbb-presentation-video.deb
       - name: Configure video format settings
         run: |
           # webm format should be enabled for automated tests - decoded by chromium
@@ -309,10 +335,15 @@ jobs:
 
           FILE="/usr/local/bigbluebutton/core/scripts/video.yml"
 
-          # keep everything up to and including formats:
-          sudo sed -i '/^formats:/q' "$FILE"
+          # ensure file exists and keep everything up to and including formats:
+          sudo install -d -m 0755 "$(dirname "$FILE")"
+          if [ -f "$FILE" ] && grep -q '^formats:' "$FILE"; then
+            sudo sed -i '/^formats:/q' "$FILE"
+          else
+            echo 'formats:' | sudo tee "$FILE" > /dev/null
+          fi
 
-          # append your block
+          # append supported formats block
           sudo tee -a "$FILE" > /dev/null <<'EOF'
             - mimetype: 'video/webm;codecs="vp09.00.41.08,opus"'
               extension: webm
@@ -331,6 +362,26 @@ jobs:
                     '-f', 'mp4', '-movflags', 'faststart' ]
               postprocess: []
           EOF
+      - name: Restart the bbb-rap-resque-worker service to apply recording-related changes
+        run: |
+          # Ensure bbb-rap-resque-worker is running to process recordings
+          sudo systemctl restart bbb-rap-resque-worker.service
+          sudo systemctl status bbb-rap-resque-worker.service
+      - name: Check installed packages
+        run: |
+          echo "Checking if bbb-presentation-video is installed:"
+          if dpkg -s bbb-presentation-video >/dev/null 2>&1; then
+            echo "✓ bbb-presentation-video is installed"
+          else
+            echo "✗ bbb-presentation-video is NOT installed"
+          fi
+
+          echo "Checking if bbb-playback-video is installed:"
+          if dpkg -s bbb-playback-video >/dev/null 2>&1; then
+            echo "✓ bbb-playback-video is installed"
+          else
+            echo "✗ bbb-playback-video is NOT installed"
+          fi
       - uses: actions/setup-node@v4
         name: PLAYRIGHT CACHE - Restore Playright node modules from cache
         with:
