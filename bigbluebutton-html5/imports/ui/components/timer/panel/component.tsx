@@ -399,7 +399,7 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
           {stopwatch ? (
             <Styled.TimerCurrent
               aria-hidden
-              data-test="timerCurrent"
+              data-test="stopwatchCurrent"
             >
               {humanizeSeconds(Math.floor(timePassed / 1000))}
             </Styled.TimerCurrent>
@@ -411,7 +411,7 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
                 onClick={handleDecrement}
                 disabled={running}
               />
-              <Styled.TimeInputGroup>
+              <Styled.TimeInputGroup data-test="timerCurrent">
                 <>
                   <Styled.TimerInput
                     type="number"

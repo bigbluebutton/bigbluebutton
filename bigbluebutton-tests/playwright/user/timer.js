@@ -10,14 +10,18 @@ class Timer extends MultiUsers {
   }
 
   async stopwatchTest() {
-    await this.openTimerAndStopwatch();
-    const timerCurrentLocator = this.modPage.getLocator(e.timerCurrent);
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage.waitAndClick(e.timerStopwatchFeature);
+    await this.modPage.waitAndClick(e.stopwatch);
+    await this.modPage.hasElement(e.stopwatchCurrent, 'should display the timer counter in the sidebar content');
+
+    const timerCurrentLocator = this.modPage.getLocator(e.stopwatchCurrent);
     const timerIndicatorLocator = this.modPage.getLocator(e.timerIndicator);
 
     // compare initial values of the stopwatch elements after 2 seconds running
     const initialValueStopWatch = await timeInSeconds(timerCurrentLocator);
     const initialValueStopWatchIndicator = await timeInSeconds(timerIndicatorLocator);
-    await this.modPage.hasText(e.timerCurrent, /00:00/, 'should display the initial value of the stopwatch');
+    await this.modPage.hasText(e.stopwatchCurrent, /00:00/, 'should display the initial value of the stopwatch');
     await this.clickOnTimerControl();
     await sleep(2000);
     await expect(
@@ -45,18 +49,18 @@ class Timer extends MultiUsers {
 
     // reset a stopped stopwatch
     await this.modPage.waitAndClick(e.resetTimerStopwatch);
-    await this.modPage.hasText(e.timerCurrent, /00:00/, 'should reset the stopwatch timer to its initial value');
+    await this.modPage.hasText(e.stopwatchCurrent, /00:00/, 'should reset the stopwatch timer to its initial value');
     await this.modPage.hasText(e.timerIndicator, /00:00/, 'should reset the stopwatch indicator to its initial value');
 
     // reset a running stopwatch and check if the values are reset
     await this.clickOnTimerControl();
-    await this.modPage.hasText(e.timerCurrent, /00:02/, 'should display 00:02 after 2 seconds');
+    await this.modPage.hasText(e.stopwatchCurrent, /00:02/, 'should display 00:02 after 2 seconds');
     await this.modPage.waitAndClick(e.resetTimerStopwatch);
     await expect(
       this.modPage.getLocator(e.startStopTimer),
       `should switch the button color to the same as stopped after resetting the timer`
     ).toHaveAttribute('color', 'primary');
-    await this.modPage.hasText(e.timerCurrent, /00:00/, 'should display the initial value of the stopwatch timer after reset');
+    await this.modPage.hasText(e.stopwatchCurrent, /00:00/, 'should display the initial value of the stopwatch timer after reset');
     await this.modPage.hasText(e.timerIndicator, /00:00/, 'should display the initial value of the stopwatch indicator after reset');
   }
 
@@ -111,7 +115,6 @@ class Timer extends MultiUsers {
 
   async openTimerAndStopwatch() {
     await this.modPage.waitForSelector(e.whiteboard);
-    await this.modPage.waitAndClick(e.actions);
     await this.modPage.waitAndClick(e.timerStopwatchFeature);
     await this.modPage.hasElement(e.timerCurrent, 'should display the timer counter in the sidebar content');
   }
