@@ -13,15 +13,19 @@ jobs:
   plugin-sdk-version-check:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout PR's source merged into its target branch
+        if: github.event_name == 'pull_request'
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 1
+          ref: refs/pull/${{ github.event.number }}/merge
+      - name: Checkout commit/branch
+        if: github.event_name != 'pull_request'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
 
       - name: Ensure jq is installed
         run: sudo apt-get update && sudo apt-get install -y jq
-
-      - name: Merge branches
-        uses: ./.github/actions/merge-branches
 
       - name: Extract plugin-sdk version from html5
         working-directory: bigbluebutton-html5

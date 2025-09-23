@@ -183,6 +183,8 @@ class CreateParameters extends MultiUsers {
     await this.modPage.shareWebcam();
     await this.userPage.shareWebcam();
 
+    await sleep(1000);
+
     await checkScreenshots(this, 'should be the layout focus on presentation', [e.webcamContainer, e.webcamMirroredVideoContainer], 'focus-on-presentation');
   }
 
@@ -197,6 +199,8 @@ class CreateParameters extends MultiUsers {
     await this.modPage.waitForSelector(e.webcamMirroredVideoContainer, VIDEO_LOADING_WAIT_TIME);
     await this.modPage.waitForSelector(e.leaveVideo, VIDEO_LOADING_WAIT_TIME);
 
+    await sleep(1000);
+
     await checkScreenshots(this, 'should be the video focus layout', [e.webcamContainer, e.webcamMirroredVideoContainer], 'video-focus');
   }
 
@@ -207,6 +211,7 @@ class CreateParameters extends MultiUsers {
     await this.modPage.shareWebcam();
     await this.userPage.shareWebcam();
 
+    await sleep(1000);
 
     await checkScreenshots(this, 'should be the cameras only layout', [e.webcamContainer, e.webcamMirroredVideoContainer], 'cameras-only');
   }
@@ -217,6 +222,7 @@ class CreateParameters extends MultiUsers {
 
     await this.modPage.wasRemoved(e.joinVideo);
     await this.userPage.wasRemoved(e.joinVideo);
+
     await sleep(1000);
 
     await checkScreenshots(this, 'should be the presentation only layout', [e.webcamContainer, e.webcamMirroredVideoContainer], 'presentation-only');
@@ -230,6 +236,8 @@ class CreateParameters extends MultiUsers {
 
     await this.modPage.hasElement(e.chatMessages);
     await this.userPage.hasElement(e.chatMessages);
+
+    await sleep(1000);
 
     await checkScreenshots(this, 'should be the participants and chat only layout', [e.webcamContainer, e.webcamMirroredVideoContainer], 'participants-and-chat-only');
   }

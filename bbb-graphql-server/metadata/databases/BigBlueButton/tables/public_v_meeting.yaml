@@ -191,19 +191,35 @@ select_permissions:
   - role: bbb_client_not_in_meeting
     permission:
       columns:
+        - audioBridge
         - bannerColor
         - bannerText
-        - customLogoUrl
+        - cameraBridge
+        - createdAt
+        - createdTime
         - customDarkLogoUrl
+        - customLogoUrl
+        - disabledFeatures
+        - durationInSeconds
+        - endWhenNoModerator
+        - endWhenNoModeratorDelayInMinutes
         - ended
         - endedAt
         - endedBy
         - endedByUserName
         - endedReasonCode
+        - extId
         - isBreakout
+        - loginUrl
         - logoutUrl
+        - maxPinnedCameras
+        - meetingCameraCap
         - meetingId
         - name
+        - notifyRecordingIsOn
+        - presentationUploadExternalDescription
+        - presentationUploadExternalUrl
+        - screenShareBridge
       filter:
         meetingId:
           _eq: X-Hasura-MeetingId

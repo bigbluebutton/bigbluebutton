@@ -19,9 +19,9 @@ subscription userCurrentSubscription {
     hasDrawPermissionOnCurrentPage
     inactivityWarningDisplay
     inactivityWarningTimeoutSecs
-    requestedUnmuteByMod
     isDialIn
     isModerator
+    logoutUrl
     currentlyInMeeting
     joinErrorCode
     joinErrorMessage
@@ -35,29 +35,16 @@ subscription userCurrentSubscription {
     presenter
     raiseHand
     registeredAt
+    requestedUnmuteByMod
     role
     speechLocale
     captionLocale
     userId
-    bot
-    breakoutRooms {
-      hasJoined
-      assignedAt
-      breakoutRoomId
-      isLastAssignedRoom
-      durationInSeconds
-      endedAt
-      freeJoin
-      inviteDismissedAt
-      isDefaultName
-      joinURL
-      name
-      sendInvitationToModerators
-      sequence
-      shortName
-      showInvitation
-      startedAt
-      isUserCurrentlyInRoom
+    meeting {
+      ended
+      endedReasonCode
+      endedByUserName
+      logoutUrl
     }
     lastBreakoutRoom {
       currentlyInRoom
@@ -78,6 +65,7 @@ subscription userCurrentSubscription {
       spoke
       listenOnly
       deafened
+      listenOnlyInputDevice
     }
     userLockSettings {
       disablePublicChat

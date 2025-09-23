@@ -250,7 +250,6 @@ const ChatMessageList: React.FC<ChatListProps> = ({
 
   const sendReaction = useCallback((
     reactionEmoji: string,
-    reactionEmojiId: string,
     chatId: string,
     messageId: string,
   ) => {
@@ -259,7 +258,6 @@ const ChatMessageList: React.FC<ChatListProps> = ({
         chatId,
         messageId,
         reactionEmoji,
-        reactionEmojiId,
       },
     }).catch((e) => {
       logger.error({
@@ -274,7 +272,6 @@ const ChatMessageList: React.FC<ChatListProps> = ({
 
   const deleteReaction = useCallback((
     reactionEmoji: string,
-    reactionEmojiId: string,
     chatId: string,
     messageId: string,
   ) => {
@@ -283,7 +280,6 @@ const ChatMessageList: React.FC<ChatListProps> = ({
         chatId,
         messageId,
         reactionEmoji,
-        reactionEmojiId,
       },
     }).catch((e) => {
       logger.error({

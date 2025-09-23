@@ -6,7 +6,6 @@ import Icon from '/imports/ui/components/common/icon/component';
 import LearningDashboardService from '/imports/ui/components/learning-dashboard/service';
 import Styled from '../styles';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
-import { Meeting } from '/imports/ui/Types/meeting';
 
 const intlMessages = defineMessages({
   learningDashboardLabel: {
@@ -17,7 +16,7 @@ const intlMessages = defineMessages({
 
 const LearningDashboardListItem = () => {
   const intl = useIntl();
-  const { data: meetingInfo } = useMeeting((meeting: Partial<Meeting>) => ({
+  const { data: meetingInfo } = useMeeting((meeting) => ({
     learningDashboardAccessToken: meeting.learningDashboardAccessToken,
     isBreakout: meeting?.isBreakout,
   }));

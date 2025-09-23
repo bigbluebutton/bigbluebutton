@@ -105,12 +105,18 @@ The client logger accepts two targets for the logs: `console` and `external`.
 | level  | "info"        | "debug", "info", "warn", "error" | The lowest log level that will be sent. Any log level higher than this will also be sent to the target. |
 | url    | -             | -                                | The end point where logs will be sent to when the target is set to "external".                          |
 | method | -             | "POST", "PUT"                    | HTTP method being used when using the target "external".                                                |
+| enableRuntimeErrorLogging | false | true / false          | When true, the client installs global listeners to capture runtime errors, unhandled rejections, and resource load failures. |
 
 The default values are:
 
 ```yaml
 clientLog:
-  console: { enabled: true, level: debug }
+  console:
+    {
+      enabled: true,
+      level: debug,
+      enableRuntimeErrorLogging: false,
+    }
   external:
     {
       enabled: false,

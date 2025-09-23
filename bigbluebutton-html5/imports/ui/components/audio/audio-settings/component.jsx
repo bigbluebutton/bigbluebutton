@@ -443,7 +443,10 @@ class AudioSettings extends React.Component {
   }
 
   unmuteOnExit() {
-    const { toggleMuteMicrophoneSystem, toggleVoice } = this.props;
+    const {
+      toggleMuteMicrophoneSystem,
+      toggleVoice,
+    } = this.props;
     const { unmuteOnExit } = this.state;
 
     // Unmutes microphone if flagged to do so

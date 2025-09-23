@@ -38,7 +38,6 @@ export interface Message {
   reactions: {
     createdAt: string;
     reactionEmoji: string;
-    reactionEmojiId: string;
     user: {
       name: string;
       userId: string;

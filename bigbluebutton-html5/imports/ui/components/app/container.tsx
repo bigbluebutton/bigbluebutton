@@ -24,7 +24,6 @@ import {
 import { handleIsNotificationEnabled } from '/imports/ui/components/plugins-engine/ui-commands/notification/handler';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
 import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
-import { PINNED_PAD_SUBSCRIPTION, PinnedPadSubscriptionResponse } from '/imports/ui/components/notes/queries';
 import {
   CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
   CurrentPresentationPageSubscriptionResponse,
@@ -59,8 +58,6 @@ const AppContainer: React.FC<AppContainerProps> = ({ pluginConfig }) => {
     CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
     { skip: !currentUser?.presenter },
   );
-
-  const { data: pinnedPadData } = useDeduplicatedSubscription<PinnedPadSubscriptionResponse>(PINNED_PAD_SUBSCRIPTION);
 
   const { viewScreenshare } = useSettings(SETTINGS.DATA_SAVING) as { viewScreenshare: boolean };
   const { partialUtterances, minUtteranceLength } = useSettings(SETTINGS.TRANSCRIPTION) as {
@@ -99,7 +96,6 @@ const AppContainer: React.FC<AppContainerProps> = ({ pluginConfig }) => {
     window.meetingClientSettings.public.presentation.restoreOnUpdate,
   );
 
-  const NOTES_CONFIG = window.meetingClientSettings.public.notes;
   const {
     presenter = false,
     raiseHand = false,
@@ -114,8 +110,8 @@ const AppContainer: React.FC<AppContainerProps> = ({ pluginConfig }) => {
   ].includes(selectedLayout);
 
   const presentationIsOpen: boolean = presentation.isOpen;
-  const isSharedNotesPinnedFromGraphql: boolean = !!pinnedPadData
-    && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
+  const isSharedNotesPinnedFromGraphql: boolean = currentMeeting
+    ?.componentsFlags?.isSharedNotesPinned || false;
   const isSharedNotesPinned: boolean = isSharedNotesPinnedFromGraphql && presentationIsOpen;
 
   const {

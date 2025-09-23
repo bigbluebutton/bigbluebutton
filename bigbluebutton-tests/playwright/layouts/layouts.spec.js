@@ -32,4 +32,8 @@ test.describe('Layout', { tag: ['@ci', '@flaky-3.1'] }, () => {
   test("Update everyone's layout", async () => {
     await layouts.updateEveryone();
   });
+
+  test("Video Pagination", async ({ browser }) => {
+    await layouts.videoPagination(browser);
+  });
 });

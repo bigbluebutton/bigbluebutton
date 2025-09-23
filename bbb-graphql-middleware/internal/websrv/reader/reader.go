@@ -1,19 +1,23 @@
 package reader
 
 import (
-	"bbb-graphql-middleware/internal/common"
 	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
-	"nhooyr.io/websocket"
 	"sync"
 	"time"
+
+	"bbb-graphql-middleware/internal/common"
+	streamingserver "bbb-graphql-middleware/internal/streaming_server"
+
+	"github.com/coder/websocket"
 )
 
 func BrowserConnectionReader(
 	browserConnection *common.BrowserConnection,
-	waitGroups []*sync.WaitGroup) {
+	waitGroups []*sync.WaitGroup,
+) {
 	defer browserConnection.Logger.Debugf("finished")
 	browserConnection.Logger.Debugf("starting")
 
@@ -71,11 +75,15 @@ func BrowserConnectionReader(
 
 		if browserMessageType.Type == "subscribe" {
 			if bytes.Contains(message, []byte("\"query\":\"mutation")) {
-				browserConnection.FromBrowserToGqlActionsChannel.Send(message)
+				browserConnection.FromBrowserToGqlActionsChannel.SendWait(browserConnection.Context, message)
+				continue
+			}
+			if bytes.Contains(message, []byte("\"query\":\"subscription getCursorCoordinatesStream")) {
+				go streamingserver.ReadNewStreamingSubscription(browserConnection, message)
 				continue
 			}
 		}
 
-		browserConnection.FromBrowserToHasuraChannel.Send(message)
+		browserConnection.FromBrowserToHasuraChannel.SendWait(browserConnection.Context, message)
 	}
 }

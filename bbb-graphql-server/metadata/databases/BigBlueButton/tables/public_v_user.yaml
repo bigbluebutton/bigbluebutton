@@ -119,6 +119,7 @@ select_permissions:
         - role
         - speechLocale
         - userId
+        - meetingId
       filter:
         _and:
           - meetingId:

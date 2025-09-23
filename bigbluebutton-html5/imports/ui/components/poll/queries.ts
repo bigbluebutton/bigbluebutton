@@ -79,7 +79,7 @@ subscription getCurrentPollData {
         }
         optionDescIds
       }
-      responses {
+      responses(order_by: {optionId: asc}) {
         correctOption
         optionResponsesCount
         optionDesc

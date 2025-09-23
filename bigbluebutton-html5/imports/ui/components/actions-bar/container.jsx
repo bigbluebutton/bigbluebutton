@@ -29,7 +29,6 @@ import { isDarkThemeEnabled } from '/imports/ui/components/app/service';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { EXTERNAL_VIDEO_STOP } from '../external-video-player/mutations';
-import { PINNED_PAD_SUBSCRIPTION } from '../notes/queries';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 import connectionStatus from '../../core/graphql/singletons/connectionStatus';
 import { useMeetingLayoutUpdater, usePushLayoutUpdater } from '../layout/push-layout/hooks';
@@ -40,7 +39,6 @@ import deviceInfo from '/imports/utils/deviceInfo';
 const isLayeredView = window.matchMedia(`(max-width: ${SMALL_VIEWPORT_BREAKPOINT}px)`);
 
 const ActionsBarContainer = (props) => {
-  const NOTES_CONFIG = window.meetingClientSettings.public.notes;
   const LAYOUT_CONFIG = window.meetingClientSettings.public.layout;
   const { showPushLayoutButton } = LAYOUT_CONFIG;
   const actionsBarStyle = layoutSelectOutput((i) => i.actionBar);
@@ -89,10 +87,8 @@ const ActionsBarContainer = (props) => {
   };
   const amIPresenter = currentUserData?.presenter;
   const amIModerator = currentUserData?.isModerator;
-  const { data: pinnedPadData } = useDeduplicatedSubscription(
-    PINNED_PAD_SUBSCRIPTION,
-  );
-  const isMobile = layoutSelect((i) => i.deviceType) === DEVICE_TYPE.MOBILE;
+
+  const isMobile = layoutSelect((i) => i.deviceType === DEVICE_TYPE.MOBILE);
 
   const allowExternalVideo = useIsExternalVideoEnabled();
   const connected = useReactiveVar(connectionStatus.getConnectedStatusVar());
@@ -104,7 +100,7 @@ const ActionsBarContainer = (props) => {
   const isRaiseHandEnabled = useIsRaiseHandEnabled();
   const isReactionsButtonEnabled = useIsUserReactionsEnabled();
   const layoutSettings = useSettings(SETTINGS.LAYOUT);
-  const { pushLayout } = layoutSettings;
+  const { pushLayout, selectedLayout } = layoutSettings;
   const setPushLayout = usePushLayoutUpdater(pushLayout);
   const setMeetingLayout = useMeetingLayoutUpdater(
     cameraDockOutput,
@@ -132,10 +128,8 @@ const ActionsBarContainer = (props) => {
 
   if (actionsBarStyle.display === false) return null;
   if (!currentMeeting) return null;
-  if (!pinnedPadData) return null;
 
-  const isSharedNotesPinnedFromGraphql = !!pinnedPadData
-  && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
+  const isSharedNotesPinnedFromGraphql = currentMeeting?.componentsFlags?.isSharedNotesPinned;
 
   const isSharedNotesPinned = isSharedNotesPinnedFromGraphql;
   return (
@@ -175,6 +169,7 @@ const ActionsBarContainer = (props) => {
         ariaHidden,
         isDarkThemeEnabled: darkModeIsEnabled,
         isMobile,
+        selectedLayout,
       }
     }
     />

@@ -171,7 +171,6 @@ const WhiteboardContainer = (props) => {
   const { data: whiteboardWritersData } = useDeduplicatedSubscription(
     CURRENT_PAGE_WRITERS_SUBSCRIPTION,
     {
-      variables: { pageId: curPageId },
       skip: !curPageId,
     },
   );
@@ -261,7 +260,7 @@ const WhiteboardContainer = (props) => {
     publishCursorUpdate,
   ), [publishCursorUpdate]);
 
-  const isMultiUserActive = whiteboardWriters?.length > 0;
+  const isMultiUserActive = whiteboardWriters.filter((u) => !u.user.presenter)?.length > 0;
   const cursorArray = useMergedCursorData();
   const {
     data: currentMeeting,
@@ -345,7 +344,6 @@ const WhiteboardContainer = (props) => {
     }, RECONNECT_SYNC_DELAY_MS);
   }, [
     connectedStatus,
-    curPageId,
     isMultiUserActive,
     hasWBAccess,
     presenterChanged,
@@ -628,6 +626,7 @@ WhiteboardContainer.propTypes = {
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
   zoomChanger: PropTypes.func.isRequired,
+  fitToWidth: PropTypes.bool.isRequired,
 };
 
 export default WhiteboardContainer;

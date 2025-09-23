@@ -132,8 +132,12 @@ class Dropdown extends Component {
   }
 
   handleContextMenu(event) {
-    event.preventDefault();
-    this.handleHide();
+    const { isOpen } = this.state;
+
+    if (isOpen) {
+      event.preventDefault();
+      this.handleHide();
+    }
   }
 
   handleShow() {

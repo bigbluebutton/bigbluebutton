@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Resizable from 're-resizable';
+import { Resizable } from 're-resizable';
 import { ACTIONS, DEVICE_TYPE, PANELS } from '../layout/enums';
 import ChatContainer from '/imports/ui/components/chat/chat-graphql/component';
 import ProfileSettings from '/imports/ui/components/profile-settings/component';

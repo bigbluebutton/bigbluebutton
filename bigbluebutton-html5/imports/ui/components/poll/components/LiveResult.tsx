@@ -168,7 +168,7 @@ const LiveResult: React.FC<LiveResultProps> = ({
           {usersCount !== numberOfAnswerCount
             ? <Styled.ConnectingAnimation animations={animations} /> : null}
         </Styled.Status>
-        <ResponsiveContainer width="90%" height={250}>
+        <ResponsiveContainer width="90%" height={translatedResponses.length * 50}>
           <BarChart
             data={translatedResponses}
             layout="vertical"

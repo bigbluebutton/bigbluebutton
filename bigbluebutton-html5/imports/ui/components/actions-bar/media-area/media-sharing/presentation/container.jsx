@@ -80,7 +80,7 @@ const PresentationUploaderContainer = (props) => {
     <ErrorBoundary Fallback={FallbackModal}>
       <PresentationUploader
         isPresenter={amIPresenter}
-        presentations={presentations}
+        presentations={presentations.filter((p) => p && p.uploadCompleted)}
         currentPresentation={currentPresentation}
         exportPresentation={exportPresentation}
         dispatchChangePresentationDownloadable={dispatchChangePresentationDownloadable}

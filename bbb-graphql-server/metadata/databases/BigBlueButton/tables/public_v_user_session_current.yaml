@@ -22,3 +22,18 @@ select_permissions:
           - sessionToken:
               _eq: X-Hasura-SessionToken
     comment: ""
+  - role: bbb_client_not_in_meeting
+    permission:
+      columns:
+        - enforceLayout
+        - sessionName
+        - sessionToken
+      filter:
+        _and:
+          - meetingId:
+              _eq: X-Hasura-MeetingId
+          - userId:
+              _eq: X-Hasura-UserId
+          - sessionToken:
+              _eq: X-Hasura-SessionToken
+    comment: ""

@@ -16,7 +16,6 @@ import { UserAggregateCountSubscriptionResponse, UserListComponentProps } from '
 import Styled from './styles';
 import { onSaveUserNames } from './service';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
-import { Meeting } from '/imports/ui/Types/meeting';
 import { GET_USER_NAMES } from '/imports/ui/core/graphql/queries/users';
 import logger from '/imports/startup/client/logger';
 
@@ -55,7 +54,7 @@ const UserList: React.FC<UserListComponentProps> = () => {
   } = useDeduplicatedSubscription<
     UserAggregateCountSubscriptionResponse>(USER_AGGREGATE_COUNT_SUBSCRIPTION);
   const count: number = countData?.user_aggregate?.aggregate?.count || 0;
-  const { data: meetingInfo } = useMeeting((meeting: Partial<Meeting>) => ({
+  const { data: meetingInfo } = useMeeting((meeting) => ({
     name: meeting?.name,
     lockSettings: meeting?.lockSettings,
     isBreakout: meeting?.isBreakout,
@@ -93,7 +92,7 @@ const UserList: React.FC<UserListComponentProps> = () => {
     return (
       <Styled.ScrollableSection id="scroll-box">
         {renderGuestManagement()}
-        <UserListParticipants count={count} />
+        <UserListParticipants />
       </Styled.ScrollableSection>
     );
   };

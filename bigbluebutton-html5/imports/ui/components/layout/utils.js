@@ -8,6 +8,7 @@ import {
 const phoneUpperBoundary = 600;
 const tabletPortraitUpperBoundary = 900;
 const tabletLandscapeUpperBoundary = 1200;
+const WAIT_LAYOUT_PARAMETER = 'waitLayout';
 
 const windowSize = () => window.document.documentElement.clientWidth;
 const isMobile = () => windowSize() <= (phoneUpperBoundary - 1);
@@ -18,6 +19,11 @@ const isTabletLandscape = () => windowSize() >= tabletPortraitUpperBoundary
 const isTablet = () => windowSize() >= phoneUpperBoundary
   && windowSize() <= (tabletLandscapeUpperBoundary - 1);
 const isDesktop = () => windowSize() >= tabletLandscapeUpperBoundary;
+
+const getWaitLayout = () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get(WAIT_LAYOUT_PARAMETER) || false;
+};
 
 const device = {
   isMobile, isTablet, isTabletPortrait, isTabletLandscape, isDesktop,
@@ -162,6 +168,10 @@ const LAYOUTS_SYNC = {
     [SYNC.PROPAGATE_ELEMENTS]: [],
     [SYNC.REPLICATE_ELEMENTS]: [LAYOUT_ELEMENTS.LAYOUT_TYPE],
   },
+  [LAYOUT_TYPE.PLUGINS_ONLY]: {
+    [SYNC.PROPAGATE_ELEMENTS]: [],
+    [SYNC.REPLICATE_ELEMENTS]: [LAYOUT_ELEMENTS.LAYOUT_TYPE],
+  },
   [LAYOUT_TYPE.MEDIA_ONLY]: {
     [SYNC.PROPAGATE_ELEMENTS]: [],
     [SYNC.REPLICATE_ELEMENTS]: [
@@ -190,6 +200,17 @@ const layoutAllowedInSettings = (layout) => layout !== LAYOUT_TYPE.CAMERAS_ONLY
   && layout !== LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY
   && layout !== LAYOUT_TYPE.MEDIA_ONLY;
 
+const getDeviceType = () => {
+  let deviceType = null;
+  if (isMobile()) deviceType = DEVICE_TYPE.MOBILE;
+  if (isTablet()) deviceType = DEVICE_TYPE.TABLET;
+  if (isTabletPortrait()) deviceType = DEVICE_TYPE.TABLET_PORTRAIT;
+  if (isTabletLandscape()) deviceType = DEVICE_TYPE.TABLET_LANDSCAPE;
+  if (isDesktop()) deviceType = DEVICE_TYPE.DESKTOP;
+  return deviceType;
+};
+
 export {
   suportedLayouts, LAYOUTS_SYNC, getSupportedLayouts, isLayoutSupported, layoutAllowedInSettings,
+  getWaitLayout, getDeviceType,
 };

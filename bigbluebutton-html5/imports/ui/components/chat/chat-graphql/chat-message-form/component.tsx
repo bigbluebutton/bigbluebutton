@@ -419,6 +419,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const renderForm = () => {
     const formRef = useRef<HTMLFormElement | null>(null);
     const CHAT_EDIT_ENABLED = useIsEditChatMessageEnabled();
+    const hasSelectedTextInChat = useRef(false);
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement> | React.KeyboardEvent<HTMLInputElement> | Event) => {
       e.preventDefault();
@@ -568,15 +569,37 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
       };
     }, []);
 
-    document.addEventListener('click', (event) => {
-      const chatList = document.getElementById('chat-list');
-      if (chatList?.contains(event.target as Node)) {
-        const selection = window.getSelection()?.toString();
-        if (selection?.length === 0) {
-          textAreaRef.current?.textarea.focus();
+    useEffect(() => {
+      const handleClick = (event: MouseEvent) => {
+        const chatList = document.getElementById('chat-list');
+        if (chatList?.contains(event.target as Node)) {
+          const selection = window.getSelection()?.toString();
+          if (selection?.length === 0 && !hasSelectedTextInChat.current) {
+            textAreaRef.current?.textarea.focus();
+          }
         }
-      }
-    });
+      };
+
+      /**
+       * Workaround for Firefox. `Selection.toString()` always returns empty string.
+       */
+      const handleSelectionChange = () => {
+        const selection = window.getSelection();
+        const chatList = document.getElementById('chat-list');
+        hasSelectedTextInChat.current = (
+          (selection?.focusOffset ?? 0) > 0
+          && Boolean(chatList?.contains(selection?.anchorNode as Node))
+        );
+      };
+
+      document.addEventListener('click', handleClick);
+      document.addEventListener('selectionchange', handleSelectionChange);
+
+      return () => {
+        document.removeEventListener('click', handleClick);
+        document.removeEventListener('selectionchange', handleSelectionChange);
+      };
+    }, []);
 
     useEffect(() => {
       if (chatSendMessageError && error == null) {
@@ -587,7 +610,6 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
 
     useEffect(() => {
       const handleClickOutside = (event: MouseEvent) => {
-        // eslint-disable-next-line react/no-find-dom-node
         const button = emojiPickerButtonRef.current;
         if (
           (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target as Node))
@@ -663,7 +685,9 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
                     color: 'action.active',
                   }}
                   onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                  type="button"
                   data-test="emojiPickerButton"
+                  disabled={disabled || partnerIsLoggedOut || chatSendMessageLoading}
                   ref={emojiPickerButtonRef}
                 >
                   <AddReactionIcon />
