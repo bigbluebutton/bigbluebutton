@@ -580,7 +580,7 @@ const WhiteboardContainer = (props) => {
     typeName: 'shape',
   });
 
-  if (!currentPresentationPage || !currentUser) return null;
+  if (!currentPresentationPage) return null;
 
   return (
     <ErrorBoundaryWithReload>
