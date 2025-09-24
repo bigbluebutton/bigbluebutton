@@ -1740,6 +1740,16 @@ const Whiteboard = React.memo((props) => {
         z: newZoom,
       };
       tlEditorRef.current.store.put([updatedCurrentCam]);
+
+      // Force GPU acceleration to improve viewer's slide zooming on Safari
+      if (/^((?!chrome|android).)*safari/i.test(navigator.userAgent)) {
+        const images = window.document.querySelectorAll('.tl-image');
+        if (images.length > 0) {
+          images.forEach(div => {
+            div.style.webkitTransform = 'translateZ(0)';
+          });
+        }
+      }
     }
   };
 
@@ -2210,3 +2220,4 @@ Whiteboard.propTypes = {
   isInfiniteWhiteboard: PropTypes.bool,
   whiteboardWriters: PropTypes.arrayOf(PropTypes.shape).isRequired,
 };
+
