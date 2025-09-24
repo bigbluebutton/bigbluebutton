@@ -7,8 +7,8 @@ test.describe('Options', { tag: '@ci' }, () => {
   const options = new Options();
 
   test.describe.configure({ mode: fullyParallel ? 'parallel' : 'serial' });
-  test[fullyParallel ? 'beforeEach' : 'beforeAll'](async ({ browser }) => {
-    await initializePages(options, browser);
+  test[fullyParallel ? 'beforeEach' : 'beforeAll'](async ({ browser }, testInfo) => {
+    await initializePages(options, browser, { testInfo });
   });
 
   test('Open about modal', async () => {
@@ -29,5 +29,9 @@ test.describe('Options', { tag: '@ci' }, () => {
 
   test('Font size', async () => {
     await options.fontSizeTest();
+  });
+
+  test('Auto hide whiteboard toolbar', async () => {
+    await options.autoHideWhiteboardToolbar();
   });
 });

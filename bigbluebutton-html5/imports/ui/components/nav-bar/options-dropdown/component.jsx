@@ -44,6 +44,14 @@ const intlMessages = defineMessages({
     id: 'app.navBar.optionsDropdown.leaveSessionLabel',
     description: 'Leave session button label',
   },
+  leaveBreakoutLabel: {
+    id: 'app.navBar.optionsDropdown.leaveBreakoutLabel',
+    description: 'Leave breakout button label',
+  },
+  leaveBreakoutDesc: {
+    id: 'app.navBar.optionsDropdown.leaveBreakoutDesc',
+    description: 'Describes leave breakout option',
+  },
   fullscreenDesc: {
     id: 'app.navBar.optionsDropdown.fullscreenDesc',
     description: 'Describes fullscreen option',
@@ -436,12 +444,19 @@ class OptionsDropdown extends PureComponent {
       }];
 
       if (allowLogoutSetting) {
+        const leaveLabel = isBreakoutRoom
+          ? intlMessages.leaveBreakoutLabel
+          : intlMessages.leaveSessionLabel;
+        const leaveDesc = isBreakoutRoom
+          ? intlMessages.leaveBreakoutDesc
+          : intlMessages.leaveSessionDesc;
+
         bottomItems.push({
           key: 'list-item-logout',
           dataTest: 'optionsLogoutButton',
           icon: 'logout',
-          label: intl.formatMessage(intlMessages.leaveSessionLabel),
-          description: intl.formatMessage(intlMessages.leaveSessionDesc),
+          label: intl.formatMessage(leaveLabel),
+          description: intl.formatMessage(leaveDesc),
           onClick: () => this.leaveSession(),
         });
       }
