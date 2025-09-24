@@ -378,7 +378,7 @@ jobs:
           sudo chmod 755 /var/cache/apt/archives /var/cache/apt/archives/partial 2>/dev/null || true
           find /var/cache/apt/archives -type f -name '*.deb' -print0 \
             | sort -z \
-            | xargs -0 -r sha256sum > apt-manifest-end.txt
+            | sha256sum > apt-manifest-end.txt
           echo "hash=$(sha256sum apt-manifest-end.txt | cut -d' ' -f1)" >> $GITHUB_OUTPUT
       - name: APT CACHE - Upload new packages (if changed)
         if: success() && matrix.shard == 1
