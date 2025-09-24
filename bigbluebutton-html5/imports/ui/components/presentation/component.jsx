@@ -384,7 +384,14 @@ class Presentation extends PureComponent {
       onPopupPreparing,
     } = this.props;
 
+    
     if (!isPresentationDetached) {
+      // Quit fullscreen first when detach fullscreen presentation
+      // This will however keep the popup window size same as fullscreen.
+      if (window.document.fullscreenElement != null) {
+        this.onFullscreenChange();
+      }
+
       const svgDimensions = this.calculateSize(slidePosition);
       const toolbarHeight = getToolbarHeight();
       const popup = window.open('', '_blank',
