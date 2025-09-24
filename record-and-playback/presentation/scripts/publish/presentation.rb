@@ -946,6 +946,17 @@ def process_presentation(package_dir)
         slide_changed = true
       end
 
+    when 'SetScreenshareAsContentEvent'
+      if @presentation_props['include_deskshare']
+        screenshareAsContent = event.at_xpath('screenshareAsContent')&.text == "true"
+        if !screenshareAsContent
+          deskshare = false
+          slide_changed = true
+        else
+          deskshare = slide_changed = true
+        end
+      end
+
     when 'AddShapeEvent', 'ModifyTextEvent'
       events_parse_shape(shapes, event, current_presentation, current_slide, timestamp)
 
@@ -1308,15 +1319,27 @@ def process_swap_events(events)
   @layout_swap_xml.instruct!
 
   @layout_swap_xml.recording('id' => 'layout_swap_events') do
-    swap_events.each do |event|
-      @layout_swap_xml.event(
-        timestamp: (translate_timestamp(event[:timestamp].to_f) / 1000).round(1),
-        show_screenshare: event[:screenshareAsContent],
-      )
+    @rec_events.each do |re|
+      # consider the last swap event before the current recording start
+      last_event_before_start = swap_events.select { |e| e[:timestamp].to_i < re[:start_timestamp] }.last
+      if last_event_before_start && last_event_before_start[:timestamp].to_i < re[:stop_timestamp]
+        @layout_swap_xml.event(
+          timestamp: (translate_timestamp(last_event_before_start[:timestamp].to_f) / 1000).round(1),
+          show_screenshare: last_event_before_start[:screenshareAsContent],
+        )
+      end
+
+      swap_events.each do |event|
+        timestamp = event[:timestamp].to_i
+        next unless (timestamp >= re[:start_timestamp]) && (timestamp <= re[:stop_timestamp])
+
+        @layout_swap_xml.event(
+          timestamp: (translate_timestamp(event[:timestamp].to_f) / 1000).round(1),
+          show_screenshare: event[:screenshareAsContent],
+        )
+      end
     end
   end
-
-
 end
 
 @shapes_svg_filename = 'shapes.svg'

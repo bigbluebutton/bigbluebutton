@@ -1352,8 +1352,7 @@ module BigBlueButton
           screenshareAsContent: event.at_xpath('screenshareAsContent')&.text == "true"
         }
       end
-
-      screenshare_content_events
+      screenshare_content_events.sort_by! { |event| event[:timestamp] }
     end
   end
 end
