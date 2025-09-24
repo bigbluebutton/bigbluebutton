@@ -1,5 +1,5 @@
 import React, {
-  useEffect, useMemo, useRef, useState,
+  useEffect, useMemo, useState,
 } from 'react';
 import PropTypes from 'prop-types';
 import { notify } from '/imports/ui/services/notification';
@@ -35,7 +35,6 @@ const fetchedpresentation = {};
 const FORCE_RESTORE_PRESENTATION_ON_NEW_EVENTS = 'bbb_force_restore_presentation_on_new_events';
 
 const PresentationContainer = (props) => {
-  const historyVarsRef = useRef(null);
   const [annotationStreamData, setAnnotationStreamData] = useState([]);
   const presentationIsOpen = props?.presentationIsOpen ?? true;
   const layoutContextDispatch = layoutDispatch();
@@ -90,17 +89,10 @@ const PresentationContainer = (props) => {
     }, new Date(0)).toISOString();
   }, [initialPageAnnotations, currentMeeting?.createdTime]);
 
-  useEffect(() => {
-    if (!currentPageId || !lastUpdatedAt) return;
-    if (!historyVarsRef.current || historyVarsRef.current?.pageId !== currentPageId) {
-      historyVarsRef.current = { pageId: currentPageId, updatedAt: lastUpdatedAt };
-    }
-  }, [currentPageId, lastUpdatedAt]);
-
   const canStream = !!lastUpdatedAt;
 
   useSubscription(ANNOTATION_HISTORY_STREAM, {
-    variables: historyVarsRef.current ?? { pageId: currentPageId, updatedAt: lastUpdatedAt },
+    variables: { pageId: currentPageId, updatedAt: lastUpdatedAt },
     skip: !currentPresentationPage || !canStream,
     onData: ({ data: subscriptionData }) => {
       const annotationStream = subscriptionData.data?.pres_annotation_history_curr_stream || [];
