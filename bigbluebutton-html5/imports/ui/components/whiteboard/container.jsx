@@ -223,7 +223,7 @@ const WhiteboardContainer = (props) => {
   const removeShapes = (shapeIds) => {
     const deletableShapeIds = fetchDeletableShapesRef.current?.(shapeIds);
 
-    if (deletableShapeIds.length === 0) return;
+    if (deletableShapeIds?.length === 0) return;
 
     presentationDeleteAnnotations({
       variables: {
