@@ -17,6 +17,7 @@ import {
   colorGrayLight,
   colorGrayLightest,
   colorGrayDark,
+  colorWhite,
   emphasizedMessageBackgroundColor,
   highlightedMessageBorderColor,
   systemMessageBorderColor,
@@ -64,7 +65,7 @@ export const ChatWrapper = styled.div<ChatWrapperProps>`
   ${({ isPresentationUpload }) => isPresentationUpload && `
       border: 1px solid ${systemMessageBorderColor};
       border-radius: 8px;
-      background-color: #ffffff;
+      background-color: ${colorWhite};
     `}
   ${({ isSystemSender }) => isSystemSender && `
     background-color: #fef9f1;
