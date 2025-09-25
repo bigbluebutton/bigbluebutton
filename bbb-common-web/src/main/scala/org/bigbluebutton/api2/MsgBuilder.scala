@@ -108,9 +108,17 @@ object MsgBuilder {
     }
 
     val content = Try {
+      val maxChars: Int = 1024 * 1024 // limit ~1 MB to avoid OOM
       val pageAbsoluteTxtPath = presParentPath + "/textfiles/slide-" + page.toString + ".txt"
       Using(Source.fromFile(pageAbsoluteTxtPath, StandardCharsets.UTF_8.name())) { source =>
-        source.mkString
+        val buffer = new StringBuilder
+        val iter = source.iter
+        var count = 0
+        while (iter.hasNext && count < maxChars) {
+          buffer.append(iter.next())
+          count += 1
+        }
+        buffer.toString()
       }.get
     }.getOrElse("")
 
