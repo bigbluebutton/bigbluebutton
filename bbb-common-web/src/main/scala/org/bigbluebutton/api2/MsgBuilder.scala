@@ -8,10 +8,10 @@ import org.bigbluebutton.common2.domain.{ DefaultProps, PageVO, PresentationPage
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.presentation.imp.ImageResolutionService
 import org.bigbluebutton.presentation.messages._
-
-import java.net.URL
 import scala.jdk.CollectionConverters._
 import scala.util.{ Try, Using }
+import scala.io.Source
+import java.nio.charset.StandardCharsets
 
 object MsgBuilder {
   private lazy val imageResolutionService: ImageResolutionService = new ImageResolutionService
@@ -108,9 +108,10 @@ object MsgBuilder {
     }
 
     val content = Try {
-      val c = new URL(txtUrl).openConnection()
-      c.setConnectTimeout(5000); c.setReadTimeout(5000)
-      Using(scala.io.Source.fromInputStream(c.getInputStream, "UTF-8"))(_.mkString).get
+      val pageAbsoluteTxtPath = presParentPath + "/textfiles/slide-" + page.toString + ".txt"
+      Using(Source.fromFile(pageAbsoluteTxtPath, StandardCharsets.UTF_8.name())) { source =>
+        source.mkString
+      }.get
     }.getOrElse("")
 
     PresentationPageConvertedVO(
