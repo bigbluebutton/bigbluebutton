@@ -327,6 +327,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
         virtualBackgroundChecked: vbgInfo ? vbgInfo.type !== EFFECT_TYPES.NONE_TYPE : false,
         virtualBackground: vbgInfo || { type: EFFECT_TYPES.NONE_TYPE, name: 'None' },
       }]);
+      setPreviewToIndex(cameraSections.length, nextAvailableDevice.deviceId);
     }
   }, [cameraSections, availableWebcams]);
 
@@ -339,7 +340,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
       const fakeEvent = { target: { value: newDeviceId } } as unknown as React.ChangeEvent<HTMLSelectElement>;
       await handleSelectWebcam(fakeEvent);
       // only set brightness if camera is not shared
-      if (!isAlreadyShared(newDeviceId)) {
+      if (!isAlreadyShared(newDeviceId) && cameraSections[index]) {
         setCameraBrightness(cameraSections[index].brightness, newDeviceId);
       }
     }
@@ -555,7 +556,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
                       {
                         previewError
                           ? (
-                            <div>{previewError}</div>
+                            <div style={containerStyle}>{previewError}</div>
                           )
                           : (
                             <Styled.VideoPreview
@@ -783,7 +784,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
                   {availableWebcams && availableWebcams.length > 0
                     ? (
                       <Styled.DeviceSelector
-                        value={section.deviceId || webcamDeviceId}
+                        value={!previewError ? section.deviceId || webcamDeviceId : ''}
                         onChange={(e) => handleCameraSectionChange(sectionIndex, e.target.value as string)}
                         IconComponent={ExpandMoreIcon}
                       >
@@ -820,7 +821,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
           );
         })}
       </Styled.ProfileSettings>
-      {availableWebcams && availableWebcams.length > 0 && (
+      {availableWebcams && availableWebcams.length > 1 && (
       <>
         <Styled.Separator />
         <Styled.AddCameraContainer>
