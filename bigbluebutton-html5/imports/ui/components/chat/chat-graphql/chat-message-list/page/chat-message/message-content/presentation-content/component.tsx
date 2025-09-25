@@ -1,6 +1,7 @@
 import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import Styled from './styles';
+import Icon from '/imports/ui/components/common/icon/component';
 
 interface ChatMessagePresentationContentProps {
   metadata: string;
@@ -54,15 +55,19 @@ const ChatMessagePresentationContent: React.FC<ChatMessagePresentationContentPro
   const parsedFileName = parseFilename(presentationData.filename);
 
   return (
-    <Styled.ChatDowloadContainer data-test="downloadPresentationContainer">
-      <span>
-        {presentationData.filename}
-        &nbsp;
-        (
-        {intl.formatMessage(intlMessages.withWhiteboardAnnotations)}
-        )
-      </span>
-      <Styled.ChatLink
+    <Styled.ContentWrapper data-test="downloadPresentationContainer">
+      <Styled.IconWrapper>
+        <Icon iconName="download" />
+      </Styled.IconWrapper>
+
+      <Styled.TextWrapper>
+        <span>{presentationData.filename}</span>
+        <Styled.AnnotationText>
+          {intl.formatMessage(intlMessages.withWhiteboardAnnotations)}
+        </Styled.AnnotationText>
+      </Styled.TextWrapper>
+
+      <Styled.DownloadLink
         href={downloadUrl}
         type="application/pdf"
         rel="noopener, noreferrer"
@@ -70,8 +75,8 @@ const ChatMessagePresentationContent: React.FC<ChatMessagePresentationContentPro
         target="_blank"
       >
         {intl.formatMessage(intlMessages.download)}
-      </Styled.ChatLink>
-    </Styled.ChatDowloadContainer>
+      </Styled.DownloadLink>
+    </Styled.ContentWrapper>
   );
 };
 
