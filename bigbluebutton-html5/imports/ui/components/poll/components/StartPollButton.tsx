@@ -1,6 +1,6 @@
 import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import { useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client/react';
 import Styled from '../styles';
 import { pollTypes, checkPollType } from '../service';
 import { POLL_CREATE } from '../mutations';

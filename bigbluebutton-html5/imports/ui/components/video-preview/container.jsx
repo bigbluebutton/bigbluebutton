@@ -1,5 +1,5 @@
 import React from 'react';
-import { useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client/react';
 import Service from './service';
 import VideoPreview from '/imports/ui/components/video-preview/component';
 import VideoService from '/imports/ui/components/video-provider/service';

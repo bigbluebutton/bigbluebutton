@@ -8,7 +8,7 @@ import {
 import Component from './component';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
-import { useReactiveVar } from '@apollo/client';
+import { useReactiveVar } from '@apollo/client/react';
 import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
 
 const ConnectionStatusContainer = (props) => {

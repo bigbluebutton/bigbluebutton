@@ -92,6 +92,13 @@ export interface ProcessedPresentation {
   presentationId: string;
 }
 
+export interface CurrentPageWritersQueryResponse {
+  pres_page_writers: {
+    userId: string;
+    pageId: string;
+  }[];
+}
+
 export const CURRENT_PRESENTATION_PAGE_SUBSCRIPTION = gql`subscription CurrentPresentationPagesSubscription {
   pres_page_curr {
     height

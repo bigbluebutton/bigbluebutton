@@ -1,5 +1,5 @@
 import React from 'react';
-import { useMutation, useReactiveVar } from '@apollo/client';
+import { useMutation, useReactiveVar } from '@apollo/client/react';
 import RecordingComponent from './component';
 import { SET_RECORDING_STATUS } from './mutations';
 import { GetRecordingResponse } from './queries';

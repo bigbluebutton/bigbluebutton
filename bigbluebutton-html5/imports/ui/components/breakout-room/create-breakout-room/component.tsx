@@ -5,7 +5,7 @@ import { range } from 'ramda';
 import { uniqueId } from '/imports/utils/string-utils';
 import { useIsImportPresentationWithAnnotationsFromBreakoutRoomsEnabled, useIsImportSharedNotesFromBreakoutRoomsEnabled } from '/imports/ui/services/features';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
-import { useLazyQuery, useQuery, useMutation } from '@apollo/client';
+import { useLazyQuery, useMutation, useQuery } from '@apollo/client/react';
 import Styled from './styles';
 import {
   getBreakouts,

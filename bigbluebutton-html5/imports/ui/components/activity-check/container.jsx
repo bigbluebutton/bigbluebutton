@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { injectIntl } from 'react-intl';
-import { useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client/react';
 import ActivityCheck from './component';
 import { USER_SEND_ACTIVITY_SIGN } from './mutations';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';

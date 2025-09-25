@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client/react';
 import { defineMessages, useIntl } from 'react-intl';
 import BreakoutRemainingTime from '/imports/ui/components/common/remaining-time/breakout-duration/component';
 import { exceedsRemainingTime, getRemainingMeetingTime } from '/imports/ui/core/utils/calculateRemaingTime';

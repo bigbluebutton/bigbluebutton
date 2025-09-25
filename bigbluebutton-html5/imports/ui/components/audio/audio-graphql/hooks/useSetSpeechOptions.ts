@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client/react';
 import { USER_SET_SPEECH_OPTIONS } from '../mutations';
 
 const useSetSpeechOptions = () => {

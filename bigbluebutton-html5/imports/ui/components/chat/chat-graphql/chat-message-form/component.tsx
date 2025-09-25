@@ -7,7 +7,7 @@ import React, {
   useMemo,
   useCallback,
 } from 'react';
-import { useLazyQuery, useMutation, useReactiveVar } from '@apollo/client';
+import { useLazyQuery, useMutation, useReactiveVar } from '@apollo/client/react';
 import TextareaAutosize from 'react-autosize-textarea';
 import { ChatFormCommandsEnum } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-commands/chat/form/enums';
 import { FillChatFormCommandArguments } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-commands/chat/form/types';
@@ -763,19 +763,20 @@ const ChatMessageFormContainer: React.FC = () => {
   const [loadUserLastSentMessage] = useLazyQuery<LastSentMessageResponse>(
     userLastSentMessageQuery,
     {
-      variables: chat?.public ? {
-        userId: Auth.userID,
-      } : {
-        userId: Auth.userID,
-        requestedChatId: idChatOpen,
-      },
       fetchPolicy: 'no-cache',
     },
   );
 
   const getUserLastSentMessage = useCallback(
     async () => {
-      const { data } = await loadUserLastSentMessage();
+      const { data } = await loadUserLastSentMessage({
+        variables: chat?.public ? {
+          userId: Auth.userID,
+        } : {
+          userId: Auth.userID,
+          requestedChatId: idChatOpen,
+        },
+      });
       if (data) {
         if ('chat_message_public' in data) {
           return data.chat_message_public[0] ?? null;

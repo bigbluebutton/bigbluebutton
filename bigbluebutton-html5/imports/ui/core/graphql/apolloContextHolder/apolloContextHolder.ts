@@ -1,18 +1,18 @@
-import { ApolloClient, NormalizedCacheObject } from '@apollo/client';
+import { ApolloClient } from '@apollo/client';
 import { Client } from 'graphql-ws';
 
 class ApolloContextHolder {
-  private client: ApolloClient<NormalizedCacheObject> | null = null;
+  private client: ApolloClient | null = null;
 
   private link: Client | null = null;
 
   private shouldRetry: boolean = true;
 
-  public setClient(client: ApolloClient<NormalizedCacheObject>): void {
+  public setClient(client: ApolloClient): void {
     this.client = client;
   }
 
-  public getClient(): ApolloClient<NormalizedCacheObject> {
+  public getClient(): ApolloClient {
     if (!this.client) {
       throw new Error('ApolloClient has not been initialized yet');
     }

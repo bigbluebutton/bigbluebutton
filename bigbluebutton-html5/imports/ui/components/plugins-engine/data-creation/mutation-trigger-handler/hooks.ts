@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { MutationResult } from '@apollo/client';
+
+
+import type { useMutation } from '@apollo/client/react';
 import { useState, useEffect } from 'react';
 import { isEqual } from 'radash';
 import { DataCreationHookEnums } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-creation/enums';
@@ -18,7 +20,7 @@ import projectMutationResult from './utils';
  * @param options options sent to customize the mutation
  */
 const useUpdateMutationResultForPlugin = (
-  resultFromGraphql: MutationResult<any>, mutation: string, options?: object,
+  resultFromGraphql: useMutation.Result<any>, mutation: string, options?: object,
 ) => {
   const projection = projectMutationResult(resultFromGraphql);
   const [projectionResult, setProjectionResult] = useState(projection);

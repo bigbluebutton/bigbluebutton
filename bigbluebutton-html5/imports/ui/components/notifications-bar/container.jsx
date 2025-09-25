@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import MeetingRemainingTime from '/imports/ui/components/common/remaining-time/meeting-duration/component';
-import { useReactiveVar } from '@apollo/client';
+import { useReactiveVar } from '@apollo/client/react';
 import { layoutSelectInput, layoutDispatch } from '../layout/context';
 import { ACTIONS } from '../layout/enums';
 

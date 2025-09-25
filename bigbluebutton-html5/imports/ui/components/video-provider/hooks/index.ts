@@ -4,11 +4,11 @@ import {
   useRef,
 } from 'react';
 import {
-  useReactiveVar,
   useLazyQuery,
   useMutation,
+  useReactiveVar,
   useSubscription,
-} from '@apollo/client';
+} from '@apollo/client/react';
 import Auth from '/imports/ui/services/auth';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
@@ -444,10 +444,6 @@ export const useHasVideoStream = () => {
 const useOwnVideoStreamsQuery = () => useLazyQuery<OwnVideoStreamsResponse>(
   OWN_VIDEO_STREAMS_QUERY,
   {
-    variables: {
-      userId: Auth.userID,
-      streamIdPrefix: `${videoService.getPrefix()}%`,
-    },
     // UID and prefix are stable, so for now we need to bust the cache. If we don't,
     // users will hit issues where cannot unshare their webcam or unsharing deals
     // with unexpected behavior. E.g.: a camera was first ejected server side (empty
@@ -468,7 +464,12 @@ export const useExitVideo = (forceExit = false) => {
         return cameraBroadcastStop({ variables: { cameraId } });
       };
 
-      return getOwnVideoStreams().then(async ({ data }) => {
+      return getOwnVideoStreams({
+        variables: {
+          userId: Auth.userID,
+          streamIdPrefix: `${videoService.getPrefix()}%`,
+        },
+      }).then(async ({ data }) => {
         if (data) {
           const streams = data.user_camera || [];
           const results = streams.map((s) => sendUserUnshareWebcam(s.streamId));

@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client/react';
 import {
   CaptionCommandsEnum,
 } from 'bigbluebutton-html-plugin-sdk/dist/cjs/server-commands/caption/enum';

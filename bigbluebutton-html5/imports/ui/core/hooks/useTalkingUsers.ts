@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { makeVar, useReactiveVar } from '@apollo/client';
+import { makeVar } from '@apollo/client';
+import { useReactiveVar } from '@apollo/client/react';
 import { VoiceActivityResponse } from '/imports/ui/core/graphql/queries/whoIsTalking';
 import { partition } from '/imports/utils/array-utils';
 

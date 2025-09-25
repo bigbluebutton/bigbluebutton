@@ -6,7 +6,8 @@ import React, {
 } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { isEmpty } from 'radash';
-import { ApolloLink, useQuery } from '@apollo/client';
+import { ApolloLink } from '@apollo/client';
+import { useQuery } from '@apollo/client/react';
 import isURL from 'validator/lib/isURL';
 import {
   JoinErrorCodeTable,

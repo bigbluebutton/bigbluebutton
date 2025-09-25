@@ -1,19 +1,15 @@
-import {
-  FetchPolicy,
-  ObservableSubscription,
-  ReactiveVar,
-  makeVar,
-} from '@apollo/client';
+import { FetchPolicy, ReactiveVar, makeVar } from '@apollo/client';
+
 import { applyPatch, deepClone } from 'fast-json-patch';
 import { DocumentNode, TypedQueryDocumentNode } from 'graphql';
 import apolloContextHolder from '../graphql/apolloContextHolder/apolloContextHolder';
 
 export interface SubscriptionStructure<T> {
   count: number;
-  data: T | null;
+  data: (T | T & { patch?: unknown }) | null;
   error: Error | null;
   loading: boolean;
-  sub: ObservableSubscription | null;
+  sub: { unsubscribe: () => void } | null;
 }
 // This code was extracted from a geeksforgeeks article
 // https://www.geeksforgeeks.org/how-to-create-hash-from-string-in-javascript/
@@ -24,6 +20,8 @@ export function stringToHash(string: string) {
     return char.charCodeAt(0) + (hash << 6) + (hash << 16) - hash;
   }, 0).toString();
 }
+
+type WithPatch<T> = T & { patch?: unknown };
 
 class GrahqlSubscriptionStore {
   // @ts-ignore
@@ -55,7 +53,7 @@ class GrahqlSubscriptionStore {
     });
     const apolloClient = apolloContextHolder.getClient();
 
-    const sub = apolloClient.subscribe({
+    const sub = apolloClient.subscribe<WithPatch<T>>({
       query: subscription,
       variables,
       fetchPolicy: fetchPolicy || 'no-cache',
@@ -64,7 +62,7 @@ class GrahqlSubscriptionStore {
         const values = newSubStructure();
         values.loading = false;
 
-        if (data.data.patch) {
+        if (data?.data?.patch) {
           // @ts-ignore
           const accessKey = Object.keys(values.data)[0];
           // @ts-ignore
@@ -73,7 +71,7 @@ class GrahqlSubscriptionStore {
             [accessKey]: patchedData,
           } as T;
         } else {
-          values.data = data.data;
+          values.data = (data?.data ?? null) as T | null;
         }
         newSubStructure({ ...values });
 

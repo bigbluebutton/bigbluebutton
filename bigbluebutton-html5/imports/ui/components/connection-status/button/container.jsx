@@ -1,5 +1,5 @@
 import React from 'react';
-import { useReactiveVar } from '@apollo/client';
+import { useReactiveVar } from '@apollo/client/react';
 import ConnectionStatusButtonComponent from './component';
 import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
 import { getWorstStatus } from '../service';

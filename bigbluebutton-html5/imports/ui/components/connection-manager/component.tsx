@@ -1,10 +1,16 @@
 import {
-  ApolloClient, ApolloProvider, InMemoryCache, NormalizedCacheObject, ApolloLink,
+  ApolloClient,
+  InMemoryCache,
+  ApolloLink,
+  Observable,
 } from '@apollo/client';
+import { LocalState } from '@apollo/client/local-state';
+import { ApolloProvider } from '@apollo/client/react';
+import { CombinedGraphQLErrors, ServerError } from '@apollo/client/errors';
 import { GraphQLError } from 'graphql';
 import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
 import { createClient } from 'graphql-ws';
-import { onError } from '@apollo/client/link/error';
+import { ErrorLink } from '@apollo/client/link/error';
 import React, { useContext, useEffect, useRef } from 'react';
 import { LoadingContext } from '/imports/ui/components/common/loading-screen/loading-screen-HOC/component';
 import logger from '/imports/startup/client/logger';
@@ -60,7 +66,7 @@ const payloadSizeCheckLink = new ApolloLink((operation, forward) => {
         logCode: 'graphql_payload_size_error',
         extraInfo: { errorMsg },
       }, `[GraphQL payload size error]: ${errorMsg}`);
-      return null;
+      return new Observable((observer) => observer.error(new Error(errorMsg)));
     }
   }
 
@@ -68,35 +74,8 @@ const payloadSizeCheckLink = new ApolloLink((operation, forward) => {
   return forward(operation);
 });
 
-const errorLink = onError(({ graphQLErrors, networkError }) => {
-  if (graphQLErrors) {
-    graphQLErrors.forEach(({ message }) => {
-      logger.error({
-        logCode: 'graphql_error',
-        extraInfo: { message },
-      }, `[GraphQL error]: Message: ${message}`);
-    });
-  }
-
-  if (networkError) {
-    const isMutation = networkError.message.includes('graphql actions request failed');
-    if (!isMutation) {
-      connectionStatus.setSubscriptionFailed(true);
-    }
-    logger.error({
-      logCode: 'graphql_network_error',
-      extraInfo: {
-        name: networkError.name,
-        message: networkError.message,
-        stack: networkError.stack,
-        networkError,
-      },
-    }, `[Network error]: ${networkError.message}`);
-  }
-});
-
 const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): React.ReactNode => {
-  const [apolloClient, setApolloClient] = React.useState<ApolloClient<NormalizedCacheObject> | null>(null);
+  const [apolloClient, setApolloClient] = React.useState<ApolloClient | null>(null);
   const [graphqlUrl, setGraphqlUrl] = React.useState<string>('');
   const loadingContextInfo = useContext(LoadingContext);
   const numberOfAttempts = useRef(20);
@@ -327,11 +306,39 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
         const graphWsLink = new GraphQLWsLink(
           subscription,
         );
-        wsLink = ApolloLink.from([payloadSizeCheckLink, errorLink, graphWsLink]);
-        wsLink.setOnError((error) => {
+        const errorLink = new ErrorLink(({ error }) => {
           loadingContextInfo.setLoading(false);
+          if (CombinedGraphQLErrors.is(error)) {
+            error.errors.forEach((err) => {
+              logger.error(
+                { logCode: 'graphql_error', extraInfo: { message: err.message } },
+                `[GraphQL error]: ${err.message}`,
+              );
+            });
+          }
+
+          if (ServerError.is(error)) {
+            const isMutation = error.message.includes('graphql actions request failed');
+            if (!isMutation) {
+              connectionStatus.setSubscriptionFailed(true);
+            }
+            logger.error(
+              {
+                logCode: 'graphql_network_error',
+                extraInfo: {
+                  name: error.name,
+                  message: error.message,
+                  stack: error.stack,
+                  statusCode: error.statusCode,
+                  response: error.response,
+                },
+              },
+              `[Network error]: ${error.message}`,
+            );
+          }
           throw new Error('Error: on apollo connection'.concat(JSON.stringify(error) || ''));
         });
+        wsLink = ApolloLink.from([payloadSizeCheckLink, errorLink, graphWsLink]);
         apolloContextHolder.setLink(subscription);
       } catch (error) {
         loadingContextInfo.setLoading(false);
@@ -342,7 +349,17 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
         client = new ApolloClient({
           link: wsLink,
           cache: new InMemoryCache(),
-          connectToDevTools: (process.env.NODE_ENV === 'development') || enableDevTools,
+
+          /*
+          Inserted by Apollo Client 3->4 migration codemod.
+          If you are not using the `@client` directive in your application,
+          you can safely remove this option.
+          */
+          localState: new LocalState({}),
+
+          devtools: {
+            enabled: (process.env.NODE_ENV === 'development') || enableDevTools,
+          },
         });
         setApolloClient(client);
         apolloContextHolder.setClient(client);

@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
-import { useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client/react';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
 import { useIsInfiniteWhiteboardEnabled, useIsPollingEnabled, useIsQuizEnabled } from '/imports/ui/services/features';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';

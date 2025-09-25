@@ -1,6 +1,8 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { useReactiveVar } from '@apollo/client';
+
+
+import { useReactiveVar } from '@apollo/client/react';
 import React, { useCallback, useEffect } from 'react';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { hasMediaDevicesEventTarget } from '/imports/ui/services/webrtc-base/utils';

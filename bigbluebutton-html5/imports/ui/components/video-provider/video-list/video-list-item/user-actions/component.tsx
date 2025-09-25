@@ -1,6 +1,6 @@
 import React, { MutableRefObject, useContext, useEffect } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import { useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client/react';
 import Session from '/imports/ui/services/storage/in-memory';
 import { UserCameraDropdownInterface, UserCameraDropdownOption } from 'bigbluebutton-html-plugin-sdk';
 import browserInfo from '/imports/utils/browserInfo';

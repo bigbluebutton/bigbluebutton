@@ -1,5 +1,6 @@
 /* eslint prefer-promise-reject-errors: 0 */
-import { makeVar, useReactiveVar } from '@apollo/client';
+import { makeVar } from '@apollo/client';
+import { useReactiveVar } from '@apollo/client/react';
 import Storage from '/imports/ui/services/storage/session';
 import Session from '/imports/ui/services/storage/in-memory';
 

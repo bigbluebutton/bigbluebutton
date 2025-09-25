@@ -2,7 +2,7 @@ import React, {
   useEffect, useMemo, useRef, useState,
 } from 'react';
 import ReactDOM from 'react-dom';
-import { useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client/react';
 import { defineMessages, useIntl } from 'react-intl';
 import Checkbox from '/imports/ui/components/common/checkbox/component';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';

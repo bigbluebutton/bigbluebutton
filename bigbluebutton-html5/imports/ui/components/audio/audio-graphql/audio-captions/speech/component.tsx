@@ -5,7 +5,7 @@ import React, {
 } from 'react';
 // @ts-ignore - it has no types
 import { diff } from '@mconf/bbb-diff';
-import { useReactiveVar, useMutation } from '@apollo/client';
+import { useMutation, useReactiveVar } from '@apollo/client/react';
 import { debounce } from '/imports/utils/debounce';
 import {
   SpeechRecognitionAPI,

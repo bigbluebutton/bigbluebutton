@@ -8,7 +8,7 @@ import React, {
 import ReactPlayer from 'react-player';
 import { defineMessages, useIntl } from 'react-intl';
 import audioManager from '/imports/ui/services/audio-manager';
-import { useReactiveVar, useMutation } from '@apollo/client';
+import { useMutation, useReactiveVar } from '@apollo/client/react';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { ExternalVideoVolumeCommandsEnum } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-commands/external-video/volume/enums';
 import { SetExternalVideoVolumeCommandArguments } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-commands/external-video/volume/types';
@@ -428,7 +428,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     if (isPresenter && !playing) {
       const rate = (internalPlayer instanceof HTMLVideoElement || internalPlayer instanceof HTMLAudioElement)
         ? internalPlayer.playbackRate
-        : await internalPlayer?.getPlaybackRate?.() ?? 1;
+        : (await internalPlayer?.getPlaybackRate?.()) ?? 1;
 
       sendMessage('start', {
         rate,
@@ -450,7 +450,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     if (isPresenter && !playing) {
       const rate = (internalPlayer instanceof HTMLVideoElement || internalPlayer instanceof HTMLAudioElement)
         ? internalPlayer.playbackRate
-        : await internalPlayer?.getPlaybackRate?.() ?? 1;
+        : (await internalPlayer?.getPlaybackRate?.()) ?? 1;
 
       const currentTime = getServerCurrentTime();
 
@@ -483,7 +483,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
       const internalPlayer = playerRef.current?.getInternalPlayer();
       let rate = (internalPlayer instanceof HTMLVideoElement || internalPlayer instanceof HTMLAudioElement)
         ? internalPlayer.playbackRate
-        : await internalPlayer?.getPlaybackRate?.() ?? 1;
+        : (await internalPlayer?.getPlaybackRate?.()) ?? 1;
 
       if (rate instanceof Promise) {
         rate = await rate;
@@ -530,7 +530,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
       const internalPlayer = playerRef.current?.getInternalPlayer();
       let rate = (internalPlayer instanceof HTMLVideoElement || internalPlayer instanceof HTMLAudioElement)
         ? internalPlayer.playbackRate
-        : await internalPlayer?.getPlaybackRate?.() ?? 1;
+        : (await internalPlayer?.getPlaybackRate?.()) ?? 1;
       if (rate instanceof Promise) {
         rate = await rate;
       }

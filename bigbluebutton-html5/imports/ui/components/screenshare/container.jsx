@@ -2,7 +2,7 @@ import React, {
   useEffect, useContext, useCallback, useState,
 } from 'react';
 import PropTypes from 'prop-types';
-import { useMutation, useReactiveVar } from '@apollo/client';
+import { useMutation, useReactiveVar } from '@apollo/client/react';
 import { defineMessages } from 'react-intl';
 import {
   getSharingContentType,

@@ -3,7 +3,6 @@ import { getUserNamesLink } from '/imports/ui/components/user-list/service';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import LearningDashboardService from '/imports/ui/components/learning-dashboard/service';
 import { defineMessages, IntlShape } from 'react-intl';
-import { User } from '/imports/ui/Types/user';
 
 const intlMessages = defineMessages({
   savedNamesListTitle: {
@@ -20,7 +19,12 @@ const intlMessages = defineMessages({
   },
 });
 
-export const onSaveUserNames = (intl: IntlShape, meetingName: string, users: [User]) => {
+export const onSaveUserNames = (intl: IntlShape, meetingName: string, users: {
+  name: string;
+  nameSortable: string;
+  firstNameSortable: string;
+  lastNameSortable: string;
+}[]) => {
   const Settings = getSettingsSingletonInstance();
   // @ts-ignore - temporary while settings are still in .js
   const lang = Settings.application.locale;

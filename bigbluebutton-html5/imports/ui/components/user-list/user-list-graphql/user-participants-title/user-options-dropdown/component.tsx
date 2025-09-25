@@ -24,10 +24,10 @@ import {
   useIsLearningDashboardEnabled,
   useIsReactionsEnabled,
 } from '/imports/ui/services/features';
-import { useMutation, useLazyQuery } from '@apollo/client';
+import { useLazyQuery, useMutation } from '@apollo/client/react';
 import { SET_MUTED } from './mutations';
 import { CLEAR_ALL_REACTION } from '/imports/ui/core/graphql/mutations/userMutations';
-import { GET_USER_NAMES } from '/imports/ui/core/graphql/queries/users';
+import { GET_USER_NAMES, GetUserNamesResponse } from '/imports/ui/core/graphql/queries/users';
 import logger from '/imports/startup/client/logger';
 import { notify } from '/imports/ui/services/notification';
 
@@ -192,7 +192,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
 
   const [setMuted] = useMutation(SET_MUTED);
   const [clearAllReaction] = useMutation(CLEAR_ALL_REACTION);
-  const [getUsers, { data: usersData, error: usersError }] = useLazyQuery(GET_USER_NAMES, { fetchPolicy: 'no-cache' });
+  const [getUsers, { data: usersData, error: usersError }] = useLazyQuery<GetUserNamesResponse>(GET_USER_NAMES, { fetchPolicy: 'no-cache' });
   const users = usersData?.user || [];
   const isLearningDashboardEnabled = useIsLearningDashboardEnabled();
   const isBreakoutRoomsEnabled = useIsBreakoutRoomsEnabled();
@@ -427,7 +427,7 @@ const UserTitleOptionsContainer: React.FC = () => {
     isModerator: user?.isModerator,
   }));
   // in case of current user isn't load yet
-  if (!currentUser?.isModerator ?? true) return null;
+  if (!currentUser?.isModerator) return null;
 
   const hasBreakoutRooms = meetingInfo?.componentsFlags?.hasBreakoutRoom ?? false;
 

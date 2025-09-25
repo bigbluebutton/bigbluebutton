@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
 import {
   defineMessages, injectIntl, FormattedMessage,
 } from 'react-intl';
-import { useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client/react';
 import Styled from './styles';
 import AudioSettings from '../audio-settings/component';
 import EchoTest from '../echo-test/component';

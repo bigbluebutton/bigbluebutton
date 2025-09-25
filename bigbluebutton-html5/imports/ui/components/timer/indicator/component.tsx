@@ -1,4 +1,4 @@
-import { useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client/react';
 import React, { useEffect, useRef, useState } from 'react';
 import Styled from './styles';
 import Icon from '/imports/ui/components/common/icon/icon-ts/component';

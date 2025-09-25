@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client/react';
 import { USER_CHANGED_LOCAL_SETTINGS } from './mutations';
 
 const useUserChangedLocalSettings = () => {

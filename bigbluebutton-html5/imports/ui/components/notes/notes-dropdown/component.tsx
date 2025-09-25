@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import { useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client/react';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import Trigger from '/imports/ui/components/common/control-header/right/component';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';

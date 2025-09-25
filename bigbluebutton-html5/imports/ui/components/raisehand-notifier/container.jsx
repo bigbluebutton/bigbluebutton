@@ -1,5 +1,5 @@
 import React from 'react';
-import { useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client/react';
 import RaiseHandNotifier from './component';
 import { SET_RAISE_HAND } from '/imports/ui/core/graphql/mutations/userMutations';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';

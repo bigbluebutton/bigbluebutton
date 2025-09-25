@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { useReactiveVar } from '@apollo/client';
+import { useReactiveVar } from '@apollo/client/react';
 import AudioManager from '/imports/ui/services/audio-manager';
 import AudioTest from './component';
 

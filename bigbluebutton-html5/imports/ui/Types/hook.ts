@@ -1,5 +1,5 @@
-import { FetchResult } from '@apollo/client';
+import { ApolloLink } from '@apollo/client';
 
-export type GraphqlDataHookSubscriptionResponse<T> = FetchResult<T> & {
+export type GraphqlDataHookSubscriptionResponse<T> = ApolloLink.Result<T> & {
   loading: boolean;
 };

@@ -10,7 +10,7 @@ import { Message } from '/imports/ui/Types/message';
 import { defineMessages, FormattedTime, useIntl } from 'react-intl';
 import FocusTrap from 'focus-trap-react';
 import classNames from 'classnames';
-import { useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client/react';
 import ChatMessageHeader from './message-header/component';
 import ChatMessageTextContent from './message-content/text-content/component';
 import ChatPollContent from './message-content/poll-content/component';

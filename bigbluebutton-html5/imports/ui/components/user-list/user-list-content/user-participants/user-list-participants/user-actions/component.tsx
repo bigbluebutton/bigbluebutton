@@ -35,8 +35,8 @@ import ConfirmationModal from '/imports/ui/components/common/modal/confirmation/
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import { setPendingChat } from '/imports/ui/core/local-states/usePendingChat';
 import Styled from './styles';
-import { useMutation, useLazyQuery } from '@apollo/client';
-import { CURRENT_PAGE_WRITERS_QUERY } from '/imports/ui/components/whiteboard/queries';
+import { useLazyQuery, useMutation } from '@apollo/client/react';
+import { CURRENT_PAGE_WRITERS_QUERY, CurrentPageWritersQueryResponse } from '/imports/ui/components/whiteboard/queries';
 import { PRESENTATION_SET_WRITERS } from '/imports/ui/components/presentation/mutations';
 import useToggleVoice from '/imports/ui/components/audio/audio-graphql/hooks/useToggleVoice';
 import useWhoIsUnmuted from '/imports/ui/core/hooks/useWhoIsUnmuted';
@@ -225,10 +225,9 @@ const UserActions: React.FC<UserActionsProps> = ({
   const layoutContextDispatch = layoutDispatch();
 
   const [presentationSetWriters] = useMutation(PRESENTATION_SET_WRITERS);
-  const [getWriters] = useLazyQuery(
+  const [getWriters] = useLazyQuery<CurrentPageWritersQueryResponse>(
     CURRENT_PAGE_WRITERS_QUERY,
     {
-      variables: { pageId },
       fetchPolicy: 'no-cache',
     },
   );
@@ -241,7 +240,9 @@ const UserActions: React.FC<UserActionsProps> = ({
     if (!pageId) return;
     try {
       // Fetch the writers data
-      const { data } = await getWriters();
+      const { data } = await getWriters({
+        variables: { pageId },
+      });
       const allWriters: Writer[] = data?.pres_page_writers || [];
       const currentWriters = allWriters?.filter((writer: Writer) => writer.pageId === pageId);
 

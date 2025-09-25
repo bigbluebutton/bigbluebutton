@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { EventPersistenceDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/event-persistence/types';
 import { EventPersistenceEvents } from 'bigbluebutton-html-plugin-sdk/dist/cjs/event-persistence/enums';
-import { useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client/react';
 import PLUGIN_EVENT_PERSISTENCE_MUTATION from './mutations';
 import { PluginEventPersistenceManagerProps } from './types';
 import { stripTags } from '/imports/utils/string-utils';

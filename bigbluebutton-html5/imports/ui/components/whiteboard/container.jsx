@@ -6,9 +6,7 @@ import React, {
   useCallback,
 } from 'react';
 import PropTypes from 'prop-types';
-import {
-  useMutation, useQuery, useSubscription, useReactiveVar,
-} from '@apollo/client';
+import { useMutation, useQuery, useReactiveVar, useSubscription } from '@apollo/client/react';
 import {
   AssetRecordType,
 } from '@bigbluebutton/tldraw';

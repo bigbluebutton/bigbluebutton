@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { ChatSendMessageEventArguments } from 'bigbluebutton-html-plugin-sdk/dist/cjs/server-commands/chat/types';
-import { useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client/react';
 import {
   ChatCommandsEnum,
 } from 'bigbluebutton-html-plugin-sdk/dist/cjs/server-commands/chat/enum';

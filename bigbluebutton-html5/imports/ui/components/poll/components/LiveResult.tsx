@@ -1,4 +1,4 @@
-import { useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client/react';
 import React, { useCallback } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import Session from '/imports/ui/services/storage/in-memory';

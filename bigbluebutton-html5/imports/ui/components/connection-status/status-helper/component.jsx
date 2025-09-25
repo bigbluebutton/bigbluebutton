@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
-import { useReactiveVar } from '@apollo/client';
+import { useReactiveVar } from '@apollo/client/react';
 import Styled from './styles';
 import Icon from '/imports/ui/components/connection-status/icon/component';
 import SettingsMenuContainer from '/imports/ui/components/settings/container';

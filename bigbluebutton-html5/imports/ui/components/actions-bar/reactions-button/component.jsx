@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import { convertRemToPixels } from '/imports/utils/dom-utils';
 import { SET_REACTION_EMOJI } from '/imports/ui/core/graphql/mutations/userMutations';
-import { useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client/react';
 import Styled from './styles';
 
 const ReactionsButton = (props) => {

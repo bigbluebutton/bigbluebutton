@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { USER_LEAVE_MEETING } from '/imports/ui/core/graphql/mutations/userMutations';
-import { useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client/react';
 import Session from '/imports/ui/services/storage/in-memory';
 import logger from '/imports/startup/client/logger';
 

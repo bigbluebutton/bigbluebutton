@@ -5,7 +5,8 @@ import React, {
   useMemo,
   KeyboardEventHandler,
 } from 'react';
-import { makeVar, useMutation } from '@apollo/client';
+import { makeVar } from '@apollo/client';
+import { useMutation } from '@apollo/client/react';
 import { defineMessages, useIntl } from 'react-intl';
 import useChat from '/imports/ui/core/hooks/useChat';
 import useIntersectionObserver from '/imports/ui/hooks/useIntersectionObserver';
