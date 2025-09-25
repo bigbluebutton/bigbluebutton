@@ -28,6 +28,7 @@ select_permissions:
         - entryId
         - payloadJson
         - createdBy
+        - fromUserId
         - toRoles
       filter:
         _and:

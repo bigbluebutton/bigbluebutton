@@ -2342,6 +2342,7 @@ CREATE UNLOGGED TABLE "pluginDataChannelEntry" (
     "subChannelName" varchar(255),
 	"payloadJson" jsonb,
 	"createdBy" varchar(50),
+	"fromUserId" varchar(50),
 	"toRoles" varchar[], --MODERATOR, VIEWER, PRESENTER
 	"toUserIds" varchar[],
 	"createdAt" timestamp with time zone DEFAULT current_timestamp,
@@ -2356,7 +2357,11 @@ create index "idx_pluginDataChannelEntry_channelName" on "pluginDataChannelEntry
 create index "idx_pluginDataChannelEntry_roles" on "pluginDataChannelEntry"("meetingId", "toRoles", "toUserIds", "createdAt") where "deletedAt" is null;
 
 CREATE OR REPLACE VIEW "v_pluginDataChannelEntry" AS
-SELECT u."meetingId", u."userId", m."pluginName", m."channelName", m."subChannelName", m."entryId", m."payloadJson", m."createdBy", m."toRoles", m."createdAt"
+SELECT u."meetingId",
+    u."userId", m."pluginName",
+    m."channelName", m."subChannelName",
+    m."entryId", m."payloadJson", m."createdBy",
+    m."toRoles", m."createdAt", m."fromUserId"
 FROM "user" u
 JOIN "pluginDataChannelEntry" m ON m."meetingId" = u."meetingId"
 			AND ((m."toRoles" IS NULL AND m."toUserIds" IS NULL)

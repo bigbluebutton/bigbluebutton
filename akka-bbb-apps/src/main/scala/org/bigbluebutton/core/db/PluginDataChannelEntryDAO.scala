@@ -18,7 +18,8 @@ case class PluginDataChannelEntryDbModel(
     subChannelName:     String,
     entryId:            Option[String] = None,
     payloadJson:        JsValue,
-    createdBy:         String,
+    createdBy:          String,
+    fromUserId:         String,
     toRoles:            Option[List[String]],
     toUserIds:          Option[List[String]],
     createdAt:          java.sql.Timestamp,
@@ -33,11 +34,14 @@ class PluginDataChannelEntryDbTableDef(tag: Tag) extends Table[PluginDataChannel
   val entryId = column[Option[String]]("entryId", O.PrimaryKey)
   val payloadJson = column[JsValue]("payloadJson")
   val createdBy = column[String]("createdBy")
+  val fromUserId = column[String]("fromUserId")
   val toRoles = column[Option[List[String]]]("toRoles")
   val toUserIds = column[Option[List[String]]]("toUserIds")
   val createdAt = column[java.sql.Timestamp]("createdAt")
   val deletedAt = column[Option[java.sql.Timestamp]]("deletedAt")
-  override def * = (meetingId, pluginName, channelName, subChannelName, entryId, payloadJson, createdBy, toRoles, toUserIds, createdAt, deletedAt) <> (PluginDataChannelEntryDbModel.tupled, PluginDataChannelEntryDbModel.unapply)
+  override def * = (
+    meetingId, pluginName, channelName, subChannelName, entryId, payloadJson, createdBy, fromUserId, toRoles, toUserIds, createdAt, deletedAt
+  ) <> (PluginDataChannelEntryDbModel.tupled, PluginDataChannelEntryDbModel.unapply)
 }
 
 object PluginDataChannelEntryDAO {
@@ -53,6 +57,7 @@ object PluginDataChannelEntryDAO {
           subChannelName = subChannelName,
           payloadJson = JsonUtils.mapToJson(payloadJson),
           createdBy = createdBy,
+          fromUserId = createdBy,
           toRoles = toRoles.map(_.toUpperCase).filter(Permission.allowedRoles.contains) match {
             case Nil => None
             case filtered => Some(filtered)

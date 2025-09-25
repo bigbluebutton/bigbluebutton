@@ -570,6 +570,7 @@ Permission: Restricted to Presenter
 - `channelName`
 - `createdAt`
 - `createdBy`
+- `fromUserId`
 - `entryId`
 - `payloadJson`
 - `pluginName`

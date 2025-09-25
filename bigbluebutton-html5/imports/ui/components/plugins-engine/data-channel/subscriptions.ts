@@ -17,6 +17,7 @@ const PLUGIN_DATA_CHANNEL_NEW_ITEMS = gql`
       entryId,
       payloadJson,
       createdBy,
+      fromUserId,
       pluginName,
       toRoles,
     }
@@ -41,6 +42,7 @@ const PLUGIN_DATA_CHANNEL_ALL_ITEMS = gql`
       entryId,
       payloadJson,
       createdBy,
+      fromUserId,
       pluginName,
       toRoles,
     }
@@ -66,6 +68,7 @@ const PLUGIN_DATA_CHANNEL_LATEST_ITEM = gql`
       entryId,
       payloadJson,
       createdBy,
+      fromUserId,
       pluginName,
       toRoles,
     }
