@@ -39,6 +39,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
 	private String BLANK_SVG;
     private int maxNumberOfAttempts = 3;
     private ImageResizer imageResizer;
+    private ImageResolutionService imageResolutionService;
 
     @Override
     public boolean createSvgImage(UploadedPresentation pres, int page) throws TimeoutException{
@@ -298,8 +299,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
                         int width = 500;
                         int height = 500;
 
-                        ImageResolutionService imgResService = new ImageResolutionService();
-                        ImageResolution imageResolution = imgResService.identifyImageResolution(tempPng);
+                        ImageResolution imageResolution = imageResolutionService.identifyImageResolution(tempPng);
                         log.debug("Identified page {} image {} width={} and height={}", page, pres.getName(), imageResolution.getWidth(), imageResolution.getHeight());
 
                         if (imageResolution.getWidth() != 0 && imageResolution.getHeight() != 0) {
@@ -310,7 +310,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
                         if(imageResolution.getWidth() > MAX_SVG_WIDTH || imageResolution.getHeight() > MAX_SVG_HEIGHT) {
                             log.info("The image exceeds max dimension allowed, it will be resized.");
                             imageResizer.resize(tempPng, MAX_SVG_WIDTH + "x" + MAX_SVG_HEIGHT);
-                            imageResolution = imgResService.identifyImageResolution(tempPng);
+                            imageResolution = imageResolutionService.identifyImageResolution(tempPng);
                             width = imageResolution.getWidth();
                             height = imageResolution.getHeight();
                         }
@@ -497,5 +497,9 @@ public class SvgImageCreatorImp implements SvgImageCreator {
 
     public void setImageResizer(ImageResizer imageResizer) {
         this.imageResizer = imageResizer;
+    }
+
+    public void setImageResolutionService(ImageResolutionService imageResolutionService) {
+        this.imageResolutionService = imageResolutionService;
     }
 }

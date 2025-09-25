@@ -1,23 +1,21 @@
 package org.bigbluebutton.api2
 
-import scala.collection.JavaConverters._
 import org.bigbluebutton.api.messaging.converters.messages._
 import org.bigbluebutton.api.messaging.messages.{ ChatMessageFromApi, RegisterUserSessionToken }
-import org.bigbluebutton.api.service.ServiceUtils;
+import org.bigbluebutton.api.service.ServiceUtils
 import org.bigbluebutton.api2.meeting.RegisterUser
 import org.bigbluebutton.common2.domain.{ DefaultProps, PageVO, PresentationPageConvertedVO, PresentationVO }
 import org.bigbluebutton.common2.msgs._
+import org.bigbluebutton.presentation.imp.ImageResolutionService
 import org.bigbluebutton.presentation.messages._
 
-import java.io.{ BufferedReader, InputStreamReader }
 import java.net.URL
-import java.nio.charset.StandardCharsets
-import java.util.stream.Collectors
-import scala.io.Source
-import scala.util.Using
-import scala.xml.XML
+import scala.jdk.CollectionConverters._
+import scala.util.{ Try, Using }
 
 object MsgBuilder {
+  private lazy val imageResolutionService: ImageResolutionService = new ImageResolutionService
+
   def buildDestroyMeetingSysCmdMsg(msg: DestroyMeetingMessage): BbbCommonEnvCoreMsg = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-web")
     val envelope = BbbCoreEnvelope(DestroyMeetingSysCmdMsg.NAME, routing)
@@ -91,71 +89,39 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, req)
   }
 
-  def generatePresentationPage(presId: String, numPages: Int, presBaseUrl: String, page: Int): PresentationPageConvertedVO = {
-    val id = presId + "/" + page
-    val current = if (page == 1) true else false
+  def generatePresentationPage(presId: String, presBaseUrl: String, presParentPath: String, page: Int): PresentationPageConvertedVO = {
     val thumbUrl = presBaseUrl + "/thumbnail/" + page
-
     val txtUrl = presBaseUrl + "/textfiles/" + page
     val svgUrl = presBaseUrl + "/svg/" + page
     val pngUrl = presBaseUrl + "/png/" + page
 
     val urls = Map("thumb" -> thumbUrl, "text" -> txtUrl, "svg" -> svgUrl, "png" -> pngUrl)
 
-    val result = Using.Manager { use =>
-      val contentUrl = new URL(txtUrl)
-      val stream = use(new InputStreamReader(contentUrl.openStream(), StandardCharsets.UTF_8))
-      val reader = use(new BufferedReader(stream))
-      val content = reader.lines().collect(Collectors.joining("\n"))
-
-      val svgSource = Source.fromURL(new URL(svgUrl))
-      val svgContent = svgSource.mkString
-      svgSource.close()
-
-      // XML parser configuration in use disallows the DOCTYPE declaration within the XML document
-      // Sanitize the XML content removing DOCTYPE
-      val sanitizedSvgContent = "(?i)<!DOCTYPE[^>]*>".r.replaceAllIn(svgContent, "")
-
-      val xmlContent = XML.loadString(sanitizedSvgContent)
-
-      val w = (xmlContent \ "@width").text.replaceAll("[^.0-9]", "")
-      val h = (xmlContent \ "@height").text.replaceAll("[^.0-9]", "")
-
-      val width = w.toDouble
-      val height = h.toDouble
-
-      PresentationPageConvertedVO(
-        id = id,
-        num = page,
-        urls = urls,
-        content = content,
-        current = current,
-        width = width,
-        height = height
-      )
-    } recover {
-      case e: Exception =>
-        e.printStackTrace()
-        PresentationPageConvertedVO(
-          id = id,
-          num = page,
-          urls = urls,
-          content = "",
-          current = current
-        )
+    // get SVG dimensions
+    var width = 1440D
+    var height = 1080D
+    val pageAbsoluteSvgPath = presParentPath + "/svgs/slide" + page.toString + ".svg"
+    val imageResolution = imageResolutionService.identifyImageResolution(pageAbsoluteSvgPath)
+    if (imageResolution.getWidth != 0 && imageResolution.getHeight != 0) {
+      width = imageResolution.getWidth
+      height = imageResolution.getHeight
     }
 
-    val presentationPage = result.getOrElse(
-      PresentationPageConvertedVO(
-        id = id,
-        num = page,
-        urls = urls,
-        content = "",
-        current = current
-      )
-    )
+    val content = Try {
+      val c = new URL(txtUrl).openConnection()
+      c.setConnectTimeout(5000); c.setReadTimeout(5000)
+      Using(scala.io.Source.fromInputStream(c.getInputStream, "UTF-8"))(_.mkString).get
+    }.getOrElse("")
 
-    presentationPage
+    PresentationPageConvertedVO(
+      id = s"$presId/$page",
+      num = page,
+      urls = urls,
+      content = content,
+      current = page == 1,
+      width = width,
+      height = height
+    )
   }
 
   def buildPresentationPageConvertedSysMsg(msg: DocPageGeneratedProgress): BbbCommonEnvCoreMsg = {
@@ -163,7 +129,7 @@ object MsgBuilder {
     val envelope = BbbCoreEnvelope(PresentationPageConvertedSysMsg.NAME, routing)
     val header = BbbClientMsgHeader(PresentationPageConvertedSysMsg.NAME, msg.meetingId, msg.authzToken)
 
-    val page = generatePresentationPage(msg.presId, msg.numPages.intValue(), msg.presBaseUrl, msg.page.intValue())
+    val page = generatePresentationPage(msg.presId, msg.presBaseUrl, msg.presParentPath, msg.page.intValue())
 
     val body = PresentationPageConvertedSysMsgBody(
       podId = msg.podId,
@@ -452,4 +418,5 @@ object MsgBuilder {
     val req = PresentationUploadedFileScanFailedErrorSysPubMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, req)
   }
+
 }

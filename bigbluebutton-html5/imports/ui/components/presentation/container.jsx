@@ -1,10 +1,14 @@
-import React, { useEffect } from 'react';
+import React, {
+  useEffect, useMemo, useState,
+} from 'react';
 import PropTypes from 'prop-types';
 import { notify } from '/imports/ui/services/notification';
 import Presentation from '/imports/ui/components/presentation/component';
 import Auth from '/imports/ui/services/auth';
 import getFromUserSettings from '/imports/ui/services/users-settings';
-import { useMutation, useLazyQuery } from '@apollo/client';
+import {
+  useMutation, useLazyQuery, useSubscription, useQuery,
+} from '@apollo/client';
 import {
   layoutSelect,
   layoutSelectInput,
@@ -16,7 +20,8 @@ import MediaService from '../media/service';
 import {
   CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
   CURRENT_PAGE_WRITERS_SUBSCRIPTION,
-  CURRENT_PAGE_ANNOTATIONS_STREAM,
+  ANNOTATION_HISTORY_STREAM,
+  CURRENT_PAGE_ANNOTATIONS_QUERY,
 } from '/imports/ui/components/whiteboard/queries';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
@@ -27,8 +32,10 @@ import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
 
 const fetchedpresentation = {};
+const FORCE_RESTORE_PRESENTATION_ON_NEW_EVENTS = 'bbb_force_restore_presentation_on_new_events';
 
 const PresentationContainer = (props) => {
+  const [annotationStreamData, setAnnotationStreamData] = useState([]);
   const presentationIsOpen = props?.presentationIsOpen ?? true;
   const layoutContextDispatch = layoutDispatch();
   const { selectedLayout } = useSettings(SETTINGS.APPLICATION);
@@ -37,26 +44,10 @@ const PresentationContainer = (props) => {
     CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
   );
 
-  const { data: annotationStreamData } = useDeduplicatedSubscription(
-    CURRENT_PAGE_ANNOTATIONS_STREAM,
-    {
-      variables: { lastUpdatedAt: new Date(0).toISOString() },
-    },
-  );
-
-  useEffect(() => {
-    if (
-      (
-        annotationStreamData?.pres_annotation_curr_stream
-        && annotationStreamData.pres_annotation_curr_stream.length > 0)
-      && !presentationIsOpen) {
-      MediaService.setPresentationIsOpen(layoutContextDispatch, true);
-    }
-  }, [annotationStreamData]);
-
   const { pres_page_curr: presentationPageArray } = (presentationPageData || {});
-  const currentPresentationPage = presentationPageArray && presentationPageArray[0];
-  const slideSvgUrl = currentPresentationPage && currentPresentationPage.svgUrl;
+  const currentPresentationPage = presentationPageArray?.[0];
+  const slideSvgUrl = currentPresentationPage?.svgUrl;
+  const currentPageId = currentPresentationPage?.pageId;
 
   const { data: whiteboardWritersData } = useDeduplicatedSubscription(
     CURRENT_PAGE_WRITERS_SUBSCRIPTION,
@@ -66,6 +57,51 @@ const PresentationContainer = (props) => {
   );
 
   const whiteboardWriters = whiteboardWritersData?.pres_page_writers || [];
+  const restoreOnUpdate = getFromUserSettings(
+    FORCE_RESTORE_PRESENTATION_ON_NEW_EVENTS,
+    window.meetingClientSettings.public.presentation.restoreOnUpdate,
+  );
+  const {
+    data: currentMeeting,
+  } = useMeeting((m) => ({
+    createdTime: m.createdTime,
+  }));
+
+  const { data: initialPageAnnotations, refetch: refetchInitialPageAnnotations } = useQuery(
+    CURRENT_PAGE_ANNOTATIONS_QUERY,
+    {
+      variables: { pageId: currentPageId },
+      skip: !currentPageId,
+    },
+  );
+
+  const lastUpdatedAt = useMemo(() => {
+    if (!initialPageAnnotations) return null;
+
+    if (!initialPageAnnotations?.pres_annotation_curr?.length) {
+      return currentMeeting?.createdTime
+        ? new Date(currentMeeting.createdTime).toISOString()
+        : null;
+    }
+    return initialPageAnnotations.pres_annotation_curr.reduce((latest, annotation) => {
+      const updatedAt = new Date(annotation.lastUpdatedAt);
+      return updatedAt > latest ? updatedAt : latest;
+    }, new Date(0)).toISOString();
+  }, [initialPageAnnotations, currentMeeting?.createdTime]);
+
+  const canStream = !!lastUpdatedAt;
+
+  useSubscription(ANNOTATION_HISTORY_STREAM, {
+    variables: { pageId: currentPageId, updatedAt: lastUpdatedAt },
+    skip: !currentPresentationPage || !canStream,
+    onData: ({ data: subscriptionData }) => {
+      const annotationStream = subscriptionData.data?.pres_annotation_history_curr_stream || [];
+      if (annotationStream.length > 0 && restoreOnUpdate && !presentationIsOpen) {
+        MediaService.setPresentationIsOpen(layoutContextDispatch, true);
+      }
+      setAnnotationStreamData(annotationStream);
+    },
+  });
 
   const [presentationSetZoom] = useMutation(PRESENTATION_SET_ZOOM);
   const [presentationSetWriters] = useMutation(PRESENTATION_SET_WRITERS);
@@ -246,10 +282,7 @@ const PresentationContainer = (props) => {
           totalPages: currentPresentationPage?.totalPages || 0,
           notify,
           zoomSlide,
-          restoreOnUpdate: getFromUserSettings(
-            'bbb_force_restore_presentation_on_new_events',
-            window.meetingClientSettings.public.presentation.restoreOnUpdate,
-          ),
+          restoreOnUpdate,
           addWhiteboardGlobalAccess: getUsers,
           removeWhiteboardGlobalAccess,
           multiUserSize: multiUserData.size,
@@ -260,6 +293,9 @@ const PresentationContainer = (props) => {
           currentUser,
           currentPresentationPage,
           layoutType: selectedLayout || '',
+          annotationStreamData,
+          initialPageAnnotations,
+          refetchInitialPageAnnotations,
         }
       }
     />
