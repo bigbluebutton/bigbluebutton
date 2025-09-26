@@ -520,6 +520,8 @@
     "app.navBar.optionsDropdown.helpDesc": "Links user to video tutorials (opens new tab)",
     "app.navBar.optionsDropdown.endMeetingDesc": "Terminates the current session",
     "app.navBar.optionsDropdown.endMeetingLabel": "End session",
+    "app.navBar.optionsDropdown.returnToMainRoomLabel": "Return to main room",
+    "app.navBar.optionsDropdown.returnToMainRoomDesc": "Returns to the main room session",
     "app.navBar.optionsDropdown.endMeetingForAllLabel": "End session for all",
     "app.navBar.optionsDropdown.presenceLabel": "I'm",
     "app.sidebarNavigation.toggle.btnLabel": "Navigation sidebar toggle",
