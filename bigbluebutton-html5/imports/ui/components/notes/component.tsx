@@ -20,6 +20,7 @@ import {
 import { useIsPresentationEnabled } from '../../services/features';
 import { useStorageKey } from '/imports/ui/services/storage/hooks';
 import useMeeting from '../../core/hooks/useMeeting';
+import useNotesLastRead from './hooks/useNotesLastRead';
 
 const intlMessages = defineMessages({
   title: {
@@ -78,6 +79,7 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
   } = props;
   const [shouldRenderNotes, setShouldRenderNotes] = useState(false);
   const intl = useIntl();
+  const { markNotesAsRead } = useNotesLastRead();
 
   const isOnMediaArea = area === 'media';
   const style = isOnMediaArea ? {
@@ -97,20 +99,21 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
 
   const DELAY_UNMOUNT_SHARED_NOTES = window.meetingClientSettings.public.app.delayForUnmountOfSharedNote;
 
-  let timoutRef: NodeJS.Timeout | undefined;
+  let timeoutRef: NodeJS.Timeout | undefined;
   useEffect(() => {
     if (isToSharedNotesBeShow) {
       setShouldRenderNotes(true);
-      clearTimeout(timoutRef!);
+      clearTimeout(timeoutRef!);
     } else {
-      timoutRef = setTimeout(() => {
+      markNotesAsRead();
+      timeoutRef = setTimeout(() => {
         setShouldRenderNotes(false);
       }, (sidebarContentToIgnoreDelay.includes(sidebarContent.sidebarContentPanel)
         || shouldShowSharedNotesOnPresentationArea)
         ? 0 : DELAY_UNMOUNT_SHARED_NOTES);
     }
-    return () => clearTimeout(timoutRef!);
-  }, [isToSharedNotesBeShow, sidebarContent.sidebarContentPanel]);
+    return () => clearTimeout(timeoutRef!);
+  }, [isToSharedNotesBeShow, sidebarContent.sidebarContentPanel, shouldShowSharedNotesOnPresentationArea]);
 
   const renderHeaderOnMedia = () => {
     return amIPresenter ? (
