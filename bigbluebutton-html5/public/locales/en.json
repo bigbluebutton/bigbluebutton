@@ -140,6 +140,7 @@
     "app.appsGallery.modal.confirmButtonLabel": "Got it",
     "app.profileSettings.title": "Profile Settings",
     "app.profileSettings.usernameTitle": "Username",
+    "app.profileSettings.addExtraCamera": "Add Extra Camera",
     "app.pads.hint": "Press Esc to focus the pad's toolbar",
     "app.user.activityCheck": "User activity check",
     "app.user.activityCheck.label": "Check if user is still in session ({responseDelay})",
