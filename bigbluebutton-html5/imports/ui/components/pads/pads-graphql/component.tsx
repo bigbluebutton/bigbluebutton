@@ -11,6 +11,7 @@ import Styled from './styles';
 import PadContent from './content/component';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import useNotesLastRead from '/imports/ui/components/notes/hooks/useNotesLastRead';
 
 const intlMessages = defineMessages({
   hint: {
@@ -44,6 +45,14 @@ const PadGraphql: React.FC<PadGraphqlProps> = (props) => {
   } = props;
   const [padURL, setPadURL] = useState<string | undefined>();
   const intl = useIntl();
+  const { markNotesAsRead } = useNotesLastRead();
+
+  useEffect(() => {
+    markNotesAsRead();
+    return () => {
+      markNotesAsRead();
+    };
+  }, []);
 
   useEffect(() => {
     if (!padId) {

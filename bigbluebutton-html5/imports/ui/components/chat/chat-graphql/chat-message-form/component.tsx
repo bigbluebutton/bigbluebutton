@@ -723,7 +723,7 @@ const ChatMessageFormContainer: React.FC = () => {
     participant: c?.participant,
     chatId: c?.chatId,
     public: c?.public,
-  }), idChatOpen) as GraphqlDataHookSubscriptionResponse<Partial<Chat>>;
+  }), { chatId: idChatOpen }) as GraphqlDataHookSubscriptionResponse<Partial<Chat>>;
 
   const { data: currentUser } = useCurrentUser((c) => ({
     isModerator: c?.isModerator,
