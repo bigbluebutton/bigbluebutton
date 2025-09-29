@@ -1,17 +1,26 @@
 import React from 'react';
 import { Caption, GET_CAPTIONS, getCaptions } from './queries';
 import logger from '/imports/startup/client/logger';
-
+import { defineMessages, useIntl } from 'react-intl';
 import Styled from './styles';
 import useAudioCaptionEnable from '/imports/ui/core/local-states/useAudioCaptionEnable';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { splitTranscript } from '../service';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
+import { layoutSelectOutput } from '/imports/ui/components/layout/context';
+import { Output } from '/imports/ui/components/layout/layoutTypes';
 
 interface AudioCaptionsLiveProps {
   captions: Caption[];
 }
+
+const messages = defineMessages({
+  captions: {
+    id: 'app.audio.captions.live.captions',
+    description: 'Accessible label for the audio captions region',
+  },
+});
 
 const AudioCaptionsLive: React.FC<AudioCaptionsLiveProps> = ({
   captions,
@@ -59,12 +68,14 @@ const AudioCaptionsLive: React.FC<AudioCaptionsLiveProps> = ({
 };
 
 const AudioCaptionsLiveContainer: React.FC = () => {
+  const intl = useIntl();
   const {
     data: currentUser,
   } = useCurrentUser((u) => ({
     captionLocale: u.captionLocale,
   }));
   const [audioCaptionsEnable] = useAudioCaptionEnable();
+  const captionsStyle = layoutSelectOutput((i: Output) => i.captions);
 
   const {
     data: AudioCaptionsLiveData,
@@ -98,12 +109,23 @@ const AudioCaptionsLiveContainer: React.FC = () => {
   if (!audioCaptionsEnable) return null;
 
   return (
-    <AudioCaptionsLive
-      captions={AudioCaptionsLiveData.caption.map((c) => {
-        const splits = splitTranscript(c);
-        return splits;
-      }).flat().filter((c) => c.captionText)}
-    />
+    <Styled.CaptionsContainer
+      as="section"
+      aria-label={intl.formatMessage(messages.captions)}
+      style={{
+        position: 'absolute',
+        left: captionsStyle.left,
+        right: captionsStyle.right,
+        maxWidth: captionsStyle.maxWidth,
+      }}
+    >
+      <AudioCaptionsLive
+        captions={AudioCaptionsLiveData.caption.map((c) => {
+          const splits = splitTranscript(c);
+          return splits;
+        }).flat().filter((c) => c.captionText)}
+      />
+    </Styled.CaptionsContainer>
   );
 };
 

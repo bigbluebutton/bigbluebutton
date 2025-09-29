@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import { useMutation, useReactiveVar } from '@apollo/client';
-import AudioCaptionsLiveContainer from '/imports/ui/components/audio/audio-graphql/audio-captions/live/component';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import {
   useIsPresentationEnabled,
@@ -13,7 +12,6 @@ import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import {
   layoutSelect,
   layoutSelectInput,
-  layoutSelectOutput,
   layoutDispatch,
 } from '../layout/context';
 import useSetSpeechOptions from '../audio/audio-graphql/hooks/useSetSpeechOptions';
@@ -75,7 +73,6 @@ const AppContainer = (props) => {
   const { partialUtterances, minUtteranceLength } = useSettings(SETTINGS.TRANSCRIPTION);
 
   const genericMainContent = layoutSelectInput((i) => i.genericMainContent);
-  const captionsStyle = layoutSelectOutput((i) => i.captions);
   const presentation = layoutSelectInput((i) => i.presentation);
   const { hideNotificationToasts } = layoutSelectInput((i) => i.notificationsBar);
   const layoutType = layoutSelect((i) => i.layoutType);
@@ -143,7 +140,6 @@ const AppContainer = (props) => {
           isNonMediaLayout,
           currentUserAway: currentUser.away,
           currentUserRaiseHand: currentUser?.raiseHand ?? false,
-          captionsStyle,
           presentationIsOpen,
           shouldShowExternalVideo,
           shouldShowScreenshare,
@@ -154,7 +150,6 @@ const AppContainer = (props) => {
           layoutContextDispatch,
           isPollingEnabled,
           genericMainContentId: genericMainContent.genericContentId,
-          audioCaptions: <AudioCaptionsLiveContainer />,
           hideNotificationToasts: hideNotificationToasts
             || getFromUserSettings('bbb_hide_notifications', false),
           darkTheme,

@@ -47,6 +47,7 @@ import { notify } from '/imports/ui/services/notification';
 import VoiceActivityAdapter from '../../core/adapters/voice-activity';
 import LayoutObserver from '../layout/observer';
 import BBBLiveKitRoomContainer from '/imports/ui/components/livekit/component';
+import AudioCaptionsLiveContainer from '/imports/ui/components/audio/audio-graphql/audio-captions/live/component';
 
 const intlMessages = defineMessages({
   userListLabel: {
@@ -296,31 +297,6 @@ class App extends Component {
     );
   }
 
-  renderAudioCaptions() {
-    const {
-      audioCaptions,
-      captionsStyle,
-    } = this.props;
-
-    if (!audioCaptions) return null;
-
-    return (
-      <Styled.CaptionsWrapper
-        role="region"
-        style={
-          {
-            position: 'absolute',
-            left: captionsStyle.left,
-            right: captionsStyle.right,
-            maxWidth: captionsStyle.maxWidth,
-          }
-        }
-      >
-        {audioCaptions}
-      </Styled.CaptionsWrapper>
-    );
-  }
-
   render() {
     const {
       shouldShowExternalVideo,
@@ -402,7 +378,7 @@ class App extends Component {
               />
             ) : null}
           <AudioCaptionsSpeechContainer />
-          {this.renderAudioCaptions()}
+          <AudioCaptionsLiveContainer />
           { (
             !hideNotificationToasts
             && isNotificationEnabled) && <PresentationUploaderToastContainer intl={intl} /> }
