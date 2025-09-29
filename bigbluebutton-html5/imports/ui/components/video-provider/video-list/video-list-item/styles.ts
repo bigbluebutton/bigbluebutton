@@ -10,6 +10,7 @@ import {
   webcamPlaceholderBorder,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { TextElipsis } from '/imports/ui/stylesheets/styled-components/placeholders';
+import { UserCameraButtonsContainerWrapperProps } from './types'
 
 const rotate360 = keyframes`
   from {
@@ -205,7 +206,7 @@ const RaiseHand = styled.div`
   font-size: 32px;
 `;
 
-const UserCameraButtonsContainterWrapper = styled.div<UserCameraButtonsContainterWrapperProps>`
+const UserCameraButtonsContainerWrapper = styled.div<UserCameraButtonsContainerWrapperProps>`
   position: absolute;
   z-index: 2;
   display: flex;
@@ -229,7 +230,7 @@ const UserCameraButtonsContainterWrapper = styled.div<UserCameraButtonsContainte
 
 export default {
   Content,
-  UserCameraButtonsContainterWrapper,
+  UserCameraButtonsContainerWrapper,
   WebcamConnecting,
   LoadingText,
   VideoContainer,
