@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useCallback, useContext } from 'react';
 import { useMutation } from '@apollo/client';
 import { MediaAreaContainerProps, MediaButtonPluginItem } from './types';
 import MediaArea from './component';
@@ -24,7 +24,6 @@ const MediaAreaContainer = (props: MediaAreaContainerProps) => {
     isSharingVideo,
     stopExternalVideoShare,
     isMeteorConnected,
-    setPresentationFitToWidth,
     hasPresentation,
   } = props;
 
@@ -48,10 +47,9 @@ const MediaAreaContainer = (props: MediaAreaContainerProps) => {
     && !allowPresentationManagementInBreakouts;
 
   const [setPresenter] = useMutation(SET_PRESENTER);
-
-  const handleTakePresenter = () => {
+  const handleTakePresenter = useCallback(() => {
     setPresenter({ variables: { userId: Auth.userID } });
-  };
+  }, [setPresenter]);
 
   const isPresentationEnabled = useIsPresentationEnabled();
   const isCameraAsContentEnabled = useIsCameraAsContentEnabled();
@@ -74,7 +72,6 @@ const MediaAreaContainer = (props: MediaAreaContainerProps) => {
       stopExternalVideoShare={stopExternalVideoShare}
       isMeteorConnected={isMeteorConnected}
       hasPresentation={hasPresentation}
-      setPresentationFitToWidth={setPresentationFitToWidth}
     />
   );
 };

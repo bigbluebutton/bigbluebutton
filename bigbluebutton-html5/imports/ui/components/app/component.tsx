@@ -1,5 +1,5 @@
 import React, {
-  useState, useEffect, useCallback,
+  useState, useEffect,
 } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import PollingContainer from '/imports/ui/components/polling/container';
@@ -58,7 +58,6 @@ interface AppProps {
   meetingName: string;
   currentUserAway?: boolean;
   currentUserRaiseHand?: boolean;
-  fitToWidth: boolean;
   shouldShowExternalVideo: boolean;
   shouldShowPresentation: boolean;
   shouldShowScreenshare: boolean;
@@ -79,7 +78,6 @@ interface AppProps {
   };
   isPollingEnabled: boolean;
   layoutContextDispatch: DispatcherFunction;
-  handlePresentationFitToWidth: (fitToWidth: boolean) => void;
 }
 const messages = defineMessages({
   captions: {
@@ -96,7 +94,6 @@ const App: React.FC<AppProps> = ({
   meetingName,
   currentUserAway,
   currentUserRaiseHand,
-  fitToWidth,
   shouldShowExternalVideo,
   shouldShowPresentation,
   shouldShowScreenshare,
@@ -113,13 +110,11 @@ const App: React.FC<AppProps> = ({
   captionsStyle,
   isPollingEnabled,
   layoutContextDispatch,
-  handlePresentationFitToWidth,
 }) => {
   const intl = useIntl();
   // State
   const [isAudioModalOpen, setIsAudioModalOpen] = useState<boolean>(false);
   const [isVideoPreviewModalOpen, setIsVideoPreviewModalOpen] = useState<boolean>(false);
-  const [presentationFitToWidth, setPresentationFitToWidth] = useState<boolean>(false);
 
   useAppInitialization();
   useJoinLogger(meetingId, meetingName, isBreakout);
@@ -130,22 +125,12 @@ const App: React.FC<AppProps> = ({
     AppService.setDarkTheme(darkTheme);
   }, [darkTheme]);
 
-  useEffect(() => {
-    setPresentationFitToWidth(fitToWidth);
-  }, [fitToWidth]);
-
-  const handleSetPresentationFitToWidth = useCallback((fitToWidth: boolean) => {
-    handlePresentationFitToWidth(fitToWidth);
-    setPresentationFitToWidth(fitToWidth);
-  }, [handlePresentationFitToWidth]);
-
   const renderActionsBar = () => {
     if (hideActionsBar) return null;
 
     return (
       <ActionsBarContainer
         presentationIsOpen={presentationIsOpen}
-        setPresentationFitToWidth={handleSetPresentationFitToWidth}
       />
     );
   };
@@ -206,8 +191,6 @@ const App: React.FC<AppProps> = ({
           />
           {shouldShowPresentation ? (
             <PresentationContainer
-              setPresentationFitToWidth={handleSetPresentationFitToWidth}
-              fitToWidth={presentationFitToWidth}
               darkTheme={darkTheme}
               presentationIsOpen={presentationIsOpen}
             />
@@ -266,8 +249,6 @@ const App: React.FC<AppProps> = ({
       >
         <ScreenReaderAlertContainer />
         <PresentationContainer
-          setPresentationFitToWidth={setPresentationFitToWidth}
-          fitToWidth={presentationFitToWidth}
           darkTheme={darkTheme}
           presentationIsOpen={presentationIsOpen}
         />

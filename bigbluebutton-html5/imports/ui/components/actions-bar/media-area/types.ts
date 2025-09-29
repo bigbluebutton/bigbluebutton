@@ -19,7 +19,6 @@ export interface MediaAreaContainerProps {
   isSharingVideo: boolean;
   stopExternalVideoShare: () => void;
   isMeteorConnected: boolean;
-  setPresentationFitToWidth: (fitToWidth: boolean) => void;
   hasPresentation: boolean;
 }
 
@@ -38,7 +37,6 @@ export interface MediaAreaProps {
   isSharingVideo: boolean;
   mediaAreaItems: MediaButtonPluginItem[];
   isPresentationManagementDisabled?: boolean;
-  setPresentationFitToWidth: (fitToWidth: boolean) => void;
   isMobile: boolean;
   isRTL: boolean;
 }
