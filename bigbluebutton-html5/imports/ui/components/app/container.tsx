@@ -14,11 +14,10 @@ import useSetSpeechOptions from '/imports/ui/components/audio/audio-graphql/hook
 import {
   layoutSelect,
   layoutSelectInput,
-  layoutSelectOutput,
   layoutDispatch,
 } from '/imports/ui/components/layout/context';
 import {
-  DispatcherFunction, Input, Layout, Output,
+  DispatcherFunction, Input, Layout,
 } from '/imports/ui/components/layout/layoutTypes';
 import { handleIsNotificationEnabled } from '/imports/ui/components/plugins-engine/ui-commands/notification/handler';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
@@ -66,7 +65,6 @@ const AppContainer: React.FC<AppContainerProps> = ({ pluginConfig }) => {
   const genericMainContent = layoutSelectInput((i: Input) => i.genericMainContent);
   const { hideNotificationToasts: layoutHideNotificationToasts } = layoutSelectInput((i: Input) => i.notificationsBar);
   const presentation = layoutSelectInput((i: Input) => i.presentation);
-  const captionsStyle = layoutSelectOutput((i: Output) => i.captions);
   const selectedLayout = layoutSelect((i: Layout) => i.layoutType);
   const { isNotificationEnabled } = useReactiveVar(handleIsNotificationEnabled);
 
@@ -131,7 +129,6 @@ const AppContainer: React.FC<AppContainerProps> = ({ pluginConfig }) => {
       isNonMediaLayout={isNonMediaLayout}
       currentUserAway={away}
       currentUserRaiseHand={raiseHand}
-      captionsStyle={captionsStyle}
       presentationIsOpen={presentationIsOpen}
       shouldShowExternalVideo={shouldShowExternalVideo}
       shouldShowScreenshare={shouldShowScreenshare}
@@ -142,7 +139,6 @@ const AppContainer: React.FC<AppContainerProps> = ({ pluginConfig }) => {
       layoutContextDispatch={layoutContextDispatch}
       isPollingEnabled={isPollingEnabled}
       genericMainContentId={genericMainContent.genericContentId}
-      audioCaptions={<AudioCaptionsLiveContainer />}
       hideNotificationToasts={hideNotificationToasts}
       darkTheme={darkTheme}
       selectedLayout={selectedLayout}

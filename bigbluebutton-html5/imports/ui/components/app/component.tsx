@@ -1,7 +1,7 @@
 import React, {
   useState, useEffect,
 } from 'react';
-import { defineMessages, useIntl } from 'react-intl';
+import { useIntl } from 'react-intl';
 import PollingContainer from '/imports/ui/components/polling/container';
 import ActivityCheckContainer from '/imports/ui/components/activity-check/container';
 import RequestUnmuteContainer from '/imports/ui/components/request-unmute-modal/container';
@@ -41,6 +41,7 @@ import VoiceActivityAdapter from '../../core/adapters/voice-activity';
 import LayoutObserver from '../layout/observer';
 import BBBLiveKitRoomContainer from '/imports/ui/components/livekit/component';
 import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
+import AudioCaptionsLiveContainer from '/imports/ui/components/audio/audio-graphql/audio-captions/live/component';
 import BreakoutRoomsAppObserver from '../breakout-room/breakout-observer/component';
 import { DispatcherFunction } from '../layout/layoutTypes';
 import { PluginConfigFromGraphql } from '../plugins-engine/types';
@@ -65,26 +66,14 @@ interface AppProps {
   presentationIsOpen: boolean;
   pluginConfig: PluginConfigFromGraphql[] | undefined;
   genericMainContentId: string;
-  selectedLayout: string;
+  selectedLayout: typeof LAYOUT_TYPE[keyof typeof LAYOUT_TYPE];
   isNotificationEnabled: boolean;
   isNonMediaLayout: boolean;
   isRaiseHandEnabled: boolean;
   hideActionsBar: boolean;
-  audioCaptions: React.ReactNode;
-  captionsStyle: {
-    left: number;
-    right: number;
-    maxWidth: number;
-  };
   isPollingEnabled: boolean;
   layoutContextDispatch: DispatcherFunction;
 }
-const messages = defineMessages({
-  captions: {
-    id: 'app.audio.captions.live.captions',
-    description: 'Accessible label for the audio captions region',
-  },
-});
 
 const App: React.FC<AppProps> = ({
   darkTheme,
@@ -106,8 +95,6 @@ const App: React.FC<AppProps> = ({
   isNonMediaLayout,
   isRaiseHandEnabled,
   hideActionsBar,
-  audioCaptions,
-  captionsStyle,
   isPollingEnabled,
   layoutContextDispatch,
 }) => {
@@ -132,25 +119,6 @@ const App: React.FC<AppProps> = ({
       <ActionsBarContainer
         presentationIsOpen={presentationIsOpen}
       />
-    );
-  };
-
-  const renderAudioCaptions = () => {
-    if (!audioCaptions) return null;
-
-    return (
-      <Styled.CaptionsWrapper
-        as="section"
-        aria-label={intl.formatMessage(messages.captions)}
-        style={{
-          position: 'absolute',
-          left: captionsStyle.left,
-          right: captionsStyle.right,
-          maxWidth: captionsStyle.maxWidth,
-        }}
-      >
-        {audioCaptions}
-      </Styled.CaptionsWrapper>
     );
   };
 
@@ -204,7 +172,7 @@ const App: React.FC<AppProps> = ({
             />
           ) : null}
           <AudioCaptionsSpeechContainer />
-          {renderAudioCaptions()}
+          <AudioCaptionsLiveContainer />
           {!hideNotificationToasts && isNotificationEnabled && (
             <PresentationUploaderToastContainer intl={intl} />
           )}

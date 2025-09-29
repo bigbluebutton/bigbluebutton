@@ -9,15 +9,6 @@ import {
   colorToggleBgDisabledDarkTheme,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
-const CaptionsWrapper = styled.div`
-  height: auto;
-  bottom: 100px;
-  left: 20%;
-  z-index: 5;
-  pointer-events: none;
-  user-select:none;
-`;
-
 const Layout = styled(FlexColumn)``;
 
 const DtfInvert = `
@@ -172,7 +163,6 @@ const DtfImages = `
 `;
 
 export default {
-  CaptionsWrapper,
   Layout,
   DtfInvert,
   DtfBrandingInvert,
