@@ -148,7 +148,6 @@ class ActionsBar extends PureComponent {
       setMeetingLayout,
       showPushLayout,
       setPushLayout,
-      setPresentationFitToWidth,
       isPresentationEnabled,
       ariaHidden,
       showScreenshareQuickSwapButton,
@@ -210,7 +209,6 @@ class ActionsBar extends PureComponent {
               presentationIsOpen,
               showPushLayout,
               hasCameraAsContent,
-              setPresentationFitToWidth,
             }}
             />
           </Styled.Left>

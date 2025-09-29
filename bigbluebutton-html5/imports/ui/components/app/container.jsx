@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useMutation, useReactiveVar } from '@apollo/client';
+import { useReactiveVar } from '@apollo/client';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import {
   useIsPresentationEnabled,
@@ -17,13 +17,10 @@ import {
 import useSetSpeechOptions from '../audio/audio-graphql/hooks/useSetSpeechOptions';
 import { handleIsNotificationEnabled } from '/imports/ui/components/plugins-engine/ui-commands/notification/handler';
 import App from './component';
-import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 import useSettings from '../../services/settings/hooks/useSettings';
 import { SETTINGS } from '../../services/settings/enums';
 import usePresentationSwap from '../../core/hooks/usePresentationSwap';
 import { LAYOUT_TYPE } from '../layout/enums';
-import { SET_PRESENTATION_FIT_TO_WIDTH } from './app-graphql/mutations';
-import { CURRENT_PRESENTATION_PAGE_SUBSCRIPTION } from '../whiteboard/queries';
 
 const AppContainer = (props) => {
   const {
@@ -52,15 +49,6 @@ const AppContainer = (props) => {
     meetingId: m.meetingId,
   }));
 
-  const { data: currentPageInfo } = useDeduplicatedSubscription(
-    CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
-    {
-      // presenter can be undefinend leading to a bug
-      // eslint-disable-next-line no-unneeded-ternary
-      skip: currentUser?.presenter ? false : true,
-    },
-  );
-
   const presentationRestoreOnUpdate = getFromUserSettings(
     'bbb_force_restore_presentation_on_new_events',
     window.meetingClientSettings.public.presentation.restoreOnUpdate,
@@ -87,7 +75,6 @@ const AppContainer = (props) => {
   const isPresentationEnabled = useIsPresentationEnabled();
   const isRaiseHandEnabled = useIsRaiseHandEnabled();
   const [showScreenshare] = usePresentationSwap();
-  const [setPresentationFitToWidth] = useMutation(SET_PRESENTATION_FIT_TO_WIDTH);
 
   const isPresenter = currentUser?.presenter;
 
@@ -106,18 +93,6 @@ const AppContainer = (props) => {
   const shouldShowPresentation = (!shouldShowScreenshare && !isSharedNotesPinned
       && !shouldShowExternalVideo && !shouldShowGenericMainContent
       && (presentationIsOpen || presentationRestoreOnUpdate)) && isPresentationEnabled;
-  const currentPageInfoData = currentPageInfo?.pres_page_curr[0] ?? {};
-  const fitToWidth = currentPageInfoData?.fitToWidth ?? false;
-  const pageId = currentPageInfoData?.pageId ?? '';
-
-  const handlePresentationFitToWidth = (ftw) => {
-    setPresentationFitToWidth({
-      variables: {
-        pageId,
-        fitToWidth: ftw,
-      },
-    });
-  };
 
   // Update after editing app savings
   useEffect(() => {
@@ -133,8 +108,6 @@ const AppContainer = (props) => {
     ? (
       <App
         {...{
-          fitToWidth,
-          handlePresentationFitToWidth,
           hideActionsBar: getFromUserSettings('bbb_hide_actions_bar', false)
             || getFromUserSettings('bbb_hide_controls', false),
           isNonMediaLayout,

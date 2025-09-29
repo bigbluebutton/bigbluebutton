@@ -123,13 +123,11 @@ class App extends Component {
     this.state = {
       isAudioModalOpen: false,
       isVideoPreviewModalOpen: false,
-      presentationFitToWidth: false,
       isJoinLogged: false,
     };
 
     this.timeOffsetInterval = null;
 
-    this.setPresentationFitToWidth = this.setPresentationFitToWidth.bind(this);
     this.setAudioModalIsOpen = this.setAudioModalIsOpen.bind(this);
     this.setVideoPreviewModalIsOpen = this.setVideoPreviewModalIsOpen.bind(this);
     this.customPollShortcutHandler = this.customPollShortcutHandler.bind(this);
@@ -173,7 +171,6 @@ class App extends Component {
       currentUserAway,
       currentUserRaiseHand,
       intl,
-      fitToWidth,
     } = this.props;
 
     const { isJoinLogged } = this.state;
@@ -196,10 +193,6 @@ class App extends Component {
       }
     }
 
-    if (prevProps.fitToWidth !== fitToWidth) {
-      this.setState({ presentationFitToWidth: fitToWidth });
-    }
-
     if (!isJoinLogged) {
       this.logJoin();
     }
@@ -216,12 +209,6 @@ class App extends Component {
     if (isPollingEnabled) {
       window.removeEventListener('keydown', this.customPollShortcutHandler);
     }
-  }
-
-  setPresentationFitToWidth(presentationFitToWidth) {
-    const { handlePresentationFitToWidth } = this.props;
-    handlePresentationFitToWidth(presentationFitToWidth);
-    this.setState({ presentationFitToWidth });
   }
 
   setAudioModalIsOpen(value) {
@@ -293,7 +280,6 @@ class App extends Component {
     return (
       <ActionsBarContainer
         presentationIsOpen={presentationIsOpen}
-        setPresentationFitToWidth={this.setPresentationFitToWidth}
       />
     );
   }
@@ -318,7 +304,6 @@ class App extends Component {
     const {
       isAudioModalOpen,
       isVideoPreviewModalOpen,
-      presentationFitToWidth,
     } = this.state;
     return (
       <>
@@ -359,8 +344,6 @@ class App extends Component {
           shouldShowPresentation
             ? (
               <PresentationContainer
-                setPresentationFitToWidth={this.setPresentationFitToWidth}
-                fitToWidth={presentationFitToWidth}
                 darkTheme={darkTheme}
                 presentationIsOpen={presentationIsOpen}
               />
