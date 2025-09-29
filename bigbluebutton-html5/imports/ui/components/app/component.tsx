@@ -48,6 +48,7 @@ import useJoinLogger from './hooks/useJoinLogger';
 import useAppInitialization from './hooks/useAppInitialization';
 import usePollShortcut from './hooks/usePollShortcut';
 import useUserStatusNotifications from './hooks/useUserStatusNotifications';
+import NotesRenderMode from '/imports/ui/components/notes/constants';
 
 interface AppProps {
   darkTheme: boolean;
@@ -215,7 +216,9 @@ const App: React.FC<AppProps> = ({
             <ScreenshareContainer shouldShowScreenshare={shouldShowScreenshare} />
           )}
           {isSharedNotesPinned ? (
-            <NotesContainer area="media" />
+            <NotesContainer
+              renderMode={NotesRenderMode.PINNED}
+            />
           ) : null}
           <AudioCaptionsSpeechContainer />
           {renderAudioCaptions()}
