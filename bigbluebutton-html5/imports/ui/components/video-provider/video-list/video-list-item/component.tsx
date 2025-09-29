@@ -31,6 +31,7 @@ const intlMessages = defineMessages({
 });
 
 const VIDEO_CONTAINER_WIDTH_BOUND = 125;
+const VIDEO_CONTAINER_PLUGIN_HELPERS_WIDTH_BOUND = 175;
 
 interface VideoListItemProps {
   pluginUserCameraHelperPerPosition: UserCameraHelperAreas;
@@ -127,7 +128,15 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
   const [isStreamHealthy, setIsStreamHealthy] = useState(false);
   const [isMirrored, setIsMirrored] = useState<boolean>(VideoService.mirrorOwnWebcam(stream.userId));
   const [isVideoSqueezed, setIsVideoSqueezed] = useState(false);
+  const [isVideoPluginHelperSqueezed, setIsVideoPluginHelperSqueezed] = useState(false);
   const [isSelfViewDisabled, setIsSelfViewDisabled] = useState(false);
+
+  const pluginSqueezedResizeObserver = new ResizeObserver((entry) => {
+    if (entry && entry[0]?.contentRect?.width < VIDEO_CONTAINER_PLUGIN_HELPERS_WIDTH_BOUND) {
+      return setIsVideoPluginHelperSqueezed(true);
+    }
+    return setIsVideoPluginHelperSqueezed(false);
+  });
 
   const resizeObserver = new ResizeObserver((entry) => {
     if (entry && entry[0]?.contentRect?.width < VIDEO_CONTAINER_WIDTH_BOUND) {
@@ -216,11 +225,15 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
   useEffect(() => {
     subscribeToStreamStateChange(cameraId, onStreamStateChange);
     onVideoItemMount(videoTag.current!);
-    if (videoContainer.current) resizeObserver.observe(videoContainer.current);
+    if (videoContainer.current) {
+      resizeObserver.observe(videoContainer.current);
+      pluginSqueezedResizeObserver.observe(videoContainer.current);
+    }
     videoTag?.current?.addEventListener('loadeddata', onLoadedData);
 
     return () => {
       videoTag?.current?.removeEventListener('loadeddata', onLoadedData);
+      pluginSqueezedResizeObserver.disconnect();
       resizeObserver.disconnect();
     };
   }, []);
@@ -353,6 +366,7 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
     } = pluginUserCameraHelperPerPosition;
     const { userId } = stream;
 
+    // when squeezed we move the bottom left items to top right and vice versa
     const topRightPluginItemsRender = (isVideoSqueezed) ? [] : topRightPluginItems?.concat(bottomLeftPluginItems);
     const topLeftPluginItemsRender = topLeftPluginItems;
     const bottomRightPluginItemsRender = bottomRightPluginItems;
@@ -365,7 +379,7 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
           positionXAxis="left"
         >
           {renderPluginItems(
-            cameraId, userId, topLeftPluginItemsRender, false, false, isVideoSqueezed, isRTL,
+            cameraId, userId, topLeftPluginItemsRender, false, false, isVideoPluginHelperSqueezed, isRTL,
           )}
         </Styled.UserCameraButtonsContainerWrapper>
         <Styled.UserCameraButtonsContainerWrapper
@@ -373,7 +387,7 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
           positionXAxis="right"
         >
           {renderPluginItems(
-            cameraId, userId, topRightPluginItemsRender, false, true, isVideoSqueezed, isRTL,
+            cameraId, userId, topRightPluginItemsRender, false, true, isVideoPluginHelperSqueezed, isRTL,
           )}
         </Styled.UserCameraButtonsContainerWrapper>
         <Styled.UserCameraButtonsContainerWrapper
@@ -381,7 +395,7 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
           positionXAxis="left"
         >
           {renderPluginItems(
-            cameraId, userId, bottomLeftPluginItemsRender, true, false, isVideoSqueezed, isRTL,
+            cameraId, userId, bottomLeftPluginItemsRender, true, false, isVideoPluginHelperSqueezed, isRTL,
           )}
         </Styled.UserCameraButtonsContainerWrapper>
         <Styled.UserCameraButtonsContainerWrapper
@@ -389,7 +403,7 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
           positionXAxis="right"
         >
           {renderPluginItems(
-            cameraId, userId, bottomRightPluginItemsRender, true, true, isVideoSqueezed, isRTL,
+            cameraId, userId, bottomRightPluginItemsRender, true, true, isVideoPluginHelperSqueezed, isRTL,
           )}
         </Styled.UserCameraButtonsContainerWrapper>
       </>
