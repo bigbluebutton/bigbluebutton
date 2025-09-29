@@ -1,4 +1,9 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, {
+  useRef,
+  useState,
+  useEffect,
+  memo,
+} from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import CustomLogo from './custom-logo/component';
 import ProfileListItem from './profile-list-item/component';
@@ -195,4 +200,4 @@ const SidebarNavigation = ({
   );
 };
 
-export default SidebarNavigation;
+export default memo(SidebarNavigation);
