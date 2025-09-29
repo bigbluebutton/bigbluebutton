@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import PropTypes from 'prop-types';
 import { Resizable } from 're-resizable';
 import { ACTIONS } from '../layout/enums';
@@ -99,4 +99,4 @@ const SidebarNavigation = ({
 };
 
 SidebarNavigation.propTypes = propTypes;
-export default SidebarNavigation;
+export default memo(SidebarNavigation);
