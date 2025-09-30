@@ -188,7 +188,7 @@ export const CURRENT_PAGE_WRITERS_QUERY = gql`
 export const CURRENT_PAGE_WRITERS_SUBSCRIPTION = gql`
   subscription currentPageWritersSubscription {
     pres_page_writers(
-      where: { isCurrentPage: {_eq: true} },
+      where: { isCurrentPage: {_eq: true}, user: { currentlyInMeeting: { _eq: true } } },
       order_by: { userId: asc }
     ) {
       userId

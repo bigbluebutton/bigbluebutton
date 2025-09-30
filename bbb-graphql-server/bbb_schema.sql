@@ -516,6 +516,11 @@ where u."guestStatus" = 'WAIT'
 and u."loggedOut" is false
 and u."ejected" is not true;
 
+create index "idx_v_user_guest" on "user"("meetingId", "userId", "isWaiting")
+where "guestStatus" = 'WAIT'
+and "loggedOut" is false
+and "ejected" is not true;
+
 --v_user_ref will be used only as foreign key (not possible to fetch this table directly through graphql)
 --it is necessary because v_user has some conditions like "lockSettings-hideUserList"
 --but viewers still needs to query this users as foreign key of chat, cameras, etc
@@ -1257,7 +1262,8 @@ LEFT JOIN "chat_user" chat_with ON chat_with."meetingId" = chat."meetingId" AND
                                     chat_with."chatId" != 'MAIN-PUBLIC-GROUP-CHAT'
 WHERE cu."visible" is true;
 
-create index idx_v_chat_with on chat_user("meetingId","chatId","userId") where "chatId" != 'MAIN-PUBLIC-GROUP-CHAT';
+CREATE INDEX "idx_v_chat_with" on chat_user("meetingId","chatId","userId") WHERE "chatId" != 'MAIN-PUBLIC-GROUP-CHAT';
+CREATE INDEX "idx_v_chat_message_unread" ON "chat_message"("meetingId","chatId","createdAt" asc);
 
 CREATE OR REPLACE VIEW "v_chat_message_public" AS
 SELECT cm.*
@@ -1290,6 +1296,9 @@ LEFT JOIN "chat_user" chat_with ON chat_with."meetingId" = cm."meetingId"
                                 AND chat_with."chatId" = cm."chatId"
                                 AND chat_with."userId" != cu."userId"
 WHERE cm."chatId" != 'MAIN-PUBLIC-GROUP-CHAT';
+
+CREATE INDEX "idx_v_chat_message_private" ON chat_message ("meetingId", "chatId", "createdAt")
+WHERE "chatId" != 'MAIN-PUBLIC-GROUP-CHAT';
 
 CREATE UNLOGGED TABLE "chat_message_reaction" (
 	"meetingId" varchar(100),
