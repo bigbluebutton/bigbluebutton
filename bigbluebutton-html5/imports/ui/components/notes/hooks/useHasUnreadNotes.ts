@@ -5,22 +5,17 @@ import useNotesLastUpdatedAt from './useNotesLastUpdatedAt';
 import useNotesLastRead from './useNotesLastRead';
 import { layoutSelectInput } from '/imports/ui/components/layout/context';
 import { Input } from '/imports/ui/components/layout/layoutTypes';
-import { PANELS } from '/imports/ui/components/layout/enums';
 
-const useHasUnreadNotes = () => {
+const useHasUnreadNotes = ({ isNotesPanelOpened }: { isNotesPanelOpened: boolean }) => {
   const NOTES_CONFIG = window.meetingClientSettings.public.notes;
   const { lastReadTimestamp } = useNotesLastRead();
   const [hasChanges, setHasChanges] = useState(false);
   const [isLatched, setIsLatched] = useState(false);
 
-  const { sidebarContentPanel, isSharedNotesPinned = false } = layoutSelectInput((i: Input) => ({
-    sidebarContentPanel: i.sidebarContent?.sidebarContentPanel,
-    isSharedNotesPinned: i.sharedNotes?.isPinned,
-  }));
-  const isPanelOpen = sidebarContentPanel === PANELS.SHARED_NOTES;
+  const isSharedNotesPinned = layoutSelectInput((i: Input) => i.sharedNotes?.isPinned ?? false);
 
   // Skip subscription when notes panel is open or pinned to avoid unnecessary updates
-  const skipSubscription = isPanelOpen || isSharedNotesPinned;
+  const skipSubscription = isNotesPanelOpened || isSharedNotesPinned;
 
   const lastUpdatedAtTimestamp = useNotesLastUpdatedAt(NOTES_CONFIG.id, { skip: skipSubscription || isLatched });
 
@@ -47,13 +42,13 @@ const useHasUnreadNotes = () => {
 
   return useMemo(() => {
     // There should be no unread notes if the notes panel is open
-    if (isPanelOpen) return false;
+    if (isNotesPanelOpened) return false;
 
     // There should be no unread notes if the shared notes is pinned
     if (isSharedNotesPinned) return false;
 
     return hasChanges;
-  }, [isPanelOpen, isSharedNotesPinned, hasChanges]);
+  }, [isNotesPanelOpened, isSharedNotesPinned, hasChanges]);
 };
 
 export default useHasUnreadNotes;

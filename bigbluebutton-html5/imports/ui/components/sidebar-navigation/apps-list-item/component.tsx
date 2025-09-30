@@ -1,12 +1,8 @@
-import React from 'react';
-import TooltipContainer from '/imports/ui/components/common/tooltip/container';
-import KEYS from '/imports/utils/keys';
+import React, { memo } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import Icon from '/imports/ui/components/common/icon/component';
-import { PANELS, ACTIONS } from '../../layout/enums';
-import { layoutDispatch, layoutSelectInput } from '/imports/ui/components/layout/context';
-import { Input } from '/imports/ui/components/layout/layoutTypes';
-import Styled from '../styles';
+import { PANELS } from '/imports/ui/components/layout/enums';
+import SidebarNavigationButton from '/imports/ui/components/sidebar-navigation/sidebar-navigation-button/component';
+import { BaseSidebarButtonProps } from '../types';
 
 const intlMessages = defineMessages({
   wigetsLabel: {
@@ -15,53 +11,21 @@ const intlMessages = defineMessages({
   },
 });
 
-const AppsListItem = () => {
-  const CURRENT_PANEL = PANELS.APPS_GALLERY;
+const AppsListItem: React.FC<BaseSidebarButtonProps> = ({ isOpened }) => {
   const intl = useIntl();
-  const layoutContextDispatch = layoutDispatch();
-  const sidebarContent = layoutSelectInput((i: Input) => i.sidebarContent);
-  const { sidebarContentPanel } = sidebarContent;
-
-  const toggleAppsGalleryPanel = () => {
-    layoutContextDispatch({
-      type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-      value: sidebarContentPanel !== CURRENT_PANEL,
-    });
-    layoutContextDispatch({
-      type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-      value: sidebarContentPanel === CURRENT_PANEL
-        ? PANELS.NONE
-        : CURRENT_PANEL,
-    });
-  };
-
   const label = intl.formatMessage(intlMessages.wigetsLabel);
 
   return (
-    <TooltipContainer
-      title={label}
-      position="right"
-    >
-      <Styled.ListItem
-        id="apps-gallery-toggle-button"
-        aria-label={label}
-        aria-describedby="appsGallery"
-        active={sidebarContentPanel === CURRENT_PANEL}
-        role="button"
-        tabIndex={0}
-        data-test="appsGallerySidebarButton"
-        onClick={toggleAppsGalleryPanel}
-        // @ts-ignore
-        onKeyDown={(e) => {
-          if (e.key === KEYS.ENTER) {
-            toggleAppsGalleryPanel();
-          }
-        }}
-      >
-        <Icon iconName="widgets" />
-      </Styled.ListItem>
-    </TooltipContainer>
+    <SidebarNavigationButton
+      panel={PANELS.APPS_GALLERY}
+      isOpened={isOpened}
+      iconName="widgets"
+      label={label}
+      id="apps-gallery-toggle-button"
+      ariaDescribedBy="appsGallery"
+      dataTest="appsGallerySidebarButton"
+    />
   );
 };
 
-export default AppsListItem;
+export default memo(AppsListItem);
