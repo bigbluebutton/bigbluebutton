@@ -46,9 +46,9 @@ const NotificationsBarContainer = () => {
   const { hasNotification } = layoutSelectInput((i) => i.notificationsBar);
   const dispatch = layoutDispatch();
 
-  const allowedConnectionErrors = window.meetingClientSettings
-    .public.app.allowedConnectionErrors || [];
-  const checkIfAllowed = (status) => allowedConnectionErrors.includes(status)
+  const showConnectionErrors = window.meetingClientSettings
+    .public.app.showConnectionErrors || [];
+  const checkIfAllowed = (status) => showConnectionErrors.includes(status)
   // Allow all connection errors in development mode
   || process.env.NODE_ENV === 'development';
 

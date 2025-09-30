@@ -311,7 +311,7 @@ public:
   #   - name: SamplePresentationToolbarPlugin
   #     url: https://<your-Host>/plugins/SamplePresentationToolbarPlugin.js
   # Allowed errors to be shown on notifications bar
-    allowedConnectionErrors:
+    showConnectionErrors:
       # - 3001
       - 3002
       # - 3003
