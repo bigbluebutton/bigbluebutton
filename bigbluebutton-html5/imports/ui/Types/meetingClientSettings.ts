@@ -106,6 +106,7 @@ export interface App {
   enableApolloDevTools: boolean
   terminateAndRetryConnection: number
   timeoutBeforeRedirectOnMeetingEnd: number | null
+  allowedConnectionErrors: number[]
 }
 
 export interface BbbTabletApp {
