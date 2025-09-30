@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
-import { colorPrimary } from '/imports/ui/stylesheets/styled-components/palette';
+import SvgIcon from '@mui/material/SvgIcon';
+import { btnDefaultColor, colorPrimary } from '/imports/ui/stylesheets/styled-components/palette';
 import CoPresentIcon from '@mui/icons-material/CoPresent';
 import KEYS from '/imports/utils/keys';
 import { useIsScreenGloballyBroadcasting, screenshareHasEnded } from '/imports/ui/components/screenshare/service';
@@ -214,6 +215,7 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
               color={hasCameraAsContent ? 'primary' : 'default'}
               text={intl.formatMessage(intlMessages.shareCameraAsContent)}
               icon={<Icon iconName="video" />}
+              tooltip={intl.formatMessage(intlMessages.shareCameraAsContent)}
               onClick={handleCameraAsContentClick}
             />
           )}
@@ -225,7 +227,15 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
                 dataTest={item.dataTest}
                 color="default"
                 text={item.label || ''}
-                icon={item.icon ? <Icon iconName={item.icon} /> : undefined}
+                icon={item?.icon && 'iconName' in item.icon ? (
+                  <Icon iconName={item.icon.iconName} />
+                ) : (
+                  <SvgIcon fontSize="large" sx={{ color: btnDefaultColor }}>
+                    {/* @ts-ignore */}
+                    {item.icon?.svgContent}
+                  </SvgIcon>
+                )}
+                tooltip={item.tooltip}
                 onClick={() => {
                   if (item.onClick) item.onClick();
                   handleClose();
