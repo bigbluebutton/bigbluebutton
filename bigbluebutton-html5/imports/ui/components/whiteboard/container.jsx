@@ -286,7 +286,7 @@ const WhiteboardContainer = (props) => {
 
   useEffect(() => {
     setTimeout(async () => {
-      if (!curPageId || !editor || !connectedStatus) return;
+      if (!newPresentationPage?.pageId || !editor || !connectedStatus) return;
       try {
         const result = await refetchInitialPageAnnotations();
         const serverAnnotations = result?.data?.pres_annotation_curr || [];
