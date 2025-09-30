@@ -159,10 +159,7 @@ const WhiteboardContainer = (props) => {
   const curPageId = currentPresentationPage?.pageId;
   const isInfiniteWhiteboard = currentPresentationPage?.infiniteWhiteboard;
   const curPageIdRef = useRef();
-
-  React.useEffect(() => {
-    curPageIdRef.current = curPageId;
-  }, [curPageId]);
+  curPageIdRef.current = curPageId;
 
   const presentationId = currentPresentationPage?.presentationId;
 
@@ -212,14 +209,16 @@ const WhiteboardContainer = (props) => {
     return allowedShapeIds;
   }, [isModerator, isPresenter, hasWBAccess, shapes, currentUser?.userId]);
 
-  useEffect(() => {
-    fetchDeletableShapesRef.current = fetchDeletableShapes;
-  }, [fetchDeletableShapes]);
+  fetchDeletableShapesRef.current = fetchDeletableShapes;
 
   const removeShapes = (shapeIds) => {
     const deletableShapeIds = fetchDeletableShapesRef.current?.(shapeIds);
 
-    if (!Array.isArray(deletableShapeIds) || deletableShapeIds.length === 0) return;
+    if (
+      !Array.isArray(deletableShapeIds)
+      || deletableShapeIds.length === 0
+      || !curPageIdRef.current
+    ) return;
 
     presentationDeleteAnnotations({
       variables: {
@@ -248,6 +247,7 @@ const WhiteboardContainer = (props) => {
   }, 500);
 
   const submitAnnotations = async (newAnnotations) => {
+    if (!curPageIdRef.current) return false;
     const isAnnotationSent = await presentationSubmitAnnotations({
       variables: {
         pageId: curPageIdRef.current,
