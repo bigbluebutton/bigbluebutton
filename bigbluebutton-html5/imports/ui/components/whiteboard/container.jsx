@@ -81,6 +81,7 @@ const WhiteboardContainer = (props) => {
   const flushScheduledRef = useRef(false);
 
   const fetchDeletableShapesRef = useRef();
+  const currentPresentationPageRef = useRef();
 
   // Aggregates the queues and updates state at once.
   const flushUpdates = useCallback(() => {
@@ -134,6 +135,7 @@ const WhiteboardContainer = (props) => {
   );
   const { pres_page_curr: presentationPageArray } = (presentationPageData || {});
   const newPresentationPage = presentationPageArray && presentationPageArray[0];
+  currentPresentationPageRef.current = newPresentationPage;
 
   useEffect(() => {
     const handleVisibilityChange = () => {
@@ -286,7 +288,7 @@ const WhiteboardContainer = (props) => {
 
   useEffect(() => {
     setTimeout(async () => {
-      if (!newPresentationPage?.pageId || !editor || !connectedStatus) return;
+      if (!currentPresentationPageRef.current?.pageId || !editor || !connectedStatus) return;
       try {
         const result = await refetchInitialPageAnnotations();
         const serverAnnotations = result?.data?.pres_annotation_curr || [];
