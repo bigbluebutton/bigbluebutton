@@ -71,7 +71,6 @@ const WhiteboardContainer = (props) => {
   const [shapes, setShapes] = useState([]);
   const [removedShapes, setRemovedShapes] = useState([]);
   const [isTabVisible, setIsTabVisible] = useState(document.visibilityState === 'visible');
-  const [currentPresentationPage, setCurrentPresentationPage] = useState(null);
 
   const { userLocks } = useLockContext();
 
@@ -134,8 +133,8 @@ const WhiteboardContainer = (props) => {
     CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
   );
   const { pres_page_curr: presentationPageArray } = (presentationPageData || {});
-  const newPresentationPage = presentationPageArray && presentationPageArray[0];
-  currentPresentationPageRef.current = newPresentationPage;
+  const currentPresentationPage = presentationPageArray && presentationPageArray[0];
+  currentPresentationPageRef.current = currentPresentationPage;
 
   useEffect(() => {
     const handleVisibilityChange = () => {
@@ -148,12 +147,6 @@ const WhiteboardContainer = (props) => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, []);
-
-  useEffect(() => {
-    if (newPresentationPage) {
-      setCurrentPresentationPage(newPresentationPage);
-    }
-  }, [newPresentationPage]);
 
   const curPageNum = currentPresentationPage?.num;
   const curPageId = currentPresentationPage?.pageId;
@@ -398,7 +391,7 @@ const WhiteboardContainer = (props) => {
   }, [annotationStreamData]);
 
   useEffect(() => {
-    if (!isTabVisible || !curPageId || !connectedStatus) return;
+    if (!isTabVisible || !curPageIdRef.current || !connectedStatus) return;
 
     setTimeout(() => {
       refetchInitialPageAnnotations();
