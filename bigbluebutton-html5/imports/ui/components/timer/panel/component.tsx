@@ -133,6 +133,9 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
 
   const [focusedUnit, setFocusedUnit] = useState<'hours' | 'minutes' | 'seconds'>('seconds');
   const [lastSelectedTrack, setLastSelectedTrack] = useState<string | null>(null);
+  const hoursInputRef = React.useRef<HTMLInputElement>(null);
+  const minutesInputRef = React.useRef<HTMLInputElement>(null);
+  const secondsInputRef = React.useRef<HTMLInputElement>(null);
   const timeInSeconds = Math.max(0, Math.floor(timePassed / 1000));
   const hours = Math.floor(timeInSeconds / 3600);
   const minutes = Math.floor((timeInSeconds % 3600) / 60);
@@ -191,16 +194,42 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
   const handleMinutesChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(event.target.value || '0', 10);
     if (Number.isNaN(value)) return;
-    const newMinutes = Math.max(0, Math.min(value, 59));
-    syncTimeWithBackend(hours, newMinutes, seconds);
+    let newMinutes = value;
+    let carryOver = 0;
+    if (value >= 60) {
+      carryOver = Math.floor(value / 60);
+      newMinutes = value % 60;
+      const newHours = Math.min(hours + carryOver, MAX_HOURS);
+      syncTimeWithBackend(newHours, newMinutes, seconds);
+      hoursInputRef.current?.focus();
+      hoursInputRef.current?.select();
+    } else {
+      newMinutes = Math.max(0, Math.min(value, 59));
+      syncTimeWithBackend(hours, newMinutes, seconds);
+    }
   };
 
   const handleSecondsChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const hasHourOrMinutes = hours > 0 || minutes > 0;
-    const value = parseInt(event.target.value || (hasHourOrMinutes ? '0' : '1'), 10);
+    const value = parseInt(event.target.value || '0', 10);
     if (Number.isNaN(value)) return;
-    const newSeconds = Math.max(hasHourOrMinutes ? 0 : 1, Math.min(value, 59));
-    syncTimeWithBackend(hours, minutes, newSeconds);
+    let newSeconds = value;
+    let carryOver = 0;
+    if (value >= 60) {
+      carryOver = Math.floor(value / 60);
+      newSeconds = value % 60;
+      const newMinutes = Math.min(minutes + carryOver, 59);
+      let additionalHours = 0;
+      if (newMinutes === 59 && carryOver > 0) {
+        additionalHours = Math.floor((minutes + carryOver) / 60);
+      }
+      const newHours = Math.min(hours + additionalHours, MAX_HOURS);
+      syncTimeWithBackend(newHours, newMinutes, newSeconds);
+      minutesInputRef.current?.focus();
+      minutesInputRef.current?.select();
+    } else {
+      newSeconds = Math.max(0, Math.min(value, 59));
+      syncTimeWithBackend(hours, minutes, newSeconds);
+    }
   };
 
   const changeTime = useCallback((amountInSeconds: number) => {
@@ -418,11 +447,12 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
                     readOnly={running}
                     disabled={running}
                     value={String(hours).padStart(2, '0')}
-                    maxLength={2}
                     max={MAX_HOURS}
                     min="0"
+                    step="1"
                     onChange={handleHoursChange}
                     onFocus={() => setFocusedUnit('hours')}
+                    ref={hoursInputRef}
                     data-test="hoursInput"
                     isSelected={!running && focusedUnit === 'hours'}
                   />
@@ -432,11 +462,12 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
                     readOnly={running}
                     disabled={running}
                     value={String(minutes).padStart(2, '0')}
-                    maxLength={2}
                     max="59"
                     min="0"
+                    step="1"
                     onChange={handleMinutesChange}
                     onFocus={() => setFocusedUnit('minutes')}
+                    ref={minutesInputRef}
                     data-test="minutesInput"
                     isSelected={!running && focusedUnit === 'minutes'}
                   />
@@ -446,11 +477,12 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
                     readOnly={running}
                     disabled={running}
                     value={String(seconds).padStart(2, '0')}
-                    maxLength={2}
                     max="59"
                     min="0"
+                    step="1"
                     onChange={handleSecondsChange}
                     onFocus={() => setFocusedUnit('seconds')}
+                    ref={secondsInputRef}
                     data-test="secondsInput"
                     isSelected={!running && focusedUnit === 'seconds'}
                   />
