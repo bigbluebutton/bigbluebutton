@@ -1,6 +1,7 @@
 import React, { memo, ReactNode } from 'react';
 import Icon from '/imports/ui/components/common/icon/component';
 import { layoutDispatch } from '/imports/ui/components/layout/context';
+import { defineMessages, useIntl } from 'react-intl';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 import Styled from '../styles';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
@@ -10,6 +11,7 @@ interface AppItemProps {
   name: string;
   icon: string;
   isPinned: boolean;
+  isNew?: boolean;
   onClick?: (() => void) | undefined;
   pinnedAppsLength: number;
   maxPinned: number;
@@ -19,11 +21,19 @@ interface AppItemProps {
   children?: ReactNode;
 }
 
+const intlMessages = defineMessages({
+  newAppLabel: {
+    id: 'app.appsGallery.newAppLabel',
+    description: 'Label for inidicate new apps in gallery panel title',
+  },
+});
+
 const AppItem: React.FC<AppItemProps> = ({
   appKey,
   name,
   icon,
   isPinned,
+  isNew = false,
   onClick,
   pinnedAppsLength,
   maxPinned,
@@ -33,6 +43,7 @@ const AppItem: React.FC<AppItemProps> = ({
   children = null,
 }) => {
   const layoutContextDispatch = layoutDispatch();
+  const intl = useIntl();
 
   const togglePinApp = (event: React.MouseEvent<HTMLDivElement> | React.KeyboardEvent<HTMLDivElement>) => {
     event.stopPropagation();
@@ -75,6 +86,7 @@ const AppItem: React.FC<AppItemProps> = ({
           onClick={() => {}}
         />
         <Styled.AppTitle>{name}</Styled.AppTitle>
+        {isNew && <Styled.NewLabel>{intl.formatMessage(intlMessages.newAppLabel)}</Styled.NewLabel>}
         {children}
       </Styled.ClickableArea>
       <TooltipContainer title={isPinned ? unpinTooltip : pinTooltip}>

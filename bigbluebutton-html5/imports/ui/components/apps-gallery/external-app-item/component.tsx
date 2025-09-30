@@ -5,7 +5,11 @@ import React, {
   useMemo,
 } from 'react';
 import { SidekickAreaOptionsEnum } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-commands/sidekick-area/options/enums';
-import { RemoveGenericContentSidekickAreaBadgeCommandArguments, RenameGenericContentSidekickAreaCommandArguments, SetGenericContentSidekickAreaBadgeCommandArguments } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-commands/sidekick-area/options/types';
+import {
+  RemoveGenericContentSidekickAreaBadgeCommandArguments,
+  RenameGenericContentSidekickAreaCommandArguments,
+  SetGenericContentSidekickAreaBadgeCommandArguments,
+} from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-commands/sidekick-area/options/types';
 import AppItem from '/imports/ui/components/apps-gallery/app-item/component';
 import { PANELS } from '/imports/ui/components/layout/enums';
 import Styled from './styles';
@@ -21,6 +25,7 @@ interface ExternalAppItemProps {
   setError: (v: boolean) => void;
   pinTooltip: string;
   unpinTooltip: string;
+  isNew?: boolean;
 }
 
 const ExternalAppItem: React.FC<ExternalAppItemProps> = ({
@@ -34,10 +39,14 @@ const ExternalAppItem: React.FC<ExternalAppItemProps> = ({
   setError,
   pinTooltip,
   unpinTooltip,
+  isNew = false,
 }) => {
   const [nameReplacement, setNameReplacement] = useState<string>(name);
   const [badgeContent, setBadgeContent] = useState<string | null>(null);
-  const extractedId = useMemo(() => (appKey.replace(PANELS.GENERIC_CONTENT_SIDEKICK, '')), [appKey]);
+  const extractedId = useMemo(
+    () => appKey.replace(PANELS.GENERIC_CONTENT_SIDEKICK, ''),
+    [appKey],
+  );
 
   const handleGenericContentSetBadge = ((ev: CustomEvent<SetGenericContentSidekickAreaBadgeCommandArguments>) => {
     const {
@@ -110,6 +119,7 @@ const ExternalAppItem: React.FC<ExternalAppItemProps> = ({
       setError={setError}
       pinTooltip={pinTooltip}
       unpinTooltip={unpinTooltip}
+      isNew={isNew}
     >
       {badgeContent && (
         <Styled.BadgeCircle>{badgeContent}</Styled.BadgeCircle>
