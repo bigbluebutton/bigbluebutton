@@ -207,16 +207,6 @@ const ChatAlertGraphql: React.FC<ChatAlertGraphqlProps> = (props) => {
 };
 
 const ChatAlertContainerGraphql: React.FC = () => {
-  const cursor = useRef(new Date());
-  const { data: publicMessages } = useDeduplicatedSubscription<PublicMessageStreamResponse>(
-    CHAT_MESSAGE_PUBLIC_STREAM,
-    { variables: { createdAt: cursor.current.toISOString() } },
-  );
-  const { data: privateMessages } = useDeduplicatedSubscription<PrivateMessageStreamResponse>(
-    CHAT_MESSAGE_PRIVATE_STREAM,
-    { variables: { createdAt: cursor.current.toISOString() } },
-  );
-
   const {
     chatAudioAlerts,
     chatPushAlerts,
@@ -224,6 +214,22 @@ const ChatAlertContainerGraphql: React.FC = () => {
     chatAudioAlerts: boolean;
     chatPushAlerts: boolean;
   };
+
+  const cursor = useRef(new Date());
+  const { data: publicMessages } = useDeduplicatedSubscription<PublicMessageStreamResponse>(
+    CHAT_MESSAGE_PUBLIC_STREAM,
+    {
+      variables: { createdAt: cursor.current.toISOString() },
+      skip: !chatPushAlerts && !chatAudioAlerts,
+    },
+  );
+  const { data: privateMessages } = useDeduplicatedSubscription<PrivateMessageStreamResponse>(
+    CHAT_MESSAGE_PRIVATE_STREAM,
+    {
+      variables: { createdAt: cursor.current.toISOString() },
+      skip: !chatPushAlerts && !chatAudioAlerts,
+    },
+  );
 
   const idChatOpen = layoutSelect((i: Layout) => i.idChatOpen);
   const sidebarContent = layoutSelectInput((i: Input) => i.sidebarContent);
