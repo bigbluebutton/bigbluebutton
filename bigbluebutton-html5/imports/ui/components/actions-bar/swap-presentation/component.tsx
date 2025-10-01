@@ -28,7 +28,7 @@ const SwapPresentationButton = () => {
   if (!currentMeeting) return null;
   const { pres_page_curr: presentationPageArray } = (presentationPageData || {});
   const currentPresentationPage = presentationPageArray && presentationPageArray[0];
-  const hasScreenshare = currentMeeting.componentsFlags?.hasScreenshare;
+  const hasScreenshare = currentMeeting?.componentsFlags?.hasScreenshare ?? false;
   if (!hasScreenshare || !currentPresentationPage || !currentUser?.presenter) return null;
   return (
     <Button
