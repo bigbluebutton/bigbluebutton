@@ -20,11 +20,21 @@ const sortChats = (a: Partial<Chat>, b: Partial<Chat>): number => {
 
 const useChatSubscription = createUseSubscription<Chat>(CHATS_SUBSCRIPTION);
 
+interface ChatHookOptions {
+  chatId?: string;
+  skip?: boolean;
+}
+
 const useChat = (
   fn: (c: Partial<Chat>)=> Partial<Chat>,
-  chatId?: string,
+  options?: ChatHookOptions,
 ): GraphqlDataHookSubscriptionResponse<Array<Partial<Chat>> | Partial<Chat>> => {
-  const response = useChatSubscription(fn);
+  const { chatId, skip = false } = options || {};
+
+  const subscriptionResponse = useChatSubscription(fn, skip);
+
+  const response = subscriptionResponse;
+
   const sortedData = useMemo(
     () => [...response.data ?? []].sort(sortChats),
     [response.data],
