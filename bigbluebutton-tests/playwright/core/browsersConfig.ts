@@ -1,9 +1,9 @@
-const path = require('path');
+import path from 'path';
 
-const chromiumConfig = {
+export const chromiumConfig = {
   name: 'Chromium',
   use: {
-    browserName: 'chromium',
+    browserName: 'chromium' as const,
     launchOptions: {
       args: [
         '--no-sandbox',
@@ -17,10 +17,10 @@ const chromiumConfig = {
   },
 };
 
-const firefoxConfig = {
+export const firefoxConfig = {
   name: 'Firefox',
   use: {
-    browserName: 'firefox',
+    browserName: 'firefox' as const,
     launchOptions: {
       args: [
         '--quiet',
@@ -34,10 +34,10 @@ const firefoxConfig = {
   },
 };
 
-const webkitConfig = {
+export const webkitConfig = {
   name: 'WebKit',
   use: {
-    browserName: 'webkit',
+    browserName: 'webkit' as const,
     launchOptions: {
       args: [
         '--no-sandbox',
@@ -47,7 +47,3 @@ const webkitConfig = {
     },
   },
 };
-
-exports.chromiumConfig = chromiumConfig;
-exports.firefoxConfig = firefoxConfig;
-exports.webkitConfig = webkitConfig;

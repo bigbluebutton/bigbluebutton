@@ -1,9 +1,9 @@
-const { expect } = require('@playwright/test');
-const e = require('../core/elements');
-const c = require('./constants');
-const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
+import { expect } from '@playwright/test';
+import { elements as e } from '../core/elements.ts';
+import { constants as c } from './constants';
+import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants.ts';
 
-function hexToRgb(hex) {
+export function hexToRgb(hex) {
   const bigint = parseInt(hex, 16);
   const r = (bigint >> 16) & 255;
   const g = (bigint >> 8) & 255;
@@ -11,7 +11,7 @@ function hexToRgb(hex) {
   return `rgb(${r}, ${g}, ${b})`;
 }
 
-async function zoomIn(test) {
+export async function zoomIn(test) {
   try {
     await test.page.evaluate((selector) => {
       setInterval(() => {
@@ -25,7 +25,7 @@ async function zoomIn(test) {
   }
 }
 
-async function zoomOut(test) {
+export async function zoomOut(test) {
   try {
     await test.page.evaluate((selector) => {
       setInterval(() => {
@@ -39,7 +39,7 @@ async function zoomOut(test) {
   }
 }
 
-async function poll(page1, page2) {
+export async function poll(page1, page2) {
   await page1.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
   await page1.waitAndClick(e.actions);
   await page1.waitAndClick(e.polling);
@@ -50,21 +50,21 @@ async function poll(page1, page2) {
   await page1.waitAndClick(e.publishPollingLabel);
 }
 
-async function previousSlide(test) {
+export async function previousSlide(test) {
   await test.waitAndClick(e.prevSlide);
 }
 
-async function nextSlide(test) {
+export async function nextSlide(test) {
   await test.waitAndClick(e.nextSlide);
 }
 
-async function annotation(test) {
+export async function annotation(test) {
   await test.waitAndClick(e.wbPencilShape);
   await test.waitAndClick(e.whiteboard);
   await test.hasElement(e.wbPencilShape, 'should the presentation displays the tool drawn line');
 }
 
-function encodeCustomParams(param) {
+export function encodeCustomParams(param) {
   try {
     let splitted = param.split('=');
     if (splitted.length > 2) {
@@ -79,32 +79,20 @@ function encodeCustomParams(param) {
   }
 }
 
-function getAllShortcutParams() {
+export function getAllShortcutParams() {
   const getParams = (shortcutArray) => {
     return Object.values(shortcutArray.map(elem => `"${elem.param}"`));
   }
   return c.shortcuts.replace('$', [...getParams(c.initialShortcuts), ...getParams(c.laterShortcuts)]);
 }
 
-async function checkAccesskey(test, key) {
+export async function checkAccesskey(test, key) {
   return test.checkElement(`[accesskey="${key}"]`);
 }
 
-async function checkShortcutsArray(test, shortcut) {
+export async function checkShortcutsArray(test, shortcut) {
   for (const { key, param } of shortcut) {
     const resp = await checkAccesskey(test, key);
     await expect.soft(resp, `Shortcut to ${param} (key ${key}) failed`).toBeTruthy();
   }
 }
-
-exports.zoomIn = zoomIn;
-exports.zoomOut = zoomOut;
-exports.poll = poll;
-exports.previousSlide = previousSlide;
-exports.nextSlide = nextSlide;
-exports.annotation = annotation;
-exports.hexToRgb = hexToRgb;
-exports.encodeCustomParams = encodeCustomParams;
-exports.getAllShortcutParams = getAllShortcutParams;
-exports.checkAccesskey = checkAccesskey;
-exports.checkShortcutsArray = checkShortcutsArray;

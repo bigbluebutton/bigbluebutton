@@ -1,19 +1,17 @@
-const e = require('../core/elements');
-const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
-const { connectMicrophone, isAudioItemSelected, ensureUnmuted } = require('./util');
-const { MultiUsers } = require('../user/multiusers');
-const { expect } = require('@playwright/test');
-const { sleep } = require('../core/helpers');
+import { elements as e } from '../core/elements.ts';
+import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants.ts';
+import { connectMicrophone, isAudioItemSelected, ensureUnmuted } from './util';
+import { MultiUsers } from '../user/multiusers';
+import { expect } from '@playwright/test';
 
-
-class Audio extends MultiUsers {
+export class Audio extends MultiUsers {
   constructor(browser, context) {
     super(browser, context);
   }
 
   async muteButtonCooldown() {
     // cooldown based on the debounce time set in input-stream-live-selector/service.ts
-    await sleep(500);
+    await this.modPage.page.waitForTimeout(500);
   }
 
   async joinAudio() {
@@ -121,8 +119,8 @@ class Audio extends MultiUsers {
     await this.modPage.waitAndClick(e.isTalking);
     await this.userPage.hasElement(e.unmuteMicButton, 'attendee should be muted');
 
-    const moderatorWasTalkingLocator = await this.modPage.getLocator(e.wasTalking).first();
-    const userWasTalkingLocator = await this.userPage.getLocator(e.wasTalking).last();
+    const moderatorWasTalkingLocator = await this.modPage.page.locator(e.wasTalking).first();
+    const userWasTalkingLocator = await this.userPage.page.locator(e.wasTalking).last();
 
     await expect(moderatorWasTalkingLocator).toBeVisible();
     await expect(userWasTalkingLocator, 'should stop displaying isTalking element and display the element with high opacity for the attendee').toBeVisible();
@@ -130,5 +128,3 @@ class Audio extends MultiUsers {
     await this.modPage.wasRemoved(e.talkingIndicator, 'moderator should be muted');
   }
 }
-
-exports.Audio = Audio;

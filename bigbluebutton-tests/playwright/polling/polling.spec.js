@@ -1,6 +1,6 @@
-const { test } = require('../fixtures');
-const { Polling } = require('./poll');
-const { initializePages } = require('../core/helpers');
+import { test } from '../fixtures';
+import { Polling } from './poll';
+import { initializePages } from '../core/helpers.ts';
 
 test.describe.parallel('Polling', { tag: '@ci' }, async () => {
   const polling = new Polling();

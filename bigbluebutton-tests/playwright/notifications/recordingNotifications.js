@@ -1,10 +1,10 @@
-const Page = require('../core/page');
-const util = require('./util');
-const e = require('../core/elements');
-const { connectMicrophone } = require('../audio/util');
-const { ELEMENT_WAIT_EXTRA_LONG_TIME } = require('../core/constants');
+import { Page } from '../core/page.ts';
+import util from './util';
+import { elements as e } from '../core/elements.ts';
+import { connectMicrophone } from '../audio/util';
+import { ELEMENT_WAIT_EXTRA_LONG_TIME } from '../core/constants.ts';
 
-class RecordingNotifications extends Page {
+export class RecordingNotifications extends Page {
   constructor(browser, page) {
     super(browser, page);
   }
@@ -42,5 +42,3 @@ class RecordingNotifications extends Page {
     await this.hasElement(e.yesButton, 'should the button Yes appear');
   }
 }
-
-exports.RecordingNotifications = RecordingNotifications;

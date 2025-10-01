@@ -1,10 +1,10 @@
-const { devices } = require('@playwright/test');
-const { test } = require('../fixtures');
-const { MultiUsers } = require('./multiusers');
-const { GuestPolicy } = require('./guestPolicy');
-const { LockViewers } = require('./lockViewers');
-const { MobileDevices } = require('./mobileDevices');
-const { Timer } = require('./timer');
+import { devices } from '@playwright/test';
+import { test } from '../fixtures';
+import { MultiUsers } from './multiusers';
+import { GuestPolicy } from './guestPolicy';
+import { LockViewers } from './lockViewers';
+import { MobileDevices } from './mobileDevices';
+import { Timer } from './timer';
 const iPhone11 = devices['iPhone 11'];
 
 test.describe.parallel('User', { tag: '@ci' }, () => {

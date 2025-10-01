@@ -1,12 +1,11 @@
-const { expect } = require('@playwright/test');
-const e = require('../core/elements');
-const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
-const { DrawShape } = require('./drawShape');
-const { snapshotComparison } = require('./util');
-const { skipSlide } = require('../presentation/util');
-const { sleep } = require('../core/helpers');
+import { expect } from '@playwright/test';
+import { elements as e } from '../core/elements.ts';
+import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants.ts';
+import { DrawShape } from './drawShape';
+import { snapshotComparison } from './util';
+import { skipSlide } from '../presentation/util';
 
-class ShapeTools extends DrawShape {
+export class ShapeTools extends DrawShape {
   constructor(browser, context) {
     super(browser, context);
   }
@@ -15,7 +14,7 @@ class ShapeTools extends DrawShape {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await this.userPage.waitForSelector(e.whiteboard);
     await this.modPage.waitForSelector(e.resetZoomButton);
-    const modWbLocator = this.modPage.getLocator(e.whiteboard);
+    const modWbLocator = this.modPage.page.locator(e.whiteboard);
     // skip slide (blank slide)
     await skipSlide(this.modPage);
     // draw line
@@ -25,7 +24,7 @@ class ShapeTools extends DrawShape {
     // check if the line was drawn
     await this.modPage.hasElement(e.wbDrawnLine, 'should display the drawn shape for the moderator');
     await this.userPage.hasElement(e.wbDrawnLine, 'should display the drawn shape for the viewer');
-    const zoomResetBtn = this.modPage.getLocator(e.resetZoomButton);
+    const zoomResetBtn = this.modPage.page.locator(e.resetZoomButton);
     // zoom in until 200%
     for(let i = 100; i < 200; i += 25) {
       const currentZoomLabel = await zoomResetBtn.textContent();
@@ -35,14 +34,14 @@ class ShapeTools extends DrawShape {
     // pan the whiteboard
     await this.modPage.waitAndClick(e.wbHandButton);
     await this.drawShapeMiddleSlide();
-    await sleep(1500);  // wait for the whiteboard to be panned
+    await this.modPage.page.waitForTimeout(1500);  // wait for the whiteboard to be panned
     // check if the whiteboard was panned
     await expect(this.modPage.page).toHaveScreenshot('moderator-pan.png', {
-      mask: [this.modPage.getLocator(e.presentationTitle)],
+      mask: [this.modPage.page.locator(e.presentationTitle)],
       maxDiffPixels: 1000,
     });
     await expect(this.userPage.page).toHaveScreenshot('viewer-pan.png', {
-      mask: [this.userPage.getLocator(e.presentationTitle)],
+      mask: [this.userPage.page.locator(e.presentationTitle)],
       maxDiffPixels: 1000,
     });
   }
@@ -50,7 +49,7 @@ class ShapeTools extends DrawShape {
   async eraser() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await this.userPage.waitForSelector(e.whiteboard);
-    const modWbLocator = this.modPage.getLocator(e.whiteboard);
+    const modWbLocator = this.modPage.page.locator(e.whiteboard);
     const wbBox = await modWbLocator.boundingBox();
     // draw a line
     await this.modPage.waitAndClick(e.wbShapesButton);
@@ -68,7 +67,7 @@ class ShapeTools extends DrawShape {
   async delete() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await this.userPage.waitForSelector(e.whiteboard);
-    const modWbLocator = this.modPage.getLocator(e.whiteboard);
+    const modWbLocator = this.modPage.page.locator(e.whiteboard);
     const wbBox = await modWbLocator.boundingBox();
     // draw an arrow
     await this.modPage.waitAndClick(e.wbArrowShape);
@@ -96,7 +95,7 @@ class ShapeTools extends DrawShape {
   async undo() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await this.userPage.waitForSelector(e.whiteboard);
-    const modWbLocator = this.modPage.getLocator(e.whiteboard);
+    const modWbLocator = this.modPage.page.locator(e.whiteboard);
     const wbBox = await modWbLocator.boundingBox();
     // draw an arrow
     await this.modPage.waitAndClick(e.wbArrowShape);
@@ -122,5 +121,3 @@ class ShapeTools extends DrawShape {
     await snapshotComparison(this.modPage, this.userPage, 'redo');
   }
 }
-
-exports.ShapeTools = ShapeTools;

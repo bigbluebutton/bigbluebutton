@@ -1,10 +1,9 @@
-const { MultiUsers } = require("../user/multiusers");
-const util = require('./util');
-const e = require('../core/elements');
-const { openSettings } = require('../options/util');
-const { sleep } = require("../core/helpers");
+import { MultiUsers } from '../user/multiusers';
+import util from './util';
+import { elements as e } from '../core/elements.ts';
+import { openSettings } from '../options/util';
 
-class ChatNotifications extends MultiUsers {
+export class ChatNotifications extends MultiUsers {
   constructor(browser, context) {
     super(browser, context);
   }
@@ -14,7 +13,7 @@ class ChatNotifications extends MultiUsers {
     await util.enableChatPopup(this.modPage);
     await util.saveSettings(this.modPage);
     await this.modPage.closeAllToastNotifications();
-    await sleep(1000);
+    await this.modPage.page.waitForTimeout(1000);
     await util.publicChatMessageToast(this.modPage, this.userPage);
     await this.modPage.waitAndClick(e.chatTitle);
     await this.modPage.hasElement(e.smallToastMsg, 'should appear the new toast message notification');
@@ -27,12 +26,10 @@ class ChatNotifications extends MultiUsers {
     await util.enableChatPopup(this.modPage);
     await util.saveSettings(this.modPage);
     await this.modPage.closeAllToastNotifications();
-    await sleep(2000);
+    await this.modPage.page.waitForTimeout(2000);
     await util.privateChatMessageToast(this.userPage);
     await this.modPage.hasElement(e.smallToastMsg, 'should the small toast message with the new text sent on the private chat');
     await this.modPage.hasElement(e.hasUnreadMessages, 'should the notification on the public chat button appear with a number of messages sent and not read');
     await util.checkNotificationText(this.modPage, e.privateChatToast);
   }
 }
-
-exports.ChatNotifications = ChatNotifications;

@@ -1,7 +1,8 @@
-const util = require('node:util');
-const exec = util.promisify(require('node:child_process').exec);
-const process = require('node:process');
-const { hostname } = require('../core/parameters.js');
+import util from 'node:util';
+import { exec as childExec } from 'node:child_process';
+const exec = util.promisify(childExec);
+import process from 'node:process';
+import { hostname } from '../core/parameters.ts';
 
 // Parse a line of output from the 'ss' program into an object
 // with fields local (local IP address and TCP port), remote
@@ -23,7 +24,7 @@ function parseline(line) {
 // return an array of such structures for the current process
 // and all of its subprocesses that connect to a given host
 
-async function getCurrentTCPSessions() {
+export async function getCurrentTCPSessions() {
   // First, get the process IDs of all of our subprocesses, which include the test browser(s).
   // The process IDs will appear in parenthesis after the command names in stdout.
   const { stdout } = await exec("pstree -pn " + process.pid);
@@ -45,9 +46,6 @@ async function getCurrentTCPSessions() {
 
 // takes an array of such structures and kills those TCP sessions
 
-async function killTCPSessions(sessions) {
+export async function killTCPSessions(sessions) {
   await exec('sudo ss -K dst ' + hostname + ' ' + sessions.map(x => 'sport = ' + x.local.port).join(' or '));
 }
-
-exports.getCurrentTCPSessions = getCurrentTCPSessions;
-exports.killTCPSessions = killTCPSessions;

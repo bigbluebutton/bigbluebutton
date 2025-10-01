@@ -1,19 +1,39 @@
-const fs = require("fs");
-const path = require("path");
+import * as fs from "fs";
+import * as path from "path";
+import { TestInfo } from "@playwright/test";
 
-class Logger {
-  constructor(pageInstance) {
+interface ErrorInfo {
+  type: 'error' | 'pageerror';
+  timestamp: string;
+  text: string;
+  stack?: string;
+  user: string;
+}
+
+interface PageInstance {
+  page: any;
+  username: string;
+}
+
+export default class Logger {
+  private pageInstance: PageInstance;
+  private page: any;
+  private logsDir: string;
+  private logFiles: Map<string, fs.WriteStream>;
+  private testInfo: TestInfo | null;
+
+  constructor(pageInstance: PageInstance) {
     this.pageInstance = pageInstance;
     this.page = pageInstance.page;
     this.logsDir = path.join(__dirname, "../logs");
     this.logFiles = new Map();
     this.testInfo = null;
     this.page?.once("close", () => {
-      try { this.#closeAll(); } catch (_) {}
+      try { this.closeAll(); } catch (_) {}
     });
   }
 
-  static #getTimestamp() {
+  static getTimestamp(): string {
     const now = new Date();
     const h = String(now.getHours()).padStart(2, "0");
     const m = String(now.getMinutes()).padStart(2, "0");
@@ -22,16 +42,16 @@ class Logger {
     return `[${h}:${m}:${s}:${ms}]`;
   }
 
-  setTestInfo(testInfo) {
+  setTestInfo(testInfo: TestInfo): void {
     this.testInfo = testInfo;
   }
 
-  generateTestPath() {
+  generateTestPath(): string {
     if (!this?.testInfo?.outputDir) return "unknown-test";
     return path.basename(this.testInfo.outputDir).toLowerCase();
   }
 
-  getLogFile() {
+  getLogFile(): fs.WriteStream {
     const testPath = this.generateTestPath();
     const logKey = `${testPath}:${this.pageInstance.username}`;
     const username = this.pageInstance?.username || "unknown";
@@ -48,17 +68,17 @@ class Logger {
       this.logFiles.set(logKey, stream);
     }
 
-    return this.logFiles.get(logKey);
+    return this.logFiles.get(logKey)!;
   }
 
-  pageLog(message) {
+  pageLog(message: string): void {
     const logFile = this.getLogFile();
     logFile.write(`${message}\n`);
   }
 
-  pageError(errorInfo) {
+  pageError(errorInfo: ErrorInfo): void {
     const logFile = this.getLogFile();
-    const timestamp = Logger.#getTimestamp();
+    const timestamp = Logger.getTimestamp();
     logFile.write(`${timestamp} ERROR: ${errorInfo.text}\n`);
 
     if (errorInfo.stack) {
@@ -70,12 +90,10 @@ class Logger {
     }
   }
 
-  #closeAll() {
+  private closeAll(): void {
     for (const s of this.logFiles.values()) {
       try { s.end(); } catch (_) {}
     }
     this.logFiles.clear();
   }
 }
-
-module.exports = Logger;

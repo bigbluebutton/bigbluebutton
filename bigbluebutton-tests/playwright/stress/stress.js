@@ -1,12 +1,12 @@
-const { expect } = require('@playwright/test');
-const Page = require('../core/page');
-const e = require('../core/elements');
-const c = require('../core/constants');
-const parameters = require('../core/parameters');
-const { checkIsPresenter } = require('../user/util');
-const { createMeeting } = require('../core/helpers');
+import { expect } from '@playwright/test';
+import { Page } from '../core/page.ts';
+import { elements as e } from '../core/elements.ts';
+import { constants as c } from '../parameters/constants';
+import parameters from '../core/parameters.ts';
+import { checkIsPresenter } from '../user/util';
+import { createMeeting } from '../core/helpers.ts';
 
-class Stress {
+export class Stress {
   constructor(browser, context, page, testInfo) {
     this.modPage = new Page(browser, page, testInfo);
     this.browser = browser;
@@ -51,20 +51,20 @@ class Stress {
     }
 
     // Create breakout rooms with the allow choice option enabled
-    await this.modPage.bringToFront();
+    await this.modPage.page.bringToFront();
     await this.modPage.waitAndClick(e.manageUsers);
     await this.modPage.waitAndClick(e.createBreakoutRooms);
     await this.modPage.waitAndClick(e.allowChoiceRoom);
     await this.modPage.waitAndClick(e.modalConfirmButton);
 
     for (const page of this.userPages) {
-      await page.bringToFront();
+      await page.page.bringToFront();
       await page.hasElement(e.modalConfirmButton, c.ELEMENT_WAIT_LONGER_TIME);
       await page.hasElement(e.labelGeneratingURL, c.ELEMENT_WAIT_LONGER_TIME);
     }
 
     // End breakout rooms
-    await this.modPage.bringToFront();
+    await this.modPage.page.bringToFront();
     await this.modPage.waitAndClick(e.breakoutRoomsItem);
     await this.modPage.waitAndClick(e.endBreakoutRoomsButton);
     await this.modPage.closeAudioModal();
@@ -76,7 +76,7 @@ class Stress {
     await this.modPage.waitAndClick(e.modalConfirmButton);
 
     for (const page of this.userPages) {
-      await page.bringToFront();
+      await page.page.bringToFront();
       await page.hasElement(e.modalConfirmButton);
     }
   }
@@ -161,5 +161,3 @@ class Stress {
     }
   }
 }
-
-exports.Stress = Stress;

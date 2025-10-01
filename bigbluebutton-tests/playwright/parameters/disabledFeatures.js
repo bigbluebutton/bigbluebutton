@@ -1,9 +1,9 @@
-const { MultiUsers } = require('../user/multiusers');
-const e = require('../core/elements');
-const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
-const { getSettings } = require('../core/settings');
+import { MultiUsers } from '../user/multiusers';
+import { elements as e } from '../core/elements.ts';
+import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants.ts';
+import { getSettings } from '../core/settings.ts';
 
-class DisabledFeatures extends MultiUsers {
+export class DisabledFeatures extends MultiUsers {
   constructor(browser, context) {
     super(browser, context);
   }
@@ -219,5 +219,3 @@ class DisabledFeatures extends MultiUsers {
     await this.modPage.hasElement(e.shareCameraAsContent, 'should display the share camera as content on the action options.');
   }
 }
-
-exports.DisabledFeatures = DisabledFeatures;

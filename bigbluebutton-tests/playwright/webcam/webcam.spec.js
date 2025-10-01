@@ -1,6 +1,6 @@
-const { test } = require('../fixtures');
-const { MultiUsers } = require('../user/multiusers');
-const { Webcam } = require('./webcam');
+import { test } from '../fixtures';
+import { MultiUsers } from '../user/multiusers';
+import { Webcam } from './webcam';
 
 test.describe.parallel('Webcam', { tag: '@ci' }, () => {
   // https://docs.bigbluebutton.org/3.0/testing/release-testing/#joining-webcam-automated

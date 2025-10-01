@@ -1,11 +1,10 @@
-const { expect } = require('@playwright/test');
-const { MultiUsers } = require("../user/multiusers");
-const Page = require('../core/page');
-const e = require('../core/elements');
-const { reopenChatSidebar, checkScreenshots, checkDefaultLocationReset } = require('./util');
-const { sleep } = require("../core/helpers");
+import { expect } from '@playwright/test';
+import { MultiUsers } from '../user/multiusers';
+import { Page } from '../core/page.ts';
+import { elements as e } from '../core/elements.ts';
+import { reopenChatSidebar, checkScreenshots, checkDefaultLocationReset } from './util';
 
-class Layouts extends MultiUsers {
+export class Layouts extends MultiUsers {
   async focusOnPresentation() {
     await this.modPage.waitAndClick(e.optionsButton);
     await this.modPage.waitAndClick(e.manageLayoutBtn);
@@ -40,7 +39,7 @@ class Layouts extends MultiUsers {
 
     await this.modPage.waitAndClick(e.userListToggleBtn);
     await this.modPage.wasRemoved(e.chatButton, '');
-    await sleep(1000); // wait for the whiteboard zoom to stabilize
+    await this.modPage.page.waitForTimeout(1000); // wait for the whiteboard zoom to stabilize
 
     await checkScreenshots(this, 'should the cameras be on the side of presentation', [e.webcamContainer, e.webcamMirroredVideoContainer], 'smart-layout', 2);
   }
@@ -143,9 +142,9 @@ class Layouts extends MultiUsers {
     }
 
     await this.modPage.hasElementCount(e.webcamVideoItem, 7, 'should display 7 webcams for the moderator');
-    const nextPageVideoPaginationLocator = await this.modPage.getLocator(e.nextPageVideoPagination);
+    const nextPageVideoPaginationLocator = await this.modPage.page.locator(e.nextPageVideoPagination);
     await expect(nextPageVideoPaginationLocator, 'should not display the next page button for the video pagination').toBeHidden();
-    const previousPageVideoPaginationLocator = await this.modPage.getLocator(e.previousPageVideoPagination);
+    const previousPageVideoPaginationLocator = await this.modPage.page.locator(e.previousPageVideoPagination);
     await expect(previousPageVideoPaginationLocator, 'should not display the previous page button for the video pagination').toBeHidden();
 
     for (const page of pages) {
@@ -159,5 +158,3 @@ class Layouts extends MultiUsers {
     await checkScreenshots(this, 'pagination should work for the attendees', 'video', 'pagination-second-page');
   }
 }
-
-exports.Layouts = Layouts;

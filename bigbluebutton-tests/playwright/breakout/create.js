@@ -1,9 +1,9 @@
-const { MultiUsers } = require('../user/multiusers');
-const e = require('../core/elements');
-const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
-const { expect } = require('@playwright/test');
+import { MultiUsers } from '../user/multiusers';
+import { elements as e } from '../core/elements.ts';
+import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants.ts';
+import { expect } from '@playwright/test';
 
-class Create extends MultiUsers {
+export class Create extends MultiUsers {
   constructor(browser, context) {
     super(browser, context);
   }
@@ -42,7 +42,7 @@ class Create extends MultiUsers {
     await this.modPage.waitAndClick(e.createBreakoutRooms);
 
     await this.modPage.waitAndClick(e.randomlyAssign);
-    await this.modPage.getLocator(e.selectNumberOfRooms).selectOption('7');
+    await this.modPage.page.locator(e.selectNumberOfRooms).selectOption('7');
     await this.modPage.waitAndClick(e.modalConfirmButton, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.waitAndClick(e.breakoutRoomsItem);
     await this.modPage.hasElementCount(e.breakoutRoomItemOnManage, 7, 'should have 7 breakout rooms created');
@@ -53,11 +53,11 @@ class Create extends MultiUsers {
     await this.modPage.waitAndClick(e.createBreakoutRooms);
     await this.modPage.waitAndClick(e.randomlyAssign);
 
-    const createButtonLocator = this.modPage.getLocator(e.modalConfirmButton);
+    const createButtonLocator = this.modPage.page.locator(e.modalConfirmButton);
 
     //test minimum 5 minutes
-    await this.modPage.getLocator(e.durationTime).press('Backspace');
-    await this.modPage.getLocator(e.durationTime).press('Backspace');
+    await this.modPage.page.locator(e.durationTime).press('Backspace');
+    await this.modPage.page.locator(e.durationTime).press('Backspace');
     await this.modPage.type(e.durationTime, '5');
     await expect(createButtonLocator, 'should have the create button for the breakout rooms enabled.').toBeEnabled();
 
@@ -65,7 +65,7 @@ class Create extends MultiUsers {
     await expect(createButtonLocator, 'should have the breakout room create button disabled.').toBeDisabled();
     await this.modPage.hasElement(e.minimumDurationWarnBreakout, 'should have at least 5 minutes of breakout room duration time.');
 
-    // await this.modPage.getLocator(e.durationTime).press('Backspace');
+    // await this.modPage.page.locator(e.durationTime).press('Backspace');
     await this.modPage.page.fill(e.durationTime, '15');
     await this.modPage.waitAndClick(e.modalConfirmButton, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.waitAndClick(e.breakoutRoomsItem);
@@ -104,7 +104,7 @@ class Create extends MultiUsers {
     await this.modPage.waitAndClick(e.createBreakoutRooms);
 
     //testing no user assigned
-    const modalConfirmButton = this.modPage.getLocator(e.modalConfirmButton);
+    const modalConfirmButton = this.modPage.page.locator(e.modalConfirmButton);
     await expect(modalConfirmButton, 'should designate a user to a specific a breakout room, before creating it').toBeDisabled();
     await this.modPage.hasElement(e.warningNoUserAssigned, 'should designate a user to a specific a breakout room, before creating it');
 
@@ -119,5 +119,3 @@ class Create extends MultiUsers {
     await this.modPage.hasText(e.userNameBreakoutRoom, /Attendee/, 'should have the attende name on the first breakout room', ELEMENT_WAIT_LONGER_TIME);
   }
 }
-
-exports.Create = Create;

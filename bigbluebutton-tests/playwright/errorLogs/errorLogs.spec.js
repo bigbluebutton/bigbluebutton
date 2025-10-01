@@ -1,5 +1,5 @@
-const { test } = require('../fixtures');
-const { ErrorLogs } = require('./errorLogs');
+import { test } from '../fixtures';
+import { ErrorLogs } from './errorLogs';
 
 test.describe('Error Logs Monitoring', { tag: '@ci' }, () => {
   test('Should not log any errors when joining a session', async ({ browser, context, page }, testInfo) => {

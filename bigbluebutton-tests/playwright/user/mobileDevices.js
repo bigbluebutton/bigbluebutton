@@ -1,7 +1,7 @@
-const { MultiUsers } = require("./multiusers");
-const e = require('../core/elements');
+import { MultiUsers } from './multiusers';
+import { elements as e } from '../core/elements.ts';
 
-class MobileDevices extends MultiUsers {
+export class MobileDevices extends MultiUsers {
   constructor(browser, context) {
     super(browser, context);
   }
@@ -12,5 +12,3 @@ class MobileDevices extends MultiUsers {
     await this.modPage.hasElement(e.mobileUser, 'should display the mobile user element for the moderator ');
   }
 }
-
-exports.MobileDevices = MobileDevices;

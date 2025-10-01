@@ -1,6 +1,6 @@
-const { test } = require('../fixtures');
-const { Options } = require('./options');
-const { initializePages } = require('../core/helpers');
+import { test } from '../fixtures';
+import { Options } from './options';
+import { initializePages } from '../core/helpers.ts';
 
 test.describe.parallel('Options', { tag: '@ci' }, () => {
   const options = new Options();

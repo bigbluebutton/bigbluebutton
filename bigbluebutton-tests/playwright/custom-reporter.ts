@@ -1,5 +1,7 @@
-class CustomReporter {
-  onTestEnd(test, result) {
+import { Reporter, TestCase, TestResult } from '@playwright/test/reporter';
+
+export default class CustomReporter implements Reporter {
+  onTestEnd(test: TestCase, result: TestResult): void {
     const { retries } = test;
     const { status, error, retry } = result;
     const titlePath = test.titlePath();
@@ -7,7 +9,7 @@ class CustomReporter {
     const logTitle = `[${titlePath.shift()}] › ${titlePath.join(' › ')}`.replace('@ci', '').trim();
 
     if (status === 'failed') {
-      const baseMessage = `${logTitle}\n${error.stack}`;
+      const baseMessage = `${logTitle}\n${error?.stack || error?.message || 'Unknown error'}`;
 
       if (retries != retry) {
         const warningMessage = `Flaky (attempt #${retry + 1}) ────────────────────────────────────────────────────────────\n${baseMessage}\n`;
@@ -19,5 +21,3 @@ class CustomReporter {
     }
   }
 }
-
-export default CustomReporter;

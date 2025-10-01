@@ -1,6 +1,6 @@
-const { test } = require('../fixtures');
-const { ScreenShare } = require('./screenshare');
-const { linkIssue } = require('../core/helpers');
+import { test } from '../fixtures';
+import { ScreenShare } from './screenshare';
+import { linkIssue } from '../core/helpers.ts';
 
 test.describe.parallel('Screenshare', { tag: '@ci' }, () => {
   // https://docs.bigbluebutton.org/3.0/testing/release-testing/#sharing-screen-in-full-screen-mode-automated

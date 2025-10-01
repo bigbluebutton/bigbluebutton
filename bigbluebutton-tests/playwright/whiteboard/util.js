@@ -1,7 +1,7 @@
-const { expect } = require("playwright/test");
-const { CI } = require("../core/constants");
+import { expect } from 'playwright/test';
+import { CI } from '../core/constants.ts';
 
-async function snapshotComparison(modPage, userPage, snapshotName) {
+export async function snapshotComparison(modPage, userPage, snapshotName) {
   if (!CI) {
     // close all toast notifications before taking the screenshot
     await modPage.closeAllToastNotifications();
@@ -15,5 +15,3 @@ async function snapshotComparison(modPage, userPage, snapshotName) {
     });
   }
 }
-
-exports.snapshotComparison = snapshotComparison;

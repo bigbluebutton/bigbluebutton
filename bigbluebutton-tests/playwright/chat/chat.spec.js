@@ -1,6 +1,6 @@
-const { test } = require('../fixtures');
-const { Chat } = require('./chat');
-const { MessageActions } = require('./messageActions');
+import { test } from '../fixtures';
+import { Chat } from './chat';
+import { MessageActions } from './messageActions';
 
 test.describe.parallel('Chat', { tag: '@ci' }, () => {
   // https://docs.bigbluebutton.org/3.0/testing/release-testing/#public-message-automated

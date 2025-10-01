@@ -1,9 +1,9 @@
-const { test } = require('../fixtures');
-const { ScreenShare, MultiUserScreenShare } = require('../screenshare/screenshare');
-const { checkRootPermission } = require('../core/helpers');
-const e = require('../core/elements');
-const { getCurrentTCPSessions, killTCPSessions } = require('./util');
-const deepEqual = require('deep-equal');
+import { test } from '../fixtures';
+import { ScreenShare, MultiUserScreenShare } from '../screenshare/screenshare';
+import { checkRootPermission } from '../core/helpers.ts';
+import { elements as e } from '../core/elements.ts';
+import { getCurrentTCPSessions, killTCPSessions } from './util';
+import deepEqual from 'deep-equal';
 
 // @ci Note: This entire test suite is skipped in CI because killing TCP connection
 // might result in loss of connection with github server, causing the test to fail

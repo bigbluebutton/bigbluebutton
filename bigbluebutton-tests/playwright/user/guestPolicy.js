@@ -1,17 +1,16 @@
-const { MultiUsers } = require("./multiusers");
-const e = require('../core/elements');
-const { sleep } = require('../core/helpers');
-const { setGuestPolicyOption } = require("./util");
-const { ELEMENT_WAIT_LONGER_TIME } = require("../core/constants");
+import { MultiUsers } from './multiusers';
+import { elements as e } from '../core/elements.ts';
+import { setGuestPolicyOption } from './util';
+import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants.ts';
 
-class GuestPolicy extends MultiUsers {
+export class GuestPolicy extends MultiUsers {
   constructor(browser, context) {
     super(browser, context);
   }
 
   async messageToGuestLobby() {
     await setGuestPolicyOption(this.modPage, e.askModerator);
-    await sleep(500);
+    await this.modPage.page.waitForTimeout(500);
     await this.initUserPage(false, this.context, { shouldCheckAllInitialSteps: false });
     await this.modPage.hasElement(e.waitingUsersBtn, 'should display the waiting users button');
 
@@ -23,7 +22,7 @@ class GuestPolicy extends MultiUsers {
 
   async allowEveryone() {
     await setGuestPolicyOption(this.modPage, e.askModerator);
-    await sleep(500);
+    await this.modPage.page.waitForTimeout(500);
     await this.initUserPage(false, this.context, { shouldCheckAllInitialSteps: false });
     await this.userPage.hasText(e.guestMessage, /wait/, 'should the guest message contain the text "wait" for the attendee');
     await this.userPage.hasText(e.positionInWaitingQueue, /first/, 'should the position in waiting queue contain the text "first" for the attendee');
@@ -38,7 +37,7 @@ class GuestPolicy extends MultiUsers {
 
   async denyEveryone() {
     await setGuestPolicyOption(this.modPage, e.askModerator);
-    await sleep(500);
+    await this.modPage.page.waitForTimeout(500);
     await this.initUserPage(false, this.context, { shouldCheckAllInitialSteps: false });
     await this.modPage.waitAndClick(e.waitingUsersBtn);
     await this.modPage.waitAndClick(e.denyEveryone);
@@ -48,7 +47,7 @@ class GuestPolicy extends MultiUsers {
 
   async rememberChoice() {
     await setGuestPolicyOption(this.modPage, e.askModerator);
-    await sleep(500);
+    await this.modPage.page.waitForTimeout(500);
     await this.modPage.waitAndClick(e.waitingUsersBtn);
 
     await this.modPage.waitAndClick(e.rememberCheckboxId);
@@ -61,7 +60,7 @@ class GuestPolicy extends MultiUsers {
 
   async messageToSpecificUser() {
     await setGuestPolicyOption(this.modPage, e.askModerator);
-    await sleep(500);
+    await this.modPage.page.waitForTimeout(500);
     await this.initUserPage(false, this.context, { shouldCheckAllInitialSteps: false });
     await this.modPage.waitAndClick(e.waitingUsersBtn);
 
@@ -73,7 +72,7 @@ class GuestPolicy extends MultiUsers {
 
   async acceptSpecificUser() {
     await setGuestPolicyOption(this.modPage, e.askModerator);
-    await sleep(500);
+    await this.modPage.page.waitForTimeout(500);
     await this.initUserPage(false, this.context, { shouldCheckAllInitialSteps: false });
     await this.userPage.hasText(e.guestMessage, /wait/, 'should the guest message contain the text "wait" for the attendee');
     await this.userPage.hasText(e.positionInWaitingQueue, /first/, 'should the position in waiting queue contain the text "first"');
@@ -87,7 +86,7 @@ class GuestPolicy extends MultiUsers {
 
   async denySpecificUser() {
     await setGuestPolicyOption(this.modPage, e.askModerator);
-    await sleep(500);
+    await this.modPage.page.waitForTimeout(500);
     await this.initUserPage(false, this.context, { shouldCheckAllInitialSteps: false });
     await this.modPage.waitAndClick(e.waitingUsersBtn);
 
@@ -98,17 +97,15 @@ class GuestPolicy extends MultiUsers {
   async alwaysAccept() {
     await setGuestPolicyOption(this.modPage, e.askModerator);
     await setGuestPolicyOption(this.modPage, e.alwaysAccept);
-    await sleep(500);
+    await this.modPage.page.waitForTimeout(500);
     await this.initUserPage(false, this.context, { shouldCheckAllInitialSteps: false });
     await this.userPage.hasElement(e.audioModal, 'should display the audio modal for the attendee');
   }
 
   async alwaysDeny() {
     await setGuestPolicyOption(this.modPage, e.alwaysDeny);
-    await sleep(1500);
+    await this.modPage.page.waitForTimeout(1500);
     await this.initUserPage(false, this.context, { shouldCheckAllInitialSteps: false });
     await this.userPage.hasElement(e.deniedMessageElement, 'should display the denied message for the attendee');
   }
 }
-
-exports.GuestPolicy = GuestPolicy;

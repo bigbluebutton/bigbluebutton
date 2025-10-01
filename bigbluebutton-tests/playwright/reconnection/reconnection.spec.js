@@ -1,6 +1,6 @@
-const { test } = require('../fixtures');
-const { Reconnection } = require('./reconnection');
-const { checkRootPermission } = require('../core/helpers');
+import { test } from '../fixtures';
+import { Reconnection } from './reconnection';
+import { checkRootPermission } from '../core/helpers.ts';
 
 test.describe.parallel('Reconnection', () => {
   test('Chat', async ({ browser, context, page }, testInfo) => {

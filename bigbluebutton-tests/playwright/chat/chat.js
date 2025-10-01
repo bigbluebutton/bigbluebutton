@@ -1,12 +1,11 @@
-const { expect } = require('@playwright/test');
-const { openPublicChat, openPrivateChat, checkLastMessageSent } = require('./util');
-const e = require('../core/elements');
-const { checkTextContent } = require('../core/util');
-const { MultiUsers } = require('../user/multiusers');
-const { sleep } = require('../core/helpers');
-const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
+import { expect } from '@playwright/test';
+import { openPublicChat, openPrivateChat, checkLastMessageSent } from './util';
+import { elements as e } from '../core/elements.ts';
+import { checkTextContent } from '../core/util.ts';
+import { MultiUsers } from '../user/multiusers';
+import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants.ts';
 
-class Chat extends MultiUsers {
+export class Chat extends MultiUsers {
   constructor(browser, context) {
     super(browser, context);
   }
@@ -24,7 +23,7 @@ class Chat extends MultiUsers {
   async sendPrivateMessage() {
     await openPrivateChat(this.modPage);
     await this.modPage.hasElement(e.hidePrivateChat, 'should display the hide private chat element when opening a private chat');
-    await sleep(500); // prevent a race condition when running on a deployed server
+    await this.modPage.page.waitForTimeout(500); // prevent a race condition when running on a deployed server
     // modPage send message
     await this.modPage.type(e.chatBox, e.message1);
     await this.modPage.waitAndClick(e.sendButton);
@@ -100,7 +99,7 @@ class Chat extends MultiUsers {
     await this.modPage.hasElement(e.chatUserMessageText, 'should display the message sent by the moderator on the public chat');
     await this.modPage.waitAndClick(e.chatOptions);
 
-    const chatSaveLocator = this.modPage.getLocator(e.chatSave);
+    const chatSaveLocator = this.modPage.page.locator(e.chatSave);
     const { content } = await this.modPage.handleDownload(chatSaveLocator, testInfo);
     const dataToCheck = [
       this.modPage.username,
@@ -140,11 +139,11 @@ class Chat extends MultiUsers {
     await this.modPage.waitAndClick(e.sendButton);
     await checkLastMessageSent(this.modPage, /test/);
 
-    const text = await this.modPage.getLocator(e.chatUserMessageText).last().boundingBox();
+    const text = await this.modPage.page.locator(e.chatUserMessageText).last().boundingBox();
 
     await this.modPage.mouseDoubleClick(text.x, text.y);
     await this.modPage.press('Control+KeyC');
-    await this.modPage.getLocator(e.chatBox).focus();
+    await this.modPage.page.locator(e.chatBox).focus();
     await this.modPage.press('Control+KeyV');
     await this.modPage.type(e.chatBox, '2');
     await this.modPage.waitAndClick(e.sendButton);
@@ -161,7 +160,7 @@ class Chat extends MultiUsers {
       return this.modPage.wasRemoved(e.emojiPickerButton, 'should not display the emoji picker button element');
     }
 
-    const message = this.modPage.getLocator(e.chatUserMessageText);
+    const message = this.modPage.page.locator(e.chatUserMessageText);
     await expect(message, 'should not display any messages on the public chat').toHaveCount(0);
 
     await this.modPage.waitAndClick(e.emojiPickerButton);
@@ -193,7 +192,7 @@ class Chat extends MultiUsers {
   async closePrivateChat() {
     await openPrivateChat(this.modPage);
     await this.modPage.waitUntilHaveCountSelector(e.chatButton, 2);
-    const privateChatLocator = this.modPage.getLocatorByIndex(e.chatButton, -1);
+    const privateChatLocator = this.modPage.page.locatorByIndex(e.chatButton, -1);
     expect(privateChatLocator, 'should the private chat contain the user name').toContainText(this.userPage.username);
 
     const chatMessageCount = await this.modPage.getSelectorCount(e.chatUserMessageText);
@@ -223,7 +222,7 @@ class Chat extends MultiUsers {
     await this.modPage.waitAndClick(e.sendButton);
     await this.modPage.hasElement(e.chatUserMessageText, 'should display a message on the public chat with an emoji');
     await this.modPage.waitAndClick(e.chatOptions);
-    const chatSaveLocator = this.modPage.getLocator(e.chatSave);
+    const chatSaveLocator = this.modPage.page.locator(e.chatSave);
     const { content } = await this.modPage.handleDownload(chatSaveLocator, testInfo);
 
     const dataToCheck = [
@@ -238,7 +237,7 @@ class Chat extends MultiUsers {
 
     await openPrivateChat(this.modPage);
     await this.modPage.hasElement(e.hidePrivateChat, 'should display the hide private chat element when a private chat is open');
-    await sleep(500); // prevent a race condition when running on a deployed server
+    await this.modPage.page.waitForTimeout(500); // prevent a race condition when running on a deployed server
     // modPage send message
     if (!emojiPickerEnabled) {
       await this.modPage.hasElement(e.chatBox, 'should display the public chat box');
@@ -320,7 +319,7 @@ class Chat extends MultiUsers {
     }
     await this.modPage.hasElement(e.chatUserMessageText, 'should display a message on the public chat');
     await this.modPage.waitAndClick(e.chatOptions);
-    const chatSaveLocator = this.modPage.getLocator(e.chatSave);
+    const chatSaveLocator = this.modPage.page.locator(e.chatSave);
     const { content } = await this.modPage.handleDownload(chatSaveLocator, testInfo);
 
     const dataToCheck = [
@@ -335,7 +334,7 @@ class Chat extends MultiUsers {
 
     await openPrivateChat(this.modPage);
     await this.modPage.hasElement(e.hidePrivateChat, 'should display the hide private chat element when the moderator has the private chat opened');
-    await sleep(500); // prevent a race condition when running on a deployed server
+    await this.modPage.page.waitForTimeout(500); // prevent a race condition when running on a deployed server
     // modPage send message
     await this.modPage.type(e.chatBox, e.autoConvertEmojiMessage);
     await this.modPage.waitAndClick(e.sendButton);
@@ -356,9 +355,9 @@ class Chat extends MultiUsers {
     await this.userPage.type(e.chatBox, e.autoConvertEmojiMessage);
     await this.userPage.waitAndClick(e.sendButton);
     // check sent messages 
-    const lastMessageLocator = await this.modPage.getLocator(e.chatUserMessageText).last();
+    const lastMessageLocator = await this.modPage.page.locator(e.chatUserMessageText).last();
     await expect(lastMessageLocator, 'should the last message sent on private chat to be the auto converted emoji').toHaveText(e.convertedEmojiMessage);
-    const lastMessageLocatorUser = await this.userPage.getLocator(e.chatUserMessageText).last();
+    const lastMessageLocatorUser = await this.userPage.page.locator(e.chatUserMessageText).last();
     await expect(lastMessageLocatorUser, 'should the last message sent on private chat to be the auto converted emoji').toHaveText(e.convertedEmojiMessage);
   }
 
@@ -370,5 +369,3 @@ class Chat extends MultiUsers {
     await this.modPage.wasRemoved(e.sendButton, 'should the send button be removed because the attendee left the meeting');
   }
 }
-
-exports.Chat = Chat;

@@ -1,10 +1,10 @@
-const { test } = require('../fixtures');
-const { TextShape } = require('./textShape');
-const { ShapeTools } = require('./shapeTools');
-const { ChangeStyles } = require('./changeStyles');
-const { ShapeOptions } = require('./shapeOptions');
-const { DrawShape } = require('./drawShape');
-const e = require('../core/elements');
+import { test } from '../fixtures';
+import { TextShape } from './textShape';
+import { ShapeTools } from './shapeTools';
+import { ChangeStyles } from './changeStyles';
+import { ShapeOptions } from './shapeOptions';
+import { DrawShape } from './drawShape';
+import { elements as e } from '../core/elements.ts';
 
 //! @flaky note:
 // all whiteboard tests are flagged as flaky due to unexpected zooming slides

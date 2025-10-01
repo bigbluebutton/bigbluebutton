@@ -1,14 +1,12 @@
-const e = require('../core/elements');
-const { sleep } = require('../core/helpers');
-const { LOOP_INTERVAL, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } = require('../core/constants');
-const { expect } = require('@playwright/test');
-const { resolve } = require('path');
+import { elements as e } from '../core/elements.ts';
+import { LOOP_INTERVAL, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from '../core/constants.ts';
+import { expect } from '@playwright/test';
+import { resolve } from 'path';
 
-// loop 5 times, every LOOP_INTERVAL milliseconds, and check that all
-// videos displayed are changing by comparing a hash of their
-// displayed contents
-
-async function webcamContentCheck(test) {
+export async function webcamContentCheck(test) {
+  // loop 5 times, every LOOP_INTERVAL milliseconds, and check that all
+  // videos displayed are changing by comparing a hash of their
+  // displayed contents
   await test.waitForSelector(e.webcamVideoItem);
   await test.wasRemoved(e.webcamConnecting, ELEMENT_WAIT_LONGER_TIME);
   const repeats = 5;
@@ -40,29 +38,25 @@ async function webcamContentCheck(test) {
 
     check = await test.page.evaluate(checkCameras);
     if (!check) return false;
-    await sleep(LOOP_INTERVAL);
+    await test.page.waitForTimeout(LOOP_INTERVAL);
   }
   return check === true;
 }
 
-async function checkVideoUploadData(testPage, previousValue, timeout = ELEMENT_WAIT_TIME) {
-  const locator = testPage.getLocator(e.videoUploadRateData);
+export async function checkVideoUploadData(testPage, previousValue, timeout = ELEMENT_WAIT_TIME) {
+  const locator = testPage.page.locator(e.videoUploadRateData);
   await expect(locator).not.toHaveText('0k ↑', { timeout });
   const currentValue = await Number((await locator.textContent()).split('k')[0]);
   await expect(currentValue).toBeGreaterThan(previousValue);
   return currentValue;
 }
 
-async function uploadBackgroundVideoImage(testPage) {
+export async function uploadBackgroundVideoImage(testPage) {
   const [fileChooser] = await Promise.all([
     testPage.page.waitForEvent('filechooser'),
     testPage.waitAndClick(e.inputBackgroundButton),
   ]);
   await fileChooser.setFiles(resolve(__dirname, '../core/media/simpsons-background.png'));
-  const uploadedBackgroundLocator = testPage.getLocator(e.selectCustomBackground);
+  const uploadedBackgroundLocator = testPage.page.locator(e.selectCustomBackground);
   await expect(uploadedBackgroundLocator).toHaveScreenshot('custom-background-item.png');
 }
-
-exports.webcamContentCheck = webcamContentCheck;
-exports.checkVideoUploadData = checkVideoUploadData;
-exports.uploadBackgroundVideoImage = uploadBackgroundVideoImage;

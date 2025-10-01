@@ -1,12 +1,11 @@
-const { expect } = require('@playwright/test');
-const { MultiUsers } = require('../user/multiusers');
-const e = require('../core/elements');
-const util = require('./util');
-const { openSettings } = require('../options/util');
-const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
-const { sleep } = require('../core/helpers');
+import { expect } from '@playwright/test';
+import { MultiUsers } from '../user/multiusers';
+import { elements as e } from '../core/elements.ts';
+import util from './util';
+import { openSettings } from '../options/util';
+import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants.ts';
 
-class Notifications extends MultiUsers {
+export class Notifications extends MultiUsers {
   constructor(browser, context) {
     super(browser, context);
   }
@@ -23,7 +22,7 @@ class Notifications extends MultiUsers {
     await util.checkNotificationText(this.modPage, e.joinAudioToast);
     await util.checkNotificationIcon(this.modPage, e.unmuteIcon);
     await expect(
-      this.modPage.getLocator(e.connectionStatusBtn),
+      this.modPage.page.locator(e.connectionStatusBtn),
       'should not complain about loss in connection when joining audio'
     ).not.toHaveAttribute('color', 'danger');
     await this.modPage.hasElementCount(e.smallToastMsg, 1, 'should have only one notification displayed');
@@ -51,7 +50,7 @@ class Notifications extends MultiUsers {
     await this.modPage.waitForSelector(e.whiteboard);
     await this.modPage.closeAllToastNotifications();
     await this.modPage.waitAndClick(e.raiseHandBtn);
-    await sleep(1000);
+    await this.modPage.page.waitForTimeout(1000);
     await this.modPage.hasElement(e.raiseHandRejection, 'should display raise hand rejection button on toast notification');
     await util.checkNotificationText(this.modPage, e.raisingHandToast);
     await this.modPage.closeAllToastNotifications();
@@ -79,5 +78,3 @@ class Notifications extends MultiUsers {
 
   }
 }
-
-exports.Notifications = Notifications;

@@ -1,13 +1,12 @@
-const { expect } = require('@playwright/test');
-const { MultiUsers } = require('../user/multiusers');
-const e = require('../core/elements');
-const util = require('./util.js');
-const { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME } = require('../core/constants');
-const { getSettings } = require('../core/settings');
-const { skipSlide } = require('../presentation/util');
-const { sleep } = require('../core/helpers.js');
+import { expect } from '@playwright/test';
+import { MultiUsers } from '../user/multiusers';
+import { elements as e } from '../core/elements.ts';
+import util from './util.js';
+import { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME } from '../core/constants.ts';
+import { getSettings } from '../core/settings.ts';
+import { skipSlide } from '../presentation/util';
 
-class Polling extends MultiUsers {
+export class Polling extends MultiUsers {
   constructor(browser, context) {
     super(browser, context);
     this.newInputText = 'new option';
@@ -116,7 +115,7 @@ class Polling extends MultiUsers {
     await this.modPage.waitAndClick(e.actions);
     await this.modPage.waitAndClick(e.managePresentations);
     // remove all presentations
-    const allRemovePresentationBtn = await this.modPage.getLocator(e.removePresentation).all();
+    const allRemovePresentationBtn = await this.modPage.page.locator(e.removePresentation).all();
     // reversing the order of clicking is needed to avoid failure as the tooltip shows in front of the below button
     const reversedRemovePresentationButtons = allRemovePresentationBtn.reverse();
     for (const removeBtn of reversedRemovePresentationButtons) {
@@ -191,7 +190,7 @@ class Polling extends MultiUsers {
     await util.uploadSPresentationForTestingPolls(this.modPage, e.smartSlides2);
     await this.userPage.hasElement(e.userListItem, 'should display the user list item for the attendee');
     await this.modPage.closeAllToastNotifications();
-    await sleep(10000);
+    await this.modPage.page.waitForTimeout(10000);
     
     // A/B/C/D/E - One option answer
     await this.modPage.waitAndClick(e.nextSlide);
@@ -223,7 +222,7 @@ class Polling extends MultiUsers {
     
     // True/False
     await this.modPage.waitAndClick(e.nextSlide);
-    await sleep(500); // avoid error when the tooltip is in front of the button due to layout shift
+    await this.modPage.page.waitForTimeout(500); // avoid error when the tooltip is in front of the button due to layout shift
     await this.modPage.hasText(e.skipSlide, 'Slide 4');
     await this.modPage.waitAndClick(e.quickPoll);
     await this.modPage.waitAndClick(e.startPoll);
@@ -236,7 +235,7 @@ class Polling extends MultiUsers {
 
     // Yes/No
     await this.modPage.waitAndClick(e.nextSlide);
-    await sleep(500); // avoid error when the tooltip is in front of the button due to layout shift
+    await this.modPage.page.waitForTimeout(500); // avoid error when the tooltip is in front of the button due to layout shift
     await this.modPage.hasText(e.skipSlide, 'Slide 5');
     await this.modPage.waitAndClick(e.quickPoll);
     await this.modPage.waitAndClick(e.startPoll);
@@ -295,12 +294,12 @@ class Polling extends MultiUsers {
     await this.modPage.hasElement(e.publishPollingLabel, 'should display the publish polling button enabled after the attendee answered the poll');
     await this.modPage.waitAndClick(e.publishPollingLabel);
 
-    const lastChatPollMessageTextModerator = await this.modPage.getLocator(e.chatPollMessageText).last();
+    const lastChatPollMessageTextModerator = await this.modPage.page.locator(e.chatPollMessageText).last();
     if(!pollChatMessage) {
       return expect(lastChatPollMessageTextModerator, 'should not display the last chat poll message on the chat, so the poll results on the chat').toBeHidden({ ELEMENT_WAIT_TIME });
     }
     await expect(lastChatPollMessageTextModerator, 'should display the last chaat poll message on the chat, so the poll results on the chat').toBeVisible();
-    const lastChatPollMessageTextUser = await this.userPage.getLocator(e.chatPollMessageText).last();
+    const lastChatPollMessageTextUser = await this.userPage.page.locator(e.chatPollMessageText).last();
     await expect(lastChatPollMessageTextUser, 'should display the poll results on the chat for the attendee').toBeVisible();
   }
 
@@ -308,7 +307,7 @@ class Polling extends MultiUsers {
     await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard when the moderator joins the meeting', ELEMENT_WAIT_LONGER_TIME);
     await util.startPoll(this.modPage);
 
-    const wbDrawnRectangleLocator = await this.modPage.getLocator(e.wbPollShape);
+    const wbDrawnRectangleLocator = await this.modPage.page.locator(e.wbPollShape);
     const initialWbDrawnRectangleCount = await wbDrawnRectangleLocator.count();
 
     await this.modPage.hasElementDisabled(e.publishPollingLabel, 'should display the publish poll button disabled before the poll is answered');
@@ -343,15 +342,13 @@ class Polling extends MultiUsers {
   }
 
   async typeOnLastChoiceInput() {
-    const lastInput = this.modPage.getLocatorByIndex(e.pollOptionItem, -1);
+    const lastInput = this.modPage.page.locatorByIndex(e.pollOptionItem, -1);
     await lastInput.fill(this.newInputText);
   }
 
   async checkLastOptionText() {
     await this.userPage.hasElement(e.pollingContainer, 'should display the polling container for the attendee');
-    const lastOptionText = this.userPage.getLocatorByIndex(e.pollAnswerOptionBtn, -1);
+    const lastOptionText = this.userPage.page.locatorByIndex(e.pollAnswerOptionBtn, -1);
     await expect(lastOptionText, 'should display the last option text for the attendee').toHaveText(this.newInputText);
   }
 }
-
-exports.Polling = Polling;

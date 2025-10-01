@@ -1,10 +1,10 @@
-const Page = require('../core/page');
-const { MultiUsers } = require('../user/multiusers');
-const { startScreenshare } = require('./util');
-const e = require('../core/elements');
-const { getSettings } = require('../core/settings');
+import { Page } from '../core/page.ts';
+import { MultiUsers } from '../user/multiusers';
+import { startScreenshare } from './util';
+import { elements as e } from '../core/elements.ts';
+import { getSettings } from '../core/settings.ts';
 
-class ScreenShare extends Page {
+export class ScreenShare extends Page {
   constructor(browser, page, testInfo) {
     super(browser, page, testInfo);
   }
@@ -63,7 +63,7 @@ class ScreenShare extends Page {
   }
 }
 
-class MultiUserScreenShare extends MultiUsers {
+export class MultiUserScreenShare extends MultiUsers {
   constructor(browser, context) {
     super(browser, context);
   }
@@ -79,6 +79,3 @@ class MultiUserScreenShare extends MultiUsers {
     await page.hasElement(e.isSharingScreen, 'should display the screenshare element');
   }
 }
-
-exports.ScreenShare = ScreenShare;
-exports.MultiUserScreenShare = MultiUserScreenShare;

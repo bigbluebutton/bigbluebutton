@@ -1,8 +1,8 @@
-const { expect } = require("@playwright/test");
+import { expect } from '@playwright/test';
 
-const { Join } = require('../breakout/join');
-const parameters = require('../core/parameters');
-const { apiCall, createMeetingPromise } = require('../core/helpers');
+import { Join } from '../breakout/join';
+import parameters from '../core/parameters.ts';
+import { apiCall, createMeetingPromise } from '../core/helpers.ts';
 
 function getMeetingInfo(meetingID) {
   return apiCall('getMeetingInfo', { meetingID: meetingID });
@@ -123,5 +123,3 @@ class APIBreakout extends Join {
     expect(response2array).toEqual(expect.arrayContaining([expectedResponse1, expectedResponse2]));
   }
 }
-
-exports.APIBreakout = APIBreakout;

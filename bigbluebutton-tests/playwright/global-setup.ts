@@ -1,12 +1,12 @@
-const fs = require('fs');
-const path = require('path');
-const { request } = require('@playwright/test');
-const helpers = require('./core/helpers');
-const parameters = require('./core/parameters');
+import fs from 'fs';
+import path from 'path';
+import { request } from '@playwright/test';
+import * as helpers from './core/helpers';
+import parameters from './core/parameters';
 
 const { server, secret } = parameters;
 
-function initializeLogsFolder() {
+function initializeLogsFolder(): void {
   const logsDir = path.join(__dirname, 'logs');
   if (fs.existsSync(logsDir)) {
     fs.rmSync(logsDir, { recursive: true, force: true });
@@ -14,7 +14,7 @@ function initializeLogsFolder() {
   fs.mkdirSync(logsDir, { recursive: true });
 }
 
-async function validateEnvironmentAndAPI() {
+async function validateEnvironmentAndAPI(): Promise<void> {
   const BBB_URL_PATTERN = /^https:\/\/[^\/]+\/bigbluebutton\/?$/;
 
   if (!secret) throw new Error('BBB_SECRET environment variable is not set');
@@ -49,16 +49,16 @@ async function validateEnvironmentAndAPI() {
 
     console.log('Endpoints validation okay: /create and /join are accessible!');
   } catch (error) {
-    console.error('Environment and API validation failed:', error.message);
+    console.error('Environment and API validation failed:', (error as Error).message);
     throw error;
   } finally {
     await requestContext.dispose();
   }
 }
 
-async function globalSetup() {
+async function globalSetup(): Promise<void> {
   initializeLogsFolder();
   await validateEnvironmentAndAPI();
 }
 
-module.exports = globalSetup;
+export default globalSetup;

@@ -1,12 +1,12 @@
-const e = require('../core/elements');
-const defaultLocale = require('../../../bigbluebutton-html5/public/locales/en.json');
+import { elements as e } from '../core/elements.ts';
+import defaultLocale from '../../../bigbluebutton-html5/public/locales/en.json';
 
-async function openSettings(test) {
+export async function openSettings(test) {
   await test.waitAndClick(e.optionsButton);
   await test.waitAndClick(e.settings);
 }
 
-function getLocaleValues(elements, locale) {
+export function getLocaleValues(elements, locale) {
   const currentValues = {};
   let currentLocale = {};
   try {
@@ -29,11 +29,7 @@ function getLocaleValues(elements, locale) {
   return currentValues;
 }
 
-async function openAboutModal(test) {
+export async function openAboutModal(test) {
   await test.waitAndClick(e.optionsButton);
   await test.waitAndClick(e.showAboutModalButton);
 }
-
-exports.openAboutModal = openAboutModal;
-exports.openSettings = openSettings;
-exports.getLocaleValues = getLocaleValues;

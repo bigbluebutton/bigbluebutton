@@ -1,21 +1,21 @@
-const { MultiUsers } = require("../user/multiusers");
-const e = require('../core/elements');
-const { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } = require('../core/constants');
-const { expect } = require('@playwright/test');
-const { apiCall, sleep } = require("../core/helpers");
-const { openPublicChat } = require("../chat/util");
-const { startSharedNotes, getNotesLocator } = require("../sharednotes/util");
-const { skipSlide } = require("../presentation/util");
+import { MultiUsers } from '../user/multiusers';
+import { elements as e } from '../core/elements.ts';
+import { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from '../core/constants.ts';
+import { expect } from '@playwright/test';
+import { apiCall } from '../core/helpers.ts';
+import { openPublicChat } from '../chat/util';
+import { startSharedNotes, getNotesLocator } from '../sharednotes/util';
+import { skipSlide } from '../presentation/util';
 
 const { playbackElements } = e;
 
-class Recording extends MultiUsers {
+export class Recording extends MultiUsers {
   async getRecordingsApi() {
     return apiCall('getRecordings', { meetingID: this.modPage.meetingId });
   }
 
   async getRecordingsWithRetry(maxAttempts = 5, delayMs = 5000) {
-    await sleep(5000); // minimum wait time expected before first attempt
+    await this.modPage.page.waitForTimeout(5000); // minimum wait time expected before first attempt
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       const { response } = await this.getRecordingsApi();
 
@@ -31,7 +31,7 @@ class Recording extends MultiUsers {
 
       if (attempt < maxAttempts) {
         console.log(`getRecordings (attempt ${attempt}/${maxAttempts}): No recordings found yet, retrying in ${delayMs}ms`);
-        await sleep(delayMs);
+        await this.modPage.page.waitForTimeout(delayMs);
       }
     }
 
@@ -40,7 +40,7 @@ class Recording extends MultiUsers {
 
   async recordMeeting() {
     // check recording modal
-    const recordingIndicatorButton = this.modPage.getLocator(`${e.recordingIndicator} button`);
+    const recordingIndicatorButton = this.modPage.page.locator(`${e.recordingIndicator} button`);
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.hasElement(e.recordingIndicator, 'should the recording indicator to be displayed once the user join the meeting');
     await expect(
@@ -145,7 +145,7 @@ class Recording extends MultiUsers {
       playbackElements.sectionLeftButton,
       playbackElements.searchButton,
       playbackElements.swapContentButton,
-    ].map(e => this.playbackPage.getLocator(e));
+    ].map(e => this.playbackPage.page.locator(e));
 
     // background color elements that should be changed (light mode)
     const topBarBackgroundColor = await topBarLocator.evaluate(getBackgroundColorComputed);
@@ -179,7 +179,7 @@ class Recording extends MultiUsers {
 
   async swapContent() {
     await this.playbackPage.hasElement(playbackElements.title, 'should display the playback title');
-    const titleLocator = this.playbackPage.getLocator(playbackElements.title);
+    const titleLocator = this.playbackPage.page.locator(playbackElements.title);
     await expect(this.playbackPage.page, 'top content area should be visible').toHaveScreenshot('default-content-disposition.png', {
       mask: [titleLocator],
     });
@@ -191,12 +191,12 @@ class Recording extends MultiUsers {
   }
 
   async toggleChatNotes() {
-    const notesButtonLocator = this.playbackPage.getLocator(
+    const notesButtonLocator = this.playbackPage.page.locator(
       playbackElements.applicationControlButton
-    ).filter({ has: this.playbackPage.getLocator('span.icon-notes') });
-    const chatButtonLocator = this.playbackPage.getLocator(
+    ).filter({ has: this.playbackPage.page.locator('span.icon-notes') });
+    const chatButtonLocator = this.playbackPage.page.locator(
       playbackElements.applicationControlButton
-    ).filter({ has: this.playbackPage.getLocator('span.icon-chat') });
+    ).filter({ has: this.playbackPage.page.locator('span.icon-chat') });
 
     // toggle to notes - expected chat by default
     await notesButtonLocator.click();
@@ -212,10 +212,10 @@ class Recording extends MultiUsers {
 
   async playPause() {
     await this.playbackPage.waitForSelector(playbackElements.title);
-    const titleLocator = this.playbackPage.getLocator(playbackElements.title);
+    const titleLocator = this.playbackPage.page.locator(playbackElements.title);
 
     // Assert that progress bar width is 0 at the start
-    const progressBarLocator = this.playbackPage.getLocator(playbackElements.progressBar);
+    const progressBarLocator = this.playbackPage.page.locator(playbackElements.progressBar);
     const progressBarInitialWidth = await progressBarLocator.evaluate(el => el.offsetWidth);
     expect(progressBarInitialWidth, 'progress bar width should be 0 at the start').toEqual(0);
     await expect(this.playbackPage.page, 'placeholder BBB icon should be visible').toHaveScreenshot('placeholder.png', {
@@ -224,7 +224,7 @@ class Recording extends MultiUsers {
 
     // Resume 500ms playback to display first slide
     await this.playbackPage.waitAndClick(playbackElements.playPauseButton);
-    await sleep(500);
+    await this.playbackPage.page.waitForTimeout(500);
     await this.playbackPage.waitAndClick(playbackElements.playPauseButton);
     await expect(this.playbackPage.page, 'first slide should be visible').toHaveScreenshot('first-slide.png', {
       mask: [titleLocator],
@@ -232,7 +232,7 @@ class Recording extends MultiUsers {
 
     // Resume playback to the next slide
     await this.playbackPage.waitAndClick(playbackElements.playPauseButton);
-    await sleep(2000);
+    await this.playbackPage.page.waitForTimeout(2000);
     const progressBarResumed = await progressBarLocator.evaluate(el => el.offsetWidth);
     expect(progressBarResumed, 'progress bar width should not be 0 after resuming playback').not.toEqual(0);
     await expect(this.playbackPage.page, 'second slide should be visible').toHaveScreenshot('slide-changed.png', {
@@ -242,7 +242,7 @@ class Recording extends MultiUsers {
     // wait 2 seconds and check paused playback
     await this.playbackPage.waitAndClick(playbackElements.playPauseButton);
     const progressBarPaused = await progressBarLocator.evaluate(el => el.offsetWidth);
-    await sleep(2000);
+    await this.playbackPage.page.waitForTimeout(2000);
     expect(progressBarPaused,
       'progress bar width should not change when playback is paused'
     ).toEqual(await progressBarLocator.evaluate(el => el.offsetWidth));
@@ -253,10 +253,10 @@ class Recording extends MultiUsers {
 
   async seekBarForwardBackward() {
     await this.playbackPage.waitForSelector(playbackElements.title);
-    const titleLocator = this.playbackPage.getLocator(playbackElements.title);
+    const titleLocator = this.playbackPage.page.locator(playbackElements.title);
 
     // Assert that progress bar width is 0 at the start
-    const progressBarLocator = this.playbackPage.getLocator(playbackElements.progressBar);
+    const progressBarLocator = this.playbackPage.page.locator(playbackElements.progressBar);
     const progressBarInitialWidth = await progressBarLocator.evaluate(el => el.offsetWidth);
     expect(progressBarInitialWidth, 'progress bar width should be 0 at the start').toEqual(0);
     await expect(this.playbackPage.page, 'placeholder BBB icon should be visible').toHaveScreenshot('placeholder.png', {
@@ -265,9 +265,9 @@ class Recording extends MultiUsers {
 
     // play video and seek forward
     await this.playbackPage.waitAndClick(playbackElements.playPauseButton);
-    await sleep(500);
+    await this.playbackPage.page.waitForTimeout(500);
     await this.playbackPage.waitAndClick(playbackElements.seekForwardButton);
-    await sleep(500); // wait for the seek action to be processed
+    await this.playbackPage.page.waitForTimeout(500); // wait for the seek action to be processed
     const progressBarFull = await progressBarLocator.evaluate(el => el.style.width);
     await expect(progressBarFull, 'progress bar width should be 100% after seeking forward').toBe('100%');
     await expect(this.playbackPage.page, 'second slide should be visible when seeking forward till the end').toHaveScreenshot('seek-forward.png', {
@@ -276,7 +276,7 @@ class Recording extends MultiUsers {
 
     // seek backward
     await this.playbackPage.waitAndClick(playbackElements.seekBackButton);
-    await sleep(500);
+    await this.playbackPage.page.waitForTimeout(500);
     const progressBarBackward = await progressBarLocator.evaluate(el => el.offsetWidth);
     expect(progressBarBackward, 'progress bar width should be 0 after seeking backward').toEqual(0);
     await expect(this.playbackPage.page, 'first slide should be visible when seeking backward').toHaveScreenshot('seek-backward.png', {
@@ -284,5 +284,3 @@ class Recording extends MultiUsers {
     });
   }
 }
-
-exports.Recording = Recording;

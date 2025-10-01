@@ -1,13 +1,13 @@
-const e = require('../core/elements');
-const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
-const { MultiUsers } = require('../user/multiusers');
-const { snapshotComparison } = require('./util');
+import { elements as e } from '../core/elements.ts';
+import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants.ts';
+import { MultiUsers } from '../user/multiusers';
+import { snapshotComparison } from './util';
 
-class TextShape extends MultiUsers {
+export class TextShape extends MultiUsers {
   async typeText() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await this.userPage.waitForSelector(e.whiteboard);
-    const modWbLocator = this.modPage.getLocator(e.whiteboard);
+    const modWbLocator = this.modPage.page.locator(e.whiteboard);
     const wbBox = await modWbLocator.boundingBox();
     // select the text
     await this.modPage.waitAndClick(e.wbTextShape);
@@ -29,7 +29,7 @@ class TextShape extends MultiUsers {
   async stickyNote() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await this.userPage.waitForSelector(e.whiteboard);
-    const modWbLocator = this.modPage.getLocator(e.whiteboard);
+    const modWbLocator = this.modPage.page.locator(e.whiteboard);
     const wbBox = await modWbLocator.boundingBox();
     // select the sticky note
     await this.modPage.waitAndClick(e.wbStickyNoteShape);
@@ -51,7 +51,7 @@ class TextShape extends MultiUsers {
   async realTimeTextTyping() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await this.userPage.waitForSelector(e.whiteboard);
-    const modWbLocator = this.modPage.getLocator(e.whiteboard);
+    const modWbLocator = this.modPage.page.locator(e.whiteboard);
     const wbBox = await modWbLocator.boundingBox();
     // select the text
     await this.modPage.waitAndClick(e.wbTextShape);
@@ -75,5 +75,3 @@ class TextShape extends MultiUsers {
     await snapshotComparison(this.modPage, this.userPage, 'realtime-text');
   }
 }
-
-exports.TextShape = TextShape;

@@ -1,9 +1,9 @@
-const { MultiUsers } = require("../user/multiusers");
-const { snapshotComparison } = require('./util');
-const e = require('../core/elements');
-const { ELEMENT_WAIT_LONGER_TIME } = require("../core/constants");
+import { MultiUsers } from '../user/multiusers';
+import { snapshotComparison } from './util';
+import { elements as e } from '../core/elements.ts';
+import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants.ts';
 
-class DrawShape extends MultiUsers {
+export class DrawShape extends MultiUsers {
   async drawShape(shapeSelector, shapeName, expectedShapeDrawn = e.wbDrawnShape) {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await this.userPage.waitForSelector(e.whiteboard);
@@ -18,7 +18,7 @@ class DrawShape extends MultiUsers {
   }
 
   async drawShapeMiddleSlide() {
-    const modWbLocator = this.modPage.getLocator(e.whiteboard);
+    const modWbLocator = this.modPage.page.locator(e.whiteboard);
     const wbBox = await modWbLocator.boundingBox();
     // draw the shape
     const moveOptions = { steps: 50 }; // to slow down
@@ -28,5 +28,3 @@ class DrawShape extends MultiUsers {
     await this.modPage.page.mouse.up();
   }
 }
-
-exports.DrawShape = DrawShape;

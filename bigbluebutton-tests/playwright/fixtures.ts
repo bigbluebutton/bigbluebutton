@@ -1,6 +1,10 @@
-const base = require('@playwright/test');
+import { test as base } from '@playwright/test';
 
-const testWithValidation = base.test.extend({
+interface TestFixtures {
+  sharedBeforeEachTestHook: void;
+}
+
+const testWithValidation = base.extend<TestFixtures>({
   sharedBeforeEachTestHook: [async ({ browser }, use) => {
     // Before test
     await use();
@@ -10,4 +14,4 @@ const testWithValidation = base.test.extend({
   }, { scope: 'test', auto: true }],
 });
 
-exports.test = testWithValidation;
+export const test = testWithValidation;

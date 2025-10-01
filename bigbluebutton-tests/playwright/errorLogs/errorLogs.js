@@ -1,12 +1,11 @@
-const { MultiUsers } = require('../user/multiusers');
-const { connectMicrophone } = require('../audio/util');
-const { openPublicChat } = require('../chat/util');
-const e = require('../core/elements');
-const { sleep } = require('../core/helpers');
-const { env } = require('node:process');
-const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
+import { MultiUsers } from '../user/multiusers';
+import { connectMicrophone } from '../audio/util';
+import { openPublicChat } from '../chat/util';
+import { elements as e } from '../core/elements.ts';
+import { env } from 'node:process';
+import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants.ts';
 
-class ErrorLogs extends MultiUsers {
+export class ErrorLogs extends MultiUsers {
   constructor(browser, context) {
     super(browser, context);
   }
@@ -30,7 +29,7 @@ class ErrorLogs extends MultiUsers {
 
   async joinSession() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
-    await sleep(2000);
+    await this.modPage.page.waitForTimeout(2000);
   }
 
   async joinAudioWithMicrophone() {
@@ -40,7 +39,7 @@ class ErrorLogs extends MultiUsers {
     await this.modPage.waitAndClick(e.unmuteMicButton);
     await this.modPage.hasElement(e.isTalking, 'should display the is talking element when user unmute the microphone');
     // Wait a moment for any audio-related errors to surface
-    await sleep(2000);
+    await this.modPage.page.waitForTimeout(2000);
     // Mute again
     await this.modPage.waitAndClick(e.muteMicButton);
     await this.modPage.hasElement(e.unmuteMicButton, 'should be muted again');
@@ -50,7 +49,7 @@ class ErrorLogs extends MultiUsers {
     await this.modPage.shareWebcam();
     await this.modPage.hasElement(e.leaveVideo, 'should have leave video button');
     // Wait a moment for any webcam-related errors to surface
-    await sleep(3000);
+    await this.modPage.page.waitForTimeout(3000);
   }
 
   async sendPublicChatMessage() {
@@ -61,7 +60,7 @@ class ErrorLogs extends MultiUsers {
     // Verify message was sent
     await this.modPage.hasText(e.chatUserMessageText, testMessage, 'should display the sent message');
     // Wait a moment for any chat-related errors to surface
-    await sleep(1000);
+    await this.modPage.page.waitForTimeout(1000);
   }
 
   async shareReaction() {
@@ -73,8 +72,6 @@ class ErrorLogs extends MultiUsers {
     await this.modPage.hasText(e.moderatorAvatar, '😃', 'should display the smiling emoji in the moderator avatar');
     await this.modPage.hasText(e.reactionsButton, '😃', 'should display the smiling emoji on the reactions button when used');
     // Wait a moment for any reaction-related errors to surface
-    await sleep(2000);
+    await this.modPage.page.waitForTimeout(2000);
   }
 }
-
-exports.ErrorLogs = ErrorLogs;

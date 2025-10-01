@@ -1,9 +1,9 @@
-const { expect } = require('@playwright/test');
-const e = require('../core/elements');
-const { DrawShape } = require('./drawShape');
-const { snapshotComparison } = require('./util');
+import { expect } from '@playwright/test';
+import { elements as e } from '../core/elements.ts';
+import { DrawShape } from './drawShape';
+import { snapshotComparison } from './util';
 
-class ChangeStyles extends DrawShape {
+export class ChangeStyles extends DrawShape {
   constructor(browser, context) {
     super(browser, context);
     this.referenceDrawnShape = `${e.wbDrawnShape} svg path`;
@@ -69,5 +69,3 @@ class ChangeStyles extends DrawShape {
     await snapshotComparison(this.modPage, this.userPage, 'size-drawing');
   }
 }
-
-exports.ChangeStyles = ChangeStyles;

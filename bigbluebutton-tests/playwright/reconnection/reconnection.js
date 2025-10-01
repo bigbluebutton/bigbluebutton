@@ -1,10 +1,10 @@
-const { expect } = require('@playwright/test');
-const { MultiUsers } = require('../user/multiusers');
-const e = require('../core/elements');
-const { killConnection } = require('./util');
-const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME } = require('../core/constants');
+import { expect } from '@playwright/test';
+import { MultiUsers } from '../user/multiusers';
+import { elements as e } from '../core/elements.ts';
+import { killConnection } from './util';
+import { ELEMENT_WAIT_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME } from '../core/constants.ts';
 
-class Reconnection extends MultiUsers {
+export class Reconnection extends MultiUsers {
   constructor(browser, context) {
     super(browser, context);
   }
@@ -12,7 +12,7 @@ class Reconnection extends MultiUsers {
   async chat() {
     // chat enabled
     await this.modPage.waitForSelector(e.chatBox);
-    const chatBoxLocator = this.modPage.getLocator(e.chatBox);
+    const chatBoxLocator = this.modPage.page.locator(e.chatBox);
     await expect(chatBoxLocator, 'should the chat box be enabled as soon as the user join').toBeEnabled();
 
     killConnection();
@@ -35,7 +35,7 @@ class Reconnection extends MultiUsers {
     await this.modPage.joinMicrophone();
 
     // mute is available
-    const muteMicButtonLocator = this.modPage.getLocator(e.muteMicButton);
+    const muteMicButtonLocator = this.modPage.page.locator(e.muteMicButton);
     await expect(muteMicButtonLocator, 'mute button should be enabled as soon as the user join').toBeEnabled();
 
     killConnection();
@@ -50,5 +50,3 @@ class Reconnection extends MultiUsers {
     await this.modPage.hasElement(e.isTalking, 'user audio should be kept capturing after reconnection');
   }
 }
-
-exports.Reconnection = Reconnection;

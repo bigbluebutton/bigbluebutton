@@ -1,10 +1,10 @@
-const { test } = require('../fixtures');
-const { CustomParameters } = require('./customparameters');
-const { DisabledFeatures } = require('./disabledFeatures');
-const c = require('./constants');
-const { encodeCustomParams, getAllShortcutParams, hexToRgb } = require('./util');
-const { CreateParameters } = require('./createParameters');
-const { linkIssue } = require('../core/helpers');
+import { test } from '../fixtures';
+import { CustomParameters } from './customparameters';
+import { DisabledFeatures } from './disabledFeatures';
+import { constants as c } from '../parameters/constants';
+import { encodeCustomParams, getAllShortcutParams, hexToRgb } from './util';
+import { CreateParameters } from './createParameters';
+import { linkIssue } from '../core/helpers.ts';
 
 test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
   test('Record Meeting', async ({ browser, context, page }, testInfo) => {

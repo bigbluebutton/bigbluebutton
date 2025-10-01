@@ -1,11 +1,10 @@
-const { expect } = require('@playwright/test');
-const e = require('../core/elements');
-const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
-const { MultiUsers } = require('../user/multiusers');
-const { snapshotComparison } = require('./util');
-const { sleep } = require('../core/helpers');
+import { expect } from '@playwright/test';
+import { elements as e } from '../core/elements.ts';
+import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants.ts';
+import { MultiUsers } from '../user/multiusers';
+import { snapshotComparison } from './util';
 
-class ShapeOptions extends MultiUsers {
+export class ShapeOptions extends MultiUsers {
   constructor(browser, context) {
     super(browser, context);
     this.referenceDrawnShape = `${e.wbDrawnShape} svg path`;
@@ -14,7 +13,7 @@ class ShapeOptions extends MultiUsers {
   async duplicate() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await this.userPage.waitForSelector(e.whiteboard);
-    const modWbLocator = this.modPage.getLocator(e.whiteboard);
+    const modWbLocator = this.modPage.page.locator(e.whiteboard);
     const wbBox = await modWbLocator.boundingBox();
     // draw a rectangle
     await this.modPage.waitAndClick(e.wbShapesButton);
@@ -37,7 +36,7 @@ class ShapeOptions extends MultiUsers {
   async rotate() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await this.userPage.waitForSelector(e.whiteboard);
-    const modWbLocator = this.modPage.getLocator(e.whiteboard);
+    const modWbLocator = this.modPage.page.locator(e.whiteboard);
     const wbBox = await modWbLocator.boundingBox();
     // draw a rectangle
     await this.modPage.waitAndClick(e.wbShapesButton);
@@ -50,7 +49,7 @@ class ShapeOptions extends MultiUsers {
     await this.modPage.page.mouse.click(wbBox.x + 0.7 * wbBox.width, wbBox.y + 0.7 * wbBox.height);
     await this.modPage.waitAndClick(e.wbOptions);
     await this.modPage.waitAndClick(e.wbRotate);
-    await sleep(1000); // wait for the rotation to be applied
+    await this.modPage.page.waitForTimeout(1000); // wait for the rotation to be applied
     await this.modPage.waitAndClick(e.wbRotate);
     await this.modPage.press('Escape');
     // check for the rotation
@@ -61,5 +60,3 @@ class ShapeOptions extends MultiUsers {
     await snapshotComparison(this.modPage, this.userPage, 'rotate');
   }
 }
-
-exports.ShapeOptions = ShapeOptions;

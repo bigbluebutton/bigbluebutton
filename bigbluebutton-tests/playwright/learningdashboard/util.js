@@ -1,8 +1,8 @@
-const { test } = require('@playwright/test');
-const e = require('../core/elements.js');
-const { getSettings } = require('../core/settings.js');
+import { test } from '@playwright/test';
+import { elements as e } from '../core/elements.ts';
+import { getSettings } from '../core/settings.ts';
 
-async function openPoll(testPage) {
+export async function openPoll(testPage) {
   const { pollEnabled } = getSettings();
   test.fail(!pollEnabled, 'Polling is disabled');
 
@@ -10,16 +10,12 @@ async function openPoll(testPage) {
   await testPage.waitAndClick(e.polling);
 }
 
-function timeInSeconds(locator){
+export function timeInSeconds(locator){
   const [hours, minutes, seconds] = locator.split(':').map(Number);
   return hours * 3600 + minutes * 60 + seconds;
 }
 
-async function rowFilter(testPage, locator, role, selector) {
-  const locatorToFilter = await testPage.getLocator(locator);
+export async function rowFilter(testPage, locator, role, selector) {
+  const locatorToFilter = await testPage.page.locator(locator);
   return locatorToFilter.filter({ hasText: role }).locator(selector);
 }
-
-exports.openPoll = openPoll;
-exports.timeInSeconds = timeInSeconds;
-exports.rowFilter = rowFilter;

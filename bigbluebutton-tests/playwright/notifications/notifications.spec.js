@@ -1,9 +1,11 @@
-const { test } = require('../fixtures');
-const { Notifications } = require('./notifications');
-const { ChatNotifications } = require('./chatNotifications');
-const { PresenterNotifications } = require('./presenterNotifications');
-const { RecordingNotifications } = require('./recordingNotifications');
-const { recordMeeting } = require('../parameters/constants');
+import { test } from '../fixtures';
+import { Notifications } from './notifications';
+import { ChatNotifications } from './chatNotifications';
+import { PresenterNotifications } from './presenterNotifications';
+import { RecordingNotifications } from './recordingNotifications';
+import { constants } from '../parameters/constants';
+
+const { recordMeeting } = constants;
 
 test.describe.parallel('Notifications', { tag: '@ci' }, () => {
   test('Save settings notification', async ({ browser, context, page }, testInfo) => {

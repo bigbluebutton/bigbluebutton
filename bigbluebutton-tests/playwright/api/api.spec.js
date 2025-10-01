@@ -1,6 +1,6 @@
-const { test } = require('../fixtures');
-const { API } = require('./api.js');
-const { APIBreakout } = require('./breakout.js');
+import { test } from '../fixtures';
+import { API } from './api.js';
+import { APIBreakout } from './breakout.js';
 
 test.describe.parallel('API', () => {
   test('getMeetings', async ({ browser, context, page }, testInfo) => {

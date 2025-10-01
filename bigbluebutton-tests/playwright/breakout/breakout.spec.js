@@ -1,7 +1,7 @@
-const { linkIssue } = require('../core/helpers');
-const { test } = require('../fixtures');
-const { Create } = require('./create');
-const { Join } = require('./join');
+import { linkIssue } from '../core/helpers.ts';
+import { test } from '../fixtures';
+import { Create } from './create';
+import { Join } from './join';
 
 test.describe.parallel('Breakout', { tag: '@ci' }, () => {
   test.describe.parallel('Creating', () => {

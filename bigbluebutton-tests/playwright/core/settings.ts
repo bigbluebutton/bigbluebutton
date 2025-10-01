@@ -1,11 +1,53 @@
-let settings;
+import type { Page } from '@playwright/test';
 
-async function generateSettingsData(page) {
+export interface Settings {
+  reactionsButton?: boolean;
+  sharedNotesEnabled?: boolean;
+  directLeaveButton?: boolean;
+  // Audio
+  autoJoinAudioModal?: boolean;
+  listenOnlyMode?: boolean;
+  forceListenOnly?: boolean;
+  skipEchoTest?: boolean;
+  skipEchoTestOnJoin?: boolean;
+  skipEchoTestIfPreviousDevice?: boolean;
+  speechRecognitionEnabled?: boolean;
+  // Chat
+  chatEnabled?: boolean;
+  publicChatOptionsEnabled?: boolean;
+  maxMessageLength?: number;
+  emojiPickerEnabled?: boolean;
+  autoConvertEmojiEnabled?: boolean;
+  // Polling
+  pollEnabled?: boolean;
+  pollChatMessage?: boolean;
+  // Presentation
+  originalPresentationDownloadable?: boolean;
+  presentationWithAnnotationsDownloadable?: boolean;
+  externalVideoPlayer?: boolean;
+  presentationHidden?: boolean;
+  // Screensharing
+  screensharingEnabled?: boolean;
+  // Timeouts
+  listenOnlyCallTimeout?: number;
+  videoPreviewTimeout?: number;
+  // Webcam
+  webcamSharingEnabled?: boolean;
+  skipVideoPreview?: boolean;
+  skipVideoPreviewOnFirstJoin?: boolean;
+  skipVideoPreviewIfPreviousDevice?: boolean;
+  // Emoji
+  emojiRain?: boolean;
+}
+
+let settings: Settings | undefined;
+
+export async function generateSettingsData(page: Page): Promise<Settings | undefined> {
   if (settings || !page) return settings;
 
   try {
     const settingsData = await page.evaluate(() => {
-      return window.meetingClientSettings.public;
+      return (window as any).meetingClientSettings.public;
     });
 
     settings = {
@@ -54,7 +96,6 @@ async function generateSettingsData(page) {
   }
 }
 
-module.exports = exports = {
-  getSettings: () => settings,
-  generateSettingsData,
+export function getSettings(): Settings | undefined {
+  return settings;
 }

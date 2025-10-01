@@ -1,8 +1,8 @@
-const { expect } = require("@playwright/test");
+import { expect } from '@playwright/test';
 
-const Page = require('../core/page');
-const parameters = require('../core/parameters');
-const { apiCall, createMeeting } = require('../core/helpers');
+import { Page } from '../core/page.ts';
+import parameters from '../core/parameters.ts';
+import { apiCall, createMeeting } from '../core/helpers.ts';
 
 function getMeetings() {
   return apiCall('getMeetings', {});
@@ -12,7 +12,7 @@ function getMeetingInfo(meetingID) {
   return apiCall('getMeetingInfo', { meetingID: meetingID });
 }
 
-class API {
+export class API {
   constructor(browser, context, page, testInfo = null) {
     this.modPage = new Page(browser, page, testInfo);
     this.browser = browser;
@@ -124,5 +124,3 @@ class API {
     await userPage.page.close();
   }
 }
-
-exports.API = API;

@@ -1,7 +1,7 @@
-const { test } = require('../fixtures');
-const { LearningDashboard } = require('./learningdashboard');
-const c = require('../parameters/constants');
-const { initializePages } = require('../core/helpers');
+import { test } from '../fixtures';
+import { LearningDashboard } from './learningdashboard';
+import { constants as c } from '../parameters/constants';
+import { initializePages } from '../core/helpers.ts';
 
 test.describe.parallel('Learning Dashboard', { tag: '@ci' } , async () => {
   const learningDashboard = new LearningDashboard();

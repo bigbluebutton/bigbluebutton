@@ -1,7 +1,7 @@
-const { test } = require('../fixtures');
-const { encodeCustomParams } = require('../parameters/util');
-const { Presentation } = require('./presentation');
-const { linkIssue } = require('../core/helpers');
+import { test } from '../fixtures';
+import { encodeCustomParams } from '../parameters/util';
+import { Presentation } from './presentation';
+import { linkIssue } from '../core/helpers.ts';
 
 test.describe.parallel('Presentation', { tag: '@ci' }, () => {
   // https://docs.bigbluebutton.org/3.0/testing/release-testing/#navigation-automated

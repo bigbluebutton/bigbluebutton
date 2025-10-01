@@ -1,6 +1,6 @@
-const { test } = require('../fixtures');
-const { Audio } = require('./audio');
-const { initializePages } = require('../core/helpers');
+import { test } from '../fixtures.ts';
+import { Audio } from './audio';
+import { initializePages } from '../core/helpers.ts';
 
 test.describe.parallel('Audio', { tag: '@ci' }, () => {
   const audio = new Audio();

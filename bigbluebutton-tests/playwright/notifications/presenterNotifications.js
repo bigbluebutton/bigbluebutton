@@ -1,12 +1,12 @@
-const util = require('./util');
-const e = require('../core/elements');
-const utilPolling = require('../polling/util');
-const { MultiUsers } = require("../user/multiusers");
-const utilScreenShare = require('../screenshare/util');
-const utilPresentation = require('../presentation/util');
-const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
+import util from './util';
+import { elements as e } from '../core/elements.ts';
+import utilPolling from '../polling/util';
+import { MultiUsers } from '../user/multiusers';
+import utilScreenShare from '../screenshare/util';
+import utilPresentation from '../presentation/util';
+import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants.ts';
 
-class PresenterNotifications extends MultiUsers {
+export class PresenterNotifications extends MultiUsers {
   constructor(browser, context) {
     super(browser, context);
   }
@@ -33,5 +33,3 @@ class PresenterNotifications extends MultiUsers {
     await util.checkNotificationText(this.modPage, e.endScreenshareToast);
   }
 }
-
-exports.PresenterNotifications = PresenterNotifications;

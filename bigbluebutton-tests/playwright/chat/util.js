@@ -1,8 +1,8 @@
-const { expect } = require('@playwright/test');
-const e = require('../core/elements');
-const { getSettings } = require('../core/settings');
+import { expect } from '@playwright/test';
+import { elements as e } from '../core/elements.ts';
+import { getSettings } from '../core/settings.ts';
 
-async function openPublicChat(testPage) {
+export async function openPublicChat(testPage) {
   const { chatEnabled } = getSettings();
 
   if(!chatEnabled) {
@@ -14,33 +14,27 @@ async function openPublicChat(testPage) {
   await testPage.hasElement(e.chatOptions, 'should display the chat options menu button');
 }
 
-async function openPrivateChat(testPage) {
+export async function openPrivateChat(testPage) {
   const { chatEnabled } = getSettings();
 
   await testPage.waitAndClick(e.userListItem);
   if(!chatEnabled) {
     return await testPage.wasRemoved(e.startPrivateChat, 'should not display the private chat');
   }
-  const lastUserStartPrivateChat = await testPage.getLocator(e.startPrivateChat).last();
+  const lastUserStartPrivateChat = await testPage.page.locator(e.startPrivateChat).last();
   await testPage.clickOnLocator(lastUserStartPrivateChat);
 }
 
-async function getLastMessageSent(testPage) {
-  return testPage.getLocator(e.chatUserMessageText).last();
+export async function getLastMessageSent(testPage) {
+  return testPage.page.locator(e.chatUserMessageText).last();
 }
 
-async function checkLastMessageSent(testPage, expectedMessage) {
+export async function checkLastMessageSent(testPage, expectedMessage) {
   const lastMessageSentLocator = await getLastMessageSent(testPage);
   await expect(lastMessageSentLocator, 'should display the last message sent on the chat').toHaveText(expectedMessage);
 }
 
-async function hoverLastMessage(testPage) {
+export async function hoverLastMessage(testPage) {
   const lastMessageSentLocator = await getLastMessageSent(testPage);
   await lastMessageSentLocator.hover();
 }
-
-exports.openPublicChat = openPublicChat;
-exports.openPrivateChat = openPrivateChat;
-exports.getLastMessageSent = getLastMessageSent;
-exports.checkLastMessageSent = checkLastMessageSent;
-exports.hoverLastMessage = hoverLastMessage;

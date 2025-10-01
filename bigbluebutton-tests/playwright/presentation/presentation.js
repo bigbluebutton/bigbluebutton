@@ -1,15 +1,14 @@
-const { expect } = require('@playwright/test');
-const { MultiUsers } = require('../user/multiusers');
-const e = require('../core/elements');
-const { checkSvgIndex, getSlideOuterHtml, uploadSinglePresentation, uploadMultiplePresentations, getCurrentPresentationHeight, hasCurrentPresentationToastElement } = require('./util.js');
-const { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME, UPLOAD_PDF_WAIT_TIME, CI } = require('../core/constants');
-const { sleep } = require('../core/helpers');
-const { getSettings } = require('../core/settings');
-const { checkNotificationText } = require('../notifications/util.js');
+import { expect } from '@playwright/test';
+import { MultiUsers } from '../user/multiusers';
+import { elements as e } from '../core/elements.ts';
+import { checkSvgIndex, getSlideOuterHtml, uploadSinglePresentation, uploadMultiplePresentations, getCurrentPresentationHeight, hasCurrentPresentationToastElement } from './util.js';
+import { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME, UPLOAD_PDF_WAIT_TIME, CI } from '../core/constants.ts';
+import { getSettings } from '../core/settings.ts';
+import { checkNotificationText } from '../notifications/util.js';
 
 const defaultZoomLevel = '100%';
 
-class Presentation extends MultiUsers {
+export class Presentation extends MultiUsers {
   constructor(browser, context) {
     super(browser, context);
   }
@@ -21,13 +20,13 @@ class Presentation extends MultiUsers {
 
     await this.modPage.waitAndClick(e.nextSlide);
     await this.modPage.hasElement(e.whiteboard, 'should display the next slide on the whiteboard');
-    await sleep(1000);
+    await this.modPage.page.waitForTimeout(1000);
 
     await checkSvgIndex(this.modPage, '/svg/2');
 
     await this.modPage.waitAndClick(e.prevSlide);
     await this.modPage.hasElement(e.whiteboard, 'should display the previous slide on the whiteboard');
-    await sleep(1000);
+    await this.modPage.page.waitForTimeout(1000);
 
     await checkSvgIndex(this.modPage, '/svg/1');
   }
@@ -41,7 +40,7 @@ class Presentation extends MultiUsers {
     await this.modPage.waitAndClick(e.startSharingWebcam);
     await this.modPage.hasElement(e.screenShareVideo);
     await this.modPage.closeAllToastNotifications();
-    const modWhiteboardLocator = this.modPage.getLocator(e.screenShareVideo);
+    const modWhiteboardLocator = this.modPage.page.locator(e.screenShareVideo);
     await expect(modWhiteboardLocator, 'should display the same screenshot as taken before').toHaveScreenshot('moderator-share-camera-as-content.png', {
       maxDiffPixels: 1000,
     });
@@ -49,7 +48,7 @@ class Presentation extends MultiUsers {
     await this.userPage.wasRemoved(e.screenshareConnecting);
     await this.userPage.hasElement(e.screenShareVideo);
     await this.modPage.closeAllToastNotifications();
-    const viewerWhiteboardLocator = this.userPage.getLocator(e.screenShareVideo);
+    const viewerWhiteboardLocator = this.userPage.page.locator(e.screenShareVideo);
     await expect(viewerWhiteboardLocator).toHaveScreenshot('viewer-share-camera-as-content.png', {
       maxDiffPixels: 1000,
     });
@@ -110,7 +109,7 @@ class Presentation extends MultiUsers {
     // Skip check for screenshot on ci, due to the ci and the local machine generating two different image sizes
     // also because the slide location is different and inconsistent (it initially shakes to stabilize and then set incorrect location)
     if (!CI) {
-      const modWhiteboardLocator = this.modPage.getLocator(e.whiteboard);
+      const modWhiteboardLocator = this.modPage.page.locator(e.whiteboard);
       await expect(modWhiteboardLocator).toHaveScreenshot('moderator-new-presentation-screenshot.png', {
         maxDiffPixels: 1000,
       });
@@ -125,7 +124,7 @@ class Presentation extends MultiUsers {
     await this.userPage.reloadPage();
     await this.userPage.closeAudioModal();
     await this.userPage.closeAllToastNotifications();
-    const userWhiteboardLocator = this.userPage.getLocator(e.whiteboard);
+    const userWhiteboardLocator = this.userPage.page.locator(e.whiteboard);
 
     await expect(imageURLFirstPresentation).not.toBe(imageURLSecondPresentation);
 
@@ -156,8 +155,8 @@ class Presentation extends MultiUsers {
     await this.modPage.closeAllToastNotifications();
     await this.userPage.closeAllToastNotifications();
 
-    const modWhiteboardLocator = this.modPage.getLocator(e.whiteboard);
-    const userWhiteboardLocator = this.userPage.getLocator(e.whiteboard);
+    const modWhiteboardLocator = this.modPage.page.locator(e.whiteboard);
+    const userWhiteboardLocator = this.userPage.page.locator(e.whiteboard);
 
 
     const imageURLSecondPresentation = await this.modPage.page.evaluate(() => {
@@ -252,12 +251,12 @@ class Presentation extends MultiUsers {
     await this.modPage.waitAndClick(e.userListToggleBtn);
     const width1 = (await this.modPage.getElementBoundingBox(e.whiteboard)).width;
     // check if its off
-    const fitToWidthButtonLocator = this.modPage.getLocator(`${e.fitToWidthButton} > span>>nth=0`);
+    const fitToWidthButtonLocator = this.modPage.page.locator(`${e.fitToWidthButton} > span>>nth=0`);
     const fitToWidthBorderColorOff = await fitToWidthButtonLocator.evaluate((elem) => getComputedStyle(elem).borderColor);
     await expect(fitToWidthBorderColorOff, 'should match the white color').toBe('rgba(0, 0, 0, 0)');
 
     await this.modPage.waitAndClick(e.fitToWidthButton);
-    await sleep(500);
+    await this.modPage.page.waitForTimeout(500);
 
     //check if its on
     const fitToWidthBorderColorOn = await fitToWidthButtonLocator.evaluate((elem) => getComputedStyle(elem).borderColor);
@@ -289,8 +288,8 @@ class Presentation extends MultiUsers {
      * the following steps throwing "Error: ENOENT: no such file or directory" at the end of execution
      * due to somehow it's trying to take the screenshot of the tab that opened for the file download
      */
-    //! await this.modPage.handleDownload(this.modPage.getLocator(e.presentationDownloadBtn), testInfo);
-    //! await this.userPage.handleDownload(this.userPage.getLocator(e.presentationDownloadBtn), testInfo);
+    //! await this.modPage.handleDownload(this.modPage.page.locator(e.presentationDownloadBtn), testInfo);
+    //! await this.userPage.handleDownload(this.userPage.page.locator(e.presentationDownloadBtn), testInfo);
     // disable original presentation download
     await this.modPage.waitAndClick(e.actions);
     await this.modPage.waitAndClick(e.managePresentations);
@@ -315,7 +314,7 @@ class Presentation extends MultiUsers {
     await this.modPage.waitAndClick(e.sendPresentationInCurrentStateBtn);
     await this.modPage.hasElement(e.downloadPresentationToast);
     await this.userPage.hasElement(e.downloadPresentation, ELEMENT_WAIT_EXTRA_LONG_TIME);
-    const downloadPresentationLocator = this.userPage.getLocator(e.downloadPresentation);
+    const downloadPresentationLocator = this.userPage.page.locator(e.downloadPresentation);
     await this.userPage.handleDownload(downloadPresentationLocator, testInfo);
   }
 
@@ -335,7 +334,7 @@ class Presentation extends MultiUsers {
   async uploadAndRemoveAllPresentations() {
     await uploadSinglePresentation(this.modPage, e.uploadPresentationFileName);
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
-    await sleep(1000);  // timeout to avoid trying to get the slide data before it's ready
+    await this.modPage.page.waitForTimeout(1000);  // timeout to avoid trying to get the slide data before it's ready
 
     const modSlides1 = await getSlideOuterHtml(this.modPage);
     const userSlides1 = await getSlideOuterHtml(this.userPage);
@@ -395,7 +394,7 @@ class Presentation extends MultiUsers {
 
   async presentationFullscreen() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
-    const presentationLocator = this.modPage.getLocator(e.presentationContainer);
+    const presentationLocator = this.modPage.page.locator(e.presentationContainer);
     const height = parseInt(await getCurrentPresentationHeight(presentationLocator));
 
     await this.modPage.waitAndClick(e.whiteboardOptionsButton);
@@ -410,7 +409,7 @@ class Presentation extends MultiUsers {
   async presentationSnapshot() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.waitAndClick(e.whiteboardOptionsButton);
-    const presentationSnapshotLocator = this.modPage.getLocator(e.presentationSnapshot);
+    const presentationSnapshotLocator = this.modPage.page.locator(e.presentationSnapshot);
     await this.modPage.handleDownload(presentationSnapshotLocator, this.modPage.testInfo);
   }
 
@@ -436,11 +435,11 @@ class Presentation extends MultiUsers {
   async zoom() {
     await this.modPage.waitForSelector(e.resetZoomButton, ELEMENT_WAIT_LONGER_TIME);
 
-    const wbBox = await this.modPage.getLocator(e.whiteboard);
+    const wbBox = await this.modPage.page.locator(e.whiteboard);
 
-    const zoomOutButtonLocator = this.modPage.getLocator(e.zoomOutButton);
+    const zoomOutButtonLocator = this.modPage.page.locator(e.zoomOutButton);
     await expect(zoomOutButtonLocator, 'should hte zoom out button be disabled').toBeDisabled();
-    const resetZoomButtonLocator = this.modPage.getLocator(e.resetZoomButton);
+    const resetZoomButtonLocator = this.modPage.page.locator(e.resetZoomButton);
     await expect(resetZoomButtonLocator, 'should the reset zoom button contain the default value text').toContainText(defaultZoomLevel);
 
     //Zoom In 150%
@@ -469,7 +468,7 @@ class Presentation extends MultiUsers {
   async selectSlide() {
     await this.modPage.waitForSelector(e.skipSlide);
 
-    const wbBox = await this.modPage.getLocator(e.whiteboard);
+    const wbBox = await this.modPage.page.locator(e.whiteboard);
 
     await this.modPage.selectSlide('Slide 10');
     await expect(wbBox).toHaveScreenshot('moderator1-select-slide10.png');
@@ -481,5 +480,3 @@ class Presentation extends MultiUsers {
     await expect(wbBox).toHaveScreenshot('moderator1-select-slide13.png');
   }
 }
-
-exports.Presentation = Presentation;

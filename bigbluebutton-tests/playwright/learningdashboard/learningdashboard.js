@@ -1,14 +1,13 @@
-const { MultiUsers } = require("../user/multiusers");
-const e = require('../core/elements');
-const { openPublicChat } = require('../chat/util');
-const { expect } = require("@playwright/test");
-const Page = require("../core/page");
-const { sleep } = require("../core/helpers");
-const { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME } = require("../core/constants");
-const { openPoll, timeInSeconds, rowFilter } = require("./util");
-const { checkTextContent } = require('../core/util');
+import { MultiUsers } from '../user/multiusers';
+import { elements as e } from '../core/elements.ts';
+import { openPublicChat } from '../chat/util';
+import { expect } from '@playwright/test';
+import { Page } from '../core/page.ts';
+import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME } from '../core/constants.ts';
+import { openPoll, timeInSeconds, rowFilter } from './util';
+import { checkTextContent } from '../core/util.ts';
 
-class LearningDashboard extends MultiUsers {
+export class LearningDashboard extends MultiUsers {
   constructor(browser, context) {
     super(browser, context);
   }
@@ -41,10 +40,10 @@ class LearningDashboard extends MultiUsers {
     await this.modPage.waitAndClick(e.confirmRecording);
     await this.modPage.hasText(e.recordingIndicator, '00:0000:00');
 
-    const timeLocator = this.dashboardPage.getLocator(e.userOnlineTime);
+    const timeLocator = this.dashboardPage.page.locator(e.userOnlineTime);
     const timeContent = await (timeLocator).textContent();
     const time = timeInSeconds(timeContent);
-    await sleep(1000);
+    await this.dashboardPage.page.waitForTimeout(1000);
     await this.dashboardPage.reloadPage();
     const timeContentGreater = await (timeLocator).textContent();
     const timeGreater = timeInSeconds(timeContentGreater);
@@ -64,7 +63,7 @@ class LearningDashboard extends MultiUsers {
     await this.modPage.waitAndClick(e.cancelPollBtn);
 
     //ABCD
-    await this.modPage.getLocator(e.pollQuestionArea).fill(' ');
+    await this.modPage.page.locator(e.pollQuestionArea).fill(' ');
     await this.modPage.type(e.pollQuestionArea, 'ABCD?');
     await this.modPage.waitAndClick(e.pollLetterAlternatives);
     await this.modPage.waitAndClick(e.startPoll);
@@ -73,7 +72,7 @@ class LearningDashboard extends MultiUsers {
     await this.modPage.waitAndClick(e.cancelPollBtn);
 
     //Yes/No/Abstention
-    await this.modPage.getLocator(e.pollQuestionArea).fill(' ');
+    await this.modPage.page.locator(e.pollQuestionArea).fill(' ');
     await this.modPage.type(e.pollQuestionArea, 'Yes/No/Abstention?');
     await this.modPage.waitAndClick(e.pollYesNoAbstentionBtn);
     await this.modPage.waitAndClick(e.startPoll);
@@ -82,7 +81,7 @@ class LearningDashboard extends MultiUsers {
     await this.modPage.waitAndClick(e.cancelPollBtn);
 
     //User Response
-    await this.modPage.getLocator(e.pollQuestionArea).fill(' ');
+    await this.modPage.page.locator(e.pollQuestionArea).fill(' ');
     await this.modPage.type(e.pollQuestionArea, 'User response?');
     await this.modPage.waitAndClick(e.userResponseBtn);
     await this.modPage.waitAndClick(e.startPoll);
@@ -122,11 +121,11 @@ class LearningDashboard extends MultiUsers {
     await this.dashboardPage.reloadPage();
 
     // Meeting Time Duration check
-    const timeLocator = this.dashboardPage.getLocator(e.meetingDurationTimeDashboard);
+    const timeLocator = this.dashboardPage.page.locator(e.meetingDurationTimeDashboard);
     const timeContent = await (timeLocator).textContent();
     const array = timeContent.split(':').map(Number);
     const firstTime = array[1] * 3600 + array[2] * 60 + array[3];
-    await sleep(10000);
+    await this.dashboardPage.page.waitForTimeout(10000);
     await this.dashboardPage.reloadPage();
     const timeContentGreater = await (timeLocator).textContent();
     const arrayGreater = timeContentGreater.split(':').map(Number);
@@ -159,7 +158,7 @@ class LearningDashboard extends MultiUsers {
     await this.modPage.logoutFromMeeting();
     await this.modPage.waitAndClick('button');
 
-    const downloadSessionLocator = this.dashboardPage.getLocator(e.downloadSessionLearningDashboard);
+    const downloadSessionLocator = this.dashboardPage.page.locator(e.downloadSessionLearningDashboard);
     const dataCSV = await this.dashboardPage.handleDownload(downloadSessionLocator, this.modPage.testInfo);
 
     const dataToCheck = [
@@ -179,5 +178,3 @@ class LearningDashboard extends MultiUsers {
     await checkTextContent(dataCSV.content, dataToCheck);
   }
 }
-
-exports.LearningDashboard = LearningDashboard;

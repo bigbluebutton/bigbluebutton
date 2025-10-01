@@ -1,11 +1,10 @@
-const { expect } = require('@playwright/test');
-const Page = require('../core/page');
-const e = require('../core/elements');
-const { checkVideoUploadData, uploadBackgroundVideoImage, webcamContentCheck } = require('./util');
-const { VIDEO_LOADING_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
-const { sleep } = require('../core/helpers');
+import { expect } from '@playwright/test';
+import { Page } from '../core/page.ts';
+import { elements as e } from '../core/elements.ts';
+import { checkVideoUploadData, uploadBackgroundVideoImage, webcamContentCheck } from './util';
+import { VIDEO_LOADING_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME } from '../core/constants.ts';
 
-class Webcam extends Page {
+export class Webcam extends Page {
   constructor(browser, page) {
     super(browser, page);
   }
@@ -45,10 +44,10 @@ class Webcam extends Page {
     await this.waitForSelector(e.leaveVideo, VIDEO_LOADING_WAIT_TIME);
     await this.hasElement(e.webcamMirroredVideoContainer, 'should display the webcam mirrored video container after the camera is shared');
 
-    const mirroredWebcamLocator = await this.getLocator(e.webcamMirroredVideoContainer);
+    const mirroredWebcamLocator = await this.page.locator(e.webcamMirroredVideoContainer);
     await expect(mirroredWebcamLocator).toHaveScreenshot('webcam-mirrored-view.png');
 
-    const dropdownWebcamButton = await this.getLocator(e.dropdownWebcamButton).filter({ hasText: this.username })
+    const dropdownWebcamButton = await this.page.locator(e.dropdownWebcamButton).filter({ hasText: this.username })
 
     await dropdownWebcamButton.click();
     await this.hasElement(e.mirrorWebcamBtn, 'should display the webcam mirror button');
@@ -57,7 +56,7 @@ class Webcam extends Page {
     await this.getVisibleLocator(e.mirrorWebcamBtn).click();
     await this.hasElement(e.webcamContainer, 'should display the video container after disabling webcam mirroring');
 
-    const webcamLocator = await this.getLocator(e.webcamContainer);
+    const webcamLocator = await this.page.locator(e.webcamContainer);
     await expect(webcamLocator).toHaveScreenshot('webcam-view.png');
 
     await dropdownWebcamButton.click();
@@ -97,10 +96,10 @@ class Webcam extends Page {
     await this.waitAndClick(e.backgroundSettingsTitle);
     await this.waitForSelector(e.noneBackgroundButton);
     await this.waitAndClick(`${e.selectDefaultBackground}[aria-label="Home"]`);
-    await sleep(1000);
+    await this.page.waitForTimeout(1000);
     await this.waitAndClick(e.startSharingWebcam);
     await this.waitForSelector(e.currentUserLocalStreamVideo);
-    const webcamVideoLocator = await this.getLocator(e.currentUserLocalStreamVideo);
+    const webcamVideoLocator = await this.page.locator(e.currentUserLocalStreamVideo);
     await expect(webcamVideoLocator).toHaveScreenshot('webcam-with-home-background.png');
   }
 
@@ -115,9 +114,9 @@ class Webcam extends Page {
     });
     await this.waitAndClick(e.dropdownWebcamButton);
     await this.waitAndClick(e.webcamsFullscreenButton);
-    await sleep(1000);  // timeout to ensure the video is in fullscreen
+    await this.page.waitForTimeout(1000);  // timeout to ensure the video is in fullscreen
     // get fullscreen webcam size
-    const { width, height } = await this.getLocator('video').boundingBox();
+    const { width, height } = await this.page.locator('video').boundingBox();
     await expect(width + 1, 'should the width to be the same as window width').toBe(windowWidth);  // not sure why there is a difference of 1 pixel
     await expect(height, 'should the height to be the same as window height').toBe(windowHeight);
   }
@@ -129,14 +128,14 @@ class Webcam extends Page {
 
     await uploadBackgroundVideoImage(this);
     await this.waitAndClick(e.selectCustomBackground);
-    await sleep(1000);
+    await this.page.waitForTimeout(1000);
     await this.waitAndClick(e.startSharingWebcam);
     await this.waitForSelector(e.currentUserLocalStreamVideo);
 
     await this.waitAndClick(e.dropdownWebcamButton);
     await this.waitAndClick(e.selfViewDisableBtn);
 
-    const webcamVideoLocator = await this.getLocator(e.webcamConnecting);
+    const webcamVideoLocator = await this.page.locator(e.webcamConnecting);
     await expect(webcamVideoLocator).toHaveScreenshot('disable-self-view.png');
   }
 
@@ -150,10 +149,10 @@ class Webcam extends Page {
 
     // Apply
     await this.waitAndClick(e.selectCustomBackground);
-    await sleep(1000);
+    await this.page.waitForTimeout(1000);
     await this.waitAndClick(e.startSharingWebcam);
     await this.waitForSelector(e.currentUserLocalStreamVideo);
-    const webcamVideoLocator = await this.getLocator(e.currentUserLocalStreamVideo);
+    const webcamVideoLocator = await this.page.locator(e.currentUserLocalStreamVideo);
     await expect(webcamVideoLocator).toHaveScreenshot('webcam-with-new-background.png');
 
     // Remove
@@ -223,5 +222,3 @@ class Webcam extends Page {
     await expect(this.page).toHaveScreenshot('drag-drop-sidebar-bottom.png', { mask: [this.getLocator(e.currentUserLocalStreamVideo)] });
   }
 }
-
-exports.Webcam = Webcam;

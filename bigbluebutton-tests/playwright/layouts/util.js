@@ -1,7 +1,7 @@
-const { expect } = require('@playwright/test');
-const e = require('../core/elements');
+import { expect } from '@playwright/test';
+import { elements as e } from '../core/elements.ts';
 
-async function reopenChatSidebar(page) {
+export async function reopenChatSidebar(page) {
   await page.waitAndClick(e.userListToggleBtn);
   try {
     await page.hasElement(e.hidePublicChat);
@@ -11,10 +11,10 @@ async function reopenChatSidebar(page) {
   }
 }
 
-async function checkScreenshots(layoutTest, description, maskedSelectors, screenshotName, screenshotNumber) {
-  const getMaskedLocators = (page) => Array.isArray(maskedSelectors)
-  ? maskedSelectors.map(selector => page.getLocator(selector))
-  : [page.getLocator(maskedSelectors)];
+export async function checkScreenshots(layoutTest, description, maskedSelectors, screenshotName, screenshotNumber) {
+  const getMaskedLocators = (testPage) => Array.isArray(maskedSelectors)
+  ? maskedSelectors.map(selector => testPage.page.locator(selector))
+  : [testPage.page.locator(maskedSelectors)];
 
   const modPageMaskedSelectors = getMaskedLocators(layoutTest.modPage);
   await expect(layoutTest.modPage.page, description).toHaveScreenshot(`moderator-${screenshotName}${screenshotNumber ? '-' + screenshotNumber : ''}.png`, {
@@ -27,10 +27,10 @@ async function checkScreenshots(layoutTest, description, maskedSelectors, screen
   });
 }
 
-async function checkDefaultLocationReset(test) {
-  await test.getLocator(e.webcamContainer).first().hover({ timeout: 5000 });
+export async function checkDefaultLocationReset(test) {
+  await test.page.locator(e.webcamContainer).first().hover({ timeout: 5000 });
   await test.page.mouse.down();
-  await test.getLocator(e.whiteboard).hover({ timeout: 5000 });
+  await test.page.locator(e.whiteboard).hover({ timeout: 5000 });
   
   // checking all dropAreas being displayed
   await test.hasElement(e.dropAreaBottom);
@@ -40,7 +40,3 @@ async function checkDefaultLocationReset(test) {
   await test.hasElement(e.dropAreaSidebarBottom);
   await test.page.mouse.up();
 }
-
-exports.reopenChatSidebar = reopenChatSidebar;
-exports.checkScreenshots = checkScreenshots;
-exports.checkDefaultLocationReset = checkDefaultLocationReset;

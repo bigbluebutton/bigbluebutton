@@ -1,5 +1,5 @@
-const { test } = require('../fixtures');
-const { ConnectionStatus } = require('./connectionStatus');
+import { test } from '../fixtures';
+import { ConnectionStatus } from './connectionStatus';
 
 test.describe.parallel('Connection Status', { tag: '@ci' } , () => {
   test('Open connection Status Modal', async ({ browser, context, page }, testInfo) => {

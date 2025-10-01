@@ -1,33 +1,33 @@
-const { expect } = require('@playwright/test');
-const path = require('path');
-const e = require('../core/elements');
-const {
+import { expect } from '@playwright/test';
+import path from 'path';
+import { elements as e } from '../core/elements.ts';
+import {
   ELEMENT_WAIT_TIME,
   UPLOAD_PDF_WAIT_TIME,
   ELEMENT_WAIT_EXTRA_LONG_TIME,
-} = require('../core/constants');
+} from '../core/constants.ts';
 
-async function checkSvgIndex(test, element) {
-  const check = await test.page.evaluate(([el, slideImg]) => {
+export async function checkSvgIndex(testPage, element) {
+  const check = await testPage.page.evaluate(([el, slideImg]) => {
     return document.querySelector(slideImg).outerHTML.indexOf(el) !== -1;
   }, [element, e.currentSlideImg]);
   await expect(check).toBeTruthy();
 }
 
-async function getSlideOuterHtml(testPage) {
+export async function getSlideOuterHtml(testPage) {
   await testPage.waitForSelector(e.currentSlideImg);
   return testPage.page.evaluate(([slideImg]) => {
     return document.querySelector(slideImg).outerHTML;
   }, [e.currentSlideImg]);
 }
 
-async function getCurrentPresentationHeight(locator) {
+export async function getCurrentPresentationHeight(locator) {
   return locator.evaluate((e) => {
     return window.getComputedStyle(e).getPropertyValue("height");
   });
 }
 
-async function uploadSinglePresentation(testPage, fileName, uploadTimeout = UPLOAD_PDF_WAIT_TIME) {
+export async function uploadSinglePresentation(testPage, fileName, uploadTimeout = UPLOAD_PDF_WAIT_TIME) {
   const firstSlideSrc = await testPage.page.evaluate(selector => document.querySelector(selector)
     ?.style.backgroundImage.split('"')[1],
     [e.currentSlideImg],
@@ -52,7 +52,7 @@ async function uploadSinglePresentation(testPage, fileName, uploadTimeout = UPLO
   await hasCurrentPresentationToastElement(testPage, { timeout: uploadTimeout });
 }
 
-async function uploadMultiplePresentations(testPage, fileNames, uploadTimeout = ELEMENT_WAIT_EXTRA_LONG_TIME) {
+export async function uploadMultiplePresentations(testPage, fileNames, uploadTimeout = ELEMENT_WAIT_EXTRA_LONG_TIME) {
   await testPage.waitAndClick(e.actions);
   await testPage.waitAndClick(e.managePresentations);
   await testPage.hasElement(e.presentationFileUpload, 'should display the modal for uploading a new presentation after opening the manage presentations');
@@ -67,33 +67,23 @@ async function uploadMultiplePresentations(testPage, fileNames, uploadTimeout = 
   await hasCurrentPresentationToastElement(testPage, { timeout: uploadTimeout });
 }
 
-async function skipSlide(page) {
-  const selectSlideLocator = page.getLocator(e.skipSlide);
+export async function skipSlide(testPage) {
+  const selectSlideLocator = testPage.page.locator(e.skipSlide);
   const currentSlideNumber = await selectSlideLocator.inputValue();
-  await page.waitAndClick(e.nextSlide);
+  await testPage.waitAndClick(e.nextSlide);
   await expect(selectSlideLocator).not.toHaveValue(currentSlideNumber);
 }
 
-async function getCurrentPresentationToastLocator(page) {
-  return page.getLocator(e.smallToastMsg).filter({ hasText: e.defaultCurrentPresentationLabel });
+export async function getCurrentPresentationToastLocator(testPage) {
+  return testPage.page.locator(e.smallToastMsg).filter({ hasText: e.defaultCurrentPresentationLabel });
 }
 
-async function hasCurrentPresentationToastElement(page, { description, timeout = ELEMENT_WAIT_TIME } = {}) {
-  const toastLocator = await getCurrentPresentationToastLocator(page);
+export async function hasCurrentPresentationToastElement(testPage, { description, timeout = ELEMENT_WAIT_TIME } = {}) {
+  const toastLocator = await getCurrentPresentationToastLocator(testPage);
   await expect(toastLocator, description ?? 'should display the current presentation element after uploading the presentation').toBeVisible({ timeout });
 }
 
-async function hasTextOnCurrentPresentationToast(page, text, description, timeout = ELEMENT_WAIT_TIME) {
+export async function hasTextOnCurrentPresentationToast(page, text, description, timeout = ELEMENT_WAIT_TIME) {
   const toastLocator = await getCurrentPresentationToastLocator(page);
   await expect(toastLocator, description).toContainText(text, { timeout });
 }
-
-exports.checkSvgIndex = checkSvgIndex;
-exports.getSlideOuterHtml = getSlideOuterHtml;
-exports.uploadSinglePresentation = uploadSinglePresentation;
-exports.uploadMultiplePresentations = uploadMultiplePresentations;
-exports.getCurrentPresentationHeight = getCurrentPresentationHeight;
-exports.skipSlide = skipSlide;
-exports.getCurrentPresentationToastLocator = getCurrentPresentationToastLocator;
-exports.hasCurrentPresentationToastElement = hasCurrentPresentationToastElement;
-exports.hasTextOnCurrentPresentationToast = hasTextOnCurrentPresentationToast;

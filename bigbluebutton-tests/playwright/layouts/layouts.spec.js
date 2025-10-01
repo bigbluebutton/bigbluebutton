@@ -1,6 +1,6 @@
-const { test } = require('../fixtures');
-const { Layouts } = require('./layouts');
-const { initializePages } = require('../core/helpers');
+import { test } from '../fixtures';
+import { Layouts } from './layouts';
+import { initializePages } from '../core/helpers.ts';
 
 test.describe.parallel('Layout', { tag: '@ci' }, () => {
   const layouts = new Layouts();

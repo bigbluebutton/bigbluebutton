@@ -1,12 +1,10 @@
-const { expect } = require('@playwright/test');
-const { openAboutModal, openSettings, getLocaleValues } = require('./util');
-const e = require('../core/elements');
-const { CI } = require('../core/constants');
-const { MultiUsers } = require('../user/multiusers');
-const { sleep } = require('../core/helpers');
+import { expect } from '@playwright/test';
+import { openAboutModal, openSettings, getLocaleValues } from './util';
+import { elements as e } from '../core/elements.ts';
+import { CI } from '../core/constants.ts';
+import { MultiUsers } from '../user/multiusers';
 
-
-class Options extends MultiUsers {
+export class Options extends MultiUsers {
   constructor(browser, context) {
     super(browser, context);
   }
@@ -85,7 +83,7 @@ class Options extends MultiUsers {
       `${e.sendButton} span[color]`,
       `${e.joinAudio} span[color]`,
       `${e.minimizePresentation} span[color]`,
-    ].map(e => this.modPage.getLocator(e));
+    ].map(e => this.modPage.page.locator(e));
 
     const getBackgroundColorComputed = (node) => getComputedStyle(node).backgroundColor;
     const getTextColorComputed = (node) => getComputedStyle(node).color;
@@ -104,7 +102,7 @@ class Options extends MultiUsers {
     await openSettings(this.modPage);
     await this.modPage.waitAndClickElement(e.darkModeToggleBtn);
     await this.modPage.waitAndClick(e.modalConfirmButton);
-    await sleep(500); // wait for the changes to be applied
+    await this.modPage.page.waitForTimeout(500); // wait for the changes to be applied
     expect.soft(userListContainerBackgroundColor).not.toEqual(await userListContainerLocator.evaluate(getBackgroundColorComputed), 'should the user list container background color be changed');
     expect.soft(whiteboardOptionsButtonBackground).not.toEqual(await whiteboardOptionsButtonLocator.evaluate(getBackgroundColorComputed), 'should the whiteboard options button background color be changed');
     expect.soft(sendButtonBackgroundColor).not.toEqual(await sendButtonLocator.evaluate(getBackgroundColorComputed), 'should the send button background color be changed');
@@ -116,7 +114,7 @@ class Options extends MultiUsers {
     expect.soft(chatUserMessageTextColor).not.toEqual(await chatUserMessageTextLocator.evaluate(getTextColorComputed), 'should the chat user message text color be changed');
 
     if (!CI) {
-      const modPageLocator = this.modPage.getLocator('body');
+      const modPageLocator = this.modPage.page.locator('body');
       const screenshotOptions = {
         maxDiffPixels: 1000,
       };
@@ -136,7 +134,7 @@ class Options extends MultiUsers {
       e.presentationTitle,
       e.chatButton,
       e.messageTitle,
-    ].map(e => this.modPage.getLocator(e));
+    ].map(e => this.modPage.page.locator(e));
     const presentationTitleFontSize = await presentationTitleLocator.evaluate(getFontSizeNumber);
     const chatButtonFontSize = await chatButtonLocator.evaluate(getFontSizeNumber);
     const messageTitleFontSize = await messageTitleLocator.evaluate(getFontSizeNumber);
@@ -145,13 +143,13 @@ class Options extends MultiUsers {
     await openSettings(this.modPage);
     await this.modPage.waitAndClick(e.increaseFontSize);
     await this.modPage.waitAndClick(e.modalConfirmButton);
-    await sleep(500); // wait for the changes to be applied
+    await this.modPage.page.waitForTimeout(500); // wait for the changes to be applied
     expect.soft(await presentationTitleLocator.evaluate(getFontSizeNumber)).toBeGreaterThan(presentationTitleFontSize, 'should the presentation title font size be increased');
     expect.soft(await chatButtonLocator.evaluate(getFontSizeNumber)).toBeGreaterThan(chatButtonFontSize, 'should the chat button font size be increased');
     expect.soft(await messageTitleLocator.evaluate(getFontSizeNumber)).toBeGreaterThan(messageTitleFontSize, 'should the message title font size be increased');
 
     if (!CI) {
-      const modPageLocator = this.modPage.getLocator('body');
+      const modPageLocator = this.modPage.page.locator('body');
       const screenshotOptions = {
         maxDiffPixels: 1000,
       };
@@ -165,7 +163,7 @@ class Options extends MultiUsers {
     await this.modPage.hasElement(e.wbToolbar, 'should display the whiteboard toolbar when meeting starts');
     await this.modPage.closeAllToastNotifications();
 
-    const whiteboardLocator = await this.modPage.getLocator(e.whiteboard);
+    const whiteboardLocator = await this.modPage.page.locator(e.whiteboard);
     await expect(whiteboardLocator).toHaveScreenshot('whiteboard-with-toolbar-visible.png');
 
     await openSettings(this.modPage);
@@ -175,7 +173,7 @@ class Options extends MultiUsers {
     await this.modPage.waitAndClick(e.modalConfirmButton);
     await this.modPage.waitForSelector(e.whiteboard);
 
-    const wbToolbarLocator = this.modPage.getLocator(e.wbToolbar);
+    const wbToolbarLocator = this.modPage.page.locator(e.wbToolbar);
     await this.modPage.hoverElement(e.whiteboard);
     await expect(wbToolbarLocator).toHaveClass(/fade-in/);
     await this.modPage.hasElement(e.wbToolbar, 'should display the whiteboard toolbar when hover the whiteboard');
@@ -188,5 +186,3 @@ class Options extends MultiUsers {
     });
   }
 }
-
-exports.Options = Options;

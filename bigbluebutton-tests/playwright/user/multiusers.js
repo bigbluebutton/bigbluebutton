@@ -1,14 +1,13 @@
-const { expect } = require('@playwright/test');
-const playwright = require("playwright");
-const Page = require('../core/page');
-const e = require('../core/elements');
-const { sleep } = require('../core/helpers');
-const { checkTextContent } = require('../core/util');
-const { checkAvatarIcon, checkIsPresenter, checkMutedUser } = require('./util');
-const { getSettings } = require('../core/settings');
-const { ELEMENT_WAIT_TIME } = require('../core/constants');
+import { expect } from '@playwright/test';
+import playwright from 'playwright';
+import { Page } from '../core/page.ts';
+import { elements as e } from '../core/elements.ts';
+import { checkTextContent } from '../core/util.ts';
+import { checkAvatarIcon, checkIsPresenter, checkMutedUser } from './util';
+import { getSettings } from '../core/settings.ts';
+import { ELEMENT_WAIT_TIME } from '../core/constants.ts';
 
-class MultiUsers {
+export class MultiUsers {
   constructor(browser, context) {
     this.browser = browser;
     this.context = context;
@@ -127,7 +126,7 @@ class MultiUsers {
     await this.userPage.waitAndClick(e.raiseHandBtn);
     await this.userPage.hasElement(e.lowerHandBtn, 'should display the lower hand button after raising the hand');
     await this.modPage.comparingSelectorsBackgroundColor(e.avatarsWrapperAvatar, `${e.userListItem} div:first-child`);
-    await sleep(1000);
+    await this.modPage.page.waitForTimeout(1000);
     await this.userPage.waitAndClick(e.lowerHandBtn);
     await this.userPage.hasElement(e.raiseHandBtn, 'should display the raise hand button after lowering the hand');
   }
@@ -156,7 +155,7 @@ class MultiUsers {
 
   async saveUserNames(testInfo) {
     await this.modPage.waitAndClick(e.manageUsers);
-    const downloadUserNamesListLocator = this.modPage.getLocator(e.downloadUserNamesList);
+    const downloadUserNamesListLocator = this.modPage.page.locator(e.downloadUserNamesList);
     const { content } = await this.modPage.handleDownload(downloadUserNamesListLocator, testInfo);
 
     const dataToCheck = [
@@ -181,7 +180,7 @@ class MultiUsers {
     await this.modPage2.hasNElements(e.webcamContainer, 2, 'should display the other two webcams for Mod2');
     await this.userPage.hasNElements(e.webcamContainer, 2, 'should display the other two webcams for Attendee');
     // pin first webcam (Mod2)
-    await this.modPage.getLocator(e.dropdownWebcamButton)
+    await this.modPage.page.locator(e.dropdownWebcamButton)
       .filter({ hasText: this.modPage2.username })
       .click();
     await this.modPage.getVisibleLocator(e.pinWebcamBtn).click();
@@ -190,7 +189,7 @@ class MultiUsers {
     await this.modPage2.hasText(`:nth-match(${e.dropdownWebcamButton}, 1)`, this.modPage2.username, 'should display the username of Mod2 on the pinned webcam for Mod2');
     await this.modPage2.hasText(`:nth-match(${e.dropdownWebcamButton}, 1)`, this.modPage2.username, 'should display the username of Mod2 on the pinned webcam for the Attendee');
     // pin second webcam (user)
-    await this.modPage.getLocator(e.dropdownWebcamButton)
+    await this.modPage.page.locator(e.dropdownWebcamButton)
       .filter({ hasText: this.userPage.username })
       .click();
     await this.modPage.getVisibleLocator(e.pinWebcamBtn).click();
@@ -212,7 +211,7 @@ class MultiUsers {
     await this.userPage2.shareWebcam();
 
     const user2DropdownWebcamButtonForModerator =
-      await this.modPage.getLocator(e.dropdownWebcamButton).filter({ hasText: this.userPage2.username })
+      await this.modPage.page.locator(e.dropdownWebcamButton).filter({ hasText: this.userPage2.username })
 
     await user2DropdownWebcamButtonForModerator.click();
 
@@ -227,7 +226,7 @@ class MultiUsers {
     await this.userPage2.hasText(`:nth-match(${e.dropdownWebcamButton}, 1)`, this.userPage2.username, 'should display the username of User2 on the first webcam for User2');
 
     const user2DropdownWebcamButtonForUser1 =
-      await this.userPage.getLocator(e.dropdownWebcamButton).filter({ hasText: this.userPage2.username })
+      await this.userPage.page.locator(e.dropdownWebcamButton).filter({ hasText: this.userPage2.username })
 
     await user2DropdownWebcamButtonForUser1.click()
     await this.userPage.getVisibleLocator(e.focusWebcamBtn).click();
@@ -368,9 +367,9 @@ class MultiUsers {
     await this.modPage.waitForSelector(e.whiteboard);
     await this.modPage.waitAndClick(e.reactionsButton);
     await this.modPage.waitAndClick(smilingEmojiReaction);
-    const emojiRainLocator = this.modPage.getLocator(e.emojiRain);
+    const emojiRainLocator = this.modPage.page.locator(e.emojiRain);
     await expect(emojiRainLocator, 'should display the emoji rain element when enabled').toHaveCount(5, { timeout: ELEMENT_WAIT_TIME });
-    await sleep(1000);
+    await this.modPage.page.waitForTimeout(1000);
     await expect(emojiRainLocator, 'should stop displaying the emoji rain element after a second').toHaveCount(0, { timeout: ELEMENT_WAIT_TIME });
   }
 
@@ -398,7 +397,7 @@ class MultiUsers {
   async leaveMeeting() {
     await this.modPage.waitForSelector(e.whiteboard);
 
-    const modPageUserList = await this.modPage.getLocator(e.userListItem);
+    const modPageUserList = await this.modPage.page.locator(e.userListItem);
 
     await expect(modPageUserList).toHaveCount(2);
     await this.modPage.hasElementCount(e.userListItem, 2, 'should display the two users on the user list for the moderator, self not included in the count');
@@ -409,7 +408,7 @@ class MultiUsers {
     await this.modPage.hasElement(e.meetingEndedModal, 'should display the meeting ended modal for the moderator');
     await this.modPage.hasElement(e.redirectButton, 'should display the redirect button in the meeting ended modal');
 
-    const user1PageUserList = await this.userPage.getLocator(e.userListItem);
+    const user1PageUserList = await this.userPage.page.locator(e.userListItem);
 
     await expect(user1PageUserList).toHaveCount(1);
     await this.userPage.hasElementCount(e.userListItem, 1, 'should display the two users on the user list for User1, self not included in the count');
@@ -420,7 +419,7 @@ class MultiUsers {
     await this.userPage.hasElement(e.meetingEndedModal, 'should display the meeting ended modal for the attendee');
     await this.userPage.hasElement(e.redirectButton, 'should display the redirect button in the meeting ended modal');
 
-    const user2PageUserList = await this.userPage2.getLocator(e.userListItem);
+    const user2PageUserList = await this.userPage2.page.locator(e.userListItem);
 
     await expect(user2PageUserList).toHaveCount(0);
     await this.userPage2.hasElementCount(e.userListItem, 0, 'should display one user(self) for the User2, self not included in the count');
@@ -439,5 +438,3 @@ class MultiUsers {
     await this.userPage.hasElement(e.meetingEndedModal, 'should display the meeting ended modal for the attendee');
   }
 }
-
-exports.MultiUsers = MultiUsers;

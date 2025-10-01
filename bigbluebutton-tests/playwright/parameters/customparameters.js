@@ -1,16 +1,16 @@
-const { expect, default: test } = require('@playwright/test');
-const { MultiUsers } = require('../user/multiusers');
-const e = require('../core/elements');
-const c = require('./constants');
-const { VIDEO_LOADING_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_TIME, UPLOAD_PDF_WAIT_TIME } = require('../core/constants');
-const util = require('./util');
-const { sleep } = require('../core/helpers');
-const { getSettings } = require('../core/settings');
-const { uploadSinglePresentation } = require('../presentation/util');
-const utilScreenShare = require('../screenshare/util');
-const { checkScreenshots, checkDefaultLocationReset } = require('../layouts/util');
+import { expect } from '@playwright/test';
+import { MultiUsers } from '../user/multiusers';
+import { elements as e } from '../core/elements.ts';
+import { constants as c } from '../parameters/constants';
+import { VIDEO_LOADING_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_TIME, UPLOAD_PDF_WAIT_TIME } from '../core/constants.ts';
+import util from './util';
+import { getSettings } from '../core/settings.ts';
+import { uploadSinglePresentation } from '../presentation/util';
+import utilScreenShare from '../screenshare/util';
+import { reopenChatSidebar, checkScreenshots, checkDefaultLocationReset } from '../layouts/util';
+import path from 'path';
 
-class CustomParameters extends MultiUsers {
+export class CustomParameters extends MultiUsers {
   constructor(browser, context) {
     super(browser, context);
   }
@@ -56,7 +56,7 @@ class CustomParameters extends MultiUsers {
     await this.modPage.joinMicrophone();
     // Open private chat
     await this.modPage.waitAndClick(e.userListItem);
-    const lastUserStartPrivateChat = await this.modPage.getLocator(e.startPrivateChat).last();
+    const lastUserStartPrivateChat = await this.modPage.page.locator(e.startPrivateChat).last();
     await this.modPage.clickOnLocator(lastUserStartPrivateChat);
     await this.modPage.hasElement(e.hidePrivateChat, 'should display the hide private chat element when the user has the private chat open');
     // Check the later shortcuts that can be used after joining audio and opening private chat
@@ -146,7 +146,7 @@ class CustomParameters extends MultiUsers {
 
   async bannerColor(colorToRGB) {
     await this.modPage.hasElement(e.notificationBannerBar, 'should display the notifications banner bar');
-    const notificationLocator = this.modPage.getLocator(e.notificationBannerBar);
+    const notificationLocator = this.modPage.page.locator(e.notificationBannerBar);
     const notificationBarColor = await notificationLocator.evaluate((elem) => {
       return getComputedStyle(elem).backgroundColor;
     }, e.notificationBannerBar);
@@ -251,10 +251,10 @@ class CustomParameters extends MultiUsers {
     await this.modPage.waitAndClick(e.modalConfirmButton, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.hasElement(e.breakoutRoomsItem, 'should have the breakout room item');
 
-    await this.userPage.bringToFront();
+    await this.userPage.page.bringToFront();
     await this.userPage.waitAndClick(e.modalConfirmButton);
     const breakoutUserPage = await this.userPage.getLastTargetPage(this.userPage.context);
-    await breakoutUserPage.bringToFront();
+    await breakoutUserPage.page.bringToFront();
     await breakoutUserPage.closeAudioModal();
     
     await breakoutUserPage.hasElement(e.presentationTitle, 'should display the presentation title inside the breakout room');
@@ -277,7 +277,7 @@ class CustomParameters extends MultiUsers {
 
     await uploadSinglePresentation(this.modPage, e.pdfFileName, UPLOAD_PDF_WAIT_TIME);
 
-    const wbBox = await this.modPage.getLocator(e.whiteboard);
+    const wbBox = await this.modPage.page.locator(e.whiteboard);
     await expect(wbBox).toHaveScreenshot('moderator-with-minimalist-large-presentation.png');
 
     await this.modPage.hasElement(e.minimizePresentation, 'should display the restore presentation button for the moderator');
@@ -286,15 +286,15 @@ class CustomParameters extends MultiUsers {
   }
 
   async forceRestorePresentationOnNewEvents() {
-    const { presentationHidden, pollEnabled } = getSettings();
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    const { presentationHidden, pollEnabled } = this.userPage.settings
     if (!presentationHidden) {
       await this.userPage.waitForSelector(e.whiteboard);
-      await sleep(1000);  // wait for the whiteboard to be fully loaded and stable (zoom)
+      await this.userPage.page.waitForTimeout(1000);  // wait for the whiteboard to be fully loaded and stable (zoom)
       await this.userPage.waitAndClick(e.minimizePresentation);
     }
     await this.userPage.wasRemoved(e.whiteboard, 'should remove the whiteboard element for the attendee when minimized');
-    await sleep(1000);  // first minimize of presentation takes longer to be fully applied
+    await this.userPage.page.waitForTimeout(1000);  // first minimize of presentation takes longer to be fully applied
     // zoom in
     await this.modPage.waitAndClick(e.zoomInButton);
     await this.userPage.hasElement(e.whiteboard, 'should restore presentation when zooming in the slide');
@@ -410,7 +410,7 @@ class CustomParameters extends MultiUsers {
 
   async preferredCameraProfileTest() {
     await this.modPage.waitAndClick(e.joinVideo);
-    expect(await this.modPage.getLocator(e.selectCameraQualityId).inputValue(), 'should display the selector to choose the camera quality').toBe('low');
+    expect(await this.modPage.page.locator(e.selectCameraQualityId).inputValue(), 'should display the selector to choose the camera quality').toBe('low');
     await this.modPage.waitAndClick(e.startSharingWebcam);
   }
 
@@ -419,12 +419,12 @@ class CustomParameters extends MultiUsers {
     await this.modPage.waitAndClick(e.joinVideo);
     await this.modPage.hasElement(e.webcamSettingsModal, 'should display the webcam settings modal when clicking to join video');
     await this.modPage.waitAndClick(e.backgroundSettingsTitle);
-    const appleBackground = await this.modPage.getLocator(e.selectCustomBackground);
+    const appleBackground = await this.modPage.page.locator(e.selectCustomBackground);
     await expect(appleBackground).toHaveCount(1);
     await this.modPage.waitAndClick(e.selectCustomBackground);
     await this.modPage.waitAndClick(e.startSharingWebcam);
     await this.modPage.hasElement(e.webcamMirroredVideoContainer, 'should display the webcam (mirrored) container after successfully sharing webcam');
-    const webcamBackgroundURL = this.modPage.getLocator(e.webcamMirroredVideoContainer);
+    const webcamBackgroundURL = this.modPage.page.locator(e.webcamMirroredVideoContainer);
     await expect(webcamBackgroundURL).toHaveScreenshot('webcam-background-passing-url.png');
   }
 
@@ -445,7 +445,7 @@ class CustomParameters extends MultiUsers {
     
     await this.modPage.waitAndClick(e.userListToggleBtn);
     await this.modPage.wasRemoved(e.chatButton, '');
-    await sleep(1000); // wait for the whiteboard zoom to stabilize
+    await this.modPage.page.waitForTimeout(1000); // wait for the whiteboard zoom to stabilize
 
     await checkScreenshots(this, 'should the cameras be on the side of presentation', [e.webcamContainer, e.webcamMirroredVideoContainer], 'smart-layout', 2);
   }
@@ -465,12 +465,12 @@ class CustomParameters extends MultiUsers {
     await this.userPage.waitForSelector(e.whiteboard);
     
     await this.modPage.waitAndClick(e.joinVideo); 
-    await this.modPage.bringToFront();
+    await this.modPage.page.bringToFront();
     await this.modPage.hasElement(e.webcamMirroredVideoPreview, 'should display the video preview when sharing webcam ', ELEMENT_WAIT_TIME);
     await this.modPage.waitAndClick(e.startSharingWebcam);
 
     await this.userPage.waitAndClick(e.joinVideo); 
-    await this.userPage.bringToFront();
+    await this.userPage.page.bringToFront();
     await this.userPage.hasElement(e.webcamMirroredVideoPreview, 'should display the video preview when sharing webcam ', ELEMENT_WAIT_TIME);
     await this.userPage.waitAndClick(e.startSharingWebcam);
         
@@ -506,7 +506,7 @@ class CustomParameters extends MultiUsers {
     await this.userPage.waitForSelector(e.whiteboard);
 
     await this.modPage.wasRemoved(e.joinVideo);
-    await sleep(1000);
+    await this.modPage.page.waitForTimeout(1000);
 
     await checkScreenshots(this, 'should be the presentation only layout', [e.webcamContainer, e.webcamMirroredVideoContainer], 'enforce-presentation-only');
   }
@@ -518,7 +518,7 @@ class CustomParameters extends MultiUsers {
 
     await this.modPage.wasRemoved(e.chatMessages);
     await this.modPage.wasRemoved(e.userListContent);
-    await sleep(1000);
+    await this.modPage.page.waitForTimeout(1000);
 
     await checkScreenshots(this, 'should be the media only layout', [e.webcamContainer, e.webcamMirroredVideoContainer], 'enforce-media-only');
   }
@@ -543,10 +543,8 @@ class CustomParameters extends MultiUsers {
     await this.modPage.waitAndClick(e.userListToggleBtn);
     await this.modPage.wasRemoved(e.chatButton, 'should not be displayed the chat button');
     await this.modPage.wasRemoved(e.sendButton, 'should not be displayed the send button');
-    await sleep(1000);
+    await this.modPage.page.waitForTimeout(1000);
 
     await checkScreenshots(this, 'should be on custom layout', [e.webcamContainer, e.webcamMirroredVideoContainer], 'enforce-custom-layout', 4);
   }
 }
-
-exports.CustomParameters = CustomParameters;

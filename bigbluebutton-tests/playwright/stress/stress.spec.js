@@ -1,5 +1,5 @@
-const { test } = require('../fixtures');
-const { Stress } = require('./stress.js');
+import { test } from '../fixtures';
+import { Stress } from './stress.js';
 
 // @ci Note: Stress tests are not intended to be run in CI
 

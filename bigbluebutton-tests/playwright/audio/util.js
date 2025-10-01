@@ -1,8 +1,8 @@
-const { expect } = require('@playwright/test');
-const e = require('../core/elements');
-const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
+import { expect } from '@playwright/test';
+import { elements as e } from '../core/elements.ts';
+import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants.ts';
 
-async function connectMicrophone(testPage) {
+export async function connectMicrophone(testPage) {
   const {
     autoJoinAudioModal,
     skipEchoTest,
@@ -23,7 +23,7 @@ async function connectMicrophone(testPage) {
   await testPage.hasElement(e.audioDropdownMenu);
 }
 
-async function isAudioItemSelected(testPage, audioSelector) {
+export async function isAudioItemSelected(testPage, audioSelector) {
   await testPage.waitForSelector(audioSelector);
   const isSelected = await testPage.page.evaluate(([selector, icon]) => {
     return !!document.querySelector(selector).firstChild.querySelector(icon);
@@ -31,12 +31,8 @@ async function isAudioItemSelected(testPage, audioSelector) {
   await expect(isSelected).toBeTruthy();
 }
 
-async function ensureUnmuted(testPage) {
+export async function ensureUnmuted(testPage) {
   const isMuted = await testPage.checkElement(e.unmuteMicButton);
   if (isMuted) await testPage.waitAndClick(e.unmuteMicButton);
   await testPage.hasElement(e.isTalking, 'should be talking');
 }
-
-exports.connectMicrophone = connectMicrophone;
-exports.isAudioItemSelected = isAudioItemSelected;
-exports.ensureUnmuted = ensureUnmuted;

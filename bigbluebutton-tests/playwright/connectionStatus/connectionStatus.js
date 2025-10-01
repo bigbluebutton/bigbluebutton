@@ -1,10 +1,10 @@
-const { expect } = require('@playwright/test');
-const { MultiUsers } = require('../user/multiusers');
-const e = require('../core/elements');
-const { ELEMENT_WAIT_TIME } = require('../core/constants');
-const { openConnectionStatus, checkNetworkStatus } = require('./util');
+import { expect } from '@playwright/test';
+import { MultiUsers } from '../user/multiusers';
+import { elements as e } from '../core/elements.ts';
+import { ELEMENT_WAIT_TIME } from '../core/constants.ts';
+import { openConnectionStatus, checkNetworkStatus } from './util';
 
-class ConnectionStatus extends MultiUsers {
+export class ConnectionStatus extends MultiUsers {
   constructor(browser, context) {
     super(browser, context);
   }
@@ -55,5 +55,3 @@ class ConnectionStatus extends MultiUsers {
     await expect(check).toBeTruthy();
   }
 }
-
-exports.ConnectionStatus = ConnectionStatus;

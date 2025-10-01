@@ -1,20 +1,20 @@
-const { MultiUsers } = require('../user/multiusers');
-const e = require('../core/elements');
-const { expect } = require('@playwright/test');
-const { ELEMENT_WAIT_TIME } = require('../core/constants');
-const { sleep } = require('../core/helpers');
-const { checkTextContent } = require('../core/util');
-const { startSharedNotes,
+import { MultiUsers } from '../user/multiusers';
+import { elements as e } from '../core/elements.ts';
+import { expect } from '@playwright/test';
+import { ELEMENT_WAIT_TIME } from '../core/constants.ts';
+import { checkTextContent } from '../core/util.ts';
+import { 
+  startSharedNotes,
   getNotesLocator,
   getShowMoreButtonLocator,
   getExportButtonLocator,
   getExportPlainTextLocator,
   getSharedNotesUserWithoutPermission,
   getExportHTMLLocator,
-  getExportEtherpadLocator,
-} = require('./util');
+  getExportEtherpadLocator
+} from './util';
 
-class SharedNotes extends MultiUsers {
+export class SharedNotes extends MultiUsers {
   constructor(browser, context) {
     super(browser, context);
   }
@@ -47,7 +47,7 @@ class SharedNotes extends MultiUsers {
     await expect(notesLocator, 'should contain the edited text on shared notes').toContainText(editedMessage, { timeout: ELEMENT_WAIT_TIME });
 
     //! avoiding the following screenshot comparison due to https://github.com/microsoft/playwright/issues/18827
-    const wbBox = await this.modPage.getLocator(e.etherpadFrame);
+    const wbBox = await this.modPage.page.locator(e.etherpadFrame);
     await expect(wbBox).toHaveScreenshot('sharednotes-type.png', {
       maxDiffPixels: 100,
     });
@@ -144,7 +144,7 @@ class SharedNotes extends MultiUsers {
     await startSharedNotes(this.modPage);
     const notesLocator = getNotesLocator(this.modPage);
     await notesLocator.type('test');
-    await sleep(1000);
+    await this.modPage.page.waitForTimeout(1000);
 
     await this.modPage.waitAndClick(e.notesOptions);
     await this.modPage.waitAndClick(e.sendNotesToWhiteboard);
@@ -220,7 +220,7 @@ class SharedNotes extends MultiUsers {
     await startSharedNotes(this.modPage);
     const notesLocator = getNotesLocator(this.modPage);
     await notesLocator.type('Hello');
-    await sleep(1000);  // avoid pinning notes before the text is fully applied
+    await this.modPage.page.waitForTimeout(1000);  // avoid pinning notes before the text is fully applied
     // pin notes
     await this.modPage.waitAndClick(e.notesOptions);
     await this.modPage.waitAndClick(e.pinNotes);
@@ -300,5 +300,3 @@ class SharedNotes extends MultiUsers {
     await this.modPage.press('ArrowLeft');
   }
 }
-
-exports.SharedNotes = SharedNotes;

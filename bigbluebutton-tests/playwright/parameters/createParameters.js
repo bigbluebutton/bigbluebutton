@@ -1,12 +1,13 @@
-const { expect } = require('@playwright/test');
-const { MultiUsers } = require('../user/multiusers');
-const e = require('../core/elements');
-const { messageModerator } = require('../parameters/constants');
-const { checkScreenshots, checkDefaultLocationReset } = require('../layouts/util');
-const { ELEMENT_WAIT_TIME, VIDEO_LOADING_WAIT_TIME } = require('../core/constants');
-const { sleep } = require('../core/helpers');
+import { expect } from '@playwright/test';
+import { MultiUsers } from '../user/multiusers';
+import { elements as e } from '../core/elements.ts';
+import { constants } from '../parameters/constants';
+import { checkScreenshots, checkDefaultLocationReset } from '../layouts/util';
+import { ELEMENT_WAIT_TIME, VIDEO_LOADING_WAIT_TIME } from '../core/constants.ts';
 
-class CreateParameters extends MultiUsers {
+const { messageModerator } = constants;
+
+export class CreateParameters extends MultiUsers {
   constructor(browser, context) {
     super(browser, context);
   }
@@ -22,7 +23,7 @@ class CreateParameters extends MultiUsers {
 
   async bannerColor(colorToRGB) {
     await this.modPage.hasElement(e.notificationBannerBar, 'should display the banner bar');
-    const notificationLocator = this.modPage.getLocator(e.notificationBannerBar);
+    const notificationLocator = this.modPage.page.locator(e.notificationBannerBar);
     const notificationBarColor = await notificationLocator.evaluate((elem) => {
       return getComputedStyle(elem).backgroundColor;
     }, e.notificationBannerBar);
@@ -53,7 +54,7 @@ class CreateParameters extends MultiUsers {
     await this.userPage.waitForSelector(e.whiteboard);
     await this.userPage.waitAndClick(e.presentationTitle);
     await this.userPage.hasElement(e.simpleModal, 'should display meeting details modal');
-    const modalLocator = this.userPage.getLocator(e.simpleModal);
+    const modalLocator = this.userPage.page.locator(e.simpleModal);
     await expect(modalLocator, 'should not display the moderator only message on meeting detail modal').not.toContainText(messageModerator);
   }
 
@@ -94,7 +95,7 @@ class CreateParameters extends MultiUsers {
 
   async lockSettingsDisableMic() {
     await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard for the moderator');
-    const unmuteMicButton = this.userPage.getLocator(e.unmuteMicButton);
+    const unmuteMicButton = this.userPage.page.locator(e.unmuteMicButton);
     await expect(unmuteMicButton, 'should the unmute button be disabled when microphone is locked').toBeDisabled();
   }
 
@@ -122,7 +123,7 @@ class CreateParameters extends MultiUsers {
   async overrideDefaultPresentation() {
     await this.modPage.waitForSelector(e.whiteboard);
     await this.userPage.waitForSelector(e.whiteboard);
-    await sleep(1500);  // wait for the whiteboard zoom to stabilize
+    await this.userPage.page.waitForTimeout(1500);  // wait for the whiteboard zoom to stabilize
     await expect(
       this.modPage.page,
       'should display the overridden presentation for the mod',
@@ -154,7 +155,7 @@ class CreateParameters extends MultiUsers {
     await this.modPage.waitAndClick(e.userListToggleBtn);
     await this.modPage.wasRemoved(e.chatButton, 'should not be displayed the chat button');
     await this.modPage.wasRemoved(e.sendButton, 'should not be displayed the send button');
-    await sleep(1000);
+    await this.modPage.page.waitForTimeout(1000);
 
     await checkScreenshots(this, 'should be on custom layout', 'video', 'custom-layout', 4);
   }
@@ -166,7 +167,7 @@ class CreateParameters extends MultiUsers {
     
     await this.modPage.waitAndClick(e.userListToggleBtn);
     await this.modPage.wasRemoved(e.chatButton, '');
-    await sleep(1000); // wait for the whiteboard zoom to stabilize
+    await this.modPage.page.waitForTimeout(1000); // wait for the whiteboard zoom to stabilize
 
     await checkScreenshots(this, 'should the cameras be on the side of presentation', [e.webcamContainer, e.webcamMirroredVideoContainer], 'smart-layout', 2);
   }
@@ -185,7 +186,7 @@ class CreateParameters extends MultiUsers {
     await this.modPage.waitForSelector(e.whiteboard);
 
     await this.modPage.waitAndClick(e.joinVideo); 
-    await this.modPage.bringToFront();
+    await this.modPage.page.bringToFront();
     await this.modPage.hasElement(e.webcamMirroredVideoPreview, 'should display the video preview when sharing webcam ', ELEMENT_WAIT_TIME);
     await this.modPage.waitAndClick(e.startSharingWebcam);
         
@@ -212,7 +213,7 @@ class CreateParameters extends MultiUsers {
 
     await this.modPage.wasRemoved(e.joinVideo);
     await this.userPage.wasRemoved(e.joinVideo);
-    await sleep(1000);
+    await this.userPage.page.waitForTimeout(1000);
 
     await checkScreenshots(this, 'should be the cameras only layout', [e.webcamContainer, e.webcamMirroredVideoContainer], 'presentation-only');
   }
@@ -243,10 +244,8 @@ class CreateParameters extends MultiUsers {
     await this.userPage.wasRemoved(e.chatMessages);
     await this.userPage.wasRemoved(e.userListContent);
 
-    await sleep(1000);
+    await this.userPage.page.waitForTimeout(1000);
 
     await checkScreenshots(this, 'should be the media only layout', [e.webcamContainer, e.webcamMirroredVideoContainer], 'media-only');
   }
 }
-
-exports.CreateParameters = CreateParameters;

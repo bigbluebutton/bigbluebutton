@@ -1,10 +1,10 @@
-const { Chat } = require("./chat");
-const { hoverLastMessage, openPublicChat, checkLastMessageSent } = require("./util");
-const e = require('../core/elements');
-const { expect } = require("playwright/test");
-const { ELEMENT_WAIT_LONGER_TIME } = require("../core/constants");
+import { Chat } from "./chat";
+import { hoverLastMessage, openPublicChat, checkLastMessageSent } from "./util";
+import { elements as e } from '../core/elements.ts';
+import { expect } from "playwright/test";
+import { ELEMENT_WAIT_LONGER_TIME } from "../core/constants.ts";
 
-class MessageActions extends Chat {
+export class MessageActions extends Chat {
   async editMessageFromToolbarButton() {
     await openPublicChat(this.modPage);
     // send a message
@@ -14,7 +14,7 @@ class MessageActions extends Chat {
     await checkLastMessageSent(this.modPage, e.message);
     const initialMessagesCount = await this.modPage.getSelectorCount(e.chatUserMessageText);
     // hover message
-    const lastMessageItem = this.modPage.getLocator(e.chatMessageItem).last();
+    const lastMessageItem = this.modPage.page.locator(e.chatMessageItem).last();
     await lastMessageItem.hover();
     await expect(lastMessageItem.locator(e.messageToolbar), 'should display the message toolbar when hovering a message').toBeVisible();
     // edit message (toolbar button)
@@ -57,7 +57,7 @@ class MessageActions extends Chat {
     await this.modPage.fill(e.chatBox, 'extra characters');
     await this.modPage.press('Escape');
     await this.modPage.wasRemoved(e.chatEditingWarningContainer, 'should display the chat box');
-    await expect(this.modPage.getLocator(e.chatBox), 'should not display any text in the chat box').toHaveValue('')
+    await expect(this.modPage.page.locator(e.chatBox), 'should not display any text in the chat box').toHaveValue('')
   }
 
   async ableToEditOwnMessage() {
@@ -70,7 +70,7 @@ class MessageActions extends Chat {
     await checkLastMessageSent(this.modPage, e.message);
     await checkLastMessageSent(this.userPage, e.message);
     // user hover mod message
-    const lastMessageItem = this.modPage.getLocator(e.chatMessageItem).last();
+    const lastMessageItem = this.modPage.page.locator(e.chatMessageItem).last();
     await lastMessageItem.hover();
     await expect(lastMessageItem.locator(e.messageToolbar), 'should display the message toolbar when hovering a message').toBeVisible();
     await expect(lastMessageItem.locator(e.replyMessageButton), 'should display the reply message button when hovering the mod message').toBeVisible();
@@ -105,7 +105,7 @@ class MessageActions extends Chat {
     await checkLastMessageSent(this.modPage, e.message);
     const initialMessageItemsCount = await this.modPage.getSelectorCount(e.chatMessageItem);
     // hover and react message
-    const lastMessageItem = this.modPage.getLocator(e.chatMessageItem).last();
+    const lastMessageItem = this.modPage.page.locator(e.chatMessageItem).last();
     await lastMessageItem.hover();
     await expect(lastMessageItem.locator(e.messageToolbar), 'should display the message toolbar when hovering a message').toBeVisible();
     await this.modPage.hasElement(e.messageToolbar, 'should display the message toolbar when hovering a message');
@@ -135,7 +135,7 @@ class MessageActions extends Chat {
     await checkLastMessageSent(this.modPage, e.message);
     const initialMessageItemsCount = await this.modPage.getSelectorCount(e.chatMessageItem);
     // hover and react message
-    const lastMessageItem = this.modPage.getLocator(e.chatMessageItem).last();
+    const lastMessageItem = this.modPage.page.locator(e.chatMessageItem).last();
     await lastMessageItem.hover();
     await expect(lastMessageItem.locator(e.messageToolbar), 'should display the message toolbar when hovering a message').toBeVisible();
     await this.modPage.waitAndClick(e.reactMessageButton);
@@ -166,7 +166,7 @@ class MessageActions extends Chat {
     await this.modPage.hasElement(e.simpleModal, 'should display the delete message confirmation modal');
     await this.modPage.waitAndClick(e.confirmDeleteChatMessageButton);
     // check deleted message
-    const lastMessageItem2 = this.modPage.getLocator(e.chatMessageItem).last();
+    const lastMessageItem2 = this.modPage.page.locator(e.chatMessageItem).last();
     await expect(lastMessageItem2, 'should display the message deleted label after deleting a message').toContainText(`This message has been deleted by ${this.modPage.username}`);
     await this.modPage.wasRemoved(e.chatUserMessageText, 'should remove the message content from the public chat');
     await this.modPage.hasElementCount(e.chatMessageItem, initialMessageItemsCount + 1, 'should keep displaying the mod2 deleted message item on the public chat');
@@ -195,14 +195,14 @@ class MessageActions extends Chat {
     await breakoutModPage.hasElement(e.chatUserMessageText, 'should display the message sent by the moderator on the public chat');
     await checkLastMessageSent(breakoutModPage, e.message);
     // check if user cannot delete mod message
-    const lastMessageItemBreakoutUser = breakoutUserPage.getLocator(e.chatMessageItem).last();
+    const lastMessageItemBreakoutUser = breakoutUserPage.page.locator(e.chatMessageItem).last();
     await lastMessageItemBreakoutUser.hover();
     await expect(lastMessageItemBreakoutUser.locator(e.messageToolbar), 'should display the message toolbar when hovering a user message').toBeVisible();
     await expect(lastMessageItemBreakoutUser.locator(e.replyMessageButton), 'should display the reply message button when hovering a user message').toBeVisible();
     await expect(lastMessageItemBreakoutUser.locator(e.reactMessageButton), 'should display the react message button when hovering a user message').toBeVisible();
     await expect(lastMessageItemBreakoutUser.locator(e.editMessageButton), 'should not display the edit message button when hovering a user message').not.toBeVisible();
     // check if mod can delete own message
-    const lastMessageItemBreakoutMod = breakoutModPage.getLocator(e.chatMessageItem).last();
+    const lastMessageItemBreakoutMod = breakoutModPage.page.locator(e.chatMessageItem).last();
     await lastMessageItemBreakoutMod.hover();
     await expect(lastMessageItemBreakoutMod.locator(e.messageToolbar), 'should display the message toolbar when hovering a message').toBeVisible();
     await expect(lastMessageItemBreakoutMod.locator(e.replyMessageButton), 'should display the reply message button on the toolbar').toBeVisible();
@@ -212,9 +212,9 @@ class MessageActions extends Chat {
     await breakoutModPage.hasElement(e.simpleModal, 'should display the delete message confirmation modal');
     await breakoutModPage.waitAndClick(e.confirmDeleteChatMessageButton);
     // check deleted message
-    const lastMessageItemMod = await breakoutModPage.getLocator(e.chatMessageItem).last();
+    const lastMessageItemMod = await breakoutModPage.page.locator(e.chatMessageItem).last();
     await expect(lastMessageItemMod, 'should display the message deleted label after deleting a message for the mod').toContainText(`This message has been deleted by ${this.modPage.username}`);
-    const lastMessageItemUser = await breakoutUserPage.getLocator(e.chatMessageItem).last();
+    const lastMessageItemUser = await breakoutUserPage.page.locator(e.chatMessageItem).last();
     await expect(lastMessageItemUser, 'should display the message deleted label after deleting a message for the viewer').toContainText(`This message has been deleted by ${this.modPage.username}`);
   }
 
@@ -227,12 +227,12 @@ class MessageActions extends Chat {
     await checkLastMessageSent(this.modPage, e.message);
     const initialMessagesCount = await this.modPage.getSelectorCount(e.chatUserMessageText);
     // hover message and click to reply
-    const lastMessageItem = this.modPage.getLocator(e.chatMessageItem).last();
+    const lastMessageItem = this.modPage.page.locator(e.chatMessageItem).last();
     await lastMessageItem.hover();
     await expect(lastMessageItem.locator(e.messageToolbar), 'should display the message toolbar when hovering a message').toBeVisible();
     await this.modPage.waitAndClick(e.replyMessageButton);
     // check reply container
-    const closeReplyBtn = this.modPage.getLocator(e.closeChatReplyIntentionButton);
+    const closeReplyBtn = this.modPage.page.locator(e.closeChatReplyIntentionButton);
     await this.modPage.hasElement(e.chatReplyIntentionContainerContent, 'should display the chat reply intention container content');
     await expect(closeReplyBtn, 'should display the close reply button').toHaveAttribute('tabindex', '0');
     await this.modPage.hasText(e.chatReplyIntentionContainerContent, e.message, 'should display the replying message content in the container');
@@ -255,12 +255,12 @@ class MessageActions extends Chat {
     await checkLastMessageSent(this.modPage, e.message);
     const initialMessagesCount = await this.modPage.getSelectorCount(e.chatUserMessageText);
     // hover message and click to reply
-    const lastMessageItem = this.modPage.getLocator(e.chatMessageItem).last();
+    const lastMessageItem = this.modPage.page.locator(e.chatMessageItem).last();
     await lastMessageItem.hover();
     await expect(lastMessageItem.locator(e.messageToolbar), 'should display the message toolbar when hovering a message').toBeVisible();
     await this.modPage.waitAndClick(e.replyMessageButton);
     // check reply container
-    const closeReplyBtn = this.modPage.getLocator(e.closeChatReplyIntentionButton);
+    const closeReplyBtn = this.modPage.page.locator(e.closeChatReplyIntentionButton);
     await this.modPage.hasElement(e.chatReplyIntentionContainerContent, 'should display the chat reply intention container content');
     await expect(closeReplyBtn, 'should display the close reply button').toHaveAttribute('tabindex', '0');
     await this.modPage.hasText(e.chatReplyIntentionContainerContent, e.message, 'should display the replying message content in the container');
@@ -287,7 +287,7 @@ class MessageActions extends Chat {
     await this.modPage.type(e.chatBox, e.message);
     await this.modPage.waitAndClick(e.sendButton);
     await this.modPage.hasElement(e.chatUserMessageText, 'should display the first message sent by the moderator on the public chat');
-    const targetMessageMod = this.modPage.getLocator(e.chatMessageItem, { hasText: e.message });
+    const targetMessageMod = this.modPage.page.locator(e.chatMessageItem, { hasText: e.message });
     // send many messages
     const MESSAGES_COUNT = 20;
     for (let i = 1; i <= MESSAGES_COUNT; i++) {
@@ -297,7 +297,7 @@ class MessageActions extends Chat {
     }
     await expect(targetMessageMod, 'should not display first message in viewport after multiples messages sent on mod chat').not.toBeInViewport();
     // scroll to first message
-    const targetMessageUser = await this.userPage.getLocator(e.chatMessageItem, { hasText: e.message }).first();
+    const targetMessageUser = await this.userPage.page.locator(e.chatMessageItem, { hasText: e.message }).first();
     await expect(targetMessageMod, 'should not display the first message in viewport after multiples messages sent on user chat').not.toBeInViewport();
     await targetMessageMod.scrollIntoViewIfNeeded();
     await expect(targetMessageMod, 'should display the first message in the preview window after scrolling to it').toBeInViewport();
@@ -325,14 +325,14 @@ class MessageActions extends Chat {
     await this.modPage.waitAndClick(e.sendButton);
     await this.modPage.hasElement(e.chatUserMessageText, 'should display the first message sent by the moderator on the public chat');
     // hover message
-    const lastMessageItem = this.modPage.getLocator(e.chatMessageItem).last();
+    const lastMessageItem = this.modPage.page.locator(e.chatMessageItem).last();
     await lastMessageItem.hover();
     await expect(lastMessageItem.locator(e.messageToolbar), 'should display the message toolbar when hovering a message').toBeVisible();
     // click on react button
     await this.modPage.waitAndClick(e.reactMessageButton);
     await this.modPage.getByLabelAndClick(e.thumbsUpEmoji);
-    const messageReactionsMod = this.modPage.getLocator(e.chatMessageItem).last().locator(e.messageReactionItem);
-    const messageReactionsUser = this.userPage.getLocator(e.chatMessageItem).last().locator(e.messageReactionItem);
+    const messageReactionsMod = this.modPage.page.locator(e.chatMessageItem).last().locator(e.messageReactionItem);
+    const messageReactionsUser = this.userPage.page.locator(e.chatMessageItem).last().locator(e.messageReactionItem);
     // check reaction item - moderator
     await expect(messageReactionsMod, 'should display a single reaction item for the mod').toHaveCount(1);
     await expect(messageReactionsMod, 'should display the correct reaction item for the mod').toContainText(e.thumbsUpEmoji);
@@ -354,14 +354,14 @@ class MessageActions extends Chat {
     await this.modPage.waitAndClick(e.sendButton);
     await this.modPage.hasElement(e.chatUserMessageText, 'should display the first message sent by the moderator on the public chat');
     // hover message
-    const lastMessageItemMod = this.modPage.getLocator(e.chatMessageItem).last();
+    const lastMessageItemMod = this.modPage.page.locator(e.chatMessageItem).last();
     await lastMessageItemMod.hover();
     await expect(lastMessageItemMod.locator(e.messageToolbar), 'should display the message toolbar when hovering a message').toBeVisible();
     // click on react button
     await this.modPage.waitAndClick(e.reactMessageButton);
     await this.modPage.getByLabelAndClick(e.thumbsUpEmoji);
     const messageReactionsMod = lastMessageItemMod.locator(e.messageReactionItem);
-    const messageReactionsUser = this.userPage.getLocator(e.chatMessageItem).last().locator(e.messageReactionItem);
+    const messageReactionsUser = this.userPage.page.locator(e.chatMessageItem).last().locator(e.messageReactionItem);
     await expect(messageReactionsMod, 'should display the reaction item for the mod').toBeVisible();
     await expect(messageReactionsUser, 'should display the reaction item for the viewer').toBeVisible();
     // increment reaction
@@ -382,14 +382,14 @@ class MessageActions extends Chat {
     await this.modPage.waitAndClick(e.sendButton);
     await this.modPage.hasElement(e.chatUserMessageText, 'should display the first message sent by the moderator on the public chat');
     // mod react to message
-    const lastMessageItemMod = this.modPage.getLocator(e.chatMessageItem).last();
+    const lastMessageItemMod = this.modPage.page.locator(e.chatMessageItem).last();
     await lastMessageItemMod.hover();
     await expect(lastMessageItemMod.locator(e.messageToolbar), 'should display the message toolbar when hovering a message').toBeVisible();
     await this.modPage.waitAndClick(e.reactMessageButton);
     await this.modPage.getByLabelAndClick(e.thumbsUpEmoji);
     await this.modPage.hasElement(e.messageReactionItem, 'should display the reaction item for the mod');
     // user react to message
-    const lastMessageItemUser = this.userPage.getLocator(e.chatMessageItem).last();
+    const lastMessageItemUser = this.userPage.page.locator(e.chatMessageItem).last();
     await lastMessageItemUser.hover();
     await expect(lastMessageItemUser.locator(e.messageToolbar), 'should display the message toolbar when hovering a message').toBeVisible();
     await this.userPage.waitAndClick(e.reactMessageButton);
@@ -410,5 +410,3 @@ class MessageActions extends Chat {
     await expect(messageReactionsUser.first(), 'should display the reaction item with the highest amount (grinning face) first for the viewer').toContainText(e.grinningFaceEmoji);
   }
 }
-
-exports.MessageActions = MessageActions;

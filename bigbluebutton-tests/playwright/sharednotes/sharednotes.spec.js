@@ -1,6 +1,6 @@
-const { test } = require('../fixtures');
-const { SharedNotes } = require('./sharednotes');
-const { initializePages } = require('../core/helpers');
+import { test } from '../fixtures';
+import { SharedNotes } from './sharednotes';
+import { initializePages } from '../core/helpers.ts';
 
 test.describe.parallel('Shared Notes', { tag: '@ci' }, () => {
   const sharedNotes = new SharedNotes();
