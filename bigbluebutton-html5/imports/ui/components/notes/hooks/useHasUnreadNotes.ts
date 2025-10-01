@@ -6,7 +6,12 @@ import useNotesLastRead from './useNotesLastRead';
 import { layoutSelectInput } from '/imports/ui/components/layout/context';
 import { Input } from '/imports/ui/components/layout/layoutTypes';
 
-const useHasUnreadNotes = ({ isNotesPanelOpened }: { isNotesPanelOpened: boolean }) => {
+interface UseHasUnreadNotesProps {
+  isNotesPanelOpened: boolean;
+  skip?: boolean;
+}
+
+const useHasUnreadNotes = ({ isNotesPanelOpened, skip = false }: UseHasUnreadNotesProps) => {
   const NOTES_CONFIG = window.meetingClientSettings.public.notes;
   const { lastReadTimestamp } = useNotesLastRead();
   const [hasChanges, setHasChanges] = useState(false);
@@ -15,7 +20,7 @@ const useHasUnreadNotes = ({ isNotesPanelOpened }: { isNotesPanelOpened: boolean
   const isSharedNotesPinned = layoutSelectInput((i: Input) => i.sharedNotes?.isPinned ?? false);
 
   // Skip subscription when notes panel is open or pinned to avoid unnecessary updates
-  const skipSubscription = isNotesPanelOpened || isSharedNotesPinned;
+  const skipSubscription = isNotesPanelOpened || isSharedNotesPinned || skip;
 
   const lastUpdatedAtTimestamp = useNotesLastUpdatedAt(NOTES_CONFIG.id, { skip: skipSubscription || isLatched });
 

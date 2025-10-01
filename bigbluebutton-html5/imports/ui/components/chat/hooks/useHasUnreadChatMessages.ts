@@ -9,18 +9,22 @@ import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
 
 interface UseUnreadChatMessagesProps {
   isChatPanelOpened: boolean;
+  skip?: boolean;
 }
 
-const useHasUnreadChatMessages = ({ isChatPanelOpened }: UseUnreadChatMessagesProps) => {
+const useHasUnreadChatMessages = ({ isChatPanelOpened, skip = false }: UseUnreadChatMessagesProps) => {
   const [totalUnread, setTotalUnread] = useState(0);
   const [isLatched, setIsLatched] = useState(false);
   const [lastKnownTotal, setLastKnownTotal] = useState(0);
 
   const idChatOpen = layoutSelect((i: Layout) => i.idChatOpen);
 
-  const skipSubscription = isChatPanelOpened;
+  const skipSubscription = isChatPanelOpened || skip;
 
-  const { data: chats } = useChat((chat) => chat) as GraphqlDataHookSubscriptionResponse<Chat[]>;
+  const { data: chats } = useChat(
+    (chat) => chat,
+    { skip: skipSubscription },
+  ) as GraphqlDataHookSubscriptionResponse<Chat[]>;
 
   const calculateTotalUnreadMessages = useCallback(
     (chats: Chat[] | null | undefined): number => (

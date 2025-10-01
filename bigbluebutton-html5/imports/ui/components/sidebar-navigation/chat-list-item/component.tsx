@@ -33,7 +33,6 @@ const ChatListItem: React.FC<BaseSidebarButtonProps> = ({ isOpened }) => {
   const {
     hasUnreadMessages,
     activeChat,
-    chatIds,
   } = useHasUnreadChatMessages({ isChatPanelOpened: isOpened });
 
   const idChatOpen = layoutSelect((i: Layout) => i.idChatOpen);
@@ -60,7 +59,6 @@ const ChatListItem: React.FC<BaseSidebarButtonProps> = ({ isOpened }) => {
   }, [layoutContextDispatch, PUBLIC_GROUP_CHAT_ID]);
 
   if (!isChatEnabled) return null;
-  if (!chatIds?.length || !activeChat) return <></>;
 
   const label = intl.formatMessage(intlMessages.messagesTitle);
 

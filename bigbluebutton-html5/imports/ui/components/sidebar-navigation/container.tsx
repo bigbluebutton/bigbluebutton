@@ -56,11 +56,13 @@ const SidebarNavigationContainer = () => {
   const { sidebarContentPanel } = sidebarContent;
   const hasUnreadNotes = useHasUnreadNotes({
     isNotesPanelOpened: sidebarContentPanel === PANELS.SHARED_NOTES,
+    skip: !isMobile,
   });
   const {
     hasUnreadMessages,
   } = useHasUnreadChatMessages({
     isChatPanelOpened: sidebarContentPanel === PANELS.CHAT,
+    skip: !isMobile,
   });
 
   const registerApp = (id: string, name: string, icon: string) => {
