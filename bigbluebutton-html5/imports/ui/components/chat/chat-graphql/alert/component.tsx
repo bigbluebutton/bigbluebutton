@@ -203,6 +203,29 @@ const ChatAlertContainerGraphql: React.FC = () => {
     chatPushAlerts: boolean;
   };
 
+  const skipSubscriptions = !chatPushAlerts && !chatAudioAlerts;
+  const previousSkipSubscriptions = usePreviousValue(skipSubscriptions);
+  const cursor = useRef(new Date());
+
+  if (previousSkipSubscriptions && !skipSubscriptions) {
+    cursor.current = new Date();
+  }
+
+  const { data: publicMessages } = useDeduplicatedSubscription<PublicMessageStreamResponse>(
+    CHAT_MESSAGE_PUBLIC_STREAM,
+    {
+      variables: { createdAt: cursor.current.toISOString() },
+      skip: skipSubscriptions,
+    },
+  );
+  const { data: privateMessages } = useDeduplicatedSubscription<PrivateMessageStreamResponse>(
+    CHAT_MESSAGE_PRIVATE_STREAM,
+    {
+      variables: { createdAt: cursor.current.toISOString() },
+      skip: skipSubscriptions,
+    },
+  );
+
   const idChatOpen = layoutSelect((i: Layout) => i.idChatOpen);
   const sidebarContent = layoutSelectInput((i: Input) => i.sidebarContent);
   const { sidebarContentPanel } = sidebarContent;

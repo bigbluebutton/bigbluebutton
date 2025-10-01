@@ -372,7 +372,7 @@ const UserActions: React.FC<UserActionsProps> = ({
       allowed: user?.cameras?.length > 0
         && isVideoPinEnabledForCurrentUser(currentUser, isBreakout),
       key: 'pinVideo',
-      label: user.pinned
+      label: user?.pinned
         ? intl.formatMessage(messages.UnpinUserWebcam)
         : intl.formatMessage(messages.PinUserWebcam),
       onClick: () => {
@@ -380,11 +380,11 @@ const UserActions: React.FC<UserActionsProps> = ({
         setCameraPinned({
           variables: {
             userId: user.userId,
-            pinned: !user.pinned,
+            pinned: !user?.pinned,
           },
         });
       },
-      icon: user.pinned ? 'pin-video_off' : 'pin-video_on',
+      icon: user?.pinned ? 'pin-video_off' : 'pin-video_on',
     },
     {
       allowed: (() => {

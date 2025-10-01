@@ -14,9 +14,9 @@ export const sortPin = (s1: StreamItem, s2: StreamItem) => {
   if (s2.type === VIDEO_TYPES.CONNECTING) {
     return 0;
   }
-  if (s1.user.pinned) {
+  if (s1.user?.pinned) {
     return -1;
-  } if (s2.user.pinned) {
+  } if (s2.user?.pinned) {
     return 1;
   }
   return 0;

@@ -71,7 +71,8 @@ export const useScreenshare = () => {
     SCREENSHARE_SUBSCRIPTION,
     {
       skip: meetingLoading
-      || !(meeting?.componentsFlags?.hasScreenshare || meeting.componentsFlags?.hasCameraAsContent),
+      || !(meeting?.componentsFlags?.hasScreenshare
+        || meeting?.componentsFlags?.hasCameraAsContent),
     },
   );
 
