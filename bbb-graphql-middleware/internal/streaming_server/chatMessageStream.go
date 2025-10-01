@@ -34,27 +34,18 @@ func HandleGroupChatMessageBroadcastEvtMsg(receivedMessage common.RedisMessage, 
 
 	for _, bc := range browserConnectionsToSendCursor {
 		bc.ActiveStreamingsMutex.RLock()
-		queryId, existsCursorStream := bc.ActiveStreamings["getChatMessageStream"]
+		queryIds, existsCursorStream := bc.ActiveStreamings["getChatMessageStream"]
 		bc.ActiveStreamingsMutex.RUnlock()
 		if existsCursorStream {
-			payload := bytes.Replace(jsonDataNext, QueryIdPlaceholderInBytes, []byte(queryId), 1)
-			bc.FromHasuraToBrowserChannel.TrySend(payload)
+			for i := range queryIds {
+				payload := bytes.Replace(jsonDataNext, QueryIdPlaceholderInBytes, []byte(queryIds[i]), 1)
+				bc.FromHasuraToBrowserChannel.TrySend(payload)
+			}
 		}
 	}
 }
 
 func createChatMesssageGraphqlMessage(receivedMessage common.RedisMessage) ([]byte, error) {
-	type RedisMessage struct {
-		Core struct {
-			Header struct {
-				Name      string `json:"name"`
-				MeetingId string `json:"meetingId"`
-				UserId    string `json:"userId"`
-			} `json:"header"`
-			Body map[string]any `json:"body"`
-		} `json:"core"`
-	}
-
 	chatId := receivedMessage.Core.Body["chatId"].(string)
 	messageProps, ok := receivedMessage.Core.Body["msg"].(map[string]any)
 	if !ok {

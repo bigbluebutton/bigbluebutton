@@ -2,7 +2,6 @@ package streamingserver
 
 import (
 	"encoding/json"
-	"fmt"
 	"slices"
 
 	"bbb-graphql-middleware/config"
@@ -28,16 +27,12 @@ func ReadNewStreamingSubscription(
 	if browserMessage.Type == "subscribe" && slices.Contains(config.StreamingSubscriptionsManagedByMiddleware, browserMessage.Payload.OperationName) {
 		queryId := browserMessage.ID
 
-		browserConnection.ActiveStreamingsMutex.RLock()
-		_, queryIdExists := browserConnection.ActiveStreamings[browserMessage.Payload.OperationName]
-		browserConnection.ActiveStreamingsMutex.RUnlock()
-		if queryIdExists {
-			sendErrorMessage(browserConnection, queryId, fmt.Sprintf("Only one %s subscription is allowed", browserMessage.Payload.OperationName))
-			return nil
-		}
-
 		browserConnection.ActiveStreamingsMutex.Lock()
-		browserConnection.ActiveStreamings[browserMessage.Payload.OperationName] = queryId
+		if _, queryIdExists := browserConnection.ActiveStreamings[browserMessage.Payload.OperationName]; !queryIdExists {
+			browserConnection.ActiveStreamings[browserMessage.Payload.OperationName] = []string{queryId}
+		} else {
+			browserConnection.ActiveStreamings[browserMessage.Payload.OperationName] = append(browserConnection.ActiveStreamings[browserMessage.Payload.OperationName], queryId)
+		}
 		browserConnection.ActiveStreamingsMutex.Unlock()
 
 		if browserMessage.Payload.OperationName == "getCursorCoordinatesStream" {

@@ -244,14 +244,14 @@ RangeLoop:
 					browserConnection.ActiveSubscriptionsMutex.Unlock()
 
 					browserConnection.ActiveStreamingsMutex.Lock()
-					if browserConnection.ActiveStreamings["getCursorCoordinatesStream"] == browserMessage.ID {
-						delete(browserConnection.ActiveStreamings, "getCursorCoordinatesStream")
+					if removed, newActiveStreamings := removeValueFromSlice(browserConnection.ActiveStreamings, "getCursorCoordinatesStream", browserMessage.ID); removed {
+						browserConnection.ActiveStreamings = newActiveStreamings
 					}
-					if browserConnection.ActiveStreamings["getNotificationStream"] == browserMessage.ID {
-						delete(browserConnection.ActiveStreamings, "getNotificationStream")
+					if removed, newActiveStreamings := removeValueFromSlice(browserConnection.ActiveStreamings, "getNotificationStream", browserMessage.ID); removed {
+						browserConnection.ActiveStreamings = newActiveStreamings
 					}
-					if browserConnection.ActiveStreamings["getChatMessageStream"] == browserMessage.ID {
-						delete(browserConnection.ActiveStreamings, "getChatMessageStream")
+					if removed, newActiveStreamings := removeValueFromSlice(browserConnection.ActiveStreamings, "getChatMessageStream", browserMessage.ID); removed {
+						browserConnection.ActiveStreamings = newActiveStreamings
 					}
 					browserConnection.ActiveStreamingsMutex.Unlock()
 				}
@@ -379,4 +379,21 @@ func sendErrorMessage(browserConnection *common.BrowserConnection, messageId str
 	}
 	jsonDataComplete, _ := json.Marshal(browserResponseComplete)
 	browserConnection.FromHasuraToBrowserChannel.SendWait(browserConnection.Context, jsonDataComplete)
+}
+
+func removeValueFromSlice(mapWithSlices map[string][]string, key string, value string) (bool, map[string][]string) {
+	removed := false
+	if slice, ok := mapWithSlices[key]; ok {
+		if i := slices.Index(slice, value); i >= 0 {
+			slice = slices.Delete(slice, i, i+1)
+			if len(slice) == 0 {
+				delete(mapWithSlices, key)
+			} else {
+				mapWithSlices[key] = slice
+			}
+			removed = true
+		}
+	}
+
+	return removed, mapWithSlices
 }

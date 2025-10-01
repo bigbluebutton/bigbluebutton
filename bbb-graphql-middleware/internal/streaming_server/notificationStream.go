@@ -24,11 +24,13 @@ func HandleNotifyAllInMeetingEvtMsg(receivedMessage common.RedisMessage, browser
 
 	for _, bc := range browserConnectionsToSendCursor {
 		bc.ActiveStreamingsMutex.RLock()
-		queryId, existsCursorStream := bc.ActiveStreamings["getNotificationStream"]
+		queryIds, existsCursorStream := bc.ActiveStreamings["getNotificationStream"]
 		bc.ActiveStreamingsMutex.RUnlock()
 		if existsCursorStream {
-			payload := bytes.Replace(jsonDataNext, QueryIdPlaceholderInBytes, []byte(queryId), 1)
-			bc.FromHasuraToBrowserChannel.TrySend(payload)
+			for i := range queryIds {
+				payload := bytes.Replace(jsonDataNext, QueryIdPlaceholderInBytes, []byte(queryIds[i]), 1)
+				bc.FromHasuraToBrowserChannel.TrySend(payload)
+			}
 		}
 	}
 }
@@ -48,11 +50,13 @@ func HandleNotifyUserInMeetingEvtMsg(receivedMessage common.RedisMessage, browse
 
 	for _, bc := range browserConnectionsToSendCursor {
 		bc.ActiveStreamingsMutex.RLock()
-		queryId, existsCursorStream := bc.ActiveStreamings["getNotificationStream"]
+		queryIds, existsCursorStream := bc.ActiveStreamings["getNotificationStream"]
 		bc.ActiveStreamingsMutex.RUnlock()
 		if existsCursorStream {
-			payload := bytes.Replace(jsonDataNext, QueryIdPlaceholderInBytes, []byte(queryId), 1)
-			bc.FromHasuraToBrowserChannel.TrySend(payload)
+			for i := range queryIds {
+				payload := bytes.Replace(jsonDataNext, QueryIdPlaceholderInBytes, []byte(queryIds[i]), 1)
+				bc.FromHasuraToBrowserChannel.TrySend(payload)
+			}
 		}
 	}
 }
@@ -76,11 +80,13 @@ func HandleNotifyRoleInMeetingEvtMsg(receivedMessage common.RedisMessage, browse
 
 	for _, bc := range browserConnectionsToSendCursor {
 		bc.ActiveStreamingsMutex.RLock()
-		queryId, existsCursorStream := bc.ActiveStreamings["getNotificationStream"]
+		queryIds, existsCursorStream := bc.ActiveStreamings["getNotificationStream"]
 		bc.ActiveStreamingsMutex.RUnlock()
 		if existsCursorStream {
-			payload := bytes.Replace(jsonDataNext, QueryIdPlaceholderInBytes, []byte(queryId), 1)
-			bc.FromHasuraToBrowserChannel.TrySend(payload)
+			for i := range queryIds {
+				payload := bytes.Replace(jsonDataNext, QueryIdPlaceholderInBytes, []byte(queryIds[i]), 1)
+				bc.FromHasuraToBrowserChannel.TrySend(payload)
+			}
 		}
 	}
 }
