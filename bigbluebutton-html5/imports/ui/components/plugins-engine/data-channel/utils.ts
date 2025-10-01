@@ -12,7 +12,7 @@ const mapProjectedDataChannelEntries = (
   fromUserId: entry.createdBy!,
   createdBy: entry.createdBy!,
   pluginName: entry.pluginName!,
-  toRoles: entry.toRoles!,
+  toRoles: entry.toRoles ?? [],
 })) || [];
 
 export default mapProjectedDataChannelEntries;

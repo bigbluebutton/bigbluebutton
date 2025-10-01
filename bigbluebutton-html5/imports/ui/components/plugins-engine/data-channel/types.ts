@@ -23,5 +23,5 @@ export interface DataChannelEntry {
   createdBy: string;
   fromUserId: string;
   pluginName: string;
-  toRoles: string[];
+  toRoles?: string[];
 }

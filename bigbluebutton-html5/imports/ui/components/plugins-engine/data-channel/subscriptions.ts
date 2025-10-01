@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 
 const PLUGIN_DATA_CHANNEL_SUBSCRIPTION = gql`
-  subscription FetchPluginDataChannelEntryNew {
+  subscription FetchPluginDataChannelEntry {
     pluginDataChannelEntry (
       order_by: {createdAt: desc}
     ) {

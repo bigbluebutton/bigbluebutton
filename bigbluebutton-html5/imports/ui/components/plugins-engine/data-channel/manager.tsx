@@ -103,7 +103,7 @@ const PluginDataChannelManager: React.ElementType<PluginDataChannelManagerProps>
           const identifier = createChannelIdentifier(
             channelName, subChannelName, pluginNameInUse,
           );
-          const filteredDataChannelEntries = dataChannelEntries?.filter((entry) => {
+          const filteredDataChannelEntries = dataChannelEntries.filter((entry) => {
             const currentIdentifier = createChannelIdentifier(
               entry.channelName, entry.subChannelName, entry.pluginName,
             );
