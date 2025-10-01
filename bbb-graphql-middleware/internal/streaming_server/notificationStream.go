@@ -3,6 +3,7 @@ package streamingserver
 import (
 	"bytes"
 	"encoding/json"
+	"strings"
 	"sync"
 	"time"
 
@@ -64,9 +65,9 @@ func HandleNotifyRoleInMeetingEvtMsg(receivedMessage common.RedisMessage, browse
 	browserConnectionsMutex.RLock()
 	for _, bc := range browserConnections {
 		if bc.MeetingId == receivedMessage.Core.Header.MeetingId {
-			if role == "moderator" && bc.BBBWebSessionVariables["x-hasura-moderatorinmeeting"] == receivedMessage.Core.Header.MeetingId {
+			if strings.EqualFold(role, "moderator") && bc.BBBWebSessionVariables["x-hasura-moderatorinmeeting"] == receivedMessage.Core.Header.MeetingId {
 				browserConnectionsToSendCursor = append(browserConnectionsToSendCursor, bc)
-			} else if role == "presenter" && bc.BBBWebSessionVariables["x-hasura-presenterinmeeting"] == receivedMessage.Core.Header.MeetingId {
+			} else if strings.EqualFold(role, "presenter") && bc.BBBWebSessionVariables["x-hasura-presenterinmeeting"] == receivedMessage.Core.Header.MeetingId {
 				browserConnectionsToSendCursor = append(browserConnectionsToSendCursor, bc)
 			}
 		}

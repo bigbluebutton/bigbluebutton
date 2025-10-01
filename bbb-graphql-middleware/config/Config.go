@@ -123,4 +123,5 @@ var AllowedSubscriptionsForNotInMeetingUsers = []string{
 var StreamingSubscriptionsManagedByMiddleware = []string{
 	"getCursorCoordinatesStream",
 	"getNotificationStream",
+	"getChatMessageStream",
 }

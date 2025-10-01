@@ -79,6 +79,7 @@ func BrowserConnectionReader(
 				continue
 			}
 			if bytes.Contains(message, []byte("\"query\":\"subscription getCursorCoordinatesStream")) ||
+				bytes.Contains(message, []byte("\"query\":\"subscription getChatMessageStream")) ||
 				bytes.Contains(message, []byte("\"query\":\"subscription getNotificationStream")) {
 				go streamingserver.ReadNewStreamingSubscription(browserConnection, message)
 				continue

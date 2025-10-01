@@ -35,6 +35,7 @@ var allowedMessages = []string{
 	"NotifyAllInMeetingEvtMsg",
 	"NotifyUserInMeetingEvtMsg",
 	"NotifyRoleInMeetingEvtMsg",
+	"GroupChatMessageBroadcastEvtMsg",
 	"ModifyWhiteboardAccessEvtMsg",
 	"UserLeftMeetingEvtMsg",
 	"MeetingEndedEvtMsg",
@@ -137,6 +138,14 @@ func StartRedisListener() {
 
 		if messageName == "NotifyRoleInMeetingEvtMsg" {
 			go streamingserver.HandleNotifyRoleInMeetingEvtMsg(
+				receivedMessage,
+				BrowserConnectionsMutex,
+				BrowserConnections,
+			)
+		}
+
+		if messageName == "GroupChatMessageBroadcastEvtMsg" {
+			go streamingserver.HandleGroupChatMessageBroadcastEvtMsg(
 				receivedMessage,
 				BrowserConnectionsMutex,
 				BrowserConnections,

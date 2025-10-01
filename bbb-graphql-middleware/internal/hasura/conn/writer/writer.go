@@ -250,6 +250,9 @@ RangeLoop:
 					if browserConnection.ActiveStreamings["getNotificationStream"] == browserMessage.ID {
 						delete(browserConnection.ActiveStreamings, "getNotificationStream")
 					}
+					if browserConnection.ActiveStreamings["getChatMessageStream"] == browserMessage.ID {
+						delete(browserConnection.ActiveStreamings, "getChatMessageStream")
+					}
 					browserConnection.ActiveStreamingsMutex.Unlock()
 				}
 
