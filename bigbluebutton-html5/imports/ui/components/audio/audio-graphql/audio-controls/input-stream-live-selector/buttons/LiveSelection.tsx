@@ -18,6 +18,7 @@ import {
 import MuteToggle from './muteToggle';
 import ListenOnly from './listenOnly';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 
 const AUDIO_INPUT = 'audioinput';
 const AUDIO_OUTPUT = 'audiooutput';
@@ -241,6 +242,12 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
     }
 
     if (!deviceId) return;
+    const Settings = getSettingsSingletonInstance();
+    const { persistanceForAudioAndVideoDevices } = Settings.application;
+    console.log('persistanceForAudioAndVideoDevices:' + persistanceForAudioAndVideoDevices);
+    if (persistanceForAudioAndVideoDevices) {
+      localStorage.setItem(`BBB${deviceKind}`, deviceId);
+    }
     if (deviceKind === AUDIO_INPUT) {
       callback(deviceId).catch(() => {
         notify(intl.formatMessage(intlMessages.deviceChangeFailed), true);

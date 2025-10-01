@@ -13,6 +13,7 @@ import { hasMediaDevicesEventTarget } from '/imports/ui/services/webrtc-base/uti
 import AudioManager from '/imports/ui/services/audio-manager';
 import Session from '/imports/ui/services/storage/in-memory';
 import AudioCaptionsSelectContainer from '../audio-graphql/audio-captions/captions/component';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -174,8 +175,20 @@ class AudioSettings extends React.Component {
           );
         }
         this.setState({ findingDevices: false });
-        this.setInputDevice(inputDeviceId);
-        this.setOutputDevice(outputDeviceId);
+        const Settings = getSettingsSingletonInstance();
+        const { persistanceForAudioAndVideoDevices } = Settings.application;
+        console.log(`persistanceForAudioAndVideoDevices:${persistanceForAudioAndVideoDevices}`);
+
+        if (localStorage.getItem('BBBaudioinput') && persistanceForAudioAndVideoDevices) {
+          this.setInputDevice(localStorage.getItem('BBBaudioinput'));
+        } else {
+          this.setInputDevice(inputDeviceId);
+        }
+        if (localStorage.getItem('BBBaudiooutput') && persistanceForAudioAndVideoDevices) {
+          this.setOutputDevice(localStorage.getItem('BBBaudiooutput'));
+        } else {
+          this.setOutputDevice(outputDeviceId);
+        }
       });
 
     // If connected and unmuted, we need to mute the audio and revert it
@@ -217,10 +230,22 @@ class AudioSettings extends React.Component {
   }
 
   handleInputChange(deviceId) {
+    const Settings = getSettingsSingletonInstance();
+    const { persistanceForAudioAndVideoDevices } = Settings.application;
+    console.log(`persistanceForAudioAndVideoDevices:${persistanceForAudioAndVideoDevices}`);
+    if (persistanceForAudioAndVideoDevices) {
+      localStorage.setItem('BBBaudioinput', deviceId);
+    }
     this.setInputDevice(deviceId);
   }
 
   handleOutputChange(deviceId) {
+    const Settings = getSettingsSingletonInstance();
+    const { persistanceForAudioAndVideoDevices } = Settings.application;
+    console.log(`persistanceForAudioAndVideoDevices:${persistanceForAudioAndVideoDevices}`);
+    if (persistanceForAudioAndVideoDevices) {
+      localStorage.setItem('BBBaudiooutput', deviceId);
+    }
     this.setOutputDevice(deviceId);
   }
 

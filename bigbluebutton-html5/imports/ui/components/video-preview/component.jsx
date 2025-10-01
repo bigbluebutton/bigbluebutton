@@ -316,8 +316,17 @@ class VideoPreview extends Component {
       if (!this._isMounted) return;
 
       let processedCamerasList = digestedWebcams;
-      const initialDeviceId = processedCamerasList[0]?.deviceId || webcamDeviceId;
+      let initialDeviceId = processedCamerasList[0]?.deviceId || webcamDeviceId;
+      
+      const Settings = getSettingsSingletonInstance();
+      const { persistanceForAudioAndVideoDevices } = Settings.application;
 
+      if (persistanceForAudioAndVideoDevices){
+        const storedWebcamId = localStorage.getItem('BBBwebcaminput');
+        if (storedWebcamId && digestedWebcams.some(cam => cam.deviceId === storedWebcamId)) {
+          initialDeviceId = storedWebcamId;
+        }
+      }
       this.getInitialCameraStream(initialDeviceId)
         .then(async () => {
           // Late gUM resolve, stop.
@@ -620,6 +629,11 @@ class VideoPreview extends Component {
     } else {
       this.cleanupStreamAndVideo();
       startSharingCameraAsContent(webcamDeviceId);
+    }
+    const Settings = getSettingsSingletonInstance();
+    const { persistanceForAudioAndVideoDevices } = Settings.application;
+    if (persistanceForAudioAndVideoDevices) {
+      localStorage.setItem('BBBwebcaminput', webcamDeviceId);
     }
   }
 
