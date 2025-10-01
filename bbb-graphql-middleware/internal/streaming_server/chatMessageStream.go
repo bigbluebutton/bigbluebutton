@@ -74,69 +74,6 @@ func createChatMesssageGraphqlMessage(receivedMessage common.RedisMessage) ([]by
 
 	now := time.Now().UTC()
 
-	// 	from-akka-apps-redis-channel
-	// {
-	//   "envelope":{
-	//     "name":"GroupChatMessageBroadcastEvtMsg",
-	//     "routing":{
-	//       "msgType":"BROADCAST_TO_MEETING",
-	//       "meetingId":"3b22fc566a9903511d14839c13a9f5c191d24f92-1759317263389",
-	//       "userId":"w_uthm2bej4yuz"
-	//     },
-	//     "timestamp":1759317294127
-	//   },
-	//   "core":{
-	//     "header":{
-	//       "name":"GroupChatMessageBroadcastEvtMsg",
-	//       "meetingId":"3b22fc566a9903511d14839c13a9f5c191d24f92-1759317263389",
-	//       "userId":"w_uthm2bej4yuz"
-	//     },
-	//     "body":{
-	//       "chatId":"MAIN-PUBLIC-GROUP-CHAT",
-	//       "chatParticipants":[
-	//       ],
-	//       "msg":{
-	//         "id":"1759317294123-5ma49a3m",
-	//         "timestamp":1759317294123,
-	//         "correlationId":"w_uthm2bej4yuz-1759317294091",
-	//         "sender":{
-	//           "id":"w_uthm2bej4yuz",
-	//           "name":"teacher 1",
-	//           "role":"MODERATOR"
-	//         },
-	//         "chatEmphasizedText":true,
-	//         "message":"aeee",
-	//         "replyToMessageId":"",
-	//         "messageType":"default",
-	//         "metadata":{
-	//         }
-	//       }
-	//     }
-	//   }
-	// }
-
-	// 	{
-	//   "type":"next",
-	//   "id":"a86b80a4-760b-4318-a90f-53c12fb5e14d",
-	//   "payload":{
-	//     "data":{
-	//       "chat_message_public_stream" : [
-	//         {
-	//           "chatId":"MAIN-PUBLIC-GROUP-CHAT",
-	//           "createdAt":"2025-10-01T11:14:54.125+00:00",
-	//           "message":"aeee",
-	//           "messageId":"1759317294123-5ma49a3m",
-	//           "messageMetadata":"{}",
-	//           "messageType":"default",
-	//           "senderName":"teacher 1",
-	//           "senderRole":"MODERATOR",
-	//           "senderId":"w_uthm2bej4yuz",
-	//           "__typename":"chat_message_public"
-	//         }]
-	//     }
-	//   }
-	// }
-
 	item := map[string]any{
 		"chatId":          chatId,
 		"message":         message,
