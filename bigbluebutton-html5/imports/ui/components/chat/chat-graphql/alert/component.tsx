@@ -189,12 +189,6 @@ const ChatAlertGraphql: React.FC<ChatAlertGraphqlProps> = (props) => {
 };
 
 const ChatAlertContainerGraphql: React.FC = () => {
-  const cursor = useRef(new Date());
-  const { data: chatMessages } = useDeduplicatedSubscription<ChatMessageStreamResponse>(
-    CHAT_MESSAGE_STREAM,
-    { variables: { createdAt: cursor.current.toISOString() } },
-  );
-
   const {
     chatAudioAlerts,
     chatPushAlerts,
@@ -211,18 +205,13 @@ const ChatAlertContainerGraphql: React.FC = () => {
     cursor.current = new Date();
   }
 
-  const { data: publicMessages } = useDeduplicatedSubscription<PublicMessageStreamResponse>(
-    CHAT_MESSAGE_PUBLIC_STREAM,
+  const { data: chatMessages } = useDeduplicatedSubscription<ChatMessageStreamResponse>(
+    CHAT_MESSAGE_STREAM,
     {
-      variables: { createdAt: cursor.current.toISOString() },
-      skip: skipSubscriptions,
-    },
-  );
-  const { data: privateMessages } = useDeduplicatedSubscription<PrivateMessageStreamResponse>(
-    CHAT_MESSAGE_PRIVATE_STREAM,
-    {
-      variables: { createdAt: cursor.current.toISOString() },
-      skip: skipSubscriptions,
+      variables: {
+        skip: skipSubscriptions,
+        createdAt: cursor.current.toISOString(),
+      },
     },
   );
 
