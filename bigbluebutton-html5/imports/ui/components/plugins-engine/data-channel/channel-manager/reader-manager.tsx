@@ -56,11 +56,8 @@ export const DataChannelItemManagerReader: React.ElementType<DataChannelItemMana
     dataChannelEntriesReceived,
   } = props;
   const [sendSignal, setSendSignal] = useState<boolean>(false);
-
   const [completeDataEntry, setCompleteDataEntry] = useState<DataChannelEntry[]>([]);
-
   const [differenceData, setDifferenceData] = useState<DataChannelEntry[]>([]);
-
   const startedAtTimestamp = useRef(new Date());
 
   useEffect(() => {
@@ -71,34 +68,24 @@ export const DataChannelItemManagerReader: React.ElementType<DataChannelItemMana
       }
     };
 
-    const updateNewItems = () => {
-      const differenceList = getDifference(completeDataEntry, dataChannelEntriesReceived).filter(
-        (entry) => new Date(entry.createdAt) >= startedAtTimestamp.current,
-      );
-      const dataChannelWasReset = dataChannelEntriesReceived.length === 0
-        && completeDataEntry.length !== 0;
-      if (differenceList.length > 0 || dataChannelWasReset) {
-        setDifferenceData(differenceList);
-        setCompleteDataEntry(dataChannelEntriesReceived);
-      }
-    };
-
-    const updateLatestItem = () => {
+    const updateDifferenceItems = (afterSubscription: boolean) => {
       const differenceList = getDifference(completeDataEntry, dataChannelEntriesReceived);
-      const dataChannelWasReset = dataChannelEntriesReceived.length === 0
-        && completeDataEntry.length !== 0;
-      if (differenceList.length > 0 || dataChannelWasReset) {
-        setDifferenceData(differenceList);
+      const resultingDifference = (afterSubscription) ? differenceList.filter(
+        (entry) => new Date(entry.createdAt) >= startedAtTimestamp.current,
+      ) : differenceList;
+      const dataChannelWasReset = dataChannelEntriesReceived.length === 0 && completeDataEntry.length !== 0;
+      if (resultingDifference.length > 0 || dataChannelWasReset) {
+        setDifferenceData(resultingDifference);
         setCompleteDataEntry(dataChannelEntriesReceived);
       }
     };
 
     switch (dataChannelType) {
       case DataChannelTypes.LATEST_ITEM:
-        updateLatestItem();
+        updateDifferenceItems(false);
         break;
       case DataChannelTypes.NEW_ITEMS:
-        updateNewItems();
+        updateDifferenceItems(true);
         break;
       case DataChannelTypes.ALL_ITEMS:
         updateAllItems();
