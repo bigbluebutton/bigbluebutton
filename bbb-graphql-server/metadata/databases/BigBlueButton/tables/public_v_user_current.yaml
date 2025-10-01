@@ -209,7 +209,7 @@ select_permissions:
         - extId
         - guest
         - guestStatus
-        - hasDrawPermissionOnCurrentPage
+        - whiteboardWriteAccess
         - inactivityWarningDisplay
         - inactivityWarningTimeoutSecs
         - isDialIn
@@ -267,7 +267,7 @@ select_permissions:
         - firstNameSortable
         - guest
         - guestStatus
-        - hasDrawPermissionOnCurrentPage
+        - whiteboardWriteAccess
         - inactivityWarningDisplay
         - inactivityWarningTimeoutSecs
         - isDialIn

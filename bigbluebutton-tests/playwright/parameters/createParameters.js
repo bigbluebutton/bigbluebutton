@@ -2,8 +2,8 @@ const { expect } = require('@playwright/test');
 const { MultiUsers } = require('../user/multiusers');
 const e = require('../core/elements');
 const { messageModerator } = require('../parameters/constants');
-const { reopenChatSidebar, checkScreenshots, checkDefaultLocationReset } = require('../layouts/util');
-const { ELEMENT_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME, VIDEO_LOADING_WAIT_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME } = require('../core/constants');
+const { checkScreenshots, checkDefaultLocationReset } = require('../layouts/util');
+const { ELEMENT_WAIT_TIME, VIDEO_LOADING_WAIT_TIME } = require('../core/constants');
 const { sleep } = require('../core/helpers');
 
 class CreateParameters extends MultiUsers {
@@ -157,7 +157,6 @@ class CreateParameters extends MultiUsers {
     await sleep(1000);
 
     await checkScreenshots(this, 'should be on custom layout', 'video', 'custom-layout', 4);
-    await reopenChatSidebar(this.modPage);
   }
 
   async smartLayout() {
@@ -170,7 +169,6 @@ class CreateParameters extends MultiUsers {
     await sleep(1000); // wait for the whiteboard zoom to stabilize
 
     await checkScreenshots(this, 'should the cameras be on the side of presentation', [e.webcamContainer, e.webcamMirroredVideoContainer], 'smart-layout', 2);
-    await reopenChatSidebar(this.modPage);
   }
 
   async presentationFocus() {

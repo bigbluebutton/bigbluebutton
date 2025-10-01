@@ -1,14 +1,12 @@
 const { test } = require('../fixtures');
-const { fullyParallel } = require('../playwright.config');
 const { LearningDashboard } = require('./learningdashboard');
 const c = require('../parameters/constants');
 const { initializePages } = require('../core/helpers');
 
-test.describe('Learning Dashboard', { tag: '@ci' } , async () => {
+test.describe.parallel('Learning Dashboard', { tag: '@ci' } , async () => {
   const learningDashboard = new LearningDashboard();
 
-  test.describe.configure({ mode: fullyParallel ? 'parallel' : 'serial' });
-  test[fullyParallel ? 'beforeEach' : 'beforeAll'](async ({ browser }, testInfo) => {
+  test.beforeEach(async ({ browser }, testInfo) => {
     await initializePages(learningDashboard, browser, { createParameter: c.recordMeeting, testInfo });
     await learningDashboard.getDashboardPage();
   });

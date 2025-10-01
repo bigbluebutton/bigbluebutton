@@ -71,7 +71,6 @@ const WhiteboardContainer = (props) => {
   const [shapes, setShapes] = useState([]);
   const [removedShapes, setRemovedShapes] = useState([]);
   const [isTabVisible, setIsTabVisible] = useState(document.visibilityState === 'visible');
-  const [currentPresentationPage, setCurrentPresentationPage] = useState(null);
 
   const { userLocks } = useLockContext();
 
@@ -81,6 +80,7 @@ const WhiteboardContainer = (props) => {
   const flushScheduledRef = useRef(false);
 
   const fetchDeletableShapesRef = useRef();
+  const currentPresentationPageRef = useRef();
 
   // Aggregates the queues and updates state at once.
   const flushUpdates = useCallback(() => {
@@ -123,9 +123,11 @@ const WhiteboardContainer = (props) => {
     presenter: user.presenter,
     isModerator: user.isModerator,
     userId: user.userId,
+    whiteboardWriteAccess: user.whiteboardWriteAccess,
   }));
   const isPresenter = currentUser?.presenter;
   const isModerator = currentUser?.isModerator;
+  const hasWBAccess = currentUser?.whiteboardWriteAccess;
 
   const presenterChanged = usePrevious(isPresenter) !== isPresenter;
 
@@ -133,7 +135,8 @@ const WhiteboardContainer = (props) => {
     CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
   );
   const { pres_page_curr: presentationPageArray } = (presentationPageData || {});
-  const newPresentationPage = presentationPageArray && presentationPageArray[0];
+  const currentPresentationPage = presentationPageArray && presentationPageArray[0];
+  currentPresentationPageRef.current = currentPresentationPage;
 
   useEffect(() => {
     const handleVisibilityChange = () => {
@@ -147,20 +150,11 @@ const WhiteboardContainer = (props) => {
     };
   }, []);
 
-  useEffect(() => {
-    if (newPresentationPage) {
-      setCurrentPresentationPage(newPresentationPage);
-    }
-  }, [newPresentationPage]);
-
   const curPageNum = currentPresentationPage?.num;
   const curPageId = currentPresentationPage?.pageId;
   const isInfiniteWhiteboard = currentPresentationPage?.infiniteWhiteboard;
   const curPageIdRef = useRef();
-
-  React.useEffect(() => {
-    curPageIdRef.current = curPageId;
-  }, [curPageId]);
+  curPageIdRef.current = curPageId;
 
   const presentationId = currentPresentationPage?.presentationId;
 
@@ -171,8 +165,7 @@ const WhiteboardContainer = (props) => {
     },
   );
 
-  const whiteboardWriters = whiteboardWritersData?.pres_page_writers || [];
-  const hasWBAccess = whiteboardWriters?.some((writer) => writer.userId === Auth.userID);
+  const whiteboardWriters = whiteboardWritersData?.user_whiteboardWriteAccess || [];
   const wBAccessChanged = usePrevious(hasWBAccess) !== hasWBAccess;
 
   const [presentationSetZoom] = useMutation(PRESENTATION_SET_ZOOM);
@@ -210,14 +203,16 @@ const WhiteboardContainer = (props) => {
     return allowedShapeIds;
   }, [isModerator, isPresenter, hasWBAccess, shapes, currentUser?.userId]);
 
-  useEffect(() => {
-    fetchDeletableShapesRef.current = fetchDeletableShapes;
-  }, [fetchDeletableShapes]);
+  fetchDeletableShapesRef.current = fetchDeletableShapes;
 
   const removeShapes = (shapeIds) => {
     const deletableShapeIds = fetchDeletableShapesRef.current?.(shapeIds);
 
-    if (!Array.isArray(deletableShapeIds) || deletableShapeIds.length === 0) return;
+    if (
+      !Array.isArray(deletableShapeIds)
+      || deletableShapeIds.length === 0
+      || !curPageIdRef.current
+    ) return;
 
     presentationDeleteAnnotations({
       variables: {
@@ -246,6 +241,7 @@ const WhiteboardContainer = (props) => {
   }, 500);
 
   const submitAnnotations = async (newAnnotations) => {
+    if (!curPageIdRef.current) return false;
     const isAnnotationSent = await presentationSubmitAnnotations({
       variables: {
         pageId: curPageIdRef.current,
@@ -279,14 +275,14 @@ const WhiteboardContainer = (props) => {
     publishCursorUpdate,
   ), [publishCursorUpdate]);
 
-  const isMultiUserActive = whiteboardWriters.filter((u) => !u.user.presenter)?.length > 0;
+  const isMultiUserActive = whiteboardWriters.filter((u) => !u.presenter)?.length > 0;
   const cursorArray = useMergedCursorData();
 
   const connectedStatus = useReactiveVar(connectionStatus.getConnectedStatusVar());
 
   useEffect(() => {
     setTimeout(async () => {
-      if (!curPageId || !editor || !connectedStatus) return;
+      if (!currentPresentationPageRef.current?.pageId || !editor || !connectedStatus) return;
       try {
         const result = await refetchInitialPageAnnotations();
         const serverAnnotations = result?.data?.pres_annotation_curr || [];
@@ -396,7 +392,7 @@ const WhiteboardContainer = (props) => {
   }, [annotationStreamData]);
 
   useEffect(() => {
-    if (!isTabVisible || !curPageId || !connectedStatus) return;
+    if (!isTabVisible || !curPageIdRef.current || !connectedStatus) return;
 
     setTimeout(() => {
       refetchInitialPageAnnotations();

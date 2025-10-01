@@ -102,7 +102,7 @@ export interface User {
   voice?: Partial<Voice>;
   locked: boolean;
   registeredAt: string;
-  hasDrawPermissionOnCurrentPage: boolean;
+  whiteboardWriteAccess: boolean;
   lastBreakoutRoom?: LastBreakoutRoom;
   breakoutRoomsSummary?: BreakoutRoomsSummary;
   cameras: Array<Cameras>;

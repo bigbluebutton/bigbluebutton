@@ -16,7 +16,7 @@ subscription userCurrentSubscription {
     extId
     guest
     guestStatus
-    hasDrawPermissionOnCurrentPage
+    whiteboardWriteAccess
     inactivityWarningDisplay
     inactivityWarningTimeoutSecs
     isDialIn

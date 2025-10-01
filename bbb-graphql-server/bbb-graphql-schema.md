@@ -82,7 +82,7 @@ Permission: Restricted to User Viewing Self-Related Data
 - `firstNameSortable`
 - `guest`
 - `guestStatus`
-- `hasDrawPermissionOnCurrentPage`
+- `whiteboardWriteAccess`
 - `inactivityWarningDisplay`
 - `inactivityWarningTimeoutSecs`
 - `isDialIn`
@@ -203,7 +203,7 @@ Permission: Restricted by Lock Settings
 - `firstNameSortable`
 - `guest`
 - `guestStatus`
-- `hasDrawPermissionOnCurrentPage`
+- `whiteboardWriteAccess`
 - `isDialIn`
 - `isModerator`
 - `isRunningEchoTest`

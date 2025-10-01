@@ -69,7 +69,6 @@ interface DropdownItem {
 }
 
 interface Writer {
-  pageId: string;
   userId: string;
 }
 
@@ -228,7 +227,6 @@ const UserActions: React.FC<UserActionsProps> = ({
   const [getWriters] = useLazyQuery(
     CURRENT_PAGE_WRITERS_QUERY,
     {
-      variables: { pageId },
       fetchPolicy: 'no-cache',
     },
   );
@@ -242,8 +240,7 @@ const UserActions: React.FC<UserActionsProps> = ({
     try {
       // Fetch the writers data
       const { data } = await getWriters();
-      const allWriters: Writer[] = data?.pres_page_writers || [];
-      const currentWriters = allWriters?.filter((writer: Writer) => writer.pageId === pageId);
+      const currentWriters: Writer[] = data?.user || [];
 
       // Determine if the user has access
       const { userId, presPagesWritable } = user;

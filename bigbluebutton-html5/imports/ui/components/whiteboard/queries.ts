@@ -12,17 +12,25 @@ export interface CursorCoordinatesResponse {
   pres_page_cursor_stream: CursorCoordinates[];
 }
 
-export interface UsersCurrentPageWritersResponse {
+export interface UserWhiteboardWriteAccess {
   userId: string;
-  user: {
-    name: string;
-    presenter: boolean;
-  };
+  name: string;
+  presenter: boolean;
 }
 
-// Interface for the pres_page_writers subscription
+// Interface for the whiteboard writers subscription
 export interface CurrentPageWritersResponse {
-  pres_page_writers: Array<UsersCurrentPageWritersResponse>;
+  user_whiteboardWriteAccess: Array<UserWhiteboardWriteAccess>;
+}
+
+export interface UserWhiteboardCursor {
+  userId: string;
+  name: string;
+  presenter: boolean;
+}
+
+export interface UserWhiteboardCursorResponse {
+  user_whiteboardCursorAccess: Array<UserWhiteboardCursor>;
 }
 
 export interface CurrentPresentationPagesSubscriptionResponse {
@@ -177,25 +185,40 @@ export const ANNOTATION_HISTORY_STREAM = gql`
 `;
 
 export const CURRENT_PAGE_WRITERS_QUERY = gql`
-  query currentPageWritersQuery($pageId: String!) {
-    pres_page_writers(where: { pageId: { _eq: $pageId } }) {
+  query whiteboardWriteAccessQuery {
+    user_whiteboardWriteAccess(
+      order_by: { userId: asc }
+    ) {
       userId
-      pageId
+      name
+      presenter
+      isModerator
     }
   }
 `;
 
 export const CURRENT_PAGE_WRITERS_SUBSCRIPTION = gql`
-  subscription currentPageWritersSubscription {
-    pres_page_writers(
-      where: { isCurrentPage: {_eq: true}, user: { currentlyInMeeting: { _eq: true } } },
+  subscription whiteboardWriteAccessSubscription {
+    user_whiteboardWriteAccess(
       order_by: { userId: asc }
     ) {
       userId
-      user {
-        name
-        presenter
-      }
+      name
+      presenter
+      isModerator
+    }
+  }
+`;
+
+export const CURRENT_CURSORS_SUBSCRIPTION = gql`
+  subscription whiteboardCursorAccessSubscription {
+    user_whiteboardCursorAccess(
+      order_by: { userId: asc }
+    ) {
+      userId
+      name
+      presenter
+      isModerator
     }
   }
 `;
