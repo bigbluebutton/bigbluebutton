@@ -30,6 +30,8 @@ func NewBBBError(key string, msg string) *BBBError {
 	}
 }
 
+// GrpcErrorToBBBError takes the given gRPC error
+// and converts into a BigBlueButton error.
 func GrpcErrorToBBBError(err error) *BBBError {
 	st, ok := status.FromError(err)
 	if ok {

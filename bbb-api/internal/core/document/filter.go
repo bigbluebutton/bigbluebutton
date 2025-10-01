@@ -10,8 +10,12 @@ import (
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/responses"
 )
 
+// MeetingRunningFilter is a pipeline.Filter implementation
+// for checking the running status of a given meeting.
 type MeetingRunningFilter struct{}
 
+// Filter returns an error if the meeting associated with the
+// provided [MeetingRunningResponse] is no longer running.
 func (f *MeetingRunningFilter) Filter(msg pipeline.Message[*meeting.MeetingRunningResponse]) error {
 	if !msg.Payload.MeetingRunning.IsRunning {
 		return core.NewBBBError(responses.MeetingNotFoundKey, responses.MeetingNotFoundMsg)
@@ -19,10 +23,18 @@ func (f *MeetingRunningFilter) Filter(msg pipeline.Message[*meeting.MeetingRunni
 	return nil
 }
 
+// PresentationFilter is a pipeline.Filter implementation used for
+// validating uploaded presentations before they enter the document
+// conversion pipeline.
 type PresentationFilter struct {
 	scanner Scanner
 }
 
+// Filer verfifies that the provided presentation is valid. A valid
+// presentation must have a proper content types that corresponds to
+// the presentation's file extension. The presentation may also be
+// scanner for malware is the setting is enabled in the document
+// processing configuration.
 func (f *PresentationFilter) Filter(msg pipeline.Message[*Presentation]) error {
 	pres := msg.Payload
 

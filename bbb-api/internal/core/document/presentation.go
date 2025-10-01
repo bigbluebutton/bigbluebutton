@@ -1,5 +1,7 @@
 package document
 
+// Presentation is a representation of a
+// BigBlueButton presentation.
 type Presentation struct {
 	ID           string
 	TempID       string
@@ -16,8 +18,8 @@ type Presentation struct {
 	Pages        []Page
 }
 
-// Copy creates a deep copy of the Presentation and returns
-// the reference to the new presentation.
+// Copy creates a deep copy of the [Presentation] and returns
+// the reference to the new [Presentation].
 func (p Presentation) Copy() Presentation {
 	pres := Presentation{
 		ID:           p.ID,
@@ -41,6 +43,8 @@ func (p Presentation) Copy() Presentation {
 	return pres
 }
 
+// A Page represents an individual document page
+// from a [Presentation].
 type Page struct {
 	ParentFilePath string
 	FilePath       string
@@ -51,6 +55,8 @@ type Page struct {
 	PNGPath        string
 }
 
+// Copy creates a deep copy of the [Page] and returns
+// the reference to the new [Page].
 func (p Page) Copy() Page {
 	return Page{
 		ParentFilePath: p.ParentFilePath,

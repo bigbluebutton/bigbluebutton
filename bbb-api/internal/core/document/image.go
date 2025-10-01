@@ -109,6 +109,8 @@ func NewCMDIMageResizerWithConfig(cfg config.Config) *CMDImageResizer {
 	}
 }
 
+// Resize attempts to resize the image located at the given file path
+// to the specified dimensions. Returns an error if resizing fails.
 func (r *CMDImageResizer) Resize(path, dimensions string) error {
 	args := []string{
 		"-resize",

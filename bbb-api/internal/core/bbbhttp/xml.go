@@ -31,7 +31,7 @@ func WriteXML(w http.ResponseWriter, status int, data any, headers ...http.Heade
 	return nil
 }
 
-// Modules are a collection of XML modules.
+// Modules is a collection of XML modules.
 type Modules struct {
 	XMLName xml.Name `xml:"modules"`
 	Modules []Module `xml:"module"`

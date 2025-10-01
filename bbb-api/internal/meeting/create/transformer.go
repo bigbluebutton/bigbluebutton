@@ -50,8 +50,12 @@ func (r *RequestToIsMeetingRunning) Transform(msg pipeline.Message[*http.Request
 	return pipeline.NewMessageWithContext(grpcReq, ctx), nil
 }
 
+// MeetingRunningToMeetingInfo is a pipleline.Transformer implementation that is used
+// to transform a [MeetingRunningResponse] into a [MeetingInfoRequest].
 type MeetingRunningToMeetingInfo struct{}
 
+// Transform takes an incoming message with a payload of type MeetingRunningResponse and transforms
+// it into a [MeetingInfoRequest] for the parent meeting of the current breakout room.
 func (m *MeetingRunningToMeetingInfo) Transform(msg pipeline.Message[*meeting.MeetingRunningResponse]) (pipeline.Message[*meeting.MeetingInfoRequest], error) {
 	params := msg.Context().Value(core.ParamsKey).(bbbhttp.Params)
 	parentMeetingID := validation.StripCtrlChars(params.Get(meetingapi.ParentMeetingIDParam).Value)
@@ -63,10 +67,19 @@ func (m *MeetingRunningToMeetingInfo) Transform(msg pipeline.Message[*meeting.Me
 	return pipeline.NewMessageWithContext(req, msg.Context()), nil
 }
 
+// MeetingRunningToMeetingInfo is a pipleline.Transformer implementation that is used
+// to transform a [MeetingInfoResponse] into a [CreateMeetingRequest].
 type MeetingRunningToCreate struct {
 	proc document.Processor
 }
 
+// Transform takes an incoming message with a payload of type MeetingInfoResponse and transforms
+// it into a [CreateMeetingRequest]. The [CreateMeetingRequest] is populated with all of the
+// necessary settings to construct a BigBlueButton meeting. Caller defined overrides for various
+// settings are extracted from the parameters of the original HTTP request embedded in the message's
+// context. Sensible defaults are used for any settings not overridden by the caller. Any client
+// setting overrides or presentation documents are also extracted from the HTTP request body and
+// captured for further processing.
 func (m *MeetingRunningToCreate) Transform(msg pipeline.Message[*meeting.MeetingInfoResponse]) (pipeline.Message[*meeting.CreateMeetingRequest], error) {
 	params := msg.Context().Value(core.ParamsKey).(bbbhttp.Params)
 
@@ -452,6 +465,8 @@ func replaceKeywords(message string, dialNumber string, voiceBridge string, meet
 	return message
 }
 
+// MeetingRunningToMeetingInfo is a pipleline.Transformer implementation that is used
+// to transform a gRPC [CreateMeetingResponse] into a BigBlueButton [CreateMeetingResponse].
 type CreateMeetingToResponse struct{}
 
 func (c *CreateMeetingToResponse) Transform(msg pipeline.Message[*meeting.CreateMeetingResponse]) (pipeline.Message[*meetingapi.CreateMeetingResponse], error) {

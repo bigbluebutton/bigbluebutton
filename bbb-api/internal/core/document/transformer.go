@@ -9,8 +9,14 @@ import (
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/pipeline"
 )
 
+// PresentationToMeetingRunning is a pipeline.Transformer
+// implementation for transforming a [Presentation] into
+// a [MeetingRunningRequest].
 type PresentationToMeetingRunning struct{}
 
+// Transform takes a [Presentation] and builds a
+// [MeetingRunningRequest] for the meeting associated
+// with the [Presentation].
 func (p *PresentationToMeetingRunning) Transform(msg pipeline.Message[*Presentation]) (pipeline.Message[*meeting.MeetingRunningRequest], error) {
 	pres := msg.Payload
 
@@ -25,8 +31,13 @@ func (p *PresentationToMeetingRunning) Transform(msg pipeline.Message[*Presentat
 	return pipeline.NewMessageWithContext(req, ctx), nil
 }
 
+// MeetingRunningToPresenation is a pipeline.Transformer
+// implementation for transforming a [MeetingRunningResponse]
+// into a [Presentation]
 type MeetingRunningToPresenation struct{}
 
+// Transform takes a [MeetingRunningResponse] and extracts
+// the presentation stored in the message's context.
 func (m *MeetingRunningToPresenation) Transform(msg pipeline.Message[*meeting.MeetingRunningResponse]) (pipeline.Message[*Presentation], error) {
 	pres := msg.Context().Value(core.PresentationKey).(*Presentation)
 	return pipeline.NewMessage(pres), nil

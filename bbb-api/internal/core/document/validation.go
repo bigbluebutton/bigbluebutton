@@ -19,6 +19,10 @@ var (
 	}
 )
 
+// ValidateContentType ensures that the provided document
+// content type is valid. A valid content type is one that
+// is supported by BigBlueButton and matches the content
+// type associated with the given file extension.
 func ValidateContentType(contentType, fileExt string) error {
 	if contentType == "" {
 		return errors.New("no content type provided")

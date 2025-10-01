@@ -53,10 +53,16 @@ func (s *SendMeetingRunningRequest) Send(msg pipeline.Message[*meeting.MeetingRu
 	return pipeline.NewMessageWithContext(res, msg.Context()), nil
 }
 
+// SendMeetingInfoRequest is an implementation of the pipeline.SenderReceiver
+// interface that is used to send a [MeetingInfoRequest] to Akka Apps and
+// recieve [MeetingInfoResponse].
 type SendMeetingInfoRequest struct {
 	client meetingapi.Client
 }
 
+// Send makes a gRPC request to Akka Apps using the incoming message with a payload
+// of type [MeetingInfoRequest] and returns the response in a new message with
+// a payload of type [MeetingInfoResponse].
 func (s *SendMeetingInfoRequest) Send(msg pipeline.Message[*meeting.MeetingInfoRequest]) (pipeline.Message[*meeting.MeetingInfoResponse], error) {
 	params := msg.Context().Value(core.ParamsKey).(bbbhttp.Params)
 	isBreakoutRoom := validation.StripCtrlChars(params.Get(meetingapi.IsBreakoutRoomParam).Value)
@@ -79,10 +85,16 @@ func (s *SendMeetingInfoRequest) Send(msg pipeline.Message[*meeting.MeetingInfoR
 	return pipeline.NewMessageWithContext(res, msg.Context()), nil
 }
 
+// SendCreateMeetingRequest is an implementation of the pipeline.SenderReceiver
+// interface that is used to send a [CreateMeetingRequest] to Akka Apps and
+// recieve [CreateMeetingResponse].
 type SendCreateMeetingRequest struct {
 	client meetingapi.Client
 }
 
+// Send makes a gRPC request to Akka Apps using the incoming message with a payload
+// of type [CreateMeetingRequest] and returns the response in a new message with
+// a payload of type [CreateMeetingResponse].
 func (s *SendCreateMeetingRequest) Send(msg pipeline.Message[*meeting.CreateMeetingRequest]) (pipeline.Message[*meeting.CreateMeetingResponse], error) {
 	if s.client == nil {
 		return pipeline.Message[*meeting.CreateMeetingResponse]{}, errors.New(responses.NoClientProvided)

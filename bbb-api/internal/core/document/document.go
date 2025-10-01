@@ -1,3 +1,7 @@
+// Package document contains functionality for processing
+// uploaded documents into BigBlueButton presentations.
+// Supported document types include images, PDFs, and
+// Microsoft Office file types.
 package document
 
 import (

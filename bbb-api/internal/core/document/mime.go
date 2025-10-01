@@ -36,6 +36,8 @@ var (
 	imgFileExt = []string{FileExtJPEG, FileExtJPG, FileExtPNG, FileExtSVG, FileExtWEBP}
 )
 
+// FileExtFromContentType attempts to find a file extension corresponding
+// to the given MIME type.
 func FileExtFromContentType(contentType string) (string, error) {
 	for ext, types := range extToContentType {
 		for _, t := range types {
@@ -47,6 +49,8 @@ func FileExtFromContentType(contentType string) (string, error) {
 	return "", fmt.Errorf("no file extension matches the given content type %s", contentType)
 }
 
+// FileExtMatchesContentType determines whether the provided file
+// extension is suitable for the specified MIME type.
 func FileExtMatchesContentType(fileExt string, contentType string) bool {
 	contentTypes, ok := extToContentType[fileExt]
 	if !ok {
@@ -61,6 +65,8 @@ func FileExtMatchesContentType(fileExt string, contentType string) bool {
 	return false
 }
 
+// IsOfficeFile determines whether the given file
+// extension is for a Microsoft office file type.
 func IsOfficeFile(ext string) bool {
 	for _, e := range msOfficeExt {
 		if ext == e {
@@ -70,6 +76,8 @@ func IsOfficeFile(ext string) bool {
 	return false
 }
 
+// IsImageFile determines whether the given file
+// extension is for an image file.
 func IsImageFile(ext string) bool {
 	for _, e := range imgFileExt {
 		if ext == e {

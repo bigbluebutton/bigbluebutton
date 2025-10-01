@@ -27,40 +27,68 @@ var (
 // Config encapsulates all of the settings necessary for the proper functioning of the
 // Core API.
 type Config struct {
+	// Meeting API server settings
 	Server struct {
-		Host          string `yaml:"host"`
-		Port          string `yaml:"port"`
+		// Meeting API server host
+		Host string `yaml:"host"`
+		// Meeting API server port
+		Port string `yaml:"port"`
+		// BigBlueButton API server settings
 		BigBlueButton struct {
-			URL       string `yaml:"url"`
+			// BigBlueButton server URL
+			URL string `yaml:"url"`
+			// BigBlueButton server logout URL
 			LogoutURL string `yaml:"logout_url"`
-			Logo      struct {
+			// BigBlueButton server logo settings
+			Logo struct {
+				// BigBlueButton default logo settings
 				Default struct {
-					Use     bool `yaml:"use"`
+					// Indicates whether the default BigBlueButton
+					// logo should be used.
+					Use bool `yaml:"use"`
+					// Indicates whether the default BigBlueButton
+					// dark logo should be used
 					UseDark bool `yaml:"use_dark"`
-					Path    struct {
-						Logo     string `yaml:"logo"`
+					// BigBlueButton logo path settings
+					Path struct {
+						// Location of the default BigBlueButton logo
+						Logo string `yaml:"logo"`
+						// Location of the default BigBlueButton dark logo
 						DarkLogo string `yaml:"dark_logo"`
 					} `yaml:"path"`
 				} `yaml:"default"`
 			} `yaml:"logo"`
 		} `yaml:"bigbluebutton"`
+		// Akka Apps gRPC server settings
 		Grpc struct {
+			// Akka Apps gRPC server host
 			Host string `yaml:"host"`
+			// Akka Apps gRPC server port
 			Port string `yaml:"port"`
 		} `yaml:"grpc"`
 	} `yaml:"server"`
+	// Meeting API server security settings
 	Security struct {
-		Salt     string `yaml:"salt"`
+		// Server checksum salt for authenticating API calls
+		Salt string `yaml:"salt"`
+		// Server checksum authentication settings
 		Checksum struct {
+			// Supported checksum validation hash algorithms
 			Algorithms []string `yaml:"algorithms"`
 		} `yaml:"checksum"`
 	} `yaml:"security"`
+	// Meeting settings
 	Meeting struct {
+		// Camera settings
 		Cameras struct {
-			Cap              int32 `yaml:"cap"`
-			MaxPinned        int32 `yaml:"max_pinned"`
-			ModOnly          bool  `yaml:"mod_only"`
-			AllowModsToEject bool  `yaml:"allow_mods_to_eject"`
+			// Per meeting camera share limit (0 means no limit)
+			Cap int32 `yaml:"cap"`
+			// Maximum number of cameras that can be pinned simultaneously
+			MaxPinned int32 `yaml:"max_pinned"`
+			// Allow webcam streaming reception only to and from moderators
+			ModOnly bool `yaml:"mod_only"`
+			// Indicates whether moderators are allowed to eject user cameras
+			AllowModsToEject bool `yaml:"allow_mods_to_eject"`
 		} `yaml:"cameras"`
 		Features struct {
 			Disabled []string `yaml:"disabled"`

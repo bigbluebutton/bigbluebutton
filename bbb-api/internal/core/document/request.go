@@ -13,10 +13,16 @@ import (
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/responses"
 )
 
+// SendMeetingRunningRequest is a pipeline.SenderReceiver implementation
+// for sending a [MeetingRunningRequest] to Akka Apps.
 type SendMeetingRunningRequest struct {
 	client Client
 }
 
+// Send attempts to repeatedly send a [MeetingRunningRequest] to Akka Apps.
+// One request is sent per second over a timeout period. Returns a
+// [MeetingRunningResponse] once it has been determined that the desired
+// meeting is running or after the timeout period has elapsed.
 func (s *SendMeetingRunningRequest) Send(msg pipeline.Message[*meeting.MeetingRunningRequest]) (pipeline.Message[*meeting.MeetingRunningResponse], error) {
 	if s.client == nil {
 		return pipeline.Message[*meeting.MeetingRunningResponse]{}, errors.New(responses.NoClientProvided)

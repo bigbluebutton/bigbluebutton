@@ -65,6 +65,8 @@ func (m *MeetingInfoToResponse) Transform(msg pipeline.Message[*meeting.MeetingI
 		return pipeline.Message[*meetingapi.Response]{}, core.NewBBBError(responses.DocProcessingFailedKey, responses.DocProcessingFailedMsg)
 	}
 
+	// TODO: Convert presentations
+
 	return pipeline.NewMessageWithContext(&meetingapi.Response{
 		ReturnCode: responses.ReturnCodeSuccess,
 		MessageKey: responses.PresentationUploadedKey,

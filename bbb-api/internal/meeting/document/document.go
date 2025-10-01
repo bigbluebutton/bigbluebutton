@@ -19,10 +19,15 @@ import (
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/meeting/config"
 )
 
+// A PresentationModule is a BigBlueButton XML module
+// that contains documents to be uploaded and processed
+// into presentations.
 type PresentationModule struct {
 	Documents []Document `xml:"document"`
 }
 
+// A Document is a file that is to be uploaded and
+// processed into a presentation.
 type Document struct {
 	XMLName       xml.Name `xml:"document"`
 	Name          string   `xml:"name,attr,omitempty"`
@@ -38,17 +43,26 @@ type Document struct {
 	DecodedBytes  []byte
 }
 
+// DocumentsToProcess are documents that are still
+// embedded in an XML module and require extraction
+// for further processing.
 type DocumentsToProcess struct {
 	Modules         bbbhttp.RequestModules
 	IsFromInsertAPI bool
 }
 
+// ParsedDocuments are documents that have been
+// extracted from an XML module and are ready to
+// be processed into presentations.
 type ParsedDocuments struct {
 	Documents     []Document
 	HasCurrent    bool
 	FromInsertAPI bool
 }
 
+// Processor is the interface that groups the
+// functionality for parsing and processing documents
+// from XML modules into presentations.
 type Processor interface {
 	Parse(modules bbbhttp.RequestModules, params bbbhttp.Params, fromInsert bool) (*ParsedDocuments, error)
 	Process(parsed *ParsedDocuments) ([]coredoc.Presentation, error)
@@ -56,11 +70,16 @@ type Processor interface {
 	bbbhttp.Client
 }
 
+// A DefaultProcessor is the primary processor implementation
+// that should be used for the extraction and transformation of
+// XML module documents.
 type DefaultProcessor struct {
 	cfg config.Config
 	bbbhttp.Client
 }
 
+// DocSource is the interface that represents the
+// source of the file content for an uploaded document.
 type DocSource interface {
 	Name() string
 	ReadAll() ([]byte, error)

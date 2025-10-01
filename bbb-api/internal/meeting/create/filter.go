@@ -89,8 +89,14 @@ func (f *MeetingRunningResponseFilter) Filter(msg pipeline.Message[*meeting.Meet
 	return nil
 }
 
+// CreateMeetingResponseFilter is an impementaion of the pipeline.Filter interface for
+// validating gRPC CreateMeetingResponses.
 type CreateMeetingResponseFilter struct{}
 
+// Filter ensures that the CreateMeetingResponse is valid. A valid response must
+// be non-nil, contain information about the meeting that was created, and the
+// created meeting must have use a unique meeting ID. Returns an error if any
+// of these conditions are not met.
 func (f *CreateMeetingResponseFilter) Filter(msg pipeline.Message[*meeting.CreateMeetingResponse]) error {
 	payload := msg.Payload
 	if payload == nil {

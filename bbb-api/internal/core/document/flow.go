@@ -5,6 +5,8 @@ import (
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/pipeline"
 )
 
+// NewDocumentFlow creates a [pipeline.Flow] for handling presentation conversion.
+// TODO: finish this flow
 func NewDocumentFlow(client Client, fileExtension string) pipeline.Flow[*Presentation, *Presentation] {
 	transformToMeetingRunning := pipeline.NewStep[*Presentation, *meeting.MeetingRunningRequest]().Transform(&PresentationToMeetingRunning{})
 	sendReceiveMeetingRunning := pipeline.NewStep[*meeting.MeetingRunningRequest, *meeting.MeetingRunningResponse]().SendReceive(&SendMeetingRunningRequest{})
