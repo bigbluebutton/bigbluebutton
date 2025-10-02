@@ -1,4 +1,4 @@
-import NotesRenderMode from './constants';
+import { NotesRenderMode } from './constants';
 
 export type NotesRenderModeType = typeof NotesRenderMode[keyof typeof NotesRenderMode];
 

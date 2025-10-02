@@ -31,8 +31,8 @@ import {
   Input,
   DispatcherFunction,
 } from '/imports/ui/components/layout/layoutTypes';
-import NotesRenderMode, { sidebarContentToIgnoreDelay } from './constants';
-import NotesRenderModeType from './types';
+import { NotesRenderMode, sidebarContentToIgnoreDelay } from './constants';
+import { NotesRenderModeType } from './types';
 import { NOTES_ID, NOTES_UNMOUNT_DELAY } from './service';
 
 const intlMessages = defineMessages({

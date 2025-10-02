@@ -49,7 +49,7 @@ import useJoinLogger from './hooks/useJoinLogger';
 import useAppInitialization from './hooks/useAppInitialization';
 import usePollShortcut from './hooks/usePollShortcut';
 import useUserStatusNotifications from './hooks/useUserStatusNotifications';
-import NotesRenderMode from '/imports/ui/components/notes/constants';
+import { NotesRenderMode } from '/imports/ui/components/notes/constants';
 
 interface AppProps {
   darkTheme: boolean;
