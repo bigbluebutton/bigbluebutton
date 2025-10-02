@@ -208,8 +208,8 @@ const ChatAlertContainerGraphql: React.FC = () => {
   const { data: chatMessages } = useDeduplicatedSubscription<ChatMessageStreamResponse>(
     CHAT_MESSAGE_STREAM,
     {
+      skip: skipSubscriptions,
       variables: {
-        skip: skipSubscriptions,
         createdAt: cursor.current.toISOString(),
       },
     },
