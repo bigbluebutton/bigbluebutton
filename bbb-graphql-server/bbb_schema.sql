@@ -1200,6 +1200,8 @@ CREATE TRIGGER "trigger_update_chat_totalMessages"
 AFTER INSERT OR DELETE ON "chat_message" FOR EACH ROW
 EXECUTE FUNCTION "update_chat_totalMessages"();
 
+-- Start of Triggers related with totalUnreadMessages
+
 CREATE OR REPLACE FUNCTION "update_chat_user_totalUnreadMessages"(_meetingId text, _chatId text, _userId text DEFAULT NULL)
 RETURNS void AS $$
 BEGIN
@@ -1251,11 +1253,11 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER trg_chat_message_update_unread
-AFTER INSERT OR UPDATE OR DELETE ON "chat_message"
-FOR EACH ROW EXECUTE FUNCTION trg_chat_message_update_unread();
+CREATE TRIGGER "trg_chat_message_update_unread"
+AFTER DELETE ON "chat_message"
+FOR EACH ROW EXECUTE FUNCTION "trg_chat_message_update_unread"();
 
-CREATE OR REPLACE FUNCTION trg_chat_user_update_unread()
+CREATE OR REPLACE FUNCTION "trg_chat_user_update_unread"()
 RETURNS TRIGGER AS $$
 BEGIN
   IF NEW."lastSeenAt" IS DISTINCT FROM OLD."lastSeenAt" THEN
@@ -1267,7 +1269,27 @@ $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER trg_chat_user_update_unread
 AFTER UPDATE OF "lastSeenAt" ON "chat_user"
-FOR EACH ROW EXECUTE FUNCTION trg_chat_user_update_unread();
+FOR EACH ROW EXECUTE FUNCTION "trg_chat_user_update_unread"();
+
+
+
+CREATE OR REPLACE FUNCTION "update_chat_user_totalUnreadMessagesInsert"() RETURNS TRIGGER AS $$
+BEGIN
+  UPDATE "chat_user" cu
+  SET "totalUnreadMessages" = coalesce("totalUnreadMessages",0) + 1
+  WHERE cu."meetingId" = NEW."meetingId"
+    AND cu."chatId"    = NEW."chatId"
+    AND cu."userId"    != NEW."senderId";
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER "trg_chat_message_update_unreadInsert"
+AFTER INSERT ON "chat_message"
+FOR EACH ROW EXECUTE FUNCTION "update_chat_user_totalUnreadMessagesInsert"();
+
+
+-- End of Triggers related with totalUnreadMessages
 
 
 CREATE OR REPLACE FUNCTION "update_chatUser_clear_lastTypingAt_trigger_func"() RETURNS TRIGGER AS $$
