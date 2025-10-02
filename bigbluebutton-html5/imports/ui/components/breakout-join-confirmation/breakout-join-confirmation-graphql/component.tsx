@@ -233,7 +233,6 @@ const BreakoutJoinConfirmationContainer: React.FC = () => {
   const { data: currentUser } = useCurrentUser((u) => {
     return {
       isModerator: u.isModerator,
-      bot: u.bot,
       lastBreakoutRoom: u.lastBreakoutRoom,
       presenter: u.presenter,
       breakoutRoomsSummary: u.breakoutRoomsSummary,

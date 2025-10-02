@@ -29,6 +29,7 @@ subscription userCurrentSubscription {
     locked
     loggedOut
     mobile
+    bot
     name
     nameSortable
     pinned

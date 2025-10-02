@@ -41,6 +41,7 @@ subscription UserListSubscription($offset: Int!, $limit: Int!) {
     authed
     mobile
     guest
+    bot
     clientType
     disconnected
     loggedOut
