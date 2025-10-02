@@ -609,15 +609,18 @@ CREATE UNLOGGED TABLE "user_graphqlConnection" (
 	"closedAt" timestamp with time zone
 );
 
-CREATE INDEX "idx_user_graphqlConnection_sessionToken_closedAt" ON "user_graphqlConnection" ("sessionToken", "closedAt");
+CREATE INDEX "idx_user_graphqlConnection_sessionToken_closedAt" ON "user_graphqlConnection" ("sessionToken") where "closedAt" is null;
 
 
 create view "v_user_session" as
-select ust."meetingId", ust."userId", ust."sessionToken", ust."sessionName", ust."enforceLayout", count(ugc."graphqlConnectionId") as "connectionsAlive"
+select ust."meetingId", ust."userId", ust."sessionToken", ust."sessionName", ust."enforceLayout",
+(   select count(1)
+    from "user_graphqlConnection" ugc
+    where ugc."sessionToken" = ust."sessionToken"
+    and ugc."closedAt" is null) as "connectionsAlive"
 from "user_sessionToken" ust
-left join "user_graphqlConnection" ugc on ugc."sessionToken" = ust."sessionToken" and ugc."closedAt" is null
 where ust."removedAt" is null
-group by ust."meetingId", ust."userId", ust."sessionToken", ust."sessionName", ust."enforceLayout";
+;
 
 create unlogged table "user_metadata"(
     "meetingId" varchar(100),
