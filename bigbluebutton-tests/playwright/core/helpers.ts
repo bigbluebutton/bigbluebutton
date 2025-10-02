@@ -1,16 +1,18 @@
 import * as dotenv from 'dotenv';
-dotenv.config();
 
 import sha from 'sha.js';
 import axios, { AxiosResponse } from 'axios';
-import { test, expect, ConsoleMessage, Page, Browser, BrowserContext, TestInfo } from '@playwright/test';
+import { test, expect, type TestInfo, type ConsoleMessage, type Browser } from '@playwright/test';
 import * as xml2js from 'xml2js';
-import { runScript } from './util';
 import { env } from 'node:process';
 import { format } from 'node:util';
 // This is version 4 of chalk, not version 5, which uses ESM
 import * as chalk from 'chalk';
+import { runScript } from './util';
 import parameters, { Parameters } from './parameters';
+import { Page } from './page';
+
+dotenv.config();
 
 interface ErrorInfo {
   type: 'error' | 'pageerror';
@@ -46,16 +48,19 @@ export function getChecksum(text: string, secret: string): string {
         break;
       case 40:
       default:
-        algorithm = 'sha1'
+        algorithm = 'sha1';
     }
   }
-  return sha(algorithm as 'sha1' | 'sha256' | 'sha512').update(text).digest('hex');
+
+  return sha(algorithm as 'sha1' | 'sha256' | 'sha512')
+    .update(text)
+    .digest('hex');
 }
 
 export function getRandomInt(min: number, max: number): number {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-  return Math.floor(Math.random() * (max - min)) + min;
+  const minCeiled = Math.ceil(min);
+  const maxFloored = Math.floor(max);
+  return Math.floor(Math.random() * (maxFloored - minCeiled)) + minCeiled;
 }
 
 export function getApiCallUrl(name: string, callParams: Record<string, string>): string {
@@ -66,17 +71,18 @@ export function getApiCallUrl(name: string, callParams: Record<string, string>):
   return url;
 }
 
-export function apiCall(name: string, callParams: Record<string, string>): Promise<any> {
+export function apiCall<T = unknown>(name: string, callParams: Record<string, string>): Promise<AxiosResponse<T>> {
   const url = getApiCallUrl(name, callParams);
-  return axios.get(url, { adapter: 'http' }).then(response => xml2js.parseStringPromise(response.data));
+  return axios.get(url, { adapter: 'http' }).then((response) => xml2js.parseStringPromise(response.data));
 }
 
 export function createMeetingUrl(params: Parameters, createParameter?: string, customMeetingId?: string): string {
-  const meetingID = (customMeetingId) ? customMeetingId : `random-${getRandomInt(1000000, 10000000).toString()}`;
+  const meetingID = customMeetingId || `random-${getRandomInt(1000000, 10000000).toString()}`;
   const mp = params.moderatorPW;
   const ap = params.attendeePW;
-  const baseQuery = `name=${meetingID}&meetingID=${meetingID}&attendeePW=${ap}&moderatorPW=${mp}`
-    + `&allowStartStopRecording=true&autoStartRecording=false&welcome=${params.welcome}`;
+  const baseQuery =
+    `name=${meetingID}&meetingID=${meetingID}&attendeePW=${ap}&moderatorPW=${mp}` +
+    `&allowStartStopRecording=true&autoStartRecording=false&welcome=${params.welcome}`;
   const query = createParameter !== undefined ? `${baseQuery}&${createParameter}` : baseQuery;
   const apiCall = `create${query}${params.secret}`;
   const checksum = getChecksum(apiCall, parameters.secret!);
@@ -84,12 +90,20 @@ export function createMeetingUrl(params: Parameters, createParameter?: string, c
   return url;
 }
 
-export function createMeetingPromise(params: Parameters, createParameter?: string, customMeetingId?: string): Promise<AxiosResponse> {
+export function createMeetingPromise(
+  params: Parameters,
+  createParameter?: string,
+  customMeetingId?: string
+): Promise<AxiosResponse> {
   const url = createMeetingUrl(params, createParameter, customMeetingId);
   return axios.get(url, { adapter: 'http' });
 }
 
-export async function createMeeting(params: Parameters, createParameter?: string, customMeetingId?: string): Promise<string> {
+export async function createMeeting(
+  params: Parameters,
+  createParameter?: string,
+  customMeetingId?: string
+): Promise<string> {
   const promise = createMeetingPromise(params, createParameter, customMeetingId);
   const response = await promise;
   expect(response.status).toEqual(200);
@@ -97,9 +111,17 @@ export async function createMeeting(params: Parameters, createParameter?: string
   return xmlResponse.response.meetingID[0];
 }
 
-export function getJoinURL(meetingID: string, params: Parameters, moderator: boolean, joinParameter?: string, skipSessionDetailsModal?: boolean): string {
+export function getJoinURL(
+  meetingID: string,
+  params: Parameters,
+  moderator: boolean,
+  joinParameter?: string,
+  skipSessionDetailsModal?: boolean
+): string {
   const pw = moderator ? params.moderatorPW : params.attendeePW;
-  const shouldSkipSessionDetailsModal = skipSessionDetailsModal ? '&userdata-bbb_show_session_details_on_join=false' : '';  // default value in settings.yml is true
+  const shouldSkipSessionDetailsModal = skipSessionDetailsModal
+    ? '&userdata-bbb_show_session_details_on_join=false'
+    : ''; // default value in settings.yml is true
   const baseQuery = `fullName=${params.fullName}&meetingID=${meetingID}&password=${pw}${shouldSkipSessionDetailsModal}`;
   const query = joinParameter !== undefined ? `${baseQuery}&${joinParameter}` : baseQuery;
   const apiCall = `join${query}${parameters.secret}`;
@@ -109,15 +131,21 @@ export function getJoinURL(meetingID: string, params: Parameters, moderator: boo
 
 export async function checkRootPermission(): Promise<void> {
   const checkSudo = await runScript('timeout -k 1 1 sudo id', {
-    handleError: (stderr: string) => false,
-    handleOutput: (stdout: string) => stdout ? true : false,
-    timeout: 5000
-  })
-  await expect(checkSudo, 'Sudo failed: need to run this test with root permission (can be fixed by running "sudo -v" and entering the password)').toBeTruthy();
+    handleError: () => false,
+    handleOutput: (stdout: string) => !!stdout,
+    timeout: 5000,
+  });
+  await expect(
+    checkSudo,
+    'Sudo failed: need to run this test with root permission (can be fixed by running "sudo -v" and entering the password)'
+  ).toBeTruthy();
 }
 
-async function sanitizeLog(msg: ConsoleMessage, { colorize, drop_references }: { colorize?: boolean, drop_references?: boolean } = {}): Promise<string> {
-  const args = await Promise.all(msg.args().map(itm => itm.jsonValue()));
+async function sanitizeLog(
+  msg: ConsoleMessage,
+  { colorize, drop_references }: { colorize?: boolean; drop_references?: boolean } = {}
+): Promise<string> {
+  const args = await Promise.all(msg.args().map((itm) => itm.jsonValue()));
 
   // Handle cases where args[0] might be undefined or not a string
   if (!args[0] || typeof args[0] !== 'string') {
@@ -132,27 +160,27 @@ async function sanitizeLog(msg: ConsoleMessage, { colorize, drop_references }: {
   //
   // See https://console.spec.whatwg.org/ sections 2.2.1 and 2.3.4
 
-  let split_arg0 = args[0].split("%");
+  const split_arg0 = args[0].split('%');
   for (let i = 1, j = 1; i < split_arg0.length; i++, j++) {
     if (split_arg0[i].startsWith('c')) {
-      split_arg0[i] = 's' + split_arg0[i].substr(1);
+      split_arg0[i] = `s${split_arg0[i].substr(1)}`;
       const styles = args[j].split(';');
       args[j] = '';
       for (const style of styles) {
         const stdStyle = style.trim().toLowerCase();
         if (stdStyle.startsWith('color:') && colorize) {
           const color = stdStyle.substr(6).trim();
-          args[j] = (chalk as any).keyword(color)._styler?.open || '';
+          args[j] = chalk.keyword(color)('');
         } else if (stdStyle.startsWith('font-size:') && drop_references) {
           // For Chrome, we "drop references" by discarding everything after a font size change
           split_arg0.length = i;
           args.length = j;
         }
       }
-    } else if (split_arg0[i] == "") {
+    } else if (split_arg0[i] === '') {
       // format is "%%", so don't do special processing for
       // split_arg0[i+1], and only increment i, not j
-      i++;  // NOSONAR
+      i++; // NOSONAR
     }
   }
   args[0] = split_arg0.join('%');
@@ -194,24 +222,24 @@ async function console_format(msg: ConsoleMessage | string, CONSOLE_options: Con
   return sanitizedLog;
 }
 
-export async function setBrowserLogs(pageInstance: any, forceErrorLogFailure?: boolean): Promise<void> {
-  const CONSOLE_strings = env.CONSOLE ? env.CONSOLE.split(',').map(opt => opt.trim().toLowerCase()) : [];
+export async function setBrowserLogs(pageInstance: Page, forceErrorLogFailure?: boolean): Promise<void> {
+  const CONSOLE_strings = env.CONSOLE ? env.CONSOLE.split(',').map((opt) => opt.trim().toLowerCase()) : [];
   const CONSOLE_options: ConsoleOptions = {
     colorize: CONSOLE_strings.includes('color') || CONSOLE_strings.includes('colour'),
     drop_references: CONSOLE_strings.includes('norefs'),
     drop_timestamps: CONSOLE_strings.includes('nots'),
-    line_label: CONSOLE_strings.includes('label') ? pageInstance.username + " " : undefined,
+    line_label: CONSOLE_strings.includes('label') ? `${pageInstance.username} ` : undefined,
   };
 
   pageInstance.page.on('console', async (msg: ConsoleMessage) => {
     let errorInfo: ErrorInfo | null = null;
-    
+
     if (msg.type() === 'error') {
       errorInfo = {
         type: 'error',
         timestamp: new Date().toISOString(),
         text: msg.text(),
-        user: pageInstance.username
+        user: pageInstance.username,
       };
 
       pageInstance.logger.pageError(errorInfo);
@@ -236,7 +264,7 @@ export async function setBrowserLogs(pageInstance: any, forceErrorLogFailure?: b
       timestamp: new Date().toISOString(),
       text: error.message,
       stack: error.stack,
-      user: pageInstance.username
+      user: pageInstance.username,
     };
 
     pageInstance.logger.pageError(errorInfo);
@@ -259,6 +287,8 @@ export function linkIssue(issueNumber: number): void {
   });
 }
 
+// TODO: testInstance should be MultiUsers when completely migrated
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function initializePages(testInstance: any, browser: Browser, initOptions?: InitOptions): Promise<void> {
   const { isMultiUser, createParameter, joinParameter, testInfo } = initOptions || {};
   const context = await browser.newContext();

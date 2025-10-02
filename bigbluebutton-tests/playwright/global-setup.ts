@@ -15,11 +15,13 @@ function initializeLogsFolder(): void {
 }
 
 async function validateEnvironmentAndAPI(): Promise<void> {
-  const BBB_URL_PATTERN = /^https:\/\/[^\/]+\/bigbluebutton\/?$/;
+  const BBB_URL_PATTERN = /^https:\/\/[^/]+\/bigbluebutton\/?$/;
 
   if (!secret) throw new Error('BBB_SECRET environment variable is not set');
   if (!server) throw new Error('BBB_URL environment variable is not set');
-  if (!BBB_URL_PATTERN.test(server)) throw new Error('BBB_URL must follow the pattern "https://DOMAIN_NAME/bigbluebutton/"');
+  if (!BBB_URL_PATTERN.test(server)) {
+    throw new Error('BBB_URL must follow the pattern "https://DOMAIN_NAME/bigbluebutton/"');
+  }
 
   // Create a request context for API validation
   const requestContext = await request.newContext();

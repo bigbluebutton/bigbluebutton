@@ -1,20 +1,26 @@
 import { expect } from '@playwright/test';
 import { MultiUsers } from '../user/multiusers';
 import { elements as e } from '../core/elements.ts';
-import { checkSvgIndex, getSlideOuterHtml, uploadSinglePresentation, uploadMultiplePresentations, getCurrentPresentationHeight, hasCurrentPresentationToastElement } from './util.js';
+import {
+  checkSvgIndex,
+  getSlideOuterHtml,
+  uploadSinglePresentation,
+  uploadMultiplePresentations,
+  getCurrentPresentationHeight,
+} from './util';
 import { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME, UPLOAD_PDF_WAIT_TIME, CI } from '../core/constants.ts';
 import { getSettings } from '../core/settings.ts';
-import { checkNotificationText } from '../notifications/util.js';
+import { checkNotificationText } from '../notifications/util';
 
 const defaultZoomLevel = '100%';
 
 export class Presentation extends MultiUsers {
-  constructor(browser, context) {
-    super(browser, context);
-  }
-
   async skipSlide() {
-    await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard when the moderator joins the meeting', ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.hasElement(
+      e.whiteboard,
+      'should display the whiteboard when the moderator joins the meeting',
+      ELEMENT_WAIT_LONGER_TIME
+    );
 
     await checkSvgIndex(this.modPage, '/svg/1');
 
@@ -32,18 +38,28 @@ export class Presentation extends MultiUsers {
   }
 
   async shareCameraAsContent() {
-    await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard whent then moderator joins the meeting', ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.hasElement(
+      e.whiteboard,
+      'should display the whiteboard whent then moderator joins the meeting',
+      ELEMENT_WAIT_LONGER_TIME
+    );
 
     await this.modPage.waitAndClick(e.actions);
     await this.modPage.waitAndClick(e.shareCameraAsContent);
-    await this.modPage.hasElement(e.webcamMirroredVideoPreview, 'should display the camera preview when sharing camera as content');
+    await this.modPage.hasElement(
+      e.webcamMirroredVideoPreview,
+      'should display the camera preview when sharing camera as content'
+    );
     await this.modPage.waitAndClick(e.startSharingWebcam);
     await this.modPage.hasElement(e.screenShareVideo);
     await this.modPage.closeAllToastNotifications();
     const modWhiteboardLocator = this.modPage.page.locator(e.screenShareVideo);
-    await expect(modWhiteboardLocator, 'should display the same screenshot as taken before').toHaveScreenshot('moderator-share-camera-as-content.png', {
-      maxDiffPixels: 1000,
-    });
+    await expect(modWhiteboardLocator, 'should display the same screenshot as taken before').toHaveScreenshot(
+      'moderator-share-camera-as-content.png',
+      {
+        maxDiffPixels: 1000,
+      }
+    );
 
     await this.userPage.wasRemoved(e.screenshareConnecting);
     await this.userPage.hasElement(e.screenShareVideo);
@@ -57,13 +73,23 @@ export class Presentation extends MultiUsers {
   async hideAndRestorePresentation() {
     const { presentationHidden } = getSettings();
     if (!presentationHidden) {
-      await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard when the moderator joins the meeting', ELEMENT_WAIT_LONGER_TIME);
+      await this.modPage.hasElement(
+        e.whiteboard,
+        'should display the whiteboard when the moderator joins the meeting',
+        ELEMENT_WAIT_LONGER_TIME
+      );
       await this.modPage.waitAndClick(e.minimizePresentation);
     }
-    await this.modPage.wasRemoved(e.presentationContainer, 'should not display the presentation container since the presentation is minimized');
+    await this.modPage.wasRemoved(
+      e.presentationContainer,
+      'should not display the presentation container since the presentation is minimized'
+    );
 
     await this.modPage.waitAndClick(e.restorePresentation);
-    await this.modPage.hasElement(e.presentationContainer, 'should display the presentation container since the presentation was restored');
+    await this.modPage.hasElement(
+      e.presentationContainer,
+      'should display the presentation container since the presentation was restored'
+    );
   }
 
   async startExternalVideo() {
@@ -71,20 +97,35 @@ export class Presentation extends MultiUsers {
 
     await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard when the moderator joins the meeting');
     await this.modPage.waitAndClick(e.actions);
-    if(!externalVideoPlayer) {
-      await this.modPage.hasElement(e.managePresentations, 'should display the manage presentation options on the actions button');
-      return this.modPage.wasRemoved(e.shareExternalVideoBtn, 'should not display the option to share an external video, since is deactivated');
+    if (!externalVideoPlayer) {
+      await this.modPage.hasElement(
+        e.managePresentations,
+        'should display the manage presentation options on the actions button'
+      );
+      return this.modPage.wasRemoved(
+        e.shareExternalVideoBtn,
+        'should not display the option to share an external video, since is deactivated'
+      );
     }
     await this.modPage.waitAndClick(e.shareExternalVideoBtn);
-    await this.modPage.hasElement(e.closeModal, 'should display the close modal button after the moderator opens the modal for sharing external video');
+    await this.modPage.hasElement(
+      e.closeModal,
+      'should display the close modal button after the moderator opens the modal for sharing external video'
+    );
     await this.modPage.type(e.videoModalInput, e.youtubeLink);
     await this.modPage.waitAndClick(e.startShareVideoBtn);
 
     const modFrame = await this.modPage.getYoutubeFrame();
     const userFrame = await this.userPage.getYoutubeFrame();
 
-    await modFrame.hasElement('video', 'should display the element frame for the video that is being shared for the moderator');
-    await userFrame.hasElement('video', 'should display the element frame for the video that is being shared for the attendee');
+    await modFrame.hasElement(
+      'video',
+      'should display the element frame for the video that is being shared for the moderator'
+    );
+    await userFrame.hasElement(
+      'video',
+      'should display the element frame for the video that is being shared for the attendee'
+    );
   }
 
   async uploadSinglePresentationTest() {
@@ -96,7 +137,7 @@ export class Presentation extends MultiUsers {
 
     const imageURLFirstPresentation = await this.modPage.page.evaluate(() => {
       const element = document.querySelector('div[id="whiteboard-element"] div[class="tl-image"]');
-      const style = element.getAttribute('style')
+      const style = element.getAttribute('style');
       const urlMatch = style.match(/background-image: url\("([^"]+)"\)/);
       return urlMatch ? urlMatch[1] : null;
     });
@@ -116,7 +157,7 @@ export class Presentation extends MultiUsers {
     }
     const imageURLSecondPresentation = await this.modPage.page.evaluate(() => {
       const element = document.querySelector('div[id="whiteboard-element"] div[class="tl-image"]');
-      const style = element.getAttribute('style')
+      const style = element.getAttribute('style');
       const urlMatch = style.match(/background-image: url\("([^"]+)"\)/);
       return urlMatch ? urlMatch[1] : null;
     });
@@ -146,7 +187,7 @@ export class Presentation extends MultiUsers {
 
     const imageURLFirstPresentation = await this.modPage.page.evaluate(() => {
       const element = document.querySelector('div[id="whiteboard-element"] div[class="tl-image"]');
-      const style = element.getAttribute('style')
+      const style = element.getAttribute('style');
       const urlMatch = style.match(/background-image: url\("([^"]+)"\)/);
       return urlMatch ? urlMatch[1] : null;
     });
@@ -158,10 +199,9 @@ export class Presentation extends MultiUsers {
     const modWhiteboardLocator = this.modPage.page.locator(e.whiteboard);
     const userWhiteboardLocator = this.userPage.page.locator(e.whiteboard);
 
-
     const imageURLSecondPresentation = await this.modPage.page.evaluate(() => {
       const element = document.querySelector('div[id="whiteboard-element"] div[class="tl-image"]');
-      const style = element.getAttribute('style')
+      const style = element.getAttribute('style');
       const urlMatch = style.match(/background-image: url\("([^"]+)"\)/);
       return urlMatch ? urlMatch[1] : null;
     });
@@ -183,13 +223,12 @@ export class Presentation extends MultiUsers {
     await this.userPage.closeAllToastNotifications();
     const imageURLThirdPresentation = await this.modPage.page.evaluate(() => {
       const element = document.querySelector('div[id="whiteboard-element"] div[class="tl-image"]');
-      const style = element.getAttribute('style')
+      const style = element.getAttribute('style');
       const urlMatch = style.match(/background-image: url\("([^"]+)"\)/);
       return urlMatch ? urlMatch[1] : null;
     });
 
     await expect(imageURLSecondPresentation).not.toBe(imageURLThirdPresentation);
-
 
     // Skip check for screenshot on ci, due to the ci and the local machine generating two different image sizes
     if (!CI) {
@@ -207,13 +246,12 @@ export class Presentation extends MultiUsers {
 
     const imageURLForthPresentation = await this.modPage.page.evaluate(() => {
       const element = document.querySelector('div[id="whiteboard-element"] div[class="tl-image"]');
-      const style = element.getAttribute('style')
+      const style = element.getAttribute('style');
       const urlMatch = style.match(/background-image: url\("([^"]+)"\)/);
       return urlMatch ? urlMatch[1] : null;
     });
 
     await expect(imageURLThirdPresentation).not.toBe(imageURLForthPresentation);
-
 
     // Skip check for screenshot on ci, due to the ci and the local machine generating two different image sizes
     if (!CI) {
@@ -252,14 +290,18 @@ export class Presentation extends MultiUsers {
     const width1 = (await this.modPage.getElementBoundingBox(e.whiteboard)).width;
     // check if its off
     const fitToWidthButtonLocator = this.modPage.page.locator(`${e.fitToWidthButton} > span>>nth=0`);
-    const fitToWidthBorderColorOff = await fitToWidthButtonLocator.evaluate((elem) => getComputedStyle(elem).borderColor);
+    const fitToWidthBorderColorOff = await fitToWidthButtonLocator.evaluate(
+      (elem) => getComputedStyle(elem).borderColor
+    );
     await expect(fitToWidthBorderColorOff, 'should match the white color').toBe('rgba(0, 0, 0, 0)');
 
     await this.modPage.waitAndClick(e.fitToWidthButton);
     await this.modPage.page.waitForTimeout(500);
 
-    //check if its on
-    const fitToWidthBorderColorOn = await fitToWidthButtonLocator.evaluate((elem) => getComputedStyle(elem).borderColor);
+    // check if its on
+    const fitToWidthBorderColorOn = await fitToWidthButtonLocator.evaluate(
+      (elem) => getComputedStyle(elem).borderColor
+    );
     await expect(fitToWidthBorderColorOn, 'should match the color dark blue').toBe('rgb(6, 23, 42)');
 
     const width2 = (await this.modPage.getElementBoundingBox(e.whiteboard)).width;
@@ -274,16 +316,28 @@ export class Presentation extends MultiUsers {
     await this.modPage.waitAndClick(e.actions);
     await this.modPage.waitAndClick(e.managePresentations);
     if (!originalPresentationDownloadable) {
-      await this.modPage.hasElement(e.presentationOptionsDownloadBtn, 'should display the option download button for the presentation');
-      return this.modPage.wasRemoved(e.enableOriginalPresentationDownloadBtn, 'should the original presentation download presentation be removed');
+      await this.modPage.hasElement(
+        e.presentationOptionsDownloadBtn,
+        'should display the option download button for the presentation'
+      );
+      return this.modPage.wasRemoved(
+        e.enableOriginalPresentationDownloadBtn,
+        'should the original presentation download presentation be removed'
+      );
     }
     await this.modPage.waitAndClick(e.presentationOptionsDownloadBtn);
     await this.modPage.waitAndClick(e.enableOriginalPresentationDownloadBtn);
     await this.userPage.waitForSelector(e.whiteboard);
     // check for the download buttons displayed
     await checkNotificationText(this.userPage, e.presentationDownloadEnabledLabel);
-    await this.userPage.hasElement(e.presentationDownloadBtn, 'should display the presentation download button for the attendee');
-    await this.modPage.hasElement(e.presentationDownloadBtn, 'should display the presentation download button for the moderator');
+    await this.userPage.hasElement(
+      e.presentationDownloadBtn,
+      'should display the presentation download button for the attendee'
+    );
+    await this.modPage.hasElement(
+      e.presentationDownloadBtn,
+      'should display the presentation download button for the moderator'
+    );
     /**
      * the following steps throwing "Error: ENOENT: no such file or directory" at the end of execution
      * due to somehow it's trying to take the screenshot of the tab that opened for the file download
@@ -296,8 +350,14 @@ export class Presentation extends MultiUsers {
     await this.modPage.waitAndClick(e.presentationOptionsDownloadBtn);
     await this.modPage.waitAndClick(e.disableOriginalPresentationDownloadBtn);
     await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard for the moderator');
-    await this.modPage.wasRemoved(e.presentationDownloadBtn, 'should not display the presentation download button for the moderator');
-    await this.userPage.wasRemoved(e.presentationDownloadBtn, 'should not display the presentation download button for the attendee');
+    await this.modPage.wasRemoved(
+      e.presentationDownloadBtn,
+      'should not display the presentation download button for the moderator'
+    );
+    await this.userPage.wasRemoved(
+      e.presentationDownloadBtn,
+      'should not display the presentation download button for the attendee'
+    );
   }
 
   async sendPresentationToDownload(testInfo) {
@@ -326,15 +386,21 @@ export class Presentation extends MultiUsers {
     await this.modPage.waitAndClick(e.confirmManagePresentation);
 
     await this.modPage.wasRemoved(e.whiteboard, 'should not display the whiteboard for the moderator');
-    await this.modPage.wasRemoved(e.minimizePresentation, 'should not display the minimize presentation button for the moderator');
+    await this.modPage.wasRemoved(
+      e.minimizePresentation,
+      'should not display the minimize presentation button for the moderator'
+    );
     await this.userPage.wasRemoved(e.whiteboard, 'should not display the whiteboard for the attendee');
-    await this.userPage.wasRemoved(e.minimizePresentation, 'should not display the minimize presentation button for the attendee');
+    await this.userPage.wasRemoved(
+      e.minimizePresentation,
+      'should not display the minimize presentation button for the attendee'
+    );
   }
 
   async uploadAndRemoveAllPresentations() {
     await uploadSinglePresentation(this.modPage, e.uploadPresentationFileName);
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
-    await this.modPage.page.waitForTimeout(1000);  // timeout to avoid trying to get the slide data before it's ready
+    await this.modPage.page.waitForTimeout(1000); // timeout to avoid trying to get the slide data before it's ready
 
     const modSlides1 = await getSlideOuterHtml(this.modPage);
     const userSlides1 = await getSlideOuterHtml(this.userPage);
@@ -343,15 +409,25 @@ export class Presentation extends MultiUsers {
     // Remove
     await this.modPage.waitAndClick(e.actions);
     await this.modPage.waitAndClick(e.managePresentations);
-    await this.modPage.hasElementCount(e.presentationItem, 2, 'should display both default and uploaded presentation on the manage presentations modal');
-    await this.modPage.waitAndClick(e.removePresentation);  // remove first presentation
-    await this.modPage.waitAndClick(e.removePresentation);  // remove second presentation
+    await this.modPage.hasElementCount(
+      e.presentationItem,
+      2,
+      'should display both default and uploaded presentation on the manage presentations modal'
+    );
+    await this.modPage.waitAndClick(e.removePresentation); // remove first presentation
+    await this.modPage.waitAndClick(e.removePresentation); // remove second presentation
     await this.modPage.waitAndClick(e.confirmManagePresentation);
 
     await this.modPage.wasRemoved(e.whiteboard, 'should not display the whiteboard for the moderator');
-    await this.modPage.wasRemoved(e.minimizePresentation, 'should not display the minimize presentation button for the moderator');
+    await this.modPage.wasRemoved(
+      e.minimizePresentation,
+      'should not display the minimize presentation button for the moderator'
+    );
     await this.userPage.wasRemoved(e.whiteboard, 'should not display the whiteboard for the attendee');
-    await this.userPage.wasRemoved(e.minimizePresentation, 'should not display the minimize presentation button for the attendee');
+    await this.userPage.wasRemoved(
+      e.minimizePresentation,
+      'should not display the minimize presentation button for the attendee'
+    );
 
     // Check removed presentations inside the Manage Presentations
     await this.modPage.waitAndClick(e.actions);
@@ -395,15 +471,18 @@ export class Presentation extends MultiUsers {
   async presentationFullscreen() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     const presentationLocator = this.modPage.page.locator(e.presentationContainer);
-    const height = parseInt(await getCurrentPresentationHeight(presentationLocator));
+    const height = parseInt(await getCurrentPresentationHeight(presentationLocator), 10);
 
     await this.modPage.waitAndClick(e.whiteboardOptionsButton);
     await this.modPage.waitAndClick(e.presentationFullscreen);
 
     // Gets fullscreen mode height
-    const heightFullscreen = parseInt(await getCurrentPresentationHeight(presentationLocator));
+    const heightFullscreen = parseInt(await getCurrentPresentationHeight(presentationLocator), 10);
 
-    await expect(heightFullscreen, 'should the height of the presentation fullscreen to be greater than the normal presentation height').toBeGreaterThan(height);
+    await expect(
+      heightFullscreen,
+      'should the height of the presentation fullscreen to be greater than the normal presentation height'
+    ).toBeGreaterThan(height);
   }
 
   async presentationSnapshot() {
@@ -427,9 +506,20 @@ export class Presentation extends MultiUsers {
       maxDiffPixels: 1000,
     };
     await this.modPage.wasRemoved(e.wbToolbar, 'should not display the whiteboard toolbar for the moderator');
-    if (!CI) await expect(this.modPage.page, 'should not display the presentation toolbar').toHaveScreenshot('mod-hide-toolbars.png', screenshotOptions);
-    await this.userPage.hasElement(e.wbToolbar, 'should display the whiteboard toolbar for the viewer with whiteboard access');
-    if (!CI) await expect(this.userPage.page, 'should display the presentation toolbar').toHaveScreenshot('user-toolbars.png', screenshotOptions);
+    if (!CI)
+      await expect(this.modPage.page, 'should not display the presentation toolbar').toHaveScreenshot(
+        'mod-hide-toolbars.png',
+        screenshotOptions
+      );
+    await this.userPage.hasElement(
+      e.wbToolbar,
+      'should display the whiteboard toolbar for the viewer with whiteboard access'
+    );
+    if (!CI)
+      await expect(this.userPage.page, 'should display the presentation toolbar').toHaveScreenshot(
+        'user-toolbars.png',
+        screenshotOptions
+      );
   }
 
   async zoom() {
@@ -440,9 +530,11 @@ export class Presentation extends MultiUsers {
     const zoomOutButtonLocator = this.modPage.page.locator(e.zoomOutButton);
     await expect(zoomOutButtonLocator, 'should hte zoom out button be disabled').toBeDisabled();
     const resetZoomButtonLocator = this.modPage.page.locator(e.resetZoomButton);
-    await expect(resetZoomButtonLocator, 'should the reset zoom button contain the default value text').toContainText(defaultZoomLevel);
+    await expect(resetZoomButtonLocator, 'should the reset zoom button contain the default value text').toContainText(
+      defaultZoomLevel
+    );
 
-    //Zoom In 150%
+    // Zoom In 150%
     await expect(wbBox).toHaveScreenshot('moderator1-no-zoom.png');
     await this.modPage.waitAndClick(e.zoomInButton);
     await expect(zoomOutButtonLocator, 'should the zoom out button to be enabled').toBeEnabled();
@@ -451,12 +543,12 @@ export class Presentation extends MultiUsers {
     await expect(resetZoomButtonLocator, 'should the reset zoom button to contain the text 150%').toContainText(/150%/);
     await expect(wbBox).not.toHaveScreenshot('moderator1-no-zoom.png');
 
-    //Zoom out 125%
+    // Zoom out 125%
     await this.modPage.waitAndClick(e.zoomOutButton);
     await expect(resetZoomButtonLocator, 'should the reset zoom button to contain the text 125%').toContainText(/125%/);
     await expect(wbBox).toHaveScreenshot('moderator1-zoom125.png');
 
-    //Reset Zoom 100%
+    // Reset Zoom 100%
     await this.modPage.waitAndClick(e.zoomInButton);
     await expect(resetZoomButtonLocator, 'should the reset zoom button to contain the text 150%').toContainText(/150%/);
     await this.modPage.waitAndClick(e.resetZoomButton);

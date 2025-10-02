@@ -1,32 +1,36 @@
+import { expect } from '@playwright/test';
 import { elements as e } from '../core/elements.ts';
 import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants.ts';
 import { connectMicrophone, isAudioItemSelected, ensureUnmuted } from './util';
 import { MultiUsers } from '../user/multiusers';
-import { expect } from '@playwright/test';
 
 export class Audio extends MultiUsers {
-  constructor(browser, context) {
-    super(browser, context);
-  }
-
   async muteButtonCooldown() {
     // cooldown based on the debounce time set in input-stream-live-selector/service.ts
     await this.modPage.page.waitForTimeout(500);
   }
 
   async joinAudio() {
-    const {
-      listenOnlyCallTimeout
-    } = this.modPage.settings;
+    const { listenOnlyCallTimeout } = this.modPage.settings;
     await this.modPage.waitAndClick(e.joinAudio);
     await this.modPage.waitAndClick(e.listenOnlyButton);
     await this.modPage.waitForSelector(e.establishingAudioLabel);
     await this.modPage.wasRemoved(e.establishingAudioLabel, 'should have audio established', ELEMENT_WAIT_LONGER_TIME);
-    await this.modPage.hasElement(e.unmuteMicButton, 'should display the unmute button when user joins successfully in listen only mode', listenOnlyCallTimeout);
+    await this.modPage.hasElement(
+      e.unmuteMicButton,
+      'should display the unmute button when user joins successfully in listen only mode',
+      listenOnlyCallTimeout
+    );
     await this.modPage.waitAndClick(e.unmuteMicButton);
-    await this.modPage.hasElement(e.audioModal, 'should display the audio modal (echo test) when user clicks on the unmute button');
+    await this.modPage.hasElement(
+      e.audioModal,
+      'should display the audio modal (echo test) when user clicks on the unmute button'
+    );
     await this.modPage.hasElement(e.joinEchoTestButton, 'should display the audio modal (echo test) join button');
-    await this.modPage.hasElement(e.stopHearingButton, 'should display the audio modal (echo test) stop hearing button');
+    await this.modPage.hasElement(
+      e.stopHearingButton,
+      'should display the audio modal (echo test) stop hearing button'
+    );
   }
 
   async joinMicrophone() {
@@ -41,7 +45,10 @@ export class Audio extends MultiUsers {
     await this.modPage.hasElement(e.leaveAudio, 'should display the leave audio button in the audio dropdown menu');
     await this.modPage.waitAndClick(e.leaveAudio);
     await this.modPage.hasElement(e.joinAudio, 'should display the join audio button after leaving audio');
-    await this.modPage.wasRemoved(e.audioDropdownMenu, 'should not display the audio dropdown menu after leaving audio');
+    await this.modPage.wasRemoved(
+      e.audioDropdownMenu,
+      'should not display the audio dropdown menu after leaving audio'
+    );
   }
 
   async muteYourselfByButton() {
@@ -102,7 +109,7 @@ export class Audio extends MultiUsers {
     await this.modPage.hasElement(e.wasTalking, 'should stops talking');
     await this.modPage.wasRemoved(e.muteMicButton, 'should be unmuted');
     await this.modPage.hasElement(e.unmuteMicButton, 'should be muted');
-    await this.modPage.wasRemoved(e.isTalking,  'should stop talking');
+    await this.modPage.wasRemoved(e.isTalking, 'should stop talking');
     await this.modPage.wasRemoved(e.talkingIndicator, 'talking indicator should disappear', ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.waitAndClick(e.audioDropdownMenu);
     await this.modPage.waitAndClick(e.leaveAudio);
@@ -123,7 +130,10 @@ export class Audio extends MultiUsers {
     const userWasTalkingLocator = await this.userPage.page.locator(e.wasTalking).last();
 
     await expect(moderatorWasTalkingLocator).toBeVisible();
-    await expect(userWasTalkingLocator, 'should stop displaying isTalking element and display the element with high opacity for the attendee').toBeVisible();
+    await expect(
+      userWasTalkingLocator,
+      'should stop displaying isTalking element and display the element with high opacity for the attendee'
+    ).toBeVisible();
     await this.userPage.wasRemoved(e.talkingIndicator, 'attendee should be muted', ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.wasRemoved(e.talkingIndicator, 'moderator should be muted');
   }

@@ -1,13 +1,9 @@
+import { expect } from '@playwright/test';
 import { MultiUsers } from '../user/multiusers';
 import { elements as e } from '../core/elements.ts';
 import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants.ts';
-import { expect } from '@playwright/test';
 
 export class Create extends MultiUsers {
-  constructor(browser, context) {
-    super(browser, context);
-  }
-
   // Create BreakoutRooms
   async create(captureNotes = false, captureWhiteboard = false) {
     await this.modPage.waitAndClick(e.manageUsers);
@@ -55,7 +51,7 @@ export class Create extends MultiUsers {
 
     const createButtonLocator = this.modPage.page.locator(e.modalConfirmButton);
 
-    //test minimum 5 minutes
+    // test minimum 5 minutes
     await this.modPage.page.locator(e.durationTime).press('Backspace');
     await this.modPage.page.locator(e.durationTime).press('Backspace');
     await this.modPage.type(e.durationTime, '5');
@@ -63,20 +59,28 @@ export class Create extends MultiUsers {
 
     await this.modPage.page.fill(e.durationTime, '4');
     await expect(createButtonLocator, 'should have the breakout room create button disabled.').toBeDisabled();
-    await this.modPage.hasElement(e.minimumDurationWarnBreakout, 'should have at least 5 minutes of breakout room duration time.');
+    await this.modPage.hasElement(
+      e.minimumDurationWarnBreakout,
+      'should have at least 5 minutes of breakout room duration time.'
+    );
 
     // await this.modPage.page.locator(e.durationTime).press('Backspace');
     await this.modPage.page.fill(e.durationTime, '15');
     await this.modPage.waitAndClick(e.modalConfirmButton, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.waitAndClick(e.breakoutRoomsItem);
-    await this.modPage.hasText(e.breakoutRemainingTime, /14:[0-5][0-9]/, 'should have the breakout room remaining time between 14:00 and 14:59 minutes', ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.hasText(
+      e.breakoutRemainingTime,
+      /14:[0-5][0-9]/,
+      'should have the breakout room remaining time between 14:00 and 14:59 minutes',
+      ELEMENT_WAIT_LONGER_TIME
+    );
   }
 
   async changeRoomsName() {
     await this.modPage.waitAndClick(e.manageUsers);
     await this.modPage.waitAndClick(e.createBreakoutRooms);
     await this.modPage.waitAndClick(e.randomlyAssign);
-    //Change room's name
+    // Change room's name
     await this.modPage.type(e.roomNameInput, 'Test');
     await this.modPage.waitAndClick(e.modalConfirmButton, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.waitAndClick(e.breakoutRoomsItem);
@@ -103,19 +107,33 @@ export class Create extends MultiUsers {
     await this.modPage.waitAndClick(e.manageUsers);
     await this.modPage.waitAndClick(e.createBreakoutRooms);
 
-    //testing no user assigned
+    // testing no user assigned
     const modalConfirmButton = this.modPage.page.locator(e.modalConfirmButton);
-    await expect(modalConfirmButton, 'should designate a user to a specific a breakout room, before creating it').toBeDisabled();
-    await this.modPage.hasElement(e.warningNoUserAssigned, 'should designate a user to a specific a breakout room, before creating it');
+    await expect(
+      modalConfirmButton,
+      'should designate a user to a specific a breakout room, before creating it'
+    ).toBeDisabled();
+    await this.modPage.hasElement(
+      e.warningNoUserAssigned,
+      'should designate a user to a specific a breakout room, before creating it'
+    );
 
     await this.modPage.dragDropSelector(e.attendeeNotAssigned, e.breakoutBox1);
     await this.modPage.hasText(e.breakoutBox1, /Attendee/, 'should have the attende on the second breakout room');
     await expect(modalConfirmButton).toBeEnabled();
-    await this.modPage.wasRemoved(e.warningNoUserAssigned, 'should designate a user to a specific a breakout room, before creating it');
+    await this.modPage.wasRemoved(
+      e.warningNoUserAssigned,
+      'should designate a user to a specific a breakout room, before creating it'
+    );
     await this.modPage.waitAndClick(e.modalConfirmButton, ELEMENT_WAIT_LONGER_TIME);
     await this.userPage.waitAndClick(e.modalConfirmButton);
 
     await this.modPage.waitAndClick(e.breakoutRoomsItem);
-    await this.modPage.hasText(e.userNameBreakoutRoom, /Attendee/, 'should have the attende name on the first breakout room', ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.hasText(
+      e.userNameBreakoutRoom,
+      /Attendee/,
+      'should have the attende name on the first breakout room',
+      ELEMENT_WAIT_LONGER_TIME
+    );
   }
 }

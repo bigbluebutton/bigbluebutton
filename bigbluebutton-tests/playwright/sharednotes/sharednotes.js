@@ -1,9 +1,9 @@
+import { expect } from '@playwright/test';
 import { MultiUsers } from '../user/multiusers';
 import { elements as e } from '../core/elements.ts';
-import { expect } from '@playwright/test';
 import { ELEMENT_WAIT_TIME } from '../core/constants.ts';
 import { checkTextContent } from '../core/util.ts';
-import { 
+import {
   startSharedNotes,
   getNotesLocator,
   getShowMoreButtonLocator,
@@ -11,14 +11,10 @@ import {
   getExportPlainTextLocator,
   getSharedNotesUserWithoutPermission,
   getExportHTMLLocator,
-  getExportEtherpadLocator
+  getExportEtherpadLocator,
 } from './util';
 
 export class SharedNotes extends MultiUsers {
-  constructor(browser, context) {
-    super(browser, context);
-  }
-
   async openSharedNotes() {
     const { sharedNotesEnabled } = this.modPage.settings;
     if (!sharedNotesEnabled) {
@@ -27,7 +23,9 @@ export class SharedNotes extends MultiUsers {
     }
     await startSharedNotes(this.modPage);
     const sharedNotesContent = await getNotesLocator(this.modPage);
-    await expect(sharedNotesContent, 'should the shared notes be editable').toBeEditable({ timeout: ELEMENT_WAIT_TIME });
+    await expect(sharedNotesContent, 'should the shared notes be editable').toBeEditable({
+      timeout: ELEMENT_WAIT_TIME,
+    });
 
     await this.modPage.waitAndClick(e.hideNotesLabel);
     await this.modPage.wasRemoved(e.hideNotesLabel, 'should not display the hide notes label');
@@ -44,7 +42,9 @@ export class SharedNotes extends MultiUsers {
     await notesLocator.type(e.message);
     await this.editMessage(notesLocator);
     const editedMessage = '!Hello';
-    await expect(notesLocator, 'should contain the edited text on shared notes').toContainText(editedMessage, { timeout: ELEMENT_WAIT_TIME });
+    await expect(notesLocator, 'should contain the edited text on shared notes').toContainText(editedMessage, {
+      timeout: ELEMENT_WAIT_TIME,
+    });
 
     //! avoiding the following screenshot comparison due to https://github.com/microsoft/playwright/issues/18827
     const wbBox = await this.modPage.page.locator(e.etherpadFrame);
@@ -84,10 +84,12 @@ export class SharedNotes extends MultiUsers {
     const bText = '<b>World</b>';
     await expect(html.includes(bText), 'should include the text "World"').toBeTruthy();
 
-    const iText = '<i>Hello</i>'
+    const iText = '<i>Hello</i>';
     await expect(html.includes(iText), 'should include the text "Hello"').toBeTruthy();
 
-    await notesLocator.press('Control+Z'); await notesLocator.press('Control+Z'); await notesLocator.press('Control+Z');
+    await notesLocator.press('Control+Z');
+    await notesLocator.press('Control+Z');
+    await notesLocator.press('Control+Z');
 
     await this.modPage.waitAndClick(e.hideNotesLabel);
     await this.modPage.wasRemoved(e.hideNotesLabel, 'should not display the hide notes label');
@@ -113,24 +115,28 @@ export class SharedNotes extends MultiUsers {
     const exportHtmlLocator = getExportHTMLLocator(this.modPage);
     const exportEtherpadLocator = getExportEtherpadLocator(this.modPage);
 
-    //.txt checks
+    // .txt checks
     const txt = await this.modPage.handleDownload(exportPlainTextLocator, testInfo);
-    const txtFileExtension = (txt.download._suggestedFilename).split('.').pop();
+    const txtFileExtension = txt.download._suggestedFilename.split('.').pop();
     await checkTextContent(txtFileExtension, 'txt', 'should match the .txt file extension');
     await checkTextContent(txt.content, e.message, 'should the txt content file have the message "Hello World!"');
 
-    //.html checks
+    // .html checks
     const html = await this.modPage.handleDownload(exportHtmlLocator, testInfo);
-    const htmlFileExtension = (html.download._suggestedFilename).split('.').pop();
-    await checkTextContent(htmlFileExtension, 'html',  'should match the html file extension');
+    const htmlFileExtension = html.download._suggestedFilename.split('.').pop();
+    await checkTextContent(htmlFileExtension, 'html', 'should match the html file extension');
     await checkTextContent(html.content, e.message, 'should the html content file have the message "Hello World!"');
 
-    //.etherpad checks
+    // .etherpad checks
     const etherpad = await this.modPage.handleDownload(exportEtherpadLocator, testInfo);
-    const etherpadFileExtension = (etherpad.download._suggestedFilename).split('.').pop();    
-    await checkTextContent(etherpadFileExtension, 'etherpad',  'should match the etherpad file extension');
-    await checkTextContent(etherpad.content, e.message, 'should the etherpad content file have the message "Hello World!"');
-    
+    const etherpadFileExtension = etherpad.download._suggestedFilename.split('.').pop();
+    await checkTextContent(etherpadFileExtension, 'etherpad', 'should match the etherpad file extension');
+    await checkTextContent(
+      etherpad.content,
+      e.message,
+      'should the etherpad content file have the message "Hello World!"'
+    );
+
     await this.modPage.waitAndClick(e.hideNotesLabel);
     await this.modPage.wasRemoved(e.hideNotesLabel, 'should not display the hide notes label');
   }
@@ -149,14 +155,23 @@ export class SharedNotes extends MultiUsers {
     await this.modPage.waitAndClick(e.notesOptions);
     await this.modPage.waitAndClick(e.sendNotesToWhiteboard);
 
-    await this.modPage.hasText(e.currentSlideText, /test/, 'should the slide contain the text "test" for the moderator', 30000);
-    await this.userPage.hasText(e.currentSlideText, /test/,  'should the slide contain the text "test" for the attendee', 20000);
+    await this.modPage.hasText(
+      e.currentSlideText,
+      /test/,
+      'should the slide contain the text "test" for the moderator',
+      30000
+    );
+    await this.userPage.hasText(
+      e.currentSlideText,
+      /test/,
+      'should the slide contain the text "test" for the attendee',
+      20000
+    );
 
     await notesLocator.press('Control+Z');
 
     await this.modPage.waitAndClick(e.hideNotesLabel);
     await this.modPage.wasRemoved(e.hideNotesLabel, 'should not display the hide notes label button');
-    
   }
 
   async editSharedNotesWithMoreThanOneUSer() {
@@ -174,8 +189,14 @@ export class SharedNotes extends MultiUsers {
     await notesLocatorUser.press('Delete');
     await notesLocatorUser.type('J');
 
-    await expect(notesLocator, 'should the shared notes contain the text "Jello" for the moderator').toContainText(/Jello/, { timeout: ELEMENT_WAIT_TIME });
-    await expect(notesLocatorUser, 'should the shared notes contain the text "Jello" for the attendee').toContainText(/Jello/, { timeout: ELEMENT_WAIT_TIME });
+    await expect(notesLocator, 'should the shared notes contain the text "Jello" for the moderator').toContainText(
+      /Jello/,
+      { timeout: ELEMENT_WAIT_TIME }
+    );
+    await expect(notesLocatorUser, 'should the shared notes contain the text "Jello" for the attendee').toContainText(
+      /Jello/,
+      { timeout: ELEMENT_WAIT_TIME }
+    );
     await this.modPage.waitAndClick(e.hideNotesLabel);
     await this.modPage.wasRemoved(e.hideNotesLabel, 'should not display the hide notes button for the moderator');
     await this.userPage.waitAndClick(e.hideNotesLabel);
@@ -201,8 +222,14 @@ export class SharedNotes extends MultiUsers {
     await this.modPage.waitAndClick(e.applyLockSettings);
     // check text content on shared notes as attendee (locked)
     const notesLocatorUser = getSharedNotesUserWithoutPermission(this.userPage);
-    await expect(notesLocatorUser, 'should the shared notes contain the text "Hello" for the attendee').toContainText(/Hello/, { timeout: 20000 });
-    await this.userPage.wasRemoved(e.etherpadFrame, 'should not display the etherpad frame for the attendee as the shared notes are locked for editing');
+    await expect(notesLocatorUser, 'should the shared notes contain the text "Hello" for the attendee').toContainText(
+      /Hello/,
+      { timeout: 20000 }
+    );
+    await this.userPage.wasRemoved(
+      e.etherpadFrame,
+      'should not display the etherpad frame for the attendee as the shared notes are locked for editing'
+    );
   }
 
   async pinAndUnpinNotesOntoWhiteboard() {
@@ -215,32 +242,50 @@ export class SharedNotes extends MultiUsers {
     await this.userPage.waitForSelector(e.whiteboard);
     // user minimize presentation
     await this.userPage.waitAndClick(e.minimizePresentation);
-    await this.userPage.hasElement(e.restorePresentation, 'should display the restore presentation button for the attendee');
+    await this.userPage.hasElement(
+      e.restorePresentation,
+      'should display the restore presentation button for the attendee'
+    );
     // type on shared notes as moderator
     await startSharedNotes(this.modPage);
     const notesLocator = getNotesLocator(this.modPage);
     await notesLocator.type('Hello');
-    await this.modPage.page.waitForTimeout(1000);  // avoid pinning notes before the text is fully applied
+    await this.modPage.page.waitForTimeout(1000); // avoid pinning notes before the text is fully applied
     // pin notes
     await this.modPage.waitAndClick(e.notesOptions);
     await this.modPage.waitAndClick(e.pinNotes);
     await this.modPage.hasElement(e.unpinNotes, 'should display the unpin notes button');
-    await this.userPage.hasElement(e.minimizePresentation, 'should display the minimize presentation button for the attendee');
+    await this.userPage.hasElement(
+      e.minimizePresentation,
+      'should display the minimize presentation button for the attendee'
+    );
     // check text content on pinned shared notes as attendee
     const notesLocatorUser = getNotesLocator(this.userPage);
-    await expect(notesLocator, 'should display the text "Hello" on the shared notes for the moderator').toContainText(/Hello/, { timeout: 20000 });
-    await expect(notesLocatorUser, 'should display the text "Hello" on the shared notes for the attendee').toContainText(/Hello/);
+    await expect(notesLocator, 'should display the text "Hello" on the shared notes for the moderator').toContainText(
+      /Hello/,
+      { timeout: 20000 }
+    );
+    await expect(
+      notesLocatorUser,
+      'should display the text "Hello" on the shared notes for the attendee'
+    ).toContainText(/Hello/);
     // unpin notes
     await this.modPage.closeAllToastNotifications();
     await this.modPage.waitAndClick(e.unpinNotes);
     await this.modPage.hasElement(e.whiteboard, 'should restore the presentation for the moderator (previous state)');
-    await this.userPage.wasRemoved(e.whiteboard, 'should not restore the presentation for the attendee as it was minimized before pinning the notes (previous state)');
+    await this.userPage.wasRemoved(
+      e.whiteboard,
+      'should not restore the presentation for the attendee as it was minimized before pinning the notes (previous state)'
+    );
     await this.userPage.waitAndClick(e.restorePresentation);
     // pin notes again as moderator
     await startSharedNotes(this.modPage);
     await this.modPage.waitAndClick(e.notesOptions);
     await this.modPage.waitAndClick(e.pinNotes);
-    await this.modPage.hasElement(e.unpinNotes, 'should display the unpin notes button for the moderator after pinning the notes again');
+    await this.modPage.hasElement(
+      e.unpinNotes,
+      'should display the unpin notes button for the moderator after pinning the notes again'
+    );
     // make viewer as presenter and unpin notes
     await this.modPage.waitAndClick(e.userListItem);
     await this.modPage.waitAndClick(e.makePresenter);

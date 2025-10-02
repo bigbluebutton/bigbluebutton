@@ -1,16 +1,12 @@
-import util from './util';
+import * as util from './util';
 import { elements as e } from '../core/elements.ts';
-import utilPolling from '../polling/util';
+import * as utilPolling from '../polling/util';
 import { MultiUsers } from '../user/multiusers';
-import utilScreenShare from '../screenshare/util';
-import utilPresentation from '../presentation/util';
+import * as utilScreenShare from '../screenshare/util';
+import * as utilPresentation from '../presentation/util';
 import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants.ts';
 
 export class PresenterNotifications extends MultiUsers {
-  constructor(browser, context) {
-    super(browser, context);
-  }
-
   async publishPollResults() {
     await utilPolling.startPoll(this.modPage);
     await this.userPage.waitAndClick(e.pollAnswerOptionBtn);
@@ -21,8 +17,16 @@ export class PresenterNotifications extends MultiUsers {
   }
 
   async fileUploaderNotification() {
-    await utilPresentation.uploadSinglePresentation(this.modPage, e.uploadPresentationFileName, ELEMENT_WAIT_LONGER_TIME);
-    await utilPresentation.hasTextOnCurrentPresentationToast(this.modPage, e.uploadPresentationFileName, 'should display the uploaded presentation name in the toast');
+    await utilPresentation.uploadSinglePresentation(
+      this.modPage,
+      e.uploadPresentationFileName,
+      ELEMENT_WAIT_LONGER_TIME
+    );
+    await utilPresentation.hasTextOnCurrentPresentationToast(
+      this.modPage,
+      e.uploadPresentationFileName,
+      'should display the uploaded presentation name in the toast'
+    );
   }
 
   async screenshareToast() {

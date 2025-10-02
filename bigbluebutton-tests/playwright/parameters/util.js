@@ -4,10 +4,31 @@ import { constants as c } from './constants';
 import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants.ts';
 
 export function hexToRgb(hex) {
-  const bigint = parseInt(hex, 16);
+  // Remove # prefix if present and validate input
+  const cleanHex = hex.replace('#', '');
+
+  // Validate hex format (3 or 6 characters)
+  if (!/^[0-9A-Fa-f]{3}$|^[0-9A-Fa-f]{6}$/.test(cleanHex)) {
+    throw new Error('Invalid hex color format');
+  }
+
+  // Handle 3-character hex (e.g., "F53" -> "FF5533")
+  const fullHex =
+    cleanHex.length === 3
+      ? cleanHex
+          .split('')
+          .map((char) => char + char)
+          .join('')
+      : cleanHex;
+
+  const bigint = parseInt(fullHex, 16);
+  // eslint-disable-next-line no-bitwise
   const r = (bigint >> 16) & 255;
+  // eslint-disable-next-line no-bitwise
   const g = (bigint >> 8) & 255;
+  // eslint-disable-next-line no-bitwise
   const b = bigint & 255;
+
   return `rgb(${r}, ${g}, ${b})`;
 }
 
@@ -66,7 +87,7 @@ export async function annotation(test) {
 
 export function encodeCustomParams(param) {
   try {
-    let splitted = param.split('=');
+    const splitted = param.split('=');
     if (splitted.length > 2) {
       const aux = splitted.shift();
       splitted[1] = splitted.join('=');
@@ -80,9 +101,7 @@ export function encodeCustomParams(param) {
 }
 
 export function getAllShortcutParams() {
-  const getParams = (shortcutArray) => {
-    return Object.values(shortcutArray.map(elem => `"${elem.param}"`));
-  }
+  const getParams = (shortcutArray) => Object.values(shortcutArray.map((elem) => `"${elem.param}"`));
   return c.shortcuts.replace('$', [...getParams(c.initialShortcuts), ...getParams(c.laterShortcuts)]);
 }
 

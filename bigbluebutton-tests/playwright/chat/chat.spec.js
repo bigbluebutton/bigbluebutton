@@ -53,13 +53,17 @@ test.describe.parallel('Chat', { tag: '@ci' }, () => {
     const chat = new Chat(browser, context);
     await chat.initPages(page, testInfo);
     await chat.copyPastePublicMessage();
-  })
-
-  test('Send emoji on public chat using emoji picker', { tag: '@setting-required:chat.emojiPicker' }, async ({ browser, context, page }, testInfo) => {
-    const chat = new Chat(browser, context);
-    await chat.initPages(page, testInfo);
-    await chat.sendEmoji();
   });
+
+  test(
+    'Send emoji on public chat using emoji picker',
+    { tag: '@setting-required:chat.emojiPicker' },
+    async ({ browser, context, page }, testInfo) => {
+      const chat = new Chat(browser, context);
+      await chat.initPages(page, testInfo);
+      await chat.sendEmoji();
+    }
+  );
 
   test('Copy chat with emoji', async ({ browser, context, page, browserName }, testInfo) => {
     test.skip(browserName === 'firefox', 'Firefox does not support clipboard-write and clipboard-read');
@@ -74,42 +78,66 @@ test.describe.parallel('Chat', { tag: '@ci' }, () => {
     await chat.closePrivateChat();
   });
 
-  test('Save chat with emoji', { tag: '@setting-required:chat.emojiPicker' }, async ({ browser, context, page }, testInfo) => {
-    const chat = new Chat(browser, context);
-    await chat.initPages(page, testInfo);
-    await chat.emojiSaveChat(testInfo);
-  });
+  test(
+    'Save chat with emoji',
+    { tag: '@setting-required:chat.emojiPicker' },
+    async ({ browser, context, page }, testInfo) => {
+      const chat = new Chat(browser, context);
+      await chat.initPages(page, testInfo);
+      await chat.emojiSaveChat(testInfo);
+    }
+  );
 
-  test('Send emoji on private chat', { tag: '@setting-required:chat.emojiPicker' }, async ({ browser, context, page }, testInfo) => {
-    const chat = new Chat(browser, context);
-    await chat.initPages(page, testInfo);
-    await chat.emojiSendPrivateChat();
-  });
+  test(
+    'Send emoji on private chat',
+    { tag: '@setting-required:chat.emojiPicker' },
+    async ({ browser, context, page }, testInfo) => {
+      const chat = new Chat(browser, context);
+      await chat.initPages(page, testInfo);
+      await chat.emojiSendPrivateChat();
+    }
+  );
 
-  test('Send auto converted emoji on public chat', { tag: '@setting-required:chat.autoConvertEmoji' }, async ({ browser, context, page }, testInfo) => {
-    const chat = new Chat(browser, context);
-    await chat.initPages(page, testInfo);
-    await chat.autoConvertEmojiPublicChat();
-  });
+  test(
+    'Send auto converted emoji on public chat',
+    { tag: '@setting-required:chat.autoConvertEmoji' },
+    async ({ browser, context, page }, testInfo) => {
+      const chat = new Chat(browser, context);
+      await chat.initPages(page, testInfo);
+      await chat.autoConvertEmojiPublicChat();
+    }
+  );
 
-  test('Copy chat with auto converted emoji', { tag: '@setting-required:chat.autoConvertEmoji' }, async ({ browser, context, page, browserName }, testInfo) => {
-    test.skip(browserName === 'firefox', 'Firefox does not support clipboard-write and clipboard-read');
-    const chat = new Chat(browser, context);
-    await chat.initPages(page, testInfo);
-    await chat.autoConvertEmojiCopyChat();
-  });
+  test(
+    'Copy chat with auto converted emoji',
+    { tag: '@setting-required:chat.autoConvertEmoji' },
+    async ({ browser, context, page, browserName }, testInfo) => {
+      test.skip(browserName === 'firefox', 'Firefox does not support clipboard-write and clipboard-read');
+      const chat = new Chat(browser, context);
+      await chat.initPages(page, testInfo);
+      await chat.autoConvertEmojiCopyChat();
+    }
+  );
 
-  test('Auto convert emoji save chat', { tag: '@setting-required:chat.autoConvertEmoji' }, async ({ browser, context, page }, testInfo) => {
-    const chat = new Chat(browser, context);
-    await chat.initPages(page, testInfo);
-    await chat.autoConvertEmojiSaveChat(testInfo);
-  });
+  test(
+    'Auto convert emoji save chat',
+    { tag: '@setting-required:chat.autoConvertEmoji' },
+    async ({ browser, context, page }, testInfo) => {
+      const chat = new Chat(browser, context);
+      await chat.initPages(page, testInfo);
+      await chat.autoConvertEmojiSaveChat(testInfo);
+    }
+  );
 
-  test('Send auto converted emoji on private chat', { tag: '@setting-required:chat.autoConvertEmoji' }, async ({ browser, context, page }, testInfo) => {
-    const chat = new Chat(browser, context);
-    await chat.initPages(page, testInfo);
-    await chat.autoConvertEmojiSendPrivateChat();
-  });
+  test(
+    'Send auto converted emoji on private chat',
+    { tag: '@setting-required:chat.autoConvertEmoji' },
+    async ({ browser, context, page }, testInfo) => {
+      const chat = new Chat(browser, context);
+      await chat.initPages(page, testInfo);
+      await chat.autoConvertEmojiSendPrivateChat();
+    }
+  );
 
   test('Private chat disabled when user leaves meeting', async ({ browser, context, page }, testInfo) => {
     const chat = new Chat(browser, context);

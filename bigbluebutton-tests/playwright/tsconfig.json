@@ -18,14 +18,6 @@
     "allowJs": true,
     "checkJs": false
   },
-  "include": [
-    "**/*.ts",
-    "**/*.js"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "playwright-report",
-    "test-results"
-  ]
+  "include": ["**/*.ts", "**/*.js", ".eslintrc.cjs"],
+  "exclude": ["node_modules", "dist", "playwright-report", "test-results"]
 }

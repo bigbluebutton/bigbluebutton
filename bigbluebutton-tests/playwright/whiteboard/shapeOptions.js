@@ -54,8 +54,8 @@ export class ShapeOptions extends MultiUsers {
     await this.modPage.press('Escape');
     // check for the rotation
     await expect(
-      await this.modPage.page.$eval(e.wbDrawnShape, e => getComputedStyle(e).transform),
-      'should the shape be rotated 90 degrees',
+      await this.modPage.page.$eval(e.wbDrawnShape, (element) => getComputedStyle(element).transform),
+      'should the shape be rotated 90 degrees'
     ).toContain('matrix(0, 1, -1, 0,');
     await snapshotComparison(this.modPage, this.userPage, 'rotate');
   }

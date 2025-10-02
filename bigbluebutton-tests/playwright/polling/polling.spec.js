@@ -59,7 +59,7 @@ test.describe.parallel('Polling', { tag: '@ci' }, async () => {
     await polling.pollResultsOnWhiteboard();
   });
 
-  test('Poll results in a different presentation', async ({}, testInfo) => {
+  test('Poll results in a different presentation', async () => {
     await polling.pollResultsInDifferentPresentation();
   });
 });

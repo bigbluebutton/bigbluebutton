@@ -24,24 +24,24 @@ export async function checkNotificationIcon(test, icon) {
   expect(check).toBeTruthy();
 }
 
-export async function publicChatMessageToast(page1, page2) {
+export async function publicChatMessageToast(testPage1, testPage2) {
   // Open private Chat with the other User
-  await page1.waitAndClick(e.userListItem);
-  await page1.waitAndClick(e.startPrivateChat);
-  await page1.waitForSelector(e.hidePrivateChat);
+  await testPage1.waitAndClick(e.userListItem);
+  await testPage1.waitAndClick(e.startPrivateChat);
+  await testPage1.waitForSelector(e.hidePrivateChat);
   // send a public message
-  await page2.type(e.chatBox, e.publicMessage1);
-  await page2.waitAndClick(e.sendButton);
+  await testPage2.type(e.chatBox, e.publicMessage1);
+  await testPage2.waitAndClick(e.sendButton);
 }
 
-export async function privateChatMessageToast(page2) {
+export async function privateChatMessageToast(testPage2) {
   // Open private Chat with the other User
-  await page2.waitAndClick(e.userListItem);
-  await page2.waitAndClick(e.startPrivateChat);
+  await testPage2.waitAndClick(e.userListItem);
+  await testPage2.waitAndClick(e.startPrivateChat);
   // wait for the private chat to be ready
-  await page2.waitUntilHaveCountSelector(e.chatButton, 2);
+  await testPage2.waitUntilHaveCountSelector(e.chatButton, 2);
   // send a private message
-  await page2.type(e.chatBox, e.message1);
-  await page.page.waitForTimeout(1000);
-  await page2.waitAndClick(e.sendButton);
+  await testPage2.type(e.chatBox, e.message1);
+  await testPage2.page.waitForTimeout(1000);
+  await testPage2.waitAndClick(e.sendButton);
 }

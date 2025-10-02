@@ -3,7 +3,7 @@ import { LearningDashboard } from './learningdashboard';
 import { constants as c } from '../parameters/constants';
 import { initializePages } from '../core/helpers.ts';
 
-test.describe.parallel('Learning Dashboard', { tag: '@ci' } , async () => {
+test.describe.parallel('Learning Dashboard', { tag: '@ci' }, async () => {
   const learningDashboard = new LearningDashboard();
 
   test.beforeEach(async ({ browser }, testInfo) => {
@@ -11,14 +11,15 @@ test.describe.parallel('Learning Dashboard', { tag: '@ci' } , async () => {
     await learningDashboard.getDashboardPage();
   });
 
-  test('Check message', async() => {
+  test('Check message', async () => {
     await learningDashboard.writeOnPublicChat();
   });
 
-  test('User Time On Meeting', async() => {
+  test('User Time On Meeting', async () => {
     await learningDashboard.userTimeOnMeeting();
   });
 
+  // eslint-disable-next-line no-empty-pattern
   test('Polls', { tag: '@flaky' }, async ({}, testInfo) => {
     await learningDashboard.initUserPage(true, learningDashboard.modPage.context, { isRecording: true, testInfo });
     await learningDashboard.polls();
@@ -34,5 +35,5 @@ test.describe.parallel('Learning Dashboard', { tag: '@ci' } , async () => {
 
   test('Download Session Learning Dashboard', async () => {
     await learningDashboard.downloadSessionLearningDashboard();
-  });  
+  });
 });

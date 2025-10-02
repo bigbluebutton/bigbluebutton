@@ -1,8 +1,8 @@
+import { expect } from '@playwright/test';
 import { test } from '../fixtures';
 import { Page } from '../core/page.ts';
 import { constants as c } from '../parameters/constants';
 import { Recording } from './recording';
-import { expect } from '@playwright/test';
 
 test.describe.parallel('Recording', { tag: '@ci' }, () => {
   let generatedRecordingPlaybackUrl;

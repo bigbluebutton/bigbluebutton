@@ -12,8 +12,14 @@ export class DrawShape extends MultiUsers {
     await this.modPage.waitAndClick(shapeSelector);
     await this.drawShapeMiddleSlide();
     // check if the ellipse is drawn
-    await this.modPage.hasElement(expectedShapeDrawn, 'should display the expected drawn shape on the whiteboard for the moderator');
-    await this.userPage.hasElement(expectedShapeDrawn, 'should display the expected drawn shape on the whiteboard for the viewer');
+    await this.modPage.hasElement(
+      expectedShapeDrawn,
+      'should display the expected drawn shape on the whiteboard for the moderator'
+    );
+    await this.userPage.hasElement(
+      expectedShapeDrawn,
+      'should display the expected drawn shape on the whiteboard for the viewer'
+    );
     await snapshotComparison(this.modPage, this.userPage, shapeName);
   }
 

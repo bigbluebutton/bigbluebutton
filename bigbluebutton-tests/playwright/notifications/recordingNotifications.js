@@ -1,14 +1,10 @@
 import { Page } from '../core/page.ts';
-import util from './util';
+import * as util from './util';
 import { elements as e } from '../core/elements.ts';
 import { connectMicrophone } from '../audio/util';
 import { ELEMENT_WAIT_EXTRA_LONG_TIME } from '../core/constants.ts';
 
 export class RecordingNotifications extends Page {
-  constructor(browser, page) {
-    super(browser, page);
-  }
-
   async notificationNoAudio() {
     // when you don't join audio at all, there's notification about no active mic
     await this.closeAllToastNotifications();

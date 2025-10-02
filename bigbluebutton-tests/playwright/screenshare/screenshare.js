@@ -5,10 +5,6 @@ import { elements as e } from '../core/elements.ts';
 import { getSettings } from '../core/settings.ts';
 
 export class ScreenShare extends Page {
-  constructor(browser, page, testInfo) {
-    super(browser, page, testInfo);
-  }
-
   async startSharing() {
     const { screensharingEnabled } = getSettings();
 
@@ -64,10 +60,6 @@ export class ScreenShare extends Page {
 }
 
 export class MultiUserScreenShare extends MultiUsers {
-  constructor(browser, context) {
-    super(browser, context);
-  }
-
   async startSharing(page) {
     const { screensharingEnabled } = getSettings();
 

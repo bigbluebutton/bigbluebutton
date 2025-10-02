@@ -1,17 +1,13 @@
+import { expect } from '@playwright/test';
 import { MultiUsers } from '../user/multiusers';
 import { elements as e } from '../core/elements.ts';
 import { openPublicChat } from '../chat/util';
-import { expect } from '@playwright/test';
 import { Page } from '../core/page.ts';
 import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME } from '../core/constants.ts';
 import { openPoll, timeInSeconds, rowFilter } from './util';
 import { checkTextContent } from '../core/util.ts';
 
 export class LearningDashboard extends MultiUsers {
-  constructor(browser, context) {
-    super(browser, context);
-  }
-
   async getDashboardPage() {
     await this.modPage.waitAndClick(e.manageUsers);
 
@@ -32,7 +28,12 @@ export class LearningDashboard extends MultiUsers {
     await this.modPage.waitAndClick(e.sendButton);
     await this.modPage.hasElementCount(e.chatUserMessageText, 1);
     await this.dashboardPage.reloadPage();
-    await this.dashboardPage.hasText(e.messageLearningDashboard, '1', 'should display the correct amount of messages sent', ELEMENT_WAIT_EXTRA_LONG_TIME);
+    await this.dashboardPage.hasText(
+      e.messageLearningDashboard,
+      '1',
+      'should display the correct amount of messages sent',
+      ELEMENT_WAIT_EXTRA_LONG_TIME
+    );
   }
 
   async userTimeOnMeeting() {
@@ -41,11 +42,11 @@ export class LearningDashboard extends MultiUsers {
     await this.modPage.hasText(e.recordingIndicator, '00:0000:00');
 
     const timeLocator = this.dashboardPage.page.locator(e.userOnlineTime);
-    const timeContent = await (timeLocator).textContent();
+    const timeContent = await timeLocator.textContent();
     const time = timeInSeconds(timeContent);
     await this.dashboardPage.page.waitForTimeout(1000);
     await this.dashboardPage.reloadPage();
-    const timeContentGreater = await (timeLocator).textContent();
+    const timeContentGreater = await timeLocator.textContent();
     const timeGreater = timeInSeconds(timeContentGreater);
 
     await expect(timeGreater).toBeGreaterThan(time);
@@ -62,7 +63,7 @@ export class LearningDashboard extends MultiUsers {
     await this.modPage.hasText(e.userVoteLiveResult, 'True');
     await this.modPage.waitAndClick(e.cancelPollBtn);
 
-    //ABCD
+    // ABCD
     await this.modPage.page.locator(e.pollQuestionArea).fill(' ');
     await this.modPage.type(e.pollQuestionArea, 'ABCD?');
     await this.modPage.waitAndClick(e.pollLetterAlternatives);
@@ -71,7 +72,7 @@ export class LearningDashboard extends MultiUsers {
     await this.modPage.hasText(e.userVoteLiveResult, 'A');
     await this.modPage.waitAndClick(e.cancelPollBtn);
 
-    //Yes/No/Abstention
+    // Yes/No/Abstention
     await this.modPage.page.locator(e.pollQuestionArea).fill(' ');
     await this.modPage.type(e.pollQuestionArea, 'Yes/No/Abstention?');
     await this.modPage.waitAndClick(e.pollYesNoAbstentionBtn);
@@ -80,7 +81,7 @@ export class LearningDashboard extends MultiUsers {
     await this.modPage.hasText(e.userVoteLiveResult, 'Yes');
     await this.modPage.waitAndClick(e.cancelPollBtn);
 
-    //User Response
+    // User Response
     await this.modPage.page.locator(e.pollQuestionArea).fill(' ');
     await this.modPage.type(e.pollQuestionArea, 'User response?');
     await this.modPage.waitAndClick(e.userResponseBtn);
@@ -91,22 +92,27 @@ export class LearningDashboard extends MultiUsers {
     await this.modPage.hasText(e.userVoteLiveResult, e.answerMessage);
     await this.modPage.waitAndClick(e.cancelPollBtn);
 
-    //Checks
+    // Checks
     await this.dashboardPage.reloadPage();
     const activityScore = await rowFilter(this.dashboardPage, 'tr', /Attendee/, e.userActivityScoreDashboard);
     await expect(activityScore).toHaveText(/2/, { timeout: ELEMENT_WAIT_EXTRA_LONG_TIME });
     await this.dashboardPage.waitAndClick(e.pollPanel);
-    await this.dashboardPage.hasText(e.pollTotal, '4', 'should display the correct amount of polls started in the session', ELEMENT_WAIT_EXTRA_LONG_TIME);
+    await this.dashboardPage.hasText(
+      e.pollTotal,
+      '4',
+      'should display the correct amount of polls started in the session',
+      ELEMENT_WAIT_EXTRA_LONG_TIME
+    );
 
-    //True / False
+    // True / False
     await this.dashboardPage.hasText(e.pollTrueFalseQuestion, 'True/False?');
     await this.dashboardPage.hasText(e.pollTrueFalseAnswer, 'True');
 
-    //ABCD
+    // ABCD
     await this.dashboardPage.hasText(e.pollABCDQuestion, 'ABCD?');
     await this.dashboardPage.hasText(e.pollABCDAnswer, 'A');
 
-    //Yes No
+    // Yes No
     await this.dashboardPage.hasText(e.pollYesNoQuestion, 'Yes/No/Abstention?');
     await this.dashboardPage.hasText(e.pollYesNoAnswer, 'Yes');
 
@@ -117,17 +123,22 @@ export class LearningDashboard extends MultiUsers {
 
   async basicInfos() {
     // Meeting Status check
-    await this.dashboardPage.hasText(e.meetingStatusActiveDashboard, 'Active', 'should display "Active" status', ELEMENT_WAIT_LONGER_TIME);
+    await this.dashboardPage.hasText(
+      e.meetingStatusActiveDashboard,
+      'Active',
+      'should display "Active" status',
+      ELEMENT_WAIT_LONGER_TIME
+    );
     await this.dashboardPage.reloadPage();
 
     // Meeting Time Duration check
     const timeLocator = this.dashboardPage.page.locator(e.meetingDurationTimeDashboard);
-    const timeContent = await (timeLocator).textContent();
+    const timeContent = await timeLocator.textContent();
     const array = timeContent.split(':').map(Number);
     const firstTime = array[1] * 3600 + array[2] * 60 + array[3];
     await this.dashboardPage.page.waitForTimeout(10000);
     await this.dashboardPage.reloadPage();
-    const timeContentGreater = await (timeLocator).textContent();
+    const timeContentGreater = await timeLocator.textContent();
     const arrayGreater = timeContentGreater.split(':').map(Number);
     const secondTime = arrayGreater[1] * 3600 + arrayGreater[2] * 60 + arrayGreater[3];
 
@@ -173,7 +184,7 @@ export class LearningDashboard extends MultiUsers {
       'Left',
       'Join',
       'Duration',
-    ]
+    ];
 
     await checkTextContent(dataCSV.content, dataToCheck);
   }

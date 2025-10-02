@@ -1,4 +1,3 @@
-import { linkIssue } from '../core/helpers.ts';
 import { test } from '../fixtures';
 import { Create } from './create';
 import { Join } from './join';
@@ -47,19 +46,19 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
     test('Join Breakout room', async ({ browser, context, page }, testInfo) => {
       const join = new Join(browser, context);
       await join.initPages(page, testInfo);
-      await join.create()
+      await join.create();
       await join.joinRoom();
     });
 
     test('Join Breakout room and share webcam', async ({ browser, context, page }, testInfo) => {
       const join = new Join(browser, context);
       await join.initPages(page, testInfo);
-      await join.create()
+      await join.create();
       await join.joinAndShareWebcam();
     });
 
     test('Join Breakout room and share screen', async ({ browser, context, page, browserName }, testInfo) => {
-      test.skip(browserName === 'firefox', 'Firefox is too heavy for this test, needs improvement.')
+      test.skip(browserName === 'firefox', 'Firefox is too heavy for this test, needs improvement.');
       const join = new Join(browser, context);
       await join.initPages(page, testInfo);
       await join.create();
@@ -142,7 +141,7 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
       await join.createToAllowChooseOwnRoom();
       await join.userCanChooseRoom();
     });
-    
+
     test('Breakout rooms can use different presentations', async ({ browser, context, page }, testInfo) => {
       const join = new Join(browser, context);
       await join.initPages(page, testInfo);

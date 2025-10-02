@@ -72,7 +72,8 @@ export const constants = {
   overrideDefaultLocale: 'userdata-bbb_override_default_locale=pt-br',
   hideNavBar: 'userdata-bbb_hide_nav_bar=true',
   preferredCameraProfile: 'userdata-bbb_preferred_camera_profile=low',
-  webcamBackgroundPassingURL: 'webcamBackgroundURL=https://upload.wikimedia.org/wikipedia/commons/3/35/Spartan_apple.jpg',
+  webcamBackgroundPassingURL:
+    'webcamBackgroundURL=https://upload.wikimedia.org/wikipedia/commons/3/35/Spartan_apple.jpg',
   logoutURL: 'logoutURL=https://www.google.com',
   // Disabled Features
   breakoutRoomsDisabled: 'disabledFeatures=breakoutRooms',
@@ -86,7 +87,8 @@ export const constants = {
   sharedNotesDisabled: 'disabledFeatures=sharedNotes',
   virtualBackgroundsDisabled: 'disabledFeatures=virtualBackgrounds',
   downloadPresentationWithAnnotationsDisabled: 'disabledFeatures=downloadPresentationWithAnnotations',
-  importPresentationWithAnnotationsFromBreakoutRoomsDisabled: 'disabledFeatures=importPresentationWithAnnotationsFromBreakoutRooms',
+  importPresentationWithAnnotationsFromBreakoutRoomsDisabled:
+    'disabledFeatures=importPresentationWithAnnotationsFromBreakoutRooms',
   importSharedNotesFromBreakoutRoomsDisabled: 'disabledFeatures=importSharedNotesFromBreakoutRooms',
   layoutsDisabled: 'disabledFeatures=layouts',
   presentationDisabled: 'disabledFeatures=presentation',
@@ -95,52 +97,70 @@ export const constants = {
   cameraAsContent: 'disabledFeatures=cameraAsContent',
   // Disabled Features Exclude
   breakoutRoomsExclude: 'disabledFeatures=breakoutRooms,presentation,chat&disabledFeaturesExclude=breakoutRooms',
-  speechRecognitionExclude: 'disabledFeatures=breakoutRooms,presentation,chat,liveTranscription&disabledFeaturesExclude=liveTranscription',
+  speechRecognitionExclude:
+    'disabledFeatures=breakoutRooms,presentation,chat,liveTranscription&disabledFeaturesExclude=liveTranscription',
   captionsExclude: 'disabledFeatures=captions,presentation,chat&disabledFeaturesExclude=captions',
   chatExclude: 'disabledFeatures=presentation,chat&disabledFeaturesExclude=chat',
   externalVideosExclude: 'disabledFeatures=presentation,chat,externalVideos&disabledFeaturesExclude=externalVideos',
   layoutsExclude: 'disabledFeatures=presentation,chat,layouts&disabledFeaturesExclude=layouts',
-  learningDashboardExclude: 'disabledFeatures=presentation,chat,learningDashboard&disabledFeaturesExclude=learningDashboard',
+  learningDashboardExclude:
+    'disabledFeatures=presentation,chat,learningDashboard&disabledFeaturesExclude=learningDashboard',
   pollsExclude: 'disabledFeatures=layouts,polls&disabledFeaturesExclude=polls',
   screenshareExclude: 'disabledFeatures=presentation,chat,screenshare&disabledFeaturesExclude=screenshare',
   sharedNotesExclude: 'disabledFeatures=presentation,chat,sharedNotes&disabledFeaturesExclude=sharedNotes',
-  virtualBackgroundsExclude: 'disabledFeatures=presentation,chat,virtualBackgrounds&disabledFeaturesExclude=virtualBackgrounds',
-  downloadPresentationWithAnnotationsExclude: 'disabledFeatures=chat,downloadPresentationWithAnnotations&disabledFeaturesExclude=downloadPresentationWithAnnotations',
-  importPresentationWithAnnotationsFromBreakoutRoomsExclude: 'disabledFeatures=presentation,chat,importPresentationWithAnnotationsFromBreakoutRooms&disabledFeaturesExclude=importPresentationWithAnnotationsFromBreakoutRooms',
-  importSharedNotesFromBreakoutRoomsExclude: 'disabledFeatures=presentation,chat,importSharedNotesFromBreakoutRooms&disabledFeaturesExclude=importSharedNotesFromBreakoutRooms',
+  virtualBackgroundsExclude:
+    'disabledFeatures=presentation,chat,virtualBackgrounds&disabledFeaturesExclude=virtualBackgrounds',
+  downloadPresentationWithAnnotationsExclude:
+    'disabledFeatures=chat,downloadPresentationWithAnnotations&disabledFeaturesExclude=downloadPresentationWithAnnotations',
+  importPresentationWithAnnotationsFromBreakoutRoomsExclude:
+    'disabledFeatures=presentation,chat,importPresentationWithAnnotationsFromBreakoutRooms&disabledFeaturesExclude=importPresentationWithAnnotationsFromBreakoutRooms',
+  importSharedNotesFromBreakoutRoomsExclude:
+    'disabledFeatures=presentation,chat,importSharedNotesFromBreakoutRooms&disabledFeaturesExclude=importSharedNotesFromBreakoutRooms',
   presentationExclude: 'disabledFeatures=presentation,chat&disabledFeaturesExclude=presentation',
-  customVirtualBackgroundExclude: 'disabledFeatures=presentation,chat,customVirtualBackground&disabledFeaturesExclude=customVirtualBackground',
+  customVirtualBackgroundExclude:
+    'disabledFeatures=presentation,chat,customVirtualBackground&disabledFeaturesExclude=customVirtualBackground',
   slideSnapshotExclude: 'disabledFeatures=snapShotOfCurrentSlide,chat&disabledFeaturesExclude=snapShotOfCurrentSlide',
   cameraAsContentExclude: 'disabledFeatures=cameraAsContent,chat&disabledFeaturesExclude=cameraAsContent',
   // Shortcuts
   shortcuts: 'userdata-bbb_shortcuts=[$]',
-  initialShortcuts: [{
-    param: 'openOptions',
-    key: 'O'
-  }, {
-    param: 'toggleUserList',
-    key: 'U'
-  }, {
-    param: 'togglePublicChat',
-    key: 'P'
-  }, {
-    param: 'openActions',
-    key: 'A'
-  }, {
-    param: 'joinAudio',
-    key: 'J'
-  }],
-  laterShortcuts: [{
-    param: 'toggleMute',
-    key: 'M'
-  }, {
-    param: 'leaveAudio',
-    key: 'L'
-  }, {
-    param: 'hidePrivateChat',
-    key: 'H'
-  }, {
-    param: 'closePrivateChat',
-    key: 'G'
-  }],
+  initialShortcuts: [
+    {
+      param: 'openOptions',
+      key: 'O',
+    },
+    {
+      param: 'toggleUserList',
+      key: 'U',
+    },
+    {
+      param: 'togglePublicChat',
+      key: 'P',
+    },
+    {
+      param: 'openActions',
+      key: 'A',
+    },
+    {
+      param: 'joinAudio',
+      key: 'J',
+    },
+  ],
+  laterShortcuts: [
+    {
+      param: 'toggleMute',
+      key: 'M',
+    },
+    {
+      param: 'leaveAudio',
+      key: 'L',
+    },
+    {
+      param: 'hidePrivateChat',
+      key: 'H',
+    },
+    {
+      param: 'closePrivateChat',
+      key: 'G',
+    },
+  ],
 };

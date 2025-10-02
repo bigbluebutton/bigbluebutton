@@ -1,6 +1,7 @@
-import * as fs from "fs";
-import * as path from "path";
-import { TestInfo } from "@playwright/test";
+import * as fs from 'fs';
+import * as path from 'path';
+import type { TestInfo } from '@playwright/test';
+import { Page } from './page';
 
 interface ErrorInfo {
   type: 'error' | 'pageerror';
@@ -10,35 +11,36 @@ interface ErrorInfo {
   user: string;
 }
 
-interface PageInstance {
-  page: any;
-  username: string;
-}
-
 export default class Logger {
-  private pageInstance: PageInstance;
-  private page: any;
+  private pageInstance: Page;
+
   private logsDir: string;
+
   private logFiles: Map<string, fs.WriteStream>;
+
   private testInfo: TestInfo | null;
 
-  constructor(pageInstance: PageInstance) {
+  constructor(pageInstance: Page) {
     this.pageInstance = pageInstance;
-    this.page = pageInstance.page;
-    this.logsDir = path.join(__dirname, "../logs");
+    this.logsDir = path.join(__dirname, '../logs');
     this.logFiles = new Map();
     this.testInfo = null;
-    this.page?.once("close", () => {
-      try { this.closeAll(); } catch (_) {}
+    // Only attach the 'close' event listener if the page is a PlaywrightPage (not Frame)
+    this.pageInstance.page.once('close', () => {
+      try {
+        this.closeAll();
+      } catch {
+        // ignore
+      }
     });
   }
 
   static getTimestamp(): string {
     const now = new Date();
-    const h = String(now.getHours()).padStart(2, "0");
-    const m = String(now.getMinutes()).padStart(2, "0");
-    const s = String(now.getSeconds()).padStart(2, "0");
-    const ms = String(now.getMilliseconds()).padStart(4, "0");
+    const h = String(now.getHours()).padStart(2, '0');
+    const m = String(now.getMinutes()).padStart(2, '0');
+    const s = String(now.getSeconds()).padStart(2, '0');
+    const ms = String(now.getMilliseconds()).padStart(4, '0');
     return `[${h}:${m}:${s}:${ms}]`;
   }
 
@@ -47,15 +49,15 @@ export default class Logger {
   }
 
   generateTestPath(): string {
-    if (!this?.testInfo?.outputDir) return "unknown-test";
+    if (!this?.testInfo?.outputDir) return 'unknown-test';
     return path.basename(this.testInfo.outputDir).toLowerCase();
   }
 
   getLogFile(): fs.WriteStream {
     const testPath = this.generateTestPath();
     const logKey = `${testPath}:${this.pageInstance.username}`;
-    const username = this.pageInstance?.username || "unknown";
-    const sanitizedUsername = username.replace(/[^a-zA-Z0-9-_]/g, "_");
+    const username = this.pageInstance?.username || 'unknown';
+    const sanitizedUsername = username.replace(/[^a-zA-Z0-9-_]/g, '_');
 
     if (!this.logFiles.has(logKey)) {
       const testDir = path.join(this.logsDir, testPath);
@@ -64,7 +66,7 @@ export default class Logger {
       }
 
       const logFilePath = path.join(testDir, `${sanitizedUsername}.log`);
-      const stream = fs.createWriteStream(logFilePath, { flags: "a" });
+      const stream = fs.createWriteStream(logFilePath, { flags: 'a' });
       this.logFiles.set(logKey, stream);
     }
 
@@ -92,7 +94,11 @@ export default class Logger {
 
   private closeAll(): void {
     for (const s of this.logFiles.values()) {
-      try { s.end(); } catch (_) {}
+      try {
+        s.end();
+      } catch {
+        // ignore
+      }
     }
     this.logFiles.clear();
   }

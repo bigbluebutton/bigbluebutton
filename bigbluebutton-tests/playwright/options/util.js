@@ -1,31 +1,39 @@
+// eslint-disable-next-line import/no-relative-packages
+import defaultLocale from '../../../bigbluebutton-html5/public/locales/en';
 import { elements as e } from '../core/elements.ts';
-import defaultLocale from '../../../bigbluebutton-html5/public/locales/en.json';
 
 export async function openSettings(test) {
   await test.waitAndClick(e.optionsButton);
   await test.waitAndClick(e.settings);
 }
 
-export function getLocaleValues(elements, locale) {
+export async function getLocaleValues(elements, locale) {
   const currentValues = {};
   let currentLocale = {};
   try {
-    currentLocale = require(`../../../bigbluebutton-html5/public/locales/${locale.replace('-', '_')}.json`);
-  } catch (err) { }
-
-  for (const selector in elements) {
-    const currentKey = elements[selector];
-    currentValues[selector] = currentLocale[currentKey] ? currentLocale[currentKey] : getValueFromSecondaryLocale();
-
-    function getValueFromSecondaryLocale() {
-      const generalLocaleName = locale.split('-')[0];
-      let generalLocale = {};
-      try {
-        generalLocale = require(`../../../bigbluebutton-html5/public/locales/${generalLocaleName}.json`);
-      } catch (err) { }
-      return generalLocale[currentKey] ? generalLocale[currentKey] : defaultLocale[currentKey];
-    }
+    currentLocale = await import(`../../../bigbluebutton-html5/public/locales/${locale.replace('-', '_')}.json`);
+  } catch (err) {
+    // Ignore import errors for missing locale files
   }
+
+  async function getValueFromSecondaryLocale(currentKey) {
+    const generalLocaleName = locale.split('-')[0];
+    let generalLocale = {};
+    try {
+      generalLocale = await import(`../../../bigbluebutton-html5/public/locales/${generalLocaleName}.json`);
+    } catch (err) {
+      // Ignore import errors for missing locale files
+    }
+    return generalLocale[currentKey] ? generalLocale[currentKey] : defaultLocale[currentKey];
+  }
+
+  await Promise.all(
+    Object.entries(elements).map(async ([selector, currentKey]) => {
+      currentValues[selector] = currentLocale[currentKey]
+        ? currentLocale[currentKey]
+        : await getValueFromSecondaryLocale(currentKey);
+    })
+  );
   return currentValues;
 }
 

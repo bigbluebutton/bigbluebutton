@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
+import path from 'path';
 import { elements as e } from '../core/elements.ts';
 import { getSettings } from '../core/settings.ts';
-import path from 'path';
 import { ELEMENT_WAIT_TIME } from '../core/constants.ts';
 
 export async function openPoll(testPage) {
@@ -15,19 +15,26 @@ export async function openPoll(testPage) {
   await testPage.hasElementCount(e.pollOptionItem, 4, 'should display the poll options item for the poll answers');
 }
 
-export async function startPoll(test, isAnonymous = false) {
-  await openPoll(test);
-  if (isAnonymous) await test.page.locator(e.anonymousPoll).setChecked();
-  await test.waitAndClick(e.startPoll);
+export async function startPoll(testPage, isAnonymous = false) {
+  await openPoll(testPage);
+  if (isAnonymous) await testPage.page.locator(e.anonymousPoll).setChecked();
+  await testPage.waitAndClick(e.startPoll);
 }
 
-export async function uploadSPresentationForTestingPolls(test, fileName) {
-  await test.waitAndClick(e.actions);
-  await test.waitAndClick(e.managePresentations);
-  await test.hasElement(e.presentationFileUpload, 'should display the presentation file upload on the manage presentations modal');
+export async function uploadSPresentationForTestingPolls(testPage, fileName) {
+  await testPage.waitAndClick(e.actions);
+  await testPage.waitAndClick(e.managePresentations);
+  await testPage.hasElement(
+    e.presentationFileUpload,
+    'should display the presentation file upload on the manage presentations modal'
+  );
 
   await test.page.setInputFiles(e.presentationFileUpload, path.join(__dirname, `../core/media/${fileName}`));
-  await test.hasText('body', e.statingUploadPresentationToast, 'should display the presentation toast about the upload');
+  await test.hasText(
+    'body',
+    e.statingUploadPresentationToast,
+    'should display the presentation toast about the upload'
+  );
 
   await test.waitAndClick(e.confirmManagePresentation);
 }

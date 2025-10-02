@@ -6,15 +6,10 @@ import { snapshotComparison } from './util';
 import { skipSlide } from '../presentation/util';
 
 export class ShapeTools extends DrawShape {
-  constructor(browser, context) {
-    super(browser, context);
-  }
-
   async pan() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await this.userPage.waitForSelector(e.whiteboard);
     await this.modPage.waitForSelector(e.resetZoomButton);
-    const modWbLocator = this.modPage.page.locator(e.whiteboard);
     // skip slide (blank slide)
     await skipSlide(this.modPage);
     // draw line
@@ -26,15 +21,17 @@ export class ShapeTools extends DrawShape {
     await this.userPage.hasElement(e.wbDrawnLine, 'should display the drawn shape for the viewer');
     const zoomResetBtn = this.modPage.page.locator(e.resetZoomButton);
     // zoom in until 200%
-    for(let i = 100; i < 200; i += 25) {
+    for (let i = 100; i < 200; i += 25) {
       const currentZoomLabel = await zoomResetBtn.textContent();
       await this.modPage.waitAndClick(e.zoomInButton);
-      await expect(zoomResetBtn, 'reset zoom button label should change after clicking to zoom in').not.toContainText(currentZoomLabel);
+      await expect(zoomResetBtn, 'reset zoom button label should change after clicking to zoom in').not.toContainText(
+        currentZoomLabel
+      );
     }
     // pan the whiteboard
     await this.modPage.waitAndClick(e.wbHandButton);
     await this.drawShapeMiddleSlide();
-    await this.modPage.page.waitForTimeout(1500);  // wait for the whiteboard to be panned
+    await this.modPage.page.waitForTimeout(1500); // wait for the whiteboard to be panned
     // check if the whiteboard was panned
     await expect(this.modPage.page).toHaveScreenshot('moderator-pan.png', {
       mask: [this.modPage.page.locator(e.presentationTitle)],
@@ -49,8 +46,6 @@ export class ShapeTools extends DrawShape {
   async eraser() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await this.userPage.waitForSelector(e.whiteboard);
-    const modWbLocator = this.modPage.page.locator(e.whiteboard);
-    const wbBox = await modWbLocator.boundingBox();
     // draw a line
     await this.modPage.waitAndClick(e.wbShapesButton);
     await this.modPage.waitAndClick(e.wbLineShape);
@@ -67,8 +62,6 @@ export class ShapeTools extends DrawShape {
   async delete() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await this.userPage.waitForSelector(e.whiteboard);
-    const modWbLocator = this.modPage.page.locator(e.whiteboard);
-    const wbBox = await modWbLocator.boundingBox();
     // draw an arrow
     await this.modPage.waitAndClick(e.wbArrowShape);
     await this.drawShapeMiddleSlide();
@@ -77,8 +70,14 @@ export class ShapeTools extends DrawShape {
     await this.userPage.hasElement(e.wbDrawnArrow, 'should display the drawn shape for the viewer');
     // delete the drawn arrow by 'Delete' key
     await this.modPage.press('Delete');
-    await this.modPage.wasRemoved(e.wbDrawnArrow, 'should delete the drawn shape for the moderator by pressing the "Delete" key');
-    await this.userPage.wasRemoved(e.wbDrawnArrow, 'should delete the drawn shape for the viewer by pressing the "Delete" key');
+    await this.modPage.wasRemoved(
+      e.wbDrawnArrow,
+      'should delete the drawn shape for the moderator by pressing the "Delete" key'
+    );
+    await this.userPage.wasRemoved(
+      e.wbDrawnArrow,
+      'should delete the drawn shape for the viewer by pressing the "Delete" key'
+    );
     // draw another arrow
     await this.modPage.waitAndClick(e.wbArrowShape);
     await this.drawShapeMiddleSlide();
@@ -87,16 +86,20 @@ export class ShapeTools extends DrawShape {
     await this.userPage.hasElement(e.wbDrawnArrow, 'should display the new drawn shape for the viewer');
     // delete the drawn arrow by 'Backspace' key
     await this.modPage.press('Backspace');
-    await this.modPage.wasRemoved(e.wbDrawnArrow, 'should delete the drawn shape for the moderator by pressing the "Backspace" key');
-    await this.userPage.wasRemoved(e.wbDrawnArrow, 'should delete the drawn shape for the viewer by pressing the "Backspace" key');
+    await this.modPage.wasRemoved(
+      e.wbDrawnArrow,
+      'should delete the drawn shape for the moderator by pressing the "Backspace" key'
+    );
+    await this.userPage.wasRemoved(
+      e.wbDrawnArrow,
+      'should delete the drawn shape for the viewer by pressing the "Backspace" key'
+    );
     await snapshotComparison(this.modPage, this.userPage, 'delete');
   }
 
   async undo() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await this.userPage.waitForSelector(e.whiteboard);
-    const modWbLocator = this.modPage.page.locator(e.whiteboard);
-    const wbBox = await modWbLocator.boundingBox();
     // draw an arrow
     await this.modPage.waitAndClick(e.wbArrowShape);
     await this.drawShapeMiddleSlide();
@@ -106,7 +109,10 @@ export class ShapeTools extends DrawShape {
     // undo the drawn arrow
     await this.modPage.page.keyboard.press('Control+Z');
     // check if the arrow was removed
-    await this.modPage.wasRemoved(e.wbDrawnArrow, 'should remove the drawn shape for the moderator by pressing "Ctrl+Z"');
+    await this.modPage.wasRemoved(
+      e.wbDrawnArrow,
+      'should remove the drawn shape for the moderator by pressing "Ctrl+Z"'
+    );
     await this.userPage.wasRemoved(e.wbDrawnArrow, 'should remove the drawn shape for the viewer by pressing "Ctrl+Z"');
     await snapshotComparison(this.modPage, this.userPage, 'undo');
   }
@@ -116,7 +122,10 @@ export class ShapeTools extends DrawShape {
     // redo the undone arrow
     await this.modPage.page.keyboard.press('Control+Shift+Z');
     // check if the arrow reappeared
-    await this.modPage.hasElement(e.wbDrawnArrow, 'should display again the drawn shape for the moderator after redoing');
+    await this.modPage.hasElement(
+      e.wbDrawnArrow,
+      'should display again the drawn shape for the moderator after redoing'
+    );
     await this.userPage.hasElement(e.wbDrawnArrow, 'should display again the drawn shape for the viewer after redoing');
     await snapshotComparison(this.modPage, this.userPage, 'redo');
   }

@@ -1,9 +1,9 @@
-import { expect } from "@playwright/test";
+import { expect } from '@playwright/test';
 import { exec } from 'child_process';
 
 interface RunScriptOptions {
-  handleError?: (stderr: string) => any;
-  handleOutput?: (stdout: string) => any;
+  handleError?: (stderr: string) => void;
+  handleOutput?: (stdout: string) => void;
   timeout?: number;
 }
 
@@ -22,10 +22,14 @@ interface WbBox {
 }
 
 // Text
-export async function checkTextContent(baseContent: string, checkData: string | string[], description?: string): Promise<void> {
-  if (typeof checkData === 'string') checkData = new Array(checkData);
+export async function checkTextContent(
+  baseContent: string,
+  checkData: string | string[],
+  description?: string
+): Promise<void> {
+  const dataArray = typeof checkData === 'string' ? [checkData] : checkData;
 
-  checkData.forEach(word => {
+  dataArray.forEach((word) => {
     expect(baseContent, description ?? `should contain the value "${word}"`).toContain(word);
   });
 }
@@ -39,11 +43,17 @@ export function constructClipObj(wbBox: WbBox): ClipObj {
   };
 }
 
-export async function runScript(script: string, options: RunScriptOptions): Promise<any> {
+export async function runScript(script: string, options: RunScriptOptions): Promise<void> {
   const { handleError, handleOutput, timeout } = options;
-  return new Promise((res, rej) => {
-    return exec(script, { timeout }, (err, stdout, stderr) => {
-      res(handleError ? handleError(stderr) : handleOutput ? handleOutput(stdout) : null)
-    })
-  })
+  return new Promise((res) => {
+    exec(script, { timeout }, (_, stdout, stderr) => {
+      if (handleError) {
+        res(handleError(stderr));
+      } else if (handleOutput) {
+        res(handleOutput(stdout));
+      } else {
+        res();
+      }
+    });
+  });
 }

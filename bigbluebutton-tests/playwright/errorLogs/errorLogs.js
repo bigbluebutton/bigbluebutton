@@ -1,15 +1,11 @@
+import { env } from 'node:process';
 import { MultiUsers } from '../user/multiusers';
 import { connectMicrophone } from '../audio/util';
 import { openPublicChat } from '../chat/util';
 import { elements as e } from '../core/elements.ts';
-import { env } from 'node:process';
 import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants.ts';
 
 export class ErrorLogs extends MultiUsers {
-  constructor(browser, context) {
-    super(browser, context);
-  }
-
   monitorErrorLogs() {
     // avoid double thrown errors (default function already throws error based on env.CONSOLE_FAIL)
     if (env.CONSOLE_FAIL === 'true') return;
@@ -70,7 +66,11 @@ export class ErrorLogs extends MultiUsers {
     await this.modPage.waitAndClick(`${e.singleReactionButton}:nth-child(1)`);
     // Verify reaction is displayed
     await this.modPage.hasText(e.moderatorAvatar, '😃', 'should display the smiling emoji in the moderator avatar');
-    await this.modPage.hasText(e.reactionsButton, '😃', 'should display the smiling emoji on the reactions button when used');
+    await this.modPage.hasText(
+      e.reactionsButton,
+      '😃',
+      'should display the smiling emoji on the reactions button when used'
+    );
     // Wait a moment for any reaction-related errors to surface
     await this.modPage.page.waitForTimeout(2000);
   }

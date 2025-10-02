@@ -5,7 +5,7 @@ import { getSettings } from '../core/settings.ts';
 export async function openPublicChat(testPage) {
   const { chatEnabled } = getSettings();
 
-  if(!chatEnabled) {
+  if (!chatEnabled) {
     return testPage.wasRemoved(e.chatButton, 'public chat should not be displayed');
   }
 
@@ -18,11 +18,11 @@ export async function openPrivateChat(testPage) {
   const { chatEnabled } = getSettings();
 
   await testPage.waitAndClick(e.userListItem);
-  if(!chatEnabled) {
-    return await testPage.wasRemoved(e.startPrivateChat, 'should not display the private chat');
+  if (!chatEnabled) {
+    return testPage.wasRemoved(e.startPrivateChat, 'should not display the private chat');
   }
   const lastUserStartPrivateChat = await testPage.page.locator(e.startPrivateChat).last();
-  await testPage.clickOnLocator(lastUserStartPrivateChat);
+  await lastUserStartPrivateChat.click();
 }
 
 export async function getLastMessageSent(testPage) {

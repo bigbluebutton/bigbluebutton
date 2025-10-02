@@ -20,7 +20,7 @@ test.describe.parallel('Audio', { tag: '@ci' }, () => {
   });
 
   test('Change audio input and keep it connected', async ({ browserName }) => {
-    test.skip(browserName === 'firefox', 'Firefox does not support fake audio to simulate de audio.')
+    test.skip(browserName === 'firefox', 'Firefox does not support fake audio to simulate de audio.');
     await audio.changeAudioInput();
   });
 

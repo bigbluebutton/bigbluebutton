@@ -11,7 +11,7 @@ export const chromiumConfig = {
         '--use-fake-ui-for-media-stream',
         '--use-fake-device-for-media-stream',
         '--allow-file-access-from-files',
-        `--use-file-for-fake-video-capture=${path.join(__dirname, 'media/video.y4m')}`
+        `--use-file-for-fake-video-capture=${path.join(__dirname, 'media/video.y4m')}`,
       ],
     },
   },
@@ -22,14 +22,11 @@ export const firefoxConfig = {
   use: {
     browserName: 'firefox' as const,
     launchOptions: {
-      args: [
-        '--quiet',
-        '--use-test-media-devices',
-      ],
+      args: ['--quiet', '--use-test-media-devices'],
       firefoxUserPrefs: {
-        "media.navigator.streams.fake": true,
-        "media.navigator.permission.disabled": true,
-      }
+        'media.navigator.streams.fake': true,
+        'media.navigator.permission.disabled': true,
+      },
     },
   },
 };
@@ -39,11 +36,7 @@ export const webkitConfig = {
   use: {
     browserName: 'webkit' as const,
     launchOptions: {
-      args: [
-        '--no-sandbox',
-        '--use-fake-ui-for-media-stream',
-        '--use-fake-device-for-media-stream',
-      ]
+      args: ['--no-sandbox', '--use-fake-ui-for-media-stream', '--use-fake-device-for-media-stream'],
     },
   },
 };

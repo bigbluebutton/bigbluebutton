@@ -5,10 +5,6 @@ import { killConnection } from './util';
 import { ELEMENT_WAIT_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME } from '../core/constants.ts';
 
 export class Reconnection extends MultiUsers {
-  constructor(browser, context) {
-    super(browser, context);
-  }
-
   async chat() {
     // chat enabled
     await this.modPage.waitForSelector(e.chatBox);
@@ -16,16 +12,25 @@ export class Reconnection extends MultiUsers {
     await expect(chatBoxLocator, 'should the chat box be enabled as soon as the user join').toBeEnabled();
 
     killConnection();
-    await this.modPage.hasElement(e.notificationBannerBar, 'should the notification bar be displayed after connection lost');
+    await this.modPage.hasElement(
+      e.notificationBannerBar,
+      'should the notification bar be displayed after connection lost'
+    );
 
     // chat disabled and notification bar displayed
     await Promise.all([
-      expect(chatBoxLocator, 'should the chat box be disabled when the connection lost').toBeDisabled({ timeout: ELEMENT_WAIT_TIME }),
+      expect(chatBoxLocator, 'should the chat box be disabled when the connection lost').toBeDisabled({
+        timeout: ELEMENT_WAIT_TIME,
+      }),
       this.modPage.hasText(e.notificationBannerBar, 'Reconnection in progress'),
     ]);
 
     // reconnected -> chat enabled
-    await this.modPage.wasRemoved(e.notificationBannerBar, 'notification bar should be removed after reconnecting successfully', ELEMENT_WAIT_EXTRA_LONG_TIME);
+    await this.modPage.wasRemoved(
+      e.notificationBannerBar,
+      'notification bar should be removed after reconnecting successfully',
+      ELEMENT_WAIT_EXTRA_LONG_TIME
+    );
     await expect(chatBoxLocator, 'chat box should be enabled again after reconnecting successfully').toBeEnabled();
   }
 
@@ -39,11 +44,18 @@ export class Reconnection extends MultiUsers {
     await expect(muteMicButtonLocator, 'mute button should be enabled as soon as the user join').toBeEnabled();
 
     killConnection();
-    await this.modPage.hasElement(e.notificationBannerBar, 'should the notification bar be displayed after connection lost');
+    await this.modPage.hasElement(
+      e.notificationBannerBar,
+      'should the notification bar be displayed after connection lost'
+    );
     await this.modPage.hasText(e.notificationBannerBar, 'Reconnection in progress');
 
     // reconnected
-    await this.modPage.wasRemoved(e.notificationBannerBar, 'notification bar should be removed after reconnecting successfully', ELEMENT_WAIT_EXTRA_LONG_TIME);
+    await this.modPage.wasRemoved(
+      e.notificationBannerBar,
+      'notification bar should be removed after reconnecting successfully',
+      ELEMENT_WAIT_EXTRA_LONG_TIME
+    );
 
     // audio connection should keep connected
     await this.modPage.hasElement(e.muteMicButton, 'user audio should keep connected after reconnection');

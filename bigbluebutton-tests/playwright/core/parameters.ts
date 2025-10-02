@@ -1,4 +1,5 @@
 import * as dotenv from 'dotenv';
+
 dotenv.config();
 
 const bbbUrl: string | undefined = process.env.BBB_URL;

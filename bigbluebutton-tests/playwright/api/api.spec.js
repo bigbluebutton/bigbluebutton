@@ -1,6 +1,6 @@
 import { test } from '../fixtures';
-import { API } from './api.js';
-import { APIBreakout } from './breakout.js';
+import { API } from './api';
+import { APIBreakout } from './breakout';
 
 test.describe.parallel('API', () => {
   test('getMeetings', async ({ browser, context, page }, testInfo) => {

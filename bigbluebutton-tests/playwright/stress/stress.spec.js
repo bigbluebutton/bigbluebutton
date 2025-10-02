@@ -1,5 +1,5 @@
 import { test } from '../fixtures';
-import { Stress } from './stress.js';
+import { Stress } from './stress';
 
 // @ci Note: Stress tests are not intended to be run in CI
 
@@ -22,7 +22,11 @@ test.describe.parallel('Stress', () => {
       await stress.twoUsersJoinSameTime();
     });
 
-    test('Join 2 users (mod and attendee) keeping the previous one connected', async ({ browser, context, page }, testInfo) => {
+    test('Join 2 users (mod and attendee) keeping the previous one connected', async ({
+      browser,
+      context,
+      page,
+    }, testInfo) => {
       const stress = new Stress(browser, context, page, testInfo);
       await stress.usersJoinKeepingConnected();
     });

@@ -1,7 +1,7 @@
 import { Reporter, TestCase, TestResult } from '@playwright/test/reporter';
 
 export default class CustomReporter implements Reporter {
-  onTestEnd(test: TestCase, result: TestResult): void {
+  static onTestEnd(test: TestCase, result: TestResult): void {
     const { retries } = test;
     const { status, error, retry } = result;
     const titlePath = test.titlePath();
@@ -11,8 +11,10 @@ export default class CustomReporter implements Reporter {
     if (status === 'failed') {
       const baseMessage = `${logTitle}\n${error?.stack || error?.message || 'Unknown error'}`;
 
-      if (retries != retry) {
-        const warningMessage = `Flaky (attempt #${retry + 1}) ────────────────────────────────────────────────────────────\n${baseMessage}\n`;
+      if (retries !== retry) {
+        const warningMessage =
+          `Flaky (attempt #${retry + 1}) ` +
+          `────────────────────────────────────────────────────────────\n${baseMessage}\n`;
         console.log(`::warning title=${logTitle}::  ${warningMessage}`.replace(/\n/g, '%0A  '));
         return;
       }

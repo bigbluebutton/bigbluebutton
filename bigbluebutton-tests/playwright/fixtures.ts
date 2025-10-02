@@ -5,13 +5,16 @@ interface TestFixtures {
 }
 
 const testWithValidation = base.extend<TestFixtures>({
-  sharedBeforeEachTestHook: [async ({ browser }, use) => {
-    // Before test
-    await use();
-    // After test
-    const contexts = browser.contexts();
-    await Promise.all(contexts.map(context => context.close()));
-  }, { scope: 'test', auto: true }],
+  sharedBeforeEachTestHook: [
+    async ({ browser }, use) => {
+      // Before test
+      await use();
+      // After test
+      const contexts = browser.contexts();
+      await Promise.all(contexts.map((context) => context.close()));
+    },
+    { scope: 'test', auto: true },
+  ],
 });
 
 export const test = testWithValidation;

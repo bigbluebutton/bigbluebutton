@@ -14,8 +14,7 @@ import { elements as e } from '../core/elements.ts';
 // P.S. 2. Tests updated + re-enabled on March, 2025
 test.describe.parallel('Whiteboard tools', { tag: '@ci' }, () => {
   test.beforeEach(({ browserName }) => {
-    test.skip(browserName !== 'chromium',
-      'Drawing visual regression tests are enabled only for Chromium');
+    test.skip(browserName !== 'chromium', 'Drawing visual regression tests are enabled only for Chromium');
   });
 
   test('Draw rectangle', async ({ browser, context, page }, testInfo) => {
@@ -57,7 +56,7 @@ test.describe.parallel('Whiteboard tools', { tag: '@ci' }, () => {
     const pencil = new DrawShape(browser, context);
     await pencil.initModPage(page, true, { testInfo });
     await pencil.initUserPage(true, context, { testInfo });
-    await pencil.drawShape(e.wbPencilShape, 'pencil', e.wbDraw)
+    await pencil.drawShape(e.wbPencilShape, 'pencil', e.wbDraw);
   });
 
   test('Type text', async ({ browser, context, page }, testInfo) => {

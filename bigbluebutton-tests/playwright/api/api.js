@@ -9,7 +9,7 @@ function getMeetings() {
 }
 
 function getMeetingInfo(meetingID) {
-  return apiCall('getMeetingInfo', { meetingID: meetingID });
+  return apiCall('getMeetingInfo', { meetingID });
 }
 
 export class API {
@@ -33,26 +33,26 @@ export class API {
       modPage.init(true, false, { meetingId, fullName: 'Moderator' }),
       userPage.init(false, false, { meetingId, fullName: 'Attendee' }),
     ]);
-    await Promise.all([
-      modPage.joinMicrophone(),
-      userPage.joinMicrophone()
-    ]);
+    await Promise.all([modPage.joinMicrophone(), userPage.joinMicrophone()]);
 
-    /* hasJoinedVoice: ['true'] is not part of these expectedUser patterns because it isn't consistently true
-     * in the API's returned data structures.  Is there something we can await on the browser page that
+    /* hasJoinedVoice: ['true'] is not part of these expectedUser patterns
+     * because it isn't consistently true
+     * in the API's returned data structures.
+     * Is there something we can await on the browser page that
      * should ensure that the API will report hasJoinedVoice?
      */
 
-    const expectedUsers = [expect.objectContaining({
-      fullName: ['Moderator'],
-      role: ['MODERATOR'],
-      isPresenter: ['true'],
-    }),
-    expect.objectContaining({
-      fullName: ['Attendee'],
-      role: ['VIEWER'],
-      isPresenter: ['false'],
-    })
+    const expectedUsers = [
+      expect.objectContaining({
+        fullName: ['Moderator'],
+        role: ['MODERATOR'],
+        isPresenter: ['true'],
+      }),
+      expect.objectContaining({
+        fullName: ['Attendee'],
+        role: ['VIEWER'],
+        isPresenter: ['false'],
+      }),
     ];
     const expectedMeeting = {
       meetingName: [meetingId],
@@ -60,7 +60,7 @@ export class API {
       participantCount: ['2'],
       moderatorCount: ['1'],
       isBreakout: ['false'],
-      attendees: [{ attendee: expect.arrayContaining(expectedUsers) }]
+      attendees: [{ attendee: expect.arrayContaining(expectedUsers) }],
     };
 
     /* check that this meeting is in the server's list of all meetings */
@@ -80,26 +80,26 @@ export class API {
       modPage.init(true, false, { meetingId, fullName: 'Moderator' }),
       userPage.init(false, false, { meetingId, fullName: 'Attendee' }),
     ]);
-    await Promise.all([
-      modPage.joinMicrophone(),
-      userPage.joinMicrophone()
-    ]);
+    await Promise.all([modPage.joinMicrophone(), userPage.joinMicrophone()]);
 
-    /* hasJoinedVoice: ['true'] is not part of these expectedUser patterns because it isn't consistently true
-     * in the API's returned data structures.  Is there something we can await on the browser page that
+    /* hasJoinedVoice: ['true'] is not part of these expectedUser patterns
+     * because it isn't consistently true
+     * in the API's returned data structures.
+     * Is there something we can await on the browser page that
      * should ensure that the API will report hasJoinedVoice?
      */
 
-    const expectedUsers = [expect.objectContaining({
-      fullName: ['Moderator'],
-      role: ['MODERATOR'],
-      isPresenter: ['true'],
-    }),
-    expect.objectContaining({
-      fullName: ['Attendee'],
-      role: ['VIEWER'],
-      isPresenter: ['false'],
-    })
+    const expectedUsers = [
+      expect.objectContaining({
+        fullName: ['Moderator'],
+        role: ['MODERATOR'],
+        isPresenter: ['true'],
+      }),
+      expect.objectContaining({
+        fullName: ['Attendee'],
+        role: ['VIEWER'],
+        isPresenter: ['false'],
+      }),
     ];
     const expectedMeeting = {
       meetingName: [meetingId],
@@ -107,7 +107,7 @@ export class API {
       participantCount: ['2'],
       moderatorCount: ['1'],
       isBreakout: ['false'],
-      attendees: [{ attendee: expect.arrayContaining(expectedUsers) }]
+      attendees: [{ attendee: expect.arrayContaining(expectedUsers) }],
     };
 
     /* check that we can retrieve this meeting by its meetingId */

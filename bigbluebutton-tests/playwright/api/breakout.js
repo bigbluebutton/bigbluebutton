@@ -5,38 +5,35 @@ import parameters from '../core/parameters.ts';
 import { apiCall, createMeetingPromise } from '../core/helpers.ts';
 
 function getMeetingInfo(meetingID) {
-  return apiCall('getMeetingInfo', { meetingID: meetingID });
+  return apiCall('getMeetingInfo', { meetingID });
 }
 
-class APIBreakout extends Join {
-  constructor(browser, context) {
-    super(browser, context);
-  }
-
+export class APIBreakout extends Join {
   // Attempt to use API to create a breakout room without a parent
-  async testBreakoutWithoutParent() {
-    const response = await createMeetingPromise(parameters, `isBreakout=true&sequence=1`)
-      .catch(error => error);
+  static async testBreakoutWithoutParent() {
+    const response = await createMeetingPromise(parameters, 'isBreakout=true&sequence=1').catch((error) => error);
     expect(response.response.status).toEqual(500);
   }
 
   // Attempt to use API to create a break room without a sequence number
   async testBreakoutWithoutSequenceNumber() {
-    const response = await createMeetingPromise(parameters, `isBreakout=true&parentMeetingID=${this.modPage.meetingId}`)
-      .catch(error => error);
+    const response = await createMeetingPromise(
+      parameters,
+      `isBreakout=true&parentMeetingID=${this.modPage.meetingId}`
+    ).catch((error) => error);
     expect(response.response.status).toEqual(500);
   }
 
   // Attempt to use API to create a break room with a non-existent parent meeting
-  async testBreakoutWithNonexistentParent() {
-    const response = await createMeetingPromise(parameters, `isBreakout=true&parentMeetingID=0000000&sequence=1`)
-      .catch(error => error);
+  static async testBreakoutWithNonexistentParent() {
+    const response = await createMeetingPromise(parameters, 'isBreakout=true&parentMeetingID=0000000&sequence=1').catch(
+      (error) => error
+    );
     expect(response.response.status).toEqual(500);
   }
 
   // Check that breakout rooms created via the GUI appear properly in the API's meeting info
   async testBreakoutMeetingInfoNoJoins() {
-
     // We have two breakout rooms, but neither user has joined a breakout room.
     // Make sure the API getMeetingInfo returns expected results
 
@@ -45,16 +42,21 @@ class APIBreakout extends Join {
     expect(response1.response.isBreakout).toEqual(['false']);
     expect(response1.response.breakoutRooms[0].breakout.length).toEqual(2);
 
-    for (const breakoutRoom of response1.response.breakoutRooms[0].breakout) {
-      const response2 = await getMeetingInfo(breakoutRoom);
+    const breakoutRoomResponses = await Promise.all(
+      response1.response.breakoutRooms[0].breakout.map(async (breakoutRoom) => {
+        const response2 = await getMeetingInfo(breakoutRoom);
+        return { breakoutRoom, response2 };
+      })
+    );
 
+    breakoutRoomResponses.forEach(({ breakoutRoom, response2 }) => {
       const expectedMeeting = {
         meetingID: [breakoutRoom],
         isBreakout: ['true'],
         running: ['false'],
         participantCount: ['0'],
         hasUserJoined: ['false'],
-        attendees: ['\n'],   /* no attendees; the newline is an artifact of xml2js */
+        attendees: ['\n'] /* no attendees; the newline is an artifact of xml2js */,
         freeJoin: ['false'],
         sequence: [expect.stringMatching('[12]')],
         parentMeetingID: response1.response.internalMeetingID,
@@ -62,11 +64,10 @@ class APIBreakout extends Join {
 
       expect(response2.response.returncode).toEqual(['SUCCESS']);
       expect(response2.response).toMatchObject(expectedMeeting);
-    }
+    });
   }
 
   async testBreakoutMeetingInfoOneJoin() {
-
     // We have two breakout rooms, and one user has joined a breakout room.
     // Make sure the API getMeetingInfo returns expected results
 
@@ -83,7 +84,7 @@ class APIBreakout extends Join {
 
     // Retrieve meeting info for both breakout rooms
 
-    // Attendee, a VIEWER in the parent meeting, becomes a MODERATOR (and presenter) in the breakout room
+    // Attendee, a VIEWER in the parent meeting, becomes a MODERATOR (and presenter) in breakout
 
     const expectedUser = expect.objectContaining({
       fullName: ['Attendee'],
@@ -107,7 +108,7 @@ class APIBreakout extends Join {
       running: ['false'],
       participantCount: ['0'],
       hasUserJoined: ['false'],
-      attendees: ['\n'],   /* no attendees; the newline is an artifact of xml2js */
+      attendees: ['\n'] /* no attendees; the newline is an artifact of xml2js */,
       freeJoin: ['false'],
       sequence: ['2'],
       parentMeetingID: response1.response.internalMeetingID,

@@ -1,7 +1,8 @@
-import util from 'node:util';
+import * as util from 'node:util';
 import { exec as childExec } from 'node:child_process';
-const exec = util.promisify(childExec);
 import { hostname } from '../core/parameters.ts';
+
+const exec = util.promisify(childExec);
 
 export async function killConnection() {
   await exec(`
@@ -10,5 +11,4 @@ export async function killConnection() {
     sleep 1;
     sudo iptables -D OUTPUT -p tcp -d ${hostname} --dport 443 -j DROP;
   `);
-
 }

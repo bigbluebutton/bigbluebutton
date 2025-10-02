@@ -5,6 +5,7 @@ import { GuestPolicy } from './guestPolicy';
 import { LockViewers } from './lockViewers';
 import { MobileDevices } from './mobileDevices';
 import { Timer } from './timer';
+
 const iPhone11 = devices['iPhone 11'];
 
 test.describe.parallel('User', { tag: '@ci' }, () => {
@@ -238,7 +239,7 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
       });
 
       test('Lock see other viewers cursor', async ({ browser, context, page, browserName }, testInfo) => {
-        test.skip(browserName === 'firefox', 'The test is inconsistent on Firefox, due to the heavy browser.')
+        test.skip(browserName === 'firefox', 'The test is inconsistent on Firefox, due to the heavy browser.');
         const lockViewers = new LockViewers(browser, context);
         await lockViewers.initPages(page, testInfo);
         await lockViewers.lockSeeOtherViewersCursor();

@@ -1,5 +1,4 @@
 import { test } from '../fixtures';
-import { encodeCustomParams } from '../parameters/util';
 import { Presentation } from './presentation';
 import { linkIssue } from '../core/helpers.ts';
 
@@ -48,7 +47,7 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
   });
 
   test('Presentation snapshot', async ({ browser, context, page, browserName }, testInfo) => {
-    test.skip(browserName === 'firefox', 'Firefox does not support download.')
+    test.skip(browserName === 'firefox', 'Firefox does not support download.');
     const presentation = new Presentation(browser, context);
     await presentation.initPages(page, testInfo);
     await presentation.presentationSnapshot();
@@ -101,7 +100,11 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
       await presentation.enableAndDisablePresentationDownload(testInfo);
     });
 
-    test('Send presentation in the current state (with annotations) to chat for downloading', async ({ browser, context, page }, testInfo) => {
+    test('Send presentation in the current state (with annotations) to chat for downloading', async ({
+      browser,
+      context,
+      page,
+    }, testInfo) => {
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page, testInfo);
       await presentation.sendPresentationToDownload(testInfo);

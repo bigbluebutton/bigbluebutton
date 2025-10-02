@@ -8,7 +8,9 @@ export async function startSharedNotes(test) {
 }
 
 export function getNotesLocator(test) {
-  return test.page.frameLocator(e.etherpadFrame).last()
+  return test.page
+    .frameLocator(e.etherpadFrame)
+    .last()
     .frameLocator(e.etherpadOuter)
     .frameLocator(e.etherpadInner)
     .locator(e.etherpadEditable);
@@ -39,6 +41,5 @@ export function getMoveToWhiteboardLocator(test) {
 }
 
 export function getSharedNotesUserWithoutPermission(test) {
-  return test.page.frameLocator(e.sharedNotesViewingMode)
-    .locator('body');
+  return test.page.frameLocator(e.sharedNotesViewingMode).locator('body');
 }

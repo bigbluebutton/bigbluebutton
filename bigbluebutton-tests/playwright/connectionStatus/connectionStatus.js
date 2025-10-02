@@ -5,10 +5,6 @@ import { ELEMENT_WAIT_TIME } from '../core/constants.ts';
 import { openConnectionStatus, checkNetworkStatus } from './util';
 
 export class ConnectionStatus extends MultiUsers {
-  constructor(browser, context) {
-    super(browser, context);
-  }
-
   async connectionStatusModal() {
     await openConnectionStatus(this.modPage);
     await this.modPage.hasElement(e.connectionStatusModal);
@@ -22,24 +18,27 @@ export class ConnectionStatus extends MultiUsers {
     await this.userPage.shareWebcam();
     await openConnectionStatus(this.modPage);
 
-    await this.userPage.page.waitForFunction(checkNetworkStatus,
-      e.connectionDataContainer,
-      { timeout: ELEMENT_WAIT_TIME },
-    );
+    await this.userPage.page.waitForFunction(checkNetworkStatus, e.connectionDataContainer, {
+      timeout: ELEMENT_WAIT_TIME,
+    });
   }
 
   async reportUserInConnectionIssues() {
     await openConnectionStatus(this.modPage);
     await this.modPage.waitAndClick(e.connectionStatusTab2);
     await this.modPage.hasElement(e.connectionStatusItemEmpty);
-    await this.modPage.page.evaluate(() => window.dispatchEvent(new CustomEvent('socketstats', { detail: { rtt: 2000 } })));
+    await this.modPage.page.evaluate(() =>
+      window.dispatchEvent(new CustomEvent('socketstats', { detail: { rtt: 2000 } }))
+    );
     await this.modPage.wasRemoved(e.connectionStatusItemEmpty);
     await this.modPage.hasElementCount(e.connectionStatusItemUser, 1);
   }
 
   async linkToSettingsTest() {
     await openConnectionStatus(this.modPage);
-    await this.modPage.page.evaluate(() => window.dispatchEvent(new CustomEvent('socketstats', { detail: { rtt: 2000 } })));
+    await this.modPage.page.evaluate(() =>
+      window.dispatchEvent(new CustomEvent('socketstats', { detail: { rtt: 2000 } }))
+    );
     await this.modPage.hasElement(e.connectionStatusLinkToSettings);
     await this.modPage.waitAndClick(e.connectionStatusLinkToSettings);
     await this.modPage.waitForSelector(e.dataSavingsTab);
@@ -51,7 +50,7 @@ export class ConnectionStatus extends MultiUsers {
     await this.modPage.waitAndClick(e.copyStats);
     await context.grantPermissions(['clipboard-write', 'clipboard-read'], { origin: process.env.BBB_URL });
     const copiedText = await this.modPage.page.evaluate(async () => navigator.clipboard.readText());
-    const check = copiedText.includes("audioCurrentUploadRate");
+    const check = copiedText.includes('audioCurrentUploadRate');
     await expect(check).toBeTruthy();
   }
 }

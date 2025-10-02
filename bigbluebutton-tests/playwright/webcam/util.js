@@ -1,7 +1,7 @@
-import { elements as e } from '../core/elements.ts';
-import { LOOP_INTERVAL, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from '../core/constants.ts';
 import { expect } from '@playwright/test';
 import { resolve } from 'path';
+import { elements as e } from '../core/elements.ts';
+import { LOOP_INTERVAL, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from '../core/constants.ts';
 
 export async function webcamContentCheck(test) {
   // loop 5 times, every LOOP_INTERVAL milliseconds, and check that all
@@ -27,7 +27,7 @@ export async function webcamContentCheck(test) {
         const pixelHash = await window.crypto.subtle.digest('SHA-1', pixel);
 
         if (lastVideoHash[v]) {
-          if (lastVideoHash[v] == pixelHash) {
+          if (lastVideoHash[v] === pixelHash) {
             return false;
           }
         }

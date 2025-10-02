@@ -16,9 +16,13 @@ export async function checkAvatarIcon(testPage, checkModIcon = true) {
 }
 
 export async function checkIsPresenter(testPage) {
-  return testPage.page.evaluate(([currentAvatarSelector, userAvatarSelector]) => {
-    return document.querySelectorAll(`${currentAvatarSelector} ${userAvatarSelector}`)[0].hasAttribute('data-test-presenter')
-  }, [e.currentUser, e.userAvatar])
+  return testPage.page.evaluate(
+    ([currentAvatarSelector, userAvatarSelector]) =>
+      document
+        .querySelectorAll(`${currentAvatarSelector} ${userAvatarSelector}`)[0]
+        .hasAttribute('data-test-presenter'),
+    [e.currentUser, e.userAvatar]
+  );
 }
 
 export async function checkMutedUser(testPage) {
@@ -29,7 +33,7 @@ export async function checkMutedUser(testPage) {
 export async function drawArrow(testPage) {
   const modWbLocator = testPage.page.locator(e.whiteboard);
   const wbBox = await modWbLocator.boundingBox();
-    
+
   await testPage.waitAndClick(e.wbArrowShape);
   await testPage.page.mouse.move(wbBox.x + 0.3 * wbBox.width, wbBox.y + 0.3 * wbBox.height);
   await testPage.page.mouse.down();
@@ -40,6 +44,6 @@ export async function drawArrow(testPage) {
 export async function timeInSeconds(locator) {
   const text = await locator.innerText();
   const [minutes, seconds] = text.split(':').map(Number);
-  const timeInSeconds = minutes * 60 + seconds;
-  return timeInSeconds;
+  const totalSeconds = minutes * 60 + seconds;
+  return totalSeconds;
 }

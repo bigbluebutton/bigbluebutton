@@ -18,8 +18,8 @@ export class ChangeStyles extends DrawShape {
     await this.modPage.press('Escape');
     // check for the new shape color
     await expect(
-      await this.modPage.page.$eval(this.referenceDrawnShape, e => getComputedStyle(e).stroke),
-      'should the color of the shape be red',
+      await this.modPage.page.$eval(this.referenceDrawnShape, (element) => getComputedStyle(element).stroke),
+      'should the color of the shape be red'
     ).toBe('rgb(224, 49, 49)');
     await snapshotComparison(this.modPage, this.userPage, 'change-color');
   }
@@ -33,8 +33,8 @@ export class ChangeStyles extends DrawShape {
     await this.modPage.press('Escape');
     // check for the filled shaped
     await expect(
-      await this.modPage.page.$eval(this.referenceDrawnShape, e => getComputedStyle(e).fill),
-      'should the inner color of the shape be gray',
+      await this.modPage.page.$eval(this.referenceDrawnShape, (element) => getComputedStyle(element).fill),
+      'should the inner color of the shape be gray'
     ).toBe('rgb(232, 232, 232)');
     await snapshotComparison(this.modPage, this.userPage, 'fill-drawing');
   }
@@ -48,8 +48,8 @@ export class ChangeStyles extends DrawShape {
     await this.modPage.press('Escape');
     // check for the dashed shape
     await expect(
-      await this.modPage.page.$eval(this.referenceDrawnShape, e => getComputedStyle(e).strokeDasharray),
-      'should the shape be dashed',
+      await this.modPage.page.$eval(this.referenceDrawnShape, (element) => getComputedStyle(element).strokeDasharray),
+      'should the shape be dashed'
     ).not.toBe('none');
     await snapshotComparison(this.modPage, this.userPage, 'dash-drawing');
   }
@@ -63,8 +63,8 @@ export class ChangeStyles extends DrawShape {
     await this.modPage.press('Escape');
     // check for the larger shape
     await expect(
-      await this.modPage.page.$eval(this.referenceDrawnShape, e => getComputedStyle(e).strokeWidth),
-      'should the shape be with a larger stroke',
+      await this.modPage.page.$eval(this.referenceDrawnShape, (element) => getComputedStyle(element).strokeWidth),
+      'should the shape be with a larger stroke'
     ).toBe('5px');
     await snapshotComparison(this.modPage, this.userPage, 'size-drawing');
   }

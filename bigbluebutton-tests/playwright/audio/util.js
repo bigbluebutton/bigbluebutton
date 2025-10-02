@@ -3,12 +3,7 @@ import { elements as e } from '../core/elements.ts';
 import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants.ts';
 
 export async function connectMicrophone(testPage) {
-  const {
-    autoJoinAudioModal,
-    skipEchoTest,
-    skipEchoTestOnJoin,
-    listenOnlyMode,
-  } = testPage.settings;
+  const { autoJoinAudioModal, skipEchoTest, skipEchoTestOnJoin, listenOnlyMode } = testPage.settings;
 
   if (!autoJoinAudioModal) await testPage.waitAndClick(e.joinAudio);
   if (listenOnlyMode) await testPage.waitAndClick(e.microphoneButton);
@@ -25,9 +20,10 @@ export async function connectMicrophone(testPage) {
 
 export async function isAudioItemSelected(testPage, audioSelector) {
   await testPage.waitForSelector(audioSelector);
-  const isSelected = await testPage.page.evaluate(([selector, icon]) => {
-    return !!document.querySelector(selector).firstChild.querySelector(icon);
-  }, [audioSelector, e.checkedIcon]);
+  const isSelected = await testPage.page.evaluate(
+    ([selector, icon]) => !!document.querySelector(selector).firstChild.querySelector(icon),
+    [audioSelector, e.checkedIcon]
+  );
   await expect(isSelected).toBeTruthy();
 }
 

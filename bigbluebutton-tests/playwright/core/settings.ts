@@ -47,6 +47,7 @@ export async function generateSettingsData(page: Page): Promise<Settings | undef
 
   try {
     const settingsData = await page.evaluate(() => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return (window as any).meetingClientSettings.public;
     });
 
@@ -79,8 +80,8 @@ export async function generateSettingsData(page: Page): Promise<Settings | undef
       // Screensharing
       screensharingEnabled: settingsData.kurento?.enableScreensharing,
       // Timeouts
-      listenOnlyCallTimeout: parseInt(settingsData.media?.listenOnlyCallTimeout),
-      videoPreviewTimeout: parseInt(settingsData.kurento?.gUMTimeout),
+      listenOnlyCallTimeout: parseInt(settingsData.media?.listenOnlyCallTimeout, 10),
+      videoPreviewTimeout: parseInt(settingsData.kurento?.gUMTimeout, 10),
       // Webcam
       webcamSharingEnabled: settingsData.kurento?.enableVideo,
       skipVideoPreview: settingsData.kurento?.skipVideoPreview,
@@ -88,11 +89,12 @@ export async function generateSettingsData(page: Page): Promise<Settings | undef
       skipVideoPreviewIfPreviousDevice: settingsData.kurento?.skipVideoPreviewIfPreviousDevice,
       // Emoji
       emojiRain: settingsData.app?.emojiRain?.enabled,
-    }
+    };
 
     return settings;
   } catch (err) {
     console.log(`Unable to get public settings data: ${err}`);
+    return undefined;
   }
 }
 

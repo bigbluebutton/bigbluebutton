@@ -1,7 +1,7 @@
+import { expect } from '@playwright/test';
 import { MultiUsers } from '../user/multiusers';
 import { elements as e } from '../core/elements.ts';
 import { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from '../core/constants.ts';
-import { expect } from '@playwright/test';
 import { apiCall } from '../core/helpers.ts';
 import { openPublicChat } from '../chat/util';
 import { startSharedNotes, getNotesLocator } from '../sharednotes/util';
@@ -20,17 +20,20 @@ export class Recording extends MultiUsers {
       const { response } = await this.getRecordingsApi();
 
       // Check a successful response with recordings
-      if (response?.returncode?.[0] === 'SUCCESS' && 
-          response?.messageKey?.[0] !== 'noRecordings' && 
-          response?.recordings &&
-          Array.isArray(response.recordings) && 
-          response.recordings.length > 0
-        ) {
+      if (
+        response?.returncode?.[0] === 'SUCCESS' &&
+        response?.messageKey?.[0] !== 'noRecordings' &&
+        response?.recordings &&
+        Array.isArray(response.recordings) &&
+        response.recordings.length > 0
+      ) {
         return { response };
       }
 
       if (attempt < maxAttempts) {
-        console.log(`getRecordings (attempt ${attempt}/${maxAttempts}): No recordings found yet, retrying in ${delayMs}ms`);
+        console.log(
+          `getRecordings (attempt ${attempt}/${maxAttempts}): No recordings found yet, retrying in ${delayMs}ms`
+        );
         await this.modPage.page.waitForTimeout(delayMs);
       }
     }
@@ -42,7 +45,10 @@ export class Recording extends MultiUsers {
     // check recording modal
     const recordingIndicatorButton = this.modPage.page.locator(`${e.recordingIndicator} button`);
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
-    await this.modPage.hasElement(e.recordingIndicator, 'should the recording indicator to be displayed once the user join the meeting');
+    await this.modPage.hasElement(
+      e.recordingIndicator,
+      'should the recording indicator to be displayed once the user join the meeting'
+    );
     await expect(
       recordingIndicatorButton,
       'recording indicator button should not have any background color when not recording'
@@ -72,13 +78,15 @@ export class Recording extends MultiUsers {
     await startSharedNotes(this.modPage);
     const notesLocator = getNotesLocator(this.modPage);
     await notesLocator.type(e.testMessage);
-    await expect(notesLocator, 'should contain the typed text on shared notes').toContainText(e.testMessage, { timeout: ELEMENT_WAIT_TIME });
+    await expect(notesLocator, 'should contain the typed text on shared notes').toContainText(e.testMessage, {
+      timeout: ELEMENT_WAIT_TIME,
+    });
 
     // stop recording and end meeting
-    await expect(
-      recordingIndicatorButton,
-      'should display 5 seconds on the recording button counter'
-    ).toContainText('00:05', { timeout: ELEMENT_WAIT_LONGER_TIME });
+    await expect(recordingIndicatorButton, 'should display 5 seconds on the recording button counter').toContainText(
+      '00:05',
+      { timeout: ELEMENT_WAIT_LONGER_TIME }
+    );
     await this.modPage.waitAndClick(e.leaveMeetingDropdown);
     await this.modPage.waitAndClick(e.endMeetingButton);
     await this.modPage.hasElement(e.simpleModal, 'should display the confirm meeting end modal');
@@ -111,13 +119,29 @@ export class Recording extends MultiUsers {
     // check elements
     await this.playbackPage.hasElement(playbackElements.topBar, 'should display the playback top bar');
     await this.playbackPage.hasElement(playbackElements.mediaArea, 'should display the playback media area');
-    await this.playbackPage.hasElement(playbackElements.applicationArea, 'should display the playback application area');
+    await this.playbackPage.hasElement(
+      playbackElements.applicationArea,
+      'should display the playback application area'
+    );
     await this.playbackPage.hasElement(playbackElements.topContentArea, 'should display the playback top content area');
-    await this.playbackPage.hasElement(playbackElements.bottomContentArea, 'should display the playback bottom content area');
-    await this.playbackPage.hasElement(playbackElements.sectionLeftButton, 'should display the playback section left button');
+    await this.playbackPage.hasElement(
+      playbackElements.bottomContentArea,
+      'should display the playback bottom content area'
+    );
+    await this.playbackPage.hasElement(
+      playbackElements.sectionLeftButton,
+      'should display the playback section left button'
+    );
     await this.playbackPage.hasElement(playbackElements.searchButton, 'should display the playback search button');
-    await this.playbackPage.hasElement(playbackElements.swapContentButton, 'should display the playback swap content button');
-    await this.playbackPage.hasElementCount(playbackElements.applicationControlButton, 2, 'should display both chat and notes application buttons');
+    await this.playbackPage.hasElement(
+      playbackElements.swapContentButton,
+      'should display the playback swap content button'
+    );
+    await this.playbackPage.hasElementCount(
+      playbackElements.applicationControlButton,
+      2,
+      'should display both chat and notes application buttons'
+    );
   }
 
   async darkMode() {
@@ -145,7 +169,7 @@ export class Recording extends MultiUsers {
       playbackElements.sectionLeftButton,
       playbackElements.searchButton,
       playbackElements.swapContentButton,
-    ].map(e => this.playbackPage.page.locator(e));
+    ].map((element) => this.playbackPage.page.locator(element));
 
     // background color elements that should be changed (light mode)
     const topBarBackgroundColor = await topBarLocator.evaluate(getBackgroundColorComputed);
@@ -160,54 +184,125 @@ export class Recording extends MultiUsers {
     const swapContentColor = await swapContentLocator.evaluate(getTextColorComputed);
 
     // toggle to dark mode
-    await this.playbackPage.hasElement(`${playbackElements.toggleThemeButton} span.icon-dark`, 'should display the toggle theme with the dark mode icon by default');
+    await this.playbackPage.hasElement(
+      `${playbackElements.toggleThemeButton} span.icon-dark`,
+      'should display the toggle theme with the dark mode icon by default'
+    );
     await this.playbackPage.waitAndClick(playbackElements.toggleThemeButton);
-    await this.playbackPage.hasElement(`${playbackElements.toggleThemeButton} span.icon-light`, 'should display the light icon when in dark mode');
-    await this.playbackPage.wasRemoved(`${playbackElements.toggleThemeButton} span.icon-dark`, 'should remove the dark mode icon when in dark mode');
+    await this.playbackPage.hasElement(
+      `${playbackElements.toggleThemeButton} span.icon-light`,
+      'should display the light icon when in dark mode'
+    );
+    await this.playbackPage.wasRemoved(
+      `${playbackElements.toggleThemeButton} span.icon-dark`,
+      'should remove the dark mode icon when in dark mode'
+    );
 
     // assert light mode element styles
-    expect.soft(topBarBackgroundColor).not.toEqual(await topBarLocator.evaluate(getBackgroundColorComputed), 'should the top bar background color be changed');
-    expect.soft(mediaAreaBackgroundColor).not.toEqual(await mediaAreaLocator.evaluate(getBackgroundColorComputed), 'should the media area background color be changed');
-    expect.soft(applicationAreaBackgroundColor).not.toEqual(await applicationAreaLocator.evaluate(getBackgroundColorComputed), 'should the application area background color be changed');
-    expect.soft(topContentAreaBackgroundColor).not.toEqual(await topContentAreaLocator.evaluate(getBackgroundColorComputed), 'should the top content area background color be changed');
-    expect.soft(bottomContentAreaBackgroundColor).not.toEqual(await bottomContentAreaLocator.evaluate(getBackgroundColorComputed), 'should the bottom content area background color be changed');
-    expect.soft(titleColor).not.toEqual(await titleLocator.evaluate(getTextColorComputed), 'should the title color be changed');
-    expect.soft(sectionLeftColor).not.toEqual(await sectionLeftLocator.evaluate(getTextColorComputed), 'should the section left color be changed');
-    expect.soft(searchButtonColor).not.toEqual(await searchButtonLocator.evaluate(getTextColorComputed), 'should the search button color be changed');
-    expect.soft(swapContentColor).not.toEqual(await swapContentLocator.evaluate(getTextColorComputed), 'should the swap content color be changed');
+    expect
+      .soft(topBarBackgroundColor)
+      .not.toEqual(
+        await topBarLocator.evaluate(getBackgroundColorComputed),
+        'should the top bar background color be changed'
+      );
+    expect
+      .soft(mediaAreaBackgroundColor)
+      .not.toEqual(
+        await mediaAreaLocator.evaluate(getBackgroundColorComputed),
+        'should the media area background color be changed'
+      );
+    expect
+      .soft(applicationAreaBackgroundColor)
+      .not.toEqual(
+        await applicationAreaLocator.evaluate(getBackgroundColorComputed),
+        'should the application area background color be changed'
+      );
+    expect
+      .soft(topContentAreaBackgroundColor)
+      .not.toEqual(
+        await topContentAreaLocator.evaluate(getBackgroundColorComputed),
+        'should the top content area background color be changed'
+      );
+    expect
+      .soft(bottomContentAreaBackgroundColor)
+      .not.toEqual(
+        await bottomContentAreaLocator.evaluate(getBackgroundColorComputed),
+        'should the bottom content area background color be changed'
+      );
+    expect
+      .soft(titleColor)
+      .not.toEqual(await titleLocator.evaluate(getTextColorComputed), 'should the title color be changed');
+    expect
+      .soft(sectionLeftColor)
+      .not.toEqual(await sectionLeftLocator.evaluate(getTextColorComputed), 'should the section left color be changed');
+    expect
+      .soft(searchButtonColor)
+      .not.toEqual(
+        await searchButtonLocator.evaluate(getTextColorComputed),
+        'should the search button color be changed'
+      );
+    expect
+      .soft(swapContentColor)
+      .not.toEqual(await swapContentLocator.evaluate(getTextColorComputed), 'should the swap content color be changed');
   }
 
   async swapContent() {
     await this.playbackPage.hasElement(playbackElements.title, 'should display the playback title');
     const titleLocator = this.playbackPage.page.locator(playbackElements.title);
-    await expect(this.playbackPage.page, 'top content area should be visible').toHaveScreenshot('default-content-disposition.png', {
-      mask: [titleLocator],
-    });
+    await expect(this.playbackPage.page, 'top content area should be visible').toHaveScreenshot(
+      'default-content-disposition.png',
+      {
+        mask: [titleLocator],
+      }
+    );
 
     await this.playbackPage.waitAndClick(playbackElements.swapContentButton);
-    await expect(this.playbackPage.page, 'bottom content area should be visible after swapping content').toHaveScreenshot('swapped-content-disposition.png', {
+    await expect(
+      this.playbackPage.page,
+      'bottom content area should be visible after swapping content'
+    ).toHaveScreenshot('swapped-content-disposition.png', {
       mask: [titleLocator],
     });
   }
 
   async toggleChatNotes() {
-    const notesButtonLocator = this.playbackPage.page.locator(
-      playbackElements.applicationControlButton
-    ).filter({ has: this.playbackPage.page.locator('span.icon-notes') });
-    const chatButtonLocator = this.playbackPage.page.locator(
-      playbackElements.applicationControlButton
-    ).filter({ has: this.playbackPage.page.locator('span.icon-chat') });
+    const notesButtonLocator = this.playbackPage.page
+      .locator(playbackElements.applicationControlButton)
+      .filter({ has: this.playbackPage.page.locator('span.icon-notes') });
+    const chatButtonLocator = this.playbackPage.page
+      .locator(playbackElements.applicationControlButton)
+      .filter({ has: this.playbackPage.page.locator('span.icon-chat') });
 
     // toggle to notes - expected chat by default
     await notesButtonLocator.click();
-    await this.playbackPage.hasElement(playbackElements.notesContentArea, 'should display the notes content area when notes button is clicked');
-    await this.playbackPage.wasRemoved(playbackElements.chatContentArea, 'should not display the chat content area when notes is visible');
-    await this.playbackPage.hasText(playbackElements.notesContentArea, e.testMessage, 'should display the notes text typed during the meeting');
+    await this.playbackPage.hasElement(
+      playbackElements.notesContentArea,
+      'should display the notes content area when notes button is clicked'
+    );
+    await this.playbackPage.wasRemoved(
+      playbackElements.chatContentArea,
+      'should not display the chat content area when notes is visible'
+    );
+    await this.playbackPage.hasText(
+      playbackElements.notesContentArea,
+      e.testMessage,
+      'should display the notes text typed during the meeting'
+    );
     // check chat
     await chatButtonLocator.click();
-    await this.playbackPage.hasElement(playbackElements.chatContentArea, 'should display the chat content area by default');
-    await this.playbackPage.wasRemoved(playbackElements.notesContentArea, 'should not display the notes content area when chat is visible');
-    await this.playbackPage.hasText(playbackElements.chatContentArea, e.message, 'should display the chat message sent during the meeting');
+    await this.playbackPage.hasElement(
+      playbackElements.chatContentArea,
+      'should display the chat content area by default'
+    );
+    await this.playbackPage.wasRemoved(
+      playbackElements.notesContentArea,
+      'should not display the notes content area when chat is visible'
+    );
+    await this.playbackPage.hasText(
+      playbackElements.chatContentArea,
+      e.message,
+      'should display the chat message sent during the meeting'
+    );
   }
 
   async playPause() {
@@ -216,7 +311,7 @@ export class Recording extends MultiUsers {
 
     // Assert that progress bar width is 0 at the start
     const progressBarLocator = this.playbackPage.page.locator(playbackElements.progressBar);
-    const progressBarInitialWidth = await progressBarLocator.evaluate(el => el.offsetWidth);
+    const progressBarInitialWidth = await progressBarLocator.evaluate((el) => el.offsetWidth);
     expect(progressBarInitialWidth, 'progress bar width should be 0 at the start').toEqual(0);
     await expect(this.playbackPage.page, 'placeholder BBB icon should be visible').toHaveScreenshot('placeholder.png', {
       mask: [titleLocator],
@@ -233,7 +328,7 @@ export class Recording extends MultiUsers {
     // Resume playback to the next slide
     await this.playbackPage.waitAndClick(playbackElements.playPauseButton);
     await this.playbackPage.page.waitForTimeout(2000);
-    const progressBarResumed = await progressBarLocator.evaluate(el => el.offsetWidth);
+    const progressBarResumed = await progressBarLocator.evaluate((el) => el.offsetWidth);
     expect(progressBarResumed, 'progress bar width should not be 0 after resuming playback').not.toEqual(0);
     await expect(this.playbackPage.page, 'second slide should be visible').toHaveScreenshot('slide-changed.png', {
       mask: [titleLocator],
@@ -241,14 +336,17 @@ export class Recording extends MultiUsers {
 
     // wait 2 seconds and check paused playback
     await this.playbackPage.waitAndClick(playbackElements.playPauseButton);
-    const progressBarPaused = await progressBarLocator.evaluate(el => el.offsetWidth);
+    const progressBarPaused = await progressBarLocator.evaluate((el) => el.offsetWidth);
     await this.playbackPage.page.waitForTimeout(2000);
-    expect(progressBarPaused,
-      'progress bar width should not change when playback is paused'
-    ).toEqual(await progressBarLocator.evaluate(el => el.offsetWidth));
-    await expect(this.playbackPage.page, 'should display the same slide when paused').toHaveScreenshot('playback-paused.png', {
-      mask: [titleLocator],
-    });
+    expect(progressBarPaused, 'progress bar width should not change when playback is paused').toEqual(
+      await progressBarLocator.evaluate((el) => el.offsetWidth)
+    );
+    await expect(this.playbackPage.page, 'should display the same slide when paused').toHaveScreenshot(
+      'playback-paused.png',
+      {
+        mask: [titleLocator],
+      }
+    );
   }
 
   async seekBarForwardBackward() {
@@ -257,7 +355,7 @@ export class Recording extends MultiUsers {
 
     // Assert that progress bar width is 0 at the start
     const progressBarLocator = this.playbackPage.page.locator(playbackElements.progressBar);
-    const progressBarInitialWidth = await progressBarLocator.evaluate(el => el.offsetWidth);
+    const progressBarInitialWidth = await progressBarLocator.evaluate((el) => el.offsetWidth);
     expect(progressBarInitialWidth, 'progress bar width should be 0 at the start').toEqual(0);
     await expect(this.playbackPage.page, 'placeholder BBB icon should be visible').toHaveScreenshot('placeholder.png', {
       mask: [titleLocator],
@@ -268,19 +366,25 @@ export class Recording extends MultiUsers {
     await this.playbackPage.page.waitForTimeout(500);
     await this.playbackPage.waitAndClick(playbackElements.seekForwardButton);
     await this.playbackPage.page.waitForTimeout(500); // wait for the seek action to be processed
-    const progressBarFull = await progressBarLocator.evaluate(el => el.style.width);
+    const progressBarFull = await progressBarLocator.evaluate((el) => el.style.width);
     await expect(progressBarFull, 'progress bar width should be 100% after seeking forward').toBe('100%');
-    await expect(this.playbackPage.page, 'second slide should be visible when seeking forward till the end').toHaveScreenshot('seek-forward.png', {
+    await expect(
+      this.playbackPage.page,
+      'second slide should be visible when seeking forward till the end'
+    ).toHaveScreenshot('seek-forward.png', {
       mask: [titleLocator],
     });
 
     // seek backward
     await this.playbackPage.waitAndClick(playbackElements.seekBackButton);
     await this.playbackPage.page.waitForTimeout(500);
-    const progressBarBackward = await progressBarLocator.evaluate(el => el.offsetWidth);
+    const progressBarBackward = await progressBarLocator.evaluate((el) => el.offsetWidth);
     expect(progressBarBackward, 'progress bar width should be 0 after seeking backward').toEqual(0);
-    await expect(this.playbackPage.page, 'first slide should be visible when seeking backward').toHaveScreenshot('seek-backward.png', {
-      mask: [titleLocator],
-    });
+    await expect(this.playbackPage.page, 'first slide should be visible when seeking backward').toHaveScreenshot(
+      'seek-backward.png',
+      {
+        mask: [titleLocator],
+      }
+    );
   }
 }

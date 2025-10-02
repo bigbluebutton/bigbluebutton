@@ -31,7 +31,7 @@ test.describe.parallel('Layout', { tag: '@ci' }, () => {
     await layouts.updateEveryone();
   });
 
-  test("Video Pagination", async ({ browser }) => {
-    await layouts.videoPagination(browser);
+  test('Video Pagination', async () => {
+    await layouts.videoPagination();
   });
 });

@@ -22,6 +22,7 @@ test.describe.parallel('Shared Notes', { tag: '@ci' }, () => {
     await sharedNotes.formatTextInSharedNotes();
   });
 
+  // eslint-disable-next-line no-empty-pattern
   test('Export shared notes', async ({}, testInfo) => {
     await sharedNotes.exportSharedNotes(testInfo);
   });

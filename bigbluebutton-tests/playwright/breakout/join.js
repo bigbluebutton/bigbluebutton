@@ -1,17 +1,13 @@
+import { expect } from '@playwright/test';
 import { Create } from './create';
-import utilScreenShare from '../screenshare/util';
+import * as utilScreenShare from '../screenshare/util';
 import { elements as e } from '../core/elements.ts';
 import { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME } from '../core/constants.ts';
 import { getSettings } from '../core/settings.ts';
-import { expect } from '@playwright/test';
 import { getNotesLocator } from '../sharednotes/util';
-import { uploadSinglePresentation, hasCurrentPresentationToastElement } from '../presentation/util.js';
+import { uploadSinglePresentation, hasCurrentPresentationToastElement } from '../presentation/util';
 
 export class Join extends Create {
-  constructor(browser, context) {
-    super(browser, context);
-  }
-
   async joinRoom(shouldJoinAudio = false) {
     await this.userPage.page.bringToFront();
     if (shouldJoinAudio) {
@@ -21,7 +17,11 @@ export class Join extends Create {
 
     await this.userPage.waitAndClick(e.breakoutRoomsItem);
     await this.userPage.waitAndClick(e.joinRoom1);
-    await this.userPage.hasElement(e.alreadyConnected, 'should display the element alreadyConnected', ELEMENT_WAIT_EXTRA_LONG_TIME);
+    await this.userPage.hasElement(
+      e.alreadyConnected,
+      'should display the element alreadyConnected',
+      ELEMENT_WAIT_EXTRA_LONG_TIME
+    );
 
     const breakoutUserPage = await this.userPage.getLastTargetPage(this.context);
     await breakoutUserPage.page.bringToFront();
@@ -31,8 +31,15 @@ export class Join extends Create {
     } else {
       await breakoutUserPage.closeAudioModal();
     }
-    await breakoutUserPage.hasElement(e.presentationTitle, 'should display the presentation title on the breakout room');
-    await breakoutUserPage.hasText(e.timeRemaining, /1[4-5]:[0-5][0-9]/, 'should have the time remaining counting down on the breakout room');
+    await breakoutUserPage.hasElement(
+      e.presentationTitle,
+      'should display the presentation title on the breakout room'
+    );
+    await breakoutUserPage.hasText(
+      e.timeRemaining,
+      /1[4-5]:[0-5][0-9]/,
+      'should have the time remaining counting down on the breakout room'
+    );
     return breakoutUserPage;
   }
 
@@ -67,18 +74,21 @@ export class Join extends Create {
     await breakoutModPage.page.bringToFront();
 
     await breakoutModPage.closeAudioModal();
-    
+
     await breakoutModPage.waitForSelector(e.presentationTitle);
     return breakoutModPage;
   }
 
   async messageToAllRooms() {
     const breakoutUserPage = await this.joinRoom();
-    await breakoutUserPage.hasElement(e.presentationTitle, 'should have the presentation title once the user is on the breakout room.');
+    await breakoutUserPage.hasElement(
+      e.presentationTitle,
+      'should have the presentation title once the user is on the breakout room.'
+    );
 
     await this.modPage.waitAndClick(e.breakoutRoomsItem);
     await this.modPage.hasElement(e.breakoutRemainingTime);
-    await this.modPage.type(e.chatBox, "test");
+    await this.modPage.type(e.chatBox, 'test');
     await this.modPage.waitAndClick(e.sendButton);
 
     await breakoutUserPage.hasElement(e.chatUserMessageText, 'should have a test message on the public chat.');
@@ -94,9 +104,17 @@ export class Join extends Create {
     await this.modPage.page.locator(e.inputSetTimeSelector).press('Backspace');
     await this.modPage.type(e.inputSetTimeSelector, '5');
     await this.modPage.waitAndClick(e.sendButtonDurationTime);
-    await this.modPage.hasText(e.breakoutRemainingTime, /[4-5]:[0-5][0-9]/, 'should have the breakout room time remaining counting down on the main meeting');
+    await this.modPage.hasText(
+      e.breakoutRemainingTime,
+      /[4-5]:[0-5][0-9]/,
+      'should have the breakout room time remaining counting down on the main meeting'
+    );
 
-    await breakoutUserPage.hasText(e.timeRemaining, /[4-5]:[0-5][0-9]/, 'should have the time remaining counting down on the breakout room');
+    await breakoutUserPage.hasText(
+      e.timeRemaining,
+      /[4-5]:[0-5][0-9]/,
+      'should have the time remaining counting down on the breakout room'
+    );
   }
 
   async inviteUserAfterCreatingRooms() {
@@ -104,22 +122,36 @@ export class Join extends Create {
     await this.modPage.waitAndClick(e.breakoutOptionsMenu);
     await this.modPage.waitAndClick(e.openUpdateBreakoutUsersModal);
     await this.modPage.dragDropSelector(e.attendeeNotAssigned, e.breakoutBox1);
-    await this.modPage.hasText(e.breakoutBox1, /Attendee/,  'should have the attendee name on the second breakout room box.');
+    await this.modPage.hasText(
+      e.breakoutBox1,
+      /Attendee/,
+      'should have the attendee name on the second breakout room box.'
+    );
     await this.modPage.waitAndClick(e.modalConfirmButton);
 
-    await this.userPage.hasElement(e.modalConfirmButton, 'should display the modal confirm button for the attendee to join the meeting');
+    await this.userPage.hasElement(
+      e.modalConfirmButton,
+      'should display the modal confirm button for the attendee to join the meeting'
+    );
     await this.userPage.waitAndClick(e.modalDismissButton);
   }
 
   async usernameShowsBelowRoomsName() {
-    const breakoutUserPage = await this.joinRoom();
+    await this.joinRoom();
     await this.modPage.waitAndClick(e.breakoutRoomsItem);
-    await this.modPage.hasText(e.userNameBreakoutRoom, /Attendee/, 'should have the attendee name on the breakout room below a room on the main breakout panel');
+    await this.modPage.hasText(
+      e.userNameBreakoutRoom,
+      /Attendee/,
+      'should have the attendee name on the breakout room below a room on the main breakout panel'
+    );
   }
 
   async showBreakoutRoomTimeRemaining() {
     const breakoutUserPage = await this.joinRoom();
-    await breakoutUserPage.hasElement(e.presentationTitle, 'should display the presentation title on the breakout room');
+    await breakoutUserPage.hasElement(
+      e.presentationTitle,
+      'should display the presentation title on the breakout room'
+    );
 
     await this.modPage.waitAndClick(e.breakoutRoomsItem);
     await this.modPage.waitAndClick(e.breakoutOptionsMenu);
@@ -127,9 +159,17 @@ export class Join extends Create {
     await this.modPage.page.locator(e.inputSetTimeSelector).press('Backspace');
     await this.modPage.type(e.inputSetTimeSelector, '5');
     await this.modPage.waitAndClick(e.sendButtonDurationTime);
-    await this.modPage.hasText(e.breakoutRemainingTime, /[4-5]:[0-5][0-9]/, 'should have the breakout room time remaining counting down on the breakout main panel.');
+    await this.modPage.hasText(
+      e.breakoutRemainingTime,
+      /[4-5]:[0-5][0-9]/,
+      'should have the breakout room time remaining counting down on the breakout main panel.'
+    );
 
-    await breakoutUserPage.hasText(e.timeRemaining, /[4-5]:[0-5][0-9]/, 'should display the remaining time inside the breakout room');
+    await breakoutUserPage.hasText(
+      e.timeRemaining,
+      /[4-5]:[0-5][0-9]/,
+      'should display the remaining time inside the breakout room'
+    );
   }
 
   async endAllBreakoutRooms() {
@@ -141,10 +181,17 @@ export class Join extends Create {
 
   async moveUserToOtherRoom() {
     const breakoutUserPage = await this.joinRoom();
-    await breakoutUserPage.hasElement(e.presentationTitle, 'should display the presentation title inside the breakout room');
+    await breakoutUserPage.hasElement(
+      e.presentationTitle,
+      'should display the presentation title inside the breakout room'
+    );
 
     await this.modPage.waitAndClick(e.breakoutRoomsItem);
-    await this.modPage.hasText(e.userNameBreakoutRoom, /Attendee/, 'should display the user name below the first breakout room name');
+    await this.modPage.hasText(
+      e.userNameBreakoutRoom,
+      /Attendee/,
+      'should display the user name below the first breakout room name'
+    );
 
     await this.modPage.waitAndClick(e.breakoutOptionsMenu);
 
@@ -152,11 +199,19 @@ export class Join extends Create {
     await this.modPage.dragDropSelector(e.moveUser, e.breakoutBox2);
     await this.modPage.waitAndClick(e.modalConfirmButton);
 
-    await this.userPage.hasElement(e.modalConfirmButton, 'should display the modal confirm button for the user to join the breakout room');
+    await this.userPage.hasElement(
+      e.modalConfirmButton,
+      'should display the modal confirm button for the user to join the breakout room'
+    );
     await breakoutUserPage.page.isClosed();
 
     await this.userPage.waitAndClick(e.modalConfirmButton);
-    await this.modPage.hasText(e.userNameBreakoutRoom2, /Attendee/, 'should display the user name below the first breakout room name', ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.hasText(
+      e.userNameBreakoutRoom2,
+      /Attendee/,
+      'should display the user name below the first breakout room name',
+      ELEMENT_WAIT_LONGER_TIME
+    );
   }
 
   async exportBreakoutNotes() {
@@ -167,37 +222,52 @@ export class Join extends Create {
     }
     // join room and type on the shared notes
     const breakoutUserPage = await this.joinRoom();
-    await breakoutUserPage.hasElement(e.presentationTitle, 'should display the presentation title inside the breakout room');
+    await breakoutUserPage.hasElement(
+      e.presentationTitle,
+      'should display the presentation title inside the breakout room'
+    );
     await breakoutUserPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await breakoutUserPage.page.waitForTimeout(2000); // wait for the whiteboard to stabilize
     await breakoutUserPage.waitAndClick(e.sharedNotes);
-    await breakoutUserPage.hasElement(e.hideNotesLabel, 'should display the hide notes element when shared notes is opened');
+    await breakoutUserPage.hasElement(
+      e.hideNotesLabel,
+      'should display the hide notes element when shared notes is opened'
+    );
     const notesLocator = getNotesLocator(breakoutUserPage);
     await notesLocator.type(e.message);
-    await breakoutUserPage.page.waitForTimeout(1000); // making sure there's enough time for the typing to finish
+    // making sure there's enough time for the typing to finish
+    await breakoutUserPage.page.waitForTimeout(1000);
     // end breakout rooms
     await this.modPage.waitAndClick(e.breakoutRoomsItem);
     await this.modPage.waitAndClick(e.breakoutOptionsMenu);
     await this.modPage.closeAllToastNotifications();
     await this.modPage.waitAndClick(e.endAllBreakouts);
     // check if the notes were exported
-    await this.modPage.hasElement(e.presentationUploadProgressToast, 'should display the presentation upload progress toast');
+    await this.modPage.hasElement(
+      e.presentationUploadProgressToast,
+      'should display the presentation upload progress toast'
+    );
     await this.modPage.waitAndClick(e.actions);
     const shareNotesPDF = await this.modPage.page.locatorByIndex(e.actionsItem, 1);
-    await expect(shareNotesPDF, 'should have the Notes name on the share notes pdf').toHaveText(/Notes/, { timeout: 30000 });
-    await expect(this.modPage.page.locatorByIndex(e.actionsItem, 2)).toHaveText("Upload/Manage presentations"); //This checks if no other content was exported.
+    await expect(shareNotesPDF, 'should have the Notes name on the share notes pdf').toHaveText(/Notes/, {
+      timeout: 30000,
+    });
+    await expect(this.modPage.page.locatorByIndex(e.actionsItem, 2)).toHaveText('Upload/Manage presentations'); // This checks if no other content was exported.
     const expectedActionItems = [
-      "Default presentation",
-      "Exported breakout notes",
-      "Upload/Manage presentations",
-      "Start a poll",
-      "Share an external video",
-      "Activate timer/stopwatch",
-      "Share camera as content",
+      'Default presentation',
+      'Exported breakout notes',
+      'Upload/Manage presentations',
+      'Start a poll',
+      'Share an external video',
+      'Activate timer/stopwatch',
+      'Share camera as content',
     ];
     await this.modPage.hasElementCount(e.actionsItem, expectedActionItems.length);
     await shareNotesPDF.click();
-    await hasCurrentPresentationToastElement(this.modPage, 'should display the current presentation toast when changing to the whiteboard exported file');
+    await hasCurrentPresentationToastElement(
+      this.modPage,
+      'should display the current presentation toast when changing to the whiteboard exported file'
+    );
     // visual assertion
     await this.modPage.page.waitForTimeout(2000); // ensure whiteboard zoom is stabilized
     const wbLocator = await this.modPage.page.locator(e.whiteboard);
@@ -214,49 +284,77 @@ export class Join extends Create {
     }
     // join room and draw a line
     const breakoutUserPage = await this.joinRoom();
-    await breakoutUserPage.hasElement(e.presentationTitle, 'should have the presentation title displayed on the breakout room');
-    await breakoutUserPage.hasElement(e.whiteboard, 'should display the whiteboard on breakout room', ELEMENT_WAIT_LONGER_TIME);
+    await breakoutUserPage.hasElement(
+      e.presentationTitle,
+      'should have the presentation title displayed on the breakout room'
+    );
+    await breakoutUserPage.hasElement(
+      e.whiteboard,
+      'should display the whiteboard on breakout room',
+      ELEMENT_WAIT_LONGER_TIME
+    );
     await breakoutUserPage.waitAndClick(e.wbShapesButton);
     await breakoutUserPage.waitAndClick(e.wbLineShape);
     const wbBreakout = await breakoutUserPage.page.$(e.whiteboard);
     const wbBoxBreakout = await wbBreakout.boundingBox();
-    await breakoutUserPage.page.mouse.move(wbBoxBreakout.x + 0.3 * wbBoxBreakout.width, wbBoxBreakout.y + 0.3 * wbBoxBreakout.height);
+    await breakoutUserPage.page.mouse.move(
+      wbBoxBreakout.x + 0.3 * wbBoxBreakout.width,
+      wbBoxBreakout.y + 0.3 * wbBoxBreakout.height
+    );
     await breakoutUserPage.page.mouse.down();
-    await breakoutUserPage.page.mouse.move(wbBoxBreakout.x + 0.7 * wbBoxBreakout.width, wbBoxBreakout.y + 0.7 * wbBoxBreakout.height);
+    await breakoutUserPage.page.mouse.move(
+      wbBoxBreakout.x + 0.7 * wbBoxBreakout.width,
+      wbBoxBreakout.y + 0.7 * wbBoxBreakout.height
+    );
     await breakoutUserPage.page.mouse.up();
-    await breakoutUserPage.page.waitForTimeout(1000); // making sure there's enough time for the drawing to finish
+    // making sure there's enough time for the drawing to finish
+    await breakoutUserPage.page.waitForTimeout(1000);
     // end breakout rooms
     await this.modPage.waitAndClick(e.breakoutRoomsItem);
     await this.modPage.waitAndClick(e.breakoutOptionsMenu);
     await this.modPage.waitAndClick(e.endAllBreakouts);
 
-    await this.modPage.hasElement(e.presentationUploadProgressToast, 'should display the presentation upload progress toast', ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.hasElement(
+      e.presentationUploadProgressToast,
+      'should display the presentation upload progress toast',
+      ELEMENT_WAIT_LONGER_TIME
+    );
     await this.modPage.waitAndClick(e.actions);
     const whiteboardPDF = await this.modPage.page.locatorByIndex(e.actionsItem, 1);
     await expect(whiteboardPDF).toHaveText(/Whiteboard/, { timeout: 30000 });
-    await expect(this.modPage.page.locatorByIndex(e.actionsItem, 2)).toHaveText("Upload/Manage presentations"); //This checks if no other content was exported.
+    await expect(this.modPage.page.locatorByIndex(e.actionsItem, 2)).toHaveText('Upload/Manage presentations'); // This checks if no other content was exported.
     const expectedActionItems = [
-      "Default presentation",
-      "Exported breakout whiteboard",
-      "Upload/Manage presentations",
-      "Start a poll",
-      "Share an external video",
-      "Activate timer/stopwatch",
-      "Share camera as content",
+      'Default presentation',
+      'Exported breakout whiteboard',
+      'Upload/Manage presentations',
+      'Start a poll',
+      'Share an external video',
+      'Activate timer/stopwatch',
+      'Share camera as content',
     ];
     await this.modPage.hasElementCount(e.actionsItem, expectedActionItems.length);
     await this.modPage.press('Escape'); // close the actions menu
-    await this.modPage.hasElement(e.presentationUploadProgressToast, 'should display the presentation upload progress toast with the exported whiteboard');
+    await this.modPage.hasElement(
+      e.presentationUploadProgressToast,
+      'should display the presentation upload progress toast with the exported whiteboard'
+    );
     await this.modPage.page.locator(e.presentationUploadProgressToast).click({
       position: {
-        x: 0.5, y: 1,
+        x: 0.5,
+        y: 1,
       },
       timeout: ELEMENT_WAIT_TIME,
     });
-    await this.modPage.wasRemoved(e.presentationUploadProgressToast, 'should have removed the presentation upload progress toast after clicking on it');
+    await this.modPage.wasRemoved(
+      e.presentationUploadProgressToast,
+      'should have removed the presentation upload progress toast after clicking on it'
+    );
     await this.modPage.waitAndClick(e.actions);
     await whiteboardPDF.click();
-    await hasCurrentPresentationToastElement(this.modPage, 'should display the current presentation toast when changing to the whiteboard exported file');
+    await hasCurrentPresentationToastElement(
+      this.modPage,
+      'should display the current presentation toast when changing to the whiteboard exported file'
+    );
     // visual assertion
     await this.modPage.page.waitForTimeout(2000); // ensure whiteboard zoom is stabilized
     const wbLocator = await this.modPage.page.locator(e.whiteboard);
@@ -272,12 +370,16 @@ export class Join extends Create {
     await this.userPage.hasElementEnabled(e.modalConfirmButton);
     await this.userPage.hasHiddenElementCount(e.roomOption, 2);
 
-    await this.userPage.page.locator(e.selectBreakoutRoomBtn).selectOption({index: 1});
+    await this.userPage.page.locator(e.selectBreakoutRoomBtn).selectOption({ index: 1 });
     await this.userPage.waitAndClick(e.modalConfirmButton);
 
     const breakoutUserPage = await this.userPage.getLastTargetPage(this.context);
     await breakoutUserPage.page.bringToFront();
-    await breakoutUserPage.hasElement(e.presentationTitle, 'should display the presentation title on the breakout room', ELEMENT_WAIT_LONGER_TIME);    
+    await breakoutUserPage.hasElement(
+      e.presentationTitle,
+      'should display the presentation title on the breakout room',
+      ELEMENT_WAIT_LONGER_TIME
+    );
   }
 
   async breakoutWithDifferentPresentations() {
@@ -295,7 +397,7 @@ export class Join extends Create {
     const changeSlideBreakoutLocator = await this.modPage.page.locator(e.changeSlideBreakoutRoom1);
     await expect(
       changeSlideBreakoutLocator.locator('option'),
-      'should display 3 available option on presentation selection (current slide, default and uploaded presentation)',
+      'should display 3 available option on presentation selection (current slide, default and uploaded presentation)'
     ).toHaveCount(3);
     await changeSlideBreakoutLocator.selectOption({ label: e.uploadPresentationFileName });
     await this.modPage.waitAndClick(e.modalConfirmButton);

@@ -45,7 +45,11 @@ export class Stress {
       const userName = `User-${i}`;
       const newPage = await this.getNewPageTab();
       const userPage = new Page(this.browser, newPage, this.modPage.testInfo);
-      await userPage.init(false, true, { fullName: userName, meetingId: this.modPage.meetingId, testInfo: this.modPage.testInfo });
+      await userPage.init(false, true, {
+        fullName: userName,
+        meetingId: this.modPage.meetingId,
+        testInfo: this.modPage.testInfo,
+      });
       console.log(`${userName} joined`);
       this.userPages.push(userPage);
     }
@@ -87,10 +91,7 @@ export class Stress {
       const meetingId = await createMeeting(parameters);
       const modPage = new Page(this.browser, await this.getNewPageTab(), this.modPage.testInfo);
       const userPage = new Page(this.browser, await this.getNewPageTab(), this.modPage.testInfo);
-      await Promise.all([
-        modPage.init(true, false, { meetingId }),
-        userPage.init(false, false, { meetingId }),
-      ]);
+      await Promise.all([modPage.init(true, false, { meetingId }), userPage.init(false, false, { meetingId })]);
       await modPage.waitForSelector(e.audioModal);
       await userPage.waitForSelector(e.audioModal);
       await modPage.page.close();
@@ -118,7 +119,7 @@ export class Stress {
 
     pages.forEach(async (currentPage) => {
       await currentPage.page.close();
-    })
+    });
   }
 
   async usersJoinExceedingParticipantsLimit() {
@@ -138,14 +139,11 @@ export class Stress {
       }
       console.log('- joining two users at the same time');
 
-      const lastPages = [
-        pages[pages.length - 1],
-        pages[pages.length - 2],
-      ]
+      const lastPages = [pages[pages.length - 1], pages[pages.length - 2]];
 
-      await Promise.all(lastPages.map((page, index) =>
-        page.init(true, false, { meetingId, fullName: `User-last-${index}` })
-      ));
+      await Promise.all(
+        lastPages.map((page, index) => page.init(true, false, { meetingId, fullName: `User-last-${index}` }))
+      );
 
       try {
         await lastPages[0].waitForSelector(e.audioModal);
@@ -157,7 +155,7 @@ export class Stress {
 
       pages.forEach(async (currentPage) => {
         await currentPage.page.close();
-      })
+      });
     }
   }
 }

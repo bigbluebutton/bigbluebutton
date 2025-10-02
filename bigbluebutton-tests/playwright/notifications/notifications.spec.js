@@ -100,9 +100,7 @@ test.describe.parallel('Notifications', { tag: '@ci' }, () => {
     });
 
     test('Screenshare notification', async ({ browser, browserName, context, page }, testInfo) => {
-      test.skip(browserName === 'firefox',
-        'Screenshare tests not able in Firefox browser without desktop',
-      );
+      test.skip(browserName === 'firefox', 'Screenshare tests not able in Firefox browser without desktop');
       const presenterNotifications = new PresenterNotifications(browser, context);
       await presenterNotifications.initModPage(page, true, { testInfo });
       await presenterNotifications.screenshareToast();
