@@ -25,7 +25,7 @@ const usePresentationFitToWidth = (): [boolean, (fitToWidth: boolean) => void] =
   const [setPresentationFitToWidth] = useMutation(PRESENTATION_SET_FIT_TO_WIDTH);
   const handleSetPresentationFitToWidth = useCallback((fitToWidth: boolean) => {
     setPresentationFitToWidth({ variables: { pageId, fitToWidth } });
-  }, [setPresentationFitToWidth]);
+  }, [setPresentationFitToWidth, pageId]);
 
   return [fitToWidth, handleSetPresentationFitToWidth];
 };

@@ -45,7 +45,7 @@ function useNotesLastUpdatedAt(
     const receivedLastUpdatedAtTimestamp = new Date(notes.lastUpdatedAt).getTime();
     if (lastUpdatedAtTimestamp && lastUpdatedAtTimestamp === receivedLastUpdatedAtTimestamp) return;
     setLastUpdatedAtTimestamp(receivedLastUpdatedAtTimestamp);
-  }, [data]);
+  }, [data, skip, lastUpdatedAtTimestamp]);
 
   return lastUpdatedAtTimestamp;
 }
