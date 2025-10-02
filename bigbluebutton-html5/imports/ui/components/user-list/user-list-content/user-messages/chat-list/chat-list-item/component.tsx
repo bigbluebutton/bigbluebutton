@@ -81,6 +81,13 @@ const ChatListItem = (props: ChatListItemProps) => {
         setUnreadMessagesToDisplay(chat.totalUnread);
       }
     }
+
+    return () => {
+      if (chatCountTimeoutRef.current) {
+        clearTimeout(chatCountTimeoutRef.current);
+        chatCountTimeoutRef.current = undefined;
+      }
+    };
   }, [chat.totalUnread, isCurrentChat, unreadMessagesToDisplay]);
 
   useEffect(() => {
