@@ -1200,7 +1200,7 @@ CREATE TRIGGER "trigger_update_chat_totalMessages"
 AFTER INSERT OR DELETE ON "chat_message" FOR EACH ROW
 EXECUTE FUNCTION "update_chat_totalMessages"();
 
-CREATE OR REPLACE FUNCTION "update_chat_user_totalUnreadMessages"(_meetingId text, _chatId text)
+CREATE OR REPLACE FUNCTION "update_chat_user_totalUnreadMessages"(_meetingId text, _chatId text, _userId text DEFAULT NULL)
 RETURNS void AS $$
 BEGIN
   UPDATE "chat_user" cu
@@ -1217,7 +1217,18 @@ BEGIN
   )
   WHERE cu."meetingId" = _meetingId
     AND cu."chatId"    = _chatId
-    ;
+    AND (_userId IS NULL OR cu."userId" = _userId)
+    AND cu."totalUnreadMessages" IS DISTINCT FROM (
+      SELECT COUNT(1)
+      FROM chat_message cm
+      JOIN "user" u
+        ON u."meetingId" = cu."meetingId"
+       AND u."userId"    = cu."userId"
+      WHERE cm."meetingId" = cu."meetingId"
+        AND cm."chatId"    = cu."chatId"
+        AND cm."senderId" <> cu."userId"
+        AND cm."createdAt" > COALESCE(cu."lastSeenAt", u."registeredAt")
+    );
 END;
 $$ LANGUAGE plpgsql;
 
@@ -1235,7 +1246,7 @@ BEGIN
     _chatId    := NEW."chatId";
   END IF;
 
-  PERFORM "update_chat_user_totalUnreadMessages"(_meetingId, _chatId);
+  PERFORM "update_chat_user_totalUnreadMessages"(_meetingId, _chatId, NULL);
   RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1248,7 +1259,7 @@ CREATE OR REPLACE FUNCTION trg_chat_user_update_unread()
 RETURNS TRIGGER AS $$
 BEGIN
   IF NEW."lastSeenAt" IS DISTINCT FROM OLD."lastSeenAt" THEN
-    PERFORM "update_chat_user_totalUnreadMessages"(NEW."meetingId", NEW."chatId");
+    PERFORM "update_chat_user_totalUnreadMessages"(NEW."meetingId", NEW."chatId", NEW."userId");
   END IF;
   RETURN NULL;
 END;
