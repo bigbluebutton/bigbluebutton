@@ -773,6 +773,10 @@ CREATE INDEX "idx_user_camera_meeting_contentType" ON "user_camera"("meetingId",
 CREATE OR REPLACE VIEW "v_user_camera" AS
 SELECT * FROM "user_camera";
 
+-- this view will be used specifically for the join with user_current
+CREATE OR REPLACE VIEW "v_user_current_camera" AS
+SELECT * FROM "user_camera";
+
 CREATE UNLOGGED TABLE "user_breakoutRoom" (
 	"meetingId" varchar(100),
     "userId" varchar(50),
@@ -787,6 +791,10 @@ CREATE UNLOGGED TABLE "user_breakoutRoom" (
 CREATE INDEX "idx_user_breakoutRoom_pk_reverse" ON "user_breakoutRoom"("userId", "meetingId");
 
 CREATE OR REPLACE VIEW "v_user_breakoutRoom" AS
+SELECT * FROM "user_breakoutRoom";
+
+-- this view will be used specifically for the join with user_current
+CREATE OR REPLACE VIEW "v_user_current_breakoutRoom" AS
 SELECT * FROM "user_breakoutRoom";
 
 CREATE UNLOGGED TABLE "user_connectionStatus" (

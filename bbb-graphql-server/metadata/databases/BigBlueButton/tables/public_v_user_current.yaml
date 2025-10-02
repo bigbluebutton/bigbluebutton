@@ -44,7 +44,7 @@ object_relationships:
           userId: userId
         insertion_order: null
         remote_table:
-          name: v_user_breakoutRoom
+          name: v_user_current_breakoutRoom
           schema: public
   - name: livekit
     using:
@@ -163,7 +163,7 @@ array_relationships:
           userId: userId
         insertion_order: null
         remote_table:
-          name: v_user_camera
+          name: v_user_current_camera
           schema: public
   - name: chats
     using:

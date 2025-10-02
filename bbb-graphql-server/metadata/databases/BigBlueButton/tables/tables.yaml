@@ -59,6 +59,8 @@
 - "!include public_v_user_connectionStatusHistory.yaml"
 - "!include public_v_user_connectionStatusReport.yaml"
 - "!include public_v_user_current.yaml"
+- "!include public_v_user_current_breakoutRoom.yaml"
+- "!include public_v_user_current_camera.yaml"
 - "!include public_v_user_guest.yaml"
 - "!include public_v_user_livekit.yaml"
 - "!include public_v_user_lockSettings.yaml"
