@@ -25,6 +25,8 @@ const PrivateChatListItem = (props: PrivateChatListItemProps) => {
   const sidebarContent = layoutSelectInput((i: Input) => i.sidebarContent);
   const idChatOpen = layoutSelect((i: Layout) => i.idChatOpen);
   const layoutContextDispatch = layoutDispatch();
+  const chatCountTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const [unreadMessagesToDisplay, setUnreadMessagesToDisplay] = React.useState(0);
 
   const { sidebarContentPanel } = sidebarContent;
   const sidebarContentIsOpen = sidebarContent.isOpen;
@@ -60,6 +62,33 @@ const PrivateChatListItem = (props: PrivateChatListItemProps) => {
   } = useChatMessageSubscription((msg) => msg) as GraphqlDataHookSubscriptionResponse<Message[]>;
 
   useEffect(() => {
+    // Clear any previous timeout to prevent multiple executions
+    clearTimeout(chatCountTimeoutRef.current);
+    if (chat.totalUnread !== undefined && chat.totalUnread !== unreadMessagesToDisplay) {
+      // Only update the unread count if the user is actively receiving new messages (not when they're reading)
+      if (isCurrentChat && chat.totalUnread > 0) {
+        // Delay updating the unread count by 2 seconds when the user is viewing this chat
+        // This delay prevents showing the unread count while the user is already viewing the chat,
+        // but the UpdateChatLastSeen mutation hasn't been triggered yet.
+        // This delay is also implemented for performance reasons, as we're transferring this behavior from the server.
+        chatCountTimeoutRef.current = setTimeout(() => {
+          setUnreadMessagesToDisplay(chat.totalUnread ?? 0);
+        }, 2000);
+      } else {
+        // Immediately update the unread count if the user is not viewing the chat or if there are no new messages
+        setUnreadMessagesToDisplay(chat.totalUnread);
+      }
+    }
+
+    return () => {
+      if (chatCountTimeoutRef.current) {
+        clearTimeout(chatCountTimeoutRef.current);
+        chatCountTimeoutRef.current = undefined;
+      }
+    };
+  }, [chat.totalUnread, isCurrentChat, unreadMessagesToDisplay]);
+
+  useEffect(() => {
     if (chat.chatId !== PUBLIC_GROUP_CHAT_ID && chat.chatId === idChatOpen) {
       layoutContextDispatch({
         type: ACTIONS.SET_ID_CHAT_OPEN,
@@ -75,6 +104,12 @@ const PrivateChatListItem = (props: PrivateChatListItemProps) => {
     });
     privateChatSelectedCallback();
   };
+
+  const unreadCount = unreadMessagesToDisplay;
+  const participantName = chat.participant?.name || 'Usuário desconhecido';
+  const arialabel = unreadCount > 0
+    ? `${participantName}, ${unreadCount} nova${unreadCount > 1 ? 's' : ''} mensagem${unreadCount > 1 ? 's' : ''}`
+    : `${participantName}, sem novas mensagens`;
 
   if (!chatMessageData) return null;
   const lastMessage = chatMessageData[0]?.message;
@@ -114,13 +149,15 @@ const PrivateChatListItem = (props: PrivateChatListItemProps) => {
             <Styled.MessageItemWrapper>
               {lastMessage}
             </Styled.MessageItemWrapper>
-            {countUnreadMessages > 0 ? (
-              <Styled.UnreadMessages data-test="unreadMessages">
-                <Styled.UnreadMessagesText aria-hidden="true">
-                  {countUnreadMessages}
-                </Styled.UnreadMessagesText>
-              </Styled.UnreadMessages>
-            ) : null}
+            {(unreadMessagesToDisplay > 0)
+              ? (
+                <Styled.UnreadMessages data-test="unreadMessages" aria-label={arialabel}>
+                  <Styled.UnreadMessagesText aria-hidden="true">
+                    {unreadMessagesToDisplay}
+                  </Styled.UnreadMessagesText>
+                </Styled.UnreadMessages>
+              )
+              : null}
           </Styled.ChatContent>
         </Styled.ChatWrapper>
       </Styled.ChatListItemLink>
