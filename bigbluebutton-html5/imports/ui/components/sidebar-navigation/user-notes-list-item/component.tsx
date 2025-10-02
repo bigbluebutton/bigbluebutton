@@ -1,4 +1,4 @@
-import React, { useState, memo } from 'react';
+import React, { useEffect, useState, memo } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import Icon from '/imports/ui/components/common/icon/component';
 import NotesService from '/imports/ui/components/notes/service';
@@ -63,17 +63,20 @@ const UserNotesListItemContainerGraphql: React.FC<BaseSidebarButtonProps> = (pro
   const prevIsPinned = usePreviousValue(isPinned);
 
   const isEnabled = NotesService.useIsEnabled();
-  if (isPinned && !pinWasNotified) {
-    notify(intl.formatMessage(intlMessages.pinnedNotification), 'info', 'copy', { pauseOnFocusLoss: false });
-    setPinWasNotified(true);
-  }
+
+  useEffect(() => {
+    if (isPinned && !pinWasNotified) {
+      notify(intl.formatMessage(intlMessages.pinnedNotification), 'info', 'copy', { pauseOnFocusLoss: false });
+      setPinWasNotified(true);
+      return;
+    }
+
+    if (prevIsPinned && !isPinned && pinWasNotified) {
+      setPinWasNotified(false);
+    }
+  });
 
   const notesOpen = isOpened && !isPinned;
-
-  if (prevIsPinned && !isPinned && pinWasNotified) {
-    setPinWasNotified(false);
-  }
-
   const label = intl.formatMessage(isPinned ? intlMessages.sharedNotesPinned : intlMessages.sharedNotes);
   if (!isEnabled) return null;
   return (
