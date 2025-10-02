@@ -19,8 +19,8 @@ const PinnedAppBase: React.FC<PinnedAppProps> = ({
       isOpened={isOpened}
       iconName={icon}
       label={name}
-      id="users-list-toggle-button"
-      ariaDescribedBy="usersList"
+      id={`pinned-app-${appKey}`}
+      ariaDescribedBy={`pinned-app-${appKey}-button`}
       data-test={`${appKey}SidebarButton`}
       onClick={typeof onClick === 'function' ? onClick : undefined}
     >
