@@ -8,8 +8,7 @@ const { sleep } = require('../core/helpers');
 const { getSettings } = require('../core/settings');
 const { uploadSinglePresentation } = require('../presentation/util');
 const utilScreenShare = require('../screenshare/util');
-const { reopenChatSidebar, checkScreenshots, checkDefaultLocationReset } = require('../layouts/util');
-const path = require('path');
+const { checkScreenshots, checkDefaultLocationReset } = require('../layouts/util');
 
 class CustomParameters extends MultiUsers {
   constructor(browser, context) {
@@ -449,7 +448,6 @@ class CustomParameters extends MultiUsers {
     await sleep(1000); // wait for the whiteboard zoom to stabilize
 
     await checkScreenshots(this, 'should the cameras be on the side of presentation', [e.webcamContainer, e.webcamMirroredVideoContainer], 'smart-layout', 2);
-    await reopenChatSidebar(this.modPage);
   }
 
   async enforcePresentationFocus() {
@@ -548,7 +546,6 @@ class CustomParameters extends MultiUsers {
     await sleep(1000);
 
     await checkScreenshots(this, 'should be on custom layout', [e.webcamContainer, e.webcamMirroredVideoContainer], 'enforce-custom-layout', 4);
-    await reopenChatSidebar(this.modPage);
   }
 }
 

@@ -179,8 +179,8 @@ class Polling extends MultiUsers {
     await this.userPage.waitAndClick(e.secondPollAnswerOptionBtn);
     await this.userPage.waitAndClickElement(e.submitAnswersMultiple);
 
-    await this.modPage.hasText(e.userVoteLiveResult, '1', 'should display the user vote number after the attende has answered the poll');
-    await this.modPage.hasText(e.userVoteLiveResult, '2', 'should display the user vote number after the attende has answered the poll');
+    await this.modPage.hasText(e.userVoteLiveResult, '1', 'should display the user vote number after the attendee has answered the poll');
+    await this.modPage.hasText(e.userVoteLiveResult, '2', 'should display the user vote number after the attendee has answered the poll');
 
     await this.modPage.waitAndClick(e.closePollingBtn);
     await this.modPage.wasRemoved(e.closePollingBtn, 'should not display the close polling button after the poll is closed');

@@ -32,6 +32,10 @@ var allowedMessages = []string{
 	"CheckGraphqlMiddlewareAlivePingSysMsg",
 	"SendCursorPositionEvtMsg",
 	"SetCurrentPageEvtMsg",
+	"NotifyAllInMeetingEvtMsg",
+	"NotifyUserInMeetingEvtMsg",
+	"NotifyRoleInMeetingEvtMsg",
+	"GroupChatMessageBroadcastEvtMsg",
 	"ModifyWhiteboardAccessEvtMsg",
 	"UserLeftMeetingEvtMsg",
 	"MeetingEndedEvtMsg",
@@ -110,6 +114,38 @@ func StartRedisListener() {
 
 		if messageName == "SendCursorPositionEvtMsg" {
 			go streamingserver.HandleSendCursorPositionEvtMsg(
+				receivedMessage,
+				BrowserConnectionsMutex,
+				BrowserConnections,
+			)
+		}
+
+		if messageName == "NotifyAllInMeetingEvtMsg" {
+			go streamingserver.HandleNotifyAllInMeetingEvtMsg(
+				receivedMessage,
+				BrowserConnectionsMutex,
+				BrowserConnections,
+			)
+		}
+
+		if messageName == "NotifyUserInMeetingEvtMsg" {
+			go streamingserver.HandleNotifyUserInMeetingEvtMsg(
+				receivedMessage,
+				BrowserConnectionsMutex,
+				BrowserConnections,
+			)
+		}
+
+		if messageName == "NotifyRoleInMeetingEvtMsg" {
+			go streamingserver.HandleNotifyRoleInMeetingEvtMsg(
+				receivedMessage,
+				BrowserConnectionsMutex,
+				BrowserConnections,
+			)
+		}
+
+		if messageName == "GroupChatMessageBroadcastEvtMsg" {
+			go streamingserver.HandleGroupChatMessageBroadcastEvtMsg(
 				receivedMessage,
 				BrowserConnectionsMutex,
 				BrowserConnections,

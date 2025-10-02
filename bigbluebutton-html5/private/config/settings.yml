@@ -310,6 +310,14 @@ public:
   # plugins:
   #   - name: SamplePresentationToolbarPlugin
   #     url: https://<your-Host>/plugins/SamplePresentationToolbarPlugin.js
+  # Allowed errors to be shown on notifications bar
+    showConnectionErrors:
+      # - 3001
+      - 3002
+      # - 3003
+      - 3004
+      # - 3005
+      # - 3006
   externalVideoPlayer:
     enabled: true
   kurento:

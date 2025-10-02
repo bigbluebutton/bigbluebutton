@@ -74,3 +74,5 @@
 - "!include public_v_user_voice.yaml"
 - "!include public_v_user_voice_activity.yaml"
 - "!include public_v_user_welcomeMsgs.yaml"
+- "!include public_v_user_whiteboardCursorAccess.yaml"
+- "!include public_v_user_whiteboardWriteAccess.yaml"

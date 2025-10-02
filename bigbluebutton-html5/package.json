@@ -73,7 +73,7 @@
     "html-to-image": "^1.11.13",
     "immutability-helper": "~2.8.1",
     "langmap": "0.0.16",
-    "livekit-client": "2.14.0",
+    "livekit-client": "2.15.7",
     "makeup-screenreader-trap": "0.0.5",
     "postcss-nested": "^7.0.2",
     "prop-types": "^15.8.1",

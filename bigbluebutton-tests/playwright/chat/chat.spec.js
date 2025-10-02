@@ -2,7 +2,7 @@ const { test } = require('../fixtures');
 const { Chat } = require('./chat');
 const { MessageActions } = require('./messageActions');
 
-test.describe('Chat', { tag: '@ci' }, () => {
+test.describe.parallel('Chat', { tag: '@ci' }, () => {
   // https://docs.bigbluebutton.org/3.0/testing/release-testing/#public-message-automated
   test('Send public message', async ({ browser, context, page }, testInfo) => {
     const chat = new Chat(browser, context);

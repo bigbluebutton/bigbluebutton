@@ -147,7 +147,7 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings, index }
   if (user?.cameras?.length > 0 && LABEL.sharingWebcam) {
     subs.push(
       <span key={uniqueId('breakout-')}>
-        {user.pinned === true
+        {user?.pinned === true
           ? <Icon iconName="pin-video_on" />
           : <Icon iconName="video" />}
         &nbsp;
@@ -170,7 +170,7 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings, index }
 
   const reactionsEnabled = useIsReactionsEnabled();
 
-  const userAvatarFiltered = (user.raiseHand === true || user.away === true || (user.reactionEmoji && user.reactionEmoji !== 'none')) ? '' : user.avatar;
+  const userAvatarFiltered = (user?.raiseHand === true || user.away === true || (user.reactionEmoji && user.reactionEmoji !== 'none')) ? '' : user.avatar;
 
   const emojiIcons = [
     {
@@ -189,7 +189,7 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings, index }
     if (user.isDialIn) {
       return <Icon iconName="volume_level_2" />;
     }
-    if (user.raiseHand === true) {
+    if (user?.raiseHand === true) {
       return reactionsEnabled
         ? <Emoji key={emojiIcons[0].id} emoji={emojiIcons[0]} native={emojiIcons[0].native} size={emojiSize} />
         : <Icon iconName="hand" />;
