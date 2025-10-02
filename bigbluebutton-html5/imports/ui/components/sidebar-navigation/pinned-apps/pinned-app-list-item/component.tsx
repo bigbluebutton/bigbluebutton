@@ -20,8 +20,7 @@ const PinnedAppBase: React.FC<PinnedAppProps> = ({
       iconName={icon}
       label={name}
       id={`pinned-app-${appKey}`}
-      ariaDescribedBy={`pinned-app-${appKey}-button`}
-      data-test={`${appKey}SidebarButton`}
+      dataTest={`${appKey}SidebarButton`}
       onClick={typeof onClick === 'function' ? onClick : undefined}
     >
       {children}
