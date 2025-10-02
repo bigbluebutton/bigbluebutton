@@ -1082,6 +1082,7 @@ CREATE UNLOGGED TABLE "chat_user" (
 	"startedTypingAt" timestamp with time zone,
 	"lastTypingAt" timestamp with time zone,
 	"visible" boolean,
+	"totalUnreadMessages" integer,
 	CONSTRAINT "chat_user_pkey" PRIMARY KEY ("meetingId","chatId","userId"),
     CONSTRAINT chat_fk FOREIGN KEY ("chatId", "meetingId") REFERENCES "chat"("chatId", "meetingId") ON DELETE CASCADE
 );
@@ -1199,6 +1200,64 @@ CREATE TRIGGER "trigger_update_chat_totalMessages"
 AFTER INSERT OR DELETE ON "chat_message" FOR EACH ROW
 EXECUTE FUNCTION "update_chat_totalMessages"();
 
+CREATE OR REPLACE FUNCTION "update_chat_user_totalUnreadMessages"(_meetingId text, _chatId text)
+RETURNS void AS $$
+BEGIN
+  UPDATE "chat_user" cu
+  SET "totalUnreadMessages" = (
+    SELECT COUNT(1)
+    FROM chat_message cm
+    JOIN "user" u
+      ON u."meetingId" = cu."meetingId"
+     AND u."userId"    = cu."userId"
+    WHERE cm."meetingId" = cu."meetingId"
+      AND cm."chatId"    = cu."chatId"
+      AND cm."senderId" <> cu."userId"
+      AND cm."createdAt" > COALESCE(cu."lastSeenAt", u."registeredAt")
+  )
+  WHERE cu."meetingId" = _meetingId
+    AND cu."chatId"    = _chatId
+    ;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION "trg_chat_message_update_unread"()
+RETURNS TRIGGER AS $$
+DECLARE
+  _meetingId text;
+  _chatId    text;
+BEGIN
+  IF TG_OP = 'DELETE' THEN
+    _meetingId := OLD."meetingId";
+    _chatId    := OLD."chatId";
+  ELSE
+    _meetingId := NEW."meetingId";
+    _chatId    := NEW."chatId";
+  END IF;
+
+  PERFORM "update_chat_user_totalUnreadMessages"(_meetingId, _chatId);
+  RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_chat_message_update_unread
+AFTER INSERT OR UPDATE OR DELETE ON "chat_message"
+FOR EACH ROW EXECUTE FUNCTION trg_chat_message_update_unread();
+
+CREATE OR REPLACE FUNCTION trg_chat_user_update_unread()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF NEW."lastSeenAt" IS DISTINCT FROM OLD."lastSeenAt" THEN
+    PERFORM "update_chat_user_totalUnreadMessages"(NEW."meetingId", NEW."chatId");
+  END IF;
+  RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_chat_user_update_unread
+AFTER UPDATE OF "lastSeenAt" ON "chat_user"
+FOR EACH ROW EXECUTE FUNCTION trg_chat_user_update_unread();
+
 
 CREATE OR REPLACE FUNCTION "update_chatUser_clear_lastTypingAt_trigger_func"() RETURNS TRIGGER AS $$
 BEGIN
@@ -1257,15 +1316,7 @@ SELECT 	"user"."meetingId",
 		cu."visible",
 		chat_with."userId" AS "participantId",
 		"chat"."totalMessages",
-		(
-            select count(1)
-            from chat_message cm
-            where cm."meetingId" = chat."meetingId"
-            and cm."chatId" = chat."chatId"
-            and cm."senderId" != "user"."userId"
-            and cm."createdAt" < current_timestamp - '2 seconds'::interval --set a delay while user send lastSeenAt
-            and cm."createdAt" > coalesce(cu."lastSeenAt","user"."registeredAt")
-        ) "totalUnread",
+		cu."totalUnreadMessages" AS "totalUnread",
 		cu."lastSeenAt",
 		CASE WHEN "chat"."access" = 'PUBLIC_ACCESS' THEN true ELSE false end "public"
 FROM "user"
