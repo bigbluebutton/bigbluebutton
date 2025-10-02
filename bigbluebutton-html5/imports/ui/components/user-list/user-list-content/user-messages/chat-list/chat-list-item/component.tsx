@@ -32,19 +32,21 @@ interface ChatListItemProps {
 }
 
 const ChatListItem = (props: ChatListItemProps) => {
-  const sidebarContent = layoutSelectInput((i: Input) => i.sidebarContent);
-  const idChatOpen = layoutSelect((i: Layout) => i.idChatOpen);
-  const layoutContextDispatch = layoutDispatch();
-
-  const { sidebarContentPanel } = sidebarContent;
-  const sidebarContentIsOpen = sidebarContent.isOpen;
-
-  const TOGGLE_CHAT_PUB_AK: string = useShortcut('togglePublicChat');
   const {
     chat,
     chatNodeRef,
     index,
   } = props;
+  const sidebarContent = layoutSelectInput((i: Input) => i.sidebarContent);
+  const idChatOpen = layoutSelect((i: Layout) => i.idChatOpen);
+  const layoutContextDispatch = layoutDispatch();
+  const chatCountTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const [unreadMessagesToDisplay, setUnreadMessagesToDisplay] = React.useState(0);
+
+  const { sidebarContentPanel } = sidebarContent;
+  const sidebarContentIsOpen = sidebarContent.isOpen;
+
+  const TOGGLE_CHAT_PUB_AK: string = useShortcut('togglePublicChat');
 
   const countUnreadMessages = chat.totalUnread || 0;
 
@@ -60,6 +62,26 @@ const ChatListItem = (props: ChatListItemProps) => {
   const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 
   const isPublicGroupChat = (chat: Chat) => chat.chatId === PUBLIC_GROUP_CHAT_ID;
+
+  useEffect(() => {
+    // Clear any previous timeout to prevent multiple executions
+    clearTimeout(chatCountTimeoutRef.current);
+    if (chat.totalUnread !== undefined && chat.totalUnread !== unreadMessagesToDisplay) {
+      // Only update the unread count if the user is actively receiving new messages (not when they're reading)
+      if (isCurrentChat && chat.totalUnread > 0) {
+      // Delay updating the unread count by 2 seconds when the user is viewing this chat
+      // This delay prevents showing the unread count while the user is already viewing the chat,
+      // but the UpdateChatLastSeen mutation hasn't been triggered yet.
+      // This delay is also implemented for performance reasons, as we're transferring this behavior from the server.
+        chatCountTimeoutRef.current = setTimeout(() => {
+          setUnreadMessagesToDisplay(chat.totalUnread);
+        }, 2000);
+      } else {
+        // Immediately update the unread count if the user is not viewing the chat or if there are no new messages
+        setUnreadMessagesToDisplay(chat.totalUnread);
+      }
+    }
+  }, [chat.totalUnread, isCurrentChat, unreadMessagesToDisplay]);
 
   useEffect(() => {
     if (chat.chatId !== PUBLIC_GROUP_CHAT_ID && chat.chatId === idChatOpen) {
@@ -164,11 +186,11 @@ const ChatListItem = (props: ChatListItemProps) => {
               ? intl.formatMessage(intlMessages.titlePublic) : chat.participant?.name}
           </Styled.ChatNameMain>
         </Styled.ChatName>
-        {(countUnreadMessages > 0)
+        {(unreadMessagesToDisplay > 0)
           ? (
             <Styled.UnreadMessages data-test="unreadMessages" aria-label={arialabel}>
               <Styled.UnreadMessagesText aria-hidden="true">
-                {countUnreadMessages}
+                {unreadMessagesToDisplay}
               </Styled.UnreadMessagesText>
             </Styled.UnreadMessages>
           )
