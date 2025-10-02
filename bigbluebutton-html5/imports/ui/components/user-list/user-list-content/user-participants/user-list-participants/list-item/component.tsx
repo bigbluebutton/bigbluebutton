@@ -212,7 +212,7 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings, index }
     ? user.lastBreakoutRoom?.sequence
     : getIconUser();
 
-  const hasWhiteboardAccess = user?.presPagesWritable?.some((page) => page.isCurrentPage);
+  const hasWhiteboardAccess = user?.whiteboardWriteAccess === true;
 
   function addSeparator(elements: (string | JSX.Element)[]) {
     const modifiedElements: (string | JSX.Element)[] = [];

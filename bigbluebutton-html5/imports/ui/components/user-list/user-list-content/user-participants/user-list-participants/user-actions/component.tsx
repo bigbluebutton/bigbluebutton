@@ -243,10 +243,8 @@ const UserActions: React.FC<UserActionsProps> = ({
       const currentWriters: Writer[] = data?.user || [];
 
       // Determine if the user has access
-      const { userId, presPagesWritable } = user;
-      const hasAccess = presPagesWritable.some(
-        (page: { userId: string; isCurrentPage: boolean }) => (page?.userId === userId && page?.isCurrentPage),
-      );
+      const { userId, whiteboardWriteAccess } = user;
+      const hasAccess = whiteboardWriteAccess === true;
 
       // Prepare the updated list of user IDs for whiteboard access
       const usersIds = currentWriters?.map((writer: { userId: string }) => writer?.userId);
@@ -317,9 +315,7 @@ const UserActions: React.FC<UserActionsProps> = ({
     (item: PluginSdk.UserListDropdownInterface) => (user?.userId === item?.userId),
   );
 
-  const hasWhiteboardAccess = user.presPagesWritable?.some(
-    (page: { pageId: string; userId: string }) => (page.pageId === pageId && page.userId === user.userId),
-  );
+  const hasWhiteboardAccess = user?.whiteboardWriteAccess === true;
 
   const [setRole] = useMutation(SET_ROLE);
   const [chatCreateWithUser] = useMutation(CHAT_CREATE_WITH_USER);
