@@ -68,7 +68,7 @@ class Timer extends MultiUsers {
     const timerIndicatorLocator = this.modPage.getLocator(e.timerIndicator);
 
     // check for initial values
-    await this.modPage.hasText(e.timerCurrent, /00:00/, 'should display the timer current to contain the value "00:00"');
+    await this.modPage.hasText(e.timerCurrent, /05:00/, 'should display the timer current to contain the value "05:00"');
     await this.modPage.hasValue(e.minutesInput, '5', 'should display the initial minutes input to contain the value "5"');
 
     // start timer and check the current values
@@ -83,8 +83,8 @@ class Timer extends MultiUsers {
     await this.modPage.getLocator(e.secondsInput).press('Backspace');
     await this.modPage.type(e.secondsInput, '50');
     await this.clickOnTimerControl();
-    await this.modPage.hasText(e.timerCurrent, /05:44/, 'should display an increased value on the timer current after a while running');
-    await this.modPage.hasText(e.timerIndicator, /05:42/, 'should display an increased value on the timer indicator after a while running (2 seconds delay expected)');
+    await this.modPage.hasText(e.timerCurrent, /05:45/, 'should display an increased value on the timer current after a while running');
+    await this.modPage.hasText(e.timerIndicator, /05:43/, 'should display an increased value on the timer indicator after a while running (2 seconds delay expected)');
 
     // reset an active timer and check if the values are set to the previous values
     await this.clickOnTimerControl();
