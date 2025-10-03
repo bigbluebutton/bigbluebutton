@@ -30,6 +30,7 @@ const RecordingContainer: React.FC<RecordingContainerProps> = (props) => {
   const connected = useReactiveVar(ConnectionStatus.getConnectedStatusVar());
   const {
     data: recordingData,
+    loading: recordingDataLoading,
   } = useDeduplicatedSubscription<GetRecordingResponse>(GET_MEETING_RECORDING_DATA);
 
   const {
@@ -53,7 +54,7 @@ const RecordingContainer: React.FC<RecordingContainerProps> = (props) => {
 
   const mayIRecord = Service.mayIRecord(amIModerator, allowStartStopRecording);
 
-  if (!mayIRecord) return null;
+  if (!mayIRecord || recordingDataLoading) return null;
 
   return (
     <>
