@@ -1,4 +1,6 @@
-import React, { useRef, useState } from 'react';
+import React, {
+  useMemo, useRef, useState,
+} from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { Button } from '@mui/material';
 import KEYS from '/imports/utils/keys';
@@ -25,6 +27,7 @@ import {
   colorDanger,
   btnPrimaryBg,
 } from '/imports/ui/stylesheets/styled-components/palette';
+import useEmptyPrivateChatVisibility from '../hooks/useEmptyPrivateChatVisibility';
 
 const intlMessages = defineMessages({
   messagesTitle: {
@@ -51,6 +54,7 @@ interface ChatProps {
   chatId: string;
   participantName: string;
   filteredPrivateChats: Partial<ChatType>[];
+  shouldShowChatButtons: boolean;
 }
 
 interface ChatLoadingProps {
@@ -63,6 +67,7 @@ const Chat: React.FC<ChatProps> = ({
   chatId,
   participantName,
   filteredPrivateChats,
+  shouldShowChatButtons,
 }) => {
   const CHAT_CONFIG = window.meetingClientSettings.public.chat;
   const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
@@ -172,7 +177,7 @@ const Chat: React.FC<ChatProps> = ({
       <Styled.ContentWrapper
         id="scroll-box"
       >
-        {filteredPrivateChats.length > 0 ? (
+        {shouldShowChatButtons ? (
           <Styled.ButtonsWrapper>
             <Button
               variant={isPublicChat ? 'contained' : 'outlined'}
@@ -200,6 +205,7 @@ const Chat: React.FC<ChatProps> = ({
               {intl.formatMessage(intlMessages.titlePublic)}
               {publicUnreadMessages && (
                 <span
+                  data-test="publicUnreadIndicator"
                   style={{
                     position: 'absolute',
                     bottom: '8px',
@@ -237,6 +243,7 @@ const Chat: React.FC<ChatProps> = ({
               {privateChatButtonLabel}
               {privateUnreadMessages && (
                 <span
+                  data-test="privateUnreadIndicator"
                   style={{
                     position: 'absolute',
                     bottom: '8px',
@@ -283,22 +290,44 @@ const ChatContainer: React.FC = () => {
   const [pendingChat, setPendingChat] = usePendingChat();
 
   const PUBLIC_GROUP_CHAT_ID = window.meetingClientSettings.public.chat.public_group_id;
-  const publicUnreadMessages = !!chats?.some((chat) => (
+  const publicUnreadMessages = useMemo(() => (!!chats?.some((chat) => (
     chat.chatId === PUBLIC_GROUP_CHAT_ID
     && chat?.totalUnread
     && chat.totalUnread > 0
-  ));
-  const privateUnreadMessages = !!chats?.some((chat) => (
+  ))), [chats]);
+  const privateUnreadMessages = useMemo(() => (!!chats?.some((chat) => (
     chat.chatId !== PUBLIC_GROUP_CHAT_ID
     && chat?.totalUnread
     && chat.totalUnread > 0
-  ));
-  const filteredPrivateChats = (chats || [] as ChatType[]).filter(
+  ))), [chats]);
+  const filteredPrivateChats = useMemo(() => (chats || [] as ChatType[]).filter(
     (chat) => !chat.public && chat.totalMessages && chat.totalMessages !== 0,
+  ), [chats]);
+
+  const resolvedChatId = useMemo(() => {
+    if (pendingChat && chats) {
+      const chat = chats.find((c) => c.participant?.userId === pendingChat);
+      if (chat) {
+        setPendingChat('');
+        layoutContextDispatch({
+          type: ACTIONS.SET_ID_CHAT_OPEN,
+          value: chat.chatId,
+        });
+        return chat.chatId;
+      }
+    }
+    return idChatOpen;
+  }, [pendingChat, chats, idChatOpen, setPendingChat, layoutContextDispatch]);
+
+  // Handle edge case: show buttons when private chat is open but empty
+  const shouldShowEmptyPrivateChat = useEmptyPrivateChatVisibility(
+    chats || undefined,
+    resolvedChatId,
+    PUBLIC_GROUP_CHAT_ID,
   );
 
   let participantName = '';
-  const currentChat = chats?.find((chat) => chat.chatId === idChatOpen);
+  const currentChat = chats?.find((chat) => chat.chatId === resolvedChatId);
   if (currentChat && currentChat.participant) {
     participantName = currentChat.participant.name || '';
   }
@@ -310,21 +339,8 @@ const ChatContainer: React.FC = () => {
 
   const isLocked = currentUser?.locked || currentUser?.userLockSettings?.disablePublicChat;
 
-  if (pendingChat && chats) {
-    const chat = chats.find((c) => {
-      return c.participant?.userId === pendingChat;
-    });
-    if (chat) {
-      setPendingChat('');
-      layoutContextDispatch({
-        type: ACTIONS.SET_ID_CHAT_OPEN,
-        value: chat.chatId,
-      });
-    }
-  }
-
   if (sidebarContent.sidebarContentPanel !== PANELS.CHAT) return null;
-  if (!idChatOpen && !isLocked) {
+  if (!resolvedChatId && !isLocked) {
     if (sidebarContent.sidebarContentIsOpen) {
       return <ChatLoading isRTL={isRTL} />;
     }
@@ -336,8 +352,9 @@ const ChatContainer: React.FC = () => {
       publicUnreadMessages={publicUnreadMessages}
       privateUnreadMessages={privateUnreadMessages}
       participantName={participantName}
-      chatId={idChatOpen}
+      chatId={resolvedChatId}
       filteredPrivateChats={filteredPrivateChats}
+      shouldShowChatButtons={filteredPrivateChats.length > 0 || Boolean(shouldShowEmptyPrivateChat)}
     />
   );
 };
