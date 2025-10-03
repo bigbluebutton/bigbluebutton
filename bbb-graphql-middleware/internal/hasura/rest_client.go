@@ -17,7 +17,7 @@ import (
 func PreLoadMeetingStaticDataCache(receivedMessage common.RedisMessage) {
 	secret := os.Getenv("HASURA_GRAPHQL_ADMIN_SECRET")
 	if secret == "" {
-		log.Println("Hasura admin password not found, skiping meetingStaticDataInternal cache")
+		log.Debug("Hasura admin password not found, skiping meetingStaticDataInternal cache")
 		return
 	}
 
@@ -63,7 +63,7 @@ func PreLoadMeetingStaticDataCache(receivedMessage common.RedisMessage) {
 		log.Errorf("Error doing request for meetingStaticDataInternal cache (%s): %v", targetURL, err)
 		return
 	} else {
-		log.Info("Cache meetingStaticDataInternal created successfully.", targetURL)
+		log.Infof("Cache meetingStaticDataInternal created successfully (%s).", targetURL)
 	}
 	defer resp.Body.Close()
 
