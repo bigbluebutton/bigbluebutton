@@ -8,8 +8,9 @@ import { env } from 'node:process';
 import { format } from 'node:util';
 // This is version 4 of chalk, not version 5, which uses ESM
 import * as chalk from 'chalk';
+import { MultiUsers } from '../user/multiusers';
 import { runScript } from './util';
-import parameters, { Parameters } from './parameters';
+import { parameters } from './parameters';
 import { Page } from './page';
 
 dotenv.config();
@@ -34,6 +35,16 @@ interface InitOptions {
   createParameter?: string;
   joinParameter?: string;
   testInfo?: TestInfo;
+}
+
+interface GetJoinUrlProp {
+  meetingID: string;
+  fullName: string;
+  options?: {
+    isModerator?: boolean;
+    joinParameter?: string;
+    skipSessionDetailsModal?: boolean;
+  };
 }
 
 export function getChecksum(text: string, secret: string): string {
@@ -63,70 +74,67 @@ export function getRandomInt(min: number, max: number): number {
   return Math.floor(Math.random() * (maxFloored - minCeiled)) + minCeiled;
 }
 
-export function getApiCallUrl(name: string, callParams: Record<string, string>): string {
-  const query = new URLSearchParams(callParams).toString();
+export function getApiCallUrl(name: string, callParams: Record<string, string> | null): string {
+  const query = callParams ? new URLSearchParams(callParams).toString() : '';
   const apiCall = `${name}${query}${parameters.secret}`;
   const checksum = getChecksum(apiCall, parameters.secret!);
   const url = `${parameters.server}/api/${name}?${query}&checksum=${checksum}`;
   return url;
 }
 
-export function apiCall<T = unknown>(name: string, callParams: Record<string, string>): Promise<AxiosResponse<T>> {
-  const url = getApiCallUrl(name, callParams);
-  return axios.get(url, { adapter: 'http' }).then((response) => xml2js.parseStringPromise(response.data));
+export async function apiCall<T = unknown>(
+  name: string,
+  callParams?: Record<string, string>,
+): Promise<AxiosResponse<T>> {
+  const url = getApiCallUrl(name, callParams || null);
+  const response = await axios.get<T>(url, { adapter: 'http' });
+  const parsedData = typeof response.data === 'string' ? await xml2js.parseStringPromise(response.data) : response.data;
+  return {
+    ...response,
+    data: parsedData,
+  };
 }
 
-export function createMeetingUrl(params: Parameters, createParameter?: string, customMeetingId?: string): string {
+export function createMeetingUrl(createParameter?: string, customMeetingId?: string): string {
   const meetingID = customMeetingId || `random-${getRandomInt(1000000, 10000000).toString()}`;
-  const mp = params.moderatorPW;
-  const ap = params.attendeePW;
+  const mp = parameters.moderatorPW;
+  const ap = parameters.attendeePW;
   const baseQuery =
     `name=${meetingID}&meetingID=${meetingID}&attendeePW=${ap}&moderatorPW=${mp}` +
-    `&allowStartStopRecording=true&autoStartRecording=false&welcome=${params.welcome}`;
+    `&allowStartStopRecording=true&autoStartRecording=false&welcome=${parameters.welcome}`;
   const query = createParameter !== undefined ? `${baseQuery}&${createParameter}` : baseQuery;
-  const apiCall = `create${query}${params.secret}`;
+  const apiCall = `create${query}${parameters.secret}`;
   const checksum = getChecksum(apiCall, parameters.secret!);
-  const url = `${params.server}/api/create?${query}&checksum=${checksum}`;
+  const url = `${parameters.server}/api/create?${query}&checksum=${checksum}`;
   return url;
 }
 
-export function createMeetingPromise(
-  params: Parameters,
-  createParameter?: string,
-  customMeetingId?: string
-): Promise<AxiosResponse> {
-  const url = createMeetingUrl(params, createParameter, customMeetingId);
+export function createMeetingPromise(createParameter?: string, customMeetingId?: string): Promise<AxiosResponse> {
+  const url = createMeetingUrl(createParameter, customMeetingId);
   return axios.get(url, { adapter: 'http' });
 }
 
-export async function createMeeting(
-  params: Parameters,
-  createParameter?: string,
-  customMeetingId?: string
-): Promise<string> {
-  const promise = createMeetingPromise(params, createParameter, customMeetingId);
+export async function createMeeting(createParameter?: string, customMeetingId?: string): Promise<string> {
+  const promise = createMeetingPromise(createParameter, customMeetingId);
   const response = await promise;
   expect(response.status).toEqual(200);
   const xmlResponse = await xml2js.parseStringPromise(response.data);
   return xmlResponse.response.meetingID[0];
 }
 
-export function getJoinURL(
-  meetingID: string,
-  params: Parameters,
-  moderator: boolean,
-  joinParameter?: string,
-  skipSessionDetailsModal?: boolean
-): string {
-  const pw = moderator ? params.moderatorPW : params.attendeePW;
+export function getJoinURL({ meetingID, fullName, options }: GetJoinUrlProp): string {
+  const { isModerator, joinParameter, skipSessionDetailsModal } = options || {};
+
+  const pw = isModerator ? parameters.moderatorPW : parameters.attendeePW;
   const shouldSkipSessionDetailsModal = skipSessionDetailsModal
     ? '&userdata-bbb_show_session_details_on_join=false'
     : ''; // default value in settings.yml is true
-  const baseQuery = `fullName=${params.fullName}&meetingID=${meetingID}&password=${pw}${shouldSkipSessionDetailsModal}`;
+  const baseQuery = `fullName=${fullName}&meetingID=${meetingID}`
+    + `&password=${pw}${shouldSkipSessionDetailsModal}`; // prettier-ignore
   const query = joinParameter !== undefined ? `${baseQuery}&${joinParameter}` : baseQuery;
   const apiCall = `join${query}${parameters.secret}`;
   const checksum = getChecksum(apiCall, parameters.secret!);
-  return `${params.server}/api/join?${query}&checksum=${checksum}`;
+  return `${parameters.server}/api/join?${query}&checksum=${checksum}`;
 }
 
 export async function checkRootPermission(): Promise<void> {
@@ -137,13 +145,13 @@ export async function checkRootPermission(): Promise<void> {
   });
   await expect(
     checkSudo,
-    'Sudo failed: need to run this test with root permission (can be fixed by running "sudo -v" and entering the password)'
+    'Sudo failed: need to run this test with root permission (can be fixed by running "sudo -v" and entering the password)',
   ).toBeTruthy();
 }
 
 async function sanitizeLog(
   msg: ConsoleMessage,
-  { colorize, drop_references }: { colorize?: boolean; drop_references?: boolean } = {}
+  { colorize, drop_references }: { colorize?: boolean; drop_references?: boolean } = {},
 ): Promise<string> {
   const args = await Promise.all(msg.args().map((itm) => itm.jsonValue()));
 
@@ -287,12 +295,14 @@ export function linkIssue(issueNumber: number): void {
   });
 }
 
-// TODO: testInstance should be MultiUsers when completely migrated
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function initializePages(testInstance: any, browser: Browser, initOptions?: InitOptions): Promise<void> {
+export async function initializePages(
+  testInstance: MultiUsers,
+  browser: Browser,
+  initOptions?: InitOptions,
+): Promise<void> {
   const { isMultiUser, createParameter, joinParameter, testInfo } = initOptions || {};
   const context = await browser.newContext();
   const page = await context.newPage();
-  await testInstance.initModPage(page, true, { createParameter, joinParameter, testInfo });
-  if (isMultiUser) await testInstance.initUserPage(true, context, { createParameter, joinParameter, testInfo });
+  await testInstance.initModPage(page, { createParameter, joinParameter, testInfo });
+  if (isMultiUser) await testInstance.initUserPage(context, { createParameter, joinParameter, testInfo });
 }

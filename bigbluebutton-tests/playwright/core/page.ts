@@ -1,3 +1,4 @@
+/* eslint-disable max-classes-per-file */
 import * as dotenv from 'dotenv';
 import { readFileSync } from 'fs';
 import {
@@ -9,8 +10,9 @@ import {
   Locator,
   Download,
   Page as PlaywrightPage,
+  Frame as PlaywrightFrame,
 } from '@playwright/test';
-import parameters, { Parameters } from './parameters';
+import { parameters } from './parameters';
 import * as helpers from './helpers';
 import { elements as e } from './elements';
 import {
@@ -21,11 +23,11 @@ import {
 } from './constants';
 import { generateSettingsData, Settings } from './settings';
 import Logger from './logger';
-import { Frame } from './frame';
 
 dotenv.config();
 
-interface InitOptions {
+export interface InitOptionsProps {
+  shouldCloseAudioModal?: boolean;
   fullName?: string;
   meetingId?: string;
   createParameter?: string;
@@ -36,6 +38,7 @@ interface InitOptions {
   shouldCheckAllInitialSteps?: boolean;
   shouldAvoidLayoutCheck?: boolean;
   forceErrorLogFailure?: boolean;
+  testInfo?: TestInfo | null;
 }
 
 interface JoinMicrophoneOptions {
@@ -57,8 +60,6 @@ export class Page {
 
   public page: PlaywrightPage;
 
-  public initParameters: Parameters;
-
   public logger: Logger;
 
   public testInfo: TestInfo | null;
@@ -76,7 +77,6 @@ export class Page {
   constructor(browser: Browser, page: PlaywrightPage, testInfo: TestInfo | null = null) {
     this.browser = browser;
     this.page = page;
-    this.initParameters = { ...parameters };
     this.logger = new Logger(this);
     this.testInfo = testInfo || null;
     this.username = '';
@@ -97,8 +97,9 @@ export class Page {
     return new Page(this.browser, contextPages[contextPages.length - 1], this.testInfo);
   }
 
-  async init(isModerator: boolean, shouldCloseAudioModal?: boolean, initOptions?: InitOptions): Promise<void> {
+  async init(isModerator: boolean, initOptions?: InitOptionsProps): Promise<void> {
     const {
+      shouldCloseAudioModal = true,
       fullName,
       meetingId,
       createParameter,
@@ -109,30 +110,28 @@ export class Page {
       shouldCheckAllInitialSteps,
       shouldAvoidLayoutCheck,
       forceErrorLogFailure,
+      testInfo,
     } = initOptions || {};
 
-    if (!isModerator) this.initParameters.moderatorPW = '';
-    if (fullName) this.initParameters.fullName = fullName;
+    if (!this.testInfo && testInfo) this.testInfo = testInfo;
 
-    this.username = this.initParameters.fullName;
+    this.username = fullName ?? parameters.fullName;
     this.isModerator = isModerator;
 
     await helpers.setBrowserLogs(this, forceErrorLogFailure);
 
-    this.meetingId = meetingId || (await helpers.createMeeting(parameters, createParameter, customMeetingId));
-    const joinUrl = helpers.getJoinURL(
-      this.meetingId,
-      this.initParameters,
-      isModerator,
-      joinParameter,
-      skipSessionDetailsModal
-    );
+    this.meetingId = meetingId || (await helpers.createMeeting(createParameter, customMeetingId));
+    const joinUrl = helpers.getJoinURL({
+      meetingID: this.meetingId,
+      fullName: this.username,
+      options: { isModerator, joinParameter, skipSessionDetailsModal },
+    });
     const response = await this.page.goto(joinUrl);
     await expect(response!.ok()).toBeTruthy();
     const hasErrorLabel = await this.checkElement(e.errorMessageLabel);
     await expect(
       hasErrorLabel,
-      'should pass the authentication and the layout element should be displayed'
+      'should pass the authentication and the layout element should be displayed',
     ).toBeFalsy();
     if (shouldCheckAllInitialSteps !== undefined ? shouldCheckAllInitialSteps : true) {
       if (!shouldAvoidLayoutCheck) await this.waitForSelector('div#layout', ELEMENT_WAIT_EXTRA_LONG_TIME);
@@ -152,14 +151,18 @@ export class Page {
 
   async handleDownload(
     locator: Locator,
-    testInfo: TestInfo,
-    timeout: number = ELEMENT_WAIT_TIME
+    testInfo?: TestInfo,
+    timeout: number = ELEMENT_WAIT_TIME,
   ): Promise<HandleDownloadResult> {
     const [download] = await Promise.all([this.page.waitForEvent('download', { timeout }), locator.click({ timeout })]);
     await expect(download).toBeTruthy();
     const filePath = await download.path();
     const content = await readFileSync(filePath!, 'utf8');
-    await testInfo.attach('downloaded', { path: filePath! });
+
+    const currentTestInfo = testInfo ?? this.testInfo;
+    if (currentTestInfo) {
+      await currentTestInfo.attach('downloaded', { path: filePath! });
+    }
 
     return {
       download,
@@ -178,12 +181,15 @@ export class Page {
     await this.waitAndClick(e.microphoneButton);
     await this.waitForSelector(e.stopHearingButton);
     await this.waitAndClick(e.joinEchoTestButton);
-    await this.waitForSelector(e.establishingAudioLabel);
-    await this.wasRemoved(e.establishingAudioLabel, undefined, ELEMENT_WAIT_LONGER_TIME);
-    await this.hasElement(e.unmuteMicButton);
+    await this.wasRemoved(
+      e.establishingAudioLabel,
+      'should have the establish audio label element removed when established',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+    await this.hasElement(e.unmuteMicButton, 'should display the unmute mic button after joining microphone');
     if (shouldUnmute) {
       await this.waitAndClick(e.unmuteMicButton);
-      await this.hasElement(e.muteMicButton);
+      await this.hasElement(e.muteMicButton, 'should display the mute mic button after clicking to unmute');
       await this.checkUserTalkingIndicator();
     }
   }
@@ -222,13 +228,17 @@ export class Page {
       await this.hasElement(
         e.webcamMirroredVideoPreview,
         'should display the video preview when sharing webcam ',
-        videoPreviewTimeout
+        videoPreviewTimeout,
       );
       await this.waitAndClick(e.startSharingWebcam);
     }
     await this.waitForSelector(e.webcamMirroredVideoContainer, VIDEO_LOADING_WAIT_TIME);
     await this.waitForSelector(e.leaveVideo, VIDEO_LOADING_WAIT_TIME);
-    await this.wasRemoved(e.webcamConnecting, undefined, VIDEO_LOADING_WAIT_TIME);
+    await this.wasRemoved(
+      e.webcamConnecting,
+      'should stop showing the webcam sharing element after full connection',
+      VIDEO_LOADING_WAIT_TIME,
+    );
   }
 
   getVisibleLocator(selector: string): Locator {
@@ -279,12 +289,12 @@ export class Page {
   async waitUntilHaveCountSelector(
     selector: string,
     count: number,
-    timeout: number = ELEMENT_WAIT_TIME
+    timeout: number = ELEMENT_WAIT_TIME,
   ): Promise<void> {
     await this.page.waitForFunction(
       ([selector, count]) => document.querySelectorAll(selector as string).length === count,
       [selector, count],
-      { timeout }
+      { timeout },
     );
   }
 
@@ -307,7 +317,7 @@ export class Page {
           (elements[Number(index)] as HTMLElement).click();
         }
       },
-      [element, index]
+      [element, index],
     );
   }
 
@@ -322,10 +332,10 @@ export class Page {
   }
 
   async checkUserTalkingIndicator(): Promise<void> {
-    const isTalkingLocator = await this.page.locator(e.isTalking).locator(`:text-is("${this.username}")`);
+    const isTalkingLocator = this.page.locator(e.isTalking).locator(`:text-is("${this.username}")`);
     await expect(
       isTalkingLocator,
-      `should display the "${this.username}" user's talking indicator to himself`
+      `should display the "${this.username}" user's talking indicator to himself`,
     ).toBeVisible();
   }
 
@@ -335,11 +345,11 @@ export class Page {
         const elements = document.querySelectorAll(selector as string);
         return elements.length > Number(index) && elements[Number(index)] !== null;
       },
-      [selector, index]
+      [selector, index],
     );
   }
 
-  async wasRemoved(selector: string, description?: string, timeout: number = ELEMENT_WAIT_TIME): Promise<void> {
+  async wasRemoved(selector: string, description: string, timeout: number = ELEMENT_WAIT_TIME): Promise<void> {
     const locator = this.page.locator(selector);
     await expect(locator, description).toBeHidden({ timeout });
   }
@@ -349,7 +359,7 @@ export class Page {
     await expect(locator).toBeHidden({ timeout });
   }
 
-  async hasElement(selector: string, description?: string, timeout: number = ELEMENT_WAIT_TIME): Promise<void> {
+  async hasElement(selector: string, description: string, timeout: number = ELEMENT_WAIT_TIME): Promise<void> {
     const locator = this.page.locator(selector);
     await expect(locator, description).toBeVisible({ timeout });
   }
@@ -357,28 +367,28 @@ export class Page {
   async hasNElements(
     selector: string,
     count: number,
-    description?: string,
-    timeout: number = ELEMENT_WAIT_TIME
+    description: string,
+    timeout: number = ELEMENT_WAIT_TIME,
   ): Promise<void> {
     const locator = this.page.locator(`:nth-match(${selector},${count})`);
     await expect(locator, description).toBeVisible({ timeout });
   }
 
-  async hasElementDisabled(selector: string, description?: string, timeout: number = ELEMENT_WAIT_TIME): Promise<void> {
+  async hasElementDisabled(selector: string, description: string, timeout: number = ELEMENT_WAIT_TIME): Promise<void> {
     const locator = this.page.locator(selector);
     await expect(locator, description).toBeDisabled({ timeout });
   }
 
-  async hasElementEnabled(selector: string, description?: string, timeout: number = ELEMENT_WAIT_TIME): Promise<void> {
+  async hasElementEnabled(selector: string, description: string, timeout: number = ELEMENT_WAIT_TIME): Promise<void> {
     const locator = this.page.locator(`${selector}:not([disabled])`);
     await expect(locator, description).toBeEnabled({ timeout });
   }
 
   async hasText(
     selector: string,
-    text: string,
-    description?: string,
-    timeout: number = ELEMENT_WAIT_TIME
+    text: string | RegExp | ReadonlyArray<string | RegExp>,
+    description: string,
+    timeout: number = ELEMENT_WAIT_TIME,
   ): Promise<void> {
     const locator = this.page.locator(selector).first();
     await expect(locator, description).toContainText(text, { timeout });
@@ -420,17 +430,17 @@ export class Page {
     await this.page.mouse.up();
   }
 
-  async hasElementCount(selector: string, count: number, description?: string): Promise<void> {
+  async hasElementCount(selector: string, count: number, description: string): Promise<void> {
     const locator = await this.getVisibleLocator(selector);
     await expect(locator, description).toHaveCount(count, { timeout: ELEMENT_WAIT_TIME });
   }
 
-  async hasHiddenElementCount(selector: string, count: number, description?: string): Promise<void> {
+  async hasHiddenElementCount(selector: string, count: number, description: string): Promise<void> {
     const locator = await this.page.locator(selector);
     await expect(locator, description).toHaveCount(count, { timeout: ELEMENT_WAIT_TIME });
   }
 
-  async hasValue(selector: string, value: string, description?: string): Promise<void> {
+  async hasValue(selector: string, value: string, description: string): Promise<void> {
     const locator = await this.page.locator(selector);
     await expect(locator, description).toHaveValue(value);
   }
@@ -453,7 +463,7 @@ export class Page {
     const avatarInToastElementColor = this.page.locator(selector1);
     const avatarInUserListColor = this.page.locator(selector2);
     await expect(await getBackgroundColorComputed(avatarInToastElementColor)).toStrictEqual(
-      await getBackgroundColorComputed(avatarInUserListColor)
+      await getBackgroundColorComputed(avatarInUserListColor),
     );
   }
 
@@ -488,5 +498,18 @@ export class Page {
     }
     const ytFrame = new Frame(frame);
     return ytFrame;
+  }
+}
+
+class Frame {
+  public frame: PlaywrightFrame;
+
+  constructor(frame: PlaywrightFrame) {
+    this.frame = frame;
+  }
+
+  async hasElement(selector: string, description?: string, timeout: number = ELEMENT_WAIT_TIME): Promise<void> {
+    const locator = this.frame.locator(selector);
+    await expect(locator, description).toBeVisible({ timeout });
   }
 }

@@ -4,7 +4,7 @@ dotenv.config();
 
 const bbbUrl: string | undefined = process.env.BBB_URL;
 
-export interface Parameters {
+export interface ParametersData {
   server: string | undefined;
   secret: string | undefined;
   welcome: string;
@@ -14,7 +14,7 @@ export interface Parameters {
   hostname: string | undefined;
 }
 
-const parameters: Parameters = {
+export const parameters: ParametersData = {
   server: bbbUrl,
   secret: process.env.BBB_SECRET,
   welcome: '%3Cbr%3EWelcome+to+%3Cb%3E%25%25CONFNAME%25%25%3C%2Fb%3E%21',
@@ -23,5 +23,3 @@ const parameters: Parameters = {
   attendeePW: 'ap',
   hostname: bbbUrl ? new URL(bbbUrl).hostname : undefined,
 };
-
-export default parameters;

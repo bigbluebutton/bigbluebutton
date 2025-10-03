@@ -1,27 +1,30 @@
 import dotenv from 'dotenv';
 
-import { PlaywrightTestConfig } from '@playwright/test';
-import { chromiumConfig, firefoxConfig, webkitConfig } from './core/browsersConfig';
+import { defineConfig } from '@playwright/test';
+import { chromiumConfig, firefoxConfig, webkitConfig } from './core/setup/browsersConfig';
 import { ELEMENT_WAIT_TIME, CI, ELEMENT_WAIT_LONGER_TIME } from './core/constants';
 
 dotenv.config();
 
-const config: PlaywrightTestConfig = {
+export default defineConfig({
   workers: CI ? 1 : 2,
   timeout: 3 * 60 * 1000,
-  reporter: CI ? [['blob'], ['./custom-reporter.ts']] : [['list'], ['html', { open: 'never' }]],
+  reporter: CI ? [['blob'], ['./core/setup/customReporter.ts']] : [['list'], ['html', { open: 'never' }]],
   reportSlowTests: null,
   forbidOnly: CI,
-  globalSetup: require.resolve('./global-setup.ts'),
+  retries: CI ? 1 : 0,
+  captureGitInfo: {
+    commit: true,
+    diff: true,
+  },
   use: {
     headless: true,
     trace: 'on',
     screenshot: 'on',
     video: CI ? 'retain-on-failure' : 'on',
     actionTimeout: ELEMENT_WAIT_LONGER_TIME,
-    viewport: { width: 1366, height: 768 },
   },
-  projects: [chromiumConfig, firefoxConfig, webkitConfig],
+  projects: [{ name: 'setup', testMatch: /global\.setup\.ts/ }, chromiumConfig, firefoxConfig, webkitConfig],
   expect: {
     timeout: ELEMENT_WAIT_TIME,
     toMatchSnapshot: {
@@ -31,8 +34,4 @@ const config: PlaywrightTestConfig = {
       maxDiffPixelRatio: 0.05,
     },
   },
-};
-
-if (CI) config.retries = 1;
-
-export default config;
+});

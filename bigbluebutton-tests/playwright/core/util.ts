@@ -25,7 +25,7 @@ interface WbBox {
 export async function checkTextContent(
   baseContent: string,
   checkData: string | string[],
-  description?: string
+  description?: string,
 ): Promise<void> {
   const dataArray = typeof checkData === 'string' ? [checkData] : checkData;
 
