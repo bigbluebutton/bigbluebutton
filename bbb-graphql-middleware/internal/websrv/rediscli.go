@@ -10,6 +10,7 @@ import (
 
 	"bbb-graphql-middleware/config"
 	"bbb-graphql-middleware/internal/common"
+	"bbb-graphql-middleware/internal/hasura"
 	streamingserver "bbb-graphql-middleware/internal/streaming_server"
 
 	"github.com/redis/go-redis/v9"
@@ -39,6 +40,7 @@ var allowedMessages = []string{
 	"ModifyWhiteboardAccessEvtMsg",
 	"UserLeftMeetingEvtMsg",
 	"MeetingEndedEvtMsg",
+	"MeetingCreatedEvtMsg",
 }
 
 func StartRedisListener() {
@@ -102,6 +104,9 @@ func StartRedisListener() {
 		if messageName == "SetCurrentPageEvtMsg" || messageName == "ModifyWhiteboardAccessEvtMsg" {
 			log.Debugf("Removing cursor positions for meeting: %s", receivedMessage.Core.Header.MeetingId)
 			go streamingserver.RemoveMeetingCursorsCache(receivedMessage.Core.Header.MeetingId)
+		}
+		if messageName == "MeetingCreatedEvtMsg" {
+			go hasura.PreLoadMeetingStaticDataCache(receivedMessage)
 		}
 		if messageName == "MeetingEndedEvtMsg" {
 			log.Debugf("Removing cursor positions for meeting: %s", receivedMessage.Core.Body["meetingId"].(string))

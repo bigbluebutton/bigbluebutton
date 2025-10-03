@@ -46,7 +46,8 @@ type Config struct {
 		Password string `yaml:"password"`
 	} `yaml:"redis"`
 	Hasura struct {
-		Url string `yaml:"url"`
+		Url                          string `yaml:"url"`
+		MeetingStaticDataInternalUrl string `yaml:"meetingStaticDataInternalUrl"`
 	} `yaml:"hasura"`
 	GraphqlActions struct {
 		Url string `yaml:"url"`

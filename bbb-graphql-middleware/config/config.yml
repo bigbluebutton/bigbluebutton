@@ -33,6 +33,7 @@ redis:
   password: ""
 hasura:
   url: ws://127.0.0.1:8185/v1/graphql
+  meetingStaticDataInternalUrl: https://127.0.0.1/api/rest/meetingStaticDataInternal
 graphql-actions:
   url: http://127.0.0.1:8093
 auth_hook:
