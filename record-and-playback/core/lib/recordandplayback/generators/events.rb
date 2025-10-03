@@ -1339,20 +1339,53 @@ module BigBlueButton
       return false
     end
 
-    def self.get_screenshare_as_content_events(events)
-      BigBlueButton.logger.info("Extracting SetScreenshareAsContentEvent")
+    def self.get_screenshare_as_content_events(events, start_time, end_time)
+      BigBlueButton.logger.info('Getting Screenshare as Content Events')
+
+      initial_timestamp = first_event_timestamp(events)
+      start_time -= initial_timestamp
+      end_time -= initial_timestamp
+
+      last_stop_timestamp = start_time
+      offset = start_time
+      # Recordings without status events are assumed to have been recorded from the beginning
+      record = events.at_xpath('/recording/event[@eventname="RecordStatusEvent"]').nil?
 
       screenshare_content_events = []
+      last_screenshare_as_content = nil
 
-      events.xpath("/recording/event[@eventname='SetScreenshareAsContentEvent']").each do |event|
-        screenshare_content_events << {
-          timestamp: event['timestamp'].to_i,
-          timestampUTC: event.at_xpath('timestampUTC')&.text.to_i,
-          date: event.at_xpath('date')&.text,
-          screenshareAsContent: event.at_xpath('screenshareAsContent')&.text == "true"
-        }
+      events.xpath('/recording/event').each do |event|
+        timestamp = event[:timestamp].to_i - initial_timestamp
+        break if timestamp >= end_time
+
+        case [event[:module], event[:eventname]]
+        when %w[PARTICIPANT SetScreenshareAsContentEvent]
+          last_screenshare_as_content = event.at_xpath('screenshareAsContent')&.text == "true"
+          next if timestamp < start_time || !record
+
+          screenshareAsContent = event.at_xpath('screenshareAsContent')&.text == "true"
+
+          screenshare_content_events << {
+            timestamp: timestamp - offset,
+            screenshareAsContent: screenshareAsContent,
+          }
+        when %w[PARTICIPANT RecordStatusEvent]
+          is_recording = event.at_xpath('status').content == 'true'
+          next if timestamp < start_time
+
+          if is_recording && !record # Recording resumed
+            offset += timestamp - last_stop_timestamp
+            screenshare_content_events << {
+              timestamp: timestamp - offset,
+              screenshareAsContent: last_screenshare_as_content,
+            } if !last_screenshare_as_content.nil?
+          elsif !is_recording && record # Recording paused
+            last_stop_timestamp = timestamp
+          end
+          record = is_recording
+        end
       end
-      screenshare_content_events.sort_by! { |event| event[:timestamp] }
+      screenshare_content_events
     end
   end
 end

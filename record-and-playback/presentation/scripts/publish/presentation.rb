@@ -947,14 +947,13 @@ def process_presentation(package_dir)
       end
 
     when 'SetScreenshareAsContentEvent'
-      if @presentation_props['include_deskshare']
-        screenshareAsContent = event.at_xpath('screenshareAsContent')&.text == "true"
-        if !screenshareAsContent
-          deskshare = false
-          slide_changed = true
-        else
-          deskshare = slide_changed = true
-        end
+      next unless @presentation_props['include_deskshare']
+      screenshare_as_content = event.at_xpath('screenshareAsContent')&.text == "true"
+      if screenshare_as_content
+        deskshare = slide_changed = true
+      else
+        deskshare = false
+        slide_changed = true
       end
 
     when 'AddShapeEvent', 'ModifyTextEvent'
@@ -1314,30 +1313,16 @@ end
 
 def process_swap_events(events)
   BigBlueButton.logger.info("Processing screenshare as content events")
-  swap_events = BigBlueButton::Events.get_screenshare_as_content_events(events)
+  swap_events = BigBlueButton::Events.get_screenshare_as_content_events(events, @meeting_start.to_i, @meeting_end.to_i)
   @layout_swap_xml = Builder::XmlMarkup.new(indent: 2)
   @layout_swap_xml.instruct!
 
   @layout_swap_xml.recording('id' => 'layout_swap_events') do
-    @rec_events.each do |re|
-      # consider the last swap event before the current recording start
-      last_event_before_start = swap_events.select { |e| e[:timestamp].to_i < re[:start_timestamp] }.last
-      if last_event_before_start && last_event_before_start[:timestamp].to_i < re[:stop_timestamp]
-        @layout_swap_xml.event(
-          timestamp: (translate_timestamp(last_event_before_start[:timestamp].to_f) / 1000).round(1),
-          show_screenshare: last_event_before_start[:screenshareAsContent],
-        )
-      end
-
-      swap_events.each do |event|
-        timestamp = event[:timestamp].to_i
-        next unless (timestamp >= re[:start_timestamp]) && (timestamp <= re[:stop_timestamp])
-
-        @layout_swap_xml.event(
-          timestamp: (translate_timestamp(event[:timestamp].to_f) / 1000).round(1),
-          show_screenshare: event[:screenshareAsContent],
-        )
-      end
+    swap_events.each do |event|
+      @layout_swap_xml.event(
+        timestamp: (event[:timestamp].to_f / 1000.0).round(1),
+        show_screenshare: event[:screenshareAsContent],
+      )
     end
   end
 end
