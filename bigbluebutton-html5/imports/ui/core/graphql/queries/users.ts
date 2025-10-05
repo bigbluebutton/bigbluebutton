@@ -54,11 +54,7 @@ subscription UserListSubscription($offset: Int!, $limit: Int!) {
     cameras {
       streamId
     }
-    presPagesWritable {
-      isCurrentPage
-      pageId
-      userId
-    }
+    whiteboardWriteAccess
     lastBreakoutRoom {
       isDefaultName
       sequence

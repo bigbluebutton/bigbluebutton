@@ -91,7 +91,7 @@ const PresentationContainer = (props) => {
 
   useSubscription(ANNOTATION_HISTORY_STREAM, {
     variables: { pageId: currentPageId, updatedAt: lastUpdatedAt },
-    skip: !currentPresentationPage || !canStream,
+    skip: !currentPageId || !canStream,
     onData: ({ data: subscriptionData }) => {
       const annotationStream = subscriptionData.data?.pres_annotation_history_curr_stream || [];
       if (annotationStream.length > 0 && restoreOnUpdate && !presentationIsOpen) {

@@ -75,11 +75,6 @@ subscription userCurrentSubscription {
     livekit {
       livekitToken
     }
-    presPagesWritable {
-      isCurrentPage
-      pageId
-      userId
-    }
   }
 }
 `;

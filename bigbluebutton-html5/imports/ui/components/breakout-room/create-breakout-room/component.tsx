@@ -35,8 +35,9 @@ import { notify } from '/imports/ui/services/notification';
 import useTimeSync from '/imports/ui/core/local-states/useTimeSync';
 import { getRemainingMeetingTime, isNewTimeValid } from '/imports/ui/core/utils/calculateRemaingTime';
 
-const MIN_BREAKOUT_ROOMS = 2;
+const MIN_BREAKOUT_ROOMS = 1;
 const MIN_BREAKOUT_TIME = 5;
+const DEFAULT_BREAKOUT_ROOMS = 2;
 const DEFAULT_BREAKOUT_TIME = 15;
 const CURRENT_SLIDE_PREFIX = 'current-';
 
@@ -240,7 +241,7 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
   const { isMobile } = deviceInfo;
   const intl = useIntl();
 
-  const initialNumberOfRooms = runningRooms.length > 0 ? runningRooms.length : MIN_BREAKOUT_ROOMS;
+  const initialNumberOfRooms = runningRooms.length > 0 ? runningRooms.length : DEFAULT_BREAKOUT_ROOMS;
 
   const isImportPresentationWithAnnotationsEnabled = useIsImportPresentationWithAnnotationsFromBreakoutRoomsEnabled();
   const isImportSharedNotesEnabled = useIsImportSharedNotesFromBreakoutRoomsEnabled();

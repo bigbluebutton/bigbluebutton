@@ -609,15 +609,18 @@ CREATE UNLOGGED TABLE "user_graphqlConnection" (
 	"closedAt" timestamp with time zone
 );
 
-CREATE INDEX "idx_user_graphqlConnection_sessionToken_closedAt" ON "user_graphqlConnection" ("sessionToken", "closedAt");
+CREATE INDEX "idx_user_graphqlConnection_sessionToken_closedAt" ON "user_graphqlConnection" ("sessionToken") where "closedAt" is null;
 
 
 create view "v_user_session" as
-select ust."meetingId", ust."userId", ust."sessionToken", ust."sessionName", ust."enforceLayout", count(ugc."graphqlConnectionId") as "connectionsAlive"
+select ust."meetingId", ust."userId", ust."sessionToken", ust."sessionName", ust."enforceLayout",
+(   select count(1)
+    from "user_graphqlConnection" ugc
+    where ugc."sessionToken" = ust."sessionToken"
+    and ugc."closedAt" is null) as "connectionsAlive"
 from "user_sessionToken" ust
-left join "user_graphqlConnection" ugc on ugc."sessionToken" = ust."sessionToken" and ugc."closedAt" is null
 where ust."removedAt" is null
-group by ust."meetingId", ust."userId", ust."sessionToken", ust."sessionName", ust."enforceLayout";
+;
 
 create unlogged table "user_metadata"(
     "meetingId" varchar(100),
@@ -773,6 +776,10 @@ CREATE INDEX "idx_user_camera_meeting_contentType" ON "user_camera"("meetingId",
 CREATE OR REPLACE VIEW "v_user_camera" AS
 SELECT * FROM "user_camera";
 
+-- this view will be used specifically for the join with user_current
+CREATE OR REPLACE VIEW "v_user_current_camera" AS
+SELECT * FROM "user_camera";
+
 CREATE UNLOGGED TABLE "user_breakoutRoom" (
 	"meetingId" varchar(100),
     "userId" varchar(50),
@@ -787,6 +794,10 @@ CREATE UNLOGGED TABLE "user_breakoutRoom" (
 CREATE INDEX "idx_user_breakoutRoom_pk_reverse" ON "user_breakoutRoom"("userId", "meetingId");
 
 CREATE OR REPLACE VIEW "v_user_breakoutRoom" AS
+SELECT * FROM "user_breakoutRoom";
+
+-- this view will be used specifically for the join with user_current
+CREATE OR REPLACE VIEW "v_user_current_breakoutRoom" AS
 SELECT * FROM "user_breakoutRoom";
 
 CREATE UNLOGGED TABLE "user_connectionStatus" (
@@ -1082,6 +1093,7 @@ CREATE UNLOGGED TABLE "chat_user" (
 	"startedTypingAt" timestamp with time zone,
 	"lastTypingAt" timestamp with time zone,
 	"visible" boolean,
+	"totalUnreadMessages" integer,
 	CONSTRAINT "chat_user_pkey" PRIMARY KEY ("meetingId","chatId","userId"),
     CONSTRAINT chat_fk FOREIGN KEY ("chatId", "meetingId") REFERENCES "chat"("chatId", "meetingId") ON DELETE CASCADE
 );
@@ -1199,6 +1211,97 @@ CREATE TRIGGER "trigger_update_chat_totalMessages"
 AFTER INSERT OR DELETE ON "chat_message" FOR EACH ROW
 EXECUTE FUNCTION "update_chat_totalMessages"();
 
+-- Start of Triggers related with totalUnreadMessages
+
+CREATE OR REPLACE FUNCTION "update_chat_user_totalUnreadMessages"(_meetingId text, _chatId text, _userId text DEFAULT NULL)
+RETURNS void AS $$
+BEGIN
+  UPDATE "chat_user" cu
+  SET "totalUnreadMessages" = (
+    SELECT COUNT(1)
+    FROM chat_message cm
+    JOIN "user" u
+      ON u."meetingId" = cu."meetingId"
+     AND u."userId"    = cu."userId"
+    WHERE cm."meetingId" = cu."meetingId"
+      AND cm."chatId"    = cu."chatId"
+      AND cm."senderId" <> cu."userId"
+      AND cm."createdAt" > COALESCE(cu."lastSeenAt", u."registeredAt")
+  )
+  WHERE cu."meetingId" = _meetingId
+    AND cu."chatId"    = _chatId
+    AND (_userId IS NULL OR cu."userId" = _userId)
+    AND cu."totalUnreadMessages" IS DISTINCT FROM (
+      SELECT COUNT(1)
+      FROM chat_message cm
+      JOIN "user" u
+        ON u."meetingId" = cu."meetingId"
+       AND u."userId"    = cu."userId"
+      WHERE cm."meetingId" = cu."meetingId"
+        AND cm."chatId"    = cu."chatId"
+        AND cm."senderId" <> cu."userId"
+        AND cm."createdAt" > COALESCE(cu."lastSeenAt", u."registeredAt")
+    );
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION "trg_chat_message_update_unread"()
+RETURNS TRIGGER AS $$
+DECLARE
+  _meetingId text;
+  _chatId    text;
+BEGIN
+  IF TG_OP = 'DELETE' THEN
+    _meetingId := OLD."meetingId";
+    _chatId    := OLD."chatId";
+  ELSE
+    _meetingId := NEW."meetingId";
+    _chatId    := NEW."chatId";
+  END IF;
+
+  PERFORM "update_chat_user_totalUnreadMessages"(_meetingId, _chatId, NULL);
+  RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER "trg_chat_message_update_unread"
+AFTER DELETE ON "chat_message"
+FOR EACH ROW EXECUTE FUNCTION "trg_chat_message_update_unread"();
+
+CREATE OR REPLACE FUNCTION "trg_chat_user_update_unread"()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF NEW."lastSeenAt" IS DISTINCT FROM OLD."lastSeenAt" THEN
+    PERFORM "update_chat_user_totalUnreadMessages"(NEW."meetingId", NEW."chatId", NEW."userId");
+  END IF;
+  RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_chat_user_update_unread
+AFTER UPDATE OF "lastSeenAt" ON "chat_user"
+FOR EACH ROW EXECUTE FUNCTION "trg_chat_user_update_unread"();
+
+
+
+CREATE OR REPLACE FUNCTION "update_chat_user_totalUnreadMessagesInsert"() RETURNS TRIGGER AS $$
+BEGIN
+  UPDATE "chat_user" cu
+  SET "totalUnreadMessages" = coalesce("totalUnreadMessages",0) + 1
+  WHERE cu."meetingId" = NEW."meetingId"
+    AND cu."chatId"    = NEW."chatId"
+    AND cu."userId"    != NEW."senderId";
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER "trg_chat_message_update_unreadInsert"
+AFTER INSERT ON "chat_message"
+FOR EACH ROW EXECUTE FUNCTION "update_chat_user_totalUnreadMessagesInsert"();
+
+
+-- End of Triggers related with totalUnreadMessages
+
 
 CREATE OR REPLACE FUNCTION "update_chatUser_clear_lastTypingAt_trigger_func"() RETURNS TRIGGER AS $$
 BEGIN
@@ -1257,15 +1360,7 @@ SELECT 	"user"."meetingId",
 		cu."visible",
 		chat_with."userId" AS "participantId",
 		"chat"."totalMessages",
-		(
-            select count(1)
-            from chat_message cm
-            where cm."meetingId" = chat."meetingId"
-            and cm."chatId" = chat."chatId"
-            and cm."senderId" != "user"."userId"
-            and cm."createdAt" < current_timestamp - '2 seconds'::interval --set a delay while user send lastSeenAt
-            and cm."createdAt" > coalesce(cu."lastSeenAt","user"."registeredAt")
-        ) "totalUnread",
+		cu."totalUnreadMessages" AS "totalUnread",
 		cu."lastSeenAt",
 		CASE WHEN "chat"."access" = 'PUBLIC_ACCESS' THEN true ELSE false end "public"
 FROM "user"
@@ -2371,6 +2466,7 @@ CREATE UNLOGGED TABLE "pluginDataChannelEntry" (
 	"toRoles" varchar[], --MODERATOR, VIEWER, PRESENTER
 	"toUserIds" varchar[],
 	"createdAt" timestamp with time zone DEFAULT current_timestamp,
+	"updatedAt" timestamp with time zone DEFAULT current_timestamp,
 	"deletedAt" timestamp with time zone,
 	CONSTRAINT "pluginDataChannel_pkey" PRIMARY KEY ("meetingId","pluginName","channelName","entryId", "subChannelName"),
 	FOREIGN KEY ("meetingId", "createdBy") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
@@ -2382,7 +2478,7 @@ create index "idx_pluginDataChannelEntry_channelName" on "pluginDataChannelEntry
 create index "idx_pluginDataChannelEntry_roles" on "pluginDataChannelEntry"("meetingId", "toRoles", "toUserIds", "createdAt") where "deletedAt" is null;
 
 CREATE OR REPLACE VIEW "v_pluginDataChannelEntry" AS
-SELECT u."meetingId", u."userId", m."pluginName", m."channelName", m."subChannelName", m."entryId", m."payloadJson", m."createdBy", m."toRoles", m."createdAt"
+SELECT u."meetingId", u."userId", m."pluginName", m."channelName", m."subChannelName", m."entryId", m."payloadJson", m."createdBy", m."toRoles", m."createdAt", m."updatedAt"
 FROM "user" u
 JOIN "pluginDataChannelEntry" m ON m."meetingId" = u."meetingId"
 			AND ((m."toRoles" IS NULL AND m."toUserIds" IS NULL)
