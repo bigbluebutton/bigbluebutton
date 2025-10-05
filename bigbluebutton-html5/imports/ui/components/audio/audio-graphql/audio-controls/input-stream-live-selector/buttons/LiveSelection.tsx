@@ -243,9 +243,8 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
 
     if (!deviceId) return;
     const Settings = getSettingsSingletonInstance();
-    const { persistanceForAudioAndVideoDevices } = Settings.application;
-    console.log('persistanceForAudioAndVideoDevices:' + persistanceForAudioAndVideoDevices);
-    if (persistanceForAudioAndVideoDevices) {
+    const { persistenceForAudioAndVideoDevices } = Settings.application;
+    if (persistenceForAudioAndVideoDevices) {
       localStorage.setItem(`BBB${deviceKind}`, deviceId);
     }
     if (deviceKind === AUDIO_INPUT) {

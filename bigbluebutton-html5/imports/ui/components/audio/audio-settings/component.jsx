@@ -176,15 +176,14 @@ class AudioSettings extends React.Component {
         }
         this.setState({ findingDevices: false });
         const Settings = getSettingsSingletonInstance();
-        const { persistanceForAudioAndVideoDevices } = Settings.application;
-        console.log(`persistanceForAudioAndVideoDevices:${persistanceForAudioAndVideoDevices}`);
+        const { persistenceForAudioAndVideoDevices } = Settings.application;
 
-        if (localStorage.getItem('BBBaudioinput') && persistanceForAudioAndVideoDevices) {
+        if (localStorage.getItem('BBBaudioinput') && persistenceForAudioAndVideoDevices) {
           this.setInputDevice(localStorage.getItem('BBBaudioinput'));
         } else {
           this.setInputDevice(inputDeviceId);
         }
-        if (localStorage.getItem('BBBaudiooutput') && persistanceForAudioAndVideoDevices) {
+        if (localStorage.getItem('BBBaudiooutput') && persistenceForAudioAndVideoDevices) {
           this.setOutputDevice(localStorage.getItem('BBBaudiooutput'));
         } else {
           this.setOutputDevice(outputDeviceId);
@@ -231,9 +230,8 @@ class AudioSettings extends React.Component {
 
   handleInputChange(deviceId) {
     const Settings = getSettingsSingletonInstance();
-    const { persistanceForAudioAndVideoDevices } = Settings.application;
-    console.log(`persistanceForAudioAndVideoDevices:${persistanceForAudioAndVideoDevices}`);
-    if (persistanceForAudioAndVideoDevices) {
+    const { persistenceForAudioAndVideoDevices } = Settings.application;
+    if (persistenceForAudioAndVideoDevices) {
       localStorage.setItem('BBBaudioinput', deviceId);
     }
     this.setInputDevice(deviceId);
@@ -241,9 +239,8 @@ class AudioSettings extends React.Component {
 
   handleOutputChange(deviceId) {
     const Settings = getSettingsSingletonInstance();
-    const { persistanceForAudioAndVideoDevices } = Settings.application;
-    console.log(`persistanceForAudioAndVideoDevices:${persistanceForAudioAndVideoDevices}`);
-    if (persistanceForAudioAndVideoDevices) {
+    const { persistenceForAudioAndVideoDevices } = Settings.application;
+    if (persistenceForAudioAndVideoDevices) {
       localStorage.setItem('BBBaudiooutput', deviceId);
     }
     this.setOutputDevice(deviceId);

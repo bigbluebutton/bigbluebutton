@@ -186,7 +186,7 @@ public:
     userSettingsStorage: session
     defaultSettings:
       application:
-        persistanceForAudioAndVideoDevices: false
+        persistenceForAudioAndVideoDevices: false
         selectedLayout: 'custom'
         pushLayout: false
         animations: true

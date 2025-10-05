@@ -319,9 +319,9 @@ class VideoPreview extends Component {
       let initialDeviceId = processedCamerasList[0]?.deviceId || webcamDeviceId;
       
       const Settings = getSettingsSingletonInstance();
-      const { persistanceForAudioAndVideoDevices } = Settings.application;
+      const { persistenceForAudioAndVideoDevices } = Settings.application;
 
-      if (persistanceForAudioAndVideoDevices){
+      if (persistenceForAudioAndVideoDevices){
         const storedWebcamId = localStorage.getItem('BBBwebcaminput');
         if (storedWebcamId && digestedWebcams.some(cam => cam.deviceId === storedWebcamId)) {
           initialDeviceId = storedWebcamId;
@@ -631,8 +631,8 @@ class VideoPreview extends Component {
       startSharingCameraAsContent(webcamDeviceId);
     }
     const Settings = getSettingsSingletonInstance();
-    const { persistanceForAudioAndVideoDevices } = Settings.application;
-    if (persistanceForAudioAndVideoDevices) {
+    const { persistenceForAudioAndVideoDevices } = Settings.application;
+    if (persistenceForAudioAndVideoDevices) {
       localStorage.setItem('BBBwebcaminput', webcamDeviceId);
     }
   }
