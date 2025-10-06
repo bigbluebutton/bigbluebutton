@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, memo } from 'react';
 import { useIntl } from 'react-intl';
 import { useMutation, useReactiveVar } from '@apollo/client';
 import getFromUserSettings from '/imports/ui/services/users-settings';
@@ -37,6 +37,7 @@ import { SMALL_VIEWPORT_BREAKPOINT } from '../layout/enums';
 const isLayeredView = window.matchMedia(`(max-width: ${SMALL_VIEWPORT_BREAKPOINT}px)`);
 
 const ActionsBarContainer = (props) => {
+  const { presentationIsOpen } = props;
   const LAYOUT_CONFIG = window.meetingClientSettings.public.layout;
   const { showPushLayoutButton } = LAYOUT_CONFIG;
   const actionsBarStyle = layoutSelectOutput((i) => i.actionBar);
@@ -115,44 +116,41 @@ const ActionsBarContainer = (props) => {
 
   const isSharedNotesPinned = isSharedNotesPinnedFromGraphql;
   return (
-    <ActionsBar {
-      ...{
-        ...props,
-        enableVideo: getFromUserSettings('bbb_enable_video', window.meetingClientSettings.public.kurento.enableVideo),
-        showScreenshareQuickSwapButton: window.meetingClientSettings
-          .public.layout.showScreenshareQuickSwapButton,
-        multiUserTools: getFromUserSettings('bbb_multi_user_tools', window.meetingClientSettings.public.whiteboard.toolbar.multiUserTools),
-        isReactionsButtonEnabled,
-        setPresentationIsOpen: MediaService.setPresentationIsOpen,
-        hasScreenshare: currentMeeting?.componentsFlags?.hasScreenshare ?? false,
-        isMeteorConnected: connected,
-        hasCameraAsContent: currentMeeting?.componentsFlags?.hasCameraAsContent,
-        intl,
-        allowExternalVideo,
-        isPollingEnabled,
-        isPresentationEnabled,
-        isRaiseHandEnabled,
-        currentUser,
-        amIModerator,
-        layoutContextDispatch,
-        actionsBarStyle,
-        amIPresenter,
-        actionBarItems,
-        isThereCurrentPresentation,
-        isSharingVideo,
-        stopExternalVideoShare,
-        isSharedNotesPinned,
-        isTimerActive: currentMeeting?.componentsFlags?.hasTimer,
-        isTimerEnabled: isTimerFeatureEnabled,
-        hasGenericContent: isThereGenericMainContent,
-        setPushLayout,
-        setMeetingLayout,
-        showPushLayout: showPushLayoutButton && applicationSettings.selectedLayout === 'custom',
-        ariaHidden,
-      }
-    }
+    <ActionsBar
+      presentationIsOpen={presentationIsOpen}
+      enableVideo={getFromUserSettings('bbb_enable_video', window.meetingClientSettings.public.kurento.enableVideo)}
+      showScreenshareQuickSwapButton={window.meetingClientSettings
+        .public.layout.showScreenshareQuickSwapButton}
+      multiUserTools={getFromUserSettings('bbb_multi_user_tools', window.meetingClientSettings.public.whiteboard.toolbar.multiUserTools)}
+      isReactionsButtonEnabled={isReactionsButtonEnabled}
+      setPresentationIsOpen={MediaService.setPresentationIsOpen}
+      hasScreenshare={currentMeeting?.componentsFlags?.hasScreenshare ?? false}
+      isMeteorConnected={connected}
+      hasCameraAsContent={currentMeeting?.componentsFlags?.hasCameraAsContent}
+      intl={intl}
+      allowExternalVideo={allowExternalVideo}
+      isPollingEnabled={isPollingEnabled}
+      isPresentationEnabled={isPresentationEnabled}
+      isRaiseHandEnabled={isRaiseHandEnabled}
+      currentUser={currentUser}
+      amIModerator={amIModerator}
+      layoutContextDispatch={layoutContextDispatch}
+      actionsBarStyle={actionsBarStyle}
+      amIPresenter={amIPresenter}
+      actionBarItems={actionBarItems}
+      isThereCurrentPresentation={isThereCurrentPresentation}
+      isSharingVideo={isSharingVideo}
+      stopExternalVideoShare={stopExternalVideoShare}
+      isSharedNotesPinned={isSharedNotesPinned}
+      isTimerActive={currentMeeting?.componentsFlags?.hasTimer}
+      isTimerEnabled={isTimerFeatureEnabled}
+      hasGenericContent={isThereGenericMainContent}
+      setPushLayout={setPushLayout}
+      setMeetingLayout={setMeetingLayout}
+      showPushLayout={showPushLayoutButton && applicationSettings.selectedLayout === 'custom'}
+      ariaHidden={ariaHidden}
     />
   );
 };
 
-export default ActionsBarContainer;
+export default memo(ActionsBarContainer);
