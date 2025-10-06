@@ -393,6 +393,20 @@ export class Shape {
   }
 
   /**
+     * Gets the smallest character width of a given text string using
+     * font metrics.
+    * @param {string} text - The text to measure.
+    * @param {opentype.Font} font - The loaded font object.
+    * @param {number} fontSize - The size of the font.
+    * @return {number} The width of the smallest character.
+    */
+  getSmallestCharWidth(text, font, fontSize) {
+    const widths = text.split('')
+        .map((char) => this.measureTextWidth(char, font, fontSize));
+    return Math.min(...widths);
+  }
+
+  /**
    * Wraps text to fit within a specified width and height.
    * @param {string} text - The text to wrap.
    * @param {number} width - The width of the bounding box.
@@ -428,13 +442,12 @@ export class Shape {
     const parsedFont = opentype.parse(decompressedArrayBuffer);
     const fontSize = Shape.determineFontSize(this.size, this.type);
 
-    width -= this.padding * 2;
-
     // In order to avoid bad line breaks due to rendering mismatch between
     // environments (browser and CairoSVG) we add some spacing for safety.
-    // Such spacing needs to be less than half the average character width
-    // to not mess up original line breaks.
-    width += fontSize * 0.5;
+    width += (this.getSmallestCharWidth(text, parsedFont, fontSize) - 1);
+
+    // Subtract inline padding
+    width -= (this.padding * 2);
 
     const _wrapText = (token, availableWidth) => {
       let prefix = '';
