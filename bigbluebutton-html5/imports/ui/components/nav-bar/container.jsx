@@ -81,6 +81,8 @@ const NavBarContainer = ({ children, ...props }) => {
     }
   }
 
+  const hasUnreadNotes = useHasUnreadNotes();
+
   if (hideNavBar || navBar.display === false) return null;
 
   let pluginNavBarItems = [];
@@ -89,8 +91,6 @@ const NavBarContainer = ({ children, ...props }) => {
       ...pluginsExtensibleAreasAggregatedState.navBarItems,
     ];
   }
-
-  const hasUnreadNotes = useHasUnreadNotes();
 
   return (
     <NavBar
