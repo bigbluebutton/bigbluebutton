@@ -49,6 +49,7 @@ export class Shape {
     this.fill = this.props?.fill;
     this.text = this.props?.text;
     this.padding = this.props?.padding ?? 0;
+    this.scale = this.props?.scale ?? 1;
 
     // Derived SVG properties
     this.thickness = Shape.getStrokeWidth(this.size);
@@ -133,7 +134,8 @@ export class Shape {
     const translate = `translate(${x} ${y})`;
     const transformOrigin = 'transform-origin: center';
     const rotate = `rotate(${rotation})`;
-    const transform = `${translate}; ${transformOrigin}; ${rotate}`;
+    const scale = `scale(${this.scale})`;
+    const transform = `${translate}; ${transformOrigin}; ${rotate}; ${scale}`;
 
     return transform;
   }
