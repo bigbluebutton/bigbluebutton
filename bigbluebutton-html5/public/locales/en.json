@@ -1,5 +1,4 @@
 {
-    "app.test": "Test",
     "app.home.greeting": "Your presentation will begin shortly ...",
     "app.chat.submitLabel": "Send message",
     "app.chat.errorMaxMessageLength": "The message is too long, exceeded the maximum of {maxMessageLength} characters",
