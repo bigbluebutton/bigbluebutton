@@ -12,6 +12,7 @@ import fs from 'fs';
  * @property {'fill'} FillColor - Solid fill color inside the shape.
  * @property {'semi'} SemiFillColor - Semi fill shape color.
  * @property {'sticky'} StickyColor - Color for sticky notes.
+ * @property {'highlight'} HighlightColor - Color for highlight drawings.
  */
 export class Shape {
   /**
@@ -164,6 +165,21 @@ export class Shape {
       'red': '#D61A25',
     };
 
+    const highlightMap = {
+      'black': '#fddd00',
+      'blue': '#10acff',
+      'green': '#00ffc8',
+      'grey': '#cbe7f1',
+      'light-blue': '#00f4ff',
+      'light-green': '#65f641',
+      'light-red': '#ff7fa3',
+      'light-violet': '#ff88ff',
+      'orange': '#ffa500',
+      'red': '#ff636e',
+      'violet': '#c77cff',
+      'yellow': '#fddd00',
+    };
+
     const fillMap = {
       'black': '#E2E2E2',
       'grey': '#E7EAEC',
@@ -203,6 +219,7 @@ export class Shape {
       fill: fillMap,
       semi: semiFillMap,
       sticky: stickyMap,
+      highlight: highlightMap,
     };
 
     return colors[colorType][color] || '#0d0d0d';
@@ -559,4 +576,5 @@ export const ColorTypes = Object.freeze({
   FillColor: 'fill',
   SemiFillColor: 'semi',
   StickyColor: 'sticky',
+  HighlightColor: 'highlight',
 });
