@@ -6,7 +6,7 @@ import { colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import CommonHeader from '/imports/ui/components/common/control-header/component';
 
-const Notes = styled.div<{ isChrome: boolean }>`
+const Notes = styled.div<{ isChrome: boolean, isOnMediaArea: boolean, isHidden: boolean }>`
   background-color: ${colorWhite};
   padding: ${mdPaddingX};
   display: flex;
@@ -25,6 +25,12 @@ const Notes = styled.div<{ isChrome: boolean }>`
       padding: 0;
     }
   }
+
+  ${({ isOnMediaArea, isHidden }) => {
+    if (isOnMediaArea) return 'position: absolute;';
+    if (isHidden) return 'padding: 0; display: none;';
+    return '';
+  }}
 `;
 
 const Header = styled(CommonHeader)`

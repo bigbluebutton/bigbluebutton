@@ -12,6 +12,7 @@ import Styled from './styles';
 import ErrorBoundary from '/imports/ui/components/common/error-boundary/component';
 import FallbackView from '/imports/ui/components/common/fallback-errors/fallback-view/component';
 import GenericContentSidekickContainer from '/imports/ui/components/generic-content/generic-sidekick-content/container';
+import NotesRenderMode from '/imports/ui/components/notes/constants';
 
 const propTypes = {
   top: PropTypes.number.isRequired,
@@ -145,7 +146,8 @@ const SidebarContent = (props) => {
         )}
       {!isSharedNotesPinned && (
         <NotesContainer
-          isToSharedNotesBeShow={sidebarContentPanel === PANELS.SHARED_NOTES}
+          renderMode={NotesRenderMode.SIDEBAR}
+          isVisible={sidebarContentPanel === PANELS.SHARED_NOTES}
         />
       )}
       {sidebarContentPanel === PANELS.BREAKOUT && <BreakoutRoomContainer />}
