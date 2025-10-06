@@ -3,7 +3,7 @@ import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedS
 import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
 import Tooltip from '/imports/ui/components/common/tooltip/component';
 import logger from '/imports/startup/client/logger';
-import { CONNECTION_STATUS_SUMARY, ConnectionStatusSummary, ConnectionStatusSummaryResponse } from '../../queries';
+import { CONNECTION_STATUS_SUMMARY, ConnectionStatusSummary, ConnectionStatusSummaryResponse } from '../../queries';
 import Styled from '../styles';
 
 interface ConnectionStatusSummaryContainerProps {
@@ -162,7 +162,7 @@ const ConnectionStatusSummaryContainer: React.FC<ConnectionStatusSummaryContaine
     data: connectionStatusSummaryData,
     loading: connectionStatusSummaryLoading,
     error: connectionStatusSummaryError,
-  } = useDeduplicatedSubscription<ConnectionStatusSummaryResponse>(CONNECTION_STATUS_SUMARY, {
+  } = useDeduplicatedSubscription<ConnectionStatusSummaryResponse>(CONNECTION_STATUS_SUMMARY, {
     variables: {
       userId,
     },
