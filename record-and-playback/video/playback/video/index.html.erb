@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <title><%= meetingName %></title>
+    <title><%= CGI.escapeHTML(meetingName) %></title>
     <link rel="stylesheet" href="css/normalize.css">
     <link rel="stylesheet" href="video-js/video-js.min.css">
     <link rel="stylesheet" href="css/video.css">
@@ -14,7 +14,7 @@
   </head>
   <body>
     <header>
-      <h1><%= meetingName %></h1>
+      <h1><%= CGI.escapeHTML(meetingName) %></h1>
     </header>
 
     <main>
@@ -28,7 +28,7 @@
               <source src="video-<%= i %>.<%= format[:extension] %>" type="<%= CGI.escapeHTML(format[:mimetype]) %>">
             <% end %>
             <% captions.each do |caption| %>
-              <track kind="captions" label="<%= CGI.escapeHTML(caption['localeName']) %>" src="caption_<%= CGI.escapeHTML(caption['locale']) %>.vtt" srclang="<%= CGI.escapeHTML(caption['locale']) %>.vtt">
+              <track kind="captions" label="<%= CGI.escapeHTML(caption['localeName']) %>" src="caption_<%= CGI.escapeHTML(caption['locale']) %>.vtt" srclang="<%= CGI.escapeHTML(caption['locale']) %>">
             <% end %>
           </video>
         </div>
@@ -37,7 +37,7 @@
         <h2 class="visually-hidden">Chat Messages</h2>
         <input type="checkbox" name="exposechat" id="exposechat" value="exposechat" class="visually-hidden" checked="checked">
         <label for="exposechat" class="visually-hidden">Read chat messages</label>
-        <div id="chat" aria-live="polite" role="region" area-label="Chat Messages"></div>
+        <div id="chat" aria-live="polite" role="region" aria-label="Chat Messages"></div>
       </div>
     </main>
 

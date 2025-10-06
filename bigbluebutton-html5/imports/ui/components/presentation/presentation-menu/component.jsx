@@ -3,18 +3,19 @@ import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import { toPng, toSvg } from 'html-to-image';
 import { toast } from 'react-toastify';
+import { UI_DATA_GETTER_SUBSCRIBED } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data/getters/consts';
+import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import logger from '/imports/startup/client/logger';
 import {
   PresentationDropdownItemType,
 } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/presentation-dropdown-item/enums';
-
+import ConfirmationModal from '/imports/ui/components/common/modal/confirmation/component';
 import Styled from './styles';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 import deviceInfo from '/imports/utils/deviceInfo';
 import browserInfo from '/imports/utils/browserInfo';
-import AppService from '/imports/ui/components/app/service';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import SvgIcon from '/imports/ui/components/common/icon-svg/component';
 
@@ -71,6 +72,26 @@ const intlMessages = defineMessages({
   showToolsDesc: {
     id: 'app.presentation.presentationToolbar.showToolsDesc',
     description: 'Show toolbar label',
+  },
+  clearAnnotationsTitle: {
+    id: 'app.presentation.modal.clearAnnotationsTitle',
+    description: 'Title of clear annotations modal',
+  },
+  clearAnnotationsDescription: {
+    id: 'app.presentation.modal.modClearAnnotationsDesc',
+    description: 'Description of clear annotations modal for presenter and moderator',
+  },
+  viewerClearAnnotationsDescription: {
+    id: 'app.presentation.modal.viewerClearAnnotationsDesc',
+    description: 'Description of clear annotations modal for viewers',
+  },
+  clearAnnotationsCancelLabel: {
+    id: 'app.presentation.modal.clearAnnotationsCancelLabel',
+    description: 'Label for the cancel button',
+  },
+  clearAnnotationsConfirmLabel: {
+    id: 'app.presentation.modal.clearAnnotationsConfirmLabel',
+    description: 'Label for the confirm button',
   },
 });
 
@@ -134,6 +155,83 @@ const PresentationMenu = (props) => {
     loading: false,
   });
 
+  const extractSlideContentToImage = async () => {
+    const { isIos } = deviceInfo;
+    const { isSafari } = browserInfo;
+    const backgroundShape = tldrawAPI.getCurrentPageShapes().find((s) => s.id === `shape:BG-${slideNum}`);
+    const shapes = tldrawAPI.getCurrentPageShapes();
+    const pollShape = shapes.find((shape) => shape.type === 'poll');
+    const svgElem = await tldrawAPI.getSvg(
+      shapes
+        .filter((shape) => shape.type !== 'poll')
+        .map((shape) => shape.id),
+    );
+    svgElem.setAttribute('width', backgroundShape.props.w);
+    svgElem.setAttribute('height', backgroundShape.props.h);
+    svgElem.setAttribute('viewBox', `1 1 ${backgroundShape.props.w} ${backgroundShape.props.h}`);
+    if (pollShape) {
+      const pollShapeElement = document.getElementById(pollShape.id);
+      const pollShapeSvg = await toSvg(pollShapeElement);
+      const pollShapeImage = document.createElementNS('http://www.w3.org/2000/svg', 'image');
+      pollShapeImage.setAttribute('href', pollShapeSvg);
+      pollShapeImage.setAttribute('width', pollShape.props.w);
+      pollShapeImage.setAttribute('height', pollShape.props.h);
+      pollShapeImage.setAttribute('x', pollShape.x);
+      pollShapeImage.setAttribute('y', pollShape.y);
+      svgElem.appendChild(pollShapeImage);
+    }
+
+    if (isIos || isSafari) {
+      const svgString = new XMLSerializer().serializeToString(svgElem);
+      const blob = new Blob([svgString], { type: 'image/svg+xml' });
+
+      return URL.createObjectURL(blob);
+    }
+    const width = svgElem?.width?.baseVal?.value ?? window.screen.width;
+    const height = svgElem?.height?.baseVal?.value ?? window.screen.height;
+
+    return toPng(svgElem, {
+      width,
+      height,
+      backgroundColor: '#FFF',
+      skipFonts: true,
+    });
+  };
+
+  useEffect(() => {
+    const updateUiDataHookPCurrentWhiteboardSVGWithAnnotationsForPlugin = async () => {
+      try {
+        const data = await extractSlideContentToImage();
+        window.dispatchEvent(new CustomEvent(
+          PluginSdk.PresentationWhiteboardUiDataNames.CURRENT_PAGE_SNAPSHOT, {
+            detail: {
+              base64Png: data,
+            },
+          },
+        ));
+      } catch (e) {
+        logger.error({
+          logCode: 'plugin_ui_data_getter_error',
+          extraInfo: {
+            uiDataGetter:
+              PluginSdk.PresentationWhiteboardUiDataNames.CURRENT_PAGE_SNAPSHOT,
+          },
+        }, `UI data getter failed to fetch [${PluginSdk.PresentationWhiteboardUiDataNames.CURRENT_PAGE_SNAPSHOT}]`);
+      }
+    };
+
+    window.addEventListener(
+      `${UI_DATA_GETTER_SUBSCRIBED}-${PluginSdk.PresentationWhiteboardUiDataNames.CURRENT_PAGE_SNAPSHOT}`,
+      updateUiDataHookPCurrentWhiteboardSVGWithAnnotationsForPlugin,
+    );
+    return () => {
+      window.removeEventListener(
+        `${UI_DATA_GETTER_SUBSCRIBED}-${PluginSdk.PresentationWhiteboardUiDataNames.CURRENT_PAGE_SNAPSHOT}`,
+        updateUiDataHookPCurrentWhiteboardSVGWithAnnotationsForPlugin,
+      );
+    };
+  }, []);
+  const [isClearModalOpen, setIsClearModalOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const toastId = useRef('presentation-menu-toast');
   const dropdownRef = useRef(null);
@@ -244,6 +342,8 @@ const PresentationMenu = (props) => {
   }
 
   function getAvailableOptions() {
+    // if any item is changed, please verify the function handleMouseLeave in whiteboard/hooks.js
+    // to make sure the menu is closed when clicking on the options
     const menuItems = [];
 
     if (!isIphone) {
@@ -293,66 +393,18 @@ const PresentationMenu = (props) => {
               closeOnClick: true,
               toastId: toastId.current,
             });
-
-            // This is a workaround to a conflict of the
-            // dark mode's styles and the html-to-image lib.
-            // Issue:
-            //  https://github.com/bubkoo/html-to-image/issues/370
-            const darkThemeState = AppService.isDarkThemeEnabled();
-            AppService.setDarkTheme(false);
-
             try {
-              // filter shapes that are inside the slide
-              const backgroundShape = tldrawAPI.getCurrentPageShapes().find((s) => s.id === `shape:BG-${slideNum}`);
-              const shapes = tldrawAPI.getCurrentPageShapes();
-              const pollShape = shapes.find((shape) => shape.type === 'poll');
-              const svgElem = await tldrawAPI.getSvg(
-                shapes
-                  .filter((shape) => shape.type !== 'poll')
-                  .map((shape) => shape.id),
+              const data = await extractSlideContentToImage();
+              const fileName = (isIos || isSafari)
+                ? `${elementName}_${meetingName}_${new Date().toISOString()}.svg`
+                : `${elementName}_${meetingName}_${new Date().toISOString()}.png`;
+              const anchor = document.createElement('a');
+              anchor.href = data;
+              anchor.setAttribute(
+                'download',
+                fileName,
               );
-              svgElem.setAttribute('width', backgroundShape.props.w);
-              svgElem.setAttribute('height', backgroundShape.props.h);
-              svgElem.setAttribute('viewBox', `1 1 ${backgroundShape.props.w} ${backgroundShape.props.h}`);
-              if (pollShape) {
-                const pollShapeElement = document.getElementById(pollShape.id);
-                const pollShapeSvg = await toSvg(pollShapeElement);
-                const pollShapeImage = document.createElementNS('http://www.w3.org/2000/svg', 'image');
-                pollShapeImage.setAttribute('href', pollShapeSvg);
-                pollShapeImage.setAttribute('width', pollShape.props.w);
-                pollShapeImage.setAttribute('height', pollShape.props.h);
-                pollShapeImage.setAttribute('x', pollShape.x);
-                pollShapeImage.setAttribute('y', pollShape.y);
-                svgElem.appendChild(pollShapeImage);
-              }
-
-              // workaround for ios
-              if (isIos || isSafari) {
-                const svgString = new XMLSerializer().serializeToString(svgElem);
-                const blob = new Blob([svgString], { type: 'image/svg+xml' });
-
-                const data = URL.createObjectURL(blob);
-                const anchor = document.createElement('a');
-                anchor.href = data;
-                anchor.setAttribute(
-                  'download',
-                  `${elementName}_${meetingName}_${new Date().toISOString()}.svg`,
-                );
-                anchor.click();
-              } else {
-                const width = svgElem?.width?.baseVal?.value ?? window.screen.width;
-                const height = svgElem?.height?.baseVal?.value ?? window.screen.height;
-
-                const data = await toPng(svgElem, { width, height, backgroundColor: '#FFF' });
-
-                const anchor = document.createElement('a');
-                anchor.href = data;
-                anchor.setAttribute(
-                  'download',
-                  `${elementName}_${meetingName}_${new Date().toISOString()}.png`,
-                );
-                anchor.click();
-              }
+              anchor.click();
 
               setState({
                 loading: false,
@@ -368,9 +420,6 @@ const PresentationMenu = (props) => {
                 logCode: 'presentation_snapshot_error',
                 extraInfo: e,
               });
-            } finally {
-              // Workaround
-              AppService.setDarkTheme(darkThemeState);
             }
           },
         },
@@ -379,17 +428,31 @@ const PresentationMenu = (props) => {
 
     const showVisibilityOption = currentUser?.presenter || hasWBAccess;
 
-    showVisibilityOption && menuItems.push(
-      {
-        key: 'list-item-toolvisibility',
-        dataTest: 'toolVisibility',
-        label: formattedVisibilityLabel(isToolbarVisible),
-        icon: isToolbarVisible ? 'close' : 'pen_tool',
-        onClick: () => {
-          setIsToolbarVisible(!isToolbarVisible);
+    if (showVisibilityOption) {
+      menuItems.push(
+        {
+          key: 'list-item-toolvisibility',
+          dataTest: 'toolVisibility',
+          label: formattedVisibilityLabel(isToolbarVisible),
+          icon: isToolbarVisible ? 'close' : 'pen_tool',
+          onClick: () => {
+            setIsToolbarVisible(!isToolbarVisible);
+          },
         },
-      },
-    );
+      );
+
+      menuItems.push(
+        {
+          key: 'list-item-clear-annotations',
+          dataTest: 'clearAnnotations',
+          label: intl.formatMessage(intlMessages.clearAnnotationsTitle),
+          icon: 'delete',
+          onClick: () => {
+            setIsClearModalOpen(true);
+          },
+        },
+      );
+    }
 
     // if (props.amIPresenter) {
     //   menuItems.push({
@@ -457,43 +520,71 @@ const PresentationMenu = (props) => {
   }
 
   return (
-    <Styled.Right id="WhiteboardOptionButton">
-      <BBBMenu
-        trigger={(
-          <TooltipContainer title={intl.formatMessage(intlMessages.optionsLabel)}>
-            <Styled.DropdownButton
-              state={isDropdownOpen ? 'open' : 'closed'}
-              aria-label={`${intl.formatMessage(intlMessages.whiteboardLabel)} ${intl.formatMessage(intlMessages.optionsLabel)}`}
-              data-test="whiteboardOptionsButton"
-              data-state={isDropdownOpen ? 'open' : 'closed'}
-              onClick={() => {
-                setIsDropdownOpen((isOpen) => !isOpen);
-              }}
-            >
-              <SvgIcon iconName="whiteboardOptions" />
-            </Styled.DropdownButton>
-          </TooltipContainer>
-        )}
-        opts={{
-          id: 'presentation-dropdown-menu',
-          keepMounted: true,
-          transitionDuration: 0,
-          elevation: 3,
-          getcontentanchorel: null,
-          fullwidth: 'true',
-          anchorOrigin: { vertical: 'bottom', horizontal: isRTL ? 'right' : 'left' },
-          transformOrigin: { vertical: 'top', horizontal: isRTL ? 'right' : 'left' },
-          container: fullscreenRef,
+    <>
+      <Styled.Right id="WhiteboardOptionButton">
+        <BBBMenu
+          trigger={(
+            <TooltipContainer title={intl.formatMessage(intlMessages.optionsLabel)}>
+              <Styled.DropdownButton
+                state={isDropdownOpen ? 'open' : 'closed'}
+                aria-label={`${intl.formatMessage(intlMessages.whiteboardLabel)} ${intl.formatMessage(intlMessages.optionsLabel)}`}
+                data-test="whiteboardOptionsButton"
+                data-state={isDropdownOpen ? 'open' : 'closed'}
+                onClick={() => {
+                  setIsDropdownOpen((isOpen) => !isOpen);
+                }}
+              >
+                <SvgIcon iconName="whiteboardOptions" />
+              </Styled.DropdownButton>
+            </TooltipContainer>
+          )}
+          opts={{
+            id: 'presentation-dropdown-menu',
+            keepMounted: true,
+            transitionDuration: 0,
+            elevation: 3,
+            getcontentanchorel: null,
+            fullwidth: 'true',
+            anchorOrigin: { vertical: 'bottom', horizontal: isRTL ? 'right' : 'left' },
+            transformOrigin: { vertical: 'top', horizontal: isRTL ? 'right' : 'left' },
+            container: fullscreenRef,
+          }}
+          actions={options}
+        />
+        <input
+          type="file"
+          id="hiddenFileInput"
+          style={{ display: 'none' }}
+          onChange={handleFileInput}
+        />
+      </Styled.Right>
+
+      <ConfirmationModal
+        intl={intl}
+        isOpen={isClearModalOpen}
+        onRequestClose={() => setIsClearModalOpen(false)}
+        onConfirm={() => {
+          tldrawAPI?.deleteShapes(tldrawAPI?.getCurrentPageShapes().map((shape) => {
+            if (currentUser?.presenter
+              || currentUser.isModerator
+              || (shape?.meta?.createdBy === currentUser?.userId)
+            ) {
+              return shape?.id;
+            }
+            return '';
+          })?.filter((s) => s?.length > 0));
+          setIsClearModalOpen(false);
         }}
-        actions={options}
+        priority="0"
+        title={intl.formatMessage(intlMessages.clearAnnotationsTitle)}
+        description={(currentUser?.presenter || currentUser.isModerator)
+          ? intl.formatMessage(intlMessages.clearAnnotationsDescription)
+          : intl.formatMessage(intlMessages.viewerClearAnnotationsDescription)}
+        confirmButtonLabel={intl.formatMessage(intlMessages.clearAnnotationsConfirmLabel)}
+        cancelButtonLabel={intl.formatMessage(intlMessages.clearAnnotationsCancelLabel)}
+        setIsOpen={setIsClearModalOpen}
       />
-      <input
-        type="file"
-        id="hiddenFileInput"
-        style={{ display: 'none' }}
-        onChange={handleFileInput}
-      />
-    </Styled.Right>
+    </>
   );
 };
 

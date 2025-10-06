@@ -14,25 +14,33 @@ trait RespondToPollReqMsgHdlr {
 
     if (!Polls.hasUserAlreadyResponded(msg.body.pollId, msg.header.userId, liveMeeting.polls)) {
       for {
-        (pollId: String, updatedPoll: SimplePollResultOutVO) <- Polls.handleRespondToPollReqMsg(msg.header.userId, msg.body.pollId,
-          msg.body.questionId, msg.body.answerIds, liveMeeting)
+        poll <- Polls.getPoll(msg.body.pollId, liveMeeting.polls)
       } yield {
-        PollHdlrHelpers.broadcastPollUpdatedEvent(bus.outGW, liveMeeting.props.meetingProp.intId, msg.header.userId, pollId, updatedPoll)
-        for {
-          poll <- Polls.getPoll(pollId, liveMeeting.polls)
-        } yield {
-          for {
-            answerId <- msg.body.answerIds
-          } yield {
-            val answerText = poll.questions(0).answers.get(answerId).key
-            PollHdlrHelpers.broadcastUserRespondedToPollRecordMsg(bus.outGW, liveMeeting.props.meetingProp.intId, msg.header.userId, pollId, answerId, answerText, poll.isSecret)
+        val answers = {
+          if (!poll.questions(0).multiResponse && msg.body.answerIds.length > 1) {
+            Seq(msg.body.answerIds.head)
+          } else {
+            msg.body.answerIds.distinct
           }
         }
 
         for {
-          presenter <- Users2x.findPresenter(liveMeeting.users2x)
+          (pollId: String, updatedPoll: SimplePollResultOutVO) <- Polls.handleRespondToPollReqMsg(msg.header.userId, poll.id,
+            msg.body.questionId, answers, liveMeeting)
         } yield {
-          PollHdlrHelpers.broadcastUserRespondedToPollRespMsg(bus.outGW, liveMeeting.props.meetingProp.intId, msg.header.userId, pollId, msg.body.answerIds, presenter.intId)
+          PollHdlrHelpers.broadcastPollUpdatedEvent(bus.outGW, liveMeeting.props.meetingProp.intId, msg.header.userId, pollId, updatedPoll)
+          for {
+            answerId <- answers
+          } yield {
+            val answerText = poll.questions(0).answers.get(answerId).key
+            PollHdlrHelpers.broadcastUserRespondedToPollRecordMsg(bus.outGW, liveMeeting.props.meetingProp.intId, msg.header.userId, pollId, answerId, answerText, poll.isSecret)
+          }
+
+          for {
+            presenter <- Users2x.findPresenter(liveMeeting.users2x)
+          } yield {
+            PollHdlrHelpers.broadcastUserRespondedToPollRespMsg(bus.outGW, liveMeeting.props.meetingProp.intId, msg.header.userId, pollId, answers, presenter.intId)
+          }
         }
       }
     } else {

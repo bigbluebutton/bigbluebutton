@@ -82,6 +82,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="recordingServiceGW" ref="recordingServiceGW"/>
     </bean>
 
+    <bean id="pluginUtils" class="org.bigbluebutton.api.util.PluginUtils">
+        <property name="html5PluginSdkVersion" value="${html5PluginSdkVersion}"/>
+    </bean>
+
     <bean id="recordingServiceGW" class="org.bigbluebutton.api2.util.RecMetaXmlHelper">
         <constructor-arg index="0" ref="bbbWebApiGWApp"/>
     </bean>
@@ -156,6 +160,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="disableRecordingDefault" value="${disableRecordingDefault}"/>
         <property name="autoStartRecording" value="${autoStartRecording}"/>
         <property name="allowStartStopRecording" value="${allowStartStopRecording}"/>
+        <property name="presentationConversionCacheEnabled" value="${presentationConversionCacheEnabled}"/>
         <property name="recordFullDurationMedia" value="${recordFullDurationMedia}"/>
         <property name="learningDashboardCleanupDelayInMinutes" value="${learningDashboardCleanupDelayInMinutes}"/>
         <property name="webcamsOnlyForModerator" value="${webcamsOnlyForModerator}"/>
@@ -207,6 +212,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="allowRevealOfBBBVersion" value="${allowRevealOfBBBVersion}"/>
         <property name="allowOverrideClientSettingsOnCreateCall" value="${allowOverrideClientSettingsOnCreateCall}"/>
         <property name="pluginManifests" value="${pluginManifests}"/>
+        <property name="pluginManifestsFetchUrlResponseTimeout" value="${pluginManifestsFetchUrlResponseTimeout}"/>
+        <property name="maxPluginManifestsFetchUrlPayloadSize" value="${maxPluginManifestsFetchUrlPayloadSize}"/>
+        <property name="html5PluginSdkVersion" value="${html5PluginSdkVersion}"/>
+        <property name="pluginUtils" ref="pluginUtils"/>
+        <property name="maxNumPages" value="${maxNumPages}"/>
+        <property name="getJoinUrlUserdataBlocklist" value="${getJoinUrlUserdataBlocklist}"/>
     </bean>
 
     <bean id="presentationService" class="org.bigbluebutton.web.services.PresentationService">
@@ -221,48 +232,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="scanUploadedPresentationFiles" value="${scanUploadedPresentationFiles}"/>
     </bean>
 
-    <bean id="pageExtractorImp" class="org.bigbluebutton.presentation.imp.PageExtractorImp">
-        <property name="extractTimeoutInMs" value="${extractTimeoutInMs}"/>
-    </bean>
-
-    <bean id="pngCreatorImp" class="org.bigbluebutton.presentation.imp.PngCreatorImp">
-        <property name="convTimeout" value="${pngCreationConversionTimeout}"/>
-        <property name="wait" value="${pngCreationWait}"/>
-        <property name="execTimeout" value="${pngCreationExecTimeoutInMs}"/>
-    </bean>
-
-    <bean id="thumbnailCreatorImp" class="org.bigbluebutton.presentation.imp.ThumbnailCreatorImp">
-        <property name="execTimeout" value="${thumbnailCreationExecTimeoutInMs}"/>
-    </bean>
-
     <bean id="pdfPageDownscaler" class="org.bigbluebutton.presentation.imp.PdfPageDownscaler">
         <property name="execTimeout" value="${pdfPageDownscaleExecTimeoutInMs}"/>
-    </bean>
-
-    <bean id="imageResizerImp" class="org.bigbluebutton.presentation.imp.ImageResizerImp">
-        <property name="wait" value="${imageResizeWait}"/>
-    </bean>
-
-    <bean id="officeDocumentValidator2" class="org.bigbluebutton.presentation.imp.OfficeDocumentValidator2">
-        <property name="presCheckTimeout" value="${officeDocumentValidationTimeout}"/>
-        <property name="execTimeout" value="${officeDocumentValidationExecTimeoutInMs}"/>
-    </bean>
-
-    <bean id="officeToPdfConversionService" class="org.bigbluebutton.presentation.imp.OfficeToPdfConversionService">
-        <property name="presOfficeConversionTimeout" value="${presOfficeConversionTimeout}"/>
-    </bean>
-
-    <bean id="pdfPageCounter" class="org.bigbluebutton.presentation.imp.PdfPageCounter">
-        <property name="wait" value="${pdfPageCountWait}"/>
-    </bean>
-
-    <bean id="svgImageCreatorImp" class="org.bigbluebutton.presentation.imp.SvgImageCreatorImp">
-        <property name="convPdfToSvgTimeout" value="${pdfToSvgTimeout}"/>
-        <property name="pdfFontsTimeout" value="${pdfFontsTimeout}"/>
-    </bean>
-
-    <bean id="textFileCreatorImp" class="org.bigbluebutton.presentation.imp.TextFileCreatorImp">
-        <property name="execTimeout" value="${textFileCreationExecTimeoutInMs}"/>
     </bean>
 
     <import resource="doc-conversion.xml"/>

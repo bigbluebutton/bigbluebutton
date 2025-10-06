@@ -308,6 +308,7 @@ class VideoList extends Component<VideoListProps, VideoListState> {
         label={nextPageDetailedLabel}
         hideLabel
         position={position}
+        data-test="nextPageVideoPaginationBtn"
       />
     );
   }
@@ -338,6 +339,7 @@ class VideoList extends Component<VideoListProps, VideoListState> {
         label={prevPageDetailedLabel}
         hideLabel
         position={position}
+        data-test="previousPageVideoPaginationBtn"
       />
     );
   }
@@ -428,6 +430,7 @@ class VideoList extends Component<VideoListProps, VideoListState> {
               gridTemplateColumns: `repeat(${optimalGrid.columns}, 1fr)`,
               gridTemplateRows: `repeat(${optimalGrid.rows}, 1fr)`,
             }}
+            className="video-provider_list"
           >
             {this.renderVideoList()}
           </Styled.VideoList>

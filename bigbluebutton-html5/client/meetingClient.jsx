@@ -22,7 +22,6 @@ import logger from '/imports/startup/client/logger';
 import '/imports/ui/services/mobile-app';
 import Base from '/imports/startup/client/base';
 import ContextProviders from '/imports/ui/components/context-providers/component';
-import ConnectionManager from '/imports/ui/components/connection-manager/component';
 // The adapter import is "unused" as far as static code is concerned, but it
 // needs to here to override global prototypes. So: don't remove it - prlanzarin 25 Apr 2022
 import adapter from 'webrtc-adapter';
@@ -48,7 +47,7 @@ const Startup = () => {
     // will strip that so the errors can hopefully be grouped better.
     if (message) message = message.replace(/^Uncaught/, '').trim();
 
-    let { stack } = e.error;
+    let stack = e.error?.stack || '';
 
     // Checks if stack includes the message, if not add the two together.
     if (!stack.includes(message)) {

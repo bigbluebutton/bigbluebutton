@@ -16,13 +16,11 @@ interface AudioCaptionsLiveProps {
 const AudioCaptionsLive: React.FC<AudioCaptionsLiveProps> = ({
   captions,
 }) => {
-  const CAPTIONS_CONFIG = window.meetingClientSettings.public.captions;
-  const LINES_PER_MESSAGE = CAPTIONS_CONFIG.lines;
   return (
     <Styled.Wrapper>
       <>
         {
-          captions.length > 0 && captions.length <= LINES_PER_MESSAGE ? captions.map((caption) => {
+          captions.length > 0 ? captions.map((caption) => {
             const {
               user,
               captionText,
@@ -66,6 +64,7 @@ const AudioCaptionsLiveContainer: React.FC = () => {
   } = useCurrentUser((u) => ({
     captionLocale: u.captionLocale,
   }));
+  const [audioCaptionsEnable] = useAudioCaptionEnable();
 
   const {
     data: AudioCaptionsLiveData,
@@ -73,9 +72,8 @@ const AudioCaptionsLiveContainer: React.FC = () => {
     error: AudioCaptionsLiveError,
   } = useDeduplicatedSubscription<getCaptions>(GET_CAPTIONS, {
     variables: { locale: currentUser?.captionLocale ?? 'en-US' },
+    skip: !audioCaptionsEnable || !currentUser?.captionLocale,
   });
-
-  const [audioCaptionsEnable] = useAudioCaptionEnable();
 
   if (AudioCaptionsLiveLoading) return null;
 

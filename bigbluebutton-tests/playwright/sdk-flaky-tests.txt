@@ -1,0 +1,3 @@
+# List of flaky SDK tests to skip in CI
+# Format: Test Suite › Test Spec (one per line)
+# Example: Custom Subscription Hook › should display the button with icon and log when clicked

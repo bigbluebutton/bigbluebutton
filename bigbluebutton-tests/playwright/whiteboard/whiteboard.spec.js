@@ -1,193 +1,164 @@
 const { test } = require('../fixtures');
-const { DrawRectangle } = require('./drawRectangle');
-const { DrawEllipse } = require('./drawEllipse');
-const { DrawTriangle } = require('./drawTriangle');
-const { DrawLine } = require('./drawLine');
-const { DrawPencil } = require('./drawPencil');
-const { DrawText } = require('./drawText');
-const { DrawStickyNote } = require('./drawStickyNote');
-const { Pan } = require('./pan');
-const { Eraser } = require('./eraser');
-const { DrawArrow } = require('./drawArrow');
-const { DeleteDrawing } = require('./deleteDrawing');
-const { UndoDrawing } = require('./undoDraw');
-const { RedoDrawing } = require('./redoDraw');
+const { TextShape } = require('./textShape');
+const { ShapeTools } = require('./shapeTools');
 const { ChangeStyles } = require('./changeStyles');
-const { RealTimeText } = require('./realTimeText');
 const { ShapeOptions } = require('./shapeOptions');
-const { linkIssue } = require('../core/helpers');
+const { DrawShape } = require('./drawShape');
+const e = require('../core/elements');
 
 //! @flaky note:
 // all whiteboard tests are flagged as flaky due to unexpected zooming slides
 // only avoiding those assertions won't be enough as most of the tests are relying only on snapshot comparisons
 // so together with the further fix + re-enablement of the tests, they will need to have non-snapshot assertions added as well
 // P.S. 1. the failures seems to be noticeable only on the CI
-test.describe.parallel('Whiteboard tools', { tag: ['@ci', '@flaky'] }, () => {
+// P.S. 2. Tests updated + re-enabled on March, 2025
+test.describe.parallel('Whiteboard tools', { tag: '@ci' }, () => {
   test.beforeEach(({ browserName }) => {
     test.skip(browserName !== 'chromium',
       'Drawing visual regression tests are enabled only for Chromium');
   });
 
-  test('Draw rectangle', async ({ browser, context, page }) => {
-    const drawRectangle = new DrawRectangle(browser, context);
-    await drawRectangle.initModPage(page, true, { customMeetingId: 'draw_rectangle_meeting', joinParameter: hidePresentationToast });
-    await drawRectangle.initUserPage(true, context);
-    await drawRectangle.test();
+  test('Draw rectangle', async ({ browser, context, page }, testInfo) => {
+    const rectangle = new DrawShape(browser, context);
+    await rectangle.initModPage(page, true, { testInfo });
+    await rectangle.initUserPage(true, context, { testInfo });
+    await rectangle.drawShape(e.wbRectangleShape, 'rectangle');
   });
 
-  test('Draw ellipse', async ({ browser, context, page }) => {
-    const drawEllipse = new DrawEllipse(browser, context);
-    await drawEllipse.initModPage(page, true, { customMeetingId: 'draw_ellipse_meeting', joinParameter: hidePresentationToast });
-    await drawEllipse.initUserPage(true, context);
-    await drawEllipse.test();
+  test('Draw ellipse', async ({ browser, context, page }, testInfo) => {
+    const ellipse = new DrawShape(browser, context);
+    await ellipse.initModPage(page, true, { testInfo });
+    await ellipse.initUserPage(true, context, { testInfo });
+    await ellipse.drawShape(e.wbEllipseShape, 'ellipse');
   });
 
-  test('Draw triangle', async ({ browser, context, page }) => {
-    const drawTriangle = new DrawTriangle(browser, context);
-    await drawTriangle.initModPage(page, true, { customMeetingId: 'draw_triangle_meeting', joinParameter: hidePresentationToast });
-    await drawTriangle.initUserPage(true, context);
-    await drawTriangle.test();
+  test('Draw triangle', async ({ browser, context, page }, testInfo) => {
+    const triangle = new DrawShape(browser, context);
+    await triangle.initModPage(page, true, { testInfo });
+    await triangle.initUserPage(true, context, { testInfo });
+    await triangle.drawShape(e.wbTriangleShape, 'triangle');
   });
 
-  test('Draw line', async ({ browser, context, page }) => {
-    const drawLine = new DrawLine(browser, context);
-    await drawLine.initModPage(page, true, { customMeetingId: 'draw_line_meeting', joinParameter: hidePresentationToast });
-    await drawLine.initUserPage(true, context);
-    await drawLine.test();
+  test('Draw line', async ({ browser, context, page }, testInfo) => {
+    const line = new DrawShape(browser, context);
+    await line.initModPage(page, true, { testInfo });
+    await line.initUserPage(true, context, { testInfo });
+    await line.drawShape(e.wbLineShape, 'line', e.wbDrawnLine);
   });
 
-  test('Draw with pencil', async ({ browser, context, page }) => {
-    const drawPencil = new DrawPencil(browser, context);
-    await drawPencil.initModPage(page, true, { customMeetingId: 'draw_pencil_meeting', joinParameter: hidePresentationToast });
-    await drawPencil.initUserPage(true, context);
-    await drawPencil.test();
+  test('Draw arrow', async ({ browser, context, page }, testInfo) => {
+    const arrow = new DrawShape(browser, context);
+    await arrow.initModPage(page, true, { testInfo });
+    await arrow.initUserPage(true, context, { testInfo });
+    await arrow.drawShape(e.wbArrowShape, 'arrow', e.wbDrawnArrow);
   });
 
-  test('Type text', async ({ browser, context, page }) => {
-    const drawText = new DrawText(browser, context);
-    await drawText.initModPage(page, true, { customMeetingId: 'draw_text_meeting', joinParameter: hidePresentationToast });
-    await drawText.initUserPage(true, context);
-    await drawText.test();
+  test('Draw with pencil', async ({ browser, context, page }, testInfo) => {
+    const pencil = new DrawShape(browser, context);
+    await pencil.initModPage(page, true, { testInfo });
+    await pencil.initUserPage(true, context, { testInfo });
+    await pencil.drawShape(e.wbPencilShape, 'pencil', e.wbDraw)
   });
 
-  test('Create sticky note', { tag: '@flaky' }, async ({ browser, context, page }) => {
-    // wrong/unexpected slide zoom for some users causing screenshot comparison to fail
-    linkIssue(21302);
-    const drawStickyNote = new DrawStickyNote(browser, context);
-    await drawStickyNote.initModPage(page, true, { customMeetingId: 'draw_sticky_meeting', joinParameter: hidePresentationToast });
-    await drawStickyNote.initUserPage(true, context);
-    await drawStickyNote.test();
+  test('Type text', async ({ browser, context, page }, testInfo) => {
+    const textShape = new TextShape(browser, context);
+    await textShape.initModPage(page, true, { testInfo });
+    await textShape.initUserPage(true, context, { testInfo });
+    await textShape.typeText();
   });
 
-  test('Pan', { tag: '@flaky' } , async ({ browser, context, page }) => {
-    // different zoom position when clicking toolbar's zoom button
-    linkIssue(21266);
-    const pan = new Pan(browser, context);
-    await pan.initModPage(page, true, { customMeetingId: 'draw_line_meeting', joinParameter: hidePresentationToast });
-    await pan.initUserPage(true, context);
-    await pan.test();
+  test('Sticky note', async ({ browser, context, page }, testInfo) => {
+    const textShape = new TextShape(browser, context);
+    await textShape.initModPage(page, true, { testInfo });
+    await textShape.initUserPage(true, context, { testInfo });
+    await textShape.stickyNote();
   });
 
-  test('Eraser', async ({ browser, context, page }) => {
-    const eraser = new Eraser(browser, context);
-    await eraser.initModPage(page, true, { customMeetingId: 'draw_line_meeting', joinParameter: hidePresentationToast });
-    await eraser.initUserPage(true, context);
-    await eraser.test();
+  test('Pan', async ({ browser, context, page }, testInfo) => {
+    const tools = new ShapeTools(browser, context);
+    await tools.initModPage(page, true, { testInfo });
+    await tools.initUserPage(true, context, { testInfo });
+    await tools.pan();
   });
 
-  test('Draw arrow', async ({ browser, context, page }) => {
-    const drawArrow = new DrawArrow(browser, context);
-    await drawArrow.initModPage(page, true, { customMeetingId: 'draw_line_meeting', joinParameter: hidePresentationToast });
-    await drawArrow.initUserPage(true, context);
-    await drawArrow.test();
+  test('Eraser', async ({ browser, context, page }, testInfo) => {
+    const tools = new ShapeTools(browser, context);
+    await tools.initModPage(page, true, { testInfo });
+    await tools.initUserPage(true, context, { testInfo });
+    await tools.eraser();
   });
 
   test.describe.parallel('Change Shapes Styles', async () => {
-    test('Change color', async ({ browser, context, page }) => {
+    test('Change color', async ({ browser, context, page }, testInfo) => {
       const changeColor = new ChangeStyles(browser, context);
-      await changeColor.initModPage(page, true, { customMeetingId: 'draw_line_meeting', joinParameter: hidePresentationToast });
-      await changeColor.initUserPage(true, context);
+      await changeColor.initModPage(page, true, { testInfo });
+      await changeColor.initUserPage(true, context, { testInfo });
       await changeColor.changingColor();
     });
 
-    test('Fill drawing', async ({ browser, context, page }) => {
+    test('Fill drawing', async ({ browser, context, page }, testInfo) => {
       const fillDrawing = new ChangeStyles(browser, context);
-      await fillDrawing.initModPage(page, true, { customMeetingId: 'draw_line_meeting', joinParameter: hidePresentationToast });
-      await fillDrawing.initUserPage(true, context);
+      await fillDrawing.initModPage(page, true, { testInfo });
+      await fillDrawing.initUserPage(true, context, { testInfo });
       await fillDrawing.fillDrawing();
     });
 
-    test('Dash drawing', async ({ browser, context, page }) => {
+    test('Dash drawing', async ({ browser, context, page }, testInfo) => {
       const dashDrawing = new ChangeStyles(browser, context);
-      await dashDrawing.initModPage(page, true, { customMeetingId: 'draw_line_meeting', joinParameter: hidePresentationToast });
-      await dashDrawing.initUserPage(true, context);
+      await dashDrawing.initModPage(page, true, { testInfo });
+      await dashDrawing.initUserPage(true, context, { testInfo });
       await dashDrawing.dashDrawing();
     });
 
-    test('Size drawing', async ({ browser, context, page }) => {
+    test('Size drawing', async ({ browser, context, page }, testInfo) => {
       const sizeDrawing = new ChangeStyles(browser, context);
-      await sizeDrawing.initModPage(page, true, { customMeetingId: 'draw_line_meeting', joinParameter: hidePresentationToast });
-      await sizeDrawing.initUserPage(true, context);
+      await sizeDrawing.initModPage(page, true, { testInfo });
+      await sizeDrawing.initUserPage(true, context, { testInfo });
       await sizeDrawing.sizeDrawing();
     });
   });
 
-  test('Delete drawing', async ({ browser, context, page }) => {
-    const deleteDrawing = new DeleteDrawing(browser, context);
-    await deleteDrawing.initModPage(page, true, { customMeetingId: 'draw_line_meeting', joinParameter: hidePresentationToast });
-    await deleteDrawing.initUserPage(true, context);
-    await deleteDrawing.test();
+  test('Delete drawing', async ({ browser, context, page }, testInfo) => {
+    const tools = new ShapeTools(browser, context);
+    await tools.initModPage(page, true, { testInfo });
+    await tools.initUserPage(true, context, { testInfo });
+    await tools.delete();
   });
 
-  test.fixme('Undo drawing', async ({ browser, context, page }) => {
-    // action button has been removed on #21738
-    // alternative: use keyboard shortcut
-    const undoDrawing = new UndoDrawing(browser, context);
-    await undoDrawing.initModPage(page, true, { customMeetingId: 'draw_line_meeting', joinParameter: hidePresentationToast });
-    await undoDrawing.initUserPage(true, context);
-    await undoDrawing.test();
+  test('Undo drawing', async ({ browser, context, page }, testInfo) => {
+    const tools = new ShapeTools(browser, context);
+    await tools.initModPage(page, true, { testInfo });
+    await tools.initUserPage(true, context, { testInfo });
+    await tools.undo();
   });
 
-  test.fixme('Redo drawing', async ({ browser, context, page }) => {
-    // action button has been removed on #21738
-    // alternative: use keyboard shortcut
-    const redoDrawing = new RedoDrawing(browser, context);
-    await redoDrawing.initModPage(page, true, { customMeetingId: 'draw_line_meeting', joinParameter: hidePresentationToast });
-    await redoDrawing.initUserPage(true, context);
-    await redoDrawing.test();
+  test('Redo drawing', async ({ browser, context, page }, testInfo) => {
+    const tools = new ShapeTools(browser, context);
+    await tools.initModPage(page, true, { testInfo });
+    await tools.initUserPage(true, context, { testInfo });
+    await tools.redo();
   });
 
-  test('Real time text typing', async ({ browser, context, page }) => {
-    const realTimeText = new RealTimeText(browser, context);
-    await realTimeText.initModPage(page, true, { customMeetingId: 'draw_line_meeting', joinParameter: hidePresentationToast });
-    await realTimeText.initUserPage(true, context);
-    await realTimeText.realTimeTextTyping();
+  test('Real time text typing', async ({ browser, context, page }, testInfo) => {
+    const textShape = new TextShape(browser, context);
+    await textShape.initModPage(page, true, { testInfo });
+    await textShape.initUserPage(true, context, { testInfo });
+    await textShape.realTimeTextTyping();
   });
 
-  test.describe.parallel('Shape Options', { tag: '@flaky' }, () => {
-    // wrong/unexpected slide zoom for some users causing screenshot comparison to fail
-    // see https://github.com/bigbluebutton/bigbluebutton/issues/21302
-    test.fixme('Duplicate', async ({ browser, context, page }) => {
-      // action button has been removed on #21738
-      // alternative: use keyboard shortcut
+  test.describe.parallel('Shape Options', () => {
+    test('Duplicate', async ({ browser, context, page }, testInfo) => {
       const shapeOptions = new ShapeOptions(browser, context);
-      await shapeOptions.initModPage(page, true);
-      await shapeOptions.initUserPage(true, context);
+      await shapeOptions.initModPage(page, true, { testInfo });
+      await shapeOptions.initUserPage(true, context, { testInfo });
       await shapeOptions.duplicate();
     });
 
-    test('Rotate', async ({ browser, context, page }) => {
+    test('Rotate', async ({ browser, context, page }, testInfo) => {
       const shapeOptions = new ShapeOptions(browser, context);
-      await shapeOptions.initModPage(page, true);
-      await shapeOptions.initUserPage(true, context);
+      await shapeOptions.initModPage(page, true, { testInfo });
+      await shapeOptions.initUserPage(true, context, { testInfo });
       await shapeOptions.rotate();
-    });
-
-    test('Move Shape Backward/Forward', async ({ browser, context, page }) => {
-      const shapeOptions = new ShapeOptions(browser, context);
-      await shapeOptions.initModPage(page, true);
-      await shapeOptions.initUserPage(true, context);
-      await shapeOptions.movingShape();
     });
   });
 });

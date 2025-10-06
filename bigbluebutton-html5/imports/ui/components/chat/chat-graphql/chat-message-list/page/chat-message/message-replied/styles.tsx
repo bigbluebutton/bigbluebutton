@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import {
   colorGrayLight,
-  colorGrayLightest, colorPrimary, colorText, colorWhite,
+  colorGrayLightest, colorOffWhite, colorPrimary, colorText, colorWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { $3xlPadding, smPadding } from '/imports/ui/stylesheets/styled-components/general';
 import ReactMarkdown from 'react-markdown';
@@ -54,6 +54,11 @@ export const Markdown = styled(ReactMarkdown)`
 
   & code {
     white-space: nowrap;
+    background-color: ${colorOffWhite};
+    border: solid 1px ${colorGrayLightest};
+    border-radius: 4px;
+    padding: 2px;
+    font-size: 12px;
     overflow: hidden;
     text-overflow: ellipsis;
   }

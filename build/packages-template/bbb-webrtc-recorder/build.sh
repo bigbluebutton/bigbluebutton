@@ -24,7 +24,7 @@ git config --global --add safe.directory ${PWD}
 APP_VERSION=$(cat ./VERSION)
 GOMOD=$(go list -m)
 APP_REV=$(git rev-parse --short HEAD)
-echo $GOMOD ${APP_VERSION[@]} $COMMIT
+echo "$GOMOD" "${APP_VERSION[@]}" "$COMMIT"
 go mod tidy
 go build -o ./build/bbb-webrtc-recorder \
   -ldflags="-X '$GOMOD/internal.AppVersion=v${APP_VERSION[0]}-${APP_VERSION[1]} (${APP_REV})'" \

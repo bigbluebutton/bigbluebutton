@@ -206,7 +206,11 @@ class ConnectionStatus {
 
   public setPingIsComing(value: boolean): void {
     if (value !== this.pingIsComing()) {
-      logger.info({ logCode: 'stats_ping_state' }, `Ping status changed to ${value}`);
+      if (value) {
+        logger.info({ logCode: 'stats_ping_state' }, `Ping is coming (ping_is_coming=${value})`);
+      } else {
+        logger.warn({ logCode: 'stats_ping_state' }, `Ping is not coming (ping_is_coming=${value})`);
+      }
       this.pingIsComing(value);
     }
   }
@@ -221,7 +225,11 @@ class ConnectionStatus {
 
   public setServerIsResponding(value: boolean): void {
     if (value !== this.serverIsResponding()) {
-      logger.info({ logCode: 'stats_server_state' }, `Server responding status changed to ${value}`);
+      if (value) {
+        logger.info({ logCode: 'stats_server_state' }, `Server is responding (server_is_responding=${value})`);
+      } else {
+        logger.warn({ logCode: 'stats_server_state' }, `Server is not responding (server_is_responding=${value})`);
+      }
       this.serverIsResponding(value);
     }
   }
@@ -236,7 +244,11 @@ class ConnectionStatus {
 
   public setConnectedStatus(value: boolean): void {
     if (value !== this.connected()) {
-      logger.info({ logCode: 'stats_connection_state' }, `Connection status changed to ${value}`);
+      if (value) {
+        logger.info({ logCode: 'stats_connection_state' }, `Connection status changed to connected (connected=${value})`);
+      } else {
+        logger.warn({ logCode: 'stats_connection_state' }, `Connection status changed to disconnected (connected=${value})`);
+      }
       this.connected(value);
     }
   }
@@ -251,7 +263,11 @@ class ConnectionStatus {
 
   public setSubscriptionFailed(value: boolean): void {
     if (value !== this.subscriptionFailed()) {
-      logger.info({ logCode: 'stats_subscription_state' }, `Subscription failed status changed to ${value}`);
+      if (value) {
+        logger.warn({ logCode: 'stats_subscription_state' }, `Subscription failed (subscription_failed=${value})`);
+      } else {
+        logger.info({ logCode: 'stats_subscription_state' }, `Subscription recovered (subscription_failed=${value})`);
+      }
       this.subscriptionFailed(value);
     }
   }

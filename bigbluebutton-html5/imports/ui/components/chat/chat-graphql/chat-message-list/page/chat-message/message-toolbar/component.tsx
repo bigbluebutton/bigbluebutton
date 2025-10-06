@@ -82,55 +82,54 @@ const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
   const showDivider = (showReplyButton || showReactionsButton) && (showEditButton || showDeleteButton);
 
   const container = (
-    <Container className="chat-message-toolbar">
+    <Container className="chat-message-toolbar" data-test="chatMessageToolbar">
       {showReplyButton && (
-      <>
         <Tooltip title={intl.formatMessage(intlMessages.replyTooltip)}>
           <EmojiButton
-            aria-describedby={`chat-reply-btn-label-${messageSequence}`}
+            aria-label={intl.formatMessage(intlMessages.reply, { messageSequence })}
             icon="undo"
             color="light"
             onClick={onReply}
+            data-test="replyMessageButton"
           />
         </Tooltip>
-        <span id={`chat-reply-btn-label-${messageSequence}`} className="sr-only">
-          {intl.formatMessage(intlMessages.reply, { 0: messageSequence })}
-        </span>
-      </>
       )}
       {showReactionsButton && (
-      <Tooltip title={intl.formatMessage(intlMessages.reactTooltip)}>
-        <EmojiButton
-          onClick={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-            e.stopPropagation();
-            onReactionPopoverOpenChange(true);
-          }}
-          svgIcon="reactions"
-          color="light"
-          data-test="reactionsPickerButton"
-        />
-      </Tooltip>
+        <Tooltip title={intl.formatMessage(intlMessages.reactTooltip)}>
+          <EmojiButton
+            aria-label={intl.formatMessage(intlMessages.reactTooltip)}
+            onClick={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+              e.stopPropagation();
+              onReactionPopoverOpenChange(true);
+            }}
+            svgIcon="reactions"
+            color="light"
+            data-test="reactMessageButton"
+          />
+        </Tooltip>
       )}
       {showDivider && <Divider role="separator" />}
       {showEditButton && (
-      <Tooltip title={intl.formatMessage(intlMessages.editTooltip)}>
-        <EmojiButton
-          onClick={onEdit}
-          icon="pen_tool"
-          color="light"
-          data-test="editMessageButton"
-        />
-      </Tooltip>
+        <Tooltip title={intl.formatMessage(intlMessages.editTooltip)}>
+          <EmojiButton
+            aria-label={intl.formatMessage(intlMessages.editTooltip)}
+            onClick={onEdit}
+            icon="pen_tool"
+            color="light"
+            data-test="editMessageButton"
+          />
+        </Tooltip>
       )}
       {showDeleteButton && (
-      <Tooltip title={intl.formatMessage(intlMessages.deleteTooltip)}>
-        <EmojiButton
-          onClick={onDelete}
-          icon="delete"
-          color="light"
-          data-test="deleteMessageButton"
-        />
-      </Tooltip>
+        <Tooltip title={intl.formatMessage(intlMessages.deleteTooltip)}>
+          <EmojiButton
+            aria-label={intl.formatMessage(intlMessages.deleteTooltip)}
+            onClick={onDelete}
+            icon="delete"
+            color="light"
+            data-test="deleteMessageButton"
+          />
+        </Tooltip>
       )}
     </Container>
   );

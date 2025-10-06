@@ -106,6 +106,11 @@ class RedisRecorderActor(
 
       case m: AudioFloorChangedEvtMsg               => handleAudioFloorChangedEvtMsg(m)
 
+      // AudioGroups
+      case m: AudioGroupCreatedEvtMsg               => handleAudioGroupCreatedEvtMsg(m)
+      case m: AudioGroupDestroyedEvtMsg             => handleAudioGroupDestroyedEvtMsg(m)
+      case m: AudioGroupUpdatedEvtMsg               => handleAudioGroupUpdatedEvtMsg(m)
+
       // Caption
       case m: EditCaptionHistoryEvtMsg              => handleEditCaptionHistoryEvtMsg(m)
 
@@ -121,6 +126,9 @@ class RedisRecorderActor(
       case m: WebcamsOnlyForModeratorChangedEvtMsg  => handleWebcamsOnlyForModeratorChangedEvtMsg(m)
       case m: MeetingEndingEvtMsg                   => handleMeetingEndingEvtMsg(m)
       case m: MeetingCreatedEvtMsg                  => handleStarterConfigurations(m)
+      case m: SetScreenshareAsContentEvtMsg         => handleSetScreenshareAsContent(m)
+      case m: ScreenshareRtmpBroadcastStartedEvtMsg => handleScreenshareRtmpBroadcastStartedEvtMsg(m)
+      case m: ScreenshareRtmpBroadcastStoppedEvtMsg => handleScreenshareRtmpBroadcastStoppedEvtMsg(m)
 
       // Recording
       case m: RecordingChapterBreakSysMsg           => handleRecordingChapterBreakSysMsg(m)
@@ -534,6 +542,29 @@ class RedisRecorderActor(
     record(msg.header.meetingId, ev.toMap.asJava)
   }
 
+  private def handleAudioGroupCreatedEvtMsg(msg: AudioGroupCreatedEvtMsg): Unit = {
+    val ev = new AudioGroupCreatedRecordEvent()
+    ev.setGroupId(msg.body.id)
+    ev.setSenders(msg.body.senders)
+
+    record(msg.header.meetingId, ev.toMap.asJava)
+  }
+
+  private def handleAudioGroupDestroyedEvtMsg(msg: AudioGroupDestroyedEvtMsg): Unit = {
+    val ev = new AudioGroupDestroyedRecordEvent()
+    ev.setGroupId(msg.body.id)
+
+    record(msg.header.meetingId, ev.toMap.asJava)
+  }
+
+  private def handleAudioGroupUpdatedEvtMsg(msg: AudioGroupUpdatedEvtMsg): Unit = {
+    val ev = new AudioGroupUpdatedRecordEvent()
+    ev.setGroupId(msg.body.id)
+    ev.setSenders(msg.body.senders)
+
+    record(msg.header.meetingId, ev.toMap.asJava)
+  }
+
   private def handleEditCaptionHistoryEvtMsg(msg: EditCaptionHistoryEvtMsg) {
     val ev = new EditCaptionHistoryRecordEvent()
     ev.setMeetingId(msg.header.meetingId)
@@ -742,6 +773,8 @@ class RedisRecorderActor(
     ev.setPollId(msg.body.pollId)
     ev.setQuestion(msg.body.poll.questionText.getOrElse(""))
     ev.setAnswers(msg.body.poll.answers)
+    ev.setIsQuiz(msg.body.poll.quiz)
+    ev.setShowCorrectAnswer(msg.body.showAnswer)
     ev.setNumRespondents(msg.body.poll.numRespondents)
     ev.setNumResponders(msg.body.poll.numResponders)
 
@@ -771,4 +804,27 @@ class RedisRecorderActor(
     record(msg.body.props.meetingProp.intId, ev.toMap().asJava)
   }
 
+  private def handleSetScreenshareAsContent(msg: SetScreenshareAsContentEvtMsg): Unit = {
+    val ev = new SetScreenshareAsContentEvent()
+    ev.setScreenshareAsContent(msg.body.screenshareAsContent)
+    record(msg.header.meetingId, ev.toMap().asJava)
+  }
+
+  private def handleScreenshareRtmpBroadcastStartedEvtMsg(msg: ScreenshareRtmpBroadcastStartedEvtMsg): Unit = {
+    handleUserStatusChange(
+      msg.header.meetingId,
+      msg.body.userId,
+      "hasScreenShare",
+      s"true,stream=${msg.body.stream}"
+    )
+  }
+
+  private def handleScreenshareRtmpBroadcastStoppedEvtMsg(msg: ScreenshareRtmpBroadcastStoppedEvtMsg): Unit = {
+    handleUserStatusChange(
+      msg.header.meetingId,
+      msg.body.userId,
+      "hasScreenShare",
+      s"false,stream=${msg.body.stream}"
+    )
+  }
 }

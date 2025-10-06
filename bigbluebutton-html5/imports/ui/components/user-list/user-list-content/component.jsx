@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { GenericSidekickContent } from 'bigbluebutton-html-plugin-sdk';
 import Styled from './styles';
 import UserListParticipants from './user-participants/user-list-participants/component';
 import ChatList from './user-messages/chat-list/component';
@@ -39,7 +38,6 @@ class UserContent extends PureComponent {
       currentUser,
       isTimerActive,
       compact,
-      isChatEnabled,
     } = this.props;
 
     const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
@@ -49,7 +47,7 @@ class UserContent extends PureComponent {
         {isMobile || (isMobile && isPortrait) ? (
           <Styled.ScrollableList role="tabpanel" tabIndex={0}>
             <Styled.List>
-              {isChatEnabled ? <ChatList /> : null}
+              <ChatList />
               <UserNotesContainer />
               {isTimerActive
               && <TimerContainer isModerator={currentUser?.role === ROLE_MODERATOR} />}
@@ -63,7 +61,7 @@ class UserContent extends PureComponent {
           </Styled.ScrollableList>
         ) : (
           <>
-            {isChatEnabled ? <ChatList /> : null}
+            <ChatList />
             <UserNotesContainer />
             {isTimerActive && <TimerContainer isModerator={currentUser?.role === ROLE_MODERATOR} />}
             {currentUser?.role === ROLE_MODERATOR ? <GuestPanelOpenerContainer /> : null}

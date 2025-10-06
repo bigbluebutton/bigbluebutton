@@ -52,6 +52,15 @@ case class SetCurrentPresentationPubMsgBody(podId: String, presentationId: Strin
 // ------------ client to akka-apps ------------
 
 // ------------ bbb-common-web to akka-apps ------------
+case class PresentationConversionCommonBody(
+  podId: String,
+  meetingId: String,
+  presentationName: String,
+  messageKey: String,
+  temporaryPresentationId: String,
+  presentationId: String,
+)
+
 object PresentationConversionUpdateSysPubMsg { val NAME = "PresentationConversionUpdateSysPubMsg" }
 case class PresentationConversionUpdateSysPubMsg(
     header: BbbClientMsgHeader,
@@ -63,7 +72,17 @@ case class PresentationConversionUpdateSysPubMsgBody(
     code:                    String,
     presentationId:          String,
     presName:                String,
-    temporaryPresentationId: String
+    temporaryPresentationId: String,
+)
+
+object PresentationConversionStartedSysPubMsg { val NAME = "PresentationConversionStartedSysPubMsg" }
+case class PresentationConversionStartedSysPubMsg(
+    header: BbbClientMsgHeader,
+    body: PresentationConversionStartedSysPubMsgBody
+) extends StandardMsg
+case class PresentationConversionStartedSysPubMsgBody (
+  common:      PresentationConversionCommonBody,
+  maxDuration: Long
 )
 
 object PresentationPageCountErrorSysPubMsg { val NAME = "PresentationPageCountErrorSysPubMsg" }
@@ -317,10 +336,14 @@ case class PresentationUploadedFileVirusErrorEvtMsg(header: BbbClientMsgHeader, 
 case class PresentationUploadedFileVirusErrorEvtMsgBody(podId: String, meetingId: String, presentationName: String,
                                                         messageKey: String, temporaryPresentationId: String, presentationId: String)
 
-object PresentationUploadedFileScanFailedErrorEvtMsg { val NAME = "PresentationUploadedFileScanFailedErrorEvtMsg"}
+object PresentationUploadedFileScanFailedErrorEvtMsg { val NAME = "PresentationUploadedFileScanFailedErrorEvtMsg" }
 case class PresentationUploadedFileScanFailedErrorEvtMsg(header: BbbClientMsgHeader, body: PresentationUploadedFileScanFailedErrorEvtMsgBody) extends BbbCoreMsg
 case class PresentationUploadedFileScanFailedErrorEvtMsgBody(podId: String, meetingId: String, presentationName: String,
                                                              messageKey: String, temporaryPresentationId: String, presentationId: String)
+
+object PresentationUploadedConversionCancelledErrorEvtMsg { val NAME = "PresentationUploadedConversionCancelledErrorEvtMsg" }
+case class PresentationUploadedConversionCancelledErrorEvtMsg(header: BbbClientMsgHeader, body: PresentationUploadedConversionCancelledErrorEvtMsgBody) extends BbbCoreMsg
+case class PresentationUploadedConversionCancelledErrorEvtMsgBody(common: PresentationConversionCommonBody)
 
 object PresentationConversionRequestReceivedEventMsg { val NAME = "PresentationConversionRequestReceivedEventMsg" }
 case class PresentationConversionRequestReceivedEventMsg(
@@ -401,6 +424,10 @@ case class ResizeAndMovePageEvtMsgBody(podId: String, presentationId: String, pa
 object SetCurrentPresentationEvtMsg { val NAME = "SetCurrentPresentationEvtMsg" }
 case class SetCurrentPresentationEvtMsg(header: BbbClientMsgHeader, body: SetCurrentPresentationEvtMsgBody) extends BbbCoreMsg
 case class SetCurrentPresentationEvtMsgBody(podId: String, presentationId: String)
+
+object SetPresentationFitToWidthCmdMsg { val NAME = "SetPresentationFitToWidthCmdMsg"}
+case class SetPresentationFitToWidthCmdMsg(header: BbbClientMsgHeader, body: SetPresentationFitToWidthCmdMsgBody) extends StandardMsg
+case class SetPresentationFitToWidthCmdMsgBody(userId: String, pageId: String, fitToWidth: Boolean)
 
 // ------------ akka-apps to client ------------
 

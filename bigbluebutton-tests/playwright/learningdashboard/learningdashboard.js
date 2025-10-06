@@ -22,16 +22,16 @@ class LearningDashboard extends MultiUsers {
     ]);
 
     await expect(dashboardPage).toHaveTitle(/Dashboard/);
-    this.dashboardPage = new Page(this.modPage.context, dashboardPage);
+    this.dashboardPage = new Page(this.modPage.context, dashboardPage, this.modPage.testInfo);
   }
 
   async writeOnPublicChat() {
     await openPublicChat(this.modPage);
-    await this.modPage.checkElementCount(e.chatUserMessageText, 0);
+    await this.modPage.hasElementCount(e.chatUserMessageText, 0);
 
     await this.modPage.type(e.chatBox, e.message);
     await this.modPage.waitAndClick(e.sendButton);
-    await this.modPage.checkElementCount(e.chatUserMessageText, 1);
+    await this.modPage.hasElementCount(e.chatUserMessageText, 1);
     await this.dashboardPage.reloadPage();
     await this.dashboardPage.hasText(e.messageLearningDashboard, '1', 'should display the correct amount of messages sent', ELEMENT_WAIT_EXTRA_LONG_TIME);
   }
@@ -155,12 +155,12 @@ class LearningDashboard extends MultiUsers {
     await expect(userStatusCheck).toHaveText(/Online/, { timeout: ELEMENT_WAIT_EXTRA_LONG_TIME });
   }
 
-  async downloadSessionLearningDashboard(testInfo) {
+  async downloadSessionLearningDashboard() {
     await this.modPage.logoutFromMeeting();
     await this.modPage.waitAndClick('button');
 
     const downloadSessionLocator = this.dashboardPage.getLocator(e.downloadSessionLearningDashboard);
-    const dataCSV = await this.dashboardPage.handleDownload(downloadSessionLocator, testInfo);
+    const dataCSV = await this.dashboardPage.handleDownload(downloadSessionLocator, this.modPage.testInfo);
 
     const dataToCheck = [
       'Moderator',

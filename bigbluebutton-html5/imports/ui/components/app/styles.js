@@ -62,11 +62,8 @@ const DtfInvert = `
   .tl-note__scrim,.tl-arrow-label[data-isediting="true"] > .tl-arrow-label__inner {
     background-color: unset !important;
   }
-  textarea {
+  .tl-container textarea {
     caret-color: black !important;
-  }
-  #connectionBars > div {
-    background-color: var(--darkreader-neutral-text) !important;
   }
 `;
 

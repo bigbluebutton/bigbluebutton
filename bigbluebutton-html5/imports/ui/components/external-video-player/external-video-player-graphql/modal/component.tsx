@@ -40,6 +40,8 @@ const intlMessages = defineMessages({
 const YOUTUBE_SHORTS_REGEX = new RegExp(/^(?:https?:\/\/)?(?:www\.)?(youtube\.com\/shorts)\/.+$/);
 const PANOPTO_MATCH_URL = /https?:\/\/([^/]+\/Panopto)(\/Pages\/Viewer\.aspx\?id=)([-a-zA-Z0-9]+)/;
 
+const YOUTUBE_REGEX = new RegExp(/^(?:https?:\/\/)?(?:www\.)?(youtube\.com|youtu.be)\/.+$/);
+
 interface ExternalVideoPlayerModalProps {
   onRequestClose: () => void,
   priority: string,
@@ -71,6 +73,13 @@ const ExternalVideoPlayerModal: React.FC<ExternalVideoPlayerModalProps> = ({
       if (m && m.length >= 4) {
         externalVideoUrl = `https://${m[1]}/Podcast/Social/${m[3]}.mp4`;
       }
+    }
+
+    if (YOUTUBE_REGEX.test(externalVideoUrl)) {
+      const YTUrl = new URL(externalVideoUrl);
+      YTUrl.searchParams.delete('list');
+      YTUrl.searchParams.delete('index');
+      externalVideoUrl = YTUrl.toString();
     }
 
     startExternalVideo({ variables: { externalVideoUrl } });

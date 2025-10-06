@@ -3,8 +3,8 @@ const playwright = require("playwright");
 const Page = require('../core/page');
 const e = require('../core/elements');
 const { sleep } = require('../core/helpers');
-const { checkTextContent, checkElementLengthEqualTo } = require('../core/util');
-const { checkAvatarIcon, checkIsPresenter, checkMutedUsers } = require('./util');
+const { checkTextContent } = require('../core/util');
+const { checkAvatarIcon, checkIsPresenter, checkMutedUser } = require('./util');
 const { getSettings } = require('../core/settings');
 const { ELEMENT_WAIT_TIME } = require('../core/constants');
 
@@ -14,33 +14,33 @@ class MultiUsers {
     this.context = context;
   }
 
-  async initPages(page1) {
-    await this.initModPage(page1);
-    await this.initUserPage();
+  async initPages(page1, testInfo) {
+    await this.initModPage(page1, true, { testInfo });
+    await this.initUserPage(true, this.context, { testInfo });
   }
 
-  async initModPage(page, shouldCloseAudioModal = true, { fullName = 'Moderator', ...restOptions } = {}) {
+  async initModPage(page, shouldCloseAudioModal = true, { fullName = 'Moderator', testInfo, ...restOptions } = {}) {
     const options = {
       ...restOptions,
       fullName,
     };
 
-    this.modPage = new Page(this.browser, page);
+    this.modPage = new Page(this.browser, page, testInfo);
     await this.modPage.init(true, shouldCloseAudioModal, options);
   }
 
-  async initModPage2(shouldCloseAudioModal = true, context = this.context, { fullName = 'Moderator2', useModMeetingId = true, ...restOptions } = {}) {
+  async initModPage2(shouldCloseAudioModal = true, context = this.context, { fullName = 'Moderator2', useModMeetingId = true, testInfo, ...restOptions } = {}) {
     const options = {
       ...restOptions,
       fullName,
       meetingId: (useModMeetingId) ? this.modPage.meetingId : undefined,
     };
     const page = await context.newPage();
-    this.modPage2 = new Page(this.browser, page);
+    this.modPage2 = new Page(this.browser, page, testInfo);
     await this.modPage2.init(true, shouldCloseAudioModal, options);
   }
-    
-  async initUserPage(shouldCloseAudioModal = true, context = this.context, { fullName = 'Attendee', useModMeetingId = true, ...restOptions } = {}) {
+
+  async initUserPage(shouldCloseAudioModal = true, context = this.context, { fullName = 'Attendee', useModMeetingId = true, testInfo, ...restOptions } = {}) {
     const options = {
       ...restOptions,
       fullName,
@@ -48,23 +48,11 @@ class MultiUsers {
     };
 
     const page = await context.newPage();
-    this.userPage = new Page(this.browser, page);
+    this.userPage = new Page(this.browser, page, testInfo);
     await this.userPage.init(false, shouldCloseAudioModal, options);
   }
 
-  async initUserPage1(shouldCloseAudioModal = true, { fullName = 'Attendee', useModMeetingId = true, ...restOptions } = {}) {
-    const options = {
-      ...restOptions,
-      fullName,
-      meetingId: (useModMeetingId) ? this.modPage.meetingId : undefined,
-    };
-
-    const page = await (await playwright.chromium.launch()).newPage();
-    this.userPage1 = new Page(this.browser, page);
-    await this.userPage1.init(false, shouldCloseAudioModal, options);
-  }
-
-  async initUserPage2(shouldCloseAudioModal = true, context = this.context, { fullName = 'Attendee2', useModMeetingId = true, ...restOptions } = {}) {
+  async initUserPage2(shouldCloseAudioModal = true, context = this.context, { fullName = 'Attendee2', useModMeetingId = true, testInfo, ...restOptions } = {}) {
     const options = {
       ...restOptions,
       fullName,
@@ -72,15 +60,15 @@ class MultiUsers {
     };
 
     const page = await context.newPage();
-    this.userPage2 = new Page(this.browser, page);
+    this.userPage2 = new Page(this.browser, page, testInfo);
     await this.userPage2.init(false, shouldCloseAudioModal, options);
   }
 
   async userPresence() {
-    await this.modPage.checkElementCount(e.currentUser, 1, 'should contain one current user for the moderator');
-    await this.modPage.checkElementCount(e.userListItem, 1, 'should contain one user on user list for the moderator');
-    await this.userPage.checkElementCount(e.currentUser, 1, 'should contain one current user for the attendee');
-    await this.userPage.checkElementCount(e.userListItem, 1, 'should contain one user on user list for the attendee');
+    await this.modPage.hasElementCount(e.currentUser, 1, 'should contain one current user for the moderator');
+    await this.modPage.hasElementCount(e.userListItem, 1, 'should contain one user on user list for the moderator');
+    await this.userPage.hasElementCount(e.currentUser, 1, 'should contain one current user for the attendee');
+    await this.userPage.hasElementCount(e.userListItem, 1, 'should contain one user on user list for the attendee');
   }
 
   async makePresenter() {
@@ -219,6 +207,41 @@ class MultiUsers {
     await this.userPage.hasText(`:nth-match(${e.dropdownWebcamButton}, 2)`, this.userPage.username, 'should display the username of Attendee on the second pinned webcam for Attendee');
   }
 
+  async focusUnfocusWebcam() {
+    await this.modPage.shareWebcam();
+    await this.userPage2.shareWebcam();
+
+    const user2DropdownWebcamButtonForModerator =
+      await this.modPage.getLocator(e.dropdownWebcamButton).filter({ hasText: this.userPage2.username })
+
+    await user2DropdownWebcamButtonForModerator.click();
+
+    await this.modPage.wasRemoved(e.focusWebcamBtn, 'should not display the focus webcam button to the moderator when there are less than 3 webcams shared');
+
+    await this.userPage.shareWebcam();
+
+    await user2DropdownWebcamButtonForModerator.click();
+    await this.modPage.getVisibleLocator(e.focusWebcamBtn).click();
+
+    await this.modPage.hasText(`:nth-match(${e.dropdownWebcamButton}, 1)`, this.userPage2.username, 'should display the username of User2 on the focused webcam for Moderator');
+    await this.userPage2.hasText(`:nth-match(${e.dropdownWebcamButton}, 1)`, this.userPage2.username, 'should display the username of User2 on the first webcam for User2');
+
+    const user2DropdownWebcamButtonForUser1 =
+      await this.userPage.getLocator(e.dropdownWebcamButton).filter({ hasText: this.userPage2.username })
+
+    await user2DropdownWebcamButtonForUser1.click()
+    await this.userPage.getVisibleLocator(e.focusWebcamBtn).click();
+
+    await this.userPage.hasText(`:nth-match(${e.dropdownWebcamButton}, 1)`, this.userPage2.username, 'should display the username of User2 on the focused webcam for User1');
+
+    await user2DropdownWebcamButtonForModerator.click();
+    await this.modPage.getVisibleLocator(e.unfocusWebcamBtn).click();
+
+    await this.modPage.hasText(`:nth-match(${e.dropdownWebcamButton}, 1)`, this.modPage.username, 'should display the username of Moderator on the first webcam for Moderator');
+    await this.userPage2.hasText(`:nth-match(${e.dropdownWebcamButton}, 1)`, this.userPage2.username, 'should display the username of User2 on the first webcam for User2');
+    await this.userPage.hasText(`:nth-match(${e.dropdownWebcamButton}, 1)`, this.userPage2.username, 'should display the username of User2 on the first webcam for User1');
+  }
+
   async giveAndRemoveWhiteboardAccess() {
     await this.modPage.waitForSelector(e.whiteboard);
     await this.modPage.waitAndClick(e.userListItem);
@@ -229,16 +252,45 @@ class MultiUsers {
     await this.modPage.hasElement(e.multiUsersWhiteboardOn);
   }
 
-  async muteAllUsersExceptPresenter(){
+  async disabledUsersJoinMuted() {
+    // join user muted
+    await this.initUserPage(false);
+    await this.userPage.waitAndClick(e.microphoneButton);
+    await this.userPage.waitAndClick(e.joinEchoTestButton);
+    await this.userPage.wasRemoved(e.establishingAudioLabel, 'should stop displaying the establishing audio label when the first user joins audio');
+    await this.userPage.hasElement(e.unmuteMicButton, 'should display the unmute microphone button for the first user - joined muted');
+    // disabled user join muted
+    await this.modPage.waitAndClick(e.manageUsers);
+    await this.modPage.waitAndClick(e.usersJoinMuted);
+    // join user unmuted
+    await this.initUserPage2(false);
+    await this.userPage2.waitAndClick(e.microphoneButton);
+    await this.userPage2.waitAndClick(e.joinEchoTestButton);
+    await this.userPage2.wasRemoved(e.establishingAudioLabel, 'should stop displaying the establishing audio label when the second user joins audio');
+    await this.userPage2.hasElement(e.muteMicButton, 'should display the mute microphone button for the second user - joined unmuted');
+    // check if the talking indicator is displayed for everyone
+    await this.modPage.hasElement(e.isTalking, 'should display the talking indicator for the moderator');
+    await this.userPage.hasElement(e.isTalking, 'should display the talking indicator for the first user');
+    await this.userPage2.hasElement(e.isTalking, 'should display the talking indicator for the second user');
+  }
+
+  async muteAllUsersExceptPresenter() {
+    // join audio
     await this.modPage.joinMicrophone();
     await this.modPage2.joinMicrophone();
     await this.userPage.joinMicrophone();
+    // mute all users except the presenter
     await this.modPage.waitAndClick(e.manageUsers);
     await this.modPage.waitAndClick(e.muteAllExceptPresenter);
-    
-    await this.modPage.hasElement(e.isTalking, 'should display the is talking element only for the moderator - 1 item');
-    await checkMutedUsers(this.modPage2);
-    await checkMutedUsers(this.userPage);
+    // check if presenter is not muted
+    await this.modPage.checkUserTalkingIndicator();
+    // check number of talking indicator's element
+    await this.modPage.hasElementCount(e.isTalking, 1, 'should display only the presenter talking indicator for the moderator');
+    await this.modPage2.hasElementCount(e.isTalking, 1, 'should display only the presenter talking indicator for the second moderator');
+    await this.userPage.hasElementCount(e.isTalking, 1, 'should display only the presenter talking indicator for the attendee');
+    // check join audio buttons for the users
+    await checkMutedUser(this.modPage2);
+    await checkMutedUser(this.userPage);
   }
 
   async removeUser() {
@@ -247,8 +299,8 @@ class MultiUsers {
     await this.modPage.waitAndClick(e.removeUserConfirmationBtn);
     await this.modPage.wasRemoved(e.userListItem, 'should not display a user on the user list for the moderator');
 
-    //Will be modified when the issue is fixed and accept just one of both screens
-    //https://github.com/bigbluebutton/bigbluebutton/issues/16463
+    // Will be modified when the issue is fixed and accept just one of both screens
+    // https://github.com/bigbluebutton/bigbluebutton/issues/16463
     try {
       await this.modPage2.hasElement(e.errorScreenMessage, 'should display the error screen message for the second moderator');
     } catch (err) {
@@ -320,6 +372,71 @@ class MultiUsers {
     await expect(emojiRainLocator, 'should display the emoji rain element when enabled').toHaveCount(5, { timeout: ELEMENT_WAIT_TIME });
     await sleep(1000);
     await expect(emojiRainLocator, 'should stop displaying the emoji rain element after a second').toHaveCount(0, { timeout: ELEMENT_WAIT_TIME });
+  }
+
+  async clearAllStatusIcon() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage2.waitForSelector(e.whiteboard);
+
+    await this.modPage.waitAndClick(e.reactionsButton);
+    await this.modPage.waitAndClick(`${e.singleReactionButton}:nth-child(1)`);
+    await this.modPage.hasText(e.moderatorAvatar, '😃', 'should display the smiling emoji in the moderator avatar for the moderator');
+    await this.modPage.hasText(e.reactionsButton, '😃', 'should display the smiling emoji on the reactions button when used');
+
+    await this.modPage2.waitAndClick(e.reactionsButton);
+    await this.modPage2.waitAndClick(`${e.singleReactionButton}:nth-child(1)`);
+    await this.modPage2.hasText(e.moderatorAvatar, '😃', 'should display the smiling emoji in the moderator avatar for the moderator');
+    await this.modPage2.hasText(e.reactionsButton, '😃', 'should display the smiling emoji on the reactions button when used');
+
+    await this.modPage.waitAndClick(e.manageUsers);
+    await this.modPage.waitAndClick(e.clearStatus);
+
+    await this.modPage.hasText(e.moderatorAvatar, 'mo', 'should not display the emoji after clearing all icons');
+    await this.modPage2.hasText(e.moderatorAvatar, 'mo', 'should not display the emoji after clearing all icons');
+  }
+
+  async leaveMeeting() {
+    await this.modPage.waitForSelector(e.whiteboard);
+
+    const modPageUserList = await this.modPage.getLocator(e.userListItem);
+
+    await expect(modPageUserList).toHaveCount(2);
+    await this.modPage.hasElementCount(e.userListItem, 2, 'should display the two users on the user list for the moderator, self not included in the count');
+
+    await this.modPage.waitAndClick(e.leaveMeetingDropdown);
+    await this.modPage.waitAndClick(e.directLogoutButton);
+
+    await this.modPage.hasElement(e.meetingEndedModal, 'should display the meeting ended modal for the moderator');
+    await this.modPage.hasElement(e.redirectButton, 'should display the redirect button in the meeting ended modal');
+
+    const user1PageUserList = await this.userPage.getLocator(e.userListItem);
+
+    await expect(user1PageUserList).toHaveCount(1);
+    await this.userPage.hasElementCount(e.userListItem, 1, 'should display the two users on the user list for User1, self not included in the count');
+
+    await this.userPage.waitAndClick(e.leaveMeetingDropdown);
+    await this.userPage.waitAndClick(e.directLogoutButton);
+
+    await this.userPage.hasElement(e.meetingEndedModal, 'should display the meeting ended modal for the attendee');
+    await this.userPage.hasElement(e.redirectButton, 'should display the redirect button in the meeting ended modal');
+
+    const user2PageUserList = await this.userPage2.getLocator(e.userListItem);
+
+    await expect(user2PageUserList).toHaveCount(0);
+    await this.userPage2.hasElementCount(e.userListItem, 0, 'should display one user(self) for the User2, self not included in the count');
+  }
+
+  async endMeeting() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.userPage.waitForSelector(e.whiteboard);
+
+    await this.modPage.waitAndClick(e.leaveMeetingDropdown);
+    await this.modPage.waitAndClick(e.endMeetingButton);
+    await this.modPage.hasElement(e.simpleModal, 'should display the confirm meeting end modal');
+
+    await this.modPage.waitAndClick(e.confirmEndMeetingButton);
+    await this.modPage.hasElement(e.meetingEndedModal, 'should display the meeting ended modal for the moderator');
+    await this.userPage.hasElement(e.meetingEndedModal, 'should display the meeting ended modal for the attendee');
   }
 }
 

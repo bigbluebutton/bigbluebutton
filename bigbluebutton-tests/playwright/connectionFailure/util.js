@@ -1,11 +1,7 @@
 const util = require('node:util');
 const exec = util.promisify(require('node:child_process').exec);
 const process = require('node:process');
-const parameters = require('../core/parameters.js');
-
-// Hostname of BBB server that we're going to break connections to
-
-const hostname = new URL(parameters.server).hostname;
+const { hostname } = require('../core/parameters.js');
 
 // Parse a line of output from the 'ss' program into an object
 // with fields local (local IP address and TCP port), remote

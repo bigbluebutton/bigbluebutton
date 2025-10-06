@@ -10,10 +10,8 @@ select_permissions:
   - role: bbb_client
     permission:
       columns:
-        - dataChannels
         - name
         - settings
-        - url
       filter:
         meetingId:
           _eq: X-Hasura-MeetingId

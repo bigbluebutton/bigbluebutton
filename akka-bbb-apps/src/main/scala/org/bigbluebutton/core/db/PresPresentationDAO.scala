@@ -180,6 +180,7 @@ object PresPresentationDAO {
               maxImageHeight = 1080,
               uploadCompleted = page._2.converted,
               infiniteWhiteboard = page._2.infiniteWhiteboard,
+              fitToWidth = page._2.fitToWidth,
             )
           )
         }

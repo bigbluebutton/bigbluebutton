@@ -47,7 +47,7 @@ class Options extends MultiUsers {
       const currentValuesBySelector = getLocaleValues(selectedKeysBySelector, locale);
 
       await openSettings(this.modPage);
-      await this.modPage.waitForSelector(e.languageSelector);
+      await this.modPage.waitForSelector(e.languageSelector, 5000);
       const langDropdown = await this.modPage.page.$(e.languageSelector);
       await langDropdown.selectOption({ value: locale });
       await this.modPage.waitAndClick(e.modalConfirmButton);
@@ -117,7 +117,6 @@ class Options extends MultiUsers {
 
     if (!CI) {
       const modPageLocator = this.modPage.getLocator('body');
-      await this.modPage.setHeightWidthViewPortSize();
       const screenshotOptions = {
         maxDiffPixels: 1000,
       };
@@ -128,7 +127,6 @@ class Options extends MultiUsers {
 
   async fontSizeTest() {
     await this.modPage.hasElement(e.whiteboard, 'should the whiteboard be display');
-    await this.modPage.setHeightWidthViewPortSize();
     const getFontSizeNumber = (node) => Number(getComputedStyle(node).fontSize.slice(0, -2));
     const [
       presentationTitleLocator,
@@ -160,6 +158,34 @@ class Options extends MultiUsers {
       await this.modPage.closeAllToastNotifications();
       await expect(modPageLocator, 'should the meeting display the font size increased').toHaveScreenshot('moderator-page-font-size.png', screenshotOptions);
     }
+  }
+
+  async autoHideWhiteboardToolbar() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage.hasElement(e.wbToolbar, 'should display the whiteboard toolbar when meeting starts');
+    await this.modPage.closeAllToastNotifications();
+
+    const whiteboardLocator = await this.modPage.getLocator(e.whiteboard);
+    await expect(whiteboardLocator).toHaveScreenshot('whiteboard-with-toolbar-visible.png');
+
+    await openSettings(this.modPage);
+    await this.modPage.waitAndClickElement(e.wbAutoHideToggleBtn);
+    await this.modPage.hasElementEnabled(e.wbAutoHideToggleBtn, 'should display the auto hide whiteboard toolbar toggle enabled after clicking it');
+
+    await this.modPage.waitAndClick(e.modalConfirmButton);
+    await this.modPage.waitForSelector(e.whiteboard);
+
+    const wbToolbarLocator = this.modPage.getLocator(e.wbToolbar);
+    await this.modPage.hoverElement(e.whiteboard);
+    await expect(wbToolbarLocator).toHaveClass(/fade-in/);
+    await this.modPage.hasElement(e.wbToolbar, 'should display the whiteboard toolbar when hover the whiteboard');
+
+    await this.modPage.hoverElement(e.chatButton)
+    await expect(wbToolbarLocator).toHaveClass(/fade-out/);
+    
+    await expect(whiteboardLocator).toHaveScreenshot('whiteboard-with-toolbar-hidden.png', {
+      maxDiffPixels: 1000,
+    });
   }
 }
 

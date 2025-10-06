@@ -1,6 +1,7 @@
 import React from 'react';
 import Toggle from '/imports/ui/components/common/switch/component';
 import { defineMessages, injectIntl } from 'react-intl';
+import AudioManager from '/imports/ui/services/audio-manager';
 import BaseMenu from '../base/component';
 import Styled from './styles';
 
@@ -41,6 +42,10 @@ const intlMessages = defineMessages({
     id: 'app.submenu.notification.raiseHandLabel',
     description: 'label for raise hand emoji notifications',
   },
+  muteUnmuteLabel: {
+    id: 'app.submenu.notification.muteUnmuteLabel',
+    description: 'label for mute/unmute audio notifications',
+  },
 });
 
 class NotificationMenu extends BaseMenu {
@@ -64,6 +69,7 @@ class NotificationMenu extends BaseMenu {
     } = this.props;
 
     const { settings } = this.state;
+    const isLiveKit = AudioManager.bridge?.bridgeName === 'livekit';
 
     return (
       <div>
@@ -186,6 +192,40 @@ class NotificationMenu extends BaseMenu {
               </Styled.FormElementCenter>
             </Styled.Col>
           </Styled.Row>
+          {isLiveKit ? (
+            <Styled.Row>
+              <Styled.Col>
+                <Styled.Label aria-hidden>
+                  {intl.formatMessage(intlMessages.muteUnmuteLabel)}
+                </Styled.Label>
+              </Styled.Col>
+              <Styled.Col>
+                <Styled.FormElementCenter>
+                  {displaySettingsStatus(settings.muteUnmuteAudioAlerts)}
+                  <Toggle
+                    icons={false}
+                    defaultChecked={settings.muteUnmuteAudioAlerts}
+                    onChange={() => this.handleToggle('muteUnmuteAudioAlerts')}
+                    ariaLabel={`${intl.formatMessage(intlMessages.muteUnmuteLabel)} ${intl.formatMessage(intlMessages.audioAlertLabel)} - ${displaySettingsStatus(settings.muteUnmuteAudioAlerts, true)}`}
+                    showToggleLabel={showToggleLabel}
+                  />
+                </Styled.FormElementCenter>
+              </Styled.Col>
+              <Styled.Col>
+                <Styled.FormElementCenter>
+                  {displaySettingsStatus(false)}
+                  <Toggle
+                    icons={false}
+                    defaultChecked={false}
+                    onChange={() => { }}
+                    disabled
+                    ariaLabel={`${intl.formatMessage(intlMessages.muteUnmuteLabel)} ${intl.formatMessage(intlMessages.pushAlertLabel)}`}
+                    showToggleLabel={showToggleLabel}
+                  />
+                </Styled.FormElementCenter>
+              </Styled.Col>
+            </Styled.Row>
+          ) : null}
 
           {isModerator && showGuestNotification ? (
             <Styled.Row>

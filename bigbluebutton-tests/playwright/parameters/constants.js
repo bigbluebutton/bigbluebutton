@@ -22,7 +22,22 @@ exports.notifyRecordingIsOn = 'notifyRecordingIsOn=true&notifyRecordingIsOn=true
 exports.preUploadedPresentation = 'preUploadedPresentation=https://dagrs.berkeley.edu/sites/default/files/2020-01/sample.pdf';
 exports.preUploadedPresentationOverrideDefault = 'preUploadedPresentationOverrideDefault=true';
 exports.preUploadedPresentationName = 'preUploadedPresentationName=ScientificPaper.pdf';
-
+exports.customLayout = 'meetingLayout=CUSTOM_LAYOUT';
+exports.smartLayout = 'meetingLayout=SMART_LAYOUT';
+exports.presentationFocus = 'meetingLayout=PRESENTATION_FOCUS';
+exports.videoFocus = 'meetingLayout=VIDEO_FOCUS';
+exports.camerasOnly = 'meetingLayout=CAMERAS_ONLY';
+exports.presentationOnly = 'meetingLayout=PRESENTATION_ONLY';
+exports.participantsAndChatOnly = 'meetingLayout=PARTICIPANTS_AND_CHAT_ONLY';
+exports.mediaOnly = 'meetingLayout=MEDIA_ONLY';
+exports.enforceCustomLayout = 'enforceLayout=CUSTOM_LAYOUT';
+exports.enforcePresentationFocus = 'enforceLayout=PRESENTATION_FOCUS';
+exports.enforceSmartLayout = 'enforceLayout=SMART_LAYOUT';
+exports.enforceVideoFocus = 'enforceLayout=VIDEO_FOCUS';
+exports.enforceCamerasOnly = 'enforceLayout=CAMERAS_ONLY';
+exports.enforcePresentationOnly = 'enforceLayout=PRESENTATION_ONLY';
+exports.enforceParticipantsAndChatOnly = 'enforceLayout=PARTICIPANTS_AND_CHAT_ONLY';
+exports.enforceMediaOnly = 'enforceLayout=MEDIA_ONLY';
 
 // Custom Parameters
 exports.autoJoin = 'userdata-bbb_auto_join_audio=false';
@@ -56,11 +71,13 @@ exports.skipVideoPreviewOnFirstJoin = 'userdata-bbb_skip_video_preview_on_first_
 exports.skipVideoPreviewIfPreviousDevice = 'userdata-bbb_skip_video_preview_if_previous_device=true';
 exports.mirrorOwnWebcam = 'userdata-bbb_mirror_own_webcam=true';
 exports.showParticipantsOnLogin = 'userdata-bbb_show_participants_on_login=false';
+exports.showSessionDetailsOnJoin = 'bbb_show_session_details_on_join=true';
 exports.hideActionsBar = 'userdata-bbb_hide_actions_bar=true';
 exports.overrideDefaultLocale = 'userdata-bbb_override_default_locale=pt-br';
 exports.hideNavBar = 'userdata-bbb_hide_nav_bar=true';
 exports.preferredCameraProfile = 'userdata-bbb_preferred_camera_profile=low';
 exports.webcamBackgroundPassingURL = 'webcamBackgroundURL=https://upload.wikimedia.org/wikipedia/commons/3/35/Spartan_apple.jpg'
+exports.logoutURL = 'logoutURL=https://www.google.com';
 
 // Disabled Features
 exports.breakoutRoomsDisabled = 'disabledFeatures=breakoutRooms';

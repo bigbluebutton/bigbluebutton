@@ -3,16 +3,19 @@
   "description": "BigBlueButton HTML5 Client",
   "license": "LGPL-3.0",
   "scripts": {
-    "start": "NODE_ENV=development DETAILED_LOGS=true webpack serve --open --config webpack.config.js",
-    "build": "NODE_ENV=production webpack --config webpack.config.js --mode production",
+    "postinstall": "grep -q '\"bigbluebutton-html-plugin-sdk\" *: *\"https://codeload' package.json || exit 0 && echo executing postInstall... && cd node_modules/bigbluebutton-html-plugin-sdk && npm ci && npm run build && rm -rf node_modules",
+    "start": "NODE_ENV=development DETAILED_LOGS=true HOT_RELOAD=true webpack serve --open --config webpack.config.js",
+    "build": "NODE_ENV=production TARGET=default webpack --config webpack.config.js --mode production",
+    "build-safari": "NODE_ENV=production TARGET=safari webpack --config webpack.config.js --mode production",
     "tscheck": "tsc",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "lint:file": "eslint"
+    "lint:file": "eslint",
+    "tscheck:staged": "tsc --noEmit --incremental"
   },
   "lint-staged": {
-    "*.{js,jsx}": [
-      "eslint --fix"
+    "*.{js,jsx,ts,tsx}": [
+      "eslint"
     ]
   },
   "overrides": {
@@ -33,8 +36,8 @@
   },
   "dependencies": {
     "@apollo/client": "^3.10.4",
-    "@babel/runtime": "^7.17.9",
-    "@bigbluebutton/tldraw": "^2.0.0-alpha.26",
+    "@babel/runtime": "^7.26.10",
+    "@bigbluebutton/tldraw": "^2.0.0-alpha.31",
     "@browser-bunyan/console-formatted-stream": "^1.8.0",
     "@browser-bunyan/console-raw-stream": "^1.8.0",
     "@browser-bunyan/levels": "^1.8.0",
@@ -44,7 +47,7 @@
     "@emotion/react": "^11.10.8",
     "@emotion/styled": "^11.10.8",
     "@jitsi/sdp-interop": "0.1.14",
-    "@livekit/components-react": "^2.8.0",
+    "@livekit/components-react": "2.9.12",
     "@mconf/bbb-diff": "^1.2.0",
     "@mui/base": "^5.0.0-beta.58",
     "@mui/material": "^5.12.2",
@@ -53,40 +56,32 @@
     "@types/ramda": "^0.29.2",
     "@types/react": "^18.2.18",
     "autoprefixer": "^10.4.4",
-    "axios": "^1.7.8",
     "babel-runtime": "~6.26.0",
-    "bigbluebutton-html-plugin-sdk": "0.0.73",
-    "bowser": "^2.11.0",
+    "bigbluebutton-html-plugin-sdk": "0.0.94",
+    "bowser": "^2.12.0",
     "browser-bunyan": "^1.8.0",
     "classnames": "^2.2.6",
     "darkreader": "^4.9.46",
     "emoji-mart": "^5.5.2",
     "eventemitter2": "~6.4.6",
     "fast-json-patch": "^3.1.1",
-    "fastdom": "^1.0.10",
     "flat": "^5.0.2",
     "focus-trap-react": "^10.2.1",
     "graphql": "^16.8.1",
     "graphql-ws": "^5.16.0",
     "hark": "^1.2.3",
-    "html-to-image": "^1.9.0",
+    "html-to-image": "^1.11.13",
     "immutability-helper": "~2.8.1",
     "langmap": "0.0.16",
-    "livekit-client": "^2.8.1",
+    "livekit-client": "2.15.7",
     "makeup-screenreader-trap": "0.0.5",
-    "mobx": "6.4.2",
-    "pg": "^8.11.3",
-    "postcss-nested": "^5.0.6",
-    "probe-image-size": "^7.2.3",
-    "prom-client": "^13.2.0",
+    "postcss-nested": "^7.0.2",
     "prop-types": "^15.8.1",
-    "queue": "^6.0.2",
-    "radash": "^10.8.1",
-    "ramda": "^0.29.0",
-    "re-resizable": "^4.11.0",
+    "radash": "^12.1.1",
+    "ramda": "^0.31.3",
+    "re-resizable": "^6.10.0",
     "react": "^18.2.0",
     "react-autosize-textarea": "^5.0.1",
-    "react-colorful": "^5.6.1",
     "react-dom": "^18.2.0",
     "react-draggable": "^4.4.6",
     "react-dropzone": "^7.0.1",
@@ -95,15 +90,14 @@
     "react-markdown": "^8.0.7",
     "react-modal": "^3.15.1",
     "react-player": "^2.10.0",
-    "react-tabs": "^4.2.1",
+    "react-tabs": "^6.1.0",
     "react-tether": "^2.0.7",
     "react-toastify": "^11.0.2",
     "react-toggle": "^4.1.2",
     "react-transition-group": "^4.4.5",
-    "recharts": "^2.7.2",
+    "recharts": "^2.15.1",
     "reconnecting-websocket": "~v4.4.0",
     "sanitize-html": "2.12.1",
-    "scheduler": "^0.20.2",
     "sdp-transform": "2.7.0",
     "smile2emoji": "^3.8.3",
     "string-hash": "~1.1.3",
@@ -123,6 +117,7 @@
     "@babel/preset-env": "7.24.8",
     "@babel/preset-react": "7.24.7",
     "@babel/preset-typescript": "7.24.7",
+    "@pmmmwh/react-refresh-webpack-plugin": "^0.6.1",
     "@types/emoji-mart": "^3.0.9",
     "@types/react": "18.3.3",
     "@types/react-dom": "^18.2.7",
@@ -148,18 +143,19 @@
     "husky": "^1.3.1",
     "lint-staged": "11.2.0",
     "mini-css-extract-plugin": "^2.9.0",
-    "postcss": "^8.5.3",
+    "postcss": "^8.5.6",
     "postcss-loader": "^8.1.1",
     "prettier": "3.3.3",
     "react": "18.3.1",
     "react-dom": "18.3.1",
+    "react-refresh": "^0.17.0",
     "sha1": "^1.1.1",
     "style-loader": "4.0.0",
     "terser-webpack-plugin": "^5.3.10",
     "typescript": "5.5.3",
     "webpack": "5.94.0",
     "webpack-cli": "^5.1.4",
-    "webpack-dev-server": "5.0.4"
+    "webpack-dev-server": "5.2.2"
   },
   "resolutions": {
     "trim-newlines": "^4.0.1"
@@ -170,7 +166,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged"
+      "pre-commit": "lint-staged && npm run tscheck:staged"
     }
   }
 }

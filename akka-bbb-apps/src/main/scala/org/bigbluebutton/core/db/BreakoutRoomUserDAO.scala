@@ -25,7 +25,6 @@ class BreakoutRoomUserDbTableDef(tag: Tag) extends Table[BreakoutRoomUserDbModel
 }
 
 object BreakoutRoomUserDAO {
-
   def prepareInsert(breakoutRoomId: String, meetingId: String, userId: String, joinURL: String, wasAssignedByMod: Boolean) = {
     TableQuery[BreakoutRoomUserDbTableDef].insertOrUpdate(
       BreakoutRoomUserDbModel(
@@ -42,37 +41,15 @@ object BreakoutRoomUserDAO {
     )
   }
 
-  def prepareDelete(breakoutRoomId: String, meetingId: String, userId: String, exceptBreakoutRooomId: String) = {
-    var query = TableQuery[BreakoutRoomUserDbTableDef]
-                .filter(_.meetingId === meetingId)
-                .filter(_.userId === userId)
-
-    //Sometimes the user is moved before he joined in any room, in this case remove all assignments
-    if (breakoutRoomId.nonEmpty) {
-      query = query.filter(_.breakoutRoomId === breakoutRoomId)
-    }
-
-    if (exceptBreakoutRooomId.nonEmpty) {
-      query = query.filter(_.breakoutRoomId =!= exceptBreakoutRooomId)
-    }
-
-    query.delete
-  }
-
-  def updateRoomChanged(meetingId: String, userId: String, fromBreakoutRoomId: String,
-                        toBreakoutRoomId: String, joinUrl: String, removePreviousRoom: Boolean) = {
+  def updateUserMovedToRoom(meetingId: String, userId: String, toBreakoutRoomId: String, joinUrl: String) = {
     DatabaseConnection.enqueue(
-      if (removePreviousRoom) {
-        DBIO.seq(
-          BreakoutRoomUserDAO.prepareDelete(fromBreakoutRoomId, meetingId, userId, exceptBreakoutRooomId = toBreakoutRoomId),
-          BreakoutRoomUserDAO.prepareInsert(toBreakoutRoomId, meetingId, userId, joinUrl, wasAssignedByMod = true)
-        )
-      } else {
-        DBIO.seq(
-          BreakoutRoomUserDAO.prepareInsert(toBreakoutRoomId, meetingId, userId, joinUrl, wasAssignedByMod = true)
-        )
-      }
+      DBIO.seq(
+        BreakoutRoomUserDAO.prepareInsert(toBreakoutRoomId, meetingId, userId, joinUrl, wasAssignedByMod = true)
+      )
     )
+
+    //it will remove previous rooms if necessary
+    this.refreshBreakoutRoomsVisibleForUsers(meetingId, userId)
   }
 
   def updateUserJoined(meetingId: String, usersInRoom: Vector[String], breakoutRoom: BreakoutRoom2x) = {
@@ -84,8 +61,7 @@ object BreakoutRoomUserDAO {
                 "joinedAt" = current_timestamp
                 WHERE "meetingId" = ${meetingId}
                 AND "userId" = ${userInRoom}
-                AND "breakoutRoomId" = ${breakoutRoom.id}
-                AND "joinedAt" is null"""
+                AND "breakoutRoomId" = ${breakoutRoom.id}"""
       )
     }
   }
@@ -98,7 +74,6 @@ object BreakoutRoomUserDAO {
       }
   }
 
-
   def updateInviteDismissedAt(meetingId: String, userId: String) = {
     DatabaseConnection.enqueue(
       TableQuery[BreakoutRoomUserDbTableDef]
@@ -109,18 +84,42 @@ object BreakoutRoomUserDAO {
     )
   }
 
-//  def updateUserJoined(meetingId: String, userId: String, breakoutRoomId: String) = {
-//    DatabaseConnection.db.run(
-//      TableQuery[BreakoutRoomUserDbTableDef]
-//        .filter(_.breakoutRoomId === breakoutRoomId)
-//        .filter(_.meetingId === meetingId)
-//        .filter(_.userId === userId)
-//        .map(u => u.joinedAt)
-//        .update(Some(new java.sql.Timestamp(System.currentTimeMillis())))
-//    ).onComplete {
-//      case Success(rowsAffected) => DatabaseConnection.logger.debug(s"$rowsAffected row(s) updated joinedAt on breakoutRoom_user table!")
-//      case Failure(e) => DatabaseConnection.logger.error(s"Error updating joinedAt breakoutRoom_user: $e")
-//    }
-//  }
+  def refreshBreakoutRoomsVisibleForUsers(meetingId: String, userId: String = "") = {
+    val userCriteria: String = {
+      if (userId.nonEmpty) {
+        s"""AND u."userId" = '${userId}'"""
+      } else {
+        ""
+      }
+    }
 
+    //Insert all rooms visible to the user into "breakoutRoom_user", as it will improve performance
+    //Also remove all rooms that is visible to the user but should no longer be visible
+    DatabaseConnection.enqueue(
+      sqlu"""
+        INSERT INTO "breakoutRoom_user" ("breakoutRoomId", "meetingId", "userId")
+        SELECT b."breakoutRoomId", u."meetingId", u."userId"
+        FROM "user" u
+        JOIN "breakoutRoom" b ON b."parentMeetingId" = u."meetingId"
+        WHERE u."meetingId" = ${meetingId} #${userCriteria}
+        AND ( b."freeJoin" IS TRUE OR u."role" = 'MODERATOR')
+        AND b."endedAt" IS NULL
+        ON CONFLICT ("breakoutRoomId", "meetingId", "userId") DO NOTHING;
+
+        DELETE FROM "breakoutRoom_user"
+            WHERE ("breakoutRoomId", "meetingId", "userId")
+            IN (
+                select bu."breakoutRoomId", bu."meetingId", bu."userId"
+                from "breakoutRoom_user" bu
+                join "breakoutRoom" b using("breakoutRoomId")
+                join "user" u using("userId")
+                where u."meetingId" = ${meetingId} #${userCriteria}
+                and bu."isLastAssignedRoom" is false
+                and b."freeJoin" is not true
+                and u."isModerator" is not true
+            )
+        """
+    )
+
+    }
 }

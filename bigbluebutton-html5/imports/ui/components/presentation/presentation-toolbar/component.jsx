@@ -112,12 +112,6 @@ class PresentationToolbar extends PureComponent {
   constructor(props) {
     super(props);
 
-    this.state = {
-      wasFTWActive: false,
-    };
-
-    this.setWasActive = this.setWasActive.bind(this);
-    this.handleFTWSlideChange = this.handleFTWSlideChange.bind(this);
     this.handleSkipToSlideChange = this.handleSkipToSlideChange.bind(this);
     this.change = this.change.bind(this);
     this.renderAriaDescs = this.renderAriaDescs.bind(this);
@@ -132,30 +126,8 @@ class PresentationToolbar extends PureComponent {
     document.addEventListener('keydown', this.switchSlide);
   }
 
-  componentDidUpdate(prevProps) {
-    const {
-      zoom, setIsPanning, fitToWidth, fitToWidthHandler, currentSlideNum,
-    } = this.props;
-    const { wasFTWActive } = this.state;
-
-    if ((prevProps?.currentSlideNum !== currentSlideNum) && (!fitToWidth && wasFTWActive)) {
-      setTimeout(() => {
-        fitToWidthHandler();
-        this.setWasActive(false);
-      }, 350);
-    }
-  }
-
   componentWillUnmount() {
     document.removeEventListener('keydown', this.switchSlide);
-  }
-
-  handleFTWSlideChange() {
-    const { fitToWidth, fitToWidthHandler } = this.props;
-    if (fitToWidth) {
-      fitToWidthHandler();
-      this.setWasActive(fitToWidth);
-    }
   }
 
   handleSkipToSlideChange(event) {
@@ -166,7 +138,6 @@ class PresentationToolbar extends PureComponent {
 
     if (isInfiniteWhiteboard) setPresentationPageInfiniteWhiteboard(false);
 
-    this.handleFTWSlideChange();
     if (event) event.currentTarget.blur();
     skipToSlide(requestedSlideNum);
   }
@@ -182,10 +153,6 @@ class PresentationToolbar extends PureComponent {
       return removeWhiteboardGlobalAccess(whiteboardId);
     }
     return addWhiteboardGlobalAccess(whiteboardId);
-  }
-
-  setWasActive(wasFTWActive) {
-    this.setState({ wasFTWActive });
   }
 
   fullscreenToggleHandler() {
@@ -212,36 +179,37 @@ class PresentationToolbar extends PureComponent {
 
   nextSlideHandler(event) {
     const {
-      nextSlide, endCurrentPoll, currentSlide, setPresentationPageInfiniteWhiteboard,
+      nextSlide, currentSlide, setPresentationPageInfiniteWhiteboard,
     } = this.props;
     const isInfiniteWhiteboard = currentSlide?.infiniteWhiteboard;
 
     if (isInfiniteWhiteboard) setPresentationPageInfiniteWhiteboard(false);
 
-    this.handleFTWSlideChange();
     if (event) event.currentTarget.blur();
-    endCurrentPoll();
     nextSlide();
   }
 
   previousSlideHandler(event) {
     const {
-      previousSlide, endCurrentPoll, currentSlide, setPresentationPageInfiniteWhiteboard,
+      previousSlide, currentSlide, setPresentationPageInfiniteWhiteboard,
     } = this.props;
 
     const isInfiniteWhiteboard = currentSlide?.infiniteWhiteboard;
 
     if (isInfiniteWhiteboard) setPresentationPageInfiniteWhiteboard(false);
 
-    this.handleFTWSlideChange();
     if (event) event.currentTarget.blur();
-    endCurrentPoll();
     previousSlide();
   }
 
   switchSlide(event) {
     const { target, which } = event;
     const isBody = target.nodeName === 'BODY';
+    const isWhiteboard = target.classList.contains('tl-container');
+
+    if (which === KEY_CODES.ENTER && (isWhiteboard || isBody)) {
+      return this.fullscreenToggleHandler();
+    }
 
     if (isBody) {
       switch (which) {
@@ -252,9 +220,6 @@ class PresentationToolbar extends PureComponent {
         case KEY_CODES.ARROW_RIGHT:
         case KEY_CODES.PAGE_DOWN:
           this.nextSlideHandler();
-          break;
-        case KEY_CODES.ENTER:
-          this.fullscreenToggleHandler();
           break;
         default:
       }
@@ -288,6 +253,7 @@ class PresentationToolbar extends PureComponent {
               label={ppb.label}
               onClick={ppb.onClick}
               tooltipLabel={ppb.tooltip}
+              dataTest={ppb.dataTest}
             />
           );
           break;
@@ -347,7 +313,7 @@ class PresentationToolbar extends PureComponent {
     for (let i = 1; i <= numberOfSlides; i += 1) {
       optionList.push(
         <option value={i} key={i}>
-          {intl.formatMessage(intlMessages.goToSlide, { 0: i })}
+          {intl.formatMessage(intlMessages.goToSlide, { slideNumber: i })}
         </option>,
       );
     }
@@ -409,7 +375,7 @@ class PresentationToolbar extends PureComponent {
     if (disableStartingMultiUser) {
       multiUserLabel = intl.formatMessage(
         intlMessages.multiUserLimitHasBeenReached,
-        { 0: maxNumberOfActiveUsers },
+        { numberOfUsers: maxNumberOfActiveUsers },
       );
     } else if (multiUser) {
       multiUserLabel = intl.formatMessage(intlMessages.toolbarMultiUserOff);

@@ -10,5 +10,6 @@ export interface ToggleGroupProps {
   options: Option[];
   defaultOption: Option;
   exclusive?: boolean;
+  dataTest?: string;
   onChange: (selectedValues: string | number | string[] | number[], event: MouseEvent<HTMLElement>) => void
 }

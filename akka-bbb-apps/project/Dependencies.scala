@@ -19,10 +19,12 @@ object Dependencies {
     val logback = "1.2.13"
     val quicklens = "1.7.5"
     val spray = "1.3.6"
+    val semver = "0.10.2"
 
     // Apache Commons
     val lang = "3.12.0"
     val codec = "1.15"
+    val httpcomponents = "4.5.14"
 
     // BigBlueButton
     val bbbCommons = "0.0.22-SNAPSHOT"
@@ -52,12 +54,14 @@ object Dependencies {
     val logback = "ch.qos.logback" % "logback-classic" % Versions.logback
     val commonsCodec = "commons-codec" % "commons-codec" % Versions.codec
     val sprayJson = "io.spray" % "spray-json_2.13" % Versions.spray
+    val semver = "com.github.zafarkhaja" % "java-semver" % Versions.semver
 
     val pekkoStream = "org.apache.pekko" %% "pekko-stream" % Versions.pekkoVersion
     val pekkoHttp = "org.apache.pekko" %% "pekko-http" % Versions.pekkoHttpVersion
     val pekkoHttpSprayJson = "org.apache.pekko" %% "pekko-http-spray-json" % Versions.pekkoHttpVersion
 
     val apacheLang = "org.apache.commons" % "commons-lang3" % Versions.lang
+    val apacheHttpComponents = "org.apache.httpcomponents" % "httpclient" % Versions.httpcomponents
 
     val bbbCommons = "org.bigbluebutton" % "bbb-common-message_2.13" % Versions.bbbCommons
 
@@ -97,7 +101,9 @@ object Dependencies {
     Compile.logback,
     Compile.commonsCodec,
     Compile.sprayJson,
+    Compile.semver,
     Compile.apacheLang,
+    Compile.apacheHttpComponents,
     Compile.pekkoHttp,
     Compile.pekkoHttpSprayJson,
     Compile.bbbCommons,

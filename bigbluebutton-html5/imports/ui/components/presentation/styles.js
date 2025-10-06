@@ -8,6 +8,8 @@ import {
 import {
   colorPrimary,
   colorWhite,
+  colorGrayLightest,
+  colorOffWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   fontSizeLarger,
@@ -167,6 +169,51 @@ const PresentationToolbar = styled.div`
 
 const ToastSeparator = styled(ToastStyled.Separator)``;
 
+const Button = styled.button`
+  background-color: ${colorOffWhite};
+  border: none;
+  border-radius: 13px;
+  box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.16),
+    0px 2px 3px rgba(0, 0, 0, 0.24),
+    0px 2px 6px rgba(0, 0, 0, 0.1);
+  color: #2d2d2d;
+  cursor: pointer;
+  padding: .3rem .5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  tab-index: 0;
+
+  &:hover {
+    background-color: ${colorGrayLightest};
+  }
+`;
+
+const ExtraTools = styled.div`
+  position: absolute;
+  top: 2px;
+  right: 43px;
+  z-index: 399;
+  display: flex;
+  gap: 5px;
+  height: 35px;
+
+  [dir="rtl"] & {
+    right: auto;
+    left: 43px;
+  }
+
+  ${({ isToolbarVisible }) => !isToolbarVisible && `
+    display: none;
+  `}
+`;
+
+const IconWithMask = styled.div.attrs({
+  className: 'tlui-icon',
+})`
+  mask: url(${({ mask }) => mask})  center 100% / 100% no-repeat;
+`;
+
 export default {
   VisuallyHidden,
   PresentationSvg,
@@ -183,4 +230,7 @@ export default {
   WhiteboardSizeAvailable,
   PresentationToolbar,
   ToastSeparator,
+  Button,
+  ExtraTools,
+  IconWithMask,
 };

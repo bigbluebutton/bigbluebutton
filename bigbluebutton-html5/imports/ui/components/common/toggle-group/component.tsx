@@ -9,6 +9,7 @@ export default function ToggleGroup({
   defaultOption = options[0],
   onChange,
   exclusive = true,
+  dataTest = '',
 }: ToggleGroupProps) {
   const [selectedValues, setSelectedValues] = useState([defaultOption.value]);
 
@@ -61,6 +62,7 @@ export default function ToggleGroup({
             value={selectedValues}
             onChange={handleChange}
             exclusive={exclusive}
+            data-test={dataTest}
           >
             {children}
           </ToggleButtonGroup>

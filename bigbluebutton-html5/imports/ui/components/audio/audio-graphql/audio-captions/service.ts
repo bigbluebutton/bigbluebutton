@@ -4,12 +4,15 @@ import { useIsLiveTranscriptionEnabled } from '/imports/ui/services/features';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import { Caption } from './live/queries';
 import Session from '/imports/ui/services/storage/in-memory';
+import { hasSpeechRecognitionSupport } from './speech/service';
 
 export const splitTranscript = (obj: Caption) => {
   const CAPTIONS_CONFIG = window.meetingClientSettings.public.captions;
   const CHARACTERS_PER_LINE = CAPTIONS_CONFIG.lineLimit;
   const LINES_PER_MESSAGE = CAPTIONS_CONFIG.lines;
-  const transcripts = [];
+  const CAPTION_LIMIT = CAPTIONS_CONFIG.captionLimit;
+
+  let transcripts = [];
   const words = obj.captionText.split(' ');
 
   let currentLine = '';
@@ -35,7 +38,21 @@ export const splitTranscript = (obj: Caption) => {
   }
   transcripts.push(currentLine.trim());
 
-  return transcripts.map((t) => { return { ...obj, captionText: t }; });
+  // If there are more caption objects than CAPTION_LIMIT
+  // just get the last N captions
+  transcripts = transcripts.slice(-CAPTION_LIMIT);
+
+  let i = 0;
+  return transcripts.map((t) => {
+    i += 1;
+
+    return {
+      ...obj,
+      captionText: t,
+      // if messages where split the captions will have a 'part' id
+      captionId: `${obj.captionId}-${i}`,
+    };
+  });
 };
 
 export const useIsAudioTranscriptionEnabled = () => useIsLiveTranscriptionEnabled();
@@ -51,8 +68,7 @@ export const isGladia = () => getSpeechProvider() === 'gladia';
 export const getSpeechVoices = () => {
   const LANGUAGES = window.meetingClientSettings.public.app.audioCaptions.language.available;
   if (!isWebSpeechApi()) return LANGUAGES;
-
-  if (!window.speechSynthesis) return null;
+  if (!hasSpeechRecognitionSupport()) return null;
 
   return unique(
     window

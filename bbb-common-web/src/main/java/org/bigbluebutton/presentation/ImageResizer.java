@@ -18,6 +18,9 @@
 
 package org.bigbluebutton.presentation;
 
+import java.io.File;
+
 public interface ImageResizer {
     boolean resize(UploadedPresentation pres, String ratio);
+    boolean resize(File image, String ratio);
 }

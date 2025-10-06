@@ -3,6 +3,11 @@ import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints
 import Button from '/imports/ui/components/common/button/component';
 
 const LeaveButton = styled(Button)`
+  border-radius: 1.1rem;
+  font-size: 1rem;
+  line-height: 1.1rem;
+  font-weight: 400;
+
   ${({ state }) => state === 'open' && `
     @media ${smallOnly} {
       display: none;
@@ -16,16 +21,12 @@ const LeaveButton = styled(Button)`
   }
 `}
 
-  ${({ state, isMobile }) => state === 'closed' && !isMobile && `
+  ${({ isMobile }) => !isMobile && `
     margin-left: 1.0rem;
     margin-right: 0.5rem;
   `}
 
   ${({ state }) => state === 'closed' && `
-    border-radius: 1.1rem;
-    font-size: 1rem;
-    line-height: 1.1rem;
-    font-weight: 400;
     z-index: 3;
   `}
 `;

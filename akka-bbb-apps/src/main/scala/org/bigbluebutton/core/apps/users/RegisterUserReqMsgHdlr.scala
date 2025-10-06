@@ -91,7 +91,7 @@ trait RegisterUserReqMsgHdlr {
         "user",
         "app.userList.guest.pendingGuestAlert",
         "Notification that a new guest user joined the session",
-        Vector(s"${regUser.name}")
+        Map("0" -> s"${regUser.name}")
       )
       outGW.send(notifyEvent)
       NotificationDAO.insert(notifyEvent)

@@ -61,6 +61,7 @@ interface VideoListItemProps {
     listenOnly: boolean;
     talking: boolean;
     joined: boolean;
+    deafened: boolean;
   };
 }
 
@@ -140,8 +141,8 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
   const Settings = getSettingsSingletonInstance();
   const { animations, webcamBorderHighlightColor } = Settings.application;
   const talking = voiceUser?.talking;
-  const raiseHand = (stream.type === VIDEO_TYPES.GRID && stream.raiseHand)
-    || (stream.type === VIDEO_TYPES.STREAM && stream.user.raiseHand);
+  const raiseHand = (stream.type === VIDEO_TYPES.GRID && stream?.raiseHand)
+    || (stream.type === VIDEO_TYPES.STREAM && stream.user?.raiseHand);
   const { data: currentUser } = useCurrentUser((u) => ({
     userId: u.userId,
     pinned: u.pinned,
@@ -160,9 +161,11 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
   }));
 
   let user;
+  let streamId = '';
   switch (stream.type) {
     case VIDEO_TYPES.STREAM: {
       user = stream.user;
+      streamId = stream.stream;
       break;
     }
     case VIDEO_TYPES.GRID: {
@@ -172,6 +175,7 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
     case VIDEO_TYPES.CONNECTING:
     default: {
       user = currentUser ?? {};
+      streamId = stream.stream;
       break;
     }
   }
@@ -419,6 +423,8 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
     >
       {renderScreenshareButtons()}
       <Styled.VideoContainer
+        className="videoContainer"
+        data-stream={streamId}
         $selfViewDisabled={(isSelfViewDisabled && stream.userId === Auth.userID)
           || disabledCams.includes(cameraId)}
       >
@@ -426,6 +432,8 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
           mirrored={isMirrored}
           unhealthyStream={videoDataLoaded && !isStreamHealthy}
           data-test={isMirrored ? 'mirroredVideoContainer' : 'videoContainer'}
+          data-current-user-stream={stream.userId === Auth.userID ? 'true' : 'false'}
+          data-local-stream={VideoService.isLocalStream(cameraId) ? 'true' : 'false'}
           ref={videoTag}
           muted
           autoPlay

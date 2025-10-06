@@ -381,20 +381,18 @@ const ParticipantsAndChatOnlyLayout = (props) => {
     layoutContextDispatch({
       type: ACTIONS.SET_LAYOUT_INPUT,
       value: (prevInput) => {
-        const { sidebarNavigation, sidebarContent, presentation } = prevInput;
+        const { sidebarContent, presentation } = prevInput;
         const { sidebarContentPanel } = sidebarContent;
+        const sidebarContentPanelOverride = sidebarContentPanel === PANELS.NONE
+          ? PANELS.CHAT : sidebarContentPanel;
         return defaultsDeep(
           {
             sidebarNavigation: {
-              isOpen:
-                sidebarNavigation.isOpen || sidebarContentPanel !== PANELS.NONE || false,
+              isOpen: true,
             },
             sidebarContent: {
-              isOpen: sidebarContentPanel !== PANELS.NONE,
-              sidebarContentPanel,
-            },
-            SidebarContentHorizontalResizer: {
-              isOpen: false,
+              isOpen: true,
+              sidebarContentPanel: sidebarContentPanelOverride,
             },
             presentation: {
               isOpen: false,
@@ -406,7 +404,8 @@ const ParticipantsAndChatOnlyLayout = (props) => {
               height: 0,
             },
             cameraDock: {
-              numCameras: 0,
+              position: CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM,
+              numCameras: prevInput.cameraDock.numCameras,
             },
             externalVideo: {
               hasExternalVideo: false,

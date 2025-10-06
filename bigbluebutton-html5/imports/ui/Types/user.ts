@@ -2,15 +2,6 @@ export interface Cameras {
   streamId: string;
 }
 
-export interface PresPagesWritable {
-  isCurrentPage: boolean;
-  changedModeOn: number;
-  meetingId: string;
-  pageId: string;
-  presentationId: string;
-  userId: string;
-}
-
 export interface LastBreakoutRoom {
     breakoutRoomId: string;
     isDefaultName: boolean;
@@ -21,11 +12,27 @@ export interface LastBreakoutRoom {
     userId: string;
 }
 
+export interface BreakoutRoomsSummary {
+  totalOfBreakoutRooms: number;
+  totalOfIsUserCurrentlyInRoom: number;
+  totalOfShowInvitation: number;
+  totalOfJoinURL: number;
+}
+
+export interface UserMeeting {
+  ended: boolean;
+  endedReasonCode: string;
+  endedByUserName: string;
+  logoutUrl: string;
+}
+
 export interface Voice {
   joined: boolean;
   listenOnly: boolean;
   talking: boolean;
   muted: boolean;
+  listenOnlyInputDevice: boolean;
+  deafened: boolean;
   voiceUserId: string;
   callerName: string;
   callerNum: string;
@@ -37,31 +44,6 @@ export interface Voice {
   meetingId: string;
   spoke: boolean;
   startTime: number;
-}
-
-export interface UserMetadata {
-  parameter: string;
-  value: string;
-}
-
-export interface BreakoutRooms {
-  hasJoined: boolean;
-  assignedAt: string;
-  breakoutRoomId: string;
-  isUserCurrentlyInRoom: boolean | null;
-  isLastAssignedRoom: boolean | null;
-  durationInSeconds: number;
-  endedAt: string | null;
-  freeJoin: boolean;
-  inviteDismissedAt: string | null;
-  isDefaultName: boolean;
-  joinURL: string;
-  name: string;
-  sendInvitationToModerators: boolean;
-  sequence: number;
-  shortName: string;
-  showInvitation: boolean;
-  startedAt: string;
 }
 
 export interface userLockSettings {
@@ -77,8 +59,10 @@ export interface Livekit {
 }
 
 export interface User {
+  logoutUrl: string;
   authToken: string;
   userId: string;
+  meetingId: string;
   extId: string;
   name: string;
   nameSortable: string;
@@ -110,18 +94,29 @@ export interface User {
   voice?: Partial<Voice>;
   locked: boolean;
   registeredAt: string;
-  hasDrawPermissionOnCurrentPage: boolean;
+  whiteboardWriteAccess: boolean;
   lastBreakoutRoom?: LastBreakoutRoom;
+  breakoutRoomsSummary?: BreakoutRoomsSummary;
   cameras: Array<Cameras>;
-  presPagesWritable: Array<PresPagesWritable>;
   speechLocale: string;
   captionLocale: string;
   authed: boolean;
   size: number;
   away: boolean;
   raiseHand: boolean;
-  breakoutRooms: BreakoutRooms;
   userLockSettings: userLockSettings;
   sessionCurrent: sessionCurrent;
   livekit?: Livekit;
+  meeting: UserMeeting;
+}
+
+export interface UserBasicInfo {
+  userId: string;
+  extId: string;
+  name: string;
+  isModerator: boolean;
+  role: string;
+  color: string;
+  avatar: string;
+  presenter?: boolean;
 }

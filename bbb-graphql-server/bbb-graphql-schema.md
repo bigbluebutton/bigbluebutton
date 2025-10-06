@@ -43,14 +43,13 @@
   - `hasPoll: Boolean`
   - `hasScreenshare: Boolean`
   - `hasTimer: Boolean`
-  - `isSharedNotedPinned: Boolean`
+  - `isSharedNotesPinned: Boolean`
   - `showRemainingTime: Boolean`
 - `externalVideo: Object` [Type externalVideo](#type-externalVideo)
 - `groups: Array` [Type meeting_group](#type-meeting_group)
 - `layout: Object` [Type layout](#type-layout)
 - `learningDashboard: Object` [Type meeting_learningDashboard](#type-meeting_learningDashboard)
 - `lockSettings: Object` [Type meeting_lockSettings](#type-meeting_lockSettings)
-- `metadata: Array` [Type meeting_metadata](#type-meeting_metadata)
 - `polls: Array` [Type poll](#type-poll)
 - `recording: Object` [Type meeting_recording](#type-meeting_recording)
 - `recordingPolicies: Object` [Type meeting_recordingPolicies](#type-meeting_recordingPolicies)
@@ -83,7 +82,7 @@ Permission: Restricted to User Viewing Self-Related Data
 - `firstNameSortable`
 - `guest`
 - `guestStatus`
-- `hasDrawPermissionOnCurrentPage`
+- `whiteboardWriteAccess`
 - `inactivityWarningDisplay`
 - `inactivityWarningTimeoutSecs`
 - `isDialIn`
@@ -153,7 +152,6 @@ Permission: Restricted to User Viewing Self-Related Data
 - `reactions: Array` **Type chat_message_reaction**
   - `createdAt`
   - `reactionEmoji`
-  - `reactionEmojiId`
   - `userId`
   - `user: Object` [Type User](#type-user)
 - `replyToMessage: Object` [Type chat_message_private](#type-chat_message_private)
@@ -180,7 +178,6 @@ Permission: Restricted to User Viewing Self-Related Data
 - `reactions: Array` **Type chat_message_reaction**
   - `createdAt`
   - `reactionEmoji`
-  - `reactionEmojiId`
   - `userId`
   - `user: Object` [Type User](#type-user)
 - `replyToMessage: Object` [Type type-chat_message_public](#type-chat_message_public)
@@ -206,7 +203,7 @@ Permission: Restricted by Lock Settings
 - `firstNameSortable`
 - `guest`
 - `guestStatus`
-- `hasDrawPermissionOnCurrentPage`
+- `whiteboardWriteAccess`
 - `isDialIn`
 - `isModerator`
 - `isRunningEchoTest`
@@ -301,7 +298,7 @@ Permission: Restricted to User Viewing Self-Related Data
 - `hasPoll`
 - `hasScreenshare`
 - `hasTimer`
-- `isSharedNotedPinned`
+- `isSharedNotesPinned`
 - `showRemainingTime`
 
 ## Type: pres_page
@@ -379,12 +376,12 @@ Permission: Restricted to User Viewing Self-Related Data
 - `lastFloorTime`
 - `listenOnly`
 - `muted`
+- `deafened`
 - `spoke`
 - `startTime`
 - `talking`
 - `userId`
 - `voiceConf`
-- `voiceConfCallState`
 - `voiceUserId`
 ### Relationships:
 - `user: Object` [Type User](#type-user)
@@ -413,7 +410,9 @@ Permission: Restricted to User Viewing Self-Related Data
 - `pollId`
 - `published`
 - `publishedAt`
+- `publishedShowingAnswer`
 - `questionText`
+- `quiz`
 - `secret`
 - `type`
 ### Relationships:
@@ -432,8 +431,9 @@ Permission: Restricted to User Viewing Self-Related Data
 ## Type: poll_response
 Permission: Restricted to Poll Owner or User Viewing Self-Related Data
 ### Fields:
-- `optionDesc`
 - `optionId`
+- `optionDesc`
+- `correctOption`
 - `optionResponsesCount`
 - `pollId`
 - `pollResponsesCount`
@@ -696,11 +696,12 @@ Permission: Restricted to User Viewing Self-Related Data
 
 ## Type: pres_page_writers
 ### Fields:
-- `changedModeOn`
 - `isCurrentPage`
 - `pageId`
 - `presentationId`
 - `userId`
+### Relationships:
+- `user: Object` [Type User](#type-user)
 
 ## Type: screenshare
 ### Fields:
@@ -807,10 +808,8 @@ Permission: Restricted to Moderators
 
 ## Type: meeting_clientPluginSettings
 ### Fields:
-- `dataChannels`
 - `name`
 - `settings`
-- `url`
 
 ## Type: pollUserCurrent
 Permission: Restricted to User Viewing Self-Related Data
@@ -861,11 +860,6 @@ Permission: Restricted to User Viewing Self-Related Data
 - `messageValues`
 - `notificationType`
 - `role`
-
-## Type: meeting_metadata
-### Fields:
-- `name`
-- `value`
 
 ## Type: user_transcriptionError
 Permission: Restricted to User Viewing Self-Related Data
@@ -924,4 +918,3 @@ Permission: Restricted to User Viewing Self-Related Data
 - `enforceLayout`
 - `sessionName`
 - `sessionToken`
-

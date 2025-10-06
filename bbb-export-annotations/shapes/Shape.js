@@ -1,6 +1,7 @@
 import {Pattern, Line, Defs, Rect, G, Text, Tspan} from '@svgdotjs/svg.js';
 import {radToDegree} from '../shapes/helpers.js';
 import opentype from 'opentype.js';
+import wawoff2 from 'wawoff2';
 import fs from 'fs';
 /**
  * Represents a basic Tldraw shape on the whiteboard.
@@ -44,6 +45,7 @@ export class Shape {
     this.dash = this.props?.dash;
     this.fill = this.props?.fill;
     this.text = this.props?.text;
+    this.padding = this.props?.padding ?? 0;
 
     // Derived SVG properties
     this.thickness = Shape.getStrokeWidth(this.size);
@@ -269,13 +271,13 @@ export class Shape {
   */
   static determineFontSize(size) {
     const fontSizes = {
-      's': 26,
-      'm': 36,
-      'l': 54,
-      'xl': 64,
+      's': 18,
+      'm': 24,
+      'l': 36,
+      'xl': 44,
     };
 
-    return fontSizes[size] || 16;
+    return fontSizes[size] || 18;
   }
 
   /**
@@ -283,15 +285,16 @@ export class Shape {
    *
    * @param {string} align - One of ('start', 'middle', 'end').
    * @param {number} width - The width of the container.
+   * @param {number} [padding] - Optional padding from the left edge.
    * @return {string} The calculated horizontal position as a string with
    * two decimal places. Coordinates are relative to the container.
    * @static
   */
-  static alignHorizontally(align, width) {
+  static alignHorizontally(align, width, padding) {
     switch (align) {
       case 'middle': return (width / 2).toFixed(2);
       case 'end': return (width).toFixed(2);
-      default: return '0';
+      default: return padding ?? '0';
     }
   }
 
@@ -300,22 +303,24 @@ export class Shape {
    *
    * @param {string} align - One of ('start', 'middle', 'end').
    * @param {number} height - The height of the container.
+   * @param {number} padding - The padding of the container.
+   * @param {number} lineHeight - Line height of the text.
    * @return {string} The calculated vertical position as a string with
    * two decimal places. Coordinates are relative to the container.
    * @static
   */
-  static alignVertically(align, height) {
+  static alignVertically(align, height, padding, lineHeight) {
     switch (align) {
-      case 'middle': return (height / 2).toFixed(2);
-      case 'end': return height.toFixed(2);
-      default: return '0';
+      case 'middle': return (height / 2 - lineHeight / 2).toFixed(2);
+      case 'end': return (height - lineHeight - (padding ?? 0)).toFixed(2);
+      default: return padding ?? '0';
     }
   }
 
   /**
    * Determines the font to use based on the specified font family.
    * Supported families are 'draw', 'sans', 'serif', and 'mono'. Any other input
-   * defaults to the Caveat Brush font.
+   * defaults to the Shantell Sans font.
    *
    * @param {string} family The name of the font family.
    * @return {string} The font that corresponds to the given family.
@@ -323,11 +328,11 @@ export class Shape {
  */
   static determineFontFromFamily(family) {
     switch (family) {
-      case 'sans': return 'Source Sans Pro';
-      case 'serif': return 'Crimson Pro';
-      case 'mono': return 'Source Code Pro';
+      case 'sans': return 'IBM Plex Sans Medm';
+      case 'serif': return 'IBM Plex Serif Medm';
+      case 'mono': return 'IBM Plex Mono Medm';
       case 'draw':
-      default: return 'Caveat Brush';
+      default: return 'Shantell Sans Informal';
     }
   }
 
@@ -356,9 +361,9 @@ export class Shape {
    * Wraps text to fit within a specified width and height.
    * @param {string} text - The text to wrap.
    * @param {number} width - The width of the bounding box.
-   * @return {string[]} An array of strings, each being a line.
+   * @return {Promise<string[]>} An array of strings, each being a line.
   */
-  wrapText(text, width) {
+  async wrapText(text, width) {
     const config = JSON.parse(
         fs.readFileSync(
             './config/settings.json',
@@ -367,8 +372,7 @@ export class Shape {
     const font = this.props?.font || 'draw';
     const fontPath = config.fonts[font];
 
-    const words = text.split(' ');
-    let line = '';
+    const textLines = text.split('\n');
     const lines = [];
 
     // Read the font file into a Buffer
@@ -379,44 +383,79 @@ export class Shape {
         fontBuffer.byteOffset,
         fontBuffer.byteOffset + fontBuffer.byteLength);
 
+    const decompressedBuffer = await wawoff2.decompress(arrayBuffer);
+
+    const decompresseArrayBuffer = decompressedBuffer.buffer.slice(
+        decompressedBuffer.byteOffset,
+        decompressedBuffer.byteOffset + decompressedBuffer.byteLength);
+
     // Parse the font using the ArrayBuffer
-    const parsedFont = opentype.parse(arrayBuffer);
+    const parsedFont = opentype.parse(decompresseArrayBuffer);
     const fontSize = Shape.determineFontSize(this.size);
 
-    for (const word of words) {
-      const testLine = line + word + ' ';
-      const testWidth = this.measureTextWidth(
-          testLine,
-          parsedFont,
-          fontSize);
+    // In order to avoid bad line breaks due to rendering mismatch between
+    // environments (browser and CairoSVG) we add some spacing for safety.
+    // Such spacing needs to be less than 2 characters width wide
+    // to not mess up original line breaks.
+    width += fontSize * 1.35;
 
-      if (testWidth > width) {
-        if (line !== '') {
-          lines.push(line);
+    const _wrapText = (token, availableWidth) => {
+      let prefix = '';
+      let suffix = token;
+
+      for (let i = 1; i < token.length; i++) {
+        const textWidth = this.measureTextWidth(
+            token.substring(0, i),
+            parsedFont,
+            fontSize);
+        if (textWidth > availableWidth) break;
+        prefix = token.substring(0, i);
+        suffix = token.substring(i, token.length);
+      }
+
+      return {prefix, suffix};
+    };
+
+    for (const textLine of textLines) {
+      if (!textLine) {
+        lines.push('');
+        continue;
+      }
+      const textLineTokens = textLine.split(/\b/);
+      let textAccum = '';
+      for (const token of textLineTokens) {
+        const testLine = textAccum + token;
+        const testWidth = this.measureTextWidth(
+            testLine,
+            parsedFont,
+            fontSize);
+        if (testWidth > width) {
+          if (!textAccum.endsWith(' ') || !/\S/.test(token)) {
+            const {prefix, suffix} = _wrapText(textAccum + token, width);
+            lines.push(prefix);
+            textAccum = suffix;
+          } else {
+            lines.push(textAccum);
+            textAccum = token;
+          }
+        } else {
+          textAccum += token;
         }
-        line = word + ' ';
-      } else {
-        line = testLine;
+      }
+      if (textAccum !== '') {
+        lines.push(textAccum);
+        textAccum = '';
       }
     }
 
-    if (line !== '') {
-      lines.push(line.trim());
-    }
-
-    // Split newlines into separate lines
-    const brokenLines = lines
-        .map((line) => line.split('\n'))
-        .flat();
-
-    return brokenLines;
+    return lines;
   }
 
   /**
    * Draws label text on the SVG canvas.
    * @param {SVGG} group The SVG group element to add the label to.
   */
-  drawLabel(group) {
+  async drawLabel(group) {
     // Do nothing if there is no text
     if (!this.text) return;
 
@@ -437,14 +476,12 @@ export class Shape {
     const width = this.w;
     const height = this.h + this.growY;
 
-    const x = Shape.alignHorizontally(this.align, width);
-    let y = Shape.alignVertically(this.verticalAlign, height);
     const lineHeight = Shape.determineFontSize(this.size);
     const fontFamily = Shape.determineFontFromFamily(this.props?.font);
-
-    if (this.verticalAlign === 'end' || this.verticalAlign === 'middle') {
-      y -= (lineHeight / 2);
-    }
+    const x = Shape.alignHorizontally(this.align, width, this.padding);
+    const y = Shape.alignVertically(
+        this.verticalAlign, height, this.padding, lineHeight,
+    );
 
     // Create a new SVG text element
     // Text is escaped by SVG.js
@@ -457,7 +494,7 @@ export class Shape {
           'alignment-baseline': 'baseline',
         });
 
-    const lines = this.wrapText(this.text, width);
+    const lines = await this.wrapText(this.text, width);
 
     lines.forEach((line) => {
       const tspan = new Tspan()
@@ -486,9 +523,9 @@ export class Shape {
    * Intended to be overridden by subclasses.
    *
    * @method draw
-   * @return {G} An empty SVG group element.
+   * @return {Promise<G>} An empty SVG group element.
    */
-  draw() {
+  async draw() {
     return new G();
   }
 }

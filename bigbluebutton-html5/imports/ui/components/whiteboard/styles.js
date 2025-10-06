@@ -1,5 +1,5 @@
 import styled, { createGlobalStyle } from 'styled-components';
-import { colorOffWhite } from '/imports/ui/stylesheets/styled-components/palette';
+import { colorOffWhite, colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
 
 const TldrawV2GlobalStyle = createGlobalStyle`
   ${({ isPresenter, hasWBAccess }) => (!isPresenter && hasWBAccess) && `
@@ -129,7 +129,7 @@ const TldrawV2GlobalStyle = createGlobalStyle`
   [data-testid="main.page-menu"],
   [data-testid="main.menu"],
   [data-testid="tools.more.laser"],
-  [data-testid="tools.asset"],
+  [data-tool="asset"],
   [data-testid="page-menu.button"],
   [data-testid="menu-item.zoom-to-100"],
   .tlui-menu-zone {
@@ -164,6 +164,10 @@ const TldrawV2GlobalStyle = createGlobalStyle`
     right: 10px !important;
   }
 
+  .tlui-kbd > span {
+    font-family: 'Arial', sans-serif !important;
+  }
+
   [data-side="bottom"][data-align="end"][data-state="open"][role="dialog"] {
     right: 3.5rem !important;
     bottom: 9.5rem !important;
@@ -171,6 +175,10 @@ const TldrawV2GlobalStyle = createGlobalStyle`
 
   [id*="shape:poll-result"] {
     background-color: white !important;
+  }
+
+  [data-testid="tools.delete-selected-items"] {
+    display: flex;
   }
 
   ${({ presentationHeight }) => {
@@ -189,7 +197,7 @@ const TldrawV2GlobalStyle = createGlobalStyle`
     const topValue = interpolateTop(presentationHeight);
 
     let additionalStyles = '';
-    if (presentationHeight <= 375) {
+    if (presentationHeight <= 405) {
       additionalStyles += `
         .tlui-layout__mobile .tlui-button__tool > .tlui-icon {
           height: 10px !important;
@@ -210,7 +218,7 @@ const TldrawV2GlobalStyle = createGlobalStyle`
           top: 2px !important;
         }
 
-        .tlui-toolbar__tools.tlui-toolbar__tools__mobile.fade-in {
+        .tlui-toolbar__tools.tlui-toolbar__tools__mobile {
           height: 30px !important;
         }
 
@@ -222,6 +230,18 @@ const TldrawV2GlobalStyle = createGlobalStyle`
 
     return `.tlui-layout__bottom { top: ${topValue} !important; }${additionalStyles}`;
   }}
+  [data-darkreader-scheme="dark"] button[data-testid="mobile.styles"] {
+    & > div.tlui-icon {
+      color: ${colorWhite};
+    }
+  }
+
+    ${({ cursorType }) => (cursorType) && `
+      .tl-canvas {
+        cursor: ${cursorType} !important;
+      }
+  `}
+
 `;
 
 const EditableWBWrapper = styled.div`

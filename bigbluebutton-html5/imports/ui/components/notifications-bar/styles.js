@@ -10,7 +10,7 @@ import {
 import Button from '/imports/ui/components/common/button/component';
 
 const NotificationsBar = styled.div`
-  padding-bottom: calc(${lineHeightComputed} / 2);
+  padding: calc(${lineHeightComputed} / 2) 0;
   gap: .5rem;
   display: flex;
   flex-direction: row;

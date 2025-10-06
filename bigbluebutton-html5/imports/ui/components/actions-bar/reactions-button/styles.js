@@ -1,8 +1,8 @@
 import styled from 'styled-components';
-import { colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
 import Button from '/imports/ui/components/common/button/component';
 
 import {
+  colorWhite,
   colorGrayDark,
   colorGrayLightest,
   btnPrimaryColor,
@@ -43,6 +43,12 @@ const ButtonWrapper = styled.div`
 
   & > * > span {
     padding: 4px;
+    color: ${colorGrayDark} !important;
+    border-color: transparent !important;
+  }
+
+  & i {
+    width: 1.3rem;
   }
 
   ${({ active }) => active && `

@@ -1,14 +1,12 @@
 const { test } = require('../fixtures');
-const { fullyParallel } = require('../playwright.config');
 const { Audio } = require('./audio');
 const { initializePages } = require('../core/helpers');
 
-test.describe('Audio', { tag: '@ci' }, () => {
+test.describe.parallel('Audio', { tag: '@ci' }, () => {
   const audio = new Audio();
 
-  test.describe.configure({ mode: fullyParallel ? 'parallel' : 'serial' });
-  test[fullyParallel ? 'beforeEach' : 'beforeAll'](async ({ browser }) => {
-    await initializePages(audio, browser, { isMultiUser: true });
+  test.beforeEach(async ({ browser }, testInfo) => {
+    await initializePages(audio, browser, { isMultiUser: true, testInfo });
   });
 
   // https://docs.bigbluebutton.org/3.0/testing/release-testing/#listen-only-mode-automated
@@ -21,13 +19,13 @@ test.describe('Audio', { tag: '@ci' }, () => {
     await audio.joinMicrophone();
   });
 
-  test('Change audio input and keep it connected', async () => {
+  test('Change audio input and keep it connected', async ({ browserName }) => {
+    test.skip(browserName === 'firefox', 'Firefox does not support fake audio to simulate de audio.')
     await audio.changeAudioInput();
   });
 
   // https://docs.bigbluebutton.org/3.0/testing/release-testing/#muteunmute
-  // Ci failure: not being muted when clicking the mute button (isTalking element keep displayed)
-  test('Mute yourself by clicking the mute button', { tag: '@flaky' }, async () => {
+  test('Mute yourself by clicking the mute button', async () => {
     await audio.muteYourselfByButton();
   });
 

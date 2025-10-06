@@ -2,6 +2,7 @@ import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import Styled from './styles';
 import AudioAutoplayPrompt from '/imports/ui/components/audio/autoplay/component';
+import type { AutoplayHandler } from './hooks';
 
 const intlMessages = defineMessages({
   title: {
@@ -11,7 +12,7 @@ const intlMessages = defineMessages({
 });
 
 interface LKAutoplayModalProps {
-  autoplayHandler: () => Promise<void>;
+  autoplayHandler: AutoplayHandler;
   isOpen: boolean;
   onRequestClose: () => void;
   priority: string;

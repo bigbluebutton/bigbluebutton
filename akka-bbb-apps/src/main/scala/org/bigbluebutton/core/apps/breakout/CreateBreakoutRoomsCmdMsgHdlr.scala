@@ -9,6 +9,8 @@ import org.bigbluebutton.core.models.PluginModel.getPlugins
 import org.bigbluebutton.core.models.{Plugin, PresentationInPod}
 import org.bigbluebutton.core.running.{LiveMeeting, OutMsgRouter}
 import org.bigbluebutton.core.running.MeetingActor
+
+import java.util
 import scala.jdk.CollectionConverters._
 
 trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
@@ -20,7 +22,7 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
   def handleCreateBreakoutRoomsCmdMsg(msg: CreateBreakoutRoomsCmdMsg, state: MeetingState2x): MeetingState2x = {
 
 
-    val minOfRooms = 2
+    val minOfRooms = 1
     val maxOfRooms = getConfigPropertyValueByPathAsIntOrElse(liveMeeting.clientSettings, "public.app.breakouts.breakoutRoomLimit", 16)
 
     if (liveMeeting.props.meetingProp.disabledFeatures.contains("breakoutRooms")) {
@@ -63,7 +65,10 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
     var rooms = new collection.immutable.HashMap[String, BreakoutRoom2x]
     val filteredPluginProp = liveMeeting.props.pluginProp.asScala
       .filter { case (key, _) =>
-        getPlugins(liveMeeting.plugins).get(key).exists(_.manifest.content.enabledForBreakoutRooms)
+        getPlugins(liveMeeting.plugins).get(key).exists(_.manifest.content match {
+          case Some(pluginManifestContent) => pluginManifestContent.enabledForBreakoutRooms
+          case None => false
+        })
       }
       .asJava
 
@@ -84,6 +89,7 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
     }
 
     for (breakout <- rooms.values.toVector) {
+
       val roomSlides = if (breakout.allPages) -1 else presSlide;
       val roomDetail = new BreakoutRoomDetail(
         breakout.id, breakout.name,
@@ -106,6 +112,7 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
         breakout.captureNotesFilename,
         breakout.captureSlidesFilename,
         pluginProp = filteredPluginProp,
+        disabledFeatures = new util.ArrayList[String](liveMeeting.props.meetingProp.disabledFeatures.asJava),
         liveMeeting.props.meetingProp.audioBridge,
         liveMeeting.props.meetingProp.cameraBridge,
         liveMeeting.props.meetingProp.screenShareBridge,

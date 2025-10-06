@@ -21,6 +21,8 @@ object Dependencies {
     val apacheHttp = "4.5.13"
     val apacheHttpAsync = "4.1.4"
     val jsoup = "1.14.3"
+    val semver = "0.10.2"
+
 
     // Office and document conversion
     val apachePoi = "5.1.0"
@@ -31,7 +33,6 @@ object Dependencies {
     val servlet = "4.0.1"
 
     // Apache Commons
-    val lang = "3.12.0"
     val io = "2.11.0"
     val pool = "2.11.1"
     val text = "1.10.0"
@@ -58,6 +59,7 @@ object Dependencies {
     val apacheHttp = "org.apache.httpcomponents" % "httpclient" % Versions.apacheHttp
     val apacheHttpAsync = "org.apache.httpcomponents" % "httpasyncclient" % Versions.apacheHttpAsync
     val jsoup = "org.jsoup" % "jsoup" % Versions.jsoup
+    val semver = "com.github.zafarkhaja" % "java-semver" % Versions.semver
 
     val poiXml = "org.apache.poi" % "poi-ooxml" % Versions.apachePoi
     val nuProcess = "com.zaxxer" % "nuprocess" % Versions.nuProcess
@@ -65,7 +67,6 @@ object Dependencies {
 
     val servletApi = "javax.servlet" % "javax.servlet-api" % Versions.servlet
 
-    val apacheLang = "org.apache.commons" % "commons-lang3" % Versions.lang
     val apacheIo = "commons-io" % "commons-io" % Versions.io
     val apachePool2 = "org.apache.commons" % "commons-pool2" % Versions.pool
     val apacheText = "org.apache.commons" % "commons-text" % Versions.text
@@ -99,11 +100,11 @@ object Dependencies {
     Compile.apacheHttp,
     Compile.apacheHttpAsync,
     Compile.jsoup,
+    Compile.semver,
     Compile.poiXml,
     Compile.nuProcess,
     Compile.tika,
     Compile.servletApi,
-    Compile.apacheLang,
     Compile.apacheIo,
     Compile.apachePool2,
     Compile.apacheText,

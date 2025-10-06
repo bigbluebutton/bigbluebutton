@@ -7,6 +7,8 @@ exports.settings = 'li[data-test="settings"]';
 exports.modalConfirmButton = 'button[data-test="modalConfirmButton"]';
 exports.screenshareConnecting = 'div[data-test="screenshareConnecting"]';
 exports.screenShareVideo = 'video[id="screenshareVideo"]';
+exports.simpleModal = 'div[id="simpleModal"]';
+exports.sessionDetailsModal = 'div[data-test="sessionDetailsModal"]';
 exports.modalDismissButton = 'button[data-test="modalDismissButton"]';
 exports.closeModal = 'button[data-test="closeModal"]';
 exports.isSharingScreen = 'div[data-test="isSharingScreen"]';
@@ -20,9 +22,12 @@ exports.raiseHandBtn = 'button[data-test="raiseHandBtn"]';
 exports.lowerHandBtn = 'button[data-test="lowerHandBtn"]';
 exports.raiseHandRejection = 'button[data-test="raiseHandRejection"]';
 exports.meetingEndedModal = 'div[data-test="meetingEndedModal"]';
+exports.redirectButton = 'button[data-test="redirectButton"]';
 exports.leaveMeetingDropdown = 'button[data-test="leaveMeetingDropdown"]';
 exports.directLogoutButton = 'li[data-test="directLogoutButton"]';
 exports.optionsLogoutButton = 'li[data-test="optionsLogoutButton"]';
+exports.endMeetingButton = 'li[data-test="endMeetingButton"]';
+exports.confirmEndMeetingButton = 'button[data-test="confirmEndMeeting"]';
 exports.rating = 'div[data-test="rating"]';
 exports.sendFeedbackButton = 'button[data-test="sendFeedbackButton"]';
 exports.feedbackCommentInput = 'textarea#feedbackComment';
@@ -91,6 +96,7 @@ exports.sendButtonDurationTime = 'button[data-test="sendButtonDurationTime"]';
 exports.breakoutRemainingTime = 'span[data-test="breakoutRemainingTime"]';
 exports.roomNameInput = 'input[data-test="roomName-1"]';
 exports.roomName1Test = 'span[data-test="TestRoom 1"]';
+exports.breakoutRoomItemOnManage = 'span[data-test^="Room"]'
 exports.userNameBreakoutRoom = 'div[data-test="userNameBreakoutRoom-Room 1"]';
 exports.userNameBreakoutRoom2 = 'div[data-test="userNameBreakoutRoom-Room 2"]';
 exports.userNameBreakoutRoom7 = 'div[data-test="userNameBreakoutRoom-Room 7"]';
@@ -145,12 +151,30 @@ exports.inputPrivateLobbyMessage = 'div[data-test="privateLobbyMessage"] >> text
 exports.sendPrivateLobbyMessage = 'div[data-test="privateLobbyMessage"] >> button';
 exports.rememberCheckboxId = 'input[id="rememberCheckboxId"]';
 exports.welcomeMessage = 'h1[id="welcome-message"]';
+exports.chatMessageEditedLabel = 'span[data-test="chatMessageEditedLabel"]';
+exports.chatEditingWarningContainer = 'div[data-test="chatEditingWarningContainer"]';
+exports.cancelEditingButton = 'button[data-test="cancelEditingButton"]';
+exports.confirmDeleteChatMessageButton = 'button[data-test="confirmDeleteChatMessageButton"]';
+exports.chatReplyIntentionContainerContent = 'div[data-test="chatReplyIntentionContainer"] p';
+exports.closeChatReplyIntentionButton = 'button[data-test="closeChatReplyIntentionButton"]';
+exports.chatMessageReplied = 'div[data-test="chatMessageReplied"]';
+exports.messageReactionItem = 'button[data-test="messageReactionItem"]';
+
+// Message toolbar
+exports.messageToolbar = 'div[data-test="chatMessageToolbar"]';
+exports.replyMessageButton = 'button[data-test="replyMessageButton"]';
+exports.reactMessageButton = 'button[data-test="reactMessageButton"]';
+exports.editMessageButton = 'button[data-test="editMessageButton"]';
+exports.deleteMessageButton = 'button[data-test="deleteMessageButton"]';
+
 // Emoji picker
 exports.emojiPickerButton = 'button[data-test="emojiPickerButton"]';
-exports.frequentlyUsedEmoji = '👍';
+exports.thumbsUpEmoji = '👍';
+exports.grinningFaceEmoji = '😀';
 // Auto Convert Emoji
 exports.autoConvertEmojiMessage = ':)';
 exports.convertedEmojiMessage = '😊';
+
 // Messages
 exports.message = 'Hello World!';
 exports.testMessage = 'Just a test';
@@ -171,6 +195,7 @@ exports.reconnectingBar = '//div[@data-test="notificationBannerBar" and contains
 exports.zoomInBtn = 'button[data-test="zoomInBtn"]';
 exports.recordingIndicator = 'div[data-test="recordingIndicator"]';
 exports.webcamMirroredVideoContainer = 'video[data-test="mirroredVideoContainer"]';
+exports.currentUserLocalStreamVideo = 'video[data-local-stream="true"]';
 exports.usersList = 'div[data-test="userList"]';
 exports.selectCameraQualityId = 'select[id="setQuality"]';
 exports.virtualBackgrounds = 'div[data-test="virtualBackground"]';
@@ -222,6 +247,7 @@ exports.processingPresentationItem = 'span[data-test="processingPresentationItem
 exports.uploadDoneIcon = 'i[data-test="uploadDoneIcon"]';
 exports.noButton = 'button[aria-label="No"]';
 exports.yesButton = 'button[aria-label="Yes"]';
+
 // Toasts
 exports.savedSettingsToast = 'Settings have been saved';
 exports.publicChatToast = 'New Public Chat message';
@@ -234,6 +260,7 @@ exports.attendeeJoinedToast = 'Attendee joined the session';
 exports.raisingHandToast = 'You have raised your hand';
 exports.loweringHandToast = 'Your hand has been lowered';
 exports.noActiveMicrophoneToast = 'No active microphone. Share your microphone to add audio to this recording.';
+
 // Icons
 const baseBbbIcon = 'i.icon-bbb-';
 exports.unmuteIcon = `${baseBbbIcon}unmute`;
@@ -279,6 +306,7 @@ exports.submitAnswersMultiple = 'button[data-test="submitAnswersMultiple"]';
 exports.userVoteLiveResult = 'td[data-test="userVoteLiveResult"]';
 exports.errorNoValueInput = 'div[data-test="errorNoValueInput"]';
 exports.smartSlides1 = 'smartSlidesPresentation.pdf';
+exports.smartSlides2 = 'SmartSlides.pdf';
 exports.responsePollQuestion = 'div[data-test="pollQuestion"]';
 const pollAnswersOption = 'div[data-test="optionsAnswers"]';
 exports.firstPollAnswerOptionBtn = `${pollAnswersOption}>>nth=0`;
@@ -287,6 +315,7 @@ exports.firstCheckboxInput = `${pollAnswersOption}`;
 exports.closePollingBtn = 'button[data-test="closePolling"]';
 exports.yesNoOption = 'button[data-test="yesNoQuickPoll"]';
 exports.yesNoAbstentionOption = 'li[role="menuitem"]>>nth=1';
+exports.pollAnswerOptionD = 'button[data-test="pollAnswerOption"]>>nth=3';
 exports.pollAnswerOptionE = 'button[data-test="pollAnswerOption"]>>nth=4';
 
 // Presentation
@@ -327,11 +356,13 @@ exports.whiteboardOptionsButton = 'button[data-test="whiteboardOptionsButton"]';
 exports.presentationFullscreen = 'li[data-test="presentationFullscreen"]';
 exports.presentationSnapshot = 'li[data-test="presentationSnapshot"]';
 exports.toolVisibility = 'li[data-test="toolVisibility"]';
+
 // YouTube frame
 exports.youtubeLink = 'https://www.youtube.com/watch?v=Wjx5_IONaNg&t=158s&ab_channel=BigBlueButton';
 // The title we match for here is the title of the test video specified by youtubeLink
 exports.youtubeFrame = 'div[data-test="videoPlayer"]';
 exports.ytFrameTitle = 'a[class^="ytp-title-link"]';
+
 // Toasts
 exports.statingUploadPresentationToast = 'To be uploaded ...';
 exports.convertingPresentationFileToast = 'Converting file';
@@ -396,6 +427,7 @@ exports.userBannedMessage2 = 'div[id="app"] >> div >> div:nth-child(2)';
 exports.meetingEndedModalTitle = 'div[data-test="meetingEndedModal"]';
 exports.unmuteUser = 'li[data-test="unmuteUser"]';
 exports.ejectCamera = 'li[data-test="ejectCamera"]';
+exports.clearStatus = 'li[data-test="clearStatus"]';
 
 // Lock Viewers
 exports.lockViewersButton = 'li[data-test="lockViewersButton"]';
@@ -417,7 +449,7 @@ exports.locales = ['af', 'ar', 'az', 'bg-BG', 'bn', 'ca', 'cs-CZ', 'da', 'de',
   'dv', 'el-GR', 'en', 'eo', 'es', 'es-419', 'es-ES', 'es-MX', 'et', 'eu',
   'fa-IR', 'fi', 'fr', 'gl', 'he', 'hi-IN', 'hr', 'hu-HU', 'hy', 'id', 'it-IT',
   'ja', 'ka', 'km', 'kn', 'ko-KR', 'lo-LA', 'lt-LT', 'lv', 'ml', 'mn-MN',
-  'nb-NO', 'nl', 'oc', 'pl-PL', 'pt', 'pt-BR', 'ro-RO', 'ru', 'sk-SK', 'sl',
+  'nb-NO', 'nl', 'oc', 'pl-PL', 'pt', 'pt-BR', 'ro-RO', 'ru-RU', 'sk-SK', 'sl',
   'sr', 'sv-SE', 'ta', 'te', 'th', 'tr-TR', 'uk-UA', 'vi-VN', 'zh-CN', 'zh-TW'
 ];
 
@@ -433,6 +465,7 @@ exports.videoDropdownMenu = 'button[data-test="videoDropdownMenu"]';
 exports.advancedVideoSettingsBtn = 'li[data-test="advancedVideoSettingsButton"]';
 exports.mirrorWebcamBtn = 'li[data-test="mirrorWebcamBtn"]';
 exports.focusWebcamBtn = 'li[data-test="focusWebcamBtn"]';
+exports.unfocusWebcamBtn = 'li[data-test="unfocusWebcamBtn"]';
 exports.pinWebcamBtn = 'li[data-test="pinWebcamBtn"]';
 exports.pinVideoButton = 'button[data-test="pinVideoButton"]';
 exports.webcamsFullscreenButton = 'li[data-test="webcamsFullscreenButton"]';
@@ -443,13 +476,14 @@ exports.selectCustomBackground = 'button[data-test="selectCustomBackground"]';
 exports.removeCustomBackground = 'button[data-test="removeCustomBackground"]';
 exports.inputBackgroundButton = 'button[data-test="inputBackgroundButton"]';
 exports.noneBackgroundButton = 'button[data-test="noneBackgroundButton"]';
-exports.dropAreaBottom = 'div[data-test="dropArea-contentLeft"]';
+exports.dropAreaBottom = 'div[data-test="dropArea-contentBottom"]';
 exports.dropAreaLeft = 'div[data-test="dropArea-contentLeft"]';
 exports.dropAreaRight = 'div[data-test="dropArea-contentRight"]';
 exports.dropAreaTop = 'div[data-test="dropArea-contentTop"]';
 exports.dropAreaSidebarBottom = 'div[data-test="dropArea-sidebarContentBottom"]';
 exports.selfViewDisableBtn = 'li[data-test="selfViewDisableBtn"]';
-
+exports.nextPageVideoPagination = 'button[data-test="nextPageVideoPaginationBtn"]';
+exports.previousPageVideoPagination = 'button[data-test="previousPageVideoPaginationBtn"]';
 exports.videoQualitySelector = 'select[id="setQuality"]';
 exports.webcamItemTalkingUser = 'div[data-test="webcamItemTalkingUser"]';
 exports.webcamSettingsModal = 'div[data-test="webcamSettingsModal"]';
@@ -461,13 +495,14 @@ exports.whiteboard = 'div[data-testid="canvas"]';
 exports.wbLayer = 'div[data-testid="layer"]';
 exports.wbToolbar = 'div[class^="tlui-toolbar__tools tlui-toolbar__tools__mobile"]';
 exports.wbShapesButton = 'button[data-testid="tools.more"]';
-exports.wbRectangleShape = 'button[data-testid="tools.rectangle"]';
+exports.wbHandButton = 'button[data-testid="tools.hand"]';
+exports.wbRectangleShape = 'button[data-testid$=".rectangle"]';
 exports.wbEllipseShape = 'button[data-testid="tools.more.ellipse"]';
 exports.wbTriangleShape = 'button[data-testid="tools.more.triangle"]';
 exports.wbLineShape = 'button[data-testid="tools.more.line"]';
 exports.wbPencilShape = 'button[data-testid="tools.draw"]';
 exports.wbStickyNoteShape = 'button[data-testid="tools.note"]';
-exports.wbTextShape = 'button[data-testid="tools.text"]';
+exports.wbTextShape = 'button[data-testid$=".text"]';
 exports.wbTypedText = 'div[data-shape="text"]';
 exports.wbTypedStickyNote = 'div[data-shape-type="note"]';
 exports.wbDrawnShape = 'div[data-shape-type="geo"]';
@@ -482,7 +517,6 @@ exports.pencil = 'button[data-test="pencilTool"]';
 exports.resetZoomButton = 'button[data-test="resetZoomButton"]';
 exports.zoomInButton = 'button[data-test="zoomInBtn"]';
 exports.zoomOutButton = 'button[data-test="zoomOutBtn"]';
-exports.wbPan = 'button[data-test="panButton"]';
 exports.wbEraser = 'button[data-testid="tools.eraser"]';
 exports.wbArrowShape = 'button[data-testid="tools.arrow"]';
 exports.wbUndo = 'button[data-testid="main.undo"]';
@@ -501,6 +535,7 @@ exports.wbMoveToFront = 'button[data-testid="menu-item.bring-to-front"]';
 exports.wbPaste = 'button[data-testid="menu-item.paste"]';
 exports.wbTextTrue = 'div[data-hastext="true"]';
 exports.wbDrawnArrow = 'div[data-shape-type="arrow"]';
+exports.wbAutoHideToggleBtn = 'input[data-test="autoHideToolbarToggleBtn"]';
 
 // About modal
 exports.showAboutModalButton = 'li[data-test="aboutModal"]';
@@ -515,9 +550,7 @@ exports.darkModeToggleBtn = 'input[data-test="darkModeToggleBtn"]';
 exports.actionsBarBackground = 'section[id="ActionsBar"]';
 exports.navbarBackground = 'header[id="Navbar"]';
 exports.fullscreenModal = 'div[id="fsmodal"]';
-exports.simpleModal = 'div[id="simpleModal"]';
 exports.sharedNotesBackground = 'div[data-test="notes"]';
-exports.whiteboardOptionsButton = 'button[data-test="whiteboardOptionsButton"]';
 
 // Layout management
 exports.manageLayoutBtn = 'li[data-test="manageLayoutBtn"]';
@@ -559,3 +592,27 @@ exports.userStatusDashboard = 'td[data-test="userStatusDashboard"]';
 exports.userActivityScoreDashboard = 'td[data-test="userActivityScoreDashboard"]';
 exports.activityScorePanelDashboard = 'button[data-test="activityScorePanelDashboard"]';
 exports.downloadSessionLearningDashboard = 'button[data-test="downloadSessionDataDashboard"]';
+
+// Recording playback
+const topBar = 'div.top-bar';
+const videoControlBar = 'div.vjs-control-bar';
+exports.playbackElements = {
+  sectionLeftButton: `${topBar} .left button`,
+  toggleThemeButton: `${topBar} .right button[aria-label="Toggle theme"]`,
+  searchButton: `${topBar} .right button[aria-label="Search"]`,
+  swapContentButton: `${topBar} .right button[aria-label="Swap content"]`,
+  topBar: topBar,
+  title: `${topBar} .center span.title`,
+  mediaArea: 'div.media',
+  applicationArea: 'div.application',
+  topContentArea: 'div.top-content',
+  bottomContentArea: 'div.bottom-content',
+  chatContentArea: 'div#chat',
+  applicationControlButton: 'div.application-control div',
+  notesContentArea: 'div#notes',
+  videoControlBar: videoControlBar,
+  playPauseButton: `${videoControlBar} button.vjs-play-control`,
+  seekBackButton: `${videoControlBar} button.vjs-seek-button.skip-back`,
+  seekForwardButton: `${videoControlBar} button.vjs-seek-button.skip-forward`,
+  progressBar: `${videoControlBar} div.vjs-play-progress`,
+}

@@ -14,6 +14,12 @@ public class SvgConversionHandler extends AbstractCommandHandler {
     private static String PATH_PATTERN = "\\d+\\s" + PATH_OUTPUT;
     private static String IMAGE_TAG_PATTERN = "\\d+\\s" + IMAGE_TAG_OUTPUT;
 
+    private final String id;
+
+    public SvgConversionHandler(String id) {
+        this.id = id;
+    }
+
     /**
      * 
      * @return The number of <path/> tags in the generated SVG
@@ -52,5 +58,10 @@ public class SvgConversionHandler extends AbstractCommandHandler {
             }
         }
         return 0;
+    }
+
+    @Override
+    protected String getIdTag() {
+        return id;
     }
 }

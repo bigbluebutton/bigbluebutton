@@ -23,6 +23,14 @@ const intlMessages = defineMessages({
     id: 'app.navBar.optionsDropdown.leaveSessionDesc',
     description: 'Describes leave session option',
   },
+  leaveBreakoutLabel: {
+    id: 'app.navBar.optionsDropdown.leaveBreakoutLabel',
+    description: 'Leave breakout button label',
+  },
+  leaveBreakoutDesc: {
+    id: 'app.navBar.optionsDropdown.leaveBreakoutDesc',
+    description: 'Describes leave breakout option',
+  },
   endMeetingLabel: {
     id: 'app.navBar.optionsDropdown.endMeetingForAllLabel',
     description: 'End meeting button label',
@@ -91,13 +99,20 @@ class LeaveMeetingButton extends PureComponent {
     this.menuItems = [];
 
     if (allowLogoutSetting && connected) {
+      const leaveLabel = isBreakoutRoom
+        ? intlMessages.leaveBreakoutLabel
+        : intlMessages.leaveSessionLabel;
+      const leaveDesc = isBreakoutRoom
+        ? intlMessages.leaveBreakoutDesc
+        : intlMessages.leaveSessionDesc;
+
       this.menuItems.push(
         {
           key: 'list-item-logout',
           dataTest: 'directLogoutButton',
           icon: 'logout',
-          label: intl.formatMessage(intlMessages.leaveSessionLabel),
-          description: intl.formatMessage(intlMessages.leaveSessionDesc),
+          label: intl.formatMessage(leaveLabel),
+          description: intl.formatMessage(leaveDesc),
           onClick: () => this.leaveSession(),
         },
       );

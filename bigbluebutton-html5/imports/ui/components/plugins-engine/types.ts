@@ -6,6 +6,9 @@ export interface PluginsEngineComponentProps {
 
 export interface PluginConfigFromGraphql {
     javascriptEntrypointUrl: string;
+    localesBaseUrl: string;
+    loadFailureReason: string;
+    loadFailureSource: string;
     name: string;
 }
 
@@ -17,9 +20,9 @@ export interface PluginConfig {
     name: string;
     url: string;
     javascriptEntrypointIntegrity?: string;
+    localesBaseUrl: string
 }
 
 export interface EffectivePluginConfig extends PluginConfig {
-    name: string;
     uuid: string;
 }

@@ -1,8 +1,9 @@
 package websrv
 
 import (
-	log "github.com/sirupsen/logrus"
 	"net/http"
+
+	log "github.com/sirupsen/logrus"
 )
 
 func ReconnectionHandler(w http.ResponseWriter, r *http.Request) {

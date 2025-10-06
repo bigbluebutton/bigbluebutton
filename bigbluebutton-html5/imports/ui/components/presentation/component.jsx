@@ -20,6 +20,7 @@ import { debounce } from '/imports/utils/debounce';
 import { throttle } from '/imports/utils/throttle';
 import LocatedErrorBoundary from '/imports/ui/components/common/error-boundary/located-error-boundary/component';
 import FallbackView from '/imports/ui/components/common/fallback-errors/fallback-view/component';
+import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 
 const intlMessages = defineMessages({
   presentationLabel: {
@@ -204,7 +205,6 @@ class Presentation extends PureComponent {
       slidePosition,
       presentationIsOpen,
       currentSlide,
-      publishedPoll,
       setPresentationIsOpen,
       restoreOnUpdate,
       layoutContextDispatch,
@@ -250,7 +250,7 @@ class Presentation extends PureComponent {
     ) {
       addAlert(
         intl.formatMessage(intlMessages.slideContentChanged, {
-          0: currentSlide.num,
+          slideNumber: currentSlide.num,
         }),
       );
     }
@@ -280,11 +280,9 @@ class Presentation extends PureComponent {
         const positionChanged = slidePosition.viewBoxHeight
             !== prevProps.slidePosition.viewBoxHeight
           || slidePosition.viewBoxWidth !== prevProps.slidePosition.viewBoxWidth;
-        const pollPublished = publishedPoll && !prevProps.publishedPoll;
         if (
           slideChanged
           || positionChanged
-          || pollPublished
           || (presentationChanged && (hadPresentation || !isDefaultPresentation))
         ) {
           setPresentationIsOpen(layoutContextDispatch, !presentationIsOpen);
@@ -675,6 +673,7 @@ class Presentation extends PureComponent {
   render() {
     const {
       userIsPresenter,
+      hasWBAccess,
       currentSlide,
       slidePosition,
       presentationBounds,
@@ -690,6 +689,10 @@ class Presentation extends PureComponent {
       darkTheme,
       isViewersAnnotationsLocked,
       fitToWidth,
+      annotationStreamData,
+      initialPageAnnotations,
+      refetchInitialPageAnnotations,
+      restoreOnUpdate,
     } = this.props;
 
     const {
@@ -754,7 +757,11 @@ class Presentation extends PureComponent {
       logCode: 'whiteboard_crash',
       logMessage: 'Possible whiteboard crash',
     };
-    if (!presentationIsOpen) return null;
+    const presentationIsHidden = !presentationBounds
+      || presentationBounds.width === 0
+      || presentationBounds.height === 0;
+    if (!presentationIsOpen || presentationIsHidden) return null;
+
     return (
       <>
         <Styled.PresentationContainer
@@ -804,6 +811,26 @@ class Presentation extends PureComponent {
                 <Styled.VisuallyHidden id="currentSlideText">
                   {slideContent}
                 </Styled.VisuallyHidden>
+                {((userIsPresenter || hasWBAccess) && (!tldrawIsMounting && presentationWidth > 0 && currentSlide)) && <Styled.ExtraTools {...{isToolbarVisible}}>
+                  <TooltipContainer title={intl?.messages["app.shortcut-help.undo"]}>
+                    <Styled.Button
+                      aria-label={intl?.messages["app.shortcut-help.undo"]}
+                      onClick={() => tldrawAPI?.undo()}
+                      className="tlui-undo"
+                    >
+                      <Styled.IconWithMask mask={`${window.meetingClientSettings.public.app.basename}/svgs/tldraw/undo.svg`} />
+                    </Styled.Button>
+                  </TooltipContainer>
+                  <TooltipContainer title={intl?.messages["app.shortcut-help.redo"]}>
+                    <Styled.Button
+                      aria-label={intl?.messages["app.shortcut-help.redo"]}
+                      onClick={() => tldrawAPI?.redo()}
+                      className="tlui-redo"
+                    >
+                      <Styled.IconWithMask mask={`${window.meetingClientSettings.public.app.basename}/svgs/tldraw/redo.svg`} />
+                    </Styled.Button>
+                  </TooltipContainer>
+                </Styled.ExtraTools>}
                 {!tldrawIsMounting
                   && presentationWidth > 0
                   && currentSlide
@@ -820,8 +847,8 @@ class Presentation extends PureComponent {
                     intl={intl}
                     presentationWidth={svgWidth}
                     presentationHeight={svgHeight}
-                    presentationAreaHeight={presentationBounds?.height}
-                    presentationAreaWidth={presentationBounds?.width}
+                    presentationAreaHeight={presentationBounds.height - toolbarHeight}
+                    presentationAreaWidth={presentationBounds.width}
                     isPanning={isPanning}
                     zoomChanger={this.zoomChanger}
                     fitToWidth={fitToWidth}
@@ -837,6 +864,10 @@ class Presentation extends PureComponent {
                     darkTheme={darkTheme}
                     isToolbarVisible={isToolbarVisible}
                     isViewersAnnotationsLocked={isViewersAnnotationsLocked}
+                    annotationStreamData={annotationStreamData}
+                    initialPageAnnotations={initialPageAnnotations}
+                    refetchInitialPageAnnotations={refetchInitialPageAnnotations}
+                    restoreOnUpdate={restoreOnUpdate}
                   />
                 </LocatedErrorBoundary>
                 {isFullscreen && <PollingContainer />}
@@ -892,7 +923,6 @@ Presentation.propTypes = {
   currentPresentationId: PropTypes.string,
   presentationIsOpen: PropTypes.bool,
   totalPages: PropTypes.number.isRequired,
-  publishedPoll: PropTypes.bool.isRequired,
   presentationBounds: PropTypes.shape({
     top: PropTypes.number,
     left: PropTypes.number,

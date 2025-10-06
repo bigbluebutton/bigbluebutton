@@ -153,15 +153,14 @@ object MeetingDAO {
     ChatDAO.insert(meetingProps.meetingProp.intId, GroupChatApp.createDefaultPublicGroupChat())
     MeetingUsersPoliciesDAO.insert(meetingProps.meetingProp.intId, meetingProps.usersProp)
     MeetingLockSettingsDAO.insert(meetingProps.meetingProp.intId, meetingProps.lockSettingsProps)
-    MeetingMetadataDAO.insert(meetingProps.meetingProp.intId, meetingProps.metadataProp)
     MeetingRecordingPoliciesDAO.insert(meetingProps.meetingProp.intId, meetingProps.recordProp)
     MeetingVoiceDAO.insert(meetingProps.meetingProp.intId, meetingProps.voiceProp)
     MeetingWelcomeDAO.insert(meetingProps.meetingProp.intId, meetingProps.welcomeProp)
     MeetingGroupDAO.insert(meetingProps.meetingProp.intId, meetingProps.groups)
     MeetingBreakoutDAO.insert(meetingProps.meetingProp.intId, meetingProps.breakoutProps)
     LayoutDAO.insert(meetingProps.meetingProp.intId, meetingProps.usersProp.meetingLayout)
+    PluginModel.persistPluginsForClient(meetingProps.meetingProp.intId, pluginProps)
     MeetingClientSettingsDAO.insert(meetingProps.meetingProp.intId, JsonUtils.mapToJson(clientSettings))
-    PluginModel.persistPluginsForClient(pluginProps, meetingProps.meetingProp.intId)
   }
 
   def updateMeetingDurationByParentMeeting(parentMeetingId: String, newDurationInSeconds: Int) = {

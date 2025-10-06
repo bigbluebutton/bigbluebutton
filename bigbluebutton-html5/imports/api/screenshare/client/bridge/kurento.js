@@ -91,6 +91,15 @@ export default class KurentoScreenshareBridge {
     }
   }
 
+  setStreamEnabled(enabled) {
+    if (this.gdmStream) {
+      this.gdmStream.getTracks().forEach((track) => {
+        // eslint-disable-next-line no-param-reassign
+        track.enabled = enabled;
+      });
+    }
+  }
+
   inboundStreamReconnect() {
     const currentRestartIntervalMs = this.restartIntervalMs;
 

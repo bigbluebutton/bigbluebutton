@@ -2,6 +2,7 @@ const borderSizeSmall = '1px';
 const borderSize = '2px';
 const borderSizeLarge = '3px';
 const borderRadius = '.2rem';
+const borderRadiusRounded = '.5rem';
 const smPaddingX = '.75rem';
 const smPaddingY = '.3rem';
 const mdPaddingY = '.45rem';
@@ -79,7 +80,7 @@ const pollBottomOffset = '4.5rem';
 const pollColAmount = '2';
 
 const toastMargin = '.5rem';
-const avatarSide = '34px';
+const avatarSide = '3rem';
 const avatarWrapperOffset = '14px';
 const avatarInset = '-7px';
 
@@ -185,4 +186,5 @@ export {
   $3xlPadding,
   xlPadding,
   xsPadding,
+  borderRadiusRounded,
 };

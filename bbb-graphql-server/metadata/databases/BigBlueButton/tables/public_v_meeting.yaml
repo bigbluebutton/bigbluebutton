@@ -16,6 +16,15 @@ object_relationships:
         remote_table:
           name: v_meeting_breakoutPolicies
           schema: public
+  - name: breakoutRoomsCommonProperties
+    using:
+      manual_configuration:
+        column_mapping:
+          meetingId: meetingId
+        insertion_order: null
+        remote_table:
+          name: v_breakoutRoom_commonProperties
+          schema: public
   - name: clientSettings
     using:
       manual_configuration:
@@ -134,15 +143,6 @@ array_relationships:
         remote_table:
           name: v_meeting_group
           schema: public
-  - name: metadata
-    using:
-      manual_configuration:
-        column_mapping:
-          meetingId: meetingId
-        insertion_order: null
-        remote_table:
-          name: v_meeting_metadata
-          schema: public
   - name: polls
     using:
       manual_configuration:
@@ -191,19 +191,35 @@ select_permissions:
   - role: bbb_client_not_in_meeting
     permission:
       columns:
+        - audioBridge
         - bannerColor
         - bannerText
-        - customLogoUrl
+        - cameraBridge
+        - createdAt
+        - createdTime
         - customDarkLogoUrl
+        - customLogoUrl
+        - disabledFeatures
+        - durationInSeconds
+        - endWhenNoModerator
+        - endWhenNoModeratorDelayInMinutes
         - ended
         - endedAt
         - endedBy
         - endedByUserName
         - endedReasonCode
+        - extId
         - isBreakout
+        - loginUrl
         - logoutUrl
+        - maxPinnedCameras
+        - meetingCameraCap
         - meetingId
         - name
+        - notifyRecordingIsOn
+        - presentationUploadExternalDescription
+        - presentationUploadExternalUrl
+        - screenShareBridge
       filter:
         meetingId:
           _eq: X-Hasura-MeetingId

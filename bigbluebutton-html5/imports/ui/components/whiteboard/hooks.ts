@@ -2,14 +2,14 @@ import { useState, useEffect } from 'react';
 import {
   CursorCoordinates,
   CursorCoordinatesResponse,
-  CursorSubscriptionResponse,
-  cursorUserSubscription,
-  getCursorsCoordinatesStream,
-  userCursorResponse,
+  CURRENT_CURSORS_SUBSCRIPTION,
+  CURRENT_PAGE_CURSORS_COORDINATES_STREAM,
+  UserWhiteboardCursor,
+  UserWhiteboardCursorResponse,
 } from './queries';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 
-interface mergedData extends CursorCoordinates, userCursorResponse { }
+interface mergedData extends CursorCoordinates, UserWhiteboardCursor { }
 
 // Custom hook to fetch and merge data
 export const useMergedCursorData = () => {
@@ -21,20 +21,20 @@ export const useMergedCursorData = () => {
   const [
     userCursor,
     setUserCursor,
-  ] = useState<{ [key: string]: userCursorResponse }>({});
+  ] = useState<{ [key: string]: UserWhiteboardCursor }>({});
 
   const [
     userCursorMerged,
     setUserCursorMerged,
   ] = useState<mergedData[]>([]);
   // Fetch cursor coordinates
-  const { data: cursorSubscriptionData } = useDeduplicatedSubscription<CursorSubscriptionResponse>(
-    cursorUserSubscription,
+  const { data: cursorUsersSubscriptionData } = useDeduplicatedSubscription<UserWhiteboardCursorResponse>(
+    CURRENT_CURSORS_SUBSCRIPTION,
   );
-  const cursorSubscriptionDataString = JSON.stringify(cursorSubscriptionData);
+  const cursorUsersSubscriptionDataString = JSON.stringify(cursorUsersSubscriptionData);
 
   const { data: cursorCoordinatesData } = useDeduplicatedSubscription<CursorCoordinatesResponse>(
-    getCursorsCoordinatesStream,
+    CURRENT_PAGE_CURSORS_COORDINATES_STREAM,
   );
   const cursorCoordinatesDataString = JSON.stringify(cursorCoordinatesData);
 
@@ -54,14 +54,14 @@ export const useMergedCursorData = () => {
   }, [cursorCoordinatesDataString]);
 
   useEffect(() => {
-    if (cursorSubscriptionData) {
-      const cursorData = cursorSubscriptionData.pres_page_cursor.reduce((acc, cursor) => {
+    if (cursorUsersSubscriptionData) {
+      const cursorData = cursorUsersSubscriptionData.user_whiteboardCursorAccess.reduce((acc, cursor) => {
         acc[cursor.userId] = cursor;
         return acc;
-      }, {} as { [key: string]: userCursorResponse });
+      }, {} as { [key: string]: UserWhiteboardCursor });
       setUserCursor(cursorData);
     }
-  }, [cursorSubscriptionDataString]);
+  }, [cursorUsersSubscriptionDataString]);
 
   useEffect(() => {
     if (userCursor) {

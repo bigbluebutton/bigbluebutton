@@ -303,14 +303,13 @@ class ConnectionStatusComponent extends PureComponent {
         <>
           <Styled.Item
             key={`${conn.user.name}-${conn.user.userId}`}
-            last={(index + 1) === connections.length}
+            last={index + 1 === connections.length}
             data-test="connectionStatusItemUser"
             onClick={() => {
-              if (conn.user.userId === selectedUserId) {
-                this.setState({ selectedUserId: null });
-              } else {
-                this.setState({ selectedUserId: conn.user.userId });
-              }
+              this.setState({
+                selectedUserId:
+                  conn.user.userId === selectedUserId ? null : conn.user.userId,
+              });
             }}
           >
             <Styled.Left>
@@ -321,7 +320,7 @@ class ConnectionStatusComponent extends PureComponent {
                   moderator={conn.user.isModerator}
                   color={conn.user.color}
                 >
-                  {conn.user.name.toLowerCase().slice(0, 2)}
+                  {(conn.user.name?.toLowerCase()?.slice(0, 2)) || ''}
                 </UserAvatar>
               </Styled.Avatar>
 
@@ -331,62 +330,58 @@ class ConnectionStatusComponent extends PureComponent {
                   data-test={!conn.user.currentlyInMeeting ? 'offlineUser' : null}
                 >
                   {conn.user.name}
-                  {!conn.user.currentlyInMeeting ? ` (${intl.formatMessage(intlMessages.offline)})` : null}
+                  {!conn.user.currentlyInMeeting
+                    ? ` (${intl.formatMessage(intlMessages.offline)})`
+                    : null}
                 </Styled.Text>
               </Styled.Name>
-              {
-                !conn.clientNotResponding ? (
-                  <Styled.Status
-                    aria-label={`${intl.formatMessage(intlMessages.title)} ${conn.lastUnstableStatus}`}
-                  >
-                    <Styled.Icon>
-                      <Icon level={conn.lastUnstableStatus} />
-                    </Styled.Icon>
-                  </Styled.Status>
-                ) : null
-              }
-              {conn.clientNotResponding && conn.user.currentlyInMeeting
-                ? (
-                  <Styled.ClientNotRespondingText>
-                    {intl.formatMessage(intlMessages.clientNotResponding)}
-                  </Styled.ClientNotRespondingText>
-                ) : null}
+
+              {!conn.clientNotResponding ? (
+                <Styled.Status
+                  aria-label={`${intl.formatMessage(
+                    intlMessages.title
+                  )} ${conn.lastUnstableStatus}`}
+                >
+                  <Styled.Icon>
+                    <Icon level={conn.lastUnstableStatus} />
+                  </Styled.Icon>
+                </Styled.Status>
+              ) : null}
+
+              {conn.clientNotResponding && conn.user.currentlyInMeeting ? (
+                <Styled.ClientNotRespondingText>
+                  {intl.formatMessage(intlMessages.clientNotResponding)}
+                </Styled.ClientNotRespondingText>
+              ) : null}
             </Styled.Left>
+
             <Styled.Right>
-              <>
-                <Styled.Time>
-                  {
-                    !conn.clientNotResponding
-                      ? (
-                        <time dateTime={dateTime}>
-                          <FormattedTime value={dateTime} />
-                        </time>
-                      )
-                      : (
-                        <TooltipContainer
-                          placement="top"
-                          title={intl.formatMessage(intlMessages.lastTimeActive)}
-                        >
-                          <Styled.TimeActive dateTime={lastActiveConnection}>
-                            <FormattedTime value={lastActiveConnection} />
-                          </Styled.TimeActive>
-                        </TooltipContainer>
-                      )
-                  }
-                </Styled.Time>
-                <Styled.Chevron
-                  iconName="device_list_selector"
-                  isOpen={conn.user.userId === selectedUserId}
-                />
-              </>
+              <Styled.Time>
+                {!conn.clientNotResponding ? (
+                  <time dateTime={dateTime}>
+                    <FormattedTime value={dateTime} />
+                  </time>
+                ) : (
+                  <TooltipContainer
+                    placement="top"
+                    title={intl.formatMessage(intlMessages.lastTimeActive)}
+                  >
+                    <Styled.TimeActive dateTime={lastActiveConnection}>
+                      <FormattedTime value={lastActiveConnection} />
+                    </Styled.TimeActive>
+                  </TooltipContainer>
+                )}
+              </Styled.Time>
+              <Styled.Chevron
+                iconName="device_list_selector"
+                isOpen={conn.user.userId === selectedUserId}
+              />
             </Styled.Right>
           </Styled.Item>
-          {
-          conn.user.userId === selectedUserId
-            ? (
-              <UserConnectionMetricsContainer userId={conn.user.userId} />
-            ) : null
-          }
+
+          {conn.user.userId === selectedUserId ? (
+            <UserConnectionMetricsContainer userId={conn.user.userId} />
+          ) : null}
         </>
       );
     });

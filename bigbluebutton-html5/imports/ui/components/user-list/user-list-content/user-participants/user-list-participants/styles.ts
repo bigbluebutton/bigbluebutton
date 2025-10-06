@@ -268,9 +268,12 @@ const VirtualizedList = styled(ScrollboxVertical)`
 
   outline: none;
   overflow-x: hidden;
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
 `;
 
-const UserListItem = styled.div`
+const UserListItem = styled.li`
   padding: .25em 0;
   margin-left: .5rem;
 `;

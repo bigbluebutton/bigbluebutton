@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import Resizable from 're-resizable';
+import { Resizable } from 're-resizable';
 import Draggable, { DraggableEvent } from 'react-draggable';
 import { useVideoStreams } from '/imports/ui/components/video-provider/hooks';
 import {
@@ -10,7 +10,7 @@ import {
   layoutDispatch,
 } from '/imports/ui/components/layout/context';
 import { LAYOUT_TYPE, ACTIONS, CAMERADOCK_POSITION } from '/imports/ui/components/layout/enums';
-import { CURRENT_PRESENTATION_PAGE_SUBSCRIPTION } from '/imports/ui/components/whiteboard/queries';
+import { CURRENT_PRESENTATION_PAGE_SUBSCRIPTION, CurrentPresentationPagesSubscriptionResponse } from '/imports/ui/components/whiteboard/queries';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import DropAreaContainer from './drop-areas/container';
 import VideoProviderContainer from '/imports/ui/components/video-provider/container';
@@ -56,7 +56,7 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
 }) => {
   const [isResizing, setIsResizing] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
-  const [isFullscreen, setIsFullScreen] = useState(false);
+  const [isFullScreen, setIsFullScreen] = useState(false);
   const [resizeStart, setResizeStart] = useState({ width: 0, height: 0 });
   const [cameraMaxWidth, setCameraMaxWidth] = useState(0);
   const [draggedAtLeastOneTime, setDraggedAtLeastOneTime] = useState(false);
@@ -223,7 +223,7 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
           onMouseDown={
             cameraDock.isDraggable ? (e) => e.preventDefault() : undefined
           }
-          disabled={!cameraDock.isDraggable || isResizing || isFullscreen}
+          disabled={!cameraDock.isDraggable || isResizing || isFullScreen}
           position={
             {
               x: cameraDock.left - cameraDock.right + draggableOffset.left,
@@ -261,11 +261,11 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
               });
             }}
             enable={{
-              top: !isFullscreen && !isDragging && !swapLayout && cameraDock?.resizableEdge?.top,
-              bottom: !isFullscreen && !isDragging && !swapLayout
+              top: !isFullScreen && !isDragging && !swapLayout && cameraDock?.resizableEdge?.top,
+              bottom: !isFullScreen && !isDragging && !swapLayout
               && cameraDock?.resizableEdge?.bottom,
-              left: !isFullscreen && !isDragging && !swapLayout && cameraDock?.resizableEdge?.left,
-              right: !isFullscreen && !isDragging && !swapLayout && cameraDock?.resizableEdge?.right,
+              left: !isFullScreen && !isDragging && !swapLayout && cameraDock?.resizableEdge?.left,
+              right: !isFullScreen && !isDragging && !swapLayout && cameraDock?.resizableEdge?.right,
               topLeft: false,
               topRight: false,
               bottomLeft: false,
@@ -277,11 +277,11 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
             }}
           >
             <Styled.Draggable
-              $isDraggable={!!cameraDock.isDraggable && !isFullscreen && !isDragging}
+              $isDraggable={!!cameraDock.isDraggable && !isFullScreen && !isDragging}
               $isDragging={isDragging}
               id="cameraDock"
               role="region"
-              draggable={cameraDock.isDraggable && !isFullscreen ? 'true' : undefined}
+              draggable={cameraDock.isDraggable && !isFullScreen ? 'true' : undefined}
               style={{
                 width: isIphone ? mobileWidth : isDesktopWidth,
                 height: isIphone ? mobileHeight : isDesktopHeight,
@@ -316,8 +316,10 @@ const WebcamContainer: React.FC = () => {
   const presentation = layoutSelectOutput((i: Output) => i.presentation);
   const cameraDock = layoutSelectOutput((i: Output) => i.cameraDock);
   const layoutContextDispatch = layoutDispatch();
-  const { data: presentationPageData } = useDeduplicatedSubscription(CURRENT_PRESENTATION_PAGE_SUBSCRIPTION);
-  const presentationPage = presentationPageData?.pres_page_curr[0] || {};
+  const { data: presentationPageData } = useDeduplicatedSubscription<CurrentPresentationPagesSubscriptionResponse>(
+    CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
+  );
+  const presentationPage = presentationPageData?.pres_page_curr[0];
   const hasPresentation = !!presentationPage?.presentationId;
   const { isOpen: presentationIsOpen } = presentationInput;
   const isLayoutSwapped = !presentationIsOpen;
@@ -356,7 +358,7 @@ const WebcamContainer: React.FC = () => {
 
   const audioModalIsOpen = useStorageKey('audioModalIsOpen');
 
-  return !audioModalIsOpen && (usersVideo.length > 0 || isGridEnabled)
+  return cameraDock?.display && !audioModalIsOpen && (usersVideo.length > 0 || isGridEnabled)
     ? (
       <WebcamComponent
         {...{

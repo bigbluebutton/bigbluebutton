@@ -26,7 +26,7 @@ class Notifications extends MultiUsers {
       this.modPage.getLocator(e.connectionStatusBtn),
       'should not complain about loss in connection when joining audio'
     ).not.toHaveAttribute('color', 'danger');
-    await this.modPage.checkElementCount(e.smallToastMsg, 1, 'should have only one notification displayed');
+    await this.modPage.hasElementCount(e.smallToastMsg, 1, 'should have only one notification displayed');
     await this.modPage.closeAllToastNotifications();
     await this.modPage.waitAndClick(e.audioDropdownMenu);
     await this.modPage.waitAndClick(e.leaveAudio);
@@ -64,6 +64,19 @@ class Notifications extends MultiUsers {
     await openSettings(page);
     await util.enableUserJoinPopup(page);
     await util.saveSettings(page);
+  }
+
+  async userLeaveNotifications() {
+    await this.modPage.closeAllToastNotifications();
+    // User leaves
+    await this.modPage.waitAndClick(e.leaveMeetingDropdown, ELEMENT_WAIT_LONGER_TIME)
+    await this.modPage.hasElement(e.directLogoutButton, 'should display the leave session button')
+    await this.modPage.waitAndClick(e.directLogoutButton, ELEMENT_WAIT_LONGER_TIME);
+
+    // Verify leave notification
+    await this.modPage.hasElement(e.meetingEndedModal, ELEMENT_WAIT_LONGER_TIME)
+    await this.modPage.hasElement(e.redirectButton, 'should display the redirect button')
+
   }
 }
 
