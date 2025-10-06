@@ -32,6 +32,7 @@ export class Shape {
     rotation,
     opacity,
     props,
+    type,
   }) {
     this.id = id;
     this.x = x;
@@ -39,6 +40,7 @@ export class Shape {
     this.rotation = rotation;
     this.opacity = opacity;
     this.props = props;
+    this.type = type;
 
     this.size = this.props?.size;
     this.color = this.props?.color;
@@ -267,17 +269,31 @@ export class Shape {
    * Get the font size in pixels.
    *
    * @param {string} size - The size of the font ('s', 'm', 'l', 'xl').
+   * @param {string} [type='default'] The type of the shape
    * @return {number} - The corresponding font size, in pixels.
   */
-  static determineFontSize(size) {
-    const fontSizes = {
+  static determineFontSize(size, type = 'default') {
+    const textFontSizes = {
       's': 18,
       'm': 24,
       'l': 36,
       'xl': 44,
     };
 
-    return fontSizes[size] || 18;
+    const geoFontSizes = {
+      's': 18,
+      'm': 22,
+      'l': 26,
+      'xl': 32,
+    };
+
+    const fontSizeTypes = {
+      'geo': geoFontSizes,
+      'text': textFontSizes,
+      'default': textFontSizes,
+    };
+
+    return fontSizeTypes[type]?.[size] || 18;
   }
 
   /**
@@ -385,19 +401,21 @@ export class Shape {
 
     const decompressedBuffer = await wawoff2.decompress(arrayBuffer);
 
-    const decompresseArrayBuffer = decompressedBuffer.buffer.slice(
+    const decompressedArrayBuffer = decompressedBuffer.buffer.slice(
         decompressedBuffer.byteOffset,
         decompressedBuffer.byteOffset + decompressedBuffer.byteLength);
 
     // Parse the font using the ArrayBuffer
-    const parsedFont = opentype.parse(decompresseArrayBuffer);
-    const fontSize = Shape.determineFontSize(this.size);
+    const parsedFont = opentype.parse(decompressedArrayBuffer);
+    const fontSize = Shape.determineFontSize(this.size, this.type);
+
+    width -= this.padding * 2;
 
     // In order to avoid bad line breaks due to rendering mismatch between
     // environments (browser and CairoSVG) we add some spacing for safety.
-    // Such spacing needs to be less than 2 characters width wide
+    // Such spacing needs to be less than half the average character width
     // to not mess up original line breaks.
-    width += fontSize * 1.35;
+    width += fontSize * 0.5;
 
     const _wrapText = (token, availableWidth) => {
       let prefix = '';
@@ -476,7 +494,7 @@ export class Shape {
     const width = this.w;
     const height = this.h + this.growY;
 
-    const lineHeight = Shape.determineFontSize(this.size);
+    const lineHeight = Shape.determineFontSize(this.size, this.type);
     const fontFamily = Shape.determineFontFromFamily(this.props?.font);
     const x = Shape.alignHorizontally(this.align, width, this.padding);
     const y = Shape.alignVertically(
