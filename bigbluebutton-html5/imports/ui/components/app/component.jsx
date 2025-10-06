@@ -48,7 +48,7 @@ import VoiceActivityAdapter from '../../core/adapters/voice-activity';
 import LayoutObserver from '../layout/observer';
 import BBBLiveKitRoomContainer from '/imports/ui/components/livekit/component';
 import AudioCaptionsLiveContainer from '/imports/ui/components/audio/audio-graphql/audio-captions/live/component';
-import NotesRenderMode from '/imports/ui/components/notes/constants';
+import { NotesRenderMode } from '/imports/ui/components/notes/constants';
 
 const intlMessages = defineMessages({
   userListLabel: {
