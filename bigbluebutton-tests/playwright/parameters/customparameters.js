@@ -583,7 +583,7 @@ class CustomParameters extends MultiUsers {
     await this.userPage2.waitAndClick(e.breakoutRoomsItem);
     await this.userPage2.hasElement(e.alreadyConnected, 'should display the element alreadyConnected', ELEMENT_WAIT_EXTRA_LONG_TIME);
 
-    const breakoutUserPage2 = await this.userPage.getLastTargetPage(this.context);
+    const breakoutUserPage2 = await this.userPage2.getLastTargetPage(this.context);
     await breakoutUserPage2.closeAudioModal();
     await breakoutUserPage2.hasElementCount(e.currentUser, 1, 'should contain the current user after joining the breakout room');
     await breakoutUserPage2.hasText(e.presentationTitle, 'Room 2', 'should display the correct breakout room name');
