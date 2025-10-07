@@ -1089,6 +1089,8 @@
     "app.shortcut-help.duplicate": "Duplicate",
     "app.shortcut-help.gesture": "Gestures",
     "app.shortcut-help.fingerTap": "finger tap",
+    "app.shortcut-help.quickPollDesc": "Create poll",
+    "app.shortcut-help.quickPollKey": "Shift + click",
     "app.lock-viewers.title": "Lock viewers",
     "app.lock-viewers.description": "These options enable you to restrict viewers from using specific features.",
     "app.lock-viewers.featuresLable": "Feature",

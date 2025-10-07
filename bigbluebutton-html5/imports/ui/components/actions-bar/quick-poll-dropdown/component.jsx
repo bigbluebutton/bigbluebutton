@@ -69,6 +69,8 @@ const QuickPollDropdown = (props) => {
   // Function to create a regex pattern
   const createPattern = (values) => new RegExp(`.*(${escapeRegExp(values[0])}\\/${escapeRegExp(values[1])}|${escapeRegExp(values[1])}\\/${escapeRegExp(values[0])}).*`, 'gmi');
 
+  const hasModifierKey = (e) => e.shiftKey;
+
   const yesValue = intl.formatMessage(intlMessages.yesOptionLabel);
   const noValue = intl.formatMessage(intlMessages.noOptionLabel);
   const abstentionValue = intl.formatMessage(intlMessages.abstentionOptionLabel);
@@ -343,13 +345,15 @@ const QuickPollDropdown = (props) => {
           <Dropdown.DropdownListItem
             label={intl.formatMessage(intlMessages.typedRespLabel)}
             key={uniqueId('quick-poll-item')}
-            onClick={() => {
+            onClick={(e) => {
               if (activePoll) {
                 stopPoll();
               }
               setTimeout(() => {
                 handleClickQuickPoll(_layoutContextDispatch);
-                funcStartPoll(type, slideId, letterAnswers, pollData?.question);
+                funcStartPoll(
+                  type, slideId, letterAnswers, pollData?.question, false, hasModifierKey(e),
+                );
               }, CANCELED_POLL_DELAY);
             }}
             question={pollData?.question}
@@ -394,7 +398,7 @@ const QuickPollDropdown = (props) => {
         <Dropdown.DropdownListItem
           label={itemLabel}
           key={uniqueId('quick-poll-item')}
-          onClick={() => {
+          onClick={(e) => {
             if (activePoll) {
               stopPoll();
             }
@@ -408,6 +412,7 @@ const QuickPollDropdown = (props) => {
                 pollData?.multiResp,
                 correctAnswer?.length > 0,
                 correctAnswer,
+                hasModifierKey(e),
               );
             }, CANCELED_POLL_DELAY);
           }}
@@ -454,13 +459,14 @@ const QuickPollDropdown = (props) => {
       aria-label={intl.formatMessage(intlMessages.quickPollLabel)}
       label={quickPollLabel}
       tooltipLabel={intl.formatMessage(intlMessages.quickPollLabel)}
-      onClick={() => {
+      onClick={(e) => {
         if (activePoll) {
           stopPoll();
         }
 
         setTimeout(() => {
           handleClickQuickPoll(layoutContextDispatch);
+          const modifierKey = hasModifierKey(e);
           if (singlePollType === 'R-' || singlePollType === 'TF' || singlePollType === 'YN') {
             startPoll(
               singlePollType,
@@ -470,6 +476,7 @@ const QuickPollDropdown = (props) => {
               multiResponse,
               correctAnswer?.length > 0,
               correctAnswer,
+              modifierKey,
             );
           } else {
             startPoll(
@@ -480,6 +487,7 @@ const QuickPollDropdown = (props) => {
               multiResponse,
               correctAnswer?.length > 0,
               correctAnswer,
+              modifierKey,
             );
           }
         }, CANCELED_POLL_DELAY);
