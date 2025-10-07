@@ -323,11 +323,13 @@ jobs:
 
           # Move the .deb file to the expected location for caching
           mv *.deb bbb-presentation-video.deb
-      - name: Install bbb-presentation-video
+      - name: Prepare dependencies
         run: |
-          # Install the .deb package (either from cache or just downloaded)
-          sudo apt-get update
-          sudo apt install -y ./bbb-presentation-video.deb
+          sudo apt update
+          sudo apt install -y python3-pip
+          pip install "perfect-freehand>=1.2.0"
+      - name: Install bbb-presentation-video package
+        run: sudo apt install -y ./bbb-presentation-video.deb
       - name: Configure video format settings
         run: |
           # webm format should be enabled for automated tests - decoded by chromium
