@@ -21,6 +21,7 @@ import { PRESENTATION_SET_CURRENT } from '../../presentation/mutations';
 import { useStorageKey } from '/imports/ui/services/storage/hooks';
 import { useMeetingIsBreakout } from '/imports/ui/components/app/service';
 import { useIsQuizEnabled } from '../../../services/features';
+import usePresentationFitToWidth from '/imports/ui/components/presentation/hooks/usePresentationFitToWidth';
 
 const ActionsDropdownContainer = (props) => {
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
@@ -57,6 +58,9 @@ const ActionsDropdownContainer = (props) => {
   const [timerActivate] = useMutation(TIMER_ACTIVATE);
   const [timerDeactivate] = useMutation(TIMER_DEACTIVATE);
   const [presentationSetCurrent] = useMutation(PRESENTATION_SET_CURRENT);
+
+  // eslint-disable-next-line no-unused-vars
+  const [_, setPresentationFitToWidth] = usePresentationFitToWidth();
 
   const handleTakePresenter = () => {
     setPresenter({ variables: { userId: Auth.userID } });
@@ -114,6 +118,7 @@ const ActionsDropdownContainer = (props) => {
         isPresentationEnabled,
         isPresentationManagementDisabled,
         isQuizEnabled,
+        setPresentationFitToWidth,
         ...props,
       }}
     />
