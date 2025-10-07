@@ -38,6 +38,7 @@ exports.enforceCamerasOnly = 'enforceLayout=CAMERAS_ONLY';
 exports.enforcePresentationOnly = 'enforceLayout=PRESENTATION_ONLY';
 exports.enforceParticipantsAndChatOnly = 'enforceLayout=PARTICIPANTS_AND_CHAT_ONLY';
 exports.enforceMediaOnly = 'enforceLayout=MEDIA_ONLY';
+exports.groups = 'groups=[{"id":"1",name:"Room 1",roster:["1235"]},{"id":"2",name:"Room 2",roster:["2333","2335"]},{"id":"3",roster:[]}]'
 
 // Custom Parameters
 exports.autoJoin = 'userdata-bbb_auto_join_audio=false';

@@ -166,7 +166,7 @@ class CustomParameters extends MultiUsers {
     await this.userPage.hasElement(e.restorePresentation, 'should display the restore presentation button for the attendee');
     await this.userPage.wasRemoved(e.whiteboard, 'should not display the whiteboard for the attendee');
     await utilScreenShare.startScreenshare(this.modPage);
-    
+
     await this.userPage.hasElement(e.screenShareVideo, 'should display the screenshare element');
     await this.modPage.waitAndClick(e.stopScreenSharing);
     await this.modPage.hasElement(e.actions, 'should display the actions button');
@@ -256,7 +256,7 @@ class CustomParameters extends MultiUsers {
     const breakoutUserPage = await this.userPage.getLastTargetPage(this.userPage.context);
     await breakoutUserPage.bringToFront();
     await breakoutUserPage.closeAudioModal();
-    
+
     await breakoutUserPage.hasElement(e.presentationTitle, 'should display the presentation title inside the breakout room');
     await breakoutUserPage.wasRemoved(e.whiteboard);
     await this.modPage.waitAndClick(e.breakoutRoomsItem);
@@ -401,7 +401,7 @@ class CustomParameters extends MultiUsers {
   }
 
   async overrideDefaultLocaleTest() {
-    await this.modPage.hasText(e.chatButton, 'Bate-papo público','should display the new overridden default locale');
+    await this.modPage.hasText(e.chatButton, 'Bate-papo público', 'should display the new overridden default locale');
   }
 
   async hideNavBarTest() {
@@ -442,7 +442,7 @@ class CustomParameters extends MultiUsers {
     await this.modPage.waitForSelector(e.whiteboard);
     await this.userPage.waitForSelector(e.whiteboard);
     await checkScreenshots(this, 'should the cameras be above the presentation', [e.webcamContainer, e.webcamMirroredVideoContainer], 'smart-layout', 1);
-    
+
     await this.modPage.waitAndClick(e.userListToggleBtn);
     await this.modPage.wasRemoved(e.chatButton, '');
     await sleep(1000); // wait for the whiteboard zoom to stabilize
@@ -463,17 +463,17 @@ class CustomParameters extends MultiUsers {
   async enforceVideoFocus() {
     await this.modPage.waitForSelector(e.whiteboard);
     await this.userPage.waitForSelector(e.whiteboard);
-    
-    await this.modPage.waitAndClick(e.joinVideo); 
+
+    await this.modPage.waitAndClick(e.joinVideo);
     await this.modPage.bringToFront();
     await this.modPage.hasElement(e.webcamMirroredVideoPreview, 'should display the video preview when sharing webcam ', ELEMENT_WAIT_TIME);
     await this.modPage.waitAndClick(e.startSharingWebcam);
 
-    await this.userPage.waitAndClick(e.joinVideo); 
+    await this.userPage.waitAndClick(e.joinVideo);
     await this.userPage.bringToFront();
     await this.userPage.hasElement(e.webcamMirroredVideoPreview, 'should display the video preview when sharing webcam ', ELEMENT_WAIT_TIME);
     await this.userPage.waitAndClick(e.startSharingWebcam);
-        
+
     await this.modPage.waitForSelector(e.webcamMirroredVideoContainer, VIDEO_LOADING_WAIT_TIME);
     await this.modPage.waitForSelector(e.leaveVideo, VIDEO_LOADING_WAIT_TIME);
     await this.modPage.hasNElements('video', 2, 'should display the 2 video elements after both users shared their webcams');
@@ -486,7 +486,7 @@ class CustomParameters extends MultiUsers {
 
     await this.modPage.shareWebcam();
     await this.userPage.shareWebcam();
-    
+
 
     await checkScreenshots(this, 'should be the cameras only layout', [e.webcamContainer, e.webcamMirroredVideoContainer], 'enforce-cameras-only');
   }
@@ -546,6 +546,50 @@ class CustomParameters extends MultiUsers {
     await sleep(1000);
 
     await checkScreenshots(this, 'should be on custom layout', [e.webcamContainer, e.webcamMirroredVideoContainer], 'enforce-custom-layout', 4);
+  }
+
+  async predefinedGroups() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.userPage.waitForSelector(e.whiteboard);
+    await this.userPage2.waitForSelector(e.whiteboard);
+
+    await this.modPage.waitAndClick(e.manageUsers);
+    await this.modPage.waitAndClick(e.createBreakoutRooms);
+
+    await this.modPage.hasElement(e.breakoutBox0, 'should display the breakout box for unassigned users,');
+
+    await this.modPage.hasElement(e.breakoutBox1, 'should display the breakout box for room 1');
+    await this.modPage.hasElementCount(`${e.breakoutBox1} > p`, 1, 'should display only 1 user in the breakout room 1');
+    await this.modPage.hasValue(e.roomNameInput, 'Room 1', 'should display the correct name of the group for breakout room 1');
+
+    await this.modPage.hasElement(e.breakoutBox2, 'should display the breakout box for room 2');
+    await this.modPage.hasElementCount(`${e.breakoutBox2} > p`, 1, 'should display only 1 user in the breakout room 2');
+    await this.modPage.hasValue(`input[data-test=roomName-2]`, 'Room 2', 'should display the correct name of the group for breakout room 2');
+
+    await this.modPage.waitAndClick(e.modalConfirmButton, ELEMENT_WAIT_LONGER_TIME);
+
+    await this.userPage.hasElement(e.modalConfirmButton, 'should appear the modal confirm button to join breakout');
+    await this.userPage.waitAndClick(e.modalConfirmButton);
+    await this.userPage.waitAndClick(e.breakoutRoomsItem);
+    await this.userPage.hasElement(e.alreadyConnected, 'should display the element alreadyConnected', ELEMENT_WAIT_EXTRA_LONG_TIME);
+
+    const breakoutUserPage = await this.userPage.getLastTargetPage(this.context);
+    await breakoutUserPage.closeAudioModal();
+    await breakoutUserPage.hasElementCount(e.currentUser, 1, 'should contain the current user after joining the breakout room');
+    await breakoutUserPage.hasText(e.presentationTitle, 'Room 1', 'should display the correct breakout room name');
+
+    await this.userPage2.hasElement(e.modalConfirmButton, 'should appear the modal confirm button to join breakout');
+    await this.userPage2.waitAndClick(e.modalConfirmButton);
+    await this.userPage2.waitAndClick(e.breakoutRoomsItem);
+    await this.userPage2.hasElement(e.alreadyConnected, 'should display the element alreadyConnected', ELEMENT_WAIT_EXTRA_LONG_TIME);
+
+    const breakoutUserPage2 = await this.userPage.getLastTargetPage(this.context);
+    await breakoutUserPage2.closeAudioModal();
+    await breakoutUserPage2.hasElementCount(e.currentUser, 1, 'should contain the current user after joining the breakout room');
+    await breakoutUserPage2.hasText(e.presentationTitle, 'Room 2', 'should display the correct breakout room name');
+
+    await this.modPage.waitAndClick(e.breakoutRoomsItem);
+    await this.modPage.hasText(e.userNameBreakoutRoom, /Attendee/, 'should have the attendee name on the breakout room below a room on the main breakout panel');
   }
 }
 

@@ -558,6 +558,15 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
     await customParam.logoutURLTest();
   });
 
+    test('Predefined groups for Breakout Rooms', async ({ browser, context, page }, testInfo) => {
+    const customParam = new CustomParameters(browser, context);
+    await customParam.initModPage(page, true, { createParameter: `${encodeCustomParams(c.groups)}`, testInfo });
+    await customParam.initUserPage(true, context, { fullName: `Attendee-1235`, joinParameter: 'userID=1235',testInfo });
+    await customParam.initUserPage2(true, context, { fullName: `Attendee-2335`, joinParameter: 'userID=2335',testInfo });
+    await customParam.predefinedGroups(page);
+  });
+
+
   test.describe.parallel('Audio', () => {
     test('Auto join', async ({ browser, context, page }, testInfo) => {
       const customParam = new CustomParameters(browser, context);
