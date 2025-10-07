@@ -3,6 +3,7 @@ import { DataChannelTypes } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-ch
 
 export interface PluginDataChannelManagerProps {
   pluginApi: PluginSdk.PluginApi;
+  dataChannelEntries: DataChannelEntry[];
 }
 
 export interface MapInformation {
@@ -12,10 +13,15 @@ export interface MapInformation {
   types: DataChannelTypes[];
 }
 
-export interface SubscriptionResultFromGraphqlStream {
-  pluginDataChannelMessage_stream: object[]
-}
-
-export interface SubscriptionResultFromGraphql {
-  pluginDataChannelMessage: object[]
+export interface DataChannelEntry {
+  createdAt: string;
+  updatedAt: string;
+  channelName: string;
+  subChannelName: string;
+  entryId: string;
+  payloadJson: object;
+  createdBy: string;
+  fromUserId: string;
+  pluginName: string;
+  toRoles?: string[];
 }

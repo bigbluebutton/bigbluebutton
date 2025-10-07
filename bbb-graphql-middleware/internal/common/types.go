@@ -51,7 +51,7 @@ type BrowserConnection struct {
 	BrowserRequestCookies              []*http.Cookie
 	ActiveSubscriptions                map[string]GraphQlSubscription // active subscriptions of this connection (start, but no stop)
 	ActiveSubscriptionsMutex           sync.RWMutex                   // mutex to control the map usage
-	ActiveStreamings                   map[string]string              // active streamings of this connection (start, but no stop)
+	ActiveStreamings                   map[string][]string            // active streamings managed by Middleware of this connection
 	ActiveStreamingsMutex              sync.RWMutex                   // mutex to control the map usage
 	ConnectionInitMessage              []byte                         // init message received in this connection (to be used on hasura reconnect)
 	HasuraConnection                   *HasuraConnection              // associated hasura connection
