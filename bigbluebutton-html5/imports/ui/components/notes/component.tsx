@@ -31,7 +31,6 @@ import {
   SharedNotes,
   Output,
   Input,
-  DispatcherFunction,
 } from '/imports/ui/components/layout/layoutTypes';
 import { NotesRenderMode, sidebarContentToIgnoreDelay } from './constants';
 import { NotesRenderModeType } from './types';
@@ -61,9 +60,9 @@ interface NotesGraphqlProps {
   isOnMediaArea: boolean;
   isVisible: boolean;
   hasPermission: boolean;
-  layoutContextDispatch: DispatcherFunction;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  layoutContextDispatch: any;
   isResizing: boolean;
-  isLocalChange: boolean;
   sharedNotesOutput: SharedNotes;
   amIPresenter: boolean;
   ignoreDelayforUnmount: boolean;
@@ -78,7 +77,6 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
     hasPermission,
     layoutContextDispatch,
     isResizing,
-    isLocalChange,
     sharedNotesOutput,
     amIPresenter,
     ignoreDelayforUnmount,
@@ -177,7 +175,6 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
         </>
       ) : renderHeaderOnMedia()}
       <PadContainer
-        isOnMediaArea={isOnMediaArea}
         externalId={NOTES_ID()}
         hasPermission={hasPermission}
         isResizing={isResizing}
@@ -199,7 +196,7 @@ const NotesContainerGraphql: React.FC<NotesContainerGraphqlProps> = (props) => {
   const cameraDock = layoutSelectInput((i: Input) => i.cameraDock);
   const sharedNotesOutput = layoutSelectOutput((i: Output) => i.sharedNotes);
   const sidebarContent = layoutSelectInput((i: Input) => i.sidebarContent);
-  const { isResizing, isLocalChange } = cameraDock;
+  const { isResizing } = cameraDock;
   const layoutContextDispatch = layoutDispatch();
   const amIPresenter = !!currentUserData?.presenter;
 
@@ -237,7 +234,6 @@ const NotesContainerGraphql: React.FC<NotesContainerGraphqlProps> = (props) => {
       hasPermission={hasPermission}
       layoutContextDispatch={layoutContextDispatch}
       isResizing={isResizing}
-      isLocalChange={isLocalChange}
       ignoreDelayforUnmount={sidebarContentToIgnoreDelay.includes(sidebarContent.sidebarContentPanel)}
       sharedNotesOutput={sharedNotesOutput}
       amIPresenter={amIPresenter}
