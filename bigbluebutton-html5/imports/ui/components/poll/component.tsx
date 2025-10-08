@@ -838,7 +838,7 @@ const PollCreationPanelContainer: React.FC = () => {
   return (
     <PollCreationPanel
       layoutContextDispatch={layoutContextDispatch}
-      hasPoll={currentMeeting.componentsFlags?.hasPoll ?? false}
+      hasPoll={currentMeeting?.componentsFlags?.hasPoll ?? false}
     />
   );
 };

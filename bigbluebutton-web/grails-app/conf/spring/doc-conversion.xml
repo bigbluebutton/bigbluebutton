@@ -77,6 +77,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="wait" value="${imageResizeWait}"/>
     </bean>
 
+    <bean id="imageResolutionService" class="org.bigbluebutton.presentation.imp.ImageResolutionService">
+        <property name="wait" value="${detectImageDimensionsTimeout}"/>
+    </bean>
+
     <bean id="pageCounterService" class="org.bigbluebutton.presentation.imp.PageCounterService">
         <property name="pageCounter" ref="pageCounter"/>
     </bean>
@@ -110,6 +114,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="forceRasterizeSlides" value="${forceRasterizeSlides}"/>
         <property name="pngWidthRasterizedSlides" value="${pngWidthRasterizedSlides}"/>
         <property name="imageResizer" ref="imageResizer"/>
+        <property name="imageResolutionService" ref="imageResolutionService"/>
     </bean>
 
     <bean id="generatedSlidesInfoHelper" class="org.bigbluebutton.presentation.GeneratedSlidesInfoHelperImp"/>
@@ -147,6 +152,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="textFileCreator" ref="textFileCreator"/>
         <property name="slidesGenerationProgressNotifier" ref="slidesGenerationProgressNotifier"/>
         <property name="imageResizer" ref="imageResizer"/>
+        <property name="imageResolutionService" ref="imageResolutionService"/>
         <property name="maxImageWidth" value="${maxImageWidth}"/>
         <property name="maxImageHeight" value="${maxImageHeight}"/>
         <property name="generatePngs" value="${generatePngs}"/>

@@ -210,6 +210,7 @@ public:
         raiseHandPushAlerts: true
         guestWaitingAudioAlerts: true
         guestWaitingPushAlerts: true
+        muteUnmuteAudioAlerts: true
         wakeLock: true
         paginationEnabled: true
         whiteboardToolbarAutoHide: false
@@ -320,6 +321,14 @@ public:
   # plugins:
   #   - name: SamplePresentationToolbarPlugin
   #     url: https://<your-Host>/plugins/SamplePresentationToolbarPlugin.js
+  # Allowed errors to be shown on notifications bar
+    showConnectionErrors:
+      # - 3001
+      - 3002
+      # - 3003
+      - 3004
+      # - 3005
+      # - 3006
   externalVideoPlayer:
     enabled: true
   kurento:
@@ -1069,6 +1078,9 @@ public:
     maxNumberOfAnnotations: 300
     # Limit the number of users who can interact with the whiteboard
     maxNumberOfActiveUsers: 25
+    # This is the number of times we can press undo (plus 100 providing a safe margin for some shapes with extra entries)
+    # default value is 400, adjusted for maxNumberOfAnnotations being 300
+    maxHistoryStackSize: 400
     lockToolbarTools: false
     annotations:
       status:
@@ -1183,15 +1195,6 @@ public:
       - home.jpg
       - coffeeshop.jpg
       - board.jpg
-  minBrowserVersions:
-    safari: ">=14"
-    chrome: ">=87"
-    firefox: ">=80"
-    edge: ">=85"
-    miui: "<0"
-    mobile:
-      safari: ">=14"
-      chrome: ">=87"
 private:
   analytics:
     includeChat: true

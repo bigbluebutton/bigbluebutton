@@ -169,6 +169,7 @@
             # CORS request. No cookies are required so we can just allow anyone
             # to use this endpoint.
             add_header 'Access-Control-Allow-Origin' '*';
+            add_header Access-Control-Expose-Headers X-Server-Epoch-Msec;
             return 200 "";
         }
 

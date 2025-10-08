@@ -94,7 +94,7 @@ select_permissions:
         - bot
         - guest
         - guestStatus
-        - hasDrawPermissionOnCurrentPage
+        - whiteboardWriteAccess
         - isDialIn
         - isModerator
         - currentlyInMeeting

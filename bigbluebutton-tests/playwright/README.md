@@ -33,13 +33,6 @@ or
 $ npm test chat -- --project="firefox" # or "chromium" for example
 ```
 
-### Npm-scripts parameters
-
-Run fully parallel mode:
-```bash
-$ npm test chat --parallel -- --project chromium
-```
-
 ### Additional commands
 
 To see the tests running visually, you must run them in headed mode:
@@ -123,7 +116,6 @@ $ CONSOLE= npm test chat -- --project=firefox
 | label  | label each line with the BigBlueButton user |
 | norefs | remove JavaScript reference URLs |
 | nots   | remove timestamps |
-| nocl   | remove "clientLogger:" strings |
 
 ## Check test results
 
