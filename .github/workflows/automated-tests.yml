@@ -328,8 +328,14 @@ jobs:
           sudo apt update
           sudo apt install -y python3-pip
           pip install "perfect-freehand>=1.2.0"
-      - name: Install bbb-presentation-video package
-        run: sudo apt install -y ./bbb-presentation-video.deb
+      - name: Patch and install bbb-presentation-video package
+        run: |
+          # Patch the package to remove dependency that APT cannot resolve (installed in the previous step)
+          dpkg-deb -R bbb-presentation-video.deb tmpdeb
+          # remove the dependency line
+          sed -i '/python3-perfect-freehand/d' tmpdeb/DEBIAN/control
+          dpkg-deb -b tmpdeb fixed-bbb-package.deb
+          sudo apt install -y ./fixed-bbb-package.deb
       - name: Configure video format settings
         run: |
           # webm format should be enabled for automated tests - decoded by chromium
