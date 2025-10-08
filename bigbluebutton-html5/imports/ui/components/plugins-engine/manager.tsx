@@ -22,8 +22,8 @@ import PluginLearningAnalyticsDashboardManager from './learning-analytics-dashbo
 import PluginEventPersistenceManager from './event-persistence/manager';
 import { DataChannelEntry } from './data-channel/types';
 import createUseSubscription from '../../core/hooks/createUseSubscription';
-import PLUGIN_DATA_CHANNEL_SUBSCRIPTION from './data-channel/subscriptions';
-import mapProjectedDataChannelEntries from './data-channel/utils';
+import { PLUGIN_DATA_CHANNEL_PUBLIC_SUBSCRIPTION, PLUGIN_DATA_CHANNEL_PRIVATE_SUBSCRIPTION } from './data-channel/subscriptions';
+import { mergeDataChannelEntries } from './data-channel/utils';
 
 const PluginsEngineManager = (props: PluginsEngineManagerProps) => {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -93,11 +93,23 @@ const PluginsEngineManager = (props: PluginsEngineManagerProps) => {
   [failedPlugins]);
 
   const {
-    data: allEntriesFromDataChannel,
+    data: allPublicEntriesFromDataChannel,
   } = createUseSubscription<DataChannelEntry>(
-    PLUGIN_DATA_CHANNEL_SUBSCRIPTION,
+    PLUGIN_DATA_CHANNEL_PUBLIC_SUBSCRIPTION,
     {}, true,
   )((obj) => obj);
+
+  const {
+    data: allPrivateEntriesFromDataChannel,
+  } = createUseSubscription<DataChannelEntry>(
+    PLUGIN_DATA_CHANNEL_PRIVATE_SUBSCRIPTION,
+    {}, true,
+  )((obj) => obj);
+
+  const allEntriesFromDataChannel = mergeDataChannelEntries(
+    allPublicEntriesFromDataChannel,
+    allPrivateEntriesFromDataChannel,
+  );
 
   return (
     <>
@@ -135,7 +147,7 @@ const PluginsEngineManager = (props: PluginsEngineManagerProps) => {
               <PluginDataChannelManager
                 {...{
                   pluginApi,
-                  dataChannelEntries: mapProjectedDataChannelEntries(allEntriesFromDataChannel),
+                  dataChannelEntries: allEntriesFromDataChannel,
                 }}
               />
               <ExtensibleAreaStateManager
