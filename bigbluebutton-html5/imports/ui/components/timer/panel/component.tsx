@@ -248,19 +248,22 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
     syncTimeWithBackend(h, m, s);
   }, [running, hours, minutes, seconds]);
 
-  const handleIncrement = useCallback(() => {
-    let incrementAmount = 1;
-    if (focusedUnit === 'minutes') incrementAmount = 60;
-    if (focusedUnit === 'hours') incrementAmount = 3600;
-    changeTime(incrementAmount);
-  }, [focusedUnit, changeTime]);
+  // Removed external +/- panel buttons; inline arrows handle adjustments per unit.
 
-  const handleDecrement = useCallback(() => {
-    let decrementAmount = -1;
-    if (focusedUnit === 'minutes') decrementAmount = -60;
-    if (focusedUnit === 'hours') decrementAmount = -3600;
-    changeTime(decrementAmount);
-  }, [focusedUnit, changeTime]);
+  // Increment / decrement helpers for individual units (used by inline arrows)
+  const incUnit = useCallback((unit: 'hours' | 'minutes' | 'seconds') => {
+    if (unit === 'hours') changeTime(3600);
+    if (unit === 'minutes') changeTime(60);
+    if (unit === 'seconds') changeTime(1);
+    setFocusedUnit(unit);
+  }, [changeTime]);
+
+  const decUnit = useCallback((unit: 'hours' | 'minutes' | 'seconds') => {
+    if (unit === 'hours') changeTime(-3600);
+    if (unit === 'minutes') changeTime(-60);
+    if (unit === 'seconds') changeTime(-1);
+    setFocusedUnit(unit);
+  }, [changeTime]);
 
   const closePanel = useCallback(() => {
     layoutContextDispatch({
@@ -434,66 +437,115 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
             </Styled.TimerCurrent>
           ) : (
             <Styled.TimeInputWrapper>
-              <Styled.IncrementDecrementButton
-                color="primary"
-                label="-"
-                onClick={handleDecrement}
-                disabled={running}
-              />
               <Styled.TimeInputGroup>
                 <>
-                  <Styled.TimerInput
-                    type="number"
-                    readOnly={running}
-                    disabled={running}
-                    value={String(hours).padStart(2, '0')}
-                    max={MAX_HOURS}
-                    min="0"
-                    step="1"
-                    onChange={handleHoursChange}
-                    onFocus={() => setFocusedUnit('hours')}
-                    ref={hoursInputRef}
-                    data-test="hoursInput"
-                    isSelected={!running && focusedUnit === 'hours'}
-                  />
+                  <Styled.TimeUnitContainer>
+                    <Styled.TimerInput
+                      type="number"
+                      readOnly={running}
+                      disabled={running}
+                      value={String(hours).padStart(2, '0')}
+                      max={MAX_HOURS}
+                      min="0"
+                      step="1"
+                      onChange={handleHoursChange}
+                      onFocus={() => setFocusedUnit('hours')}
+                      ref={hoursInputRef}
+                      data-test="hoursInput"
+                      isSelected={!running && focusedUnit === 'hours'}
+                    />
+                    <Styled.InputArrows disabled={running} aria-hidden={running}>
+                      <Styled.InputArrowButton
+                        type="button"
+                        aria-label={`${intl.formatMessage(intlMessages.hours)} +1`}
+                        disabled={running}
+                        onClick={() => incUnit('hours')}
+                      >
+                        ▲
+                      </Styled.InputArrowButton>
+                      <Styled.InputArrowButton
+                        type="button"
+                        aria-label={`${intl.formatMessage(intlMessages.hours)} -1`}
+                        disabled={running}
+                        onClick={() => decUnit('hours')}
+                      >
+                        ▼
+                      </Styled.InputArrowButton>
+                    </Styled.InputArrows>
+                  </Styled.TimeUnitContainer>
                   <Styled.TimeInputColon>:</Styled.TimeInputColon>
-                  <Styled.TimerInput
-                    type="number"
-                    readOnly={running}
-                    disabled={running}
-                    value={String(minutes).padStart(2, '0')}
-                    max="59"
-                    min="0"
-                    step="1"
-                    onChange={handleMinutesChange}
-                    onFocus={() => setFocusedUnit('minutes')}
-                    ref={minutesInputRef}
-                    data-test="minutesInput"
-                    isSelected={!running && focusedUnit === 'minutes'}
-                  />
+                  <Styled.TimeUnitContainer>
+                    <Styled.TimerInput
+                      type="number"
+                      readOnly={running}
+                      disabled={running}
+                      value={String(minutes).padStart(2, '0')}
+                      max="59"
+                      min="0"
+                      step="1"
+                      onChange={handleMinutesChange}
+                      onFocus={() => setFocusedUnit('minutes')}
+                      ref={minutesInputRef}
+                      data-test="minutesInput"
+                      isSelected={!running && focusedUnit === 'minutes'}
+                    />
+                    <Styled.InputArrows disabled={running} aria-hidden={running}>
+                      <Styled.InputArrowButton
+                        type="button"
+                        aria-label={`${intl.formatMessage(intlMessages.minutes)} +1`}
+                        disabled={running}
+                        onClick={() => incUnit('minutes')}
+                      >
+                        ▲
+                      </Styled.InputArrowButton>
+                      <Styled.InputArrowButton
+                        type="button"
+                        aria-label={`${intl.formatMessage(intlMessages.minutes)} -1`}
+                        disabled={running}
+                        onClick={() => decUnit('minutes')}
+                      >
+                        ▼
+                      </Styled.InputArrowButton>
+                    </Styled.InputArrows>
+                  </Styled.TimeUnitContainer>
                   <Styled.TimeInputColon>:</Styled.TimeInputColon>
-                  <Styled.TimerInput
-                    type="number"
-                    readOnly={running}
-                    disabled={running}
-                    value={String(seconds).padStart(2, '0')}
-                    max="59"
-                    min="0"
-                    step="1"
-                    onChange={handleSecondsChange}
-                    onFocus={() => setFocusedUnit('seconds')}
-                    ref={secondsInputRef}
-                    data-test="secondsInput"
-                    isSelected={!running && focusedUnit === 'seconds'}
-                  />
+                  <Styled.TimeUnitContainer>
+                    <Styled.TimerInput
+                      type="number"
+                      readOnly={running}
+                      disabled={running}
+                      value={String(seconds).padStart(2, '0')}
+                      max="59"
+                      min="0"
+                      step="1"
+                      onChange={handleSecondsChange}
+                      onFocus={() => setFocusedUnit('seconds')}
+                      ref={secondsInputRef}
+                      data-test="secondsInput"
+                      isSelected={!running && focusedUnit === 'seconds'}
+                    />
+                    <Styled.InputArrows disabled={running} aria-hidden={running}>
+                      <Styled.InputArrowButton
+                        type="button"
+                        aria-label={`${intl.formatMessage(intlMessages.seconds)} +1`}
+                        disabled={running}
+                        onClick={() => incUnit('seconds')}
+                      >
+                        ▲
+                      </Styled.InputArrowButton>
+                      <Styled.InputArrowButton
+                        type="button"
+                        aria-label={`${intl.formatMessage(intlMessages.seconds)} -1`}
+                        disabled={running}
+                        onClick={() => decUnit('seconds')}
+                      >
+                        ▼
+                      </Styled.InputArrowButton>
+                    </Styled.InputArrows>
+                  </Styled.TimeUnitContainer>
                 </>
               </Styled.TimeInputGroup>
-              <Styled.IncrementDecrementButton
-                color="primary"
-                label="+"
-                onClick={handleIncrement}
-                disabled={running}
-              />
+              {/* External +/- buttons removed; using inline arrows inside each input */}
             </Styled.TimeInputWrapper>
           )}
 

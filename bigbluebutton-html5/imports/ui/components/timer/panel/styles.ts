@@ -136,6 +136,9 @@ const IncrementDecrementButton = styled(Button)`
 const TimeInputColon = styled.span`
   align-self: center;
   padding: 0 0.1rem;
+  padding-left: 0.1rem;
+  padding-top: 1.3rem;
+  font-size: 2rem;
 `;
 
 const TimerSongsWrapper = styled.div`
@@ -181,12 +184,13 @@ const TimerInput = styled.input<{isSelected: boolean}>`
   border-bottom: 2px solid #e9e9ed;
   color: inherit;
   font-family: inherit;
-  font-size: inherit;
+  font-size: 2.51rem;
+  line-height: 1; /* baseline control */
   font-weight: ${textFontWeight};
   font-variant-numeric: tabular-nums;
   text-align: center;
-  width: 2ch;
-  padding: 0;
+  width: 3.7rem; 
+  padding: 1.9rem 1.2rem 0.10rem 0;
   -moz-appearance: textfield;
 
   &::-webkit-outer-spin-button,
@@ -210,6 +214,41 @@ const TimerInput = styled.input<{isSelected: boolean}>`
     opacity: .75;
     background-color: transparent;
   }
+`;
+
+const TimeUnitContainer = styled.div`
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+`;
+
+const InputArrows = styled.div<{disabled?: boolean}>`
+  position: absolute;
+  right: 0;
+  padding-top: 1.60rem;
+  padding-bottom: 0.10rem;
+  padding-right: 0.1rem;
+  height: 3.4rem; 
+  width: 1.6rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: stretch;
+  align-items: stretch;
+  opacity: ${({ disabled }) => (disabled ? 0.4 : 0.8)};
+  pointer-events: ${({ disabled }) => (disabled ? 'none' : 'auto')};
+`;
+
+const InputArrowButton = styled.button<{disabled?: boolean}>`
+  all: unset;
+  cursor: pointer;
+  flex: 1;
+  font-size: 1rem;
+  line-height: 0.3rem;
+  text-align: center;
+  color: ${colorGrayDark};
+  user-select: none;
+  &:hover, &:focus { opacity: 1; color: ${colorPrimary}; }
+  &:active { transform: translateY(1px); }
 `;
 
 const TimerScrollableContent = styled(ScrollboxVertical)`
@@ -330,6 +369,9 @@ export default {
   TimerTracks,
   TimerTrackItem,
   TimerInput,
+  TimeUnitContainer,
+  InputArrows,
+  InputArrowButton,
   TimerScrollableContent,
   MusicSwitchLabel,
   MaterialSwitch,
