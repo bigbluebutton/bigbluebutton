@@ -8,7 +8,7 @@ const { Timer } = require('./timer');
 const iPhone11 = devices['iPhone 11'];
 
 test.describe.parallel('User', { tag: '@ci' }, () => {
-  test.describe.parallel('Actions', { tag: '@flaky-3.1' }, () => {
+  test.describe.parallel('Actions', () => {
     // https://docs.bigbluebutton.org/3.0/testing/release-testing/#set-status--raise-hand-automated
     test('Raise and lower Hand', async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
@@ -28,7 +28,7 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
       await timer.stopwatchTest();
     });
 
-    test('Timer', async ({ browser, context, page }) => {
+    test('Timer', { tag: '@flaky-3.1' }, async ({ browser, context, page })=> {
       const timer = new Timer(browser, context);
       await timer.initModPage(page, true);
       await timer.timerTest();
@@ -43,7 +43,7 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
     });
   });
 
-  test.describe.parallel('Reactions', { tag: '@flaky-3.1' }, () => {
+  test.describe.parallel('Reactions', () => {
     test('Use reactions', async ({ browser, context, page }) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initModPage(page, true);
