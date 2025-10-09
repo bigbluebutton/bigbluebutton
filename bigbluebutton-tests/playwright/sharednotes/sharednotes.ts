@@ -1,17 +1,18 @@
 import { expect } from '@playwright/test';
-import { MultiUsers } from '../user/multiusers';
-import { elements as e } from '../core/elements';
+
 import { ELEMENT_WAIT_TIME } from '../core/constants';
+import { elements as e } from '../core/elements';
 import { checkTextContent } from '../core/util';
+import { MultiUsers } from '../user/multiusers';
 import {
-  startSharedNotes,
-  getNotesLocator,
-  getShowMoreButtonLocator,
   getExportButtonLocator,
-  getExportPlainTextLocator,
-  getSharedNotesUserWithoutPermission,
-  getExportHTMLLocator,
   getExportEtherpadLocator,
+  getExportHTMLLocator,
+  getExportPlainTextLocator,
+  getNotesLocator,
+  getSharedNotesUserWithoutPermission,
+  getShowMoreButtonLocator,
+  startSharedNotes,
 } from './util';
 
 export class SharedNotes extends MultiUsers {

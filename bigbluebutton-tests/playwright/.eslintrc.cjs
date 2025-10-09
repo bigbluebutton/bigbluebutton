@@ -2,14 +2,18 @@ module.exports = {
   extends: ['airbnb-base', 'prettier'],
   parserOptions: {
     ecmaVersion: 2020,
+    sourceType: "module",
+    ecmaVersion: "latest"
   },
-  plugins: ['import', 'prettier'],
+  plugins: ['import', 'prettier', 'simple-import-sort'],
   env: {
     es6: true,
     node: true,
     browser: true,
   },
   rules: {
+    "simple-import-sort/imports": "error",
+    "simple-import-sort/exports": "error",
     'prettier/prettier': 'error',
     'no-underscore-dangle': 0,
     'import/extensions': [2, 'never'],

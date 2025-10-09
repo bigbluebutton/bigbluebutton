@@ -1,4 +1,5 @@
 import { expect } from '@playwright/test';
+
 import { elements as e } from '../core/elements';
 import { DrawShape } from './drawShape';
 import { snapshotComparison } from './util';

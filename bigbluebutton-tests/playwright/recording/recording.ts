@@ -1,12 +1,13 @@
 import { expect } from '@playwright/test';
-import { Page } from '../core/page';
-import { MultiUsers } from '../user/multiusers';
-import { playbackElements, elements as e } from '../core/elements';
-import { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from '../core/constants';
+
 import { openPublicChat } from '../chat/util';
-import { startSharedNotes, getNotesLocator } from '../sharednotes/util';
-import { skipSlide } from '../presentation/util';
+import { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from '../core/constants';
+import { elements as e, playbackElements } from '../core/elements';
 import { getRecordings } from '../core/endpoints';
+import { Page } from '../core/page';
+import { skipSlide } from '../presentation/util';
+import { getNotesLocator, startSharedNotes } from '../sharednotes/util';
+import { MultiUsers } from '../user/multiusers';
 
 export class Recording extends MultiUsers {
   public playbackPage!: Page;

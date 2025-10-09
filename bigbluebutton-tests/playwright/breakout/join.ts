@@ -1,10 +1,11 @@
 import { expect } from '@playwright/test';
-import { Create } from './create';
-import * as utilScreenShare from '../screenshare/util';
+
+import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
-import { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME } from '../core/constants';
+import { hasCurrentPresentationToastElement, uploadSinglePresentation } from '../presentation/util';
+import * as utilScreenShare from '../screenshare/util';
 import { getNotesLocator } from '../sharednotes/util';
-import { uploadSinglePresentation, hasCurrentPresentationToastElement } from '../presentation/util';
+import { Create } from './create';
 
 export class Join extends Create {
   async joinRoom(shouldJoinAudio = false) {

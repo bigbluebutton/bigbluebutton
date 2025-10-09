@@ -1,9 +1,10 @@
 import { expect } from '@playwright/test';
-import { MultiUsers } from '../user/multiusers';
-import { elements as e } from '../core/elements';
-import { constants } from './constants';
-import { checkScreenshots, checkDefaultLocationReset } from '../layouts/util';
+
 import { ELEMENT_WAIT_TIME, VIDEO_LOADING_WAIT_TIME } from '../core/constants';
+import { elements as e } from '../core/elements';
+import { checkDefaultLocationReset, checkScreenshots } from '../layouts/util';
+import { MultiUsers } from '../user/multiusers';
+import { constants } from './constants';
 
 const { messageModerator } = constants;
 

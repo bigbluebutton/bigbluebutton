@@ -1,7 +1,7 @@
+import { request, test as setup } from '@playwright/test';
 import fs from 'fs';
 import path from 'path';
 
-import { test as setup, request } from '@playwright/test';
 import * as helpers from '../helpers';
 import { parameters } from '../parameters';
 

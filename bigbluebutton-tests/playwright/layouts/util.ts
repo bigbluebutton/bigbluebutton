@@ -1,7 +1,8 @@
 import { expect } from '@playwright/test';
-import { MultiUsers } from '../user/multiusers';
-import { Page } from '../core/page';
+
 import { elements as e } from '../core/elements';
+import { Page } from '../core/page';
+import { MultiUsers } from '../user/multiusers';
 
 export async function reopenChatSidebar(testPage: Page) {
   await testPage.waitAndClick(e.userListToggleBtn);

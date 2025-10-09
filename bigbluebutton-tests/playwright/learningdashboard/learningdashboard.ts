@@ -1,11 +1,12 @@
 import { expect } from '@playwright/test';
-import { MultiUsers } from '../user/multiusers';
-import { elements as e } from '../core/elements';
+
 import { openPublicChat } from '../chat/util';
-import { Page } from '../core/page';
 import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
-import { openPoll, timeInSeconds, rowFilter } from './util';
+import { elements as e } from '../core/elements';
+import { Page } from '../core/page';
 import { checkTextContent } from '../core/util';
+import { MultiUsers } from '../user/multiusers';
+import { openPoll, rowFilter, timeInSeconds } from './util';
 
 export class LearningDashboard extends MultiUsers {
   public dashboardPage!: Page;

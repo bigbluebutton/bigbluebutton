@@ -1,5 +1,5 @@
-import { Page } from '../core/page';
 import { elements as e } from '../core/elements';
+import { Page } from '../core/page';
 
 export async function openConnectionStatus(testPage: Page) {
   await testPage.waitAndClick(e.connectionStatusBtn);

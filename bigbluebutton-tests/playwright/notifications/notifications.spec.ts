@@ -1,9 +1,9 @@
 import { test } from '../core/setup/fixtures';
-import { Notifications } from './notifications';
+import { constants } from '../parameters/constants';
 import { ChatNotifications } from './chatNotifications';
+import { Notifications } from './notifications';
 import { PresenterNotifications } from './presenterNotifications';
 import { RecordingNotifications } from './recordingNotifications';
-import { constants } from '../parameters/constants';
 
 const { recordMeeting } = constants;
 

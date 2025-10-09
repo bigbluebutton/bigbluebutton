@@ -1,17 +1,18 @@
-import * as dotenv from 'dotenv';
-
-import sha from 'sha.js';
-import axios, { AxiosResponse } from 'axios';
-import { test, expect, type TestInfo, type ConsoleMessage, type Browser } from '@playwright/test';
-import * as xml2js from 'xml2js';
 import { env } from 'node:process';
 import { format } from 'node:util';
+
+import { type Browser, type ConsoleMessage, expect, test, type TestInfo } from '@playwright/test';
+import axios, { AxiosResponse } from 'axios';
 // This is version 4 of chalk, not version 5, which uses ESM
 import * as chalk from 'chalk';
+import * as dotenv from 'dotenv';
+import sha from 'sha.js';
+import * as xml2js from 'xml2js';
+
 import { MultiUsers } from '../user/multiusers';
-import { runScript } from './util';
-import { parameters } from './parameters';
 import { Page } from './page';
+import { parameters } from './parameters';
+import { runScript } from './util';
 
 dotenv.config();
 

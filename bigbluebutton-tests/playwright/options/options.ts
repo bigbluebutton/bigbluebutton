@@ -1,8 +1,9 @@
 import { expect } from '@playwright/test';
-import { openAboutModal, openSettings, getLocaleValues } from './util';
-import { elements as e } from '../core/elements';
+
 import { CI } from '../core/constants';
+import { elements as e } from '../core/elements';
 import { MultiUsers } from '../user/multiusers';
+import { getLocaleValues, openAboutModal, openSettings } from './util';
 
 export class Options extends MultiUsers {
   async openedAboutModal() {

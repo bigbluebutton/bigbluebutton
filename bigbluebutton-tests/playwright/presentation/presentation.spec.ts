@@ -1,6 +1,6 @@
+import { linkIssue } from '../core/helpers';
 import { test } from '../core/setup/fixtures';
 import { Presentation } from './presentation';
-import { linkIssue } from '../core/helpers';
 
 test.describe.parallel('Presentation', { tag: '@ci' }, () => {
   // https://docs.bigbluebutton.org/3.0/testing/release-testing/#navigation-automated

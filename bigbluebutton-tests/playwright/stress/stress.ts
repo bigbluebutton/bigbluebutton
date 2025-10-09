@@ -1,9 +1,10 @@
-import { expect, Browser, TestInfo, BrowserContext, Page as PlaywrightPage } from '@playwright/test';
+import { Browser, BrowserContext, expect, Page as PlaywrightPage, TestInfo } from '@playwright/test';
+
 import * as c from '../core/constants';
-import { Page } from '../core/page';
 import { elements as e } from '../core/elements';
-import { checkIsPresenter } from '../user/util';
 import { createMeeting } from '../core/helpers';
+import { Page } from '../core/page';
+import { checkIsPresenter } from '../user/util';
 
 export class Stress {
   public modPage: Page;

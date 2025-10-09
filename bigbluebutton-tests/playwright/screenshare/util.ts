@@ -1,6 +1,6 @@
-import { Page } from '../core/page';
-import { elements as e } from '../core/elements';
 import { ELEMENT_WAIT_EXTRA_LONG_TIME } from '../core/constants';
+import { elements as e } from '../core/elements';
+import { Page } from '../core/page';
 
 export async function startScreenshare(testPage: Page) {
   await testPage.waitAndClick(e.startScreenSharing);

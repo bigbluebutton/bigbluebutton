@@ -1,8 +1,9 @@
 import { expect } from '@playwright/test';
-import { elements as e } from '../core/elements';
+
 import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
-import { connectMicrophone, isAudioItemSelected, ensureUnmuted } from './util';
+import { elements as e } from '../core/elements';
 import { MultiUsers } from '../user/multiusers';
+import { connectMicrophone, ensureUnmuted, isAudioItemSelected } from './util';
 
 export class Audio extends MultiUsers {
   async muteButtonCooldown() {

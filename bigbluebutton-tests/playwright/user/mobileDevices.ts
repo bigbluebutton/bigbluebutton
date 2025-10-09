@@ -1,5 +1,5 @@
-import { MultiUsers } from './multiusers';
 import { elements as e } from '../core/elements';
+import { MultiUsers } from './multiusers';
 
 export class MobileDevices extends MultiUsers {
   async mobileTagName() {

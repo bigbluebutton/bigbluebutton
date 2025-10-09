@@ -1,6 +1,7 @@
 import { expect } from '@playwright/test';
-import { Page } from '../core/page';
+
 import { elements as e } from '../core/elements';
+import { Page } from '../core/page';
 
 export async function enableChatPopup(testPage: Page) {
   await testPage.waitAndClick(e.notificationsTab);

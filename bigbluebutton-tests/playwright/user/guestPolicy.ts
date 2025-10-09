@@ -1,7 +1,7 @@
-import { MultiUsers } from './multiusers';
-import { elements as e } from '../core/elements';
-import { setGuestPolicyOption } from './util';
 import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
+import { elements as e } from '../core/elements';
+import { MultiUsers } from './multiusers';
+import { setGuestPolicyOption } from './util';
 
 export class GuestPolicy extends MultiUsers {
   async messageToGuestLobby() {

@@ -1,9 +1,10 @@
 import { devices } from '@playwright/test';
+
 import { test } from '../core/setup/fixtures';
-import { MultiUsers } from './multiusers';
 import { GuestPolicy } from './guestPolicy';
 import { LockViewers } from './lockViewers';
 import { MobileDevices } from './mobileDevices';
+import { MultiUsers } from './multiusers';
 import { Timer } from './timer';
 
 const iPhone11 = devices['iPhone 11'];

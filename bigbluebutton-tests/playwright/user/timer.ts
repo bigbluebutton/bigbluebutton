@@ -1,7 +1,8 @@
 import { expect } from '@playwright/test';
+
+import { elements as e } from '../core/elements';
 import { MultiUsers } from './multiusers';
 import { timeInSeconds } from './util';
-import { elements as e } from '../core/elements';
 
 export class Timer extends MultiUsers {
   async stopwatchTest() {

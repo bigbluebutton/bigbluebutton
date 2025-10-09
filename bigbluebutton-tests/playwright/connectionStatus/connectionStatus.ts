@@ -1,8 +1,9 @@
 import { expect } from '@playwright/test';
-import { MultiUsers } from '../user/multiusers';
-import { elements as e } from '../core/elements';
+
 import { ELEMENT_WAIT_TIME } from '../core/constants';
-import { openConnectionStatus, checkNetworkStatus } from './util';
+import { elements as e } from '../core/elements';
+import { MultiUsers } from '../user/multiusers';
+import { checkNetworkStatus, openConnectionStatus } from './util';
 
 export class ConnectionStatus extends MultiUsers {
   async connectionStatusModal() {

@@ -1,8 +1,9 @@
 import { expect } from 'playwright/test';
-import { Chat } from './chat';
-import { openPublicChat, checkLastMessageSent } from './util';
-import { elements as e } from '../core/elements';
+
 import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
+import { elements as e } from '../core/elements';
+import { Chat } from './chat';
+import { checkLastMessageSent, openPublicChat } from './util';
 
 export class MessageActions extends Chat {
   async editMessageFromToolbarButton() {

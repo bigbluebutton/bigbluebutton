@@ -1,6 +1,7 @@
-import * as util from 'node:util';
 import { exec as childExec } from 'node:child_process';
 import process from 'node:process';
+import * as util from 'node:util';
+
 import { parameters } from '../core/parameters';
 
 const { hostname } = parameters;

@@ -1,6 +1,6 @@
+import { initializePages } from '../core/helpers';
 import { test } from '../core/setup/fixtures';
 import { SharedNotes } from './sharednotes';
-import { initializePages } from '../core/helpers';
 
 test.describe.parallel('Shared Notes', { tag: '@ci' }, () => {
   let sharedNotes: SharedNotes;

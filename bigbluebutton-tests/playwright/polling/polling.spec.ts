@@ -1,6 +1,6 @@
+import { initializePages } from '../core/helpers';
 import { test } from '../core/setup/fixtures';
 import { Polling } from './poll';
-import { initializePages } from '../core/helpers';
 
 test.describe.parallel('Polling', { tag: '@ci' }, async () => {
   let polling: Polling;

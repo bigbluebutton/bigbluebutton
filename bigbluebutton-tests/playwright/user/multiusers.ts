@@ -1,9 +1,10 @@
-import { expect, Browser, BrowserContext, TestInfo, Page as PlaywrightPage } from '@playwright/test';
-import { InitOptionsProps, Page } from '../core/page';
+import { Browser, BrowserContext, expect, Page as PlaywrightPage, TestInfo } from '@playwright/test';
+
+import { ELEMENT_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
+import { InitOptionsProps, Page } from '../core/page';
 import { checkTextContent } from '../core/util';
 import { checkAvatarIcon, checkIsPresenter, checkMutedUser } from './util';
-import { ELEMENT_WAIT_TIME } from '../core/constants';
 
 interface InitExtraPageOptionsProps extends InitOptionsProps {
   useModMeetingId?: boolean;

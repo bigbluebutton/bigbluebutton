@@ -1,8 +1,9 @@
 import { expect } from '@playwright/test';
-import { MultiUsers } from '../user/multiusers';
-import { Page } from '../core/page';
+
 import { elements as e } from '../core/elements';
-import { checkScreenshots, checkDefaultLocationReset } from './util';
+import { Page } from '../core/page';
+import { MultiUsers } from '../user/multiusers';
+import { checkDefaultLocationReset, checkScreenshots } from './util';
 
 export class Layouts extends MultiUsers {
   async focusOnPresentation() {

@@ -1,6 +1,6 @@
+import { initializePages } from '../core/helpers';
 import { test } from '../core/setup/fixtures';
 import { Layouts } from './layouts';
-import { initializePages } from '../core/helpers';
 
 test.describe.parallel('Layout', { tag: '@ci' }, () => {
   let layouts: Layouts;

@@ -1,9 +1,10 @@
 import { expect } from '@playwright/test';
-import { openPublicChat, openPrivateChat, checkLastMessageSent } from './util';
+
+import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { checkTextContent } from '../core/util';
 import { MultiUsers } from '../user/multiusers';
-import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
+import { checkLastMessageSent, openPrivateChat, openPublicChat } from './util';
 
 export class Chat extends MultiUsers {
   async sendPublicMessage() {

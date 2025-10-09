@@ -1,9 +1,10 @@
 import { env } from 'node:process';
-import { MultiUsers } from '../user/multiusers';
+
 import { connectMicrophone } from '../audio/util';
 import { openPublicChat } from '../chat/util';
-import { elements as e } from '../core/elements';
 import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
+import { elements as e } from '../core/elements';
+import { MultiUsers } from '../user/multiusers';
 
 export class ErrorLogs extends MultiUsers {
   monitorErrorLogs() {

@@ -1,8 +1,9 @@
-import { expect, BrowserContext } from '@playwright/test';
-import { Page } from '../core/page';
+import { BrowserContext, expect } from '@playwright/test';
+
+import { ELEMENT_WAIT_LONGER_TIME, VIDEO_LOADING_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
+import { Page } from '../core/page';
 import { checkVideoUploadData, uploadBackgroundVideoImage, webcamContentCheck } from './util';
-import { VIDEO_LOADING_WAIT_TIME, ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
 
 export class Webcam extends Page {
   async share() {

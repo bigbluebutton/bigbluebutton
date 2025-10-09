@@ -1,28 +1,29 @@
 /* eslint-disable max-classes-per-file */
-import * as dotenv from 'dotenv';
-import { readFileSync } from 'fs';
 import {
-  expect,
-  test,
   Browser,
   BrowserContext,
-  TestInfo,
-  Locator,
   Download,
-  Page as PlaywrightPage,
+  expect,
   Frame as PlaywrightFrame,
+  Locator,
+  Page as PlaywrightPage,
+  test,
+  TestInfo,
 } from '@playwright/test';
-import { parameters } from './parameters';
-import * as helpers from './helpers';
-import { elements as e } from './elements';
+import * as dotenv from 'dotenv';
+import { readFileSync } from 'fs';
+
 import {
-  ELEMENT_WAIT_TIME,
-  ELEMENT_WAIT_LONGER_TIME,
-  VIDEO_LOADING_WAIT_TIME,
   ELEMENT_WAIT_EXTRA_LONG_TIME,
+  ELEMENT_WAIT_LONGER_TIME,
+  ELEMENT_WAIT_TIME,
+  VIDEO_LOADING_WAIT_TIME,
 } from './constants';
-import { generateSettingsData, Settings } from './settings';
+import { elements as e } from './elements';
+import * as helpers from './helpers';
 import Logger from './logger';
+import { parameters } from './parameters';
+import { generateSettingsData, Settings } from './settings';
 
 dotenv.config();
 

@@ -1,6 +1,7 @@
 import { expect } from '@playwright/test';
-import { test } from '../core/setup/fixtures';
+
 import { Page } from '../core/page';
+import { test } from '../core/setup/fixtures';
 import { constants as c } from '../parameters/constants';
 import { Recording } from './recording';
 

@@ -1,8 +1,9 @@
 import deepEqual from 'deep-equal';
+
+import { elements as e } from '../core/elements';
+import { checkRootPermission } from '../core/helpers';
 import { test } from '../core/setup/fixtures';
 import { ScreenShare } from '../screenshare/screenshare';
-import { checkRootPermission } from '../core/helpers';
-import { elements as e } from '../core/elements';
 import { getCurrentTCPSessions, killTCPSessions } from './util';
 
 // @ci Note: This entire test suite is skipped in CI because killing TCP connection

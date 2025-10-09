@@ -1,7 +1,8 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
-import { Page } from '../core/page';
+
 import { elements as e } from '../core/elements';
+import { Page } from '../core/page';
 
 // Load default locale
 const defaultLocalePath = join(__dirname, '../../../bigbluebutton-html5/public/locales/en.json');

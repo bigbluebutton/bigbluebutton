@@ -1,8 +1,9 @@
 import { expect } from '@playwright/test';
 import { resolve } from 'path';
-import { Page } from '../core/page';
+
+import { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME, LOOP_INTERVAL } from '../core/constants';
 import { elements as e } from '../core/elements';
-import { LOOP_INTERVAL, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from '../core/constants';
+import { Page } from '../core/page';
 
 declare global {
   interface Document {

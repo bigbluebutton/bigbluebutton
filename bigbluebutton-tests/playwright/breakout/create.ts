@@ -1,7 +1,8 @@
 import { expect } from '@playwright/test';
-import { MultiUsers } from '../user/multiusers';
-import { elements as e } from '../core/elements';
+
 import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
+import { elements as e } from '../core/elements';
+import { MultiUsers } from '../user/multiusers';
 
 export class Create extends MultiUsers {
   // Create BreakoutRooms

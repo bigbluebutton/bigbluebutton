@@ -1,8 +1,9 @@
 import { expect } from '@playwright/test';
-import { Page } from '../core/page';
-import { elements as e } from '../core/elements';
-import { constants as c } from './constants';
+
 import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
+import { elements as e } from '../core/elements';
+import { Page } from '../core/page';
+import { constants as c } from './constants';
 
 export function hexToRgb(hex: string) {
   // Remove # prefix if present and validate input

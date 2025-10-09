@@ -1,7 +1,7 @@
-import { test } from '../core/setup/fixtures';
-import { LearningDashboard } from './learningdashboard';
-import { constants as c } from '../parameters/constants';
 import { initializePages } from '../core/helpers';
+import { test } from '../core/setup/fixtures';
+import { constants as c } from '../parameters/constants';
+import { LearningDashboard } from './learningdashboard';
 
 test.describe.parallel('Learning Dashboard', { tag: '@ci' }, async () => {
   let learningDashboard: LearningDashboard;

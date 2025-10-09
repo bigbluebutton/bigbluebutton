@@ -1,8 +1,9 @@
 import { expect, Locator } from '@playwright/test';
 import path from 'path';
-import { Page } from '../core/page';
+
+import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_TIME, UPLOAD_PDF_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
-import { ELEMENT_WAIT_TIME, UPLOAD_PDF_WAIT_TIME, ELEMENT_WAIT_EXTRA_LONG_TIME } from '../core/constants';
+import { Page } from '../core/page';
 
 export async function checkSvgIndex(testPage: Page, element: string) {
   const check = await testPage.page.evaluate(

@@ -1,5 +1,5 @@
-import path from 'path';
 import { devices, Project } from '@playwright/test';
+import path from 'path';
 
 export const chromiumConfig: Project = {
   name: 'Chromium',

@@ -1,10 +1,11 @@
 import { expect } from '@playwright/test';
-import { MultiUsers } from './multiusers';
-import { openLockViewers, drawArrow } from './util';
-import { elements as e } from '../core/elements';
-import { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from '../core/constants';
-import { getNotesLocator } from '../sharednotes/util';
+
 import { hoverLastMessage } from '../chat/util';
+import { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from '../core/constants';
+import { elements as e } from '../core/elements';
+import { getNotesLocator } from '../sharednotes/util';
+import { MultiUsers } from './multiusers';
+import { drawArrow, openLockViewers } from './util';
 
 export class LockViewers extends MultiUsers {
   async lockShareWebcam() {

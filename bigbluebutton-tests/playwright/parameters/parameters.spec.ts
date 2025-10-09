@@ -1,10 +1,10 @@
+import { linkIssue } from '../core/helpers';
 import { test } from '../core/setup/fixtures';
+import { constants as c } from './constants';
+import { CreateParameters } from './createParameters';
 import { CustomParameters } from './customparameters';
 import { DisabledFeatures } from './disabledFeatures';
-import { constants as c } from './constants';
 import { encodeCustomParams, getAllShortcutParams, hexToRgb } from './util';
-import { CreateParameters } from './createParameters';
-import { linkIssue } from '../core/helpers';
 
 test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
   test('Record Meeting', async ({ browser, context, page }, testInfo) => {

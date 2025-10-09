@@ -1,8 +1,8 @@
-import { Page } from '../core/page';
-import * as util from './util';
-import { elements as e } from '../core/elements';
 import { connectMicrophone } from '../audio/util';
 import { ELEMENT_WAIT_EXTRA_LONG_TIME } from '../core/constants';
+import { elements as e } from '../core/elements';
+import { Page } from '../core/page';
+import * as util from './util';
 
 export class RecordingNotifications extends Page {
   async notificationNoAudio() {

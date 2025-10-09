@@ -1,8 +1,8 @@
+import { defineConfig } from '@playwright/test';
 import dotenv from 'dotenv';
 
-import { defineConfig } from '@playwright/test';
+import { CI, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from './core/constants';
 import { chromiumConfig, firefoxConfig, webkitConfig } from './core/setup/browsersConfig';
-import { ELEMENT_WAIT_TIME, CI, ELEMENT_WAIT_LONGER_TIME } from './core/constants';
 
 dotenv.config();
 

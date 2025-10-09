@@ -1,8 +1,9 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 import path from 'path';
-import { Page } from '../core/page';
-import { elements as e } from '../core/elements';
+
 import { ELEMENT_WAIT_TIME } from '../core/constants';
+import { elements as e } from '../core/elements';
+import { Page } from '../core/page';
 
 export async function openPoll(testPage: Page) {
   const { pollEnabled } = testPage.settings || {};

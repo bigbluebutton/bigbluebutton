@@ -1,8 +1,8 @@
 import { expect } from '@playwright/test';
 
 import { Join } from '../breakout/join';
-import { createMeetingPromise } from '../core/helpers';
 import { getMeetingInfo } from '../core/endpoints';
+import { createMeetingPromise } from '../core/helpers';
 
 export class APIBreakout extends Join {
   // Attempt to use API to create a breakout room without a parent

@@ -1,9 +1,10 @@
 import { expect } from '@playwright/test';
-import { elements as e } from '../core/elements';
+
 import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
+import { elements as e } from '../core/elements';
+import { skipSlide } from '../presentation/util';
 import { DrawShape } from './drawShape';
 import { snapshotComparison } from './util';
-import { skipSlide } from '../presentation/util';
 
 export class ShapeTools extends DrawShape {
   async pan() {

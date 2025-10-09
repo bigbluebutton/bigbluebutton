@@ -1,6 +1,6 @@
+import { checkRootPermission } from '../core/helpers';
 import { test } from '../core/setup/fixtures';
 import { Reconnection } from './reconnection';
-import { checkRootPermission } from '../core/helpers';
 
 test.describe.parallel('Reconnection', () => {
   test('Chat', async ({ browser, context, page }, testInfo) => {

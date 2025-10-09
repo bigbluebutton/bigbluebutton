@@ -1,7 +1,7 @@
-import { MultiUsers } from '../user/multiusers';
-import * as util from './util';
 import { elements as e } from '../core/elements';
 import { openSettings } from '../options/util';
+import { MultiUsers } from '../user/multiusers';
+import * as util from './util';
 
 export class ChatNotifications extends MultiUsers {
   async publicChatNotification() {

@@ -1,10 +1,10 @@
-import { test } from '../core/setup/fixtures';
-import { TextShape } from './textShape';
-import { ShapeTools } from './shapeTools';
-import { ChangeStyles } from './changeStyles';
-import { ShapeOptions } from './shapeOptions';
-import { DrawShape } from './drawShape';
 import { elements as e } from '../core/elements';
+import { test } from '../core/setup/fixtures';
+import { ChangeStyles } from './changeStyles';
+import { DrawShape } from './drawShape';
+import { ShapeOptions } from './shapeOptions';
+import { ShapeTools } from './shapeTools';
+import { TextShape } from './textShape';
 
 //! @flaky note:
 // all whiteboard tests are flagged as flaky due to unexpected zooming slides

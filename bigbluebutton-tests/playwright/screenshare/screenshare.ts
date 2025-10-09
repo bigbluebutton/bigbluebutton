@@ -1,7 +1,7 @@
+import { elements as e } from '../core/elements';
 import { Page } from '../core/page';
 import { MultiUsers } from '../user/multiusers';
 import { startScreenshare } from './util';
-import { elements as e } from '../core/elements';
 
 export class ScreenShare extends MultiUsers {
   async startSharing() {

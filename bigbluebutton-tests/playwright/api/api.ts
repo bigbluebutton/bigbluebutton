@@ -1,8 +1,8 @@
-import { Page as PlaywrightPage, TestInfo, expect } from '@playwright/test';
-import { MultiUsers } from '../user/multiusers';
+import { expect, Page as PlaywrightPage, TestInfo } from '@playwright/test';
 
-import { createMeeting } from '../core/helpers';
 import { getMeetingInfo, getMeetings } from '../core/endpoints';
+import { createMeeting } from '../core/helpers';
+import { MultiUsers } from '../user/multiusers';
 
 export class API extends MultiUsers {
   async getNewPageTab() {

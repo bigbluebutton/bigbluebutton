@@ -1,6 +1,7 @@
 import { expect } from 'playwright/test';
-import { Page } from '../core/page';
+
 import { CI } from '../core/constants';
+import { Page } from '../core/page';
 
 export async function snapshotComparison(modPage: Page, userPage: Page, snapshotName: string) {
   if (!CI) {

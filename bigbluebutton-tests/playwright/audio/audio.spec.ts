@@ -1,6 +1,6 @@
+import { initializePages } from '../core/helpers';
 import { test } from '../core/setup/fixtures';
 import { Audio } from './audio';
-import { initializePages } from '../core/helpers';
 
 test.describe.parallel('Audio', { tag: '@ci' }, () => {
   let audio: Audio;

@@ -1,10 +1,10 @@
-import * as util from './util';
+import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import * as utilPolling from '../polling/util';
-import { MultiUsers } from '../user/multiusers';
-import * as utilScreenShare from '../screenshare/util';
 import * as utilPresentation from '../presentation/util';
-import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
+import * as utilScreenShare from '../screenshare/util';
+import { MultiUsers } from '../user/multiusers';
+import * as util from './util';
 
 export class PresenterNotifications extends MultiUsers {
   async publishPollResults() {
