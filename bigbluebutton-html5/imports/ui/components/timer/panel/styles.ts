@@ -16,6 +16,7 @@ import {
   colorWhite,
   colorPrimary,
   colorBlueLighter,
+  colorText,
 } from '../../../stylesheets/styled-components/palette';
 import { TextElipsis } from '../../../stylesheets/styled-components/placeholders';
 import Button from '/imports/ui/components/common/button/component';
@@ -182,9 +183,8 @@ const TimerTrackItem = styled.div`
 const TimerInput = styled.input<{isSelected: boolean}>`
   background: none;
   border: none;
-  border-bottom: 2px solid #e9e9ed;
-  background-color: ${colorBlueLighter};
-  color: inherit;
+  background-color: color-mix(in srgb, ${colorBlueLighter} 20%, transparent);
+  color: ${colorPrimary};
   font-family: inherit;
   font-size: 2rem;
   line-height: 1.2; /* improve vertical fit */
@@ -204,12 +204,7 @@ const TimerInput = styled.input<{isSelected: boolean}>`
 
   &:focus {
     outline: none;
-    border-bottom: 2px solid ${colorPrimary};
   }
-  ${({ isSelected }) => (isSelected && `
-    outline: none;
-    border-bottom: 2px solid ${colorPrimary};   
-  `)};
 
   &:disabled,
   &[disabled] {
@@ -251,7 +246,7 @@ const InputArrowButton = styled.button<{disabled?: boolean}>`
   font-size: 1rem;
   line-height: 1;
   text-align: center;
-  color: ${colorGrayDark};
+  color: ${colorText};
   user-select: none;
   &:hover, &:focus { opacity: 1; color: ${colorPrimary}; }
   &:active { transform: translateY(1px); }
@@ -343,6 +338,7 @@ const TimerPresetButton = styled.button<{disabled?: boolean}>`
 `;
 
 const TimerAddsRow = styled.div`
+  color: ${colorText};
   display: flex;
   justify-content: center;
   align-items: center;
@@ -354,9 +350,9 @@ const TimerAddButton = styled.button<{disabled?: boolean}>`
   all: unset;
   cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')};
   font-size: 0.9rem;
-  line-height: 1;
+  line-height: 1.5;
   color: ${colorPrimary};
-  background: ${colorBlueLighter};
+  background-color: color-mix(in srgb, ${colorBlueLighter} 20%, transparent);
   border-radius: 0.35rem;
   padding: 0.2rem 0.4rem;
   opacity: ${({ disabled }) => (disabled ? 0.5 : 1)};
