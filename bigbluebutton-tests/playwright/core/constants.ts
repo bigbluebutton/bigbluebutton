@@ -19,5 +19,5 @@ export const MAX_PARTICIPANTS_TO_JOIN: number = 4;
 
 // MEDIA CONNECTION TIMEOUTS
 export const VIDEO_LOADING_WAIT_TIME: number = 15000;
-export const UPLOAD_PDF_WAIT_TIME: number = 25000 * MULTIPLIER;
+export const UPLOAD_PDF_WAIT_TIME: number = 30000 * MULTIPLIER;
 export const CUSTOM_MEETING_ID: string = 'custom-meeting';

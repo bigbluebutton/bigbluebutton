@@ -8,6 +8,8 @@ import * as util from './util';
 
 export class Notifications extends MultiUsers {
   async saveSettingsNotification() {
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.closeAllToastNotifications();
     await openSettings(this.modPage);
     await util.saveSettings(this.modPage);
     await util.checkNotificationText(this.modPage, e.savedSettingsToast);
