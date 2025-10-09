@@ -15,6 +15,7 @@ import {
   colorBorder,
   colorWhite,
   colorPrimary,
+  colorBlueLighter,
 } from '../../../stylesheets/styled-components/palette';
 import { TextElipsis } from '../../../stylesheets/styled-components/placeholders';
 import Button from '/imports/ui/components/common/button/component';
@@ -105,6 +106,7 @@ const TimerSwitchButton = styled(Button)`
 
 const TimeInputWrapper = styled.div`
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   gap: 0.5rem;
@@ -117,7 +119,7 @@ const TimeInputWrapper = styled.div`
 const TimeInputGroup = styled.div`
   display: flex;
   align-items: center;
-  font-size: 2.5rem;
+  font-size: 2.2rem;
   color: ${colorGrayDark};
   justify-content: center;
 `;
@@ -135,10 +137,9 @@ const IncrementDecrementButton = styled(Button)`
 
 const TimeInputColon = styled.span`
   align-self: center;
-  padding: 0 0.1rem;
-  padding-left: 0.1rem;
-  padding-top: 1.3rem;
+  padding: 0 0.1rem 0 0.1rem;
   font-size: 2rem;
+  line-height: 2.8rem; /* match input height for vertical centering */
 `;
 
 const TimerSongsWrapper = styled.div`
@@ -182,15 +183,17 @@ const TimerInput = styled.input<{isSelected: boolean}>`
   background: none;
   border: none;
   border-bottom: 2px solid #e9e9ed;
+  background-color: ${colorBlueLighter};
   color: inherit;
   font-family: inherit;
-  font-size: 2.51rem;
-  line-height: 1; /* baseline control */
+  font-size: 2rem;
+  line-height: 1.2; /* improve vertical fit */
   font-weight: ${textFontWeight};
   font-variant-numeric: tabular-nums;
   text-align: center;
   width: 3.7rem; 
-  padding: 1.9rem 1.2rem 0.10rem 0;
+  height: 2.8rem;
+  padding: 0.4rem 1rem 0.2rem 0;
   -moz-appearance: textfield;
 
   &::-webkit-outer-spin-button,
@@ -225,10 +228,10 @@ const TimeUnitContainer = styled.div`
 const InputArrows = styled.div<{disabled?: boolean}>`
   position: absolute;
   right: 0;
-  padding-top: 1.60rem;
-  padding-bottom: 0.10rem;
+  padding-top: 0.2rem;
+  padding-bottom: 0.2rem;
   padding-right: 0.1rem;
-  height: 3.4rem; 
+  height: 2.8rem; 
   width: 1.6rem;
   display: flex;
   flex-direction: column;
@@ -242,8 +245,11 @@ const InputArrowButton = styled.button<{disabled?: boolean}>`
   all: unset;
   cursor: pointer;
   flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 1rem;
-  line-height: 0.3rem;
+  line-height: 1;
   text-align: center;
   color: ${colorGrayDark};
   user-select: none;
@@ -310,6 +316,55 @@ const MaterialSwitch = materialStyled(Switch)(({ theme }) => ({
     boxSizing: 'border-box',
   },
 }));
+
+const TimerPresetsRow = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 0.75rem 0 0.25rem 0;
+  color: ${colorGrayDark};
+`;
+
+const TimerPresetButton = styled.button<{disabled?: boolean}>`
+  all: unset;
+  cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')};
+  font-size: 0.95rem;
+  line-height: 1;
+  color: ${colorGrayDark};
+  opacity: ${({ disabled }) => (disabled ? 0.4 : 0.7)};
+  transition: opacity 120ms ease, color 120ms ease;
+  padding: 0.25rem 0.15rem;
+
+  &:hover, &:focus {
+    opacity: 1;
+    color: ${colorGrayDark};
+  }
+`;
+
+const TimerAddsRow = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0 0.25rem 0;
+`;
+
+const TimerAddButton = styled.button<{disabled?: boolean}>`
+  all: unset;
+  cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')};
+  font-size: 0.9rem;
+  line-height: 1;
+  color: ${colorPrimary};
+  background: ${colorBlueLighter};
+  border-radius: 0.35rem;
+  padding: 0.2rem 0.4rem;
+  opacity: ${({ disabled }) => (disabled ? 0.5 : 1)};
+  transition: filter 120ms ease, transform 60ms ease;
+
+  &:hover, &:focus { filter: brightness(0.98); }
+  &:active { transform: translateY(1px); }
+`;
 
 const ControlsContainer = styled.div`
   display: flex;
@@ -381,4 +436,8 @@ export default {
   ResetButton,
   DeactivateButton,
   FooterSeparator,
+  TimerPresetsRow,
+  TimerPresetButton,
+  TimerAddsRow,
+  TimerAddButton,
 };

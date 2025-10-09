@@ -40,6 +40,17 @@ const TRACKS = [
   'track3',
 ];
 
+// Common quick-set presets (seconds)
+const PRESETS = [
+  { label: '1min', seconds: 60 },
+  { label: '5min', seconds: 5 * 60 },
+  { label: '10min', seconds: 10 * 60 },
+  { label: '15min', seconds: 15 * 60 },
+  { label: '20min', seconds: 20 * 60 },
+  { label: '30min', seconds: 30 * 60 },
+  { label: '1h', seconds: 60 * 60 },
+];
+
 const intlMessages = defineMessages({
   hideTimerLabel: {
     id: 'app.sidebarContent.minimizePanelLabel',
@@ -248,6 +259,14 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
     syncTimeWithBackend(h, m, s);
   }, [running, hours, minutes, seconds]);
 
+  const setAbsoluteTime = useCallback((totalSeconds: number) => {
+    if (running) return;
+    const h = Math.floor(totalSeconds / 3600);
+    const m = Math.floor((totalSeconds % 3600) / 60);
+    const s = totalSeconds % 60;
+    syncTimeWithBackend(h, m, s);
+  }, [running, syncTimeWithBackend]);
+
   // Removed external +/- panel buttons; inline arrows handle adjustments per unit.
 
   // Increment / decrement helpers for individual units (used by inline arrows)
@@ -436,9 +455,21 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
               {humanizeSeconds(Math.floor(timePassed / 1000))}
             </Styled.TimerCurrent>
           ) : (
-            <Styled.TimeInputWrapper>
-              <Styled.TimeInputGroup>
-                <>
+            <>
+              <Styled.TimerPresetsRow>
+                {PRESETS.map((p) => (
+                  <Styled.TimerPresetButton
+                    key={p.seconds}
+                    onClick={() => setAbsoluteTime(p.seconds)}
+                    disabled={running}
+                    aria-label={`Set timer to ${p.label}`}
+                  >
+                    {p.label}
+                  </Styled.TimerPresetButton>
+                ))}
+              </Styled.TimerPresetsRow>
+              <Styled.TimeInputWrapper>
+                <Styled.TimeInputGroup>
                   <Styled.TimeUnitContainer>
                     <Styled.TimerInput
                       type="number"
@@ -543,10 +574,36 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
                       </Styled.InputArrowButton>
                     </Styled.InputArrows>
                   </Styled.TimeUnitContainer>
-                </>
-              </Styled.TimeInputGroup>
-              {/* External +/- buttons removed; using inline arrows inside each input */}
-            </Styled.TimeInputWrapper>
+                </Styled.TimeInputGroup>
+                {/* External +/- buttons removed; using inline arrows inside each input */}
+                <Styled.TimerAddsRow>
+                  <Styled.TimerAddButton
+                    onClick={() => changeTime(30)}
+                    disabled={running}
+                    aria-label="+ 30 seconds"
+                    data-test="add30s"
+                  >
+                    +0:30
+                  </Styled.TimerAddButton>
+                  <Styled.TimerAddButton
+                    onClick={() => changeTime(60)}
+                    disabled={running}
+                    aria-label="+ 1 minute"
+                    data-test="add1m"
+                  >
+                    +1:00
+                  </Styled.TimerAddButton>
+                  <Styled.TimerAddButton
+                    onClick={() => changeTime(5 * 60)}
+                    disabled={running}
+                    aria-label="+ 5 minutes"
+                    data-test="add5m"
+                  >
+                    +5:00
+                  </Styled.TimerAddButton>
+                </Styled.TimerAddsRow>
+              </Styled.TimeInputWrapper>
+            </>
           )}
 
           {timerMusicOptions}
