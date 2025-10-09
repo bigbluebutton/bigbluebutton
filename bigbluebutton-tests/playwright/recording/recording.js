@@ -18,7 +18,7 @@ class Recording extends MultiUsers {
     return apiCall('getRecordings', { meetingID });
   }
 
-  async getRecordingsWithRetry({ meetingID, expectedFormat, maxAttempts = 5, delayMs = 5000 } = {}) {
+  async getRecordingsWithRetry({ meetingID, expectedFormat, maxAttempts = 5, delayMs = CI ? 7500 : 5000 } = {}) {
     await sleep(5000); // minimum wait time expected before first attempt
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       const { response } = await this.getRecordingsApi(meetingID);
