@@ -1,6 +1,6 @@
 const { MultiUsers } = require("../user/multiusers");
 const e = require('../core/elements');
-const { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } = require('../core/constants');
+const { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME, CI } = require('../core/constants');
 const { expect } = require('@playwright/test');
 const { apiCall, sleep } = require("../core/helpers");
 const { openPublicChat } = require("../chat/util");

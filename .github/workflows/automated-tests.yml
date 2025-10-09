@@ -401,6 +401,9 @@ jobs:
         with:
           path: /home/runner/.cache/ms-playwright/
           key: ${{ runner.os }}-playwright-bins-${{ hashFiles('bigbluebutton-tests/playwright/package-lock.json') }}
+      - name: Display running status of BBB components
+        if: always()
+        run: sudo bbb-conf --status
       - name: Install test dependencies
         working-directory: ./bigbluebutton-tests/playwright
         timeout-minutes: 25
@@ -475,6 +478,12 @@ jobs:
         with:
           name: bbb-logs-${{ env.MATRIX_SHARD_UNDERSCORED }}
           path: ./bbb-logs.tar.gz
+      - name: List recent recordings
+        if: always()
+        run: bbb-record --list-recent
+      - name: Scan the log files for error messages
+        if: always()
+        run: sudo bbb-conf --debug
       - name: APT CACHE - Check for changes using packages hash
         if: success() && matrix.shard == 1
         id: apt-manifest
