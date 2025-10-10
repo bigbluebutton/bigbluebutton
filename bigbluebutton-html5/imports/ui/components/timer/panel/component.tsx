@@ -40,15 +40,15 @@ const TRACKS = [
   'track3',
 ];
 
-// Common quick-set presets (seconds)
-const PRESETS = [
-  { label: '1min', seconds: 60 },
-  { label: '5min', seconds: 5 * 60 },
-  { label: '10min', seconds: 10 * 60 },
-  { label: '15min', seconds: 15 * 60 },
-  { label: '20min', seconds: 20 * 60 },
-  { label: '30min', seconds: 30 * 60 },
-  { label: '1h', seconds: 60 * 60 },
+// Common quick-set presets (seconds only; labels are localized below)
+const PRESET_SECONDS = [
+  60,
+  5 * 60,
+  10 * 60,
+  15 * 60,
+  20 * 60,
+  30 * 60,
+  60 * 60,
 ];
 
 const intlMessages = defineMessages({
@@ -95,6 +95,18 @@ const intlMessages = defineMessages({
   seconds: {
     id: 'app.timer.seconds',
     description: 'Timer seconds label',
+  },
+  hoursAbbr: {
+    id: 'app.timer.abbreviation.hours',
+    description: 'Timer hours abbreviation (e.g., h)',
+  },
+  minutesAbbr: {
+    id: 'app.timer.abbreviation.minutes',
+    description: 'Timer minutes abbreviation (e.g., min)',
+  },
+  secondsAbbr: {
+    id: 'app.timer.abbreviation.seconds',
+    description: 'Timer seconds abbreviation (e.g., sec)',
   },
   songs: {
     id: 'app.timer.songs',
@@ -266,6 +278,15 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
     const s = totalSeconds % 60;
     syncTimeWithBackend(h, m, s);
   }, [running, syncTimeWithBackend]);
+
+  const formatPresetLabel = useCallback((totalSeconds: number) => {
+    const hours = totalSeconds / 3600;
+    if (Number.isInteger(hours) && hours >= 1) {
+      return `${hours}${intl.formatMessage(intlMessages.hoursAbbr)}`;
+    }
+    const minutes = Math.round(totalSeconds / 60);
+    return `${minutes}${intl.formatMessage(intlMessages.minutesAbbr)}`;
+  }, [intl]);
 
   // Removed external +/- panel buttons; inline arrows handle adjustments per unit.
 
@@ -457,14 +478,14 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
           ) : (
             <>
               <Styled.TimerPresetsRow>
-                {PRESETS.map((p) => (
+                {PRESET_SECONDS.map((secs) => (
                   <Styled.TimerPresetButton
-                    key={p.seconds}
-                    onClick={() => setAbsoluteTime(p.seconds)}
+                    key={secs}
+                    onClick={() => setAbsoluteTime(secs)}
                     disabled={running}
-                    aria-label={`Set timer to ${p.label}`}
+                    aria-label={`Set timer to ${formatPresetLabel(secs)}`}
                   >
-                    {p.label}
+                    {formatPresetLabel(secs)}
                   </Styled.TimerPresetButton>
                 ))}
               </Styled.TimerPresetsRow>
@@ -488,7 +509,7 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
                     <Styled.InputArrows disabled={running} aria-hidden={running}>
                       <Styled.InputArrowButton
                         type="button"
-                        aria-label={`${intl.formatMessage(intlMessages.hours)} +1`}
+                        aria-label={`${intl.formatMessage(intlMessages.hoursAbbr)} +1`}
                         disabled={running}
                         onClick={() => incUnit('hours')}
                       >
@@ -496,7 +517,7 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
                       </Styled.InputArrowButton>
                       <Styled.InputArrowButton
                         type="button"
-                        aria-label={`${intl.formatMessage(intlMessages.hours)} -1`}
+                        aria-label={`${intl.formatMessage(intlMessages.hoursAbbr)} -1`}
                         disabled={running}
                         onClick={() => decUnit('hours')}
                       >
@@ -523,7 +544,7 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
                     <Styled.InputArrows disabled={running} aria-hidden={running}>
                       <Styled.InputArrowButton
                         type="button"
-                        aria-label={`${intl.formatMessage(intlMessages.minutes)} +1`}
+                        aria-label={`${intl.formatMessage(intlMessages.minutesAbbr)} +1`}
                         disabled={running}
                         onClick={() => incUnit('minutes')}
                       >
@@ -531,7 +552,7 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
                       </Styled.InputArrowButton>
                       <Styled.InputArrowButton
                         type="button"
-                        aria-label={`${intl.formatMessage(intlMessages.minutes)} -1`}
+                        aria-label={`${intl.formatMessage(intlMessages.minutesAbbr)} -1`}
                         disabled={running}
                         onClick={() => decUnit('minutes')}
                       >
@@ -558,7 +579,7 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
                     <Styled.InputArrows disabled={running} aria-hidden={running}>
                       <Styled.InputArrowButton
                         type="button"
-                        aria-label={`${intl.formatMessage(intlMessages.seconds)} +1`}
+                        aria-label={`${intl.formatMessage(intlMessages.secondsAbbr)} +1`}
                         disabled={running}
                         onClick={() => incUnit('seconds')}
                       >
@@ -566,7 +587,7 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
                       </Styled.InputArrowButton>
                       <Styled.InputArrowButton
                         type="button"
-                        aria-label={`${intl.formatMessage(intlMessages.seconds)} -1`}
+                        aria-label={`${intl.formatMessage(intlMessages.secondsAbbr)} -1`}
                         disabled={running}
                         onClick={() => decUnit('seconds')}
                       >

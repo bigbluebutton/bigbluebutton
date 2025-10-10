@@ -171,8 +171,9 @@ const TimerTracks = styled.div`
     align-items: center;
   }
 
-  input {
+  input[type="radio"] {
     margin: auto 0.5rem;
+    accent-color: ${colorPrimary};
   }
 `;
 
