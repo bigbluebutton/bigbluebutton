@@ -401,8 +401,8 @@ class MultiUsers {
   async leaveMeeting() {
     await this.modPage.waitForSelector(e.whiteboard);
 
+    await this.modPage.waitAndClick(e.usersListSidebarButton);
     const modPageUserList = await this.modPage.getLocator(e.userListItem);
-
     await expect(modPageUserList).toHaveCount(2);
     await this.modPage.hasElementCount(e.userListItem, 2, 'should display the two users on the user list for the moderator, self not included in the count');
 
@@ -412,8 +412,8 @@ class MultiUsers {
     await this.modPage.hasElement(e.meetingEndedModal, 'should display the meeting ended modal for the moderator');
     await this.modPage.hasElement(e.redirectButton, 'should display the redirect button in the meeting ended modal');
 
+    await this.userPage.waitAndClick(e.usersListSidebarButton);
     const user1PageUserList = await this.userPage.getLocator(e.userListItem);
-
     await expect(user1PageUserList).toHaveCount(1);
     await this.userPage.hasElementCount(e.userListItem, 1, 'should display the two users on the user list for User1, self not included in the count');
 

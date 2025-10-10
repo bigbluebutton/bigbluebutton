@@ -216,7 +216,8 @@ exports.virtualBackgrounds = 'div[data-test="virtualBackground"]';
 exports.timerContainer = 'div[data-test="timerContainer"]';
 exports.stopwatchContainer = 'div[data-test="stopwatchContainer"]';
 exports.timerStopwatchFeature = 'div[data-test="timerSidebarButton"]';
-exports.timerCurrent = 'span[data-test="timerCurrent"]';
+exports.stopwatchCurrent = 'span[data-test="stopwatchCurrent"]';
+exports.timerCurrent = 'div[data-test="timerCurrent"]';
 exports.startStopTimer = 'button[data-test="startStopTimer"]';
 exports.resetTimerStopwatch = 'button[data-test="resetTimerStopWatch"]';
 exports.timerButton = 'button[data-test="timerButton"]';
@@ -225,6 +226,7 @@ exports.stopwatch = 'button[data-test="stopwatchButton"]';
 exports.hoursInput = 'input[data-test="hoursInput"]';
 exports.minutesInput = 'input[data-test="minutesInput"]';
 exports.secondsInput = 'input[data-test="secondsInput"]';
+exports.timerHeader = 'header[data-test="timerHeader"]';
 
 // Notes
 exports.sharedNotesSidebarButton = 'div[data-test="sharedNotesSidebarButton"]';
