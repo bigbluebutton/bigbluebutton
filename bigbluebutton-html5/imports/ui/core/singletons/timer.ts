@@ -12,6 +12,8 @@ class TimerSingleton {
 
   private interval: ReturnType<typeof setInterval> | null = null;
 
+  private startTimeout: ReturnType<typeof setTimeout> | null = null;
+
   private timeSyncInterval: ReturnType<typeof setInterval> | null = null;
 
   private static SERVER_SYNC_TIME_INTERVAL() {
@@ -38,14 +40,16 @@ class TimerSingleton {
     }
   }
 
-  startPeriodicTimeSync() {
+  private async startPeriodicTimeSync() {
     if (this.timeSyncInterval) this.stopPeriodicTimeSync();
     const sync = async () => {
       const newTimeSync = await fetchServerTimeSync();
       this.setTimeDesync(newTimeSync);
     };
-    sync();
-    this.timeSyncInterval = setInterval(sync, TimerSingleton.SERVER_SYNC_TIME_INTERVAL());
+    await sync();
+    this.timeSyncInterval = setInterval(() => {
+      sync();
+    }, TimerSingleton.SERVER_SYNC_TIME_INTERVAL());
   }
 
   stopPeriodicTimeSync() {
@@ -65,7 +69,7 @@ class TimerSingleton {
     const serverNow = Date.now() + this.timeSync;
     // calculate time to next second to sync second counting with the server time
     const msToNextSecond = 1000 - (serverNow % 1000);
-    setTimeout(() => {
+    this.startTimeout = setTimeout(() => {
       this.notify();
       if (!this.interval) {
         this.interval = setInterval(() => {
@@ -76,6 +80,10 @@ class TimerSingleton {
   }
 
   private stopCounting() {
+    if (this.startTimeout) {
+      clearTimeout(this.startTimeout);
+      this.startTimeout = null;
+    }
     if (this.interval) {
       clearInterval(this.interval);
       this.interval = null;
