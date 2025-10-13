@@ -41,7 +41,6 @@
     "app.chat.copyErr": "Скопіювати стенограму чату не вдалось",
     "app.chat.closePopup": "Закрити",
     "app.chat.messageRead": "Повідомлення прочитане отримувачем",
-    "app.chat.closePopup": "Закрити",
     "app.chat.editTime": "Востаннє оновлено {editTime}",
     "app.chat.deleteMessage": "{userName} видалив це повідомлення",
     "app.chat.toolbar.reply": "Відповісти на повідомлення від {messageSequence}",
