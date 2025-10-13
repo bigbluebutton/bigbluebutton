@@ -233,10 +233,10 @@ const BreakoutJoinConfirmationContainer: React.FC = () => {
   const { data: currentUser } = useCurrentUser((u) => {
     return {
       isModerator: u.isModerator,
-      bot: u.bot,
       lastBreakoutRoom: u.lastBreakoutRoom,
       presenter: u.presenter,
       breakoutRoomsSummary: u.breakoutRoomsSummary,
+      bot: u.bot,
     };
   });
 
@@ -259,6 +259,8 @@ const BreakoutJoinConfirmationContainer: React.FC = () => {
   } = useDeduplicatedSubscription<GetBreakoutDataResponse>(getBreakoutData, { skip: !hasInvitationToShow });
 
   if (!hasInvitationToShow) return null;
+
+  if (currentUser?.bot) return null;
 
   if (currentUser?.isModerator
       && !currentMeeting?.breakoutRoomsCommonProperties?.sendInvitationToModerators) return null;
