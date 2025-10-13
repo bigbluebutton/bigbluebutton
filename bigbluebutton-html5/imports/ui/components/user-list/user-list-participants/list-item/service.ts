@@ -301,7 +301,7 @@ export const handleWhiteboardAccessChange = async (
       notify(
         intl.formatMessage(
           intlMessages.multiUserLimitHasBeenReachedNotification,
-          { 0: WHITEBOARD_CONFIG.maxNumberOfActiveUsers },
+          { numberOfUsers: WHITEBOARD_CONFIG.maxNumberOfActiveUsers },
         ),
         'info',
         'pen_tool',

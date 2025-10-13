@@ -729,10 +729,10 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
         title={formatMessage(intlMessages.title)}
         leftButtonProps={{}}
         rightButtonProps={{
-          'aria-label': formatMessage(intlMessages.minimize, { 0: formatMessage(intlMessages.title) }),
+          'aria-label': formatMessage(intlMessages.minimize, { panelName: formatMessage(intlMessages.title) }),
           'data-test': 'closeProfileSettings',
           icon: 'minus',
-          label: formatMessage(intlMessages.minimize, { 0: formatMessage(intlMessages.title) }),
+          label: formatMessage(intlMessages.minimize, { panelName: formatMessage(intlMessages.title) }),
           onClick: () => {
             layoutContextDispatch({
               type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
