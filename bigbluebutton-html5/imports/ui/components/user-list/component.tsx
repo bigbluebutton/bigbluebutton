@@ -115,10 +115,16 @@ const UserList: React.FC<UserListComponentProps> = () => {
       <Styled.HeaderContainer
         title={title}
         rightButtonProps={{
-          'aria-label': intl.formatMessage(intlMessages.minimize, { 0: intl.formatMessage(intlMessages.usersStaticTitle) }),
+          'aria-label': intl.formatMessage(
+            intlMessages.minimize,
+            { panelName: intl.formatMessage(intlMessages.usersStaticTitle) },
+          ),
           'data-test': 'closeUserList',
           icon: 'minus',
-          label: intl.formatMessage(intlMessages.minimize, { 0: intl.formatMessage(intlMessages.usersStaticTitle) }),
+          label: intl.formatMessage(
+            intlMessages.minimize,
+            { panelName: intl.formatMessage(intlMessages.usersStaticTitle) },
+          ),
           onClick: () => {
             layoutContextDispatch({
               type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,

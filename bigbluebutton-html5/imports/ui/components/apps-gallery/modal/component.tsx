@@ -37,7 +37,9 @@ const TooManyPinnedAppsModal = ({ setError, pinnedAppsNumber }: TooManypinnedApp
     >
       <Styled.ModalContent>
         <div>
-          <Styled.SubTitle>{intl.formatMessage(intlMessages.subTitle, { 0: pinnedAppsNumber })}</Styled.SubTitle>
+          <Styled.SubTitle>
+            {intl.formatMessage(intlMessages.subTitle, { pinnedAppsNumber })}
+          </Styled.SubTitle>
           <Styled.Description>{intl.formatMessage(intlMessages.description)}</Styled.Description>
         </div>
         <Styled.ButtonWrapper>

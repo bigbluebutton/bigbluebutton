@@ -110,10 +110,16 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
         title={title}
         leftButtonProps={{}}
         rightButtonProps={{
-          'aria-label': intl.formatMessage(intlMessages.minimize, { 0: intl.formatMessage(intlMessages.appsGalleryTitle) }),
+          'aria-label': intl.formatMessage(
+            intlMessages.minimize,
+            { panelName: intl.formatMessage(intlMessages.appsGalleryTitle) },
+          ),
           'data-test': 'hideAppsGallery',
           icon: 'minus',
-          label: intl.formatMessage(intlMessages.minimize, { 0: intl.formatMessage(intlMessages.appsGalleryTitle) }),
+          label: intl.formatMessage(
+            intlMessages.minimize,
+            { panelName: intl.formatMessage(intlMessages.appsGalleryTitle) },
+          ),
           onClick: () => {
             layoutContextDispatch({
               type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
@@ -131,7 +137,10 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
 
       <Styled.DescWrapper>
         <Styled.BoldText>
-          {intl.formatMessage(intlMessages.pinnedApps, { 0: pinnedApps.length, 1: MAX_PINNED_APPS_GALLERY })}
+          {intl.formatMessage(
+            intlMessages.pinnedApps,
+            { pinnedCount: pinnedApps.length, maxPinned: MAX_PINNED_APPS_GALLERY },
+          )}
         </Styled.BoldText>
         {intl.formatMessage(intlMessages.pinnedAppsContinue)}
       </Styled.DescWrapper>
