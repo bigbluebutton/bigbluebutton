@@ -1,6 +1,13 @@
 {
     "app.home.greeting": "Vòstra presentacion començarà dins una estona...",
     "app.chat.submitLabel": "Enviar messatge",
+    "app.chat.loading": "Messatges cargats : {progress} %",
+    "app.chat.errorMaxMessageLength": "Lo messatge conten {maxMessageLength} caractèr(s) de tròp",
+    "app.chat.disconnected": "Sètz desconnectat, impossible d'enviar lo messatge",p.home.greeting": "Vòstra presentacion començarà dins una estona...",
+    "app.chat.submitLabel": "Enviar messatge",
+    "app.chat.loading": "Messatges cargats : {progress} %",
+    "app.chat.errorMaxMessageLength": "Lo messatge conten {maxMessageLength} caractèr(s) de tròp", "app.home.greeting": "Vòstra presentacion començarà dins una estona...",
+    "app.chat.submitLabel": "Enviar messatge",
     "app.chat.loading": "Messatges cargats : {0} %",
     "app.chat.errorMaxMessageLength": "Lo messatge conten {maxMessageLength} caractèr(s) de tròp",
     "app.chat.disconnected": "Sètz desconnectat, impossible d’enviar lo messatge",
