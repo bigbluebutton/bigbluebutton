@@ -204,6 +204,13 @@ type Mutation {
 }
 
 type Mutation {
+  ChangeDisabledFeaturesInMeeting(
+    disabledFeatures: [String]!
+  ): Boolean
+}
+
+
+type Mutation {
   echoTestRunningAt: Boolean
 }
 
@@ -758,4 +765,3 @@ input AudioGroupParticipant {
   participantType: String!
   active: Boolean!
 }
-

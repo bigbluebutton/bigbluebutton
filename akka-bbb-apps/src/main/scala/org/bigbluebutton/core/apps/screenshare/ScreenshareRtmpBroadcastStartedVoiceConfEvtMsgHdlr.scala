@@ -36,12 +36,12 @@ trait ScreenshareRtmpBroadcastStartedVoiceConfEvtMsgHdlr {
       ScreenshareModel.isBroadcastingRTMP(liveMeeting.screenshareModel) +
       " URL:" + ScreenshareModel.getRTMPBroadcastingUrl(liveMeeting.screenshareModel))
 
-    if (msg.body.contentType == "camera" && liveMeeting.props.meetingProp.disabledFeatures.contains("cameraAsContent")) {
+    if (msg.body.contentType == "camera" && liveMeeting.disabledFeatures2x.toVector.contains("cameraAsContent")) {
       log.error(
         "Camera as a content is disabled for meeting {}, meetingID = {}",
         liveMeeting.props.meetingProp.name, liveMeeting.props.meetingProp.intId
       )
-    } else if (msg.body.contentType == "screenshare" && liveMeeting.props.meetingProp.disabledFeatures.contains("screenshare")) {
+    } else if (msg.body.contentType == "screenshare" && liveMeeting.disabledFeatures2x.toVector.contains("screenshare")) {
       val meetingId = liveMeeting.props.meetingProp.intId
       log.error("Screen sharing is disabled for this meeting, meetingID = {}", meetingId)
     } else {

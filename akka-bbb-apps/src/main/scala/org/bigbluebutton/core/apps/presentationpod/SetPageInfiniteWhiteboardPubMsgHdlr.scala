@@ -15,7 +15,7 @@ trait SetPageInfiniteWhiteboardPubMsgHdlr extends RightsManagementTrait {
       liveMeeting: LiveMeeting, bus: MessageBus
   ): MeetingState2x = {
 
-    if (liveMeeting.props.meetingProp.disabledFeatures.contains("infiniteWhiteboard")) {
+    if (liveMeeting.disabledFeatures2x.toVector.contains("infiniteWhiteboard")) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "Infinite whiteboard is disabled for this meeting."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)

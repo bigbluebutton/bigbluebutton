@@ -55,7 +55,7 @@ trait UpdateTranscriptPubMsgHdlr {
       bus.outGW.send(msgEvent)
     }
 
-    val isTranscriptionEnabled = !liveMeeting.props.meetingProp.disabledFeatures.contains("liveTranscription")
+    val isTranscriptionEnabled = !liveMeeting.disabledFeatures2x.toVector.contains("liveTranscription")
 
     if (AudioCaptions.isFloor(liveMeeting.audioCaptions, msg.header.userId) && isTranscriptionEnabled) {
       val (start, end, text) = AudioCaptions.editTranscript(

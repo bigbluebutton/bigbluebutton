@@ -12,8 +12,8 @@ trait EditGroupChatMessageReqMsgHdlr extends HandlerHelpers {
   this: GroupChatHdlrs =>
 
   def handle(msg: EditGroupChatMessageReqMsg, state: MeetingState2x, liveMeeting: LiveMeeting, bus: MessageBus): MeetingState2x = {
-    val chatDisabled: Boolean = liveMeeting.props.meetingProp.disabledFeatures.contains("chat")
-    val editChatMessageDisabled: Boolean = liveMeeting.props.meetingProp.disabledFeatures.contains("editChatMessage")
+    val chatDisabled: Boolean = liveMeeting.disabledFeatures2x.toVector.contains("chat")
+    val editChatMessageDisabled: Boolean = liveMeeting.disabledFeatures2x.toVector.contains("editChatMessage")
     var chatLocked: Boolean = false
     var chatLockedForUser: Boolean = false
 

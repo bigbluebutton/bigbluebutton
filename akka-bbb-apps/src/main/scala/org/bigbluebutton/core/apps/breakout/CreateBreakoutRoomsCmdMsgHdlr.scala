@@ -25,7 +25,7 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
     val minOfRooms = 1
     val maxOfRooms = getConfigPropertyValueByPathAsIntOrElse(liveMeeting.clientSettings, "public.app.breakouts.breakoutRoomLimit", 16)
 
-    if (liveMeeting.props.meetingProp.disabledFeatures.contains("breakoutRooms")) {
+    if (liveMeeting.disabledFeatures2x.toVector.contains("breakoutRooms")) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "Breakout rooms is disabled for this meeting."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)
@@ -112,7 +112,7 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
         breakout.captureNotesFilename,
         breakout.captureSlidesFilename,
         pluginProp = filteredPluginProp,
-        disabledFeatures = new util.ArrayList[String](liveMeeting.props.meetingProp.disabledFeatures.asJava),
+        disabledFeatures = new util.ArrayList[String](liveMeeting.disabledFeatures2x.toVector.asJava),
         liveMeeting.props.meetingProp.audioBridge,
         liveMeeting.props.meetingProp.cameraBridge,
         liveMeeting.props.meetingProp.screenShareBridge,

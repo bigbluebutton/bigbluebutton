@@ -14,7 +14,7 @@ trait SendGroupChatMessageFromApiSysPubMsgHdlr extends HandlerHelpers {
 
     log.debug("RECEIVED SendGroupChatMessageFromApiSysPubMsg {}", msg)
 
-    val chatDisabled: Boolean = liveMeeting.props.meetingProp.disabledFeatures.contains("chat")
+    val chatDisabled: Boolean = liveMeeting.disabledFeatures2x.toVector.contains("chat")
     if (!chatDisabled) {
       val newState = for {
         sender <- GroupChatApp.findGroupChatUser(SystemUser.ID, liveMeeting.users2x)

@@ -22,7 +22,7 @@ trait PluginPersistEventMsgHdlr extends HandlerHelpers {
       bus.outGW.send(msgEvent)
     }
 
-    if (liveMeeting.props.meetingProp.disabledFeatures.contains("plugins")) {
+    if (liveMeeting.disabledFeatures2x.toVector.contains("plugins")) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "Plugin feature is disabled for this meeting"
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)

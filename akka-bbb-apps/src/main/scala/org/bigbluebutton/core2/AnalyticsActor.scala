@@ -91,6 +91,7 @@ class AnalyticsActor(val includeChat: Boolean) extends Actor with ActorLogging {
       case m: EjectUserFromMeetingSysMsg                     => logMessage(msg)
       case m: UserActivitySignCmdMsg                         => logMessage(msg)
       case m: UserInactivityInspectMsg                       => logMessage(msg)
+      case m: ChangeDisabledFeaturesInMeetingCmdMsg          => logMessage(msg)
 
       case m: ChangeUserRoleCmdMsg                           => logMessage(msg)
 

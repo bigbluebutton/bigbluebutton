@@ -30,7 +30,7 @@ trait ActivateTimerReqMsgHdlr extends RightsManagementTrait {
       bus.outGW.send(msgEvent)
     }
 
-    val isTimerFeatureEnabled: Boolean = !liveMeeting.props.meetingProp.disabledFeatures.contains("timer")
+    val isTimerFeatureEnabled: Boolean = !liveMeeting.disabledFeatures2x.toVector.contains("timer")
 
     if (!isTimerFeatureEnabled) {
       log.error("Timer feature is disabled for meeting {}, meetingId={}", liveMeeting.props.meetingProp.name,

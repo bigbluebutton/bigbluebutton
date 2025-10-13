@@ -347,6 +347,19 @@ case class UserLockSettingsInMeetingChangedEvtMsg(
 case class UserLockSettingsInMeetingChangedEvtMsgBody(userId: String, disablePubChat: Boolean, setBy: String)
 
 /**
+ * Sent by client to change the disabled components in a meeting.
+ */
+object ChangeDisabledFeaturesInMeetingCmdMsg { val NAME = "ChangeDisabledFeaturesInMeetingCmdMsg" }
+case class ChangeDisabledFeaturesInMeetingCmdMsg(
+    header: BbbClientMsgHeader,
+    body:   ChangeDisabledFeaturesInMeetingCmdMsgBody
+) extends StandardMsg
+
+case class ChangeDisabledFeaturesInMeetingCmdMsgBody(
+    disabledFeatures: Vector[String],
+)
+
+/**
  * Sent by client to set lock setting.
  */
 object ChangeLockSettingsInMeetingCmdMsg { val NAME = "ChangeLockSettingsInMeetingCmdMsg" }

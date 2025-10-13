@@ -132,15 +132,15 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
 
     val currentPres: Option[PresentationInPod] = presentationPods.flatMap(_.getPresentation(presId)).headOption
 
-    if (liveMeeting.props.meetingProp.disabledFeatures.contains("downloadPresentationWithAnnotations")
+    if (liveMeeting.disabledFeatures2x.toVector.contains("downloadPresentationWithAnnotations")
       && m.body.fileStateType == "Annotated") {
       val reason = "Annotated presentation download disabled for this meeting."
       PermissionCheck.ejectUserForFailedPermission(meetingId, userId, reason, bus.outGW, liveMeeting)
-    } else if (liveMeeting.props.meetingProp.disabledFeatures.contains("downloadPresentationOriginalFile")
+    } else if (liveMeeting.disabledFeatures2x.toVector.contains("downloadPresentationOriginalFile")
       && m.body.fileStateType == "Original") {
       val reason = "Original presentation download disabled for this meeting."
       PermissionCheck.ejectUserForFailedPermission(meetingId, userId, reason, bus.outGW, liveMeeting)
-    } else if (liveMeeting.props.meetingProp.disabledFeatures.contains("downloadPresentationConvertedToPdf")
+    } else if (liveMeeting.disabledFeatures2x.toVector.contains("downloadPresentationConvertedToPdf")
       && m.body.fileStateType == "Converted") {
       val reason = "Converted presentation download disabled for this meeting. (PDF format)"
       PermissionCheck.ejectUserForFailedPermission(meetingId, userId, reason, bus.outGW, liveMeeting)
@@ -213,7 +213,7 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
       pages = Map.empty, downloadable = false, downloadFileExtension = "", removable = true, filenameConverted = filename,
       uploadCompleted = false, numPages = 0, errorMsgKey = "", errorDetails = Map.empty)
 
-    if (liveMeeting.props.meetingProp.disabledFeatures.contains("importPresentationWithAnnotationsFromBreakoutRooms")) {
+    if (liveMeeting.disabledFeatures2x.toVector.contains("importPresentationWithAnnotationsFromBreakoutRooms")) {
       log.error(s"Capturing breakout rooms slides disabled in meeting ${meetingId}.")
     } else if (currentPres.isEmpty) {
       log.error(s"No presentation set in meeting ${meetingId}")

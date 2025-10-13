@@ -26,7 +26,7 @@ trait StartExternalVideoPubMsgHdlr extends RightsManagementTrait {
       bus.outGW.send(msgEvent)
     }
 
-    if (liveMeeting.props.meetingProp.disabledFeatures.contains("externalVideos")) {
+    if (liveMeeting.disabledFeatures2x.toVector.contains("externalVideos")) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "External Videos is disabled for this meeting."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)

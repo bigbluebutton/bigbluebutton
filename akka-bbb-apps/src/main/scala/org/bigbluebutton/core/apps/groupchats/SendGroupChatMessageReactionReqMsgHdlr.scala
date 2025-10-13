@@ -13,8 +13,8 @@ trait SendGroupChatMessageReactionReqMsgHdlr extends HandlerHelpers {
   this: GroupChatHdlrs =>
 
   def handle(msg: SendGroupChatMessageReactionReqMsg, state: MeetingState2x, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
-    val chatDisabled: Boolean = liveMeeting.props.meetingProp.disabledFeatures.contains("chat")
-    val chatMessageReactionsDisabled: Boolean = liveMeeting.props.meetingProp.disabledFeatures.contains("chatMessageReactions")
+    val chatDisabled: Boolean = liveMeeting.disabledFeatures2x.toVector.contains("chat")
+    val chatMessageReactionsDisabled: Boolean = liveMeeting.disabledFeatures2x.toVector.contains("chatMessageReactions")
     var chatLocked: Boolean = false
     var chatLockedForUser: Boolean = false
 

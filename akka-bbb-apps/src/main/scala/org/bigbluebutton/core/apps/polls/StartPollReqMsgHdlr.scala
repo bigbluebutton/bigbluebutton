@@ -24,11 +24,11 @@ trait StartPollReqMsgHdlr extends RightsManagementTrait {
       bus.outGW.send(msgEvent)
     }
 
-    if (liveMeeting.props.meetingProp.disabledFeatures.contains("polls")) {
+    if (liveMeeting.disabledFeatures2x.toVector.contains("polls")) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "Polling is disabled for this meeting."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
-    } else if (msg.body.quiz && liveMeeting.props.meetingProp.disabledFeatures.contains("quizzes")) {
+    } else if (msg.body.quiz && liveMeeting.disabledFeatures2x.toVector.contains("quizzes")) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "Quiz is disabled for this meeting."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)

@@ -235,5 +235,15 @@ object MeetingDAO {
     )
   }
 
+  def updateDisabledComponents(meetingId: String, newDisabledComponents: Vector[String]) = {
+    DatabaseConnection.enqueue(
+      TableQuery[MeetingDbTableDef]
+        .filter(_.meetingId === meetingId)
+        .map(_.disabledFeatures)
+        .update(newDisabledComponents.toList)
+    )
+  }
+
+
 
 }

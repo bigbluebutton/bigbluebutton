@@ -29,7 +29,7 @@ object PluginHdlrHelpers {
   def dataChannelCheckingLogic(liveMeeting: LiveMeeting, userId: String,
                                pluginName: String, channelName: String,
                                caseSomeDataChannelAndPlugin: (UserState, DataChannel, String) => Unit): Option[Unit] = {
-    val pluginsDisabled: Boolean = liveMeeting.props.meetingProp.disabledFeatures.contains("plugins")
+    val pluginsDisabled: Boolean = liveMeeting.disabledFeatures2x.toVector.contains("plugins")
     val meetingId = liveMeeting.props.meetingProp.intId
 
     for {

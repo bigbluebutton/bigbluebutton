@@ -13,7 +13,7 @@ trait SetScreenshareAsContentReqMsgHdlr extends RightsManagementTrait {
   val outGW: OutMsgRouter
 
   def handleSetScreenshareAsContentReqMsg(msg: SetScreenshareAsContentReqMsg): Unit = {
-    if (liveMeeting.props.meetingProp.disabledFeatures.contains("screenshare")) {
+    if (liveMeeting.disabledFeatures2x.toVector.contains("screenshare")) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "Screenshare is disabled for this meeting."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)

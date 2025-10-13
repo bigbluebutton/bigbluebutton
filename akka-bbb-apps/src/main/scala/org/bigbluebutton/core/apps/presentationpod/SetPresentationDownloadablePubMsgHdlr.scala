@@ -26,12 +26,12 @@ trait SetPresentationDownloadablePubMsgHdlr extends RightsManagementTrait {
       val reason = "No permission to make presentation downloadable for meeting."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
       state
-    } else if (liveMeeting.props.meetingProp.disabledFeatures.contains("downloadPresentationOriginalFile")
+    } else if (liveMeeting.disabledFeatures2x.toVector.contains("downloadPresentationOriginalFile")
       && msg.body.fileStateType == "Original") {
       val reason = "Download original presentation is disabled for meeting."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
       state
-    } else if (liveMeeting.props.meetingProp.disabledFeatures.contains("downloadPresentationConvertedToPdf")
+    } else if (liveMeeting.disabledFeatures2x.toVector.contains("downloadPresentationConvertedToPdf")
       && msg.body.fileStateType == "Converted") {
       val reason = "Download converted presentation is disabled for meeting."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)

@@ -26,7 +26,7 @@ trait CreateGroupChatReqMsgHdlr extends SystemConfiguration {
     val isPrivateChat: Boolean = msg.body.access == GroupChatAccess.PRIVATE
 
     if (msg.body.access == GroupChatAccess.PRIVATE) {
-      privateChatDisabled = liveMeeting.props.meetingProp.disabledFeatures.contains("privateChat")
+      privateChatDisabled = liveMeeting.disabledFeatures2x.toVector.contains("privateChat")
     }
 
     for {

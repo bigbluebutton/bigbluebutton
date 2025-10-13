@@ -30,7 +30,7 @@ trait ChangeUserReactionEmojiReqMsgHdlr extends RightsManagementTrait {
       outGW.send(msgEventChange)
     }
 
-    val userReactionsIsDisabled = liveMeeting.props.meetingProp.disabledFeatures.contains("userReactions")
+    val userReactionsIsDisabled = liveMeeting.disabledFeatures2x.toVector.contains("userReactions")
 
     if (userReactionsIsDisabled) {
       val meetingId = liveMeeting.props.meetingProp.intId

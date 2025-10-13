@@ -3,15 +3,16 @@ import React, {
   useRef,
   useEffect,
 } from 'react';
+import { defineMessages, useIntl } from 'react-intl';
+import { uid } from 'radash';
+import { useMutation, useLazyQuery } from '@apollo/client';
 import LockViewersContainer from '/imports/ui/components/lock-viewers/container';
 import GuestPolicyContainer from '/imports/ui/components/waiting-users/guest-policy/container';
 import CreateBreakoutRoomContainerGraphql from '../../../../breakout-room/create-breakout-room/component';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import Styled from './styles';
-import { defineMessages, useIntl } from 'react-intl';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
-import { uid } from 'radash';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import {
   onSaveUserNames, openLearningDashboardUrl,
@@ -23,13 +24,13 @@ import {
   useIsLearningDashboardEnabled,
   useIsReactionsEnabled,
 } from '/imports/ui/services/features';
-import { useMutation, useLazyQuery } from '@apollo/client';
 import { SET_MUTED } from './mutations';
 import { CLEAR_ALL_REACTION } from '/imports/ui/core/graphql/mutations/userMutations';
 import { GET_USER_NAMES } from '/imports/ui/core/graphql/queries/users';
 import logger from '/imports/startup/client/logger';
 import { notify } from '/imports/ui/services/notification';
 import { useModalRegistration } from '/imports/ui/core/singletons/modalController';
+import DisabledFeaturesContainer from '../../../../disable-features-modal/component';
 
 const intlMessages = defineMessages({
   optionsLabel: {
@@ -124,6 +125,14 @@ const intlMessages = defineMessages({
     id: 'app.userList.userOptions.clearedReactions',
     description: 'Used in toast notification when reactions have been cleared',
   },
+  disabledFeaturesLabel: {
+    id: 'app.disable-features.title',
+    defaultMessage: 'Disable features',
+  },
+  disabledFeaturesDesc: {
+    id: 'app.disable-features.description',
+    defaultMessage: 'Change session disable features settings.',
+  },
 });
 
 interface UserTitleOptionsProps {
@@ -162,6 +171,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
   const createBreakoutRoomModal = useModalRegistration({ id: 'createBreakoutRoomModal', priority: 'medium' });
   const guestPolicyModal = useModalRegistration({ id: 'guestPolicyModal', priority: 'low' });
   const lockViewersModal = useModalRegistration({ id: 'lockViewersModal', priority: 'low' });
+  const disabledFeaturesModal = useModalRegistration({ id: 'disabledFeaturesModal', priority: 'low' });
 
   const [setMuted] = useMutation(SET_MUTED);
   const [clearAllReaction] = useMutation(CLEAR_ALL_REACTION);
@@ -257,6 +267,15 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
         onClick: () => lockViewersModal.open(),
         icon: 'lock',
         dataTest: 'lockViewersButton',
+      },
+      {
+        allow: true,
+        key: uuids.current[2],
+        label: intl.formatMessage(intlMessages.disabledFeaturesLabel),
+        description: intl.formatMessage(intlMessages.disabledFeaturesDesc),
+        onClick: () => disabledFeaturesModal.open(),
+        icon: 'circle_close',
+        dataTest: 'disabledFeaturesButton',
       },
       {
         allow: dynamicGuestPolicy,
@@ -381,7 +400,13 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
           setIsOpen={lockViewersModal.close}
         />
       )}
-
+      {
+        disabledFeaturesModal.isOpen && (
+          <DisabledFeaturesContainer
+            setIsOpen={disabledFeaturesModal.isOpen ? disabledFeaturesModal.close : disabledFeaturesModal.open}
+          />
+        )
+      }
     </>
   );
 };

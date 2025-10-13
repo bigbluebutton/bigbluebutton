@@ -15,7 +15,7 @@ trait BroadcastLayoutMsgHdlr extends RightsManagementTrait {
 
   def handleBroadcastLayoutMsg(msg: BroadcastLayoutMsg): Unit = {
 
-    if (liveMeeting.props.meetingProp.disabledFeatures.contains("layouts")) {
+    if (liveMeeting.disabledFeatures2x.toVector.contains("layouts")) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "Layouts is disabled for this meeting."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)

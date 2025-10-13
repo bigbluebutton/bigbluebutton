@@ -27,4 +27,5 @@ class LiveMeeting(
     val guestsWaiting:       GuestsWaiting,
     val clientSettings:      Map[String, Object],
     val plugins:             PluginModel,
+    val disabledFeatures2x: DisabledFeatures2x,
 )

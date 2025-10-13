@@ -37,6 +37,7 @@ import org.apache.pekko.actor.Props
 import org.apache.pekko.actor.OneForOneStrategy
 import org.bigbluebutton.ClientSettings.{ getConfigPropertyValueByPathAsBooleanOrElse, getConfigPropertyValueByPathAsIntOrElse, getConfigPropertyValueByPathAsStringOrElse }
 import org.bigbluebutton.common2.msgs
+import org.bigbluebutton.core.apps.disabledcomponents.ChangeDisabledFeaturesInMeetingCmdMsgHdlr
 
 import scala.concurrent.duration._
 import org.bigbluebutton.core.apps.layout.LayoutApp2x
@@ -88,7 +89,7 @@ class MeetingActor(
   with GetMicrophonePermissionReqMsgHdlr
   with GetScreenBroadcastPermissionReqMsgHdlr
   with GetScreenSubscribePermissionReqMsgHdlr
-
+  with ChangeDisabledFeaturesInMeetingCmdMsgHdlr
   with EjectUserFromVoiceCmdMsgHdlr
   with EndMeetingSysCmdMsgHdlr
   with DestroyMeetingSysCmdMsgHdlr
@@ -342,7 +343,7 @@ class MeetingActor(
       alternativeValue = true
     )
 
-    if (sharedNotesEnabledInClientSettings && !liveMeeting.props.meetingProp.disabledFeatures.contains("sharedNotes")) {
+    if (sharedNotesEnabledInClientSettings && !liveMeeting.disabledFeatures2x.toVector.contains("sharedNotes")) {
       val sharedNotesPadId = getConfigPropertyValueByPathAsStringOrElse(
         liveMeeting.clientSettings,
         "public.notes.id",
@@ -823,10 +824,11 @@ class MeetingActor(
       case m: SetTrackReqMsg =>
         timerApp2x.handle(m, liveMeeting, msgBus)
         updateUserLastActivity(m.header.userId)
+      //  Disabled Components
+      case m: ChangeDisabledFeaturesInMeetingCmdMsg => handleChangeDisabledComponentsCmdMsg(m)
 
-      case m: UserActivitySignCmdMsg => handleUserActivitySignCmdMsg(m)
-
-      case _                         => log.warning("***** Cannot handle " + msg.envelope.name)
+      case m: UserActivitySignCmdMsg                => handleUserActivitySignCmdMsg(m)
+      case _                                        => log.warning("***** Cannot handle " + msg.envelope.name)
     }
   }
 
