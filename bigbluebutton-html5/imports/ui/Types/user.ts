@@ -109,6 +109,11 @@ export interface User {
   sessionCurrent: sessionCurrent;
   livekit?: Livekit;
   meeting: UserMeeting;
+  presPagesWritable: Array<{
+    pageId: string;
+    isCurrentPage: boolean;
+    userId: string;
+  }>;
 }
 
 export interface UserBasicInfo {

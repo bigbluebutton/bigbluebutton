@@ -38,8 +38,6 @@ const PrivateChatListItem = (props: PrivateChatListItemProps) => {
     privateChatSelectedCallback,
   } = props;
 
-  const countUnreadMessages = chat.totalUnread || 0;
-
   const chatPanelOpen = sidebarContentIsOpen && sidebarContentPanel === PANELS.CHAT;
 
   const isCurrentChat = chat.chatId === idChatOpen && chatPanelOpen;
