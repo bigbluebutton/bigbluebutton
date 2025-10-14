@@ -4,7 +4,6 @@ import { setMeetingSettings } from '/imports/ui/core/local-states/useMeetingSett
 import MeetingClientSettings from '/imports/ui/Types/meetingClientSettings';
 import { ErrorScreen } from '/imports/ui/components/error-screen/component';
 import LoadingScreen from '/imports/ui/components/common/loading-screen/component';
-import Session from '/imports/ui/services/storage/in-memory';
 import BBBWeb from '/imports/api/bbb-web-api';
 import MeetingStaticDataStore from '/imports/ui/core/singletons/meetingStaticData';
 
@@ -60,7 +59,7 @@ const SettingsLoader: React.FC<SettingsLoaderProps> = (props) => {
           },
         },
         signal: controller.signal,
-        timeout: 10,
+        timeout: connectionTimeout / 3,
         retries: 3,
         retryDelay: 1000,
       },
@@ -80,13 +79,7 @@ const SettingsLoader: React.FC<SettingsLoaderProps> = (props) => {
       })
       .catch((error) => {
         setLoading(false);
-
-        if (error.name === 'AbortError') {
-          setError('Request aborted');
-        } else {
-          setError('Error fetching client settings');
-          Session.setItem('errorMessageDescription', 'meeting_ended');
-        }
+        setError('Error fetching GraphQL URL: '.concat(error.message || ''));
       });
   }, []);
 
