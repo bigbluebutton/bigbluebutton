@@ -11,13 +11,22 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "declaration": true,
+    "declaration": false,
+    "sourceMap": false,
     "outDir": "./dist",
     "rootDir": "./",
     "types": ["node"],
     "allowJs": true,
-    "checkJs": false
+    "checkJs": false,
+    "incremental": true,
+    "tsBuildInfoFile": "./dist/.tsbuildinfo"
   },
   "include": ["**/*.ts", "**/*.js", ".eslintrc.cjs"],
-  "exclude": ["node_modules", "dist", "playwright-report", "test-results"]
+  "exclude": ["node_modules", "dist", "playwright-report", "test-results"],
+  "ts-node": {
+    "transpileOnly": true,
+    "compilerOptions": {
+      "module": "CommonJS"
+    }
+  }
 }
