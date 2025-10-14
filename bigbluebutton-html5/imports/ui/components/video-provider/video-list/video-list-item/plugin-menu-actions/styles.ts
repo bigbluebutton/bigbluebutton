@@ -1,8 +1,4 @@
-// @ts-nocheck
-/* eslint-disable */
 import styled from 'styled-components';
-import { colorOffWhite } from '/imports/ui/stylesheets/styled-components/palette';
-import { fontSizeSmaller } from '/imports/ui/stylesheets/styled-components/typography';
 import Button from '/imports/ui/components/common/button/component';
 import {
   colorWhite,
@@ -10,9 +6,9 @@ import {
   colorBlack,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
-
 const MenuWrapper = styled.div<{
   dark?: boolean;
+  fullScreenEnabled?: boolean;
 }>`
   background-color: ${colorTransparent};
   cursor: pointer;
@@ -47,6 +43,8 @@ const MenuWrapper = styled.div<{
   `}
 `;
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore - as button comes from JS, we can't provide its props
 const OptionsButton = styled(Button)`
   padding: 5px;
   rotate: 90deg;

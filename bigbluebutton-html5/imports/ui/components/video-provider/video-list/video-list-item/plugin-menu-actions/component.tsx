@@ -78,7 +78,7 @@ const PluginMenuActions: React.FC<PluginMenuActionsProps> = (props) => {
           keepMounted: true,
           transitionDuration: 0,
           elevation: 3,
-          getcontentanchorel: null,
+          getContentAnchorEl: null,
           fullwidth: 'true',
           anchorOrigin: { vertical: 'bottom', horizontal: isRTL ? 'right' : 'left' },
           transformOrigin: { vertical: 'top', horizontal: isRTL ? 'right' : 'left' },
