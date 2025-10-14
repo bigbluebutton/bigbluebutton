@@ -4,3 +4,4 @@ test-results*/
 pr-*/
 playwright-report/
 blob-report/
+logs/

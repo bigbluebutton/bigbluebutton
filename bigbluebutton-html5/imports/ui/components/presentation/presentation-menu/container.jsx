@@ -2,26 +2,21 @@ import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import PresentationMenu from './component';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
-import Auth from '/imports/ui/services/auth';
 import { layoutSelect, layoutDispatch } from '/imports/ui/components/layout/context';
 import { useIsSnapshotOfCurrentSlideEnabled } from '/imports/ui/services/features';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
-import {
-  CURRENT_PAGE_WRITERS_SUBSCRIPTION,
-} from '/imports/ui/components/whiteboard/queries';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 
 import {
   persistShape,
 } from '/imports/ui/components/whiteboard/service';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
-import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 
 const PresentationMenuContainer = (props) => {
   const fullscreen = layoutSelect((i) => i.fullscreen);
   const { element: currentElement, group: currentGroup } = fullscreen;
   const layoutContextDispatch = layoutDispatch();
-  const { elementId, whiteboardId } = props;
+  const { elementId, currentUser } = props;
   const isFullscreen = currentElement === elementId;
   const Settings = getSettingsSingletonInstance();
   const { isRTL } = Settings.application;
@@ -33,14 +28,7 @@ const PresentationMenuContainer = (props) => {
     ];
   }
 
-  const { data: whiteboardWritersData } = useDeduplicatedSubscription(
-    CURRENT_PAGE_WRITERS_SUBSCRIPTION,
-    {
-      skip: !whiteboardId,
-    },
-  );
-  const whiteboardWriters = whiteboardWritersData?.pres_page_writers || [];
-  const hasWBAccess = whiteboardWriters?.some((writer) => writer.userId === Auth.userID);
+  const hasWBAccess = currentUser?.whiteboardWriteAccess;
 
   const meetingInfo = useMeeting((meeting) => ({
     name: meeting?.name,
@@ -66,7 +54,6 @@ const PresentationMenuContainer = (props) => {
         isIphone,
         allowSnapshotOfCurrentSlide,
         persistShape,
-        whiteboardWriters,
       }}
     />
   );
@@ -75,6 +62,8 @@ const PresentationMenuContainer = (props) => {
 export default PresentationMenuContainer;
 
 PresentationMenuContainer.propTypes = {
-  whiteboardId: PropTypes.string.isRequired,
   elementId: PropTypes.string.isRequired,
+  currentUser: PropTypes.shape({
+    whiteboardWriteAccess: PropTypes.bool,
+  }).isRequired,
 };

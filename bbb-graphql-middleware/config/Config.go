@@ -119,3 +119,9 @@ var AllowedSubscriptionsForNotInMeetingUsers = []string{
 	"userCurrentSubscription",
 	"Patched_userCurrentSubscription",
 }
+
+var StreamingSubscriptionsManagedByMiddleware = []string{
+	"getCursorCoordinatesStream",
+	"getNotificationStream",
+	"getChatMessageStream",
+}

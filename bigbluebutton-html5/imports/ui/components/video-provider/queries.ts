@@ -34,6 +34,7 @@ export const VIDEO_STREAMS_SUBSCRIPTION = gql`
         joined
         listenOnly
         userId
+        deafened
       }
     }
   }

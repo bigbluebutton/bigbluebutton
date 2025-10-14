@@ -138,7 +138,7 @@ const UserActions: React.FC<UserActionProps> = (props) => {
 
   const getAvailableActions = () => {
     if (!cameraId) return [];
-    const pinned = stream.type === VIDEO_TYPES.STREAM && stream.user.pinned;
+    const pinned = stream.type === VIDEO_TYPES.STREAM && stream.user?.pinned;
     const { userId } = stream;
     const isPinnedIntlKey = !pinned ? 'pin' : 'unpin';
     const isFocusedIntlKey = !focused ? 'focus' : 'unfocus';

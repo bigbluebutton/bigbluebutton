@@ -1,4 +1,3 @@
-const { default: test } = require('@playwright/test');
 const Page = require('../core/page');
 const { MultiUsers } = require('../user/multiusers');
 const { startScreenshare } = require('./util');
@@ -6,8 +5,8 @@ const e = require('../core/elements');
 const { getSettings } = require('../core/settings');
 
 class ScreenShare extends Page {
-  constructor(browser, page) {
-    super(browser, page);
+  constructor(browser, page, testInfo) {
+    super(browser, page, testInfo);
   }
 
   async startSharing() {

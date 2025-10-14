@@ -56,7 +56,7 @@ export const getUser = gql`
         {role: asc},
         {raiseHandTime: asc_nulls_last},
         {isDialIn: desc},
-        {hasDrawPermissionOnCurrentPage: desc},
+        {whiteboardWriteAccess: desc},
         {nameSortable: asc},
         {registeredAt: asc},
         {userId: asc}

@@ -67,6 +67,7 @@ trait PresentationConversionCompletedSysPubMsgHdlr {
           "Notification when a new presentation is set as current",
           Map("presentationName"->s"${pres.name}")
         )
+        bus.outGW.send(notifyEvent)
         NotificationDAO.insert(notifyEvent)
       }
 
