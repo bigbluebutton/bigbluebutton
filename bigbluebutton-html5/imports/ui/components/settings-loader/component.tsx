@@ -7,18 +7,8 @@ import LoadingScreen from '/imports/ui/components/common/loading-screen/componen
 import Session from '/imports/ui/services/storage/in-memory';
 import BBBWeb from '/imports/api/bbb-web-api';
 import MeetingStaticDataStore from '/imports/ui/core/singletons/meetingStaticData';
-import { MeetingStaticData } from '/imports/ui/Types/meetingStaticData';
 
 const connectionTimeout = 60000;
-
-type Meeting = MeetingStaticData & {
-  clientSettings: {
-    clientSettingsJson: MeetingClientSettings;
-  };
-};
-interface Response {
-  meeting: Array<Meeting>;
-}
 
 declare global {
   interface Window {
@@ -59,38 +49,44 @@ const SettingsLoader: React.FC<SettingsLoaderProps> = (props) => {
       return;
     }
 
-    BBBWeb.index(controller.signal)
-      .then(({ data }) => {
-        const url = new URL(`${data.graphqlApiUrl}/meetingStaticData`);
-        fetch(url, {
-          method: 'get',
+    BBBWeb.request(
+      (data) => `${data.graphqlApiUrl}/meetingStaticData`,
+      {
+        fetchOptions: {
+          method: 'GET',
           credentials: 'include',
           headers: {
             'x-session-token': sessionToken ?? '',
           },
-          signal: controller.signal,
-        })
-          .then((resp) => resp.json())
-          .then((data: Response) => {
-            clearTimeout(timeoutRef.current);
-            const {
-              clientSettings,
-              ...staticData
-            } = data?.meeting[0];
-            const settings = clientSettings.clientSettingsJson;
-            window.meetingClientSettings = JSON.parse(JSON.stringify(settings));
-            MeetingStaticDataStore.setMeetingData(staticData);
-            setMeetingSettings(settings);
-            setLoading(false);
-            setSettingsFetched(true);
-          }).catch(() => {
-            setLoading(false);
-            setError('Error fetching client settings');
-            Session.setItem('errorMessageDescription', 'meeting_ended');
-          });
-      }).catch((error) => {
+        },
+        signal: controller.signal,
+        timeout: 10,
+        retries: 3,
+        retryDelay: 1000,
+      },
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        clearTimeout(timeoutRef.current);
+
+        const { clientSettings, ...staticData } = data?.meeting[0];
+        const settings = clientSettings.clientSettingsJson;
+
+        window.meetingClientSettings = structuredClone(settings);
+        MeetingStaticDataStore.setMeetingData(staticData);
+        setMeetingSettings(settings);
+        setSettingsFetched(true);
         setLoading(false);
-        setError('Error fetching GraphQL URL: '.concat(error.message || ''));
+      })
+      .catch((error) => {
+        setLoading(false);
+
+        if (error.name === 'AbortError') {
+          setError('Request aborted');
+        } else {
+          setError('Error fetching client settings');
+          Session.setItem('errorMessageDescription', 'meeting_ended');
+        }
       });
   }, []);
 
