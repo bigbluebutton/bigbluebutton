@@ -39,7 +39,6 @@ class Layouts extends MultiUsers {
     await sleep(1000); // wait for the whiteboard zoom to stabilize
 
     await checkScreenshots(this, 'should the cameras be on the side of presentation', [e.webcamContainer, e.webcamMirroredVideoContainer], 'smart-layout', 2);
-    await reopenChatSidebar(this.modPage);
   }
 
   async customLayout() {
@@ -62,11 +61,18 @@ class Layouts extends MultiUsers {
     await this.modPage.hasElement(e.dropAreaSidebarBottom);
     await this.modPage.page.mouse.up();
     await checkDefaultLocationReset(this.modPage);
-    
-    await this.modPage.wasRemoved(e.sendButton, 'should not be displayed the send button');
+
+    await this.modPage.dragAndDropWebcams(e.dropAreaSidebarBottom);
+    await checkScreenshots(this, 'should be on custom layout', 'video', 'custom-layout', 2);
+
+    await this.modPage.dragAndDropWebcams(e.dropAreaSidebarBottom);
+    await checkScreenshots(this, 'should be on custom layout', 'video', 'custom-layout', 3);
+
+    await this.modPage.waitAndClick(e.userListToggleBtn);
+    await this.userPage.waitAndClick(e.userListToggleBtn);
+    await this.modPage.wasRemoved(e.chatButton, 'should not be displayed the chat button');
 
     await checkScreenshots(this, 'should be on custom layout', 'video', 'custom-layout', 4);
-    await reopenChatSidebar(this.modPage);
   }
 
   async updateEveryone() {
@@ -79,20 +85,37 @@ class Layouts extends MultiUsers {
     await this.modPage.wasRemoved(e.toastContainer);
     // Presenter minimizes presentation
     await this.modPage.waitAndClick(e.minimizePresentation);
-    await this.modPage.wasRemoved(e.presentationContainer, 'should the presentation be minimized for the moderator');
+    await this.modPage.wasRemoved(e.presentationContainer, 'presentation should be minimized for the moderator after clicking the minimize button');
     await this.modPage.hasElement(e.restorePresentation, 'should have the presentation minimized and the restore presentation button should appear for the moderator');
-    await this.userPage.wasRemoved(e.presentationContainer, 'should the presentation be minimized for the attendee');
-    await this.userPage.hasElement(e.restorePresentation, 'should the presentation be minimized and the restore presentation button should appear for the attendee');
+    await this.userPage.wasRemoved(e.presentationContainer, 'presentation should be minimized for the attendee after the moderator clicks the minimize button');
+    await this.userPage.hasElement(e.restorePresentation, 'presentation should be minimized and the restore presentation button should appear for the attendee after the moderator clicks the minimize button');
+
     // Only the user restores presentation
     await this.userPage.waitAndClick(e.restorePresentation);
-    await this.userPage.hasElement(e.presentationContainer, 'should display the restored presentation for the attendee');
+    await this.userPage.hasElement(e.presentationContainer, 'restored presentation should be visible to the attendee after clicking the restore button');
     await this.userPage.hasElement(e.minimizePresentation, 'should appear the minimize presentation button for the attendee');
-    await this.modPage.wasRemoved(e.presentationContainer, 'should the presentation be minimized for the moderator');
-    await this.modPage.hasElement(e.restorePresentation, 'should be displayed the restore presentation button for the moderator');
+    await this.modPage.wasRemoved(e.presentationContainer, 'presentation should remain minimized for the moderator after the attendee clicks the restore button');
+    await this.modPage.hasElement(e.restorePresentation, 'restore presentation button should remain visible for the moderator after the attendee clicks the restore button');
+
+
     await this.modPage.waitAndClick(e.restorePresentation);
     await this.modPage.closeAllToastNotifications();
+
+    // Drag and drop webcams to different locations
     await this.modPage.dragAndDropWebcams(e.dropAreaSidebarBottom);
-    await checkScreenshots(this, 'layout should be updated for everyone', 'video', 'update-everyone');
+    await checkScreenshots(this, 'layout should be updated for everyone after dragging and dropping webcam in sidebar bottom dock area', 'video', 'update-everyone', 1);
+
+    await this.modPage.dragAndDropWebcams(e.dropAreaRight);
+    await checkScreenshots(this, 'layout should be updated for everyone after dragging and dropping webcam in right dock area', 'video', 'update-everyone', 2);
+
+    await this.modPage.dragAndDropWebcams(e.dropAreaBottom);
+    await checkScreenshots(this, 'layout should be updated for everyone after dragging and dropping webcam in bottom dock area', 'video', 'update-everyone', 3);
+
+    await this.modPage.dragAndDropWebcams(e.dropAreaLeft);
+    await checkScreenshots(this, 'layout should be updated for everyone after dragging and dropping webcam in left dock area', 'video', 'update-everyone', 4);
+
+    await this.modPage.dragAndDropWebcams(e.dropAreaTop);
+    await checkScreenshots(this, 'layout should be updated for everyone after dragging and dropping webcam in top dock area', 'video', 'update-everyone', 5);
   }
 
   async getNewPageTab(browser) {
@@ -115,8 +138,8 @@ class Layouts extends MultiUsers {
     for (let i = 1; i <= 5; i++) {
       const userName = `User-${i}`;
       const newPage = await this.getNewPageTab(browser);
-      const userPage = new Page(browser, newPage);
-      await userPage.init(false, true, { fullName: userName, meetingId: this.modPage.meetingId });
+      const userPage = new Page(browser, newPage, this.modPage.testInfo);
+      await userPage.init(false, true, { fullName: userName, meetingId: this.modPage.meetingId, testInfo: this.modPage.testInfo });
       await userPage.waitForSelector(e.whiteboard);
       await userPage.shareWebcam();
       pages.push(userPage);
@@ -132,7 +155,7 @@ class Layouts extends MultiUsers {
       await page.hasElement(e.nextPageVideoPagination, 'should display the next page button for the video pagination');
       await page.hasElement(e.previousPageVideoPagination, 'should display the previous page button for the video pagination');
     }
-    await this.userPage.hasElementCount(e.webcamVideoItem, 6, 'should display 6 webcams for the attendee'); 
+    await this.userPage.hasElementCount(e.webcamVideoItem, 6, 'should display 6 webcams for the attendee');
     await checkScreenshots(this, 'pagination should work for the attendees', 'video', 'pagination');
     await this.userPage.waitAndClick(e.nextPageVideoPagination);
     await this.userPage.hasElementCount(e.webcamVideoItem, 2, 'should display 2 webcams for the attendee');

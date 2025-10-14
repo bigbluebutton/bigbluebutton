@@ -107,6 +107,7 @@ export interface App {
   enableApolloDevTools: boolean
   terminateAndRetryConnection: number
   timeoutBeforeRedirectOnMeetingEnd: number | null
+  showConnectionErrors: number[]
 }
 
 export interface BbbTabletApp {
@@ -763,6 +764,7 @@ export interface Whiteboard {
   maxStickyNoteLength: number
   maxNumberOfAnnotations: number
   maxNumberOfActiveUsers: number
+  maxHistoryStackSize: number
   lockToolbarTools: boolean
   annotations: Annotations
   allowInfiniteWhiteboard: boolean

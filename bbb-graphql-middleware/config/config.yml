@@ -12,7 +12,7 @@ server:
   # A high number is recommended because the whiteboard cursor and annotations generate frequent mutations.
   max_connection_mutations_per_minute: 900
   # Maximum number of concurrent subscriptions allowed per connection.
-  max_connection_concurrent_subscriptions: 100
+  max_connection_concurrent_subscriptions: 150
   # Maximum length of the query body.
   max_query_length: 5000
   # Maximum query depth when querying relationships.

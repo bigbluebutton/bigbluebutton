@@ -19,12 +19,13 @@ trait SendMessageToBreakoutRoomInternalMsgHdlr {
       chat <- state.groupChats.find(GroupChatApp.MAIN_PUBLIC_CHAT)
     } yield {
       val groupChatMsgFromUser = GroupChatMsgFromUser(sender.id, sender.copy(name = msg.senderName), msg.msg, replyToMessageId = "")
-      val gcm = GroupChatApp.toGroupChatMessage(sender.copy(name = msg.senderName), groupChatMsgFromUser, emphasizedText = true)
+      val gcm = GroupChatApp.toGroupChatMessage(sender.copy(name = msg.senderName), groupChatMsgFromUser, emphasizedText = true, GroupChatMessageType.DEFAULT)
       val gcs = GroupChatApp.addGroupChatMessage(liveMeeting.props.meetingProp.intId, chat, state.groupChats, gcm, GroupChatMessageType.BREAKOUTROOM_MOD_MSG)
 
       val event = buildGroupChatMessageBroadcastEvtMsg(
         liveMeeting.props.meetingProp.intId,
-        msg.senderName, GroupChatApp.MAIN_PUBLIC_CHAT, gcm
+        msg.senderName, GroupChatApp.MAIN_PUBLIC_CHAT,
+        chat.users.map(u => u.id), gcm
       )
 
       bus.outGW.send(event)

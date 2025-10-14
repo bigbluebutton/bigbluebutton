@@ -21,7 +21,7 @@ We have done significant work to adopt the newly released version 2 of tl;draw. 
 
 When transparentListenOnly is enabled on the server (enabled by default starting with BigBlueButton 3.0.0-rc.1), users can now switch seamlessly between Listen Only and Microphone modes without needing to rejoin audio.
 
-To further improve the user experience, you can disable listenOnlyMode (`public.app.listenOnlyMode` in `/etc/bigbluebutton/bbb-html5.yml` or `userdata-bbb_listen_only_mode`). 
+To further improve the user experience, you can disable listenOnlyMode (`public.app.listenOnlyMode` in `/etc/bigbluebutton/bbb-html5.yml` or `userdata-bbb_listen_only_mode`).
 This removes the need to choose between Microphone or Listen Only mode when joining audio in a session. Instead, you are taken directly to the audio configuration screen.
 
 ![audio controls when joining audio](/img/30/30-ui-join-audio.png)
@@ -68,7 +68,7 @@ A contribution from community member Jan Kessler, the direct Leave Meeting butto
 
 ![leave the meeting red button](/img/30/30-leave-meeting.png)
 
-Viewers can leave the meeting by using this new red button, previously hidden near the Setting menu. For moderators, the button includes the option to end the meeting as well. 
+Viewers can leave the meeting by using this new red button, previously hidden near the Setting menu. For moderators, the button includes the option to end the meeting as well.
 
 #### Better looking polling results
 
@@ -100,6 +100,61 @@ To enable see `public.app.defaultSettings.application.pushToTalkEnabled` https:/
 
 ### Behind the scenes
 
+#### Introduction of plugins
+
+We have made significant changes to the architecture of BigBlueButton and have introduced support to plugins -- optional custom modules included in the client which allow expanding the capabilities of BigBlueButton. A data channel is provided to allow for data exchange between clients. See the [HTML5 Plugin SDK](https://github.com/bigbluebutton/bigbluebutton-html-plugin-sdk) for examples and more information.
+
+At the moment of writing this documentation, the official list of plugins includes:
+- [Select Random User](https://github.com/bigbluebutton/plugin-pick-random-user)
+- [Share a link](https://github.com/bigbluebutton/plugin-generic-link-share)
+- [H5P plugin for BigBlueButton](https://github.com/bigbluebutton/plugin-h5p)
+- [Session share](https://github.com/bigbluebutton/plugin-session-share)
+- [Decrease the volume of external video when someone speaks](https://github.com/bigbluebutton/plugin-decrease-volume-on-speak)
+- [Typed captions](https://github.com/bigbluebutton/plugin-typed-captions)
+- [Source code highlight](https://github.com/bigbluebutton/plugin-code-highlight)
+- [Tour](https://github.com/bigbluebutton/plugin-tour)
+- [Chat mention](https://github.com/bigbluebutton/plugin-chat-mention)
+- [Media popout](https://github.com/bigbluebutton/plugin-media-popout)
+
+For the most accurate information check the [plugins reporisory](https://github.com/bigbluebutton/plugins) where all the plugins are listed.
+
+#### Replaced Akka framework with Pekko
+
+Following the license change of Akka back in September 2022 we considered several options and decided to replace our use of Akka with [Apache Pekko](https://github.com/apache/incubator-pekko) More on the transition: https://github.com/bigbluebutton/bigbluebutton/pull/18694
+
+#### Override client settings through API /create call
+
+Administrators will appreciate that we now allow passing of custom client settings through the meeting create API call. You no longer need separate servers to accommodate for sessions requiring vastly different settings.yml configuration
+
+#### Removal of Meteor and MongoDB
+
+For years we have discussed internally the topic of replacing Meteor.js with other technologies in order to improve scalability, performance, etc. In the last year we have introduced several different new components to replace Meteor.
+These new components are: `bbb-graphql-server`, `bbb-graphql-middleware`, `bbb-graphql-actions`, database Postgres, GraphQL server Hasura. As of BigBlueButton 3.0.0-beta.1 we are no longer using Meteor or MongoDB.
+
+Note: The services `bbb-html5-backend`, `bbb-html5-frontend`, `bbb-html5` and `mongod` have been removed. The client code is compacted and served by NginX. The service `disable-transparent-huge-pages.service` was also removed as it was used to improve performance of MongoDB and is now obsolete.
+The package `bbb-html5-nodejs` is no longer needed.
+
+**Important**: Please make sure you're no longer carrying around NodeJS v14 which we used to deploy in `bbb-html5-nodejs`. Your directory `/usr/lib/bbb-html5/node` should not exist.
+
+#### We have forked the tldraw project and use our fork
+
+We upgraded tl;draw from version 1 to version 2.0.0-alpha.19 (the last version on Apache 2.0 licence). That was quite a significant task but brought better performance, better looks, improved stylus support and many more. Note that we have forked tldraw's project as of their version 2.0.0-alpha.19 to ensure we remain on the Apache 2.0 license. We will be maintaining the fork so that BigBlueButton has a stable whiteboard in the future.
+
+#### Support for Collabora Online as document converter
+
+Collabora Productivity contributed the support for an alternative conversion script where Collabora Online (deployed locally [as a docker container] or running remotely) can be used for document conversion.
+For more information check the [pull request](https://github.com/bigbluebutton/bigbluebutton/pull/18783)
+
+#### S3-based cache for presentation assets
+
+BigBlueButton now supports caching for presentation assets at Amazon S3/Minio or similar.
+For details check the [server customization](/administration/customize/#configure-s3-based-cache-for-presentation-assets) portion of the documents and see the new `/create` parameter to control it per meeting in the [API reference](/development/api/#get-post-create).
+
+
+#### Support for ClamAV as presentation file scanner
+
+BigBlueButton now supports file scanning (virus detection) for presentation files using ClamAV.
+For details check the [ClamAV section](/administration/customize#support-for-clamav-as-presentation-file-scanner) of the server customization documentation.
 
 ### Experimental
 
@@ -254,6 +309,7 @@ Added
 - `officeDocumentValidationTimeout` added
 - `presOfficeConversionTimeout` added
 - `pdfPageCountWait` added
+- `detectImageDimensionsTimeout` added
 - `presentationConversionCacheEnabled` added
 - `presentationConversionCacheS3AccessKeyId` added
 - `presentationConversionCacheS3AccessKeySecret` added
@@ -281,7 +337,7 @@ In BigBlueButton 2.6.18/2.7.8 POST requests are no longer allowed for the `join`
 
 #### Changes in document formats we support
 
-We improved the documentation for which types of files we support when uploading presentations. Support for `.odi` and `.odc` was dropped. Support for `.svg`, `.odg` and `.webp` was officially added even though animated webp's are no longer animated after the image processing. 
+We improved the documentation for which types of files we support when uploading presentations. Support for `.odi` and `.odc` was dropped. Support for `.svg`, `.odg` and `.webp` was officially added even though animated webp's are no longer animated after the image processing.
 
 #### We mirror the webcam preview by default now
 

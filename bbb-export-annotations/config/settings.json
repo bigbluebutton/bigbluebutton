@@ -32,9 +32,9 @@
     }
   },
   "fonts": {
-    "draw": "/usr/local/share/fonts/CaveatBrush-Regular-2015-09-23.ttf",
-    "sans": "/usr/local/share/fonts/CrimsonPro[wght]-1.003.ttf",
-    "serif": "/usr/local/share/fonts/SourceSansPro-Regular-2.045.ttf",
-    "mono": "/usr/local/share/fonts/SourceCodePro-Regular-2.038.ttf"
+    "draw": "/usr/local/share/fonts/Shantell_Sans-Tldrawish.woff2",
+    "sans": "/usr/local/share/fonts/IBMPlexSans-Medium.woff2",
+    "serif": "/usr/local/share/fonts/IBMPlexSerif-Medium.woff2",
+    "mono": "/usr/local/share/fonts/IBMPlexMono-Medium.woff2"
   }
 }
