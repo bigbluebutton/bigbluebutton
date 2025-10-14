@@ -1650,6 +1650,6 @@
     "mobileApp.portals.addPortalPopup.confirm.button.label": "حفظ",
     "mobileApp.portals.drawerNavigation.button.label": "البوابات",
     "mobileApp.portals.addPortalPopup.validation.emptyFields": "حقول مطلوبة",
-    "mobileApp.portals.addPortalPopup.validation.portalNameAlreadyExists": "الاسم مستخدم",
+    "mobileApp.portals.addPortalPopup.validation.portalNameAlreadyExists": "الاسم مُستخدم",
     "mobileApp.portals.addPortalPopup.validation.urlInvalid": "حدث خطأ أثناء محاولة تحميل الصفحة - تحقق من الرابط واتصال الشبكة"
 }
