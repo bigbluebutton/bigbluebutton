@@ -1646,7 +1646,7 @@
     "mobileApp.portals.list.add.button.label": "أضف بوابة",
     "mobileApp.portals.fields.name.label": "اسم البوابة",
     "mobileApp.portals.fields.name.placeholder": "بك بلو بتن التجريبي",
-    "mobileApp.portals.fields.url.label": "عنوان رابط للخادم",
+    "mobileApp.portals.fields.url.label": "عنوان رابط الخادم",
     "mobileApp.portals.addPortalPopup.confirm.button.label": "حفظ",
     "mobileApp.portals.drawerNavigation.button.label": "البوابات",
     "mobileApp.portals.addPortalPopup.validation.emptyFields": "حقول مطلوبة",
