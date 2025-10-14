@@ -156,6 +156,7 @@
     "app.userList.messagesTitle": "الرسائل",
     "app.userList.notesTitle": "ملاحظات",
     "app.userList.notesListItem.unreadContent": "المحتوى الجديد متاح في قسم الملاحظات المشتركة",
+    "app.userList.timerTitle": "الوقت",
     "app.userList.captionsTitle": "التعليقات",
     "app.userList.presenter": "مقدم",
     "app.userList.you": "أنت",
@@ -1646,10 +1647,10 @@
     "mobileApp.portals.list.add.button.label": "أضف بوابة",
     "mobileApp.portals.fields.name.label": "اسم البوابة",
     "mobileApp.portals.fields.name.placeholder": "بك بلو بتن التجريبي",
-    "mobileApp.portals.fields.url.label": "عنوان رابط الخادم",
+    "mobileApp.portals.fields.url.label": "عنوان رابط للخادم",
     "mobileApp.portals.addPortalPopup.confirm.button.label": "حفظ",
     "mobileApp.portals.drawerNavigation.button.label": "البوابات",
     "mobileApp.portals.addPortalPopup.validation.emptyFields": "حقول مطلوبة",
-    "mobileApp.portals.addPortalPopup.validation.portalNameAlreadyExists": "الاسم مُستخدم",
+    "mobileApp.portals.addPortalPopup.validation.portalNameAlreadyExists": "الاسم مستخدم",
     "mobileApp.portals.addPortalPopup.validation.urlInvalid": "حدث خطأ أثناء محاولة تحميل الصفحة - تحقق من الرابط واتصال الشبكة"
 }
