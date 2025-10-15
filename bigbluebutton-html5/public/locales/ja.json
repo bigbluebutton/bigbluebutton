@@ -528,7 +528,7 @@
     "app.sidebarNavigation.toggle.btnLabel": "ナビゲーションサイドバー表示切り替え",
     "app.sidebarNavigation.toggle.ariaLabel": "ナビゲーションサイドバー表示切り替え",
     "app.sidebarNavigation.toggle.newMessages": "メッセージを通知する",
-    "app.sidebarNavigation.toggle.newMsgAria": "{0} さんからの新しいメッセージ",
+    "app.sidebarNavigation.toggle.newMsgAria": "{chatName} さんからの新しいメッセージ",
     "app.navBar.optionsDropdown.presenceLabel": "自分は",
     "app.navBar.userListToggleBtnLabel": "ユーザーリストのトグル",
     "app.navBar.toggleUserList.ariaLabel": "ユーザーとメッセージの切替",
