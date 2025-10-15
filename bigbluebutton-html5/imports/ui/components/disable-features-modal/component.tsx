@@ -166,19 +166,131 @@ const intlMessages = defineMessages({
     id: 'app.disable-features.quizzesLabel',
     defaultMessage: 'Create and Participate in Quizzes',
   },
+  // Section titles
+  sectionBreakoutRooms: {
+    id: 'app.disable-features.section.breakoutRooms',
+    defaultMessage: 'Breakout Rooms',
+  },
+  sectionChat: {
+    id: 'app.disable-features.section.chat',
+    defaultMessage: 'Chat',
+  },
+  sectionPresentation: {
+    id: 'app.disable-features.section.presentation',
+    defaultMessage: 'Presentation',
+  },
+  sectionMedia: {
+    id: 'app.disable-features.section.media',
+    defaultMessage: 'Media & Sharing',
+  },
+  sectionCollaboration: {
+    id: 'app.disable-features.section.collaboration',
+    defaultMessage: 'Collaboration',
+  },
+  sectionLearning: {
+    id: 'app.disable-features.section.learning',
+    defaultMessage: 'Learning & Analytics',
+  },
+  sectionEngagement: {
+    id: 'app.disable-features.section.engagement',
+    defaultMessage: 'Polls & Quizzes',
+  },
+  sectionAccessibility: {
+    id: 'app.disable-features.section.accessibility',
+    defaultMessage: 'Accessibility & Transcription',
+  },
+  sectionVisuals: {
+    id: 'app.disable-features.section.visuals',
+    defaultMessage: 'Visuals & Backgrounds',
+  },
+  sectionMeeting: {
+    id: 'app.disable-features.section.meeting',
+    defaultMessage: 'Meeting Tools',
+  },
+  sectionReactions: {
+    id: 'app.disable-features.section.reactions',
+    defaultMessage: 'Reactions & Feedback',
+  },
 });
 
-const supportedFeatures: string[] = [
-  'breakoutRooms', 'captions', 'chat', 'privateChat', 'deleteChatMessage', 'editChatMessage',
-  'replyChatMessage', 'chatMessageReactions', 'downloadPresentationWithAnnotations',
-  'downloadPresentationConvertedToPdf', 'downloadPresentationOriginalFile',
-  'snapshotOfCurrentSlide', 'externalVideos', 'importPresentationWithAnnotationsFromBreakoutRooms',
-  'importSharedNotesFromBreakoutRooms', 'layouts', 'learningDashboard',
-  'learningDashboardDownloadSessionData', 'polls', 'screenshare', 'sharedNotes',
-  'virtualBackgrounds', 'customVirtualBackgrounds', 'liveTranscription', 'presentation',
-  'cameraAsContent', 'timer', 'infiniteWhiteboard', 'raiseHand', 'userReactions',
-  'chatEmojiPicker', 'quizzes',
+const breakoutFeatures = [
+  'breakoutRooms',
+  'importPresentationWithAnnotationsFromBreakoutRooms',
+  'importSharedNotesFromBreakoutRooms',
 ];
+
+const chatFeatures = [
+  'chat',
+  'privateChat',
+  'deleteChatMessage',
+  'editChatMessage',
+  'replyChatMessage',
+  'chatMessageReactions',
+  'chatEmojiPicker',
+];
+
+const presentationFeatures = [
+  'presentation',
+  'downloadPresentationWithAnnotations',
+  'downloadPresentationConvertedToPdf',
+  'downloadPresentationOriginalFile',
+  'snapshotOfCurrentSlide',
+];
+
+const mediaFeatures = [
+  'externalVideos',
+  'screenshare',
+  'cameraAsContent',
+];
+
+const collaborationFeatures = [
+  'sharedNotes',
+  'infiniteWhiteboard',
+  'layouts',
+];
+
+const learningFeatures = [
+  'learningDashboard',
+  'learningDashboardDownloadSessionData',
+];
+
+const engagementFeatures = [
+  'polls',
+  'quizzes',
+];
+
+const accessibilityFeatures = [
+  'captions',
+  'liveTranscription',
+];
+
+const visualsFeatures = [
+  'virtualBackgrounds',
+  'customVirtualBackgrounds',
+];
+
+const meetingFeatures = [
+  'timer',
+];
+
+const reactionFeatures = [
+  'raiseHand',
+  'userReactions',
+];
+
+const supportedFeaturesToRender = {
+  BreakoutRooms: breakoutFeatures,
+  Chat: chatFeatures,
+  Presentation: presentationFeatures,
+  Media: mediaFeatures,
+  Collaboration: collaborationFeatures,
+  Learning: learningFeatures,
+  Engagement: engagementFeatures,
+  Accessibility: accessibilityFeatures,
+  Visuals: visualsFeatures,
+  Meeting: meetingFeatures,
+  Reactions: reactionFeatures,
+};
 
 const DisabledFeaturesComponent: React.FC<DisabledFeaturesComponentProps> = ({
   disabledFeatures,
@@ -222,29 +334,46 @@ const DisabledFeaturesComponent: React.FC<DisabledFeaturesComponentProps> = ({
     >
       <Styled.Container>
         <Styled.Description>{intl.formatMessage(intlMessages.description)}</Styled.Description>
-        <Styled.FeaturesGrid>
-          {supportedFeatures.map((feature) => (
-            <Styled.FeatureItem key={feature}>
-              <Styled.Label>
-                {intl.formatMessage(
-                  intlMessages[
-                  `${feature}Label` as keyof typeof intlMessages
-                  ] || { defaultMessage: feature },
-                )}
-              </Styled.Label>
-              <Toggle
-              // @ts-ignore
-                defaultChecked={!disabledFeatures.includes(feature) || initialSettings.includes(feature)}
-                onChange={() => toggleFeature(feature)}
-                ariaLabel={feature}
-                showToggleLabel={false}
-                invertColors
-                data-testid={`toggle-${feature}`}
-                disabled={initialSettings.includes(feature)}
-              />
-            </Styled.FeatureItem>
-          ))}
-        </Styled.FeaturesGrid>
+        {Object.entries(supportedFeaturesToRender).map(([category, features]) => (
+          <Styled.CategorySection key={category}>
+            <Styled.CategoryTitle>
+              {intl.formatMessage(
+                intlMessages[
+                  `section${category}` as keyof typeof intlMessages
+                ] || { defaultMessage: category },
+              )}
+            </Styled.CategoryTitle>
+
+            <Styled.FeaturesGrid>
+              {features.map((feature) => (
+                <Styled.FeatureItem key={feature}>
+                  <Styled.Label>
+                    {intl.formatMessage(
+                      intlMessages[
+                      `${feature}Label` as keyof typeof intlMessages
+                      ] || { defaultMessage: feature },
+                    )}
+                  </Styled.Label>
+
+                  <Toggle
+                  // @ts-ignore
+                    defaultChecked={
+                      !disabledFeatures.includes(feature)
+                      || initialSettings.includes(feature)
+                    }
+                    onChange={() => toggleFeature(feature)}
+                    ariaLabel={feature}
+                    showToggleLabel={false}
+                    invertColors
+                    data-testid={`toggle-${feature}`}
+                    disabled={initialSettings.includes(feature)}
+                  />
+                </Styled.FeatureItem>
+              ))}
+            </Styled.FeaturesGrid>
+          </Styled.CategorySection>
+        ))}
+
       </Styled.Container>
 
       <Styled.Footer>

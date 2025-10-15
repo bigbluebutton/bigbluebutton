@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import styles from '/imports/ui/components/lock-viewers/styles';
+import { fontSizeSmall } from '../../stylesheets/styled-components/typography';
 
 const ModalContainer = styled(styles.LockViewersModal)`
   width: fit-content !important;
@@ -36,10 +37,24 @@ const Label = styled.span`
   margin-right: 1rem;
 `;
 
+export const CategorySection = styled.div`
+  margin-bottom: 2rem;
+`;
+
+export const CategoryTitle = styled.h3`
+  margin-bottom: 1rem;
+  font-size: ${fontSizeSmall};
+  font-weight: 600;
+  color: var(--color-text-strong);
+  text-transform: uppercase;
+`;
+
 export default {
   ...styles,
   FeaturesGrid,
   FeatureItem,
   Label,
   ModalContainer,
+  CategorySection,
+  CategoryTitle,
 };
