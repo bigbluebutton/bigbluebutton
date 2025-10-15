@@ -18,6 +18,7 @@ const PadContent: React.FC<PadContentProps> = ({
   const contentSplit = content.split('<body>');
   const contentStyle = `
   <body>
+  <base target="_blank">
   <style type="text/css">
     body {
       ${Styled.contentText}

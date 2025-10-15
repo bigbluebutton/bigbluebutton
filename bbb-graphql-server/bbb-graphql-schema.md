@@ -82,7 +82,7 @@ Permission: Restricted to User Viewing Self-Related Data
 - `firstNameSortable`
 - `guest`
 - `guestStatus`
-- `hasDrawPermissionOnCurrentPage`
+- `whiteboardWriteAccess`
 - `inactivityWarningDisplay`
 - `inactivityWarningTimeoutSecs`
 - `isDialIn`
@@ -203,7 +203,7 @@ Permission: Restricted by Lock Settings
 - `firstNameSortable`
 - `guest`
 - `guestStatus`
-- `hasDrawPermissionOnCurrentPage`
+- `whiteboardWriteAccess`
 - `isDialIn`
 - `isModerator`
 - `isRunningEchoTest`
@@ -577,6 +577,17 @@ Permission: Restricted to Presenter
 - `toRoles`
 ### Relationships:
 - `creator: Object` [Type User](#type-user)
+
+## Type: pluginDataChannelEntry_public
+### Fields:
+- `channelName`
+- `createdAt`
+- `createdBy`
+- `entryId`
+- `payloadJson`
+- `pluginName`
+- `subChannelName`
+- `toRoles`
 
 ## Type: user_connectionStatus
 ### Fields:

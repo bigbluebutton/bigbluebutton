@@ -450,7 +450,9 @@ const Whiteboard = React.memo((props) => {
 
   React.useEffect(() => {
     if (removedShapes && removedShapes.length > 0) {
-      tlEditorRef.current?.store.remove([...removedShapes]);
+      tlEditorRef.current?.store.mergeRemoteChanges(() => {
+        tlEditorRef.current?.store.remove([...removedShapes]);
+      });
     }
   }, [removedShapes]);
 
@@ -1954,16 +1956,15 @@ const Whiteboard = React.memo((props) => {
 
       const updatedPresences = otherCursors
         .map(({
-          userId, user, xPercent, yPercent,
+          userId, xPercent, yPercent, presenter, name, isModerator,
         }) => {
-          const { presenter, name } = user;
           const id = InstancePresenceRecordType.createId(userId);
           const active = xPercent !== -1 && yPercent !== -1;
           // if cursor is not active remove it from tldraw store
           if (
             !active
             || (hideViewersCursor
-              && user.role === 'VIEWER'
+              && !isModerator
               && !currentUser?.presenter)
             || (!presenter && !isMultiUserActive)
           ) {

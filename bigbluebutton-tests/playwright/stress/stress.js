@@ -143,9 +143,9 @@ class Stress {
         pages[pages.length - 2],
       ]
 
-      Promise.all(lastPages.map((page, index) => {
-        return page.init(true, false, { meetingId, fullName: `User-last-${index}` })
-      }));
+      await Promise.all(lastPages.map((page, index) =>
+        page.init(true, false, { meetingId, fullName: `User-last-${index}` })
+      ));
 
       try {
         await lastPages[0].waitForSelector(e.audioModal);

@@ -4,7 +4,6 @@ import React, {
 import PropTypes from 'prop-types';
 import { notify } from '/imports/ui/services/notification';
 import Presentation from '/imports/ui/components/presentation/component';
-import Auth from '/imports/ui/services/auth';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import {
   useMutation, useLazyQuery, useSubscription, useQuery,
@@ -56,7 +55,6 @@ const PresentationContainer = (props) => {
     },
   );
 
-  const whiteboardWriters = whiteboardWritersData?.pres_page_writers || [];
   const restoreOnUpdate = getFromUserSettings(
     FORCE_RESTORE_PRESENTATION_ON_NEW_EVENTS,
     window.meetingClientSettings.public.presentation.restoreOnUpdate,
@@ -93,7 +91,7 @@ const PresentationContainer = (props) => {
 
   useSubscription(ANNOTATION_HISTORY_STREAM, {
     variables: { pageId: currentPageId, updatedAt: lastUpdatedAt },
-    skip: !currentPresentationPage || !canStream,
+    skip: !currentPageId || !canStream,
     onData: ({ data: subscriptionData }) => {
       const annotationStream = subscriptionData.data?.pres_annotation_history_curr_stream || [];
       if (annotationStream.length > 0 && restoreOnUpdate && !presentationIsOpen) {
@@ -165,9 +163,10 @@ const PresentationContainer = (props) => {
   const isViewersAnnotationsLocked = meeting ? meeting.lockSettings?.hideViewersAnnotation : true;
 
   const multiUserData = {
-    active: whiteboardWriters?.filter((u) => !u.user.presenter).length > 0,
-    size: whiteboardWriters?.length || 0,
-    hasAccess: whiteboardWriters?.some((writer) => writer.userId === Auth.userID),
+    active: whiteboardWritersData?.user_whiteboardWriteAccess?.filter(
+      (u) => !u.presenter,
+    ).length > 0,
+    size: whiteboardWritersData?.user_whiteboardWriteAccess?.length || 0,
   };
 
   const currentSlide = currentPresentationPage ? {
@@ -248,6 +247,7 @@ const PresentationContainer = (props) => {
     presenter: user.presenter,
     userId: user.userId,
     isModerator: user.isModerator,
+    whiteboardWriteAccess: user.whiteboardWriteAccess,
   }));
   const userIsPresenter = currentUser?.presenter;
 
@@ -273,7 +273,7 @@ const PresentationContainer = (props) => {
           isIphone,
           currentSlide,
           slidePosition,
-          hasWBAccess: multiUserData.hasAccess,
+          hasWBAccess: currentUser?.whiteboardWriteAccess,
           downloadPresentationUri: `${APP_CONFIG.bbbWebBase}/${currentPresentationPage?.downloadFileUri}`,
           multiUser: multiUserData.active && presentationIsOpen,
           presentationIsDownloadable: currentPresentationPage?.downloadable,

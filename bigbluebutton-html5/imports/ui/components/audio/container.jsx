@@ -28,6 +28,7 @@ import AudioService, {
   CLIENT_DID_USER_SELECT_MICROPHONE_KEY,
   CLIENT_DID_USER_SELECT_LISTEN_ONLY_KEY,
 } from '/imports/ui/components/audio/service';
+import { useModalRegistration } from '../../core/singletons/modalController';
 
 const intlMessages = defineMessages({
   joinedAudio: {
@@ -104,10 +105,6 @@ const messages = {
 
 const AudioContainer = (props) => {
   const {
-    isAudioModalOpen,
-    setAudioModalIsOpen,
-    setVideoPreviewModalIsOpen,
-    isVideoPreviewModalOpen,
     intl,
     userLocks,
   } = props;
@@ -124,7 +121,18 @@ const AudioContainer = (props) => {
   const toggleVoice = useToggleVoice();
   const userSelectedMicrophone = !!useStorageKey(CLIENT_DID_USER_SELECT_MICROPHONE_KEY, 'session');
   const userSelectedListenOnly = !!useStorageKey(CLIENT_DID_USER_SELECT_LISTEN_ONLY_KEY, 'session');
+  const storageMuteState = useStorageKey(Service.getStorageMuteStateKey(), 'session');
   const { microphoneConstraints } = useSettings(SETTINGS.APPLICATION);
+
+  const videoPreviewModal = useModalRegistration({
+    id: 'videoPreviewModal',
+    priority: 'medium',
+  });
+
+  const audioModal = useModalRegistration({
+    id: 'audioModal',
+    priority: 'medium',
+  });
 
   const meetingIsBreakout = useMeetingIsBreakout();
   const { data: meeting } = useMeeting((m) => ({
@@ -155,11 +163,11 @@ const AudioContainer = (props) => {
     fullAudioBridge: meeting?.audioBridge ?? defaultFullAudioBridge,
     listenOnlyBridge: meeting?.audioBridge ?? defaultListenOnlyBridge,
   };
-  const openAudioModal = () => setAudioModalIsOpen(true);
+  const openAudioModal = () => audioModal.open();
 
   const openVideoPreviewModal = () => {
     if (userWebcam) return;
-    setVideoPreviewModalIsOpen(true);
+    videoPreviewModal.open();
   };
 
   const init = async () => {
@@ -181,8 +189,8 @@ const AudioContainer = (props) => {
     }
     Session.setItem('audioModalIsOpen', true);
     if (enableVideo && autoShareWebcam) {
-      openAudioModal();
       openVideoPreviewModal();
+      openAudioModal();
       didMountAutoJoin = true;
     } else if (!(
       userSelectedMicrophone
@@ -204,12 +212,20 @@ const AudioContainer = (props) => {
     if (Service.isConnected()) return;
 
     if (userSelectedMicrophone) {
-      joinMicrophone({ skipEchoTest: true, muted: meeting?.voiceSettings?.muteOnStart });
+      joinMicrophone({
+        skipEchoTest: true,
+        muted: meeting?.voiceSettings?.muteOnStart || storageMuteState,
+      });
       return;
     }
 
     if (userSelectedListenOnly) joinListenOnly();
-  }, [userSelectedMicrophone, userSelectedListenOnly, meeting?.voiceSettings?.muteOnStart]);
+  }, [
+    userSelectedMicrophone,
+    userSelectedListenOnly,
+    meeting?.voiceSettings?.muteOnStart,
+    storageMuteState,
+  ]);
 
   useEffect(() => {
     // Data is not loaded yet.
@@ -265,24 +281,24 @@ const AudioContainer = (props) => {
 
   return (
     <>
-      {isAudioModalOpen && !isVideoPreviewModalOpen ? (
+      {audioModal.isOpen ? (
         <AudioModalContainer
           {...{
             priority: 'medium',
-            setIsOpen: setAudioModalIsOpen,
-            isOpen: isAudioModalOpen && !isVideoPreviewModalOpen,
+            setIsOpen: audioModal.isOpen ? audioModal.close : audioModal.open,
+            isOpen: audioModal.isOpen,
           }}
         />
       ) : null}
-      {isVideoPreviewModalOpen ? (
+      {videoPreviewModal.isOpen ? (
         <VideoPreviewContainer
           {...{
             callbackToClose: () => {
-              setVideoPreviewModalIsOpen(false);
+              videoPreviewModal.close();
             },
             priority: 'medium',
-            setIsOpen: setVideoPreviewModalIsOpen,
-            isOpen: isVideoPreviewModalOpen,
+            setIsOpen: videoPreviewModal.isOpen ? videoPreviewModal.close : videoPreviewModal.open,
+            isOpen: videoPreviewModal.isOpen,
           }}
         />
       ) : null}
@@ -293,10 +309,6 @@ const AudioContainer = (props) => {
 export default lockContextContainer(injectIntl(AudioContainer));
 
 AudioContainer.propTypes = {
-  isAudioModalOpen: PropTypes.bool.isRequired,
-  setAudioModalIsOpen: PropTypes.func.isRequired,
-  setVideoPreviewModalIsOpen: PropTypes.func.isRequired,
-  isVideoPreviewModalOpen: PropTypes.bool.isRequired,
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,

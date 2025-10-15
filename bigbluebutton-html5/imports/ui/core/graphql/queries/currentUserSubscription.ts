@@ -16,7 +16,7 @@ subscription userCurrentSubscription {
     extId
     guest
     guestStatus
-    hasDrawPermissionOnCurrentPage
+    whiteboardWriteAccess
     inactivityWarningDisplay
     inactivityWarningTimeoutSecs
     isDialIn
@@ -74,11 +74,6 @@ subscription userCurrentSubscription {
     }
     livekit {
       livekitToken
-    }
-    presPagesWritable {
-      isCurrentPage
-      pageId
-      userId
     }
   }
 }

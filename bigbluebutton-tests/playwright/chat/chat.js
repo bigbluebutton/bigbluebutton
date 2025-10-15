@@ -41,9 +41,6 @@ class Chat extends MultiUsers {
     // check sent messages 
     await this.modPage.hasText(`${e.chatUserMessageText}>>nth=1`, e.message2, 'should display the message "Hello User1" for the moderator');
     await this.userPage.hasText(`${e.chatUserMessageText}>>nth=1`, e.message2, 'should display the message "Hello User1" for the moderator');
-
-    await this.modPage.waitAndClick(e.chatButton);
-    await this.userPage.waitAndClick(e.chatButton);
   }
 
   async clearChat() {
@@ -263,8 +260,6 @@ class Chat extends MultiUsers {
     // check sent messages 
     await this.modPage.hasText(e.privateChat, e.thumbsUpEmoji, 'should display the emoji sent by the attendee on the private chat');
     await this.userPage.hasText(e.privateChat, e.thumbsUpEmoji, 'should display the emoji on the private chat for the user');
-
-    await this.modPage.waitAndClick(e.chatButton);
   }
 
   async autoConvertEmojiPublicChat() {

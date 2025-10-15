@@ -47,7 +47,7 @@ class LockViewers extends MultiUsers {
       await this.modPage.getSelectorCount(e.webcamVideoItem),
       await this.userPage.getSelectorCount(e.webcamVideoItem),
     ];
-    await expect(videoContainersCount, 'should the videos containter count to be stricted equal to 2 for the moderator and the attendee').toStrictEqual([2, 2]);
+    await expect(videoContainersCount, 'should the video containers count be strictly equal to 2 for the moderator and the attendee').toStrictEqual([2, 2]);
 
     await this.initUserPage2(true);
 

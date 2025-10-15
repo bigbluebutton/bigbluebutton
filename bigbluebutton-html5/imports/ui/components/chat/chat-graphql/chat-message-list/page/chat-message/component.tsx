@@ -47,6 +47,7 @@ import { EmojiPicker, EmojiPickerWrapper } from './message-toolbar/styles';
 import { isMobile } from '/imports/utils/deviceInfo';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
+import { useModalRegistration } from '/imports/ui/core/singletons/modalController';
 
 interface ChatMessageProps {
   message: Message;
@@ -212,6 +213,15 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
     });
   }, [chatDeleteMessage, message.chatId, message.messageId]);
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
+
+  const {
+    isOpen: isTryingToDeleteModalOpen,
+    close: tryingToDeleteModalClose,
+    open: tryingToDeleteModalOpen,
+  } = useModalRegistration({
+    id: 'chatMessageTryingToDeleteModal',
+    priority: 'high',
+  });
 
   const disablePublicChat = meetingDisablePublicChat || currentUserDisablePublicChat;
 
@@ -647,6 +657,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
 
     const handler = () => {
       setIsTryingToDelete(true);
+      tryingToDeleteModalOpen();
     };
 
     if (keyboardFocused) {
@@ -871,11 +882,21 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
           </>
         )}
       </ChatWrapper>
-      {isTryingToDelete && (
+      {isTryingToDeleteModalOpen && (
         <ConfirmationModal
           isOpen={isTryingToDelete}
-          setIsOpen={setIsTryingToDelete}
-          onRequestClose={() => setIsTryingToDelete(false)}
+          setIsOpen={(value: boolean) => {
+            setIsTryingToDelete(value);
+            if (value) {
+              tryingToDeleteModalOpen();
+            } else {
+              tryingToDeleteModalClose();
+            }
+          }}
+          onRequestClose={() => {
+            setIsTryingToDelete(false);
+            tryingToDeleteModalClose();
+          }}
           onConfirm={onDeleteConfirmation}
           title={intl.formatMessage(intlMessages.confirmationTitle)}
           confirmButtonLabel={intl.formatMessage(intlMessages.delete)}

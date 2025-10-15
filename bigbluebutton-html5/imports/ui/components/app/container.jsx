@@ -142,7 +142,7 @@ const AppContainer = (props) => {
             || getFromUserSettings('bbb_hide_controls', false),
           isNonMediaLayout,
           currentUserAway: currentUser.away,
-          currentUserRaiseHand: currentUser.raiseHand,
+          currentUserRaiseHand: currentUser?.raiseHand ?? false,
           captionsStyle,
           presentationIsOpen,
           shouldShowExternalVideo,

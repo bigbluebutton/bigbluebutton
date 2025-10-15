@@ -1,22 +1,11 @@
 table:
-  name: v_pluginDataChannelEntry
+  name: v_pluginDataChannelEntry_public
   schema: public
 configuration:
   column_config: {}
   custom_column_names: {}
-  custom_name: pluginDataChannelEntry
+  custom_name: pluginDataChannelEntry_public
   custom_root_fields: {}
-object_relationships:
-  - name: creator
-    using:
-      manual_configuration:
-        column_mapping:
-          createdBy: userId
-          meetingId: meetingId
-        insertion_order: null
-        remote_table:
-          name: v_user_ref
-          schema: public
 select_permissions:
   - role: bbb_client
     permission:
@@ -28,11 +17,10 @@ select_permissions:
         - entryId
         - payloadJson
         - createdBy
+        - updatedAt
         - toRoles
       filter:
         _and:
           - meetingId:
               _eq: X-Hasura-MeetingId
-          - userId:
-              _eq: X-Hasura-UserId
     comment: ""
