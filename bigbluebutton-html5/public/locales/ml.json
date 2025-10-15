@@ -230,7 +230,7 @@
     "app.poll.backLabel": "ഒരു വോട്ടെടുപ്പ് ആരംഭിക്കുക",
     "app.poll.closeLabel": "അടയ്‌ക്കുക",
     "app.poll.waitingLabel": "പ്രതികരണങ്ങൾക്കായി കാത്തിരിക്കുന്നു ({current} / {total})",
-    "app.poll.ariaInputCount": "{totalOptions of ന്റെ {currentOption} ഇഷ്‌ടാനുസൃത വോട്ടെടുപ്പ് ഓപ്ഷൻ",
+    "app.poll.ariaInputCount": "{totalOptions} ൽ {currentOption} ഇഷ്‌ടാനുസൃത വോട്ടെടുപ്പ് ഓപ്ഷൻ",
     "app.poll.customPlaceholder": "വോട്ടെടുപ്പ് ഓപ്ഷൻ ചേർക്കുക",
     "app.poll.noPresentationSelected": "അവതരണമൊന്നും തിരഞ്ഞെടുത്തിട്ടില്ല! ഒരെണ്ണം തിരഞ്ഞെടുക്കുക.",
     "app.poll.clickHereToSelect": "തിരഞ്ഞെടുക്കാൻ ഇവിടെ ക്ലിക്കുചെയ്യുക",
