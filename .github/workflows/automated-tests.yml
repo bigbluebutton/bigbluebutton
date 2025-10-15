@@ -309,7 +309,9 @@ jobs:
         id: cache-presentation-video
         uses: actions/cache@v4
         with:
-          path: bbb-presentation-video.deb
+          path: |
+            bbb-presentation-video.deb
+            deps/
           key: bbb-presentation-video-${{ steps.get-release-info.outputs.release-tag }}
       - name: Download and extract bbb-presentation-video
         if: steps.cache-presentation-video.outputs.cache-hit != 'true'
@@ -321,21 +323,38 @@ jobs:
           wget -O bbb-presentation-video.zip "$LATEST_RELEASE_URL"
           unzip bbb-presentation-video.zip
 
-          # Move the .deb file to the expected location for caching
-          mv *.deb bbb-presentation-video.deb
-      - name: Prepare dependencies
+          # The zip contains deps/ folder with python3-perfect-freehand and the main .deb file
+          # Move the main .deb file to the expected location for caching
+          mv bbb-presentation-video_*.deb bbb-presentation-video.deb
+      - name: Install python3-perfect-freehand dependency
         run: |
-          sudo apt update
-          sudo apt install -y python3-pip
-          pip install "perfect-freehand>=1.2.0"
+          # Install python3-perfect-freehand dependency from the deps folder
+          if [ -d "deps" ] && [ -f "deps/python3-perfect-freehand_1.2.0_all.deb" ]; then
+            echo "Installing python3-perfect-freehand from deps folder"
+            sudo apt-get update
+            sudo apt install -y ./deps/python3-perfect-freehand_*.deb
+          else
+            echo "Warning: python3-perfect-freehand .deb not found in deps folder"
+            echo "Falling back to downloading from GitHub releases"
+            wget https://github.com/bigbluebutton/perfect-freehand-python/releases/download/1.2.0/python3-perfect-freehand_1.2.0_all.deb
+            sudo apt install -y ./python3-perfect-freehand_1.2.0_all.deb
+          fi
       - name: Patch and install bbb-presentation-video package
         run: |
-          # Patch the package to remove dependency that APT cannot resolve (installed in the previous step)
+          # Patch the package to remove the python3-perfect-freehand dependency
+          # This is necessary because even though we install the dependency,
+          # apt still complains about it not being available in repositories
+          mkdir -p tmpdeb
           dpkg-deb -R bbb-presentation-video.deb tmpdeb
-          # remove the dependency line
+
+          # Remove the python3-perfect-freehand dependency line from control file
           sed -i '/python3-perfect-freehand/d' tmpdeb/DEBIAN/control
-          dpkg-deb -b tmpdeb fixed-bbb-package.deb
-          sudo apt install -y ./fixed-bbb-package.deb
+
+          # Rebuild the package
+          dpkg-deb -b tmpdeb fixed-bbb-presentation-video.deb
+
+          # Install the patched package
+          sudo apt install -y ./fixed-bbb-presentation-video.deb
       - name: Configure video format settings
         run: |
           # webm format should be enabled for automated tests - decoded by chromium
