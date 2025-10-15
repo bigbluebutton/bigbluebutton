@@ -1,6 +1,6 @@
 {
     "app.home.greeting": "Esitlus algab peatselt...",
-    "app.sidebarContent.minimizePanelLabel": "Minimeeri {0}",
+    "app.sidebarContent.minimizePanelLabel": "Minimeeri {panelName}",
     "app.chat.submitLabel": "Saada sõnum",
     "app.chat.errorMaxMessageLength": "Sõnum on liiga pikk, maksimaalne pikkus on {maxMessageLength} tähemärki.",
     "app.chat.errorMinMessageLength": "Sõnum on liiga lühike, peab sisaldama vähemalt {minMessageLength} tähemärki.",

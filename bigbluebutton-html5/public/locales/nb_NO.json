@@ -1,6 +1,6 @@
 {
     "app.home.greeting": "Presentasjonen din starter snart ...",
-    "app.sidebarContent.minimizePanelLabel": "Minimér {0}",
+    "app.sidebarContent.minimizePanelLabel": "Minimér {panelName}",
     "app.chat.submitLabel": "Send melding",
     "app.chat.errorMaxMessageLength": "Meldingen er for lang, den overskrider maksimum {maxMessageLength} tegn",
     "app.chat.errorMinMessageLength": "Meldingen oppfylte ikke minimumskravet på {minMessageLength} tegn",
