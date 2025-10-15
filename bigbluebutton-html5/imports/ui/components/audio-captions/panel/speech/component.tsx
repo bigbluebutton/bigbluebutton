@@ -101,7 +101,7 @@ const AudioCaptionsSpeechControls = ({ showTerms, audioModal = false }: AudioCap
       return (
         <Styled.CaptionsTerms>
           {intl.formatMessage(intlMessages.captionsTermsOfUse, {
-            0: (
+            termsLink: (
               <Styled.CaptionsTermsLink target="_blank" rel="noreferrer" href={captionsTermsLink}>
                 {intl.formatMessage(intlMessages.captionsTermsLinkText)}
               </Styled.CaptionsTermsLink>
