@@ -352,7 +352,7 @@
     "app.actionsBar.emojiMenu.thumbsUpDesc": "Spremeni stanje v: Dvignjen palec",
     "app.actionsBar.emojiMenu.thumbsDownLabel": "Spuščen palec",
     "app.actionsBar.emojiMenu.thumbsDownDesc": "Spremeni stanje v: Spuščen palec",
-    "app.actionsBar.currentStatusDesc": "trenutno stanje {0}",
+    "app.actionsBar.currentStatusDesc": "trenutno stanje {status}",
     "app.actionsBar.captions.start": "Prikaži podnapise",
     "app.actionsBar.captions.stop": "Skrij podnapise",
     "app.audioNotification.audioFailedError1001": "WebSocket ni povezan (napaka 1001)",

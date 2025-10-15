@@ -611,7 +611,7 @@
     "app.actionsBar.emojiMenu.thumbsUpDesc": "Wijzig uw status in duim omhoog",
     "app.actionsBar.emojiMenu.thumbsDownLabel": "Duim omlaag",
     "app.actionsBar.emojiMenu.thumbsDownDesc": "Wijzig uw status in duim omlaag",
-    "app.actionsBar.currentStatusDesc": "huidige status {0}",
+    "app.actionsBar.currentStatusDesc": "huidige status {status}",
     "app.actionsBar.captions.start": "Start met het bekijken van ondertitels",
     "app.actionsBar.captions.stop": "Stop met het bekijken van ondertitels",
     "app.audioNotification.audioFailedError1001": "WebSocket verbinding verbroken (fout 1001)",

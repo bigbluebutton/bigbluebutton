@@ -441,7 +441,7 @@
     "app.actionsBar.emojiMenu.thumbsUpDesc": "Đổi trạng thái của bạn thành yêu thích",
     "app.actionsBar.emojiMenu.thumbsDownLabel": "Không ý",
     "app.actionsBar.emojiMenu.thumbsDownDesc": "Đổi trạng thái của bạn thành không đồng ý",
-    "app.actionsBar.currentStatusDesc": "trạng thái hiện tại {0}",
+    "app.actionsBar.currentStatusDesc": "trạng thái hiện tại {status}",
     "app.actionsBar.captions.start": "Bắt đầu xem phụ đề chi tiết",
     "app.actionsBar.captions.stop": "Dừng xem phụ đề chi tiết",
     "app.audioNotification.audioFailedError1001": "WebSocket ngắt kết nối (lỗi 1001)",

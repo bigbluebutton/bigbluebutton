@@ -717,7 +717,7 @@
     "app.actionsBar.emojiMenu.thumbsUpDesc": "Змінити ваш статус на 'Подобається'",
     "app.actionsBar.emojiMenu.thumbsDownLabel": "Не подобається",
     "app.actionsBar.emojiMenu.thumbsDownDesc": "Змінити ваш статус на 'Не подобається'",
-    "app.actionsBar.currentStatusDesc": "поточний статус {0}",
+    "app.actionsBar.currentStatusDesc": "поточний статус {status}",
     "app.actionsBar.captions.start": "Почати перегляд субтитрів",
     "app.actionsBar.captions.stop": "Зупинити перегляд субтитрів",
     "app.audioNotification.audioFailedError1001": "WebSocket від'єднано (Помилка 1001)",

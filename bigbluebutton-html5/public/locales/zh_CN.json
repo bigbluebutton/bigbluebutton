@@ -382,7 +382,7 @@
     "app.actionsBar.emojiMenu.thumbsUpDesc": "更改你的状态为点赞",
     "app.actionsBar.emojiMenu.thumbsDownLabel": "拍砖",
     "app.actionsBar.emojiMenu.thumbsDownDesc": "更改您的状态为拍砖",
-    "app.actionsBar.currentStatusDesc": "当前状态{0}",
+    "app.actionsBar.currentStatusDesc": "当前状态{status}",
     "app.actionsBar.captions.start": "开始查看字幕",
     "app.actionsBar.captions.stop": "停止查看字幕",
     "app.audioNotification.audioFailedError1001": "WebSocket 断开了(error 1001)",
