@@ -116,9 +116,11 @@ object MsgBuilder {
     val dims = readSvgDims(pageAbsoluteSvgPath)
     dims match {
       case Some(d) =>
+        println("***** Dimensions found from probe *****")
         width = d.width
         height = d.height
       case None =>
+        println("***** Falling back to image resolution service *****")
         val imageResolution = imageResolutionService.identifyImageResolution(pageAbsoluteSvgPath)
         if (imageResolution.getWidth != 0 && imageResolution.getHeight != 0) {
           width = imageResolution.getWidth
