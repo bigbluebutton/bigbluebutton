@@ -66,10 +66,12 @@ class TimerSingleton {
   private async startCounting() {
     this.stopCounting();
     await this.startPeriodicTimeSync();
+    if (!this.timer?.running) return;
     const serverNow = Date.now() + this.timeOffset;
     // calculate time to next second to sync second counting with the server time
     const msToNextSecond = 1000 - (serverNow % 1000);
     this.startTimeout = setTimeout(() => {
+      if (!this.timer?.running) return;
       this.notify();
       if (!this.interval) {
         this.interval = setInterval(() => {
