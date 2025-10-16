@@ -1,5 +1,6 @@
 package org.bigbluebutton.api2
 
+import org.apache.commons.io.input.BoundedInputStream
 import org.bigbluebutton.api.messaging.converters.messages._
 import org.bigbluebutton.api.messaging.messages.{ ChatMessageFromApi, RegisterUserSessionToken }
 import org.bigbluebutton.api.service.ServiceUtils
@@ -8,10 +9,15 @@ import org.bigbluebutton.common2.domain.{ DefaultProps, PageVO, PresentationPage
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.presentation.imp.ImageResolutionService
 import org.bigbluebutton.presentation.messages._
+
+import java.io.{ BufferedInputStream, FilterInputStream, InputStream }
+import java.net.URL
 import scala.jdk.CollectionConverters._
 import scala.util.{ Try, Using }
 import scala.io.Source
 import java.nio.charset.StandardCharsets
+import java.nio.file.{ Files, Paths }
+import javax.xml.stream.{ XMLInputFactory, XMLStreamConstants }
 
 object MsgBuilder {
   private lazy val imageResolutionService: ImageResolutionService = new ImageResolutionService
@@ -101,10 +107,23 @@ object MsgBuilder {
     var width = 1440D
     var height = 1080D
     val pageAbsoluteSvgPath = presParentPath + "/svgs/slide" + page.toString + ".svg"
-    val imageResolution = imageResolutionService.identifyImageResolution(pageAbsoluteSvgPath)
-    if (imageResolution.getWidth != 0 && imageResolution.getHeight != 0) {
-      width = imageResolution.getWidth
-      height = imageResolution.getHeight
+    //    val imageResolution = imageResolutionService.identifyImageResolution(pageAbsoluteSvgPath)
+    //    if (imageResolution.getWidth != 0 && imageResolution.getHeight != 0) {
+    //      width = imageResolution.getWidth
+    //      height = imageResolution.getHeight
+    //    }
+
+    val dims = readSvgDims(pageAbsoluteSvgPath)
+    dims match {
+      case Some(d) =>
+        width = d.width
+        height = d.height
+      case None =>
+        val imageResolution = imageResolutionService.identifyImageResolution(pageAbsoluteSvgPath)
+        if (imageResolution.getWidth != 0 && imageResolution.getHeight != 0) {
+          width = imageResolution.getWidth
+          height = imageResolution.getHeight
+        }
     }
 
     val content = Try {
@@ -428,4 +447,87 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, req)
   }
 
+  private final case class SvgDimensions(width: Double, height: Double)
+
+  private def readSvgDims(svgPath: String, maxBytes: Long = 10L * 1024 * 1024): Option[SvgDimensions] = {
+    val in = Files.newInputStream(Paths.get(svgPath))
+    val bis = new BufferedInputStream(in)
+    try {
+      val bounded = new BoundedInputStream(bis, if (maxBytes <= 0) Long.MaxValue else maxBytes)
+
+      val f = XMLInputFactory.newFactory()
+      f.setProperty(XMLInputFactory.SUPPORT_DTD, java.lang.Boolean.FALSE)
+      Try(f.setProperty("javax.xml.stream.isSupportingExternalEntities", java.lang.Boolean.FALSE))
+      Try(f.setProperty("javax.xml.stream.isCoalescing", java.lang.Boolean.FALSE))
+      Try(f.setProperty("javax.xml.stream.isNamespaceAware", java.lang.Boolean.TRUE))
+      Try(f.setXMLResolver((_, _, _, _) => null))
+
+      val r = f.createXMLStreamReader(bounded, StandardCharsets.UTF_8.name())
+      try {
+        while (r.hasNext) {
+          r.next() match {
+            case XMLStreamConstants.START_ELEMENT if r.getLocalName.equalsIgnoreCase("svg") =>
+              val wRaw = Option(r.getAttributeValue(null, "width"))
+              val hRaw = Option(r.getAttributeValue(null, "height"))
+
+              val wPx = wRaw.flatMap(parseCssLengthPx)
+              val hPx = hRaw.flatMap(parseCssLengthPx)
+
+              (wPx, hPx) match {
+                case (Some(w), Some(h)) => return Some(SvgDimensions(w, h))
+                case _ =>
+                  return None
+              }
+            case _ =>
+          }
+        }
+        None
+      } finally Try(r.close())
+    } finally Try(bis.close())
+  }
+
+  private def parseCssLengthPx(s: String): Option[Double] = {
+    if (s == null) return None
+    val t = s.trim
+    if (t.isEmpty || t.endsWith("%")) return None
+    val R = """^\s*([+-]?(?:\d+(?:\.\d*)?|\.\d+))\s*([A-Za-z]*)\s*$""".r
+    t match {
+      case R(num, unit0) =>
+        val n = num.toDouble
+        val px = unit0.toLowerCase match {
+          case "" | "px" => 1.0
+          case "pt"      => 96.0 / 72.0
+          case "pc"      => 16.0
+          case "in"      => 96.0
+          case "cm"      => 96.0 / 2.54
+          case "mm"      => 96.0 / 25.4
+          case "q"       => 96.0 / 25.4 / 40.0
+          case _         => Double.NaN
+        }
+        if (px.isNaN) None else Some(n * px)
+      case _ => None
+    }
+  }
+
+  private final class BoundedInputStream(in: InputStream, max: Long) extends FilterInputStream(in) {
+    private var remaining = max
+
+    override def read(): Int =
+      if (remaining <= 0) -1
+      else {
+        val r = super.read();
+        if (r >= 0) remaining -= 1;
+        r
+      }
+
+    override def read(b: Array[Byte], off: Int, len: Int): Int = {
+      if (remaining <= 0) -1
+      else {
+        val want = Math.min(len.toLong, Math.max(0L, Math.min(Int.MaxValue.toLong, remaining))).toInt
+        val r = super.read(b, off, want)
+        if (r > 0) remaining -= r
+        r
+      }
+    }
+  }
 }
