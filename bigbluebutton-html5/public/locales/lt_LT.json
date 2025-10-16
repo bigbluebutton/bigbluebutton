@@ -48,7 +48,7 @@
     "app.user.activityCheck": "Vartotojo aktyvumo patikra",
     "app.user.activityCheck.label": "Patikrina ar vartotojas vis dar yra susitikime ({responseDelay})",
     "app.user.activityCheck.check": "Patikrinti",
-    "app.userList.usersTitle": "Vartotojai",
+    "app.userList.usersTitle": "Vartotojai ({userCount})",
     "app.userList.participantsTitle": "Dalyviai",
     "app.userList.messagesTitle": "Žinutės",
     "app.userList.notesTitle": "Užrašai",
