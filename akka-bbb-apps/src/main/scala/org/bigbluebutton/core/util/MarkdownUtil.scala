@@ -6,6 +6,7 @@ import org.commonmark.renderer.NodeRenderer
 import org.commonmark.renderer.html._
 import org.commonmark.node._
 import org.commonmark.renderer.html.{ AttributeProvider, AttributeProviderContext, AttributeProviderFactory, HtmlRenderer }
+import java.util.regex.{ Matcher, Pattern }
 
 import java.util
 
@@ -47,8 +48,85 @@ object MarkdownUtil {
     .nodeRendererFactory(new NoImageNodeRendererFactory)
     .build()
 
+  /**
+   * Visitor that transforms Text snippets containing http(s) URLs into Link nodes,
+   * respecting exceptions (not within code, nor within link/img, and ignoring "https://").
+   */
+  private class AutoLinkVisitor extends AbstractVisitor {
+    // Simple URL: starts with http(s) and continues until space/<>.
+    // Avoids capturing common closing characters at the end (.,),;!?]}) ).
+    private val urlPattern: Pattern =
+      Pattern.compile("(?i)https?://[^\\s<>]+[^\\s<>\\]\\)\\}\\.,;!\\?]")
+
+    override def visit(text: Text): Unit = {
+      if (isInside(text, classOf[Link], classOf[Image], classOf[Code], classOf[FencedCodeBlock], classOf[IndentedCodeBlock])) {
+        return
+      }
+
+      val literal = text.getLiteral
+      val m: Matcher = urlPattern.matcher(literal)
+
+      if (!m.find()) {
+        super.visit(text)
+        return
+      }
+
+      var lastIdx = 0
+      m.reset()
+
+      while (m.find()) {
+        val start = m.start()
+        val end = m.end()
+        val url = literal.substring(start, end)
+
+        // prefix before the link
+        if (start > lastIdx) {
+          val prefix = new Text(literal.substring(lastIdx, start))
+          text.insertBefore(prefix)
+        }
+
+        if (!isBareSchemeOnly(url)) {
+          val link = new Link(url, null)
+          link.appendChild(new Text(url))
+          text.insertBefore(link)
+        } else {
+          // keeps "http(s)://" as plain text
+          text.insertBefore(new Text(url))
+        }
+
+        lastIdx = end
+      }
+
+      if (lastIdx < literal.length) {
+        val suffix = new Text(literal.substring(lastIdx))
+        text.insertBefore(suffix)
+      }
+
+      text.unlink()
+    }
+
+    private def isBareSchemeOnly(url: String): Boolean = {
+      val lower = url.toLowerCase
+      lower == "http://" || lower == "https://"
+    }
+
+    private def isInside(node: Node, clazzes: Class[_ <: Node]*): Boolean = {
+      var cur: Node = node
+      while (cur != null) {
+        if (clazzes.exists(_.isInstance(cur))) return true
+        cur = cur.getParent
+      }
+      false
+    }
+  }
+
+  private def autolinkUrls(root: Node): Unit = {
+    root.accept(new AutoLinkVisitor)
+  }
   def markdownToSafeHtml(md: String): String = {
+
     val doc = parser.parse(md)
+    autolinkUrls(doc) // extra step: create links from plain text URLs
     renderer.render(doc)
   }
 }
