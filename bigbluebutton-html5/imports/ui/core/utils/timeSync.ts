@@ -33,7 +33,7 @@ export async function fetchTimeOffset(): Promise<number> {
       // by adding the time origin (the time when the page started to load)
       // see https://developer.mozilla.org/en-US/docs/Web/API/Performance/timeOrigin
       const epochClientSend = performance.timeOrigin + clientSend;
-      return (serverTime * 1000) - (epochClientSend + delay);
+      return (serverTime) - (epochClientSend + delay);
     }
     throw new Error(`Invalid server time response. Status: ${res.status}`);
   }).catch((error) => {
