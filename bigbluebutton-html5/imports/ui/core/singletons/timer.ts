@@ -1,12 +1,12 @@
 import { TimerData } from '/imports/ui/core/graphql/queries/timer';
-import { fetchServerTimeSync } from '/imports/ui/core/utils/timeSync';
+import { fetchTimeOffset } from '/imports/ui/core/utils/timeSync';
 
 type TimerListener = (timePassed: number) => void;
 
 class TimerSingleton {
   private timer: Partial<TimerData> | undefined = undefined;
 
-  private timeSync: number = 0;
+  private timeOffset: number = 0;
 
   private listeners: Set<TimerListener> = new Set();
 
@@ -43,8 +43,8 @@ class TimerSingleton {
   private async startPeriodicTimeSync() {
     if (this.timeSyncInterval) this.stopPeriodicTimeSync();
     const sync = async () => {
-      const newTimeSync = await fetchServerTimeSync();
-      this.setTimeDesync(newTimeSync);
+      const newTimeOffset = await fetchTimeOffset();
+      this.setTimeOffset(newTimeOffset);
     };
     await sync();
     this.timeSyncInterval = setInterval(() => {
@@ -59,14 +59,14 @@ class TimerSingleton {
     }
   }
 
-  private setTimeDesync(timeSync: number) {
-    this.timeSync = timeSync;
+  private setTimeOffset(timeOffset: number) {
+    this.timeOffset = timeOffset;
   }
 
   private async startCounting() {
     this.stopCounting();
     await this.startPeriodicTimeSync();
-    const serverNow = Date.now() + this.timeSync;
+    const serverNow = Date.now() + this.timeOffset;
     // calculate time to next second to sync second counting with the server time
     const msToNextSecond = 1000 - (serverNow % 1000);
     this.startTimeout = setTimeout(() => {
@@ -101,7 +101,7 @@ class TimerSingleton {
     } = this.timer || {};
 
     const clientNow = Date.now();
-    const serverNow = clientNow + this.timeSync;
+    const serverNow = clientNow + this.timeOffset;
     const startedAtTime = startedAt || serverNow;
     let elapsedTime = accumulated;
     if (running) {
