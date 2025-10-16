@@ -1960,11 +1960,11 @@ CREATE UNLOGGED TABLE "timer" (
 	"meetingId" varchar(100) PRIMARY KEY REFERENCES "meeting"("meetingId") ON DELETE CASCADE,
 	"stopwatch" boolean,
 	"running" boolean,
-  "elapsed" boolean,
+	"elapsed" boolean,
 	"active" boolean,
 	"time" bigint,
 	"accumulated" bigint,
-	"startedAt" bigint,
+	"startedAt" timestamp with time zone,
 	"songTrack" varchar(50)
 );
 

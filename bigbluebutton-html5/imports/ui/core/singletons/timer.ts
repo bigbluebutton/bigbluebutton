@@ -102,7 +102,7 @@ class TimerSingleton {
 
     const clientNow = Date.now();
     const serverNow = clientNow + this.timeOffset;
-    const startedAtTime = startedAt || serverNow;
+    const startedAtTime = startedAt ? new Date(startedAt).getTime() : serverNow;
     let elapsedTime = accumulated;
     if (running) {
       elapsedTime += serverNow - startedAtTime;

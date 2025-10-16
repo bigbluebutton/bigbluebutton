@@ -7,7 +7,7 @@ export interface TimerData {
   time: number;
   stopwatch: boolean;
   running: boolean;
-  startedAt: number | undefined;
+  startedAt: string | null;
   elapsed: boolean;
 }
 

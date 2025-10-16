@@ -99,7 +99,7 @@ const intlMessages = defineMessages({
   },
 });
 
-interface TimerPanelProps extends Omit<TimerData, 'active' | 'elapsed' | 'startedAt' | 'startedOn'| 'accumulated'> {
+interface TimerPanelProps extends Omit<TimerData, 'active' | 'elapsed' | 'startedAt' | 'accumulated'> {
   timePassed: number;
 }
 
