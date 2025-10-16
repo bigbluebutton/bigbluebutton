@@ -139,6 +139,7 @@ Permission: Restricted to User Viewing Self-Related Data
 - `deletedAt`
 - `editedAt`
 - `message`
+- `messageAsHtml`
 - `messageId`
 - `messageMetadata`
 - `messageSequence`
@@ -166,6 +167,7 @@ Permission: Restricted to User Viewing Self-Related Data
 - `deletedAt`
 - `editedAt`
 - `message`
+- `messageAsHtml`
 - `messageId`
 - `messageMetadata`
 - `messageSequence`
