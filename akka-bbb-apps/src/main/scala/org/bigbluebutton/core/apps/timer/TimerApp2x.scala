@@ -27,11 +27,12 @@ class TimerApp2x(implicit val context: ActorContext)
 
   def startTimerCheck(liveMeeting: LiveMeeting): Unit = {
     timerCheckTask.foreach(_.cancel())
-    if (TimerModel.isStopwatch(liveMeeting.timerModel)) return
-    timerCheckTask = Some(system.scheduler.scheduleAtFixedRate(
-      initialDelay = 0.seconds,
-      interval = 1.second
-    )(() => checkAndBroadcastTimer(liveMeeting)))
+    if (!TimerModel.isStopwatch(liveMeeting.timerModel)) {
+      timerCheckTask = Some(system.scheduler.scheduleAtFixedRate(
+        initialDelay = 0.seconds,
+        interval = 1.second
+      )(() => checkAndBroadcastTimer(liveMeeting)))
+    }
   }
 
   private def checkAndBroadcastTimer(liveMeeting: LiveMeeting): Unit = {
