@@ -16,7 +16,7 @@ subscription userCurrentSubscription {
     extId
     guest
     guestStatus
-    hasDrawPermissionOnCurrentPage
+    whiteboardWriteAccess
     inactivityWarningDisplay
     inactivityWarningTimeoutSecs
     isDialIn
@@ -29,6 +29,7 @@ subscription userCurrentSubscription {
     locked
     loggedOut
     mobile
+    bot
     name
     nameSortable
     pinned
@@ -75,11 +76,6 @@ subscription userCurrentSubscription {
     }
     livekit {
       livekitToken
-    }
-    presPagesWritable {
-      isCurrentPage
-      pageId
-      userId
     }
   }
 }

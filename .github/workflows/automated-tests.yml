@@ -348,6 +348,12 @@ jobs:
         with:
           name: test-report_shard-${{ matrix.shard }}
           path: bigbluebutton-tests/playwright/playwright-report
+      - if: always()
+        name: Upload logs folder
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-logs-${{ matrix.shard }}
+          path: bigbluebutton-tests/playwright/logs
       - if: failure()
         name: Prepare artifacts
         uses: ./.github/actions/prepare-artifacts
@@ -364,18 +370,19 @@ jobs:
           name: bbb-logs-${{ env.MATRIX_SHARD_UNDERSCORED }}
           path: ./bbb-logs.tar.gz
       - name: APT CACHE - Check for changes using packages hash
-        if: success() && matrix.shard == 1
+        if: success() && matrix.shard == 1 && github.event_name != 'pull_request'
         id: apt-manifest
         shell: bash
         run: |
           sudo chown -R "$USER:$USER" /var/cache/apt/archives || true
           sudo chmod 755 /var/cache/apt/archives /var/cache/apt/archives/partial 2>/dev/null || true
-          find /var/cache/apt/archives -type f -name '*.deb' -print0 \
-            | sort -z \
-            | xargs -0 -r sha256sum > apt-manifest-end.txt
-          echo "hash=$(sha256sum apt-manifest-end.txt | cut -d' ' -f1)" >> $GITHUB_OUTPUT
+          hash=$(find /var/cache/apt/archives -type f -name '*.deb' \
+                   | sort \
+                   | sha256sum \
+                   | cut -d' ' -f1)
+          echo "hash=$hash" >> $GITHUB_OUTPUT
       - name: APT CACHE - Upload new packages (if changed)
-        if: success() && matrix.shard == 1
+        if: success() && matrix.shard == 1 && github.event_name != 'pull_request'
         uses: actions/cache/save@v4
         with:
           path: /var/cache/apt/archives
@@ -549,6 +556,13 @@ jobs:
         with:
           name: test-report_plugins
           path: bigbluebutton-tests/bigbluebutton-html-plugin-sdk/playwright-report
+      - if: always()
+        name: Upload logs folder
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-logs-plugin
+          path: bigbluebutton-tests/bigbluebutton-html-plugin-sdk/logs
+          if-no-files-found: ignore
       - if: failure()
         name: Prepare artifacts
         uses: ./.github/actions/prepare-artifacts

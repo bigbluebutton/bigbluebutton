@@ -44,7 +44,7 @@ const GenericSidekickContent: React.FC<GenericSidekickContentProps> = ({
           'data-test': `hide_${genericContentId}`,
           'aria-label': genericContentLabel,
           icon: 'minus',
-          label: intl.formatMessage(intlMessages.hidePanelLabel, { 0: genericContentLabel }),
+          label: intl.formatMessage(intlMessages.hidePanelLabel, { panelName: genericContentLabel }),
         }}
       />
       <Styled.Separator />

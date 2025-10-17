@@ -67,10 +67,16 @@ const AudioCaptionsPanel = () => {
         title={intl.formatMessage(intlMessages.panelTitle)}
         leftButtonProps={{}}
         rightButtonProps={{
-          'aria-label': intl.formatMessage(intlMessages.minimize, { 0: intl.formatMessage(intlMessages.panelTitle) }),
+          'aria-label': intl.formatMessage(
+            intlMessages.minimize,
+            { panelName: intl.formatMessage(intlMessages.panelTitle) },
+          ),
           'data-test': 'closeAudioCaptionsPanel',
           icon: 'minus',
-          label: intl.formatMessage(intlMessages.minimize, { 0: intl.formatMessage(intlMessages.panelTitle) }),
+          label: intl.formatMessage(
+            intlMessages.minimize,
+            { panelName: intl.formatMessage(intlMessages.panelTitle) },
+          ),
           onClick: () => {
             layoutContextDispatch({
               type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,

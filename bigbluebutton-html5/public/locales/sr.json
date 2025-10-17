@@ -339,7 +339,7 @@
     "app.actionsBar.emojiMenu.thumbsUpDesc": "Promenite svoj status na palac gore",
     "app.actionsBar.emojiMenu.thumbsDownLabel": "Palac dole",
     "app.actionsBar.emojiMenu.thumbsDownDesc": "Promenite svoj status na palac dole",
-    "app.actionsBar.currentStatusDesc": "Trenutni status {0}",
+    "app.actionsBar.currentStatusDesc": "Trenutni status {status}",
     "app.actionsBar.captions.start": "Uključite titlove",
     "app.actionsBar.captions.stop": "Isključite titlove",
     "app.audioNotification.audioFailedError1003": "Verzija pretraživača nije podržana (greška 1003)",

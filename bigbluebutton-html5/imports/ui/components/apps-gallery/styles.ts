@@ -8,7 +8,7 @@ import {
   colorBorder,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import Button from '/imports/ui/components/common/button/component';
-import { titlesFontWeight, headingsFontWeight } from '/imports/ui/stylesheets/styled-components/typography';
+import { titlesFontWeight, headingsFontWeight, fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
 import {
   $2xlPadding,
   lgPadding,
@@ -74,7 +74,7 @@ const RegisteredAppContent = styled.div`
 const OpenButton = styled(Button)<{$pinned: boolean}>`
   padding: ${$2xlPadding};
   border-radius: ${appsButtonsBorderRadius} 0px 0px ${appsButtonsBorderRadius};
-  
+
   ${({ $pinned }) => ($pinned ? `
     background-color: ${colorPrimary};
     color: ${colorWhite};
@@ -92,7 +92,7 @@ const ClickableArea = styled.div`
   display: flex;
   flex-direction: row;
   flex-grow: 1;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   gap: ${lgPadding};
   cursor: pointer;
@@ -134,6 +134,16 @@ const BoldText = styled.span`
   font-weight: ${titlesFontWeight};
 `;
 
+const NewLabel = styled.span`
+  background-color: ${colorPrimary};
+  color: ${colorWhite};
+  padding: 0.1rem 0.75rem;
+  border-radius: 10px;
+  font-size: ${fontSizeBase};
+  text-transform: uppercase;
+  flex-shrink: 1;
+`;
+
 export default {
   HeaderContainer,
   PanelContent,
@@ -148,4 +158,5 @@ export default {
   ClickableArea,
   DescWrapper,
   BoldText,
+  NewLabel,
 };

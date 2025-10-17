@@ -1,14 +1,13 @@
 import styled, { css, keyframes } from 'styled-components';
 import {
-  colorWhite, colorText, colorPrimary,
+  colorWhite, colorText, colorPrimary, colorDanger,
   colorGrayDark, colorLink, listItemBgHover, colorBorder,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   smPadding,
-  contentSidebarGap,
   contentSidebarPadding,
-  contentSidebarBottomScrollPadding,
   contentSidebarBorderRadius,
+  lgBorderRadius,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
   fontSizeSmall, fontSizeBase, textFontWeight, titlesFontWeight, fontSizeLarge,
@@ -18,6 +17,9 @@ import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scr
 import CameraIcon from '@mui/icons-material/Videocam';
 import WbSunny from '@mui/icons-material/WbSunny';
 import Headphones from '@mui/icons-material/Headphones';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
+import ArrowCircleLeft from '@mui/icons-material/ArrowCircleLeftTwoTone';
+import ArrowCircleRight from '@mui/icons-material/ArrowCircleRightTwoTone';
 import Mic from '@mui/icons-material/Mic';
 import Select from '@mui/material/Select';
 import Switch from '@mui/material/Switch';
@@ -27,6 +29,7 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import {
   HeaderContainer as BaseHeaderContainer,
 } from '/imports/ui/components/sidebar-content/styles';
+import Button from '/imports/ui/components/common/button/component';
 
 const SimpleButton = styled.button`
   cursor: pointer;
@@ -36,13 +39,19 @@ const SimpleButton = styled.button`
   outline: none; 
 `;
 
+const RootContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: ${colorWhite};
+`;
+
 const ProfileSettings = styled(ScrollboxVertical)`
   display: flex;
-  height: 100%;
-  padding: ${contentSidebarPadding} 0 ${contentSidebarBottomScrollPadding} 0;
+  flex: 1;
   margin: 0 ${smPadding} 0;
   flex-direction: column;
-  gap: ${contentSidebarGap};
+  gap: 0.75rem;
   border-radius: ${contentSidebarBorderRadius};
   background: ${colorWhite};
   overflow-y: auto;
@@ -70,12 +79,50 @@ const VideoPreview = styled.video<VideoPreviewProps>`
   `}
 `;
 
-const VideoPreviewContent = styled.div`
+const VideoPreviewContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
   padding: 0px ${contentSidebarPadding};
+`;
+
+const VideoPreviewWrapper = styled.div`
+  flex-grow: 1;
+  display: flex;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.5rem;
+`;
+
+const PreviewArrowButton = styled.button<{ position: 'left' | 'right' }>`
+  background: transparent;
+  border: none;
+  font-size: 2rem;
+  cursor: pointer;
+  padding: 0;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 2;
+  ${({ position }) => (position === 'left' ? 'left: 0;' : 'right: 0;')}
+
+  &:hover {
+    & > svg {
+      opacity: 0.8;
+    }
+  }
+`;
+
+const VideoPreviewContent = styled.div`
+  width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 10;
   background: ${colorWhite};
   
   color: ${colorText};
@@ -141,7 +188,7 @@ const UsernameContainer = styled.div`
   flex-direction: column;
   align-items: flex-start;
   width: 100%;
-  padding: 0px ${contentSidebarPadding};
+  padding: 0.5rem ${contentSidebarPadding} 0px ${contentSidebarPadding};
 `;
 
 const UsernameTitle = styled.div`
@@ -215,12 +262,15 @@ const DevicesSettingsContainer = styled.div`
   padding: 0px ${contentSidebarPadding};
 `;
 
-const DeviceContainer = styled.div`
+const DeviceContainer = styled.div<{ extraPadding?: boolean }>`
   display: flex;
   flex-direction: row;
   flex-shrink: 0;
   gap: 1rem;
   align-items: center;
+  ${({ extraPadding }) => extraPadding && `
+    padding-left: 2.5rem;
+  `}
 `;
 
 const Icon = `
@@ -246,9 +296,42 @@ const MicIcon = styled(Mic)`
   ${Icon}
 `;
 
+const ArrowLeftIcon = styled(ArrowCircleLeft)`
+  ${Icon}
+  width: 2rem !important;
+  height: 2rem !important;
+  & path:first-of-type {
+    fill: ${colorPrimary};
+    fill-opacity: 1;
+    opacity: 1;
+  }
+
+  & path:last-of-type {
+    fill: ${colorWhite};
+  }
+`;
+
+const ArrowRightIcon = styled(ArrowCircleRight)`
+  ${Icon}
+  width: 2rem !important;
+  height: 2rem !important;
+  & path:first-of-type {
+    fill: ${colorPrimary};
+    fill-opacity: 1;
+    opacity: 1;
+  }
+
+  & path:last-of-type {
+    fill: ${colorWhite};
+  }
+`;
+
+const AddCameraIcon = styled(AddCircleIcon)`
+  ${Icon}
+`;
+
 const DeviceSelector = styled(Select)`
-  height: 3.5rem;
-  flex: 1;
+  height: 3rem;
   border-radius: 0.5rem !important;
   overflow: hidden;
   width: 100%;
@@ -272,13 +355,28 @@ const CameraQualitySelector = styled(DeviceSelector)`
   width: 100%;
 `;
 
-const VirtualBackgroundContainer = styled.div`
+const CameraNameLabel = styled.div`
+  position: absolute;
+  bottom: 0.5rem;
+  left: 0.5rem;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: ${colorWhite};
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: ${fontSizeSmall};
+  z-index: 2;
+`;
+
+const VirtualBackgroundContainer = styled.div<{ extraPadding?: boolean }>`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: ${contentSidebarPadding};
   align-self: stretch;
   padding: 0px ${contentSidebarPadding};
+  ${({ extraPadding }) => extraPadding && `
+    padding-left: 3.5rem;
+  `}
 `;
 
 const SwitchTitle = styled(FormControlLabel)`
@@ -395,10 +493,62 @@ const CaptionsTermsLink = styled.a`
   color: ${colorLink};
 `;
 
+const AddCameraContainer = styled.div`
+  padding: 0 0.8rem;
+`;
+
+const AddCameraButtonAndText = styled.div<{ disabled?: boolean }>`
+  cursor: pointer;
+  padding: 0.2rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  &:hover {
+    border-radius: 0.5rem;
+    background: #E9F0FF;
+  }
+
+  ${({ disabled }) => disabled && `
+    cursor: not-allowed;
+    opacity: 0.6;
+    pointer-events: none;
+  `}
+`;
+
+const SaveButtonContainer = styled.div`
+  padding: 0.5rem 1rem 1rem 1rem;
+`;
+
+// @ts-ignore - JS code
+const SaveButton = styled(Button)`
+  border-radius: ${lgBorderRadius};
+  height: 3.5rem;
+  width: 100%;
+`;
+
+const StopSharingButtonText = styled.div<{ extraPadding?: boolean }>`
+  padding: 0 1rem;
+  ${({ extraPadding }) => extraPadding && `
+    padding-left: 3.5rem;
+  `}
+  cursor: pointer;
+  color: ${colorDanger};
+  text-decoration-line: underline;
+  text-decoration-style: solid;
+  text-decoration-skip-ink: auto;
+  text-decoration-thickness: auto;
+  text-underline-offset: auto;
+  text-underline-position: from-font;
+`;
+
 export default {
+  RootContainer,
   ProfileSettings,
   HeaderContainer,
   VideoPreview,
+  VideoPreviewContainer,
+  VideoPreviewWrapper,
+  PreviewArrowButton,
   VideoPreviewContent,
   VideoCol,
   FetchingAnimation,
@@ -417,10 +567,14 @@ export default {
   WbSunnyIcon,
   HeadphonesIcon,
   MicIcon,
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  AddCameraIcon,
   DeviceSelector,
   CameraQualityContainer,
   CameraQualityText,
   CameraQualitySelector,
+  CameraNameLabel,
   VirtualBackgroundContainer,
   SwitchTitle,
   MaterialSwitch,
@@ -432,4 +586,9 @@ export default {
   CaptionsLanguageText,
   CaptionsTerms,
   CaptionsTermsLink,
+  SaveButton,
+  SaveButtonContainer,
+  AddCameraContainer,
+  AddCameraButtonAndText,
+  StopSharingButtonText,
 };

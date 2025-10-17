@@ -393,3 +393,6 @@
 .icon-bbb-menu_up:before {
   content: "\e97B";
 }
+.icon-bbb-camera:before {
+  content: "\e97C";
+}

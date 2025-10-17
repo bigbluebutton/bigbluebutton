@@ -403,11 +403,11 @@ export const useVideoStreams = () => {
   if (isPaginationEnabled) {
     const [filtered, others] = partition(
       streams,
-      (vs: StreamItem) => videoService.isLocalStream(vs.stream) || (vs.type === VIDEO_TYPES.STREAM && vs.user.pinned),
+      (vs: StreamItem) => videoService.isLocalStream(vs.stream) || (vs.type === VIDEO_TYPES.STREAM && vs.user?.pinned),
     );
     const [pin, mine] = partition(
       filtered,
-      (vs: StreamItem) => vs.type === VIDEO_TYPES.STREAM && vs.user.pinned,
+      (vs: StreamItem) => vs.type === VIDEO_TYPES.STREAM && vs.user?.pinned,
     );
 
     totalNumberOfOtherStreams = others.length;

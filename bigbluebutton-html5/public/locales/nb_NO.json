@@ -1,6 +1,6 @@
 {
     "app.home.greeting": "Presentasjonen din starter snart ...",
-    "app.sidebarContent.minimizePanelLabel": "Minimér {0}",
+    "app.sidebarContent.minimizePanelLabel": "Minimér {panelName}",
     "app.chat.submitLabel": "Send melding",
     "app.chat.errorMaxMessageLength": "Meldingen er for lang, den overskrider maksimum {maxMessageLength} tegn",
     "app.chat.errorMinMessageLength": "Meldingen oppfylte ikke minimumskravet på {minMessageLength} tegn",
@@ -755,7 +755,7 @@
     "app.actionsBar.reactions.raiseHand": "Rekk opp hånden",
     "app.actionsBar.reactions.lowHand": "Senk hånden",
     "app.actionsBar.reactions.autoCloseReactionsBarLabel": "Lukk reaksjonsfeltet automatisk",
-    "app.actionsBar.currentStatusDesc": "Nåværende status {0}",
+    "app.actionsBar.currentStatusDesc": "Nåværende status {status}",
     "app.actionsBar.reactions.away": "Fraværende",
     "app.actionsBar.reactions.available": "Tilgjengelig",
     "app.actionsBar.captions.start": "Start visning av undertekster",

@@ -478,6 +478,17 @@ plugin {
 
 - Using this information, the client fetches the plugin’s JavaScript bundle from the plugin storage server and loads it into the React component tree.
 
+### Apps Gallery
+
+The Apps Gallery is the central UI panel where users can discover and interact with the plugins and tools available during a meeting. It is designed as an extensible dashboard that allows developers to register their own applications to appear alongside BigBlueButton's native tools.
+
+The gallery renders two main groups of applications:
+
+* **Pinned Apps:** Applications that the user has chosen to keep visible on the sidebar for quick access.
+* **Unpinned Apps:** The list of all other registered applications that are not currently pinned.
+
+Based on the provided files, the core logic resides in `ui/components/apps-gallery/component.tsx`, which maps the `registeredApps` and `pinnedApps` from the layout context to render them in the correct UI sections. The container for this component is `ui/components/apps-gallery/container.tsx`.
+
 ### Developing the `bigbluebutton-html-plugin-sdk`
 
 This guide explains how to contribute to the [`bigbluebutton-html-plugin-sdk`](https://github.com/bigbluebutton/bigbluebutton-html-plugin-sdk), including adding new features or fixing existing issues. It also covers how to integrate those changes with the BigBlueButton client when necessary.
@@ -743,8 +754,27 @@ That being said, here are the extensible areas we have so far:
 - Generic Content (main, sidekick)
 - User Camera Helper (button)
 - Screenshare Helper (button)
+- Apps Gallery (item, "New" badge)
 
 Mind that no plugin will interfere into another's extensible area. So feel free to set whatever you need into a certain plugin with no worries.
+
+#### Apps Gallery "New" Badge
+
+This feature allows administrators to highlight new or featured plugins by displaying a "New" badge next to them in the Apps Gallery.
+
+To enable this badge for a specific plugin, add the `isNew: true` flag to its configuration within the `settings.yml` file.
+
+**Example (`settings.yml`):**
+
+```yml
+public:
+  plugins:
+    - name: my-plugin-name
+      settings:
+        isNew: true
+```
+
+When the client loads, the item for "my-plugin-name" will automatically display the "New" badge in the Apps Gallery.
 
 ### Auxiliary functions:
 
@@ -985,7 +1015,7 @@ As seen for the `useUiData`, the return type is well defined by the enum chosen 
   - volume:
     - set: this function will set the external video volume to a certain number between 0 and 1 (that is 0% and);
 - layout:
-  - changeEnforcedLayout: (deprecated) Changes the enforced layout 
+  - changeEnforcedLayout: (deprecated) Changes the enforced layout
   - setEnforcedLayout: Sets the enforced layout
 - navBar:
   - setDisplayNavBar: Sets the displayNavBar to true (show it) or false (hide it).

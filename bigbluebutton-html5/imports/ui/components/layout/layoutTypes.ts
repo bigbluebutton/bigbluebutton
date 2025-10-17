@@ -196,6 +196,8 @@ interface SidebarContentHorizontalResizer {
 interface Widget {
     name: string;
     icon: string;
+    uuid?: string;
+    pluginName?: string;
 }
 
 export interface NativeWidget extends Widget {}

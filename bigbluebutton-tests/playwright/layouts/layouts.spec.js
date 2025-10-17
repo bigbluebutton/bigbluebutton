@@ -1,14 +1,12 @@
 const { test } = require('../fixtures');
-const { fullyParallel } = require('../playwright.config');
 const { Layouts } = require('./layouts');
 const { initializePages } = require('../core/helpers');
 
-test.describe('Layout', { tag: ['@ci', '@flaky-3.1'] }, () => {
+test.describe.parallel('Layout', { tag: '@ci' }, () => {
   const layouts = new Layouts();
 
-  test.describe.configure({ mode: fullyParallel ? 'parallel' : 'serial' });
-  test[fullyParallel ? 'beforeEach' : 'beforeAll'](async ({ browser }) => {
-    await initializePages(layouts, browser, { isMultiUser: true });
+  test.beforeEach(async ({ browser }, testInfo) => {
+    await initializePages(layouts, browser, { isMultiUser: true, testInfo });
     await layouts.modPage.shareWebcam();
     await layouts.userPage.shareWebcam();
   });

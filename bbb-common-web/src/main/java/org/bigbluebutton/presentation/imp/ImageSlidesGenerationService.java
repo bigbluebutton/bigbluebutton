@@ -37,6 +37,7 @@ public class ImageSlidesGenerationService {
 	private TextFileCreator textFileCreator;
 	private PngCreator pngCreator;
 	private ImageResizer imageResizer;
+	private ImageResolutionService imageResolutionService;
 	private long maxImageWidth = 2048;
 	private long maxImageHeight = 1536;
 	private boolean svgImagesRequired=true;
@@ -92,8 +93,7 @@ public class ImageSlidesGenerationService {
 		log.debug("Creating SVG images.");
 
 		try {
-			ImageResolutionService imgResService = new ImageResolutionService();
-			ImageResolution imageResolution = imgResService.identifyImageResolution(pres.getUploadedFile());
+			ImageResolution imageResolution = imageResolutionService.identifyImageResolution(pres.getUploadedFile());
 
 			log.debug("Identified image {} width={} and height={}", pres.getName(), imageResolution.getWidth(), imageResolution.getHeight());
 
@@ -148,6 +148,10 @@ public class ImageSlidesGenerationService {
 	public void setImageResizer(ImageResizer imageResizer) {
 	    this.imageResizer = imageResizer;
 	}
+
+    public void setImageResolutionService(ImageResolutionService imageResolutionService) {
+        this.imageResolutionService = imageResolutionService;
+    }
 	
 	public void setMaxImageWidth(long maxImageWidth) {
 	    this.maxImageWidth = maxImageWidth;

@@ -20,15 +20,16 @@ object GroupChatApp {
     GroupChatFactory.create(gcId, access, createBy, users, msgs)
   }
 
-  def toGroupChatMessage(sender: GroupChatUser, msg: GroupChatMsgFromUser, emphasizedText: Boolean): GroupChatMessage = {
+  def toGroupChatMessage(sender: GroupChatUser, msg: GroupChatMsgFromUser, emphasizedText: Boolean, messageType: String): GroupChatMessage = {
     val now = System.currentTimeMillis()
     val id = GroupChatFactory.genId()
-    GroupChatMessage(id, now, msg.correlationId, now, now, sender, emphasizedText, msg.message, msg.replyToMessageId, msg.metadata)
+    GroupChatMessage(id, now, msg.correlationId, now, now, sender, emphasizedText, msg.message, msg.replyToMessageId, messageType, msg.metadata)
   }
 
   def toMessageToUser(msg: GroupChatMessage): GroupChatMsgToUser = {
     GroupChatMsgToUser(id = msg.id, timestamp = msg.timestamp, correlationId = msg.correlationId,
-      sender = msg.sender, chatEmphasizedText = msg.chatEmphasizedText, message = msg.message, replyToMessageId = msg.replyToMessageId)
+      sender = msg.sender, chatEmphasizedText = msg.chatEmphasizedText, message = msg.message, replyToMessageId = msg.replyToMessageId,
+      messageType = msg.messageType, metadata = msg.metadata)
   }
 
   def addGroupChatMessage(meetingId: String, chat: GroupChat, chats: GroupChats,
@@ -95,7 +96,7 @@ object GroupChatApp {
         chat <- state.groupChats.find(chatId)
       } yield {
         val emphasizedText = sender.role == Roles.MODERATOR_ROLE
-        val gcm1 = GroupChatApp.toGroupChatMessage(sender, msg, emphasizedText)
+        val gcm1 = GroupChatApp.toGroupChatMessage(sender, msg, emphasizedText, GroupChatMessageType.DEFAULT)
         val gcs1 = GroupChatApp.addGroupChatMessage(liveMeeting.props.meetingProp.intId, chat, state.groupChats, gcm1)
         state.update(gcs1)
       }

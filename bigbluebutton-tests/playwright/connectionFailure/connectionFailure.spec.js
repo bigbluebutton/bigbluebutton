@@ -10,12 +10,12 @@ const deepEqual = require('deep-equal');
 
 test.describe.parallel('Connection failure', () => {
   // https://docs.bigbluebutton.org/3.0/testing/release-testing/#sharing-screen-in-full-screen-mode-automated
-  test('Screen share', async ({ browser, browserName, page }) => {
+  test('Screen share', async ({ browser, browserName, page }, testInfo) => {
     await checkRootPermission(); // check sudo permission before starting test
     test.skip(browserName === 'firefox',
       "Screenshare tests not able in Firefox browser without desktop",
     );
-    const screenshare = new ScreenShare(browser, page);
+    const screenshare = new ScreenShare(browser, page, testInfo);
     await screenshare.init(true, true);
     await screenshare.startSharing();
 
@@ -29,19 +29,19 @@ test.describe.parallel('Connection failure', () => {
     await screenshare.hasElement('//div[@data-test="toastSmallMsg"]/span[contains(text(), "Code 1101. Try sharing the screen again.")]');
   });
 
-  test('Screen share viewer', async ({ browser, browserName, page, context }) => {
+  test('Screen share viewer', async ({ browser, browserName, page, context }, testInfo) => {
     await checkRootPermission(); // check sudo permission before starting test
     test.skip(browserName === 'firefox',
       "Screenshare tests not able in Firefox browser without desktop",
     );
     const screenshare = new MultiUserScreenShare(browser, context);
 
-    await screenshare.initModPage(page);
+    await screenshare.initModPage(page, true, { testInfo });
     await screenshare.startSharing(screenshare.modPage);
 
     const tcpModeratorSessions = await getCurrentTCPSessions();
 
-    await screenshare.initUserPage(false);
+    await screenshare.initUserPage(false, context, { testInfo });
     await screenshare.userPage.joinMicrophone();
     await screenshare.userPage.hasElement(e.screenShareVideo);
 
