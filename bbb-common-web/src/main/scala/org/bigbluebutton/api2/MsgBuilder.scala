@@ -112,11 +112,11 @@ object MsgBuilder {
     val dims = readSvgDims(pageAbsoluteSvgPath)
     dims match {
       case Some(d) =>
-        logger.info("***** Dimensions found from probe *****")
+        println("***** Dimensions found from probe *****")
         width = d.width
         height = d.height
       case None =>
-        logger.info("***** Falling back to image resolution service *****")
+        println("***** Falling back to image resolution service *****")
         val imageResolution = imageResolutionService.identifyImageResolution(pageAbsoluteSvgPath)
         if (imageResolution.getWidth != 0 && imageResolution.getHeight != 0) {
           width = imageResolution.getWidth
@@ -448,10 +448,10 @@ object MsgBuilder {
   private final case class SvgDimensions(width: Double, height: Double)
 
   private def readSvgDims(svgPath: String, maxBytes: Long = 10L * 1024 * 1024, scale: Int = 0): Option[SvgDimensions] = {
-    val in = Files.newInputStream(Paths.get(svgPath))
-    val bis = new BufferedInputStream(in)
-    try {
-      val bounded = new BoundedInputStream(bis, if (maxBytes <= 0) Long.MaxValue else maxBytes)
+    Using.Manager { use =>
+      val in = use(Files.newInputStream(Paths.get(svgPath)))
+      val bis = use(new BufferedInputStream(in))
+      val bounded = use(new BoundedInputStream(bis, if (maxBytes <= 0) Long.MaxValue else maxBytes))
 
       val f = XMLInputFactory.newFactory()
       f.setProperty(XMLInputFactory.SUPPORT_DTD, java.lang.Boolean.FALSE)
@@ -460,31 +460,34 @@ object MsgBuilder {
       Try(f.setProperty("javax.xml.stream.isNamespaceAware", java.lang.Boolean.TRUE))
       Try(f.setXMLResolver((_, _, _, _) => null))
 
-      val r = f.createXMLStreamReader(bounded, StandardCharsets.UTF_8.name())
-      try {
-        while (r.hasNext) {
-          r.next() match {
-            case XMLStreamConstants.START_ELEMENT if r.getLocalName.equalsIgnoreCase("svg") =>
-              val wRaw = Option(r.getAttributeValue(null, "width"))
-              val hRaw = Option(r.getAttributeValue(null, "height"))
+      val reader = {
+        val r0 = f.createXMLStreamReader(bounded, StandardCharsets.UTF_8.name())
+        use(new AutoCloseable { override def close(): Unit = r0.close() })
+        r0
+      }
 
-              val wPx = wRaw.flatMap(parseCssLengthPx)
-              val hPx = hRaw.flatMap(parseCssLengthPx)
+      while (reader.hasNext) {
+        reader.next() match {
+          case XMLStreamConstants.START_ELEMENT if reader.getLocalName.equalsIgnoreCase("svg") =>
+            val wRaw = Option(reader.getAttributeValue(null, "width"))
+            val hRaw = Option(reader.getAttributeValue(null, "height"))
 
-              (wPx, hPx) match {
-                case (Some(w), Some(h)) =>
-                  val W = roundPx(w, scale)
-                  val H = roundPx(h, scale)
-                  return Some(SvgDimensions(W, H))
-                case _ =>
-                  return None
-              }
-            case _ =>
-          }
+            val wPx = wRaw.flatMap(parseCssLengthPx)
+            val hPx = hRaw.flatMap(parseCssLengthPx)
+
+            (wPx, hPx) match {
+              case (Some(w), Some(h)) =>
+                val W = roundPx(w, scale)
+                val H = roundPx(h, scale)
+                return Some(SvgDimensions(W, H))
+              case _ =>
+                return None
+            }
+          case _ =>
         }
-        None
-      } finally Try(r.close())
-    } finally Try(bis.close())
+      }
+      None
+    }.toOption.flatten
   }
 
   private def parseCssLengthPx(s: String): Option[Double] = {
