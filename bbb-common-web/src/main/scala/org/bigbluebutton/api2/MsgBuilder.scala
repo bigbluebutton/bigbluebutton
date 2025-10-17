@@ -1,22 +1,23 @@
 package org.bigbluebutton.api2
 
 import org.bigbluebutton.api.messaging.converters.messages._
-import org.bigbluebutton.api.messaging.messages.{ChatMessageFromApi, RegisterUserSessionToken}
+import org.bigbluebutton.api.messaging.messages.{ ChatMessageFromApi, RegisterUserSessionToken }
 import org.bigbluebutton.api.service.ServiceUtils
 import org.bigbluebutton.api2.meeting.RegisterUser
-import org.bigbluebutton.common2.domain.{DefaultProps, PageVO, PresentationPageConvertedVO, PresentationVO}
+import org.bigbluebutton.common2.domain.{ DefaultProps, PageVO, PresentationPageConvertedVO, PresentationVO }
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.presentation.imp.ImageResolutionService
 import org.bigbluebutton.presentation.messages._
-import org.slf4j.{Logger, LoggerFactory}
+import org.slf4j.{ Logger, LoggerFactory }
 
-import java.io.{BufferedInputStream, FilterInputStream, InputStream}
+import java.io.{ BufferedInputStream, FilterInputStream, InputStream }
 import java.nio.charset.StandardCharsets
-import java.nio.file.{Files, Paths}
-import javax.xml.stream.{XMLInputFactory, XMLStreamConstants}
+import java.nio.file.{ Files, Paths }
+import javax.xml.stream.{ XMLInputFactory, XMLStreamConstants }
 import scala.io.Source
 import scala.jdk.CollectionConverters._
-import scala.util.{Try, Using}
+import scala.math.BigDecimal.RoundingMode
+import scala.util.{ Try, Using }
 
 object MsgBuilder {
   private lazy val imageResolutionService: ImageResolutionService = new ImageResolutionService
@@ -107,20 +108,17 @@ object MsgBuilder {
     var width = 1440D
     var height = 1080D
     val pageAbsoluteSvgPath = presParentPath + "/svgs/slide" + page.toString + ".svg"
-    //    val imageResolution = imageResolutionService.identifyImageResolution(pageAbsoluteSvgPath)
-    //    if (imageResolution.getWidth != 0 && imageResolution.getHeight != 0) {
-    //      width = imageResolution.getWidth
-    //      height = imageResolution.getHeight
-    //    }
 
     val dims = readSvgDims(pageAbsoluteSvgPath)
     dims match {
       case Some(d) =>
         logger.info("***** Dimensions found from probe *****")
+        println("***** Dimensions found from probe *****")
         width = d.width
         height = d.height
       case None =>
         logger.info("***** Falling back to image resolution service *****")
+        println("***** Falling back to image resolution service *****")
         val imageResolution = imageResolutionService.identifyImageResolution(pageAbsoluteSvgPath)
         if (imageResolution.getWidth != 0 && imageResolution.getHeight != 0) {
           width = imageResolution.getWidth
@@ -451,7 +449,7 @@ object MsgBuilder {
 
   private final case class SvgDimensions(width: Double, height: Double)
 
-  private def readSvgDims(svgPath: String, maxBytes: Long = 10L * 1024 * 1024): Option[SvgDimensions] = {
+  private def readSvgDims(svgPath: String, maxBytes: Long = 10L * 1024 * 1024, scale: Int = 0): Option[SvgDimensions] = {
     val in = Files.newInputStream(Paths.get(svgPath))
     val bis = new BufferedInputStream(in)
     try {
@@ -476,7 +474,10 @@ object MsgBuilder {
               val hPx = hRaw.flatMap(parseCssLengthPx)
 
               (wPx, hPx) match {
-                case (Some(w), Some(h)) => return Some(SvgDimensions(w, h))
+                case (Some(w), Some(h)) =>
+                  val W = roundPx(w, scale)
+                  val H = roundPx(h, scale)
+                  return Some(SvgDimensions(W, H))
                 case _ =>
                   return None
               }
@@ -498,7 +499,7 @@ object MsgBuilder {
         val n = num.toDouble
         val px = unit0.toLowerCase match {
           case "" | "px" => 1.0
-          case "pt"      => 96.0 / 72.0
+          case "pt"      => 1.0
           case "pc"      => 16.0
           case "in"      => 96.0
           case "cm"      => 96.0 / 2.54
@@ -508,6 +509,14 @@ object MsgBuilder {
         }
         if (px.isNaN) None else Some(n * px)
       case _ => None
+    }
+  }
+
+  private def roundPx(d: Double, scale: Int): Double = {
+    if (java.lang.Double.isNaN(d) || java.lang.Double.isInfinite(d)) d
+    else {
+      val r = BigDecimal(d).setScale(scale, RoundingMode.HALF_UP).toDouble
+      if (r == -0.0d) 0.0d else r
     }
   }
 

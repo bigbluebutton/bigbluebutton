@@ -63,11 +63,11 @@ public class ImageSlidesGenerationService {
 				createPngImages(pres, page);
 			}
 
-			notifier.sendConversionUpdateMessage(page, pres, page);
+//			notifier.sendConversionUpdateMessage(page, pres, page);
 		}
 
 		System.out.println("****** Conversion complete for " + pres.getName());
-		notifier.sendConversionCompletedMessage(pres);
+//		notifier.sendConversionCompletedMessage(pres);
 	}
 
 	public void createBlanks(UploadedPresentation pres) {
