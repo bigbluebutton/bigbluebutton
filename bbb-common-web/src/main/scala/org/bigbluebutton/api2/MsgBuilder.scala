@@ -113,12 +113,10 @@ object MsgBuilder {
     dims match {
       case Some(d) =>
         logger.info("***** Dimensions found from probe *****")
-        println("***** Dimensions found from probe *****")
         width = d.width
         height = d.height
       case None =>
         logger.info("***** Falling back to image resolution service *****")
-        println("***** Falling back to image resolution service *****")
         val imageResolution = imageResolutionService.identifyImageResolution(pageAbsoluteSvgPath)
         if (imageResolution.getWidth != 0 && imageResolution.getHeight != 0) {
           width = imageResolution.getWidth

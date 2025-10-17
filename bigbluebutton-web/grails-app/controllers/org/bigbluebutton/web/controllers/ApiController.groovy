@@ -128,8 +128,6 @@ class ApiController {
     log.debug request.getParameterMap().toMapString()
     log.debug request.getQueryString()
 
-    log.info("***** THE CHANGES HAVE BEEN PICKED UP *****")
-
     String[] ap = request.getParameterMap().get("attendeePW")
     String attendeePW
     if(ap == null) log.info("No attendeePW provided")
