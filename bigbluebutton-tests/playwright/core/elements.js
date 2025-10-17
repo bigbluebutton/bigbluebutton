@@ -253,6 +253,7 @@ exports.savedSettingsToast = 'Settings have been saved';
 exports.publicChatToast = 'New Public Chat message';
 exports.privateChatToast = 'New Private Chat message';
 exports.joinAudioToast = 'You have joined the audio conference';
+exports.leftAudioToast = 'You have left the audio conference';
 exports.pollPublishedToast = 'Poll results were published';
 exports.startScreenshareToast = 'Screenshare has started';
 exports.endScreenshareToast = 'Screenshare has ended';
