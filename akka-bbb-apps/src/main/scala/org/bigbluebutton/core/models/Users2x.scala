@@ -238,6 +238,17 @@ object Users2x {
     }
   }
 
+  def setUserWhiteboardWriteAccess(users: Users2x, intId: String, whiteboardWriteAccess: Boolean): Option[UserState] = {
+    for {
+      u <- findWithIntId(users, intId)
+    } yield {
+      val newUser = u.modify(_.whiteboardWriteAccess).setTo(whiteboardWriteAccess)
+      users.save(newUser)
+      UserStateDAO.update(newUser)
+      newUser
+    }
+  }
+
   def setUserLockSettings(users: Users2x, intId: String, userLockSettings: UserLockSettings): Option[UserState] = {
     for {
       u <- findWithIntId(users, intId)
@@ -441,6 +452,7 @@ case class UserState(
     away:                  Boolean,
     locked:                Boolean,
     presenter:             Boolean,
+    whiteboardWriteAccess: Boolean,
     avatar:                String,
     webcamBackground:      String,
     color:                 String,

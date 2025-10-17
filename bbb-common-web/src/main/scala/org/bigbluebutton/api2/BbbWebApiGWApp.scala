@@ -230,6 +230,7 @@ class BbbWebApiGWApp(
       maxUsers = maxUsers.intValue(),
       maxUserConcurrentAccesses = maxUserConcurrentAccesses,
       webcamsOnlyForModerator = webcamsOnlyForModerator.booleanValue(),
+      multiUserWhiteboardEnabled = isBreakout.booleanValue(),
       userCameraCap = userCameraCap.intValue(),
       guestPolicy = guestPolicy, meetingLayout = meetingLayout, allowModsToUnmuteUsers = allowModsToUnmuteUsers.booleanValue(),
       allowModsToEjectCameras = allowModsToEjectCameras.booleanValue(),

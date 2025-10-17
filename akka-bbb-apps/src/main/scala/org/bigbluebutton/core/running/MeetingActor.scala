@@ -461,6 +461,9 @@ class MeetingActor(
       case m: ChangeUserReactionEmojiReqMsg =>
         usersApp.handleChangeUserReactionEmojiReqMsg(m)
         updateUserLastActivity(m.header.userId)
+      case m: SetUserWhiteboardWriteAccessReqMsg =>
+        usersApp.handleSetUserWhiteboardWriteAccessReqMsg(m)
+        updateUserLastActivity(m.header.userId)
       case m: ChangeUserRaiseHandReqMsg =>
         usersApp.handleChangeUserRaiseHandReqMsg(m)
         updateUserLastActivity(m.header.userId)
@@ -499,13 +502,7 @@ class MeetingActor(
       case m: SendCursorPositionPubMsg =>
         wbApp.handle(m, liveMeeting, msgBus)
         updateUserLastActivity(m.header.userId)
-      case m: ClearWhiteboardPubMsg =>
-        wbApp.handle(m, liveMeeting, msgBus)
-        updateUserLastActivity(m.header.userId)
       case m: DeleteWhiteboardAnnotationsPubMsg =>
-        wbApp.handle(m, liveMeeting, msgBus)
-        updateUserLastActivity(m.header.userId)
-      case m: ModifyWhiteboardAccessPubMsg =>
         wbApp.handle(m, liveMeeting, msgBus)
         updateUserLastActivity(m.header.userId)
       case m: SendWhiteboardAnnotationsPubMsg =>

@@ -58,6 +58,7 @@ trait HandlerHelpers extends SystemConfiguration {
         pin = false,
         mobile = mobile,
         presenter = false,
+        whiteboardWriteAccess = MeetingStatus2x.multiUserWhiteboardEnabled(liveMeeting.status),
         locked = MeetingStatus2x.getPermissions(liveMeeting.status).lockOnJoin,
         avatar = regUser.avatarURL,
         webcamBackground = regUser.webcamBackgroundURL,
