@@ -301,7 +301,7 @@ export const handleWhiteboardAccessChange = async (
       notify(
         intl.formatMessage(
           intlMessages.multiUserLimitHasBeenReachedNotification,
-          { 0: WHITEBOARD_CONFIG.maxNumberOfActiveUsers },
+          { numberOfUsers: WHITEBOARD_CONFIG.maxNumberOfActiveUsers },
         ),
         'info',
         'pen_tool',
@@ -532,7 +532,7 @@ export const createToolbarOptions = (
       {
         allowed: allowedToRemove,
         key: 'remove',
-        label: intl.formatMessage(intlMessages.removeUserLabel, { 0: user.name }),
+        label: intl.formatMessage(intlMessages.removeUserLabel, { userName: user.name }),
         onClick: () => {
           setIsConfirmationModalOpen(true);
         },

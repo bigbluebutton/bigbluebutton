@@ -301,7 +301,7 @@
     "app.actionsBar.emojiMenu.thumbsUpDesc": "Promijenite svoj status u 'Palac gore'",
     "app.actionsBar.emojiMenu.thumbsDownLabel": "Palac dolje",
     "app.actionsBar.emojiMenu.thumbsDownDesc": "Promijenite svoj status u 'Palac dolje'",
-    "app.actionsBar.currentStatusDesc": "trenutačni status {0}",
+    "app.actionsBar.currentStatusDesc": "trenutačni status {status}",
     "app.audioNotification.closeLabel": "Zatvori",
     "app.breakoutJoinConfirmation.title": "Priključi se u breakout sobu",
     "app.breakoutJoinConfirmation.message": "Želite li se priključiti",

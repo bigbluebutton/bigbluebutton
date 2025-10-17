@@ -611,7 +611,7 @@
     "app.actionsBar.emojiMenu.thumbsUpDesc": "Durumunu beğendi yap",
     "app.actionsBar.emojiMenu.thumbsDownLabel": "Beğenmedim",
     "app.actionsBar.emojiMenu.thumbsDownDesc": "Durumunu beğenmedi yap",
-    "app.actionsBar.currentStatusDesc": "şimdiki durum {0}",
+    "app.actionsBar.currentStatusDesc": "şimdiki durum {status}",
     "app.actionsBar.captions.start": "Altyazıları görüntülemeye başla",
     "app.actionsBar.captions.stop": "Altyazıları görüntülemeyi durdur",
     "app.audioNotification.audioFailedError1001": "Websoket bağlantısı kesildi (hata 1001)",

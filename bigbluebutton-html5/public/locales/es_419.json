@@ -1,7 +1,7 @@
 {
     "app.home.greeting": "Su presentación se iniciará pronto...",
     "app.chat.submitLabel": "Enviar mensaje",
-    "app.chat.loading": "Mensajes de chat cargados: {0}%",
+    "app.chat.loading": "Mensajes de chat cargados: {progress}%",
     "app.chat.errorMaxMessageLength": "El mensaje es {maxMessageLength} caracter(es) más largo de lo esperado",
     "app.chat.disconnected": "Está desconectado, los mensajes no pueden ser enviados",
     "app.chat.locked": "El chat está bloqueado. Los mensajes no pueden enviarse",
@@ -130,7 +130,7 @@
     "app.meeting.meetingTimeHasEnded": "Tiempo finalizado. La reunión se cerrará pronto",
     "app.meeting.endedByUserMessage": "Esta sesión ha sido finalizada por {userName}",
     "app.meeting.endedByNoModeratorMessageSingular": "La reunión ha llegado a su fin ya que no hubo moderador presente por más de un minuto",
-    "app.meeting.endedByNoModeratorMessagePlural": "La reunión ha llegado a su fin ya que no hubo moderador presente por más de {0} minutos",
+    "app.meeting.endedByNoModeratorMessagePlural": "La reunión ha llegado a su fin ya que no hubo moderador presente por más de {timeInMinutes} minutos",
     "app.meeting.endedMessage": "Será reenviado a la pantalla de inicio",
     "app.meeting.alertMeetingEndsUnderMinutesSingular": "La reunión se cerrará en un minuto.",
     "app.meeting.alertMeetingEndsUnderMinutesPlural": "La reunión se cerrará en {timeInMinutes} minutos.",
