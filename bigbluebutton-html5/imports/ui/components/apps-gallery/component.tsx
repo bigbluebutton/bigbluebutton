@@ -8,6 +8,7 @@ import Styled from './styles';
 import TooManyPinnedAppsModal from './modal/component';
 import AppItem from './app-item/component';
 import ExternalAppItem from './external-app-item/component';
+import { isPluginNew } from './service';
 
 const intlMessages = defineMessages({
   appsGalleryTitle: {
@@ -46,7 +47,14 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
 
   const renderedPinnedApps = useMemo(() => (
     pinnedApps.map((pinnedAppKey) => {
-      const { name, icon } = registeredApps[pinnedAppKey];
+      const {
+        name,
+        icon,
+        pluginName,
+      } = registeredApps[pinnedAppKey];
+
+      const isNew = isPluginNew(pluginName);
+
       // type guard
       const { onClick } = registeredApps[pinnedAppKey] as InjectedAppGalleryItem;
       const isPluginInjectedApp = pinnedAppKey.startsWith(PANELS.GENERIC_CONTENT_SIDEKICK);
@@ -58,6 +66,7 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
           name={name}
           icon={icon}
           isPinned
+          isNew={isNew}
           onClick={onClick}
           pinnedAppsLength={pinnedApps.length}
           maxPinned={MAX_PINNED_APPS_GALLERY}
@@ -73,7 +82,14 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
     Object.keys(registeredApps)
       .filter((registeredObjectKey) => !pinnedApps.includes(registeredObjectKey))
       .map((unpinnedAppKey) => {
-        const { name, icon } = registeredApps[unpinnedAppKey];
+        const {
+          name,
+          icon,
+          pluginName,
+        } = registeredApps[unpinnedAppKey];
+
+        const isNew = isPluginNew(pluginName);
+
         // type guard
         const { onClick } = registeredApps[unpinnedAppKey] as InjectedAppGalleryItem;
         const isPluginInjectedApp = unpinnedAppKey.startsWith(PANELS.GENERIC_CONTENT_SIDEKICK);
@@ -85,6 +101,7 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
             name={name}
             icon={icon}
             isPinned={false}
+            isNew={isNew}
             onClick={onClick}
             pinnedAppsLength={pinnedApps.length}
             maxPinned={MAX_PINNED_APPS_GALLERY}
