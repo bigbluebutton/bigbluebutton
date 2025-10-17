@@ -1,4 +1,9 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
@@ -90,22 +95,22 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
   const isHidden = (isOnMediaArea && (sharedNotesOutput.width === 0 || sharedNotesOutput.height === 0))
     || (!isVisible && !ignoreDelayforUnmount);
 
-  let timeoutRef: NodeJS.Timeout | undefined;
+  const timeoutRef = useRef<NodeJS.Timeout>();
   useEffect(() => {
     if (isVisible) {
       setShouldRenderNotes(true);
-      clearTimeout(timeoutRef!);
+      clearTimeout(timeoutRef.current);
     } else {
       markNotesAsRead();
       if (ignoreDelayforUnmount) {
         setShouldRenderNotes(false);
       } else {
-        timeoutRef = setTimeout(() => {
+        timeoutRef.current = setTimeout(() => {
           setShouldRenderNotes(false);
         }, NOTES_UNMOUNT_DELAY());
       }
     }
-    return () => clearTimeout(timeoutRef!);
+    return () => clearTimeout(timeoutRef.current);
   }, [isVisible]);
 
   const renderHeaderOnMedia = () => {
