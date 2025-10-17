@@ -1,4 +1,5 @@
 import React, {
+  useEffect,
   useMemo, useRef, useState,
 } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
@@ -304,20 +305,21 @@ const ChatContainer: React.FC = () => {
     (chat) => !chat.public && chat.totalMessages && chat.totalMessages !== 0,
   ), [chats]);
 
-  const resolvedChatId = useMemo(() => {
-    if (pendingChat && chats) {
-      const chat = chats.find((c) => c.participant?.userId === pendingChat);
-      if (chat) {
-        setPendingChat('');
-        layoutContextDispatch({
-          type: ACTIONS.SET_ID_CHAT_OPEN,
-          value: chat.chatId,
-        });
-        return chat.chatId;
-      }
-    }
-    return idChatOpen;
-  }, [pendingChat, chats, idChatOpen, setPendingChat, layoutContextDispatch]);
+  const pendingChatTarget = useMemo(() => {
+    if (!pendingChat || !chats) return undefined;
+    return chats.find((c) => c.participant?.userId === pendingChat);
+  }, [pendingChat, chats]);
+
+  useEffect(() => {
+    if (!pendingChatTarget) return;
+    setPendingChat('');
+    layoutContextDispatch({
+      type: ACTIONS.SET_ID_CHAT_OPEN,
+      value: pendingChatTarget.chatId,
+    });
+  }, [pendingChatTarget, setPendingChat, layoutContextDispatch]);
+
+  const resolvedChatId = pendingChatTarget?.chatId ?? idChatOpen;
 
   // Handle edge case: show buttons when private chat is open but empty
   const shouldShowEmptyPrivateChat = useEmptyPrivateChatVisibility(
