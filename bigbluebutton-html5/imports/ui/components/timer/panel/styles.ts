@@ -7,6 +7,7 @@ import {
   borderSizeLarge,
   toastContentWidth,
   lgBorderRadius,
+  borderRadiusRounded,
   smPadding,
   contentSidebarPadding,
 } from '../../../stylesheets/styled-components/general';
@@ -123,6 +124,7 @@ const TimeInputGroup = styled.div`
   font-size: 2.2rem;
   color: ${colorGrayDark};
   justify-content: center;
+  gap: 1rem; 
 `;
 
 // @ts-ignore - JS code
@@ -137,10 +139,7 @@ const IncrementDecrementButton = styled(Button)`
 `;
 
 const TimeInputColon = styled.span`
-  align-self: center;
-  padding: 0 0.1rem 0 0.1rem;
-  font-size: 2rem;
-  line-height: 2.8rem; /* match input height for vertical centering */
+  display: none; 
 `;
 
 const TimerSongsWrapper = styled.div`
@@ -188,11 +187,12 @@ const TimerInput = styled.input<{isSelected: boolean}>`
   color: ${colorPrimary};
   font-family: inherit;
   font-size: 2rem;
-  line-height: 1.2; /* improve vertical fit */
-  font-weight: ${textFontWeight};
+  line-height: 1.2;
+  font-weight: 600; 
+  border-radius: ${borderRadiusRounded};
   font-variant-numeric: tabular-nums;
   text-align: center;
-  width: 3.7rem; 
+  width: 5rem; 
   height: 2.8rem;
   padding: 0.4rem 1rem 0.2rem 0;
   -moz-appearance: textfield;
@@ -244,7 +244,7 @@ const InputArrowButton = styled.button<{disabled?: boolean}>`
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1rem;
+  font-size: 0.6rem;
   line-height: 1;
   text-align: center;
   color: ${colorText};
@@ -317,7 +317,7 @@ const TimerPresetsRow = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 1.25rem;
+  gap: 0.7rem;
   padding: 0.75rem 0 0.25rem 0;
   color: ${colorGrayDark};
 `;
@@ -343,7 +343,7 @@ const TimerAddsRow = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.4rem;
   padding: 0.5rem 0 0.25rem 0;
 `;
 
