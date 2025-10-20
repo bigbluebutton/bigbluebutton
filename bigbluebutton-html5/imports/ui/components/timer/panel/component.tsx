@@ -525,7 +525,6 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
                       </Styled.InputArrowButton>
                     </Styled.InputArrows>
                   </Styled.TimeUnitContainer>
-                  <Styled.TimeInputColon>:</Styled.TimeInputColon>
                   <Styled.TimeUnitContainer>
                     <Styled.TimerInput
                       type="number"
@@ -560,7 +559,6 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
                       </Styled.InputArrowButton>
                     </Styled.InputArrows>
                   </Styled.TimeUnitContainer>
-                  <Styled.TimeInputColon>:</Styled.TimeInputColon>
                   <Styled.TimeUnitContainer>
                     <Styled.TimerInput
                       type="number"
