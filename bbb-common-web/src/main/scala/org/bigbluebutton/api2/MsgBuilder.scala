@@ -500,7 +500,7 @@ object MsgBuilder {
         val n = num.toDouble
         val px = unit0.toLowerCase match {
           case "" | "px" => 1.0
-          case "pt"      => 96.0 / 72.0
+          case "pt"      => 1.0
           case "pc"      => 16.0
           case "in"      => 96.0
           case "cm"      => 96.0 / 2.54
