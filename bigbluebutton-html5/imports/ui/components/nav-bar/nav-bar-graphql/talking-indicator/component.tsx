@@ -8,15 +8,12 @@ import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { muteUser } from './service';
 import useToggleVoice from '../../../audio/audio-graphql/hooks/useToggleVoice';
 import { setTalkingIndicatorList } from '/imports/ui/core/hooks/useTalkingIndicator';
-import { VoiceActivityResponse } from '/imports/ui/core/graphql/queries/voiceActivity';
 import useTalkingUsers from '/imports/ui/core/hooks/useTalkingUsers';
 import { partition } from '/imports/utils/array-utils';
 import logger from '/imports/startup/client/logger';
 import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
 
 const TALKING_INDICATORS_MAX = 8;
-
-type VoiceItem = VoiceActivityResponse['user_voice_activity_stream'][number];
 
 const intlMessages = defineMessages({
   wasTalking: {
@@ -46,7 +43,12 @@ const intlMessages = defineMessages({
 });
 
 interface TalkingIndicatorProps {
-  talkingUsers: Array<VoiceActivityResponse['user_voice_activity_stream'][number]>;
+  talkingUsers: {
+    talking: boolean;
+    muted: boolean;
+    user: { color: string; speechLocale?: string; name: string };
+    userId: string;
+  }[];
   isBreakout: boolean;
   moreThanMaxIndicators: boolean;
   isModerator: boolean;
@@ -221,30 +223,30 @@ const TalkingIndicatorContainer: React.FC = () => {
   const talkingUsers = useMemo(() => {
     const [muted, unmuted] = partition(
       Object.values(talkingUsersData),
-      (v: VoiceItem) => v.muted,
-    ) as [VoiceItem[], VoiceItem[]];
+      (v) => !!v?.muted,
+    );
     const [talking, silent] = partition(
       unmuted,
-      (v: VoiceItem) => v.talking,
-    ) as [VoiceItem[], VoiceItem[]];
+      (v) => !!v?.talking,
+    );
     return [
       ...talking.sort((v1, v2) => {
-        if (!v1.startTime && !v2.startTime) return 0;
-        if (!v1.startTime) return 1;
-        if (!v2.startTime) return -1;
-        return v1.startTime - v2.startTime;
+        if (!v1?.startTime && !v2?.startTime) return 0;
+        if (!v1?.startTime) return 1;
+        if (!v2?.startTime) return -1;
+        return v1.startTime - v2?.startTime;
       }),
       ...silent.sort((v1, v2) => {
-        if (!v1.endTime && !v2.endTime) return 0;
-        if (!v1.endTime) return 1;
-        if (!v2.endTime) return -1;
-        return v2.endTime - v1.endTime;
+        if (!v1?.endTime && !v2?.endTime) return 0;
+        if (!v1?.endTime) return 1;
+        if (!v2?.endTime) return -1;
+        return v2?.endTime - v1?.endTime;
       }),
       ...muted.sort((v1, v2) => {
-        if (!v1.endTime && !v2.endTime) return 0;
-        if (!v1.endTime) return 1;
-        if (!v2.endTime) return -1;
-        return v2.endTime - v1.endTime;
+        if (!v1?.endTime && !v2?.endTime) return 0;
+        if (!v1?.endTime) return 1;
+        if (!v2?.endTime) return -1;
+        return v2?.endTime - v1?.endTime;
       }),
     ].slice(0, TALKING_INDICATORS_MAX);
   }, [talkingUsersData]);

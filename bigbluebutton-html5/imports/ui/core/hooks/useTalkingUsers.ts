@@ -8,16 +8,17 @@ type VoiceItem = {
   muted: boolean;
   talking: boolean;
   userId: string;
+  user: { color: string; speechLocale?: string; name: string };
 };
 
 const TALKING_INDICATOR_TIMEOUT = 6000;
 
 const createUseTalkingUsers = () => {
   const countVar = makeVar(0);
-  const stateVar = makeVar<{ muted: boolean; talking: boolean; userId: string }[] | undefined>([]);
+  const stateVar = makeVar<{ muted: boolean; talking: boolean; userId: string; user: { color: string; speechLocale?: string; name: string } }[] | undefined>([]);
   const loadingVar = makeVar(true);
 
-  const dispatchTalkingUserUpdate = (data?: { muted: boolean; talking: boolean; userId: string }[]) => stateVar(data);
+  const dispatchTalkingUserUpdate = (data?: { muted: boolean; talking: boolean; userId: string; user: { color: string; speechLocale?: string; name: string } }[]) => stateVar(data);
 
   const setTalkingUserLoading = (loading: boolean) => loadingVar(loading);
 
@@ -28,7 +29,7 @@ const createUseTalkingUsers = () => {
     const loading = useReactiveVar(loadingVar);
     const mutedTimeoutRegistry = useRef<Record<string, ReturnType<typeof setTimeout> | null>>({});
     const spokeTimeoutRegistry = useRef<Record<string, ReturnType<typeof setTimeout> | null>>({});
-    const [record, setRecord] = useState<Partial<Record<string, VoiceItem>>>({});
+    const [record, setRecord] = useState<Record<string, VoiceItem>>({});
 
     useEffect(() => {
       countVar(countVar() + 1);
@@ -50,7 +51,7 @@ const createUseTalkingUsers = () => {
 
       unmuted.forEach((voice) => {
         const {
-          talking, userId, muted,
+          talking, userId, muted, user,
         } = voice;
         const currentSpokeTimeout = spokeTimeoutRegistry.current[userId];
         const currentMutedTimeout = mutedTimeoutRegistry.current[userId];
@@ -103,6 +104,7 @@ const createUseTalkingUsers = () => {
                 talking,
                 startTime,
                 endTime,
+                user,
               },
             ),
           };

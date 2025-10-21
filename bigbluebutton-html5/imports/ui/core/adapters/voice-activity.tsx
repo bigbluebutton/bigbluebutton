@@ -39,6 +39,7 @@ const VoiceActivityAdapter = () => {
       muted: userMuted?.find((u) => u.userId === voice.userId)?.muted ?? false,
       talking: voice.talking,
       userId: voice.userId,
+      user: voice.user,
     })));
   }, [voiceActivity, userMuted]);
 
