@@ -482,7 +482,15 @@ case class UserMutedInVoiceConfEvtMsgBody(voiceConf: String, voiceUserId: String
 
 object UserTalkingVoiceEvtMsg { val NAME = "UserTalkingVoiceEvtMsg" }
 case class UserTalkingVoiceEvtMsg(header: BbbClientMsgHeader, body: UserTalkingVoiceEvtMsgBody) extends BbbCoreMsg
-case class UserTalkingVoiceEvtMsgBody(voiceConf: String, intId: String, voiceUserId: String, talking: Boolean)
+case class UserTalkingVoiceEvtMsgBody(
+    voiceConf:        String,
+    intId:            String,
+    voiceUserId:      String,
+    userName:         String,
+    userColor:        String,
+    userSpeechLocale: String,
+    talking:          Boolean
+)
 
 /**
  * Sent from client to notify that an user is talking (client-side version of

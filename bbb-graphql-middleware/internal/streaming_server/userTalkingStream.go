@@ -11,16 +11,23 @@ import (
 )
 
 func HandleUserTalkingVoiceEvtMsg(receivedMessage common.RedisMessage, browserConnectionsMutex *sync.RWMutex, browserConnections map[string]*common.BrowserConnection) {
-	// voiceConf := receivedMessage.Core.Body["voiceConf"].(string)
 	intId := receivedMessage.Core.Body["intId"].(string)
-	// voiceUserId := receivedMessage.Core.Body["voiceUserId"].(string)
+	userName := receivedMessage.Core.Body["userName"].(string)
+	userColor := receivedMessage.Core.Body["userColor"].(string)
+	userSpeechLocale := receivedMessage.Core.Body["userSpeechLocale"].(string)
 	talking := receivedMessage.Core.Body["talking"].(bool)
 
 	now := time.Now().UTC()
 
 	item := map[string]any{
-		"userId":          intId,
-		"talking":         talking,
+		"userId":  intId,
+		"talking": talking,
+		"user": map[string]any{
+			"color":        userColor,
+			"name":         userName,
+			"speechLocale": userSpeechLocale,
+			"__typename":   "user_ref",
+		},
 		"voiceActivityAt": now.Format("2006-01-02T15:04:05.000Z"),
 		"__typename":      "user_voice_activity_stream",
 	}
@@ -37,7 +44,6 @@ func HandleUserTalkingVoiceEvtMsg(receivedMessage common.RedisMessage, browserCo
 		},
 	}
 	jsonDataNext, _ := json.Marshal(browserResponseData)
-	// jsonDataNext, _ := createUserTalkingStateMessage(receivedMessage)
 
 	browserConnectionsToSendData := make([]*common.BrowserConnection, 0)
 	browserConnectionsMutex.RLock()

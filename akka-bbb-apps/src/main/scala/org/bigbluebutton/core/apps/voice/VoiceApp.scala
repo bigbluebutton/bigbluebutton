@@ -883,6 +883,7 @@ object VoiceApp extends SystemConfiguration {
   )(implicit context: ActorContext): Unit = {
     for {
       talkingUser <- VoiceUsers.userTalking(liveMeeting.voiceUsers, voiceUserId, talking)
+      userState <- Users2x.findWithIntId(liveMeeting.users2x, talkingUser.intId)
     } yield {
       // Make sure lock settings are in effect
       LockSettingsUtil.enforceLockSettingsForVoiceUser(
@@ -902,6 +903,9 @@ object VoiceApp extends SystemConfiguration {
         liveMeeting.props.voiceProp.voiceConf,
         talkingUser.intId,
         talkingUser.voiceUserId,
+        userState.name,
+        userState.color,
+        userState.speechLocale,
         talking
       )
       outGW.send(event)

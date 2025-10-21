@@ -13,7 +13,7 @@ export interface VoiceActivityResponse {
 }
 
 export const VOICE_ACTIVITY = gql`
-  subscription UserVoiceActivity {
+  subscription getUserTalkingStateStream {
     user_voice_activity_stream(
       cursor: { initial_value: { voiceActivityAt: "2020-01-01" } },
       batch_size: 10

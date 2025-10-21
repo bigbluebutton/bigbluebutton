@@ -656,8 +656,11 @@ object MsgBuilder {
   def buildUserTalkingVoiceEvtMsg(
     meetingId: String,
     voiceConf: String,
-    userId: String,
+    userId:    String,
     voiceUserId: String,
+    userName:  String,
+    userColor: String,
+    userSpeechLocale: String,
     talking: Boolean
   ): BbbCommonEnvCoreMsg = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
@@ -667,6 +670,9 @@ object MsgBuilder {
       voiceConf,
       userId,
       voiceUserId,
+      userName,
+      userColor,
+      userSpeechLocale,
       talking
     )
     val event = UserTalkingVoiceEvtMsg(header, body)

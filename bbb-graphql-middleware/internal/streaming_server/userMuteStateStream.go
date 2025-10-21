@@ -11,9 +11,7 @@ import (
 )
 
 func HandleUserMutedVoiceEvtMsg(receivedMessage common.RedisMessage, browserConnectionsMutex *sync.RWMutex, browserConnections map[string]*common.BrowserConnection) {
-	// voiceConf := receivedMessage.Core.Body["voiceConf"].(string)
 	intId := receivedMessage.Core.Body["intId"].(string)
-	// voiceUserId := receivedMessage.Core.Body["voiceUserId"].(string)
 	muted := receivedMessage.Core.Body["muted"].(bool)
 
 	now := time.Now().UTC()
@@ -37,7 +35,6 @@ func HandleUserMutedVoiceEvtMsg(receivedMessage common.RedisMessage, browserConn
 		},
 	}
 	jsonDataNext, _ := json.Marshal(browserResponseData)
-	// jsonDataNext, _ := createUserMutedStateMessage(receivedMessage)
 
 	browserConnectionsToSendData := make([]*common.BrowserConnection, 0)
 	browserConnectionsMutex.RLock()
