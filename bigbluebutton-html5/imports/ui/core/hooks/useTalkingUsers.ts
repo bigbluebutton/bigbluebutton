@@ -15,10 +15,19 @@ const TALKING_INDICATOR_TIMEOUT = 6000;
 
 const createUseTalkingUsers = () => {
   const countVar = makeVar(0);
-  const stateVar = makeVar<{ muted: boolean; talking: boolean; userId: string; user: { color: string; speechLocale?: string; name: string } }[] | undefined>([]);
+  const stateVar = makeVar<{
+    muted: boolean;
+    talking: boolean;
+    userId: string;
+    user: { color: string; speechLocale?: string; name: string }
+  }[] | undefined>([]);
   const loadingVar = makeVar(true);
 
-  const dispatchTalkingUserUpdate = (data?: { muted: boolean; talking: boolean; userId: string; user: { color: string; speechLocale?: string; name: string } }[]) => stateVar(data);
+  const dispatchTalkingUserUpdate = (data?: {
+    muted: boolean;
+    talking: boolean;
+    userId: string; user: { color: string; speechLocale?: string; name: string }
+  }[]) => stateVar(data);
 
   const setTalkingUserLoading = (loading: boolean) => loadingVar(loading);
 
@@ -63,12 +72,12 @@ const createUseTalkingUsers = () => {
             return previousRecord;
           }
 
-          let startTime = !previousIndicator?.talking && talking
-            ? new Date().getTime()
+          const startTime = !previousIndicator?.talking && talking
+            ? Date.now()
             : previousIndicator?.startTime;
 
-          let endTime = previousIndicator?.talking && !talking
-            ? new Date().getTime()
+          const endTime = previousIndicator?.talking && !talking
+            ? Date.now()
             : previousIndicator?.endTime;
 
           // Cancel any deletion if user has started talking
@@ -123,7 +132,7 @@ const createUseTalkingUsers = () => {
             return previousRecord;
           }
 
-          const { startTime, endTime } = previousIndicator
+          const { startTime, endTime } = previousIndicator;
 
           // User has never talked or exited audio
           if (!(endTime || startTime)) {

@@ -10,19 +10,25 @@ export const partition = <A, F extends (a: A) => boolean>(arr: A[], criteria: F)
   arr.filter((item) => !criteria(item)),
 ];
 
-export const indexOf = <A>(arr?: A[], value?: A) => (arr ? arr.findIndex((item) => item === value) : -1);
+export const indexOf = <A>(arr?: A[], value?: A) => (arr && value ? arr.indexOf(value) : -1);
 
 export const without = <A>(arr: A[], value: A) => arr.filter((item) => item !== value);
 
-export const defaultsDeep = (override: Record<string | number | symbol, any>, initial: Record<string | number | symbol, any>) => {
+export const defaultsDeep = (
+  override: Record<string | number | symbol, unknown>,
+  initial: Record<string | number | symbol, unknown>,
+) => {
   if (!initial || !override) return initial ?? override ?? {};
 
   return Object.entries({ ...initial, ...override }).reduce(
-    (acc, [key, value]): Record<string | number | symbol, any> => ({
+    (acc, [key, value]): Record<string | number | symbol, unknown> => ({
       ...acc,
       [key]: (() => {
         if (isObject(initial[key])) {
-          return defaultsDeep(value, initial[key]);
+          return defaultsDeep(
+            value as Record<string | number | symbol, unknown>,
+            initial[key] as Record<string | number | symbol, unknown>,
+          );
         }
         return value;
       })(),
