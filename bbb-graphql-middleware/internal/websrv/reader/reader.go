@@ -14,6 +14,14 @@ import (
 	"github.com/coder/websocket"
 )
 
+var streamingHandleByMiddlewarePatterns = [][]byte{
+	[]byte("\"query\":\"subscription getCursorCoordinatesStream"),
+	[]byte("\"query\":\"subscription getChatMessageStream"),
+	[]byte("\"query\":\"subscription getNotificationStream"),
+	[]byte("\"query\":\"subscription getUserMutedStateStream"),
+	[]byte("\"query\":\"subscription getUserTalkingStateStream"),
+}
+
 func BrowserConnectionReader(
 	browserConnection *common.BrowserConnection,
 	waitGroups []*sync.WaitGroup,
@@ -78,9 +86,16 @@ func BrowserConnectionReader(
 				browserConnection.FromBrowserToGqlActionsChannel.SendWait(browserConnection.Context, message)
 				continue
 			}
-			if bytes.Contains(message, []byte("\"query\":\"subscription getCursorCoordinatesStream")) ||
-				bytes.Contains(message, []byte("\"query\":\"subscription getChatMessageStream")) ||
-				bytes.Contains(message, []byte("\"query\":\"subscription getNotificationStream")) {
+
+			isStreamingSubscription := false
+			for _, p := range streamingHandleByMiddlewarePatterns {
+				if bytes.Contains(message, p) {
+					isStreamingSubscription = true
+					break
+				}
+			}
+
+			if isStreamingSubscription {
 				go streamingserver.ReadNewStreamingSubscription(browserConnection, message)
 				continue
 			}

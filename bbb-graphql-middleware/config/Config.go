@@ -124,4 +124,6 @@ var StreamingSubscriptionsManagedByMiddleware = []string{
 	"getCursorCoordinatesStream",
 	"getNotificationStream",
 	"getChatMessageStream",
+	"getUserMutedStateStream",
+	"getUserTalkingStateStream",
 }
