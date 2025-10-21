@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 import { isEqual } from 'radash';
 import { makeVar, useReactiveVar } from '@apollo/client';
-import { VoiceActivityResponse } from '/imports/ui/core/graphql/queries/whoIsTalking';
 
 const createUseWhoIsTalking = () => {
   const countVar = makeVar(0);
@@ -14,7 +13,7 @@ const createUseWhoIsTalking = () => {
 
   const getWhoIsTalking = () => stateVar();
 
-  const dispatchWhoIsTalkingUpdate = (data?: VoiceActivityResponse['user_voice_activity_stream']) => {
+  const dispatchWhoIsTalkingUpdate = (data?: { userId: string; talking: boolean; }[]) => {
     if (countVar() === 0) return;
 
     if (!data) {
@@ -22,17 +21,19 @@ const createUseWhoIsTalking = () => {
       return;
     }
 
-    const newTalkingUsers: Record<string, boolean> = { ...getWhoIsTalking() };
+    const newTalkingUsers = { ...getWhoIsTalking() };
 
     data.forEach((voice) => {
-      const { userId, muted, talking } = voice;
+      const { userId, talking } = voice;
 
-      if (muted) {
+      // Delete the user key instead of setting it to false
+      // to keep the state object small and easy to compare with isEqual
+      if (!talking) {
         delete newTalkingUsers[userId];
         return;
       }
 
-      newTalkingUsers[userId] = talking;
+      newTalkingUsers[userId] = true;
     });
 
     if (isEqual(getWhoIsTalking(), newTalkingUsers)) {

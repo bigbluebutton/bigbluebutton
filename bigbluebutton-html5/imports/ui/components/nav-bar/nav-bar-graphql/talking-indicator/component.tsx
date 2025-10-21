@@ -8,7 +8,7 @@ import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { muteUser } from './service';
 import useToggleVoice from '../../../audio/audio-graphql/hooks/useToggleVoice';
 import { setTalkingIndicatorList } from '/imports/ui/core/hooks/useTalkingIndicator';
-import { VoiceActivityResponse } from '/imports/ui/core/graphql/queries/whoIsTalking';
+import { VoiceActivityResponse } from '/imports/ui/core/graphql/queries/voiceActivity';
 import useTalkingUsers from '/imports/ui/core/hooks/useTalkingUsers';
 import { partition } from '/imports/utils/array-utils';
 import logger from '/imports/startup/client/logger';

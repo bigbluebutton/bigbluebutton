@@ -1,24 +1,24 @@
 import { isObject } from 'radash';
 
-export const range = (start, end) => {
+export const range = (start: number, end: number) => {
   const length = end - start;
   return Array.from({ length }, (_, i) => start + i);
 };
 
-export const partition = (arr, criteria) => [
+export const partition = <A, F extends (a: A) => boolean>(arr: A[], criteria: F) => [
   arr.filter((item) => criteria(item)),
   arr.filter((item) => !criteria(item)),
 ];
 
-export const indexOf = (arr, value) => (arr ? arr.findIndex((item) => item === value) : -1);
+export const indexOf = <A>(arr?: A[], value?: A) => (arr ? arr.findIndex((item) => item === value) : -1);
 
-export const without = (arr, value) => arr.filter((item) => item !== value);
+export const without = <A>(arr: A[], value: A) => arr.filter((item) => item !== value);
 
-export const defaultsDeep = (override, initial) => {
+export const defaultsDeep = (override: Record<string | number | symbol, any>, initial: Record<string | number | symbol, any>) => {
   if (!initial || !override) return initial ?? override ?? {};
 
   return Object.entries({ ...initial, ...override }).reduce(
-    (acc, [key, value]) => ({
+    (acc, [key, value]): Record<string | number | symbol, any> => ({
       ...acc,
       [key]: (() => {
         if (isObject(initial[key])) {

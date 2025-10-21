@@ -23,7 +23,7 @@ import { makeVar } from '@apollo/client';
 import { hasMediaDevicesEventTarget } from '/imports/ui/services/webrtc-base/utils';
 import AudioErrors from '/imports/ui/services/audio-manager/error-codes';
 import GrahqlSubscriptionStore, { stringToHash } from '/imports/ui/core/singletons/subscriptionStore';
-import VOICE_ACTIVITY from '../../core/graphql/queries/whoIsTalking';
+import VOICE_ACTIVITY from '../../core/graphql/queries/voiceActivity';
 import {
   setUserSelectedMicrophone,
   setUserSelectedListenOnly,

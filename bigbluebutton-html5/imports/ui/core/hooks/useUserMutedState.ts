@@ -1,22 +1,22 @@
 import logger from '/imports/startup/client/logger';
-import { VOICE_ACTIVITY, VoiceActivityResponse } from '/imports/ui/core/graphql/queries/voiceActivity';
+import { USER_MUTED, UserMutedResponse } from '/imports/ui/core/graphql/queries/userMuted';
 import useDeduplicatedSubscription from './useDeduplicatedSubscription';
 
-const useVoiceActivity = (skip = false) => {
+const useUserMutedState = (skip = false) => {
   const {
     data,
     loading,
     error,
-  } = useDeduplicatedSubscription<VoiceActivityResponse>(VOICE_ACTIVITY, { skip });
+  } = useDeduplicatedSubscription<UserMutedResponse>(USER_MUTED, { skip });
 
   if (error) {
     logger.error({
-      logCode: 'voice_activity_stream_error',
+      logCode: 'user_muted_state_stream_error',
       extraInfo: {
         errorName: error.name,
         errorMessage: error.message,
       },
-    }, 'useVoiceActivity hook failed.');
+    }, 'useUserMutedState hook failed.');
   }
 
   return {
@@ -26,4 +26,4 @@ const useVoiceActivity = (skip = false) => {
   };
 };
 
-export default useVoiceActivity;
+export default useUserMutedState;
