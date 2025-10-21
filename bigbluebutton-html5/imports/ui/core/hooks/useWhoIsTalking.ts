@@ -13,7 +13,7 @@ const createUseWhoIsTalking = () => {
 
   const getWhoIsTalking = () => stateVar();
 
-  const dispatchWhoIsTalkingUpdate = (data?: { userId: string; talking: boolean; }[]) => {
+  const dispatchWhoIsTalkingUpdate = (data?: { userId: string; talking: boolean; muted: boolean }[]) => {
     if (countVar() === 0) return;
 
     if (!data) {
@@ -24,11 +24,11 @@ const createUseWhoIsTalking = () => {
     const newTalkingUsers = { ...getWhoIsTalking() };
 
     data.forEach((voice) => {
-      const { userId, talking } = voice;
+      const { userId, talking, muted } = voice;
 
       // Delete the user key instead of setting it to false
       // to keep the state object small and easy to compare with isEqual
-      if (!talking) {
+      if (!talking || muted) {
         delete newTalkingUsers[userId];
         return;
       }

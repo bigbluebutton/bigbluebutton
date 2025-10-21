@@ -33,14 +33,15 @@ const VoiceActivityAdapter = () => {
   const connected = useReactiveVar(ConnectionStatus.getConnectedStatusVar());
 
   useEffect(() => {
-    dispatchWhoIsUnmutedUpdate(userMuted);
-    dispatchWhoIsTalkingUpdate(voiceActivity);
-    dispatchTalkingUserUpdate(voiceActivity?.map((voice) => ({
+    const mappedVoiceActivity = voiceActivity?.map((voice) => ({
       muted: userMuted?.find((u) => u.userId === voice.userId)?.muted ?? false,
       talking: voice.talking,
       userId: voice.userId,
       user: voice.user,
-    })));
+    }));
+    dispatchWhoIsUnmutedUpdate(userMuted);
+    dispatchWhoIsTalkingUpdate(mappedVoiceActivity);
+    dispatchTalkingUserUpdate(mappedVoiceActivity);
   }, [voiceActivity, userMuted]);
 
   useEffect(() => {
