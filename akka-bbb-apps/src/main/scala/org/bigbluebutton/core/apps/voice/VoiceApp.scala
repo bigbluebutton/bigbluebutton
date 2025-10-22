@@ -200,25 +200,6 @@ object VoiceApp extends SystemConfiguration {
           outGW
         )
 
-//        for {
-//          userState <- Users2x.findAll(liveMeeting.users2x)
-//        } yield {
-//          println("*****************")
-//          println(userState.name)
-//          println(userState.intId)
-//          println("*****************")
-//        }
-//
-//        for {
-//          userState <- RegisteredUsers.findAll(liveMeeting.registeredUsers)
-//        } yield {
-//          println("-----------------------")
-//          println(userState.name)
-//          println(userState.id)
-//          println("------------------------")
-//        }
-//        println(mutedUser.intId)
-
         val eventUserVoiceStatus = MsgBuilder.buildUserVoiceStateEvtMsg(
           liveMeeting.props.meetingProp.intId,
           liveMeeting.props.voiceProp.voiceConf,
