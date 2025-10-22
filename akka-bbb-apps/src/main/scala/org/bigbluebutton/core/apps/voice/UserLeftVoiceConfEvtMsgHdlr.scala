@@ -47,7 +47,6 @@ trait UserLeftVoiceConfEvtMsgHdlr {
 
     for {
       user <- VoiceUsers.findWithVoiceUserId(liveMeeting.voiceUsers, msg.body.voiceUserId)
-      userState <- Users2x.findWithIntId(liveMeeting.users2x, user.intId)
     } yield {
       AudioFloorManager.handleUserLeftVoice(
         user.intId,
@@ -61,8 +60,8 @@ trait UserLeftVoiceConfEvtMsgHdlr {
       val eventUserVoiceStatus = MsgBuilder.buildUserVoiceStateEvtMsg(
         liveMeeting.props.meetingProp.intId,
         liveMeeting.props.voiceProp.voiceConf,
-        None,
-        userState
+        user.intId,
+        None
       )
       outGW.send(eventUserVoiceStatus)
 

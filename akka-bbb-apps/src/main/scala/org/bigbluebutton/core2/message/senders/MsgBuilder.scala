@@ -676,33 +676,33 @@ object MsgBuilder {
   def buildUserVoiceStateEvtMsg(
                                    meetingId: String,
                                    voiceConf: String,
-                                   vuOption:        Option[VoiceUserState],
-                                   userState: UserState
+                                   userId: String,
+                                   vuOption: Option[VoiceUserState],
                                  ): BbbCommonEnvCoreMsg = {
-    val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userState.intId)
+    val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
     val envelope = BbbCoreEnvelope(UserVoiceStateEvtMsg.NAME, routing)
-    val header = BbbClientMsgHeader(UserVoiceStateEvtMsg.NAME, meetingId, userState.intId)
+    val header = BbbClientMsgHeader(UserVoiceStateEvtMsg.NAME, meetingId, userId)
 
     val body = vuOption match {
       case Some(vu: VoiceUserState) =>
         UserVoiceStateEvtMsgBody(
           voiceConf,
-          userId = userState.intId,
+          userId,
           voiceUserId = vu.voiceUserId,
-          userName = userState.name,
-          userColor = userState.color,
-          userSpeechLocale = userState.speechLocale,
+          userName = vu.callerName,
+          userColor = vu.color,
+          userSpeechLocale = vu.speechLocale,
           talking = vu.talking,
           muted = vu.muted
         )
       case None =>
       UserVoiceStateEvtMsgBody(
         voiceConf,
-        userId = userState.intId,
+        userId,
         voiceUserId = "",
-        userName = userState.name,
-        userColor = userState.color,
-        userSpeechLocale = userState.speechLocale,
+        userName = "",
+        userColor = "",
+        userSpeechLocale = "",
         talking = false,
         muted = true
       )

@@ -164,7 +164,6 @@ object VoiceApp extends SystemConfiguration {
   )(implicit context: ActorContext): Unit = {
     for {
       mutedUser <- VoiceUsers.userMuted(liveMeeting.voiceUsers, voiceUserId, muted)
-      userState <- Users2x.findWithIntId(liveMeeting.users2x, mutedUser.intId)
     } yield {
       if (!muted) {
         // Make sure lock settings are in effect (ralam dec 6, 2019)
@@ -201,11 +200,30 @@ object VoiceApp extends SystemConfiguration {
           outGW
         )
 
+//        for {
+//          userState <- Users2x.findAll(liveMeeting.users2x)
+//        } yield {
+//          println("*****************")
+//          println(userState.name)
+//          println(userState.intId)
+//          println("*****************")
+//        }
+//
+//        for {
+//          userState <- RegisteredUsers.findAll(liveMeeting.registeredUsers)
+//        } yield {
+//          println("-----------------------")
+//          println(userState.name)
+//          println(userState.id)
+//          println("------------------------")
+//        }
+//        println(mutedUser.intId)
+
         val eventUserVoiceStatus = MsgBuilder.buildUserVoiceStateEvtMsg(
           liveMeeting.props.meetingProp.intId,
           liveMeeting.props.voiceProp.voiceConf,
-          Some(mutedUser),
-          userState
+          mutedUser.intId,
+          Some(mutedUser)
         )
         outGW.send(eventUserVoiceStatus)
       }
@@ -262,12 +280,13 @@ object VoiceApp extends SystemConfiguration {
                 cvu.callerIdName,
                 cvu.callerIdNum,
                 ColorPicker.nextColor(liveMeeting.props.meetingProp.intId),
+                speechLocale = "",
                 cvu.muted,
-                false,
-                false,
-                cvu.talking,
+                listenOnlyInputDevice = false,
+                deafened = false,
+                talking = cvu.talking,
                 cvu.calledInto,
-                cvu.hold,
+                hold = cvu.hold,
                 cvu.uuid,
               )
             }
@@ -316,6 +335,7 @@ object VoiceApp extends SystemConfiguration {
       callerIdName: String,
       callerIdNum:  String,
       color:        String,
+      speechLocale: String,
       muted:        Boolean,
       listenOnlyInputDevice: Boolean,
       deafened:     Boolean,
@@ -384,6 +404,7 @@ object VoiceApp extends SystemConfiguration {
       callerIdName,
       callerIdNum,
       color,
+      speechLocale,
       muted,
       listenOnlyInputDevice,
       deafened,
@@ -490,7 +511,6 @@ object VoiceApp extends SystemConfiguration {
 
     for {
       user <- VoiceUsers.findWithVoiceUserId(liveMeeting.voiceUsers, voiceUserId)
-      userState <- Users2x.findWithIntId(liveMeeting.users2x, user.intId)
     } yield {
       VoiceUsers.removeWithIntId(liveMeeting.voiceUsers, user.meetingId, user.intId)
       broadcastEvent(user)
@@ -498,8 +518,8 @@ object VoiceApp extends SystemConfiguration {
       val eventUserVoiceStatus = MsgBuilder.buildUserVoiceStateEvtMsg(
         liveMeeting.props.meetingProp.intId,
         liveMeeting.props.voiceProp.voiceConf,
-        None,
-        userState
+        user.intId,
+        None
       )
       outGW.send(eventUserVoiceStatus)
 
@@ -902,7 +922,6 @@ object VoiceApp extends SystemConfiguration {
   )(implicit context: ActorContext): Unit = {
     for {
       talkingUser <- VoiceUsers.userTalking(liveMeeting.voiceUsers, voiceUserId, talking)
-      userState <- Users2x.findWithIntId(liveMeeting.users2x, talkingUser.intId)
     } yield {
       // Make sure lock settings are in effect
       LockSettingsUtil.enforceLockSettingsForVoiceUser(
@@ -929,8 +948,8 @@ object VoiceApp extends SystemConfiguration {
       val eventUserVoiceStatus = MsgBuilder.buildUserVoiceStateEvtMsg(
         liveMeeting.props.meetingProp.intId,
         liveMeeting.props.voiceProp.voiceConf,
-        Some(talkingUser),
-        userState
+        talkingUser.intId,
+        Some(talkingUser)
       )
       outGW.send(eventUserVoiceStatus)
 
