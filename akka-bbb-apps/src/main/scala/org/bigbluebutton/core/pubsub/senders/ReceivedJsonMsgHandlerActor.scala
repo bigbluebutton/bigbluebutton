@@ -172,23 +172,23 @@ class ReceivedJsonMsgHandlerActor(
       case PadPinnedReqMsg.NAME =>
         routeGenericMsg[PadPinnedReqMsg](envelope, jsonNode)
 
-      // Audio groups
-      case GetAudioGroupsReqMsg.NAME =>
-        routeGenericMsg[GetAudioGroupsReqMsg](envelope, jsonNode)
-      case CreateAudioGroupReqMsg.NAME =>
-        routeGenericMsg[CreateAudioGroupReqMsg](envelope, jsonNode)
-      case DestroyAudioGroupReqMsg.NAME =>
-        routeGenericMsg[DestroyAudioGroupReqMsg](envelope, jsonNode)
-      case AudioGroupAddParticipantsReqMsg.NAME =>
-        routeGenericMsg[AudioGroupAddParticipantsReqMsg](envelope, jsonNode)
-      case AudioGroupRemoveParticipantsReqMsg.NAME =>
-        routeGenericMsg[AudioGroupRemoveParticipantsReqMsg](envelope, jsonNode)
-      case JoinAudioGroupReqMsg.NAME =>
-        routeGenericMsg[JoinAudioGroupReqMsg](envelope, jsonNode)
-      case LeaveAudioGroupReqMsg.NAME =>
-        routeGenericMsg[LeaveAudioGroupReqMsg](envelope, jsonNode)
-      case AudioGroupUpdateParticipantReqMsg.NAME =>
-        routeGenericMsg[AudioGroupUpdateParticipantReqMsg](envelope, jsonNode)
+      // Media groups
+      case GetMediaGroupsReqMsg.NAME =>
+        routeGenericMsg[GetMediaGroupsReqMsg](envelope, jsonNode)
+      case CreateMediaGroupReqMsg.NAME =>
+        routeGenericMsg[CreateMediaGroupReqMsg](envelope, jsonNode)
+      case DestroyMediaGroupReqMsg.NAME =>
+        routeGenericMsg[DestroyMediaGroupReqMsg](envelope, jsonNode)
+      case MediaGroupAddParticipantsReqMsg.NAME =>
+        routeGenericMsg[MediaGroupAddParticipantsReqMsg](envelope, jsonNode)
+      case MediaGroupRemoveParticipantsReqMsg.NAME =>
+        routeGenericMsg[MediaGroupRemoveParticipantsReqMsg](envelope, jsonNode)
+      case JoinMediaGroupReqMsg.NAME =>
+        routeGenericMsg[JoinMediaGroupReqMsg](envelope, jsonNode)
+      case LeaveMediaGroupReqMsg.NAME =>
+        routeGenericMsg[LeaveMediaGroupReqMsg](envelope, jsonNode)
+      case MediaGroupUpdateParticipantReqMsg.NAME =>
+        routeGenericMsg[MediaGroupUpdateParticipantReqMsg](envelope, jsonNode)
 
       // Voice
       case RecordingStartedVoiceConfEvtMsg.NAME =>

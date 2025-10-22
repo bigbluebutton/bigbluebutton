@@ -15,20 +15,20 @@ import { liveKitRoom } from '/imports/ui/services/livekit';
 import logger from '/imports/startup/client/logger';
 import Auth from '/imports/ui/services/auth';
 import {
-  AUDIO_GROUP_STREAMS_SUBSCRIPTION,
+  MEDIA_GROUP_STREAMS_SUBSCRIPTION,
 } from '/imports/ui/components/livekit/selective-subscription/queries';
 import {
-  AudioGroupStream,
-  AudioSendersData,
+  MediaGroupStream,
+  MediaSendersData,
   SUBSCRIPTION_RETRY,
-  ParticipantTypes,
+  MediaType,
 } from '/imports/ui/components/livekit/selective-subscription/types';
 import createUseSubscription from '/imports/ui/core/hooks/createUseSubscription';
 import AudioManager from '/imports/ui/services/audio-manager';
 import { useAutoplayState } from '/imports/ui/components/livekit/autoplay-modal/hooks';
 
-const useAudioGroupStreamsSubscription = createUseSubscription(
-  AUDIO_GROUP_STREAMS_SUBSCRIPTION,
+const useMediaGroupStreamsSubscription = createUseSubscription(
+  MEDIA_GROUP_STREAMS_SUBSCRIPTION,
   {},
   true,
 );
@@ -50,11 +50,12 @@ const isValidSource = (source: Track.Source) => (
   source === Track.Source.Microphone || source === Track.Source.ScreenShareAudio
 );
 
-export const useAudioSenders = (
+export const useMediaSenders = (
   remoteParticipants: RemoteParticipant[],
   deafened: boolean,
-): AudioSendersData => {
-  const { data, errors } = useAudioGroupStreamsSubscription();
+  mediaType: MediaType,
+): MediaSendersData => {
+  const { data, errors } = useMediaGroupStreamsSubscription();
 
   if (errors) {
     errors.forEach((error) => {
@@ -62,32 +63,27 @@ export const useAudioSenders = (
         logCode: 'livekit_audio_sel_group_sub_error',
         extraInfo: {
           errorMessage: error.message,
+          mediaType,
         },
-      }, 'LiveKit: Audio group streams subscription failed.');
+      }, `LiveKit: ${mediaType} group streams subscription failed.`);
     });
   }
 
-  if (deafened) return { senders: [], inAnyGroup: false };
+  if (deafened && mediaType === MediaType.AUDIO) return { senders: [], inAnyGroup: false };
 
-  const groups = data as AudioGroupStream[] || [];
-  const receiverFilter = [
-    ParticipantTypes.RECEIVER,
-    ParticipantTypes.SENDRECV,
-  ];
+  const groups = (data as MediaGroupStream[] || []).filter(
+    (group) => group.mediaType === mediaType,
+  );
   const myInboundGroupIds = groups.filter(
-    (group) => group.userId === Auth.userID && receiverFilter.includes(group.participantType),
+    (group) => group.userId === Auth.userID && group.receiver === true,
   ).map((group) => group.groupId);
   const inAnyGroup = myInboundGroupIds.length > 0;
-  const senderFilter = [
-    ParticipantTypes.SENDER,
-    ParticipantTypes.SENDRECV,
-  ];
 
   // If we don't have any groups, we need to subscribe to all senders that
   // are not part of a sender group
   if (!inAnyGroup) {
     const senderIds = new Set(groups
-      .filter((group) => senderFilter.includes(group.participantType))
+      .filter((group) => group.sender === true)
       .map((group) => group.userId));
 
     const grouplessSenders = remoteParticipants
@@ -95,7 +91,9 @@ export const useAudioSenders = (
       .map((participant) => ({
         userId: participant.identity,
         groupId: 'default',
-        participantType: ParticipantTypes.SENDRECV,
+        mediaType,
+        sender: true,
+        receiver: true,
         active: true,
       }));
 
@@ -104,7 +102,7 @@ export const useAudioSenders = (
 
   const senders = groups
     .filter((group) => myInboundGroupIds.includes(group.groupId))
-    .filter((stream) => senderFilter.includes(stream.participantType) && stream.active);
+    .filter((stream) => stream.sender === true && stream.active);
 
   return { senders, inAnyGroup };
 };
@@ -114,7 +112,7 @@ interface RetryState {
   timer: ReturnType<typeof setTimeout> | null;
 }
 
-export const useAudioSubscriptions = () => {
+export const useMediaSubscriptions = () => {
   const [autoplayState] = useAutoplayState(liveKitRoom);
   /* eslint no-underscore-dangle: 0 */
   // @ts-ignore
@@ -123,7 +121,8 @@ export const useAudioSubscriptions = () => {
   const remoteParticipants = useRemoteParticipants({
     updateOnlyOn: PARTICIPANTS_UPDATE_FILTER,
   });
-  const { senders, inAnyGroup } = useAudioSenders(remoteParticipants, deafened);
+  // For now we're only handling audio, but this is ready for other media types
+  const { senders, inAnyGroup } = useMediaSenders(remoteParticipants, deafened, MediaType.AUDIO);
   const retryMap = useRef<Map<string, RetryState>>(new Map());
   const [subscriptionErrors, setSubscriptionErrors] = useState<Map<string, Error>>(new Map());
 
@@ -146,7 +145,7 @@ export const useAudioSubscriptions = () => {
         extraInfo: {
           trackSid,
         },
-      }, `LiveKit: audio maxed retries - ${trackSid}`);
+      }, `LiveKit: ${publication.source} maxed retries - ${trackSid}`);
       retryMap.current.delete(userId);
       return;
     }
@@ -223,7 +222,7 @@ export const useAudioSubscriptions = () => {
                       userId: participantId,
                       inAnyGroup,
                     },
-                  }, `LiveKit: Unsubscribed from audio - ${trackSid}`);
+                  }, `LiveKit: Unsubscribed from ${publication.source} - ${trackSid}`);
                 } catch (error) {
                   logger.error({
                     logCode: 'livekit_audio_sel_unsubscription_failed',
@@ -232,7 +231,7 @@ export const useAudioSubscriptions = () => {
                       errorMessage: (error as Error).message,
                       errorStack: (error as Error).stack,
                     },
-                  }, `LiveKit: Failed to unsubscribe from audio - ${trackSid}`);
+                  }, `LiveKit: Failed to unsubscribe from ${publication.source} - ${trackSid}`);
                 }
               }
             });
@@ -259,7 +258,7 @@ export const useAudioSubscriptions = () => {
                       trackSid,
                       inAnyGroup,
                     },
-                  }, `LiveKit: Subscribed to audio - ${trackSid}`);
+                  }, `LiveKit: Subscribed to ${publication.source} - ${trackSid}`);
                 } catch (error) {
                   logger.error({
                     logCode: 'livekit_audio_sel_subscription_failed',
@@ -268,7 +267,7 @@ export const useAudioSubscriptions = () => {
                       errorMessage: (error as Error).message,
                       errorStack: (error as Error).stack,
                     },
-                  }, `LiveKit: Failed to subscribe to audio - ${trackSid}`);
+                  }, `LiveKit: Failed to subscribe to ${publication.source} - ${trackSid}`);
 
                   setSubscriptionErrors((prev) => {
                     const next = new Map(prev);

@@ -58,6 +58,13 @@ import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
 import createUseSubscription from '/imports/ui/core/hooks/createUseSubscription';
 import { filterByMeetingId } from '/imports/ui/core/utils/subscriptionFilters';
+import {
+  MEDIA_GROUP_STREAMS_SUBSCRIPTION,
+} from '/imports/ui/components/livekit/selective-subscription/queries';
+import {
+  MediaGroupStream,
+  MediaType,
+} from '/imports/ui/components/livekit/selective-subscription/types';
 
 const useVideoStreamsSubscription = createUseSubscription(
   VIDEO_STREAMS_SUBSCRIPTION,
@@ -421,6 +428,12 @@ const useAudioOnlySubscription = createUseSubscription(
   true,
 );
 
+const useMediaGroupStreamsSubscription = createUseSubscription(
+  MEDIA_GROUP_STREAMS_SUBSCRIPTION,
+  {},
+  true,
+);
+
 export const useAudioOnlyUsers = (): AudioOnlyStream[] => {
   const { data: meeting } = useMeeting((m) => ({ meetingId: m.meetingId }));
   const { data, loading, errors } = useAudioOnlySubscription();
@@ -471,6 +484,47 @@ export const useAudioOnlyUsers = (): AudioOnlyStream[] => {
   return mappedAudioStreams;
 };
 
+const useVideoSenders = () => {
+  const { data, errors } = useMediaGroupStreamsSubscription();
+
+  if (errors) {
+    errors.forEach((error) => {
+      logger.error({
+        logCode: 'video_provider_media_group_sub_error',
+        extraInfo: {
+          errorMessage: error.message,
+          mediaType: MediaType.CAMERA,
+        },
+      }, `VideoProvider: ${MediaType.CAMERA} group streams subscription failed.`);
+    });
+  }
+
+  const groups = (data as MediaGroupStream[] || []).filter(
+    (group) => group.mediaType === MediaType.CAMERA,
+  );
+
+  const myInboundGroupIds = groups.filter(
+    (group) => group.userId === Auth.userID && group.receiver === true,
+  ).map((group) => group.groupId);
+
+  const inAnyGroup = myInboundGroupIds.length > 0;
+
+  if (!inAnyGroup) {
+    const senderIdsInGroups = new Set(groups
+      .filter((group) => group.sender === true)
+      .map((group) => group.userId));
+
+    return { senderIds: null, senderIdsInGroups, inAnyGroup: false };
+  }
+
+  const senderIds = new Set(groups
+    .filter((group) => myInboundGroupIds.includes(group.groupId))
+    .filter((stream) => stream.sender === true && stream.active)
+    .map((stream) => stream.userId));
+
+  return { senderIds, senderIdsInGroups: null, inAnyGroup: true };
+};
+
 export const useVideoStreams = () => {
   const { viewParticipantsWebcams } = useSettings(SETTINGS.DATA_SAVING) as { viewParticipantsWebcams?: boolean };
   const { currentVideoPageIndex, numberOfPages } = useVideoState();
@@ -479,6 +533,7 @@ export const useVideoStreams = () => {
   const audioOnlyUsers = useAudioOnlyUsers();
   const myPageSize = useMyPageSize();
   const isPaginationEnabled = useIsPaginationEnabled();
+  const { senderIds, senderIdsInGroups, inAnyGroup } = useVideoSenders();
   let streams: StreamItem[] = [...videoStreams];
   let totalNumberOfOtherStreams: number | undefined;
 
@@ -499,6 +554,12 @@ export const useVideoStreams = () => {
 
   if (!viewParticipantsWebcams) {
     streams = streams.filter((vs) => videoService.isLocalStream(vs.stream));
+  } else if (inAnyGroup) {
+    streams = streams.filter((vs) => videoService.isLocalStream(vs.stream)
+      || (senderIds?.has(vs.userId)));
+  } else if (senderIdsInGroups) {
+    streams = streams.filter((vs) => videoService.isLocalStream(vs.stream)
+      || !senderIdsInGroups.has(vs.userId));
   }
 
   if (isPaginationEnabled) {

@@ -1,10 +1,10 @@
 table:
-  name: v_user_audioGroup
+  name: v_user_mediaGroup
   schema: public
 configuration:
   column_config: {}
   custom_column_names: {}
-  custom_name: user_audioGroup
+  custom_name: user_mediaGroup
   custom_root_fields: {}
 object_relationships:
   - name: group
@@ -14,7 +14,7 @@ object_relationships:
           groupId: groupId
         insertion_order: null
         remote_table:
-          name: v_audioGroup
+          name: v_mediaGroup
           schema: public
   - name: user
     using:
@@ -31,8 +31,10 @@ select_permissions:
       columns:
         - groupId
         - userId
-        - participantType
+        - sender
+        - receiver
         - active
+        - mediaType
       filter:
         _and:
           - meetingId:

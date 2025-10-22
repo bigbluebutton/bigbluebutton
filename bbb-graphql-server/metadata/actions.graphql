@@ -7,37 +7,44 @@ type Mutation {
 }
 
 type Mutation {
-  audioGroupCreate(
+  mediaGroupCreate(
     id: String!
-    senders: [AudioGroupParticipant]
-    receivers: [AudioGroupParticipant]
+    mediaType: String!
+    locked: Boolean
+    record: Boolean
+    senders: [MediaGroupParticipant]
+    receivers: [MediaGroupParticipant]
   ): Boolean
 }
 
 type Mutation {
-  audioGroupDestroy(
+  mediaGroupDestroy(
     id: String!
+    mediaType: String!
   ): Boolean
 }
 
 type Mutation {
-  audioGroupJoin(
+  mediaGroupJoin(
     id: String!
-    participant: AudioGroupParticipant!
+    mediaType: String!
+    participant: MediaGroupParticipant!
   ): Boolean
 }
 
 type Mutation {
-  audioGroupLeave(
+  mediaGroupLeave(
     id: String!
+    mediaType: String!
     userId: String!
   ): Boolean
 }
 
 type Mutation {
-  audioGroupUpdateParticipant(
+  mediaGroupUpdateParticipant(
     id: String!
-    participant: AudioGroupParticipant!
+    mediaType: String!
+    participant: MediaGroupParticipant!
   ): Boolean
 }
 
@@ -770,9 +777,10 @@ input GuestUserApprovalStatus {
   status: String!
 }
 
-input AudioGroupParticipant {
-  id: String!
-  participantType: String!
+input MediaGroupParticipant {
+  userId: String!
+  sender: Boolean!
+  receiver: Boolean!
   active: Boolean!
 }
 

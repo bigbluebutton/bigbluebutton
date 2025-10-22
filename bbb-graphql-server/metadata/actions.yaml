@@ -11,41 +11,41 @@ actions:
       handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
     permissions:
       - role: bbb_client
-  - name: audioGroupCreate
+  - name: mediaGroupCreate
     definition:
       kind: synchronous
       handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
     permissions:
       - role: bbb_client
-    comment: Creates a new AudioGroup (or do nothing if there's one with the specified ID)
-  - name: audioGroupDestroy
+    comment: Creates a new MediaGroup (or do nothing if there's one with the specified ID)
+  - name: mediaGroupDestroy
     definition:
       kind: synchronous
       handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
     permissions:
       - role: bbb_client
-    comment: Destroys an AudioGroup
-  - name: audioGroupJoin
+    comment: Destroys a MediaGroup
+  - name: mediaGroupJoin
     definition:
       kind: synchronous
       handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
     permissions:
       - role: bbb_client
-    comment: Joins an user to an AudioGroup
-  - name: audioGroupLeave
+    comment: Joins an user to a MediaGroup
+  - name: mediaGroupLeave
     definition:
       kind: synchronous
       handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
     permissions:
       - role: bbb_client
-    comment: Removes an user from an AudioGroup
-  - name: audioGroupUpdateParticipant
+    comment: Removes an user from a MediaGroup
+  - name: mediaGroupUpdateParticipant
     definition:
       kind: synchronous
       handler: '{{HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL}}'
     permissions:
       - role: bbb_client
-    comment: Updates an AudioGroup's participant state
+    comment: Updates a MediaGroup's participant state
   - name: breakoutRoomCreate
     definition:
       kind: synchronous
@@ -677,6 +677,6 @@ custom_types:
   input_objects:
     - name: BreakoutRoom
     - name: GuestUserApprovalStatus
-    - name: AudioGroupParticipant
+    - name: MediaGroupParticipant
   objects: []
   scalars: []

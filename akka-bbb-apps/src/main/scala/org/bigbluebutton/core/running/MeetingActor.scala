@@ -12,7 +12,7 @@ import org.bigbluebutton.core.util.TimeUtil
 import org.bigbluebutton.common2.domain.{ DefaultProps, LockSettingsProps }
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.apps._
-import org.bigbluebutton.core.apps.audiogroups.AudioGroupHdlrs
+import org.bigbluebutton.core.apps.mediagroups.MediaGroupHdlrs
 import org.bigbluebutton.core.apps.caption.CaptionApp2x
 import org.bigbluebutton.core.apps.chat.ChatApp2x
 import org.bigbluebutton.core.apps.externalvideo.ExternalVideoApp2x
@@ -139,7 +139,7 @@ class MeetingActor(
   val wbApp = new WhiteboardApp2x
   val timerApp2x = new TimerApp2x
   val pluginHdlrs = new PluginHdlrs
-  val audioGroupHdlrs = new AudioGroupHdlrs
+  val mediaGroupHdlrs = new MediaGroupHdlrs
 
   object ExpiryTrackerHelper extends MeetingExpiryTrackerHelper
 
@@ -169,7 +169,7 @@ class MeetingActor(
     None,
     expiryTracker,
     recordingTracker,
-    new AudioGroups(Map.empty),
+    new MediaGroups(Map.empty),
     PresentationConversions(Map.empty)
   )
 
@@ -542,15 +542,15 @@ class MeetingActor(
       case m: SendMessageToAllBreakoutRoomsReqMsg  => state = handleSendMessageToAllBreakoutRoomsMsg(m, state)
       case m: ChangeUserBreakoutReqMsg             => state = handleChangeUserBreakoutReqMsg(m, state)
 
-      // Audio Groups
-      case m: CreateAudioGroupReqMsg               => state = audioGroupHdlrs.handle(m, state, liveMeeting, msgBus)
-      case m: DestroyAudioGroupReqMsg              => state = audioGroupHdlrs.handle(m, state, liveMeeting, msgBus)
-      case m: GetAudioGroupsReqMsg                 => state = audioGroupHdlrs.handle(m, state, liveMeeting, msgBus)
-      case m: AudioGroupAddParticipantsReqMsg      => state = audioGroupHdlrs.handle(m, state, liveMeeting, msgBus)
-      case m: AudioGroupRemoveParticipantsReqMsg   => state = audioGroupHdlrs.handle(m, state, liveMeeting, msgBus)
-      case m: JoinAudioGroupReqMsg                 => state = audioGroupHdlrs.handle(m, state, liveMeeting, msgBus)
-      case m: LeaveAudioGroupReqMsg                => state = audioGroupHdlrs.handle(m, state, liveMeeting, msgBus)
-      case m: AudioGroupUpdateParticipantReqMsg    => state = audioGroupHdlrs.handle(m, state, liveMeeting, msgBus)
+      // Media Groups
+      case m: CreateMediaGroupReqMsg               => state = mediaGroupHdlrs.handle(m, state, liveMeeting, msgBus)
+      case m: DestroyMediaGroupReqMsg              => state = mediaGroupHdlrs.handle(m, state, liveMeeting, msgBus)
+      case m: GetMediaGroupsReqMsg                 => state = mediaGroupHdlrs.handle(m, state, liveMeeting, msgBus)
+      case m: MediaGroupAddParticipantsReqMsg      => state = mediaGroupHdlrs.handle(m, state, liveMeeting, msgBus)
+      case m: MediaGroupRemoveParticipantsReqMsg   => state = mediaGroupHdlrs.handle(m, state, liveMeeting, msgBus)
+      case m: JoinMediaGroupReqMsg                 => state = mediaGroupHdlrs.handle(m, state, liveMeeting, msgBus)
+      case m: LeaveMediaGroupReqMsg                => state = mediaGroupHdlrs.handle(m, state, liveMeeting, msgBus)
+      case m: MediaGroupUpdateParticipantReqMsg    => state = mediaGroupHdlrs.handle(m, state, liveMeeting, msgBus)
 
       // Voice
       case m: UserLeftVoiceConfEvtMsg              => handleUserLeftVoiceConfEvtMsg(m)
