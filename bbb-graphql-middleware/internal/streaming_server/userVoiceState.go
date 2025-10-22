@@ -12,6 +12,7 @@ import (
 
 func HandleUserVoiceStateEvtMsg(receivedMessage common.RedisMessage, browserConnectionsMutex *sync.RWMutex, browserConnections map[string]*common.BrowserConnection) {
 	userId := receivedMessage.Core.Body["userId"].(string)
+	voiceUserId := receivedMessage.Core.Body["voiceUserId"].(string)
 	userName := receivedMessage.Core.Body["userName"].(string)
 	userColor := receivedMessage.Core.Body["userColor"].(string)
 	userSpeechLocale := receivedMessage.Core.Body["userSpeechLocale"].(string)
@@ -21,9 +22,10 @@ func HandleUserVoiceStateEvtMsg(receivedMessage common.RedisMessage, browserConn
 	now := time.Now().UTC()
 
 	item := map[string]any{
-		"userId":  userId,
-		"muted":   muted,
-		"talking": talking,
+		"userId":      userId,
+		"voiceUserId": voiceUserId,
+		"muted":       muted,
+		"talking":     talking,
 		"user": map[string]any{
 			"color":        userColor,
 			"name":         userName,

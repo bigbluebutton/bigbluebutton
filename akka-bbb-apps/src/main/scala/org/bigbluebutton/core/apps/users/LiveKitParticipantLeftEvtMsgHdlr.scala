@@ -25,6 +25,7 @@ trait LiveKitParticipantLeftEvtMsgHdlr {
     // Clean up any voice users associated with the user
     for {
       vu <- VoiceUsers.findWIthIntId(liveMeeting.voiceUsers, userId)
+      userState <- Users2x.findWithIntId(liveMeeting.users2x, vu.intId)
     } yield {
       AudioFloorManager.handleUserLeftVoice(
         vu.intId,
@@ -44,6 +45,15 @@ trait LiveKitParticipantLeftEvtMsgHdlr {
         vu.voiceUserId
       )
       outGW.send(event)
+
+      val eventUserVoiceStatus = MsgBuilder.buildUserVoiceStateEvtMsg(
+        liveMeeting.props.meetingProp.intId,
+        liveMeeting.props.voiceProp.voiceConf,
+        None,
+        userState
+      )
+      outGW.send(eventUserVoiceStatus)
+
     }
 
     // Clean up any webcams associated with the user

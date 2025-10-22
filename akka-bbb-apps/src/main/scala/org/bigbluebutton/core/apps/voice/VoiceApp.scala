@@ -204,7 +204,7 @@ object VoiceApp extends SystemConfiguration {
         val eventUserVoiceStatus = MsgBuilder.buildUserVoiceStateEvtMsg(
           liveMeeting.props.meetingProp.intId,
           liveMeeting.props.voiceProp.voiceConf,
-          mutedUser,
+          Some(mutedUser),
           userState
         )
         outGW.send(eventUserVoiceStatus)
@@ -490,9 +490,19 @@ object VoiceApp extends SystemConfiguration {
 
     for {
       user <- VoiceUsers.findWithVoiceUserId(liveMeeting.voiceUsers, voiceUserId)
+      userState <- Users2x.findWithIntId(liveMeeting.users2x, user.intId)
     } yield {
       VoiceUsers.removeWithIntId(liveMeeting.voiceUsers, user.meetingId, user.intId)
       broadcastEvent(user)
+
+      val eventUserVoiceStatus = MsgBuilder.buildUserVoiceStateEvtMsg(
+        liveMeeting.props.meetingProp.intId,
+        liveMeeting.props.voiceProp.voiceConf,
+        None,
+        userState
+      )
+      outGW.send(eventUserVoiceStatus)
+
 
       if (!user.listenOnly) {
         enforceMuteOnStartThreshold(liveMeeting, outGW)
@@ -919,7 +929,7 @@ object VoiceApp extends SystemConfiguration {
       val eventUserVoiceStatus = MsgBuilder.buildUserVoiceStateEvtMsg(
         liveMeeting.props.meetingProp.intId,
         liveMeeting.props.voiceProp.voiceConf,
-        talkingUser,
+        Some(talkingUser),
         userState
       )
       outGW.send(eventUserVoiceStatus)
