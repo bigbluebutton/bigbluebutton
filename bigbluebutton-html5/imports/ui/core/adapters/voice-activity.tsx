@@ -17,7 +17,6 @@ import {
   useTalkingUserConsumersCount,
 } from '/imports/ui/core/hooks/useTalkingUsers';
 import ConnectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
-import useUserMutedState from '/imports/ui/core/hooks/useUserMutedState';
 
 const VoiceActivityAdapter = () => {
   const whoIsUnmutedConsumersCount = useWhoIsUnmutedConsumersCount();
@@ -29,26 +28,19 @@ const VoiceActivityAdapter = () => {
     + talkingUserConsumersCount > 0
   );
   const { data: voiceActivity, loading: voiceActivityLoading } = useVoiceActivity(skip);
-  const { data: userMuted, loading: userMutedLoading } = useUserMutedState(skip);
   const connected = useReactiveVar(ConnectionStatus.getConnectedStatusVar());
 
   useEffect(() => {
-    const mappedVoiceActivity = voiceActivity?.map((voice) => ({
-      muted: userMuted?.find((u) => u.userId === voice.userId)?.muted ?? false,
-      talking: voice.talking,
-      userId: voice.userId,
-      user: voice.user,
-    }));
-    dispatchWhoIsUnmutedUpdate(userMuted);
-    dispatchWhoIsTalkingUpdate(mappedVoiceActivity);
-    dispatchTalkingUserUpdate(mappedVoiceActivity);
-  }, [voiceActivity, userMuted]);
+    dispatchWhoIsUnmutedUpdate(voiceActivity);
+    dispatchWhoIsTalkingUpdate(voiceActivity);
+    dispatchTalkingUserUpdate(voiceActivity);
+  }, [voiceActivity]);
 
   useEffect(() => {
-    setWhoIsUnmutedLoading(voiceActivityLoading || userMutedLoading);
-    setWhoIsTalkingLoading(voiceActivityLoading || userMutedLoading);
-    setTalkingUserLoading(voiceActivityLoading || userMutedLoading);
-  }, [voiceActivityLoading, userMutedLoading]);
+    setWhoIsUnmutedLoading(voiceActivityLoading);
+    setWhoIsTalkingLoading(voiceActivityLoading);
+    setTalkingUserLoading(voiceActivityLoading);
+  }, [voiceActivityLoading]);
 
   useEffect(() => {
     if (!connected) {
