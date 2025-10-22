@@ -5,6 +5,7 @@ export interface VoiceActivityResponse {
     talking: boolean;
     muted: boolean;
     userId: string;
+    voiceUserId: string;
     user: {
       color: string;
       name: string;
@@ -23,6 +24,7 @@ export const VOICE_ACTIVITY = gql`
       talking
       muted
       userId
+      voiceUserId
       user {
         color
         name
