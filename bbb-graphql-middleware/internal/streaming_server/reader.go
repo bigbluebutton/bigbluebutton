@@ -39,8 +39,8 @@ func ReadNewStreamingSubscription(
 			SendPreviousCursorPosition(browserConnection, queryId)
 		}
 
-		if browserMessage.Payload.OperationName == "getUserMutedStateStream" {
-			SendPreviousMutedState(browserConnection, queryId)
+		if browserMessage.Payload.OperationName == "getUserVoiceStateStream" {
+			SendPreviousUserVoiceState(browserConnection, queryId)
 		}
 	}
 

@@ -3,6 +3,7 @@ import { gql } from '@apollo/client';
 export interface VoiceActivityResponse {
   user_voice_activity_stream: Array<{
     talking: boolean;
+    muted: boolean;
     userId: string;
     user: {
       color: string;
@@ -12,13 +13,15 @@ export interface VoiceActivityResponse {
   }>;
 }
 
+// This subscription is handled by bbb-graphql-middleware and its content should not be modified
 export const VOICE_ACTIVITY = gql`
-  subscription getUserTalkingStateStream {
+  subscription getUserVoiceStateStream {
     user_voice_activity_stream(
       cursor: { initial_value: { voiceActivityAt: "2020-01-01" } },
       batch_size: 10
     ) {
       talking
+      muted
       userId
       user {
         color

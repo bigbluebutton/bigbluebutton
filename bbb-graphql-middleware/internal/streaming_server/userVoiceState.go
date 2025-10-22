@@ -10,17 +10,19 @@ import (
 	"bbb-graphql-middleware/internal/common"
 )
 
-func HandleUserTalkingVoiceEvtMsg(receivedMessage common.RedisMessage, browserConnectionsMutex *sync.RWMutex, browserConnections map[string]*common.BrowserConnection) {
-	intId := receivedMessage.Core.Body["intId"].(string)
+func HandleUserVoiceStateEvtMsg(receivedMessage common.RedisMessage, browserConnectionsMutex *sync.RWMutex, browserConnections map[string]*common.BrowserConnection) {
+	userId := receivedMessage.Core.Body["userId"].(string)
 	userName := receivedMessage.Core.Body["userName"].(string)
 	userColor := receivedMessage.Core.Body["userColor"].(string)
 	userSpeechLocale := receivedMessage.Core.Body["userSpeechLocale"].(string)
 	talking := receivedMessage.Core.Body["talking"].(bool)
+	muted := receivedMessage.Core.Body["muted"].(bool)
 
 	now := time.Now().UTC()
 
 	item := map[string]any{
-		"userId":  intId,
+		"userId":  userId,
+		"muted":   muted,
 		"talking": talking,
 		"user": map[string]any{
 			"color":        userColor,
@@ -56,9 +58,9 @@ func HandleUserTalkingVoiceEvtMsg(receivedMessage common.RedisMessage, browserCo
 
 	for _, bc := range browserConnectionsToSendData {
 		bc.ActiveStreamingsMutex.RLock()
-		queryIds, existsTalkingStateStream := bc.ActiveStreamings["getUserTalkingStateStream"]
+		queryIds, existsUserVoiceStatestream := bc.ActiveStreamings["getUserVoiceStateStream"]
 		bc.ActiveStreamingsMutex.RUnlock()
-		if existsTalkingStateStream {
+		if existsUserVoiceStatestream {
 			for i := range queryIds {
 				payload := bytes.Replace(jsonDataNext, QueryIdPlaceholderInBytes, []byte(queryIds[i]), 1)
 				bc.FromHasuraToBrowserChannel.TrySend(payload)
@@ -66,23 +68,23 @@ func HandleUserTalkingVoiceEvtMsg(receivedMessage common.RedisMessage, browserCo
 		}
 	}
 
-	if talking {
-		StoreTalkingStatesCache(
+	if talking || !muted {
+		StoreUserVoiceStatesCache(
 			receivedMessage.Core.Header.MeetingId,
 			receivedMessage.Core.Header.UserId,
 			item,
 		)
 	} else {
 		// new users will need to know only who is talking
-		RemoveUserTalkingStatesCache(
+		RemoveUserUserVoiceStatesCache(
 			receivedMessage.Core.Header.MeetingId,
 			receivedMessage.Core.Header.UserId,
 		)
 	}
 }
 
-func SendPreviousTalkingState(browserConnection *common.BrowserConnection, queryId string) {
-	previousMessages, existsPreviousMessages := GetTalkingStatesCache(browserConnection.MeetingId)
+func SendPreviousUserVoiceState(browserConnection *common.BrowserConnection, queryId string) {
+	previousMessages, existsPreviousMessages := GetUserVoiceStatesCache(browserConnection.MeetingId)
 	if existsPreviousMessages {
 		items := make([]any, 0, len(previousMessages))
 		for _, message := range previousMessages {
@@ -105,14 +107,14 @@ func SendPreviousTalkingState(browserConnection *common.BrowserConnection, query
 
 // the cache will use meetingId + userId as keys, as it needs to store only the last for each user
 var (
-	TalkingStatesCache      = make(map[string]map[string]map[string]any)
-	TalkingStatesCacheMutex sync.RWMutex
+	UserVoiceStatesCache      = make(map[string]map[string]map[string]any)
+	UserVoiceStatesCacheMutex sync.RWMutex
 )
 
-func GetTalkingStatesCache(meetingId string) (map[string]map[string]any, bool) {
-	TalkingStatesCacheMutex.RLock()
-	defer TalkingStatesCacheMutex.RUnlock()
-	rows, ok := TalkingStatesCache[meetingId]
+func GetUserVoiceStatesCache(meetingId string) (map[string]map[string]any, bool) {
+	UserVoiceStatesCacheMutex.RLock()
+	defer UserVoiceStatesCacheMutex.RUnlock()
+	rows, ok := UserVoiceStatesCache[meetingId]
 	if !ok {
 		return nil, false
 	}
@@ -127,27 +129,27 @@ func GetTalkingStatesCache(meetingId string) (map[string]map[string]any, bool) {
 	return copyRows, true
 }
 
-func StoreTalkingStatesCache(meetingId string, userId string, row map[string]any) {
-	TalkingStatesCacheMutex.Lock()
-	defer TalkingStatesCacheMutex.Unlock()
+func StoreUserVoiceStatesCache(meetingId string, userId string, row map[string]any) {
+	UserVoiceStatesCacheMutex.Lock()
+	defer UserVoiceStatesCacheMutex.Unlock()
 
-	if _, exists := TalkingStatesCache[meetingId]; !exists {
-		TalkingStatesCache[meetingId] = make(map[string]map[string]any)
+	if _, exists := UserVoiceStatesCache[meetingId]; !exists {
+		UserVoiceStatesCache[meetingId] = make(map[string]map[string]any)
 	}
-	TalkingStatesCache[meetingId][userId] = row
+	UserVoiceStatesCache[meetingId][userId] = row
 }
 
-func RemoveMeetingTalkingStatesCache(meetingId string) {
-	TalkingStatesCacheMutex.Lock()
-	defer TalkingStatesCacheMutex.Unlock()
-	delete(TalkingStatesCache, meetingId)
+func RemoveMeetingUserVoiceStatesCache(meetingId string) {
+	UserVoiceStatesCacheMutex.Lock()
+	defer UserVoiceStatesCacheMutex.Unlock()
+	delete(UserVoiceStatesCache, meetingId)
 }
 
-func RemoveUserTalkingStatesCache(meetingId string, userId string) {
-	TalkingStatesCacheMutex.Lock()
-	defer TalkingStatesCacheMutex.Unlock()
+func RemoveUserUserVoiceStatesCache(meetingId string, userId string) {
+	UserVoiceStatesCacheMutex.Lock()
+	defer UserVoiceStatesCacheMutex.Unlock()
 
-	if _, exists := TalkingStatesCache[meetingId]; exists {
-		delete(TalkingStatesCache[meetingId], userId)
+	if _, exists := UserVoiceStatesCache[meetingId]; exists {
+		delete(UserVoiceStatesCache[meetingId], userId)
 	}
 }

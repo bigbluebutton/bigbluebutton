@@ -18,8 +18,7 @@ var streamingHandleByMiddlewarePatterns = [][]byte{
 	[]byte("\"query\":\"subscription getCursorCoordinatesStream"),
 	[]byte("\"query\":\"subscription getChatMessageStream"),
 	[]byte("\"query\":\"subscription getNotificationStream"),
-	[]byte("\"query\":\"subscription getUserMutedStateStream"),
-	[]byte("\"query\":\"subscription getUserTalkingStateStream"),
+	[]byte("\"query\":\"subscription getUserVoiceStateStream"),
 }
 
 func BrowserConnectionReader(
