@@ -3,6 +3,7 @@ package org.bigbluebutton.core.apps.users
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.models.{ VoiceUserState, VoiceUsers }
 import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
+import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 trait UserDisconnectedFromGlobalAudioMsgHdlr {
   this: MeetingActor =>
@@ -30,6 +31,14 @@ trait UserDisconnectedFromGlobalAudioMsgHdlr {
     } yield {
       VoiceUsers.removeWithIntId(liveMeeting.voiceUsers, liveMeeting.props.meetingProp.intId, user.intId)
       broadcastEvent(user)
+
+      val eventUserVoiceStatus = MsgBuilder.buildUserVoiceStateEvtMsg(
+        liveMeeting.props.meetingProp.intId,
+        liveMeeting.props.voiceProp.voiceConf,
+        user.intId,
+        None
+      )
+      outGW.send(eventUserVoiceStatus)
     }
   }
 }
