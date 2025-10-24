@@ -15,6 +15,7 @@ import (
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/gen/meeting"
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core"
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/bbbhttp"
+	coredoc "github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/document"
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/pipeline"
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/plugin"
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/random"
@@ -87,7 +88,7 @@ func (m *MeetingRunningToCreate) Transform(msg pipeline.Message[*meeting.Meeting
 
 	cfg := config.DefaultConfig()
 
-	body := msg.Context().Value(core.RequestBodyKey).(io.ReadCloser)
+	body, _ := pipeline.ContextValue[io.ReadCloser](msg.Context(), core.RequestBodyKey)
 	modules, err := bbbhttp.ProcessRequestModules(body)
 	if err != nil {
 		return pipeline.Message[*meeting.CreateMeetingRequest]{}, core.NewBBBError(responses.InvalidRequestBodyKey, responses.InvalidRequestBodyMsg)
@@ -102,7 +103,7 @@ func (m *MeetingRunningToCreate) Transform(msg pipeline.Message[*meeting.Meeting
 	}
 
 	if m.proc == nil {
-		slog.Warn("Could not process document; no document process was provided")
+		slog.Warn("Could not process document; no document processor was provided")
 		return pipeline.NewMessageWithContext(req, msg.Context()), nil
 	}
 
@@ -118,7 +119,7 @@ func (m *MeetingRunningToCreate) Transform(msg pipeline.Message[*meeting.Meeting
 		return pipeline.NewMessageWithContext(req, msg.Context()), nil
 	}
 
-	ctx := context.WithValue(msg.Context(), core.ParamsKey, presentations)
+	ctx := context.WithValue(msg.Context(), core.PresentationKey, presentations)
 
 	return pipeline.NewMessageWithContext(req, ctx), nil
 }
@@ -467,7 +468,9 @@ func replaceKeywords(message string, dialNumber string, voiceBridge string, meet
 
 // MeetingRunningToMeetingInfo is a pipleline.Transformer implementation that is used
 // to transform a gRPC [CreateMeetingResponse] into a BigBlueButton [CreateMeetingResponse].
-type CreateMeetingToResponse struct{}
+type CreateMeetingToResponse struct {
+	proc document.Processor
+}
 
 func (c *CreateMeetingToResponse) Transform(msg pipeline.Message[*meeting.CreateMeetingResponse]) (pipeline.Message[*meetingapi.CreateMeetingResponse], error) {
 	meetingInfo := msg.Payload.CreatedMeetingInfo
@@ -490,9 +493,16 @@ func (c *CreateMeetingToResponse) Transform(msg pipeline.Message[*meeting.Create
 	if meetingInfo.IsDuplicate {
 		resp.MessageKey = responses.CreateMeetingDuplicateKey
 		resp.Message = responses.CreateMeetingDuplicateMsg
-	} else {
-		// TODO: Convert presentations
+		return pipeline.NewMessageWithContext(resp, msg.Context()), nil
 	}
+
+	presentations, err := pipeline.ContextValue[[]coredoc.Presentation](msg.Context(), core.PresentationKey)
+	if err != nil {
+		slog.Info("No documents found for processing")
+		return pipeline.NewMessageWithContext(resp, msg.Context()), nil
+	}
+
+	c.proc.Convert(presentations)
 
 	return pipeline.NewMessageWithContext(resp, msg.Context()), nil
 }

@@ -9,8 +9,11 @@ import (
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/bbbhttp"
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/meeting"
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/meeting/config"
+	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/meeting/create"
+	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/meeting/document"
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/meeting/getmeetinginfo"
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/meeting/getmeetings"
+	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/meeting/insertdocument"
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/meeting/ismeetingrunning"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -47,6 +50,7 @@ func main() {
 	defer conn.Close()
 
 	client := meeting.NewClientWithConn(conn)
+	proc := document.NewDefaultProcessor(cfg, client)
 
 	meetingAPI := api.NewAPI(address, func(server *bbbhttp.Server) {
 		server.AddRoute(http.MethodGet, "/isMeetingRunning", meeting.NewHandlerFunc(ismeetingrunning.NewIsMeetingRunningFlow(client)))
@@ -55,9 +59,9 @@ func main() {
 		server.AddRoute(http.MethodPost, "/getMeetingInfo", getmeetinginfo.NewHandlerFunc(getmeetinginfo.NewGetMeetingInfoFlow(client)))
 		server.AddRoute(http.MethodGet, "/getMeetings", meeting.NewHandlerFunc(getmeetings.NewGetMeetingsFlow(client)))
 		server.AddRoute(http.MethodPost, "/getMeetings", meeting.NewHandlerFunc(getmeetings.NewGetMeetingsFlow(client)))
-		server.AddRoute(http.MethodGet, "/create", nil)
-		server.AddRoute(http.MethodPost, "/create", nil)
-		server.AddRoute(http.MethodPost, "/insertDocument", nil)
+		server.AddRoute(http.MethodGet, "/create", create.NewHandlerFunc(create.NewCreateFlow(client, proc)))
+		server.AddRoute(http.MethodPost, "/create", create.NewHandlerFunc(create.NewCreateFlow(client, proc)))
+		server.AddRoute(http.MethodPost, "/insertDocument", meeting.NewHandlerFunc(insertdocument.NewInsertDocumentFlow(client, proc)))
 	})
 	meetingAPI.Start()
 }

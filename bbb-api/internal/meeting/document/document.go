@@ -1,6 +1,7 @@
 package document
 
 import (
+	"context"
 	"encoding/base64"
 	"encoding/xml"
 	"fmt"
@@ -9,10 +10,13 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"time"
 
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core"
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/bbbhttp"
 	coredoc "github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/document"
+	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/document/presentation"
+	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/pipeline"
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/random"
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/validation"
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/meeting"
@@ -67,6 +71,7 @@ type Processor interface {
 	Parse(modules bbbhttp.RequestModules, params bbbhttp.Params, fromInsert bool) (*ParsedDocuments, error)
 	Process(parsed *ParsedDocuments) ([]coredoc.Presentation, error)
 	WriteAndValidate(src DocSource, doc *Document) (*coredoc.Presentation, error)
+	Convert(presentations []coredoc.Presentation) int
 	bbbhttp.Client
 }
 
@@ -76,6 +81,8 @@ type Processor interface {
 type DefaultProcessor struct {
 	cfg config.Config
 	bbbhttp.Client
+	manager pipeline.Manager[*coredoc.Presentation, *coredoc.Presentation]
+	flow    pipeline.Flow[*coredoc.Presentation, *coredoc.Presentation]
 }
 
 // DocSource is the interface that represents the
@@ -135,10 +142,15 @@ func (d DefaultDocSource) FromParam() bool {
 	return false
 }
 
-func NewDefaultProcessor(cfg config.Config, client bbbhttp.Client) Processor {
+func NewDefaultProcessor(cfg config.Config, client bbbhttp.Client) *DefaultProcessor {
 	return &DefaultProcessor{
 		cfg:    cfg,
 		Client: client,
+		manager: pipeline.NewDefaultManager[*coredoc.Presentation, *coredoc.Presentation](pipeline.ManagerOpts{
+			QueueCapacity: cfg.Presentation.Conversion.NumConcurrentUploads,
+			NumWorkers:    cfg.Presentation.Conversion.NumConversionWorkers,
+		}),
+		flow: presentation.NewPresentationFlow(coredoc.NewDefaultClient()),
 	}
 }
 
@@ -297,6 +309,30 @@ func (p *DefaultProcessor) WriteAndValidate(src DocSource, doc *Document) (*core
 		FileName:  name,
 		FilePath:  fp,
 	}, nil
+}
+
+func (p *DefaultProcessor) Convert(presentations []coredoc.Presentation) int {
+	var numEnqueued int
+	for _, pres := range presentations {
+		msg := pipeline.NewMessage(&pres)
+		exec := &pipeline.Executor[*coredoc.Presentation, *coredoc.Presentation]{
+			Description: fmt.Sprintf("%s/%s executor", pres.MeetingID, pres.ID),
+			Input:       msg,
+			Flow:        p.flow,
+			Timeout:     0,
+			MaxRetries:  0,
+		}
+		ctx, cancel := context.WithTimeout(msg.Context(), 1*time.Second)
+		defer cancel()
+		id, err := p.manager.Enqueue(ctx, exec)
+		if err != nil {
+			slog.Error("Failed to enqueue presentation for conversion", "presentation", pres.ID, "meeting", pres.MeetingID)
+		} else {
+			numEnqueued++
+			slog.Info("Successfully enqueued presentation for conversion", "presentation", pres.ID, "meeting", pres.MeetingID, "executor ID", id)
+		}
+	}
+	return numEnqueued
 }
 
 func PreUploadedDocument(params bbbhttp.Params, meetingID string) (*Document, bool) {

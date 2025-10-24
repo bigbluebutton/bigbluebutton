@@ -24,6 +24,10 @@ type DefaultClient struct {
 	meeting.MeetingServiceClient
 }
 
+func NewDefaultClient() *DefaultClient {
+	return &DefaultClient{}
+}
+
 // ContentType attempts to determine the MIME type
 // of the file located at the provided file path.
 // Returns an error if the file cannot be opened

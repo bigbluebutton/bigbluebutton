@@ -1,4 +1,4 @@
-package document
+package presentation
 
 import (
 	"context"
@@ -9,6 +9,7 @@ import (
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/gen/common"
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/gen/meeting"
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core"
+	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/document"
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/pipeline"
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/responses"
 )
@@ -16,7 +17,7 @@ import (
 // SendMeetingRunningRequest is a pipeline.SenderReceiver implementation
 // for sending a [MeetingRunningRequest] to Akka Apps.
 type SendMeetingRunningRequest struct {
-	client Client
+	client document.Client
 }
 
 // Send attempts to repeatedly send a [MeetingRunningRequest] to Akka Apps.

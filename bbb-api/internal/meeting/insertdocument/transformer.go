@@ -59,13 +59,13 @@ func (m *MeetingInfoToResponse) Transform(msg pipeline.Message[*meeting.MeetingI
 		return pipeline.Message[*meetingapi.Response]{}, core.NewBBBError(responses.DocProcessingFailedKey, responses.DocProcessingFailedMsg)
 	}
 
-	_, err = m.proc.Process(parsedDocs)
+	presentations, err := m.proc.Process(parsedDocs)
 	if err != nil {
 		slog.Error("Failed to process documents from request", "error", err)
 		return pipeline.Message[*meetingapi.Response]{}, core.NewBBBError(responses.DocProcessingFailedKey, responses.DocProcessingFailedMsg)
 	}
 
-	// TODO: Convert presentations
+	m.proc.Convert(presentations)
 
 	return pipeline.NewMessageWithContext(&meetingapi.Response{
 		ReturnCode: responses.ReturnCodeSuccess,

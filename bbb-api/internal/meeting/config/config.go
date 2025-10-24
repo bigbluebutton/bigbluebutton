@@ -186,6 +186,8 @@ type Config struct {
 				PNG          string `yaml:"png"`
 				SVG          string `yaml:"svg"`
 			} `yaml:"blank"`
+			NumConcurrentUploads int `yaml:"num_concurrent_uploads"`
+			NumConversionWorkers int `yaml:"num_conversion_workers"`
 		} `yaml:"conversion"`
 		Default  string `yaml:"default"`
 		BasePath string `yaml:"base_path"`

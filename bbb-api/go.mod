@@ -1,14 +1,16 @@
 module github.com/bigbluebutton/bigbluebutton/bbb-api
 
-go 1.23.0
+go 1.24.0
 
-toolchain go1.24.3
+toolchain go1.24.5
 
 require (
 	github.com/go-chi/chi/v5 v5.2.1
 	github.com/go-chi/cors v1.2.1
+	github.com/google/uuid v1.6.0
 	github.com/pdfcpu/pdfcpu v0.11.0
 	github.com/pkg/errors v0.9.1
+	golang.org/x/sync v0.14.0
 	google.golang.org/grpc v1.70.0
 	google.golang.org/protobuf v1.36.5
 	gopkg.in/yaml.v3 v3.0.1

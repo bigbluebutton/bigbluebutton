@@ -6,7 +6,6 @@ import (
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/gen/meeting"
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/pipeline"
 	meetingapi "github.com/bigbluebutton/bigbluebutton/bbb-api/internal/meeting"
-	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/meeting/config"
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/meeting/document"
 )
 
@@ -20,7 +19,7 @@ import (
 // transform the response and the original request data into a CreateMeeting gRPC request,
 // send the request to Akka Apps and receive a response,
 // validate the response and transform it into a meeting API CreateMeetingResponse.
-func NewCreateFlow(client meetingapi.Client) pipeline.Flow[*http.Request, *meetingapi.CreateMeetingResponse] {
+func NewCreateFlow(client meetingapi.Client, proc document.Processor) pipeline.Flow[*http.Request, *meetingapi.CreateMeetingResponse] {
 	filterTransformToMeetingRunning := pipeline.NewStep[*http.Request, *meeting.MeetingRunningRequest]().
 		Filter(&RequestFilter{}).
 		Transform(&RequestToIsMeetingRunning{})
@@ -34,13 +33,13 @@ func NewCreateFlow(client meetingapi.Client) pipeline.Flow[*http.Request, *meeti
 	sendReceiveMeetingInfo := pipeline.NewStep[*meeting.MeetingInfoRequest, *meeting.MeetingInfoResponse]().SendReceive(&SendMeetingInfoRequest{client})
 
 	transformToCreateMeeting := pipeline.NewStep[*meeting.MeetingInfoResponse, *meeting.CreateMeetingRequest]().
-		Transform(&MeetingRunningToCreate{document.NewDefaultProcessor(config.DefaultConfig(), client)})
+		Transform(&MeetingRunningToCreate{proc})
 
 	sendReceiveCreateMeeting := pipeline.NewStep[*meeting.CreateMeetingRequest, *meeting.CreateMeetingResponse]().SendReceive(&SendCreateMeetingRequest{})
 
 	filterTransformToResponse := pipeline.NewStep[*meeting.CreateMeetingResponse, *meetingapi.CreateMeetingResponse]().
 		Filter(&CreateMeetingResponseFilter{}).
-		Transform(&CreateMeetingToResponse{})
+		Transform(&CreateMeetingToResponse{proc})
 
 	f1 := pipeline.Add(filterTransformToMeetingRunning.Flow(), sendReceiveMeetingRunning)
 	f2 := pipeline.Add(f1, filterTransformToMeetingInfo)

@@ -1,10 +1,11 @@
-package document
+package presentation
 
 import (
 	"fmt"
 
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/gen/meeting"
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core"
+	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/document"
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/document/config"
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/pipeline"
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/responses"
@@ -27,7 +28,7 @@ func (f *MeetingRunningFilter) Filter(msg pipeline.Message[*meeting.MeetingRunni
 // validating uploaded presentations before they enter the document
 // conversion pipeline.
 type PresentationFilter struct {
-	scanner Scanner
+	scanner document.Scanner
 }
 
 // Filer verfifies that the provided presentation is valid. A valid
@@ -35,17 +36,17 @@ type PresentationFilter struct {
 // the presentation's file extension. The presentation may also be
 // scanner for malware is the setting is enabled in the document
 // processing configuration.
-func (f *PresentationFilter) Filter(msg pipeline.Message[*Presentation]) error {
+func (f *PresentationFilter) Filter(msg pipeline.Message[*document.Presentation]) error {
 	pres := msg.Payload
 
-	_, ext := SplitFileName(pres.FilePath)
+	_, ext := document.SplitFileName(pres.FilePath)
 
-	ct, err := ContentType(pres.FilePath)
+	ct, err := document.ContentType(pres.FilePath)
 	if err != nil {
 		return err
 	}
 
-	if verr := ValidateContentType(ct, ext); verr != nil {
+	if verr := document.ValidateContentType(ct, ext); verr != nil {
 		return fmt.Errorf("unsupported content type %s: %w", ct, verr)
 	}
 
@@ -53,6 +54,10 @@ func (f *PresentationFilter) Filter(msg pipeline.Message[*Presentation]) error {
 
 	if !cfg.Validation.Scan {
 		return nil
+	}
+
+	if f.scanner == nil {
+		return fmt.Errorf("no scanner implementation provided")
 	}
 
 	resp, err := f.scanner.Scan(pres.FilePath)

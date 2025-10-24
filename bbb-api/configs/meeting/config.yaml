@@ -152,6 +152,8 @@ presentation:
       thumbnail: /usr/share/bigbluebutton/blank/blank-thumb.png
       png: /usr/share/bigbluebutton/blank/blank-png.png
       svg: /usr/share/bigbluebutton/blank/blank-svg.svg
+    num_concurrent_uploads: 20  
+    num_conversion_workers: 4 
     
   default: default.pdf
   base_path: bigbluebutton/presentation

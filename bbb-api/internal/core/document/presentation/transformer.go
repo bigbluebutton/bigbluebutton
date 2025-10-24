@@ -1,4 +1,4 @@
-package document
+package presentation
 
 import (
 	"context"
@@ -6,6 +6,7 @@ import (
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/gen/common"
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/gen/meeting"
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core"
+	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/document"
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/pipeline"
 )
 
@@ -17,7 +18,7 @@ type PresentationToMeetingRunning struct{}
 // Transform takes a [Presentation] and builds a
 // [MeetingRunningRequest] for the meeting associated
 // with the [Presentation].
-func (p *PresentationToMeetingRunning) Transform(msg pipeline.Message[*Presentation]) (pipeline.Message[*meeting.MeetingRunningRequest], error) {
+func (p *PresentationToMeetingRunning) Transform(msg pipeline.Message[*document.Presentation]) (pipeline.Message[*meeting.MeetingRunningRequest], error) {
 	pres := msg.Payload
 
 	req := &meeting.MeetingRunningRequest{
@@ -38,7 +39,13 @@ type MeetingRunningToPresenation struct{}
 
 // Transform takes a [MeetingRunningResponse] and extracts
 // the presentation stored in the message's context.
-func (m *MeetingRunningToPresenation) Transform(msg pipeline.Message[*meeting.MeetingRunningResponse]) (pipeline.Message[*Presentation], error) {
-	pres := msg.Context().Value(core.PresentationKey).(*Presentation)
+func (m *MeetingRunningToPresenation) Transform(msg pipeline.Message[*meeting.MeetingRunningResponse]) (pipeline.Message[*document.Presentation], error) {
+	pres := msg.Context().Value(core.PresentationKey).(*document.Presentation)
 	return pipeline.NewMessage(pres), nil
+}
+
+type NoOpTransformer struct{}
+
+func (n *NoOpTransformer) Transform(msg pipeline.Message[*document.Presentation]) (pipeline.Message[*document.Presentation], error) {
+	return msg, nil
 }
