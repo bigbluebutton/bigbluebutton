@@ -1,5 +1,6 @@
 import React from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
+import Toggle from '/imports/ui/components/common/switch/component';
 import AudioManager from '/imports/ui/services/audio-manager';
 import BaseMenu from '../base/component';
 import SubMenusStyle from '../styles';
