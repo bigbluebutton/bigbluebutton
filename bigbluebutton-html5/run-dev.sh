@@ -18,3 +18,6 @@ sudo ln -sf /usr/share/bigbluebutton/nginx/bbb-html5.nginx.dev /usr/share/bigblu
 sudo systemctl restart nginx
 
 npm start
+
+
+## 
