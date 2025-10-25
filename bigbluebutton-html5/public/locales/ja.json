@@ -1514,7 +1514,7 @@
     "app.learningDashboard.userDetails.messages": "メッセージ",
     "app.learningDashboard.userDetails.raiseHands": "挙手",
     "app.learningDashboard.userDetails.pollVotes": "投票/クイズへの参加",
-    "app.learningDashboard.userDetails.onlineIndicator": "{userName} のオンライン時間",
+    "app.learningDashboard.userDetails.onlineIndicator": "{userName} さんのオンライン時間",
     "app.learningDashboard.userDetails.quiz": "クイズ",
     "app.learningDashboard.usersTable.title": "概要",
     "app.learningDashboard.usersTable.colOnline": "オンライン時間",
