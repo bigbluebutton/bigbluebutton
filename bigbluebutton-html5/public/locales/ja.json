@@ -993,7 +993,7 @@
     "app.userList.guest.rememberChoice": "選択を記憶させる",
     "app.userList.guest.emptyMessage": "今のところメッセージはありません",
     "app.userList.guest.inputPlaceholder": "ゲストロビーへのメッセージ",
-    "app.userList.guest.privateInputPlaceholder": "{userName} へのメッセージ",
+    "app.userList.guest.privateInputPlaceholder": "{userName} さんへのメッセージ",
     "app.userList.guest.privateMessageLabel": "メッセージ",
     "app.userList.guest.acceptLabel": "承認",
     "app.userList.guest.denyLabel": "却下",
