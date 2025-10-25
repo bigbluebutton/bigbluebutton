@@ -160,7 +160,7 @@
     "app.userList.menu.chat.label": "非公開チャット",
     "app.userList.menu.clearStatus.label": "ステータスを消去する",
     "app.userList.menu.removeUser.label": "このユーザーを退室させる",
-    "app.userList.menu.removeConfirmation.label": "ユーザー ({userName}) を退室させる",
+    "app.userList.menu.removeConfirmation.label": "ユーザー ({userName}) さんを退室させる",
     "app.userlist.menu.removeConfirmation.desc": "このユーザーを二度と会議に参加させないようにする。",
     "app.userList.menu.muteUserAudio.label": "ユーザーをミュートする",
     "app.userList.menu.unmuteUserAudio.label": "ユーザーのミュートを解除する",
