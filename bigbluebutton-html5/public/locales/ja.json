@@ -171,7 +171,7 @@
     "app.userList.menu.ejectUserCameras.label": "カメラを閉じる",
     "app.userList.menu.promoteUser.label": "司会者にする",
     "app.userList.menu.demoteUser.label": "視聴者に戻す",
-    "app.userList.menu.unlockUser.label": "{userName} さんをアンロックする",
+    "app.userList.menu.unlockUser.label": "{userName} さんの一時停止を解除する",
     "app.userList.menu.lockUser.label": "{userName} さんをロックする",
     "app.userList.menu.directoryLookup.label": "ディレクトリ検索",
     "app.userList.menu.makePresenter.label": "発表者にする",
