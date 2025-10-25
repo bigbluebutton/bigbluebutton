@@ -714,7 +714,7 @@
     "app.settings.unsavedChanges.ignoreMessage": "変更を保存しない場合、それらは適用されません。",
     "app.settings.unsavedChanges.ignoreButtonLabel": "変更を破棄",
     "app.statusNotifier.lowerHands": "手をおろす",
-    "app.statusNotifier.lowerHandDescOneUser": "{userName} の手をおろす",
+    "app.statusNotifier.lowerHandDescOneUser": "{userName} さんの手をおろす",
     "app.statusNotifier.raisedHandsTitle": "手をあげる",
     "app.statusNotifier.raisedHandDesc": "{userNames} が手をあげました",
     "app.statusNotifier.raisedHandDescOneUser": "{userNames} が手をあげました",
