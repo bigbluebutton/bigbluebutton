@@ -535,7 +535,7 @@
     "app.mobileAppModal.openStore": "いいえ、アプリストアを開いてダウンロードします",
     "app.mobileAppModal.dismissLabel": "キャンセル",
     "app.mobileAppModal.dismissDesc": "閉じる",
-    "app.mobileAppModal.userConnectedWithSameId": "ユーザー {userName} があなたと同じIDを使用して接続しました。",
+    "app.mobileAppModal.userConnectedWithSameId": "ユーザー {userName} さんがあなたと同じIDを使用して接続しました。",
     "app.actionsBar.changeStatusLabel": "ステータス変更",
     "app.actionsBar.muteLabel": "ミュート",
     "app.actionsBar.unmuteLabel": "ミュート解除",
