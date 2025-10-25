@@ -172,7 +172,7 @@
     "app.userList.menu.promoteUser.label": "司会者にする",
     "app.userList.menu.demoteUser.label": "視聴者に戻す",
     "app.userList.menu.unlockUser.label": "{userName} さんの一時停止を解除する",
-    "app.userList.menu.lockUser.label": "{userName} さんをロックする",
+    "app.userList.menu.lockUser.label": "{userName} さんを一時停止する",
     "app.userList.menu.directoryLookup.label": "ディレクトリ検索",
     "app.userList.menu.makePresenter.label": "発表者にする",
     "app.userList.menu.lockPublicChat.label": "公開チャットを無効にする",
