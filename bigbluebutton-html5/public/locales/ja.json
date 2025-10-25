@@ -35,7 +35,7 @@
     "app.chat.clearPublicChatMessage": "チャット履歴は司会者により消去されました",
     "app.chat.multi.typing": "複数の人が入力中",
     "app.chat.someone.typing": "誰かが入力中",
-    "app.chat.one.typing": "{userName}が入力中",
+    "app.chat.one.typing": "{userName} さんが入力中",
     "app.chat.two.typing": "{userName1}と{userName2}が入力中",
     "app.chat.copySuccess": "チャットのやりとりがコピーされました",
     "app.chat.copyErr": "チャットのやりとりのコピーに失敗しました",
