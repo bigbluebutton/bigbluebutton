@@ -269,7 +269,7 @@
     "app.meeting.endedDueServiceInterruption": "一時的なサービス停止のため、会議は終了しました",
     "app.meeting.meetingTimeRemaining": "会議の残り時間：{remainingTime}",
     "app.meeting.meetingTimeHasEnded": "時間終了。会議はまもなく終了します。",
-    "app.meeting.endedByUserMessage": "{userName} は会議を終了させました",
+    "app.meeting.endedByUserMessage": "{userName} さんは会議を終了させました",
     "app.meeting.endedByNoModeratorMessageSingular": "司会者が１分以上現れなかったため、会議は終了しました",
     "app.meeting.endedByNoModeratorMessagePlural": "司会者が{timeInMinutes}分以上現れなかったため、会議は終了しました",
     "app.meeting.endedMessage": "ホーム画面に戻ります",
