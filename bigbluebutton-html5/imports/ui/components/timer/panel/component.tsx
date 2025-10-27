@@ -347,7 +347,7 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
             {TRACKS.map((track) => {
               if (track === 'noTrack') return null;
               return (
-                <Styled.TimerTrackItem key={track}>
+                <Styled.TimerTrackItem key={track} isSelected={songTrack === track}>
                   <label htmlFor={track}>
                     <input
                       type="radio"
@@ -524,6 +524,9 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
                         ▼
                       </Styled.InputArrowButton>
                     </Styled.InputArrows>
+                    <Styled.TimeUnitLabel>
+                      {intl.formatMessage(intlMessages.hours)}
+                    </Styled.TimeUnitLabel>
                   </Styled.TimeUnitContainer>
                   <Styled.TimeUnitContainer>
                     <Styled.TimerInput
@@ -558,6 +561,9 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
                         ▼
                       </Styled.InputArrowButton>
                     </Styled.InputArrows>
+                    <Styled.TimeUnitLabel>
+                      {intl.formatMessage(intlMessages.minutes)}
+                    </Styled.TimeUnitLabel>
                   </Styled.TimeUnitContainer>
                   <Styled.TimeUnitContainer>
                     <Styled.TimerInput
@@ -592,6 +598,9 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
                         ▼
                       </Styled.InputArrowButton>
                     </Styled.InputArrows>
+                    <Styled.TimeUnitLabel>
+                      {intl.formatMessage(intlMessages.seconds)}
+                    </Styled.TimeUnitLabel>
                   </Styled.TimeUnitContainer>
                 </Styled.TimeInputGroup>
                 {/* External +/- buttons removed; using inline arrows inside each input */}

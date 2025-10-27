@@ -18,6 +18,7 @@ import {
   colorPrimary,
   colorBlueLighter,
   colorText,
+  colorGray,
 } from '../../../stylesheets/styled-components/palette';
 import { TextElipsis } from '../../../stylesheets/styled-components/placeholders';
 import Button from '/imports/ui/components/common/button/component';
@@ -148,6 +149,9 @@ const TimerSongsWrapper = styled.div`
   flex-flow: column;
   margin-top: 2rem;
   width: 100%;
+  padding: 0.75rem;
+  border: 1px solid color-mix(in srgb, ${colorBlueLighter} 50%, transparent);
+  border-radius: 0.5rem;
 `;
 
 const TimerRow = `
@@ -159,9 +163,7 @@ const TimerRow = `
 const TimerTracks = styled.div`
   display: flex;
   flex-flow: column;
-  flex-grow: 1;
-  flex-basis: 0;
-  display: flex;
+  width: 100%;
   margin-top: 0.8rem;
   padding-left: 0;
 
@@ -176,8 +178,32 @@ const TimerTracks = styled.div`
   }
 `;
 
-const TimerTrackItem = styled.div`
+const TimerTrackItem = styled.div<{isSelected?: boolean}>`
   ${TimerRow}
+  width: 100%;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  border: 2px solid ${({ isSelected }) => (
+    isSelected
+      ? colorPrimary
+      : `color-mix(in srgb, ${colorBlueLighter} 40%, transparent)`
+  )};
+  background-color: ${({ isSelected }) => (
+    isSelected
+      ? `color-mix(in srgb, ${colorBlueLighter} 15%, transparent)`
+      : 'transparent'
+  )};
+  margin-bottom: 0.5rem;
+  transition: all 120ms ease;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  label {
+    width: 100%;
+    cursor: pointer;
+  }
 `;
 
 const TimerInput = styled.input<{isSelected: boolean}>`
@@ -218,7 +244,15 @@ const TimerInput = styled.input<{isSelected: boolean}>`
 const TimeUnitContainer = styled.div`
   position: relative;
   display: inline-flex;
+  flex-direction: column;
   align-items: center;
+  gap: 0.25rem;
+`;
+
+const TimeUnitLabel = styled.span`
+  font-size: 0.80rem;
+  color: ${colorGray};
+  text-transform: capitalize;
 `;
 
 const InputArrows = styled.div<{disabled?: boolean}>`
@@ -331,6 +365,8 @@ const TimerPresetButton = styled.button<{disabled?: boolean}>`
   opacity: ${({ disabled }) => (disabled ? 0.4 : 0.7)};
   transition: opacity 120ms ease, color 120ms ease;
   padding: 0.25rem 0.15rem;
+  border: 1px solid ${colorBorder};
+  border-radius: 0.35rem;
 
   &:hover, &:focus {
     opacity: 1;
@@ -422,6 +458,7 @@ export default {
   TimerTrackItem,
   TimerInput,
   TimeUnitContainer,
+  TimeUnitLabel,
   InputArrows,
   InputArrowButton,
   TimerScrollableContent,
