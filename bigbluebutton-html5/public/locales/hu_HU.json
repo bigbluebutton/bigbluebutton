@@ -1387,7 +1387,7 @@
     "app.createBreakoutRoom.currentSlideLabel": "Jelenlegi dia",
     "app.updateBreakoutRoom.modalDesc": "Egy felhasználó frissítéséhez vagy meghívásához egyszerűen húzza át a kívánt szobába.",
     "app.updateBreakoutRoom.cancelLabel": "Mégsem",
-    "app.updateBreakoutRoom.title": "Csapatszobák frissítése",
+    "app.updateBreakoutRoom.title": "Csoporttermek frissítése",
     "app.updateBreakoutRoom.confirm": "Alkalmaz",
     "app.updateBreakoutRoom.userChangeRoomNotification": "{roomName} szobába áthelyeztek.",
     "app.smartMediaShare.externalVideo": "Külső videó(k)",
