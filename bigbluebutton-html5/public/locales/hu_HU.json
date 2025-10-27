@@ -254,7 +254,7 @@
     "app.meeting.endedMessage": "Visszairányítunk a kezdőképernyőre",
     "app.meeting.alertMeetingEndsUnderMinutesSingular": "A munkamenet egy percen belül véget ér.",
     "app.meeting.alertMeetingEndsUnderMinutesPlural": "A munkamenet {timeInMinutes} percen belül véget ér.",
-    "app.meeting.alertBreakoutEndsUnderMinutesPlural": "A csapaterem {timeInMinutes} percen belül véget ér.",
+    "app.meeting.alertBreakoutEndsUnderMinutesPlural": "A csoportterem {timeInMinutes} percen belül véget ér.",
     "app.meeting.alertBreakoutEndsUnderMinutesSingular": "A csoportmegbeszélés 1 percen belül véget ér.",
     "app.presentation.hide": "Prezentáció elrejtése",
     "app.presentation.newCurrentPresentationNotification": "A jelenlegi prezentáció: {presentationName}",
