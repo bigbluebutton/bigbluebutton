@@ -478,7 +478,7 @@
     "app.poll.quiz.options.incorrect": "Helytelen válasz",
     "app.poll.quiz.liveResult.title.correct": "Helyes",
     "app.poll.quiz.options.responseNotSecret": "Kvíz – az előadó láthatja válaszodat.",
-    "app.poll.tabSelector.ariaLabel": "Kvíz vagy Szavazás lapválasztó ",
+    "app.poll.tabSelector.ariaLabel": "Kvíz és Szavazás lapválasztó ",
     "app.polling.pollingTitle": "Válaszlehetőségek",
     "app.polling.pollQuestionTitle": "Szavazás kérdése",
     "app.polling.submitLabel": "Beküldés",
