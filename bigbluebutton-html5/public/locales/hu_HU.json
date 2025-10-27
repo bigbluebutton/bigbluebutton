@@ -494,7 +494,7 @@
     "app.downloadPresentationButton.label": "Prezentáció letöltése",
     "app.connectingMessage": "Kapcsolódás ...",
     "app.reconnectingMessage": "Elveszett a kapcsolat. Kérem, ellenőrizd az internetkapcsolatodat.",
-    "app.muteWarning.label": "{unmuteIcon} kattints, hogy hallható legyél.",
+    "app.muteWarning.label": "{unmuteIcon}-t kattints, hogy hallható legyél.",
     "app.muteWarning.disableMessage": "A néma figyelmeztetések tiltva a visszavonásig",
     "app.muteWarning.tooltip": "Kattints a figyelmeztetés bezárásához és letiltásához a következő némítás feloldásáig",
     "app.unmute.modal.title": "A moderátor kéri, hogy némíts",
