@@ -1,15 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { DocumentNode } from 'graphql';
+// import { DocumentNode } from 'graphql';
 
 import {
   GraphqlResponseWrapper, HookEventWrapper, SubscribedEventDetails, UpdatedEventDetails,
 } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
 import { DataChannelHooks, DataChannelTypes } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-channel/enums';
 
-import createUseSubscription from '/imports/ui/core/hooks/createUseSubscription';
 import { HookEvents } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/enum';
 import { DataChannelArguments } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-channel/types';
-import { PLUGIN_DATA_CHANNEL_LATEST_ITEM, PLUGIN_DATA_CHANNEL_NEW_ITEMS, PLUGIN_DATA_CHANNEL_ALL_ITEMS } from '../subscriptions';
+import { DataChannelEntry } from '../types';
 
 export interface DataChannelItemManagerReaderProps {
   pluginName: string;
@@ -17,6 +16,7 @@ export interface DataChannelItemManagerReaderProps {
   subChannelName: string;
   dataChannelType: DataChannelTypes;
   dataChannelIdentifier: string;
+  dataChannelEntriesReceived: DataChannelEntry[];
 }
 
 export interface SubscriptionVariables {
@@ -25,6 +25,24 @@ export interface SubscriptionVariables {
   channelName: string;
   createdAt?: string;
 }
+
+const areListsDifferent = (
+  previousList: DataChannelEntry[], currentList: DataChannelEntry[],
+): boolean => currentList.length !== previousList.length || currentList.some((l2Entry) => {
+  const indexOfEntry = previousList.findIndex((l1Entry) => l1Entry.entryId === l2Entry.entryId);
+  if (indexOfEntry === -1) return true;
+  const l1Entry = previousList[indexOfEntry];
+  return l1Entry.updatedAt !== l2Entry.updatedAt;
+});
+
+const getDifference = (
+  previousList: DataChannelEntry[], currentList: DataChannelEntry[],
+): DataChannelEntry[] => currentList.filter((l2Entry) => {
+  const indexOfEntry = previousList.findIndex((l1Entry) => l1Entry.entryId === l2Entry.entryId);
+  if (indexOfEntry === -1) return true;
+  const l1Entry = previousList[indexOfEntry];
+  return l1Entry.updatedAt !== l2Entry.updatedAt;
+});
 
 export const DataChannelItemManagerReader: React.ElementType<DataChannelItemManagerReaderProps> = (
   props: DataChannelItemManagerReaderProps,
@@ -35,36 +53,48 @@ export const DataChannelItemManagerReader: React.ElementType<DataChannelItemMana
     dataChannelType,
     subChannelName,
     dataChannelIdentifier,
+    dataChannelEntriesReceived,
   } = props;
   const [sendSignal, setSendSignal] = useState<boolean>(false);
-  const cursor = useRef(new Date());
-  let subscription: DocumentNode;
-  const variables: SubscriptionVariables = {
-    subChannelName,
-    pluginName,
-    channelName,
-  };
-  let usePatchedSubscription = true;
-  switch (dataChannelType) {
-    case DataChannelTypes.LATEST_ITEM:
-      subscription = PLUGIN_DATA_CHANNEL_LATEST_ITEM;
-      usePatchedSubscription = false;
-      break;
-    case DataChannelTypes.NEW_ITEMS:
-      subscription = PLUGIN_DATA_CHANNEL_NEW_ITEMS;
-      variables.createdAt = cursor.current.toISOString();
-      usePatchedSubscription = false;
-      break;
-    case DataChannelTypes.ALL_ITEMS:
-      subscription = PLUGIN_DATA_CHANNEL_ALL_ITEMS;
-      break;
-    default:
-      subscription = PLUGIN_DATA_CHANNEL_ALL_ITEMS;
-      break;
-  }
+  const [completeDataEntry, setCompleteDataEntry] = useState<DataChannelEntry[]>([]);
+  const [differenceData, setDifferenceData] = useState<DataChannelEntry[]>([]);
+  const startedAtTimestamp = useRef(new Date());
 
-  const dataResultFromSubscription = createUseSubscription<object>(subscription,
-    variables, usePatchedSubscription)((obj) => obj);
+  useEffect(() => {
+    const updateAllItems = () => {
+      const listsDifferent = areListsDifferent(completeDataEntry, dataChannelEntriesReceived);
+      if (listsDifferent) {
+        setCompleteDataEntry(dataChannelEntriesReceived);
+      }
+    };
+
+    const updateDifferenceItems = (afterSubscription: boolean) => {
+      const differenceList = getDifference(completeDataEntry, dataChannelEntriesReceived);
+      const resultingDifference = (afterSubscription) ? differenceList.filter(
+        (entry) => new Date(entry.createdAt) >= startedAtTimestamp.current,
+      ) : differenceList;
+      const dataChannelWasReset = dataChannelEntriesReceived.length === 0 && completeDataEntry.length !== 0;
+      if (resultingDifference.length > 0 || dataChannelWasReset) {
+        setDifferenceData(resultingDifference);
+        setCompleteDataEntry(dataChannelEntriesReceived);
+      }
+    };
+
+    switch (dataChannelType) {
+      case DataChannelTypes.LATEST_ITEM:
+        updateDifferenceItems(false);
+        break;
+      case DataChannelTypes.NEW_ITEMS:
+        updateDifferenceItems(true);
+        break;
+      case DataChannelTypes.ALL_ITEMS:
+        updateAllItems();
+        break;
+      default:
+        updateAllItems();
+        break;
+    }
+  }, [dataChannelEntriesReceived]);
 
   useEffect(() => {
     const subscribeHandler: EventListener = (
@@ -91,10 +121,27 @@ export const DataChannelItemManagerReader: React.ElementType<DataChannelItemMana
   }, []);
 
   useEffect(() => {
+    let dataToBeSent;
+    switch (dataChannelType) {
+      case DataChannelTypes.LATEST_ITEM:
+        dataToBeSent = differenceData;
+        break;
+      case DataChannelTypes.NEW_ITEMS:
+        dataToBeSent = differenceData;
+        break;
+      case DataChannelTypes.ALL_ITEMS:
+        dataToBeSent = completeDataEntry;
+        break;
+      default:
+        dataToBeSent = completeDataEntry;
+        break;
+    }
+
     const dataResult = {
-      data: dataResultFromSubscription.data,
-      loading: dataResultFromSubscription.loading,
+      data: dataToBeSent,
+      loading: !dataToBeSent,
     } as GraphqlResponseWrapper<object>;
+
     window.dispatchEvent(
       new CustomEvent<UpdatedEventDetails<
       GraphqlResponseWrapper<object>
@@ -111,7 +158,7 @@ export const DataChannelItemManagerReader: React.ElementType<DataChannelItemMana
       },
     }),
     );
-  }, [dataResultFromSubscription, sendSignal]);
+  }, [sendSignal, completeDataEntry, differenceData]);
 
   return null;
 };

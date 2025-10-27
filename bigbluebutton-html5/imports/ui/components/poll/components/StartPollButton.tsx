@@ -61,7 +61,10 @@ interface StartPollButtonProps {
   secretPoll: boolean;
   multipleResponse: boolean;
   isQuiz: boolean;
-  correctAnswerText: string;
+  correctAnswer: {
+    text: string;
+    index: number;
+  };
 }
 
 const StartPollButton: React.FC<StartPollButtonProps> = ({
@@ -73,7 +76,7 @@ const StartPollButton: React.FC<StartPollButtonProps> = ({
   secretPoll,
   multipleResponse,
   isQuiz = false,
-  correctAnswerText = '',
+  correctAnswer = { text: '', index: -1 },
 }) => {
   const CHAT_CONFIG = window.meetingClientSettings.public.chat;
   const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
@@ -90,7 +93,7 @@ const StartPollButton: React.FC<StartPollButtonProps> = ({
     question: string | string[],
     multipleResponse: boolean,
     isQuiz: boolean = false,
-    correctAnswerText: string = '',
+    correctAnswerText: string,
     answers: (string | null)[] = [],
   ) => {
     const pollId = PUBLIC_CHAT_KEY;
@@ -102,16 +105,18 @@ const StartPollButton: React.FC<StartPollButtonProps> = ({
         secretPoll,
         question,
         multipleResponse,
-        quiz: isQuiz,
+        quiz: isQuiz && correctAnswerText.trim().length > 0,
         answers,
-        correctAnswer: correctAnswerText,
+        correctAnswer: isQuiz ? correctAnswerText : null,
       },
     });
   };
 
   const hasNotMinOptions = (type !== pollTypes.Response
     && optList.filter((o) => o.val.trim().length > 0).length < 1);
-  const quizHasNoCorrectAnswer = (isQuiz && correctAnswerText.trim().length === 0);
+  const quizHasNoCorrectAnswer = (
+    isQuiz
+    && !(optList[correctAnswer.index]?.val === correctAnswer.text));
   return (
     <Styled.StartPollBtn
       data-test="startPoll"
@@ -161,7 +166,7 @@ const StartPollButton: React.FC<StartPollButtonProps> = ({
               question,
               multipleResponse,
               isQuiz,
-              correctAnswerText,
+              correctAnswer.text,
               verifiedOptions?.filter(Boolean),
             );
           } else {
@@ -171,7 +176,7 @@ const StartPollButton: React.FC<StartPollButtonProps> = ({
               question,
               multipleResponse,
               isQuiz,
-              correctAnswerText,
+              correctAnswer.text,
             );
           }
         }

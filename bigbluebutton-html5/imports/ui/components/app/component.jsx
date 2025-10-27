@@ -119,8 +119,6 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      isAudioModalOpen: false,
-      isVideoPreviewModalOpen: false,
       presentationFitToWidth: false,
       isJoinLogged: false,
     };
@@ -128,8 +126,6 @@ class App extends Component {
     this.timeOffsetInterval = null;
 
     this.setPresentationFitToWidth = this.setPresentationFitToWidth.bind(this);
-    this.setAudioModalIsOpen = this.setAudioModalIsOpen.bind(this);
-    this.setVideoPreviewModalIsOpen = this.setVideoPreviewModalIsOpen.bind(this);
     this.customPollShortcutHandler = this.customPollShortcutHandler.bind(this);
     this.logJoin = this.logJoin.bind(this);
   }
@@ -220,14 +216,6 @@ class App extends Component {
     const { handlePresentationFitToWidth } = this.props;
     handlePresentationFitToWidth(presentationFitToWidth);
     this.setState({ presentationFitToWidth });
-  }
-
-  setAudioModalIsOpen(value) {
-    this.setState({ isAudioModalOpen: value });
-  }
-
-  setVideoPreviewModalIsOpen(value) {
-    this.setState({ isVideoPreviewModalOpen: value });
   }
 
   customPollShortcutHandler(e) {
@@ -339,8 +327,6 @@ class App extends Component {
     } = this.props;
 
     const {
-      isAudioModalOpen,
-      isVideoPreviewModalOpen,
       presentationFitToWidth,
     } = this.state;
     return (
@@ -409,13 +395,7 @@ class App extends Component {
           <UploaderContainer />
           <BreakoutJoinConfirmationContainerGraphQL />
           <BBBLiveKitRoomContainer />
-          <AudioContainer {...{
-            isAudioModalOpen,
-            setAudioModalIsOpen: this.setAudioModalIsOpen,
-            isVideoPreviewModalOpen,
-            setVideoPreviewModalIsOpen: this.setVideoPreviewModalIsOpen,
-          }}
-          />
+          <AudioContainer />
           { (
             !hideNotificationToasts
             && isNotificationEnabled) && <ToastContainer rtl /> }

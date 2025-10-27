@@ -1,6 +1,7 @@
 import {Pattern, Line, Defs, Rect, G, Text, Tspan} from '@svgdotjs/svg.js';
 import {radToDegree} from '../shapes/helpers.js';
 import opentype from 'opentype.js';
+import wawoff2 from 'wawoff2';
 import fs from 'fs';
 /**
  * Represents a basic Tldraw shape on the whiteboard.
@@ -11,6 +12,7 @@ import fs from 'fs';
  * @property {'fill'} FillColor - Solid fill color inside the shape.
  * @property {'semi'} SemiFillColor - Semi fill shape color.
  * @property {'sticky'} StickyColor - Color for sticky notes.
+ * @property {'highlight'} HighlightColor - Color for highlight drawings.
  */
 export class Shape {
   /**
@@ -31,6 +33,7 @@ export class Shape {
     rotation,
     opacity,
     props,
+    type,
   }) {
     this.id = id;
     this.x = x;
@@ -38,6 +41,7 @@ export class Shape {
     this.rotation = rotation;
     this.opacity = opacity;
     this.props = props;
+    this.type = type;
 
     this.size = this.props?.size;
     this.color = this.props?.color;
@@ -45,6 +49,7 @@ export class Shape {
     this.fill = this.props?.fill;
     this.text = this.props?.text;
     this.padding = this.props?.padding ?? 0;
+    this.scale = this.props?.scale ?? 1;
 
     // Derived SVG properties
     this.thickness = Shape.getStrokeWidth(this.size);
@@ -129,7 +134,8 @@ export class Shape {
     const translate = `translate(${x} ${y})`;
     const transformOrigin = 'transform-origin: center';
     const rotate = `rotate(${rotation})`;
-    const transform = `${translate}; ${transformOrigin}; ${rotate}`;
+    const scale = `scale(${this.scale})`;
+    const transform = `${translate}; ${transformOrigin}; ${rotate}; ${scale}`;
 
     return transform;
   }
@@ -159,6 +165,21 @@ export class Shape {
       'light-green': '#38B845',
       'light-red': '#FC7075',
       'red': '#D61A25',
+    };
+
+    const highlightMap = {
+      'black': '#fddd00',
+      'blue': '#10acff',
+      'green': '#00ffc8',
+      'grey': '#cbe7f1',
+      'light-blue': '#00f4ff',
+      'light-green': '#65f641',
+      'light-red': '#ff7fa3',
+      'light-violet': '#ff88ff',
+      'orange': '#ffa500',
+      'red': '#ff636e',
+      'violet': '#c77cff',
+      'yellow': '#fddd00',
     };
 
     const fillMap = {
@@ -200,6 +221,7 @@ export class Shape {
       fill: fillMap,
       semi: semiFillMap,
       sticky: stickyMap,
+      highlight: highlightMap,
     };
 
     return colors[colorType][color] || '#0d0d0d';
@@ -266,17 +288,31 @@ export class Shape {
    * Get the font size in pixels.
    *
    * @param {string} size - The size of the font ('s', 'm', 'l', 'xl').
+   * @param {string} [type='default'] The type of the shape
    * @return {number} - The corresponding font size, in pixels.
   */
-  static determineFontSize(size) {
-    const fontSizes = {
-      's': 24,
-      'm': 34,
-      'l': 52,
-      'xl': 62,
+  static determineFontSize(size, type = 'default') {
+    const textFontSizes = {
+      's': 18,
+      'm': 24,
+      'l': 36,
+      'xl': 44,
     };
 
-    return fontSizes[size] || 16;
+    const geoFontSizes = {
+      's': 18,
+      'm': 22,
+      'l': 26,
+      'xl': 32,
+    };
+
+    const fontSizeTypes = {
+      'geo': geoFontSizes,
+      'text': textFontSizes,
+      'default': textFontSizes,
+    };
+
+    return fontSizeTypes[type]?.[size] || 18;
   }
 
   /**
@@ -302,22 +338,24 @@ export class Shape {
    *
    * @param {string} align - One of ('start', 'middle', 'end').
    * @param {number} height - The height of the container.
+   * @param {number} padding - The padding of the container.
+   * @param {number} lineHeight - Line height of the text.
    * @return {string} The calculated vertical position as a string with
    * two decimal places. Coordinates are relative to the container.
    * @static
   */
-  static alignVertically(align, height) {
+  static alignVertically(align, height, padding, lineHeight) {
     switch (align) {
-      case 'middle': return (height / 2).toFixed(2);
-      case 'end': return height.toFixed(2);
-      default: return '0';
+      case 'middle': return (height / 2 - lineHeight / 2).toFixed(2);
+      case 'end': return (height - lineHeight - (padding ?? 0)).toFixed(2);
+      default: return padding ?? '0';
     }
   }
 
   /**
    * Determines the font to use based on the specified font family.
    * Supported families are 'draw', 'sans', 'serif', and 'mono'. Any other input
-   * defaults to the Caveat Brush font.
+   * defaults to the Shantell Sans font.
    *
    * @param {string} family The name of the font family.
    * @return {string} The font that corresponds to the given family.
@@ -325,11 +363,11 @@ export class Shape {
  */
   static determineFontFromFamily(family) {
     switch (family) {
-      case 'sans': return 'Source Sans Pro';
-      case 'serif': return 'Crimson Pro';
-      case 'mono': return 'Source Code Pro';
+      case 'sans': return 'IBM Plex Sans Medm';
+      case 'serif': return 'IBM Plex Serif Medm';
+      case 'mono': return 'IBM Plex Mono Medm';
       case 'draw':
-      default: return 'Caveat Brush';
+      default: return 'Shantell Sans Informal';
     }
   }
 
@@ -355,12 +393,26 @@ export class Shape {
   }
 
   /**
+     * Gets the smallest character width of a given text string using
+     * font metrics.
+    * @param {string} text - The text to measure.
+    * @param {opentype.Font} font - The loaded font object.
+    * @param {number} fontSize - The size of the font.
+    * @return {number} The width of the smallest character.
+    */
+  getSmallestCharWidth(text, font, fontSize) {
+    const widths = text.split('')
+        .map((char) => this.measureTextWidth(char, font, fontSize));
+    return Math.min(...widths);
+  }
+
+  /**
    * Wraps text to fit within a specified width and height.
    * @param {string} text - The text to wrap.
    * @param {number} width - The width of the bounding box.
-   * @return {string[]} An array of strings, each being a line.
+   * @return {Promise<string[]>} An array of strings, each being a line.
   */
-  wrapText(text, width) {
+  async wrapText(text, width) {
     const config = JSON.parse(
         fs.readFileSync(
             './config/settings.json',
@@ -380,9 +432,22 @@ export class Shape {
         fontBuffer.byteOffset,
         fontBuffer.byteOffset + fontBuffer.byteLength);
 
+    const decompressedBuffer = await wawoff2.decompress(arrayBuffer);
+
+    const decompressedArrayBuffer = decompressedBuffer.buffer.slice(
+        decompressedBuffer.byteOffset,
+        decompressedBuffer.byteOffset + decompressedBuffer.byteLength);
+
     // Parse the font using the ArrayBuffer
-    const parsedFont = opentype.parse(arrayBuffer);
-    const fontSize = Shape.determineFontSize(this.size);
+    const parsedFont = opentype.parse(decompressedArrayBuffer);
+    const fontSize = Shape.determineFontSize(this.size, this.type);
+
+    // In order to avoid bad line breaks due to rendering mismatch between
+    // environments (browser and CairoSVG) we add some spacing for safety.
+    width += (this.getSmallestCharWidth(text, parsedFont, fontSize) - 1);
+
+    // Subtract inline padding
+    width -= (this.padding * 2);
 
     const _wrapText = (token, availableWidth) => {
       let prefix = '';
@@ -402,6 +467,10 @@ export class Shape {
     };
 
     for (const textLine of textLines) {
+      if (!textLine) {
+        lines.push('');
+        continue;
+      }
       const textLineTokens = textLine.split(/\b/);
       let textAccum = '';
       for (const token of textLineTokens) {
@@ -436,7 +505,7 @@ export class Shape {
    * Draws label text on the SVG canvas.
    * @param {SVGG} group The SVG group element to add the label to.
   */
-  drawLabel(group) {
+  async drawLabel(group) {
     // Do nothing if there is no text
     if (!this.text) return;
 
@@ -457,14 +526,12 @@ export class Shape {
     const width = this.w;
     const height = this.h + this.growY;
 
-    const x = Shape.alignHorizontally(this.align, width, this.padding);
-    let y = Shape.alignVertically(this.verticalAlign, height);
-    const lineHeight = Shape.determineFontSize(this.size);
+    const lineHeight = Shape.determineFontSize(this.size, this.type);
     const fontFamily = Shape.determineFontFromFamily(this.props?.font);
-
-    if (this.verticalAlign === 'end' || this.verticalAlign === 'middle') {
-      y -= (lineHeight / 2);
-    }
+    const x = Shape.alignHorizontally(this.align, width, this.padding);
+    const y = Shape.alignVertically(
+        this.verticalAlign, height, this.padding, lineHeight,
+    );
 
     // Create a new SVG text element
     // Text is escaped by SVG.js
@@ -477,7 +544,7 @@ export class Shape {
           'alignment-baseline': 'baseline',
         });
 
-    const lines = this.wrapText(this.text, width);
+    const lines = await this.wrapText(this.text, width);
 
     lines.forEach((line) => {
       const tspan = new Tspan()
@@ -506,9 +573,9 @@ export class Shape {
    * Intended to be overridden by subclasses.
    *
    * @method draw
-   * @return {G} An empty SVG group element.
+   * @return {Promise<G>} An empty SVG group element.
    */
-  draw() {
+  async draw() {
     return new G();
   }
 }
@@ -524,4 +591,5 @@ export const ColorTypes = Object.freeze({
   FillColor: 'fill',
   SemiFillColor: 'semi',
   StickyColor: 'sticky',
+  HighlightColor: 'highlight',
 });

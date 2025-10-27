@@ -18,6 +18,7 @@ import Session from '/imports/ui/services/storage/in-memory';
 import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import Toggle from '/imports/ui/components/common/switch/component';
+import { ModalRegistration } from '/imports/ui/core/singletons/modalController';
 
 const intlMessages = defineMessages({
   optionsLabel: {
@@ -165,27 +166,12 @@ class OptionsDropdown extends PureComponent {
   constructor(props) {
     super(props);
 
-    this.state = {
-      isAboutModalOpen: false,
-      isShortcutHelpModalOpen: false,
-      isOptionsMenuModalOpen: false,
-      isEndMeetingConfirmationModalOpen: false,
-      isMobileAppModalOpen: false,
-      isFullscreen: false,
-      isLayoutModalOpen: false,
-    };
+    this.state = { isFullscreen: false };
 
-    // Set the logout code to 680 because it's not a real code and can be matched on the other side
     this.LOGOUT_CODE = '680';
 
     this.leaveSession = this.leaveSession.bind(this);
     this.onFullscreenChange = this.onFullscreenChange.bind(this);
-    this.setOptionsMenuModalIsOpen = this.setOptionsMenuModalIsOpen.bind(this);
-    this.setEndMeetingConfirmationModalIsOpen = this.setEndMeetingConfirmationModalIsOpen.bind(this);
-    this.setMobileAppModalIsOpen = this.setMobileAppModalIsOpen.bind(this);
-    this.setAboutModalIsOpen = this.setAboutModalIsOpen.bind(this);
-    this.setShortcutHelpModalIsOpen = this.setShortcutHelpModalIsOpen.bind(this);
-    this.setLayoutModalIsOpen = this.setLayoutModalIsOpen.bind(this);
   }
 
   componentDidMount() {
@@ -241,33 +227,9 @@ class OptionsDropdown extends PureComponent {
 
   leaveSession() {
     const { userLeaveMeeting } = this.props;
-    
+
     userLeaveMeeting();
     Session.setItem('codeError', this.LOGOUT_CODE);
-  }
-
-  setAboutModalIsOpen(value) {
-    this.setState({isAboutModalOpen: value})
-  }
-  
-  setShortcutHelpModalIsOpen(value) {
-    this.setState({isShortcutHelpModalOpen: value})
-  }
-  
-  setOptionsMenuModalIsOpen(value) {
-    this.setState({isOptionsMenuModalOpen: value})
-  }
-  
-  setEndMeetingConfirmationModalIsOpen(value) {
-    this.setState({isEndMeetingConfirmationModalOpen: value})
-  }
-  
-  setMobileAppModalIsOpen(value) {
-    this.setState({isMobileAppModalOpen: value})
-  }
-
-  setLayoutModalIsOpen(value) {
-    this.setState({ isLayoutModalOpen: value });
   }
 
   renderMenuItems() {
@@ -303,7 +265,10 @@ class OptionsDropdown extends PureComponent {
     this.menuItems.push({
       label: (
         <Styled.AwayOption>
-          <span>{intl.formatMessage(intlMessages.presenceLabel)} <b>{ToggleAFKLabel()}</b></span>
+          <span>
+            {intl.formatMessage(intlMessages.presenceLabel)}
+            <b>{ToggleAFKLabel()}</b>
+          </span>
           <Styled.ToggleButtonWrapper>
             <Toggle
               icons={false}
@@ -334,7 +299,7 @@ class OptionsDropdown extends PureComponent {
         dataTest: 'settings',
         label: intl.formatMessage(intlMessages.settingsLabel),
         description: intl.formatMessage(intlMessages.settingsDesc),
-        onClick: () => this.setOptionsMenuModalIsOpen(true),
+        onClick: () => this.setOptionsMenuModalIsOpen(),
       },
       {
         key: 'list-item-about',
@@ -342,61 +307,49 @@ class OptionsDropdown extends PureComponent {
         dataTest: 'aboutModal',
         label: intl.formatMessage(intlMessages.aboutLabel),
         description: intl.formatMessage(intlMessages.aboutDesc),
-        onClick: () => this.setAboutModalIsOpen(true),
+        onClick: () => this.setAboutModalIsOpen(),
       },
     );
 
     if (helpButton) {
-      this.menuItems.push(
-        {
-          key: 'list-item-help',
-          icon: 'help',
-          iconRight: 'popout_window',
-          label: intl.formatMessage(intlMessages.helpLabel),
-          dataTest: 'helpButton',
-          description: intl.formatMessage(intlMessages.helpDesc),
-          onClick: () => window.open(`${helpLink}`),
-        },
-      );
+      this.menuItems.push({
+        key: 'list-item-help',
+        icon: 'help',
+        iconRight: 'popout_window',
+        label: intl.formatMessage(intlMessages.helpLabel),
+        dataTest: 'helpButton',
+        description: intl.formatMessage(intlMessages.helpDesc),
+        onClick: () => window.open(`${helpLink}`),
+      });
     }
 
-    if (isIos &&
-      !isTabletApp &&
-      BBB_TABLET_APP_CONFIG.enabled == true &&
-      BBB_TABLET_APP_CONFIG.iosAppStoreUrl !== '') {
-      this.menuItems.push(
-        {
-          key: 'list-item-help',
-          icon: 'popout_window',
-          label: intl.formatMessage(intlMessages.openAppLabel),
-          onClick: () => this.setMobileAppModalIsOpen(true),
-        },
-      );
+    if (isIos && !isTabletApp && BBB_TABLET_APP_CONFIG.enabled && BBB_TABLET_APP_CONFIG.iosAppStoreUrl !== '') {
+      this.menuItems.push({
+        key: 'list-item-help',
+        icon: 'popout_window',
+        label: intl.formatMessage(intlMessages.openAppLabel),
+        onClick: () => this.setMobileAppModalIsOpen(),
+      });
     }
 
     if (audioCaptionsEnabled && isMobile) {
-      this.menuItems.push(
-        {
-          key: 'audioCaptions',
-          dataTest: 'audioCaptions',
-          icon: audioCaptionsActive ? 'closed_caption_stop' : 'closed_caption',
-          label: intl.formatMessage(
-            audioCaptionsActive ? intlMessages.stopCaption : intlMessages.startCaption,
-          ),
-          onClick: () => audioCaptionsSet(!audioCaptionsActive),
-        },
-      );
+      this.menuItems.push({
+        key: 'audioCaptions',
+        dataTest: 'audioCaptions',
+        icon: audioCaptionsActive ? 'closed_caption_stop' : 'closed_caption',
+        label: intl.formatMessage(audioCaptionsActive
+          ? intlMessages.stopCaption : intlMessages.startCaption),
+        onClick: () => audioCaptionsSet(!audioCaptionsActive),
+      });
     }
 
-    this.menuItems.push(
-      {
-        key: 'list-item-shortcuts',
-        icon: 'shortcuts',
-        label: intl.formatMessage(intlMessages.hotkeysLabel),
-        description: intl.formatMessage(intlMessages.hotkeysDesc),
-        onClick: () => this.setShortcutHelpModalIsOpen(true),
-      },
-    );
+    this.menuItems.push({
+      key: 'list-item-shortcuts',
+      icon: 'shortcuts',
+      label: intl.formatMessage(intlMessages.hotkeysLabel),
+      description: intl.formatMessage(intlMessages.hotkeysDesc),
+      onClick: () => this.setShortcutHelpModalIsOpen(),
+    });
 
     const Settings = getSettingsSingletonInstance();
     const { selectedLayout } = Settings.application;
@@ -405,15 +358,13 @@ class OptionsDropdown extends PureComponent {
       && selectedLayout !== LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY;
 
     if (shouldShowManageLayoutButton && isLayoutsEnabled) {
-      this.menuItems.push(
-        {
-          key: 'list-item-layout-modal',
-          icon: 'manage_layout',
-          label: intl.formatMessage(intlMessages.layoutModal),
-          onClick: () => this.setLayoutModalIsOpen(true),
-          dataTest: 'manageLayoutBtn',
-        },
-      );
+      this.menuItems.push({
+        key: 'list-item-layout-modal',
+        icon: 'manage_layout',
+        label: intl.formatMessage(intlMessages.layoutModal),
+        onClick: () => this.setLayoutModalIsOpen(),
+        dataTest: 'manageLayoutBtn',
+      });
     }
 
     optionsDropdownItems.forEach((item) => {
@@ -427,10 +378,7 @@ class OptionsDropdown extends PureComponent {
           });
           break;
         case OptionsDropdownItemType.SEPARATOR:
-          this.menuItems.push({
-            key: item.id,
-            isSeparator: true,
-          });
+          this.menuItems.push({ key: item.id, isSeparator: true });
           break;
         default:
           break;
@@ -438,10 +386,7 @@ class OptionsDropdown extends PureComponent {
     });
 
     if (isMeteorConnected && !isDirectLeaveButtonEnabled) {
-      const bottomItems = [{
-        key: 'list-item-separator',
-        isSeparator: true,
-      }];
+      const bottomItems = [{ key: 'list-item-separator', isSeparator: true }];
 
       if (allowLogoutSetting) {
         const leaveLabel = isBreakoutRoom
@@ -463,14 +408,13 @@ class OptionsDropdown extends PureComponent {
 
       if (allowedToEndMeeting) {
         const customStyles = { background: colorDanger, color: colorWhite };
-
         bottomItems.push({
           key: 'list-item-end-meeting',
           icon: 'close',
           label: intl.formatMessage(intlMessages.endMeetingLabel),
           description: intl.formatMessage(intlMessages.endMeetingDesc),
           customStyles,
-          onClick: () => this.setEndMeetingConfirmationModalIsOpen(true),
+          onClick: () => this.setEndMeetingConfirmationModalIsOpen(),
         });
       }
 
@@ -480,32 +424,10 @@ class OptionsDropdown extends PureComponent {
     return this.menuItems;
   }
 
-  renderModal(isOpen, setIsOpen, priority, Component, otherOptions) {
-    return isOpen ? <Component 
-      {...{
-        ...otherOptions,
-        onRequestClose: () => setIsOpen(false),
-        priority,
-        setIsOpen,
-        isOpen
-      }}
-    /> : null
-  }
-
   render() {
     const {
-      intl,
-      shortcuts: OPEN_OPTIONS_AK,
-      isDropdownOpen,
-      isMobile,
-      isRTL,
+      intl, shortcuts: OPEN_OPTIONS_AK, isDropdownOpen, isMobile, isRTL,
     } = this.props;
-
-    const {
-      isAboutModalOpen, isShortcutHelpModalOpen, isOptionsMenuModalOpen,
-      isEndMeetingConfirmationModalOpen, isMobileAppModalOpen, isLayoutModalOpen,
-    } = this.state;
-
     const customStyles = { top: '1rem' };
 
     return (
@@ -523,8 +445,6 @@ class OptionsDropdown extends PureComponent {
               size="md"
               circle
               hideLabel
-              // FIXME: Without onClick react proptypes keep warning
-              // even after the DropdownTrigger inject an onClick handler
               onClick={() => null}
             />
           )}
@@ -540,23 +460,96 @@ class OptionsDropdown extends PureComponent {
             transformorigin: { vertical: 'top', horizontal: isRTL ? 'left' : 'right' },
           }}
         />
-        {this.renderModal(isAboutModalOpen, this.setAboutModalIsOpen, "low",
-          AboutContainer)}
-        {this.renderModal(isShortcutHelpModalOpen, this.setShortcutHelpModalIsOpen, 
-          "low", ShortcutHelpComponent)}
-        {this.renderModal(isOptionsMenuModalOpen, this.setOptionsMenuModalIsOpen, 
-          "low", OptionsMenuContainer)}
-        {this.renderModal(isEndMeetingConfirmationModalOpen, this.setEndMeetingConfirmationModalIsOpen, 
-          "low", EndMeetingConfirmationContainer)}
-        {this.renderModal(isMobileAppModalOpen, this.setMobileAppModalIsOpen, "low", 
-          MobileAppModal)}
-        {this.renderModal(
-          isLayoutModalOpen,
-          this.setLayoutModalIsOpen,
-          'low',
-          LayoutModalContainer,
-        )}
 
+        {/* About Modal */}
+        <ModalRegistration id="aboutModal" priority="low">
+          {({
+            isOpen,
+            id,
+            open,
+            close,
+          }) => {
+            this.setAboutModalIsOpen = isOpen ? close : open;
+            return isOpen && (
+              <AboutContainer onRequestClose={close} priority="low" isOpen={isOpen} id={id} setIsOpen={isOpen ? close : open} />
+            );
+          }}
+        </ModalRegistration>
+
+        {/* Shortcuts Modal */}
+        <ModalRegistration id="shortcutsModal" priority="low">
+          {({
+            isOpen,
+            id,
+            open,
+            close,
+          }) => {
+            this.setShortcutHelpModalIsOpen = isOpen ? close : open;
+            return isOpen && (
+              <ShortcutHelpComponent onRequestClose={close} priority="low" isOpen={isOpen} id={id} setIsOpen={isOpen ? close : open} />
+            );
+          }}
+        </ModalRegistration>
+
+        {/* Options Menu Modal */}
+        <ModalRegistration id="optionsMenuModal" priority="low">
+          {({
+            isOpen,
+            id,
+            open,
+            close,
+          }) => {
+            this.setOptionsMenuModalIsOpen = isOpen ? close : open;
+            return isOpen && (
+              <OptionsMenuContainer onRequestClose={close} priority="low" isOpen={isOpen} id={id} setIsOpen={isOpen ? close : open} />
+            );
+          }}
+        </ModalRegistration>
+
+        {/* End Meeting Modal */}
+        <ModalRegistration id="endMeetingModal" priority="low">
+          {({
+            isOpen,
+            id,
+            open,
+            close,
+          }) => {
+            this.setEndMeetingConfirmationModalIsOpen = isOpen ? close : open;
+            return isOpen && (
+              <EndMeetingConfirmationContainer onRequestClose={close} priority="low" isOpen={isOpen} id={id} setIsOpen={isOpen ? close : open} />
+            );
+          }}
+        </ModalRegistration>
+
+        {/* Mobile App Modal */}
+        <ModalRegistration id="mobileAppModal" priority="low">
+          {({
+            isOpen,
+            id,
+            open,
+            close,
+          }) => {
+            this.setMobileAppModalIsOpen = isOpen ? close : open;
+            return isOpen && (
+              <MobileAppModal onRequestClose={close} priority="low" isOpen={isOpen} id={id} setIsOpen={isOpen ? close : open} />
+            );
+          }}
+        </ModalRegistration>
+
+        {/* Layout Modal */}
+        <ModalRegistration id="layoutModal" priority="low">
+          {({
+            isOpen,
+            id,
+            open,
+            close,
+          }) => {
+            this.setLayoutModalIsOpen = isOpen ? close : open;
+            return isOpen && (
+              <LayoutModalContainer onRequestClose={close} priority="low" isOpen={isOpen} id={id} setIsOpen={isOpen ? close : open} />
+            );
+          }}
+        </ModalRegistration>
       </>
     );
   }

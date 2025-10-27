@@ -141,8 +141,8 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
   const Settings = getSettingsSingletonInstance();
   const { animations, webcamBorderHighlightColor } = Settings.application;
   const talking = voiceUser?.talking;
-  const raiseHand = (stream.type === VIDEO_TYPES.GRID && stream.raiseHand)
-    || (stream.type === VIDEO_TYPES.STREAM && stream.user.raiseHand);
+  const raiseHand = (stream.type === VIDEO_TYPES.GRID && stream?.raiseHand)
+    || (stream.type === VIDEO_TYPES.STREAM && stream.user?.raiseHand);
   const { data: currentUser } = useCurrentUser((u) => ({
     userId: u.userId,
     pinned: u.pinned,

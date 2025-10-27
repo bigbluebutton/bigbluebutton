@@ -1,10 +1,10 @@
 table:
-  name: v_pluginDataChannelEntry
+  name: v_pluginDataChannelEntry_private
   schema: public
 configuration:
   column_config: {}
   custom_column_names: {}
-  custom_name: pluginDataChannelEntry
+  custom_name: pluginDataChannelEntry_private
   custom_root_fields: {}
 object_relationships:
   - name: creator
@@ -29,6 +29,7 @@ select_permissions:
         - payloadJson
         - createdBy
         - fromUserId
+        - updatedAt
         - toRoles
       filter:
         _and:

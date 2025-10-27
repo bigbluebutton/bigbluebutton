@@ -689,6 +689,10 @@ class Presentation extends PureComponent {
       darkTheme,
       isViewersAnnotationsLocked,
       fitToWidth,
+      annotationStreamData,
+      initialPageAnnotations,
+      refetchInitialPageAnnotations,
+      restoreOnUpdate,
     } = this.props;
 
     const {
@@ -860,6 +864,10 @@ class Presentation extends PureComponent {
                     darkTheme={darkTheme}
                     isToolbarVisible={isToolbarVisible}
                     isViewersAnnotationsLocked={isViewersAnnotationsLocked}
+                    annotationStreamData={annotationStreamData}
+                    initialPageAnnotations={initialPageAnnotations}
+                    refetchInitialPageAnnotations={refetchInitialPageAnnotations}
+                    restoreOnUpdate={restoreOnUpdate}
                   />
                 </LocatedErrorBoundary>
                 {isFullscreen && <PollingContainer />}

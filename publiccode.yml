@@ -3,8 +3,8 @@ name: BigBlueButton
 applicationSuite: BigBlueButton
 url: https://github.com/bigbluebutton/bigbluebutton
 landingURL: https://bigbluebutton.org/
-softwareVersion: 3.0.8
-releaseDate: 2025-05-28
+softwareVersion: 3.0.16
+releaseDate: 2025-10-02
 logo: https://bigbluebutton.org/wp-content/uploads/2021/01/BigBlueButton_icon.svg.png
 platforms:
   - linux
@@ -12,7 +12,8 @@ platforms:
 categories:
   - web-conferencing
   - video-conferencing
-  - education
+  - collaboration
+  - learning-management-system
 usedBy:
   - French Ministry of Education
   - European Commission
@@ -43,6 +44,10 @@ description:
       For virtual classrooms, BigBlueButton goes further — empowering educators
       with built-in tools for active learning and live analytics to ensure
       every student learns.
+
+      BigBlueButton is maintained by a global open source community,
+      with additional professional support and contractual maintenance
+      offered by companies such as Blindside Networks.
     documentation: https://docs.bigbluebutton.org/
     apiDocumentation: https://docs.bigbluebutton.org/development/api/
     features:
@@ -65,35 +70,30 @@ description:
 legal:
   license: LGPL-3.0-only
 maintenance:
-  type: Community and Commercial Support
+  type: contract
   contacts:
     - name: Timo Nogueira Brockmeyer
       email: timo.nogueira.brockmeyer@uni-osnabrueck.de
       affiliation: German Community Contact
     - name: Steven Muegge
       email: smuegge@bigbluebutton.org
-      website: https://bigbluebutton.org
       affiliation: Executive Director, BigBlueButton Inc.
   contractors:
     - name: Blindside Networks
       email: team@blindsidenetworks.com
       website: https://blindsidenetworks.com
-      affiliation: Commercial Support
       until: '2030-06-01'
     - name: Mconf
       email: contact@mconf.com
       website: https://mconf.com/
-      affiliation: Commercial Support
       until: '2030-06-01'
     - name: iMDT
       email: contato@imdt.com.br
       website: https://international.imdt.com.br/
-      affiliation: Commercial Support
       until: '2030-06-01'
     - name: think modular
       email: info@think-modular.com
       website: https://think-modular.com/
-      affiliation: Commercial Support
       until: '2030-06-01'
 localisation:
   localisationReady: true

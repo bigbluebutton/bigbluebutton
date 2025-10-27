@@ -1,4 +1,5 @@
 import {Draw} from './Draw.js';
+import {Shape, ColorTypes} from './Shape.js';
 
 /**
  * Represents a Highlight shape, extending the functionality of the Draw class.
@@ -16,7 +17,7 @@ export class Highlight extends Draw {
     super(highlight);
 
     this.fill = 'none';
-    this.shapeColor = '#fedd00';
+    this.shapeColor = Shape.colorToHex(this.color, ColorTypes.HighlightColor);
     this.thickness = this.thickness * 7;
     this.isClosed = false;
   }
