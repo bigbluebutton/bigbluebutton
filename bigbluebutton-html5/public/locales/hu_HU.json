@@ -1427,7 +1427,7 @@
     "app.createBreakoutRoom.resetAssignmentsDesc": "Összes felhasználó szoba összerendelés reszetelése",
     "app.createBreakoutRoom.endAllBreakouts": "Összes csoportterem bezárása",
     "app.createBreakoutRoom.chatTitleMsgAllRooms": "összes szoba",
-    "app.createBreakoutRoom.msgToBreakoutsSent": "{numberOfBreakouts} csoportteremnek üzenetet küldött",
+    "app.createBreakoutRoom.msgToBreakoutsSent": "{numberOfBreakouts} csapatteremnek üzenetet küldött",
     "app.createBreakoutRoom.doneLabel": "Kész",
     "app.createBreakoutRoom.nextLabel": "Következő",
     "app.createBreakoutRoom.minusRoomTime": "Csoportterem nyitvatartási dejének csökkentése ennyivel:",
