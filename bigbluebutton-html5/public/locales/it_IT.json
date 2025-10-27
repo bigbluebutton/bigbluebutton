@@ -1401,7 +1401,7 @@
     "app.externalVideo.autoPlayWarning": "Avvia il video per abilitare la sincronizzazione media",
     "app.externalVideo.refreshLabel": "Aggiorna il lettore video",
     "app.externalVideo.fullscreenLabel": "Lettore video",
-    "app.externalVideo.noteLabel": "Nota: i video esterni non appariranno nella registrazione. Sono supportati YouTube, Vimeo, Instructure Media, Twitch, Dailymotion and URL di file multimediali (es. https://example.com/xy.mp4).",
+    "app.externalVideo.noteLabel": "Nota: i video esterni non appariranno nella registrazione. Sono supportati YouTube, Vimeo, Instructure Media, Twitch, Dailymotion e URL di file multimediali (es. https://example.com/xy.mp4).",
     "app.externalVideo.subtitlesOn": "Disattiva",
     "app.externalVideo.subtitlesOff": "Attiva (se disponibile)",
     "app.externalVideo.stopShareExternalVideo": "Interrompere la condivisione di video esterni",
