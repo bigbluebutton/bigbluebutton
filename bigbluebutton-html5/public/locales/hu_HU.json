@@ -1369,7 +1369,7 @@
     "app.createBreakoutRoom.addParticipantLabel": "+ Résztvevő hozzáadása",
     "app.createBreakoutRoom.freeJoin": "A résztvevők maguk választhatnak csoporttermet",
     "app.createBreakoutRoom.manageRoomsLabel": "Szobák kezelése",
-    "app.createBreakoutRoom.captureNotes": "Megosztott jegyzetek mentése a csapatszobák zárásakor",
+    "app.createBreakoutRoom.captureNotes": "Megosztott jegyzetek mentése a csoporttermek zárásakor",
     "app.createBreakoutRoom.captureSlides": "Rajztábla mentése a csapatszobák zárásakor",
     "app.createBreakoutRoom.sendInvitationToMods": "Meghívó küldése a hozzárendelt szervezőknek",
     "app.createBreakoutRoom.leastOneWarnBreakout": "Minden csoportterembe legalább egy résztvevőnek kell kerülnie.",
