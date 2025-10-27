@@ -363,7 +363,7 @@ const TimerPresetButton = styled.button<{disabled?: boolean}>`
   line-height: 1;
   color: ${colorGrayDark};
   opacity: ${({ disabled }) => (disabled ? 0.4 : 0.7)};
-  transition: opacity 120ms ease, color 120ms ease;
+  transition: opacity 120ms ease, color 120ms ease, background-color 120ms ease, border-color 120ms ease;
   padding: 0.25rem 0.15rem;
   border: 1px solid ${colorBorder};
   border-radius: 0.35rem;
@@ -371,6 +371,24 @@ const TimerPresetButton = styled.button<{disabled?: boolean}>`
   &:hover, &:focus {
     opacity: 1;
     color: ${colorGrayDark};
+  }
+
+  &:active:not(:disabled) {
+    background-color: color-mix(in srgb, ${colorPrimary} 15%, transparent);
+    border-color: ${colorPrimary};
+    color: ${colorPrimary};
+    animation: preset-click-feedback 300ms ease;
+  }
+
+  @keyframes preset-click-feedback {
+    0% {
+      background-color: color-mix(in srgb, ${colorPrimary} 25%, transparent);
+      border-color: ${colorPrimary};
+    }
+    100% {
+      background-color: transparent;
+      border-color: ${colorBorder};
+    }
   }
 `;
 
