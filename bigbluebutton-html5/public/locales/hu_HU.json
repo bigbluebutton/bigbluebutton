@@ -1072,7 +1072,7 @@
     "app.toast.wakeLock.acquireSuccess": "Az ébresztészár aktív! A beállítások menüben kapcsolhatja ki.",
     "app.toast.wakeLock.acquireFailed": "Hiba az ébresztészár lekérésekor",
     "app.toast.wakeLock.notSupported": "Böngészője nem támogatja az ébresztészárolásokat",
-    "app.toast.wakeLock.disclaimer": "{error}. A képernyő kikapcsolása után kiteszünk a hívásból.",
+    "app.toast.wakeLock.disclaimer": "{error}. A képernyőd kikapcsolása után kiteszünk a hívásból.",
     "app.toast.setEmoji.raiseHand": "Jelentkezel",
     "app.toast.setEmoji.lowerHand": "Már nem jelentkezel",
     "app.toast.setEmoji.away": "Távollét állapot beállítva",
