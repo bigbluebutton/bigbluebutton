@@ -1625,7 +1625,7 @@
     "app.learningDashboard.quizzes.unknownIndicator": "A végeredményt még nem publikáltuk ",
     "app.learningDashboard.quizzes.successIndicator": "Helyes válasz",
     "app.learningDashboard.quizzes.errorIndicator": "Helytelen válasz",
-    "app.learningDashboard.quizzes.waitingResponse": "Várakozó felhasználói visszajelzések",
+    "app.learningDashboard.quizzes.waitingResponse": "Várakozunk a felhasználói visszajelzésre",
     "app.learningDashboard.indicators.quizzes": "Kvízek",
     "app.learningDashboard.pluginsTable.totalLabel": "Összes",
     "app.learningDashboard.pluginsTable.userLabel": "Felhasználó",
