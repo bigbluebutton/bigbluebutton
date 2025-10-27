@@ -252,7 +252,7 @@
     "app.screenshare.screenshareRetryError": "Kód: {errorCode}. Próbáld újra a képernyőmegosztást!",
     "app.screenshare.screenshareRetryOtherEnvError": "Kód: {errorCode}. Nem sikerült megosztani a képernyőt. Próbálkozz újra egy másik böngészővel vagy eszközzel.",
     "app.screenshare.screenshareUnsupportedEnv": "Kód: {errorCode}. A böngésző nem támogatott. Próbálkozz újra egy másik böngészővel vagy eszközzel.",
-    "app.screenshare.screensharePermissionError": "Kód: {errorCode}. Képernyőmegosztás megszakítva",
+    "app.screenshare.screensharePermissionError": "Kód: {errorCode}. Jogosultság szükséges a képernyőrögzítéshez.",
     "app.screenshare.screenshareToastHelpLabel": "Tudj meg többet",
     "app.cameraAsContent.presenterLoadingLabel": "A kamerája tölt",
     "app.cameraAsContent.viewerLoadingLabel": "Az előadó kamerája tölt",
