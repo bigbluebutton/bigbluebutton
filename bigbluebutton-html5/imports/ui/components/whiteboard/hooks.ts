@@ -1,15 +1,15 @@
 import { useState, useEffect } from 'react';
 import {
-  CurrentPageWritersResponse,
   CursorCoordinates,
   CursorCoordinatesResponse,
-  CURRENT_PAGE_WRITERS_SUBSCRIPTION,
+  CURRENT_CURSORS_SUBSCRIPTION,
   CURRENT_PAGE_CURSORS_COORDINATES_STREAM,
-  UsersCurrentPageWritersResponse,
+  UserWhiteboardCursor,
+  UserWhiteboardCursorResponse,
 } from './queries';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 
-interface mergedData extends CursorCoordinates, UsersCurrentPageWritersResponse { }
+interface mergedData extends CursorCoordinates, UserWhiteboardCursor { }
 
 // Custom hook to fetch and merge data
 export const useMergedCursorData = () => {
@@ -21,15 +21,15 @@ export const useMergedCursorData = () => {
   const [
     userCursor,
     setUserCursor,
-  ] = useState<{ [key: string]: UsersCurrentPageWritersResponse }>({});
+  ] = useState<{ [key: string]: UserWhiteboardCursor }>({});
 
   const [
     userCursorMerged,
     setUserCursorMerged,
   ] = useState<mergedData[]>([]);
   // Fetch cursor coordinates
-  const { data: cursorUsersSubscriptionData } = useDeduplicatedSubscription<CurrentPageWritersResponse>(
-    CURRENT_PAGE_WRITERS_SUBSCRIPTION,
+  const { data: cursorUsersSubscriptionData } = useDeduplicatedSubscription<UserWhiteboardCursorResponse>(
+    CURRENT_CURSORS_SUBSCRIPTION,
   );
   const cursorUsersSubscriptionDataString = JSON.stringify(cursorUsersSubscriptionData);
 
@@ -55,10 +55,10 @@ export const useMergedCursorData = () => {
 
   useEffect(() => {
     if (cursorUsersSubscriptionData) {
-      const cursorData = cursorUsersSubscriptionData.pres_page_writers.reduce((acc, cursor) => {
+      const cursorData = cursorUsersSubscriptionData.user_whiteboardCursorAccess.reduce((acc, cursor) => {
         acc[cursor.userId] = cursor;
         return acc;
-      }, {} as { [key: string]: UsersCurrentPageWritersResponse });
+      }, {} as { [key: string]: UserWhiteboardCursor });
       setUserCursor(cursorData);
     }
   }, [cursorUsersSubscriptionDataString]);

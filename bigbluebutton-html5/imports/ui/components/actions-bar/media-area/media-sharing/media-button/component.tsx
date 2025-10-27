@@ -3,6 +3,7 @@ import { IconButton } from '@mui/material';
 import SettingsIcon from '@mui/icons-material/Settings';
 import Styled from './styles';
 import { colorPrimary, colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
+import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 
 export interface MediaButtonProps {
   color: string;
@@ -12,6 +13,7 @@ export interface MediaButtonProps {
   onClick?: () => void;
   /** The main icon to be rendered in the button */
   icon?: React.ReactElement;
+  tooltip?: string;
 }
 
 export const MediaButton: FunctionComponent<MediaButtonProps> = ({
@@ -21,6 +23,7 @@ export const MediaButton: FunctionComponent<MediaButtonProps> = ({
   dataTest,
   onClick,
   icon,
+  tooltip,
 }) => {
   let settingsIconColor = 'inherit';
   if (color === 'active') {
@@ -29,7 +32,7 @@ export const MediaButton: FunctionComponent<MediaButtonProps> = ({
     settingsIconColor = colorWhite;
   }
 
-  return (
+  const buttonContent = (
     <Styled.MediaButtonContainer data-test={dataTest}>
       <Styled.ButtonFrame color={color} onClick={onClick}>
         {showSettingsIcon && (
@@ -52,6 +55,16 @@ export const MediaButton: FunctionComponent<MediaButtonProps> = ({
       <Styled.ButtonText>{text}</Styled.ButtonText>
     </Styled.MediaButtonContainer>
   );
+
+  if (tooltip && tooltip !== '') {
+    return (
+      <TooltipContainer position="top" title={tooltip}>
+        {buttonContent}
+      </TooltipContainer>
+    );
+  }
+
+  return buttonContent;
 };
 
 export default MediaButton;

@@ -26,7 +26,7 @@ const PinArea: React.FC<PinAreaProps> = (props) => {
 
   const { stream, amIModerator } = props;
   const { userId, type } = stream;
-  const pinned = type === VIDEO_TYPES.STREAM && stream.user.pinned;
+  const pinned = type === VIDEO_TYPES.STREAM && stream.user?.pinned;
   const videoPinActionAvailable = useIsVideoPinEnabledForCurrentUser(amIModerator);
 
   const [setCameraPinned] = useMutation(SET_CAMERA_PINNED);

@@ -761,10 +761,16 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
           },
         }}
         rightButtonProps={{
-          'aria-label': intl.formatMessage(intlMessages.minimize, { 0: intl.formatMessage(intlMessages.pollPaneTitle) }),
+          'aria-label': intl.formatMessage(
+            intlMessages.minimize,
+            { panelName: intl.formatMessage(intlMessages.pollPaneTitle) },
+          ),
           'data-test': 'minimizePolling',
           icon: 'minus',
-          label: intl.formatMessage(intlMessages.minimize, { 0: intl.formatMessage(intlMessages.pollPaneTitle) }),
+          label: intl.formatMessage(
+            intlMessages.minimize,
+            { panelName: intl.formatMessage(intlMessages.pollPaneTitle) },
+          ),
           onClick: () => {
             layoutContextDispatch({
               type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
@@ -838,7 +844,7 @@ const PollCreationPanelContainer: React.FC = () => {
   return (
     <PollCreationPanel
       layoutContextDispatch={layoutContextDispatch}
-      hasPoll={currentMeeting.componentsFlags?.hasPoll ?? false}
+      hasPoll={currentMeeting?.componentsFlags?.hasPoll ?? false}
     />
   );
 };

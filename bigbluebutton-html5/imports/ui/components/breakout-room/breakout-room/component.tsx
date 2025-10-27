@@ -173,7 +173,10 @@ const BreakoutRoom: React.FC<BreakoutRoomProps> = ({
   }, [breakouts, stopMediaOnMainRoom, presenter]);
 
   const title = intl.formatMessage(intlMessages.breakoutTitle);
-  const minimizeButtonLabel = intl.formatMessage(intlMessages.genericMinimizePanel, { 0: title });
+  const minimizeButtonLabel = intl.formatMessage(
+    intlMessages.genericMinimizePanel,
+    { panelName: title },
+  );
 
   return (
     <Styled.PanelContent
