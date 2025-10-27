@@ -741,7 +741,7 @@
     "app.breakoutJoinConfirmation.dismissLabel": "Mégsem",
     "app.breakoutJoinConfirmation.dismissDesc": "A csoportterem bezárása és a csatlakozási kérelmek visszautasítása",
     "app.breakoutJoinConfirmation.freeJoinMessage": "Csoportterem választása",
-    "app.breakoutTimeRemainingMessage": "Csapatterem hátralévő ideje: {remainingTime}",
+    "app.breakoutTimeRemainingMessage": "Csoportterem hátralévő ideje: {remainingTime}",
     "app.breakoutWillCloseMessage": "Az idő lejárt. A csoportterem hamarosan bezárul",
     "app.breakout.dropdown.manageDuration": "Időtartam módosítása",
     "app.breakout.dropdown.destroyAll": "Csoporttermek bezárása",
