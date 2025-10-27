@@ -2501,7 +2501,12 @@ WHERE "deletedAt" is null
 AND "isPublic" is false;
 
 CREATE OR REPLACE VIEW "v_pluginDataChannelEntry_public" AS
-SELECT "meetingId", "pluginName", "channelName", "subChannelName", "entryId", "payloadJson", "createdBy", "toRoles", "createdAt", "updatedAt"
+SELECT "meetingId",
+    "pluginName", "channelName",
+    "subChannelName", "entryId",
+    "payloadJson", "createdBy",
+    "toRoles", "createdAt",
+    "updatedAt", "fromUserId"
 FROM "pluginDataChannelEntry"
 WHERE "deletedAt" is null
 AND "isPublic" is true;
