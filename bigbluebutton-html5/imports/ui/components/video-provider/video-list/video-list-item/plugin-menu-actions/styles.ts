@@ -26,19 +26,11 @@ const MenuWrapper = styled.div<{
     position: relative !important;
   }
 
-  ${({ dark }) => dark && `
-    background-color: rgba(0,0,0,.3);
+  ${({ dark }) => `
+    background-color: ${dark ? 'rgba(0,0,0,.3)' : colorTransparent};
 
     & button i {
-      color: ${colorWhite};
-    }
-  `}
-
-  ${({ dark }) => !dark && `
-    background-color: ${colorTransparent};
-
-    & button i {
-      color: ${colorBlack};
+      color: ${dark ? colorWhite : colorBlack};
     }
   `}
 `;
@@ -47,7 +39,7 @@ const MenuWrapper = styled.div<{
 // @ts-ignore - as button comes from JS, we can't provide its props
 const OptionsButton = styled(Button)`
   padding: 5px;
-  rotate: 90deg;
+  transform: rotate(90deg);
 
   &,
   &:active,

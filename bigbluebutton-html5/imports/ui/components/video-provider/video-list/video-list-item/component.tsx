@@ -367,11 +367,14 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
     const { userId } = stream;
 
     // when squeezed we move the bottom left items to top right and vice versa
-    const topRightPluginItemsRender = (isVideoSqueezed) ? [] : topRightPluginItems?.concat(bottomLeftPluginItems);
+    const topRightPluginItemsRender = isVideoSqueezed
+      ? []
+      : [...(topRightPluginItems ?? []), ...(bottomLeftPluginItems ?? [])];
     const topLeftPluginItemsRender = topLeftPluginItems;
     const bottomRightPluginItemsRender = bottomRightPluginItems;
-    const bottomLeftPluginItemsRender = (!isVideoSqueezed) ? [] : bottomLeftPluginItems?.concat(topRightPluginItems);
-
+    const bottomLeftPluginItemsRender = !isVideoSqueezed
+      ? []
+      : [...(bottomLeftPluginItems ?? []), ...(topRightPluginItems ?? [])];
     return (
       <>
         <Styled.UserCameraButtonsContainerWrapper
