@@ -39,6 +39,7 @@ case class PluginSettingSchema(
 
 case class PluginManifestContent(
     requiredSdkVersion:            String,
+    pluginVersion:                 Option[String]                       = None,
     name:                          String,
     javascriptEntrypointUrl:       String,
     enabledForBreakoutRooms:       Boolean                              = false,
@@ -81,8 +82,8 @@ object PluginModel {
       case Some(pluginScalaContent) =>
         val jsEntrypoint = pluginScalaContent.javascriptEntrypointUrl
         if (!jsEntrypoint.startsWith("http://") && !jsEntrypoint.startsWith("https://")) {
-          val absoluteJavascriptEntrypoint = makeAbsoluteUrl(plugin, jsEntrypoint)
-          val newPluginManifestContent = pluginScalaContent.copy(javascriptEntrypointUrl = absoluteJavascriptEntrypoint)
+          val finalJavascriptEntrypointUrl = createFinalJavascriptEntrypointUrl(plugin, jsEntrypoint)
+          val newPluginManifestContent = pluginScalaContent.copy(javascriptEntrypointUrl = finalJavascriptEntrypointUrl)
           val newPluginManifest = plugin.manifest.copy(content = Some(newPluginManifestContent))
           return plugin.copy(manifest = newPluginManifest)
         }
@@ -111,6 +112,21 @@ object PluginModel {
   private def makeAbsoluteUrl(plugin: Plugin, relativeUrl: String): String = {
     val baseUrl = plugin.manifest.url.substring(0, plugin.manifest.url.lastIndexOf('/') + 1)
     baseUrl + relativeUrl
+  }
+  private def createFinalJavascriptEntrypointUrl(plugin: Plugin, relativeUrl: String): String = {
+    val jsEntrypointAbsoluteUrl = makeAbsoluteUrl(plugin, relativeUrl)
+    val maybeVersion = for {
+      manifest <- plugin.manifest.content
+      version  <- manifest.pluginVersion
+    } yield {
+      if (Version.isValid(version)) version
+      else logger.warn("pluginVersion for [{}] is not valid, ignoring...", manifest.name)
+    }
+
+    maybeVersion match {
+      case Some(version) => s"$jsEntrypointAbsoluteUrl?version=$version"
+      case None          => jsEntrypointAbsoluteUrl
+    }
   }
   private def replaceAllRelativeUrls(plugin: Plugin): Plugin = {
     val pluginWithAbsoluteJsEntrypoint = replaceRelativeJavascriptEntrypoint(plugin)
