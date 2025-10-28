@@ -560,10 +560,13 @@ class CustomParameters extends MultiUsers {
 
     await this.modPage.hasElement(e.breakoutBox1, 'should display the breakout box for room 1');
     await this.modPage.hasElementCount(`${e.breakoutBox1} > p`, 1, 'should display only 1 user in the breakout room 1');
+    await this.modPage.hasText(e.breakoutBox1, this.userPage.username, 'should display the correct user assigned to breakout room 1');
     await this.modPage.hasValue(e.roomNameInput, 'Room 1', 'should display the correct name of the group for breakout room 1');
 
     await this.modPage.hasElement(e.breakoutBox2, 'should display the breakout box for room 2');
     await this.modPage.hasElementCount(`${e.breakoutBox2} > p`, 1, 'should display only 1 user in the breakout room 2');
+    await this.modPage.hasText(e.breakoutBox2, this.userPage2.username, 'should display the correct user assigned to breakout room 2');
+
     await this.modPage.hasValue(`input[data-test=roomName-2]`, 'Room 2', 'should display the correct name of the group for breakout room 2');
 
     await this.modPage.waitAndClick(e.modalConfirmButton, ELEMENT_WAIT_LONGER_TIME);
