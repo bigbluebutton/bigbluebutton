@@ -1,7 +1,6 @@
 import React, {
   useMemo,
   useRef,
-  useState,
   useEffect,
 } from 'react';
 import LockViewersContainer from '/imports/ui/components/lock-viewers/container';
@@ -30,6 +29,7 @@ import { CLEAR_ALL_REACTION } from '/imports/ui/core/graphql/mutations/userMutat
 import { GET_USER_NAMES } from '/imports/ui/core/graphql/queries/users';
 import logger from '/imports/startup/client/logger';
 import { notify } from '/imports/ui/services/notification';
+import { useModalRegistration } from '/imports/ui/core/singletons/modalController';
 
 const intlMessages = defineMessages({
   optionsLabel: {
@@ -126,34 +126,6 @@ const intlMessages = defineMessages({
   },
 });
 
-interface RenderModalProps {
-  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  isOpen: boolean;
-  priority: string;
-  /* Use 'any' if you don't have specific props;
-   As this props varies in types usage of any is most appropriate */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  Component: React.ComponentType<any>;
-  otherOptions: object;
-}
-
-const renderModal: React.FC<RenderModalProps> = ({
-  isOpen, setIsOpen, priority, Component, otherOptions,
-}) => {
-  if (isOpen) {
-    return (
-      <Component
-        onRequestClose={() => setIsOpen(false)}
-        priority={priority}
-        setIsOpen={setIsOpen}
-        isOpen={isOpen}
-        // eslint-disable-next-line react/jsx-props-no-spreading
-        {...otherOptions}
-      />
-    );
-  }
-  return null;
-};
 interface UserTitleOptionsProps {
   isRTL: boolean;
   isMeetingMuted: boolean | undefined;
@@ -186,9 +158,10 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
     uid(8, 'options-'),
     uid(8, 'options-'),
   ]);
-  const [isCreateBreakoutRoomModalOpen, setIsCreateBreakoutRoomModalOpen] = useState(false);
-  const [isGuestPolicyModalOpen, setIsGuestPolicyModalOpen] = useState(false);
-  const [isLockViewersModalOpen, setIsLockViewersModalOpen] = useState(false);
+
+  const createBreakoutRoomModal = useModalRegistration({ id: 'createBreakoutRoomModal', priority: 'medium' });
+  const guestPolicyModal = useModalRegistration({ id: 'guestPolicyModal', priority: 'low' });
+  const lockViewersModal = useModalRegistration({ id: 'lockViewersModal', priority: 'low' });
 
   const [setMuted] = useMutation(SET_MUTED);
   const [clearAllReaction] = useMutation(CLEAR_ALL_REACTION);
@@ -281,7 +254,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
         key: uuids.current[2],
         label: intl.formatMessage(intlMessages.lockViewersLabel),
         description: intl.formatMessage(intlMessages.lockViewersDesc),
-        onClick: () => setIsLockViewersModalOpen(true),
+        onClick: () => lockViewersModal.open(),
         icon: 'lock',
         dataTest: 'lockViewersButton',
       },
@@ -291,7 +264,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
         icon: 'user',
         label: intl.formatMessage(intlMessages.guestPolicyLabel),
         description: intl.formatMessage(intlMessages.guestPolicyDesc),
-        onClick: () => setIsGuestPolicyModalOpen(true),
+        onClick: () => guestPolicyModal.open(),
         dataTest: 'guestPolicyLabel',
       },
       {
@@ -322,7 +295,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
         icon: 'rooms',
         label: intl.formatMessage(intlMessages.createBreakoutRoom),
         description: intl.formatMessage(intlMessages.createBreakoutRoomDesc),
-        onClick: () => setIsCreateBreakoutRoomModalOpen(true),
+        onClick: () => createBreakoutRoomModal.open(),
         dataTest: 'createBreakoutRooms',
       },
       {
@@ -331,7 +304,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
         icon: 'rooms',
         label: intl.formatMessage(intlMessages.invitationLabel),
         description: intl.formatMessage(intlMessages.invitationDesc),
-        onClick: () => setIsCreateBreakoutRoomModalOpen(true),
+        onClick: () => createBreakoutRoomModal.open(),
         dataTest: 'inviteUsers',
       },
       {
@@ -382,31 +355,32 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
           transformOrigin: { vertical: 'top', horizontal: isRTL ? 'right' : 'left' },
         }}
       />
-      {renderModal({
-        isOpen: isCreateBreakoutRoomModalOpen,
-        setIsOpen: setIsCreateBreakoutRoomModalOpen,
-        priority: 'medium',
-        Component: CreateBreakoutRoomContainerGraphql,
-        otherOptions: {
-          isUpdate: isInvitation,
-        },
-      })}
+      {createBreakoutRoomModal.isOpen && (
+        <CreateBreakoutRoomContainerGraphql
+          priority="medium"
+          isOpen={createBreakoutRoomModal.isOpen}
+          setIsOpen={createBreakoutRoomModal.isOpen ? createBreakoutRoomModal.close : createBreakoutRoomModal.open}
+          isUpdate={isInvitation}
+        />
+      )}
 
-      {renderModal({
-        isOpen: isGuestPolicyModalOpen,
-        setIsOpen: setIsGuestPolicyModalOpen,
-        priority: 'low',
-        Component: GuestPolicyContainer,
-        otherOptions: {},
-      })}
+      {guestPolicyModal.isOpen && (
+        <GuestPolicyContainer
+          onRequestClose={guestPolicyModal.close}
+          priority="low"
+          isOpen={guestPolicyModal.isOpen}
+          setIsOpen={guestPolicyModal.close}
+        />
+      )}
 
-      {renderModal({
-        isOpen: isLockViewersModalOpen,
-        setIsOpen: setIsLockViewersModalOpen,
-        priority: 'low',
-        Component: LockViewersContainer,
-        otherOptions: {},
-      })}
+      {lockViewersModal.isOpen && (
+        <LockViewersContainer
+          onRequestClose={lockViewersModal.close}
+          priority="low"
+          isOpen={lockViewersModal.isOpen}
+          setIsOpen={lockViewersModal.close}
+        />
+      )}
 
     </>
   );

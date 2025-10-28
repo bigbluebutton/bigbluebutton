@@ -126,7 +126,8 @@ const QuickPollDropdown = (props) => {
   // Join lines into a single question string
   const question = [questionLines.join(' ').trim()];
 
-  const correctAnswer = lines.map(line => line.trimStart()).find((line) => line.endsWith(QUICK_POLL_CORRECT_ANSWER_SUFFIX)
+  const correctAnswer = lines
+    .map((line) => line.trimStart()).find((line) => line.endsWith(QUICK_POLL_CORRECT_ANSWER_SUFFIX)
   && !question.includes(line))?.slice(0, -QUICK_POLL_CORRECT_ANSWER_SUFFIX.length);
 
   // Check explicitly if options exist or if the question ends with '?'
@@ -180,6 +181,9 @@ const QuickPollDropdown = (props) => {
       return `\r${labelChar}.`;
     });
   }
+  const normalizedCorrectAnswer = correctAnswer && (hasYN || hasTF)
+    ? correctAnswer.replace(/^[a-zA-Z0-9][.)]\s+/, '').trim()
+    : correctAnswer;
 
   const optionGroupsWithLabels = [];
   optionsPoll.reduce((acc, currentValue) => {
@@ -406,8 +410,8 @@ const QuickPollDropdown = (props) => {
                 letterAnswers,
                 pollQuestion,
                 pollData?.multiResp,
-                correctAnswer?.length > 0,
-                correctAnswer,
+                normalizedCorrectAnswer?.length > 0,
+                normalizedCorrectAnswer,
               );
             }, CANCELED_POLL_DELAY);
           }}
@@ -468,8 +472,8 @@ const QuickPollDropdown = (props) => {
               answers,
               pollQuestion,
               multiResponse,
-              correctAnswer?.length > 0,
-              correctAnswer,
+              normalizedCorrectAnswer?.length > 0,
+              normalizedCorrectAnswer,
             );
           } else {
             startPoll(
@@ -478,8 +482,8 @@ const QuickPollDropdown = (props) => {
               (optionGroupsWithLabels[0] || []),
               pollQuestion,
               multiResponse,
-              correctAnswer?.length > 0,
-              correctAnswer,
+              normalizedCorrectAnswer?.length > 0,
+              normalizedCorrectAnswer,
             );
           }
         }, CANCELED_POLL_DELAY);

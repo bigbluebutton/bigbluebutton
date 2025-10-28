@@ -578,6 +578,17 @@ Permission: Restricted to Presenter
 ### Relationships:
 - `creator: Object` [Type User](#type-user)
 
+## Type: pluginDataChannelEntry_public
+### Fields:
+- `channelName`
+- `createdAt`
+- `createdBy`
+- `entryId`
+- `payloadJson`
+- `pluginName`
+- `subChannelName`
+- `toRoles`
+
 ## Type: user_connectionStatus
 ### Fields:
 - `connectionAliveAt`

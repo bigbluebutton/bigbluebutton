@@ -369,13 +369,7 @@ class App extends Component {
           <UploaderContainer />
           <BreakoutJoinConfirmationContainerGraphQL />
           <BBBLiveKitRoomContainer />
-          <AudioContainer {...{
-            isAudioModalOpen,
-            setAudioModalIsOpen: this.setAudioModalIsOpen,
-            isVideoPreviewModalOpen,
-            setVideoPreviewModalIsOpen: this.setVideoPreviewModalIsOpen,
-          }}
-          />
+          <AudioContainer />
           { (
             !hideNotificationToasts
             && isNotificationEnabled) && <ToastContainer rtl /> }

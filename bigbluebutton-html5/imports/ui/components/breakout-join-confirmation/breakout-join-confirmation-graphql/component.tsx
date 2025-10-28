@@ -17,6 +17,7 @@ import { useBreakoutExitObserver } from './hooks';
 import { useStopMediaOnMainRoom } from '/imports/ui/components/breakout-room/hooks';
 import logger from '/imports/startup/client/logger';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import { useModalRegistration } from '/imports/ui/core/singletons/modalController';
 
 const intlMessages = defineMessages({
   title: {
@@ -75,7 +76,23 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
   const stopMediaOnMainRoom = useStopMediaOnMainRoom();
   const intl = useIntl();
   const [waiting, setWaiting] = React.useState(false);
-  const [isOpen, setIsOpen] = React.useState(false);
+
+  const {
+    close: breakoutJoinConfirmationClose,
+    open: breakoutJoinConfirmationOpen,
+    isOpen: breakoutJoinConfirmationIsOpen,
+  } = useModalRegistration({
+    id: 'breakoutJoinConfirmationModal',
+    priority: 'medium',
+  });
+
+  const setIsOpen = useCallback((value: boolean) => {
+    if (value) {
+      breakoutJoinConfirmationOpen();
+    } else {
+      breakoutJoinConfirmationClose();
+    }
+  }, [breakoutJoinConfirmationClose, breakoutJoinConfirmationOpen]);
 
   const uniqueMatch = (arr: BreakoutRoom[], predicate: (item: BreakoutRoom) => boolean) => {
     const matches = arr.filter(predicate);
@@ -220,7 +237,7 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
       }}
       {...{
         setIsOpen,
-        isOpen,
+        isOpen: breakoutJoinConfirmationIsOpen,
         priority: 'medium',
       }}
     >

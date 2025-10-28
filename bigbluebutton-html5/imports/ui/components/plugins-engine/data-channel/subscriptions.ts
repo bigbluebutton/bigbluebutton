@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client';
 
-const PLUGIN_DATA_CHANNEL_SUBSCRIPTION = gql`
+export const PLUGIN_DATA_CHANNEL_PRIVATE_SUBSCRIPTION = gql`
   subscription FetchPluginDataChannelEntry {
-    pluginDataChannelEntry (
+    pluginDataChannelEntry_private (
       order_by: {createdAt: desc}
     ) {
       createdAt,
@@ -18,4 +18,19 @@ const PLUGIN_DATA_CHANNEL_SUBSCRIPTION = gql`
   }
 `;
 
-export default PLUGIN_DATA_CHANNEL_SUBSCRIPTION;
+export const PLUGIN_DATA_CHANNEL_PUBLIC_SUBSCRIPTION = gql`
+  subscription FetchPluginDataChannelPublicEntry {
+    pluginDataChannelEntry_public (
+      order_by: {createdAt: desc}
+    ) {
+      createdAt,
+      updatedAt,
+      channelName,
+      subChannelName,
+      entryId,
+      payloadJson,
+      createdBy,
+      pluginName,
+    }
+  }
+`;
