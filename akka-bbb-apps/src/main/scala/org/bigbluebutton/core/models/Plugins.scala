@@ -118,9 +118,15 @@ object PluginModel {
     val maybeVersion = for {
       manifest <- plugin.manifest.content
       version  <- manifest.pluginVersion
-    } yield {
-      if (Version.isValid(version)) version
-      else logger.warn("pluginVersion for [{}] is not valid, ignoring...", manifest.name)
+      if Version.isValid(version)
+    } yield version
+
+    plugin.manifest.content.foreach { manifest =>
+      manifest.pluginVersion.foreach { version =>
+          if (!Version.isValid(version)) {
+            logger.warn("pluginVersion for [{}] is not valid, ignoring...", manifest.name)
+          }
+        }
     }
 
     maybeVersion match {
