@@ -20,7 +20,7 @@ class Join extends Create {
       await this.userPage.joinMicrophone();
     }
 
-    if(shouldJoinVideo) {
+    if (shouldJoinVideo) {
       await this.userPage.shareWebcam(true, this.userPage.settings.videoPreviewTimeout);
     }
 
@@ -39,7 +39,7 @@ class Join extends Create {
       await breakoutUserPage.closeAudioModal();
     }
 
-    if(shouldJoinVideo) {
+    if (shouldJoinVideo) {
       await this.userPage.hasElement(e.joinVideo, 'should display the join video button after user joins breakout rooms.');
       await this.userPage.wasRemoved(e.webcamMirroredVideoContainer, 'Webcam video should be removed after user joins breakout rooms.');
     }
@@ -63,9 +63,31 @@ class Join extends Create {
     await utilScreenShare.startScreenshare(breakoutPage);
   }
 
+  async joinAndShareAudio() {
+    const breakoutUserPage = await this.joinRoom(false);
+
+    await breakoutUserPage.waitAndClick(e.joinAudio);
+    await breakoutUserPage.waitForSelector(e.audioModal);
+    await breakoutUserPage.waitAndClick(e.microphoneButton);
+    await breakoutUserPage.waitForSelector(e.stopHearingButton);
+    await breakoutUserPage.waitAndClick(e.joinEchoTestButton);
+    await breakoutUserPage.waitForSelector(e.establishingAudioLabel);
+    await breakoutUserPage.wasRemoved(e.establishingAudioLabel, ELEMENT_WAIT_LONGER_TIME);
+
+    await breakoutUserPage.hasText(e.smallToastMsg, e.joinAudioToast, `should appear the text "${e.joinAudioToast}" on the toast message after user joins audio in the breakout rooms.`);
+    await breakoutUserPage.hasElement(e.talkingIndicator, 'should display the talking indicator element');
+    await breakoutUserPage.hasElement(e.isTalking, 'should have the element isTalking active');
+
+    await breakoutUserPage.waitAndClick(e.leaveMeetingDropdown, ELEMENT_WAIT_EXTRA_LONG_TIME)
+    await breakoutUserPage.waitAndClick(e.directLogoutButton);
+    await breakoutUserPage.waitAndClick(e.redirectButton);
+
+    await this.userPage.hasElement(e.joinAudio, 'should display the join audio button after user leaves breakout rooms.');
+  }
+
   async joinWithAudio() {
     const breakoutUserPage = await this.joinRoom(true);
- 
+
     await breakoutUserPage.hasText(e.smallToastMsg, e.joinAudioToast, `should appear the text "${e.joinAudioToast}" on the toast message after user joins breakout rooms.`);
     await breakoutUserPage.hasElement(e.talkingIndicator, 'should display the talking indicator element');
     await breakoutUserPage.hasElement(e.isTalking, 'should have the element isTalking active');

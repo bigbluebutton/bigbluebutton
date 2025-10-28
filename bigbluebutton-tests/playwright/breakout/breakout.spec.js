@@ -66,6 +66,13 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
       await join.joinAndShareScreen();
     });
 
+    test('Join Breakout room and share Audio', async ({ browser, context, page }, testInfo) => {
+      const join = new Join(browser, context);
+      await join.initPages(page, testInfo);
+      await join.create();
+      await join.joinAndShareAudio();
+    });
+
     test('Join Breakout room with Audio', async ({ browser, context, page }, testInfo) => {
       const join = new Join(browser, context);
       await join.initPages(page, testInfo);
@@ -149,7 +156,7 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
       await join.createToAllowChooseOwnRoom();
       await join.userCanChooseRoom();
     });
-    
+
     test('Breakout rooms can use different presentations', async ({ browser, context, page }, testInfo) => {
       const join = new Join(browser, context);
       await join.initPages(page, testInfo);
