@@ -572,6 +572,7 @@ class CustomParameters extends MultiUsers {
     await this.modPage.waitAndClick(e.modalConfirmButton, ELEMENT_WAIT_LONGER_TIME);
 
     await this.userPage.hasElement(e.modalConfirmButton, 'should appear the modal confirm button to join breakout');
+    await this.userPage.hasText(e.fullscreenModal, 'Room 1', 'should display the correct breakout room name in the modal');
     await this.userPage.waitAndClick(e.modalConfirmButton);
     await this.userPage.waitAndClick(e.breakoutRoomsItem);
     await this.userPage.hasElement(e.alreadyConnected, 'should display the element alreadyConnected', ELEMENT_WAIT_EXTRA_LONG_TIME);
@@ -582,6 +583,8 @@ class CustomParameters extends MultiUsers {
     await breakoutUserPage.hasText(e.presentationTitle, 'Room 1', 'should display the correct breakout room name');
 
     await this.userPage2.hasElement(e.modalConfirmButton, 'should appear the modal confirm button to join breakout');
+    await this.userPage2.hasText(e.fullscreenModal, 'Room 2', 'should display the correct breakout room name in the modal');
+
     await this.userPage2.waitAndClick(e.modalConfirmButton);
     await this.userPage2.waitAndClick(e.breakoutRoomsItem);
     await this.userPage2.hasElement(e.alreadyConnected, 'should display the element alreadyConnected', ELEMENT_WAIT_EXTRA_LONG_TIME);
