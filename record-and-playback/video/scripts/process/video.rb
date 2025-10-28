@@ -139,99 +139,63 @@ unless preset.include?('layout') && preset.include?('formats')
   exit(1)
 end
 
-# Load the layout, using 'layout' as a base, and merging the more specific layout on top.
+# For backwards compatibility with older video.yml files, convert named layouts to constraint-based layouts
+preset['layouts'] ||= []
+# Layout with only webcams
+if preset.include?('webcam_layout') || preset.include?('nopresentation_layout')
+  layout = preset['webcam_layout'] || preset['nopresentation_layout']
+  layout['name'] = 'webcam_layout'
+  if layout['areas'].include?('webcam')
+    layout['required'] = ['webcam']
+    layout['areas'] = layout['areas'].select { |name, _videos| name == 'webcam' }
+    preset['layouts'] << layout
+  end
+end
+# Layout with webcams & presentation, optional deskshare
+if preset.include?('presentation_webcam_layout')
+  layout = preset['presentation_webcam_layout']
+  layout['name'] = 'presentation_webcam_layout'
+  if layout['areas'].include?('presentation') && layout['areas'].include?('webcam')
+    layout['required'] = ['webcam', 'presentation']
+    preset['layouts'] << layout
+  end
+end
+# Layout with webcams and deskshare, no presentation
+if preset.include?('deskshare_webcam_layout')
+  layout = preset['deskshare_webcam_layout']
+  layout['name'] = 'deskshare_webcam_layout'
+  if layout['areas'].include?('deskshare') && layout['areas'].include?('webcam')
+    layout['required'] = ['webcam', 'deskshare']
+    layout['areas'] = layout['areas'].select { |name, _videos| layout['required'].include?(name) }
+    preset['layouts'] << layout
+  end
+end
+# Layout with only presentation area and/or deskshare (no webcams)
+if preset.include?('presentation_layout') || preset.include?('nowebcam_layout')
+  layout = preset['presentation_layout'] || preset['nowebcam_layout']
+  layout['name'] = 'presentation_layout'
+  if layout['areas'].include?('presentation') || layout['areas'].include?('deskshare')
+    layout['required'] = []
+    layout['areas'] = layout['areas'].reject { |name, _videos| name == 'webcam' }
+    preset['layouts'] << layout
+  end
+end
+
+# Convert the layout to have symbol keys and area names, as required by the EDL render method
 layout = preset.fetch('layout', {})
-layout_name = 'layout'
-
-# Select the specific layout based on what media types are available
-media = Set.new
-media << 'presentation' if have_presentation
-media << 'webcam' if have_webcams
-media << 'deskshare' if have_deskshare
-
-logger.info("Media present in recording: #{media.to_a.inspect}")
-
-# Find a specific layout based on layout constraints listed in the config file
-specific_layout, _layout_index = preset.fetch('layouts', []).each_with_index.find do |sl, i|
-  required = Set.new(sl.fetch('required', []))
-  supported = Set.new(sl.fetch('areas', layout.fetch('areas', [])).map { |area| area['name'] })
-
-  if !media.superset?(required)
-    logger.debug("Not using layout #{i} - missing required media #{(required - media).to_a.inspect}")
-    false
-  elsif !media.subset?(supported)
-    logger.debug("Not using layout #{i} - doesn't support media #{(media - supported).to_a.inspect}")
-    false
-  else
-    logger.debug("Using layout #{i} - required #{required.to_a.inspect}, areas: #{supported.to_a.inspect}")
-    layout_name = "layout #{i}"
-    true
-  end
-end
-
-if specific_layout.nil?
-  logger.debug('No constraint-based layouts matched')
-
-  # Try some named layouts for backwards compatibility
-  specific_layout_name = \
-    if have_webcams && !(have_presentation || have_deskshare)
-      # Layout with only webcams, no presentation or deskshare area
-      # Equivalent to required: [webcam], supported: [webcam]
-      if preset.include?('webcam_layout')
-        'webcam_layout'
-      else
-        'nopresentation_layout'
-      end
-    elsif have_webcams && have_presentation
-      # Layout with webcams, presentation, optional deskshare
-      # Equivalent to required: [webcam, presentation], supported: [webcam, presentation, deskshare]
-      'presentation_webcam_layout'
-    elsif have_webcams && have_deskshare
-      # Layout with webcams and deskshare, no presentation
-      # Equivalent to required: [webcam, deskshare], supported: [webcam, deskshare]
-      'deskshare_webcam_layout'
-    elsif !have_webcams
-      # Layout with only presentation area and/or deskshare (no webcams)
-      # Equivalent to required: [], supported: [presentation, deskshare]
-      if preset.include?('presentation_layout')
-        'presentation_layout'
-      else
-        'nowebcam_layout'
-      end
-    end
-  unless specific_layout_name.nil?
-    specific_layout = preset[specific_layout_name]
-    if specific_layout
-      logger.info("Using named layout #{specific_layout_name}")
-      layout_name = specific_layout_name
-    else
-      logger.debug("Named layout #{specific_layout_name} is not available")
-    end
-  end
-end
-
-layout.merge!(specific_layout) unless specific_layout.nil?
-
-# Sanity check on the loaded layout
-unless layout.include?('width') && layout.include?('height') && layout.include?('framerate') && layout.include?('areas')
-  logger.error("Preset #{preset_name} layout #{layout_name} is missing required properties in configuration")
-  exit(1)
-end
-
-logger.debug("Selected layout: #{layout_name}")
-logger.debug("  size: #{layout['width']}x#{layout['height']}, framerate: #{layout['framerate']}")
-logger.debug('  Video areas:')
-layout['areas'].each do |area|
-  logger.debug("    #{area['name']}: position: #{area['x']}x#{area['y']}, size: #{area['width']}x#{area['height']}")
-end
-
-# Ensure the presentation video is not generated unless there is a presentation area in the selected layout
-have_presentation = false unless layout['areas'].any? { |area| area['name'] == 'presentation' }
 
 layout.symbolize_keys!
 layout[:areas].each do |area|
   area.symbolize_keys!
   area[:name] = area[:name].to_sym
+end
+preset['layouts'].each do |specific_layout|
+  specific_layout.symbolize_keys!
+  specific_layout[:required]&.map!(&:to_sym)
+  specific_layout[:areas].each do |area|
+    area.symbolize_keys!
+    area[:name] = area[:name].to_sym
+  end
 end
 
 logger.info 'Generating video events list'
@@ -248,41 +212,20 @@ BigBlueButton::EDL::Video.dump(deskshare_edl)
 
 video_edl = BigBlueButton::EDL::Video.merge(webcam_edl, deskshare_edl)
 
+if have_presentation
+  presentation_edl = BigBlueButton::Events.create_presentation_edl(events, raw_archive_dir, process_dir)
+  logger.debug 'Presentation EDL:'
+  BigBlueButton::EDL::Video.dump(presentation_edl)
+
+  video_edl = BigBlueButton::EDL::Video.merge(presentation_edl, video_edl)
+end
+
 logger.debug 'Merged Video EDL:'
 BigBlueButton::EDL::Video.dump(video_edl)
 
 logger.info 'Applying recording start/stop events to video'
 video_edl = BigBlueButton::Events.edl_match_recording_marks_video(video_edl, events, initial_timestamp, final_timestamp)
 logger.debug 'Trimmed Video EDL:'
-BigBlueButton::EDL::Video.dump(video_edl)
-
-presentation_edl = nil
-if have_presentation
-  # The presentation video gets special treatment
-  presentation_video = "#{process_dir}/presentation.mkv"
-  presentation_edl = [
-    {
-      timestamp: 0,
-      areas: { presentation: [{ filename: presentation_video, timestamp: 0 }] },
-    },
-    {
-      timestamp: duration,
-      areas: { presentation: [] },
-    },
-  ]
-else
-  presentation_edl = [
-    {
-      timestamp: 0,
-      areas: { presentation: [] },
-    },
-  ]
-end
-logger.debug 'Presentation EDL:'
-BigBlueButton::EDL::Video.dump(presentation_edl)
-
-video_edl = BigBlueButton::EDL::Video.merge(presentation_edl, video_edl)
-logger.debug 'Merged Video EDL with Presentation:'
 BigBlueButton::EDL::Video.dump(video_edl)
 
 logger.info 'Generating audio events list'
@@ -318,25 +261,14 @@ if BigBlueButton::Events.screenshare_has_audio?(events, "#{raw_archive_dir}/desk
   audio = BigBlueButton::EDL::Audio.mixer([audio, deskshare_audio], "#{process_dir}/mixed_audio")
 end
 
-if have_presentation
-  logger.info 'Creating presentation area video'
-  presentation_area = layout[:areas].detect { |area| area[:name] == :presentation }
-
-  bbb_presentation_video_codec = video_props.fetch('bbb_presentation_video_codec', 'vp9')
-  BigBlueButton.execute(
-    [
-      'bbb-presentation-video',
-      '-i', raw_archive_dir,
-      '-w', presentation_area[:width].to_s, '-h', presentation_area[:height].to_s, '-r', layout[:framerate].to_s,
-      '-c', bbb_presentation_video_codec,
-      '-o', presentation_video,
-    ],
-    true
-  )
-end
-
 logger.info 'Rendering video'
-video = BigBlueButton::EDL::Video.render(video_edl, layout, "#{process_dir}/video")
+video = BigBlueButton::EDL::Video.render(
+  video_edl,
+  layout,
+  "#{process_dir}/video",
+  props.fetch('video_compositing_parallel_workers', 2),
+  layouts: preset['layouts']
+)
 
 logger.info "Encoding output files to #{preset['formats'].length} formats"
 preset['formats'].each_with_index do |format, i|

@@ -528,6 +528,33 @@ module BigBlueButton
       return deskshare_edl
     end
 
+    # Create a video EDL for the presentation area
+    #
+    # This EDL does not have recording marks pre-applied.
+    #
+    # @param events [Nokogiri::XML::Document] the events.xml file
+    # @param archive_dir [String] the directory containing the raw recording data (events.xml file)
+    # @param process_dir [String] the directory for output files from processing
+    # @return [Array<Hash<String, Object>>] the EDL for the presentation area
+    def self.create_presentation_edl(events, archive_dir, process_dir)
+      initial_timestamp = BigBlueButton::Events.first_event_timestamp(events)
+      final_timestamp = BigBlueButton::Events.last_event_timestamp(events)
+      duration = final_timestamp - initial_timestamp
+
+      video_source = BigBlueButton::EDL::Video::PresentationVideoSource.new(archive_dir, process_dir)
+
+      [
+        {
+          timestamp: 0,
+          areas: { presentation: [{ filename: :presentation, source: video_source, timestamp: 0 }] },
+        },
+        {
+          timestamp: duration,
+          areas: { presentation: [] },
+        },
+      ]
+    end
+
     def self.edl_entry_offset_audio
       return Proc.new do |edl_entry, offset|
         new_entry = { audios: [] }
@@ -564,11 +591,7 @@ module BigBlueButton
         edl_entry[:areas].each do |area, videos|
           new_entry[:areas][area] = []
           videos.each do |video|
-            new_entry[:areas][area] << {
-              filename: video[:filename],
-              timestamp: video[:timestamp] + offset,
-              original_duration: video[:original_duration]
-            }
+            new_entry[:areas][area] << video.merge(timestamp: video[:timestamp] + offset)
           end
         end
         new_entry
