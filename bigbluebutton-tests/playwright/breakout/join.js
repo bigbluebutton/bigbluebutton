@@ -108,7 +108,7 @@ class Join extends Create {
     await breakoutUserPage.hasElement(e.isTalking, 'should have the element isTalking active');
 
     await breakoutUserPage.hasElement(e.joinVideo, 'should display the join video button after user joins breakout rooms.');
-    await breakoutUserPage.wasRemoved('video', 'should not display the video element');
+    await breakoutUserPage.wasRemoved(e.webcamContainer, 'should not display the video element');
   }
 
   async joinRoomWithModerator() {
