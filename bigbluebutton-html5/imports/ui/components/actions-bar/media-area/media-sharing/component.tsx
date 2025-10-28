@@ -145,6 +145,11 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
   const { screenIsShared: isScreenGloballyBroadcasting } = useIsScreenGloballyBroadcasting();
   const [currentView, setCurrentView] = useState<'main' | 'presentation' | 'externalVideo' | 'cameraAsContent'>('main');
 
+  const handleClose = () => {
+    setCurrentView('main');
+    onClose();
+  };
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === KEYS.ESCAPE) {
@@ -159,11 +164,6 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
 
   const handleBackClick = () => {
     setCurrentView('main');
-  };
-
-  const handleClose = () => {
-    setCurrentView('main');
-    onClose();
   };
 
   const handlePresentationClick = () => {
