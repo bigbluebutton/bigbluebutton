@@ -178,12 +178,13 @@ In the future, support for additional placeholders may be added.
 
 ### Manifest Json
 
-Here is as complete `manifest.json` example with all possible configurations:
+Here is a complete `manifest.json` example with all possible configurations:
 
 ```json
 {
   "requiredSdkVersion": "~0.0.77",
   "name": "MyPlugin",
+  "pluginVersion": "0.0.8",
   "javascriptEntrypointUrl": "MyPlugin.js",
   "javascriptEntrypointIntegrity": "sha384-Bwsz2rxm...", // Optional
   "localesBaseUrl": "https://cdn.domain.com/my-plugin/", // Optional
@@ -221,9 +222,16 @@ Here is as complete `manifest.json` example with all possible configurations:
 
 To better understand remote-data-sources, please, refer to [this section](#external-data-resources)
 
+**pluginVersion:**
+The `pluginVersion` directive is used solely to prevent the browser from caching an outdated version of the plugin between deployments.
+
+When this field is defined in your manifest, the system automatically appends the version number as a query parameter to the `javascriptEntrypointUrl`. This doesn’t change the plugin’s behavior — it simply ensures that browsers treat each version as a new file and reload it instead of using a cached copy.
+
+For example, if your plugin version is `0.0.8`, the browser will load `MyPlugin.js?version=0.0.8`
+
 **settingsSchema:**
 
-The settingsSchema serves two main purposes:
+The `settingsSchema` serves two main purposes:
 
 1. **Validation:** Ensures that all required settings are provided for a plugin. If any required setting is missing, the plugin will not load.
 2. **Configuration Exposure:** Lists all available settings for the plugin, enabling external systems—such as a Learning Management System (LMS)—to present these settings to a meeting organizer. This allows the organizer to configure the plugin manually before the meeting begins.
