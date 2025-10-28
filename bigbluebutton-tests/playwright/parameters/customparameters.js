@@ -595,7 +595,8 @@ class CustomParameters extends MultiUsers {
     await breakoutUserPage2.hasText(e.presentationTitle, 'Room 2', 'should display the correct breakout room name');
 
     await this.modPage.waitAndClick(e.breakoutRoomsItem);
-    await this.modPage.hasText(e.userNameBreakoutRoom, /Attendee/, 'should have the attendee name on the breakout room below a room on the main breakout panel');
+    await this.modPage.hasText(e.userNameBreakoutRoom, this.userPage.username, 'should have the attendee name on the breakout room below a room on the main breakout panel');
+
   }
 }
 
