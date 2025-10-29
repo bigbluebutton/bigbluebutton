@@ -21,8 +21,8 @@ object GroupChatApp {
     GroupChatFactory.create(gcId, access, createBy, users, msgs)
   }
 
-  def toGroupChatMessage(sender: GroupChatUser, msg: GroupChatMsgFromUser, emphasizedText: Boolean, messageType: String, allowedHtmlElements: Boolean): GroupChatMessage = {
-    val messageAsHtml = MarkdownUtil.markdownToSafeHtml(msg.message, allowedHtmlElements)
+  def toGroupChatMessage(sender: GroupChatUser, msg: GroupChatMsgFromUser, emphasizedText: Boolean, messageType: String, enableImages: Boolean): GroupChatMessage = {
+    val messageAsHtml = MarkdownUtil.markdownToSafeHtml(msg.message, enableImages)
 
     val now = System.currentTimeMillis()
     val id = GroupChatFactory.genId()
