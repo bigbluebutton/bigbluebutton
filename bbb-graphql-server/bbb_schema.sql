@@ -808,6 +808,7 @@ CREATE UNLOGGED TABLE "user_connectionStatus" (
     "lastEntriesCap" integer,
     "connectionAliveAtMaxIntervalMs" numeric,
     "connectionAliveAt" timestamp with time zone,
+    "serverRequestId" text,
     "networkRttInMs" numeric,
     "applicationRttInMs" numeric, --presenter only
     "traceLog" varchar(500), --presenter only
