@@ -38,11 +38,13 @@ import {
 import { useMouseEvents, useCursor } from './hooks';
 import {
   notifyShapeNumberExceeded, getCustomEditorAssetUrls, getCustomAssetUrls,
-  debouncedUpdateShapes, sanitizeShape,
+  debouncedUpdateShapes, sanitizeShape, setupColorThemePaletteOverrides,
 } from './service';
 import NoopTool from './custom-tools/noop-tool/component';
 import DeleteSelectedItemsTool from './custom-tools/delete-selected-items/component';
 import SessionStorage from '/imports/ui/services/storage/session';
+
+setupColorThemePaletteOverrides();
 
 const CAMERA_TYPE = 'camera';
 const colorStyles = [
