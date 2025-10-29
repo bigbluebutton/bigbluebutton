@@ -199,29 +199,29 @@ class NotificationMenu extends BaseMenu {
                 </Styled.Label>
               </Styled.Col>
               <Styled.Col>
-                <Styled.FormElementCenter>
+                <Styled.FormElementRight>
                   {displaySettingsStatus(settings.muteUnmuteAudioAlerts)}
-                  <Toggle
-                    icons={false}
-                    defaultChecked={settings.muteUnmuteAudioAlerts}
+                  <SubMenusStyle.MaterialSwitch
+                    checked={settings.muteUnmuteAudioAlerts}
                     onChange={() => this.handleToggle('muteUnmuteAudioAlerts')}
-                    ariaLabel={`${intl.formatMessage(intlMessages.muteUnmuteLabel)} ${intl.formatMessage(intlMessages.audioAlertLabel)} - ${displaySettingsStatus(settings.muteUnmuteAudioAlerts, true)}`}
-                    showToggleLabel={showToggleLabel}
+                    inputProps={{
+                      'aria-label': `${intl.formatMessage(intlMessages.muteUnmuteLabel)} ${intl.formatMessage(intlMessages.audioAlertLabel)} - ${displaySettingsStatus(settings.muteUnmuteAudioAlerts, true)}`,
+                    }}
                   />
-                </Styled.FormElementCenter>
+                </Styled.FormElementRight>
               </Styled.Col>
               <Styled.Col>
-                <Styled.FormElementCenter>
+                <Styled.FormElementRight>
                   {displaySettingsStatus(false)}
-                  <Toggle
-                    icons={false}
-                    defaultChecked={false}
+                  <SubMenusStyle.MaterialSwitch
+                    checked={false}
                     onChange={() => { }}
                     disabled
-                    ariaLabel={`${intl.formatMessage(intlMessages.muteUnmuteLabel)} ${intl.formatMessage(intlMessages.pushAlertLabel)}`}
-                    showToggleLabel={showToggleLabel}
+                    inputProps={{
+                      'aria-label': `${intl.formatMessage(intlMessages.muteUnmuteLabel)} ${intl.formatMessage(intlMessages.pushAlertLabel)}`,
+                    }}
                   />
-                </Styled.FormElementCenter>
+                </Styled.FormElementRight>
               </Styled.Col>
             </Styled.Row>
           ) : null}
