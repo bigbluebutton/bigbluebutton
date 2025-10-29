@@ -184,7 +184,7 @@ Here is a complete `manifest.json` example with all possible configurations:
 {
   "requiredSdkVersion": "~0.0.77",
   "name": "MyPlugin",
-  "pluginVersion": "0.0.8",
+  "pluginVersion": "0.0.8", // Optional
   "javascriptEntrypointUrl": "MyPlugin.js",
   "javascriptEntrypointIntegrity": "sha384-Bwsz2rxm...", // Optional
   "localesBaseUrl": "https://cdn.domain.com/my-plugin/", // Optional
@@ -223,11 +223,13 @@ Here is a complete `manifest.json` example with all possible configurations:
 To better understand remote-data-sources, please, refer to [this section](#external-data-resources)
 
 **pluginVersion:**
-The `pluginVersion` directive is used solely to prevent the browser from caching an outdated version of the plugin between deployments.
 
-When this field is defined in your manifest, the system automatically appends the version number as a query parameter to the `javascriptEntrypointUrl`. This doesn’t change the plugin’s behavior — it simply ensures that browsers treat each version as a new file and reload it instead of using a cached copy.
-
-For example, if your plugin version is `0.0.8`, the browser will load `MyPlugin.js?version=0.0.8`
+Prevents browsers from caching old plugin files.
+When set, it appends the version to `javascriptEntrypointUrl`, forcing browsers to fetch the latest file.
+Example: 
+`pluginVersion=0.0.8`
+`javascriptEntrypointUrl=MyPlugin.js`
+Browser will load: `MyPlugin.js?version=0.0.8`.
 
 **settingsSchema:**
 

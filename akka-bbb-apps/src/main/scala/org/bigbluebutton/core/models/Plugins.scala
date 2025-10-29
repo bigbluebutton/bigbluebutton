@@ -8,6 +8,7 @@ import org.bigbluebutton.ClientSettings.getPluginsFromConfig
 import org.bigbluebutton.core.db.PluginDAO
 import org.slf4j.{Logger, LoggerFactory}
 import com.github.zafarkhaja.semver.Version
+import org.apache.http.client.utils.URIBuilder
 import org.bigbluebutton.core.exceptions.PluginHtml5VersionValidationException
 
 import java.util
@@ -130,7 +131,7 @@ object PluginModel {
     }
 
     maybeVersion match {
-      case Some(version) => s"$jsEntrypointAbsoluteUrl?version=$version"
+      case Some(version) => new URIBuilder(jsEntrypointAbsoluteUrl).addParameter("version", version).toString
       case None          => jsEntrypointAbsoluteUrl
     }
   }
