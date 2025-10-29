@@ -1,6 +1,7 @@
 import Auth from '/imports/ui/services/auth';
 import PollService from '/imports/ui/components/poll/service';
 import { defineMessages } from 'react-intl';
+import { DefaultColorThemePalette } from '@bigbluebutton/tldraw';
 import { notify } from '/imports/ui/services/notification';
 import caseInsensitiveReducer from '/imports/utils/caseInsensitiveReducer';
 import { debounce } from '/imports/utils/debounce';
@@ -408,6 +409,33 @@ const debouncedUpdateShapes = debounce((
   }
 }, 175);
 
+const setupColorThemePaletteOverrides = () => {
+  // Override the default color theme to use our custom palette with more vibrant yellow highlights
+  DefaultColorThemePalette.lightMode.black.highlight = {
+    srgb: '#FFFF00',
+    p3: 'color(display-p3 1 1 0)',
+  };
+  DefaultColorThemePalette.darkMode.black.highlight = {
+    srgb: '#FFFF00',
+    p3: 'color(display-p3 1 1 0)',
+  };
+  // Override the default yellow color to be a more vibrant yellow
+  DefaultColorThemePalette.lightMode.yellow = {
+    solid: '#FFFF00',
+    highlight: {
+      srgb: '#FFFF00',
+      p3: 'color(display-p3 1 1 0)',
+    },
+  };
+  DefaultColorThemePalette.darkMode.yellow = {
+    solid: '#FFFF00',
+    highlight: {
+      srgb: '#FFFF00',
+      p3: 'color(display-p3 1 1 0)',
+    },
+  };
+};
+
 export {
   initDefaultPages,
   sendAnnotation,
@@ -420,4 +448,5 @@ export {
   getCustomAssetUrls,
   debouncedUpdateShapes,
   sanitizeShape,
+  setupColorThemePaletteOverrides,
 };
