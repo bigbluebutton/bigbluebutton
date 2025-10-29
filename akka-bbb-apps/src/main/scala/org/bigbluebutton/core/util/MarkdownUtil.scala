@@ -5,7 +5,7 @@ import org.commonmark.renderer.html.HtmlRenderer
 import org.commonmark.renderer.NodeRenderer
 import org.commonmark.renderer.html._
 import org.commonmark.node._
-import org.commonmark.renderer.html.{ AttributeProvider, AttributeProviderContext, AttributeProviderFactory, HtmlRenderer }
+import org.commonmark.renderer.html.{ AttributeProvider, AttributeProviderContext }
 import java.util.regex.{ Matcher, Pattern }
 
 import java.util

@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.apps.breakout
 
 import org.bigbluebutton.ClientSettings.getConfigPropertyValueByPathAsBooleanOrElse
-import org.bigbluebutton.common2.msgs.{ GroupChatAccess, GroupChatMessageType, GroupChatMsgFromUser }
+import org.bigbluebutton.common2.msgs.{ GroupChatMessageType, GroupChatMsgFromUser }
 import org.bigbluebutton.core.api.SendMessageToBreakoutRoomInternalMsg
 import org.bigbluebutton.core.apps.groupchats.GroupChatApp
 import org.bigbluebutton.core.bus.MessageBus
