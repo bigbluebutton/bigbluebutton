@@ -1,6 +1,6 @@
 package org.bigbluebutton.core.apps.groupchats
 
-import org.bigbluebutton.ClientSettings.getConfigPropertyValueByPathAsBooleanOrElse
+import org.bigbluebutton.ClientSettings.{ getConfigPropertyValueByPathAsBooleanOrElse, getConfigPropertyValueByPathAsListOfStringOrElse }
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.PermissionCheck
 import org.bigbluebutton.core.apps.plugin.PluginHdlrHelpers.checkPermission
@@ -101,7 +101,8 @@ trait SendGroupChatMessageMsgHdlr extends HandlerHelpers {
             }
           }
 
-          val gcMessage = GroupChatApp.toGroupChatMessage(sender, groupChatMsgReceived, emphasizedText, messageType)
+          val allowedHtmlElements = getConfigPropertyValueByPathAsBooleanOrElse(liveMeeting.clientSettings, "public.chat.markdownImageAllowed", false)
+          val gcMessage = GroupChatApp.toGroupChatMessage(sender, groupChatMsgReceived, emphasizedText, messageType, allowedHtmlElements)
 
           val allowSendPluginMessage =
             if (isPluginMessage) getAllowSendPluginMessage(liveMeeting.plugins, gcMessage, userState) else true

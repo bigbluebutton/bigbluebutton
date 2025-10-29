@@ -21,8 +21,8 @@ object GroupChatApp {
     GroupChatFactory.create(gcId, access, createBy, users, msgs)
   }
 
-  def toGroupChatMessage(sender: GroupChatUser, msg: GroupChatMsgFromUser, emphasizedText: Boolean, messageType: String): GroupChatMessage = {
-    val messageAsHtml = MarkdownUtil.markdownToSafeHtml(msg.message)
+  def toGroupChatMessage(sender: GroupChatUser, msg: GroupChatMsgFromUser, emphasizedText: Boolean, messageType: String, allowedHtmlElements: Boolean): GroupChatMessage = {
+    val messageAsHtml = MarkdownUtil.markdownToSafeHtml(msg.message, allowedHtmlElements)
 
     val now = System.currentTimeMillis()
     val id = GroupChatFactory.genId()
@@ -99,7 +99,7 @@ object GroupChatApp {
         chat <- state.groupChats.find(chatId)
       } yield {
         val emphasizedText = sender.role == Roles.MODERATOR_ROLE
-        val gcm1 = GroupChatApp.toGroupChatMessage(sender, msg, emphasizedText, GroupChatMessageType.DEFAULT)
+        val gcm1 = GroupChatApp.toGroupChatMessage(sender, msg, emphasizedText, GroupChatMessageType.DEFAULT, false)
         val gcs1 = GroupChatApp.addGroupChatMessage(liveMeeting.props.meetingProp.intId, chat, state.groupChats, gcm1)
         state.update(gcs1)
       }

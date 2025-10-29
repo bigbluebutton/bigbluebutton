@@ -41,11 +41,17 @@ class NoImageNodeRendererFactory extends HtmlNodeRendererFactory {
 object MarkdownUtil {
 
   val parser = Parser.builder().build()
-  val renderer = HtmlRenderer.builder()
+  val rendererNoImages = HtmlRenderer.builder()
     .escapeHtml(true) // blocks raw HTML
     .sanitizeUrls(true) // blocks javascript: and similar
     .attributeProviderFactory((_: AttributeProviderContext) => new LinkAttributeProvider())
     .nodeRendererFactory(new NoImageNodeRendererFactory)
+    .build()
+
+  val rendererWithImages = HtmlRenderer.builder()
+    .escapeHtml(true) // blocks raw HTML
+    .sanitizeUrls(true) // blocks javascript: and similar
+    .attributeProviderFactory((_: AttributeProviderContext) => new LinkAttributeProvider())
     .build()
 
   /**
@@ -123,10 +129,11 @@ object MarkdownUtil {
   private def autolinkUrls(root: Node): Unit = {
     root.accept(new AutoLinkVisitor)
   }
-  def markdownToSafeHtml(md: String): String = {
+  def markdownToSafeHtml(md: String, enableImages: Boolean = false): String = {
 
     val doc = parser.parse(md)
     autolinkUrls(doc) // extra step: create links from plain text URLs
-    renderer.render(doc)
+    val chosenRenderer = if (enableImages) rendererWithImages else rendererNoImages
+    chosenRenderer.render(doc)
   }
 }
