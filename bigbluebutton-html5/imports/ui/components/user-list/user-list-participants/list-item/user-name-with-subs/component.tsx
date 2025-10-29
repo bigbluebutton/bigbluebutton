@@ -91,7 +91,7 @@ const UserNameWithSubs: React.FC<UserNameWithSubsProps> = ({
         <Icon iconName="rooms" />
         &nbsp;
         {subjectUser.lastBreakoutRoom?.shortName
-          ? intl.formatMessage(intlMessages.breakoutRoom, { 0: subjectUser.lastBreakoutRoom?.sequence })
+          ? intl.formatMessage(intlMessages.breakoutRoom, { roomNumber: subjectUser.lastBreakoutRoom?.sequence })
           : subjectUser.lastBreakoutRoom?.shortName}
       </span>,
     );
