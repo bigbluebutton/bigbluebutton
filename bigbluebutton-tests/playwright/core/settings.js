@@ -29,6 +29,7 @@ async function generateSettingsData(page) {
       // Polling
       pollEnabled: settingsData.poll?.enabled,
       pollChatMessage: settingsData.poll?.chatMessage,
+      quickPollConfirmationStep: settingsData.poll?.quickPollConfirmationStep,
       // Presentation
       originalPresentationDownloadable: settingsData.presentation?.allowDownloadOriginal,
       presentationWithAnnotationsDownloadable: settingsData.presentation?.allowDownloadWithAnnotations,

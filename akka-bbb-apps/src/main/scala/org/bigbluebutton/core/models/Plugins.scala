@@ -37,6 +37,10 @@ case class PluginSettingSchema(
     label:        Option[String] = None
 )
 
+case class ServerCommandDirective(
+    `chat.sendCustomPublicChatMessage`: Option[List[String]]
+)
+
 case class PluginManifestContent(
     requiredSdkVersion:            String,
     name:                          String,
@@ -47,6 +51,7 @@ case class PluginManifestContent(
     eventPersistence:              Option[EventPersistence]             = None,
     dataChannels:                  Option[List[DataChannel]]            = None,
     remoteDataSources:             Option[List[RemoteDataSource]]       = None,
+    serverCommandsPermission:      Option[ServerCommandDirective]       = None,
     settingsSchema:                Option[List[PluginSettingSchema]]    = None,
 )
 
@@ -128,8 +133,6 @@ object PluginModel {
       case _ => "none"
     }
   }
-
-
 
   private def addPluginSettingEntry(currentPluginSettings: Map[String, ClientSettings.Plugin],
                                       pluginName: String, settingKey: String, settingValue: Any): Map[String, ClientSettings.Plugin]= {
@@ -318,6 +321,13 @@ object PluginModel {
       }
 
     }
+  }
+
+  object ServerCommands {
+    def getPluginPermissionForCustomMessage(plugin: PluginManifestContent): Option[List[String]] = for {
+      serverCommandsPermission <- plugin.serverCommandsPermission
+      customMessageAllowedRoles <- serverCommandsPermission.`chat.sendCustomPublicChatMessage`
+    } yield customMessageAllowedRoles
   }
 }
 

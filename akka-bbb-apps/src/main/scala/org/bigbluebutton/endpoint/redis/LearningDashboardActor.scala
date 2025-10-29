@@ -48,7 +48,9 @@ case class User(
                  raiseHand:          Vector[Long] = Vector(),
                  away:               Vector[Away] = Vector(),
                  webcams:            Vector[Webcam] = Vector(),
-                 totalOfMessages:    Long = 0,
+                 totalOfMessages:                 Long = 0,
+                 totalOfSharedNotes:              Long = 0,
+                 totalOfWhiteboardAnnotations:    Long = 0,
 )
 
 case class UserId(
@@ -153,6 +155,12 @@ class LearningDashboardActor(
       // Chat
       case m: GroupChatMessageBroadcastEvtMsg       => handleGroupChatMessageBroadcastEvtMsg(m)
 
+      // SharedNotes
+      case m: PadUpdatedEvtMsg       => handlePadUpdatedEvtMsg(m)
+
+      // Whiteboard
+      case m: SendWhiteboardAnnotationsEvtMsg       => handleSendWhiteboardAnnotationsEvtMsg(m)
+
       // Presentation
       case m: PresentationConversionCompletedEvtMsg => handlePresentationConversionCompletedEvtMsg(m)
       case m: SetCurrentPageEvtMsg                  => handleSetCurrentPageEvtMsg(m)
@@ -214,15 +222,41 @@ class LearningDashboardActor(
     }
   }
 
+  private def handlePadUpdatedEvtMsg(msg: PadUpdatedEvtMsg) {
+    if (msg.body.externalId == "notes") {
+      for {
+        meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
+        user <- findUserByIntId(meeting, msg.body.userId)
+      } yield {
+        val updatedUser = user.copy(totalOfSharedNotes = user.totalOfSharedNotes + 1)
+        val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.userKey -> updatedUser))
+
+        meetings += (updatedMeeting.intId -> updatedMeeting)
+      }
+    }
+  }
+
+  private def handleSendWhiteboardAnnotationsEvtMsg(msg: SendWhiteboardAnnotationsEvtMsg) {
+    for {
+      meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
+      user <- findUserByIntId(meeting, msg.header.userId)
+    } yield {
+      val updatedUser = user.copy(totalOfWhiteboardAnnotations = user.totalOfWhiteboardAnnotations + 1)
+      val updatedMeeting = meeting.copy(users = meeting.users + (updatedUser.userKey -> updatedUser))
+
+      meetings += (updatedMeeting.intId -> updatedMeeting)
+    }
+  }
+
   private def handlePresentationConversionCompletedEvtMsg(msg: PresentationConversionCompletedEvtMsg) {
     for {
       meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
     } yield {
-      val updatedPresentations = meetingPresentations.get(meeting.intId).getOrElse(Map()) + (msg.body.presentation.id -> msg.body.presentation)
+      val updatedPresentations = meetingPresentations.getOrElse(meeting.intId, Map()) + (msg.body.presentation.id -> msg.body.presentation)
       meetingPresentations += (meeting.intId -> updatedPresentations)
-      if(msg.body.presentation.current == true) {
+      if(msg.body.presentation.current) {
         for {
-          page <- msg.body.presentation.pages.find(p => p.current == true)
+          page <- msg.body.presentation.pages.find(p => p.current)
         } yield {
           this.setPresentationSlide(meeting.intId, msg.body.presentation.id,page.num, msg.body.presentation.name)
         }

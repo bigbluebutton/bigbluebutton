@@ -20,11 +20,17 @@ location /api/rest/clientSettings {
     proxy_cache_use_stale updating;
     proxy_cache_valid 24h;
     proxy_cache_lock on;
+    proxy_cache_lock_timeout 5s;   # how long other requests may wait for the first one holding the cache lock
+    proxy_cache_lock_age 10s;      # consider the lock stale after this time (prevents a stuck lock if upstream hangs)
+    # proxy_cache_background_update on;  # optional: serve stale while refreshing the cache in background
+
     add_header X-Cached $upstream_cache_status;
 
     proxy_http_version 1.1;
-    proxy_set_header Upgrade $http_upgrade;
-    proxy_set_header Connection "Upgrade";
+    proxy_set_header Connection "";
+    proxy_connect_timeout 3s;      # max time to establish TCP connection to Hasura
+    proxy_send_timeout 15s;        # max time to send the request to Hasura
+    proxy_read_timeout 30s;        # max time to wait for Hasura’s response
     proxy_set_header Host $host;
     proxy_pass http://127.0.0.1:8185; #Hasura
 }
@@ -39,11 +45,17 @@ location /api/rest/meetingStaticData {
     proxy_cache_use_stale updating;
     proxy_cache_valid 24h;
     proxy_cache_lock on;
+    proxy_cache_lock_timeout 5s;   # how long other requests may wait for the first one holding the cache lock
+    proxy_cache_lock_age 10s;      # consider the lock stale after this time (prevents a stuck lock if upstream hangs)
+    # proxy_cache_background_update on;  # optional: serve stale while refreshing the cache in background
+
     add_header X-Cached $upstream_cache_status;
 
     proxy_http_version 1.1;
-    proxy_set_header Upgrade $http_upgrade;
-    proxy_set_header Connection "Upgrade";
+    proxy_set_header Connection "";
+    proxy_connect_timeout 3s;      # max time to establish TCP connection to Hasura
+    proxy_send_timeout 15s;        # max time to send the request to Hasura
+    proxy_read_timeout 30s;        # max time to wait for Hasura’s response
     proxy_set_header Host $host;
     proxy_pass http://127.0.0.1:8185; #Hasura
 }
@@ -53,8 +65,7 @@ location /api/rest/userMetadata {
     auth_request_set $meeting_id $sent_http_meeting_id;
 
     proxy_http_version 1.1;
-    proxy_set_header Upgrade $http_upgrade;
-    proxy_set_header Connection "Upgrade";
+    proxy_set_header Connection "";
     proxy_set_header Host $host;
     proxy_pass http://127.0.0.1:8185; #Hasura
 }

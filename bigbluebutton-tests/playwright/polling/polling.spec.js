@@ -46,10 +46,6 @@ test.describe.parallel('Polling', { tag: '@ci' }, async () => {
     await polling.allowMultipleChoices();
   });
 
-  test('Smart slides questions', { tag: '@flaky' }, async () => {
-    await polling.smartSlidesQuestions();
-  });
-
   // Results
   test('Poll results in chat message', async () => {
     await polling.pollResultsOnChat();
@@ -61,5 +57,35 @@ test.describe.parallel('Polling', { tag: '@ci' }, async () => {
 
   test('Poll results in a different presentation', async ({}, testInfo) => {
     await polling.pollResultsInDifferentPresentation();
+  });
+
+  test.describe('Smart Slides', () => {
+    test('A/B/C/D/E - One option answer', async () => {
+      await polling.oneOptionAnswer();
+    });
+
+    test('Multiple Choices - Two question marks', async () => {
+      await polling.twoQuestionMarks();
+    });
+
+    test('True/False', async () => {
+      await polling.trueFalse();
+    });
+
+    test('Yes/No', async () => {
+      await polling.yesNo();
+    });
+
+    test('Type Response', async () => {
+      await polling.typeResponse();
+    });
+
+    test('Hiding pools - Poll anywhere in the slide', async () => {
+      await polling.pollAnywhereSlide();
+    });
+
+    test('Hiding poll - white box', async () => {
+      await polling.whiteBox();
+    });
   });
 });

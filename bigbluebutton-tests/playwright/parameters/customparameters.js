@@ -275,7 +275,7 @@ class CustomParameters extends MultiUsers {
     await this.userPage.hasElement(e.restorePresentation, 'should display the restore presentation button for the attendee');
     await this.userPage.wasRemoved(e.whiteboard, 'should not display the whiteboard for the attendee');
 
-    await uploadSinglePresentation(this.modPage, e.pdfFileName, UPLOAD_PDF_WAIT_TIME);
+    await uploadSinglePresentation(this.modPage, e.pdfFileName, UPLOAD_PDF_WAIT_TIME * 2);
 
     const wbBox = await this.modPage.getLocator(e.whiteboard);
     await expect(wbBox).toHaveScreenshot('moderator-with-minimalist-large-presentation.png');

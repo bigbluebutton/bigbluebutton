@@ -35,10 +35,19 @@ class Polling extends MultiUsers {
   }
 
   async quickPoll() {
+    const { quickPollConfirmationStep } = getSettings();
     await util.uploadSPresentationForTestingPolls(this.modPage, e.questionSlideFileName);
 
     // The slide needs to be uploaded and converted, so wait a bit longer for this step
     await this.modPage.waitAndClick(e.quickPoll, ELEMENT_WAIT_LONGER_TIME);
+    if(!quickPollConfirmationStep) {
+      await this.modPage.hasElement(e.pollMenuButton, 'should display the poll menu button');
+
+      await this.userPage.hasElement(e.pollingContainer, 'should display the polling container for the attendee to answer it');
+
+      await this.modPage.waitAndClick(e.closePollingBtn);
+      return this.modPage.wasRemoved(e.closePollingBtn, 'should not display the close poll button after the poll closes');
+    }
     await this.modPage.waitAndClick(e.startPoll);
     await this.modPage.hasElement(e.pollMenuButton, 'should display the poll menu button');
 
@@ -186,14 +195,13 @@ class Polling extends MultiUsers {
     await this.modPage.wasRemoved(e.closePollingBtn, 'should not display the close polling button after the poll is closed');
   }
 
-  async smartSlidesQuestions() {
+  async oneOptionAnswer() {
     await this.modPage.hasElement(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await util.uploadSPresentationForTestingPolls(this.modPage, e.smartSlides2);
     await this.userPage.hasElement(e.userListItem, 'should display the user list item for the attendee');
     await this.modPage.closeAllToastNotifications();
-    await sleep(10000);
-    
-    // A/B/C/D/E - One option answer
+    await sleep(5000);
+
     await this.modPage.waitAndClick(e.nextSlide);
     await this.modPage.hasElement(e.quickPoll, 'should display the quick poll button when the presentation finishes uploading', ELEMENT_WAIT_EXTRA_LONG_TIME);
     await this.modPage.waitAndClick(e.quickPoll, ELEMENT_WAIT_LONGER_TIME);
@@ -204,10 +212,16 @@ class Polling extends MultiUsers {
     await util.countingVotes(this.modPage, e.userVoteLiveResult, 1, 'E. Gummy bears');
     await this.modPage.waitAndClick(e.publishPollingLabel);
     await this.modPage.wasRemoved(e.pollingContainer, 'should not display the polling container after the poll is published');
+  }
 
-    // Multiple Choices - Two question marks
-    await this.modPage.waitAndClick(e.nextSlide);
-    await this.modPage.hasText(e.skipSlide, 'Slide 3');
+  async twoQuestionMarks() {
+    await this.modPage.hasElement(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await util.uploadSPresentationForTestingPolls(this.modPage, e.smartSlides2);
+    await this.userPage.hasElement(e.userListItem, 'should display the user list item for the attendee');
+    await this.modPage.closeAllToastNotifications();
+    await sleep(5000);
+
+    await this.modPage.selectSlide('Slide 3');
     await this.modPage.waitAndClick(e.quickPoll, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.waitAndClick(e.startPoll);
     await this.userPage.hasElement(e.pollingContainer, 'should display the poll question after quick poll starts');
@@ -220,35 +234,54 @@ class Polling extends MultiUsers {
     await util.countingVotes(this.modPage, e.userVoteLiveResult, 1, 'B. Calcium');
     await this.modPage.waitAndClick(e.publishPollingLabel);
     await this.modPage.wasRemoved(e.pollingContainer, 'should not display the polling container after the poll is published');
-    
-    // True/False
-    await this.modPage.waitAndClick(e.nextSlide);
+  }
+
+  async trueFalse() {
+    await this.modPage.hasElement(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await util.uploadSPresentationForTestingPolls(this.modPage, e.smartSlides2);
+    await this.userPage.hasElement(e.userListItem, 'should display the user list item for the attendee');
+    await this.modPage.closeAllToastNotifications();
+    await sleep(5000);
+
+    await this.modPage.selectSlide('Slide 4');
     await sleep(500); // avoid error when the tooltip is in front of the button due to layout shift
-    await this.modPage.hasText(e.skipSlide, 'Slide 4');
     await this.modPage.waitAndClick(e.quickPoll);
     await this.modPage.waitAndClick(e.startPoll);
+    await this.userPage.hasElement(e.pollingContainer, 'should display the poll question after quick poll starts');
     await this.userPage.waitAndClick(e.pollAnswerOptionBtn);
     await this.modPage.hasText(e.userVoteLiveResult, 'True', 'should display the vote result after the attendee submit the answer');
     await util.countingVotes(this.modPage, e.userVoteLiveResult, 1, 'True');
     await this.modPage.waitAndClick(e.publishPollingLabel);
     await this.modPage.wasRemoved(e.pollingContainer, 'should not display the pollling container after all the smart slides questions is finished');
-    
+  }
 
-    // Yes/No
-    await this.modPage.waitAndClick(e.nextSlide);
+  async yesNo() {
+    await this.modPage.hasElement(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await util.uploadSPresentationForTestingPolls(this.modPage, e.smartSlides2);
+    await this.userPage.hasElement(e.userListItem, 'should display the user list item for the attendee');
+    await this.modPage.closeAllToastNotifications();
+    await sleep(5000);
+
+    await this.modPage.selectSlide('Slide 5');
     await sleep(500); // avoid error when the tooltip is in front of the button due to layout shift
-    await this.modPage.hasText(e.skipSlide, 'Slide 5');
     await this.modPage.waitAndClick(e.quickPoll);
     await this.modPage.waitAndClick(e.startPoll);
+    await this.userPage.hasElement(e.pollingContainer, 'should display the poll question after quick poll starts');
     await this.userPage.waitAndClick(e.pollAnswerOptionBtn);
     await this.modPage.hasText(e.userVoteLiveResult, 'Yes', 'should display the vote result after the attendee submit the answer');
     await util.countingVotes(this.modPage, e.userVoteLiveResult, 1, 'Yes');
     await this.modPage.waitAndClick(e.publishPollingLabel);
     await this.modPage.wasRemoved(e.pollingContainer);
+  }
 
-    // Type Response
-    await this.modPage.waitAndClick(e.nextSlide);
-    await this.modPage.hasText(e.skipSlide, 'Slide 6');
+  async typeResponse() {
+    await this.modPage.hasElement(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await util.uploadSPresentationForTestingPolls(this.modPage, e.smartSlides2);
+    await this.userPage.hasElement(e.userListItem, 'should display the user list item for the attendee');
+    await this.modPage.closeAllToastNotifications();
+    await sleep(5000);
+
+    await this.modPage.selectSlide('Slide 6');
     await this.modPage.waitAndClick(e.quickPoll);
     await this.modPage.waitAndClick(e.startPoll);
     await this.userPage.hasElement(e.pollingContainer, 'should display the polling container for the user to answer it');
@@ -258,8 +291,15 @@ class Polling extends MultiUsers {
     await util.countingVotes(this.modPage, e.userVoteLiveResult, 1, 'All good!');
     await this.modPage.waitAndClick(e.publishPollingLabel);
     await this.modPage.wasRemoved(e.pollingContainer, 'should close the polling container after publishing the label');
+  }
 
-    // Hiding pools - Poll anywhere in the slide
+  async pollAnywhereSlide() {
+    await this.modPage.hasElement(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await util.uploadSPresentationForTestingPolls(this.modPage, e.smartSlides2);
+    await this.userPage.hasElement(e.userListItem, 'should display the user list item for the attendee');
+    await this.modPage.closeAllToastNotifications();
+    await sleep(5000);
+
     await this.modPage.selectSlide('Slide 8');
     await this.modPage.hasElement(e.quickPoll, 'should display the quick poll button when the presentation finishes uploading');
     await this.modPage.waitAndClick(e.quickPoll, ELEMENT_WAIT_LONGER_TIME);
@@ -270,8 +310,15 @@ class Polling extends MultiUsers {
     await util.countingVotes(this.modPage, e.userVoteLiveResult, 1, 'D. Very confident');
     await this.modPage.waitAndClick(e.publishPollingLabel);
     await this.modPage.wasRemoved(e.pollingContainer, 'should not display the polling container after the poll is published');
+  }
 
-    // Hiding poll - white box
+  async whiteBox() {
+    await this.modPage.hasElement(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await util.uploadSPresentationForTestingPolls(this.modPage, e.smartSlides2);
+    await this.userPage.hasElement(e.userListItem, 'should display the user list item for the attendee');
+    await this.modPage.closeAllToastNotifications();
+    await sleep(5000);
+
     await this.modPage.selectSlide('Slide 9');
     await this.modPage.hasElement(e.quickPoll, 'should display the quick poll button when the presentation finishes uploading');
     await this.modPage.waitAndClick(e.quickPoll, ELEMENT_WAIT_LONGER_TIME);
@@ -282,7 +329,6 @@ class Polling extends MultiUsers {
     await util.countingVotes(this.modPage, e.userVoteLiveResult, 1, 'D. Very confident');
     await this.modPage.waitAndClick(e.publishPollingLabel);
     await this.modPage.wasRemoved(e.pollingContainer, 'should not display the polling container after the poll is published');
-
   }
 
   async pollResultsOnChat() {

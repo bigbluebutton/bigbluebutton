@@ -148,6 +148,7 @@ const AudioContainer = (props) => {
     name: u.name,
     speechLocale: u.speechLocale,
     breakoutRoomsSummary: u.breakoutRoomsSummary,
+    voice: u.voice,
   }));
 
   const hasBreakoutRooms = (currentUser?.breakoutRoomsSummary?.totalOfBreakoutRooms ?? 0) > 0;
@@ -232,13 +233,15 @@ const AudioContainer = (props) => {
     // We don't know whether the meeting is a breakout or not.
     // So, postpone the decision.
     if (meetingIsBreakout === undefined) return;
-
-    init().then(() => {
-      if (meetingIsBreakout && !Service.isUsingAudio()) {
-        joinAudio();
-      }
-    });
-  }, [meetingIsBreakout]);
+    // If the user has duplicated the session and has already joined the audio.
+    if (!currentUser?.voice) {
+      init().then(() => {
+        if (meetingIsBreakout && !Service.isUsingAudio()) {
+          joinAudio();
+        }
+      });
+    }
+  }, [meetingIsBreakout, currentUser?.voice]);
 
   useEffect(() => {
     if (userIsReturningFromBreakoutRoom) {

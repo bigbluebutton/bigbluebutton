@@ -399,7 +399,10 @@ class ActionsDropdown extends PureComponent {
             open,
             close,
           }) => {
-            this.setExternalVideoModalIsOpen = isOpen ? close : open;
+            this.setExternalVideoModalIsOpen = (value) => {
+              if (value) open();
+              else close();
+            };
             return isOpen && (
               <ExternalVideoModal
                 onRequestClose={close}
@@ -420,7 +423,10 @@ class ActionsDropdown extends PureComponent {
             open,
             close,
           }) => {
-            this.setLayoutModalIsOpen = isOpen ? close : open;
+            this.setLayoutModalIsOpen = (value) => {
+              if (value) open();
+              else close();
+            };
             return isOpen && (
               <LayoutModalContainer
                 onRequestClose={close}
@@ -441,7 +447,10 @@ class ActionsDropdown extends PureComponent {
             open,
             close,
           }) => {
-            this.setCameraAsContentModalIsOpen = isOpen ? close : open;
+            this.setCameraAsContentModalIsOpen = (value) => {
+              if (value) open();
+              else close();
+            };
             return isOpen && (
               <VideoPreviewContainer
                 cameraAsContent
