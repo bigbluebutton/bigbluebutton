@@ -1339,6 +1339,15 @@ module BigBlueButton
       return false
     end
 
+    # Get a list of times when the "screenshare as content" flag is changed
+    #
+    # The returned times account for recording start/stop events, and have timestamps relative to the start of the
+    # recording.
+    #
+    # @param events [Nokogiri::XML::Document] The parsed events.xml document
+    # @param start_time [Integer] The recording segment start timestamp (ms)
+    # @param end_time [Integer] The recording segment end timestamp (ms)
+    # @return [Array<Hash>] An array of events, each with a timestamp and the screenshareAsContent flag
     def self.get_screenshare_as_content_events(events, start_time, end_time)
       BigBlueButton.logger.info('Getting Screenshare as Content Events')
 
@@ -1352,7 +1361,6 @@ module BigBlueButton
       record = events.at_xpath('/recording/event[@eventname="RecordStatusEvent"]').nil?
 
       screenshare_content_events = []
-      last_screenshare_as_content = nil
 
       events.xpath('/recording/event').each do |event|
         timestamp = event[:timestamp].to_i - initial_timestamp
@@ -1360,29 +1368,50 @@ module BigBlueButton
 
         case [event[:module], event[:eventname]]
         when %w[PARTICIPANT SetScreenshareAsContentEvent]
-          last_screenshare_as_content = event.at_xpath('screenshareAsContent')&.text == "true"
-          next if timestamp < start_time || !record
+          screenshare_as_content = event.at_xpath('screenshareAsContent')&.content == 'true'
 
-          screenshareAsContent = event.at_xpath('screenshareAsContent')&.text == "true"
+          # Don't emit events during unrecorded sections of the meeting. An event will be emitted when recording resumes
+          next unless timestamp >= start_time && record
+          # Don't emit an event if the previous event has the same state
+          next if screenshare_content_events.dig(-1, :screenshareAsContent) == screenshare_as_content
 
           screenshare_content_events << {
             timestamp: timestamp - offset,
-            screenshareAsContent: screenshareAsContent,
+            screenshareAsContent: screenshare_as_content,
           }
         when %w[PARTICIPANT RecordStatusEvent]
-          is_recording = event.at_xpath('status').content == 'true'
-          next if timestamp < start_time
-
-          if is_recording && !record # Recording resumed
+          record = event.at_xpath('status').content == 'true'
+          if record
+            # Recording resumed; update offset to account for the timestamp jump
             offset += timestamp - last_stop_timestamp
+
+            # Don't emit an event if it's prior to the segment start time
+            next unless timestamp >= start_time
+            # Don't emit an event if the previous event has the same state
+            next if screenshare_content_events.dig(-1, :screenshareAsContent) == screenshare_as_content
+
             screenshare_content_events << {
               timestamp: timestamp - offset,
-              screenshareAsContent: last_screenshare_as_content,
-            } if !last_screenshare_as_content.nil?
-          elsif !is_recording && record # Recording paused
+              screenshareAsContent: screenshare_as_content,
+            }
+          else
+            # Recording paused
             last_stop_timestamp = timestamp
           end
-          record = is_recording
+        else
+          # Handle the case of start_time being inside a recording segment - need to add an event corresponding to
+          # whatever the state happened to be when start_time was reached
+
+          # Don't emit an event during unrecorded sections of the meeting, or if one has already been emitted.
+          next unless timestamp >= start_time && record && screenshare_content_events.empty?
+
+          # Don't emit an event if we haven't seen a SetScreenshareAsContentEvent yet
+          next if screenshare_as_content.nil?
+
+          screenshare_content_events << {
+            timestamp: 0,
+            screenshareAsContent: screenshare_as_content,
+          }
         end
       end
       screenshare_content_events
