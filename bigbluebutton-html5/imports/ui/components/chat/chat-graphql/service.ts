@@ -6,7 +6,7 @@ export const getFirstVisibleLineHtml = (htmlContent: string): string => {
   const root = doc.body.firstElementChild;
   if (!root) return '';
 
-  const blockTags = new Set(['P', 'A', 'DIV', 'PRE', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'UL', 'OL', 'LI', 'BLOCKQUOTE', 'TABLE', 'TR', 'TD', 'CODE']);
+  const displayBlockTags = new Set(['P', 'A', 'DIV', 'PRE', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'UL', 'OL', 'LI', 'BLOCKQUOTE', 'TABLE', 'TR', 'TD', 'CODE']);
 
   const children = Array.from(root.childNodes);
   let keptBlocks = 0;
@@ -16,7 +16,7 @@ export const getFirstVisibleLineHtml = (htmlContent: string): string => {
 
     if (node.nodeType === Node.ELEMENT_NODE) {
       const tagName = (node as Element).tagName.toUpperCase();
-      if (blockTags.has(tagName)) {
+      if (displayBlockTags.has(tagName)) {
         if (keptBlocks === 0) {
           keptBlocks = 1;
         } else {
