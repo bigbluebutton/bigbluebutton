@@ -28,7 +28,7 @@ import {
   ChatTime,
   FlexColumn,
 } from './styles';
-import { ChatMessageType, SYSTEM_SENDERS, ChatEvents } from '/imports/ui/core/enums/chat';
+import { ChatMessageType, MESSAGE_HIGHLIGHT, ChatEvents } from '/imports/ui/core/enums/chat';
 import MessageReadConfirmation from './message-read-confirmation/component';
 import ChatMessageToolbar from './message-toolbar/component';
 import ChatMessageReactions from './message-reactions/component';
@@ -371,7 +371,9 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
     || !JSON.parse(previousMessage?.messageMetadata).custom);
   let sameSender = ((previousMessage?.user?.userId
     || lastSenderPreviousPage) === message?.user?.userId) && pluginMessageNotCustom;
-  const isSystemSender = SYSTEM_SENDERS.has(message.messageType as ChatMessageType);
+  // System message doesn't have a user
+  const isSystemSender = message.user === null;
+  const messageHighlight = MESSAGE_HIGHLIGHT.has(message.messageType as ChatMessageType);
   const currentPluginMessageMetadata = message.messageType === ChatMessageType.PLUGIN
     && JSON.parse(message.messageMetadata);
   const isCustomPluginMessage = currentPluginMessageMetadata.custom;
@@ -694,7 +696,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
       ref={messageContentRef}
       sameSender={message?.user ? sameSender : false}
       isCustomPluginMessage={isCustomPluginMessage}
-      $isSystemSender={messageContent.isSystemSender}
+      $isSystemSender={isSystemSender}
       data-chat-message-id={message?.messageId}
       $highlight={hasToolbar && messageContent.showToolbar && !deleteTime}
       $editing={editing}
@@ -738,7 +740,8 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
           )}
         </MessageItemWrapper>
       )}
-      {sameSender && (
+      {/* Message Highlighted message it's own time indicator */}
+      {(sameSender || (isSystemSender && !messageHighlight)) && (
         <ChatContentFooter>
           {!deleteTime && editTime && (
             <Tooltip title={intl.formatTime(editTime, { hour12: false })}>
@@ -823,7 +826,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
       tabIndex={focusable ? -1 : undefined}
     >
       <ChatWrapper
-        isSystemSender={isSystemSender}
+        messageHighlight={messageHighlight}
         sameSender={sameSender}
         ref={messageRef}
         isPresentationUpload={messageContent.isPresentationUpload}
