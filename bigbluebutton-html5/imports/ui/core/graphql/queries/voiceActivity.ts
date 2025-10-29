@@ -2,10 +2,11 @@ import { gql } from '@apollo/client';
 
 export interface VoiceActivityResponse {
   user_voice_activity_stream: Array<{
-    talking: boolean;
-    muted: boolean;
     userId: string;
     voiceUserId: string;
+    talking: boolean;
+    muted: boolean;
+    leftVoiceConf: boolean;
     user: {
       color: string;
       name: string;
@@ -21,10 +22,11 @@ export const VOICE_ACTIVITY = gql`
       cursor: { initial_value: { voiceActivityAt: "2020-01-01" } },
       batch_size: 10
     ) {
-      talking
-      muted
       userId
       voiceUserId
+      talking
+      muted
+      leftVoiceConf
       user {
         color
         name

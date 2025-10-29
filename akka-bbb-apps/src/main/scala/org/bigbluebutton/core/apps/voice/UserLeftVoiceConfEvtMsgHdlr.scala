@@ -59,9 +59,10 @@ trait UserLeftVoiceConfEvtMsgHdlr {
 
       val eventUserVoiceStatus = MsgBuilder.buildUserVoiceStateEvtMsg(
         liveMeeting.props.meetingProp.intId,
-        liveMeeting.props.voiceProp.voiceConf,
+        msg.body.voiceConf,
         user.intId,
-        None
+        Some(user.copy(muted = true, talking = false)),
+        leftVoiceConf = true
       )
       outGW.send(eventUserVoiceStatus)
 

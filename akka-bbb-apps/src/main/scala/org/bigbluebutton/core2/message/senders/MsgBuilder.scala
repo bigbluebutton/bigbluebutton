@@ -678,6 +678,7 @@ object MsgBuilder {
                                    voiceConf: String,
                                    userId: String,
                                    vuOption: Option[VoiceUserState],
+                                   leftVoiceConf: Boolean
                                  ): BbbCommonEnvCoreMsg = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
     val envelope = BbbCoreEnvelope(UserVoiceStateEvtMsg.NAME, routing)
@@ -693,7 +694,8 @@ object MsgBuilder {
           userColor = vu.color,
           userSpeechLocale = vu.speechLocale,
           talking = vu.talking,
-          muted = vu.muted
+          muted = vu.muted,
+          leftVoiceConf
         )
       case None =>
       UserVoiceStateEvtMsgBody(
@@ -704,7 +706,8 @@ object MsgBuilder {
         userColor = "",
         userSpeechLocale = "",
         talking = false,
-        muted = true
+        muted = true,
+        leftVoiceConf
       )
     }
 

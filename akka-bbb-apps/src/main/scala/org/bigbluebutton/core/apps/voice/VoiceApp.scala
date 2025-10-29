@@ -204,7 +204,8 @@ object VoiceApp extends SystemConfiguration {
           liveMeeting.props.meetingProp.intId,
           liveMeeting.props.voiceProp.voiceConf,
           mutedUser.intId,
-          Some(mutedUser)
+          Some(mutedUser),
+          leftVoiceConf = false
         )
         outGW.send(eventUserVoiceStatus)
       }
@@ -407,6 +408,15 @@ object VoiceApp extends SystemConfiguration {
     UserVoiceDAO.update(voiceUserState)
     UserDAO.updateVoiceUserJoined(voiceUserState)
 
+    val eventUserVoiceStatus = MsgBuilder.buildUserVoiceStateEvtMsg(
+      voiceUserState.meetingId,
+      liveMeeting.props.voiceProp.voiceConf,
+      voiceUserState.intId,
+      Some(voiceUserState),
+      leftVoiceConf = false
+    )
+    outGW.send(eventUserVoiceStatus)
+
     val newTransparentLOStatus = VoiceHdlrHelpers.transparentListenOnlyAllowed(
       liveMeeting
     )
@@ -500,7 +510,8 @@ object VoiceApp extends SystemConfiguration {
         liveMeeting.props.meetingProp.intId,
         liveMeeting.props.voiceProp.voiceConf,
         user.intId,
-        None
+        None,
+        leftVoiceConf = true
       )
       outGW.send(eventUserVoiceStatus)
 
@@ -761,6 +772,16 @@ object VoiceApp extends SystemConfiguration {
             outGW
           )
         }
+
+        val eventUserVoiceStatus = MsgBuilder.buildUserVoiceStateEvtMsg(
+          liveMeeting.props.meetingProp.intId,
+          liveMeeting.props.voiceProp.voiceConf,
+          vu.intId,
+          Some(vu),
+          leftVoiceConf = false
+        )
+        outGW.send(eventUserVoiceStatus)
+
       case _ =>
     }
   }
@@ -930,7 +951,8 @@ object VoiceApp extends SystemConfiguration {
         liveMeeting.props.meetingProp.intId,
         liveMeeting.props.voiceProp.voiceConf,
         talkingUser.intId,
-        Some(talkingUser)
+        Some(talkingUser),
+        leftVoiceConf = false
       )
       outGW.send(eventUserVoiceStatus)
 

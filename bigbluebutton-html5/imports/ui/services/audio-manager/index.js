@@ -717,14 +717,18 @@ class AudioManager {
   }
 
   onVoiceUserChanges(fields = {}) {
-    if (fields.muted !== undefined && fields.muted !== this.isMuted) {
+    // when user leaves voice conf, set muted = false
+    // as the user might have been transfered to a breakout room
+    if (fields.leftVoiceConf !== undefined && fields.leftVoiceConf) {
+      this.isMuted = false;
+    } else if (fields.muted !== undefined && fields.muted !== this.isMuted) {
       this.isMuted = fields.muted;
+    }
 
-      if (this.isMuted) {
-        this.mute();
-      } else {
-        this.unmute();
-      }
+    if (this.isMuted) {
+      this.mute();
+    } else {
+      this.unmute();
     }
 
     if (fields.talking !== undefined && fields.talking !== this.isTalking) {

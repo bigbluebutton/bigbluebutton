@@ -36,7 +36,8 @@ trait UserDisconnectedFromGlobalAudioMsgHdlr {
         liveMeeting.props.meetingProp.intId,
         liveMeeting.props.voiceProp.voiceConf,
         user.intId,
-        None
+        None,
+        leftVoiceConf = true
       )
       outGW.send(eventUserVoiceStatus)
     }

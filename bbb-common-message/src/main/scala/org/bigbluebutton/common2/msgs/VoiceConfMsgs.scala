@@ -498,7 +498,8 @@ case class UserVoiceStateEvtMsgBody(
     userColor:        String,
     userSpeechLocale: String,
     talking:          Boolean,
-    muted:            Boolean
+    muted:            Boolean,
+    leftVoiceConf:    Boolean,
 )
 
 /**

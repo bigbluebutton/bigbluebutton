@@ -18,14 +18,16 @@ func HandleUserVoiceStateEvtMsg(receivedMessage common.RedisMessage, browserConn
 	userSpeechLocale := receivedMessage.Core.Body["userSpeechLocale"].(string)
 	talking := receivedMessage.Core.Body["talking"].(bool)
 	muted := receivedMessage.Core.Body["muted"].(bool)
+	leftVoiceConf := receivedMessage.Core.Body["leftVoiceConf"].(bool)
 
 	now := time.Now().UTC()
 
 	item := map[string]any{
-		"userId":      userId,
-		"voiceUserId": voiceUserId,
-		"muted":       muted,
-		"talking":     talking,
+		"userId":        userId,
+		"voiceUserId":   voiceUserId,
+		"muted":         muted,
+		"talking":       talking,
+		"leftVoiceConf": leftVoiceConf,
 		"user": map[string]any{
 			"color":        userColor,
 			"name":         userName,

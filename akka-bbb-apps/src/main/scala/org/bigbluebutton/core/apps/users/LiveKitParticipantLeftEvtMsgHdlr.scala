@@ -46,10 +46,11 @@ trait LiveKitParticipantLeftEvtMsgHdlr {
       outGW.send(event)
 
       val eventUserVoiceStatus = MsgBuilder.buildUserVoiceStateEvtMsg(
-        liveMeeting.props.meetingProp.intId,
+        meetingId,
         liveMeeting.props.voiceProp.voiceConf,
-        vu.intId,
-        None
+        userId,
+        None,
+        leftVoiceConf = true
       )
       outGW.send(eventUserVoiceStatus)
 
