@@ -82,12 +82,14 @@ object PluginModel {
     plugin.manifest.content match {
       case Some(pluginScalaContent) =>
         val jsEntrypoint = pluginScalaContent.javascriptEntrypointUrl
-        if (!jsEntrypoint.startsWith("http://") && !jsEntrypoint.startsWith("https://")) {
-          val finalJavascriptEntrypointUrl = createFinalJavascriptEntrypointUrl(plugin, jsEntrypoint)
-          val newPluginManifestContent = pluginScalaContent.copy(javascriptEntrypointUrl = finalJavascriptEntrypointUrl)
-          val newPluginManifest = plugin.manifest.copy(content = Some(newPluginManifestContent))
-          return plugin.copy(manifest = newPluginManifest)
-        }
+        val jsEntrypointAbsoluteUrl =
+          if (!jsEntrypoint.startsWith("http://") && !jsEntrypoint.startsWith("https://"))
+            makeAbsoluteUrl(plugin, jsEntrypoint)
+          else jsEntrypoint
+        val finalJavascriptEntrypointUrl = createFinalJavascriptEntrypointUrl(plugin, jsEntrypointAbsoluteUrl)
+        val newPluginManifestContent = pluginScalaContent.copy(javascriptEntrypointUrl = finalJavascriptEntrypointUrl)
+        val newPluginManifest = plugin.manifest.copy(content = Some(newPluginManifestContent))
+        return plugin.copy(manifest = newPluginManifest)
     }
     plugin
   }
@@ -114,8 +116,7 @@ object PluginModel {
     val baseUrl = plugin.manifest.url.substring(0, plugin.manifest.url.lastIndexOf('/') + 1)
     baseUrl + relativeUrl
   }
-  private def createFinalJavascriptEntrypointUrl(plugin: Plugin, relativeUrl: String): String = {
-    val jsEntrypointAbsoluteUrl = makeAbsoluteUrl(plugin, relativeUrl)
+  private def createFinalJavascriptEntrypointUrl(plugin: Plugin, jsEntrypointAbsoluteUrl: String): String = {
     val maybeVersion = for {
       manifest <- plugin.manifest.content
       version  <- manifest.pluginVersion
@@ -131,7 +132,7 @@ object PluginModel {
     }
 
     maybeVersion match {
-      case Some(version) => new URIBuilder(jsEntrypointAbsoluteUrl).addParameter("version", version).toString
+      case Some(version) => new URIBuilder(jsEntrypointAbsoluteUrl).setParameter("version", version).toString
       case None          => jsEntrypointAbsoluteUrl
     }
   }
