@@ -607,6 +607,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
 
   const {
     user,
+    message: messageText,
     messageAsHtml,
     messageId,
     chatId,
@@ -661,7 +662,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
           detail: {
             messageId,
             chatId,
-            message: messageAsHtml,
+            message: messageText,
           },
         }),
       );
@@ -676,7 +677,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
     } else {
       handler();
     }
-  }, [messageId, chatId, messageAsHtml, deactivateFocusTrap, keyboardFocused]);
+  }, [messageId, chatId, message, deactivateFocusTrap, keyboardFocused]);
 
   const onDelete = useCallback((e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.stopPropagation();
