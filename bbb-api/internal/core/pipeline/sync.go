@@ -204,9 +204,6 @@ func (m *DefaultManager[T, U]) Enqueue(ctx context.Context, exec *Executor[T, U]
 		exec.ID = id.String()
 	}
 	exec.Submitted = time.Now()
-	if exec.MaxRetries == 0 {
-		exec.MaxRetries = 2
-	}
 
 	m.rwMu.Lock()
 	m.status[exec.ID] = &Result[U]{ID: exec.ID, State: StateQueued}

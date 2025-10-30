@@ -188,9 +188,12 @@ type Config struct {
 			} `yaml:"blank"`
 			NumConcurrentUploads int `yaml:"num_concurrent_uploads"`
 			NumConversionWorkers int `yaml:"num_conversion_workers"`
+			Timeout              int `yaml:"timeout"`
+			PageTimeout          int `yaml:"page_timeout"`
 		} `yaml:"conversion"`
 		Default  string `yaml:"default"`
 		BasePath string `yaml:"base_path"`
+		MaxPages int    `yaml:"max_pages"`
 	} `yaml:"presentation"`
 	BreakoutRooms struct {
 		Record             bool `yaml:"record"`

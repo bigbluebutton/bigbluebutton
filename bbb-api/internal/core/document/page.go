@@ -99,15 +99,6 @@ func NewPDFPageExtractorWithProcessor(pdfProcessor PDFProcessor) *PDFPageExtract
 // directory. An error will be returned if the page number is invalid or if an error occurs
 // during the extraction process.
 func (e *PDFPageExtractor) ExtractPage(inFile, outFile string, page int) error {
-	pageCount, err := e.pdfProcessor.countPages(inFile)
-	if err != nil {
-		return fmt.Errorf("failed to get page count: %w", err)
-	}
-
-	if page < 1 || page > pageCount {
-		return fmt.Errorf("invalid page number %d: must be between 1 and %d", page, pageCount)
-	}
-
 	pages := []string{strconv.Itoa(page)}
 	return e.pdfProcessor.extractPages(inFile, outFile, pages)
 }

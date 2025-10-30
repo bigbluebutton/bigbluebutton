@@ -106,18 +106,6 @@ func TestExtractPage(t *testing.T) {
 			expectedErr: "",
 		},
 		{
-			name:        "Invalid page number - out of range",
-			pageCount:   2,
-			pageNum:     5,
-			expectedErr: "invalid page number 5: must be between 1 and 2",
-		},
-		{
-			name:        "Page count failed",
-			pageCount:   5,
-			pageNum:     3,
-			expectedErr: "failed to get page count",
-		},
-		{
 			name:        "Extraction failure",
 			pageCount:   5,
 			pageNum:     3,

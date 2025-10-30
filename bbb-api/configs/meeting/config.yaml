@@ -152,11 +152,21 @@ presentation:
       thumbnail: /usr/share/bigbluebutton/blank/blank-thumb.png
       png: /usr/share/bigbluebutton/blank/blank-png.png
       svg: /usr/share/bigbluebutton/blank/blank-svg.svg
-    num_concurrent_uploads: 20  
-    num_conversion_workers: 4 
+    # The number of presentations that can be uploaded concurrently
+    num_concurrent_uploads: 20
+    # The number of presentations that can be converted concurrently    
+    num_conversion_workers: 4
+    # The maximum amount of time allowed for a presentation conversion 
+    # in minutes
+    timeout: 20
+    # The maximum amount of time allowed for a single presentation page 
+    # to convert in minutes
+    page_timeout: 1 
     
   default: default.pdf
   base_path: bigbluebutton/presentation
+  # The maximum number of pages a presentation can contain
+  max_pages: 200
 
 # Default breakout room settings
 breakout_rooms:

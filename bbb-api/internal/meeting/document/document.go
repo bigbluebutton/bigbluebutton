@@ -312,6 +312,12 @@ func (p *DefaultProcessor) WriteAndValidate(src DocSource, doc *Document) (*core
 }
 
 func (p *DefaultProcessor) Convert(presentations []coredoc.Presentation) int {
+	maxTimeout := p.cfg.Presentation.Conversion.Timeout
+	timeout := p.cfg.Presentation.MaxPages * p.cfg.Presentation.Conversion.PageTimeout
+	if timeout > maxTimeout {
+		timeout = maxTimeout
+	}
+
 	var numEnqueued int
 	for _, pres := range presentations {
 		msg := pipeline.NewMessage(&pres)
@@ -319,7 +325,7 @@ func (p *DefaultProcessor) Convert(presentations []coredoc.Presentation) int {
 			Description: fmt.Sprintf("%s/%s executor", pres.MeetingID, pres.ID),
 			Input:       msg,
 			Flow:        p.flow,
-			Timeout:     0,
+			Timeout:     time.Duration(timeout) * time.Minute,
 			MaxRetries:  0,
 		}
 		ctx, cancel := context.WithTimeout(msg.Context(), 1*time.Second)
