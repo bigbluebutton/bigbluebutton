@@ -140,7 +140,7 @@ class Page {
 
     test.fail(!webcamSharingEnabled, 'Webcam sharing is disabled');
 
-    if(!webcamSharingEnabled) {
+    if (!webcamSharingEnabled) {
       return this.wasRemoved(e.joinVideo, 'should not display the join video button')
     }
     await this.waitAndClick(e.joinVideo);
@@ -381,6 +381,16 @@ class Page {
     await frame.waitForURL(/youtube/, { timeout: ELEMENT_WAIT_TIME });
     const ytFrame = new Page(this.page.browser, frame, this.testInfo);
     return ytFrame;
+  }
+
+  async hasElementChecked(selector, description) {
+    const locator = await this.page.locator(selector);
+    await expect(locator, description).toBeChecked();
+  }
+
+  async hasElementNotChecked(selector, description) {
+    const locator = await this.page.locator(selector);
+    await expect(locator, description).not.toBeChecked();
   }
 }
 

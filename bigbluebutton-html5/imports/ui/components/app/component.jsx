@@ -14,7 +14,6 @@ import WakeLockContainer from '../wake-lock/container';
 import NotificationsBarContainer from '../notifications-bar/container';
 import AudioContainer from '../audio/container';
 import BannerBarContainer from '/imports/ui/components/banner-bar/container';
-import RaiseHandNotifier from '/imports/ui/components/raisehand-notifier/container';
 import ManyWebcamsNotifier from '/imports/ui/components/video-provider/many-users-notify/container';
 import AudioCaptionsSpeechContainer from '/imports/ui/components/audio/audio-graphql/audio-captions/speech/component';
 import UploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
@@ -72,6 +71,10 @@ const intlMessages = defineMessages({
   loweredHand: {
     id: 'app.toast.setEmoji.lowerHand',
     description: 'toast message for lowered hand notification',
+  },
+  raisedHandNext: {
+    id: 'app.toast.raisedHandNext.label',
+    description: 'message used when user is next to be called on',
   },
   away: {
     id: 'app.toast.setEmoji.away',
@@ -168,6 +171,7 @@ class App extends Component {
       currentUserRaiseHand,
       intl,
       fitToWidth,
+      isCurrentUserNextRaisedHand,
     } = this.props;
 
     const { isJoinLogged } = this.state;
@@ -187,6 +191,12 @@ class App extends Component {
         notify(intl.formatMessage(intlMessages.raisedHand), 'info', 'user');
       } else {
         notify(intl.formatMessage(intlMessages.loweredHand), 'info', 'clear_status');
+      }
+    }
+
+    if (prevProps.isCurrentUserNextRaisedHand !== isCurrentUserNextRaisedHand) {
+      if (isCurrentUserNextRaisedHand === true) {
+        notify(intl.formatMessage(intlMessages.raisedHandNext), 'info', 'hand');
       }
     }
 
@@ -323,7 +333,6 @@ class App extends Component {
       hideNotificationToasts,
       isNotificationEnabled,
       isNonMediaLayout,
-      isRaiseHandEnabled,
     } = this.props;
 
     const {
@@ -400,7 +409,6 @@ class App extends Component {
             !hideNotificationToasts
             && isNotificationEnabled) && <ToastContainer rtl /> }
           <ChatAlertContainerGraphql />
-          {isRaiseHandEnabled && <RaiseHandNotifier />}
           <ManyWebcamsNotifier />
           <PollingContainer />
           <WakeLockContainer />

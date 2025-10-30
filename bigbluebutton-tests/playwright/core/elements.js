@@ -376,6 +376,8 @@ exports.languageSelector = 'select[id="langSelector"]';
 exports.messageTitle = 'h2[data-test="messageTitle"]';
 exports.notesTitle = 'h2[data-test="notesTitle"]';
 exports.dataSavingsTab = 'span[id="dataSaving"]';
+exports.enableWebcamsToggleBtn = 'input[data-test="webcamToggleBtn"]';
+exports.enableDesktopSharingToggleBtn = 'input[data-test="desktopSharingToggleBtn"]';
 
 // User
 const userAvatar = 'div[data-test-avatar="userAvatar"]';

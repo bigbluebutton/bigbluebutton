@@ -1,24 +1,26 @@
 import React, { useEffect, useRef } from 'react';
 import { useMutation } from '@apollo/client';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import PropTypes from 'prop-types';
 import { UPDATE_CONNECTION_ALIVE_AT } from './mutations';
 import { CONNECTION_STATUS_SUBSCRIPTION } from './queries';
 import {
   handleAudioStatsEvent,
 } from '/imports/ui/components/connection-status/service';
 import connectionStatus from '../../core/graphql/singletons/connectionStatus';
-import PropTypes from 'prop-types';
 
 import getBaseUrl from '/imports/ui/core/utils/getBaseUrl';
 import useCurrentUser from '../../core/hooks/useCurrentUser';
 import getStatus from '../../core/utils/getStatus';
 import logger from '/imports/startup/client/logger';
 import useTimeSync, { setTimeSync } from '/imports/ui/core/local-states/useTimeSync';
+import useMeeting from '../../core/hooks/useMeeting';
 
 const createRttWorker = () => new Worker(new URL('./worker.ts', import.meta.url), { type: 'module' });
 
 const ConnectionStatus = ({
   user,
+  meeting,
 }) => {
   const STATS_INTERVAL = window.meetingClientSettings.public.stats.interval;
   const STATS_TIMEOUT = window.meetingClientSettings.public.stats.timeout;
@@ -84,7 +86,7 @@ const ConnectionStatus = ({
     connectionStatus.setConnectionStatus(2000, 'critical');
   };
 
-  const handleUpdateConnectionAliveAt = (networkRtt, serverEpochMsec) => {
+  const handleUpdateConnectionAliveAt = (networkRtt, serverEpochMsec, serverRequestId) => {
     try {
       // calculate time sync only once
       if (timeSyncRef.current === 0) {
@@ -103,6 +105,7 @@ const ConnectionStatus = ({
       const rttLevels = window.meetingClientSettings.public.stats.rtt;
       updateConnectionAliveAtM({
         variables: {
+          serverRequestId,
           clientSessionUUID: sessionStorage.getItem('clientSessionUUID') || '0',
           networkRttInMs: networkRtt,
           applicationRttInMs: applicationRttInMs.current,
@@ -152,14 +155,28 @@ const ConnectionStatus = ({
   }, []);
 
   useEffect(() => {
-    const rttWorker = createRttWorker();
+    let rttWorker;
+    try {
+      rttWorker = createRttWorker();
+    } catch (error) {
+      logger.error({
+        logCode: 'rtt_worker_creation_failed',
+        extraInfo: {
+          error,
+          errorMessage: error.message,
+          errorStack: error.stack,
+          errorCause: error.cause,
+        },
+      }, 'Error creating RTT worker');
+      return;
+    }
     rttWorker.onmessage = (ev) => {
       const { type } = ev.data || {};
       switch (type) {
         case 'rtt':
           // eslint-disable-next-line no-case-declarations
-          const { rtt, serverEpochMsec } = ev.data || {};
-          handleUpdateConnectionAliveAt(rtt, serverEpochMsec);
+          const { rtt, serverEpochMsec, serverRequestId } = ev.data || {};
+          handleUpdateConnectionAliveAt(rtt, serverEpochMsec, serverRequestId);
           break;
         case 'error':
           // eslint-disable-next-line no-case-declarations
@@ -177,6 +194,9 @@ const ConnectionStatus = ({
         baseUrl: getBaseUrl(),
         interval: STATS_INTERVAL,
         fetchTimeout: STATS_TIMEOUT,
+        userId: user.userId,
+        meetingId: meeting.meetingId,
+        clientSessionUUID: sessionStorage.getItem('clientSessionUUID') || '0',
       },
     });
 
@@ -202,8 +222,8 @@ ConnectionStatus.propTypes = {
 
 const ConnectionStatusContainer = () => {
   const {
-    data,
-    error,
+    data: user,
+    error: userError,
   } = useCurrentUser((u) => ({
     userId: u.userId,
     avatar: u.avatar,
@@ -213,17 +233,24 @@ const ConnectionStatusContainer = () => {
     currentlyInMeeting: u.currentlyInMeeting,
   }));
 
-  if (!data) {
+  const {
+    data: meeting,
+    error: meetingError,
+  } = useMeeting((m) => ({
+    meetingId: m.meetingId,
+  }));
+
+  if (!user || !meeting) {
     return null;
   }
 
-  if (error) {
+  if (userError || meetingError) {
     connectionStatus.setSubscriptionFailed(true);
     logger.error(
       {
         logCode: 'subscription_Failed',
         extraInfo: {
-          error,
+          error: userError,
         },
       },
       'Subscription failed to load',
@@ -231,7 +258,7 @@ const ConnectionStatusContainer = () => {
     return null;
   }
 
-  return <ConnectionStatus user={data} />;
+  return <ConnectionStatus user={user} meeting={meeting} />;
 };
 
 export default ConnectionStatusContainer;
