@@ -108,6 +108,18 @@ const intlMessages = defineMessages({
     id: 'app.timer.abbreviation.seconds',
     description: 'Timer seconds abbreviation (e.g., sec)',
   },
+  presetHours: {
+    id: 'app.timer.preset.hours',
+    description: 'Preset label for hours with abbreviation (e.g., 1h)',
+  },
+  presetMinutes: {
+    id: 'app.timer.preset.minutes',
+    description: 'Preset label for minutes with abbreviation (e.g., 5min)',
+  },
+  setTimerTo: {
+    id: 'app.timer.aria.setTo',
+    description: 'Aria label for preset buttons: Set timer to {label}',
+  },
   songs: {
     id: 'app.timer.songs',
     description: 'Musics title label',
@@ -235,23 +247,18 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
   const handleSecondsChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(event.target.value || '0', 10);
     if (Number.isNaN(value)) return;
-    let newSeconds = value;
-    let carryOver = 0;
     if (value >= 60) {
-      carryOver = Math.floor(value / 60);
-      newSeconds = value % 60;
-      const newMinutes = Math.min(minutes + carryOver, 59);
-      let additionalHours = 0;
-      if (newMinutes === 59 && carryOver > 0) {
-        additionalHours = Math.floor((minutes + carryOver) / 60);
-      }
+      const newSeconds = value % 60;
+      const totalMinutes = minutes + Math.floor(value / 60);
+      const additionalHours = Math.floor(totalMinutes / 60);
+      const newMinutes = totalMinutes % 60;
       const newHours = Math.min(hours + additionalHours, MAX_HOURS);
       syncTimeWithBackend(newHours, newMinutes, newSeconds);
       minutesInputRef.current?.focus();
       minutesInputRef.current?.select();
     } else {
-      newSeconds = Math.max(0, Math.min(value, 59));
-      syncTimeWithBackend(hours, minutes, newSeconds);
+      const clampedSeconds = Math.max(0, Math.min(value, 59));
+      syncTimeWithBackend(hours, minutes, clampedSeconds);
     }
   };
 
@@ -279,13 +286,20 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
     syncTimeWithBackend(h, m, s);
   }, [running, syncTimeWithBackend]);
 
+  // format preset labels using intl so translations (including RTL) can place units correctly
   const formatPresetLabel = useCallback((totalSeconds: number) => {
     const hours = totalSeconds / 3600;
     if (Number.isInteger(hours) && hours >= 1) {
-      return `${hours}${intl.formatMessage(intlMessages.hoursAbbr)}`;
+      return intl.formatMessage(intlMessages.presetHours, {
+        hours,
+        abbr: intl.formatMessage(intlMessages.hoursAbbr),
+      });
     }
     const minutes = Math.round(totalSeconds / 60);
-    return `${minutes}${intl.formatMessage(intlMessages.minutesAbbr)}`;
+    return intl.formatMessage(intlMessages.presetMinutes, {
+      minutes,
+      abbr: intl.formatMessage(intlMessages.minutesAbbr),
+    });
   }, [intl]);
 
   // Removed external +/- panel buttons; inline arrows handle adjustments per unit.
@@ -483,7 +497,7 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
                     key={secs}
                     onClick={() => setAbsoluteTime(secs)}
                     disabled={running}
-                    aria-label={`Set timer to ${formatPresetLabel(secs)}`}
+                    aria-label={intl.formatMessage(intlMessages.setTimerTo, { label: formatPresetLabel(secs) })}
                   >
                     {formatPresetLabel(secs)}
                   </Styled.TimerPresetButton>
