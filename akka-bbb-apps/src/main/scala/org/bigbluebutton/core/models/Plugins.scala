@@ -40,7 +40,7 @@ case class PluginSettingSchema(
 
 case class PluginManifestContent(
     requiredSdkVersion:            String,
-    pluginVersion:                 Option[String]                       = None,
+    version:                       Option[String]                       = None,
     name:                          String,
     javascriptEntrypointUrl:       String,
     enabledForBreakoutRooms:       Boolean                              = false,
@@ -89,9 +89,8 @@ object PluginModel {
         val finalJavascriptEntrypointUrl = createFinalJavascriptEntrypointUrl(plugin, jsEntrypointAbsoluteUrl)
         val newPluginManifestContent = pluginScalaContent.copy(javascriptEntrypointUrl = finalJavascriptEntrypointUrl)
         val newPluginManifest = plugin.manifest.copy(content = Some(newPluginManifestContent))
-        return plugin.copy(manifest = newPluginManifest)
+        plugin.copy(manifest = newPluginManifest)
     }
-    plugin
   }
   private def replaceRelativeLocalesBaseUrl(plugin: Plugin): Plugin = {
     plugin.manifest.content match {
@@ -117,24 +116,17 @@ object PluginModel {
     baseUrl + relativeUrl
   }
   private def createFinalJavascriptEntrypointUrl(plugin: Plugin, jsEntrypointAbsoluteUrl: String): String = {
-    val maybeVersion = for {
+    (for {
       manifest <- plugin.manifest.content
-      version  <- manifest.pluginVersion
-      if Version.isValid(version)
-    } yield version
-
-    plugin.manifest.content.foreach { manifest =>
-      manifest.pluginVersion.foreach { version =>
-          if (!Version.isValid(version)) {
-            logger.warn("pluginVersion for [{}] is not valid, ignoring...", manifest.name)
-          }
-        }
-    }
-
-    maybeVersion match {
-      case Some(version) => new URIBuilder(jsEntrypointAbsoluteUrl).setParameter("version", version).toString
-      case None          => jsEntrypointAbsoluteUrl
-    }
+      version  <- manifest.version
+    } yield {
+      if (Version.isValid(version, false)) {
+        new URIBuilder(jsEntrypointAbsoluteUrl).setParameter("version", version).toString
+      } else {
+        logger.warn("Plugin version {} for [{}] is not valid, ignoring...", version, manifest.name)
+        jsEntrypointAbsoluteUrl
+      }
+    }).getOrElse(jsEntrypointAbsoluteUrl)
   }
   private def replaceAllRelativeUrls(plugin: Plugin): Plugin = {
     val pluginWithAbsoluteJsEntrypoint = replaceRelativeJavascriptEntrypoint(plugin)

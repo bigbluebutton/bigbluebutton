@@ -184,7 +184,7 @@ Here is a complete `manifest.json` example with all possible configurations:
 {
   "requiredSdkVersion": "~0.0.77",
   "name": "MyPlugin",
-  "pluginVersion": "0.0.8", // Optional
+  "version": "0.0.8", // Optional
   "javascriptEntrypointUrl": "MyPlugin.js",
   "javascriptEntrypointIntegrity": "sha384-Bwsz2rxm...", // Optional
   "localesBaseUrl": "https://cdn.domain.com/my-plugin/", // Optional
@@ -222,12 +222,12 @@ Here is a complete `manifest.json` example with all possible configurations:
 
 To better understand remote-data-sources, please, refer to [this section](#external-data-resources)
 
-**pluginVersion:**
+**version:**
 
-Prevents browsers from caching old plugin files.
+This refers to the version of the plugin. It prevents browsers from caching old plugin files.
 When set, it appends the version to `javascriptEntrypointUrl`, forcing browsers to fetch the latest file.
 Example: 
-`pluginVersion=0.0.8`
+`version=0.0.8`
 `javascriptEntrypointUrl=MyPlugin.js`
 Browser will load: `MyPlugin.js?version=0.0.8`.
 
@@ -907,7 +907,7 @@ The data-channel name must be in the `manifest.json` along with all the permissi
     {
       "name": "channel-name",
       "pushPermission": ["moderator","presenter"],
-      "replaceOrDeletePermission": ["moderator", "sender"]
+      "replaceOrDeletePermission": ["moderator", "creator"]
     }
   ]
 }
