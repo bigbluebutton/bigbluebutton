@@ -3,7 +3,8 @@ import logger from '/imports/startup/client/logger';
 
 function setLogger(pluginApi: PluginApi) {
   const overridePluginApi = pluginApi;
-  overridePluginApi.logger = logger.getPluginLogger();
+  const { pluginName } = pluginApi;
+  overridePluginApi.logger = logger.getPluginLogger(pluginName || '');
 }
 
 export default setLogger;

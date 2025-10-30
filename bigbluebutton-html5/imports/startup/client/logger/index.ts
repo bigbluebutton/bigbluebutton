@@ -7,7 +7,6 @@ import { ClientLog } from '/imports/ui/Types/meetingClientSettings';
 import ServerLoggerStream from './ServerStream';
 import ConsoleStream from './consoleStream';
 import meetingClientSettingsInitialValues from '/imports/ui/core/initial-values/meetingClientSettings';
-import LoggerType from './enums';
 
 // The logger accepts "console","server", and "external" as targets
 // Multiple targets can be set as an array in the settings under public.log
@@ -69,13 +68,9 @@ export function generateLoggerStreams(config: ClientLog) {
 }
 
 class BBBLogger {
-  private static fallbackClientLogger: Logger | null = null;
+  private static fallback: Logger | null = null;
 
-  private static clientLogger: Logger | null = null;
-
-  private static pluginLogger: Logger | null = null;
-
-  private static fallbackPluginLogger: Logger | null = null
+  private static default: Logger | null = null;
 
   private static createLoggerFrom(loggerName: string, loggerConfig: ClientLog) {
     return createLogger({
@@ -86,44 +81,35 @@ class BBBLogger {
     });
   }
 
-  public static getLogger(loggerType: LoggerType = LoggerType.DEFAULT) {
-    if (loggerType === LoggerType.DEFAULT && BBBLogger.clientLogger) return BBBLogger.clientLogger;
-    if (loggerType === LoggerType.PLUGIN && BBBLogger.pluginLogger) return BBBLogger.pluginLogger;
+  public static createPluginLogger(pluginName: string) {
+    const LOG_CONFIG = window.meetingClientSettings?.public?.clientLog;
+    const pluginLoggerConfiguration = LOG_CONFIG || FALLBACK_CONFIG;
+    return BBBLogger.createLoggerFrom(`${PLUGIN_LOGGER_NAME}(${pluginName})`, pluginLoggerConfiguration);
+  }
+
+  public static get logger() {
+    if (BBBLogger.default) return BBBLogger.default;
 
     const LOG_CONFIG = window.meetingClientSettings?.public?.clientLog;
-    if (LOG_CONFIG && !BBBLogger.clientLogger) {
-      BBBLogger.clientLogger = BBBLogger.createLoggerFrom(CLIENT_LOGGER_NAME, LOG_CONFIG);
+    if (LOG_CONFIG && !BBBLogger.default) {
+      BBBLogger.default = BBBLogger.createLoggerFrom(CLIENT_LOGGER_NAME, LOG_CONFIG);
     }
 
-    if (LOG_CONFIG && !BBBLogger.pluginLogger) {
-      BBBLogger.fallbackPluginLogger = BBBLogger.createLoggerFrom(PLUGIN_LOGGER_NAME, LOG_CONFIG);
+    if (!BBBLogger.fallback) {
+      BBBLogger.fallback = BBBLogger.createLoggerFrom(CLIENT_LOGGER_NAME, FALLBACK_CONFIG);
     }
 
-    if (!BBBLogger.fallbackClientLogger) {
-      BBBLogger.fallbackClientLogger = BBBLogger.createLoggerFrom(CLIENT_LOGGER_NAME, FALLBACK_CONFIG);
-    }
-
-    if (!BBBLogger.fallbackPluginLogger) {
-      BBBLogger.fallbackPluginLogger = BBBLogger.createLoggerFrom(PLUGIN_LOGGER_NAME, FALLBACK_CONFIG);
-    }
-
-    switch (loggerType) {
-      case LoggerType.PLUGIN:
-        return BBBLogger.pluginLogger || BBBLogger.fallbackPluginLogger;
-      case LoggerType.DEFAULT:
-      default:
-        return BBBLogger.clientLogger || BBBLogger.fallbackClientLogger;
-    }
+    return BBBLogger.default || BBBLogger.fallback;
   }
 }
 
 class LoggerFactory {
-  public static getPluginLogger() {
-    return BBBLogger.getLogger(LoggerType.PLUGIN);
+  public static getPluginLogger(pluginName: string) {
+    return BBBLogger.createPluginLogger(pluginName);
   }
 
   public static getLogger() {
-    return BBBLogger.getLogger();
+    return BBBLogger.logger;
   }
 
   public static error(...args: any[]) {
