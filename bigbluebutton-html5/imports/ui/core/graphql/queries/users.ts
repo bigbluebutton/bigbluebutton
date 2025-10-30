@@ -14,7 +14,6 @@ subscription UserListSubscription($offset: Int!, $limit: Int!) {
                 order_by: [
                   {presenter: desc},
                   {role: asc},
-                  {raiseHandTime: asc_nulls_last},
                   {isDialIn: desc},
                   {whiteboardWriteAccess: desc},
                   {nameSortable: asc},
@@ -95,3 +94,23 @@ export const GET_USER_NAMES = gql`
     }
   }
 `;
+
+export const RAISED_HAND_USERS = gql`
+subscription RaisedHandUsers {
+  user(
+    where: {
+      raiseHand: {_eq: true}
+    },
+    order_by: [
+      {raiseHandTime: asc_nulls_last},
+    ]) {
+    userId
+    name
+    color
+    presenter
+    isModerator
+    raiseHand
+    raiseHandTime
+    whiteboardWriteAccess
+  }
+}`;

@@ -165,6 +165,8 @@
             add_header Pragma "no-cache";
             add_header Expires "0";
             add_header X-Server-Epoch-Msec $msec;
+            add_header X-Request-Id $request_id;
+
             # this Header is required for cluster setups as the ping check is a
             # CORS request. No cookies are required so we can just allow anyone
             # to use this endpoint.

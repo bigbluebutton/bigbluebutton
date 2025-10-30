@@ -39,6 +39,7 @@ class BBBWebApi {
     const response = await this.attemptFetch(url, {
       fetchOptions: {
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'omit',
       },
       retries,
       retryDelay,
@@ -69,7 +70,12 @@ class BBBWebApi {
       timeout?: number;
     } = {},
   ): Promise<Response> {
-    const { data: indexData } = await this.index();
+    const { data: indexData } = await this.index({
+      signal,
+      retries,
+      retryDelay,
+      timeout,
+    });
     const url = buildUrl(indexData);
 
     return this.attemptFetch(url, {
@@ -126,7 +132,7 @@ class BBBWebApi {
 
       return response;
     } catch (error: unknown) {
-      if (error instanceof Error && error.name === 'AbortError') throw new Error('Request aborted');
+      if (error instanceof Error && (error.name === 'AbortError' || signal?.aborted)) throw new Error('Request aborted');
 
       if (retries > 0) {
         await new Promise((r) => setTimeout(r, retryDelay));

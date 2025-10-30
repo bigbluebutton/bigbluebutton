@@ -30,7 +30,6 @@ const CustomUsersSettings: React.FC<CustomUsersSettingsProps> = ({
     const controller = new AbortController();
     timeoutRef.current = setTimeout(() => {
       controller.abort();
-      setError('Timeout fetching user custom settings');
       setLoading(false);
     }, CONNECTION_TIMEOUT);
 
@@ -55,7 +54,7 @@ const CustomUsersSettings: React.FC<CustomUsersSettingsProps> = ({
           },
         },
         signal: controller.signal,
-        timeout: CONNECTION_TIMEOUT / 3,
+        timeout: CONNECTION_TIMEOUT / 2,
         retries: 3,
         retryDelay: 1000,
       },
@@ -84,7 +83,7 @@ const CustomUsersSettings: React.FC<CustomUsersSettingsProps> = ({
       })
       .catch((error) => {
         if (error.name === 'AbortError') {
-          setError('Request aborted');
+          setError('Request aborted: Timeout fetching user custom settings');
         } else {
           setError('Error fetching user custom settings');
           Session.setItem('errorMessageDescription', 'meeting_ended');

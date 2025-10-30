@@ -22,6 +22,7 @@ import com.google.gson.Gson
 import grails.web.context.ServletContextHolder
 import groovy.json.JsonBuilder
 import groovy.xml.MarkupBuilder
+import groovy.xml.XmlSlurper
 import org.apache.commons.codec.binary.Base64
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.FilenameUtils
@@ -31,24 +32,23 @@ import org.bigbluebutton.api.*
 import org.bigbluebutton.api.domain.GuestPolicy
 import org.bigbluebutton.api.domain.Meeting
 import org.bigbluebutton.api.domain.UserSession
-import org.bigbluebutton.api.service.ValidationService
 import org.bigbluebutton.api.service.ServiceUtils
+import org.bigbluebutton.api.service.ValidationService
 import org.bigbluebutton.api.util.ParamsUtil
 import org.bigbluebutton.api.util.ResponseBuilder
 import org.bigbluebutton.presentation.PresentationUrlDownloadService
+import org.bigbluebutton.presentation.SupportedFileTypes
 import org.bigbluebutton.presentation.UploadedPresentation
-import org.bigbluebutton.presentation.SupportedFileTypes;
 import org.bigbluebutton.web.services.PresentationService
+import org.bigbluebutton.web.services.turn.RemoteIceCandidate
+import org.bigbluebutton.web.services.turn.StunServer
 import org.bigbluebutton.web.services.turn.StunTurnService
 import org.bigbluebutton.web.services.turn.TurnEntry
-import org.bigbluebutton.web.services.turn.StunServer
-import org.bigbluebutton.web.services.turn.RemoteIceCandidate
 import org.codehaus.groovy.util.ListHashMap
 import org.json.JSONArray
 
-
-import javax.servlet.ServletRequest
-import javax.servlet.http.HttpServletRequest
+import jakarta.servlet.ServletRequest
+import jakarta.servlet.http.HttpServletRequest
 
 class ApiController {
   private static final String CONTROLLER_NAME = 'ApiController'

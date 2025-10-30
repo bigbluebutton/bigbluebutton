@@ -4,6 +4,7 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.running.LiveMeeting
+import org.bigbluebutton.core.util.MarkdownUtil
 
 trait GetGroupChatMsgsReqMsgHdlr {
   def handle(msg: GetGroupChatMsgsReqMsg, state: MeetingState2x,
@@ -24,7 +25,8 @@ trait GetGroupChatMsgsReqMsgHdlr {
     state.groupChats.find(msg.body.chatId) foreach { gc =>
       if (gc.access == GroupChatAccess.PUBLIC || gc.isUserMemberOf(msg.header.userId)) {
         val msgs = gc.msgs.toVector map (m => GroupChatMsgToUser(m.id, m.createdOn, m.correlationId,
-          m.sender, m.chatEmphasizedText, m.message, m.replyToMessageId, m.messageType, m.metadata))
+          m.sender, m.chatEmphasizedText, m.message, MarkdownUtil.markdownToSafeHtml(m.message),
+          m.replyToMessageId, m.messageType, m.metadata))
         val respMsg = buildGetGroupChatMsgsRespMsg(
           liveMeeting.props.meetingProp.intId,
           msg.header.userId, msgs, gc.id
