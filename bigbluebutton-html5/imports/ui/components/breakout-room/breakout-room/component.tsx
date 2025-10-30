@@ -21,6 +21,7 @@ import BreakoutMessageForm from './components/messageForm';
 import { useStopMediaOnMainRoom } from '/imports/ui/components/breakout-room/hooks';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
+import { useReactiveVar } from '@apollo/client';
 
 interface BreakoutRoomProps {
   breakouts: BreakoutRoomType[];
@@ -31,6 +32,7 @@ interface BreakoutRoomProps {
   userId: string;
   meetingId: string;
   createdTime: number;
+  isConnected: boolean;
 }
 
 const intlMessages = defineMessages({
@@ -109,6 +111,7 @@ const BreakoutRoom: React.FC<BreakoutRoomProps> = ({
   userId,
   meetingId,
   createdTime,
+  isConnected,
 }) => {
   const [breakoutRoomEndAll] = useMutation(BREAKOUT_ROOM_END_ALL);
   const [breakoutRoomTransfer] = useMutation(USER_TRANSFER_VOICE_TO_MEETING);
@@ -182,7 +185,7 @@ const BreakoutRoom: React.FC<BreakoutRoomProps> = ({
               closePanel();
               breakoutRoomEndAll();
             }}
-            isMeteorConnected
+            isConnected={isConnected}
             amIModerator={isModerator}
             isRTL={isRTL}
           />
@@ -317,6 +320,7 @@ const BreakoutRoomContainer: React.FC = () => {
     loading: breakoutLoading,
     error: breakoutError,
   } = useDeduplicatedSubscription<GetBreakoutDataResponse>(getBreakoutData);
+  const connected = useReactiveVar(connectionStatus.getConnectedStatusVar());
   if (
     breakoutLoading
     || currentUserLoading
@@ -347,6 +351,7 @@ const BreakoutRoomContainer: React.FC = () => {
       userId={currentUserData.userId ?? ''}
       meetingId={meetingData.meetingId ?? ''}
       createdTime={meetingData.createdTime ?? 0}
+      isConnected={connected}
     />
   );
 };

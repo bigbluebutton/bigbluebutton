@@ -120,7 +120,7 @@ const ConnectionStatus = ({
 
             updateConnectionAliveAtM({
               variables: {
-                serverRequestId,
+                serverRequestId: '',
                 clientSessionUUID: sessionStorage.getItem('clientSessionUUID') || '0',
                 networkRttInMs: networkRtt,
                 applicationRttInMs: applicationRttInMs.current,

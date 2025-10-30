@@ -310,7 +310,7 @@ class NavBar extends Component {
       sidebarNavigation,
       currentUserId,
       isDirectLeaveButtonEnabled,
-      isMeteorConnected,
+      isConnected,
       hideTopRow,
     } = this.props;
 
@@ -429,7 +429,7 @@ class NavBar extends Component {
               {renderPluginItems(rightPluginItems)}
               {ConnectionStatusService.isEnabled() ? <ConnectionStatusButton /> : null}
               {ConnectionStatusService.isEnabled() ? <ConnectionStatus /> : null}
-              {isDirectLeaveButtonEnabled && isMeteorConnected
+              {isDirectLeaveButtonEnabled && isConnected
                 ? <LeaveMeetingButtonContainer amIModerator={amIModerator} /> : null}
               <OptionsDropdownContainer
                 amIModerator={amIModerator}
