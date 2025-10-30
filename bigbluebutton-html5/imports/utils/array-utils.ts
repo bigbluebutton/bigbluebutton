@@ -10,7 +10,7 @@ export const partition = <A, F extends (a: A) => boolean>(arr: A[], criteria: F)
   arr.filter((item) => !criteria(item)),
 ];
 
-export const indexOf = <A>(arr?: A[], value?: A) => (arr && value ? arr.indexOf(value) : -1);
+export const indexOf = <A>(arr?: A[], value?: A) => (arr && value !== undefined ? arr.indexOf(value) : -1);
 
 export const without = <A>(arr: A[], value: A) => arr.filter((item) => item !== value);
 
