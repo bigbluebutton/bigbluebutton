@@ -24,6 +24,7 @@ import { DataChannelEntry } from './data-channel/types';
 import createUseSubscription from '../../core/hooks/createUseSubscription';
 import { PLUGIN_DATA_CHANNEL_PUBLIC_SUBSCRIPTION, PLUGIN_DATA_CHANNEL_PRIVATE_SUBSCRIPTION } from './data-channel/subscriptions';
 import { mergeDataChannelEntries } from './data-channel/utils';
+import setLogger from './utils';
 
 const PluginsEngineManager = (props: PluginsEngineManagerProps) => {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -127,6 +128,7 @@ const PluginsEngineManager = (props: PluginsEngineManagerProps) => {
         effectivePluginsConfig?.map((effectivePluginConfig: EffectivePluginConfig) => {
           const { uuid, name: pluginName, localesBaseUrl } = effectivePluginConfig;
           const pluginApi: PluginSdk.PluginApi = BbbPluginSdk.getPluginApi(uuid, pluginName, localesBaseUrl);
+          setLogger(pluginApi);
           return (
             <div key={uuid}>
               <PluginLoaderManager
