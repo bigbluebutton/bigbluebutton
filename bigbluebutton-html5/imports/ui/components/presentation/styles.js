@@ -4,7 +4,6 @@ import {
   toastIconSide,
   smPaddingX,
   smPaddingY,
-  contentSidebarMarginToMedia,
   lgBorderRadius,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {

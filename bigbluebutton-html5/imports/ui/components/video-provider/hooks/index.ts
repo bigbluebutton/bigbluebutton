@@ -192,10 +192,7 @@ export const useDisableCam = () => {
   return meeting?.lockSettings ? meeting?.lockSettings.disableCam : false;
 };
 
-const getCountData = () => {
-  const { data: countData } = useDeduplicatedSubscription<UsersCountSubscriptionResponse>(
-    USER_AGGREGATE_COUNT_SUBSCRIPTION,
-  );
+const getCountData = (countData) => {
   return countData?.user_aggregate?.aggregate?.count || 0;
 };
 
@@ -204,7 +201,10 @@ export const usePageSizeDictionary = () => {
     desktopPageSizes: DESKTOP_PAGE_SIZES,
     mobilePageSizes: MOBILE_PAGE_SIZES,
   } = window.meetingClientSettings.public.kurento.pagination;
-  const userCount = getCountData();
+  const { data: countData } = useDeduplicatedSubscription<UsersCountSubscriptionResponse>(
+    USER_AGGREGATE_COUNT_SUBSCRIPTION,
+  );
+  const userCount = getCountData(countData);
 
   const PAGINATION_THRESHOLDS_CONF = window.meetingClientSettings.public.kurento.paginationThresholds;
   const PAGINATION_THRESHOLDS_ENABLED = PAGINATION_THRESHOLDS_CONF.enabled;

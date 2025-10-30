@@ -1,5 +1,5 @@
 /* eslint prefer-promise-reject-errors: 0 */
-import { makeVar, useReactiveVar } from '@apollo/client';
+import { makeVar } from '@apollo/client';
 import Storage from '/imports/ui/services/storage/session';
 import Session from '/imports/ui/services/storage/in-memory';
 
@@ -115,10 +115,6 @@ class Auth {
 
   set loggedIn(value) {
     this._loggedIn(value);
-  }
-
-  useLoggedIn() {
-    return useReactiveVar(this._loggedIn);
   }
 
   get credentials() {

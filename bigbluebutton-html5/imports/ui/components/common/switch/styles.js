@@ -121,7 +121,9 @@ const ToggleTrackX = styled.div`
 const ToggleThumb = styled.div`
   position: absolute;
   top: 1px;
-  left: ${({ isRTL }) => isRTL ? '2.6rem' : '1px'};
+  left: ${({ isRTL }) => {
+    return isRTL ? '2.6rem' : '1px'
+  }};
   width: 1.35rem;
   height: 1.35rem;
   border-radius: 50%;
@@ -134,7 +136,9 @@ const ToggleThumb = styled.div`
   `}
 
   ${({ checked }) => checked && css`
-    left: ${({ isRTL }) => isRTL ? '1px' : '2.1rem' };
+    left: ${({ isRTL }) => {
+      return isRTL ? '1px' : '2.1rem'
+    }};
     box-shadow: -2px 0px 10px -1px rgba(0,0,0,0.4);
   `}
 

@@ -31,13 +31,6 @@ type Combined = Prettify<
 type DistributePartial<T> = T extends object ? Partial<T> : T;
 type Loose<T> = { [K in keyof T]?: DistributePartial<T[K]> };
 
-// subscription remains on Meeting
-const useMeetingSubscription = useCreateUseSubscription<Meeting>(
-  MEETING_SUBSCRIPTION,
-  {},
-  true,
-);
-
 function isNilOrEmptyObject(v: unknown) {
   return v == null || (typeof v === 'object' && v !== null && isEmpty(v as object));
 }
@@ -68,6 +61,13 @@ function safeProject<
 export function useMeeting<T extends Loose<Combined> = Partial<Combined>>(
   fn?: (c: Partial<Combined>) => T,
 ) {
+  // subscription remains on Meeting
+  const useMeetingSubscription = useCreateUseSubscription<Meeting>(
+    MEETING_SUBSCRIPTION,
+    {},
+    true,
+  );
+
   const response = useMeetingSubscription();
 
   const data = useMemo<T | undefined>(() => {

@@ -6,7 +6,9 @@ export const isKeepPushingLayoutEnabled = () => window.meetingClientSettings.pub
 
 export const updateSettings = (obj, msgDescriptor, mutation) => {
   const Settings = getSettingsSingletonInstance();
-  Object.keys(obj).forEach(k => (Settings[k] = obj[k]));
+  Object.keys(obj).forEach(k => {
+    Settings[k] = obj[k];
+  });
   Settings.save(mutation);
 
   if (msgDescriptor) {

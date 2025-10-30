@@ -14,6 +14,7 @@ module.exports = {
   ignorePatterns: ['public/compatibility/*', 'Gruntfile.js', '**/sdpUtils.js', '**/utils/*.js'],
   rules: {
 
+    'eol-last': 0,
     'object-shorthand': 0,
     'prefer-rest-params': 0,
     'implicit-arrow-linebreak': 0,
