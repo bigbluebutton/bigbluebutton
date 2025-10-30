@@ -223,30 +223,30 @@ const TalkingIndicatorContainer: React.FC = () => {
   const talkingUsers = useMemo(() => {
     const [muted, unmuted] = partition(
       Object.values(talkingUsersData),
-      (v) => !!v?.muted,
+      (v) => v.muted,
     );
     const [talking, silent] = partition(
       unmuted,
-      (v) => !!v?.talking,
+      (v) => v.talking,
     );
     return [
       ...talking.sort((v1, v2) => {
-        if (!v1?.startTime && !v2?.startTime) return 0;
-        if (!v1?.startTime) return 1;
-        if (!v2?.startTime) return -1;
-        return v1.startTime - v2?.startTime;
+        if (!v1.startTime && !v2.startTime) return 0;
+        if (!v1.startTime) return 1;
+        if (!v2.startTime) return -1;
+        return v1.startTime - v2.startTime;
       }),
       ...silent.sort((v1, v2) => {
-        if (!v1?.endTime && !v2?.endTime) return 0;
-        if (!v1?.endTime) return 1;
-        if (!v2?.endTime) return -1;
-        return v2?.endTime - v1?.endTime;
+        if (!v1.endTime && !v2.endTime) return 0;
+        if (!v1.endTime) return 1;
+        if (!v2.endTime) return -1;
+        return v2.endTime - v1.endTime;
       }),
       ...muted.sort((v1, v2) => {
-        if (!v1?.endTime && !v2?.endTime) return 0;
-        if (!v1?.endTime) return 1;
-        if (!v2?.endTime) return -1;
-        return v2?.endTime - v1?.endTime;
+        if (!v1.endTime && !v2.endTime) return 0;
+        if (!v1.endTime) return 1;
+        if (!v2.endTime) return -1;
+        return v2.endTime - v1.endTime;
       }),
     ].slice(0, TALKING_INDICATORS_MAX);
   }, [talkingUsersData]);

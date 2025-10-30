@@ -75,20 +75,17 @@ const createUseTalkingUsers = () => {
             return previousRecord;
           }
 
-          let startTime = !previousIndicator?.talking && talking
-            ? Date.now()
-            : previousIndicator?.startTime;
+          let startTime = previousIndicator?.startTime ?? 0;
+          let endTime = previousIndicator?.endTime ?? 0;
 
-          let endTime = previousIndicator?.talking && !talking
-            ? Date.now()
-            : previousIndicator?.endTime;
-
-          if (startTime) {
-            endTime = 0;
+          if (previousIndicator?.talking && !talking) {
+            endTime = Date.now();
+            startTime = 0;
           }
 
-          if (endTime) {
-            startTime = 0;
+          if (!previousIndicator?.talking && talking) {
+            startTime = Date.now();
+            endTime = 0;
           }
 
           // Cancel any deletion if user has started talking
