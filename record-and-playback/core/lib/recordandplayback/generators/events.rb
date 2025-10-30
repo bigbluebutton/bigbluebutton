@@ -1381,12 +1381,13 @@ module BigBlueButton
           }
         when %w[PARTICIPANT RecordStatusEvent]
           record = event.at_xpath('status').content == 'true'
+          # Don't update timestamps until we're past the segment start time
+          next unless timestamp >= start_time
+
           if record
             # Recording resumed; update offset to account for the timestamp jump
             offset += timestamp - last_stop_timestamp
 
-            # Don't emit an event if it's prior to the segment start time
-            next unless timestamp >= start_time
             # Don't emit an event if the previous event has the same state
             next if screenshare_content_events.dig(-1, :screenshareAsContent) == screenshare_as_content
 
