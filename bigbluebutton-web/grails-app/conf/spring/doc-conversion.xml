@@ -115,6 +115,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="pngWidthRasterizedSlides" value="${pngWidthRasterizedSlides}"/>
         <property name="imageResizer" ref="imageResizer"/>
         <property name="imageResolutionService" ref="imageResolutionService"/>
+        <property name="maxBigSvgSize" value="${maxBigPdfPageSize}"/>
     </bean>
 
     <bean id="generatedSlidesInfoHelper" class="org.bigbluebutton.presentation.GeneratedSlidesInfoHelperImp"/>
