@@ -7,9 +7,7 @@ import scala.jdk.CollectionConverters._
 object ExternalVideoUrlParser {
   private val reHmsParam: Regex = """(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s)?""".r
   private val reHhmmssParam: Regex = """(?:(\d+):)?(\d+):(\d+)""".r
-  private val youtubeShortsMatchUrl: Regex = """^(?:https?:\/\/)?(?:www\.)?(youtube\.com/shorts)/.+$""".r
   private val panoptoMatchUrl: Regex = """https?:\/\/([^/]+/Panopto)(/Pages/Viewer\.aspx\?id=)([-a-zA-Z0-9]+)""".r
-  private val youtubeMatchUrl: Regex = """^(?:https?:\/\/)?(?:www\.)?(youtube\.com|youtu.be)/.+$""".r
 
   private def timeParamToSeconds(s: String): Int = {
     s match {
@@ -36,24 +34,40 @@ object ExternalVideoUrlParser {
   }
 
   def sanitizeVideoUrl(url: String): String = {
+    try {
+      val uri = new URIBuilder(url)
+      val host = uri.getHost
+      val path = uri.getPath
 
-    val normalizedUrl = url match {
-      case youtubeShortsMatchUrl(_) =>
-        url.replace("shorts/", "watch?v=")
+      val normalizedUrl = if (host != null && host.endsWith("youtube.com")) {
+        if (path.startsWith("/shorts/")) {
+          // shorts -> watch
+          val videoId = path.stripPrefix("/shorts/")
+          uri.setPath("/watch")
+          uri.addParameter("v", videoId)
+          uri.toString
+        } else {
+          url
+        }
+      } else if (url.matches(panoptoMatchUrl.regex)) {
+        url match {
+          case panoptoMatchUrl(domain, _, id) =>
+            s"https://$domain/Podcast/Social/$id.mp4"
+          case _ => url
+        }
+      } else {
+        url
+      }
 
-      case panoptoMatchUrl(domain, _, id) =>
-        s"https://$domain/Podcast/Social/$id.mp4"
-
-      case _ => url
-    }
-
-    // Step 2: clean YouTube query params (list, index)
-    normalizedUrl match {
-      case youtubeMatchUrl(_) =>
-        val uri = new URIBuilder(normalizedUrl)
-        cleanUrlRemoveParams(uri, Set("list", "index", "start_radio"))
-
-      case _ => normalizedUrl
+      // clean YouTube query params
+      if (host.endsWith("youtube.com") || host.endsWith("youtu.be")) {
+        val cleanUri = new URIBuilder(normalizedUrl)
+        cleanUrlRemoveParams(cleanUri, Set("list", "index", "start_radio"))
+      } else {
+        normalizedUrl
+      }
+    } catch {
+      case _: Exception => url // fallback in case of parse errors
     }
   }
 
