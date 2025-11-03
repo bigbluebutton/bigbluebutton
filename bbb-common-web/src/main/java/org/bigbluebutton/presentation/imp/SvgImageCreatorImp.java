@@ -369,7 +369,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
         long endConv = System.currentTimeMillis();
 
         long svgLength = destsvg.length();
-        if (svgLength > maxBigSvgSize) {
+        if (maxBigSvgSize > 0 && svgLength > maxBigSvgSize) {
             log.warn("Generated SVG [{}] is too large: {}; using blank SVG instead", destsvg, svgLength);
             return false;
         }
