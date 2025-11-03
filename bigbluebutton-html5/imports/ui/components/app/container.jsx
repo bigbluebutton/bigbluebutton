@@ -26,6 +26,7 @@ import usePresentationSwap from '../../core/hooks/usePresentationSwap';
 import { LAYOUT_TYPE } from '../layout/enums';
 import { SET_PRESENTATION_FIT_TO_WIDTH } from './app-graphql/mutations';
 import { CURRENT_PRESENTATION_PAGE_SUBSCRIPTION } from '../whiteboard/queries';
+import { RAISED_HAND_USERS } from '/imports/ui/core/graphql/queries/users';
 
 const AppContainer = (props) => {
   const {
@@ -53,6 +54,11 @@ const AppContainer = (props) => {
     name: m.name,
     meetingId: m.meetingId,
   }));
+
+  const { data: usersData } = useDeduplicatedSubscription(RAISED_HAND_USERS);
+  const isCurrentUserNextRaisedHand = usersData?.user && currentUser?.raiseHand
+    ? usersData.user[0]?.userId === currentUser?.userId
+    : false;
 
   const { data: currentPageInfo } = useDeduplicatedSubscription(
     CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
@@ -143,6 +149,7 @@ const AppContainer = (props) => {
           isNonMediaLayout,
           currentUserAway: currentUser.away,
           currentUserRaiseHand: currentUser?.raiseHand ?? false,
+          isCurrentUserNextRaisedHand,
           captionsStyle,
           presentationIsOpen,
           shouldShowExternalVideo,

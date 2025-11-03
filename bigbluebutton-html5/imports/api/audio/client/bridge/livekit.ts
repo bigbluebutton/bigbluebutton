@@ -66,8 +66,13 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
 
   private isProcessingPublishQueue: boolean;
 
-  private static assembleTrackName(deviceId: string | null | undefined): string {
-    return `${Auth.userID}-audio-${deviceId ?? 'default'}`;
+  private clientSessionUUID: string = '0';
+
+  private static assembleTrackName(
+    clientSessionId: string,
+    deviceId: string | null | undefined,
+  ): string {
+    return `${Auth.userID}|${clientSessionId}|audio|${deviceId || 'default'}`;
   }
 
   constructor() {
@@ -99,6 +104,14 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
     this.observeLiveKitEvents();
   }
 
+  get clientSessionId(): string {
+    if (this.clientSessionUUID === '0') {
+      this.clientSessionUUID = sessionStorage.getItem('clientSessionUUID') || '0';
+    }
+
+    return this.clientSessionUUID;
+  }
+
   set inputDeviceId(deviceId: string | null) {
     // eslint-disable-next-line no-underscore-dangle
     this._inputDeviceId = deviceId;
@@ -114,6 +127,13 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
     const publication = micTrackPublications[0];
 
     return publication?.track?.mediaStream || null;
+  }
+
+  get publicationTrack(): LocalTrack | null {
+    const micTrackPublications = this.getLocalMicTrackPubs();
+    const publication = micTrackPublications[0];
+
+    return publication?.track || null;
   }
 
   get inputStream(): MediaStream | null {
@@ -147,6 +167,19 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
     return Array.from(
       this.liveKitRoom.localParticipant.audioTrackPublications.values(),
     ).filter((publication) => publication.source === Track.Source.Microphone);
+  }
+
+  private static publicationMatchesDevice(
+    publication: LocalTrackPublication | null,
+    deviceId: string | null | undefined,
+  ): boolean {
+    const currentStream = publication?.track?.mediaStream;
+
+    if (!currentStream || deviceId == null) return false;
+
+    const currentStreamDeviceId = MediaStreamUtils.extractDeviceIdFromStream(currentStream, 'audio');
+
+    return currentStreamDeviceId === deviceId;
   }
 
   private async audioStarted(): Promise<void> {
@@ -442,7 +475,7 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
     // This method will rollback to a previous stream if something goes wrong
     // during the device switch. The previous stream is a clone of the current
     // input stream before the switch is attempted.
-    const rollback = () => {
+    const rollback = async () => {
       logger.warn({
         logCode: 'livekit_audio_changeinputdevice_rollback',
         extraInfo: {
@@ -465,7 +498,11 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
       if (backupStream && backupStream.active) {
         // Force set the input stream even if it's the same as the current one
         // because the current one is likely broken
-        this.setInputStream(backupStream, { force: true }).catch((rollbackError) => {
+        try {
+          await this.setInputStream(backupStream, { force: true });
+
+          return this.inputStream;
+        } catch (rollbackError) {
           logger.error({
             logCode: 'audio_changeinputdevice_rollback_failure',
             extraInfo: {
@@ -476,18 +513,32 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
               originalStreamData: MediaStreamUtils.getMediaStreamLogData(this.originalStream),
               newStreamData: MediaStreamUtils.getMediaStreamLogData(newStream),
               backupStreamData: MediaStreamUtils.getMediaStreamLogData(backupStream),
-              errorName: rollbackError?.name,
-              errorMessage: rollbackError?.message,
-              errorStack: rollbackError?.stack,
+              errorName: (rollbackError as Error)?.name,
+              errorMessage: (rollbackError as Error)?.message,
+              errorStack: (rollbackError as Error)?.stack,
             },
           }, 'Microphone device change rollback failed - the device may become silent');
           // Cleanup the backup stream reference if the rollback failed. We have
           // no other recourse at this point.
           cleanup();
-        });
-      } else {
-        // No backup stream to rollback to, just clean up
+        }
+      }
+
+      // No backup stream to rollback to. We are likely in a bad state at this point.
+      // Try restarting fresh with doGUM as a last resort.
+      try {
+        const constraints = {
+          audio: getAudioConstraints(),
+        };
+        const rollbackStream = await doGUM(constraints);
+        await this.setInputStream(rollbackStream, { force: true });
         cleanup();
+
+        return rollbackStream;
+      } catch (error) {
+        // Rollback failed. Nothing we can do at this point.
+        cleanup();
+        throw error;
       }
     };
 
@@ -518,43 +569,64 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
     }
 
     const trackPubs = this.getLocalMicTrackPubs();
-    const hasUnmutedTrack = trackPubs.some((pub) => !pub.isMuted);
 
     // We have a published track, use LK's own method to switch the device
-    if (hasUnmutedTrack) {
+    if (trackPubs.length > 0) {
       try {
         // Backup stream (current one) in case the switch fails
         backup();
 
-        const switched = await liveKitRoom.switchActiveDevice('audioinput', deviceId, true);
-
-        // This is a soft failure - the browser may have decided simply not to switch
-        // with no error. Go figure. Log it and throw so that it bubbles up to the user.
-        if (!switched) {
+        // We have a published track, but it's stream is inactive. Likely a dead
+        // stream. Restart the track.
+        if (this.publicationTrackStream && !this.publicationTrackStream.active) {
           logger.warn({
-            logCode: 'livekit_audio_input_device_not_switched',
+            logCode: 'livekit_audio_live_change_input_device_inactive_stream',
             extraInfo: {
               bridge: this.bridgeName,
+              role: this.role,
               deviceId,
               streamData: MediaStreamUtils.getMediaStreamLogData(this.inputStream),
               originalStreamData: MediaStreamUtils.getMediaStreamLogData(this.originalStream),
-              newStreamData: MediaStreamUtils.getMediaStreamLogData(newStream),
+              publicationStreamData: MediaStreamUtils.getMediaStreamLogData(this.publicationTrackStream),
               backupStreamData: MediaStreamUtils.getMediaStreamLogData(backupStream),
             },
-          }, 'LiveKit: audio device not switched');
-          cleanup();
+          }, 'LiveKit: publication track stream is inactive before device switch');
 
-          throw new Error('LiveKit audio device not switched');
+          const track = this.publicationTrack;
+
+          if (track) await track.restartTrack(getAudioConstraints({ deviceId }));
+        } else {
+          const switched = await liveKitRoom.switchActiveDevice('audioinput', deviceId, true);
+
+          // This is a soft failure - the browser may have decided simply not to switch
+          // with no error. Go figure. Log it and throw so that it bubbles up to the user.
+          if (!switched) {
+            logger.warn({
+              logCode: 'livekit_audio_input_device_not_switched',
+              extraInfo: {
+                bridge: this.bridgeName,
+                deviceId,
+                streamData: MediaStreamUtils.getMediaStreamLogData(this.inputStream),
+                originalStreamData: MediaStreamUtils.getMediaStreamLogData(this.originalStream),
+                newStreamData: MediaStreamUtils.getMediaStreamLogData(newStream),
+                backupStreamData: MediaStreamUtils.getMediaStreamLogData(backupStream),
+              },
+            }, 'LiveKit: audio device not switched');
+            cleanup();
+
+            throw new Error('LiveKit audio device not switched');
+          }
         }
 
-        this.inputDeviceId = deviceId;
-
         if (this.publicationTrackStream) {
+          this.inputDeviceId = MediaStreamUtils.extractDeviceIdFromStream(this.publicationTrackStream, 'audio');
           this.originalStream = this.publicationTrackStream;
         } else {
           // Something specially weird happened here. We should have a publication
           // track stream at this point, but we don't. Log it for further inspection
           // and clean up. The input stream remains unchanged.
+
+          this.inputDeviceId = deviceId;
           cleanup();
 
           logger.warn({
@@ -590,9 +662,9 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
         }, 'LiveKit: live change input device failed');
         // This is a really unexpected. If LK's own device switch failed,
         // we need to unpublish the current tracks and rollback.
-        this.doUnpublish().finally(() => {
-          rollback();
-        });
+        await this.doUnpublish();
+        await rollback();
+
         throw error;
       }
     } else {
@@ -613,8 +685,7 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
       } catch (error) {
         // Device change failed. Clean up the tentative new stream to avoid lingering
         // stuff, then try to rollback to the previous input stream.
-        rollback();
-
+        await rollback();
         throw error;
       }
     }
@@ -639,8 +710,10 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
     };
 
     if (shouldEnable) {
-      const trackName = LiveKitAudioBridge.assembleTrackName(this.inputDeviceId);
-      const currentPubs = trackPubs.filter((pub) => pub.trackName === trackName && pub.isMuted);
+      const trackName = LiveKitAudioBridge.assembleTrackName(this.clientSessionId, this.inputDeviceId);
+      const currentPubs = trackPubs.filter((pub) => {
+        return LiveKitAudioBridge.publicationMatchesDevice(pub, this.inputDeviceId) && pub.isMuted;
+      });
 
       // Track was not unpublished on previous mute toggle, so no need to publish again
       // Just toggle mute.
@@ -755,9 +828,12 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
           const nextOp = this.publishQueue[0];
 
           if (micPubs.length > 0 && nextOp && nextOp.type === PUBLISH_OP) {
-            const nextPublishTrackName = LiveKitAudioBridge.assembleTrackName(nextOp.deviceId);
+            const matchesDevice = LiveKitAudioBridge.publicationMatchesDevice(
+              currentPub,
+              nextOp.deviceId,
+            );
 
-            if (currentTrackName === nextPublishTrackName
+            if (matchesDevice
               && currentStream?.active
               && currentStream?.id === nextOp.stream?.id) {
               this.publishQueue.shift(); // Consume publish as it's the same track
@@ -782,12 +858,15 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
           try {
             switch (operation.type) {
               case PUBLISH_OP: {
-                const desiredTrackName = LiveKitAudioBridge.assembleTrackName(operation.deviceId);
+                const matchesDevice = LiveKitAudioBridge.publicationMatchesDevice(
+                  currentPub,
+                  operation.deviceId,
+                );
 
                 // If the requested track is already published, it's a no-op,
                 // as long as the underlying stream is active.
                 if (currentPub
-                  && currentTrackName === desiredTrackName
+                  && matchesDevice
                   && currentStream?.active
                   && (operation.stream && operation.stream.id === currentStream?.id)) {
                   logger.warn({
@@ -795,7 +874,6 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
                     extraInfo: {
                       bridge: this.bridgeName,
                       role: this.role,
-                      trackName: desiredTrackName,
                       currentStreamData: MediaStreamUtils.getMediaStreamLogData(currentStream),
                       newStreamData: MediaStreamUtils.getMediaStreamLogData(operation?.stream),
                     },
@@ -931,7 +1009,7 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
       const publishOptions = {
         ...basePublishOptions,
         source: Track.Source.Microphone,
-        name: LiveKitAudioBridge.assembleTrackName(this.inputDeviceId),
+        name: LiveKitAudioBridge.assembleTrackName(this.clientSessionId, this.inputDeviceId),
       };
       const constraints = getAudioConstraints({ deviceId: this.inputDeviceId });
 

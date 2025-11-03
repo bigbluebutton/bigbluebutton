@@ -239,7 +239,11 @@ or the mailing lists.
 ### Upgraded components
 
 Under the hood, BigBlueButton 3.0 installs on Ubuntu 22.04 64-bit, and the following key components have been upgraded
-...
+- Grails 7.0.0
+- Gradle 8.14.3
+- Groovy 4.0.21
+- Spring 6.2.11
+- Spring Boot 3.4.9 
 
 For full details on what is new in BigBlueButton 3.0, see the release notes.
 

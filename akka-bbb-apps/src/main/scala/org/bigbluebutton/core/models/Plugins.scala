@@ -9,6 +9,7 @@ import org.bigbluebutton.core.db.PluginDAO
 import org.slf4j.{Logger, LoggerFactory}
 import com.github.zafarkhaja.semver.Version
 import org.bigbluebutton.common2.util.JsonUtil
+import org.apache.http.client.utils.URIBuilder
 import org.bigbluebutton.core.exceptions.PluginHtml5VersionValidationException
 import spray.json.JsValue
 
@@ -39,8 +40,13 @@ case class PluginSettingSchema(
     label:        Option[String] = None
 )
 
+case class ServerCommandDirective(
+    `chat.sendCustomPublicChatMessage`: Option[List[String]]
+)
+
 case class PluginManifestContent(
     requiredSdkVersion:            String,
+    version:                       Option[String]                       = None,
     name:                          String,
     javascriptEntrypointUrl:       String,
     loggerSettings:                Option[Map[String, Any]]               = None,
@@ -50,6 +56,7 @@ case class PluginManifestContent(
     eventPersistence:              Option[EventPersistence]             = None,
     dataChannels:                  Option[List[DataChannel]]            = None,
     remoteDataSources:             Option[List[RemoteDataSource]]       = None,
+    serverCommandsPermission:      Option[ServerCommandDirective]       = None,
     settingsSchema:                Option[List[PluginSettingSchema]]    = None,
 )
 
@@ -83,14 +90,15 @@ object PluginModel {
     plugin.manifest.content match {
       case Some(pluginScalaContent) =>
         val jsEntrypoint = pluginScalaContent.javascriptEntrypointUrl
-        if (!jsEntrypoint.startsWith("http://") && !jsEntrypoint.startsWith("https://")) {
-          val absoluteJavascriptEntrypoint = makeAbsoluteUrl(plugin, jsEntrypoint)
-          val newPluginManifestContent = pluginScalaContent.copy(javascriptEntrypointUrl = absoluteJavascriptEntrypoint)
-          val newPluginManifest = plugin.manifest.copy(content = Some(newPluginManifestContent))
-          return plugin.copy(manifest = newPluginManifest)
-        }
+        val jsEntrypointAbsoluteUrl =
+          if (!jsEntrypoint.startsWith("http://") && !jsEntrypoint.startsWith("https://"))
+            makeAbsoluteUrl(plugin, jsEntrypoint)
+          else jsEntrypoint
+        val finalJavascriptEntrypointUrl = createFinalJavascriptEntrypointUrl(plugin, jsEntrypointAbsoluteUrl)
+        val newPluginManifestContent = pluginScalaContent.copy(javascriptEntrypointUrl = finalJavascriptEntrypointUrl)
+        val newPluginManifest = plugin.manifest.copy(content = Some(newPluginManifestContent))
+        plugin.copy(manifest = newPluginManifest)
     }
-    plugin
   }
   private def replaceRelativeLocalesBaseUrl(plugin: Plugin): Plugin = {
     plugin.manifest.content match {
@@ -115,6 +123,19 @@ object PluginModel {
     val baseUrl = plugin.manifest.url.substring(0, plugin.manifest.url.lastIndexOf('/') + 1)
     baseUrl + relativeUrl
   }
+  private def createFinalJavascriptEntrypointUrl(plugin: Plugin, jsEntrypointAbsoluteUrl: String): String = {
+    (for {
+      manifest <- plugin.manifest.content
+      version  <- manifest.version
+    } yield {
+      if (Version.isValid(version, false)) {
+        new URIBuilder(jsEntrypointAbsoluteUrl).setParameter("version", version).toString
+      } else {
+        logger.warn("Plugin version {} for [{}] is not valid, ignoring...", version, manifest.name)
+        jsEntrypointAbsoluteUrl
+      }
+    }).getOrElse(jsEntrypointAbsoluteUrl)
+  }
   private def replaceAllRelativeUrls(plugin: Plugin): Plugin = {
     val pluginWithAbsoluteJsEntrypoint = replaceRelativeJavascriptEntrypoint(plugin)
     replaceRelativeLocalesBaseUrl(pluginWithAbsoluteJsEntrypoint)
@@ -131,8 +152,6 @@ object PluginModel {
       case _ => "none"
     }
   }
-
-
 
   private def addPluginSettingEntry(currentPluginSettings: Map[String, ClientSettings.Plugin],
                                       pluginName: String, settingKey: String, settingValue: Any): Map[String, ClientSettings.Plugin]= {
@@ -321,6 +340,13 @@ object PluginModel {
       }
 
     }
+  }
+
+  object ServerCommands {
+    def getPluginPermissionForCustomMessage(plugin: PluginManifestContent): Option[List[String]] = for {
+      serverCommandsPermission <- plugin.serverCommandsPermission
+      customMessageAllowedRoles <- serverCommandsPermission.`chat.sendCustomPublicChatMessage`
+    } yield customMessageAllowedRoles
   }
 }
 

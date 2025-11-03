@@ -314,7 +314,7 @@ trait HandlerHelpers extends SystemConfiguration {
     val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
     val envelope = BbbCoreEnvelope(GroupChatMessageEditedEvtMsg.NAME, routing)
     val header = BbbClientMsgHeader(GroupChatMessageEditedEvtMsg.NAME, meetingId, userId)
-    val body = GroupChatMessageEditedEvtMsgBody(chatId, msg.id, msg.message)
+    val body = GroupChatMessageEditedEvtMsgBody(chatId, msg.id, msg.message, msg.messageAsHtml)
     val event = GroupChatMessageEditedEvtMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, event)
   }

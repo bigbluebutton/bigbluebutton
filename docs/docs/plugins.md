@@ -178,12 +178,13 @@ In the future, support for additional placeholders may be added.
 
 ### Manifest Json
 
-Here is as complete `manifest.json` example with all possible configurations:
+Here is a complete `manifest.json` example with all possible configurations:
 
 ```json
 {
   "requiredSdkVersion": "~0.0.77",
   "name": "MyPlugin",
+  "version": "0.0.8", // Optional
   "javascriptEntrypointUrl": "MyPlugin.js",
   "javascriptEntrypointIntegrity": "sha384-Bwsz2rxm...", // Optional
   "localesBaseUrl": "https://cdn.domain.com/my-plugin/", // Optional
@@ -206,8 +207,8 @@ Here is as complete `manifest.json` example with all possible configurations:
   "dataChannels":[
     {
       "name": "public-channel",
-      "pushPermission": ["moderator","presenter"], // "moderator","presenter", "all"
-      "replaceOrDeletePermission": ["moderator", "creator"] // "moderator", "presenter","all", "creator"
+      "pushPermission": ["moderator","presenter"], // "moderator","presenter", "all", "viewer"
+      "replaceOrDeletePermission": ["moderator", "creator"] // "moderator", "presenter","all", "viewer", "creator"
     }
   ], // One can enable more data-channels to better organize client communication
   "eventPersistence": {
@@ -221,6 +222,9 @@ Here is as complete `manifest.json` example with all possible configurations:
       "permissions": ["moderator", "viewer"]
     }
   ],
+  "serverCommandsPermission": {
+    "chat.sendCustomPublicChatMessage": ["presenter", "moderator"] // "moderator","presenter", "all", "viewer"
+  },
   "settingsSchema": [
     {
       "name": "myJson",
@@ -237,13 +241,22 @@ Here is as complete `manifest.json` example with all possible configurations:
 
 To better understand remote-data-sources, please, refer to [this section](#external-data-resources)
 
+**version:**
+
+This refers to the version of the plugin. It prevents browsers from caching old plugin files.
+When set, it appends the version to `javascriptEntrypointUrl`, forcing browsers to fetch the latest file.
+Example: 
+`version=0.0.8`
+`javascriptEntrypointUrl=MyPlugin.js`
+Browser will load: `MyPlugin.js?version=0.0.8`.
+
 **loggerSettings:**
 
 The optional loggerSettings directive allows you to override the default logger configuration for a specific plugin. For instance, you could set the client’s log level to info while restricting the plugin’s log level to error. If no settings are provided, the plugin’s logger inherits the default configuration.
 
 **settingsSchema:**
 
-The settingsSchema serves two main purposes:
+The `settingsSchema` serves two main purposes:
 
 1. **Validation:** Ensures that all required settings are provided for a plugin. If any required setting is missing, the plugin will not load.
 2. **Configuration Exposure:** Lists all available settings for the plugin, enabling external systems—such as a Learning Management System (LMS)—to present these settings to a meeting organizer. This allows the organizer to configure the plugin manually before the meeting begins.
@@ -917,7 +930,7 @@ The data-channel name must be in the `manifest.json` along with all the permissi
     {
       "name": "channel-name",
       "pushPermission": ["moderator","presenter"],
-      "replaceOrDeletePermission": ["moderator", "sender"]
+      "replaceOrDeletePermission": ["moderator", "creator"]
     }
   ]
 }
@@ -1034,17 +1047,30 @@ So the idea is that we have a `uiCommands` object and at a point, there will be 
 
 ### Server Commands
 
-  `serverCommands` object: It contains all the possible commands available to the developer to interact with the BBB core server, see the ones implemented down below:
+`serverCommands` object: It contains all the possible commands available to the developer to interact with the BBB core server, see the ones implemented down below:
 
   - chat:
-    - sendPublicMessage: This function sends a message to the public chat on behalf of the currently logged-in user.
-
+    - sendPublicChatMessage: This function sends a message to the public chat on behalf of the currently logged-in user.
     - sendCustomPublicMessage: This function sends a text message to the public chat, optionally including custom metadata.
       > **Note**: The custom messages sent by plugins are not automatically rendered by the client. To display these messages, a plugin must handle the rendering using `useLoadedChatMessages` and `useChatMessageDomElements`.
 
   - caption:
     - save: this function saves the given text, locale and caption type
     - addLocale: this function sends a locale to be added to the available options
+
+As these commands can change state in the back-end, "permission control" is available based on role for some of the Commands (in the manifest), those are:
+  - chat:
+    - sendCustomPublicMessage;
+
+An example of the usage is displayed in the [Manifest](#manifest-json) section, but in general the idea is to have a similar hierarchy as the server-commands from the SDK, see example ahead:
+
+```json
+"serverCommandsPermission": {
+  "chat.sendCustomPublicChatMessage": ["presenter"] // Could have all the other roles, see manifest section
+}
+```
+
+If no permission is present in the manifest, then we consider that every user in the meeting can use the server-command.
 
 ### Dom Element Manipulation
 
@@ -1082,12 +1108,12 @@ This is possible by simply configuring the dataResource name in the manifest and
 {
   // ...rest of manifest configuration
   "remoteDataSources": [
-      {
-          "name": "allUsers",
-          "url": "${meta_pluginSettingsUserInformation}",
-          "fetchMode": "onMeetingCreate", // Possible values: "onMeetingCreate", "onDemand"
-          "permissions": ["moderator", "viewer"] // Possible values: "moderator", "viewer", "presenter"
-      }
+    {
+      "name": "allUsers",
+      "url": "${meta_pluginSettingsUserInformation}",
+      "fetchMode": "onMeetingCreate", // Possible values: "onMeetingCreate", "onDemand"
+      "permissions": ["moderator", "viewer"] // Possible values: "moderator", "viewer", "presenter"
+    }
   ]
 }
 ```
@@ -1232,6 +1258,31 @@ Where `<meeting-id>` is the id of the the meeting you just recorded. Then, among
   <timestampUTC>1730311211929</timestampUTC>
 </event>
 ```
+
+## Guidelines
+
+This section outlines good practices for developing plugins.
+These are mandatory for official plugins developed by the BBB organization and its partners, in order to maintain reliability, security, and accountability.
+
+### Dom element manipulation guidelines
+
+Since plugins are loaded directly into the client, there is no technical restriction preventing developers from manipulating DOM elements arbitrarily. However, we strongly recommend following these practices:
+
+- Whenever possible, manipulate elements using the hooks provided by [dom-element-manipulation](#dom-element-manipulation);
+- If the functionality you need is not available, create an issue in the [SDK repository](https://github.com/bigbluebutton/bigbluebutton-html-plugin-sdk) or check if one of the [extensible areas](#extensible-ui-areas) can meet your needs;
+- **Never edit chat message contents directly** (even with DOM manipulation). Currently, the playback from the recordings portion of BBB does not support plugins or extensions. Any changes made to live chat messages (such as adding or removing words) will not be reflected in the recording, leading to inconsistencies and potential accountability issues.
+
+To emphasize: Do not alter the text content of chat messages. Doing so can cause severe reliability and accountability problems.
+
+Instead, the hook provided can be used to modify how messages are presented — for example, by changing the style to emphasize certain word(s), rendering a special layout for "notification" type messages (similar to the "change presenter" message), or even displaying both the original message text and additional custom-rendered UI elements.
+
+### Localization
+
+The Plugin SDK provides the `useLocaleMessages` hook, described in the [auxiliary functions](#auxiliary-functions) section. While its use is not mandatory, we highly recommend it because it handles certain edge cases that are otherwise difficult to predict.
+
+We also strongly encourage developers to include localization in their plugins. This greatly improves adoption and usability within the community.
+
+For a practical example, see how the [pick-random-user plugin](https://github.com/bigbluebutton/plugin-pick-random-user/blob/7259ec7f32ea0e3d851f4b6636a739a82a385896/src/commons/hooks.ts#L17) uses it in the `useGetInternationalization` hook.
 
 ## Frequently Asked Questions (FAQ)
 
