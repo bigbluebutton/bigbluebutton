@@ -97,12 +97,13 @@ trait SendGroupChatMessageMsgHdlr extends HandlerHelpers {
             }
           }
 
-          val gcMessage = GroupChatApp.toGroupChatMessage(sender, groupChatMsgReceived, emphasizedText)
+          val gcMessage = GroupChatApp.toGroupChatMessage(sender, groupChatMsgReceived, emphasizedText, messageType)
           val updatedGroupChat = GroupChatApp.addGroupChatMessage(liveMeeting.props.meetingProp.intId, chat, state.groupChats, gcMessage, messageType)
 
           val event = buildGroupChatMessageBroadcastEvtMsg(
             liveMeeting.props.meetingProp.intId,
-            msg.header.userId, msg.body.chatId, gcMessage
+            msg.header.userId, msg.body.chatId,
+            chat.users.map(u => u.id), gcMessage
           )
 
           bus.outGW.send(event)

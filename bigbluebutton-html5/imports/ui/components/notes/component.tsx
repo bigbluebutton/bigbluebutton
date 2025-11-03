@@ -153,8 +153,14 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
               },
               icon: 'minus',
               'data-test': 'hideNotesLabel',
-              'aria-label': intl.formatMessage(intlMessages.minimize, { 0: intl.formatMessage(intlMessages.title) }),
-              label: intl.formatMessage(intlMessages.minimize, { 0: intl.formatMessage(intlMessages.title) }),
+              'aria-label': intl.formatMessage(
+                intlMessages.minimize,
+                { panelName: intl.formatMessage(intlMessages.title) },
+              ),
+              label: intl.formatMessage(
+                intlMessages.minimize,
+                { panelName: intl.formatMessage(intlMessages.title) },
+              ),
             }}
             data-test="notesHeader"
             customRightButton={

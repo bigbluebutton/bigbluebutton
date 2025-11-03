@@ -418,7 +418,7 @@
     "app.actionsBar.emojiMenu.thumbsUpDesc": "আপনার অবস্থা থাম্বস আপ আপ করুন",
     "app.actionsBar.emojiMenu.thumbsDownLabel": "হতাশা",
     "app.actionsBar.emojiMenu.thumbsDownDesc": "আপনার স্ট্যাটাসটি থাম্বসে ডাউন করুন",
-    "app.actionsBar.currentStatusDesc": "বর্তমান অবস্থা {0}",
+    "app.actionsBar.currentStatusDesc": "বর্তমান অবস্থা {status}",
     "app.actionsBar.captions.start": "বন্ধ ক্যাপশনগুলি দেখা শুরু করুন",
     "app.actionsBar.captions.stop": "বন্ধ ক্যাপশনগুলি দেখা বন্ধ করুন",
     "app.audioNotification.audioFailedError1001": "ওয়েবস্কুট সংযোগ বিচ্ছিন্ন (ত্রুটি 1001)",

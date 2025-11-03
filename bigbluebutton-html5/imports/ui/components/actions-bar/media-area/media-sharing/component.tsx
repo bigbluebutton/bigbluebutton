@@ -221,27 +221,32 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
           )}
           {mediaAreaItems
             .filter((item) => item.allowed && item.type === MediaAreaItemType.OPTION)
-            .map((item) => (
-              <MediaButton
-                key={item.id}
-                dataTest={item.dataTest}
-                color="default"
-                text={item.label || ''}
-                icon={item?.icon && 'iconName' in item.icon ? (
-                  <Icon iconName={item.icon.iconName} />
-                ) : (
-                  <SvgIcon fontSize="large" sx={{ color: btnDefaultColor }}>
-                    {/* @ts-ignore */}
-                    {item.icon?.svgContent}
-                  </SvgIcon>
-                )}
-                tooltip={item.tooltip}
-                onClick={() => {
-                  if (item.onClick) item.onClick();
-                  handleClose();
-                }}
-              />
-            ))}
+            .map((item: MediaButtonPluginItem) => {
+              const icon = item?.icon;
+              const builtInIcon = icon && typeof icon === 'object' && !Array.isArray(icon) && 'iconName' in icon;
+
+              return (
+                <MediaButton
+                  key={item.id}
+                  dataTest={item.dataTest}
+                  color="default"
+                  text={item.label || ''}
+                  icon={builtInIcon ? (
+                    <Icon iconName={icon?.iconName || ''} />
+                  ) : (
+                    <SvgIcon fontSize="large" sx={{ color: btnDefaultColor }}>
+                      {/* @ts-ignore */}
+                      {icon?.svgContent}
+                    </SvgIcon>
+                  )}
+                  tooltip={item.tooltip}
+                  onClick={() => {
+                    if (item.onClick) item.onClick();
+                    handleClose();
+                  }}
+                />
+              );
+            })}
         </Styled.MediaGrid>
       );
     }

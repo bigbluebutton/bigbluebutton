@@ -361,10 +361,10 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
       <Styled.HeaderContainer
         title={intl.formatMessage(intlMessages.title)}
         rightButtonProps={{
-          'aria-label': intl.formatMessage(intlMessages.hideTimerLabel, { 0: intl.formatMessage(intlMessages.timer) }),
+          'aria-label': intl.formatMessage(intlMessages.hideTimerLabel, { panelName: intl.formatMessage(intlMessages.timer) }),
           'data-test': 'closeTimer',
           icon: 'minus',
-          label: intl.formatMessage(intlMessages.hideTimerLabel, { 0: intl.formatMessage(intlMessages.timer) }),
+          label: intl.formatMessage(intlMessages.hideTimerLabel, { panelName: intl.formatMessage(intlMessages.timer) }),
           onClick: closePanel,
         }}
         data-test="timerHeader"

@@ -406,6 +406,8 @@ const reducer = (state, action) => {
         hasNotification = false,
         contentFunction = undefined,
         onClick = undefined,
+        uuid,
+        pluginName,
       } = action.value;
       const { sidebarNavigation } = state.input;
       const { registeredApps = {}, pinnedApps = [] } = sidebarNavigation;
@@ -416,6 +418,8 @@ const reducer = (state, action) => {
           name,
           icon,
           hasNotification,
+          uuid,
+          pluginName,
           ...(contentFunction && { contentFunction }),
           ...(onClick && { onClick }),
         },

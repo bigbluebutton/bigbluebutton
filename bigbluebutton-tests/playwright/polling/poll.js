@@ -164,6 +164,9 @@ class Polling extends MultiUsers {
 
     await this.modPage.hasText(e.userVoteLiveResult, '1', 'should display the user vote number after the attendee has answered the poll');
     await this.modPage.hasText(e.userVoteLiveResult, '2', 'should display the user vote number after the attendee has answered the poll');
+
+    await this.modPage.waitAndClick(e.closePollingBtn);
+    await this.modPage.wasRemoved(e.closePollingBtn, 'should not display the close polling button after the poll is closed');
   }
 
   async smartSlidesQuestions() {
@@ -172,7 +175,7 @@ class Polling extends MultiUsers {
     await this.userPage.hasElement(e.chatMessages, 'should display the chat messages for the attendee');
     await this.modPage.closeAllToastNotifications();
     await sleep(10000);
-    
+
     // A/B/C/D/E - One option answer
     await this.modPage.waitAndClick(e.nextSlide);
     await this.modPage.hasElement(e.quickPoll, 'should display the quick poll button when the presentation finishes uploading', ELEMENT_WAIT_EXTRA_LONG_TIME);
@@ -200,7 +203,7 @@ class Polling extends MultiUsers {
     await util.countingVotes(this.modPage, e.userVoteLiveResult, 1, 'B. Calcium');
     await this.modPage.waitAndClick(e.publishPollingLabel);
     await this.modPage.wasRemoved(e.pollingContainer, 'should not display the polling container after the poll is published');
-    
+
     // True/False
     await this.modPage.waitAndClick(e.nextSlide);
     await sleep(500); // avoid error when the tooltip is in front of the button due to layout shift
@@ -212,7 +215,7 @@ class Polling extends MultiUsers {
     await util.countingVotes(this.modPage, e.userVoteLiveResult, 1, 'True');
     await this.modPage.waitAndClick(e.publishPollingLabel);
     await this.modPage.wasRemoved(e.pollingContainer, 'should not display the pollling container after all the smart slides questions is finished');
-    
+
 
     // Yes/No
     await this.modPage.waitAndClick(e.nextSlide);

@@ -41,10 +41,10 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
       title={title}
       rightButtonProps={{
         accessKey: HIDE_CHAT_AK,
-        'aria-label': intl.formatMessage(intlMessages.genericMinimizePanel, { 0: title }),
+        'aria-label': intl.formatMessage(intlMessages.genericMinimizePanel, { panelName: title }),
         'data-test': isPublicChat ? 'hidePublicChat' : 'hidePrivateChat',
         icon: 'minus',
-        label: intl.formatMessage(intlMessages.genericMinimizePanel, { 0: title }),
+        label: intl.formatMessage(intlMessages.genericMinimizePanel, { panelName: title }),
         onClick: () => {
           updateVisible({ variables: { chatId, visible: false } });
           layoutContextDispatch({

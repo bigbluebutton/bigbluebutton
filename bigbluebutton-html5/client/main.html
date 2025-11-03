@@ -172,23 +172,54 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         (function () {
           var ua = navigator.userAgent;
           var isSafari = /^((?!chrome|android).)*safari/i.test(ua);
-          var match = ua.match(/Version\/(\d+)/);
-          var safariVersion = match ? parseInt(match[1], 10) : null;
 
-          var bundleHash = '<%= bundleHash %>';
-          var isProduction = '<%= isProduction %>' === 'true';
-          var script = document.createElement('script');
+          var MIN_VERSIONS = {
+            safari: 14,
+            chrome: 87,
+            firefox: 80,
+            edge: 85,
+            miui: 0
+          };
 
-          if (isProduction && isSafari && safariVersion && safariVersion <= 16) {
-            const HTML = document.getElementsByTagName('html')[0];
-            HTML.classList.add('legacy');
-
-            script.src = 'bundle.' + bundleHash + '.safari.js';
-          } else {
-            script.src = 'bundle.' + bundleHash + '.js';
+          function parseVersion(regex) {
+            var match = ua.match(regex);
+            return match ? parseInt(match[1], 10) : null;
           }
 
-          document.head.appendChild(script);
+          var safariVersion = parseVersion(/Version\/(\d+).*Safari/);
+          var chromeVersion = parseVersion(/(?:Chrome|CriOS)\/(\d+)/);
+          var firefoxVersion = parseVersion(/Firefox\/(\d+)/);
+          var edgeVersion = parseVersion(/Edg\/(\d+)/);
+          var miuiVersion = parseVersion(/MiuiBrowser\/(\d+)/);
+
+          var tooOld =
+            (safariVersion && safariVersion < MIN_VERSIONS.safari) ||
+            (chromeVersion && chromeVersion < MIN_VERSIONS.chrome) ||
+            (firefoxVersion && firefoxVersion < MIN_VERSIONS.firefox) ||
+            (edgeVersion && edgeVersion < MIN_VERSIONS.edge)||
+            (miuiVersion !== null);
+
+          if (tooOld) {
+            var banner = document.createElement('div');
+            banner.innerHTML = '<strong>Browser not supported</strong><br>Please update your browser or contact support service.';
+            banner.style.cssText = 'background:#ffdddd;color:#a00;padding:1em;margin:1em 0;text-align:center;font-family:sans-serif;';
+            document.body.insertBefore(banner, document.body.firstChild);
+          } else {
+            var bundleHash = '<%= bundleHash %>';
+            var isProduction = '<%= isProduction %>' === 'true';
+            var script = document.createElement('script');
+
+            if (isProduction && isSafari && safariVersion && safariVersion < 16 && safariVersion >= MIN_VERSIONS.safari) {
+              document.documentElement.classList.add('legacy');
+              script.src = 'bundle.' + bundleHash + '.safari.js';
+            } else {
+              script.src = 'bundle.' + bundleHash + '.js';
+            }
+
+            document.head.appendChild(script);
+          }
+
+          
         })();
       </script>
   </main>

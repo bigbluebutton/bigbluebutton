@@ -393,6 +393,9 @@
 .icon-bbb-menu_up:before {
   content: "\e97B";
 }
+.icon-bbb-camera:before {
+  content: "\e97C";
+}
 .icon-bbb-unassigned:before {
-  content: "\e97c";
+  content: "\e97D";
 }

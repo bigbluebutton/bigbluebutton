@@ -14,33 +14,33 @@ class MultiUsers {
     this.context = context;
   }
 
-  async initPages(page1) {
-    await this.initModPage(page1);
-    await this.initUserPage();
+  async initPages(page1, testInfo) {
+    await this.initModPage(page1, true, { testInfo });
+    await this.initUserPage(true, this.context, { testInfo });
   }
 
-  async initModPage(page, shouldCloseAudioModal = true, { fullName = 'Moderator', ...restOptions } = {}) {
+  async initModPage(page, shouldCloseAudioModal = true, { fullName = 'Moderator', testInfo, ...restOptions } = {}) {
     const options = {
       ...restOptions,
       fullName,
     };
 
-    this.modPage = new Page(this.browser, page);
+    this.modPage = new Page(this.browser, page, testInfo);
     await this.modPage.init(true, shouldCloseAudioModal, options);
   }
 
-  async initModPage2(shouldCloseAudioModal = true, context = this.context, { fullName = 'Moderator2', useModMeetingId = true, ...restOptions } = {}) {
+  async initModPage2(shouldCloseAudioModal = true, context = this.context, { fullName = 'Moderator2', useModMeetingId = true, testInfo, ...restOptions } = {}) {
     const options = {
       ...restOptions,
       fullName,
       meetingId: (useModMeetingId) ? this.modPage.meetingId : undefined,
     };
     const page = await context.newPage();
-    this.modPage2 = new Page(this.browser, page);
+    this.modPage2 = new Page(this.browser, page, testInfo);
     await this.modPage2.init(true, shouldCloseAudioModal, options);
   }
 
-  async initUserPage(shouldCloseAudioModal = true, context = this.context, { fullName = 'Attendee', useModMeetingId = true, ...restOptions } = {}) {
+  async initUserPage(shouldCloseAudioModal = true, context = this.context, { fullName = 'Attendee', useModMeetingId = true, testInfo, ...restOptions } = {}) {
     const options = {
       ...restOptions,
       fullName,
@@ -48,23 +48,11 @@ class MultiUsers {
     };
 
     const page = await context.newPage();
-    this.userPage = new Page(this.browser, page);
+    this.userPage = new Page(this.browser, page, testInfo);
     await this.userPage.init(false, shouldCloseAudioModal, options);
   }
 
-  async initUserPage1(shouldCloseAudioModal = true, { fullName = 'Attendee', useModMeetingId = true, ...restOptions } = {}) {
-    const options = {
-      ...restOptions,
-      fullName,
-      meetingId: (useModMeetingId) ? this.modPage.meetingId : undefined,
-    };
-
-    const page = await (await playwright.chromium.launch()).newPage();
-    this.userPage1 = new Page(this.browser, page);
-    await this.userPage1.init(false, shouldCloseAudioModal, options);
-  }
-
-  async initUserPage2(shouldCloseAudioModal = true, context = this.context, { fullName = 'Attendee2', useModMeetingId = true, ...restOptions } = {}) {
+  async initUserPage2(shouldCloseAudioModal = true, context = this.context, { fullName = 'Attendee2', useModMeetingId = true, testInfo, ...restOptions } = {}) {
     const options = {
       ...restOptions,
       fullName,
@@ -72,7 +60,7 @@ class MultiUsers {
     };
 
     const page = await context.newPage();
-    this.userPage2 = new Page(this.browser, page);
+    this.userPage2 = new Page(this.browser, page, testInfo);
     await this.userPage2.init(false, shouldCloseAudioModal, options);
   }
 
@@ -311,8 +299,8 @@ class MultiUsers {
     await this.modPage.waitAndClick(e.removeUserConfirmationBtn);
     await this.modPage.wasRemoved(e.userListItem, 'should not display a user on the user list for the moderator');
 
-    //Will be modified when the issue is fixed and accept just one of both screens
-    //https://github.com/bigbluebutton/bigbluebutton/issues/16463
+    // Will be modified when the issue is fixed and accept just one of both screens
+    // https://github.com/bigbluebutton/bigbluebutton/issues/16463
     try {
       await this.modPage2.hasElement(e.errorScreenMessage, 'should display the error screen message for the second moderator');
     } catch (err) {

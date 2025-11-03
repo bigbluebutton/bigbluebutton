@@ -35,14 +35,14 @@ class Chat extends MultiUsers {
     await this.userPage.hasElement(e.privateChatItem, 'should display the private chat item when user receives a private message');
     await this.userPage.waitAndClick(e.privateChatItem);
     await this.userPage.hasElement(e.hidePrivateChat, 'should display the hide private chat element when opening a private chat');
-    // check sent messages 
+    // check sent messages
     await this.modPage.hasText(e.chatUserMessageText, e.message1, 'should display the message sent by the moderator');
     await this.userPage.hasText(e.chatUserMessageText, e.message1, 'should display the message sent by the moderator for the attendee');
     // userPage send message
     await this.userPage.type(e.chatBox, e.message2);
     await this.modPage.hasElement(e.typingIndicator, 'should display the typing indicator for the moderator when user is typing a message');
     await this.userPage.waitAndClick(e.sendButton);
-    // check sent messages 
+    // check sent messages
     await expect(this.modPage.getLocator(e.chatUserMessageText).nth(1), 'should display the message sent from the user to the moderator chat')
       .toContainText(e.message2, { timeout: ELEMENT_WAIT_TIME });
     await expect(this.userPage.getLocator(e.chatUserMessageText).nth(1), 'should display the message sent from the user to the user chat')
@@ -251,16 +251,16 @@ class Chat extends MultiUsers {
     await this.userPage.waitAndClick(e.privateChatButton);
     await this.userPage.waitAndClick(e.privateChatItem);
     await this.userPage.hasElement(e.hidePrivateChat, 'should display the hide messages button when the attendee opens a private chat');
-    // check sent messages 
+    // check sent messages
     await this.modPage.hasText(e.chatUserMessageText, e.thumbsUpEmoji, 'should display the emoji sent by the moderator on the private chat');
     await this.userPage.hasText(e.chatUserMessageText, e.thumbsUpEmoji, 'should display for the user the emoji sent by the moderator on the private chat');
     // userPage send message
     await this.userPage.waitAndClick(e.emojiPickerButton);
     await this.userPage.getByLabelAndClick(e.thumbsUpEmoji);
     await this.userPage.waitAndClick(e.sendButton);
-    // check sent messages 
-    await this.modPage.hasText(e.chatUserMessageText, e.thumbsUpEmoji, 'should display the emoji sent by the attendee on the private chat');
-    await this.userPage.hasText(e.chatUserMessageText, e.thumbsUpEmoji, 'should display the emoji on the private chat for the user');
+    // check sent messages
+    await this.modPage.hasText(e.privateChat, e.thumbsUpEmoji, 'should display the emoji sent by the attendee on the private chat');
+    await this.userPage.hasText(e.privateChat, e.thumbsUpEmoji, 'should display the emoji on the private chat for the user');
   }
 
   async autoConvertEmojiPublicChat() {
@@ -354,7 +354,7 @@ class Chat extends MultiUsers {
     // userPage send message
     await this.userPage.type(e.chatBox, e.autoConvertEmojiMessage);
     await this.userPage.waitAndClick(e.sendButton);
-    // check sent messages 
+    // check sent messages
     const lastMessageLocator = await this.modPage.getLocator(e.chatUserMessageText).last();
     await expect(lastMessageLocator, 'should the last message sent on private chat to be the auto converted emoji').toHaveText(e.convertedEmojiMessage);
     const lastMessageLocatorUser = await this.userPage.getLocator(e.chatUserMessageText).last();
