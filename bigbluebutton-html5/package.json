@@ -57,7 +57,7 @@
     "@types/react": "^18.2.18",
     "autoprefixer": "^10.4.4",
     "babel-runtime": "~6.26.0",
-    "bigbluebutton-html-plugin-sdk": "0.0.94",
+    "bigbluebutton-html-plugin-sdk": "https://codeload.github.com/bigbluebutton/bigbluebutton-html-plugin-sdk/tar.gz/453398590bd2a2ec638db877452c7a6490d71031",
     "bowser": "^2.12.0",
     "browser-bunyan": "^1.8.0",
     "classnames": "^2.2.6",
