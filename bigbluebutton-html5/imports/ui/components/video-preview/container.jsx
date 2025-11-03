@@ -14,6 +14,7 @@ import {
 } from '/imports/ui/components/video-provider/hooks';
 import { useStorageKey } from '../../services/storage/hooks';
 import { useIsCustomVirtualBackgroundsEnabled, useIsVirtualBackgroundsEnabled } from '../../services/features';
+import { SET_AWAY } from '../user-list/user-list-content/user-participants/user-list-participants/user-actions/mutations';
 
 const VideoPreviewContainer = (props) => {
   const {
@@ -22,6 +23,7 @@ const VideoPreviewContainer = (props) => {
   } = props;
   const cameraAsContentDeviceId = ScreenShareService.useCameraAsContentDeviceIdType();
   const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
+  const [setAway] = useMutation(SET_AWAY);
   const streams = useStreams();
   const exitVideo = useExitVideo();
   const stopVideo = useStopVideo();
@@ -103,6 +105,7 @@ const VideoPreviewContainer = (props) => {
         webcamDeviceId,
         isVirtualBackgroundsEnabled,
         isCustomVirtualBackgroundsEnabled,
+        setAway,
         ...props,
       }}
     />

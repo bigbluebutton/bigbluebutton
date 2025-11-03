@@ -586,6 +586,7 @@ class VideoPreview extends Component {
       startSharing,
       cameraAsContent,
       startSharingCameraAsContent,
+      setAway,
     } = this.props;
     const {
       webcamDeviceId,
@@ -617,9 +618,19 @@ class VideoPreview extends Component {
       this.updateCameraBrightnessInfo();
       this.cleanupStreamAndVideo();
       startSharing(webcamDeviceId);
+      setAway({
+      variables: {
+        away: false,
+      },
+    });
     } else {
       this.cleanupStreamAndVideo();
       startSharingCameraAsContent(webcamDeviceId);
+      setAway({
+        variables: {
+          away: false,
+        },
+      });
     }
   }
 
