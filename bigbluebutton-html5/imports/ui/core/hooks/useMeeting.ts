@@ -1,7 +1,7 @@
 // useMeeting.ts
 import { useMemo } from 'react';
 import { mergeDeepRight, isEmpty } from 'ramda';
-import useCreateUseSubscription from './createUseSubscription';
+import createUseSubscription from './createUseSubscription';
 import MEETING_SUBSCRIPTION from '../graphql/queries/meetingSubscription';
 import { Meeting } from '../../Types/meeting';
 import MeetingStaticDataStore from '/imports/ui/core/singletons/meetingStaticData';
@@ -30,6 +30,13 @@ type Combined = Prettify<
 // (We stay shallow for the public type.)
 type DistributePartial<T> = T extends object ? Partial<T> : T;
 type Loose<T> = { [K in keyof T]?: DistributePartial<T[K]> };
+
+// subscription remains on Meeting
+const useMeetingSubscription = createUseSubscription<Meeting>(
+  MEETING_SUBSCRIPTION,
+  {},
+  true,
+);
 
 function isNilOrEmptyObject(v: unknown) {
   return v == null || (typeof v === 'object' && v !== null && isEmpty(v as object));
@@ -61,13 +68,6 @@ function safeProject<
 export function useMeeting<T extends Loose<Combined> = Partial<Combined>>(
   fn?: (c: Partial<Combined>) => T,
 ) {
-  // subscription remains on Meeting
-  const useMeetingSubscription = useCreateUseSubscription<Meeting>(
-    MEETING_SUBSCRIPTION,
-    {},
-    true,
-  );
-
   const response = useMeetingSubscription();
 
   const data = useMemo<T | undefined>(() => {
