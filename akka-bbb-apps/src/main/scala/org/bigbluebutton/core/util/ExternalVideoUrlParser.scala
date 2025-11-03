@@ -7,7 +7,6 @@ import scala.jdk.CollectionConverters._
 object ExternalVideoUrlParser {
   private val reHmsParam: Regex = """(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s)?""".r
   private val reHhmmssParam: Regex = """(?:(\d+):)?(\d+):(\d+)""".r
-  private val panoptoMatchUrl: Regex = """https?:\/\/([^/]+/Panopto)(/Pages/Viewer\.aspx\?id=)([-a-zA-Z0-9]+)""".r
 
   private def timeParamToSeconds(s: String): Int = {
     s match {
@@ -48,12 +47,6 @@ object ExternalVideoUrlParser {
           uri.toString
         } else {
           url
-        }
-      } else if (url.matches(panoptoMatchUrl.regex)) {
-        url match {
-          case panoptoMatchUrl(domain, _, id) =>
-            s"https://$domain/Podcast/Social/$id.mp4"
-          case _ => url
         }
       } else {
         url
