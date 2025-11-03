@@ -8,7 +8,9 @@ import org.bigbluebutton.ClientSettings.getPluginsFromConfig
 import org.bigbluebutton.core.db.PluginDAO
 import org.slf4j.{Logger, LoggerFactory}
 import com.github.zafarkhaja.semver.Version
+import org.bigbluebutton.common2.util.JsonUtil
 import org.bigbluebutton.core.exceptions.PluginHtml5VersionValidationException
+import spray.json.JsValue
 
 import java.util
 
@@ -41,6 +43,7 @@ case class PluginManifestContent(
     requiredSdkVersion:            String,
     name:                          String,
     javascriptEntrypointUrl:       String,
+    loggerSettings:                Option[Map[String, Any]]               = None,
     enabledForBreakoutRooms:       Boolean                              = false,
     javascriptEntrypointIntegrity: Option[String]                       = None,
     localesBaseUrl:                Option[String]                       = None,
@@ -307,12 +310,12 @@ object PluginModel {
       val pluginName = if (plugin.manifest.url == pluginNameRaw) "unidentified-plugin" else pluginNameRaw
       plugin.manifest.content match {
         case Some(pluginManifestContent) =>
-          PluginDAO.insert(meetingId, pluginName, pluginManifestContent.javascriptEntrypointUrl,
+          PluginDAO.insert(meetingId, pluginName, pluginManifestContent.loggerSettings, pluginManifestContent.javascriptEntrypointUrl,
             pluginManifestContent.javascriptEntrypointIntegrity.getOrElse(""), pluginManifestContent.localesBaseUrl,
             plugin.loadFailureReason, plugin.loadFailureSource,
           )
         case None =>
-          PluginDAO.insert(meetingId, pluginName, "",
+          PluginDAO.insert(meetingId, pluginName, None, "",
             "", None, plugin.loadFailureReason, plugin.loadFailureSource
           )
       }

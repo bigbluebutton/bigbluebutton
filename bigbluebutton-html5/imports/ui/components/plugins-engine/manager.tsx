@@ -24,7 +24,7 @@ import { DataChannelEntry } from './data-channel/types';
 import createUseSubscription from '../../core/hooks/createUseSubscription';
 import { PLUGIN_DATA_CHANNEL_PUBLIC_SUBSCRIPTION, PLUGIN_DATA_CHANNEL_PRIVATE_SUBSCRIPTION } from './data-channel/subscriptions';
 import { mergeDataChannelEntries } from './data-channel/utils';
-import setLogger from './utils';
+import { setLogger } from './utils';
 
 const PluginsEngineManager = (props: PluginsEngineManagerProps) => {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -49,6 +49,7 @@ const PluginsEngineManager = (props: PluginsEngineManagerProps) => {
       ).map((p) => ({
         ...p,
         name: p.name,
+        loggerSettings: p.loggerSettings,
         url: p.javascriptEntrypointUrl,
         localesBaseUrl: p.localesBaseUrl,
         uuid: uuidLib.v4(),
@@ -126,9 +127,14 @@ const PluginsEngineManager = (props: PluginsEngineManagerProps) => {
       <PluginDomElementManipulationManager />
       {
         effectivePluginsConfig?.map((effectivePluginConfig: EffectivePluginConfig) => {
-          const { uuid, name: pluginName, localesBaseUrl } = effectivePluginConfig;
+          const {
+            uuid,
+            name: pluginName,
+            localesBaseUrl,
+            loggerSettings,
+          } = effectivePluginConfig;
           const pluginApi: PluginSdk.PluginApi = BbbPluginSdk.getPluginApi(uuid, pluginName, localesBaseUrl);
-          setLogger(pluginApi);
+          setLogger(pluginApi, loggerSettings);
           return (
             <div key={uuid}>
               <PluginLoaderManager

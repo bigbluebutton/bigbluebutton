@@ -187,6 +187,22 @@ Here is as complete `manifest.json` example with all possible configurations:
   "javascriptEntrypointUrl": "MyPlugin.js",
   "javascriptEntrypointIntegrity": "sha384-Bwsz2rxm...", // Optional
   "localesBaseUrl": "https://cdn.domain.com/my-plugin/", // Optional
+  "loggerSettings": {                                    // Optional
+    "console": {
+      "enableRuntimeErrorLogging": false,
+      "enabled": true,
+      "level": "debug" // Possible values: info, debug, warning, error
+    },
+    "external": {
+      "enabled": false,
+      "level": "info", // Possible values: info, debug, warning, error
+      "url": "https://LOG_HOST/html5Log",
+      "method": "POST",
+      "throttleInterval": 400,
+      "flushOnClose": true,
+      "logTag": ""
+    }
+  },
   "dataChannels":[
     {
       "name": "public-channel",
@@ -220,6 +236,10 @@ Here is as complete `manifest.json` example with all possible configurations:
 ```
 
 To better understand remote-data-sources, please, refer to [this section](#external-data-resources)
+
+**loggerSettings:**
+
+The optional loggerSettings directive allows you to override the default logger configuration for a specific plugin. For instance, you could set the client’s log level to info while restricting the plugin’s log level to error. If no settings are provided, the plugin’s logger inherits the default configuration.
 
 **settingsSchema:**
 

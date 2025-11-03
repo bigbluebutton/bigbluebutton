@@ -2440,6 +2440,7 @@ create index idx_notification on notification("meetingId","userId","role","creat
 create unlogged table "plugin" (
 	"meetingId" varchar(100),
 	"name" varchar(100),
+    "loggerSettings" jsonb,
     "localesBaseUrl" varchar(500),
 	"javascriptEntrypointUrl" varchar(500),
 	"javascriptEntrypointIntegrity" varchar(500),

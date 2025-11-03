@@ -7,6 +7,8 @@ import { ClientLog } from '/imports/ui/Types/meetingClientSettings';
 import ServerLoggerStream from './ServerStream';
 import ConsoleStream from './consoleStream';
 import meetingClientSettingsInitialValues from '/imports/ui/core/initial-values/meetingClientSettings';
+import { LoggerSettings } from '/imports/ui/components/plugins-engine/types';
+import { overridePluginSettingsToDefault } from '/imports/ui/components/plugins-engine/utils';
 
 // The logger accepts "console","server", and "external" as targets
 // Multiple targets can be set as an array in the settings under public.log
@@ -81,10 +83,14 @@ class BBBLogger {
     });
   }
 
-  public static createPluginLogger(pluginName: string) {
+  public static createPluginLogger(pluginName: string, loggerSettings: LoggerSettings) {
     const LOG_CONFIG = window.meetingClientSettings?.public?.clientLog;
     const pluginLoggerConfiguration = LOG_CONFIG || FALLBACK_CONFIG;
-    return BBBLogger.createLoggerFrom(`${PLUGIN_LOGGER_NAME}(${pluginName})`, pluginLoggerConfiguration);
+    const effectivePluginLoggerConfigurations = overridePluginSettingsToDefault(
+      loggerSettings,
+      pluginLoggerConfiguration,
+    );
+    return BBBLogger.createLoggerFrom(`${PLUGIN_LOGGER_NAME}(${pluginName})`, effectivePluginLoggerConfigurations);
   }
 
   public static get logger() {
@@ -104,8 +110,8 @@ class BBBLogger {
 }
 
 class LoggerFactory {
-  public static getPluginLogger(pluginName: string) {
-    return BBBLogger.createPluginLogger(pluginName);
+  public static getPluginLogger(pluginName: string, loggerSettings: LoggerSettings) {
+    return BBBLogger.createPluginLogger(pluginName, loggerSettings);
   }
 
   public static getLogger() {
