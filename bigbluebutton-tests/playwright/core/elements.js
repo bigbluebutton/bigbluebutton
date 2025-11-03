@@ -69,6 +69,7 @@ exports.speechRecognitionUnsupported = 'div[data-test="speechRecognitionUnsuppor
 
 // Breakout
 exports.createBreakoutRooms = 'li[data-test="createBreakoutRooms"]';
+exports.inviteUsersToBreakoutRooms = 'li[data-test="inviteUsers"]';
 exports.randomlyAssign = 'button[data-test="randomlyAssign"]';
 exports.resetAssignments = 'button[data-test="resetAssignments"]'
 exports.breakoutRoomsItem = 'div[data-test="breakoutRoomsItem"]';
