@@ -61,7 +61,7 @@ public class PngCreatorImp implements PngCreator {
 
         if (useBlank) {
             createBlankPng(pngDir, page);
-            return success;
+            return true;
         }
 
 		try {
