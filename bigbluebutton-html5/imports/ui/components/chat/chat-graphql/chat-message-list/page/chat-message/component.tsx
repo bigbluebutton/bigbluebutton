@@ -29,7 +29,12 @@ import {
   FlexColumn,
   PluginInformationMetadata,
 } from './styles';
-import { ChatMessageType, MESSAGE_HIGHLIGHT, ChatEvents } from '/imports/ui/core/enums/chat';
+import {
+  ChatMessageType,
+  MESSAGE_HIGHLIGHT,
+  ChatEvents,
+  SYSTEM_MESSAGES_WITH_HEADERS,
+} from '/imports/ui/core/enums/chat';
 import MessageReadConfirmation from './message-read-confirmation/component';
 import ChatMessageToolbar from './message-toolbar/component';
 import ChatMessageReactions from './message-reactions/component';
@@ -380,6 +385,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
   // System message doesn't have a user
   const isSystemSender = message.user === null;
   const messageHighlight = MESSAGE_HIGHLIGHT.has(message.messageType as ChatMessageType);
+  const messagesWithHeaders = SYSTEM_MESSAGES_WITH_HEADERS.has(message.messageType as ChatMessageType);
 
   const currentPluginMessageMetadata: {
     custom: boolean;
@@ -785,7 +791,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
           </PluginInformationMetadata>
         )
       }
-      {((sameSender || (isSystemSender && !messageHighlight)) && !isCustomMessageFromPlugin) && (
+      {((sameSender || (isSystemSender && !messagesWithHeaders)) && !isCustomMessageFromPlugin) && (
         <ChatContentFooter>
           {!deleteTime && editTime && (
             <Tooltip title={intl.formatTime(editTime, { hour12: false })}>
