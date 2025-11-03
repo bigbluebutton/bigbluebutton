@@ -25,6 +25,7 @@ import {
 } from '/imports/ui/components/livekit/selective-subscription/types';
 import createUseSubscription from '/imports/ui/core/hooks/createUseSubscription';
 import AudioManager from '/imports/ui/services/audio-manager';
+import { useAutoplayState } from '/imports/ui/components/livekit/autoplay-modal/hooks';
 
 const useAudioGroupStreamsSubscription = createUseSubscription(
   AUDIO_GROUP_STREAMS_SUBSCRIPTION,
@@ -114,9 +115,11 @@ interface RetryState {
 }
 
 export const useAudioSubscriptions = () => {
+  const [autoplayState] = useAutoplayState(liveKitRoom);
   /* eslint no-underscore-dangle: 0 */
   // @ts-ignore
-  const deafened = useReactiveVar(AudioManager._isDeafened.value) as boolean;
+  const willinglyDeafened = useReactiveVar(AudioManager._isDeafened.value) as boolean;
+  const deafened = willinglyDeafened || !autoplayState.canPlayAudio;
   const remoteParticipants = useRemoteParticipants({
     updateOnlyOn: PARTICIPANTS_UPDATE_FILTER,
   });

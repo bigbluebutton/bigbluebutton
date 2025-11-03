@@ -44,6 +44,7 @@ import {
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
+import ToastStyles from '/imports/ui/components/common/toast/styles';
 
 const barStripes = keyframes`
   from { background-position: 1rem 0; }
@@ -62,21 +63,19 @@ const UploadRow = styled.div`
 const FileLine = styled.div`
   display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: baseline;
   padding-bottom: ${iconPaddingMd};
   width: ${fileLineWidth};
 `;
 
-const ToastFileName = styled.span`
+const ToastFileName = styled(ToastStyles.ToastMessage)`
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
-  height: 1.25rem !important;
   margin-left: ${mdPaddingY};
   height: 1rem;
   width: auto;
   text-align: left;
-  font-weight: ${headingsFontWeight};
 
   [dir="rtl"] & {
     margin-right: ${mdPaddingY};

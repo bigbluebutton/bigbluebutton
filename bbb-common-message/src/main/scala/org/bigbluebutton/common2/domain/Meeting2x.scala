@@ -117,12 +117,12 @@ case class MeetingStatus(startEndTimeStatus: StartEndTimeStatus, recordingStatus
 case class Meeting2x(defaultProps: DefaultProps, meetingStatus: MeetingStatus)
 
 case class SimpleAnswerOutVO(id: Int, key: String)
-case class SimplePollOutVO(id: String, isMultipleResponse: Boolean, answers: Array[SimpleAnswerOutVO])
-case class SimpleVoteOutVO(id: Int, key: String, numVotes: Int)
-case class SimplePollResultOutVO(id: String, questionType: String, questionText: Option[String], answers: Array[SimpleVoteOutVO], numRespondents: Int, numResponders: Int)
+case class SimplePollOutVO(id: String, multipleResponse: Boolean, quiz: Boolean, answers: Array[SimpleAnswerOutVO], correctAnswer: Option[String])
+case class SimpleVoteOutVO(id: Int, key: String, numVotes: Int, isCorrectAnswer: Boolean)
+case class SimplePollResultOutVO(id: String, questionType: String, questionText: Option[String], answers: Array[SimpleVoteOutVO], quiz: Boolean, correctAnswer: Option[String], numRespondents: Int, numResponders: Int)
 case class Responder(userId: String, name: String)
 case class AnswerVO(id: Int, key: String, text: Option[String], responders: Option[Array[Responder]])
-case class QuestionVO(id: Int, questionType: String, multiResponse: Boolean, questionText: Option[String], answers: Option[Array[AnswerVO]])
+case class QuestionVO(id: Int, questionType: String, multiResponse: Boolean, quiz: Boolean, questionText: Option[String], answers: Option[Array[AnswerVO]], correctAnswer: Option[String])
 case class PollVO(id: String, questions: Array[QuestionVO], title: Option[String], started: Boolean, stopped: Boolean, showResult: Boolean, isSecret: Boolean)
 
 case class UserVO(id: String, externalId: String, name: String, role: String, bot: Boolean,

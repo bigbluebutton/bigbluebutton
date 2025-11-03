@@ -299,13 +299,13 @@ trait HandlerHelpers extends SystemConfiguration {
   }
 
   def buildGroupChatMessageBroadcastEvtMsg(meetingId: String, userId: String, chatId: String,
-                                           msg: GroupChatMessage): BbbCommonEnvCoreMsg = {
+                                           chatParticipants: Vector[String], msg: GroupChatMessage): BbbCommonEnvCoreMsg = {
 
     val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
     val envelope = BbbCoreEnvelope(GroupChatMessageBroadcastEvtMsg.NAME, routing)
     val header = BbbClientMsgHeader(GroupChatMessageBroadcastEvtMsg.NAME, meetingId, userId)
     val cmsgs = GroupChatApp.toMessageToUser(msg)
-    val body = GroupChatMessageBroadcastEvtMsgBody(chatId, cmsgs)
+    val body = GroupChatMessageBroadcastEvtMsgBody(chatId, chatParticipants, cmsgs)
     val event = GroupChatMessageBroadcastEvtMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, event)
   }
@@ -314,7 +314,7 @@ trait HandlerHelpers extends SystemConfiguration {
     val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
     val envelope = BbbCoreEnvelope(GroupChatMessageEditedEvtMsg.NAME, routing)
     val header = BbbClientMsgHeader(GroupChatMessageEditedEvtMsg.NAME, meetingId, userId)
-    val body = GroupChatMessageEditedEvtMsgBody(chatId, msg.id, msg.message)
+    val body = GroupChatMessageEditedEvtMsgBody(chatId, msg.id, msg.message, msg.messageAsHtml)
     val event = GroupChatMessageEditedEvtMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, event)
   }
@@ -328,28 +328,32 @@ trait HandlerHelpers extends SystemConfiguration {
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
-  def buildGroupChatMessageReactionSentEvtMsg(meetingId: String, userId: String, chatId: String, messageId: String, reactionEmoji: String, reactionEmojiId: String): BbbCommonEnvCoreMsg = {
+  def buildGroupChatMessageReactionSentEvtMsg(meetingId: String, userId: String, chatId: String, messageId: String, reactionEmoji: String): BbbCommonEnvCoreMsg = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
     val envelope = BbbCoreEnvelope(GroupChatMessageReactionSentEvtMsg.NAME, routing)
     val header = BbbClientMsgHeader(GroupChatMessageReactionSentEvtMsg.NAME, meetingId, userId)
-    val body = GroupChatMessageReactionSentEvtMsgBody(chatId, messageId, reactionEmoji, reactionEmojiId)
+    val body = GroupChatMessageReactionSentEvtMsgBody(chatId, messageId, reactionEmoji)
     val event = GroupChatMessageReactionSentEvtMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
-  def buildGroupChatMessageReactionDeletedEvtMsg(meetingId: String, userId: String, chatId: String, messageId: String, reactionEmoji: String, reactionEmojiId: String): BbbCommonEnvCoreMsg = {
+  def buildGroupChatMessageReactionDeletedEvtMsg(meetingId: String, userId: String, chatId: String, messageId: String, reactionEmoji: String): BbbCommonEnvCoreMsg = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
     val envelope = BbbCoreEnvelope(GroupChatMessageReactionDeletedEvtMsg.NAME, routing)
     val header = BbbClientMsgHeader(GroupChatMessageReactionDeletedEvtMsg.NAME, meetingId, userId)
-    val body = GroupChatMessageReactionDeletedEvtMsgBody(chatId, messageId, reactionEmoji, reactionEmojiId)
+    val body = GroupChatMessageReactionDeletedEvtMsgBody(chatId, messageId, reactionEmoji)
     val event = GroupChatMessageReactionDeletedEvtMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
   def isUsingLiveKit(liveMeeting: LiveMeeting): Boolean = {
-    liveMeeting.props.meetingProp.audioBridge == "livekit" ||
+    isUsingLiveKitAudio(liveMeeting) ||
     liveMeeting.props.meetingProp.cameraBridge == "livekit" ||
     liveMeeting.props.meetingProp.screenShareBridge == "livekit"
+  }
+
+  def isUsingLiveKitAudio(liveMeeting: LiveMeeting): Boolean = {
+    liveMeeting.props.meetingProp.audioBridge == "livekit"
   }
 
   def buildLiveKitTokenGrant(

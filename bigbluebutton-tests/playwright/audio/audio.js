@@ -2,7 +2,6 @@ const e = require('../core/elements');
 const { ELEMENT_WAIT_LONGER_TIME } = require('../core/constants');
 const { connectMicrophone, isAudioItemSelected, ensureUnmuted } = require('./util');
 const { MultiUsers } = require('../user/multiusers');
-const { generateSettingsData } = require('../core/settings');
 const { expect } = require('@playwright/test');
 const { sleep } = require('../core/helpers');
 
@@ -18,9 +17,9 @@ class Audio extends MultiUsers {
   }
 
   async joinAudio() {
-    this.modPage.settings = await generateSettingsData(this.modPage);
-    const { autoJoinAudioModal, listenOnlyCallTimeout } = this.modPage.settings;
-    if (!autoJoinAudioModal) await this.modPage.waitAndClick(e.joinAudio);
+    const {
+      listenOnlyCallTimeout
+    } = this.modPage.settings;
     await this.modPage.waitAndClick(e.joinAudio);
     await this.modPage.waitAndClick(e.listenOnlyButton);
     await this.modPage.waitForSelector(e.establishingAudioLabel);
@@ -30,25 +29,27 @@ class Audio extends MultiUsers {
     await this.modPage.hasElement(e.audioModal, 'should display the audio modal (echo test) when user clicks on the unmute button');
     await this.modPage.hasElement(e.joinEchoTestButton, 'should display the audio modal (echo test) join button');
     await this.modPage.hasElement(e.stopHearingButton, 'should display the audio modal (echo test) stop hearing button');
-    await this.modPage.waitAndClick(e.closeModal);
-    await this.modPage.waitAndClick(e.audioDropdownMenu);
-    await this.modPage.waitAndClick(e.leaveAudio);
   }
 
   async joinMicrophone() {
     await this.modPage.waitAndClick(e.joinAudio);
     await connectMicrophone(this.modPage);
+    // unmute
     await this.modPage.hasElement(e.unmuteMicButton, 'should join audio with microphone muted');
     await this.modPage.waitAndClick(e.unmuteMicButton);
     await this.modPage.hasElement(e.isTalking, 'should display the is talking element when user unmute the microphone');
+    // leave audio
     await this.modPage.waitAndClick(e.audioDropdownMenu);
     await this.modPage.hasElement(e.leaveAudio, 'should display the leave audio button in the audio dropdown menu');
     await this.modPage.waitAndClick(e.leaveAudio);
+    await this.modPage.hasElement(e.joinAudio, 'should display the join audio button after leaving audio');
+    await this.modPage.wasRemoved(e.audioDropdownMenu, 'should not display the audio dropdown menu after leaving audio');
   }
 
   async muteYourselfByButton() {
     await this.modPage.waitAndClick(e.joinAudio);
     await connectMicrophone(this.modPage);
+    // unmute
     await this.modPage.hasElement(e.unmuteMicButton, 'should join audio with microphone muted');
     await this.modPage.waitAndClick(e.unmuteMicButton);
     await this.modPage.hasElement(e.isTalking, 'moderator should be talking');
@@ -59,10 +60,6 @@ class Audio extends MultiUsers {
     await this.modPage.wasRemoved(e.muteMicButton, 'should be muted');
     await this.modPage.hasElement(e.unmuteMicButton, 'should have the unmute mic button');
     await this.modPage.wasRemoved(e.talkingIndicator, 'talking indicator should disappear', ELEMENT_WAIT_LONGER_TIME);
-    await this.muteButtonCooldown();
-    await this.modPage.waitAndClick(e.unmuteMicButton);
-    await this.modPage.waitAndClick(e.audioDropdownMenu);
-    await this.modPage.waitAndClick(e.leaveAudio);
   }
 
   async changeAudioInput() {
@@ -77,7 +74,6 @@ class Audio extends MultiUsers {
     await this.modPage.hasElement(e.muteMicButton, 'should have the mute microphone button displayed');
     await this.modPage.waitAndClick(e.audioDropdownMenu);
     await isAudioItemSelected(this.modPage, e.secondInputAudioDevice);
-    await this.modPage.waitAndClick(e.leaveAudio);
   }
 
   async keepMuteStateOnRejoin() {
@@ -98,9 +94,6 @@ class Audio extends MultiUsers {
     await this.modPage.waitForSelector(e.establishingAudioLabel);
     await this.modPage.wasRemoved(e.establishingAudioLabel, 'Audio should be established', ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.hasElement(e.unmuteMicButton, 'should be muted');
-    await this.modPage.waitAndClick(e.unmuteMicButton);
-    await this.modPage.waitAndClick(e.audioDropdownMenu);
-    await this.modPage.waitAndClick(e.leaveAudio);
   }
 
   async muteYourselfByTalkingIndicator() {

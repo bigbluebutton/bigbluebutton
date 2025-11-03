@@ -133,6 +133,20 @@ const createEndpointTableData = [
     "description": (<>This is a special parameter type (there is no parameter named just <code className="language-plaintext highlighter-rouge">meta</code>).<br /><br /> You can pass one or more metadata values when creating a meeting. These will be stored by BigBlueButton can be retrieved later via the getMeetingInfo and getRecordings calls.<br /><br /> Examples of the use of the meta parameters are <code className="language-plaintext highlighter-rouge">meta_Presenter=Jane%20Doe</code>, <code className="language-plaintext highlighter-rouge">meta_category=FINANCE</code>, and <code className="language-plaintext highlighter-rouge">meta_TERM=Fall2016</code>.</>)
   },
   {
+    "name": "meta_bbb-anonymize-chat",
+    "required": false,
+    "type": "Boolean",
+    "default": "false",
+    "description": (<>Whether to anonymize the sender of chat messages in the processed recordings if the sender is viewer. Overrides the default config in <code className="language-plaintext highlighter-rouge">bigbluebutton.yml</code></>)
+  },
+  {
+    "name": "meta_bbb-anonymize-chat-moderators",
+    "required": false,
+    "type": "Boolean",
+    "default": "false",
+    "description": (<>Whether to anonymize the sender of chat messages in the processed recordings if the sender is moderator. Overrides the default config in <code className="language-plaintext highlighter-rouge">bigbluebutton.yml</code></>)
+  },
+  {
     "name": "moderatorOnlyMessage",
     "required": false,
     "type": "String",
@@ -439,6 +453,9 @@ const createEndpointTableData = [
             </li>
             <li>
               <code className="language-plaintext highlighter-rouge">chatEmojiPicker</code> - <b>Enable/Disable chat emoji picker (added in BigBlueButton 3.0)</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">quizzes</code> - <b>Quizzes  (added in BigBlueButton 3.0)</b>
             </li>
           </ul>
         </>

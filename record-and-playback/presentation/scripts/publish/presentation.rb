@@ -1200,6 +1200,14 @@ def get_poll_responders(event)
   event.at_xpath('numResponders')&.text.to_i || 0
 end
 
+def get_poll_show_correct_answer(event)
+  event.at_xpath('showCorrectAnswer')&.text == 'true'
+end
+
+def get_poll_is_quiz(event)
+  event.at_xpath('isQuiz')&.text == 'true'
+end
+
 def get_poll_id(event)
   event.at_xpath('pollId')&.text || ''
 end
@@ -1240,6 +1248,8 @@ def process_poll_events(events, package_dir)
         answers: get_poll_answers(event),
         respondents: get_poll_respondents(event),
         responders: get_poll_responders(event),
+        showCorrectAnswer: get_poll_show_correct_answer(event),
+        isQuiz: get_poll_is_quiz(event),
       }
     end
   end

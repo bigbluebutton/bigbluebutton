@@ -1,20 +1,28 @@
 import { gql } from '@apollo/client';
 
+export interface UsersCountSubscriptionResponse {
+  user_aggregate: {
+    aggregate: {
+      count: number;
+    };
+  };
+}
+
 export const USER_LIST_SUBSCRIPTION = gql`
 subscription UserListSubscription($offset: Int!, $limit: Int!) {
-  user(limit:$limit, offset: $offset, 
+  user(limit:$limit, offset: $offset,
                 order_by: [
                   {presenter: desc},
                   {role: asc},
-                  {raiseHandTime: asc_nulls_last},
                   {isDialIn: desc},
-                  {hasDrawPermissionOnCurrentPage: desc},
+                  {whiteboardWriteAccess: desc},
                   {nameSortable: asc},
                   {registeredAt: asc},
                   {userId: asc}
                 ]) {
     isDialIn
     userId
+    meetingId
     extId
     name
     isModerator
@@ -40,15 +48,12 @@ subscription UserListSubscription($offset: Int!, $limit: Int!) {
       deafened
       listenOnly
       voiceUserId
+      listenOnlyInputDevice
     }
     cameras {
       streamId
     }
-    presPagesWritable {
-      isCurrentPage
-      pageId
-      userId
-    }
+    whiteboardWriteAccess
     lastBreakoutRoom {
       isDefaultName
       sequence
@@ -89,3 +94,23 @@ export const GET_USER_NAMES = gql`
     }
   }
 `;
+
+export const RAISED_HAND_USERS = gql`
+subscription RaisedHandUsers {
+  user(
+    where: {
+      raiseHand: {_eq: true}
+    },
+    order_by: [
+      {raiseHandTime: asc_nulls_last},
+    ]) {
+    userId
+    name
+    color
+    presenter
+    isModerator
+    raiseHand
+    raiseHandTime
+    whiteboardWriteAccess
+  }
+}`;

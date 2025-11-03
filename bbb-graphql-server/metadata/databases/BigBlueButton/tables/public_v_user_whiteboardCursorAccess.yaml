@@ -1,0 +1,28 @@
+table:
+  name: v_user_whiteboardCursorAccess
+  schema: public
+configuration:
+  column_config: {}
+  custom_column_names: {}
+  custom_name: user_whiteboardCursorAccess
+  custom_root_fields: {}
+select_permissions:
+  - role: bbb_client
+    permission:
+      columns:
+        - isModerator
+        - name
+        - presenter
+        - userId
+      filter:
+        _and:
+          - meetingId:
+              _eq: X-Hasura-MeetingId
+          - _or:
+              - isModerator:
+                  _eq: true
+              - meetingId:
+                  _eq: X-Hasura-CursorNotLockedInMeeting
+              - userId:
+                  _eq: X-Hasura-CursorLockedUserId
+    comment: ""

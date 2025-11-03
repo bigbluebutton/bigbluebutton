@@ -25,7 +25,7 @@ const propTypes = {
   shouldCloseOnOverlayClick: PropTypes.bool,
   shouldShowCloseButton: PropTypes.bool,
   overlayClassName: PropTypes.string,
-  modalisOpen: PropTypes.bool,
+  modalIsOpen: PropTypes.bool,
 };
 
 const defaultProps = {
@@ -37,7 +37,7 @@ const defaultProps = {
   shouldShowCloseButton: true,
   overlayClassName: 'modalOverlay',
   headerPosition: 'inner',
-  modalisOpen: false,
+  modalIsOpen: false,
 };
 
 class ModalSimple extends Component {
@@ -79,8 +79,8 @@ class ModalSimple extends Component {
   }
 
   handleOutsideClick(e) {
-    const { modalisOpen } = this.props;
-    if (this.modalRef.current && !this.modalRef.current.contains(e.target) && modalisOpen) {
+    const { modalIsOpen } = this.props;
+    if (this.modalRef.current && e.target?.contains(this.modalRef.current) && modalIsOpen) {
       this.handleRequestClose(e);
     }
   }
@@ -93,7 +93,7 @@ class ModalSimple extends Component {
       hideBorder,
       dismiss,
       className,
-      modalisOpen,
+      modalIsOpen,
       onRequestClose,
       shouldShowCloseButton,
       contentLabel,
@@ -131,7 +131,7 @@ class ModalSimple extends Component {
     return (
       <Styled.SimpleModal
         id={id || 'simpleModal'}
-        isOpen={modalisOpen}
+        isOpen={modalIsOpen}
         className={className}
         onRequestClose={this.handleRequestClose}
         contentLabel={title || contentLabel}
@@ -139,7 +139,7 @@ class ModalSimple extends Component {
         style={modalStyles}
         {...otherProps}
       >
-        <FocusTrap active={modalisOpen} focusTrapOptions={{ initialFocus: false }}>
+        <FocusTrap active={modalIsOpen} focusTrapOptions={{ initialFocus: false, fallbackFocus: '#fallback-element' }}>
           <div ref={this.modalRef}>
             <Styled.Header
               hideBorder={hideBorder}
@@ -156,6 +156,7 @@ class ModalSimple extends Component {
             </Styled.Header>
             <Styled.Content>
               {children}
+              <div id="fallback-element" tabIndex="-1" />
             </Styled.Content>
           </div>
         </FocusTrap>

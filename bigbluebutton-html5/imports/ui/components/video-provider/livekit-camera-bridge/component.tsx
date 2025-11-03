@@ -5,7 +5,6 @@ import {
   type RemoteTrack,
   type RemoteTrackPublication,
   type LocalTrackPublication,
-  type TrackPublication,
   ConnectionState,
   RoomEvent,
   Track,
@@ -20,7 +19,10 @@ import BBBVideoStream from '/imports/ui/services/webrtc-base/bbb-video-stream';
 import { VideoItem } from '/imports/ui/components/video-provider/types';
 import { Output } from '/imports/ui/components/layout/layoutTypes';
 import { VIDEO_TYPES } from '/imports/ui/components/video-provider/enums';
-import { liveKitRoom } from '/imports/ui/services/livekit';
+import {
+  lkIsCameraSource,
+  liveKitRoom,
+} from '/imports/ui/services/livekit';
 import useMeetingSettings from '/imports/ui/core/local-states/useMeetingSettings';
 
 const intlClientErrors = defineMessages({
@@ -119,10 +121,6 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
   });
   const withSelectiveSubscription = meetingSettings.public.media?.livekit?.selectiveSubscription || false;
 
-  const isCameraSource = (track: TrackPublication | RemoteTrack): boolean => {
-    return track.kind === Track.Kind.Video && track.source === Track.Source.Camera;
-  };
-
   const handleStreamFailure = useCallback((error: Error, stream: string, isLocal: boolean) => {
     const { name: errorName, message: errorMessage } = error;
     const errorLocale = intlClientErrors[errorName as keyof typeof intlClientErrors]
@@ -207,7 +205,7 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
       if (!videoTrackPublications || !track) return;
 
       videoTrackPublications.forEach((publication: LocalTrackPublication) => {
-        if (isCameraSource(publication) && publication.track) {
+        if (lkIsCameraSource(publication) && publication.track && track.sid === publication.track.sid) {
           liveKitRoom.localParticipant.unpublishTrack(publication.track)
             .then(() => {
               logger.debug({
@@ -361,7 +359,7 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
   ) => {
     const { trackSid } = publication;
 
-    if (!isCameraSource(track)) return;
+    if (!lkIsCameraSource(track)) return;
 
     streamRefs.current.subscriptions.set(trackSid, { track, publication });
 
@@ -386,7 +384,7 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
   ) => {
     const { trackSid } = publication;
 
-    if (!isCameraSource(track)) return;
+    if (!lkIsCameraSource(track)) return;
 
     streamRefs.current.subscriptions.delete(trackSid);
     const stream = publication?.trackName;
@@ -406,7 +404,7 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
   const handleTrackPublished = useCallback((publication: RemoteTrackPublication) => {
     const { trackName } = publication;
 
-    if (!isCameraSource(publication) || streamRefs.current.publications.has(trackName)) return;
+    if (!lkIsCameraSource(publication) || streamRefs.current.publications.has(trackName)) return;
 
     streamRefs.current.publications.set(trackName, publication);
     if (publication.track) streamRefs.current.remoteTracks[trackName] = publication.track;
@@ -424,7 +422,7 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
   const handleTrackUnpublished = (publication: RemoteTrackPublication) => {
     const { trackSid, trackName } = publication;
 
-    if (!isCameraSource(publication)) return;
+    if (!lkIsCameraSource(publication)) return;
 
     streamRefs.current.publications.delete(trackName);
     streamRefs.current.subscriptions.delete(trackSid);
@@ -445,7 +443,7 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
     liveKitRoom.on(RoomEvent.TrackUnsubscribed, handleTrackUnsubscribed);
     liveKitRoom.remoteParticipants.forEach((participant) => {
       participant.trackPublications.forEach((publication) => {
-        if (isCameraSource(publication)) {
+        if (lkIsCameraSource(publication)) {
           handleTrackPublished(publication);
 
           if (publication.isSubscribed && publication.track) {
@@ -520,6 +518,16 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
       const newTracks = mediaStream.getVideoTracks();
       track.replaceTrack(newTracks[0]).then(() => {
         attachLiveKitStream(streamId);
+      }).catch((error) => {
+        logger.error({
+          logCode: 'livekit_camera_replace_track_error',
+          extraInfo: {
+            cameraId: streamId,
+            trackSid: track?.sid,
+            errorMessage: error.message,
+            errorStack: error.stack,
+          },
+        }, `LiveKit: failed to replace camera track - ${error.message}`);
       });
     }
   };

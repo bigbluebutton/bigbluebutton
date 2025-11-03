@@ -109,11 +109,12 @@ Updated in 2.7:
 
 - **create** - **Added:** `preUploadedPresentation`, `preUploadedPresentationName`, `allowPromoteGuestToModerator` (2.7.9), `disabledFeatures` options`cameraAsContent`, `snapshotOfCurrentSlide`, `downloadPresentationOriginalFile`, `downloadPresentationConvertedToPdf`, `timer`, `learningDashboardDownloadSessionData` (2.7.5).
 - **join** - **Added:** `errorRedirectUrl`, `userdata-bbb_fullaudio_bridge`
+- **getRecordings** - **Updated:** Modified paginated response to remove excess pagination metadata and only return `totalElements` in addition to the normal response data.
 
 Updated in 3.0:
 
-- **create** - **Added parameters:** `allowOverrideClientSettingsOnCreateCall`, `loginURL`, `pluginManifests`, `pluginManifestsFetchUrl`, `presentationConversionCacheEnabled`, `maxNumPages`. **Removed:** `breakoutRoomsEnabled`, `learningDashboardEnabled`, `virtualBackgroundsDisabled`. Parameter `meetingLayout` supports a few new options: CAMERAS_ONLY, PARTICIPANTS_CHAT_ONLY, PRESENTATION_ONLY, MEDIA_ONLY; **Added POST module:** `clientSettingsOverride`; **Added:** `disabledFeatures` options `infiniteWhiteboard`, `deleteChatMessage`, `editChatMessage`, `replyChatMessage`, `chatMessageReactions`, `raiseHand`, `userReactions`, `chatEmojiPicker`;
-- **join** - **Added:** `bot`, `enforceLayout`, `logoutURL`, `firstName`, `lastName`, `userdata-bbb_default_layout`, `userdata-bbb_skip_echotest_if_previous_device`, `userdata-bbb_prefer_dark_theme`. `userdata-bbb_hide_notifications`, `userdata-bbb_hide_controls`, **Removed:** `defaultLayout` (replaced by `userdata-bbb_default_layout`) and removed support for all HTTP request methods except GET, `userdata-bbb_ask_for_feedback_on_logout`.
+- **create** - **Added parameters:** `allowOverrideClientSettingsOnCreateCall`, `loginURL`, `pluginManifests`, `pluginManifestsFetchUrl`, `presentationConversionCacheEnabled`, `maxNumPages`. **Removed:** `breakoutRoomsEnabled`, `learningDashboardEnabled`, `virtualBackgroundsDisabled`. Parameter `meetingLayout` supports a few new options: CAMERAS_ONLY, PARTICIPANTS_CHAT_ONLY, PRESENTATION_ONLY, MEDIA_ONLY; **Added POST module:** `clientSettingsOverride`; **Added:** `disabledFeatures` options `infiniteWhiteboard`, `deleteChatMessage`, `editChatMessage`, `replyChatMessage`, `chatMessageReactions`, `raiseHand`, `userReactions`, `chatEmojiPicker`, `quizzes`;
+- **join** - **Added:** `bot`, `enforceLayout`, `logoutURL`, `firstName`, `lastName`, `userdata-bbb_default_layout`, `userdata-bbb_skip_echotest_if_previous_device`, `userdata-bbb_prefer_dark_theme`. `userdata-bbb_hide_notifications`, `userdata-bbb_hide_controls`, `userdata-bbb_initial_selected_tool` **Removed:** `defaultLayout` (replaced by `userdata-bbb_default_layout`) and removed support for all HTTP request methods except GET, `userdata-bbb_ask_for_feedback_on_logout`.
 - **sendChatMessage** endpoint was first introduced.
 - **getJoinUrl** endpoint was first introduced.
 - **enter** endpoint was removed. It was only used internally, never part of the api documentation.
@@ -538,9 +539,9 @@ http&#58;//yourserver.com/bigbluebutton/api/join?[parameters]&checksum=[checksum
 
 **Example Requests:**
 
-- http&#58;//yourserver.com/bigbluebutton/api/join?meetingID=test01&password=mp&fullName=John&checksum=1234
-- http&#58;//yourserver.com/bigbluebutton/api/join?meetingID=test01&password=ap&fullName=Mark&checksum=wxyz
-- http&#58;//yourserver.com/bigbluebutton/api/join?meetingID=test01&password=ap&fullName=Chris&createTime=273648&checksum=abcd
+- http&#58;//yourserver.com/bigbluebutton/api/join?meetingID=test01&role=moderator&fullName=John&checksum=1234
+- http&#58;//yourserver.com/bigbluebutton/api/join?meetingID=test01&role=viewer&fullName=Mark&checksum=wxyz
+- http&#58;//yourserver.com/bigbluebutton/api/join?meetingID=test01&role=viewer&fullName=Chris&createTime=273648&checksum=abcd
 
 **Example Response:**
 
@@ -658,7 +659,7 @@ Use this to forcibly end a meeting and kick all participants out of the meeting.
 
 **Example Requests:**
 
-- http&#58;//yourserver.com/bigbluebutton/api/end?meetingID=1234567890&password=mp&checksum=1234
+- http&#58;//yourserver.com/bigbluebutton/api/end?meetingID=1234567890&checksum=1234
 
 **Example Response:**
 
@@ -680,11 +681,10 @@ curl --request POST \
 	--url https://<your-host>/bigbluebutton/api/end \
 	--header 'Content-Type: application/x-www-form-urlencoded' \
 	--data meetingID=Test+Meeting \
-	--data password=mp \
 	--data checksum=1234
 ```
 
-**IMPORTANT NOTE:** You should note that when you call end meeting, it is simply sending a request to the backend (Red5) server that is handling all the conference traffic. That backend server will immediately attempt to send every connected client a logout event, kicking them from the meeting. It will then disconnect them, and the meeting will be ended. However, this may take several seconds, depending on network conditions. Therefore, the end meeting call will return a success as soon as the request is sent. But to be sure that it completed, you should then check back a few seconds later by using the `getMeetingInfo` or `isMeetingRunning` calls to verify that all participants have left the meeting and that it successfully ended.
+**IMPORTANT NOTE:** You should note that when you call end meeting, it is simply sending a request to the backend server that is handling all the conference traffic. That backend server will immediately attempt to send every connected client a logout event, kicking them from the meeting. It will then disconnect them, and the meeting will be ended. However, this may take several seconds, depending on network conditions. Therefore, the end meeting call will return a success as soon as the request is sent. But to be sure that it completed, you should then check back a few seconds later by using the `getMeetingInfo` or `isMeetingRunning` calls to verify that all participants have left the meeting and that it successfully ended.
 
 ### `GET` `POST` getMeetingInfo
 
@@ -838,7 +838,7 @@ http&#58;//yourserver.com/bigbluebutton/api/getMeetings?checksum=1234
 
 ### `GET` getRecordings
 
-Retrieves the recordings that are available for playback for a given meetingID (or set of meeting IDs). Support for pagination was added in 2.6.
+Retrieves the recordings that are available for playback for a given meetingID (or set of meeting IDs). Support for pagination was added in 2.6. As of 2.7 when pagination is enabled for the response, through the use of the limit and/or offset parameters, the total number of recordings that match the provided criteria will be returned via the `totalElements` tag.
 
 **Resource URL:**
 
@@ -948,6 +948,18 @@ Here the `getRecordings` API call returned back two recordings for the meetingID
          </playback>
       </recording>
    </recordings>
+</response>
+```
+
+**Example Paginated Response:**
+
+```xml
+<response>
+    <returncode>SUCCESS</returncode>
+    <recordings>
+        ...
+    </recordings>
+    <totalElements>3</totalElements>
 </response>
 ```
 

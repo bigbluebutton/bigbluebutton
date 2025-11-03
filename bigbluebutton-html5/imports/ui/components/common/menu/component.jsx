@@ -229,6 +229,7 @@ class BBBMenu extends React.Component {
       hasRoundedCorners,
       overrideMobileStyles,
       isHorizontal,
+      minContent,
     } = this.props;
     const actionsItems = this.makeMenuItems();
 
@@ -243,6 +244,11 @@ class BBBMenu extends React.Component {
       const horizontalStyles = { display: 'flex' };
       menuStyles = { ...menuStyles, ...horizontalStyles };
     }
+
+    const paperStyle = {
+      ...(hasRoundedCorners ? roundedCornersStyles : {}),
+      ...(minContent ? { 'max-width': 'min-content' } : {}),
+    };
 
     return (
       <>
@@ -278,7 +284,7 @@ class BBBMenu extends React.Component {
           onKeyDownCapture={this.handleKeyDown}
           $isHorizontal={isHorizontal}
           PaperProps={{
-            style: hasRoundedCorners ? roundedCornersStyles : {},
+            style: paperStyle,
             className: overrideMobileStyles ? 'override-mobile-styles' : 'MuiPaper-root-mobile',
           }}
         >
@@ -313,6 +319,7 @@ BBBMenu.defaultProps = {
   },
   onCloseCallback: () => { },
   dataTest: '',
+  minContent: false,
 };
 
 BBBMenu.propTypes = {
@@ -330,6 +337,7 @@ BBBMenu.propTypes = {
   customStyles: PropTypes.object,
   opts: PropTypes.object,
   accessKey: PropTypes.string,
+  minContent: PropTypes.bool,
 };
 
 export default injectIntl(BBBMenu);

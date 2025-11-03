@@ -308,6 +308,7 @@ class VideoList extends Component<VideoListProps, VideoListState> {
         label={nextPageDetailedLabel}
         hideLabel
         position={position}
+        data-test="nextPageVideoPaginationBtn"
       />
     );
   }
@@ -338,6 +339,7 @@ class VideoList extends Component<VideoListProps, VideoListState> {
         label={prevPageDetailedLabel}
         hideLabel
         position={position}
+        data-test="previousPageVideoPaginationBtn"
       />
     );
   }

@@ -1,31 +1,45 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { useRoomContext } from '@livekit/components-react';
 import logger from '/imports/startup/client/logger';
 import LKAutoplayModal from './component';
 import { useAutoplayState } from './hooks';
 import { useStorageKey } from '/imports/ui/services/storage/hooks';
 import useIsAudioConnected from '/imports/ui/components/audio/audio-graphql/hooks/useIsAudioConnected';
+import { useModalRegistration } from '/imports/ui/core/singletons/modalController';
 
 const LKAutoplayModalContainer: React.FC = () => {
-  const [isOpen, setIsOpen] = useState(false);
+  // const [isOpen, setIsOpen] = useState(false);
   const isConnected = useIsAudioConnected();
   const room = useRoomContext();
   const [autoplayState, handleStartAudio] = useAutoplayState(room);
   const audioModalIsOpen = useStorageKey('audioModalIsOpen');
 
+  const LKAutoplayModalState = useModalRegistration({
+    id: 'LKAutoplayModal',
+    priority: 'medium',
+  });
+
+  const setIsOpen = (open: boolean) => {
+    if (open) {
+      LKAutoplayModalState.open();
+    } else {
+      LKAutoplayModalState.close();
+    }
+  };
+
   const openLKAutoplayModal = useCallback(() => {
-    if (isOpen) return;
+    if (LKAutoplayModalState.isOpen) return;
 
     logger.warn({
       logCode: 'livekit_audio_autoplay_blocked',
     }, 'LiveKit: audio autoplay blocked');
     setIsOpen(true);
-  }, [isOpen]);
+  }, [LKAutoplayModalState.isOpen]);
 
-  const runAutoplayCallback = useCallback(async () => {
+  const runAutoplayCallback = useCallback(async (indirect = false) => {
     try {
       if (!autoplayState.canPlayAudio) {
-        await handleStartAudio();
+        await handleStartAudio(indirect);
       }
       logger.info({
         logCode: 'livekit_audio_autoplayed',
@@ -33,13 +47,14 @@ const LKAutoplayModalContainer: React.FC = () => {
 
       return true;
     } catch (error) {
+      const errorMessage = (error as Error)?.message ?? 'unknown error';
       logger.error({
         logCode: 'livekit_audio_autoplay_handle_failed',
         extraInfo: {
-          errorMessage: (error as Error).message,
+          errorMessage,
           errorStack: (error as Error).stack,
         },
-      }, 'LiveKit: failed to handle autoplay');
+      }, `LiveKit: failed to handle autoplay: ${errorMessage}`);
 
       return false;
     }
@@ -64,7 +79,11 @@ const LKAutoplayModalContainer: React.FC = () => {
 
   useEffect(() => {
     if (shouldOpen()) {
-      runAutoplayCallback().then((success) => {
+      // Try to run the autoplay callback immediately without a prompt as
+      // this might save an user interaction. Since it's indirect (i.e. no user
+      // interaction), we mark it (arg true) to avoid flagging an attempt.
+      // Attempts are only registered when the user interacts with the modal.
+      runAutoplayCallback(true).then((success) => {
         if (!success) openLKAutoplayModal();
       });
     }
@@ -75,7 +94,7 @@ const LKAutoplayModalContainer: React.FC = () => {
   return (
     <LKAutoplayModal
       autoplayHandler={handleStartAudio}
-      isOpen={isOpen}
+      isOpen={LKAutoplayModalState.isOpen}
       onRequestClose={() => {
         runAutoplayCallback();
         setIsOpen(false);

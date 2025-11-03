@@ -1,6 +1,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { useRef, useCallback, useState } from 'react';
+import { defineMessages } from 'react-intl';
 import { isEqual } from 'radash';
 import {
   Tldraw,
@@ -23,7 +24,6 @@ import '@bigbluebutton/tldraw/tldraw.css';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { compressToBase64, decompressFromBase64 } from 'lz-string';
 import SlideCalcUtil, { HUNDRED_PERCENT } from '/imports/utils/slideCalcUtils';
-import meetingClientSettingsInitialValues from '/imports/ui/core/initial-values/meetingClientSettings';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import KEY_CODES from '/imports/utils/keyCodes';
 import { debounce } from '/imports/utils/debounce';
@@ -36,11 +36,33 @@ import {
   getDifferences,
 } from './utils';
 import { useMouseEvents, useCursor } from './hooks';
-import { notifyShapeNumberExceeded, getCustomEditorAssetUrls, getCustomAssetUrls } from './service';
+import {
+  notifyShapeNumberExceeded, getCustomEditorAssetUrls, getCustomAssetUrls,
+  debouncedUpdateShapes, sanitizeShape,
+} from './service';
 import NoopTool from './custom-tools/noop-tool/component';
 import DeleteSelectedItemsTool from './custom-tools/delete-selected-items/component';
+import SessionStorage from '/imports/ui/services/storage/session';
 
 const CAMERA_TYPE = 'camera';
+const colorStyles = [
+  'black',
+  'blue',
+  'green',
+  'grey',
+  'light-blue',
+  'light-green',
+  'light-red',
+  'light-violet',
+  'orange',
+  'red',
+  'violet',
+  'yellow',
+];
+const dashStyles = ['dashed', 'dotted', 'draw', 'solid'];
+const fillStyles = ['none', 'pattern', 'semi', 'solid'];
+const fontStyles = ['draw', 'mono', 'sans', 'serif'];
+const sizeStyles = ['l', 'm', 's', 'xl'];
 
 // Helper functions
 const deleteLocalStorageItemsWithPrefix = (prefix) => {
@@ -68,18 +90,34 @@ const createLookup = (arr) => arr.reduce((acc, entry) => {
   return acc;
 }, {});
 
-const sanitizeShape = (shape) => {
-  const { isModerator, questionType, ...rest } = shape;
-  return {
-    ...rest,
-  };
-};
-
 const defaultUser = {
   userId: '',
 };
 
 const customTools = [NoopTool, DeleteSelectedItemsTool];
+
+const intlMessages = defineMessages({
+  yes: {
+    id: 'app.poll.y',
+    description: 'Poll option for affirmative response',
+  },
+  no: {
+    id: 'app.poll.n',
+    description: 'Poll option for negative response',
+  },
+  abstention: {
+    id: 'app.poll.abstention',
+    description: 'Poll option for abstaining from vote',
+  },
+  true: {
+    id: 'app.poll.answer.true',
+    description: 'Poll option for true/correct answer',
+  },
+  false: {
+    id: 'app.poll.answer.false',
+    description: 'Poll option for false/incorrect answer',
+  },
+});
 
 const Whiteboard = React.memo((props) => {
   const {
@@ -173,6 +211,9 @@ const Whiteboard = React.memo((props) => {
   const innerWrapperPollingFrameRef = React.useRef(null);
   const isMountedPollingFrameRef = React.useRef(null);
   const hasZoomSyncedRef = useRef(false);
+  const currentUserRef = useRef(currentUser);
+
+  currentUserRef.current = currentUser;
 
   const [pageZoomMap, setPageZoomMap] = useState(() => {
     try {
@@ -206,35 +247,30 @@ const Whiteboard = React.memo((props) => {
     },
     toolbar: (_editor, toolbarItems, { tools }) => {
       const isTestEnv = typeof navigator !== 'undefined' && navigator.webdriver;
-
       const bbbMultiUserPenOnly = getFromUserSettings(
         'bbb_multi_user_pen_only',
         window.meetingClientSettings.public.whiteboard.toolbar.multiUserPenOnly,
       );
       const bbbPresenterTools = getFromUserSettings(
         'bbb_presenter_tools',
-        meetingClientSettingsInitialValues.public.whiteboard.toolbar.presenterTools,
+        window.meetingClientSettings.public.whiteboard.toolbar.presenterTools,
       );
       const bbbMultiUserTools = getFromUserSettings(
         'bbb_multi_user_tools',
-        meetingClientSettingsInitialValues.public.whiteboard.toolbar.multiUserTools,
+        window.meetingClientSettings.public.whiteboard.toolbar.multiUserTools,
       );
-
       if (tools.deleteAll) {
         toolbarItems.splice(7, 0, toolbarItem(tools.deleteAll));
       }
-
       const hasRestrictions =
-        bbbMultiUserPenOnly ||
-        (Array.isArray(bbbPresenterTools) && bbbPresenterTools.length > 0) ||
-        (Array.isArray(bbbMultiUserTools) && bbbMultiUserTools.length > 0);
-
+      bbbMultiUserPenOnly ||
+      (Array.isArray(bbbPresenterTools) && bbbPresenterTools.length > 0) ||
+      (Array.isArray(bbbMultiUserTools) && bbbMultiUserTools.length > 0);
       const shouldBypassFiltering = isTestEnv && !hasRestrictions;
 
       if (shouldBypassFiltering) {
         return toolbarItems;
       }
-
       // PEN-ONLY for everyone who's NOT mod or presenter
       if (bbbMultiUserPenOnly && !isModerator && !isPresenter) {
         return toolbarItems.filter((item) => item.id === 'draw');
@@ -249,10 +285,23 @@ const Whiteboard = React.memo((props) => {
       if (bbbMultiUserTools.length >= 1 && !isModerator) {
         return toolbarItems.filter((item) => bbbMultiUserTools.includes(item.id));
       }
-
       // full toolbar
       return toolbarItems;
     },
+    // Add locale translations for poll options
+    // this way is adding support to regional and non regional languages
+    // "en" is a fallback for not supported languages
+    // TLdraw is only supporting 35 while bbb supports 63
+    translations: ['en', intl.locale, intl.locale.split('-')[0]].reduce((acc, locale) => {
+      acc[locale] = {
+        'app.poll.t': intl.formatMessage(intlMessages.true),
+        'app.poll.f': intl.formatMessage(intlMessages.false),
+        'app.poll.y': intl.formatMessage(intlMessages.yes),
+        'app.poll.n': intl.formatMessage(intlMessages.no),
+        'app.poll.abstention': intl.formatMessage(intlMessages.abstention),
+      };
+      return acc;
+    }, {}),
   }), [intl, currentUser?.presenter, currentUser?.userId, isModerator]);
 
   const presenterChanged = usePrevious(isPresenter) !== isPresenter;
@@ -290,30 +339,6 @@ const Whiteboard = React.memo((props) => {
       tlEditorRef.current?.store.remove([...shapeIdsToRemove]);
     }
   };
-
-  const debouncedUpdateShapes = debounce(() => {
-    if (shapes && Object.keys(shapes).length > 0) {
-      prevShapesRef.current = shapes;
-      tlEditorRef.current?.store.mergeRemoteChanges(() => {
-        const remoteShapesArray = Object.values(prevShapesRef.current).reduce((acc, shape) => {
-          if (
-            shape.meta?.presentationId === presentationIdRef.current
-            || shape?.whiteboardId?.includes(presentationIdRef.current)
-          ) {
-            acc.push(sanitizeShape(shape));
-          }
-          return acc;
-        }, []);
-
-        if (pageChanged) {
-          tlEditorRef.current?.store.put(assets);
-          tlEditorRef.current?.store.put(bgShape);
-        }
-
-        tlEditorRef.current?.store.put(remoteShapesArray);
-      });
-    }
-  }, 175);
 
   const debouncedSetInitialZoom = debounce(() => {
     if (
@@ -377,10 +402,31 @@ const Whiteboard = React.memo((props) => {
   React.useEffect(() => {
     hasWBAccessRef.current = hasWBAccess;
 
+    const toolbarSavedState = SessionStorage.getItem('whiteboardToolbarSavedState');
+
     if (!hasWBAccess && !isPresenter) {
       tlEditorRef?.current?.setCurrentTool('noop');
     } else if (hasWBAccess && !isPresenter) {
-      tlEditorRef?.current?.setCurrentTool('draw');
+      const {
+        initialSelectedTool: initialSelectedToolFromConfig,
+        multiUserTools,
+      } = window.meetingClientSettings.public.whiteboard.toolbar;
+      let initialSelectedTool = getFromUserSettings(
+        'bbb_initial_selected_tool',
+        initialSelectedToolFromConfig,
+      );
+
+      if (toolbarSavedState) {
+        const {
+          selectedTool: savedSelectedTool,
+        } = toolbarSavedState;
+
+        if (savedSelectedTool && multiUserTools.includes(savedSelectedTool)) {
+          initialSelectedTool = savedSelectedTool;
+        }
+      }
+
+      tlEditorRef?.current?.setCurrentTool(initialSelectedTool);
     }
   }, [hasWBAccess]);
 
@@ -397,12 +443,19 @@ const Whiteboard = React.memo((props) => {
   }, [fitToWidth]);
 
   React.useEffect(() => {
-    debouncedUpdateShapes();
+    if (shapes && Object.keys(shapes).length > 0) {
+      prevShapesRef.current = shapes;
+    }
+    debouncedUpdateShapes(
+      shapes, tlEditorRef, presentationIdRef, pageChanged, assets, bgShape,
+    );
   }, [shapes]);
 
   React.useEffect(() => {
     if (removedShapes && removedShapes.length > 0) {
-      tlEditorRef.current?.store.remove([...removedShapes]);
+      tlEditorRef.current?.store.mergeRemoteChanges(() => {
+        tlEditorRef.current?.store.remove([...removedShapes]);
+      });
     }
   }, [removedShapes]);
 
@@ -1096,9 +1149,66 @@ const Whiteboard = React.memo((props) => {
   };
 
   const handleTldrawMount = (editor) => {
+    if (typeof editor.history.setMaxStackSize === 'function') {
+      editor.history.setMaxStackSize(window.meetingClientSettings.public.whiteboard.maxHistoryStackSize);
+    } else {
+      logger.warn({ logCode: 'SetMaxStackSize' }, 'Failed to set max history stack size - feature not available');
+    }
+
     tlEditorRef.current = editor;
     setTldrawAPI(editor);
     setEditor(editor);
+
+    let initialColorStyle = colorStyle;
+    let initialDashStyle = dashStyle;
+    let initialFillStyle = fillStyle;
+    let initialFontStyle = fontStyle;
+    let initialSizeStyle = sizeStyle;
+
+    const toolbarSavedState = SessionStorage.getItem('whiteboardToolbarSavedState');
+
+    if (toolbarSavedState) {
+      const {
+        colorStyle: savedColorStyle,
+        dashStyle: savedDashStyle,
+        fillStyle: savedFillStyle,
+        fontStyle: savedFontStyle,
+        sizeStyle: savedSizeStyle,
+        selectedTool: savedSelectedTool,
+      } = toolbarSavedState;
+
+      if (savedColorStyle) {
+        if (colorStyles.includes(savedColorStyle)) {
+          initialColorStyle = savedColorStyle;
+        }
+      }
+      if (savedDashStyle) {
+        if (dashStyles.includes(savedDashStyle)) {
+          initialDashStyle = savedDashStyle;
+        }
+      }
+      if (savedFillStyle) {
+        if (fillStyles.includes(savedFillStyle)) {
+          initialFillStyle = savedFillStyle;
+        }
+      }
+      if (savedFontStyle) {
+        if (fontStyles.includes(savedFontStyle)) {
+          initialFontStyle = savedFontStyle;
+        }
+      }
+      if (savedSizeStyle) {
+        if (sizeStyles.includes(savedSizeStyle)) {
+          initialSizeStyle = savedSizeStyle;
+        }
+      }
+      if (savedSelectedTool) {
+        const { multiUserTools } = window.meetingClientSettings.public.whiteboard.toolbar;
+        if (multiUserTools.includes(savedSelectedTool)) {
+          editor.setCurrentTool(savedSelectedTool);
+        }
+      }
+    }
 
     DefaultHorizontalAlignStyle.defaultValue = isRTL ? 'end' : 'start';
     DefaultVerticalAlignStyle.defaultValue = 'start';
@@ -1108,40 +1218,28 @@ const Whiteboard = React.memo((props) => {
       editor?.updateInstanceState({ isToolLocked: true });
     }
 
-    const colorStyles = [
-      'black',
-      'blue',
-      'green',
-      'grey',
-      'light-blue',
-      'light-green',
-      'light-red',
-      'light-violet',
-      'orange',
-      'red',
-      'violet',
-      'yellow',
-    ];
-    const dashStyles = ['dashed', 'dotted', 'draw', 'solid'];
-    const fillStyles = ['none', 'pattern', 'semi', 'solid'];
-    const fontStyles = ['draw', 'mono', 'sans', 'serif'];
-    const sizeStyles = ['l', 'm', 's', 'xl'];
+    if (colorStyles.includes(initialColorStyle)) {
+      editor.setStyleForNextShapes(DefaultColorStyle, initialColorStyle);
+    }
+    if (dashStyles.includes(initialDashStyle)) {
+      editor.setStyleForNextShapes(DefaultDashStyle, initialDashStyle);
+    }
+    if (fillStyles.includes(initialFillStyle)) {
+      editor.setStyleForNextShapes(DefaultFillStyle, initialFillStyle);
+    }
+    if (fontStyles.includes(initialFontStyle)) {
+      editor.setStyleForNextShapes(DefaultFontStyle, initialFontStyle);
+    }
+    if (sizeStyles.includes(initialSizeStyle)) {
+      editor.setStyleForNextShapes(DefaultSizeStyle, initialSizeStyle);
+    }
 
-    if (colorStyles.includes(colorStyle)) {
-      editor.setStyleForNextShapes(DefaultColorStyle, colorStyle);
-    }
-    if (dashStyles.includes(dashStyle)) {
-      editor.setStyleForNextShapes(DefaultDashStyle, dashStyle);
-    }
-    if (fillStyles.includes(fillStyle)) {
-      editor.setStyleForNextShapes(DefaultFillStyle, fillStyle);
-    }
-    if (fontStyles.includes(fontStyle)) {
-      editor.setStyleForNextShapes(DefaultFontStyle, fontStyle);
-    }
-    if (sizeStyles.includes(sizeStyle)) {
-      editor.setStyleForNextShapes(DefaultSizeStyle, sizeStyle);
-    }
+    editor.sideEffects.registerBeforeDeleteHandler('shape', (shape, source) => {
+      const { presenter, isModerator, userId } = currentUserRef.current;
+      const isOwn = userId && shape.meta?.createdBy === userId;
+      const hasPermission = isOwn || presenter || isModerator;
+      return source === 'user' ? hasPermission : true;
+    });
 
     editor.store.listen(
       (entry) => {
@@ -1473,7 +1571,33 @@ const Whiteboard = React.memo((props) => {
       if (!isPresenterRef.current && !hasWBAccessRef.current) {
         editor?.setCurrentTool('noop');
       } else {
-        editor?.setCurrentTool('draw');
+        const {
+          initialSelectedTool: initialSelectedToolFromConfig,
+          presenterTools,
+          multiUserTools,
+        } = window.meetingClientSettings.public.whiteboard.toolbar;
+        let initialSelectedTool = getFromUserSettings(
+          'bbb_initial_selected_tool',
+          initialSelectedToolFromConfig,
+        );
+
+        if (toolbarSavedState) {
+          const {
+            selectedTool: savedSelectedTool,
+          } = toolbarSavedState;
+
+          if (savedSelectedTool && multiUserTools.includes(savedSelectedTool)) {
+            initialSelectedTool = savedSelectedTool;
+          }
+        }
+
+        if (isPresenterRef.current) {
+          const initialPresenterTool = presenterTools.includes(initialSelectedTool) ? initialSelectedTool : 'noop';
+          editor?.setCurrentTool(initialPresenterTool);
+        } else {
+          const initialTool = multiUserTools.includes(initialSelectedTool) ? initialSelectedTool : 'noop';
+          editor?.setCurrentTool(initialTool);
+        }
       }
     }
 
@@ -1542,11 +1666,20 @@ const Whiteboard = React.memo((props) => {
       const centeredCameraY = -slideShape.y
         + (viewportHeight - slideShape.props.h * zoomCamera) / (2 * zoomCamera);
 
-      newCamera = {
-        x: centeredCameraX + panningOffsetX,
-        y: centeredCameraY + panningOffsetY,
-        z: zoomCamera,
-      };
+      // use stored values if slide has just changed and zoom is not default
+      if(camera.x === 0 && camera.y === 0 && zoomValueRef.current !== HUNDRED_PERCENT) {
+        newCamera = {
+          x: currentPresentationPageRef.current.xOffset,
+          y: currentPresentationPageRef.current.yOffset,
+          z: zoomCamera,
+        };
+      } else {
+        newCamera = {
+          x: centeredCameraX + panningOffsetX,
+          y: centeredCameraY + panningOffsetY,
+          z: zoomCamera,
+        };
+      }
     } else {
       newCamera = {
         x: camera.x + ((viewportWidth / 2) / camera.z - (viewportWidth / 2) / zoomCamera),
@@ -1833,16 +1966,15 @@ const Whiteboard = React.memo((props) => {
 
       const updatedPresences = otherCursors
         .map(({
-          userId, user, xPercent, yPercent,
+          userId, xPercent, yPercent, presenter, name, isModerator,
         }) => {
-          const { presenter, name } = user;
           const id = InstancePresenceRecordType.createId(userId);
           const active = xPercent !== -1 && yPercent !== -1;
           // if cursor is not active remove it from tldraw store
           if (
             !active
             || (hideViewersCursor
-              && user.role === 'VIEWER'
+              && !isModerator
               && !currentUser?.presenter)
             || (!presenter && !isMultiUserActive)
           ) {
@@ -1977,6 +2109,33 @@ const Whiteboard = React.memo((props) => {
     const newCursor = hasWBAccessRef.current || currentUser?.presenter ? TOOL_CURSORS[currentTool] || '' : 'inherit';
     setCursorType(newCursor);
   }, [tlEditorRef.current?.getCurrentToolId()]);
+
+  const getToolbarCurrentState = useCallback(() => {
+    return {
+      colorStyle: tlEditorRef.current?.getInstanceState().stylesForNextShape[DefaultColorStyle.id],
+      dashStyle: tlEditorRef.current?.getInstanceState().stylesForNextShape[DefaultDashStyle.id],
+      fillStyle: tlEditorRef.current?.getInstanceState().stylesForNextShape[DefaultFillStyle.id],
+      fontStyle: tlEditorRef.current?.getInstanceState().stylesForNextShape[DefaultFontStyle.id],
+      sizeStyle: tlEditorRef.current?.getInstanceState().stylesForNextShape[DefaultSizeStyle.id],
+      selectedTool: tlEditorRef.current?.getCurrentToolId(),
+    };
+  }, [
+    tlEditorRef.current?.getInstanceState().stylesForNextShape,
+    tlEditorRef.current?.getCurrentToolId(),
+  ]);
+
+  React.useEffect(() => () => {
+    SessionStorage.setItem('whiteboardToolbarSavedState', getToolbarCurrentState());
+  }, [getToolbarCurrentState]);
+
+  React.useEffect(() => {
+    if (!whiteboardToolbarAutoHide) {
+      const optionsDropdown = document.getElementById('WhiteboardOptionButton');
+      if (optionsDropdown?.classList.contains('fade-in')) {
+        optionsDropdown.classList.remove('fade-in');
+      }
+    }
+  }, [whiteboardToolbarAutoHide]);
 
   return (
     <div

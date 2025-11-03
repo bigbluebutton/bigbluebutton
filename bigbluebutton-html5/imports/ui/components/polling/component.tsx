@@ -20,10 +20,14 @@ import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscri
 import { useIsPollingEnabled } from '../../services/features';
 import logger from '/imports/startup/client/logger';
 import connectionStatus from '../../core/graphql/singletons/connectionStatus';
+import useMeeting from '../../core/hooks/useMeeting';
 
 const intlMessages = defineMessages({
   pollingTitleLabel: {
     id: 'app.polling.pollingTitle',
+  },
+  quizTitleLabel: {
+    id: 'app.poll.quiz.options.title',
   },
   pollAnswerLabel: {
     id: 'app.polling.pollAnswerLabel',
@@ -39,6 +43,9 @@ const intlMessages = defineMessages({
   },
   responseNotSecret: {
     id: 'app.polling.responseNotSecret',
+  },
+  quizResponseNotSecret: {
+    id: 'app.poll.quiz.options.responseNotSecret',
   },
   submitLabel: {
     id: 'app.polling.submitLabel',
@@ -65,6 +72,7 @@ interface PollingGraphqlProps {
   isDefaultPoll: (pollType: string) => boolean;
   playAlert: () => void;
   poll: {
+    quiz: boolean;
     pollId: string;
     multipleResponses: boolean;
     type: string;
@@ -147,7 +155,11 @@ const PollingGraphql: React.FC<PollingGraphqlProps> = (props) => {
           <span>
             {questionText.length === 0 && (
               <Styled.PollingTitle>
-                {intl.formatMessage(intlMessages.pollingTitleLabel)}
+                {
+                  poll.quiz
+                    ? intl.formatMessage(intlMessages.quizTitleLabel)
+                    : intl.formatMessage(intlMessages.pollingTitleLabel)
+                }
               </Styled.PollingTitle>
             )}
             <Styled.PollingAnswers
@@ -235,7 +247,7 @@ const PollingGraphql: React.FC<PollingGraphqlProps> = (props) => {
           {intl.formatMessage(
             poll.secret
               ? intlMessages.responseIsSecret
-              : intlMessages.responseNotSecret,
+              : (poll.quiz && intlMessages.quizResponseNotSecret) || intlMessages.responseNotSecret,
           )}
         </Styled.PollingSecret>
       </div>
@@ -247,7 +259,11 @@ const PollingGraphql: React.FC<PollingGraphqlProps> = (props) => {
       <div>
         {poll.questionText.length === 0 && (
           <Styled.PollingTitle>
-            {intl.formatMessage(intlMessages.pollingTitleLabel)}
+            {
+              poll.quiz
+                ? intl.formatMessage(intlMessages.quizTitleLabel)
+                : intl.formatMessage(intlMessages.pollingTitleLabel)
+            }
           </Styled.PollingTitle>
         )}
         <Styled.MultipleResponseAnswersTable>
@@ -316,7 +332,11 @@ const PollingGraphql: React.FC<PollingGraphqlProps> = (props) => {
         {poll.questionText.length > 0 && (
           <Styled.QHeader>
             <Styled.QTitle>
-              {intl.formatMessage(intlMessages.pollQuestionTitle)}
+              {
+                poll.quiz
+                  ? intl.formatMessage(intlMessages.quizTitleLabel)
+                  : intl.formatMessage(intlMessages.pollQuestionTitle)
+              }
             </Styled.QTitle>
             <Styled.QText data-test="pollQuestion">
               {poll.questionText}
@@ -337,11 +357,19 @@ const PollingGraphqlContainer: React.FC = () => {
     userId: u.userId,
     presenter: u.presenter,
   }));
+
+  const {
+    data: meeting,
+    loading: meetingLoading,
+  } = useMeeting((m) => ({
+    componentsFlags: m.componentsFlags,
+  }));
+
   const { data: hasPendingPollData, error, loading } = useDeduplicatedSubscription<HasPendingPollResponse>(
     hasPendingPoll,
     {
       variables: { userId: currentUserData?.userId },
-      skip: !currentUserData,
+      skip: !currentUserData || meetingLoading || !meeting?.componentsFlags?.hasPoll,
     },
   );
   const [pollSubmitUserTypedVote] = useMutation(POLL_SUBMIT_TYPED_VOTE);

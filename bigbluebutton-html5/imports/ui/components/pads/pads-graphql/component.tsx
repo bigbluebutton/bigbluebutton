@@ -2,8 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
 import {
-  HAS_PAD_SUBSCRIPTION,
-  HasPadSubscriptionResponse,
   PAD_SESSION_SUBSCRIPTION,
   PadSessionSubscriptionResponse,
 } from './queries';
@@ -12,6 +10,7 @@ import Service from './service';
 import Styled from './styles';
 import PadContent from './content/component';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
 
 const intlMessages = defineMessages({
   hint: {
@@ -27,7 +26,7 @@ interface PadContainerGraphqlProps {
   isRTL: boolean;
 }
 
-interface PadGraphqlProps extends Omit<PadContainerGraphqlProps, 'hasPermission'> {
+interface PadGraphqlProps extends PadContainerGraphqlProps {
   hasSession: boolean;
   sessionIds: Array<string>;
   padId: string | undefined;
@@ -41,6 +40,7 @@ const PadGraphql: React.FC<PadGraphqlProps> = (props) => {
     isRTL,
     sessionIds,
     padId,
+    hasPermission,
   } = props;
   const [padURL, setPadURL] = useState<string | undefined>();
   const intl = useIntl();
@@ -53,10 +53,10 @@ const PadGraphql: React.FC<PadGraphqlProps> = (props) => {
     setPadURL(Service.buildPadURL(padId, sessionIds));
   }, [isRTL, hasSession, intl.locale]);
 
-  if (!hasSession) {
+  if (!hasPermission) {
     return <PadContent externalId={externalId} />;
   }
-
+  if (!hasSession || !padURL) return null;
   return (
     <Styled.Pad>
       <Styled.IFrame
@@ -85,10 +85,9 @@ const PadContainerGraphql: React.FC<PadContainerGraphqlProps> = (props) => {
     isResizing,
   } = props;
 
-  const { data: hasPadData } = useDeduplicatedSubscription<HasPadSubscriptionResponse>(
-    HAS_PAD_SUBSCRIPTION,
-    { variables: { externalId } },
-  );
+  const { data: meeting } = useMeeting((m) => ({
+    componentsFlags: m.componentsFlags,
+  }));
   const { data: padSessionData } = useDeduplicatedSubscription<PadSessionSubscriptionResponse>(
     PAD_SESSION_SUBSCRIPTION,
   );
@@ -96,7 +95,7 @@ const PadContainerGraphql: React.FC<PadContainerGraphqlProps> = (props) => {
 
   const sessionData = padSessionData?.sharedNotes_session ?? [];
   const session = sessionData.find((s) => s.sharedNotesExtId === externalId);
-  const hasPad = !!hasPadData && hasPadData.sharedNotes.length > 0;
+  const hasPad = meeting?.componentsFlags?.hasSharedNotes;
   const hasSession = session?.sessionId !== undefined;
   const sessionIds = new Set<string>(sessionData.map((s) => s.sessionId));
 
@@ -114,6 +113,7 @@ const PadContainerGraphql: React.FC<PadContainerGraphqlProps> = (props) => {
       isResizing={isResizing}
       sessionIds={Array.from(sessionIds)}
       padId={session?.sharedNotes?.padId}
+      hasPermission={hasPermission}
     />
   );
 };

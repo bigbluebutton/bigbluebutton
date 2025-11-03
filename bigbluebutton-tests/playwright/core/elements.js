@@ -26,6 +26,8 @@ exports.redirectButton = 'button[data-test="redirectButton"]';
 exports.leaveMeetingDropdown = 'button[data-test="leaveMeetingDropdown"]';
 exports.directLogoutButton = 'li[data-test="directLogoutButton"]';
 exports.optionsLogoutButton = 'li[data-test="optionsLogoutButton"]';
+exports.endMeetingButton = 'li[data-test="endMeetingButton"]';
+exports.confirmEndMeetingButton = 'button[data-test="confirmEndMeeting"]';
 exports.rating = 'div[data-test="rating"]';
 exports.sendFeedbackButton = 'button[data-test="sendFeedbackButton"]';
 exports.feedbackCommentInput = 'textarea#feedbackComment';
@@ -157,12 +159,14 @@ exports.chatReplyIntentionContainerContent = 'div[data-test="chatReplyIntentionC
 exports.closeChatReplyIntentionButton = 'button[data-test="closeChatReplyIntentionButton"]';
 exports.chatMessageReplied = 'div[data-test="chatMessageReplied"]';
 exports.messageReactionItem = 'button[data-test="messageReactionItem"]';
+
 // Message toolbar
 exports.messageToolbar = 'div[data-test="chatMessageToolbar"]';
 exports.replyMessageButton = 'button[data-test="replyMessageButton"]';
 exports.reactMessageButton = 'button[data-test="reactMessageButton"]';
 exports.editMessageButton = 'button[data-test="editMessageButton"]';
 exports.deleteMessageButton = 'button[data-test="deleteMessageButton"]';
+
 // Emoji picker
 exports.emojiPickerButton = 'button[data-test="emojiPickerButton"]';
 exports.thumbsUpEmoji = '👍';
@@ -170,6 +174,7 @@ exports.grinningFaceEmoji = '😀';
 // Auto Convert Emoji
 exports.autoConvertEmojiMessage = ':)';
 exports.convertedEmojiMessage = '😊';
+
 // Messages
 exports.message = 'Hello World!';
 exports.testMessage = 'Just a test';
@@ -242,6 +247,7 @@ exports.processingPresentationItem = 'span[data-test="processingPresentationItem
 exports.uploadDoneIcon = 'i[data-test="uploadDoneIcon"]';
 exports.noButton = 'button[aria-label="No"]';
 exports.yesButton = 'button[aria-label="Yes"]';
+
 // Toasts
 exports.savedSettingsToast = 'Settings have been saved';
 exports.publicChatToast = 'New Public Chat message';
@@ -254,6 +260,7 @@ exports.attendeeJoinedToast = 'Attendee joined the session';
 exports.raisingHandToast = 'You have raised your hand';
 exports.loweringHandToast = 'Your hand has been lowered';
 exports.noActiveMicrophoneToast = 'No active microphone. Share your microphone to add audio to this recording.';
+
 // Icons
 const baseBbbIcon = 'i.icon-bbb-';
 exports.unmuteIcon = `${baseBbbIcon}unmute`;
@@ -299,6 +306,7 @@ exports.submitAnswersMultiple = 'button[data-test="submitAnswersMultiple"]';
 exports.userVoteLiveResult = 'td[data-test="userVoteLiveResult"]';
 exports.errorNoValueInput = 'div[data-test="errorNoValueInput"]';
 exports.smartSlides1 = 'smartSlidesPresentation.pdf';
+exports.smartSlides2 = 'SmartSlides.pdf';
 exports.responsePollQuestion = 'div[data-test="pollQuestion"]';
 const pollAnswersOption = 'div[data-test="optionsAnswers"]';
 exports.firstPollAnswerOptionBtn = `${pollAnswersOption}>>nth=0`;
@@ -307,6 +315,7 @@ exports.firstCheckboxInput = `${pollAnswersOption}`;
 exports.closePollingBtn = 'button[data-test="closePolling"]';
 exports.yesNoOption = 'button[data-test="yesNoQuickPoll"]';
 exports.yesNoAbstentionOption = 'li[role="menuitem"]>>nth=1';
+exports.pollAnswerOptionD = 'button[data-test="pollAnswerOption"]>>nth=3';
 exports.pollAnswerOptionE = 'button[data-test="pollAnswerOption"]>>nth=4';
 
 // Presentation
@@ -347,11 +356,13 @@ exports.whiteboardOptionsButton = 'button[data-test="whiteboardOptionsButton"]';
 exports.presentationFullscreen = 'li[data-test="presentationFullscreen"]';
 exports.presentationSnapshot = 'li[data-test="presentationSnapshot"]';
 exports.toolVisibility = 'li[data-test="toolVisibility"]';
+
 // YouTube frame
 exports.youtubeLink = 'https://www.youtube.com/watch?v=Wjx5_IONaNg&t=158s&ab_channel=BigBlueButton';
 // The title we match for here is the title of the test video specified by youtubeLink
 exports.youtubeFrame = 'div[data-test="videoPlayer"]';
 exports.ytFrameTitle = 'a[class^="ytp-title-link"]';
+
 // Toasts
 exports.statingUploadPresentationToast = 'To be uploaded ...';
 exports.convertingPresentationFileToast = 'Converting file';
@@ -365,6 +376,8 @@ exports.languageSelector = 'select[id="langSelector"]';
 exports.messageTitle = 'h2[data-test="messageTitle"]';
 exports.notesTitle = 'h2[data-test="notesTitle"]';
 exports.dataSavingsTab = 'span[id="dataSaving"]';
+exports.enableWebcamsToggleBtn = 'input[data-test="webcamToggleBtn"]';
+exports.enableDesktopSharingToggleBtn = 'input[data-test="desktopSharingToggleBtn"]';
 
 // User
 const userAvatar = 'div[data-test-avatar="userAvatar"]';
@@ -454,6 +467,7 @@ exports.videoDropdownMenu = 'button[data-test="videoDropdownMenu"]';
 exports.advancedVideoSettingsBtn = 'li[data-test="advancedVideoSettingsButton"]';
 exports.mirrorWebcamBtn = 'li[data-test="mirrorWebcamBtn"]';
 exports.focusWebcamBtn = 'li[data-test="focusWebcamBtn"]';
+exports.unfocusWebcamBtn = 'li[data-test="unfocusWebcamBtn"]';
 exports.pinWebcamBtn = 'li[data-test="pinWebcamBtn"]';
 exports.pinVideoButton = 'button[data-test="pinVideoButton"]';
 exports.webcamsFullscreenButton = 'li[data-test="webcamsFullscreenButton"]';
@@ -464,18 +478,20 @@ exports.selectCustomBackground = 'button[data-test="selectCustomBackground"]';
 exports.removeCustomBackground = 'button[data-test="removeCustomBackground"]';
 exports.inputBackgroundButton = 'button[data-test="inputBackgroundButton"]';
 exports.noneBackgroundButton = 'button[data-test="noneBackgroundButton"]';
-exports.dropAreaBottom = 'div[data-test="dropArea-contentLeft"]';
+exports.dropAreaBottom = 'div[data-test="dropArea-contentBottom"]';
 exports.dropAreaLeft = 'div[data-test="dropArea-contentLeft"]';
 exports.dropAreaRight = 'div[data-test="dropArea-contentRight"]';
 exports.dropAreaTop = 'div[data-test="dropArea-contentTop"]';
 exports.dropAreaSidebarBottom = 'div[data-test="dropArea-sidebarContentBottom"]';
 exports.selfViewDisableBtn = 'li[data-test="selfViewDisableBtn"]';
-
+exports.nextPageVideoPagination = 'button[data-test="nextPageVideoPaginationBtn"]';
+exports.previousPageVideoPagination = 'button[data-test="previousPageVideoPaginationBtn"]';
 exports.videoQualitySelector = 'select[id="setQuality"]';
 exports.webcamItemTalkingUser = 'div[data-test="webcamItemTalkingUser"]';
 exports.webcamSettingsModal = 'div[data-test="webcamSettingsModal"]';
 exports.dropdownWebcamButton = 'div[data-test="dropdownWebcamButton"]';
 exports.webcamMirroredVideoPreview = 'video[data-test="mirroredVideoPreview"]';
+exports.resizeWebcamHandler = 'div#cameraDock + div > div[style*="user-select: none"]';
 
 // Whiteboard
 exports.whiteboard = 'div[data-testid="canvas"]';
@@ -522,6 +538,7 @@ exports.wbMoveToFront = 'button[data-testid="menu-item.bring-to-front"]';
 exports.wbPaste = 'button[data-testid="menu-item.paste"]';
 exports.wbTextTrue = 'div[data-hastext="true"]';
 exports.wbDrawnArrow = 'div[data-shape-type="arrow"]';
+exports.wbAutoHideToggleBtn = 'input[data-test="autoHideToolbarToggleBtn"]';
 
 // About modal
 exports.showAboutModalButton = 'li[data-test="aboutModal"]';
@@ -537,7 +554,6 @@ exports.actionsBarBackground = 'section[id="ActionsBar"]';
 exports.navbarBackground = 'header[id="Navbar"]';
 exports.fullscreenModal = 'div[id="fsmodal"]';
 exports.sharedNotesBackground = 'div[data-test="notes"]';
-exports.whiteboardOptionsButton = 'button[data-test="whiteboardOptionsButton"]';
 
 // Layout management
 exports.manageLayoutBtn = 'li[data-test="manageLayoutBtn"]';
@@ -579,3 +595,27 @@ exports.userStatusDashboard = 'td[data-test="userStatusDashboard"]';
 exports.userActivityScoreDashboard = 'td[data-test="userActivityScoreDashboard"]';
 exports.activityScorePanelDashboard = 'button[data-test="activityScorePanelDashboard"]';
 exports.downloadSessionLearningDashboard = 'button[data-test="downloadSessionDataDashboard"]';
+
+// Recording playback
+const topBar = 'div.top-bar';
+const videoControlBar = 'div.vjs-control-bar';
+exports.playbackElements = {
+  sectionLeftButton: `${topBar} .left button`,
+  toggleThemeButton: `${topBar} .right button[aria-label="Toggle theme"]`,
+  searchButton: `${topBar} .right button[aria-label="Search"]`,
+  swapContentButton: `${topBar} .right button[aria-label="Swap content"]`,
+  topBar: topBar,
+  title: `${topBar} .center span.title`,
+  mediaArea: 'div.media',
+  applicationArea: 'div.application',
+  topContentArea: 'div.top-content',
+  bottomContentArea: 'div.bottom-content',
+  chatContentArea: 'div#chat',
+  applicationControlButton: 'div.application-control div',
+  notesContentArea: 'div#notes',
+  videoControlBar: videoControlBar,
+  playPauseButton: `${videoControlBar} button.vjs-play-control`,
+  seekBackButton: `${videoControlBar} button.vjs-seek-button.skip-back`,
+  seekForwardButton: `${videoControlBar} button.vjs-seek-button.skip-forward`,
+  progressBar: `${videoControlBar} div.vjs-play-progress`,
+}

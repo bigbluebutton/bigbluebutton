@@ -182,6 +182,27 @@ module BigBlueButton
         # This can range from 83ms for 24fps video (video format), up to 400ms (presentation format deskshare)
         min_cut_len = (1000 / framerate * 2).round
 
+        # Special case handling for the start of the video
+        # If there's a cut immediately after the start of the video, the later logic would delete the cut
+        # for the start of the video, which would result in desync. Any cuts within min_cut_len of the video
+        # start have to be pushed back to avoid this situation. It multiple cuts are pushed back (they'd all get
+        # set to the same timestamp), the later logic will clean them up.
+        1.upto(edl.length - 1).each do |i|
+          # We've made it past the problematic point near the video start
+          break if edl[i][:timestamp] >= min_cut_len
+
+          BigBlueButton.logger.debug("Pushing EDL entry index #{i} from #{edl[i][:timestamp]} to #{min_cut_len}")
+          offset = min_cut_len - edl[i][:timestamp]
+          # Move the cut to start at min_cut_len
+          edl[i][:timestamp] = min_cut_len
+          # And offset the start times of every video to compensate
+          edl[i][:areas].each_value do |videos|
+            videos.each do |video|
+              video[:timestamp] += offset
+            end
+          end
+        end
+
         # Iterate through the edl entries from end to just after the start
         (edl.length - 1).downto(1).each do |i|
           duration = edl[i][:timestamp] - edl[i - 1][:timestamp]
@@ -192,20 +213,6 @@ module BigBlueButton
           BigBlueButton.logger.debug("Dropping EDL entry index #{i - 1} (#{duration} < #{min_cut_len})")
           edl.delete_at(i - 1)
           # On the next iteration through the loop, we'll be re-checking from the same end point, but a new start
-        end
-
-        # What if the first cut got deleted?
-        if edl[0][:timestamp] != 0
-          # Need to reset the first cut to start at timestamp 0
-          BigBlueButton.logger.debug('Resetting timestamp of first EDL entry to 0')
-          offset = edl[0][:timestamp]
-          edl[0][:timestamp] = 0
-          # And offset the start times of every video to compensate
-          edl[0][:areas].each_value do |videos|
-            videos.each do |video|
-              video[:timestamp] -= offset # This might become negative, that's ok.
-            end
-          end
         end
 
         # What if all of the cuts got deleted?
@@ -502,8 +509,7 @@ module BigBlueButton
         ffmpeg_inputs = []
         ffmpeg_input_pipes = {}
         ffmpeg_filter = String.new
-        xstack_inputs = []
-        xstack_layout = []
+        ffmpeg_filter << "color=c=white:s=#{layout[:width]}x#{layout[:height]}:r=#{layout[:framerate]}"
 
         # Check for obscured (completely hidden) video areas, and skip processing for those areas
         layout[:areas].each_with_index do |layout_area, i|
@@ -537,6 +543,8 @@ module BigBlueButton
           tile_height = 0
           total_area = 0
 
+          ffmpeg_filter << "[#{layout_area[:name]}_in];\n"
+
           # Do an exhaustive search to maximize video areas
           for tmp_tiles_v in 1..video_count
             tmp_tiles_h = (video_count / tmp_tiles_v.to_f).ceil
@@ -561,13 +569,16 @@ module BigBlueButton
             end
           end
 
-          tile_offset_x = layout_area[:x] + (2 * ((layout_area[:width] - (tiles_h * tile_width)) / 4).floor)
-          tile_offset_y = layout_area[:y] + (2 * ((layout_area[:height] - (tiles_v * tile_height)) / 4).floor)
+          tile_offset_x = (2 * ((layout_area[:width] - (tiles_h * tile_width)) / 4).floor)
+          tile_offset_y = (2 * ((layout_area[:height] - (tiles_v * tile_height)) / 4).floor)
 
           tile_x = 0
           tile_y = 0
 
           BigBlueButton.logger.debug "    Tiling in a #{tiles_h}x#{tiles_v} grid"
+
+          xstack_inputs = []
+          xstack_layout = []
 
           area.each do |video|
             this_videoinfo = videoinfo[video[:filename]]
@@ -704,25 +715,24 @@ module BigBlueButton
             ffmpeg_filter << "trim=end=#{ms_to_s(duration)}"
             ffmpeg_filter << "[#{pad_name}];"
           end
-        end
 
-        # Create the xstack filter to composite the video elements
-        xstack_inputs.each do |xstack_input|
-          ffmpeg_filter << xstack_input
-        end
-        ffmpeg_filter <<
-          if xstack_inputs.length >= 2
-            "xstack=fill=white:inputs=#{xstack_inputs.length}:layout=#{xstack_layout.join('|')}"
-          elsif xstack_inputs.length == 1
-            # xstack doesn't support 1 input; a kind of odd omission
-            'null'
-          else
-            "color=c=white:s=#{layout[:width]}x#{layout[:height]}:r=#{layout[:framerate]}"
+          # Create the xstack filter to composite the video elements
+          xstack_inputs.each do |xstack_input|
+            ffmpeg_filter << xstack_input
           end
+          ffmpeg_filter <<
+            if xstack_inputs.length >= 2
+              "xstack=fill=white:inputs=#{xstack_inputs.length}:layout=#{xstack_layout.join('|')}"
+            else
+              # xstack doesn't support 1 input; a kind of odd omission
+              'null'
+            end
 
-        # xstack might not extend the video frame to the desired size if the right or bottom parts of the layout are
-        # empty, so pad the frame to size.
-        ffmpeg_filter << ",pad=w=#{layout[:width]}:h=#{layout[:height]}:x=0:y=0:color=white"
+          # Overlay this area on top of the input video
+          ffmpeg_filter << "[#{layout_area[:name]}];\n"
+          ffmpeg_filter << "[#{layout_area[:name]}_in][#{layout_area[:name]}]overlay=x=#{layout_area[:x]}:y=#{layout_area[:y]}"
+        end
+
         # As a safety measure, crop anything that might have made the frame too large.
         ffmpeg_filter << ",crop=w=#{layout[:width]}:h=#{layout[:height]}:x=0:y=0"
         ffmpeg_filter << ",trim=end=#{ms_to_s(duration)}"

@@ -22,7 +22,7 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
   def handleCreateBreakoutRoomsCmdMsg(msg: CreateBreakoutRoomsCmdMsg, state: MeetingState2x): MeetingState2x = {
 
 
-    val minOfRooms = 2
+    val minOfRooms = 1
     val maxOfRooms = getConfigPropertyValueByPathAsIntOrElse(liveMeeting.clientSettings, "public.app.breakouts.breakoutRoomLimit", 16)
 
     if (liveMeeting.props.meetingProp.disabledFeatures.contains("breakoutRooms")) {
@@ -65,7 +65,10 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
     var rooms = new collection.immutable.HashMap[String, BreakoutRoom2x]
     val filteredPluginProp = liveMeeting.props.pluginProp.asScala
       .filter { case (key, _) =>
-        getPlugins(liveMeeting.plugins).get(key).exists(_.manifest.content.enabledForBreakoutRooms)
+        getPlugins(liveMeeting.plugins).get(key).exists(_.manifest.content match {
+          case Some(pluginManifestContent) => pluginManifestContent.enabledForBreakoutRooms
+          case None => false
+        })
       }
       .asJava
 

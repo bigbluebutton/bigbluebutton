@@ -17,7 +17,7 @@ import ChatPollContent from './message-content/poll-content/component';
 import ChatMessagePresentationContent from './message-content/presentation-content/component';
 import {
   ChatWrapper,
-  ChatContent,
+  ChatMessageContentWrapper,
   ChatAvatar,
   MessageItemWrapper,
   Container,
@@ -27,6 +27,7 @@ import {
   ChatContentFooter,
   ChatTime,
   FlexColumn,
+  PluginInformationMetadata,
 } from './styles';
 import { ChatMessageType, SYSTEM_SENDERS, ChatEvents } from '/imports/ui/core/enums/chat';
 import MessageReadConfirmation from './message-read-confirmation/component';
@@ -47,6 +48,7 @@ import { EmojiPicker, EmojiPickerWrapper } from './message-toolbar/styles';
 import { isMobile } from '/imports/utils/deviceInfo';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
+import { useModalRegistration } from '/imports/ui/core/singletons/modalController';
 
 interface ChatMessageProps {
   message: Message;
@@ -71,8 +73,8 @@ interface ChatMessageProps {
   chatEditEnabled: boolean;
   chatReactionsEnabled: boolean;
   focused: boolean;
-  sendReaction: (reactionEmoji: string, reactionEmojiId: string, chatId: string, messageId: string) => void;
-  deleteReaction: (reactionEmoji: string, reactionEmojiId: string, chatId: string, messageId: string) => void;
+  sendReaction: (reactionEmoji: string, chatId: string, messageId: string) => void;
+  deleteReaction: (reactionEmoji: string, chatId: string, messageId: string) => void;
 }
 
 export interface ChatMessageRef {
@@ -137,6 +139,14 @@ const intlMessages = defineMessages({
     id: 'app.chat.toolbar.delete.confirmationDescription',
     description: '',
   },
+  quizResult: {
+    id: 'app.chat.quizResult',
+    description: 'Quiz result label in chat',
+  },
+  pluginMetadataInformation: {
+    id: 'app.chat.plugin.metadataInformation',
+    description: 'Plugin metadata information within chat message',
+  },
 });
 
 function isInViewport(el: HTMLDivElement) {
@@ -179,6 +189,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
   focused,
 }, ref) => {
   const intl = useIntl();
+  const chatMessageContentWrapperRef = React.useRef<HTMLDivElement>(null);
   const messageContentRef = React.useRef<HTMLDivElement>(null);
   const [isToolbarReactionPopoverOpen, setIsToolbarReactionPopoverOpen] = React.useState(false);
   const [keyboardFocused, setKeyboardFocused] = React.useState(false);
@@ -208,6 +219,15 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
     });
   }, [chatDeleteMessage, message.chatId, message.messageId]);
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
+
+  const {
+    isOpen: isTryingToDeleteModalOpen,
+    close: tryingToDeleteModalClose,
+    open: tryingToDeleteModalOpen,
+  } = useModalRegistration({
+    id: 'chatMessageTryingToDeleteModal',
+    priority: 'high',
+  });
 
   const disablePublicChat = meetingDisablePublicChat || currentUserDisablePublicChat;
 
@@ -265,13 +285,13 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
   };
 
   const animateBackgroundColor = (timestamp: number) => {
-    if (!messageContentRef.current) return;
+    if (!chatMessageContentWrapperRef.current) return;
     const value = (timestamp - animationInitialTimestamp.current) / ANIMATION_DURATION;
     if (value < 1) {
-      messageContentRef.current.style.backgroundColor = `rgb(${colorBlueLighterChannel} / ${1 - value})`;
+      chatMessageContentWrapperRef.current.style.backgroundColor = `rgb(${colorBlueLighterChannel} / ${1 - value})`;
       requestAnimationFrame(animateBackgroundColor);
     } else {
-      messageContentRef.current.style.backgroundColor = animationInitialBgColor.current;
+      chatMessageContentWrapperRef.current.style.backgroundColor = animationInitialBgColor.current;
     }
   };
 
@@ -285,7 +305,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
       }
       return messages;
     });
-  }, [messageContentRef]);
+  }, [chatMessageContentWrapperRef]);
 
   const scrollEndFrameRef = React.useRef<number>();
 
@@ -358,9 +378,29 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
   let sameSender = ((previousMessage?.user?.userId
     || lastSenderPreviousPage) === message?.user?.userId) && pluginMessageNotCustom;
   const isSystemSender = SYSTEM_SENDERS.has(message.messageType as ChatMessageType);
-  const currentPluginMessageMetadata = message.messageType === ChatMessageType.PLUGIN
-    && JSON.parse(message.messageMetadata);
-  const isCustomPluginMessage = currentPluginMessageMetadata.custom;
+
+  const currentPluginMessageMetadata: {
+    custom: boolean;
+    pluginName: string;
+    pluginCustomMetadata?: unknown;
+  } | null = useMemo(() => {
+    if (message.messageType === ChatMessageType.PLUGIN) {
+      const parsedPluginData = JSON.parse(message.messageMetadata);
+      const isParsedPluginDataValid = 'custom' in parsedPluginData
+        && 'pluginName' in parsedPluginData;
+      if (isParsedPluginDataValid) {
+        return {
+          custom: parsedPluginData.custom,
+          pluginName: parsedPluginData?.pluginName,
+          pluginCustomMetadata: parsedPluginData?.pluginName,
+        };
+      }
+    }
+    return null;
+  }, [message]);
+  const isCustomPluginMessage: boolean = currentPluginMessageMetadata !== null && currentPluginMessageMetadata.custom;
+  const isCustomMessageFromPlugin: boolean = message.messageType === ChatMessageType.PLUGIN && isCustomPluginMessage;
+
   const dateTime = new Date(message?.createdAt);
   const formattedTime = intl.formatTime(dateTime, {
     hour: 'numeric',
@@ -386,9 +426,11 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
     showToolbar: boolean;
   } = useMemo(() => {
     switch (message.messageType) {
-      case ChatMessageType.POLL:
+      case ChatMessageType.POLL: {
+        const pollData = JSON.parse(message.messageMetadata) as { quiz: boolean;};
         return {
-          name: intl.formatMessage(intlMessages.pollResult),
+          name: pollData.quiz
+            ? intl.formatMessage(intlMessages.quizResult) : intl.formatMessage(intlMessages.pollResult),
           color: '#3B48A9',
           isModerator: true,
           component: (
@@ -400,6 +442,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
           showToolbar: false,
           isSystemSender: true,
         };
+      }
       case ChatMessageType.PRESENTATION:
         return {
           name: '',
@@ -441,7 +484,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
           isSystemSender: true,
           component: (
             <ChatMessageTextContent
-              text={message.message}
+              text={message.messageAsHtml}
             />
           ),
           showAvatar: true,
@@ -456,7 +499,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
           isSystemSender: true,
           component: (
             <ChatMessageTextContent
-              text={message.message}
+              text={message.messageAsHtml}
             />
           ),
           showAvatar: true,
@@ -517,11 +560,11 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
           showAvatar: true,
           showHeading: true,
           showToolbar: true,
-          component: currentPluginMessageMetadata.custom
+          component: isCustomPluginMessage
             ? null
             : (
               <ChatMessageTextContent
-                text={message.message}
+                text={message.messageAsHtml}
               />
             ),
         };
@@ -538,7 +581,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
           showToolbar: true,
           component: (
             <ChatMessageTextContent
-              text={message.message}
+              text={message.messageAsHtml}
             />
           ),
         };
@@ -565,6 +608,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
   const {
     user,
     message: messageText,
+    messageAsHtml,
     messageId,
     chatId,
     chatEmphasizedText,
@@ -579,7 +623,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
         new CustomEvent(ChatEvents.CHAT_REPLY_INTENTION, {
           detail: {
             username: user?.name,
-            message: messageText,
+            message: messageAsHtml,
             messageId,
             chatId,
             emphasizedMessage: chatEmphasizedText,
@@ -600,7 +644,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
     }
   }, [
     user?.name,
-    messageText,
+    messageAsHtml,
     messageId,
     chatId,
     chatEmphasizedText,
@@ -633,13 +677,14 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
     } else {
       handler();
     }
-  }, [messageId, chatId, messageText, deactivateFocusTrap, keyboardFocused]);
+  }, [messageId, chatId, message, deactivateFocusTrap, keyboardFocused]);
 
   const onDelete = useCallback((e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.stopPropagation();
 
     const handler = () => {
       setIsTryingToDelete(true);
+      tryingToDeleteModalOpen();
     };
 
     if (keyboardFocused) {
@@ -650,8 +695,8 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
     }
   }, [deactivateFocusTrap, keyboardFocused]);
 
-  const onEmojiSelected = useCallback((emoji: { id: string; native: string }) => {
-    sendReaction(emoji.native, emoji.id, message.chatId, message.messageId);
+  const onEmojiSelected = useCallback((emoji: { native: string }) => {
+    sendReaction(emoji.native, message.chatId, message.messageId);
     setIsToolbarReactionPopoverOpen(false);
     deactivateFocusTrap();
   }, [message.chatId, message.messageId, sendReaction]);
@@ -670,10 +715,12 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
     avatarDisplay = <i className={messageContent.avatarIcon} />;
   }
 
+  const showPluginMetadataFooter = !deleteTime && isCustomMessageFromPlugin && currentUserIsModerator;
+
   const contentElement = (
-    <ChatContent
+    <ChatMessageContentWrapper
       className="chat-message-content"
-      ref={messageContentRef}
+      ref={chatMessageContentWrapperRef}
       sameSender={message?.user ? sameSender : false}
       isCustomPluginMessage={isCustomPluginMessage}
       $isSystemSender={messageContent.isSystemSender}
@@ -686,6 +733,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
       role="listitem"
     >
       <ChatMessageToolbar
+        isCustomPluginMessage={isCustomPluginMessage}
         hasToolbar={hasToolbar && messageContent.showToolbar}
         locked={locked}
         deleted={!!deleteTime}
@@ -705,13 +753,16 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
       />
       {message.replyToMessage && !deleteTime && (
         <ChatMessageReplied
-          message={message.replyToMessage.message || ''}
+          message={message.replyToMessage.messageAsHtml || ''}
           sequence={message.replyToMessage.messageSequence}
           deletedByUser={message.replyToMessage.deletedBy?.name ?? null}
         />
       )}
       {!deleteTime && (
-        <MessageItemWrapper>
+        <MessageItemWrapper
+          data-chat-message-id={message?.messageId}
+          ref={messageContentRef}
+        >
           {messageContent.component}
           {messageReadFeedbackEnabled && (
             <MessageReadConfirmation
@@ -720,7 +771,20 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
           )}
         </MessageItemWrapper>
       )}
-      {sameSender && (
+      {
+        (showPluginMetadataFooter) && (
+          <PluginInformationMetadata>
+            {intl.formatMessage(intlMessages.pluginMetadataInformation, {
+              userName: message.user.name,
+              pluginName: currentPluginMessageMetadata?.pluginName,
+            })}
+            {' '}
+            &nbsp;
+            <FormattedTime value={dateTime} hour12={false} />
+          </PluginInformationMetadata>
+        )
+      }
+      {(sameSender && !isCustomMessageFromPlugin) && (
         <ChatContentFooter>
           {!deleteTime && editTime && (
             <Tooltip title={intl.formatTime(editTime, { hour12: false })}>
@@ -740,7 +804,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
           {intl.formatMessage(intlMessages.deleteMessage, { userName: message.deletedBy?.name })}
         </DeleteMessage>
       )}
-    </ChatContent>
+    </ChatMessageContentWrapper>
   );
 
   const reactionsElement = !deleteTime && (
@@ -783,7 +847,9 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
     </Popover>
   );
 
-  const focusable = !deleteTime && (!messageContent.isSystemSender || message.messageType === ChatMessageType.POLL);
+  const focusable = !deleteTime
+    && (!messageContent.isSystemSender || message.messageType === ChatMessageType.POLL)
+    && !isCustomPluginMessage;
 
   return (
     <Container
@@ -794,6 +860,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
       ref={containerRef}
       $sequence={message.messageSequence}
       data-sequence={message.messageSequence}
+      data-message-type={message.messageType}
       data-focusable={focusable}
       onKeyDown={(e) => {
         const isTargetElement = e.target === e.currentTarget;
@@ -863,11 +930,21 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
           </>
         )}
       </ChatWrapper>
-      {isTryingToDelete && (
+      {isTryingToDeleteModalOpen && (
         <ConfirmationModal
           isOpen={isTryingToDelete}
-          setIsOpen={setIsTryingToDelete}
-          onRequestClose={() => setIsTryingToDelete(false)}
+          setIsOpen={(value: boolean) => {
+            setIsTryingToDelete(value);
+            if (value) {
+              tryingToDeleteModalOpen();
+            } else {
+              tryingToDeleteModalClose();
+            }
+          }}
+          onRequestClose={() => {
+            setIsTryingToDelete(false);
+            tryingToDeleteModalClose();
+          }}
           onConfirm={onDeleteConfirmation}
           title={intl.formatMessage(intlMessages.confirmationTitle)}
           confirmButtonLabel={intl.formatMessage(intlMessages.delete)}

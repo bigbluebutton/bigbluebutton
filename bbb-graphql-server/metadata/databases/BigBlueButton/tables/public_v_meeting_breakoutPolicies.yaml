@@ -23,3 +23,20 @@ select_permissions:
       filter:
         meetingId:
           _eq: X-Hasura-MeetingId
+  - role: bbb_client_not_in_meeting
+    permission:
+      columns:
+        - breakoutRooms
+        - captureNotes
+        - captureNotesFilename
+        - captureSlides
+        - captureSlidesFilename
+        - freeJoin
+        - parentId
+        - privateChatEnabled
+        - record
+        - sequence
+      filter:
+        meetingId:
+          _eq: X-Hasura-MeetingId
+    comment: ""

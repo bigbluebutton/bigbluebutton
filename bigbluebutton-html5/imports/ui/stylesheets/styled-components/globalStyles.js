@@ -147,6 +147,10 @@ const GlobalStyle = createGlobalStyle`
       left: none !important;
     }
   }
+    
+  .recharts-surface {
+    overflow: visible;
+  }
 
   .raiseHandToast {
     background-color: ${colorWhite};

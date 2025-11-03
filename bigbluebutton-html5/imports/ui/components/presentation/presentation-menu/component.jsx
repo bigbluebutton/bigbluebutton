@@ -18,6 +18,7 @@ import deviceInfo from '/imports/utils/deviceInfo';
 import browserInfo from '/imports/utils/browserInfo';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import SvgIcon from '/imports/ui/components/common/icon-svg/component';
+import { useModalRegistration } from '/imports/ui/core/singletons/modalController';
 
 const intlMessages = defineMessages({
   downloading: {
@@ -231,10 +232,26 @@ const PresentationMenu = (props) => {
       );
     };
   }, []);
-  const [isClearModalOpen, setIsClearModalOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const toastId = useRef('presentation-menu-toast');
   const dropdownRef = useRef(null);
+
+  const {
+    isOpen: isClearModalOpen,
+    open: openIsClearModal,
+    close: closeIsClearModal,
+  } = useModalRegistration({
+    id: 'clearAnnotationsModal',
+    priority: 'low',
+  });
+
+  const setIsClearModalOpen = (open) => {
+    if (open) {
+      openIsClearModal();
+    } else {
+      closeIsClearModal();
+    }
+  };
 
   const formattedLabel = (fullscreen) => (fullscreen
     ? intl.formatMessage(intlMessages.exitFullscreenLabel)

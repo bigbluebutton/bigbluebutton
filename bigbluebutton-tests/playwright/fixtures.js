@@ -1,15 +1,13 @@
 const base = require('@playwright/test');
-const { fullyParallel } = require('./playwright.config');
 
-exports.test = base.test.extend({
-  sharedEachTestHook: [ async ({ browser }, use) => {
-    // before test
+const testWithValidation = base.test.extend({
+  sharedBeforeEachTestHook: [async ({ browser }, use) => {
+    // Before test
     await use();
-    // after test
-    if (fullyParallel) {
-      while (browser.contexts().length > 0) {
-        await browser.contexts()[0].close();
-      }
-    }
+    // After test
+    const contexts = browser.contexts();
+    await Promise.all(contexts.map(context => context.close()));
   }, { scope: 'test', auto: true }],
 });
+
+exports.test = testWithValidation;

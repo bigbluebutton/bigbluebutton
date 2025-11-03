@@ -26,3 +26,23 @@ select_permissions:
       filter:
         meetingId:
           _eq: X-Hasura-MeetingId
+  - role: bbb_client_not_in_meeting
+    permission:
+      columns:
+        - allowModsToEjectCameras
+        - allowModsToUnmuteUsers
+        - allowPromoteGuestToModerator
+        - authenticatedGuest
+        - guestLobbyMessage
+        - guestPolicy
+        - maxUserConcurrentAccesses
+        - maxUsers
+        - meetingLayout
+        - moderatorsCanMuteAudio
+        - moderatorsCanUnmuteAudio
+        - userCameraCap
+        - webcamsOnlyForModerator
+      filter:
+        meetingId:
+          _eq: X-Hasura-MeetingId
+    comment: ""

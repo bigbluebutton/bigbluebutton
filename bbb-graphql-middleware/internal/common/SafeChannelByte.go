@@ -1,77 +1,97 @@
 package common
 
 import (
+	"context"
 	"sync"
+	"sync/atomic"
 )
 
 type SafeChannelByte struct {
-	ch         chan []byte
-	closed     bool
-	mux        sync.Mutex
-	freezeFlag bool
+	ch     chan []byte
+	closed atomic.Bool
+	frozen atomic.Bool
+	mux    sync.RWMutex
+	once   sync.Once
 }
 
 func NewSafeChannelByte(size int) *SafeChannelByte {
-	return &SafeChannelByte{
-		ch: make(chan []byte, size),
-	}
+	return &SafeChannelByte{ch: make(chan []byte, size)}
 }
 
-func (s *SafeChannelByte) Send(value []byte) bool {
-	s.mux.Lock()
-	defer s.mux.Unlock()
-
-	if s.closed {
+// TrySend never blocks; drops on closed/frozen/full.
+// Uses recover to handle a close race (send on closed channel).
+func (s *SafeChannelByte) TrySend(value []byte) (ok bool) {
+	if s.closed.Load() || s.frozen.Load() {
 		return false
 	}
-	s.ch <- value
-	return true
+	defer func() {
+		if r := recover(); r != nil {
+			ok = false
+		}
+	}()
+	select {
+	case s.ch <- value:
+		return true
+	default:
+		return false
+	}
 }
 
-func (s *SafeChannelByte) Receive() ([]byte, bool) {
-	val, ok := <-s.ch
-	return val, ok
+// SendWait blocks while frozen (by acquiring RLock), then does a single
+// blocking attempt governed by ctx. We do NOT hold RLock during the send,
+// so Close() can proceed. Recover handles a close race.
+func (s *SafeChannelByte) SendWait(ctx context.Context, value []byte) (ok bool) {
+	// Block here if frozen (Freeze holds mux.Lock()).
+	s.mux.RLock()
+	if s.closed.Load() { // quick recheck under gate
+		s.mux.RUnlock()
+		return false
+	}
+	s.mux.RUnlock()
+
+	defer func() {
+		if r := recover(); r != nil {
+			// Likely "send on closed channel" due to a concurrent Close()
+			ok = false
+		}
+	}()
+
+	select {
+	case s.ch <- value:
+		return true
+	case <-ctx.Done():
+		return false
+	}
 }
 
-func (s *SafeChannelByte) ReceiveChannel() <-chan []byte {
-	return s.ch
-}
+func (s *SafeChannelByte) Receive() ([]byte, bool)       { v, ok := <-s.ch; return v, ok }
+func (s *SafeChannelByte) ReceiveChannel() <-chan []byte { return s.ch }
 
-func (s *SafeChannelByte) Closed() bool {
-	s.mux.Lock()
-	defer s.mux.Unlock()
+func (s *SafeChannelByte) Closed() bool { return s.closed.Load() }
 
-	return s.closed
-}
-
+// Close is idempotent. Marks closed, releases freeze if held, then closes ch.
 func (s *SafeChannelByte) Close() {
-	if s.Frozen() {
-		s.UnfreezeChannel()
-	}
-
-	s.mux.Lock()
-	defer s.mux.Unlock()
-
-	if !s.closed {
+	s.once.Do(func() {
+		s.closed.Store(true)
+		if s.frozen.Swap(false) {
+			s.mux.Unlock() // release freeze gate if it was locked
+		}
 		close(s.ch)
-		s.closed = true
-	}
+	})
 }
 
-func (s *SafeChannelByte) Frozen() bool {
-	return s.freezeFlag
-}
+func (s *SafeChannelByte) Frozen() bool { return s.frozen.Load() }
 
+// FreezeChannel can be called multiple times; only the first call locks the gate.
 func (s *SafeChannelByte) FreezeChannel() {
-	if !s.freezeFlag {
+	if !s.frozen.Swap(true) {
 		s.mux.Lock()
-		s.freezeFlag = true
 	}
 }
 
+// UnfreezeChannel clears the frozen state and unlocks once, unblocking all SendWait().
 func (s *SafeChannelByte) UnfreezeChannel() {
-	if s.freezeFlag {
+	if s.frozen.Swap(false) {
 		s.mux.Unlock()
-		s.freezeFlag = false
 	}
 }

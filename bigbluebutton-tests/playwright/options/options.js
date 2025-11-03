@@ -1,6 +1,7 @@
 const { expect } = require('@playwright/test');
 const { openAboutModal, openSettings, getLocaleValues } = require('./util');
 const e = require('../core/elements');
+const utilScreenShare = require('../screenshare/util');
 const { CI } = require('../core/constants');
 const { MultiUsers } = require('../user/multiusers');
 const { sleep } = require('../core/helpers');
@@ -158,6 +159,95 @@ class Options extends MultiUsers {
       await this.modPage.closeAllToastNotifications();
       await expect(modPageLocator, 'should the meeting display the font size increased').toHaveScreenshot('moderator-page-font-size.png', screenshotOptions);
     }
+  }
+
+    async autoHideWhiteboardToolbar() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.modPage.hasElement(e.wbToolbar, 'should display the whiteboard toolbar when meeting starts');
+    await this.modPage.closeAllToastNotifications();
+
+    const whiteboardLocator = await this.modPage.getLocator(e.whiteboard);
+    await expect(whiteboardLocator).toHaveScreenshot('whiteboard-with-toolbar-visible.png');
+
+    await openSettings(this.modPage);
+    await this.modPage.waitAndClickElement(e.wbAutoHideToggleBtn);
+    await this.modPage.hasElementEnabled(e.wbAutoHideToggleBtn, 'should display the auto hide whiteboard toolbar toggle enabled after clicking it');
+
+    await this.modPage.waitAndClick(e.modalConfirmButton);
+    await this.modPage.waitForSelector(e.whiteboard);
+
+    const wbToolbarLocator = this.modPage.getLocator(e.wbToolbar);
+    await this.modPage.hoverElement(e.whiteboard);
+    await expect(wbToolbarLocator).toHaveClass(/fade-in/);
+    await this.modPage.hasElement(e.wbToolbar, 'should display the whiteboard toolbar when hover the whiteboard');
+
+    await this.modPage.hoverElement(e.chatButton)
+    await expect(wbToolbarLocator).toHaveClass(/fade-out/);
+
+    await expect(whiteboardLocator).toHaveScreenshot('whiteboard-with-toolbar-hidden.png', {
+      maxDiffPixels: 1000,
+    });
+  }
+
+  async enableOtherParticipantsWebcams() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.userPage.waitForSelector(e.whiteboard);
+    await this.modPage.shareWebcam();
+    await this.userPage.shareWebcam();
+    await this.modPage.hasElementCount('video', 2, 'should display 2 video elements for the moderator as both users shared webcam');
+    await this.userPage.hasElementCount('video', 2, 'should display 2 video elements for the attendee as both users shared webcam');
+
+    await openSettings(this.modPage);
+    await openSettings(this.userPage);
+    await this.modPage.waitAndClick(e.dataSavingsTab);
+    await this.userPage.waitAndClick(e.dataSavingsTab);
+    await this.modPage.hasElementChecked(e.enableWebcamsToggleBtn, 'should display the toggle button as ON after opening the data savings tab as default behavior');
+    await this.userPage.waitAndClickElement(e.enableWebcamsToggleBtn);
+    await this.userPage.hasElementNotChecked(e.enableWebcamsToggleBtn, 'should display the toggle button as OFF after clicking it');
+    await this.modPage.waitAndClick(e.modalConfirmButton);
+    await this.userPage.waitAndClick(e.modalConfirmButton);
+
+    await this.userPage.hasElementCount('video', 1, 'should display 1 video elements for the attendee as the attendee disabled other participants webcams option');
+    await this.userPage.hasElement(e.webcamMirroredVideoContainer, 'should display the current user webcam for the attendee, as the attendee disabled other participants webcams option');
+    await this.userPage.hasElement(e.videoDropdownMenu, 'should display the video dropdown menu as default behavior for the shared webcam');
+    await this.modPage.hasElementCount('video', 2, 'should display 2 video elements for the moderator as the moderator has enable other participants webcams option ON');
+
+    await this.modPage.waitAndClick(e.leaveVideo);
+    await this.modPage.hasElementCount('video', 1, 'should display 1 video element for the moderator, as the moderator stopped sharing webcam');
+
+    await this.modPage.shareWebcam();
+    await this.modPage.hasElementCount('video', 2, 'should display 2 video elements for the moderator, as the moderator started sharing webcam again');
+    await this.userPage.hasElementCount('video', 1, 'should display 1 video elements for the attendee, as the attendee disabled other participants webcams option');
+    await this.userPage.hasElement(e.webcamMirroredVideoContainer, 'should display the current user webcam for the attendee, as the attendee disabled other participants webcams option');
+  }
+
+  async enableOtherParticipantsDesktopSharing() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.userPage.waitForSelector(e.whiteboard);
+    await utilScreenShare.startScreenshare(this.modPage);
+    await this.modPage.hasElement(e.screenShareVideo, 'should display the screenshare for the moderator after starting it');
+    await this.userPage.hasElement(e.screenShareVideo, 'should display the screenshare for the attendee after the moderator started it');
+
+    await openSettings(this.modPage);
+    await openSettings(this.userPage);
+    await this.modPage.waitAndClick(e.dataSavingsTab);
+    await this.userPage.waitAndClick(e.dataSavingsTab);
+    await this.modPage.hasElementChecked(e.enableDesktopSharingToggleBtn, 'should display the toggle button as ON, as default behavior');
+    await this.userPage.waitAndClickElement(e.enableDesktopSharingToggleBtn);
+    await this.userPage.hasElementNotChecked(e.enableDesktopSharingToggleBtn, 'should display the toggle button as OFF, after clicking it');
+    await this.modPage.waitAndClick(e.modalConfirmButton);
+    await this.userPage.waitAndClick(e.modalConfirmButton);
+
+    await this.userPage.wasRemoved(e.screenShareVideo, 'should not display the screenshare for the attendee, as the attendee disabled other participants desktop sharing option');
+    await this.modPage.hasElement(e.screenShareVideo, 'should display the screenshare for the moderator, as the moderator has enable other participants desktop sharing option ON');
+
+    await this.modPage.waitAndClick(e.stopScreenSharing);
+    await this.modPage.wasRemoved(e.screenShareVideo, 'should not display the screenshare for the moderator after stopping it');
+    await this.userPage.wasRemoved(e.screenShareVideo, 'should not display the screenshare for the attendee, as the attendee disabled other participants desktop sharing option and the moderator stopped screenshare');
+
+    await utilScreenShare.startScreenshare(this.modPage);
+    await this.modPage.hasElement(e.screenShareVideo, 'should display the screenshare for the moderator after starting it again');
+    await this.userPage.wasRemoved(e.screenShareVideo, 'should not display the screenshare for the attendee, as the attendee disabled other participants desktop sharing option');
   }
 }
 

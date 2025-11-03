@@ -3,13 +3,13 @@ package org.bigbluebutton.core.apps.voice
 import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.db.NotificationDAO
-import org.bigbluebutton.core.running.{ LiveMeeting, MeetingActor, OutMsgRouter }
+import org.bigbluebutton.core.running.{ LiveMeeting, MeetingActor, OutMsgRouter, HandlerHelpers }
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.util.ColorPicker
 import org.bigbluebutton.core2.MeetingStatus2x
 
-trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
+trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration with HandlerHelpers {
   this: MeetingActor =>
 
   val liveMeeting: LiveMeeting
@@ -73,7 +73,7 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
         avatar = "",
         webcamBackground = "",
         color = userColor,
-        clientType = if (isDialInUser) "dial-in-user" else "",
+        clientType = if (isDialInUser) ClientType.DIAL_IN else "",
         userLeftFlag = UserLeftFlag(false, 0)
       )
       Users2x.add(liveMeeting.users2x, newUser)
@@ -118,6 +118,7 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
         msg.body.callerIdNum,
         userColor,
         msg.body.muted,
+        listenOnlyInputDevice = false,
         deafened = false,
         msg.body.talking,
         "freeswitch",
@@ -137,9 +138,14 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
       outGW.send(event)
     } else {
       if (isDialInUser) {
+        // Guest lobby is always disabled for dial-in users joining via LiveKit
+        // as it's not fully supported yet.
+        val enforceGuestPolicy = dialInEnforceGuestPolicy && !isUsingLiveKitAudio(liveMeeting)
+
         registerUserInRegisteredUsers()
         registerUserInUsers2x()
-        if (dialInEnforceGuestPolicy) {
+
+        if (enforceGuestPolicy) {
           guestPolicy match {
             case GuestPolicy(policy, setBy) => {
               policy match {

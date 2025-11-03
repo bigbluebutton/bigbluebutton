@@ -73,7 +73,7 @@ class FromAkkaAppsMsgSenderActor(msgSender: MessageSender)
       case SendWhiteboardAnnotationsEvtMsg.NAME =>
         msgSender.send("from-akka-apps-frontend-redis-channel", json)
       case SendCursorPositionEvtMsg.NAME =>
-        msgSender.send("from-akka-apps-frontend-redis-channel", json)
+        msgSender.send(fromAkkaAppsRedisChannel, json)
       case ClearWhiteboardEvtMsg.NAME =>
         msgSender.send("from-akka-apps-frontend-redis-channel", json)
       case DeleteWhiteboardAnnotationsEvtMsg.NAME =>
@@ -90,6 +90,7 @@ class FromAkkaAppsMsgSenderActor(msgSender: MessageSender)
         msgSender.send(fromAkkaAppsPresRedisChannel, json)
       case SetCurrentPageEvtMsg.NAME =>
         msgSender.send(fromAkkaAppsPresRedisChannel, json)
+        msgSender.send(fromAkkaAppsRedisChannel, json)
       case SetPageInfiniteWhiteboardEvtMsg.NAME =>
         msgSender.send(fromAkkaAppsPresRedisChannel, json)
       case ResizeAndMovePageEvtMsg.NAME =>
@@ -138,13 +139,13 @@ class FromAkkaAppsMsgSenderActor(msgSender: MessageSender)
         msgSender.send("from-akka-apps-frontend-redis-channel", json)
 
       case NotifyAllInMeetingEvtMsg.NAME =>
-        msgSender.send("from-akka-apps-frontend-redis-channel", json)
+        msgSender.send(fromAkkaAppsRedisChannel, json)
 
       case NotifyUserInMeetingEvtMsg.NAME =>
-        msgSender.send("from-akka-apps-frontend-redis-channel", json)
+        msgSender.send(fromAkkaAppsRedisChannel, json)
 
       case NotifyRoleInMeetingEvtMsg.NAME =>
-        msgSender.send("from-akka-apps-frontend-redis-channel", json)
+        msgSender.send(fromAkkaAppsRedisChannel, json)
 
       case _ =>
         msgSender.send(fromAkkaAppsRedisChannel, json)

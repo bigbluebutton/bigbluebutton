@@ -1,82 +1,18 @@
 import { gql } from '@apollo/client';
 
-export interface GetUserCurrentResponse {
+export interface GetGuestLobbyInfo {
   user_current: Array<{
-    userId: string;
-    authToken: string;
-    joined: boolean;
-    joinErrorCode: string;
-    joinErrorMessage: string;
-    ejectReasonCode: string;
-    loggedOut: boolean;
-    guestStatus: string;
     guestStatusDetails: {
       guestLobbyMessage: string | null;
       positionInWaitingQueue: number;
       isAllowed: boolean;
-    } | null;
-    meeting: {
-      ended: boolean;
-      endedReasonCode: string;
-      endedByUserName: string;
-      logoutUrl: string;
     };
   }>;
 }
 
-export interface GetUserInfoResponse {
-  meeting: Array<{
-    meetingId: string;
-    name: string;
-    logoutUrl: string;
-    bannerColor: string;
-    bannerText: string;
-    customLogoUrl: string;
-    customDarkLogoUrl: string;
-  }>;
-  user_current: Array<{
-    extId: string;
-    name: string;
-    userId: string;
-  }>;
-}
-
-export const getUserInfo = gql`
-query getUserInfo {
-  meeting {
-    meetingId
-    name
-    logoutUrl
-    bannerColor
-    bannerText
-    customLogoUrl
-    customDarkLogoUrl
-  }
-  user_current {
-    extId
-    name
-    userId
-  }
-}
-`;
-
-export const getUserCurrent = gql`
-subscription getUserCurrent {
+export const getGuestLobbyInfo = gql`
+subscription getGuestLobbyInfo {
     user_current {
-      userId
-      authToken
-      joinErrorCode
-      joinErrorMessage
-      joined
-      ejectReasonCode
-      loggedOut
-      guestStatus
-      meeting {
-        ended
-        endedReasonCode
-        endedByUserName
-        logoutUrl
-      }
       guestStatusDetails {
         guestLobbyMessage
         positionInWaitingQueue
@@ -95,7 +31,5 @@ mutation UserJoin($authToken: String!, $clientType: String!, $clientIsMobile: Bo
 }
 `;
 export default {
-  getUserCurrent,
   userJoinMutation,
-  getUserInfo,
 };

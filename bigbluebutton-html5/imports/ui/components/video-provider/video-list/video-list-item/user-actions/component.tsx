@@ -137,7 +137,7 @@ const UserActions: React.FC<UserActionProps> = (props) => {
   }, []);
 
   const getAvailableActions = () => {
-    const pinned = stream.type === VIDEO_TYPES.STREAM && stream.user.pinned;
+    const pinned = stream.type === VIDEO_TYPES.STREAM && stream.user?.pinned;
     const { userId } = stream;
     const isPinnedIntlKey = !pinned ? 'pin' : 'unpin';
     const isFocusedIntlKey = !focused ? 'focus' : 'unfocus';
@@ -194,7 +194,7 @@ const UserActions: React.FC<UserActionProps> = (props) => {
         label: intl.formatMessage(intlMessages[`${isFocusedIntlKey}Label`]),
         description: intl.formatMessage(intlMessages[`${isFocusedIntlKey}Desc`]),
         onClick: () => onHandleVideoFocus?.(cameraId),
-        dataTest: 'FocusWebcamBtn',
+        dataTest: !focused ? 'focusWebcamBtn' : 'unfocusWebcamBtn',
       });
     }
 

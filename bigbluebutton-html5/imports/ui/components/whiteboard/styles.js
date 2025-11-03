@@ -164,6 +164,10 @@ const TldrawV2GlobalStyle = createGlobalStyle`
     right: 10px !important;
   }
 
+  .tlui-kbd > span {
+    font-family: 'Arial', sans-serif !important;
+  }
+
   [data-side="bottom"][data-align="end"][data-state="open"][role="dialog"] {
     right: 3.5rem !important;
     bottom: 9.5rem !important;

@@ -80,6 +80,18 @@ object VoiceUsers {
     }
   }
 
+  def userUpdatedListenOnlyInputDevice(users: VoiceUsers, voiceUserId: String, listenOnlyInputDevice: Boolean): Option[VoiceUserState] = {
+    for {
+      u <- findWithVoiceUserId(users, voiceUserId)
+    } yield {
+      val vu = u.modify(_.listenOnlyInputDevice).setTo(listenOnlyInputDevice)
+        .modify(_.lastStatusUpdateOn).setTo(System.currentTimeMillis())
+      users.save(vu)
+      UserVoiceDAO.update(vu)
+      vu
+    }
+  }
+
   def userDeafened(users: VoiceUsers, voiceUserId: String, deafened: Boolean): Option[VoiceUserState] = {
     for {
       u <- findWithVoiceUserId(users, voiceUserId)
@@ -206,39 +218,41 @@ case class VoiceUser2x(
     voiceUserId: String
 )
 case class VoiceUserVO2x(
-    intId:         String,
-    voiceUserId:   String,
-    callerName:    String,
-    callerNum:     String,
-    joined:        Boolean,
-    locked:        Boolean,
-    muted:         Boolean,
-    deafened:      Boolean,
-    talking:       Boolean,
-    callingWith:   String,
-    listenOnly:    Boolean,
-    floor:         Boolean,
-    lastFloorTime: String,
-    hold:          Boolean,
-    uuid:          String
+    intId:                 String,
+    voiceUserId:           String,
+    callerName:            String,
+    callerNum:             String,
+    joined:                Boolean,
+    locked:                Boolean,
+    muted:                 Boolean,
+    listenOnlyInputDevice: Boolean,
+    deafened:              Boolean,
+    talking:               Boolean,
+    callingWith:           String,
+    listenOnly:            Boolean,
+    floor:                 Boolean,
+    lastFloorTime:         String,
+    hold:                  Boolean,
+    uuid:                  String
 )
 
 case class VoiceUserState(
-    intId:              String,
-    voiceUserId:        String,
-    meetingId:          String,
-    callingWith:        String,
-    callerName:         String,
-    callerNum:          String,
-    color:              String,
-    muted:              Boolean,
-    deafened:           Boolean,
-    talking:            Boolean,
-    listenOnly:         Boolean,
-    calledInto:         String,
-    lastStatusUpdateOn: Long,
-    floor:              Boolean,
-    lastFloorTime:      String,
-    hold:               Boolean,
-    uuid:               String
+    intId:                 String,
+    voiceUserId:           String,
+    meetingId:             String,
+    callingWith:           String,
+    callerName:            String,
+    callerNum:             String,
+    color:                 String,
+    muted:                 Boolean,
+    listenOnlyInputDevice: Boolean,
+    deafened:              Boolean,
+    talking:               Boolean,
+    listenOnly:            Boolean,
+    calledInto:            String,
+    lastStatusUpdateOn:    Long,
+    floor:                 Boolean,
+    lastFloorTime:         String,
+    hold:                  Boolean,
+    uuid:                  String
 )

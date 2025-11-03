@@ -21,6 +21,7 @@ export const CHAT_MESSAGE_PUBLIC_SUBSCRIPTION = gql`
         chatEmphasizedText
         messageSequence
         message
+        messageAsHtml
         user {
           name
           color
@@ -29,7 +30,6 @@ export const CHAT_MESSAGE_PUBLIC_SUBSCRIPTION = gql`
       reactions(order_by: { createdAt: asc }) {
         createdAt
         reactionEmoji
-        reactionEmojiId
         user {
           name
           userId
@@ -39,6 +39,7 @@ export const CHAT_MESSAGE_PUBLIC_SUBSCRIPTION = gql`
       chatEmphasizedText
       chatId
       message
+      messageAsHtml
       messageId
       createdAt
       editedAt
@@ -78,6 +79,7 @@ export const CHAT_MESSAGE_PRIVATE_SUBSCRIPTION = gql`
         chatEmphasizedText
         messageSequence
         message
+        messageAsHtml
         user {
           name
           color
@@ -86,7 +88,6 @@ export const CHAT_MESSAGE_PRIVATE_SUBSCRIPTION = gql`
       reactions {
         createdAt
         reactionEmoji
-        reactionEmojiId
         user {
           name
           userId
@@ -94,6 +95,7 @@ export const CHAT_MESSAGE_PRIVATE_SUBSCRIPTION = gql`
       }
       chatId
       message
+      messageAsHtml
       messageType
       chatEmphasizedText
       messageId

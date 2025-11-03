@@ -4,12 +4,14 @@ const path = require('path');
 const webpack = require('webpack');
 const CopyPlugin = require('copy-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
+const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
 
 const env = process.env.NODE_ENV || 'development';
 const detailedLogs = process.env.DETAILED_LOGS || false;
-
+const hotReload = String(process.env.HOT_RELOAD).toLowerCase() === 'true';
 const prodEnv = 'production';
 const devEnv = 'development';
+const isDev = env === devEnv;
 const isSafariTarget = process.env.TARGET === 'safari';
 
 console.log(`Building: ${process.env.TARGET}`);
@@ -65,6 +67,9 @@ const config = {
       'process.env.NODE_ENV': JSON.stringify(env),
       'process.env.DETAILED_LOGS': detailedLogs,
     }),
+    (isDev && hotReload) && new ReactRefreshWebpackPlugin({
+      overlay: false,
+    }),
   ],
   resolve: {
     modules: ['node_modules', 'src'],
@@ -85,7 +90,12 @@ const config = {
           enforceExtension: false,
         },
         exclude: /node_modules/,
-        use: ['babel-loader'],
+        use: {
+          loader: 'babel-loader',
+          options: {
+            plugins: [(isDev && hotReload) && require.resolve('react-refresh/babel')].filter(Boolean),
+          },
+        },
       },
       {
         test: /\.css$/,
@@ -124,7 +134,14 @@ if (env === prodEnv) {
   config.mode = prodEnv;
   config.optimization = {
     minimize: true,
-    minimizer: isSafariTarget ? [] : [new TerserPlugin()],
+    minimizer: isSafariTarget ? [] : [new TerserPlugin({
+      terserOptions: {
+        keep_classnames: true,
+        keep_fnames: true,
+      },
+      extractComments: false,
+      parallel: true,
+    })],
   };
   config.performance = {
     hints: 'warning',

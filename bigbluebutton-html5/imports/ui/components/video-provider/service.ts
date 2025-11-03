@@ -20,7 +20,10 @@ import Session from '/imports/ui/services/storage/in-memory';
 import type { Stream, StreamItem, VideoItem } from './types';
 import { VIDEO_TYPES } from './enums';
 import BBBVideoStream from '/imports/ui/services/webrtc-base/bbb-video-stream';
-import { getLKStats } from '/imports/ui/services/livekit';
+import {
+  getLKStats,
+  lkToggleMuteCameras,
+} from '/imports/ui/services/livekit';
 
 const TOKEN = '_';
 
@@ -481,6 +484,9 @@ class VideoService {
         track.enabled = value;
       });
     });
+
+    // LiveKit compatibility
+    lkToggleMuteCameras(!value);
   }
 
   getClientSessionUUID() {

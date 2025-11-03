@@ -37,6 +37,37 @@ class Webcam extends Page {
     await this.hasElement(e.webcamItemTalkingUser, 'should display the webcam item talking user');
   }
 
+  async mirrorWebcam() {
+    await this.waitForSelector(e.whiteboard);
+    await this.waitAndClick(e.joinVideo);
+    await this.hasElement(e.webcamMirroredVideoPreview, 'should display the preview of the webcam video, starts mirrored for self');
+    await this.waitAndClick(e.startSharingWebcam);
+    await this.waitForSelector(e.leaveVideo, VIDEO_LOADING_WAIT_TIME);
+    await this.hasElement(e.webcamMirroredVideoContainer, 'should display the webcam mirrored video container after the camera is shared');
+
+    const mirroredWebcamLocator = await this.getLocator(e.webcamMirroredVideoContainer);
+    await expect(mirroredWebcamLocator).toHaveScreenshot('webcam-mirrored-view.png');
+
+    const dropdownWebcamButton = await this.getLocator(e.dropdownWebcamButton).filter({ hasText: this.username })
+
+    await dropdownWebcamButton.click();
+    await this.hasElement(e.mirrorWebcamBtn, 'should display the webcam mirror button');
+    await this.hasText(e.mirrorWebcamBtn, 'Disable webcam mirroring', 'should display the text to disable webcam mirroring');
+
+    await this.getVisibleLocator(e.mirrorWebcamBtn).click();
+    await this.hasElement(e.webcamContainer, 'should display the video container after disabling webcam mirroring');
+
+    const webcamLocator = await this.getLocator(e.webcamContainer);
+    await expect(webcamLocator).toHaveScreenshot('webcam-view.png');
+
+    await dropdownWebcamButton.click();
+    await this.hasElement(e.mirrorWebcamBtn, 'should display the webcam mirror button');
+    await this.hasText(e.mirrorWebcamBtn, 'Enable webcam mirroring', 'should display the text to enable webcam mirroring');
+
+    await this.getVisibleLocator(e.mirrorWebcamBtn).click();
+    await this.hasElement(e.webcamMirroredVideoContainer, 'should display the video container after enabling webcam mirroring');
+  }
+
   async changeVideoQuality() {
     const { videoPreviewTimeout } = this.settings;
 
@@ -152,6 +183,86 @@ class Webcam extends Page {
     await this.joinMicrophone();
     const { videoPreviewTimeout, skipVideoPreview, skipVideoPreviewOnFirstJoin } = this.settings;
     await this.shareWebcam(!(skipVideoPreview || skipVideoPreviewOnFirstJoin), videoPreviewTimeout);
+  }
+
+  async resizeWebcamArea() {
+    await this.waitForSelector(e.whiteboard);
+    await this.shareWebcam();
+    await this.closeAllToastNotifications();
+    await this.hasElement(e.currentUserLocalStreamVideo, 'should display the webcam video after shared');
+
+    const { height: initialVideoHeight } = await this.getLocator(e.currentUserLocalStreamVideo).boundingBox();
+    const { height: initialVideoContainerHeight } = await this.getLocator(e.webcamMirroredVideoContainer).boundingBox();
+
+    await this.waitForSelector(e.resizeWebcamHandler);
+    const handle = await this.getLocator(e.resizeWebcamHandler);
+    await expect(handle).toHaveCount(1);
+
+    const { x: hx, y: hy, width: hw, height: hh } = await handle.boundingBox();
+    // Start drag at handle center and move down by 200px
+    await this.page.mouse.move(hx + hw / 2, hy + hh / 2);
+    await this.page.mouse.down();
+    await this.page.mouse.move(hx + hw / 2, hy + hh / 2 + 200, { steps: 10 });
+    await this.page.mouse.up();
+
+    const { height: resizedVideoHeight } = await this.getLocator(e.currentUserLocalStreamVideo).boundingBox();
+    const { height: resizedVideoContainerHeight } = await this.getLocator(e.webcamMirroredVideoContainer).boundingBox();
+    expect(resizedVideoHeight).toBeGreaterThan(initialVideoHeight);
+    expect(resizedVideoContainerHeight).toBeGreaterThan(initialVideoContainerHeight);
+
+    const webcamLocator = await this.getLocator(e.currentUserLocalStreamVideo);
+    await expect(webcamLocator).toHaveScreenshot('resize-webcam.png');
+
+    await this.waitAndClick(e.minimizePresentation)
+    await this.waitForSelector(e.restorePresentation);
+
+    const { height: fullMainContentHeight } = await this.getLocator(e.currentUserLocalStreamVideo).boundingBox();
+    expect(fullMainContentHeight).toBeGreaterThan(resizedVideoHeight);
+
+    await this.waitAndClick(e.restorePresentation)
+    await this.waitForSelector(e.minimizePresentation);
+
+    const { height: resizedHeightAfterRestore } = await this.getLocator(e.currentUserLocalStreamVideo).boundingBox();
+    expect(Math.abs(resizedHeightAfterRestore - resizedVideoHeight)).toBeLessThanOrEqual(1);
+  }
+  
+  
+  // TODO: improve this test to check when the sidebar is expanded or collapsed
+  async dragAndDropWebcamInDifferentAreas() {
+    await this.waitForSelector(e.whiteboard);
+    await this.shareWebcam();
+    await this.hasElement(e.currentUserLocalStreamVideo, 'should display the webcam video after shared');
+
+    await this.getLocator(e.currentUserLocalStreamVideo).hover({ timeout: 5000 });
+    await this.page.mouse.down(); // click on the webcam container
+    await this.hasElement(e.dropAreaRight, 'should display the docking element on the Right area after clicking to drag webcam element');
+    await this.hasElement(e.dropAreaBottom, 'should display the docking element on the Bottom area after clicking to drag webcam element');
+    await this.hasElement(e.dropAreaLeft, 'should display the docking element on the Left area after clicking to drag webcam element');
+    await this.hasElement(e.dropAreaTop, 'should display the docking element on the Top area after clicking to drag webcam element');
+    await this.hasElement(e.dropAreaSidebarBottom, 'should display the docking element on the Sidebar Bottom area after clicking to drag webcam element');
+    await expect(this.page).toHaveScreenshot('drag-drop-areas.png', { mask: [this.getLocator(e.currentUserLocalStreamVideo)] });
+    await this.page.mouse.up(); // release the webcam container without dragging
+
+    // (mod) click on the webcam container and drag to one of the four possible areas for droping the container
+    await this.dragDropSelector(e.currentUserLocalStreamVideo, e.dropAreaRight);
+    await this.hasElement(e.currentUserLocalStreamVideo, 'should display the webcam video after dragging and releasing, docking the element on the Right area');
+    await expect(this.page).toHaveScreenshot('drag-drop-right.png', { mask: [this.getLocator(e.currentUserLocalStreamVideo)] });
+    
+    await this.dragDropSelector(e.currentUserLocalStreamVideo, e.dropAreaBottom);
+    await this.hasElement(e.currentUserLocalStreamVideo, 'should display the webcam video after dragging and releasing, docking the element on the Bottom area');
+    await expect(this.page).toHaveScreenshot('drag-drop-bottom.png', { mask: [this.getLocator(e.currentUserLocalStreamVideo)] });
+    
+    await this.dragDropSelector(e.currentUserLocalStreamVideo, e.dropAreaLeft);
+    await this.hasElement(e.currentUserLocalStreamVideo, 'should display the webcam video after dragging and releasing, docking the element on the Left area');
+    await expect(this.page).toHaveScreenshot('drag-drop-left.png', { mask: [this.getLocator(e.currentUserLocalStreamVideo)] });
+    
+    await this.dragDropSelector(e.currentUserLocalStreamVideo, e.dropAreaTop);
+    await this.hasElement(e.currentUserLocalStreamVideo, 'should display the webcam video after dragging and releasing, docking the element on the Top area');
+    await expect(this.page).toHaveScreenshot('drag-drop-top.png', { mask: [this.getLocator(e.currentUserLocalStreamVideo)] });
+    
+    await this.dragDropSelector(e.currentUserLocalStreamVideo, e.dropAreaSidebarBottom);
+    await this.hasElement(e.currentUserLocalStreamVideo, 'should display the webcam video after dragging and releasing, docking the element on the Sidebar Bottom area');
+    await expect(this.page).toHaveScreenshot('drag-drop-sidebar-bottom.png', { mask: [this.getLocator(e.currentUserLocalStreamVideo)] });
   }
 }
 

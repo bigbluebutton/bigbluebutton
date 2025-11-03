@@ -14,10 +14,11 @@ import (
 // authHookUrl is the authentication hook URL obtained from config file.
 var authHookUrl = config.GetConfig().AuthHook.Url
 
-func BBBWebCheckAuthorization(browserConnectionId string, sessionToken string, cookies []*http.Cookie) (string, string, error) {
+func BBBWebCheckAuthorization(browserConnectionId string, sessionToken string, clientSessionUUID string, cookies []*http.Cookie) (string, string, error) {
 	logger := log.WithField("_routine", "BBBWebClient").
 		WithField("browserConnectionId", browserConnectionId).
-		WithField("sessionToken", sessionToken)
+		WithField("sessionToken", sessionToken).
+		WithField("clientSessionUUID", clientSessionUUID)
 
 	logger.Debug("Starting BBBWebClient")
 	defer logger.Debug("Finished BBBWebClient")

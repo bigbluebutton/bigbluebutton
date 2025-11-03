@@ -16,10 +16,10 @@ import { ChatFormUiDataPayloads } from 'bigbluebutton-html-plugin-sdk/dist/cjs/u
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import { defineMessages, useIntl } from 'react-intl';
-import { useIsChatEnabled, useIsEditChatMessageEnabled, useIsEmojiPickerEnabled } from '/imports/ui/services/features';
+import {
+  useIsEditChatMessageEnabled, useIsEmojiPickerEnabled,
+} from '/imports/ui/services/features';
 import { checkText } from 'smile2emoji';
-import { findDOMNode } from 'react-dom';
-
 import Styled from './styles';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { getAllShortCodes } from '/imports/utils/emoji-utils';
@@ -138,7 +138,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const [message, setMessage] = React.useState('');
   const [showEmojiPicker, setShowEmojiPicker] = React.useState(false);
   const emojiPickerRef = useRef<HTMLDivElement>(null);
-  const emojiPickerButtonRef = useRef(null);
+  const emojiPickerButtonRef = useRef<HTMLDivElement>(null);
   const [isTextAreaFocused, setIsTextAreaFocused] = React.useState(false);
   const [repliedMessageId, setRepliedMessageId] = React.useState<string | null>(null);
   const [emojisToExclude, setEmojisToExclude] = React.useState<string[]>([]);
@@ -411,6 +411,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const renderForm = () => {
     const formRef = useRef<HTMLFormElement | null>(null);
     const CHAT_EDIT_ENABLED = useIsEditChatMessageEnabled();
+    const hasSelectedTextInChat = useRef(false);
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement> | React.KeyboardEvent<HTMLInputElement> | Event) => {
       e.preventDefault();
@@ -560,15 +561,37 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
       };
     }, []);
 
-    document.addEventListener('click', (event) => {
-      const chatList = document.getElementById('chat-list');
-      if (chatList?.contains(event.target as Node)) {
-        const selection = window.getSelection()?.toString();
-        if (selection?.length === 0) {
-          textAreaRef.current?.textarea.focus();
+    useEffect(() => {
+      const handleClick = (event: MouseEvent) => {
+        const chatList = document.getElementById('chat-list');
+        if (chatList?.contains(event.target as Node)) {
+          const selection = window.getSelection()?.toString();
+          if (selection?.length === 0 && !hasSelectedTextInChat.current) {
+            textAreaRef.current?.textarea.focus();
+          }
         }
-      }
-    });
+      };
+
+      /**
+       * Workaround for Firefox. `Selection.toString()` always returns empty string.
+       */
+      const handleSelectionChange = () => {
+        const selection = window.getSelection();
+        const chatList = document.getElementById('chat-list');
+        hasSelectedTextInChat.current = (
+          (selection?.focusOffset ?? 0) > 0
+          && Boolean(chatList?.contains(selection?.anchorNode as Node))
+        );
+      };
+
+      document.addEventListener('click', handleClick);
+      document.addEventListener('selectionchange', handleSelectionChange);
+
+      return () => {
+        document.removeEventListener('click', handleClick);
+        document.removeEventListener('selectionchange', handleSelectionChange);
+      };
+    }, []);
 
     useEffect(() => {
       if (chatSendMessageError && error == null) {
@@ -579,8 +602,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
 
     useEffect(() => {
       const handleClickOutside = (event: MouseEvent) => {
-        // eslint-disable-next-line react/no-find-dom-node
-        const button = findDOMNode(emojiPickerButtonRef.current);
+        const button = emojiPickerButtonRef.current;
         if (
           (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target as Node))
           && (button && !button.contains(event.target as Node))
@@ -646,19 +668,20 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
               async
             />
             {ENABLE_EMOJI_PICKER ? (
-              <Styled.EmojiButton
-                ref={emojiPickerButtonRef}
-                onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                icon="happy"
-                color="light"
-                ghost
-                type="button"
-                circle
-                hideLabel
-                label={intl.formatMessage(messages.emojiButtonLabel)}
-                data-test="emojiPickerButton"
-                disabled={disabled || partnerIsLoggedOut || chatSendMessageLoading}
-              />
+              <div ref={emojiPickerButtonRef}>
+                <Styled.EmojiButton
+                  onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                  icon="happy"
+                  color="light"
+                  ghost
+                  type="button"
+                  circle
+                  hideLabel
+                  label={intl.formatMessage(messages.emojiButtonLabel)}
+                  data-test="emojiPickerButton"
+                  disabled={disabled || partnerIsLoggedOut || chatSendMessageLoading}
+                />
+              </div>
             ) : null}
           </Styled.InputWrapper>
           <div style={{ zIndex: 10 }}>
@@ -696,7 +719,6 @@ const ChatMessageFormContainer: React.FC = () => {
   const idChatOpen: string = layoutSelect((i: Layout) => i.idChatOpen);
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
   const isConnected = useReactiveVar(connectionStatus.getConnectedStatusVar());
-  const isChatEnabled = useIsChatEnabled();
   const { data: chat } = useChat((c: Partial<Chat>) => ({
     participant: c?.participant,
     chatId: c?.chatId,
@@ -772,7 +794,6 @@ const ChatMessageFormContainer: React.FC = () => {
   const CHAT_CONFIG = window.meetingClientSettings.public.chat;
 
   const disabled = locked && !isModerator && disablePrivateChat && !isPublicChat && !chat?.participant?.isModerator;
-  if (!isChatEnabled) return null;
 
   return (
     <ChatMessageForm

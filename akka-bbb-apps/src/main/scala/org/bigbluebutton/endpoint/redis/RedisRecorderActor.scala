@@ -168,7 +168,7 @@ class RedisRecorderActor(
       ev.setMeetingId(msg.header.meetingId)
       ev.setMessageId(msg.body.msg.id)
       ev.setSenderId(msg.body.msg.sender.id)
-      ev.setMessage(msg.body.msg.message)
+      ev.setMessage(msg.body.msg.messageAsHtml)
       ev.setSenderRole(msg.body.msg.sender.role)
       ev.setReplyToMessageId(msg.body.msg.replyToMessageId)
 
@@ -184,7 +184,7 @@ class RedisRecorderActor(
       val ev = new EditPublicChatMessageRecordEvent()
       ev.setMeetingId(msg.header.meetingId)
       ev.setMessageId(msg.body.messageId)
-      ev.setMessage(msg.body.message)
+      ev.setMessage(msg.body.messageAsHtml)
       record(msg.header.meetingId, ev.toMap.asJava)
     }
   }
@@ -773,6 +773,8 @@ class RedisRecorderActor(
     ev.setPollId(msg.body.pollId)
     ev.setQuestion(msg.body.poll.questionText.getOrElse(""))
     ev.setAnswers(msg.body.poll.answers)
+    ev.setIsQuiz(msg.body.poll.quiz)
+    ev.setShowCorrectAnswer(msg.body.showAnswer)
     ev.setNumRespondents(msg.body.poll.numRespondents)
     ev.setNumResponders(msg.body.poll.numResponders)
 

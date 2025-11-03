@@ -1,11 +1,11 @@
 import { useEffect } from 'react';
 import { isEqual } from 'radash';
 import { defineMessages, useIntl } from 'react-intl';
-import { UNREAD_CHATS_SUBSCRIPTION, UnreadChatsSubscriptionResponse } from './queries';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 import { addAlert } from './service';
-import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
-import logger from '/imports/startup/client/logger';
+import useChat from '/imports/ui/core/hooks/useChat';
+import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
+import { Chat } from '/imports/ui/Types/chat';
 
 const intlMessages = defineMessages({
   newMsgAria: {
@@ -19,19 +19,21 @@ const intlMessages = defineMessages({
 });
 
 const ScreenReaderAlertAdapter = () => {
-  const { data, error, loading } = useDeduplicatedSubscription<UnreadChatsSubscriptionResponse>(
-    UNREAD_CHATS_SUBSCRIPTION,
-  );
+  const { data, loading } = useChat((chat) => ({
+    chatId: chat.chatId,
+    totalUnread: chat.totalUnread,
+    participant: chat.participant,
+  })) as GraphqlDataHookSubscriptionResponse<Chat[]>;
   const previousData = usePreviousValue(data);
   const intl = useIntl();
 
   useEffect(() => {
-    if (!loading && !error && data && !isEqual(data, previousData)) {
-      const { chat: chats } = data;
-      const { chat: previousChats } = previousData ?? {};
+    if (!loading && data && !isEqual(data, previousData)) {
+      const unreadChats = data.filter((c) => c.totalUnread > 0);
+      const previousUnreadChats = previousData ? previousData.filter((c) => c.totalUnread > 0) : [];
 
-      chats.forEach((chat) => {
-        const previousChat = previousChats && previousChats.find((c) => c.chatId === chat.chatId);
+      unreadChats.forEach((chat) => {
+        const previousChat = previousUnreadChats && previousUnreadChats.find((c) => c.chatId === chat.chatId);
 
         if (!previousChat || chat.totalUnread > previousChat.totalUnread) {
           const name = chat.participant?.name ?? intl.formatMessage(intlMessages.publicChatName);
@@ -39,19 +41,7 @@ const ScreenReaderAlertAdapter = () => {
         }
       });
     }
-  }, [data, previousData, error, loading]);
-
-  if (error) {
-    logger.error(
-      {
-        logCode: 'subscription_Failed',
-        extraInfo: {
-          error,
-        },
-      },
-      'Subscription failed to load',
-    );
-  }
+  }, [data, previousData, loading]);
 
   return null;
 };

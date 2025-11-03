@@ -54,7 +54,7 @@ const messages = defineMessages({
 const { isChrome, isFirefox, isEdge } = browserInfo;
 
 interface EmojiProps {
-  emoji: { id: string; native: string; };
+  emoji: { native: string; };
   native: string;
   size: number;
 }
@@ -147,7 +147,7 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings, index }
   if (user?.cameras?.length > 0 && LABEL.sharingWebcam) {
     subs.push(
       <span key={uniqueId('breakout-')}>
-        {user.pinned === true
+        {user?.pinned === true
           ? <Icon iconName="pin-video_on" />
           : <Icon iconName="video" />}
         &nbsp;
@@ -170,13 +170,9 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings, index }
 
   const reactionsEnabled = useIsReactionsEnabled();
 
-  const userAvatarFiltered = (user.raiseHand === true || user.away === true || (user.reactionEmoji && user.reactionEmoji !== 'none')) ? '' : user.avatar;
+  const userAvatarFiltered = (user.away === true || (user.reactionEmoji && user.reactionEmoji !== 'none')) ? '' : user.avatar;
 
   const emojiIcons = [
-    {
-      id: 'hand',
-      native: '✋',
-    },
     {
       id: 'clock7',
       native: '⏰',
@@ -189,14 +185,9 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings, index }
     if (user.isDialIn) {
       return <Icon iconName="volume_level_2" />;
     }
-    if (user.raiseHand === true) {
-      return reactionsEnabled
-        ? <Emoji key={emojiIcons[0].id} emoji={emojiIcons[0]} native={emojiIcons[0].native} size={emojiSize} />
-        : <Icon iconName="hand" />;
-    }
     if (user.away === true) {
       return reactionsEnabled
-        ? <Emoji key="away" emoji={emojiIcons[1]} native={emojiIcons[1].native} size={emojiSize} />
+        ? <Emoji key="away" emoji={emojiIcons[0]} native={emojiIcons[0].native} size={emojiSize} />
         : <Icon iconName="time" />;
     }
     if (user.reactionEmoji && user.reactionEmoji !== 'none') {
@@ -212,7 +203,7 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings, index }
     ? user.lastBreakoutRoom?.sequence
     : getIconUser();
 
-  const hasWhiteboardAccess = user?.presPagesWritable?.some((page) => page.isCurrentPage);
+  const hasWhiteboardAccess = user?.whiteboardWriteAccess === true;
 
   function addSeparator(elements: (string | JSX.Element)[]) {
     const modifiedElements: (string | JSX.Element)[] = [];
@@ -239,9 +230,9 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings, index }
         presenter={user.presenter}
         talking={voiceUser?.talking}
         muted={voiceUser?.muted}
-        listenOnly={voiceUser?.listenOnly}
-        voice={voiceUser?.joined}
-        noVoice={!voiceUser?.joined}
+        listenOnly={voiceUser?.listenOnly || voiceUser?.listenOnlyInputDevice}
+        voice={voiceUser?.joined && !voiceUser?.deafened}
+        noVoice={!voiceUser?.joined || voiceUser?.deafened}
         color={user.color}
         whiteboardAccess={hasWhiteboardAccess}
         animations={animations}

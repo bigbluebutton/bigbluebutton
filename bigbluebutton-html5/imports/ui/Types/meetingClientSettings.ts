@@ -54,7 +54,6 @@ export interface App {
   helpLink: string
   delayForUnmountOfSharedNote: number
   bbbTabletApp: BbbTabletApp
-  lockOnJoin: boolean
   cdn: string
   basename: string
   bbbWebBase: string
@@ -107,6 +106,7 @@ export interface App {
   enableApolloDevTools: boolean
   terminateAndRetryConnection: number
   timeoutBeforeRedirectOnMeetingEnd: number | null
+  showConnectionErrors: number[]
 }
 
 export interface BbbTabletApp {
@@ -470,6 +470,10 @@ export interface Poll {
   maxTypedAnswerLength: number
   chatMessage: boolean
   quickPollConfirmationStep: boolean
+  quiz: {
+    enabled: boolean
+    quickPollCorrectAnswerSuffix: string
+  }
 }
 
 export interface Captions {
@@ -542,7 +546,7 @@ export interface Chat {
   autoConvertEmoji: boolean
   emojiPicker: EmojiPicker
   disableEmojis: string[]
-  allowedElements: string[]
+  markdownImageAllowed: boolean
   toolbar: string[]
 }
 
@@ -752,6 +756,7 @@ export interface Whiteboard {
   maxStickyNoteLength: number
   maxNumberOfAnnotations: number
   maxNumberOfActiveUsers: number
+  maxHistoryStackSize: number
   lockToolbarTools: boolean
   annotations: Annotations
   allowInfiniteWhiteboard: boolean
@@ -780,6 +785,7 @@ export interface Text {
 
 export interface Toolbar {
   multiUserPenOnly: boolean
+  initialSelectedTool: string
   presenterTools: string[]
   multiUserTools: string[]
 }

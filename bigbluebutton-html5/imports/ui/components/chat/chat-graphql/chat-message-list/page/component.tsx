@@ -48,8 +48,8 @@ interface ChatListPageCommonProps {
   chatEditEnabled: boolean;
   chatReactionsEnabled: boolean;
   focusedSequence: number;
-  sendReaction: (reactionEmoji: string, reactionEmojiId: string, chatId: string, messageId: string) => void;
-  deleteReaction: (reactionEmoji: string, reactionEmojiId: string, chatId: string, messageId: string) => void;
+  sendReaction: (reactionEmoji: string, chatId: string, messageId: string) => void;
+  deleteReaction: (reactionEmoji: string, chatId: string, messageId: string) => void;
   allPagesLoaded: boolean;
 }
 

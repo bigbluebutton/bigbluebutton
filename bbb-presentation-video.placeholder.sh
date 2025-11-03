@@ -1,6 +1,6 @@
 #!/bin/sh
 set -ex
-RELEASE=5.0.0-rc.1
+RELEASE=5.0.0
 cat <<MSG
 This tool downloads prebuilt packages built on Github Actions
 The corresponding source can be browsed at https://github.com/bigbluebutton/bbb-presentation-video/tree/${RELEASE}

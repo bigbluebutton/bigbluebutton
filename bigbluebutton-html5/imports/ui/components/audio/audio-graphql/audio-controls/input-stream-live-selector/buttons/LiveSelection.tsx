@@ -308,6 +308,7 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
         dropdownListComplete.push({
           label: audioSettingsDropdownOption.label,
           iconRight: audioSettingsDropdownOption.icon,
+          dataTest: audioSettingsDropdownOption.dataTest,
           onClick: audioSettingsDropdownOption.onClick,
           key: audioSettingsDropdownOption.id,
         });

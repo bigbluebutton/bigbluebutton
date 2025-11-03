@@ -728,6 +728,7 @@ const AudioModal = ({
           setIsOpen,
           isOpen,
           priority,
+          modalIsOpen: isOpen,
         }}
       >
         {isIE ? (
