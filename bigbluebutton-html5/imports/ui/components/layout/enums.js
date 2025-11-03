@@ -86,6 +86,7 @@ export const ACTIONS = {
   REGISTER_SIDEBAR_APP: 'registerSidebarApp',
   UNREGISTER_SIDEBAR_APP: 'unregisterSidebarApp',
   SET_SIDEBAR_NAVIGATION_PIN_APP: 'setSidebarNavigationPinApp',
+  SET_SIDEBAR_NAVIGATION_NOTIFICATION_APP: 'setSidebarNavigationNotificationApp',
   SET_SIDEBAR_NAVIGATION_OUTPUT: 'setSidebarNavigationOutput',
 
   SET_SIDEBAR_CONTENT_IS_OPEN: 'setSidebarContentIsOpen',

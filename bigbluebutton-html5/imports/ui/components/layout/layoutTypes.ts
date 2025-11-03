@@ -196,6 +196,7 @@ interface SidebarContentHorizontalResizer {
 interface Widget {
     name: string;
     icon: string;
+    hasNotification: boolean;
 }
 
 export interface NativeWidget extends Widget {}

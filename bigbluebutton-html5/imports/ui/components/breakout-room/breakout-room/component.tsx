@@ -14,6 +14,7 @@ import {
 } from './queries';
 import logger from '/imports/startup/client/logger';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import Icon from '/imports/ui/components/common/icon/component';
 import Styled from './styles';
 import { layoutDispatch, layoutSelect } from '../../layout/context';
 import { ACTIONS, PANELS } from '../../layout/enums';
@@ -108,6 +109,14 @@ const intlMessages = defineMessages({
   genericMinimizePanel: {
     id: 'app.sidebarContent.minimizePanelLabel',
     description: 'Generic minimize label for panels',
+  },
+  notAssignedLabel: {
+    id: 'app.createBreakoutRoom.notAssignedLabel',
+    description: 'Label telling user they are not in a breakout room',
+  },
+  notAssignedHelp: {
+    id: 'app.createBreakoutRoom.notAssignedHelp',
+    description: 'Text asking user to contact moderator to be assigned',
   },
 });
 
@@ -215,15 +224,28 @@ const BreakoutRoom: React.FC<BreakoutRoomProps> = ({
           toggleShowChangeTimeForm={setShowChangeTimeForm}
         />
         {isModerator ? <BreakoutMessageForm /> : null}
-        {isModerator ? <Styled.Separator /> : null}
+        <Styled.Separator />
         <Styled.BreakoutsList>
-          {
+          {breakouts.length === 0 ? (
+            <>
+              <Styled.NotAssignedWrapper>
+                <Icon iconName="unassigned" />
+                <Styled.NotAssignedMessage>
+                  {intl.formatMessage(intlMessages.notAssignedLabel)}
+                </Styled.NotAssignedMessage>
+              </Styled.NotAssignedWrapper>
+              <Styled.NotAssignedHelpText>
+                {intl.formatMessage(intlMessages.notAssignedHelp)}
+              </Styled.NotAssignedHelpText>
+            </>
+          ) : (
             breakouts.map((breakout) => {
               const breakoutLabel = breakout.joinURL
                 ? intl.formatMessage(intlMessages.breakoutJoin)
                 : intl.formatMessage(intlMessages.askToJoin);
               const dataTest = `${breakout.joinURL ? 'join' : 'askToJoin'}${breakout.shortName.replace(' ', '')}`;
               const userJoinedDialin = breakout.participants.find((p) => p.userId === userId)?.isAudioOnly ?? false;
+
               return (
                 <Styled.BreakoutItems key={`breakoutRoomItems-${breakout.breakoutRoomId}`}>
                   <Styled.BreakoutRoomList key={`breakoutRoomList-${breakout.breakoutRoomId}`}>
@@ -244,53 +266,46 @@ const BreakoutRoom: React.FC<BreakoutRoomProps> = ({
                       </span>
                     ) : (
                       <Styled.BreakoutActions>
-                        {
-                          breakout.isUserCurrentlyInRoom
-                            ? (
-                              <Styled.AlreadyConnected data-test="alreadyConnected">
-                                {intl.formatMessage(intlMessages.alreadyConnected)}
-                              </Styled.AlreadyConnected>
-                            )
-                            : (
-                              <Styled.JoinButton
-                                label={breakoutLabel}
-                                data-test={dataTest}
-                                aria-label={`${breakoutLabel} ${breakout.shortName}`}
-                                onClick={() => {
-                                  if (!breakout.joinURL) {
-                                    setRequestedBreakoutRoomId(breakout.breakoutRoomId);
-                                    requestJoinURL(breakout.breakoutRoomId);
-                                  } else {
-                                    window.open(breakout.joinURL, '_blank');
-                                    stopMediaOnMainRoom(presenter);
-                                  }
-                                }}
-                                disabled={requestedBreakoutRoomId}
-                              />
-                            )
-                        }
-                        {
-                        isModerator && (userJoinedAudio || userJoinedDialin)
+                        {breakout.isUserCurrentlyInRoom ? (
+                          <Styled.AlreadyConnected data-test="alreadyConnected">
+                            {intl.formatMessage(intlMessages.alreadyConnected)}
+                          </Styled.AlreadyConnected>
+                        ) : (
+                          <Styled.JoinButton
+                            label={breakoutLabel}
+                            data-test={dataTest}
+                            aria-label={`${breakoutLabel} ${breakout.shortName}`}
+                            onClick={() => {
+                              if (!breakout.joinURL) {
+                                setRequestedBreakoutRoomId(breakout.breakoutRoomId);
+                                requestJoinURL(breakout.breakoutRoomId);
+                              } else {
+                                window.open(breakout.joinURL, '_blank');
+                                stopMediaOnMainRoom(presenter);
+                              }
+                            }}
+                            disabled={requestedBreakoutRoomId}
+                          />
+                        )}
+                        {isModerator && (userJoinedAudio || userJoinedDialin)
                           ? [
-                            ('|'),
-                            (
-                              <Styled.AudioButton
-                                label={
-                                  userJoinedDialin
-                                    ? intl.formatMessage(intlMessages.breakoutReturnAudio)
-                                    : intl.formatMessage(intlMessages.breakoutJoinAudio)
-                                }
-                                disabled={false}
-                                key={`join-audio-${breakout.breakoutRoomId}`}
-                                onClick={
-                                  userJoinedDialin ? () => transferUserToMeeting(breakout.breakoutRoomId, meetingId)
-                                    : () => transferUserToMeeting(meetingId, breakout.breakoutRoomId)
-                                }
-                              />
-                            ),
+                            '|',
+                            <Styled.AudioButton
+                              label={
+                                userJoinedDialin
+                                  ? intl.formatMessage(intlMessages.breakoutReturnAudio)
+                                  : intl.formatMessage(intlMessages.breakoutJoinAudio)
+                              }
+                              disabled={false}
+                              key={`join-audio-${breakout.breakoutRoomId}`}
+                              onClick={
+                                userJoinedDialin
+                                  ? () => transferUserToMeeting(breakout.breakoutRoomId, meetingId)
+                                  : () => transferUserToMeeting(meetingId, breakout.breakoutRoomId)
+                              }
+                            />,
                           ]
-                          : null
-                      }
+                          : null}
                       </Styled.BreakoutActions>
                     )}
                   </Styled.BreakoutRoomList>
@@ -306,7 +321,7 @@ const BreakoutRoom: React.FC<BreakoutRoomProps> = ({
                 </Styled.BreakoutItems>
               );
             })
-          }
+          )}
         </Styled.BreakoutsList>
       </Styled.Content>
     </Styled.PanelContent>
