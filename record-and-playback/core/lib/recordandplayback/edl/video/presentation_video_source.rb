@@ -67,7 +67,7 @@ module BigBlueButton
             *command,
             close_others: true,
             out: log_file,
-            err: log_file,
+            err: %i[child out],
             write => write
           )
           write.close
