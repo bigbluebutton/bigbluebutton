@@ -2,7 +2,6 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages } from 'react-intl';
 import ExternalVideoModal from '/imports/ui/components/external-video-player/external-video-player-graphql/modal/component';
-import LayoutModalContainer from '/imports/ui/components/layout/modal/container';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import { ActionButtonDropdownItemType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/action-button-dropdown-item/enums';
 import Styled from './styles';
@@ -101,10 +100,6 @@ const intlMessages = defineMessages({
   stopExternalVideoLabel: {
     id: 'app.actionsBar.actionsDropdown.stopShareExternalVideo',
     description: 'Stop sharing external video button',
-  },
-  layoutModal: {
-    id: 'app.actionsBar.actionsDropdown.layoutModal',
-    description: 'Label for layouts selection button',
   },
   shareCameraAsContent: {
     id: 'app.actionsBar.actionsDropdown.shareCameraAsContent',
@@ -405,30 +400,6 @@ class ActionsDropdown extends PureComponent {
             };
             return isOpen && (
               <ExternalVideoModal
-                onRequestClose={close}
-                priority="low"
-                isOpen={isOpen}
-                id={id}
-                setIsOpen={isOpen ? close : open}
-              />
-            );
-          }}
-        </ModalRegistration>
-
-        {/* Layout Modal */}
-        <ModalRegistration id="layoutModal" priority="low">
-          {({
-            isOpen,
-            id,
-            open,
-            close,
-          }) => {
-            this.setLayoutModalIsOpen = (value) => {
-              if (value) open();
-              else close();
-            };
-            return isOpen && (
-              <LayoutModalContainer
                 onRequestClose={close}
                 priority="low"
                 isOpen={isOpen}

@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import EndMeetingConfirmationContainer from '/imports/ui/components/end-meeting-confirmation/container';
 import AboutContainer from '/imports/ui/components/about/container';
 import MobileAppModal from '/imports/ui/components/mobile-app-modal/mobile-app-modal-graphql/component';
-import LayoutModalContainer from '/imports/ui/components/layout/modal/container';
+
 import OptionsMenuContainer from '/imports/ui/components/settings/container';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import ShortcutHelpComponent from '/imports/ui/components/shortcut-help/component';
@@ -15,8 +15,6 @@ import Styled from './styles';
 import browserInfo from '/imports/utils/browserInfo';
 import deviceInfo from '/imports/utils/deviceInfo';
 import Session from '/imports/ui/services/storage/in-memory';
-import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
-import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import Toggle from '/imports/ui/components/common/switch/component';
 import { ModalRegistration } from '/imports/ui/core/singletons/modalController';
 
@@ -108,10 +106,6 @@ const intlMessages = defineMessages({
   stopCaption: {
     id: 'app.audio.captions.button.stop',
     description: 'Stop audio captions',
-  },
-  layoutModal: {
-    id: 'app.actionsBar.actionsDropdown.layoutModal',
-    description: 'Label for layouts selection button',
   },
   awayLabel: {
     id: 'app.actionsBar.reactions.away',
@@ -236,7 +230,7 @@ class OptionsDropdown extends PureComponent {
     const {
       intl, amIModerator, isBreakoutRoom, isMeteorConnected, audioCaptionsEnabled,
       audioCaptionsActive, audioCaptionsSet, isMobile, optionsDropdownItems,
-      isDirectLeaveButtonEnabled, isLayoutsEnabled, away, handleToggleAFK,
+      isDirectLeaveButtonEnabled, away, handleToggleAFK,
     } = this.props;
 
     const { isIos } = deviceInfo;
@@ -350,22 +344,6 @@ class OptionsDropdown extends PureComponent {
       description: intl.formatMessage(intlMessages.hotkeysDesc),
       onClick: () => this.setShortcutHelpModalIsOpen(),
     });
-
-    const Settings = getSettingsSingletonInstance();
-    const { selectedLayout } = Settings.application;
-    const shouldShowManageLayoutButton = selectedLayout !== LAYOUT_TYPE.CAMERAS_ONLY
-      && selectedLayout !== LAYOUT_TYPE.PRESENTATION_ONLY
-      && selectedLayout !== LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY;
-
-    if (shouldShowManageLayoutButton && isLayoutsEnabled) {
-      this.menuItems.push({
-        key: 'list-item-layout-modal',
-        icon: 'manage_layout',
-        label: intl.formatMessage(intlMessages.layoutModal),
-        onClick: () => this.setLayoutModalIsOpen(),
-        dataTest: 'manageLayoutBtn',
-      });
-    }
 
     optionsDropdownItems.forEach((item) => {
       switch (item.type) {
@@ -536,20 +514,6 @@ class OptionsDropdown extends PureComponent {
           }}
         </ModalRegistration>
 
-        {/* Layout Modal */}
-        <ModalRegistration id="layoutModal" priority="low">
-          {({
-            isOpen,
-            id,
-            open,
-            close,
-          }) => {
-            this.setLayoutModalIsOpen = isOpen ? close : open;
-            return isOpen && (
-              <LayoutModalContainer onRequestClose={close} priority="low" isOpen={isOpen} id={id} setIsOpen={isOpen ? close : open} />
-            );
-          }}
-        </ModalRegistration>
       </>
     );
   }
