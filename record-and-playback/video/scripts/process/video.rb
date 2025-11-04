@@ -84,36 +84,6 @@ duration = BigBlueButton::Events.get_recording_length(events)
 participants = BigBlueButton::Events.get_num_participants(events)
 metadata = events.at_xpath('/recording/metadata')
 
-logger.info 'Checking whether webcams were used'
-have_webcams = BigBlueButton::Events.have_webcam_events(events)
-if have_webcams
-  logger.info('Webcams were used in this session')
-else
-  logger.info('No webcams were used in this session')
-end
-
-logger.info('Checking whether desktop sharing was used')
-have_deskshare = BigBlueButton::Events.have_deskshare_events(events)
-if have_deskshare
-  logger.info('Desktop sharing was used in this session')
-else
-  logger.info('No desktop sharing was used in this session')
-end
-
-logger.info 'Checking whether the presentation area was used'
-have_presentation = BigBlueButton::Events.have_presentation_events(events)
-if have_presentation
-  logger.info('Have presentation events, rendering presentation area')
-else
-  logger.info('No presentation events found')
-end
-
-if !have_presentation && !have_webcams
-  logger.info('This recording has neither webcams or presentation')
-  logger.info("Re-enabling presentation area, so the video isn't blank...")
-  have_presentation = true
-end
-
 preset = nil
 if video_props.fetch('allow_meta_preset', true)
   # Use preset specified via metadata parameter, if available
@@ -196,29 +166,24 @@ preset['layouts'].each do |specific_layout|
     area.symbolize_keys!
     area[:name] = area[:name].to_sym
   end
+  specific_layout[:conditions]&.symbolize_keys!
 end
 
 logger.info 'Generating video events list'
 
-# Webcams
 webcam_edl = BigBlueButton::Events.create_webcam_edl(events, raw_archive_dir, props['show_moderator_viewpoint'])
 logger.debug 'Webcam EDL:'
 BigBlueButton::EDL::Video.dump(webcam_edl)
 
-# Deskshare
 deskshare_edl = BigBlueButton::Events.create_deskshare_edl(events, raw_archive_dir)
 logger.debug 'Deskshare EDL:'
 BigBlueButton::EDL::Video.dump(deskshare_edl)
 
-video_edl = BigBlueButton::EDL::Video.merge(webcam_edl, deskshare_edl)
+presentation_edl = BigBlueButton::Events.create_presentation_edl(events, raw_archive_dir, process_dir)
+logger.debug 'Presentation EDL:'
+BigBlueButton::EDL::Video.dump(presentation_edl)
 
-if have_presentation
-  presentation_edl = BigBlueButton::Events.create_presentation_edl(events, raw_archive_dir, process_dir)
-  logger.debug 'Presentation EDL:'
-  BigBlueButton::EDL::Video.dump(presentation_edl)
-
-  video_edl = BigBlueButton::EDL::Video.merge(presentation_edl, video_edl)
-end
+video_edl = BigBlueButton::EDL::Video.merge(webcam_edl, deskshare_edl, presentation_edl)
 
 logger.debug 'Merged Video EDL:'
 BigBlueButton::EDL::Video.dump(video_edl)
@@ -229,6 +194,7 @@ logger.debug 'Trimmed Video EDL:'
 BigBlueButton::EDL::Video.dump(video_edl)
 
 logger.info 'Generating audio events list'
+
 audio_edl = BigBlueButton::AudioEvents.create_audio_edl(events, raw_archive_dir)
 logger.debug 'Audio EDL:'
 BigBlueButton::EDL::Audio.dump(audio_edl)

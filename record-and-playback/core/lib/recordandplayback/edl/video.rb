@@ -53,13 +53,27 @@ module BigBlueButton
               BigBlueButton.logger.debug "      #{video[:filename]} at #{video[:timestamp]} (original duration: #{video[:original_duration]})"
             end
           end
+          next unless entry[:conditions]&.any?
+
+          BigBlueButton.logger.debug('  Conditions:')
+          entry[:conditions].each do |name, value|
+            BigBlueButton.logger.debug("    #{name}: #{value}")
+          end
         end
       end
 
+      # Merge multiple EDLs into a single EDL
+      #
+      # The merged EDL will preserve all areas from all EDLS, and merge the list of videos for each area if multiple EDLs
+      # provide videos for the same area. Conditions will be merged from all EDLS. If multiple EDLs provide the same condition
+      # at the same time with different values, the result is undefined.
+      #
+      # @param edls [Array<Array<Hash>>] The EDLs to merge
+      # @return [Array<Hash>] The merged EDL
       def self.merge(*edls)
         entries_i = Array.new(edls.length, 0)
         done = Array.new(edls.length, false)
-        merged_edl = [ { :timestamp => 0, :areas => {} } ]
+        merged_edl = [{ timestamp: 0, areas: {}, conditions: {} }]
 
         while !done.all?
           # Figure out what the next entry in each edl is
@@ -123,21 +137,20 @@ module BigBlueButton
           end
 
           # Determine whether to create a new entry or edit the previous one
-          merged_entry = { :timestamp => next_entry[:timestamp], :areas => {} }
-          last_entry = merged_edl.last
-          if last_entry[:timestamp] == next_entry[:timestamp]
-            # Edit the existing entry
-            merged_entry = last_entry
-          else
-            # Create a new entry
-            merged_entry = { :timestamp => next_entry[:timestamp], :areas => {} }
+          merged_entry = last_entry = merged_edl.last
+          unless last_entry[:timestamp] == next_entry[:timestamp]
+            # Need to create a new entry
+            merged_entry = { timestamp: next_entry[:timestamp], areas: {}, conditions: {} }
             merged_edl << merged_entry
-            # Have to copy videos from the last entry into the new entry, updating timestamps
+            # Copy videos from the last entry into the new entry, updating timestamps
+            offset = merged_entry[:timestamp] - last_entry[:timestamp]
             last_entry[:areas].each do |area, videos|
               merged_entry[:areas][area] = videos.map do |video|
-                video.merge(timestamp: video[:timestamp] + merged_entry[:timestamp] - last_entry[:timestamp])
+                video.merge(timestamp: video[:timestamp] + offset)
               end
             end
+            # Carry forward conditions from the last entry
+            merged_entry[:conditions] = last_entry.fetch(:conditions, {}).dup
           end
 
           # Remove deleted videos
@@ -166,6 +179,9 @@ module BigBlueButton
               end
             end
           end
+
+          # Merge conditions from the next entry
+          merged_entry[:conditions].merge!(next_entry.fetch(:conditions, {}))
 
           entries_i[next_edl] += 1
           if entries_i[next_edl] >= edls[next_edl].length
@@ -391,11 +407,13 @@ module BigBlueButton
 
         media = Set.new(cut[:areas].filter_map { |name, videos| name unless videos.empty? })
         BigBlueButton.logger.info("Media present in cut: #{media.to_a.inspect}")
+        cut_conditions = cut.fetch(:conditions, {})
 
         # Find a specific layout based on layout constraints
         specific_layout, _layout_index = layouts.each_with_index.find do |sl, i|
           required = Set.new(sl.fetch(:required, []))
           supported = Set.new(sl.fetch(:areas, layout.fetch(:areas, [])).map { |area| area[:name] })
+          conditions = sl.fetch(:conditions, {})
 
           sl_name = sl.fetch(:name, "layout #{i}")
 
@@ -405,8 +423,18 @@ module BigBlueButton
           elsif !media.subset?(supported)
             BigBlueButton.logger.debug("Not using #{sl_name} - doesn't support media #{(media - supported).to_a.inspect}")
             false
+          elsif !conditions.all? { |key, value| cut_conditions[key] == value }
+            BigBlueButton.logger.debug do
+              key, value = conditions.find { |key, value| cut_conditions[key] != value }
+              "Not using #{sl_name} - condition mismatch for #{key.inspect}; " \
+              "expected #{value}, actual #{cut_conditions[key].inspect}"
+            end
+            false
           else
-            BigBlueButton.logger.debug("Using #{sl_name} - required #{required.to_a.inspect}, areas: #{supported.to_a.inspect}")
+            BigBlueButton.logger.debug(
+              "Using #{sl_name} - required #{required.to_a.inspect}, areas: #{supported.to_a.inspect}, " \
+              " conditions: #{conditions.inspect}"
+            )
             layout_name = sl_name
             true
           end
@@ -454,11 +482,13 @@ module BigBlueButton
         # Check for obscured (completely hidden) video areas, and skip processing for those areas
         layout[:areas].each_with_index do |layout_area, i|
           next unless i >= 1
+
           area = cut[:areas][layout_area[:name]]
-          next if area.nil? || area.empty?
+          next if area.nil? || area.empty? || layout_area.fetch(:hidden, false)
 
           (0...i).each do |j|
             prev_area = layout[:areas][j]
+            next if prev_area.fetch(:hidden, false)
             next if prev_area[:x] < layout_area[:x] ||
                     prev_area[:y] < layout_area[:y] ||
                     prev_area[:x] + prev_area[:width] > layout_area[:x] + layout_area[:width] ||
@@ -471,11 +501,10 @@ module BigBlueButton
 
         layout[:areas].each do |layout_area|
           area = cut[:areas][layout_area[:name]]
-          next if area.nil?
+          next if area.nil? || area.empty? || layout_area.fetch(:hidden, false)
 
           video_count = area.length
           BigBlueButton.logger.debug "  Laying out #{video_count} videos in #{layout_area[:name]}"
-          next if video_count == 0
 
           tiles_h = 0
           tiles_v = 0
