@@ -77,7 +77,7 @@ public class SvgConversionHandler extends AbstractCommandHandler {
                 m.find();
                 return Integer.parseInt(m.group(0).replace(USE_TAG_OUTPUT, "").trim());
             } catch (Exception e) {
-                log.error("Exception counting the number of image tags", e);
+                log.error("Exception counting the number of use tags", e);
                 return 0;
             }
         }
