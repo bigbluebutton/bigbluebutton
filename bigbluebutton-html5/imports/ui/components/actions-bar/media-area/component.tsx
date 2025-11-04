@@ -27,7 +27,6 @@ const MediaArea = (props: MediaAreaProps) => {
     isSharingVideo,
     allowExternalVideo,
     stopExternalVideoShare,
-    setPresentationFitToWidth,
     isMobile,
     isRTL,
   } = props;
@@ -74,7 +73,6 @@ const MediaArea = (props: MediaAreaProps) => {
         isSharingVideo={isSharingVideo}
         allowExternalVideo={allowExternalVideo}
         stopExternalVideoShare={stopExternalVideoShare}
-        setPresentationFitToWidth={setPresentationFitToWidth}
       />
     </>
   );

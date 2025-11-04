@@ -1,7 +1,7 @@
 import React, {
-  useState, useEffect, useCallback,
+  useState, useEffect,
 } from 'react';
-import { defineMessages, useIntl } from 'react-intl';
+import { useIntl } from 'react-intl';
 import PollingContainer from '/imports/ui/components/polling/container';
 import ActivityCheckContainer from '/imports/ui/components/activity-check/container';
 import RequestUnmuteContainer from '/imports/ui/components/request-unmute-modal/container';
@@ -41,6 +41,7 @@ import VoiceActivityAdapter from '../../core/adapters/voice-activity';
 import LayoutObserver from '../layout/observer';
 import BBBLiveKitRoomContainer from '/imports/ui/components/livekit/component';
 import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
+import AudioCaptionsLiveContainer from '/imports/ui/components/audio/audio-graphql/audio-captions/live/component';
 import BreakoutRoomsAppObserver from '../breakout-room/breakout-observer/component';
 import { DispatcherFunction } from '../layout/layoutTypes';
 import { PluginConfigFromGraphql } from '../plugins-engine/types';
@@ -48,6 +49,7 @@ import useJoinLogger from './hooks/useJoinLogger';
 import useAppInitialization from './hooks/useAppInitialization';
 import usePollShortcut from './hooks/usePollShortcut';
 import useUserStatusNotifications from './hooks/useUserStatusNotifications';
+import { NotesRenderMode } from '/imports/ui/components/notes/constants';
 
 interface AppProps {
   darkTheme: boolean;
@@ -57,7 +59,6 @@ interface AppProps {
   meetingName: string;
   currentUserAway?: boolean;
   currentUserRaiseHand?: boolean;
-  fitToWidth: boolean;
   shouldShowExternalVideo: boolean;
   shouldShowPresentation: boolean;
   shouldShowScreenshare: boolean;
@@ -65,27 +66,14 @@ interface AppProps {
   presentationIsOpen: boolean;
   pluginConfig: PluginConfigFromGraphql[] | undefined;
   genericMainContentId: string;
-  selectedLayout: string;
+  selectedLayout: typeof LAYOUT_TYPE[keyof typeof LAYOUT_TYPE];
   isNotificationEnabled: boolean;
   isNonMediaLayout: boolean;
   isRaiseHandEnabled: boolean;
   hideActionsBar: boolean;
-  audioCaptions: React.ReactNode;
-  captionsStyle: {
-    left: number;
-    right: number;
-    maxWidth: number;
-  };
   isPollingEnabled: boolean;
   layoutContextDispatch: DispatcherFunction;
-  handlePresentationFitToWidth: (fitToWidth: boolean) => void;
 }
-const messages = defineMessages({
-  captions: {
-    id: 'app.audio.captions.live.captions',
-    description: 'Accessible label for the audio captions region',
-  },
-});
 
 const App: React.FC<AppProps> = ({
   darkTheme,
@@ -95,7 +83,6 @@ const App: React.FC<AppProps> = ({
   meetingName,
   currentUserAway,
   currentUserRaiseHand,
-  fitToWidth,
   shouldShowExternalVideo,
   shouldShowPresentation,
   shouldShowScreenshare,
@@ -108,17 +95,13 @@ const App: React.FC<AppProps> = ({
   isNonMediaLayout,
   isRaiseHandEnabled,
   hideActionsBar,
-  audioCaptions,
-  captionsStyle,
   isPollingEnabled,
   layoutContextDispatch,
-  handlePresentationFitToWidth,
 }) => {
   const intl = useIntl();
   // State
   const [isAudioModalOpen, setIsAudioModalOpen] = useState<boolean>(false);
   const [isVideoPreviewModalOpen, setIsVideoPreviewModalOpen] = useState<boolean>(false);
-  const [presentationFitToWidth, setPresentationFitToWidth] = useState<boolean>(false);
 
   useAppInitialization();
   useJoinLogger(meetingId, meetingName, isBreakout);
@@ -129,42 +112,13 @@ const App: React.FC<AppProps> = ({
     AppService.setDarkTheme(darkTheme);
   }, [darkTheme]);
 
-  useEffect(() => {
-    setPresentationFitToWidth(fitToWidth);
-  }, [fitToWidth]);
-
-  const handleSetPresentationFitToWidth = useCallback((fitToWidth: boolean) => {
-    handlePresentationFitToWidth(fitToWidth);
-    setPresentationFitToWidth(fitToWidth);
-  }, [handlePresentationFitToWidth]);
-
   const renderActionsBar = () => {
     if (hideActionsBar) return null;
 
     return (
       <ActionsBarContainer
         presentationIsOpen={presentationIsOpen}
-        setPresentationFitToWidth={handleSetPresentationFitToWidth}
       />
-    );
-  };
-
-  const renderAudioCaptions = () => {
-    if (!audioCaptions) return null;
-
-    return (
-      <Styled.CaptionsWrapper
-        as="section"
-        aria-label={intl.formatMessage(messages.captions)}
-        style={{
-          position: 'absolute',
-          left: captionsStyle.left,
-          right: captionsStyle.right,
-          maxWidth: captionsStyle.maxWidth,
-        }}
-      >
-        {audioCaptions}
-      </Styled.CaptionsWrapper>
     );
   };
 
@@ -205,8 +159,6 @@ const App: React.FC<AppProps> = ({
           />
           {shouldShowPresentation ? (
             <PresentationContainer
-              setPresentationFitToWidth={handleSetPresentationFitToWidth}
-              fitToWidth={presentationFitToWidth}
               darkTheme={darkTheme}
               presentationIsOpen={presentationIsOpen}
             />
@@ -215,10 +167,12 @@ const App: React.FC<AppProps> = ({
             <ScreenshareContainer shouldShowScreenshare={shouldShowScreenshare} />
           )}
           {isSharedNotesPinned ? (
-            <NotesContainer area="media" />
+            <NotesContainer
+              renderMode={NotesRenderMode.PINNED}
+            />
           ) : null}
           <AudioCaptionsSpeechContainer />
-          {renderAudioCaptions()}
+          <AudioCaptionsLiveContainer />
           {!hideNotificationToasts && isNotificationEnabled && (
             <PresentationUploaderToastContainer intl={intl} />
           )}
@@ -263,8 +217,6 @@ const App: React.FC<AppProps> = ({
       >
         <ScreenReaderAlertContainer />
         <PresentationContainer
-          setPresentationFitToWidth={setPresentationFitToWidth}
-          fitToWidth={presentationFitToWidth}
           darkTheme={darkTheme}
           presentationIsOpen={presentationIsOpen}
         />

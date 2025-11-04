@@ -1,16 +1,12 @@
 /* eslint-disable jsx-a11y/no-access-key */
-import React from 'react';
-import TooltipContainer from '/imports/ui/components/common/tooltip/container';
+import React, { memo } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import KEYS from '/imports/utils/keys';
-import Icon from '/imports/ui/components/common/icon/component';
-import { PANELS, ACTIONS } from '../../layout/enums';
-import { layoutDispatch, layoutSelectInput } from '/imports/ui/components/layout/context';
-import { Input } from '/imports/ui/components/layout/layoutTypes';
-import Styled from '../styles';
-import { GET_GUEST_WAITING_USERS_SUBSCRIPTION, GuestWaitingUsers } from '../../user-list/guest-management/waiting-users/queries';
+import { PANELS } from '../../layout/enums';
+import { GET_GUEST_WAITING_USERS_SUBSCRIPTION, GuestWaitingUsers } from '/imports/ui/components/user-list/guest-management/waiting-users/queries';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import { useShortcut } from '/imports/ui/core/hooks/useShortcut';
+import SidebarNavigationButton from '/imports/ui/components/sidebar-navigation/sidebar-navigation-button/component';
+import { BaseSidebarButtonProps } from '../types';
 
 const intlMessages = defineMessages({
   usersListLabel: {
@@ -19,60 +15,30 @@ const intlMessages = defineMessages({
   },
 });
 
-const UsersListItem = () => {
-  const CURRENT_PANEL = PANELS.USERLIST;
+const UsersListItem: React.FC<BaseSidebarButtonProps> = ({ isOpened }) => {
   const TOGGLE_USER_LIST_SHORTCUT = useShortcut('toggleUserList');
   const intl = useIntl();
-  const layoutContextDispatch = layoutDispatch();
-  const sidebarContent = layoutSelectInput((i: Input) => i.sidebarContent);
-  const { sidebarContentPanel } = sidebarContent;
 
   const {
     data: guestWaitingUsersData,
   } = useDeduplicatedSubscription<GuestWaitingUsers>(GET_GUEST_WAITING_USERS_SUBSCRIPTION);
 
-  const toggleUsersListPanel = () => {
-    layoutContextDispatch({
-      type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-      value: sidebarContentPanel !== CURRENT_PANEL,
-    });
-    layoutContextDispatch({
-      type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-      value: sidebarContentPanel === CURRENT_PANEL
-        ? PANELS.NONE
-        : CURRENT_PANEL,
-    });
-  };
-
   const label = intl.formatMessage(intlMessages.usersListLabel);
+  const hasNotification = (guestWaitingUsersData?.user_guest?.length ?? 0) > 0;
 
   return (
-    <TooltipContainer
-      title={label}
-      position="right"
-    >
-      <Styled.ListItem
-        id="users-list-toggle-button"
-        accessKey={TOGGLE_USER_LIST_SHORTCUT}
-        aria-label={label}
-        aria-describedby="usersList"
-        active={sidebarContentPanel === CURRENT_PANEL}
-        role="button"
-        tabIndex={0}
-        data-test="usersListSidebarButton"
-        onClick={toggleUsersListPanel}
-        // @ts-ignore
-        onKeyDown={(e) => {
-          if (e.key === KEYS.ENTER) {
-            toggleUsersListPanel();
-          }
-        }}
-        hasNotification={(guestWaitingUsersData?.user_guest?.length ?? 0) > 0}
-      >
-        <Icon iconName="user_list" />
-      </Styled.ListItem>
-    </TooltipContainer>
+    <SidebarNavigationButton
+      panel={PANELS.USERLIST}
+      isOpened={isOpened}
+      iconName="user_list"
+      label={label}
+      accessKey={TOGGLE_USER_LIST_SHORTCUT}
+      id="users-list-toggle-button"
+      ariaDescribedBy="usersList"
+      dataTest="usersListSidebarButton"
+      hasNotification={hasNotification}
+    />
   );
 };
 
-export default UsersListItem;
+export default memo(UsersListItem);

@@ -1,12 +1,8 @@
-import React from 'react';
-import KEYS from '/imports/utils/keys';
-import TooltipContainer from '/imports/ui/components/common/tooltip/container';
+import React, { memo } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import Icon from '/imports/ui/components/common/icon/component';
-import { PANELS, ACTIONS } from '../../layout/enums';
-import { layoutDispatch, layoutSelectInput } from '/imports/ui/components/layout/context';
-import { Input } from '/imports/ui/components/layout/layoutTypes';
-import Styled from '../styles';
+import { PANELS } from '../../layout/enums';
+import { BaseSidebarButtonProps } from '../types';
+import SidebarNavigationButton from '/imports/ui/components/sidebar-navigation/sidebar-navigation-button/component';
 
 const intlMessages = defineMessages({
   profileLabel: {
@@ -15,53 +11,22 @@ const intlMessages = defineMessages({
   },
 });
 
-const ProfileListItem = () => {
-  const CURRENT_PANEL = PANELS.PROFILE;
+const ProfileListItem:React.FC<BaseSidebarButtonProps> = ({ isOpened }) => {
   const intl = useIntl();
-  const layoutContextDispatch = layoutDispatch();
-  const sidebarContent = layoutSelectInput((i: Input) => i.sidebarContent);
-  const { sidebarContentPanel } = sidebarContent;
-
-  const toggleProfilePanel = () => {
-    layoutContextDispatch({
-      type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-      value: sidebarContentPanel !== CURRENT_PANEL,
-    });
-    layoutContextDispatch({
-      type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-      value: sidebarContentPanel === CURRENT_PANEL
-        ? PANELS.NONE
-        : CURRENT_PANEL,
-    });
-  };
 
   const label = intl.formatMessage(intlMessages.profileLabel);
 
   return (
-    <TooltipContainer
-      title={label}
-      position="right"
-    >
-      <Styled.ListItem
-        id="profile-toggle-button"
-        aria-label={label}
-        aria-describedby="profile"
-        active={sidebarContentPanel === CURRENT_PANEL}
-        role="button"
-        tabIndex={0}
-        data-test="profileSidebarButton"
-        onClick={toggleProfilePanel}
-        // @ts-ignore
-        onKeyDown={(e) => {
-          if (e.key === KEYS.ENTER) {
-            toggleProfilePanel();
-          }
-        }}
-      >
-        <Icon iconName="profile" />
-      </Styled.ListItem>
-    </TooltipContainer>
+    <SidebarNavigationButton
+      panel={PANELS.PROFILE}
+      isOpened={isOpened}
+      iconName="profile"
+      label={label}
+      id="profile-toggle-button"
+      ariaDescribedBy="profile"
+      dataTest="profileSidebarButton"
+    />
   );
 };
 
-export default ProfileListItem;
+export default memo(ProfileListItem);

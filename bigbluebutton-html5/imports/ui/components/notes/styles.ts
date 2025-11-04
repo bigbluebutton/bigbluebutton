@@ -13,10 +13,15 @@ import {
 
 const HeaderContainer = styled(BaseHeaderContainer)``;
 
-const PanelContent = styled(BasePanelContent)`
+const PanelContent = styled(BasePanelContent)<{isOnMediaArea: boolean, isHidden: boolean}>`
   display: flex;
   flex-direction: column;
   flex-grow: 1;
+  ${({ isOnMediaArea, isHidden }) => {
+    if (isOnMediaArea) return 'position: absolute;';
+    if (isHidden) return 'padding: 0; display: none;';
+    return '';
+  }}
 `;
 
 const Separator = styled(BaseSeparator)``;

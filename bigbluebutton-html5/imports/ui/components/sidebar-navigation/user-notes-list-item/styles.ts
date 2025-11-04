@@ -1,6 +1,5 @@
 import styled from 'styled-components';
-import Styled from '../styles';
-import { colorGray, colorGrayLightest } from '/imports/ui/stylesheets/styled-components/palette';
+import { colorGray } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   fontSizeSmaller,
   fontSizeXS,
@@ -9,18 +8,6 @@ import {
 const UnreadMessages = styled.div``;
 
 const UnreadMessagesText = styled.div``;
-
-interface ListItemProps {
-  $disabled?: boolean;
-}
-
-const ListItem = styled(Styled.ListItem)<ListItemProps>`
-  ${({ $disabled }) => $disabled && `
-    cursor: not-allowed;
-    border: none;
-    background-color: ${colorGrayLightest};
-  `}
-`;
 
 const NotesLock = styled.div`
   font-weight: 200;
@@ -35,6 +22,5 @@ const NotesLock = styled.div`
 export default {
   UnreadMessages,
   UnreadMessagesText,
-  ListItem,
   NotesLock,
 };

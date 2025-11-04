@@ -22,6 +22,7 @@ import {
   SIDEBAR_CONTENT_VERTICAL_MARGIN_PERCENTAGE_HEIGHT,
 } from '/imports/ui/components/layout/defaultValues';
 import AudioCaptionsPanel from '../audio-captions/panel/component';
+import NotesRenderMode from '/imports/ui/components/notes/constants';
 
 const SidebarContent = (props: SidebarContentProps) => {
   const {
@@ -171,7 +172,8 @@ const SidebarContent = (props: SidebarContentProps) => {
             )}
           {!isSharedNotesPinned && (
             <NotesContainer
-              isToSharedNotesBeShow={sidebarContentPanel === PANELS.SHARED_NOTES}
+              renderMode={NotesRenderMode.SIDEBAR}
+              isVisible={sidebarContentPanel === PANELS.SHARED_NOTES}
             />
           )}
           {sidebarContentPanel === PANELS.PROFILE && <ProfileSettings />}

@@ -1,11 +1,8 @@
-import React, { useCallback } from 'react';
-import KEYS from '/imports/utils/keys';
-import TooltipContainer from '/imports/ui/components/common/tooltip/container';
+import React, { useCallback, memo } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import Icon from '/imports/ui/components/common/icon/component';
 import LearningDashboardService from '/imports/ui/components/learning-dashboard/service';
-import Styled from '../styles';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import SidebarNavigationButton from '/imports/ui/components/sidebar-navigation/sidebar-navigation-button/component';
 
 const intlMessages = defineMessages({
   learningDashboardLabel: {
@@ -21,7 +18,7 @@ const LearningDashboardListItem = () => {
     isBreakout: meeting?.isBreakout,
   }));
 
-  const toggleLearningDashboardPanel = useCallback(() => {
+  const openLearningDashboardPanel = useCallback(() => {
     LearningDashboardService.openLearningDashboardUrl(intl.locale, meetingInfo?.learningDashboardAccessToken);
   }, [intl, meetingInfo]);
 
@@ -30,30 +27,15 @@ const LearningDashboardListItem = () => {
   if (meetingInfo?.isBreakout) return null;
 
   return (
-    <TooltipContainer
-      title={label}
-      position="right"
-    >
-      <Styled.ListItem
-        id="learning-dashboard-toggle-button"
-        aria-label={label}
-        aria-describedby="learningDashboard"
-        active={false}
-        role="button"
-        tabIndex={0}
-        data-test="learningDashboardSidebarButton"
-        onClick={toggleLearningDashboardPanel}
-        // @ts-ignore
-        onKeyDown={(e) => {
-          if (e.key === KEYS.ENTER) {
-            toggleLearningDashboardPanel();
-          }
-        }}
-      >
-        <Icon iconName="learning_dashboard" />
-      </Styled.ListItem>
-    </TooltipContainer>
+    <SidebarNavigationButton
+      iconName="learning_dashboard"
+      label={label}
+      id="learning-dashboard-toggle-button"
+      ariaDescribedBy="learningDashboard"
+      dataTest="learningDashboardSidebarButton"
+      onClick={openLearningDashboardPanel}
+    />
   );
 };
 
-export default LearningDashboardListItem;
+export default memo(LearningDashboardListItem);

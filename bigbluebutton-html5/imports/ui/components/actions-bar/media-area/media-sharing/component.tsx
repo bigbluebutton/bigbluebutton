@@ -36,7 +36,6 @@ interface MediaSharingModalProps {
   isSharingVideo: boolean;
   allowExternalVideo: boolean;
   stopExternalVideoShare: () => void;
-  setPresentationFitToWidth: (fitToWidth: boolean) => void;
   isMobile: boolean;
   isRTL: boolean;
 }
@@ -137,7 +136,6 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
   isSharingVideo,
   allowExternalVideo,
   stopExternalVideoShare,
-  setPresentationFitToWidth,
   isMobile,
   isRTL,
 }) => {
@@ -262,7 +260,6 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
         <PresentationUploaderContainer
           amIPresenter={amIPresenter}
           onActionCompleted={handleBackClick}
-          setPresentationFitToWidth={setPresentationFitToWidth}
         />
       );
     } else if (currentView === 'externalVideo') {

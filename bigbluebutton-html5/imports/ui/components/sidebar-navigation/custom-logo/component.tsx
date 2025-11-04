@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, memo } from 'react';
 import Styled from './styles';
 import { useStorageKey } from '/imports/ui/services/storage/hooks';
 import { isDarkThemeEnabled } from '/imports/ui/components/app/service';
@@ -34,4 +34,4 @@ const CustomLogo = () => {
   );
 };
 
-export default CustomLogo;
+export default memo(CustomLogo);

@@ -1,4 +1,3 @@
-export interface ListItemProps {
-  active?: boolean;
-  hasNotification?: boolean;
+export interface BaseSidebarButtonProps {
+  isOpened: boolean;
 }

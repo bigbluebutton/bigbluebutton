@@ -1,11 +1,8 @@
-import React, { useState } from 'react';
-import KEYS from '/imports/utils/keys';
-import TooltipContainer from '/imports/ui/components/common/tooltip/container';
+import React, { useState, memo, useCallback } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import Icon from '/imports/ui/components/common/icon/component';
-import Styled from '../styles';
 import SettingsContainer from '/imports/ui/components/settings/container';
 import ShortcutHelpComponent from '/imports/ui/components/shortcut-help/component';
+import SidebarNavigationButton from '/imports/ui/components/sidebar-navigation/sidebar-navigation-button/component';
 
 const intlMessages = defineMessages({
   settingsLabel: {
@@ -19,37 +16,23 @@ const SettingsListItem = () => {
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [isShortcutModalOpen, setIsShortcutModalOpen] = useState(false);
 
-  const openSettingsModal = () => {
+  const openSettingsModal = useCallback(() => {
     setIsSettingsModalOpen(true);
-  };
+  }, [setIsSettingsModalOpen]);
 
   const label = intl.formatMessage(intlMessages.settingsLabel);
+
   return (
     <>
-      <TooltipContainer title={label} position="right">
-        <Styled.ListItem
-          id="settings-toggle-button"
-          aria-label={label}
-          aria-describedby="settings"
-          role="button"
-          tabIndex={0}
-          data-test="settingsSidebarButton"
-          onClick={(e) => {
-            e.currentTarget.blur();
-            openSettingsModal();
-          }}
-          // @ts-ignore
-          onKeyDown={(e) => {
-            if (e.key === KEYS.ENTER) {
-              e.currentTarget.blur();
-              openSettingsModal();
-            }
-          }}
-        >
-          <Icon iconName="settings" />
-        </Styled.ListItem>
-      </TooltipContainer>
-
+      <SidebarNavigationButton
+        isOpened={isSettingsModalOpen}
+        iconName="settings"
+        label={label}
+        id="settings-toggle-button"
+        ariaDescribedBy="settings"
+        dataTest="settingsSidebarButton"
+        onClick={openSettingsModal}
+      />
       {isSettingsModalOpen && (
         <SettingsContainer
           isOpen={isSettingsModalOpen}
@@ -67,4 +50,4 @@ const SettingsListItem = () => {
   );
 };
 
-export default SettingsListItem;
+export default memo(SettingsListItem);

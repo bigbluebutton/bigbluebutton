@@ -20,6 +20,15 @@ interface UserAvatarProps {
   emoji?: string;
 }
 
+const CaptionsContainer = styled.div`
+  height: auto;
+  bottom: 100px;
+  left: 20%;
+  z-index: 5;
+  pointer-events: none;
+  user-select:none;
+`;
+
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -138,6 +147,7 @@ const UserAvatar = styled.div<UserAvatarProps>`
 `;
 
 export default {
+  CaptionsContainer,
   Wrapper,
   Captions,
   VisuallyHidden,

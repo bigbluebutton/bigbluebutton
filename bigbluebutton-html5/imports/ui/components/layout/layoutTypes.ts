@@ -154,7 +154,7 @@ interface ScreenShare {
     zIndex?: number;
 }
 
-interface SharedNotes {
+export interface SharedNotes {
     browserHeight?: number;
     browserWidth?: number;
     isPinned?: boolean;

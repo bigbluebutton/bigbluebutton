@@ -19,8 +19,7 @@ const ExternalPinnedApp: React.FC<PinnedAppProps> = (props) => {
   const {
     appKey,
     appInfo,
-    active,
-    onActivate,
+    isOpened,
   } = props;
   const { name } = appInfo;
   const [nameReplacement, setNameReplacement] = useState<string>(name);
@@ -94,8 +93,7 @@ const ExternalPinnedApp: React.FC<PinnedAppProps> = (props) => {
     <PinnedAppBase
       appKey={appKey}
       appInfo={modifiedAppInfo}
-      active={active}
-      onActivate={onActivate}
+      isOpened={isOpened}
     >
       {badgeContent && (
         <Styled.BadgeCircle data-test={`${appKey}Badge`}>
