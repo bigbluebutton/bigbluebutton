@@ -1,6 +1,7 @@
 package org.bigbluebutton.build
 
-import sbt.*
+import sbt._
+import Keys._
 
 object Dependencies {
 
