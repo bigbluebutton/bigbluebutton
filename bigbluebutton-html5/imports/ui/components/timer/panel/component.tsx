@@ -28,7 +28,6 @@ import logger from '/imports/startup/client/logger';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import Auth from '/imports/ui/services/auth';
 
-const MAX_HOURS = 23;
 const MILLI_IN_HOUR = 3600000;
 const MILLI_IN_MINUTE = 60000;
 const MILLI_IN_SECOND = 1000;
@@ -38,17 +37,6 @@ const TRACKS = [
   'track1',
   'track2',
   'track3',
-];
-
-// Common quick-set presets (seconds only; labels are localized below)
-const PRESET_SECONDS = [
-  60,
-  5 * 60,
-  10 * 60,
-  15 * 60,
-  20 * 60,
-  30 * 60,
-  60 * 60,
 ];
 
 const intlMessages = defineMessages({
@@ -96,18 +84,6 @@ const intlMessages = defineMessages({
     id: 'app.timer.seconds',
     description: 'Timer seconds label',
   },
-  hoursAbbr: {
-    id: 'app.timer.abbreviation.hours',
-    description: 'Timer hours abbreviation (e.g., h)',
-  },
-  minutesAbbr: {
-    id: 'app.timer.abbreviation.minutes',
-    description: 'Timer minutes abbreviation (e.g., min)',
-  },
-  secondsAbbr: {
-    id: 'app.timer.abbreviation.seconds',
-    description: 'Timer seconds abbreviation (e.g., sec)',
-  },
   presetHours: {
     id: 'app.timer.preset.hours',
     description: 'Preset label for hours with abbreviation (e.g., 1h)',
@@ -119,6 +95,42 @@ const intlMessages = defineMessages({
   setTimerTo: {
     id: 'app.timer.aria.setTo',
     description: 'Aria label for preset buttons: Set timer to {label}',
+  },
+  prevPreset: {
+    id: 'app.timer.aria.prevPreset',
+    description: 'Aria label: Previous preset',
+  },
+  nextPreset: {
+    id: 'app.timer.aria.nextPreset',
+    description: 'Aria label: Next preset',
+  },
+  decrementHours: {
+    id: 'app.timer.aria.decrementHours',
+    description: 'Aria label: Decrease hours by {amount}',
+  },
+  incrementHours: {
+    id: 'app.timer.aria.incrementHours',
+    description: 'Aria label: Increase hours by {amount}',
+  },
+  decrementMinutes: {
+    id: 'app.timer.aria.decrementMinutes',
+    description: 'Aria label: Decrease minutes by {amount}',
+  },
+  incrementMinutes: {
+    id: 'app.timer.aria.incrementMinutes',
+    description: 'Aria label: Increase minutes by {amount}',
+  },
+  decrementSeconds: {
+    id: 'app.timer.aria.decrementSeconds',
+    description: 'Aria label: Decrease seconds by {amount}',
+  },
+  incrementSeconds: {
+    id: 'app.timer.aria.incrementSeconds',
+    description: 'Aria label: Increase seconds by {amount}',
+  },
+  addTime: {
+    id: 'app.timer.aria.addTime',
+    description: 'Aria label: Add {time} to timer',
   },
   songs: {
     id: 'app.timer.songs',
@@ -166,8 +178,18 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
   const intl = useIntl();
   const layoutContextDispatch = layoutDispatch();
 
-  const [focusedUnit, setFocusedUnit] = useState<'hours' | 'minutes' | 'seconds'>('seconds');
+  // timer settings from config
+  const TIMER_CONFIG = window.meetingClientSettings.public.timer;
+  const MAX_HOURS = TIMER_CONFIG.maxHours;
+  const PRESET_SECONDS = TIMER_CONFIG.presets;
+  const QUICK_ADD_BUTTONS = TIMER_CONFIG.quickAddButtons;
+
+  const [focusedUnit, setFocusedUnit] = useState<'hours' | 'minutes' | 'seconds' | null>(null);
   const [lastSelectedTrack, setLastSelectedTrack] = useState<string | null>(null);
+  // only sync to server on blur or start
+  const [localHours, setLocalHours] = useState(0);
+  const [localMinutes, setLocalMinutes] = useState(0);
+  const [localSeconds, setLocalSeconds] = useState(0);
   const hoursInputRef = React.useRef<HTMLInputElement>(null);
   const minutesInputRef = React.useRef<HTMLInputElement>(null);
   const secondsInputRef = React.useRef<HTMLInputElement>(null);
@@ -175,6 +197,26 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
   const hours = Math.floor(timeInSeconds / 3600);
   const minutes = Math.floor((timeInSeconds % 3600) / 60);
   const seconds = timeInSeconds % 60;
+
+  // UI state to carousel preset and clear highlight
+  const [currentPresetIndex, setCurrentPresetIndex] = useState(0);
+  const totalPresets = PRESET_SECONDS.length;
+
+  useEffect(() => {
+    if (!focusedUnit || running) return undefined;
+
+    const timeout = setTimeout(() => setFocusedUnit(null), 3000);
+    return () => clearTimeout(timeout);
+  }, [focusedUnit, running]);
+
+  // Sync local state with server state
+  useEffect(() => {
+    if (!running) {
+      setLocalHours(hours);
+      setLocalMinutes(minutes);
+      setLocalSeconds(seconds);
+    }
+  }, [hours, minutes, seconds, running]);
 
   useEffect(() => {
     if (songTrack && songTrack !== 'noTrack') {
@@ -217,31 +259,38 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
         timerReset();
       }
     }
-  }, [time, timerSetTime, stopwatch, isPaused]);
+  }, [time, timerSetTime, stopwatch, isPaused, timerReset]);
 
   const handleHoursChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(event.target.value || '0', 10);
     if (Number.isNaN(value)) return;
     const newHours = Math.max(0, Math.min(value, MAX_HOURS));
-    syncTimeWithBackend(newHours, minutes, seconds);
+    setLocalHours(newHours);
+  };
+
+  const handleHoursBlur = () => {
+    syncTimeWithBackend(localHours, localMinutes, localSeconds);
   };
 
   const handleMinutesChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(event.target.value || '0', 10);
     if (Number.isNaN(value)) return;
-    let newMinutes = value;
-    let carryOver = 0;
     if (value >= 60) {
-      carryOver = Math.floor(value / 60);
-      newMinutes = value % 60;
-      const newHours = Math.min(hours + carryOver, MAX_HOURS);
-      syncTimeWithBackend(newHours, newMinutes, seconds);
+      const carryOver = Math.floor(value / 60);
+      const newMinutes = value % 60;
+      const newHours = Math.min(localHours + carryOver, MAX_HOURS);
+      setLocalHours(newHours);
+      setLocalMinutes(newMinutes);
       hoursInputRef.current?.focus();
       hoursInputRef.current?.select();
     } else {
-      newMinutes = Math.max(0, Math.min(value, 59));
-      syncTimeWithBackend(hours, newMinutes, seconds);
+      const newMinutes = Math.max(0, Math.min(value, 59));
+      setLocalMinutes(newMinutes);
     }
+  };
+
+  const handleMinutesBlur = () => {
+    syncTimeWithBackend(localHours, localMinutes, localSeconds);
   };
 
   const handleSecondsChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -249,23 +298,29 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
     if (Number.isNaN(value)) return;
     if (value >= 60) {
       const newSeconds = value % 60;
-      const totalMinutes = minutes + Math.floor(value / 60);
+      const totalMinutes = localMinutes + Math.floor(value / 60);
       const additionalHours = Math.floor(totalMinutes / 60);
       const newMinutes = totalMinutes % 60;
-      const newHours = Math.min(hours + additionalHours, MAX_HOURS);
-      syncTimeWithBackend(newHours, newMinutes, newSeconds);
+      const newHours = Math.min(localHours + additionalHours, MAX_HOURS);
+      setLocalHours(newHours);
+      setLocalMinutes(newMinutes);
+      setLocalSeconds(newSeconds);
       minutesInputRef.current?.focus();
       minutesInputRef.current?.select();
     } else {
       const clampedSeconds = Math.max(0, Math.min(value, 59));
-      syncTimeWithBackend(hours, minutes, clampedSeconds);
+      setLocalSeconds(clampedSeconds);
     }
+  };
+
+  const handleSecondsBlur = () => {
+    syncTimeWithBackend(localHours, localMinutes, localSeconds);
   };
 
   const changeTime = useCallback((amountInSeconds: number) => {
     if (running) return;
 
-    const currentTimeInSeconds = (hours * 3600) + (minutes * 60) + seconds;
+    const currentTimeInSeconds = (localHours * 3600) + (localMinutes * 60) + localSeconds;
     let newTotalSeconds = currentTimeInSeconds + amountInSeconds;
 
     const maxSeconds = (MAX_HOURS * 3600) + (59 * 60) + 59;
@@ -275,32 +330,47 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
     const m = Math.floor((newTotalSeconds % 3600) / 60);
     const s = newTotalSeconds % 60;
 
+    setLocalHours(h);
+    setLocalMinutes(m);
+    setLocalSeconds(s);
     syncTimeWithBackend(h, m, s);
-  }, [running, hours, minutes, seconds]);
+  }, [running, localHours, localMinutes, localSeconds, syncTimeWithBackend, MAX_HOURS]);
 
   const setAbsoluteTime = useCallback((totalSeconds: number) => {
     if (running) return;
     const h = Math.floor(totalSeconds / 3600);
     const m = Math.floor((totalSeconds % 3600) / 60);
     const s = totalSeconds % 60;
+    setLocalHours(h);
+    setLocalMinutes(m);
+    setLocalSeconds(s);
     syncTimeWithBackend(h, m, s);
   }, [running, syncTimeWithBackend]);
 
-  // format preset labels using intl so translations (including RTL) can place units correctly
+  // format preset labels(e.g., 0:05:00)
   const formatPresetLabel = useCallback((totalSeconds: number) => {
-    const hours = totalSeconds / 3600;
-    if (Number.isInteger(hours) && hours >= 1) {
-      return intl.formatMessage(intlMessages.presetHours, {
-        hours,
-        abbr: intl.formatMessage(intlMessages.hoursAbbr),
-      });
-    }
-    const minutes = Math.round(totalSeconds / 60);
-    return intl.formatMessage(intlMessages.presetMinutes, {
-      minutes,
-      abbr: intl.formatMessage(intlMessages.minutesAbbr),
-    });
-  }, [intl]);
+    if (!totalSeconds && totalSeconds !== 0) return '';
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    // Always show in H:MM:SS format for clarity
+    return `${hours}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+  }, []);
+
+  // Preset navigation helpers
+  const nextPreset = useCallback(() => {
+    setCurrentPresetIndex((prev) => (prev + 1) % totalPresets);
+  }, [totalPresets]);
+
+  const prevPreset = useCallback(() => {
+    setCurrentPresetIndex((prev) => (prev - 1 + totalPresets) % totalPresets);
+  }, [totalPresets]);
+
+  const visibleOffsets = [0, 1, 2];
+  const visiblePresets = totalPresets > 0 ? visibleOffsets.map((offset) => {
+    const idx = (currentPresetIndex + offset + totalPresets) % totalPresets;
+    return { secs: PRESET_SECONDS[idx], isActive: false, idx };
+  }) : [];
 
   // Removed external +/- panel buttons; inline arrows handle adjustments per unit.
 
@@ -381,7 +451,7 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
         )}
       </Styled.TimerSongsWrapper>
     );
-  }, [songTrack, stopwatch, running]);
+  }, [songTrack, stopwatch, running, handleMusicSwitchChange, intl]);
 
   let controlButtons;
   if (running) {
@@ -425,10 +495,11 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
           color="primary"
           label={intl.formatMessage(intlMessages.start)}
           onClick={() => {
+            // Sync local time to backend before starting
             if (!stopwatch) {
-              const newStartTime = (hours * MILLI_IN_HOUR)
-                + (minutes * MILLI_IN_MINUTE)
-                + (seconds * MILLI_IN_SECOND);
+              const newStartTime = (localHours * MILLI_IN_HOUR)
+                + (localMinutes * MILLI_IN_MINUTE)
+                + (localSeconds * MILLI_IN_SECOND);
 
               if (newStartTime !== time) {
                 timerSetTime({ variables: { time: newStartTime } });
@@ -492,16 +563,43 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
           ) : (
             <>
               <Styled.TimerPresetsRow>
-                {PRESET_SECONDS.map((secs) => (
+                <Styled.PresetArrowButton
+                  role="button"
+                  aria-label={intl.formatMessage(intlMessages.prevPreset)}
+                  color="default"
+                  icon="left_arrow"
+                  size="sm"
+                  onClick={prevPreset}
+                  disabled={running}
+                  hideLabel
+                  data-test="prevPreset"
+                />
+                {visiblePresets.map(({ secs, isActive, idx }) => (
                   <Styled.TimerPresetButton
-                    key={secs}
+                    key={`preset-${secs}-${idx}`}
+                    isActive={isActive}
                     onClick={() => setAbsoluteTime(secs)}
                     disabled={running}
-                    aria-label={intl.formatMessage(intlMessages.setTimerTo, { label: formatPresetLabel(secs) })}
+                    aria-label={intl.formatMessage(
+                      intlMessages.setTimerTo,
+                      { label: formatPresetLabel(secs) },
+                    )}
+                    data-test={`preset-${secs}`}
                   >
                     {formatPresetLabel(secs)}
                   </Styled.TimerPresetButton>
                 ))}
+                <Styled.PresetArrowButton
+                  role="button"
+                  aria-label={intl.formatMessage(intlMessages.nextPreset)}
+                  color="default"
+                  icon="right_arrow"
+                  size="sm"
+                  onClick={nextPreset}
+                  disabled={running}
+                  hideLabel
+                  data-test="nextPreset"
+                />
               </Styled.TimerPresetsRow>
               <Styled.TimeInputWrapper>
                 <Styled.TimeInputGroup>
@@ -510,33 +608,43 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
                       type="number"
                       readOnly={running}
                       disabled={running}
-                      value={String(hours).padStart(2, '0')}
+                      value={String(localHours).padStart(2, '0')}
                       max={MAX_HOURS}
                       min="0"
                       step="1"
                       onChange={handleHoursChange}
+                      onBlur={handleHoursBlur}
                       onFocus={() => setFocusedUnit('hours')}
                       ref={hoursInputRef}
-                      data-test="hoursInput"
+                      data-test="timerHoursInput"
                       isSelected={!running && focusedUnit === 'hours'}
+                      tabIndex={running ? -1 : 0}
                     />
-                    <Styled.InputArrows disabled={running} aria-hidden={running}>
+                    <Styled.InputArrows disabled={running} aria-hidden={running} isSelected={!running && focusedUnit === 'hours'}>
                       <Styled.InputArrowButton
-                        type="button"
-                        aria-label={`${intl.formatMessage(intlMessages.hoursAbbr)} +1`}
+                        role="button"
+                        aria-label={intl.formatMessage(intlMessages.incrementHours, { amount: 1 })}
                         disabled={running}
                         onClick={() => incUnit('hours')}
-                      >
-                        ▲
-                      </Styled.InputArrowButton>
-                      <Styled.InputArrowButton
-                        type="button"
-                        aria-label={`${intl.formatMessage(intlMessages.hoursAbbr)} -1`}
+                        tabIndex={-1}
+                        icon="up_arrow"
+                        size="sm"
+                        color="default"
+                        hideLabel
+                        isSelected={!running && focusedUnit === 'hours'}
+                      />
+                      <Styled.InputArrowButtonDown
+                        role="button"
+                        aria-label={intl.formatMessage(intlMessages.decrementHours, { amount: 1 })}
                         disabled={running}
                         onClick={() => decUnit('hours')}
-                      >
-                        ▼
-                      </Styled.InputArrowButton>
+                        tabIndex={-1}
+                        icon="up_arrow"
+                        size="sm"
+                        color="default"
+                        hideLabel
+                        isSelected={!running && focusedUnit === 'hours'}
+                      />
                     </Styled.InputArrows>
                     <Styled.TimeUnitLabel>
                       {intl.formatMessage(intlMessages.hours)}
@@ -547,33 +655,43 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
                       type="number"
                       readOnly={running}
                       disabled={running}
-                      value={String(minutes).padStart(2, '0')}
+                      value={String(localMinutes).padStart(2, '0')}
                       max="59"
                       min="0"
                       step="1"
                       onChange={handleMinutesChange}
+                      onBlur={handleMinutesBlur}
                       onFocus={() => setFocusedUnit('minutes')}
                       ref={minutesInputRef}
-                      data-test="minutesInput"
+                      data-test="timerMinutesInput"
                       isSelected={!running && focusedUnit === 'minutes'}
+                      tabIndex={running ? -1 : 0}
                     />
-                    <Styled.InputArrows disabled={running} aria-hidden={running}>
+                    <Styled.InputArrows disabled={running} aria-hidden={running} isSelected={!running && focusedUnit === 'minutes'}>
                       <Styled.InputArrowButton
-                        type="button"
-                        aria-label={`${intl.formatMessage(intlMessages.minutesAbbr)} +1`}
+                        role="button"
+                        aria-label={intl.formatMessage(intlMessages.incrementMinutes, { amount: 1 })}
                         disabled={running}
                         onClick={() => incUnit('minutes')}
-                      >
-                        ▲
-                      </Styled.InputArrowButton>
-                      <Styled.InputArrowButton
-                        type="button"
-                        aria-label={`${intl.formatMessage(intlMessages.minutesAbbr)} -1`}
+                        tabIndex={-1}
+                        icon="up_arrow"
+                        size="sm"
+                        color="default"
+                        hideLabel
+                        isSelected={!running && focusedUnit === 'minutes'}
+                      />
+                      <Styled.InputArrowButtonDown
+                        role="button"
+                        aria-label={intl.formatMessage(intlMessages.decrementMinutes, { amount: 1 })}
                         disabled={running}
                         onClick={() => decUnit('minutes')}
-                      >
-                        ▼
-                      </Styled.InputArrowButton>
+                        tabIndex={-1}
+                        icon="up_arrow"
+                        size="sm"
+                        color="default"
+                        hideLabel
+                        isSelected={!running && focusedUnit === 'minutes'}
+                      />
                     </Styled.InputArrows>
                     <Styled.TimeUnitLabel>
                       {intl.formatMessage(intlMessages.minutes)}
@@ -584,33 +702,43 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
                       type="number"
                       readOnly={running}
                       disabled={running}
-                      value={String(seconds).padStart(2, '0')}
+                      value={String(localSeconds).padStart(2, '0')}
                       max="59"
                       min="0"
                       step="1"
                       onChange={handleSecondsChange}
+                      onBlur={handleSecondsBlur}
                       onFocus={() => setFocusedUnit('seconds')}
                       ref={secondsInputRef}
-                      data-test="secondsInput"
+                      data-test="timerSecondsInput"
                       isSelected={!running && focusedUnit === 'seconds'}
+                      tabIndex={running ? -1 : 0}
                     />
-                    <Styled.InputArrows disabled={running} aria-hidden={running}>
+                    <Styled.InputArrows disabled={running} aria-hidden={running} isSelected={!running && focusedUnit === 'seconds'}>
                       <Styled.InputArrowButton
-                        type="button"
-                        aria-label={`${intl.formatMessage(intlMessages.secondsAbbr)} +1`}
+                        role="button"
+                        aria-label={intl.formatMessage(intlMessages.incrementSeconds, { amount: 1 })}
                         disabled={running}
                         onClick={() => incUnit('seconds')}
-                      >
-                        ▲
-                      </Styled.InputArrowButton>
-                      <Styled.InputArrowButton
-                        type="button"
-                        aria-label={`${intl.formatMessage(intlMessages.secondsAbbr)} -1`}
+                        tabIndex={-1}
+                        icon="up_arrow"
+                        size="sm"
+                        color="default"
+                        hideLabel
+                        isSelected={!running && focusedUnit === 'seconds'}
+                      />
+                      <Styled.InputArrowButtonDown
+                        role="button"
+                        aria-label={intl.formatMessage(intlMessages.decrementSeconds, { amount: 1 })}
                         disabled={running}
                         onClick={() => decUnit('seconds')}
-                      >
-                        ▼
-                      </Styled.InputArrowButton>
+                        tabIndex={-1}
+                        icon="up_arrow"
+                        size="sm"
+                        color="default"
+                        hideLabel
+                        isSelected={!running && focusedUnit === 'seconds'}
+                      />
                     </Styled.InputArrows>
                     <Styled.TimeUnitLabel>
                       {intl.formatMessage(intlMessages.seconds)}
@@ -619,36 +747,29 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
                 </Styled.TimeInputGroup>
                 {/* External +/- buttons removed; using inline arrows inside each input */}
                 <Styled.TimerAddsRow>
-                  <Styled.TimerAddButton
-                    onClick={() => changeTime(30)}
-                    disabled={running}
-                    aria-label="+ 30 seconds"
-                    data-test="add30s"
-                  >
-                    +0:30
-                  </Styled.TimerAddButton>
-                  <Styled.TimerAddButton
-                    onClick={() => changeTime(60)}
-                    disabled={running}
-                    aria-label="+ 1 minute"
-                    data-test="add1m"
-                  >
-                    +1:00
-                  </Styled.TimerAddButton>
-                  <Styled.TimerAddButton
-                    onClick={() => changeTime(5 * 60)}
-                    disabled={running}
-                    aria-label="+ 5 minutes"
-                    data-test="add5m"
-                  >
-                    +5:00
-                  </Styled.TimerAddButton>
+                  {QUICK_ADD_BUTTONS.map(({ seconds, label }) => {
+                    const testId = `add${seconds}s`;
+                    const timeLabel = seconds >= 60
+                      ? `${Math.floor(seconds / 60)} minute${Math.floor(seconds / 60) > 1 ? 's' : ''}`
+                      : `${seconds} second${seconds > 1 ? 's' : ''}`;
+                    return (
+                      <Styled.TimerAddButton
+                        key={testId}
+                        onClick={() => changeTime(seconds)}
+                        disabled={running}
+                        aria-label={intl.formatMessage(intlMessages.addTime, { time: timeLabel })}
+                        data-test={testId}
+                      >
+                        {label}
+                      </Styled.TimerAddButton>
+                    );
+                  })}
                 </Styled.TimerAddsRow>
               </Styled.TimeInputWrapper>
+
+              {timerMusicOptions}
             </>
           )}
-
-          {timerMusicOptions}
 
           <Styled.FooterSeparator />
           <Styled.ControlsContainer>

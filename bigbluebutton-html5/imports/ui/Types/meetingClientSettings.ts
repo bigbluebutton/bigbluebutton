@@ -513,7 +513,15 @@ export interface Timer {
   alarm: boolean
   music: Music
   time: number
+  maxHours: number
+  presets: number[]
+  quickAddButtons: QuickAddButton[]
   serverSyncTimeInterval: number
+}
+
+export interface QuickAddButton {
+  seconds: number
+  label: string
 }
 
 export interface Music {
