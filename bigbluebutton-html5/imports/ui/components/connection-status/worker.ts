@@ -92,7 +92,7 @@ self.onmessage = (e) => {
       break;
     }
     case 'stop': {
-      if (timer.id) clearInterval(timer.id);
+      if (timer.id) clearTimeout(timer.id);
       timer.id = null;
       break;
     }
@@ -102,5 +102,5 @@ self.onmessage = (e) => {
 };
 
 self.onclose = () => {
-  if (timer.id) clearInterval(timer.id);
+  if (timer.id) clearTimeout(timer.id);
 };
