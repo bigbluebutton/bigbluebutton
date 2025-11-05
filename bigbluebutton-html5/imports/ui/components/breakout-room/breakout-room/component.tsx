@@ -1,4 +1,4 @@
-import { useMutation } from '@apollo/client';
+import { useMutation, useReactiveVar } from '@apollo/client';
 import React, { useCallback, useEffect } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import {
@@ -21,7 +21,6 @@ import BreakoutMessageForm from './components/messageForm';
 import { useStopMediaOnMainRoom } from '/imports/ui/components/breakout-room/hooks';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
-import { useReactiveVar } from '@apollo/client';
 
 interface BreakoutRoomProps {
   breakouts: BreakoutRoomType[];
