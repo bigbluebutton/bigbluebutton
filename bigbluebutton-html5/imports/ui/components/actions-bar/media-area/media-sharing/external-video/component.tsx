@@ -1,10 +1,10 @@
 import React from 'react';
 import { defineMessages, IntlShape } from 'react-intl';
-import { useMutation } from '@apollo/client';
 import TextField from '@mui/material/TextField';
 import Styled from './styles';
 import ModalStyled from '../styles';
-import { isUrlValid } from './service';
+import { isUrlValid, startWatching } from '/imports/ui/components/external-video-player/service';
+import { useMutation } from '@apollo/client';
 import { EXTERNAL_VIDEO_START } from '/imports/ui/components/external-video-player/mutations';
 
 const intlMessages = defineMessages({
@@ -34,11 +34,6 @@ const intlMessages = defineMessages({
   },
 });
 
-const YOUTUBE_SHORTS_REGEX = new RegExp(/^(?:https?:\/\/)?(?:www\.)?(youtube\.com\/shorts)\/.+$/);
-const PANOPTO_MATCH_URL = /https?:\/\/([^/]+\/Panopto)(\/Pages\/Viewer\.aspx\?id=)([-a-zA-Z0-9]+)/;
-
-const YOUTUBE_REGEX = new RegExp(/^(?:https?:\/\/)?(?:www\.)?(youtube\.com|youtu.be)\/.+$/);
-
 interface ExternalVideoViewProps {
   intl: IntlShape;
   isSharingVideo: boolean;
@@ -53,29 +48,8 @@ const ExternalVideoView: React.FC<ExternalVideoViewProps> = ({
   stopExternalVideoShare,
 }) => {
   const [videoUrl, setVideoUrl] = React.useState('');
-  const [startExternalVideo] = useMutation(EXTERNAL_VIDEO_START);
-  const startWatching = (url: string) => {
-    let externalVideoUrl = url;
-
-    if (YOUTUBE_SHORTS_REGEX.test(url)) {
-      const shortsUrl = url.replace('shorts/', 'watch?v=');
-      externalVideoUrl = shortsUrl;
-    } else if (PANOPTO_MATCH_URL.test(url)) {
-      const m = url.match(PANOPTO_MATCH_URL);
-      if (m && m.length >= 4) {
-        externalVideoUrl = `https://${m[1]}/Podcast/Social/${m[3]}.mp4`;
-      }
-    }
-
-    if (YOUTUBE_REGEX.test(externalVideoUrl)) {
-      const YTUrl = new URL(externalVideoUrl);
-      YTUrl.searchParams.delete('list');
-      YTUrl.searchParams.delete('index');
-      externalVideoUrl = YTUrl.toString();
-    }
-
-    startExternalVideo({ variables: { externalVideoUrl } });
-  };
+  const [startExternalVideoMutation] = useMutation(EXTERNAL_VIDEO_START);
+  const startWatchingImp = startWatching(startExternalVideoMutation);
 
   const valid = isUrlValid(videoUrl);
 
@@ -113,7 +87,7 @@ const ExternalVideoView: React.FC<ExternalVideoViewProps> = ({
           color={!isSharingVideo ? 'primary' : 'danger'}
           onClick={() => {
             if (!isSharingVideo) {
-              startWatching(videoUrl);
+              startWatchingImp(videoUrl);
               onActionCompleted();
             } else {
               stopExternalVideoShare();

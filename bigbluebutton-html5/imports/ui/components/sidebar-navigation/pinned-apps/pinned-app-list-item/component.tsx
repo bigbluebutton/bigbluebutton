@@ -1,15 +1,12 @@
 import React, { memo } from 'react';
-import TooltipContainer from '/imports/ui/components/common/tooltip/container';
-import Icon from '/imports/ui/components/common/icon/component';
 import { InjectedAppGalleryItem } from '/imports/ui/components/layout/layoutTypes';
 import { PinnedAppProps } from '../types';
-import Styled from '../styles';
+import SidebarNavigationButton from '/imports/ui/components/sidebar-navigation/sidebar-navigation-button/component';
 
 const PinnedAppBase: React.FC<PinnedAppProps> = ({
   appKey,
   appInfo,
-  active,
-  onActivate,
+  isOpened,
   children,
 }) => {
   const { name, icon, hasNotification } = appInfo;
@@ -17,10 +14,14 @@ const PinnedAppBase: React.FC<PinnedAppProps> = ({
   const { onClick } = (appInfo as InjectedAppGalleryItem);
 
   return (
-    <TooltipContainer
-      title={name}
-      position="right"
-      key={appKey}
+    <SidebarNavigationButton
+      panel={typeof onClick === 'function' ? undefined : appKey}
+      isOpened={isOpened}
+      iconName={icon}
+      label={name}
+      id={`pinned-app-${appKey}`}
+      dataTest={`${appKey}SidebarButton`}
+      onClick={typeof onClick === 'function' ? onClick : undefined}
     >
       <Styled.ListItem
         role="button"
@@ -34,6 +35,8 @@ const PinnedAppBase: React.FC<PinnedAppProps> = ({
         {children}
       </Styled.ListItem>
     </TooltipContainer>
+      {children}
+    </SidebarNavigationButton>
   );
 };
 

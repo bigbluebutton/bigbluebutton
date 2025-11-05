@@ -2294,7 +2294,7 @@ create unlogged table "sharedNotes_session" (
 create index "sharedNotes_session_userId_rev" on "sharedNotes_session"("userId", "meetingId", "sharedNotesExtId");
 
 create view "v_sharedNotes" as
-SELECT sn.*, max(snr.rev) "lastRev"
+SELECT sn.*, max(snr."createdAt") "lastUpdatedAt"
 FROM "sharedNotes" sn
 LEFT JOIN "sharedNotes_rev" snr ON snr."meetingId" = sn."meetingId" AND snr."sharedNotesExtId" = sn."sharedNotesExtId"
 GROUP BY sn."meetingId", sn."sharedNotesExtId";

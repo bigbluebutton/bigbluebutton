@@ -41,6 +41,7 @@ function createUseSubscription<T>(
   const queryHash = stringToHash(JSON.stringify({ subscription: newSubscriptionGQL, variables: queryVariables }));
   return function useGeneratedUseSubscription(
     projectionFunction: (element: Partial<T>) => Partial<T> = (element) => element,
+    skip = false,
   ): GraphqlDataHookSubscriptionResponse<Array<Partial<T>>> {
     const subscriptionHashRef = useRef<string>('');
     const subscriptionRef = useRef <DocumentNode | TypedQueryDocumentNode | null>(null);
@@ -117,6 +118,11 @@ function createUseSubscription<T>(
     const oldProjectionOfDataRef = useRef<Partial<T>[]>([]);
     const oldLoadingRef = useRef<boolean>(true);
 
+    const skippedResponse = useMemo(() => ({
+      loading: false,
+      data: [],
+    }), []);
+
     useEffect(() => {
       const listener = (event: CustomEvent) => {
         if (event.detail.subscriptionHash === subHash) {
@@ -124,6 +130,12 @@ function createUseSubscription<T>(
           observer.current[event.detail.type](event.detail.response);
         }
       };
+      if (skip) {
+        GrahqlSubscriptionStore.unsubscribe(newSubscriptionGQL, queryVariables);
+        // @ts-ignore
+        window.removeEventListener('graphqlSubscription', listener);
+        return () => {};
+      }
       //  @ts-ignore
       window.addEventListener('graphqlSubscription', listener);
       GrahqlSubscriptionStore.makeSubscription(newSubscriptionGQL, queryVariables, usePatchedSubscription ? 'no-cache' : undefined);
@@ -131,9 +143,9 @@ function createUseSubscription<T>(
         //  @ts-ignore
         // window.removeEventListener('graphqlSubscription', listener);
       };
-    }, [queryHash]);
+    }, [queryHash, skip]);
 
-    return projectedData;
+    return skip ? skippedResponse : projectedData;
   };
 }
 

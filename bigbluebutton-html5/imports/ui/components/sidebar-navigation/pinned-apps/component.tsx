@@ -7,8 +7,8 @@ import {
 } from '/imports/ui/components/layout/layoutTypes';
 import PinnedAppBase from './pinned-app-list-item/component';
 import ExternalPinnedApp from './external-pinned-app-list-item/component';
-import { layoutDispatch, layoutSelectInput } from '/imports/ui/components/layout/context';
-import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
+import { layoutSelectInput } from '/imports/ui/components/layout/context';
+import { PANELS } from '/imports/ui/components/layout/enums';
 
 interface PinnedAppsProps {
   sidebarNavigationInput: SidebarNavigation;
@@ -16,24 +16,11 @@ interface PinnedAppsProps {
 
 const PinnedApps = ({ sidebarNavigationInput }: PinnedAppsProps) => {
   const { registeredApps = {}, pinnedApps = [] } = sidebarNavigationInput;
-  const layoutContextDispatch = layoutDispatch();
   const { sidebarContentPanel } = layoutSelectInput((i: Input) => i.sidebarContent);
-  const openPanel = (pinnedAppKey: string) => {
-    layoutContextDispatch({
-      type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-      value: sidebarContentPanel !== pinnedAppKey,
-    });
-    layoutContextDispatch({
-      type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-      value: sidebarContentPanel === pinnedAppKey
-        ? PANELS.NONE
-        : pinnedAppKey,
-    });
-  };
 
   return pinnedApps.map((pinnedAppKey: string) => {
     const pinnedAppInfo = registeredApps[pinnedAppKey];
-    const isActive = sidebarContentPanel === pinnedAppKey;
+    const isOpened = sidebarContentPanel === pinnedAppKey;
 
     const Component = pinnedAppKey.startsWith(PANELS.GENERIC_CONTENT_SIDEKICK)
       ? ExternalPinnedApp
@@ -44,8 +31,7 @@ const PinnedApps = ({ sidebarNavigationInput }: PinnedAppsProps) => {
         key={pinnedAppKey}
         appKey={pinnedAppKey}
         appInfo={pinnedAppInfo}
-        active={isActive}
-        onActivate={openPanel}
+        isOpened={isOpened}
       />
     );
   });

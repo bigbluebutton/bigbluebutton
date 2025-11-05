@@ -180,42 +180,6 @@ class Auth {
     return Promise.resolve(...args);
   }
 
-  logout() {
-    if (!this.loggedIn) {
-      if (allowRedirectToLogoutURL()) {
-        return Promise.resolve(this._logoutURL);
-      }
-      return Promise.resolve();
-    }
-
-    return new Promise((resolve) => {
-      if (allowRedirectToLogoutURL()) {
-        resolve(this._logoutURL);
-      }
-
-      // do not redirect
-      resolve();
-    });
-  }
-
-  allowRedirectToLogoutURL() {
-    const ALLOW_DEFAULT_LOGOUT_URL = window.meetingClientSettings.public.app.allowDefaultLogoutUrl;
-    const protocolPattern = /^((http|https):\/\/)/;
-    if (this.logoutURL) {
-      // default logoutURL
-      // compare only the host to ignore protocols
-      const urlWithoutProtocolForAuthLogout = this.logoutURL.replace(protocolPattern, '');
-      const urlWithoutProtocolForLocationOrigin = window.location.origin.replace(protocolPattern, '');
-      if (urlWithoutProtocolForAuthLogout === urlWithoutProtocolForLocationOrigin) {
-        return ALLOW_DEFAULT_LOGOUT_URL;
-      }
-      // custom logoutURL
-      return true;
-    }
-    // no logout url
-    return false;
-  }
-
   authenticateURL(url) {
     let authURL = url;
     if (authURL.indexOf('sessionToken=') === -1) {

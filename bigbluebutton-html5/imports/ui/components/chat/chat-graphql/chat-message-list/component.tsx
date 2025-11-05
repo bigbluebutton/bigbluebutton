@@ -760,7 +760,7 @@ const ChatMessageListContainer: React.FC = () => {
       totalUnread: chat.totalUnread,
       lastSeenAt: chat.lastSeenAt,
     };
-  }, chatId);
+  }, { chatId });
   const currentChat = Array.isArray(chatData) ? chatData[0] : chatData;
 
   const [setMessageAsSeenMutation] = useMutation(LAST_SEEN_MUTATION);

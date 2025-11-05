@@ -68,15 +68,6 @@ const FormElementRight = styled.div`
   align-items: center;
 `;
 
-const FormElementCenter = styled.div`
-  position: relative;
-  display: flex;
-  flex-grow: 1;
-  justify-content: center;
-  flex-flow: row;
-  align-items: center;
-`;
-
 const Label = styled.span`
   color: ${colorGrayLabel};
   font-size: 0.9rem;
@@ -158,7 +149,6 @@ export default {
   Col,
   FormElement,
   FormElementRight,
-  FormElementCenter,
   Label,
   Select,
   MaterialSwitch,

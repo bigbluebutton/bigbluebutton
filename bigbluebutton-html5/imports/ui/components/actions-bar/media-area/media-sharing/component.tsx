@@ -36,7 +36,6 @@ interface MediaSharingModalProps {
   isSharingVideo: boolean;
   allowExternalVideo: boolean;
   stopExternalVideoShare: () => void;
-  setPresentationFitToWidth: (fitToWidth: boolean) => void;
   isMobile: boolean;
   isRTL: boolean;
 }
@@ -137,13 +136,17 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
   isSharingVideo,
   allowExternalVideo,
   stopExternalVideoShare,
-  setPresentationFitToWidth,
   isMobile,
   isRTL,
 }) => {
   const actionsBarStyle = layoutSelectOutput((i: Output) => i.actionBar);
   const { screenIsShared: isScreenGloballyBroadcasting } = useIsScreenGloballyBroadcasting();
   const [currentView, setCurrentView] = useState<'main' | 'presentation' | 'externalVideo' | 'cameraAsContent'>('main');
+
+  const handleClose = () => {
+    setCurrentView('main');
+    onClose();
+  };
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -159,11 +162,6 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
 
   const handleBackClick = () => {
     setCurrentView('main');
-  };
-
-  const handleClose = () => {
-    setCurrentView('main');
-    onClose();
   };
 
   const handlePresentationClick = () => {
@@ -262,7 +260,6 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
         <PresentationUploaderContainer
           amIPresenter={amIPresenter}
           onActionCompleted={handleBackClick}
-          setPresentationFitToWidth={setPresentationFitToWidth}
         />
       );
     } else if (currentView === 'externalVideo') {

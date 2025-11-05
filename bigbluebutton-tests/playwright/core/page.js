@@ -282,11 +282,35 @@ class Page {
 
   async hasNotificationIcon(selector, description, timeout = ELEMENT_WAIT_TIME) {
     await expect(async () => {
-      const hasNotificationIcon = await this.page.evaluate((el) => {
+      const hasNotificationIcon = await this.page.evaluate(({
+        el,
+        publicIndicator,
+        privateIndicator,
+      }) => {
         const element = document.querySelector(el);
+        if (!element) return false;
+        
         const afterElement = getComputedStyle(element, 'after');
-        return afterElement && afterElement.content !== 'none';
-      }, [selector]);
+        if (afterElement && afterElement.content !== 'none') {
+          return true;
+        }
+        
+        // Check for unread indicator in public/private buttons inside the chat panel
+        const publicBadge = element.querySelector(publicIndicator);
+        if (publicBadge) {
+          return true;
+        }
+        const privateBadge = element.querySelector(privateIndicator);
+        if (privateBadge) {
+          return true;
+        }
+        
+        return false;
+      }, {
+        el: selector,
+        publicIndicator: e.publicUnreadIndicator,
+        privateIndicator: e.privateUnreadIndicator,
+      });
       expect(hasNotificationIcon).toBeTruthy();
     }, description).toPass({ timeout });
   }

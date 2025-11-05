@@ -22,15 +22,18 @@ import {
   PRESENTATION_REMOVE,
 } from '/imports/ui/components/presentation/mutations';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import usePresentationFitToWidth from '/imports/ui/components/presentation/hooks/usePresentationFitToWidth';
 
 const PresentationUploaderContainer = (props) => {
   const {
-    amIPresenter, onActionCompleted, setPresentationFitToWidth, ...restProps
+    amIPresenter, onActionCompleted, ...restProps
   } = props;
 
   const { data: presentationData } = useDeduplicatedSubscription(PRESENTATIONS_SUBSCRIPTION);
   const presentations = presentationData?.pres_presentation || [];
   const currentPresentation = presentations.find((p) => p.current)?.presentationId || '';
+  // eslint-disable-next-line no-unused-vars
+  const [_, setPresentationFitToWidth] = usePresentationFitToWidth();
 
   const [presentationSetDownloadable] = useMutation(PRESENTATION_SET_DOWNLOADABLE);
   const [presentationExport] = useMutation(PRESENTATION_EXPORT);
@@ -112,7 +115,6 @@ const PresentationUploaderContainer = (props) => {
 PresentationUploaderContainer.propTypes = {
   amIPresenter: PropTypes.bool.isRequired,
   onActionCompleted: PropTypes.func.isRequired,
-  setPresentationFitToWidth: PropTypes.func.isRequired,
 };
 
 export default PresentationUploaderContainer;

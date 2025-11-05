@@ -1,20 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, memo } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import KEYS from '/imports/utils/keys';
 import Icon from '/imports/ui/components/common/icon/component';
 import NotesService from '/imports/ui/components/notes/service';
-import { PANELS } from '/imports/ui/components/layout/enums';
 import { notify } from '/imports/ui/services/notification';
-import { layoutSelectInput, layoutDispatch } from '/imports/ui/components/layout/context';
 import Styled from './styles';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
-import useRev from '/imports/ui/components/pads/pads-graphql/hooks/useRev';
-import useNotesLastRev from '/imports/ui/components/notes/hooks/useNotesLastRev';
 import useHasUnreadNotes from '/imports/ui/components/notes/hooks/useHasUnreadNotes';
-import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
-import { DispatcherFunction } from '/imports/ui/components/layout/layoutTypes';
-import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
+import SidebarNavigationButton from '/imports/ui/components/sidebar-navigation/sidebar-navigation-button/component';
+import { BaseSidebarButtonProps } from '../types';
+import { PANELS } from '/imports/ui/components/layout/enums';
+import useLockContext from '/imports/ui/components/lock-viewers/hooks/useLockContext';
 
 const intlMessages = defineMessages({
   title: {
@@ -51,159 +47,63 @@ const intlMessages = defineMessages({
   },
 });
 
-interface UserNotesGraphqlProps {
-  isPinned: boolean,
-  disableNotes: boolean,
-  sidebarContentPanel: string,
-  layoutContextDispatch: DispatcherFunction,
-  hasUnreadNotes: boolean,
-  markNotesAsRead: () => void,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  toggleNotesPanel: (sidebarContentPanel: any, layoutContextDispatch: any) => void,
-  isEnabled: boolean,
-}
-
-interface UserNotesContainerGraphqlProps {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  userLocks: any;
-}
-
-const UserNotesGraphql: React.FC<UserNotesGraphqlProps> = (props) => {
-  const {
-    isPinned,
-    disableNotes,
-    sidebarContentPanel,
-    layoutContextDispatch,
-    isEnabled,
-    hasUnreadNotes,
-    markNotesAsRead,
-    toggleNotesPanel,
-  } = props;
-  const [unread, setUnread] = useState(false);
-  const [pinWasNotified, setPinWasNotified] = useState(false);
+const UserNotesListItemContainerGraphql: React.FC<BaseSidebarButtonProps> = (props) => {
+  const { isOpened } = props;
   const intl = useIntl();
-  const prevSidebarContentPanel = usePreviousValue(sidebarContentPanel);
-  const prevIsPinned = usePreviousValue(isPinned);
-
-  useEffect(() => {
-    setUnread(hasUnreadNotes);
-  }, []);
-
-  if (isPinned && !pinWasNotified) {
-    notify(intl.formatMessage(intlMessages.pinnedNotification), 'info', 'copy', { pauseOnFocusLoss: false });
-    setPinWasNotified(true);
-  }
-
-  const notesOpen = sidebarContentPanel === PANELS.SHARED_NOTES && !isPinned;
-  const notesClosed = (prevSidebarContentPanel === PANELS.SHARED_NOTES
-    && sidebarContentPanel !== PANELS.SHARED_NOTES)
-    || (prevIsPinned && !isPinned);
-
-  if ((notesOpen || notesClosed) && unread) {
-    markNotesAsRead();
-  }
-  if (!unread && hasUnreadNotes) {
-    setUnread(true);
-  }
-  if (unread && !hasUnreadNotes) {
-    setUnread(false);
-  }
-  if (prevIsPinned && !isPinned && pinWasNotified) {
-    setPinWasNotified(false);
-  }
-
-  const renderNotes = () => {
-    let tooltipMessage = '';
-    if (isPinned) {
-      tooltipMessage = intl.formatMessage(intlMessages.sharedNotesPinned);
-    } else {
-      tooltipMessage = intl.formatMessage(intlMessages.sharedNotes);
-    }
-    return (
-      <TooltipContainer
-        title={tooltipMessage}
-        position="right"
-      >
-        {/* @ts-ignore */}
-        <Styled.ListItem
-          id="shared-notes-toggle-button"
-          aria-label={tooltipMessage}
-          aria-describedby="lockedNotes"
-          role="button"
-          tabIndex={0}
-          active={notesOpen}
-          data-test="sharedNotesSidebarButton"
-          onClick={() => (!isPinned
-            ? toggleNotesPanel(sidebarContentPanel, layoutContextDispatch)
-            : null)}
-          // @ts-ignore
-          onKeyDown={(e) => {
-            if (e.key === KEYS.ENTER) {
-              toggleNotesPanel(sidebarContentPanel, layoutContextDispatch);
-            }
-          }}
-          hasNotification={unread && !isPinned}
-          $disabled={isPinned}
-        >
-          {disableNotes
-            ? (
-              <Styled.NotesLock>
-                {/* @ts-ignore */}
-                <span id="lockedNotes">
-                  <Icon iconName="lock" />
-                  &nbsp;
-                  {`${intl.formatMessage(intlMessages.locked)} ${intl.formatMessage(intlMessages.byModerator)}`}
-                </span>
-              </Styled.NotesLock>
-            ) : null}
-          <Icon iconName="shared_notes" />
-        </Styled.ListItem>
-      </TooltipContainer>
-    );
-  };
-
-  if (!isEnabled) return null;
-
-  return renderNotes();
-};
-
-const UserNotesListItemContainerGraphql: React.FC<UserNotesContainerGraphqlProps> = (props) => {
-  const { userLocks } = props;
+  const { userLocks } = useLockContext();
   const disableNotes = userLocks.userNotes;
-
+  const [pinWasNotified, setPinWasNotified] = useState(false);
+  const hasUnreadNotes = useHasUnreadNotes({ isNotesPanelOpened: isOpened });
   const {
     data: currentMeeting,
   } = useMeeting((meeting) => ({
     componentsFlags: meeting.componentsFlags,
   }));
+  const isPinned = currentMeeting?.componentsFlags?.isSharedNotesPinned ?? false;
+  const prevIsPinned = usePreviousValue(isPinned);
 
-  const NOTES_CONFIG = window.meetingClientSettings.public.notes;
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const sidebarContent = layoutSelectInput((i: any) => i.sidebarContent);
-  const { sidebarContentPanel } = sidebarContent;
-  const layoutContextDispatch = layoutDispatch();
-
-  const rev = useRev(NOTES_CONFIG.id);
-  const { setNotesLastRev } = useNotesLastRev();
-
-  const hasUnreadNotes = useHasUnreadNotes();
-  const markNotesAsRead = () => setNotesLastRev(rev);
   const isEnabled = NotesService.useIsEnabled();
 
-  const isPinned = currentMeeting?.componentsFlags?.isSharedNotesPinned ?? false;
+  useEffect(() => {
+    if (isPinned && !pinWasNotified) {
+      notify(intl.formatMessage(intlMessages.pinnedNotification), 'info', 'copy', { pauseOnFocusLoss: false });
+      setPinWasNotified(true);
+      return;
+    }
+
+    if (prevIsPinned && !isPinned && pinWasNotified) {
+      setPinWasNotified(false);
+    }
+  });
+
+  const notesOpen = isOpened && !isPinned;
+  const label = intl.formatMessage(isPinned ? intlMessages.sharedNotesPinned : intlMessages.sharedNotes);
+  if (!isEnabled) return null;
   return (
-    <UserNotesGraphql
-      isPinned={isPinned}
-      disableNotes={disableNotes}
-      layoutContextDispatch={layoutContextDispatch}
-      sidebarContentPanel={sidebarContentPanel}
-      hasUnreadNotes={hasUnreadNotes}
-      markNotesAsRead={markNotesAsRead}
-      toggleNotesPanel={NotesService.toggleNotesPanel}
-      isEnabled={isEnabled}
-    />
+    <SidebarNavigationButton
+      panel={PANELS.SHARED_NOTES}
+      isOpened={notesOpen}
+      iconName="shared_notes"
+      label={label}
+      id="shared-notes-toggle-button"
+      ariaDescribedBy="lockedNotes"
+      dataTest="sharedNotesSidebarButton"
+      hasNotification={hasUnreadNotes}
+      isDisabled={disableNotes}
+    >
+      {disableNotes
+        ? (
+          <Styled.NotesLock>
+            {/* @ts-ignore */}
+            <span id="lockedNotes">
+              <Icon iconName="lock" />
+              &nbsp;
+              {`${intl.formatMessage(intlMessages.locked)} ${intl.formatMessage(intlMessages.byModerator)}`}
+            </span>
+          </Styled.NotesLock>
+        ) : null}
+    </SidebarNavigationButton>
   );
 };
 
-export default lockContextContainer(UserNotesListItemContainerGraphql);
+export default memo(UserNotesListItemContainerGraphql);

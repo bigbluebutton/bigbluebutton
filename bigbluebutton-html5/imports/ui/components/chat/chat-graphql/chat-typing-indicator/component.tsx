@@ -157,7 +157,7 @@ const TypingIndicatorContainer: React.FC = () => {
       chatId: c?.chatId,
       public: c?.public,
     };
-  }, idChatOpen) as GraphqlDataHookSubscriptionResponse<Chat>;
+  }, { chatId: idChatOpen }) as GraphqlDataHookSubscriptionResponse<Chat>;
 
   const { data: meeting } = useMeeting((m) => ({
     lockSettings: m?.lockSettings,

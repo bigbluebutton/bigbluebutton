@@ -1,5 +1,9 @@
 import React, {
-  useEffect, useMemo, useState,
+  useEffect,
+  useMemo,
+  useState,
+  useCallback,
+  memo,
 } from 'react';
 import PropTypes from 'prop-types';
 import { notify } from '/imports/ui/services/notification';
@@ -29,14 +33,13 @@ import { GET_USER_IDS } from '/imports/ui/core/graphql/queries/users';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
+import usePresentationFitToWidth from '/imports/ui/components/presentation/hooks/usePresentationFitToWidth';
 
 const fetchedpresentation = {};
 const FORCE_RESTORE_PRESENTATION_ON_NEW_EVENTS = 'bbb_force_restore_presentation_on_new_events';
 
 const PresentationContainer = ({
   presentationIsOpen = true,
-  setPresentationFitToWidth,
-  fitToWidth,
   darkTheme,
 }) => {
   const [annotationStreamData, setAnnotationStreamData] = useState([]);
@@ -107,6 +110,8 @@ const PresentationContainer = ({
 
   const [presentationSetZoom] = useMutation(PRESENTATION_SET_ZOOM);
   const [presentationSetWriters] = useMutation(PRESENTATION_SET_WRITERS);
+  // eslint-disable-next-line no-unused-vars
+  const [fitToWidth, setPresentationFitToWidth] = usePresentationFitToWidth();
 
   const [getUsers, { data: usersData }] = useLazyQuery(GET_USER_IDS, { fetchPolicy: 'no-cache' });
   const users = usersData?.user || [];
@@ -114,7 +119,7 @@ const PresentationContainer = ({
   const APP_CONFIG = window.meetingClientSettings.public.app;
   const PRELOAD_NEXT_SLIDE = APP_CONFIG.preloadNextSlides;
 
-  const addWhiteboardGlobalAccess = () => {
+  const addWhiteboardGlobalAccess = useCallback(() => {
     const usersIds = users.map((user) => user.userId);
     const { pageId } = currentPresentationPage;
 
@@ -124,7 +129,7 @@ const PresentationContainer = ({
         usersIds,
       },
     });
-  };
+  }, [currentPresentationPage, presentationSetWriters, users]);
 
   // users will only be fetched when getUsers is called
   useEffect(() => {
@@ -133,7 +138,7 @@ const PresentationContainer = ({
     }
   }, [users]);
 
-  const removeWhiteboardGlobalAccess = () => {
+  const removeWhiteboardGlobalAccess = useCallback(() => {
     const { pageId } = currentPresentationPage;
 
     presentationSetWriters({
@@ -142,9 +147,9 @@ const PresentationContainer = ({
         usersIds: [],
       },
     });
-  };
+  }, [currentPresentationPage, presentationSetWriters]);
 
-  const zoomSlide = (widthRatio, heightRatio, xOffset, yOffset) => {
+  const zoomSlide = useCallback((widthRatio, heightRatio, xOffset, yOffset) => {
     const { presentationId, pageId, num } = currentPresentationPage;
 
     presentationSetZoom({
@@ -158,7 +163,7 @@ const PresentationContainer = ({
         heightRatio,
       },
     });
-  };
+  }, [currentPresentationPage, presentationSetZoom]);
 
   const meeting = useMeeting((m) => ({
     lockSettings: m?.lockSettings,
@@ -312,11 +317,9 @@ const PresentationContainer = ({
   );
 };
 
-export default PresentationContainer;
+export default memo(PresentationContainer);
 
 PresentationContainer.propTypes = {
   presentationIsOpen: PropTypes.bool,
-  setPresentationFitToWidth: PropTypes.func.isRequired,
-  fitToWidth: PropTypes.bool.isRequired,
   darkTheme: PropTypes.bool.isRequired,
 };

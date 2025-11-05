@@ -7,8 +7,7 @@ import {
 export interface PinnedAppProps {
   appKey: string;
   appInfo: NativeWidget | InjectedWidget | InjectedAppGalleryItem;
-  active: boolean;
-  onActivate: (key: string) => void;
+  isOpened: boolean;
   children?: React.ReactNode;
 }
 

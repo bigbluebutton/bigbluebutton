@@ -3,13 +3,9 @@ import { defineMessages, useIntl } from 'react-intl';
 import Auth from '/imports/ui/services/auth';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import NavBar from './component';
-import { layoutSelectInput, layoutDispatch, layoutSelectOutput } from '../layout/context';
+import { layoutDispatch, layoutSelectOutput } from '../layout/context';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
-import { PANELS } from '/imports/ui/components/layout/enums';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import useChat from '/imports/ui/core/hooks/useChat';
-import useHasUnreadNotes from '../notes/hooks/useHasUnreadNotes';
-import { useShortcut } from '../../core/hooks/useShortcut';
 import useMeeting from '../../core/hooks/useMeeting';
 import { registerTitleView } from '/imports/utils/dom-utils';
 
@@ -22,25 +18,10 @@ const intlMessages = defineMessages({
 
 const NavBarContainer = (props) => {
   const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
-  const unread = useHasUnreadNotes();
   const intl = useIntl();
 
-  const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
-  const sidebarNavigation = layoutSelectInput((i) => i.sidebarNavigation);
   const navBar = layoutSelectOutput((i) => i.navBar);
   const layoutContextDispatch = layoutDispatch();
-  const sharedNotes = layoutSelectInput((i) => i.sharedNotes);
-  const { isPinned: notesIsPinned } = sharedNotes;
-
-  const { sidebarContentPanel } = sidebarContent;
-
-  const hasUnreadNotes = sidebarContentPanel !== PANELS.SHARED_NOTES && unread && !notesIsPinned;
-
-  const { data: chats } = useChat((chat) => ({
-    totalUnread: chat.totalUnread,
-  }));
-
-  const hasUnreadMessages = chats && chats.reduce((acc, chat) => acc + chat?.totalUnread, 0) > 0;
 
   const { data: currentUserData } = useCurrentUser((user) => ({
     isModerator: user.isModerator,
@@ -101,11 +82,6 @@ const NavBarContainer = (props) => {
     <NavBar
       {...{
         amIModerator,
-        hasUnreadMessages,
-        hasUnreadNotes,
-        sidebarContentPanel,
-        sidebarNavigation,
-        sidebarContent,
         layoutContextDispatch,
         currentUserId: Auth.userID,
         pluginNavBarItems,

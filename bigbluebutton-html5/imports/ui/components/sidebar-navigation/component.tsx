@@ -1,10 +1,14 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, {
+  useRef,
+  useState,
+  useEffect,
+  memo,
+} from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import CustomLogo from './custom-logo/component';
 import ProfileListItem from './profile-list-item/component';
 import getFromUserSettings from '/imports/ui/services/users-settings';
-import { useIsChatEnabled } from '/imports/ui/services/features';
-import ChatListItemContainer from './chat-list-item/container';
+import ChatListItem from './chat-list-item/component';
 import UserNotesListItemContainer from './user-notes-list-item/component';
 import UsersListItem from './users-list-item/component';
 import AppsListItem from './apps-list-item/component';
@@ -67,7 +71,6 @@ const SidebarNavigation = ({
   sidebarContentPanel,
 }: SidebarNavigationProps) => {
   const intl = useIntl();
-  const isChatEnabled = useIsChatEnabled();
   const showBrandingArea = getFromUserSettings('bbb_display_branding_area', window.meetingClientSettings.public.app.branding.displayBrandingArea);
 
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -172,14 +175,14 @@ const SidebarNavigation = ({
         >
           <Styled.Top>
             {showBrandingArea && <CustomLogo />}
-            <ProfileListItem />
-            <UsersListItem />
-            {isChatEnabled && <ChatListItemContainer />}
-            <UserNotesListItemContainer />
+            <ProfileListItem isOpened={sidebarContentPanel === PANELS.PROFILE} />
+            <UsersListItem isOpened={sidebarContentPanel === PANELS.USERLIST} />
+            <ChatListItem isOpened={sidebarContentPanel === PANELS.CHAT} />
+            <UserNotesListItemContainer isOpened={sidebarContentPanel === PANELS.SHARED_NOTES} />
           </Styled.Top>
 
           <Styled.Center>
-            <AppsListItem />
+            <AppsListItem isOpened={sidebarContentPanel === PANELS.APPS_GALLERY} />
             <PinnedApps
               sidebarNavigationInput={sidebarNavigationInput}
             />
@@ -195,4 +198,4 @@ const SidebarNavigation = ({
   );
 };
 
-export default SidebarNavigation;
+export default memo(SidebarNavigation);
