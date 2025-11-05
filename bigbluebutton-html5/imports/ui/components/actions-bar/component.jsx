@@ -146,8 +146,6 @@ class ActionsBar extends PureComponent {
       layoutContextDispatch,
       actionsBarStyle,
       setMeetingLayout,
-      showPushLayout,
-      setPushLayout,
       setPresentationFitToWidth,
       isPresentationEnabled,
       ariaHidden,
@@ -206,9 +204,7 @@ class ActionsBar extends PureComponent {
               isTimerEnabled,
               isMeteorConnected,
               setMeetingLayout,
-              setPushLayout,
               presentationIsOpen,
-              showPushLayout,
               hasCameraAsContent,
               setPresentationFitToWidth,
             }}

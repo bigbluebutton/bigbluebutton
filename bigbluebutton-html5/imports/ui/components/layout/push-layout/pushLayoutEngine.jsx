@@ -12,9 +12,10 @@ import {
   SYNC,
   LAYOUT_ELEMENTS,
   PANELS,
+  HIDDEN_LAYOUTS,
 } from '../enums';
 import { isMobile, LAYOUTS_SYNC } from '../utils';
-import { updateSettings, isKeepPushingLayoutEnabled } from '/imports/ui/components/settings/service';
+import { updateSettings } from '/imports/ui/components/settings/service';
 import Session from '/imports/ui/services/storage/in-memory';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
@@ -31,8 +32,6 @@ import { calculatePresentationVideoRate } from './service';
 import { useMeetingLayoutUpdater, usePushLayoutUpdater } from './hooks';
 import { setEnforcedLayout } from '/imports/ui/components/plugins-engine/ui-commands/layout/handler';
 import { useIsChatEnabled } from '/imports/ui/services/features';
-import Auth from '/imports/ui/services/auth';
-import Storage from '/imports/ui/services/storage/session';
 import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
 
 const equalDouble = (n1, n2) => {
@@ -370,13 +369,14 @@ const PushLayoutEngineContainer = (props) => {
     selectedLayout,
   } = applicationSettings;
 
-  const isPushLayoutEnabled = isKeepPushingLayoutEnabled();
-
   const getKeepPushingLayout = () => {
-    if (!isPushLayoutEnabled) return false;
+    // check if current layout is a hidden layout
+    if (selectedLayout && HIDDEN_LAYOUTS.includes(selectedLayout)) {
+      return false;
+    }
 
-    const storageKey = `keepPushingLayout_${Auth.meetingID}`;
-    return Storage.getItem(storageKey) === true;
+    // always enabled for non-hidden layouts
+    return true;
   };
 
   const {
