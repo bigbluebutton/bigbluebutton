@@ -994,6 +994,7 @@ class AudioManager {
               errorStack: error?.stack,
             },
           }, `Failed to reset input device after stream became inactive: ${error.message}`);
+          notify(this.intl.formatMessage(this.messages.error.DEVICE_CHANGE_FAILED), 'error');
         });
       }
     }
@@ -1068,24 +1069,34 @@ class AudioManager {
 
   liveChangeInputDevice(deviceId) {
     const currentDeviceId = this.inputDeviceId ?? 'none';
+    const updateInputDevice = () => {
+      const extractedDeviceId = MediaStreamUtils.extractDeviceIdFromStream(
+        this.inputStream,
+        'audio',
+      );
+
+      if (extractedDeviceId && extractedDeviceId !== this.inputDeviceId) {
+        this.changeInputDevice(extractedDeviceId);
+      }
+
+      return this.inputDeviceId;
+    };
+
     // we force stream to be null, so MutedAlert will deallocate it and
     // a new one will be created for the new stream
     this.inputStream = null;
+
     return this.bridge
       .liveChangeInputDevice(deviceId)
       .then((stream) => {
         this.inputStream = stream;
-        const extractedDeviceId = MediaStreamUtils.extractDeviceIdFromStream(
-          this.inputStream,
-          'audio',
-        );
-        if (extractedDeviceId && extractedDeviceId !== this.inputDeviceId) {
-          this.changeInputDevice(extractedDeviceId);
-        }
         // Live input device change - add device ID to session storage so it
         // can be re-used on refreshes/other sessions
-        storeAudioInputDeviceId(extractedDeviceId);
-        if (this.isMuted) this.setSenderTrackEnabled(false);
+        const newDeviceId = updateInputDevice();
+        // Only store successfully changed device IDs. In case of failures,
+        // cleanup in case of failures is done elsewhere (see doGUM)
+        storeAudioInputDeviceId(newDeviceId);
+        this.setSenderTrackEnabled(!this.isMuted);
       })
       .catch((error) => {
         logger.error({
@@ -1100,7 +1111,11 @@ class AudioManager {
             inputDevices: this.inputDevicesJSON,
           },
         }, `Input device live change failed - {${error.name}: ${error.message}}`);
-
+        // Recover input stream from whatever is left in the bridge
+        this.inputStream = this.bridge ? this.bridge.inputStream : this.inputStream;
+        // Rollback input device ID
+        updateInputDevice();
+        this.setSenderTrackEnabled(!this.isMuted);
         throw error;
       });
   }

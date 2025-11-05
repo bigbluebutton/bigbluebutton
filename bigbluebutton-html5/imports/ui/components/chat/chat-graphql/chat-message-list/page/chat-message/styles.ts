@@ -31,7 +31,7 @@ import { ChatTime as ChatTimeBase } from './message-header/styles';
 
 interface ChatWrapperProps {
   sameSender: boolean;
-  isSystemSender: boolean;
+  messageHighlight: boolean;
   isPresentationUpload?: boolean;
   isCustomPluginMessage: boolean;
 }
@@ -80,7 +80,7 @@ export const ChatWrapper = styled.div<ChatWrapperProps>`
       word-break: break-word;
       background-color: #F3F6F9;
     `}
-  ${({ isSystemSender }) => isSystemSender && `
+  ${({ messageHighlight }) => messageHighlight && `
     background-color: #fef9f1;
     border-left: 2px solid #f5c67f;
     border-radius: 0px 3px 3px 0px;

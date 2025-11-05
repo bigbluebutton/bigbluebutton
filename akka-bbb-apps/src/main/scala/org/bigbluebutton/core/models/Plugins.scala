@@ -8,6 +8,7 @@ import org.bigbluebutton.ClientSettings.getPluginsFromConfig
 import org.bigbluebutton.core.db.PluginDAO
 import org.slf4j.{Logger, LoggerFactory}
 import com.github.zafarkhaja.semver.Version
+import org.apache.http.client.utils.URIBuilder
 import org.bigbluebutton.core.exceptions.PluginHtml5VersionValidationException
 
 import java.util
@@ -43,6 +44,7 @@ case class ServerCommandDirective(
 
 case class PluginManifestContent(
     requiredSdkVersion:            String,
+    version:                       Option[String]                       = None,
     name:                          String,
     javascriptEntrypointUrl:       String,
     enabledForBreakoutRooms:       Boolean                              = false,
@@ -85,14 +87,15 @@ object PluginModel {
     plugin.manifest.content match {
       case Some(pluginScalaContent) =>
         val jsEntrypoint = pluginScalaContent.javascriptEntrypointUrl
-        if (!jsEntrypoint.startsWith("http://") && !jsEntrypoint.startsWith("https://")) {
-          val absoluteJavascriptEntrypoint = makeAbsoluteUrl(plugin, jsEntrypoint)
-          val newPluginManifestContent = pluginScalaContent.copy(javascriptEntrypointUrl = absoluteJavascriptEntrypoint)
-          val newPluginManifest = plugin.manifest.copy(content = Some(newPluginManifestContent))
-          return plugin.copy(manifest = newPluginManifest)
-        }
+        val jsEntrypointAbsoluteUrl =
+          if (!jsEntrypoint.startsWith("http://") && !jsEntrypoint.startsWith("https://"))
+            makeAbsoluteUrl(plugin, jsEntrypoint)
+          else jsEntrypoint
+        val finalJavascriptEntrypointUrl = createFinalJavascriptEntrypointUrl(plugin, jsEntrypointAbsoluteUrl)
+        val newPluginManifestContent = pluginScalaContent.copy(javascriptEntrypointUrl = finalJavascriptEntrypointUrl)
+        val newPluginManifest = plugin.manifest.copy(content = Some(newPluginManifestContent))
+        plugin.copy(manifest = newPluginManifest)
     }
-    plugin
   }
   private def replaceRelativeLocalesBaseUrl(plugin: Plugin): Plugin = {
     plugin.manifest.content match {
@@ -116,6 +119,19 @@ object PluginModel {
   private def makeAbsoluteUrl(plugin: Plugin, relativeUrl: String): String = {
     val baseUrl = plugin.manifest.url.substring(0, plugin.manifest.url.lastIndexOf('/') + 1)
     baseUrl + relativeUrl
+  }
+  private def createFinalJavascriptEntrypointUrl(plugin: Plugin, jsEntrypointAbsoluteUrl: String): String = {
+    (for {
+      manifest <- plugin.manifest.content
+      version  <- manifest.version
+    } yield {
+      if (Version.isValid(version, false)) {
+        new URIBuilder(jsEntrypointAbsoluteUrl).setParameter("version", version).toString
+      } else {
+        logger.warn("Plugin version {} for [{}] is not valid, ignoring...", version, manifest.name)
+        jsEntrypointAbsoluteUrl
+      }
+    }).getOrElse(jsEntrypointAbsoluteUrl)
   }
   private def replaceAllRelativeUrls(plugin: Plugin): Plugin = {
     val pluginWithAbsoluteJsEntrypoint = replaceRelativeJavascriptEntrypoint(plugin)

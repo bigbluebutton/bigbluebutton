@@ -10,7 +10,6 @@ import { User } from '/imports/ui/Types/user';
 import { defineMessages, useIntl } from 'react-intl';
 import {
   handleLeaveAudio,
-  liveChangeInputDevice,
   liveChangeOutputDevice,
   notify,
   toggleMuteMicrophone,
@@ -119,28 +118,8 @@ const InputStreamLiveSelector: React.FC<InputStreamLiveSelectorProps> = ({
   const { enabled: muteAlertEnabled } = MUTE_ALERT_CONFIG;
 
   const updateRemovedDevices = useCallback((
-    audioInputDevices: MediaDeviceInfo[],
     audioOutputDevices: MediaDeviceInfo[],
   ) => {
-    if (inputDeviceId
-      && (inputDeviceId !== DEFAULT_DEVICE)
-      && !audioInputDevices.find((d) => d.deviceId === inputDeviceId)) {
-      const fallbackInputDevice = audioInputDevices[0];
-
-      if (fallbackInputDevice?.deviceId) {
-        logger.warn({
-          logCode: 'audio_input_live_selector',
-          extraInfo: {
-            fallbackDeviceId: fallbackInputDevice?.deviceId,
-            fallbackDeviceLabel: fallbackInputDevice?.label,
-          },
-        }, 'Current input device was removed. Fallback to default device');
-        liveChangeInputDevice(fallbackInputDevice.deviceId).catch(() => {
-          notify(intl.formatMessage(intlMessages.deviceChangeFailed), true);
-        });
-      }
-    }
-
     if (outputDeviceId
       && (outputDeviceId !== DEFAULT_DEVICE)
       && !audioOutputDevices.find((d) => d.deviceId === outputDeviceId)) {
@@ -172,7 +151,7 @@ const InputStreamLiveSelector: React.FC<InputStreamLiveSelectorProps> = ({
         updateInputDevices(audioInputDevices as InputDeviceInfo[]);
         updateOutputDevices(audioOutputDevices);
 
-        if (inAudio) updateRemovedDevices(audioInputDevices, audioOutputDevices);
+        if (inAudio) updateRemovedDevices(audioOutputDevices);
       })
       .catch((error) => {
         logger.warn({

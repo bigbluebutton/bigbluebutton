@@ -52,9 +52,6 @@ repositories {
 }
 
 dependencies {
-  // Asset‑Pipeline runtime (aligns with 5.x plugin)
-  runtimeOnly "com.bertramlabs.plugins:asset-pipeline-grails:5.0.9"
-
   // Spring Boot managed libs – version comes from `springVersion` property
   implementation "org.springframework.boot:spring-boot:${springVersion}"
   implementation "org.springframework.boot:spring-boot-autoconfigure:${springVersion}"
@@ -72,8 +69,6 @@ dependencies {
 
   implementation "org.apache.grails:grails-views-gson"
   implementation "org.apache.grails:grails-cache"
-
-  runtimeOnly "com.bertramlabs.plugins:asset-pipeline-grails:5.0.6"
 
 //  implementation "org.grails.plugins:external-config:1.2.2"
 //  implementation "org.yaml:snakeyaml:1.33"

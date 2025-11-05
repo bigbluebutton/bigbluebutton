@@ -105,6 +105,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <bean id="svgImageCreator" class="org.bigbluebutton.presentation.imp.SvgImageCreatorImp">
     	<property name="slidesGenerationProgressNotifier" ref="slidesGenerationProgressNotifier"/>
         <property name="imageTagThreshold" value="${imageTagThreshold}"/>
+        <property name="useTagThreshold" value="${useTagThreshold}"/>
         <property name="pathsThreshold" value="${placementsThreshold}"/>
         <property name="blankSvg" value="${BLANK_SVG}"/>
         <property name="convPdfToSvgTimeout" value="${svgConversionTimeout}"/>
