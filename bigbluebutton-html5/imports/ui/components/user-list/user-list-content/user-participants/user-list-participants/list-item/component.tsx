@@ -170,13 +170,9 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings, index }
 
   const reactionsEnabled = useIsReactionsEnabled();
 
-  const userAvatarFiltered = (user?.raiseHand === true || user.away === true || (user.reactionEmoji && user.reactionEmoji !== 'none')) ? '' : user.avatar;
+  const userAvatarFiltered = (user.away === true || (user.reactionEmoji && user.reactionEmoji !== 'none')) ? '' : user.avatar;
 
   const emojiIcons = [
-    {
-      id: 'hand',
-      native: '✋',
-    },
     {
       id: 'clock7',
       native: '⏰',
@@ -189,14 +185,9 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings, index }
     if (user.isDialIn) {
       return <Icon iconName="volume_level_2" />;
     }
-    if (user?.raiseHand === true) {
-      return reactionsEnabled
-        ? <Emoji key={emojiIcons[0].id} emoji={emojiIcons[0]} native={emojiIcons[0].native} size={emojiSize} />
-        : <Icon iconName="hand" />;
-    }
     if (user.away === true) {
       return reactionsEnabled
-        ? <Emoji key="away" emoji={emojiIcons[1]} native={emojiIcons[1].native} size={emojiSize} />
+        ? <Emoji key="away" emoji={emojiIcons[0]} native={emojiIcons[0].native} size={emojiSize} />
         : <Icon iconName="time" />;
     }
     if (user.reactionEmoji && user.reactionEmoji !== 'none') {

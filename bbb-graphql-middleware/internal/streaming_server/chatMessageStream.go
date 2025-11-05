@@ -19,20 +19,20 @@ func HandleGroupChatMessageBroadcastEvtMsg(receivedMessage common.RedisMessage, 
 		return
 	}
 
-	browserConnectionsToSendCursor := make([]*common.BrowserConnection, 0)
+	browserConnectionsToSendData := make([]*common.BrowserConnection, 0)
 	browserConnectionsMutex.RLock()
 	for _, bc := range browserConnections {
 		if bc.MeetingId == receivedMessage.Core.Header.MeetingId {
 			fmt.Println(chatParticipants)
 			fmt.Println(bc.UserId)
 			if len(chatParticipants) == 0 || slices.Contains(chatParticipants, any(bc.UserId)) {
-				browserConnectionsToSendCursor = append(browserConnectionsToSendCursor, bc)
+				browserConnectionsToSendData = append(browserConnectionsToSendData, bc)
 			}
 		}
 	}
 	browserConnectionsMutex.RUnlock()
 
-	for _, bc := range browserConnectionsToSendCursor {
+	for _, bc := range browserConnectionsToSendData {
 		bc.ActiveStreamingsMutex.RLock()
 		queryIds, existsCursorStream := bc.ActiveStreamings["getChatMessageStream"]
 		bc.ActiveStreamingsMutex.RUnlock()

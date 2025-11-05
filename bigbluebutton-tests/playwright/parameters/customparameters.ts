@@ -411,7 +411,7 @@ export class CustomParameters extends MultiUsers {
     );
     await this.userPage.wasRemoved(e.whiteboard, 'should not display the whiteboard for the attendee');
 
-    await uploadSinglePresentation(this.modPage, e.pdfFileName, UPLOAD_PDF_WAIT_TIME);
+    await uploadSinglePresentation(this.modPage, e.pdfFileName, UPLOAD_PDF_WAIT_TIME * 2);
 
     const wbBox = await this.modPage.page.locator(e.whiteboard);
     await expect(wbBox).toHaveScreenshot('moderator-with-minimalist-large-presentation.png');

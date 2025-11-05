@@ -214,6 +214,66 @@ export class Webcam extends Page {
     });
   }
 
+  async resizeWebcamArea() {
+    await this.waitForSelector(e.whiteboard);
+    await this.shareWebcam();
+    await this.closeAllToastNotifications();
+    await this.hasElement(e.currentUserLocalStreamVideo, 'should display the webcam video after shared');
+
+    const initialVideoBox = await this.page.locator(e.currentUserLocalStreamVideo).boundingBox();
+    if (!initialVideoBox) throw new Error('currentUserLocalStreamVideo boundingBox is null');
+    const { height: initialVideoHeight } = initialVideoBox;
+
+    const initialVideoContainerBox = await this.page.locator(e.webcamMirroredVideoContainer).boundingBox();
+    if (!initialVideoContainerBox) throw new Error('webcamMirroredVideoContainer boundingBox is null');
+    const { height: initialVideoContainerHeight } = initialVideoContainerBox;
+
+    await this.waitForSelector(e.resizeWebcamHandler);
+    const handle = await this.page.locator(e.resizeWebcamHandler);
+    await expect(handle).toHaveCount(1);
+
+    const handleBox = await handle.boundingBox();
+    if (!handleBox) throw new Error('resizeWebcamHandler boundingBox is null');
+    const { x: hx, y: hy, width: hw, height: hh } = handleBox;
+    // Start drag at handle center and move down by 200px
+    await this.page.mouse.move(hx + hw / 2, hy + hh / 2);
+    await this.page.mouse.down();
+    await this.page.mouse.move(hx + hw / 2, hy + hh / 2 + 200, { steps: 10 });
+    await this.page.mouse.up();
+
+    const resizedVideoBox = await this.page.locator(e.currentUserLocalStreamVideo).boundingBox();
+    if (!resizedVideoBox) throw new Error('currentUserLocalStreamVideo boundingBox is null after resize');
+    const { height: resizedVideoHeight } = resizedVideoBox;
+
+    const resizedVideoContainerBox = await this.page.locator(e.webcamMirroredVideoContainer).boundingBox();
+    if (!resizedVideoContainerBox) throw new Error('webcamMirroredVideoContainer boundingBox is null after resize');
+    const { height: resizedVideoContainerHeight } = resizedVideoContainerBox;
+
+    expect(resizedVideoHeight).toBeGreaterThan(initialVideoHeight);
+    expect(resizedVideoContainerHeight).toBeGreaterThan(initialVideoContainerHeight);
+
+    const webcamLocator = await this.page.locator(e.currentUserLocalStreamVideo);
+    await expect(webcamLocator).toHaveScreenshot('resize-webcam.png');
+
+    await this.waitAndClick(e.minimizePresentation);
+    await this.waitForSelector(e.restorePresentation);
+
+    const fullMainContentBox = await this.page.locator(e.currentUserLocalStreamVideo).boundingBox();
+    if (!fullMainContentBox) throw new Error('currentUserLocalStreamVideo boundingBox is null after minimize');
+    const { height: fullMainContentHeight } = fullMainContentBox;
+
+    expect(fullMainContentHeight).toBeGreaterThan(resizedVideoHeight);
+
+    await this.waitAndClick(e.restorePresentation);
+    await this.waitForSelector(e.minimizePresentation);
+
+    const restoredBox = await this.page.locator(e.currentUserLocalStreamVideo).boundingBox();
+    if (!restoredBox) throw new Error('currentUserLocalStreamVideo boundingBox is null after restore');
+    const { height: resizedHeightAfterRestore } = restoredBox;
+
+    expect(Math.abs(resizedHeightAfterRestore - resizedVideoHeight)).toBeLessThanOrEqual(1);
+  }
+
   // TODO: improve this test to check when the sidebar is expanded or collapsed
   async dragAndDropWebcamInDifferentAreas() {
     await this.waitForSelector(e.whiteboard);

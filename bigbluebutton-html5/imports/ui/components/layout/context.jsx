@@ -1,7 +1,8 @@
 import React, { useEffect, useReducer, useRef } from 'react';
 import { createContext, useContextSelector } from 'use-context-selector';
 import PropTypes from 'prop-types';
-import { clone, equals } from 'ramda';
+import { clone } from 'ramda';
+import { presentationContentHasChanges } from './utils';
 import {
   ACTIONS, PRESENTATION_AREA, PANELS, LAYOUT_TYPE,
 } from '/imports/ui/components/layout/enums';
@@ -1393,10 +1394,13 @@ const updatePresentationAreaContent = (
   const {
     presentationAreaContentActions: currentPresentationAreaContentActions,
   } = layoutContextState;
-  if (!equals(
-    currentPresentationAreaContentActions.map((action) => action.value.content),
-    previousPresentationAreaContentActions.current.map((action) => action.value.content),
-  ) || layoutType !== previousLayoutType) {
+  const hasPresentationContentChanged = presentationContentHasChanges(
+    currentPresentationAreaContentActions,
+    previousPresentationAreaContentActions.current,
+    layoutType,
+    previousLayoutType,
+  );
+  if (hasPresentationContentChanged) {
     const CHAT_CONFIG = window.meetingClientSettings.public.chat;
     const PUBLIC_CHAT_ID = CHAT_CONFIG.public_id;
 

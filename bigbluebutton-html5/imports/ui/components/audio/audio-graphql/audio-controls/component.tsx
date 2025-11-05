@@ -16,6 +16,7 @@ import { UPDATE_ECHO_TEST_RUNNING } from './queries';
 import { SET_LISTEN_ONLY_INPUT_DEVICE } from '/imports/ui/components/user-list/user-list-content/user-participants/user-list-participants/user-actions/mutations';
 import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
 import useIsAudioConnected from '/imports/ui/components/audio/audio-graphql/hooks/useIsAudioConnected';
+import { useModalRegistration } from '/imports/ui/core/singletons/modalController';
 
 const intlMessages = defineMessages({
   joinAudio: {
@@ -65,11 +66,27 @@ const AudioControls: React.FC<AudioControlsProps> = ({
   const joinAudioShortcut = useShortcut('joinAudio');
   const echoTestIntervalRef = React.useRef<ReturnType<typeof setTimeout>>();
 
-  const [isAudioModalOpen, setIsAudioModalOpen] = React.useState(false);
+  const {
+    open: openAudioModal,
+    close: closeAudioModal,
+    isOpen: isAudioModalOpen,
+  } = useModalRegistration({
+    id: 'AudioModal',
+    priority: 'low',
+  });
+
   const [audioModalContent, setAudioModalContent] = React.useState<string | null>(null);
   const [audioModalProps, setAudioModalProps] = React.useState<{ unmuteOnExit?: boolean } | null>(null);
 
   const [setListenOnlyInputDevice] = useMutation(SET_LISTEN_ONLY_INPUT_DEVICE);
+
+  const setIsAudioModalOpen = useCallback((value: boolean) => {
+    if (value) {
+      openAudioModal();
+    } else {
+      closeAudioModal();
+    }
+  }, [openAudioModal, closeAudioModal]);
 
   const handleJoinAudio = useCallback((connected: boolean) => {
     if (connected) {
@@ -77,7 +94,7 @@ const AudioControls: React.FC<AudioControlsProps> = ({
     } else {
       setIsAudioModalOpen(true);
     }
-  }, []);
+  }, [setIsAudioModalOpen]);
 
   const openAudioSettings = useCallback((props: { unmuteOnExit?: boolean } = {}) => {
     setAudioModalContent('settings');

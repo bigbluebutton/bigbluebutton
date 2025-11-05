@@ -5,6 +5,7 @@ import EndMeetingConfirmationContainer from '/imports/ui/components/end-meeting-
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import Styled from './styles';
 import Session from '/imports/ui/services/storage/in-memory';
+import { ModalRegistration } from '/imports/ui/core/singletons/modalController';
 
 const intlMessages = defineMessages({
   leaveMeetingBtnLabel: {
@@ -71,13 +72,7 @@ class LeaveMeetingButton extends PureComponent {
     // Set the logout code to 680 because it's not a real code and can be matched on the other side
     this.LOGOUT_CODE = '680';
 
-    this.setEndMeetingConfirmationModalIsOpen = this
-      .setEndMeetingConfirmationModalIsOpen.bind(this);
     this.leaveSession = this.leaveSession.bind(this);
-  }
-
-  setEndMeetingConfirmationModalIsOpen(value) {
-    this.setState({ isEndMeetingConfirmationModalOpen: value });
   }
 
   leaveSession() {
@@ -203,9 +198,30 @@ class LeaveMeetingButton extends PureComponent {
             transformorigin: { vertical: 'top', horizontal: isRTL ? 'left' : 'right' },
           }}
         />
-        {this.renderModal(isEndMeetingConfirmationModalOpen,
-          this.setEndMeetingConfirmationModalIsOpen,
-          'low', EndMeetingConfirmationContainer)}
+        <ModalRegistration id="leaveMeetingMenuModal" priority="low">
+          {({
+            isOpen, open, close,
+          }) => {
+            this.setEndMeetingConfirmationModalIsOpen = (value) => {
+              if (value) open();
+              else close();
+            };
+            if (!isOpen) return null;
+            return (
+              <EndMeetingConfirmationContainer
+                {...{
+                  isOpen,
+                  onRequestClose: () => close(),
+                  setIsOpen: (value) => {
+                    if (value) open();
+                    else close();
+                  },
+                  priority: 'low',
+                }}
+              />
+            );
+          }}
+        </ModalRegistration>
       </>
     );
   }

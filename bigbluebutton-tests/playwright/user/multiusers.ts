@@ -298,6 +298,7 @@ export class MultiUsers {
       e.focusWebcamBtn,
       'should not display the focus webcam button to the moderator when there are less than 3 webcams shared',
     );
+    await this.modPage.press('Escape');
 
     await this.userPage.shareWebcam();
 

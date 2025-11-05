@@ -33,4 +33,16 @@ test.describe.parallel('Options', { tag: '@ci' }, () => {
   test('Auto hide whiteboard toolbar', async () => {
     await options.autoHideWhiteboardToolbar();
   });
+
+  test.describe('Data savings', () => {
+    test('Webcam sharing settings', async () => {
+      await options.initUserPage(options.modPage.context);
+      await options.enableOtherParticipantsWebcams();
+    });
+
+    test('Desktop sharing settings', async () => {
+      await options.initUserPage(options.modPage.context);
+      await options.enableOtherParticipantsDesktopSharing();
+    });
+  });
 });

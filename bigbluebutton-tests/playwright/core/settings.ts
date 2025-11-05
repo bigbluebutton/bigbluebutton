@@ -21,6 +21,7 @@ export interface Settings {
   // Polling
   pollEnabled?: boolean;
   pollChatMessage?: boolean;
+  quickPollConfirmationStep?: boolean;
   // Presentation
   originalPresentationDownloadable?: boolean;
   presentationWithAnnotationsDownloadable?: boolean;
@@ -72,6 +73,7 @@ export async function generateSettingsData(page: Page): Promise<Settings | undef
       // Polling
       pollEnabled: settingsData.poll?.enabled,
       pollChatMessage: settingsData.poll?.chatMessage,
+      quickPollConfirmationStep: settingsData.poll?.quickPollConfirmationStep,
       // Presentation
       originalPresentationDownloadable: settingsData.presentation?.allowDownloadOriginal,
       presentationWithAnnotationsDownloadable: settingsData.presentation?.allowDownloadWithAnnotations,

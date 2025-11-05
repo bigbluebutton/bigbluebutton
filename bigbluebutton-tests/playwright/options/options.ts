@@ -2,6 +2,7 @@ import { expect } from '@playwright/test';
 
 import { CI } from '../core/constants';
 import { elements as e } from '../core/elements';
+import * as utilScreenShare from '../screenshare/util';
 import { MultiUsers } from '../user/multiusers';
 import { getLocaleValues, openAboutModal, openSettings } from './util';
 
@@ -220,5 +221,139 @@ export class Options extends MultiUsers {
     await expect(whiteboardLocator).toHaveScreenshot('whiteboard-with-toolbar-hidden.png', {
       maxDiffPixels: 1000,
     });
+  }
+
+  async enableOtherParticipantsWebcams() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.userPage.waitForSelector(e.whiteboard);
+    await this.modPage.shareWebcam();
+    await this.userPage.shareWebcam();
+    await this.modPage.hasElementCount(
+      'video',
+      2,
+      'should display 2 video elements for the moderator as both users shared webcam',
+    );
+    await this.userPage.hasElementCount(
+      'video',
+      2,
+      'should display 2 video elements for the attendee as both users shared webcam',
+    );
+
+    await openSettings(this.modPage);
+    await openSettings(this.userPage);
+    await this.modPage.waitAndClick(e.dataSavingsTab);
+    await this.userPage.waitAndClick(e.dataSavingsTab);
+    await this.modPage.hasElementChecked(
+      e.enableWebcamsToggleBtn,
+      'should display the toggle button as ON after opening the data savings tab as default behavior',
+    );
+    await this.userPage.waitAndClickElement(e.enableWebcamsToggleBtn);
+    await this.userPage.hasElementNotChecked(
+      e.enableWebcamsToggleBtn,
+      'should display the toggle button as OFF after clicking it',
+    );
+    await this.modPage.waitAndClick(e.modalConfirmButton);
+    await this.userPage.waitAndClick(e.modalConfirmButton);
+
+    await this.userPage.hasElementCount(
+      'video',
+      1,
+      'should display 1 video elements for the attendee as the attendee disabled other participants webcams option',
+    );
+    await this.userPage.hasElement(
+      e.webcamMirroredVideoContainer,
+      'should display the current user webcam for the attendee, as the attendee disabled other participants webcams option',
+    );
+    await this.userPage.hasElement(
+      e.videoDropdownMenu,
+      'should display the video dropdown menu as default behavior for the shared webcam',
+    );
+    await this.modPage.hasElementCount(
+      'video',
+      2,
+      'should display 2 video elements for the moderator as the moderator has enable other participants webcams option ON',
+    );
+
+    await this.modPage.waitAndClick(e.leaveVideo);
+    await this.modPage.hasElementCount(
+      'video',
+      1,
+      'should display 1 video element for the moderator, as the moderator stopped sharing webcam',
+    );
+
+    await this.modPage.shareWebcam();
+    await this.modPage.hasElementCount(
+      'video',
+      2,
+      'should display 2 video elements for the moderator, as the moderator started sharing webcam again',
+    );
+    await this.userPage.hasElementCount(
+      'video',
+      1,
+      'should display 1 video elements for the attendee, as the attendee disabled other participants webcams option',
+    );
+    await this.userPage.hasElement(
+      e.webcamMirroredVideoContainer,
+      'should display the current user webcam for the attendee, as the attendee disabled other participants webcams option',
+    );
+  }
+
+  async enableOtherParticipantsDesktopSharing() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.userPage.waitForSelector(e.whiteboard);
+    await utilScreenShare.startScreenshare(this.modPage);
+    await this.modPage.hasElement(
+      e.screenShareVideo,
+      'should display the screenshare for the moderator after starting it',
+    );
+    await this.userPage.hasElement(
+      e.screenShareVideo,
+      'should display the screenshare for the attendee after the moderator started it',
+    );
+
+    await openSettings(this.modPage);
+    await openSettings(this.userPage);
+    await this.modPage.waitAndClick(e.dataSavingsTab);
+    await this.userPage.waitAndClick(e.dataSavingsTab);
+    await this.modPage.hasElementChecked(
+      e.enableDesktopSharingToggleBtn,
+      'should display the toggle button as ON, as default behavior',
+    );
+    await this.userPage.waitAndClickElement(e.enableDesktopSharingToggleBtn);
+    await this.userPage.hasElementNotChecked(
+      e.enableDesktopSharingToggleBtn,
+      'should display the toggle button as OFF, after clicking it',
+    );
+    await this.modPage.waitAndClick(e.modalConfirmButton);
+    await this.userPage.waitAndClick(e.modalConfirmButton);
+
+    await this.userPage.wasRemoved(
+      e.screenShareVideo,
+      'should not display the screenshare for the attendee, as the attendee disabled other participants desktop sharing option',
+    );
+    await this.modPage.hasElement(
+      e.screenShareVideo,
+      'should display the screenshare for the moderator, as the moderator has enable other participants desktop sharing option ON',
+    );
+
+    await this.modPage.waitAndClick(e.stopScreenSharing);
+    await this.modPage.wasRemoved(
+      e.screenShareVideo,
+      'should not display the screenshare for the moderator after stopping it',
+    );
+    await this.userPage.wasRemoved(
+      e.screenShareVideo,
+      'should not display the screenshare for the attendee, as the attendee disabled other participants desktop sharing option and the moderator stopped screenshare',
+    );
+
+    await utilScreenShare.startScreenshare(this.modPage);
+    await this.modPage.hasElement(
+      e.screenShareVideo,
+      'should display the screenshare for the moderator after starting it again',
+    );
+    await this.userPage.wasRemoved(
+      e.screenShareVideo,
+      'should not display the screenshare for the attendee, as the attendee disabled other participants desktop sharing option',
+    );
   }
 }

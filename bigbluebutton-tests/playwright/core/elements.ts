@@ -362,6 +362,8 @@ export const elements = {
   messageTitle: 'h2[data-test="messageTitle"]',
   notesTitle: 'h2[data-test="notesTitle"]',
   dataSavingsTab: 'span[id="dataSaving"]',
+  enableWebcamsToggleBtn: 'input[data-test="webcamToggleBtn"]',
+  enableDesktopSharingToggleBtn: 'input[data-test="desktopSharingToggleBtn"]',
   // User
   userAvatar,
   moderatorAvatar: 'div[data-test="moderatorAvatar"]',
@@ -524,6 +526,7 @@ export const elements = {
   webcamSettingsModal: 'div[data-test="webcamSettingsModal"]',
   dropdownWebcamButton: 'div[data-test="dropdownWebcamButton"]',
   webcamMirroredVideoPreview: 'video[data-test="mirroredVideoPreview"]',
+  resizeWebcamHandler: 'div#cameraDock + div > div[style*="user-select: none"]',
   // Whiteboard
   whiteboard: 'div[data-testid="canvas"]',
   wbLayer: 'div[data-testid="layer"]',

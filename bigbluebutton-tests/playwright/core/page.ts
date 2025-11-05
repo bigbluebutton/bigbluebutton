@@ -352,12 +352,12 @@ export class Page {
 
   async wasRemoved(selector: string, description: string, timeout: number = ELEMENT_WAIT_TIME): Promise<void> {
     const locator = this.page.locator(selector);
-    await expect(locator, description).toBeHidden({ timeout });
+    await expect(locator, description).not.toBeVisible({ timeout });
   }
 
   async wasNthElementRemoved(selector: string, count: number, timeout: number = ELEMENT_WAIT_TIME): Promise<void> {
     const locator = this.page.locator(`:nth-match(${selector},${count})`);
-    await expect(locator).toBeHidden({ timeout });
+    await expect(locator).not.toBeVisible({ timeout });
   }
 
   async hasElement(selector: string, description: string, timeout: number = ELEMENT_WAIT_TIME): Promise<void> {
@@ -439,6 +439,16 @@ export class Page {
   async hasHiddenElementCount(selector: string, count: number, description: string): Promise<void> {
     const locator = await this.page.locator(selector);
     await expect(locator, description).toHaveCount(count, { timeout: ELEMENT_WAIT_TIME });
+  }
+
+  async hasElementChecked(selector: string, description: string) {
+    const locator = await this.page.locator(selector);
+    await expect(locator, description).toBeChecked();
+  }
+
+  async hasElementNotChecked(selector: string, description: string) {
+    const locator = await this.page.locator(selector);
+    await expect(locator, description).not.toBeChecked();
   }
 
   async hasValue(selector: string, value: string, description: string): Promise<void> {
