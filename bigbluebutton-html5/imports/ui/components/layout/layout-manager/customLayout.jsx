@@ -123,15 +123,6 @@ const CustomLayout = (props) => {
       zIndex: cameraDockBounds.zIndex,
     };
 
-    dropZones[CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM] = {
-      top: windowHeight() - DROP_ZONE_DEFAUL_SIZE,
-      left: !isRTL ? sidebarNavWidth : null,
-      right: isRTL ? sidebarNavWidth : null,
-      width: sidebarContentWidth,
-      height: DROP_ZONE_DEFAUL_SIZE,
-      zIndex: cameraDockBounds.zIndex,
-    };
-
     return dropZones;
   };
 
@@ -251,28 +242,11 @@ const CustomLayout = (props) => {
     throttledCalculatesLayout();
   };
 
-  const calculatesSidebarContentHeight = (cameraDockHeight) => {
-    const { isOpen, slidesLength } = presentationInput;
-    const { hasExternalVideo } = externalVideoInput;
-    const { genericContentId } = genericMainContentInput;
-    const { hasScreenShare } = screenShareInput;
-    const { isPinned: isSharedNotesPinned } = sharedNotesInput;
-
-    const hasPresentation = isPresentationEnabled && slidesLength !== 0;
-    const isGeneralMediaOff = !hasPresentation && !hasExternalVideo
-      && !hasScreenShare && !isSharedNotesPinned && !genericContentId;
-
+  const calculatesSidebarContentHeight = () => {
     let sidebarContentHeight = 0;
     if (sidebarContentInput.isOpen) {
       if (isMobile) {
         sidebarContentHeight = windowHeight() - DEFAULT_VALUES.navBarHeight;
-      } else if (
-        cameraDockInput.numCameras > 0 &&
-        cameraDockInput.position === CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM &&
-        isOpen &&
-        !isGeneralMediaOff
-      ) {
-        sidebarContentHeight = windowHeight() - cameraDockHeight;
       } else {
         sidebarContentHeight = windowHeight();
       }
@@ -316,7 +290,6 @@ const CustomLayout = (props) => {
     const isCameraBottom = cameraDockInput.position === CAMERADOCK_POSITION.CONTENT_BOTTOM;
     const isCameraLeft = cameraDockInput.position === CAMERADOCK_POSITION.CONTENT_LEFT;
     const isCameraRight = cameraDockInput.position === CAMERADOCK_POSITION.CONTENT_RIGHT;
-    const isCameraSidebar = cameraDockInput.position === CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM;
 
     const stoppedResizing = prevIsResizing && !isResizing;
     if (stoppedResizing) {
@@ -325,8 +298,8 @@ const CustomLayout = (props) => {
         cameraDockInput.position === CAMERADOCK_POSITION.CONTENT_BOTTOM;
 
       Storage.setItem('webcamSize', {
-        width: isCameraTopOrBottom || isCameraSidebar ? lastWidth : cameraDockInput.width,
-        height: isCameraTopOrBottom || isCameraSidebar ? cameraDockInput.height : lastHeight,
+        width: isCameraTopOrBottom ? lastWidth : cameraDockInput.width,
+        height: isCameraTopOrBottom ? cameraDockInput.height : lastHeight,
       });
 
       const updatedLastSize = Storage.getItem('webcamSize');
@@ -403,30 +376,6 @@ const CustomLayout = (props) => {
       return cameraDockBounds;
     }
 
-    if (isCameraSidebar) {
-      if (lastHeight === 0 && !isResizing) {
-        cameraDockHeight = min(
-          max(windowHeight() * 0.2, cameraDockMinHeight),
-          windowHeight() - cameraDockMinHeight
-        );
-      } else {
-        const height = isResizing ? cameraDockInput.height : lastHeight;
-        cameraDockHeight = min(
-          max(height, cameraDockMinHeight),
-          windowHeight() - cameraDockMinHeight
-        );
-      }
-
-      cameraDockBounds.top = windowHeight() - cameraDockHeight - bannerAreaHeight();
-      cameraDockBounds.left = !isRTL ? sidebarNavWidth : 0;
-      cameraDockBounds.right = isRTL ? sidebarNavWidth : 0;
-      cameraDockBounds.minWidth = sidebarContentWidth;
-      cameraDockBounds.width = sidebarContentWidth;
-      cameraDockBounds.maxWidth = sidebarContentWidth;
-      cameraDockBounds.minHeight = cameraDockMinHeight;
-      cameraDockBounds.height = cameraDockHeight;
-      cameraDockBounds.maxHeight = windowHeight() * 0.8;
-    }
     return cameraDockBounds;
   };
 
@@ -514,14 +463,6 @@ const CustomLayout = (props) => {
           mediaBounds.right = isRTL ? sidebarSize : null;
           break;
         }
-        case CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM: {
-          mediaBounds.width = mediaAreaWidth;
-          mediaBounds.height = mediaAreaHeight;
-          mediaBounds.top = navBarHeight + bannerAreaHeight();
-          mediaBounds.left = !isRTL ? sidebarSize : null;
-          mediaBounds.right = isRTL ? sidebarSize : null;
-          break;
-        }
         default: {
           console.log('presentation - camera default');
         }
@@ -574,7 +515,7 @@ const CustomLayout = (props) => {
       sidebarContentWidth.width,
       cameraDockBounds
     );
-    const sidebarContentHeight = calculatesSidebarContentHeight(cameraDockBounds.height);
+    const sidebarContentHeight = calculatesSidebarContentHeight();
     const mediaBounds = calculatesMediaBounds(
       sidebarNavWidth.width,
       sidebarContentWidth.width,
@@ -715,9 +656,7 @@ const CustomLayout = (props) => {
         resizableEdge: {
           top:
           isMediaOpen
-            && (input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_BOTTOM
-            || (input.cameraDock.position === CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM
-            && input.sidebarContent.isOpen)),
+            && input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_BOTTOM,
           right:
             isMediaOpen
             && ((!isRTL && input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_LEFT)
