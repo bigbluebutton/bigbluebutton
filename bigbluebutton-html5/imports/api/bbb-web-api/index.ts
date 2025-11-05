@@ -1,4 +1,5 @@
-import { IndexResponse } from './types';
+import ky from 'ky';
+import type { IndexResponse } from './types';
 
 class BBBWebApi {
   private lastResponse: IndexResponse['response'] | null = null;
@@ -7,36 +8,64 @@ class BBBWebApi {
     index: { path: 'bigbluebutton/api' },
   };
 
-  private static buildURL(route: string) {
-    const pathMatch = window.location.pathname.match('^(.*)/html5client/?$');
-    const serverPathPrefix = pathMatch ? `${pathMatch[1]}/` : '';
-    const { hostname, protocol } = window.location;
-    return new URL(route, `${protocol}//${hostname}${serverPathPrefix}`);
+  private static buildURL(route: string): string {
+    const match = window.location.pathname.match(/^(.*)\/html5client\/?$/);
+    const prefix = match ? `${match[1]}/` : '';
+    const { protocol, hostname } = window.location;
+    return new URL(route, `${protocol}//${hostname}${prefix}`).toString();
+  }
+
+  /** Centralised GET fetch with retry support */
+  private static async fetchWithRetry(
+    url: string,
+    {
+      fetchOptions = {},
+      retries,
+      retryDelay,
+      signal,
+      timeout,
+    }: {
+      fetchOptions?: RequestInit;
+      retries: number;
+      retryDelay: number;
+      signal?: AbortSignal;
+      timeout: number | false;
+    },
+  ): Promise<Response> {
+    return ky.get(url, {
+      ...fetchOptions,
+      signal,
+      timeout,
+      retry: {
+        limit: retries,
+        delay: () => retryDelay,
+        methods: ['get'],
+        retryOnTimeout: true,
+        // Define status codes because ky's default does not handle all of these
+        statusCodes: [0, 408, 429, 500, 502, 503, 504],
+        shouldRetry: () => true,
+      },
+    });
   }
 
   public async index({
-    signal = undefined,
+    signal,
     retries = 3,
-    retryDelay = 1000,
+    retryDelay = 10000,
     timeout = 10000,
     forceRefresh = false,
   }: {
-  signal?: AbortSignal;
-  retries?: number;
-  retryDelay?: number;
-  timeout?: number;
-  forceRefresh?: boolean;
+    signal?: AbortSignal;
+    retries?: number;
+    retryDelay?: number;
+    timeout?: number | false;
+    forceRefresh?: boolean;
   } = {}): Promise<{ data: IndexResponse['response']; response?: Response }> {
-    // Return cached data unless forced to refresh
     if (this.lastResponse && !forceRefresh) {
       return { data: this.lastResponse };
     }
-
-    // Build the BBB API URL
     const url = BBBWebApi.buildURL(this.routes.index.path);
-
-    // Use your existing retry/timeout logic
-    const response = await this.attemptFetch(url, {
+    const response = await BBBWebApi.fetchWithRetry(url, {
       fetchOptions: {
         headers: { 'Content-Type': 'application/json' },
         credentials: 'omit',
@@ -46,11 +75,8 @@ class BBBWebApi {
       signal,
       timeout,
     });
-
-    // Parse and store result
     const body: IndexResponse = await response.json();
     this.lastResponse = body.response;
-
     return { data: body.response, response };
   }
 
@@ -61,13 +87,13 @@ class BBBWebApi {
       retries = 3,
       retryDelay = 1000,
       signal,
-      timeout = 10000, // ms
+      timeout = 30000,
     }: {
       fetchOptions?: RequestInit;
       retries?: number;
       retryDelay?: number;
       signal?: AbortSignal;
-      timeout?: number;
+      timeout?: number | false;
     } = {},
   ): Promise<Response> {
     const { data: indexData } = await this.index({
@@ -76,96 +102,14 @@ class BBBWebApi {
       retryDelay,
       timeout,
     });
-    const url = buildUrl(indexData);
-
-    return this.attemptFetch(url, {
+    const url = buildUrl(indexData).toString();
+    return BBBWebApi.fetchWithRetry(url, {
       fetchOptions,
       retries,
       retryDelay,
       signal,
       timeout,
     });
-  }
-
-  /** Internal recursive fetch handler */
-  private async attemptFetch(
-    url: string | URL,
-    {
-      fetchOptions,
-      retries,
-      retryDelay,
-      signal,
-      timeout,
-    }: {
-      fetchOptions?: RequestInit;
-      retries: number;
-      retryDelay: number;
-      signal?: AbortSignal;
-      timeout: number;
-    },
-  ): Promise<Response> {
-    const internalController = new AbortController();
-    const timeoutId = setTimeout(() => internalController.abort(), timeout);
-
-    const effectiveSignal = signal
-      ? BBBWebApi.mergeSignals(signal, internalController.signal)
-      : internalController.signal;
-
-    try {
-      const response = await fetch(url, { ...fetchOptions, signal: effectiveSignal });
-
-      if (!response.ok && response.status >= 500 && retries > 0) {
-        // Retry recursively
-        await new Promise((r) => setTimeout(r, retryDelay));
-        return this.attemptFetch(url, {
-          fetchOptions,
-          retries: retries - 1,
-          retryDelay,
-          signal,
-          timeout,
-        });
-      }
-
-      if (!response.ok) {
-        throw new Error(`Fetch failed: ${response.status} ${response.statusText}`);
-      }
-
-      return response;
-    } catch (error: unknown) {
-      if (error instanceof Error && (error.name === 'AbortError' || signal?.aborted)) throw new Error('Request aborted');
-
-      if (retries > 0) {
-        await new Promise((r) => setTimeout(r, retryDelay));
-        return this.attemptFetch(url, {
-          fetchOptions,
-          retries: retries - 1,
-          retryDelay,
-          signal,
-          timeout,
-        });
-      }
-
-      throw error;
-    } finally {
-      clearTimeout(timeoutId);
-    }
-  }
-
-  private static mergeSignals(...signals: AbortSignal[]): AbortSignal {
-    if (typeof AbortSignal.any === 'function') return AbortSignal.any(signals);
-
-    const controller = new AbortController();
-    const onAbort = () => controller.abort();
-    // eslint-disable-next-line no-restricted-syntax
-    for (const sig of signals) {
-      if (sig.aborted) {
-        controller.abort();
-        break;
-      }
-      sig.addEventListener('abort', onAbort, { once: true });
-    }
-
-    return controller.signal;
   }
 }
 
