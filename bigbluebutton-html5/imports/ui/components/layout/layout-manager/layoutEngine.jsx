@@ -79,17 +79,17 @@ const LayoutEngine = () => {
 
     const cameraDockBounds = {};
 
-    if (cameraDockInput.numCameras === 0 && selectedLayout !== LAYOUT_TYPE.VIDEO_FOCUS) {
+    const hasPresentation = isPresentationEnabled && slidesLength !== 0;
+    const isGeneralMediaOff = !hasPresentation
+      && !hasExternalVideo && !hasScreenShare
+      && !isSharedNotesPinned && !genericContentId;
+
+    if (cameraDockInput.numCameras === 0 && hasPresentation && isOpen) {
       cameraDockBounds.width = 0;
       cameraDockBounds.height = 0;
 
       return cameraDockBounds;
     }
-
-    const hasPresentation = isPresentationEnabled && slidesLength !== 0;
-    const isGeneralMediaOff = !hasPresentation
-      && !hasExternalVideo && !hasScreenShare
-      && !isSharedNotesPinned && !genericContentId;
 
     if (!isOpen || isGeneralMediaOff) {
       cameraDockBounds.width = mediaAreaBounds.width;

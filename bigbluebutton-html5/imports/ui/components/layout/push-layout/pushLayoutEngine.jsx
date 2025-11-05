@@ -124,7 +124,7 @@ const PushLayoutEngine = (props) => {
       actualLayout = actualLayout === 'custom' ? 'smart' : actualLayout;
       Settings.application.selectedLayout = actualLayout;
     }
-    Session.setItem('isGridEnabled', actualLayout === LAYOUT_TYPE.VIDEO_FOCUS);
+    Session.setItem('isGridEnabled', !presentationIsOpen);
 
     Settings.save(setLocalSettings);
 
@@ -348,8 +348,9 @@ const PushLayoutEngine = (props) => {
       }
     }
 
-    if (selectedLayout !== prevProps.selectedLayout) {
-      Session.setItem('isGridEnabled', selectedLayout === LAYOUT_TYPE.VIDEO_FOCUS);
+    if (selectedLayout !== prevProps.selectedLayout
+        || presentationIsOpen !== prevProps.presentationIsOpen) {
+      Session.setItem('isGridEnabled', !presentationIsOpen);
     }
     return () => {};
   });

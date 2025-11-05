@@ -9,7 +9,7 @@ import {
   layoutSelectOutput,
   layoutDispatch,
 } from '/imports/ui/components/layout/context';
-import { LAYOUT_TYPE, ACTIONS, CAMERADOCK_POSITION } from '/imports/ui/components/layout/enums';
+import { ACTIONS, CAMERADOCK_POSITION } from '/imports/ui/components/layout/enums';
 import { CURRENT_PRESENTATION_PAGE_SUBSCRIPTION, CurrentPresentationPagesSubscriptionResponse } from '/imports/ui/components/whiteboard/queries';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import DropAreaContainer from './drop-areas/container';
@@ -20,8 +20,6 @@ import { Input, Layout, Output } from '/imports/ui/components/layout/layoutTypes
 import { VideoItem } from '/imports/ui/components/video-provider/types';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import { useStorageKey } from '/imports/ui/services/storage/hooks';
-import useSettings from '../../services/settings/hooks/useSettings';
-import { SETTINGS } from '../../services/settings/enums';
 import { INITIAL_INPUT_STATE } from '../layout/initState';
 
 const intlMessages = defineMessages({
@@ -340,9 +338,8 @@ const WebcamContainer: React.FC = () => {
   const { data: currentUserData } = useCurrentUser((user) => ({
     presenter: user.presenter,
   }));
-  const { selectedLayout } = useSettings(SETTINGS.APPLICATION) as { selectedLayout: string };
 
-  const isGridEnabled = selectedLayout === LAYOUT_TYPE.VIDEO_FOCUS;
+  const isGridEnabled = !presentationIsOpen;
 
   const { streams: videoUsers, gridUsers } = useVideoStreams();
 
