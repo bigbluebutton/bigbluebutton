@@ -4,6 +4,7 @@ import {throwErrorIfInvalidInput} from "../imports/validation";
 export default function buildRedisMessage(sessionVariables: Record<string, unknown>, input: Record<string, unknown>): RedisMessage {
   throwErrorIfInvalidInput(input,
       [
+        {name: 'serverRequestId', type: 'string', required: true},
         {name: 'clientSessionUUID', type: 'string', required: true},
         {name: 'networkRttInMs', type: 'number', required: true},
         {name: 'applicationRttInMs', type: 'number', required: false},
@@ -35,6 +36,7 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
   const body = {
     userId: routing.userId,
     sessionToken: sessionToken,
+    serverRequestId: input.serverRequestId,
     clientSessionUUID: input.clientSessionUUID,
     networkRttInMs: input.networkRttInMs,
     applicationRttInMs: input.applicationRttInMs ?? 0,

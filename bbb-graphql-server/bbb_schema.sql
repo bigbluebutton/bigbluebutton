@@ -437,7 +437,6 @@ CREATE INDEX "idx_v_user_meetingId_orderByColumns" ON "user"(
     "meetingId",
     "presenter" DESC NULLS FIRST,
     "role" ASC NULLS LAST,
-    "raiseHandTime" ASC NULLS LAST,
     "isDialIn" DESC NULLS FIRST,
     "whiteboardWriteAccess" DESC NULLS FIRST,
     "nameSortable" ASC NULLS LAST,
@@ -808,6 +807,7 @@ CREATE UNLOGGED TABLE "user_connectionStatus" (
     "lastEntriesCap" integer,
     "connectionAliveAtMaxIntervalMs" numeric,
     "connectionAliveAt" timestamp with time zone,
+    "serverRequestId" text,
     "networkRttInMs" numeric,
     "applicationRttInMs" numeric, --presenter only
     "traceLog" varchar(500), --presenter only
@@ -1156,6 +1156,7 @@ CREATE UNLOGGED TABLE "chat_message" (
 	"messageSequence" integer, --populated via trigger
 	"chatEmphasizedText" boolean,
 	"message" text,
+	"messageAsHtml" text,
 	"messageType" varchar(50),
 	"replyToMessageId" varchar(100) references "chat_message"("messageId"),
 	"messageMetadata" text,
@@ -1322,6 +1323,7 @@ CREATE UNLOGGED TABLE "chat_message_history" (
 	"meetingId" varchar(100),
 	"messageVersionSequence" integer, --populated via trigger
 	"message" text,
+	"messageAsHtml" text,
 	"senderId" varchar(100),
 	"createdAt" timestamp with time zone,
 	"movedToHistoryAt" timestamp with time zone default current_timestamp,
@@ -1334,11 +1336,12 @@ CREATE OR REPLACE FUNCTION "update_chat_message_history_trigger_func"()
 RETURNS TRIGGER AS $$
 BEGIN
     IF NEW."message" IS DISTINCT FROM OLD."message" THEN
-        insert into "chat_message_history"("messageId", "meetingId", "messageVersionSequence", "message", "senderId", "createdAt")
+        insert into "chat_message_history"("messageId", "meetingId", "messageVersionSequence", "message", "messageAsHtml", "senderId", "createdAt")
 	    values (OLD."messageId",
 	            OLD."meetingId",
 	            (select count(1) from "chat_message_history" prev where prev."messageId" = OLD."messageId"),
 	            OLD."message",
+	            OLD."messageAsHtml",
 	            OLD."senderId",
 	            coalesce(OLD."editedAt",OLD."createdAt")
 	            );
@@ -1391,6 +1394,7 @@ SELECT  cu."meetingId",
         cm."messageSequence",
         cm."chatEmphasizedText",
         cm."message",
+        cm."messageAsHtml",
         cm."messageType",
         cm."replyToMessageId",
         cm."messageMetadata",

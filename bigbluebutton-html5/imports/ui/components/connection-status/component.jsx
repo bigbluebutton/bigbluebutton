@@ -14,6 +14,7 @@ import useCurrentUser from '../../core/hooks/useCurrentUser';
 import getStatus from '../../core/utils/getStatus';
 import logger from '/imports/startup/client/logger';
 import useTimeSync, { setTimeSync } from '/imports/ui/core/local-states/useTimeSync';
+import Auth from '/imports/ui/services/auth';
 
 const ConnectionStatus = ({
   user,
@@ -86,11 +87,12 @@ const ConnectionStatus = ({
   const handleUpdateConnectionAliveAt = () => {
     const startTime = performance.now();
     const fetchOptions = {
+      credentials: 'omit',
       signal: AbortSignal.timeout ? AbortSignal.timeout(STATS_TIMEOUT) : undefined,
     };
 
     fetch(
-      `${getBaseUrl()}/rtt-check`,
+      `${getBaseUrl()}/rtt-check?session=${sessionStorage.getItem('clientSessionUUID') || '0'}&user=${Auth.userID}&meeting=${Auth.meetingID}`,
       fetchOptions,
     )
       .then((res) => {
@@ -101,6 +103,7 @@ const ConnectionStatus = ({
             const rttLevels = window.meetingClientSettings.public.stats.rtt;
             const endTime = performance.now();
             const networkRtt = Math.round(endTime - startTime);
+            const serverRequestId = res.headers.get('X-Request-Id');
 
             // Calc and set latency between client and server
             if (timeSyncRef.current === 0) {
@@ -117,6 +120,7 @@ const ConnectionStatus = ({
 
             updateConnectionAliveAtM({
               variables: {
+                serverRequestId,
                 clientSessionUUID: sessionStorage.getItem('clientSessionUUID') || '0',
                 networkRttInMs: networkRtt,
                 applicationRttInMs: applicationRttInMs.current,

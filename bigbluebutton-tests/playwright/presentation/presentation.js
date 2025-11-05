@@ -102,7 +102,7 @@ class Presentation extends MultiUsers {
       return urlMatch ? urlMatch[1] : null;
     });
 
-    await uploadSinglePresentation(this.modPage, e.pdfFileName, UPLOAD_PDF_WAIT_TIME);
+    await uploadSinglePresentation(this.modPage, e.uploadPresentationFileName, UPLOAD_PDF_WAIT_TIME);
 
     await this.modPage.closeAllToastNotifications();
     await this.userPage.closeAllToastNotifications();

@@ -253,7 +253,15 @@ case class ClearedAllUsersReactionEvtMsgBody()
  */
 object UserConnectionAliveReqMsg { val NAME = "UserConnectionAliveReqMsg" }
 case class UserConnectionAliveReqMsg(header: BbbClientMsgHeader, body: UserConnectionAliveReqMsgBody) extends StandardMsg
-case class UserConnectionAliveReqMsgBody(userId: String, sessionToken: String, clientSessionUUID: String, networkRttInMs: Double, applicationRttInMs: Double, traceLog: String)
+case class UserConnectionAliveReqMsgBody(
+    userId:             String,
+    sessionToken:       String,
+    serverRequestId:    String,
+    clientSessionUUID:  String,
+    networkRttInMs:     Double,
+    applicationRttInMs: Double,
+    traceLog:           String
+)
 
 /**
  * Sent from client to update clientSettings.

@@ -9,7 +9,6 @@ export const mapProjectedDataChannelEntries = (
   entryId: entry.entryId!,
   payloadJson: entry.payloadJson!,
   updatedAt: entry.updatedAt!,
-  fromUserId: entry.createdBy!,
   createdBy: entry.createdBy!,
   pluginName: entry.pluginName!,
   toRoles: entry.toRoles ?? [],
