@@ -71,8 +71,6 @@ const Separator = styled.hr`
   opacity: 0.25;
 `;
 
-const FormElementCenter = styled(Styled.FormElementCenter)``;
-
 const BoldLabel = styled.label`
   color: ${colorGrayLabel};
   font-size: 1rem;
@@ -141,7 +139,6 @@ export default {
   Bounce1,
   Bounce2,
   Separator,
-  FormElementCenter,
   BoldLabel,
   PullContentRight,
   LocalesDropdownSelect,

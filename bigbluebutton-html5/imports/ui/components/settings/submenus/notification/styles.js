@@ -15,8 +15,6 @@ const FormElement = styled(Styled.FormElement)``;
 
 const FormElementRight = styled(Styled.FormElementRight)``;
 
-const FormElementCenter = styled(Styled.FormElementCenter)``;
-
 const Label = styled(Styled.Label)``;
 
 const ColHeading = styled(Styled.Col)`
@@ -35,7 +33,6 @@ export default {
   Col,
   FormElement,
   FormElementRight,
-  FormElementCenter,
   Label,
   ColHeading,
 };
