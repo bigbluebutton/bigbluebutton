@@ -5,6 +5,7 @@ import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.db.{ NotificationDAO, PresPresentationDAO }
 import org.bigbluebutton.core.domain.MeetingState2x
+import org.bigbluebutton.core.models.DisabledFeatures2x
 import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
@@ -26,12 +27,12 @@ trait SetPresentationDownloadablePubMsgHdlr extends RightsManagementTrait {
       val reason = "No permission to make presentation downloadable for meeting."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
       state
-    } else if (liveMeeting.disabledFeatures2x.toVector.contains("downloadPresentationOriginalFile")
+    } else if (DisabledFeatures2x.contains(liveMeeting.disabledFeatures2x, "downloadPresentationOriginalFile")
       && msg.body.fileStateType == "Original") {
       val reason = "Download original presentation is disabled for meeting."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
       state
-    } else if (liveMeeting.disabledFeatures2x.toVector.contains("downloadPresentationConvertedToPdf")
+    } else if (DisabledFeatures2x.contains(liveMeeting.disabledFeatures2x, "downloadPresentationConvertedToPdf")
       && msg.body.fileStateType == "Converted") {
       val reason = "Download converted presentation is disabled for meeting."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)

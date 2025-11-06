@@ -7,7 +7,7 @@ import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.db.{ ChatMessageDAO, PresPresentationDAO }
 import org.bigbluebutton.core.domain.MeetingState2x
-import org.bigbluebutton.core.models.{ PresentationInPod, PresentationPage, PresentationPod }
+import org.bigbluebutton.core.models.{ DisabledFeatures2x, PresentationInPod, PresentationPage, PresentationPod }
 import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.core.util.RandomStringGenerator
 
@@ -132,15 +132,15 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
 
     val currentPres: Option[PresentationInPod] = presentationPods.flatMap(_.getPresentation(presId)).headOption
 
-    if (liveMeeting.disabledFeatures2x.toVector.contains("downloadPresentationWithAnnotations")
+    if (DisabledFeatures2x.contains(liveMeeting.disabledFeatures2x, "downloadPresentationWithAnnotations")
       && m.body.fileStateType == "Annotated") {
       val reason = "Annotated presentation download disabled for this meeting."
       PermissionCheck.ejectUserForFailedPermission(meetingId, userId, reason, bus.outGW, liveMeeting)
-    } else if (liveMeeting.disabledFeatures2x.toVector.contains("downloadPresentationOriginalFile")
+    } else if (DisabledFeatures2x.contains(liveMeeting.disabledFeatures2x, "downloadPresentationOriginalFile")
       && m.body.fileStateType == "Original") {
       val reason = "Original presentation download disabled for this meeting."
       PermissionCheck.ejectUserForFailedPermission(meetingId, userId, reason, bus.outGW, liveMeeting)
-    } else if (liveMeeting.disabledFeatures2x.toVector.contains("downloadPresentationConvertedToPdf")
+    } else if (DisabledFeatures2x.contains(liveMeeting.disabledFeatures2x, "downloadPresentationConvertedToPdf")
       && m.body.fileStateType == "Converted") {
       val reason = "Converted presentation download disabled for this meeting. (PDF format)"
       PermissionCheck.ejectUserForFailedPermission(meetingId, userId, reason, bus.outGW, liveMeeting)
@@ -213,7 +213,7 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
       pages = Map.empty, downloadable = false, downloadFileExtension = "", removable = true, filenameConverted = filename,
       uploadCompleted = false, numPages = 0, errorMsgKey = "", errorDetails = Map.empty)
 
-    if (liveMeeting.disabledFeatures2x.toVector.contains("importPresentationWithAnnotationsFromBreakoutRooms")) {
+    if (DisabledFeatures2x.contains(liveMeeting.disabledFeatures2x, "importPresentationWithAnnotationsFromBreakoutRooms")) {
       log.error(s"Capturing breakout rooms slides disabled in meeting ${meetingId}.")
     } else if (currentPres.isEmpty) {
       log.error(s"No presentation set in meeting ${meetingId}")

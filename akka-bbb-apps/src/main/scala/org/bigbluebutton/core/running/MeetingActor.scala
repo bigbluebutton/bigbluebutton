@@ -343,7 +343,7 @@ class MeetingActor(
       alternativeValue = true
     )
 
-    if (sharedNotesEnabledInClientSettings && !liveMeeting.disabledFeatures2x.toVector.contains("sharedNotes")) {
+    if (sharedNotesEnabledInClientSettings && !DisabledFeatures2x.contains(liveMeeting.disabledFeatures2x, "sharedNotes")) {
       val sharedNotesPadId = getConfigPropertyValueByPathAsStringOrElse(
         liveMeeting.clientSettings,
         "public.notes.id",

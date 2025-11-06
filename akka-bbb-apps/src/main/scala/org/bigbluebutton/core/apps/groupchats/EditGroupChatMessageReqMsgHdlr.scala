@@ -5,7 +5,7 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.PermissionCheck
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.domain.MeetingState2x
-import org.bigbluebutton.core.models.{ Roles, Users2x }
+import org.bigbluebutton.core.models.{ DisabledFeatures2x, Roles, Users2x }
 import org.bigbluebutton.core.running.{ HandlerHelpers, LiveMeeting }
 import org.bigbluebutton.core.util.MarkdownUtil
 import org.bigbluebutton.core2.MeetingStatus2x
@@ -14,8 +14,8 @@ trait EditGroupChatMessageReqMsgHdlr extends HandlerHelpers {
   this: GroupChatHdlrs =>
 
   def handle(msg: EditGroupChatMessageReqMsg, state: MeetingState2x, liveMeeting: LiveMeeting, bus: MessageBus): MeetingState2x = {
-    val chatDisabled: Boolean = liveMeeting.disabledFeatures2x.toVector.contains("chat")
-    val editChatMessageDisabled: Boolean = liveMeeting.disabledFeatures2x.toVector.contains("editChatMessage")
+    val chatDisabled: Boolean = DisabledFeatures2x.contains(liveMeeting.disabledFeatures2x, "chat")
+    val editChatMessageDisabled: Boolean = DisabledFeatures2x.contains(liveMeeting.disabledFeatures2x, "editChatMessage")
     var chatLocked: Boolean = false
     var chatLockedForUser: Boolean = false
 

@@ -428,7 +428,7 @@ const DisabledFeaturesContainer: React.FC<DisabledFeaturesContainerProps> = ({ s
       disabledFeatures={disabledFeatures}
       handleDisabledFeaturesSubmit={handleDisabledFeaturesSubmit}
       closeModal={closeModal}
-      initialSettings={meetingStaticData?.disabledFeatures || {}}
+      initialSettings={meetingStaticData?.disabledFeatures || []}
     />
   );
 };

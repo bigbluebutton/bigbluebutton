@@ -4,7 +4,7 @@ import org.bigbluebutton.common2.msgs.{ BbbClientMsgHeader, BbbCommonEnvCoreMsg,
 import org.bigbluebutton.core.apps.PermissionCheck
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.domain.MeetingState2x
-import org.bigbluebutton.core.models.PluginModel
+import org.bigbluebutton.core.models.{ DisabledFeatures2x, PluginModel }
 import org.bigbluebutton.core.running.{ HandlerHelpers, LiveMeeting }
 
 trait PluginPersistEventMsgHdlr extends HandlerHelpers {
@@ -22,7 +22,7 @@ trait PluginPersistEventMsgHdlr extends HandlerHelpers {
       bus.outGW.send(msgEvent)
     }
 
-    if (liveMeeting.disabledFeatures2x.toVector.contains("plugins")) {
+    if (DisabledFeatures2x.contains(liveMeeting.disabledFeatures2x, "plugins")) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "Plugin feature is disabled for this meeting"
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)

@@ -204,7 +204,7 @@ type Mutation {
 }
 
 type Mutation {
-  ChangeDisabledFeaturesInMeeting(
+  changeDisabledFeaturesInMeeting(
     disabledFeatures: [String]!
   ): Boolean
 }

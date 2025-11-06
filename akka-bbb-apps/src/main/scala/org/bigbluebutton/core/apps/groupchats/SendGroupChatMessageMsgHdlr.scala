@@ -8,7 +8,7 @@ import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models.PluginModel.{ ServerCommands, getPluginManifestContentByName }
 import org.bigbluebutton.core.running.{ HandlerHelpers, LiveMeeting }
-import org.bigbluebutton.core.models.{ GroupChatMessage, PluginModel, Roles, UserState, Users2x }
+import org.bigbluebutton.core.models.{ DisabledFeatures2x, GroupChatMessage, PluginModel, Roles, UserState, Users2x }
 import org.bigbluebutton.core2.MeetingStatus2x
 
 trait SendGroupChatMessageMsgHdlr extends HandlerHelpers {
@@ -25,9 +25,9 @@ trait SendGroupChatMessageMsgHdlr extends HandlerHelpers {
       }
     }
 
-    val chatDisabled: Boolean = liveMeeting.disabledFeatures2x.toVector.contains("chat")
+    val chatDisabled: Boolean = DisabledFeatures2x.contains(liveMeeting.disabledFeatures2x, "chat")
     var privateChatDisabled: Boolean = false
-    val replyChatMessageDisabled: Boolean = liveMeeting.disabledFeatures2x.toVector.contains("replyChatMessage")
+    val replyChatMessageDisabled: Boolean = DisabledFeatures2x.contains(liveMeeting.disabledFeatures2x, "replyChatMessage")
     var chatLocked: Boolean = false
     var chatLockedForUser: Boolean = false
     var hasModMembers: Boolean = false
@@ -38,7 +38,7 @@ trait SendGroupChatMessageMsgHdlr extends HandlerHelpers {
       groupChat <- state.groupChats.find(msg.body.chatId)
     } yield {
       if (groupChat.access == GroupChatAccess.PRIVATE) {
-        privateChatDisabled = liveMeeting.disabledFeatures2x.toVector.contains("privateChat")
+        privateChatDisabled = DisabledFeatures2x.contains(liveMeeting.disabledFeatures2x, "privateChat")
         isPrivateChat = true
       }
 

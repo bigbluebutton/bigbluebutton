@@ -156,17 +156,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
 }) => {
   const intl = useIntl();
   const { locale } = intl;
-  const uuids = useRef<string[]>([
-    uid(8, 'options-'),
-    uid(8, 'options-'),
-    uid(8, 'options-'),
-    uid(8, 'options-'),
-    uid(8, 'options-'),
-    uid(8, 'options-'),
-    uid(8, 'options-'),
-    uid(8, 'options-'),
-    uid(8, 'options-'),
-  ]);
+  const uuids = useRef<string[]>([]);
 
   const createBreakoutRoomModal = useModalRegistration({ id: 'createBreakoutRoomModal', priority: 'medium' });
   const guestPolicyModal = useModalRegistration({ id: 'guestPolicyModal', priority: 'low' });
@@ -198,6 +188,14 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
       onSaveUserNames(intl, meetingName ?? '', users);
     }
   }, [users]);
+
+  const generateAndStoreUUID = (index: number, prefix: string) => {
+    if (!uuids.current[index]) {
+      uuids.current[index] = uid(8, prefix);
+    }
+
+    return uuids.current[index];
+  };
 
   const callSetMuted = (muted: boolean, exceptPresenter: boolean) => {
     setMuted({
@@ -243,7 +241,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
     return [
       {
         allow: !isBreakout,
-        key: uuids.current[0],
+        key: generateAndStoreUUID(8, 'options-'),
         label: intl.formatMessage(intlMessages[isMeetingMuted ? 'usersJoinMutedDisableLabel' : 'usersJoinMutedEnableLabel']),
         description: intl.formatMessage(intlMessages[isMeetingMuted ? 'usersJoinMutedDisableDesc' : 'usersJoinMutedEnableDesc']),
         onClick: callSetMuted.bind(null, !isMeetingMuted, false),
@@ -252,7 +250,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
       },
       {
         allow: true,
-        key: uuids.current[1],
+        key: generateAndStoreUUID(1, 'options-'),
         label: intl.formatMessage(intlMessages.muteAllExceptPresenterLabel),
         description: intl.formatMessage(intlMessages.muteAllExceptPresenterDesc),
         onClick: callSetMuted.bind(null, true, true),
@@ -261,7 +259,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
       },
       {
         allow: true,
-        key: uuids.current[2],
+        key: generateAndStoreUUID(2, 'options-'),
         label: intl.formatMessage(intlMessages.lockViewersLabel),
         description: intl.formatMessage(intlMessages.lockViewersDesc),
         onClick: () => lockViewersModal.open(),
@@ -270,7 +268,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
       },
       {
         allow: true,
-        key: uuids.current[2],
+        key: generateAndStoreUUID(2, 'options-'),
         label: intl.formatMessage(intlMessages.disabledFeaturesLabel),
         description: intl.formatMessage(intlMessages.disabledFeaturesDesc),
         onClick: () => disabledFeaturesModal.open(),
@@ -279,7 +277,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
       },
       {
         allow: dynamicGuestPolicy,
-        key: uuids.current[3],
+        key: generateAndStoreUUID(3, 'options-'),
         icon: 'user',
         label: intl.formatMessage(intlMessages.guestPolicyLabel),
         description: intl.formatMessage(intlMessages.guestPolicyDesc),
@@ -288,7 +286,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
       },
       {
         allow: isModerator,
-        key: uuids.current[4],
+        key: generateAndStoreUUID(4, 'options-'),
         label: intl.formatMessage(intlMessages.saveUserNames),
         onClick: () => getUsers(),
         icon: 'download',
@@ -296,7 +294,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
       },
       {
         allow: isReactionsEnabled && isModerator,
-        key: uuids.current[5],
+        key: generateAndStoreUUID(5, 'options-'),
         label: intl.formatMessage(intlMessages.clearAllReactionsLabel),
         description: intl.formatMessage(intlMessages.clearAllReactionsDesc),
         onClick: () => clearReactions(),
@@ -310,7 +308,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
       },
       {
         allow: canCreateBreakout,
-        key: uuids.current[6],
+        key: generateAndStoreUUID(6, 'options-'),
         icon: 'rooms',
         label: intl.formatMessage(intlMessages.createBreakoutRoom),
         description: intl.formatMessage(intlMessages.createBreakoutRoomDesc),
@@ -319,7 +317,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
       },
       {
         allow: canInviteUsers,
-        key: uuids.current[7],
+        key: generateAndStoreUUID(7, 'options-'),
         icon: 'rooms',
         label: intl.formatMessage(intlMessages.invitationLabel),
         description: intl.formatMessage(intlMessages.invitationDesc),
@@ -338,7 +336,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
         label: intl.formatMessage(intlMessages.learningDashboardLabel),
         description: `${intl.formatMessage(intlMessages.learningDashboardDesc)}
         ${intl.formatMessage(intlMessages.newTab)}`,
-        key: uuids.current[8],
+        key: generateAndStoreUUID(8, 'options-'),
         onClick: () => { openLearningDashboardUrl(locale, learningDashboardToken); },
         dividerTop: true,
         dataTest: 'learningDashboard',

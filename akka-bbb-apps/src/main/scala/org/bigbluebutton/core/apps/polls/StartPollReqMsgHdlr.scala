@@ -4,7 +4,7 @@ import org.bigbluebutton.common2.domain.SimplePollOutVO
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.domain.MeetingState2x
-import org.bigbluebutton.core.models.Polls
+import org.bigbluebutton.core.models.{ DisabledFeatures2x, Polls }
 import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 
@@ -24,11 +24,11 @@ trait StartPollReqMsgHdlr extends RightsManagementTrait {
       bus.outGW.send(msgEvent)
     }
 
-    if (liveMeeting.disabledFeatures2x.toVector.contains("polls")) {
+    if (DisabledFeatures2x.contains(liveMeeting.disabledFeatures2x, "polls")) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "Polling is disabled for this meeting."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
-    } else if (msg.body.quiz && liveMeeting.disabledFeatures2x.toVector.contains("quizzes")) {
+    } else if (msg.body.quiz && DisabledFeatures2x.contains(liveMeeting.disabledFeatures2x, "quizzes")) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "Quiz is disabled for this meeting."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)

@@ -6,7 +6,7 @@ export interface SetDisabledFeaturesMutationVars {
 
 export const SET_DISABLED_FEATURES = gql`
   mutation setDisabledFeatures($disabledFeatures: [String]!) {
-    ChangeDisabledFeaturesInMeeting(disabledFeatures: $disabledFeatures)
+    changeDisabledFeaturesInMeeting(disabledFeatures: $disabledFeatures)
   }
 `;
 

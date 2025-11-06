@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.apps.layout
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.models.{ Layouts, LayoutsType }
+import org.bigbluebutton.core.models.{ DisabledFeatures2x, Layouts, LayoutsType }
 import org.bigbluebutton.core.running.OutMsgRouter
 import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
@@ -15,7 +15,7 @@ trait BroadcastLayoutMsgHdlr extends RightsManagementTrait {
 
   def handleBroadcastLayoutMsg(msg: BroadcastLayoutMsg): Unit = {
 
-    if (liveMeeting.disabledFeatures2x.toVector.contains("layouts")) {
+    if (DisabledFeatures2x.contains(liveMeeting.disabledFeatures2x, "layouts")) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "Layouts is disabled for this meeting."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)

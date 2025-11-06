@@ -3,7 +3,7 @@ package org.bigbluebutton.core.apps.users
 import org.bigbluebutton.ClientSettings.{ getConfigPropertyValueByPath, getConfigPropertyValueByPathAsIntOrElse }
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
-import org.bigbluebutton.core.models.{ UserState, Users2x }
+import org.bigbluebutton.core.models.{ DisabledFeatures2x, UserState, Users2x }
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 
 trait ChangeUserReactionEmojiReqMsgHdlr extends RightsManagementTrait {
@@ -30,7 +30,7 @@ trait ChangeUserReactionEmojiReqMsgHdlr extends RightsManagementTrait {
       outGW.send(msgEventChange)
     }
 
-    val userReactionsIsDisabled = liveMeeting.disabledFeatures2x.toVector.contains("userReactions")
+    val userReactionsIsDisabled = DisabledFeatures2x.contains(liveMeeting.disabledFeatures2x, "userReactions")
 
     if (userReactionsIsDisabled) {
       val meetingId = liveMeeting.props.meetingProp.intId

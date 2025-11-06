@@ -4,7 +4,7 @@ import org.bigbluebutton.ClientSettings.getConfigPropertyValueByPathAsBooleanOrE
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.db.LayoutDAO
-import org.bigbluebutton.core.models.Layouts
+import org.bigbluebutton.core.models.{ DisabledFeatures2x, Layouts }
 import org.bigbluebutton.core.running.OutMsgRouter
 
 trait SetScreenshareAsContentReqMsgHdlr extends RightsManagementTrait {
@@ -13,7 +13,7 @@ trait SetScreenshareAsContentReqMsgHdlr extends RightsManagementTrait {
   val outGW: OutMsgRouter
 
   def handleSetScreenshareAsContentReqMsg(msg: SetScreenshareAsContentReqMsg): Unit = {
-    if (liveMeeting.disabledFeatures2x.toVector.contains("screenshare")) {
+    if (DisabledFeatures2x.contains(liveMeeting.disabledFeatures2x, "screenshare")) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "Screenshare is disabled for this meeting."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)

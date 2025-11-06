@@ -2,7 +2,7 @@ package org.bigbluebutton.core.apps.plugin
 
 import org.bigbluebutton.common2.msgs.PluginDataChannelReplaceOrDeleteBaseBody
 import org.bigbluebutton.core.db.PluginDataChannelEntryDAO
-import org.bigbluebutton.core.models.{ DataChannel, PluginModel, Roles, UserState, Users2x }
+import org.bigbluebutton.core.models.{ DataChannel, DisabledFeatures2x, PluginModel, Roles, UserState, Users2x }
 import org.bigbluebutton.core.running.LiveMeeting
 
 object PluginHdlrHelpers {
@@ -30,7 +30,7 @@ object PluginHdlrHelpers {
   def dataChannelCheckingLogic(liveMeeting: LiveMeeting, userId: String,
                                pluginName: String, channelName: String,
                                caseSomeDataChannelAndPlugin: (UserState, DataChannel, String) => Unit): Option[Unit] = {
-    val pluginsDisabled: Boolean = liveMeeting.disabledFeatures2x.toVector.contains("plugins")
+    val pluginsDisabled: Boolean = DisabledFeatures2x.contains(liveMeeting.disabledFeatures2x, "plugins")
     val meetingId = liveMeeting.props.meetingProp.intId
 
     for {

@@ -6,7 +6,7 @@ import org.bigbluebutton.core.apps.{BreakoutModel, PermissionCheck, RightsManage
 import org.bigbluebutton.core.db.BreakoutRoomDAO
 import org.bigbluebutton.core.domain.{BreakoutRoom2x, MeetingState2x}
 import org.bigbluebutton.core.models.PluginModel.getPlugins
-import org.bigbluebutton.core.models.{Plugin, PresentationInPod}
+import org.bigbluebutton.core.models.{DisabledFeatures2x, Plugin, PresentationInPod}
 import org.bigbluebutton.core.running.{LiveMeeting, OutMsgRouter}
 import org.bigbluebutton.core.running.MeetingActor
 
@@ -25,7 +25,7 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
     val minOfRooms = 1
     val maxOfRooms = getConfigPropertyValueByPathAsIntOrElse(liveMeeting.clientSettings, "public.app.breakouts.breakoutRoomLimit", 16)
 
-    if (liveMeeting.disabledFeatures2x.toVector.contains("breakoutRooms")) {
+    if (DisabledFeatures2x.contains(liveMeeting.disabledFeatures2x, "breakoutRooms")) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "Breakout rooms is disabled for this meeting."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)
