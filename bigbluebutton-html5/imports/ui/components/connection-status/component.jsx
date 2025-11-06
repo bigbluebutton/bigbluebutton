@@ -94,7 +94,7 @@ const ConnectionStatus = ({
         const oneWay = networkRtt / 2; // aproximation NTP
         // Not allow negative skew
         const skew = Math.max(0, ((serverEpochMsec * 1000) + oneWay) - clientNowEpoch);
-        logger.debug(`Latency between server and client: ${skew}`);
+        logger.debug({ logCode: 'latency_skew_calc' }, 'Latency between server and client (skew ms): %d (serverEpochMsec=%d, clientNowEpoch=%d, oneWay=%d)', skew, serverEpochMsec, clientNowEpoch, oneWay);
         setTimeSync(skew);
         timeSyncRef.current = skew;
       }
