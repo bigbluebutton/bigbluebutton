@@ -13,16 +13,16 @@ import (
 func HandleNotifyAllInMeetingEvtMsg(receivedMessage common.RedisMessage, browserConnectionsMutex *sync.RWMutex, browserConnections map[string]*common.BrowserConnection) {
 	jsonDataNext, _ := createGraphqlMessage(receivedMessage, false)
 
-	browserConnectionsToSendCursor := make([]*common.BrowserConnection, 0)
+	browserConnectionsToSendData := make([]*common.BrowserConnection, 0)
 	browserConnectionsMutex.RLock()
 	for _, bc := range browserConnections {
 		if bc.MeetingId == receivedMessage.Core.Header.MeetingId {
-			browserConnectionsToSendCursor = append(browserConnectionsToSendCursor, bc)
+			browserConnectionsToSendData = append(browserConnectionsToSendData, bc)
 		}
 	}
 	browserConnectionsMutex.RUnlock()
 
-	for _, bc := range browserConnectionsToSendCursor {
+	for _, bc := range browserConnectionsToSendData {
 		bc.ActiveStreamingsMutex.RLock()
 		queryIds, existsCursorStream := bc.ActiveStreamings["getNotificationStream"]
 		bc.ActiveStreamingsMutex.RUnlock()

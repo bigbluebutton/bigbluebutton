@@ -468,7 +468,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
           sendCancelEvents();
         });
       }
-      const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY);
+      const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) as string[];
 
       // Remove the chat that user send messages from the session.
       if (indexOf(currentClosedChats, chatId) > -1) {

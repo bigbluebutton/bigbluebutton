@@ -222,16 +222,19 @@ class Recording extends MultiUsers {
       mask: [titleLocator],
     });
 
+    const playPauseButtonLocator = this.playbackPage.page.locator(playbackElements.playPauseButton);
+
     // Resume 500ms playback to display first slide
-    await this.playbackPage.waitAndClick(playbackElements.playPauseButton);
+    await playPauseButtonLocator.click();
     await sleep(500);
-    await this.playbackPage.waitAndClick(playbackElements.playPauseButton);
+    await playPauseButtonLocator.click();
+    await expect(playPauseButtonLocator, 'play/pause button should display "Play" when paused').toHaveText(/Play/, { timeout: ELEMENT_WAIT_TIME });
     await expect(this.playbackPage.page, 'first slide should be visible').toHaveScreenshot('first-slide.png', {
       mask: [titleLocator],
     });
 
     // Resume playback to the next slide
-    await this.playbackPage.waitAndClick(playbackElements.playPauseButton);
+    await playPauseButtonLocator.click();
     await sleep(2000);
     const progressBarResumed = await progressBarLocator.evaluate(el => el.offsetWidth);
     expect(progressBarResumed, 'progress bar width should not be 0 after resuming playback').not.toEqual(0);
@@ -239,8 +242,9 @@ class Recording extends MultiUsers {
       mask: [titleLocator],
     });
 
-    // wait 2 seconds and check paused playback
-    await this.playbackPage.waitAndClick(playbackElements.playPauseButton);
+    // Pause and wait 2 seconds and check paused playback
+    await playPauseButtonLocator.click();
+    await expect(playPauseButtonLocator, 'play/pause button should display "Play" when paused').toHaveText(/Play/, { timeout: ELEMENT_WAIT_TIME });
     const progressBarPaused = await progressBarLocator.evaluate(el => el.offsetWidth);
     await sleep(2000);
     expect(progressBarPaused,
