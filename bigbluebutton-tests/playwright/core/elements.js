@@ -94,7 +94,8 @@ exports.openBreakoutTimeManager = 'li[data-test="openBreakoutTimeManager"]';
 exports.inputSetTimeSelector = 'input[id="inputSetTimeSelector"]';
 exports.sendButtonDurationTime = 'button[data-test="sendButtonDurationTime"]';
 exports.breakoutRemainingTime = 'span[data-test="breakoutRemainingTime"]';
-exports.roomNameInput = 'input[data-test="roomName-1"]';
+exports.roomNameInput1 = 'input[data-test="roomName-1"]';
+exports.roomNameInput2 = 'input[data-test="roomName-2"]';
 exports.roomName1Test = 'span[data-test="TestRoom 1"]';
 exports.breakoutRoomItemOnManage = 'span[data-test^="Room"]'
 exports.userNameBreakoutRoom = 'div[data-test="userNameBreakoutRoom-Room 1"]';
