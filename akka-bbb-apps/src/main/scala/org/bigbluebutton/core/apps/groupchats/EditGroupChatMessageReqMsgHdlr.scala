@@ -1,11 +1,13 @@
 package org.bigbluebutton.core.apps.groupchats
 
+import org.bigbluebutton.ClientSettings.getConfigPropertyValueByPathAsBooleanOrElse
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.PermissionCheck
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models.{ Roles, Users2x }
 import org.bigbluebutton.core.running.{ HandlerHelpers, LiveMeeting }
+import org.bigbluebutton.core.util.MarkdownUtil
 import org.bigbluebutton.core2.MeetingStatus2x
 
 trait EditGroupChatMessageReqMsgHdlr extends HandlerHelpers {
@@ -55,7 +57,9 @@ trait EditGroupChatMessageReqMsgHdlr extends HandlerHelpers {
 
           if ((chatIsPrivate && userIsAParticipant) || !chatIsPrivate) {
             if (userIsOwner) {
-              val editedGCMessage = gcMessage.copy(message = msg.body.message)
+
+              val allowedHtmlElements = getConfigPropertyValueByPathAsBooleanOrElse(liveMeeting.clientSettings, "public.chat.markdownImageAllowed", false)
+              val editedGCMessage = gcMessage.copy(message = msg.body.message, messageAsHtml = MarkdownUtil.markdownToSafeHtml(msg.body.message, allowedHtmlElements))
               val updatedGroupChat = GroupChatApp.updateGroupChatMessage(liveMeeting.props.meetingProp.intId, groupChat, state.groupChats, editedGCMessage)
 
               val event = buildGroupChatMessageEditedEvtMsg(liveMeeting.props.meetingProp.intId, msg.body.chatId, msg.header.userId, editedGCMessage)

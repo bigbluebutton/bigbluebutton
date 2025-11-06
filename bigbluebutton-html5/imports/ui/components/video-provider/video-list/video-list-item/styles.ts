@@ -10,6 +10,7 @@ import {
   webcamPlaceholderBorder,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { TextElipsis } from '/imports/ui/stylesheets/styled-components/placeholders';
+import { UserCameraButtonsContainerWrapperProps } from './types'
 
 const rotate360 = keyframes`
   from {
@@ -202,10 +203,36 @@ const BottomBar = styled.div`
 `;
 
 const RaiseHand = styled.div`
-  font-size: 32px;
+  position: relative;
+  display: inline-block;
 `;
 
-const UserCameraButtonsContainterWrapper = styled.div<UserCameraButtonsContainterWrapperProps>`
+const RaiseHandNumber = styled.div`
+  position: absolute;
+  top: 14px;
+  left: 45%;
+  transform: translateX(-50%);
+  font-size: 15px;
+  font-weight: 700;
+  color: white;
+  background-color: rgba(0, 0, 0, 0.55);
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  z-index: 1;
+`;
+
+const RaiseHandEmoji = styled.div`
+  font-size: 32px;
+  line-height: 1;
+  display: block;
+`;
+
+const UserCameraButtonsContainerWrapper = styled.div<UserCameraButtonsContainerWrapperProps>`
   position: absolute;
   z-index: 2;
   display: flex;
@@ -229,7 +256,7 @@ const UserCameraButtonsContainterWrapper = styled.div<UserCameraButtonsContainte
 
 export default {
   Content,
-  UserCameraButtonsContainterWrapper,
+  UserCameraButtonsContainerWrapper,
   WebcamConnecting,
   LoadingText,
   VideoContainer,
@@ -238,4 +265,6 @@ export default {
   BottomBar,
   VideoDisabled,
   RaiseHand,
+  RaiseHandNumber,
+  RaiseHandEmoji,
 };

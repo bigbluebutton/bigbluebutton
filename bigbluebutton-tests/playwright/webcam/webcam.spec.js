@@ -64,6 +64,11 @@ test.describe.parallel('Webcam', { tag: '@ci' }, () => {
     await webcam.focusUnfocusWebcam();
   });
 
+  test('Resize webcam area', async ({ browser, page }) => {
+    const webcam = new Webcam(browser, page);
+    await webcam.init(true, true);
+    await webcam.resizeWebcamArea();
+  })
 
   test('Drag and drop webcam in different areas', async ({ browser, page }) => {
     const webcam = new Webcam(browser, page);

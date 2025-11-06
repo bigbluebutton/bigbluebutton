@@ -1,5 +1,6 @@
 package org.bigbluebutton.core.apps.groupchats
 
+import org.bigbluebutton.ClientSettings.getConfigPropertyValueByPathAsBooleanOrElse
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.domain.MeetingState2x
@@ -21,7 +22,8 @@ trait SendGroupChatMessageFromApiSysPubMsgHdlr extends HandlerHelpers {
         chat <- state.groupChats.find(GroupChatApp.MAIN_PUBLIC_CHAT)
       } yield {
         val groupChatMsgFromUser = GroupChatMsgFromUser(sender.id, sender.copy(name = msg.body.userName), msg.body.message, replyToMessageId = "")
-        val gcm = GroupChatApp.toGroupChatMessage(sender.copy(name = msg.body.userName), groupChatMsgFromUser, emphasizedText = true, GroupChatMessageType.DEFAULT)
+        val allowedHtmlElements = getConfigPropertyValueByPathAsBooleanOrElse(liveMeeting.clientSettings, "public.chat.markdownImageAllowed", false)
+        val gcm = GroupChatApp.toGroupChatMessage(sender.copy(name = msg.body.userName), groupChatMsgFromUser, emphasizedText = true, GroupChatMessageType.DEFAULT, allowedHtmlElements)
         val gcs = GroupChatApp.addGroupChatMessage(liveMeeting.props.meetingProp.intId, chat, state.groupChats, gcm, GroupChatMessageType.API)
 
         val event = buildGroupChatMessageBroadcastEvtMsg(
