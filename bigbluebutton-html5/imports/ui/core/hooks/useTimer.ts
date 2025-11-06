@@ -2,17 +2,25 @@ import { useEffect, useState } from 'react';
 import createUseSubscription from './createUseSubscription';
 import { GET_TIMER, TimerData } from '../graphql/queries/timer';
 import TimerSingleton from '/imports/ui/core/singletons/timer';
+import useTimeSync from '/imports/ui/core/local-states/useTimeSync';
 
 const useTimerSubscription = createUseSubscription<TimerData>(GET_TIMER, {}, true);
 
 export const useTimer = (isIndicator = false) => {
   const response = useTimerSubscription();
+  const [timeSync] = useTimeSync();
   const [timePassed, setTimePassed] = useState<number>(0);
+
+  useEffect(() => {
+    if (!isIndicator) return;
+    TimerSingleton.setTimeOffset(timeSync);
+  }, [isIndicator, timeSync]);
 
   useEffect(() => {
     if (!isIndicator) return;
     if (response.loading || !response.data || !response.data[0] || response.data.length === 0) return;
     const timer = response.data[0];
+    if (timer.active === false) return;
     TimerSingleton.updateTimerInfo(timer);
   }, [isIndicator, response.loading, response.data]);
 

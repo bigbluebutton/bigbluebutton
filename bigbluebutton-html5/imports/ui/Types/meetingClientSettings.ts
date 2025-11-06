@@ -502,7 +502,6 @@ export interface Timer {
   alarm: boolean
   music: Music
   time: number
-  serverSyncTimeInterval: number
 }
 
 export interface Music {

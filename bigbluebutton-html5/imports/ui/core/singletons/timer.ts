@@ -1,5 +1,4 @@
 import { TimerData } from '/imports/ui/core/graphql/queries/timer';
-import { fetchTimeOffset } from '/imports/ui/core/utils/timeSync';
 
 type TimerListener = (timePassed: number) => void;
 
@@ -13,12 +12,6 @@ class TimerSingleton {
   private interval: ReturnType<typeof setInterval> | null = null;
 
   private startTimeout: ReturnType<typeof setTimeout> | null = null;
-
-  private timeSyncInterval: ReturnType<typeof setInterval> | null = null;
-
-  private static SERVER_SYNC_TIME_INTERVAL() {
-    return window.meetingClientSettings.public.timer.serverSyncTimeInterval || 5 * 60 * 1000;
-  }
 
   subscribe(listener: TimerListener) {
     this.listeners.add(listener);
@@ -40,32 +33,12 @@ class TimerSingleton {
     }
   }
 
-  private async startPeriodicTimeSync() {
-    if (this.timeSyncInterval) this.stopPeriodicTimeSync();
-    const sync = async () => {
-      const newTimeOffset = await fetchTimeOffset();
-      this.setTimeOffset(newTimeOffset);
-    };
-    await sync();
-    this.timeSyncInterval = setInterval(() => {
-      sync();
-    }, TimerSingleton.SERVER_SYNC_TIME_INTERVAL());
-  }
-
-  stopPeriodicTimeSync() {
-    if (this.timeSyncInterval) {
-      clearInterval(this.timeSyncInterval);
-      this.timeSyncInterval = null;
-    }
-  }
-
-  private setTimeOffset(timeOffset: number) {
+  setTimeOffset(timeOffset: number) {
     this.timeOffset = timeOffset;
   }
 
-  private async startCounting() {
+  private startCounting() {
     this.stopCounting();
-    await this.startPeriodicTimeSync();
     if (!this.timer?.running) return;
     const serverNow = Date.now() + this.timeOffset;
     // calculate time to next second to sync second counting with the server time
@@ -90,7 +63,6 @@ class TimerSingleton {
       clearInterval(this.interval);
       this.interval = null;
     }
-    this.stopPeriodicTimeSync();
   }
 
   private notify(listener: TimerListener | null = null) {

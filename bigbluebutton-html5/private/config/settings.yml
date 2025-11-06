@@ -748,7 +748,6 @@ public:
       track2: "CalmMusic"
       track3: "aristocratDrums"
     time: 5
-    serverSyncTimeInterval: 300000
   chat:
     enabled: true
     itemsPerPage: 100
