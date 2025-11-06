@@ -125,7 +125,7 @@ public class ParamsProcessorUtil {
         private String  defaultBreakoutRoomsCaptureSlidesFilename = CONF_NAME;
         private String  defaultBreakoutRoomsCaptureNotesFilename = CONF_NAME;
 		private boolean defaultBreakoutRoomsPrivateChatEnabled;
-		private boolean defaultBreakoutRoomsMultiUserWhiteboardDefaultOn;
+		private boolean defaultBreakoutRoomsMultiUserWhiteboardDefaultOn = true;
 
 		private boolean defaultLockSettingsDisableCam;
 		private boolean defaultLockSettingsDisableMic;
@@ -744,8 +744,15 @@ public class ParamsProcessorUtil {
         }
 
         boolean multiUserWhiteboardEnabled = false;
-        if (isBreakout && defaultBreakoutRoomsMultiUserWhiteboardDefaultOn) {
+        if (isBreakout) {
             multiUserWhiteboardEnabled = defaultBreakoutRoomsMultiUserWhiteboardDefaultOn;
+        }
+        if(!StringUtils.isEmpty(params.get(ApiParams.MULTIUSER_WHITEBOARD_ENABLED))) {
+            try {
+                multiUserWhiteboardEnabled = Boolean.parseBoolean(params.get(ApiParams.MULTIUSER_WHITEBOARD_ENABLED));
+            } catch (Exception ex) {
+                log.warn("Invalid param [multiUserWhiteboardEnabled] for meeting=[{}]",internalMeetingId);
+            }
         }
 
         boolean webcamsOnlyForMod = webcamsOnlyForModerator;
