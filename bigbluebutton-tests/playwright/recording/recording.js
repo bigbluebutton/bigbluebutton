@@ -18,7 +18,7 @@ class Recording extends MultiUsers {
     return apiCall('getRecordings', { meetingID });
   }
 
-  async getRecordingsWithRetry({ meetingID, expectedFormat, maxAttempts = 5, delayMs = CI ? 7500 : 5000 } = {}) {
+  async getRecordingsWithRetry({ meetingID, expectedFormat, maxAttempts = 5, delayMs = CI ? 10000 : 5000 } = {}) {
     await sleep(5000); // minimum wait time expected before first attempt
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       const { response } = await this.getRecordingsApi(meetingID);
@@ -38,6 +38,11 @@ class Recording extends MultiUsers {
 
         if (recording) return { response };
 
+        console.log({
+          response: JSON.stringify(response, null, 2),
+          recording: JSON.stringify(recordings?.recording?.[0], null, 2),
+          date: new Date().toISOString(),
+        })
         console.log(`getRecordings (attempt ${attempt}/${maxAttempts}): No recording with expected format "${expectedFormat}" found, retrying in ${delayMs}ms`);
         await sleep(delayMs);
         continue;

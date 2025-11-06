@@ -354,7 +354,29 @@ jobs:
           dpkg-deb -b tmpdeb fixed-bbb-presentation-video.deb
 
           # Install the patched package
+          sudo apt install -y ./fixed-bbb-presentation-video.deb || (echo "❌ failed to install playback-video package" && exit 1)
+      - name: Install bbb-playback-video package
+        run: |
+          sudo apt install -y bbb-playback-video || (echo "❌ failed to install playback-video package" && exit 1)
+
+          # testing
+          echo "Checking if bbb-playback-video is installed in the same step"
+          if dpkg -s bbb-playback-video >/dev/null 2>&1; then
+            echo "✓ bbb-playback-video is installed"
+          else
+            echo "✗ bbb-playback-video is NOT installed"
+          fi
+      - name: Debug install
+        run: |
           sudo apt install -y ./fixed-bbb-presentation-video.deb
+          echo "--- Installed packages ---"
+          dpkg -l | grep bbb || true
+          echo "--- DPKG status ---"
+          dpkg -s bbb-playback-video || echo "Not found"
+          echo "--- File check ---"
+          ls -la /usr/share/bbb-playback-video* || echo "no files"
+          echo "--- bbb-playback-video files ---"
+          dpkg -L bbb-playback-video
       - name: Configure video format settings
         run: |
           # webm format should be enabled for automated tests - decoded by chromium
@@ -391,19 +413,20 @@ jobs:
           EOF
       - name: Restart the bbb-rap-resque-worker service to apply recording-related changes
         run: |
+          # Log status before restart
+          systemctl status bbb-rap-resque-worker.service
           # Ensure bbb-rap-resque-worker is running to process recordings
           sudo systemctl restart bbb-rap-resque-worker.service
           sudo systemctl status bbb-rap-resque-worker.service
       - name: Check installed packages
         run: |
-          echo "Checking if bbb-presentation-video is installed:"
           if dpkg -s bbb-presentation-video >/dev/null 2>&1; then
             echo "✓ bbb-presentation-video is installed"
+            echo
           else
             echo "✗ bbb-presentation-video is NOT installed"
           fi
 
-          echo "Checking if bbb-playback-video is installed:"
           if dpkg -s bbb-playback-video >/dev/null 2>&1; then
             echo "✓ bbb-playback-video is installed"
           else
@@ -503,6 +526,21 @@ jobs:
       - name: Scan the log files for error messages
         if: always()
         run: sudo bbb-conf --debug
+      - name: Cat recording/recording.yml
+        if: always()
+        run: cat /etc/bigbluebutton/recording/recording.yml
+      - name: Cat scripts/video.yml
+        if: always()
+        run: cat /usr/local/bigbluebutton/core/scripts/video.yml
+      - name: Check installed video packages
+        if: always()
+        run: which ffmpeg sox node python3 || true
+      - name: Rake gem - List installed version
+        if: success() && matrix.shard == 1
+        run: ls -la /usr/local/bigbluebutton/core/vendor/bundle/ruby/3.0.0/gems/rake-13.0.6
+      - name: BBB RAP RESQUE WORKER SERVICE - Check recent logs
+        if: success() && matrix.shard == 1
+        run: journalctl -u bbb-rap-resque-worker.service -n 100 --no-pager
       - name: APT CACHE - Check for changes using packages hash
         if: success() && matrix.shard == 1 && github.event_name != 'pull_request'
         id: apt-manifest
