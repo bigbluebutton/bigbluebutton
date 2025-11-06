@@ -1,9 +1,7 @@
 package org.bigbluebutton.core.models
 
 import com.softwaremill.quicklens._
-import org.bigbluebutton.core.db.{ UserDAO, UserLockSettingsDAO, UserReactionDAO, UserStateDAO }
-import org.bigbluebutton.core.util.TimeUtil
-import org.bigbluebutton.core2.message.senders.MsgBuilder
+import org.bigbluebutton.core.db.{ UserLockSettingsDAO, UserReactionDAO, UserStateDAO }
 
 object Users2x {
   def findWithIntId(users: Users2x, intId: String): Option[UserState] = {
@@ -121,6 +119,12 @@ object Users2x {
     val newUserState = modify(u)(_.mobile).setTo(true)
     users.save(newUserState)
     UserStateDAO.update((newUserState))
+    newUserState
+  }
+
+  def setLoggedOut(users: Users2x, u: UserState): UserState = {
+    val newUserState = modify(u)(_.loggedOut).setTo(true)
+    users.save(newUserState)
     newUserState
   }
 
@@ -461,6 +465,7 @@ case class UserState(
     lastInactivityInspect: Long                = 0,
     clientType:            String,
     userLeftFlag:          UserLeftFlag,
+    loggedOut:             Boolean             = false,
     speechLocale:          String              = "",
     captionLocale:         String              = "",
     userMetadata:          Map[String, String] = Map.empty,

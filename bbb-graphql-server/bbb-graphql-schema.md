@@ -554,6 +554,7 @@ Permission: Restricted to Presenter
 - `moderatorsCanUnmuteAudio`
 - `userCameraCap`
 - `webcamsOnlyForModerator`
+- `multiUserWhiteboardEnabled`
 
 ## Type: chat
 ### Fields:

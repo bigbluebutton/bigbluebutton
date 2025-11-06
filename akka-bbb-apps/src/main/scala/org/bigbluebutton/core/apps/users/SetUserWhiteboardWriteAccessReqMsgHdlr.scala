@@ -1,11 +1,10 @@
 package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.ClientSettings.getConfigPropertyValueByPathAsIntOrElse
-import org.bigbluebutton.LockSettingsUtil
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.db.{ MeetingUsersPoliciesDAO, NotificationDAO }
-import org.bigbluebutton.core.models.{ UserState, Users2x }
+import org.bigbluebutton.core.models.{ RegisteredUsers, Roles, UserState, Users2x }
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core2.message.senders.MsgBuilder
@@ -50,14 +49,16 @@ trait SetUserWhiteboardWriteAccessReqMsgHdlr extends RightsManagementTrait {
       val usersToSetWhiteboardWrite = {
         if (msg.body.allUsers) {
           for {
-            userState <- Users2x.findAll(liveMeeting.users2x)
-            if userState.whiteboardWriteAccess != msg.body.allUsers
+            userState <- Users2x.findAll(liveMeeting.users2x).sortBy(_.role == Roles.MODERATOR_ROLE)(Ordering.Boolean.reverse)
+            if !userState.loggedOut
+            if !userState.bot
+            if userState.whiteboardWriteAccess != msg.body.whiteboardWriteAccess
           } yield userState.intId
         } else {
           for {
             userId <- msg.body.userIds
             userState <- Users2x.findWithIntId(liveMeeting.users2x, userId)
-            if userState.whiteboardWriteAccess != msg.body.allUsers
+            if userState.whiteboardWriteAccess != msg.body.whiteboardWriteAccess
           } yield userId
         }
       }
@@ -77,6 +78,17 @@ trait SetUserWhiteboardWriteAccessReqMsgHdlr extends RightsManagementTrait {
       if (msg.body.whiteboardWriteAccess &&
         availableSlots < usersToSetWhiteboardWrite.length) {
         log.info("Setting whiteboard write access in meeting {} exceeds the maximum number of {} writers. It will allow only {} users.", msg.header.meetingId, maxNumberOfActiveUsers, availableSlots)
+
+        val notifyEvent = MsgBuilder.buildNotifyUserInMeetingEvtMsg(
+          msg.header.userId,
+          liveMeeting.props.meetingProp.intId,
+          "info",
+          "pen_tool",
+          "app.whiteboard.toolbar.multiUserLimitHasBeenReachedNotification",
+          "Notification when the maximum number of whiteboard writers has been reached",
+          Map("numberOfUsers" -> maxNumberOfActiveUsers.toString)
+        )
+        outGW.send(notifyEvent)
       }
 
       for {

@@ -145,14 +145,13 @@ class PresentationToolbar extends PureComponent {
   handleSwitchWhiteboardMode() {
     const {
       multiUser,
-      whiteboardId,
-      removeWhiteboardGlobalAccess,
-      addWhiteboardGlobalAccess,
+      setMultiUserWhiteboardDisabled,
+      setMultiUserWhiteboardEnabled,
     } = this.props;
     if (multiUser) {
-      return removeWhiteboardGlobalAccess(whiteboardId);
+      return setMultiUserWhiteboardDisabled();
     }
-    return addWhiteboardGlobalAccess(whiteboardId);
+    return setMultiUserWhiteboardEnabled();
   }
 
   fullscreenToggleHandler() {
@@ -576,11 +575,9 @@ PresentationToolbar.propTypes = {
   fullscreenAction: PropTypes.string.isRequired,
   isFullscreen: PropTypes.bool.isRequired,
   layoutContextDispatch: PropTypes.func.isRequired,
-  setIsPanning: PropTypes.func.isRequired,
   multiUser: PropTypes.bool.isRequired,
-  whiteboardId: PropTypes.string.isRequired,
-  removeWhiteboardGlobalAccess: PropTypes.func.isRequired,
-  addWhiteboardGlobalAccess: PropTypes.func.isRequired,
+  setMultiUserWhiteboardDisabled: PropTypes.func.isRequired,
+  setMultiUserWhiteboardEnabled: PropTypes.func.isRequired,
   fullscreenRef: PropTypes.instanceOf(Element),
   handleToggleFullScreen: PropTypes.func.isRequired,
   isPollingEnabled: PropTypes.bool.isRequired,

@@ -488,9 +488,10 @@ type Mutation {
 }
 
 type Mutation {
-  presentationSetWriters(
-    pageId: String!
-    usersIds: [String]!
+  userSetWhiteboardWriteAccess(
+    userIds: [String]
+    allUsers: Boolean!
+    whiteboardWriteAccess: Boolean!
   ): Boolean
 }
 
@@ -758,4 +759,3 @@ input AudioGroupParticipant {
   participantType: String!
   active: Boolean!
 }
-

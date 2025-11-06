@@ -76,14 +76,6 @@ export const USER_AGGREGATE_COUNT_SUBSCRIPTION = gql`
   }
 `;
 
-export const GET_USER_IDS = gql`
-  query Users {
-    user(where: { bot: { _eq: false } } ) {
-      userId
-    }
-  }
-`;
-
 export const GET_USER_NAMES = gql`
   query Users {
     user(where: { bot: { _eq: false } } ) {
