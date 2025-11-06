@@ -577,6 +577,7 @@ public class MeetingService implements MessageListener {
     logData.put("duration", m.getDuration());
     logData.put("isBreakout", m.isBreakout());
     logData.put("webcamsOnlyForModerator", m.getWebcamsOnlyForModerator());
+    logData.put("multiUserWhiteboardEnabled", m.getMultiUserWhiteboardEnabled());
     logData.put("meetingCameraCap", m.getMeetingCameraCap());
     logData.put("userCameraCap", m.getUserCameraCap());
     logData.put("maxPinnedCameras", m.getMaxPinnedCameras());
@@ -598,7 +599,7 @@ public class MeetingService implements MessageListener {
     gw.createMeeting(m.getInternalId(), m.getExternalId(), m.getParentMeetingId(), m.getName(), m.isRecord(),
             m.getTelVoice(), m.getDuration(), m.getAutoStartRecording(), m.getAllowStartStopRecording(),
             m.getRecordFullDurationMedia(),
-            m.getWebcamsOnlyForModerator(), m.getMeetingCameraCap(), m.getUserCameraCap(), m.getMaxPinnedCameras(),
+            m.getWebcamsOnlyForModerator(), m.getMultiUserWhiteboardEnabled(), m.getMeetingCameraCap(), m.getUserCameraCap(), m.getMaxPinnedCameras(),
             m.getCameraBridge(),
             m.getScreenShareBridge(),
             m.getAudioBridge(),

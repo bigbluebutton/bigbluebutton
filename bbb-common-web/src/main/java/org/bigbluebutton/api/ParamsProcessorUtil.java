@@ -124,7 +124,8 @@ public class ParamsProcessorUtil {
         private boolean defaultBreakoutRoomsCaptureNotes = false;
         private String  defaultBreakoutRoomsCaptureSlidesFilename = CONF_NAME;
         private String  defaultBreakoutRoomsCaptureNotesFilename = CONF_NAME;
-		private boolean defaultbreakoutRoomsPrivateChatEnabled;
+		private boolean defaultBreakoutRoomsPrivateChatEnabled;
+		private boolean defaultBreakoutRoomsMultiUserWhiteboardDefaultOn;
 
 		private boolean defaultLockSettingsDisableCam;
 		private boolean defaultLockSettingsDisableMic;
@@ -317,7 +318,7 @@ public class ParamsProcessorUtil {
 				breakoutRoomsRecord = Boolean.parseBoolean(breakoutRoomsRecordParam);
 			}
 
-			Boolean breakoutRoomsPrivateChatEnabled =  defaultbreakoutRoomsPrivateChatEnabled;
+			Boolean breakoutRoomsPrivateChatEnabled =  defaultBreakoutRoomsPrivateChatEnabled;
 			String breakoutRoomsPrivateChatEnabledParam = params.get(ApiParams.BREAKOUT_ROOMS_PRIVATE_CHAT_ENABLED);
 			if (!StringUtils.isEmpty(breakoutRoomsPrivateChatEnabledParam)) {
 				breakoutRoomsPrivateChatEnabled = Boolean.parseBoolean(breakoutRoomsPrivateChatEnabledParam);
@@ -742,6 +743,11 @@ public class ParamsProcessorUtil {
             notifyRecordingIsOn = Boolean.parseBoolean(params.get(ApiParams.NOTIFY_RECORDING_IS_ON));
         }
 
+        boolean multiUserWhiteboardEnabled = false;
+        if (isBreakout && defaultBreakoutRoomsMultiUserWhiteboardDefaultOn) {
+            multiUserWhiteboardEnabled = defaultBreakoutRoomsMultiUserWhiteboardDefaultOn;
+        }
+
         boolean webcamsOnlyForMod = webcamsOnlyForModerator;
         if (!StringUtils.isEmpty(params.get(ApiParams.WEBCAMS_ONLY_FOR_MODERATOR))) {
             try {
@@ -924,6 +930,7 @@ public class ParamsProcessorUtil {
                 .withPresentationConversionCacheEnabled(presentationCacheEnabled)
                 .withRecordFullDurationMedia(_recordFullDurationMedia)
                 .withWebcamsOnlyForModerator(webcamsOnlyForMod)
+                .withMultiUserWhiteboardEnabled(multiUserWhiteboardEnabled)
                 .withMeetingCameraCap(meetingCameraCap)
                 .withUserCameraCap(userCameraCap)
                 .withMaxPinnedCameras(maxPinnedCameras)
@@ -1716,8 +1723,12 @@ public class ParamsProcessorUtil {
 	}
 
 	public void setBreakoutRoomsPrivateChatEnabled(Boolean breakoutRoomsPrivateChatEnabled) {
-		this.defaultbreakoutRoomsPrivateChatEnabled = breakoutRoomsPrivateChatEnabled;
+		this.defaultBreakoutRoomsPrivateChatEnabled = breakoutRoomsPrivateChatEnabled;
 	}
+
+    public void setBreakoutRoomsMultiUserWhiteboardDefaultOn(Boolean breakoutRoomsMultiUserWhiteboardDefaultOn) {
+        this.defaultBreakoutRoomsMultiUserWhiteboardDefaultOn = breakoutRoomsMultiUserWhiteboardDefaultOn;
+    }
 
 	public void setLockSettingsDisableCam(Boolean lockSettingsDisableCam) {
 		this.defaultLockSettingsDisableCam = lockSettingsDisableCam;
