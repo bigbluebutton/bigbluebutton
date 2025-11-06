@@ -298,26 +298,34 @@ export class Recording extends MultiUsers {
       mask: [titleLocator],
     });
 
+    const playPauseButtonLocator = this.playbackPage.page.locator(playbackElements.playPauseButton);
+
     // Resume 500ms playback to display first slide
-    await this.playbackPage.waitAndClick(playbackElements.playPauseButton);
+    await playPauseButtonLocator.click();
     await this.playbackPage.page.waitForTimeout(500);
-    await this.playbackPage.waitAndClick(playbackElements.playPauseButton);
+    await playPauseButtonLocator.click();
+    await expect(playPauseButtonLocator, 'play/pause button should display "Play" when paused').toHaveText(/Play/, {
+      timeout: ELEMENT_WAIT_TIME,
+    });
     await expect(this.playbackPage.page, 'first slide should be visible').toHaveScreenshot('first-slide.png', {
       mask: [titleLocator],
     });
 
     // Resume playback to the next slide
-    await this.playbackPage.waitAndClick(playbackElements.playPauseButton);
+    await playPauseButtonLocator.click();
     await this.playbackPage.page.waitForTimeout(2000);
     const progressBarResumed = await progressBarLocator.evaluate((el: HTMLDivElement) => el.offsetWidth);
+
     expect(progressBarResumed, 'progress bar width should not be 0 after resuming playback').not.toEqual(0);
     await expect(this.playbackPage.page, 'second slide should be visible').toHaveScreenshot('slide-changed.png', {
       mask: [titleLocator],
     });
 
-    // wait 2 seconds and check paused playback
-    await this.playbackPage.waitAndClick(playbackElements.playPauseButton);
-    await this.playbackPage.page.waitForTimeout(2000); // delay to avoid race condition
+    // Pause and wait 2 seconds and check paused playback
+    await playPauseButtonLocator.click();
+    await expect(playPauseButtonLocator, 'play/pause button should display "Play" when paused').toHaveText(/Play/, {
+      timeout: ELEMENT_WAIT_TIME,
+    });
     const progressBarPaused = await progressBarLocator.evaluate((el: HTMLDivElement) => el.offsetWidth);
     await this.playbackPage.page.waitForTimeout(2000);
     expect(progressBarPaused, 'progress bar width should not change when playback is paused').toEqual(
