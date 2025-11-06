@@ -72,6 +72,7 @@ const UsersListParticipantsPage: React.FC<UsersListParticipantsPage> = ({
                 open={user.userId === openUserAction}
                 setOpenUserAction={setOpenUserAction}
                 isBreakout={isBreakout}
+                type="participant"
               >
                 <ListItem index={offset + idx} user={user} lockSettings={meeting.lockSettings} />
               </UserActions>
@@ -148,14 +149,14 @@ const UserListParticipantsPageContainer: React.FC<UserListParticipantsContainerP
     lastBreakoutRoom: c.lastBreakoutRoom,
     cameras: c.cameras,
     pinned: c.pinned,
-    raiseHand: c.raiseHand,
     away: c.away,
     reactionEmoji: c.reactionEmoji,
     avatar: c.avatar,
     isDialIn: c.isDialIn,
     name: c.name,
     color: c.color,
-    presPagesWritable: c.presPagesWritable,
+    whiteboardWriteAccess: c.whiteboardWriteAccess,
+    raiseHand: c.raiseHand,
   }));
 
   const {

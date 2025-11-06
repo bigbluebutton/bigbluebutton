@@ -109,6 +109,7 @@ Updated in 2.7:
 
 - **create** - **Added:** `preUploadedPresentation`, `preUploadedPresentationName`, `allowPromoteGuestToModerator` (2.7.9), `disabledFeatures` options`cameraAsContent`, `snapshotOfCurrentSlide`, `downloadPresentationOriginalFile`, `downloadPresentationConvertedToPdf`, `timer`, `learningDashboardDownloadSessionData` (2.7.5).
 - **join** - **Added:** `errorRedirectUrl`, `userdata-bbb_fullaudio_bridge`
+- **getRecordings** - **Updated:** Modified paginated response to remove excess pagination metadata and only return `totalElements` in addition to the normal response data.
 
 Updated in 3.0:
 
@@ -837,7 +838,7 @@ http&#58;//yourserver.com/bigbluebutton/api/getMeetings?checksum=1234
 
 ### `GET` getRecordings
 
-Retrieves the recordings that are available for playback for a given meetingID (or set of meeting IDs). Support for pagination was added in 2.6.
+Retrieves the recordings that are available for playback for a given meetingID (or set of meeting IDs). Support for pagination was added in 2.6. As of 2.7 when pagination is enabled for the response, through the use of the limit and/or offset parameters, the total number of recordings that match the provided criteria will be returned via the `totalElements` tag.
 
 **Resource URL:**
 
@@ -947,6 +948,18 @@ Here the `getRecordings` API call returned back two recordings for the meetingID
          </playback>
       </recording>
    </recordings>
+</response>
+```
+
+**Example Paginated Response:**
+
+```xml
+<response>
+    <returncode>SUCCESS</returncode>
+    <recordings>
+        ...
+    </recordings>
+    <totalElements>3</totalElements>
 </response>
 ```
 

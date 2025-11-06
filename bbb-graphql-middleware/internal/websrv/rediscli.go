@@ -32,7 +32,12 @@ var allowedMessages = []string{
 	"CheckGraphqlMiddlewareAlivePingSysMsg",
 	"SendCursorPositionEvtMsg",
 	"SetCurrentPageEvtMsg",
+	"NotifyAllInMeetingEvtMsg",
+	"NotifyUserInMeetingEvtMsg",
+	"NotifyRoleInMeetingEvtMsg",
+	"GroupChatMessageBroadcastEvtMsg",
 	"ModifyWhiteboardAccessEvtMsg",
+	"UserVoiceStateEvtMsg",
 	"UserLeftMeetingEvtMsg",
 	"MeetingEndedEvtMsg",
 }
@@ -102,6 +107,7 @@ func StartRedisListener() {
 		if messageName == "MeetingEndedEvtMsg" {
 			log.Debugf("Removing cursor positions for meeting: %s", receivedMessage.Core.Body["meetingId"].(string))
 			go streamingserver.RemoveMeetingCursorsCache(receivedMessage.Core.Body["meetingId"].(string))
+			go streamingserver.RemoveMeetingUserVoiceStatesCache(receivedMessage.Core.Body["meetingId"].(string))
 		}
 		if messageName == "UserLeftMeetingEvtMsg" {
 			log.Debugf("Removing cursor positions for meeting: %s, user: %s", receivedMessage.Core.Header.MeetingId, receivedMessage.Core.Header.UserId)
@@ -110,6 +116,46 @@ func StartRedisListener() {
 
 		if messageName == "SendCursorPositionEvtMsg" {
 			go streamingserver.HandleSendCursorPositionEvtMsg(
+				receivedMessage,
+				BrowserConnectionsMutex,
+				BrowserConnections,
+			)
+		}
+
+		if messageName == "NotifyAllInMeetingEvtMsg" {
+			go streamingserver.HandleNotifyAllInMeetingEvtMsg(
+				receivedMessage,
+				BrowserConnectionsMutex,
+				BrowserConnections,
+			)
+		}
+
+		if messageName == "NotifyUserInMeetingEvtMsg" {
+			go streamingserver.HandleNotifyUserInMeetingEvtMsg(
+				receivedMessage,
+				BrowserConnectionsMutex,
+				BrowserConnections,
+			)
+		}
+
+		if messageName == "NotifyRoleInMeetingEvtMsg" {
+			go streamingserver.HandleNotifyRoleInMeetingEvtMsg(
+				receivedMessage,
+				BrowserConnectionsMutex,
+				BrowserConnections,
+			)
+		}
+
+		if messageName == "GroupChatMessageBroadcastEvtMsg" {
+			go streamingserver.HandleGroupChatMessageBroadcastEvtMsg(
+				receivedMessage,
+				BrowserConnectionsMutex,
+				BrowserConnections,
+			)
+		}
+
+		if messageName == "UserVoiceStateEvtMsg" {
+			go streamingserver.HandleUserVoiceStateEvtMsg(
 				receivedMessage,
 				BrowserConnectionsMutex,
 				BrowserConnections,

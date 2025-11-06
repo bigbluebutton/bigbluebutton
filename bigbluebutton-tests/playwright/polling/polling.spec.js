@@ -1,13 +1,11 @@
 const { test } = require('../fixtures');
-const { fullyParallel } = require('../playwright.config');
 const { Polling } = require('./poll');
 const { initializePages } = require('../core/helpers');
 
-test.describe('Polling', { tag: '@ci' }, async () => {
+test.describe.parallel('Polling', { tag: '@ci' }, async () => {
   const polling = new Polling();
 
-  test.describe.configure({ mode: fullyParallel ? 'parallel' : 'serial' });
-  test[fullyParallel ? 'beforeEach' : 'beforeAll'](async ({ browser }, testInfo) => {
+  test.beforeEach(async ({ browser }, testInfo) => {
     await initializePages(polling, browser, { isMultiUser: true, testInfo });
   });
 
@@ -48,10 +46,6 @@ test.describe('Polling', { tag: '@ci' }, async () => {
     await polling.allowMultipleChoices();
   });
 
-  test('Smart slides questions', async () => {
-    await polling.smartSlidesQuestions();
-  });
-
   // Results
   test('Poll results in chat message', async () => {
     await polling.pollResultsOnChat();
@@ -62,7 +56,36 @@ test.describe('Polling', { tag: '@ci' }, async () => {
   });
 
   test('Poll results in a different presentation', async ({}, testInfo) => {
-    test.fixme(!testInfo.config.fullyParallel, 'Currently only works in parallel mode. Poll results not being displayed in the presentation');
     await polling.pollResultsInDifferentPresentation();
+  });
+
+  test.describe('Smart Slides', () => {
+    test('A/B/C/D/E - One option answer', async () => {
+      await polling.oneOptionAnswer();
+    });
+
+    test('Multiple Choices - Two question marks', async () => {
+      await polling.twoQuestionMarks();
+    });
+
+    test('True/False', async () => {
+      await polling.trueFalse();
+    });
+
+    test('Yes/No', async () => {
+      await polling.yesNo();
+    });
+
+    test('Type Response', async () => {
+      await polling.typeResponse();
+    });
+
+    test('Hiding pools - Poll anywhere in the slide', async () => {
+      await polling.pollAnywhereSlide();
+    });
+
+    test('Hiding poll - white box', async () => {
+      await polling.whiteBox();
+    });
   });
 });

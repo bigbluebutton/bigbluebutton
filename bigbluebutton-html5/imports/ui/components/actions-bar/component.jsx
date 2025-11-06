@@ -231,11 +231,11 @@ class ActionsBar extends PureComponent {
               />
             )}
             {isReactionsButtonEnabled && this.renderReactionsButton()}
-            {isRaiseHandEnabled && <RaiseHandButtonContainer />}
             {this.renderPluginsActionBarItems(ActionsBarPosition.RIGHT)}
           </Styled.Center>
           <Styled.Right>
             <Styled.Gap>
+              {isRaiseHandEnabled && <RaiseHandButtonContainer />}
               {
                 showScreenshareQuickSwapButton && <SwapPresentationButton />
               }

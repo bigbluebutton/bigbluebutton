@@ -39,25 +39,27 @@ func HandleSendCursorPositionEvtMsg(receivedMessage common.RedisMessage, browser
 	}
 	jsonDataNext, _ := json.Marshal(browserResponseData)
 
-	browserConnectionsToSendCursor := make([]*common.BrowserConnection, 0)
+	browserConnectionsToSendData := make([]*common.BrowserConnection, 0)
 	browserConnectionsMutex.RLock()
 	for _, bc := range browserConnections {
 		if bc.MeetingId == receivedMessage.Core.Header.MeetingId {
 			userHasViewersCursorLocked := bc.BBBWebSessionVariables["x-hasura-cursorlockeduserid"] == bc.UserId
 			if !receivedCursorIsFromViewer || !userHasViewersCursorLocked { // check for lock settings "See other viewers cursors"
-				browserConnectionsToSendCursor = append(browserConnectionsToSendCursor, bc)
+				browserConnectionsToSendData = append(browserConnectionsToSendData, bc)
 			}
 		}
 	}
 	browserConnectionsMutex.RUnlock()
 
-	for _, bc := range browserConnectionsToSendCursor {
+	for _, bc := range browserConnectionsToSendData {
 		bc.ActiveStreamingsMutex.RLock()
-		queryId, existsCursorStream := bc.ActiveStreamings["getCursorCoordinatesStream"]
+		queryIds, existsCursorStream := bc.ActiveStreamings["getCursorCoordinatesStream"]
 		bc.ActiveStreamingsMutex.RUnlock()
 		if existsCursorStream {
-			payload := bytes.Replace(jsonDataNext, QueryIdPlaceholderInBytes, []byte(queryId), 1)
-			bc.FromHasuraToBrowserChannel.TrySend(payload)
+			for i := range queryIds {
+				payload := bytes.Replace(jsonDataNext, QueryIdPlaceholderInBytes, []byte(queryIds[i]), 1)
+				bc.FromHasuraToBrowserChannel.TrySend(payload)
+			}
 		}
 	}
 

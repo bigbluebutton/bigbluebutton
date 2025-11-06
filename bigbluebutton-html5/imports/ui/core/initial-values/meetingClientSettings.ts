@@ -212,6 +212,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       disableWebsocketFallback: true,
       maxMutationPayloadSize: 10485760, // 10MB
       timeoutBeforeRedirectOnMeetingEnd: 20000,
+      showConnectionErrors: [3001, 3002, 3003, 3004, 3005, 3006],
     },
     externalVideoPlayer: {
       enabled: true,
@@ -565,22 +566,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         enable: false,
       },
       disableEmojis: [],
-      allowedElements: [
-        'a',
-        'code',
-        'em',
-        'h1',
-        'h2',
-        'h3',
-        'h4',
-        'h5',
-        'h6',
-        'li',
-        'ol',
-        'ul',
-        'p',
-        'strong',
-      ],
+      markdownImageAllowed: false,
       toolbar: [],
     },
     userReaction: {

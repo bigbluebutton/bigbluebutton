@@ -50,12 +50,12 @@ export function notify(message, type = 'default', icon, options, content, small)
       toast.update(
         lastToast.id,
         {
-          render: <div role="alert"><Toast {...toastProps} /></div>,
+          render: <Styled.ToastWrapper role="alert"><Toast {...toastProps} /></Styled.ToastWrapper>,
           autoClose: options.autoClose,
         },
       );
     } else {
-      const id = toast(<div role="alert"><Toast {...toastProps} /></div>, settings);
+      const id = toast(<Styled.ToastWrapper role="alert"><Toast {...toastProps} /></Styled.ToastWrapper>, settings);
 
       lastToast = { id, ...toastProps };
 

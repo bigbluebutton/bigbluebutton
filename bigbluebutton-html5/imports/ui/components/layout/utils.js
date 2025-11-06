@@ -1,8 +1,10 @@
+import { equals } from 'ramda';
 import {
   DEVICE_TYPE,
   LAYOUT_ELEMENTS,
   LAYOUT_TYPE,
   SYNC,
+  PRESENTATION_AREA,
 } from './enums';
 
 const phoneUpperBoundary = 600;
@@ -33,6 +35,23 @@ export default device;
 export {
   isMobile, isTablet, isTabletPortrait, isTabletLandscape, isDesktop,
 };
+
+const hasGenericContentChanged = (current, previous) => !equals(
+  current.filter((action) => action?.value?.content === PRESENTATION_AREA.GENERIC_CONTENT)
+    .map((action) => action.value.genericContentId),
+  previous.filter((action) => action?.value?.content === PRESENTATION_AREA.GENERIC_CONTENT)
+    .map((action) => action.value.genericContentId),
+);
+
+export const presentationContentHasChanges = (
+  current,
+  previous,
+  currentLayoutType,
+  previousLayoutType,
+) => !equals(
+  current.map((action) => action.value.content),
+  previous.map((action) => action.value.content),
+) || currentLayoutType !== previousLayoutType || hasGenericContentChanged(current, previous);
 
 // Array for select component to select different layout
 const suportedLayouts = [

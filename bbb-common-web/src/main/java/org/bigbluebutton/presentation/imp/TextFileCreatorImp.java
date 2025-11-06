@@ -119,10 +119,11 @@ public class TextFileCreatorImp implements TextFileCreator {
 
         //System.out.println(COMMAND);
 
-      long execTimeout = this.execTimeout;
-      if (execTimeout > pres.getMaxPageConversionTime()) {
-        execTimeout = pres.getMaxPageConversionTime();
-      }
+        long execTimeout = this.execTimeout;
+        long pageConversionTimeoutInMs = pres.getMaxPageConversionTime() * 1000;
+        if (execTimeout > pageConversionTimeoutInMs) {
+            execTimeout = pageConversionTimeoutInMs;
+        }
 
         boolean done = new ExternalProcessExecutor().exec(COMMAND, execTimeout);
         if (!done) {

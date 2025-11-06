@@ -211,6 +211,9 @@ const Whiteboard = React.memo((props) => {
   const innerWrapperPollingFrameRef = React.useRef(null);
   const isMountedPollingFrameRef = React.useRef(null);
   const hasZoomSyncedRef = useRef(false);
+  const currentUserRef = useRef(currentUser);
+
+  currentUserRef.current = currentUser;
 
   const [pageZoomMap, setPageZoomMap] = useState(() => {
     try {
@@ -450,7 +453,9 @@ const Whiteboard = React.memo((props) => {
 
   React.useEffect(() => {
     if (removedShapes && removedShapes.length > 0) {
-      tlEditorRef.current?.store.remove([...removedShapes]);
+      tlEditorRef.current?.store.mergeRemoteChanges(() => {
+        tlEditorRef.current?.store.remove([...removedShapes]);
+      });
     }
   }, [removedShapes]);
 
@@ -590,7 +595,7 @@ const Whiteboard = React.memo((props) => {
       return;
     }
     // ignore if the edit link dialog is open
-    if (document.querySelector('h2.tlui-dialog__header__title')?.textContent === 'Edit link') {
+    if (event.target.tagName === 'INPUT') {
       return;
     }
 
@@ -1228,6 +1233,13 @@ const Whiteboard = React.memo((props) => {
     if (sizeStyles.includes(initialSizeStyle)) {
       editor.setStyleForNextShapes(DefaultSizeStyle, initialSizeStyle);
     }
+
+    editor.sideEffects.registerBeforeDeleteHandler('shape', (shape, source) => {
+      const { presenter, isModerator, userId } = currentUserRef.current;
+      const isOwn = userId && shape.meta?.createdBy === userId;
+      const hasPermission = isOwn || presenter || isModerator;
+      return source === 'user' ? hasPermission : true;
+    });
 
     editor.store.listen(
       (entry) => {
@@ -1954,16 +1966,15 @@ const Whiteboard = React.memo((props) => {
 
       const updatedPresences = otherCursors
         .map(({
-          userId, user, xPercent, yPercent,
+          userId, xPercent, yPercent, presenter, name, isModerator,
         }) => {
-          const { presenter, name } = user;
           const id = InstancePresenceRecordType.createId(userId);
           const active = xPercent !== -1 && yPercent !== -1;
           // if cursor is not active remove it from tldraw store
           if (
             !active
             || (hideViewersCursor
-              && user.role === 'VIEWER'
+              && !isModerator
               && !currentUser?.presenter)
             || (!presenter && !isMultiUserActive)
           ) {

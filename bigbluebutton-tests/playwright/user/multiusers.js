@@ -52,18 +52,6 @@ class MultiUsers {
     await this.userPage.init(false, shouldCloseAudioModal, options);
   }
 
-  async initUserPage1(shouldCloseAudioModal = true, { fullName = 'Attendee', useModMeetingId = true, testInfo, ...restOptions } = {}) {
-    const options = {
-      ...restOptions,
-      fullName,
-      meetingId: (useModMeetingId) ? this.modPage.meetingId : undefined,
-    };
-
-    const page = await (await playwright.chromium.launch()).newPage();
-    this.userPage1 = new Page(this.browser, page, testInfo);
-    await this.userPage1.init(false, shouldCloseAudioModal, options);
-  }
-
   async initUserPage2(shouldCloseAudioModal = true, context = this.context, { fullName = 'Attendee2', useModMeetingId = true, testInfo, ...restOptions } = {}) {
     const options = {
       ...restOptions,
@@ -229,6 +217,7 @@ class MultiUsers {
     await user2DropdownWebcamButtonForModerator.click();
 
     await this.modPage.wasRemoved(e.focusWebcamBtn, 'should not display the focus webcam button to the moderator when there are less than 3 webcams shared');
+    await this.modPage.press('Escape');
 
     await this.userPage.shareWebcam();
 
@@ -311,8 +300,8 @@ class MultiUsers {
     await this.modPage.waitAndClick(e.removeUserConfirmationBtn);
     await this.modPage.wasRemoved(e.userListItem, 'should not display a user on the user list for the moderator');
 
-    //Will be modified when the issue is fixed and accept just one of both screens
-    //https://github.com/bigbluebutton/bigbluebutton/issues/16463
+    // Will be modified when the issue is fixed and accept just one of both screens
+    // https://github.com/bigbluebutton/bigbluebutton/issues/16463
     try {
       await this.modPage2.hasElement(e.errorScreenMessage, 'should display the error screen message for the second moderator');
     } catch (err) {

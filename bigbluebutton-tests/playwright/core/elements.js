@@ -376,6 +376,8 @@ exports.languageSelector = 'select[id="langSelector"]';
 exports.messageTitle = 'h2[data-test="messageTitle"]';
 exports.notesTitle = 'h2[data-test="notesTitle"]';
 exports.dataSavingsTab = 'span[id="dataSaving"]';
+exports.enableWebcamsToggleBtn = 'input[data-test="webcamToggleBtn"]';
+exports.enableDesktopSharingToggleBtn = 'input[data-test="desktopSharingToggleBtn"]';
 
 // User
 const userAvatar = 'div[data-test-avatar="userAvatar"]';
@@ -476,7 +478,7 @@ exports.selectCustomBackground = 'button[data-test="selectCustomBackground"]';
 exports.removeCustomBackground = 'button[data-test="removeCustomBackground"]';
 exports.inputBackgroundButton = 'button[data-test="inputBackgroundButton"]';
 exports.noneBackgroundButton = 'button[data-test="noneBackgroundButton"]';
-exports.dropAreaBottom = 'div[data-test="dropArea-contentLeft"]';
+exports.dropAreaBottom = 'div[data-test="dropArea-contentBottom"]';
 exports.dropAreaLeft = 'div[data-test="dropArea-contentLeft"]';
 exports.dropAreaRight = 'div[data-test="dropArea-contentRight"]';
 exports.dropAreaTop = 'div[data-test="dropArea-contentTop"]';
@@ -489,6 +491,7 @@ exports.webcamItemTalkingUser = 'div[data-test="webcamItemTalkingUser"]';
 exports.webcamSettingsModal = 'div[data-test="webcamSettingsModal"]';
 exports.dropdownWebcamButton = 'div[data-test="dropdownWebcamButton"]';
 exports.webcamMirroredVideoPreview = 'video[data-test="mirroredVideoPreview"]';
+exports.resizeWebcamHandler = 'div#cameraDock + div > div[style*="user-select: none"]';
 
 // Whiteboard
 exports.whiteboard = 'div[data-testid="canvas"]';
