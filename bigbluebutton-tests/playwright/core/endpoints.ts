@@ -2,7 +2,7 @@ import { AxiosResponse } from 'axios';
 
 import { apiCall } from './helpers';
 
-interface GetMeetingsResponse {
+export interface GetMeetingsResponse {
   response: {
     returncode: string[];
     meetings: Array<{

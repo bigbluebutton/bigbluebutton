@@ -3,6 +3,7 @@ import { API } from './api';
 import { APIBreakout } from './breakout';
 
 test.describe.parallel('API', () => {
+  // fixme: getMeetingInfo fails if executed sequentially with getMeetings.
   test.fixme('getMeetings', async ({ browser, context, page }, testInfo) => {
     const api = new API(browser, context);
     await api.testGetMeetings(page, testInfo);

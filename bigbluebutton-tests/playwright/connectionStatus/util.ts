@@ -6,10 +6,10 @@ export async function openConnectionStatus(testPage: Page) {
   await testPage.waitForSelector(e.connectionStatusModal);
 }
 
-export function checkNetworkStatus(dataContainer: string): boolean {
+export async function checkNetworkStatus(dataContainer: string): Promise<boolean> {
   const values = Array.from(document.querySelectorAll(`${dataContainer} > div`));
   values.splice(4, values.length - 4);
-  const check = values.filter((elem) => elem.textContent.includes(' 0 k'))[0];
+  const check = values.filter((elem) => elem.textContent?.includes(' 0 k'))[0];
 
   return !check;
 }

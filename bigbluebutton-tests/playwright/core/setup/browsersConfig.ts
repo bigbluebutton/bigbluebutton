@@ -5,7 +5,6 @@ export const chromiumConfig: Project = {
   name: 'Chromium',
   use: {
     ...devices['Desktop Chrome'],
-    channel: 'chromium',
     browserName: 'chromium' as const,
     viewport: { width: 1366, height: 768 },
     launchOptions: {
@@ -19,7 +18,6 @@ export const chromiumConfig: Project = {
       ],
     },
   },
-  dependencies: ['setup'],
 };
 
 export const firefoxConfig: Project = {
@@ -36,7 +34,6 @@ export const firefoxConfig: Project = {
       },
     },
   },
-  dependencies: ['setup'],
 };
 
 export const webkitConfig: Project = {
@@ -49,5 +46,4 @@ export const webkitConfig: Project = {
       args: ['--no-sandbox', '--use-fake-ui-for-media-stream', '--use-fake-device-for-media-stream'],
     },
   },
-  dependencies: ['setup'],
 };

@@ -209,7 +209,7 @@ export class CreateParameters extends MultiUsers {
     );
 
     await this.modPage.waitAndClick(e.userListToggleBtn);
-    await this.modPage.wasRemoved(e.chatButton, '');
+    await this.modPage.wasRemoved(e.chatButton, 'should not be displayed the chat button after opening the user list');
     await this.modPage.page.waitForTimeout(1000); // wait for the whiteboard zoom to stabilize
 
     await checkScreenshots(
@@ -284,7 +284,7 @@ export class CreateParameters extends MultiUsers {
 
     await checkScreenshots(
       this,
-      'should be the cameras only layout',
+      'should be the presentation only layout',
       [e.webcamContainer, e.webcamMirroredVideoContainer],
       'presentation-only',
     );

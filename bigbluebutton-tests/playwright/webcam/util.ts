@@ -40,7 +40,11 @@ export async function webcamContentCheck(testPage: Page) {
         const pixelHash = await window.crypto.subtle.digest('SHA-1', pixel);
 
         if (lastVideoHash[v]) {
-          if (lastVideoHash[v] === pixelHash) {
+          const lastHash = new Uint8Array(lastVideoHash[v]);
+          const currentHash = new Uint8Array(pixelHash);
+          const areEqual =
+            lastHash.length === currentHash.length && lastHash.every((val, idx) => val === currentHash[idx]);
+          if (areEqual) {
             return false;
           }
         }
@@ -59,7 +63,9 @@ export async function webcamContentCheck(testPage: Page) {
 export async function checkVideoUploadData(testPage: Page, previousValue: number, timeout = ELEMENT_WAIT_TIME) {
   const locator = testPage.page.locator(e.videoUploadRateData);
   await expect(locator).not.toHaveText('0k ↑', { timeout });
-  const currentValue = await Number((await locator.textContent())?.split('k')[0]);
+  const text = await locator.textContent();
+  if (!text) throw new Error('Video upload rate data not found');
+  const currentValue = Number(text.split('k')[0]);
   await expect(currentValue).toBeGreaterThan(previousValue);
   return currentValue;
 }

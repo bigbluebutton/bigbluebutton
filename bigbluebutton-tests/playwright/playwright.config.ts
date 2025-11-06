@@ -24,7 +24,24 @@ export default defineConfig({
     video: CI ? 'retain-on-failure' : 'on',
     actionTimeout: ELEMENT_WAIT_LONGER_TIME,
   },
-  projects: [{ name: 'setup', testMatch: /global\.setup\.ts/ }, chromiumConfig, firefoxConfig, webkitConfig],
+  projects: [
+    {
+      name: 'setup',
+      testMatch: /global\.setup\.ts/,
+    },
+    {
+      ...chromiumConfig,
+      dependencies: ['setup'],
+    },
+    {
+      ...firefoxConfig,
+      dependencies: ['setup'],
+    },
+    {
+      ...webkitConfig,
+      dependencies: ['setup'],
+    },
+  ],
   expect: {
     timeout: ELEMENT_WAIT_TIME,
     toMatchSnapshot: {

@@ -1,4 +1,4 @@
-import { expect } from 'playwright/test';
+import { expect } from '@playwright/test';
 
 import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
@@ -517,7 +517,7 @@ export class MessageActions extends Chat {
       'should not display first message in viewport after multiples messages sent on mod chat',
     ).not.toBeInViewport();
     // scroll to first message
-    const targetMessageUser = await this.userPage.page.locator(e.chatMessageItem, { hasText: e.message }).first();
+    const targetMessageUser = this.userPage.page.locator(e.chatMessageItem, { hasText: e.message }).first();
     await expect(
       targetMessageMod,
       'should not display the first message in viewport after multiples messages sent on user chat',
@@ -641,11 +641,11 @@ export class MessageActions extends Chat {
     );
     await expect(messageReactionsMod, 'should display the correct reaction count for the mod').toContainText('2');
     // check reaction item incremented - viewer
-    await expect(messageReactionsMod, 'should display a single reaction item for the viewer').toHaveCount(1);
-    await expect(messageReactionsMod, 'should display the correct reaction item for the viewer').toContainText(
+    await expect(messageReactionsUser, 'should display a single reaction item for the viewer').toHaveCount(1);
+    await expect(messageReactionsUser, 'should display the correct reaction item for the viewer').toContainText(
       e.thumbsUpEmoji,
     );
-    await expect(messageReactionsMod, 'should display the correct reaction count for the viewer').toContainText('2');
+    await expect(messageReactionsUser, 'should display the correct reaction count for the viewer').toContainText('2');
   }
 
   async orderReactions() {

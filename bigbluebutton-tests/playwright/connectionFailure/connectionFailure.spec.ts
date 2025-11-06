@@ -51,7 +51,7 @@ test.describe.parallel('Connection failure', () => {
     // Other comparisons, like == or the array includes method, don't do a deep comparison
     // and will always return false since the two arrays contain different objects.
     const tcpUserSessions = tcpSessions.filter((x) => !tcpModeratorSessions.some((session) => deepEqual(session, x)));
-    killTCPSessions(tcpUserSessions);
+    await killTCPSessions(tcpUserSessions);
 
     await screenshare.userPage.hasElement(
       '//div[@data-test="notificationBannerBar" and contains(text(), "Connecting ...")]',

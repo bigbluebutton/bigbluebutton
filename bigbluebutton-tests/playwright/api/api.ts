@@ -1,6 +1,6 @@
 import { expect, Page as PlaywrightPage, TestInfo } from '@playwright/test';
 
-import { getMeetingInfo, getMeetings } from '../core/endpoints';
+import { getMeetingInfo, getMeetings, GetMeetingsResponse } from '../core/endpoints';
 import { createMeeting } from '../core/helpers';
 import { MultiUsers } from '../user/multiusers';
 
@@ -48,7 +48,10 @@ export class API extends MultiUsers {
     /* check that this meeting is in the server's list of all meetings */
     const { data } = await getMeetings();
     expect(data.response.returncode).toEqual(['SUCCESS']);
-    expect(data.response.meetings[0].meeting).toContain(expect.objectContaining(expectedMeeting));
+    const meetings = (data.response.meetings || []).flatMap(
+      (m: GetMeetingsResponse['response']['meetings'][number]) => m.meeting || [],
+    );
+    expect(meetings).toEqual(expect.arrayContaining([expect.objectContaining(expectedMeeting)]));
 
     await this.modPage.page.close();
     await this.userPage.page.close();

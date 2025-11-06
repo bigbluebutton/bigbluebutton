@@ -21,7 +21,7 @@ export class SharedNotes extends MultiUsers {
 
     if (!sharedNotesEnabled) {
       await this.modPage.hasElement(e.chatButton, 'should display the public chat button');
-      this.modPage.wasRemoved(e.sharedNotes, 'should not display the shared notes button');
+      await this.modPage.wasRemoved(e.sharedNotes, 'should not display the shared notes button');
       return;
     }
     await startSharedNotes(this.modPage);
@@ -39,7 +39,7 @@ export class SharedNotes extends MultiUsers {
 
     if (!sharedNotesEnabled) {
       await this.modPage.hasElement(e.chatButton, 'should display the public chat button');
-      this.modPage.wasRemoved(e.sharedNotes, 'should not display the shared notes button');
+      await this.modPage.wasRemoved(e.sharedNotes, 'should not display the shared notes button');
       return;
     }
     await startSharedNotes(this.modPage);
@@ -52,7 +52,7 @@ export class SharedNotes extends MultiUsers {
     });
 
     //! avoiding the following screenshot comparison due to https://github.com/microsoft/playwright/issues/18827
-    const wbBox = await this.modPage.page.locator(e.etherpadFrame);
+    const wbBox = this.modPage.page.locator(e.etherpadFrame);
     await expect(wbBox).toHaveScreenshot('sharednotes-type.png', {
       maxDiffPixels: 150,
     });
@@ -70,7 +70,7 @@ export class SharedNotes extends MultiUsers {
 
     if (!sharedNotesEnabled) {
       await this.modPage.hasElement(e.chatButton, 'should display the public chat button');
-      this.modPage.wasRemoved(e.sharedNotes, 'should not display the shared notes button');
+      await this.modPage.wasRemoved(e.sharedNotes, 'should not display the shared notes button');
       return;
     }
     await startSharedNotes(this.modPage);
@@ -107,7 +107,7 @@ export class SharedNotes extends MultiUsers {
 
     if (!sharedNotesEnabled) {
       await this.modPage.hasElement(e.chatButton, 'should display the public chat button');
-      this.modPage.wasRemoved(e.sharedNotes, 'should not display the shared notes button');
+      await this.modPage.wasRemoved(e.sharedNotes, 'should not display the shared notes button');
       return;
     }
     await startSharedNotes(this.modPage);
@@ -126,22 +126,25 @@ export class SharedNotes extends MultiUsers {
 
     // .txt checks
     const txt = await this.modPage.handleDownload(exportPlainTextLocator);
-    const txtFileExtension = txt?.download.suggestedFilename().split('.').pop();
-    if (!txt || !txtFileExtension) throw new Error('Download failed or invalid file extension');
+    if (!txt || !txt.download) throw new Error('Download failed or invalid file extension');
+    const txtFileExtension = txt.download.suggestedFilename().split('.').pop();
+    if (!txtFileExtension) throw new Error('Download failed or invalid file extension');
     await checkTextContent(txtFileExtension, 'txt', 'should match the .txt file extension');
     await checkTextContent(txt.content, e.message, 'should the txt content file have the message "Hello World!"');
 
     // .html checks
     const html = await this.modPage.handleDownload(exportHtmlLocator);
+    if (!html || !html.download) throw new Error('Download failed or invalid file extension');
     const htmlFileExtension = html.download.suggestedFilename().split('.').pop();
-    if (!html || !htmlFileExtension) throw new Error('Download failed or invalid file extension');
+    if (!htmlFileExtension) throw new Error('Download failed or invalid file extension');
     await checkTextContent(htmlFileExtension, 'html', 'should match the html file extension');
     await checkTextContent(html.content, e.message, 'should the html content file have the message "Hello World!"');
 
     // .etherpad checks
     const etherpad = await this.modPage.handleDownload(exportEtherpadLocator);
+    if (!etherpad || !etherpad.download) throw new Error('Download failed or invalid file extension');
     const etherpadFileExtension = etherpad.download.suggestedFilename().split('.').pop();
-    if (!etherpad || !etherpadFileExtension) throw new Error('Download failed or invalid file extension');
+    if (!etherpadFileExtension) throw new Error('Download failed or invalid file extension');
     await checkTextContent(etherpadFileExtension, 'etherpad', 'should match the etherpad file extension');
     await checkTextContent(
       etherpad.content,
@@ -158,7 +161,7 @@ export class SharedNotes extends MultiUsers {
 
     if (!sharedNotesEnabled) {
       await this.modPage.hasElement(e.chatButton, 'should display the public chat button');
-      this.modPage.wasRemoved(e.sharedNotes, 'should not display the shared notes button');
+      await this.modPage.wasRemoved(e.sharedNotes, 'should not display the shared notes button');
       return;
     }
     await startSharedNotes(this.modPage);
@@ -193,7 +196,7 @@ export class SharedNotes extends MultiUsers {
 
     if (!sharedNotesEnabled) {
       await this.modPage.hasElement(e.chatButton, 'should display the public chat button');
-      this.modPage.wasRemoved(e.sharedNotes, 'should not display the shared notes button');
+      await this.modPage.wasRemoved(e.sharedNotes, 'should not display the shared notes button');
       return;
     }
     await startSharedNotes(this.modPage);
@@ -224,7 +227,7 @@ export class SharedNotes extends MultiUsers {
 
     if (!sharedNotesEnabled) {
       await this.modPage.hasElement(e.chatButton, 'should display the public chat button');
-      this.modPage.wasRemoved(e.sharedNotes, 'should not display the shared notes button');
+      await this.modPage.wasRemoved(e.sharedNotes, 'should not display the shared notes button');
       return;
     }
     // type on shared notes as moderator
@@ -255,7 +258,7 @@ export class SharedNotes extends MultiUsers {
 
     if (!sharedNotesEnabled) {
       await this.modPage.hasElement(e.chatButton, 'should display the public chat button');
-      this.modPage.wasRemoved(e.sharedNotes, 'should not display the shared notes button');
+      await this.modPage.wasRemoved(e.sharedNotes, 'should not display the shared notes button');
       return;
     }
     await this.modPage.waitForSelector(e.whiteboard);

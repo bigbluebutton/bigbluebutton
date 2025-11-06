@@ -236,7 +236,15 @@ export class Join extends Create {
       e.modalConfirmButton,
       'should display the modal confirm button for the user to join the breakout room',
     );
-    await breakoutUserPage.page.isClosed();
+
+    await breakoutUserPage.hasElement(
+      e.meetingEndedModal,
+      'should display the meeting ended modal for the breakout page after being moved to another room',
+    );
+    await breakoutUserPage.hasElement(
+      e.redirectButton,
+      'should display the redirect button in the meeting ended modal after being moved to another room',
+    );
 
     await this.userPage.waitAndClick(e.modalConfirmButton);
     await this.modPage.hasText(
@@ -254,7 +262,7 @@ export class Join extends Create {
 
     if (!sharedNotesEnabled) {
       await this.modPage.hasElement(e.chatButton, 'should display the chat button to access the public chat');
-      this.modPage.wasRemoved(e.sharedNotes, 'should not display the shared notes when it is disabled');
+      await this.modPage.wasRemoved(e.sharedNotes, 'should not display the shared notes when it is disabled');
       return;
     }
     // join room and type on the shared notes
@@ -320,7 +328,7 @@ export class Join extends Create {
     const { sharedNotesEnabled } = this.modPage.settings || {};
     if (!sharedNotesEnabled) {
       await this.modPage.hasElement(e.chatButton, 'should display the chat button to access the public chat');
-      this.modPage.wasRemoved(e.sharedNotes, 'should have removed the shared notes');
+      await this.modPage.wasRemoved(e.sharedNotes, 'should have removed the shared notes');
       return;
     }
     // join room and draw a line

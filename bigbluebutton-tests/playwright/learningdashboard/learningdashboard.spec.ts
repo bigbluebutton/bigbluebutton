@@ -3,7 +3,7 @@ import { test } from '../core/setup/fixtures';
 import { constants as c } from '../parameters/constants';
 import { LearningDashboard } from './learningdashboard';
 
-test.describe.parallel('Learning Dashboard', { tag: '@ci' }, async () => {
+test.describe.parallel('Learning Dashboard', { tag: '@ci' }, () => {
   let learningDashboard: LearningDashboard;
 
   test.beforeEach(async ({ browser, context }, testInfo) => {

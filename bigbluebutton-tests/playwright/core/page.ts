@@ -220,7 +220,7 @@ export class Page {
     test.fail(!webcamSharingEnabled, 'Webcam sharing is disabled');
 
     if (!webcamSharingEnabled) {
-      this.wasRemoved(e.joinVideo, 'should not display the join video button');
+      await this.wasRemoved(e.joinVideo, 'should not display the join video button');
       return;
     }
     await this.waitAndClick(e.joinVideo);
@@ -488,25 +488,24 @@ export class Page {
 
   async closeAllToastNotifications(): Promise<void> {
     const toastNotificationElement = this.page.locator(e.toastContainer);
-    while ((await toastNotificationElement.count()) > 0) {
+    const deadline = Date.now() + ELEMENT_WAIT_LONGER_TIME;
+    while ((await toastNotificationElement.count()) > 0 && Date.now() < deadline) {
       try {
         await toastNotificationElement.first().click({ timeout: ELEMENT_WAIT_TIME });
-        await this.page.waitForTimeout(1500); // expected animation time for toast notification to disappear
+        await expect(toastNotificationElement.first()).toBeHidden({ timeout: ELEMENT_WAIT_TIME });
       } catch {
-        console.log('not able to close the toast notification');
+        // ignore and retry until deadline
       }
     }
-    await this.hasElementCount(e.toastContainer, 0, 'should not display any toast notification');
+    await this.hasElementCount(e.toastContainer, 0, 'should not display any toast notification after closing all');
   }
 
   async getYoutubeFrame(): Promise<Frame> {
     await this.waitForSelector(e.youtubeFrame);
-    const iframeElement = await this.page.locator('iframe').elementHandle();
-    const frame = await iframeElement!.contentFrame();
-    await frame!.waitForURL(/youtube/, { timeout: ELEMENT_WAIT_TIME });
-    if (!frame) {
-      throw new Error('Failed to get YouTube frame');
-    }
+    const iframeElement = await this.page.locator(`${e.youtubeFrame} iframe`).elementHandle();
+    const frame = await iframeElement?.contentFrame();
+    if (!frame) throw new Error('Failed to get YouTube frame');
+    await frame.waitForURL(/youtube/, { timeout: ELEMENT_WAIT_TIME });
     const ytFrame = new Frame(frame);
     return ytFrame;
   }

@@ -55,7 +55,7 @@ export class Layouts extends MultiUsers {
     );
 
     await this.modPage.waitAndClick(e.userListToggleBtn);
-    await this.modPage.wasRemoved(e.chatButton, '');
+    await this.modPage.wasRemoved(e.chatButton, 'should not be displayed the chat button after opening the user list');
     await this.modPage.page.waitForTimeout(1000); // wait for the whiteboard zoom to stabilize
 
     await checkScreenshots(
@@ -191,7 +191,7 @@ export class Layouts extends MultiUsers {
   }
 
   async getNewPageTab() {
-    return this.modPage?.browser?.newPage();
+    return this.modPage.browser.newPage();
   }
 
   async videoPagination() {

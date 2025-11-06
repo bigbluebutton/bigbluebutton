@@ -50,7 +50,10 @@ export class Polling extends MultiUsers {
       );
 
       await this.modPage.waitAndClick(e.closePollingBtn);
-      this.modPage.wasRemoved(e.closePollingBtn, 'should not display the close poll button after the poll closes');
+      await this.modPage.wasRemoved(
+        e.closePollingBtn,
+        'should not display the close poll button after the poll closes',
+      );
       return;
     }
     await this.modPage.waitAndClick(e.startPoll);
@@ -484,9 +487,9 @@ export class Polling extends MultiUsers {
     );
     await this.modPage.waitAndClick(e.publishPollingLabel);
 
-    const lastChatPollMessageTextModerator = await this.modPage.page.locator(e.chatPollMessageText).last();
+    const lastChatPollMessageTextModerator = this.modPage.page.locator(e.chatPollMessageText).last();
     if (!pollChatMessage) {
-      expect(
+      await expect(
         lastChatPollMessageTextModerator,
         'should not display the last chat poll message on the chat, so the poll results on the chat',
       ).toBeHidden({ timeout: ELEMENT_WAIT_TIME });
@@ -511,7 +514,7 @@ export class Polling extends MultiUsers {
     );
     await util.startPoll(this.modPage);
 
-    const wbDrawnRectangleLocator = await this.modPage.page.locator(e.wbPollShape);
+    const wbDrawnRectangleLocator = this.modPage.page.locator(e.wbPollShape);
     const initialWbDrawnRectangleCount = await wbDrawnRectangleLocator.count();
 
     await this.modPage.hasElementDisabled(

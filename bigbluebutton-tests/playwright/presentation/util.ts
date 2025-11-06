@@ -6,8 +6,12 @@ import { elements as e } from '../core/elements';
 import { Page } from '../core/page';
 
 export async function checkSvgIndex(testPage: Page, element: string) {
+  await testPage.waitForSelector(e.currentSlideImg);
   const check = await testPage.page.evaluate(
-    ([el, slideImg]) => document.querySelector(slideImg)?.outerHTML.indexOf(el) !== -1,
+    ([el, slideImg]) => {
+      const node = document.querySelector(slideImg);
+      return !!node && node.outerHTML.includes(el);
+    },
     [element, e.currentSlideImg],
   );
   await expect(check).toBeTruthy();
@@ -39,7 +43,10 @@ export async function hasCurrentPresentationToastElement(
 
 export async function uploadSinglePresentation(testPage: Page, fileName: string, uploadTimeout = UPLOAD_PDF_WAIT_TIME) {
   const firstSlideSrc = await testPage.page.evaluate(
-    ([selector]) => (document.querySelector(selector) as HTMLElement)?.style.backgroundImage.split('"')[1],
+    ([selector]) => {
+      const el = document.querySelector(selector) as HTMLElement | null;
+      return el?.style?.backgroundImage?.split('"')[1] ?? null;
+    },
     [e.currentSlideImg],
   );
   await testPage.waitAndClick(e.actions);
@@ -64,6 +71,7 @@ export async function uploadSinglePresentation(testPage: Page, fileName: string,
   // ensures current slide differs from previous slide - successful upload
   await testPage.page.waitForFunction(
     ([selector, previousSlideSrc]) => {
+      if (typeof selector !== 'string') return false;
       const currentSrc = (document.querySelector(selector) as HTMLElement)?.style?.backgroundImage?.split('"')[1];
       return currentSrc !== previousSlideSrc;
     },

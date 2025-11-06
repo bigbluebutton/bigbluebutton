@@ -90,7 +90,7 @@ export class Chat extends MultiUsers {
     if (!publicChatOptionsEnabled) {
       await this.modPage.waitAndClick(e.chatOptions);
       await this.modPage.hasElement(e.chatClear, 'should display the option to clear the chat');
-      this.modPage.wasRemoved(e.chatCopy, 'should not display the option to copy the chat');
+      await this.modPage.wasRemoved(e.chatCopy, 'should not display the option to copy the chat');
       return;
     }
     // sending a message
@@ -114,7 +114,7 @@ export class Chat extends MultiUsers {
     await openPublicChat(this.modPage);
     if (!publicChatOptionsEnabled) {
       await this.modPage.waitAndClick(e.chatOptions);
-      this.modPage.wasRemoved(e.chatSave, 'chat save option should not be displayed');
+      await this.modPage.wasRemoved(e.chatSave, 'chat save option should not be displayed');
       return;
     }
 
@@ -204,7 +204,7 @@ export class Chat extends MultiUsers {
 
     if (!emojiPickerEnabled) {
       await this.modPage.hasElement(e.chatBox, 'should display the chat box element');
-      this.modPage.wasRemoved(e.emojiPickerButton, 'should not display the emoji picker button element');
+      await this.modPage.wasRemoved(e.emojiPickerButton, 'should not display the emoji picker button element');
       return;
     }
 
@@ -226,7 +226,10 @@ export class Chat extends MultiUsers {
 
     if (!emojiPickerEnabled) {
       await this.modPage.hasElement(e.chatBox, 'should display the chat box element on the public chat');
-      this.modPage.wasRemoved(e.emojiPickerButton, 'should not display the emoji picker button on the public chat');
+      await this.modPage.wasRemoved(
+        e.emojiPickerButton,
+        'should not display the emoji picker button on the public chat',
+      );
       return;
     }
     await this.modPage.waitAndClick(e.emojiPickerButton);
@@ -241,7 +244,7 @@ export class Chat extends MultiUsers {
     await this.modPage.waitAndClick(e.chatCopy);
     const copiedText = await this.modPage.getCopiedText();
     await expect(copiedText, 'should the copied text be the same as the message on the chat').toContain(
-      `${this.modPage.username} : MODERATOR]: ${e.thumbsUpEmoji}`,
+      `[${this.modPage.username} : MODERATOR]: ${e.thumbsUpEmoji}`,
     );
   }
 
@@ -249,7 +252,9 @@ export class Chat extends MultiUsers {
     await openPrivateChat(this.modPage);
     await this.modPage.waitUntilHaveCountSelector(e.chatButton, 2);
     const privateChatLocator = this.modPage.getLocatorByIndex(e.chatButton, -1);
-    expect(privateChatLocator, 'should the private chat contain the user name').toContainText(this.userPage.username);
+    await expect(privateChatLocator, 'should the private chat contain the user name').toContainText(
+      this.userPage.username,
+    );
 
     const chatMessageCount = await this.modPage.getSelectorCount(e.chatUserMessageText);
 
@@ -281,7 +286,7 @@ export class Chat extends MultiUsers {
     await openPublicChat(this.modPage);
     if (!emojiPickerEnabled) {
       await this.modPage.hasElement(e.chatBox, 'should display the public chat box');
-      this.modPage.wasRemoved(e.emojiPickerButton, 'should not display the emoji picker button');
+      await this.modPage.wasRemoved(e.emojiPickerButton, 'should not display the emoji picker button');
       return;
     }
     await this.modPage.waitAndClick(e.emojiPickerButton);
@@ -313,7 +318,10 @@ export class Chat extends MultiUsers {
     // modPage send message
     if (!emojiPickerEnabled) {
       await this.modPage.hasElement(e.chatBox, 'should display the public chat box');
-      this.modPage.wasRemoved(e.emojiPickerButton, 'should not display the emoji picker button on the public chat');
+      await this.modPage.wasRemoved(
+        e.emojiPickerButton,
+        'should not display the emoji picker button on the public chat',
+      );
       return;
     }
     await this.modPage.waitAndClick(e.emojiPickerButton);
@@ -379,7 +387,7 @@ export class Chat extends MultiUsers {
 
     if (!autoConvertEmojiEnabled) {
       await this.modPage.hasElement(e.chatBox, 'should display a chat box on the public chat');
-      this.modPage.hasText(`${e.chatUserMessageText}>>nth=1`, ':)', 'should not display the emoji converted');
+      await this.modPage.hasText(`${e.chatUserMessageText}>>nth=1`, ':)', 'should not display the emoji converted');
       return;
     }
 
@@ -395,7 +403,7 @@ export class Chat extends MultiUsers {
     await this.modPage.waitAndClick(e.sendButton);
     if (!autoConvertEmojiEnabled) {
       await this.modPage.hasElement(e.chatBox, 'should display chat box on the public chat for the moderator');
-      this.modPage.hasText(
+      await this.modPage.hasText(
         `${e.chatUserMessageText}>>nth=1`,
         ':)',
         'should display a message on the public chat with an emoji no converted',
@@ -410,7 +418,7 @@ export class Chat extends MultiUsers {
 
     const copiedText = await this.modPage.getCopiedText();
     await expect(copiedText, 'should the copied text be the same as the message on the chat').toContain(
-      `${this.modPage.username} : MODERATOR]: ${e.convertedEmojiMessage}`,
+      `[${this.modPage.username} : MODERATOR]: ${e.convertedEmojiMessage}`,
     );
   }
 
@@ -422,7 +430,7 @@ export class Chat extends MultiUsers {
     await this.modPage.waitAndClick(e.sendButton);
     if (!autoConvertEmojiEnabled) {
       await this.modPage.hasElement(e.chatBox, 'should display the chat box on the public chat');
-      this.modPage.hasText(
+      await this.modPage.hasText(
         `${e.chatUserMessageText}>>nth=1`,
         ':)',
         'should display a message containing the emoji not converted',
@@ -457,7 +465,7 @@ export class Chat extends MultiUsers {
     await this.modPage.waitAndClick(e.sendButton);
     if (!autoConvertEmojiEnabled && !emojiPickerEnabled) {
       await this.modPage.hasElement(e.chatBox, 'should display the chat box on the private chat');
-      this.modPage.hasText(
+      await this.modPage.hasText(
         `${e.chatUserMessageText}>>nth=0`,
         ':)',
         'should display the message that the emoji is not converted',
@@ -466,7 +474,7 @@ export class Chat extends MultiUsers {
     }
     if (!autoConvertEmojiEnabled) {
       await this.modPage.hasElement(e.chatBox, 'should the chat box be displayed on the private chat');
-      this.modPage.hasText(
+      await this.modPage.hasText(
         `${e.chatUserMessageText}>>nth=2`,
         ':)',
         'should display the emoji not converted on the private chat',
@@ -486,12 +494,12 @@ export class Chat extends MultiUsers {
     await this.userPage.type(e.chatBox, e.autoConvertEmojiMessage);
     await this.userPage.waitAndClick(e.sendButton);
     // check sent messages
-    const lastMessageLocator = await this.modPage.page.locator(e.chatUserMessageText).last();
+    const lastMessageLocator = this.modPage.page.locator(e.chatUserMessageText).last();
     await expect(
       lastMessageLocator,
       'should the last message sent on private chat to be the auto converted emoji',
     ).toHaveText(e.convertedEmojiMessage);
-    const lastMessageLocatorUser = await this.userPage.page.locator(e.chatUserMessageText).last();
+    const lastMessageLocatorUser = this.userPage.page.locator(e.chatUserMessageText).last();
     await expect(
       lastMessageLocatorUser,
       'should the last message sent on private chat to be the auto converted emoji',

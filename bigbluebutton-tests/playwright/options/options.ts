@@ -197,7 +197,7 @@ export class Options extends MultiUsers {
     await this.modPage.hasElement(e.wbToolbar, 'should display the whiteboard toolbar when meeting starts');
     await this.modPage.closeAllToastNotifications();
 
-    const whiteboardLocator = await this.modPage.page.locator(e.whiteboard);
+    const whiteboardLocator = this.modPage.page.locator(e.whiteboard);
     await expect(whiteboardLocator).toHaveScreenshot('whiteboard-with-toolbar-visible.png');
 
     await openSettings(this.modPage);

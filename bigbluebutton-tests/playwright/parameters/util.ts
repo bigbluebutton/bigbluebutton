@@ -34,34 +34,6 @@ export function hexToRgb(hex: string) {
   return `rgb(${r}, ${g}, ${b})`;
 }
 
-export async function zoomIn(testPage: Page) {
-  try {
-    await testPage.page.evaluate((selector) => {
-      setInterval(() => {
-        document.querySelector(selector)?.scrollBy(0, 10);
-      }, 100);
-    }, e.zoomInBtn);
-    return true;
-  } catch (err) {
-    console.log(err);
-    return false;
-  }
-}
-
-export async function zoomOut(testPage: Page) {
-  try {
-    await testPage.page.evaluate((selector) => {
-      setInterval(() => {
-        document.querySelector(selector)?.scrollBy(10, 0);
-      }, 100);
-    }, e.zoomInBtn);
-    return true;
-  } catch (err) {
-    console.log(err);
-    return false;
-  }
-}
-
 export async function poll(testPage: Page, testPage2: Page) {
   await testPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
   await testPage.waitAndClick(e.actions);

@@ -12,7 +12,7 @@ export class Reconnection extends MultiUsers {
     const chatBoxLocator = this.modPage.page.locator(e.chatBox);
     await expect(chatBoxLocator, 'should the chat box be enabled as soon as the user join').toBeEnabled();
 
-    killConnection();
+    await killConnection();
     await this.modPage.hasElement(
       e.notificationBannerBar,
       'should the notification bar be displayed after connection lost',
@@ -48,7 +48,7 @@ export class Reconnection extends MultiUsers {
     const muteMicButtonLocator = this.modPage.page.locator(e.muteMicButton);
     await expect(muteMicButtonLocator, 'mute button should be enabled as soon as the user join').toBeEnabled();
 
-    killConnection();
+    await killConnection();
     await this.modPage.hasElement(
       e.notificationBannerBar,
       'should the notification bar be displayed after connection lost',

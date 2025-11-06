@@ -239,7 +239,7 @@ export class MultiUsers {
       this.modPage2.username,
       'should display the username of Mod2 on the pinned webcam for Mod2',
     );
-    await this.modPage2.hasText(
+    await this.userPage.hasText(
       `:nth-match(${e.dropdownWebcamButton}, 1)`,
       this.modPage2.username,
       'should display the username of Mod2 on the pinned webcam for the Attendee',
@@ -596,7 +596,7 @@ export class MultiUsers {
   async leaveMeeting() {
     await this.modPage.waitForSelector(e.whiteboard);
 
-    const modPageUserList = await this.modPage.page.locator(e.userListItem);
+    const modPageUserList = this.modPage.page.locator(e.userListItem);
 
     await expect(modPageUserList).toHaveCount(2);
     await this.modPage.hasElementCount(
@@ -611,7 +611,7 @@ export class MultiUsers {
     await this.modPage.hasElement(e.meetingEndedModal, 'should display the meeting ended modal for the moderator');
     await this.modPage.hasElement(e.redirectButton, 'should display the redirect button in the meeting ended modal');
 
-    const user1PageUserList = await this.userPage.page.locator(e.userListItem);
+    const user1PageUserList = this.userPage.page.locator(e.userListItem);
 
     await expect(user1PageUserList).toHaveCount(1);
     await this.userPage.hasElementCount(
@@ -626,7 +626,7 @@ export class MultiUsers {
     await this.userPage.hasElement(e.meetingEndedModal, 'should display the meeting ended modal for the attendee');
     await this.userPage.hasElement(e.redirectButton, 'should display the redirect button in the meeting ended modal');
 
-    const user2PageUserList = await this.userPage2.page.locator(e.userListItem);
+    const user2PageUserList = this.userPage2.page.locator(e.userListItem);
 
     await expect(user2PageUserList).toHaveCount(0);
     await this.userPage2.hasElementCount(

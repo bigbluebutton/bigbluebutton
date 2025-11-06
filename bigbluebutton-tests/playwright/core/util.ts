@@ -2,8 +2,8 @@ import { expect } from '@playwright/test';
 import { exec } from 'child_process';
 
 interface RunScriptOptions {
-  handleError?: (stderr: string) => void;
-  handleOutput?: (stdout: string) => void;
+  handleError?: (stderr: string) => unknown;
+  handleOutput?: (stdout: string) => unknown;
   timeout?: number;
 }
 
@@ -43,17 +43,22 @@ export function constructClipObj(wbBox: WbBox): ClipObj {
   };
 }
 
-export async function runScript(script: string, options: RunScriptOptions): Promise<void> {
+/**
+ * Run a shell script and handle its output or error.
+ * @param script  The shell script to run.
+ * @param options Options for handling output and errors.
+ * @returns True if the script ran successfully, false otherwise.
+ */
+export async function runScript(script: string, options: RunScriptOptions = {}): Promise<boolean> {
   const { handleError, handleOutput, timeout } = options;
-  return new Promise((res) => {
-    exec(script, { timeout }, (_, stdout, stderr) => {
-      if (handleError) {
-        res(handleError(stderr));
-      } else if (handleOutput) {
-        res(handleOutput(stdout));
-      } else {
-        res();
+  return new Promise((resolve) => {
+    exec(script, { timeout }, (error, stdout, stderr) => {
+      if (error || stderr) {
+        if (handleError) return resolve(Boolean(handleError(stderr)));
+        return resolve(false);
       }
+      if (handleOutput) return resolve(Boolean(handleOutput(stdout)));
+      return resolve(true);
     });
   });
 }

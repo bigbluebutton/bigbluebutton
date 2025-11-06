@@ -141,8 +141,8 @@ export class Audio extends MultiUsers {
     await this.modPage.waitAndClick(e.isTalking);
     await this.userPage.hasElement(e.unmuteMicButton, 'attendee should be muted');
 
-    const moderatorWasTalkingLocator = await this.modPage.page.locator(e.wasTalking).first();
-    const userWasTalkingLocator = await this.userPage.page.locator(e.wasTalking).last();
+    const moderatorWasTalkingLocator = this.modPage.page.locator(e.wasTalking).first();
+    const userWasTalkingLocator = this.userPage.page.locator(e.wasTalking).last();
 
     await expect(moderatorWasTalkingLocator).toBeVisible();
     await expect(

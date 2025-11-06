@@ -32,12 +32,13 @@ export async function isAudioItemSelected(testPage: Page, audioSelector: string)
   await testPage.waitForSelector(audioSelector);
   const isSelected = await testPage.page.evaluate(
     ([selector, icon]) => {
-      const element = document.querySelector(selector);
-      return !!(element?.firstChild as Element)?.querySelector(icon);
+      const element = document.querySelector(selector) as Element | null;
+      const child = element?.firstElementChild as Element | null;
+      return !!child?.querySelector(icon);
     },
     [audioSelector, e.checkedIcon],
   );
-  await expect(isSelected).toBeTruthy();
+  expect(isSelected).toBeTruthy();
 }
 
 export async function ensureUnmuted(testPage: Page) {

@@ -20,10 +20,11 @@ export class APIBreakout extends Join {
   async testBreakoutWithoutSequenceNumber() {
     if (!this?.modPage) throw new Error('modPage not initialized');
 
-    const response = await createMeetingPromise(`isBreakout=true&parentMeetingID=${this.modPage.meetingId}`).catch(
-      (error) => error,
-    );
-    expect(response.response.status).toEqual(500);
+    await expect(
+      createMeetingPromise(`isBreakout=true&parentMeetingID=${this.modPage.meetingId}`),
+    ).rejects.toMatchObject({
+      response: { status: 500 },
+    });
   }
 
   // Attempt to use API to create a break room with a non-existent parent meeting
@@ -46,7 +47,7 @@ export class APIBreakout extends Join {
     const { data } = await getMeetingInfo(this.modPage.meetingId);
     expect(data.response.returncode).toEqual(['SUCCESS']);
     expect(data.response.isBreakout).toEqual(['false']);
-    expect(data.response?.breakoutRooms?.[0].breakout.length).toEqual(2);
+    expect(data.response?.breakoutRooms?.[0]?.breakout?.length).toEqual(2);
 
     const breakoutRoomResponses = await Promise.all(
       (data.response.breakoutRooms?.[0]?.breakout || []).map(async (breakoutRoom: { length: string[] }) => {
@@ -85,7 +86,7 @@ export class APIBreakout extends Join {
     expect(data.response.isBreakout).toEqual('FALSE');
 
     // Then, check that the parent meeting lists two breakout rooms
-    const breakoutRooms = data.response?.breakoutRooms?.[0].breakout;
+    const breakoutRooms = data.response?.breakoutRooms?.[0]?.breakout;
     if (!breakoutRooms) throw new Error('no breakout rooms found');
     expect(breakoutRooms.length).toEqual(2);
 

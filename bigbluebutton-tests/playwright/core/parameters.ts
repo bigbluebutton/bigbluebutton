@@ -4,6 +4,16 @@ dotenv.config();
 
 const bbbUrl: string | undefined = process.env.BBB_URL;
 
+function parseHostname(url: string | undefined): string | undefined {
+  if (!url) return undefined;
+  try {
+    return new URL(url).hostname;
+  } catch {
+    console.warn(`Invalid BBB_URL: ${url}`);
+    return undefined;
+  }
+}
+
 export interface ParametersData {
   server: string | undefined;
   secret: string | undefined;
@@ -17,9 +27,9 @@ export interface ParametersData {
 export const parameters: ParametersData = {
   server: bbbUrl,
   secret: process.env.BBB_SECRET,
-  welcome: '%3Cbr%3EWelcome+to+%3Cb%3E%25%25CONFNAME%25%25%3C%2Fb%3E%21',
+  welcome: encodeURIComponent('<br>Welcome to <b>%%CONFNAME%%</b>!'),
   fullName: 'User1',
   moderatorPW: 'mp',
   attendeePW: 'ap',
-  hostname: bbbUrl ? new URL(bbbUrl).hostname : undefined,
+  hostname: parseHostname(bbbUrl),
 };

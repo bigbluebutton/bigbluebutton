@@ -2,7 +2,7 @@ import { initializePages } from '../core/helpers';
 import { test } from '../core/setup/fixtures';
 import { Polling } from './poll';
 
-test.describe.parallel('Polling', { tag: '@ci' }, async () => {
+test.describe.parallel('Polling', { tag: '@ci' }, () => {
   let polling: Polling;
 
   test.beforeEach(async ({ browser, context }, testInfo) => {

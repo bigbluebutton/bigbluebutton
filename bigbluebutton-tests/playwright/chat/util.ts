@@ -7,7 +7,7 @@ export async function openPublicChat(testPage: Page) {
   const { chatEnabled } = testPage.settings || {};
 
   if (!chatEnabled) {
-    testPage.wasRemoved(e.chatButton, 'public chat should not be displayed');
+    await testPage.wasRemoved(e.chatButton, 'public chat should not be displayed');
     return;
   }
 
@@ -21,7 +21,7 @@ export async function openPrivateChat(testPage: Page) {
 
   await testPage.waitAndClick(e.userListItem);
   if (!chatEnabled) {
-    testPage.wasRemoved(e.startPrivateChat, 'should not display the private chat');
+    await testPage.wasRemoved(e.startPrivateChat, 'should not display the private chat');
     return;
   }
   const lastUserStartPrivateChat = await testPage.page.locator(e.startPrivateChat).last();

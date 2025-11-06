@@ -45,7 +45,6 @@ export class Create extends MultiUsers {
 
   async changeNumberOfRooms() {
     if (!this?.modPage) throw new Error('modPage not initialized');
-    if (!this?.userPage) throw new Error('userPage not initialized');
 
     await this.modPage.waitAndClick(e.manageUsers);
     await this.modPage.waitAndClick(e.createBreakoutRooms);
@@ -59,7 +58,6 @@ export class Create extends MultiUsers {
 
   async changeDurationTime() {
     if (!this?.modPage) throw new Error('modPage not initialized');
-    if (!this?.userPage) throw new Error('userPage not initialized');
 
     await this.modPage.waitAndClick(e.manageUsers);
     await this.modPage.waitAndClick(e.createBreakoutRooms);
@@ -94,7 +92,6 @@ export class Create extends MultiUsers {
 
   async changeRoomsName() {
     if (!this?.modPage) throw new Error('modPage not initialized');
-    if (!this?.userPage) throw new Error('userPage not initialized');
 
     await this.modPage.waitAndClick(e.manageUsers);
     await this.modPage.waitAndClick(e.createBreakoutRooms);
@@ -108,7 +105,6 @@ export class Create extends MultiUsers {
 
   async removeAndResetAssignments() {
     if (!this?.modPage) throw new Error('modPage not initialized');
-    if (!this?.userPage) throw new Error('userPage not initialized');
 
     await this.modPage.waitAndClick(e.manageUsers);
     await this.modPage.waitAndClick(e.createBreakoutRooms);

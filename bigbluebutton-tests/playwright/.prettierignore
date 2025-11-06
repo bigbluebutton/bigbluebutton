@@ -5,6 +5,7 @@ node_modules/
 test-results/
 playwright-report/
 logs/
+dist/
 
 # Environment file
 .env

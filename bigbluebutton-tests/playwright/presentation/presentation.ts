@@ -106,7 +106,7 @@ export class Presentation extends MultiUsers {
         e.managePresentations,
         'should display the manage presentation options on the actions button',
       );
-      this.modPage.wasRemoved(
+      await this.modPage.wasRemoved(
         e.shareExternalVideoBtn,
         'should not display the option to share an external video, since is deactivated',
       );
@@ -336,7 +336,7 @@ export class Presentation extends MultiUsers {
         e.presentationOptionsDownloadBtn,
         'should display the option download button for the presentation',
       );
-      this.modPage.wasRemoved(
+      await this.modPage.wasRemoved(
         e.enableOriginalPresentationDownloadBtn,
         'should the original presentation download presentation be removed',
       );
@@ -389,7 +389,7 @@ export class Presentation extends MultiUsers {
         e.presentationOptionsDownloadBtn,
         'should display the option download button for the presentation',
       );
-      this.modPage.wasRemoved(
+      await this.modPage.wasRemoved(
         e.sendPresentationInCurrentStateBtn,
         'should the send presentation in current state button be removed',
       );
@@ -556,7 +556,7 @@ export class Presentation extends MultiUsers {
   async zoom() {
     await this.modPage.waitForSelector(e.resetZoomButton, ELEMENT_WAIT_LONGER_TIME);
 
-    const wbBox = await this.modPage.page.locator(e.whiteboard);
+    const wbBox = this.modPage.page.locator(e.whiteboard);
 
     const zoomOutButtonLocator = this.modPage.page.locator(e.zoomOutButton);
     await expect(zoomOutButtonLocator, 'should hte zoom out button be disabled').toBeDisabled();
@@ -591,7 +591,7 @@ export class Presentation extends MultiUsers {
   async selectSlide() {
     await this.modPage.waitForSelector(e.skipSlide);
 
-    const wbBox = await this.modPage.page.locator(e.whiteboard);
+    const wbBox = this.modPage.page.locator(e.whiteboard);
 
     await this.modPage.selectSlide('Slide 10');
     await expect(wbBox).toHaveScreenshot('moderator1-select-slide10.png');

@@ -46,7 +46,7 @@ export class LockViewers extends MultiUsers {
       await this.modPage.getSelectorCount(e.webcamVideoItem),
       await this.userPage.getSelectorCount(e.webcamVideoItem),
     ];
-    await expect(
+    expect(
       videoContainersCount,
       'should the video containers count be strictly equal to 2 for the moderator and the attendee',
     ).toStrictEqual([2, 2]);
@@ -168,7 +168,7 @@ export class LockViewers extends MultiUsers {
       3,
       'should display three chat messages on the public chat for the second attendee',
     );
-    const lastMessageSentUser2Locator = await this.userPage2.page.locator(e.chatMessageItem).last();
+    const lastMessageSentUser2Locator = this.userPage2.page.locator(e.chatMessageItem).last();
     await lastMessageSentUser2Locator.locator(e.chatUserMessageText).hover();
     await expect(
       lastMessageSentUser2Locator.locator(e.messageToolbar),
@@ -209,7 +209,7 @@ export class LockViewers extends MultiUsers {
       e.chatUserMessageText,
       'should display the chat message text on the private chat for the first attendee',
     );
-    const privateChatMessaSentUser = await this.userPage.page.locator(e.chatMessageItem).last();
+    const privateChatMessaSentUser = this.userPage.page.locator(e.chatMessageItem).last();
     await privateChatMessaSentUser.locator(e.chatUserMessageText).hover();
     await expect(
       privateChatMessaSentUser.locator(e.messageToolbar),
@@ -223,7 +223,7 @@ export class LockViewers extends MultiUsers {
       e.sendButton,
       'should have the send button on the private chat disabled for the second attendee',
     );
-    const privateChatMessaSentUser2 = await this.userPage2.page.locator(e.chatMessageItem).last();
+    const privateChatMessaSentUser2 = this.userPage2.page.locator(e.chatMessageItem).last();
     await privateChatMessaSentUser2.locator(e.chatUserMessageText).hover();
     await expect(
       privateChatMessaSentUser2.locator(e.messageToolbar),

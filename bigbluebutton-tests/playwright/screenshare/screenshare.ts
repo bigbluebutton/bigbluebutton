@@ -9,7 +9,7 @@ export class ScreenShare extends MultiUsers {
 
     if (!screensharingEnabled) {
       await this.modPage.hasElement(e.joinVideo, 'should display the join video button');
-      this.modPage.wasRemoved(e.startScreenSharing, 'should not display the start screenshare button');
+      await this.modPage.wasRemoved(e.startScreenSharing, 'should not display the start screenshare button');
       return;
     }
     await startScreenshare(this.modPage);
@@ -21,7 +21,7 @@ export class ScreenShare extends MultiUsers {
 
     if (!screensharingEnabled) {
       await this.modPage.hasElement(e.joinVideo, 'should display the join video button');
-      this.modPage.wasRemoved(e.startScreenSharing, 'should not display the start screenshare button');
+      await this.modPage.wasRemoved(e.startScreenSharing, 'should not display the start screenshare button');
       return;
     }
     await startScreenshare(testPage);
@@ -39,7 +39,7 @@ export class ScreenShare extends MultiUsers {
 
     if (!screensharingEnabled) {
       await this.modPage.hasElement(e.joinVideo, 'should display the join video button');
-      this.modPage.wasRemoved(e.startScreenSharing, 'should not display the screenshare button');
+      await this.modPage.wasRemoved(e.startScreenSharing, 'should not display the screenshare button');
       return;
     }
 

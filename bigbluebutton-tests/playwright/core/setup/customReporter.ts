@@ -6,8 +6,15 @@ export default class CustomReporter implements Reporter {
     const { retries } = test;
     const { status, error, retry } = result;
     const titlePath = test.titlePath();
-    titlePath.shift();
-    const logTitle = `[${titlePath.shift()}] › ${titlePath.join(' › ')}`.replace('@ci', '').trim();
+    let logTitle: string;
+    if (titlePath.length >= 2) {
+      titlePath.shift();
+      logTitle = `[${titlePath.shift()}] › ${titlePath.join(' › ')}`;
+    } else {
+      logTitle = `[${titlePath.join(' › ')}]`;
+    }
+
+    logTitle = logTitle.replace('@ci', '').trim();
 
     if (status === 'failed') {
       const baseMessage = `${logTitle}\n${error?.stack || error?.message || 'Unknown error'}`;

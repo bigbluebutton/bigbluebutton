@@ -8,7 +8,7 @@ import { Page } from '../core/page';
 export async function openPoll(testPage: Page) {
   const { pollEnabled } = testPage.settings || {};
 
-  test.fail(!pollEnabled, 'Polling is disabled');
+  test.skip(!pollEnabled, 'Polling is disabled');
 
   await testPage.waitAndClick(e.actions);
   await testPage.waitAndClick(e.polling);

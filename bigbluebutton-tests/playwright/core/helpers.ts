@@ -76,9 +76,13 @@ export function getRandomInt(min: number, max: number): number {
 }
 
 export function getApiCallUrl(name: string, callParams: Record<string, string> | null): string {
+  const { secret } = parameters;
+  if (!secret) {
+    throw new Error('BBB_SECRET environment variable is required');
+  }
   const query = callParams ? new URLSearchParams(callParams).toString() : '';
-  const apiCall = `${name}${query}${parameters.secret}`;
-  const checksum = getChecksum(apiCall, parameters.secret!);
+  const apiCall = `${name}${query}${secret}`;
+  const checksum = getChecksum(apiCall, secret);
   const url = `${parameters.server}/api/${name}?${query}&checksum=${checksum}`;
   return url;
 }
@@ -178,7 +182,7 @@ async function sanitizeLog(
       for (const style of styles) {
         const stdStyle = style.trim().toLowerCase();
         if (stdStyle.startsWith('color:') && colorize) {
-          const color = stdStyle.substr(6).trim();
+          const color = stdStyle.substring(6).trim();
           args[j] = chalk.keyword(color)('');
         } else if (stdStyle.startsWith('font-size:') && drop_references) {
           // For Chrome, we "drop references" by discarding everything after a font size change

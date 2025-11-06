@@ -97,7 +97,7 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
     const createParam = new CreateParameters(browser, context);
     await createParam.initModPage(page, { createParameter: c.lockSettingsHideUserList, testInfo });
     await createParam.initUserPage(context, { testInfo });
-    await createParam.initUserPage2(context);
+    await createParam.initUserPage2(context, { testInfo });
     await createParam.lockSettingsHideUserList();
   });
 

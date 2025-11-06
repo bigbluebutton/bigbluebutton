@@ -44,14 +44,16 @@ export class LearningDashboard extends MultiUsers {
   async userTimeOnMeeting() {
     await this.modPage.waitAndClick(e.recordingIndicator);
     await this.modPage.waitAndClick(e.confirmRecording);
-    await this.modPage.hasText(e.recordingIndicator, '00:0000:00', 'should start recording at the initial time');
+    await this.modPage.hasText(e.recordingIndicator, '00:00', 'should start recording at the initial time');
 
     const timeLocator = this.dashboardPage.page.locator(e.userOnlineTime);
     const timeContent = await timeLocator.textContent();
+    if (!timeContent) throw new Error('Time content is null');
     const time = timeInSeconds(timeContent);
     await this.dashboardPage.page.waitForTimeout(1000);
     await this.dashboardPage.reloadPage();
     const timeContentGreater = await timeLocator.textContent();
+    if (!timeContentGreater) throw new Error('Time content is null');
     const timeGreater = timeInSeconds(timeContentGreater);
 
     await expect(timeGreater).toBeGreaterThan(time);
@@ -99,7 +101,7 @@ export class LearningDashboard extends MultiUsers {
 
     // Checks
     await this.dashboardPage.reloadPage();
-    const activityScore = await rowFilter(this.dashboardPage, 'tr', /Attendee/, e.userActivityScoreDashboard);
+    const activityScore = await rowFilter(this.dashboardPage, /Attendee/, e.userActivityScoreDashboard);
     await expect(activityScore).toHaveText(/2/, { timeout: ELEMENT_WAIT_EXTRA_LONG_TIME });
     await this.dashboardPage.waitAndClick(e.pollPanel);
     await this.dashboardPage.hasText(
@@ -163,16 +165,16 @@ export class LearningDashboard extends MultiUsers {
 
     await this.dashboardPage.reloadPage();
     // User Name check
-    const userNameCheck = await rowFilter(this.dashboardPage, 'tr', /Moderator/, e.userNameDashboard);
+    const userNameCheck = await rowFilter(this.dashboardPage, /Moderator/, e.userNameDashboard);
     await expect(userNameCheck).toHaveText(/Moderator/, { timeout: ELEMENT_WAIT_EXTRA_LONG_TIME });
     // Webcam Time check
-    const webcamCheck = await rowFilter(this.dashboardPage, 'tr', /Moderator/, e.userWebcamTimeDashboard);
+    const webcamCheck = await rowFilter(this.dashboardPage, /Moderator/, e.userWebcamTimeDashboard);
     await expect(webcamCheck).toHaveText(/00/, { timeout: ELEMENT_WAIT_EXTRA_LONG_TIME });
     // Raise Hand check
-    const raiseHandCheck = await rowFilter(this.dashboardPage, 'tr', /Moderator/, e.userRaiseHandDashboard);
+    const raiseHandCheck = await rowFilter(this.dashboardPage, /Moderator/, e.userRaiseHandDashboard);
     await expect(raiseHandCheck).toHaveText(/1/, { timeout: ELEMENT_WAIT_EXTRA_LONG_TIME });
     // Current Status check
-    const userStatusCheck = await rowFilter(this.dashboardPage, 'tr', /Moderator/, e.userStatusDashboard);
+    const userStatusCheck = await rowFilter(this.dashboardPage, /Moderator/, e.userStatusDashboard);
     await expect(userStatusCheck).toHaveText(/Online/, { timeout: ELEMENT_WAIT_EXTRA_LONG_TIME });
   }
 

@@ -136,9 +136,7 @@ export class Stress {
       await userPage.waitForSelector(e.audioModal, c.ELEMENT_WAIT_LONGER_TIME);
     }
 
-    pages.forEach(async (currentPage) => {
-      await currentPage.page.close();
-    });
+    await Promise.all(pages.map((currentPage) => currentPage.page.close()));
   }
 
   async usersJoinExceedingParticipantsLimit() {
@@ -174,9 +172,7 @@ export class Stress {
         await lastPages[0].waitForSelector(e.errorScreenMessage);
       }
 
-      pages.forEach(async (currentPage) => {
-        await currentPage.page.close();
-      });
+      await Promise.all(pages.map((currentPage) => currentPage.page.close()));
     }
   }
 }
