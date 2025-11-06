@@ -6,7 +6,13 @@ import useTimeSync from '/imports/ui/core/local-states/useTimeSync';
 
 const useTimerSubscription = createUseSubscription<TimerData>(GET_TIMER, {}, true);
 
-export const useTimer = (isIndicator = false) => {
+export const useTimer = ({
+  isIndicator = false,
+  enableNotifications = true,
+}: {
+  isIndicator?: boolean;
+  enableNotifications?: boolean;
+} = {}) => {
   const response = useTimerSubscription();
   const [timeSync] = useTimeSync();
   const [timePassed, setTimePassed] = useState<number>(0);
@@ -25,6 +31,7 @@ export const useTimer = (isIndicator = false) => {
   }, [isIndicator, response.loading, response.data]);
 
   useEffect(() => {
+    if (!enableNotifications) return () => {};
     return TimerSingleton.subscribe((timePassed) => {
       setTimePassed(timePassed);
     });

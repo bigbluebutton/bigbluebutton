@@ -13,7 +13,7 @@ const TimerContainer = (props) => {
   }));
   const {
     data: timerData,
-  } = useTimer();
+  } = useTimer({ enableNotifications: false });
 
   if (!timerData) return null;
   const { stopwatch } = timerData;

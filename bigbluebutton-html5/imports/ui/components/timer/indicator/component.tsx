@@ -153,7 +153,7 @@ const TimerIndicatorContainer: React.FC = () => {
 
   const {
     data: timerData,
-  } = useTimer(true);
+  } = useTimer({ isIndicator: true });
 
   const sidebarNavigation = layoutSelectInput((i: Input) => i.sidebarNavigation);
   const sidebarContent = layoutSelectInput((i: Input) => i.sidebarContent);
