@@ -120,10 +120,6 @@ const PushLayoutEngine = (props) => {
       || meetingLayout;
 
     let { selectedLayout: actualLayout } = Settings.application;
-    if (isMobile()) {
-      actualLayout = actualLayout === 'custom' ? 'smart' : actualLayout;
-      Settings.application.selectedLayout = actualLayout;
-    }
     Session.setItem('isGridEnabled', !presentationIsOpen);
 
     Settings.save(setLocalSettings);
@@ -209,11 +205,6 @@ const PushLayoutEngine = (props) => {
 
     const replicateLayoutType = () => {
       let contextLayout = LAYOUT_TYPE[enforceLayoutResult] || meetingLayout;
-      if (isMobile()) {
-        if (contextLayout === LAYOUT_TYPE.CUSTOM_LAYOUT) {
-          contextLayout = LAYOUT_TYPE.SMART_LAYOUT;
-        }
-      }
 
       layoutContextDispatch({
         type: ACTIONS.SET_LAYOUT_TYPE,

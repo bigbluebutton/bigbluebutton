@@ -1427,25 +1427,14 @@ const updatePresentationAreaContent = (
           && (sidebarContent.sidebarContentPanel === PANELS.SHARED_NOTES
             || !isPresentationEnabled)
         ) {
-          if (layoutType === LAYOUT_TYPE.VIDEO_FOCUS) {
-            layoutContextDispatch({
-              type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-              value: PANELS.CHAT,
-            });
-            layoutContextDispatch({
-              type: ACTIONS.SET_ID_CHAT_OPEN,
-              value: PUBLIC_CHAT_ID,
-            });
-          } else {
-            layoutContextDispatch({
-              type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-              value: false,
-            });
-            layoutContextDispatch({
-              type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-              value: PANELS.NONE,
-            });
-          }
+          layoutContextDispatch({
+            type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+            value: false,
+          });
+          layoutContextDispatch({
+            type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+            value: PANELS.NONE,
+          });
         }
 
         layoutContextDispatch({

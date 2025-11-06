@@ -11,9 +11,8 @@ import DownloadPresentationButton from './download-presentation-button/component
 import Styled from './styles';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
 import PollingContainer from '/imports/ui/components/polling/container';
-import { ACTIONS, LAYOUT_TYPE } from '../layout/enums';
+import { ACTIONS } from '../layout/enums';
 import DEFAULT_VALUES from '../layout/defaultValues';
-import { colorContentBackground } from '/imports/ui/stylesheets/styled-components/palette';
 import browserInfo from '/imports/utils/browserInfo';
 import { addAlert } from '../screenreader-alert/service';
 import { debounce } from '/imports/utils/debounce';
@@ -561,8 +560,6 @@ class Presentation extends PureComponent {
     const {
       currentSlide,
       isMobile,
-      layoutType,
-      numCameras,
       fullscreenElementId,
       fullscreenContext,
       layoutContextDispatch,
@@ -586,7 +583,6 @@ class Presentation extends PureComponent {
 
     const toolbarWidth = (this.refWhiteboardArea && svgWidth > presentationToolbarMinWidth)
       || isMobile
-      || (layoutType === LAYOUT_TYPE.VIDEO_FOCUS && numCameras > 0)
       ? svgWidth
       : presentationToolbarMinWidth;
     return (
@@ -733,12 +729,7 @@ class Presentation extends PureComponent {
 
     const { presentationToolbarMinWidth } = DEFAULT_VALUES;
 
-    const isLargePresentation = (svgWidth > presentationToolbarMinWidth || isMobile)
-      && !(
-        layoutType === LAYOUT_TYPE.VIDEO_FOCUS
-        && numCameras > 0
-        && !fullscreenContext
-      );
+    const isLargePresentation = (svgWidth > presentationToolbarMinWidth || isMobile);
 
     const containerWidth = isLargePresentation
       ? svgWidth
@@ -750,7 +741,6 @@ class Presentation extends PureComponent {
     ${intl.formatMessage(intlMessages.slideContentEnd)}`
       : intl.formatMessage(intlMessages.noSlideContent);
 
-    const isVideoFocus = layoutType === LAYOUT_TYPE.VIDEO_FOCUS;
     const presentationZIndex = fullscreenContext ? presentationBounds.zIndex : undefined;
 
     const APP_CRASH_METADATA = {
@@ -778,11 +768,8 @@ class Presentation extends PureComponent {
             height: presentationBounds.height,
             display: !presentationIsOpen ? 'none' : 'flex',
             overflow: 'hidden',
-            zIndex: !isVideoFocus ? presentationZIndex : 1,
-            background:
-              layoutType === isVideoFocus && !fullscreenContext
-                ? colorContentBackground
-                : null,
+            zIndex: presentationZIndex,
+            background: null,
           }}
         >
           <h2 className="sr-only">{intl.formatMessage(intlMessages.presentationHeader)}</h2>

@@ -4,9 +4,6 @@ import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
 import { LAYOUT_TYPE, DEVICE_TYPE } from '/imports/ui/components/layout/enums';
 
 import CustomLayout from '/imports/ui/components/layout/layout-manager/customLayout';
-import SmartLayout from '/imports/ui/components/layout/layout-manager/smartLayout';
-import PresentationFocusLayout from '/imports/ui/components/layout/layout-manager/presentationFocusLayout';
-import VideoFocusLayout from '/imports/ui/components/layout/layout-manager/videoFocusLayout';
 import CamerasOnlyLayout from '/imports/ui/components/layout/layout-manager/camerasOnly';
 import PresentationOnlyLayout from '/imports/ui/components/layout/layout-manager/presentationOnlyLayout';
 import ParticipantsAndChatOnlyLayout from '/imports/ui/components/layout/layout-manager/participantsAndChatOnlyLayout';
@@ -356,15 +353,6 @@ const LayoutEngine = () => {
     case LAYOUT_TYPE.CUSTOM_LAYOUT:
       layout?.setAttribute('data-layout', LAYOUT_TYPE.CUSTOM_LAYOUT);
       return <CustomLayout {...common} isPresentationEnabled={isPresentationEnabled} />;
-    case LAYOUT_TYPE.SMART_LAYOUT:
-      layout?.setAttribute('data-layout', LAYOUT_TYPE.SMART_LAYOUT);
-      return <SmartLayout {...common} isPresentationEnabled={isPresentationEnabled} />;
-    case LAYOUT_TYPE.PRESENTATION_FOCUS:
-      layout?.setAttribute('data-layout', LAYOUT_TYPE.PRESENTATION_FOCUS);
-      return <PresentationFocusLayout {...common} isPresentationEnabled={isPresentationEnabled} />;
-    case LAYOUT_TYPE.VIDEO_FOCUS:
-      layout?.setAttribute('data-layout', LAYOUT_TYPE.VIDEO_FOCUS);
-      return <VideoFocusLayout {...common} isPresentationEnabled={isPresentationEnabled} />;
     case LAYOUT_TYPE.CAMERAS_ONLY:
       layout?.setAttribute('data-layout', LAYOUT_TYPE.CAMERAS_ONLY);
       return <CamerasOnlyLayout {...common} />;
