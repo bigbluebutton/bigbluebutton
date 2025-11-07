@@ -168,7 +168,7 @@ const ConnectionStatus = ({
           errorCause: error.cause,
         },
       }, 'Error creating RTT worker');
-      return;
+      return () => {};
     }
     rttWorker.onmessage = (ev) => {
       const { type } = ev.data || {};
