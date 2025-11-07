@@ -134,7 +134,7 @@ object AssignPresenterActionHandler extends RightsManagementTrait {
         val msgMeta = Map(
           "assignedBy" -> assignedByName
         )
-        ChatMessageDAO.insertSystemMsg(liveMeeting.props.meetingProp.intId, GroupChatApp.MAIN_PUBLIC_CHAT, "", GroupChatMessageType.USER_IS_PRESENTER_MSG, msgMeta, newPres.name)
+        ChatMessageDAO.insertSystemMsg(liveMeeting.props.meetingProp.intId, GroupChatApp.MAIN_PUBLIC_CHAT, "", "", GroupChatMessageType.USER_IS_PRESENTER_MSG, msgMeta, newPres.name)
       }
     }
 

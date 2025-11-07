@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import {
+  colorDangerDark,
   colorGrayLightest,
   colorOffWhite,
   colorText,
@@ -27,13 +28,19 @@ export const ChatMessage = styled.div<ChatMessageProps>`
     white-space: pre-wrap;
   }
 
-  & code {
-    white-space: pre-wrap;
+  & pre:has(code), p code:not(pre > code) {
     background-color: ${colorOffWhite};
     border: solid 1px ${colorGrayLightest};
     border-radius: 4px;
     padding: 2px;
+    margin: 0;
     font-size: 12px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-wrap: anywhere;
+  }
+  & p code:not(pre > code) {
+    color: ${colorDangerDark};
   }
   & h1 {
     font-size: 1.5em;

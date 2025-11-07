@@ -199,6 +199,15 @@ object VoiceApp extends SystemConfiguration {
           liveMeeting.props.voiceProp.voiceConf,
           outGW
         )
+
+        val eventUserVoiceStatus = MsgBuilder.buildUserVoiceStateEvtMsg(
+          liveMeeting.props.meetingProp.intId,
+          liveMeeting.props.voiceProp.voiceConf,
+          mutedUser.intId,
+          Some(mutedUser),
+          leftVoiceConf = false
+        )
+        outGW.send(eventUserVoiceStatus)
       }
     }
   }
@@ -253,12 +262,13 @@ object VoiceApp extends SystemConfiguration {
                 cvu.callerIdName,
                 cvu.callerIdNum,
                 ColorPicker.nextColor(liveMeeting.props.meetingProp.intId),
+                speechLocale = "",
                 cvu.muted,
-                false,
-                false,
-                cvu.talking,
+                listenOnlyInputDevice = false,
+                deafened = false,
+                talking = cvu.talking,
                 cvu.calledInto,
-                cvu.hold,
+                hold = cvu.hold,
                 cvu.uuid,
               )
             }
@@ -307,6 +317,7 @@ object VoiceApp extends SystemConfiguration {
       callerIdName: String,
       callerIdNum:  String,
       color:        String,
+      speechLocale: String,
       muted:        Boolean,
       listenOnlyInputDevice: Boolean,
       deafened:     Boolean,
@@ -375,6 +386,7 @@ object VoiceApp extends SystemConfiguration {
       callerIdName,
       callerIdNum,
       color,
+      speechLocale,
       muted,
       listenOnlyInputDevice,
       deafened,
@@ -395,6 +407,15 @@ object VoiceApp extends SystemConfiguration {
     VoiceUsers.add(liveMeeting.voiceUsers, voiceUserState)
     UserVoiceDAO.update(voiceUserState)
     UserDAO.updateVoiceUserJoined(voiceUserState)
+
+    val eventUserVoiceStatus = MsgBuilder.buildUserVoiceStateEvtMsg(
+      voiceUserState.meetingId,
+      liveMeeting.props.voiceProp.voiceConf,
+      voiceUserState.intId,
+      Some(voiceUserState),
+      leftVoiceConf = false
+    )
+    outGW.send(eventUserVoiceStatus)
 
     val newTransparentLOStatus = VoiceHdlrHelpers.transparentListenOnlyAllowed(
       liveMeeting
@@ -484,6 +505,16 @@ object VoiceApp extends SystemConfiguration {
     } yield {
       VoiceUsers.removeWithIntId(liveMeeting.voiceUsers, user.meetingId, user.intId)
       broadcastEvent(user)
+
+      val eventUserVoiceStatus = MsgBuilder.buildUserVoiceStateEvtMsg(
+        liveMeeting.props.meetingProp.intId,
+        liveMeeting.props.voiceProp.voiceConf,
+        user.intId,
+        None,
+        leftVoiceConf = true
+      )
+      outGW.send(eventUserVoiceStatus)
+
 
       if (!user.listenOnly) {
         enforceMuteOnStartThreshold(liveMeeting, outGW)
@@ -741,6 +772,16 @@ object VoiceApp extends SystemConfiguration {
             outGW
           )
         }
+
+        val eventUserVoiceStatus = MsgBuilder.buildUserVoiceStateEvtMsg(
+          liveMeeting.props.meetingProp.intId,
+          liveMeeting.props.voiceProp.voiceConf,
+          vu.intId,
+          Some(vu),
+          leftVoiceConf = false
+        )
+        outGW.send(eventUserVoiceStatus)
+
       case _ =>
     }
   }
@@ -905,6 +946,17 @@ object VoiceApp extends SystemConfiguration {
         talking
       )
       outGW.send(event)
+
+      val eventUserVoiceStatus = MsgBuilder.buildUserVoiceStateEvtMsg(
+        liveMeeting.props.meetingProp.intId,
+        liveMeeting.props.voiceProp.voiceConf,
+        talkingUser.intId,
+        Some(talkingUser),
+        leftVoiceConf = false
+      )
+      outGW.send(eventUserVoiceStatus)
+
+
     }
   }
 

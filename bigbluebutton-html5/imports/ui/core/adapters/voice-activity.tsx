@@ -27,7 +27,7 @@ const VoiceActivityAdapter = () => {
     + whoIsTalkingConsumersCount
     + talkingUserConsumersCount > 0
   );
-  const { data: voiceActivity, loading } = useVoiceActivity(skip);
+  const { data: voiceActivity, loading: voiceActivityLoading } = useVoiceActivity(skip);
   const connected = useReactiveVar(ConnectionStatus.getConnectedStatusVar());
 
   useEffect(() => {
@@ -37,10 +37,10 @@ const VoiceActivityAdapter = () => {
   }, [voiceActivity]);
 
   useEffect(() => {
-    setWhoIsUnmutedLoading(loading);
-    setWhoIsTalkingLoading(loading);
-    setTalkingUserLoading(loading);
-  }, [loading]);
+    setWhoIsUnmutedLoading(voiceActivityLoading);
+    setWhoIsTalkingLoading(voiceActivityLoading);
+    setTalkingUserLoading(voiceActivityLoading);
+  }, [voiceActivityLoading]);
 
   useEffect(() => {
     if (!connected) {

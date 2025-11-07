@@ -30,6 +30,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
 
     private SlidesGenerationProgressNotifier notifier;
     private long imageTagThreshold;
+    private long useTagThreshold;
     private long pathsThreshold;
     private int convPdfToSvgTimeout = 60;
     private int pdfFontsTimeout = 3;
@@ -213,10 +214,10 @@ public class SvgImageCreatorImp implements SvgImageCreator {
             }
         }
 
-
         if (destsvg.length() == 0 ||
                 pHandler.numberOfImageTags() > imageTagThreshold ||
                 pHandler.numberOfPaths() > pathsThreshold ||
+                pHandler.numberOfUseTags() > useTagThreshold ||
                 rasterizeCurrSlide) {
 
             // We need t delete the destination file as we are starting a
@@ -394,8 +395,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
 
         rawCommand  += " -q -f " + String.valueOf(page) + " -l " + String.valueOf(page) + " " + source + " " + destFile;
         if (analyze) {
-            rawCommand += " && cat " + destFile;
-            rawCommand += " | egrep 'data:image/png;base64|<path' | sed 's/  / /g' | cut -d' ' -f 1 | sort | uniq -cw 2";
+            rawCommand += " && grep -oE '<image|<path|<use' "+destFile+" | sort | uniq -c ";
         }
 
         return new NuProcessBuilder(Arrays.asList("/usr/share/bbb-web/run-in-systemd.sh", timeout + "s", "/bin/sh", "-c", rawCommand));
@@ -468,6 +468,10 @@ public class SvgImageCreatorImp implements SvgImageCreator {
 
     public void setImageTagThreshold(long threshold) {
         imageTagThreshold = threshold;
+    }
+
+    public void setUseTagThreshold(long threshold) {
+        useTagThreshold = threshold;
     }
 
     public void setPathsThreshold(long threshold) {

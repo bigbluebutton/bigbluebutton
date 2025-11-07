@@ -16,11 +16,13 @@ import {
 } from '../layout/context';
 import useSetSpeechOptions from '../audio/audio-graphql/hooks/useSetSpeechOptions';
 import { handleIsNotificationEnabled } from '/imports/ui/components/plugins-engine/ui-commands/notification/handler';
+import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 import App from './component';
 import useSettings from '../../services/settings/hooks/useSettings';
 import { SETTINGS } from '../../services/settings/enums';
 import usePresentationSwap from '../../core/hooks/usePresentationSwap';
 import { LAYOUT_TYPE } from '../layout/enums';
+import { RAISED_HAND_USERS } from '/imports/ui/core/graphql/queries/users';
 
 const AppContainer = (props) => {
   const {
@@ -48,6 +50,11 @@ const AppContainer = (props) => {
     name: m.name,
     meetingId: m.meetingId,
   }));
+
+  const { data: usersData } = useDeduplicatedSubscription(RAISED_HAND_USERS);
+  const isCurrentUserNextRaisedHand = usersData?.user && currentUser?.raiseHand
+    ? usersData.user[0]?.userId === currentUser?.userId
+    : false;
 
   const presentationRestoreOnUpdate = getFromUserSettings(
     'bbb_force_restore_presentation_on_new_events',
@@ -113,6 +120,7 @@ const AppContainer = (props) => {
           isNonMediaLayout,
           currentUserAway: currentUser.away,
           currentUserRaiseHand: currentUser?.raiseHand ?? false,
+          isCurrentUserNextRaisedHand,
           presentationIsOpen,
           shouldShowExternalVideo,
           shouldShowScreenshare,

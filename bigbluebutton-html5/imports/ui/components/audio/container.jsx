@@ -75,6 +75,10 @@ const intlMessages = defineMessages({
     id: 'app.audioNotificaion.reconnectingAsListenOnly',
     description: 'ice negotiation error message',
   },
+  deviceChangeFailed: {
+    id: 'app.audioNotification.deviceChangeFailed',
+    description: 'Device change failed',
+  },
 });
 
 let didMountAutoJoin = false;
@@ -99,6 +103,7 @@ const messages = {
     INVALID_TARGET: intlMessages.invalidTarget,
     MEDIA_ERROR: intlMessages.mediaError,
     WEBRTC_NOT_SUPPORTED: intlMessages.BrowserNotSupported,
+    DEVICE_CHANGE_FAILED: intlMessages.deviceChangeFailed,
     ...webRtcError,
   },
 };
