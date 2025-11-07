@@ -3,13 +3,13 @@ import { SET_LAYOUT_PROPS, SET_SYNC_WITH_PRESENTER_LAYOUT } from './mutations';
 import { Input, Output } from '../layoutTypes';
 import { calculatePresentationVideoRate } from './service';
 
-const usePushLayoutUpdater = (pushLayout: boolean) => {
+const usePushLayoutUpdater = () => {
   const [setSyncWithPresenterLayout] = useMutation(SET_SYNC_WITH_PRESENTER_LAYOUT);
 
   const setPushLayout = () => {
     setSyncWithPresenterLayout({
       variables: {
-        syncWithPresenterLayout: pushLayout,
+        syncWithPresenterLayout: true,
       },
     });
   };
@@ -21,20 +21,20 @@ const useMeetingLayoutUpdater = (
   cameraDockOutput: Output['cameraDock'],
   cameraDockInput: Input['cameraDock'],
   presentationInput: Input['presentation'],
-  applicationSettings: { pushLayout: boolean, selectedLayout: boolean },
+  applicationSettings: { selectedLayout: boolean },
 ) => {
   const [setMeetingLayoutProps] = useMutation(SET_LAYOUT_PROPS);
 
   const { focusedId, position } = cameraDockOutput;
   const { isResizing } = cameraDockInput;
   const { isOpen: presentationIsOpen } = presentationInput;
-  const { pushLayout, selectedLayout } = applicationSettings;
+  const { selectedLayout } = applicationSettings;
 
   const setMeetingLayout = () => {
     setMeetingLayoutProps({
       variables: {
         layout: selectedLayout,
-        syncWithPresenterLayout: pushLayout,
+        syncWithPresenterLayout: true,
         presentationIsOpen,
         isResizing,
         cameraPosition: position || 'contentTop',
