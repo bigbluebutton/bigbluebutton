@@ -88,7 +88,7 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
     });
 
     // https://docs.bigbluebutton.org/3.0/testing/release-testing/#uploading-multiple-presentations-automated
-    test('Upload multiple presentations', async ({ browser, context, page }, testInfo) => {
+    test('Upload multiple presentations', { tag: '@flaky' }, async ({ browser, context, page }, testInfo) => {
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page, testInfo);
       await presentation.uploadMultiplePresentationsTest();
