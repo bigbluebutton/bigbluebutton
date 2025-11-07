@@ -243,9 +243,8 @@ const PresentationContainer = (props) => {
 
   if (layoutType === 'videoFocus' && presentation?.width === 0) return null;
 
-  const multiUserWhiteboardEnabled = currentMeeting
-    .usersPolicies
-    ?.multiUserWhiteboardEnabled || false;
+  const multiUserWhiteboardEnabled = currentMeeting?.usersPolicies?.multiUserWhiteboardEnabled
+    ?? false;
 
   return (
     <Presentation

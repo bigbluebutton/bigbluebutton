@@ -4,7 +4,7 @@ import org.bigbluebutton.ClientSettings.getConfigPropertyValueByPathAsIntOrElse
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.db.{ MeetingUsersPoliciesDAO, NotificationDAO }
-import org.bigbluebutton.core.models.{ RegisteredUsers, Roles, UserState, Users2x }
+import org.bigbluebutton.core.models.{ Roles, UserState, Users2x }
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core2.message.senders.MsgBuilder
@@ -125,14 +125,11 @@ trait SetUserWhiteboardWriteAccessReqMsgHdlr extends RightsManagementTrait {
       }
 
       // Set Meeting with new multiUserWhiteboardEnabled
-      // In BreakoutRoom it's always enabled
-      if (msg.body.allUsers && !liveMeeting.props.meetingProp.isBreakout) {
+      if (msg.body.allUsers) {
         MeetingStatus2x.multiUserWhiteboardEnabled(liveMeeting.status) match {
-          case x if x != msg.body.whiteboardWriteAccess => {
+          case currWhiteboardWriteAccess if currWhiteboardWriteAccess != msg.body.whiteboardWriteAccess =>
             MeetingStatus2x.setMultiUserWhiteboardEnabled(liveMeeting.status, msg.body.whiteboardWriteAccess)
-            //            Some(value)
-          }
-          case _ => None
+          case _ => //Nothing
         }
         MeetingUsersPoliciesDAO.updateMultiUserWhiteboardEnabled(msg.header.meetingId, msg.body.whiteboardWriteAccess)
       }
