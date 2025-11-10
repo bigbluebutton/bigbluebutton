@@ -2,14 +2,25 @@ package org.bigbluebutton.api.util;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.bigbluebutton.api.ParamsProcessorUtil;
 import org.bigbluebutton.api.domain.PluginManifest;
 import org.bigbluebutton.api.exception.PluginMalformedParametersException;
 import org.bigbluebutton.api.exception.PluginMetadataException;
+import java.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.github.zafarkhaja.semver.Version;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -25,6 +36,8 @@ public class PluginUtils {
     private static final Pattern METADATA_PLACEHOLDER_PATTERN = Pattern.compile("\\$\\{([\\w-]+)(?::([^}]*))?\\}");
     private static String bbbVersion;
     private String html5PluginSdkVersion;
+    public static String CACHED_PLUGINS_BASE_DIRECTORY = "/var/bigbluebutton/plugin-manifests-cache/";
+    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     private String getMainVersion(String version) {
         Version parsedVersion = Version.parse(version);
@@ -162,6 +175,58 @@ public class PluginUtils {
         }
         matcher.appendTail(result);
         return result.toString();
+    }
+
+    public static String getPluginManifestContentFromCache(
+            String pluginManifestUrlString
+    ) throws IOException {
+        Path cachedPluginManifestPath = getCachedPluginManifestPath(pluginManifestUrlString);
+        String content;
+        if (Files.isRegularFile(cachedPluginManifestPath)) {
+            log.info("Found cache for plugin [{}]. Using it.", pluginManifestUrlString);
+            content = Files.readString(cachedPluginManifestPath);
+        } else {
+            log.info("Cache for plugin [{}] not found.", pluginManifestUrlString);
+            content = null;
+        }
+        return content;
+    }
+
+    public static void createEmptyCacheFileFrom(String pluginManifestUrlString) throws IOException {
+        Path cachedPluginManifestPath = getCachedPluginManifestPath(pluginManifestUrlString);
+        Files.createFile(cachedPluginManifestPath);
+    }
+
+    public static void savePluginManifestContentInCache(
+            String pluginManifestUrlString, String manifestContent
+    ) throws IOException {
+        log.info("Saving cache for plugin [{}].", pluginManifestUrlString);
+        Path cachedPluginManifestPath = getCachedPluginManifestPath(pluginManifestUrlString);
+        Path cacheDir = getCachedPluginsBaseDirectory();
+        Files.createDirectories(cacheDir);
+        Files.writeString(cachedPluginManifestPath, manifestContent);
+    }
+
+    public static String fetchPluginManifestContentFromUrl(
+            String pluginManifestUrlString
+    ) throws IOException, InterruptedException {
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder(URI.create(pluginManifestUrlString)).GET().build();
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        return response.body();
+    }
+
+    public static Path getCachedPluginsBaseDirectory() {
+        return Paths.get(CACHED_PLUGINS_BASE_DIRECTORY);
+    }
+
+    public static Path getCachedPluginManifestPath(String pluginManifestUrlString) {
+        LocalDate date = LocalDate.now();
+        String formatted = date.format(formatter);
+
+        String hashedPluginManifestUrl = DigestUtils.sha256Hex(pluginManifestUrlString + formatted);
+        Path cacheDir = Paths.get(CACHED_PLUGINS_BASE_DIRECTORY);
+        return cacheDir.resolve(hashedPluginManifestUrl + ".json");
     }
 
     public void setHtml5PluginSdkVersion(String html5PluginSdkVersion) {
