@@ -11,6 +11,7 @@ const formatUsersBasicInfoDataFromGraphql = (
       userId: userItem.userId,
       extId: userItem.extId,
       name: userItem.name,
+      nameSortable: userItem.nameSortable,
       role: userItem.role,
       avatar: userItem.avatar,
       color: userItem.color,
