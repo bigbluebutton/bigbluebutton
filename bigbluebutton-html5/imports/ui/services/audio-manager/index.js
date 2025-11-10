@@ -1377,7 +1377,7 @@ class AudioManager {
 
     if (outputDeviceId && typeof audioAlert.setSinkId === 'function') {
       return audioAlert
-        .setSinkId(outputDeviceId)
+        .setSinkId(outputDeviceId || 'default')
         .then(() => AudioManager.playAudioElement(audioAlert));
     }
 
