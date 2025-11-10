@@ -1252,6 +1252,7 @@
     "app.video.meetingCamCapReached": "Session reached it's simultaneous cameras limit",
     "app.video.dropZoneLabel": "Drop here",
     "app.video.cameraAriaLabel": "Cameras",
+    "app.video.overflowUsers": "+{overflowCount} users",
     "app.fullscreenButton.label": "Make {elementName} fullscreen",
     "app.fullscreenUndoButton.label": "Undo {elementName} fullscreen",
     "app.switchButton.expandLabel": "Expand screenshare video",
