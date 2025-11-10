@@ -440,9 +440,17 @@ export class CustomParameters extends MultiUsers {
       e.whiteboard,
       'should remove the whiteboard element for the attendee when minimized',
     );
-    await this.userPage.page.waitForTimeout(1000); // first minimize of presentation takes longer to be fully applied
+    await this.userPage.page.waitForTimeout(2000); // first minimize of presentation takes longer to be fully applied
     // zoom in
     await this.modPage.waitAndClick(e.zoomInButton);
+    await expect(
+      this.modPage.page.locator(e.resetZoomButton),
+      'should enable the reset zoom button after zooming in',
+    ).not.toBeDisabled();
+    await expect(
+      this.modPage.page.locator(e.zoomOutButton),
+      'should enable the zoom out button after zooming in',
+    ).not.toBeDisabled();
     await this.userPage.hasElement(e.whiteboard, 'should restore presentation when zooming in the slide');
     await this.userPage.hasElement(
       e.minimizePresentation,
