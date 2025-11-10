@@ -284,6 +284,154 @@ jobs:
       - name: Install BBB
         timeout-minutes: 60
         uses: ./.github/actions/install-bbb
+      - name: Enable video format on recordings
+        run: |
+          # https://docs.bigbluebutton.org/administration/customize/#install-additional-recording-processing-formats
+          sudo mkdir -p /etc/bigbluebutton/recording
+          sudo tee /etc/bigbluebutton/recording/recording.yml > /dev/null << 'REC'
+          steps:
+            archive: "sanity"
+            sanity: "captions"
+            captions:
+              - process:presentation
+              - process:video
+            process:presentation: publish:presentation
+            process:video: publish:video
+          REC
+      - name: Get bbb-presentation-video release info
+        id: get-release-info
+        run: |
+          # Get the latest release tag to use as cache key
+          RELEASE_TAG=$(curl -s https://api.github.com/repos/bigbluebutton/bbb-presentation-video/releases/latest | jq -r '.tag_name')
+          echo "release-tag=$RELEASE_TAG" >> $GITHUB_OUTPUT
+          echo "Latest bbb-presentation-video release: $RELEASE_TAG"
+      - name: Cache bbb-presentation-video package
+        id: cache-presentation-video
+        uses: actions/cache@v4
+        with:
+          path: |
+            bbb-presentation-video.deb
+            deps/
+          key: bbb-presentation-video-${{ steps.get-release-info.outputs.release-tag }}
+      - name: Download and extract bbb-presentation-video
+        if: steps.cache-presentation-video.outputs.cache-hit != 'true'
+        run: |
+          # Download the latest bbb-presentation-video release - required for bbb-playback-video
+          LATEST_RELEASE_URL=$(curl -s https://api.github.com/repos/bigbluebutton/bbb-presentation-video/releases/latest | jq -r '.assets[] | select(.name=="ubuntu-22.04.zip") | .browser_download_url')
+
+          # Download and extract the zip file
+          wget -O bbb-presentation-video.zip "$LATEST_RELEASE_URL"
+          unzip bbb-presentation-video.zip
+
+          # The zip contains deps/ folder with python3-perfect-freehand and the main .deb file
+          # Move the main .deb file to the expected location for caching
+          mv bbb-presentation-video_*.deb bbb-presentation-video.deb
+      - name: Install python3-perfect-freehand dependency
+        run: |
+          # Install python3-perfect-freehand dependency from the deps folder
+          if [ -d "deps" ] && [ -f "deps/python3-perfect-freehand_1.2.0_all.deb" ]; then
+            echo "Installing python3-perfect-freehand from deps folder"
+            sudo apt-get update
+            sudo apt install -y ./deps/python3-perfect-freehand_*.deb
+          else
+            echo "Warning: python3-perfect-freehand .deb not found in deps folder"
+            echo "Falling back to downloading from GitHub releases"
+            wget https://github.com/bigbluebutton/perfect-freehand-python/releases/download/1.2.0/python3-perfect-freehand_1.2.0_all.deb
+            sudo apt install -y ./python3-perfect-freehand_1.2.0_all.deb
+          fi
+      - name: Patch and install bbb-presentation-video package
+        run: |
+          # Patch the package to remove the python3-perfect-freehand dependency
+          # This is necessary because even though we install the dependency,
+          # apt still complains about it not being available in repositories
+          mkdir -p tmpdeb
+          dpkg-deb -R bbb-presentation-video.deb tmpdeb
+
+          # Remove the python3-perfect-freehand dependency line from control file
+          sed -i '/python3-perfect-freehand/d' tmpdeb/DEBIAN/control
+
+          # Rebuild the package
+          dpkg-deb -b tmpdeb fixed-bbb-presentation-video.deb
+
+          # Install the patched package
+          sudo apt install -y ./fixed-bbb-presentation-video.deb || (echo "❌ failed to install playback-video package" && exit 1)
+      - name: Install bbb-playback-video package
+        run: |
+          sudo apt install -y bbb-playback-video || (echo "❌ failed to install playback-video package" && exit 1)
+
+          # testing
+          echo "Checking if bbb-playback-video is installed in the same step"
+          if dpkg -s bbb-playback-video >/dev/null 2>&1; then
+            echo "✓ bbb-playback-video is installed"
+          else
+            echo "✗ bbb-playback-video is NOT installed"
+          fi
+      - name: Debug install
+        run: |
+          sudo apt install -y ./fixed-bbb-presentation-video.deb
+          echo "--- Installed packages ---"
+          dpkg -l | grep bbb || true
+          echo "--- DPKG status ---"
+          dpkg -s bbb-playback-video || echo "Not found"
+          echo "--- File check ---"
+          ls -la /usr/share/bbb-playback-video* || echo "no files"
+          echo "--- bbb-playback-video files ---"
+          dpkg -L bbb-playback-video
+      - name: Configure video format settings
+        run: |
+          # webm format should be enabled for automated tests - decoded by chromium
+          # and should be the first as it's used as source for playback video
+
+          FILE="/usr/local/bigbluebutton/core/scripts/video.yml"
+
+          # ensure file exists and keep everything up to and including formats:
+          sudo install -d -m 0755 "$(dirname "$FILE")"
+          if [ -f "$FILE" ] && grep -q '^formats:' "$FILE"; then
+            sudo sed -i '/^formats:/q' "$FILE"
+          else
+            echo 'formats:' | sudo tee "$FILE" > /dev/null
+          fi
+
+          # append supported formats block
+          sudo tee -a "$FILE" > /dev/null <<'EOF'
+            - mimetype: 'video/webm;codecs="vp09.00.41.08,opus"'
+              extension: webm
+              parameters:
+                # Default single-pass encode
+                - [ '-c:v', 'libvpx-vp9', '-level', '4.1', '-b:v', '1800K', '-minrate', '900K', '-maxrate', '2610K',
+                    '-crf', '31', '-quality', 'good', '-speed', '2', '-tile-columns', '2', '-threads', '2',
+                    '-force_key_frames', 'expr:gte(t,n_forced*10)',
+                    '-c:a', 'libopus', '-b:a', '64K',
+                    '-f', 'webm' ]
+            - mimetype: 'video/mp4'
+              extension: m4v
+              parameters:
+                - [ '-c:v', 'copy', # Use working format codec defined in core/lib/recordandplayback/edl/video.rb
+                    '-c:a', 'aac', '-b:a', '128K',
+                    '-f', 'mp4', '-movflags', 'faststart' ]
+              postprocess: []
+          EOF
+      - name: Restart the bbb-rap-resque-worker service to apply recording-related changes
+        run: |
+          # Log status before restart
+          systemctl status bbb-rap-resque-worker.service
+          # Ensure bbb-rap-resque-worker is running to process recordings
+          sudo systemctl restart bbb-rap-resque-worker.service
+          sudo systemctl status bbb-rap-resque-worker.service
+      - name: Check installed packages
+        run: |
+          if dpkg -s bbb-presentation-video >/dev/null 2>&1; then
+            echo "✓ bbb-presentation-video is installed"
+            echo
+          else
+            echo "✗ bbb-presentation-video is NOT installed"
+          fi
+
+          if dpkg -s bbb-playback-video >/dev/null 2>&1; then
+            echo "✓ bbb-playback-video is installed"
+          else
+            echo "✗ bbb-playback-video is NOT installed"
+          fi
       - uses: actions/setup-node@v4
         name: PLAYRIGHT CACHE - Restore Playright node modules from cache
         with:
@@ -295,6 +443,9 @@ jobs:
         with:
           path: /home/runner/.cache/ms-playwright/
           key: ${{ runner.os }}-playwright-bins-${{ hashFiles('bigbluebutton-tests/playwright/package-lock.json') }}
+      - name: Display running status of BBB components
+        if: always()
+        run: sudo bbb-conf --status
       - name: Install test dependencies
         working-directory: ./bigbluebutton-tests/playwright
         timeout-minutes: 25
@@ -369,6 +520,27 @@ jobs:
         with:
           name: bbb-logs-${{ env.MATRIX_SHARD_UNDERSCORED }}
           path: ./bbb-logs.tar.gz
+      - name: List recent recordings
+        if: always()
+        run: bbb-record --list-recent
+      - name: Scan the log files for error messages
+        if: always()
+        run: sudo bbb-conf --debug
+      - name: Cat recording/recording.yml
+        if: always()
+        run: cat /etc/bigbluebutton/recording/recording.yml
+      - name: Cat scripts/video.yml
+        if: always()
+        run: cat /usr/local/bigbluebutton/core/scripts/video.yml
+      - name: Check installed video packages
+        if: always()
+        run: which ffmpeg sox node python3 || true
+      - name: Rake gem - List installed version
+        if: success() && matrix.shard == 1
+        run: ls -la /usr/local/bigbluebutton/core/vendor/bundle/ruby/3.0.0/gems/rake-13.0.6
+      - name: BBB RAP RESQUE WORKER SERVICE - Check recent logs
+        if: success() && matrix.shard == 1
+        run: journalctl -u bbb-rap-resque-worker.service -n 100 --no-pager
       - name: APT CACHE - Check for changes using packages hash
         if: success() && matrix.shard == 1 && github.event_name != 'pull_request'
         id: apt-manifest

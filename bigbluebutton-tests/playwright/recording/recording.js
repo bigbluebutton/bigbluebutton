@@ -1,6 +1,6 @@
 const { MultiUsers } = require("../user/multiusers");
 const e = require('../core/elements');
-const { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } = require('../core/constants');
+const { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME, CI } = require('../core/constants');
 const { expect } = require('@playwright/test');
 const { apiCall, sleep } = require("../core/helpers");
 const { openPublicChat } = require("../chat/util");
@@ -10,23 +10,42 @@ const { skipSlide } = require("../presentation/util");
 const { playbackElements } = e;
 
 class Recording extends MultiUsers {
-  async getRecordingsApi() {
-    return apiCall('getRecordings', { meetingID: this.modPage.meetingId });
+  async getRecordingsApiUrl() {
+    return getApiCallUrl(`recordings/${this.modPage.meetingId}`);
   }
 
-  async getRecordingsWithRetry(maxAttempts = 5, delayMs = 5000) {
+  async getRecordingsApi(meetingID = this.modPage.meetingId) {
+    return apiCall('getRecordings', { meetingID });
+  }
+
+  async getRecordingsWithRetry({ meetingID, expectedFormat, maxAttempts = 5, delayMs = CI ? 10000 : 5000 } = {}) {
     await sleep(5000); // minimum wait time expected before first attempt
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-      const { response } = await this.getRecordingsApi();
+      const { response } = await this.getRecordingsApi(meetingID);
+
+      const isResponseValid = response?.returncode?.[0] === 'SUCCESS' &&
+        response?.messageKey?.[0] !== 'noRecordings' &&
+        !!response?.recordings &&
+        Array.isArray(response?.recordings) &&
+        response?.recordings?.length > 0;
 
       // Check a successful response with recordings
-      if (response?.returncode?.[0] === 'SUCCESS' && 
-          response?.messageKey?.[0] !== 'noRecordings' && 
-          response?.recordings &&
-          Array.isArray(response.recordings) && 
-          response.recordings.length > 0
-        ) {
-        return { response };
+      if (isResponseValid) {
+        const recordings = response.recordings[0];
+        const recording = recordings?.recording?.find(r =>
+          r?.playback?.[0]?.format?.some(f => f.type?.[0] === expectedFormat)
+        );
+
+        if (recording) return { response };
+
+        console.log({
+          response: JSON.stringify(response, null, 2),
+          recording: JSON.stringify(recordings?.recording?.[0], null, 2),
+          date: new Date().toISOString(),
+        })
+        console.log(`getRecordings (attempt ${attempt}/${maxAttempts}): No recording with expected format "${expectedFormat}" found, retrying in ${delayMs}ms`);
+        await sleep(delayMs);
+        continue;
       }
 
       if (attempt < maxAttempts) {
@@ -68,6 +87,11 @@ class Recording extends MultiUsers {
     // skip slide
     await skipSlide(this.modPage);
 
+    await sleep(3000);
+    await openPublicChat(this.modPage);
+    await this.modPage.type(e.chatBox, 'message 2');
+    await this.modPage.waitAndClick(e.sendButton);
+
     // type on shared notes
     await startSharedNotes(this.modPage);
     const notesLocator = getNotesLocator(this.modPage);
@@ -75,18 +99,21 @@ class Recording extends MultiUsers {
     await expect(notesLocator, 'should contain the typed text on shared notes').toContainText(e.testMessage, { timeout: ELEMENT_WAIT_TIME });
 
     // stop recording and end meeting
-    await expect(
-      recordingIndicatorButton,
-      'should display 5 seconds on the recording button counter'
-    ).toContainText('00:05', { timeout: ELEMENT_WAIT_LONGER_TIME });
+    await expect(async () => {
+      const timeText = await recordingIndicatorButton.textContent();
+      const seconds = parseInt(timeText?.split(':')[1], 10);
+      expect(seconds, 'should display at least 5 seconds on the recording button counter').toBeGreaterThan(5);
+    }).toPass({ intervals: [1_000], timeout: ELEMENT_WAIT_TIME });
     await this.modPage.waitAndClick(e.leaveMeetingDropdown);
     await this.modPage.waitAndClick(e.endMeetingButton);
     await this.modPage.hasElement(e.simpleModal, 'should display the confirm meeting end modal');
     await this.modPage.waitAndClick(e.confirmEndMeetingButton);
     await this.modPage.hasElement(e.meetingEndedModal, 'should display the meeting ended modal for the moderator');
+  }
 
+  async validatePlaybackFormat(meetingID, expectedFormat = 'presentation') {
     // request recording API endpoint with retry logic
-    const { response } = await this.getRecordingsWithRetry();
+    const { response } = await this.getRecordingsWithRetry({ meetingID, expectedFormat });
     const recordings = response?.recordings?.[0];
     const recordingData = recordings?.recording?.[0];
     if (!recordingData) {
@@ -94,20 +121,20 @@ class Recording extends MultiUsers {
     }
     expect(response?.returncode?.[0], 'getRecordings API call should return "SUCCESS"').toEqual('SUCCESS');
     expect(recordingData?.metadata?.[0]?.isBreakout?.[0], 'metadata.isBreakout should not be true').toEqual('false');
-    // validate recording format
-    const playbackData = recordingData?.playback?.[0]?.format?.[0];
-    expect(playbackData?.type?.[0], 'playback type should be presentation').toEqual('presentation');
+    // validate presentation recording format
+    const playbackPresentationData = recordingData?.playback?.[0]?.format?.find(f => f.type?.[0] === expectedFormat);
+    expect(playbackPresentationData?.type?.[0], `playback type should be ${expectedFormat}`).toEqual(expectedFormat);
     // validate playback URL
-    const playbackUrl = playbackData?.url?.[0];
+    const playbackUrl = playbackPresentationData?.url?.[0];
     if (!playbackUrl) {
       throw new Error('Playback URL not found in API response');
     }
     expect(() => new URL(playbackUrl), 'playback URL should be valid').not.toThrow();
-    expect(playbackUrl, 'playback URL should contain "/playback/presentation/"').toContain('/playback/presentation/');
+    expect(playbackUrl, `playback URL should contain "/playback/${expectedFormat}/"`).toContain(`/playback/${expectedFormat}/`);
     return playbackUrl;
   }
 
-  async accessPlayback() {
+  async accessPresentationPlayback() {
     // check elements
     await this.playbackPage.hasElement(playbackElements.topBar, 'should display the playback top bar');
     await this.playbackPage.hasElement(playbackElements.mediaArea, 'should display the playback media area');
@@ -118,6 +145,40 @@ class Recording extends MultiUsers {
     await this.playbackPage.hasElement(playbackElements.searchButton, 'should display the playback search button');
     await this.playbackPage.hasElement(playbackElements.swapContentButton, 'should display the playback swap content button');
     await this.playbackPage.hasElementCount(playbackElements.applicationControlButton, 2, 'should display both chat and notes application buttons');
+  }
+
+  async accessVideoPlayback() {
+    // check elements
+    await this.playbackPage.hasElement(playbackElements.mainArea, 'should display the playback main area');
+    await this.playbackPage.hasElement(`${playbackElements.mainArea} video`, 'should display a video element in the playback main area');
+    await this.playbackPage.hasElement(playbackElements.chatArea, 'should display the playback chat area');
+  }
+
+  async accessDefaultVideoFile(request) {
+    const baseUrl = this.playbackPage.page.url().replace(/\/+$/, '');
+
+    // Try to find the correct video file - could be video-0.m4v or video-1.m4v
+    let videoFileUrl;
+    let response;
+
+    const availableFormats = ['m4v', 'webm'];
+
+    for (const format of availableFormats.reverse()) {
+      videoFileUrl = `${baseUrl}/video-0.${format}`;
+      response = await request.get(videoFileUrl);
+
+      if (response.ok()) {
+        break; // Found a working video file
+      } else {
+        console.log(`Tried "/${videoFileUrl}", but got status ${response.status()}`);
+      }
+    }
+
+    expect(response.ok(), `video file URL "${videoFileUrl}" should be accessible`).toBeTruthy();
+    expect(
+      response.headers()['content-type'],
+      'video file should have video content-type',
+    ).toContain('video');
   }
 
   async darkMode() {
@@ -286,6 +347,34 @@ class Recording extends MultiUsers {
     await expect(this.playbackPage.page, 'first slide should be visible when seeking backward').toHaveScreenshot('seek-backward.png', {
       mask: [titleLocator],
     });
+  }
+
+  async chatMessages(request) {
+    const videoFileUrl = this.playbackPage.page.url().replace(/\/+$/, '') + '/video-0.webm';
+    const response = await request.get(videoFileUrl);
+    expect(
+      response.ok(), `"/video-0.webm" should be accessible because:
+      1. "video-0" is the source for the playback and
+      2. webm is the supported extension file for Playwright chromium decode (default mp4/m4v throws error)`
+    ).toBeTruthy();
+
+    // Check chat message visibility before playing the video
+    const chatAreaLocator = this.playbackPage.getLocator(playbackElements.chatArea);
+    const chatMessageItemLocator = chatAreaLocator.locator(playbackElements.chatMessageItem).filter({ hasText: e.message });
+    await expect(chatMessageItemLocator, 'chat message item should not be visible on the initial load').not.toBeVisible();
+
+    // Ensure video element is visible and supports webm format
+    const videoLocator = this.playbackPage.getLocator('video');
+    await expect(videoLocator, 'video element should be visible in the playback main area').toBeVisible();
+
+    // Check if video element supports webm format
+    const supportsWebm = await videoLocator.evaluate((video) => {
+      return video.canPlayType('video/webm') !== '';
+    });
+    expect(supportsWebm, 'video element should support webm format').toBeTruthy();
+
+    await this.playbackPage.waitAndClick(playbackElements.bigPlayButton);
+    await expect(chatMessageItemLocator, 'chat message item should be visible after playing video').toBeVisible();
   }
 }
 
