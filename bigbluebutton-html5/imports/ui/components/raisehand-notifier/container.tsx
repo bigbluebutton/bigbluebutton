@@ -13,6 +13,7 @@ const RaiseHandNotifierContainer: React.FC = () => {
   const { data: currentUser } = useCurrentUser((user: Partial<User>) => ({
     isModerator: user?.isModerator ?? false,
     presenter: user?.presenter ?? false,
+    userId: user?.userId ?? '',
   }));
 
   const {
@@ -29,15 +30,17 @@ const RaiseHandNotifierContainer: React.FC = () => {
     }, 'Error on requesting raise hand data');
   }
   // @ts-ignore
-  const { raiseHandAudioAlerts } = useSettings(SETTINGS.APPLICATION);
+  const { raiseHandAudioAlerts, raiseHandPushAlerts } = useSettings(SETTINGS.APPLICATION);
   if (!currentUser) return null;
 
   return (
     <RaiseHandNotifier
       raiseHandUsers={raiseHandUsers}
       raiseHandAudioAlert={!!raiseHandAudioAlerts}
+      raiseHandPushAlert={!!raiseHandPushAlerts}
       isModerator={!!currentUser.isModerator}
       isPresenter={!!currentUser.presenter}
+      currentUserId={currentUser.userId ?? ''}
     />
   );
 };
