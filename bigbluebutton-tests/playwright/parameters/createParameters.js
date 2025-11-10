@@ -34,7 +34,7 @@ class CreateParameters extends MultiUsers {
     await this.modPage2.hasElement(e.whiteboard, 'should display the whiteboard for the second moderator');
 
     await this.initUserPage(false, context, { shouldAvoidLayoutCheck: true });
-    await this.userPage.hasElement('p[class="error-message"]', 'should display the error message for the attendee, the number of max participants should not be passed')
+    await this.userPage.hasElement('p.error-message', 'should display the error message for the attendee, the number of max participants should not be passed')
   }
 
   async duration() {
@@ -144,7 +144,7 @@ class CreateParameters extends MultiUsers {
 
     // checking the default location being reset when dropping into a non-available location
     await checkDefaultLocationReset(this.modPage);
-    
+
     await this.modPage.dragAndDropWebcams(e.dropAreaSidebarBottom);
     await checkScreenshots(this, 'should be on custom layout', 'video', 'custom-layout', 2);
 
@@ -163,7 +163,7 @@ class CreateParameters extends MultiUsers {
     await this.modPage.waitForSelector(e.whiteboard);
     await this.userPage.waitForSelector(e.whiteboard);
     await checkScreenshots(this, 'should the cameras be above the presentation', [e.webcamContainer, e.webcamMirroredVideoContainer], 'smart-layout', 1);
-    
+
     await this.modPage.waitAndClick(e.userListToggleBtn);
     await this.modPage.wasRemoved(e.chatButton, '');
     await sleep(1000); // wait for the whiteboard zoom to stabilize
@@ -184,11 +184,11 @@ class CreateParameters extends MultiUsers {
   async videoFocus() {
     await this.modPage.waitForSelector(e.whiteboard);
 
-    await this.modPage.waitAndClick(e.joinVideo); 
+    await this.modPage.waitAndClick(e.joinVideo);
     await this.modPage.bringToFront();
     await this.modPage.hasElement(e.webcamMirroredVideoPreview, 'should display the video preview when sharing webcam ', ELEMENT_WAIT_TIME);
     await this.modPage.waitAndClick(e.startSharingWebcam);
-        
+
     await this.modPage.waitForSelector(e.webcamMirroredVideoContainer, VIDEO_LOADING_WAIT_TIME);
     await this.modPage.waitForSelector(e.leaveVideo, VIDEO_LOADING_WAIT_TIME);
 
@@ -201,7 +201,7 @@ class CreateParameters extends MultiUsers {
 
     await this.modPage.shareWebcam();
     await this.userPage.shareWebcam();
-    
+
 
     await checkScreenshots(this, 'should be the cameras only layout', [e.webcamContainer, e.webcamMirroredVideoContainer], 'cameras-only');
   }

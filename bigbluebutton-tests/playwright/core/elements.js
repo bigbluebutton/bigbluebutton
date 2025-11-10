@@ -413,7 +413,7 @@ exports.joinMeetingDemoPage = 'div[class^="join-meeting"]';
 exports.askModerator = 'button[data-test="askModerator"]';
 exports.alwaysAccept = 'button[data-test="alwaysAccept"]';
 exports.alwaysDeny = 'button[data-test="alwaysDeny"]';
-exports.deniedMessageElement = 'p[class="error-message"]';
+exports.deniedMessageElement = 'p.error-message';
 exports.promoteToModerator = 'li[data-test="promoteToModerator"]';
 exports.demoteToViewer = 'li[data-test="demoteToViewer"]';
 exports.makePresenter = 'li[data-test="makePresenter"]';

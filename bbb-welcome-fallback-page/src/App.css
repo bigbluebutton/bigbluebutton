@@ -1,0 +1,22 @@
+.col-text-left {
+  text-align: left;
+}
+[dir="rtl"] .col-text-left {
+  text-align: right;
+}
+
+.col-text-right {
+  text-align: right;
+}
+[dir="rtl"] .col-text-right {
+  text-align: left;
+}
+
+@media (max-width: 640px) {
+  .col-text-right {
+    text-align: left;
+  }
+  [dir="rtl"] .col-text-right {
+    text-align: right;
+  }
+}
