@@ -294,8 +294,10 @@ export const useIsPaginationEnabled = () => {
 
 export const useGridUsers = (visibleStreamCount: number) => {
   const gridSize = useGridSize();
+  const userCount = getCountData();
   const isGridEnabled = useStorageKey('isGridEnabled');
   const gridItems = useRef<GridItem[]>([]);
+  const overflowCount = useRef<number>(0);
 
   const {
     data: gridData,
@@ -309,7 +311,7 @@ export const useGridUsers = (visibleStreamCount: number) => {
     },
   );
 
-  if (gridLoading) return gridItems.current;
+  if (gridLoading) return { gridUsers: gridItems.current, overflowCount: overflowCount.current };
 
   if (gridError) {
     logger.error({
@@ -327,11 +329,19 @@ export const useGridUsers = (visibleStreamCount: number) => {
       type: VIDEO_TYPES.GRID,
     }));
     gridItems.current = newGridUsers;
+
+    const limit = Math.max(gridSize - visibleStreamCount, 0);
+    const overflow = Math.max(userCount - limit, 0);
+
+    // if there's overflow, we replace the last grid user with the overflow tile,
+    // so we need to add 1 to the overflow count to account for the replaced user
+    overflowCount.current = overflow > 0 ? overflow + 1 : 0;
   } else {
     gridItems.current = [];
+    overflowCount.current = 0;
   }
 
-  return gridItems.current;
+  return { gridUsers: gridItems.current, overflowCount: overflowCount.current };
 };
 
 export const useSharedDevices = () => {
@@ -425,11 +435,12 @@ export const useVideoStreams = () => {
     streams = sortVideoStreams(streams, DEFAULT_SORTING);
   }
 
-  const gridUsers = useGridUsers(streams.length);
+  const { gridUsers, overflowCount } = useGridUsers(streams.length);
 
   return {
     streams,
     gridUsers,
+    overflowCount,
     totalNumberOfStreams: streams.length,
     totalNumberOfOtherStreams,
   };

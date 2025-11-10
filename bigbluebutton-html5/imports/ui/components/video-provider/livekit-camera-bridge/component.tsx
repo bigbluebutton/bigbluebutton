@@ -68,6 +68,7 @@ interface LiveKitCameraBridgeProps {
   exitVideo: () => void;
   lockUser: () => void;
   stopVideo: (cameraId?: string) => void;
+  overflowCount: number;
 }
 
 interface StreamRefs {
@@ -96,6 +97,7 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
   exitVideo,
   lockUser,
   stopVideo,
+  overflowCount,
 }) => {
   const intl = useIntl();
   const connectionState = useConnectionState(liveKitRoom);
@@ -586,6 +588,7 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
     currentVideoPageIndex,
     updateStreams,
     cameraTracks,
+    overflowCount,
   ]);
 
   useEffect(() => {
@@ -604,6 +607,7 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
       onVideoItemMount={createVideoTag}
       onVideoItemUnmount={destroyVideoTag}
       onVirtualBgDrop={startVirtualBackgroundByDrop}
+      overflowCount={overflowCount}
     />
   );
 };
