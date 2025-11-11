@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class PluginUtils {
     private static final Logger log = LoggerFactory.getLogger(PluginUtils.class);
@@ -38,6 +39,12 @@ public class PluginUtils {
     private String html5PluginSdkVersion;
     public static String CACHED_PLUGINS_BASE_DIRECTORY = "/var/bigbluebutton/plugin-manifests-cache/";
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+    private static final ConcurrentHashMap<String, Object> PLUGIN_LOCKS = new ConcurrentHashMap<>();
+    private static Object getLockFor(String pluginUrl) {
+        return PLUGIN_LOCKS.computeIfAbsent(pluginUrl, k -> new Object());
+    }
+
 
     private String getMainVersion(String version) {
         Version parsedVersion = Version.parse(version);
@@ -180,16 +187,18 @@ public class PluginUtils {
     public static String getPluginManifestContentFromCache(
             String pluginManifestUrlString
     ) throws IOException {
-        Path cachedPluginManifestPath = getCachedPluginManifestPath(pluginManifestUrlString);
-        String content;
-        if (Files.isRegularFile(cachedPluginManifestPath)) {
-            log.info("Found cache for plugin [{}]. Using it.", pluginManifestUrlString);
-            content = Files.readString(cachedPluginManifestPath);
-        } else {
-            log.info("Cache for plugin [{}] not found.", pluginManifestUrlString);
-            content = null;
+        synchronized (getLockFor(pluginManifestUrlString)) {
+            Path cachedPluginManifestPath = getCachedPluginManifestPath(pluginManifestUrlString);
+            String content;
+            if (Files.isRegularFile(cachedPluginManifestPath)) {
+                log.info("Found cache for plugin [{}]. Using it.", pluginManifestUrlString);
+                content = Files.readString(cachedPluginManifestPath);
+            } else {
+                log.info("Cache for plugin [{}] not found.", pluginManifestUrlString);
+                content = null;
+            }
+            return content;
         }
-        return content;
     }
 
     public static boolean hasPluginManifestContentCacheFile(String pluginManifestUrlString) throws IOException {
@@ -199,11 +208,13 @@ public class PluginUtils {
     public static void savePluginManifestContentInCache(
             String pluginManifestUrlString, String manifestContent
     ) throws IOException {
-        log.info("Saving cache for plugin [{}].", pluginManifestUrlString);
-        Path cachedPluginManifestPath = getCachedPluginManifestPath(pluginManifestUrlString);
-        Path cacheDir = getCachedPluginsBaseDirectory();
-        Files.createDirectories(cacheDir);
-        Files.writeString(cachedPluginManifestPath, manifestContent);
+        synchronized (getLockFor(pluginManifestUrlString)) {
+            log.info("Saving cache for plugin [{}].", pluginManifestUrlString);
+            Path cachedPluginManifestPath = getCachedPluginManifestPath(pluginManifestUrlString);
+            Path cacheDir = getCachedPluginsBaseDirectory();
+            Files.createDirectories(cacheDir);
+            Files.writeString(cachedPluginManifestPath, manifestContent);
+        }
     }
 
     public static String fetchPluginManifestContentFromUrl(
