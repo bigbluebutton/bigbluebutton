@@ -63,7 +63,7 @@ const RaiseHandNotifier: React.FC<RaiseHandNotifierProps> = ({
     const previousUserIdsSet = new Set(previousUserIdsRef.current);
     const newRaisedHandUsers = raiseHandUsers.filter(
       (user) => !previousUserIdsSet.has(user.userId),
-    );
+    ).filter((user) => isPresenter && user.userId !== currentUserId);
     const hasNewRaisedHand = newRaisedHandUsers.length > 0;
     const isAllowed = isModerator || isPresenter;
 
