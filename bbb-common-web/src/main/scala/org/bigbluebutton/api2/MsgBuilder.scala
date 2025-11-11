@@ -8,13 +8,20 @@ import org.bigbluebutton.common2.domain.{ DefaultProps, PageVO, PresentationPage
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.presentation.imp.ImageResolutionService
 import org.bigbluebutton.presentation.messages._
-import scala.jdk.CollectionConverters._
-import scala.util.{ Try, Using }
-import scala.io.Source
+import org.slf4j.{ Logger, LoggerFactory }
+
+import java.io.{ BufferedInputStream, FilterInputStream, InputStream }
 import java.nio.charset.StandardCharsets
+import java.nio.file.{ Files, Paths }
+import javax.xml.stream.{ XMLInputFactory, XMLStreamConstants }
+import scala.io.Source
+import scala.jdk.CollectionConverters._
+import scala.math.BigDecimal.RoundingMode
+import scala.util.{ Try, Using }
 
 object MsgBuilder {
   private lazy val imageResolutionService: ImageResolutionService = new ImageResolutionService
+  private lazy val logger: Logger = LoggerFactory.getLogger("msg-builder")
 
   def buildDestroyMeetingSysCmdMsg(msg: DestroyMeetingMessage): BbbCommonEnvCoreMsg = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-web")
@@ -101,10 +108,21 @@ object MsgBuilder {
     var width = 1440D
     var height = 1080D
     val pageAbsoluteSvgPath = presParentPath + "/svgs/slide" + page.toString + ".svg"
-    val imageResolution = imageResolutionService.identifyImageResolution(pageAbsoluteSvgPath)
-    if (imageResolution.getWidth != 0 && imageResolution.getHeight != 0) {
-      width = imageResolution.getWidth
-      height = imageResolution.getHeight
+
+    val dims = readSvgDims(pageAbsoluteSvgPath)
+    dims match {
+      case Some(d) =>
+        logger.info("Dimensions found from probe")
+        width = d.width
+        height = d.height
+      case None =>
+        logger.info("Falling back to image resolution service")
+
+        val imageResolution = imageResolutionService.identifyImageResolution(pageAbsoluteSvgPath)
+        if (imageResolution.getWidth != 0 && imageResolution.getHeight != 0) {
+          width = imageResolution.getWidth
+          height = imageResolution.getHeight
+        }
     }
 
     val content = Try {
@@ -428,4 +446,101 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, req)
   }
 
+  private final case class SvgDimensions(width: Double, height: Double)
+
+  private def readSvgDims(svgPath: String, maxBytes: Long = 10L * 1024 * 1024, scale: Int = 0): Option[SvgDimensions] = {
+    Using.Manager { use =>
+      val in = use(Files.newInputStream(Paths.get(svgPath)))
+      val bis = use(new BufferedInputStream(in))
+      val bounded = use(new BoundedInputStream(bis, if (maxBytes <= 0) Long.MaxValue else maxBytes))
+
+      val f = XMLInputFactory.newFactory()
+      f.setProperty(XMLInputFactory.SUPPORT_DTD, java.lang.Boolean.FALSE)
+      Try(f.setProperty("javax.xml.stream.isSupportingExternalEntities", java.lang.Boolean.FALSE))
+      Try(f.setProperty("javax.xml.stream.isCoalescing", java.lang.Boolean.FALSE))
+      Try(f.setProperty("javax.xml.stream.isNamespaceAware", java.lang.Boolean.TRUE))
+      Try(f.setXMLResolver((_, _, _, _) => null))
+
+      val reader = {
+        val r0 = f.createXMLStreamReader(bounded, StandardCharsets.UTF_8.name())
+        use(new AutoCloseable { override def close(): Unit = r0.close() })
+        r0
+      }
+
+      while (reader.hasNext) {
+        reader.next() match {
+          case XMLStreamConstants.START_ELEMENT if reader.getLocalName.equalsIgnoreCase("svg") =>
+            val wRaw = Option(reader.getAttributeValue(null, "width"))
+            val hRaw = Option(reader.getAttributeValue(null, "height"))
+
+            val wPx = wRaw.flatMap(parseCssLengthPx)
+            val hPx = hRaw.flatMap(parseCssLengthPx)
+
+            (wPx, hPx) match {
+              case (Some(w), Some(h)) =>
+                val W = roundPx(w, scale)
+                val H = roundPx(h, scale)
+                return Some(SvgDimensions(W, H))
+              case _ =>
+                return None
+            }
+          case _ =>
+        }
+      }
+      None
+    }.toOption.flatten
+  }
+
+  private def parseCssLengthPx(s: String): Option[Double] = {
+    if (s == null) return None
+    val t = s.trim
+    if (t.isEmpty || t.endsWith("%")) return None
+    val R = """^\s*([+-]?(?:\d+(?:\.\d*)?|\.\d+))\s*([A-Za-z]*)\s*$""".r
+    t match {
+      case R(num, unit0) =>
+        val n = num.toDouble
+        val px = unit0.toLowerCase match {
+          case "" | "px" => 1.0
+          case "pt"      => 1.0
+          case "pc"      => 16.0
+          case "in"      => 96.0
+          case "cm"      => 96.0 / 2.54
+          case "mm"      => 96.0 / 25.4
+          case "q"       => 96.0 / 25.4 / 4.0
+          case _         => Double.NaN
+        }
+        if (px.isNaN) None else Some(n * px)
+      case _ => None
+    }
+  }
+
+  private def roundPx(d: Double, scale: Int): Double = {
+    if (java.lang.Double.isNaN(d) || java.lang.Double.isInfinite(d)) d
+    else {
+      val r = BigDecimal(d).setScale(scale, RoundingMode.HALF_UP).toDouble
+      if (r == -0.0d) 0.0d else r
+    }
+  }
+
+  private final class BoundedInputStream(in: InputStream, max: Long) extends FilterInputStream(in) {
+    private var remaining = max
+
+    override def read(): Int =
+      if (remaining <= 0) -1
+      else {
+        val r = super.read();
+        if (r >= 0) remaining -= 1;
+        r
+      }
+
+    override def read(b: Array[Byte], off: Int, len: Int): Int = {
+      if (remaining <= 0) -1
+      else {
+        val want = Math.min(len.toLong, Math.max(0L, Math.min(Int.MaxValue.toLong, remaining))).toInt
+        val r = super.read(b, off, want)
+        if (r > 0) remaining -= r
+        r
+      }
+    }
+  }
 }

@@ -38,6 +38,10 @@ func ReadNewStreamingSubscription(
 		if browserMessage.Payload.OperationName == "getCursorCoordinatesStream" {
 			SendPreviousCursorPosition(browserConnection, queryId)
 		}
+
+		if browserMessage.Payload.OperationName == "getUserVoiceStateStream" {
+			SendPreviousUserVoiceState(browserConnection, queryId)
+		}
 	}
 
 	return nil

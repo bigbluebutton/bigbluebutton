@@ -21,6 +21,7 @@ import Tooltip from '/imports/ui/components/common/tooltip/component';
 import SessionDetailsModal from '/imports/ui/components/session-details/component';
 import Icon from '/imports/ui/components/common/icon/icon-ts/component';
 import getStorageSingletonInstance from '../../services/storage';
+import { ModalRegistration } from '../../core/singletons/modalController';
 
 const intlMessages = defineMessages({
   toggleUserListLabel: {
@@ -159,27 +160,6 @@ class NavBar extends Component {
 
     this.handleToggleUserList = this.handleToggleUserList.bind(this);
     this.splitPluginItems = this.splitPluginItems.bind(this);
-    this.setModalIsOpen = this.setModalIsOpen.bind(this);
-
-    const ShownId = getStorageSingletonInstance().getItem('alreadyShowSessionDetailsOnJoin');
-
-    this.state = {
-      isModalOpen: props.showSessionDetailsOnJoin && !(ShownId === props.meetingId),
-    };
-  }
-
-  renderModal(isOpen, setIsOpen, priority, Component, otherOptions) {
-    return isOpen ? (
-      <Component
-        {...{
-          ...otherOptions,
-          onRequestClose: () => setIsOpen(false),
-          priority,
-          setIsOpen,
-          isOpen,
-        }}
-      />
-    ) : null;
   }
 
   componentDidMount() {
@@ -221,16 +201,17 @@ class NavBar extends Component {
     }
   }
 
-  componentWillUnmount() {
-    clearInterval(this.interval);
+  componentDidUpdate() {
+    const {
+      showSessionDetailsOnJoin,
+      meetingId,
+    } = this.props;
+    const ShownId = getStorageSingletonInstance().getItem('alreadyShowSessionDetailsOnJoin');
+    this.setModalIsOpen(showSessionDetailsOnJoin && ShownId !== meetingId);
   }
 
-  setModalIsOpen(isOpen) {
-    if (!isOpen) {
-      const { meetingId } = this.props;
-      getStorageSingletonInstance().setItem('alreadyShowSessionDetailsOnJoin', meetingId);
-    }
-    this.setState({ isModalOpen: isOpen });
+  componentWillUnmount() {
+    clearInterval(this.interval);
   }
 
   handleToggleUserList() {
@@ -301,6 +282,20 @@ class NavBar extends Component {
     });
   }
 
+  renderModal(isOpen, setIsOpen, priority, Component, otherOptions) {
+    return isOpen ? (
+      <Component
+        {...{
+          ...otherOptions,
+          onRequestClose: () => setIsOpen(false),
+          priority,
+          setIsOpen,
+          isOpen,
+        }}
+      />
+    ) : null;
+  }
+
   render() {
     const {
       hasUnreadMessages,
@@ -318,8 +313,6 @@ class NavBar extends Component {
       isMeteorConnected,
       hideTopRow,
     } = this.props;
-
-    const { isModalOpen } = this.state;
 
     const hasNotification = hasUnreadMessages || (hasUnreadNotes && !isPinned);
 
@@ -405,7 +398,26 @@ class NavBar extends Component {
                   </span>
                 </Tooltip>
               </Styled.PresentationTitle>
-              {this.renderModal(isModalOpen, this.setModalIsOpen, 'low', SessionDetailsModal)}
+              <ModalRegistration id="SessionDetailsModal" priority="low">
+                {
+                  ({
+                    isOpen,
+                    open,
+                    close,
+
+                  }) => {
+                    this.setModalIsOpen = (value) => {
+                      if (!value) {
+                        const { meetingId } = this.props;
+                        getStorageSingletonInstance().setItem('alreadyShowSessionDetailsOnJoin', meetingId);
+                      }
+                      if (value) open();
+                      else close();
+                    };
+                    return this.renderModal(isOpen, this.setModalIsOpen, 'low', SessionDetailsModal);
+                  }
+                }
+              </ModalRegistration>
               <RecordingIndicator
                 amIModerator={amIModerator}
                 currentUserId={currentUserId}

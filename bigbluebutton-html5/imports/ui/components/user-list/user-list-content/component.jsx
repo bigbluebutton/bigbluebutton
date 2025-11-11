@@ -9,6 +9,7 @@ import GuestPanelOpenerContainer from '../user-list-graphql/user-participants-ti
 import UserPollsContainer from './user-polls/container';
 import BreakoutRoomContainer from './breakout-room/container';
 import UserTitleContainer from '../user-list-graphql/user-participants-title/component';
+import RaisedHandsContainer from './raised-hands/component';
 import GenericSidekickContentNavButtonContainer from './generic-sidekick-content-button/container';
 import deviceInfo from '/imports/utils/deviceInfo';
 
@@ -18,6 +19,7 @@ const propTypes = {
   currentUser: PropTypes.shape({
     role: PropTypes.string.isRequired,
     presenter: PropTypes.bool.isRequired,
+    isModerator: PropTypes.bool.isRequired,
   }),
   compact: PropTypes.bool,
   isTimerActive: PropTypes.bool,
@@ -55,6 +57,7 @@ class UserContent extends PureComponent {
               <UserPollsContainer isPresenter={currentUser?.presenter} />
               <BreakoutRoomContainer />
               <GenericSidekickContentNavButtonContainer />
+              <RaisedHandsContainer />
               <UserTitleContainer />
               <UserListParticipants compact={compact} />
             </Styled.List>
@@ -68,6 +71,7 @@ class UserContent extends PureComponent {
             <UserPollsContainer isPresenter={currentUser?.presenter} />
             <BreakoutRoomContainer />
             <GenericSidekickContentNavButtonContainer />
+            <RaisedHandsContainer />
             <UserTitleContainer />
             <UserListParticipants compact={compact} />
           </>

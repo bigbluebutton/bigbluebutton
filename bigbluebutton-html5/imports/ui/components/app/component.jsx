@@ -14,7 +14,6 @@ import WakeLockContainer from '../wake-lock/container';
 import NotificationsBarContainer from '../notifications-bar/container';
 import AudioContainer from '../audio/container';
 import BannerBarContainer from '/imports/ui/components/banner-bar/container';
-import RaiseHandNotifier from '/imports/ui/components/raisehand-notifier/container';
 import ManyWebcamsNotifier from '/imports/ui/components/video-provider/many-users-notify/container';
 import AudioCaptionsSpeechContainer from '/imports/ui/components/audio/audio-graphql/audio-captions/speech/component';
 import UploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
@@ -47,6 +46,7 @@ import { notify } from '/imports/ui/services/notification';
 import VoiceActivityAdapter from '../../core/adapters/voice-activity';
 import LayoutObserver from '../layout/observer';
 import BBBLiveKitRoomContainer from '/imports/ui/components/livekit/component';
+import RaiseHandNotifier from '/imports/ui/components/raisehand-notifier/container';
 
 const intlMessages = defineMessages({
   userListLabel: {
@@ -72,6 +72,10 @@ const intlMessages = defineMessages({
   loweredHand: {
     id: 'app.toast.setEmoji.lowerHand',
     description: 'toast message for lowered hand notification',
+  },
+  raisedHandNext: {
+    id: 'app.toast.raisedHandNext.label',
+    description: 'message used when user is next to be called on',
   },
   away: {
     id: 'app.toast.setEmoji.away',
@@ -111,6 +115,7 @@ const propTypes = {
   darkTheme: PropTypes.bool.isRequired,
   hideNotificationToasts: PropTypes.bool.isRequired,
   isBreakout: PropTypes.bool.isRequired,
+  isRaiseHandEnabled: PropTypes.bool.isRequired,
   meetingId: PropTypes.string.isRequired,
   meetingName: PropTypes.string.isRequired,
 };
@@ -119,8 +124,6 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      isAudioModalOpen: false,
-      isVideoPreviewModalOpen: false,
       presentationFitToWidth: false,
       isJoinLogged: false,
     };
@@ -128,8 +131,6 @@ class App extends Component {
     this.timeOffsetInterval = null;
 
     this.setPresentationFitToWidth = this.setPresentationFitToWidth.bind(this);
-    this.setAudioModalIsOpen = this.setAudioModalIsOpen.bind(this);
-    this.setVideoPreviewModalIsOpen = this.setVideoPreviewModalIsOpen.bind(this);
     this.customPollShortcutHandler = this.customPollShortcutHandler.bind(this);
     this.logJoin = this.logJoin.bind(this);
   }
@@ -172,6 +173,7 @@ class App extends Component {
       currentUserRaiseHand,
       intl,
       fitToWidth,
+      isCurrentUserNextRaisedHand,
     } = this.props;
 
     const { isJoinLogged } = this.state;
@@ -191,6 +193,12 @@ class App extends Component {
         notify(intl.formatMessage(intlMessages.raisedHand), 'info', 'user');
       } else {
         notify(intl.formatMessage(intlMessages.loweredHand), 'info', 'clear_status');
+      }
+    }
+
+    if (prevProps.isCurrentUserNextRaisedHand !== isCurrentUserNextRaisedHand) {
+      if (isCurrentUserNextRaisedHand === true) {
+        notify(intl.formatMessage(intlMessages.raisedHandNext), 'info', 'hand');
       }
     }
 
@@ -220,14 +228,6 @@ class App extends Component {
     const { handlePresentationFitToWidth } = this.props;
     handlePresentationFitToWidth(presentationFitToWidth);
     this.setState({ presentationFitToWidth });
-  }
-
-  setAudioModalIsOpen(value) {
-    this.setState({ isAudioModalOpen: value });
-  }
-
-  setVideoPreviewModalIsOpen(value) {
-    this.setState({ isVideoPreviewModalOpen: value });
   }
 
   customPollShortcutHandler(e) {
@@ -339,8 +339,6 @@ class App extends Component {
     } = this.props;
 
     const {
-      isAudioModalOpen,
-      isVideoPreviewModalOpen,
       presentationFitToWidth,
     } = this.state;
     return (
@@ -409,13 +407,7 @@ class App extends Component {
           <UploaderContainer />
           <BreakoutJoinConfirmationContainerGraphQL />
           <BBBLiveKitRoomContainer />
-          <AudioContainer {...{
-            isAudioModalOpen,
-            setAudioModalIsOpen: this.setAudioModalIsOpen,
-            isVideoPreviewModalOpen,
-            setVideoPreviewModalIsOpen: this.setVideoPreviewModalIsOpen,
-          }}
-          />
+          <AudioContainer />
           { (
             !hideNotificationToasts
             && isNotificationEnabled) && <ToastContainer rtl /> }

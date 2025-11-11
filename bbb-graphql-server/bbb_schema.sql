@@ -437,11 +437,23 @@ CREATE INDEX "idx_v_user_meetingId_orderByColumns" ON "user"(
     "meetingId",
     "presenter" DESC NULLS FIRST,
     "role" ASC NULLS LAST,
-    "raiseHandTime" ASC NULLS LAST,
     "isDialIn" DESC NULLS FIRST,
     "whiteboardWriteAccess" DESC NULLS FIRST,
     "nameSortable" ASC NULLS LAST,
     "registeredAt" ASC NULLS LAST,
+    "userId" ASC NULLS LAST
+)
+WHERE "currentlyInMeeting" IS TRUE;
+
+CREATE INDEX "idx_v_user_meetingId_raiseHand" ON "user"(
+    "meetingId",
+    "raiseHandTime" ASC NULLS LAST
+)
+WHERE "currentlyInMeeting" IS TRUE;
+
+CREATE INDEX "idx_v_user_UsersBasicInfo" ON "user"(
+    "meetingId",
+    "nameSortable" ASC NULLS LAST,
     "userId" ASC NULLS LAST
 )
 WHERE "currentlyInMeeting" IS TRUE;
@@ -808,6 +820,7 @@ CREATE UNLOGGED TABLE "user_connectionStatus" (
     "lastEntriesCap" integer,
     "connectionAliveAtMaxIntervalMs" numeric,
     "connectionAliveAt" timestamp with time zone,
+    "serverRequestId" text,
     "networkRttInMs" numeric,
     "applicationRttInMs" numeric, --presenter only
     "traceLog" varchar(500), --presenter only
@@ -1122,29 +1135,27 @@ CREATE TRIGGER "update_chat_user_startedTypingAt_trigger" BEFORE UPDATE OF "last
 
 create view "v_chat_user" as select * from "chat_user";
 
-CREATE INDEX "idx_chat_user_typing_public" ON "chat_user"("meetingId", "lastTypingAt")
-        WHERE "chatId" = 'MAIN-PUBLIC-GROUP-CHAT'
-        AND "lastTypingAt" is not null;
+CREATE INDEX "idx_v_user_typing_public" ON chat_user("meetingId", "startedTypingAt")
+WHERE "chatId" = 'MAIN-PUBLIC-GROUP-CHAT'
+AND "lastTypingAt" IS NOT NULL;
 
-CREATE INDEX "idx_chat_user_typing_private" ON "chat_user"("meetingId", "userId", "chatId", "lastTypingAt")
-        WHERE "chatId" != 'MAIN-PUBLIC-GROUP-CHAT'
-        AND "visible" is true;
+CREATE INDEX "idx_v_user_typing_private" ON chat_user("meetingId", "userId", "chatId")
+WHERE "chatId" != 'MAIN-PUBLIC-GROUP-CHAT'
+AND "visible" is true;
 
 CREATE OR REPLACE VIEW "v_user_typing_public" AS
-SELECT "meetingId", "chatId", "userId", "lastTypingAt", "startedTypingAt",
-CASE WHEN "lastTypingAt" > current_timestamp - INTERVAL '5 seconds' THEN true ELSE false END AS "isCurrentlyTyping"
+SELECT "meetingId", "chatId", "userId", "lastTypingAt", "startedTypingAt"
 FROM chat_user
 WHERE "chatId" = 'MAIN-PUBLIC-GROUP-CHAT'
-AND "lastTypingAt" is not null;
+AND "lastTypingAt" > current_timestamp - INTERVAL '5 seconds';
 
 CREATE OR REPLACE VIEW "v_user_typing_private" AS
-SELECT chat_user."meetingId", chat_user."chatId", chat_user."userId" as "queryUserId", chat_with."userId", chat_with."lastTypingAt", chat_with."startedTypingAt",
-CASE WHEN chat_with."lastTypingAt" > current_timestamp - INTERVAL '5 seconds' THEN true ELSE false END AS "isCurrentlyTyping"
+SELECT chat_user."meetingId", chat_user."chatId", chat_user."userId" as "queryUserId", chat_with."userId", chat_with."lastTypingAt", chat_with."startedTypingAt"
 FROM chat_user
-LEFT JOIN "chat_user" chat_with ON chat_with."meetingId" = chat_user."meetingId"
-									AND chat_with."userId" != chat_user."userId"
-									AND chat_with."chatId" = chat_user."chatId"
-									AND chat_with."lastTypingAt" is not null
+JOIN "chat_user" chat_with ON chat_with."meetingId" = chat_user."meetingId"
+							AND chat_with."chatId" = chat_user."chatId"
+							AND chat_with."userId" != chat_user."userId"
+							AND chat_with."lastTypingAt" > current_timestamp - INTERVAL '5 seconds'
 WHERE chat_user."chatId" != 'MAIN-PUBLIC-GROUP-CHAT'
 AND chat_user."visible" is true;
 
@@ -1156,6 +1167,7 @@ CREATE UNLOGGED TABLE "chat_message" (
 	"messageSequence" integer, --populated via trigger
 	"chatEmphasizedText" boolean,
 	"message" text,
+	"messageAsHtml" text,
 	"messageType" varchar(50),
 	"replyToMessageId" varchar(100) references "chat_message"("messageId"),
 	"messageMetadata" text,
@@ -1322,6 +1334,7 @@ CREATE UNLOGGED TABLE "chat_message_history" (
 	"meetingId" varchar(100),
 	"messageVersionSequence" integer, --populated via trigger
 	"message" text,
+	"messageAsHtml" text,
 	"senderId" varchar(100),
 	"createdAt" timestamp with time zone,
 	"movedToHistoryAt" timestamp with time zone default current_timestamp,
@@ -1334,11 +1347,12 @@ CREATE OR REPLACE FUNCTION "update_chat_message_history_trigger_func"()
 RETURNS TRIGGER AS $$
 BEGIN
     IF NEW."message" IS DISTINCT FROM OLD."message" THEN
-        insert into "chat_message_history"("messageId", "meetingId", "messageVersionSequence", "message", "senderId", "createdAt")
+        insert into "chat_message_history"("messageId", "meetingId", "messageVersionSequence", "message", "messageAsHtml", "senderId", "createdAt")
 	    values (OLD."messageId",
 	            OLD."meetingId",
 	            (select count(1) from "chat_message_history" prev where prev."messageId" = OLD."messageId"),
 	            OLD."message",
+	            OLD."messageAsHtml",
 	            OLD."senderId",
 	            coalesce(OLD."editedAt",OLD."createdAt")
 	            );
@@ -1391,6 +1405,7 @@ SELECT  cu."meetingId",
         cm."messageSequence",
         cm."chatEmphasizedText",
         cm."message",
+        cm."messageAsHtml",
         cm."messageType",
         cm."replyToMessageId",
         cm."messageMetadata",
@@ -1421,8 +1436,8 @@ CREATE UNLOGGED TABLE "chat_message_reaction" (
     CONSTRAINT chat_message_reaction_pk PRIMARY KEY ("messageId", "userId", "reactionEmoji"),
     FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
 );
-CREATE INDEX "chat_message_reaction_meeting_message_idx" ON "chat_message_reaction"("meetingId","messageId");
-CREATE INDEX "chat_message_reaction_meeting_message_idx_rev" ON "chat_message_reaction"("messageId", "meetingId");
+CREATE INDEX "chat_message_reaction_meeting_message_idx" ON "chat_message_reaction"("meetingId","messageId","createdAt" asc nulls last);
+CREATE INDEX "chat_message_reaction_meeting_message_idx_rev" ON "chat_message_reaction"("messageId", "meetingId","createdAt" asc nulls last);
 
 CREATE OR REPLACE VIEW "v_chat_message_reaction" AS SELECT * FROM "chat_message_reaction";
 
@@ -2471,23 +2486,35 @@ CREATE UNLOGGED TABLE "pluginDataChannelEntry" (
 	CONSTRAINT "pluginDataChannel_pkey" PRIMARY KEY ("meetingId","pluginName","channelName","entryId", "subChannelName"),
 	FOREIGN KEY ("meetingId", "createdBy") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
 );
-create index "idx_pluginDataChannelEntry_pk_reverse" on "pluginDataChannelEntry"("pluginName", "meetingId", "channelName", "subChannelName");
-create index "idx_pluginDataChannelEntry_pk_reverse_b" on "pluginDataChannelEntry"("channelName", "pluginName", "meetingId", "subChannelName");
-create index "idx_pluginDataChannelEntry_pk_reverse_c" on "pluginDataChannelEntry"("subChannelName", "channelName", "pluginName", "meetingId");
-create index "idx_pluginDataChannelEntry_channelName" on "pluginDataChannelEntry"("meetingId", "pluginName", "channelName", "toRoles", "toUserIds", "subChannelName", "createdAt") where "deletedAt" is null;
-create index "idx_pluginDataChannelEntry_roles" on "pluginDataChannelEntry"("meetingId", "toRoles", "toUserIds", "createdAt") where "deletedAt" is null;
 
-CREATE OR REPLACE VIEW "v_pluginDataChannelEntry" AS
+ALTER TABLE "pluginDataChannelEntry"
+ADD COLUMN "isPublic" boolean
+GENERATED ALWAYS AS (
+    (
+        COALESCE(array_length("toUserIds", 1), 0) = 0
+        AND COALESCE(array_length("toRoles", 1), 0) = 0
+    )
+) STORED;
+
+create index "idx_pluginDataChannelEntry_public" ON "pluginDataChannelEntry"("meetingId", "createdAt" DESC NULLS FIRST) where "deletedAt" is null and "isPublic" is true;
+create index "idx_pluginDataChannelEntry_private" ON "pluginDataChannelEntry"("meetingId", "createdAt" DESC NULLS FIRST) where "deletedAt" is null and "isPublic" is false;
+
+CREATE OR REPLACE VIEW "v_pluginDataChannelEntry_private" AS
 SELECT u."meetingId", u."userId", m."pluginName", m."channelName", m."subChannelName", m."entryId", m."payloadJson", m."createdBy", m."toRoles", m."createdAt", m."updatedAt"
 FROM "user" u
 JOIN "pluginDataChannelEntry" m ON m."meetingId" = u."meetingId"
-			AND ((m."toRoles" IS NULL AND m."toUserIds" IS NULL)
-				OR u."userId" = ANY(m."toUserIds")
+			AND (u."userId" = ANY(m."toUserIds")
 				OR u."role" = ANY(m."toRoles")
 				OR (u."presenter" AND 'PRESENTER' = ANY(m."toRoles"))
 				)
 WHERE "deletedAt" is null
-ORDER BY m."createdAt";
+AND "isPublic" is false;
+
+CREATE OR REPLACE VIEW "v_pluginDataChannelEntry_public" AS
+SELECT "meetingId", "pluginName", "channelName", "subChannelName", "entryId", "payloadJson", "createdBy", "toRoles", "createdAt", "updatedAt"
+FROM "pluginDataChannelEntry"
+WHERE "deletedAt" is null
+AND "isPublic" is true;
 
 ------------------------
 

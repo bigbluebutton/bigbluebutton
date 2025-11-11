@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { User } from '/imports/ui/Types/user';
 import { LockSettings, UsersPolicies } from '/imports/ui/Types/meeting';
 import { useIntl, defineMessages } from 'react-intl';
@@ -17,6 +17,7 @@ import {
   SET_PRESENTER,
   SET_LOCKED,
   SET_USER_CHAT_LOCKED,
+  SET_RAISE_HAND,
 } from '/imports/ui/core/graphql/mutations/userMutations';
 import {
   isVideoPinEnabledForCurrentUser,
@@ -41,6 +42,7 @@ import { PRESENTATION_SET_WRITERS } from '/imports/ui/components/presentation/mu
 import useToggleVoice from '/imports/ui/components/audio/audio-graphql/hooks/useToggleVoice';
 import useWhoIsUnmuted from '/imports/ui/core/hooks/useWhoIsUnmuted';
 import { notify } from '/imports/ui/services/notification';
+import { useModalRegistration } from '/imports/ui/core/singletons/modalController';
 
 interface UserActionsProps {
   userListDropdownItems: PluginSdk.UserListDropdownInterface[];
@@ -53,6 +55,7 @@ interface UserActionsProps {
   pageId: string;
   open: boolean;
   setOpenUserAction: React.Dispatch<React.SetStateAction<string | null>>;
+  type?: 'raised-hand' | 'participant';
 }
 
 interface DropdownItem {
@@ -153,6 +156,10 @@ const messages = defineMessages({
     id: 'app.userList.menu.removeConfirmation.label',
     description: 'Confirmation message for removing a user from the meeting',
   },
+  lowerUserHand: {
+    id: 'app.actionsBar.reactions.lowUserHand',
+    description: 'Label for lowering a user raised hand',
+  },
 });
 const makeDropdownPluginItem: (
   userDropdownItems: PluginSdk.UserListDropdownInterface[]) => DropdownItem[] = (
@@ -218,10 +225,24 @@ const UserActions: React.FC<UserActionsProps> = ({
   userListDropdownItems,
   open,
   setOpenUserAction,
+  type = 'participant',
 }) => {
   const intl = useIntl();
-  const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
   const layoutContextDispatch = layoutDispatch();
+
+  const {
+    isOpen: isConfirmationModalOpen,
+    open: openCofirmationModal,
+    close: closeConfirmationModal,
+  } = useModalRegistration({
+    id: 'userActionsConfirmationModal',
+    priority: 'low',
+  });
+
+  const setIsConfirmationModalOpen = (value: boolean) => {
+    if (value) openCofirmationModal();
+    else closeConfirmationModal();
+  };
 
   const [presentationSetWriters] = useMutation(PRESENTATION_SET_WRITERS);
   const [getWriters] = useLazyQuery(
@@ -326,6 +347,7 @@ const UserActions: React.FC<UserActionsProps> = ({
   const [setLocked] = useMutation(SET_LOCKED);
   const [setUserChatLocked] = useMutation(SET_USER_CHAT_LOCKED);
   const [userEjectCameras] = useMutation(USER_EJECT_CAMERAS);
+  const [setRaiseHand] = useMutation(SET_RAISE_HAND);
 
   const removeUser = (userId: string, banUser: boolean) => {
     if (isVoiceOnlyUser(user.userId)) {
@@ -362,11 +384,11 @@ const UserActions: React.FC<UserActionsProps> = ({
         || item?.type === UserListDropdownItemType.GENERIC_CONTENT_INFORMATION
         || (item?.type === UserListDropdownItemType.SEPARATOR
           && (item as PluginSdk.UserListDropdownSeparator)?.position
-          === PluginSdk.UserListDropdownSeparatorPosition.BEFORE)),
+          === PluginSdk.UserListDropdownSeparatorPosition.BEFORE)) && type === 'participant',
     )),
     {
       allowed: user?.cameras?.length > 0
-        && isVideoPinEnabledForCurrentUser(currentUser, isBreakout),
+        && isVideoPinEnabledForCurrentUser(currentUser, isBreakout) && type === 'participant',
       key: 'pinVideo',
       label: user?.pinned
         ? intl.formatMessage(messages.UnpinUserWebcam)
@@ -395,7 +417,8 @@ const UserActions: React.FC<UserActionsProps> = ({
           || user.isModerator;
 
         const isAllowed = preventSelfChat
-          && (moderatorOverride || regularUserCondition || !currentUser.locked);
+          && (moderatorOverride || regularUserCondition || !currentUser.locked)
+          && type === 'participant';
 
         return isAllowed;
       })(),
@@ -429,7 +452,8 @@ const UserActions: React.FC<UserActionsProps> = ({
       allowed: isChatEnabled
         && !user.isModerator
         && currentUser.isModerator
-        && !isVoiceOnlyUser(user.userId),
+        && !isVoiceOnlyUser(user.userId)
+        && type === 'participant',
       key: 'lockChat',
       label: userChatLocked
         ? intl.formatMessage(messages.unlockPublicChat)
@@ -447,7 +471,8 @@ const UserActions: React.FC<UserActionsProps> = ({
     },
     {
       allowed: allowedToMuteAudio
-        && !isBreakout,
+        && !isBreakout
+        && type === 'participant',
       key: 'mute',
       label: intl.formatMessage(messages.MuteUserAudioLabel),
       onClick: () => {
@@ -459,7 +484,8 @@ const UserActions: React.FC<UserActionsProps> = ({
     {
       allowed: allowedToUnmuteAudio
         && !lockSettings?.disableMic
-        && !isBreakout,
+        && !isBreakout
+        && type === 'participant',
       key: 'unmute',
       label: intl.formatMessage(messages.UnmuteUserAudioLabel),
       onClick: () => {
@@ -486,7 +512,7 @@ const UserActions: React.FC<UserActionsProps> = ({
       dataTest: 'changeWhiteboardAccess',
     },
     {
-      allowed: allowedToSetPresenter && !isVoiceOnlyUser(user.userId),
+      allowed: allowedToSetPresenter && !isVoiceOnlyUser(user.userId) && type === 'participant',
       key: 'setPresenter',
       label: isMe(user.userId)
         ? intl.formatMessage(messages.takePresenterLabel)
@@ -503,7 +529,7 @@ const UserActions: React.FC<UserActionsProps> = ({
       dataTest: isMe(user.userId) ? 'takePresenter' : 'makePresenter',
     },
     {
-      allowed: allowedToPromote,
+      allowed: allowedToPromote && type === 'participant',
       key: 'promote',
       label: intl.formatMessage(messages.PromoteUserLabel),
       onClick: () => {
@@ -519,7 +545,7 @@ const UserActions: React.FC<UserActionsProps> = ({
       dataTest: 'promoteToModerator',
     },
     {
-      allowed: allowedToDemote,
+      allowed: allowedToDemote && type === 'participant',
       key: 'demote',
       label: intl.formatMessage(messages.DemoteUserLabel),
       onClick: () => {
@@ -552,7 +578,7 @@ const UserActions: React.FC<UserActionsProps> = ({
       dataTest: 'unlockUserButton',
     },
     {
-      allowed: allowedToRemove,
+      allowed: allowedToRemove && type === 'participant',
       key: 'remove',
       label: intl.formatMessage(messages.RemoveUserLabel, { 0: user.name }),
       onClick: () => {
@@ -565,7 +591,8 @@ const UserActions: React.FC<UserActionsProps> = ({
     {
       allowed: allowedToEjectCameras
         && user?.cameras?.length > 0
-        && !isBreakout,
+        && !isBreakout
+        && type === 'participant',
       key: 'ejectUserCameras',
       label: intl.formatMessage(messages.ejectUserCamerasLabel),
       onClick: () => {
@@ -578,6 +605,20 @@ const UserActions: React.FC<UserActionsProps> = ({
       },
       icon: 'video_off',
       dataTest: 'ejectCamera',
+    },
+    {
+      allowed: user.raiseHand && (currentUser?.isModerator || currentUser?.userId === user.userId),
+      key: 'lowerHand',
+      label: intl.formatMessage(messages.lowerUserHand, { userName: user.name }),
+      onClick: () => {
+        setRaiseHand({
+          variables: {
+            userId: user.userId,
+            raiseHand: false,
+          },
+        });
+      },
+      icon: 'hand',
     },
     ...makeDropdownPluginItem(userDropdownItems.filter(
       (item: PluginSdk.UserListDropdownInterface) => (

@@ -10,6 +10,7 @@ case class ChatMessageDbModel(
     correlationId:      String,
     chatEmphasizedText: Boolean,
     message:            Option[String],
+    messageAsHtml:      Option[String],
     messageType:        String,
     replyToMessageId:   Option[String],
     messageMetadata:    Option[String],
@@ -29,6 +30,7 @@ class ChatMessageDbTableDef(tag: Tag) extends Table[ChatMessageDbModel](tag, Non
   val correlationId = column[String]("correlationId")
   val chatEmphasizedText = column[Boolean]("chatEmphasizedText")
   val message = column[Option[String]]("message")
+  val messageAsHtml = column[Option[String]]("messageAsHtml")
   val messageType = column[String]("messageType")
   val replyToMessageId = column[Option[String]]("replyToMessageId")
   val messageMetadata = column[Option[String]]("messageMetadata")
@@ -44,7 +46,7 @@ class ChatMessageDbTableDef(tag: Tag) extends Table[ChatMessageDbModel](tag, Non
 
   override def * = (
     messageId, chatId, meetingId, correlationId, chatEmphasizedText,
-    message, messageType, replyToMessageId, messageMetadata, senderId, senderName, senderRole,
+    message, messageAsHtml, messageType, replyToMessageId, messageMetadata, senderId, senderName, senderRole,
     createdAt, editedAt, deletedByUserId, deletedAt
   ) <> (ChatMessageDbModel.tupled, ChatMessageDbModel.unapply)
 }
@@ -60,6 +62,7 @@ object ChatMessageDAO {
           correlationId = groupChatMessage.correlationId,
           chatEmphasizedText = groupChatMessage.chatEmphasizedText,
           message = Some(groupChatMessage.message),
+          messageAsHtml = Some(groupChatMessage.messageAsHtml),
           messageType = messageType,
           replyToMessageId = groupChatMessage.replyToMessageId match {
             case "" => None
@@ -81,7 +84,7 @@ object ChatMessageDAO {
     ChatUserDAO.updateChatVisible(meetingId, chatId, visible = true)
   }
 
-  def insertSystemMsg(meetingId: String, chatId: String, message: String, messageType: String, messageMetadata: Map[String,Any], senderName: String) = {
+  def insertSystemMsg(meetingId: String, chatId: String, message: String, messageAsHtml: String, messageType: String, messageMetadata: Map[String,Any], senderName: String) = {
     DatabaseConnection.enqueue(
       TableQuery[ChatMessageDbTableDef].forceInsert(
         ChatMessageDbModel(
@@ -91,6 +94,7 @@ object ChatMessageDAO {
           correlationId = "",
           chatEmphasizedText = false,
           message = Some(message),
+          messageAsHtml = Some(messageAsHtml),
           messageType = messageType,
           replyToMessageId = None,
           messageMetadata = Some(JsonUtils.mapToJson(messageMetadata).compactPrint),
@@ -109,7 +113,7 @@ object ChatMessageDAO {
     ChatUserDAO.updateChatVisible(meetingId, chatId, visible = true)
   }
 
-  def update(meetingId: String, chatId: String, messageId: String, message: String) = {
+  def update(meetingId: String, chatId: String, messageId: String, message: String, messageAsHtml: String) = {
     //The database will automatically keep the previous message as history
     DatabaseConnection.enqueue(
       TableQuery[ChatMessageDbTableDef]
@@ -117,8 +121,8 @@ object ChatMessageDAO {
         .filter(_.chatId === chatId)
         .filter(_.messageId === messageId)
         .filter(_.message.nonEmpty)
-        .map(msg => (msg.message, msg.editedAt))
-        .update((Some(message), Some(new java.sql.Timestamp(System.currentTimeMillis()))))
+        .map(msg => (msg.message, msg.messageAsHtml, msg.editedAt))
+        .update((Some(message), Some(messageAsHtml), Some(new java.sql.Timestamp(System.currentTimeMillis()))))
     )
   }
 
@@ -130,8 +134,8 @@ object ChatMessageDAO {
         .filter(_.chatId === chatId)
         .filter(_.messageId === messageId)
         .filter(_.message.nonEmpty)
-        .map(msg => (msg.message, msg.deletedByUserId, msg.deletedAt))
-        .update((None, Some(deletedByUserId), Some(new java.sql.Timestamp(System.currentTimeMillis()))))
+        .map(msg => (msg.message, msg.messageAsHtml, msg.deletedByUserId, msg.deletedAt))
+        .update((None, None, Some(deletedByUserId), Some(new java.sql.Timestamp(System.currentTimeMillis()))))
     )
   }
 
