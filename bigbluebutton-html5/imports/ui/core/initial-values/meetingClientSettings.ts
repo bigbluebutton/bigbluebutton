@@ -849,7 +849,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       lockToolbarTools: false,
       pacing: {
         targetAPS: 60,
-        base: 60,
+        baseMS: 60,
         maxBatchSize: 32,
         hardFlushMS: 5000,
       },
