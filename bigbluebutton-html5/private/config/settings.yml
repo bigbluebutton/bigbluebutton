@@ -816,8 +816,6 @@ public:
   layout:
     hidePresentationOnJoin: false
     showParticipantsOnLogin: true
-    showPushLayoutButton: true
-    showPushLayoutToggle: true
     showSessionDetailsOnJoin: true
     showScreenshareQuickSwapButton: false
   pads:

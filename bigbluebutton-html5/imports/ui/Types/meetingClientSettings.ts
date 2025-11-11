@@ -590,8 +590,6 @@ export interface Notes {
 export interface Layout {
   hidePresentationOnJoin: boolean
   showParticipantsOnLogin: boolean
-  showPushLayoutButton: boolean
-  showPushLayoutToggle: boolean
   showScreenshareQuickSwapButton: boolean
 }
 
