@@ -11,7 +11,6 @@ import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { useShortcut } from '/imports/ui/core/hooks/useShortcut';
 import { useStorageKey } from '/imports/ui/services/storage/hooks';
 import Session from '/imports/ui/services/storage/in-memory';
-import { useIsLayoutsEnabled } from '/imports/ui/services/features';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useToggleVoice from '/imports/ui/components/audio/audio-graphql/hooks/useToggleVoice';
 import useWhoIsUnmuted from '/imports/ui/core/hooks/useWhoIsUnmuted';
@@ -72,7 +71,6 @@ const OptionsDropdownContainer = (props) => {
   const openOptions = useShortcut('openOptions');
   const audioCaptionsActive = useStorageKey('audioCaptions') || false;
   const isDropdownOpen = useStorageKey('dropdownOpen');
-  const isLayoutsEnabled = useIsLayoutsEnabled();
 
   return (
     <OptionsDropdown {...{
@@ -90,7 +88,6 @@ const OptionsDropdownContainer = (props) => {
       isBreakoutRoom: currentMeeting?.isBreakout,
       // TODO: Replace/Remove
       isMeteorConnected: true,
-      isLayoutsEnabled,
       away,
       handleToggleAFK,
       ...props,
