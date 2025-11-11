@@ -15,6 +15,12 @@ const OverflowTileContainer = styled.div`
   min-width: 100%;
   background-color: ${webcamBackgroundColor};
   border-radius: 10px;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+
+  &:hover {
+    opacity: 0.8;
+  }
 
   &::after {
     content: "";
