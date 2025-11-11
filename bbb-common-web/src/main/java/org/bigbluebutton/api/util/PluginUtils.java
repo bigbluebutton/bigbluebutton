@@ -194,6 +194,8 @@ public class PluginUtils {
 
     public static void createEmptyCacheFileFrom(String pluginManifestUrlString) throws IOException {
         Path cachedPluginManifestPath = getCachedPluginManifestPath(pluginManifestUrlString);
+        Path cacheDir = getCachedPluginsBaseDirectory();
+        Files.createDirectories(cacheDir);
         Files.createFile(cachedPluginManifestPath);
     }
 

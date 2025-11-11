@@ -437,7 +437,7 @@ public class MeetingService implements MessageListener {
           pluginsResult.put(pluginKey, manifestWrapper);
 
           if (saveCachedFile) {
-            PluginUtils.savePluginManifestContentInCache(pluginManifestUrlString, manifestContent);
+            PluginUtils.savePluginManifestContentInCache(pluginManifestUrlString, pluginManifestContent);
           }
 
         } catch (MalformedURLException e) {
