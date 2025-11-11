@@ -379,13 +379,10 @@ public class MeetingService implements MessageListener {
       CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
         try {
           String pluginManifestContent = null;
-          boolean saveCachedFile = false;
           if (pluginManifestCacheEnabled) {
             pluginManifestContent = PluginUtils.getPluginManifestContentFromCache(pluginManifestUrlString);
-            saveCachedFile = pluginManifestContent == null;
-            if (saveCachedFile) PluginUtils.createEmptyCacheFileFrom(pluginManifestUrlString);
           }
-          boolean isPluginManifestContentCached = pluginManifestContent != null && !pluginManifestContent.isEmpty();
+          boolean isPluginManifestContentCached = pluginManifestContent != null;
           boolean fetchManifestContent = !pluginManifestCacheEnabled || !isPluginManifestContentCached;
           if (fetchManifestContent) {
             pluginManifestContent = PluginUtils.fetchPluginManifestContentFromUrl(pluginManifestUrlString);
@@ -422,6 +419,9 @@ public class MeetingService implements MessageListener {
             );
           }
 
+          if (pluginManifestCacheEnabled && !PluginUtils.hasPluginManifestContentCacheFile(pluginManifestUrlString)) {
+            PluginUtils.savePluginManifestContentInCache(pluginManifestUrlString, pluginManifestContent);
+          }
 
           String pluginKey = pluginName;
           HashMap<String, Object> manifestObject = new HashMap<>();
@@ -435,10 +435,6 @@ public class MeetingService implements MessageListener {
           Map<String, Object> manifestWrapper = new HashMap<>();
           manifestWrapper.put("manifest", manifestObject);
           pluginsResult.put(pluginKey, manifestWrapper);
-
-          if (saveCachedFile) {
-            PluginUtils.savePluginManifestContentInCache(pluginManifestUrlString, pluginManifestContent);
-          }
 
         } catch (MalformedURLException e) {
           String clientErrorMessage = "Invalid URL/Malformed URl when processing a plugin. For more information, see bbb-web";

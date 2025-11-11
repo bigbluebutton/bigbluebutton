@@ -140,7 +140,7 @@ remove_plugin_manifests_cache() {
     plugin_manifests_cache_dir=/var/bigbluebutton/plugin-manifests-cache/
     if [[ -d $plugin_manifests_cache_dir ]]; then
         logger "Removing plugin manifests cache"
-        find "$plugin_manifests_cache_dir" -type f -delete
+        rm -rf "$plugin_manifests_cache_dir"
     fi
 }
 
