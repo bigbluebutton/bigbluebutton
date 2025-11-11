@@ -110,7 +110,6 @@ export async function uploadMultiplePresentations(
     e.presentationUploadProgressToast,
     'should display a toast presentation upload progress after confirming the presentation to be uploaded',
   );
-
   try {
     await testPage.hasNElements(
       e.processingPresentationItem,
