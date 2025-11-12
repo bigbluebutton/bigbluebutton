@@ -192,11 +192,11 @@ Here is a complete `manifest.json` example with all possible configurations:
     "console": {
       "enableRuntimeErrorLogging": false,
       "enabled": true,
-      "level": "debug" // Possible values: info, debug, warning, error
+      "level": "debug" // Possible values: info, debug, warn, error
     },
     "external": {
       "enabled": false,
-      "level": "info", // Possible values: info, debug, warning, error
+      "level": "info", // Possible values: info, debug, warn, error
       "url": "https://LOG_HOST/html5Log",
       "method": "POST",
       "throttleInterval": 400,
