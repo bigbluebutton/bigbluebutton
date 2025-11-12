@@ -39,6 +39,8 @@ export interface Settings {
   skipVideoPreviewIfPreviousDevice?: boolean;
   // Emoji
   emojiRain?: boolean;
+  // Whiteboard
+  allowInfiniteWhiteboard?: boolean;
 }
 
 let settings: Settings | undefined;
@@ -91,6 +93,8 @@ export async function generateSettingsData(page: Page): Promise<Settings | undef
       skipVideoPreviewIfPreviousDevice: settingsData.kurento?.skipVideoPreviewIfPreviousDevice,
       // Emoji
       emojiRain: settingsData.app?.emojiRain?.enabled,
+      // Whiteboard
+      allowInfiniteWhiteboard: settingsData.whiteboard?.allowInfiniteWhiteboard,
     };
 
     return settings;
