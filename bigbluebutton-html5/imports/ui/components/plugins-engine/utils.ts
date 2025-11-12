@@ -6,7 +6,7 @@ import { ClientLog } from '../../Types/meetingClientSettings';
 function setLogger(pluginApi: PluginApi, loggerSettings: LoggerSettings) {
   const overridePluginApi = pluginApi;
   const { pluginName } = pluginApi;
-  overridePluginApi.logger = logger.getPluginLogger(pluginName || '', loggerSettings);
+  if (!overridePluginApi.logger) overridePluginApi.logger = logger.getPluginLogger(pluginName || '', loggerSettings);
 }
 
 function mergeSection<T extends object>(base: T, override?: Partial<T>) {
