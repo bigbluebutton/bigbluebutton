@@ -115,7 +115,8 @@ Permission: Restricted to User Viewing Self-Related Data
 - `chats: Array` [Type chat](#type-chat)
 - `connectionStatus: Object` [Type user_connectionStatus](#type-user_connectionstatus)
 - `guestStatusDetails: Object` [Type user_guest](#type-user_guest)
-- `lastBreakoutRoom: Object` [Type user_breakoutroom](#type-user_breakoutroom)
+- `lastBreakoutRoom: Object` [Type breakoutRoom_user](#type-breakoutRoom_user)
+- `lastBreakoutRoomAssigned: Object` [Type breakoutRoom_user](#type-breakoutRoom_user)
 - `livekit: Object` [Type user_livekit](#type-user_livekit)
 - `meeting: Object` [Type meeting](#type-meeting)
 - `presPagesWritable: Array` [Type pres_page_writers](#type-pres_page_writers)
@@ -230,7 +231,8 @@ Permission: Restricted by Lock Settings
 ### Relationships:
 - `cameras: Array` [Type user_camera](#type-user_camera)
 - `connectionStatus: Object` [Type user_connectionstatus](#type-user_connectionstatus)
-- `lastBreakoutRoom: Object` [Type user_breakoutRoom](#type-user_breakoutRoom)
+- `lastBreakoutRoom: Object` [Type breakoutRoom_user](#type-breakoutRoom_user)
+- `lastBreakoutRoomAssigned: Object` [Type breakoutRoom_user](#type-breakoutRoom_user)
 - `meeting: Object` [Type meeting](#type-meeting)
 - `presPagesWritable: Array` [Type pres_page_writers](#type-pres_page_writers)
 - `userLockSettings: Object` **Type user_lockSettings**
@@ -744,15 +746,6 @@ Permission: Restricted to User Viewing Self-Related Data
 - `sharedNotesExtId`
 ### Relationships:
 - `sharedNotes: Object` [Type sharednotes](#type-sharednotes)
-
-## Type: user_breakoutRoom
-### Fields:
-- `breakoutRoomMeetingId`
-- `currentlyInRoom`
-- `isDefaultName`
-- `sequence`
-- `shortName`
-- `userId`
 
 ## Type: user_connectionStatusHistory
 Permission: Restricted to Moderators or the User Viewing Self-Related Data
