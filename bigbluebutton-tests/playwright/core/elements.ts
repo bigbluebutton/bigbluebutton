@@ -573,6 +573,7 @@ export const elements = {
   wbTextTrue: 'div[data-hastext="true"]',
   wbDrawnArrow: 'div[data-shape-type="arrow"]',
   wbAutoHideToggleBtn: 'input[data-test="autoHideToolbarToggleBtn"]',
+  turnInfiniteWhiteboardOn: 'button[data-test="turnInfiniteWhiteboardOn"]',
   // About modal
   showAboutModalButton: 'li[data-test="aboutModal"]',
   aboutModal: 'div[data-test="aboutModalTitleLabel"]',
