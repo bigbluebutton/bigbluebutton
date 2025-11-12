@@ -2052,6 +2052,8 @@ create index "idx_breakoutRoom_user_meeting_user" on "breakoutRoom_user" ("meeti
 create index "idx_breakoutRoom_user_user_meeting" on "breakoutRoom_user" ("userId", "meetingId");
 create index "idx_breakoutRoom_user_meeting_user_assigned" on "breakoutRoom_user" ("meetingId", "userId") where "assignedAt" is not null;
 create index "idx_breakoutRoom_user_meeting_user_currentlyInRoom" on "breakoutRoom_user" ("meetingId", "userId") where "isUserCurrentlyInRoom" is true;
+create index "idx_breakoutRoom_user_meeting_user_lastJoinedRoom" on "breakoutRoom_user" ("meetingId", "userId") where "isLastJoinedRoom" is true;
+create index "idx_breakoutRoom_user_meeting_user_lastAssignedRoom" on "breakoutRoom_user" ("meetingId", "userId") where "isLastAssignedRoom" is true;
 
 ALTER TABLE "breakoutRoom_user" ADD COLUMN "showInvitation" boolean GENERATED ALWAYS AS (
     CASE WHEN
@@ -2193,12 +2195,33 @@ SELECT "meetingId", "breakoutRoomMeetingId", "userMeetingId", "userId"
 FROM "v_breakoutRoom"
 WHERE "assignedAt" IS NOT NULL;
 
-CREATE OR REPLACE VIEW "v_breakoutRoom_lastJoinedRoom" AS
+CREATE OR REPLACE VIEW "v_user_breakoutRoom_lastJoinedRoom" AS
 select "breakoutRoom_user"."meetingId", "breakoutRoom_user"."userId", "breakoutRoom_user"."breakoutRoomMeetingId", "breakoutRoom_user"."isUserCurrentlyInRoom",
 		"breakoutRoom"."sequence", "breakoutRoom"."shortName", "breakoutRoom"."isDefaultName"
 from "breakoutRoom_user"
-join "breakoutRoom" on "breakoutRoom"."breakoutRoomMeetingId" = "breakoutRoom_user"."breakoutRoomMeetingId"
+join "breakoutRoom" on "breakoutRoom"."breakoutRoomMeetingId" = "breakoutRoom_user"."breakoutRoomMeetingId" and "breakoutRoom"."endedAt" IS NULL
 where "breakoutRoom_user"."isLastJoinedRoom" is true;
+
+CREATE OR REPLACE VIEW "v_user_current_breakoutRoom_lastJoinedRoom" AS
+select "breakoutRoom_user"."meetingId", "breakoutRoom_user"."userId", "breakoutRoom_user"."breakoutRoomMeetingId", "breakoutRoom_user"."isUserCurrentlyInRoom",
+		"breakoutRoom"."sequence", "breakoutRoom"."shortName", "breakoutRoom"."isDefaultName"
+from "breakoutRoom_user"
+join "breakoutRoom" on "breakoutRoom"."breakoutRoomMeetingId" = "breakoutRoom_user"."breakoutRoomMeetingId" and "breakoutRoom"."endedAt" IS NULL
+where "breakoutRoom_user"."isLastJoinedRoom" is true;
+
+CREATE OR REPLACE VIEW "v_user_breakoutRoom_lastAssignedRoom" AS
+select "breakoutRoom_user"."meetingId", "breakoutRoom_user"."userId", "breakoutRoom_user"."breakoutRoomMeetingId", "breakoutRoom_user"."isUserCurrentlyInRoom",
+		"breakoutRoom"."sequence", "breakoutRoom"."shortName", "breakoutRoom"."isDefaultName"
+from "breakoutRoom_user"
+join "breakoutRoom" on "breakoutRoom"."breakoutRoomMeetingId" = "breakoutRoom_user"."breakoutRoomMeetingId" and "breakoutRoom"."endedAt" IS NULL
+where "breakoutRoom_user"."isLastAssignedRoom" is true;
+
+CREATE OR REPLACE VIEW "v_user_current_breakoutRoom_lastAssignedRoom" AS
+select "breakoutRoom_user"."meetingId", "breakoutRoom_user"."userId", "breakoutRoom_user"."breakoutRoomMeetingId", "breakoutRoom_user"."isUserCurrentlyInRoom",
+		"breakoutRoom"."sequence", "breakoutRoom"."shortName", "breakoutRoom"."isDefaultName"
+from "breakoutRoom_user"
+join "breakoutRoom" on "breakoutRoom"."breakoutRoomMeetingId" = "breakoutRoom_user"."breakoutRoomMeetingId" and "breakoutRoom"."endedAt" IS NULL
+where "breakoutRoom_user"."isLastAssignedRoom" is true;
 
 CREATE OR REPLACE VIEW "v_breakoutRoom_participant" as
 SELECT DISTINCT

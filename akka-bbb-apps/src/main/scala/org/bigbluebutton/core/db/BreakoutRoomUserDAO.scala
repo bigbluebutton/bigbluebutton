@@ -59,11 +59,12 @@ object BreakoutRoomUserDAO {
   def updateUserJoined(breakoutRoomUser: BreakoutUser, parentMeetingUser: RegisteredUser, breakoutRoom: BreakoutRoom2x) = {
       DatabaseConnection.enqueue(
         sqlu"""UPDATE "breakoutRoom_user" SET
-                "joinedAt" = current_timestamp
-                "breakoutRoomUserId" = ${breakoutRoomUser.id}
+                "joinedAt" = current_timestamp,
+                "breakoutRoomUserId" = ${breakoutRoomUser.userId}
                 WHERE "meetingId" = ${parentMeetingUser.meetingId}
                 AND "userId" = ${parentMeetingUser.id}
-                AND "breakoutRoomMeetingId" = ${breakoutRoom.id}"""
+                AND "breakoutRoomMeetingId" = ${breakoutRoom.id}
+                AND "breakoutRoomUserId" != ${breakoutRoomUser.userId}"""
       )
   }
 
@@ -101,7 +102,7 @@ object BreakoutRoomUserDAO {
         INSERT INTO "breakoutRoom_user" ("breakoutRoomMeetingId", "meetingId", "userId")
         SELECT b."breakoutRoomMeetingId", u."meetingId", u."userId"
         FROM "user" u
-        JOIN "breakoutRoom" b ON b."parentMeetingId" = u."meetingId"
+        JOIN "breakoutRoom" b ON b."meetingId" = u."meetingId"
         WHERE u."meetingId" = ${meetingId} #${userCriteria}
         AND ( b."freeJoin" IS TRUE OR u."role" = 'MODERATOR')
         AND b."endedAt" IS NULL

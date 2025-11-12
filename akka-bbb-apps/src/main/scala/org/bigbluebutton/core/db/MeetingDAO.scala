@@ -167,11 +167,11 @@ object MeetingDAO {
     val subqueryBreakoutRooms = TableQuery[BreakoutRoomDbTableDef]
       .filter(_.meetingId === parentMeetingId)
       .filter(_.endedAt.isEmpty)
-      .map(_.breakoutRoomMeetingExternalId)
+      .map(_.breakoutRoomMeetingId)
 
     DatabaseConnection.enqueue(
       TableQuery[MeetingDbTableDef]
-        .filter(_.extId in subqueryBreakoutRooms)
+        .filter(_.meetingId in subqueryBreakoutRooms)
         .map(u => u.durationInSeconds)
         .update(newDurationInSeconds)
     )

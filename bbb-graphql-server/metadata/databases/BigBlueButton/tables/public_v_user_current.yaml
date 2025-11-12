@@ -45,7 +45,17 @@ object_relationships:
           userId: userId
         insertion_order: null
         remote_table:
-          name: v_breakoutRoom_lastJoinedRoom
+          name: v_user_current_breakoutRoom_lastJoinedRoom
+          schema: public
+  - name: lastBreakoutRoomAssigned
+    using:
+      manual_configuration:
+        column_mapping:
+          meetingId: meetingId
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_user_current_breakoutRoom_lastAssignedRoom
           schema: public
   - name: livekit
     using:

@@ -12,7 +12,7 @@ import scala.util.Random
 case class BreakoutRoomDbModel(
                                 breakoutRoomMeetingId:          String,
                                 meetingId:                      String,
-                                breakoutRoomMeetingExternalId:  String,
+                                breakoutRoomExternalId:  String,
                                 sequence:                       Int,
                                 name:                           String,
                                 shortName:                      String,
@@ -29,8 +29,8 @@ case class BreakoutRoomDbModel(
 
 class BreakoutRoomDbTableDef(tag: Tag) extends Table[BreakoutRoomDbModel](tag, None, "breakoutRoom") {
   val breakoutRoomMeetingId = column[String]("breakoutRoomMeetingId", O.PrimaryKey)
-  val meetingId = column[String]("parentMeetingId")
-  val breakoutRoomMeetingExternalId = column[String]("breakoutRoomMeetingExternalId")
+  val meetingId = column[String]("meetingId")
+  val breakoutRoomExternalId = column[String]("breakoutRoomExternalId")
   val sequence = column[Int]("sequence")
   val name = column[String]("name")
   val shortName = column[String]("shortName")
@@ -44,7 +44,7 @@ class BreakoutRoomDbTableDef(tag: Tag) extends Table[BreakoutRoomDbModel](tag, N
   val captureNotes = column[Boolean]("captureNotes")
   val captureSlides = column[Boolean]("captureSlides")
   override def * = (
-    breakoutRoomMeetingId, meetingId, breakoutRoomMeetingExternalId, sequence, name, shortName, isDefaultName, freeJoin,
+    breakoutRoomMeetingId, meetingId, breakoutRoomExternalId, sequence, name, shortName, isDefaultName, freeJoin,
     createdAt, startedAt, endedAt, durationInSeconds, sendInvitationToModerators, captureNotes, captureSlides
   ) <> (BreakoutRoomDbModel.tupled, BreakoutRoomDbModel.unapply)
 }
@@ -135,7 +135,7 @@ object BreakoutRoomDAO {
       BreakoutRoomDbModel(
         breakoutRoomMeetingId = room.id,
         meetingId = room.parentId,
-        breakoutRoomMeetingExternalId = room.externalId,
+        breakoutRoomExternalId = room.externalId,
         sequence = room.sequence,
         name = room.name,
         shortName = room.shortName,
