@@ -268,9 +268,9 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
     setLocalHours(newHours);
   };
 
-  const handleHoursBlur = () => {
+  const handleHoursBlur = useCallback(() => {
     syncTimeWithBackend(localHours, localMinutes, localSeconds);
-  };
+  }, [syncTimeWithBackend, localHours, localMinutes, localSeconds]);
 
   const handleMinutesChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(event.target.value || '0', 10);
@@ -289,9 +289,9 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
     }
   };
 
-  const handleMinutesBlur = () => {
+  const handleMinutesBlur = useCallback(() => {
     syncTimeWithBackend(localHours, localMinutes, localSeconds);
-  };
+  }, [syncTimeWithBackend, localHours, localMinutes, localSeconds]);
 
   const handleSecondsChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(event.target.value || '0', 10);
@@ -313,9 +313,9 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
     }
   };
 
-  const handleSecondsBlur = () => {
+  const handleSecondsBlur = useCallback(() => {
     syncTimeWithBackend(localHours, localMinutes, localSeconds);
-  };
+  }, [syncTimeWithBackend, localHours, localMinutes, localSeconds]);
 
   const changeTime = useCallback((amountInSeconds: number) => {
     if (running) return;
