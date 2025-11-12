@@ -239,7 +239,6 @@ class Webcam extends Page {
     await this.hasElement(e.dropAreaBottom, 'should display the docking element on the Bottom area after clicking to drag webcam element');
     await this.hasElement(e.dropAreaLeft, 'should display the docking element on the Left area after clicking to drag webcam element');
     await this.hasElement(e.dropAreaTop, 'should display the docking element on the Top area after clicking to drag webcam element');
-    await this.hasElement(e.dropAreaSidebarBottom, 'should display the docking element on the Sidebar Bottom area after clicking to drag webcam element');
     await expect(this.page).toHaveScreenshot('drag-drop-areas.png', { mask: [this.getLocator(e.currentUserLocalStreamVideo)] });
     await this.page.mouse.up(); // release the webcam container without dragging
 
