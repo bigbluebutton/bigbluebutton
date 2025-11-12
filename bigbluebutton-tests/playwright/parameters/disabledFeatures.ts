@@ -141,11 +141,11 @@ export class DisabledFeatures extends MultiUsers {
   }
 
   async infiniteWhiteboard() {
-    const { allowInfiniteWhiteboard } = getSettings();
+    const { allowInfiniteWhiteboard } = this.modPage.settings || {};
 
     if(allowInfiniteWhiteboard) {
       await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard');
-      await this.modPage.wasRemoved(e.turnInfiniteWhiteboardOn);
+      await this.modPage.wasRemoved(e.turnInfiniteWhiteboardOn, 'should not display the infinite whiteboard button');
     }
   }
 
@@ -279,11 +279,11 @@ export class DisabledFeatures extends MultiUsers {
   }
 
   async infiniteWhiteboardExclude() {
-    const { allowInfiniteWhiteboard } = getSettings();
+    const { allowInfiniteWhiteboard } = this.modPage.settings || {};
 
     if(allowInfiniteWhiteboard) {
       await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard');
-      await this.modPage.hasElement(e.turnInfiniteWhiteboardOn);
+      await this.modPage.hasElement(e.turnInfiniteWhiteboardOn, 'should display the infinite whiteboard button');
     }
   }
 }
