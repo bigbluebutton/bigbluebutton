@@ -24,7 +24,7 @@ select_permissions:
         - isAudioOnly
         - userId
       filter:
-        parentMeetingId:
+        meetingId:
           _eq: X-Hasura-MeetingId
       allow_aggregations: true
       query_root_fields: []

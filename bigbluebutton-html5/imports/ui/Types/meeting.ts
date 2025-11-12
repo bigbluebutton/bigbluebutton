@@ -72,7 +72,7 @@ export interface BreakoutPolicies {
   captureSlides: string;
   captureSlidesFilename: string;
   freeJoin: boolean;
-  parentId: string;
+  parentMeetingId: string;
   privateChatEnabled: boolean;
   record: boolean;
   sequence: number;

@@ -21,10 +21,11 @@ object_relationships:
     using:
       manual_configuration:
         column_mapping:
+          meetingId: meetingId
           userId: userId
         insertion_order: null
         remote_table:
-          name: v_user_breakoutRoom
+          name: v_breakoutRoom_lastJoinedRoom
           schema: public
   - name: meeting
     using:

@@ -76,11 +76,11 @@ const toggleMute = (
     }
   };
 
-  const parentId = meetingStaticStore?.breakoutPolicies.parentId || '';
+  const parentMeetingId = meetingStaticStore?.breakoutPolicies.parentMeetingId || '';
   const isBreakout = meetingStaticStore?.isBreakout || false;
 
-  const meetingId = isBreakout && parentId
-    ? parentId
+  const meetingId = isBreakout && parentMeetingId
+    ? parentMeetingId
     : Auth.meetingID;
   const storageKey = `${MUTED_KEY}_${meetingId}`;
 

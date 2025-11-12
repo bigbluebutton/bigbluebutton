@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.apps.breakout
 
 import org.bigbluebutton.core.api.BreakoutRoomUsersUpdateInternalMsg
-import org.bigbluebutton.core.db.{ BreakoutRoomUserDAO, UserBreakoutRoomDAO }
+import org.bigbluebutton.core.db.BreakoutRoomUserDAO
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models.{ RegisteredUsers, Users2x }
 import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
@@ -35,12 +35,13 @@ trait BreakoutRoomUsersUpdateMsgHdlr {
         }
       }
 
-      val usersInRoom = for {
+      for {
         breakoutRoomUser <- updatedRoom.users
-        u <- RegisteredUsers.findWithBreakoutRoomId(breakoutRoomUser.id, liveMeeting.registeredUsers)
-      } yield u.id
-      UserBreakoutRoomDAO.updateLastBreakoutRoom(props.meetingProp.intId, usersInRoom, updatedRoom)
-      BreakoutRoomUserDAO.updateUserJoined(props.meetingProp.intId, usersInRoom, updatedRoom)
+        parentMeetingUser <- RegisteredUsers.findWithBreakoutRoomId(breakoutRoomUser.id, liveMeeting.registeredUsers)
+      } yield {
+        BreakoutRoomUserDAO.updateUserJoined(breakoutRoomUser, parentMeetingUser, updatedRoom)
+      }
+
       model.update(updatedRoom)
     }
 

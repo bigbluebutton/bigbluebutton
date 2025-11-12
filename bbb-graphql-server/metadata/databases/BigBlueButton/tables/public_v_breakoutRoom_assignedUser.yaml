@@ -24,7 +24,7 @@ select_permissions:
         - userId
       filter:
         _or:
-          - parentMeetingId:
+          - meetingId:
               _eq: X-Hasura-ModeratorInMeeting
           - _and:
               - userMeetingId:

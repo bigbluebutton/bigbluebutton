@@ -66,9 +66,9 @@ export const USER_TRANSFER_VOICE_TO_MEETING = gql`
 `;
 
 export const BREAKOUT_ROOM_REQUEST_JOIN_URL = gql`
-  mutation BreakoutRoomRequestJoinUrl($breakoutRoomId: String!) {
+  mutation BreakoutRoomRequestJoinUrl($breakoutRoomMeetingId: String!) {
     breakoutRoomRequestJoinUrl(
-      breakoutRoomId: $breakoutRoomId,
+      breakoutRoomMeetingId: $breakoutRoomMeetingId,
     )
   }
 `;

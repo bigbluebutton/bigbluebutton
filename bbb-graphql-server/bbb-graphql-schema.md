@@ -275,7 +275,7 @@ Permission: Restricted by Lock Settings
 Permission: Restricted to User Viewing Self-Related Data
 ### Fields:
 - `assignedAt`
-- `breakoutRoomId`
+- `breakoutRoomMeetingId`
 - `inviteDismissedAt`
 - `joinURL`
 - `joinedAt`
@@ -457,7 +457,7 @@ Permission: Restricted to Poll Owner or User Viewing Self-Related Data
 ## Type: breakoutRoom
 ### Fields:
 - `assignedAt`
-- `breakoutRoomId`
+- `breakoutRoomMeetingId`
 - `durationInSeconds`
 - `endedAt`
 - `freeJoin`
@@ -747,7 +747,7 @@ Permission: Restricted to User Viewing Self-Related Data
 
 ## Type: user_breakoutRoom
 ### Fields:
-- `breakoutRoomId`
+- `breakoutRoomMeetingId`
 - `currentlyInRoom`
 - `isDefaultName`
 - `sequence`
@@ -896,7 +896,7 @@ Permission: Restricted by Lock Settings
 ## Type: breakoutRoom_createdLatest
 Permission: Restricted to Moderators
 ### Fields:
-- `breakoutRoomId`
+- `breakoutRoomMeetingId`
 - `captureNotes`
 - `captureSlides`
 - `createdAt`
