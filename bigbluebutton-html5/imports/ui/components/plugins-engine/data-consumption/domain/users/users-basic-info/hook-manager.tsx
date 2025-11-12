@@ -17,6 +17,7 @@ const UsersBasicInfoHookContainer = (prop: GeneralHookManagerProps) => {
     extId: user.extId,
     name: user.name,
     nameSortable: user.nameSortable,
+    bot: user.bot,
     role: user.role,
     avatar: user.avatar,
     color: user.color,

@@ -7,6 +7,7 @@ const USERS_BASIC_INFO_SUBSCRIPTION = gql`
       extId
       name
       nameSortable
+      bot
       isModerator
       color
       role
