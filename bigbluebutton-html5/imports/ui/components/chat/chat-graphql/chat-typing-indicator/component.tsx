@@ -188,16 +188,18 @@ const TypingIndicatorContainer: React.FC = () => {
 
   // eslint-disable-next-line no-unused-expressions, no-console
   DEBUG_CONSOLE && console.log('TypingIndicatorContainer:chat', chat);
-  const typingQuery = idChatOpen === PUBLIC_GROUP_CHAT_KEY ? IS_TYPING_PUBLIC_SUBSCRIPTION
+  const isPublicChatOpen = idChatOpen === PUBLIC_GROUP_CHAT_KEY;
+  const typingQuery = isPublicChatOpen ? IS_TYPING_PUBLIC_SUBSCRIPTION
     : IS_TYPING_PRIVATE_SUBSCRIPTION;
-  const {
-    data: typingUsersData,
-    error: typingUsersError,
-  } = useDeduplicatedSubscription(typingQuery, {
+  const subscriptionOptions = isPublicChatOpen ? {} : {
     variables: {
       chatId: idChatOpen,
     },
-  });
+  };
+  const {
+    data: typingUsersData,
+    error: typingUsersError,
+  } = useDeduplicatedSubscription(typingQuery, subscriptionOptions);
   // eslint-disable-next-line no-unused-expressions, no-console
   DEBUG_CONSOLE && console.log('TypingIndicatorContainer:typingUsersData', typingUsersData);
 
