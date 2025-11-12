@@ -279,7 +279,7 @@ const PresentationContainer = (props) => {
           totalPages: currentPresentationPage?.totalPages || 0,
           notify,
           zoomSlide,
-          restoreOnUpdate,
+          restoreOnUpdate: userIsPresenter ? false : restoreOnUpdate,
           addWhiteboardGlobalAccess: getUsers,
           removeWhiteboardGlobalAccess,
           multiUserSize: multiUserData.size,
