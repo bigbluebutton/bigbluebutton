@@ -793,27 +793,6 @@ SELECT * FROM "user_camera";
 CREATE OR REPLACE VIEW "v_user_current_camera" AS
 SELECT * FROM "user_camera";
 
--- Details of the breakout room of which the user is part of
--- CREATE UNLOGGED TABLE "user_breakoutRoomProps" (
--- 	"meetingId"             varchar(100),
---     "userId"                varchar(50),
--- 	"parentMeetingId"       varchar(100), --id of the parent meeting
--- 	"parentUserId"          varchar(100), --id of the user in the parent meeting
--- 	"isDefaultName"         boolean,
--- 	"sequence"              int,
--- 	"shortName"             varchar(100),
--- 	CONSTRAINT "user_breakoutRoom_pkey" PRIMARY KEY ("meetingId","userId"),
---     FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
--- );
--- CREATE INDEX "idx_user_breakoutRoom_pk_reverse" ON "user_breakoutRoom"("userId", "meetingId");
-
--- CREATE OR REPLACE VIEW "v_user_breakoutRoom" AS
--- SELECT * FROM "user_breakoutRoom";
-
--- this view will be used specifically for the join with user_current
--- CREATE OR REPLACE VIEW "v_user_current_breakoutRoom" AS
--- SELECT * FROM "user_breakoutRoom";
-
 CREATE UNLOGGED TABLE "user_connectionStatus" (
 	"meetingId" varchar(100),
     "userId" varchar(50),
