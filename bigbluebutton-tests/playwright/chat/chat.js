@@ -267,7 +267,7 @@ class Chat extends MultiUsers {
     const { autoConvertEmojiEnabled } = this.modPage.settings;
     try {
       await this.modPage.hasElement(e.hidePrivateChat, 'should display the hide private chat element for the moderator when private chat is open');
-      await this.modPage.waitAndClick(e.chatButton);
+      await this.modPage.waitAndClick(e.messagesSidebarButton);
     } catch {
       await this.modPage.hasElement(e.hidePublicChat, 'should display the hide public chat element for the moderator when public chat is open');
     }

@@ -148,7 +148,7 @@ class Join extends Create {
   async exportBreakoutNotes() {
     const { sharedNotesEnabled } = getSettings();
     if (!sharedNotesEnabled) {
-      await this.modPage.hasElement(e.chatButton, 'should display the chat button to access the public chat');
+      await this.modPage.hasElement(e.messagesSidebarButton, 'should display the chat button to access the public chat');
       return this.modPage.wasRemoved(e.sharedNotesSidebarButton, 'should have removed the shared notes.');
     }
     // join room and type on the shared notes
@@ -187,7 +187,7 @@ class Join extends Create {
   async exportBreakoutWhiteboard() {
     const { sharedNotesEnabled } = getSettings();
     if (!sharedNotesEnabled) {
-      await this.modPage.hasElement(e.chatButton, 'should display the chat button to access the public chat');
+      await this.modPage.hasElement(e.messagesSidebarButton, 'should display the chat button to access the public chat');
       return this.modPage.wasRemoved(e.sharedNotesSidebarButton, 'should have removed the shared notes');
     }
     // join room and draw a line
