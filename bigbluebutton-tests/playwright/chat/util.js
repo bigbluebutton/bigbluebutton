@@ -6,7 +6,7 @@ async function openPublicChat(testPage) {
   const { chatEnabled } = getSettings();
 
   if (!chatEnabled) {
-    return testPage.wasRemoved(e.chatButton, 'public chat should not be displayed');
+    return testPage.wasRemoved(e.messagesSidebarButton, 'public chat should not be displayed');
   }
 
   await testPage.hasElement(e.chatBox, 'should display the chat box for messaging');

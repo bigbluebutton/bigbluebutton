@@ -179,7 +179,7 @@ class Options extends MultiUsers {
     await expect(wbToolbarLocator).toHaveClass(/fade-in/);
     await this.modPage.hasElement(e.wbToolbar, 'should display the whiteboard toolbar when hover the whiteboard');
 
-    await this.modPage.hoverElement(e.chatButton)
+    await this.modPage.hoverElement(e.messagesSidebarButton)
     await expect(wbToolbarLocator).toHaveClass(/fade-out/);
     
     await expect(whiteboardLocator).toHaveScreenshot('whiteboard-with-toolbar-hidden.png', {
