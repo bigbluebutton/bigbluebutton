@@ -750,14 +750,15 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
                   {QUICK_ADD_BUTTONS.map(({ seconds, label }) => {
                     const testId = `add${seconds}s`;
                     const timeLabel = seconds >= 60
-                      ? `${Math.floor(seconds / 60)} minute${Math.floor(seconds / 60) > 1 ? 's' : ''}`
-                      : `${seconds} second${seconds > 1 ? 's' : ''}`;
+                      ? `${Math.floor(seconds / 60)} ${intl.formatMessage(intlMessages.minutes)}`
+                      : `${seconds} ${intl.formatMessage(intlMessages.seconds)}`;
                     return (
                       <Styled.TimerAddButton
                         key={testId}
                         onClick={() => changeTime(seconds)}
                         disabled={running}
                         aria-label={intl.formatMessage(intlMessages.addTime, { time: timeLabel })}
+                        title={intl.formatMessage(intlMessages.addTime, { time: timeLabel })}
                         data-test={testId}
                       >
                         {label}
