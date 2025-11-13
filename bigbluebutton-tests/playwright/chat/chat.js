@@ -211,6 +211,26 @@ class Chat extends MultiUsers {
     await this.modPage.wasRemoved(e.sendButton, 'should not display the send button element after hiding the messages');
   }
 
+  async closePrivateChat() {
+    await openPrivateChat(this.modPage);
+    await this.modPage.waitUntilHaveCountSelector(e.chatButton, 2);
+    const privateChatLocator = this.modPage.getLocatorByIndex(e.chatButton, -1);
+    expect(privateChatLocator, 'should the private chat contain the user name').toContainText(this.userPage.username);
+
+    const chatMessageCount = await this.modPage.getSelectorCount(e.chatUserMessageText);
+
+    await this.modPage.hasElement(e.hidePrivateChat, 'the private chat should display the hide private chat element when opened');
+    await this.modPage.hasElement(e.closePrivateChat, 'the private chat should display the close private chat element when opened');
+    await this.modPage.hasElementCount(e.chatUserMessageText, chatMessageCount);
+    await this.modPage.type(e.chatBox, e.message1);
+    await this.modPage.waitAndClick(e.sendButton);
+    await this.userPage.waitUntilHaveCountSelector(e.chatButton, 2);
+    await this.modPage.waitAndClick(e.closePrivateChat);
+    await this.modPage.wasRemoved(e.hidePrivateChat, 'should not display the hide private chat element');
+    await this.modPage.waitUntilHaveCountSelector(e.chatButton, 1, ELEMENT_WAIT_LONGER_TIME);
+    await this.userPage.hasElementCount(e.chatButton, 2, 'should display both chat buttons for the viewer');
+  }
+
   async emojiSaveChat(testInfo) {
     const { emojiPickerEnabled } = this.modPage.settings;
 
