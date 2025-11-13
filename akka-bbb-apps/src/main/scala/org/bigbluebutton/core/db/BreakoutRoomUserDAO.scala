@@ -45,10 +45,10 @@ object BreakoutRoomUserDAO {
     )
   }
 
-  def updateUserMovedToRoom(meetingId: String, userId: String, tobreakoutRoomMeetingId: String, joinUrl: String) = {
+  def updateUserMovedToRoom(meetingId: String, userId: String, toBreakoutRoomMeetingId: String, joinUrl: String) = {
     DatabaseConnection.enqueue(
       DBIO.seq(
-        BreakoutRoomUserDAO.prepareInsert(tobreakoutRoomMeetingId, meetingId, userId, joinUrl, wasAssignedByMod = true)
+        BreakoutRoomUserDAO.prepareInsert(toBreakoutRoomMeetingId, meetingId, userId, joinUrl, wasAssignedByMod = true)
       )
     )
 

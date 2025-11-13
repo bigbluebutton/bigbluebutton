@@ -29,13 +29,13 @@ export const BREAKOUT_ROOM_END_ALL = gql`
 export const BREAKOUT_ROOM_MOVE_USER = gql`
   mutation BreakoutRoomMoveUser(
     $userId: String!,
-    $fromBreakoutRoomId: String!,
-    $toBreakoutRoomId: String!,
+    $fromBreakoutRoomMeetingId: String!,
+    $toBreakoutRoomMeetingId: String!,
   ) {
     breakoutRoomMoveUser(
       userId: $userId,
-      fromBreakoutRoomId: $fromBreakoutRoomId,
-      toBreakoutRoomId: $toBreakoutRoomId,
+      fromBreakoutRoomMeetingId: $fromBreakoutRoomMeetingId,
+      toBreakoutRoomMeetingId: $toBreakoutRoomMeetingId,
     )
   }
 `;

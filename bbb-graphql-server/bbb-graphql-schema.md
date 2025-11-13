@@ -115,20 +115,20 @@ Permission: Restricted to User Viewing Self-Related Data
 - `chats: Array` [Type chat](#type-chat)
 - `connectionStatus: Object` [Type user_connectionStatus](#type-user_connectionstatus)
 - `guestStatusDetails: Object` [Type user_guest](#type-user_guest)
-- `lastBreakoutRoom: Object` [Type breakoutRoom_user](#type-breakoutRoom_user)
-- `lastBreakoutRoomAssigned: Object` [Type breakoutRoom_user](#type-breakoutRoom_user)
+- `lastBreakoutRoom: Object` [Type breakoutRoom_user](#type-breakoutroom_user)
+- `lastBreakoutRoomAssigned: Object` [Type breakoutRoom_user](#type-breakoutroom_user)
 - `livekit: Object` [Type user_livekit](#type-user_livekit)
 - `meeting: Object` [Type meeting](#type-meeting)
 - `presPagesWritable: Array` [Type pres_page_writers](#type-pres_page_writers)
 - `sessionCurrent: Object` [Type user_session_current](#type-user_session_current)
-- `sharedNotesSession: Object` [Type sharedNotes_session](#type-sharedNotes_session)
-- `transcriptionError: Object` [Type user_transcriptionError](#type-user_transcriptionError)
-- `userClientSettings: Object` [Type user_clientSettings](#type-user_clientSettings)
+- `sharedNotesSession: Object` [Type sharedNotes_session](#type-sharednotes_session)
+- `transcriptionError: Object` [Type user_transcriptionError](#type-user_transcriptionerror)
+- `userClientSettings: Object` [Type user_clientSettings](#type-user_clientsettings)
 - `userLockSettings: Object` **Type user_lockSettings**
   - `disablePublicChat`
 - `userMetadata: Object` [Type user_metadata](#type-user_metadata)
 - `voice: Object` [Type user_voice](#type-user_voice)
-- `welcomeMsgs: Object` [Type user_welcomeMsgs](#type-user_welcomeMsgs)
+- `welcomeMsgs: Object` [Type user_welcomeMsgs](#type-user_welcomemsgs)
 
 ## Type: chat_message_private
 Permission: Restricted to User Viewing Self-Related Data
@@ -231,8 +231,8 @@ Permission: Restricted by Lock Settings
 ### Relationships:
 - `cameras: Array` [Type user_camera](#type-user_camera)
 - `connectionStatus: Object` [Type user_connectionstatus](#type-user_connectionstatus)
-- `lastBreakoutRoom: Object` [Type breakoutRoom_user](#type-breakoutRoom_user)
-- `lastBreakoutRoomAssigned: Object` [Type breakoutRoom_user](#type-breakoutRoom_user)
+- `lastBreakoutRoom: Object` [Type breakoutRoom_user](#type-breakoutroom_user)
+- `lastBreakoutRoomAssigned: Object` [Type breakoutRoom_user](#type-breakoutroom_user)
 - `meeting: Object` [Type meeting](#type-meeting)
 - `presPagesWritable: Array` [Type pres_page_writers](#type-pres_page_writers)
 - `userLockSettings: Object` **Type user_lockSettings**
