@@ -3,15 +3,16 @@ import { UserListDropdownInterface } from 'bigbluebutton-html-plugin-sdk';
 import { User } from '/imports/ui/Types/user';
 
 export interface Writer {
-  pageId: string;
   userId: string;
+  name: string;
+  presenter: boolean;
 }
 
 export interface GetWritersVariables {
 }
 
 export interface GetWritersData {
-  pres_page_writers: Writer[];
+  user_whiteboardWriteAccess: Writer[];
 }
 
 export interface UserListItemProps {

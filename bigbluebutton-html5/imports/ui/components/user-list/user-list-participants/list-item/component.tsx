@@ -88,7 +88,6 @@ const UserListItem: React.FC<UserListItemProps> = ({
   const [getWriters] = useLazyQuery(
     CURRENT_PAGE_WRITERS_QUERY,
     {
-      variables: { pageId },
       fetchPolicy: 'no-cache',
     },
   );

@@ -280,8 +280,7 @@ export const handleWhiteboardAccessChange = async (
   try {
     // Fetch the writers data
     const { data } = await getWriters();
-    const allWriters: Writer[] = data?.pres_page_writers || [];
-    const currentWriters = allWriters?.filter((writer: Writer) => writer.pageId === pageId);
+    const currentWriters: Writer[] = data?.user_whiteboardWriteAccess || [];
 
     // Determine if the user has access
     const { userId } = user;
