@@ -1066,6 +1066,17 @@ WHERE "user"."currentlyInMeeting" is true
 AND "user"."whiteboardWriteAccess" is true;
 
 
+create unlogged table "user_activity"(
+	"meetingId" varchar(100),
+    "userId" varchar(50),
+    "bucketTime" timestamp with time zone,
+    "activityName" text,
+	"count" integer,
+	CONSTRAINT "user_activity_pkey" PRIMARY KEY ("meetingId", "userId", "bucketTime", "activityName"),
+	FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE cascade
+);
+create index "idx_user_activity_orderBy" on "user_activity" ("meetingId", "userId", "bucketTime" asc nulls last, "activityName" asc nulls last);
+
 -- ===================== CHAT TABLES
 
 
@@ -2225,6 +2236,12 @@ where parent_user."transferredFromParentMeeting" is false;
 
 create index on "user"("userId") where "transferredFromParentMeeting" is true and "currentlyInMeeting" is true;
 create index on "user"("meetingId") where "transferredFromParentMeeting" is false;
+
+--view to monitor users activity in the breakout room
+CREATE OR REPLACE VIEW "v_breakoutRoom_user_activity" as
+select u."userId", u."meetingId", u."breakoutRoomMeetingId", a."bucketTime", a."activityName", a.count
+from "breakoutRoom_user" u
+left join "user_activity" a on a."meetingId" = u."breakoutRoomMeetingId" and a."userId" = u."breakoutRoomUserId";
 
 --SELECT DISTINCT br."meetingId", br."breakoutRoomMeetingId", "user"."meetingId", "user"."userId"
 --FROM v_user "user"
