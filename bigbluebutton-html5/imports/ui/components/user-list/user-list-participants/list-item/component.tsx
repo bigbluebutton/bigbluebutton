@@ -20,7 +20,7 @@ import ConfirmationModal from '/imports/ui/components/common/modal/confirmation/
 import AvatarContent from './avatar-content/component';
 import {
   generateActionsPermissions,
-  hasWhiteboardAccess,
+  hasWhiteboardWriteAccess,
   isMe,
   isVoiceOnlyUser,
   createToolbarOptions,
@@ -100,7 +100,7 @@ const UserListItem: React.FC<UserListItemProps> = ({
   const [ejectFromVoice] = useMutation(EJECT_FROM_VOICE);
   const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState<boolean>(false);
 
-  const whiteboardAccess = hasWhiteboardAccess(user);
+  const whiteboardAccess = hasWhiteboardWriteAccess(user);
   const { data: talkingUsers } = useWhoIsTalking();
   const { data: unmutedUsers } = useWhoIsUnmuted();
   const isMuted = !unmutedUsers[user.userId];
