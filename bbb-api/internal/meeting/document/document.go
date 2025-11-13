@@ -325,7 +325,7 @@ func (p *DefaultProcessor) Convert(presentations []coredoc.Presentation) int {
 			Description: fmt.Sprintf("%s/%s executor", pres.MeetingID, pres.ID),
 			Input:       msg,
 			Flow:        p.flow,
-			Timeout:     time.Duration(timeout) * time.Minute,
+			Timeout:     time.Duration(timeout) * time.Second,
 			MaxRetries:  0,
 		}
 		ctx, cancel := context.WithTimeout(msg.Context(), 1*time.Second)

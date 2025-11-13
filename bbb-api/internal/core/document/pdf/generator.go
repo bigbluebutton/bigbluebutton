@@ -42,21 +42,39 @@ func (g *DownloadMarkerGenerator) Generate(msg pipeline.Message[*document.Presen
 // from the provided input document.
 type PageGenerator struct {
 	cfg       config.Config
+	limits    *document.Limits
 	processor document.PageProcessor
 }
 
 // NewPageGenerator creates a new PageGenerator using a default [document.PageProcessor] for PDFs
 // along with the global default configuration.
-func NewPageGenerator() *PageGenerator {
-	return NewPageGeneratorWithProcessorAndConfig(document.NewPDFPageProcessor(), config.DefaultConfig())
+func NewPageGenerator(opts ...func(*PageGenerator)) *PageGenerator {
+	pg := &PageGenerator{
+		cfg:       config.DefaultConfig(),
+		limits:    document.DefaultLimits(),
+		processor: document.NewPDFPageProcessor(),
+	}
+	for _, opt := range opts {
+		opt(pg)
+	}
+	return pg
 }
 
-// NewPageGeneratorWithProcessorAndConfig is like NewPageGenerator but allows the caller to specify
-// the [document.PageProcessor] and configuration that should be used.
-func NewPageGeneratorWithProcessorAndConfig(processor document.PageProcessor, cfg config.Config) *PageGenerator {
-	return &PageGenerator{
-		cfg:       cfg,
-		processor: processor,
+func WithPageConfig(cfg config.Config) func(*PageGenerator) {
+	return func(pg *PageGenerator) {
+		pg.cfg = cfg
+	}
+}
+
+func WithPageLimits(limits *document.Limits) func(*PageGenerator) {
+	return func(pg *PageGenerator) {
+		pg.limits = limits
+	}
+}
+
+func WithPageProcessor(proc document.PageProcessor) func(*PageGenerator) {
+	return func(pg *PageGenerator) {
+		pg.processor = proc
 	}
 }
 
@@ -72,72 +90,100 @@ func (g *PageGenerator) Generate(msg pipeline.Message[*document.Presentation]) (
 	inFile := pres.FilePath
 	numPages, err := g.processor.CountPages(inFile)
 	if err != nil {
-		return pipeline.NewMessageWithContext(pres, msg.Context()), fmt.Errorf("failed to extract pages: %w", err)
+		return pipeline.NewMessageWithContext(pres, msg.Context()), fmt.Errorf("failed to count pages: %w", err)
 	}
+
+	eg, _ := errgroup.WithContext(msg.Context())
+	eg.SetLimit(int(g.limits.PerDocParallelism))
+
+	pages := make([]document.Page, 0)
 
 	for p := 0; p < numPages; p++ {
-		dir := filepath.Dir(inFile)
-		outFile := fmt.Sprintf("%s%cpage-%d.pdf", dir, os.PathSeparator, p)
-		extFile := fmt.Sprintf("%s%cextracted-%d.pdf", dir, os.PathSeparator, p)
+		eg.Go(func() error {
+			dir := filepath.Dir(inFile)
+			outFile := fmt.Sprintf("%s%cpage-%d.pdf", dir, os.PathSeparator, p)
+			extFile := fmt.Sprintf("%s%cextracted-%d.pdf", dir, os.PathSeparator, p)
 
-		if extErr := g.processor.ExtractPage(inFile, extFile, p); extErr != nil {
-			slog.Error("Failed to extract page", "error", extErr)
-			os.Remove(extFile)
-			continue
-		}
-
-		fileInfo, statErr := os.Stat(extFile)
-		if statErr != nil {
-			slog.Error("Could not determine the file size", "error", statErr)
-			os.Remove(extFile)
-			continue
-		}
-
-		if fileInfo.Size() > g.cfg.Processing.PDF.Page.MaxSize {
-			dsFile := fmt.Sprintf("%s%cdownscaled-%d.pdf", dir, os.PathListSeparator, p)
-			if dsErr := g.processor.DownscalePage(extFile, dsFile); dsErr != nil {
-				slog.Error("Failed to downscale page", "error", dsErr)
-			} else {
-				os.Rename(dsFile, outFile)
+			page := document.Page{
+				ParentFilePath: inFile,
+				FilePath:       outFile,
+				Num:            p,
 			}
 
-			os.Remove(extFile)
-			os.Remove(dsFile)
-		} else {
-			os.Rename(extFile, outFile)
-		}
+			if extErr := g.processor.ExtractPage(inFile, extFile, p); extErr != nil {
+				slog.Error("Failed to extract page", "error", extErr)
+				os.Remove(extFile)
+				return nil
+			}
 
-		page := document.Page{
-			ParentFilePath: inFile,
-			FilePath:       outFile,
-			Num:            p,
-		}
+			fileInfo, statErr := os.Stat(extFile)
+			if statErr != nil {
+				slog.Error("Could not determine the file size", "error", statErr)
+				os.Remove(extFile)
+				return nil
+			}
 
-		pres.Pages = append(pres.Pages, page)
+			if fileInfo.Size() > g.cfg.Processing.PDF.Page.MaxSize {
+				dsFile := fmt.Sprintf("%s%cdownscaled-%d.pdf", dir, os.PathListSeparator, p)
+				if dsErr := g.processor.DownscalePage(extFile, dsFile); dsErr != nil {
+					slog.Error("Failed to downscale page", "error", dsErr)
+					page.UseBlanks = true
+				} else {
+					os.Rename(dsFile, outFile)
+				}
+
+				os.Remove(extFile)
+				os.Remove(dsFile)
+			} else {
+				os.Rename(extFile, outFile)
+			}
+
+			pages = append(pres.Pages, page)
+			return nil
+		})
 	}
 
+	pres.Pages = pages
 	return pipeline.NewMessageWithContext(pres, msg.Context()), nil
 }
 
 // Thumbnail generator handles the creation of thumbnails for a
 // provided document.
 type ThumbnailGenerator struct {
-	cfg  config.Config
-	exec func(ctx context.Context, name string, args ...string) *exec.Cmd
+	cfg    config.Config
+	limits *document.Limits
+	exec   func(ctx context.Context, name string, args ...string) *exec.Cmd
 }
 
 // NewThumbnailGenerator creates a new ThumbnailGenerator using the default
 // global configuration.
-func NewThumbnailGenerator() *ThumbnailGenerator {
-	return NewThumbnailGeneratorWithConfig(config.DefaultConfig())
+func NewThumbnailGenerator(opts ...func(*ThumbnailGenerator)) *ThumbnailGenerator {
+	tg := &ThumbnailGenerator{
+		cfg:    config.DefaultConfig(),
+		limits: document.DefaultLimits(),
+		exec:   exec.CommandContext,
+	}
+	for _, opt := range opts {
+		opt(tg)
+	}
+	return tg
 }
 
-// NewThumbnailGeneratorWithConfig is like NewThumbnailGenerator but allows the
-// caller to specify the configuration that should be used.
-func NewThumbnailGeneratorWithConfig(cfg config.Config) *ThumbnailGenerator {
-	return &ThumbnailGenerator{
-		cfg:  cfg,
-		exec: exec.CommandContext,
+func WithThumbnailConfig(cfg config.Config) func(*ThumbnailGenerator) {
+	return func(tg *ThumbnailGenerator) {
+		tg.cfg = cfg
+	}
+}
+
+func WithThumbnailLimits(limits *document.Limits) func(*ThumbnailGenerator) {
+	return func(tg *ThumbnailGenerator) {
+		tg.limits = limits
+	}
+}
+
+func WithThumbnailExec(exec func(ctx context.Context, name string, args ...string) *exec.Cmd) func(*ThumbnailGenerator) {
+	return func(tg *ThumbnailGenerator) {
+		tg.exec = exec
 	}
 }
 
@@ -149,69 +195,110 @@ func NewThumbnailGeneratorWithConfig(cfg config.Config) *ThumbnailGenerator {
 func (g *ThumbnailGenerator) Generate(msg pipeline.Message[*document.Presentation]) (pipeline.Message[*document.Presentation], error) {
 	pres := msg.Payload
 	pages := make([]document.Page, 0)
-	timeout := g.cfg.Generation.Thumbnail.Timeout
+	timeout := time.Duration(g.cfg.Generation.Thumbnail.Timeout) * time.Second
 	thumbnailDir := fmt.Sprintf("%s%cthumbnails", filepath.Dir(pres.FilePath), os.PathSeparator)
 
+	eg, ctx := errgroup.WithContext(msg.Context())
+	eg.SetLimit(int(g.limits.PerDocParallelism))
+
 	for _, page := range pres.Pages {
-		thumbnail := fmt.Sprintf("%s%cthumb-%d.png", thumbnailDir, os.PathSeparator, page.Num)
-		args := []string{
-			"-png",
-			"-scale-to",
-			"150",
-			"-cropbox",
-			"-singlefile",
-			page.FilePath,
-			thumbnail,
-		}
+		eg.Go(func() error {
+			thumbnail := fmt.Sprintf("%s%cthumb-%d.png", thumbnailDir, os.PathSeparator, page.Num)
+			newPage := page.Copy()
+			newPage.ThumbnailPath = thumbnail
+			pages = append(pages, newPage)
 
-		ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeout)*time.Second)
-		defer cancel()
+			pageCtx, cancel := context.WithTimeout(ctx, timeout)
+			defer cancel()
 
-		cmd := g.exec(ctx, "pdftocairo", args...)
-		output, thumbErr := cmd.CombinedOutput()
-		if thumbErr != nil {
-			slog.Error("Failed to generate thumbnail", "source", page.FilePath, "page", page.Num, "error", thumbErr, "output", output)
-			_, statErr := os.Stat(thumbnail)
-			if os.IsNotExist(statErr) {
-				blank := g.cfg.Generation.Blank.Thumbnail
-				cpErr := document.Copy(blank, thumbnail)
-				if cpErr != nil {
-					slog.Error("Failed to copy blank thumbnail", "source", blank, "dest", thumbnail, "error", cpErr)
-					thumbnail = page.ThumbnailPath
-				}
+			err := g.pdfToThumbnail(pageCtx, page.FilePath, thumbnail)
+			if err == nil {
+				return nil
 			}
-		}
 
-		newPage := page.Copy()
-		newPage.ThumbnailPath = thumbnail
+			slog.Error("PDF to thumbnail failed", "meeting", pres.MeetingID, "presentation", pres.ID, "page", page.Num, "error", err)
 
-		pages = append(pages, newPage)
+			blank := g.cfg.Generation.Blank.PNG
+			err = document.Copy(blank, thumbnail)
+			if err != nil {
+				slog.Error("Failed copy blank thumbnal", "source", blank, "dest", thumbnail, "error", err)
+			}
+			return nil
+		})
 	}
 
 	pres.Pages = pages
-
 	return pipeline.NewMessageWithContext(pres, msg.Context()), nil
+}
+
+func (g *ThumbnailGenerator) pdfToThumbnail(ctx context.Context, pdfPath, thumbPath string) error {
+	releaseImg, err := document.Acquire(ctx, g.limits.PDFToImageSlots, 1)
+	if err != nil {
+		return err
+	}
+	defer releaseImg()
+
+	releaseExec, err := document.Acquire(ctx, g.limits.ExecSlots, 1)
+	if err != nil {
+		return err
+	}
+	defer releaseExec()
+
+	args := []string{
+		"-png",
+		"-scale-to",
+		"150",
+		"-cropbox",
+		"-singlefile",
+		pdfPath,
+		thumbPath,
+	}
+
+	cmd := g.exec(ctx, "pdftocairo", args...)
+	if out, err := cmd.CombinedOutput(); err != nil {
+		return fmt.Errorf("PDF to thumbnail: %w; output: %s", err, string(out))
+	}
+
+	return nil
 }
 
 // TextFileGenerate handles the generation of text files from
 // a provided document.
 type TextFileGenerator struct {
-	cfg  config.Config
-	exec func(ctx context.Context, name string, args ...string) *exec.Cmd
+	cfg    config.Config
+	limits *document.Limits
+	exec   func(ctx context.Context, name string, args ...string) *exec.Cmd
 }
 
 // NewTextFileGenerator creates a new TextFileGenerator using the global
 // default confguration.
-func NewTextFileGenerator() *TextFileGenerator {
-	return NewTextFileGeneratorWithConfig(config.DefaultConfig())
+func NewTextFileGenerator(opts ...func(*TextFileGenerator)) *TextFileGenerator {
+	tfg := &TextFileGenerator{
+		cfg:    config.DefaultConfig(),
+		limits: document.DefaultLimits(),
+		exec:   exec.CommandContext,
+	}
+	for _, opt := range opts {
+		opt(tfg)
+	}
+	return tfg
 }
 
-// NewTextFileGeneratorWithConfig is like NewTextFileGenerator but allows the
-// caller to specify the configuration that should be used.
-func NewTextFileGeneratorWithConfig(cfg config.Config) *TextFileGenerator {
-	return &TextFileGenerator{
-		cfg:  cfg,
-		exec: exec.CommandContext,
+func WithTextFileConfig(cfg config.Config) func(*TextFileGenerator) {
+	return func(tfg *TextFileGenerator) {
+		tfg.cfg = cfg
+	}
+}
+
+func WithTextFileLimits(limits *document.Limits) func(*TextFileGenerator) {
+	return func(tfg *TextFileGenerator) {
+		tfg.limits = limits
+	}
+}
+
+func WithTextFileExec(exec func(ctx context.Context, name string, args ...string) *exec.Cmd) func(*TextFileGenerator) {
+	return func(tfg *TextFileGenerator) {
+		tfg.exec = exec
 	}
 }
 
@@ -221,43 +308,59 @@ func NewTextFileGeneratorWithConfig(cfg config.Config) *TextFileGenerator {
 func (g *TextFileGenerator) Generate(msg pipeline.Message[*document.Presentation]) (pipeline.Message[*document.Presentation], error) {
 	pres := msg.Payload
 	pages := make([]document.Page, 0)
-	timeout := g.cfg.Generation.TextFile.Timeout
+	timeout := time.Duration(g.cfg.Generation.TextFile.Timeout) * time.Second
 	textFileDir := fmt.Sprintf("%s%ctextfiles", pres.FilePath, os.PathSeparator)
 
-	for _, page := range msg.Payload.Pages {
-		textFile := fmt.Sprintf("%s%cslide-%d.txt", textFileDir, os.PathSeparator, page.Num)
-		args := []string{
-			"-raw",
-			"-nopgbrk",
-			"-enc",
-			"UTF-8",
-			"-f",
-			strconv.Itoa(page.Num),
-			"-l",
-			strconv.Itoa(page.Num),
-			pres.FilePath,
-			textFile,
-		}
+	eg, ctx := errgroup.WithContext(msg.Context())
+	eg.SetLimit(int(g.limits.PerDocParallelism))
 
-		ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeout)*time.Second)
-		defer cancel()
+	for _, page := range pages {
+		eg.Go(func() error {
+			textFile := fmt.Sprintf("%s%cslide-%d.txt", textFileDir, os.PathSeparator, page.Num)
 
-		cmd := g.exec(ctx, "pdftotext", args...)
-		output, thumbErr := cmd.CombinedOutput()
-		if thumbErr != nil {
-			slog.Error("Failed to generate text file", "source", pres.FilePath, "page", page.Num, "error", thumbErr, "output", output)
-			textFile = ""
-		}
+			pageCtx, cancel := context.WithTimeout(ctx, timeout)
+			defer cancel()
 
-		newPage := page.Copy()
-		newPage.TextFilePath = textFile
+			if err := g.pdfToText(pageCtx, page.FilePath, textFile, page.Num); err != nil {
+				slog.Error("PDF to text failed", "meeting", pres.MeetingID, "presentation", pres.ID, "page", page.Num, "error", err)
+			}
 
-		pages = append(pages, newPage)
+			newPage := page.Copy()
+			newPage.TextFilePath = textFile
+			pages = append(pages, newPage)
+			return nil
+		})
 	}
 
 	pres.Pages = pages
-
 	return pipeline.NewMessageWithContext(pres, msg.Context()), nil
+}
+
+func (g *TextFileGenerator) pdfToText(ctx context.Context, pdfPath, textPath string, page int) error {
+	release, err := document.Acquire(ctx, g.limits.ExecSlots, 1)
+	if err != nil {
+		return err
+	}
+	defer release()
+
+	args := []string{
+		"-raw",
+		"-nopgbrk",
+		"-enc",
+		"UTF-8",
+		"-f",
+		strconv.Itoa(page),
+		"-l",
+		strconv.Itoa(page),
+		pdfPath,
+		textPath,
+	}
+
+	cmd := g.exec(ctx, "pdftotext", args...)
+	if out, err := cmd.CombinedOutput(); err != nil {
+		return fmt.Errorf("PDF to text: %w; output: %s", err, string(out))
+	}
+	return nil
 }
 
 // SVGGenerator manages the generation of SVGs for a
@@ -270,21 +373,33 @@ type SVGGenerator struct {
 
 // NewSVGGenerator creates a new SVGGenerator using the global
 // default configuration.
-func NewSVGGenerator() *SVGGenerator {
-	return NewSVGGeneratorWithConfig(config.DefaultConfig())
-}
-
-// NewSVGGeneratorWithConfig is like NewSVGGenerator but allows the
-// caller to specifiy the configuration that should be used.
-func NewSVGGeneratorWithConfig(cfg config.Config) *SVGGenerator {
-	return NewSVGGeneratorWithConfigAndLimits(cfg, document.DefaultLimits())
-}
-
-func NewSVGGeneratorWithConfigAndLimits(cfg config.Config, limits *document.Limits) *SVGGenerator {
-	return &SVGGenerator{
-		cfg:    cfg,
-		limits: limits,
+func NewSVGGenerator(opts ...func(*SVGGenerator)) *SVGGenerator {
+	s := &SVGGenerator{
+		cfg:    config.DefaultConfig(),
+		limits: document.DefaultLimits(),
 		exec:   exec.CommandContext,
+	}
+	for _, opt := range opts {
+		opt(s)
+	}
+	return s
+}
+
+func WithSVGConfig(cfg config.Config) func(*SVGGenerator) {
+	return func(s *SVGGenerator) {
+		s.cfg = cfg
+	}
+}
+
+func WithSVGLimits(limits *document.Limits) func(*SVGGenerator) {
+	return func(s *SVGGenerator) {
+		s.limits = limits
+	}
+}
+
+func WithSVGExec(exec func(ctx context.Context, name string, args ...string) *exec.Cmd) func(*SVGGenerator) {
+	return func(s *SVGGenerator) {
+		s.exec = exec
 	}
 }
 
@@ -348,7 +463,7 @@ func (g *SVGGenerator) Generate(msg pipeline.Message[*document.Presentation]) (p
 				os.Remove(pngPath)
 			}
 
-			if _, statErr := os.Stat(svgPath); os.IsNotExist(statErr) {
+			if info, statErr := os.Stat(svgPath); os.IsNotExist(statErr) || info.Size() > int64(g.cfg.Generation.SVG.MaxSize) {
 				blankSvg := g.cfg.Generation.Blank.SVG
 				if cpErr := document.Copy(blankSvg, svgPath); cpErr != nil {
 					slog.Error("Failed to copy blank SVG", "meeting", pres.MeetingID, "presentation", pres.ID, "page", page.Num, "src", blankSvg, "dest", svgPath, "error", cpErr)
@@ -390,16 +505,27 @@ func (g *SVGGenerator) detectFontTypeWithRetry(
 		if err == nil {
 			return rasterize, err
 		}
+		select {
+		case <-time.After(time.Duration(100*attempt) * time.Millisecond):
+		case <-ctx.Done():
+			return true, ctx.Err()
+		}
 	}
 	return true, fmt.Errorf("font detection failed after %d attempts: %w", maxAttempts, err)
 }
 
 func (g *SVGGenerator) pdfToSVG(ctx context.Context, pdfPath, svgPath string, page int) error {
-	release, err := document.Acquire(ctx, g.limits.ExecSlots, 1)
+	releaseImg, err := document.Acquire(ctx, g.limits.PDFToImageSlots, 1)
 	if err != nil {
 		return err
 	}
-	defer release()
+	defer releaseImg()
+
+	releaseExec, err := document.Acquire(ctx, g.limits.ExecSlots, 1)
+	if err != nil {
+		return err
+	}
+	defer releaseExec()
 
 	cmd := document.NewGenerationProcess(document.GenerationProcessPDFToCairo).
 		Resolution(g.cfg.Generation.SVG.Resolution).
@@ -453,12 +579,14 @@ func (g *SVGGenerator) shouldRasterize(svgPath string) (bool, error) {
 		return true, err
 	}
 
-	numImg, _ := document.CountSVGImageTags(svgPath)
-	numTags, _ := document.CountSVGTags(svgPath)
+	numImg, _ := document.CountImageTags(svgPath)
+	numTags, _ := document.CountUseTags(svgPath)
+	numUseTags, _ := document.CountUseTags(svgPath)
 
 	return size == 0 ||
 		numImg > g.cfg.Generation.SVG.MaxImages ||
-		numTags > g.cfg.Generation.SVG.MaxTags, nil
+		numTags > g.cfg.Generation.SVG.MaxTags ||
+		numUseTags > g.cfg.Generation.SVG.MaxUseTags, nil
 }
 
 func (g *SVGGenerator) embedPNGInSVG(pngPath, svgPath string, timeout time.Duration) error {
@@ -513,23 +641,40 @@ func (g *SVGGenerator) embedPNGInSVG(pngPath, svgPath string, timeout time.Durat
 // PNGGenerator handles the creation of PNGs
 // for a provided file.
 type PNGGenerator struct {
-	cfg  config.Config
-	exec func(ctx context.Context, name string, args ...string) *exec.Cmd
+	cfg    config.Config
+	limits *document.Limits
+	exec   func(ctx context.Context, name string, args ...string) *exec.Cmd
 }
 
 // NewPNGGenerator creates a new PNGGenerator using
 // the global default configuration.
-func NewPNGGenerator() *PNGGenerator {
-	return NewPNGGeneratorWithConfig(config.DefaultConfig())
+func NewPNGGenerator(opts ...func(*PNGGenerator)) *PNGGenerator {
+	p := &PNGGenerator{
+		cfg:    config.DefaultConfig(),
+		limits: document.DefaultLimits(),
+		exec:   exec.CommandContext,
+	}
+	for _, opt := range opts {
+		opt(p)
+	}
+	return p
 }
 
-// NewPNGGeneratorWithConfig is like NewPNGGenerator
-// but allows the caller to specify the confguration
-// that should be used.
-func NewPNGGeneratorWithConfig(cfg config.Config) *PNGGenerator {
-	return &PNGGenerator{
-		cfg:  cfg,
-		exec: exec.CommandContext,
+func WithPNGConfig(cfg config.Config) func(*PNGGenerator) {
+	return func(p *PNGGenerator) {
+		p.cfg = cfg
+	}
+}
+
+func WithPNGLimits(limits *document.Limits) func(*PNGGenerator) {
+	return func(p *PNGGenerator) {
+		p.limits = limits
+	}
+}
+
+func WithPNGExec(exec func(ctx context.Context, name string, args ...string) *exec.Cmd) func(*PNGGenerator) {
+	return func(p *PNGGenerator) {
+		p.exec = exec
 	}
 }
 
@@ -539,53 +684,71 @@ func NewPNGGeneratorWithConfig(cfg config.Config) *PNGGenerator {
 // fails for a page then a default blank PNG will try to be used for that page's PNG.
 func (g *PNGGenerator) Generate(msg pipeline.Message[*document.Presentation]) (pipeline.Message[*document.Presentation], error) {
 	pres := msg.Payload
-
 	if !g.cfg.Generation.PNG.Generate {
 		return pipeline.NewMessageWithContext(pres, msg.Context()), nil
 	}
 
 	pages := make([]document.Page, 0)
-	timeout := g.cfg.Generation.PNG.Timeout
+	timeout := time.Duration(g.cfg.Generation.PNG.Timeout) * time.Second
 	pngDir := fmt.Sprintf("%s%cpngs", pres.FilePath, os.PathSeparator)
 
+	ctx := msg.Context()
+	eg, ctx := errgroup.WithContext(ctx)
+	eg.SetLimit(int(g.limits.PerDocParallelism))
+
 	for _, page := range msg.Payload.Pages {
-		png := fmt.Sprintf("%s%cslide-%d.png", pngDir, os.PathSeparator, page.Num)
+		eg.Go(func() error {
+			pageCtx, cancel := context.WithTimeout(ctx, timeout)
+			defer cancel()
 
-		args := []string{
-			"-png",
-			"-scale-to",
-			strconv.Itoa(g.cfg.Generation.PNG.SlideWidth),
-			"-cropbox",
-			"-singlefile",
-			page.FilePath,
-			png,
-		}
+			png := fmt.Sprintf("%s%cslide-%d.png", pngDir, os.PathSeparator, page.Num)
+			newPage := page.Copy()
+			newPage.PNGPath = png
+			pages = append(pages, newPage)
 
-		ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeout)*time.Second)
-		defer cancel()
-
-		cmd := g.exec(ctx, "pdftocairo", args...)
-		output, pngErr := cmd.CombinedOutput()
-		if pngErr != nil {
-			slog.Error("Failed to generate PNG", "source", page.FilePath, "page", page.Num, "error", pngErr, "output", output)
-			_, statErr := os.Stat(png)
-			if os.IsNotExist(statErr) {
-				blank := g.cfg.Generation.Blank.PNG
-				cpErr := document.Copy(blank, png)
-				if cpErr != nil {
-					slog.Error("Failed copy blank PNG", "source", blank, "dest", png, "error", cpErr)
-					png = page.PNGPath
-				}
+			err := g.pdfToPNG(pageCtx, page.FilePath, png, page.Num)
+			if err == nil {
+				return nil
 			}
-		}
 
-		newPage := page.Copy()
-		newPage.PNGPath = png
+			slog.Error("PDF to PNG failed", "meeting", pres.MeetingID, "presentation", pres.ID, "page", page.Num, "error", err)
 
-		pages = append(pages, newPage)
+			blank := g.cfg.Generation.Blank.PNG
+			err = document.Copy(blank, png)
+			if err != nil {
+				slog.Error("Failed copy blank PNG", "source", blank, "dest", png, "error", err)
+			}
+			return nil
+		})
 	}
 
 	pres.Pages = pages
-
 	return pipeline.NewMessageWithContext(pres, msg.Context()), nil
+}
+
+func (g *PNGGenerator) pdfToPNG(ctx context.Context, pdfPath, pngPath string, page int) error {
+	releaseImg, err := document.Acquire(ctx, g.limits.PDFToImageSlots, 1)
+	if err != nil {
+		return err
+	}
+	defer releaseImg()
+
+	releaseExec, err := document.Acquire(ctx, g.limits.ExecSlots, 1)
+	if err != nil {
+		return err
+	}
+	defer releaseExec()
+
+	cmd := document.NewGenerationProcess(document.GenerationProcessPDFToCairo).
+		Resolution(g.cfg.Generation.SVG.Resolution).
+		Format(document.GenerationProcessFormatPNG).
+		Pages(page, page).
+		InputOutput(pdfPath, pngPath).
+		Execute(g.exec, int(g.cfg.Generation.PNG.Timeout), ctx)
+
+	if out, err := cmd.CombinedOutput(); err != nil {
+		return fmt.Errorf("PDF to PNG: %w; output: %s", err, string(out))
+	}
+
+	return nil
 }

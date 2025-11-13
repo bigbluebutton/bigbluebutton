@@ -12,11 +12,11 @@ import (
 // well.
 func NewPDFFlow(cfg config.Config, processor document.PageProcessor) pipeline.Flow[*document.Presentation, *document.Presentation] {
 	generateDownloadMarker := pipeline.NewStep[*document.Presentation, *document.Presentation]().Generate(&DownloadMarkerGenerator{})
-	generatePages := pipeline.NewStep[*document.Presentation, *document.Presentation]().Generate(NewPageGeneratorWithProcessorAndConfig(processor, cfg))
-	generateThumbnails := pipeline.NewStep[*document.Presentation, *document.Presentation]().Generate(NewThumbnailGeneratorWithConfig(cfg))
-	generateTextFiles := pipeline.NewStep[*document.Presentation, *document.Presentation]().Generate(NewTextFileGeneratorWithConfig(cfg))
-	generateSVGs := pipeline.NewStep[*document.Presentation, *document.Presentation]().Generate(NewSVGGeneratorWithConfig(cfg))
-	generatePNGs := pipeline.NewStep[*document.Presentation, *document.Presentation]().Generate(NewPNGGeneratorWithConfig(cfg))
+	generatePages := pipeline.NewStep[*document.Presentation, *document.Presentation]().Generate(NewPageGenerator(WithPageConfig(cfg), WithPageProcessor(processor)))
+	generateThumbnails := pipeline.NewStep[*document.Presentation, *document.Presentation]().Generate(NewThumbnailGenerator(WithThumbnailConfig(cfg)))
+	generateTextFiles := pipeline.NewStep[*document.Presentation, *document.Presentation]().Generate(NewTextFileGenerator(WithTextFileConfig(cfg)))
+	generateSVGs := pipeline.NewStep[*document.Presentation, *document.Presentation]().Generate(NewSVGGenerator(WithSVGConfig(cfg)))
+	generatePNGs := pipeline.NewStep[*document.Presentation, *document.Presentation]().Generate(NewPNGGenerator(WithPNGConfig(cfg)))
 
 	f1 := pipeline.Add(generateDownloadMarker.Flow(), generatePages)
 	f2 := pipeline.Add(f1, generateThumbnails)

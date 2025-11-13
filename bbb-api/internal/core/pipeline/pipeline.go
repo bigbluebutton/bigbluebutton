@@ -209,6 +209,28 @@ func Merge[T, U, V any](f1 Flow[T, U], f2 Flow[U, V]) Flow[T, V] {
 	}
 }
 
+// MergeIf combines an existing [Flow] that takes an input [Message] with a payload of type T and outputs
+// a message with a payload of type U with another [Flow] that takes an input message with a payload of
+// type U and outputs a message with a payload of type U if the provided predicate evaluates to true. The
+// returned flow will take an input Message with a payload of type T and output a message with a payload
+// of type U.
+func MergeIf[T, U any](predicate func(Message[T]) bool, f1 Flow[T, U], f2 Flow[U, U]) Flow[T, U] {
+	return Flow[T, U]{
+		Execute: composeExecuteIf(predicate, f1.Execute, f2.Execute),
+	}
+}
+
+// Branch combines an existing [Flow] that takes an input [Message] with a payload of type T and outputs
+// a message with a payload of type U with one of multiple other Flows that take an input message with a
+// payload of type U and output a message with a payload of type V using the provided decision function to
+// determine which [Flow] to use. The returned flow will take an input Message with a payload of type T
+// and output a message with a payload of type U.
+func Branch[T, U, V any](decide func(Message[U]) Flow[U, V], root Flow[T, U]) Flow[T, V] {
+	return Flow[T, V]{
+		Execute: composeExecuteBranch(decide, root.Execute),
+	}
+}
+
 func composeExecute[T, U, V any](f1 func(Message[T]) (Message[U], error), f2 func(Message[U]) (Message[V], error)) func(Message[T]) (Message[V], error) {
 	return func(msg Message[T]) (Message[V], error) {
 		result, err := f1(msg)
@@ -216,5 +238,29 @@ func composeExecute[T, U, V any](f1 func(Message[T]) (Message[U], error), f2 fun
 			return Message[V]{}, err
 		}
 		return f2(result)
+	}
+}
+
+func composeExecuteIf[T, U any](predicate func(Message[T]) bool, f1 func(Message[T]) (Message[U], error), f2 func(Message[U]) (Message[U], error)) func(Message[T]) (Message[U], error) {
+	return func(msg Message[T]) (Message[U], error) {
+		if !predicate(msg) {
+			return f1(msg)
+		}
+		result, err := f1(msg)
+		if err != nil {
+			return Message[U]{}, err
+		}
+		return f2(result)
+	}
+}
+
+func composeExecuteBranch[T, U, V any](decide func(Message[U]) Flow[U, V], root func(Message[T]) (Message[U], error)) func(Message[T]) (Message[V], error) {
+	return func(msg Message[T]) (Message[V], error) {
+		result, err := root(msg)
+		if err != nil {
+			return Message[V]{}, err
+		}
+		branch := decide(result)
+		return branch.Execute(result)
 	}
 }

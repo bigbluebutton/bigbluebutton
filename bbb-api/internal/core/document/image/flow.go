@@ -15,8 +15,8 @@ func NewImageFlow(imgResizer document.ImageResizer, cfg config.Config) pipeline.
 	generateThumbnail := pipeline.NewStep[*document.Presentation, *document.Presentation]().Generate(NewThumbnailGeneratorWithConfig(cfg))
 	generateTextFile := pipeline.NewStep[*document.Presentation, *document.Presentation]().Generate(&TextFileGenerator{})
 	transformToPDF := pipeline.NewStep[*document.Presentation, *document.Presentation]().Transform(NewPDFTransformerWithConfig(cfg))
-	generateSVG := pipeline.NewStep[*document.Presentation, *document.Presentation]().Generate(pdf.NewSVGGeneratorWithConfig(cfg))
-	generatePNG := pipeline.NewStep[*document.Presentation, *document.Presentation]().Generate(pdf.NewPNGGeneratorWithConfig(cfg))
+	generateSVG := pipeline.NewStep[*document.Presentation, *document.Presentation]().Generate(pdf.NewSVGGenerator(pdf.WithSVGConfig(cfg)))
+	generatePNG := pipeline.NewStep[*document.Presentation, *document.Presentation]().Generate(pdf.NewPNGGenerator(pdf.WithPNGConfig(cfg)))
 
 	f1 := pipeline.Add(generateDownloadMarker.Flow(), generateThumbnail)
 	f2 := pipeline.Add(f1, generateTextFile)

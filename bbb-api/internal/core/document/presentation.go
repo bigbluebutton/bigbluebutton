@@ -53,6 +53,7 @@ type Page struct {
 	TextFilePath   string
 	SVGPath        string
 	PNGPath        string
+	UseBlanks      bool
 }
 
 // Copy creates a deep copy of the [Page] and returns

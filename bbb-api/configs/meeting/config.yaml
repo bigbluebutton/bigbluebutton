@@ -157,11 +157,11 @@ presentation:
     # The number of presentations that can be converted concurrently    
     num_conversion_workers: 4
     # The maximum amount of time allowed for a presentation conversion 
-    # in minutes
-    timeout: 20
+    # in seconds
+    timeout: 1200
     # The maximum amount of time allowed for a single presentation page 
-    # to convert in minutes
-    page_timeout: 1 
+    # to convert in seconds
+    page_timeout: 60 
     
   default: default.pdf
   base_path: bigbluebutton/presentation

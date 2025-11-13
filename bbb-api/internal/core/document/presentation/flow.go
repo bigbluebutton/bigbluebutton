@@ -1,6 +1,8 @@
 package presentation
 
 import (
+	"path/filepath"
+
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/gen/meeting"
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/document"
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/document/config"
@@ -27,16 +29,16 @@ func NewPresentationFlow(client document.Client) pipeline.Flow[*document.Present
 	cfg := config.DefaultConfig()
 	processor := document.NewPDFPageProcessor()
 
-	// TODO: handle branching without state
-
-	var conversionFlow pipeline.Flow[*document.Presentation, *document.Presentation]
-	if document.IsImageFile("") {
-		conversionFlow = image.NewImageFlow(document.NewCMDIMageResizerWithConfig(cfg), cfg)
-	} else if document.IsOfficeFile("") {
-		conversionFlow = office.NewOfficeFlow(cfg, processor)
-	} else {
-		conversionFlow = pdf.NewPDFFlow(cfg, processor)
+	decide := func(msg pipeline.Message[*document.Presentation]) pipeline.Flow[*document.Presentation, *document.Presentation] {
+		ext := filepath.Ext(msg.Payload.FilePath)
+		if document.IsImageFile(ext) {
+			return image.NewImageFlow(document.NewCMDIMageResizerWithConfig(cfg), cfg)
+		} else if document.IsOfficeFile(ext) {
+			return office.NewOfficeFlow(cfg, processor)
+		} else {
+			return pdf.NewPDFFlow(cfg, processor)
+		}
 	}
 
-	return pipeline.Merge(f3, conversionFlow)
+	return pipeline.Branch(decide, f3)
 }

@@ -11,12 +11,12 @@ import (
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/document/config"
 )
 
-// CountSVGImageTags will attempt to determine the number of
+// CountImageTags will attempt to determine the number of
 // <image> tags present in the SVG file located at the provided
 // path. If a problem occurs, zero will be returned for the number
 // of images tags along with an error.
-func CountSVGImageTags(path string) (int, error) {
-	file, err := os.Open(path)
+func CountImageTags(filePath string) (int, error) {
+	file, err := os.Open(filePath)
 	if err != nil {
 		return 0, fmt.Errorf("failed to open file: %w", err)
 	}
@@ -45,11 +45,11 @@ func CountSVGImageTags(path string) (int, error) {
 	return imageCount, nil
 }
 
-// CountSVGTags attempts to determine the number of
-// tags that are present in the SVG file located at the
-// provided path. If a problem occurs, zero will be retured
-// for the number of tags along with an error.
-func CountSVGTags(filePath string) (int, error) {
+// CountPathTags will attempt to determine the number of
+// <path> tags present in the SVG file located at the provided
+// path. If a problem occurs, zero will be returned for the number
+// of images tags along with an error.
+func CountPathTags(filePath string) (int, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
 		return 0, fmt.Errorf("failed to open file: %w", err)
@@ -57,7 +57,7 @@ func CountSVGTags(filePath string) (int, error) {
 	defer file.Close()
 
 	decoder := xml.NewDecoder(file)
-	tagCount := 0
+	pathCount := 0
 
 	for {
 		token, err := decoder.Token()
@@ -68,13 +68,49 @@ func CountSVGTags(filePath string) (int, error) {
 			return 0, fmt.Errorf("error reading XML: %w", err)
 		}
 
-		switch token.(type) {
+		switch element := token.(type) {
 		case xml.StartElement:
-			tagCount++
+			if element.Name.Local == "path" {
+				pathCount++
+			}
 		}
 	}
 
-	return tagCount, nil
+	return pathCount, nil
+}
+
+// CountUseTags will attempt to determine the number of
+// <use> tags present in the SVG file located at the provided
+// path. If a problem occurs, zero will be returned for the number
+// of images tags along with an error.
+func CountUseTags(filePath string) (int, error) {
+	file, err := os.Open(filePath)
+	if err != nil {
+		return 0, fmt.Errorf("failed to open file: %w", err)
+	}
+	defer file.Close()
+
+	decoder := xml.NewDecoder(file)
+	useCount := 0
+
+	for {
+		token, err := decoder.Token()
+		if err != nil {
+			if err.Error() == "EOF" {
+				break
+			}
+			return 0, fmt.Errorf("error reading XML: %w", err)
+		}
+
+		switch element := token.(type) {
+		case xml.StartElement:
+			if element.Name.Local == "use" {
+				useCount++
+			}
+		}
+	}
+
+	return useCount, nil
 }
 
 // ImageResizer is an interface that wraps the basic Resize

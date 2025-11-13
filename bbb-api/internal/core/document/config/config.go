@@ -122,6 +122,11 @@ type Config struct {
 			// The maximum number of overall tags that can
 			// be present in a generated SVG.
 			MaxTags int `yaml:"max_tags"`
+			// The maximum number of use tags that can be
+			// present in a generated SVG.
+			MaxUseTags int `yaml:"max_use_tags"`
+			// The maximum allowed size for an SVG in bytes.
+			MaxSize int `yaml:"max_size"`
 			// PDF settings
 			PDF struct {
 				// Font detection settings.
