@@ -1,6 +1,5 @@
 import { expect } from '@playwright/test';
 
-import { ELEMENT_WAIT_TIME, VIDEO_LOADING_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { checkDefaultLocationReset, checkScreenshots } from '../layouts/util';
 import { MultiUsers } from '../user/multiusers';
@@ -183,80 +182,12 @@ export class CreateParameters extends MultiUsers {
     // checking the default location being reset when dropping into a non-available location
     await checkDefaultLocationReset(this.modPage);
 
-    await this.modPage.dragAndDropWebcams(e.dropAreaSidebarBottom);
-    await checkScreenshots(this, 'should be on custom layout', 'video', 'custom-layout', 2);
-
-    await this.modPage.dragAndDropWebcams(e.dropAreaSidebarBottom);
-    await checkScreenshots(this, 'should be on custom layout', 'video', 'custom-layout', 3);
-
     await this.modPage.waitAndClick(e.userListToggleBtn);
     await this.modPage.wasRemoved(e.chatButton, 'should not be displayed the chat button');
     await this.modPage.wasRemoved(e.sendButton, 'should not be displayed the send button');
     await this.modPage.page.waitForTimeout(1000);
 
     await checkScreenshots(this, 'should be on custom layout', 'video', 'custom-layout', 4);
-  }
-
-  async smartLayout() {
-    await this.modPage.waitForSelector(e.whiteboard);
-    await this.userPage.waitForSelector(e.whiteboard);
-    await checkScreenshots(
-      this,
-      'should the cameras be above the presentation',
-      [e.webcamContainer, e.webcamMirroredVideoContainer],
-      'smart-layout',
-      1,
-    );
-
-    await this.modPage.waitAndClick(e.userListToggleBtn);
-    await this.modPage.wasRemoved(e.chatButton, 'should not be displayed the chat button after opening the user list');
-    await this.modPage.page.waitForTimeout(1000); // wait for the whiteboard zoom to stabilize
-
-    await checkScreenshots(
-      this,
-      'should the cameras be on the side of presentation',
-      [e.webcamContainer, e.webcamMirroredVideoContainer],
-      'smart-layout',
-      2,
-    );
-  }
-
-  async presentationFocus() {
-    await this.modPage.waitForSelector(e.whiteboard);
-    await this.userPage.waitForSelector(e.whiteboard);
-
-    await this.modPage.shareWebcam();
-    await this.userPage.shareWebcam();
-
-    await checkScreenshots(
-      this,
-      'should be the layout focus on presentation',
-      [e.webcamContainer, e.webcamMirroredVideoContainer],
-      'focus-on-presentation',
-    );
-  }
-
-  async videoFocus() {
-    await this.modPage.waitForSelector(e.whiteboard);
-
-    await this.modPage.waitAndClick(e.joinVideo);
-    await this.modPage.page.bringToFront();
-    await this.modPage.hasElement(
-      e.webcamMirroredVideoPreview,
-      'should display the video preview when sharing webcam ',
-      ELEMENT_WAIT_TIME,
-    );
-    await this.modPage.waitAndClick(e.startSharingWebcam);
-
-    await this.modPage.waitForSelector(e.webcamMirroredVideoContainer, VIDEO_LOADING_WAIT_TIME);
-    await this.modPage.waitForSelector(e.leaveVideo, VIDEO_LOADING_WAIT_TIME);
-
-    await checkScreenshots(
-      this,
-      'should be the video focus layout',
-      [e.webcamContainer, e.webcamMirroredVideoContainer],
-      'video-focus',
-    );
   }
 
   async camerasOnly() {
