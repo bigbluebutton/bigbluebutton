@@ -228,7 +228,6 @@ trait HandlerHelpers extends SystemConfiguration {
     } yield {
       model.rooms.values.foreach { room =>
         eventBus.publish(BigBlueButtonEvent(room.id, EndBreakoutRoomInternalMsg(liveMeeting.props.meetingProp.intId, room.id, reason)))
-//        UserBreakoutRoomPropsDAO.updateLastBreakoutRoomProps(liveMeeting.props.meetingProp.intId, Vector(), room)
       }
     }
 

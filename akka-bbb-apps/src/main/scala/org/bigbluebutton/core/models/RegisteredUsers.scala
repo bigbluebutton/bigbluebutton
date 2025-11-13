@@ -177,8 +177,6 @@ object RegisteredUsers {
                                  lastBreakoutRoom: BreakoutRoom2x): RegisteredUser = {
     val u = user.modify(_.lastBreakoutRoom).setTo(lastBreakoutRoom)
     users.save(u)
-//    UserBreakoutRoomPropsDAO.updateLastBreakoutRoomProps(u.id, lastBreakoutRoom)
-    //TODO update breakoutRoom_user ??
     u
   }
 
