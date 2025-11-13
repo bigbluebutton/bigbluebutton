@@ -12,16 +12,8 @@ test.describe.parallel('Layout', { tag: '@ci' }, () => {
     await layouts.userPage.shareWebcam();
   });
 
-  test('Focus on presentation', async () => {
-    await layouts.focusOnPresentation();
-  });
-
   test('Grid Layout', async () => {
     await layouts.gridLayout();
-  });
-
-  test('Smart layout', async () => {
-    await layouts.smartLayout();
   });
 
   test('Custom layout', async () => {

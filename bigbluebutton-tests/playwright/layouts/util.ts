@@ -59,6 +59,5 @@ export async function checkDefaultLocationReset(testPage: Page) {
   await testPage.hasElement(e.dropAreaLeft, 'left drop area should be displayed when dragging');
   await testPage.hasElement(e.dropAreaRight, 'right drop area should be displayed when dragging');
   await testPage.hasElement(e.dropAreaTop, 'top drop area should be displayed when dragging');
-  await testPage.hasElement(e.dropAreaSidebarBottom, 'sidebar bottom drop area should be displayed when dragging');
   await testPage.page.mouse.up();
 }
