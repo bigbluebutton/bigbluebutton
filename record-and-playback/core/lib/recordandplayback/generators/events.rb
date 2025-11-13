@@ -678,7 +678,7 @@ module BigBlueButton
             new_entry[:areas][area] << video.merge(timestamp: video[:timestamp] + offset)
           end
         end
-        new_entry[:conditions].replace(edl_entry[:conditions])
+        new_entry[:conditions].replace(edl_entry.fetch(:conditions, {}))
         new_entry
       end
     end
