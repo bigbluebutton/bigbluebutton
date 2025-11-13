@@ -1,4 +1,5 @@
 import { gql } from '@apollo/client';
+import type { User } from '/imports/ui/Types/user';
 
 export interface UsersCountSubscriptionResponse {
   user_aggregate: {
@@ -94,6 +95,23 @@ export const GET_USER_NAMES = gql`
     }
   }
 `;
+
+export type RaisedHandUser = Pick<
+User,
+| 'userId'
+| 'name'
+| 'color'
+| 'presenter'
+| 'isModerator'
+| 'raiseHand'
+| 'whiteboardWriteAccess'
+> & {
+  raiseHandTime?: string;
+};
+
+export interface RaisedHandUsersSubscriptionResponse {
+  user: RaisedHandUser[];
+}
 
 export const RAISED_HAND_USERS = gql`
 subscription RaisedHandUsers {

@@ -758,4 +758,3 @@ input AudioGroupParticipant {
   participantType: String!
   active: Boolean!
 }
-

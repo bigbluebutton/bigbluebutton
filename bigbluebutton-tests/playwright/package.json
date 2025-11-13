@@ -1,4 +1,11 @@
 {
+  "name": "playwright",
+  "version": "1.0.0",
+  "description": "Tests for BigBlueButton using Playwright.",
+  "main": "index.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
   "scripts": {
     "test": "npx playwright test",
     "test:ssh": "set -e; fn () { target=$1; shift; secret=$(ssh $target sudo bbb-conf --secret); env=$(echo \"$secret\" | sed -e 's/^ *URL: /BBB_URL=/' -e 's/^ *Secret: /BBB_SECRET=/' -e '/^BBB/p' -e d); env $env npx playwright test $@; }; fn",
@@ -9,7 +16,15 @@
     "test-firefox": "npx playwright test --project=firefox --grep @ci --grep-invert '@flaky|@need-update|@only-headed|@setting-required'",
     "test-chromium-ci": "export CI='true' && npx playwright test --project=chromium --grep @ci --grep-invert '@flaky|@need-update|@only-headed|@setting-required'",
     "test-firefox-ci": "export CI='true' && npx playwright test --project=firefox --grep @ci --grep-invert '@flaky|@need-update|@only-headed|@setting-required'",
-    "rewrite-snapshots": "read -p 'CAUTION: You will delete ALL testing folders containing snapshots and run the tests to rewrite these files.\nProceed? (y/n) ' confirm && test $confirm = 'y' && sh core/scripts/rewrite-snapshots.sh"
+    "rewrite-snapshots": "bash -c \"read -p 'CAUTION: You will delete ALL testing folders containing snapshots and run the tests to rewrite these files.\nProceed? (y/n) ' confirm && test \\\"$confirm\\\" = 'y' && bash core/scripts/rewrite-snapshots.sh\"",
+    "lint": "eslint . --ext .ts,.js",
+    "lint:fix": "eslint . --ext .ts,.js --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "tsc --noEmit --skipLibCheck -p ."
+  },
+  "globals": {
+    "window": true
   },
   "dependencies": {
     "@playwright/test": "^1.55.1",
@@ -19,6 +34,29 @@
     "dotenv": "^16.4.5",
     "playwright": "^1.55.1",
     "sha.js": "^2.4.12",
-    "xml2js": "^0.6.2"
+    "xml2js": "^0.6.2",
+    "@swc/core": "^1.13.5"
+  },
+  "devDependencies": {
+    "@types/deep-equal": "^1.0.4",
+    "@types/node": "^24.5.2",
+    "@types/sha.js": "^2.4.4",
+    "@types/xml2js": "^0.4.14",
+    "@typescript-eslint/eslint-plugin": "^8.45.0",
+    "@typescript-eslint/parser": "^8.45.0",
+    "eslint": "^8.57.1",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-prettier": "^5.5.4",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
+    "husky": "^1.3.1",
+    "prettier": "^3.6.2",
+    "typescript": "^5.9.2"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run format:check && npm run lint && npm run typecheck"
+    }
   }
 }

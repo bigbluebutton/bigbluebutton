@@ -714,6 +714,7 @@
     "app.actionsBar.reactions.removeReactionLabel": "Remove reaction",
     "app.actionsBar.reactions.raiseHand": "Raise your hand",
     "app.actionsBar.reactions.lowHand": "Lower your hand",
+    "app.actionsBar.reactions.lowUserHand": "Lower user's hand",
     "app.actionsBar.reactions.autoCloseReactionsBarLabel": "Auto close the reactions bar",
     "app.actionsBar.reactions.away": "away",
     "app.actionsBar.reactions.available": "available",
