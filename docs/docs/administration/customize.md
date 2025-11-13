@@ -1533,6 +1533,9 @@ Useful tools for development:
 | `userdata-bbb_record_permission=` | (Introduced in BigBlueButton 3.0) If set to `true`, the user will be able to control the recording start/stop. If set to `false`, the user will not be allowed to control the recording start/stop even if their role is moderator. Otherwise only moderators will have the control (default).                                                                                                                   | `null`        |
 | `userdata-bbb_record_permission_tooltip=` | (Introduced in BigBlueButton 3.0) If set, the tooltip of the recording indicator shown when the user don't have permission to record will be replaced by its content.                                                                                                                   | `null`        |
 | `userdata-bbb_show_session_details_on_join=` | (Introduced in BigBlueButton 3.0) If set to `false` , the session details window will not be displayed when a user joins the session.                                                                                                                   | `null`        |
+| `userdata-bbb_show_animations_default=` | If set to `false` , animations (emoji raining, whiteboard toolbars fading out, etc) will not be shown to the user.                                                                                                                   | `true`        |
+
+
 
 #### Branding parameters
 

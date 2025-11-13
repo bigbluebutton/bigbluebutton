@@ -14,7 +14,6 @@ import WakeLockContainer from '../wake-lock/container';
 import NotificationsBarContainer from '../notifications-bar/container';
 import AudioContainer from '../audio/container';
 import BannerBarContainer from '/imports/ui/components/banner-bar/container';
-import RaiseHandNotifier from '/imports/ui/components/raisehand-notifier/container';
 import ManyWebcamsNotifier from '/imports/ui/components/video-provider/many-users-notify/container';
 import AudioCaptionsSpeechContainer from '/imports/ui/components/audio/audio-graphql/audio-captions/speech/component';
 import UploaderContainer from '/imports/ui/components/presentation/presentation-uploader/container';
@@ -47,6 +46,7 @@ import { notify } from '/imports/ui/services/notification';
 import VoiceActivityAdapter from '../../core/adapters/voice-activity';
 import LayoutObserver from '../layout/observer';
 import BBBLiveKitRoomContainer from '/imports/ui/components/livekit/component';
+import RaiseHandNotifier from '/imports/ui/components/raisehand-notifier/container';
 
 const intlMessages = defineMessages({
   userListLabel: {
@@ -72,6 +72,10 @@ const intlMessages = defineMessages({
   loweredHand: {
     id: 'app.toast.setEmoji.lowerHand',
     description: 'toast message for lowered hand notification',
+  },
+  raisedHandNext: {
+    id: 'app.toast.raisedHandNext.label',
+    description: 'message used when user is next to be called on',
   },
   away: {
     id: 'app.toast.setEmoji.away',
@@ -111,6 +115,7 @@ const propTypes = {
   darkTheme: PropTypes.bool.isRequired,
   hideNotificationToasts: PropTypes.bool.isRequired,
   isBreakout: PropTypes.bool.isRequired,
+  isRaiseHandEnabled: PropTypes.bool.isRequired,
   meetingId: PropTypes.string.isRequired,
   meetingName: PropTypes.string.isRequired,
 };
@@ -168,6 +173,7 @@ class App extends Component {
       currentUserRaiseHand,
       intl,
       fitToWidth,
+      isCurrentUserNextRaisedHand,
     } = this.props;
 
     const { isJoinLogged } = this.state;
@@ -187,6 +193,12 @@ class App extends Component {
         notify(intl.formatMessage(intlMessages.raisedHand), 'info', 'user');
       } else {
         notify(intl.formatMessage(intlMessages.loweredHand), 'info', 'clear_status');
+      }
+    }
+
+    if (prevProps.isCurrentUserNextRaisedHand !== isCurrentUserNextRaisedHand) {
+      if (isCurrentUserNextRaisedHand === true) {
+        notify(intl.formatMessage(intlMessages.raisedHandNext), 'info', 'hand');
       }
     }
 

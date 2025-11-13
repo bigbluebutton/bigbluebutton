@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { UpdatedDataForUserCameraDomElement } from 'bigbluebutton-html-plugin-sdk/dist/cjs/dom-element-manipulation/user-camera/types';
 
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { layoutSelect, layoutDispatch } from '/imports/ui/components/layout/context';
 import VideoListItem from './component';
 import { VideoItem } from '/imports/ui/components/video-provider/types';
@@ -14,6 +15,8 @@ import useWhoIsTalking from '/imports/ui/core/hooks/useWhoIsTalking';
 import useWhoIsUnmuted from '/imports/ui/core/hooks/useWhoIsUnmuted';
 import { VIDEO_TYPES } from '/imports/ui/components/video-provider/enums';
 import { UserCameraHelperAreas } from '../../../plugins-engine/extensible-areas/components/user-camera-helper/types';
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import { RAISED_HAND_USERS } from '/imports/ui/core/graphql/queries/users';
 
 interface VideoListItemContainerProps {
   numOfStreams: number;
@@ -58,7 +61,14 @@ const VideoListItemContainer: React.FC<VideoListItemContainerProps> = (props) =>
 
   const { data: currentUserData } = useCurrentUser((user) => ({
     isModerator: user.isModerator,
+    locked: user.locked,
   }));
+
+  const { data: currentMeeting } = useMeeting((m) => ({
+    lockSettings: m.lockSettings,
+  }));
+
+  const hideUserList = currentUserData?.locked && currentMeeting?.lockSettings?.hideUserList;
 
   const amIModerator = currentUserData?.isModerator;
 
@@ -70,6 +80,18 @@ const VideoListItemContainer: React.FC<VideoListItemContainerProps> = (props) =>
     talking: talkingUsers[userId],
     muted: !unmutedUsers[userId],
   } : {};
+
+  type RaisedHandUser = {
+    userId: string;
+  };
+
+  const {
+    data: usersData,
+  } = useDeduplicatedSubscription<{ user: RaisedHandUser[] }>(RAISED_HAND_USERS);
+  const raisedHands: RaisedHandUser[] = usersData?.user ?? [];
+  const raisedHandIndex = !hideUserList
+    ? raisedHands.findIndex((user) => user.userId === userId) + 1
+    : 0;
 
   return (
     <VideoListItem
@@ -94,6 +116,7 @@ const VideoListItemContainer: React.FC<VideoListItemContainerProps> = (props) =>
       settingsSelfViewDisable={settingsSelfViewDisable}
       stream={stream}
       voiceUser={voiceUser}
+      raisedHandPosition={raisedHandIndex}
     />
   );
 };

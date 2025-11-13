@@ -139,6 +139,7 @@ Permission: Restricted to User Viewing Self-Related Data
 - `deletedAt`
 - `editedAt`
 - `message`
+- `messageAsHtml`
 - `messageId`
 - `messageMetadata`
 - `messageSequence`
@@ -166,6 +167,7 @@ Permission: Restricted to User Viewing Self-Related Data
 - `deletedAt`
 - `editedAt`
 - `message`
+- `messageAsHtml`
 - `messageId`
 - `messageMetadata`
 - `messageSequence`
@@ -688,7 +690,6 @@ Permission: Restricted to Moderators or the User Viewing Self-Related Data
 Permission: Restricted to User Viewing Self-Related Data
 ### Fields:
 - `chatId`
-- `isCurrentlyTyping`
 - `lastTypingAt`
 - `startedTypingAt`
 - `userId`
@@ -698,7 +699,6 @@ Permission: Restricted to User Viewing Self-Related Data
 ## Type: user_typing_public
 ### Fields:
 - `chatId`
-- `isCurrentlyTyping`
 - `lastTypingAt`
 - `startedTypingAt`
 - `userId`

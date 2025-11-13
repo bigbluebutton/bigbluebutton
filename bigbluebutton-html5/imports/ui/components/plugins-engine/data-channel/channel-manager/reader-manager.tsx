@@ -55,11 +55,14 @@ export const DataChannelItemManagerReader: React.ElementType<DataChannelItemMana
     dataChannelIdentifier,
     dataChannelEntriesReceived,
   } = props;
-  const [sendSignal, setSendSignal] = useState<boolean>(false);
+  const [totalCount, setTotalCount] = useState<number>(0);
   const [completeDataEntry, setCompleteDataEntry] = useState<DataChannelEntry[]>([]);
   const [differenceData, setDifferenceData] = useState<DataChannelEntry[]>([]);
   const startedAtTimestamp = useRef(new Date());
 
+  const updateTotalCount = () => {
+    setTotalCount((counter) => counter + 1);
+  };
   useEffect(() => {
     const updateAllItems = () => {
       const listsDifferent = areListsDifferent(completeDataEntry, dataChannelEntriesReceived);
@@ -109,7 +112,7 @@ export const DataChannelItemManagerReader: React.ElementType<DataChannelItemMana
             && hookArguments.channelName === channelName
             && dataChannelTypeFromEvent === dataChannelType
           ) {
-            setSendSignal((signal) => !signal);
+            updateTotalCount();
           }
         }
       }) as EventListener;
@@ -158,7 +161,7 @@ export const DataChannelItemManagerReader: React.ElementType<DataChannelItemMana
       },
     }),
     );
-  }, [sendSignal, completeDataEntry, differenceData]);
+  }, [totalCount, completeDataEntry, differenceData]);
 
   return null;
 };

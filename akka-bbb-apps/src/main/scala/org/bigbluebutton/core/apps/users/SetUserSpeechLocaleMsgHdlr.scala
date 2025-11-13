@@ -1,7 +1,7 @@
 package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.models.{ UserState, Users2x }
+import org.bigbluebutton.core.models.{ UserState, Users2x, VoiceUsers }
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.db.{ CaptionLocaleDAO, CaptionTypes }
@@ -42,7 +42,9 @@ trait SetUserSpeechLocaleMsgHdlr extends RightsManagementTrait {
         msg.body.locale, CaptionTypes.AUDIO_TRANSCRIPTION, msg.header.userId
       )
       broadcastUserSpeechLocaleChanged(user, msg.body.locale, msg.body.provider)
-    }
 
+      //update voice user model
+      VoiceUsers.userSpeechLocale(liveMeeting.voiceUsers, msg.header.userId, msg.body.locale)
+    }
   }
 }
