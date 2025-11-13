@@ -2243,6 +2243,11 @@ select u."userId", u."meetingId", u."breakoutRoomMeetingId", a."bucketTime", a."
 from "breakoutRoom_user" u
 left join "user_activity" a on a."meetingId" = u."breakoutRoomMeetingId" and a."userId" = u."breakoutRoomUserId";
 
+create or replace view v_breakoutRoom_activity as
+select a."meetingId", a."bucketTime", a."activityName", sum(coalesce(a.count,0)) as "total"
+from "user_activity" a
+group by a."meetingId", a."bucketTime", a."activityName";
+
 --SELECT DISTINCT br."meetingId", br."breakoutRoomMeetingId", "user"."meetingId", "user"."userId"
 --FROM v_user "user"
 --JOIN "meeting" m using("meetingId")
