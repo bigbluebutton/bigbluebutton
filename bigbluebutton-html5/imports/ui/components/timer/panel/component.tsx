@@ -202,12 +202,7 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
   const [currentPresetIndex, setCurrentPresetIndex] = useState(0);
   const totalPresets = PRESET_SECONDS.length;
 
-  useEffect(() => {
-    if (!focusedUnit || running) return undefined;
-
-    const timeout = setTimeout(() => setFocusedUnit(null), 3000);
-    return () => clearTimeout(timeout);
-  }, [focusedUnit, running]);
+  // Visual cleanup is now handled directly in button callbacks
 
   // Sync local state with server state
   useEffect(() => {
@@ -268,9 +263,9 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
     setLocalHours(newHours);
   };
 
-  const handleHoursBlur = useCallback(() => {
+  const handleHoursBlur = () => {
     syncTimeWithBackend(localHours, localMinutes, localSeconds);
-  }, [syncTimeWithBackend, localHours, localMinutes, localSeconds]);
+  };
 
   const handleMinutesChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(event.target.value || '0', 10);
@@ -289,9 +284,9 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
     }
   };
 
-  const handleMinutesBlur = useCallback(() => {
+  const handleMinutesBlur = () => {
     syncTimeWithBackend(localHours, localMinutes, localSeconds);
-  }, [syncTimeWithBackend, localHours, localMinutes, localSeconds]);
+  };
 
   const handleSecondsChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(event.target.value || '0', 10);
@@ -313,9 +308,9 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
     }
   };
 
-  const handleSecondsBlur = useCallback(() => {
+  const handleSecondsBlur = () => {
     syncTimeWithBackend(localHours, localMinutes, localSeconds);
-  }, [syncTimeWithBackend, localHours, localMinutes, localSeconds]);
+  };
 
   const changeTime = useCallback((amountInSeconds: number) => {
     if (running) return;
@@ -376,18 +371,88 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
 
   // Increment / decrement helpers for individual units (used by inline arrows)
   const incUnit = useCallback((unit: 'hours' | 'minutes' | 'seconds') => {
-    if (unit === 'hours') changeTime(3600);
-    if (unit === 'minutes') changeTime(60);
-    if (unit === 'seconds') changeTime(1);
+    if (running) return;
+
+    let newHours = localHours;
+    let newMinutes = localMinutes;
+    let newSeconds = localSeconds;
+
+    if (unit === 'hours') {
+      newHours = Math.min(localHours + 1, MAX_HOURS);
+    } else if (unit === 'minutes') {
+      newMinutes = localMinutes + 1;
+      if (newMinutes >= 60) {
+        newMinutes = 0;
+        newHours = Math.min(localHours + 1, MAX_HOURS);
+      }
+    } else if (unit === 'seconds') {
+      newSeconds = localSeconds + 1;
+      if (newSeconds >= 60) {
+        newSeconds = 0;
+        newMinutes = localMinutes + 1;
+        if (newMinutes >= 60) {
+          newMinutes = 0;
+          newHours = Math.min(localHours + 1, MAX_HOURS);
+        }
+      }
+    }
+
+    setLocalHours(newHours);
+    setLocalMinutes(newMinutes);
+    setLocalSeconds(newSeconds);
     setFocusedUnit(unit);
-  }, [changeTime]);
+    // Sync to backend after delay (like input blur behavior)
+    setTimeout(() => {
+      syncTimeWithBackend(newHours, newMinutes, newSeconds);
+      setFocusedUnit(null);
+    }, 1000);
+  }, [running, localHours, localMinutes, localSeconds, syncTimeWithBackend, MAX_HOURS]);
 
   const decUnit = useCallback((unit: 'hours' | 'minutes' | 'seconds') => {
-    if (unit === 'hours') changeTime(-3600);
-    if (unit === 'minutes') changeTime(-60);
-    if (unit === 'seconds') changeTime(-1);
+    if (running) return;
+
+    let newHours = localHours;
+    let newMinutes = localMinutes;
+    let newSeconds = localSeconds;
+
+    if (unit === 'hours') {
+      newHours = Math.max(localHours - 1, 0);
+    } else if (unit === 'minutes') {
+      newMinutes = localMinutes - 1;
+      if (newMinutes < 0) {
+        if (newHours > 0) {
+          newMinutes = 59;
+          newHours = localHours - 1;
+        } else {
+          newMinutes = 0;
+        }
+      }
+    } else if (unit === 'seconds') {
+      newSeconds = localSeconds - 1;
+      if (newSeconds < 0) {
+        if (newMinutes > 0) {
+          newSeconds = 59;
+          newMinutes = localMinutes - 1;
+        } else if (newHours > 0) {
+          newSeconds = 59;
+          newMinutes = 59;
+          newHours = localHours - 1;
+        } else {
+          newSeconds = 0;
+        }
+      }
+    }
+
+    setLocalHours(newHours);
+    setLocalMinutes(newMinutes);
+    setLocalSeconds(newSeconds);
     setFocusedUnit(unit);
-  }, [changeTime]);
+    // Sync to backend after delay (like input blur behavior)
+    setTimeout(() => {
+      syncTimeWithBackend(newHours, newMinutes, newSeconds);
+      setFocusedUnit(null);
+    }, 1000);
+  }, [running, localHours, localMinutes, localSeconds, syncTimeWithBackend]);
 
   const closePanel = useCallback(() => {
     layoutContextDispatch({
@@ -750,15 +815,14 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
                   {QUICK_ADD_BUTTONS.map(({ seconds, label }) => {
                     const testId = `add${seconds}s`;
                     const timeLabel = seconds >= 60
-                      ? `${Math.floor(seconds / 60)} ${intl.formatMessage(intlMessages.minutes)}`
-                      : `${seconds} ${intl.formatMessage(intlMessages.seconds)}`;
+                      ? `${Math.floor(seconds / 60)} minute${Math.floor(seconds / 60) > 1 ? 's' : ''}`
+                      : `${seconds} second${seconds > 1 ? 's' : ''}`;
                     return (
                       <Styled.TimerAddButton
                         key={testId}
                         onClick={() => changeTime(seconds)}
                         disabled={running}
                         aria-label={intl.formatMessage(intlMessages.addTime, { time: timeLabel })}
-                        title={intl.formatMessage(intlMessages.addTime, { time: timeLabel })}
                         data-test={testId}
                       >
                         {label}
