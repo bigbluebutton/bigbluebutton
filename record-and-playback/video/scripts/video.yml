@@ -101,7 +101,7 @@ presets:
       - required: [ presentation, deskshare ]
         areas:
           - { name: presentation, x: 0, y: 0, width: 1920, height: 1080 }
-          - { name: deskshare, hidden: false }
+          - { name: deskshare, hidden: true }
         conditions:
           screenshare_as_content: false
 
