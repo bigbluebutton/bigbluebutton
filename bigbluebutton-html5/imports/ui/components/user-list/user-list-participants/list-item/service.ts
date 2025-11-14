@@ -19,7 +19,6 @@ import {
 import logger from '/imports/startup/client/logger';
 import { setPendingChat } from '/imports/ui/core/local-states/usePendingChat';
 import { notify } from '/imports/ui/services/notification';
-import { useMemo } from 'react';
 
 const intlMessages = defineMessages({
   presenter: {
@@ -263,10 +262,7 @@ export const startPrivateChatOnClick = (
   });
 };
 
-export const hasWhiteboardAccess = (user: Partial<User>) => {
-  const { userId, presPagesWritable = [] } = user;
-  return presPagesWritable.some((page) => page?.userId === userId && page?.isCurrentPage);
-};
+export const hasWhiteboardWriteAccess = (user: Partial<User>) => (user?.whiteboardWriteAccess === true);
 
 export const handleWhiteboardAccessChange = async (
   intl: IntlShape,
@@ -280,13 +276,12 @@ export const handleWhiteboardAccessChange = async (
   try {
     // Fetch the writers data
     const { data } = await getWriters();
-    const allWriters: Writer[] = data?.pres_page_writers || [];
-    const currentWriters = allWriters?.filter((writer: Writer) => writer.pageId === pageId);
+    const currentWriters: Writer[] = data?.user_whiteboardWriteAccess || [];
 
     // Determine if the user has access
     const { userId } = user;
     if (!userId) throw new Error('Invalid userId');
-    const hasAccess = hasWhiteboardAccess(user);
+    const hasAccess = hasWhiteboardWriteAccess(user);
 
     // Prepare the updated list of user IDs for whiteboard access
     const usersIds = currentWriters?.map((writer: { userId: string }) => writer?.userId);
@@ -377,7 +372,7 @@ export const createToolbarOptions = (
     && lockSettings?.hasActiveLockSetting
     && !user.isModerator;
 
-  const audioStateOption = useMemo(() => {
+  const getAudioStateOption = () => {
     if (!subjectUserInAudio) return null;
 
     const isListenOnly = user.voice?.listenOnly || user.voice?.listenOnlyInputDevice;
@@ -423,7 +418,8 @@ export const createToolbarOptions = (
       disabled: !hasPermissionToMute,
       dataTest: hasPermissionToMute ? 'muteUser' : 'audioStateUnmuted',
     };
-  }, [subjectUserInAudio, user, isMuted, allowedToMuteAudio, allowedToUnmuteAudio, intl, toggleVoice]);
+  };
+  const audioStateOption = getAudioStateOption();
 
   return {
     pinnedToolbarOptions: [
