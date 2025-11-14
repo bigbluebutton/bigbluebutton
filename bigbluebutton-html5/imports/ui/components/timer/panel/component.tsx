@@ -27,6 +27,16 @@ import { TimerData } from '/imports/ui/core/graphql/queries/timer';
 import logger from '/imports/startup/client/logger';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import Auth from '/imports/ui/services/auth';
+import {
+  formatPresetLabel,
+  getNextPresetIndex,
+  getPrevPresetIndex,
+  getVisiblePresets,
+  incrementTimeUnit,
+  decrementTimeUnit,
+  convertSecondsToTime,
+  addTimeWithBounds,
+} from '../utils';
 
 const MILLI_IN_HOUR = 3600000;
 const MILLI_IN_MINUTE = 60000;
@@ -315,15 +325,13 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
   const changeTime = useCallback((amountInSeconds: number) => {
     if (running) return;
 
-    const currentTimeInSeconds = (localHours * 3600) + (localMinutes * 60) + localSeconds;
-    let newTotalSeconds = currentTimeInSeconds + amountInSeconds;
-
-    const maxSeconds = (MAX_HOURS * 3600) + (59 * 60) + 59;
-    newTotalSeconds = Math.max(0, Math.min(newTotalSeconds, maxSeconds));
-
-    const h = Math.floor(newTotalSeconds / 3600);
-    const m = Math.floor((newTotalSeconds % 3600) / 60);
-    const s = newTotalSeconds % 60;
+    const { hours: h, minutes: m, seconds: s } = addTimeWithBounds(
+      localHours,
+      localMinutes,
+      localSeconds,
+      amountInSeconds,
+      MAX_HOURS,
+    );
 
     setLocalHours(h);
     setLocalMinutes(m);
@@ -333,39 +341,25 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
 
   const setAbsoluteTime = useCallback((totalSeconds: number) => {
     if (running) return;
-    const h = Math.floor(totalSeconds / 3600);
-    const m = Math.floor((totalSeconds % 3600) / 60);
-    const s = totalSeconds % 60;
+    const { hours: h, minutes: m, seconds: s } = convertSecondsToTime(totalSeconds);
     setLocalHours(h);
     setLocalMinutes(m);
     setLocalSeconds(s);
     syncTimeWithBackend(h, m, s);
   }, [running, syncTimeWithBackend]);
 
-  // format preset labels(e.g., 0:05:00)
-  const formatPresetLabel = useCallback((totalSeconds: number) => {
-    if (!totalSeconds && totalSeconds !== 0) return '';
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const seconds = totalSeconds % 60;
-    // Always show in H:MM:SS format for clarity
-    return `${hours}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-  }, []);
+  // Visual cleanup is now handled directly in button callbacks
 
   // Preset navigation helpers
   const nextPreset = useCallback(() => {
-    setCurrentPresetIndex((prev) => (prev + 1) % totalPresets);
-  }, [totalPresets]);
+    setCurrentPresetIndex(getNextPresetIndex(currentPresetIndex, totalPresets));
+  }, [currentPresetIndex, totalPresets]);
 
   const prevPreset = useCallback(() => {
-    setCurrentPresetIndex((prev) => (prev - 1 + totalPresets) % totalPresets);
-  }, [totalPresets]);
+    setCurrentPresetIndex(getPrevPresetIndex(currentPresetIndex, totalPresets));
+  }, [currentPresetIndex, totalPresets]);
 
-  const visibleOffsets = [0, 1, 2];
-  const visiblePresets = totalPresets > 0 ? visibleOffsets.map((offset) => {
-    const idx = (currentPresetIndex + offset + totalPresets) % totalPresets;
-    return { secs: PRESET_SECONDS[idx], isActive: false, idx };
-  }) : [];
+  const visiblePresets = getVisiblePresets(currentPresetIndex, PRESET_SECONDS);
 
   // Removed external +/- panel buttons; inline arrows handle adjustments per unit.
 
@@ -373,29 +367,13 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
   const incUnit = useCallback((unit: 'hours' | 'minutes' | 'seconds') => {
     if (running) return;
 
-    let newHours = localHours;
-    let newMinutes = localMinutes;
-    let newSeconds = localSeconds;
-
-    if (unit === 'hours') {
-      newHours = Math.min(localHours + 1, MAX_HOURS);
-    } else if (unit === 'minutes') {
-      newMinutes = localMinutes + 1;
-      if (newMinutes >= 60) {
-        newMinutes = 0;
-        newHours = Math.min(localHours + 1, MAX_HOURS);
-      }
-    } else if (unit === 'seconds') {
-      newSeconds = localSeconds + 1;
-      if (newSeconds >= 60) {
-        newSeconds = 0;
-        newMinutes = localMinutes + 1;
-        if (newMinutes >= 60) {
-          newMinutes = 0;
-          newHours = Math.min(localHours + 1, MAX_HOURS);
-        }
-      }
-    }
+    const { hours: newHours, minutes: newMinutes, seconds: newSeconds } = incrementTimeUnit(
+      localHours,
+      localMinutes,
+      localSeconds,
+      unit,
+      MAX_HOURS,
+    );
 
     setLocalHours(newHours);
     setLocalMinutes(newMinutes);
@@ -411,37 +389,12 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
   const decUnit = useCallback((unit: 'hours' | 'minutes' | 'seconds') => {
     if (running) return;
 
-    let newHours = localHours;
-    let newMinutes = localMinutes;
-    let newSeconds = localSeconds;
-
-    if (unit === 'hours') {
-      newHours = Math.max(localHours - 1, 0);
-    } else if (unit === 'minutes') {
-      newMinutes = localMinutes - 1;
-      if (newMinutes < 0) {
-        if (newHours > 0) {
-          newMinutes = 59;
-          newHours = localHours - 1;
-        } else {
-          newMinutes = 0;
-        }
-      }
-    } else if (unit === 'seconds') {
-      newSeconds = localSeconds - 1;
-      if (newSeconds < 0) {
-        if (newMinutes > 0) {
-          newSeconds = 59;
-          newMinutes = localMinutes - 1;
-        } else if (newHours > 0) {
-          newSeconds = 59;
-          newMinutes = 59;
-          newHours = localHours - 1;
-        } else {
-          newSeconds = 0;
-        }
-      }
-    }
+    const { hours: newHours, minutes: newMinutes, seconds: newSeconds } = decrementTimeUnit(
+      localHours,
+      localMinutes,
+      localSeconds,
+      unit,
+    );
 
     setLocalHours(newHours);
     setLocalMinutes(newMinutes);
