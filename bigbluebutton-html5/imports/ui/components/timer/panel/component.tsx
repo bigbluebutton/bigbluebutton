@@ -27,6 +27,7 @@ import { TimerData } from '/imports/ui/core/graphql/queries/timer';
 import logger from '/imports/startup/client/logger';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import Auth from '/imports/ui/services/auth';
+import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import {
   formatPresetLabel,
   getNextPresetIndex,
@@ -192,7 +193,11 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
   const TIMER_CONFIG = window.meetingClientSettings.public.timer;
   const MAX_HOURS = TIMER_CONFIG.maxHours;
   const PRESET_SECONDS = TIMER_CONFIG.presets;
-  const QUICK_ADD_BUTTONS = TIMER_CONFIG.quickAddButtons;
+
+  // Ensure QUICK_ADD_BUTTONS is always a valid array of numbers
+  const QUICK_ADD_BUTTONS: number[] = Array.isArray(TIMER_CONFIG.quickAddButtons)
+    ? TIMER_CONFIG.quickAddButtons.filter((item): item is number => typeof item === 'number' && item > 0)
+    : [30, 60, 300];
 
   const [focusedUnit, setFocusedUnit] = useState<'hours' | 'minutes' | 'seconds' | null>(null);
   const [lastSelectedTrack, setLastSelectedTrack] = useState<string | null>(null);
@@ -765,21 +770,38 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
                 </Styled.TimeInputGroup>
                 {/* External +/- buttons removed; using inline arrows inside each input */}
                 <Styled.TimerAddsRow>
-                  {QUICK_ADD_BUTTONS.map(({ seconds, label }) => {
+                  {QUICK_ADD_BUTTONS.map((seconds) => {
                     const testId = `add${seconds}s`;
                     const timeLabel = seconds >= 60
                       ? `${Math.floor(seconds / 60)} minute${Math.floor(seconds / 60) > 1 ? 's' : ''}`
                       : `${seconds} second${seconds > 1 ? 's' : ''}`;
+
+                    // Generate time format label like humanizeSeconds but with + prefix
+                    const hours = Math.floor(seconds / 3600);
+                    const minutes = Math.floor((seconds % 3600) / 60);
+                    const secs = seconds % 60;
+                    const formatNumber = (num: number) => (num < 10 ? `0${num}` : num.toString());
+
+                    const displayLabel = hours > 0
+                      ? `+${formatNumber(hours)}:${formatNumber(minutes)}:${formatNumber(secs)}`
+                      : `+${formatNumber(minutes)}:${formatNumber(secs)}`;
+
+                    const tooltipMessage = intl.formatMessage(intlMessages.addTime, { time: timeLabel });
+
                     return (
-                      <Styled.TimerAddButton
+                      <TooltipContainer
                         key={testId}
-                        onClick={() => changeTime(seconds)}
-                        disabled={running}
-                        aria-label={intl.formatMessage(intlMessages.addTime, { time: timeLabel })}
-                        data-test={testId}
+                        title={tooltipMessage}
                       >
-                        {label}
-                      </Styled.TimerAddButton>
+                        <Styled.TimerAddButton
+                          onClick={() => changeTime(seconds)}
+                          disabled={running}
+                          aria-label={tooltipMessage}
+                          data-test={testId}
+                        >
+                          {displayLabel}
+                        </Styled.TimerAddButton>
+                      </TooltipContainer>
                     );
                   })}
                 </Styled.TimerAddsRow>

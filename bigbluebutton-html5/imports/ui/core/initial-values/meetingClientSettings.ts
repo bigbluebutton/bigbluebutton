@@ -531,11 +531,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       time: 5,
       maxHours: 23,
       presets: [60, 300, 600, 900, 1200, 1800, 3600],
-      quickAddButtons: [
-        { seconds: 30, label: '+0:30' },
-        { seconds: 60, label: '+1:00' },
-        { seconds: 300, label: '+5:00' },
-      ],
+      quickAddButtons: [30, 60, 300],
       serverSyncTimeInterval: 300000, // 5 minutes
     },
     chat: {
