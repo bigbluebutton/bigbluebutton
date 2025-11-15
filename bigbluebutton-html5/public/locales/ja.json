@@ -714,6 +714,7 @@
     "app.actionsBar.reactions.removeReactionLabel": "リアクションを消す",
     "app.actionsBar.reactions.raiseHand": "手をあげる",
     "app.actionsBar.reactions.lowHand": "手をおろす",
+    "app.actionsBar.reactions.lowUserHand": "ユーザーの手をおろす",
     "app.actionsBar.reactions.autoCloseReactionsBarLabel": "リアクションバーを自動で隠す",
     "app.actionsBar.reactions.away": "席を外しています",
     "app.actionsBar.reactions.available": "在席しています",
