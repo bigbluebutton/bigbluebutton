@@ -140,7 +140,7 @@ class LearningDashboardActor(
   private var meetingAccessTokens: Map[String,String] = Map()
   private var meetingsLastJsonHash : Map[String,String] = Map()
   private var meetingPresentations : Map[String,Map[String,PresentationVO]] = Map()
-  private var meetingExcludedUserIds : Map[String,Vector[String]] = Map()
+  private var meetingExcludedFromDashboardUserIds : Map[String,Vector[String]] = Map()
 
   system.scheduler.scheduleWithFixedDelay(0.seconds, 5.seconds, self, SendPeriodicReport)
 
@@ -332,9 +332,9 @@ class LearningDashboardActor(
     for {
       meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
     } yield {
-      if(msg.body.excludeFromDashboard == true) {
-        meetingExcludedUserIds += (meeting.intId -> {
-          meetingExcludedUserIds.get(meeting.intId).getOrElse(Vector()) :+ msg.body.userId
+      if(msg.body.excludeFromDashboard) {
+        meetingExcludedFromDashboardUserIds += (meeting.intId -> {
+          meetingExcludedFromDashboardUserIds.getOrElse(meeting.intId, Vector()) :+ msg.body.userId
         })
       }
     }
@@ -805,7 +805,7 @@ class LearningDashboardActor(
       meetings = meetings.-(updatedMeeting.intId)
       meetingPresentations = meetingPresentations.-(updatedMeeting.intId)
       meetingAccessTokens = meetingAccessTokens.-(updatedMeeting.intId)
-      meetingExcludedUserIds = meetingExcludedUserIds.-(updatedMeeting.intId)
+      meetingExcludedFromDashboardUserIds = meetingExcludedFromDashboardUserIds.-(updatedMeeting.intId)
       meetingsLastJsonHash = meetingsLastJsonHash.-(updatedMeeting.intId)
       log.info(" removed for meeting {}.",updatedMeeting.intId)
     }
@@ -840,8 +840,8 @@ class LearningDashboardActor(
     for {
       meeting <- meetings.values.find(m => m.intId == meetingIntId)
     } yield {
-      if(!meetingExcludedUserIds.getOrElse(meeting.intId, Vector()).contains(extId)) {
-        val currentTime = System.currentTimeMillis();
+      if(!meetingExcludedFromDashboardUserIds.getOrElse(meeting.intId, Vector()).contains(intId)) {
+        val currentTime = System.currentTimeMillis()
 
         val user: User = userWithLeftProps(
           findUserByIntId(meeting, intId).getOrElse(
