@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
+import { omit } from 'radash';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import PadContainer from '/imports/ui/components/pads/pads-graphql/component';
 import browserInfo from '/imports/utils/browserInfo';
@@ -127,19 +128,7 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
     ) : null;
   };
 
-  const {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    display,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    isPinned,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    browserHeight,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    browserWidth,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    tabOrder,
-    ...cssProps
-  } = sharedNotesOutput;
+  const cssProps = omit(sharedNotesOutput, ['display', 'isPinned', 'browserHeight', 'browserWidth', 'tabOrder']);
 
   return shouldRenderNotes && (
     <Styled.Notes
