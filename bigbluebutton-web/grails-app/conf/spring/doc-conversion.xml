@@ -95,7 +95,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="blankPng" value="${BLANK_PNG}"/>
         <property name="slideWidth" value="${pngSlideWidth}"/>
         <property name="convTimeout" value="${pngCreationConversionTimeout}"/>
-        <property name="execTimeout" value="${pngCreationExecTimeoutInMs}"/>
+        <property name="execTimeout" value="${pngCreationExecTimeout}"/>
     </bean>
 
     <bean id="textFileCreator" class="org.bigbluebutton.presentation.imp.TextFileCreatorImp">

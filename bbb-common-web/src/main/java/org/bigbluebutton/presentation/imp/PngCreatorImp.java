@@ -48,7 +48,7 @@ public class PngCreatorImp implements PngCreator {
 	private String BLANK_PNG;
 	private int slideWidth = 800;
 	private int convTimeout = 7;
-	private long execTimeout = 10000;
+	private long execTimeout = 10;
 
 	private static final String TEMP_PNG_NAME = "temp-png";
 
@@ -148,7 +148,7 @@ public class PngCreatorImp implements PngCreator {
 
 		//System.out.println("********* CREATING PNGs " + COMMAND);
 
-		boolean done = new ExternalProcessExecutor().exec(COMMAND, execTimeout);
+		boolean done = new ExternalProcessExecutor().exec(COMMAND, TimeUnit.SECONDS.toMillis(execTimeout));
 
 		if (done) {
 			return true;

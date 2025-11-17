@@ -445,6 +445,19 @@ CREATE INDEX "idx_v_user_meetingId_orderByColumns" ON "user"(
 )
 WHERE "currentlyInMeeting" IS TRUE;
 
+CREATE INDEX "idx_v_user_meetingId_raiseHand" ON "user"(
+    "meetingId",
+    "raiseHandTime" ASC NULLS LAST
+)
+WHERE "currentlyInMeeting" IS TRUE;
+
+CREATE INDEX "idx_v_user_UsersBasicInfo" ON "user"(
+    "meetingId",
+    "nameSortable" ASC NULLS LAST,
+    "userId" ASC NULLS LAST
+)
+WHERE "currentlyInMeeting" IS TRUE;
+
 
 CREATE OR REPLACE VIEW "v_user_current"
 AS SELECT "user"."userId",
@@ -1122,29 +1135,27 @@ CREATE TRIGGER "update_chat_user_startedTypingAt_trigger" BEFORE UPDATE OF "last
 
 create view "v_chat_user" as select * from "chat_user";
 
-CREATE INDEX "idx_chat_user_typing_public" ON "chat_user"("meetingId", "lastTypingAt")
-        WHERE "chatId" = 'MAIN-PUBLIC-GROUP-CHAT'
-        AND "lastTypingAt" is not null;
+CREATE INDEX "idx_v_user_typing_public" ON chat_user("meetingId", "startedTypingAt")
+WHERE "chatId" = 'MAIN-PUBLIC-GROUP-CHAT'
+AND "lastTypingAt" IS NOT NULL;
 
-CREATE INDEX "idx_chat_user_typing_private" ON "chat_user"("meetingId", "userId", "chatId", "lastTypingAt")
-        WHERE "chatId" != 'MAIN-PUBLIC-GROUP-CHAT'
-        AND "visible" is true;
+CREATE INDEX "idx_v_user_typing_private" ON chat_user("meetingId", "userId", "chatId")
+WHERE "chatId" != 'MAIN-PUBLIC-GROUP-CHAT'
+AND "visible" is true;
 
 CREATE OR REPLACE VIEW "v_user_typing_public" AS
-SELECT "meetingId", "chatId", "userId", "lastTypingAt", "startedTypingAt",
-CASE WHEN "lastTypingAt" > current_timestamp - INTERVAL '5 seconds' THEN true ELSE false END AS "isCurrentlyTyping"
+SELECT "meetingId", "chatId", "userId", "lastTypingAt", "startedTypingAt"
 FROM chat_user
 WHERE "chatId" = 'MAIN-PUBLIC-GROUP-CHAT'
-AND "lastTypingAt" is not null;
+AND "lastTypingAt" > current_timestamp - INTERVAL '5 seconds';
 
 CREATE OR REPLACE VIEW "v_user_typing_private" AS
-SELECT chat_user."meetingId", chat_user."chatId", chat_user."userId" as "queryUserId", chat_with."userId", chat_with."lastTypingAt", chat_with."startedTypingAt",
-CASE WHEN chat_with."lastTypingAt" > current_timestamp - INTERVAL '5 seconds' THEN true ELSE false END AS "isCurrentlyTyping"
+SELECT chat_user."meetingId", chat_user."chatId", chat_user."userId" as "queryUserId", chat_with."userId", chat_with."lastTypingAt", chat_with."startedTypingAt"
 FROM chat_user
-LEFT JOIN "chat_user" chat_with ON chat_with."meetingId" = chat_user."meetingId"
-									AND chat_with."userId" != chat_user."userId"
-									AND chat_with."chatId" = chat_user."chatId"
-									AND chat_with."lastTypingAt" is not null
+JOIN "chat_user" chat_with ON chat_with."meetingId" = chat_user."meetingId"
+							AND chat_with."chatId" = chat_user."chatId"
+							AND chat_with."userId" != chat_user."userId"
+							AND chat_with."lastTypingAt" > current_timestamp - INTERVAL '5 seconds'
 WHERE chat_user."chatId" != 'MAIN-PUBLIC-GROUP-CHAT'
 AND chat_user."visible" is true;
 
@@ -1425,8 +1436,8 @@ CREATE UNLOGGED TABLE "chat_message_reaction" (
     CONSTRAINT chat_message_reaction_pk PRIMARY KEY ("messageId", "userId", "reactionEmoji"),
     FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
 );
-CREATE INDEX "chat_message_reaction_meeting_message_idx" ON "chat_message_reaction"("meetingId","messageId");
-CREATE INDEX "chat_message_reaction_meeting_message_idx_rev" ON "chat_message_reaction"("messageId", "meetingId");
+CREATE INDEX "chat_message_reaction_meeting_message_idx" ON "chat_message_reaction"("meetingId","messageId","createdAt" asc nulls last);
+CREATE INDEX "chat_message_reaction_meeting_message_idx_rev" ON "chat_message_reaction"("messageId", "meetingId","createdAt" asc nulls last);
 
 CREATE OR REPLACE VIEW "v_chat_message_reaction" AS SELECT * FROM "chat_message_reaction";
 
@@ -1960,35 +1971,25 @@ CREATE UNLOGGED TABLE "timer" (
 	"meetingId" varchar(100) PRIMARY KEY REFERENCES "meeting"("meetingId") ON DELETE CASCADE,
 	"stopwatch" boolean,
 	"running" boolean,
+	"elapsed" boolean,
 	"active" boolean,
 	"time" bigint,
 	"accumulated" bigint,
-	"startedOn" bigint,
+	"startedAt" timestamp with time zone,
 	"songTrack" varchar(50)
 );
 
-ALTER TABLE "timer" ADD COLUMN "startedAt" timestamp with time zone GENERATED ALWAYS AS (CASE WHEN "startedOn" = 0 THEN NULL ELSE to_timestamp("startedOn"::double precision / 1000) END) STORED;
 
 CREATE OR REPLACE VIEW "v_timer" AS
 SELECT
      "meetingId",
      "stopwatch",
-     case
-        when "stopwatch" is true or "running" is false then "running"
-        when "startedAt" + (("time" - coalesce("accumulated",0)) * interval '1 milliseconds') >= current_timestamp then true
-        else false
-     end "running",
-    case when
-        "stopwatch" is false
-        and "startedAt" + (("time" - coalesce("accumulated",0)) * interval '1 milliseconds') <= current_timestamp
-        then true
-        else false
-    end "elapsed",
+     "running",
+     "elapsed",
      "active",
      "time",
      "accumulated",
      "startedAt",
-     "startedOn",
      "songTrack"
  FROM "timer";
 

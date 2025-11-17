@@ -5,56 +5,66 @@ Tests for BigBlueButton using Playwright.
 ## Setup (with an existing BigBlueButton server)
 
 You need to install the dependencies:
+
 ```bash
-$ cd ../bigbluebutton-tests/playwright
-$ npm install
-$ npx playwright install
+cd ../bigbluebutton-tests/playwright
+npm install
+npx playwright install
 ```
+
 You may also need to run the following command:
+
 ```bash
-$ npx playwright install-deps
+npx playwright install-deps
 ```
+
 To run these tests with an existing BigBlueButton server, you need to find the server's URL and secret (can be done with `bbb-conf --secret` command). You need to put them into the `.env` file inside `bigbluebutton-tests/playwright` folder (variables `BBB_URL` and `BBB_SECRET`).
 
 ## Run tests
 
-We recommend to use Node version 16 or higher to avoid errors in JavaScript.
+We recommend to use Node 20+ to avoid errors in JavaScript.
 Tests can be executed using `npx` and `npm test`. You can run all tests in each of 3 supported environments (`chromium`, `firefox`, `webkit`) with one of the following commands:
+
 ```bash
-$ npx playwright test
+npx playwright test
 or
-$ npm test
+npm test
 ```
 
 You can also run a single test suite and limit the execution to only one browser:
+
 ```bash
-$ npx playwright test chat --project="firefox"
+npx playwright test chat --project="firefox"
 or
-$ npm test chat -- --project="firefox" # or "chromium" for example
+npm test chat -- --project="firefox" # or "chromium" for example
 ```
 
 ### Additional commands
 
 To see the tests running visually, you must run them in headed mode:
+
 ```bash
-$ npm run test:headed chat
+npm run test:headed chat
 ```
 
 If you want to run a specific test or a specific group of tests, you can do so with the following command:
+
 ```bash
-$ npm run test:filter "Send public message"
+npm run test:filter "Send public message"
 ```
-_(note that this filter needs to be passed in "double quotes")_
+
+_Note: This filter needs to be passed in double quotes_
 
 You can also use this also through the test tree, adding the test suite / group of tests before the test filter:
+
 ```bash
-$ npm run test:filter "notifications chat"
+npm run test:filter "notifications chat"
 ```
 
 If you don't have `BBB_URL` and `BBB_SECRET` set, but have ssh access to the test server, you can use the following command to obtain `BBB_URL` and `BBB_SECRET` via ssh:
 
 ```bash
-$ npm run test:ssh -- HOSTNAME
+npm run test:ssh -- HOSTNAME
 ```
 
 ## Recording Meteor messages
@@ -104,18 +114,55 @@ It doesn't seem necessary to relay cookies, but that could be done by giving a `
 
 You can print the browser console log to standard output by setting the environment variable `CONSOLE`:
 
-```
-$ CONSOLE= npm test chat -- --project=firefox
+```bash
+CONSOLE= npm test chat -- --project=firefox
 ```
 
 `CONSOLE` can be blank (as in the example), or can be a comma-separated list of the following options:
 
-| Option | Meaning |
-| ------ | ------- |
-| color  | (or "colour") colorize the output |
+| Option | Meaning                                     |
+| ------ | ------------------------------------------- |
+| color  | (or "colour") colorize the output           |
 | label  | label each line with the BigBlueButton user |
-| norefs | remove JavaScript reference URLs |
-| nots   | remove timestamps |
+| norefs | remove JavaScript reference URLs            |
+| nots   | remove timestamps                           |
+
+## Code Formatting and Linting
+
+This project uses Prettier for code formatting and ESLint for linting. The configuration enforces a maximum line length of 120 characters and consistent code style.
+
+### Available Commands
+
+```bash
+# Format all files
+npm run format
+
+# Check if files are properly formatted (useful for CI)
+npm run format:check
+
+# Run ESLint
+npm run lint
+
+# Run ESLint with automatic fixes
+npm run lint:fix
+
+# Type checking
+npm run typecheck
+```
+
+### Pre-commit Hooks
+
+The project uses Husky to run formatting checks and type checking before commits. This ensures that all committed code follows the established style guidelines.
+
+### Editor Integration
+
+For the best development experience, configure your editor to:
+
+- Format on save using Prettier
+- Show ESLint errors and warnings
+- Auto-fix ESLint issues when possible
+
+VSCode settings are provided in `.vscode/settings.json` for automatic formatting and linting.
 
 ## Check test results
 
@@ -130,13 +177,13 @@ After opening a PR, the CI will run automated tests within your changes + target
 ![alt text](core/docs/images/artifacts-list.png)
 
 - Click to download and extract the content, preferably, in a folder that already has Playwright installed. You can do it in the `bigbluebutton/bigbluebutton-tests/playwright` folder with the dependencies installed ([see Setup instructions](#setup-with-an-existing-bigbluebutton-server))
-
   - We suggest the folder to be named with the prefix `test-results` or `pr-` as it will be ignored by git
 
 - Run the following command to serve up the reported files:
   - you might want to use it in a different port than the default `9323`. use `--port <PORT>` then
 
 ```sh
-$ npx playwright show-report <results-folder-name>
+npx playwright show-report <results-folder-name>
 ```
+
 - Access the logged URL to check the test report (if needed, check the [Playwright official documentation](https://playwright.dev/docs/trace-viewer-intro#opening-the-html-report))
