@@ -64,11 +64,17 @@ class ErrorLogs extends MultiUsers {
     await sleep(1000);
   }
 
+  async openUserList() {
+    await this.modPage.waitAndClick(e.usersListSidebarButton);
+  }
+
   async shareReaction() {
     await this.modPage.waitForSelector(e.whiteboard);
     await this.modPage.waitAndClick(e.reactionsButton);
     // Select the first reaction (smiling emoji)
     await this.modPage.waitAndClick(`${e.singleReactionButton}:nth-child(1)`);
+    // Open the user list to check for emojis
+    await this.openUserList();
     // Verify reaction is displayed
     await this.modPage.hasText(e.moderatorAvatar, '😃', 'should display the smiling emoji in the moderator avatar');
     await this.modPage.hasText(e.reactionsButton, '😃', 'should display the smiling emoji on the reactions button when used');
