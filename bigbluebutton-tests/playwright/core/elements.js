@@ -125,6 +125,7 @@ exports.currentSlideBreakoutOption = 'option[data-test="currentSlideBreakoutOpti
 exports.chatBox = 'textarea[id="message-input"]';
 exports.chatMessageItem = 'div[data-test="chatMessageItem"]';
 exports.partnerDisconnectedMessage = 'span[data-test="partnerDisconnected"]';
+exports.chatButton = 'button[data-test*="ChatButton"]';
 exports.messagesSidebarButton = 'div[data-test="messagesSidebarButton"]';
 exports.sendButton = 'button[data-test="sendMessageButton"]';
 exports.chatPollMessageText = 'div[data-test="chatPollMessageText"]';
