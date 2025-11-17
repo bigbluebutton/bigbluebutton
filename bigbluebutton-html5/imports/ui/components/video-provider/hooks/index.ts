@@ -401,25 +401,66 @@ export const useVideoStreams = () => {
   }
 
   if (isPaginationEnabled) {
-    const [filtered, others] = partition(
-      streams,
-      (vs: StreamItem) => videoService.isLocalStream(vs.stream) || (vs.type === VIDEO_TYPES.STREAM && vs.user?.pinned),
-    );
-    const [pin, mine] = partition(
-      filtered,
-      (vs: StreamItem) => vs.type === VIDEO_TYPES.STREAM && vs.user?.pinned,
-    );
-
-    totalNumberOfOtherStreams = others.length;
     const chunkIndex = currentVideoPageIndex * myPageSize;
     const sortingMethod = (numberOfPages > 1) ? PAGINATION_SORTING : DEFAULT_SORTING;
-    const paginatedStreams = sortVideoStreams(others, sortingMethod)
-      .slice(chunkIndex, (chunkIndex + myPageSize)) || [];
+    const sortingConfig = getSortingMethod(sortingMethod);
 
-    if (getSortingMethod(sortingMethod).localFirst) {
-      streams = [...pin, ...mine, ...paginatedStreams];
+    // Check if this sorting method uses custom pagination logic
+    if (sortingConfig.customPagination) {
+      // For custom pagination methods, the sorting method defines the exact order
+      // We only apply pagination by removing streams outside the window
+      // (except local and pinned which are always visible)
+      const sortedStreams = sortVideoStreams(streams, sortingMethod);
+
+      // Track the index of each stream among non-local, non-pinned streams
+      let otherStreamIndex = 0;
+      const result: StreamItem[] = [];
+
+      sortedStreams.forEach((stream) => {
+        const isLocalOrPinned = videoService.isLocalStream(stream.stream)
+          || (stream.type === VIDEO_TYPES.STREAM && stream.user?.pinned);
+
+        if (isLocalOrPinned) {
+          // Always include local and pinned streams
+          result.push(stream);
+        } else {
+          // Check if this "other" stream is in the current page
+          if (otherStreamIndex >= chunkIndex
+            && otherStreamIndex < chunkIndex + myPageSize) {
+            result.push(stream);
+          }
+          otherStreamIndex += 1;
+        }
+      });
+
+      // Count total "other" streams for pagination UI
+      totalNumberOfOtherStreams = sortedStreams.filter(
+        (vs) => !videoService.isLocalStream(vs.stream)
+          && !(vs.type === VIDEO_TYPES.STREAM && vs.user?.pinned),
+      ).length;
+
+      streams = result;
     } else {
-      streams = [...pin, ...paginatedStreams, ...mine];
+      // Original pagination logic for other sorting methods
+      const [filtered, others] = partition(
+        streams,
+        (vs: StreamItem) => videoService.isLocalStream(vs.stream)
+          || (vs.type === VIDEO_TYPES.STREAM && vs.user?.pinned),
+      );
+      const [pin, mine] = partition(
+        filtered,
+        (vs: StreamItem) => vs.type === VIDEO_TYPES.STREAM && vs.user?.pinned,
+      );
+
+      totalNumberOfOtherStreams = others.length;
+      const paginatedStreams = sortVideoStreams(others, sortingMethod)
+        .slice(chunkIndex, (chunkIndex + myPageSize)) || [];
+
+      if (sortingConfig.localFirst) {
+        streams = [...pin, ...mine, ...paginatedStreams];
+      } else {
+        streams = [...pin, ...paginatedStreams, ...mine];
+      }
     }
   } else {
     streams = sortVideoStreams(streams, DEFAULT_SORTING);
