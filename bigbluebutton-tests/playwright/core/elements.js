@@ -561,7 +561,7 @@ exports.wbMoveToFront = 'button[data-testid="menu-item.bring-to-front"]';
 exports.wbPaste = 'button[data-testid="menu-item.paste"]';
 exports.wbTextTrue = 'div[data-hastext="true"]';
 exports.wbDrawnArrow = 'div[data-shape-type="arrow"]';
-exports.wbAutoHideToggleBtn = 'input[data-test="autoHideToolbarToggleBtn"]';
+exports.wbAutoHideToggleBtn = 'input[data-test="whiteboardToolbarAutoHideToggleBtn"]';
 
 // About modal
 exports.aboutTabButton = 'li[data-test="aboutTabButton"]';
