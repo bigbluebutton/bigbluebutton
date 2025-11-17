@@ -91,22 +91,24 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
   const isHidden = (isOnMediaArea && (sharedNotesOutput.width === 0 || sharedNotesOutput.height === 0))
     || (!isVisible && !ignoreDelayforUnmount);
 
-  let timeoutRef: NodeJS.Timeout | undefined;
+  const timeoutRef = React.useRef<NodeJS.Timeout | undefined>();
   useEffect(() => {
     if (isVisible) {
       setShouldRenderNotes(true);
-      clearTimeout(timeoutRef!);
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
     } else {
       markNotesAsRead();
       if (ignoreDelayforUnmount) {
         setShouldRenderNotes(false);
       } else {
-        timeoutRef = setTimeout(() => {
+        timeoutRef.current = setTimeout(() => {
           setShouldRenderNotes(false);
         }, NOTES_UNMOUNT_DELAY());
       }
     }
-    return () => clearTimeout(timeoutRef!);
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
   }, [isVisible]);
 
   const renderHeaderOnMedia = () => {
