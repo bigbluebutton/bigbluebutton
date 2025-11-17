@@ -17,11 +17,10 @@ import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedS
 import { SET_PRESENTER } from '/imports/ui/core/graphql/mutations/userMutations';
 import { TIMER_ACTIVATE, TIMER_DEACTIVATE } from '../../timer/mutations';
 import Auth from '/imports/ui/services/auth';
-import { PRESENTATION_SET_CURRENT } from '../../presentation/mutations';
+import { PRESENTATION_SET_CURRENT, PRESENTATION_SET_FIT_TO_WIDTH } from '../../presentation/mutations';
 import { useStorageKey } from '/imports/ui/services/storage/hooks';
 import { useMeetingIsBreakout } from '/imports/ui/components/app/service';
 import { useIsQuizEnabled } from '../../../services/features';
-import usePresentationFitToWidth from '/imports/ui/components/presentation/hooks/usePresentationFitToWidth';
 
 const ActionsDropdownContainer = (props) => {
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
@@ -59,8 +58,7 @@ const ActionsDropdownContainer = (props) => {
   const [timerDeactivate] = useMutation(TIMER_DEACTIVATE);
   const [presentationSetCurrent] = useMutation(PRESENTATION_SET_CURRENT);
 
-  // eslint-disable-next-line no-unused-vars
-  const [_, setPresentationFitToWidth] = usePresentationFitToWidth();
+  const [setPresentationFitToWidth] = useMutation(PRESENTATION_SET_FIT_TO_WIDTH);
 
   const handleTakePresenter = () => {
     setPresenter({ variables: { userId: Auth.userID } });
