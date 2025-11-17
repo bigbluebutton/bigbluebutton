@@ -2252,7 +2252,7 @@ group by a."meetingId", a."bucketTime", a."activityName";
 --FROM v_user "user"
 --JOIN "meeting" m using("meetingId")
 --JOIN "v_meeting_breakoutPolicies" vmbp using("meetingId")
---JOIN "breakoutRoom" br ON br."meetingId" = vmbp."parentId" AND br."externalId" = m."extId";
+--JOIN "breakoutRoom" br ON br."meetingId" = vmbp."parentId" AND br."breakoutRoomExternalId" = m."extId";
 
 --User to update "inviteDismissedAt" via Mutation
 --TODO check if it is being used
