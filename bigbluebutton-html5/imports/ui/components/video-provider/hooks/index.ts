@@ -407,39 +407,14 @@ export const useVideoStreams = () => {
 
     // Check if this sorting method uses custom pagination logic
     if (sortingConfig.customPagination) {
-      // For custom pagination methods, the sorting method defines the exact order
-      // We only apply pagination by removing streams outside the window
-      // (except local and pinned which are always visible)
+      // For PRESENTER_LOCAL_PINNED mode, paginate all streams equally
+      // This means local cameras will only appear on their page (where they belong in sort order)
       const sortedStreams = sortVideoStreams(streams, sortingMethod);
 
-      // Track the index of each stream among non-local, non-pinned streams
-      let otherStreamIndex = 0;
-      const result: StreamItem[] = [];
+      totalNumberOfOtherStreams = sortedStreams.length;
+      const paginatedStreams = sortedStreams.slice(chunkIndex, chunkIndex + myPageSize) || [];
 
-      sortedStreams.forEach((stream) => {
-        const isLocalOrPinned = videoService.isLocalStream(stream.stream)
-          || (stream.type === VIDEO_TYPES.STREAM && stream.user?.pinned);
-
-        if (isLocalOrPinned) {
-          // Always include local and pinned streams
-          result.push(stream);
-        } else {
-          // Check if this "other" stream is in the current page
-          if (otherStreamIndex >= chunkIndex
-            && otherStreamIndex < chunkIndex + myPageSize) {
-            result.push(stream);
-          }
-          otherStreamIndex += 1;
-        }
-      });
-
-      // Count total "other" streams for pagination UI
-      totalNumberOfOtherStreams = sortedStreams.filter(
-        (vs) => !videoService.isLocalStream(vs.stream)
-          && !(vs.type === VIDEO_TYPES.STREAM && vs.user?.pinned),
-      ).length;
-
-      streams = result;
+      streams = paginatedStreams;
     } else {
       // Original pagination logic for other sorting methods
       const [filtered, others] = partition(

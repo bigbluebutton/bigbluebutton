@@ -438,7 +438,15 @@ class VideoService {
       return !connectedStreamIds.includes(stream);
     });
 
+    // Get the local stream prefix to prevent disconnecting local cameras
+    const clientSessionUUID = sessionStorage.getItem('clientSessionUUID') || '0';
+    const localPrefix = `${Auth.userID}${TOKEN}${clientSessionUUID}`;
+
     const streamsToDisconnect = connectedStreamIds.filter((stream) => {
+      // Never disconnect local streams (prevents unsharing when paginating)
+      if (typeof stream === 'string' && stream.startsWith(localPrefix)) {
+        return false;
+      }
       return !cameraIds.includes(stream);
     });
 
