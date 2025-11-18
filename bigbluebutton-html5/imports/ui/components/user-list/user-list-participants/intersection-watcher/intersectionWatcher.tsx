@@ -8,7 +8,7 @@ const MOUNT_DELAY = 1000;
 const UNMOUNT_DELAY = 20000;
 
 interface IntersectionWatcherProps {
-  ParentRef: React.MutableRefObject<HTMLUListElement | null>;
+  ParentRef: React.RefObject<HTMLDivElement | null>;
   children: React.ReactNode;
   isLastItem: boolean;
   restOfUsers: number;
@@ -49,17 +49,14 @@ const IntersectionWatcher: React.FC<IntersectionWatcherProps> = ({
     }
   }, [intersecting]);
 
-  if (renderPage) {
-    return children;
-  }
-
   return (
     <div ref={childRefProxy}>
-      {
-        Array.from({ length: isLastItem ? restOfUsers : USERS_PER_USER_LIST_PAGE }).map((_, index) => (
-          <SkeletonUserListItem key={`not-visible-item-${index + 1}`} enableAnimation={intersecting} />
-        ))
-      }
+      { renderPage ? children
+        : (
+          Array.from({ length: isLastItem ? restOfUsers : USERS_PER_USER_LIST_PAGE }).map((_, index) => (
+            <SkeletonUserListItem key={`not-visible-item-${index + 1}`} enableAnimation={intersecting} />
+          ))
+        )}
     </div>
   );
 };

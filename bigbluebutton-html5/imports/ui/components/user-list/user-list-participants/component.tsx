@@ -17,15 +17,16 @@ import { USERS_PER_USER_LIST_PAGE } from '/imports/ui/components/user-list/user-
 
 interface UserListParticipantsProps {
   count: number;
+  parentRef: React.RefObject<HTMLDivElement | null>;
 }
 
 const UserListParticipants: React.FC<UserListParticipantsProps> = ({
   count,
+  parentRef,
 }) => {
   const [visibleUsers, setVisibleUsers] = React.useState<{
     [key: number]: User[];
   }>({});
-  const userListRef = React.useRef<HTMLUListElement | null>(null);
   const selectedUserRef = React.useRef<HTMLElement | null>(null);
 
   useEffect(() => {
@@ -85,8 +86,9 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
       <Styled.UserListColumn
         onKeyDown={rove}
         tabIndex={0}
+        role="list"
       >
-        <Styled.VirtualizedList as="ul" ref={userListRef}>
+        <Styled.VirtualizedList as="ul">
           {
             Array.from({ length: amountOfPages }).map((_, i) => {
               const isLastItem = amountOfPages === (i + 1);
@@ -106,7 +108,7 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
                   <IntersectionWatcher
                     // eslint-disable-next-line react/no-array-index-key
                     key={i}
-                    ParentRef={userListRef}
+                    ParentRef={parentRef}
                     isLastItem={isLastItem}
                     restOfUsers={isLastItem ? restOfUsers : USERS_PER_USER_LIST_PAGE}
                   >
@@ -127,18 +129,21 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
   );
 };
 
-const UserListParticipantsContainer: React.FC = () => {
+interface UserListParticipantsContainerProps {
+  parentRef: React.RefObject<HTMLDivElement | null>;
+}
+
+const UserListParticipantsContainer: React.FC<UserListParticipantsContainerProps> = ({ parentRef }) => {
   const {
     data: countData,
   } = useDeduplicatedSubscription<UsersCountSubscriptionResponse>(USER_AGGREGATE_COUNT_SUBSCRIPTION);
   const count = countData?.user_aggregate?.aggregate?.count || 0;
 
   return (
-    <>
-      <UserListParticipants
-        count={count ?? 0}
-      />
-    </>
+    <UserListParticipants
+      count={count ?? 0}
+      parentRef={parentRef}
+    />
   );
 };
 
