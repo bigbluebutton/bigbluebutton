@@ -39,20 +39,31 @@ const UserItemToolbar: React.FC<UserItemToolbarProps> = ({
       disabled,
     } = pinnedToolbarOption;
 
+    if (icon) {
+      return (
+        <Styled.ToolbarItem
+          key={key}
+          onClick={onClick}
+          data-test={dataTest}
+          disabled={disabled}
+        >
+          <Tooltip
+            title={label}
+          >
+            <Icon iconName={icon} />
+          </Tooltip>
+        </Styled.ToolbarItem>
+      );
+    }
     return (
       <Styled.ToolbarItem
         key={key}
         onClick={onClick}
         data-test={dataTest}
         disabled={disabled}
+        hasText
       >
-        <Tooltip
-          title={label}
-        >
-          <Icon
-            iconName={icon}
-          />
-        </Tooltip>
+        {label}
       </Styled.ToolbarItem>
     );
   };
@@ -73,10 +84,10 @@ const UserItemToolbar: React.FC<UserItemToolbarProps> = ({
 
       const afterUserDropdownItems = userDropdownItems.filter((item) => (
         item?.type !== UserListDropdownItemType.FIXED_CONTENT_INFORMATION
-          && item?.type !== UserListDropdownItemType.GENERIC_CONTENT_INFORMATION
-          && !(item?.type === UserListDropdownItemType.SEPARATOR
-            && (item as PluginSdk.UserListDropdownSeparator)?.position
-            === PluginSdk.UserListDropdownSeparatorPosition.BEFORE)
+        && item?.type !== UserListDropdownItemType.GENERIC_CONTENT_INFORMATION
+        && !(item?.type === UserListDropdownItemType.SEPARATOR
+          && (item as PluginSdk.UserListDropdownSeparator)?.position
+          === PluginSdk.UserListDropdownSeparatorPosition.BEFORE)
       ));
       const actions = [
         ...makeDropdownPluginItem(beforeUserDropdownItems),

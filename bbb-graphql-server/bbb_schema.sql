@@ -441,7 +441,6 @@ CREATE INDEX "idx_v_user_meetingId_orderByColumns" ON "user"(
     "meetingId",
     "presenter" DESC NULLS FIRST,
     "role" ASC NULLS LAST,
-    "raiseHandTime" ASC NULLS LAST,
     "isDialIn" DESC NULLS FIRST,
     "whiteboardWriteAccess" DESC NULLS FIRST,
     "nameSortable" ASC NULLS LAST,

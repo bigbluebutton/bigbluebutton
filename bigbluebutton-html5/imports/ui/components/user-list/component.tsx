@@ -4,6 +4,7 @@ import { useLazyQuery } from '@apollo/client';
 import Trigger from '/imports/ui/components/common/control-header/right/component';
 import UserListParticipants from './user-list-participants/component';
 import GuestManagement from './guest-management/component';
+import RaisedHandsContainer from './raised-hands/component';
 import { layoutDispatch } from '/imports/ui/components/layout/context';
 import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
 import CrowActionsButtons from '/imports/ui/components/user-list/crowd-action-buttons/component';
@@ -92,6 +93,7 @@ const UserList: React.FC<UserListComponentProps> = () => {
     return (
       <Styled.ScrollableSection id="scroll-box">
         {renderGuestManagement()}
+        <RaisedHandsContainer />
         <UserListParticipants />
       </Styled.ScrollableSection>
     );

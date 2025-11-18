@@ -129,6 +129,10 @@ const intlMessages = defineMessages({
     id: 'app.userList.menu.ejectUserCameras.label',
     description: 'label to eject user cameras',
   },
+  lowerUserHand: {
+    id: 'app.statusNotifier.lowerHandDescOneUser',
+    description: 'Label for lowering a user raised hand',
+  },
 });
 export const isVoiceOnlyUser = (userId: string) => userId.toString().startsWith('v_');
 
@@ -143,6 +147,7 @@ export const generateActionsPermissions = (
   isMuted: boolean,
   isChatEnabled: boolean,
   isPrivateChatEnabled: boolean,
+  type: string,
 ) => {
   const subjectUserVoice = subjectUser.voice;
   const subjectUserInAudio = subjectUserVoice?.joined && !subjectUserVoice?.deafened;
@@ -160,20 +165,22 @@ export const generateActionsPermissions = (
   const allowedToChatPrivately = isChatEnabled && (
     currentUser.isModerator || (
       !userChatIsLocked
-        // TODO: Add check for hasPrivateChat between users
-        || subjectUser.isModerator
+      // TODO: Add check for hasPrivateChat between users
+      || subjectUser.isModerator
     )) && !amISubjectUser
     && !isDialInUser
     && isPrivateChatEnabled
     && !isSubjectUserBot
-    && !isBreakout;
+    && !isBreakout
+    && type === 'participant';
 
   const allowedToMuteAudio = hasAuthority
     && subjectUserInAudio
     && !isMuted
     && !subjectUserVoice?.listenOnly
     && !isSubjectUserBot
-    && !isBreakout;
+    && !isBreakout
+    && (type === 'participant' || type === 'raised-hand');
 
   const allowedToUnmuteAudio = hasAuthority
     && subjectUserInAudio
@@ -181,22 +188,26 @@ export const generateActionsPermissions = (
     && isMuted
     && (amISubjectUser || usersPolicies?.allowModsToUnmuteUsers)
     && !lockSettings?.disableMic
-    && !isBreakout;
+    && !isBreakout
+    && (type === 'participant' || type === 'raised-hand');
 
   const allowedToChangeWhiteboardAccess = currentUser.presenter
-      && !amISubjectUser && !subjectUser.presenter
-      && !isSubjectUserBot
-      && !isDialInUser;
+    && !amISubjectUser && !subjectUser.presenter
+    && !isSubjectUserBot
+    && !isDialInUser
+    && (type === 'participant' || type === 'raised-hand');
 
   const allowedToSetPresenter = amIModerator
-      && !subjectUser.presenter
-      && !isSubjectUserBot
-      && !isDialInUser;
+    && !subjectUser.presenter
+    && !isSubjectUserBot
+    && !isDialInUser
+    && (type === 'participant' || type === 'raised-hand');
 
   // if currentUser is a moderator, allow removing other users
   const allowedToRemove = amIModerator
     && !amISubjectUser
-    && (!isBreakout || parentRoomModerator);
+    && (!isBreakout || parentRoomModerator)
+    && (type === 'participant' || type === 'raised-hand');
 
   const allowedToPromote = amIModerator
     && !amISubjectUser
@@ -204,7 +215,8 @@ export const generateActionsPermissions = (
     && !isDialInUser
     && !isBreakout
     && !isSubjectUserBot
-    && !(isSubjectUserGuest && usersPolicies?.authenticatedGuest && !usersPolicies?.allowPromoteGuestToModerator);
+    && !(isSubjectUserGuest && usersPolicies?.authenticatedGuest && !usersPolicies?.allowPromoteGuestToModerator)
+    && (type === 'participant' || type === 'raised-hand');
 
   const allowedToDemote = amIModerator
     && !amISubjectUser
@@ -212,17 +224,25 @@ export const generateActionsPermissions = (
     && !isDialInUser
     && !isBreakout
     && !isSubjectUserBot
-    && !(isSubjectUserGuest && usersPolicies?.authenticatedGuest && !usersPolicies?.allowPromoteGuestToModerator);
+    && !(isSubjectUserGuest && usersPolicies?.authenticatedGuest && !usersPolicies?.allowPromoteGuestToModerator)
+    && (type === 'participant' || type === 'raised-hand');
 
   const allowedToChangeUserLockStatus = amIModerator
     && !isSubjectUserModerator
     && !isSubjectUserBot
-    && lockSettings?.hasActiveLockSetting;
+    && lockSettings?.hasActiveLockSetting
+    && (type === 'participant' || type === 'raised-hand');
 
   const allowedToEjectCameras = amIModerator
     && !amISubjectUser
     && usersPolicies?.allowModsToEjectCameras
-    && subjectUser.cameras.length > 0;
+    && subjectUser.cameras.length > 0
+    && (type === 'participant' || type === 'raised-hand');
+
+  const allowedToLowerHand = subjectUser.raiseHand
+    && (amIModerator
+    || amISubjectUser)
+    && type === 'raised-hand';
 
   return {
     allowedToChatPrivately,
@@ -235,6 +255,7 @@ export const generateActionsPermissions = (
     allowedToChangeUserLockStatus,
     allowedToEjectCameras,
     allowedToRemove,
+    allowedToLowerHand,
   };
 };
 
@@ -351,6 +372,7 @@ export const createToolbarOptions = (
   setLocked: MutationFunction,
   userEjectCameras: MutationFunction,
   setIsConfirmationModalOpen: React.Dispatch<React.SetStateAction<boolean>>,
+  setRaiseHand: MutationFunction,
 ) => {
   const MODERATOR_ROLE = window.meetingClientSettings.public.user.role_moderator;
   const VIEWER_ROLE = window.meetingClientSettings.public.user.role_viewer;
@@ -365,6 +387,7 @@ export const createToolbarOptions = (
     allowedToChangeUserLockStatus,
     allowedToEjectCameras,
     allowedToRemove,
+    allowedToLowerHand,
   } = actionsPermitions;
 
   const subjectUserInAudio = user.voice?.joined && !user.voice?.deafened;
@@ -423,6 +446,19 @@ export const createToolbarOptions = (
 
   return {
     pinnedToolbarOptions: [
+      {
+        allowed: allowedToLowerHand,
+        key: 'lowerHand',
+        label: intl.formatMessage(intlMessages.lowerUserHand),
+        onClick: () => {
+          setRaiseHand({
+            variables: {
+              userId: user.userId,
+              raiseHand: false,
+            },
+          });
+        },
+      },
       {
         allowed: allowedToChatPrivately,
         key: 'privateChat',

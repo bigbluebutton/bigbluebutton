@@ -73,6 +73,7 @@ const UsersListParticipantsPage: React.FC<UsersListParticipantsPage> = ({
                 open={user.userId === openUserAction}
                 setOpenUserAction={setOpenUserAction}
                 isBreakout={meeting.isBreakout}
+                type="participant"
               />
             </Styled.UserListItem>
           );

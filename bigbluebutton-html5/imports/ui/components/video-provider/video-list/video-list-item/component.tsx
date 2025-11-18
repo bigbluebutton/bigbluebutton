@@ -63,6 +63,7 @@ interface VideoListItemProps {
     joined: boolean;
     deafened: boolean;
   };
+  raisedHandPosition: number;
 }
 
 const renderPluginItems = (
@@ -104,7 +105,7 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
     cameraId, numOfStreams, focused, onVideoItemMount, onVideoItemUnmount,
     makeDragOperations, dragging, draggingOver, isRTL, isStream, settingsSelfViewDisable,
     disabledCams, amIModerator, stream, setUserCamerasRequestedFromPlugin,
-    pluginUserCameraHelperPerPosition,
+    pluginUserCameraHelperPerPosition, raisedHandPosition,
   } = props;
 
   const intl = useIntl();
@@ -264,6 +265,17 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
     />
   );
 
+  const renderRaiseHandElement = () => {
+    if (!raiseHand) return null;
+
+    return (
+      <Styled.RaiseHand>
+        {raisedHandPosition > 0 && <Styled.RaiseHandNumber>{raisedHandPosition}</Styled.RaiseHandNumber>}
+        <Styled.RaiseHandEmoji>✋</Styled.RaiseHandEmoji>
+      </Styled.RaiseHand>
+    );
+  };
+
   const renderWebcamConnecting = () => (
     <Styled.WebcamConnecting
       data-test="webcamConnecting"
@@ -277,7 +289,7 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
         squeezed={false}
       />
       <Styled.TopBar>
-        {raiseHand && <Styled.RaiseHand>✋</Styled.RaiseHand>}
+        {renderRaiseHandElement()}
       </Styled.TopBar>
       <Styled.BottomBar>
         <UserActions

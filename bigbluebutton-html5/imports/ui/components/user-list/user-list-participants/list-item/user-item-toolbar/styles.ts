@@ -1,5 +1,9 @@
 import styled from 'styled-components';
-import { colorGrayIcons, colorGrayUserListToolbar } from '/imports/ui/stylesheets/styled-components/palette';
+import {
+  colorGrayIcons,
+  colorGrayUserListToolbar,
+  colorPrimary,
+} from '/imports/ui/stylesheets/styled-components/palette';
 
 const ToolbarContainer = styled.div`
   border-radius: 1.5rem;
@@ -10,9 +14,12 @@ const ToolbarContainer = styled.div`
   align-items: center;
 `;
 
-const ToolbarItem = styled.div<{ disabled?: boolean }>`
+const ToolbarItem = styled.div<{ disabled?: boolean, hasText?: boolean }>`
   cursor: pointer;
-  color: ${colorGrayIcons};
+  color: ${({ hasText }) => (hasText ? colorPrimary : colorGrayIcons)};
+
+  font-size: 0.8rem;
+  line-height: 1;
 
   ${({ disabled }) => disabled && `
     cursor: not-allowed;

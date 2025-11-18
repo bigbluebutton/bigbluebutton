@@ -18,7 +18,7 @@ const messages = defineMessages({
     description: 'text displayed to clear a single user raised hands',
   },
   raisedHandsTitle: {
-    id: 'app.statusNotifier.raisedHandsTitle',
+    id: 'app.statusNotifier.raisedHandsTitleNotifier',
     description: 'heading for raised hands toast',
   },
   raisedHandDesc: {
