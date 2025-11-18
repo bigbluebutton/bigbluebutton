@@ -2,7 +2,7 @@ import React from 'react';
 import Timer from './component';
 import { layoutSelectInput, layoutDispatch } from '../../../layout/context';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import useTimer from '/imports/ui/core/hooks/useTImer';
+import useTimer from '/imports/ui/core/hooks/useTimer';
 
 const TimerContainer = (props) => {
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
@@ -13,7 +13,7 @@ const TimerContainer = (props) => {
   }));
   const {
     data: timerData,
-  } = useTimer();
+  } = useTimer({ enableNotifications: false });
 
   if (!timerData) return null;
   const { stopwatch } = timerData;

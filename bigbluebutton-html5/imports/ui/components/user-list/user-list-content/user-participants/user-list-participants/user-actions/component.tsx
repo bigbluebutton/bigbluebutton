@@ -157,7 +157,7 @@ const messages = defineMessages({
     description: 'Confirmation message for removing a user from the meeting',
   },
   lowerUserHand: {
-    id: 'app.statusNotifier.lowerHandDescOneUser',
+    id: 'app.actionsBar.reactions.lowUserHand',
     description: 'Label for lowering a user raised hand',
   },
 });

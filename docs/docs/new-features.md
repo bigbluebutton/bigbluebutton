@@ -370,7 +370,8 @@ Added
 - `maxPluginManifestsFetchUrlPayloadSize` added
 - `numPluginManifestsFetchingThreads` added
 - `extractTimeoutInMs` added
-- `pngCreationExecTimeoutInMs` added
+- `pngCreationExecTimeoutInMs` added, later (BBB 3.0.17) renamed to `pngCreationExecTimeout`
+- `pngCreationExecTimeout` added (used to be `pngCreationExecTimeoutInMs`)
 - `thumbnailCreationExecTimeoutInMs` added
 - `pdfPageDownscaleExecTimeoutInMs` added
 - `officeDocumentValidationExecTimeoutInMs` added

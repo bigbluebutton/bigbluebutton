@@ -32,6 +32,7 @@ trait StartTimerReqMsgHdlr extends RightsManagementTrait {
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
     } else {
       TimerModel.setRunning(liveMeeting.timerModel, running = true)
+      startTimerCheck(liveMeeting)
       TimerDAO.update(liveMeeting.props.meetingProp.intId, liveMeeting.timerModel)
       broadcastEvent()
     }
