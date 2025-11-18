@@ -154,12 +154,12 @@ public:
     showAudioFilters: true
     reactionsButton:
       enabled: true
-    emojiRain:
+    reactionsAnimation:
       # If true, new reactions will be activated
       enabled: false
       # Can set the throttle, the number of emojis that will be displayed and their size
       intervalEmojis: 2000
-      numberOfEmojis: 5
+      numberOfEmojis: 20
       # emojiSize: size of the emoji in 'em' units
       emojiSize: 2
     # If enabled, before joining microphone the client will perform a trickle

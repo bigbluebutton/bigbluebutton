@@ -38,7 +38,7 @@ export interface Settings {
   skipVideoPreviewOnFirstJoin?: boolean;
   skipVideoPreviewIfPreviousDevice?: boolean;
   // Emoji
-  emojiRain?: boolean;
+  reactionsAnimation?: boolean;
   // Whiteboard
   allowInfiniteWhiteboard?: boolean;
 }
@@ -92,7 +92,7 @@ export async function generateSettingsData(page: Page): Promise<Settings | undef
       skipVideoPreviewOnFirstJoin: settingsData.kurento?.skipVideoPreviewOnFirstJoin,
       skipVideoPreviewIfPreviousDevice: settingsData.kurento?.skipVideoPreviewIfPreviousDevice,
       // Emoji
-      emojiRain: settingsData.app?.emojiRain?.enabled,
+      reactionsAnimation: settingsData.app?.reactionsAnimation?.enabled,
       // Whiteboard
       allowInfiniteWhiteboard: settingsData.whiteboard?.allowInfiniteWhiteboard,
     };

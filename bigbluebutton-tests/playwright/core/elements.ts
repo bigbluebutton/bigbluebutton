@@ -26,7 +26,7 @@ export const elements = {
   reactionsButton,
   reactionsButtonLabel: `${reactionsButton} span:nth-child(2)`,
   singleReactionButton: 'li[data-test="reaction"]',
-  emojiRain: 'div[data-test="emojiRain"] svg',
+  reactionAnimation: 'div[data-test="reactionAnimationContainer"] div',
   raiseHandBtn: 'button[data-test="raiseHandBtn"]',
   lowerHandBtn: 'button[data-test="lowerHandBtn"]',
   raiseHandRejection: 'button[data-test="raiseHandRejection"]',

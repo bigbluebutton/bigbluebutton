@@ -59,10 +59,10 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
       await multiusers.reactionsTest();
     });
 
-    test('Emoji rain', async ({ browser, context, page }, testInfo) => {
-      const emojiRain = new MultiUsers(browser, context);
-      await emojiRain.initModPage(page, { testInfo });
-      await emojiRain.emojiRainTest();
+    test('Emoji confetti', async ({ browser, context, page }, testInfo) => {
+      const reactionsAnimation = new MultiUsers(browser, context);
+      await reactionsAnimation.initModPage(page, { testInfo });
+      await reactionsAnimation.emojiConfettiTest();
     });
   });
 

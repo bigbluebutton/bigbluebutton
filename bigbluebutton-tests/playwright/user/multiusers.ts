@@ -529,29 +529,29 @@ export class MultiUsers {
     );
   }
 
-  async emojiRainTest() {
+  async emojiConfettiTest() {
     const { settings } = this.modPage;
     const smilingEmojiReaction = `${e.singleReactionButton}:nth-child(1)`;
 
-    const isEmojiRainEnabled = settings?.emojiRain ?? true;
+    const isReactionsAnimationEnabled = settings?.reactionsAnimation ?? true;
 
-    if (!isEmojiRainEnabled) {
+    if (!isReactionsAnimationEnabled) {
       await this.modPage.waitForSelector(e.whiteboard);
       await this.modPage.waitAndClick(e.reactionsButton);
       await this.modPage.waitAndClick(smilingEmojiReaction);
-      await this.modPage.wasRemoved(e.emojiRain, 'should not display the emoji rain when disabled');
+      await this.modPage.wasRemoved(e.reactionAnimation, 'should not display the emoji rain when disabled');
       return;
     }
 
     await this.modPage.waitForSelector(e.whiteboard);
     await this.modPage.waitAndClick(e.reactionsButton);
     await this.modPage.waitAndClick(smilingEmojiReaction);
-    const emojiRainLocator = this.modPage.page.locator(e.emojiRain);
-    await expect(emojiRainLocator, 'should display the emoji rain element when enabled').toHaveCount(5, {
+    const reactionsLocator = this.modPage.page.locator(e.reactionAnimation);
+    await expect(reactionsLocator, 'should display the emoji rain element when enabled').toHaveCount(20, {
       timeout: ELEMENT_WAIT_TIME,
     });
     await this.modPage.page.waitForTimeout(1000);
-    await expect(emojiRainLocator, 'should stop displaying the emoji rain element after a second').toHaveCount(0, {
+    await expect(reactionsLocator, 'should stop displaying the emoji rain element after a second').toHaveCount(0, {
       timeout: ELEMENT_WAIT_TIME,
     });
   }

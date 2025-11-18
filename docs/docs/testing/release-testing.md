@@ -1692,7 +1692,7 @@ Note :
     - The reaction should keep displayed for a while
     - The reaction should be removed once you click again in the emoji
     - The reaction should be changed once you click in a different emoji
-    - if the `emojiRain` setting is enabled, all users should see an animated rain of emojis from their reactions button on every reaction 
+    - if the `reactionsAnimation` setting is enabled, all users should see an animated rain of emojis from their reactions button on every reaction 
 
 ### Raise / Lower your hand  [(Automated)](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/user/user.spec.js)
 
