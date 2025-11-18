@@ -51,10 +51,10 @@ const ChatListItem: React.FC<BaseSidebarButtonProps> = ({ isOpened }) => {
     }
   }, [idChatOpen, activeChat, layoutContextDispatch, PUBLIC_GROUP_CHAT_ID]);
 
-  const handleChatToggle = useCallback(() => {
+  const handleChatToggle = useCallback((willOpen: boolean) => {
     layoutContextDispatch({
       type: ACTIONS.SET_ID_CHAT_OPEN,
-      value: PUBLIC_GROUP_CHAT_ID,
+      value: willOpen ? PUBLIC_GROUP_CHAT_ID : undefined,
     });
   }, [layoutContextDispatch, PUBLIC_GROUP_CHAT_ID]);
 
