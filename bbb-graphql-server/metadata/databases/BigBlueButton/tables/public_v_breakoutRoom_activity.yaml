@@ -1,5 +1,5 @@
 table:
-  name: v_breakoutroom_activity
+  name: v_breakoutRoom_activity
   schema: public
 configuration:
   column_config: {}

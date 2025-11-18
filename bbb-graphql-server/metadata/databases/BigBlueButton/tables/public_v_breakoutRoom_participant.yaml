@@ -26,7 +26,7 @@ array_relationships:
           userId: userId
         insertion_order: null
         remote_table:
-          name: v_breakoutroom_user_activity
+          name: v_breakoutRoom_user_activity
           schema: public
 select_permissions:
   - role: bbb_client
