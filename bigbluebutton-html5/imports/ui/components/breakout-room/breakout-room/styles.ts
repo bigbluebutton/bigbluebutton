@@ -2,7 +2,6 @@ import styled, { css, keyframes } from 'styled-components';
 import {
   borderSize,
   borderRadius,
-  jumboPaddingY,
   smPaddingX,
   smPaddingY,
   contentSidebarPadding,
@@ -15,8 +14,8 @@ import {
   userListBg,
   colorWhite,
   colorGrayLighter,
-  colorGrayLightest,
   colorBlueLight,
+  colorBlueLightest,
   listItemBgHover,
   colorText,
 } from '/imports/ui/stylesheets/styled-components/palette';
@@ -193,9 +192,6 @@ const DurationContainer = styled.div<DurationContainerProps>`
   `}
 
   border-radius: ${borderRadius};
-  margin-bottom: ${jumboPaddingY};
-  padding: 10px;
-  box-shadow: 0 0 1px 1px ${colorGrayLightest};
 `;
 
 const SetTimeContainer = styled.div`
@@ -345,6 +341,35 @@ const ErrorMessage = styled.div`
   max-height: .93rem;
 `;
 
+const NotAssignedWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  background-color: ${colorBlueLightest};
+  border-radius: ${borderRadius};
+  padding: 1rem 1.5rem;
+  flex-grow: 1;
+
+  & > i {
+    font-size: 3rem;
+    color: ${colorPrimary};
+  }
+`;
+
+const NotAssignedMessage = styled.p`
+  font-size: ${fontSizeBase};
+  color: ${colorText};
+  margin: 0;
+`;
+
+const NotAssignedHelpText = styled.p`
+  text-align: center;
+  margin-top: 1rem;
+  font-size: ${fontSizeBase};
+  color: ${colorText};
+`;
+
 export default {
   HeaderContainer,
   Separator,
@@ -375,4 +400,7 @@ export default {
   SendButton,
   ErrorMessage,
   BreakoutsList,
+  NotAssignedWrapper,
+  NotAssignedMessage,
+  NotAssignedHelpText,
 };

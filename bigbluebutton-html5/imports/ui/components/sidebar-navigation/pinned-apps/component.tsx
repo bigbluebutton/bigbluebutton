@@ -58,6 +58,11 @@ const areAppsEqual = (prevProps: PinnedAppsProps, nextProps: PinnedAppsProps) =>
     .every((prevPinnedregisteredAppKey) => {
       const prevApp = prevRegisteredApps[prevPinnedregisteredAppKey];
       const nextApp = nextregisteredApps[prevPinnedregisteredAppKey];
+
+      if (prevApp.hasNotification !== nextApp.hasNotification) {
+        return false;
+      }
+
       if (prevApp.name !== nextApp.name || prevApp.icon !== nextApp.icon) {
         return false;
       }
