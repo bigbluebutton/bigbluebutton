@@ -126,6 +126,7 @@ class RedisRecorderActor(
       case m: WebcamsOnlyForModeratorChangedEvtMsg  => handleWebcamsOnlyForModeratorChangedEvtMsg(m)
       case m: MeetingEndingEvtMsg                   => handleMeetingEndingEvtMsg(m)
       case m: MeetingCreatedEvtMsg                  => handleStarterConfigurations(m)
+      case m: BroadcastLayoutEvtMsg                 => handleBroadcastLayoutEvtMsg(m)
       case m: SetScreenshareAsContentEvtMsg         => handleSetScreenshareAsContent(m)
       case m: ScreenshareRtmpBroadcastStartedEvtMsg => handleScreenshareRtmpBroadcastStartedEvtMsg(m)
       case m: ScreenshareRtmpBroadcastStoppedEvtMsg => handleScreenshareRtmpBroadcastStoppedEvtMsg(m)
@@ -802,6 +803,17 @@ class RedisRecorderActor(
     val ev = new MeetingConfigurationEvent()
     ev.setWebcamsOnlyForModerator(msg.body.props.usersProp.webcamsOnlyForModerator)
     record(msg.body.props.meetingProp.intId, ev.toMap().asJava)
+  }
+
+  private def handleBroadcastLayoutEvtMsg(msg: BroadcastLayoutEvtMsg): Unit = {
+    val ev = new LayoutBroadcastedRecordEvent()
+    ev.setLayout(msg.body.layout)
+    ev.setPresentationIsOpen(msg.body.presentationIsOpen)
+    ev.setIsResizing(msg.body.isResizing)
+    ev.setCameraPosition(msg.body.cameraPosition)
+    ev.setFocusedCamera(msg.body.focusedCamera)
+    ev.setPresentationVideoRate(msg.body.presentationVideoRate)
+    record(msg.header.meetingId, ev.toMap().asJava)
   }
 
   private def handleSetScreenshareAsContent(msg: SetScreenshareAsContentEvtMsg): Unit = {
