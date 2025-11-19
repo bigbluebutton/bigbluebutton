@@ -37,6 +37,7 @@ export class Create extends MultiUsers {
       e.inviteUsersToBreakoutRooms,
       'should have the "invite to breakout rooms" option when breakout rooms are created',
     );
+    await this.modPage.press('Escape'); // close manage users dropdown
   }
 
   async createToAllowChooseOwnRoom() {
