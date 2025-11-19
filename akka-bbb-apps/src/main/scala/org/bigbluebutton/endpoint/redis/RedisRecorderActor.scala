@@ -807,6 +807,7 @@ class RedisRecorderActor(
 
   private def handleBroadcastLayoutEvtMsg(msg: BroadcastLayoutEvtMsg): Unit = {
     val ev = new LayoutBroadcastedRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
     ev.setLayout(msg.body.layout)
     ev.setPresentationIsOpen(msg.body.presentationIsOpen)
     ev.setIsResizing(msg.body.isResizing)
