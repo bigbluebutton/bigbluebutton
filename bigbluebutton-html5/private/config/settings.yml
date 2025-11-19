@@ -830,6 +830,7 @@ public:
     showSessionDetailsOnJoin: true
     showScreenshareQuickSwapButton: false
     showLeaveSessionLabel: false
+    usersPerUserListPage: 50
   pads:
     url: ETHERPAD_HOST
   media:
