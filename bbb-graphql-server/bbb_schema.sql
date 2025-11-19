@@ -2156,7 +2156,7 @@ SELECT bu."meetingId" as "userMeetingId", bu."userId", b."meetingId", b."breakou
             b."shortName", b."startedAt", b."endedAt", b."durationInSeconds", b."sendInvitationToModerators",
             bu."assignedAt", bu."joinURL", bu."inviteDismissedAt",
             bu."isLastAssignedRoom", bu."isLastJoinedRoom", bu."isUserCurrentlyInRoom", bu."showInvitation",
-            bu."joinedAt" is not null as "hasJoined"
+            bu."joinedAt", bu."joinedAt" is not null as "hasJoined"
     FROM "breakoutRoom_user" bu
     JOIN "breakoutRoom" b ON b."breakoutRoomMeetingId" = bu."breakoutRoomMeetingId" and b."endedAt" IS NULL
     --JOIN  bu ON bu."meetingId" = u."meetingId" AND bu."userId" = u."userId" AND bu."breakoutRoomMeetingId" = b."breakoutRoomMeetingId"
@@ -2181,7 +2181,8 @@ where "createdAt" = (
 					);
 
 CREATE OR REPLACE VIEW "v_breakoutRoom_assignedUser" AS
-SELECT "meetingId", "breakoutRoomMeetingId", "userMeetingId", "userId"
+SELECT "meetingId", "breakoutRoomMeetingId", "userMeetingId", "userId",
+        "isLastAssignedRoom", "assignedAt", "inviteDismissedAt", "isLastJoinedRoom", "hasJoined", "joinedAt", "isUserCurrentlyInRoom"
 FROM "v_breakoutRoom"
 WHERE "assignedAt" IS NOT NULL;
 
