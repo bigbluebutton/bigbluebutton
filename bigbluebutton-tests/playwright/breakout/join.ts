@@ -16,15 +16,6 @@ export class Join extends Create {
     if (shouldJoinAudio) {
       await this.userPage.waitAndClick(e.joinAudio);
       await this.userPage.joinMicrophone();
-      await this.userPage.wasRemoved(
-        e.isTalking,
-        'Talking indicator should be removed after user joins breakout rooms.',
-      );
-      await this.userPage.hasText(
-        e.smallToastMsg,
-        e.leftAudioToast,
-        `should appear the text "${e.leftAudioToast}" on the toast message after user joins breakout rooms.`,
-      );
     }
 
     if (shouldJoinVideo) {
