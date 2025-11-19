@@ -28,7 +28,6 @@ import {
   useIsScreenBroadcasting,
 } from '/imports/ui/components/screenshare/service';
 import { useStorageKey } from '/imports/ui/services/storage/hooks';
-import useNotesLastRead from './hooks/useNotesLastRead';
 import {
   Layout,
   SharedNotes,
@@ -90,7 +89,6 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
   } = props;
   const [shouldRenderNotes, setShouldRenderNotes] = useState(isVisible);
   const intl = useIntl();
-  const { markNotesAsRead } = useNotesLastRead();
 
   const isHidden = (isOnMediaArea && (sharedNotesOutput.width === 0 || sharedNotesOutput.height === 0))
     || (!isVisible && !ignoreDelayforUnmount);
@@ -100,15 +98,12 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
     if (isVisible) {
       setShouldRenderNotes(true);
       clearTimeout(timeoutRef.current);
+    } else if (ignoreDelayforUnmount) {
+      setShouldRenderNotes(false);
     } else {
-      markNotesAsRead();
-      if (ignoreDelayforUnmount) {
+      timeoutRef.current = setTimeout(() => {
         setShouldRenderNotes(false);
-      } else {
-        timeoutRef.current = setTimeout(() => {
-          setShouldRenderNotes(false);
-        }, NOTES_UNMOUNT_DELAY());
-      }
+      }, NOTES_UNMOUNT_DELAY());
     }
     return () => clearTimeout(timeoutRef.current);
   }, [isVisible]);

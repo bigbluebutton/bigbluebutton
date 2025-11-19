@@ -11,6 +11,7 @@ import Styled from './styles';
 import PadContent from './content/component';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import useNotesLastRead from '/imports/ui/components/notes/hooks/useNotesLastRead';
 
 const intlMessages = defineMessages({
   hint: {
@@ -51,7 +52,9 @@ const PadGraphql: React.FC<PadGraphqlProps> = (props) => {
     hasPermission,
   } = props;
   const [padURL, setPadURL] = useState<string | undefined>();
+  const [hasLoaded, setHasLoaded] = useState<boolean>(false);
   const intl = useIntl();
+  const { markNotesAsRead } = useNotesLastRead();
 
   useEffect(() => {
     if (!padId) {
@@ -60,6 +63,15 @@ const PadGraphql: React.FC<PadGraphqlProps> = (props) => {
     }
     setPadURL(Service.buildPadURL(padId, sessionIds));
   }, [isRTL, hasSession, intl.locale]);
+
+  useEffect(() => {
+    if (!hasSession || !padId) return () => {};
+    return () => {
+      if (hasLoaded) {
+        markNotesAsRead();
+      }
+    };
+  }, [hasSession, padId, hasLoaded]);
 
   if (!hasPermission) {
     return <PadContent externalId={externalId} isOnMediaArea={isOnMediaArea} />;
@@ -73,6 +85,10 @@ const PadGraphql: React.FC<PadGraphqlProps> = (props) => {
         aria-describedby="padEscapeHint"
         amIPresenter={amIPresenter}
         preventInteraction={isResizing && isLocalChange}
+        onLoad={() => {
+          setHasLoaded(true);
+          markNotesAsRead();
+        }}
       />
       <Styled.Hint
         id="padEscapeHint"
