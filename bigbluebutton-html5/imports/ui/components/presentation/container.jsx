@@ -29,6 +29,7 @@ import { GET_USER_IDS } from '/imports/ui/core/graphql/queries/users';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
+import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 
 const fetchedpresentation = {};
 const FORCE_RESTORE_PRESENTATION_ON_NEW_EVENTS = 'bbb_force_restore_presentation_on_new_events';
@@ -47,6 +48,9 @@ const PresentationContainer = (props) => {
   const currentPresentationPage = presentationPageArray?.[0];
   const slideSvgUrl = currentPresentationPage?.svgUrl;
   const currentPageId = currentPresentationPage?.pageId;
+
+  const currentPresentationId = currentPresentationPage?.presentationId;
+  const prevPresentationId = usePreviousValue(currentPresentationId);
 
   const { data: whiteboardWritersData } = useDeduplicatedSubscription(
     CURRENT_PAGE_WRITERS_SUBSCRIPTION,
@@ -255,6 +259,9 @@ const PresentationContainer = (props) => {
     presentationAreaHeight: presentation?.height,
   };
 
+  const shouldRestoreOnUpdate = userIsPresenter
+    && currentPresentationId === prevPresentationId ? false : restoreOnUpdate;
+
   return (
     <Presentation
       {
@@ -275,11 +282,11 @@ const PresentationContainer = (props) => {
           multiUser: multiUserData.active && presentationIsOpen,
           presentationIsDownloadable: currentPresentationPage?.downloadable,
           mountPresentation: !!currentSlide,
-          currentPresentationId: currentPresentationPage?.presentationId,
+          currentPresentationId,
           totalPages: currentPresentationPage?.totalPages || 0,
           notify,
           zoomSlide,
-          restoreOnUpdate: userIsPresenter ? false : restoreOnUpdate,
+          restoreOnUpdate: shouldRestoreOnUpdate,
           addWhiteboardGlobalAccess: getUsers,
           removeWhiteboardGlobalAccess,
           multiUserSize: multiUserData.size,
