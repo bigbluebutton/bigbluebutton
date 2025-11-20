@@ -250,6 +250,8 @@ public:
         #     ideal: true
         #   noiseSuppression:
         #     ideal: true
+        # audio input processing through wasm
+        audioWasmProcessing: true
       audio:
         inputDeviceId: undefined
         outputDeviceId: undefined

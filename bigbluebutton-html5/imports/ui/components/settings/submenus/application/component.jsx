@@ -8,6 +8,7 @@ import Styled from './styles';
 import WakeLockService from '/imports/ui/components/wake-lock/service';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
+import { isWasmProcessorSupported } from '/imports/ui/components/audio/audio-processor/service';
 
 const MIN_FONTSIZE = 0;
 
@@ -20,9 +21,15 @@ const intlMessages = defineMessages({
     id: 'app.submenu.application.animationsLabel',
     description: 'animations label',
   },
-  audioFilterLabel: {
-    id: 'app.submenu.application.audioFilterLabel',
-    description: 'audio filters label',
+  audioStandardFilterLabel: {
+    id: 'app.submenu.application.audioStandardFilterLabel',
+    description: 'audio standard filters label',
+    defaultMessage: 'Standard Audio Filters',
+  },
+  audioWasmFilterLabel: {
+    id: 'app.submenu.application.audioWasmFilterLabel',
+    description: 'audio wasm filters label',
+    defaultMessage: 'Big Blue Better Audio',
   },
   darkThemeLabel: {
     id: 'app.submenu.application.darkThemeLabel',
@@ -140,6 +147,11 @@ class ApplicationMenu extends BaseMenu {
   constructor(props) {
     super(props);
 
+    const audioWasmProcessingStatus = ApplicationMenu
+      .isAudioWasmProcessingEnabled(props.settings.audioWasmProcessing);
+    const audioFilterStatus = !audioWasmProcessingStatus && ApplicationMenu
+      .isAudioFilterEnabled(props.settings.microphoneConstraints);
+
     this.state = {
       settingsName: 'application',
       settings: props.settings,
@@ -153,8 +165,8 @@ class ApplicationMenu extends BaseMenu {
         '18px',
         '20px',
       ],
-      audioFilterEnabled: ApplicationMenu.isAudioFilterEnabled(props
-        .settings.microphoneConstraints),
+      audioFilterEnabled: audioFilterStatus,
+      audioWasmProcessingEnabled: audioWasmProcessingStatus,
     };
   }
 
@@ -206,11 +218,23 @@ class ApplicationMenu extends BaseMenu {
       ? _constraints.advanced
       : _constraints || {};
 
-    isAnyFilterEnabled = Object.values(constraints).find(
+    isAnyFilterEnabled = !!Object.values(constraints).find(
       (constraintValue) => _isConstraintEnabled(constraintValue),
     );
 
     return isAnyFilterEnabled;
+  }
+
+  static isAudioWasmProcessingEnabled(_value) {
+    if (! isWasmProcessorSupported()) return false;
+
+    if (typeof _value === 'undefined') {
+      if (typeof window.meetingClientSettings.public.app.defaultSettings.application.audioWasmProcessing !== 'undefined')
+        return window.meetingClientSettings.public.app.defaultSettings.application.audioWasmProcessing;
+      return true;
+    }
+
+    return _value;
   }
 
   handleAudioFilterChange() {
@@ -223,9 +247,28 @@ class ApplicationMenu extends BaseMenu {
     };
 
     const obj = this.state;
+    obj.settings.audioWasmProcessing = false;
     obj.settings.microphoneConstraints = _newConstraints;
     this.handleUpdateSettings(this.state.settingsName, obj.settings);
-    this.setState({ audioFilterEnabled: _audioFilterEnabled });
+    this.setState({ audioFilterEnabled: _audioFilterEnabled, audioWasmProcessingEnabled: false });
+  }
+
+  handleAudioWasmProcessingChange() {
+    if (! isWasmProcessorSupported()) return;
+
+    const _audioWasmProcessingEnabled = !ApplicationMenu.isAudioWasmProcessingEnabled(this
+      .state.settings.audioWasmProcessing);
+    const _newConstraints = {
+      autoGainControl: false,
+      echoCancellation: false,
+      noiseSuppression: false,
+    };
+
+    const obj = this.state;
+    obj.settings.audioWasmProcessing = _audioWasmProcessingEnabled;
+    obj.settings.microphoneConstraints = _newConstraints;
+    this.handleUpdateSettings(this.state.settingsName, obj.settings);
+    this.setState({ audioFilterEnabled: false, audioWasmProcessingEnabled: _audioWasmProcessingEnabled });
   }
 
   handleUpdateFontSize(size) {
@@ -287,26 +330,47 @@ class ApplicationMenu extends BaseMenu {
     if (SHOW_AUDIO_FILTERS) {
       const { intl, displaySettingsStatus } = this.props;
       const { settings } = this.state;
-      const audioFilterStatus = ApplicationMenu
+      const audioWasmProcessingStatus = ApplicationMenu
+        .isAudioWasmProcessingEnabled(settings.audioWasmProcessing);
+      const audioFilterStatus = !audioWasmProcessingStatus && ApplicationMenu
         .isAudioFilterEnabled(settings.microphoneConstraints);
 
       audioFilterOption = (
-        <Styled.Row>
-          <Styled.Col>
-            <Styled.FormElementRight>
-              <SubMenusStyle.MaterialSwitch
-                icons="false"
-                checked={this.state.audioFilterEnabled}
-                onChange={() => this.handleAudioFilterChange()}
-                aria-label={`${intl.formatMessage(intlMessages.audioFilterLabel)} - ${displaySettingsStatus(audioFilterStatus, true)}`}
-                inputProps={{ 'data-test': 'audioFilterToggleBtn' }}
-              />
-              <Styled.Label style={{ marginLeft: '0.5rem' }}>
-                {intl.formatMessage(intlMessages.audioFilterLabel)}
-              </Styled.Label>
-            </Styled.FormElementRight>
-          </Styled.Col>
-        </Styled.Row>
+        <div>
+          <Styled.Row>
+            <Styled.Col>
+              <Styled.FormElementRight>
+                <SubMenusStyle.MaterialSwitch
+                  icons="false"
+                  checked={this.state.audioFilterEnabled}
+                  onChange={() => this.handleAudioFilterChange()}
+                  aria-label={`${intl.formatMessage(intlMessages.audioStandardFilterLabel)} - ${displaySettingsStatus(audioFilterStatus, true)}`}
+                  inputProps={{ 'data-test': 'audioFilterToggleBtn' }}
+                />
+                <Styled.Label style={{ marginLeft: '0.5rem' }}>
+                  {intl.formatMessage(intlMessages.audioStandardFilterLabel)}
+                </Styled.Label>
+              </Styled.FormElementRight>
+            </Styled.Col>
+          </Styled.Row>
+          <Styled.Row>
+            <Styled.Col>
+              <Styled.FormElementRight>
+                <SubMenusStyle.MaterialSwitch
+                  icons="false"
+                  checked={this.state.audioWasmProcessingEnabled}
+                  onChange={() => this.handleAudioWasmProcessingChange()}
+                  aria-label={`${intl.formatMessage(intlMessages.audioWasmFilterLabel)} - ${displaySettingsStatus(audioWasmProcessingStatus, true)}`}
+                  data-test="audioWasmProcessingToggleBtn"
+                  inputProps={{ 'data-test': 'audioWasmProcessingToggleBtn' }}
+                />
+                <Styled.Label style={{ marginLeft: '0.5rem' }}>
+                  {intl.formatMessage(intlMessages.audioWasmFilterLabel)}
+                </Styled.Label>
+              </Styled.FormElementRight>
+            </Styled.Col>
+          </Styled.Row>
+        </div>
       );
     }
 
