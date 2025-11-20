@@ -1,7 +1,8 @@
 import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import Styled from './styles';
-import { layoutDispatch } from '/imports/ui/components/layout/context';
+import { layoutDispatch, layoutSelectInput } from '/imports/ui/components/layout/context';
+import { Input } from '/imports/ui/components/layout/layoutTypes';
 import { PANELS, ACTIONS } from '/imports/ui/components/layout/enums';
 
 interface OverflowTileProps {
@@ -19,9 +20,16 @@ const OverflowTile: React.FC<OverflowTileProps> = ({ overflowCount }) => {
   const intl = useIntl();
   const layoutContextDispatch = layoutDispatch();
 
+  const sidebarNavigation = layoutSelectInput((i: Input) => i.sidebarNavigation);
+
+  const isUserListPanelOpen = sidebarNavigation.isOpen
+    && sidebarNavigation.sidebarNavPanel === PANELS.USERLIST;
+
   if (overflowCount <= 0) return null;
 
   const handleOpenUserList = () => {
+    if (isUserListPanelOpen) return;
+
     layoutContextDispatch({
       type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
       value: true,
@@ -33,7 +41,7 @@ const OverflowTile: React.FC<OverflowTileProps> = ({ overflowCount }) => {
   };
 
   return (
-    <Styled.OverflowTileContainer data-test="overflowTile" onClick={() => handleOpenUserList()}>
+    <Styled.OverflowTileContainer data-test="overflowTile" isClickable={!isUserListPanelOpen} onClick={() => handleOpenUserList()}>
       <Styled.OverflowTileContent>
         <Styled.AvatarsContainer>
           {Array.from({ length: 3 }, (_, index) => (
