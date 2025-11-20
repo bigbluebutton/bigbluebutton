@@ -527,6 +527,7 @@ export const elements = {
   dropdownWebcamButton: 'div[data-test="dropdownWebcamButton"]',
   webcamMirroredVideoPreview: 'video[data-test="mirroredVideoPreview"]',
   resizeWebcamHandler: 'div#cameraDock + div > div[style*="user-select: none"]',
+  webcamOptionsMenuSqueezed: 'button[data-test="webcamOptionsMenuSqueezed"]',
   // Whiteboard
   whiteboard: 'div[data-testid="canvas"]',
   wbLayer: 'div[data-testid="layer"]',
