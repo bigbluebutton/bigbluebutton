@@ -5,7 +5,7 @@ import {
   webcamPlaceholderBorder,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
-const OverflowTileContainer = styled.div`
+const OverflowTileContainer = styled.div<{ isClickable: boolean }>`
   position: relative;
   display: flex;
   align-items: center;
@@ -15,12 +15,14 @@ const OverflowTileContainer = styled.div`
   min-width: 100%;
   background-color: ${webcamBackgroundColor};
   border-radius: 10px;
-  cursor: pointer;
+  cursor: ${({ isClickable }) => (isClickable ? 'pointer' : 'default')};
   transition: opacity 0.2s ease;
 
-  &:hover {
-    opacity: 0.8;
-  }
+  ${({ isClickable }) => isClickable && `
+    &:hover {
+      opacity: 0.8;
+    }
+  `}
 
   &::after {
     content: "";
