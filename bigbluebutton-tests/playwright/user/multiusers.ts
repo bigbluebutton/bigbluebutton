@@ -310,23 +310,27 @@ export class MultiUsers {
       this.userPage2.username,
       'should display the username of User2 on the focused webcam for Moderator',
     );
+    await this.userPage.hasText(
+      `:nth-match(${e.dropdownWebcamButton}, 1)`,
+      this.userPage2.username,
+      'should display the username of User2 on the focused webcam for User1',
+    );
     await this.userPage2.hasText(
       `:nth-match(${e.dropdownWebcamButton}, 1)`,
       this.userPage2.username,
       'should display the username of User2 on the first webcam for User2',
     );
 
-    const user2DropdownWebcamButtonForUser1 = await this.userPage.page
-      .locator(e.dropdownWebcamButton)
-      .filter({ hasText: this.userPage2.username });
 
-    await user2DropdownWebcamButtonForUser1.click();
+    const moderatorDropdownWebcamButtonForUser1 = this.userPage.page.locator(e.webcamOptionsMenuSqueezed).last();
+
+    await moderatorDropdownWebcamButtonForUser1.click();
     await this.userPage.getVisibleLocator(e.focusWebcamBtn).click();
 
     await this.userPage.hasText(
       `:nth-match(${e.dropdownWebcamButton}, 1)`,
-      this.userPage2.username,
-      'should display the username of User2 on the focused webcam for User1',
+      this.modPage.username,
+      'should display the username of Modeartor on the focused webcam for User1',
     );
 
     await user2DropdownWebcamButtonForModerator.click();
@@ -344,8 +348,8 @@ export class MultiUsers {
     );
     await this.userPage.hasText(
       `:nth-match(${e.dropdownWebcamButton}, 1)`,
-      this.userPage2.username,
-      'should display the username of User2 on the first webcam for User1',
+      this.userPage.username,
+      'should display the username of User1 on the first webcam for User1',
     );
   }
 
