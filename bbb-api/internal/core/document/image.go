@@ -116,7 +116,7 @@ func CountUseTags(filePath string) (int, error) {
 // ImageResizer is an interface that wraps the basic Resize
 // method. Given the path to an image file and the desired
 // image dimensions in the form {width}x{height} ImageResizer
-// will attempt to resize the image to specified dimensions.
+// will attempt to resize the image to the specified dimensions.
 // An error will be retured if a problem occurs during the
 // process of resizing the image.
 type ImageResizer interface {
@@ -149,6 +149,7 @@ func NewCMDIMageResizerWithConfig(cfg config.Config) *CMDImageResizer {
 // to the specified dimensions. Returns an error if resizing fails.
 func (r *CMDImageResizer) Resize(path, dimensions string) error {
 	args := []string{
+		"convert",
 		"-resize",
 		dimensions,
 		path,
@@ -158,7 +159,7 @@ func (r *CMDImageResizer) Resize(path, dimensions string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(r.cfg.Processing.Image.Resize.Timeout)*time.Second)
 	defer cancel()
 
-	cmd := r.exec(ctx, "convert", args...)
+	cmd := r.exec(ctx, RunInSystemdCommand, args...)
 	_, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("failed to resize image %s to %s: %w", path, dimensions, err)

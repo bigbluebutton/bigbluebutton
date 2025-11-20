@@ -44,8 +44,14 @@ func (m *MeetingRunningToPresenation) Transform(msg pipeline.Message[*meeting.Me
 	return pipeline.NewMessage(pres), nil
 }
 
+// NoOpTransformer is pipeline.Transformer implementation
+// that does not perform any transformation on the
+// incoming message and simply passes it along.
 type NoOpTransformer struct{}
 
+// Transform takes a pipeline.Message with a payload of type
+// document.Presentation and simply outputs a new message
+// with the same payload and context.
 func (n *NoOpTransformer) Transform(msg pipeline.Message[*document.Presentation]) (pipeline.Message[*document.Presentation], error) {
-	return msg, nil
+	return pipeline.NewMessageWithContext(msg.Payload, msg.Context()), nil
 }

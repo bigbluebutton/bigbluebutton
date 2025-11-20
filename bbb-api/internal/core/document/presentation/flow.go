@@ -15,7 +15,7 @@ import (
 // NewPresentationFlow creates a [pipeline.Flow] for handling presentation conversion. Validation is performed
 // to ensure that the meeting associated with the uploaded document is currently running. If the meeting
 // is running, validation is then performed on the document. If the document passes validation this flow
-// will be merged into one of the flows provided by either the image, office, or pdf packages for further processing.
+// will be merged with one of the flows provided by either the image, office, or pdf packages for further processing.
 func NewPresentationFlow(client document.Client) pipeline.Flow[*document.Presentation, *document.Presentation] {
 	transformToMeetingRunning := pipeline.NewStep[*document.Presentation, *meeting.MeetingRunningRequest]().Transform(&PresentationToMeetingRunning{})
 	sendReceiveMeetingRunning := pipeline.NewStep[*meeting.MeetingRunningRequest, *meeting.MeetingRunningResponse]().SendReceive(&SendMeetingRunningRequest{})

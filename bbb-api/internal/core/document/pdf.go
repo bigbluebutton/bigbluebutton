@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/document/config"
-	"github.com/pdfcpu/pdfcpu/pkg/api"
+	pdfcpu "github.com/pdfcpu/pdfcpu/pkg/api"
 )
 
 // PDFProcessor is an interface that encapsulates the logic for handling PDF documents
@@ -25,11 +25,11 @@ type PDFProcessor interface {
 type PDFCPU struct{}
 
 func (p *PDFCPU) countPages(path string) (int, error) {
-	return api.PageCountFile(path)
+	return pdfcpu.PageCountFile(path)
 }
 
 func (p *PDFCPU) extractPages(inFile, outFile string, pages []string) error {
-	return api.ExtractPagesFile(inFile, outFile, pages, nil)
+	return pdfcpu.ExtractPagesFile(inFile, outFile, pages, nil)
 }
 
 // A PDFFontTypeDetector is used to determine the font type of provided
@@ -64,7 +64,6 @@ func (d *PDFFontTypeDetector) HasFontType3(file string, page int) (bool, error) 
 
 	pdfFontCmd := fmt.Sprintf("pdffonts -f %d -l %d %s | grep -m 1 'Type 3' | wc -l", page, page, file)
 	args := []string{
-		RunInSystemdCommand,
 		fmt.Sprintf("%ds", d.timeout),
 		"/bin/sh",
 		"-c",
@@ -74,7 +73,7 @@ func (d *PDFFontTypeDetector) HasFontType3(file string, page int) (bool, error) 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(d.timeout)*time.Second)
 	defer cancel()
 
-	cmd := d.exec(ctx, "fontType3", args...)
+	cmd := d.exec(ctx, RunInSystemdCommand, args...)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return false, fmt.Errorf("failed to detect font type for %s: %w", file, err)

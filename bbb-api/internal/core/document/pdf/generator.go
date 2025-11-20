@@ -46,8 +46,10 @@ type PageGenerator struct {
 	processor document.PageProcessor
 }
 
-// NewPageGenerator creates a new PageGenerator using a default [document.PageProcessor] for PDFs
-// along with the global default configuration.
+// NewPageGenerator creates a new [PageGenerator] using a default
+// [document.PageProcessor] for PDFs, default execution limits,
+// and the global default configuration. Customization of the
+// [PageGenerator] may be done through functional options.
 func NewPageGenerator(opts ...func(*PageGenerator)) *PageGenerator {
 	pg := &PageGenerator{
 		cfg:       config.DefaultConfig(),
@@ -60,18 +62,24 @@ func NewPageGenerator(opts ...func(*PageGenerator)) *PageGenerator {
 	return pg
 }
 
+// WithPageConfig is a functional option for a [PageGenerator]
+// that allows the caller to specify the configuration to use.
 func WithPageConfig(cfg config.Config) func(*PageGenerator) {
 	return func(pg *PageGenerator) {
 		pg.cfg = cfg
 	}
 }
 
+// WithPageLimits is a functional option for a [PageGenerator]
+// that allows the caller to specify the execution limits to use.
 func WithPageLimits(limits *document.Limits) func(*PageGenerator) {
 	return func(pg *PageGenerator) {
 		pg.limits = limits
 	}
 }
 
+// WithPageProcessor is a functional option for a [PageGenerator]
+// that allows the caller to specify the [PageProcessor] to use.
 func WithPageProcessor(proc document.PageProcessor) func(*PageGenerator) {
 	return func(pg *PageGenerator) {
 		pg.processor = proc
@@ -155,8 +163,10 @@ type ThumbnailGenerator struct {
 	exec   func(ctx context.Context, name string, args ...string) *exec.Cmd
 }
 
-// NewThumbnailGenerator creates a new ThumbnailGenerator using the default
-// global configuration.
+// NewThumbnailGenerator creates a new [ThumbnailGenerator] using
+// default execution limits, the global default configuration,
+// and a default method of process execution. Customization of the
+// [ThumbnailGenerator] may be done through functional options.
 func NewThumbnailGenerator(opts ...func(*ThumbnailGenerator)) *ThumbnailGenerator {
 	tg := &ThumbnailGenerator{
 		cfg:    config.DefaultConfig(),
@@ -169,18 +179,24 @@ func NewThumbnailGenerator(opts ...func(*ThumbnailGenerator)) *ThumbnailGenerato
 	return tg
 }
 
+// WithThumbnailConfig is a functional option for a [ThumbnailGenerator]
+// that allows the caller to specify the configuration to use.
 func WithThumbnailConfig(cfg config.Config) func(*ThumbnailGenerator) {
 	return func(tg *ThumbnailGenerator) {
 		tg.cfg = cfg
 	}
 }
 
+// WithThumbnailLimits is a functional option for a [ThumbnailGenerator]
+// that allows the caller to specify the execution limits to use.
 func WithThumbnailLimits(limits *document.Limits) func(*ThumbnailGenerator) {
 	return func(tg *ThumbnailGenerator) {
 		tg.limits = limits
 	}
 }
 
+// WithThumbnailExec is a functional option for a [ThumbnailGenerator]
+// that allows the caller to specify the method of process execution.
 func WithThumbnailExec(exec func(ctx context.Context, name string, args ...string) *exec.Cmd) func(*ThumbnailGenerator) {
 	return func(tg *ThumbnailGenerator) {
 		tg.exec = exec
@@ -270,8 +286,10 @@ type TextFileGenerator struct {
 	exec   func(ctx context.Context, name string, args ...string) *exec.Cmd
 }
 
-// NewTextFileGenerator creates a new TextFileGenerator using the global
-// default confguration.
+// NewTextFileGenerator creates a new [TextFileGenerator] using
+// default execution limits, the global default configuration,
+// and a default method of process execution. Customization of the
+// [TextFileGenerator] may be done through functional options.
 func NewTextFileGenerator(opts ...func(*TextFileGenerator)) *TextFileGenerator {
 	tfg := &TextFileGenerator{
 		cfg:    config.DefaultConfig(),
@@ -284,18 +302,25 @@ func NewTextFileGenerator(opts ...func(*TextFileGenerator)) *TextFileGenerator {
 	return tfg
 }
 
+// WithTextFileConfig is a functional option for a [TextFileGenerator]
+// that allows the caller to specify the configuration to use.
 func WithTextFileConfig(cfg config.Config) func(*TextFileGenerator) {
 	return func(tfg *TextFileGenerator) {
 		tfg.cfg = cfg
 	}
 }
 
+// WithTextFileLimits is a functional option for a [TextFileGenerator]
+// that allows the caller to specify the execution limits to use.
 func WithTextFileLimits(limits *document.Limits) func(*TextFileGenerator) {
 	return func(tfg *TextFileGenerator) {
 		tfg.limits = limits
 	}
 }
 
+// WithTextFileExec is a functional option for a [TextFileGenerator]
+// that allows the caller to specify the method of process execution
+// to use.
 func WithTextFileExec(exec func(ctx context.Context, name string, args ...string) *exec.Cmd) func(*TextFileGenerator) {
 	return func(tfg *TextFileGenerator) {
 		tfg.exec = exec
@@ -371,8 +396,10 @@ type SVGGenerator struct {
 	exec   func(ctx context.Context, name string, args ...string) *exec.Cmd
 }
 
-// NewSVGGenerator creates a new SVGGenerator using the global
-// default configuration.
+// NewSVGGenerator creates a new [SVGGenerator] using
+// default execution limits, the global default configuration,
+// and a default method of process execution. Customization of the
+// [SVGGenerator] may be done through functional options.
 func NewSVGGenerator(opts ...func(*SVGGenerator)) *SVGGenerator {
 	s := &SVGGenerator{
 		cfg:    config.DefaultConfig(),
@@ -385,18 +412,25 @@ func NewSVGGenerator(opts ...func(*SVGGenerator)) *SVGGenerator {
 	return s
 }
 
+// WithSVGConfig is a functional option for a [SVGGenerator]
+// that allows the caller to specify the configuration to use.
 func WithSVGConfig(cfg config.Config) func(*SVGGenerator) {
 	return func(s *SVGGenerator) {
 		s.cfg = cfg
 	}
 }
 
+// WithSVGLimits is a functional option for a [SVGGenerator]
+// that allows the caller to specify the execution limits to use.
 func WithSVGLimits(limits *document.Limits) func(*SVGGenerator) {
 	return func(s *SVGGenerator) {
 		s.limits = limits
 	}
 }
 
+// WithSVGExec is a functional option for a [SVGGenerator]
+// that allows the caller to specify the method of process
+// execution to use.
 func WithSVGExec(exec func(ctx context.Context, name string, args ...string) *exec.Cmd) func(*SVGGenerator) {
 	return func(s *SVGGenerator) {
 		s.exec = exec
@@ -646,8 +680,10 @@ type PNGGenerator struct {
 	exec   func(ctx context.Context, name string, args ...string) *exec.Cmd
 }
 
-// NewPNGGenerator creates a new PNGGenerator using
-// the global default configuration.
+// NewPNGGenerator creates a new [PNGGenerator] using
+// default execution limits, the global default configuration,
+// and a default method of process execution. Customization of the
+// [PNGGenerator] may be done through functional options.
 func NewPNGGenerator(opts ...func(*PNGGenerator)) *PNGGenerator {
 	p := &PNGGenerator{
 		cfg:    config.DefaultConfig(),
@@ -660,18 +696,25 @@ func NewPNGGenerator(opts ...func(*PNGGenerator)) *PNGGenerator {
 	return p
 }
 
+// WithPNGConfig is a functional option for a [PNGGenerator]
+// that allows the caller to specify the conifguration to use.
 func WithPNGConfig(cfg config.Config) func(*PNGGenerator) {
 	return func(p *PNGGenerator) {
 		p.cfg = cfg
 	}
 }
 
+// WithPNGLimits is a functional option for a [PNGGenerator]
+// that allows the caller to specify the execution limits to use.
 func WithPNGLimits(limits *document.Limits) func(*PNGGenerator) {
 	return func(p *PNGGenerator) {
 		p.limits = limits
 	}
 }
 
+// WithPNGExec is a functional option for a [PNGGenerator]
+// that allows the caller to specify the method of process
+// execution to use.
 func WithPNGExec(exec func(ctx context.Context, name string, args ...string) *exec.Cmd) func(*PNGGenerator) {
 	return func(p *PNGGenerator) {
 		p.exec = exec

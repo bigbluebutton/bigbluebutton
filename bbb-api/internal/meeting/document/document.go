@@ -93,23 +93,32 @@ type DocSource interface {
 	FromParam() bool
 }
 
+// A URLDocSource is the source of document content
+// that comes from a URL.
 type URLDocSource struct {
 	Doc  *Document
 	Proc Processor
 }
 
+// Name returns the name of the associated file.
 func (u URLDocSource) Name() string {
 	return u.Doc.FileName
 }
 
+// ReadAll returns all of the content from the
+// associated file.
 func (u URLDocSource) ReadAll() ([]byte, error) {
 	return u.Proc.Download(u.Doc.URL)
 }
 
+// FromParam indicates if the document is from
+// a request query parameter.
 func (u URLDocSource) FromParam() bool {
 	return u.Doc.PresFromParam
 }
 
+// A BytesDocSource is the source of document
+// content that comes from the body of a request.
 type BytesDocSource struct {
 	doc *Document
 }
