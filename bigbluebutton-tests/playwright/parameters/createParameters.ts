@@ -4,6 +4,9 @@ import { elements as e } from '../core/elements';
 import { checkDefaultLocationReset, checkScreenshots } from '../layouts/util';
 import { MultiUsers } from '../user/multiusers';
 import { constants } from './constants';
+import {
+  VIDEO_LOADING_WAIT_TIME,
+} from '../core/constants';
 
 const { messageModerator } = constants;
 
@@ -182,6 +185,7 @@ export class CreateParameters extends MultiUsers {
     // checking the default location being reset when dropping into a non-available location
     await checkDefaultLocationReset(this.modPage);
 
+    await this.modPage.page.waitForTimeout(5000);
     await this.modPage.waitAndClick(e.userListToggleBtn);
     await this.modPage.wasRemoved(e.chatButton, 'should not be displayed the chat button');
     await this.modPage.wasRemoved(e.sendButton, 'should not be displayed the send button');
@@ -194,8 +198,23 @@ export class CreateParameters extends MultiUsers {
     await this.modPage.wasRemoved(e.whiteboard, 'should not display the whiteboard for the moderator');
     await this.userPage.wasRemoved(e.whiteboard, 'should not display the whiteboard for the attendee');
 
-    await this.modPage.shareWebcam();
-    await this.userPage.shareWebcam();
+    await this.modPage.waitAndClick(e.joinVideo);
+    await this.modPage.hasElement(
+        e.webcamMirroredVideoPreview,
+        'should display the video preview when sharing webcam '
+      );
+    await this.modPage.waitAndClick(e.startSharingWebcam);
+    await this.modPage.waitForSelector(e.webcamMirroredVideoContainer, VIDEO_LOADING_WAIT_TIME);
+    await this.modPage.waitForSelector(e.leaveVideo, VIDEO_LOADING_WAIT_TIME);
+
+    await this.userPage.waitAndClick(e.joinVideo);
+    await this.userPage.hasElement(
+        e.webcamMirroredVideoPreview,
+        'should display the video preview when sharing webcam '
+      );
+    await this.userPage.waitAndClick(e.startSharingWebcam);
+    await this.userPage.waitForSelector(e.webcamMirroredVideoContainer, VIDEO_LOADING_WAIT_TIME);
+    await this.userPage.waitForSelector(e.leaveVideo, VIDEO_LOADING_WAIT_TIME);
 
     await checkScreenshots(
       this,

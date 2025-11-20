@@ -655,8 +655,23 @@ export class CustomParameters extends MultiUsers {
   async enforceCamerasOnly() {
     await this.modPage.wasRemoved(e.whiteboard, 'should not display the whiteboard');
 
-    await this.modPage.shareWebcam();
-    await this.userPage.shareWebcam();
+    await this.modPage.waitAndClick(e.joinVideo);
+    await this.modPage.hasElement(
+        e.webcamMirroredVideoPreview,
+        'should display the video preview when sharing webcam '
+      );
+    await this.modPage.waitAndClick(e.startSharingWebcam);
+    await this.modPage.waitForSelector(e.webcamMirroredVideoContainer, VIDEO_LOADING_WAIT_TIME);
+    await this.modPage.waitForSelector(e.leaveVideo, VIDEO_LOADING_WAIT_TIME);
+
+    await this.userPage.waitAndClick(e.joinVideo);
+    await this.userPage.hasElement(
+        e.webcamMirroredVideoPreview,
+        'should display the video preview when sharing webcam '
+      );
+    await this.userPage.waitAndClick(e.startSharingWebcam);
+    await this.userPage.waitForSelector(e.webcamMirroredVideoContainer, VIDEO_LOADING_WAIT_TIME);
+    await this.userPage.waitForSelector(e.leaveVideo, VIDEO_LOADING_WAIT_TIME);
 
     await checkScreenshots(
       this,
@@ -730,7 +745,7 @@ export class CustomParameters extends MultiUsers {
 
     // checking the default location being reset when dropping into a non-available location
     await checkDefaultLocationReset(this.modPage);
-    await this.modPage.dragAndDropWebcams(e.dropAreaSidebarBottom);
+    await this.modPage.dragAndDropWebcams(e.dropAreaRight);
     await checkScreenshots(
       this,
       'should be on custom layout',
@@ -739,7 +754,7 @@ export class CustomParameters extends MultiUsers {
       2,
     );
 
-    await this.modPage.dragAndDropWebcams(e.dropAreaSidebarBottom);
+    await this.modPage.dragAndDropWebcams(e.dropAreaLeft);
     await checkScreenshots(
       this,
       'should be on custom layout',
