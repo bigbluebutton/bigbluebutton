@@ -991,7 +991,7 @@ As seen for the `useUiData`, the return type is well defined by the enum chosen 
   - setSelfViewDisable: Sets the self-view camera disabled/enabled for specific camera.
 - chat:
   - form:
-    - open: this function will open the sidebar chat panel automatically;
+    - open: this function will open the sidebar chat panel automatically. Optionally accepts `{chatId: string}` to open a specific chat;
     - fill: this function will fill the form input field of the chat passed in the argument as `{text: string}`
 - conference:
   - setSpeakerLevel: this function will set the speaker volume level(audio output) of the conference to a certain number between 0 and 1;
@@ -1086,9 +1086,11 @@ For a complete working example, see the [sample-generic-content-sidekick-plugin]
 `serverCommands` object: It contains all the possible commands available to the developer to interact with the BBB core server, see the ones implemented down below:
 
   - chat:
-    - sendPublicChatMessage: This function sends a message to the public chat on behalf of the currently logged-in user.
-    - sendCustomPublicMessage: This function sends a text message to the public chat, optionally including custom metadata.
+    - sendChatMessage: This function sends a message to a specific chat by chatId on behalf of the currently logged-in user
+    - sendPublicChatMessage: This function sends a message to the public chat on behalf of the currently logged-in user
+    - sendCustomPublicMessage: This function sends a text message to the public chat, optionally including custom metadata
       > **Note**: The custom messages sent by plugins are not automatically rendered by the client. To display these messages, a plugin must handle the rendering using `useLoadedChatMessages` and `useChatMessageDomElements`.
+    - createPrivateChat: This function creates a private chat with a specific user
 
   - caption:
     - save: this function saves the given text, locale and caption type
