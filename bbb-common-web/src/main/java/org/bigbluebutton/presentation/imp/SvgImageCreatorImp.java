@@ -265,6 +265,9 @@ public class SvgImageCreatorImp implements SvgImageCreator {
                 Gson gson = new Gson();
                 String logStr = gson.toJson(logData);
                 log.error(" --analytics-- data={}", logStr, ioException);
+
+                copyBlankSvg(destsvg);
+                return false;
             }
 
             // Step 1: Convert a PDF page to PNG using a raw pdftocairo
