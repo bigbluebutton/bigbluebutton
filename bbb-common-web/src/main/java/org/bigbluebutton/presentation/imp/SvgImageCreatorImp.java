@@ -37,7 +37,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
     private int svgResolutionPpi = 300;
     private boolean forceRasterizeSlides = false;
     private int pngWidthRasterizedSlides = 2048;
-    private int maxEmbeddedPngSize = 4 * 1024 * 1024;
+    private long maxEmbeddedPngSize = 8 * 1024 * 1024;
 	private String BLANK_SVG;
     private int maxNumberOfAttempts = 3;
     private ImageResizer imageResizer;
@@ -313,7 +313,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
 
                     if (base64Size > maxEmbeddedPngSize) {
                         log.error("Encoded PNG is too large for the browser - size: {}, limit: {}", base64Size, maxEmbeddedPngSize);
-                    } else if (pres.getRemainingEmbeddedPngBudget() < base64Size) {
+                    } else if (pres.getRemainingEmbeddedPngBudget().get() < base64Size) {
                         log.error("Encoded PNG size exceeds the remaining embedded PNG budget - size: {}, remaining: {}", base64Size, pres.getRemainingEmbeddedPngBudget());
                     } else {
                         String svg = createSvgWithEmbeddedPng(base64encodedPng, width, height);
@@ -508,10 +508,11 @@ public class SvgImageCreatorImp implements SvgImageCreator {
         this.imageResolutionService = imageResolutionService;
     }
 
-    public void setMaxEmbeddedPngSize(int maxEmbeddedPngSize) {
+    public void setMaxEmbeddedPngSize(long maxEmbeddedPngSize) {
         if (maxEmbeddedPngSize <= 0) {
-            maxEmbeddedPngSize = Integer.MAX_VALUE;
+            this.maxEmbeddedPngSize = Long.MAX_VALUE;
+        } else {
+            this.maxEmbeddedPngSize = maxEmbeddedPngSize * 1024 * 1024;
         }
-        this.maxEmbeddedPngSize = maxEmbeddedPngSize * 1024 * 1024;
     }
 }

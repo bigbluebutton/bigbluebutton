@@ -27,7 +27,6 @@ import java.util.Map;
 import org.bigbluebutton.api2.IBbbWebApiGWApp;
 import org.bigbluebutton.presentation.imp.*;
 import org.bigbluebutton.presentation.messages.DocConversionRequestReceived;
-import org.bigbluebutton.presentation.messages.DocInvalidMimeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.google.gson.Gson;
@@ -46,7 +45,7 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
     private OfficeToPdfConversionService officeToPdfConversionService;
     private SlidesGenerationProgressNotifier notifier;
     private long maxPageConversionTime = 60L;
-    private long embeddedPngBudget = 128 * 1024 * 1024;
+    private long embeddedPngBudget = 128;
 
     private PresentationFileProcessor presentationFileProcessor;
 
@@ -229,6 +228,6 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
     }
 
     public void setEmbeddedPngBudget(long embeddedPngBudget) {
-        this.embeddedPngBudget = embeddedPngBudget * 1024 * 1024;
+        this.embeddedPngBudget = embeddedPngBudget;
     }
 }

@@ -21,8 +21,10 @@ package org.bigbluebutton.presentation;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.io.FilenameUtils;
+import scala.xml.Atom;
 
 public final class UploadedPresentation {
     private final String podId;
@@ -46,7 +48,7 @@ public final class UploadedPresentation {
     private boolean conversionStarted = false;
     private long maxPageConversionTime;
     private long embeddedPngBudget = 128 * 1024 * 1024;
-    private long remainingEmbeddedPngBudget = 128 * 1024 * 1024;
+    private AtomicLong remainingEmbeddedPngBudget = new AtomicLong(embeddedPngBudget);
 
     private boolean defaultPresentation;
 
@@ -263,23 +265,21 @@ public final class UploadedPresentation {
 
     public void setEmbeddedPngBudget(long embeddedPngBudget) {
         if (embeddedPngBudget <= 0) {
-            embeddedPngBudget = Long.MAX_VALUE;
+            this.embeddedPngBudget = Long.MAX_VALUE;
+        } else {
+            this.embeddedPngBudget = embeddedPngBudget * 1024 * 1024;
         }
-        this.embeddedPngBudget = embeddedPngBudget * 1024 * 1024;
     }
 
-    public long getRemainingEmbeddedPngBudget() {
+    public AtomicLong getRemainingEmbeddedPngBudget() {
         return remainingEmbeddedPngBudget;
     }
 
     public void setRemainingEmbeddedPngBudget(long remainingEmbeddedPngBudget) {
-        this.remainingEmbeddedPngBudget = remainingEmbeddedPngBudget;
+        this.remainingEmbeddedPngBudget = new AtomicLong(remainingEmbeddedPngBudget);
     }
 
     public void alterRemainingEmbeddedPngBudget(long amount) {
-        remainingEmbeddedPngBudget = remainingEmbeddedPngBudget - amount;
-        if (remainingEmbeddedPngBudget < 0) {
-            remainingEmbeddedPngBudget = 0;
-        }
+        remainingEmbeddedPngBudget = new AtomicLong(remainingEmbeddedPngBudget.addAndGet(amount * -1));
     }
 }
