@@ -4,7 +4,7 @@ TARGET=$(basename "$(pwd)")
 
 SERVER_VERSION=v1.9.4
 CLI_VERSION=2.3.1
-SIP_VERSION=v1.1.1
+SIP_VERSION=v1.2.0
 
 PACKAGE=$(echo "$TARGET" | cut -d'_' -f1)
 VERSION=$(echo "$TARGET" | cut -d'_' -f2)
