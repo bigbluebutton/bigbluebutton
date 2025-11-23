@@ -158,8 +158,8 @@ jobs:
       - name: LIBREOFFICE CACHE - Pull and save docker image (first time / cache miss)
         if: steps.libreoffice-cache.outputs.cache-hit != 'true'
         run: |
-          docker pull docker.io/${{ env.BBB_LIBREOFFICE_IMAGE_NAME }}
-          docker save docker.io/${{ env.BBB_LIBREOFFICE_IMAGE_NAME }} -o bbb-libreoffice.tar
+          docker pull ${{ env.BBB_LIBREOFFICE_IMAGE_NAME }}
+          docker save ${{ env.BBB_LIBREOFFICE_IMAGE_NAME }} -o bbb-libreoffice.tar
   unify-artifacts:
     needs: build-package
     runs-on: ubuntu-22.04

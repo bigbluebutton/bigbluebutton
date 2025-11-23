@@ -26,21 +26,4 @@ if [ ! -L /usr/share/bbb-libreoffice-conversion/convert.sh ]; then
 	ln -s /usr/share/bbb-libreoffice-conversion/convert-local.sh /usr/share/bbb-libreoffice-conversion/convert.sh
 fi
 
-cat > /etc/sudoers.d/zzz-bbb-docker-libreoffice <<HERE
-bigbluebutton ALL=(ALL) NOPASSWD: /usr/bin/docker run --rm --memory=1g --memory-swap=1g --network none --env=HOME=/tmp/ -w /tmp/ --user=[0-9][0-9][0-9][0-9][0-9] -v /tmp/bbb-soffice-bigbluebutton/tmp.[0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z]/\:/data/ -v /usr/share/fonts/\:/usr/share/fonts/\:ro -v /usr/share/fontconfig/\:/usr/share/fontconfig/\:ro -v /etc/fonts/\:/etc/fonts/\:ro -v /var/cache/fontconfig/\:/var/cache/fontconfig/\:ro --rm bbb-soffice sh -c timeout [0-9][0-9][0-9]s /usr/bin/soffice -env\:UserInstallation=file\:///tmp/ --convert-to pdf --outdir /data /data/file
-etherpad ALL=(ALL) NOPASSWD: /usr/bin/docker run --rm --memory=1g --memory-swap=1g --network none --env=HOME=/tmp/ -w /tmp/ --user=[0-9][0-9][0-9][0-9][0-9] -v /tmp/bbb-soffice-etherpad/tmp.[0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z]/\:/data/ -v /usr/share/fonts/\:/usr/share/fonts/\:ro -v /usr/share/fontconfig/\:/usr/share/fontconfig/\:ro -v /etc/fonts/\:/etc/fonts/\:ro -v /var/cache/fontconfig/\:/var/cache/fontconfig/\:ro --rm bbb-soffice sh -c timeout [0-9][0-9][0-9]s /usr/bin/soffice -env\:UserInstallation=file\:///tmp/ --convert-to pdf --writer --outdir /data /data/file
-etherpad ALL=(ALL) NOPASSWD: /usr/bin/docker run --rm --memory=1g --memory-swap=1g --network none --env=HOME=/tmp/ -w /tmp/ --user=[0-9][0-9][0-9][0-9][0-9] -v /tmp/bbb-soffice-etherpad/tmp.[0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z]/\:/data/ -v /usr/share/fonts/\:/usr/share/fonts/\:ro -v /usr/share/fontconfig/\:/usr/share/fontconfig/\:ro -v /etc/fonts/\:/etc/fonts/\:ro -v /var/cache/fontconfig/\:/var/cache/fontconfig/\:ro --rm bbb-soffice sh -c timeout [0-9][0-9][0-9]s /usr/bin/soffice -env\:UserInstallation=file\:///tmp/ --convert-to odt --writer --outdir /data /data/file
-etherpad ALL=(ALL) NOPASSWD: /usr/bin/docker run --rm --memory=1g --memory-swap=1g --network none --env=HOME=/tmp/ -w /tmp/ --user=[0-9][0-9][0-9][0-9][0-9] -v /tmp/bbb-soffice-etherpad/tmp.[0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z]/\:/data/ -v /usr/share/fonts/\:/usr/share/fonts/\:ro -v /usr/share/fontconfig/\:/usr/share/fontconfig/\:ro -v /etc/fonts/\:/etc/fonts/\:ro -v /var/cache/fontconfig/\:/var/cache/fontconfig/\:ro --rm bbb-soffice sh -c timeout [0-9][0-9][0-9]s /usr/bin/soffice -env\:UserInstallation=file\:///tmp/ --convert-to doc --outdir /data /data/file
-HERE
-
-#for i in `seq 1 4` ; do
-#
-#	SOFFICE_WORK_DIR="/var/tmp/soffice_"`printf "%02d\n" ${i}`
-#	mkdir -p $SOFFICE_WORK_DIR
-#	chown bigbluebutton:bigbluebutton $SOFFICE_WORK_DIR
-#
-#        systemctl enable bbb-libreoffice@${i}
-#        systemctl start bbb-libreoffice@${i}
-#done
-
 exit 0

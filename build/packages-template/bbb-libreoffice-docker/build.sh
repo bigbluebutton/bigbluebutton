@@ -15,11 +15,6 @@ done
 
 ##
 
-if [ $DISTRO != "amzn2" ]; then 
-  mkdir -p staging/etc/sudoers.d
-  cp assets/zzz-bbb-docker-libreoffice  staging/etc/sudoers.d/zzz-bbb-docker-libreoffice
-fi
-
 cp assets/etherpad-export.sh staging/usr/share/bbb-libreoffice-conversion/etherpad-export.sh
 cp assets/convert-local.sh  staging/usr/share/bbb-libreoffice-conversion/convert-cool.sh
 cp assets/convert-local.sh  staging/usr/share/bbb-libreoffice-conversion/convert-local.sh
@@ -42,6 +37,6 @@ fpm -s dir -C ./staging -n $PACKAGE \
     --after-install after-install.sh        \
     --before-remove before-remove.sh        \
     --after-remove after-remove.sh          \
-    --description "BigBlueButton setup for LibreOffice running in docker" \
+    --description "BigBlueButton setup for LibreOffice running in a container" \
     $DIRECTORIES \
     $OPTS
