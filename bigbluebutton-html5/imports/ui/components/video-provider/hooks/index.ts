@@ -330,8 +330,7 @@ export const useGridUsers = (visibleStreamCount: number) => {
     }));
     gridItems.current = newGridUsers;
 
-    const limit = Math.max(gridSize - visibleStreamCount, 0);
-    const overflow = Math.max(userCount - limit, 0);
+    const overflow = Math.max(userCount - gridSize, 0);
 
     // if there's overflow, we replace the last grid user with the overflow tile,
     // so we need to add 1 to the overflow count to account for the replaced user
