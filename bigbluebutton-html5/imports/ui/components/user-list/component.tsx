@@ -46,6 +46,7 @@ const intlMessages = defineMessages({
 const UserList: React.FC<UserListComponentProps> = () => {
   const intl = useIntl();
   const layoutContextDispatch = layoutDispatch();
+  const parentRef = React.useRef<HTMLDivElement | null>(null);
   const { data: currentUserData } = useCurrentUser((user) => ({
     isModerator: user.isModerator,
     locked: user?.locked ?? false,
@@ -91,10 +92,10 @@ const UserList: React.FC<UserListComponentProps> = () => {
 
   const renderScrollableSection = () => {
     return (
-      <Styled.ScrollableSection id="scroll-box">
+      <Styled.ScrollableSection id="scroll-box" ref={parentRef}>
         {renderGuestManagement()}
         <RaisedHandsContainer />
-        <UserListParticipants />
+        <UserListParticipants parentRef={parentRef} />
       </Styled.ScrollableSection>
     );
   };

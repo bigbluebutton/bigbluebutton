@@ -3,6 +3,7 @@ import { UI_DATA_LISTENER_SUBSCRIBED } from 'bigbluebutton-html-plugin-sdk/dist/
 import { UserListUiDataPayloads } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data/domain/user-list/types';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import { User } from '/imports/ui/Types/user';
+import { getUsersPerUserListPage } from '/imports/ui/components/user-list/service';
 import Styled from './styles';
 import {
   USER_AGGREGATE_COUNT_SUBSCRIPTION,
@@ -13,20 +14,21 @@ import UserListParticipantsPageContainer from './page/component';
 import IntersectionWatcher from './intersection-watcher/intersectionWatcher';
 import { setLocalUserList } from '/imports/ui/core/hooks/useLoadedUserList';
 import roveBuilder from '/imports/ui/core/utils/keyboardRove';
-import { USERS_PER_USER_LIST_PAGE } from '/imports/ui/components/user-list/user-list-participants/constants';
 
 interface UserListParticipantsProps {
   count: number;
+  parentRef: React.RefObject<HTMLDivElement | null>;
 }
 
 const UserListParticipants: React.FC<UserListParticipantsProps> = ({
   count,
+  parentRef,
 }) => {
   const [visibleUsers, setVisibleUsers] = React.useState<{
     [key: number]: User[];
   }>({});
-  const userListRef = React.useRef<HTMLUListElement | null>(null);
   const selectedUserRef = React.useRef<HTMLElement | null>(null);
+  const usersPerUserListPage = getUsersPerUserListPage();
 
   useEffect(() => {
     const keys = Object.keys(visibleUsers);
@@ -79,18 +81,19 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
   }, []);
   // --- End of plugin related code ---
 
-  const amountOfPages = Math.ceil(count / USERS_PER_USER_LIST_PAGE);
+  const amountOfPages = Math.ceil(count / usersPerUserListPage);
   return (
     (
       <Styled.UserListColumn
         onKeyDown={rove}
         tabIndex={0}
+        role="list"
       >
-        <Styled.VirtualizedList as="ul" ref={userListRef}>
+        <Styled.VirtualizedList as="ul">
           {
             Array.from({ length: amountOfPages }).map((_, i) => {
               const isLastItem = amountOfPages === (i + 1);
-              const restOfUsers = count % USERS_PER_USER_LIST_PAGE;
+              const restOfUsers = count % usersPerUserListPage;
               const key = i;
               return i === 0
                 ? (
@@ -98,7 +101,7 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
                     key={key}
                     index={i}
                     isLastItem={isLastItem}
-                    restOfUsers={isLastItem ? restOfUsers : USERS_PER_USER_LIST_PAGE}
+                    restOfUsers={isLastItem ? restOfUsers : usersPerUserListPage}
                     setVisibleUsers={setVisibleUsers}
                   />
                 )
@@ -106,15 +109,15 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
                   <IntersectionWatcher
                     // eslint-disable-next-line react/no-array-index-key
                     key={i}
-                    ParentRef={userListRef}
+                    ParentRef={parentRef}
                     isLastItem={isLastItem}
-                    restOfUsers={isLastItem ? restOfUsers : USERS_PER_USER_LIST_PAGE}
+                    restOfUsers={isLastItem ? restOfUsers : usersPerUserListPage}
                   >
                     <UserListParticipantsPageContainer
                       key={key}
                       index={i}
                       isLastItem={isLastItem}
-                      restOfUsers={isLastItem ? restOfUsers : USERS_PER_USER_LIST_PAGE}
+                      restOfUsers={isLastItem ? restOfUsers : usersPerUserListPage}
                       setVisibleUsers={setVisibleUsers}
                     />
                   </IntersectionWatcher>
@@ -127,18 +130,21 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
   );
 };
 
-const UserListParticipantsContainer: React.FC = () => {
+interface UserListParticipantsContainerProps {
+  parentRef: React.RefObject<HTMLDivElement | null>;
+}
+
+const UserListParticipantsContainer: React.FC<UserListParticipantsContainerProps> = ({ parentRef }) => {
   const {
     data: countData,
   } = useDeduplicatedSubscription<UsersCountSubscriptionResponse>(USER_AGGREGATE_COUNT_SUBSCRIPTION);
   const count = countData?.user_aggregate?.aggregate?.count || 0;
 
   return (
-    <>
-      <UserListParticipants
-        count={count ?? 0}
-      />
-    </>
+    <UserListParticipants
+      count={count ?? 0}
+      parentRef={parentRef}
+    />
   );
 };
 

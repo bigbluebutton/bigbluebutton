@@ -6,13 +6,13 @@ import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { CURRENT_PRESENTATION_PAGE_SUBSCRIPTION, CurrentPresentationPagesSubscriptionResponse } from '/imports/ui/components/whiteboard/queries';
 import { User } from '/imports/ui/Types/user';
 import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
+import { getUsersPerUserListPage } from '/imports/ui/components/user-list/service';
 import Styled from '../styles';
 import ListItem from '../list-item/component';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import SkeletonUserListItem from '../list-item/skeleton/component';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
-import USERS_PER_USER_LIST_PAGE from '../constants';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { LockSettings, Meeting, UsersPolicies } from '/imports/ui/Types/meeting';
 import logger from '/imports/startup/client/logger';
@@ -89,8 +89,9 @@ const UserListParticipantsPageContainer: React.FC<UserListParticipantsContainerP
   restOfUsers,
   setVisibleUsers,
 }) => {
-  const offset = index * USERS_PER_USER_LIST_PAGE;
-  const limit = useRef(USERS_PER_USER_LIST_PAGE);
+  const usersPerUserListPage = getUsersPerUserListPage();
+  const offset = index * usersPerUserListPage;
+  const limit = useRef(usersPerUserListPage);
 
   const {
     data: meeting,
@@ -185,7 +186,7 @@ const UserListParticipantsPageContainer: React.FC<UserListParticipantsContainerP
   }, []);
 
   if (usersLoading || meetingLoading || !meeting || currentUserLoading || presentationLoading) {
-    return Array.from({ length: isLastItem ? restOfUsers : USERS_PER_USER_LIST_PAGE }).map((_, i) => (
+    return Array.from({ length: isLastItem ? restOfUsers : usersPerUserListPage }).map((_, i) => (
       <Styled.UserListItem key={`not-visible-item-${i + 1}`}>
         {/* eslint-disable-next-line */}
         <SkeletonUserListItem enableAnimation={true} />
