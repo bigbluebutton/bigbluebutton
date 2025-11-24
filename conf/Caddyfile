@@ -1,0 +1,17 @@
+{
+    http_port 8080
+    https_port 8443
+}
+
+(external-ssl) {
+    tls {$SSL_CERTIFICATE_FILE:/local/certs/fullchain.pem} {$SSL_PRIVATE_KEY_FILE:/local/certs/privkey.pem}
+}
+
+(internal-ssl) {
+    tls internal
+}
+
+https://{$BBB_SERVER_URL:localhost} {
+    import {$SSL_MODE:internal}-ssl
+    reverse_proxy http://nginx:8080
+}
