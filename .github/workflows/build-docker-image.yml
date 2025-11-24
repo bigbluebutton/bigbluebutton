@@ -6,22 +6,18 @@ on:
       image_name:
         required: true
         type: string
-      docker_context:
+      target:
         required: true
         type: string
-      build_args:
-        required: false
-        type: string
-        default: ''
     outputs:
       image_tag:
         description: "SHA short tag of the built image"
         value: ${{ jobs.build_and_publish.outputs.image_tag }}
 
 jobs:
-  build_and_publish:
-    name: Build and push Docker image to container registry
-    runs-on: ubuntu-latest
+  build:
+    name: Build Docker image for ${{ matrix.platform }}
+    runs-on: ${{ matrix.os }}
     permissions:
       packages: write
       contents: read
@@ -29,12 +25,19 @@ jobs:
       attestations: write
     strategy:
       matrix:
-        platform:
-          - linux/amd64
-          - linux/arm64
+        include:
+          - platform: linux/amd64
+            os: ubuntu-24.04
+          - platform: linux/arm64
+            os: ubuntu-24.04-arm
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4
+
+      - name: Prepare
+        run: |
+          platform=${{ matrix.platform }}
+          echo "PLATFORM_PAIR=${platform//\//-}" >> $GITHUB_ENV
 
       - name: Log in to the Container registry
         uses: docker/login-action@v3
@@ -47,7 +50,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ github.repository_owner }}/${{ inputs.image_name }}
+          images: ghcr.io/${{ github.repository }}/${{ inputs.image_name }}
           tags: |
             type=ref,event=branch
             type=semver,pattern={{ version }}
@@ -60,25 +63,84 @@ jobs:
           echo "Docker tags: ${{ steps.meta.outputs.tags }}"
           echo "Docker labels: ${{ steps.meta.outputs.labels }}"
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
       - name: Build and push Docker images
         id: push
-        uses: docker/build-push-action@v6
+        uses: docker/bake-action@v6
         with:
-          context: ${{ inputs.docker_context }}
+          source: .
+          files: |
+            ./docker-bake.hcl
+            cwd://${{ steps.meta.outputs.bake-file-tags }}
+            cwd://${{ steps.meta.outputs.bake-file-labels }}
+          targets: ${{ inputs.target }}
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          build-args: |
-            ${{ inputs.build_args != '' && inputs.build_args || '' }}
+          set: |
+            *.platform=${{ matrix.platform }}
 
+      - name: Export digest
+        run: |
+          mkdir -p ${{ runner.temp }}/digests
+          digest="${{ fromJSON(steps.push.outputs.metadata)[inputs.target]['containerimage.digest'] }}"
+          touch "${{ runner.temp }}/digests/${digest#sha256:}"
+
+      - name: Upload digest
+        uses: actions/upload-artifact@v4
+        with:
+          name: digests-${{ inputs.target }}-${{ env.PLATFORM_PAIR }}
+          path: ${{ runner.temp }}/digests/*
+          if-no-files-found: error
+          retention-days: 1
+
+  merge:
+    # This job merges the Docker manifests for the different platforms built in the previous job.
+    name: Merge Docker manifests
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+
+    needs:
+      - build
+    steps:
       - name: Set output for image tag
         id: image-output
         run: echo "IMAGE_TAG=sha-$(git rev-parse --short ${{ github.sha }})" >> $GITHUB_OUTPUT
+      - name: Download digests
+        uses: actions/download-artifact@v6
+        with:
+          path: ${{ runner.temp }}/digests
+          pattern: digests-${{ inputs.target }}-*
+          merge-multiple: true
+      - name: Log into GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}/${{ inputs.image_name }}
+          tags: |
+            type=ref,event=branch,prefix=dev-
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+      - name: Create manifest list and push
+        working-directory: ${{ runner.temp }}/digests
+        run: |
+          docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
+            $(printf 'ghcr.io/${{ github.repository }}/${{ inputs.image_name }}@sha256:%s ' *)
+      - name: Inspect Image
+        run: |
+          docker buildx imagetools inspect ghcr.io/${{ github.repository }}/${{ inputs.image_name }}:${{ steps.meta.outputs.version }}
+
     outputs:
       image_tag: ${{ steps.image-output.outputs.IMAGE_TAG }}
