@@ -3,16 +3,12 @@ name: Build and Push Docker Images
 on:
   workflow_call:
     inputs:
+      target:
+        required: true
+        type: string
       image_name:
         required: true
         type: string
-      docker_context:
-        required: true
-        type: string
-      build_args:
-        required: false
-        type: string
-        default: ''
     outputs:
       image_tag:
         description: "SHA short tag of the built image"
@@ -68,14 +64,13 @@ jobs:
 
       - name: Build and push Docker images
         id: push
-        uses: docker/build-push-action@v6
+        uses: docker/bake-action@v6
         with:
-          context: ${{ inputs.docker_context }}
+          targets: ${{ inputs.target }}
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          build-args: |
-            ${{ inputs.build_args != '' && inputs.build_args || '' }}
+          set: |
+            target.tags=${{ steps.meta.outputs.tags }}
+            target.labels=${{ steps.meta.outputs.labels }}
 
       - name: Set output for image tag
         id: image-output

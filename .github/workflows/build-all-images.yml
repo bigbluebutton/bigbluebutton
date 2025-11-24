@@ -13,62 +13,47 @@ jobs:
     uses: ./.github/workflows/build-docker-image.yml
     with:
       image_name: "html5-client"
-      docker_context: "./bigbluebutton-html5"
+      target: "html5-client"
 
   learning-dashboard:
     uses: ./.github/workflows/build-docker-image.yml
     with:
       image_name: "learning-dashboard"
-      docker_context: "./bbb-learning-dashboard"
+      target: "learning-dashboard"
 
   graphql-actions:
     uses: ./.github/workflows/build-docker-image.yml
     with:
       image_name: "graphql-actions"
-      docker_context: "./bbb-graphql-actions"
+      target: "graphql-actions"
 
   graphql-middleware:
     uses: ./.github/workflows/build-docker-image.yml
     with:
       image_name: "graphql-middleware"
-      docker_context: "./bbb-graphql-middleware"
+      target: "graphql-middleware"
 
   graphql-server:
     uses: ./.github/workflows/build-docker-image.yml
     with:
       image_name: "graphql-server"
-      docker_context: "./bbb-graphql-server"
+      target: "graphql-server"
 
   export-annotations:
     uses: ./.github/workflows/build-docker-image.yml
     with:
       image_name: "export-annotations"
-      docker_context: "./bbb-export-annotations"
+      target: "export-annotations"
 
   etherpad:
     uses: ./.github/workflows/build-docker-image.yml
     with:
       image_name: "bbb-etherpad"
-      docker_context: "./docker/etherpad"
-
-  bbb-common-message:
-    uses: ./.github/workflows/build-docker-image.yml
-    with:
-      image_name: "bbb-common-message"
-      docker_context: "./bbb-common-message"
-
-  bbb-java-base:
-    uses: ./.github/workflows/build-docker-image.yml
-    with:
-      image_name: "bbb-java-base"
-      docker_context: "./docker/java-base"
+      target: "etherpad"
 
   apps-akka:
     needs: [bbb-java-base, bbb-common-message]
     uses: ./.github/workflows/build-docker-image.yml
     with:
       image_name: "apps-akka"
-      docker_context: "./akka-bbb-apps"
-      build_args: |
-        "JAVA_BASE_TAG=${{ needs.bbb-java-base.outputs.image_tag }}"
-        "COMMON_MESSAGE_TAG=${{ needs.bbb-common-message.outputs.image_tag }}"
+      target: "akka-bbb-apps"

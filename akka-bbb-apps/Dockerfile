@@ -1,7 +1,6 @@
+# syntax=docker/dockerfile:1
 # 1. Build stage:
-ARG JAVA_BASE_TAG
-ARG COMMON_MESSAGE_TAG
-FROM ghcr.io/tibroc/bbb-common-message:${COMMON_MESSAGE_TAG} AS build
+FROM bbb-common-message AS build
 
 WORKDIR /bbb-apps-akka
 
@@ -13,7 +12,7 @@ RUN sbt universal:packageBin \
     && unzip ./target/universal/bbb-apps-akka-0.0.4.zip -d /
 
 # 2. Runtime stage:
-FROM ghcr.io/tibroc/bbb-java-base:${JAVA_BASE_TAG}
+FROM java-base
 
 COPY --from=build /bbb-apps-akka-0.0.4 /bbb-apps-akka
 COPY ./docker/bbb-apps-akka.conf /etc/bigbluebutton/bbb-apps-akka.conf.tmpl
