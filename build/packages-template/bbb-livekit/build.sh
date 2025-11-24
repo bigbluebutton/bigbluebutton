@@ -81,6 +81,17 @@ if [ -z "$SIP_DIR" ]; then
     exit 1
 fi
 
+# Apply livekit-sip patches if any. All patches end in "_sip.patch" and are in
+# the same directory as this script.
+for patch in "$BUILDDIR"/*_sip.patch; do
+    if [ -f "$patch" ]; then
+        echo "Applying patch: $patch"
+        pushd "$SIP_DIR" > /dev/null
+        git apply "$patch"
+        popd > /dev/null
+    fi
+done
+
 pushd "$SIP_DIR" > /dev/null
 
 if [ "$TARGETPLATFORM" = "linux/arm64" ]; then
