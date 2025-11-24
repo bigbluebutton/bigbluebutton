@@ -69,7 +69,7 @@ jobs:
           targets: ${{ inputs.target }}
           push: ${{ github.event_name != 'pull_request' }}
           set: |
-            target.tags=${{ steps.meta.outputs.tags }}
+            target.tags+=${{ replace(steps.meta.outputs.tags, '\n', '\ntarget.tags+=') }}
             target.labels=${{ steps.meta.outputs.labels }}
 
       - name: Set output for image tag
