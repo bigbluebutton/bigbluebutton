@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, memo } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { useLazyQuery } from '@apollo/client';
 import Trigger from '/imports/ui/components/common/control-header/right/component';
@@ -173,4 +173,4 @@ const UserList: React.FC<UserListComponentProps> = () => {
   );
 };
 
-export default UserList;
+export default memo(UserList);
