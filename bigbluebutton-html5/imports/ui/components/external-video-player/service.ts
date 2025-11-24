@@ -5,7 +5,7 @@ const YOUTUBE_SHORTS_REGEX = new RegExp(/^(?:https?:\/\/)?(?:www\.)?(youtube\.co
 const DAILYMOTION_MATCH_URL = /https?:\/\/(?:www\.)?dailymotion\.com\/video\/[a-zA-Z0-9]+(?:\?[^\s]*)?/g;
 const YOUTUBE_REGEX = new RegExp(/^(?:https?:\/\/)?(?:www\.)?(youtube\.com|youtu.be)\/.+$/);
 
-const startWatching = (startExternalVideoMutation) => {
+const startWatching = (startExternalVideoMutation : Function) => {
   return (url: string) => {
     let externalVideoUrl = url;
 
