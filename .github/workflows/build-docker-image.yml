@@ -63,36 +63,17 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Prepare Docker Bake set parameters
-        id: bake-set
-        run: |
-          TAGS="${{ steps.meta.outputs.tags }}"
-          LABELS="${{ steps.meta.outputs.labels }}"
-          SET_PARAMS=""
-          while IFS= read -r tag; do
-            if [ -n "$tag" ]; then
-              SET_PARAMS="${SET_PARAMS}${{ inputs.target }}.tags+=${tag}"$'\n'
-            fi
-          done <<< "$TAGS"
-          
-          while IFS= read -r label; do
-            if [ -n "$label" ]; then
-              SET_PARAMS="${SET_PARAMS}${{ inputs.target }}.labels+=${label}"$'\n'
-            fi
-          done <<< "$LABELS"
-          
-          echo "params<<EOF" >> $GITHUB_OUTPUT
-          echo "$SET_PARAMS" >> $GITHUB_OUTPUT
-            echo "EOF" >> $GITHUB_OUTPUT
-
       - name: Build and push Docker images
         id: push
         uses: docker/bake-action@v6
         with:
           source: .
+          files: |
+            ./docker-bake.hcl
+            cwd://${{ steps.meta.outputs.bake-file-tags }}
+            cwd://${{ steps.meta.outputs.bake-file-annotations }}
           targets: ${{ inputs.target }}
           push: ${{ github.event_name != 'pull_request' }}
-          set: ${{ steps.bake-set.outputs.params }}
       - name: Set output for image tag
         id: image-output
         run: echo "IMAGE_TAG=sha-$(git rev-parse --short ${{ github.sha }})" >> $GITHUB_OUTPUT
