@@ -2,6 +2,7 @@ import React, {
   useCallback,
   useState,
   useEffect,
+  memo,
 } from 'react';
 import { useMutation } from '@apollo/client';
 import { defineMessages, useIntl } from 'react-intl';
@@ -326,4 +327,4 @@ const WaitingUserSectionContainer: React.FC = () => {
   );
 };
 
-export default WaitingUserSectionContainer;
+export default memo(WaitingUserSectionContainer);

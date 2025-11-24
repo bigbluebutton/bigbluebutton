@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, memo } from 'react';
 import { UI_DATA_LISTENER_SUBSCRIBED } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data/hooks/consts';
 import { UserListUiDataPayloads } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data/domain/user-list/types';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
@@ -148,4 +148,4 @@ const UserListParticipantsContainer: React.FC<UserListParticipantsContainerProps
   );
 };
 
-export default UserListParticipantsContainer;
+export default memo(UserListParticipantsContainer);

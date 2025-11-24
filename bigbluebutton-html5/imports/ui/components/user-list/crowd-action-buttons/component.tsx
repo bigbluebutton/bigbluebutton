@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { useIntl, defineMessages } from 'react-intl';
 import { useMutation } from '@apollo/client';
 import logger from '/imports/startup/client/logger';
@@ -98,4 +98,4 @@ const CrowdActionButtons: React.FC<CrowdActionButtonsProps> = () => {
   );
 };
 
-export default CrowdActionButtons;
+export default memo(CrowdActionButtons);
