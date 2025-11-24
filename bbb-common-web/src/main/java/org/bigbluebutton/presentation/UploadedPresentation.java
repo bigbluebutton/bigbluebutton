@@ -271,15 +271,29 @@ public final class UploadedPresentation {
         }
     }
 
-    public AtomicLong getRemainingEmbeddedPngBudget() {
-        return remainingEmbeddedPngBudget;
+    public long getRemainingEmbeddedPngBudget() {
+        return remainingEmbeddedPngBudget.get();
     }
 
     public void setRemainingEmbeddedPngBudget(long remainingEmbeddedPngBudget) {
         this.remainingEmbeddedPngBudget = new AtomicLong(remainingEmbeddedPngBudget);
     }
 
-    public void alterRemainingEmbeddedPngBudget(long amount) {
-        remainingEmbeddedPngBudget = new AtomicLong(remainingEmbeddedPngBudget.addAndGet(amount * -1));
+    public boolean tryConsumeRemainingEmbeddedPngBudget(long amount) {
+        if (amount <= 0) {
+            return true;
+        }
+
+        while (true) {
+            long current = remainingEmbeddedPngBudget.get();
+            if (current < amount) {
+                return false;
+            }
+
+            long updated = current - amount;
+            if (remainingEmbeddedPngBudget.compareAndSet(current, updated)) {
+                return true;
+            }
+        }
     }
 }

@@ -248,7 +248,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
             }
 
 
-            File tempPng = null;
+            File tempPng;
             String basePresentationame = UUID.randomUUID().toString();
             try {
                 tempPng = File.createTempFile(basePresentationame + "-" + page, ".png");
@@ -316,14 +316,13 @@ public class SvgImageCreatorImp implements SvgImageCreator {
 
                     if (base64Size > maxEmbeddedPngSize) {
                         log.error("Encoded PNG is too large for the browser - size: {}, limit: {}", base64Size, maxEmbeddedPngSize);
-                    } else if (pres.getRemainingEmbeddedPngBudget().get() < base64Size) {
+                    } else if (!pres.tryConsumeRemainingEmbeddedPngBudget(base64Size)) {
                         log.error("Encoded PNG size exceeds the remaining embedded PNG budget - size: {}, remaining: {}", base64Size, pres.getRemainingEmbeddedPngBudget());
                     } else {
                         String svg = createSvgWithEmbeddedPng(base64encodedPng, width, height);
                         try (FileWriter writer = new FileWriter(destsvg)) {
                             writer.write(svg);
                         }
-                        pres.alterRemainingEmbeddedPngBudget(base64Size);
                     }
                 } catch (IOException e) {
                     log.error("Error during conversion from PNG to SVG: {}", e.getMessage());
