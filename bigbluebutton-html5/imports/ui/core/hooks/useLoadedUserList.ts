@@ -2,6 +2,9 @@ import { makeVar, useReactiveVar } from '@apollo/client';
 import { isEqual } from 'radash';
 import { User } from '../../Types/user';
 import { useCreateUseSubscription } from './createUseSubscription';
+import useStableResponse from './useStableResponse';
+import { userListComparator } from './userComparators';
+import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
 import { USER_LIST_SUBSCRIPTION } from '../graphql/queries/users';
 
 const createLocalUserListDataGathering = (): [
@@ -48,7 +51,10 @@ const useLoadedUserList = (
     true,
   );
   const loadedUserList = useLoadedUserListSubscription(fn);
-  return loadedUserList;
+  return useStableResponse<Partial<User>[]>(
+    loadedUserList as GraphqlDataHookSubscriptionResponse<Partial<User>[]>,
+    userListComparator,
+  );
 };
 
 const [useLocalUserList, setLocalUserList] = createLocalUserListDataGathering();
