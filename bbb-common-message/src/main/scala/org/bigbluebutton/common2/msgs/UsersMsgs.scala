@@ -5,8 +5,8 @@ case class RegisterUserReqMsg(
     header: BbbCoreHeaderWithMeetingId,
     body:   RegisterUserReqMsgBody
 ) extends BbbCoreMsg
-case class RegisterUserReqMsgBody(meetingId: String, intUserId: String, name: String, role: String,
-                                  extUserId: String, authToken: String, sessionToken: String, avatarURL: String,
+case class RegisterUserReqMsgBody(meetingId: String, intUserId: String, name: String, firstName: String, lastName: String,
+                                  role: String, extUserId: String, authToken: String, sessionToken: String, avatarURL: String,
                                   webcamBackgroundURL: String, bot: Boolean, guest: Boolean, authed: Boolean,
                                   guestStatus: String, excludeFromDashboard: Boolean, enforceLayout: String,
                                   logoutUrl: String, userMetadata: Map[String, String])
@@ -130,7 +130,10 @@ case class GetRecordingStatusRespMsgBody(
     recorded:                Boolean,
     recording:               Boolean,
     recordFullDurationMedia: Boolean,
-    requestedBy:             String
+    requestedBy:             String,
+    recordUserAudio:         Boolean,
+    recordUserCameras:       Boolean,
+    recordUserScreenShare:   Boolean
 )
 
 /**
@@ -250,7 +253,15 @@ case class ClearedAllUsersReactionEvtMsgBody()
  */
 object UserConnectionAliveReqMsg { val NAME = "UserConnectionAliveReqMsg" }
 case class UserConnectionAliveReqMsg(header: BbbClientMsgHeader, body: UserConnectionAliveReqMsgBody) extends StandardMsg
-case class UserConnectionAliveReqMsgBody(userId: String, networkRttInMs: Double)
+case class UserConnectionAliveReqMsgBody(
+    userId:             String,
+    sessionToken:       String,
+    serverRequestId:    String,
+    clientSessionUUID:  String,
+    networkRttInMs:     Double,
+    applicationRttInMs: Double,
+    traceLog:           String
+)
 
 /**
  * Sent from client to update clientSettings.

@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
-import { LayoutPresentatioAreaUiDataNames, UiLayouts } from 'bigbluebutton-html-plugin-sdk';
-import { LayoutPresentationAreaUiDataPayloads } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data-hooks/layout/presentation-area/types';
-import { UI_DATA_LISTENER_SUBSCRIBED } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data-hooks/consts';
+import { LayoutPresentationAreaUiDataNames, UiLayouts } from 'bigbluebutton-html-plugin-sdk';
+import { LayoutPresentationAreaUiDataPayloads } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data/domain/layout/presentation-area/types';
+import { UI_DATA_LISTENER_SUBSCRIBED } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data/hooks/consts';
 import { PRESENTATION_AREA } from '/imports/ui/components/layout/enums';
 
 const useUpdatePresentationAreaContentForPluginForPlugin = (layoutContextState: Layout) => {
   const [presentationAreaContent, setPresentationAreaContent] = useState<LayoutPresentationAreaUiDataPayloads[
-    LayoutPresentatioAreaUiDataNames.CURRENT_ELEMENT
+    LayoutPresentationAreaUiDataNames.CURRENT_ELEMENT
   ]>();
   const { presentationAreaContentActions: presentationAreaContentPile } = layoutContextState;
 
@@ -44,7 +44,7 @@ const useUpdatePresentationAreaContentForPluginForPlugin = (layoutContextState: 
   // Define function to first inform ui data hooks that subscribe to this event
   const updateUiDataHookLayoutPresentatioAreaChangedForPlugin = () => {
     const content = presentationAreaContent || generateNewContentInfo();
-    window.dispatchEvent(new CustomEvent(LayoutPresentatioAreaUiDataNames.CURRENT_ELEMENT, {
+    window.dispatchEvent(new CustomEvent(LayoutPresentationAreaUiDataNames.CURRENT_ELEMENT, {
       detail: content,
     }));
   };
@@ -53,14 +53,14 @@ const useUpdatePresentationAreaContentForPluginForPlugin = (layoutContextState: 
     // When component mount, add event listener to send first information
     // about this ui data hooks to plugin
     window.addEventListener(
-      `${UI_DATA_LISTENER_SUBSCRIBED}-${LayoutPresentatioAreaUiDataNames.CURRENT_ELEMENT}`,
+      `${UI_DATA_LISTENER_SUBSCRIBED}-${LayoutPresentationAreaUiDataNames.CURRENT_ELEMENT}`,
       updateUiDataHookLayoutPresentatioAreaChangedForPlugin,
     );
 
     // Before component unmount, remove event listeners for plugin ui data hooks
     return () => {
       window.removeEventListener(
-        `${UI_DATA_LISTENER_SUBSCRIBED}-${LayoutPresentatioAreaUiDataNames.CURRENT_ELEMENT}`,
+        `${UI_DATA_LISTENER_SUBSCRIBED}-${LayoutPresentationAreaUiDataNames.CURRENT_ELEMENT}`,
         updateUiDataHookLayoutPresentatioAreaChangedForPlugin,
       );
     };

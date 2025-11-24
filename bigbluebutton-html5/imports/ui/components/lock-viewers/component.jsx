@@ -1,4 +1,4 @@
-import React, { Fragment, Component } from 'react';
+import React, { Component } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import Toggle from '/imports/ui/components/common/switch/component';
@@ -114,21 +114,21 @@ class LockViewersComponent extends Component {
 
   toggleLockSettings(property) {
     const { lockSettingsProps } = this.state;
-
-    lockSettingsProps[property] = !lockSettingsProps[property];
+    const lockSettingsPropsLocal = { ...lockSettingsProps };
+    lockSettingsPropsLocal[property] = !lockSettingsPropsLocal[property];
 
     this.setState({
-      lockSettingsProps,
+      lockSettingsProps: lockSettingsPropsLocal,
     });
   }
 
   toggleUserProps(property) {
     const { usersProp } = this.state;
-
-    usersProp[property] = !usersProp[property];
+    const usersPropLocal = { ...usersProp };
+    usersPropLocal[property] = !usersPropLocal[property];
 
     this.setState({
-      usersProp,
+      usersProp: usersPropLocal,
     });
   }
 
@@ -136,9 +136,9 @@ class LockViewersComponent extends Component {
     const { intl } = this.props;
     return (
       status && (
-      <Styled.ToggleLabel>
-        {intl.formatMessage(intlMessages.lockedLabel)}
-      </Styled.ToggleLabel>
+        <Styled.ToggleLabel>
+          {intl.formatMessage(intlMessages.lockedLabel)}
+        </Styled.ToggleLabel>
       )
     );
   }

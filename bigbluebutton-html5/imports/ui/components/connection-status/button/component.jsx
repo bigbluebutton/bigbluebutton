@@ -5,8 +5,8 @@ import ConnectionStatusModalComponent from '/imports/ui/components/connection-st
 import ConnectionStatusService from '/imports/ui/components/connection-status/service';
 import Icon from '/imports/ui/components/connection-status/icon/component';
 import Styled from './styles';
-import Auth from '/imports/ui/services/auth';
-import deviceInfo, { isMobile } from '/imports/utils/deviceInfo';
+import { isMobile } from '/imports/utils/deviceInfo';
+import { ModalRegistration } from '/imports/ui/core/singletons/modalController';
 
 const intlMessages = defineMessages({
   label: {
@@ -20,15 +20,8 @@ const intlMessages = defineMessages({
 });
 
 class ConnectionStatusButton extends PureComponent {
-  constructor(props) {
-    super(props);
-    this.state = {
-      isModalOpen: false,
-    }
-  }
-
-  renderIcon(level = 'normal') {
-    return(
+  static renderIcon(level = 'normal') {
+    return (
       <Styled.IconWrapper>
         <Icon
           level={level}
@@ -38,33 +31,43 @@ class ConnectionStatusButton extends PureComponent {
     );
   }
 
-  setModalIsOpen = (isOpen) => this.setState({ isModalOpen: isOpen }); 
-
-  renderModal(isModalOpen) {
-    return (
-      isModalOpen ?
-      <ConnectionStatusModalComponent
-        {...{
-          isModalOpen,
-          setModalIsOpen: this.setModalIsOpen,
-        }}
-      /> : null
-    )
-  }
-
   render() {
     const {
       intl,
       connected,
     } = this.props;
-    const { isModalOpen } = this.state;
 
+
+    const ConnectionStatusModal = (
+      <ModalRegistration id="connectionStatusModal" priority="low">
+        {({
+          isOpen, open, close,
+        }) => {
+          this.setModalIsOpen = (value) => {
+            if (value) open();
+            else close();
+          }
+          if (!isOpen) return null;
+          return (
+            <ConnectionStatusModalComponent
+              {...{
+                isModalOpen: isOpen,
+                setModalIsOpen: (value) => {
+                  if (value) open();
+                  else close();
+                },
+              }}
+            />
+          );
+        }}
+      </ModalRegistration>
+    );
 
     if (!connected) {
       return (
         <Styled.ButtonWrapper>
           <Button
-            customIcon={this.renderIcon()}
+            customIcon={ConnectionStatusButton.renderIcon()}
             label={intl.formatMessage(intlMessages.label)}
             hideLabel
             aria-label={intl.formatMessage(intlMessages.description)}
@@ -72,11 +75,11 @@ class ConnectionStatusButton extends PureComponent {
             disabled
             ghost
             circle
-            onClick={() => {}}
+            onClick={() => { }}
             data-test="connectionStatusButton"
             isMobile={isMobile}
           />
-          {this.renderModal(isModalOpen)}
+          {ConnectionStatusModal}
         </Styled.ButtonWrapper>
       );
     }
@@ -105,17 +108,17 @@ class ConnectionStatusButton extends PureComponent {
     return (
       <Styled.ButtonWrapper>
         <Button
-          customIcon={this.renderIcon(myCurrentStatus)}
+          customIcon={ConnectionStatusButton.renderIcon(myCurrentStatus)}
           label={intl.formatMessage(intlMessages.label)}
           hideLabel
           aria-label={intl.formatMessage(intlMessages.description)}
           size="sm"
           color={color}
           circle
-          onClick={() => this.setState({isModalOpen: true})}
+          onClick={() => this.setModalIsOpen(true)}
           data-test="connectionStatusButton"
         />
-        {this.renderModal(isModalOpen)}
+        {ConnectionStatusModal}
       </Styled.ButtonWrapper>
     );
   }

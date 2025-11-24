@@ -33,8 +33,8 @@ const Root = styled.div<RootProps>`
 
   .chat-message-content:hover &,
   .chat-message-content:focus &,
-  .chat-message-wrapper-focused &,
-  .chat-message-wrapper-keyboard-focused &,
+  .chat-message-container:focus &,
+  .chat-message-container-keyboard-focused &,
   &:hover,
   &:focus-within {
     display: flex;
@@ -56,6 +56,7 @@ const Container = styled.div`
 `;
 
 const EmojiPickerWrapper = styled.div`
+  width: 100%;
   bottom: calc(100% + 0.5rem);
   left: 0;
   right: 0;

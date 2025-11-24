@@ -11,6 +11,7 @@ object_relationships:
     using:
       manual_configuration:
         column_mapping:
+          meetingId: meetingId
           userId: userId
         insertion_order: null
         remote_table:
@@ -20,6 +21,7 @@ object_relationships:
     using:
       manual_configuration:
         column_mapping:
+          meetingId: meetingId
           userId: userId
         insertion_order: null
         remote_table:
@@ -46,4 +48,19 @@ select_permissions:
                   _eq: X-Hasura-WebcamsNotLockedInMeeting
               - userId:
                   _eq: X-Hasura-WebcamsLockedUserId
+      allow_aggregations: true
+  - role: bbb_client_not_in_meeting
+    permission:
+      columns:
+        - contentType
+        - showAsContent
+        - hasAudio
+        - streamId
+        - userId
+      filter:
+        _and:
+          - meetingId:
+              _eq: X-Hasura-MeetingId
+          - userId:
+              _eq: X-Hasura-UserId
       allow_aggregations: true

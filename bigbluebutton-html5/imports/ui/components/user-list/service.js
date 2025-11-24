@@ -212,10 +212,10 @@ const getActiveChats = ({ groupChatsMessages, groupChats, users }) => {
   });
 
   const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) || [];
-  const removeClosedChats = chatInfo.filter((chat) => {
-    return !currentClosedChats.some((closedChat) => closedChat.chatId === chat.chatId)
-      && chat.shouldDisplayInChatList;
-  });
+  const removeClosedChats = chatInfo.filter(
+    (chat) => !currentClosedChats.some((closedChat) => closedChat.chatId === chat.chatId)
+      && chat.shouldDisplayInChatList,
+  );
 
   const sortByChatIdAndUnread = removeClosedChats.sort((a, b) => {
     if (a.chatId === PUBLIC_GROUP_CHAT_ID) {
@@ -226,17 +226,16 @@ const getActiveChats = ({ groupChatsMessages, groupChats, users }) => {
     }
     if (a.unreadCounter > b.unreadCounter) {
       return -1;
-    } else if (b.unreadCounter > a.unreadCounter) {
+    } if (b.unreadCounter > a.unreadCounter) {
       return 1;
-    } else {
-      if (a.name.toLowerCase() < b.name.toLowerCase()) {
-        return -1;
-      }
-      if (a.name.toLowerCase() > b.name.toLowerCase()) {
-        return 1;
-      }
-      return 0;
     }
+    if (a.name.toLowerCase() < b.name.toLowerCase()) {
+      return -1;
+    }
+    if (a.name.toLowerCase() > b.name.toLowerCase()) {
+      return 1;
+    }
+    return 0;
   });
   return sortByChatIdAndUnread;
 };
@@ -362,18 +361,17 @@ export const getUserNamesLink = (docTitle, fnSortedLabel, lnSortedLabel, users, 
   const mimeType = 'text/plain';
   const userNamesObj = users
     .map((u) => {
-      const name = u.name.split(' ');
+      const nameParts = u.nameSortable.split(' ');
+      const lastPart = nameParts.length > 1 ? nameParts[nameParts.length - 1] : '';
+
       return ({
-        firstName: name[0],
-        middleNames: name.length > 2 ? name.slice(1, name.length - 1) : null,
-        lastName: name.length > 1 ? name[name.length - 1] : null,
+        fullName: u.name,
+        firstName: u.firstNameSortable ? u.firstNameSortable : nameParts[0],
+        lastName: u.lastNameSortable ? u.lastNameSortable : lastPart,
       });
     });
 
-  const getUsernameString = (user) => {
-    const { firstName, middleNames, lastName } = user;
-    return `${firstName || ''} ${middleNames && middleNames.length > 0 ? middleNames.join(' ') : ''} ${lastName || ''}`;
-  };
+  const getUsernameString = (user) => `${user.fullName}`;
 
   const namesByFirstName = userNamesObj.sort(sortUsersByFirstName)
     .map((u) => getUsernameString(u)).join('\r\n');

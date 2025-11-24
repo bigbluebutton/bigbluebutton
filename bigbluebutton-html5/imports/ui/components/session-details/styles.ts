@@ -23,6 +23,8 @@ const Container = styled.div<{ isFullWidth: boolean }>`
     flex: ${({ isFullWidth }) => (isFullWidth ? '1 1 100%' : '1 1 50%')};
     box-sizing: border-box;
     padding: 10px;
+    overflow: auto;
+    overflow-wrap: break-word;
   }
 
   & div p {

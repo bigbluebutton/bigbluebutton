@@ -10,12 +10,24 @@ const intlMessages = defineMessages({
     id: 'app.poll.start.label',
     description: '',
   },
+  startQuizLabel: {
+    id: 'app.poll.quiz.start.label',
+    description: '',
+  },
   questionErr: {
     id: 'app.poll.questionErr',
     description: 'question text area error label',
   },
+  quizErr: {
+    id: 'app.poll.quiz.error',
+    description: 'quiz error label',
+  },
   optionErr: {
     id: 'app.poll.optionErr',
+    description: 'poll input error label',
+  },
+  minOptionsErr: {
+    id: 'app.poll.minOptionsErr',
     description: 'poll input error label',
   },
   yes: {
@@ -47,8 +59,12 @@ interface StartPollButtonProps {
   setError: (err: string) => void;
   setIsPolling: (isPolling: boolean) => void;
   secretPoll: boolean;
-  isMultipleResponse: boolean;
-  hasCurrentPresentation: boolean;
+  multipleResponse: boolean;
+  isQuiz: boolean;
+  correctAnswer: {
+    text: string;
+    index: number;
+  };
 }
 
 const StartPollButton: React.FC<StartPollButtonProps> = ({
@@ -58,8 +74,9 @@ const StartPollButton: React.FC<StartPollButtonProps> = ({
   setError,
   setIsPolling,
   secretPoll,
-  isMultipleResponse,
-  hasCurrentPresentation,
+  multipleResponse,
+  isQuiz = false,
+  correctAnswer = { text: '', index: -1 },
 }) => {
   const CHAT_CONFIG = window.meetingClientSettings.public.chat;
   const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_id;
@@ -74,10 +91,12 @@ const StartPollButton: React.FC<StartPollButtonProps> = ({
     pollType: string | null,
     secretPoll: boolean,
     question: string | string[],
-    isMultipleResponse: boolean,
+    multipleResponse: boolean,
+    isQuiz: boolean = false,
+    correctAnswerText: string,
     answers: (string | null)[] = [],
   ) => {
-    const pollId = hasCurrentPresentation || PUBLIC_CHAT_KEY;
+    const pollId = PUBLIC_CHAT_KEY;
 
     createPoll({
       variables: {
@@ -85,17 +104,26 @@ const StartPollButton: React.FC<StartPollButtonProps> = ({
         pollId: `${pollId}/${new Date().getTime()}`,
         secretPoll,
         question,
-        isMultipleResponse,
+        multipleResponse,
+        quiz: isQuiz && correctAnswerText.trim().length > 0,
         answers,
+        correctAnswer: isQuiz ? correctAnswerText : null,
       },
     });
   };
 
+  const hasNotMinOptions = (type !== pollTypes.Response
+    && optList.filter((o) => o.val.trim().length > 0).length < 1);
+  const quizHasNoCorrectAnswer = (
+    isQuiz
+    && !(optList[correctAnswer.index]?.val === correctAnswer.text));
   return (
     <Styled.StartPollBtn
       data-test="startPoll"
-      label={intl.formatMessage(intlMessages.startPollLabel)}
+      label={isQuiz ? intl.formatMessage(intlMessages.startQuizLabel) : intl.formatMessage(intlMessages.startPollLabel)}
       color="primary"
+      disabled={hasNotMinOptions || quizHasNoCorrectAnswer}
+      title={`${hasNotMinOptions ? intl.formatMessage(intlMessages.minOptionsErr) : ''}\n${quizHasNoCorrectAnswer ? intl.formatMessage(intlMessages.quizErr) : ''}`}
       onClick={() => {
         const optionsList = optList.slice(0, MAX_CUSTOM_FIELDS);
         let hasVal = false;
@@ -104,6 +132,9 @@ const StartPollButton: React.FC<StartPollButtonProps> = ({
         });
 
         let err = null;
+        if (hasNotMinOptions) {
+          err = intl.formatMessage(intlMessages.optionErr);
+        }
         if (type === pollTypes.Response && question.length === 0) {
           err = intl.formatMessage(intlMessages.questionErr);
         }
@@ -133,11 +164,20 @@ const StartPollButton: React.FC<StartPollButtonProps> = ({
               verifiedPollType,
               secretPoll,
               question,
-              isMultipleResponse,
+              multipleResponse,
+              isQuiz,
+              correctAnswer.text,
               verifiedOptions?.filter(Boolean),
             );
           } else {
-            startPoll(verifiedPollType, secretPoll, question, isMultipleResponse);
+            startPoll(
+              verifiedPollType,
+              secretPoll,
+              question,
+              multipleResponse,
+              isQuiz,
+              correctAnswer.text,
+            );
           }
         }
       }}

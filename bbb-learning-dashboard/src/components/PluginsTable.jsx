@@ -1,6 +1,7 @@
 import React from 'react';
 import { injectIntl } from 'react-intl';
 import { DataGrid } from '@mui/x-data-grid';
+import ReactMarkdown from 'react-markdown';
 import UserAvatar from './UserAvatar';
 
 // Type of genericData is of the form: {
@@ -79,7 +80,37 @@ const PluginsTable = (props) => {
           columnTitle,
           value,
         } = curr;
-        acc[columnTitle] = value;
+        acc[columnTitle] = (
+          <ReactMarkdown
+            components={{
+              a: ({ href, children }) => (
+                <a href={href} className="text-blue-600 underline">
+                  {children}
+                </a>
+              ),
+              img: ({
+                node, src, alt, ...restProps
+              }) => (
+                <a href={src} target="_blank" rel="noopener noreferrer" className="block border border-gray-300">
+                  <img
+                    src={src}
+                    alt={alt}
+                    {...restProps}
+                    style={{
+                      maxHeight: '120px',
+                      height: 'auto',
+                      maxWidth: '120px',
+                      width: 'auto',
+                      cursor: 'pointer',
+                    }}
+                  />
+                </a>
+              ),
+            }}
+          >
+            {value}
+          </ReactMarkdown>
+        );
         return acc;
       }, {}),
     });
@@ -92,7 +123,7 @@ const PluginsTable = (props) => {
     disableColumnMenu: true,
     disableColumnSelector: true,
     disableSelectionOnClick: true,
-    rowHeight: 45,
+    rowHeight: 125,
   };
 
   return (

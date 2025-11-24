@@ -442,7 +442,7 @@ However, this is not a reliable choice for stun server. Recommend either changin
   <X-PRE-PROCESS cmd="set" data="external_rtp_ip=234.32.3.3"/>
 ```
 
-You can add a line in `/etc/bigbluebutton/bbb-conf/apply-conf.sh` to always apply this value even if the FreeSWITCH package upgrades.
+You can add a line in `/etc/bigbluebutton/bbb-conf/apply-config.sh` to always apply this value even if the FreeSWITCH package upgrades.
 
 ```bash
 xmlstarlet edit --inplace --update '//X-PRE-PROCESS[@cmd="set" and starts-with(@data, "external_rtp_ip=")]/@data' --value "external_rtp_ip=234.32.3.3" /opt/freeswitch/conf/vars.xml
@@ -509,39 +509,55 @@ Here are the following lists the possible WebRTC error messages that a user may 
 
 ## Networking
 
+### Common Client Errors
+
+| **Error Code** | **Error Message**                                               | **Causes**                                                                            |
+|----------------|-----------------------------------------------------------------|----------------------------------------------------------------------------------------|
+| **3001**       | Reconnection in progress                                        | GraphQL is disconnected and the client is attempting to re-establish the connection.   |
+| **3002**       | Unable to connect. Please check your internet connection        | GraphQL is disconnected (attempting to reconnect), and RTT measurements are critical.  |
+| **3003**       | Server is currently not responding. Reconnection in progress    | GraphQL is connected but not receiving any data from the server.                       |
+| **3004**       | Connection is unstable. Please check your internet connection   | GraphQL is connected but not receiving data, and RTT is critically high.               |
+| **3005**       | Data is loading slowly. Reconnection in progress                | GraphQL is connected and receiving data, but the Hasura PING signal is missing.        |
+| **3006**       | Some live data could not be loaded. Please refresh your client  | One or more GraphQL subscriptions returned an error.                                  |
+
+#### Additional Notes
+
+- **GraphQL** is the server that delivers data to the client through a WebSocket connection. The client also uses this same connection to send actions via GraphQL mutations. Monitoring the GraphQL connection helps determine if the client’s overall network connection is functioning properly.
+
+- **RTT (Round Trip Time)** is measured by periodically sending an HTTP request to `/bigbluebutton/rtt-check`. The BBB server responds with a simple `200` status code as quickly as possible without handling or storing any data. This allows the client to measure how long it takes to receive the response and detect potential network delays or instability.
+
+
 ### Server running behind NAT
 
 The [following issue](https://github.com/bigbluebutton/bigbluebutton/issues/8792) might be helpful in debugging if you run into errors and your server is behind NAT.
 
 ### The browser is not supported
 
-When you attempt to join a BigBlueButton session, the client looks for supported browsers before fully loading. The client gets its list of supported browsers from `/usr/share/bigbluebutton/html5-client/private/config/settings.yml`. You can see the list of supported browsers at the bottom. For example,
+When you attempt to join a BigBlueButton session, the client checks your browser before loading. The browser and version are compared against a built-in list of minimum supported versions.
 
-```yaml
-- browser: mobileSafari
-  version:
-    - 11
-    - 1
-```
+If the browser is older than the required version, the main client bundle is not loaded. Instead, a message appears at the top of the page:
 
-states that `Mobile Safari` version 11.1 or later is supported (notice the first letter is lower case and concatenated with the remainder of the browser name).
+> **Browser not supported**
+> Please update your browser or contact support service.
 
-To add a browser to the list, first find your browser's useragent. You could use a tool like https://wtools.io/check-my-user-agent as well. For example, with the Vivaldi browser you might see
+#### Supported browsers and minimum versions
 
-```log
-Vivaldi 2.8.1664 / Linux 0.0.0
-```
+BigBlueButton supports the following browsers and minimum versions:
 
-Next, to add this as a supported browser, append to `settings.yml`
+* Safari — 14 or newer
+* Chrome — 87 or newer
+* Firefox — 80 or newer
+* Microsoft Edge — 85 or newer
+* MiuiBrowser — not supported
 
-```yaml
-- browser: vivaldi
-  version:
-    - 2
-    - 8
-```
+For Safari versions between 14 and 15, a special compatibility bundle is automatically loaded to ensure proper functionality. All other supported browsers use the standard client bundle.
 
-save the updated `settings.yml` file, and then restart your BigBlueButton server with `sudo bbb-conf --restart`. Note any browser you add must support WebRTC libraries (not all do), so be sure to check it first with [https://test.webrtc.org/](https://test.webrtc.org/).
+#### Notes
+
+* Any browser below the listed minimum version will display the unsupported browser banner and will not load the BigBlueButton client.
+* Browsers must support **WebRTC** for audio, video, and screen sharing to function properly. You can verify WebRTC support using [https://test.webrtc.org/](https://test.webrtc.org/).
+
+
 
 
 ### nginx not running

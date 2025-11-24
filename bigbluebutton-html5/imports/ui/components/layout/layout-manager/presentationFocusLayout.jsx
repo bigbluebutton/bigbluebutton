@@ -7,6 +7,7 @@ import {
   ACTIONS,
   PANELS,
   CAMERADOCK_POSITION,
+  LAYOUT_TYPE,
 } from '/imports/ui/components/layout/enums';
 import { defaultsDeep } from '/imports/utils/array-utils';
 import Session from '/imports/ui/services/storage/in-memory';
@@ -48,7 +49,7 @@ const PresentationFocusLayout = (props) => {
   const layoutContextDispatch = layoutDispatch();
 
   const prevDeviceType = usePrevious(deviceType);
-  const { isPresentationEnabled } = props;
+  const { isPresentationEnabled, prevLayout } = props;
 
   const throttledCalculatesLayout = throttle(() => calculatesLayout(),
     50, { trailing: true, leading: true });
@@ -87,18 +88,27 @@ const PresentationFocusLayout = (props) => {
           externalVideo, genericMainContent, screenShare,
         } = prevInput;
         const { sidebarContentPanel } = sidebarContent;
+        let sidebarContentPanelOverride = sidebarContentPanel;
+        let overrideOpenSidebarPanel = sidebarContentPanel !== PANELS.NONE;
+        let overrideOpenSidebarNavigation = sidebarNavigation.isOpen
+          || sidebarContentPanel !== PANELS.NONE || false;
+        if (
+          prevLayout === LAYOUT_TYPE.PRESENTATION_ONLY
+          || prevLayout === LAYOUT_TYPE.CAMERAS_ONLY
+          || prevLayout === LAYOUT_TYPE.MEDIA_ONLY
+        ) {
+          overrideOpenSidebarNavigation = true;
+          overrideOpenSidebarPanel = true;
+          sidebarContentPanelOverride = PANELS.CHAT;
+        }
         return defaultsDeep(
           {
             sidebarNavigation: {
-              isOpen:
-                sidebarNavigation.isOpen || sidebarContentPanel !== PANELS.NONE || false,
+              isOpen: overrideOpenSidebarNavigation,
             },
             sidebarContent: {
-              isOpen: sidebarContentPanel !== PANELS.NONE,
-              sidebarContentPanel,
-            },
-            SidebarContentHorizontalResizer: {
-              isOpen: false,
+              isOpen: overrideOpenSidebarPanel,
+              sidebarContentPanel: sidebarContentPanelOverride,
             },
             presentation: {
               isOpen: presentation.isOpen,
@@ -108,7 +118,14 @@ const PresentationFocusLayout = (props) => {
               },
             },
             cameraDock: {
+              position: cameraDock.position || CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM,
               numCameras: cameraDock.numCameras,
+              height: 0,
+              width: 0,
+              cameraOptimalGridSize: {
+                width: 0,
+                height: 0,
+              },
             },
             externalVideo: {
               hasExternalVideo: externalVideo.hasExternalVideo,
@@ -462,6 +479,7 @@ const PresentationFocusLayout = (props) => {
     layoutContextDispatch({
       type: ACTIONS.SET_EXTERNAL_VIDEO_OUTPUT,
       value: {
+        display: externalVideoInput.hasExternalVideo,
         width: isOpen ? mediaBounds.width : 0,
         height: isOpen ? mediaBounds.height : 0,
         top: mediaBounds.top,

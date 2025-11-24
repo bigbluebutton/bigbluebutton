@@ -7,10 +7,21 @@ configuration:
   custom_name: user_current
   custom_root_fields: {}
 object_relationships:
+  - name: breakoutRoomsSummary
+    using:
+      manual_configuration:
+        column_mapping:
+          meetingId: meetingId
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_breakoutRoom_user_summary
+          schema: public
   - name: connectionStatus
     using:
       manual_configuration:
         column_mapping:
+          meetingId: meetingId
           userId: userId
         insertion_order: null
         remote_table:
@@ -20,6 +31,7 @@ object_relationships:
     using:
       manual_configuration:
         column_mapping:
+          meetingId: meetingId
           userId: userId
         insertion_order: null
         remote_table:
@@ -32,12 +44,13 @@ object_relationships:
           userId: userId
         insertion_order: null
         remote_table:
-          name: v_user_breakoutRoom
+          name: v_user_current_breakoutRoom
           schema: public
   - name: livekit
     using:
       manual_configuration:
         column_mapping:
+          meetingId: meetingId
           userId: userId
         insertion_order: null
         remote_table:
@@ -66,6 +79,7 @@ object_relationships:
     using:
       manual_configuration:
         column_mapping:
+          meetingId: meetingId
           userId: userId
         insertion_order: null
         remote_table:
@@ -75,6 +89,7 @@ object_relationships:
     using:
       manual_configuration:
         column_mapping:
+          meetingId: meetingId
           userId: userId
         insertion_order: null
         remote_table:
@@ -84,6 +99,7 @@ object_relationships:
     using:
       manual_configuration:
         column_mapping:
+          meetingId: meetingId
           userId: userId
         insertion_order: null
         remote_table:
@@ -103,6 +119,7 @@ object_relationships:
     using:
       manual_configuration:
         column_mapping:
+          meetingId: meetingId
           userId: userId
         insertion_order: null
         remote_table:
@@ -112,6 +129,7 @@ object_relationships:
     using:
       manual_configuration:
         column_mapping:
+          meetingId: meetingId
           userId: userId
         insertion_order: null
         remote_table:
@@ -121,6 +139,7 @@ object_relationships:
     using:
       manual_configuration:
         column_mapping:
+          meetingId: meetingId
           userId: userId
         insertion_order: null
         remote_table:
@@ -140,15 +159,17 @@ array_relationships:
     using:
       manual_configuration:
         column_mapping:
+          meetingId: meetingId
           userId: userId
         insertion_order: null
         remote_table:
-          name: v_user_camera
+          name: v_user_current_camera
           schema: public
   - name: chats
     using:
       manual_configuration:
         column_mapping:
+          meetingId: meetingId
           userId: userId
         insertion_order: null
         remote_table:
@@ -188,7 +209,7 @@ select_permissions:
         - extId
         - guest
         - guestStatus
-        - hasDrawPermissionOnCurrentPage
+        - whiteboardWriteAccess
         - inactivityWarningDisplay
         - inactivityWarningTimeoutSecs
         - isDialIn
@@ -203,6 +224,10 @@ select_permissions:
         - mobile
         - name
         - nameSortable
+        - firstName
+        - firstNameSortable
+        - lastName
+        - lastNameSortable
         - pinned
         - presenter
         - raiseHand
@@ -223,27 +248,52 @@ select_permissions:
       columns:
         - authToken
         - authed
+        - avatar
+        - away
         - banned
+        - captionLocale
+        - clientType
         - color
+        - currentlyInMeeting
         - disconnected
+        - echoTestRunningAt
         - ejectReason
         - ejectReasonCode
         - ejected
+        - enforceLayout
         - expired
-        - logoutUrl
-        - currentlyInMeeting
-        - isModerator
         - extId
+        - firstName
+        - firstNameSortable
         - guest
         - guestStatus
+        - whiteboardWriteAccess
+        - inactivityWarningDisplay
+        - inactivityWarningTimeoutSecs
+        - isDialIn
+        - isModerator
+        - isRunningEchoTest
         - joinErrorCode
         - joinErrorMessage
         - joined
+        - lastName
+        - lastNameSortable
+        - locked
         - loggedOut
+        - logoutUrl
+        - mobile
         - name
+        - nameSortable
+        - pinned
+        - presenter
+        - raiseHand
+        - reactionEmoji
         - registeredAt
         - registeredOn
+        - role
+        - speechLocale
         - userId
+        - webcamBackground
       filter:
         _and:
           - meetingId:

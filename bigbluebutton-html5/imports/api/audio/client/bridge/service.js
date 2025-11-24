@@ -24,6 +24,17 @@ const getCurrentAudioSessionNumber = () => sessionStorage.getItem(AUDIO_SESSION_
 const reloadAudioElement = (audioElement) => {
   if (audioElement && (audioElement.readyState > 0)) {
     audioElement.load();
+    if (audioElement.paused) {
+      audioElement.play().catch((error) => {
+        logger.error({
+          logCode: 'audio_reload_element_play_error',
+          extraInfo: {
+            errorName: error.name,
+            errorMessage: error.message,
+          },
+        }, 'Error playing audio element after reload');
+      });
+    }
     return true;
   }
 
@@ -114,11 +125,15 @@ const doGUM = async (constraints, retryOnFailure = false) => {
   } catch (error) {
     // This is probably a deviceId mismatch. Retry with base constraints
     // without an exact deviceId.
-    if (error.name === 'OverconstrainedError' && retryOnFailure) {
+    const retryableErrors = ['NotFoundError', 'OverconstrainedError', 'NotReadableError'];
+
+    if (retryOnFailure && retryableErrors.includes(error.name)) {
       logger.warn({
         logCode: 'audio_overconstrainederror_rollback',
         extraInfo: {
           constraints,
+          errorName: error.name,
+          errorMessage: error.message,
         },
       }, 'Audio getUserMedia returned OverconstrainedError, rollback');
 

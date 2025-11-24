@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useReactiveVar } from '@apollo/client';
 import { defineMessages, useIntl } from 'react-intl';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import getBaseUrl from '/imports/ui/core/utils/getBaseUrl';
 import Auth from '/imports/ui/services/auth';
 import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import Button from '/imports/ui/components/common/button/component';
@@ -69,7 +70,7 @@ const MobileAppModalGraphql: React.FC<MobileAppModalGraphqlProps> = (props) => {
   const BBB_TABLET_APP_CONFIG = window.meetingClientSettings.public.app.bbbTabletApp;
 
   useEffect(() => {
-    const url = `/bigbluebutton/api/getJoinUrl?sessionToken=${sessionToken}`;
+    const url = `${getBaseUrl()}/api/getJoinUrl?sessionToken=${sessionToken}`;
     const options = {
       method: 'GET',
       headers: {

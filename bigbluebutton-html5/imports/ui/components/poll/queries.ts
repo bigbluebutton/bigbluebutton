@@ -1,13 +1,5 @@
 import { gql } from '@apollo/client';
 
-export interface GetHasCurrentPresentationResponse {
-  pres_page_aggregate: {
-    aggregate: {
-      count: number;
-    };
-  };
-}
-
 export interface UserInfo {
   user: {
     name: string;
@@ -17,12 +9,14 @@ export interface UserInfo {
 }
 
 export interface ResponseInfo {
+  correctOption: boolean;
   optionResponsesCount: number;
   optionDesc: string;
   pollResponsesCount: number;
 }
 
 export interface PollInfo {
+  quiz: boolean;
   published: boolean;
   pollId: string;
   secret: boolean;
@@ -69,14 +63,16 @@ subscription getCurrentPollData {
       questionText
       ended
       multipleResponses
-      users(where: {responded: {_eq: true}}) {
+      quiz
+      users {
         user {
           name
           userId
         }
         optionDescIds
       }
-      responses {
+      responses(order_by: {optionId: asc}) {
+        correctOption
         optionResponsesCount
         optionDesc
         pollResponsesCount
@@ -97,7 +93,3 @@ subscription getCurrentPollData {
     }
   }
 `;
-
-export default {
-  getHasCurrentPresentation,
-};

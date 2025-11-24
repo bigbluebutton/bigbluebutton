@@ -9,6 +9,7 @@ import org.bigbluebutton.core.apps.webcam.CameraHdlrHelpers
 import org.bigbluebutton.core.apps.ScreenshareModel
 import org.bigbluebutton.core.db.ScreenshareDAO
 import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x
+import org.bigbluebutton.core.apps.voice.AudioFloorManager
 
 trait LiveKitParticipantLeftEvtMsgHdlr {
   this: BaseMeetingActor =>
@@ -25,6 +26,12 @@ trait LiveKitParticipantLeftEvtMsgHdlr {
     for {
       vu <- VoiceUsers.findWIthIntId(liveMeeting.voiceUsers, userId)
     } yield {
+      AudioFloorManager.handleUserLeftVoice(
+        vu.intId,
+        System.currentTimeMillis(),
+        liveMeeting,
+        outGW
+      )
       VoiceUsers.removeWithIntId(
         liveMeeting.voiceUsers,
         meetingId,
@@ -37,6 +44,16 @@ trait LiveKitParticipantLeftEvtMsgHdlr {
         vu.voiceUserId
       )
       outGW.send(event)
+
+      val eventUserVoiceStatus = MsgBuilder.buildUserVoiceStateEvtMsg(
+        meetingId,
+        liveMeeting.props.voiceProp.voiceConf,
+        userId,
+        None,
+        leftVoiceConf = true
+      )
+      outGW.send(eventUserVoiceStatus)
+
     }
 
     // Clean up any webcams associated with the user

@@ -19,9 +19,11 @@
 
 package org.bigbluebutton.api;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
+import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -29,6 +31,7 @@ import java.util.regex.Pattern;
 
 import com.google.gson.*;
 import org.bigbluebutton.api.domain.*;
+import org.bigbluebutton.api.util.PluginUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.safety.Safelist;
@@ -89,6 +92,7 @@ public class ParamsProcessorUtil {
     private boolean disableRecordingDefault;
     private boolean autoStartRecording;
     private boolean allowStartStopRecording;
+    private boolean presentationConversionCacheEnabled;
     private boolean recordFullDurationMedia;
     private int learningDashboardCleanupDelayInMinutes;
     private boolean webcamsOnlyForModerator;
@@ -103,6 +107,9 @@ public class ParamsProcessorUtil {
     private String defaultAudioBridge = "bbb-webrtc-sfu";
     private String defaultDisabledFeatures;
     private String defaultPluginManifests;
+    private Integer pluginManifestsFetchUrlResponseTimeout;
+    private Integer maxPluginManifestsFetchUrlPayloadSize;
+    private String html5PluginSdkVersion;
     private boolean defaultNotifyRecordingIsOn = false;
     private boolean defaultKeepEvents = false;
     private Boolean useDefaultLogo;
@@ -149,6 +156,11 @@ public class ParamsProcessorUtil {
     private String bbbVersion = "";
     private Boolean allowRevealOfBBBVersion = false;
     private Boolean allowOverrideClientSettingsOnCreateCall = false;
+
+    private Integer defaultMaxNumPages;
+    private String getJoinUrlUserdataBlocklist;
+
+    private PluginUtils pluginUtils;
 
   	private String formatConfNum(String s) {
   		if (s.length() > 5) {
@@ -259,9 +271,18 @@ public class ParamsProcessorUtil {
 		return false;
 	}
 
-	public static String removeMetaString(String param) {
-		return StringUtils.removeStart(param, "meta_");
+    private static final Pattern PLUGIN_PREFIX_PATTERN = Pattern.compile("plugin_[a-zA-Z][a-zA-Z0-9-_]*$");
+	public static Boolean isPluginParameterValid(String param) {
+		Matcher pluginPrefixMatcher = PLUGIN_PREFIX_PATTERN.matcher(param);
+        if (pluginPrefixMatcher.matches()) {
+            return true;
+        }
+        return false;
 	}
+
+    public static String removePrefixString(String param, String prefix) {
+        return StringUtils.removeStart(param, prefix);
+    }
 
     public static Map<String, String> processMetaParam(Map<String, String> params) {
         Map<String, String> metas = new HashMap<>();
@@ -269,12 +290,26 @@ public class ParamsProcessorUtil {
             if (isMetaValid(entry.getKey())) {
                 // Need to lowercase to maintain backward compatibility with
                 // 0.81
-                String metaName = removeMetaString(entry.getKey()).toLowerCase();
+                String metaName = removePrefixString(entry.getKey(), "meta_").toLowerCase();
                 metas.put(metaName, entry.getValue());
             }
         }
 
         return metas;
+    }
+
+    public static Map<String, String> processPluginMetaParam(Map<String, String> params) {
+        Map<String, String> pluginParams  = new HashMap<>();
+        for (Map.Entry<String, String> entry : params.entrySet()) {
+            if (isPluginParameterValid(entry.getKey())) {
+                // Need to lowercase to maintain backward compatibility with
+                // 0.81
+                String pluginMetaName = removePrefixString(entry.getKey(), "plugin_").toLowerCase();
+                pluginParams.put(pluginMetaName, entry.getValue());
+            }
+        }
+
+        return pluginParams;
     }
 
 		private BreakoutRoomsParams processBreakoutRoomsParams(Map<String, String> params) {
@@ -432,24 +467,17 @@ public class ParamsProcessorUtil {
         return groups;
     }
 
-    private ArrayList<PluginManifest> processPluginManifests(String pluginManifestsParam) {
+    private ArrayList<PluginManifest> processPluginManifests(JsonElement pluginManifestsJsonElement, String meetingId) {
         ArrayList<PluginManifest> pluginManifests = new ArrayList<PluginManifest>();
-        JsonElement pluginManifestsJsonElement = new Gson().fromJson(pluginManifestsParam, JsonElement.class);
         try {
             if (pluginManifestsJsonElement != null && pluginManifestsJsonElement.isJsonArray()) {
                 JsonArray pluginManifestsJson = pluginManifestsJsonElement.getAsJsonArray();
                 for (JsonElement pluginManifestJson : pluginManifestsJson) {
-                    if (pluginManifestJson.isJsonObject()) {
-                        JsonObject pluginManifestJsonObj = pluginManifestJson.getAsJsonObject();
-                        if (pluginManifestJsonObj.has("url")) {
-                            String url = pluginManifestJsonObj.get("url").getAsString();
-                            PluginManifest newPlugin = new PluginManifest(url);
-                            if (pluginManifestJsonObj.has("checksum")) {
-                                newPlugin.setChecksum(pluginManifestJsonObj.get("checksum").getAsString());
-                            }
-                            pluginManifests.add(newPlugin);
-                        }
-                    }
+                    PluginManifest newPluginManifest = pluginUtils.createPluginManifestFromJson(
+                        pluginManifestJson,
+                        meetingId
+                    );
+                    if (newPluginManifest != null) pluginManifests.add(newPluginManifest);
                 }
             }
         } catch(JsonSyntaxException err){
@@ -457,6 +485,61 @@ public class ParamsProcessorUtil {
         }
 
         return pluginManifests;
+    }
+
+    private List<PluginManifest> processPluginManifests(String pluginManifestsParam, String meetingId) throws JsonSyntaxException {
+        JsonElement pluginManifestsJsonElement = new Gson().fromJson(pluginManifestsParam, JsonElement.class);
+        return processPluginManifests(pluginManifestsJsonElement, meetingId);
+    }
+
+    private JsonElement processPluginManifestsFetchUrl(String urlStr) {
+        int timeoutConnectionMillis = pluginManifestsFetchUrlResponseTimeout * 1000;
+        try {
+            log.info("Plugin manifests URL provided: [{}]", urlStr);
+            log.info("Attempting to download plugin manifests from [{}]", urlStr);
+
+            HttpURLConnection conn = (HttpURLConnection) new URL(urlStr).openConnection();
+            conn.setConnectTimeout(timeoutConnectionMillis);
+            conn.setReadTimeout(timeoutConnectionMillis);
+            conn.setRequestProperty("Accept", "application/json");
+
+            if (conn.getResponseCode() != 200) {
+                log.warn("pluginManifestsFetchUrl responded with HTTP {}", conn.getResponseCode());
+                return null;
+            }
+
+            StringBuilder sb = new StringBuilder(8192);
+            try (BufferedReader in = new BufferedReader(
+                    new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8))) {
+                char[] buf = new char[4096];
+                int n;
+                int max = maxPluginManifestsFetchUrlPayloadSize * 1024; // Default: 1 MiB hard cap
+                while ((n = in.read(buf)) != -1 && max > 0) {
+                    sb.append(buf, 0, n);
+                    max -= n;
+                }
+
+                if (max < 0) {
+                    log.warn(
+                            "Response from pluginManifestsFetchUrl [{}] exceeded maximum allowed payload size ({} KiB); skipping load.",
+                            urlStr, maxPluginManifestsFetchUrlPayloadSize);
+                    return null;
+                }
+            }
+
+            String content = sb.toString();
+            JsonElement payloadResult = new Gson().fromJson(content, JsonElement.class);
+            log.info("Successfully downloaded and parsed plugin manifests from [{}]", urlStr);
+            return payloadResult;
+
+        } catch (MalformedURLException e) {
+            log.error("Invalid pluginManifestsFetchUrl [{}]", urlStr, e);
+        } catch (IOException e) {
+            log.error("I/O error when fetching plugin manifests from [{}]", urlStr, e);
+        } catch (Exception e) {
+            log.error("Unexpected error while processing pluginManifestsFetchUrl [{}]", urlStr, e);
+        }
+        return null;
     }
 
     public Meeting processCreateParams(Map<String, String> params) {
@@ -545,6 +628,18 @@ public class ParamsProcessorUtil {
             }
         }
 
+        boolean presentationCacheEnabled = presentationConversionCacheEnabled;
+        if (!StringUtils.isEmpty(params.get(ApiParams.PRESENTATION_CONVERSION_CACHE_ENABLED))) {
+            try {
+                presentationCacheEnabled = Boolean.parseBoolean(params
+                        .get(ApiParams.PRESENTATION_CONVERSION_CACHE_ENABLED));
+            } catch (Exception ex) {
+                log.warn(
+                        "Invalid param [presentationConversionCacheEnabled] for meeting=[{}]",
+                        internalMeetingId);
+            }
+        }
+
         boolean _recordFullDurationMedia = recordFullDurationMedia;
         if (!StringUtils.isEmpty(params.get(ApiParams.RECORD_FULL_DURATION_MEDIA))) {
             try {
@@ -582,15 +677,42 @@ public class ParamsProcessorUtil {
         if (!isBreakout){
             //Process plugins from config
             if (defaultPluginManifests != null && !defaultPluginManifests.isEmpty()) {
-                ArrayList<PluginManifest> pluginManifestsFromConfig = processPluginManifests(defaultPluginManifests);
-                listOfPluginManifests.addAll(pluginManifestsFromConfig);
+                try {
+                    List<PluginManifest> pluginManifestsFromConfig = processPluginManifests(
+                            defaultPluginManifests,
+                            externalMeetingId
+                    );
+                    listOfPluginManifests.addAll(pluginManifestsFromConfig);
+                } catch (JsonSyntaxException err) {
+                    log.error("PluginManifests json from the properties file is malformed: {}", err.getMessage());
+                }
             }
-            //Process plugins from /create param
+            // Process plugins from /create params
             String pluginManifestsParam = params.get(ApiParams.PLUGIN_MANIFESTS);
             if (!StringUtils.isEmpty(pluginManifestsParam)) {
-                ArrayList<PluginManifest> pluginManifestsFromParam = processPluginManifests(pluginManifestsParam);
-                listOfPluginManifests.addAll(pluginManifestsFromParam);
+                try {
+                    List<PluginManifest> pluginManifestsFromParam = processPluginManifests(
+                            pluginManifestsParam,
+                            externalMeetingId
+                    );
+                    listOfPluginManifests.addAll(pluginManifestsFromParam);
+                } catch (JsonSyntaxException err) {
+                    log.error("PluginManifests json from the create parameter is malformed: {}", err.getMessage());
+                }
             }
+            String pluginManifestsFetchUrlParam = params.get(ApiParams.PLUGIN_MANIFESTS_FETCH_URL);
+            if (!StringUtils.isEmpty(pluginManifestsFetchUrlParam)) {
+                JsonElement pluginManifestsFromFetchUrlParam = processPluginManifestsFetchUrl(
+                    pluginUtils.replaceAllPlaceholdersInManifestUrls(pluginManifestsFetchUrlParam, externalMeetingId)
+                );
+                if (pluginManifestsFromFetchUrlParam != null) {
+                    ArrayList<PluginManifest> pluginManifestsFromParam = processPluginManifests(
+                            pluginManifestsFromFetchUrlParam, externalMeetingId
+                    );
+                    listOfPluginManifests.addAll(pluginManifestsFromParam);
+                }
+            }
+
         }
 
         // Learning Dashboard not allowed for Breakout Rooms
@@ -750,6 +872,10 @@ public class ParamsProcessorUtil {
         // store if meeting is recorded.
         Map<String, String> meetingInfo = processMetaParam(params);
 
+        // Collect plugin metadata for this meeting that the third-party app wants to
+        // replace manifest.json placeholders.
+        Map<String, String> pluginMetadataParameters = processPluginMetaParam(params);
+
         // Create a unique internal id by appending the current time. This way,
         // the 3rd-party
         // app can reuse the external meeting id.
@@ -807,6 +933,7 @@ public class ParamsProcessorUtil {
                 .withDefaultWebcamBackgroundURL(webcamBackgroundURL)
                 .withAutoStartRecording(autoStartRec)
                 .withAllowStartStopRecording(allowStartStoptRec)
+                .withPresentationConversionCacheEnabled(presentationCacheEnabled)
                 .withRecordFullDurationMedia(_recordFullDurationMedia)
                 .withWebcamsOnlyForModerator(webcamsOnlyForMod)
                 .withMeetingCameraCap(meetingCameraCap)
@@ -816,6 +943,7 @@ public class ParamsProcessorUtil {
                 .withScreenShareBridge(screenShareBridge)
                 .withAudioBridge(audioBridge)
                 .withMetadata(meetingInfo)
+                .withPluginMetadataParameters(pluginMetadataParameters)
                 .withWelcomeMessageTemplate(welcomeMessageTemplate)
                 .withWelcomeMessage(welcomeMessage)
                 .withIsBreakout(isBreakout)
@@ -832,6 +960,7 @@ public class ParamsProcessorUtil {
                 .withLearningDashboardAccessToken(learningDashboardAccessToken)
                 .withGroups(groups)
                 .withPluginManifests(listOfPluginManifests)
+                .withHtml5PluginSdkVersion(html5PluginSdkVersion)
                 .withDisabledFeatures(listOfDisabledFeatures)
                 .withNotifyRecordingIsOn(notifyRecordingIsOn)
                 .withPresentationUploadExternalDescription(presentationUploadExternalDescription)
@@ -928,6 +1057,16 @@ public class ParamsProcessorUtil {
     }
     meeting.setAllowModsToEjectCameras(allowModsToEjectCameras);
 
+        int maxNumPages = defaultMaxNumPages;
+        if (!StringUtils.isEmpty(params.get(ApiParams.MAX_NUM_PAGES))) {
+            try {
+                maxNumPages = Integer.parseInt(params.get(ApiParams.MAX_NUM_PAGES));
+            } catch (NumberFormatException e) {
+                log.warn("Invalid param [maxNumPages] for meeting=[{}]", internalMeetingId);
+            }
+        }
+        meeting.setMaxNumPages(maxNumPages);
+
         return meeting;
     }
 
@@ -949,6 +1088,10 @@ public class ParamsProcessorUtil {
 
     public String getGraphqlApiUrl() {
         return graphqlApiUrl;
+    }
+
+    public String getGetJoinUrlUserdataBlocklist() {
+        return getJoinUrlUserdataBlocklist;
     }
 
 	public Boolean getUseDefaultLogo() {
@@ -1363,6 +1506,10 @@ public class ParamsProcessorUtil {
         this.allowStartStopRecording = allowStartStopRecording;
     }
 
+    public void setPresentationConversionCacheEnabled(boolean presentationConversionCacheEnabled) {
+        this.presentationConversionCacheEnabled = presentationConversionCacheEnabled;
+    }
+
     public void setRecordFullDurationMedia(boolean recordFullDurationMedia) {
         this.recordFullDurationMedia = recordFullDurationMedia;
     }
@@ -1650,6 +1797,14 @@ public class ParamsProcessorUtil {
 		this.defaultPluginManifests = pluginManifests;
 	}
 
+    public void setHtml5PluginSdkVersion(String html5PluginSdkVersion) {
+		this.html5PluginSdkVersion = html5PluginSdkVersion;
+	}
+
+    public String getHtml5PluginSdkVersion() {
+		return this.html5PluginSdkVersion;
+	}
+
 	public void setNotifyRecordingIsOn(Boolean notifyRecordingIsOn) {
 		this.defaultNotifyRecordingIsOn = notifyRecordingIsOn;
 	}
@@ -1662,9 +1817,9 @@ public class ParamsProcessorUtil {
 		this.defaultPresentationUploadExternalUrl = presentationUploadExternalUrl;
 	}
 
-	public void setBbbVersion(String version) {
-      this.bbbVersion = this.allowRevealOfBBBVersion ? version : "";
-	}
+    public void setBbbVersion(String version) {
+        this.bbbVersion = this.allowRevealOfBBBVersion ? version : "";
+    }
 
 	public void setAllowRevealOfBBBVersion(Boolean allowVersion) {
 		this.allowRevealOfBBBVersion = allowVersion;
@@ -1674,4 +1829,21 @@ public class ParamsProcessorUtil {
 		this.allowOverrideClientSettingsOnCreateCall = allowOverrideClientSettingsOnCreateCall;
 	}
 
+	public void setMaxNumPages(Integer maxNumPages) { this.defaultMaxNumPages = maxNumPages; }
+
+	public void setPluginManifestsFetchUrlResponseTimeout(Integer pluginManifestsFetchUrlResponseTimeout) {
+		this.pluginManifestsFetchUrlResponseTimeout = pluginManifestsFetchUrlResponseTimeout;
+	}
+
+	public void setMaxPluginManifestsFetchUrlPayloadSize(Integer maxPluginManifestsFetchUrlPayloadSize) {
+		this.maxPluginManifestsFetchUrlPayloadSize = maxPluginManifestsFetchUrlPayloadSize;
+	}
+
+	public void setGetJoinUrlUserdataBlocklist(String getJoinUrlUserdataBlocklist) {
+		this.getJoinUrlUserdataBlocklist = getJoinUrlUserdataBlocklist;
+	}
+
+    public void setPluginUtils(PluginUtils pluginUtils) {
+        this.pluginUtils = pluginUtils;
+    }
 }

@@ -49,7 +49,7 @@ const renderGuestUserItem = (
   return (
     <React.Fragment key={`user-${userId}`}>
       <Styled.ListItem key={`userlist-item-${userId}`} animations={animations}>
-        <Styled.UserContentContainer key={`user-content-container-${userId}`}>
+        <Styled.UserContentContainer key={`user-content-container-${userId}`} role="listitem">
           <Styled.UserAvatarContainer key={`user-avatar-container-${userId}`}>
             <Styled.Avatar
               key={`user-avatar-${userId}`}
@@ -107,7 +107,7 @@ const renderGuestUserItem = (
           <TextInput
             maxLength={128}
             placeholder={intl.formatMessage(intlMessages.privateInputPlaceholder,
-              { 0: name })}
+              { userName: name })}
             send={setPrivateGuestLobbyMessage}
           />
           <p>

@@ -28,6 +28,7 @@ export function createStreamForTarget(
     throttleInterval?: number;
     flushOnClose?: boolean;
     logTag?: string;
+    logByLevel?: boolean;
   },
 ) {
   const TARGET_EXTERNAL = 'external';
@@ -54,7 +55,10 @@ export function generateLoggerStreams(config: ClientLog) {
     const logOption = config[key as keyof ClientLog];
     if (logOption && logOption.enabled) {
       const { level, ...streamOptions } = logOption;
-      result = result.concat({ level, stream: createStreamForTarget(key as keyof ClientLog, streamOptions) });
+      result = result
+        .concat(
+          { level, stream: createStreamForTarget(key as keyof ClientLog, { ...streamOptions, logByLevel: true }) },
+        );
     }
   });
   return result;
@@ -91,7 +95,7 @@ class BBBClientLogger {
   }
 }
 
-export default class LoggerFactory {
+class LoggerFactory {
   public static getLogger() {
     return BBBClientLogger.logger;
   }
@@ -124,3 +128,7 @@ export default class LoggerFactory {
     return (LoggerFactory.getLogger() as any).streams;
   }
 }
+// Just add a alias to make easy for auto import on IDEs
+const logger = LoggerFactory;
+
+export default logger;

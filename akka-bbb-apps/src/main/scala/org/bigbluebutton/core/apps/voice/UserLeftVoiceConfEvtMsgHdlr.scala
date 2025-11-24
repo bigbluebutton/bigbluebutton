@@ -6,6 +6,7 @@ import org.bigbluebutton.core.apps.users.UsersApp
 import org.bigbluebutton.core.apps.breakout.BreakoutHdlrHelpers
 import org.bigbluebutton.core.db.UserDAO
 import org.bigbluebutton.core.running.{ LiveMeeting, MeetingActor, OutMsgRouter }
+import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 trait UserLeftVoiceConfEvtMsgHdlr {
   this: MeetingActor =>
@@ -47,8 +48,23 @@ trait UserLeftVoiceConfEvtMsgHdlr {
     for {
       user <- VoiceUsers.findWithVoiceUserId(liveMeeting.voiceUsers, msg.body.voiceUserId)
     } yield {
+      AudioFloorManager.handleUserLeftVoice(
+        user.intId,
+        System.currentTimeMillis(),
+        liveMeeting,
+        outGW
+      )
       VoiceUsers.removeWithIntId(liveMeeting.voiceUsers, liveMeeting.props.meetingProp.intId, user.intId)
       broadcastEvent(user)
+
+      val eventUserVoiceStatus = MsgBuilder.buildUserVoiceStateEvtMsg(
+        liveMeeting.props.meetingProp.intId,
+        msg.body.voiceConf,
+        user.intId,
+        Some(user.copy(muted = true, talking = false)),
+        leftVoiceConf = true
+      )
+      outGW.send(eventUserVoiceStatus)
 
       if (!user.listenOnly) {
         VoiceApp.enforceMuteOnStartThreshold(liveMeeting, outGW)

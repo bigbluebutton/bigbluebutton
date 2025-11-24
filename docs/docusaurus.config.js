@@ -4,15 +4,22 @@
 const lightCodeTheme = require('prism-react-renderer').themes.github;
 const darkCodeTheme = require('prism-react-renderer').themes.dracula;
 
+const isDev = typeof process.env.NODE_ENV != 'undefined' && process.env.NODE_ENV === 'development';
+
 /** @type {import('@docusaurus/types').Config} */
 const config = {
     title: 'BigBlueButton',
     tagline: 'Official Documentation',
     url: 'https://docs.bigbluebutton.org/',
-    baseUrl: '/',
+    baseUrl: isDev ? '/docs' : '/',
     onBrokenLinks: 'throw',
     onBrokenMarkdownLinks: 'warn',
     favicon: 'img/favicon.ico',
+    markdown: {
+        mermaid: true,
+    },
+    plugins: ['@docusaurus/theme-mermaid'],
+    
 
     // GitHub pages deployment config.
     // If you aren't using GitHub pages, you don't need these.
@@ -63,7 +70,7 @@ const config = {
                     {to: '/administration/install', label: 'Administration', position: 'left'},
                     {to: '/greenlight/v3/install', label: 'Greenlight', position: 'left'},
                     {to: '/new-features', label: 'New Features', position: 'left'},
-                    // {to: '/plugins', label: 'Plugins', position: 'left'},
+                    {to: '/plugins', label: 'Plugins', position: 'left'},
                     {to: '/support/getting-help', label: 'Support', position: 'left'},
                     {
                         type: 'docsVersionDropdown',

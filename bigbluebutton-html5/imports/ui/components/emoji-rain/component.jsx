@@ -116,7 +116,7 @@ const EmojiRain = ({ reactions }) => {
     zIndex: 2,
   };
 
-  return <div ref={containerRef} style={containerStyle} />;
+  return <div ref={containerRef} style={containerStyle} data-test="emojiRain" />;
 };
 
 export default EmojiRain;

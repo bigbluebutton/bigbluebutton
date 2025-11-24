@@ -11,10 +11,22 @@ object_relationships:
     using:
       manual_configuration:
         column_mapping:
+          meetingId: meetingId
           userId: userId
         insertion_order: null
         remote_table:
           name: v_user_ref
+          schema: public
+array_relationships:
+  - name: history
+    using:
+      manual_configuration:
+        column_mapping:
+          meetingId: meetingId
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_user_connectionStatusHistory
           schema: public
 select_permissions:
   - role: bbb_client
@@ -22,9 +34,13 @@ select_permissions:
       columns:
         - connectionAliveAt
         - meetingId
+        - sessionToken
+        - clientSessionUUID
         - networkRttInMs
+        - applicationRttInMs
         - status
         - statusUpdatedAt
+        - traceLog
         - userId
       filter:
         _and:
@@ -32,3 +48,5 @@ select_permissions:
               _eq: X-Hasura-MeetingId
           - userId:
               _eq: X-Hasura-UserId
+          - sessionToken:
+              _eq: X-Hasura-SessionToken

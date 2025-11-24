@@ -55,7 +55,9 @@ select_permissions:
         - pollId
         - published
         - publishedAt
+        - publishedShowingAnswer
         - questionText
+        - quiz
         - secret
         - type
       filter:

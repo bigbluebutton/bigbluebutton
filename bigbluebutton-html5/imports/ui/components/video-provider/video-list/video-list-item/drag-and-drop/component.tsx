@@ -10,6 +10,7 @@ import VirtualBgService from '/imports/ui/components/video-preview/virtual-backg
 import logger from '/imports/startup/client/logger';
 import withFileReader from '/imports/ui/components/common/file-reader/component';
 import Session from '/imports/ui/services/storage/in-memory';
+import { useModalRegistration } from '/imports/ui/core/singletons/modalController';
 
 const { MIME_TYPES_ALLOWED, MAX_FILE_SIZE } = VirtualBgService;
 
@@ -47,9 +48,25 @@ const DragAndDrop: React.FC<DragAndDropProps> = (props) => {
 
   const [dragging, setDragging] = useState(false);
   const [draggingOver, setDraggingOver] = useState(false);
-  const [isConfirmModalOpen, setConfirmModalIsOpen] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const { dispatch: dispatchCustomBackground } = useContext(CustomVirtualBackgroundsContext);
+
+  const {
+    isOpen: isConfirmModalOpen,
+    open: openConfirmation,
+    close: closeConfirmation,
+  } = useModalRegistration({
+    id: 'dragAndDropConfirmation',
+    priority: 'low',
+  });
+
+  const setIsConfirmModalOpen = (isOpen: boolean) => {
+    if (isOpen) {
+      openConfirmation();
+    } else {
+      closeConfirmation();
+    }
+  };
 
   const resetEvent = (e: DragEvent) => {
     e.preventDefault();
@@ -158,7 +175,7 @@ const DragAndDrop: React.FC<DragAndDropProps> = (props) => {
         }
 
         setFile(file);
-        setConfirmModalIsOpen(true);
+        setIsConfirmModalOpen(true);
       }
       return null;
     };
@@ -189,12 +206,12 @@ const DragAndDrop: React.FC<DragAndDropProps> = (props) => {
           intl={intl}
           onConfirm={callback}
           title={intl.formatMessage(intlMessages.confirmationTitle)}
-          description={intl.formatMessage(intlMessages.confirmationDescription, { 0: file?.name })}
+          description={intl.formatMessage(intlMessages.confirmationDescription, { fileName: file?.name })}
           checkboxMessageId="app.confirmation.skipConfirm"
           {...{
-            onRequestClose: () => setConfirmModalIsOpen(false),
+            onRequestClose: () => setIsConfirmModalOpen(false),
             priority: 'low',
-            setIsOpen: setConfirmModalIsOpen,
+            setIsOpen: setIsConfirmModalOpen,
             isOpen: isConfirmModalOpen,
           }}
         />

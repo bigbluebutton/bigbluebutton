@@ -12,6 +12,7 @@ import org.bigbluebutton.core.util.TimeUtil
 import org.bigbluebutton.common2.domain.{ DefaultProps, LockSettingsProps }
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.apps._
+import org.bigbluebutton.core.apps.audiogroups.AudioGroupHdlrs
 import org.bigbluebutton.core.apps.caption.CaptionApp2x
 import org.bigbluebutton.core.apps.chat.ChatApp2x
 import org.bigbluebutton.core.apps.externalvideo.ExternalVideoApp2x
@@ -48,6 +49,7 @@ import org.bigbluebutton.core.models.Webcams.findAll
 import org.bigbluebutton.core2.MeetingStatus2x.hasAuthedUserJoined
 import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender }
 
+import java.time._
 import java.util.concurrent.TimeUnit
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -99,6 +101,7 @@ class MeetingActor(
   object MeetingTasksExecutor
   object MeetingInfoAnalyticsMsg
   object MeetingInfoAnalyticsLogMsg
+  object CheckPresentationConversions
 
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
     case e: Exception => {
@@ -136,6 +139,7 @@ class MeetingActor(
   val wbApp = new WhiteboardApp2x
   val timerApp2x = new TimerApp2x
   val pluginHdlrs = new PluginHdlrs
+  val audioGroupHdlrs = new AudioGroupHdlrs
 
   object ExpiryTrackerHelper extends MeetingExpiryTrackerHelper
 
@@ -164,7 +168,9 @@ class MeetingActor(
     None,
     None,
     expiryTracker,
-    recordingTracker
+    recordingTracker,
+    new AudioGroups(Map.empty),
+    PresentationConversions(Map.empty)
   )
 
   var lastRttTestSentOn = System.currentTimeMillis()
@@ -247,6 +253,13 @@ class MeetingActor(
     MeetingTasksExecutor
   )
 
+  context.system.scheduler.scheduleWithFixedDelay(
+    60 seconds,
+    60 seconds,
+    self,
+    CheckPresentationConversions
+  )
+
   def receive = {
     case SyncVoiceUserStatusInternalMsg =>
       checkVoiceConfUsersStatus()
@@ -258,6 +271,8 @@ class MeetingActor(
       handleMeetingInfoAnalyticsService()
     case MeetingTasksExecutor =>
       handleMeetingTasksExecutor()
+    case CheckPresentationConversions =>
+      state = handleCheckPresentationConversions()
     //=============================
 
     // 2x messages
@@ -530,6 +545,16 @@ class MeetingActor(
       case m: SendMessageToAllBreakoutRoomsReqMsg  => state = handleSendMessageToAllBreakoutRoomsMsg(m, state)
       case m: ChangeUserBreakoutReqMsg             => state = handleChangeUserBreakoutReqMsg(m, state)
 
+      // Audio Groups
+      case m: CreateAudioGroupReqMsg               => state = audioGroupHdlrs.handle(m, state, liveMeeting, msgBus)
+      case m: DestroyAudioGroupReqMsg              => state = audioGroupHdlrs.handle(m, state, liveMeeting, msgBus)
+      case m: GetAudioGroupsReqMsg                 => state = audioGroupHdlrs.handle(m, state, liveMeeting, msgBus)
+      case m: AudioGroupAddParticipantsReqMsg      => state = audioGroupHdlrs.handle(m, state, liveMeeting, msgBus)
+      case m: AudioGroupRemoveParticipantsReqMsg   => state = audioGroupHdlrs.handle(m, state, liveMeeting, msgBus)
+      case m: JoinAudioGroupReqMsg                 => state = audioGroupHdlrs.handle(m, state, liveMeeting, msgBus)
+      case m: LeaveAudioGroupReqMsg                => state = audioGroupHdlrs.handle(m, state, liveMeeting, msgBus)
+      case m: AudioGroupUpdateParticipantReqMsg    => state = audioGroupHdlrs.handle(m, state, liveMeeting, msgBus)
+
       // Voice
       case m: UserLeftVoiceConfEvtMsg              => handleUserLeftVoiceConfEvtMsg(m)
       case m: UserMutedInVoiceConfEvtMsg           => handleUserMutedInVoiceConfEvtMsg(m)
@@ -548,9 +573,14 @@ class MeetingActor(
       case m: MuteUserCmdMsg =>
         usersApp.handleMuteUserCmdMsg(m)
         updateUserLastActivity(m.body.mutedBy)
+      case m: SetUserListenOnlyInputCmdMsg =>
+        handleSetUserListenOnlyInputCmdMsg(m)
       case m: MuteAllExceptPresentersCmdMsg =>
         handleMuteAllExceptPresentersCmdMsg(m)
         updateUserLastActivity(m.body.mutedBy)
+      case m: DeafenUserCmdMsg =>
+        handleDeafenUserCmdMsg(m)
+        updateUserLastActivity(m.body.deafenedBy)
       case m: EjectUserFromVoiceCmdMsg => handleEjectUserFromVoiceCmdMsg(m)
       case m: IsMeetingMutedReqMsg     => handleIsMeetingMutedReqMsg(m)
       case m: MuteMeetingCmdMsg =>
@@ -571,22 +601,22 @@ class MeetingActor(
         handleListenOnlyModeToggledInSfuEvtMsg(m)
 
       // Layout
-      case m: GetCurrentLayoutReqMsg  => handleGetCurrentLayoutReqMsg(m)
-      case m: BroadcastLayoutMsg      => handleBroadcastLayoutMsg(m)
-      case m: BroadcastPushLayoutMsg  => handleBroadcastPushLayoutMsg(m)
+      case m: GetCurrentLayoutReqMsg        => handleGetCurrentLayoutReqMsg(m)
+      case m: BroadcastLayoutMsg            => handleBroadcastLayoutMsg(m)
+      case m: BroadcastPushLayoutMsg        => handleBroadcastPushLayoutMsg(m)
+      case m: SetScreenshareAsContentReqMsg => handleSetScreenshareAsContentReqMsg(m)
 
       // Pads
-      case m: PadGroupCreatedEvtMsg   => padsApp2x.handle(m, liveMeeting, msgBus)
-      case m: PadCreateReqMsg         => padsApp2x.handle(m, liveMeeting, msgBus)
-      case m: PadCreatedEvtMsg        => padsApp2x.handle(m, liveMeeting, msgBus)
-      case m: PadCreateSessionReqMsg  => padsApp2x.handle(m, liveMeeting, msgBus)
-      case m: PadSessionCreatedEvtMsg => padsApp2x.handle(m, liveMeeting, msgBus)
-      case m: PadSessionDeletedSysMsg => padsApp2x.handle(m, liveMeeting, msgBus)
+      case m: PadGroupCreatedEvtMsg         => padsApp2x.handle(m, liveMeeting, msgBus)
+      case m: PadCreateReqMsg               => padsApp2x.handle(m, liveMeeting, msgBus)
+      case m: PadCreatedEvtMsg              => padsApp2x.handle(m, liveMeeting, msgBus)
+      case m: PadCreateSessionReqMsg        => padsApp2x.handle(m, liveMeeting, msgBus)
+      case m: PadSessionCreatedEvtMsg       => padsApp2x.handle(m, liveMeeting, msgBus)
+      case m: PadSessionDeletedSysMsg       => padsApp2x.handle(m, liveMeeting, msgBus)
       case m: PadUpdatedSysMsg =>
         padsApp2x.handle(m, liveMeeting, msgBus)
         updateUserLastActivity(m.body.userId)
       case m: PadContentSysMsg => padsApp2x.handle(m, liveMeeting, msgBus)
-      case m: PadPatchSysMsg   => padsApp2x.handle(m, liveMeeting, msgBus)
       case m: PadUpdatePubMsg  => padsApp2x.handle(m, liveMeeting, msgBus)
       case m: PadPinnedReqMsg =>
         padsApp2x.handle(m, liveMeeting, msgBus)
@@ -632,9 +662,11 @@ class MeetingActor(
         state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
         updateUserLastActivity(m.header.userId)
       case m: SetPageInfiniteWhiteboardPubMsg                  => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: SetPresentationFitToWidthCmdMsg                  => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: RemovePresentationPubMsg                         => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: SetPresentationDownloadablePubMsg                => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: PresentationConversionUpdateSysPubMsg            => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: PresentationConversionStartedSysPubMsg           => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: PresentationUploadedFileTooLargeErrorSysPubMsg   => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: PresentationHasInvalidMimeTypeErrorSysPubMsg     => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: PresentationUploadedFileTimeoutErrorSysPubMsg    => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
@@ -642,6 +674,7 @@ class MeetingActor(
       case m: PresentationUploadedFileVirusErrorSysPubMsg      => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: PresentationUploadedFileScanFailedErrorSysPubMsg => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: PresentationPageGeneratedSysPubMsg               => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: SetPresentationUploadCompletionNotifiedPubMsg    => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: PresentationPageCountErrorSysPubMsg              => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: PresentationUploadTokenReqMsg                    => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: ResizeAndMovePagePubMsg =>
@@ -653,9 +686,7 @@ class MeetingActor(
       case m: PresentationConversionEndedSysMsg       => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
 
       // Caption
-      case m: EditCaptionHistoryPubMsg                => captionApp2x.handle(m, liveMeeting, msgBus)
       case m: AddCaptionLocalePubMsg                  => captionApp2x.handle(m, liveMeeting, msgBus)
-      case m: SendCaptionHistoryReqMsg                => captionApp2x.handle(m, liveMeeting, msgBus)
       case m: CaptionSubmitTranscriptPubMsg           => captionApp2x.handle(m, liveMeeting, msgBus)
 
       // Guests
@@ -735,6 +766,8 @@ class MeetingActor(
       case m: PluginDataChannelDeleteEntryMsg  => pluginHdlrs.handle(m, state, liveMeeting)
       case m: PluginDataChannelResetMsg        => pluginHdlrs.handle(m, state, liveMeeting)
 
+      case m: PluginPersistEventMsg            => pluginHdlrs.handle(m, state, liveMeeting, msgBus)
+
       // Webcams
       case m: UserBroadcastCamStartMsg =>
         webcamApp2x.handle(m, liveMeeting, msgBus)
@@ -811,8 +844,26 @@ class MeetingActor(
 
   private def handleMeetingTasksExecutor(): Unit = {
     clearExpiredReactionEmojis()
-    stopFinishedTimer()
     endTimedOutBreakoutRooms()
+  }
+
+  private def handleCheckPresentationConversions(): MeetingState2x = {
+    val now = Instant.now()
+
+    def conversionFilter(entry: (String, PresentationConversion)): Boolean = {
+      val (presId, conversion) = entry
+      val start = Instant.ofEpochMilli(conversion.startTime)
+      val maxDuration = java.time.Duration.ofSeconds(conversion.maxDuration)
+      if (java.time.Duration.between(start, now).compareTo(maxDuration) > 0) {
+        log.warning(s"Presentation $presId in meeting ${props.meetingProp.intId} has been converting for longer than $maxDuration. Presentation conversion may be down on this server!")
+        false
+      } else {
+        true
+      }
+    }
+
+    val presentationConversions = state.presentationConversions.filter(conversionFilter)
+    state.update(presentationConversions)
   }
 
   private def clearExpiredReactionEmojis(): Unit = {
@@ -827,12 +878,6 @@ class MeetingActor(
           Users2x.setReactionEmoji(liveMeeting.users2x, user.intId, "none", 0)
         }
       }
-    }
-  }
-
-  private def stopFinishedTimer(): Unit = {
-    if (TimerModel.resetTimerIfFinished(liveMeeting.timerModel)) {
-      TimerDAO.update(liveMeeting.props.meetingProp.intId, liveMeeting.timerModel)
     }
   }
 
@@ -1085,7 +1130,7 @@ class MeetingActor(
           "user",
           "app.notification.userLeavePushAlert",
           "Notification for a user leaves the meeting",
-          Vector(s"${u.name}")
+          Map("userName" -> s"${u.name}")
         )
         outGW.send(notifyEvent)
         NotificationDAO.insert(notifyEvent)

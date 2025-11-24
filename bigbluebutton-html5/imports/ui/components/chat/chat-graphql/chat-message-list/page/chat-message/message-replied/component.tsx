@@ -2,6 +2,7 @@ import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import Styled, { DeleteMessage } from './styles';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
+import { getFirstVisibleLineHtml } from '/imports/ui/components/chat/chat-graphql/service';
 
 const intlMessages = defineMessages({
   deleteMessage: {
@@ -13,20 +14,19 @@ const intlMessages = defineMessages({
 interface MessageRepliedProps {
   message: string;
   sequence: number;
-  emphasizedMessage: boolean;
   deletedByUser: string | null;
 }
 
 const ChatMessageReplied: React.FC<MessageRepliedProps> = (props) => {
   const {
-    message, sequence, emphasizedMessage, deletedByUser,
+    message, sequence, deletedByUser,
   } = props;
 
   const intl = useIntl();
-  const messageChunks = message.split('\n');
 
   return (
     <Styled.Container
+      data-test="chatMessageReplied"
       onClick={(e) => {
         e.stopPropagation();
         if (e.target instanceof HTMLAnchorElement) {
@@ -43,19 +43,15 @@ const ChatMessageReplied: React.FC<MessageRepliedProps> = (props) => {
     >
       {!deletedByUser && (
         <Styled.Message>
-          <Styled.Markdown
-            $emphasizedMessage={emphasizedMessage}
-            linkTarget="_blank"
-            allowedElements={window.meetingClientSettings.public.chat.allowedElements}
-            unwrapDisallowed
-          >
-            {messageChunks[0]}
-          </Styled.Markdown>
+          <Styled.HtmlContent
+            // eslint-disable-next-line react/no-danger
+            dangerouslySetInnerHTML={{ __html: getFirstVisibleLineHtml(message) }}
+          />
         </Styled.Message>
       )}
       {deletedByUser && (
         <DeleteMessage>
-          {intl.formatMessage(intlMessages.deleteMessage, { 0: deletedByUser })}
+          {intl.formatMessage(intlMessages.deleteMessage, { userName: deletedByUser })}
         </DeleteMessage>
       )}
     </Styled.Container>

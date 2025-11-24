@@ -7,7 +7,7 @@ public:
     # user to select an option ("Microphone" and/or "Listen only") for joining
     # audio
     autoJoin: true
-    # Disables the listen only option in audio modal.
+    # Set to false disables the listen only option in audio modal.
     listenOnlyMode: true
     forceListenOnly: false
     # Skips the echo test when connecting with microphone.
@@ -31,7 +31,7 @@ public:
     appName: BigBlueButton HTML5 Client
     bbbServerVersion: HTML5_FULL_BBB_VERSION
     displayBbbServerVersion: true
-    copyright: '©2024 BigBlueButton Inc.'
+    copyright: '©2025 BigBlueButton Inc.'
     html5ClientBuild: HTML5_CLIENT_VERSION
     helpLink: https://bigbluebutton.org/html5/
     delayForUnmountOfSharedNote: 120000
@@ -39,7 +39,6 @@ public:
       enabled: true
       iosAppStoreUrl: 'https://apps.apple.com/us/app/bigbluebutton-tablet/id1641156756'
       iosAppUrlScheme: 'bigbluebutton-tablet'
-    lockOnJoin: true
     cdn: ''
     basename: '/html5client'
     # the base location of the BBB API. If you use a cluster setup with a load
@@ -56,13 +55,13 @@ public:
     customStyleUrl: null
     darkTheme:
       enabled: true
-    askForFeedbackOnLogout: false
     # the default logoutUrl matches window.location.origin i.e. bigbluebutton.org for demo.bigbluebutton.org
     # in some cases we want only custom logoutUrl to be used when provided on meeting create. Default value: true
     askForConfirmationOnLeave: true
-    wakeLock: 
+    wakeLock:
       enabled: true
     allowDefaultLogoutUrl: true
+    skipMeetingEnded: false
     dynamicGuestPolicy: true
     enableGuestLobbyMessage: true
     guestPolicyExtraAllowOptions: false
@@ -86,7 +85,7 @@ public:
     # Flag used to enable apollo dev tools in production
     enableApolloDevTools: false
     # Time used when the client connection is stale
-    # and a new connection is attempted 
+    # and a new connection is attempted
     terminateAndRetryConnection: 30_000
     # Allows users to enable automatic transcription when joining a meeting.
     # Automatic transcription requires the browser to support the web
@@ -138,14 +137,13 @@ public:
     # this value to be kept under 16.
     breakouts:
       allowUserChooseRoomByDefault: false
+      offerRecordingForBreakouts: false
+      recordRoomByDefault: false
       captureWhiteboardByDefault: false
       captureSharedNotesByDefault: false
       sendInvitationToAssignedModeratorsByDefault: false
       breakoutRoomLimit: 16
       allowPresentationManagementInBreakouts: true
-    # https://github.com/bigbluebutton/bigbluebutton/pull/10826
-    customHeartbeat: false
-    customHeartbeatUseDataFrames: true
     showAllAvailableLocales: true
     # Show "Audio Filters for Microphone" option in settings menu.
     # When set to true, users are able to enable/disable microphone constraints,
@@ -189,6 +187,7 @@ public:
     defaultSettings:
       application:
         selectedLayout: 'custom'
+        pushLayout: false
         animations: true
         chatAudioAlerts: false
         chatPushAlerts: false
@@ -200,6 +199,7 @@ public:
         raiseHandPushAlerts: true
         guestWaitingAudioAlerts: true
         guestWaitingPushAlerts: true
+        muteUnmuteAudioAlerts: true
         wakeLock: true
         paginationEnabled: true
         whiteboardToolbarAutoHide: false
@@ -258,6 +258,9 @@ public:
       toggleUserList:
         accesskey: U
         descId: toggleUserList
+      openLeaveMenu:
+        accesskey: X
+        descId: openLeaveMenu
       toggleMute:
         accesskey: M
         descId: toggleMute
@@ -301,9 +304,20 @@ public:
     # Maximum number of bytes allowed in each mutation message payload.
     # Defaults to 10485760 (10MB)
     maxMutationPayloadSize: 10485760
+    # Timeout before automatically redirecting users to the logout URL (or closing the window if the session is
+    # a breakout room). Either a number (in miliseconds) or null.
+    timeoutBeforeRedirectOnMeetingEnd: 20000
   # plugins:
   #   - name: SamplePresentationToolbarPlugin
   #     url: https://<your-Host>/plugins/SamplePresentationToolbarPlugin.js
+  # Allowed errors to be shown on notifications bar
+    showConnectionErrors:
+      # - 3001
+      - 3002
+      # - 3003
+      - 3004
+      # - 3005
+      # - 3006
   externalVideoPlayer:
     enabled: true
   kurento:
@@ -577,6 +591,10 @@ public:
     maxCustom: 5
     maxTypedAnswerLength: 45
     chatMessage: true
+    quickPollConfirmationStep: true
+    quiz:
+      enabled: true
+      quickPollCorrectAnswerSuffix: "__"
   captions:
     enabled: true
     id: captions
@@ -729,11 +747,7 @@ public:
       track1: "RelaxingMusic"
       track2: "CalmMusic"
       track3: "aristocratDrums"
-    interval:
-      clock: 100
-      offset: 60000
     time: 5
-    tabIndicator: false
   chat:
     enabled: true
     itemsPerPage: 100
@@ -769,8 +783,9 @@ public:
     emojiPicker:
       enable: false
     # e.g.: disableEmojis: ['grin','laughing']
+    # use the id of the emojis from https://raw.githubusercontent.com/missive/emoji-mart/16978d04a766eec6455e2e8bb21cd8dc0b3c7436/packages/emoji-mart-data/sets/1/all.json
     disableEmojis: []
-    allowedElements: ['a', 'code', 'em', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'ol', 'ul', 'p', 'strong']
+    markdownImageAllowed: false
     # available options for toolbar: reply, edit, delete, reactions
     # example: ['reply', 'delete']
     toolbar: ['reply', 'delete', 'edit', 'reactions']
@@ -800,6 +815,8 @@ public:
     showParticipantsOnLogin: true
     showPushLayoutButton: true
     showPushLayoutToggle: true
+    showSessionDetailsOnJoin: true
+    showScreenshareQuickSwapButton: false
   pads:
     url: ETHERPAD_HOST
   media:
@@ -838,10 +855,18 @@ public:
     callHangupMaximumRetries: 10
     echoTestNumber: 'echo'
     listenOnlyCallTimeout: 15000
-    # Experimental: enables a new audio mechanism that has a server-side,
-    # transparent listen only mode. See issue #14021.
-    # bbb_userdata-transparent-listen-only supersedes this setting
-    transparentListenOnly: false
+    # skipInitialCamEnumeration: whether to skip the initial camera enumeration
+    # See https://github.com/bigbluebutton/bigbluebutton/issues/21746
+    skipInitialCamEnumeration: false
+    # transparentListenOnly: whether the client should use the transparent
+    # listen only mechanism.
+    # It does not remove the "Listen Only" option from the audio modal
+    # by itself, but it allows users to switch modes on the fly and
+    # improves server CPU efficiency for microphone users.
+    # To disable the dedicated listen only option in the audio modal,
+    # see `listenOnlyMode`/`userdata-bbb_transparent_listen_only_mode`
+    # userdata-bbb_transparent_listen_only supersedes this setting
+    transparentListenOnly: true
     # Dev flag. Controls the WebRTC SDP negotiation role for SFU full audio.
     fullAudioOffering: true
     # Dev flag. Controls the WebRTC negotiation role for listen only.
@@ -925,13 +950,23 @@ public:
       # livekit.selectiveSubscription: whether to use selective subscription all
       # applicable track sources. Default value is false. This overrides autoSubscribe
       # when set to true and in effect (conditional to client behavior).
-      selectiveSubscription: false
+      selectiveSubscription: true
+      logLevel: 3
+      roomOptions:
+        adaptiveStream: true
+        dynacast: true
+        stopLocalTrackOnUnpublish: false
       audio:
+        # unpublishOnMute: whether to unpublish audio tracks when muted. Default is true.
+        unpublishOnMute: true
         # publishOptions: see https://docs.livekit.io/client-sdk-js/interfaces/TrackPublishOptions.html
         publishOptions:
-          audioPreset: 'speech'
-          dtx: true
-          red: false
+          audioPreset:
+            maxBitrate: 48000
+            networkPriority: 'high'
+            priority: 'high'
+          dtx: false
+          red: true
           forceStereo: false
       camera:
         publishOptions:
@@ -942,7 +977,7 @@ public:
   stats:
     enabled: true
     interval: 10000
-    timeout: 30000
+    timeout: 10000
     log: true
     notification:
       warning: false
@@ -956,6 +991,7 @@ public:
       danger: 1000
       critical: 2000
     help: STATS_HELP_URL
+    lastEntriesCap: 20
   presentation:
     allowDownloadOriginal: true
     allowDownloadWithAnnotations: true
@@ -1027,6 +1063,10 @@ public:
     maxNumberOfAnnotations: 300
     # Limit the number of users who can interact with the whiteboard
     maxNumberOfActiveUsers: 25
+    # This is the number of times we can press undo (plus 100 providing a safe margin for some shapes with extra entries)
+    # default value is 400, adjusted for maxNumberOfAnnotations being 300
+    maxHistoryStackSize: 400
+    lockToolbarTools: false
     annotations:
       status:
         start: DRAW_START
@@ -1051,6 +1091,7 @@ public:
         family: script
     toolbar:
       multiUserPenOnly: false
+      initialSelectedTool: draw
       presenterTools:
         - select
         - hand
@@ -1060,8 +1101,27 @@ public:
         - text
         - note
         - rectangle
+        - delete-selected-items
+        - highlight
         - more
         - actions
+        - ellipse
+        - diamond
+        - triangle
+        - trapezoid
+        - rhombus
+        - hexagon
+        - cloud
+        - star
+        - oval
+        - x-box
+        - check-box
+        - arrow-left
+        - arrow-up
+        - arrow-down
+        - arrow-right
+        - line
+        - frame
       multiUserTools:
         - select
         - hand
@@ -1071,10 +1131,31 @@ public:
         - text
         - note
         - rectangle
+        - delete-selected-items
+        - highlight
         - more
         - actions
+        - ellipse
+        - diamond
+        - triangle
+        - trapezoid
+        - rhombus
+        - hexagon
+        - cloud
+        - star
+        - oval
+        - x-box
+        - check-box
+        - arrow-left
+        - arrow-up
+        - arrow-down
+        - arrow-right
+        - line
+        - frame
+    locales: ['ar', 'ca', 'cs', 'da', 'de', 'en', 'es', 'fa', 'fi', 'fr', 'gl', 'he', 'hi-in', 'hu', 'it', 'ja', 'ko-kr', 'ku', 'main', 'my', 'ne', 'no', 'pl', 'pt-br', 'pt-pt', 'ro', 'ru', 'sv', 'te', 'th', 'tr', 'uk', 'vi', 'zh-cn', 'zh-tw']
   clientLog:
     console:
+      enableRuntimeErrorLogging: false
       enabled: true
       level: debug
     external:
@@ -1092,6 +1173,9 @@ public:
     showThumbnails: true
     imagesPath: /resources/images/virtual-backgrounds/
     thumbnailsPath: /resources/images/virtual-backgrounds/thumbnails/
+    # willReadFrequently: Defines the optimization hint for the virtual background canvas.
+    # If commented out (default), the browser decides the best strategy.
+    #willReadFrequently: true
     fileNames:
       - home.jpg
       - coffeeshop.jpg
@@ -1104,31 +1188,6 @@ private:
     localesUrl: /locale-list
     pencilChunkLength: 100
     loadSlidesFromHttpAlways: false
-  minBrowserVersions:
-    - browser: chrome
-      version: 72
-    - browser: chromeMobileIOS
-      version: 94
-    - browser: firefox
-      version: 68
-    - browser: firefoxMobile
-      version: 68
-    - browser: edge
-      version: 79
-    - browser: ie
-      version: Infinity
-    - browser: safari
-      version: [12, 1]
-    - browser: mobileSafari
-      version: [12, 1]
-    - browser: opera
-      version: 50
-    - browser: electron
-      version: [0, 36]
-    - browser: SamsungInternet
-      version: 10
-    - browser: YandexBrowser
-      version: 19
   # Direct Prometheus instrumentation.
   # EXPERIMENTAL, so disabled by default.
   prometheus:

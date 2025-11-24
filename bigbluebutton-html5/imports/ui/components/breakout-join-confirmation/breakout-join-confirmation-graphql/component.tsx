@@ -1,12 +1,10 @@
 import { useMutation } from '@apollo/client';
-import React, { useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import Styled from './styles';
 import ModalFullscreen from '/imports/ui/components/common/modal/fullscreen/component';
 import {
   BreakoutRoom,
-  getBreakoutCount,
-  GetBreakoutCountResponse,
   getBreakoutData,
   GetBreakoutDataResponse,
   handleInviteDismissedAt,
@@ -14,13 +12,12 @@ import {
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { BREAKOUT_ROOM_REQUEST_JOIN_URL } from '../../breakout-room/mutations';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
-import AudioManager from '/imports/ui/services/audio-manager';
-import AudioService from '/imports/ui/components/audio/service';
-import VideoService from '/imports/ui/components/video-provider/service';
-import { useExitVideo, useStreams } from '/imports/ui/components/video-provider/hooks';
-import logger from '/imports/startup/client/logger';
 import { rejoinAudio } from '../../breakout-room/breakout-room/service';
 import { useBreakoutExitObserver } from './hooks';
+import { useStopMediaOnMainRoom } from '/imports/ui/components/breakout-room/hooks';
+import logger from '/imports/startup/client/logger';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import { useModalRegistration } from '/imports/ui/core/singletons/modalController';
 
 const intlMessages = defineMessages({
   title: {
@@ -55,47 +52,66 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.generatingURLMessage',
     description: 'label for generating breakout room url',
   },
+  breakoutRoom: {
+    id: 'app.createBreakoutRoom.room',
+    description: 'breakout room',
+  },
 });
 
 interface BreakoutJoinConfirmationProps {
   freeJoin: boolean;
   breakouts: BreakoutRoom[];
   currentUserJoined: boolean,
-  firstBreakoutId: string;
-  isUsingAudio: () => boolean;
-  exitVideo: () => Promise<boolean>;
-  exitAudio: () => Promise<unknown>;
-  storeVideoDevices: () => void;
+  presenter: boolean;
 }
 
 const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
   freeJoin,
   breakouts,
   currentUserJoined,
-  firstBreakoutId,
-  isUsingAudio,
-  exitAudio,
-  exitVideo,
-  storeVideoDevices,
+  presenter,
 }) => {
   const [breakoutRoomRequestJoinURL] = useMutation(BREAKOUT_ROOM_REQUEST_JOIN_URL);
   const [callHandleInviteDismissedAt] = useMutation(handleInviteDismissedAt);
-
+  const stopMediaOnMainRoom = useStopMediaOnMainRoom();
   const intl = useIntl();
   const [waiting, setWaiting] = React.useState(false);
-  const [isOpen, setIsOpen] = React.useState(false);
 
-  const defaultSelectedBreakoutId = breakouts.find(({ isLastAssignedRoom }) => isLastAssignedRoom)?.breakoutRoomId
-    || firstBreakoutId;
+  const {
+    close: breakoutJoinConfirmationClose,
+    open: breakoutJoinConfirmationOpen,
+    isOpen: breakoutJoinConfirmationIsOpen,
+  } = useModalRegistration({
+    id: 'breakoutJoinConfirmationModal',
+    priority: 'medium',
+  });
 
-  const [selectValue, setSelectValue] = React.useState(defaultSelectedBreakoutId);
+  const setIsOpen = useCallback((value: boolean) => {
+    if (value) {
+      breakoutJoinConfirmationOpen();
+    } else {
+      breakoutJoinConfirmationClose();
+    }
+  }, [breakoutJoinConfirmationClose, breakoutJoinConfirmationOpen]);
+
+  const uniqueMatch = (arr: BreakoutRoom[], predicate: (item: BreakoutRoom) => boolean) => {
+    const matches = arr.filter(predicate);
+    return matches.length === 1 ? matches[0] : null;
+  };
+
+  const defaultSelectedBreakoutId = uniqueMatch(breakouts, (br) => br.showInvitation)?.breakoutRoomId
+      || uniqueMatch(breakouts, (br) => br.isLastAssignedRoom)?.breakoutRoomId
+      || breakouts.find((br) => br.joinURL != null)?.breakoutRoomId
+      || breakouts[0]?.breakoutRoomId;
+
+  const [selectValue, setSelectValue] = React.useState('');
 
   const requestJoinURL = (breakoutRoomId: string) => {
     breakoutRoomRequestJoinURL({ variables: { breakoutRoomId } });
   };
 
   // request join url if free join is enabled and user is not assigned to any room
-  if (defaultSelectedBreakoutId === firstBreakoutId) {
+  if (defaultSelectedBreakoutId === breakouts[0].breakoutRoomId) {
     const selectedBreakout = breakouts.find(({ breakoutRoomId }) => breakoutRoomId === defaultSelectedBreakoutId);
     if (!selectedBreakout?.joinURL && !waiting) {
       requestJoinURL(defaultSelectedBreakoutId);
@@ -112,16 +128,16 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
     }
   };
 
-  const handleJoinBreakoutConfirmation = () => {
-    if (isUsingAudio()) {
-      exitAudio();
-      logger.info(
-        { logCode: 'breakout_join_confirmation' },
-        'Joining breakout room closed audio in the main room',
-      );
+  useEffect(() => {
+    // If User is Moved to a new room, the select value is updated
+    if (defaultSelectedBreakoutId) {
+      setSelectValue(defaultSelectedBreakoutId);
     }
-    storeVideoDevices();
-    exitVideo();
+  }, [defaultSelectedBreakoutId]);
+
+  const handleJoinBreakoutConfirmation = useCallback(() => {
+    stopMediaOnMainRoom(presenter);
+
     if (breakouts.length === 1) {
       const breakout = breakouts[0];
 
@@ -132,10 +148,16 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
     } else {
       const selectedBreakout = breakouts.find(({ breakoutRoomId }) => breakoutRoomId === selectValue);
       if (selectedBreakout?.joinURL) {
+        // log which breakout room the user is joining
+        logger.info({
+          logCode: 'breakoutroom_freejoin_selected',
+          extraInfo: { selectedBreakout },
+        }, 'User selected breakout room to join');
+
         window.open(selectedBreakout.joinURL, '_blank');
       }
     }
-  };
+  }, [breakouts, selectValue, presenter, stopMediaOnMainRoom]);
 
   const select = useMemo(() => {
     return (
@@ -148,13 +170,15 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
           data-test="selectBreakoutRoomBtn"
         >
           {
-            breakouts.sort((a, b) => a.sequence - b.sequence).map(({ shortName, breakoutRoomId }) => (
+            breakouts.sort((a, b) => a.sequence - b.sequence).map(({
+              shortName, breakoutRoomId, isDefaultName, sequence,
+            }) => (
               <option
                 data-test="roomOption"
                 key={breakoutRoomId}
                 value={breakoutRoomId}
               >
-                {shortName}
+                {isDefaultName ? intl.formatMessage(intlMessages.breakoutRoom, { roomNumber: sequence }) : shortName}
               </option>
             ))
           }
@@ -163,6 +187,10 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
       </Styled.SelectParent>
     );
   }, [breakouts, waiting, selectValue]);
+
+  const roomName = breakouts[0].isDefaultName
+    ? intl.formatMessage(intlMessages.breakoutRoom, { roomNumber: breakouts[0].sequence })
+    : breakouts[0].shortName;
 
   useEffect(() => {
     if (waiting) {
@@ -178,6 +206,16 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
       setIsOpen(true);
     }
   }, [breakouts, currentUserJoined]);
+
+  useEffect(() => {
+    // log which breakout rooms the user has the option to join
+    if (freeJoin) {
+      logger.info({
+        logCode: 'breakoutroom_freejoin_options',
+        extraInfo: { breakouts },
+      }, 'User is given the option to join these breakout rooms');
+    }
+  }, []);
 
   return (
     <ModalFullscreen
@@ -199,11 +237,11 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
       }}
       {...{
         setIsOpen,
-        isOpen,
+        isOpen: breakoutJoinConfirmationIsOpen,
         priority: 'medium',
       }}
     >
-      {freeJoin ? select : `${intl.formatMessage(intlMessages.message)} ${breakouts[0].shortName}?`}
+      {freeJoin ? select : `${intl.formatMessage(intlMessages.message)} ${roomName}?`}
     </ModalFullscreen>
   );
 };
@@ -212,19 +250,18 @@ const BreakoutJoinConfirmationContainer: React.FC = () => {
   const { data: currentUser } = useCurrentUser((u) => {
     return {
       isModerator: u.isModerator,
-      breakoutRooms: u.breakoutRooms,
+      lastBreakoutRoom: u.lastBreakoutRoom,
+      presenter: u.presenter,
+      breakoutRoomsSummary: u.breakoutRoomsSummary,
     };
   });
-  const {
-    data: breakoutData,
-  } = useDeduplicatedSubscription<GetBreakoutDataResponse>(getBreakoutData);
-  const exitVideo = useExitVideo(true);
-  const videoStreams = useStreams();
-  const storeVideoDevices = () => {
-    VideoService.storeDeviceIds(videoStreams);
-  };
-  const { exitAudio } = AudioService;
-  const { isUsingAudio } = AudioManager;
+
+  const hasInvitationToShow = (currentUser?.breakoutRoomsSummary?.totalOfShowInvitation ?? 0) > 0;
+
+  const { data: currentMeeting } = useMeeting((m) => ({
+    breakoutRoomsCommonProperties: m.breakoutRoomsCommonProperties,
+  }));
+
   const breakoutExitObserver = useBreakoutExitObserver();
   useEffect(() => {
     breakoutExitObserver.setCallback('rejoinAudio', rejoinAudio);
@@ -232,28 +269,24 @@ const BreakoutJoinConfirmationContainer: React.FC = () => {
       breakoutExitObserver.removeCallback('rejoinAudio');
     };
   }, []);
+
   const {
-    data: breakoutCountData,
-  } = useDeduplicatedSubscription<GetBreakoutCountResponse>(getBreakoutCount);
-  if (!breakoutCountData || !breakoutCountData.breakoutRoom_aggregate.aggregate.count) return null;
+    data: breakoutData,
+  } = useDeduplicatedSubscription<GetBreakoutDataResponse>(getBreakoutData, { skip: !hasInvitationToShow });
+
+  if (!hasInvitationToShow) return null;
+
+  if (currentUser?.isModerator
+      && !currentMeeting?.breakoutRoomsCommonProperties?.sendInvitationToModerators) return null;
+
   if (!breakoutData || breakoutData.breakoutRoom.length === 0) return null;
-  const firstBreakout = breakoutData.breakoutRoom[0];
-  const {
-    freeJoin,
-    sendInvitationToModerators,
-    breakoutRoomId,
-  } = firstBreakout;
-  if (!sendInvitationToModerators && currentUser?.isModerator) return null;
+
   return (
     <BreakoutJoinConfirmation
-      freeJoin={freeJoin}
+      freeJoin={currentMeeting?.breakoutRoomsCommonProperties?.freeJoin ?? false}
       breakouts={breakoutData.breakoutRoom}
-      currentUserJoined={currentUser?.breakoutRooms?.isUserCurrentlyInRoom ?? false}
-      firstBreakoutId={breakoutRoomId}
-      isUsingAudio={isUsingAudio}
-      exitVideo={exitVideo}
-      exitAudio={exitAudio}
-      storeVideoDevices={storeVideoDevices}
+      currentUserJoined={currentUser?.lastBreakoutRoom?.currentlyInRoom ?? false}
+      presenter={currentUser?.presenter ?? false}
     />
   );
 };

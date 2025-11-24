@@ -89,7 +89,13 @@ const setSessionVirtualBackgroundInfo = (deviceId, type, name, uniqueId = null) 
   getStorageSingletonInstance().setItem(`VirtualBackgroundInfo_${deviceId}`, { type, name, uniqueId });
 };
 
+const setCameraBrightnessInfo = (deviceId, brightness, wholeImageBrightness) => {
+  getStorageSingletonInstance().setItem(`CameraBrightnessInfo_${deviceId}`, { brightness, wholeImageBrightness });
+};
+
 const getSessionVirtualBackgroundInfo = (deviceId) => getStorageSingletonInstance().getItem(`VirtualBackgroundInfo_${deviceId}`);
+
+const getCameraBrightnessInfo = (deviceId) => getStorageSingletonInstance().getItem(`CameraBrightnessInfo_${deviceId}`);
 
 const getSessionVirtualBackgroundInfoWithDefault = (deviceId) => getStorageSingletonInstance()
   .getItem(`VirtualBackgroundInfo_${deviceId}`) || {
@@ -117,8 +123,10 @@ export {
   BLUR_FILENAME,
   EFFECT_TYPES,
   setSessionVirtualBackgroundInfo,
+  setCameraBrightnessInfo,
   getSessionVirtualBackgroundInfo,
   getSessionVirtualBackgroundInfoWithDefault,
+  getCameraBrightnessInfo,
   removeSessionVirtualBackgroundInfo,
   isVirtualBackgroundSupported,
   createVirtualBackgroundStream,

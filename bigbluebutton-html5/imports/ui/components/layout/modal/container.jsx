@@ -8,18 +8,19 @@ import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 
 const LayoutModalContainer = (props) => {
   const {
-    intl, setIsOpen, onRequestClose, isOpen, amIModerator,
+    intl, setIsOpen, onRequestClose, isOpen,
   } = props;
   const setLocalSettings = useUserChangedLocalSettings();
   const application = useSettings(SETTINGS.APPLICATION);
   const { data: currentUser } = useCurrentUser((u) => ({
     presenter: u.presenter,
+    isModerator: u.isModerator,
   }));
   return (
     <LayoutModalComponent {...{
       intl,
       setIsOpen,
-      isModerator: amIModerator,
+      isModerator: currentUser?.isModerator ?? false,
       isPresenter: currentUser?.presenter ?? false,
       application,
       updateSettings,

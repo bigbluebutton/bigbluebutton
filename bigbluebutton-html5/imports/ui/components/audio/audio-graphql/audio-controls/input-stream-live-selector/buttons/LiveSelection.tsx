@@ -133,7 +133,7 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
     const baseLabel = device?.kind === AUDIO_OUTPUT
       ? intlMessages.fallbackOutputLabel
       : intlMessages.fallbackInputLabel;
-    let label = intl.formatMessage(baseLabel, { 0: index });
+    let label = intl.formatMessage(baseLabel, { index });
 
     if (!device?.deviceId) {
       label = `${label} ${intl.formatMessage(intlMessages.fallbackNoPermissionLabel)}`;
@@ -156,14 +156,11 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
       {
         key: `audioDeviceList-${deviceKind}`,
         label: title,
-        iconRight: (deviceKind === 'audioinput') ? 'unmute' : 'volume_level_2',
+        icon: (deviceKind === 'audioinput') ? 'unmute' : 'listen',
         disabled: true,
         customStyles: Styled.DisabledLabel,
+        onClick: () => {},
       } as MenuOptionItemType,
-      {
-        key: 'separator-01',
-        isSeparator: true,
-      } as MenuSeparatorItemType,
     ];
 
     let deviceList: MenuOptionItemType[] = [];
@@ -182,7 +179,8 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
           key: `${device.deviceId}-${deviceKind}`,
           dataTest: `${deviceKind}-${index + 1}`,
           label: truncateDeviceName(device.label || getFallbackLabel(device, index + 1)),
-          customStyles: isCurrentDevice ? Styled.SelectedLabel : null,
+          customStyles: isCurrentDevice ? Styled.SelectedLabel : Styled.DeviceLabel,
+          iconStyles: isCurrentDevice ? Styled.SelectedLabelIcon : null,
           iconRight: isCurrentDevice ? 'check' : null,
           onClick: () => onDeviceListClick(device.deviceId, deviceKind, callback),
         } as MenuOptionItemType;
@@ -219,7 +217,8 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
         key: `listenOnly-${deviceKind}`,
         dataTest: `${deviceKind}-listenOnly`,
         label: intl.formatMessage(intlMessages.noMicListenOnlyLabel),
-        customStyles: listenOnly && Styled.SelectedLabel,
+        customStyles: listenOnly ? Styled.SelectedLabel : Styled.DeviceLabel,
+        iconStyles: listenOnly ? Styled.SelectedLabelIcon : null,
         iconRight: listenOnly ? 'check' : null,
         onClick: () => onDeviceListClick('listen-only', deviceKind, callback),
       } as MenuOptionItemType);
@@ -289,11 +288,15 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
     onClick: () => handleLeaveAudio(meetingIsBreakout),
   };
   const dropdownListComplete = inputDeviceList
+    .concat({
+      key: 'separator-01',
+      isSeparator: true,
+    } as MenuSeparatorItemType)
     .concat(outputDeviceList)
     .concat({
       key: 'separator-02',
       isSeparator: true,
-    });
+    } as MenuSeparatorItemType);
   if (shouldTreatAsMicrophone()) dropdownListComplete.push(audioSettingsOption);
   dropdownListComplete.push(leaveAudioOption);
 
@@ -305,6 +308,7 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
         dropdownListComplete.push({
           label: audioSettingsDropdownOption.label,
           iconRight: audioSettingsDropdownOption.icon,
+          dataTest: audioSettingsDropdownOption.dataTest,
           onClick: audioSettingsDropdownOption.onClick,
           key: audioSettingsDropdownOption.id,
         });
@@ -315,7 +319,7 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
         dropdownListComplete.push({
           isSeparator: true,
           key: audioSettingsDropdownSeparator.id,
-        });
+        } as MenuSeparatorItemType);
         break;
       }
       default:

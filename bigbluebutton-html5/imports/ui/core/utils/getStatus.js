@@ -4,11 +4,8 @@ export default function getStatus(levels, value) {
     .sort((a, b) => a[1] - b[1]);
 
   for (let i = 0; i < sortedLevels.length; i += 1) {
-    if (value < sortedLevels[i][1]) {
+    if (value <= sortedLevels[i][1]) {
       return i === 0 ? 'normal' : sortedLevels[i - 1][0];
-    }
-    if (i === sortedLevels.length - 1) {
-      return sortedLevels[i][0];
     }
   }
 

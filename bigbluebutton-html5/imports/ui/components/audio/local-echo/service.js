@@ -128,7 +128,7 @@ const playEchoStream = async (stream, loopbackAgent = null) => {
 
 const setAudioSink = (deviceId) => {
   const audioElement = document.querySelector(LOCAL_MEDIA_TAG);
-
+  audioElement.autoplay = true;
   if (audioElement.setSinkId) {
     audioElement.setSinkId(deviceId).catch((error) => {
       logger.warn({

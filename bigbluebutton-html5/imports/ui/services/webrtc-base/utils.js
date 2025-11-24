@@ -12,6 +12,9 @@ const stopStream = (stream) => {
   stream.getTracks().forEach(stopTrack);
 };
 
+const hasMediaDevicesEventTarget = () => typeof navigator?.mediaDevices?.addEventListener === 'function'
+    && typeof navigator?.mediaDevices?.removeEventListener === 'function';
+
 const silentConsole = {
   log: () => {},
   info: () => {},
@@ -23,6 +26,7 @@ const silentConsole = {
 };
 
 export {
+  hasMediaDevicesEventTarget,
   stopStream,
   stopTrack,
   silentConsole,

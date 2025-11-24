@@ -96,15 +96,6 @@ object PresentationPodsApp {
       pres.removable, defaultPresentation, filenameConverted)
   }
 
-  def setCurrentPresentationInPod(state: MeetingState2x, podId: String, nextCurrentPresId: String): Option[PresentationPod] = {
-    for {
-      pod <- getPresentationPod(state, podId)
-      updatedPod <- pod.setCurrentPresentation(nextCurrentPresId)
-    } yield {
-      updatedPod
-    }
-  }
-
   def generateToken(podId: String, userId: String): String = {
     "PresUploadToken-" + RandomStringGenerator.randomAlphanumericString(8) + podId + "-" + userId
   }

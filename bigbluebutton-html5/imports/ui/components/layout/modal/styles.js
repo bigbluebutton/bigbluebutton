@@ -48,8 +48,7 @@ const IconSvg = styled.img`
   margin: 5px;
 
   @media ${smallOnly} {
-    height: 3rem;
-    margin: 1px;
+    height: 20%;
   }
 `;
 
@@ -69,9 +68,9 @@ const LayoutBtn = styled(Button)`
     ${({ layout }) => (layout === 'custom') && `
       display: none;
     `};
-    
+
     margin: 0.5rem;
-    border: ${colorWhite} solid 4px;
+    border: ${colorWhite} solid 6px;
     border-radius: 10px;
     width: fit-content;
   }
@@ -87,7 +86,7 @@ const LayoutBtn = styled(Button)`
     border-radius: 5px;
 
     @media ${smallOnly} {
-      border: ${colorPrimary} solid 4px;
+      border: ${colorPrimary} solid 6px;
       border-radius: 5px;
     }
 
@@ -112,15 +111,12 @@ const LayoutBtn = styled(Button)`
       height: 1.8rem;
 
       @media ${smallOnly} {
-        width: 1rem;
-        height: 1rem;
-        font-size: 0.6rem;
-        margin-left: 4.5rem;
+        width: 2rem;
+        height: 1.5rem;
+        font-size: 0.8rem;
         padding: 0.2rem 0.2rem 0 0.3rem;
 
         [dir="rtl"] & {
-          margin-right: 4.5rem;
-          margin-left: unset;
           padding: 0.2rem 0.3rem 0 0.2rem;
         }
       }
@@ -173,7 +169,7 @@ const LabelLayoutNames = styled.label`
     ${({ layout }) => (layout === 'custom') && `
      display: none;
     `};
-    margin: 0 0 3rem 0;
+    margin: 0 0 1.5rem 0;
   };
 `;
 

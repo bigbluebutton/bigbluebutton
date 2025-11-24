@@ -9,9 +9,7 @@ import { makeVar, useMutation } from '@apollo/client';
 import { defineMessages, useIntl } from 'react-intl';
 import useChat from '/imports/ui/core/hooks/useChat';
 import useIntersectionObserver from '/imports/ui/hooks/useIntersectionObserver';
-import { Chat } from '/imports/ui/Types/chat';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
-import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import { Message } from '/imports/ui/Types/message';
@@ -20,6 +18,8 @@ import LAST_SEEN_MUTATION from './queries';
 import {
   MessageList,
   UnreadButton,
+  PageWrapper,
+  Content,
 } from './styles';
 import useReactiveRef from '/imports/ui/hooks/useReactiveRef';
 import useStickyScroll from '/imports/ui/hooks/useStickyScroll';
@@ -36,6 +36,10 @@ import {
 } from '/imports/ui/services/features';
 import { CHAT_DELETE_REACTION_MUTATION, CHAT_SEND_REACTION_MUTATION } from './page/chat-message/mutations';
 import logger from '/imports/startup/client/logger';
+import { ChatLoading } from '../component';
+import Storage from '/imports/ui/services/storage/in-memory';
+import browserInfo from '/imports/utils/browserInfo';
+import deviceInfo from '/imports/utils/deviceInfo';
 
 const PAGE_SIZE = 50;
 const CLEANUP_TIMEOUT = 3000;
@@ -115,21 +119,38 @@ const dispatchLastSeen = () => setTimeout(() => {
   }
 }, 500);
 
+const findFirstFocusableChild = (element: HTMLElement) => {
+  const childElements = Array.from(element.children) as HTMLElement[];
+  return childElements.find((c) => (c as HTMLElement).dataset.focusable === 'true');
+};
+
+const findLastFocusableChild = (element: HTMLElement) => {
+  const childElements = Array.from(element.children) as HTMLElement[];
+  return childElements.reverse().find((c) => (c as HTMLElement).dataset.focusable === 'true');
+};
+
 const roving = (
   event: React.KeyboardEvent<HTMLElement>,
-  changeState: (el: HTMLElement | null) => void,
   elementsList: HTMLElement,
-  element: HTMLElement | null,
+  setFocused?: (el?: HTMLElement | null) => void,
 ) => {
   const numberOfChilds = elementsList.childElementCount;
+  const isTargetAChild = event.target instanceof HTMLDivElement && event.target.dataset.focusable === 'true';
+  const isTargetElement = event.target === event.currentTarget;
+  const { activeElement } = document;
+  const element = activeElement?.classList.contains('chat-message-container')
+    ? activeElement
+    : null;
 
-  if ([KEY_CODES.ESCAPE, KEY_CODES.TAB].includes(event.keyCode)) {
-    changeState(null);
+  if (!(isTargetAChild || isTargetElement)) return;
+
+  if (event.keyCode === KEY_CODES.ESCAPE && isTargetAChild) {
+    elementsList.focus();
   }
 
   if (event.keyCode === KEY_CODES.ARROW_DOWN) {
     event.preventDefault();
-    const firstElement = elementsList.firstChild as HTMLElement;
+    const firstElement = findFirstFocusableChild(elementsList);
     let elRef = element && numberOfChilds > 1 ? (element.nextSibling as HTMLElement) : firstElement;
 
     while (elRef && elRef.dataset.focusable !== 'true' && elRef.nextSibling) {
@@ -137,12 +158,13 @@ const roving = (
     }
 
     elRef = (elRef && elRef.dataset.focusable === 'true') ? elRef : firstElement;
-    changeState(elRef);
+    elRef?.focus?.();
+    setFocused?.(elRef);
   }
 
   if (event.keyCode === KEY_CODES.ARROW_UP) {
     event.preventDefault();
-    const lastElement = elementsList.lastChild as HTMLElement;
+    const lastElement = findLastFocusableChild(elementsList);
     let elRef = element ? (element.previousSibling as HTMLElement) : lastElement;
 
     while (elRef && elRef.dataset.focusable !== 'true' && elRef.previousSibling) {
@@ -150,24 +172,14 @@ const roving = (
     }
 
     elRef = (elRef && elRef.dataset.focusable === 'true') ? elRef : lastElement;
-    changeState(elRef);
+    elRef?.focus?.();
+    setFocused?.(elRef);
   }
 
-  if ([KEY_CODES.SPACE, KEY_CODES.ENTER].includes(event.keyCode)) {
+  if ([KEY_CODES.SPACE, KEY_CODES.ENTER].includes(event.keyCode) && isTargetElement) {
     const elRef = document.activeElement?.firstChild as HTMLElement;
-    changeState(elRef);
-  }
-
-  if ([KEY_CODES.ARROW_RIGHT].includes(event.keyCode)) {
-    if (element?.dataset) {
-      const { sequence } = element.dataset;
-
-      window.dispatchEvent(new CustomEvent(ChatEvents.CHAT_KEYBOARD_FOCUS_MESSAGE_REQUEST, {
-        detail: {
-          sequence,
-        },
-      }));
-    }
+    elRef?.focus?.();
+    setFocused?.(elRef);
   }
 };
 
@@ -192,8 +204,12 @@ const ChatMessageList: React.FC<ChatListProps> = ({
   const [userLoadedBackUntilPage, setUserLoadedBackUntilPage] = useState<number | null>(null);
   const [lastMessageCreatedAt, setLastMessageCreatedAt] = useState<string>('');
   const [followingTail, setFollowingTail] = React.useState(true);
-  const [selectedMessage, setSelectedMessage] = React.useState<HTMLElement | null>(null);
   const [showStartSentinel, setShowStartSentinel] = React.useState(false);
+  const [focusedMessageElement, setFocusedMessageElement] = React.useState<HTMLElement | null>();
+  const [loadingPages, setLoadingPages] = useState(new Set<number>());
+  const [lockLoadingNewPages, setLockLoadingNewPages] = useState(true);
+  const [isScrollingDisabled, setIsScrollingDisabled] = useState(false);
+  const allPagesLoaded = loadingPages.size === 0;
   const {
     childRefProxy: endSentinelRefProxy,
     intersecting: isEndSentinelVisible,
@@ -234,7 +250,6 @@ const ChatMessageList: React.FC<ChatListProps> = ({
 
   const sendReaction = useCallback((
     reactionEmoji: string,
-    reactionEmojiId: string,
     chatId: string,
     messageId: string,
   ) => {
@@ -243,7 +258,6 @@ const ChatMessageList: React.FC<ChatListProps> = ({
         chatId,
         messageId,
         reactionEmoji,
-        reactionEmojiId,
       },
     }).catch((e) => {
       logger.error({
@@ -258,7 +272,6 @@ const ChatMessageList: React.FC<ChatListProps> = ({
 
   const deleteReaction = useCallback((
     reactionEmoji: string,
-    reactionEmojiId: string,
     chatId: string,
     messageId: string,
   ) => {
@@ -267,7 +280,6 @@ const ChatMessageList: React.FC<ChatListProps> = ({
         chatId,
         messageId,
         reactionEmoji,
-        reactionEmojiId,
       },
     }).catch((e) => {
       logger.error({
@@ -294,14 +306,16 @@ const ChatMessageList: React.FC<ChatListProps> = ({
       if (followingTail) {
         toggleFollowingTail(false);
       }
+      if (lockLoadingNewPages) return;
       setUserLoadedBackUntilPage((prev) => {
         if (typeof prev === 'number' && prev > 0) {
+          setLockLoadingNewPages(true);
           return prev - 1;
         }
         return prev;
       });
     }
-  }, [isStartSentinelVisible, followingTail]);
+  }, [isStartSentinelVisible]);
 
   useEffect(() => {
     setter({
@@ -326,6 +340,10 @@ const ChatMessageList: React.FC<ChatListProps> = ({
   useEffect(() => {
     const handler = (e: Event) => {
       if (e instanceof CustomEvent) {
+        if (Math.ceil(e.detail.sequence / PAGE_SIZE) - 1 >= firstPageToLoad) {
+          return;
+        }
+        Storage.setItem(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST, e.detail.sequence);
         toggleFollowingTail(false);
         setUserLoadedBackUntilPage(Math.ceil(e.detail.sequence / PAGE_SIZE) - 1);
       }
@@ -370,6 +388,44 @@ const ChatMessageList: React.FC<ChatListProps> = ({
     }
   };
 
+  const scrollToBottom = useCallback(() => {
+    const container = messageListContainerRef.current;
+
+    if (!container) return;
+
+    let initialPosition = 0;
+    let initialTimestamp = 0;
+    let scrollPositionDiff = 0;
+
+    setIsScrollingDisabled(true);
+
+    const animateScrollPosition = (timestamp: number) => {
+      const value = (timestamp - initialTimestamp) / 300;
+      if (value <= 1) {
+        container.scrollTop = initialPosition + (value * scrollPositionDiff);
+        requestAnimationFrame(animateScrollPosition);
+      } else {
+        container.scrollTop = container.scrollHeight - container.offsetHeight;
+        setIsScrollingDisabled(false);
+      }
+    };
+
+    const startScrollAnimation = (timestamp: number) => {
+      const {
+        scrollTop,
+        scrollHeight,
+        offsetHeight,
+      } = container;
+
+      initialTimestamp = timestamp;
+      initialPosition = scrollTop;
+      scrollPositionDiff = scrollHeight - offsetHeight - scrollTop;
+      requestAnimationFrame(animateScrollPosition);
+    };
+
+    requestAnimationFrame(startScrollAnimation);
+  }, []);
+
   const renderUnreadNotification = useMemo(() => {
     if (totalUnread && !followingTail) {
       return (
@@ -379,11 +435,8 @@ const ChatMessageList: React.FC<ChatListProps> = ({
           size="sm"
           key="unread-messages"
           label={intl.formatMessage(intlMessages.moreMessages)}
-          onClick={() => {
-            if (endSentinelRef.current) {
-              endSentinelRef.current.scrollIntoView({ behavior: 'smooth' });
-            }
-          }}
+          onClick={scrollToBottom}
+          isRTL={isRTL}
         />
       );
     }
@@ -432,9 +485,8 @@ const ChatMessageList: React.FC<ChatListProps> = ({
     if (messageListRef.current) {
       roving(
         e,
-        setSelectedMessage,
         messageListRef.current,
-        selectedMessage,
+        setFocusedMessageElement,
       );
     }
   };
@@ -450,33 +502,229 @@ const ChatMessageList: React.FC<ChatListProps> = ({
     endSentinelParentRefProxy.current = el;
   }, []);
 
+  const setPageLoading = useCallback((page: number) => {
+    setLoadingPages((prev) => {
+      prev.add(page);
+      return new Set(prev);
+    });
+  }, [setLoadingPages]);
+
+  const clearPageLoading = useCallback((page: number) => {
+    setLoadingPages((prev) => {
+      prev.delete(page);
+      return new Set(prev);
+    });
+  }, [setLoadingPages]);
+
+  useEffect(() => {
+    setLockLoadingNewPages(loadingPages.size !== 0);
+  }, [loadingPages]);
+
+  const scrollEndFrameRef = React.useRef<number>();
+  const userStartedScrollingAt = React.useRef<number | null>(null);
+  const scrollEventCount = React.useRef(0);
+  const scrollActivityCheckInterval = React.useRef<ReturnType<typeof setInterval>>();
+
+  const pollScrollEndEvent = useCallback((
+    setFrameId: (id: number) => void,
+    onScrollEnd: () => void,
+    {
+      stabilityFrames,
+      currentFrame,
+    } = {
+      stabilityFrames: 20,
+      currentFrame: 0,
+    },
+  ) => {
+    if (currentFrame < stabilityFrames) {
+      const frameId = requestAnimationFrame(() => {
+        pollScrollEndEvent(setFrameId, onScrollEnd, {
+          stabilityFrames,
+          currentFrame: currentFrame + 1,
+        });
+      });
+      setFrameId(frameId);
+      return;
+    }
+
+    onScrollEnd();
+  }, []);
+
+  const startScrollEndEventPolling = useCallback((onScrollEnd: () => void) => {
+    if (scrollEndFrameRef.current != null) {
+      cancelAnimationFrame(scrollEndFrameRef.current);
+      scrollEndFrameRef.current = undefined;
+    }
+    scrollEndFrameRef.current = requestAnimationFrame(() => {
+      pollScrollEndEvent((frameId) => {
+        scrollEndFrameRef.current = frameId;
+      }, onScrollEnd);
+    });
+  }, []);
+
+  const startScrollActivityCheck = useCallback(() => {
+    userStartedScrollingAt.current = Date.now();
+
+    scrollActivityCheckInterval.current = setInterval(() => {
+      if (userStartedScrollingAt.current === null) return;
+      const now = Date.now();
+      const timeEllapsedInSeconds = (now - userStartedScrollingAt.current) / 1000;
+      const scrollRatio = scrollEventCount.current / timeEllapsedInSeconds;
+      if (scrollRatio > 100) {
+        const messageElements = Array.from(document.querySelectorAll('#chat-list [data-message-type]')) as HTMLElement[];
+        const messageTypeCount = messageElements.reduce((acc, element) => {
+          const { messageType } = element.dataset;
+          if (messageType) {
+            if (acc[messageType]) {
+              acc[messageType] += 1;
+            } else {
+              acc[messageType] = 1;
+            }
+          }
+          return acc;
+        }, {} as Record<string, number | undefined>);
+
+        logger.warn({
+          logCode: 'high_scroll_activity_in_chat',
+          extraInfo: {
+            userLoadedMessagesByType: {
+              totalMessages: messageElements.length,
+              ...messageTypeCount,
+            },
+            userId: currentUser?.userId,
+            browserName: browserInfo.browserName,
+            browserVersion: browserInfo.browserVersion,
+            deviceName: deviceInfo.osName,
+            deviceVersion: deviceInfo.osVersion,
+            scrollRatio,
+          },
+        }, 'User performed high scroll activity in chat');
+      }
+    }, 1000);
+  }, [currentUser?.userId]);
+
+  useEffect(() => () => {
+    if (scrollActivityCheckInterval.current) {
+      clearInterval(scrollActivityCheckInterval.current);
+    }
+    if (scrollEndFrameRef.current) {
+      cancelAnimationFrame(scrollEndFrameRef.current);
+    }
+  }, []);
+
   return (
     <>
       {
         [
-          <MessageList
-            id="chat-list"
-            key="message-list-wrapper"
-            onMouseUp={() => {
-              setScrollToTailEventHandler();
-            }}
-            onTouchEnd={() => {
-              setScrollToTailEventHandler();
-            }}
-            onScroll={(e) => {
-              if (e.target instanceof HTMLDivElement) {
-                const userScrolledUp = Math.ceil(e.target.scrollTop + e.target.clientHeight) < e.target.scrollHeight;
-                setShowStartSentinel(userScrolledUp);
-              }
-            }}
-            data-test="chatMessages"
-            isRTL={isRTL}
-            ref={updateRefs}
-            $hasMessageToolbar={hasMessageToolbar}
-          >
-            {showStartSentinel && (
+          <Content key="message-list-content">
+            <MessageList
+              id="chat-list"
+              key="message-list-wrapper"
+              onMouseUp={() => {
+                setScrollToTailEventHandler();
+              }}
+              onTouchEnd={() => {
+                setScrollToTailEventHandler();
+              }}
+              onScroll={(e) => {
+                if (isScrollingDisabled) {
+                  e.preventDefault();
+                  return;
+                }
+                const {
+                  scrollTop,
+                  clientHeight,
+                  scrollHeight,
+                } = e.currentTarget;
+                const userScrolledUp = Math.ceil(scrollTop + clientHeight) < scrollHeight;
+                if (userScrolledUp !== showStartSentinel) {
+                  setShowStartSentinel(userScrolledUp);
+                }
+                if (scrollActivityCheckInterval.current == null) {
+                  startScrollActivityCheck();
+                }
+                startScrollEndEventPolling(() => {
+                  userStartedScrollingAt.current = null;
+                  scrollEventCount.current = 0;
+                  clearInterval(scrollActivityCheckInterval.current);
+                  scrollActivityCheckInterval.current = undefined;
+                });
+                scrollEventCount.current += 1;
+              }}
+              onWheel={(e) => {
+                if (isScrollingDisabled) {
+                  e.preventDefault();
+                  return;
+                }
+                if (e.deltaY < 0 && isStartSentinelVisible && !lockLoadingNewPages) {
+                  setUserLoadedBackUntilPage((prev) => {
+                    if (typeof prev === 'number' && prev > 0) {
+                      setLockLoadingNewPages(true);
+                      return prev - 1;
+                    }
+                    return prev;
+                  });
+                }
+              }}
+              data-test="chatMessages"
+              isRTL={isRTL}
+              ref={updateRefs}
+              $hasMessageToolbar={hasMessageToolbar}
+            >
+              {showStartSentinel && (
+                <div
+                  ref={startSentinelRefProxy}
+                  style={{
+                    height: 1,
+                    background: 'none',
+                  }}
+                  tabIndex={-1}
+                  aria-hidden
+                />
+              )}
+              <PageWrapper
+                role="list"
+                aria-live="polite"
+                ref={messageListRef}
+                tabIndex={hasMessageToolbar ? 0 : -1}
+                onKeyDown={rove}
+              >
+                {Array.from({ length: pagesToLoad }, (_v, k) => k + (firstPageToLoad)).map((page) => {
+                  return (
+                    <ChatListPage
+                      firstPageToLoad={firstPageToLoad}
+                      key={`page-${page}`}
+                      page={page}
+                      pageSize={PAGE_SIZE}
+                      setLastSender={() => setLastSender(lastSenderPerPage.current)}
+                      lastSenderPreviousPage={page ? lastSenderPerPage.current.get(page - 1) : undefined}
+                      chatId={chatId}
+                      markMessageAsSeen={markMessageAsSeen}
+                      scrollRef={messageListContainerRef}
+                      meetingDisablePublicChat={!!meeting?.lockSettings?.disablePublicChat}
+                      meetingDisablePrivateChat={!!meeting?.lockSettings?.disablePrivateChat}
+                      currentUserDisablePublicChat={!!currentUser?.userLockSettings?.disablePublicChat}
+                      currentUserId={currentUser?.userId ?? ''}
+                      currentUserIsLocked={!!currentUser?.locked}
+                      currentUserIsModerator={!!currentUser?.isModerator}
+                      isBreakoutRoom={!!meeting?.isBreakout}
+                      messageToolbarIsEnabled={messageToolbarIsEnabled}
+                      chatDeleteEnabled={CHAT_DELETE_ENABLED}
+                      chatEditEnabled={CHAT_EDIT_ENABLED}
+                      chatReactionsEnabled={CHAT_REACTIONS_ENABLED}
+                      chatReplyEnabled={CHAT_REPLY_ENABLED}
+                      deleteReaction={deleteReaction}
+                      sendReaction={sendReaction}
+                      focusedSequence={Number(focusedMessageElement?.dataset.sequence)}
+                      clearPageLoading={clearPageLoading}
+                      setPageLoading={setPageLoading}
+                      allPagesLoaded={allPagesLoaded}
+                    />
+                  );
+                })}
+              </PageWrapper>
               <div
-                ref={startSentinelRefProxy}
+                ref={endSentinelRefProxy}
                 style={{
                   height: 1,
                   background: 'none',
@@ -484,60 +732,9 @@ const ChatMessageList: React.FC<ChatListProps> = ({
                 tabIndex={-1}
                 aria-hidden
               />
-            )}
-            <div
-              role="listbox"
-              ref={messageListRef}
-              tabIndex={hasMessageToolbar ? 0 : -1}
-              onKeyDown={rove}
-              onBlur={() => {
-                setSelectedMessage(null);
-              }}
-            >
-              {Array.from({ length: pagesToLoad }, (_v, k) => k + (firstPageToLoad)).map((page) => {
-                return (
-                  <ChatListPage
-                    firstPageToLoad={firstPageToLoad}
-                    key={`page-${page}`}
-                    page={page}
-                    pageSize={PAGE_SIZE}
-                    setLastSender={() => setLastSender(lastSenderPerPage.current)}
-                    lastSenderPreviousPage={page ? lastSenderPerPage.current.get(page - 1) : undefined}
-                    chatId={chatId}
-                    markMessageAsSeen={markMessageAsSeen}
-                    scrollRef={messageListContainerRef}
-                    focusedId={selectedMessage?.dataset.sequence
-                      ? Number.parseInt(selectedMessage?.dataset.sequence, 10)
-                      : null}
-                    meetingDisablePublicChat={!!meeting?.lockSettings?.disablePublicChat}
-                    meetingDisablePrivateChat={!!meeting?.lockSettings?.disablePrivateChat}
-                    currentUserDisablePublicChat={!!currentUser?.userLockSettings?.disablePublicChat}
-                    currentUserId={currentUser?.userId ?? ''}
-                    currentUserIsLocked={!!currentUser?.locked}
-                    currentUserIsModerator={!!currentUser?.isModerator}
-                    isBreakoutRoom={!!meeting?.isBreakout}
-                    messageToolbarIsEnabled={messageToolbarIsEnabled}
-                    chatDeleteEnabled={CHAT_DELETE_ENABLED}
-                    chatEditEnabled={CHAT_EDIT_ENABLED}
-                    chatReactionsEnabled={CHAT_REACTIONS_ENABLED}
-                    chatReplyEnabled={CHAT_REPLY_ENABLED}
-                    deleteReaction={deleteReaction}
-                    sendReaction={sendReaction}
-                  />
-                );
-              })}
-            </div>
-            <div
-              ref={endSentinelRefProxy}
-              style={{
-                height: 1,
-                background: 'none',
-              }}
-              tabIndex={-1}
-              aria-hidden
-            />
-          </MessageList>,
-          renderUnreadNotification,
+            </MessageList>
+            {renderUnreadNotification}
+          </Content>,
           <ChatReplyIntention key="chatReplyIntention" />,
           <ChatEditingWarning key="chatEditingWarning" />,
         ]
@@ -556,18 +753,21 @@ const ChatMessageListContainer: React.FC = () => {
 
   const isPublicChat = idChatOpen === PUBLIC_CHAT_KEY;
   const chatId = !isPublicChat ? idChatOpen : PUBLIC_GROUP_CHAT_KEY;
-  const { data: currentChat } = useChat((chat) => {
+  const { data: chatData, loading: currentChatLoading } = useChat((chat) => {
     return {
       chatId: chat.chatId,
       totalMessages: chat.totalMessages,
       totalUnread: chat.totalUnread,
       lastSeenAt: chat.lastSeenAt,
     };
-  }, chatId) as GraphqlDataHookSubscriptionResponse<Partial<Chat>>;
+  }, chatId);
+  const currentChat = Array.isArray(chatData) ? chatData[0] : chatData;
 
   const [setMessageAsSeenMutation] = useMutation(LAST_SEEN_MUTATION);
 
-  const totalMessages = currentChat?.totalMessages || 0;
+  if (currentChatLoading || !currentChat) return <ChatLoading isRTL={document.dir === 'rtl'} />;
+
+  const { totalMessages = 0 } = currentChat;
   const totalPages = Math.ceil(totalMessages / PAGE_SIZE);
   return (
     <ChatMessageList

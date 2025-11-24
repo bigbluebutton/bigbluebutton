@@ -13,6 +13,7 @@ import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { CameraSettingsDropdownInterface } from 'bigbluebutton-html-plugin-sdk';
 import VideoService from '../service';
 import Styled from './styles';
+import { useModalRegistration } from '/imports/ui/core/singletons/modalController';
 
 const intlMessages = defineMessages({
   videoSettings: {
@@ -97,8 +98,21 @@ const JoinVideoButton: React.FC<JoinVideoButtonProps> = ({
 
   const [propsToPassModal, setPropsToPassModal] = useState<{ isVisualEffects?: boolean }>({});
   const [forceOpen, setForceOpen] = useState(false);
-  const [isVideoPreviewModalOpen, setVideoPreviewModalIsOpen] = useState(false);
   const [wasSelfViewDisabled, setWasSelfViewDisabled] = useState(false);
+
+  const {
+    isOpen: isVideoPreviewModalOpen,
+    open: openVideoPreviewModal,
+    close: closeVideoPreviewModal,
+  } = useModalRegistration({
+    id: 'videoPreviewModal',
+    priority: 'low',
+  });
+
+  const setIsVideoPreviewModalOpen = (isOpen: boolean) => {
+    if (isOpen) openVideoPreviewModal();
+    else closeVideoPreviewModal();
+  };
 
   useEffect(() => {
     const Settings = getSettingsSingletonInstance();
@@ -126,7 +140,7 @@ const JoinVideoButton: React.FC<JoinVideoButtonProps> = ({
           exit();
         } else {
           setForceOpen(isMobileSharingCamera);
-          setVideoPreviewModalIsOpen(true);
+          setIsVideoPreviewModalOpen(true);
         }
     }
   }, JOIN_VIDEO_DELAY_MILLISECONDS);
@@ -134,7 +148,7 @@ const JoinVideoButton: React.FC<JoinVideoButtonProps> = ({
   const handleOpenAdvancedOptions = (callback?: () => void) => {
     if (callback) callback();
     setForceOpen(isDesktopSharingCamera);
-    setVideoPreviewModalIsOpen(true);
+    setIsVideoPreviewModalOpen(true);
   };
 
   const getMessageFromStatus = () => {
@@ -173,6 +187,8 @@ const JoinVideoButton: React.FC<JoinVideoButtonProps> = ({
             key: plugin.id,
             // @ts-expect-error -> Plugin-related.
             label: plugin.label,
+            // @ts-expect-error -> Plugin-related.
+            dataTest: plugin.dataTest,
             // @ts-expect-error -> Plugin-related.
             onClick: plugin.onClick,
             // @ts-expect-error -> Plugin-related.
@@ -256,7 +272,7 @@ const JoinVideoButton: React.FC<JoinVideoButtonProps> = ({
             },
             forceOpen,
             priority: 'low',
-            setIsOpen: setVideoPreviewModalIsOpen,
+            setIsOpen: setIsVideoPreviewModalOpen,
             isOpen: isVideoPreviewModalOpen,
           }}
           isVisualEffects={propsToPassModal.isVisualEffects}

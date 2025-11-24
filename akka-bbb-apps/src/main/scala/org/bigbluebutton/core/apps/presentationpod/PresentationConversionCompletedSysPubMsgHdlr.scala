@@ -2,10 +2,13 @@ package org.bigbluebutton.core.apps.presentationpod
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
-import org.bigbluebutton.core.db.PresPresentationDAO
+import org.bigbluebutton.core.db.{NotificationDAO, PresPresentationDAO}
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models.PresentationInPod
 import org.bigbluebutton.core.running.LiveMeeting
+import org.bigbluebutton.core2.message.senders.MsgBuilder
+
+import java.time.{Instant, Duration}
 
 trait PresentationConversionCompletedSysPubMsgHdlr {
   this: PresentationPodHdlrs =>
@@ -55,7 +58,32 @@ trait PresentationConversionCompletedSysPubMsgHdlr {
       pods = pods.addPresentationToPod(pod.id, presWithConvertedName)
 
       PresPresentationDAO.updatePages(presWithConvertedName)
+      if(pres.current) {
+        val notifyEvent = MsgBuilder.buildNotifyAllInMeetingEvtMsg(
+          meetingId,
+          "info",
+          "presentation",
+          "app.presentation.newCurrentPresentationNotification",
+          "Notification when a new presentation is set as current",
+          Map("presentationName"->s"${pres.name}")
+        )
+        bus.outGW.send(notifyEvent)
+        NotificationDAO.insert(notifyEvent)
+      }
+
       state.update(pods)
+
+      val conversion = state.presentationConversions.find(pres.id)
+      conversion match {
+        case Some(pc) =>
+          val start = Instant.ofEpochMilli(pc.startTime)
+          val duration = Duration.between(start, Instant.now())
+          log.info(s"Presentation ${pres.id} with ${pres.pages.size} pages finished converting after $duration")
+          val presentationConversions = state.presentationConversions.remove(pres.id)
+          state.update(presentationConversions)
+        case None =>
+          state
+      }
     }
 
     newState match {

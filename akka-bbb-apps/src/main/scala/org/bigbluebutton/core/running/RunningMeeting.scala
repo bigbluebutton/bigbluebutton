@@ -19,12 +19,10 @@ class RunningMeeting(val props: DefaultProps, outGW: OutMessageGateway,
                      eventBus: InternalEventBus)(implicit val context: ActorContext) {
   private val externalVideoModel = new ExternalVideoModel()
   private val chatModel = new ChatModel()
-  private val plugins = PluginModel.createPluginModelFromJson(props.pluginProp)
   private val layouts = new Layouts()
   private val pads = new Pads()
   private val wbModel = new WhiteboardModel()
   private val presModel = new PresentationModel()
-  private val captionModel = new CaptionModel()
   private val registeredUsers = new RegisteredUsers
   private val meetingStatux2x = new MeetingStatus2x
   private val webcams = new Webcams
@@ -35,14 +33,17 @@ class RunningMeeting(val props: DefaultProps, outGW: OutMessageGateway,
   private val deskshareModel = new ScreenshareModel
   private val audioCaptions = new AudioCaptions
   private val timerModel = new TimerModel
-  val clientSettings: Map[String, Object] = ClientSettings.getClientSettingsWithOverride(props.overrideClientSettings)
+  private val clientSettingsBeforePluginValidation: Map[String, Object] = ClientSettings.getClientSettingsWithOverride(props.overrideClientSettings)
+  private val (plugins, pluginSettings) = PluginModel.createPluginModelFromJson(props.pluginProp, props.systemProps.html5PluginSdkVersion, clientSettingsBeforePluginValidation)
+  val clientSettings: Map[String, Object] = ClientSettings.mergePluginSettingsIntoClientSettings(
+    clientSettingsBeforePluginValidation, pluginSettings)
 
   // meetingModel.setGuestPolicy(props.usersProp.guestPolicy)
 
   // We extract the meeting handlers into this class so it is
   // easy to test.
   private val liveMeeting = new LiveMeeting(props, meetingStatux2x, deskshareModel, audioCaptions, timerModel,
-    chatModel, externalVideoModel, layouts, pads, registeredUsers, polls2x, wbModel, presModel, captionModel,
+    chatModel, externalVideoModel, layouts, pads, registeredUsers, polls2x, wbModel, presModel,
     webcams, voiceUsers, users2x, guestsWaiting, clientSettings, plugins)
 
   GuestsWaiting.setGuestPolicy(

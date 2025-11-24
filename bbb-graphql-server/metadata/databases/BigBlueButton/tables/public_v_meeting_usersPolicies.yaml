@@ -1,6 +1,11 @@
 table:
   name: v_meeting_usersPolicies
   schema: public
+configuration:
+  column_config: {}
+  custom_column_names: {}
+  custom_name: meeting_usersPolicies
+  custom_root_fields: {}
 select_permissions:
   - role: bbb_client
     permission:
@@ -21,3 +26,23 @@ select_permissions:
       filter:
         meetingId:
           _eq: X-Hasura-MeetingId
+  - role: bbb_client_not_in_meeting
+    permission:
+      columns:
+        - allowModsToEjectCameras
+        - allowModsToUnmuteUsers
+        - allowPromoteGuestToModerator
+        - authenticatedGuest
+        - guestLobbyMessage
+        - guestPolicy
+        - maxUserConcurrentAccesses
+        - maxUsers
+        - meetingLayout
+        - moderatorsCanMuteAudio
+        - moderatorsCanUnmuteAudio
+        - userCameraCap
+        - webcamsOnlyForModerator
+      filter:
+        meetingId:
+          _eq: X-Hasura-MeetingId
+    comment: ""

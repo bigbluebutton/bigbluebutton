@@ -28,13 +28,17 @@ trait StartPollReqMsgHdlr extends RightsManagementTrait {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "Polling is disabled for this meeting."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
+    } else if (msg.body.quiz && liveMeeting.props.meetingProp.disabledFeatures.contains("quizzes")) {
+      val meetingId = liveMeeting.props.meetingProp.intId
+      val reason = "Quiz is disabled for this meeting."
+      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
     } else if (permissionFailed(PermissionCheck.GUEST_LEVEL, PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to start poll."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
     } else {
       for {
-        pvo <- Polls.handleStartPollReqMsg(state, msg.header.userId, msg.body.pollId, msg.body.pollType, msg.body.secretPoll, msg.body.question, msg.body.isMultipleResponse, liveMeeting)
+        pvo <- Polls.handleStartPollReqMsg(state, msg.header.userId, msg, liveMeeting)
       } yield {
         broadcastEvent(msg, pvo)
       }

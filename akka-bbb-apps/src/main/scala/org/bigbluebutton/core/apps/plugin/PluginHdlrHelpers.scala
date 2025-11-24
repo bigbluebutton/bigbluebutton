@@ -10,6 +10,7 @@ object PluginHdlrHelpers {
     permissionType.map(_.toLowerCase).map {
       case "all"       => true
       case "moderator" => user.role == Roles.MODERATOR_ROLE
+      case "viewer"    => user.role == Roles.VIEWER_ROLE
       case "presenter" => user.presenter
       case "creator"   => creatorCheck
       case _           => false
@@ -36,9 +37,9 @@ object PluginHdlrHelpers {
       _ <- if (!pluginsDisabled) Some(()) else None
       user <- Users2x.findWithIntId(liveMeeting.users2x, userId)
     } yield {
-      PluginModel.getPluginByName(liveMeeting.plugins, pluginName) match {
-        case Some(p) =>
-          p.manifest.content.dataChannels.getOrElse(List()).find(dc => dc.name == channelName) match {
+      PluginModel.getPluginManifestContentByName(liveMeeting.plugins, pluginName) match {
+        case Some(pluginManifestContent) =>
+          pluginManifestContent.dataChannels.getOrElse(List()).find(dc => dc.name == channelName) match {
             case Some(dc) =>
               caseSomeDataChannelAndPlugin(user, dc, meetingId)
             case None => println(s"Data channel '${channelName}' not found in plugin '${pluginName}'.")

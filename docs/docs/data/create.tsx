@@ -1,3 +1,4 @@
+import Link from '@docusaurus/Link';
 import React from 'react';
 
 const createEndpointTableData = [
@@ -5,7 +6,12 @@ const createEndpointTableData = [
     "name": "name",
     "required": true,
     "type": "String",
-    "description": (<>A name for the meeting.  This is now required as of BigBlueButton 2.4.</>)
+    "description": (
+      <>
+        <p>A name for the meeting.</p>
+        <p><i>Added in 2.4:</i> This parameter is now required.</p>
+      </>
+    )
   },
   {
     "name": "meetingID",
@@ -16,14 +22,23 @@ const createEndpointTableData = [
   {
     "name": "attendeePW",
     "type": "String",
-    "description": (<>
-      <b>[DEPRECATED]</b> The password that the <a href="#join">join</a> URL can later provide as its <code className="language-plaintext highlighter-rouge">password</code> parameter to indicate the user will join as a viewer.  If no <code className="language-plaintext highlighter-rouge">attendeePW</code> is provided, the <code className="language-plaintext highlighter-rouge">create</code> call will return a randomly generated <code className="language-plaintext highlighter-rouge">attendeePW</code> password for the meeting.
+    deprecated: true,
+    "description": (
+      <>
+        <p>The password that the <a href="#join">join</a> URL can later provide as its <code className="language-plaintext highlighter-rouge">password</code> parameter to indicate the user will join as a viewer.  If no <code className="language-plaintext highlighter-rouge">attendeePW</code> is provided, the <code className="language-plaintext highlighter-rouge">create</code> call will return a randomly generated <code className="language-plaintext highlighter-rouge">attendeePW</code> password for the meeting.</p>
+        <p><i>Deprecated:</i> If the <code>role</code> parameter is used on the join URL, the <code>attendeePW</code> is unused.</p>
       </>)
   },
   {
     "name": "moderatorPW",
     "type": "String",
-    "description": (<><b>[DEPRECATED]</b> The password that will <a href="#join">join</a> URL can later provide as its <code className="language-plaintext highlighter-rouge">password</code> parameter to indicate the user will as a moderator.  if no <code className="language-plaintext highlighter-rouge">moderatorPW</code> is provided, <code className="language-plaintext highlighter-rouge">create</code> will return a randomly generated <code className="language-plaintext highlighter-rouge">moderatorPW</code> password for the meeting.</>)
+    deprecated: true,
+    "description": (
+      <>
+        <p>The password that will <a href="#join">join</a> URL can later provide as its <code className="language-plaintext highlighter-rouge">password</code> parameter to indicate the user will as a moderator.  if no <code className="language-plaintext highlighter-rouge">moderatorPW</code> is provided, <code className="language-plaintext highlighter-rouge">create</code> will return a randomly generated <code className="language-plaintext highlighter-rouge">moderatorPW</code> password for the meeting.</p>
+        <p><i>Deprecated:</i> If the <code>role</code> parameter is used on the join URL, the <code>moderatorPW</code> is unused.</p>
+      </>
+    )
   },
   {
     "name": "welcome",
@@ -116,6 +131,20 @@ const createEndpointTableData = [
     "required": false,
     "type": "String",
     "description": (<>This is a special parameter type (there is no parameter named just <code className="language-plaintext highlighter-rouge">meta</code>).<br /><br /> You can pass one or more metadata values when creating a meeting. These will be stored by BigBlueButton can be retrieved later via the getMeetingInfo and getRecordings calls.<br /><br /> Examples of the use of the meta parameters are <code className="language-plaintext highlighter-rouge">meta_Presenter=Jane%20Doe</code>, <code className="language-plaintext highlighter-rouge">meta_category=FINANCE</code>, and <code className="language-plaintext highlighter-rouge">meta_TERM=Fall2016</code>.</>)
+  },
+  {
+    "name": "meta_bbb-anonymize-chat",
+    "required": false,
+    "type": "Boolean",
+    "default": "false",
+    "description": (<>Whether to anonymize the sender of chat messages in the processed recordings if the sender is viewer. Overrides the default config in <code className="language-plaintext highlighter-rouge">bigbluebutton.yml</code></>)
+  },
+  {
+    "name": "meta_bbb-anonymize-chat-moderators",
+    "required": false,
+    "type": "Boolean",
+    "default": "false",
+    "description": (<>Whether to anonymize the sender of chat messages in the processed recordings if the sender is moderator. Overrides the default config in <code className="language-plaintext highlighter-rouge">bigbluebutton.yml</code></>)
   },
   {
     "name": "moderatorOnlyMessage",
@@ -257,8 +286,8 @@ const createEndpointTableData = [
   {
     "name": "meetingLayout",
     "type": "Enum",
-    "default": "SMART_LAYOUT",
-    "description": (<>Will set the default layout for the meeting. Possible values are: CUSTOM_LAYOUT, SMART_LAYOUT, PRESENTATION_FOCUS, VIDEO_FOCUS. (added 2.4) In version 3.0 a few more possible options were added: CAMERAS_ONLY, PRESENTATION_ONLY, PARTICIPANTS_AND_CHAT_ONLY</>)
+    "default": "CUSTOM_LAYOUT",
+    "description": (<>Will set the default layout for the meeting. Possible values are: CUSTOM_LAYOUT, SMART_LAYOUT, PRESENTATION_FOCUS, VIDEO_FOCUS. (added 2.4) In version 3.0 a few more possible options were added: CAMERAS_ONLY, PRESENTATION_ONLY, PARTICIPANTS_AND_CHAT_ONLY, MEDIA_ONLY</>)
   },
   {
     "name": "learningDashboardCleanupDelayInMinutes",
@@ -324,16 +353,122 @@ const createEndpointTableData = [
     "name": "disabledFeatures",
     "required": false,
     "type": "String",
-    "description": (<>List (comma-separated) of features to disable in a particular meeting. (added 2.5)<br /><br />Available options to disable:<br /><ul><li><code className="language-plaintext highlighter-rouge">breakoutRooms</code>- <b>Breakout Rooms</b> </li><li><code className="language-plaintext highlighter-rouge">captions</code>- <b>Closed Caption</b> </li><li><code className="language-plaintext highlighter-rouge">chat</code>- <b>Chat</b></li><li><code className="language-plaintext highlighter-rouge">privateChat</code>- <b>Private Chat</b></li><li><code className="language-plaintext highlighter-rouge">downloadPresentationWithAnnotations</code>- <b>Annotated presentation download</b></li><li><code className="language-plaintext highlighter-rouge">snapshotOfCurrentSlide</code>- <b>Allow snapshot of the current slide</b></li><li><code className="language-plaintext highlighter-rouge">externalVideos</code>- <b>Share an external video</b> </li><li><code className="language-plaintext highlighter-rouge">importPresentationWithAnnotationsFromBreakoutRooms</code>- <b>Capture breakout presentation</b></li><li><code className="language-plaintext highlighter-rouge">importSharedNotesFromBreakoutRooms</code>- <b>Capture breakout shared notes</b></li><li><code className="language-plaintext highlighter-rouge">layouts</code>- <b>Layouts</b> (allow only default layout)</li><li><code className="language-plaintext highlighter-rouge">learningDashboard</code>- <b>Learning Analytics Dashboard</b></li><li><code className="language-plaintext highlighter-rouge">learningDashboardDownloadSessionData</code>- <b>Learning Analytics Dashboard Download Session Data (prevents the option to download)</b></li><li><code className="language-plaintext highlighter-rouge">polls</code>- <b>Polls</b> </li><li><code className="language-plaintext highlighter-rouge">screenshare</code>- <b>Screen Sharing</b></li><li><code className="language-plaintext highlighter-rouge">sharedNotes</code>- <b>Shared Notes</b></li><li><code className="language-plaintext highlighter-rouge">virtualBackgrounds</code>- <b>Virtual Backgrounds</b></li><li><code className="language-plaintext highlighter-rouge">customVirtualBackgrounds</code>- <b>Virtual Backgrounds Upload</b></li><li><code className="language-plaintext highlighter-rouge">liveTranscription</code>- <b>Live Transcription</b></li><li><code className="language-plaintext highlighter-rouge">presentation</code>- <b>Presentation</b></li><li><code className="language-plaintext highlighter-rouge">cameraAsContent</code>-<b>Enables/Disables camera as a content</b></li><li><code className="language-plaintext highlighter-rouge">timer</code>- <b>disables timer</b></li><li><code className="language-plaintext highlighter-rouge">infiniteWhiteboard</code>- <b>Infinite Whiteboard (added in BigBlueButton 3.0)</b></li></ul></>)
+    "description": (
+        <>
+          List (comma-separated) of features to disable in a particular meeting.
+          <br />
+          <br />
+          Available options to disable:
+          <br />
+          <ul>
+            <li>
+              <code className="language-plaintext highlighter-rouge">breakoutRooms</code> - <b>Breakout Rooms</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">captions</code> - <b>Closed Caption</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">chat</code> - <b>Chat (Public and Private)</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">privateChat</code> - <b>Private Chat</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">deleteChatMessage</code> - <b>Delete a Chat Message (moderators or author)</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">editChatMessage</code> - <b>Edit a Chat Message (only author)</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">replyChatMessage</code> - <b>Reply to a Chat Message</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">chatMessageReactions</code> - <b>Send Reactions to a chat message</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">downloadPresentationWithAnnotations</code> - <b>Annotated presentation download</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">downloadPresentationConvertedToPdf</code> - <b>Converted presentation download (if BigBlueButton had to convert to PDF)</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">downloadPresentationOriginalFile</code> - <b>Original presentation download</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">snapshotOfCurrentSlide</code> - <b>Allow snapshot of the current slide</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">externalVideos</code> - <b>Share an external video</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">importPresentationWithAnnotationsFromBreakoutRooms</code> - <b>Capture breakout presentation</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">importSharedNotesFromBreakoutRooms</code> - <b>Capture breakout shared notes</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">layouts</code> - <b>Layouts</b> (allow only default layout)
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">learningDashboard</code> - <b>Learning Analytics Dashboard</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">learningDashboardDownloadSessionData</code> - <b>Learning Analytics Dashboard Download Session Data (prevents the option to download)</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">polls</code> - <b>Polls</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">screenshare</code> - <b>Screen Sharing</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">sharedNotes</code> - <b>Shared Notes</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">virtualBackgrounds</code> - <b>Virtual Backgrounds</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">customVirtualBackgrounds</code> - <b>Virtual Backgrounds Upload</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">liveTranscription</code> - <b>Live Transcription</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">presentation</code> - <b>Presentation</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">cameraAsContent</code> - <b>Enables/Disables camera as a content</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">timer</code> - <b>Disables timer</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">infiniteWhiteboard</code> - <b>Infinite Whiteboard (added in BigBlueButton 3.0)</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">raiseHand</code> - <b>Raise Hand (added in BigBlueButton 3.0)</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">userReactions</code> - <b>Enable/Disable user reactions (added in BigBlueButton 3.0)</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">chatEmojiPicker</code> - <b>Enable/Disable chat emoji picker (added in BigBlueButton 3.0)</b>
+            </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">quizzes</code> - <b>Quizzes  (added in BigBlueButton 3.0)</b>
+            </li>
+          </ul>
+        </>
+    ),
   },
   {
-    "name": "disabledFeaturesExclude",
-    "required": false,
-    "type": "String",
-    "description": (<>List (comma-separated) of features to no longer disable in a particular meeting. This is particularly useful if you disabled a list of features on a per-server basis but want to allow one of two of these features for a specific meeting. (added 2.6.9)<br /><br />The available options to exclude are exactly the same as for <code className="language-plaintext highlighter-rouge">disabledFeatures</code></>)
+    "name":"disabledFeaturesExclude",
+    "required":false,
+    "type":"String",
+    "description": (<>List (comma-separated) of features to no longer disable in a particular meeting. This is particularly useful if you disabled a list of features on a per-server basis but want to allow one of two of these features for a specific meeting. (added 2.6.9)<br/><br/>The available options to exclude are exactly the same as for <code className="language-plaintext highlighter-rouge">disabledFeatures</code></>)
   },
   {
-    "name": "preUploadedPresentationOverrideDefault",
+    "name":"preUploadedPresentationOverrideDefault",
     "required": false,
     "type": "Boolean",
     "default": "true",
@@ -359,6 +494,12 @@ const createEndpointTableData = [
     "description": (<>Message to be displayed in presentation uploader modal describing how to use an external application to upload presentation files. Only works if <code className="language-plaintext highlighter-rouge">presentationUploadExternalUrl</code> is also set. (added 2.6)</>)
   },
   {
+    "name": "presentationConversionCacheEnabled",
+    "required": false,
+    "type": "Boolean",
+    "description": (<>Parameter to decide whether to use the caching system in a S3-based storage system for presentation assets per meeting. If this parameter is true, the other settings related to the caching feature must be configured properly (see section <Link to="/administration/customize/#configure-s3-based-cache-for-presentation-assets">Configure S3-based cache for presentation assets</Link>).</>)
+  },
+  {
     "name": "recordFullDurationMedia",
     "required": false,
     "type": "Boolean",
@@ -381,14 +522,24 @@ const createEndpointTableData = [
     "name": "allowOverrideClientSettingsOnCreateCall",
     "required": false,
     "default": "false",
-    "type": "String",
-    "description": (<> (added in BBB 3.0.0-alpha.1)</>)
+    "type": "Boolean",
+    "description": (
+      <>
+        <p>Whether to allow <a href="#clientsettingsoverride">clientSettingsOverride</a> to be included in the body of a POST request. Because the body of the post request is not signed by the <a href="#api-security-model">checksum</a>, this parameter is set to <code>false</code> by default. If you set this to <code>true</code>, you must make sure that the signed parameters of the create API request are not visible to users.</p>
+        <p><i>Added:</i> 3.0.0-alpha.1</p>
+      </>
+    )
   },
   {
     "name": "clientSettingsOverride",
     "required": false,
-    "type": "String",
-    "description": (<> The included structure will override settings.yml needed for the HTML5 client. For an example for the HTTPS POST request check <a href='/development/api#clientsettingsoverride'>clientSettingsOverride section in API</a>(added in BBB 3.0.0-alpha.5)</>)
+    "type": "JSON",
+    "description": (
+      <>
+        <p>A data structure containing settings which override values from the HTML5 client's <code>settings.yml</code> file. This data can also be provided in the body of a POST request, see <a href='#clientsettingsoverride'>clientSettingsOverride</a> for details.</p>
+        <p><i>Added:</i> 3.0.0-alpha.5</p>
+      </>
+    )
   },
   {
     "name": "allowPromoteGuestToModerator",
@@ -396,6 +547,44 @@ const createEndpointTableData = [
     "type": "Boolean",
     "default": "false",
     "description": (<> If passed as true, we allow moderators to promote guests to moderators even if the authenticatedGuest config is enabled. The defaultAllowPromoteGuestToModerator configuration sets this behaviour globally for all meetings if no api parameter is passed (added in BBB 2.7.9)</>)
+  },
+  {
+    "name": "pluginManifests",
+    "required": false,
+    "type": "JSON",
+    "description": (
+      <>
+        A list of the BigBlueButton client plugins you want included for the
+        specific session (merged with the list in <code>/etc/bigbluebutton/bbb-web.properties</code> and duplicates dropped){" "}.
+        It is possible to add a placeholder in the URL for the plugin-sdk version being used in the server.
+        For more information see section of placeholders in <Link to="/plugins#using-placeholders-in-plugin-urls">Plugins</Link>.
+        <br/>
+        <code className="language-plaintext highlighter-rouge">
+          {`pluginManifests=[{"url":"https://someserver.com/plugins/bbb-plugin-pick-random-user/manifest.json", "checksum": "abc123"}]`}
+        </code>
+      </>
+    )
+  },
+  {
+    "name": "pluginManifestsFetchUrl",
+    "required": false,
+    "type": "String",
+    "description": (
+      <>
+        URL that points to a JSON file containing an array of multiple plugin manifest URLs (optionally including file checksums). This is mainly used to simplify and minimize the size of the <code>create</code> request.
+        The expected content is a json array with the exact same structure as the parameter <code>pluginManifests</code>,
+        see example in the parameter above.
+        It is possible to add a placeholder in the URL for the plugin-sdk version being used in the server.
+        For more information see section of placeholders in <Link to="/plugins#using-placeholders-in-plugin-urls">Plugins</Link>.
+      </>
+    )
+  },
+  {
+    "name": "maxNumPages",
+    "required": false,
+    "type": "Number",
+    "default": 200,
+    "description": (<>Maximum number of pages allowed for an uploaded presentation.</>)
   }
 ]
 

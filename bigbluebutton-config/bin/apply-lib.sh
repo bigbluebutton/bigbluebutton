@@ -1,11 +1,13 @@
-# This is a library of functions for 
+#!/bin/bash
+
+# This is a library of functions for
 #
 #  /etc/bigbluebutton/bbb-conf/apply-config.sh
 #
 # which (if exists) will be run by `bbb-conf --setip` and `bbb-conf --restart` before restarting
 # BigBlueButton.
 #
-# The purpose of apply-config.sh is to make it easy to apply your configuration changes to a BigBlueButton server 
+# The purpose of apply-config.sh is to make it easy to apply your configuration changes to a BigBlueButton server
 # before BigBlueButton starts
 #
 
@@ -57,7 +59,6 @@ enableHTML5ClientLog() {
 
   yq e -i '.public.clientLog.external.enabled = true' $HTML5_CONFIG
   yq e -i ".public.clientLog.external.url = \"$PROTOCOL://$HOST/html5log\"" $HTML5_CONFIG
-  yq e -i '.public.app.askForFeedbackOnLogout = true' $HTML5_CONFIG
 
   cat > /usr/share/bigbluebutton/nginx/html5-client-log.nginx << HERE
 location /html5log {
@@ -85,7 +86,7 @@ HERE
 }
 
 #
-# Enable firewall rules to open only 
+# Enable firewall rules to open only
 #
 enableUFWRules() {
   echo "  - Enable Firewall and opening 22/tcp, 80/tcp, 443/tcp and 16384:32768/udp"
@@ -153,4 +154,3 @@ HERE
 chmod +x /etc/bigbluebutton/bbb-conf/apply-config.sh
 ## Stop Copying HERE
 }
-

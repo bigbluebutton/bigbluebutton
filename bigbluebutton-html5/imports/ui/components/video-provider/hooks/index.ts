@@ -13,7 +13,7 @@ import Auth from '/imports/ui/services/auth';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { partition } from '/imports/utils/array-utils';
-import { USER_AGGREGATE_COUNT_SUBSCRIPTION } from '/imports/ui/core/graphql/queries/users';
+import { USER_AGGREGATE_COUNT_SUBSCRIPTION, UsersCountSubscriptionResponse } from '/imports/ui/core/graphql/queries/users';
 import {
   getSortingMethod,
   sortVideoStreams,
@@ -30,6 +30,7 @@ import {
   GRID_USERS_SUBSCRIPTION,
   VIEWERS_IN_WEBCAM_COUNT_SUBSCRIPTION,
   VIDEO_STREAMS_SUBSCRIPTION,
+  ViewerVideoStreamsSubscriptionResponse,
 } from '/imports/ui/components/video-provider/queries';
 import videoService from '/imports/ui/components/video-provider/service';
 import { CAMERA_BROADCAST_STOP } from '/imports/ui/components/video-provider/mutations';
@@ -39,7 +40,6 @@ import {
   GridUsersResponse,
   OwnVideoStreamsResponse,
   StreamSubscriptionData,
-  Stream,
 } from '/imports/ui/components/video-provider/types';
 import { DesktopPageSizes, MobilePageSizes } from '/imports/ui/Types/meetingClientSettings';
 import logger from '/imports/startup/client/logger';
@@ -60,9 +60,8 @@ const useVideoStreamsSubscription = createUseSubscription(
 
 export const useStreams = () => {
   const { data, loading, errors } = useVideoStreamsSubscription();
-  const streams = useRef<Stream[]>([]);
 
-  if (loading) return streams.current;
+  if (loading) return [];
 
   if (errors) {
     errors.forEach((error) => {
@@ -75,19 +74,27 @@ export const useStreams = () => {
     });
   }
 
-  if (!data) {
-    streams.current = [];
-    return streams.current;
-  }
-
   const mappedStreams = (data as StreamSubscriptionData[]).map((fields) => {
     const { streamId, user, voice } = fields;
+
+    if (!streamId) {
+      logger.warn({
+        logCode: 'missing_stream_id',
+        extraInfo: {
+          userId: user?.userId || '',
+          role: user?.role || '',
+          clientType: user?.clientType || '',
+        },
+      }, 'Stream entry has no streamId.');
+    }
+
     return {
-      stream: streamId,
-      deviceId: streamId.split('_')[3],
-      name: user.name,
-      nameSortable: user.nameSortable,
-      userId: user.userId,
+      stream: streamId ?? '',
+      deviceId: streamId?.split?.('_')?.[3] ?? '',
+      name: user?.name || '',
+      nameSortable: user?.nameSortable || '',
+      userId: user?.userId || '',
+      user,
       floor: voice?.floor ?? false,
       lastFloorTime: voice?.lastFloorTime ?? '0',
       voice,
@@ -96,9 +103,7 @@ export const useStreams = () => {
     };
   });
 
-  streams.current = mappedStreams;
-
-  return streams.current;
+  return mappedStreams.length > 0 ? mappedStreams : [];
 };
 
 export const useStatus = () => {
@@ -149,10 +154,7 @@ export const useLocalVideoStreamsCount = () => {
 
 export const useInfo = () => {
   const { data } = useMeeting((m) => ({
-    voiceSettings: {
-      // @ts-expect-error -> There seems to be a design issue on the projection portion.
-      voiceConf: m.voiceSettings?.voiceConf,
-    },
+    voiceSettings: m.voiceSettings,
   }));
   const voiceBridge = data?.voiceSettings ? data.voiceSettings.voiceConf : null;
   return {
@@ -167,10 +169,7 @@ export const useInfo = () => {
 export const useHasCapReached = () => {
   const { data: meeting } = useMeeting((m) => ({
     meetingCameraCap: m.meetingCameraCap,
-    usersPolicies: {
-      // @ts-expect-error -> There seems to be a design issue on the projection portion.
-      userCameraCap: m.usersPolicies?.userCameraCap,
-    },
+    usersPolicies: m.usersPolicies,
   }));
   const videoStreamsCount = useVideoStreamsCount();
   const localVideoStreamsCount = useLocalVideoStreamsCount();
@@ -178,13 +177,12 @@ export const useHasCapReached = () => {
   // If the meeting prop data is unreachable, force a safe return
   if (
     meeting?.usersPolicies === undefined
-    || !meeting?.meetingCameraCap === undefined
+    || meeting?.meetingCameraCap === undefined
   ) return true;
   const { meetingCameraCap } = meeting;
   const { userCameraCap } = meeting.usersPolicies;
 
-  // @ts-expect-error -> There seems to be a design issue on the projection portion.
-  const meetingCap = meetingCameraCap !== 0 && videoStreamsCount >= meetingCameraCap;
+  const meetingCap = meetingCameraCap !== 0 && videoStreamsCount >= (meetingCameraCap as number);
   const userCap = userCameraCap !== 0 && localVideoStreamsCount >= userCameraCap;
 
   return meetingCap || userCap;
@@ -192,16 +190,13 @@ export const useHasCapReached = () => {
 
 export const useDisableCam = () => {
   const { data: meeting } = useMeeting((m) => ({
-    lockSettings: {
-      // @ts-expect-error -> There seems to be a design issue on the projection portion.
-      disableCam: m.lockSettings?.disableCam,
-    },
+    lockSettings: m.lockSettings,
   }));
   return meeting?.lockSettings ? meeting?.lockSettings.disableCam : false;
 };
 
 const getCountData = () => {
-  const { data: countData } = useDeduplicatedSubscription(
+  const { data: countData } = useDeduplicatedSubscription<UsersCountSubscriptionResponse>(
     USER_AGGREGATE_COUNT_SUBSCRIPTION,
   );
   return countData?.user_aggregate?.aggregate?.count || 0;
@@ -212,6 +207,7 @@ export const usePageSizeDictionary = () => {
     desktopPageSizes: DESKTOP_PAGE_SIZES,
     mobilePageSizes: MOBILE_PAGE_SIZES,
   } = window.meetingClientSettings.public.kurento.pagination;
+  const userCount = getCountData();
 
   const PAGINATION_THRESHOLDS_CONF = window.meetingClientSettings.public.kurento.paginationThresholds;
   const PAGINATION_THRESHOLDS_ENABLED = PAGINATION_THRESHOLDS_CONF.enabled;
@@ -247,7 +243,7 @@ export const usePageSizeDictionary = () => {
   };
 
   // Short-circuit: no threshold yet, return stock values (processThreshold has a default arg)
-  if (getCountData() < PAGINATION_THRESHOLDS[0].users) return processThreshold();
+  if (userCount < PAGINATION_THRESHOLDS[0].users) return processThreshold();
 
   // Reverse search for the threshold where our participant count is directly equal or great
   // The PAGINATION_THRESHOLDS config is sorted when imported.
@@ -257,7 +253,7 @@ export const usePageSizeDictionary = () => {
     mapIndex -= 1
   ) {
     targetThreshold = PAGINATION_THRESHOLDS[mapIndex];
-    if (targetThreshold.users <= getCountData()) {
+    if (targetThreshold.users <= userCount) {
       return processThreshold(targetThreshold);
     }
   }
@@ -410,11 +406,11 @@ export const useVideoStreams = () => {
   if (isPaginationEnabled) {
     const [filtered, others] = partition(
       streams,
-      (vs: StreamItem) => videoService.isLocalStream(vs.stream) || (vs.type === VIDEO_TYPES.STREAM && vs.user.pinned),
+      (vs: StreamItem) => videoService.isLocalStream(vs.stream) || (vs.type === VIDEO_TYPES.STREAM && vs.user?.pinned),
     );
     const [pin, mine] = partition(
       filtered,
-      (vs: StreamItem) => vs.type === VIDEO_TYPES.STREAM && vs.user.pinned,
+      (vs: StreamItem) => vs.type === VIDEO_TYPES.STREAM && vs.user?.pinned,
     );
 
     totalNumberOfOtherStreams = others.length;
@@ -506,7 +502,9 @@ export const useExitVideo = (forceExit = false) => {
 };
 
 export const useViewersInWebcamCount = (): number => {
-  const { data } = useDeduplicatedSubscription(VIEWERS_IN_WEBCAM_COUNT_SUBSCRIPTION);
+  const { data } = useDeduplicatedSubscription<ViewerVideoStreamsSubscriptionResponse>(
+    VIEWERS_IN_WEBCAM_COUNT_SUBSCRIPTION,
+  );
   return data?.user_camera_aggregate?.aggregate?.count || 0;
 };
 

@@ -8,11 +8,15 @@ import ScreenshareButtonContainer from '/imports/ui/components/actions-bar/scree
 import AudioControlsContainer from '../audio/audio-graphql/audio-controls/component';
 import JoinVideoOptionsContainer from '../video-provider/video-button/container';
 import PresentationOptionsContainer from './presentation-options/component';
+import SwapPresentationButton from './swap-presentation/component';
 import Button from '/imports/ui/components/common/button/component';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { LAYOUT_TYPE } from '../layout/enums';
 import ReactionsButtonContainer from '/imports/ui/components/actions-bar/reactions-button/container';
 import RaiseHandButtonContainer from '/imports/ui/components/actions-bar/raise-hand-button/container';
+import Selector from '/imports/ui/components/common/selector/component';
+import ToggleGroup from '/imports/ui/components/common/toggle-group/component';
+import Separator from '/imports/ui/components/common/separator/component';
 
 const intlMessages = defineMessages({
   actionsBarLabel: {
@@ -36,25 +40,67 @@ class ActionsBar extends PureComponent {
         {
           actionBarItems.filter((plugin) => plugin.position === position).map((plugin) => {
             let actionBarItemToReturn;
+            let buttonProps;
             switch (plugin.type) {
               case ActionsBarItemType.BUTTON:
+                buttonProps = {
+                  key: `${plugin.type}-${plugin.id}`,
+                  onClick: plugin.onClick,
+                  hideLabel: true,
+                  color: 'primary',
+                  size: 'lg',
+                  circle: true,
+                  label: plugin.tooltip,
+                  dataTest: plugin.dataTest,
+                };
+                if (plugin?.icon && typeof plugin.icon === 'object' && 'iconName' in plugin.icon) {
+                  buttonProps.icon = plugin.icon.iconName;
+                } else if (plugin?.icon && typeof plugin.icon === 'object' && 'svgContent' in plugin.icon) {
+                  buttonProps.customIcon = (
+                    <i>
+                      {plugin.icon.svgContent}
+                    </i>
+                  );
+                }
                 actionBarItemToReturn = (
                   <Button
-                    key={`${plugin.type}-${plugin.id}`}
-                    onClick={plugin.onClick}
-                    hideLabel
-                    color="primary"
-                    icon={plugin.icon}
-                    size="lg"
-                    circle
-                    label={plugin.tooltip}
+                    {
+                      ...buttonProps
+                    }
                   />
                 );
                 break;
               case ActionsBarItemType.SEPARATOR:
                 actionBarItemToReturn = (
-                  <Styled.Separator
+                  <Separator
                     key={`${plugin.type}-${plugin.id}`}
+                    actionsBar
+                    icon={plugin.icon}
+                    dataTest={plugin.dataTest}
+                  />
+                );
+                break;
+              case ActionsBarItemType.SELECTOR:
+                actionBarItemToReturn = (
+                  <Selector
+                    title={plugin.title}
+                    options={plugin.options}
+                    defaultOption={plugin.defaultOption}
+                    onChange={plugin.onChange}
+                    width={plugin.width}
+                    dataTest={plugin.dataTest}
+                  />
+                );
+                break;
+              case ActionsBarItemType.TOGGLE_GROUP:
+                actionBarItemToReturn = (
+                  <ToggleGroup
+                    title={plugin.title}
+                    options={plugin.options}
+                    defaultOption={plugin.defaultOption}
+                    onChange={plugin.onChange}
+                    exclusive={plugin.exclusive}
+                    dataTest={plugin.dataTest}
                   />
                 );
                 break;
@@ -105,6 +151,9 @@ class ActionsBar extends PureComponent {
       setPresentationFitToWidth,
       isPresentationEnabled,
       ariaHidden,
+      showScreenshareQuickSwapButton,
+      isReactionsButtonEnabled,
+      isRaiseHandEnabled,
     } = this.props;
 
     const Settings = getSettingsSingletonInstance();
@@ -113,11 +162,12 @@ class ActionsBar extends PureComponent {
       && selectedLayout !== LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY;
     const shouldShowVideoButton = selectedLayout !== LAYOUT_TYPE.PRESENTATION_ONLY
       && selectedLayout !== LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY;
+    const shouldRenderActionBar = selectedLayout !== LAYOUT_TYPE.PLUGINS_ONLY;
 
     const shouldShowOptionsButton = (isPresentationEnabled && isThereCurrentPresentation)
       || isSharingVideo || hasScreenshare || isSharedNotesPinned;
 
-    return (
+    return shouldRenderActionBar && (
       <Styled.ActionsBarWrapper
         id="ActionsBar"
         role="region"
@@ -134,6 +184,7 @@ class ActionsBar extends PureComponent {
           }
         }
       >
+        <h2 className="sr-only">{intl.formatMessage(intlMessages.actionsBarLabel)}</h2>
         <Styled.ActionsBar
           ref={this.actionsBarRef}
           style={
@@ -179,26 +230,31 @@ class ActionsBar extends PureComponent {
               }}
               />
             )}
-            {this.renderReactionsButton()}
-            <RaiseHandButtonContainer />
+            {isReactionsButtonEnabled && this.renderReactionsButton()}
             {this.renderPluginsActionBarItems(ActionsBarPosition.RIGHT)}
           </Styled.Center>
           <Styled.Right>
-            {shouldShowPresentationButton && shouldShowOptionsButton
-              ? (
-                <PresentationOptionsContainer
-                  presentationIsOpen={presentationIsOpen}
-                  setPresentationIsOpen={setPresentationIsOpen}
-                  layoutContextDispatch={layoutContextDispatch}
-                  hasPresentation={isThereCurrentPresentation}
-                  hasExternalVideo={isSharingVideo}
-                  hasScreenshare={hasScreenshare}
-                  hasPinnedSharedNotes={isSharedNotesPinned}
-                  hasGenericContent={hasGenericContent}
-                  hasCameraAsContent={hasCameraAsContent}
-                />
-              )
-              : null}
+            <Styled.Gap>
+              {isRaiseHandEnabled && <RaiseHandButtonContainer />}
+              {
+                showScreenshareQuickSwapButton && <SwapPresentationButton />
+              }
+              {shouldShowPresentationButton && shouldShowOptionsButton
+                ? (
+                  <PresentationOptionsContainer
+                    presentationIsOpen={presentationIsOpen}
+                    setPresentationIsOpen={setPresentationIsOpen}
+                    layoutContextDispatch={layoutContextDispatch}
+                    hasPresentation={isThereCurrentPresentation}
+                    hasExternalVideo={isSharingVideo}
+                    hasScreenshare={hasScreenshare}
+                    hasPinnedSharedNotes={isSharedNotesPinned}
+                    hasGenericContent={hasGenericContent}
+                    hasCameraAsContent={hasCameraAsContent}
+                  />
+                )
+                : null}
+            </Styled.Gap>
           </Styled.Right>
         </Styled.ActionsBar>
       </Styled.ActionsBarWrapper>

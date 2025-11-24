@@ -1,13 +1,14 @@
 package config
 
 import (
-	"dario.cat/mergo"
-	log "github.com/sirupsen/logrus"
-	"gopkg.in/yaml.v3"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"sync"
+
+	"dario.cat/mergo"
+	log "github.com/sirupsen/logrus"
+	"gopkg.in/yaml.v3"
 )
 
 var (
@@ -15,8 +16,10 @@ var (
 	once     sync.Once
 )
 
-var DefaultConfigPath = "/usr/share/bbb-graphql-middleware/config.yml"
-var OverrideConfigPath = "/etc/bigbluebutton/bbb-graphql-middleware.yml"
+var (
+	DefaultConfigPath  = "/usr/share/bbb-graphql-middleware/config.yml"
+	OverrideConfigPath = "/etc/bigbluebutton/bbb-graphql-middleware.yml"
+)
 
 type Config struct {
 	Server struct {
@@ -106,4 +109,20 @@ func loadConfigFile(path string) (Config, error) {
 	}
 
 	return config, nil
+}
+
+var AllowedSubscriptionsForNotInMeetingUsers = []string{
+	"getUserInfo",
+	"getMeetingEndData",
+	"PluginConfigurationQuery",
+	"getGuestLobbyInfo",
+	"userCurrentSubscription",
+	"Patched_userCurrentSubscription",
+}
+
+var StreamingSubscriptionsManagedByMiddleware = []string{
+	"getCursorCoordinatesStream",
+	"getNotificationStream",
+	"getChatMessageStream",
+	"getUserVoiceStateStream",
 }

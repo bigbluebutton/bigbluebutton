@@ -10,8 +10,8 @@ const publishRecordingsEndpointTableData = [
   {
     "name": "publish",
     "required": true,
-    "type": "String",
-    "description": (<>The value for publish or unpublish the recording(s). Available values: true or false.</>)
+    "type": "Boolean",
+    "description": (<>Either <code>true</code> to publish the recording(s), or <code>false</code> to unpublish the recording(s).</>)
   }
 ];
 

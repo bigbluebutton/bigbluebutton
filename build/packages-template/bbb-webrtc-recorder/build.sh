@@ -24,7 +24,7 @@ git config --global --add safe.directory ${PWD}
 APP_VERSION=$(cat ./VERSION)
 GOMOD=$(go list -m)
 APP_REV=$(git rev-parse --short HEAD)
-echo $GOMOD ${APP_VERSION[@]} $COMMIT
+echo "$GOMOD" "${APP_VERSION[@]}" "$COMMIT"
 go mod tidy
 go build -o ./build/bbb-webrtc-recorder \
   -ldflags="-X '$GOMOD/internal.AppVersion=v${APP_VERSION[0]}-${APP_VERSION[1]} (${APP_REV})'" \
@@ -33,6 +33,7 @@ go build -o ./build/bbb-webrtc-recorder \
 cp ./build/bbb-webrtc-recorder staging/usr/bin
 cp ./build/env staging/etc/default/bbb-webrtc-recorder
 cp ./config/bbb-webrtc-recorder.yml staging/etc/bbb-webrtc-recorder/bbb-webrtc-recorder.yml
+chmod 644 staging/etc/bbb-webrtc-recorder/bbb-webrtc-recorder.yml
 cp bbb-webrtc-recorder.service staging/usr/lib/systemd/system
 
 . ./opts-$DISTRO.sh

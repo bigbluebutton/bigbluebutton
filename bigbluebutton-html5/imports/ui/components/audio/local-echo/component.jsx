@@ -52,6 +52,7 @@ const LocalEcho = ({
 
   const applyHearingState = (_stream) => {
     if (hearing) {
+      setAudioSink(outputDeviceId);
       playEchoStream(_stream, loopbackAgent.current);
     } else {
       deattachEchoStream();

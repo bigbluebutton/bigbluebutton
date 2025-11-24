@@ -1,22 +1,16 @@
 import {
   useEffect, useMemo, useRef, useState,
 } from 'react';
-import { useSubscription } from '@apollo/client';
-import { GetIsUserCurrentlyInBreakoutRoomResponse, getIsUserCurrentlyInBreakoutRoom } from '../../breakout-room/breakout-room/queries';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 
-type BreakoutCount = GetIsUserCurrentlyInBreakoutRoomResponse;
 type Callback = () => void;
 
 const useBreakoutExitObserver = () => {
   const [numberOfCurrentRooms, setNumberOfCurrentRooms] = useState<number>(0);
-  const [observing, setObserving] = useState(false);
   const callbacks = useRef<Map<string, Callback>>(new Map());
   const oneTimeCallbacks = useRef<Callback[]>([]);
-  const { data: userIsCurrentlyInBreakoutRoomData } = useSubscription<BreakoutCount>(
-    getIsUserCurrentlyInBreakoutRoom,
-    { skip: !observing },
-  );
-  const numberOfCurrentRoomsGql = userIsCurrentlyInBreakoutRoomData?.breakoutRoom_aggregate.aggregate.count ?? 0;
+
+  const numberOfCurrentRoomsGql = useNumberOfCurrentRooms();
 
   useEffect(() => {
     if (numberOfCurrentRoomsGql !== numberOfCurrentRooms) {
@@ -25,9 +19,6 @@ const useBreakoutExitObserver = () => {
           callbacks.current.forEach((value) => value());
           oneTimeCallbacks.current.forEach((c) => c());
           oneTimeCallbacks.current = [];
-          if (callbacks.current.size === 0) {
-            setObserving(false);
-          }
         }
         return numberOfCurrentRoomsGql;
       });
@@ -38,23 +29,25 @@ const useBreakoutExitObserver = () => {
     resetCallbacks: () => {
       callbacks.current = new Map();
       oneTimeCallbacks.current = [];
-      setObserving(false);
     },
     setCallback: (key: string, callback: Callback) => {
       callbacks.current.set(key, callback);
-      setObserving(true);
     },
     addOneTimeCallback: (callback: Callback) => {
       oneTimeCallbacks.current.push(callback);
-      setObserving(true);
     },
     removeCallback: (key: string) => {
       callbacks.current.delete(key);
-      if (callbacks.current.size === 0 && oneTimeCallbacks.current.length === 0) {
-        setObserving(false);
-      }
     },
   }), []);
+};
+
+const useNumberOfCurrentRooms = () => {
+  const { data: currentUser } = useCurrentUser((u) => ({
+    breakoutRoomsSummary: u.breakoutRoomsSummary,
+  }));
+
+  return currentUser?.breakoutRoomsSummary?.totalOfIsUserCurrentlyInRoom ?? 0;
 };
 
 export {

@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/ban-ts-comment */
+import { ReactiveVar, makeVar, useReactiveVar } from '@apollo/client';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import Storage from '/imports/ui/services/storage/session';
 import logger from '/imports/startup/client/logger';
@@ -8,21 +7,21 @@ import VideoService from '/imports/ui/components/video-provider/service';
 import Auth from '/imports/ui/services/auth';
 import { debounce } from '/imports/utils/debounce';
 import { throttle } from '/imports/utils/throttle';
-import apolloContextHolder from '/imports/ui/core/graphql/apolloContextHolder/apolloContextHolder';
-import { MEETING_IS_BREAKOUT } from '/imports/ui/components/audio/audio-graphql/audio-controls/queries';
-import { ReactiveVar, makeVar, useReactiveVar } from '@apollo/client';
+import {
+  setUserSelectedMicrophone,
+  setUserSelectedListenOnly,
+} from '/imports/ui/components/audio/service';
+import meetingStaticData from '/imports/ui/core/singletons/meetingStaticData';
 
 const MUTED_KEY = 'muted';
 const DEVICE_LABEL_MAX_LENGTH = 40;
-const CLIENT_DID_USER_SELECTED_MICROPHONE_KEY = 'clientUserSelectedMicrophone';
-const CLIENT_DID_USER_SELECTED_LISTEN_ONLY_KEY = 'clientUserSelectedListenOnly';
 const TOGGLE_MUTE_THROTTLE_TIME = 300;
 const TOGGLE_MUTE_DEBOUNCE_TIME = 500;
 
 export const handleLeaveAudio = (meetingIsBreakout: boolean) => {
   if (!meetingIsBreakout) {
-    Storage.setItem(CLIENT_DID_USER_SELECTED_MICROPHONE_KEY, !!false);
-    Storage.setItem(CLIENT_DID_USER_SELECTED_LISTEN_ONLY_KEY, !!false);
+    setUserSelectedMicrophone(false);
+    setUserSelectedListenOnly(false);
   }
 
   const skipOnFistJoin = getFromUserSettings(
@@ -52,6 +51,7 @@ const toggleMute = (
   toggleVoice: (userId: string, muted: boolean) => void,
   actionType = 'user_action',
 ) => {
+  const meetingStaticStore = meetingStaticData.getMeetingData();
   const toggle = (storageKey: string) => {
     if (muted) {
       if (AudioManager.inputDeviceId === 'listen-only') {
@@ -76,27 +76,18 @@ const toggleMute = (
     }
   };
 
-  apolloContextHolder.getClient().query({
-    query: MEETING_IS_BREAKOUT,
-    fetchPolicy: 'cache-first',
-  })
-    .then((result) => {
-      const meeting = result?.data?.meeting?.[0];
-      const meetingId = meeting?.isBreakout && meeting?.breakoutPolicies?.parentId
-        ? meeting.breakoutPolicies.parentId
-        : Auth.meetingID;
-      const storageKey = `${MUTED_KEY}_${meetingId}`;
+  const parentId = meetingStaticStore?.breakoutPolicies.parentId || '';
+  const isBreakout = meetingStaticStore?.isBreakout || false;
 
-      toggle(storageKey);
-    })
-    .catch(() => {
-      // Fallback
-      const storageKey = `${MUTED_KEY}_${Auth.meetingID}`;
-      toggle(storageKey);
-    })
-    .finally(() => {
-      muteLoadingState(true);
-    });
+  const meetingId = isBreakout && parentId
+    ? parentId
+    : Auth.meetingID;
+  const storageKey = `${MUTED_KEY}_${meetingId}`;
+
+  toggle(storageKey);
+  if (AudioManager.inputDeviceId !== 'listen-only') {
+    muteLoadingState(true);
+  }
 };
 
 const toggleMuteMicrophoneThrottled = throttle(toggleMute, TOGGLE_MUTE_THROTTLE_TIME);
@@ -104,12 +95,18 @@ const toggleMuteMicrophoneThrottled = throttle(toggleMute, TOGGLE_MUTE_THROTTLE_
 const toggleMuteMicrophoneDebounced = debounce(toggleMuteMicrophoneThrottled, TOGGLE_MUTE_DEBOUNCE_TIME,
   { leading: true, trailing: false });
 
-export const toggleMuteMicrophone = (muted: boolean, toggleVoice: (userId: string, muted: boolean) => void) => {
+export const toggleMuteMicrophone = (
+  muted: boolean,
+  toggleVoice: (userId: string, muted: boolean) => void,
+) => {
   return toggleMuteMicrophoneDebounced(muted, toggleVoice);
 };
 
 // Debounce is not needed here, as this function should only called by the system.
-export const toggleMuteMicrophoneSystem = (muted: boolean, toggleVoice: (userId: string, muted: boolean) => void) => {
+export const toggleMuteMicrophoneSystem = (
+  muted: boolean,
+  toggleVoice: (userId: string, muted: boolean) => void,
+) => {
   return toggleMute(muted, toggleVoice, 'system_action');
 };
 

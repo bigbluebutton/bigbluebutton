@@ -11,6 +11,7 @@ object_relationships:
     using:
       manual_configuration:
         column_mapping:
+          meetingId: meetingId
           userId: userId
         insertion_order: null
         remote_table:
@@ -21,7 +22,6 @@ select_permissions:
     permission:
       columns:
         - chatId
-        - isCurrentlyTyping
         - lastTypingAt
         - startedTypingAt
         - userId

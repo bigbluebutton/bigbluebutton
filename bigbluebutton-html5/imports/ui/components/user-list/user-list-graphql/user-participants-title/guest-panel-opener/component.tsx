@@ -9,6 +9,7 @@ import Icon from '/imports/ui/components/common/icon/icon-ts/component';
 import Styled from './styles';
 import logger from '/imports/startup/client/logger';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import { notify } from '/imports/ui/services/notification';
 
 interface GuestPanelOpenerProps {
   count: number;
@@ -82,6 +83,7 @@ const GuestPanelOpener: React.FC<GuestPanelOpenerProps> = ({
 };
 
 const GuestPanelOpenerContainer: React.FC = () => {
+  const intl = useIntl();
   const { data: currentMeeting } = useMeeting((meeting) => {
     const a = {
       usersPolicies: meeting.usersPolicies,
@@ -97,14 +99,19 @@ const GuestPanelOpenerContainer: React.FC = () => {
   } = useDeduplicatedSubscription<GuestUsersCountResponse>(GET_GUESTS_COUNT);
 
   if (guestsCountError) {
-    logger.error(guestsCountError);
-    return (
-      <div>
-        {
-          JSON.stringify(guestsCountError)
-        }
-      </div>
+    notify(intl.formatMessage({
+      id: 'app.error.issueLoadingData',
+    }), 'warning', 'warning');
+    logger.error(
+      {
+        logCode: 'subscription_Failed',
+        extraInfo: {
+          error: guestsCountError,
+        },
+      },
+      'Subscription failed to load',
     );
+    return null;
   }
 
   if (guestsCountLoading || !currentMeeting) return null;

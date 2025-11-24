@@ -1,5 +1,6 @@
 package org.bigbluebutton.api.messaging.messages;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 public class CreateBreakoutRoom implements IMessage {
@@ -26,6 +27,10 @@ public class CreateBreakoutRoom implements IMessage {
     public final String captureNotesFilename;
     public final String captureSlidesFilename;
     public final Map<String, Object> pluginProp;
+    public final ArrayList<String> disabledFeatures;
+    public final String audioBridge;
+    public final String cameraBridge;
+    public final String screenShareBridge;
 
     public CreateBreakoutRoom(String meetingId,
 															String parentMeetingId,
@@ -47,7 +52,11 @@ public class CreateBreakoutRoom implements IMessage {
                                                             Boolean captureSlides,
                                                             String captureNotesFilename,
                                                             String captureSlidesFilename,
-                                                            Map<String, Object> pluginProp) {
+                                                            Map<String, Object> pluginProp,
+                                                            ArrayList<String> disabledFeatures,
+                                                            String audioBridge,
+                                                            String cameraBridge,
+                                                            String screenShareBridge) {
         this.meetingId = meetingId;
         this.parentMeetingId = parentMeetingId;
         this.name = name;
@@ -69,5 +78,9 @@ public class CreateBreakoutRoom implements IMessage {
         this.captureNotesFilename = captureNotesFilename;
         this.captureSlidesFilename = captureSlidesFilename;
         this.pluginProp = pluginProp;
+        this.disabledFeatures = disabledFeatures;
+        this.audioBridge = audioBridge;
+        this.cameraBridge = cameraBridge;
+        this.screenShareBridge = screenShareBridge;
     }
 }

@@ -29,13 +29,16 @@ const getRecordingsEndpointTableData = [
     "name": "offset",
     "required": false,
     "type": "Integer",
-    "description": (<>The starting index for returned recordings. Number must greater than or equal to 0.</>)
+    "minimum": 0,
+    "description": (<>The starting index for returned recordings.</>)
   },
   {
     "name": "limit",
     "required": false,
     "type": "Integer",
-    "description": (<>The maximum number of recordings to be returned. Number must be between 1 and 100.</>)
+    "minimum": 1,
+    "maximum": 100,
+    "description": (<>The maximum number of recordings to be returned per request.</>)
   }
 ];
 

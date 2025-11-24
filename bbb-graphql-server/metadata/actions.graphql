@@ -7,6 +7,41 @@ type Mutation {
 }
 
 type Mutation {
+  audioGroupCreate(
+    id: String!
+    senders: [AudioGroupParticipant]
+    receivers: [AudioGroupParticipant]
+  ): Boolean
+}
+
+type Mutation {
+  audioGroupDestroy(
+    id: String!
+  ): Boolean
+}
+
+type Mutation {
+  audioGroupJoin(
+    id: String!
+    participant: AudioGroupParticipant!
+  ): Boolean
+}
+
+type Mutation {
+  audioGroupLeave(
+    id: String!
+    userId: String!
+  ): Boolean
+}
+
+type Mutation {
+  audioGroupUpdateParticipant(
+    id: String!
+    participant: AudioGroupParticipant!
+  ): Boolean
+}
+
+type Mutation {
   breakoutRoomCreate(
     record: Boolean!
     captureNotes: Boolean!
@@ -114,7 +149,6 @@ type Mutation {
     chatId: String!
     messageId: String!
     reactionEmoji: String!
-    reactionEmojiId: String!
   ): Boolean
 }
 
@@ -150,7 +184,6 @@ type Mutation {
     chatId: String!
     messageId: String!
     reactionEmoji: String!
-    reactionEmojiId: String!
   ): Boolean
 }
 
@@ -231,6 +264,12 @@ type Mutation {
     cameraPosition: String
     focusedCamera: String!
     presentationVideoRate: Float!
+  ): Boolean
+}
+
+type Mutation {
+  meetingLayoutSetScreenshareAsContent(
+    screenshareAsContent: Boolean!
   ): Boolean
 }
 
@@ -320,6 +359,14 @@ type Mutation {
 }
 
 type Mutation {
+  pluginPersistEvent(
+    payloadJson: json!
+    eventName: String!
+    pluginName: String!
+  ): Boolean
+}
+
+type Mutation {
   pollCancel: Boolean
 }
 
@@ -329,14 +376,17 @@ type Mutation {
     pollType: String!
     secretPoll: Boolean!
     question: String!
-    isMultipleResponse: Boolean!
+    multipleResponse: Boolean!
+    quiz: Boolean!
     answers: [String]
+    correctAnswer: String
   ): Boolean
 }
 
 type Mutation {
   pollPublishResult(
     pollId: String!
+    showAnswer: Boolean
   ): Boolean
 }
 
@@ -432,7 +482,7 @@ type Mutation {
 }
 
 type Mutation {
-  presentationSetRenderedInToast(
+  presentationSetUploadCompletionNotified(
     presentationId: String!
   ): Boolean
 }
@@ -575,7 +625,17 @@ type Mutation {
 
 type Mutation {
   userSetConnectionAlive(
+    clientSessionUUID: String!
     networkRttInMs: Float!
+    applicationRttInMs: Float
+    traceLog: String
+  ): Boolean
+}
+
+type Mutation {
+  userSetDeafened(
+    userId: String!
+    deafened: Boolean!
   ): Boolean
 }
 
@@ -588,6 +648,12 @@ type Mutation {
 type Mutation {
   userSetExitReason(
     exitReason: String!
+  ): Boolean
+}
+
+type Mutation {
+  userSetListenOnlyInput(
+    listenOnlyInputDevice: Boolean!
   ): Boolean
 }
 
@@ -687,3 +753,8 @@ input GuestUserApprovalStatus {
   status: String!
 }
 
+input AudioGroupParticipant {
+  id: String!
+  participantType: String!
+  active: Boolean!
+}

@@ -8,6 +8,9 @@ const QuickPollButton = styled(Button)`
   padding: .1rem;
   box-shadow: none !important;
   background-clip: unset !important;
+  width: 5rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
 
   & > span:first-child {
     border-radius: ${borderSizeLarge};
@@ -21,6 +24,13 @@ const QuickPollButton = styled(Button)`
   }
 `;
 
+const QuickPollButtonPlaceholder = styled.div`
+  width: 5rem;
+  margin-left: .5rem;
+  pointer-events: none;
+`;
+
 export default {
   QuickPollButton,
+  QuickPollButtonPlaceholder,
 };

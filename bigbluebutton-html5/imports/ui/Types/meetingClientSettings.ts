@@ -1,4 +1,8 @@
-import type { TrackPublishOptions } from 'livekit-client';
+import type {
+  InternalRoomOptions,
+  TrackPublishOptions,
+  LogLevel,
+} from 'livekit-client';
 
 export interface MeetingClientSettings {
   public: Public
@@ -25,6 +29,7 @@ export interface Public {
   whiteboard: Whiteboard
   clientLog: ClientLog
   virtualBackgrounds: VirtualBackgrounds
+  minBrowserVersions: MinBrowserVersions
 }
 export interface Locales {
   locale: string
@@ -49,17 +54,16 @@ export interface App {
   helpLink: string
   delayForUnmountOfSharedNote: number
   bbbTabletApp: BbbTabletApp
-  lockOnJoin: boolean
   cdn: string
   basename: string
   bbbWebBase: string
   learningDashboardBase: string
   customStyleUrl: string | null
   darkTheme: DarkTheme
-  askForFeedbackOnLogout: boolean
   askForConfirmationOnLeave: boolean
   wakeLock: WakeLock
   allowDefaultLogoutUrl: boolean
+  skipMeetingEnded: boolean
   dynamicGuestPolicy: boolean
   enableGuestLobbyMessage: boolean
   guestPolicyExtraAllowOptions: boolean
@@ -83,7 +87,6 @@ export interface App {
   remainingTimeAlertThresholdArray: number[]
   enableDebugWindow: boolean
   breakouts: Breakouts
-  customHeartbeat: boolean
   showAllAvailableLocales: boolean
   showAudioFilters: boolean
   reactionsButton: ReactionsButton
@@ -102,6 +105,8 @@ export interface App {
   maxMutationPayloadSize: number
   enableApolloDevTools: boolean
   terminateAndRetryConnection: number
+  timeoutBeforeRedirectOnMeetingEnd: number | null
+  showConnectionErrors: number[]
 }
 
 export interface BbbTabletApp {
@@ -142,6 +147,8 @@ export interface MutedAlert {
 
 export interface Breakouts {
   allowUserChooseRoomByDefault: boolean
+  offerRecordingForBreakouts: boolean
+  recordRoomByDefault: boolean
   captureWhiteboardByDefault: boolean
   captureSharedNotesByDefault: boolean
   sendInvitationToAssignedModeratorsByDefault: boolean
@@ -213,6 +220,7 @@ export interface DataSaving {
 export interface Shortcuts {
   openOptions: OpenOptions
   toggleUserList: ToggleUserList
+  openLeaveMenu: OpenLeaveMenu
   toggleMute: ToggleMute
   joinAudio: JoinAudio
   leaveAudio: LeaveAudio
@@ -230,6 +238,11 @@ export interface OpenOptions {
 }
 
 export interface ToggleUserList {
+  accesskey: string
+  descId: string
+}
+
+export interface OpenLeaveMenu {
   accesskey: string
   descId: string
 }
@@ -456,6 +469,11 @@ export interface Poll {
   maxCustom: number
   maxTypedAnswerLength: number
   chatMessage: boolean
+  quickPollConfirmationStep: boolean
+  quiz: {
+    enabled: boolean
+    quickPollCorrectAnswerSuffix: string
+  }
 }
 
 export interface Captions {
@@ -483,9 +501,7 @@ export interface Timer {
   enabled: boolean
   alarm: boolean
   music: Music
-  interval: Interval
   time: number
-  tabIndicator: boolean
 }
 
 export interface Music {
@@ -494,11 +510,6 @@ export interface Music {
   track1: string
   track2: string
   track3: string
-}
-
-export interface Interval {
-  clock: number
-  offset: number
 }
 
 export interface Chat {
@@ -528,7 +539,7 @@ export interface Chat {
   autoConvertEmoji: boolean
   emojiPicker: EmojiPicker
   disableEmojis: string[]
-  allowedElements: string[]
+  markdownImageAllowed: boolean
   toolbar: string[]
 }
 
@@ -574,6 +585,7 @@ export interface Layout {
   showParticipantsOnLogin: boolean
   showPushLayoutButton: boolean
   showPushLayoutToggle: boolean
+  showScreenshareQuickSwapButton: boolean
 }
 
 export interface Pads {
@@ -610,16 +622,27 @@ export interface Media {
   traceSip: boolean
   sdpSemantics: string
   localEchoTest: LocalEchoTest
+  networkPriorities: MediaNetworkPriorities
   muteAudioOutputWhenAway: boolean
   livekit: LiveKitSettings
 }
 
+export interface LiveKitPresetConfig {
+  width: number
+  height: number
+  maxBitrate: number
+  maxFramerate: number
+  priority?: RTCPriorityType
+}
+
 export interface LiveKitCameraSettings {
   publishOptions?: TrackPublishOptions
+  presets?: LiveKitPresetConfig[]
 }
 
 export interface LiveKitScreenShareSettings {
   publishOptions?: TrackPublishOptions
+  presets?: LiveKitPresetConfig[]
 }
 
 export interface LiveKitAudioSettings {
@@ -630,6 +653,8 @@ export interface LiveKitAudioSettings {
 export interface LiveKitSettings {
   url?: string
   selectiveSubscription?: boolean
+  logLevel?: LogLevel
+  roomOptions?: Partial<InternalRoomOptions>
   audio?: LiveKitAudioSettings
   camera?: LiveKitCameraSettings
   screenshare?: LiveKitScreenShareSettings
@@ -651,6 +676,12 @@ export interface LocalEchoTest {
   initialHearingState: boolean
   useRtcLoopbackInChromium: boolean
   delay: Delay
+}
+
+export interface MediaNetworkPriorities {
+  audio: RTCPriorityType
+  webcam: RTCPriorityType
+  screenshare: RTCPriorityType
 }
 
 export interface Delay {
@@ -718,6 +749,8 @@ export interface Whiteboard {
   maxStickyNoteLength: number
   maxNumberOfAnnotations: number
   maxNumberOfActiveUsers: number
+  maxHistoryStackSize: number
+  lockToolbarTools: boolean
   annotations: Annotations
   allowInfiniteWhiteboard: boolean
   allowInfiniteWhiteboardInBreakouts: boolean
@@ -745,6 +778,7 @@ export interface Text {
 
 export interface Toolbar {
   multiUserPenOnly: boolean
+  initialSelectedTool: string
   presenterTools: string[]
   multiUserTools: string[]
 }
@@ -795,7 +829,6 @@ export interface VirtualBackgrounds {
 export interface Private {
   analytics: Analytics
   app: App2
-  minBrowserVersions: MinBrowserVersion[]
   prometheus: Prometheus
 }
 
@@ -822,9 +855,17 @@ export interface Channels {
   toThirdParty: string
 }
 
-export interface MinBrowserVersion {
-  browser: string
-  version: number | number[] | string
+export interface mobileBrowsers {
+  safari: string
+  chrome: string
+}
+
+export interface MinBrowserVersions {
+  safari: string
+  chrome: string
+  firefox: string
+  edge: string
+  mobile: mobileBrowsers
 }
 
 export interface Prometheus {

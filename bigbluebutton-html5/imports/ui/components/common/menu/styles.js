@@ -73,11 +73,6 @@ const Option = styled.div`
     font-weight: ${headingsFontWeight};
   `}
 
-  [dir="rtl"] & {
-    margin-right: .5rem;
-    margin-left: 1.65rem;
-  }
-
   ${({ textColor }) => textColor && `
     color: ${textColor};
   `}
@@ -143,7 +138,7 @@ const BBBMenuItem = styled(MenuItem)`
   &:focus,
   &:hover {
     i { 
-      color: #FFF;
+      color: #FFF !important;
     }
     color: #FFF !important;
     background-color: ${colorPrimary} !important;

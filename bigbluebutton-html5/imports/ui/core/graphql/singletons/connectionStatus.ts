@@ -1,7 +1,6 @@
 import { makeVar, ReactiveVar } from '@apollo/client';
 import logger from '/imports/startup/client/logger';
 import { User } from '/imports/ui/Types/user';
-import getStatus from '/imports/ui/core/utils/getStatus';
 
 type NetworkData = {
   ready: boolean;
@@ -18,6 +17,15 @@ type NetworkData = {
     videoCurrentDownloadRate: number,
   }
 };
+
+export enum MetricStatus {
+  Unknown = 'unknown',
+  Normal = 'normal',
+  Warning = 'warning',
+  Danger = 'danger',
+  Critical = 'critical',
+}
+
 class ConnectionStatus {
   private connected = makeVar(false);
 
@@ -30,6 +38,8 @@ class ConnectionStatus {
   private lastRttRequestSuccess = makeVar(true);
 
   private rttValue = makeVar(0);
+
+  private subscriptionFailed = makeVar(false);
 
   // @ts-ignore
   private networkData: ReactiveVar<NetworkData> = makeVar({
@@ -56,6 +66,25 @@ class ConnectionStatus {
     lastUnstableStatusAt: Date | number,
     clientNotResponding?: boolean,
   }>>([]);
+
+  private liveKitConnectionStatus = makeVar(MetricStatus.Unknown);
+
+  public setLiveKitConnectionStatus(status: MetricStatus): void {
+    if (this.liveKitConnectionStatus() !== status) {
+      logger.info({
+        logCode: 'stats_livekit_conn_state',
+      }, `LiveKit connection status changed to ${status}`);
+      this.liveKitConnectionStatus(status);
+    }
+  }
+
+  public getLiveKitConnectionStatus() {
+    return this.liveKitConnectionStatus();
+  }
+
+  public getLiveKitConnectionStatusVar() {
+    return this.liveKitConnectionStatus;
+  }
 
   private packetLossFraction = makeVar(0);
 
@@ -105,16 +134,30 @@ class ConnectionStatus {
     return this.networkData;
   }
 
+  public setConnectionStatus(newRttValue: number, newRttStatus: string): void {
+    if (newRttValue !== this.rttValue() || newRttStatus !== this.rttStatus()) {
+      switch (newRttStatus) {
+        case 'critical':
+          logger.warn({ logCode: 'stats_rtt_state' }, `Connection status changed to critical(rtt > ${newRttValue}ms)`);
+          break;
+        case 'danger':
+          logger.warn({ logCode: 'stats_rtt_state' }, `Connection status changed to danger (rtt = ${newRttValue}ms)`);
+          break;
+        case 'warning':
+        case 'normal':
+          logger.debug({ logCode: 'stats_rtt_state' }, `Connection status changed to ${newRttStatus} (rtt = ${newRttValue}ms)`);
+          break;
+        default:
+      }
+
+      this.setRttValue(newRttValue);
+      this.setRttStatus(newRttStatus);
+    }
+  }
+
   public setRttValue(value: number): void {
     if (value !== this.rttValue()) {
-      const rttLevels = window.meetingClientSettings.public.stats.rtt;
-      const status = getStatus(rttLevels, value);
-      const isWarning = status === 'critical' || (this.rttStatus() === 'critical' && status !== 'critical');
-      if (isWarning) {
-        logger.warn({ logCode: 'stats_rtt_value_state', extraInfo: { rtt: value } }, `RTT value changed to ${value}ms`);
-      } else {
-        logger.debug({ logCode: 'stats_rtt_value_state', extraInfo: { rtt: value } }, `RTT value changed to ${value}ms`);
-      }
+      logger.debug({ logCode: 'stats_rtt_value_state', extraInfo: { rtt: value } }, `RTT value changed to ${value}ms`);
       this.rttValue(value);
     }
   }
@@ -129,7 +172,11 @@ class ConnectionStatus {
 
   public setLastRttRequestSuccess(value: boolean): void {
     if (value !== this.lastRttRequestSuccess()) {
-      logger.info({ logCode: 'stats_rtt_success_state' }, `Last RTT request changed to ${value}`);
+      if (value === false) {
+        logger.warn({ logCode: 'stats_rtt_success_state' }, `Last RTT request failed (rtt_success=${value})`);
+      } else {
+        logger.debug({ logCode: 'stats_rtt_success_state' }, `Last RTT request succeeded (rtt_success=${value})`);
+      }
       this.lastRttRequestSuccess(value);
     }
   }
@@ -144,11 +191,7 @@ class ConnectionStatus {
 
   public setRttStatus(value: string): void {
     if (value !== this.rttStatus()) {
-      if (value === 'critical' || (value !== 'critical' && this.rttStatus() === 'critical')) {
-        logger.warn({ logCode: 'stats_rtt_status_state' }, `Connection status changed to ${value} (rtt=${this.rttValue()}ms)`);
-      } else {
-        logger.info({ logCode: 'stats_rtt_status_state' }, `Connection status changed to ${value} (rtt=${this.rttValue()}ms)`);
-      }
+      logger.info({ logCode: 'stats_rtt_status_value' }, `RTT status changed to ${value}`);
       this.rttStatus(value);
     }
   }
@@ -163,7 +206,11 @@ class ConnectionStatus {
 
   public setPingIsComing(value: boolean): void {
     if (value !== this.pingIsComing()) {
-      logger.info({ logCode: 'stats_ping_state' }, `Ping status changed to ${value}`);
+      if (value) {
+        logger.info({ logCode: 'stats_ping_state' }, `Ping is coming (ping_is_coming=${value})`);
+      } else {
+        logger.warn({ logCode: 'stats_ping_state' }, `Ping is not coming (ping_is_coming=${value})`);
+      }
       this.pingIsComing(value);
     }
   }
@@ -178,7 +225,11 @@ class ConnectionStatus {
 
   public setServerIsResponding(value: boolean): void {
     if (value !== this.serverIsResponding()) {
-      logger.info({ logCode: 'stats_server_state' }, `Server responding status changed to ${value}`);
+      if (value) {
+        logger.info({ logCode: 'stats_server_state' }, `Server is responding (server_is_responding=${value})`);
+      } else {
+        logger.warn({ logCode: 'stats_server_state' }, `Server is not responding (server_is_responding=${value})`);
+      }
       this.serverIsResponding(value);
     }
   }
@@ -193,7 +244,11 @@ class ConnectionStatus {
 
   public setConnectedStatus(value: boolean): void {
     if (value !== this.connected()) {
-      logger.info({ logCode: 'stats_connection_state' }, `Connection status changed to ${value}`);
+      if (value) {
+        logger.info({ logCode: 'stats_connection_state' }, `Connection status changed to connected (connected=${value})`);
+      } else {
+        logger.warn({ logCode: 'stats_connection_state' }, `Connection status changed to disconnected (connected=${value})`);
+      }
       this.connected(value);
     }
   }
@@ -204,6 +259,25 @@ class ConnectionStatus {
 
   public getConnectedStatusVar() {
     return this.connected;
+  }
+
+  public setSubscriptionFailed(value: boolean): void {
+    if (value !== this.subscriptionFailed()) {
+      if (value) {
+        logger.warn({ logCode: 'stats_subscription_state' }, `Subscription failed (subscription_failed=${value})`);
+      } else {
+        logger.info({ logCode: 'stats_subscription_state' }, `Subscription recovered (subscription_failed=${value})`);
+      }
+      this.subscriptionFailed(value);
+    }
+  }
+
+  public getSubscriptionFailed() {
+    return this.subscriptionFailed();
+  }
+
+  public getSubscriptionFailedVar() {
+    return this.subscriptionFailed;
   }
 
   public addUserNetworkHistory(
@@ -233,4 +307,6 @@ class ConnectionStatus {
   }
 }
 
-export default new ConnectionStatus();
+const connectionStatus = new ConnectionStatus();
+
+export default connectionStatus;

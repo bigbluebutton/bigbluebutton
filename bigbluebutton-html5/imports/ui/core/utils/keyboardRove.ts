@@ -1,4 +1,5 @@
 import React from 'react';
+import logger from '/imports/startup/client/logger';
 
 const roveBuilder = (
   selectedRef: React.MutableRefObject<HTMLElement | null>,
@@ -42,7 +43,7 @@ const roveBuilder = (
           nextEl.focus();
         }
       } catch (error) {
-        console.error('Navigation error:', error);
+        logger.error('Navigation error:', error);
       }
     }
   }

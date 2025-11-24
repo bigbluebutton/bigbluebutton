@@ -58,6 +58,7 @@ const QuickPollDropdown = (props) => {
   const intl = useIntl();
 
   const POLL_SETTINGS = window.meetingClientSettings.public.poll;
+  const QUICK_POLL_CORRECT_ANSWER_SUFFIX = POLL_SETTINGS.quiz.quickPollCorrectAnswerSuffix;
   const MAX_CUSTOM_FIELDS = POLL_SETTINGS.maxCustom;
   const MAX_CHAR_LIMIT = POLL_SETTINGS.maxTypedAnswerLength;
   const CANCELED_POLL_DELAY = 250;
@@ -80,34 +81,66 @@ const QuickPollDropdown = (props) => {
     content,
   } = currentSlide;
 
-  let lines = content.split('\n');
-  let questions = [];
-  let questionLines = [];
+  const questionPattern = /^[a-zA-Z0-9][.)]\s+.*/;
+  const basicQuestionPattern = /^.*\?\s*$/;
 
-  for (let line of lines) {
-    let startsWithCapital = /^[A-Z]/.test(line);
-    let isEndOfQuestion = /\?$/.test(line);
+  const yesNoPatt = createPattern([yesValue, noValue]);
+  const trueFalsePatt = createPattern([trueValue, falseValue]);
+  // const optionsPattern = /^\s*(yes\s*\/\s*no|true\s*\/\s*false)\s*$/i;
+  const optionsPattern = new RegExp(
+    [yesNoPatt, trueFalsePatt].map((r) => r.source).join('|'),
+    'i',
+  );
 
-    if (startsWithCapital) {
-      if (questionLines.length > 0) {
-        questions.push(questionLines.join(' '));
-      }
-      questionLines = [];
+  const lines = content.split('\n');
+
+  const questionLines = [];
+  let isOptionSection = false;
+  const options = [];
+
+  // Group consecutive non-option lines as question
+  lines.forEach((line) => {
+    const trimmedLine = line.trim();
+
+    if (questionPattern.test(trimmedLine) || optionsPattern.test(trimmedLine)) {
+      // We've found explicit options (e.g., "a) Yes" or "Yes / No")
+      isOptionSection = true;
+      options.push(trimmedLine);
+      if (basicQuestionPattern.test(trimmedLine)) questionLines.push(trimmedLine);
+    } else if (!isOptionSection && trimmedLine.length > 0) {
+      // Any non-empty line before options is considered question text
+      questionLines.push(trimmedLine);
     }
+  });
 
-    questionLines.push(line.trim());
-
-    if (isEndOfQuestion) {
-      questions.push(questionLines.join(' '));
-      questionLines = [];
-    }
-  }
-
+  // Trim question to everything before the first '?'
   if (questionLines.length > 0) {
-    questions.push(questionLines.join(' '));
+    const full = questionLines.join(' ').trim();
+    const cutoffIdx = full.indexOf('?');
+    if (cutoffIdx !== -1) {
+      questionLines.length = 0;
+      questionLines.push(full.slice(0, cutoffIdx + 1));
+    }
   }
 
-  const question = questions.filter(q => /^[A-Z].*\?$/.test(q?.trim()));
+  // Join lines into a single question string
+  const question = [questionLines.join(' ').trim()];
+
+  const correctAnswer = lines
+    .map((line) => line.trimStart()).find((line) => line.endsWith(QUICK_POLL_CORRECT_ANSWER_SUFFIX)
+  && !question.includes(line))?.slice(0, -QUICK_POLL_CORRECT_ANSWER_SUFFIX.length);
+
+  // Check explicitly if options exist or if the question ends with '?'
+  const hasExplicitQuestionMark = basicQuestionPattern.test(question);
+
+  // Process standard lettered options
+  const processedOptions = options
+    .filter((opt) => questionPattern.test(opt))
+    .map((opt) => opt.replace(/^[a-zA-Z0-9][.)]\s+/, '').trim());
+
+  // Identify Yes/No or True/False options
+  const hasYesNo = options.some((opt) => /^yes\s*\/\s*no$/i.test(opt));
+  const hasTrueFalse = options.some((opt) => /^true\s*\/\s*false$/i.test(opt));
 
   if (question?.length > 0) {
     question[0] = question[0]?.replace(/\n/g, ' ');
@@ -116,17 +149,20 @@ const QuickPollDropdown = (props) => {
     if (hasUrl.length > 0) question.pop();
   }
 
+  // Determine whether to actually consider it a question based on your conditions
+  const isValidQuestion = (processedOptions.length > 0 || hasYesNo || hasTrueFalse)
+    || hasExplicitQuestionMark;
+
   const doubleQuestionRegex = /\?{2}/gm;
   const doubleQuestion = safeMatch(doubleQuestionRegex, content, false);
 
-  const yesNoPatt = createPattern([yesValue, noValue]);
   const hasYN = safeMatch(yesNoPatt, content, false);
 
-  const trueFalsePatt = createPattern([trueValue, falseValue]);
   const hasTF = safeMatch(trueFalsePatt, content, false);
 
-  const pollRegex = /\b[1-9A-Ia-i][.)] .*/g;
+  const pollRegex = /\b(?:[1-9]|1[0-9]|[A-Sa-s])[.)]\s*.*/g;
   let optionsPoll = safeMatch(pollRegex, content, []);
+
   const optionsWithLabels = [];
 
   if (hasYN) {
@@ -135,19 +171,32 @@ const QuickPollDropdown = (props) => {
 
   if (optionsPoll) {
     optionsPoll = optionsPoll.map((opt) => {
-      const formattedOpt = opt.substring(0, MAX_CHAR_LIMIT);
+      const cleanedOpt = opt.endsWith(QUICK_POLL_CORRECT_ANSWER_SUFFIX)
+        ? opt.slice(0, -QUICK_POLL_CORRECT_ANSWER_SUFFIX.length)
+        : opt;
+
+      const formattedOpt = cleanedOpt.substring(0, MAX_CHAR_LIMIT);
       optionsWithLabels.push(formattedOpt);
-      return `\r${opt[0]}.`;
+      const labelChar = formattedOpt.replace(/[.)].*/,'') || ''; // protect against empty strings
+      return `\r${labelChar}.`;
     });
   }
+  const normalizedCorrectAnswer = correctAnswer && (hasYN || hasTF)
+    ? correctAnswer.replace(/^[a-zA-Z0-9][.)]\s+/, '').trim()
+    : correctAnswer;
 
+  const optionGroupsWithLabels = [];
   optionsPoll.reduce((acc, currentValue) => {
     const lastElement = acc[acc.length - 1];
+    const lastElementWithLabels = optionGroupsWithLabels[optionGroupsWithLabels.length - 1];
 
     if (!lastElement) {
       acc.push({
         options: [currentValue],
       });
+      optionGroupsWithLabels.push(
+        [optionsWithLabels.shift()]
+      );
       return acc;
     }
 
@@ -157,26 +206,58 @@ const QuickPollDropdown = (props) => {
 
     const lastOption = options[options.length - 1];
 
-    const isLastOptionInteger = !!parseInt(lastOption.charAt(1), 10);
-    const isCurrentValueInteger = !!parseInt(currentValue.charAt(1), 10);
+    const tokenRegex = /^\s*(\d{1,2}|[A-Sa-s])/;
+    const lastMatch = lastOption.match(tokenRegex);
+    const currentMatch = currentValue.match(tokenRegex);
 
-    if (isLastOptionInteger === isCurrentValueInteger) {
-      if (currentValue.toLowerCase().charCodeAt(1) > lastOption.toLowerCase().charCodeAt(1)) {
-        options.push(currentValue);
+    if (!lastMatch || !currentMatch) {
+      acc.push({ options: [currentValue] });
+      optionGroupsWithLabels.push(
+        [optionsWithLabels.shift()]
+      );
+      return acc;
+    }
+
+    const lastToken = lastMatch[1];
+    const currentToken = currentMatch[1];
+
+    const isLastInteger = /^\d+$/.test(lastToken);
+    const isCurrentInteger = /^\d+$/.test(currentToken);
+
+    if (isLastInteger === isCurrentInteger) {
+      if (isLastInteger) {
+        // Number
+        if (parseInt(currentToken, 10) > parseInt(lastToken, 10)) {
+          options.push(currentValue);
+          lastElementWithLabels.push(optionsWithLabels.shift());
+        } else {
+          acc.push({ options: [currentValue] });
+          optionGroupsWithLabels.push(
+            [optionsWithLabels.shift()]
+          );
+        }
       } else {
-        acc.push({
-          options: [currentValue],
-        });
+        // Alphabet
+        if (currentToken.toLowerCase().charCodeAt(0) > lastToken.toLowerCase().charCodeAt(0)) {
+          options.push(currentValue);
+          lastElementWithLabels.push(optionsWithLabels.shift());
+        } else {
+          acc.push({ options: [currentValue] });
+          optionGroupsWithLabels.push(
+            [optionsWithLabels.shift()]
+          );
+        }
       }
     } else {
-      acc.push({
-        options: [currentValue],
-      });
+      acc.push({ options: [currentValue] });
+      optionGroupsWithLabels.push(
+        [optionsWithLabels.shift()]
+      );
     }
     return acc;
   }, []).filter(({
     options,
-  }) => options.length > 1 && options.length < 10).forEach((p) => {
+  }) => options.length > 1 && options.length < 20).forEach((p) => {
     const poll = p;
     if (doubleQuestion) poll.multiResp = true;
     if (poll.options.length <= 5 || MAX_CUSTOM_FIELDS <= 5) {
@@ -195,7 +276,13 @@ const QuickPollDropdown = (props) => {
     }
   });
 
-  if (question.length > 0 && optionsPoll.length === 0 && !doubleQuestion && !hasYN && !hasTF) {
+  if (question.length > 0
+    && optionsPoll.length === 0
+    && !doubleQuestion
+    && !hasYN
+    && !hasTF
+    && isValidQuestion
+  ) {
     quickPollOptions.push({
       type: 'R-',
       poll: {
@@ -247,11 +334,13 @@ const QuickPollDropdown = (props) => {
   const getAvailableQuickPolls = (
     slideId, parsedSlides, funcStartPoll, _pollTypes, _layoutContextDispatch,
   ) => {
+    let idx = -1;
     const pollItemElements = parsedSlides.map((poll) => {
       const { poll: label } = poll;
       const { type, poll: pollData } = poll;
       let itemLabel = label;
-      const letterAnswers = [];
+      let letterAnswers = [];
+      idx += 1;
 
       if (type === 'R-') {
         return (
@@ -278,14 +367,7 @@ const QuickPollDropdown = (props) => {
         const { options } = itemLabel;
         itemLabel = options.join('/').replace(/[\n.)]/g, '');
         if (type === _pollTypes.Custom) {
-          for (let i = 0; i < options.length; i += 1) {
-            const letterOption = options[i]?.replace(/[\r.)]/g, '').toUpperCase();
-            if (letterAnswers.length < MAX_CUSTOM_FIELDS) {
-              letterAnswers.push(letterOption);
-            } else {
-              break;
-            }
-          }
+          letterAnswers = (optionGroupsWithLabels[idx] || []).slice(0, MAX_CUSTOM_FIELDS);
         }
       }
 
@@ -293,12 +375,24 @@ const QuickPollDropdown = (props) => {
       itemLabel = itemLabel?.replace(/\s+/g, '').toUpperCase();
 
       const numChars = {
-        1: 'A', 2: 'B', 3: 'C', 4: 'D', 5: 'E', 6: 'F', 7: 'G', 8: 'H', 9: 'I',
+        1: 'A', 2: 'B', 3: 'C', 4: 'D', 5: 'E', 6: 'F', 7: 'G', 8: 'H', 9: 'I', 10: 'J',
+        11: 'K', 12: 'L', 13: 'M', 14: 'N', 15: 'O', 16: 'P', 17: 'Q', 18: 'R', 19: 'S',
       };
-      itemLabel = itemLabel.split('').map((c) => {
+      itemLabel = itemLabel.split('/').map((c) => {
         if (numChars[c]) return numChars[c];
         return c;
-      }).join('');
+      }).join('/');
+
+      // if the poll is letter and it does not start with A then we skip it
+      // same if it does follow the order (if it starts with A it has to be followed by B, C, D...)
+      if (type.startsWith(_pollTypes.Letter)) {
+        if (!itemLabel.startsWith('A')) return null;
+
+        const letters = itemLabel.split('/');
+        for (let i = 0; i < letters.length; i += 1) {
+          if (letters[i] !== numChars[i + 1]) return null;
+        }
+      }
 
       return (
         <Dropdown.DropdownListItem
@@ -310,14 +404,22 @@ const QuickPollDropdown = (props) => {
             }
             setTimeout(() => {
               handleClickQuickPoll(_layoutContextDispatch);
-              funcStartPoll(type, slideId, letterAnswers, pollQuestion, pollData?.multiResp);
+              funcStartPoll(
+                type,
+                slideId,
+                letterAnswers,
+                pollQuestion,
+                pollData?.multiResp,
+                normalizedCorrectAnswer?.length > 0,
+                normalizedCorrectAnswer,
+              );
             }, CANCELED_POLL_DELAY);
           }}
           answers={letterAnswers}
           multiResp={pollData?.multiResp}
         />
       );
-    });
+    }).filter(Boolean);
 
     const sizes = [];
     return pollItemElements.filter((el) => {
@@ -332,7 +434,7 @@ const QuickPollDropdown = (props) => {
     slideId, quickPollOptions, startPoll, pollTypes, layoutContextDispatch,
   );
 
-  if (quickPollOptions.length === 0) return null;
+  if (quickPolls.length === 0) return <Styled.QuickPollButtonPlaceholder aria-hidden />;
 
   let answers = null;
   let quickPollLabel = '';
@@ -364,14 +466,24 @@ const QuickPollDropdown = (props) => {
         setTimeout(() => {
           handleClickQuickPoll(layoutContextDispatch);
           if (singlePollType === 'R-' || singlePollType === 'TF' || singlePollType === 'YN') {
-            startPoll(singlePollType, currentSlide.id, answers, pollQuestion, multiResponse);
+            startPoll(
+              singlePollType,
+              currentSlide.id,
+              answers,
+              pollQuestion,
+              multiResponse,
+              normalizedCorrectAnswer?.length > 0,
+              normalizedCorrectAnswer,
+            );
           } else {
             startPoll(
               pollTypes.Custom,
               currentSlide.id,
-              optionsWithLabels,
+              (optionGroupsWithLabels[0] || []),
               pollQuestion,
               multiResponse,
+              normalizedCorrectAnswer?.length > 0,
+              normalizedCorrectAnswer,
             );
           }
         }, CANCELED_POLL_DELAY);

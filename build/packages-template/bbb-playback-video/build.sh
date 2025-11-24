@@ -24,6 +24,8 @@ done
 mkdir -p staging/usr/local/bigbluebutton/core
 cp -r scripts staging/usr/local/bigbluebutton/core
 cp -r playback staging/usr/local/bigbluebutton/core
+chmod -R a+rX staging/usr/local/bigbluebutton/core
+chmod 755 staging/usr/local/bigbluebutton/core/scripts/*/*.rb
 
 mkdir -p staging/usr/share/bigbluebutton/nginx
 mv staging/usr/local/bigbluebutton/core/scripts/playback-video.nginx staging/usr/share/bigbluebutton/nginx

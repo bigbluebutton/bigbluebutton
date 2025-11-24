@@ -21,6 +21,9 @@ import {
   colorBlueLightest,
   colorGrayLight,
   colorGrayLightest,
+  colorGrayDark,
+  emphasizedMessageBackgroundColor,
+  highlightedMessageBorderColor,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
 import Header from '/imports/ui/components/common/control-header/component';
@@ -28,20 +31,20 @@ import { ChatTime as ChatTimeBase } from './message-header/styles';
 
 interface ChatWrapperProps {
   sameSender: boolean;
-  isSystemSender: boolean;
+  messageHighlight: boolean;
   isPresentationUpload?: boolean;
   isCustomPluginMessage: boolean;
 }
 
-interface ChatContentProps {
+interface ChatMessageContentWrapperProps {
   sameSender: boolean;
   isCustomPluginMessage: boolean;
   $isSystemSender: boolean;
   $editing: boolean;
   $highlight: boolean;
   $reactionPopoverIsOpen: boolean;
-  $focused: boolean;
   $keyboardFocused: boolean;
+  $emphasizedMessage: boolean;
 }
 
 interface ChatAvatarProps {
@@ -50,6 +53,12 @@ interface ChatAvatarProps {
   moderator: boolean;
   emoji?: string;
 }
+
+export const FlexColumn = styled.div`
+  display: flex;
+  flex-flow: column;
+  gap: ${smPaddingY};
+`;
 
 export const ChatWrapper = styled.div<ChatWrapperProps>`
   pointer-events: auto;
@@ -71,7 +80,7 @@ export const ChatWrapper = styled.div<ChatWrapperProps>`
       word-break: break-word;
       background-color: #F3F6F9;
     `}
-  ${({ isSystemSender }) => isSystemSender && `
+  ${({ messageHighlight }) => messageHighlight && `
     background-color: #fef9f1;
     border-left: 2px solid #f5c67f;
     border-radius: 0px 3px 3px 0px;
@@ -83,28 +92,43 @@ export const ChatWrapper = styled.div<ChatWrapperProps>`
   `}
 `;
 
-export const ChatContent = styled.div<ChatContentProps>`
+export const ChatMessageContentWrapper = styled.div<ChatMessageContentWrapperProps>`
   display: flex;
   flex-flow: column;
   width: 100%;
   border-radius: 0.5rem;
   position: relative;
+  border: 1px solid transparent;
 
-  ${({ $isSystemSender }) => !$isSystemSender && `
+  ${({ $isSystemSender, isCustomPluginMessage }) => !$isSystemSender && !isCustomPluginMessage
+  && `
     background-color: #f4f6fa;
   `}
 
-  ${({ $highlight }) => $highlight && `
+  ${({ $highlight, isCustomPluginMessage }) => ($highlight && !isCustomPluginMessage) && `
     &:hover {
-      background-color: ${colorBlueLightest} !important;
+      border: 1px solid ${highlightedMessageBorderColor};
     }
   `}
 
   ${({
-    $editing, $reactionPopoverIsOpen, $focused, $keyboardFocused,
-  }) => ($reactionPopoverIsOpen || $editing || $focused || $keyboardFocused)
+    $editing, $reactionPopoverIsOpen, $keyboardFocused,
+    isCustomPluginMessage,
+  }) => !isCustomPluginMessage && ($reactionPopoverIsOpen || $editing || $keyboardFocused)
     && `
     background-color: ${colorBlueLightest} !important;
+  `}
+
+  .chat-message-container:focus & {
+    background-color: ${colorBlueLightest} !important;
+  }
+
+  ${({ $emphasizedMessage, isCustomPluginMessage }) => (!isCustomPluginMessage && $emphasizedMessage) && `
+    background-color: ${emphasizedMessageBackgroundColor};
+
+    &:hover {
+      border: 1px solid ${highlightedMessageBorderColor};
+    }
   `}
 `;
 
@@ -115,7 +139,7 @@ export const ChatContentFooter = styled.div`
   bottom: 0.25rem;
   line-height: 1;
   font-size: 95%;
-  display: none;
+  display: flex;
   background-color: inherit;
   border-radius: 0.5rem;
 
@@ -125,13 +149,6 @@ export const ChatContentFooter = styled.div`
 
   [dir="ltr"] & {
     right: 0.25rem;
-  }
-
-  .chat-message-wrapper-focused &,
-  .chat-message-wrapper-keyboard-focused &,
-  .chat-message-content:focus &,
-  .chat-message-content:hover & {
-    display: flex;
   }
 `;
 
@@ -229,9 +246,14 @@ export const Container = styled.div<{ $sequence: number }>`
   display: flex;
   flex-direction: column;
   user-select: text;
+  outline: none;
 
   &:not(:first-of-type) {
     margin-top: calc((${fontSizeSmaller} + ${lgPadding} * 2) / 2);
+  }
+
+  &[data-focusable="false"] {
+    pointer-events: none;
   }
 `;
 
@@ -239,6 +261,14 @@ export const MessageItemWrapper = styled.div`
   display: flex;
   flex-direction: row;
   padding: calc(${lgPadding} + 2px) ${$3xlPadding};
+`;
+
+export const PluginInformationMetadata = styled.div`
+  font-size: 75%;
+  font-style: italic;
+  color: ${colorGrayDark};
+  padding: 0 .25rem 0 0;
+  text-align: end;
 `;
 
 export const DeleteMessage = styled.span`
@@ -264,5 +294,12 @@ export const EditLabel = styled.span`
 
 export const ChatTime = styled(ChatTimeBase)`
   font-style: italic;
-  color: ${colorGrayLight};
+  color: ${colorGrayDark};
+  display: none;
+
+  .chat-message-container:focus &,
+  .chat-message-container-keyboard-focused &,
+  .chat-message-content:hover & {
+    display: flex;
+  }
 `;

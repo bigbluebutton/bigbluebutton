@@ -1,10 +1,10 @@
 import React, { PureComponent } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
-import BBBMenu from '/imports/ui/components/common/menu/component';
 import { uniqueId } from '/imports/utils/string-utils';
 import Trigger from '/imports/ui/components/common/control-header/right/component';
 import PresentationDownloadDropdownWrapper from './presentation-download-dropdown-wrapper/component';
+import BBBMenu from '/imports/ui/components/common/menu/component';
 
 const intlMessages = defineMessages({
   enableOriginalPresentationDownload: {
@@ -29,6 +29,10 @@ const intlMessages = defineMessages({
   },
   options: {
     id: 'app.presentationUploader.dropdownExportOptions',
+    description: 'Chat Options',
+  },
+  optionsUncomplete: {
+    id: 'app.presentationUploader.dropdownExportOptionsUncomplete',
     description: 'Chat Options',
   },
 });
@@ -121,7 +125,7 @@ class PresentationDownloadDropdown extends PureComponent {
           key: this.actionsKey[0],
           dataTest: 'disableOriginalPresentationDownload',
           label: intl.formatMessage(intlMessages.disableOriginalPresentationDownload,
-            { 0: originalFileExtension }),
+            { fileExtension: originalFileExtension }),
           onClick: () => changeDownloadOriginalOrConvertedPresentation(false, 'Original'),
         });
       } else {
@@ -129,7 +133,7 @@ class PresentationDownloadDropdown extends PureComponent {
           key: this.actionsKey[0],
           dataTest: 'enableOriginalPresentationDownload',
           label: intl.formatMessage(intlMessages.enableOriginalPresentationDownload,
-            { 0: originalFileExtension }),
+            { fileExtension: originalFileExtension }),
           onClick: () => changeDownloadOriginalOrConvertedPresentation(true, 'Original'),
         });
       }
@@ -143,7 +147,7 @@ class PresentationDownloadDropdown extends PureComponent {
             key: this.actionsKey[0],
             dataTest: 'disableOriginalPresentationDownload',
             label: intl.formatMessage(intlMessages.disableOriginalPresentationDownload,
-              { 0: convertedFileExtension }),
+              { fileExtension: convertedFileExtension }),
             onClick: () => changeDownloadOriginalOrConvertedPresentation(false, 'Converted'),
           });
         } else {
@@ -151,7 +155,7 @@ class PresentationDownloadDropdown extends PureComponent {
             key: this.actionsKey[0],
             dataTest: 'enableOriginalPresentationDownload',
             label: intl.formatMessage(intlMessages.enableOriginalPresentationDownload,
-              { 0: convertedFileExtension }),
+              { fileExtension: convertedFileExtension }),
             onClick: () => changeDownloadOriginalOrConvertedPresentation(true, 'Converted'),
           });
         }
@@ -176,17 +180,23 @@ class PresentationDownloadDropdown extends PureComponent {
     const { intl, disabled } = this.props;
 
     const customStyles = { zIndex: 9999 };
+    let tooltipLabelForDropdown = intl.formatMessage(intlMessages.options);
+    if (disabled) {
+      tooltipLabelForDropdown = intl.formatMessage(intlMessages.optionsUncomplete);
+    }
 
     return (
-      <PresentationDownloadDropdownWrapper disabled={disabled}>
+      <PresentationDownloadDropdownWrapper>
         <BBBMenu
+          disabled={disabled}
           customStyles={customStyles}
           trigger={(
             <Trigger
+              disabled={disabled}
               data-test="presentationOptionsDownload"
               icon="more"
-              label={intl.formatMessage(intlMessages.options)}
-              aria-label={intl.formatMessage(intlMessages.options)}
+              label={tooltipLabelForDropdown}
+              aria-label={tooltipLabelForDropdown}
               onClick={() => null}
             />
           )}

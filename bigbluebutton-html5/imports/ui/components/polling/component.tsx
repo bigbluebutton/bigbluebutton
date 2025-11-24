@@ -1,6 +1,7 @@
 import React, {
   useEffect, useMemo, useRef, useState,
 } from 'react';
+import ReactDOM from 'react-dom';
 import { useMutation } from '@apollo/client';
 import { defineMessages, useIntl } from 'react-intl';
 import Checkbox from '/imports/ui/components/common/checkbox/component';
@@ -17,10 +18,16 @@ import Service from './service';
 import Styled from './styles';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 import { useIsPollingEnabled } from '../../services/features';
+import logger from '/imports/startup/client/logger';
+import connectionStatus from '../../core/graphql/singletons/connectionStatus';
+import useMeeting from '../../core/hooks/useMeeting';
 
 const intlMessages = defineMessages({
   pollingTitleLabel: {
     id: 'app.polling.pollingTitle',
+  },
+  quizTitleLabel: {
+    id: 'app.poll.quiz.options.title',
   },
   pollAnswerLabel: {
     id: 'app.polling.pollAnswerLabel',
@@ -36,6 +43,9 @@ const intlMessages = defineMessages({
   },
   responseNotSecret: {
     id: 'app.polling.responseNotSecret',
+  },
+  quizResponseNotSecret: {
+    id: 'app.poll.quiz.options.responseNotSecret',
   },
   submitLabel: {
     id: 'app.polling.submitLabel',
@@ -62,6 +72,7 @@ interface PollingGraphqlProps {
   isDefaultPoll: (pollType: string) => boolean;
   playAlert: () => void;
   poll: {
+    quiz: boolean;
     pollId: string;
     multipleResponses: boolean;
     type: string;
@@ -144,7 +155,11 @@ const PollingGraphql: React.FC<PollingGraphqlProps> = (props) => {
           <span>
             {questionText.length === 0 && (
               <Styled.PollingTitle>
-                {intl.formatMessage(intlMessages.pollingTitleLabel)}
+                {
+                  poll.quiz
+                    ? intl.formatMessage(intlMessages.quizTitleLabel)
+                    : intl.formatMessage(intlMessages.pollingTitleLabel)
+                }
               </Styled.PollingTitle>
             )}
             <Styled.PollingAnswers
@@ -177,12 +192,12 @@ const PollingGraphql: React.FC<PollingGraphqlProps> = (props) => {
                     />
                     <Styled.Hidden id={`pollAnswerLabel${option.optionDesc}`}>
                       {intl.formatMessage(intlMessages.pollAnswerLabel, {
-                        0: label,
+                        option: label,
                       })}
                     </Styled.Hidden>
                     <Styled.Hidden id={`pollAnswerDesc${option.optionDesc}`}>
                       {intl.formatMessage(intlMessages.pollAnswerDesc, {
-                        0: label,
+                        option: label,
                       })}
                     </Styled.Hidden>
                   </Styled.PollButtonWrapper>
@@ -232,7 +247,7 @@ const PollingGraphql: React.FC<PollingGraphqlProps> = (props) => {
           {intl.formatMessage(
             poll.secret
               ? intlMessages.responseIsSecret
-              : intlMessages.responseNotSecret,
+              : (poll.quiz && intlMessages.quizResponseNotSecret) || intlMessages.responseNotSecret,
           )}
         </Styled.PollingSecret>
       </div>
@@ -244,7 +259,11 @@ const PollingGraphql: React.FC<PollingGraphqlProps> = (props) => {
       <div>
         {poll.questionText.length === 0 && (
           <Styled.PollingTitle>
-            {intl.formatMessage(intlMessages.pollingTitleLabel)}
+            {
+              poll.quiz
+                ? intl.formatMessage(intlMessages.quizTitleLabel)
+                : intl.formatMessage(intlMessages.pollingTitleLabel)
+            }
           </Styled.PollingTitle>
         )}
         <Styled.MultipleResponseAnswersTable>
@@ -278,7 +297,7 @@ const PollingGraphql: React.FC<PollingGraphqlProps> = (props) => {
                   </label>
                   <Styled.Hidden id={`pollAnswerDesc${option.optionDesc}`}>
                     {intl.formatMessage(intlMessages.pollAnswerDesc, {
-                      0: label,
+                      option: label,
                     })}
                   </Styled.Hidden>
                 </Styled.MultipleResponseAnswersTableAnswerText>
@@ -301,7 +320,7 @@ const PollingGraphql: React.FC<PollingGraphqlProps> = (props) => {
     );
   };
 
-  return (
+  return ReactDOM.createPortal(
     <Styled.Overlay>
       <Styled.PollingContainer
         autoWidth={poll.stackOptions}
@@ -313,7 +332,11 @@ const PollingGraphql: React.FC<PollingGraphqlProps> = (props) => {
         {poll.questionText.length > 0 && (
           <Styled.QHeader>
             <Styled.QTitle>
-              {intl.formatMessage(intlMessages.pollQuestionTitle)}
+              {
+                poll.quiz
+                  ? intl.formatMessage(intlMessages.quizTitleLabel)
+                  : intl.formatMessage(intlMessages.pollQuestionTitle)
+              }
             </Styled.QTitle>
             <Styled.QText data-test="pollQuestion">
               {poll.questionText}
@@ -324,7 +347,8 @@ const PollingGraphql: React.FC<PollingGraphqlProps> = (props) => {
           ? renderCheckboxAnswers()
           : renderButtonAnswers()}
       </Styled.PollingContainer>
-    </Styled.Overlay>
+    </Styled.Overlay>,
+    document.getElementById('polling-container') || document.body,
   );
 };
 
@@ -333,11 +357,19 @@ const PollingGraphqlContainer: React.FC = () => {
     userId: u.userId,
     presenter: u.presenter,
   }));
+
+  const {
+    data: meeting,
+    loading: meetingLoading,
+  } = useMeeting((m) => ({
+    componentsFlags: m.componentsFlags,
+  }));
+
   const { data: hasPendingPollData, error, loading } = useDeduplicatedSubscription<HasPendingPollResponse>(
     hasPendingPoll,
     {
       variables: { userId: currentUserData?.userId },
-      skip: !currentUserData,
+      skip: !currentUserData || meetingLoading || !meeting?.componentsFlags?.hasPoll,
     },
   );
   const [pollSubmitUserTypedVote] = useMutation(POLL_SUBMIT_TYPED_VOTE);
@@ -373,6 +405,20 @@ const PollingGraphqlContainer: React.FC = () => {
   };
 
   if (!showPolling || error || loading) return null;
+
+  if (error) {
+    connectionStatus.setSubscriptionFailed(true);
+    logger.error(
+      {
+        logCode: 'subscription_Failed',
+        extraInfo: {
+          error,
+        },
+      },
+      'Subscription failed to load',
+    );
+    return null;
+  }
 
   return (
     <PollingGraphql

@@ -11,6 +11,7 @@ object_relationships:
     using:
       manual_configuration:
         column_mapping:
+          meetingId: meetingId
           userId: userId
         insertion_order: null
         remote_table:
@@ -48,6 +49,7 @@ object_relationships:
     using:
       manual_configuration:
         column_mapping:
+          meetingId: meetingId
           userId: userId
         insertion_order: null
         remote_table:
@@ -58,6 +60,7 @@ array_relationships:
     using:
       manual_configuration:
         column_mapping:
+          meetingId: meetingId
           userId: userId
         insertion_order: null
         remote_table:
@@ -91,7 +94,7 @@ select_permissions:
         - bot
         - guest
         - guestStatus
-        - hasDrawPermissionOnCurrentPage
+        - whiteboardWriteAccess
         - isDialIn
         - isModerator
         - currentlyInMeeting
@@ -102,6 +105,10 @@ select_permissions:
         - mobile
         - name
         - nameSortable
+        - firstName
+        - firstNameSortable
+        - lastName
+        - lastNameSortable
         - pinned
         - presenter
         - raiseHand
@@ -112,6 +119,7 @@ select_permissions:
         - role
         - speechLocale
         - userId
+        - meetingId
       filter:
         _and:
           - meetingId:

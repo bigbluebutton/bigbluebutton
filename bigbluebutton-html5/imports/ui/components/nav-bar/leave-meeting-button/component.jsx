@@ -3,9 +3,9 @@ import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import EndMeetingConfirmationContainer from '/imports/ui/components/end-meeting-confirmation/container';
 import BBBMenu from '/imports/ui/components/common/menu/component';
-import { colorDanger, colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
 import Styled from './styles';
 import Session from '/imports/ui/services/storage/in-memory';
+import { ModalRegistration } from '/imports/ui/core/singletons/modalController';
 
 const intlMessages = defineMessages({
   leaveMeetingBtnLabel: {
@@ -23,6 +23,14 @@ const intlMessages = defineMessages({
   leaveSessionDesc: {
     id: 'app.navBar.optionsDropdown.leaveSessionDesc',
     description: 'Describes leave session option',
+  },
+  leaveBreakoutLabel: {
+    id: 'app.navBar.optionsDropdown.leaveBreakoutLabel',
+    description: 'Leave breakout button label',
+  },
+  leaveBreakoutDesc: {
+    id: 'app.navBar.optionsDropdown.leaveBreakoutDesc',
+    description: 'Describes leave breakout option',
   },
   endMeetingLabel: {
     id: 'app.navBar.optionsDropdown.endMeetingForAllLabel',
@@ -44,6 +52,7 @@ const propTypes = {
   isDropdownOpen: PropTypes.bool,
   ismobile: PropTypes.bool.isRequired,
   userLeaveMeeting: PropTypes.func.isRequired,
+  openLeaveMenu: PropTypes.string,
 };
 
 const defaultProps = {
@@ -63,21 +72,13 @@ class LeaveMeetingButton extends PureComponent {
     // Set the logout code to 680 because it's not a real code and can be matched on the other side
     this.LOGOUT_CODE = '680';
 
-    this.setEndMeetingConfirmationModalIsOpen = this
-      .setEndMeetingConfirmationModalIsOpen.bind(this);
     this.leaveSession = this.leaveSession.bind(this);
-  }
-
-  setEndMeetingConfirmationModalIsOpen(value) {
-    this.setState({ isEndMeetingConfirmationModalOpen: value });
   }
 
   leaveSession() {
     const { userLeaveMeeting } = this.props;
 
     userLeaveMeeting();
-    // we don't check askForFeedbackOnLogout here,
-    // it is checked in meeting-ended component
     Session.setItem('codeError', this.LOGOUT_CODE);
   }
 
@@ -93,21 +94,26 @@ class LeaveMeetingButton extends PureComponent {
     this.menuItems = [];
 
     if (allowLogoutSetting && connected) {
+      const leaveLabel = isBreakoutRoom
+        ? intlMessages.leaveBreakoutLabel
+        : intlMessages.leaveSessionLabel;
+      const leaveDesc = isBreakoutRoom
+        ? intlMessages.leaveBreakoutDesc
+        : intlMessages.leaveSessionDesc;
+
       this.menuItems.push(
         {
           key: 'list-item-logout',
           dataTest: 'directLogoutButton',
           icon: 'logout',
-          label: intl.formatMessage(intlMessages.leaveSessionLabel),
-          description: intl.formatMessage(intlMessages.leaveSessionDesc),
+          label: intl.formatMessage(leaveLabel),
+          description: intl.formatMessage(leaveDesc),
           onClick: () => this.leaveSession(),
         },
       );
     }
 
     if (allowedToEndMeeting && connected) {
-      const customStyles = { background: colorDanger, color: colorWhite };
-
       this.menuItems.push(
         {
           key: 'list-item-end-meeting',
@@ -115,7 +121,6 @@ class LeaveMeetingButton extends PureComponent {
           icon: 'close',
           label: intl.formatMessage(intlMessages.endMeetingLabel),
           description: intl.formatMessage(intlMessages.endMeetingDesc),
-          customStyles,
           onClick: () => this.setEndMeetingConfirmationModalIsOpen(true),
         },
       );
@@ -151,6 +156,7 @@ class LeaveMeetingButton extends PureComponent {
       isDropdownOpen,
       ismobile,
       isRTL,
+      openLeaveMenu,
     } = this.props;
 
     const { isEndMeetingConfirmationModalOpen } = this.state;
@@ -165,6 +171,7 @@ class LeaveMeetingButton extends PureComponent {
             <Styled.LeaveButton
               state={isDropdownOpen ? 'open' : 'closed'}
               ismobile={ismobile.toString()}
+              accessKey={openLeaveMenu}
               aria-label={intl.formatMessage(intlMessages.leaveMeetingBtnLabel)}
               label={intl.formatMessage(intlMessages.leaveMeetingBtnLabel)}
               tooltipLabel={intl.formatMessage(intlMessages.leaveMeetingBtnLabel)}
@@ -191,9 +198,30 @@ class LeaveMeetingButton extends PureComponent {
             transformorigin: { vertical: 'top', horizontal: isRTL ? 'left' : 'right' },
           }}
         />
-        {this.renderModal(isEndMeetingConfirmationModalOpen,
-          this.setEndMeetingConfirmationModalIsOpen,
-          'low', EndMeetingConfirmationContainer)}
+        <ModalRegistration id="leaveMeetingMenuModal" priority="low">
+          {({
+            isOpen, open, close,
+          }) => {
+            this.setEndMeetingConfirmationModalIsOpen = (value) => {
+              if (value) open();
+              else close();
+            };
+            if (!isOpen) return null;
+            return (
+              <EndMeetingConfirmationContainer
+                {...{
+                  isOpen,
+                  onRequestClose: () => close(),
+                  setIsOpen: (value) => {
+                    if (value) open();
+                    else close();
+                  },
+                  priority: 'low',
+                }}
+              />
+            );
+          }}
+        </ModalRegistration>
       </>
     );
   }

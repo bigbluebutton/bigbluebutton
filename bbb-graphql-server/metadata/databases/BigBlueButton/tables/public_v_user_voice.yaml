@@ -11,6 +11,7 @@ object_relationships:
     using:
       manual_configuration:
         column_mapping:
+          meetingId: meetingId
           userId: userId
         insertion_order: null
         remote_table:
@@ -29,13 +30,40 @@ select_permissions:
         - lastFloorTime
         - listenOnly
         - muted
+        - listenOnlyInputDevice
+        - deafened
         - spoke
         - startTime
         - talking
         - userId
         - voiceConf
-        - voiceConfCallState
         - voiceUserId
       filter:
         meetingId:
           _eq: X-Hasura-MeetingId
+  - role: bbb_client_not_in_meeting
+    permission:
+      columns:
+        - callerName
+        - callerNum
+        - callingWith
+        - endTime
+        - floor
+        - joined
+        - lastFloorTime
+        - listenOnly
+        - muted
+        - listenOnlyInputDevice
+        - deafened
+        - spoke
+        - startTime
+        - talking
+        - userId
+        - voiceConf
+        - voiceUserId
+      filter:
+        _and:
+          - meetingId:
+              _eq: X-Hasura-MeetingId
+          - userId:
+              _eq: X-Hasura-UserId

@@ -1,4 +1,4 @@
-import React, { memo, useState } from 'react';
+import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import deviceInfo from '/imports/utils/deviceInfo';
@@ -17,10 +17,10 @@ import {
 import { SCREENSHARING_ERRORS } from '/imports/api/screenshare/client/bridge/errors';
 import Button from '/imports/ui/components/common/button/component';
 import { EXTERNAL_VIDEO_STOP } from '../../external-video-player/mutations';
-import { CAMERA_BROADCAST_STOP } from '../../video-provider/mutations';
 import {
   useStopVideo,
 } from '/imports/ui/components/video-provider/hooks';
+import { useModalRegistration } from '/imports/ui/core/singletons/modalController';
 
 const { isMobile } = deviceInfo;
 const { isSafari, isTabletApp } = browserInfo;
@@ -141,7 +141,7 @@ const getErrorLocale = (errorCode) => {
 const getToastType = (errorCode) => {
   if ([SCREENSHARING_ERRORS.NotAllowedError.errorCode].includes(errorCode)) return 'warning';
   return 'error';
-}
+};
 
 const ScreenshareButton = ({
   intl,
@@ -157,10 +157,16 @@ const ScreenshareButton = ({
   const TROUBLESHOOTING_URLS = window.meetingClientSettings.public.media.screenshareTroubleshootingLinks;
   const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
   const isCameraAsContentBroadcasting = useIsCameraAsContentBroadcasting();
-  const [cameraBroadcastStop] = useMutation(CAMERA_BROADCAST_STOP);
   const stopVideo = useStopVideo();
 
-  const [isScreenshareUnavailableModalOpen, setScreenshareUnavailableModalIsOpen] = useState(false);
+  const {
+    isOpen: isScreenshareUnavailableModalOpen,
+    open: openScreenshareUnavailableModal,
+    close: closeScreenshareUnavailableModal,
+  } = useModalRegistration({
+    id: 'screenshareUnavailableModal',
+    priority: 'low',
+  });
 
   const getHelpInfoForError = (errorCode) => {
     if (TROUBLESHOOTING_URLS && Object.keys(TROUBLESHOOTING_URLS).includes(errorCode)) {
@@ -170,7 +176,7 @@ const ScreenshareButton = ({
       };
     }
     return {};
-  }
+  };
 
   // This is the failure callback that will be passed to the /api/screenshare/kurento.js
   // script on the presenter's call
@@ -185,7 +191,7 @@ const ScreenshareButton = ({
     const toastType = getToastType(errorCode);
 
     if (localizedError) {
-      notify(intl.formatMessage(localizedError, { 0: errorCode }), toastType, 'desktop', { ...helpInfo });
+      notify(intl.formatMessage(localizedError, { errorCode }), toastType, 'desktop', { ...helpInfo });
       logger.error({
         logCode: 'screenshare_failed',
         extraInfo: { errorCode, errorMessage },
@@ -252,7 +258,7 @@ const ScreenshareButton = ({
                   }
                   : () => {
                     if (isSafari && !ScreenshareBridgeService.HAS_DISPLAY_MEDIA) {
-                      setScreenshareUnavailableModalIsOpen(true);
+                      openScreenshareUnavailableModal();
                     } else {
                       // eslint-disable-next-line max-len
                       shareScreen(isCameraAsContentBroadcasting, stopExternalVideoShare, true, handleFailure);
@@ -263,18 +269,15 @@ const ScreenshareButton = ({
             </Styled.Container>
           ) : null
       }
-      {
-        isScreenshareUnavailableModalOpen ? (
-          <RenderScreenshareUnavailableModal
-            {...{
-              onRequestClose: () => setScreenshareUnavailableModalIsOpen(false),
-              priority: 'low',
-              setIsOpen: setScreenshareUnavailableModalIsOpen,
-              isOpen: isScreenshareUnavailableModalOpen,
-            }}
-          />
-        ) : null
-      }
+      {isScreenshareUnavailableModalOpen && (
+        <RenderScreenshareUnavailableModal
+          onRequestClose={closeScreenshareUnavailableModal}
+          priority="low"
+          setIsOpen={isScreenshareUnavailableModalOpen
+            ? closeScreenshareUnavailableModal : openScreenshareUnavailableModal}
+          isOpen={isScreenshareUnavailableModalOpen}
+        />
+      )}
     </>
   );
 };

@@ -46,6 +46,7 @@ const BgNoneButton = styled(Button)`
   border: ${borderSizeSmall} solid ${userThumbnailBorder};
   margin: 0.5rem 0.5rem;
   flex-shrink: 0;
+  padding: unset;
 `;
 
 const ThumbnailButton = styled(Button)`
@@ -144,7 +145,9 @@ const ButtonRemove = styled(Button)`
   }
 `;
 
-const BgCustomButton = styled(BgNoneButton)``;
+const BgCustomButton = styled(BgNoneButton)`
+  font-size: 130%;
+`;
 
 const SkeletonWrapper = styled.div`
   flex-basis: 0 0 48px;

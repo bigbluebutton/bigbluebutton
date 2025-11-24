@@ -3,16 +3,17 @@ import Styled from '../styles';
 
 interface DragAndDropPros {
   MAX_INPUT_CHARS: number;
-  handlePollValuesText: (value: string) => void;
+  handleTextareaChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   [key: string]: unknown;
 }
 
-const DragAndDrop: React.FC<DragAndDropPros> = (props) => {
-  const { MAX_INPUT_CHARS, handlePollValuesText } = props;
+const DragAndDrop = React.forwardRef<HTMLTextAreaElement, DragAndDropPros>((props, ref) => {
+  const { MAX_INPUT_CHARS, handleTextareaChange } = props;
   const [drag, setDrag] = useState(false);
-  const [pollValueText, setPollText] = useState('');
   const dropRef = useRef<HTMLTextAreaElement | null>(null);
   const dragCounter = useRef(0);
+
+  React.useImperativeHandle(ref, () => dropRef.current as HTMLTextAreaElement);
 
   useEffect(() => {
     const handleDrag = (e: DragEvent) => {
@@ -59,28 +60,23 @@ const DragAndDrop: React.FC<DragAndDropPros> = (props) => {
     };
   }, []);
 
-  const setPollValues = () => {
-    if (pollValueText) {
-      handlePollValuesText(pollValueText);
-    }
-  };
-
   const setPollValuesFromFile = (file: File) => {
     const reader = new FileReader();
     reader.onload = async (e) => {
       const result = e.target?.result;
       if (!result) return;
       const text = typeof result === 'string' ? result : String(result);
-      setPollValueText(text);
-      setPollValues();
+      setPollText(text);
     };
     reader.readAsText(file);
   };
 
-  const setPollValueText = (pollText: string) => {
+  const setPollText = (pollText: string) => {
     const arr = pollText.split('\n');
-    const text = arr.map((line) => (line.length > MAX_INPUT_CHARS ? line.substring(0, MAX_INPUT_CHARS) : line)).join('\n');
-    setPollText(text);
+    const text = arr.map((line) => (
+      line.length > MAX_INPUT_CHARS ? line.substring(0, MAX_INPUT_CHARS) : line
+    )).join('\n');
+    handleTextareaChange({ target: { value: text } } as React.ChangeEvent<HTMLTextAreaElement>);
   };
 
   const getCleanProps = () => {
@@ -102,6 +98,6 @@ const DragAndDrop: React.FC<DragAndDropPros> = (props) => {
       {...getCleanProps()}
     />
   );
-};
+});
 
 export default DragAndDrop;

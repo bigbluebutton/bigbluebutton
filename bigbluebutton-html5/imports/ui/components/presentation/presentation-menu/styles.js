@@ -1,6 +1,5 @@
 import styled, { css, keyframes } from 'styled-components';
 import Icon from '/imports/ui/components/common/icon/component';
-import { headingsFontWeight } from '/imports/ui/stylesheets/styled-components/typography';
 import {
   colorDanger,
   colorGray,
@@ -9,12 +8,11 @@ import {
   colorOffWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
-  borderSizeLarge,
-  lgPaddingX,
   statusIconSize,
   borderSize,
   statusInfoHeight,
 } from '/imports/ui/stylesheets/styled-components/general';
+import ToastStyles from '/imports/ui/components/common/toast/styles';
 
 const DropdownButton = styled.button`
   background-color: ${colorOffWhite};
@@ -39,16 +37,18 @@ const DropdownButton = styled.button`
 const Right = styled.div`
   cursor: pointer;
   position: absolute;
-  right: 2px;
+  right: 3px;
   top: 2px;
   z-index: 999;
+
   > div {
-    width: 50px;
-    height: 40px;
+    width: 35px;
+    height: 35px;
     display: flex;
     align-items: center;
     justify-content: center;
   }
+
   button {
     height: 100%;
     width: 100%;
@@ -57,25 +57,13 @@ const Right = styled.div`
     justify-content: center;
   }
 
-  [dir="rtl"] &{
-      left: 2px;
-      right: auto;
-    }
-`;
-const ToastText = styled.span`
-  overflow: hidden;
-  text-overflow: ellipsis;
-  text-align: left;
-  white-space: nowrap;
-  position: relative;
-  top: ${borderSizeLarge};
-  width: auto;
-  font-weight: ${headingsFontWeight};
-
   [dir="rtl"] & {
-    text-align: right;
+    left: 3px;
+    right: auto;
   }
 `;
+
+const ToastText = styled(ToastStyles.ToastMessage)``;
 
 const StatusIcon = styled.span`
   margin-left: auto;
@@ -132,7 +120,7 @@ const Line = styled.div`
   display: flex;
   width: 100%;
   flex-wrap: nowrap;
-  padding: ${lgPaddingX} 0;
+  padding: 0;
 `;
 
 const ButtonIcon = styled(Icon)`

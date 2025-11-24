@@ -33,6 +33,7 @@ const PresentationOnlyLayout = (props) => {
   const currentPanelType = layoutSelect((i) => i.currentPanelType);
 
   const presentationInput = layoutSelectInput((i) => i.presentation);
+  const externalVideoInput = layoutSelectInput((i) => i.externalVideo);
   const actionbarInput = layoutSelectInput((i) => i.actionBar);
   const navbarInput = layoutSelectInput((i) => i.navBar);
   const layoutContextDispatch = layoutDispatch();
@@ -282,6 +283,7 @@ const PresentationOnlyLayout = (props) => {
     layoutContextDispatch({
       type: ACTIONS.SET_EXTERNAL_VIDEO_OUTPUT,
       value: {
+        display: externalVideoInput.hasExternalVideo,
         width: isOpen ? mediaBounds.width : 0,
         height: isOpen ? mediaBounds.height : 0,
         top: mediaBounds.top,
@@ -363,9 +365,6 @@ const PresentationOnlyLayout = (props) => {
               width: 0,
               height: 0,
             },
-            SidebarContentHorizontalResizer: {
-              isOpen: false,
-            },
             presentation: {
               isOpen: true,
               slidesLength: presentation.slidesLength,
@@ -374,7 +373,7 @@ const PresentationOnlyLayout = (props) => {
               },
             },
             cameraDock: {
-              numCameras: 0,
+              numCameras: prevInput.cameraDock.numCameras,
             },
             externalVideo: {
               hasExternalVideo: externalVideo.hasExternalVideo,

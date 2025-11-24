@@ -11,41 +11,53 @@ import {
   toggleMuteMicrophone,
   toggleMuteMicrophoneSystem,
 } from '/imports/ui/components/audio/audio-graphql/audio-controls/input-stream-live-selector/service';
-import apolloContextHolder from '/imports/ui/core/graphql/apolloContextHolder/apolloContextHolder';
-import { MEETING_IS_BREAKOUT } from '/imports/ui/components/audio/audio-graphql/audio-controls/queries';
+import useIsAudioConnected from '/imports/ui/components/audio/audio-graphql/hooks/useIsAudioConnected';
+import meetingStaticData from '../../core/singletons/meetingStaticData';
 
 const MUTED_KEY = 'muted';
+export const CLIENT_DID_USER_SELECT_MICROPHONE_KEY = 'clientUserSelectedMicrophone';
+export const CLIENT_DID_USER_SELECT_LISTEN_ONLY_KEY = 'clientUserSelectedListenOnly';
+
+export const setUserSelectedMicrophone = (value) => (
+  Storage.setItem(CLIENT_DID_USER_SELECT_MICROPHONE_KEY, !!value)
+);
+
+export const setUserSelectedListenOnly = (value) => (
+  Storage.setItem(CLIENT_DID_USER_SELECT_LISTEN_ONLY_KEY, !!value)
+);
+
+export const didUserSelectMicrophone = () => (
+  !!Storage.getItem(CLIENT_DID_USER_SELECT_MICROPHONE_KEY)
+);
+
+export const didUserSelectListenOnly = () => (
+  !!Storage.getItem(CLIENT_DID_USER_SELECT_LISTEN_ONLY_KEY)
+);
+
+const getStorageMuteStateKey = () => {
+  const meetingStaticStore = meetingStaticData.getMeetingData();
+  const isBreakout = meetingStaticStore?.isBreakout;
+  const parentId = meetingStaticStore?.breakoutPolicies?.parentId;
+  const meetingId = isBreakout && parentId
+    ? parentId
+    : Auth.meetingID;
+
+  return `${MUTED_KEY}_${meetingId}`;
+};
+
+const getStorageMuteState = () => Storage.getItem(getStorageMuteStateKey());
 
 const recoverMicState = (toggleVoice) => {
-  const recover = (storageKey) => {
-    const muted = Storage.getItem(storageKey);
+  const muted = getStorageMuteState();
 
-    if ((muted === undefined) || (muted === null) || AudioManager.inputDeviceId === 'listen-only') {
-      return;
-    }
+  if ((muted === undefined) || (muted === null) || AudioManager.inputDeviceId === 'listen-only') {
+    return;
+  }
 
-    logger.debug({
-      logCode: 'audio_recover_mic_state',
-    }, `Audio recover previous mic state: muted = ${muted}`);
-    toggleVoice(Auth.userID, muted);
-  };
-
-  apolloContextHolder.getClient().query({
-    query: MEETING_IS_BREAKOUT,
-    fetchPolicy: 'cache-first',
-  }).then((result) => {
-    const meeting = result?.data?.meeting?.[0];
-    const meetingId = meeting?.isBreakout && meeting?.breakoutPolicies?.parentId
-      ? meeting.breakoutPolicies.parentId
-      : Auth.meetingID;
-    const storageKey = `${MUTED_KEY}_${meetingId}`;
-
-    recover(storageKey);
-  }).catch(() => {
-    // Fallback
-    const storageKey = `${MUTED_KEY}_${Auth.meetingID}`;
-    recover(storageKey);
-  });
+  logger.debug({
+    logCode: 'audio_recover_mic_state',
+  }, `Audio recover previous mic state: muted = ${muted}`);
+  toggleVoice(Auth.userID, muted);
 };
 
 const audioEventHandler = (toggleVoice) => (event) => {
@@ -90,8 +102,11 @@ const init = (
   return AudioManager.init(userData, audioEventHandler(toggleVoice), bridges);
 };
 
-const useIsUsingAudio = () => {
-  const isConnected = useReactiveVar(AudioManager._isConnected.value);
+// This hooks should only be used to determine whether there's a system audio
+// connection underway. It should not be used to determine whether the user is
+// connected to audio UI-wise (i.e.: it ignores the deafened state).
+const useIsAudioConnectionUnderway = () => {
+  const isConnected = useIsAudioConnected({ ignoreDeafened: true });
   const isConnecting = useReactiveVar(AudioManager._isConnecting.value);
   const isHangingUp = useReactiveVar(AudioManager._isHangingUp.value);
 
@@ -176,6 +191,8 @@ const hasMicrophonePermission = async ({
 };
 
 export default {
+  CLIENT_DID_USER_SELECT_MICROPHONE_KEY,
+  CLIENT_DID_USER_SELECT_LISTEN_ONLY_KEY,
   init,
   exitAudio: () => AudioManager.exitAudio(),
   forceExitAudio: () => AudioManager.forceExitAudio(),
@@ -190,8 +207,8 @@ export default {
     outputDeviceId,
     isLive,
   ) => AudioManager.changeOutputDevice(outputDeviceId, isLive),
-  updateInputDevices: (devices) => { AudioManager.inputDevices = devices },
-  updateOutputDevices: (devices) => { AudioManager.outputDevices = devices },
+  updateInputDevices: (devices) => { AudioManager.inputDevices = devices; },
+  updateOutputDevices: (devices) => { AudioManager.outputDevices = devices; },
   toggleMuteMicrophone,
   toggleMuteMicrophoneSystem,
   isConnectedToBreakout: () => {
@@ -204,7 +221,7 @@ export default {
     const transferStatus = AudioManager.getBreakoutAudioTransferStatus();
     if (!!transferStatus.breakoutMeetingId
       && transferStatus.breakoutMeetingId !== Auth.meetingID) return false;
-    return AudioManager.isConnected;
+    return AudioManager.isAudioConnected();
   },
   isUsingAudio: () => AudioManager.isUsingAudio(),
   isConnecting: () => AudioManager.isConnecting,
@@ -218,7 +235,6 @@ export default {
   handleAllowAutoplay: () => AudioManager.handleAllowAutoplay(),
   playAlertSound: (url) => AudioManager.playAlertSound(url),
   updateAudioConstraints: (constraints) => AudioManager.updateAudioConstraints(constraints),
-  recoverMicState,
   setBreakoutAudioTransferStatus: (status) => AudioManager
     .setBreakoutAudioTransferStatus(status),
   getBreakoutAudioTransferStatus: () => AudioManager
@@ -229,5 +245,11 @@ export default {
   supportsTransparentListenOnly: () => AudioManager.supportsTransparentListenOnly(),
   hasMicrophonePermission,
   notify: (message, error, icon) => { AudioManager.notify(message, error, icon); },
-  useIsUsingAudio,
+  useIsAudioConnectionUnderway,
+  didUserSelectMicrophone,
+  didUserSelectListenOnly,
+  setUserSelectedMicrophone,
+  setUserSelectedListenOnly,
+  getStorageMuteStateKey,
+  getStorageMuteState,
 };

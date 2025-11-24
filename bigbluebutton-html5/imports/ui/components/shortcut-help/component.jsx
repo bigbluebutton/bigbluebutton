@@ -47,6 +47,10 @@ const intlMessages = defineMessages({
     id: 'app.shortcut-help.toggleUserList',
     description: 'describes the toggle userlist shortcut',
   },
+  openleavemenu: {
+    id: 'app.shortcut-help.openLeaveMenu',
+    description: 'describes the open leave menu shortcut',
+  },
   togglemute: {
     id: 'app.shortcut-help.toggleMute',
     description: 'describes the toggle mute shortcut',
@@ -159,6 +163,14 @@ const intlMessages = defineMessages({
     id: 'app.shortcut-help.note',
     description: 'describes the sticky note shortcut key',
   },
+  hand: {
+    id: 'app.shortcut-help.hand',
+    description: 'describes the hand shortcut key',
+  },
+  highlight: {
+    id: 'app.shortcut-help.highlight',
+    description: 'describes the highlight shortcut key',
+  },
   general: {
     id: 'app.shortcut-help.general',
     description: 'general tab heading',
@@ -250,7 +262,19 @@ const intlMessages = defineMessages({
   pushToTalkDesc: {
     id: 'app.shortcut-help.pushToTalk',
     description: 'describes the push-to-talk shortcut',
-  }
+  },
+  gesture: {
+    id: 'app.shortcut-help.gesture',
+    description: 'label for gesture tab',
+  },
+  fingerTap: {
+    id: 'app.shortcut-help.fingerTap',
+    description: 'label for tap shotcut',
+  },
+  openCustomPoll: {
+    id: 'app.shortcut-help.openCustomPoll',
+    description: 'label for opening custom poll panel shotcut',
+  },
 });
 
 
@@ -323,7 +347,12 @@ const ShortcutHelpComponent = ({
     `${intl.formatMessage(intlMessages.pushToTalkDesc)}`,
     `M`
   );
+
   generalShortcutItems.splice(3, 0, ptt);
+  generalShortcutItems.push( renderItem(
+    `${intl.formatMessage(intlMessages.openCustomPoll)}`,
+    isMacos ? `Cmd + Opt + P` : `Ctrl + Alt + P`
+  ));
 
   const shortcutItems = [];
   shortcutItems.push(renderItem(intl.formatMessage(intlMessages.togglePan),
@@ -334,6 +363,12 @@ const ShortcutHelpComponent = ({
    intl.formatMessage(intlMessages.nextSlideKey)));
   shortcutItems.push(renderItem(intl.formatMessage(intlMessages.previousSlideDesc),
    intl.formatMessage(intlMessages.previousSlideKey)));
+
+  const gestureItems = [];
+  gestureItems.push(renderItem(intl.formatMessage(intlMessages.undo),
+   `2-${intl.formatMessage(intlMessages.fingerTap)}`));
+  gestureItems.push(renderItem(intl.formatMessage(intlMessages.redo),
+   `3-${intl.formatMessage(intlMessages.fingerTap)}`));
 
   const whiteboardShortcutItems = [];
   //tools
@@ -346,7 +381,9 @@ const ShortcutHelpComponent = ({
   whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.line), '7', 'L'));
   whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.arrow), '8', 'A'));
   whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.text), '9', 'T'));
-  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.note), '0', 'S'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.note), '0', 'N, S'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.hand), '', 'H'));
+  whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.highlight), '', 'Shift D'));
   //views
   whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.zoomIn), 'Ctrl +', 'Ctrl M. Wheel up'));
   whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.zoomOut), 'Ctrl -', 'Ctrl M. Wheel down'));
@@ -404,6 +441,11 @@ const ShortcutHelpComponent = ({
             <StyledSettings.SettingsIcon iconName="whiteboard" />
             <span id="whiteboardTab">{intl.formatMessage(intlMessages.whiteboard)}</span>
           </StyledSettings.SettingsTabSelector>
+
+          <StyledSettings.SettingsTabSelector selectedClassName="is-selected">
+            <StyledSettings.SettingsIcon iconName="whiteboard" />
+            <span id="gestureTab">{intl.formatMessage(intlMessages.gesture)}</span>
+          </StyledSettings.SettingsTabSelector>
         </StyledSettings.SettingsTabList>
 
         <Styled.TabPanel selectedClassName="is-selected">
@@ -446,6 +488,20 @@ const ShortcutHelpComponent = ({
                   <th>{intl.formatMessage(intlMessages.alternativeLabel)}</th>
                 </tr>
                 {whiteboardShortcutItems}
+              </tbody>
+            </Styled.ShortcutTable>
+          </Styled.TableWrapper>
+        </Styled.TabPanel>
+
+        <Styled.TabPanel selectedClassName="is-selected">
+          <Styled.TableWrapper>
+            <Styled.ShortcutTable>
+              <tbody>
+                <tr>
+                  <th>{intl.formatMessage(intlMessages.functionLabel)}</th>
+                  <th>{intl.formatMessage(intlMessages.comboLabel)}</th>
+                </tr>
+                {gestureItems}
               </tbody>
             </Styled.ShortcutTable>
           </Styled.TableWrapper>

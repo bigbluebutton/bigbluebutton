@@ -2,7 +2,7 @@ package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.common2.msgs.UserJoinMeetingReqMsg
 import org.bigbluebutton.core.apps.breakout.BreakoutHdlrHelpers
-import org.bigbluebutton.core.db.{NotificationDAO, UserDAO, UserStateDAO}
+import org.bigbluebutton.core.db.{BreakoutRoomDAO, NotificationDAO, UserDAO, UserStateDAO}
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.graphql.GraphqlMiddleware
 import org.bigbluebutton.core.models._
@@ -42,12 +42,12 @@ trait UserJoinMeetingReqMsgHdlr extends HandlerHelpers {
 
       validationResult.fold(
         reason => handleFailedUserJoin(msg, reason._1, reason._2),
-        validUser => handleSuccessfulUserJoin(msg, validUser)
+        validUser => handleSuccessfulUserJoin(msg, validUser, state)
       )
     }
   }
 
-  private def handleSuccessfulUserJoin(msg: UserJoinMeetingReqMsg, regUser: RegisteredUser) = {
+  private def handleSuccessfulUserJoin(msg: UserJoinMeetingReqMsg, regUser: RegisteredUser, state: MeetingState2x) = {
     val newState = userJoinMeeting(outGW, msg.body.authToken, msg.body.clientType, msg.body.clientIsMobile, liveMeeting, state)
     updateParentMeetingWithNewListOfUsers()
     notifyPreviousUsersWithSameExtId(regUser)
@@ -57,6 +57,7 @@ trait UserJoinMeetingReqMsgHdlr extends HandlerHelpers {
     forceUserGraphqlReconnection(newRegUser)
     updateGraphqlDatabase(newRegUser)
     generateLivekitToken(newRegUser, liveMeeting)
+    addBreakoutRoomsForLateUser(newRegUser, liveMeeting, state)
 
     newState
   }
@@ -147,7 +148,7 @@ trait UserJoinMeetingReqMsgHdlr extends HandlerHelpers {
       "promote",
       "app.mobileAppModal.userConnectedWithSameId",
       "Notification to warn that user connect again from other browser/device",
-      Vector(newUser.name)
+      Map("userName" -> newUser.name)
     )
     outGW.send(notifyUserEvent)
     NotificationDAO.insert(notifyUserEvent)
@@ -170,6 +171,14 @@ trait UserJoinMeetingReqMsgHdlr extends HandlerHelpers {
         metadata
       )
       outGW.send(generateLiveKitTokenReqMsg)
+    }
+  }
+
+  private def addBreakoutRoomsForLateUser(regUser: RegisteredUser, liveMeeting: LiveMeeting, state: MeetingState2x): Unit = {
+    for {
+      breakoutModel <- state.breakout
+    } yield {
+      BreakoutRoomDAO.assignUserToRandomRoom(regUser, breakoutModel, liveMeeting)
     }
   }
 

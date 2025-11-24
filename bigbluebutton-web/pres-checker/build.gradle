@@ -9,8 +9,7 @@ archivesBaseName = 'bbb-pres-check'
 
 task resolveDeps(type: Copy) {
     into('lib')
-    from configurations.default
-    from configurations.default.allArtifacts.file
+    from configurations.runtimeClasspath
     doLast { println '[bbb:task] Resolved dependencies for pres-checker application' }
 }
 
@@ -27,7 +26,6 @@ dependencies {
     implementation 'org.apache.commons:commons-lang3:3.9'
     implementation 'org.apache.commons:commons-collections4:4.4'
     implementation 'org.apache.xmlbeans:xmlbeans:3.0.2'
-    implementation 'org.apache.commons:commons-compress:1.26.0'
 }
 
 jar {

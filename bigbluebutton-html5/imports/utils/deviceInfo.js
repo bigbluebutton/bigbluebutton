@@ -1,6 +1,6 @@
 import Bowser from 'bowser';
 
-export const userAgent = window.navigator.userAgent;
+export const { userAgent } = window.navigator;
 export const BOWSER_RESULTS = Bowser.parse(userAgent);
 
 const isPhone = BOWSER_RESULTS.platform.type === 'mobile';
@@ -9,7 +9,8 @@ export const isTablet = BOWSER_RESULTS.platform.type === 'tablet' || (BOWSER_RES
 export const isMobile = isPhone || isTablet;
 export const hasMediaDevices = !!navigator.mediaDevices;
 export const osName = BOWSER_RESULTS.os.name;
-export const isIos = osName === 'iOS' || (isTablet && osName=="macOS");
+export const osVersion = BOWSER_RESULTS.os.version;
+export const isIos = osName === 'iOS' || (isTablet && osName === 'macOS');
 export const isMacos = osName === 'macOS';
 export const isIphone = !!(userAgent.match(/iPhone/i));
 
@@ -21,6 +22,7 @@ const deviceInfo = {
   isMobile,
   hasMediaDevices,
   osName,
+  osVersion,
   isPortrait,
   isIos,
   isMacos,

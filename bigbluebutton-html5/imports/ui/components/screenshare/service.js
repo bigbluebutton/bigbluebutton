@@ -7,13 +7,13 @@ import BridgeService from '/imports/api/screenshare/client/bridge/service';
 import logger from '/imports/startup/client/logger';
 import AudioService from '/imports/ui/components/audio/service';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
-import ConnectionStatusService from '/imports/ui/components/connection-status/service';
 import browserInfo from '/imports/utils/browserInfo';
-import createUseSubscription from '/imports/ui/core/hooks/createUseSubscription';
 import { SCREENSHARE_SUBSCRIPTION } from './queries';
 import VideoService from '/imports/ui/components/video-provider/service';
 import VideoPreviewService from '/imports/ui/components/video-preview/service';
 import BBBVideoStream from '../../services/webrtc-base/bbb-video-stream';
+import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
+import useMeeting from '../../core/hooks/useMeeting';
 
 let screenShareBridge = sfuScreenShareBridge;
 
@@ -62,7 +62,29 @@ export const isSharingVar = makeVar(false);
 export const sharingContentTypeVar = makeVar(false);
 export const cameraAsContentDeviceIdTypeVar = makeVar('');
 
-export const useScreenshare = createUseSubscription(SCREENSHARE_SUBSCRIPTION, {}, true);
+export const useScreenshare = () => {
+  const {
+    data: meeting,
+    loading: meetingLoading,
+  } = useMeeting((m) => ({
+    componentsFlags: m.componentsFlags,
+  }));
+
+  const { data, loading, error } = useDeduplicatedSubscription(
+    SCREENSHARE_SUBSCRIPTION,
+    {
+      skip: meetingLoading
+      || !(meeting?.componentsFlags?.hasScreenshare
+        || meeting?.componentsFlags?.hasCameraAsContent),
+    },
+  );
+
+  return {
+    data: data?.screenshare || [],
+    loading,
+    error,
+  };
+};
 
 export const useIsSharing = () => useReactiveVar(isSharingVar);
 export const useSharingContentType = () => useReactiveVar(sharingContentTypeVar);
@@ -206,6 +228,10 @@ export const screenshareHasEnded = () => {
   }
 
   screenShareBridge.stop();
+
+  if (window.bbbMobileApp && window.bbbMobileApp.onScreenshareStopRequest) {
+    window.bbbMobileApp.onScreenshareStopRequest();
+  }
 };
 
 export const _handleStreamTermination = () => {
@@ -220,6 +246,10 @@ export const getMediaElementDimensions = () => {
     width: element?.videoWidth ?? 0,
     height: element?.videoHeight ?? 0,
   };
+};
+
+export const setStreamEnabled = (enabled) => {
+  screenShareBridge.setStreamEnabled(enabled);
 };
 
 export const setVolume = (volume) => {
@@ -427,14 +457,22 @@ export const screenShareEndAlert = () => AudioService
    */
 export const getStats = async (statsTypes = DEFAULT_SCREENSHARE_STATS_TYPES) => {
   const screenshareStats = {};
-  const peer = screenShareBridge.getPeerConnection();
+  let stats = null;
 
-  if (!peer) return null;
+  if (typeof screenShareBridge.getStats === 'function') {
+    stats = await screenShareBridge.getStats();
+  } else {
+    const peer = screenShareBridge.getPeerConnection();
 
-  const peerStats = await peer.getStats();
+    if (!peer) return null;
 
-  peerStats.forEach((stat) => {
-    if (statsTypes.includes(stat.type)) {
+    stats = await peer.getStats();
+  }
+
+  if (!stats) return null;
+
+  stats.forEach((stat) => {
+    if (statsTypes.includes(stat.type) && (!stat.kind || stat.kind === 'video')) {
       screenshareStats[stat.type] = stat;
     }
   });
@@ -442,21 +480,8 @@ export const getStats = async (statsTypes = DEFAULT_SCREENSHARE_STATS_TYPES) => 
   return { screenshareStats };
 };
 
-// This method may throw errors
-export const isMediaFlowing = (previousStats, currentStats) => {
-  const bpsData = ConnectionStatusService.calculateBitsPerSecond(
-    currentStats?.screenshareStats,
-    previousStats?.screenshareStats,
-  );
-  const bpsDataAggr = Object.values(bpsData)
-    .reduce((sum, partialBpsData = 0) => sum + parseFloat(partialBpsData), 0);
-
-  return bpsDataAggr > 0;
-};
-
 export default {
   SCREENSHARE_MEDIA_ELEMENT_NAME,
-  isMediaFlowing,
   screenshareHasEnded,
   screenshareHasStarted,
   shareScreen,

@@ -4,6 +4,11 @@ rtc:
   port_range_start: 16384
   port_range_end: 32768
   use_external_ip: false
+  tcp_port: 0
+  allow_tcp_fallback: false
+  interfaces:
+    excludes:
+      - docker0
 redis:
   address: 127.0.0.1:6379
 webhook:
@@ -17,5 +22,7 @@ audio:
 room:
   enabled_codecs:
     - mime: audio/opus
+    - mime: audio/red
     - mime: video/vp8
+    - mime: video/rtx
   enable_remote_unmute: true

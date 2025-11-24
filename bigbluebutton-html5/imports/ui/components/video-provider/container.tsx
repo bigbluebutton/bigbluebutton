@@ -11,7 +11,6 @@ import {
   useIsUserLocked,
   useLockUser,
   useMyPageSize,
-  useMyRole,
   useStopVideo,
   useVideoStreams,
 } from './hooks';
@@ -39,6 +38,7 @@ interface VideoProviderContainerProps {
   cameraDock: Output['cameraDock'];
   handleVideoFocus:(id: string) => void;
   screenShare?: boolean;
+  streams?: VideoItem[];
 }
 
 const VideoProviderContainer: React.FC<VideoProviderContainerProps> = (props) => {
@@ -47,7 +47,7 @@ const VideoProviderContainer: React.FC<VideoProviderContainerProps> = (props) =>
     focusedId,
     handleVideoFocus,
     screenShare,
-    streams,
+    streams: propStreams,
   } = props;
 
   const [cameraBroadcastStart] = useMutation(CAMERA_BROADCAST_START);
@@ -98,7 +98,10 @@ const VideoProviderContainer: React.FC<VideoProviderContainerProps> = (props) =>
     gridUsers,
     totalNumberOfStreams,
     totalNumberOfOtherStreams,
+    streams: hookStreams,
   } = useVideoStreams();
+
+  const streams = propStreams ?? hookStreams;
 
   VideoService.updateActivePeers(streams);
 
@@ -129,33 +132,47 @@ const VideoProviderContainer: React.FC<VideoProviderContainerProps> = (props) =>
   const lockUser = useLockUser();
   const stopVideo = useStopVideo();
   const info = useInfo();
-  const myRole = useMyRole();
   const myPageSize = useMyPageSize();
   const { numberOfPages } = useVideoState();
   const isPaginationEnabled = useIsPaginationEnabled();
   const isGridEnabled = useStorageKey('isGridEnabled') as boolean;
 
   useEffect(() => {
-    if (isPaginationEnabled) {
-      const total = totalNumberOfOtherStreams ?? 0;
-      const nOfPages = Math.ceil(total / myPageSize);
-
-      if (nOfPages !== numberOfPages) {
-        setVideoState({ numberOfPages: nOfPages });
-
-        if (nOfPages === 0) {
-          setVideoState({ currentVideoPageIndex: 0 });
-        } else if (currentVideoPageIndex + 1 > nOfPages) {
-          VideoService.getPreviousVideoPage();
-        }
-      }
-    } else {
+    if (!isPaginationEnabled || myPageSize <= 0) {
       setVideoState({
         numberOfPages: 0,
         currentVideoPageIndex: 0,
       });
+      return;
     }
-  }, [myPageSize, numberOfPages, totalNumberOfOtherStreams, isPaginationEnabled]);
+
+    const total = totalNumberOfOtherStreams ?? 0;
+    const nOfPages = Math.ceil(total / myPageSize);
+
+    if (!Number.isFinite(nOfPages)) {
+      setVideoState({
+        numberOfPages: 0,
+        currentVideoPageIndex: 0,
+      });
+      return;
+    }
+
+    if (nOfPages !== numberOfPages) {
+      setVideoState({ numberOfPages: nOfPages });
+
+      if (nOfPages === 0) {
+        setVideoState({ currentVideoPageIndex: 0 });
+      } else if (currentVideoPageIndex + 1 > nOfPages) {
+        VideoService.getPreviousVideoPage();
+      }
+    }
+  }, [
+    myPageSize,
+    numberOfPages,
+    totalNumberOfOtherStreams,
+    isPaginationEnabled,
+    currentVideoPageIndex,
+  ]);
 
   // Clean up local connecting stream state if the stream is connected
   useEffect(() => {
@@ -188,7 +205,6 @@ const VideoProviderContainer: React.FC<VideoProviderContainerProps> = (props) =>
     lockUser,
     stopVideo,
     applyCameraProfile,
-    myRole,
     info,
     screenShare,
   };

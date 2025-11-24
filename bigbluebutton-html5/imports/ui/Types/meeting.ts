@@ -10,8 +10,6 @@ export interface LockSettings {
   hideViewersAnnotation: false,
   meetingId: boolean;
   webcamsOnlyForModerator: boolean;
-  lockOnJoin: boolean;
-  lockOnJoinConfigurable: boolean;
 }
 
 export interface groups {
@@ -74,11 +72,17 @@ export interface BreakoutPolicies {
   captureSlides: string;
   captureSlidesFilename: string;
   freeJoin: boolean;
-  meetingId: string;
   parentId: string;
   privateChatEnabled: boolean;
   record: boolean;
   sequence: number;
+}
+
+export interface BreakoutRoomsCommonProperties {
+  durationInSeconds: number;
+  freeJoin: boolean;
+  sendInvitationToModerators: boolean;
+  startedAt: Date;
 }
 
 export interface ExternalVideo {
@@ -89,7 +93,7 @@ export interface ExternalVideo {
   externalVideoUrl: string;
   startedSharingAt: number;
   stoppedSharingAt: number;
-  updatedAt: Date;
+  updatedAt: string;
 }
 
 export interface Layout {
@@ -105,11 +109,10 @@ export interface ComponentsFlags {
   hasTimer: boolean;
   showRemainingTime: boolean;
   hasCameraAsContent: boolean;
-}
-
-export interface Metadata {
-  name: string;
-  value: string;
+  hasScreenshareAsContent: boolean;
+  hasCurrentPresentation: boolean;
+  hasSharedNotes: boolean;
+  isSharedNotesPinned: boolean;
 }
 
 export interface Meeting {
@@ -133,12 +136,12 @@ export interface Meeting {
   lockSettings: LockSettings;
   voiceSettings: VoiceSettings;
   breakoutPolicies: BreakoutPolicies;
+  breakoutRoomsCommonProperties: BreakoutRoomsCommonProperties;
   externalVideo: ExternalVideo;
   layout: Layout;
   componentsFlags: ComponentsFlags;
   endWhenNoModerator: boolean;
   endWhenNoModeratorDelayInMinutes: number;
   loginUrl: string | null;
-  metadata: Array<Metadata>;
   groups: Array<groups>;
 }

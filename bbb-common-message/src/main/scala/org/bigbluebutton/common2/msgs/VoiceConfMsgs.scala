@@ -15,7 +15,7 @@ case class ScreenshareRtmpBroadcastStartedVoiceConfEvtMsg(
     body:   ScreenshareRtmpBroadcastStartedVoiceConfEvtMsgBody
 )
   extends VoiceStandardMsg
-case class ScreenshareRtmpBroadcastStartedVoiceConfEvtMsgBody(voiceConf: String, screenshareConf: String,
+case class ScreenshareRtmpBroadcastStartedVoiceConfEvtMsgBody(voiceConf: String, screenshareConf: String, userId: String,
                                                               stream: String, vidWidth: Int, vidHeight: Int,
                                                               timestamp: String, hasAudio: Boolean, contentType: String)
 
@@ -28,7 +28,7 @@ case class ScreenshareRtmpBroadcastStartedEvtMsg(
     body:   ScreenshareRtmpBroadcastStartedEvtMsgBody
 )
   extends BbbCoreMsg
-case class ScreenshareRtmpBroadcastStartedEvtMsgBody(voiceConf: String, screenshareConf: String,
+case class ScreenshareRtmpBroadcastStartedEvtMsgBody(voiceConf: String, screenshareConf: String, userId: String,
                                                      stream: String, vidWidth: Int, vidHeight: Int,
                                                      timestamp: String, hasAudio: Boolean, contentType: String)
 
@@ -40,7 +40,7 @@ case class ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg(
     header: BbbCoreVoiceConfHeader,
     body:   ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsgBody
 ) extends VoiceStandardMsg
-case class ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsgBody(voiceConf: String, screenshareConf: String,
+case class ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsgBody(voiceConf: String, screenshareConf: String, userId: String,
                                                               stream: String, vidWidth: Int, vidHeight: Int,
                                                               timestamp: String)
 
@@ -53,7 +53,7 @@ case class ScreenshareRtmpBroadcastStoppedEvtMsg(
     body:   ScreenshareRtmpBroadcastStoppedEvtMsgBody
 )
   extends BbbCoreMsg
-case class ScreenshareRtmpBroadcastStoppedEvtMsgBody(voiceConf: String, screenshareConf: String,
+case class ScreenshareRtmpBroadcastStoppedEvtMsgBody(voiceConf: String, screenshareConf: String, userId: String,
                                                      stream: String, vidWidth: Int, vidHeight: Int,
                                                      timestamp: String)
 
@@ -129,6 +129,7 @@ case class ScreenBroadcastStopSysMsg(
 case class ScreenBroadcastStopSysMsgBody(
     meetingId: String,
     voiceConf: String,
+    userId:    String,
     streamId:  String
 )
 
@@ -190,6 +191,16 @@ case class MuteUserCmdMsg(
 case class MuteUserCmdMsgBody(userId: String, mutedBy: String, mute: Boolean)
 
 /**
+ * Sent by client to set input id listen only value for user in the voice conference.
+ */
+object SetUserListenOnlyInputCmdMsg { val NAME = "SetUserListenOnlyInputCmdMsg" }
+case class SetUserListenOnlyInputCmdMsg(
+    header: BbbClientMsgHeader,
+    body:   SetUserListenOnlyInputCmdMsgBody
+) extends StandardMsg
+case class SetUserListenOnlyInputCmdMsgBody(listenOnlyInputDevice: Boolean)
+
+/**
  * Sent to FS to get the users in the voice conference.
  */
 object GetUsersInVoiceConfSysMsg { val NAME = "GetUsersInVoiceConfSysMsg" }
@@ -245,6 +256,21 @@ case class MeetingMutedEvtMsg(
 case class MeetingMutedEvtMsgBody(muted: Boolean, mutedBy: String)
 
 /**
+ * Send to client to set user listen only input in the voice conference.
+ */
+object SetListenOnlyInputInVoiceConfSysMsg { val NAME = "SetListenOnlyInputInVoiceConfSysMsg" }
+case class SetListenOnlyInputInVoiceConfSysMsg(
+    header: BbbCoreHeaderWithMeetingId,
+    body:   SetListenOnlyInputInVoiceConfSysMsgBody
+) extends BbbCoreMsg
+case class SetListenOnlyInputInVoiceConfSysMsgBody(
+    voiceConf:             String,
+    intId:                 String,
+    voiceUserId:           String,
+    listenOnlyInputDevice: Boolean
+)
+
+/**
  * Send to FS to deaf user in the voice conference.
  */
 object DeafUserInVoiceConfSysMsg { val NAME = "DeafUserInVoiceConfSysMsg" }
@@ -252,7 +278,12 @@ case class DeafUserInVoiceConfSysMsg(
     header: BbbCoreHeaderWithMeetingId,
     body:   DeafUserInVoiceConfSysMsgBody
 ) extends BbbCoreMsg
-case class DeafUserInVoiceConfSysMsgBody(voiceConf: String, voiceUserId: String, deaf: Boolean)
+case class DeafUserInVoiceConfSysMsgBody(
+    voiceConf:   String,
+    intId:       String,
+    voiceUserId: String,
+    deaf:        Boolean
+)
 
 /**
  * Send to FS to hold user in the voice conference.
@@ -386,7 +417,8 @@ case class UserJoinedVoiceConfEvtMsg(
     body:   UserJoinedVoiceConfEvtMsgBody
 ) extends VoiceStandardMsg
 case class UserJoinedVoiceConfEvtMsgBody(voiceConf: String, voiceUserId: String, intId: String,
-                                         callerIdName: String, callerIdNum: String, muted: Boolean,
+                                         callerIdName: String, callerIdNum: String,
+                                         muted:   Boolean,
                                          talking: Boolean, callingWith: String,
                                          hold: Boolean,
                                          uuid: String)
@@ -451,6 +483,24 @@ case class UserMutedInVoiceConfEvtMsgBody(voiceConf: String, voiceUserId: String
 object UserTalkingVoiceEvtMsg { val NAME = "UserTalkingVoiceEvtMsg" }
 case class UserTalkingVoiceEvtMsg(header: BbbClientMsgHeader, body: UserTalkingVoiceEvtMsgBody) extends BbbCoreMsg
 case class UserTalkingVoiceEvtMsgBody(voiceConf: String, intId: String, voiceUserId: String, talking: Boolean)
+
+/**
+ * Sent to client that user is talking in voice conference.
+ */
+
+object UserVoiceStateEvtMsg { val NAME = "UserVoiceStateEvtMsg" }
+case class UserVoiceStateEvtMsg(header: BbbClientMsgHeader, body: UserVoiceStateEvtMsgBody) extends BbbCoreMsg
+case class UserVoiceStateEvtMsgBody(
+    voiceConf:        String,
+    userId:           String,
+    voiceUserId:      String,
+    userName:         String,
+    userColor:        String,
+    userSpeechLocale: String,
+    talking:          Boolean,
+    muted:            Boolean,
+    leftVoiceConf:    Boolean,
+)
 
 /**
  * Sent from client to notify that an user is talking (client-side version of
@@ -693,3 +743,21 @@ case class ListenOnlyModeToggledInSfuEvtMsgBody(
     callerNum: String,
     enabled:   Boolean
 )
+
+object DeafenUserCmdMsg { val NAME = "DeafenUserCmdMsg" }
+case class DeafenUserCmdMsg(
+    header: BbbClientMsgHeader,
+    body:   DeafenUserCmdMsgBody
+) extends StandardMsg
+case class DeafenUserCmdMsgBody(userId: String, deafenedBy: String, deaf: Boolean)
+
+object UserDeafenedVoiceEvtMsg { val NAME = "UserDeafenedVoiceEvtMsg" }
+case class UserDeafenedVoiceEvtMsg(header: BbbClientMsgHeader, body: UserDeafenedVoiceEvtMsgBody) extends BbbCoreMsg
+case class UserDeafenedVoiceEvtMsgBody(voiceConf: String, intId: String, voiceUserId: String, deafened: Boolean)
+
+object UserDeafenedInVoiceConfEvtMsg { val NAME = "UserDeafenedInVoiceConfEvtMsg" }
+case class UserDeafenedInVoiceConfEvtMsg(
+    header: BbbCoreVoiceConfHeader,
+    body:   UserDeafenedInVoiceConfEvtMsgBody
+) extends VoiceStandardMsg
+case class UserDeafenedInVoiceConfEvtMsgBody(voiceConf: String, voiceUserId: String, deafened: Boolean)

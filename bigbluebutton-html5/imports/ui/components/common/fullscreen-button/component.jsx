@@ -52,11 +52,11 @@ const FullscreenButtonComponent = ({
   const formattedLabel = (fullscreen) => (fullscreen
     ? intl.formatMessage(
       intlMessages.fullscreenUndoButton,
-      ({ 0: elementName || '' }),
+      ({ elementName: elementName || '' }),
     )
     : intl.formatMessage(
       intlMessages.fullscreenButton,
-      ({ 0: elementName || '' }),
+      ({ elementName: elementName || '' }),
     )
   );
 

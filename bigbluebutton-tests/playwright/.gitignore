@@ -1,5 +1,8 @@
 node_modules/
 .env
-test-results/
+test-results*/
+pr-*/
 playwright-report/
 blob-report/
+logs/
+dist/

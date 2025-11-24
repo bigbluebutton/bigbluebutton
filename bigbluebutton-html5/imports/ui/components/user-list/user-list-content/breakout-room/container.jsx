@@ -2,22 +2,13 @@ import React from 'react';
 import BreakoutRoomItem from './component';
 import { layoutSelectInput, layoutDispatch } from '../../../layout/context';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
-import { userIsInvited } from './query';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { ACTIONS, PANELS } from '../../../layout/enums';
-import logger from '/imports/startup/client/logger';
-import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 
 const BreakoutRoomContainer = ({ breakoutRoom }) => {
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
   const { sidebarContentPanel } = sidebarContent;
   const layoutContextDispatch = layoutDispatch();
-
-  const {
-    data: userIsInvitedData,
-    error: userIsInvitedError,
-    loading: userIsInvitedLoading,
-  } = useDeduplicatedSubscription(userIsInvited);
 
   const {
     data: currentMeeting,
@@ -28,21 +19,13 @@ const BreakoutRoomContainer = ({ breakoutRoom }) => {
   const {
     data: currentUser,
   } = useCurrentUser((u) => ({
+    userId: u?.userId,
     isModerator: u?.isModerator,
+    breakoutRoomsSummary: u?.breakoutRoomsSummary,
   }));
 
-  if (userIsInvitedError) {
-    logger.error('Error in userIsInvited subscription:', userIsInvitedError);
-    return (
-      <div>
-        {JSON.stringify(userIsInvitedError)}
-      </div>
-    );
-  }
-
-  if (userIsInvitedLoading) return null;
-
   const hasBreakoutRoom = currentMeeting?.componentsFlags?.hasBreakoutRoom ?? false;
+  const hasInvitation = (currentUser?.breakoutRoomsSummary?.totalOfJoinURL > 0) ?? false;
 
   if (!hasBreakoutRoom && sidebarContentPanel === PANELS.BREAKOUT) {
     layoutContextDispatch({
@@ -60,7 +43,7 @@ const BreakoutRoomContainer = ({ breakoutRoom }) => {
       layoutContextDispatch,
       sidebarContentPanel,
       hasBreakoutRoom: hasBreakoutRoom
-      && (userIsInvitedData.breakoutRoom.length > 0 || currentUser?.isModerator),
+      && (hasInvitation || currentUser?.isModerator),
       breakoutRoom,
     }}
     />

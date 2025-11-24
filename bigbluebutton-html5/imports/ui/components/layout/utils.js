@@ -1,13 +1,16 @@
+import { equals } from 'ramda';
 import {
   DEVICE_TYPE,
   LAYOUT_ELEMENTS,
   LAYOUT_TYPE,
   SYNC,
+  PRESENTATION_AREA,
 } from './enums';
 
 const phoneUpperBoundary = 600;
 const tabletPortraitUpperBoundary = 900;
 const tabletLandscapeUpperBoundary = 1200;
+const WAIT_LAYOUT_PARAMETER = 'waitLayout';
 
 const windowSize = () => window.document.documentElement.clientWidth;
 const isMobile = () => windowSize() <= (phoneUpperBoundary - 1);
@@ -19,6 +22,11 @@ const isTablet = () => windowSize() >= phoneUpperBoundary
   && windowSize() <= (tabletLandscapeUpperBoundary - 1);
 const isDesktop = () => windowSize() >= tabletLandscapeUpperBoundary;
 
+const getWaitLayout = () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get(WAIT_LAYOUT_PARAMETER) || false;
+};
+
 const device = {
   isMobile, isTablet, isTabletPortrait, isTabletLandscape, isDesktop,
 };
@@ -27,6 +35,23 @@ export default device;
 export {
   isMobile, isTablet, isTabletPortrait, isTabletLandscape, isDesktop,
 };
+
+const hasGenericContentChanged = (current, previous) => !equals(
+  current.filter((action) => action?.value?.content === PRESENTATION_AREA.GENERIC_CONTENT)
+    .map((action) => action.value.genericContentId),
+  previous.filter((action) => action?.value?.content === PRESENTATION_AREA.GENERIC_CONTENT)
+    .map((action) => action.value.genericContentId),
+);
+
+export const presentationContentHasChanges = (
+  current,
+  previous,
+  currentLayoutType,
+  previousLayoutType,
+) => !equals(
+  current.map((action) => action.value.content),
+  previous.map((action) => action.value.content),
+) || currentLayoutType !== previousLayoutType || hasGenericContentChanged(current, previous);
 
 // Array for select component to select different layout
 const suportedLayouts = [
@@ -101,28 +126,31 @@ const LAYOUTS_SYNC = {
     [SYNC.PROPAGATE_ELEMENTS]: COMMON_ELEMENTS.DEFAULT,
     [SYNC.REPLICATE_ELEMENTS]: COMMON_ELEMENTS.DEFAULT,
   },
-  // Hidden layouts neither propagate nor replicate the layout type pushed.
-  // These layouts are not available for selection in the UI and are set only via join parameters.
-  // Propagating or replicating the layout type would be inappropriate, as
-  // they are intended to maintain a specific view unaffected by layout type changes.
+  // Hidden layouts are now able to replicate their layout type, as it's currently possible
+  // to change them via plugin ui-commands and those need to be followed correctly.
   [LAYOUT_TYPE.CAMERAS_ONLY]: {
     [SYNC.PROPAGATE_ELEMENTS]: [],
-    [SYNC.REPLICATE_ELEMENTS]: [LAYOUT_ELEMENTS.FOCUSED_CAMERA],
+    [SYNC.REPLICATE_ELEMENTS]: [LAYOUT_ELEMENTS.FOCUSED_CAMERA, LAYOUT_ELEMENTS.LAYOUT_TYPE],
   },
   [LAYOUT_TYPE.PRESENTATION_ONLY]: {
     [SYNC.PROPAGATE_ELEMENTS]: [],
-    [SYNC.REPLICATE_ELEMENTS]: [],
+    [SYNC.REPLICATE_ELEMENTS]: [LAYOUT_ELEMENTS.LAYOUT_TYPE],
   },
   [LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY]: {
     [SYNC.PROPAGATE_ELEMENTS]: [],
-    [SYNC.REPLICATE_ELEMENTS]: [],
+    [SYNC.REPLICATE_ELEMENTS]: [LAYOUT_ELEMENTS.LAYOUT_TYPE],
+  },
+  [LAYOUT_TYPE.PLUGINS_ONLY]: {
+    [SYNC.PROPAGATE_ELEMENTS]: [],
+    [SYNC.REPLICATE_ELEMENTS]: [LAYOUT_ELEMENTS.LAYOUT_TYPE],
   },
   [LAYOUT_TYPE.MEDIA_ONLY]: {
     [SYNC.PROPAGATE_ELEMENTS]: [],
     [SYNC.REPLICATE_ELEMENTS]: [
       LAYOUT_ELEMENTS.FOCUSED_CAMERA,
       LAYOUT_ELEMENTS.PRESENTATION_STATE,
+      LAYOUT_ELEMENTS.LAYOUT_TYPE,
     ],
   },
 };
-export { suportedLayouts, LAYOUTS_SYNC };
+export { suportedLayouts, LAYOUTS_SYNC, getWaitLayout };

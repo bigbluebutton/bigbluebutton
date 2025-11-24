@@ -11,15 +11,17 @@ select_permissions:
     permission:
       columns:
         - content
+        - downloadFileExtension
         - downloadFileUri
         - downloadable
-        - downloadFileExtension
+        - fitToWidth
         - height
         - heightRatio
+        - infiniteWhiteboard
         - isCurrentPage
         - isDefaultPresentation
+        - nextPagesSvg
         - num
-        - totalPages
         - pageId
         - presentationFilenameConverted
         - presentationId
@@ -30,6 +32,7 @@ select_permissions:
         - scaledViewBoxWidth
         - scaledWidth
         - slideRevealed
+        - totalPages
         - urlsJson
         - viewBoxHeight
         - viewBoxWidth
@@ -37,7 +40,6 @@ select_permissions:
         - widthRatio
         - xOffset
         - yOffset
-        - infiniteWhiteboard
       filter:
         meetingId:
           _eq: X-Hasura-MeetingId

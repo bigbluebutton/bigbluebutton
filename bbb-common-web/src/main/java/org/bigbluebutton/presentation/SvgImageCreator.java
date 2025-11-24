@@ -21,10 +21,13 @@
  * @version $Id: $
  */
 package org.bigbluebutton.presentation;
+import org.bigbluebutton.presentation.imp.PageToConvert;
+
 import java.util.concurrent.TimeoutException;
 
 import java.util.concurrent.TimeoutException;
 
 public interface SvgImageCreator {
 	public boolean createSvgImage(UploadedPresentation pres, int page) throws TimeoutException;
+	public void createBlank(UploadedPresentation pres, int page);
 }

@@ -73,12 +73,13 @@ public interface IBbbWebApiGWApp {
                      String presentationUploadExternalDescription,
                      String presentationUploadExternalUrl,
                      Map<String, Object> plugins,
+                     String html5PluginSdkVersion,
                      String overrideClientSettings,
                      String screenShareBroadcastAllowedFor,
                      String viewerScreenShareViewAllowedFor
   );
 
-  void registerUser(String meetingID, String internalUserId, String fullname, String role,
+  void registerUser(String meetingID, String internalUserId, String fullname, String firstName, String lastName, String role,
                     String externUserID, String authToken, String sessionToken, String avatarURL, String webcamBackgroundURL,
                     Boolean bot, Boolean guest, Boolean authed, String guestStatus, Boolean excludeFromDashboard,
                     String enforceLayout, String logoutUrl, Map<String, String> userMetadata);

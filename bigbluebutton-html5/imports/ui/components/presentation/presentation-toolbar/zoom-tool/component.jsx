@@ -138,8 +138,8 @@ class ZoomTool extends PureComponent {
   }
 
   resetZoom() {
-    const { stateZoomValue, initialstateZoomValue } = this.state;
-    if (stateZoomValue !== initialstateZoomValue) this.onChanger(initialstateZoomValue);
+    const { stateZoomValue } = this.state;
+    if (stateZoomValue !== HUNDRED_PERCENT) this.onChanger(HUNDRED_PERCENT);
   }
 
   render() {
@@ -207,7 +207,7 @@ class ZoomTool extends PureComponent {
               hideLabel
             />
             <div id="resetZoomDescription" hidden>
-              {intl.formatMessage(intlMessages.currentValue, ({ 0: stateZoomPct }))}
+              {intl.formatMessage(intlMessages.currentValue, ({ size: stateZoomPct }))}
             </div>
           </span>
         ),

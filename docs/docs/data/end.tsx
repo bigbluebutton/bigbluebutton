@@ -9,9 +9,13 @@ const endEndpointTableData = [
   },
   {
     "name": "password",
-    "required": true,
     "type": "String",
-    "description": (<><b>[DEPRECATED]</b> The moderator password for this meeting. You can not end a meeting using the attendee password.</>)
+    deprecated: true,
+    "description": (
+      <>
+        <i>Deprecated:</i> In older BigBlueButton versions, this parameter had to be set to the moderator password for the meeting. It is no longer required.
+      </>
+    )
   }
 ];
 

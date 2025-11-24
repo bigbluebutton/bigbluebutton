@@ -109,7 +109,7 @@ class BigBlueButtonActor(
         } else {
           RunningMeetings.findWithId(meetings, sessionTokenInfo.meetingId) match {
             case Some(m) =>
-              log.debug("handleGetUserApiMsg ({}): {}.", msg.sessionToken, m)
+              log.debug("handleGetUserApiMsg ({}): Meeting: {}.", msg.sessionToken, m.props.meetingProp.intId)
               m.actorRef forward (msg)
 
             case None =>

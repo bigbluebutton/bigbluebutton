@@ -22,7 +22,7 @@ select_permissions:
         - extId
         - guest
         - guestStatus
-        - hasDrawPermissionOnCurrentPage
+        - whiteboardWriteAccess
         - isDialIn
         - isModerator
         - currentlyInMeeting
@@ -32,6 +32,10 @@ select_permissions:
         - mobile
         - name
         - nameSortable
+        - firstName
+        - firstNameSortable
+        - lastName
+        - lastNameSortable
         - pinned
         - presenter
         - raiseHand
