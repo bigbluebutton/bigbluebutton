@@ -69,10 +69,10 @@ jobs:
           SET_PARAMS=""
           while IFS= read -r tag; do
             if [ -n "$tag" ]; then
-              SET_PARAMS="${SET_PARAMS}target.tags+=${tag}"$'\n'
+              SET_PARAMS="${SET_PARAMS}*.tags+=${tag}"$'\n'
             fi
           done <<< "$TAGS"
-          SET_PARAMS="${SET_PARAMS}target.labels=${{ steps.meta.outputs.labels }}"
+          SET_PARAMS="${SET_PARAMS}*.labels=${{ steps.meta.outputs.labels }}"
           echo "params<<EOF" >> $GITHUB_OUTPUT
           echo "$SET_PARAMS" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
