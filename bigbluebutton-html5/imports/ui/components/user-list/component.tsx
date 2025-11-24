@@ -1,4 +1,4 @@
-import React, { useEffect, memo } from 'react';
+import React, { useEffect, useCallback, memo } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { useLazyQuery } from '@apollo/client';
 import Trigger from '/imports/ui/components/common/control-header/right/component';
@@ -85,7 +85,7 @@ const UserList: React.FC<UserListComponentProps> = () => {
     }
   }, [users]);
 
-  const renderGuestManagement = () => {
+  const renderGuestManagement = useCallback(() => {
     if (!currentUserData?.isModerator || meetingInfo?.isBreakout) return null;
     return (
       <>
@@ -93,9 +93,9 @@ const UserList: React.FC<UserListComponentProps> = () => {
         <Styled.Separator />
       </>
     );
-  };
+  }, [currentUserData, meetingInfo]);
 
-  const renderScrollableSection = () => {
+  const renderScrollableSection = useCallback(() => {
     if (hasRaisedHands) {
       return (
         <Styled.SplitScrollContainer id="scroll-box" ref={parentRef}>
@@ -115,9 +115,9 @@ const UserList: React.FC<UserListComponentProps> = () => {
         <UserListParticipants parentRef={parentRef} />
       </Styled.ScrollableSection>
     );
-  };
+  }, [renderGuestManagement]);
 
-  const renderCrowdActionButtons = () => {
+  const renderCrowdActionButtons = useCallback(() => {
     if (!currentUserData?.isModerator) return null;
     return (
       <>
@@ -125,7 +125,19 @@ const UserList: React.FC<UserListComponentProps> = () => {
         <CrowActionsButtons />
       </>
     );
-  };
+  }, [currentUserData]);
+
+  const onClick = useCallback(() => {
+    layoutContextDispatch({
+      type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+      value: false,
+    });
+    layoutContextDispatch({
+      type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+      value: PANELS.NONE,
+    });
+  }, [layoutContextDispatch]);
+
   const title = hideUserList
     ? intl.formatMessage(intlMessages.hideUserListTitle, { moderatorCount: count })
     : intl.formatMessage(intlMessages.usersTitle, { userCount: count });
@@ -145,16 +157,7 @@ const UserList: React.FC<UserListComponentProps> = () => {
             intlMessages.minimize,
             { panelName: intl.formatMessage(intlMessages.usersStaticTitle) },
           ),
-          onClick: () => {
-            layoutContextDispatch({
-              type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-              value: false,
-            });
-            layoutContextDispatch({
-              type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-              value: PANELS.NONE,
-            });
-          },
+          onClick,
         }}
         customRightButton={(
           <Trigger
