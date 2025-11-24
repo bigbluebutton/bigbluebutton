@@ -52,7 +52,6 @@ jobs:
       target: "etherpad"
 
   apps-akka:
-    needs: [bbb-java-base, bbb-common-message]
     uses: ./.github/workflows/build-docker-image.yml
     with:
       image_name: "apps-akka"
