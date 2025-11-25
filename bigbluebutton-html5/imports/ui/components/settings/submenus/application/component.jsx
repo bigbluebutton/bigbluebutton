@@ -24,8 +24,8 @@ const intlMessages = defineMessages({
     id: 'app.submenu.application.animationsLabel',
     description: 'animations label',
   },
-  audioFilterLabel: {
-    id: 'app.submenu.application.audioFilterLabel',
+  musicianModeLabel: {
+    id: 'app.submenu.application.musicianModeLabel',
     description: 'audio filters label',
   },
   audioWasmFilterLabel: {
@@ -336,13 +336,13 @@ class ApplicationMenu extends BaseMenu {
             <Styled.FormElementRight>
               <SubMenusStyle.MaterialSwitch
                 icons="false"
-                checked={this.state.audioFilterEnabled}
+                checked={!this.state.audioFilterEnabled}
                 onChange={filterChangeCallback}
-                aria-label={`${intl.formatMessage(intlMessages.audioFilterLabel)} - ${displaySettingsStatus(audioFilterStatus, true)}`}
+                aria-label={`${intl.formatMessage(intlMessages.musicianModeLabel)} - ${displaySettingsStatus(audioFilterStatus, true)}`}
                 inputProps={{ 'data-test': 'audioFilterToggleBtn' }}
               />
               <Styled.Label style={{ marginLeft: '0.5rem' }}>
-                {intl.formatMessage(intlMessages.audioFilterLabel)}
+                {intl.formatMessage(intlMessages.musicianModeLabel)}
               </Styled.Label>
             </Styled.FormElementRight>
           </Styled.Col>

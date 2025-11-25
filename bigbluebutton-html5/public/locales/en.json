@@ -605,7 +605,7 @@
     "app.submenu.application.applicationSectionTitle": "Application Settings",
     "app.submenu.application.pushToTalkLabel": "Audio push to talk",
     "app.submenu.application.animationsLabel": "Animations",
-    "app.submenu.application.audioFilterLabel": "Audio Filters for Microphone",
+    "app.submenu.application.musicianModeLabel": "Musician Mode",
     "app.submenu.application.wbToolbarsAutoHideLabel": "Auto Hide Whiteboard Toolbars",
     "app.submenu.application.darkThemeLabel": "Dark mode",
     "app.submenu.application.fontSizeControlLabel": "Font size",

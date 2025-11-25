@@ -127,10 +127,8 @@ const getAudioConstraints = (constraintFields = {}) => {
   return matchConstraints;
 };
 
-const isBBBAWasmSupported = () => {
-  return isWasmProcessorSupported()
-    && window.meetingClientSettings.public.media.audio.audioWasmProcessing;
-};
+const isBBBAWasmSupported = () => isWasmProcessorSupported()
+  && window.meetingClientSettings.public.media.audio.audioWasmProcessing;
 
 // check if wasm processing is enabled
 const isWasmProcessingEnabled = (localSettingsState) => {
@@ -225,7 +223,11 @@ const doGUM = async (constraints, retryOnFailure = false) => {
 
   try {
     const wasmProcessorStream = await createWasmProcessorStream(stream);
+
     setWasmProcessorEnabled(wasmProcessingEnabled);
+    logger.debug({
+      logCode: 'audio_wasm_processor_stream_created',
+    }, 'createWasmProcessorStream succeeded');
 
     return wasmProcessorStream;
   } catch (error) {
