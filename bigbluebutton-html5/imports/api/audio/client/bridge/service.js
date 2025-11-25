@@ -118,7 +118,8 @@ const getAudioConstraints = (constraintFields = {}) => {
   );
 
   if (deviceId) {
-    // NOTE using 'exact' here causes OverconstrainedError for systems with dynamic device ids like PipeWire
+    // NOTE using 'exact' here causes OverconstrainedError for systems with
+    // dynamic device ids like PipeWire
     // prefer to use 'ideal' which can fallback to default device, allowing to keep constraints
     matchConstraints.deviceId = { ideal: deviceId };
   }
@@ -128,40 +129,60 @@ const getAudioConstraints = (constraintFields = {}) => {
 
 // check if wasm processing is enabled
 const isWasmProcessingEnabled = () => {
+  if (!isWasmProcessorSupported()) return false;
+
+  const defaultSetting = window.meetingClientSettings.public.app.audioWasmProcessing;
   const Settings = getSettingsSingletonInstance();
-  if (typeof Settings.application.audioWasmProcessing !== 'undefined')
-    return Settings.application.audioWasmProcessing;
-  if (typeof window.meetingClientSettings.public.app.defaultSettings.application.audioWasmProcessing !== 'undefined')
-    return window.meetingClientSettings.public.app.defaultSettings.application.audioWasmProcessing;
-  return true;
+
+  // Precedence: local user setting -> default setting -> false (for now until
+  // stable - prlanzarin Nov 2025)
+  if (Settings.application.audioWasmProcessing !== 'undefined') return Settings.application.audioWasmProcessing;
+  if (defaultSetting !== 'undefined') return defaultSetting;
+
+  return false;
 };
 
-const doGUM = async (constraints, retryOnFailure = false) => {
-  let haveWasmProcessor = false;
+const loadWasmProcessor = async () => {
   if (isWasmProcessorSupported()) {
     try {
       await loadWasmProcessorFiles();
-      haveWasmProcessor = true;
+      return true;
     } catch (error) {
-      logger.warn('loadWasmProcessorFiles failed: ' + error);
+      logger.warn({
+        logCode: 'audio_wasm_processor_load_failed',
+        extraInfo: {
+          errorMessage: error?.message,
+          errorStack: error?.stack,
+        },
+      }, `loadWasmProcessorFiles failed: ${error?.message || 'unknown error'}`);
     }
   }
+
+  return false;
+};
+
+const doGUM = async (constraints, retryOnFailure = false) => {
+  const haveWasmProcessor = await loadWasmProcessor();
   const wasmProcessingEnabled = haveWasmProcessor && isWasmProcessingEnabled();
 
   // We want only echo-cancel on top of WASM
   if (wasmProcessingEnabled) {
     const deviceId = constraints?.audio?.deviceId;
+    // eslint-disable-next-line no-param-reassign
     constraints.audio = filterSupportedConstraints({
       echoCancellation: true,
       autoGainControl: false,
       noiseSuppression: false,
     });
+
     if (deviceId) {
+      // eslint-disable-next-line no-param-reassign
       constraints.audio.deviceId = deviceId;
     }
   }
 
   let stream;
+
   try {
     stream = await navigator.mediaDevices.getUserMedia(constraints);
   } catch (error) {
@@ -193,9 +214,17 @@ const doGUM = async (constraints, retryOnFailure = false) => {
   try {
     const wasmProcessorStream = await createWasmProcessorStream(stream);
     setWasmProcessorEnabled(wasmProcessingEnabled);
+
     return wasmProcessorStream;
   } catch (error) {
-    logger.warn('createWasmProcessorStream failed: ' + error);
+    logger.warn({
+      logCode: 'audio_wasm_processor_stream_failed',
+      extraInfo: {
+        errorMessage: error?.message,
+        errorStack: error?.stack,
+      },
+    }, `createWasmProcessorStream failed: ${error?.message || 'unknown error'}`);
+
     return stream;
   }
 };
@@ -234,4 +263,5 @@ export {
   storeAudioOutputDeviceId,
   doGUM,
   stereoUnsupported,
+  isWasmProcessingEnabled,
 };

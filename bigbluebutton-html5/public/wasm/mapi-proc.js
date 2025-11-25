@@ -14,7 +14,7 @@ const createWasmOpts = (wasmBlob, postRunCallback, errorCallback) => {
                 // When overriding instantiateWasm, in asan builds, we also need
                 // to take care of creating the WasmOffsetConverter
                 if (typeof WasmOffsetConverter != "undefined") {
-                    wasmOffsetConverter = new WasmOffsetConverter(wasmBlob, output.module);
+                    const wasmOffsetConverter = new WasmOffsetConverter(wasmBlob, output.module);
                 }
 
                 successCallback(output.instance, output.module);
@@ -83,9 +83,9 @@ class MapiWorkletProcessor extends AudioWorkletProcessor {
 
         // validity checks
         if (options.numberOfInputs != options.numberOfOutputs)
-            throw Error('Mis-matching IO, number of inputs must match outputs');
+            throw new Error('Mis-matching IO, number of inputs must match outputs');
         if (options.numberOfInputs != 1)
-            throw Error('Invalid IO, must be mono');
+            throw new Error('Invalid IO, must be mono');
 
         // workaround for Chromium-based browsers, return true in `process` until disconnected
         this.disconnected = false;

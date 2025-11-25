@@ -9,6 +9,7 @@ import WakeLockService from '/imports/ui/components/wake-lock/service';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { isWasmProcessorSupported } from '/imports/ui/components/audio/audio-processor/service';
+import { isWasmProcessingEnabled } from '/imports/api/audio/client/bridge/service';
 
 const MIN_FONTSIZE = 0;
 
@@ -147,8 +148,7 @@ class ApplicationMenu extends BaseMenu {
   constructor(props) {
     super(props);
 
-    const audioWasmProcessingStatus = ApplicationMenu
-      .isAudioWasmProcessingEnabled(props.settings.audioWasmProcessing);
+    const audioWasmProcessingStatus = isWasmProcessingEnabled();
     const audioFilterStatus = !audioWasmProcessingStatus && ApplicationMenu
       .isAudioFilterEnabled(props.settings.microphoneConstraints);
 
@@ -225,18 +225,6 @@ class ApplicationMenu extends BaseMenu {
     return isAnyFilterEnabled;
   }
 
-  static isAudioWasmProcessingEnabled(_value) {
-    if (! isWasmProcessorSupported()) return false;
-
-    if (typeof _value === 'undefined') {
-      if (typeof window.meetingClientSettings.public.app.defaultSettings.application.audioWasmProcessing !== 'undefined')
-        return window.meetingClientSettings.public.app.defaultSettings.application.audioWasmProcessing;
-      return true;
-    }
-
-    return _value;
-  }
-
   handleAudioFilterChange() {
     const _audioFilterEnabled = !ApplicationMenu.isAudioFilterEnabled(this
       .state.settings.microphoneConstraints);
@@ -250,14 +238,16 @@ class ApplicationMenu extends BaseMenu {
     obj.settings.audioWasmProcessing = false;
     obj.settings.microphoneConstraints = _newConstraints;
     this.handleUpdateSettings(this.state.settingsName, obj.settings);
-    this.setState({ audioFilterEnabled: _audioFilterEnabled, audioWasmProcessingEnabled: false });
+    this.setState({
+      audioFilterEnabled: _audioFilterEnabled,
+      audioWasmProcessingEnabled: false,
+    });
   }
 
   handleAudioWasmProcessingChange() {
-    if (! isWasmProcessorSupported()) return;
+    if (!isWasmProcessorSupported()) return;
 
-    const _audioWasmProcessingEnabled = !ApplicationMenu.isAudioWasmProcessingEnabled(this
-      .state.settings.audioWasmProcessing);
+    const _audioWasmProcessingEnabled = !isWasmProcessingEnabled();
     const _newConstraints = {
       autoGainControl: false,
       echoCancellation: false,
@@ -268,7 +258,10 @@ class ApplicationMenu extends BaseMenu {
     obj.settings.audioWasmProcessing = _audioWasmProcessingEnabled;
     obj.settings.microphoneConstraints = _newConstraints;
     this.handleUpdateSettings(this.state.settingsName, obj.settings);
-    this.setState({ audioFilterEnabled: false, audioWasmProcessingEnabled: _audioWasmProcessingEnabled });
+    this.setState({
+      audioFilterEnabled: false,
+      audioWasmProcessingEnabled: _audioWasmProcessingEnabled,
+    });
   }
 
   handleUpdateFontSize(size) {
@@ -330,8 +323,7 @@ class ApplicationMenu extends BaseMenu {
     if (SHOW_AUDIO_FILTERS) {
       const { intl, displaySettingsStatus } = this.props;
       const { settings } = this.state;
-      const audioWasmProcessingStatus = ApplicationMenu
-        .isAudioWasmProcessingEnabled(settings.audioWasmProcessing);
+      const audioWasmProcessingStatus = isWasmProcessingEnabled();
       const audioFilterStatus = !audioWasmProcessingStatus && ApplicationMenu
         .isAudioFilterEnabled(settings.microphoneConstraints);
 
