@@ -17,6 +17,20 @@ target "akka-bbb-apps" {
     }
 }
 
+target "bbb-common-web" {
+    context = "./bbb-common-web"
+}
+
+target "web" {
+    inherits = ["docker-metadata-action"]
+    context = "./bigbluebutton-web"
+    contexts = {
+        java-base = "target:_java-base"
+        bbb-common-message = "target:bbb-common-message"
+        bbb-common-web = "target:bbb-common-web"
+    }
+}
+
 target "html5-client" {
       inherits = ["docker-metadata-action"]
       context = "./bigbluebutton-html5"
