@@ -37,6 +37,8 @@ const CUSTOM_LOGO_URL_KEY = 'CustomLogoUrl';
 
 const CUSTOM_DARK_LOGO_URL_KEY = 'CustomDarkLogoUrl';
 
+const DEFAULT_USERS_PER_USER_LIST_PAGE = 50;
+
 export const setCustomLogoUrl = (path) => Storage.setItem(CUSTOM_LOGO_URL_KEY, path);
 
 export const setCustomDarkLogoUrl = (path) => Storage.setItem(CUSTOM_DARK_LOGO_URL_KEY, path);
@@ -483,6 +485,10 @@ export const onSaveUserNames = (intl, meetingName, users) => {
     meetingName,
   ).dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
 };
+
+export const getUsersPerUserListPage = () => window.meetingClientSettings?.public?.layout
+  ?.usersPerUserListPage
+  || DEFAULT_USERS_PER_USER_LIST_PAGE;
 
 export default {
   sortUsersByName,
