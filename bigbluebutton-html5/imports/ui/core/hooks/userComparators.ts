@@ -28,6 +28,10 @@ export const userShallowEqual = (a?: Partial<User>, b?: Partial<User>): boolean 
   const av = a.voice;
   const bv = b.voice;
   if ((av?.joined ?? false) !== (bv?.joined ?? false)) return false;
+  if ((av?.spoke ?? false) !== (bv?.spoke ?? false)) return false;
+  if ((av?.listenOnly ?? false) !== (bv?.listenOnly ?? false)) return false;
+  if ((av?.deafened ?? false) !== (bv?.deafened ?? false)) return false;
+  if ((av?.listenOnlyInputDevice ?? '') !== (bv?.listenOnlyInputDevice ?? '')) return false;
   if ((av?.muted ?? false) !== (bv?.muted ?? false)) return false;
   if ((av?.talking ?? false) !== (bv?.talking ?? false)) return false;
   if ((av?.callerNum ?? '') !== (bv?.callerNum ?? '')) return false;
