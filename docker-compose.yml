@@ -1,4 +1,9 @@
 services:
+  web:
+    image: "${IMAGE_REPO:-bigbluebutton}/bbb-web:${IMAGE_WEB_TAG:-latest}"
+    build:
+      tags:
+        - "${IMAGE_REPO:-bigbluebutton}/bbb-web:local"
   akka-bbb-apps:
     image: "${IMAGE_REPO:-bigbluebutton}/akka-bbb-apps:${IMAGE_AKKA_BBB_APPS_TAG:-latest}"
     build:
