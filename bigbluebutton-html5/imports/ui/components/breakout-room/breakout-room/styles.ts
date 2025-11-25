@@ -15,7 +15,7 @@ import {
   colorWhite,
   colorGrayLighter,
   colorBlueLight,
-  colorBlueLightest,
+  colorBlueAux,
   listItemBgHover,
   colorText,
 } from '/imports/ui/stylesheets/styled-components/palette';
@@ -346,7 +346,7 @@ const NotAssignedWrapper = styled.div`
   flex-direction: column;
   align-items: center;
   gap: 1rem;
-  background-color: ${colorBlueLightest};
+  background-color: ${colorBlueAux};
   border-radius: 0.5rem;
   padding: 1rem 1.5rem;
   flex-grow: 1;
