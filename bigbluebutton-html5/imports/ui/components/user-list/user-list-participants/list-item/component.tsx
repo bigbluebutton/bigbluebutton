@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import React, { useContext } from 'react';
+import React, { useContext, useMemo } from 'react';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import Auth from '/imports/ui/services/auth';
 import {
@@ -58,19 +58,22 @@ const UserListItem: React.FC<UserListItemProps> = ({
   const { intl, operations, modal } = useUserOperations(user.userId);
 
   const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
-  let userItemsFromPlugin = [] as PluginSdk.UserListItemAdditionalInformationInterface[];
-  if (pluginsExtensibleAreasAggregatedState.userListItemAdditionalInformation) {
-    userItemsFromPlugin = pluginsExtensibleAreasAggregatedState.userListItemAdditionalInformation.filter((item) => {
+  const userItemsFromPlugin = useMemo(() => {
+    if (!pluginsExtensibleAreasAggregatedState.userListItemAdditionalInformation) {
+      return [] as PluginSdk.UserListItemAdditionalInformationInterface[];
+    }
+    return pluginsExtensibleAreasAggregatedState.userListItemAdditionalInformation.filter((item) => {
       const userListItem = item as PluginSdk.UserListItemAdditionalInformationInterface;
       return userListItem.userId === user.userId;
     }) as PluginSdk.UserListItemAdditionalInformationInterface[];
-  }
-  let userListDropdownItems = [] as PluginSdk.UserListDropdownInterface[];
-  if (pluginsExtensibleAreasAggregatedState.userListDropdownItems) {
-    userListDropdownItems = [
-      ...pluginsExtensibleAreasAggregatedState.userListDropdownItems,
-    ];
-  }
+  }, [pluginsExtensibleAreasAggregatedState.userListItemAdditionalInformation, user.userId]);
+
+  const userListDropdownItems = useMemo(() => {
+    if (!pluginsExtensibleAreasAggregatedState.userListDropdownItems) {
+      return [] as PluginSdk.UserListDropdownInterface[];
+    }
+    return pluginsExtensibleAreasAggregatedState.userListDropdownItems;
+  }, [pluginsExtensibleAreasAggregatedState.userListDropdownItems]);
 
   const layoutContextDispatch = layoutDispatch();
   const isChatEnabled = useIsChatEnabled();
