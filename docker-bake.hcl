@@ -10,6 +10,7 @@ target "bbb-common-message" {
 
 target "akka-bbb-apps" {
     inherits = ["docker-metadata-action"]
+    context = "./akka-bbb-apps"
     contexts = {
         java-base = "target:_java-base"
         bbb-common-message = "target:bbb-common-message"
@@ -18,30 +19,37 @@ target "akka-bbb-apps" {
 
 target "html5-client" {
       inherits = ["docker-metadata-action"]
+      context = "./bigbluebutton-html5"
 }
 
 target "learning-dashboard" {
       inherits = ["docker-metadata-action"]
+      context = "./bbb-learning-dashboard"
 }
 
 target "graphql-actions" {
       inherits = ["docker-metadata-action"]
+      context = "./bbb-graphql-actions"
 }
 
 target "graphql-middleware" {
       inherits = ["docker-metadata-action"]
+      context = "./bbb-graphql-middleware"
 }
 
 target "graphql-server" {
       inherits = ["docker-metadata-action"]
+      context = "./bbb-graphql-server"
 }
 
 target "export-annotations" {
       inherits = ["docker-metadata-action"]
+      context = "./bbb-export-annotations"
 }
 
 target "etherpad" {
       inherits = ["docker-metadata-action"]
+      context = "./docker/etherpad"
 }
 
 group "default" {
