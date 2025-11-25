@@ -19,6 +19,10 @@ target "akka-bbb-apps" {
 
 target "bbb-common-web" {
     context = "./bbb-common-web"
+    contexts = {
+        java-base = "target:_java-base"
+        bbb-common-message = "target:bbb-common-message"
+    }
 }
 
 target "web" {
@@ -26,8 +30,8 @@ target "web" {
     context = "./bigbluebutton-web"
     contexts = {
         java-base = "target:_java-base"
-        bbb-common-message = "target:bbb-common-message"
         bbb-common-web = "target:bbb-common-web"
+        slides = "./bigbluebutton-config/slides"
     }
 }
 
@@ -67,5 +71,5 @@ target "etherpad" {
 }
 
 group "default" {
-  targets = ["akka-bbb-apps", "html5-client", "learning-dashboard", "graphql-actions", "graphql-middleware", "graphql-server", "export-annotations", "etherpad"]
+  targets = ["akka-bbb-apps", "html5-client", "learning-dashboard", "graphql-actions", "graphql-middleware", "graphql-server", "export-annotations", "etherpad", "web"]
 }
