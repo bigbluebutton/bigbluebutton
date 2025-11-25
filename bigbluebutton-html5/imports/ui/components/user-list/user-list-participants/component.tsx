@@ -93,7 +93,7 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
           {
             Array.from({ length: amountOfPages }).map((_, i) => {
               const isLastItem = amountOfPages === (i + 1);
-              const restOfUsers = count % usersPerUserListPage;
+              const restOfUsers = count - (i * usersPerUserListPage);
               const key = i;
               return i === 0
                 ? (
