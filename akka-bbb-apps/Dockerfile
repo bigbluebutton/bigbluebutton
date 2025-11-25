@@ -19,4 +19,4 @@ COPY ./docker/bbb-apps-akka.conf /etc/bigbluebutton/bbb-apps-akka.conf.tmpl
 COPY ./docker/entrypoint.sh /entrypoint.sh
 
 USER bigbluebutton
-ENTRYPOINT /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
