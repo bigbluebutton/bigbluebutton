@@ -8,8 +8,8 @@ import {
 import Styled from './styles';
 import Icon from '/imports/ui/components/common/icon/icon-ts/component';
 import { useIsChatEnabled, useIsPrivateChatEnabled } from '/imports/ui/services/features';
-import useWhoIsTalking from '/imports/ui/core/hooks/useWhoIsTalking';
-import useWhoIsUnmuted from '/imports/ui/core/hooks/useWhoIsUnmuted';
+import { useWhoIsTalking } from '/imports/ui/core/hooks/useWhoIsTalking';
+import { useWhoIsUnmuted } from '/imports/ui/core/hooks/useWhoIsUnmuted';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { layoutDispatch } from '/imports/ui/components/layout/context';
 import UserItemToolbar from './user-item-toolbar/component';
@@ -75,15 +75,9 @@ const UserListItem: React.FC<UserListItemProps> = ({
   const isPrivateChatEnabled = useIsPrivateChatEnabled();
 
   const whiteboardAccess = hasWhiteboardWriteAccess(user);
-  const { data: talkingUsers } = useWhoIsTalking();
-  const { data: unmutedUsers } = useWhoIsUnmuted();
-  const isMuted = !unmutedUsers[user.userId];
-
-  const voiceUser = {
-    ...user.voice,
-    talking: talkingUsers[user.userId],
-    muted: isMuted,
-  };
+  const { data: isTalking } = useWhoIsTalking(user.userId);
+  const { data: isUnmuted } = useWhoIsUnmuted(user.userId);
+  const isMuted = !isUnmuted;
 
   const actionsPermitions = generateActionsPermissions(
     user,
@@ -147,8 +141,8 @@ const UserListItem: React.FC<UserListItemProps> = ({
         data-test-avatar="userAvatar"
         moderator={user.isModerator}
         presenter={user.presenter}
-        talking={voiceUser?.talking}
-        muted={voiceUser?.muted}
+        talking={isTalking}
+        muted={isMuted}
         color={user.color}
         animations={animations}
         avatar={userAvatarFiltered}
