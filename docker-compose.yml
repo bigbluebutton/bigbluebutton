@@ -1,17 +1,41 @@
 services:
   akka-bbb-apps:
     image: "${IMAGE_REPO:-bigbluebutton}/akka-bbb-apps:${IMAGE_AKKA_BBB_APPS_TAG:-latest}"
+    build:
+      tags:
+        - "${IMAGE_REPO:-bigbluebutton}/akka-bbb-apps:local"
   html5-client:
     image: "${IMAGE_REPO:-bigbluebutton}/html5-client:${IMAGE_HTML5_CLIENT_TAG:-latest}"
+    build:
+      tags:
+        - "${IMAGE_REPO:-bigbluebutton}/html5-client:local"
   learning-dashboard:
     image: "${IMAGE_REPO:-bigbluebutton}/learning-dashboard:${IMAGE_LEARNING_DASHBOARD_TAG:-latest}"
+    build:
+      tags:
+        - "${IMAGE_REPO:-bigbluebutton}/learning-dashboard:local"
   graphql-actions:
     image: "${IMAGE_REPO:-bigbluebutton}/graphql-actions:${IMAGE_GRAPHQL_ACTIONS_TAG:-latest}"
+    build:
+      tags:
+        - "${IMAGE_REPO:-bigbluebutton}/graphql-actions:local"
   graphql-middleware:
     image: "${IMAGE_REPO:-bigbluebutton}/graphql-middleware:${IMAGE_GRAPHQL_MIDDLEWARE_TAG:-latest}"
+    build:
+      tags:
+        - "${IMAGE_REPO:-bigbluebutton}/graphql-middleware:local"
   graphql-server:
     image: "${IMAGE_REPO:-bigbluebutton}/graphql-server:${IMAGE_GRAPHQL_SERVER_TAG:-latest}"
+    build:
+      tags:
+        - "${IMAGE_REPO:-bigbluebutton}/graphql-server:local"
   export-annotations:
     image: "${IMAGE_REPO:-bigbluebutton}/export-annotations:${IMAGE_EXPORT_ANNOTATIONS_TAG:-latest}"
+    build:
+      tags:
+        - "${IMAGE_REPO:-bigbluebutton}/export-annotations:local"
   etherpad:
     image: "${IMAGE_REPO:-bigbluebutton}/etherpad:${IMAGE_ETHERPAD_TAG:-latest}"
+    build:
+      tags:
+        - "${IMAGE_REPO:-bigbluebutton}/etherpad:local"
