@@ -22,6 +22,8 @@ import { UserIsInvitedSubscriptionResponse } from '/imports/ui/components/breako
 
 const BreakoutRoomsAppObserver = () => {
   const [breakoutsCreationIsOpen, setBreakoutsCreationIsOpen] = useState(false);
+  const [hasOpenedPanel, setHasOpenedPanel] = useState(false);
+
   const { data: currentUser } = useCurrentUser((u: Partial<User>) => (
     {
       presenter: u?.presenter,
@@ -66,7 +68,7 @@ const BreakoutRoomsAppObserver = () => {
         id,
         name,
         icon,
-        hasNotification: isNotAssigned,
+        hasNotification: isNotAssigned && !hasOpenedPanel,
         ...(!hasBreakoutRoom && { onClick: () => setBreakoutsCreationIsOpen((currentState) => !currentState) }),
       },
     });
@@ -108,8 +110,21 @@ const BreakoutRoomsAppObserver = () => {
   }, [hasBreakoutRoom]);
 
   useEffect(() => {
-    setNotificationApp(BREAKOUTS_APP_KEY, isNotAssigned);
-  }, [isNotAssigned]);
+    setNotificationApp(BREAKOUTS_APP_KEY, isNotAssigned && !hasOpenedPanel);
+  }, [isNotAssigned, hasOpenedPanel]);
+
+  useEffect(() => {
+    if (sidebarContentPanel === BREAKOUTS_APP_KEY && isNotAssigned) {
+      setHasOpenedPanel(true);
+      setNotificationApp(BREAKOUTS_APP_KEY, false);
+    }
+  }, [sidebarContentPanel]);
+
+  useEffect(() => {
+    if (!hasBreakoutRoom) {
+      setHasOpenedPanel(false);
+    }
+  }, [hasBreakoutRoom]);
 
   useEffect(() => {
     if (!breakoutsAreRegistered

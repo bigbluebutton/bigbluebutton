@@ -8,7 +8,7 @@ export const BREAKOUTS_LABEL = {
   description: 'breakout title',
 };
 export const BREAKOUTS_UNASSIGNED_LABEL = {
-  id: 'app.breakoutRoom.inProgressLabel',
+  id: 'app.createBreakoutRoom.inProgressLabel',
   description: 'user is not assigned to a room and breakouts are enabled',
 };
 

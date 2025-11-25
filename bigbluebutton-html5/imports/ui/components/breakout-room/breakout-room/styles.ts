@@ -347,7 +347,7 @@ const NotAssignedWrapper = styled.div`
   align-items: center;
   gap: 1rem;
   background-color: ${colorBlueLightest};
-  border-radius: ${borderRadius};
+  border-radius: 0.5rem;
   padding: 1rem 1.5rem;
   flex-grow: 1;
 
@@ -361,10 +361,11 @@ const NotAssignedMessage = styled.p`
   font-size: ${fontSizeBase};
   color: ${colorText};
   margin: 0;
+  text-align: center;
 `;
 
 const NotAssignedHelpText = styled.p`
-  text-align: center;
+  text-align: left;
   margin-top: 1rem;
   font-size: ${fontSizeBase};
   color: ${colorText};
