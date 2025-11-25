@@ -250,7 +250,7 @@ public:
         #     ideal: true
         #   noiseSuppression:
         #     ideal: true
-        # audio input processing through wasm
+        # Audio input processing through WASM/BBBA: initial state (enabled/disabled)
         audioWasmProcessing: true
       audio:
         inputDeviceId: undefined
@@ -859,6 +859,9 @@ public:
       # by closing the audio modal while audio is being negotiated.
       # If false, the audio modal will be locked until the process finishes.
       allowAudioJoinCancel: true
+      # audioWasmProcessing: whether audio input processing through WASM/BBBA
+      # should be exposed to users
+      audioWasmProcessing: true
     stunTurnServersFetchAddress: '/bigbluebutton/api/stuns'
     cacheStunTurnServers: true
     fallbackStunServer: ''

@@ -127,23 +127,31 @@ const getAudioConstraints = (constraintFields = {}) => {
   return matchConstraints;
 };
 
+const isBBBAWasmSupported = () => {
+  return isWasmProcessorSupported()
+    && window.meetingClientSettings.public.media.audio.audioWasmProcessing;
+};
+
 // check if wasm processing is enabled
-const isWasmProcessingEnabled = () => {
-  if (!isWasmProcessorSupported()) return false;
+const isWasmProcessingEnabled = (localSettingsState) => {
+  if (!isBBBAWasmSupported()) return false;
 
   const defaultSetting = window.meetingClientSettings.public.app.audioWasmProcessing;
   const Settings = getSettingsSingletonInstance();
 
-  // Precedence: local user setting -> default setting -> false (for now until
-  // stable - prlanzarin Nov 2025)
-  if (Settings.application.audioWasmProcessing !== 'undefined') return Settings.application.audioWasmProcessing;
-  if (defaultSetting !== 'undefined') return defaultSetting;
+  // Precedence: unconfirmed local user setttings -> local user setting
+  // -> default setting -> false (for now until stable - prlanzarin Nov 2025)
+  if (localSettingsState !== undefined) return localSettingsState;
+  if (Settings.application.audioWasmProcessing !== undefined) {
+    return Settings.application.audioWasmProcessing;
+  }
+  if (defaultSetting !== undefined) return defaultSetting;
 
   return false;
 };
 
 const loadWasmProcessor = async () => {
-  if (isWasmProcessorSupported()) {
+  if (isBBBAWasmSupported()) {
     try {
       await loadWasmProcessorFiles();
       return true;
@@ -162,22 +170,26 @@ const loadWasmProcessor = async () => {
 };
 
 const doGUM = async (constraints, retryOnFailure = false) => {
-  const haveWasmProcessor = await loadWasmProcessor();
-  const wasmProcessingEnabled = haveWasmProcessor && isWasmProcessingEnabled();
+  let haveWasmProcessor = false;
+  const wasmProcessingEnabled = isWasmProcessingEnabled();
 
   // We want only echo-cancel on top of WASM
   if (wasmProcessingEnabled) {
-    const deviceId = constraints?.audio?.deviceId;
-    // eslint-disable-next-line no-param-reassign
-    constraints.audio = filterSupportedConstraints({
-      echoCancellation: true,
-      autoGainControl: false,
-      noiseSuppression: false,
-    });
+    haveWasmProcessor = await loadWasmProcessor();
 
-    if (deviceId) {
+    if (haveWasmProcessor) {
+      const deviceId = constraints?.audio?.deviceId;
       // eslint-disable-next-line no-param-reassign
-      constraints.audio.deviceId = deviceId;
+      constraints.audio = filterSupportedConstraints({
+        echoCancellation: true,
+        autoGainControl: false,
+        noiseSuppression: false,
+      });
+
+      if (deviceId) {
+        // eslint-disable-next-line no-param-reassign
+        constraints.audio.deviceId = deviceId;
+      }
     }
   }
 
@@ -263,5 +275,6 @@ export {
   storeAudioOutputDeviceId,
   doGUM,
   stereoUnsupported,
+  isBBBAWasmSupported,
   isWasmProcessingEnabled,
 };
