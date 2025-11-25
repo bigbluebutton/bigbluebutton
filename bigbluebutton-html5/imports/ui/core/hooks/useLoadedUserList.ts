@@ -3,7 +3,7 @@ import { isEqual } from 'radash';
 import { User } from '../../Types/user';
 import { useCreateUseSubscription } from './createUseSubscription';
 import useStableResponse from './useStableResponse';
-import { userListComparator } from './userComparators';
+import { userListComparator, userShallowEqual } from './userComparators';
 import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
 import { USER_LIST_SUBSCRIPTION } from '../graphql/queries/users';
 
@@ -51,9 +51,13 @@ const useLoadedUserList = (
     true,
   );
   const loadedUserList = useLoadedUserListSubscription(fn);
-  return useStableResponse<Partial<User>[]>(
+  return useStableResponse<Partial<User>[], Partial<User>>(
     loadedUserList as GraphqlDataHookSubscriptionResponse<Partial<User>[]>,
-    userListComparator,
+    {
+      compare: userListComparator,
+      itemCompare: userShallowEqual,
+      itemKey: (item) => item.userId ?? '',
+    },
   );
 };
 

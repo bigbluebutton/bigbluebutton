@@ -23,16 +23,50 @@ export function precompareResponses<T>(
   return { aData, bData };
 }
 
+export interface StableResponseOptions<T, ItemType = unknown> {
+  /**
+   * Custom comparator function to determine if two responses are equal
+   */
+  compare?: (a: GraphqlDataHookSubscriptionResponse<T>, b: GraphqlDataHookSubscriptionResponse<T>) => boolean;
+
+  /**
+   * For array data: comparator to check if two individual items are equal.
+   * When provided, the hook will preserve stable references for unchanged items.
+   * This is useful for lists where you want to avoid re-renders of unchanged list items.
+   */
+  itemCompare?: (a: ItemType, b: ItemType) => boolean;
+
+  /**
+   * For array data with itemCompare: optional function to extract a unique key from each item.
+   * If not provided, items will be compared by index (order-dependent).
+   */
+  itemKey?: (item: ItemType) => string | number;
+}
+
 /**
  * Hook to return a stable reference for a GraphQL-style response object
  * when a custom shallow comparator reports equality. By default compares
  * top-level `loading` and shallow-equals `data` keys.
+ *
+ * When working with arrays and itemCompare is provided, this hook will also
+ * preserve stable references for individual unchanged items in the array.
  */
-export default function useStableResponse<T = unknown>(
+export default function useStableResponse<T = unknown, ItemType = unknown>(
   value: GraphqlDataHookSubscriptionResponse<T>,
-  compare?: (a: GraphqlDataHookSubscriptionResponse<T>, b: GraphqlDataHookSubscriptionResponse<T>) => boolean,
+  compareOrOptions?: ((
+    a: GraphqlDataHookSubscriptionResponse<T>,
+    b: GraphqlDataHookSubscriptionResponse<T>
+  ) => boolean) | StableResponseOptions<T, ItemType>,
 ): GraphqlDataHookSubscriptionResponse<T> {
   const lastRef = useRef<GraphqlDataHookSubscriptionResponse<T> | null>(null);
+  const lastArrayItemsRef = useRef<Map<string | number, ItemType> | null>(null);
+
+  // Parse options
+  const options = typeof compareOrOptions === 'function'
+    ? { compare: compareOrOptions }
+    : (compareOrOptions ?? {});
+
+  const { compare, itemCompare, itemKey } = options;
 
   function shallowEqualObjects(aObj: Record<string, unknown>, bObj: Record<string, unknown>) {
     const aKeys = Object.keys(aObj);
@@ -93,9 +127,48 @@ export default function useStableResponse<T = unknown>(
 
   const comparator = compare ?? defaultShallowCompare;
 
+  // Check if responses are equal
   if (lastRef.current && comparator(lastRef.current as GraphqlDataHookSubscriptionResponse<T>, value)) {
     return lastRef.current as GraphqlDataHookSubscriptionResponse<T>;
   }
+
+  // For arrays with itemCompare, stabilize individual item references
+  if (itemCompare && Array.isArray(value.data)) {
+    const newData = value.data as ItemType[];
+    const oldItemsMap = lastArrayItemsRef.current ?? new Map<string | number, ItemType>();
+    const newItemsMap = new Map<string | number, ItemType>();
+    const stabilizedArray: ItemType[] = [];
+
+    for (let i = 0; i < newData.length; i += 1) {
+      const newItem = newData[i] as ItemType;
+      const key = itemKey ? itemKey(newItem) : i;
+
+      // Try to find a matching old item
+      const oldItem = oldItemsMap.get(key);
+
+      if (oldItem !== undefined && itemCompare(oldItem, newItem)) {
+        // Item unchanged - reuse old reference
+        stabilizedArray.push(oldItem);
+        newItemsMap.set(key, oldItem);
+      } else {
+        // Item is new or changed - use new reference
+        stabilizedArray.push(newItem);
+        newItemsMap.set(key, newItem);
+      }
+    }
+
+    // Update refs
+    lastArrayItemsRef.current = newItemsMap;
+    const stabilizedValue = {
+      ...value,
+      data: stabilizedArray as unknown as T,
+    };
+    lastRef.current = stabilizedValue;
+    return stabilizedValue;
+  }
+
+  // Standard path: no item-level stabilization
   lastRef.current = value;
+  lastArrayItemsRef.current = null;
   return value;
 }
