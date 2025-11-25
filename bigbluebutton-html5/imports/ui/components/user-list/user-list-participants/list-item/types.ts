@@ -16,7 +16,9 @@ export interface GetWritersData {
 }
 
 export interface UserListItemProps {
-  currentUser: User;
+  currentUserIsModerator: boolean;
+  currentUserIsPresenter: boolean;
+  currentUserLocked: boolean;
   user: User;
   lockSettings: LockSettings;
   index: number;

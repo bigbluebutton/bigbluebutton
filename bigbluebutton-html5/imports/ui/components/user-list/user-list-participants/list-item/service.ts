@@ -140,7 +140,9 @@ export const isMe = (userId: string) => userId === Auth.userID;
 
 export const generateActionsPermissions = (
   subjectUser: User,
-  currentUser: User,
+  currentUserIsPresenter: boolean,
+  currentUserIsModerator: boolean,
+  currentUserLocked: boolean,
   lockSettings: LockSettings,
   usersPolicies: UsersPolicies,
   isBreakout: boolean,
@@ -151,7 +153,7 @@ export const generateActionsPermissions = (
 ) => {
   const subjectUserVoice = subjectUser.voice;
   const subjectUserInAudio = subjectUserVoice?.joined && !subjectUserVoice?.deafened;
-  const amIModerator = currentUser.isModerator;
+  const amIModerator = currentUserIsModerator;
   const isDialInUser = isVoiceOnlyUser(subjectUser.userId);
   const amISubjectUser = isMe(subjectUser.userId);
   const isSubjectUserModerator = subjectUser.isModerator;
@@ -160,10 +162,10 @@ export const generateActionsPermissions = (
   // Breakout rooms mess up with role permissions
   // A breakout room user that has a moderator role in it's parent room
   const parentRoomModerator = getFromUserSettings('bbb_parent_room_moderator', false);
-  const hasAuthority = currentUser.isModerator || amISubjectUser;
-  const userChatIsLocked = currentUser.locked && lockSettings?.disablePrivateChat;
+  const hasAuthority = currentUserIsModerator || amISubjectUser;
+  const userChatIsLocked = currentUserLocked && lockSettings?.disablePrivateChat;
   const allowedToChatPrivately = isChatEnabled && (
-    currentUser.isModerator || (
+    currentUserIsModerator || (
       !userChatIsLocked
         // TODO: Add check for hasPrivateChat between users
         || subjectUser.isModerator
@@ -191,7 +193,7 @@ export const generateActionsPermissions = (
     && !isBreakout
     && (type === 'participant' || type === 'raised-hand');
 
-  const allowedToChangeWhiteboardAccess = currentUser.presenter
+  const allowedToChangeWhiteboardAccess = currentUserIsPresenter
       && !amISubjectUser && !subjectUser.presenter
       && !isSubjectUserBot
       && !isDialInUser

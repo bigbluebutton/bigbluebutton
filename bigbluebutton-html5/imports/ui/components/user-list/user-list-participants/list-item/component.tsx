@@ -42,7 +42,9 @@ const renderUserListItemIconsFromPlugin = (
 });
 
 const UserListItem: React.FC<UserListItemProps> = ({
-  currentUser,
+  currentUserIsModerator,
+  currentUserIsPresenter,
+  currentUserLocked,
   user,
   lockSettings,
   usersPolicies,
@@ -81,7 +83,9 @@ const UserListItem: React.FC<UserListItemProps> = ({
 
   const actionsPermitions = generateActionsPermissions(
     user,
-    currentUser,
+    currentUserIsPresenter,
+    currentUserIsModerator,
+    currentUserLocked,
     lockSettings,
     usersPolicies,
     isBreakout,

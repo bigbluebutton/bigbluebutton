@@ -71,7 +71,9 @@ const UsersListParticipantsPage: React.FC<UsersListParticipantsPage> = ({
             <Styled.UserListItem key={user.userId} style={{ direction: isRTL }}>
               <ListItem
                 index={offset + idx}
-                currentUser={currentUser as User}
+                currentUserIsPresenter={currentUser?.presenter ?? false}
+                currentUserIsModerator={currentUser?.isModerator ?? false}
+                currentUserLocked={currentUser?.locked ?? false}
                 user={user}
                 lockSettings={meeting.lockSettings}
                 usersPolicies={meeting.usersPolicies}
