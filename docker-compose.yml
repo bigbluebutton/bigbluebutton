@@ -44,3 +44,20 @@ services:
     build:
       tags:
         - "${IMAGE_REPO:-bigbluebutton}/etherpad:local"
+  record-and-playback:
+    container_name: recording-workers
+    image: "${IMAGE_REPO:-bigbluebutton}/record-and-playback:${IMAGE_RECORD_AND_PLAYBACK_TAG:-latest}"
+    command: "rasque_workers"
+    build:
+      args:
+        TAG_BBB_PRESENTATION_VIDEO: "${TAG_BBB_PRESENTATION_VIDEO:-5.0.0}"
+      tags:
+        - "${IMAGE_REPO:-bigbluebutton}/record-and-playback:local"
+  recording-starter:
+    image: "${IMAGE_REPO:-bigbluebutton}/record-and-playback:${IMAGE_RECORD_AND_PLAYBACK_TAG:-latest}"
+    command: "rap_starter"
+  recording-caption-inbox:
+    image: "${IMAGE_REPO:-bigbluebutton}/record-and-playback:${IMAGE_RECORD_AND_PLAYBACK_TAG:-latest}"
+    command: "rap_caption_inbox"
+  redis:
+    image: "redis:8-alpine"
