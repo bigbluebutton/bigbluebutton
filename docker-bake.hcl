@@ -65,11 +65,6 @@ target "export-annotations" {
       context = "./bbb-export-annotations"
 }
 
-target "pads" {
-      inherits = ["docker-metadata-action"]
-      context = "./bbb-pads"
-}
-
 target "etherpad" {
       inherits = ["docker-metadata-action"]
       context = "./docker/etherpad"
@@ -90,5 +85,5 @@ target "bbb-nginx" {
 }
 
 group "default" {
-  targets = ["akka-bbb-apps", "html5-client", "learning-dashboard", "graphql-actions", "graphql-middleware", "graphql-server", "export-annotations", "etherpad", "pads", "web", "record-and-playback", "bbb-nginx"]
+  targets = ["akka-bbb-apps", "html5-client", "learning-dashboard", "graphql-actions", "graphql-middleware", "graphql-server", "export-annotations", "etherpad", "web", "record-and-playback", "bbb-nginx"]
 }

@@ -114,10 +114,7 @@ services:
       - /tmp
 
   pads:
-    image: "ghcr.io/${IMAGE_REPO:-bigbluebutton}/bbb-pads:${IMAGE_PADS_TAG:-latest}"
-    build:
-      tags:
-        - "${IMAGE_REPO:-bigbluebutton}/bbb-pads:local"
+    image: "${IMAGE_REPO:-bigbluebutton}/bbb-pads:${IMAGE_PADS_TAG:-latest}"
     restart: unless-stopped
     depends_on:
       - redis
