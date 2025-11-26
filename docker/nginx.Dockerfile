@@ -39,6 +39,11 @@ COPY ./record-and-playback/presentation/scripts/presentation.nginx /etc/bigblueb
 COPY ./record-and-playback/screenshare/scripts/recording-screenshare.nginx /etc/bigbluebutton/nginx/
 COPY ./record-and-playback/slides/scripts/slides.nginx /etc/bigbluebutton/nginx/
 COPY ./record-and-playback/video/scripts/playback-video.nginx /etc/bigbluebutton/nginx/
-COPY ./bbb-playback/playback.nginx /etc/bigbluebutton/nginx/
+
+# adjust bbb-web proxy routes (http://127.0.0.1:8090 to http://web:8090)
+RUN sed -i 's|http://127.0.0.1:8090|http://web:8090|g' /etc/bigbluebutton/nginx/bbb-web.nginx
+
+# adjust bbb-etherpad proxy routes (http://127.0.0.1:9001 to http://etherpad:9001)
+RUN sed -i 's|http://127.0.0.1:9001|http://etherpad:9001|g' /etc/bigbluebutton/nginx/notes.nginx
 
 ENTRYPOINT ["nginx", "-g", "daemon off;"]
