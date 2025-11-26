@@ -71,11 +71,9 @@ jobs:
           files: |
             ./docker-bake.hcl
             cwd://${{ steps.meta.outputs.bake-file-tags }}
-            cwd://${{ steps.meta.outputs.bake-file-annotations }}
+            cwd://${{ steps.meta.outputs.bake-file-labels }}
           targets: ${{ inputs.target }}
           push: ${{ github.event_name != 'pull_request' }}
-          set: |
-            *.platform=${{ matrix.platform }}
       - name: Set output for image tag
         id: image-output
         run: echo "IMAGE_TAG=sha-$(git rev-parse --short ${{ github.sha }})" >> $GITHUB_OUTPUT
