@@ -1,49 +1,142 @@
+---
 services:
   web:
-    image: "${IMAGE_REPO:-bigbluebutton}/bbb-web:${IMAGE_WEB_TAG:-latest}"
+    image: "${IMAGE_REPO:-bigbluebutton}/web:${IMAGE_WEB_TAG:-latest}"
     build:
       tags:
-        - "${IMAGE_REPO:-bigbluebutton}/bbb-web:local"
+        - "${IMAGE_REPO:-bigbluebutton}/web:local"
+    restart: unless-stopped
+    depends_on:
+      - redis
+      - etherpad
+      - pads
+      - collabora
+    healthcheck:
+      test: curl -s -o /dev/null --spider http://10.7.7.2:8090/bigbluebutton/api || exit 1
+      start_period: 2m
+    volumes:
+      - ./data/bigbluebutton:/var/bigbluebutton
+      - ./data/freeswitch-meetings:/var/freeswitch/meetings
+    networks:
+      bbb-net:
+
   akka-bbb-apps:
     image: "${IMAGE_REPO:-bigbluebutton}/akka-bbb-apps:${IMAGE_AKKA_BBB_APPS_TAG:-latest}"
     build:
       tags:
         - "${IMAGE_REPO:-bigbluebutton}/akka-bbb-apps:local"
+    restart: unless-stopped
+    depends_on:
+      - redis
+      - postgres
+    volumes:
+      - ./data/freeswitch-meetings:/var/freeswitch/meetings
+      - ./conf/bbb-html5.yml:/etc/bigbluebutton/bbb-html5.yml:ro
+    networks:
+      bbb-net:
+
   html5-client:
     image: "${IMAGE_REPO:-bigbluebutton}/html5-client:${IMAGE_HTML5_CLIENT_TAG:-latest}"
     build:
       tags:
         - "${IMAGE_REPO:-bigbluebutton}/html5-client:local"
+    networks:
+      bbb-net:
+
   learning-dashboard:
     image: "${IMAGE_REPO:-bigbluebutton}/learning-dashboard:${IMAGE_LEARNING_DASHBOARD_TAG:-latest}"
     build:
       tags:
         - "${IMAGE_REPO:-bigbluebutton}/learning-dashboard:local"
+    networks:
+      bbb-net:
+
   graphql-actions:
     image: "${IMAGE_REPO:-bigbluebutton}/graphql-actions:${IMAGE_GRAPHQL_ACTIONS_TAG:-latest}"
     build:
       tags:
         - "${IMAGE_REPO:-bigbluebutton}/graphql-actions:local"
+    restart: unless-stopped
+    depends_on:
+      - redis
+      - akka-bbb-apps
+    networks:
+      bbb-net:
+
+
   graphql-middleware:
     image: "${IMAGE_REPO:-bigbluebutton}/graphql-middleware:${IMAGE_GRAPHQL_MIDDLEWARE_TAG:-latest}"
     build:
       tags:
         - "${IMAGE_REPO:-bigbluebutton}/graphql-middleware:local"
+    restart: unless-stopped
+    depends_on:
+      - graphql-server
+      - graphql-actions
+      - web
+      - redis
+    networks:
+      bbb-net:
+
   graphql-server:
     image: "${IMAGE_REPO:-bigbluebutton}/graphql-server:${IMAGE_GRAPHQL_SERVER_TAG:-latest}"
     build:
       tags:
         - "${IMAGE_REPO:-bigbluebutton}/graphql-server:local"
+    restart: unless-stopped
+    depends_on:
+      - postgres
+      - web
+      - akka-bbb-apps
+      - graphql-actions
+    networks:
+      bbb-net:
+
   export-annotations:
     image: "${IMAGE_REPO:-bigbluebutton}/export-annotations:${IMAGE_EXPORT_ANNOTATIONS_TAG:-latest}"
     build:
       tags:
         - "${IMAGE_REPO:-bigbluebutton}/export-annotations:local"
+    restart: unless-stopped
+    depends_on:
+      - redis
+      - etherpad
+      - pads
+    networks:
+    # need connections to:
+    # https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.0/bbb-export-annotations/config/settings.json
+    # "bbbWebAPI": "http://127.0.0.1:8090",    -> web
+    # "bbbPadsAPI": "http://127.0.0.1:9002",   -> pads
+      bbb-net:
+    volumes:
+      - ./data/bigbluebutton:/var/bigbluebutton
+    tmpfs:
+      - /tmp
+
+  pads:
+    image: "ghcr.io/${IMAGE_REPO:-bigbluebutton}/bbb-pads:${IMAGE_PADS_TAG:-latest}"
+    build:
+      tags:
+        - "${IMAGE_REPO:-bigbluebutton}/bbb-pads:local"
+    restart: unless-stopped
+    depends_on:
+      - redis
+      - etherpad
+    networks:
+      bbb-net:
+
   etherpad:
     image: "${IMAGE_REPO:-bigbluebutton}/etherpad:${IMAGE_ETHERPAD_TAG:-latest}"
     build:
       tags:
         - "${IMAGE_REPO:-bigbluebutton}/etherpad:local"
+    restart: unless-stopped
+    depends_on:
+      - redis
+      - collabora
+    networks:
+      bbb-net:
+
   record-and-playback:
     container_name: recording-workers
     image: "${IMAGE_REPO:-bigbluebutton}/record-and-playback:${IMAGE_RECORD_AND_PLAYBACK_TAG:-latest}"
@@ -53,16 +146,60 @@ services:
         TAG_BBB_PRESENTATION_VIDEO: "${TAG_BBB_PRESENTATION_VIDEO:-5.0.0}"
       tags:
         - "${IMAGE_REPO:-bigbluebutton}/record-and-playback:local"
+
   recording-starter:
     image: "${IMAGE_REPO:-bigbluebutton}/record-and-playback:${IMAGE_RECORD_AND_PLAYBACK_TAG:-latest}"
     command: "rap_starter"
+
   recording-caption-inbox:
     image: "${IMAGE_REPO:-bigbluebutton}/record-and-playback:${IMAGE_RECORD_AND_PLAYBACK_TAG:-latest}"
     command: "rap_caption_inbox"
-  redis:
-    image: "redis:8-alpine"
+
   bbb-nginx:
     image: "${IMAGE_REPO:-bigbluebutton}/bbb-nginx:${IMAGE_BBB_NGINX_TAG:-latest}"
     build:
       tags:
         - "${IMAGE_REPO:-bigbluebutton}/bbb-nginx:local"
+
+  redis:
+    image: redis:7.2-alpine
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 1s
+      timeout: 3s
+      retries: 30
+    networks:
+      bbb-net:
+
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_MULTIPLE_DATABASES: bbb_graphql,hasura_app,greenlight
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRESQL_SECRET:-password}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+      - ./mod/postgres/initdb.sh:/docker-entrypoint-initdb.d/initdb.sh
+    networks:
+      bbb-net:
+
+  collabora:
+    image: collabora/code:latest
+    restart: unless-stopped
+    tmpfs:
+      - /tmp
+    networks:
+      bbb-net:
+    # disable logging (way to verbose)
+    logging:
+      driver: none
+
+networks:
+  bbb-net:
