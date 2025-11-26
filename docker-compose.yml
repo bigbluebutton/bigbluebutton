@@ -61,3 +61,8 @@ services:
     command: "rap_caption_inbox"
   redis:
     image: "redis:8-alpine"
+  bbb-nginx:
+    image: "${IMAGE_REPO:-bigbluebutton}/bbb-nginx:${IMAGE_BBB_NGINX_TAG:-latest}"
+    build:
+      tags:
+        - "${IMAGE_REPO:-bigbluebutton}/bbb-nginx:local"

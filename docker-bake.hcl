@@ -78,6 +78,12 @@ target "record-and-playback" {
     }
 }
 
+target "bbb-nginx" {
+      inherits = ["docker-metadata-action"]
+      dockerfile = "./docker/nginx.Dockerfile"
+      context = "."
+}
+
 group "default" {
-  targets = ["akka-bbb-apps", "html5-client", "learning-dashboard", "graphql-actions", "graphql-middleware", "graphql-server", "export-annotations", "etherpad", "web", "record-and-playback"]
+  targets = ["akka-bbb-apps", "html5-client", "learning-dashboard", "graphql-actions", "graphql-middleware", "graphql-server", "export-annotations", "etherpad", "web", "record-and-playback", "bbb-nginx"]
 }
