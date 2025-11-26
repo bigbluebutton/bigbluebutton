@@ -5,6 +5,7 @@ const webpack = require('webpack');
 const CopyPlugin = require('copy-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
+const WorkboxPlugin = require('workbox-webpack-plugin');
 
 const env = process.env.NODE_ENV || 'development';
 const detailedLogs = process.env.DETAILED_LOGS || false;
@@ -62,6 +63,11 @@ const config = {
         { from: 'public', to: '.' },
         { from: 'private', to: 'private' },
       ],
+    }),
+    new WorkboxPlugin.GenerateSW({
+      clientsClaim: true,
+      skipWaiting: true,
+      maximumFileSizeToCacheInBytes: 50 * 1024 * 1024,
     }),
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify(env),
