@@ -164,6 +164,9 @@ services:
       tags:
         - "${IMAGE_REPO:-bigbluebutton}/bbb-nginx:local"
 
+  bbb-webhooks:
+    image: "${IMAGE_REPO:-bigbluebutton}/bbb-webhooks:${IMAGE_BBB_WEBHOOKS_TAG:-latest}"
+
   redis:
     image: redis:8-alpine
     restart: unless-stopped
