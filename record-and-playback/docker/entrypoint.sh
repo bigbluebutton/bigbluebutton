@@ -18,6 +18,9 @@ elif [ "$ROLE" = "rap_caption_inbox" ]; then
     export HOME="/home/bigbluebutton"
 
     COMMAND="bundle exec ruby /usr/local/bigbluebutton/core/scripts/rap-caption-inbox.rb"
+elif [ "$ROLE" = "cleanup" ]; then
+
+    COMMAND="sh -c /cleanup.sh"
 else
     echo "Unknown role: $ROLE"
     exit 1

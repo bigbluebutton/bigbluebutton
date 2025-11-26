@@ -152,6 +152,12 @@ services:
     image: "${IMAGE_REPO:-bigbluebutton}/record-and-playback:${IMAGE_RECORD_AND_PLAYBACK_TAG:-latest}"
     command: "rap_caption_inbox"
 
+  recording-cleanup:
+    image: "${IMAGE_REPO:-bigbluebutton}/record-and-playback:${IMAGE_RECORD_AND_PLAYBACK_TAG:-latest}"
+    command: "cleanup"
+    env_file:
+      - .env
+
   bbb-nginx:
     image: "${IMAGE_REPO:-bigbluebutton}/bbb-nginx:${IMAGE_BBB_NGINX_TAG:-latest}"
     build:
@@ -159,7 +165,7 @@ services:
         - "${IMAGE_REPO:-bigbluebutton}/bbb-nginx:local"
 
   redis:
-    image: redis:7.2-alpine
+    image: redis:8-alpine
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]

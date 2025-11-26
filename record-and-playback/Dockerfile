@@ -66,6 +66,7 @@ RUN cd /tmp \
     && install -m 0755 build/mkclean/mkclean /usr/local/bin/mkclean \
     && cd / \
     && rm -rf /tmp/mkclean-0.9.0*
+
 # add dockerize
 ENV DOCKERIZE_VERSION v0.6.1
 RUN wget -q https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
@@ -73,7 +74,8 @@ RUN wget -q https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VE
     && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
 
 # add yq for bbb-record
-RUN  wget -q https://github.com/mikefarah/yq/releases/download/v4.45.1/yq_linux_amd64 -O /usr/bin/yq \
+ENV YQ_VERSION v4.49.2
+RUN  wget -q https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linux_amd64 -O /usr/bin/yq \
     && chmod +x /usr/bin/yq
 
 # create user
@@ -101,7 +103,8 @@ RUN chown -R bigbluebutton:bigbluebutton /usr/local/bigbluebutton  \
     /var/bigbluebutton
 
 # dependency for bbb-presentation-video
-RUN wget -q -O /tmp/python3-perfect-freehand.deb https://github.com/bigbluebutton/perfect-freehand-python/releases/download/1.2.0/python3-perfect-freehand_1.2.0_all.deb && \
+ENV FREEHAND_VERSION 1.2.0
+RUN wget -q -O /tmp/python3-perfect-freehand.deb https://github.com/bigbluebutton/perfect-freehand-python/releases/download/${FREEHAND_VERSION}/python3-perfect-freehand_${FREEHAND_VERSION}_all.deb && \
     dpkg -i /tmp/python3-perfect-freehand.deb && \
     rm /tmp/python3-perfect-freehand.deb
 
@@ -135,6 +138,12 @@ RUN cd /usr/bin \
     && chmod +x /usr/bin/bbb-record \
     && sed -i 's/^BBB_WEB.*/BBB_WEB=""/' /usr/bin/bbb-record \
     && sed -i 's/systemctl.*//' /usr/bin/bbb-record
+
+# add bbb-cleanup routine
+COPY --chown=bigbluebutton:bigbluebutton ./cleanup/scripts/bbb-remove-old-recordings /usr/local/bigbluebutton/core/scripts/bbb-remove-old-recordings
+RUN chmod +x /usr/local/bigbluebutton/core/scripts/bbb-remove-old-recordings
+COPY --chown=bigbluebutton:bigbluebutton ./docker/cleanup.sh /cleanup.sh
+RUN chmod +x /cleanup.sh
 
 COPY --from=bbb-presentation-video-builder /bbb-presentation-video_*.deb /tmp/bbb-presentation-video.deb
 RUN dpkg -i /tmp/bbb-presentation-video.deb && rm /tmp/bbb-presentation-video.deb
