@@ -26,6 +26,7 @@ interface VideoListContainerProps {
   onVideoItemMount: (stream: string, video: HTMLVideoElement) => void;
   onVideoItemUnmount: (stream: string) => void;
   onVirtualBgDrop: (stream: string, type: string, name: string, data: string) => Promise<unknown>;
+  screenShare: unknown;
 }
 
 const VideoListContainer: React.FC<VideoListContainerProps> = (props) => {

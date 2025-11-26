@@ -53,7 +53,6 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
   displayPresentation,
   cameraOptimalGridSize: cameraSize,
   isRTL,
-  webcamUsers,
 }) => {
   const [isResizing, setIsResizing] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -359,9 +358,9 @@ const WebcamContainer: React.FC = () => {
 
   const audioModalIsOpen = useStorageKey('audioModalIsOpen');
 
-  const webcamUsers = usersVideo.filter((user) => user.contentType === 'camera');
+  const cameraDockUsers = usersVideo;
 
-  if (!cameraDock?.display || !webcamUsers.length || audioModalIsOpen) return null;
+  if (!cameraDock?.display || !cameraDockUsers.length || audioModalIsOpen) return null;
 
   return (usersVideo.length > 0 || isGridEnabled)
     ? (
@@ -379,7 +378,6 @@ const WebcamContainer: React.FC = () => {
           isRTL,
           floatingOverlay,
           hideOverlay,
-          webcamUsers,
         }}
       />
     )
