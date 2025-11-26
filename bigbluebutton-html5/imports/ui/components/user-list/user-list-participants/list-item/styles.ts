@@ -21,6 +21,18 @@ interface AvatarProps {
   isSkeleton?: boolean;
 }
 
+interface RaisedHandAvatarProps {
+  moderator?: boolean;
+  presenter?: boolean;
+  talking?: boolean;
+  color?: string;
+  animations?: boolean;
+  emoji?: boolean;
+  avatar?: string;
+  isSkeleton?: boolean;
+  children?: React.ReactNode;
+}
+
 interface UserItemContentsProps {
   selected?: boolean;
   isActionsOpen?: boolean;
@@ -115,8 +127,22 @@ const IconRightContainer = styled.div`
   align-content: center;
 `;
 
+// ===== Raised-Hands Avatar =====
+const RaiseHandAvatar = styled(UserAvatar as React.ComponentType<RaisedHandAvatarProps>)<RaisedHandAvatarProps>`
+  position: relative;
+  text-align: center;
+  font-size: .85rem;
+  border: 2px solid transparent;
+  user-select: none;
+  width: 2.5rem;
+  min-width: 2.5rem;
+  height: 2.5rem;
+  min-height: 2.5rem;
+`;
+
 export default {
   Avatar,
   UserItemContents,
   IconRightContainer,
+  RaiseHandAvatar,
 };

@@ -458,6 +458,7 @@ export const createToolbarOptions = (
             },
           });
         },
+        dataTest: 'lowerHand',
       },
       {
         allowed: allowedToChatPrivately,

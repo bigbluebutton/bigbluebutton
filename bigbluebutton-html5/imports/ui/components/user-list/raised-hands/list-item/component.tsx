@@ -1,7 +1,6 @@
 import React, { useContext, useMemo } from 'react';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import { defineMessages, IntlShape } from 'react-intl';
-import Auth from '/imports/ui/services/auth';
 import {
   UserListItemAdditionalInformationType,
 } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/user-list-item-additional-information/enums';
@@ -107,7 +106,7 @@ interface RaisedHandsListItemProps {
   pageId: string;
   index: number;
   openUserAction: string | null;
-  setOpenUserAction: (userId: string | null) => void;
+  setOpenUserAction: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
 const RaisedHandsListItem: React.FC<RaisedHandsListItemProps> = ({
@@ -212,16 +211,14 @@ const RaisedHandsListItem: React.FC<RaisedHandsListItemProps> = ({
         />
       )}
 
-      <Styled.Avatar
+      <Styled.RaiseHandAvatar
         data-test="raisedHandAvatar"
         moderator={user.isModerator}
         presenter={user.presenter}
         talking={false}
-        muted={false}
         color={user.color}
         animations={animations}
         avatar=""
-        you={user.userId === Auth.userID}
       >
         <RaisedHandsStyles.IndexBadge data-test="raisedHandRank">
           {index + 1}
@@ -235,7 +232,7 @@ const RaisedHandsListItem: React.FC<RaisedHandsListItemProps> = ({
             <Icon iconName="hand" />
           )}
         </RaisedHandsStyles.EmojiContainer>
-      </Styled.Avatar>
+      </Styled.RaiseHandAvatar>
 
       <RaisedHandUserName user={user} intl={intl} />
 
