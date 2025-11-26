@@ -81,6 +81,7 @@ type MeetingRunningToCreate struct {
 // context. Sensible defaults are used for any settings not overridden by the caller. Any client
 // setting overrides or presentation documents are also extracted from the HTTP request body and
 // captured for further processing.
+// TODO: Convert document processing steps into a flow.
 func (m *MeetingRunningToCreate) Transform(msg pipeline.Message[*meeting.MeetingInfoResponse]) (pipeline.Message[*meeting.CreateMeetingRequest], error) {
 	params := msg.Context().Value(core.ParamsKey).(bbbhttp.Params)
 

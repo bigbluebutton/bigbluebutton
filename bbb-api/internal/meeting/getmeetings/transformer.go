@@ -42,7 +42,7 @@ func (g *GRPCToResponse) Transform(msg pipeline.Message[[]*meeting.MeetingInfoRe
 
 	meetings := make([]meetingapi.Meeting, 0)
 	for _, meetingInfoResp := range resp {
-		meetings = append(meetings, meetingapi.MeetingInfoToMeeting(meetingInfoResp.MeetingInfo))
+		meetings = append(meetings, meetingapi.ToMeeting(meetingInfoResp.MeetingInfo))
 	}
 
 	return pipeline.NewMessage(&meetingapi.Response{

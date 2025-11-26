@@ -12,6 +12,8 @@ import (
 	"google.golang.org/grpc"
 )
 
+// A Response is a standard response that may be returned by
+// multiple endpoints.
 type Response struct {
 	XMLName    xml.Name  `xml:"response"`
 	ReturnCode string    `xml:"returncode"`
@@ -21,19 +23,25 @@ type Response struct {
 	Meetings   *Meetings `xml:"meetings,omitempty"`
 }
 
+// MapData is a wrapper for custom parameters that may be passed
+// to or returned from various endpoints.
 type MapData struct {
 	Data    map[string]string
 	TagName string
 }
 
+// Meetings is a wrapper for a slice of type [Meeting].
 type Meetings struct {
 	Meetings []Meeting `xml:"meetings"`
 }
 
+// Users is a wrapper for a slice of type [User].
 type Users struct {
 	Users []User `xml:"attendee"`
 }
 
+// A User is a collection of information related to a
+// BigBlueButton user.
 type User struct {
 	XMLName         xml.Name `xml:"attendee"`
 	UserId          string   `xml:"userID"`
@@ -47,11 +55,15 @@ type User struct {
 	CustomData      MapData
 }
 
+// BreakoutRooms is a wrapper for a slice of strings
+// containing breakout room IDs.
 type BreakoutRooms struct {
 	XMLName  xml.Name `xml:"breakoutRooms"`
 	Breakout []string `xml:"breakout"`
 }
 
+// A User is a collection of information related to a
+// BigBlueButton user.
 type Meeting struct {
 	XMLName               xml.Name `xml:"meeting"`
 	MeetingName           string   `xml:"meetingName"`
@@ -82,6 +94,8 @@ type Meeting struct {
 	BreakoutRooms         BreakoutRooms `xml:"breakoutRooms"`
 }
 
+// GetMeetingInfoResponse is the response returned from the
+// GetMeetingInfo endpoint.
 type GetMeetingInfoResponse struct {
 	XMLName               xml.Name `xml:"response"`
 	ReturnCode            string   `xml:"returncode"`
@@ -113,6 +127,8 @@ type GetMeetingInfoResponse struct {
 	BreakoutRooms         BreakoutRooms
 }
 
+// CreateMeetingResponse is the response returned from the
+// CreateMeeting endpoint.
 type CreateMeetingResponse struct {
 	XMLName              xml.Name `xml:"response"`
 	ReturnCode           string   `xml:"returnCode"`
@@ -132,6 +148,7 @@ type CreateMeetingResponse struct {
 	Message              string   `xml:"message"`
 }
 
+// MarshalXML is the custom XML marshaling function for marshaling [MapData].
 func (m MapData) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 	tagName := "metadata"
 	if m.TagName != "" {
@@ -157,20 +174,32 @@ func (m MapData) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 	return e.Flush()
 }
 
+// A Client wraps the functionality for communicating
+// with Akka Apps through the gRPC [MeetingService] and
+// other basic HTTP functionality.
 type Client interface {
 	meeting.MeetingServiceClient
 	bbbhttp.Client
 }
 
+// DefaultClient is the primary [Client] implementation
+// that should be used within the Meeting API. Basic
+// HTTP requests a made using a custom HTTP client that
+// does not follow redirects by default.
 type DefaultClient struct {
 	meeting.MeetingServiceClient
 	*bbbhttp.NoRedirectClient
 }
 
+// NewClientWithConn creates a new [DefaultClient] using
+// the provided gRPC client connnection to build a gRPC
+// [MeetingService] client.
 func NewClientWithConn(conn *grpc.ClientConn) *DefaultClient {
 	return NewClientWithServiceClient(meeting.NewMeetingServiceClient(conn))
 }
 
+// NewClientWithServiceClient creates a new [DefaultClient]
+// using the provided gRPC [MeetingService] client.
 func NewClientWithServiceClient(serviceClient meeting.MeetingServiceClient) *DefaultClient {
 	return &DefaultClient{
 		MeetingServiceClient: serviceClient,

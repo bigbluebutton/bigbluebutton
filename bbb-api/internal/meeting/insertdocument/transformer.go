@@ -17,8 +17,12 @@ import (
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/meeting/document"
 )
 
+// RequestToMeetingInfo is a pipleline.Transformer implementation that is used
+// to transform a HTTP request into a [MeetingInfoRequest].
 type RequestToMeetingInfo struct{}
 
+// Transform takes an incoming message with a payload of type http.Request, transforms
+// it into a [MeetingInfoRequest], and then returns it in a new message.
 func (r *RequestToMeetingInfo) Transform(msg pipeline.Message[*http.Request]) (pipeline.Message[*meeting.MeetingInfoRequest], error) {
 	req := msg.Payload
 	params := req.Context().Value(bbbhttp.ParamsKey).(bbbhttp.Params)
@@ -36,10 +40,15 @@ func (r *RequestToMeetingInfo) Transform(msg pipeline.Message[*http.Request]) (p
 	return pipeline.NewMessageWithContext(grpcReq, ctx), nil
 }
 
+// MeetingInfoToResponse is a pipleline.Transformer implementation that is used
+// to transform a [MeetingInfoResponse] into a Meeting API response.
 type MeetingInfoToResponse struct {
 	proc document.Processor
 }
 
+// Transform takes an incoming message with a payload of type [MeetingInfoResponse],
+// transforms it into a meeting API response, and then returns it in a new message.
+// TODO: Convert document processing steps into a flow.
 func (m *MeetingInfoToResponse) Transform(msg pipeline.Message[*meeting.MeetingInfoResponse]) (pipeline.Message[*meetingapi.Response], error) {
 	params := msg.Context().Value(core.ParamsKey).(bbbhttp.Params)
 
@@ -70,6 +79,6 @@ func (m *MeetingInfoToResponse) Transform(msg pipeline.Message[*meeting.MeetingI
 	return pipeline.NewMessageWithContext(&meetingapi.Response{
 		ReturnCode: responses.ReturnCodeSuccess,
 		MessageKey: responses.PresentationUploadedKey,
-		Message:    responses.PresentationDisabledMsg,
+		Message:    responses.PresentationUploadedMsg,
 	}, msg.Context()), nil
 }

@@ -6,12 +6,16 @@ import (
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/responses"
 )
 
-func MapToMapData(data map[string]string, tagName string) MapData {
+// ToMapData converts the given map into map into [MapData]
+// with the provided XML tag name.
+func ToMapData(data map[string]string, tagName string) MapData {
 	return MapData{Data: data, TagName: tagName}
 }
 
-func GrpcUserToRespUser(u *common.User) User {
-	customData := MapToMapData(u.CustomData, "customdata")
+// ToUser converts the provided gRPC common.User into
+// a Meeting API [User].
+func ToUser(u *common.User) User {
+	customData := ToMapData(u.CustomData, "customdata")
 
 	user := User{
 		UserId:          u.UserId,
@@ -28,12 +32,14 @@ func GrpcUserToRespUser(u *common.User) User {
 	return user
 }
 
-func MeetingInfoToMeeting(m *common.MeetingInfo) Meeting {
-	metadata := MapToMapData(m.Metadata, "metadata")
+// ToMeeting converts the provided gRPC common.MeetingInfo
+// into a Meeting API [Meeting].
+func ToMeeting(m *common.MeetingInfo) Meeting {
+	metadata := ToMapData(m.Metadata, "metadata")
 
 	users := make([]User, 0, len(m.Users))
 	for _, u := range m.Users {
-		user := GrpcUserToRespUser(u)
+		user := ToUser(u)
 		users = append(users, user)
 	}
 
@@ -69,7 +75,9 @@ func MeetingInfoToMeeting(m *common.MeetingInfo) Meeting {
 	return meeting
 }
 
-func ErrorToResponse(err error) *Response {
+// ToResponse converts the provided [error] into a
+// Meeting API [Response].
+func ToResponse(err error) *Response {
 	resp := &Response{
 		ReturnCode: responses.ReturnCodeFailure,
 	}

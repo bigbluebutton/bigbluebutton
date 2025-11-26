@@ -15,7 +15,7 @@ func (h *handler) Handle(w http.ResponseWriter, r *http.Request) {
 	msg := pipeline.NewMessage(r)
 	resp, err := h.flow.Execute(msg)
 	if err != nil {
-		errResp := ErrorToResponse(err)
+		errResp := ToResponse(err)
 		bbbhttp.WriteXML(w, http.StatusAccepted, errResp)
 		return
 	}

@@ -14,8 +14,11 @@ import (
 	meetingv "github.com/bigbluebutton/bigbluebutton/bbb-api/internal/meeting/validation"
 )
 
+// RequestFilter is an impementaion of the pipeline.Filter interface. It verifies
+// the validity of the request data for InsertDocument requests.
 type RequestFilter struct{}
 
+// Filter checks the validity of the checksum and the meeting ID for the incoming request.
 func (f *RequestFilter) Filter(msg pipeline.Message[*http.Request]) error {
 	req := msg.Payload
 	cfg := config.DefaultConfig()
@@ -28,8 +31,12 @@ func (f *RequestFilter) Filter(msg pipeline.Message[*http.Request]) error {
 	return meetingv.ValidateMeetingID(params.Get(meetingapi.IDParam).Value)
 }
 
+// MeetingInfoResponseFilter is an impementaion of the pipeline.Filter interface.
+// It verifies the validity of the response data from MeetingInfo responses.
 type MeetingInfoResponseFilter struct{}
 
+// Filter verifies that presentations are not part of the disabled features
+// for this meeting.
 func (f *MeetingInfoResponseFilter) Filter(msg pipeline.Message[*meeting.MeetingInfoResponse]) error {
 	for _, df := range msg.Payload.MeetingInfo.DisabledFeatures {
 		if df == "presentation" {

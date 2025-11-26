@@ -56,8 +56,8 @@ type DocumentsToProcess struct {
 }
 
 // ParsedDocuments are documents that have been
-// extracted from an XML module and are ready to
-// be processed into presentations.
+// extracted from a XML request modules and are
+// ready to be processed into presentations.
 type ParsedDocuments struct {
 	Documents     []Document
 	HasCurrent    bool
@@ -66,7 +66,7 @@ type ParsedDocuments struct {
 
 // Processor is the interface that groups the
 // functionality for parsing and processing documents
-// from XML modules into presentations.
+// from XML request modules into presentations.
 type Processor interface {
 	Parse(modules bbbhttp.RequestModules, params bbbhttp.Params, fromInsert bool) (*ParsedDocuments, error)
 	Process(parsed *ParsedDocuments) ([]coredoc.Presentation, error)
@@ -123,19 +123,29 @@ type BytesDocSource struct {
 	doc *Document
 }
 
+// Name returns the name of the associated file.
 func (b BytesDocSource) Name() string {
 	return b.doc.Name
 }
+
+// ReadAll returns all of the content from the
+// associated file.
 func (b BytesDocSource) ReadAll() ([]byte, error) {
 	return base64.StdEncoding.DecodeString(b.doc.Content)
 }
+
+// FromParam indicates if the document is from
+// a request query parameter.
 func (b BytesDocSource) FromParam() bool { return false }
 
+// DefaultDocSource is the source of document
+// content for the default presentation.
 type DefaultDocSource struct {
 	doc  Document
 	proc Processor
 }
 
+// Name returns the name of the associated file.
 func (d DefaultDocSource) Name() string {
 	if d.doc.FileName != "" {
 		return d.doc.FileName
@@ -143,14 +153,20 @@ func (d DefaultDocSource) Name() string {
 	return ExtractFileNameFromURL(d.doc.URL)
 }
 
+// ReadAll returns all of the content from the
+// associated file.
 func (d DefaultDocSource) ReadAll() ([]byte, error) {
 	return d.proc.Download(d.doc.URL)
 }
 
+// FromParam indicates if the document is from
+// a request query parameter.
 func (d DefaultDocSource) FromParam() bool {
 	return false
 }
 
+// NewDefaultProcessor creates a new [DefaultProcessor] with
+// the provided conifguration and bbbhttp.Client.
 func NewDefaultProcessor(cfg config.Config, client bbbhttp.Client) *DefaultProcessor {
 	return &DefaultProcessor{
 		cfg:    cfg,
@@ -163,6 +179,13 @@ func NewDefaultProcessor(cfg config.Config, client bbbhttp.Client) *DefaultProce
 	}
 }
 
+// Parse handles the extraction of presentation documents from
+// the provided XML request modules into a format that is ready
+// for further processing. The HTTP request parameters and a flag
+// indicating whether the request originated from the InsertDocument
+// endpoint is required. Returns an error only if the request came
+// from the InsertDocument endpoint and the request does not contain
+// any documents in the body.
 func (p *DefaultProcessor) Parse(modules bbbhttp.RequestModules, params bbbhttp.Params, fromInsert bool) (*ParsedDocuments, error) {
 	meetingID := validation.StripCtrlChars(params.Get(meeting.IDParam).Value)
 	preDoc, hasParam := PreUploadedDocument(params, meetingID)
@@ -220,6 +243,8 @@ func (p *DefaultProcessor) Parse(modules bbbhttp.RequestModules, params bbbhttp.
 	}, nil
 }
 
+// Process processes the provided parsed presentation documents by converting
+// them into presentations.
 func (p *DefaultProcessor) Process(parsed *ParsedDocuments) ([]coredoc.Presentation, error) {
 	var out []coredoc.Presentation
 
@@ -262,6 +287,12 @@ func (p *DefaultProcessor) Process(parsed *ParsedDocuments) ([]coredoc.Presentat
 	return out, nil
 }
 
+// WriteAndValidate reads the document content from the provided
+// [DocSource] and writes it to disk locally to a file located in
+// the presentation directory defined in the processor's configuration.
+// A unique ID is randomly generated for the presentation and used as
+// the name of the file. Validation is also performed on the file's
+// content type to ensure it is supported.
 func (p *DefaultProcessor) WriteAndValidate(src DocSource, doc *Document) (*coredoc.Presentation, error) {
 	name, ext := coredoc.SplitFileName(src.Name())
 	if name == "" {
@@ -293,15 +324,15 @@ func (p *DefaultProcessor) WriteAndValidate(src DocSource, doc *Document) (*core
 	}
 
 	if ext == "" && src.FromParam() {
-		newExt, xerr := coredoc.FileExtFromContentType(ct)
-		if xerr != nil {
-			return nil, fmt.Errorf("determine extension: %w", xerr)
+		newExt, extErr := coredoc.FileExtFromContentType(ct)
+		if extErr != nil {
+			return nil, fmt.Errorf("failed to determine extension: %w", extErr)
 		}
 		old := fp
 		fileName = fmt.Sprintf("%s.%s", presID, newExt)
 		fp = filepath.Join(presDir, fileName)
-		if err := os.Rename(old, fp); err != nil {
-			slog.Warn("could not rename file to add ext", "old", old, "new", fp, "err", err)
+		if rnErr := os.Rename(old, fp); rnErr != nil {
+			slog.Warn("could not rename file to add ext", "old", old, "new", fp, "err", rnErr)
 		}
 		ext = newExt
 	}
@@ -320,6 +351,10 @@ func (p *DefaultProcessor) WriteAndValidate(src DocSource, doc *Document) (*core
 	}, nil
 }
 
+// Convert attempts to submit all of the presentations to the processor's
+// pipeline.Manager for further processing through a pipeline.Flow execution
+// path for document conversion defined by the processor. Returns the number
+// of the presentations that were successfully enqueued for conversion.
 func (p *DefaultProcessor) Convert(presentations []coredoc.Presentation) int {
 	maxTimeout := p.cfg.Presentation.Conversion.Timeout
 	timeout := p.cfg.Presentation.MaxPages * p.cfg.Presentation.Conversion.PageTimeout
@@ -350,6 +385,9 @@ func (p *DefaultProcessor) Convert(presentations []coredoc.Presentation) int {
 	return numEnqueued
 }
 
+// PreUploadedDocument returns a pre-uploaded presentation document if it
+// exists along with a flag indicating whether a pre-uploaded presentation
+// was provided in the request.
 func PreUploadedDocument(params bbbhttp.Params, meetingID string) (*Document, bool) {
 	u := validation.StripCtrlChars(params.Get("preUploadedPresentation").Value)
 	if u == "" {
@@ -374,6 +412,12 @@ func PreUploadedDocument(params bbbhttp.Params, meetingID string) (*Document, bo
 	}, true
 }
 
+// ResolveOverride determines if a pre-uploaded presentation is allowed to
+// override the default presentation. A presentation submitted through the
+// InsertDocument endpoint is always allowed to override the default presentation.
+// Presentations submitted through other endpoints may only override the default
+// presentation if the "preUploadedPresentationOverrideDefault" parameter is passed
+// in the request and set to true or the provided configuration allows overrides.
 func ResolveOverride(params bbbhttp.Params, fromInsert bool, cfg config.Config) bool {
 	ov := true
 	if !fromInsert {
@@ -387,6 +431,11 @@ func ResolveOverride(params bbbhttp.Params, fromInsert bool, cfg config.Config) 
 	return ov
 }
 
+// LoadModuleDocs extracts any presentation documents found in the given
+// XML request modules. Returns the extracted documents and a flag indicating
+// whether the documents contain a document that should be used as the current
+// presentation. Returns an error if no presentation module is found in the
+// request modules or the presentation module cannot be unmarshaled.
 func LoadModuleDocs(modules bbbhttp.RequestModules, meetingID string) (docs []Document, hasCurrent bool, err error) {
 	pm, ok := modules.Get("presentation")
 	if !ok {
@@ -407,6 +456,8 @@ func LoadModuleDocs(modules bbbhttp.RequestModules, meetingID string) (docs []Do
 	return docs, hasCurrent, nil
 }
 
+// ExtractFileNameFromURL attempts to extract and return the
+// filed named in the provided URL.
 func ExtractFileNameFromURL(s string) string {
 	if parsed, err := url.Parse(s); err == nil {
 		return filepath.Base(parsed.Path)
@@ -414,6 +465,8 @@ func ExtractFileNameFromURL(s string) string {
 	return ""
 }
 
+// DecodeFileName attempts to decode and return the name of the
+// file contained in the given address.
 func DecodeFileName(address string) (string, error) {
 	base := path.Base(address)
 	decoded, err := url.QueryUnescape(base)
@@ -423,6 +476,10 @@ func DecodeFileName(address string) (string, error) {
 	return decoded, nil
 }
 
+// MakePresentationDir creates a new directory locally, if it does not
+// already exist, for storing uploaded presentation documents. The
+// directory is a located at the path defined as
+// <base presentation directory>/<meeting ID>/<meeting ID>/<presentation ID>.
 func MakePresentationDir(basePresDir, meetingID, presID string) (string, error) {
 	presPath := filepath.Join(basePresDir, meetingID, meetingID, presID)
 	if err := os.MkdirAll(presPath, 0755); err != nil {

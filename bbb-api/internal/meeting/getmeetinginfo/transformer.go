@@ -41,11 +41,11 @@ func (g *GRPCToResponse) Transform(msg pipeline.Message[*meeting.MeetingInfoResp
 
 	users := make([]meetingapi.User, 0, len(resp.MeetingInfo.Users))
 	for _, u := range resp.MeetingInfo.Users {
-		user := meetingapi.GrpcUserToRespUser(u)
+		user := meetingapi.ToUser(u)
 		users = append(users, user)
 	}
 
-	metadata := meetingapi.MapToMapData(resp.MeetingInfo.Metadata, "metadata")
+	metadata := meetingapi.ToMapData(resp.MeetingInfo.Metadata, "metadata")
 
 	meetingInfoResponse := &meetingapi.GetMeetingInfoResponse{
 		ReturnCode:            responses.ReturnCodeSuccess,
