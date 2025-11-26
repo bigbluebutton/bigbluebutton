@@ -70,6 +70,14 @@ target "etherpad" {
       context = "./docker/etherpad"
 }
 
+target "record-and-playback" {
+    inherits = ["docker-metadata-action"]
+    context = "./record-and-playback"
+    contexts = {
+        bigbluebutton-config = "./bigbluebutton-config"
+    }
+}
+
 group "default" {
-  targets = ["akka-bbb-apps", "html5-client", "learning-dashboard", "graphql-actions", "graphql-middleware", "graphql-server", "export-annotations", "etherpad", "web"]
+  targets = ["akka-bbb-apps", "html5-client", "learning-dashboard", "graphql-actions", "graphql-middleware", "graphql-server", "export-annotations", "etherpad", "web", "record-and-playback"]
 }
