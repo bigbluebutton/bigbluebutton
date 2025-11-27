@@ -30,8 +30,8 @@ const EmojiBoomComponent: React.FC<EmojiBoomProps> = ({
   useEffect(() => {
     if (reactions) {
       const filteredReactions = userId == null
-        ? reactions
-        : reactions.filter((reaction) => reaction.userId === userId);
+        ? reactions.filter((reaction) => reaction.reactionEmoji !== 'none')
+        : reactions.filter((reaction) => reaction.userId === userId && reaction.reactionEmoji !== 'none');
 
       filteredReactions.forEach(createEmojiBoom);
     }
