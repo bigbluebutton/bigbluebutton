@@ -403,6 +403,7 @@ const reducer = (state, action) => {
         id,
         name,
         icon,
+        hasNotification = false,
         contentFunction = undefined,
         onClick = undefined,
         uuid,
@@ -418,6 +419,7 @@ const reducer = (state, action) => {
           icon,
           uuid,
           pluginName,
+          hasNotification,
           ...(contentFunction && { contentFunction }),
           ...(onClick && { onClick }),
         },
@@ -500,6 +502,29 @@ const reducer = (state, action) => {
           sidebarNavigation: {
             ...sidebarNavigation,
             pinnedApps: updatedPinnedApps,
+          },
+        },
+      };
+    }
+    case ACTIONS.SET_SIDEBAR_NAVIGATION_NOTIFICATION_APP: {
+      const { id: appId, hasNotification } = action.value;
+      const { sidebarNavigation } = state.input;
+      const { registeredApps = [] } = sidebarNavigation;
+
+      const isAppRegistered = appId in registeredApps;
+
+      if (!isAppRegistered) return state;
+      if (registeredApps[appId].hasNotification === hasNotification) return state;
+
+      registeredApps[appId].hasNotification = hasNotification;
+
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          sidebarNavigation: {
+            ...sidebarNavigation,
+            registeredApps,
           },
         },
       };
