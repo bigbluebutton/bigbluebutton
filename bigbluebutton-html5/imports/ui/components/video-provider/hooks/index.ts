@@ -438,7 +438,7 @@ export const useVideoStreams = () => {
 
   return {
     streams,
-    gridUsers,
+    gridUsers: gridUsers.filter((u) => !streams.find((s) => s.userId === u.userId)),
     overflowCount,
     totalNumberOfStreams: streams.length,
     totalNumberOfOtherStreams,
