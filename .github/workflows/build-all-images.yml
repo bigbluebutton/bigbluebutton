@@ -44,7 +44,7 @@ jobs:
     with:
       image_name: "bbb-etherpad"
 
-  apps-bbb-akka:
+  akka-bbb-apps:
     uses: ./.github/workflows/build-docker-image.yml
     with:
-      image_name: "apps-bbb-akka"
+      image_name: "akka-bbb-apps"
