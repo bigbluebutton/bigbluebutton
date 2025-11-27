@@ -161,6 +161,15 @@ services:
     build:
       tags:
         - "${IMAGE_REPO:-bigbluebutton}/bbb-nginx:local"
+    depends_on:
+      - web
+      - etherpad
+      - html5-client
+      - webhooks
+      - webrtc-sfu
+      - graphql-server
+      - graphql-middleware
+      - livekit
 
   bbb-webhooks:
     image: "${IMAGE_REPO:-bigbluebutton}/bbb-webhooks:${IMAGE_BBB_WEBHOOKS_TAG:-latest}"
