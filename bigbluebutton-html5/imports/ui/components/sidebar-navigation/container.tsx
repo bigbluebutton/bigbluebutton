@@ -16,7 +16,7 @@ import { POLLS_ICON, POLLS_LABEL, POLLS_APP_KEY } from '/imports/ui/components/p
 import { ACTIONS, DEVICE_TYPE, PANELS } from '/imports/ui/components/layout/enums';
 import useHasUnreadNotes from '/imports/ui/components/notes/hooks/useHasUnreadNotes';
 import useHasUnreadChatMessages from '/imports/ui/components/chat/hooks/useHasUnreadChatMessages';
-import { useIsPollingEnabled } from '/imports/ui/services/features';
+import { useIsPollingEnabled, useIsTimerFeatureEnabled } from '/imports/ui/services/features';
 
 const SidebarNavigationContainer = () => {
   const { data: currentUser } = useCurrentUser((u: Partial<User>) => (
@@ -39,6 +39,7 @@ const SidebarNavigationContainer = () => {
   const isMobile = deviceType === DEVICE_TYPE.MOBILE;
   const layoutContextDispatch = layoutDispatch();
   const isPollingEnabled = useIsPollingEnabled();
+  const isTimerFeatureEnabled = useIsTimerFeatureEnabled();
   const {
     top,
     left,
@@ -104,7 +105,7 @@ const SidebarNavigationContainer = () => {
       unregisterApp(POLLS_APP_KEY);
     }
 
-    if (!timerIsRegistered && isModerator && timerData) {
+    if (!timerIsRegistered && isModerator && timerData && isTimerFeatureEnabled) {
       registerApp(TIMER_APP_KEY, intl.formatMessage(TIMER_LABEL), TIMER_ICON);
       pinApp(TIMER_APP_KEY);
     }

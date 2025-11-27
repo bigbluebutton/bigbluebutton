@@ -19,6 +19,7 @@ import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import CreateBreakoutRoomContainer from '../create-breakout-room/component';
 import { UserIsInvitedSubscriptionResponse } from '/imports/ui/components/breakout-room/breakout-rooms-list-item/types';
+import { useIsBreakoutRoomsEnabled } from '/imports/ui/services/features';
 
 const BreakoutRoomsAppObserver = () => {
   const [breakoutsCreationIsOpen, setBreakoutsCreationIsOpen] = useState(false);
@@ -47,6 +48,7 @@ const BreakoutRoomsAppObserver = () => {
   const hasBreakoutRoom = currentMeeting?.componentsFlags?.hasBreakoutRoom ?? false;
   const isUserInvited = userIsInvitedData?.breakoutRoom && userIsInvitedData?.breakoutRoom.length > 0;
   const isBreakoutMeeting = currentMeeting?.isBreakout;
+  const isBreakoutRoomsEnabled = useIsBreakoutRoomsEnabled();
 
   const intl = useIntl();
   const sidebarNavigationInput = layoutSelectInput((i: Input) => i.sidebarNavigation);
@@ -102,7 +104,7 @@ const BreakoutRoomsAppObserver = () => {
   };
 
   useEffect(() => {
-    if (!isBreakoutMeeting && isModerator) {
+    if (!isBreakoutMeeting && isModerator && isBreakoutRoomsEnabled) {
       registerApp(BREAKOUTS_APP_KEY, intl.formatMessage(breakoutLabel), BREAKOUTS_ICON);
       pinApp(BREAKOUTS_APP_KEY);
     }
@@ -128,6 +130,7 @@ const BreakoutRoomsAppObserver = () => {
 
   useEffect(() => {
     if (!breakoutsAreRegistered
+      && isBreakoutRoomsEnabled
       && !isBreakoutMeeting
       && (isModerator || (!isModerator && hasBreakoutRoom))) {
       registerApp(BREAKOUTS_APP_KEY, intl.formatMessage(breakoutLabel), BREAKOUTS_ICON);
