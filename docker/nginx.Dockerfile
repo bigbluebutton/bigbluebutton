@@ -46,4 +46,7 @@ RUN sed -i 's|http://127.0.0.1:8090|http://web:8090|g' /etc/bigbluebutton/nginx/
 # adjust bbb-etherpad proxy routes (http://127.0.0.1:9001 to http://etherpad:9001)
 RUN sed -i 's|http://127.0.0.1:9001|http://etherpad:9001|g' /etc/bigbluebutton/nginx/notes.nginx
 
+# Port 8185 for hasura load balancer, 80 for everything else
+EXPOSE 80 8185
+
 ENTRYPOINT ["nginx", "-g", "daemon off;"]
