@@ -136,7 +136,7 @@ services:
   record-and-playback:
     container_name: recording-workers
     image: "${IMAGE_REPO:-bigbluebutton}/bbb-record-and-playback:${IMAGE_RECORD_AND_PLAYBACK_TAG:-latest}"
-    command: "rasque_workers"
+    command: "resque_workers"
     depends_on:
       - redis
     build:

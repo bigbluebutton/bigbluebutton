@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# First argument is the role of the container, defaults to "rasque_workers"
-ROLE=${1:-rasque_workers}
+# First argument is the role of the container, defaults to "resque_workers"
+ROLE=${1:-resque_workers}
 
-if [ "$ROLE" = "rasque_workers" ]; then
+if [ "$ROLE" = "resque_workers" ]; then
     # Set env variables for worker HOME=/home/bigbluebutton
     export HOME="/home/bigbluebutton"
     export QUEUE="rap:archive,rap:publish,rap:process,rap:sanity"
