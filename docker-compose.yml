@@ -57,6 +57,10 @@ services:
       tags:
         - "${IMAGE_REPO:-bigbluebutton}/bbb-graphql-actions:local"
     restart: unless-stopped
+    environment:
+      - BBB_REDIS_HOST=redis
+      - BBB_REDIS_PORT=6379
+      - SERVER_HOST=0.0.0.0
     depends_on:
       - redis
       - apps-akka
