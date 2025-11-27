@@ -15,7 +15,7 @@ services:
       test: curl -s -o /dev/null http://localhost:8090/bigbluebutton/api || exit 1
       start_period: 2m
     volumes:
-      - ./conf/bigbluebutton.bigbluebutton.properties:/etc/bigbluebutton/bigbluebutton.properties:ro
+      - ./conf/bigbluebutton.properties:/etc/bigbluebutton/bbb-web.properties:ro
     networks:
       bbb-net:
 
