@@ -85,6 +85,9 @@ services:
       tags:
         - "${IMAGE_REPO:-bigbluebutton}/bbb-graphql-server:local"
     restart: unless-stopped
+    environment:
+      - BBB_POSTGRES_HASURA_APP_PASSWORD=${BBB_POSTGRES_HASURA_APP_PASSWORD}
+      - BBB_POSTGRES_BBB_HASURA_PASSWORD=${BBB_POSTGRES_BBB_HASURA_PASSWORD}
     depends_on:
       - postgres
       - web
@@ -185,7 +188,7 @@ services:
       - web
       - etherpad
       - html5-client
-      - bbb-webhooks
+      - webhooks
       - webrtc-sfu
       - graphql-server
       - graphql-middleware
@@ -195,6 +198,17 @@ services:
     image: "${IMAGE_REPO:-bigbluebutton}/bbb-webhooks:${IMAGE_WEBHOOKS_TAG:-latest}"
     depends_on:
       - redis
+
+  webrtc-recorder:
+    image: "${IMAGE_REPO:-bigbluebutton}/bbb-webrtc-recorder:${IMAGE_WEBRTC_RECORDER_TAG:-latest}"
+    restart: unless-stopped
+    environment:
+      - BBBRECORDER_RECORDER_DIRFILEMODE='0755'
+      - BBBRECORDER_RECORDER_FILEMODE='0655'
+      #- BBBRECORDER_RECORDER_DIRECTORY: '{{ bigbluebutton_webrtc_recorder_directory }}'
+      - BBBRECORDER_LIVEKIT_HOST=ws://livekit:7880
+      - BBBRECORDER_LIVEKIT_APIKEY=${LIVEKIT_KEY}
+      - BBBRECORDER_LIVEKIT_SECRET=${LIVEKIT_SECRET}
 
   redis:
     image: redis:8-alpine
@@ -263,7 +277,7 @@ services:
           update_interval: 500
           smooth_intervals: 0
         keys:
-          ${LIVEKIT_API_KEY}: ${LIVEKIT_API_SECRET}
+          ${LIVEKIT_KEY}: ${LIVEKIT_SECRET}
         room:
           enabled_codecs:
             - mime: audio/opus
