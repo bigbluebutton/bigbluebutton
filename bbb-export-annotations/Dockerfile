@@ -1,5 +1,8 @@
 FROM node:22-alpine AS base
 
+# Install sponge and jq
+RUN apk add --no-cache moreutils jq
+
 ENV NODE_ENV=production
 
 WORKDIR /app
@@ -21,6 +24,11 @@ FROM base AS runner
 COPY --from=deps /app/node_modules ./node_modules
 
 COPY --chown=bigbluebutton:bigbluebutton . .
+
+# Coverwrite config with docker hosts
+RUN sed -i 's|http://127.0.0.1:8090|http://web:3000|g' ./config/settings.json
+RUN sed -i 's|http://127.0.0.1:9002|http://pads:3000|g' ./config/settings.json
+RUN jq '.redis.host = "redis"' ./config/settings.json | sponge ./config/settings.json
 
 USER bigbluebutton
 

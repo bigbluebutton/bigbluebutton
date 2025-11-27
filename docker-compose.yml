@@ -100,13 +100,9 @@ services:
     restart: unless-stopped
     depends_on:
       - redis
-      - etherpad
+      - web
       - pads
     networks:
-    # need connections to:
-    # https://github.com/bigbluebutton/bigbluebutton/blob/v2.7.0/bbb-export-annotations/config/settings.json
-    # "bbbWebAPI": "http://127.0.0.1:8090",    -> web
-    # "bbbPadsAPI": "http://127.0.0.1:9002",   -> pads
       bbb-net:
     volumes:
       - ./data/bigbluebutton:/var/bigbluebutton
