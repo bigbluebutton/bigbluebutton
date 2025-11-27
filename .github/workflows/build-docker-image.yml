@@ -124,7 +124,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ github.repository }}
+          images: ghcr.io/${{ github.repository }}/${{ inputs.image_name }}
           tags: |
             type=ref,event=branch,prefix=dev-
             type=ref,event=branch
@@ -135,10 +135,10 @@ jobs:
         working-directory: ${{ runner.temp }}/digests
         run: |
           docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
-            $(printf 'ghcr.io/${{ github.repository }}@sha256:%s ' *)
+            $(printf 'ghcr.io/${{ github.repository }}/${{ inputs.image_name }}@sha256:%s ' *)
       - name: Inspect Image
         run: |
-          docker buildx imagetools inspect ghcr.io/${{ github.repository }}:${{ steps.meta.outputs.version }}
+          docker buildx imagetools inspect ghcr.io/${{ github.repository }}/${{ inputs.image_name }}:${{ steps.meta.outputs.version }}
 
     outputs:
       image_tag: ${{ steps.image-output.outputs.IMAGE_TAG }}
