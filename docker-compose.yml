@@ -65,7 +65,6 @@ services:
     networks:
       bbb-net:
 
-
   graphql-middleware:
     image: "${IMAGE_REPO:-bigbluebutton}/bbb-graphql-middleware:${IMAGE_GRAPHQL_MIDDLEWARE_TAG:-latest}"
     build:
@@ -136,6 +135,8 @@ services:
     container_name: recording-workers
     image: "${IMAGE_REPO:-bigbluebutton}/bbb-record-and-playback:${IMAGE_RECORD_AND_PLAYBACK_TAG:-latest}"
     command: "rasque_workers"
+    depends_on:
+      - redis
     build:
       args:
         TAG_BBB_PRESENTATION_VIDEO: "${TAG_BBB_PRESENTATION_VIDEO:-5.0.0}"
@@ -171,7 +172,7 @@ services:
       - web
       - etherpad
       - html5-client
-      - webhooks
+      - bbb-webhooks
       - webrtc-sfu
       - graphql-server
       - graphql-middleware
@@ -179,6 +180,8 @@ services:
 
   webhooks:
     image: "${IMAGE_REPO:-bigbluebutton}/bbb-webhooks:${IMAGE_WEBHOOKS_TAG:-latest}"
+    depends_on:
+      - redis
 
   redis:
     image: redis:8-alpine
@@ -219,6 +222,62 @@ services:
     # disable logging (way to verbose)
     logging:
       driver: none
+
+  livekit:
+    image: livekit/livekit-server:latest
+    restart: unless-stopped
+    environment:
+      LIVEKIT_CONFIG: |
+        port: 7880
+        log_level: info
+        rtc:
+          port_range_start: 16384
+          port_range_end: 32768
+          use_external_ip: false
+          tcp_port: 0
+          allow_tcp_fallback: false
+          interfaces:
+            excludes:
+              - docker0
+        redis:
+          address: 'redis:6379'
+        webhook:
+          urls:
+            - 'http://webrtc-sfu:3040/livekit-webhook'
+        audio:
+          active_level: 50
+          min_percentile: 10
+          update_interval: 500
+          smooth_intervals: 0
+        keys:
+          ${LIVEKIT_API_KEY}: ${LIVEKIT_API_SECRET}
+        room:
+          enabled_codecs:
+            - mime: audio/opus
+            - mime: audio/red
+            - mime: video/vp8
+            - mime: video/rtx
+          enable_remote_unmute: true
+    depends_on:
+      - redis
+    networks:
+      bbb-net:
+
+  sip:
+    image: livekit/sip:latest
+    restart: unless-stopped
+    depends_on:
+      - redis
+    environment:
+      SIP_CONFIG_BODY: |
+        log_level: info
+        api_key: 'devkey'
+        api_secret: 'secret'
+        ws_url: 'ws://localhost:7880'
+        redis:
+          address: 'redis:6379'
+        sip_port: 5062
+        sip_port_listen: 5062
 
 networks:
   bbb-net:
