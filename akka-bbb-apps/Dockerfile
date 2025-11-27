@@ -15,8 +15,18 @@ RUN sbt universal:packageBin \
 FROM java-base
 
 COPY --from=build /bbb-apps-akka-0.0.4 /bbb-apps-akka
-COPY ./docker/bbb-apps-akka.conf /etc/bigbluebutton/bbb-apps-akka.conf.tmpl
+COPY ./docker/bbb-apps-akka-docker.conf /bbb-apps-akka/conf/docker.conf
+COPY ./docker/bbb-apps-akka-overwrite.conf /etc/bigbluebutton/bbb-apps-akka.conf.tmpl
 COPY ./docker/entrypoint.sh /entrypoint.sh
 
+# Create log directory owned by bigbluebutton user
+RUN mkdir -p logs \
+ && chown -R bigbluebutton:bigbluebutton logs
+
+# Copy html5 default config
+RUN mkdir -p /usr/share/bigbluebutton/html5-client/private/config/
+COPY --from=html5-config / /usr/share/bigbluebutton/html5-client/private/config/
+
 USER bigbluebutton
+
 ENTRYPOINT ["/entrypoint.sh"]

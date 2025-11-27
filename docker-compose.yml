@@ -25,6 +25,8 @@ services:
     build:
       tags:
         - "${IMAGE_REPO:-bigbluebutton}/akka-bbb-apps:local"
+    env_file:
+      - .env
     restart: unless-stopped
     depends_on:
       - redis
@@ -180,7 +182,7 @@ services:
     environment:
       POSTGRES_MULTIPLE_DATABASES: bbb_graphql,hasura_app,greenlight
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ${POSTGRESQL_SECRET:-password}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
@@ -188,7 +190,7 @@ services:
       retries: 5
     volumes:
       - ./data/postgres:/var/lib/postgresql/data
-      - ./mod/postgres/initdb.sh:/docker-entrypoint-initdb.d/initdb.sh
+      - ./docker/postgres/initdb.sh:/docker-entrypoint-initdb.d/initdb.sh
     networks:
       bbb-net:
 
