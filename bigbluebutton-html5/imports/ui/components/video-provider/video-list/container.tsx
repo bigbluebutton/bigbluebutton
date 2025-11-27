@@ -15,6 +15,9 @@ import { HookEvents } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/enum';
 import { DomElementManipulationHooks } from 'bigbluebutton-html-plugin-sdk/dist/cjs/dom-element-manipulation/enums';
 import { UpdatedEventDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
 import { UserCameraHelperAreas } from '../../plugins-engine/extensible-areas/components/user-camera-helper/types';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import { Meeting } from '/imports/ui/Types/meeting';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 
 interface VideoListContainerProps {
   streams: VideoItem[];
@@ -44,6 +47,36 @@ const VideoListContainer: React.FC<VideoListContainerProps> = (props) => {
     onVirtualBgDrop,
     screenShare,
   } = props;
+  
+  const {
+    data: meeting,
+    loading: meetingLoading,
+  } = useMeeting((m) => ({
+    lockSettings: m.lockSettings,
+  }));
+
+  const {
+    data: currentUser,
+  } = useCurrentUser((u) => ({
+    isModerator: u.isModerator,
+    userId: u.userId,
+  }));
+
+  const filteredStreams = streams.filter((stream) => {
+    const streamUserRole = stream?.user?.role;
+    if (stream.userId === currentUser?.userId) return true;
+    // Always allow non-screenshare or moderator screenshare or streams without user metadata
+    if (stream.contentType !== 'screenshare' || streamUserRole === 'MODERATOR' || !streamUserRole) return true;
+
+    const viewersCanSee = meeting?.lockSettings?.viewersCanSeeViewersScreenShares;
+
+    // Remove viewer→viewer screenshares ONLY if disabled
+    if (!viewersCanSee && streamUserRole === 'VIEWER' && !currentUser?.isModerator) {
+      return false;
+    }
+
+    return true;
+  });
   const numberOfPages = useNumberOfPages();
 
   const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
@@ -99,7 +132,7 @@ const VideoListContainer: React.FC<VideoListContainerProps> = (props) => {
   }
 
   return (
-    !streams.length
+    !filteredStreams.length
       ? null
       : (
         <VideoList
@@ -113,7 +146,7 @@ const VideoListContainer: React.FC<VideoListContainerProps> = (props) => {
           focusedId={focusedId}
           handleVideoFocus={handleVideoFocus}
           isGridEnabled={isGridEnabled}
-          streams={streams}
+          streams={filteredStreams}
           onVideoItemMount={onVideoItemMount}
           onVideoItemUnmount={onVideoItemUnmount}
           onVirtualBgDrop={onVirtualBgDrop}

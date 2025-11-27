@@ -10,6 +10,8 @@ export interface LockSettings {
   hideViewersAnnotation: false,
   meetingId: boolean;
   webcamsOnlyForModerator: boolean;
+  viewersCanShareScreen: boolean;
+  viewersCanSeeViewersScreenShares: boolean;
 }
 
 export interface groups {

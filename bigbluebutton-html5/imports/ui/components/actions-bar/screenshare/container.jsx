@@ -5,6 +5,7 @@ import { useIsScreenBroadcasting, useIsScreenGloballyBroadcasting, useScreenshar
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
 
 const ScreenshareButtonContainer = (props) => {
   const { viewScreenshare: screenshareDataSavingSetting } = useSettings(SETTINGS.DATA_SAVING);
@@ -14,6 +15,12 @@ const ScreenshareButtonContainer = (props) => {
   const enabled = useIsScreenSharingEnabled();
   const l = useScreenshare();
   const { data } = l;
+  const {
+    data: meetingData,
+  } = useMeeting((m) => ({
+    lockSettings: m.lockSettings,
+  }));
+  const viewersCanShareScreen = meetingData?.lockSettings?.viewersCanShareScreen;
 
   const {
     data: currentUserData,
@@ -31,6 +38,7 @@ const ScreenshareButtonContainer = (props) => {
       enabled={enabled}
       streamId={(data || [])[0]?.streamId}
       isUserSharedScreen={isUserSharedScreen}
+      viewersCanShareScreen={viewersCanShareScreen}
       {...props}
     />
   );

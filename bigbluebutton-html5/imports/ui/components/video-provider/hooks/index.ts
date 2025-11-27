@@ -403,6 +403,7 @@ export const useVideoStreams = () => {
     streams = streams.filter((vs) => videoService.isLocalStream(vs.stream));
   }
 
+
   if (isPaginationEnabled) {
     const [filtered, others] = partition(
       streams,
@@ -440,9 +441,7 @@ export const useVideoStreams = () => {
 
 export const useHasVideoStream = () => {
   const streams = useStreams();
-  console.log("🚀 -> useHasVideoStream -> streams:", streams)
   const connectingStream = useConnectingStream();
-  console.log("🚀 -> useHasVideoStream -> connectingStream:", connectingStream)
   return (!!connectingStream && connectingStream.contentType.includes('camera')) || streams.filter(s => s.contentType.includes('camera')).some((s) => videoService.isLocalStream(s.stream));
 };
 

@@ -772,7 +772,6 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
         const { id: profileId } = VideoService.getCameraProfile();
         let bbbVideoStream = VideoService.getPreloadedStream();
 
-        console.log("🚀 -> VideoProvider -> returnnewPromise -> bbbVideoStream:", bbbVideoStream)
         if (bbbVideoStream) {
           // eslint-disable-next-line no-param-reassign
           peerOptions.videoStream = bbbVideoStream.mediaStream;

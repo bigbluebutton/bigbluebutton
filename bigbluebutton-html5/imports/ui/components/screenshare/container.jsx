@@ -178,7 +178,6 @@ const ScreenshareContainer = (props) => {
   }
 
   const screenShareStreams = streams.filter((stream) => stream.contentType === 'screenshare');
-  console.log("🚀 -> ScreenshareContainer -> screenShareStreams:", screenShareStreams)
 
   if (screenShareStreams.length > 0) {
     return (

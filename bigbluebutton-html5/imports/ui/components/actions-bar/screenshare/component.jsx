@@ -32,6 +32,7 @@ const propTypes = {
   isScreenBroadcasting: PropTypes.bool.isRequired,
   isScreenGloballyBroadcasting: PropTypes.bool.isRequired,
   isMeteorConnected: PropTypes.bool.isRequired,
+  viewersCanShareScreen: PropTypes.bool,
 };
 
 const intlMessages = defineMessages({
@@ -153,6 +154,7 @@ const ScreenshareButton = ({
   screenshareDataSavingSetting,
   streamId,
   isUserSharedScreen,
+  viewersCanShareScreen,
 }) => {
   const TROUBLESHOOTING_URLS = window.meetingClientSettings.public.media.screenshareTroubleshootingLinks;
   const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
@@ -233,6 +235,9 @@ const ScreenshareButton = ({
 
   const dataTest = isScreenBroadcasting ? 'stopScreenShare' : 'startScreenShare';
   const loading = isScreenBroadcasting && !isScreenGloballyBroadcasting;
+
+  if ((!viewersCanShareScreen && !amIPresenter)
+    && !isScreenBroadcasting && !isUserSharedScreen) return null;
 
   return (
     <>

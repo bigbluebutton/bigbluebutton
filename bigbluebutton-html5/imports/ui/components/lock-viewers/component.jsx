@@ -81,6 +81,14 @@ const intlMessages = defineMessages({
     id: 'app.lock-viewers.hideAnnotationsLabel',
     description: 'label for other viewers annotation',
   },
+  viewersCanShareScreenLabel: {
+    id: 'app.lock-viewers.viewersCanShareScreenLabel',
+    description: 'label for viewers screenshare toggle',
+  },
+  viewersCanSeeViewersScreenSharesLabel: {
+    id: 'app.lock-viewers.viewersCanSeeViewersScreenSharesLabel',
+    description: 'label for viewers seeing other viewers screenshares toggle',
+  },
 });
 
 const propTypes = {
@@ -229,6 +237,56 @@ class LockViewersComponent extends Component {
                     showToggleLabel={showToggleLabel}
                     invertColors={invertColors}
                     data-test="lockSeeOtherViewersWebcam"
+                  />
+                </Styled.FormElementRight>
+              </Styled.Col>
+            </Styled.Row>
+            <Styled.Row data-test="lockViewersShareScreenItem">
+              <Styled.Col aria-hidden="true">
+                <Styled.FormElement>
+                  <Styled.Label>
+                    {intl.formatMessage(intlMessages.viewersCanShareScreenLabel)}
+                  </Styled.Label>
+                </Styled.FormElement>
+              </Styled.Col>
+              <Styled.Col>
+                <Styled.FormElementRight>
+                  {this.displayLockStatus(!lockSettingsProps.viewersCanShareScreen)}
+                  <Toggle
+                    icons={false}
+                    defaultChecked={lockSettingsProps.viewersCanShareScreen}
+                    onChange={() => {
+                      this.toggleLockSettings('viewersCanShareScreen');
+                    }}
+                    ariaLabel={intl.formatMessage(intlMessages.viewersCanShareScreenLabel)}
+                    showToggleLabel={showToggleLabel}
+                    invertColors={invertColors}
+                    data-test="lockViewersShareScreen"
+                  />
+                </Styled.FormElementRight>
+              </Styled.Col>
+            </Styled.Row>
+            <Styled.Row data-test="lockViewersSeeScreensharesItem">
+              <Styled.Col aria-hidden="true">
+                <Styled.FormElement>
+                  <Styled.Label>
+                    {intl.formatMessage(intlMessages.viewersCanSeeViewersScreenSharesLabel)}
+                  </Styled.Label>
+                </Styled.FormElement>
+              </Styled.Col>
+              <Styled.Col>
+                <Styled.FormElementRight>
+                  {this.displayLockStatus(!lockSettingsProps.viewersCanSeeViewersScreenShares)}
+                  <Toggle
+                    icons={false}
+                    defaultChecked={lockSettingsProps.viewersCanSeeViewersScreenShares}
+                    onChange={() => {
+                      this.toggleLockSettings('viewersCanSeeViewersScreenShares');
+                    }}
+                    ariaLabel={intl.formatMessage(intlMessages.viewersCanSeeViewersScreenSharesLabel)}
+                    showToggleLabel={showToggleLabel}
+                    invertColors={invertColors}
+                    data-test="lockViewersSeeScreenshares"
                   />
                 </Styled.FormElementRight>
               </Styled.Col>

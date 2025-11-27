@@ -32,6 +32,7 @@ import {
   useVideoState,
 } from './state';
 import { VIDEO_TYPES } from './enums';
+import { useScreenshare, screenshareHasEnded } from '/imports/ui/components/screenshare/service';
 
 interface VideoProviderContainerProps {
   focusedId: string;
@@ -79,11 +80,13 @@ const VideoProviderContainer: React.FC<VideoProviderContainerProps> = (props) =>
   const { data: currentMeeting } = useMeeting((m) => ({
     usersPolicies: m.usersPolicies,
     cameraBridge: m.cameraBridge,
+    lockSettings: m.lockSettings,
   }));
 
   const { data: currentUser } = useCurrentUser((user) => ({
     locked: user.locked,
     userId: user.userId,
+    presenter: user.presenter,
   }));
 
   const currentUserId = currentUser?.userId ?? '';
@@ -136,6 +139,7 @@ const VideoProviderContainer: React.FC<VideoProviderContainerProps> = (props) =>
   const { numberOfPages } = useVideoState();
   const isPaginationEnabled = useIsPaginationEnabled();
   const isGridEnabled = useStorageKey('isGridEnabled') as boolean;
+  const { data: screenshares } = useScreenshare();
 
   useEffect(() => {
     if (!isPaginationEnabled || myPageSize <= 0) {
@@ -184,6 +188,17 @@ const VideoProviderContainer: React.FC<VideoProviderContainerProps> = (props) =>
 
     if (streamIsConnected) setConnectingStream(null);
   }, [streams, connectingStream]);
+
+  useEffect(() => {
+    const viewersCanShare = currentMeeting?.lockSettings?.viewersCanShareScreen;
+    if (viewersCanShare === false && !currentUser?.presenter) {
+      const myScreenshare = screenshares?.find((s: any) => s.userId === currentUserId);
+      if (myScreenshare) {
+        screenshareHasEnded();
+        stopVideo(myScreenshare.streamId || myScreenshare.stream);
+      }
+    }
+  }, [currentMeeting?.lockSettings?.viewersCanShareScreen, currentUser?.presenter, screenshares, currentUserId, stopVideo]);
 
   if (!usersVideo.length && !isGridEnabled) return null;
 

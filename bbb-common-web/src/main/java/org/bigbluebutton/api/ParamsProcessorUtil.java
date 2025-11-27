@@ -138,6 +138,8 @@ public class ParamsProcessorUtil {
 		private boolean defaultLockSettingsLockOnJoinConfigurable;
 		private boolean defaultLockSettingsHideViewersCursor;
         private boolean defaultLockSettingsHideViewersAnnotation;
+        private boolean defaultLockSettingsViewersCanShareScreen = false;
+        private boolean defaultLockSettingsViewersCanSeeViewersScreenShares = false;
 
     private Long maxPresentationFileUpload = 30000000L; // 30MB
 
@@ -420,6 +422,18 @@ public class ParamsProcessorUtil {
                 lockSettingsHideViewersAnnotation = Boolean.parseBoolean(lockSettingsHideViewersAnnotationParam);
 			}
 
+            Boolean lockSettingsViewersCanShareScreen = defaultLockSettingsViewersCanShareScreen;
+            String lockSettingsViewersCanShareScreenParam = params.get(ApiParams.LOCK_SETTINGS_VIEWERS_CAN_SHARE_SCREEN);
+            if (!StringUtils.isEmpty(lockSettingsViewersCanShareScreenParam)) {
+                lockSettingsViewersCanShareScreen = Boolean.parseBoolean(lockSettingsViewersCanShareScreenParam);
+            }
+
+            Boolean lockSettingsViewersCanSeeViewersScreenShares = defaultLockSettingsViewersCanSeeViewersScreenShares;
+            String lockSettingsViewersCanSeeViewersScreenSharesParam = params.get(ApiParams.LOCK_SETTINGS_VIEWERS_CAN_SEE_VIEWERS_SCREENSHARES);
+            if (!StringUtils.isEmpty(lockSettingsViewersCanSeeViewersScreenSharesParam)) {
+                lockSettingsViewersCanSeeViewersScreenShares = Boolean.parseBoolean(lockSettingsViewersCanSeeViewersScreenSharesParam);
+            }
+
 			return new LockSettingsParams(lockSettingsDisableCam,
 							lockSettingsDisableMic,
 							lockSettingsDisablePrivateChat,
@@ -429,7 +443,9 @@ public class ParamsProcessorUtil {
 							lockSettingsLockOnJoin,
 							lockSettingsLockOnJoinConfigurable,
                             lockSettingsHideViewersCursor,
-                            lockSettingsHideViewersAnnotation);
+                            lockSettingsHideViewersAnnotation,
+                            lockSettingsViewersCanShareScreen,
+                            lockSettingsViewersCanSeeViewersScreenShares);
 		}
 
     private ArrayList<Group> processGroupsParams(Map<String, String> params) {
@@ -1771,6 +1787,14 @@ public class ParamsProcessorUtil {
 
     public void setLockSettingsHideViewersAnnotation(Boolean lockSettingsHideViewersAnnotation) {
 		this.defaultLockSettingsHideViewersAnnotation = lockSettingsHideViewersAnnotation;
+	}
+
+	public void setLockSettingsViewersCanShareScreen(Boolean lockSettingsViewersCanShareScreen) {
+		this.defaultLockSettingsViewersCanShareScreen = lockSettingsViewersCanShareScreen;
+	}
+
+	public void setLockSettingsViewersCanSeeViewersScreenShares(Boolean lockSettingsViewersCanSeeViewersScreenShares) {
+		this.defaultLockSettingsViewersCanSeeViewersScreenShares = lockSettingsViewersCanSeeViewersScreenShares;
 	}
 
 	public void setAllowDuplicateExtUserid(Boolean allow) {

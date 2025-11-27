@@ -21,6 +21,8 @@ select_permissions:
         - hideViewersCursor
         - lockOnJoin
         - lockOnJoinConfigurable
+        - viewersCanShareScreen
+        - viewersCanSeeViewersScreenShares
         - webcamsOnlyForModerator
       filter:
         meetingId:

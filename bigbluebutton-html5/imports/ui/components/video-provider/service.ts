@@ -466,8 +466,6 @@ class VideoService {
   }
 
   getPreloadedStream() {
-    console.log("🚀 -> VideoService -> getPreloadedStream -> this.deviceId:", this.deviceId)
-    console.log("🚀 -> VideoService -> getPreloadedStream -> VideoPreviewService.getStream(this.deviceId):", VideoPreviewService.getStream(this.deviceId))
     if (this.deviceId == null) return null;
     return VideoPreviewService.getStream(this.deviceId);
   }

@@ -17,6 +17,8 @@ const MEETING_SUBSCRIPTION = gql`
           webcamsOnlyForModerator
           lockOnJoin
           lockOnJoinConfigurable
+          viewersCanShareScreen
+          viewersCanSeeViewersScreenShares
         }
 
         learningDashboard {

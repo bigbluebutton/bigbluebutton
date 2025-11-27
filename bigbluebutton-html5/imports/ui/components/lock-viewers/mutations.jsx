@@ -11,7 +11,9 @@ export const SET_LOCK_SETTINGS_PROPS = gql`
     $hideViewersCursor: Boolean!,
     $lockOnJoin: Boolean!,
     $lockOnJoinConfigurable: Boolean!,
-    $hideViewersAnnotation: Boolean!) {
+    $hideViewersAnnotation: Boolean!,
+    $viewersCanShareScreen: Boolean!,
+    $viewersCanSeeViewersScreenShares: Boolean!) {
       meetingLockSettingsSetProps(
         disableCam: $disableCam,
         disableMic: $disableMic,
@@ -23,6 +25,8 @@ export const SET_LOCK_SETTINGS_PROPS = gql`
         lockOnJoinConfigurable: $lockOnJoinConfigurable,
         hideViewersCursor: $hideViewersCursor,
         hideViewersAnnotation: $hideViewersAnnotation,
+        viewersCanShareScreen: $viewersCanShareScreen,
+        viewersCanSeeViewersScreenShares: $viewersCanSeeViewersScreenShares,
       )
   }
 `;

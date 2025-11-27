@@ -291,6 +291,8 @@ type Mutation {
     lockOnJoinConfigurable: Boolean!
     hideViewersCursor: Boolean!
     hideViewersAnnotation: Boolean!
+    viewersCanShareScreen: Boolean!
+    viewersCanSeeViewersScreenShares: Boolean!
   ): Boolean
 }
 

@@ -1098,6 +1098,8 @@
     "app.lock-viewers.lockStatusLabel": "Status",
     "app.lock-viewers.webcamLabel": "Share webcam",
     "app.lock-viewers.otherViewersWebcamLabel": "See other viewers webcams",
+    "app.lock-viewers.viewersCanShareScreenLabel": "Viewers can share screen",
+    "app.lock-viewers.viewersCanSeeViewersScreenSharesLabel": "Viewers can see other viewers’ screenshares",
     "app.lock-viewers.microphoneLable": "Share microphone",
     "app.lock-viewers.PublicChatLabel": "Send Public chat messages",
     "app.lock-viewers.PrivateChatLable": "Send Private chat messages",

@@ -28,6 +28,8 @@ const LockViewersContainer = (props) => {
         lockOnJoinConfigurable: lockSettings.lockOnJoinConfigurable,
         hideViewersCursor: lockSettings.hideViewersCursor,
         hideViewersAnnotation: lockSettings.hideViewersAnnotation,
+        viewersCanShareScreen: lockSettings.viewersCanShareScreen,
+        viewersCanSeeViewersScreenShares: lockSettings.viewersCanSeeViewersScreenShares,
       },
     });
   };
