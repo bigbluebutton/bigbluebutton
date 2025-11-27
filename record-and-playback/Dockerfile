@@ -52,9 +52,9 @@ RUN apt-get update && apt-get install -y \
     cmake
 # TODO: missing packages
 
-ENV LC_ALL en_US.UTF-8
-ENV LANG en_US.UTF-8
-ENV LANGUAGE en_US.UTF-8
+ENV LC_ALL=en_US.UTF-8
+ENV LANG=en_US.UTF-8
+ENV LANGUAGE=en_US.UTF-8
 
 # compile and install mkclean
 RUN cd /tmp \
@@ -68,13 +68,13 @@ RUN cd /tmp \
     && rm -rf /tmp/mkclean-0.9.0*
 
 # add dockerize
-ENV DOCKERIZE_VERSION v0.6.1
+ENV DOCKERIZE_VERSION=v0.6.1
 RUN wget -q https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
     && tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
     && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
 
 # add yq for bbb-record
-ENV YQ_VERSION v4.49.2
+ENV YQ_VERSION=v4.49.2
 RUN  wget -q https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linux_amd64 -O /usr/bin/yq \
     && chmod +x /usr/bin/yq
 
@@ -103,7 +103,7 @@ RUN chown -R bigbluebutton:bigbluebutton /usr/local/bigbluebutton  \
     /var/bigbluebutton
 
 # dependency for bbb-presentation-video
-ENV FREEHAND_VERSION 1.2.0
+ENV FREEHAND_VERSION=1.2.0
 RUN wget -q -O /tmp/python3-perfect-freehand.deb https://github.com/bigbluebutton/perfect-freehand-python/releases/download/${FREEHAND_VERSION}/python3-perfect-freehand_${FREEHAND_VERSION}_all.deb && \
     dpkg -i /tmp/python3-perfect-freehand.deb && \
     rm /tmp/python3-perfect-freehand.deb
