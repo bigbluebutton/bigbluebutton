@@ -260,8 +260,6 @@ exports.hasUnreadMessages = 'div[data-test="unreadMessages"]';
 exports.userJoinPushAlerts = 'input[data-test="userJoinPopupAlerts"]';
 exports.toastContainer = 'div[data-test="toastContainer"]';
 exports.presentationStatusInfo = 'span[data-test="presentationStatusInfo"]';
-exports.confirmRecordingButton = 'button[data-test="confirmRecordingButton"]';
-exports.cancelRecordingButton = 'button[data-test="cancelRecordingButton"]';
 exports.processingPresentationItem = 'span[data-test="processingPresentationItem"]';
 exports.uploadDoneIcon = 'i[data-test="uploadDoneIcon"]';
 exports.noButton = 'button[aria-label="No"]';

@@ -109,7 +109,7 @@ const BreakoutRoomsAppObserver = () => {
       pinApp(BREAKOUTS_APP_KEY);
     }
     setBreakoutsCreationIsOpen(false);
-  }, [hasBreakoutRoom]);
+  }, [hasBreakoutRoom, isBreakoutMeeting, isModerator, isBreakoutRoomsEnabled]);
 
   useEffect(() => {
     setNotificationApp(BREAKOUTS_APP_KEY, isNotAssigned && !hasOpenedPanel);
@@ -162,6 +162,7 @@ const BreakoutRoomsAppObserver = () => {
     isModerator,
     isBreakoutMeeting,
     breakoutLabel,
+    isBreakoutRoomsEnabled,
   ]);
 
   useEffect(() => {

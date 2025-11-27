@@ -185,7 +185,7 @@ class Chat extends MultiUsers {
     await openPublicChat(this.modPage);
     if (!emojiPickerEnabled) {
       await this.modPage.hasElement(e.chatBox, 'should display the chat box element on the public chat');
-      return this.modPage.wasRemoved(e.emojiPickerButton, 'should not display the emoji picker button on the public chat'); t
+      return this.modPage.wasRemoved(e.emojiPickerButton, 'should not display the emoji picker button on the public chat');
     }
     await this.modPage.waitAndClick(e.emojiPickerButton);
     await this.modPage.getByLabelAndClick(e.thumbsUpEmoji);

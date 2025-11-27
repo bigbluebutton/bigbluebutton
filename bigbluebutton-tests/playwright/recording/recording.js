@@ -79,8 +79,8 @@ class Recording extends MultiUsers {
       const text = await recordingIndicatorButton.textContent();
       const match = text.match(/(\d+):(\d+)/);
       expect(match, 'should find time pattern in recording button text').not.toBeNull();
-      const [_, minutes, seconds] = match;
-      const totalSeconds = parseInt(minutes) * 60 + parseInt(seconds);
+      const [, minutes, seconds] = match;
+      const totalSeconds = Number.parseInt(minutes) * 60 + Number.parseInt(seconds);
       expect(totalSeconds).toBeGreaterThan(5);
     }, 'should display more than 5 seconds on the recording button counter').toPass({ timeout: ELEMENT_WAIT_LONGER_TIME });
     await this.modPage.waitAndClick(e.leaveMeetingDropdown);

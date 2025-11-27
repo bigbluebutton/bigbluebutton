@@ -641,7 +641,7 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
       await customParam.hidePresentationOnJoinReturnFromBreakouts();
     });
 
-    test('After Uploading large presentation', async ({ browser, context, page }, testInfo) => {
+    test('After Uploading large presentation', { tag: '@flaky-3.1' }, async ({ browser, context, page }, testInfo) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, true, { joinParameter: c.hidePresentationOnJoin, testInfo });
       await customParam.initUserPage(true, context, { useModMeetingId: true, joinParameter: c.hidePresentationOnJoin, testInfo });
