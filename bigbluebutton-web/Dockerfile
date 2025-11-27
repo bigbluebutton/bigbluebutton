@@ -42,5 +42,16 @@ COPY --from=build /dist /usr/share/bbb-web
 COPY --from=build /bbb-web/pres-checker/lib /usr/share/prescheck/lib
 COPY --from=build /bbb-web/pres-checker/run.sh /usr/share/prescheck/prescheck.sh
 
+# Create necessary directories
+RUN mkdir -p /var/bigbluebutton/diagnostics /etc/bigbluebutton
+
+# Hardcode livekit as the bridge services
+RUN cat > /etc/bigbluebutton/bbb-web.properties << 'EOF' && \
+    audioBridge=livekit && \
+    cameraBridge=livekit && \
+    screenShareBridge=livekit && \
+    EOF
+
 USER bigbluebutton
-CMD ["java -Dgrails.env=prod -Dserver.address=0.0.0.0 -Dserver.port=8090 -Dspring.main.allow-circular-references=true -Xms384m -Xmx384m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/var/bigbluebutton/diagnostics -cp WEB-INF/lib/*:/:WEB-INF/classes/:. org.springframework.boot.loader.WarLauncher"]
+COPY docker-entrypoint.sh /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
