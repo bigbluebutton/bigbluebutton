@@ -11,7 +11,7 @@ import Styled from './styles';
 import Auth from '/imports/ui/services/auth';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import { notify } from '/imports/ui/services/notification';
-import { SET_CAMERA_PINNED } from '/imports/ui/core/graphql/mutations/userMutations';
+import { SET_CAMERA_PINNED, CAMERA_SET_SHOW_AS_CONTENT } from '/imports/ui/core/graphql/mutations/userMutations';
 import { VideoItem } from '/imports/ui/components/video-provider/types';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 import { useIsVideoPinEnabledForCurrentUser } from '/imports/ui/components/video-provider/hooks';
@@ -98,13 +98,18 @@ interface UserActionProps {
   videoContainer?: MutableRefObject<HTMLDivElement | null>,
   isFullscreenContext: boolean;
   layoutContextDispatch: (...args: unknown[]) => void;
+  contentType?: string;
+  onSetAsContent?: () => void;
+  onPeek?: () => void;
+  isContent?: boolean;
 }
 
 const UserActions: React.FC<UserActionProps> = (props) => {
   const {
     name, cameraId, numOfStreams, onHandleVideoFocus, stream, focused, onHandleMirror,
     isVideoSqueezed = false, videoContainer, isRTL, isStream, isSelfViewDisabled, isMirrored,
-    amIModerator, isFullscreenContext, layoutContextDispatch, screenShare,
+    amIModerator, isFullscreenContext, layoutContextDispatch,
+    contentType, onSetAsContent, onPeek, isContent = false,
   } = props;
 
   const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
@@ -122,6 +127,7 @@ const UserActions: React.FC<UserActionProps> = (props) => {
   const isIphone = !!(navigator.userAgent.match(/iPhone/i));
 
   const [setCameraPinned] = useMutation(SET_CAMERA_PINNED);
+  const [setStreamAsContent] = useMutation(CAMERA_SET_SHOW_AS_CONTENT);
   const pinEnabledForCurrentUser = useIsVideoPinEnabledForCurrentUser(amIModerator);
 
   useEffect(() => () => {
@@ -178,7 +184,9 @@ const UserActions: React.FC<UserActionProps> = (props) => {
       });
     }
 
-    if (isStream) {
+    const isScreenshare = contentType === 'screenshare';
+
+    if (isStream && !isScreenshare) {
       menuItems.push({
         key: `${cameraId}-mirror`,
         label: intl.formatMessage(intlMessages[`${isMirroredIntlKey}Label`]),
@@ -188,13 +196,51 @@ const UserActions: React.FC<UserActionProps> = (props) => {
       });
     }
 
-    if (numOfStreams > 2 && isStream) {
+    if (isStream && !isScreenshare) {
       menuItems.push({
         key: `${cameraId}-focus`,
         label: intl.formatMessage(intlMessages[`${isFocusedIntlKey}Label`]),
         description: intl.formatMessage(intlMessages[`${isFocusedIntlKey}Desc`]),
         onClick: () => onHandleVideoFocus?.(cameraId),
         dataTest: !focused ? 'focusWebcamBtn' : 'unfocusWebcamBtn',
+      });
+    }
+
+    if (isStream) {
+      const isSetLabel = isScreenshare
+        ? 'app.screenshare.setAsContentLabel'
+        : 'app.actionsBar.actionsDropdown.shareCameraAsContent';
+      const isUnsetLabel = isScreenshare
+        ? 'app.screenshare.unsetAsContentLabel'
+        : 'app.actionsBar.actionsDropdown.unshareCameraAsContent';
+      menuItems.push({
+        key: `${cameraId}-set-as-content`,
+        label: isContent
+          ? intl.formatMessage({ id: isUnsetLabel, defaultMessage: 'Unset content' })
+          : intl.formatMessage({ id: isSetLabel, defaultMessage: 'Set as content' }),
+        description: isContent
+          ? intl.formatMessage({ id: isUnsetLabel, defaultMessage: 'Unset content' })
+          : intl.formatMessage({ id: isSetLabel, defaultMessage: 'Set as content' }),
+        onClick: () => {
+          setStreamAsContent({
+            variables: {
+              streamId: cameraId,
+              showAsContent: !isContent,
+            },
+          });
+          onSetAsContent?.();
+        },
+        dataTest: isScreenshare ? 'setScreenshareAsContent' : 'setCameraAsContent',
+      });
+    }
+
+    if (isScreenshare && onPeek) {
+      menuItems.push({
+        key: `${cameraId}-peek`,
+        label: intl.formatMessage({ id: 'app.screenshare.peek', defaultMessage: 'Peek' }),
+        description: intl.formatMessage({ id: 'app.screenshare.peek', defaultMessage: 'Peek' }),
+        onClick: () => onPeek(),
+        dataTest: 'peekScreenshare',
       });
     }
 

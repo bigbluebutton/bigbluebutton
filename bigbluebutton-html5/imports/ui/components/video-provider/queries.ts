@@ -13,6 +13,7 @@ export const VIDEO_STREAMS_SUBSCRIPTION = gql`
     user_camera {
       streamId
       contentType
+      showAsContent
       user {
         name
         userId

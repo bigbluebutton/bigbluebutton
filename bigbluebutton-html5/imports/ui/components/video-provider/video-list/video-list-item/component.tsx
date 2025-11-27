@@ -38,6 +38,8 @@ interface VideoListItemProps {
   isFullscreenContext: boolean;
   setUserCamerasRequestedFromPlugin: React.Dispatch<React.SetStateAction<UpdatedDataForUserCameraDomElement[]>>;
   layoutContextDispatch: (...args: unknown[]) => void;
+  contentType?: string;
+  isContent?: boolean;
   isRTL: boolean;
   amIModerator: boolean;
   cameraId: string;
@@ -51,6 +53,7 @@ interface VideoListItemProps {
   onVideoItemUnmount: (stream: string) => void;
   settingsSelfViewDisable: boolean;
   stream: VideoItem;
+  contentType?: string;
   makeDragOperations: (userId?: string) => {
     onDragOver: (e: DragEvent) => void,
     onDrop: (e: DragEvent) => void,
@@ -121,6 +124,7 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
     makeDragOperations, dragging, draggingOver, isRTL, isStream, settingsSelfViewDisable,
     disabledCams, amIModerator, stream, setUserCamerasRequestedFromPlugin,
     pluginUserCameraHelperPerPosition, screenShare, raisedHandPosition,
+    contentType, isContent,
   } = props;
 
   const intl = useIntl();
@@ -352,13 +356,15 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
           isMirrored={isMirrored}
           isRTL={isRTL}
           isStream={isStream}
-          onHandleDisableCam={() => setIsSelfViewDisabled((value) => !value)}
-          isSelfViewDisabled={isSelfViewDisabled}
-          amIModerator={amIModerator}
-          videoContainer={videoContainer}
-          isFullscreenContext={isFullscreenContext}
-          layoutContextDispatch={layoutContextDispatch}
-        />
+        onHandleDisableCam={() => setIsSelfViewDisabled((value) => !value)}
+        isSelfViewDisabled={isSelfViewDisabled}
+        amIModerator={amIModerator}
+        videoContainer={videoContainer}
+        isFullscreenContext={isFullscreenContext}
+        layoutContextDispatch={layoutContextDispatch}
+        contentType={contentType || (stream as any).contentType}
+        isContent={(stream as any).showAsContent ?? isContent}
+      />
         <UserStatus
           voiceUser={voiceUser}
           user={user}

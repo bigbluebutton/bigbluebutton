@@ -32,6 +32,8 @@ interface VideoListItemContainerProps {
   onVideoItemUnmount: (stream: string) => void;
   onVirtualBgDrop: (type: string, name: string, data: string) => void;
   onVideoItemMount: (ref: HTMLVideoElement) => void;
+  contentType?: string;
+  isContent?: boolean;
 }
 
 const VideoListItemContainer: React.FC<VideoListItemContainerProps> = (props) => {
@@ -50,6 +52,8 @@ const VideoListItemContainer: React.FC<VideoListItemContainerProps> = (props) =>
     userId,
     pluginUserCameraHelperPerPosition,
     screenShare,
+    contentType,
+    isContent,
   } = props;
 
   const fullscreen = layoutSelect((i: Layout) => i.fullscreen);
@@ -117,6 +121,8 @@ const VideoListItemContainer: React.FC<VideoListItemContainerProps> = (props) =>
       onVirtualBgDrop={onVirtualBgDrop}
       settingsSelfViewDisable={settingsSelfViewDisable}
       stream={stream}
+      contentType={contentType || (stream as any).contentType}
+      isContent={(stream as any).showAsContent ?? isContent ?? false}
       voiceUser={voiceUser}
       raisedHandPosition={raisedHandIndex}
     />

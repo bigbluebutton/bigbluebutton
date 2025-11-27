@@ -2,6 +2,7 @@ import { gql } from '@apollo/client';
 
 export interface ScreenshareResponse {
   contentType: string;
+  showAsContent?: boolean;
   hasAudio: boolean;
   screenshareConf: string;
   screenshareId: string;
