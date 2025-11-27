@@ -116,6 +116,8 @@ services:
   pads:
     image: "${IMAGE_REPO:-bigbluebutton}/bbb-pads:${IMAGE_PADS_TAG:-latest}"
     restart: unless-stopped
+    environment:
+      - ETHERPAD_API_KEY=${ETHERPAD_API_KEY}
     depends_on:
       - redis
       - etherpad
@@ -127,6 +129,8 @@ services:
     build:
       tags:
         - "${IMAGE_REPO:-bigbluebutton}/bbb-etherpad:local"
+    environment:
+      - ETHERPAD_API_KEY=${ETHERPAD_API_KEY}
     restart: unless-stopped
     depends_on:
       - redis
