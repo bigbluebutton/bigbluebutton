@@ -110,8 +110,6 @@ services:
       - pads
     networks:
       bbb-net:
-    volumes:
-      - ./data/bigbluebutton:/var/bigbluebutton
     tmpfs:
       - /tmp
 
