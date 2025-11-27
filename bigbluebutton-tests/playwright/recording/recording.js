@@ -20,12 +20,12 @@ class Recording extends MultiUsers {
       const { response } = await this.getRecordingsApi();
 
       // Check a successful response with recordings
-      if (response?.returncode?.[0] === 'SUCCESS' && 
-          response?.messageKey?.[0] !== 'noRecordings' && 
-          response?.recordings &&
-          Array.isArray(response.recordings) && 
-          response.recordings.length > 0
-        ) {
+      if (response?.returncode?.[0] === 'SUCCESS' &&
+        response?.messageKey?.[0] !== 'noRecordings' &&
+        response?.recordings &&
+        Array.isArray(response.recordings) &&
+        response.recordings.length > 0
+      ) {
         return { response };
       }
 
@@ -46,18 +46,18 @@ class Recording extends MultiUsers {
     await expect(
       recordingIndicatorButton,
       'recording indicator button should not have any background color when not recording'
-    ).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+    ).toHaveCSS('background-color', 'rgba(255, 255, 255, 0.1)');
 
     // start recording
     await this.modPage.waitAndClick(e.recordingIndicator);
-    await this.modPage.hasElement(e.simpleModal, 'should display the recording modal');
-    await this.modPage.hasElement(e.noButton, 'should display the "No" button in the recording modal');
-    await this.modPage.hasElement(e.yesButton, 'should display the "Yes" button in the recording modal');
-    await this.modPage.waitAndClick(e.yesButton);
+    await this.modPage.hasNElements(e.toastContainer, 2, 'should display 2 toasts when starting recording, one for no mic and one for the options');
+    await this.modPage.hasElement(e.cancelRecordingButton, 'should display the Cancel button in the recording toast');
+    await this.modPage.hasElement(e.confirmRecordingButton, 'should display the Confirm button in the recording toast');
+    await this.modPage.waitAndClick(e.confirmRecordingButton);
     await expect(
       recordingIndicatorButton,
       'recording indicator button should have a red background color when recording'
-    ).toHaveCSS('background-color', 'rgb(174, 16, 16)');
+    ).toHaveCSS('background-color', 'rgb(223, 39, 33)');
 
     // send chat message
     await openPublicChat(this.modPage);
@@ -75,10 +75,14 @@ class Recording extends MultiUsers {
     await expect(notesLocator, 'should contain the typed text on shared notes').toContainText(e.testMessage, { timeout: ELEMENT_WAIT_TIME });
 
     // stop recording and end meeting
-    await expect(
-      recordingIndicatorButton,
-      'should display 5 seconds on the recording button counter'
-    ).toContainText('00:05', { timeout: ELEMENT_WAIT_LONGER_TIME });
+    await expect(async () => {
+      const text = await recordingIndicatorButton.textContent();
+      const match = text.match(/(\d+):(\d+)/);
+      expect(match, 'should find time pattern in recording button text').not.toBeNull();
+      const [_, minutes, seconds] = match;
+      const totalSeconds = parseInt(minutes) * 60 + parseInt(seconds);
+      expect(totalSeconds).toBeGreaterThan(5);
+    }, 'should display more than 5 seconds on the recording button counter').toPass({ timeout: ELEMENT_WAIT_LONGER_TIME });
     await this.modPage.waitAndClick(e.leaveMeetingDropdown);
     await this.modPage.waitAndClick(e.endMeetingButton);
     await this.modPage.hasElement(e.simpleModal, 'should display the confirm meeting end modal');

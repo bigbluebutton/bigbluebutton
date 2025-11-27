@@ -16,6 +16,7 @@ import { POLLS_ICON, POLLS_LABEL, POLLS_APP_KEY } from '/imports/ui/components/p
 import { ACTIONS, DEVICE_TYPE, PANELS } from '/imports/ui/components/layout/enums';
 import useHasUnreadNotes from '/imports/ui/components/notes/hooks/useHasUnreadNotes';
 import useHasUnreadChatMessages from '/imports/ui/components/chat/hooks/useHasUnreadChatMessages';
+import { useIsPollingEnabled } from '/imports/ui/services/features';
 
 const SidebarNavigationContainer = () => {
   const { data: currentUser } = useCurrentUser((u: Partial<User>) => (
@@ -37,6 +38,7 @@ const SidebarNavigationContainer = () => {
   const deviceType = layoutSelect((i: Layout) => i.deviceType);
   const isMobile = deviceType === DEVICE_TYPE.MOBILE;
   const layoutContextDispatch = layoutDispatch();
+  const isPollingEnabled = useIsPollingEnabled();
   const {
     top,
     left,
@@ -94,7 +96,7 @@ const SidebarNavigationContainer = () => {
   };
 
   useEffect(() => {
-    if (!pollsAreRegistered && isPresenter) {
+    if (!pollsAreRegistered && isPresenter && isPollingEnabled) {
       registerApp(POLLS_APP_KEY, intl.formatMessage(POLLS_LABEL), POLLS_ICON);
       pinApp(POLLS_APP_KEY);
     }

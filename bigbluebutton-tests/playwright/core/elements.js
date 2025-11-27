@@ -266,6 +266,8 @@ exports.processingPresentationItem = 'span[data-test="processingPresentationItem
 exports.uploadDoneIcon = 'i[data-test="uploadDoneIcon"]';
 exports.noButton = 'button[aria-label="No"]';
 exports.yesButton = 'button[aria-label="Yes"]';
+exports.cancelRecordingButton = 'button[data-test="cancelRecordingButton"]';
+exports.confirmRecordingButton = 'button[data-test="confirmRecordingButton"]';
 
 // Toasts
 exports.savedSettingsToast = 'Settings have been saved';
@@ -406,10 +408,12 @@ exports.moderatorAvatar = 'div[data-test="moderatorAvatar"]';
 exports.viewerAvatar = 'div[data-test="viewerAvatar"]';
 exports.userListItem = 'div[data-test="userListItem"]';
 exports.usersListSidebarButton = 'div[data-test="usersListSidebarButton"]';
+exports.toggleSidebarNavigation = 'button[data-test="toggleSidebarNavigation"]';
 exports.currentUser = 'div[data-test="userListItemCurrent"]';
 exports.manageUsers = 'button[data-test="manageUsers"]';
 exports.presenterClassName = 'presenter--';
 exports.mobileUser = 'span[data-test="mobileUser"]';
+exports.userNameSubs = 'span[data-test="userNameSubs"]';
 exports.connectionStatusBtn = 'button[data-test="connectionStatusButton"]';
 exports.connectionStatusModal = 'div[data-test="connectionStatusModal"]';
 exports.copyStats = 'span[data-test="copyStats"]';
@@ -572,7 +576,7 @@ exports.helpLinkButton = 'a[data-test="helpLinkButton"]';
 exports.helpPageTitle = 'BigBlueButton Tutorials | Built For Teachers | BigBlueButton';
 
 // Dark mode
-exports.darkModeToggleBtn = 'span[data-test="darkModeToggleBtn"]';
+exports.darkModeToggleBtn = 'input[data-test="darkModeToggleBtn"]';
 exports.actionsBarBackground = 'section[id="ActionsBar"]';
 exports.navbarBackground = 'header[id="Navbar"]';
 exports.fullscreenModal = 'div[id="fsmodal"]';

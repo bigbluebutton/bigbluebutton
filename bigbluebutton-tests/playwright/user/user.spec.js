@@ -50,7 +50,7 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
   });
 
   test.describe.parallel('Reactions', () => {
-    test('Use reactions', async ({ browser, context, page }) => {
+    test('Use reactions', async ({ browser, context, page }, testInfo) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initModPage(page, true, { testInfo });
       await multiusers.initUserPage(true, context, { testInfo });

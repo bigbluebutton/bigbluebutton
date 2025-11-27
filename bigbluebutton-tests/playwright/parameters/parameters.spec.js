@@ -147,8 +147,8 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
 
     test('PRESENTATION_ONLY', async ({ browser, context, page }, testInfo) => {
       const createParam = new CreateParameters(browser, context);
-      await createParam.initModPage(page, true, { createParameter: c.presentationOnly, testInfo });
-      await createParam.initUserPage(true, context, { testInfo });
+      await createParam.initModPage(page, false, { createParameter: c.presentationOnly, testInfo });
+      await createParam.initUserPage(false, context, { testInfo });
       await createParam.presentationOnly();
     });
 
@@ -212,8 +212,8 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
 
     test('PRESENTATION_ONLY', async ({ browser, context, page }, testInfo) => {
       const customParam = new CustomParameters(browser, context);
-      await customParam.initModPage(page, true, { joinParameter: c.enforcePresentationOnly, testInfo });
-      await customParam.initUserPage(true, context, { testInfo });
+      await customParam.initModPage(page, false, { joinParameter: c.enforcePresentationOnly, testInfo });
+      await customParam.initUserPage(false, context, { testInfo });
       await customParam.enforcePresentationOnly();
     });
 
@@ -611,7 +611,7 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
       await customParam.hidePresentationOnJoinScreenshare();
     });
 
-    test('After Sharing External video', { tag: '@flaky' }, async({ browser, context, page }, testInfo) => {
+    test('After Sharing External video', { tag: '@flaky' }, async ({ browser, context, page }, testInfo) => {
       //requiring logged user to start external video on CI environment
       linkIssue(21589);
       const customParam = new CustomParameters(browser, context);
@@ -620,28 +620,28 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
       await customParam.hidePresentationOnJoinShareExternalVideo();
     });
 
-    test('After Pinning and unpinning shared notes', async({ browser, context, page }, testInfo) => {
+    test('After Pinning and unpinning shared notes', async ({ browser, context, page }, testInfo) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, true, { joinParameter: c.hidePresentationOnJoin, testInfo });
       await customParam.initUserPage(true, context, { useModMeetingId: true, joinParameter: c.hidePresentationOnJoin, testInfo });
       await customParam.hidePresentationOnJoinPinSharedNotes();
     });
 
-    test('After Changing Layout', async({ browser, context, page }, testInfo) => {
+    test('After Changing Layout', async ({ browser, context, page }, testInfo) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, true, { joinParameter: c.hidePresentationOnJoin, testInfo });
       await customParam.initUserPage(true, context, { useModMeetingId: true, joinParameter: c.hidePresentationOnJoin, testInfo });
       await customParam.hidePresentationOnJoinChangeLayout();
     });
 
-    test('After Returning from breakouts', async({ browser, context, page }, testInfo) => {
+    test('After Returning from breakouts', async ({ browser, context, page }, testInfo) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, true, { joinParameter: c.hidePresentationOnJoin, testInfo });
       await customParam.initUserPage(true, context, { useModMeetingId: true, joinParameter: c.hidePresentationOnJoin, testInfo });
       await customParam.hidePresentationOnJoinReturnFromBreakouts();
     });
 
-    test('After Uploading large presentation', async({ browser, context, page }, testInfo) => {
+    test('After Uploading large presentation', async ({ browser, context, page }, testInfo) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, true, { joinParameter: c.hidePresentationOnJoin, testInfo });
       await customParam.initUserPage(true, context, { useModMeetingId: true, joinParameter: c.hidePresentationOnJoin, testInfo });
