@@ -24,6 +24,8 @@ services:
     build:
       tags:
         - "${IMAGE_REPO:-bigbluebutton}/bbb-apps-akka:local"
+    environment:
+      - POSTGRES_PASSWORD=${BBB_POSTGRES_BBB_CORE_PASSWORD}
     env_file:
       - .env
     restart: unless-stopped
@@ -229,9 +231,11 @@ services:
     image: postgres:16-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_MULTIPLE_DATABASES: bbb_graphql,hasura_app,greenlight
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_HASURA_APP_PASSWORD: ${BBB_POSTGRES_HASURA_APP_PASSWORD}
+      POSTGRES_BBB_HASURA_PASSWORD: ${BBB_POSTGRES_BBB_HASURA_PASSWORD}
+      POSTGRES_BBB_CORE_PASSWORD: ${BBB_POSTGRES_BBB_CORE_PASSWORD}
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
@@ -240,6 +244,7 @@ services:
     volumes:
       - ./data/postgres:/var/lib/postgresql/data
       - ./docker/postgres/initdb.sh:/docker-entrypoint-initdb.d/initdb.sh
+      - ./bbb-graphql-server/bbb_schema.sql:/bbb-graphql-server/bbb_schema.sql:ro
     networks:
       bbb-net:
 
