@@ -156,6 +156,12 @@ services:
     env_file:
       - .env
 
+  webrtc-sfu:
+    image: "${IMAGE_REPO:-bigbluebutton}/bbb-webrtc-sfu:${IMAGE_WEBRTC_SFU_TAG:-latest}"
+    restart: unless-stopped
+    networks:
+      bbb-net:
+
   nginx:
     image: "${IMAGE_REPO:-bigbluebutton}/bbb-nginx:${IMAGE_NGINX_TAG:-latest}"
     build:
