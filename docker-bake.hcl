@@ -8,7 +8,7 @@ target "bbb-common-message" {
     context = "./bbb-common-message"
 }
 
-target "akka-bbb-apps" {
+target "apps-akka" {
     inherits = ["docker-metadata-action"]
     context = "./akka-bbb-apps"
     contexts = {
@@ -66,7 +66,7 @@ target "export-annotations" {
       context = "./bbb-export-annotations"
 }
 
-target "bbb-etherpad" {
+target "etherpad" {
       inherits = ["docker-metadata-action"]
       context = "./docker/etherpad"
 }
@@ -79,12 +79,12 @@ target "record-and-playback" {
     }
 }
 
-target "bbb-nginx" {
+target "nginx" {
       inherits = ["docker-metadata-action"]
       dockerfile = "./docker/nginx.Dockerfile"
       context = "."
 }
 
 group "default" {
-  targets = ["akka-bbb-apps", "html5-client", "learning-dashboard", "graphql-actions", "graphql-middleware", "graphql-server", "export-annotations", "etherpad", "web", "record-and-playback", "bbb-nginx"]
+  targets = ["apps-akka", "html5-client", "learning-dashboard", "graphql-actions", "graphql-middleware", "graphql-server", "export-annotations", "etherpad", "web", "record-and-playback", "nginx"]
 }

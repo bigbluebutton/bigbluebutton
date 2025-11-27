@@ -6,6 +6,9 @@ on:
       image_name:
         required: true
         type: string
+      target:
+        required: true
+        type: string
     outputs:
       image_tag:
         description: "SHA short tag of the built image"
@@ -70,7 +73,7 @@ jobs:
             ./docker-bake.hcl
             cwd://${{ steps.meta.outputs.bake-file-tags }}
             cwd://${{ steps.meta.outputs.bake-file-labels }}
-          targets: ${{ inputs.image_name }}
+          targets: ${{ inputs.target }}
           push: ${{ github.event_name != 'pull_request' }}
           set: |
             *.platform=${{ matrix.platform }}

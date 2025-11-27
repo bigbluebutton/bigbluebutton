@@ -1,10 +1,10 @@
 ---
 services:
   web:
-    image: "${IMAGE_REPO:-bigbluebutton}/web:${IMAGE_WEB_TAG:-latest}"
+    image: "${IMAGE_REPO:-bigbluebutton}/bbb-web:${IMAGE_WEB_TAG:-latest}"
     build:
       tags:
-        - "${IMAGE_REPO:-bigbluebutton}/web:local"
+        - "${IMAGE_REPO:-bigbluebutton}/bbb-web:local"
     restart: unless-stopped
     depends_on:
       - redis
@@ -20,11 +20,11 @@ services:
     networks:
       bbb-net:
 
-  akka-bbb-apps:
-    image: "${IMAGE_REPO:-bigbluebutton}/akka-bbb-apps:${IMAGE_AKKA_BBB_APPS_TAG:-latest}"
+  apps-akka:
+    image: "${IMAGE_REPO:-bigbluebutton}/bbb-apps-akka:${IMAGE_APPS_AKKA_TAG:-latest}"
     build:
       tags:
-        - "${IMAGE_REPO:-bigbluebutton}/akka-bbb-apps:local"
+        - "${IMAGE_REPO:-bigbluebutton}/bbb-apps-akka:local"
     env_file:
       - .env
     restart: unless-stopped
@@ -38,39 +38,39 @@ services:
       bbb-net:
 
   html5-client:
-    image: "${IMAGE_REPO:-bigbluebutton}/html5-client:${IMAGE_HTML5_CLIENT_TAG:-latest}"
+    image: "${IMAGE_REPO:-bigbluebutton}/bbb-html5-client:${IMAGE_HTML5_CLIENT_TAG:-latest}"
     build:
       tags:
-        - "${IMAGE_REPO:-bigbluebutton}/html5-client:local"
+        - "${IMAGE_REPO:-bigbluebutton}/bbb-html5-client:local"
     networks:
       bbb-net:
 
   learning-dashboard:
-    image: "${IMAGE_REPO:-bigbluebutton}/learning-dashboard:${IMAGE_LEARNING_DASHBOARD_TAG:-latest}"
+    image: "${IMAGE_REPO:-bigbluebutton}/bbb-learning-dashboard:${IMAGE_LEARNING_DASHBOARD_TAG:-latest}"
     build:
       tags:
-        - "${IMAGE_REPO:-bigbluebutton}/learning-dashboard:local"
+        - "${IMAGE_REPO:-bigbluebutton}/bbb-learning-dashboard:local"
     networks:
       bbb-net:
 
   graphql-actions:
-    image: "${IMAGE_REPO:-bigbluebutton}/graphql-actions:${IMAGE_GRAPHQL_ACTIONS_TAG:-latest}"
+    image: "${IMAGE_REPO:-bigbluebutton}/bbb-graphql-actions:${IMAGE_GRAPHQL_ACTIONS_TAG:-latest}"
     build:
       tags:
-        - "${IMAGE_REPO:-bigbluebutton}/graphql-actions:local"
+        - "${IMAGE_REPO:-bigbluebutton}/bbb-graphql-actions:local"
     restart: unless-stopped
     depends_on:
       - redis
-      - akka-bbb-apps
+      - apps-akka
     networks:
       bbb-net:
 
 
   graphql-middleware:
-    image: "${IMAGE_REPO:-bigbluebutton}/graphql-middleware:${IMAGE_GRAPHQL_MIDDLEWARE_TAG:-latest}"
+    image: "${IMAGE_REPO:-bigbluebutton}/bbb-graphql-middleware:${IMAGE_GRAPHQL_MIDDLEWARE_TAG:-latest}"
     build:
       tags:
-        - "${IMAGE_REPO:-bigbluebutton}/graphql-middleware:local"
+        - "${IMAGE_REPO:-bigbluebutton}/bbb-graphql-middleware:local"
     restart: unless-stopped
     depends_on:
       - graphql-server
@@ -81,24 +81,24 @@ services:
       bbb-net:
 
   graphql-server:
-    image: "${IMAGE_REPO:-bigbluebutton}/graphql-server:${IMAGE_GRAPHQL_SERVER_TAG:-latest}"
+    image: "${IMAGE_REPO:-bigbluebutton}/bbb-graphql-server:${IMAGE_GRAPHQL_SERVER_TAG:-latest}"
     build:
       tags:
-        - "${IMAGE_REPO:-bigbluebutton}/graphql-server:local"
+        - "${IMAGE_REPO:-bigbluebutton}/bbb-graphql-server:local"
     restart: unless-stopped
     depends_on:
       - postgres
       - web
-      - akka-bbb-apps
+      - apps-akka
       - graphql-actions
     networks:
       bbb-net:
 
   export-annotations:
-    image: "${IMAGE_REPO:-bigbluebutton}/export-annotations:${IMAGE_EXPORT_ANNOTATIONS_TAG:-latest}"
+    image: "${IMAGE_REPO:-bigbluebutton}/bbb-export-annotations:${IMAGE_EXPORT_ANNOTATIONS_TAG:-latest}"
     build:
       tags:
-        - "${IMAGE_REPO:-bigbluebutton}/export-annotations:local"
+        - "${IMAGE_REPO:-bigbluebutton}/bbb-export-annotations:local"
     restart: unless-stopped
     depends_on:
       - redis
@@ -120,7 +120,7 @@ services:
     networks:
       bbb-net:
 
-  bbb-etherpad:
+  etherpad:
     image: "${IMAGE_REPO:-bigbluebutton}/bbb-etherpad:${IMAGE_ETHERPAD_TAG:-latest}"
     build:
       tags:
@@ -134,30 +134,30 @@ services:
 
   record-and-playback:
     container_name: recording-workers
-    image: "${IMAGE_REPO:-bigbluebutton}/record-and-playback:${IMAGE_RECORD_AND_PLAYBACK_TAG:-latest}"
+    image: "${IMAGE_REPO:-bigbluebutton}/bbb-record-and-playback:${IMAGE_RECORD_AND_PLAYBACK_TAG:-latest}"
     command: "rasque_workers"
     build:
       args:
         TAG_BBB_PRESENTATION_VIDEO: "${TAG_BBB_PRESENTATION_VIDEO:-5.0.0}"
       tags:
-        - "${IMAGE_REPO:-bigbluebutton}/record-and-playback:local"
+        - "${IMAGE_REPO:-bigbluebutton}/bbb-record-and-playback:local"
 
   recording-starter:
-    image: "${IMAGE_REPO:-bigbluebutton}/record-and-playback:${IMAGE_RECORD_AND_PLAYBACK_TAG:-latest}"
+    image: "${IMAGE_REPO:-bigbluebutton}/bbb-record-and-playback:${IMAGE_RECORD_AND_PLAYBACK_TAG:-latest}"
     command: "rap_starter"
 
   recording-caption-inbox:
-    image: "${IMAGE_REPO:-bigbluebutton}/record-and-playback:${IMAGE_RECORD_AND_PLAYBACK_TAG:-latest}"
+    image: "${IMAGE_REPO:-bigbluebutton}/bbb-record-and-playback:${IMAGE_RECORD_AND_PLAYBACK_TAG:-latest}"
     command: "rap_caption_inbox"
 
   recording-cleanup:
-    image: "${IMAGE_REPO:-bigbluebutton}/record-and-playback:${IMAGE_RECORD_AND_PLAYBACK_TAG:-latest}"
+    image: "${IMAGE_REPO:-bigbluebutton}/bbb-record-and-playback:${IMAGE_RECORD_AND_PLAYBACK_TAG:-latest}"
     command: "cleanup"
     env_file:
       - .env
 
-  bbb-nginx:
-    image: "${IMAGE_REPO:-bigbluebutton}/bbb-nginx:${IMAGE_BBB_NGINX_TAG:-latest}"
+  nginx:
+    image: "${IMAGE_REPO:-bigbluebutton}/bbb-nginx:${IMAGE_NGINX_TAG:-latest}"
     build:
       tags:
         - "${IMAGE_REPO:-bigbluebutton}/bbb-nginx:local"
@@ -171,8 +171,8 @@ services:
       - graphql-middleware
       - livekit
 
-  bbb-webhooks:
-    image: "${IMAGE_REPO:-bigbluebutton}/bbb-webhooks:${IMAGE_BBB_WEBHOOKS_TAG:-latest}"
+  webhooks:
+    image: "${IMAGE_REPO:-bigbluebutton}/bbb-webhooks:${IMAGE_WEBHOOKS_TAG:-latest}"
 
   redis:
     image: redis:8-alpine
