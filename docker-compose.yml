@@ -160,6 +160,19 @@ services:
   webrtc-sfu:
     image: "${IMAGE_REPO:-bigbluebutton}/bbb-webrtc-sfu:${IMAGE_WEBRTC_SFU_TAG:-latest}"
     restart: unless-stopped
+    environment:
+      - LIVEKIT_ENABLED=true
+      - LIVEKIT_HOST=http://livekit:7880
+      - LIVEKIT_EVENT_SOURCE=agent
+      - CLIENT_HOST=0.0.0.0
+      - KURENTO=[]
+      - LOG_LEVEL=info
+      - MCS_ADDRESS=localhost
+      - MCS_HOST=0.0.0.0
+      - MCS_PORT=3009
+      - REDIS_HOST=redis
+    env_file:
+      - .env
     networks:
       bbb-net:
 
