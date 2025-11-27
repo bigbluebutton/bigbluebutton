@@ -26,7 +26,9 @@ func TestAPIStart(t *testing.T) {
 	port := "8080"
 	address := fmt.Sprintf("%s:%s", host, port)
 
-	api := NewAPI(address, func(server *bbbhttp.Server) {})
+	api := NewAPI(address, func(server *bbbhttp.Server) {
+		// Test function; no routes needed.
+	})
 	api.Start()
 
 	if listeningHost != host {
@@ -44,7 +46,9 @@ func TestNewAPI(t *testing.T) {
 	address := fmt.Sprintf("%s:%s", host, port)
 
 	api := NewAPI(address, func(server *bbbhttp.Server) {
-		server.AddRoute(http.MethodGet, "/bigbluebutton/test/", func(w http.ResponseWriter, r *http.Request) {})
+		server.AddRoute(http.MethodGet, "/bigbluebutton/test/", func(w http.ResponseWriter, r *http.Request) {
+			// Test function; no routes needed.
+		})
 	})
 
 	if api.Server == nil {

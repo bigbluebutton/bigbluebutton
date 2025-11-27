@@ -78,7 +78,9 @@ func TestAddRoute(t *testing.T) {
 			s := NewDefaultServer()
 
 			for _, r := range tt.routes {
-				s.AddRoute(r.method, r.pattern, func(w http.ResponseWriter, r *http.Request) {})
+				s.AddRoute(r.method, r.pattern, func(w http.ResponseWriter, r *http.Request) {
+					// Test function; no routes needed.
+				})
 			}
 
 			for _, r := range tt.expectedRoutes {

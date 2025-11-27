@@ -66,7 +66,7 @@ func (c *DefaultClamdClient) Dial() (net.Conn, error) {
 func (c *DefaultClamdClient) Ping() (string, error) {
 	conn, err := c.Dial()
 	if err != nil {
-		return "", fmt.Errorf("failed to dial ClamAV daemon: %w", err)
+		return "", fmt.Errorf("%s: %w", FailedToDial, err)
 	}
 	defer conn.Close()
 
@@ -87,7 +87,7 @@ func (c *DefaultClamdClient) Ping() (string, error) {
 func (c *DefaultClamdClient) Version() (string, error) {
 	conn, err := c.Dial()
 	if err != nil {
-		return "", fmt.Errorf("failed to dial ClamAV daemon: %w", err)
+		return "", fmt.Errorf("%s: %w", FailedToDial, err)
 	}
 	defer conn.Close()
 
@@ -107,7 +107,7 @@ func (c *DefaultClamdClient) Version() (string, error) {
 func (c *DefaultClamdClient) InStream(r io.Reader) (string, error) {
 	conn, err := c.Dial()
 	if err != nil {
-		return "", fmt.Errorf("failed to dial ClamAV daemon: %w", err)
+		return "", fmt.Errorf("%s: %w", FailedToDial, err)
 	}
 	defer conn.Close()
 
