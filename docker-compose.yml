@@ -271,6 +271,8 @@ services:
             - mime: video/vp8
             - mime: video/rtx
           enable_remote_unmute: true
+    env_file:
+      - .env
     depends_on:
       - redis
     networks:
@@ -284,13 +286,17 @@ services:
     environment:
       SIP_CONFIG_BODY: |
         log_level: info
-        api_key: 'devkey'
-        api_secret: 'secret'
-        ws_url: 'ws://localhost:7880'
+        api_key: ${LIVEKIT_API_KEY}
+        api_secret: ${LIVEKIT_API_SECRET}
+        ws_url: 'ws://livekit:7880'
         redis:
           address: 'redis:6379'
         sip_port: 5062
         sip_port_listen: 5062
+    env_file:
+      - .env
+    networks:
+      bbb-net:
 
 networks:
   bbb-net:
