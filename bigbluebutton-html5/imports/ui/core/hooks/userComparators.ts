@@ -23,6 +23,7 @@ export const userShallowEqual = (a?: Partial<User>, b?: Partial<User>): boolean 
   if ((a.raiseHand ?? false) !== (b.raiseHand ?? false)) return false;
   if ((a.away ?? false) !== (b.away ?? false)) return false;
   if ((a.locked ?? false) !== (b.locked ?? false)) return false;
+  if ((a.whiteboardWriteAccess ?? false) !== (b.whiteboardWriteAccess ?? false)) return false;
 
   // voice (partial)
   const av = a.voice;
