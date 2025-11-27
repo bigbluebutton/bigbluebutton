@@ -87,7 +87,7 @@ jobs:
       - name: Upload digest
         uses: actions/upload-artifact@v4
         with:
-          name: digests-${{ env.PLATFORM_PAIR }}
+          name: digests-${{ inputs.image_name }}-${{ env.PLATFORM_PAIR }}
           path: ${{ runner.temp }}/digests/*
           if-no-files-found: error
           retention-days: 1
@@ -110,7 +110,7 @@ jobs:
         uses: actions/download-artifact@v6
         with:
           path: ${{ runner.temp }}/digests
-          pattern: digests-*
+          pattern: digests-${{ inputs.image_name }}-*
           merge-multiple: true
       - name: Log into GitHub Container Registry
         uses: docker/login-action@v3
