@@ -81,13 +81,13 @@ jobs:
       - name: Export digest
         run: |
           mkdir -p ${{ runner.temp }}/digests
-          digest="${{ fromJSON(steps.push.outputs.metadata)[inputs.image_name]['containerimage.digest'] }}"
+          digest="${{ fromJSON(steps.push.outputs.metadata)[inputs.target]['containerimage.digest'] }}"
           touch "${{ runner.temp }}/digests/${digest#sha256:}"
 
       - name: Upload digest
         uses: actions/upload-artifact@v4
         with:
-          name: digests-${{ inputs.image_name }}-${{ env.PLATFORM_PAIR }}
+          name: digests-${{ inputs.target }}-${{ env.PLATFORM_PAIR }}
           path: ${{ runner.temp }}/digests/*
           if-no-files-found: error
           retention-days: 1
@@ -110,7 +110,7 @@ jobs:
         uses: actions/download-artifact@v6
         with:
           path: ${{ runner.temp }}/digests
-          pattern: digests-${{ inputs.image_name }}-*
+          pattern: digests-${{ inputs.target }}-*
           merge-multiple: true
       - name: Log into GitHub Container Registry
         uses: docker/login-action@v3
