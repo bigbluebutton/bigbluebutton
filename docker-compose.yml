@@ -12,11 +12,10 @@ services:
       - pads
       - collabora
     healthcheck:
-      test: curl -s -o /dev/null --spider http://10.7.7.2:8090/bigbluebutton/api || exit 1
+      test: curl -s -o /dev/null http://localhost:8090/bigbluebutton/api || exit 1
       start_period: 2m
     volumes:
-      - ./data/bigbluebutton:/var/bigbluebutton
-      - ./data/freeswitch-meetings:/var/freeswitch/meetings
+      - ./conf/bigbluebutton.bigbluebutton.properties:/etc/bigbluebutton/bigbluebutton.properties:ro
     networks:
       bbb-net:
 
