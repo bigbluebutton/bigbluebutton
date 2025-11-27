@@ -245,6 +245,7 @@ const PushLayoutEngine = (props) => {
           type: ACTIONS.SET_PRESENTATION_IS_OPEN,
           value: meetingPresentationIsOpen,
         });
+        Session.setItem('presentationLastState', meetingPresentationIsOpen);
       }
     };
 
