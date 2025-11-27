@@ -901,6 +901,7 @@ The sections that follow cover the types of events you will encounter in `events
 | EndAndKickAllEvent           | - timestampUTC<br/>- reason<br/>- date<br/>                                        |
 | RecordStatusEvent            | - timestampUTC<br/>- date<br/>-status<br/> -userId                                 |
 | ParticipantStatusChangeEvent | - timestampUTC<br/>- status<br/>- userId<br/>- date<br/>- value                    |
+| LayoutBroadcastedEvent       | - timestampUTC<br/>- focusedCamera<br/>- presentationVideoRate<br/>- date<br/>- cameraPosition<br/>- presentationIsOpen<br/>- layout<br/>- isResizing                    |
 
 ### Presentation
 
