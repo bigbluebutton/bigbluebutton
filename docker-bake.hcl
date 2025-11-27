@@ -66,7 +66,7 @@ target "export-annotations" {
       context = "./bbb-export-annotations"
 }
 
-target "etherpad" {
+target "bbb-etherpad" {
       inherits = ["docker-metadata-action"]
       context = "./docker/etherpad"
 }

@@ -13,46 +13,38 @@ jobs:
     uses: ./.github/workflows/build-docker-image.yml
     with:
       image_name: "html5-client"
-      target: "html5-client"
 
   learning-dashboard:
     uses: ./.github/workflows/build-docker-image.yml
     with:
       image_name: "learning-dashboard"
-      target: "learning-dashboard"
 
   graphql-actions:
     uses: ./.github/workflows/build-docker-image.yml
     with:
       image_name: "graphql-actions"
-      target: "graphql-actions"
 
   graphql-middleware:
     uses: ./.github/workflows/build-docker-image.yml
     with:
       image_name: "graphql-middleware"
-      target: "graphql-middleware"
 
   graphql-server:
     uses: ./.github/workflows/build-docker-image.yml
     with:
       image_name: "graphql-server"
-      target: "graphql-server"
 
   export-annotations:
     uses: ./.github/workflows/build-docker-image.yml
     with:
       image_name: "export-annotations"
-      target: "export-annotations"
 
-  etherpad:
+  bbb-etherpad:
     uses: ./.github/workflows/build-docker-image.yml
     with:
       image_name: "bbb-etherpad"
-      target: "etherpad"
 
-  apps-akka:
+  apps-bbb-akka:
     uses: ./.github/workflows/build-docker-image.yml
     with:
-      image_name: "apps-akka"
-      target: "akka-bbb-apps"
+      image_name: "apps-bbb-akka"

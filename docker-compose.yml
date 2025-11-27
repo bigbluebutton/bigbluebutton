@@ -120,11 +120,11 @@ services:
     networks:
       bbb-net:
 
-  etherpad:
-    image: "${IMAGE_REPO:-bigbluebutton}/etherpad:${IMAGE_ETHERPAD_TAG:-latest}"
+  bbb-etherpad:
+    image: "${IMAGE_REPO:-bigbluebutton}/bbb-etherpad:${IMAGE_ETHERPAD_TAG:-latest}"
     build:
       tags:
-        - "${IMAGE_REPO:-bigbluebutton}/etherpad:local"
+        - "${IMAGE_REPO:-bigbluebutton}/bbb-etherpad:local"
     restart: unless-stopped
     depends_on:
       - redis

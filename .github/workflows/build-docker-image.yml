@@ -3,9 +3,6 @@ name: Build and Push Docker Images
 on:
   workflow_call:
     inputs:
-      target:
-        required: true
-        type: string
       image_name:
         required: true
         type: string
@@ -73,7 +70,7 @@ jobs:
             ./docker-bake.hcl
             cwd://${{ steps.meta.outputs.bake-file-tags }}
             cwd://${{ steps.meta.outputs.bake-file-labels }}
-          targets: ${{ inputs.target }}
+          targets: ${{ inputs.image_name }}
           push: ${{ github.event_name != 'pull_request' }}
           set: |
             *.platform=${{ matrix.platform }}
