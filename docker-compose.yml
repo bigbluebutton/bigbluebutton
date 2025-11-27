@@ -31,7 +31,6 @@ services:
       - redis
       - postgres
     volumes:
-      - ./data/freeswitch-meetings:/var/freeswitch/meetings
       - ./conf/bbb-html5.yml:/etc/bigbluebutton/bbb-html5.yml:ro
     networks:
       bbb-net:
