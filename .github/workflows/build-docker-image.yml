@@ -61,9 +61,6 @@ jobs:
           echo "Docker tags: ${{ steps.meta.outputs.tags }}"
           echo "Docker labels: ${{ steps.meta.outputs.labels }}"
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
