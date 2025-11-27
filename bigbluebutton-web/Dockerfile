@@ -45,13 +45,18 @@ COPY --from=build /bbb-web/pres-checker/run.sh /usr/share/prescheck/prescheck.sh
 # Create necessary directories
 RUN mkdir -p /var/bigbluebutton/diagnostics /etc/bigbluebutton
 
+COPY turn-stun-servers.xml.tmpl /etc/bigbluebutton/turn-stun-servers.xml.tmpl
+
 # Hardcode livekit as the bridge services
-RUN cat > /etc/bigbluebutton/bbb-web.properties << 'EOF' && \
-    audioBridge=livekit && \
-    cameraBridge=livekit && \
-    screenShareBridge=livekit && \
-    EOF
+COPY <<EOF /etc/bigbluebutton/bbb-web.properties
+audioBridge=livekit
+cameraBridge=livekit
+screenShareBridge=livekit
+EOF
+
+COPY docker-entrypoint.sh /entrypoint.sh
+RUN chown -R bigbluebutton:bigbluebutton /etc/bigbluebutton
 
 USER bigbluebutton
-COPY docker-entrypoint.sh /entrypoint.sh
+
 ENTRYPOINT ["/entrypoint.sh"]
