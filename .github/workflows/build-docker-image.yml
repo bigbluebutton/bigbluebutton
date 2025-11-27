@@ -78,6 +78,12 @@ jobs:
           set: |
             *.platform=${{ matrix.platform }}
 
+      - name: Debug
+        run: |
+          echo "${{ fromJSON(steps.push.outputs.metadata) }}"
+          echo "${{ toJSON(fromJSON(steps.push.outputs.metadata)) }}"
+          echo "${{ fromJSON(steps.push.outputs.metadata)['containerimage.digest'] }}"
+
       - name: Export digest
         run: |
           mkdir -p ${{ runner.temp }}/digests
