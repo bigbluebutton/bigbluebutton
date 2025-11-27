@@ -261,7 +261,7 @@ services:
       driver: none
 
   livekit:
-    image: livekit/livekit-server:latest
+    image: livekit/livekit-server:v1.9.1
     restart: unless-stopped
     environment:
       LIVEKIT_CONFIG: |
@@ -278,9 +278,6 @@ services:
               - docker0
         redis:
           address: 'redis:6379'
-        webhook:
-          urls:
-            - 'http://webrtc-sfu:3040/livekit-webhook'
         audio:
           active_level: 50
           min_percentile: 10
