@@ -110,11 +110,11 @@ const AppContainer = (props) => {
   const shouldShowGenericMainContent = !!genericMainContent.genericContentId;
 
   const shouldShowScreenshare = (viewScreenshare || isPresenter)
-  && (currentMeeting?.componentsFlags?.hasScreenshare
-    || currentMeeting?.componentsFlags?.hasCameraAsContent) && showScreenshare;
+  && (currentMeeting?.componentsFlags?.hasCameraAsContent);
   const shouldShowPresentation = (!shouldShowScreenshare && !isSharedNotesPinned
       && !shouldShowExternalVideo && !shouldShowGenericMainContent
       && (presentationIsOpen || presentationRestoreOnUpdate)) && isPresentationEnabled;
+
   const currentPageInfoData = currentPageInfo?.pres_page_curr[0] ?? {};
   const fitToWidth = currentPageInfoData?.fitToWidth ?? false;
   const pageId = currentPageInfoData?.pageId ?? '';
