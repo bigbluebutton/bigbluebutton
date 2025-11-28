@@ -5,6 +5,7 @@ set -e
 cat >> /etc/bigbluebutton/bbb-web.properties << 'EOF'
 bigbluebutton.web.serverURL=${BBB_SERVER_URL}
 securitySalt=${SHARED_SECRET}
+defaultHTML5ClientUrl=${bigbluebutton.web.serverURL}/html5client/
 EOF
 
 # Configure Turn server settings if provided
