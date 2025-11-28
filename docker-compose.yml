@@ -202,8 +202,6 @@ services:
     build:
       tags:
         - "${IMAGE_REPO:-bigbluebutton}/bbb-nginx:local"
-    ports:
-      - "8080:8080"
     depends_on:
       - web
       - etherpad
@@ -336,7 +334,7 @@ services:
       bbb-net:
 
   caddy:
-    image: caddy:latest
+    image: docker.io/library/caddy:latest
     restart: unless-stopped
     ports:
       - "443:8443"
