@@ -202,11 +202,15 @@ services:
       - graphql-server
       - graphql-middleware
       - livekit
+    networks:
+      bbb-net:
 
   webhooks:
     image: "${IMAGE_REPO:-bigbluebutton}/bbb-webhooks:${IMAGE_WEBHOOKS_TAG:-latest}"
     depends_on:
       - redis
+    networks:
+      bbb-net:
 
   webrtc-recorder:
     image: "${IMAGE_REPO:-bigbluebutton}/bbb-webrtc-recorder:${IMAGE_WEBRTC_RECORDER_TAG:-latest}"
@@ -218,6 +222,8 @@ services:
       - BBBRECORDER_LIVEKIT_HOST=ws://livekit:7880
       - BBBRECORDER_LIVEKIT_APIKEY=${LIVEKIT_KEY}
       - BBBRECORDER_LIVEKIT_SECRET=${LIVEKIT_SECRET}
+    networks:
+      bbb-net:
 
   redis:
     image: redis:8-alpine
