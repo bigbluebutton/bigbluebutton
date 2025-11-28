@@ -1,12 +1,12 @@
 FROM nginx:stable-alpine
 
 # Create BBB specific directories
-RUN mkdir -p /etc/bigbluebutton/nginx /var/www/bigbluebutton-default/assets
+RUN mkdir -p /etc/bigbluebutton/nginx /var/www/bigbluebutton-default/assets /etc/nginx/vhosts.d
 COPY ./bigbluebutton-config/assets /var/www/bigbluebutton-default/assets
 
 # Modify nginx.conf
 RUN sed -i 's/worker_connections\s\+1024/worker_connections 10000/g' /etc/nginx/nginx.conf && \
-    sed -i 's|include \/etc\/nginx\/conf.d\/\*.conf;|include \/etc\/nginx\/conf.d\/\*.nginx;|g' /etc/nginx/nginx.conf && \
+    sed -i '/^\s*include \/etc\/nginx\/conf\.d\/\*\.conf;/a\    include /etc/nginx/vhosts.d/*.nginx;' /etc/nginx/nginx.conf && \
     if grep -q "worker_rlimit_nofile" /etc/nginx/nginx.conf; then \
       num=$(grep worker_rlimit_nofile /etc/nginx/nginx.conf | grep -o '[0-9]*'); \
       if [[ "$num" -lt 10000 ]]; then \
@@ -16,12 +16,14 @@ RUN sed -i 's/worker_connections\s\+1024/worker_connections 10000/g' /etc/nginx/
       sed -i 's/events {/worker_rlimit_nofile 10000;\n\nevents {/g' /etc/nginx/nginx.conf; \
     fi
 
-
 # Copy nginx config-files to /etc/nginx/conf.d/
+COPY /build/packages-template/bbb-graphql-middleware/bbb-graphql-client-settings-cache.conf \
+     /etc/nginx/conf.d/
+
+# Copy nginx config-files to /etc/nginx/vhost.d/
 COPY ./build/packages-template/bbb-html5/bigbluebutton.nginx \
      ./build/packages-template/bbb-graphql-middleware/hasura-loadbalancer.nginx \
-     ./build/packages-template/bbb-graphql-middleware/bbb-graphql-client-settings-cache.conf \
-     /etc/nginx/conf.d/
+     /etc/nginx/vhosts.d/
 
 # Copy nginx config-files to /etc/bigbluebutton/nginx/
 COPY ./bbb-learning-dashboard/learning-dashboard.nginx \
@@ -57,13 +59,13 @@ RUN sed -i 's|http://127.0.0.1:8090|http://web:8090|g' /etc/bigbluebutton/nginx/
     sed -i 's|http://127.0.0.1:8378|http://graphql-middleware:8378|g' /etc/bigbluebutton/nginx/graphql.nginx && \
     sed -i 's|http://127.0.0.1:8185|http://graphql-server:8185|g' /etc/bigbluebutton/nginx/graphql.nginx && \
     sed -i 's|http://127.0.0.1:7880|http://livekit:7880|g' /etc/bigbluebutton/nginx/livekit.nginx && \
-    sed -i 's|http://127.0.0.1:8085|http://graphql-server:8085|g' /etc/nginx/conf.d/hasura-loadbalancer.nginx && \
-    sed -i 's|http://127.0.0.1:8185|http://graphql-server:8185|g' /etc/nginx/conf.d/hasura-loadbalancer.nginx
+    sed -i 's|http://127.0.0.1:8085|http://graphql-server:8085|g' /etc/nginx/vhosts.d/hasura-loadbalancer.nginx && \
+    sed -i 's|http://127.0.0.1:8185|http://graphql-server:8185|g' /etc/nginx/vhosts.d/hasura-loadbalancer.nginx
 
 # Modify bigbluebutton.nginx
-RUN sed -i 's|server_name\s\+[0-9.]*;|server_name _;|g' /etc/nginx/conf.d/bigbluebutton.nginx && \
-    sed -i 's|listen\s\+80;|listen 8080;|g' /etc/nginx/conf.d/bigbluebutton.nginx && \
-    sed -i 's|listen\s\+\[\:\:\]\:80;|listen [::]:8080;|g' /etc/nginx/conf.d/bigbluebutton.nginx
+RUN sed -i 's|server_name\s\+[0-9.]*;|server_name _;|g' /etc/nginx/vhosts.d/bigbluebutton.nginx && \
+    sed -i 's|listen\s\+80;|listen 8080;|g' /etc/nginx/vhosts.d/bigbluebutton.nginx && \
+    sed -i 's|listen\s\+\[\:\:\]\:80;|listen [::]:8080;|g' /etc/nginx/vhosts.d/bigbluebutton.nginx
 
 EXPOSE 8080
 
