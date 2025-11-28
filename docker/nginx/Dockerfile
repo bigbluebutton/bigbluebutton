@@ -53,7 +53,7 @@ COPY ./docker/nginx/bbb-html5.nginx /etc/bigbluebutton/nginx/bbb-html5.nginx
 # Change localhost occurrences to matching docker-compose service name
 RUN sed -i 's|http://127.0.0.1:8090|http://web:8090|g' /etc/bigbluebutton/nginx/bbb-web.nginx && \
     sed -i 's|http://127.0.0.1:9001|http://etherpad:9001|g' /etc/bigbluebutton/nginx/notes.nginx && \
-    sed -i 's|http://127.0.0.1:5066|http://html5-client:5066|g' /etc/bigbluebutton/nginx/sip.nginx && \
+    sed -i 's|http://127.0.0.1:5066|http://html5-client:80|g' /etc/bigbluebutton/nginx/sip.nginx && \
     sed -i 's|http://127.0.0.1:3005|http://webhooks:3005|g' /etc/bigbluebutton/nginx/webhooks.nginx && \
     sed -i 's|http://127.0.0.1:3008|http://webrtc-sfu:3008|g' /etc/bigbluebutton/nginx/webrtc-sfu.nginx && \
     sed -i 's|http://127.0.0.1:8378|http://graphql-middleware:8378|g' /etc/bigbluebutton/nginx/graphql.nginx && \
@@ -66,6 +66,9 @@ RUN sed -i 's|http://127.0.0.1:8090|http://web:8090|g' /etc/bigbluebutton/nginx/
 RUN sed -i 's|server_name\s\+[0-9.]*;|server_name _;|g' /etc/nginx/vhosts.d/bigbluebutton.nginx && \
     sed -i 's|listen\s\+80;|listen 8080;|g' /etc/nginx/vhosts.d/bigbluebutton.nginx && \
     sed -i 's|listen\s\+\[\:\:\]\:80;|listen [::]:8080;|g' /etc/nginx/vhosts.d/bigbluebutton.nginx
+
+# Send logging to stdout/stderr
+RUN sed -i 's|^\s*access_log  /var/log/nginx/bigbluebutton.access.log;|    access_log  /dev/stdout;|g' /etc/nginx/vhosts.d/bigbluebutton.nginx
 
 # Port 8185 for hasura load balancer, 8080 for everything else
 EXPOSE 8080 8185
