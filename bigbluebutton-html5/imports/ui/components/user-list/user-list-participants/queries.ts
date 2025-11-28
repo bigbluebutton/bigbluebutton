@@ -9,8 +9,8 @@ export interface UsersCountSubscriptionResponse {
 }
 
 export const USER_AGGREGATE_COUNT_SUBSCRIPTION = gql`
-subscription UsersCount {
-  user_aggregate {
+subscription UsersCount($searchQuery: String) {
+  user_aggregate(where: { name: { _ilike: $searchQuery } }) {
     aggregate {
       count
     }

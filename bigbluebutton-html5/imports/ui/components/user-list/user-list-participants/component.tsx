@@ -4,6 +4,8 @@ import { UserListUiDataPayloads } from 'bigbluebutton-html-plugin-sdk/dist/cjs/u
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import { User } from '/imports/ui/Types/user';
 import { getUsersPerUserListPage } from '/imports/ui/components/user-list/service';
+import UserSearch from '/imports/ui/components/user-list/user-search/component';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import Styled from './styles';
 import {
   USER_AGGREGATE_COUNT_SUBSCRIPTION,
@@ -18,11 +20,19 @@ import roveBuilder from '/imports/ui/core/utils/keyboardRove';
 interface UserListParticipantsProps {
   count: number;
   parentRef: React.RefObject<HTMLDivElement | null>;
+  searchQuery: string;
+  isModerator: boolean;
+  onSearchChange: (query: string) => void;
+  isQueryLoading: boolean;
 }
 
 const UserListParticipants: React.FC<UserListParticipantsProps> = ({
   count,
   parentRef,
+  searchQuery,
+  isModerator,
+  onSearchChange,
+  isQueryLoading,
 }) => {
   const [visibleUsers, setVisibleUsers] = React.useState<{
     [key: number]: User[];
@@ -81,52 +91,69 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
   }, []);
   // --- End of plugin related code ---
 
-  const amountOfPages = Math.ceil(count / usersPerUserListPage);
+  const renderedPaginatedUsers = useMemo(() => {
+    const amountOfPages = Math.ceil(count / usersPerUserListPage);
+
+    return Array.from({ length: amountOfPages }).map((_, i) => {
+      const isLastItem = amountOfPages === (i + 1);
+      const restOfUsers = count - (i * usersPerUserListPage);
+      const key = i;
+      return i === 0
+        ? (
+          <UserListParticipantsPageContainer
+            key={key}
+            index={i}
+            isLastItem={isLastItem}
+            restOfUsers={isLastItem ? restOfUsers : usersPerUserListPage}
+            setVisibleUsers={setVisibleUsers}
+            searchQuery={searchQuery}
+          />
+        )
+        : (
+          <IntersectionWatcher
+            // eslint-disable-next-line react/no-array-index-key
+            key={i}
+            ParentRef={parentRef}
+            isLastItem={isLastItem}
+            restOfUsers={isLastItem ? restOfUsers : usersPerUserListPage}
+          >
+            <UserListParticipantsPageContainer
+              key={key}
+              index={i}
+              isLastItem={isLastItem}
+              restOfUsers={isLastItem ? restOfUsers : usersPerUserListPage}
+              setVisibleUsers={setVisibleUsers}
+              searchQuery={searchQuery}
+            />
+          </IntersectionWatcher>
+        );
+    });
+  }, [
+    count,
+    searchQuery,
+    usersPerUserListPage,
+    parentRef,
+    setVisibleUsers,
+  ]);
+
   return (
-    (
+    <>
+      {isModerator && (
+        <UserSearch
+          onSearchChange={onSearchChange}
+          isQueryLoading={isQueryLoading}
+        />
+      )}
       <Styled.UserListColumn
         onKeyDown={rove}
         tabIndex={0}
         role="list"
       >
         <Styled.VirtualizedList as="ul">
-          {
-            Array.from({ length: amountOfPages }).map((_, i) => {
-              const isLastItem = amountOfPages === (i + 1);
-              const restOfUsers = count - (i * usersPerUserListPage);
-              const key = i;
-              return i === 0
-                ? (
-                  <UserListParticipantsPageContainer
-                    key={key}
-                    index={i}
-                    isLastItem={isLastItem}
-                    restOfUsers={isLastItem ? restOfUsers : usersPerUserListPage}
-                    setVisibleUsers={setVisibleUsers}
-                  />
-                )
-                : (
-                  <IntersectionWatcher
-                    // eslint-disable-next-line react/no-array-index-key
-                    key={i}
-                    ParentRef={parentRef}
-                    isLastItem={isLastItem}
-                    restOfUsers={isLastItem ? restOfUsers : usersPerUserListPage}
-                  >
-                    <UserListParticipantsPageContainer
-                      key={key}
-                      index={i}
-                      isLastItem={isLastItem}
-                      restOfUsers={isLastItem ? restOfUsers : usersPerUserListPage}
-                      setVisibleUsers={setVisibleUsers}
-                    />
-                  </IntersectionWatcher>
-                );
-            })
-          }
+          {renderedPaginatedUsers}
         </Styled.VirtualizedList>
       </Styled.UserListColumn>
-    )
+    </>
   );
 };
 
@@ -134,16 +161,30 @@ interface UserListParticipantsContainerProps {
   parentRef: React.RefObject<HTMLDivElement | null>;
 }
 
-const UserListParticipantsContainer: React.FC<UserListParticipantsContainerProps> = ({ parentRef }) => {
+const UserListParticipantsContainer: React.FC<UserListParticipantsContainerProps> = ({
+  parentRef,
+}) => {
+  const [searchQuery, setSearchQuery] = React.useState('');
+  const { data: currentUserData } = useCurrentUser((user) => ({
+    isModerator: user.isModerator,
+  }));
   const {
     data: countData,
-  } = useDeduplicatedSubscription<UsersCountSubscriptionResponse>(USER_AGGREGATE_COUNT_SUBSCRIPTION);
+    loading: countLoading,
+  } = useDeduplicatedSubscription<UsersCountSubscriptionResponse>(
+    USER_AGGREGATE_COUNT_SUBSCRIPTION,
+    { variables: { searchQuery: searchQuery ? `%${searchQuery}%` : '%' } },
+  );
   const count = countData?.user_aggregate?.aggregate?.count || 0;
 
   return (
     <UserListParticipants
-      count={count ?? 0}
+      count={count}
       parentRef={parentRef}
+      searchQuery={searchQuery}
+      isModerator={currentUserData?.isModerator ?? false}
+      onSearchChange={setSearchQuery}
+      isQueryLoading={countLoading}
     />
   );
 };
