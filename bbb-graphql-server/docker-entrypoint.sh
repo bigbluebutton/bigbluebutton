@@ -24,4 +24,4 @@ export HASURA_BBB_GRAPHQL_ACTIONS_ADAPTER_URL=http://bbb-graphql-actions:8093
 
 export HASURA_GRAPHQL_BBB_DATABASE_URL=postgres://bbb_hasura:${BBB_POSTGRES_BBB_HASURA_PASSWORD}@postgres:5432/bbb_graphql
 
-exec $@
+exec "$@"
