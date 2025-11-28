@@ -254,6 +254,8 @@ class BBBMenu extends React.Component {
       <>
         <div
           onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
             e.persist();
             const firefoxInputSource = !([1, 5].includes(e.nativeEvent.mozInputSource)); // 1 = mouse, 5 = touch (firefox only)
             const chromeInputSource = !(['mouse', 'touch'].includes(e.nativeEvent.pointerType));

@@ -60,20 +60,30 @@ const PreviousPageButton = styled(Button)`
 
 const VideoListItem = styled.div<{
   $focused: boolean;
+  $isContent: boolean;
+  $contentRowSpan: number;
 }>`
   display: flex;
   overflow: hidden;
   width: 100%;
+  height: 100%;
   max-height: 100%;
 
-  ${({ $focused }) => $focused && `
+  ${({ $focused, $isContent }) => $focused && !$isContent && `
     grid-column: 1 / span 2;
     grid-row: 1 / span 2;
+  `}
+
+  ${({ $isContent, $contentRowSpan }) => $isContent && `
+    grid-column: 1 / -1;
+    grid-row: span ${Math.max($contentRowSpan, 1)};
+    order: 1;
   `}
 `;
 
 const VideoCanvas = styled.div<{
   $position: string;
+  $hasContent: boolean;
 }>`
   position: absolute;
   width: 100%;
@@ -84,8 +94,10 @@ const VideoCanvas = styled.div<{
   right: 0;
   bottom: 0;
   display: flex;
-  align-items: center;
+  align-items: ${({ $hasContent }) => ($hasContent ? 'flex-start' : 'center')};
   justify-content: center;
+  align-items: center;
+  flex-direction: ${({ $hasContent }) => ($hasContent ? 'column' : 'row')};
 
   ${({ $position }) => ($position === 'contentRight' || $position === 'contentLeft') && `
     flex-wrap: wrap;
@@ -113,6 +125,48 @@ const Break = styled.div`
   height: 5px;
 `;
 
+const ContentWrapper = styled.div`
+  display: flex;
+  width: 100%;
+  min-height: 50%;
+  align-items: stretch;
+  justify-content: center;
+  position: relative;
+`;
+
+const PeekOverlay = styled.div`
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+  pointer-events: auto;
+  z-index: 2;
+  background: rgba(0, 0, 0, 0.35);
+`;
+
+const PeekCard = styled.div`
+  position: relative;
+  pointer-events: auto;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.9);
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+`;
+
+// @ts-expect-error -> Untyped component.
+const PeekCloseButton = styled(Button)`
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 2;
+`;
+
 export default {
   NextPageButton,
   PreviousPageButton,
@@ -120,4 +174,8 @@ export default {
   VideoCanvas,
   VideoList,
   Break,
+  ContentWrapper,
+  PeekOverlay,
+  PeekCard,
+  PeekCloseButton,
 };

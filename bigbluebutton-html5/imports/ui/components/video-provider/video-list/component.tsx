@@ -65,6 +65,8 @@ const findOptimalGrid = (
 };
 
 const ASPECT_RATIO = 16 / 9;
+const CONTENT_ROW_SPAN = 2;
+const CONTENT_HEIGHT_RATIO = 0.75;
 // const ACTION_NAME_BACKGROUND = 'blurBackground';
 
 interface VideoListProps {
@@ -96,6 +98,8 @@ interface VideoListState {
   },
   aspectRatio: number,
   autoplayBlocked: boolean,
+  contentHeight: number,
+  peekedStream: VideoItem | null,
 }
 
 class VideoList extends Component<VideoListProps, VideoListState> {
@@ -122,6 +126,8 @@ class VideoList extends Component<VideoListProps, VideoListState> {
       },
       aspectRatio: this.props.screenShare ? 16 / 9 : 4 / 3,
       autoplayBlocked: false,
+      contentHeight: 0,
+      peekedStream: null,
     };
     this.ticking = false;
     this.grid = null;
@@ -135,6 +141,8 @@ class VideoList extends Component<VideoListProps, VideoListState> {
     this.setOptimalGrid = this.setOptimalGrid.bind(this);
     this.handleAllowAutoplay = this.handleAllowAutoplay.bind(this);
     this.handlePlayElementFailed = this.handlePlayElementFailed.bind(this);
+    this.handleOpenPeek = this.handleOpenPeek.bind(this);
+    this.handleClosePeek = this.handleClosePeek.bind(this);
     this.autoplayWasHandled = false;
   }
 
@@ -148,6 +156,7 @@ class VideoList extends Component<VideoListProps, VideoListState> {
     const {
       layoutType, cameraDock, streams, focusedId,
     } = this.props;
+    const { peekedStream } = this.state;
     const { width: cameraDockWidth, height: cameraDockHeight } = cameraDock;
     const {
       layoutType: prevLayoutType,
@@ -163,6 +172,11 @@ class VideoList extends Component<VideoListProps, VideoListState> {
       || cameraDockHeight !== prevCameraDockHeight
       || streams.length !== prevStreams.length) {
       this.handleCanvasResize();
+    }
+
+    if (peekedStream && !streams.find((s) => s.type !== VIDEO_TYPES.GRID
+      && (s as any).stream === (peekedStream as any).stream)) {
+      this.handleClosePeek();
     }
   }
 
@@ -212,6 +226,14 @@ class VideoList extends Component<VideoListProps, VideoListState> {
     }
   }
 
+  handleOpenPeek(stream: VideoItem) {
+    this.setState({ peekedStream: stream });
+  }
+
+  handleClosePeek() {
+    this.setState({ peekedStream: null });
+  }
+
   handleCanvasResize() {
     if (!this.ticking) {
       window.requestAnimationFrame(() => {
@@ -233,8 +255,7 @@ class VideoList extends Component<VideoListProps, VideoListState> {
       aspectRatio,
     } = this.state;
 
-    let numItems = streams.length;
-    if (numItems < 1 || !this.canvas || !this.grid) {
+    if (streams.length < 1 || !this.canvas || !this.grid) {
       return;
     }
     const { focusedId } = this.props;
@@ -244,22 +265,49 @@ class VideoList extends Component<VideoListProps, VideoListState> {
     const gridGutter = parseInt(window.getComputedStyle(this.grid)
       .getPropertyValue('grid-row-gap'), 10);
 
+    const contentStream = streams.find(
+      (s) => s.type !== VIDEO_TYPES.GRID && (s as any).showAsContent,
+    );
+    const hasContentStream = !!contentStream;
+    const nonContentStreams = hasContentStream
+      ? streams.filter((s) => s !== contentStream)
+      : streams;
+
     const hasFocusedItem = streams.filter(
       (s) => s.type !== VIDEO_TYPES.GRID && s.stream === focusedId,
-    ).length && numItems > 2;
+    ).length && streams.length > 2;
+    const isContentFocused = hasContentStream && contentStream?.stream === focusedId;
+    const shouldGrowFocused = hasFocusedItem && !isContentFocused;
+    const focusCells = shouldGrowFocused ? 3 : 0;
 
-    // Has a focused item so we need +3 cells
-    if (hasFocusedItem) {
-      numItems += 3;
-    }
-    const optimalGrid = range(1, numItems + 1)
+    const columnRangeLimit = hasContentStream
+      ? Math.max(nonContentStreams.length + focusCells, 1) + 1
+      : streams.length + focusCells + 1;
+
+    const targetContentHeight = hasContentStream
+      ? Math.max(Math.floor(canvasHeight * CONTENT_HEIGHT_RATIO), 0)
+      : 0;
+
+    const availableHeightForGrid = hasContentStream
+      ? Math.max(canvasHeight - targetContentHeight - gridGutter, Math.floor(canvasHeight * 0.1))
+      : canvasHeight;
+
+    const optimalGrid = range(1, columnRangeLimit)
       .reduce((currentGrid, col) => {
+        let numItems = hasContentStream
+          ? nonContentStreams.length
+          : streams.length;
+
+        if (shouldGrowFocused) {
+          numItems += 3;
+        }
+
         const testGrid = findOptimalGrid(
-          canvasWidth, canvasHeight, gridGutter,
+          canvasWidth, availableHeightForGrid, gridGutter,
           aspectRatio, numItems, col,
         );
         // We need a minimum of 2 rows and columns for the focused
-        const focusedConstraint = hasFocusedItem ? testGrid.rows > 1 && testGrid.columns > 1 : true;
+        const focusedConstraint = shouldGrowFocused ? testGrid.rows > 1 && testGrid.columns > 1 : true;
         const betterThanCurrent = testGrid.filledArea > currentGrid.filledArea;
         return focusedConstraint && betterThanCurrent ? testGrid : currentGrid;
       }, { filledArea: 0 } as {
@@ -273,11 +321,14 @@ class VideoList extends Component<VideoListProps, VideoListState> {
       type: ACTIONS.SET_CAMERA_DOCK_OPTIMAL_GRID_SIZE,
       value: {
         width: optimalGrid.width,
-        height: optimalGrid.height,
+        height: hasContentStream
+          ? Math.max(optimalGrid.height + targetContentHeight + gridGutter, canvasHeight)
+          : optimalGrid.height,
       },
     });
     this.setState({
       optimalGrid,
+      contentHeight: hasContentStream ? targetContentHeight : 0,
     });
   }
 
@@ -366,20 +417,34 @@ class VideoList extends Component<VideoListProps, VideoListState> {
       pluginUserCameraHelperPerPosition,
       screenShare,
     } = this.props;
+    const contentStream = streams.find((stream) => stream.type !== VIDEO_TYPES.GRID
+      && (stream as any).showAsContent);
+    const nonContentStreams = contentStream
+      ? streams.filter((stream) => stream !== contentStream)
+      : streams;
     const numOfStreams = streams.length;
 
-    return streams.map((item) => {
+    const renderItem = (item: VideoItem, isContentStream?: boolean) => {
       const { userId, name } = item;
       const isStream = item.type !== VIDEO_TYPES.GRID;
       const stream = isStream ? item.stream : null;
       const key = isStream ? stream : userId;
+      const isContent = isContentStream || (isStream && (item as any).showAsContent);
       const isFocused = isStream && focusedId === stream && numOfStreams > 2;
+      const contentType = (item as any).contentType;
 
       return (
         <Styled.VideoListItem
           key={key}
           $focused={isFocused}
+          $isContent={isContent}
+          $contentRowSpan={CONTENT_ROW_SPAN}
           data-test="webcamVideoItem"
+          onClick={() => {
+            if (isStream && contentType === 'screenshare' && !(item as any).showAsContent) {
+              this.handleOpenPeek(item);
+            }
+          }}
         >
           <VideoListItemContainer
             pluginUserCameraHelperPerPosition={pluginUserCameraHelperPerPosition}
@@ -403,10 +468,18 @@ class VideoList extends Component<VideoListProps, VideoListState> {
               }
             }
             screenShare={screenShare}
+            onPeek={contentType === 'screenshare' && isStream && !(item as any).showAsContent
+              ? () => this.handleOpenPeek(item)
+              : undefined}
           />
         </Styled.VideoListItem>
       );
-    });
+    };
+
+    return {
+      gridItems: nonContentStreams.map((item) => renderItem(item, false)),
+      contentItem: contentStream ? renderItem(contentStream, true) : null,
+    };
   }
 
   render() {
@@ -416,52 +489,126 @@ class VideoList extends Component<VideoListProps, VideoListState> {
       cameraDock,
       isGridEnabled,
     } = this.props;
-    const { optimalGrid, autoplayBlocked } = this.state;
+    const { optimalGrid, autoplayBlocked, contentHeight, peekedStream } = this.state;
     const { position } = cameraDock;
 
+    const { gridItems, contentItem } = this.renderVideoList();
+
     return (
-      <Styled.VideoCanvas
-        $position={position}
-        ref={(ref) => {
-          this.canvas = ref;
-        }}
-        style={{
-          minHeight: 'inherit',
-        }}
-      >
-        {this.renderPreviousPageButton()}
+      <>
+        <Styled.VideoCanvas
+          $position={position}
+          $hasContent={contentHeight > 0}
+          ref={(ref) => {
+            this.canvas = ref;
+          }}
+          style={{
+            minHeight: 'inherit',
+          }}
+        >
+          {this.renderPreviousPageButton()}
 
-        {!streams.length && !isGridEnabled ? null : (
-          <Styled.VideoList
-            ref={(ref) => {
-              this.grid = ref;
-            }}
-            style={{
-              width: `${optimalGrid.width}px`,
-              height: `${optimalGrid.height}px`,
-              gridTemplateColumns: `repeat(${optimalGrid.columns}, 1fr)`,
-              gridTemplateRows: `repeat(${optimalGrid.rows}, 1fr)`,
-            }}
-            className="video-provider_list"
-          >
-            {this.renderVideoList()}
-          </Styled.VideoList>
-        )}
-        {!autoplayBlocked ? null : (
-          <AutoplayOverlay
-            autoplayBlockedDesc={intl.formatMessage(intlMessages.autoplayBlockedDesc)}
-            autoplayAllowLabel={intl.formatMessage(intlMessages.autoplayAllowLabel)}
-            handleAllowAutoplay={this.handleAllowAutoplay}
+          {!streams.length && !isGridEnabled ? null : (
+            <>
+              <Styled.VideoList
+                ref={(ref) => {
+                  this.grid = ref;
+                }}
+                style={{
+                  width: `${optimalGrid.width}px`,
+                  height: `${optimalGrid.height}px`,
+                  gridTemplateColumns: `repeat(${optimalGrid.columns}, 1fr)`,
+                  gridTemplateRows: `repeat(${optimalGrid.rows}, 1fr)`,
+                }}
+                className="video-provider_list"
+              >
+                {gridItems}
+              </Styled.VideoList>
+              {contentHeight > 0 && contentItem && (
+                <Styled.ContentWrapper
+                  style={{
+                    width: `${cameraDock?.width}px`,
+                    height: `${contentHeight}px`,
+                  }}
+                >
+                  {contentItem}
+                  {peekedStream && this.renderPeekOverlay(peekedStream as VideoItem)}
+                </Styled.ContentWrapper>
+              )}
+            </>
+          )}
+          {!autoplayBlocked ? null : (
+            <AutoplayOverlay
+              autoplayBlockedDesc={intl.formatMessage(intlMessages.autoplayBlockedDesc)}
+              autoplayAllowLabel={intl.formatMessage(intlMessages.autoplayAllowLabel)}
+              handleAllowAutoplay={this.handleAllowAutoplay}
+            />
+          )}
+
+          {
+            (position === 'contentRight' || position === 'contentLeft')
+            && <Styled.Break />
+          }
+
+          {this.renderNextPageButton()}
+        </Styled.VideoCanvas>
+      </>
+    );
+  }
+
+  renderPeekOverlay(stream: VideoItem) {
+    const {
+      onVideoItemMount,
+      onVideoItemUnmount,
+      onVirtualBgDrop,
+      setUserCamerasRequestedFromPlugin,
+      pluginUserCameraHelperPerPosition,
+      handleVideoFocus,
+      streams,
+    } = this.props;
+
+    const isStream = stream.type !== VIDEO_TYPES.GRID;
+    if (!isStream) return null;
+
+    const streamId = (stream as any).stream;
+    const userId = (stream as any).userId;
+    const name = (stream as any).name;
+    const isContent = (stream as any).showAsContent ?? false;
+    const contentType = (stream as any).contentType;
+    const numOfStreams = streams.length;
+
+    return (
+      <Styled.PeekOverlay onClick={this.handleClosePeek}>
+        <Styled.PeekCard onClick={(e) => e.stopPropagation()}>
+          <Styled.PeekCloseButton
+            icon="close"
+            label="Close peek overlay"
+            hideLabel
+            circle
+            size="md"
+            onClick={this.handleClosePeek}
+            data-test="closePeekOverlay"
           />
-        )}
-
-        {
-          (position === 'contentRight' || position === 'contentLeft')
-          && <Styled.Break />
-        }
-
-        {this.renderNextPageButton()}
-      </Styled.VideoCanvas>
+          <VideoListItemContainer
+            pluginUserCameraHelperPerPosition={pluginUserCameraHelperPerPosition}
+            numOfStreams={numOfStreams}
+            cameraId={streamId}
+            userId={userId}
+            name={name}
+            focused={false}
+            isStream
+            onHandleVideoFocus={handleVideoFocus}
+            onVideoItemMount={(videoRef) => onVideoItemMount(streamId, videoRef)}
+            onVideoItemUnmount={() => onVideoItemUnmount(streamId)}
+            onVirtualBgDrop={(type, dropName, data) => onVirtualBgDrop(streamId, type, dropName, data)}
+            setUserCamerasRequestedFromPlugin={setUserCamerasRequestedFromPlugin}
+            stream={stream}
+            screenShare
+            contentType={contentType}
+            isContent={isContent}
+          />
+        </Styled.PeekCard>
+      </Styled.PeekOverlay>
     );
   }
 }

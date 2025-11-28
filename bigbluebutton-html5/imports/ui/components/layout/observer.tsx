@@ -25,6 +25,8 @@ const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 const LayoutObserver: React.FC = () => {
   const layoutType = useRef<string | null>(null);
   const checkedUserSettings = useRef(false);
+  const cameraAsContentWasActive = useRef(false);
+  const presentationStateBeforeCameraContent = useRef<boolean | null>(null);
   const layoutContextDispatch = layoutDispatch();
   const deviceType = layoutSelect((i: Layout) => i.deviceType);
   const cameraDockInput = layoutSelectInput((i: Input) => i.cameraDock);
@@ -59,6 +61,8 @@ const LayoutObserver: React.FC = () => {
   const { currentLayoutType } = currentMeeting?.layout || {};
   const meetingLayout = currentLayoutType && LAYOUT_TYPE[currentLayoutType as keyof typeof LAYOUT_TYPE];
   const isSharingVideo = currentMeeting?.componentsFlags?.hasExternalVideo;
+  const hasCameraAsContent = currentMeeting?.componentsFlags?.hasCameraAsContent
+    || videoStream.some((stream) => !!(stream as any)?.showAsContent);
 
   const setDeviceType = () => {
     let newDeviceType = null;
@@ -198,6 +202,30 @@ const LayoutObserver: React.FC = () => {
       value: selectedLayout,
     });
   }, [selectedLayout]);
+
+  useEffect(() => {
+    if (hasCameraAsContent) {
+      if (!cameraAsContentWasActive.current) {
+        presentationStateBeforeCameraContent.current = presentationIsOpen;
+      }
+      if (presentationIsOpen) {
+        layoutContextDispatch({
+          type: ACTIONS.SET_PRESENTATION_IS_OPEN,
+          value: false,
+        });
+      }
+    } else if (cameraAsContentWasActive.current) {
+      if (typeof presentationStateBeforeCameraContent.current === 'boolean') {
+        layoutContextDispatch({
+          type: ACTIONS.SET_PRESENTATION_IS_OPEN,
+          value: presentationStateBeforeCameraContent.current,
+        });
+      }
+      presentationStateBeforeCameraContent.current = null;
+    }
+
+    cameraAsContentWasActive.current = hasCameraAsContent;
+  }, [hasCameraAsContent, layoutContextDispatch, presentationIsOpen]);
 
   useEffect(() => {
     MediaService.buildLayoutWhenPresentationAreaIsDisabled(

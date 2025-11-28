@@ -358,6 +358,9 @@ const UserActions: React.FC<UserActionProps> = (props) => {
                 $isRTL={isRTL}
                 role="button"
               >
+                {contentType === 'screenshare' && (
+                  <Styled.ScreenShareIcon iconName="desktop" aria-hidden="true" />
+                )}
                 {name}
               </Styled.DropdownTrigger>
             )}
@@ -378,6 +381,9 @@ const UserActions: React.FC<UserActionProps> = (props) => {
         : (
           <Styled.Dropdown $isFirefox={isFirefox}>
             <Styled.UserName $noMenu={numOfStreams < 3}>
+              {contentType === 'screenshare' && (
+                <Styled.ScreenShareIcon iconName="desktop" aria-hidden="true" />
+              )}
               {name}
             </Styled.UserName>
           </Styled.Dropdown>

@@ -40,6 +40,7 @@ interface VideoListItemProps {
   layoutContextDispatch: (...args: unknown[]) => void;
   contentType?: string;
   isContent?: boolean;
+  screenShare?: boolean;
   isRTL: boolean;
   amIModerator: boolean;
   cameraId: string;
@@ -53,7 +54,7 @@ interface VideoListItemProps {
   onVideoItemUnmount: (stream: string) => void;
   settingsSelfViewDisable: boolean;
   stream: VideoItem;
-  contentType?: string;
+  onPeek?: () => void;
   makeDragOperations: (userId?: string) => {
     onDragOver: (e: DragEvent) => void,
     onDrop: (e: DragEvent) => void,
@@ -69,6 +70,7 @@ interface VideoListItemProps {
     deafened: boolean;
   };
   raisedHandPosition: number;
+  hasPeekedStream?: boolean;
 }
 
 const renderPluginItems = (
@@ -124,14 +126,16 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
     makeDragOperations, dragging, draggingOver, isRTL, isStream, settingsSelfViewDisable,
     disabledCams, amIModerator, stream, setUserCamerasRequestedFromPlugin,
     pluginUserCameraHelperPerPosition, screenShare, raisedHandPosition,
-    contentType, isContent,
+    contentType, isContent, onPeek,
   } = props;
 
   const intl = useIntl();
 
   const [videoDataLoaded, setVideoDataLoaded] = useState(false);
   const [isStreamHealthy, setIsStreamHealthy] = useState(false);
-  const [isMirrored, setIsMirrored] = useState<boolean>(VideoService.mirrorOwnWebcam(stream.userId));
+  const [isMirrored, setIsMirrored] = useState<boolean>(
+    contentType === 'screenshare' ? false : VideoService.mirrorOwnWebcam(stream.userId),
+  );
   const [isVideoSqueezed, setIsVideoSqueezed] = useState(false);
   const [isVideoPluginHelperSqueezed, setIsVideoPluginHelperSqueezed] = useState(false);
   const [isSelfViewDisabled, setIsSelfViewDisabled] = useState(false);
@@ -288,6 +292,7 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
       isMirrored={isMirrored}
       isRTL={isRTL}
       isStream={isStream}
+      onPeek={onPeek}
       onHandleDisableCam={() => setIsSelfViewDisabled((value) => !value)}
       isSelfViewDisabled={isSelfViewDisabled}
       amIModerator={amIModerator}
@@ -352,19 +357,20 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
           numOfStreams={numOfStreams}
           onHandleVideoFocus={onHandleVideoFocus}
           focused={focused}
-          onHandleMirror={() => setIsMirrored((value) => !value)}
-          isMirrored={isMirrored}
-          isRTL={isRTL}
-          isStream={isStream}
-        onHandleDisableCam={() => setIsSelfViewDisabled((value) => !value)}
-        isSelfViewDisabled={isSelfViewDisabled}
-        amIModerator={amIModerator}
-        videoContainer={videoContainer}
-        isFullscreenContext={isFullscreenContext}
-        layoutContextDispatch={layoutContextDispatch}
-        contentType={contentType || (stream as any).contentType}
-        isContent={(stream as any).showAsContent ?? isContent}
-      />
+      onHandleMirror={() => setIsMirrored((value) => !value)}
+      isMirrored={isMirrored}
+      isRTL={isRTL}
+      isStream={isStream}
+      onHandleDisableCam={() => setIsSelfViewDisabled((value) => !value)}
+      isSelfViewDisabled={isSelfViewDisabled}
+      amIModerator={amIModerator}
+      videoContainer={videoContainer}
+      isFullscreenContext={isFullscreenContext}
+      layoutContextDispatch={layoutContextDispatch}
+      contentType={contentType || (stream as any).contentType}
+      isContent={(stream as any).showAsContent ?? isContent}
+      onPeek={onPeek}
+    />
         <UserStatus
           voiceUser={voiceUser}
           user={user}

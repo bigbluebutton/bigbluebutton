@@ -34,6 +34,8 @@ interface VideoListItemContainerProps {
   onVideoItemMount: (ref: HTMLVideoElement) => void;
   contentType?: string;
   isContent?: boolean;
+  onPeek?: () => void;
+  screenShare?: boolean;
 }
 
 const VideoListItemContainer: React.FC<VideoListItemContainerProps> = (props) => {
@@ -54,6 +56,7 @@ const VideoListItemContainer: React.FC<VideoListItemContainerProps> = (props) =>
     screenShare,
     contentType,
     isContent,
+    onPeek,
   } = props;
 
   const fullscreen = layoutSelect((i: Layout) => i.fullscreen);
@@ -121,6 +124,7 @@ const VideoListItemContainer: React.FC<VideoListItemContainerProps> = (props) =>
       onVirtualBgDrop={onVirtualBgDrop}
       settingsSelfViewDisable={settingsSelfViewDisable}
       stream={stream}
+      onPeek={onPeek}
       contentType={contentType || (stream as any).contentType}
       isContent={(stream as any).showAsContent ?? isContent ?? false}
       voiceUser={voiceUser}
