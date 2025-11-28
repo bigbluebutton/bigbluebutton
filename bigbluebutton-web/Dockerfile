@@ -36,26 +36,31 @@ RUN unzip -q /bbb-web/build/libs/bigbluebutton-0.10.0.war -d /dist
 # 2. Runtime stage:
 FROM java-base
 
-COPY --from=slides / /usr/share/bigbluebutton/blank
+WORKDIR /usr/share/bbb-web
 
-COPY --from=build /dist /usr/share/bbb-web
-COPY --from=build /bbb-web/pres-checker/lib /usr/share/prescheck/lib
-COPY --from=build /bbb-web/pres-checker/run.sh /usr/share/prescheck/prescheck.sh
+COPY --from=slides --chown=bigbluebutton / /usr/share/bigbluebutton/blank
+
+COPY --from=build --chown=bigbluebutton /dist /usr/share/bbb-web
+COPY --from=build --chown=bigbluebutton /bbb-web/pres-checker/lib /usr/share/prescheck/lib
+COPY --from=build --chown=bigbluebutton /bbb-web/pres-checker/run.sh /usr/share/prescheck/prescheck.sh
 
 # Create necessary directories
 RUN mkdir -p /var/bigbluebutton/diagnostics /etc/bigbluebutton
+RUN chown -R bigbluebutton:bigbluebutton /etc/bigbluebutton
 
-COPY turn-stun-servers.xml.tmpl /etc/bigbluebutton/turn-stun-servers.xml.tmpl
+COPY --chown=bigbluebutton turn-stun-servers.xml.tmpl /etc/bigbluebutton/turn-stun-servers.xml.tmpl
 
 # Hardcode livekit as the bridge services
-COPY <<EOF /etc/bigbluebutton/bbb-web.properties
+COPY --chown=bigbluebutton <<EOF /etc/bigbluebutton/bbb-web.properties
 audioBridge=livekit
 cameraBridge=livekit
 screenShareBridge=livekit
+redisHost=redis
 EOF
 
 COPY docker-entrypoint.sh /entrypoint.sh
-RUN chown -R bigbluebutton:bigbluebutton /etc/bigbluebutton
+
+COPY --chown=bigbluebutton ./docker/logback.xml /usr/share/bbb-web/WEB-INF/classes/logback.xml
 
 USER bigbluebutton
 

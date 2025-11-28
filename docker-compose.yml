@@ -6,6 +6,10 @@ services:
       tags:
         - "${IMAGE_REPO:-bigbluebutton}/bbb-web:local"
     restart: unless-stopped
+    environment:
+      - BBB_WEB_LOGLEVEL=INFO
+      - BBB_SERVER_URL=${BBB_SERVER_URL}
+      - SHARED_SECRET=${SHARED_SECRET}
     depends_on:
       - redis
       - etherpad
