@@ -31,13 +31,13 @@ RUN yq e -i '.redis.host = "redis"' config.yml
 RUN sed -i 's|127.0.0.1:8185|nginx:8185|g' config.yml
 
 # Adjust graphql-actions URL to point to graphql-actions container
-RUN sed -i 's|127.0.0.1:8093|bbb-graphql-actions:8093|g' config.yml
+RUN sed -i 's|127.0.0.1:8093|graphql-actions:8093|g' config.yml
 
 # Adjust auth_hook to point to bbb-web container
 RUN sed -i 's|127.0.0.1:8090|web:8090|g' config.yml
 
 # Adjust akka-apps URL to point to akka-apps container
-RUN sed -i 's|127.0.0.1:8901|akka-bbb-apps:8901|g' config.yml
+RUN sed -i 's|127.0.0.1:8901|apps-akka:8901|g' config.yml
 
 # Running stage
 FROM scratch
