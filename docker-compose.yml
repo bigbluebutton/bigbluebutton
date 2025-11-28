@@ -335,5 +335,18 @@ services:
     networks:
       bbb-net:
 
+  caddy:
+    image: caddy:latest
+    restart: unless-stopped
+    ports:
+      - "443:8443"
+      - "80:8080"
+    volumes:
+      - ./conf/Caddyfile:/etc/caddy/Caddyfile:ro
+    depends_on:
+      - nginx
+    networks:
+      bbb-net:
+
 networks:
   bbb-net:

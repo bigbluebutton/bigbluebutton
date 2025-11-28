@@ -1,0 +1,22 @@
+{
+    # Allow Caddy to use a local self-signed certificate
+    local_certs
+}
+
+https:// {
+	tls {
+		on_demand
+
+	}
+}
+
+:8443 {
+    tls internal
+
+    reverse_proxy http://nginx:8080
+}
+
+# Redirect HTTP → HTTPS
+:8080 {
+    redir https://{host}{uri}
+}
