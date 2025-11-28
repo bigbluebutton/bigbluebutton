@@ -187,6 +187,7 @@ services:
       - CLIENT_HOST=0.0.0.0
       - KURENTO=[]
       - LOG_LEVEL=info
+      - LOG_FILENAME=/dev/null
       - MCS_ADDRESS=localhost
       - MCS_HOST=0.0.0.0
       - MCS_PORT=3009
