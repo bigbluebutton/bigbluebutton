@@ -62,6 +62,11 @@ COPY docker-entrypoint.sh /entrypoint.sh
 
 COPY --chown=bigbluebutton ./docker/logback.xml /usr/share/bbb-web/WEB-INF/classes/logback.xml
 
+# Move default application.conf file to allow overwrite
+RUN mv /usr/share/bbb-web/WEB-INF/classes/application.conf /usr/share/bbb-web/WEB-INF/classes/application-default.conf
+# Copy overwrite file
+COPY --chown=bigbluebutton ./docker/application.conf /usr/share/bbb-web/WEB-INF/classes/application.conf
+
 USER bigbluebutton
 
 ENTRYPOINT ["/entrypoint.sh"]
