@@ -67,9 +67,7 @@ RUN sed -i 's|server_name\s\+[0-9.]*;|server_name _;|g' /etc/nginx/vhosts.d/bigb
     sed -i 's|listen\s\+80;|listen 8080;|g' /etc/nginx/vhosts.d/bigbluebutton.nginx && \
     sed -i 's|listen\s\+\[\:\:\]\:80;|listen [::]:8080;|g' /etc/nginx/vhosts.d/bigbluebutton.nginx
 
-EXPOSE 8080
-
-# Port 8185 for hasura load balancer, 80 for everything else
-EXPOSE 80 8185
+# Port 8185 for hasura load balancer, 8080 for everything else
+EXPOSE 8080 8185
 
 ENTRYPOINT ["nginx", "-g", "daemon off;"]
