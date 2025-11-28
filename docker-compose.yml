@@ -154,20 +154,28 @@ services:
         TAG_BBB_PRESENTATION_VIDEO: "${TAG_BBB_PRESENTATION_VIDEO:-5.0.0}"
       tags:
         - "${IMAGE_REPO:-bigbluebutton}/bbb-record-and-playback:local"
+    networks:
+      bbb-net:
 
   recording-starter:
     image: "${IMAGE_REPO:-bigbluebutton}/bbb-record-and-playback:${IMAGE_RECORD_AND_PLAYBACK_TAG:-latest}"
     command: "rap_starter"
+    networks:
+      bbb-net:
 
   recording-caption-inbox:
     image: "${IMAGE_REPO:-bigbluebutton}/bbb-record-and-playback:${IMAGE_RECORD_AND_PLAYBACK_TAG:-latest}"
     command: "rap_caption_inbox"
+    networks:
+      bbb-net:
 
   recording-cleanup:
     image: "${IMAGE_REPO:-bigbluebutton}/bbb-record-and-playback:${IMAGE_RECORD_AND_PLAYBACK_TAG:-latest}"
     command: "cleanup"
     env_file:
       - .env
+    networks:
+      bbb-net:
 
   webrtc-sfu:
     image: "${IMAGE_REPO:-bigbluebutton}/bbb-webrtc-sfu:${IMAGE_WEBRTC_SFU_TAG:-latest}"
@@ -264,9 +272,6 @@ services:
       - /tmp
     networks:
       bbb-net:
-    # disable logging (way to verbose)
-    logging:
-      driver: none
 
   livekit:
     image: livekit/livekit-server:v1.9.1
