@@ -7,11 +7,14 @@ export const Root = styled.div`
   color: ${colorGray};
   padding: 0 ${$3xlPadding};
   width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   text-align: center;
 `;
 
 export const Icon = styled(BaseIcon)`
-  vertical-align: baseline;
+  flex-shrink: 0;
 
   [dir='ltr'] & {
     margin-right: ${smPadding};
@@ -23,10 +26,11 @@ export const Icon = styled(BaseIcon)`
 `;
 
 export const Typography = styled.p`
-  display: inline;
   margin: 0;
-  vertical-align: baseline;
   white-space: pre-wrap;
+  word-break: normal;
+  overflow-wrap: normal;
+  text-align: center;
 `;
 
 export default {
