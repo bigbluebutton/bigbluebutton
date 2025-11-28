@@ -48,7 +48,7 @@ COPY ./bbb-learning-dashboard/learning-dashboard.nginx \
      /etc/bigbluebutton/nginx/
 
 # Copy bbb-html5.nginx.static to be bbb-html5.nginx
-COPY ./build/packages-template/bbb-html5/bbb-html5.nginx.static /etc/bigbluebutton/nginx/bbb-html5.nginx
+COPY ./docker/nginx/bbb-html5.nginx /etc/bigbluebutton/nginx/bbb-html5.nginx
 
 # Change localhost occurrences to matching docker-compose service name
 RUN sed -i 's|http://127.0.0.1:8090|http://web:8090|g' /etc/bigbluebutton/nginx/bbb-web.nginx && \
