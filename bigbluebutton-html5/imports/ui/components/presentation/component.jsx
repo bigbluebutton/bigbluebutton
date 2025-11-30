@@ -1006,6 +1006,10 @@ class Presentation extends PureComponent {
       darkTheme,
       isViewersAnnotationsLocked,
       fitToWidth,
+      annotationStreamData,
+      initialPageAnnotations,
+      refetchInitialPageAnnotations,
+      restoreOnUpdate,
       isPresentationDetached,
       popupWindow,
     } = this.props;
@@ -1186,6 +1190,10 @@ class Presentation extends PureComponent {
                     darkTheme={darkTheme}
                     isToolbarVisible={isToolbarVisible}
                     isViewersAnnotationsLocked={isViewersAnnotationsLocked}
+                    annotationStreamData={annotationStreamData}
+                    initialPageAnnotations={initialPageAnnotations}
+                    refetchInitialPageAnnotations={refetchInitialPageAnnotations}
+                    restoreOnUpdate={restoreOnUpdate}
                     isPresentationDetached={isPresentationDetached}
                     popupWindow={popupWindow}
                   />

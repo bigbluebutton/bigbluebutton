@@ -22,6 +22,7 @@ import com.google.gson.Gson
 import grails.web.context.ServletContextHolder
 import groovy.json.JsonBuilder
 import groovy.xml.MarkupBuilder
+import groovy.xml.XmlSlurper
 import org.apache.commons.codec.binary.Base64
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.FilenameUtils
@@ -31,24 +32,23 @@ import org.bigbluebutton.api.*
 import org.bigbluebutton.api.domain.GuestPolicy
 import org.bigbluebutton.api.domain.Meeting
 import org.bigbluebutton.api.domain.UserSession
-import org.bigbluebutton.api.service.ValidationService
 import org.bigbluebutton.api.service.ServiceUtils
+import org.bigbluebutton.api.service.ValidationService
 import org.bigbluebutton.api.util.ParamsUtil
 import org.bigbluebutton.api.util.ResponseBuilder
 import org.bigbluebutton.presentation.PresentationUrlDownloadService
+import org.bigbluebutton.presentation.SupportedFileTypes
 import org.bigbluebutton.presentation.UploadedPresentation
-import org.bigbluebutton.presentation.SupportedFileTypes;
 import org.bigbluebutton.web.services.PresentationService
+import org.bigbluebutton.web.services.turn.RemoteIceCandidate
+import org.bigbluebutton.web.services.turn.StunServer
 import org.bigbluebutton.web.services.turn.StunTurnService
 import org.bigbluebutton.web.services.turn.TurnEntry
-import org.bigbluebutton.web.services.turn.StunServer
-import org.bigbluebutton.web.services.turn.RemoteIceCandidate
 import org.codehaus.groovy.util.ListHashMap
 import org.json.JSONArray
 
-
-import javax.servlet.ServletRequest
-import javax.servlet.http.HttpServletRequest
+import jakarta.servlet.ServletRequest
+import jakarta.servlet.http.HttpServletRequest
 
 class ApiController {
   private static final String CONTROLLER_NAME = 'ApiController'
@@ -106,6 +106,16 @@ class ApiController {
     } else {
       withFormat {
         xml {
+          render(text: responseBuilder.buildMeetingVersion(
+                  paramsProcessorUtil.getApiVersion(),
+                  paramsProcessorUtil.getBbbVersion(),
+                  paramsProcessorUtil.getGraphqlWebsocketUrl(),
+                  paramsProcessorUtil.getHtml5PluginSdkVersion(),
+                  paramsProcessorUtil.getGraphqlApiUrl(),
+                  RESP_CODE_SUCCESS),
+                  contentType: "text/xml")
+        }
+        '*' {
           render(text: responseBuilder.buildMeetingVersion(
                   paramsProcessorUtil.getApiVersion(),
                   paramsProcessorUtil.getBbbVersion(),
@@ -369,6 +379,10 @@ class ApiController {
               render(text: responseBuilder.buildError("Params required", "You must enter a valid password",
                       RESP_CODE_FAILED), contentType: "text/xml")
             }
+            '*' {
+              render(text: responseBuilder.buildError("Params required", "You must enter a valid password",
+                      RESP_CODE_FAILED), contentType: "text/xml")
+            }
           }
           return
         }
@@ -378,6 +392,10 @@ class ApiController {
         response.addHeader("Cache-Control", "no-cache")
         withFormat {
           xml {
+            render(text: responseBuilder.buildError("Params required", "You must send the 'role' parameter, since " +
+                    "this meeting doesn't have any password.", RESP_CODE_FAILED), contentType: "text/xml")
+          }
+         '*' {
             render(text: responseBuilder.buildError("Params required", "You must send the 'role' parameter, since " +
                     "this meeting doesn't have any password.", RESP_CODE_FAILED), contentType: "text/xml")
           }
@@ -391,6 +409,10 @@ class ApiController {
       response.addHeader("Cache-Control", "no-cache")
       withFormat {
         xml {
+          render(text: responseBuilder.buildError("Params required", "You must either send the valid role of the user, or " +
+                  "the password, sould the meeting has one.", RESP_CODE_FAILED), contentType: "text/xml")
+        }
+        '*' {
           render(text: responseBuilder.buildError("Params required", "You must either send the valid role of the user, or " +
                   "the password, sould the meeting has one.", RESP_CODE_FAILED), contentType: "text/xml")
         }
@@ -589,6 +611,9 @@ class ApiController {
         xml {
           render(text: responseBuilder.buildJoinMeeting(us, session[sessionToken], guestStatusVal, destUrl, msgKey, msgValue, RESP_CODE_SUCCESS), contentType: "text/xml")
         }
+        '*' {
+          render(text: responseBuilder.buildJoinMeeting(us, session[sessionToken], guestStatusVal, destUrl, msgKey, msgValue, RESP_CODE_SUCCESS), contentType: "text/xml")
+        }
       }
     }
   }
@@ -713,7 +738,10 @@ class ApiController {
       response.addHeader("Cache-Control", "no-cache")
       withFormat {
         xml {
-          render(text: responseBuilder.buildJoinMeeting(us, session[sessionToken], guestStatusVal, destUrl, msgKey, msgValue, RESP_CODE_SUCCESS), contentType: "text/xml")
+          render(text: responseBuilder.buildJoinMeeting(us, session[sessionToken], us.guestStatus, destUrl, msgKey, msgValue, RESP_CODE_SUCCESS), contentType: "text/xml")
+        }
+        '*' {
+          render(text: responseBuilder.buildJoinMeeting(us, session[sessionToken], us.guestStatus, destUrl, msgKey, msgValue, RESP_CODE_SUCCESS), contentType: "text/xml")
         }
       }
     }
@@ -759,6 +787,11 @@ class ApiController {
           render(text: responseBuilder.buildIsMeetingRunning(isRunning, RESP_CODE_SUCCESS), contentType: "text/xml")
         }
       }
+      '*' {
+        render(contentType: "text/xml") {
+            render(text: responseBuilder.buildIsMeetingRunning(isRunning, RESP_CODE_SUCCESS), contentType: "text/xml")
+        }
+      }
     }
   }
 
@@ -802,6 +835,11 @@ class ApiController {
           render(text: responseBuilder.buildEndRunning("sentEndMeetingRequest", "A request to end the meeting was sent.  Please wait a few seconds, and then use the getMeetingInfo or isMeetingRunning API calls to verify that it was ended.", RESP_CODE_SUCCESS), contentType: "text/xml")
         }
       }
+      '*' {
+        render(contentType: "text/xml") {
+            render(text: responseBuilder.buildEndRunning("sentEndMeetingRequest", "A request to end the meeting was sent.  Please wait a few seconds, and then use the getMeetingInfo or isMeetingRunning API calls to verify that it was ended.", RESP_CODE_SUCCESS), contentType: "text/xml")
+        }
+      }
     }
   }
 
@@ -827,6 +865,9 @@ class ApiController {
 
     withFormat {
       xml {
+        render(text: responseBuilder.buildGetMeetingInfoResponse(meeting, RESP_CODE_SUCCESS), contentType: "text/xml")
+      }
+      '*' {
         render(text: responseBuilder.buildGetMeetingInfoResponse(meeting, RESP_CODE_SUCCESS), contentType: "text/xml")
       }
     }
@@ -857,12 +898,18 @@ class ApiController {
         xml {
           render(text: responseBuilder.buildGetMeetingsResponse(mtgs, "noMeetings", "no meetings were found on this server", RESP_CODE_SUCCESS), contentType: "text/xml")
         }
+        '*' {
+          render(text: responseBuilder.buildGetMeetingsResponse(mtgs, "noMeetings", "no meetings were found on this server", RESP_CODE_SUCCESS), contentType: "text/xml")
+        }
       }
     } else {
       response.addHeader("Cache-Control", "no-cache")
 
       withFormat {
         xml {
+          render(text: responseBuilder.buildGetMeetingsResponse(mtgs, null, null, RESP_CODE_SUCCESS), contentType: "text/xml")
+        }
+        '*' {
           render(text: responseBuilder.buildGetMeetingsResponse(mtgs, null, null, RESP_CODE_SUCCESS), contentType: "text/xml")
         }
       }
@@ -894,6 +941,9 @@ class ApiController {
         xml {
           render(text: responseBuilder.buildGetSessionsResponse(sssns, "noSessions", "no sessions were found on this serverr", RESP_CODE_SUCCESS), contentType: "text/xml")
         }
+        '*' {
+          render(text: responseBuilder.buildGetSessionsResponse(sssns, "noSessions", "no sessions were found on this serverr", RESP_CODE_SUCCESS), contentType: "text/xml")
+        }
       }
     } else {
       response.addHeader("Cache-Control", "no-cache")
@@ -901,6 +951,11 @@ class ApiController {
         xml {
           render(contentType: "text/xml") {
             render(text: responseBuilder.buildGetSessionsResponse(sssns, null, null, RESP_CODE_SUCCESS), contentType: "text/xml")
+          }
+        }
+        '*' {
+          render(contentType: "text/xml") {
+              render(text: responseBuilder.buildGetSessionsResponse(sssns, null, null, RESP_CODE_SUCCESS), contentType: "text/xml")
           }
         }
       }
@@ -1045,6 +1100,10 @@ class ApiController {
         // No need to use the response builder here until we have a more complex response
         render(text: "<response><returncode>$RESP_CODE_SUCCESS</returncode></response>", contentType: "text/xml")
       }
+      '*' {
+        // No need to use the response builder here until we have a more complex response
+        render(text: "<response><returncode>$RESP_CODE_SUCCESS</returncode></response>", contentType: "text/xml")
+      }
     }
   }
 
@@ -1080,10 +1139,18 @@ class ApiController {
             render(text: responseBuilder.buildInsertDocumentResponse("Presentation is being uploaded", RESP_CODE_SUCCESS)
                     , contentType: "text/xml")
           }
+          '*' {
+            render(text: responseBuilder.buildInsertDocumentResponse("Presentation is being uploaded", RESP_CODE_SUCCESS)
+                    , contentType: "text/xml")
+          }
         }
       } else if (meetingService.isMeetingWithDisabledPresentation(meeting.getInternalId())) {
         withFormat {
           xml {
+            render(text: responseBuilder.buildInsertDocumentResponse("Presentation feature is disabled, ignoring.",
+                    RESP_CODE_FAILED), contentType: "text/xml")
+          }
+          '*' {
             render(text: responseBuilder.buildInsertDocumentResponse("Presentation feature is disabled, ignoring.",
                     RESP_CODE_FAILED), contentType: "text/xml")
           }
@@ -1093,6 +1160,11 @@ class ApiController {
       log.warn("Meeting with externalID ${externalMeetingId} doesn't exist.")
       withFormat {
         xml {
+          render(text: responseBuilder.buildInsertDocumentResponse(
+                  "Meeting with id [${externalMeetingId}] not found.", RESP_CODE_FAILED),
+                  contentType: "text/xml")
+        }
+        '*' {
           render(text: responseBuilder.buildInsertDocumentResponse(
                   "Meeting with id [${externalMeetingId}] not found.", RESP_CODE_FAILED),
                   contentType: "text/xml")
@@ -1133,6 +1205,10 @@ class ApiController {
     meetingService.sendChatMessage(meeting.internalId, userName, chatMessage);
     withFormat {
       xml {
+        render(text: responseBuilder.buildSendChatMessageResponse("Message successfully sent", RESP_CODE_SUCCESS)
+                , contentType: "text/xml")
+      }
+      '*' {
         render(text: responseBuilder.buildSendChatMessageResponse("Message successfully sent", RESP_CODE_SUCCESS)
                 , contentType: "text/xml")
       }
@@ -1760,6 +1836,9 @@ class ApiController {
         log.debug "Rendering as xml"
         render(text: responseBuilder.buildMeeting(meeting, msgKey, msg, RESP_CODE_SUCCESS), contentType: "text/xml")
       }
+      '*' {
+          render(text: responseBuilder.buildMeeting(meeting, msgKey, msg, RESP_CODE_SUCCESS), contentType: 'text/xml')
+      }
     }
   }
 
@@ -1917,6 +1996,9 @@ class ApiController {
           }
           render(contentType: "application/json", text: builder.toPrettyString())
         }
+        '*' {
+            render(text: responseBuilder.buildErrors(errorList.getErrors(), RESP_CODE_FAILED), contentType: "text/xml")
+        }
       }
     }
   }
@@ -1951,6 +2033,9 @@ class ApiController {
             message msg
           }
           render(contentType: "application/json", text: builder.toPrettyString())
+        }
+        '*' {
+          render(text: responseBuilder.buildError(key, msg, RESP_CODE_FAILED), contentType: "text/xml")
         }
       }
     }

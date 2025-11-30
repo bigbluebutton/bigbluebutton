@@ -58,7 +58,7 @@ public:
     # the default logoutUrl matches window.location.origin i.e. bigbluebutton.org for demo.bigbluebutton.org
     # in some cases we want only custom logoutUrl to be used when provided on meeting create. Default value: true
     askForConfirmationOnLeave: true
-    wakeLock: 
+    wakeLock:
       enabled: true
     allowDefaultLogoutUrl: true
     skipMeetingEnded: false
@@ -85,7 +85,7 @@ public:
     # Flag used to enable apollo dev tools in production
     enableApolloDevTools: false
     # Time used when the client connection is stale
-    # and a new connection is attempted 
+    # and a new connection is attempted
     terminateAndRetryConnection: 30_000
     # Allows users to enable automatic transcription when joining a meeting.
     # Automatic transcription requires the browser to support the web
@@ -199,6 +199,7 @@ public:
         raiseHandPushAlerts: true
         guestWaitingAudioAlerts: true
         guestWaitingPushAlerts: true
+        muteUnmuteAudioAlerts: true
         wakeLock: true
         paginationEnabled: true
         whiteboardToolbarAutoHide: false
@@ -309,6 +310,14 @@ public:
   # plugins:
   #   - name: SamplePresentationToolbarPlugin
   #     url: https://<your-Host>/plugins/SamplePresentationToolbarPlugin.js
+  # Allowed errors to be shown on notifications bar
+    showConnectionErrors:
+      # - 3001
+      - 3002
+      # - 3003
+      - 3004
+      # - 3005
+      # - 3006
   externalVideoPlayer:
     enabled: true
   kurento:
@@ -738,11 +747,7 @@ public:
       track1: "RelaxingMusic"
       track2: "CalmMusic"
       track3: "aristocratDrums"
-    interval:
-      clock: 100
-      offset: 60000
     time: 5
-    tabIndicator: false
   chat:
     enabled: true
     itemsPerPage: 100
@@ -780,7 +785,7 @@ public:
     # e.g.: disableEmojis: ['grin','laughing']
     # use the id of the emojis from https://raw.githubusercontent.com/missive/emoji-mart/16978d04a766eec6455e2e8bb21cd8dc0b3c7436/packages/emoji-mart-data/sets/1/all.json
     disableEmojis: []
-    allowedElements: ['a', 'code', 'em', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'ol', 'ul', 'p', 'strong']
+    markdownImageAllowed: false
     # available options for toolbar: reply, edit, delete, reactions
     # example: ['reply', 'delete']
     toolbar: ['reply', 'delete', 'edit', 'reactions']
@@ -853,8 +858,8 @@ public:
     # skipInitialCamEnumeration: whether to skip the initial camera enumeration
     # See https://github.com/bigbluebutton/bigbluebutton/issues/21746
     skipInitialCamEnumeration: false
-    # transparentListenOnly: whether the client should use the transparent 
-    # listen only mechanism. 
+    # transparentListenOnly: whether the client should use the transparent
+    # listen only mechanism.
     # It does not remove the "Listen Only" option from the audio modal
     # by itself, but it allows users to switch modes on the fly and
     # improves server CPU efficiency for microphone users.
@@ -1059,6 +1064,9 @@ public:
     maxNumberOfAnnotations: 300
     # Limit the number of users who can interact with the whiteboard
     maxNumberOfActiveUsers: 25
+    # This is the number of times we can press undo (plus 100 providing a safe margin for some shapes with extra entries)
+    # default value is 400, adjusted for maxNumberOfAnnotations being 300
+    maxHistoryStackSize: 400
     lockToolbarTools: false
     annotations:
       status:
@@ -1173,15 +1181,6 @@ public:
       - home.jpg
       - coffeeshop.jpg
       - board.jpg
-  minBrowserVersions:
-    safari: ">=14"
-    chrome: ">=87"
-    firefox: ">=80"
-    edge: ">=85"
-    miui: "<0"
-    mobile:
-      safari: ">=14"
-      chrome: ">=87"
 private:
   analytics:
     includeChat: true

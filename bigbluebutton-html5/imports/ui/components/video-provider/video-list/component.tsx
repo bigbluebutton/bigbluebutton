@@ -88,7 +88,6 @@ interface VideoListProps {
 
 interface VideoListState {
   optimalGrid: {
-    cols: number,
     rows: number,
     filledArea: number,
     width: number;
@@ -114,7 +113,6 @@ class VideoList extends Component<VideoListProps, VideoListState> {
 
     this.state = {
       optimalGrid: {
-        cols: 1,
         rows: 1,
         filledArea: 0,
         columns: 0,
@@ -260,7 +258,13 @@ class VideoList extends Component<VideoListProps, VideoListState> {
         const focusedConstraint = hasFocusedItem ? testGrid.rows > 1 && testGrid.columns > 1 : true;
         const betterThanCurrent = testGrid.filledArea > currentGrid.filledArea;
         return focusedConstraint && betterThanCurrent ? testGrid : currentGrid;
-      }, { filledArea: 0 });
+      }, { filledArea: 0 } as {
+        columns: number;
+        rows: number;
+        width: number;
+        height: number;
+        filledArea: number;
+    });
     layoutContextDispatch({
       type: ACTIONS.SET_CAMERA_DOCK_OPTIMAL_GRID_SIZE,
       value: {

@@ -218,16 +218,13 @@ _**Note:** This one includes the protocol._
 ---
 
 If your proxy server uses a different root domain than your BBB server, you’ll need an additional configuration.
-Add the following settings to `/usr/share/bbb-web/WEB-INF/classes/application.yml`:
+Add the following settings to `/usr/share/bbb-web/WEB-INF/classes/application.properties`:
 
-```yaml
-server:
-  servlet:
-    session:
-      cookie:
-        secure: true
-        SameSite: none
+```shell
+server.servlet.session.cookie.secure=true
+server.servlet.session.cookie.SameSite=none
 ```
+
 _**Note:** This change will be reverted with subsequent bbb-web updates. If you rely on the override, look to include it in a post-installation routine._
 
 ---

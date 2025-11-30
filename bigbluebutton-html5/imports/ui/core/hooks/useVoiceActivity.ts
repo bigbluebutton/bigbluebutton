@@ -1,5 +1,5 @@
 import logger from '/imports/startup/client/logger';
-import VOICE_ACTIVITY, { VoiceActivityResponse } from '/imports/ui/core/graphql/queries/whoIsTalking';
+import { VOICE_ACTIVITY, VoiceActivityResponse } from '/imports/ui/core/graphql/queries/voiceActivity';
 import useDeduplicatedSubscription from './useDeduplicatedSubscription';
 
 const useVoiceActivity = (skip = false) => {
@@ -11,7 +11,7 @@ const useVoiceActivity = (skip = false) => {
 
   if (error) {
     logger.error({
-      logCode: 'voice_activity_sub_error',
+      logCode: 'voice_activity_stream_error',
       extraInfo: {
         errorName: error.name,
         errorMessage: error.message,

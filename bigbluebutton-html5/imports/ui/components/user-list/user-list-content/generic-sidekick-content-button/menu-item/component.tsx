@@ -22,6 +22,13 @@ const GenericContentSidekickAreaMenuItem = ({
 }: GenericContentSidekickAreaMenuItemProps) => {
   const [nameReplacement, setNameReplacement] = useState(genericContentSidekickAreaObject.name);
   const [badgeContent, setBadgeContent] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (genericContentSidekickAreaObject.name !== nameReplacement) {
+      setNameReplacement(genericContentSidekickAreaObject.name);
+    }
+  }, [genericContentSidekickAreaObject]);
+
   useEffect(() => {
     if (genericContentSidekickAreaObject.open) {
       layoutContextDispatch({

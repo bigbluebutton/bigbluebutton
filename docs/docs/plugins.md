@@ -178,20 +178,21 @@ In the future, support for additional placeholders may be added.
 
 ### Manifest Json
 
-Here is as complete `manifest.json` example with all possible configurations:
+Here is a complete `manifest.json` example with all possible configurations:
 
 ```json
 {
   "requiredSdkVersion": "~0.0.77",
   "name": "MyPlugin",
+  "version": "0.0.8", // Optional
   "javascriptEntrypointUrl": "MyPlugin.js",
   "javascriptEntrypointIntegrity": "sha384-Bwsz2rxm...", // Optional
   "localesBaseUrl": "https://cdn.domain.com/my-plugin/", // Optional
   "dataChannels":[
     {
       "name": "public-channel",
-      "pushPermission": ["moderator","presenter"], // "moderator","presenter", "all"
-      "replaceOrDeletePermission": ["moderator", "creator"] // "moderator", "presenter","all", "creator"
+      "pushPermission": ["moderator","presenter"], // "moderator","presenter", "all", "viewer"
+      "replaceOrDeletePermission": ["moderator", "creator"] // "moderator", "presenter","all", "viewer", "creator"
     }
   ], // One can enable more data-channels to better organize client communication
   "eventPersistence": {
@@ -205,6 +206,9 @@ Here is as complete `manifest.json` example with all possible configurations:
       "permissions": ["moderator", "viewer"]
     }
   ],
+  "serverCommandsPermission": {
+    "chat.sendCustomPublicChatMessage": ["presenter", "moderator"] // "moderator","presenter", "all", "viewer"
+  },
   "settingsSchema": [
     {
       "name": "myJson",
@@ -221,9 +225,18 @@ Here is as complete `manifest.json` example with all possible configurations:
 
 To better understand remote-data-sources, please, refer to [this section](#external-data-resources)
 
+**version:**
+
+This refers to the version of the plugin. It prevents browsers from caching old plugin files.
+When set, it appends the version to `javascriptEntrypointUrl`, forcing browsers to fetch the latest file.
+Example: 
+`version=0.0.8`
+`javascriptEntrypointUrl=MyPlugin.js`
+Browser will load: `MyPlugin.js?version=0.0.8`.
+
 **settingsSchema:**
 
-The settingsSchema serves two main purposes:
+The `settingsSchema` serves two main purposes:
 
 1. **Validation:** Ensures that all required settings are provided for a plugin. If any required setting is missing, the plugin will not load.
 2. **Configuration Exposure:** Lists all available settings for the plugin, enabling external systems—such as a Learning Management System (LMS)—to present these settings to a meeting organizer. This allows the organizer to configure the plugin manually before the meeting begins.
@@ -897,7 +910,7 @@ The data-channel name must be in the `manifest.json` along with all the permissi
     {
       "name": "channel-name",
       "pushPermission": ["moderator","presenter"],
-      "replaceOrDeletePermission": ["moderator", "sender"]
+      "replaceOrDeletePermission": ["moderator", "creator"]
     }
   ]
 }
@@ -978,7 +991,7 @@ As seen for the `useUiData`, the return type is well defined by the enum chosen 
   - setSelfViewDisable: Sets the self-view camera disabled/enabled for specific camera.
 - chat:
   - form:
-    - open: this function will open the sidebar chat panel automatically;
+    - open: this function will open the sidebar chat panel automatically. Optionally accepts `{chatId: string}` to open a specific chat;
     - fill: this function will fill the form input field of the chat passed in the argument as `{text: string}`
 - conference:
   - setSpeakerLevel: this function will set the speaker volume level(audio output) of the conference to a certain number between 0 and 1;
@@ -995,9 +1008,18 @@ As seen for the `useUiData`, the return type is well defined by the enum chosen 
 - presentation-area:
   - open: this function will open the presentation area content automatically;
   - close: this function will close the presentation area content automatically;
-- sidekick-options-container:
+- sidekick-options-container: **(deprecated - use [sidekickArea](#sidekickarea-ui-commands) instead)**
   - open: this function will open the sidekick options panel automatically;
   - close: this function will close the sidekick options panel automatically (and also the sidebar content if open, to avoid inconsistencies in ui);
+- sidekickArea:
+  - options:
+    - panel:
+      - open: this function will open the sidekick container automatically;
+      - close: this function will close the sidekick container (and sidebar content panel) automatically;
+    - renameGenericContentMenu: this function renames the menu name (option's name) of a Generic Sidekick Content. Takes `id` (string) and `newName` (string) as parameters;
+    - renameGenericContentSection: this function renames the section name (section that the option belongs to) of a Generic Sidekick Content. Takes `id` (string) and `newName` (string) as parameters;
+    - setMenuBadge: this function sets a badge on the sidekick option menu. Takes `id` (string) and `badgeContent` (string) as parameters;
+    - removeMenuBadge: this function removes the badge from the sidekick option menu. Takes `id` (string) as parameter;
 - user-status:
   - setAwayStatus: this function will set the away status of the user to a certain status;
 
@@ -1012,19 +1034,81 @@ See usage ahead:
 
 So the idea is that we have a `uiCommands` object and at a point, there will be the command to do the intended action, such as open the chat form and/or fill it, as demonstrated above
 
+#### SidekickArea UI Commands
+
+The `sidekickArea` commands allow plugins to control and customize the sidekick panel and its content options. These commands are particularly useful when working with Generic Sidekick Content.
+
+**Panel Controls:**
+
+```ts
+// Open the sidekick container
+pluginApi.uiCommands.sidekickArea.options.panel.open();
+
+// Close the sidekick container
+pluginApi.uiCommands.sidekickArea.options.panel.close();
+```
+
+**Badge Management:**
+
+Badges are visual indicators that can be displayed on sidekick menu options to show notifications or counts.
+
+```ts
+// Set a badge on a sidekick menu option
+pluginApi.uiCommands.sidekickArea.options.setMenuBadge(
+  'my-sidekick-content-id',
+  '5'  // Badge content (e.g., notification count)
+);
+
+// Remove a badge from a sidekick menu option
+pluginApi.uiCommands.sidekickArea.options.removeMenuBadge('my-sidekick-content-id');
+```
+
+**Renaming Content:**
+
+```ts
+// Rename the menu option name
+pluginApi.uiCommands.sidekickArea.options.renameGenericContentMenu(
+  'my-sidekick-content-id',
+  'New Menu Name'
+);
+
+// Rename the section that contains the menu option
+pluginApi.uiCommands.sidekickArea.options.renameGenericContentSection(
+  'my-sidekick-content-id',
+  'New Section Name'
+);
+```
+
+For a complete working example, see the [sample-generic-content-sidekick-plugin](https://github.com/bigbluebutton/bigbluebutton-html-plugin-sdk/tree/v0.0.x/samples/sample-generic-content-sidekick-plugin) in the SDK repository.
+
 ### Server Commands
 
-  `serverCommands` object: It contains all the possible commands available to the developer to interact with the BBB core server, see the ones implemented down below:
+`serverCommands` object: It contains all the possible commands available to the developer to interact with the BBB core server, see the ones implemented down below:
 
   - chat:
-    - sendPublicMessage: This function sends a message to the public chat on behalf of the currently logged-in user.
-
-    - sendCustomPublicMessage: This function sends a text message to the public chat, optionally including custom metadata.
+    - sendChatMessage: This function sends a message to a specific chat by chatId on behalf of the currently logged-in user
+    - sendPublicChatMessage: This function sends a message to the public chat on behalf of the currently logged-in user
+    - sendCustomPublicMessage: This function sends a text message to the public chat, optionally including custom metadata
       > **Note**: The custom messages sent by plugins are not automatically rendered by the client. To display these messages, a plugin must handle the rendering using `useLoadedChatMessages` and `useChatMessageDomElements`.
+    - createPrivateChat: This function creates a private chat with a specific user
 
   - caption:
     - save: this function saves the given text, locale and caption type
     - addLocale: this function sends a locale to be added to the available options
+
+As these commands can change state in the back-end, "permission control" is available based on role for some of the Commands (in the manifest), those are:
+  - chat:
+    - sendCustomPublicMessage;
+
+An example of the usage is displayed in the [Manifest](#manifest-json) section, but in general the idea is to have a similar hierarchy as the server-commands from the SDK, see example ahead:
+
+```json
+"serverCommandsPermission": {
+  "chat.sendCustomPublicChatMessage": ["presenter"] // Could have all the other roles, see manifest section
+}
+```
+
+If no permission is present in the manifest, then we consider that every user in the meeting can use the server-command.
 
 ### Dom Element Manipulation
 
@@ -1062,12 +1146,12 @@ This is possible by simply configuring the dataResource name in the manifest and
 {
   // ...rest of manifest configuration
   "remoteDataSources": [
-      {
-          "name": "allUsers",
-          "url": "${meta_pluginSettingsUserInformation}",
-          "fetchMode": "onMeetingCreate", // Possible values: "onMeetingCreate", "onDemand"
-          "permissions": ["moderator", "viewer"] // Possible values: "moderator", "viewer", "presenter"
-      }
+    {
+      "name": "allUsers",
+      "url": "${meta_pluginSettingsUserInformation}",
+      "fetchMode": "onMeetingCreate", // Possible values: "onMeetingCreate", "onDemand"
+      "permissions": ["moderator", "viewer"] // Possible values: "moderator", "viewer", "presenter"
+    }
   ]
 }
 ```
@@ -1212,6 +1296,31 @@ Where `<meeting-id>` is the id of the the meeting you just recorded. Then, among
   <timestampUTC>1730311211929</timestampUTC>
 </event>
 ```
+
+## Guidelines
+
+This section outlines good practices for developing plugins.
+These are mandatory for official plugins developed by the BBB organization and its partners, in order to maintain reliability, security, and accountability.
+
+### Dom element manipulation guidelines
+
+Since plugins are loaded directly into the client, there is no technical restriction preventing developers from manipulating DOM elements arbitrarily. However, we strongly recommend following these practices:
+
+- Whenever possible, manipulate elements using the hooks provided by [dom-element-manipulation](#dom-element-manipulation);
+- If the functionality you need is not available, create an issue in the [SDK repository](https://github.com/bigbluebutton/bigbluebutton-html-plugin-sdk) or check if one of the [extensible areas](#extensible-ui-areas) can meet your needs;
+- **Never edit chat message contents directly** (even with DOM manipulation). Currently, the playback from the recordings portion of BBB does not support plugins or extensions. Any changes made to live chat messages (such as adding or removing words) will not be reflected in the recording, leading to inconsistencies and potential accountability issues.
+
+To emphasize: Do not alter the text content of chat messages. Doing so can cause severe reliability and accountability problems.
+
+Instead, the hook provided can be used to modify how messages are presented — for example, by changing the style to emphasize certain word(s), rendering a special layout for "notification" type messages (similar to the "change presenter" message), or even displaying both the original message text and additional custom-rendered UI elements.
+
+### Localization
+
+The Plugin SDK provides the `useLocaleMessages` hook, described in the [auxiliary functions](#auxiliary-functions) section. While its use is not mandatory, we highly recommend it because it handles certain edge cases that are otherwise difficult to predict.
+
+We also strongly encourage developers to include localization in their plugins. This greatly improves adoption and usability within the community.
+
+For a practical example, see how the [pick-random-user plugin](https://github.com/bigbluebutton/plugin-pick-random-user/blob/7259ec7f32ea0e3d851f4b6636a739a82a385896/src/commons/hooks.ts#L17) uses it in the `useGetInternationalization` hook.
 
 ## Frequently Asked Questions (FAQ)
 

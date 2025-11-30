@@ -82,7 +82,7 @@ Permission: Restricted to User Viewing Self-Related Data
 - `firstNameSortable`
 - `guest`
 - `guestStatus`
-- `hasDrawPermissionOnCurrentPage`
+- `whiteboardWriteAccess`
 - `inactivityWarningDisplay`
 - `inactivityWarningTimeoutSecs`
 - `isDialIn`
@@ -139,6 +139,7 @@ Permission: Restricted to User Viewing Self-Related Data
 - `deletedAt`
 - `editedAt`
 - `message`
+- `messageAsHtml`
 - `messageId`
 - `messageMetadata`
 - `messageSequence`
@@ -166,6 +167,7 @@ Permission: Restricted to User Viewing Self-Related Data
 - `deletedAt`
 - `editedAt`
 - `message`
+- `messageAsHtml`
 - `messageId`
 - `messageMetadata`
 - `messageSequence`
@@ -203,7 +205,7 @@ Permission: Restricted by Lock Settings
 - `firstNameSortable`
 - `guest`
 - `guestStatus`
-- `hasDrawPermissionOnCurrentPage`
+- `whiteboardWriteAccess`
 - `isDialIn`
 - `isModerator`
 - `isRunningEchoTest`
@@ -486,7 +488,6 @@ Permission: Restricted to Poll Owner or User Viewing Self-Related Data
 - `running`
 - `songTrack`
 - `startedAt`
-- `startedOn`
 - `stopwatch`
 - `time`
 
@@ -577,6 +578,17 @@ Permission: Restricted to Presenter
 - `toRoles`
 ### Relationships:
 - `creator: Object` [Type User](#type-user)
+
+## Type: pluginDataChannelEntry_public
+### Fields:
+- `channelName`
+- `createdAt`
+- `createdBy`
+- `entryId`
+- `payloadJson`
+- `pluginName`
+- `subChannelName`
+- `toRoles`
 
 ## Type: user_connectionStatus
 ### Fields:
@@ -677,7 +689,6 @@ Permission: Restricted to Moderators or the User Viewing Self-Related Data
 Permission: Restricted to User Viewing Self-Related Data
 ### Fields:
 - `chatId`
-- `isCurrentlyTyping`
 - `lastTypingAt`
 - `startedTypingAt`
 - `userId`
@@ -687,7 +698,6 @@ Permission: Restricted to User Viewing Self-Related Data
 ## Type: user_typing_public
 ### Fields:
 - `chatId`
-- `isCurrentlyTyping`
 - `lastTypingAt`
 - `startedTypingAt`
 - `userId`

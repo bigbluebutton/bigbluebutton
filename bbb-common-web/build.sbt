@@ -1,6 +1,6 @@
 import org.bigbluebutton.build._
 
-version := "0.0.4-SNAPSHOT"
+version := "0.0.5-SNAPSHOT"
 
 val compileSettings = Seq(
   organization := "org.bigbluebutton",
@@ -102,9 +102,10 @@ licenses := Seq("LGPL-3.0" -> url("http://opensource.org/licenses/LGPL-3.0"))
 homepage := Some(url("http://www.bigbluebutton.org"))
 
 libraryDependencies ++= Seq(
-  "javax.validation" % "validation-api" % "2.0.1.Final",
-  "org.springframework.boot" % "spring-boot-starter-validation" % "2.7.17",
-  "org.springframework.data" % "spring-data-commons" % "2.7.6",
+  "jakarta.validation" % "jakarta.validation-api" % "3.0.2",
+  "org.springframework.data" % "spring-data-commons" % "3.4.4",
+  "org.hibernate.validator" % "hibernate-validator" % "8.0.1.Final",
+  "org.glassfish" % "jakarta.el" % "4.0.2",
   "org.apache.httpcomponents" % "httpclient" % "4.5.13",
   "org.postgresql" % "postgresql" % "42.7.2",
   "org.hibernate" % "hibernate-core" % "5.6.1.Final",
@@ -115,5 +116,7 @@ libraryDependencies ++= Seq(
   "org.apache.tika" % "tika-parsers-standard-package" % "3.0.0",
   "org.scala-lang.modules" %% "scala-xml" % "2.2.0",
   "jakarta.ws.rs" % "jakarta.ws.rs-api" % "3.1.0",
-  "xyz.capybara" % "clamav-client" % "2.1.2"
+  "xyz.capybara" % "clamav-client" % "2.1.2",
+  "jakarta.servlet" % "jakarta.servlet-api" % "6.0.0" % "provided",
+  "jakarta.annotation" % "jakarta.annotation-api" % "2.1.1"
 )
