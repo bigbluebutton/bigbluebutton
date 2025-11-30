@@ -996,6 +996,7 @@ public:
     allowDownloadOriginal: true
     allowDownloadWithAnnotations: true
     allowSnapshotOfCurrentSlide: true
+    allowPopupPresentation: false
     panZoomThrottle: 32
     restoreOnUpdate: true
     uploadEndpoint: '/bigbluebutton/presentation/upload'

@@ -129,10 +129,12 @@ class App extends Component {
     };
 
     this.timeOffsetInterval = null;
+    this.isPopupOnPreparation = false;
 
     this.setPresentationFitToWidth = this.setPresentationFitToWidth.bind(this);
     this.customPollShortcutHandler = this.customPollShortcutHandler.bind(this);
     this.logJoin = this.logJoin.bind(this);
+    this.handlePopupPreparing = this.handlePopupPreparing.bind(this);
   }
 
   componentDidMount() {
@@ -274,6 +276,10 @@ class App extends Component {
     }
   }
 
+  handlePopupPreparing(b) {
+    this.isPopupOnPreparation = b;
+  }
+
   renderDarkMode() {
     const { darkTheme } = this.props;
 
@@ -284,6 +290,7 @@ class App extends Component {
     const {
       hideActionsBar,
       presentationIsOpen,
+      isPresentationDetached,
     } = this.props;
 
     if (hideActionsBar) return null;
@@ -292,6 +299,7 @@ class App extends Component {
       <ActionsBarContainer
         presentationIsOpen={presentationIsOpen}
         setPresentationFitToWidth={this.setPresentationFitToWidth}
+        isPresentationDetached={isPresentationDetached}
       />
     );
   }
@@ -336,6 +344,9 @@ class App extends Component {
       isNotificationEnabled,
       isNonMediaLayout,
       isRaiseHandEnabled,
+      popupWindow,
+      isPresentationDetached,
+      toggleDetachPresentation,
     } = this.props;
 
     const {
@@ -364,7 +375,7 @@ class App extends Component {
           <ActivityCheckContainer />
           <ScreenReaderAlertContainer />
           <BannerBarContainer />
-          <NotificationsBarContainer />
+          <NotificationsBarContainer isPopupOnPreparation={this.isPopupOnPreparation} />
           <SidebarNavigationContainer />
           <SidebarContentContainer isSharedNotesPinned={isSharedNotesPinned} />
           <NavBarContainer main="new" />
@@ -384,6 +395,10 @@ class App extends Component {
                 fitToWidth={presentationFitToWidth}
                 darkTheme={darkTheme}
                 presentationIsOpen={presentationIsOpen}
+                popupWindow={popupWindow}
+                isPresentationDetached={isPresentationDetached}
+                toggleDetachPresentation={toggleDetachPresentation}
+                onPopupPreparing={this.handlePopupPreparing}
               />
             )
             : null

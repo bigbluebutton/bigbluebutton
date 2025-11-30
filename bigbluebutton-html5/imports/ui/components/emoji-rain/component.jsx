@@ -2,6 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import Service from './service';
 import logger from '/imports/startup/client/logger';
+//import { originalRAF } from '/imports/utils/animationFrameBackup';
 
 const EmojiRain = ({ reactions }) => {
   const Settings = getSettingsSingletonInstance();
@@ -57,6 +58,8 @@ const EmojiRain = ({ reactions }) => {
     }
 
     requestAnimationFrame(() => setTimeout(() => flyingEmojis.forEach((emoji) => {
+    // No effect observed (emoji rain works without using originalRAF). So removed.
+    //originalRAF(() => setTimeout(() => flyingEmojis.forEach((emoji) => {
       const { shapeElement, endPosition } = emoji;
       shapeElement.style.left = `${endPosition.x}px`;
       shapeElement.style.top = `${endPosition.y}px`;

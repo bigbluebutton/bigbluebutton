@@ -164,7 +164,9 @@ const PresentationToolbar = styled.div`
   order: 2;
   position: absolute;
   bottom: 0;
-  z-index: 0;
+  // has to be 1 for showing dropdown on the popupWindow,
+  //  as both presentationInnerWrapper and presentationToolbarWrapper are 'z-index: 1'.
+  z-index: ${({ isPresentationDetached }) => (isPresentationDetached ? 1 : 0)};
 `;
 
 const ToastSeparator = styled(ToastStyled.Separator)``;

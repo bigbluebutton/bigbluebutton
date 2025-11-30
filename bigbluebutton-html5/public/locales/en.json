@@ -274,6 +274,8 @@
     "app.presentation.options.downloading": "Downloading...",
     "app.presentation.options.downloaded": "The current presentation has been downloaded",
     "app.presentation.options.downloadFailed": "Could not download current presentation",
+    "app.presentation.options.detachPopup": "Popup presentation",
+    "app.presentation.options.mergePopup": "Merge presentation popup",
     "app.presentation.presentationToolbar.noNextSlideDesc": "End of presentation",
     "app.presentation.presentationToolbar.noPrevSlideDesc": "Start of presentation",
     "app.presentation.presentationToolbar.selectLabel": "Select slide",

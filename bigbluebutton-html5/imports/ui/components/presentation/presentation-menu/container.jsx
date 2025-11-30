@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import PresentationMenu from './component';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
 import { layoutSelect, layoutDispatch } from '/imports/ui/components/layout/context';
-import { useIsSnapshotOfCurrentSlideEnabled } from '/imports/ui/services/features';
+import { useIsSnapshotOfCurrentSlideEnabled, useIsPopupPresentationEnabled } from '/imports/ui/services/features';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 
@@ -34,9 +34,10 @@ const PresentationMenuContainer = (props) => {
     name: meeting?.name,
   }));
 
-  const handleToggleFullscreen = (ref) => FullscreenService.toggleFullScreen(ref);
+  const handleToggleFullscreen = (ref, isdetached, popup) => FullscreenService.toggleFullScreen(ref, isdetached, popup);
   const isIphone = !!(navigator.userAgent.match(/iPhone/i));
   const allowSnapshotOfCurrentSlide = useIsSnapshotOfCurrentSlideEnabled();
+  const allowPopupPresentation = useIsPopupPresentationEnabled();
 
   return (
     <PresentationMenu
@@ -53,6 +54,7 @@ const PresentationMenuContainer = (props) => {
         handleToggleFullscreen,
         isIphone,
         allowSnapshotOfCurrentSlide,
+        allowPopupPresentation,
         persistShape,
       }}
     />

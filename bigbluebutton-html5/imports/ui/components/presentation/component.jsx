@@ -1,4 +1,5 @@
 import React, { PureComponent } from 'react';
+import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import WhiteboardContainer from '/imports/ui/components/whiteboard/container';
 import { HUNDRED_PERCENT, MAX_PERCENT, MIN_PERCENT } from '/imports/utils/slideCalcUtils';
@@ -6,6 +7,7 @@ import { SPACE } from '/imports/utils/keyCodes';
 import { defineMessages, injectIntl } from 'react-intl';
 import Session from '/imports/ui/services/storage/in-memory';
 import PresentationToolbarContainer from './presentation-toolbar/container';
+import PresentationMenuContainer from './presentation-menu/container';
 import PresentationMenu from './presentation-menu/container';
 import DownloadPresentationButton from './download-presentation-button/component';
 import Styled from './styles';
@@ -18,9 +20,11 @@ import browserInfo from '/imports/utils/browserInfo';
 import { addAlert } from '../screenreader-alert/service';
 import { debounce } from '/imports/utils/debounce';
 import { throttle } from '/imports/utils/throttle';
+import { originalRAF, originalCAF } from '/imports/utils/animationFrameBackup';
 import LocatedErrorBoundary from '/imports/ui/components/common/error-boundary/located-error-boundary/component';
 import FallbackView from '/imports/ui/components/common/fallback-errors/fallback-view/component';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
+import { StyleSheetManager } from 'styled-components';
 
 const intlMessages = defineMessages({
   presentationLabel: {
@@ -58,9 +62,9 @@ const FULLSCREEN_CHANGE_EVENT = isSafari
   ? 'webkitfullscreenchange'
   : 'fullscreenchange';
 
-const getToolbarHeight = () => {
+const getToolbarHeight = (doc = document) => {
   let height = 0;
-  const toolbarEl = document.getElementById('presentationToolbarWrapper');
+  const toolbarEl = doc.getElementById('presentationToolbarWrapper');
   if (toolbarEl) {
     const { clientHeight } = toolbarEl;
     height = clientHeight;
@@ -102,6 +106,8 @@ class Presentation extends PureComponent {
     this.setIsToolbarVisible = this.setIsToolbarVisible.bind(this);
     this.handlePanShortcut = this.handlePanShortcut.bind(this);
     this.renderPresentationMenu = this.renderPresentationMenu.bind(this);
+    this.renderPresentationContents = this.renderPresentationContents.bind(this);
+    this.detachPresentation = this.detachPresentation.bind(this);
 
     this.onResize = () => setTimeout(this.handleResize.bind(this), 0);
     this.setPresentationRef = this.setPresentationRef.bind(this);
@@ -330,9 +336,19 @@ class Presentation extends PureComponent {
 
   componentWillUnmount() {
     Session.setItem('componentPresentationWillUnmount', true);
-    const { fullscreenContext, layoutContextDispatch } = this.props;
+    const {
+      fullscreenContext,
+      layoutContextDispatch,
+      isPresentationDetached,
+      popupWindow,
+    } = this.props;
 
-    window.removeEventListener('resize', this.onResize, false);
+    if (isPresentationDetached) {
+      popupWindow.removeEventListener('resize', this.onResize, false);
+    } else {
+      window.removeEventListener('resize', this.onResize, false);
+    }
+    
     if (this.refPresentationContainer) {
       this.refPresentationContainer.removeEventListener(
         FULLSCREEN_CHANGE_EVENT,
@@ -359,6 +375,257 @@ class Presentation extends PureComponent {
     }
   }
 
+  detachPresentation() {
+    const {
+      slidePosition,
+      isPresentationDetached,
+      popupWindow,
+      toggleDetachPresentation,
+      onPopupPreparing,
+    } = this.props;
+
+    
+    if (!isPresentationDetached) {
+      // Quit fullscreen first when detach fullscreen presentation
+      // This will however keep the popup window size same as fullscreen.
+      if (window.document.fullscreenElement != null) {
+        this.onFullscreenChange();
+      }
+
+      const svgDimensions = this.calculateSize(slidePosition);
+      const toolbarHeight = getToolbarHeight();
+      const popup = window.open('', '_blank',
+        `innerwidth=${svgDimensions.width},innerheight=${svgDimensions.height + toolbarHeight},resizable,scrollbars`);
+      if (!popup) return;
+      popup.document.title = 'BigBlueButton Portal Window';
+      const container = popup.document.createElement('div');
+      popup.document.body.appendChild(container);
+
+      // popup window is still in preparation, so some graphql subscription fails,
+      //  which then will show the notification bar. We want to surpress it.
+      onPopupPreparing?.(true);
+
+      // Copying the attributes of <html>, so that the bbb-icons font looks a bit smaller
+      const mainHtml = document.documentElement; // メインウィンドウの <html>
+      const popupHtml = popup.document.documentElement;
+      // class
+      popupHtml.className = mainHtml.className;
+      // style, which includes font-size: 14px
+      popupHtml.style.cssText = mainHtml.style.cssText;
+      // dir
+      if (mainHtml.hasAttribute('dir')) {
+        popupHtml.setAttribute('dir', mainHtml.getAttribute('dir'));
+      } else {
+        popupHtml.removeAttribute('dir');
+      }
+      // lang
+      if (mainHtml.hasAttribute('lang')) {
+        popupHtml.setAttribute('lang', mainHtml.getAttribute('lang'));
+      } else {
+        popupHtml.removeAttribute('dir');
+      }
+
+      // headの中身をコピー
+      const headElements = document.head.cloneNode(true).childNodes;
+      headElements.forEach((node) => {
+        // script要素など重複実行したくないものを除外する
+        if (node.nodeName !== 'SCRIPT') {
+          popup.document.head.appendChild(node.cloneNode(true));
+        }
+      });
+
+      // Firefox specific configuration
+      const isFirefox = navigator.userAgent.toLowerCase().includes('firefox');
+      if (isFirefox) {
+        // Add base URL (perhaps only necessary for Firefox to show tldraw icons
+        const base = popup.document.createElement('base');
+        base.href = window.location.origin + '/';
+        popup.document.head.appendChild(base);
+
+        // Explicitely copy bbb-icons.css to show bbb-icons
+        fetch('stylesheets/bbb-icons.css')
+          .then(res => res.text())
+          .then(css => {
+            const style = popup.document.createElement('style');
+            style.textContent = css;
+            popup.document.head.appendChild(style);
+          });
+        // Explicitly set FontFace to show bbb-icons
+        const fonts = [
+          { name: 'bbb-icons', url: '/html5client/fonts/BbbIcons/bbb-icons.woff2' },
+        ];
+        fonts.forEach(({ name, url }) => {
+          const font = new FontFace(name, `url(${window.location.origin}${url})`);
+          font.load().then(loaded => popup.document.fonts.add(loaded));
+        });
+      }
+
+      // 追加: document.styleSheets からすべての stylesheet を popup に複製
+      //Array.from(document.styleSheets).forEach((styleSheet) => {
+      //  try {
+      //    if (styleSheet.href) {
+      //      // <link rel="stylesheet"> 形式
+      //      const link = popup.document.createElement('link');
+      //      link.rel = 'stylesheet';
+      //      link.href = styleSheet.href;
+      //      popup.document.head.appendChild(link);
+      //    } else if (styleSheet.cssRules) {
+      //      // <style> 形式（インラインスタイル）
+      //      const style = popup.document.createElement('style');
+      //      Array.from(styleSheet.cssRules).forEach((rule) => {
+      //        style.appendChild(popup.document.createTextNode(rule.cssText));
+      //      });
+      //      popup.document.head.appendChild(style);
+      //    }
+      //  } catch (e) {
+      //    // クロスオリジンのスタイルシートにはアクセスできないことがある
+      //    console.warn('Failed to copy style sheets:', e);
+      //  }
+      //});
+
+      // Remove all the data-styled (generated by Styled.TldrawV2GlobalStyle in whiteboard/styles.js) tags
+      //  to prevent from being overwritten. Otherwise the alighment of WB toolbar is broken when resized.
+      //   -> not necessary anymore by whatever reasons
+      //popup.document
+      //  .querySelectorAll('style[data-styled]')
+      //  .forEach(el => el.remove());
+
+      // tldraw-original(?) fonts injection,
+      //  this fix the inconsistency of var(--tl-font-draw) between popup and main window.
+      const fonts = [
+        { name: 'tldraw_draw', url: '/html5client/fonts/tldraw/Shantell_Sans-Tldrawish.woff2' },
+        { name: 'tldraw_sans', url: '/html5client/fonts/tldraw/IBMPlexSans-Medium.woff2' },
+        { name: 'tldraw_serif', url: '/html5client/fonts/tldraw/IBMPlexSerif-Medium.woff2' },
+        { name: 'tldraw_mono', url: '/html5client/fonts/tldraw/IBMPlexMono-Medium.woff2' },
+      ];
+      fonts.forEach(({ name, url }) => {
+        const font = new FontFace(name, `url(${window.location.origin}${url})`);
+        font.load().then(loaded => popup.document.fonts.add(loaded));
+      });
+
+      // Remove cursor style from the class tl-canvas,
+      //  otherwise cursor stays the same when pencil, text, line, note
+      //  tools are selected before popping up.
+      // Remove height from the class tlui-toolbar__tools
+      //  and remove height and width from the class tlui-icon,
+      //  otherwise toolbar shrunken when enlarging the popup window
+      //  that was detached when the toolbar was horizontally arranged.
+      Array.from(popup.document.styleSheets).forEach(styleSheet => {
+        try {
+          const rules = styleSheet.cssRules || styleSheet.rules;
+          if (!rules) return;
+
+          for (let i = rules.length - 1; i >= 0; i--) {
+            const rule = rules[i];
+            if (rule.selectorText && rule.selectorText.includes('.tl-canvas')) {
+              if (rule.style && rule.style.cursor) {
+                if ((rule.style.cursor.indexOf('pencil.png') > -1) ||
+                    (rule.style.cursor.indexOf('text.png') > -1) ||
+                   (rule.style.cursor.indexOf('line.png') > -1) ||
+                    (rule.style.cursor.indexOf('square.png') > -1) ){
+                  rule.style.removeProperty('cursor');
+                }
+              }
+            } else if
+               (rule.selectorText &&
+                rule.selectorText.includes('.tlui-toolbar__tools.tlui-toolbar__tools__mobile')) {
+              if (rule.style && rule.style.height) {
+                rule.style.removeProperty('height');
+              }
+            } else if
+               (rule.selectorText &&
+                rule.selectorText.includes('.tlui-layout__mobile .tlui-button__tool > .tlui-icon')) {
+              if (rule.style && rule.style.height) {
+                rule.style.removeProperty('height');
+              }
+              if (rule.style && rule.style.width) {
+                rule.style.removeProperty('width');
+              }
+            }
+          }
+        } catch (e) {
+          console.warn('Failed to copy style sheets:', e);
+        }
+      });
+
+      // When screenshare, sharing camera as contents, or sharing media is started,
+      //  the contents of popup is removed, yet leaving a blank popup.
+      //  -> fixed. This may not be necessary.
+      //const observedTarget = popup.document.body;
+      //const nullObserver = new MutationObserver(() => {
+      //  if (observedTarget.innerHTML.trim() === '<div></div>') {
+      //    console.log("Popup content removed. Closing...");
+      //    popup.close();
+      //    toggleDetachPresentation(null);
+      //    nullObserver.disconnect();
+      //  }
+      //});
+      //nullObserver.observe(observedTarget, { childList: true, subtree: true, characterData: true });
+
+      // Globally inject popup.requestAnimationFrame to requestAnimationFrame for internal usage of tldraw.
+      // These changes enable fullscreen of popup window in the main monitor.
+      if (popup.requestAnimationFrame) {
+        window.requestAnimationFrame = popup.requestAnimationFrame.bind(popup);
+      }
+      if (popup.cancelAnimationFrame) {
+        window.cancelAnimationFrame = popup.cancelAnimationFrame.bind(popup);
+      }
+
+      toggleDetachPresentation(popup);
+      popup.addEventListener('beforeunload', () => {
+        onPopupPreparing?.(false); // Only when the popup is closed very quickly, but may not be necessary..
+        // Revert the injection of popup.rAF/cAF
+        window.requestAnimationFrame = originalRAF;
+        window.cancelAnimationFrame = originalCAF;
+        toggleDetachPresentation(null);
+      });
+      
+      popup.addEventListener('resize', () => {
+        this.onResize();
+      });
+      
+      popup.addEventListener(FULLSCREEN_CHANGE_EVENT, () => {
+        const isFullscreen = popup.document.fullscreenElement != null
+        if (!isFullscreen)  {
+          // When the popup went normal window from fullscreen by pushing ESC key,
+          //  we need to explicitely change isFullscreen in presentation-menu/container.
+          // To do it, we have send null to ACTIONS.SET_FULLSCREEN_ELEMENT.
+          this.props.layoutContextDispatch({
+            type: ACTIONS.SET_FULLSCREEN_ELEMENT,
+            value: { element: '', group: '' },
+          });
+        }
+        // Then normal fullscreen change (by button or ESC)
+        this.onFullscreenChange();
+      });
+      
+      // when the canvas of tldraw is drawn on the popup,
+      //  we will set false to isPopupOnPreparation.
+      // Then the notification bar with 3006 error becomes accepted again.
+      const tlContainer = popup.document.querySelector('.tl-container');
+      const observerTlCanvas = new MutationObserver((__, obs) => {
+        const tlCanvas = popup.document.querySelector('.tl-canvas');
+        if (tlCanvas) {
+          onPopupPreparing?.(false);
+          obs.disconnect();
+        }
+      });
+      //observerTlCanvas.observe(popup.document.body, { childList: true, subtree: true });
+      observerTlCanvas.observe(tlContainer, { childList: true, subtree: true });
+        
+    } else {
+      // to explicitely exit fullsreen; we do not need setState "isFullscreen: false".
+      //  (in case user directly merge popup when it is fullscreen)
+      this.props.layoutContextDispatch({
+        type: ACTIONS.SET_FULLSCREEN_ELEMENT,
+        value: { element: '', group: '' },
+      });
+      // Basically the app does not reach here...
+      popupWindow?.close();
+      toggleDetachPresentation(null);
+    }
+  }
+
   handlePanShortcut(e) {
     const { userIsPresenter } = this.props;
     const { isPanning } = this.state;
@@ -375,7 +642,40 @@ class Presentation extends PureComponent {
   }
 
   handleResize() {
-    const presentationSizes = this.getPresentationSizesAvailable();
+    const {
+      isPresentationDetached,
+      popupWindow,
+    } = this.props;
+
+    let presentationSizes;
+    if (isPresentationDetached) {
+      const toolbarHeight = getToolbarHeight(popupWindow.document);
+      presentationSizes = {
+        //popupWindow.document.documentElement.clientHeight could be zero on Firefox!
+        //presentationHeight: popupWindow.document.documentElement.clientHeight - toolbarHeight,
+        //presentationWidth: popupWindow.document.documentElement.clientWidth,
+        presentationHeight: popupWindow.innerHeight - toolbarHeight,
+        presentationWidth: popupWindow.innerWidth,
+      };
+      // Just a test
+      //this.zoomChanger(200);
+      //tldrawAPI.setZoom(5.0);
+      
+      // To fix a problem that a slide does not follow the window resizing,
+      //  drawing a large bg SVG behind the small un-resized bgSVG when expanding the window.
+      // This problem only happens in the popup window of MacOS Safari..
+      if (/^((?!chrome|android).)*safari/i.test(navigator.userAgent)) {
+        const images = popupWindow.document.querySelectorAll('.tl-image');
+        if (images.length > 0) {
+          images.forEach(div => {
+            div.style.webkitTransform = 'translateZ(0)'; // this forces redrawing.
+          });
+        }
+      }
+    } else {
+      presentationSizes = this.getPresentationSizesAvailable();
+    }
+    //console.log("handleResize", presentationSizes);
     if (Object.keys(presentationSizes).length > 0) {
       // updating the size of the space available for the slide
       if (!Session.getItem('componentPresentationWillUnmount')) {
@@ -388,10 +688,18 @@ class Presentation extends PureComponent {
   }
 
   onFullscreenChange() {
-    const { isFullscreen } = this.state;
-    const newIsFullscreen = FullscreenService.isFullScreen(
-      this.refPresentationContainer,
-    );
+    const {
+      isFullscreen,
+    } = this.state;
+
+    const {
+      isPresentationDetached,
+      popupWindow,
+    } = this.props;
+
+    const newIsFullscreen = isPresentationDetached ?
+      FullscreenService.isFullScreen( popupWindow.document.documentElement, popupWindow.document) :
+      FullscreenService.isFullScreen( this.refPresentationContainer);
     if (isFullscreen !== newIsFullscreen) {
       this.setState({ isFullscreen: newIsFullscreen });
     }
@@ -577,6 +885,8 @@ class Presentation extends PureComponent {
       userIsPresenter,
       hasPoll,
       currentPresentationPage,
+      isPresentationDetached,
+      popupWindow,
     } = this.props;
     const { zoom, isPanning, tldrawAPI } = this.state;
 
@@ -621,6 +931,8 @@ class Presentation extends PureComponent {
         numberOfSlides={totalPages}
         layoutSwapped={false}
         hasPoll={hasPoll}
+        isPresentationDetached={isPresentationDetached}
+        popupWindow={popupWindow}
       />
     );
   }
@@ -650,6 +962,8 @@ class Presentation extends PureComponent {
       userIsPresenter,
       currentSlide,
       currentUser,
+      isPresentationDetached,
+      popupWindow,
     } = this.props;
     const { tldrawAPI, isToolbarVisible } = this.state;
 
@@ -666,11 +980,14 @@ class Presentation extends PureComponent {
         slideNum={currentSlide?.num}
         currentUser={currentUser}
         whiteboardId={currentSlide?.id}
+        detachPresentation={this.detachPresentation}
+        isPresentationDetached={isPresentationDetached}
+        popupWindow={popupWindow}
       />
     );
   }
 
-  render() {
+  renderPresentationContents() {
     const {
       userIsPresenter,
       hasWBAccess,
@@ -693,6 +1010,8 @@ class Presentation extends PureComponent {
       initialPageAnnotations,
       refetchInitialPageAnnotations,
       restoreOnUpdate,
+      isPresentationDetached,
+      popupWindow,
     } = this.props;
 
     const {
@@ -729,7 +1048,7 @@ class Presentation extends PureComponent {
     const svgHeight = svgDimensions.height;
     const svgWidth = svgDimensions.width;
 
-    const toolbarHeight = getToolbarHeight();
+    const toolbarHeight = getToolbarHeight(isPresentationDetached && popupWindow ? popupWindow.document : document);
 
     const { presentationToolbarMinWidth } = DEFAULT_VALUES;
 
@@ -771,11 +1090,14 @@ class Presentation extends PureComponent {
             this.refPresentationContainer = ref;
           }}
           style={{
-            top: presentationBounds.top,
-            left: presentationBounds.left,
-            right: presentationBounds.right,
-            width: presentationBounds.width,
-            height: presentationBounds.height,
+            top: isPresentationDetached ? 0 : presentationBounds.top,
+            left: isPresentationDetached ? 0 : presentationBounds.left,
+            right: isPresentationDetached ? 0 : presentationBounds.right,
+            //These do not work on Firefox
+            //width: isPresentationDetached ? popupWindow.document.documentElement.clientWidth : presentationBounds.width,
+            //height: isPresentationDetached ? popupWindow.document.documentElement.clientHeight : presentationBounds.height,
+            width: isPresentationDetached ? popupWindow.innerWidth : presentationBounds.width,
+            height: isPresentationDetached ? popupWindow.innerHeight : presentationBounds.height,
             display: !presentationIsOpen ? 'none' : 'flex',
             overflow: 'hidden',
             zIndex: !isVideoFocus ? presentationZIndex : 1,
@@ -847,8 +1169,12 @@ class Presentation extends PureComponent {
                     intl={intl}
                     presentationWidth={svgWidth}
                     presentationHeight={svgHeight}
-                    presentationAreaHeight={presentationBounds.height - toolbarHeight}
-                    presentationAreaWidth={presentationBounds.width}
+                    presentationAreaHeight={isPresentationDetached ?
+                      popupWindow.innerHeight - toolbarHeight :
+                      presentationBounds.height - toolbarHeight}
+                    presentationAreaWidth={isPresentationDetached ?
+                      popupWindow.innerWidth :
+                      presentationBounds.width}
                     isPanning={isPanning}
                     zoomChanger={this.zoomChanger}
                     fitToWidth={fitToWidth}
@@ -868,6 +1194,8 @@ class Presentation extends PureComponent {
                     initialPageAnnotations={initialPageAnnotations}
                     refetchInitialPageAnnotations={refetchInitialPageAnnotations}
                     restoreOnUpdate={restoreOnUpdate}
+                    isPresentationDetached={isPresentationDetached}
+                    popupWindow={popupWindow}
                   />
                 </LocatedErrorBoundary>
                 {isFullscreen && <PollingContainer />}
@@ -880,6 +1208,7 @@ class Presentation extends PureComponent {
                   style={{
                     width: containerWidth,
                   }}
+                  isPresentationDetached={isPresentationDetached}
                 >
                   {this.renderPresentationToolbar(svgWidth)}
                 </Styled.PresentationToolbar>
@@ -889,6 +1218,30 @@ class Presentation extends PureComponent {
         </Styled.PresentationContainer>
       </>
     );
+  }
+
+  render() {
+    const {
+      isPresentationDetached,
+      popupWindow,
+    } = this.props;
+
+    const presentationContent = this.renderPresentationContents();
+
+    if (isPresentationDetached && popupWindow?.document?.head) {
+      return ReactDOM.createPortal(
+        /* Use StyleSheetManager to inject dynamic stylesheet elements of styled component */
+        /*  such as isToolbarVisible of Styled.TldrawV2GlobalStyle in whiteboard/styles.js */
+        <StyleSheetManager
+          target={popupWindow.document.head}
+        >   
+          {presentationContent}
+        </StyleSheetManager>,
+        popupWindow.document.body
+      );
+    }
+    
+    return presentationContent;
   }
 }
 
