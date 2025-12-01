@@ -41,8 +41,14 @@ RUN find /app/dist -name '*.js' -exec gzip -k -f -9 '{}' \; \
 # Stage 2: Runtime
 FROM nginx:stable-alpine
 
+# Create non-root user early so we can use --chown on COPY
+RUN addgroup -g 998 -S bigbluebutton \
+ && adduser -u 998 -S -G bigbluebutton bigbluebutton
+
 RUN mkdir -p /usr/share/bigbluebutton/html5-client
 COPY --from=build /app/dist /usr/share/bigbluebutton/html5-client
+RUN chown -R bigbluebutton:bigbluebutton /usr/share/bigbluebutton/html5-client
+
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
@@ -51,9 +57,16 @@ RUN sed -i 's|server_name\s\+[0-9.]*;|server_name _;|g' /etc/nginx/conf.d/defaul
     sed -i 's|listen\s\+\[\:\:\]\:80;|listen [::]:8080;|g' /etc/nginx/conf.d/default.conf && \
     sed -i '/^}/i\    include /etc/nginx/conf.d/bbb-html5.nginx;' /etc/nginx/conf.d/default.conf
 
+
+COPY ./docker/nginx.conf  /etc/nginx/nginx.conf
+
 COPY --from=client-build bbb-html5.nginx.static /etc/nginx/conf.d/bbb-html5.nginx
 
+RUN chown -R bigbluebutton:bigbluebutton /etc/nginx
+
 EXPOSE 8080
+
+USER bigbluebutton
 
 # The number of nginx workers can be overwritten
 # with the env variable BBB_HTML5_CLIENT_NGINX_WORKERS

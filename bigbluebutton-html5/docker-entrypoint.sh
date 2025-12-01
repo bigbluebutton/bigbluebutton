@@ -5,6 +5,6 @@
 
 : "${BBB_HTML5_CLIENT_NGINX_WORKERS:=1}"
 
-sed -i "s/worker_processes\s*\([0-9]\+\|auto\);/worker_processes ${BBB_HTML5_CLIENT_NGINX_WORKERS};/" /etc/nginx/nginx.conf
+sed -i "s/worker_processes 1;/worker_processes ${BBB_HTML5_CLIENT_NGINX_WORKERS};/" /etc/nginx/nginx.conf
 
 exec "$@"
