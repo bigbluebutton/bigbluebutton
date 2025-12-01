@@ -72,6 +72,8 @@ public interface IBbbWebApiGWApp {
                      Boolean notifyRecordingIsOn,
                      String presentationUploadExternalDescription,
                      String presentationUploadExternalUrl,
+                     String persistentStateUrl,
+                     String sharedNotesInitialContent,
                      Map<String, Object> plugins,
                      String html5PluginSdkVersion,
                      String overrideClientSettings);

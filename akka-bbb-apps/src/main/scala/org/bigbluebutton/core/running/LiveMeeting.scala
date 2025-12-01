@@ -27,4 +27,5 @@ class LiveMeeting(
     val guestsWaiting:       GuestsWaiting,
     val clientSettings:      Map[String, Object],
     val plugins:             PluginModel,
+    var sharedNotesHtml:     String,
 )

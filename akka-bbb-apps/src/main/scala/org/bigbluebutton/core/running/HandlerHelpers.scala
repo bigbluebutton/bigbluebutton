@@ -1,18 +1,28 @@
 package org.bigbluebutton.core.running
 
+import com.google.gson.Gson
+import org.apache.commons.lang3.StringUtils
 import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.api.{ BreakoutRoomEndedInternalMsg, DestroyMeetingInternalMsg, EndBreakoutRoomInternalMsg }
+import org.bigbluebutton.core.api.{BreakoutRoomEndedInternalMsg, DestroyMeetingInternalMsg, EndBreakoutRoomInternalMsg}
 import org.bigbluebutton.core.apps.groupchats.GroupChatApp
 import org.bigbluebutton.core.apps.users.UsersApp
 import org.bigbluebutton.core.apps.voice.VoiceApp
-import org.bigbluebutton.core.bus.{ BigBlueButtonEvent, InternalEventBus }
-import org.bigbluebutton.core.db.{ BreakoutRoomUserDAO, MeetingDAO, MeetingRecordingDAO, NotificationDAO, UserBreakoutRoomDAO }
-import org.bigbluebutton.core.domain.{ MeetingEndReason, MeetingState2x }
+import org.bigbluebutton.core.bus.{BigBlueButtonEvent, InternalEventBus}
+import org.bigbluebutton.core.db.{MeetingDAO, MeetingRecordingDAO, NotificationDAO, UserBreakoutRoomDAO}
+import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models._
-import org.bigbluebutton.core2.MeetingStatus2x
-import org.bigbluebutton.core2.message.senders.{ MsgBuilder, UserJoinedMeetingEvtMsgBuilder }
 import org.bigbluebutton.core.util.TimeUtil
+import org.bigbluebutton.core2.MeetingStatus2x
+import org.bigbluebutton.core2.MeetingStatus2x.getPermissions
+import org.bigbluebutton.core2.message.senders.{MsgBuilder, UserJoinedMeetingEvtMsgBuilder}
+import org.slf4j.LoggerFactory
+
+import java.io.ByteArrayOutputStream
+import java.net.URI
+import java.net.http.HttpRequest.BodyPublishers
+import java.net.http.{HttpClient, HttpRequest, HttpResponse}
+import java.util.zip.{ZipEntry, ZipOutputStream}
 
 trait HandlerHelpers extends SystemConfiguration {
 
@@ -184,6 +194,41 @@ trait HandlerHelpers extends SystemConfiguration {
     outGW.send(endingEvent)
 
     MeetingStatus2x.meetingHasEnded(liveMeeting.status)
+
+    def collectPersistentState(): Array[Byte] = {
+      val gson: Gson = new Gson()
+      val lockSettingsJson: String = gson.toJson(getPermissions(liveMeeting.status))
+      val log = LoggerFactory.getLogger(this.getClass)
+      log.info("collectPersistentState: Meeting lock settings: {}", lockSettingsJson)
+      log.info("collectPersistentState: Meeting shared notes: {}", liveMeeting.sharedNotesHtml)
+      val baos = new ByteArrayOutputStream
+      val zos = new ZipOutputStream(baos)
+      zos.putNextEntry(new ZipEntry("locksettings.json"))
+      zos.write(lockSettingsJson.getBytes("utf-8"))
+      zos.closeEntry()
+      zos.putNextEntry(new ZipEntry("shared_notes.html"))
+      zos.write(liveMeeting.sharedNotesHtml.getBytes("utf-8"))
+      zos.closeEntry()
+      zos.close()
+      baos.toByteArray
+    }
+
+    def uploadPersistentState(url: String, zipBytes: Array[Byte]): Unit = {
+      val client = HttpClient.newHttpClient()
+      val request = HttpRequest.newBuilder()
+        .uri(URI.create(url))
+        .PUT(BodyPublishers.ofByteArray(zipBytes))
+        .header("Content-Type", "application/octet-stream")
+        .build()
+      val response = client.send(request, HttpResponse.BodyHandlers.ofString())
+      val log = LoggerFactory.getLogger(this.getClass)
+      log.info("Uploaded ZIP: status={}", response.statusCode())
+    }
+
+    if (!StringUtils.isEmpty(liveMeeting.props.meetingProp.persistentStateUrl)) {
+      val zipBytes = collectPersistentState()
+      uploadPersistentState(liveMeeting.props.meetingProp.persistentStateUrl, zipBytes)
+    }
 
     def buildMeetingEndedEvtMsg(meetingId: String): BbbCommonEnvCoreMsg = {
       val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")

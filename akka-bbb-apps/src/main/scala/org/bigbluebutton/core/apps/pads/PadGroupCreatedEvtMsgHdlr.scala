@@ -14,7 +14,7 @@ trait PadGroupCreatedEvtMsgHdlr {
         Pads.setGroupId(liveMeeting.pads, msg.body.externalId, msg.body.groupId)
 
         //Group was created, now request to create the pad
-        PadslHdlrHelpers.broadcastPadCreateCmdMsg(bus.outGW, liveMeeting.props.meetingProp.intId, msg.body.groupId, msg.body.externalId)
+        PadslHdlrHelpers.broadcastPadCreateCmdMsg(bus.outGW, liveMeeting.props.meetingProp.intId, msg.body.groupId, msg.body.externalId, liveMeeting.props.meetingProp.sharedNotesInitialContent)
       }
       case _ =>
     }

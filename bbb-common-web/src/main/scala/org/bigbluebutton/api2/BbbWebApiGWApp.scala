@@ -171,6 +171,8 @@ class BbbWebApiGWApp(
                     notifyRecordingIsOn:                    java.lang.Boolean,
                     presentationUploadExternalDescription:  String,
                     presentationUploadExternalUrl:          String,
+                    persistentStateUrl:                     String,
+                    sharedNotesInitialContent:              String,
                     plugins:                                util.Map[String, AnyRef],
                     html5PluginSdkVersion:                   String,
                     overrideClientSettings:                 String): Unit = {
@@ -190,7 +192,9 @@ class BbbWebApiGWApp(
       disabledFeaturesAsVector,
       notifyRecordingIsOn,
       presentationUploadExternalDescription,
-      presentationUploadExternalUrl
+      presentationUploadExternalUrl,
+      persistentStateUrl,
+      sharedNotesInitialContent,
     )
 
     val durationProps = DurationProps(

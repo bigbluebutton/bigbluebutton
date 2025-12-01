@@ -44,7 +44,7 @@ class RunningMeeting(val props: DefaultProps, outGW: OutMessageGateway,
   // easy to test.
   private val liveMeeting = new LiveMeeting(props, meetingStatux2x, deskshareModel, audioCaptions, timerModel,
     chatModel, externalVideoModel, layouts, pads, registeredUsers, polls2x, wbModel, presModel,
-    webcams, voiceUsers, users2x, guestsWaiting, clientSettings, plugins)
+    webcams, voiceUsers, users2x, guestsWaiting, clientSettings, plugins, "")
 
   GuestsWaiting.setGuestPolicy(
     liveMeeting.props.meetingProp.intId,

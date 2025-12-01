@@ -16,11 +16,11 @@ object PadslHdlrHelpers {
     outGW.send(msgEvent)
   }
 
-  def broadcastPadCreateCmdMsg(outGW: OutMsgRouter, meetingId: String, groupId: String, name: String): Unit = {
+  def broadcastPadCreateCmdMsg(outGW: OutMsgRouter, meetingId: String, groupId: String, name: String, initialHtmlContent: String): Unit = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
     val envelope = BbbCoreEnvelope(PadCreateCmdMsg.NAME, routing)
     val header = BbbCoreHeaderWithMeetingId(PadCreateCmdMsg.NAME, meetingId)
-    val body = PadCreateCmdMsgBody(groupId, name)
+    val body = PadCreateCmdMsgBody(groupId, name, initialHtmlContent)
     val event = PadCreateCmdMsg(header, body)
     val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
 
