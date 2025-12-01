@@ -139,6 +139,9 @@ public class Meeting {
 
 	private int maxNumPages;
 
+	private String persistentStateUrl = "";
+    private String sharedNotesInitialContentFromPersistence = "";
+
     public Meeting(Meeting.Builder builder) {
         name = builder.name;
         extMeetingId = builder.externalId;
@@ -184,6 +187,8 @@ public class Meeting {
         userCameraCap = builder.userCameraCap;
         maxPinnedCameras = builder.maxPinnedCameras;
         duration = builder.duration;
+		persistentStateUrl = builder.persistentStateUrl;
+        sharedNotesInitialContentFromPersistence = builder.sharedNotesInitialContentFromPersistence;
         telVoice = builder.telVoice;
         welcomeMsgTemplate = builder.welcomeMsgTemplate;
         welcomeMsg = builder.welcomeMsg;
@@ -930,6 +935,10 @@ public class Meeting {
 	public void setMaxNumPages(int maxNumPages) { this.maxNumPages = maxNumPages; }
 	public int getMaxNumPages() { return maxNumPages; }
 
+	public String getPersistentStateUrl() { return this.persistentStateUrl; }
+
+    public String getSharedNotesInitialContentFromPersistence() { return this.sharedNotesInitialContentFromPersistence; }
+
     public Map<String, String> getPluginMetadataParametersMap() {
         return pluginMetadataParametersMap;
     }
@@ -1021,6 +1030,8 @@ public class Meeting {
 		private Boolean endWhenNoModerator;
 		private Integer endWhenNoModeratorDelayInMinutes;
 		private ArrayList<Group> groups;
+		private String persistentStateUrl;
+        private String sharedNotesInitialContentFromPersistence = "";
 
     	public Builder(String externalId, String internalId, long createTime) {
     		this.externalId = externalId;
@@ -1042,6 +1053,16 @@ public class Meeting {
     		maxUsers = n;
     		return this;
     	}
+
+		public Builder withPersistentStateUrl(String persistentStateUrl) {
+			this.persistentStateUrl = persistentStateUrl;
+			return this;
+		}
+
+        public Builder withSharedNotesInitialContentFromPersistence(String initialSharedNotesContent) {
+            this.sharedNotesInitialContentFromPersistence = initialSharedNotesContent;
+            return this;
+        }
 
     	public Builder withRecording(boolean record) {
     		this.record = record;

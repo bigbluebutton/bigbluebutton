@@ -475,7 +475,13 @@ public class MeetingService implements MessageListener {
     }
 
     String markdownFromPayload = m.getSharedNotesInitialContentMarkdownFromPayload();
-    return markdownFromPayload != null ? markdownFromPayload : "";
+    if (markdownFromPayload != null && !markdownFromPayload.isEmpty()) {
+      return markdownFromPayload;
+    }
+
+    // Lowest priority: the markdown a previous meeting persisted to persistentStateUrl.
+    String markdownFromPersistence = m.getSharedNotesInitialContentFromPersistence();
+    return markdownFromPersistence != null ? markdownFromPersistence : "";
   }
 
   public String requestSharedNotesInitialContentMarkdownFromUrl(String meetingId, String initialContentMarkdownUrl) {
@@ -710,7 +716,7 @@ public class MeetingService implements MessageListener {
             m.getAllowModsToRequestCameraShare(), m.getMeetingKeepEvents(),
             m.breakoutRoomsParams, m.lockSettingsParams, m.getLoginUrl(), m.getLogoutUrl(), m.getCustomLogoURL(), m.getCustomDarkLogoURL(),
             m.getBannerText(), m.getBannerColor(), m.getGroups(), m.getDisabledFeatures(), m.getNotifyRecordingIsOn(),
-            m.getNotifyRecordingAppend(), m.getPresentationUploadExternalDescription(), m.getPresentationUploadExternalUrl(), m.getPlugins(),
+            m.getNotifyRecordingAppend(), m.getPresentationUploadExternalDescription(), m.getPresentationUploadExternalUrl(), m.getPersistentStateUrl(), m.getPlugins(),
             m.getHtml5PluginSdkVersion(), m.getOverrideClientSettings());
   }
 

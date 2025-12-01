@@ -1,6 +1,8 @@
 package org.bigbluebutton.core.running
 
 import org.bigbluebutton.ClientSettings.getConfigPropertyValueByPathAsIntOrElse
+import com.google.gson.Gson
+import org.apache.commons.lang3.StringUtils
 import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.api.{BreakoutRoomEndedInternalMsg, DestroyMeetingInternalMsg, EndBreakoutRoomInternalMsg}
@@ -14,6 +16,20 @@ import org.bigbluebutton.core.models._
 import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core2.message.senders.{MsgBuilder, UserJoinedMeetingEvtMsgBuilder}
 import org.bigbluebutton.core.util.TimeUtil
+import org.bigbluebutton.core2.MeetingStatus2x
+import org.bigbluebutton.core2.MeetingStatus2x.{getPermissions, webcamsOnlyForModeratorEnabled}
+import org.bigbluebutton.core2.message.senders.{MsgBuilder, UserJoinedMeetingEvtMsgBuilder}
+import org.slf4j.LoggerFactory
+
+import java.io.ByteArrayOutputStream
+import java.net.URI
+import java.net.http.HttpRequest.BodyPublishers
+import java.net.http.{HttpClient, HttpRequest, HttpResponse}
+import java.nio.charset.StandardCharsets
+import java.time.Duration
+import java.util.zip.{ZipEntry, ZipOutputStream}
+
+import scala.util.control.NonFatal
 
 trait HandlerHelpers extends SystemConfiguration {
 
@@ -232,6 +248,44 @@ trait HandlerHelpers extends SystemConfiguration {
     newState
   }
 
+  // Fetch the shared notes as Markdown from the shared notes server's loopback API. The document
+  // name is bn-document__<internal meeting id>, the prefix defined in bbb-shared-notes-server
+  // src/hocuspocus/utils.ts. Best effort: a missing or failing export must never break the meeting end.
+  def fetchSharedNotesMarkdown(liveMeeting: LiveMeeting): Option[Array[Byte]] = {
+    val log = LoggerFactory.getLogger(this.getClass)
+    val meetingId = liveMeeting.props.meetingProp.intId
+    if (liveMeeting.props.meetingProp.disabledFeatures.contains("sharedNotes")) {
+      None
+    } else {
+      try {
+        val url = s"${sharedNotesServerUrl}/loopback/api/documents/bn-document__${meetingId}/export/md"
+        val client = HttpClient.newHttpClient()
+        val request = HttpRequest.newBuilder()
+          .timeout(Duration.ofSeconds(10))
+          .uri(URI.create(url))
+          .version(HttpClient.Version.HTTP_1_1)
+          .GET()
+          .build()
+        val response = client.send(request, HttpResponse.BodyHandlers.ofByteArray())
+        if (response.statusCode() == 200) {
+          log.info("Fetched shared notes markdown for meeting={}", meetingId)
+          Some(response.body())
+        } else {
+          log.warn("Could not export shared notes markdown for meeting={}: status={} URL={}", meetingId, response.statusCode(), url)
+          None
+        }
+      } catch {
+        case _: InterruptedException =>
+          Thread.currentThread().interrupt()
+          log.warn(s"Interrupted while exporting shared notes markdown for meeting=$meetingId")
+          None
+        case NonFatal(e) =>
+          log.warn(s"Error while exporting shared notes markdown for meeting=$meetingId: $e")
+          None
+      }
+    }
+  }
+
   def endMeeting(outGW: OutMsgRouter, liveMeeting: LiveMeeting, reason: String, userId: String): Unit = {
     def buildMeetingEndingEvtMsg(meetingId: String, userId: String): BbbCommonEnvCoreMsg = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
@@ -249,6 +303,43 @@ trait HandlerHelpers extends SystemConfiguration {
     outGW.send(endingEvent)
 
     MeetingStatus2x.meetingHasEnded(liveMeeting.status)
+
+    def collectPersistentState(): Array[Byte] = {
+      val gson: Gson = new Gson()
+      val jsonElement = gson.toJsonTree(getPermissions(liveMeeting.status))
+      jsonElement.getAsJsonObject().addProperty("webcamsOnlyForModerator", webcamsOnlyForModeratorEnabled(liveMeeting.status))
+      val lockSettingsJson: String = gson.toJson(jsonElement)
+      val log = LoggerFactory.getLogger(this.getClass)
+      val baos = new ByteArrayOutputStream
+      val zos = new ZipOutputStream(baos)
+      zos.putNextEntry(new ZipEntry("locksettings.json"))
+      zos.write(lockSettingsJson.getBytes(StandardCharsets.UTF_8))
+      zos.closeEntry()
+      fetchSharedNotesMarkdown(liveMeeting).foreach { markdown =>
+        zos.putNextEntry(new ZipEntry("shared_notes.md"))
+        zos.write(markdown)
+        zos.closeEntry()
+      }
+      zos.close()
+      baos.toByteArray
+    }
+
+    def uploadPersistentState(url: String, zipBytes: Array[Byte]): Unit = {
+      val client = HttpClient.newHttpClient()
+      val request = HttpRequest.newBuilder()
+        .uri(URI.create(url))
+        .PUT(BodyPublishers.ofByteArray(zipBytes))
+        .header("Content-Type", "application/octet-stream")
+        .build()
+      val response = client.send(request, HttpResponse.BodyHandlers.ofString())
+      val log = LoggerFactory.getLogger(this.getClass)
+      log.info("Uploaded ZIP: status={}", response.statusCode())
+    }
+
+    if (!StringUtils.isEmpty(liveMeeting.props.meetingProp.persistentStateUrl)) {
+      val zipBytes = collectPersistentState()
+      uploadPersistentState(liveMeeting.props.meetingProp.persistentStateUrl, zipBytes)
+    }
 
     def buildMeetingEndedEvtMsg(meetingId: String): BbbCommonEnvCoreMsg = {
       val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")

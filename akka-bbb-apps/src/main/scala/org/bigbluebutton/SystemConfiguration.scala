@@ -22,6 +22,9 @@ trait SystemConfiguration {
   // Graphql Middleware API url
   lazy val graphqlMiddlewareAPI = Try(config.getString("services.graphqlMiddlewareAPI")).getOrElse("http://127.0.0.1:8378")
 
+  // Shared notes server, used for the loopback document export at meeting end
+  lazy val sharedNotesServerUrl = Try(config.getString("services.sharedNotesServerUrl")).getOrElse("http://127.0.0.1:8787")
+
   lazy val expireLastUserLeft = Try(config.getInt("expire.lastUserLeft")).getOrElse(60) // 1 minute
   lazy val expireNeverJoined = Try(config.getInt("expire.neverJoined")).getOrElse(5 * 60) // 5 minutes
 
