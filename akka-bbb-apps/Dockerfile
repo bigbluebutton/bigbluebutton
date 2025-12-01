@@ -14,10 +14,12 @@ RUN sbt universal:packageBin \
 # 2. Runtime stage:
 FROM java-base
 
-COPY --from=build /bbb-apps-akka-0.0.4 /bbb-apps-akka
-COPY ./docker/bbb-apps-akka-docker.conf /bbb-apps-akka/conf/docker.conf
-COPY ./docker/bbb-apps-akka-overwrite.conf /etc/bigbluebutton/bbb-apps-akka.conf.tmpl
-COPY ./docker/entrypoint.sh /entrypoint.sh
+COPY --from=build --chown=bigbluebutton /bbb-apps-akka-0.0.4 /bbb-apps-akka
+COPY --chown=bigbluebutton ./docker/bbb-apps-akka-docker.conf /bbb-apps-akka/conf/docker.conf
+COPY --chown=bigbluebutton ./docker/bbb-apps-akka-overwrite.conf /etc/bigbluebutton/bbb-apps-akka.conf.tmpl
+COPY --chown=bigbluebutton ./docker/entrypoint.sh /entrypoint.sh
+
+COPY --chown=bigbluebutton ./docker/logback.xml /bbb-apps-akka/conf/logback.xml
 
 # Create log directory owned by bigbluebutton user
 RUN mkdir -p logs \
@@ -25,7 +27,7 @@ RUN mkdir -p logs \
 
 # Copy html5 default config
 RUN mkdir -p /usr/share/bigbluebutton/html5-client/private/config/
-COPY --from=html5-config / /usr/share/bigbluebutton/html5-client/private/config/
+COPY --chown=bigbluebutton --from=html5-config / /usr/share/bigbluebutton/html5-client/private/config/
 
 USER bigbluebutton
 
