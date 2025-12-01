@@ -336,11 +336,15 @@ services:
   caddy:
     image: docker.io/library/caddy:latest
     restart: unless-stopped
+    environment:
+      BBB_SERVER_URL: ${BBB_SERVER_URL}
+      SSL_MODE: ${SSL_MODE:-internal}
     ports:
       - "443:8443"
       - "80:8080"
     volumes:
       - ./conf/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./ssl:/local/certs:ro
     depends_on:
       - nginx
     networks:

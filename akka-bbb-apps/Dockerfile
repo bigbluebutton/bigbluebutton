@@ -14,6 +14,8 @@ RUN sbt universal:packageBin \
 # 2. Runtime stage:
 FROM java-base
 
+RUN curl -L -o /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 && chmod a+x /usr/local/bin/yq
+
 COPY --from=build --chown=bigbluebutton /bbb-apps-akka-0.0.4 /bbb-apps-akka
 COPY --chown=bigbluebutton ./docker/bbb-apps-akka-docker.conf /bbb-apps-akka/conf/docker.conf
 COPY --chown=bigbluebutton ./docker/bbb-apps-akka-overwrite.conf /etc/bigbluebutton/bbb-apps-akka.conf.tmpl
@@ -27,7 +29,8 @@ RUN mkdir -p logs \
 
 # Copy html5 default config
 RUN mkdir -p /usr/share/bigbluebutton/html5-client/private/config/
-COPY --chown=bigbluebutton --from=html5-config / /usr/share/bigbluebutton/html5-client/private/config/
+COPY --chown=bigbluebutton:bigbluebutton --from=html5-config / /usr/share/bigbluebutton/html5-client/private/config/
+RUN chown -R bigbluebutton:bigbluebutton /usr/share/bigbluebutton/html5-client/private/config/
 
 USER bigbluebutton
 

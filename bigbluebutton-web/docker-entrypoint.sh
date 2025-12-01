@@ -3,7 +3,7 @@ set -e
 
 # Adjust serverURL and securitySalt in bbb-web.properties
 cat >> /etc/bigbluebutton/bbb-web.properties << 'EOF'
-bigbluebutton.web.serverURL=${BBB_SERVER_URL}
+bigbluebutton.web.serverURL=https://${BBB_SERVER_URL}
 securitySalt=${SHARED_SECRET}
 defaultHTML5ClientUrl=${bigbluebutton.web.serverURL}/html5client/
 EOF
