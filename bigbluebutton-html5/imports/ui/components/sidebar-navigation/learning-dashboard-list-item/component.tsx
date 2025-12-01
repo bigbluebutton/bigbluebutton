@@ -3,6 +3,7 @@ import { defineMessages, useIntl } from 'react-intl';
 import LearningDashboardService from '/imports/ui/components/learning-dashboard/service';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import SidebarNavigationButton from '/imports/ui/components/sidebar-navigation/sidebar-navigation-button/component';
+import { useIsLearningDashboardEnabled } from '../../../services/features';
 
 const intlMessages = defineMessages({
   learningDashboardLabel: {
@@ -17,6 +18,9 @@ const LearningDashboardListItem = () => {
     learningDashboardAccessToken: meeting.learningDashboardAccessToken,
     isBreakout: meeting?.isBreakout,
   }));
+  const isLearningDashboardEnabled = useIsLearningDashboardEnabled();
+
+  if (!isLearningDashboardEnabled) return null;
 
   const openLearningDashboardPanel = useCallback(() => {
     LearningDashboardService.openLearningDashboardUrl(intl.locale, meetingInfo?.learningDashboardAccessToken);
