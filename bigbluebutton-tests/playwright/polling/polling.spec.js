@@ -46,7 +46,8 @@ test.describe.parallel('Polling', { tag: '@ci' }, async () => {
     await polling.allowMultipleChoices();
   });
 
-  test('Smart slides questions', async () => {
+  // sometimes fails in 3.1
+  test('Smart slides questions', { tag: '@flaky-3.1' }, async () => {
     await polling.smartSlidesQuestions();
   });
 
@@ -59,7 +60,7 @@ test.describe.parallel('Polling', { tag: '@ci' }, async () => {
     await polling.pollResultsOnWhiteboard();
   });
 
-  test('Poll results in a different presentation', async ({}, testInfo) => {
+  test('Poll results in a different presentation', async ({ }, testInfo) => {
     await polling.pollResultsInDifferentPresentation();
   });
 });

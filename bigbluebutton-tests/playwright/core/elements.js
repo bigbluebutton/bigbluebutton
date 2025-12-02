@@ -125,6 +125,7 @@ exports.currentSlideBreakoutOption = 'option[data-test="currentSlideBreakoutOpti
 exports.chatBox = 'textarea[id="message-input"]';
 exports.chatMessageItem = 'div[data-test="chatMessageItem"]';
 exports.partnerDisconnectedMessage = 'span[data-test="partnerDisconnected"]';
+exports.chatButton = 'button[data-test*="ChatButton"]';
 exports.messagesSidebarButton = 'div[data-test="messagesSidebarButton"]';
 exports.sendButton = 'button[data-test="sendMessageButton"]';
 exports.chatPollMessageText = 'div[data-test="chatPollMessageText"]';
@@ -259,12 +260,12 @@ exports.hasUnreadMessages = 'div[data-test="unreadMessages"]';
 exports.userJoinPushAlerts = 'input[data-test="userJoinPopupAlerts"]';
 exports.toastContainer = 'div[data-test="toastContainer"]';
 exports.presentationStatusInfo = 'span[data-test="presentationStatusInfo"]';
-exports.confirmRecordingButton = 'button[data-test="confirmRecordingButton"]';
-exports.cancelRecordingButton = 'button[data-test="cancelRecordingButton"]';
 exports.processingPresentationItem = 'span[data-test="processingPresentationItem"]';
 exports.uploadDoneIcon = 'i[data-test="uploadDoneIcon"]';
 exports.noButton = 'button[aria-label="No"]';
 exports.yesButton = 'button[aria-label="Yes"]';
+exports.cancelRecordingButton = 'button[data-test="cancelRecordingButton"]';
+exports.confirmRecordingButton = 'button[data-test="confirmRecordingButton"]';
 
 // Toasts
 exports.savedSettingsToast = 'Settings have been saved';
@@ -405,11 +406,12 @@ exports.moderatorAvatar = 'div[data-test="moderatorAvatar"]';
 exports.viewerAvatar = 'div[data-test="viewerAvatar"]';
 exports.userListItem = 'div[data-test="userListItem"]';
 exports.usersListSidebarButton = 'div[data-test="usersListSidebarButton"]';
+exports.toggleSidebarNavigation = 'button[data-test="toggleSidebarNavigation"]';
 exports.currentUser = 'div[data-test="userListItemCurrent"]';
 exports.manageUsers = 'button[data-test="manageUsers"]';
 exports.presenterClassName = 'presenter--';
-exports.userListToggleBtn = 'button[data-test="toggleUserList"]';
 exports.mobileUser = 'span[data-test="mobileUser"]';
+exports.userNameSubs = 'span[data-test="userNameSubs"]';
 exports.connectionStatusBtn = 'button[data-test="connectionStatusButton"]';
 exports.connectionStatusModal = 'div[data-test="connectionStatusModal"]';
 exports.copyStats = 'span[data-test="copyStats"]';
@@ -561,7 +563,7 @@ exports.wbMoveToFront = 'button[data-testid="menu-item.bring-to-front"]';
 exports.wbPaste = 'button[data-testid="menu-item.paste"]';
 exports.wbTextTrue = 'div[data-hastext="true"]';
 exports.wbDrawnArrow = 'div[data-shape-type="arrow"]';
-exports.wbAutoHideToggleBtn = 'input[data-test="autoHideToolbarToggleBtn"]';
+exports.wbAutoHideToggleBtn = 'input[data-test="whiteboardToolbarAutoHideToggleBtn"]';
 
 // About modal
 exports.aboutTabButton = 'li[data-test="aboutTabButton"]';
@@ -572,7 +574,7 @@ exports.helpLinkButton = 'a[data-test="helpLinkButton"]';
 exports.helpPageTitle = 'BigBlueButton Tutorials | Built For Teachers | BigBlueButton';
 
 // Dark mode
-exports.darkModeToggleBtn = 'span[data-test="darkModeToggleBtn"]';
+exports.darkModeToggleBtn = 'input[data-test="darkModeToggleBtn"]';
 exports.actionsBarBackground = 'section[id="ActionsBar"]';
 exports.navbarBackground = 'header[id="Navbar"]';
 exports.fullscreenModal = 'div[id="fsmodal"]';

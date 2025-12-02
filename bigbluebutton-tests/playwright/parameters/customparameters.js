@@ -397,7 +397,7 @@ class CustomParameters extends MultiUsers {
   }
 
   async overrideDefaultLocaleTest() {
-    await this.modPage.hasText(e.chatTitle, 'Mensagens','should display the new overridden default locale');
+    await this.modPage.hasText(e.chatTitle, 'Mensagens', 'should display the new overridden default locale');
     await this.modPage.checkTooltip(e.profileSidebarButton, 'Perfil');
     await this.modPage.checkTooltip(e.usersListSidebarButton, 'Participantes');
     await this.modPage.checkTooltip(e.sharedNotesSidebarButton, 'Notas compartilhadas');

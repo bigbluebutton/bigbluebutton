@@ -299,7 +299,7 @@ class ApplicationMenu extends BaseMenu {
                 checked={this.state.audioFilterEnabled}
                 onChange={() => this.handleAudioFilterChange()}
                 aria-label={`${intl.formatMessage(intlMessages.audioFilterLabel)} - ${displaySettingsStatus(audioFilterStatus, true)}`}
-                data-test="audioFilterToggleBtn"
+                inputProps={{ 'data-test': 'audioFilterToggleBtn' }}
               />
               <Styled.Label style={{ marginLeft: '0.5rem' }}>
                 {intl.formatMessage(intlMessages.audioFilterLabel)}
@@ -330,7 +330,7 @@ class ApplicationMenu extends BaseMenu {
               checked={settings.paginationEnabled}
               onChange={() => this.handleToggle('paginationEnabled')}
               aria-label={`${intl.formatMessage(intlMessages.paginationEnabledLabel)} - ${displaySettingsStatus(settings.paginationEnabled, true)}`}
-              data-test="paginationToggleBtn"
+              inputProps={{ 'data-test': 'paginationToggleBtn' }}
             />
             <Styled.Label style={{ marginLeft: '0.5rem' }}>
               {intl.formatMessage(intlMessages.paginationEnabledLabel)}
@@ -357,7 +357,7 @@ class ApplicationMenu extends BaseMenu {
               checked={settings.darkTheme}
               onChange={() => this.handleToggle('darkTheme')}
               aria-label={`${intl.formatMessage(intlMessages.darkThemeLabel)} - ${displaySettingsStatus(settings.darkTheme, true)}`}
-              data-test="darkModeToggleBtn"
+              inputProps={{ 'data-test': 'darkModeToggleBtn' }}
             />
             <Styled.Label style={{ marginLeft: '0.5rem' }}>
               {intl.formatMessage(intlMessages.darkThemeLabel)}
@@ -383,7 +383,7 @@ class ApplicationMenu extends BaseMenu {
               checked={settings.wakeLock}
               onChange={() => this.handleToggle('wakeLock')}
               aria-label={intl.formatMessage(intlMessages.wakeLockEnabledLabel)}
-              data-test="wakeLockToggleBtn"
+              inputProps={{ 'data-test': 'wakeLockToggleBtn' }}
             />
             <Styled.Label style={{ marginLeft: '0.5rem' }}>
               {intl.formatMessage(intlMessages.wakeLockEnabledLabel)}
@@ -512,7 +512,7 @@ class ApplicationMenu extends BaseMenu {
               checked={settings.pushToTalkEnabled}
               onChange={() => this.handleToggle('pushToTalkEnabled')}
               aria-label={`${intl.formatMessage(intlMessages.pushToTalkLabel)} - ${displaySettingsStatus(settings.pushToTalkEnabled, true)}`}
-              data-test="pushToTalkToggleBtn"
+              inputProps={{ 'data-test': 'pushToTalkToggleBtn' }}
             />
             <Styled.Label style={{ marginLeft: '0.5rem' }}>
               {intl.formatMessage(intlMessages.pushToTalkLabel)}
@@ -547,7 +547,7 @@ class ApplicationMenu extends BaseMenu {
                     checked={settings.animations}
                     onChange={() => this.handleToggle('animations')}
                     aria-label={`${intl.formatMessage(intlMessages.animationsLabel)} - ${displaySettingsStatus(settings.animations, true)}`}
-                    data-test="animationsToggleBtn"
+                    inputProps={{ 'data-test': 'animationsToggleBtn' }}
                   />
                   <Styled.Label style={{ marginLeft: '0.5rem' }}>
                     {intl.formatMessage(intlMessages.animationsLabel)}
@@ -570,7 +570,7 @@ class ApplicationMenu extends BaseMenu {
                     checked={settings.whiteboardToolbarAutoHide}
                     onChange={() => this.handleToggle('whiteboardToolbarAutoHide')}
                     aria-label={`${intl.formatMessage(intlMessages.wbToolbarsAutoHideLabel)} - ${displaySettingsStatus(settings.whiteboardToolbarAutoHide, true)}`}
-                    data-test="whiteboardToolbarAutoHideToggleBtn"
+                    inputProps={{ 'data-test': 'whiteboardToolbarAutoHideToggleBtn' }}
                   />
                   <Styled.Label style={{ marginLeft: '0.5rem' }}>
                     {intl.formatMessage(intlMessages.wbToolbarsAutoHideLabel)}
@@ -587,7 +587,7 @@ class ApplicationMenu extends BaseMenu {
                     checked={settings.selfViewDisable}
                     onChange={() => this.handleToggle('selfViewDisable')}
                     aria-label={`${intl.formatMessage(intlMessages.disableLabel)} - ${displaySettingsStatus(settings.selfViewDisable, false)}`}
-                    data-test="selfViewDisableToggleBtn"
+                    inputProps={{ 'data-test': 'selfViewDisableToggleBtn' }}
                   />
                   <Styled.Label style={{ marginLeft: '0.5rem' }}>
                     {intl.formatMessage(intlMessages.disableLabel)}
@@ -605,7 +605,7 @@ class ApplicationMenu extends BaseMenu {
                       checked={settings.autoCloseReactionsBar}
                       onChange={() => this.handleToggle('autoCloseReactionsBar')}
                       aria-label={`${intl.formatMessage(intlMessages.autoCloseReactionsBarLabel)} - ${displaySettingsStatus(settings.autoCloseReactionsBar, false)}`}
-                      data-test="autoCloseReactionsBarToggleBtn"
+                      inputProps={{ 'data-test': 'autoCloseReactionsBarToggleBtn' }}
                     />
                     <Styled.Label style={{ marginLeft: '0.5rem' }}>
                       {intl.formatMessage(intlMessages.autoCloseReactionsBarLabel)}
