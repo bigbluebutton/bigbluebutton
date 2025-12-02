@@ -309,17 +309,22 @@ const PushLayoutEngine = (props) => {
       replicateLayoutType();
     }
     if (!isPresenter) {
+      const { syncCameraDockSizeAndPosition } = window.meetingClientSettings.public.layout;
+
       if (layoutReplicateElements.includes(LAYOUT_ELEMENTS.PRESENTATION_STATE)) {
         replicatePresentationState();
       }
       if (layoutReplicateElements.includes(LAYOUT_ELEMENTS.FOCUSED_CAMERA)) {
         replicateFocusedCamera();
       }
-      if (layoutReplicateElements.includes(LAYOUT_ELEMENTS.CAMERA_DOCK_POSITION)) {
-        replicateCameraDockPosition();
-      }
-      if (layoutReplicateElements.includes(LAYOUT_ELEMENTS.CAMERA_DOCK_SIZE)) {
-        replicateCameraDockSize();
+
+      if (syncCameraDockSizeAndPosition) {
+        if (layoutReplicateElements.includes(LAYOUT_ELEMENTS.CAMERA_DOCK_POSITION)) {
+          replicateCameraDockPosition();
+        }
+        if (layoutReplicateElements.includes(LAYOUT_ELEMENTS.CAMERA_DOCK_SIZE)) {
+          replicateCameraDockSize();
+        }
       }
     }
 

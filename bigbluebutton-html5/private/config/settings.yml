@@ -817,6 +817,7 @@ public:
     showPushLayoutToggle: true
     showSessionDetailsOnJoin: true
     showScreenshareQuickSwapButton: false
+    syncCameraDockSizeAndPosition: false
   pads:
     url: ETHERPAD_HOST
   media:
