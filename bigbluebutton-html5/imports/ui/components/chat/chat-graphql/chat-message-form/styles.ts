@@ -24,6 +24,10 @@ interface FormProps {
   isRTL: boolean;
 }
 
+interface InputProps {
+  $showEmojiPicker?: boolean;
+}
+
 const Form = styled.form<FormProps>`
   flex-grow: 0;
   flex-shrink: 0;
@@ -39,25 +43,26 @@ const Wrapper = styled.div`
   border-radius: 0.75rem;
 `;
 
-const Input = styled(TextareaAutosize)`
+const Input = styled(TextareaAutosize)<InputProps>`
   flex: 1;
   background: #fff;
   background-clip: padding-box;
   margin: ${xsPadding} 0 ${xsPadding} ${xsPadding};
   color: ${colorGrayLight};
   -webkit-appearance: none;
-  padding: calc(${smPaddingY} * 2.5) 0 calc(${smPaddingX} * 1.25) calc(${smPaddingY} * 2.5);
+  padding: calc(${smPaddingY} * 2.5) calc(${smPaddingX} * 1.25) calc(${smPaddingX} * 1.25) calc(${smPaddingY} * 2.5);
   resize: none;
-  transition: color 0.3s ease;
+  transition: color 0.3s ease, margin-right 0.3s ease;
   border-radius: ${borderRadius};
   font-size: ${fontSizeBase};
   line-height: 1;
   min-height: 2.5rem;
-  max-height: 3.5rem;
   overflow-y: auto;
   border: ${colorBorder};
   box-shadow: none;
   outline: none;
+
+  margin-right: ${({ $showEmojiPicker }) => ($showEmojiPicker ? '0' : '0.75rem')};
 
   &::-webkit-scrollbar {
     width: 5px;
@@ -159,7 +164,7 @@ z-index: 1000;
       display: inline-block !important;
     }
   }
-  @media ${smallOnly} { 
+  @media ${smallOnly} {
     em-emoji-picker {
       height: 200px !important;
     }
@@ -194,6 +199,11 @@ const InputWrapper = styled.div`
   &:focus-within {
     box-shadow: 0 0 0 ${xsPadding} ${colorBorder};
   }
+
+  overflow-y: hidden;
+  align-items: center;
+  margin: auto;
+  padding: 0.75rem !important;
 `;
 
 export default {

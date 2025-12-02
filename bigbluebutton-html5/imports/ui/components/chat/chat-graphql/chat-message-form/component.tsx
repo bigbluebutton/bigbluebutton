@@ -645,6 +645,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
             <Styled.Input
               id="message-input"
               ref={textAreaRef}
+              $showEmojiPicker={showEmojiPicker}
               placeholder={intl.formatMessage(messages.inputPlaceholder, { chatName: title })}
               aria-label={intl.formatMessage(messages.inputLabel, { chatName: title })}
               aria-invalid={hasErrors ? 'true' : 'false'}
@@ -668,6 +669,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
                   },
                 }));
               }}
+              maxRows={5}
               onChange={handleMessageChange}
               onKeyDown={handleMessageKeyDown}
               onPaste={(e) => { e.stopPropagation(); }}
@@ -701,7 +703,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
                     alignSelf: 'center',
                     fontSize: '0.9rem',
                     height: '100%',
-                    borderRadius: '0 0.75rem 0.75rem 0',
+                    borderRadius: '0.75rem',
                     minWidth: 'auto',
                     padding: '8px',
                     backgroundColor: btnPrimaryBg,
