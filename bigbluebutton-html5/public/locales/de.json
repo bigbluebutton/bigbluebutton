@@ -714,7 +714,7 @@
     "app.actionsBar.reactions.removeReactionLabel": "Reaktion zurückziehen",
     "app.actionsBar.reactions.raiseHand": "Hand heben",
     "app.actionsBar.reactions.lowHand": "Hand senken",
-    "app.actionsBar.reactions.lowUserHand": "Hand des Teilnehmers senken",
+    "app.actionsBar.reactions.lowUserHand": "Hand senken",
     "app.actionsBar.reactions.autoCloseReactionsBarLabel": "Reaktionenleiste automatisch schließen",
     "app.actionsBar.reactions.away": "abwesend",
     "app.actionsBar.reactions.available": "verfügbar",
