@@ -18,6 +18,7 @@
 # along with BigBlueButton.  If not, see <http://www.gnu.org/licenses/>.
 
 require_relative './media_utils'
+require 'fileutils'
 
 module BigBlueButton
   module EDL
@@ -305,26 +306,162 @@ module BigBlueButton
       # Returns a map of { original_filename => new_resampled_filename }.
       def self.resample_audio_files(original_filenames_to_resample, output_dir_basename)
         filename_update_map = {}
-        original_filenames_to_resample.each do |original_filename|
-          output_filename_base = File.basename(original_filename, '.*')
-          resampled_file_dir = File.dirname(output_dir_basename)
-          output_filename_ogg = File.join(resampled_file_dir, "#{output_filename_base}_resampled.#{WF_EXT}")
+        target_directory = File.dirname(output_dir_basename)
 
-          BigBlueButton.logger.info "Resampling #{original_filename} to #{output_filename_ogg}"
-          
-          resample_cmd = [*FFMPEG, '-i', original_filename,
-                          '-vn', '-acodec', FFMPEG_WF_CODEC, 
-                          '-af', 'aresample=async=1000', output_filename_ogg]
-          
-          exitstatus = BigBlueButton.exec_ret(*resample_cmd)
-          if exitstatus != 0
-            BigBlueButton.logger.error "ffmpeg resampling failed for #{original_filename} to #{output_filename_ogg}, exit code #{exitstatus}."
-            raise "ffmpeg resampling failed for #{original_filename}, exit code #{exitstatus}"
-          else
-            filename_update_map[original_filename] = output_filename_ogg
+        original_filenames_to_resample.each do |original_filename|
+          original_basename = File.basename(original_filename, '.*')
+          parts_dir = File.join(target_directory, "#{original_basename}_parts")
+          FileUtils.mkdir_p(parts_dir)
+
+          info = audio_info(original_filename)
+          if !info || !info[:duration]
+            BigBlueButton.logger.warn "Could not get duration for #{original_filename}. Skipping segmented resampling."
+            FileUtils.remove_entry_secure(parts_dir) if Dir.exist?(parts_dir)
+            next
           end
+          original_total_duration_s = info[:duration] / 1000.0
+
+          output_filename_ogg = File.join(target_directory, "#{original_basename}_resampled.#{WF_EXT}")
+          BigBlueButton.logger.info "Segmented resampling for '#{original_filename}' (duration: #{original_total_duration_s}s). Output: '#{output_filename_ogg}'"
+
+          processing_segments = get_all_processing_segments(original_filename, MAX_AUDIO_GAP_FOR_RESAMPLE_MS, original_total_duration_s, 0.2)
+
+          if processing_segments.empty? || (processing_segments.length == 1 && processing_segments.first[:action] == :copy)
+             BigBlueButton.logger.info "No gaps requiring special handling found for '#{original_filename}'. Performing standard resampling."
+             resample_cmd = [*FFMPEG, '-i', original_filename,
+                             '-vn', '-acodec', FFMPEG_WF_CODEC, 
+                             '-af', 'aresample=async=1000', output_filename_ogg]
+             exitstatus = BigBlueButton.exec_ret(*resample_cmd)
+             if exitstatus != 0
+               BigBlueButton.logger.error "ffmpeg resampling failed for #{original_filename}, exit code #{exitstatus}."
+               raise "ffmpeg resampling failed for #{original_filename}, exit code #{exitstatus}"
+             else
+               filename_update_map[original_filename] = output_filename_ogg
+             end
+             FileUtils.remove_entry_secure(parts_dir) if Dir.exist?(parts_dir)
+             next
+          end
+
+          parts_to_concat = []
+          overall_success = true
+
+          processing_segments.each_with_index do |segment, index|
+            part_start_pts = segment[:start_pts]
+            part_end_pts = segment[:end_pts]
+            action = segment[:action]
+            part_duration = part_end_pts - part_start_pts
+
+            if part_duration <= 0.01
+              next
+            end
+
+            part_path = File.join(parts_dir, "#{original_basename}_part#{index + 1}.#{WF_EXT}")
+
+            if action == :recode
+              # Generate silence
+              cmd_part = [*FFMPEG, '-y', '-f', 'lavfi', '-i', 'aevalsrc=0', '-t', part_duration.to_s]
+              cmd_part += ['-c:a', FFMPEG_WF_CODEC, '-q:a', '2']
+              BigBlueButton.logger.info "Creating Part ##{index + 1} (SILENCE from #{part_start_pts.round(3)}s to #{part_end_pts.round(3)}s) for '#{original_filename}'"
+            else # :copy
+              cmd_part = [*FFMPEG, '-y', '-ss', part_start_pts.to_s, '-i', original_filename, '-t', part_duration.to_s]
+              cmd_part += ['-vn', '-c:a', FFMPEG_WF_CODEC, '-q:a', '2', '-af', 'aresample=async=1000', '-avoid_negative_ts', 'make_zero']
+              BigBlueButton.logger.info "Creating Part ##{index + 1} (COPY from #{part_start_pts.round(3)}s) to #{part_end_pts.round(3)}s) for '#{original_filename}'"
+            end
+            cmd_part << part_path
+
+            exit_status_part = BigBlueButton.exec_ret(*cmd_part)
+            if exit_status_part == 0 && File.exist?(part_path)
+               parts_to_concat << part_path
+            else
+               if exit_status_part.nil?
+                 BigBlueButton.logger.error "ffmpeg process crashed or was killed for Part ##{index + 1} of #{original_filename}"
+               else
+                 BigBlueButton.logger.error "Failed to create Part ##{index + 1} for #{original_filename}, exit code #{exit_status_part}"
+               end
+               overall_success = false
+               break
+            end
+          end
+
+          if overall_success && parts_to_concat.any?
+             concat_list_path = File.join(parts_dir, "concat_list.txt")
+             File.open(concat_list_path, 'w') do |f|
+               parts_to_concat.each { |part_file| f.puts "file '#{File.absolute_path(part_file)}'" }
+             end
+             
+             cmd_concat = [*FFMPEG, '-y', '-f', 'concat', '-safe', '0', '-i', concat_list_path,
+                           '-c', 'copy', output_filename_ogg]
+             
+             exit_status_concat = BigBlueButton.exec_ret(*cmd_concat)
+             if exit_status_concat == 0 && File.exist?(output_filename_ogg)
+                filename_update_map[original_filename] = output_filename_ogg
+             else
+                BigBlueButton.logger.error "Concatenation failed for #{original_filename}"
+             end
+          else
+             BigBlueButton.logger.error "Segmented resampling failed for #{original_filename}"
+          end
+          
+          FileUtils.remove_entry_secure(parts_dir) if Dir.exist?(parts_dir)
         end
         filename_update_map
+      end
+
+      def self.get_all_processing_segments(filename, max_gap_ms, audio_total_duration_s, margin_s = 0.0)
+        pts_times = BigBlueButton::EDL::MediaUtils.get_packet_pts_times(filename, 'a')
+        return [{ start_pts: 0.0, end_pts: audio_total_duration_s, action: :copy }] if pts_times.nil? || pts_times.empty?
+
+        max_gap_seconds = max_gap_ms / 1000.0
+        recode_intervals = []
+
+        previous_pts = pts_times.first
+        pts_times.each do |current_pts|
+          if current_pts > previous_pts
+            gap = current_pts - previous_pts
+            if gap > max_gap_seconds
+              gap_start = [previous_pts - margin_s, 0.0].max
+              gap_end = current_pts + margin_s
+              recode_intervals << { start: gap_start, end: gap_end }
+            end
+          end
+          previous_pts = current_pts
+        end
+
+        recode_intervals.sort_by! { |r| r[:start] }
+        merged_recode_intervals = []
+        recode_intervals.each do |current_interval|
+          if merged_recode_intervals.empty?
+            merged_recode_intervals << current_interval
+          else
+            last_interval = merged_recode_intervals.last
+            if current_interval[:start] <= last_interval[:end] + 0.01
+              last_interval[:end] = [last_interval[:end], current_interval[:end]].max
+            else
+              merged_recode_intervals << current_interval
+            end
+          end
+        end
+
+        segments = []
+        last_processed_pts = 0.0
+        
+        merged_recode_intervals.each do |interval|
+          if interval[:start] > last_processed_pts + 0.01
+            segments << { start_pts: last_processed_pts, end_pts: interval[:start], action: :copy }
+          end
+          segments << { start_pts: interval[:start], end_pts: interval[:end], action: :recode }
+          last_processed_pts = interval[:end]
+        end
+
+        if last_processed_pts < audio_total_duration_s - 0.01
+          segments << { start_pts: last_processed_pts, end_pts: audio_total_duration_s, action: :copy }
+        end
+        
+        if segments.empty?
+           segments << { start_pts: 0.0, end_pts: audio_total_duration_s, action: :copy }
+        end
+
+        segments
       end
 
       def self.audio_info(filename)
