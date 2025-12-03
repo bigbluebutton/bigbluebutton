@@ -187,6 +187,7 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
         isLocalChange={isLocalChange}
         isRTL={isRTL}
         amIPresenter={amIPresenter}
+        isVisible={isVisible}
       />
     </Styled.PanelContent>
   );
