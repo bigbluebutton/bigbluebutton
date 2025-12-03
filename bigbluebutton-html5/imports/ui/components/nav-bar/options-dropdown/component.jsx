@@ -353,9 +353,11 @@ class OptionsDropdown extends PureComponent {
 
     const Settings = getSettingsSingletonInstance();
     const { selectedLayout } = Settings.application;
+    const showLayoutButton = window.meetingClientSettings.public.layout.enableDeprecatedLayoutSelection;
     const shouldShowManageLayoutButton = selectedLayout !== LAYOUT_TYPE.CAMERAS_ONLY
       && selectedLayout !== LAYOUT_TYPE.PRESENTATION_ONLY
-      && selectedLayout !== LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY;
+      && selectedLayout !== LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY
+      && showLayoutButton;
 
     if (shouldShowManageLayoutButton && isLayoutsEnabled) {
       this.menuItems.push({

@@ -12,6 +12,7 @@ import {
   SYNC,
   LAYOUT_ELEMENTS,
   PANELS,
+  HIDDEN_LAYOUTS,
 } from '../enums';
 import { isMobile, LAYOUTS_SYNC } from '../utils';
 import { updateSettings, isKeepPushingLayoutEnabled } from '/imports/ui/components/settings/service';
@@ -125,7 +126,12 @@ const PushLayoutEngine = (props) => {
       actualLayout = actualLayout === 'custom' ? 'smart' : actualLayout;
       Settings.application.selectedLayout = actualLayout;
     }
-    Session.setItem('isGridEnabled', actualLayout === LAYOUT_TYPE.VIDEO_FOCUS);
+
+    if (actualLayout === LAYOUT_TYPE.UNIFIED_LAYOUT) {
+      Session.setItem('isGridEnabled', !presentationIsOpen);
+    } else {
+      Session.setItem('isGridEnabled', actualLayout === LAYOUT_TYPE.VIDEO_FOCUS);
+    }
 
     Settings.save(setLocalSettings);
 
@@ -140,7 +146,7 @@ const PushLayoutEngine = (props) => {
     MediaService.setPresentationIsOpen(layoutContextDispatch, presentationLastState);
     Session.setItem('presentationLastState', presentationLastState);
 
-    if (actualLayout === 'custom') {
+    if (actualLayout === 'custom' || actualLayout === 'unified') {
       setTimeout(() => {
         layoutContextDispatch({
           type: ACTIONS.SET_FOCUSED_CAMERA_ID,
@@ -345,13 +351,21 @@ const PushLayoutEngine = (props) => {
       && layoutPropagateElements.length > 0
     ) {
       if (pushLayout && (layoutChanged || pushLayout !== prevProps.pushLayout)) {
-        setMeetingLayout();
+        setMeetingLayout(pushLayout);
       }
     }
 
-    if (selectedLayout !== prevProps.selectedLayout) {
+    if (selectedLayout !== prevProps.selectedLayout
+      && selectedLayout !== LAYOUT_TYPE.UNIFIED_LAYOUT) {
       Session.setItem('isGridEnabled', selectedLayout === LAYOUT_TYPE.VIDEO_FOCUS);
     }
+
+    if (selectedLayout === LAYOUT_TYPE.UNIFIED_LAYOUT
+      && (selectedLayout !== prevProps.selectedLayout
+        || presentationIsOpen !== prevProps.presentationIsOpen)) {
+      Session.setItem('isGridEnabled', !presentationIsOpen);
+    }
+
     return () => {};
   });
 
@@ -373,6 +387,16 @@ const PushLayoutEngineContainer = (props) => {
   const isPushLayoutEnabled = isKeepPushingLayoutEnabled();
 
   const getKeepPushingLayout = () => {
+    // check if current layout is a hidden layout
+    if (selectedLayout && HIDDEN_LAYOUTS.includes(selectedLayout)) {
+      return false;
+    }
+
+    // always enabled for non-hidden layouts is layout manager is disabled
+    if (!window.meetingClientSettings.public.layout.enableDeprecatedLayoutSelection) {
+      return true;
+    }
+
     if (!isPushLayoutEnabled) return false;
 
     const storageKey = `keepPushingLayout_${Auth.meetingID}`;
