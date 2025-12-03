@@ -28,6 +28,7 @@ interface PadContainerGraphqlProps {
   isRTL: boolean;
   amIPresenter: boolean;
   isOnMediaArea?: boolean;
+  isVisible?: boolean;
 }
 
 interface PadGraphqlProps extends PadContainerGraphqlProps {
@@ -36,6 +37,7 @@ interface PadGraphqlProps extends PadContainerGraphqlProps {
   padId: string | undefined;
   amIPresenter: boolean;
   isOnMediaArea: boolean;
+  isVisible: boolean;
 }
 
 const PadGraphql: React.FC<PadGraphqlProps> = (props) => {
@@ -49,6 +51,7 @@ const PadGraphql: React.FC<PadGraphqlProps> = (props) => {
     padId,
     amIPresenter,
     isOnMediaArea,
+    isVisible,
     hasPermission,
   } = props;
   const [padURL, setPadURL] = useState<string | undefined>();
@@ -67,11 +70,11 @@ const PadGraphql: React.FC<PadGraphqlProps> = (props) => {
   useEffect(() => {
     if (!hasSession || !padId) return () => {};
     return () => {
-      if (hasLoaded) {
+      if (hasLoaded && isVisible) {
         markNotesAsRead();
       }
     };
-  }, [hasSession, padId, hasLoaded]);
+  }, [hasSession, padId, hasLoaded, isVisible]);
 
   if (!hasPermission) {
     return <PadContent externalId={externalId} isOnMediaArea={isOnMediaArea} />;
@@ -109,6 +112,7 @@ const PadContainerGraphql: React.FC<PadContainerGraphqlProps> = (props) => {
     isLocalChange,
     amIPresenter,
     isOnMediaArea = false,
+    isVisible = true,
   } = props;
 
   const { data: meeting } = useMeeting((m) => ({
@@ -142,6 +146,7 @@ const PadContainerGraphql: React.FC<PadContainerGraphqlProps> = (props) => {
       padId={session?.sharedNotes?.padId}
       amIPresenter={amIPresenter}
       isOnMediaArea={isOnMediaArea}
+      isVisible={isVisible}
       hasPermission={hasPermission}
     />
   );
