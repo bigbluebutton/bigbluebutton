@@ -125,16 +125,6 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
   };
 
   const {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    display,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    isPinned,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    browserHeight,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    browserWidth,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    tabOrder,
     ...cssProps
   } = sharedNotesOutput;
 
@@ -244,7 +234,8 @@ const NotesContainerGraphql: React.FC<NotesContainerGraphqlProps> = (props) => {
       layoutContextDispatch={layoutContextDispatch}
       isResizing={isResizing}
       isLocalChange={isLocalChange}
-      ignoreDelayforUnmount={sidebarContentToIgnoreDelay.includes(sidebarContent.sidebarContentPanel)}
+      ignoreDelayforUnmount={sidebarContentToIgnoreDelay.includes(sidebarContent.sidebarContentPanel)
+        || (isOnMediaArea && !!isGridLayout)}
       sharedNotesOutput={sharedNotesOutput}
       amIPresenter={amIPresenter}
       isRTL={isRTL}
