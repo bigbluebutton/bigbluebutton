@@ -389,7 +389,9 @@ const PushLayoutEngineContainer = (props) => {
 
   const getKeepPushingLayout = () => {
     // check if current layout is a hidden layout
-    if (selectedLayout && HIDDEN_LAYOUTS.includes(selectedLayout)) {
+    if (selectedLayout
+      && selectedLayout !== LAYOUT_TYPE.UNIFIED_LAYOUT
+      && HIDDEN_LAYOUTS.includes(selectedLayout)) {
       return false;
     }
 
