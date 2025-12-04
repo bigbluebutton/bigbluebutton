@@ -324,7 +324,7 @@ module BigBlueButton
           output_filename_ogg = File.join(target_directory, "#{original_basename}_resampled.#{WF_EXT}")
           BigBlueButton.logger.info "Segmented resampling for '#{original_filename}' (duration: #{original_total_duration_s}s). Output: '#{output_filename_ogg}'"
 
-          processing_segments = get_all_processing_segments(original_filename, MAX_AUDIO_GAP_FOR_RESAMPLE_MS, original_total_duration_s, 0.2)
+          processing_segments = get_all_processing_segments(original_filename, MAX_AUDIO_GAP_FOR_RESAMPLE_MS, original_total_duration_s, 0.01)
 
           if processing_segments.empty? || (processing_segments.length == 1 && processing_segments.first[:action] == :copy)
              BigBlueButton.logger.info "No gaps requiring special handling found for '#{original_filename}'. Performing standard resampling."
@@ -355,16 +355,17 @@ module BigBlueButton
               next
             end
 
-            part_path = File.join(parts_dir, "#{original_basename}_part#{index + 1}.#{WF_EXT}")
+            part_path = File.join(parts_dir, "#{original_basename}_part#{index + 1}.wav")
 
             if action == :recode
               # Generate silence
               cmd_part = [*FFMPEG, '-y', '-f', 'lavfi', '-i', 'aevalsrc=0', '-t', part_duration.to_s]
-              cmd_part += ['-c:a', FFMPEG_WF_CODEC, '-q:a', '2']
+              cmd_part += ['-c:a', 'pcm_s16le', '-ar', '48000']
               BigBlueButton.logger.info "Creating Part ##{index + 1} (SILENCE from #{part_start_pts.round(3)}s to #{part_end_pts.round(3)}s) for '#{original_filename}'"
             else # :copy
-              cmd_part = [*FFMPEG, '-y', '-ss', part_start_pts.to_s, '-i', original_filename, '-t', part_duration.to_s]
-              cmd_part += ['-vn', '-c:a', FFMPEG_WF_CODEC, '-q:a', '2', '-af', 'aresample=async=1000', '-avoid_negative_ts', 'make_zero']
+              cmd_part = [*FFMPEG, '-y', '-ss', part_start_pts.to_s, '-i', original_filename]
+              cmd_part += ['-vn', '-c:a', 'pcm_s16le', '-ar', '48000']
+              cmd_part += ['-af', "atrim=duration=#{part_duration}"]
               BigBlueButton.logger.info "Creating Part ##{index + 1} (COPY from #{part_start_pts.round(3)}s) to #{part_end_pts.round(3)}s) for '#{original_filename}'"
             end
             cmd_part << part_path
@@ -390,7 +391,7 @@ module BigBlueButton
              end
              
              cmd_concat = [*FFMPEG, '-y', '-f', 'concat', '-safe', '0', '-i', concat_list_path,
-                           '-c', 'copy', output_filename_ogg]
+                           '-vn', *FFMPEG_WF_ARGS, output_filename_ogg]
              
              exit_status_concat = BigBlueButton.exec_ret(*cmd_concat)
              if exit_status_concat == 0 && File.exist?(output_filename_ogg)
