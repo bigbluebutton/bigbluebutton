@@ -1042,8 +1042,6 @@ public:
         mime: image/png
       - extension: .webp
         mime: image/webp
-      - extension: .svg
-        mime: image/svg+xml
   user:
     role_moderator: MODERATOR
     role_viewer: VIEWER
