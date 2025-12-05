@@ -10,7 +10,7 @@ rtc:
     excludes:
       - docker0
 redis:
-  address: redis:6379
+  address: 127.0.0.1:6379
 webhook:
   urls:
     - http://127.0.0.1:3040/livekit-webhook

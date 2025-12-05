@@ -28,16 +28,16 @@ server:
   subscriptions_denied_list:
   websocket_idle_timeout_seconds: 60
 redis:
-  host: redis
+  host: 127.0.0.1
   port: 6379
   password: ""
 hasura:
-  url: ws://nginx:8185/v1/graphql
+  url: ws://127.0.0.1:8185/v1/graphql
 graphql-actions:
-  url: http://graphql-actions:8093
+  url: http://127.0.0.1:8093
 auth_hook:
-  url: http://web:8090/bigbluebutton/connection/checkGraphqlAuthorization
+  url: http://127.0.0.1:8090/bigbluebutton/connection/checkGraphqlAuthorization
 session_vars_hook:
-  url: http://apps-akka:8901/userInfo
+  url: http://127.0.0.1:8901/userInfo
 prometheus_advanced_metrics_enabled: false
 log_level: INFO

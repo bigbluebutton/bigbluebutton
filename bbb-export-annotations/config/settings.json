@@ -20,10 +20,10 @@
     "is_downloadable": "false",
     "msgName": "NewPresFileAvailableMsg"
   },
-  "bbbWebAPI": "http://web:8090",
-  "bbbPadsAPI": "http://pads:9002",
+  "bbbWebAPI": "http://127.0.0.1:8090",
+  "bbbPadsAPI": "http://127.0.0.1:9002",
   "redis": {
-    "host": "redis",
+    "host": "127.0.0.1",
     "port": 6379,
     "password": null,
     "channels": {
