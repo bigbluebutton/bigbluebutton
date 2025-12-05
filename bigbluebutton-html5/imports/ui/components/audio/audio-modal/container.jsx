@@ -104,8 +104,8 @@ const AudioModalContainer = (props) => {
     (options = {}) => joinMicrophone({
       skipEchoTest: options.skipEchoTest || joinFullAudioImmediately,
       muted: options.muteOnStart
-        || meeting?.voiceSettings?.muteOnStart
-        || storageMuteState,
+        ?? storageMuteState
+        ?? meeting?.voiceSettings?.muteOnStart,
     }),
     [skipCheck, skipCheckOnJoin, meeting, storageMuteState],
   );
