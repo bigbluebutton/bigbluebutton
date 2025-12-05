@@ -216,6 +216,9 @@ services:
 
   webhooks:
     image: "${IMAGE_REPO:-bigbluebutton}/bbb-webhooks:${IMAGE_WEBHOOKS_TAG:-latest}"
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
     depends_on:
       - redis
     networks:
