@@ -217,8 +217,15 @@ services:
   webhooks:
     image: "${IMAGE_REPO:-bigbluebutton}/bbb-webhooks:${IMAGE_WEBHOOKS_TAG:-latest}"
     environment:
+      - NODE_ENV=production
+      - NODE_CONFIG_DIR=/app/config/
+      - SERVER_DOMAIN=${BBB_SERVER_URL}
+      - SHARED_SECRET=${SHARED_SECRET}
+      - LOG_TO_STDOUT=true
+      - LOG_TO_FILE=false
       - REDIS_HOST=redis
       - REDIS_PORT=6379
+      - SERVER_BIND_IP=0.0.0.0
     depends_on:
       - redis
     networks:
