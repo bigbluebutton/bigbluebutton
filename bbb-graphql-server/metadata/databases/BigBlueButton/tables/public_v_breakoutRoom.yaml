@@ -46,6 +46,7 @@ select_permissions:
         - shortName
         - showInvitation
         - startedAt
+        - parentMeetingDisablePrivateChat
       filter:
         _and:
           - userMeetingId:

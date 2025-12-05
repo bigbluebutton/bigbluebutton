@@ -56,6 +56,7 @@ interface UserActionsProps {
   open: boolean;
   setOpenUserAction: React.Dispatch<React.SetStateAction<string | null>>;
   type?: 'raised-hand' | 'participant';
+  parentMeetingDisablePrivateChat: boolean;
 }
 
 interface DropdownItem {
@@ -220,6 +221,7 @@ const UserActions: React.FC<UserActionsProps> = ({
   lockSettings,
   usersPolicies,
   isBreakout,
+  parentMeetingDisablePrivateChat,
   children,
   pageId = '',
   userListDropdownItems,
@@ -407,6 +409,9 @@ const UserActions: React.FC<UserActionsProps> = ({
     {
       allowed: (() => {
         const preventSelfChat = user.userId !== currentUser.userId;
+        const isParentMeetingPrivateChatDisabled = isBreakout
+          && parentMeetingDisablePrivateChat;
+
         const moderatorOverride = currentUser.isModerator
           && allowedToChatPrivately;
         const regularUserCondition = (isPrivateChatEnabled
@@ -418,6 +423,7 @@ const UserActions: React.FC<UserActionsProps> = ({
 
         const isAllowed = preventSelfChat
           && (moderatorOverride || regularUserCondition || !currentUser.locked)
+          && !isParentMeetingPrivateChatDisabled
           && type === 'participant';
 
         return isAllowed;

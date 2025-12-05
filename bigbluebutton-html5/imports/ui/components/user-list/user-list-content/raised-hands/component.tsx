@@ -45,6 +45,7 @@ interface RaisedHandsComponentProps {
     isBreakout: boolean;
     lockSettings: LockSettings;
     usersPolicies: UsersPolicies;
+    parentMeetingDisablePrivateChat: boolean;
   };
   pageId: string;
   currentUser: User;
@@ -94,6 +95,7 @@ const RaisedHandsComponent: React.FC<RaisedHandsComponentProps> = ({
         user={user as User}
         currentUser={currentUser}
         lockSettings={meeting.lockSettings}
+        parentMeetingDisablePrivateChat={meeting.parentMeetingDisablePrivateChat}
         usersPolicies={meeting.usersPolicies}
         pageId={pageId}
         userListDropdownItems={[]}
@@ -206,6 +208,7 @@ const RaisedHandsContainer: React.FC = () => {
     isBreakout: m.isBreakout,
     meetingId: m.meetingId,
     breakoutPolicies: m.breakoutPolicies,
+    parentMeetingDisablePrivateChat: m.parentMeetingDisablePrivateChat,
   }));
 
   const {
@@ -254,6 +257,7 @@ const RaisedHandsContainer: React.FC = () => {
         isBreakout: !!meeting.isBreakout,
         lockSettings: meeting.lockSettings as LockSettings ?? {},
         usersPolicies: (meeting.usersPolicies as UsersPolicies) ?? {},
+        parentMeetingDisablePrivateChat: meeting.parentMeetingDisablePrivateChat ?? false,
       }}
       currentUser={currentUser as User}
       hideUserList={hideUserList}

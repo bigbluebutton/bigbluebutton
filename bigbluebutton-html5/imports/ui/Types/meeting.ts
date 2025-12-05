@@ -144,4 +144,5 @@ export interface Meeting {
   endWhenNoModeratorDelayInMinutes: number;
   loginUrl: string | null;
   groups: Array<groups>;
+  parentMeetingDisablePrivateChat: boolean;
 }

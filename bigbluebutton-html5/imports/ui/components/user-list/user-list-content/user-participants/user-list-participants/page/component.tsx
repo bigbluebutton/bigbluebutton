@@ -31,6 +31,7 @@ interface UsersListParticipantsPage {
     isBreakout: boolean;
     lockSettings: Meeting['lockSettings'];
     usersPolicies: UsersPolicies;
+    parentMeetingDisablePrivateChat: boolean
   };
   currentUser: Partial<User>;
   pageId: string;
@@ -66,6 +67,7 @@ const UsersListParticipantsPage: React.FC<UsersListParticipantsPage> = ({
                 user={user}
                 currentUser={currentUser as User}
                 lockSettings={meeting.lockSettings}
+                parentMeetingDisablePrivateChat={meeting.parentMeetingDisablePrivateChat}
                 usersPolicies={meeting.usersPolicies}
                 pageId={pageId}
                 userListDropdownItems={userListDropdownItems}
@@ -102,6 +104,7 @@ const UserListParticipantsPageContainer: React.FC<UserListParticipantsContainerP
     isBreakout: m.isBreakout,
     meetingId: m.meetingId,
     breakoutPolicies: m.breakoutPolicies,
+    parentMeetingDisablePrivateChat: m.parentMeetingDisablePrivateChat,
   }));
 
   useEffect(() => () => {
@@ -215,6 +218,7 @@ const UserListParticipantsPageContainer: React.FC<UserListParticipantsContainerP
         isBreakout: !!meeting.isBreakout,
         lockSettings: meeting.lockSettings as LockSettings ?? {},
         usersPolicies: (meeting.usersPolicies as UsersPolicies) ?? {},
+        parentMeetingDisablePrivateChat: meeting.parentMeetingDisablePrivateChat ?? false,
       }}
       currentUser={currentUser ?? {}}
       pageId={pageId ?? ''}

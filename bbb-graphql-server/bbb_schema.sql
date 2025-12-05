@@ -1058,9 +1058,12 @@ create view "v_user_transcriptionError" as select * from "user_transcriptionErro
 
 
 create view "v_meeting" as
-select "meeting".*,  "user_ended"."name" as "endedByUserName"
+select "meeting".*,  "user_ended"."name" as "endedByUserName", "meeting_breakout"."parentId" as "parentMeetingId",
+       "parent_meeting_lockSettings"."disablePrivateChat" as "parentMeetingDisablePrivateChat"
 from "meeting"
 left join "user" "user_ended" on "user_ended"."meetingId" = "meeting"."meetingId" and "user_ended"."userId" = "meeting"."endedBy"
+left join "meeting_breakout" on "meeting_breakout"."meetingId" = "meeting"."meetingId"
+left join "meeting_lockSettings" "parent_meeting_lockSettings" on "parent_meeting_lockSettings"."meetingId" = "meeting_breakout"."parentId"
 ;
 
 create view "v_meeting_learningDashboard" as
@@ -2163,9 +2166,11 @@ SELECT bu."meetingId" as "userMeetingId", bu."userId", b."parentMeetingId", b."b
             b."shortName", b."startedAt", b."endedAt", b."durationInSeconds", b."sendInvitationToModerators",
             bu."assignedAt", bu."joinURL", bu."inviteDismissedAt",
             bu."isLastAssignedRoom", bu."isLastJoinedRoom", bu."isUserCurrentlyInRoom", bu."showInvitation",
-            bu."joinedAt" is not null as "hasJoined"
+            bu."joinedAt" is not null as "hasJoined",
+            pmls."disablePrivateChat" as "parentMeetingDisablePrivateChat"
     FROM "breakoutRoom_user" bu
     JOIN "breakoutRoom" b ON b."breakoutRoomId" = bu."breakoutRoomId" and b."endedAt" IS NULL
+    LEFT JOIN "meeting_lockSettings" pmls ON pmls."meetingId" = b."parentMeetingId"
     --JOIN  bu ON bu."meetingId" = u."meetingId" AND bu."userId" = u."userId" AND bu."breakoutRoomId" = b."breakoutRoomId"
     ;
 

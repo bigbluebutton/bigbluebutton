@@ -19,6 +19,8 @@ const MEETING_SUBSCRIPTION = gql`
           lockOnJoinConfigurable
         }
 
+        parentMeetingDisablePrivateChat
+
         learningDashboard {
           learningDashboardAccessToken
         }

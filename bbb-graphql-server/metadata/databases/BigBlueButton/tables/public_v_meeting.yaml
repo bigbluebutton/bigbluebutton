@@ -185,6 +185,7 @@ select_permissions:
         - notifyRecordingIsOn
         - presentationUploadExternalDescription
         - presentationUploadExternalUrl
+        - parentMeetingDisablePrivateChat
       filter:
         meetingId:
           _eq: X-Hasura-MeetingId
