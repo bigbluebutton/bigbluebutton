@@ -46,7 +46,7 @@ COPY --from=build --chown=bigbluebutton /bbb-web/pres-checker/run.sh /usr/share/
 
 # Create necessary directories
 RUN mkdir -p /var/bigbluebutton/diagnostics /etc/bigbluebutton
-RUN chown -R bigbluebutton:bigbluebutton /etc/bigbluebutton
+RUN chown -R bigbluebutton:bigbluebutton /etc/bigbluebutton /var/bigbluebutton
 
 COPY --chown=bigbluebutton turn-stun-servers.xml.tmpl /etc/bigbluebutton/turn-stun-servers.xml.tmpl
 

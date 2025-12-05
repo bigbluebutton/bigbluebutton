@@ -88,6 +88,11 @@ RUN mkdir -p \
     /etc/bigbluebutton \
     /etc/bigbluebutton/recording \
     /var/log/bigbluebutton \
+    /var/bigbluebutton/captions/ \
+    /var/bigbluebutton/events/ \
+    /var/bigbluebutton/recording/raw \
+    /var/bigbluebutton/recording/process \
+    /var/bigbluebutton/recording/publish \
     /var/bigbluebutton/recording/status/recorded \
     /var/bigbluebutton/recording/status/archived \
     /var/bigbluebutton/recording/status/processed \

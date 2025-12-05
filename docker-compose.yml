@@ -147,6 +147,8 @@ services:
     container_name: recording-workers
     image: "${IMAGE_REPO:-bigbluebutton}/bbb-record-and-playback:${IMAGE_RECORD_AND_PLAYBACK_TAG:-latest}"
     command: "resque_workers"
+    volumes:
+      - ./data/bbb-webrtc-recorder:/var/lib/bbb-webrtc-recorder
     depends_on:
       - redis
     build:
@@ -234,6 +236,8 @@ services:
   webrtc-recorder:
     image: "${IMAGE_REPO:-bigbluebutton}/bbb-webrtc-recorder:${IMAGE_WEBRTC_RECORDER_TAG:-latest}"
     restart: unless-stopped
+    volumes:
+      - ./data/bbb-webrtc-recorder:/var/lib/bbb-webrtc-recorder
     environment:
       - BBBRECORDER_RECORDER_DIRFILEMODE=0755
       - BBBRECORDER_RECORDER_FILEMODE=0655
