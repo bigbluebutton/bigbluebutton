@@ -89,7 +89,7 @@ const UserNotesListItemContainerGraphql: React.FC<BaseSidebarButtonProps> = (pro
       ariaDescribedBy="lockedNotes"
       dataTest="sharedNotesSidebarButton"
       hasNotification={hasUnreadNotes}
-      isDisabled={disableNotes}
+      isDisabled={disableNotes || isPinned}
     >
       {disableNotes
         ? (
