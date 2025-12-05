@@ -21,7 +21,7 @@ RUN git clone https://github.com/alangecker/bbb-etherpad-skin.git /tmp/bbb-ether
     rm -rf /tmp/bbb-etherpad-skin
 
 # download and add bbb plugin from git repo
-RUN git clone https://github.com/alangecker/bbb-etherpad-plugin.git /tmp/bbb-etherpad-plugin && \
+RUN git clone -b bbb3 https://github.com/alangecker/bbb-etherpad-plugin.git /tmp/bbb-etherpad-plugin && \
     mkdir -p /opt/etherpad-lite/bbb-etherpad-plugin && \
     cp -r /tmp/bbb-etherpad-plugin/* /opt/etherpad-lite/bbb-etherpad-plugin && \
     rm -rf /tmp/bbb-etherpad-plugin
