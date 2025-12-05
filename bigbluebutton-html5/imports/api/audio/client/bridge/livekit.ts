@@ -229,7 +229,7 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
   private isLocalPublicationMuted(): boolean {
     const pubs = this.getLocalMicTrackPubs();
 
-    return pubs.length === 0 || pubs.every((pub) => pub.isMuted);
+    return pubs.every((pub) => pub.isMuted);
   }
 
   private isTrackPublishedWithStream(stream: MediaStream | null): boolean {
@@ -345,8 +345,9 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
       this.clearUnpublishRequest();
 
       this.unpublishRequest = setTimeout(() => {
-        // TODO also check if still muted?
-        if (!this.hasMicrophoneTrack()) return;
+        // If the publication is unmuted, we don't need to unpublish anymore
+        // (this unpublish request is only set if the publication is muted)
+        if (!this.hasMicrophoneTrack() || !this.isLocalPublicationMuted()) return;
 
         this.unpublish();
         this.unpublishRequest = null;
@@ -1100,7 +1101,7 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
     }).finally(() => {
       // Only clear pending if no newer publish has started
       if (this.publishGeneration === currentGeneration) this.isPublishPending = false;
-    }) as Promise<void>;
+    });
   }
 
   private unpublish(): Promise<void> {
