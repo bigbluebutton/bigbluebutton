@@ -84,6 +84,7 @@ export interface UseVideoPreviewReturn {
   setCurrentVideoStream: (stream: BBBVideoStream | null) => void;
   handleStartSharing: (deviceId: string) => void;
   shouldSkipVideoPreview: () => boolean;
+  applyStoredVirtualBg: (deviceId: string | null) => Promise<void>;
   VIEW_STATES: typeof VIEW_STATES;
 }
 

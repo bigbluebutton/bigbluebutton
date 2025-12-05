@@ -792,6 +792,7 @@ export const useVideoPreview = ({
     getInitialCameraStream,
     shouldSkipVideoPreview,
     handleStartSharing,
+    applyStoredVirtualBg,
     VIEW_STATES,
   };
 };
