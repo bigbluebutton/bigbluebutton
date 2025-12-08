@@ -40,7 +40,7 @@ lazy val commonWeb = (project in file(".")).settings(name := "bbb-common-web", l
 // Config file is in ./.scalariform.conf
 scalariformAutoformat := true
 
-scalaVersion := "2.13.9"
+scalaVersion := "2.13.18"
 //-----------
 // Packaging
 //
