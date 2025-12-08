@@ -372,6 +372,8 @@ const UserActions: React.FC<UserActionsProps> = ({
     {
       allowed: (() => {
         const preventSelfChat = user.userId !== currentUser.userId;
+        const isBreakoutPrivateChatLocked = isBreakout
+          && lockSettings?.disablePrivateChat;
         const moderatorOverride = currentUser.isModerator
           && allowedToChatPrivately;
         const regularUserCondition = (isPrivateChatEnabled
@@ -383,6 +385,7 @@ const UserActions: React.FC<UserActionsProps> = ({
 
         const isAllowed = preventSelfChat
           && (moderatorOverride || regularUserCondition || !currentUser.locked)
+          && !isBreakoutPrivateChatLocked
           && type === 'participant';
 
         return isAllowed;

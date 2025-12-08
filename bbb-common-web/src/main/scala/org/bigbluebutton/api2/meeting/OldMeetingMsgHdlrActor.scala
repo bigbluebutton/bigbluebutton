@@ -132,6 +132,16 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
       msg.body.room.audioBridge,
       msg.body.room.cameraBridge,
       msg.body.room.screenShareBridge,
+      msg.body.room.disableCam,
+      msg.body.room.disableMic,
+      msg.body.room.disablePrivChat,
+      msg.body.room.disablePubChat,
+      msg.body.room.disableNotes,
+      msg.body.room.hideUserList,
+      msg.body.room.lockOnJoin,
+      msg.body.room.lockOnJoinConfigurable,
+      msg.body.room.hideViewersCursor,
+      msg.body.room.hideViewersAnnotation
     ))
   }
 

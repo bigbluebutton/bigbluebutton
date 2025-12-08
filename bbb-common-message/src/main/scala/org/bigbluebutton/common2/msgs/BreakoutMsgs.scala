@@ -63,6 +63,16 @@ case class BreakoutRoomDetail(
     audioBridge:             String,
     cameraBridge:            String,
     screenShareBridge:       String,
+    disableCam:              Boolean,
+    disableMic:              Boolean,
+    disablePrivChat:         Boolean,
+    disablePubChat:          Boolean,
+    disableNotes:            Boolean,
+    hideUserList:            Boolean,
+    lockOnJoin:              Boolean,
+    lockOnJoinConfigurable:  Boolean,
+    hideViewersCursor:       Boolean,
+    hideViewersAnnotation:   Boolean
 )
 
 /**
