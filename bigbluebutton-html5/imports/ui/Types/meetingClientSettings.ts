@@ -26,6 +26,7 @@ export interface Public {
   stats: Stats
   presentation: Presentation
   user: User
+  userList: UserList
   whiteboard: Whiteboard
   clientLog: ClientLog
   virtualBackgrounds: VirtualBackgrounds
@@ -750,6 +751,14 @@ export interface User {
   role_moderator: string
   role_viewer: string
   label: Label
+}
+
+interface Search {
+  enabled: boolean
+}
+
+export interface UserList {
+  search: Search
 }
 
 export interface Label {
