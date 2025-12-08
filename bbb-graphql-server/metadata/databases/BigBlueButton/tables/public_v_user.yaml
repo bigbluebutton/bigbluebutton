@@ -118,6 +118,7 @@ select_permissions:
         - registeredOn
         - role
         - speechLocale
+        - requestedPresenter
         - userId
         - meetingId
       filter:

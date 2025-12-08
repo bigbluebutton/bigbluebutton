@@ -29,6 +29,7 @@ export interface MediaAreaProps {
   intl: IntlShape;
   amIModerator?: boolean;
   handleTakePresenter: () => void;
+  handleRequestPresenter: () => void;
   allowExternalVideo: boolean;
   stopExternalVideoShare: () => void;
   isCameraAsContentEnabled: boolean;

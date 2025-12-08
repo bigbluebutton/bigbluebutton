@@ -306,6 +306,7 @@ CREATE UNLOGGED TABLE "user" (
 	"hasDrawPermissionOnCurrentPage" bool default FALSE,
 	"whiteboardWriteAccess" bool default FALSE,
 	"echoTestRunningAt" timestamp with time zone,
+	"requestedPresenter" boolean default FALSE,
 	CONSTRAINT "user_pkey" PRIMARY KEY ("meetingId","userId"),
 	FOREIGN KEY ("meetingId", "guestStatusSetByModerator") REFERENCES "user"("meetingId","userId") ON DELETE SET NULL
 );
@@ -427,6 +428,7 @@ AS SELECT "user"."userId",
     "user"."registeredAt",
     "user"."presenter",
     "user"."pinned",
+    "user"."requestedPresenter",
     CASE WHEN "user"."role" = 'MODERATOR' THEN false ELSE "user"."locked" END "locked",
     "user"."speechLocale",
     "user"."captionLocale",
@@ -503,6 +505,7 @@ SELECT
     "user"."inactivityWarningDisplay",
     "user"."inactivityWarningTimeoutSecs",
     "user"."requestedUnmuteByMod",
+    "user"."requestedPresenter",
     "user"."bot"
 FROM "user";
 
@@ -562,6 +565,7 @@ AS SELECT
     "user"."registeredOn",
     "user"."registeredAt",
     "user"."presenter",
+    "user"."requestedPresenter",
     "user"."pinned",
     CASE WHEN "user"."role" = 'MODERATOR' THEN false ELSE "user"."locked" END "locked",
     "user"."speechLocale",
@@ -1516,7 +1520,7 @@ SELECT pres_presentation."meetingId",
 	pres_presentation."downloadFileExtension",
 	pres_presentation."downloadFileUri",
 	pres_presentation."removable",
-	pres_presentation."uploadCompletionNotified",
+    pres_presentation."uploadCompletionNotified",
     pres_presentation."uploadTemporaryId",
     pres_presentation."uploadInProgress",
     pres_presentation."uploadCompleted",

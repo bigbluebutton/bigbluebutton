@@ -10,7 +10,8 @@ trait UsersApp2x
   with ClearAllUsersReactionCmdMsgHdlr
   with GenerateLiveKitTokenRespMsgHdlr
   with LiveKitParticipantLeftEvtMsgHdlr
-  with UnmuteRequestAnswerEvtMsgHdlr {
+  with UnmuteRequestAnswerEvtMsgHdlr
+  with UserSetPresenterRequestReqMsgHdlr {
 
   this: MeetingActor =>
 

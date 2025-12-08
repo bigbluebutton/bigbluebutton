@@ -30,6 +30,7 @@ interface MediaSharingModalProps {
   isCameraAsContentEnabled: boolean;
   hasCameraAsContent: boolean;
   handleTakePresenter: () => void;
+  handleRequestPresenter: () => void;
   hasPresentation: boolean;
   isPresentationManagementDisabled: boolean | undefined;
   isPresentationEnabled: boolean;
@@ -97,6 +98,14 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.actionsDropdown.takePresenterDesc',
     description: 'Description of take presenter role option',
   },
+  requestPresenter: {
+    id: 'app.actionsBar.actionsDropdown.requestPresenter',
+    description: 'Label for request presenter role option',
+  },
+  requestPresenterDesc: {
+    id: 'app.actionsBar.actionsDropdown.requestPresenterDesc',
+    description: 'Description of request presenter role option',
+  },
   startExternalVideoLabel: {
     id: 'app.actionsBar.actionsDropdown.shareExternalVideo',
     description: 'Start sharing external video button',
@@ -131,6 +140,7 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
   hasPresentation,
   amIModerator = false,
   handleTakePresenter,
+  handleRequestPresenter,
   isPresentationManagementDisabled = false,
   isPresentationEnabled,
   isSharingVideo,
@@ -307,16 +317,28 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
   };
 
   const renderTakePresenterView = () => {
+    const buttonLabel = amIModerator
+      ? intl.formatMessage(intlMessages.takePresenter)
+      : intl.formatMessage(intlMessages.requestPresenter);
+
+    const buttonAction = amIModerator
+      ? handleTakePresenter
+      : handleRequestPresenter;
+
+    const dataTestId = amIModerator
+      ? 'takePresenterButton'
+      : 'requestPresenterButton';
+
     return (
       <Styled.BecomePresenterViewContainer>
         <Styled.BecomePresenterText>
           {intl.formatMessage(intlMessages.mustBePresenter)}
         </Styled.BecomePresenterText>
         <Styled.ConfirmationButton
-          data-test="takePresenterButton"
-          label={intl.formatMessage(intlMessages.takePresenter)}
+          data-test={dataTestId}
+          label={buttonLabel}
           color="primary"
-          onClick={handleTakePresenter}
+          onClick={buttonAction}
           customIcon={<CoPresentIcon />}
         />
       </Styled.BecomePresenterViewContainer>
@@ -351,7 +373,7 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
         actionsBarHeight={actionsBarStyle.height}
         reducedWidth={!amIPresenter && amIModerator}
       >
-        {!amIPresenter && amIModerator
+        {!amIPresenter
           ? renderTakePresenterView()
           : (
             <>

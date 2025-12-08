@@ -22,6 +22,7 @@ const MediaArea = (props: MediaAreaProps) => {
     hasCameraAsContent,
     hasPresentation,
     handleTakePresenter,
+    handleRequestPresenter,
     isPresentationManagementDisabled = false,
     isPresentationEnabled,
     isSharingVideo,
@@ -37,7 +38,7 @@ const MediaArea = (props: MediaAreaProps) => {
     setMenuOpen(!menuOpen);
   }, [menuOpen]);
 
-  if ((!amIPresenter && !amIModerator) || !isMeteorConnected) {
+  if (!isMeteorConnected) {
     return null;
   }
 
@@ -68,6 +69,7 @@ const MediaArea = (props: MediaAreaProps) => {
         hasCameraAsContent={hasCameraAsContent}
         hasPresentation={hasPresentation}
         handleTakePresenter={handleTakePresenter}
+        handleRequestPresenter={handleRequestPresenter}
         isPresentationManagementDisabled={isPresentationManagementDisabled}
         isPresentationEnabled={isPresentationEnabled}
         isSharingVideo={isSharingVideo}
