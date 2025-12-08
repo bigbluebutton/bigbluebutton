@@ -208,6 +208,7 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
   const hoursInputRef = React.useRef<HTMLInputElement>(null);
   const minutesInputRef = React.useRef<HTMLInputElement>(null);
   const secondsInputRef = React.useRef<HTMLInputElement>(null);
+  const syncTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
   const timeInSeconds = Math.max(0, Math.floor(timePassed / 1000));
   const hours = Math.floor(timeInSeconds / 3600);
   const minutes = Math.floor((timeInSeconds % 3600) / 60);
@@ -384,10 +385,16 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
     setLocalMinutes(newMinutes);
     setLocalSeconds(newSeconds);
     setFocusedUnit(unit);
+
+    // Cancel previous timeout to ensure only the last value is synced (avoid multiple calls)
+    if (syncTimeoutRef.current) {
+      clearTimeout(syncTimeoutRef.current);
+    }
     // Sync to backend after delay (like input blur behavior)
-    setTimeout(() => {
+    syncTimeoutRef.current = setTimeout(() => {
       syncTimeWithBackend(newHours, newMinutes, newSeconds);
       setFocusedUnit(null);
+      syncTimeoutRef.current = null;
     }, 1000);
   }, [running, localHours, localMinutes, localSeconds, syncTimeWithBackend, MAX_HOURS]);
 
@@ -405,10 +412,16 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
     setLocalMinutes(newMinutes);
     setLocalSeconds(newSeconds);
     setFocusedUnit(unit);
+
+    // Cancel previous timeout to ensure only the last value is synced (avoid multiple calls)
+    if (syncTimeoutRef.current) {
+      clearTimeout(syncTimeoutRef.current);
+    }
     // Sync to backend after delay (like input blur behavior)
-    setTimeout(() => {
+    syncTimeoutRef.current = setTimeout(() => {
       syncTimeWithBackend(newHours, newMinutes, newSeconds);
       setFocusedUnit(null);
+      syncTimeoutRef.current = null;
     }, 1000);
   }, [running, localHours, localMinutes, localSeconds, syncTimeWithBackend]);
 
