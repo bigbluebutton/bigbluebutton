@@ -111,7 +111,7 @@ libraryDependencies ++= Seq(
   "org.hibernate" % "hibernate-core" % "5.6.1.Final",
   "org.flywaydb" % "flyway-core" % "7.8.2",
   "com.zaxxer" % "HikariCP" % "4.0.3",
-  "commons-validator" % "commons-validator" % "1.7",
+  "commons-validator" % "commons-validator" % "1.10.0",
   "org.apache.tika" % "tika-core" % "3.0.0",
   "org.apache.tika" % "tika-parsers-standard-package" % "3.0.0",
   "org.scala-lang.modules" %% "scala-xml" % "2.2.0",
