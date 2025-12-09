@@ -1040,7 +1040,7 @@
     "app.shortcut-help.toggleUserList": "Kullanıcı listesini aç/kapat",
     "app.shortcut-help.openLeaveMenu": "Toplantıdan ayrıl menüsünü aç",
     "app.shortcut-help.toggleMute": "Sesi kapat/aç",
-    "app.shortcut-help.togglePublicChat": "Herkese Açık Sohbete Geç (Kullanıcı listesi açık olmalıdır)",
+    "app.shortcut-help.togglePublicChat": "Herkese açık sohbete geç (kullanıcı listesi açık olmalıdır)",
     "app.shortcut-help.hidePrivateChat": "Özel sohbeti gizle",
     "app.shortcut-help.closePrivateChat": "Özel sohbeti kapat",
     "app.shortcut-help.openActions": "İşlemler menüsünü aç",
