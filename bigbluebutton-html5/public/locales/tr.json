@@ -1151,7 +1151,7 @@
     "app.notificationBar.connectionCode3004": "Bağlantı kararlı değil. Lütfen internet bağlantınızı kontrol edin (kod 3004)",
     "app.notificationBar.connectionCode3005": "Veriler yavaş yükleniyor. Yeniden bağlantı kuruluyor (kod 3005)",
     "app.notificationBar.issueLoadingDataCode3006": "Bazı canlı veriler yüklenemedi. Lütfen istemcinizi yenileyin (kod 3006)",
-    "app.learning-dashboard.label": "İstatistikler panosunu öğrenin",
+    "app.learning-dashboard.label": "Öğrenme istatistikleri panosu",
     "app.learning-dashboard.description": "Kullanıcı etkinlikleriyle katılım panosu",
     "app.learning-dashboard.clickHereToOpen": "Öğrenme istatistikleri panosunu aç",
     "app.recording.startTitle": "Kaydı başlat",
