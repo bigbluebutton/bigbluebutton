@@ -301,7 +301,7 @@
     "app.presentation.presentationToolbar.hideToolsDesc": "Araç çubuklarını gizle",
     "app.presentation.presentationToolbar.showToolsDesc": "Araç çubuklarını görüntüle",
     "app.presentation.placeholder": "Şu anda etkin bir sunum yok",
-    "app.presentation.modal.clearAnnotationsTitle": "Tüm açıklamaları temizle",
+    "app.presentation.modal.clearAnnotationsTitle": "Açıklamaları temizle",
     "app.presentation.modal.modClearAnnotationsDesc": "Tüm beyaz tahta açıklamalarını temizlemek istediğinize emin misiniz?",
     "app.presentation.modal.viewerClearAnnotationsDesc": "Tüm beyaz tahta açıklamalarınızı temizlemek istediğinize emin misiniz?",
     "app.presentation.modal.clearAnnotationsCancelLabel": "İptal",
