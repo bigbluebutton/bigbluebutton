@@ -228,7 +228,10 @@ class VideoList extends Component<VideoListProps, VideoListState> {
       cameraDock,
       layoutContextDispatch,
     } = this.props;
-    let numItems = streams.length;
+    const visibleStreams = streams.filter(
+      (item) => item.type === VIDEO_TYPES.GRID || !('render' in item) || item.render !== false,
+    );
+    let numItems = visibleStreams.length;
 
     if (numItems < 1 || !this.canvas || !this.grid) {
       return;
@@ -240,7 +243,7 @@ class VideoList extends Component<VideoListProps, VideoListState> {
     const gridGutter = parseInt(window.getComputedStyle(this.grid)
       .getPropertyValue('grid-row-gap'), 10);
 
-    const hasFocusedItem = streams.filter(
+    const hasFocusedItem = visibleStreams.filter(
       (s) => s.type !== VIDEO_TYPES.GRID && s.stream === focusedId,
     ).length && numItems > 2;
 
@@ -363,7 +366,9 @@ class VideoList extends Component<VideoListProps, VideoListState> {
       isGridEnabled,
       overflowCount,
     } = this.props;
-    const numOfStreams = streams.length;
+    const numOfStreams = streams.filter(
+      (item) => item.type === VIDEO_TYPES.GRID || !('render' in item) || item.render !== false,
+    ).length;
 
     const shouldShowOverflowTile = isGridEnabled && overflowCount > 0;
 
@@ -385,6 +390,9 @@ class VideoList extends Component<VideoListProps, VideoListState> {
       const stream = isStream ? item.stream : null;
       const key = isStream ? stream : userId;
       const isFocused = isStream && focusedId === stream && numOfStreams > 2;
+      const shouldRender = item.type === VIDEO_TYPES.GRID || !('render' in item) || item.render !== false;
+
+      if (!shouldRender) return null;
 
       return (
         <Styled.VideoListItem

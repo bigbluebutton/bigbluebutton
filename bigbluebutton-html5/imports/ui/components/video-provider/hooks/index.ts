@@ -410,25 +410,52 @@ export const useVideoStreams = () => {
   }
 
   if (isPaginationEnabled) {
-    const [filtered, others] = partition(
-      streams,
-      (vs: StreamItem) => videoService.isLocalStream(vs.stream) || (vs.type === VIDEO_TYPES.STREAM && vs.user?.pinned),
-    );
-    const [pin, mine] = partition(
-      filtered,
-      (vs: StreamItem) => vs.type === VIDEO_TYPES.STREAM && vs.user?.pinned,
-    );
-
-    totalNumberOfOtherStreams = others.length;
     const chunkIndex = currentVideoPageIndex * myPageSize;
     const sortingMethod = (numberOfPages > 1) ? PAGINATION_SORTING : DEFAULT_SORTING;
-    const paginatedStreams = sortVideoStreams(others, sortingMethod)
-      .slice(chunkIndex, (chunkIndex + myPageSize)) || [];
+    const sortingConfig = getSortingMethod(sortingMethod);
 
-    if (getSortingMethod(sortingMethod).localFirst) {
-      streams = [...pin, ...mine, ...paginatedStreams];
+    // Check if this sorting method uses custom pagination logic
+    if (sortingConfig.customPagination) {
+      // For PRESENTER_LOCAL_PINNED mode, paginate all streams equally
+      // This means local cameras will only appear on their page (where they belong in sort order)
+      const sortedStreams = sortVideoStreams(streams, sortingMethod);
+
+      totalNumberOfOtherStreams = sortedStreams.length;
+      const paginatedStreams = sortedStreams.slice(chunkIndex, chunkIndex + myPageSize) || [];
+
+      const localStreamsNotInPage = sortedStreams.filter(
+        (vs, index) => videoService.isLocalStream(vs.stream)
+        && (index < chunkIndex || index >= chunkIndex + myPageSize),
+      );
+
+      // Mark local cameras not in current page with render: false
+      const localStreamsWithRenderFlag = localStreamsNotInPage.map((stream) => ({
+        ...stream,
+        render: false,
+      }));
+
+      streams = [...paginatedStreams, ...localStreamsWithRenderFlag];
     } else {
-      streams = [...pin, ...paginatedStreams, ...mine];
+      // Original pagination logic for other sorting methods
+      const [filtered, others] = partition(
+        streams,
+        (vs: StreamItem) => videoService.isLocalStream(vs.stream)
+          || (vs.type === VIDEO_TYPES.STREAM && vs.user?.pinned),
+      );
+      const [pin, mine] = partition(
+        filtered,
+        (vs: StreamItem) => vs.type === VIDEO_TYPES.STREAM && vs.user?.pinned,
+      );
+
+      totalNumberOfOtherStreams = others.length;
+      const paginatedStreams = sortVideoStreams(others, sortingMethod)
+        .slice(chunkIndex, (chunkIndex + myPageSize)) || [];
+
+      if (sortingConfig.localFirst) {
+        streams = [...pin, ...mine, ...paginatedStreams];
+      } else {
+        streams = [...pin, ...paginatedStreams, ...mine];
+      }
     }
   } else {
     streams = sortVideoStreams(streams, DEFAULT_SORTING);

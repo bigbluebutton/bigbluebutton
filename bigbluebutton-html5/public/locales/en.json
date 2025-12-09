@@ -1340,6 +1340,7 @@
     "app.videoDock.webcamUnpinLabel": "Unpin",
     "app.videoDock.webcamUnpinLabelDisabled": "Only moderators can unpin users",
     "app.videoDock.webcamUnpinDesc": "Unpin the selected webcam",
+    "app.videoDock.webcamPresenterLabel": "Presenter",
     "app.videoDock.autoplayBlockedDesc": "We need your permission to show you other users' webcams.",
     "app.videoDock.autoplayAllowLabel": "View webcams",
     "app.videoDock.plugin.helpers.seeMoreItems": "See more items",
