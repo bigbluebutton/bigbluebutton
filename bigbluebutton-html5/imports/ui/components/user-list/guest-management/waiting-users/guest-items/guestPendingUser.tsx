@@ -22,6 +22,7 @@ const renderPendingUsers = (
         <Styled.Users>
           {usersArray.map((user, idx) => (
             <GuestUserItem
+              key={user.user.userId ?? ''}
               name={user.user.name ?? ''}
               color={user.user.color ?? ''}
               handleAccept={() => action([user], ALLOW_STATUS)}
