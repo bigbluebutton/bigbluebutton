@@ -1101,7 +1101,7 @@
     "app.lock-viewers.microphoneLable": "Mikrofonlarını paylaşmalarını",
     "app.lock-viewers.PublicChatLabel": "Herkese açık sohbet iletileri göndermelerini",
     "app.lock-viewers.PrivateChatLable": "Özel sohbet iletileri göndermelerini",
-    "app.lock-viewers.notesLabel": "Paylaşılmış notları düzenle",
+    "app.lock-viewers.notesLabel": "Paylaşılmış notları düzenlemelerini",
     "app.lock-viewers.userListLabel": "Kullanıcılar listesindeki diğer izleyicilere bakın",
     "app.lock-viewers.ariaTitle": "İzleyici ayarları üste açılan penceresini kilitle",
     "app.lock-viewers.button.apply": "Uygula",
