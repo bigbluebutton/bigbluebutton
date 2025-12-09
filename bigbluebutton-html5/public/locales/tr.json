@@ -212,7 +212,7 @@
     "app.userList.userOptions.hideViewersCursor": "İzleyici imleçleri kilitlendi",
     "app.userList.userOptions.showViewersCursor": "İzleyici imleçlerinin kilidi açıldı",
     "app.media.label": "Ortam",
-    "app.media.autoplayAlertDesc": "Erişim izni ver",
+    "app.media.autoplayAlertDesc": "Erişme izni ver",
     "app.media.screenshare.start": "Ekran paylaşımı başlatıldı",
     "app.media.screenshare.end": "Ekran paylaşımı sona erdirildi",
     "app.media.screenshare.endDueToDataSaving": "Veri tasarrufu nedeniyle ekran paylaşımı durduruldu",
