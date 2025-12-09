@@ -474,7 +474,7 @@
     "app.connectingMessage": "Bağlantı kuruluyor...",
     "app.reconnectingMessage": "Bağlantı kesildi. Lütfen internet bağlantınızı denetleyin.",
     "app.muteWarning.label": "Mikrofonunuzu açmak için {unmuteIcon} üzerine tıklayın.",
-    "app.muteWarning.disableMessage": "Mikrofon açılıncaya kadar uyarı sesini kapatma etkisizleştirildi",
+    "app.muteWarning.disableMessage": "Mikrofon kapalı uyarıları mikrofon açılıncaya kadar kapatıldı",
     "app.muteWarning.tooltip": "Kapatmak için tıklayın ve ses yeniden açılana kadar uyarıyı devre dışı bırakın",
     "app.navBar.leaveMeetingBtnLabel": "Ayrıl",
     "app.navBar.leaveMeetingBtnDesc": "Oturumdan ayrıl",
