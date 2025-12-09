@@ -182,7 +182,7 @@
     "app.userList.userOptions.usersJoinMutedEnableLabel": "Kullanıcılar katılırken mikrofonları kapatılsın",
     "app.userList.userOptions.usersJoinMutedEnableDesc": "Kullanıcılar katılırken mikrofonları varsayılan olarak kapatılıyor",
     "app.userList.userOptions.usersJoinMutedDisableLabel": "Kullanıcılar katılırken mikrofonları kapatılmasın",
-    "app.userList.userOptions.usersJoinMutedDisableDesc": "Kullanıcılar katılırken sesleri varsayılan olarak kapatılmıyor",
+    "app.userList.userOptions.usersJoinMutedDisableDesc": "Kullanıcılar katılırken mikrofonları varsayılan olarak kapatılmıyor",
     "app.userList.userOptions.clearAllReactionsLabel": "Tüm tepkileri temizle",
     "app.userList.userOptions.clearAllReactionsDesc": "Kullanıcıların tüm emoji simgelerini temizler",
     "app.userList.userOptions.clearedReactions": "Tüm kullanıcı tepkileri temizlendi",
