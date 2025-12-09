@@ -684,7 +684,7 @@
     "app.talkingIndicator.isTalking": "{userName} konuşuyor",
     "app.talkingIndicator.moreThanMaxIndicatorsTalking": "{userCount}+ konuşuyor",
     "app.talkingIndicator.moreThanMaxIndicatorsWereTalking": "{userCount}+ konuşuyordu",
-    "app.talkingIndicator.wasTalking": "{userName} sustu",
+    "app.talkingIndicator.wasTalking": "{userName} konuşmayı bitirdi",
     "app.actionsBar.actionsDropdown.actionsLabel": "İşlemler",
     "app.actionsBar.actionsDropdown.activateTimerStopwatchLabel": "Zamanlayıcıyı aç",
     "app.actionsBar.actionsDropdown.deactivateTimerStopwatchLabel": "Zamanlayıcıyı kapat",
