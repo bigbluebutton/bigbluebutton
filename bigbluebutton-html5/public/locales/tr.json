@@ -37,7 +37,7 @@
     "app.chat.someone.typing": "Birisi yazıyor",
     "app.chat.one.typing": "{userName} yazıyor",
     "app.chat.two.typing": "{userName1} ve {userName2} yazıyor",
-    "app.chat.copySuccess": "Sohbet yazışmaları kopyalandı",
+    "app.chat.copySuccess": "Sohbetin yazıya dökümü kopyalandı",
     "app.chat.copyErr": "Sohbetin yazıya dökümü kopyalanamadı",
     "app.chat.messageRead": "Alıcı iletiyi okudu", 
     "app.chat.closePopup": "Kapat",
