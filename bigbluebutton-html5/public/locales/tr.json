@@ -1096,7 +1096,7 @@
     "app.lock-viewers.description": "Bu seçenekler, izleyicilerin belirli özellikleri kullanmasını kısıtlamanızı sağlar.",
     "app.lock-viewers.featuresLable": "Özellik",
     "app.lock-viewers.lockStatusLabel": "Durum",
-    "app.lock-viewers.webcamLabel": "Kamera paylaşmasını",
+    "app.lock-viewers.webcamLabel": "Kameralarını paylaşmalarını",
     "app.lock-viewers.otherViewersWebcamLabel": "Diğer izleyicilerin kameralarına bakmalarını",
     "app.lock-viewers.microphoneLable": "Mikrofonu paylaş",
     "app.lock-viewers.PublicChatLabel": "Herkese açık sohbet iletileri gönder",
