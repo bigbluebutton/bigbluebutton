@@ -842,7 +842,7 @@
     "app.audio.captions.button.transcriptionSettings": "Yazıya dökme ayarları",
     "app.audio.captions.button.autoDetect": "Otomatik algıla",
     "app.audio.captions.speech.title": "Otomatik yazıya dökme",
-    "app.audio.captions.speech.disabled": "Devre dışı",
+    "app.audio.captions.speech.disabled": "Kapalı",
     "app.audio.captions.speech.unsupported": "Tarayıcınız konuşma tanıma özelliğini desteklemiyor. Sesiniz yazıya dökülemeyecek",
     "app.audio.captions.speech.auto": "Otomatik algıla",
     "app.audio.captions.select.af-ZA": "Afrikaanca",
