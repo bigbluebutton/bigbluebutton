@@ -144,7 +144,6 @@ const UserListItem: React.FC<UserListItemProps> = ({
         />
       )}
       <Styled.Avatar
-        data-test={user.isModerator ? 'moderatorAvatar' : 'viewerAvatar'}
         data-test-presenter={user.presenter ? '' : undefined}
         data-test-avatar="userAvatar"
         moderator={user.isModerator}
@@ -158,6 +157,7 @@ const UserListItem: React.FC<UserListItemProps> = ({
       >
         {/* @ts-ignore */}
         <AvatarContent
+          data-test={user.isModerator ? 'moderatorAvatar' : 'viewerAvatar'}
           user={user}
         />
       </Styled.Avatar>

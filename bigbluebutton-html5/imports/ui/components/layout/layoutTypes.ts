@@ -198,6 +198,7 @@ interface Widget {
     icon: string;
     uuid?: string;
     pluginName?: string;
+    hasNotification: boolean;
 }
 
 export interface NativeWidget extends Widget {}

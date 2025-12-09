@@ -1,11 +1,12 @@
 import ReactPlayer from 'react-player';
+import { MutationFunction } from '@apollo/client';
 import { ExternalVideo } from '/imports/ui/Types/meeting';
 
 const YOUTUBE_SHORTS_REGEX = new RegExp(/^(?:https?:\/\/)?(?:www\.)?(youtube\.com\/shorts)\/.+$/);
 const DAILYMOTION_MATCH_URL = /https?:\/\/(?:www\.)?dailymotion\.com\/video\/[a-zA-Z0-9]+(?:\?[^\s]*)?/g;
 const YOUTUBE_REGEX = new RegExp(/^(?:https?:\/\/)?(?:www\.)?(youtube\.com|youtu.be)\/.+$/);
 
-const startWatching = (startExternalVideoMutation) => {
+const startWatching = (startExternalVideoMutation: MutationFunction) => {
   return (url: string) => {
     let externalVideoUrl = url;
 
@@ -22,7 +23,7 @@ const startWatching = (startExternalVideoMutation) => {
     }
 
     startExternalVideoMutation({ variables: { externalVideoUrl } });
-  }
+  };
 };
 
 const isUrlValid = (url: string) => {

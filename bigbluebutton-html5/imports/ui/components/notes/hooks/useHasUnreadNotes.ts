@@ -1,5 +1,5 @@
 import {
-  useEffect, useMemo, useState, useCallback,
+  useMemo,
 } from 'react';
 import useNotesLastUpdatedAt from './useNotesLastUpdatedAt';
 import useNotesLastRead from './useNotesLastRead';
@@ -14,38 +14,20 @@ interface UseHasUnreadNotesProps {
 const useHasUnreadNotes = ({ isNotesPanelOpened, skip = false }: UseHasUnreadNotesProps) => {
   const NOTES_CONFIG = window.meetingClientSettings.public.notes;
   const { lastReadTimestamp } = useNotesLastRead();
-  const [hasChanges, setHasChanges] = useState(false);
-  const [isLatched, setIsLatched] = useState(false);
 
   const isSharedNotesPinned = layoutSelectInput((i: Input) => i.sharedNotes?.isPinned ?? false);
 
   // Skip subscription when notes panel is open or pinned to avoid unnecessary updates
   const skipSubscription = isNotesPanelOpened || isSharedNotesPinned || skip;
 
-  const lastUpdatedAtTimestamp = useNotesLastUpdatedAt(NOTES_CONFIG.id, { skip: skipSubscription || isLatched });
+  const lastUpdatedAtTimestamp = useNotesLastUpdatedAt(NOTES_CONFIG.id, { skip: skipSubscription });
 
-  useEffect(() => {
-    if (skipSubscription || isLatched || !lastUpdatedAtTimestamp) return;
+  const hasChanges = useMemo(() => {
+    if (!lastUpdatedAtTimestamp) return false;
+    return lastUpdatedAtTimestamp > lastReadTimestamp;
+  }, [lastUpdatedAtTimestamp, lastReadTimestamp]);
 
-    if (lastUpdatedAtTimestamp > lastReadTimestamp) {
-      setIsLatched(true);
-      setHasChanges(true);
-    }
-  }, [lastUpdatedAtTimestamp, lastReadTimestamp, isLatched, skipSubscription]);
-
-  // Reset latch when panel opens
-  const resetLatch = useCallback(() => {
-    setIsLatched(false);
-    setHasChanges(false);
-  }, []);
-
-  useEffect(() => {
-    if (skipSubscription && (isLatched || hasChanges)) {
-      resetLatch();
-    }
-  }, [skipSubscription, isLatched, hasChanges, resetLatch]);
-
-  return useMemo(() => {
+  const returnedValue = useMemo(() => {
     // There should be no unread notes if the notes panel is open
     if (isNotesPanelOpened) return false;
 
@@ -54,6 +36,7 @@ const useHasUnreadNotes = ({ isNotesPanelOpened, skip = false }: UseHasUnreadNot
 
     return hasChanges;
   }, [isNotesPanelOpened, isSharedNotesPinned, hasChanges]);
+  return returnedValue;
 };
 
 export default useHasUnreadNotes;

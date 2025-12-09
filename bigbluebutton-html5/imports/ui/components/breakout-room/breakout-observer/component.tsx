@@ -9,14 +9,22 @@ import { Input } from '/imports/ui/components/layout/layoutTypes';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import { userIsInvited } from '/imports/ui/components/breakout-room/breakout-rooms-list-item/query';
-import { BREAKOUTS_ICON, BREAKOUTS_LABEL, BREAKOUTS_APP_KEY } from '/imports/ui/components/breakout-room/constants';
+import {
+  BREAKOUTS_ICON,
+  BREAKOUTS_LABEL,
+  BREAKOUTS_APP_KEY,
+  BREAKOUTS_UNASSIGNED_LABEL,
+} from '/imports/ui/components/breakout-room/constants';
 import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import CreateBreakoutRoomContainer from '../create-breakout-room/component';
 import { UserIsInvitedSubscriptionResponse } from '/imports/ui/components/breakout-room/breakout-rooms-list-item/types';
+import { useIsBreakoutRoomsEnabled } from '/imports/ui/services/features';
 
 const BreakoutRoomsAppObserver = () => {
   const [breakoutsCreationIsOpen, setBreakoutsCreationIsOpen] = useState(false);
+  const [hasOpenedPanel, setHasOpenedPanel] = useState(false);
+
   const { data: currentUser } = useCurrentUser((u: Partial<User>) => (
     {
       presenter: u?.presenter,
@@ -40,6 +48,7 @@ const BreakoutRoomsAppObserver = () => {
   const hasBreakoutRoom = currentMeeting?.componentsFlags?.hasBreakoutRoom ?? false;
   const isUserInvited = userIsInvitedData?.breakoutRoom && userIsInvitedData?.breakoutRoom.length > 0;
   const isBreakoutMeeting = currentMeeting?.isBreakout;
+  const isBreakoutRoomsEnabled = useIsBreakoutRoomsEnabled();
 
   const intl = useIntl();
   const sidebarNavigationInput = layoutSelectInput((i: Input) => i.sidebarNavigation);
@@ -51,6 +60,9 @@ const BreakoutRoomsAppObserver = () => {
   const breakoutsAreRegistered = useMemo(() => (
     Object.keys(registeredApps).includes(BREAKOUTS_APP_KEY)), [registeredApps]);
 
+  const isNotAssigned = !isModerator && hasBreakoutRoom && !isUserInvited;
+  const breakoutLabel = isNotAssigned ? BREAKOUTS_UNASSIGNED_LABEL : BREAKOUTS_LABEL;
+
   const registerApp = (id: string, name: string, icon: string) => {
     layoutContextDispatch({
       type: ACTIONS.REGISTER_SIDEBAR_APP,
@@ -58,6 +70,7 @@ const BreakoutRoomsAppObserver = () => {
         id,
         name,
         icon,
+        hasNotification: isNotAssigned && !hasOpenedPanel,
         ...(!hasBreakoutRoom && { onClick: () => setBreakoutsCreationIsOpen((currentState) => !currentState) }),
       },
     });
@@ -73,6 +86,16 @@ const BreakoutRoomsAppObserver = () => {
     });
   };
 
+  const setNotificationApp = (id: string, hasNotification: boolean) => {
+    layoutContextDispatch({
+      type: ACTIONS.SET_SIDEBAR_NAVIGATION_NOTIFICATION_APP,
+      value: {
+        id,
+        hasNotification,
+      },
+    });
+  };
+
   const unregisterApp = (id: string) => {
     layoutContextDispatch({
       type: ACTIONS.UNREGISTER_SIDEBAR_APP,
@@ -81,24 +104,42 @@ const BreakoutRoomsAppObserver = () => {
   };
 
   useEffect(() => {
-    if (!isBreakoutMeeting && isModerator) {
-      registerApp(BREAKOUTS_APP_KEY, intl.formatMessage(BREAKOUTS_LABEL), BREAKOUTS_ICON);
+    if (!isBreakoutMeeting && isModerator && isBreakoutRoomsEnabled) {
+      registerApp(BREAKOUTS_APP_KEY, intl.formatMessage(breakoutLabel), BREAKOUTS_ICON);
       pinApp(BREAKOUTS_APP_KEY);
     }
     setBreakoutsCreationIsOpen(false);
+  }, [hasBreakoutRoom, isBreakoutMeeting, isModerator, isBreakoutRoomsEnabled]);
+
+  useEffect(() => {
+    setNotificationApp(BREAKOUTS_APP_KEY, isNotAssigned && !hasOpenedPanel);
+  }, [isNotAssigned, hasOpenedPanel]);
+
+  useEffect(() => {
+    if (sidebarContentPanel === BREAKOUTS_APP_KEY && isNotAssigned) {
+      setHasOpenedPanel(true);
+      setNotificationApp(BREAKOUTS_APP_KEY, false);
+    }
+  }, [sidebarContentPanel]);
+
+  useEffect(() => {
+    if (!hasBreakoutRoom) {
+      setHasOpenedPanel(false);
+    }
   }, [hasBreakoutRoom]);
 
   useEffect(() => {
     if (!breakoutsAreRegistered
+      && isBreakoutRoomsEnabled
       && !isBreakoutMeeting
-      && (isModerator || (!isModerator && hasBreakoutRoom && isUserInvited))) {
-      registerApp(BREAKOUTS_APP_KEY, intl.formatMessage(BREAKOUTS_LABEL), BREAKOUTS_ICON);
+      && (isModerator || (!isModerator && hasBreakoutRoom))) {
+      registerApp(BREAKOUTS_APP_KEY, intl.formatMessage(breakoutLabel), BREAKOUTS_ICON);
       pinApp(BREAKOUTS_APP_KEY);
     }
 
     if (breakoutsAreRegistered
       && (isBreakoutMeeting || (!isModerator
-      && (!hasBreakoutRoom || !isUserInvited))
+        && !hasBreakoutRoom)
       )) {
       unregisterApp(BREAKOUTS_APP_KEY);
       if (sidebarContentPanel === BREAKOUTS_APP_KEY) {
@@ -120,13 +161,15 @@ const BreakoutRoomsAppObserver = () => {
     isUserInvited,
     isModerator,
     isBreakoutMeeting,
+    breakoutLabel,
+    isBreakoutRoomsEnabled,
   ]);
 
   useEffect(() => {
     if (breakoutsAreRegistered) {
-      registerApp(BREAKOUTS_APP_KEY, intl.formatMessage(BREAKOUTS_LABEL), BREAKOUTS_ICON);
+      registerApp(BREAKOUTS_APP_KEY, intl.formatMessage(breakoutLabel), BREAKOUTS_ICON);
     }
-  }, [intl]);
+  }, [intl, breakoutLabel]);
 
   return (breakoutsCreationIsOpen && (
     <CreateBreakoutRoomContainer

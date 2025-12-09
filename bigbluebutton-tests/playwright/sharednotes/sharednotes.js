@@ -22,7 +22,7 @@ class SharedNotes extends MultiUsers {
   async openSharedNotes() {
     const { sharedNotesEnabled } = this.modPage.settings;
     if (!sharedNotesEnabled) {
-      await this.modPage.hasElement(e.chatButton, 'should display the public chat button');
+      await this.modPage.hasElement(e.messagesSidebarButton, 'should display the public chat button');
       return this.modPage.wasRemoved(e.sharedNotesSidebarButton, 'should not display the shared notes button');
     }
     await startSharedNotes(this.modPage);
@@ -36,7 +36,7 @@ class SharedNotes extends MultiUsers {
   async typeInSharedNotes() {
     const { sharedNotesEnabled } = this.modPage.settings;
     if (!sharedNotesEnabled) {
-      await this.modPage.hasElement(e.chatButton, 'should display the public chat button');
+      await this.modPage.hasElement(e.messagesSidebarButton, 'should display the public chat button');
       return this.modPage.wasRemoved(e.sharedNotesSidebarButton, 'should not display the shared notes button');
     }
     await startSharedNotes(this.modPage);
@@ -63,7 +63,7 @@ class SharedNotes extends MultiUsers {
   async formatTextInSharedNotes() {
     const { sharedNotesEnabled } = this.modPage.settings;
     if (!sharedNotesEnabled) {
-      await this.modPage.hasElement(e.chatButton, 'should display the public chat button');
+      await this.modPage.hasElement(e.messagesSidebarButton, 'should display the public chat button');
       return this.modPage.wasRemoved(e.sharedNotesSidebarButton, 'should not display the shared notes button');
     }
     await startSharedNotes(this.modPage);
@@ -96,7 +96,7 @@ class SharedNotes extends MultiUsers {
   async exportSharedNotes(testInfo) {
     const { sharedNotesEnabled } = this.modPage.settings;
     if (!sharedNotesEnabled) {
-      await this.modPage.hasElement(e.chatButton, 'should display the public chat button');
+      await this.modPage.hasElement(e.messagesSidebarButton, 'should display the public chat button');
       return this.modPage.wasRemoved(e.sharedNotesSidebarButton, 'should not display the shared notes button');
     }
     await startSharedNotes(this.modPage);
@@ -138,7 +138,7 @@ class SharedNotes extends MultiUsers {
   async convertNotesToWhiteboard() {
     const { sharedNotesEnabled } = this.modPage.settings;
     if (!sharedNotesEnabled) {
-      await this.modPage.hasElement(e.chatButton, 'should display the public chat button');
+      await this.modPage.hasElement(e.messagesSidebarButton, 'should display the public chat button');
       return this.modPage.wasRemoved(e.sharedNotesSidebarButton, 'should not display the shared notes button');
     }
     await startSharedNotes(this.modPage);
@@ -162,7 +162,7 @@ class SharedNotes extends MultiUsers {
   async editSharedNotesWithMoreThanOneUSer() {
     const { sharedNotesEnabled } = this.modPage.settings;
     if (!sharedNotesEnabled) {
-      await this.modPage.hasElement(e.chatButton, 'should display the public chat button');
+      await this.modPage.hasElement(e.messagesSidebarButton, 'should display the public chat button');
       return this.modPage.wasRemoved(e.sharedNotesSidebarButton, 'should not display the shared notes button');
     }
     await startSharedNotes(this.modPage);
@@ -185,7 +185,7 @@ class SharedNotes extends MultiUsers {
   async seeNotesWithoutEditPermission() {
     const { sharedNotesEnabled } = this.modPage.settings;
     if (!sharedNotesEnabled) {
-      await this.modPage.hasElement(e.chatButton, 'should display the public chat button');
+      await this.modPage.hasElement(e.messagesSidebarButton, 'should display the public chat button');
       return this.modPage.wasRemoved(e.sharedNotesSidebarButton, 'should not display the shared notes button');
     }
     // type on shared notes as moderator
@@ -207,7 +207,7 @@ class SharedNotes extends MultiUsers {
   async pinAndUnpinNotesOntoWhiteboard() {
     const { sharedNotesEnabled } = this.modPage.settings;
     if (!sharedNotesEnabled) {
-      await this.modPage.hasElement(e.chatButton, 'should display the public chat button');
+      await this.modPage.hasElement(e.messagesSidebarButton, 'should display the public chat button');
       return this.modPage.wasRemoved(e.sharedNotesSidebarButton, 'should not display the shared notes button');
     }
     await this.modPage.waitForSelector(e.whiteboard);
