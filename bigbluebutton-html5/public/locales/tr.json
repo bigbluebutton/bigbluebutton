@@ -833,7 +833,7 @@
     "app.audio.audioSettings.cancelLabel": "İptal",
     "app.audio.listenOnly.backLabel": "Geri",
     "app.audio.listenOnly.closeLabel": "Kapat",
-    "app.audio.permissionsOverlay.title": "Mikrofonunuza erişim izni verin",
+    "app.audio.permissionsOverlay.title": "Mikrofonunuza erişme izni verin",
     "app.audio.permissionsOverlay.hint": "Sesli konferansa katılabilmek için ortam aygıtlarınızı kullanmamıza izin vermelisiniz :)",
     "app.audio.captions.button.start": "Alt yazıları aç",
     "app.audio.captions.button.stop": "Alt yazıları kapat",
