@@ -414,7 +414,18 @@ export const useVideoStreams = () => {
       totalNumberOfOtherStreams = sortedStreams.length;
       const paginatedStreams = sortedStreams.slice(chunkIndex, chunkIndex + myPageSize) || [];
 
-      streams = paginatedStreams;
+      const localStreamsNotInPage = sortedStreams.filter(
+        (vs, index) => videoService.isLocalStream(vs.stream)
+        && (index < chunkIndex || index >= chunkIndex + myPageSize),
+      );
+
+      // Mark local cameras not in current page with render: false
+      const localStreamsWithRenderFlag = localStreamsNotInPage.map((stream) => ({
+        ...stream,
+        render: false,
+      }));
+
+      streams = [...paginatedStreams, ...localStreamsWithRenderFlag];
     } else {
       // Original pagination logic for other sorting methods
       const [filtered, others] = partition(
