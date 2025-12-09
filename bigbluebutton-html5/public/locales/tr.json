@@ -699,7 +699,7 @@
     "app.actionsBar.actionsDropdown.presentationDesc": "Sunumunuzu yükleyin",
     "app.actionsBar.actionsDropdown.initPollDesc": "Bir oylama başlatın",
     "app.actionsBar.actionsDropdown.desktopShareDesc": "Ekranınızı diğer katılımcılarla paylaşın",
-    "app.actionsBar.actionsDropdown.stopDesktopShareDesc": "Ekran paylaşımını şununla bitir",
+    "app.actionsBar.actionsDropdown.stopDesktopShareDesc": "Şununla ekran paylaşımınızı bitirin",
     "app.actionsBar.actionsDropdown.pollBtnLabel": "Oylama başlat",
     "app.actionsBar.actionsDropdown.pollQuizBtnLabel": "Bir oylama/sınav başlat",
     "app.actionsBar.actionsDropdown.pollBtnDesc": "Oylama bölmesini açar ya da kapatır",
