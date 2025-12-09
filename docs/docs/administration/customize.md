@@ -1383,7 +1383,7 @@ Edit nginx configuration file (`/usr/share/bigbluebutton/nginx/bbb-html5.nginx`)
 Do the same in `/usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties` in the following lines:
 
 ```
-defaultHTML5ClientUrl=${bigbluebutton.web.serverURL}/html5client
+defaultHTML5ClientUrl=${bigbluebutton.web.serverURL}/html5client/
 ```
 
 You can overwrite that value in `/etc/bigbluebutton/bbb-web.properties` (recommended).

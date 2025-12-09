@@ -36,6 +36,7 @@ import { useIceServers } from '/imports/ui/components/livekit/hooks';
 import LKAutoplayModalContainer from '/imports/ui/components/livekit/autoplay-modal/container';
 import connectionStatus, { MetricStatus } from '/imports/ui/core/graphql/singletons/connectionStatus';
 import SelectiveSubscription from '/imports/ui/components/livekit/selective-subscription/component';
+import { useSpeakerLevel } from '/imports/ui/components/audio/audio-graphql/audio-controls/input-stream-live-selector/service';
 
 interface BBBLiveKitRoomProps {
   url?: string;
@@ -166,6 +167,7 @@ const BBBLiveKitRoom: React.FC<BBBLiveKitRoomProps> = ({
   const [connectOptions, setConnectOptions] = useState<RoomConnectOptions | undefined>(undefined);
   const isClientConnected = useReactiveVar(connectionStatus.getConnectedStatusVar());
   const { iceServers, isLoading: iceServersLoading } = useIceServers(bbbSessionToken);
+  const speakerLevel = useSpeakerLevel();
 
   const onDisconnected = useCallback((reason?: DisconnectReason) => {
     logger.warn({
@@ -347,7 +349,7 @@ const BBBLiveKitRoom: React.FC<BBBLiveKitRoomProps> = ({
     >
       <LiveKitObserver room={liveKitRoom} url={url} usingAudio={usingAudio} />
       {withAudioPlayback && <LKAutoplayModalContainer />}
-      {withAudioPlayback && <RoomAudioRenderer />}
+      {withAudioPlayback && <RoomAudioRenderer volume={speakerLevel} />}
       {usingAudio && withSelectiveSubscription && <SelectiveSubscription />}
     </LiveKitRoom>
   );

@@ -48,7 +48,7 @@ lazy val bbbAppsAkka = (project in file(".")).settings(name := "bbb-apps-akka", 
 // Config file is in ./.scalariform.conf
 scalariformAutoformat := true
 
-scalaVersion := "2.13.9"
+scalaVersion := "2.13.18"
 //-----------
 // Packaging
 //

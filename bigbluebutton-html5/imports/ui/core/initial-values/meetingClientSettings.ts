@@ -678,6 +678,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
             forceStereo: false,
           },
           unpublishOnMute: false,
+          unpublishAfterMuteMs: 5000,
         },
         camera: {
           publishOptions: {

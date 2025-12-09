@@ -818,6 +818,8 @@ public:
     showSessionDetailsOnJoin: true
     showScreenshareQuickSwapButton: false
     syncCameraDockSizeAndPosition: false
+    # if false, the user can't change the layout (no layout selection modal)
+    enableDeprecatedLayoutSelection: true
   pads:
     url: ETHERPAD_HOST
   media:
@@ -1043,8 +1045,6 @@ public:
         mime: image/png
       - extension: .webp
         mime: image/webp
-      - extension: .svg
-        mime: image/svg+xml
   user:
     role_moderator: MODERATOR
     role_viewer: VIEWER

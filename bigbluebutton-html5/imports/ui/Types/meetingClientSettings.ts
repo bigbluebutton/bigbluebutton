@@ -648,6 +648,7 @@ export interface LiveKitScreenShareSettings {
 export interface LiveKitAudioSettings {
   publishOptions?: TrackPublishOptions
   unpublishOnMute?: boolean
+  unpublishAfterMuteMs?: number
 }
 
 export interface LiveKitSettings {
