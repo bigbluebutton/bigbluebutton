@@ -232,7 +232,7 @@
     "app.screenshare.screenshareRetryError": "Kod {errorCode}. Ekranı paylaşmayı yeniden deneyin.",
     "app.screenshare.screenshareRetryOtherEnvError": "Kod {errorCode}. Ekran paylaşılamadı. Farklı bir tarayıcı veya aygıt kullanarak yeniden deneyin.",
     "app.screenshare.screenshareUnsupportedEnv": "Kod {errorCode}. Tarayıcı desteklenmiyor. Farklı bir tarayıcı ya da aygıt kullanarak yeniden deneyin.",
-    "app.screenshare.screensharePermissionError": "Kod {errorCode}.  Ekran yakalama izninin verilmesi gerekiyor.",
+    "app.screenshare.screensharePermissionError": "Kod {errorCode}.  Ekran görüntüsü yakalama izninin verilmesi gerekiyor.",
     "app.screenshare.screenshareToastHelpLabel": "Ayrıntılı bilgi alın", 
     "app.cameraAsContent.presenterLoadingLabel": "Kameranız yükleniyor",
     "app.cameraAsContent.viewerLoadingLabel": "Sunucunun kamerası yükleniyor",
