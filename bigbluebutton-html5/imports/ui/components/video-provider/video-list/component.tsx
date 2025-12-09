@@ -5,6 +5,7 @@ import { throttle } from '/imports/utils/throttle';
 import { range } from '/imports/utils/array-utils';
 import Styled from './styles';
 import VideoListItemContainer from './video-list-item/container';
+import OverflowTile from './overflow-tile/component';
 import AutoplayOverlay from '/imports/ui/components/media/autoplay-overlay/component';
 import logger from '/imports/startup/client/logger';
 import playAndRetry from '/imports/utils/mediaElementPlayRetry';
@@ -77,6 +78,7 @@ interface VideoListProps {
   focusedId: string;
   handleVideoFocus: (id: string) => void;
   isGridEnabled: boolean;
+  overflowCount: number;
   streams: VideoItem[];
   intl: IntlShape;
   setUserCamerasRequestedFromPlugin: React.Dispatch<React.SetStateAction<UpdatedDataForUserCameraDomElement[]>>;
@@ -358,10 +360,26 @@ class VideoList extends Component<VideoListProps, VideoListState> {
       setUserCamerasRequestedFromPlugin,
       focusedId,
       pluginUserCameraHelperPerPosition,
+      isGridEnabled,
+      overflowCount,
     } = this.props;
     const numOfStreams = streams.length;
 
-    return streams.map((item) => {
+    const shouldShowOverflowTile = isGridEnabled && overflowCount > 0;
+
+    let streamsToRender = streams;
+    if (shouldShowOverflowTile) {
+      const lastGridUserIndex = streams.map((s, idx) => ({ s, idx }))
+        .reverse()
+        .find(({ s }) => s.type === VIDEO_TYPES.GRID)?.idx;
+
+      if (lastGridUserIndex !== undefined) {
+        // remove the last grid user to replace it with the overflow tile
+        streamsToRender = streams.filter((_, idx) => idx !== lastGridUserIndex);
+      }
+    }
+
+    const videoItems = streamsToRender.map((item) => {
       const { userId, name } = item;
       const isStream = item.type !== VIDEO_TYPES.GRID;
       const stream = isStream ? item.stream : null;
@@ -399,6 +417,20 @@ class VideoList extends Component<VideoListProps, VideoListState> {
         </Styled.VideoListItem>
       );
     });
+
+    if (shouldShowOverflowTile) {
+      videoItems.push(
+        <Styled.VideoListItem
+          key="overflow-tile"
+          $focused={false}
+          data-test="overflowTile"
+        >
+          <OverflowTile overflowCount={overflowCount} />
+        </Styled.VideoListItem>,
+      );
+    }
+
+    return videoItems;
   }
 
   render() {
