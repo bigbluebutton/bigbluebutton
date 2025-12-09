@@ -343,7 +343,7 @@
     "app.presentationUploder.rejectedError": "Seçilmiş dosya(lar) reddedildi. Lütfen dosya türlerini denetleyin.",
     "app.presentationUploder.connectionClosedError": "Kötü bağlantı nedeniyle kesintiye uğradı. Lütfen yeniden deneyin.",
     "app.presentationUploder.upload.progress": "Yükleniyor (%{progress})",
-    "app.presentationUploder.conversion.204": "Yakalanacak bir içerik bulunamadı",
+    "app.presentationUploder.conversion.204": "Görüntüsü yakalanacak bir içerik bulunamadı",
     "app.presentationUploder.upload.413": "Dosya boyutu çok büyük. En fazla {maxFileSize} olabilir",
     "app.presentationUploder.genericError": "Bir sorun çıktı...",
     "app.presentationUploder.upload.fileVirus": "Yüklenemedi: Virus bulundu! Lütfen dosyanızı denetleyip yeniden deneyin.",
