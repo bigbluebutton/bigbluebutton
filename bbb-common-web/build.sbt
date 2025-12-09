@@ -93,17 +93,17 @@ pomExtra := (
       <developer>
         <id>ritzalam</id>
         <name>Richard Alam</name>
-        <url>http://www.bigbluebutton.org</url>
+        <url>https://www.bigbluebutton.org</url>
       </developer>
     </developers>)
 
-licenses := Seq("LGPL-3.0" -> url("http://opensource.org/licenses/LGPL-3.0"))
+licenses := Seq("LGPL-3.0" -> url("https://opensource.org/licenses/LGPL-3.0"))
 
-homepage := Some(url("http://www.bigbluebutton.org"))
+homepage := Some(url("https://www.bigbluebutton.org"))
 
 libraryDependencies ++= Seq(
   "jakarta.validation" % "jakarta.validation-api" % "3.0.2",
-  "org.springframework.data" % "spring-data-commons" % "3.4.4",
+  "org.springframework.data" % "spring-data-commons" % "3.4.10",
   "org.hibernate.validator" % "hibernate-validator" % "8.0.1.Final",
   "org.glassfish" % "jakarta.el" % "4.0.2",
   "org.apache.httpcomponents" % "httpclient" % "4.5.13",
@@ -111,7 +111,7 @@ libraryDependencies ++= Seq(
   "org.hibernate" % "hibernate-core" % "5.6.1.Final",
   "org.flywaydb" % "flyway-core" % "7.8.2",
   "com.zaxxer" % "HikariCP" % "4.0.3",
-  "commons-validator" % "commons-validator" % "1.7",
+  "commons-validator" % "commons-validator" % "1.10.0",
   "org.apache.tika" % "tika-core" % "3.2.2",
   "org.apache.tika" % "tika-parsers-standard-package" % "3.2.2",
   "org.scala-lang.modules" %% "scala-xml" % "2.2.0",
