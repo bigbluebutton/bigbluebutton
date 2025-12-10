@@ -29,7 +29,7 @@
     "app.chat.breakoutDurationUpdatedModerator": "Le temps en groupe de travail est de {timeInMinutes} minutes; une notification a été envoyée",
     "app.chat.emptyLogLabel": "Journal de discussion vide",
     "app.chat.away": "Est temporairement absent",
-    "app.chat.notAway": "N'est plus absent",
+    "app.chat.notAway": "Disponible",
     "app.chat.isPresenter": "{presenterName} est maintenant le présentateur",
     "app.chat.isPresenterSetBy": "{presenterName} est maintenant le présentateur, défini par {assignedByName}",
     "app.chat.clearPublicChatMessage": "L'historique des discussions publiques a été effacé par un modérateur",
