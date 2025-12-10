@@ -702,7 +702,7 @@
     "app.settings.main.cancel.label": "Annuler",
     "app.settings.main.cancel.label.description": "Annule les modifications et ferme le menu des paramètres",
     "app.settings.main.save.label": "Enregistrer",
-    "app.settings.main.save.label.description": "Enregistre les changements et ferme le menu des paramètres",
+    "app.settings.main.save.label.description": "Enregistre les modifications et ferme le menu des paramètres",
     "app.settings.dataSavingTab.label": "Gestion du débit",
     "app.settings.dataSavingTab.webcam": "Activer les webcams des autres participants",
     "app.settings.dataSavingTab.screenShare": "Activer le partage d'écran des autres participants",
