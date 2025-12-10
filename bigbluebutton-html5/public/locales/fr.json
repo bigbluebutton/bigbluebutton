@@ -30,7 +30,7 @@
     "app.chat.emptyLogLabel": "Journal de discussion vide",
     "app.chat.away": "Temporairement absent",
     "app.chat.notAway": "Disponible",
-    "app.chat.isPresenter": "{presenterName} est maintenant le présentateur",
+    "app.chat.isPresenter": "{presenterName} est devenu présentateur",
     "app.chat.isPresenterSetBy": "{presenterName} est maintenant le présentateur, défini par {assignedByName}",
     "app.chat.clearPublicChatMessage": "L'historique des discussions publiques a été effacé par un modérateur",
     "app.chat.multi.typing": "Plusieurs utilisateurs sont en train d'écrire",
