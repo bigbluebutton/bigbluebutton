@@ -95,6 +95,7 @@ const renderPluginItems = (
                 icon={pluginButton.icon}
                 label={pluginButton.label}
                 onClick={({ browserClickEvent }) => pluginButton.onClick({ browserClickEvent, streamId, userId })}
+                dataTest={pluginButton.dataTest}
               />
             );
             return returnComponent;

@@ -19,7 +19,8 @@ const GenericMainContent: React.FC<GenericContentMainAreaProps> = ({
 
   const isMinimized = width === 0 && height === 0;
 
-  const componentToRender = renderFunctionComponents.filter((g) => genericContentId === g.id);
+  const componentToRender = renderFunctionComponents.filter((g) => genericContentId === g.id)[0];
+  const { dataTest } = componentToRender;
   return (
     <Styled.Container
       style={{
@@ -29,12 +30,13 @@ const GenericMainContent: React.FC<GenericContentMainAreaProps> = ({
         left,
         right,
       }}
+      dataTest={dataTest}
       isResizing={isResizing}
       isMinimized={isMinimized}
     >
       <GenericContentItem
-        key={componentToRender[0]?.id}
-        renderFunction={componentToRender[0]?.contentFunction}
+        key={componentToRender?.id}
+        renderFunction={componentToRender?.contentFunction}
       />
     </Styled.Container>
   );

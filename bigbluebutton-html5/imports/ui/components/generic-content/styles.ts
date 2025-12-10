@@ -3,6 +3,7 @@ import styled from 'styled-components';
 type ContainerProps = {
   isResizing: boolean;
   isMinimized: boolean;
+  dataTest: string;
 };
 
 export const Container = styled.div<ContainerProps>`

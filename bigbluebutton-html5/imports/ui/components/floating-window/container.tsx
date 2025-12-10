@@ -26,6 +26,7 @@ const FloatingWindowContainer = () => {
         boxShadow={itemToRender.boxShadow}
         renderFunction={itemToRender.contentFunction}
         isDraggable={itemToRender.movable}
+        dataTest={itemToRender.dataTest}
       />
     );
   });

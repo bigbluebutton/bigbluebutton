@@ -101,6 +101,7 @@ const renderPluginItems = (pluginItems) => {
                       color="primary"
                       tooltip={pluginItem.tooltip}
                       onClick={pluginItem.onClick}
+                      dataTest={pluginItem.dataTest}
                     />
                   </Styled.PluginComponentWrapper>
                 );
@@ -111,7 +112,7 @@ const renderPluginItems = (pluginItems) => {
                     key={`${pluginItem.id}-${pluginItem.type}`}
                     tooltip={pluginItem.tooltip}
                   >
-                    <Styled.PluginInfoComponent>
+                    <Styled.PluginInfoComponent data-test={pluginItem.dataTest}>
                       {pluginItem.label}
                     </Styled.PluginInfoComponent>
                   </Styled.PluginComponentWrapper>

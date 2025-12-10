@@ -23,6 +23,7 @@ interface ActionItem {
   icon: string;
   description: string;
   disabled: boolean;
+  dataTest?: string;
   onClick: (event: React.MouseEvent<HTMLElement>) => void;
 }
 
@@ -48,6 +49,7 @@ const PluginMenuActions: React.FC<PluginMenuActionsProps> = (props) => {
         icon: pluginItem.icon,
         description: pluginItem.tooltip,
         disabled: pluginItem.disabled,
+        dataTest: pluginItem.dataTest,
         onClick: (event: React.MouseEvent<HTMLElement>) => pluginItem.onClick({
           userId,
           streamId,
