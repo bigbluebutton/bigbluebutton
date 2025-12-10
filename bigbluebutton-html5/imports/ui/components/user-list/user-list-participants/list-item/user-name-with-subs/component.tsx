@@ -150,7 +150,7 @@ const UserNameWithSubs: React.FC<UserNameWithSubsProps> = ({
           )}
         </TooltipContainer>
       </Styled.UserName>
-      <Styled.UserNameSub>
+      <Styled.UserNameSub data-test="userNameSubs">
         {subsWithSeparators.length ? subsWithSeparators : null}
       </Styled.UserNameSub>
     </Styled.UserNameContainer>

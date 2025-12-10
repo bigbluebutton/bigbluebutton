@@ -3,6 +3,7 @@ import { defineMessages } from 'react-intl';
 import { MediaAreaProps } from './types';
 import Styled from './styles';
 import MediaSharingModal from '/imports/ui/components/actions-bar/media-area/media-sharing/component';
+import { useShortcut } from '/imports/ui/core/hooks/useShortcut';
 
 const intlMessages = defineMessages({
   mediaLabel: {
@@ -33,6 +34,7 @@ const MediaArea = (props: MediaAreaProps) => {
   } = props;
 
   const [menuOpen, setMenuOpen] = useState(false);
+  const openMediaArea = useShortcut('openActions');
 
   const handleToggleMenu = useCallback(() => {
     setMenuOpen(!menuOpen);
@@ -44,10 +46,12 @@ const MediaArea = (props: MediaAreaProps) => {
 
   return (
     <>
+      {/* eslint-disable-next-line jsx-a11y/no-access-key */}
       <Styled.HideDropdownButton
         hideLabel
         aria-label={intl.formatMessage(intlMessages.mediaLabel)}
         data-test="mediaAreaButton"
+        accessKey={openMediaArea}
         label={intl.formatMessage(intlMessages.mediaLabel)}
         icon="media-area"
         color={menuOpen ? 'primary' : 'default'}

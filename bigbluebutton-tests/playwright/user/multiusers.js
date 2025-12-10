@@ -154,6 +154,16 @@ class MultiUsers {
     await this.userPage.hasElement(e.raiseHandBtn, 'should display the raise hand button after rejection');
   }
 
+  async toggleUserList() {
+    await this.modPage.hasElement(e.chatBox, 'should display the public chat box for the moderator');
+    await this.modPage.hasElement(e.messagesSidebarButton, 'should display the public chat button for the moderator');
+    await this.modPage.waitAndClick(e.usersListSidebarButton);
+    await this.modPage.wasRemoved(e.chatBox, 'should not display the public chat box for the moderator');
+    await this.modPage.waitAndClick(e.usersListSidebarButton);
+    await this.modPage.wasRemoved(e.chatBox, 'should not display the public chat box for the moderator');
+    await this.modPage.hasElement(e.messagesSidebarButton, 'should display the public chat button for the moderator');
+  }
+
   async saveUserNames(testInfo) {
     await this.modPage.waitAndClick(e.manageUsers);
     const downloadUserNamesListLocator = this.modPage.getLocator(e.downloadUserNamesList);
@@ -342,12 +352,12 @@ class MultiUsers {
     // use the smiling reaction
     await this.modPage.waitAndClick(e.reactionsButton);
     await this.modPage.waitAndClick(`${e.singleReactionButton}:nth-child(1)`);
-    await this.modPage.waitAndClick(e.usersListSidebarButton); 
+    await this.modPage.waitAndClick(e.usersListSidebarButton);
     await this.modPage.hasText(e.moderatorAvatar, '😃', 'should display the smiling emoji in the moderator avatar for the moderator');
     await this.modPage.hasText(e.reactionsButton, '😃', 'should display the smiling emoji on the reactions button when used');
     await this.userPage.waitAndClick(e.usersListSidebarButton);
     await this.userPage.hasText(e.moderatorAvatar, '😃', 'should display the smiling emoji in the moderator avatar for the viewer');
-    
+
     // change the reaction to the thumbs up
     await this.modPage.waitAndClick(e.reactionsButton);
     await this.modPage.waitAndClick(`${e.singleReactionButton}:nth-child(5)`);

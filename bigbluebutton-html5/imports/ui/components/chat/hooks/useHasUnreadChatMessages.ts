@@ -14,8 +14,6 @@ interface UseUnreadChatMessagesProps {
 
 const useHasUnreadChatMessages = ({ isChatPanelOpened, skip = false }: UseUnreadChatMessagesProps) => {
   const [totalUnread, setTotalUnread] = useState(0);
-  const [isLatched, setIsLatched] = useState(false);
-  const [lastKnownTotal, setLastKnownTotal] = useState(0);
 
   const idChatOpen = layoutSelect((i: Layout) => i.idChatOpen);
 
@@ -34,33 +32,11 @@ const useHasUnreadChatMessages = ({ isChatPanelOpened, skip = false }: UseUnread
   );
 
   useEffect(() => {
-    if (skipSubscription || isLatched || !chats) return;
+    if (skipSubscription || !chats) return;
 
     const currentTotal = calculateTotalUnreadMessages(chats);
-
-    if (currentTotal > lastKnownTotal) {
-      setIsLatched(true);
-      setTotalUnread(currentTotal);
-    } else {
-      setLastKnownTotal(currentTotal);
-      setTotalUnread(currentTotal);
-    }
-  }, [chats, calculateTotalUnreadMessages, lastKnownTotal, isLatched, skipSubscription]);
-
-  const resetLatch = useCallback(() => {
-    if (!chats) return;
-
-    const currentTotal = calculateTotalUnreadMessages(chats);
-    setIsLatched(false);
     setTotalUnread(currentTotal);
-    setLastKnownTotal(currentTotal);
-  }, [chats, calculateTotalUnreadMessages]);
-
-  useEffect(() => {
-    if (skipSubscription && isLatched) {
-      resetLatch();
-    }
-  }, [skipSubscription, isLatched, resetLatch]);
+  }, [chats, calculateTotalUnreadMessages, skipSubscription]);
 
   const getActiveChat = useCallback((
     chats: Chat[] | null | undefined,
@@ -87,9 +63,8 @@ const useHasUnreadChatMessages = ({ isChatPanelOpened, skip = false }: UseUnread
       hasUnreadMessages: !isChatPanelOpened && totalUnread > 0,
       activeChat,
       chatIds,
-      resetLatch,
     };
-  }, [isChatPanelOpened, totalUnread, idChatOpen, getActiveChat, chats, resetLatch, chatIds]);
+  }, [isChatPanelOpened, totalUnread, idChatOpen, getActiveChat, chatIds]);
 };
 
 export default useHasUnreadChatMessages;

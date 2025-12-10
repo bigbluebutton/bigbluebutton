@@ -28,7 +28,6 @@ import {
   useIsScreenBroadcasting,
 } from '/imports/ui/components/screenshare/service';
 import { useStorageKey } from '/imports/ui/services/storage/hooks';
-import useNotesLastRead from './hooks/useNotesLastRead';
 import {
   Layout,
   SharedNotes,
@@ -90,7 +89,6 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
   } = props;
   const [shouldRenderNotes, setShouldRenderNotes] = useState(isVisible);
   const intl = useIntl();
-  const { markNotesAsRead } = useNotesLastRead();
 
   const isHidden = (isOnMediaArea && (sharedNotesOutput.width === 0 || sharedNotesOutput.height === 0))
     || (!isVisible && !ignoreDelayforUnmount);
@@ -100,15 +98,12 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
     if (isVisible) {
       setShouldRenderNotes(true);
       clearTimeout(timeoutRef.current);
+    } else if (ignoreDelayforUnmount) {
+      setShouldRenderNotes(false);
     } else {
-      markNotesAsRead();
-      if (ignoreDelayforUnmount) {
+      timeoutRef.current = setTimeout(() => {
         setShouldRenderNotes(false);
-      } else {
-        timeoutRef.current = setTimeout(() => {
-          setShouldRenderNotes(false);
-        }, NOTES_UNMOUNT_DELAY());
-      }
+      }, NOTES_UNMOUNT_DELAY());
     }
     return () => clearTimeout(timeoutRef.current);
   }, [isVisible]);
@@ -130,16 +125,6 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
   };
 
   const {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    display,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    isPinned,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    browserHeight,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    browserWidth,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    tabOrder,
     ...cssProps
   } = sharedNotesOutput;
 
@@ -192,6 +177,7 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
         isLocalChange={isLocalChange}
         isRTL={isRTL}
         amIPresenter={amIPresenter}
+        isVisible={isVisible}
       />
     </Styled.PanelContent>
   );
@@ -248,7 +234,8 @@ const NotesContainerGraphql: React.FC<NotesContainerGraphqlProps> = (props) => {
       layoutContextDispatch={layoutContextDispatch}
       isResizing={isResizing}
       isLocalChange={isLocalChange}
-      ignoreDelayforUnmount={sidebarContentToIgnoreDelay.includes(sidebarContent.sidebarContentPanel)}
+      ignoreDelayforUnmount={sidebarContentToIgnoreDelay.includes(sidebarContent.sidebarContentPanel)
+        || (isOnMediaArea && !!isGridLayout)}
       sharedNotesOutput={sharedNotesOutput}
       amIPresenter={amIPresenter}
       isRTL={isRTL}

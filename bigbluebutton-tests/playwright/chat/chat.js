@@ -185,7 +185,7 @@ class Chat extends MultiUsers {
     await openPublicChat(this.modPage);
     if (!emojiPickerEnabled) {
       await this.modPage.hasElement(e.chatBox, 'should display the chat box element on the public chat');
-      return this.modPage.wasRemoved(e.emojiPickerButton, 'should not display the emoji picker button on the public chat'); t
+      return this.modPage.wasRemoved(e.emojiPickerButton, 'should not display the emoji picker button on the public chat');
     }
     await this.modPage.waitAndClick(e.emojiPickerButton);
     await this.modPage.getByLabelAndClick(e.thumbsUpEmoji);
@@ -209,6 +209,25 @@ class Chat extends MultiUsers {
     await this.modPage.wasRemoved(e.chatOptions, 'should not display the chat options element after hiding the messages');
     await this.modPage.wasRemoved(e.chatBox, 'should not display the chat box element after hiding the messages');
     await this.modPage.wasRemoved(e.sendButton, 'should not display the send button element after hiding the messages');
+  }
+
+  async closePrivateChat() {
+    await openPrivateChat(this.modPage);
+    await this.modPage.waitUntilHaveCountSelector(e.chatButton, 2);
+    const privateChatLocator = this.modPage.getLocatorByIndex(e.chatButton, -1);
+    await expect(privateChatLocator, 'should the private chat contain the user name').toContainText(this.userPage.username);
+
+    const chatMessageCount = await this.modPage.getSelectorCount(e.chatUserMessageText);
+
+    await this.modPage.hasElement(e.hidePrivateChat, 'the private chat should display the hide private chat element when opened');
+    await this.modPage.hasElement(e.privateChatBackButton, 'the private chat should display the back button element when opened');
+    await this.modPage.hasElementCount(e.chatUserMessageText, chatMessageCount);
+    await this.modPage.type(e.chatBox, e.message1);
+    await this.modPage.waitAndClick(e.sendButton);
+    await this.userPage.waitUntilHaveCountSelector(e.chatButton, 2);
+    await this.modPage.waitAndClick(e.privateChatBackButton);
+    await this.modPage.wasRemoved(e.privateChatBackButton, 'should not display the back button element');
+    await this.userPage.hasElementCount(e.chatButton, 2, 'should display both chat buttons for the viewer');
   }
 
   async emojiSaveChat(testInfo) {
@@ -267,7 +286,7 @@ class Chat extends MultiUsers {
     const { autoConvertEmojiEnabled } = this.modPage.settings;
     try {
       await this.modPage.hasElement(e.hidePrivateChat, 'should display the hide private chat element for the moderator when private chat is open');
-      await this.modPage.waitAndClick(e.chatButton);
+      await this.modPage.waitAndClick(e.messagesSidebarButton);
     } catch {
       await this.modPage.hasElement(e.hidePublicChat, 'should display the hide public chat element for the moderator when public chat is open');
     }

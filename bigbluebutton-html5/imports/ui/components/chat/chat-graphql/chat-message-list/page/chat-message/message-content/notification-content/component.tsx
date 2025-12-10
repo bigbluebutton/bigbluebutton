@@ -10,8 +10,8 @@ const ChatMessageNotificationContent: React.FC<ChatMessageNotificationContentPro
   const { text, iconName } = props;
   return (
     <Styled.Root data-test="chatMessageNotificationContent">
-      {iconName && <Styled.Icon iconName={iconName} />}
       <Styled.Typography>
+        {iconName && <Styled.Icon iconName={iconName} />}
         {text}
       </Styled.Typography>
     </Styled.Root>

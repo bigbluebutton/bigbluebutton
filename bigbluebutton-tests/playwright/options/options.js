@@ -1,5 +1,5 @@
 const { expect } = require('@playwright/test');
-const { openAboutModal, getLocaleValues } = require('./util');
+const { openAboutModal, openSettings, getLocaleValues } = require('./util');
 const e = require('../core/elements');
 const { CI } = require('../core/constants');
 const { MultiUsers } = require('../user/multiusers');
@@ -171,7 +171,7 @@ class Options extends MultiUsers {
     await this.modPage.waitAndClickElement(e.wbAutoHideToggleBtn);
     await this.modPage.hasElementEnabled(e.wbAutoHideToggleBtn, 'should display the auto hide whiteboard toolbar toggle enabled after clicking it');
 
-    await this.modPage.waitAndClick(e.modalConfirmButton);
+    await this.modPage.waitAndClick(e.saveSettingsButton);
     await this.modPage.waitForSelector(e.whiteboard);
 
     const wbToolbarLocator = this.modPage.getLocator(e.wbToolbar);
@@ -179,7 +179,7 @@ class Options extends MultiUsers {
     await expect(wbToolbarLocator).toHaveClass(/fade-in/);
     await this.modPage.hasElement(e.wbToolbar, 'should display the whiteboard toolbar when hover the whiteboard');
 
-    await this.modPage.hoverElement(e.chatButton)
+    await this.modPage.hoverElement(e.messagesSidebarButton)
     await expect(wbToolbarLocator).toHaveClass(/fade-out/);
     
     await expect(whiteboardLocator).toHaveScreenshot('whiteboard-with-toolbar-hidden.png', {

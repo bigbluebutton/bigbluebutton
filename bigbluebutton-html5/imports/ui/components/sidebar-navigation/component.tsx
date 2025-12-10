@@ -17,6 +17,7 @@ import SettingsListItem from './settings-list-item/component';
 import PinnedApps from './pinned-apps/component';
 import { SidebarNavigation as SidebarNavigationInput } from '../layout/layoutTypes';
 import getSettingsSingletonInstance from '/imports/ui/services/settings';
+import { useIsLearningDashboardEnabled } from '/imports/ui/services/features';
 import { PANELS } from '/imports/ui/components/layout/enums';
 import Styled from './styles';
 
@@ -82,6 +83,7 @@ const SidebarNavigation = ({
   const Settings = getSettingsSingletonInstance();
   const animations = Settings?.application?.animations;
   const hasNotification = hasUnreadMessages || hasUnreadNotes;
+  const isLearningDashboardEnabled = useIsLearningDashboardEnabled();
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -189,7 +191,7 @@ const SidebarNavigation = ({
           </Styled.Center>
 
           <Styled.Bottom>
-            { isModerator ? <LearningDashboardListItem /> : null }
+            { isLearningDashboardEnabled && isModerator ? <LearningDashboardListItem /> : null }
             <SettingsListItem />
           </Styled.Bottom>
         </Styled.NavigationSidebarListItemsContainer>
