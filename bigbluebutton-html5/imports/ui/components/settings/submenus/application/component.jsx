@@ -445,7 +445,7 @@ class ApplicationMenu extends BaseMenu {
     };
 
     const ariaValueLabel = intl.formatMessage(intlMessages.currentValue, {
-      0: `${pixelPercentage[settings.fontSize]}`,
+      size: `${pixelPercentage[settings.fontSize]}`,
     });
 
     return (
