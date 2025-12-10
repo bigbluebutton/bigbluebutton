@@ -125,8 +125,20 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
   };
 
   const {
-    ...cssProps
+    height,
+    width,
+    top,
+    left,
+    zIndex,
   } = sharedNotesOutput;
+
+  const cssProps = {
+    height,
+    width,
+    top,
+    left,
+    zIndex,
+  };
 
   return shouldRenderNotes && (
     <Styled.PanelContent
