@@ -594,7 +594,7 @@
     "app.submenu.application.darkThemeLabel": "Mode sombre",
     "app.submenu.application.fontSizeControlLabel": "Taille des caractères",
     "app.submenu.application.increaseFontBtnLabel": "Augmenter la taille des caractères",
-    "app.submenu.application.decreaseFontBtnLabel": "Diminuer la taille des caractères",
+    "app.submenu.application.decreaseFontBtnLabel": "Réduire la taille des caractères",
     "app.submenu.application.exampleTextLabel": "Exemple de phrase pour la police",
     "app.submenu.application.currentSize": "actuellement {size}",
     "app.submenu.application.languageLabel": "Langue de l'application",
