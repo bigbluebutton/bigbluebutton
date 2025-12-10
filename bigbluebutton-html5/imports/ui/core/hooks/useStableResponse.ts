@@ -138,6 +138,12 @@ export default function useStableResponse<T = unknown, ItemType = unknown>(
     const oldItemsMap = lastArrayItemsRef.current ?? new Map<string | number, ItemType>();
     const newItemsMap = new Map<string | number, ItemType>();
     const stabilizedArray: ItemType[] = [];
+    let hasChanges = false;
+
+    // Check if length changed
+    if (lastRef.current && Array.isArray(lastRef.current.data) && lastRef.current.data.length !== newData.length) {
+      hasChanges = true;
+    }
 
     for (let i = 0; i < newData.length; i += 1) {
       const newItem = newData[i] as ItemType;
@@ -154,6 +160,34 @@ export default function useStableResponse<T = unknown, ItemType = unknown>(
         // Item is new or changed - use new reference
         stabilizedArray.push(newItem);
         newItemsMap.set(key, newItem);
+        hasChanges = true;
+      }
+    }
+
+    // If no items changed and the rest of the response is shallow equal, return the old reference
+    if (
+      !hasChanges
+      && lastRef.current
+      && shallowEqualObjects(
+        value as unknown as Record<string, unknown>,
+        lastRef.current as unknown as Record<string, unknown>,
+      )
+    ) {
+      const oldData = lastRef.current.data as ItemType[];
+      let arrayEqual = true;
+      if (oldData.length !== stabilizedArray.length) {
+        arrayEqual = false;
+      } else {
+        for (let i = 0; i < oldData.length; i += 1) {
+          if (oldData[i] !== stabilizedArray[i]) {
+            arrayEqual = false;
+            break;
+          }
+        }
+      }
+
+      if (arrayEqual) {
+        return lastRef.current as GraphqlDataHookSubscriptionResponse<T>;
       }
     }
 
