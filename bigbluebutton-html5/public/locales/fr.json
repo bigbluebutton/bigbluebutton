@@ -406,7 +406,7 @@
     "app.poll.quickPollTitle": "Sondage rapide",
     "app.poll.hidePollDesc": "Masque le volet du menu du sondage",
     "app.poll.quickPollInstruction": "Sélectionnez une option ci-dessous pour démarrer votre sondage.",
-    "app.poll.activePollInstruction": "Laissez cette fenêtre ouverte afin de voir en direct les réponses à votre sondage. Lorsque vous êtes prêt, sélectionnez « Publier les résultats du sondage » pour publier les résultats et terminer le sondage.",
+    "app.poll.activePollInstruction": "Laissez cette fenêtre ouverte afin de voir en direct les réponses à votre sondage. Lorsque vous êtes prêt, sélectionnez « Publier les résultats du sondage » pour publier les résultats et clore le sondage.",
     "app.poll.dragDropPollInstruction": "Pour renseigner les valeurs du sondage, faites glisser un fichier texte avec les valeurs sur le champ en surbrillance",
     "app.poll.customPollTextArea": "Renseigner les valeurs du sondage",
     "app.poll.publishLabel": "Publier les résultats",
