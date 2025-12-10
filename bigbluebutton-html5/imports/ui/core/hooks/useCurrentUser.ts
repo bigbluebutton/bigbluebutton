@@ -26,16 +26,22 @@ const useCurrentUser = (fn: (c: Partial<User>) => Partial<User> = (u) => u) => {
     responseData = responseData.filter((user) => user.userId === Auth.userID);
   }
 
-  const returnObject = useMemo(() => ({
-    ...response,
-    data: responseData ? responseData[0] : null,
-    rawData: responseData ?? null,
-  }), [response, responseData]);
+  const singleUserData = responseData ? responseData[0] : null;
 
-  return useStableResponse<Partial<User> | null>(
-    returnObject as GraphqlDataHookSubscriptionResponse<Partial<User> | null>,
+  // Create a stable response for the single user data
+  const stableResponse = useStableResponse<Partial<User> | null>(
+    {
+      ...response,
+      data: singleUserData,
+    } as GraphqlDataHookSubscriptionResponse<Partial<User> | null>,
     currentUserComparator,
   );
+
+  // Combine stable response with rawData
+  return useMemo(() => ({
+    ...stableResponse,
+    rawData: responseData ?? null,
+  }), [stableResponse, responseData]);
 };
 
 export default useCurrentUser;
