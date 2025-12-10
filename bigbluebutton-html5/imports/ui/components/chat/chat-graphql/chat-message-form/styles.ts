@@ -11,7 +11,6 @@ import {
 import {
   smPaddingX,
   xsPadding,
-  smPaddingY,
   borderRadius,
   borderSize,
 } from '/imports/ui/stylesheets/styled-components/general';
@@ -47,22 +46,20 @@ const Input = styled(TextareaAutosize)<InputProps>`
   flex: 1;
   background: #fff;
   background-clip: padding-box;
-  margin: ${xsPadding} 0 ${xsPadding} ${xsPadding};
+  margin: 0px;
+  border-radius: 0px;
   color: ${colorGrayLight};
   -webkit-appearance: none;
-  padding: calc(${smPaddingY} * 2.5) calc(${smPaddingX} * 1.25) calc(${smPaddingX} * 1.25) calc(${smPaddingY} * 2.5);
+  padding: 0px;
   resize: none;
   transition: color 0.3s ease, margin-right 0.3s ease;
-  border-radius: ${borderRadius};
   font-size: ${fontSizeBase};
   line-height: 1;
-  min-height: 2.5rem;
   overflow-y: auto;
   border: ${colorBorder};
   box-shadow: none;
   outline: none;
-
-  margin-right: ${({ $showEmojiPicker }) => ($showEmojiPicker ? '0' : '0.75rem')};
+  align-content: center;
 
   &::-webkit-scrollbar {
     width: 5px;
@@ -79,14 +76,6 @@ const Input = styled(TextareaAutosize)<InputProps>`
 
   &::-webkit-scrollbar-track {
     background: transparent;
-  }
-
-  [dir='ltr'] & {
-    border-radius: 0.75rem 0 0 0.75rem;
-  }
-
-  [dir='rtl'] & {
-    border-radius: 0 0.75rem 0.75rem 0;
   }
 
   &:focus {
@@ -195,6 +184,7 @@ const InputWrapper = styled.div`
   z-index: 0;
   border-radius: 0.75rem;
   border: 1px solid ${colorBorder};
+  gap: 3px;
 
   &:focus-within {
     box-shadow: 0 0 0 ${xsPadding} ${colorBorder};
