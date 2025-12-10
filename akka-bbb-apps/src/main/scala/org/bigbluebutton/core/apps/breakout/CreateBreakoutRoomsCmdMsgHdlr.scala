@@ -119,16 +119,7 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
         liveMeeting.props.meetingProp.audioBridge,
         liveMeeting.props.meetingProp.cameraBridge,
         liveMeeting.props.meetingProp.screenShareBridge,
-        lockSettings.disableCam,
-        lockSettings.disableMic,
-        lockSettings.disablePrivChat,
-        lockSettings.disablePubChat,
-        lockSettings.disableNotes,
-        lockSettings.hideUserList,
-        lockSettings.lockOnJoin,
-        lockSettings.lockOnJoinConfigurable,
-        lockSettings.hideViewersCursor,
-        lockSettings.hideViewersAnnotation
+        lockSettings.disablePrivChat
       )
 
       val event = buildCreateBreakoutRoomSysCmdMsg(liveMeeting.props.meetingProp.intId, roomDetail)
