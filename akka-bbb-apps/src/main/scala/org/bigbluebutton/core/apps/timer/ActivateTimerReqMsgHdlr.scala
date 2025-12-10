@@ -5,6 +5,7 @@ import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait, TimerModel }
 import org.bigbluebutton.core.db.TimerDAO
+import org.bigbluebutton.core.models.DisabledFeatures2x
 
 trait ActivateTimerReqMsgHdlr extends RightsManagementTrait {
   this: TimerApp2x =>
@@ -30,7 +31,7 @@ trait ActivateTimerReqMsgHdlr extends RightsManagementTrait {
       bus.outGW.send(msgEvent)
     }
 
-    val isTimerFeatureEnabled: Boolean = !liveMeeting.props.meetingProp.disabledFeatures.contains("timer")
+    val isTimerFeatureEnabled: Boolean = !DisabledFeatures2x.contains(liveMeeting.disabledFeatures2x, "timer")
 
     if (!isTimerFeatureEnabled) {
       log.error("Timer feature is disabled for meeting {}, meetingId={}", liveMeeting.props.meetingProp.name,

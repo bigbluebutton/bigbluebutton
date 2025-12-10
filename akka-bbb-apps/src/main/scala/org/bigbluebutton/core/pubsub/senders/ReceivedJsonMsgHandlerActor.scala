@@ -410,7 +410,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[GetRecordingStatusReqMsg](envelope, jsonNode)
       case GetScreenshareStatusReqMsg.NAME =>
         routeGenericMsg[GetScreenshareStatusReqMsg](envelope, jsonNode)
-
+      case ChangeDisabledFeaturesInMeetingCmdMsg.NAME =>
+        routeGenericMsg[ChangeDisabledFeaturesInMeetingCmdMsg](envelope, jsonNode)
       // Lock settings
       case LockUserInMeetingCmdMsg.NAME =>
         routeGenericMsg[LockUserInMeetingCmdMsg](envelope, jsonNode)

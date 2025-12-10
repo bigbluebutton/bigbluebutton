@@ -45,6 +45,7 @@ const PresentationContainer = (props) => {
   );
 
   const { pres_page_curr: presentationPageArray } = (presentationPageData || {});
+
   const currentPresentationPage = presentationPageArray?.[0];
   const slideSvgUrl = currentPresentationPage?.svgUrl;
   const currentPageId = currentPresentationPage?.pageId;

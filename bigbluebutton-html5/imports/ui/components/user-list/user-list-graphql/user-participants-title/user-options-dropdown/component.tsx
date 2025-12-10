@@ -3,15 +3,16 @@ import React, {
   useRef,
   useEffect,
 } from 'react';
+import { defineMessages, useIntl } from 'react-intl';
+import { uid } from 'radash';
+import { useMutation, useLazyQuery } from '@apollo/client';
 import LockViewersContainer from '/imports/ui/components/lock-viewers/container';
 import GuestPolicyContainer from '/imports/ui/components/waiting-users/guest-policy/container';
 import CreateBreakoutRoomContainerGraphql from '../../../../breakout-room/create-breakout-room/component';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import Styled from './styles';
-import { defineMessages, useIntl } from 'react-intl';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
-import { uid } from 'radash';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import {
   onSaveUserNames, openLearningDashboardUrl,
@@ -23,13 +24,13 @@ import {
   useIsLearningDashboardEnabled,
   useIsReactionsEnabled,
 } from '/imports/ui/services/features';
-import { useMutation, useLazyQuery } from '@apollo/client';
 import { SET_MUTED } from './mutations';
 import { CLEAR_ALL_REACTION } from '/imports/ui/core/graphql/mutations/userMutations';
 import { GET_USER_NAMES } from '/imports/ui/core/graphql/queries/users';
 import logger from '/imports/startup/client/logger';
 import { notify } from '/imports/ui/services/notification';
 import { useModalRegistration } from '/imports/ui/core/singletons/modalController';
+import DisabledFeaturesContainer from '../../../../disable-features-modal/component';
 
 const intlMessages = defineMessages({
   optionsLabel: {
@@ -124,6 +125,14 @@ const intlMessages = defineMessages({
     id: 'app.userList.userOptions.clearedReactions',
     description: 'Used in toast notification when reactions have been cleared',
   },
+  disabledFeaturesLabel: {
+    id: 'app.disable-features.title',
+    defaultMessage: 'Disable features',
+  },
+  disabledFeaturesDesc: {
+    id: 'app.disable-features.description',
+    defaultMessage: 'Change session disable features settings.',
+  },
 });
 
 interface UserTitleOptionsProps {
@@ -147,21 +156,12 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
 }) => {
   const intl = useIntl();
   const { locale } = intl;
-  const uuids = useRef<string[]>([
-    uid(8, 'options-'),
-    uid(8, 'options-'),
-    uid(8, 'options-'),
-    uid(8, 'options-'),
-    uid(8, 'options-'),
-    uid(8, 'options-'),
-    uid(8, 'options-'),
-    uid(8, 'options-'),
-    uid(8, 'options-'),
-  ]);
+  const uuids = useRef<string[]>([]);
 
   const createBreakoutRoomModal = useModalRegistration({ id: 'createBreakoutRoomModal', priority: 'medium' });
   const guestPolicyModal = useModalRegistration({ id: 'guestPolicyModal', priority: 'low' });
   const lockViewersModal = useModalRegistration({ id: 'lockViewersModal', priority: 'low' });
+  const disabledFeaturesModal = useModalRegistration({ id: 'disabledFeaturesModal', priority: 'low' });
 
   const [setMuted] = useMutation(SET_MUTED);
   const [clearAllReaction] = useMutation(CLEAR_ALL_REACTION);
@@ -188,6 +188,14 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
       onSaveUserNames(intl, meetingName ?? '', users);
     }
   }, [users]);
+
+  const generateAndStoreUUID = (index: number, prefix: string) => {
+    if (!uuids.current[index]) {
+      uuids.current[index] = uid(8, prefix);
+    }
+
+    return uuids.current[index];
+  };
 
   const callSetMuted = (muted: boolean, exceptPresenter: boolean) => {
     setMuted({
@@ -233,7 +241,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
     return [
       {
         allow: !isBreakout,
-        key: uuids.current[0],
+        key: generateAndStoreUUID(8, 'options-'),
         label: intl.formatMessage(intlMessages[isMeetingMuted ? 'usersJoinMutedDisableLabel' : 'usersJoinMutedEnableLabel']),
         description: intl.formatMessage(intlMessages[isMeetingMuted ? 'usersJoinMutedDisableDesc' : 'usersJoinMutedEnableDesc']),
         onClick: callSetMuted.bind(null, !isMeetingMuted, false),
@@ -242,7 +250,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
       },
       {
         allow: true,
-        key: uuids.current[1],
+        key: generateAndStoreUUID(1, 'options-'),
         label: intl.formatMessage(intlMessages.muteAllExceptPresenterLabel),
         description: intl.formatMessage(intlMessages.muteAllExceptPresenterDesc),
         onClick: callSetMuted.bind(null, true, true),
@@ -251,7 +259,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
       },
       {
         allow: true,
-        key: uuids.current[2],
+        key: generateAndStoreUUID(2, 'options-'),
         label: intl.formatMessage(intlMessages.lockViewersLabel),
         description: intl.formatMessage(intlMessages.lockViewersDesc),
         onClick: () => lockViewersModal.open(),
@@ -259,8 +267,17 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
         dataTest: 'lockViewersButton',
       },
       {
+        allow: true,
+        key: generateAndStoreUUID(2, 'options-'),
+        label: intl.formatMessage(intlMessages.disabledFeaturesLabel),
+        description: intl.formatMessage(intlMessages.disabledFeaturesDesc),
+        onClick: () => disabledFeaturesModal.open(),
+        icon: 'circle_close',
+        dataTest: 'disabledFeaturesButton',
+      },
+      {
         allow: dynamicGuestPolicy,
-        key: uuids.current[3],
+        key: generateAndStoreUUID(3, 'options-'),
         icon: 'user',
         label: intl.formatMessage(intlMessages.guestPolicyLabel),
         description: intl.formatMessage(intlMessages.guestPolicyDesc),
@@ -269,7 +286,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
       },
       {
         allow: isModerator,
-        key: uuids.current[4],
+        key: generateAndStoreUUID(4, 'options-'),
         label: intl.formatMessage(intlMessages.saveUserNames),
         onClick: () => getUsers(),
         icon: 'download',
@@ -277,7 +294,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
       },
       {
         allow: isReactionsEnabled && isModerator,
-        key: uuids.current[5],
+        key: generateAndStoreUUID(5, 'options-'),
         label: intl.formatMessage(intlMessages.clearAllReactionsLabel),
         description: intl.formatMessage(intlMessages.clearAllReactionsDesc),
         onClick: () => clearReactions(),
@@ -291,7 +308,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
       },
       {
         allow: canCreateBreakout,
-        key: uuids.current[6],
+        key: generateAndStoreUUID(6, 'options-'),
         icon: 'rooms',
         label: intl.formatMessage(intlMessages.createBreakoutRoom),
         description: intl.formatMessage(intlMessages.createBreakoutRoomDesc),
@@ -300,7 +317,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
       },
       {
         allow: canInviteUsers,
-        key: uuids.current[7],
+        key: generateAndStoreUUID(7, 'options-'),
         icon: 'rooms',
         label: intl.formatMessage(intlMessages.invitationLabel),
         description: intl.formatMessage(intlMessages.invitationDesc),
@@ -319,7 +336,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
         label: intl.formatMessage(intlMessages.learningDashboardLabel),
         description: `${intl.formatMessage(intlMessages.learningDashboardDesc)}
         ${intl.formatMessage(intlMessages.newTab)}`,
-        key: uuids.current[8],
+        key: generateAndStoreUUID(8, 'options-'),
         onClick: () => { openLearningDashboardUrl(locale, learningDashboardToken); },
         dividerTop: true,
         dataTest: 'learningDashboard',
@@ -381,7 +398,13 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
           setIsOpen={lockViewersModal.close}
         />
       )}
-
+      {
+        disabledFeaturesModal.isOpen && (
+          <DisabledFeaturesContainer
+            setIsOpen={disabledFeaturesModal.isOpen ? disabledFeaturesModal.close : disabledFeaturesModal.open}
+          />
+        )
+      }
     </>
   );
 };

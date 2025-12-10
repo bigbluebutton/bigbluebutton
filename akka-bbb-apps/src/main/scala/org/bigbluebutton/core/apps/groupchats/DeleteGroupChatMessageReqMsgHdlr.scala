@@ -4,7 +4,7 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.PermissionCheck
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.domain.MeetingState2x
-import org.bigbluebutton.core.models.{ Roles, Users2x }
+import org.bigbluebutton.core.models.{ DisabledFeatures2x, Roles, Users2x }
 import org.bigbluebutton.core.running.{ HandlerHelpers, LiveMeeting }
 import org.bigbluebutton.core2.MeetingStatus2x
 
@@ -12,8 +12,8 @@ trait DeleteGroupChatMessageReqMsgHdlr extends HandlerHelpers {
   this: GroupChatHdlrs =>
 
   def handle(msg: DeleteGroupChatMessageReqMsg, state: MeetingState2x, liveMeeting: LiveMeeting, bus: MessageBus): MeetingState2x = {
-    val chatDisabled: Boolean = liveMeeting.props.meetingProp.disabledFeatures.contains("chat")
-    val deleteChatMessageDisabled: Boolean = liveMeeting.props.meetingProp.disabledFeatures.contains("deleteChatMessage")
+    val chatDisabled: Boolean = DisabledFeatures2x.contains(liveMeeting.disabledFeatures2x, "chat")
+    val deleteChatMessageDisabled: Boolean = DisabledFeatures2x.contains(liveMeeting.disabledFeatures2x, "deleteChatMessage")
     var chatLocked: Boolean = false
     var chatLockedForUser: Boolean = false
 

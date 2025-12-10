@@ -3,14 +3,12 @@ package org.bigbluebutton.core.apps.groupchats
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.domain.MeetingState2x
-import org.bigbluebutton.core.models.GroupChat
+import org.bigbluebutton.core.models.{ DisabledFeatures2x, GroupChat, Roles, Users2x }
 import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.core.apps.PermissionCheck
 import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.core.db.ChatDAO
 import org.bigbluebutton.core.db.ChatUserDAO
-import org.bigbluebutton.core.models.Users2x
-import org.bigbluebutton.core.models.Roles
 import org.bigbluebutton.core2.MeetingStatus2x
 
 trait CreateGroupChatReqMsgHdlr extends SystemConfiguration {
@@ -26,7 +24,7 @@ trait CreateGroupChatReqMsgHdlr extends SystemConfiguration {
     val isPrivateChat: Boolean = msg.body.access == GroupChatAccess.PRIVATE
 
     if (msg.body.access == GroupChatAccess.PRIVATE) {
-      privateChatDisabled = liveMeeting.props.meetingProp.disabledFeatures.contains("privateChat")
+      privateChatDisabled = DisabledFeatures2x.contains(liveMeeting.disabledFeatures2x, "privateChat")
     }
 
     for {

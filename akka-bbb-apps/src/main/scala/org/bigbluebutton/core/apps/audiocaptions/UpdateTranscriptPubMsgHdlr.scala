@@ -4,7 +4,7 @@ import org.bigbluebutton.ClientSettings.getConfigPropertyValueByPathAsStringOrEl
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.db.CaptionDAO
-import org.bigbluebutton.core.models.{AudioCaptions, UserState, Pads, Users2x}
+import org.bigbluebutton.core.models.{DisabledFeatures2x, AudioCaptions, UserState, Pads, Users2x}
 import org.bigbluebutton.core.running.LiveMeeting
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -55,7 +55,7 @@ trait UpdateTranscriptPubMsgHdlr {
       bus.outGW.send(msgEvent)
     }
 
-    val isTranscriptionEnabled = !liveMeeting.props.meetingProp.disabledFeatures.contains("liveTranscription")
+    val isTranscriptionEnabled = !DisabledFeatures2x.contains(liveMeeting.disabledFeatures2x, "liveTranscription")
 
     if (AudioCaptions.isFloor(liveMeeting.audioCaptions, msg.header.userId) && isTranscriptionEnabled) {
       val (start, end, text) = AudioCaptions.editTranscript(

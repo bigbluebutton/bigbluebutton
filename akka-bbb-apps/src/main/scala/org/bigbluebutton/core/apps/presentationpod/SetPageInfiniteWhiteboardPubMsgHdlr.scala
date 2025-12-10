@@ -1,11 +1,12 @@
 package org.bigbluebutton.core.apps.presentationpod
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
+import org.bigbluebutton.core.apps.{PermissionCheck, RightsManagementTrait}
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.core.db.PresPageDAO
+import org.bigbluebutton.core.models.DisabledFeatures2x
 
 trait SetPageInfiniteWhiteboardPubMsgHdlr extends RightsManagementTrait {
   this: PresentationPodHdlrs =>
@@ -15,7 +16,7 @@ trait SetPageInfiniteWhiteboardPubMsgHdlr extends RightsManagementTrait {
       liveMeeting: LiveMeeting, bus: MessageBus
   ): MeetingState2x = {
 
-    if (liveMeeting.props.meetingProp.disabledFeatures.contains("infiniteWhiteboard")) {
+    if (DisabledFeatures2x.contains(liveMeeting.disabledFeatures2x, "infiniteWhiteboard")) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "Infinite whiteboard is disabled for this meeting."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)

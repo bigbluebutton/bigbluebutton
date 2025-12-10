@@ -7,6 +7,7 @@ import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x.requestBroadcastStop
 import org.bigbluebutton.core.db.ExternalVideoDAO
 import org.bigbluebutton.core.apps.pads.PadsApp2x.setPinned
+import org.bigbluebutton.core.models.DisabledFeatures2x
 import org.bigbluebutton.core.util.UrlTimeExtractor
 
 trait StartExternalVideoPubMsgHdlr extends RightsManagementTrait {
@@ -26,7 +27,7 @@ trait StartExternalVideoPubMsgHdlr extends RightsManagementTrait {
       bus.outGW.send(msgEvent)
     }
 
-    if (liveMeeting.props.meetingProp.disabledFeatures.contains("externalVideos")) {
+    if (DisabledFeatures2x.contains(liveMeeting.disabledFeatures2x, "externalVideos")) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "External Videos is disabled for this meeting."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)

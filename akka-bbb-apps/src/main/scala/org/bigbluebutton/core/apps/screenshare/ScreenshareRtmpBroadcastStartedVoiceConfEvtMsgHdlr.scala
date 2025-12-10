@@ -5,7 +5,7 @@ import org.bigbluebutton.core.apps.layout.ScreenshareAsContenthdlrHelper
 import org.bigbluebutton.core.apps.{ ExternalVideoModel, ScreenshareModel }
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.db.{ LayoutDAO, ScreenshareDAO }
-import org.bigbluebutton.core.models.Layouts
+import org.bigbluebutton.core.models.{ DisabledFeatures2x, Layouts }
 import org.bigbluebutton.core.models.Users2x.findPresenter
 import org.bigbluebutton.core.running.LiveMeeting
 
@@ -36,12 +36,12 @@ trait ScreenshareRtmpBroadcastStartedVoiceConfEvtMsgHdlr {
       ScreenshareModel.isBroadcastingRTMP(liveMeeting.screenshareModel) +
       " URL:" + ScreenshareModel.getRTMPBroadcastingUrl(liveMeeting.screenshareModel))
 
-    if (msg.body.contentType == "camera" && liveMeeting.props.meetingProp.disabledFeatures.contains("cameraAsContent")) {
+    if (msg.body.contentType == "camera" && DisabledFeatures2x.contains(liveMeeting.disabledFeatures2x, "cameraAsContent")) {
       log.error(
         "Camera as a content is disabled for meeting {}, meetingID = {}",
         liveMeeting.props.meetingProp.name, liveMeeting.props.meetingProp.intId
       )
-    } else if (msg.body.contentType == "screenshare" && liveMeeting.props.meetingProp.disabledFeatures.contains("screenshare")) {
+    } else if (msg.body.contentType == "screenshare" && DisabledFeatures2x.contains(liveMeeting.disabledFeatures2x, "screenshare")) {
       val meetingId = liveMeeting.props.meetingProp.intId
       log.error("Screen sharing is disabled for this meeting, meetingID = {}", meetingId)
     } else {

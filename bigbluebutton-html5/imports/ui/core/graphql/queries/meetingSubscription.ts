@@ -3,6 +3,7 @@ import { gql } from '@apollo/client';
 const MEETING_SUBSCRIPTION = gql`
   subscription MeetingSubscription {
       meeting {
+        disabledFeatures
         durationInSeconds
         lockSettings {
           disableCam

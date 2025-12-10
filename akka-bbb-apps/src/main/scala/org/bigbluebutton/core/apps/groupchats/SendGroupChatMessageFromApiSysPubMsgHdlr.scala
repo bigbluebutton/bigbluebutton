@@ -4,7 +4,7 @@ import org.bigbluebutton.ClientSettings.getConfigPropertyValueByPathAsBooleanOrE
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.domain.MeetingState2x
-import org.bigbluebutton.core.models.SystemUser
+import org.bigbluebutton.core.models.{ DisabledFeatures2x, SystemUser }
 import org.bigbluebutton.core.running.{ HandlerHelpers, LiveMeeting }
 
 trait SendGroupChatMessageFromApiSysPubMsgHdlr extends HandlerHelpers {
@@ -15,7 +15,7 @@ trait SendGroupChatMessageFromApiSysPubMsgHdlr extends HandlerHelpers {
 
     log.debug("RECEIVED SendGroupChatMessageFromApiSysPubMsg {}", msg)
 
-    val chatDisabled: Boolean = liveMeeting.props.meetingProp.disabledFeatures.contains("chat")
+    val chatDisabled: Boolean = DisabledFeatures2x.contains(liveMeeting.disabledFeatures2x, "chat")
     if (!chatDisabled) {
       val newState = for {
         sender <- GroupChatApp.findGroupChatUser(SystemUser.ID, liveMeeting.users2x)

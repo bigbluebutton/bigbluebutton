@@ -204,6 +204,13 @@ type Mutation {
 }
 
 type Mutation {
+  changeDisabledFeaturesInMeeting(
+    disabledFeatures: [String]!
+  ): Boolean
+}
+
+
+type Mutation {
   echoTestRunningAt: Boolean
 }
 
