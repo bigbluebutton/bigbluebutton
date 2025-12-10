@@ -717,18 +717,24 @@ class AudioManager {
   }
 
   onVoiceUserChanges(fields = {}) {
+    let newMuteState;
+
     // when user leaves voice conf, set muted = false
     // as the user might have been transfered to a breakout room
     if (fields.leftVoiceConf !== undefined && fields.leftVoiceConf) {
-      this.isMuted = false;
+      newMuteState = false;
     } else if (fields.muted !== undefined && fields.muted !== this.isMuted) {
-      this.isMuted = fields.muted;
+      newMuteState = fields.muted;
     }
 
-    if (this.isMuted) {
-      this.mute();
-    } else {
-      this.unmute();
+    if (newMuteState !== undefined && newMuteState !== this.isMuted) {
+      this.isMuted = newMuteState;
+
+      if (this.isMuted) {
+        this.mute();
+      } else {
+        this.unmute();
+      }
     }
 
     if (fields.talking !== undefined && fields.talking !== this.isTalking) {
@@ -1377,7 +1383,7 @@ class AudioManager {
 
     if (outputDeviceId && typeof audioAlert.setSinkId === 'function') {
       return audioAlert
-        .setSinkId(outputDeviceId)
+        .setSinkId(outputDeviceId || 'default')
         .then(() => AudioManager.playAudioElement(audioAlert));
     }
 

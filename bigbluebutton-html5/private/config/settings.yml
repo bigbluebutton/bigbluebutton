@@ -491,7 +491,7 @@ public:
     # cameraSortingModes.paginationSorting: sorting mode to be applied when pagination is active
     # cameraSortingModes.defaultSorting: sorting mode when pagination is not active (full mesh)
     # Current implemented modes are:
-    # 'LOCAL_ALPHABETICAL' | 'VOICE_ACTIVITY_LOCAL' | 'LOCAL_VOICE_ACTIVITY' | 'LOCAL_PRESENTER_ALPHABETICAL'
+    # 'LOCAL_ALPHABETICAL' | 'VOICE_ACTIVITY_LOCAL' | 'LOCAL_VOICE_ACTIVITY' | 'LOCAL_PRESENTER_ALPHABETICAL' | 'PRESENTER_LOCAL_PINNED'
     # The algorithm names are self-explanatory.
     cameraSortingModes:
       defaultSorting: LOCAL_ALPHABETICAL
@@ -747,11 +747,7 @@ public:
       track1: "RelaxingMusic"
       track2: "CalmMusic"
       track3: "aristocratDrums"
-    interval:
-      clock: 100
-      offset: 60000
     time: 5
-    tabIndicator: false
   chat:
     enabled: true
     itemsPerPage: 100
@@ -821,6 +817,9 @@ public:
     showPushLayoutToggle: true
     showSessionDetailsOnJoin: true
     showScreenshareQuickSwapButton: false
+    syncCameraDockSizeAndPosition: false
+    # if false, the user can't change the layout (no layout selection modal)
+    enableDeprecatedLayoutSelection: true
   pads:
     url: ETHERPAD_HOST
   media:
@@ -1046,8 +1045,6 @@ public:
         mime: image/png
       - extension: .webp
         mime: image/webp
-      - extension: .svg
-        mime: image/svg+xml
   user:
     role_moderator: MODERATOR
     role_viewer: VIEWER

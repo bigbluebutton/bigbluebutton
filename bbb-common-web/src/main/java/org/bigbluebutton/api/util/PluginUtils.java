@@ -6,6 +6,8 @@ import org.bigbluebutton.api.ParamsProcessorUtil;
 import org.bigbluebutton.api.domain.PluginManifest;
 import org.bigbluebutton.api.exception.PluginMalformedParametersException;
 import org.bigbluebutton.api.exception.PluginMetadataException;
+import org.bigbluebutton.api.service.impl.PluginRedirectValidatorService;
+import org.bigbluebutton.api.service.RedirectFollowerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.github.zafarkhaja.semver.Version;
@@ -25,6 +27,8 @@ public class PluginUtils {
     private static final Pattern METADATA_PLACEHOLDER_PATTERN = Pattern.compile("\\$\\{([\\w-]+)(?::([^}]*))?\\}");
     private static String bbbVersion;
     private String html5PluginSdkVersion;
+    private RedirectFollowerService redirectFollower;
+    private PluginRedirectValidatorService pluginRedirectValidator;
 
     private String getMainVersion(String version) {
         Version parsedVersion = Version.parse(version);
@@ -39,12 +43,26 @@ public class PluginUtils {
                 .replace(MEETING_ID, meetingId);
     }
 
+    private String extractFinalPluginManifestUrl(String rawManifestUrl, String meetingId) {
+        String manifestUrlBeforeRedirections = replaceAllPlaceholdersInManifestUrls(rawManifestUrl, meetingId);
+        String finalUrl = redirectFollower.followRedirect(
+                meetingId, manifestUrlBeforeRedirections, 0, manifestUrlBeforeRedirections,
+                pluginRedirectValidator, 6000
+        );
+        if (finalUrl != null) {
+            return finalUrl;
+        } else {
+            log.error("Raw manifest URL [{}] failed when following redirects", manifestUrlBeforeRedirections);
+            return manifestUrlBeforeRedirections;
+        }
+    }
+
     public PluginManifest createPluginManifestFromJson(JsonElement pluginManifestJson, String meetingId) {
         if (pluginManifestJson.isJsonObject()) {
             JsonObject pluginManifestJsonObj = pluginManifestJson.getAsJsonObject();
             if (pluginManifestJsonObj.has("url")) {
                 String barePluginManifestUrl = pluginManifestJsonObj.get("url").getAsString();
-                String url = replaceAllPlaceholdersInManifestUrls(barePluginManifestUrl, meetingId);
+                String url = extractFinalPluginManifestUrl(barePluginManifestUrl, meetingId);
                 PluginManifest newPlugin = new PluginManifest(url);
                 if (pluginManifestJsonObj.has("checksum")) {
                     newPlugin.setChecksum(pluginManifestJsonObj.get("checksum").getAsString());
@@ -170,5 +188,13 @@ public class PluginUtils {
 
     public static void setBbbVersion(String bbbVersion) {
         PluginUtils.bbbVersion = bbbVersion;
+    }
+
+    public void setRedirectFollower(RedirectFollowerService redirectFollower) {
+        this.redirectFollower = redirectFollower;
+    }
+
+    public void setPluginRedirectValidator(PluginRedirectValidatorService pluginRedirectValidator) {
+        this.pluginRedirectValidator = pluginRedirectValidator;
     }
 }

@@ -30,6 +30,7 @@ const PUBLISH_OP = 'publish';
 const UNPUBLISH_OP = 'unpublish';
 const IS_CHROME = browserInfo.isChrome;
 const ROOM_CONNECTION_TIMEOUT = 15000;
+const DEFAULT_UNPUBLISH_AFTER_MUTE_MS = 5000;
 
 interface JoinOptions {
   inputStream: MediaStream;
@@ -68,6 +69,17 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
 
   private clientSessionUUID: string = '0';
 
+  private unpublishRequest: ReturnType<typeof setTimeout> | null;
+
+  // Tracks whether a publish operation is pending
+  // Used for idempotency checks since LiveKit's actual state is not immediate
+  private isPublishPending: boolean;
+
+  // Generation counter for publish operations. Used to prevent stale finally()
+  // callbacks from incorrectly clearing isPublishPending when a newer publish
+  // has superseded them.
+  private publishGeneration: number;
+
   private static assembleTrackName(
     clientSessionId: string,
     deviceId: string | null | undefined,
@@ -100,6 +112,9 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
     this.handleLocalTrackUnmuted = this.handleLocalTrackUnmuted.bind(this);
     this.handleLocalTrackPublished = this.handleLocalTrackPublished.bind(this);
     this.handleLocalTrackUnpublished = this.handleLocalTrackUnpublished.bind(this);
+    this.unpublishRequest = null;
+    this.isPublishPending = false;
+    this.publishGeneration = 0;
 
     this.observeLiveKitEvents();
   }
@@ -211,6 +226,33 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
     return source === Track.Source.Microphone;
   }
 
+  private isLocalPublicationMuted(): boolean {
+    const pubs = this.getLocalMicTrackPubs();
+
+    return pubs.every((pub) => pub.isMuted);
+  }
+
+  private isTrackPublishedWithStream(stream: MediaStream | null): boolean {
+    if (!stream) return false;
+
+    const pubs = this.getLocalMicTrackPubs();
+
+    if (pubs.length === 0) return false;
+
+    return pubs.some((pub) => {
+      const pubStream = pub.track?.mediaStream;
+
+      return pubStream?.id === stream.id && pubStream?.active;
+    });
+  }
+
+  private clearUnpublishRequest(): void {
+    if (this.unpublishRequest) {
+      clearTimeout(this.unpublishRequest);
+      this.unpublishRequest = null;
+    }
+  }
+
   private handleTrackSubscribed(
     // @ts-ignore - unused for now
     track: RemoteTrack,
@@ -283,6 +325,9 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
   private handleLocalTrackMuted(publication: TrackPublication): void {
     if (!LiveKitAudioBridge.isMicrophonePublication(publication)) return;
 
+    // @ts-ignore
+    const LIVEKIT_SETTINGS = window.meetingClientSettings.public.media?.livekit?.audio;
+    const unpublishAfterMuteMs = LIVEKIT_SETTINGS?.unpublishAfterMuteMs ?? DEFAULT_UNPUBLISH_AFTER_MUTE_MS;
     const { trackSid, isMuted, trackName } = publication;
 
     logger.info({
@@ -295,12 +340,27 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
         isMuted,
       },
     }, `LiveKit: local audio track muted - ${trackSid}`);
+
+    if (LIVEKIT_SETTINGS?.unpublishOnMute && this.hasMicrophoneTrack()) {
+      this.clearUnpublishRequest();
+
+      this.unpublishRequest = setTimeout(() => {
+        // If the publication is unmuted, we don't need to unpublish anymore
+        // (this unpublish request is only set if the publication is muted)
+        if (!this.hasMicrophoneTrack() || !this.isLocalPublicationMuted()) return;
+
+        this.unpublish();
+        this.unpublishRequest = null;
+      }, unpublishAfterMuteMs);
+    }
   }
 
   private handleLocalTrackUnmuted(publication: TrackPublication): void {
     if (!LiveKitAudioBridge.isMicrophonePublication(publication)) return;
 
     const { trackSid, isMuted, trackName } = publication;
+
+    this.clearUnpublishRequest();
 
     logger.info({
       logCode: 'livekit_audio_local_track_unmuted',
@@ -432,23 +492,25 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
     }, 'LiveKit: set audio input stream');
 
     if (hasCurrentPub) {
-      return this.publish(stream)
-        .catch((error) => {
-          logger.error({
-            logCode: 'livekit_audio_set_input_stream_error',
-            extraInfo: {
-              errorMessage: (error as Error).message,
-              errorName: (error as Error).name,
-              errorStack: (error as Error).stack,
-              bridge: this.bridgeName,
-              role: this.role,
-              inputDeviceId: this.inputDeviceId,
-              streamData: MediaStreamUtils.getMediaStreamLogData(stream),
-              originalStreamData: MediaStreamUtils.getMediaStreamLogData(this.originalStream),
-            },
-          }, 'LiveKit: set audio input stream failed');
-          throw error;
-        });
+      // Force publish to supersede any pending publish with the new stream.
+      // This is intentional - when changing the input stream, we want the new
+      // one to take precedence over any ongoing publish.
+      return this.publish(stream, true).catch((error) => {
+        logger.error({
+          logCode: 'livekit_audio_set_input_stream_error',
+          extraInfo: {
+            errorMessage: (error as Error).message,
+            errorName: (error as Error).name,
+            errorStack: (error as Error).stack,
+            bridge: this.bridgeName,
+            role: this.role,
+            inputDeviceId: this.inputDeviceId,
+            streamData: MediaStreamUtils.getMediaStreamLogData(stream),
+            originalStreamData: MediaStreamUtils.getMediaStreamLogData(this.originalStream),
+          },
+        }, 'LiveKit: set audio input stream failed');
+        throw error;
+      });
     }
 
     // No previous publication, so no need to publish yet - unmute will handle it
@@ -577,14 +639,16 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
         backup();
 
         // We have a published track, but it's stream is inactive. Likely a dead
-        // stream. Restart the track.
-        if (this.publicationTrackStream && !this.publicationTrackStream.active) {
+        // stream or muted. Restart the track as switchActiveDevice will not work.
+        if ((this.publicationTrackStream && !this.publicationTrackStream.active)
+          || this.publicationTrack?.isMuted) {
           logger.warn({
             logCode: 'livekit_audio_live_change_input_device_inactive_stream',
             extraInfo: {
               bridge: this.bridgeName,
               role: this.role,
               deviceId,
+              muted: this.publicationTrack?.isMuted,
               streamData: MediaStreamUtils.getMediaStreamLogData(this.inputStream),
               originalStreamData: MediaStreamUtils.getMediaStreamLogData(this.originalStream),
               publicationStreamData: MediaStreamUtils.getMediaStreamLogData(this.publicationTrackStream),
@@ -693,6 +757,9 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
 
   setSenderTrackEnabled(shouldEnable: boolean): void {
     const trackPubs = this.getLocalMicTrackPubs();
+    const isCurrentlyMuted = this.isLocalPublicationMuted();
+    const hasPublishedTrack = this.hasMicrophoneTrack();
+
     const handleMuteError = (error: Error) => {
       logger.error({
         logCode: 'livekit_audio_set_sender_track_error',
@@ -709,27 +776,54 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
       }, `LiveKit: setSenderTrackEnabled failed - ${error.message}`);
     };
 
-    if (shouldEnable) {
-      const trackName = LiveKitAudioBridge.assembleTrackName(this.clientSessionId, this.inputDeviceId);
-      const currentPubs = trackPubs.filter((pub) => {
-        return LiveKitAudioBridge.publicationMatchesDevice(pub, this.inputDeviceId) && pub.isMuted;
-      });
+    logger.debug({
+      logCode: 'livekit_audio_set_sender_track_enabled',
+      extraInfo: {
+        shouldEnable,
+        bridge: this.bridgeName,
+        role: this.role,
+        isCurrentlyMuted,
+        hasPublishedTrack,
+        isPublishPending: this.isPublishPending,
+        inputDeviceId: this.inputDeviceId,
+        streamData: MediaStreamUtils.getMediaStreamLogData(this.inputStream),
+        originalStreamData: MediaStreamUtils.getMediaStreamLogData(this.originalStream),
+      },
+    }, `LiveKit: setSenderTrackEnabled(${shouldEnable}) muted=${isCurrentlyMuted} published=${hasPublishedTrack}`);
 
-      // Track was not unpublished on previous mute toggle, so no need to publish again
-      // Just toggle mute.
-      if (currentPubs.length) {
-        currentPubs.forEach((pub) => pub.unmute());
-        logger.debug({
-          logCode: 'livekit_audio_track_unmute',
-          extraInfo: {
-            bridge: this.bridgeName,
-            role: this.role,
-            trackName,
-          },
-        }, `LiveKit: unmuting audio track - ${trackName}`);
-      } else if (trackPubs.length === 0) {
-        // Track was unpublished on previous mute toggle, so publish again
-        // If audio hasn't been shared yet, do nothing
+    if (shouldEnable) {
+      // If track is already published and unmuted, do nothing
+      if (hasPublishedTrack && !isCurrentlyMuted) return;
+
+      // Cancel any pending unpublish request since we're unmuting
+      this.clearUnpublishRequest();
+
+      const trackName = LiveKitAudioBridge.assembleTrackName(this.clientSessionId, this.inputDeviceId);
+      const currentPubs = trackPubs.filter(
+        (pub) => LiveKitAudioBridge.publicationMatchesDevice(pub, this.inputDeviceId),
+      );
+
+      // Track is published but muted - just unmute it
+      if (currentPubs.length > 0) {
+        const mutedPubs = currentPubs.filter((pub) => pub.isMuted);
+
+        if (mutedPubs.length > 0) {
+          mutedPubs.forEach((pub) => pub.unmute());
+          logger.debug({
+            logCode: 'livekit_audio_track_unmute',
+            extraInfo: {
+              bridge: this.bridgeName,
+              role: this.role,
+              trackName,
+              streamData: MediaStreamUtils.getMediaStreamLogData(this.inputStream),
+              originalStreamData: MediaStreamUtils.getMediaStreamLogData(this.originalStream),
+              mutedPubs: mutedPubs.map((pub) => pub.trackName),
+            },
+          }, `LiveKit: unmuting audio track - ${trackName}`);
+        }
+      } else if (trackPubs.length === 0 && this.originalStream) {
+        // Track was unpublished on previous mute toggle, so publish again.
+        // Only publish if we have an original stream (audio was shared before).
         this.publish(this.originalStream).catch(handleMuteError);
         logger.debug({
           logCode: 'livekit_audio_track_unmute_publish',
@@ -746,19 +840,19 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
             bridge: this.bridgeName,
             role: this.role,
             trackName,
-            trackPubs,
+            hasPublishedTrack,
+            isCurrentlyMuted,
+            streamData: MediaStreamUtils.getMediaStreamLogData(this.inputStream),
+            originalStreamData: MediaStreamUtils.getMediaStreamLogData(this.originalStream),
           },
-        }, 'LiveKit: audio track unmute no-op');
+        }, 'LiveKit: audio track unmute no-op - no matching pubs or no original stream');
       }
     } else {
-      // @ts-ignore
-      const LIVEKIT_SETTINGS = window.meetingClientSettings.public.media?.livekit?.audio;
+      if (isCurrentlyMuted || !hasPublishedTrack) return;
 
-      if (LIVEKIT_SETTINGS?.unpublishOnMute) {
-        this.unpublish();
-      } else {
-        this.liveKitRoom.localParticipant.setMicrophoneEnabled(false).catch(handleMuteError);
-      }
+      // Track is published and unmuted - mute it
+      // The handleLocalTrackMuted callback will handle the debounced unpublish
+      this.liveKitRoom.localParticipant.setMicrophoneEnabled(false).catch(handleMuteError);
     }
   }
 
@@ -955,8 +1049,46 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
     }
   }
 
-  private publish(inputStream: MediaStream | null): Promise<void> {
-    return new Promise((resolve, reject) => {
+  private publish(inputStream: MediaStream | null, force = false): Promise<void> {
+    // If the stream is already published and active, skip
+    if (inputStream && this.isTrackPublishedWithStream(inputStream)) {
+      logger.debug({
+        logCode: 'livekit_audio_publish_idempotent_skip',
+        extraInfo: {
+          bridge: this.bridgeName,
+          role: this.role,
+          inputDeviceId: this.inputDeviceId,
+          streamData: MediaStreamUtils.getMediaStreamLogData(inputStream),
+        },
+      }, 'LiveKit: stream already published, skipping publish');
+
+      return Promise.resolve();
+    }
+
+    // If a publish is already pending and this isn't a forced supersede, skip.
+    // This prevents multiple publish operations from being queued when calls
+    // arrive faster than LiveKit can process them.
+    if (this.isPublishPending && !force) {
+      logger.debug({
+        logCode: 'livekit_audio_publish_pending_skip',
+        extraInfo: {
+          bridge: this.bridgeName,
+          role: this.role,
+          inputDeviceId: this.inputDeviceId,
+          streamData: MediaStreamUtils.getMediaStreamLogData(inputStream),
+        },
+      }, 'LiveKit: publish already pending, skipping');
+
+      return Promise.resolve();
+    }
+
+    // The counter  prevents stale finally() callbacks from incorrectly clearing
+    // isPublishPending when a newer publish has superseded them - prlanzarin
+    this.publishGeneration += 1;
+    const currentGeneration = this.publishGeneration;
+    this.isPublishPending = true;
+
+    return new Promise<void>((resolve, reject) => {
       // Discard trailing, unprocessed publish requests.
       this.flushPublishQueue(PUBLISH_OP);
       this.dispatchPublishOperation({
@@ -966,10 +1098,15 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
         resolve,
         reject,
       });
+    }).finally(() => {
+      // Only clear pending if no newer publish has started
+      if (this.publishGeneration === currentGeneration) this.isPublishPending = false;
     });
   }
 
   private unpublish(): Promise<void> {
+    if (!this.hasMicrophoneTrack()) return Promise.resolve();
+
     return new Promise((resolve, reject) => {
       // Discard ALL trailing, unprocessed requests.
       this.flushPublishQueue();
@@ -982,6 +1119,22 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
   }
 
   private async doPublish(inputStream: MediaStream | null): Promise<void> {
+    // If the stream is already published, skip the publish
+    // This prevents unnecessary unpublish/publish cycles when doPublish is called directly
+    if (inputStream && this.isTrackPublishedWithStream(inputStream)) {
+      logger.debug({
+        logCode: 'livekit_audio_do_publish_idempotent_skip',
+        extraInfo: {
+          bridge: this.bridgeName,
+          role: this.role,
+          inputDeviceId: this.inputDeviceId,
+          streamData: MediaStreamUtils.getMediaStreamLogData(inputStream),
+        },
+      }, 'LiveKit: stream already published, skipping doPublish');
+
+      return;
+    }
+
     try {
       if (this.hasMicrophoneTrack()) await this.doUnpublish();
     } catch (error) {
@@ -1248,6 +1401,7 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
       })
       .finally(() => {
         this.originalStream = null;
+        this.isPublishPending = false;
         this.audioEnded();
       });
   }

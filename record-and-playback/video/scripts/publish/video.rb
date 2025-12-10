@@ -26,7 +26,7 @@ opts = Optimist.options do
   opt :meeting_id, 'Meeting id to publish', type: String
   opt :stderr, 'Log output to stderr'
 end
-Optimist.dir :meeting_id, 'must be provided' unless opts[:meeting_id]
+Optimist.die :meeting_id, 'must be provided' unless opts[:meeting_id]
 
 match = /(.*)-(.*)/.match(opts[:meeting_id])
 meeting_id = match[1]
@@ -37,8 +37,23 @@ if playback != 'video'
 end
 
 # Load parameters and set up paths
-props = YAML.safe_load(File.open(File.expand_path('../bigbluebutton.yml', __dir__)))
-video_props = YAML.safe_load(File.open(File.expand_path('../video.yml', __dir__)))
+props = BigBlueButton.read_props
+video_props = File.open(File.expand_path('../video.yml', __dir__)) do |video_props_file|
+  YAML.safe_load(video_props_file)
+end
+begin
+  video_props_override = File.open('/etc/bigbluebutton/recording/video.yml') do |video_props_override_file|
+    YAML.safe_load(video_props_override_file)
+  end
+  # Merge the presets separately, to allow someone to use the override file to add additional presets
+  if video_props.include?('presets') && video_props_override.include?('presets')
+    video_props['presets'].merge!(video_props_override.delete('presets'))
+  end
+  video_props.merge!(video_props_override)
+rescue Errno::ENOENT
+  # Not an error: override props file does not exist
+end
+video_props['audio_offset'] = 0 if video_props['audio_offset'].nil?
 
 recording_dir = props['recording_dir']
 process_dir = "#{props['recording_dir']}/process/video/#{meeting_id}"
@@ -55,6 +70,40 @@ unless File.exist?(process_donefile)
   exit 1
 end
 
+metadata_xml = File.open("#{process_dir}/metadata.xml") do |io|
+  Nokogiri::XML(io)
+end
+meta = metadata_xml.at_xpath('/recording/meta')
+unless meta
+  logger.error('Recording metadata.xml is missing <meta> element')
+  exit 1
+end
+
+preset = nil
+if video_props.fetch('allow_meta_preset', true)
+  # Use preset specified via metadata parameter, if available
+  preset_name = meta.at_xpath('./bbb-recording-video-preset')&.content
+  logger.info("Using preset #{preset_name.inspect}")
+  preset = video_props.dig('presets', preset_name) unless preset_name.nil?
+end
+# Fall back to using the default preset
+if preset.nil?
+  preset_name = video_props['default_preset']
+  logger.info("Preset doesn't exist, falling back to default preset #{preset_name.inspect}")
+  preset = video_props.dig('presets', preset_name) unless preset_name.nil?
+end
+# Fall back to using the top-level config properties (for backwards compatibility with older video.yml)
+if preset.nil?
+  logger.warn('Configuration file does not contain presets, assuming old-style configuration')
+  preset = video_props
+end
+
+# Sanity check on the loaded preset
+unless preset.include?('layout') && preset.include?('formats')
+  logger.error('Preset is missing required properties in configuration')
+  exit(1)
+end
+
 FileUtils.mkdir_p publish_dir
 
 logger.info 'Copying files to publish directory'
@@ -66,7 +115,7 @@ FileUtils.cp("#{process_dir}/index.html", "#{publish_dir}/index.html")
 FileUtils.cp("#{process_dir}/video.xml", "#{publish_dir}/video.xml")
 
 # Copy over generated video files
-video_props['formats'].each_with_index do |format, i|
+preset['formats'].each_with_index do |format, i|
   FileUtils.cp("#{process_dir}/video-#{i}.#{format['extension']}",
                "#{publish_dir}/video-#{i}.#{format['extension']}")
 end
