@@ -881,7 +881,7 @@
     "app.audio.listenOnly.backLabel": "Retour",
     "app.audio.listenOnly.closeLabel": "Fermer",
     "app.audio.permissionsOverlay.title": "Autoriser BigBlueButton à utiliser votre micro",
-    "app.audio.permissionsOverlay.hint": "Il est nécessaire que vous nous autorisiez à utiliser vos périphériques médias pour que vous puissiez participer à la réunion",
+    "app.audio.permissionsOverlay.hint": "Il est nécessaire que vous nous autorisiez à utiliser vos périphériques médias pour que vous puissiez participer à la réunion :)",
     "app.audio.captions.disclaimer": "En activant la transcription automatique ou les sous-titres vous consentez à nos {termsLink}.",
     "app.audio.captions.panelTitle": "Transcription et sous-titres",
     "app.audio.captions.terms": "En activant ce service, vous acceptez : {termsLink}",
