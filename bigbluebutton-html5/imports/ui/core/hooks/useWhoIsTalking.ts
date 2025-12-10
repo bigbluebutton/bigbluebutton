@@ -8,6 +8,12 @@ const createUseWhoIsTalking = () => {
   const loadingVar = makeVar(true);
   // Individual reactive vars per user for granular reactivity
   const userVars = new Map<string, ReturnType<typeof makeVar<boolean | undefined>>>();
+  // Reference counting to track active consumers per user
+  const userRefCounts = new Map<string, number>();
+
+  // Stable dummy vars to avoid creation on every render
+  const dummyUserVar = makeVar<boolean | undefined>(undefined);
+  const dummyStateVar = makeVar<Record<string, boolean>>({});
 
   const setWhoIsTalkingState = (newState: Record<string, boolean>) => {
     stateVar(newState);
@@ -25,6 +31,10 @@ const createUseWhoIsTalking = () => {
     userVars.forEach((userVar, userId) => {
       if (!(userId in newState) && userVar() !== undefined) {
         userVar(undefined);
+        // Only delete if no components are currently listening to this user
+        if (!userRefCounts.has(userId) || userRefCounts.get(userId) === 0) {
+          userVars.delete(userId);
+        }
       }
     });
   };
@@ -80,20 +90,43 @@ const createUseWhoIsTalking = () => {
       };
     }, []);
 
+    // Manage reference counting for specific user subscriptions
+    useEffect(() => {
+      if (!userId) return () => {};
+
+      const currentCount = userRefCounts.get(userId) || 0;
+      userRefCounts.set(userId, currentCount + 1);
+
+      return () => {
+        const newCount = (userRefCounts.get(userId) || 0) - 1;
+        if (newCount <= 0) {
+          userRefCounts.delete(userId);
+          // If user is not in the current state, we can safely cleanup the var
+          const currentState = stateVar();
+          if (!(userId in currentState)) {
+            userVars.delete(userId);
+          }
+        } else {
+          userRefCounts.set(userId, newCount);
+        }
+      };
+    }, [userId]);
+
     // When userId is provided, subscribe only to that user's reactive var
     // Otherwise subscribe to the whole state
     // We always call useReactiveVar to respect rules of hooks
     const userSpecificVar = useMemo(() => {
-      if (!userId) return makeVar<boolean | undefined>(undefined); // dummy var
+      if (!userId) return dummyUserVar;
       let userVar = userVars.get(userId);
       if (!userVar) {
-        userVar = makeVar<boolean | undefined>(undefined);
+        // Initialize with current state if available to avoid sync issues
+        const currentState = stateVar();
+        const initialValue = currentState[userId];
+        userVar = makeVar<boolean | undefined>(initialValue);
         userVars.set(userId, userVar);
       }
       return userVar;
     }, [userId]);
-
-    const dummyStateVar = useMemo(() => makeVar<Record<string, boolean>>({}), []);
 
     const specificUserTalking = useReactiveVar(userSpecificVar);
     const allTalkingUsers = useReactiveVar(userId ? dummyStateVar : stateVar);
