@@ -12,13 +12,14 @@ import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import {
   USER_AGGREGATE_COUNT_SUBSCRIPTION,
 } from './queries';
+import { RAISED_HAND_USERS, GET_USER_NAMES } from '/imports/ui/core/graphql/queries/users';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import { UserAggregateCountSubscriptionResponse, UserListComponentProps } from './types';
 import Styled from './styles';
 import { onSaveUserNames } from './service';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
-import { GET_USER_NAMES } from '/imports/ui/core/graphql/queries/users';
 import logger from '/imports/startup/client/logger';
+import { RaisedHandUser } from '/imports/ui/Types/user';
 
 const intlMessages = defineMessages({
   usersTitle: {
@@ -56,6 +57,11 @@ const UserList: React.FC<UserListComponentProps> = () => {
   } = useDeduplicatedSubscription<
     UserAggregateCountSubscriptionResponse>(USER_AGGREGATE_COUNT_SUBSCRIPTION);
   const count: number = countData?.user_aggregate?.aggregate?.count || 0;
+  const { data: raisedHandsData } = useDeduplicatedSubscription<{
+    user: RaisedHandUser[]
+  }>(RAISED_HAND_USERS);
+  const hasRaisedHands = (raisedHandsData?.user?.length ?? 0) > 0;
+
   const { data: meetingInfo } = useMeeting((meeting) => ({
     name: meeting?.name,
     lockSettings: meeting?.lockSettings,
@@ -91,6 +97,18 @@ const UserList: React.FC<UserListComponentProps> = () => {
   };
 
   const renderScrollableSection = () => {
+    if (hasRaisedHands) {
+      return (
+        <Styled.SplitScrollContainer id="scroll-box" ref={parentRef}>
+          {renderGuestManagement()}
+          <RaisedHandsContainer />
+          <Styled.ParticipantsScrollSection>
+            <UserListParticipants parentRef={parentRef} />
+          </Styled.ParticipantsScrollSection>
+        </Styled.SplitScrollContainer>
+      );
+    }
+
     return (
       <Styled.ScrollableSection id="scroll-box" ref={parentRef}>
         {renderGuestManagement()}
