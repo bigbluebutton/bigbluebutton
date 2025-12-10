@@ -1,14 +1,21 @@
-import React, { useState, useCallback } from 'react';
+import React, {
+  useState, useCallback, useEffect, useRef,
+} from 'react';
 import { defineMessages } from 'react-intl';
 import { MediaAreaProps } from './types';
 import Styled from './styles';
 import MediaSharingModal from '/imports/ui/components/actions-bar/media-area/media-sharing/component';
 import { useShortcut } from '/imports/ui/core/hooks/useShortcut';
+import { notify } from '/imports/ui/services/notification';
 
 const intlMessages = defineMessages({
   mediaLabel: {
     id: 'app.actionsBar.actionsDropdown.actionsLabel',
     description: 'Actions button label',
+  },
+  presenterRequestDenied: {
+    id: 'app.requestPresenter.notification.denied',
+    description: 'Notification when presenter request is denied',
   },
 });
 
@@ -31,10 +38,27 @@ const MediaArea = (props: MediaAreaProps) => {
     stopExternalVideoShare,
     isMobile,
     isRTL,
+    isRequestingPresenter,
   } = props;
 
   const [menuOpen, setMenuOpen] = useState(false);
   const openMediaArea = useShortcut('openActions');
+  const previousRequestedPresenter = useRef<boolean | null>(null);
+
+  useEffect(() => {
+    if (
+      previousRequestedPresenter.current === true
+      && isRequestingPresenter === false
+      && !amIPresenter
+    ) {
+      notify(
+        intl.formatMessage(intlMessages.presenterRequestDenied),
+        'error',
+        'presentation',
+      );
+    }
+    previousRequestedPresenter.current = isRequestingPresenter;
+  }, [isRequestingPresenter, amIPresenter, intl]);
 
   const handleToggleMenu = useCallback(() => {
     setMenuOpen(!menuOpen);
@@ -79,6 +103,7 @@ const MediaArea = (props: MediaAreaProps) => {
         isSharingVideo={isSharingVideo}
         allowExternalVideo={allowExternalVideo}
         stopExternalVideoShare={stopExternalVideoShare}
+        isRequestingPresenter={isRequestingPresenter}
       />
     </>
   );

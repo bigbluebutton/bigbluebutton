@@ -16,7 +16,7 @@ const Overlay = styled.div`
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%; 
+  width: 100%;
   height: 100%;
   background: transparent;
   z-index: 1000;
@@ -43,8 +43,8 @@ const ConfirmationButton = styled(Button)`
     opacity: 0.8;
   }
 
-  i { 
-    font-size: 1.5rem; 
+  i {
+    font-size: 1.5rem;
   }
 `;
 
@@ -157,14 +157,14 @@ const SubHeaderIconContainer = styled.div`
   margin-left: auto; /* Pushes icon to the far right of the title's flex space */
   margin-right: 0.5rem;
   color: ${colorGrayIcons};
-  i { 
-    font-size: 1.5rem; 
-    line-height: 1; 
+  i {
+    font-size: 1.5rem;
+    line-height: 1;
   }
 `;
 
 const SubViewContent = styled.div`
-  text-align: center; 
+  text-align: center;
 
   p {
     margin-bottom: 16px;
@@ -203,6 +203,34 @@ const BecomePresenterText = styled.div`
   color: ${colorText};
 `;
 
+const WaitingButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  background-color: #e0e0e0;
+  color: #666;
+  border: none;
+  cursor: not-allowed;
+  opacity: 0.7;
+
+  svg {
+    animation: spin 1.5s linear infinite;
+  }
+
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+`;
+
 export default {
   Overlay,
   ConfirmationButton,
@@ -220,4 +248,5 @@ export default {
   BackButtonIcon,
   BecomePresenterViewContainer,
   BecomePresenterText,
+  WaitingButton,
 };

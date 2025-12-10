@@ -1,4 +1,6 @@
-import React, { useCallback, useContext } from 'react';
+import React, {
+  useCallback, useContext,
+} from 'react';
 import { useMutation } from '@apollo/client';
 import { MediaAreaContainerProps, MediaButtonPluginItem } from './types';
 import MediaArea from './component';
@@ -14,7 +16,8 @@ import { PluginsContext } from '/imports/ui/components/components-data/plugin-co
 import { SET_PRESENTER } from '/imports/ui/core/graphql/mutations/userMutations';
 import Auth from '/imports/ui/services/auth';
 import { useMeetingIsBreakout } from '/imports/ui/components/app/service';
-import { USER_SET_PRESENTER_REQUEST } from '/imports/ui/components/request-presenter-modal/mutations';
+import { USER_SET_PRESENTER_REQUEST } from '/imports/ui/components/request-presenter/mutations';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 
 const MediaAreaContainer = (props: MediaAreaContainerProps) => {
   const {
@@ -34,6 +37,12 @@ const MediaAreaContainer = (props: MediaAreaContainerProps) => {
   const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
   const meetingIsBreakout = useMeetingIsBreakout();
   const hasCameraAsContent = useIsCameraAsContentBroadcasting();
+
+  const { data: currentUserData } = useCurrentUser((u) => ({
+    requestedPresenter: u.requestedPresenter,
+  }));
+
+  const isRequestingPresenter = currentUserData?.requestedPresenter ?? false;
 
   let mediaAreaItems: MediaButtonPluginItem[] = [];
   if (pluginsExtensibleAreasAggregatedState.mediaAreaItems) {
@@ -84,6 +93,7 @@ const MediaAreaContainer = (props: MediaAreaContainerProps) => {
       stopExternalVideoShare={stopExternalVideoShare}
       isMeteorConnected={isMeteorConnected}
       hasPresentation={hasPresentation}
+      isRequestingPresenter={isRequestingPresenter}
     />
   );
 };

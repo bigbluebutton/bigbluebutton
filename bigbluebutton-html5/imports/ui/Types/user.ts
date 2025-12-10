@@ -105,6 +105,7 @@ export interface User {
   size: number;
   away: boolean;
   raiseHand: boolean;
+  requestedPresenter?: boolean;
   userLockSettings: userLockSettings;
   sessionCurrent: sessionCurrent;
   livekit?: Livekit;

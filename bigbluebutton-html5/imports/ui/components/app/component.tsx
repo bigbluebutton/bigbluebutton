@@ -50,7 +50,7 @@ import useAppInitialization from './hooks/useAppInitialization';
 import usePollShortcut from './hooks/usePollShortcut';
 import useUserStatusNotifications from './hooks/useUserStatusNotifications';
 import { NotesRenderMode } from '/imports/ui/components/notes/constants';
-import RequestPresenterContainer from '/imports/ui/components/request-presenter-modal/container';
+import RequestPresenterContainer from '/imports/ui/components/request-presenter/container';
 
 interface AppProps {
   darkTheme: boolean;

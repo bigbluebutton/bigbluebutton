@@ -35,6 +35,7 @@ subscription userCurrentSubscription {
     pinned
     presenter
     raiseHand
+    requestedPresenter
     registeredAt
     requestedUnmuteByMod
     role
