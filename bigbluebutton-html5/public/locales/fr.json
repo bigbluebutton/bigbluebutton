@@ -571,7 +571,7 @@
     "app.actionsBar.changeStatusLabel": "Changer de statut",
     "app.actionsBar.muteLabel": "Rendre silencieux",
     "app.actionsBar.unmuteLabel": "Réactiver le micro",
-    "app.actionsBar.unmuteAndSetActiveLabel": "Activez votre microphone et définissez-vous comme actif",
+    "app.actionsBar.unmuteAndSetActiveLabel": "Réactivez votre microphone et définissez-vous comme actif",
     "app.actionsBar.camOffLabel": "Caméra éteinte",
     "app.actionsBar.raiseLabel": "Lever la main",
     "app.actionsBar.label": "Barre d'actions",
