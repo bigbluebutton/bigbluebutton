@@ -31,7 +31,7 @@
     "app.chat.away": "Temporairement absent",
     "app.chat.notAway": "Disponible",
     "app.chat.isPresenter": "{presenterName} est devenu présentateur",
-    "app.chat.isPresenterSetBy": "{presenterName} est maintenant le présentateur, défini par {assignedByName}",
+    "app.chat.isPresenterSetBy": "{presenterName} est devenu présentateur, promu par {assignedByName}",
     "app.chat.clearPublicChatMessage": "L'historique des discussions publiques a été effacé par un modérateur",
     "app.chat.multi.typing": "Plusieurs utilisateurs sont en train d'écrire",
     "app.chat.someone.typing": "Quelqu'un est en train d'écrire",
