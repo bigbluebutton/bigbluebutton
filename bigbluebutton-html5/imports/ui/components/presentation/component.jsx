@@ -677,7 +677,7 @@ class Presentation extends PureComponent {
       hasWBAccess,
       currentSlide,
       slidePosition,
-      isRTL,
+      isRTL = false,
       presentationBounds,
       fullscreenContext,
       isMobile,
@@ -935,7 +935,7 @@ Presentation.propTypes = {
   currentPresentationId: PropTypes.string,
   presentationIsOpen: PropTypes.bool,
   totalPages: PropTypes.number.isRequired,
-  isRTL: PropTypes.bool.isRequired,
+  isRTL: PropTypes.bool,
   presentationBounds: PropTypes.shape({
     top: PropTypes.number,
     left: PropTypes.number,
