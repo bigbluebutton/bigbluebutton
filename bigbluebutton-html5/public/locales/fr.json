@@ -700,7 +700,7 @@
     "app.settings.transcriptionTab.label": "Transcription",
     "app.settings.main.label": "Paramètres",
     "app.settings.main.cancel.label": "Annuler",
-    "app.settings.main.cancel.label.description": "Annule les changements et ferme le menu des paramètres",
+    "app.settings.main.cancel.label.description": "Annule les modifications et ferme le menu des paramètres",
     "app.settings.main.save.label": "Enregistrer",
     "app.settings.main.save.label.description": "Enregistre les changements et ferme le menu des paramètres",
     "app.settings.dataSavingTab.label": "Gestion du débit",
