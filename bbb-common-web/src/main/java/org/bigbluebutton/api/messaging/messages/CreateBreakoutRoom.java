@@ -31,16 +31,7 @@ public class CreateBreakoutRoom implements IMessage {
     public final String audioBridge;
     public final String cameraBridge;
     public final String screenShareBridge;
-    public final Boolean disableCam;
-    public final Boolean disableMic;
     public final Boolean disablePrivChat;
-    public final Boolean disablePubChat;
-    public final Boolean disableNotes;
-    public final Boolean hideUserList;
-    public final Boolean lockOnJoin;
-    public final Boolean lockOnJoinConfigurable;
-    public final Boolean hideViewersCursor;
-    public final Boolean hideViewersAnnotation;
 
     public CreateBreakoutRoom(String meetingId,
 															String parentMeetingId,
@@ -67,16 +58,7 @@ public class CreateBreakoutRoom implements IMessage {
                                                             String audioBridge,
                                                             String cameraBridge,
                                                             String screenShareBridge,
-                                                            Boolean disableCam,
-                                                            Boolean disableMic,
-                                                            Boolean disablePrivChat,
-                                                            Boolean disablePubChat,
-                                                            Boolean disableNotes,
-                                                            Boolean hideUserList,
-                                                            Boolean lockOnJoin,
-                                                            Boolean lockOnJoinConfigurable,
-                                                            Boolean hideViewersCursor,
-                                                            Boolean hideViewersAnnotation) {
+                                                            Boolean disablePrivChat) {
         this.meetingId = meetingId;
         this.parentMeetingId = parentMeetingId;
         this.name = name;
@@ -102,15 +84,6 @@ public class CreateBreakoutRoom implements IMessage {
         this.audioBridge = audioBridge;
         this.cameraBridge = cameraBridge;
         this.screenShareBridge = screenShareBridge;
-        this.disableCam = disableCam;
-        this.disableMic = disableMic;
         this.disablePrivChat = disablePrivChat;
-        this.disablePubChat = disablePubChat;
-        this.disableNotes = disableNotes;
-        this.hideUserList = hideUserList;
-        this.lockOnJoin = lockOnJoin;
-        this.lockOnJoinConfigurable = lockOnJoinConfigurable;
-        this.hideViewersCursor = hideViewersCursor;
-        this.hideViewersAnnotation = hideViewersAnnotation;
     }
 }
