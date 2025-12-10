@@ -581,7 +581,7 @@
     "app.actionsBar.actionsDropdown.minimizePresentationDesc": "Bouton utilisé pour réduire la fenêtre de présentation",
     "app.actionsBar.actionsDropdown.layoutModal": "Fenêtre de paramétrage de la mise en page",
     "app.actionsBar.actionsDropdown.shareCameraAsContent": "Partager la caméra en tant que contenu",
-    "app.actionsBar.actionsDropdown.unshareCameraAsContent": "Cesser de partager l'appareil photo en tant que contenu",
+    "app.actionsBar.actionsDropdown.unshareCameraAsContent": "Arrêter le partage de caméra en tant que contenu",
     "app.actionsBar.actionsDropdown.breakoutRoomInvitationLabel": "Invitation pour une réunion en groupe de travail",
     "app.actionsBar.actionsDropdown.breakoutRoomInvitationDesc": "Inviter les participants à une réunion en groupe de travail",
     "app.screenshare.screenShareLabel": "Partage d'écran",
