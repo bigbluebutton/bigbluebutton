@@ -645,7 +645,6 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
             <Styled.Input
               id="message-input"
               ref={textAreaRef}
-              $showEmojiPicker={showEmojiPicker}
               placeholder={intl.formatMessage(messages.inputPlaceholder, { chatName: title })}
               aria-label={intl.formatMessage(messages.inputLabel, { chatName: title })}
               aria-invalid={hasErrors ? 'true' : 'false'}
