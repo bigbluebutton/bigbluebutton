@@ -379,44 +379,42 @@ const BreakoutRoomContainer: React.FC = () => {
   }
   if (!currentUserData || !breakoutData || !meetingData) return null; // or loading spinner or error
 
-  const returnedComponents = [(
-    <BreakoutRoom
-      breakouts={breakoutData.breakoutRoom || []}
-      isModerator={currentUserData.isModerator ?? false}
-      presenter={currentUserData.presenter ?? false}
-      durationInSeconds={meetingData.durationInSeconds ?? 0}
-      userJoinedAudio={(currentUserData?.voice?.joined && !currentUserData?.voice?.deafened) ?? false}
-      userId={currentUserData.userId ?? ''}
-      meetingId={meetingData.meetingId ?? ''}
-      setUpdateUsersWhileRunning={setUpdateUsersWhileRunning}
-      createdTime={meetingData.createdTime ?? 0}
-    />
-  )];
-
-  if (updateUsersWhileRunning) {
-    returnedComponents.push((
-      <CreateBreakoutRoomContainer
-        isOpen={isOpen}
-        setIsOpen={(value: boolean) => {
-          if (!hasBreakoutRoom) {
-            layoutContextDispatch({
-              type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-              value: false,
-            });
-            layoutContextDispatch({
-              type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-              value: PANELS.NONE,
-            });
-          }
-          setIsOpen(value);
-        }}
-        priority="low"
-        isUpdate={updateUsersWhileRunning}
+  return (
+    <>
+      <BreakoutRoom
+        breakouts={breakoutData.breakoutRoom || []}
+        isModerator={currentUserData.isModerator ?? false}
+        presenter={currentUserData.presenter ?? false}
+        durationInSeconds={meetingData.durationInSeconds ?? 0}
+        userJoinedAudio={(currentUserData?.voice?.joined && !currentUserData?.voice?.deafened) ?? false}
+        userId={currentUserData.userId ?? ''}
+        meetingId={meetingData.meetingId ?? ''}
         setUpdateUsersWhileRunning={setUpdateUsersWhileRunning}
+        createdTime={meetingData.createdTime ?? 0}
       />
-    ));
-  }
-
-  return returnedComponents;
+      {updateUsersWhileRunning && (
+        <CreateBreakoutRoomContainer
+          isOpen={isOpen}
+          setIsOpen={(value: boolean) => {
+            if (!hasBreakoutRoom) {
+              layoutContextDispatch({
+                type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+                value: false,
+              });
+              layoutContextDispatch({
+                type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+                value: PANELS.NONE,
+              });
+            }
+            setIsOpen(value);
+          }}
+          priority="low"
+          isUpdate={updateUsersWhileRunning}
+          setUpdateUsersWhileRunning={setUpdateUsersWhileRunning}
+        />
+      )}
+    </>
+  );
 };
+
 export default BreakoutRoomContainer;
