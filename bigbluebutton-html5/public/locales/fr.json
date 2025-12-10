@@ -10,7 +10,7 @@
     "app.chat.locked": "La discussion est verrouillée, les messages ne peuvent pas être envoyés",
     "app.chat.inputLabel": "Saisie des messages pour la discussion {chatName}",
     "app.chat.emojiButtonLabel": "Sélecteur d'émoticônes",
-    "app.chat.loadMoreButtonLabel": "En savoir plus",
+    "app.chat.loadMoreButtonLabel": "En charger plus",
     "app.chat.inputPlaceholder": "Message {chatName}",
     "app.chat.titlePublic": "Discussion publique",
     "app.chat.titlePrivate": "Discussion privée",
