@@ -4,10 +4,10 @@ const { initializePages } = require('../core/helpers');
 const { linkIssue } = require('../core/helpers');
 
 test.describe.parallel('Layout', { tag: '@flaky-3.1' }, () => {
-  linkIssue(24367);
   const layouts = new Layouts();
 
   test.beforeEach(async ({ browser }, testInfo) => {
+    linkIssue(24367);
     await initializePages(layouts, browser, { isMultiUser: true, testInfo });
     await layouts.modPage.shareWebcam();
     await layouts.userPage.shareWebcam();

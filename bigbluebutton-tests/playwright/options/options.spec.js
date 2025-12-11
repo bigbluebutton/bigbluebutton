@@ -31,6 +31,7 @@ test.describe.parallel('Options', { tag: '@ci' }, () => {
   });
 
   test('Auto hide whiteboard toolbar', { tag: '@flaky-3.1' }, async () => {
+    linkIssue(24367);
     await options.autoHideWhiteboardToolbar();
   });
 });
