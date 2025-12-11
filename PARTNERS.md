@@ -14,7 +14,7 @@ The following organizations offer expert services, sponsorship programs, and/or 
 *   **[Blindsidenetworks Inc.](https://blindsidenetworks.com/)** – The original creators and core maintainers of the software.
 *   **[mconf](https://mconf.com/)** – Provides enterprise-grade hosting, support, and custom solutions.
 *   **[iMDT](https://international.imdt.com.br)** – Specializes in implementation, integration, and tailored support services.
-*   **[fairkom](https://fairkom.eu)** – Offers GDPR compliant hosting and develops key add-ons such as [fairblue3](https://git.fairkom.net/hosting/conf/bbb/fairblue3) (language interpreter interface) and the [Matrix widget](https://git.fairkom.net/hosting/fairmatrix/matrix-bbb/matrix-conf-ext/) for BBB integration.
+*   **[fairkom](https://fairkom.eu)** – Offers GDPR compliant hosting and develops key add-ons such as [fairblue3](https://git.fairkom.net/hosting/conf/bbb/fairblue3) (language interpreter interface) and the [Matrix widget](https://git.fairkom.net/hosting/fairmatrix/matrix-bbb/matrix-conf-ext/) for BBB integration. Visit shop for [one-time](https://shop.fairkom.net/produkt/free-software-fee/) or [annual fee](https://shop.fairkom.net/produkt/free-software-fee-annual/). 
 *   **[think-modular](https://think-modular.com/)** – Experts in integration with learning management systems, including Moodle and Drupal.
 *   **[infra.run](https://infra.run/)** – Offers GDPR compliant hosting  and maintains and supports `b3scale`, a high-performance load balancer for scalable deployments.
 *   ...
