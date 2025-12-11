@@ -5,6 +5,7 @@ const { ChangeStyles } = require('./changeStyles');
 const { ShapeOptions } = require('./shapeOptions');
 const { DrawShape } = require('./drawShape');
 const e = require('../core/elements');
+const { linkIssue } = require('../core/helpers');
 
 //! @flaky note:
 // all whiteboard tests are flagged as flaky due to unexpected zooming slides
@@ -75,6 +76,7 @@ test.describe.parallel('Whiteboard tools', { tag: '@ci' }, () => {
   });
 
   test('Pan', { tag: '@flaky-3.1' }, async ({ browser, context, page }, testInfo) => {
+    linkIssue(24367);
     const tools = new ShapeTools(browser, context);
     await tools.initModPage(page, true, { testInfo });
     await tools.initUserPage(true, context, { testInfo });

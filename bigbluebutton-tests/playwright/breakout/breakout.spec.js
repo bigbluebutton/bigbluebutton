@@ -123,6 +123,7 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
     });
 
     test('Export breakout room shared notes', { tag: '@flaky-3.1' }, async ({ browser, context, page }, testInfo) => {
+      linkIssue(24367);
       const join = new Join(browser, context);
       await join.initPages(page, testInfo);
       await join.create(true);
@@ -130,6 +131,7 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
     });
 
     test('Export breakout room whiteboard annotations', { tag: '@flaky-3.1' }, async ({ browser, context, page }, testInfo) => {
+      linkIssue(24367);
       const join = new Join(browser, context);
       await join.initPages(page, testInfo);
       await join.create(false, true);

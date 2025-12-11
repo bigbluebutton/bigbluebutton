@@ -1,6 +1,7 @@
 const { test } = require('../fixtures');
 const { Options } = require('./options');
 const { initializePages } = require('../core/helpers');
+const { linkIssue } = require('../core/helpers');
 
 test.describe.parallel('Options', { tag: '@ci' }, () => {
   const options = new Options();

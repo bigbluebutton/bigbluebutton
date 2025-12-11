@@ -1,8 +1,10 @@
 const { test } = require('../fixtures');
 const { Layouts } = require('./layouts');
 const { initializePages } = require('../core/helpers');
+const { linkIssue } = require('../core/helpers');
 
 test.describe.parallel('Layout', { tag: '@flaky-3.1' }, () => {
+  linkIssue(24367);
   const layouts = new Layouts();
 
   test.beforeEach(async ({ browser }, testInfo) => {

@@ -103,6 +103,7 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
   });
 
   test('Override default presentation on CREATE meeting API call', { tag: '@flaky-3.1' }, async ({ browser, context, page }, testInfo) => {
+    linkIssue(24367);
     const createParam = new CreateParameters(browser, context);
     await createParam.initModPage(page, true, { createParameter: `${c.preUploadedPresentation}&${c.preUploadedPresentationOverrideDefault}&${c.preUploadedPresentationName}`, testInfo });
     await createParam.initUserPage(true, context, { testInfo });
@@ -111,6 +112,7 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
 
   test.describe.parallel('Meeting Layout(default)', () => {
     test('CUSTOM_LAYOUT', { tag: '@flaky-3.1' }, async ({ browser, context, page }, testInfo) => {
+      linkIssue(24367);
       const createParam = new CreateParameters(browser, context);
       await createParam.initModPage(page, true, { createParameter: c.customLayout, testInfo });
       await createParam.initUserPage(true, context, { testInfo });
@@ -118,6 +120,7 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
     });
 
     test('SMART_LAYOUT', { tag: '@flaky-3.1' }, async ({ browser, context, page }, testInfo) => {
+      linkIssue(24367);
       const createParam = new CreateParameters(browser, context);
       await createParam.initModPage(page, true, { createParameter: c.smartLayout, testInfo });
       await createParam.initUserPage(true, context, { testInfo });
@@ -125,6 +128,7 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
     });
 
     test('PRESENTATION_FOCUS', { tag: '@flaky-3.1' }, async ({ browser, context, page }, testInfo) => {
+      linkIssue(24367);
       const createParam = new CreateParameters(browser, context);
       await createParam.initModPage(page, true, { createParameter: c.presentationFocus, testInfo });
       await createParam.initUserPage(true, context, { testInfo });
@@ -146,6 +150,7 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
     });
 
     test('PRESENTATION_ONLY', { tag: '@flaky-3.1' }, async ({ browser, context, page }, testInfo) => {
+      linkIssue(24367);
       const createParam = new CreateParameters(browser, context);
       await createParam.initModPage(page, false, { createParameter: c.presentationOnly, testInfo });
       await createParam.initUserPage(false, context, { testInfo });
@@ -160,6 +165,7 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
     });
 
     test('MEDIA_ONLY', { tag: '@flaky-3.1' }, async ({ browser, context, page }, testInfo) => {
+      linkIssue(24367);
       const createParam = new CreateParameters(browser, context);
       await createParam.initModPage(page, true, { createParameter: c.mediaOnly, testInfo });
       await createParam.initUserPage(true, context, { testInfo });
@@ -168,6 +174,7 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
   });
 
   test.describe.parallel('Enforce Layout', { tag: '@flaky-3.1' }, () => {
+    linkIssue(24367);
     test('CUSTOM_LAYOUT', async ({ browser, context, page }, testInfo) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, true, { createParameter: c.presentationFocus, joinParameter: c.enforceCustomLayout, testInfo });
