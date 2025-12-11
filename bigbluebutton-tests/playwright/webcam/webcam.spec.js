@@ -1,6 +1,7 @@
 const { test } = require('../fixtures');
 const { MultiUsers } = require('../user/multiusers');
 const { Webcam } = require('./webcam');
+const { linkIssue } = require('../core/helpers');
 
 test.describe.parallel('Webcam', { tag: '@ci' }, () => {
   // https://docs.bigbluebutton.org/3.0/testing/release-testing/#joining-webcam-automated
@@ -65,7 +66,8 @@ test.describe.parallel('Webcam', { tag: '@ci' }, () => {
   });
 
 
-  test('Drag and drop webcam in different areas', async ({ browser, page }) => {
+  test('Drag and drop webcam in different areas', { tag: '@flaky-3.1' }, async ({ browser, page }) => {
+    linkIssue(24367);
     const webcam = new Webcam(browser, page);
     await webcam.init(true, true);
     await webcam.dragAndDropWebcamInDifferentAreas();

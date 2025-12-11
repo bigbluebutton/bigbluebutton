@@ -1,6 +1,7 @@
 const { test } = require('../fixtures');
 const { Options } = require('./options');
 const { initializePages } = require('../core/helpers');
+const { linkIssue } = require('../core/helpers');
 
 test.describe.parallel('Options', { tag: '@ci' }, () => {
   const options = new Options();
@@ -29,7 +30,8 @@ test.describe.parallel('Options', { tag: '@ci' }, () => {
     await options.fontSizeTest();
   });
 
-  test('Auto hide whiteboard toolbar', async () => {
+  test('Auto hide whiteboard toolbar', { tag: '@flaky-3.1' }, async () => {
+    linkIssue(24367);
     await options.autoHideWhiteboardToolbar();
   });
 });
