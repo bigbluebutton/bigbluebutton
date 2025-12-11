@@ -1,6 +1,6 @@
 ## Pay the Developers
 
-This software has been developed through the considerable effort of its contributors. While free software guarantees your liberty to run, study, modify, and share it (refer to LICENSE.TXT), its long-term health depends on a reciprocal ecosystem.
+This software has been developed through the considerable effort of its contributors. While free software guarantees your liberty to run, study, modify, and share it (refer to LICENSE), its long-term health depends on a reciprocal ecosystem.
 
 Organizations deploying this software for their staff, students or as a service are expected to give back to the project. Contributions ensure its maintenance and speeds up developing new features. Your support can be technical, promotional, and financial.
 
