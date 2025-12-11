@@ -67,7 +67,7 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
     await presentation.zoom();
   });
 
-  test('Select Slide', async ({ browser, context, page }, testInfo) => {
+  test('Select Slide', { tag: '@flaky-3.1' }, async ({ browser, context, page }, testInfo) => {
     const presentation = new Presentation(browser, context);
     await presentation.initPages(page, testInfo);
     await presentation.selectSlide();

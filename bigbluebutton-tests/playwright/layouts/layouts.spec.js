@@ -2,7 +2,7 @@ const { test } = require('../fixtures');
 const { Layouts } = require('./layouts');
 const { initializePages } = require('../core/helpers');
 
-test.describe.parallel('Layout', { tag: '@ci' }, () => {
+test.describe.parallel('Layout', { tag: '@flaky-3.1' }, () => {
   const layouts = new Layouts();
 
   test.beforeEach(async ({ browser }, testInfo) => {

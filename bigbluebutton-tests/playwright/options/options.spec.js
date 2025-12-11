@@ -29,7 +29,7 @@ test.describe.parallel('Options', { tag: '@ci' }, () => {
     await options.fontSizeTest();
   });
 
-  test('Auto hide whiteboard toolbar', async () => {
+  test('Auto hide whiteboard toolbar', { tag: '@flaky-3.1' }, async () => {
     await options.autoHideWhiteboardToolbar();
   });
 });

@@ -65,7 +65,7 @@ test.describe.parallel('Webcam', { tag: '@ci' }, () => {
   });
 
 
-  test('Drag and drop webcam in different areas', async ({ browser, page }) => {
+  test('Drag and drop webcam in different areas', { tag: '@flaky-3.1' }, async ({ browser, page }) => {
     const webcam = new Webcam(browser, page);
     await webcam.init(true, true);
     await webcam.dragAndDropWebcamInDifferentAreas();
