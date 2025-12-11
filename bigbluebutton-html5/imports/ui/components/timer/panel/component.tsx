@@ -37,7 +37,7 @@ import {
   decrementTimeUnit,
   convertSecondsToTime,
   addTimeWithBounds,
-} from '../utils';
+} from '../service';
 
 const MILLI_IN_HOUR = 3600000;
 const MILLI_IN_MINUTE = 60000;
