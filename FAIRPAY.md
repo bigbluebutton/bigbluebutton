@@ -13,8 +13,8 @@ This mutual support is essential to counter the "tragedy of the commons" and ens
 
 ### Recommended Financial Contributions
 
-    Minimum one-time fee for production deployment: USD 5,000
+    One-time fee for medium size production deployment: EUR 5,000
 
-    Suggested annual fee per active user: USD 10
+    Suggested annual fee per active user: EUR 10
 
 These contributions are typically far below the TCO of proprietary software licenses. Organizations that utilize the software without contributing risk damaging their reputation within the community.
