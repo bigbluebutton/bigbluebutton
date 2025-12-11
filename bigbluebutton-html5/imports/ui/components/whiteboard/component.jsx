@@ -1869,12 +1869,14 @@ const Whiteboard = React.memo((props) => {
     prevZoomValueRef.current = zoomValue;
   }, [zoomValue, pageChanged, tlEditorRef.current, isWheelZoomRef.current]);
 
+  const prevFitToWidth = usePrevious(fitToWidth);
+
   React.useEffect(() => {
-    if (isPresenter) {
+    if (prevFitToWidth !== undefined && prevFitToWidth !== fitToWidth && isPresenter) {
       zoomChanger(HUNDRED_PERCENT);
       zoomSlide(HUNDRED_PERCENT, HUNDRED_PERCENT, 0, 0);
     }
-  }, [fitToWidth]);
+  }, [fitToWidth, prevFitToWidth, isPresenter, zoomChanger, zoomSlide]);
 
   React.useEffect(() => {
     debouncedSetInitialZoom();
