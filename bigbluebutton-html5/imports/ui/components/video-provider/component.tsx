@@ -97,6 +97,7 @@ interface VideoProviderProps {
   isGridEnabled: boolean;
   isClientConnected: boolean;
   totalNumberOfStreams: number;
+  overflowCount: number;
   isUserLocked: boolean;
   currentVideoPageIndex: number;
   streams: VideoItem[];
@@ -1376,6 +1377,7 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
       handleVideoFocus,
       isGridEnabled,
       screenShare,
+      overflowCount,
     } = this.props;
 
     return (
@@ -1388,6 +1390,7 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
           handleVideoFocus,
           isGridEnabled,
           screenShare,
+          overflowCount,
         }}
         onVideoItemMount={this.createVideoTag}
         onVideoItemUnmount={this.destroyVideoTag}

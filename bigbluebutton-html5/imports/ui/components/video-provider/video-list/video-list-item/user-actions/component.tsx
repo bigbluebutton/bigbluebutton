@@ -78,6 +78,10 @@ const intlMessages = defineMessages({
   disableWarning: {
     id: 'app.videoDock.webcamDisableWarning',
   },
+  you: {
+    id: 'app.userList.you',
+    description: 'Text for identifying your user',
+  },
 });
 
 interface UserActionProps {
@@ -132,6 +136,11 @@ const UserActions: React.FC<UserActionProps> = (props) => {
   const [setStreamAsContent] = useMutation(CAMERA_SET_SHOW_AS_CONTENT);
   const pinEnabledForCurrentUser = useIsVideoPinEnabledForCurrentUser(amIModerator);
 
+  const isLocalStream = stream.userId === Auth.userID;
+  const displayName = isLocalStream
+    ? `${name} (${intl.formatMessage(intlMessages.you)})`
+    : name;
+
   useEffect(() => () => {
     if (isFullscreenContext) {
       layoutContextDispatch({
@@ -169,8 +178,8 @@ const UserActions: React.FC<UserActionProps> = (props) => {
     if (isVideoSqueezed) {
       menuItems.push({
         key: `${cameraId}-name`,
-        label: name,
-        description: name,
+        label: displayName,
+        description: displayName,
         onClick: () => { },
         disabled: true,
       });
@@ -369,7 +378,7 @@ const UserActions: React.FC<UserActionProps> = (props) => {
                 {contentType === 'screenshare' && (
                   <Styled.ScreenShareIcon iconName="desktop" aria-hidden="true" />
                 )}
-                {name}
+                {displayName}
               </Styled.DropdownTrigger>
             )}
             actions={getAvailableActions()}
@@ -392,7 +401,7 @@ const UserActions: React.FC<UserActionProps> = (props) => {
               {contentType === 'screenshare' && (
                 <Styled.ScreenShareIcon iconName="desktop" aria-hidden="true" />
               )}
-              {name}
+              {displayName}
             </Styled.UserName>
           </Styled.Dropdown>
         )}

@@ -857,6 +857,9 @@ public class MeetingService implements MessageListener {
       params.put(ApiParams.NOTIFY_RECORDING_IS_ON,parentMeeting.getNotifyRecordingIsOn().toString());
       params.put(ApiParams.DISABLED_FEATURES,String.join(",", message.disabledFeatures));
 
+      // Apply private chat lock settings from parent meeting to breakout room
+      params.put(ApiParams.LOCK_SETTINGS_DISABLE_PRIVATE_CHAT, message.disablePrivChat.toString());
+
       Map<String, String> parentMeetingMetadata = parentMeeting.getMetadata();
 
       String metaPrefix = "meta_";

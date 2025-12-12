@@ -9,6 +9,7 @@ import {
   colorDanger,
   webcamPlaceholderBorder,
   colorContentBackground,
+  webcamTalkingBackgroundColor,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { TextElipsis } from '/imports/ui/stylesheets/styled-components/placeholders';
 import { UserCameraButtonsContainerWrapperProps } from './types'
@@ -100,6 +101,8 @@ const Content = styled.div<{
 
 const WebcamConnecting = styled.div<{
   animations: boolean;
+  talking: boolean;
+  customHighlight: boolean;
 }>`
   display: flex;
   justify-content: center;
@@ -110,6 +113,14 @@ const WebcamConnecting = styled.div<{
   border-radius: 10px;
   background-color: ${webcamBackgroundColor};
   z-index: 0;
+
+  ${({ talking }) => talking && `
+    background-color: ${webcamTalkingBackgroundColor};
+  `}
+
+  ${({ talking, customHighlight }) => talking && customHighlight && customHighlight.length > 0 && `
+    background-color: rgba(${customHighlight[0]}, ${customHighlight[1]}, ${customHighlight[2]}, 0.15);
+  `}
 
   &::after {
     content: "";

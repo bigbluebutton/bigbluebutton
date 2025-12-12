@@ -99,6 +99,7 @@ const VideoProviderContainer: React.FC<VideoProviderContainerProps> = (props) =>
 
   const {
     gridUsers,
+    overflowCount,
     totalNumberOfStreams,
     totalNumberOfOtherStreams,
     streams: hookStreams,
@@ -212,6 +213,7 @@ const VideoProviderContainer: React.FC<VideoProviderContainerProps> = (props) =>
     viewParticipantsWebcams,
     isClientConnected,
     totalNumberOfStreams,
+    overflowCount,
     isUserLocked,
     currentVideoPageIndex,
     streams: usersVideo,

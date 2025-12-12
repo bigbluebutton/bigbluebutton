@@ -70,6 +70,7 @@ export type Stream = {
   voice: Voice | undefined;
   type: typeof VIDEO_TYPES.STREAM;
   showAsContent: boolean;
+  render?: boolean;
 }
 
 export type StreamItem = Stream | ConnectingStream;

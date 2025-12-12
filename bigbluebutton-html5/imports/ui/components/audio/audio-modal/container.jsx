@@ -104,8 +104,8 @@ const AudioModalContainer = (props) => {
     (options = {}) => joinMicrophone({
       skipEchoTest: options.skipEchoTest || joinFullAudioImmediately,
       muted: options.muteOnStart
-        || meeting?.voiceSettings?.muteOnStart
-        || storageMuteState,
+        ?? storageMuteState
+        ?? meeting?.voiceSettings?.muteOnStart,
     }),
     [skipCheck, skipCheckOnJoin, meeting, storageMuteState],
   );
@@ -121,9 +121,11 @@ const AudioModalContainer = (props) => {
       setIsOpen(false);
 
       // When using LiveKit, force joining audio when the modal is closed,
-      // but the user is not connected nor connecting to audio.
+      // but the user is not connected nor connecting to audio. This also means
+      // that the user will join muted as not clicking "Join Audio" signals
+      // that intention.
       if (usingLiveKit && !isConnected && !isConnecting) {
-        joinMic().catch((error) => handleJoinError(error, false));
+        joinMic({ muteOnStart: true }).catch((error) => handleJoinError(error, false));
       }
     };
 

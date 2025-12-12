@@ -6,6 +6,7 @@ import { throttle } from '/imports/utils/throttle';
 import { range } from '/imports/utils/array-utils';
 import Styled from './styles';
 import VideoListItemContainer from './video-list-item/container';
+import OverflowTile from './overflow-tile/component';
 import AutoplayOverlay from '/imports/ui/components/media/autoplay-overlay/component';
 import logger from '/imports/startup/client/logger';
 import playAndRetry from '/imports/utils/mediaElementPlayRetry';
@@ -85,6 +86,7 @@ interface VideoListProps {
   focusedId: string;
   handleVideoFocus: (id: string) => void;
   isGridEnabled: boolean;
+  overflowCount: number;
   streams: VideoItem[];
   currentUserId: string;
   isCurrentUserPresenter: boolean;
@@ -306,6 +308,10 @@ class VideoList extends Component<VideoListProps, VideoListState> {
       cameraDock,
       layoutContextDispatch,
     } = this.props;
+    const visibleStreams = streams.filter(
+      (item) => item.type === VIDEO_TYPES.GRID || !('render' in item) || item.render !== false,
+    );
+    let numItems = visibleStreams.length;
 
     const {
       aspectRatio,
