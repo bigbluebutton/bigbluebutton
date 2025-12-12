@@ -83,6 +83,7 @@ const PollQuestionArea: React.FC<PollQuestionAreaProps> = ({
         placeholder={intl.formatMessage(customInput ? questionsAndOptionsPlaceholder
           : questionPlaceholder)}
         {...{ MAX_INPUT_CHARS }}
+        handleTextareaChange={handleTextareaChange}
         as={customInput ? DraggableTextArea : 'textarea'}
         ref={textareaRef}
       />

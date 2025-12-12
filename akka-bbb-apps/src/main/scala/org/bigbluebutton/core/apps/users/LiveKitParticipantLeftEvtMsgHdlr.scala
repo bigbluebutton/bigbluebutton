@@ -44,6 +44,16 @@ trait LiveKitParticipantLeftEvtMsgHdlr {
         vu.voiceUserId
       )
       outGW.send(event)
+
+      val eventUserVoiceStatus = MsgBuilder.buildUserVoiceStateEvtMsg(
+        meetingId,
+        liveMeeting.props.voiceProp.voiceConf,
+        userId,
+        None,
+        leftVoiceConf = true
+      )
+      outGW.send(eventUserVoiceStatus)
+
     }
 
     // Clean up any webcams associated with the user

@@ -35,6 +35,7 @@ interface UsersListParticipantsPage {
   currentUser: Partial<User>;
   pageId: string;
   offset: number;
+  isBreakout: boolean;
 }
 
 const UsersListParticipantsPage: React.FC<UsersListParticipantsPage> = ({
@@ -43,6 +44,7 @@ const UsersListParticipantsPage: React.FC<UsersListParticipantsPage> = ({
   meeting,
   pageId,
   offset,
+  isBreakout,
 }) => {
   const [openUserAction, setOpenUserAction] = React.useState<string | null>(null);
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
@@ -72,7 +74,7 @@ const UsersListParticipantsPage: React.FC<UsersListParticipantsPage> = ({
                 userListDropdownItems={userListDropdownItems}
                 open={user.userId === openUserAction}
                 setOpenUserAction={setOpenUserAction}
-                isBreakout={meeting.isBreakout}
+                isBreakout={isBreakout}
               />
             </Styled.UserListItem>
           );
@@ -148,7 +150,6 @@ const UserListParticipantsPageContainer: React.FC<UserListParticipantsContainerP
     lastBreakoutRoom: c.lastBreakoutRoom,
     cameras: c.cameras,
     pinned: c.pinned,
-    raiseHand: c.raiseHand,
     away: c.away,
     reactionEmoji: c.reactionEmoji,
     avatar: c.avatar,
@@ -156,6 +157,7 @@ const UserListParticipantsPageContainer: React.FC<UserListParticipantsContainerP
     name: c.name,
     color: c.color,
     whiteboardWriteAccess: c.whiteboardWriteAccess,
+    raiseHand: c.raiseHand,
   }));
 
   const {
@@ -219,6 +221,7 @@ const UserListParticipantsPageContainer: React.FC<UserListParticipantsContainerP
       currentUser={currentUser ?? {}}
       pageId={pageId ?? ''}
       offset={offset}
+      isBreakout={meeting?.isBreakout ?? false}
     />
   );
 };

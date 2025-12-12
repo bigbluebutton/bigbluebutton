@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
-import { useIntl } from 'react-intl';
+import { useIntl, defineMessages } from 'react-intl';
 import Auth from '/imports/ui/services/auth';
 import {
   UserListItemAdditionalInformationType,
@@ -37,6 +37,14 @@ import {
 } from '/imports/ui/core/graphql/mutations/userMutations';
 import UserNameWithSubs from './user-name-with-subs/component';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
+import { useModalRegistration } from '/imports/ui/core/singletons/modalController';
+
+const messages = defineMessages({
+  removeUserConfirmation: {
+    id: 'app.userList.menu.removeConfirmation.label',
+    description: 'Confirmation message for removing a user from the meeting',
+  },
+});
 
 const renderUserListItemIconsFromPlugin = (
   userItemsFromPlugin: PluginSdk.UserListItemAdditionalInformationInterface[],
@@ -98,7 +106,20 @@ const UserListItem: React.FC<UserListItemProps> = ({
   const [userEjectCameras] = useMutation(USER_EJECT_CAMERAS);
   const [ejectFromMeeting] = useMutation(EJECT_FROM_MEETING);
   const [ejectFromVoice] = useMutation(EJECT_FROM_VOICE);
-  const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState<boolean>(false);
+
+  const {
+    isOpen: isConfirmationModalOpen,
+    open: openCofirmationModal,
+    close: closeConfirmationModal,
+  } = useModalRegistration({
+    id: 'userActionsConfirmationModal',
+    priority: 'low',
+  });
+
+  const setIsConfirmationModalOpen = (value: boolean) => {
+    if (value) openCofirmationModal();
+    else closeConfirmationModal();
+  };
 
   const whiteboardAccess = hasWhiteboardWriteAccess(user);
   const { data: talkingUsers } = useWhoIsTalking();
@@ -171,16 +192,17 @@ const UserListItem: React.FC<UserListItemProps> = ({
       {isConfirmationModalOpen && (
         <ConfirmationModal
           intl={intl}
-          titleMessageId="app.userList.menu.removeConfirmation.label"
-          titleMessageExtra={user.name}
+          title={intl.formatMessage(messages.removeUserConfirmation, { userName: user.name })}
           checkboxMessageId="app.userlist.menu.removeConfirmation.desc"
           confirmParam={user.userId}
           onConfirm={removeUser}
           confirmButtonDataTest="removeUserConfirmation"
-          onRequestClose={() => setIsConfirmationModalOpen(false)}
-          priority="low"
-          setIsOpen={setIsConfirmationModalOpen}
-          isOpen={isConfirmationModalOpen}
+          {...{
+            onRequestClose: () => setIsConfirmationModalOpen(false),
+            priority: 'low',
+            setIsOpen: setIsConfirmationModalOpen,
+            isOpen: isConfirmationModalOpen,
+          }}
         />
       )}
       <Styled.Avatar

@@ -28,6 +28,7 @@ import { useStopMediaOnMainRoom } from '/imports/ui/components/breakout-room/hoo
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import CreateBreakoutRoomContainer from '../create-breakout-room/component';
 import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
+import { useModalRegistration } from '/imports/ui/core/singletons/modalController';
 
 interface BreakoutRoomProps {
   breakouts: BreakoutRoomType[];
@@ -341,7 +342,7 @@ const BreakoutRoomContainer: React.FC = () => {
     meetingId: m.meetingId,
     componentsFlags: m.componentsFlags,
   }));
-  const [updateUsersWhileRunning, setUpdateUsersWhileRunning] = useState(false);
+  const breakoutRoomsUpdateUsersModal = useModalRegistration({ id: 'createBreakoutRoomModal', priority: 'low' });
 
   const {
     data: currentUserData,
@@ -388,12 +389,16 @@ const BreakoutRoomContainer: React.FC = () => {
       userJoinedAudio={(currentUserData?.voice?.joined && !currentUserData?.voice?.deafened) ?? false}
       userId={currentUserData.userId ?? ''}
       meetingId={meetingData.meetingId ?? ''}
-      setUpdateUsersWhileRunning={setUpdateUsersWhileRunning}
+      setUpdateUsersWhileRunning={
+        breakoutRoomsUpdateUsersModal.isOpen
+          ? breakoutRoomsUpdateUsersModal.close
+          : breakoutRoomsUpdateUsersModal.open
+}
       createdTime={meetingData.createdTime ?? 0}
     />
   )];
 
-  if (updateUsersWhileRunning) {
+  if (breakoutRoomsUpdateUsersModal.isOpen) {
     returnedComponents.push((
       <CreateBreakoutRoomContainer
         isOpen={isOpen}
@@ -411,8 +416,12 @@ const BreakoutRoomContainer: React.FC = () => {
           setIsOpen(value);
         }}
         priority="low"
-        isUpdate={updateUsersWhileRunning}
-        setUpdateUsersWhileRunning={setUpdateUsersWhileRunning}
+        isUpdate={breakoutRoomsUpdateUsersModal.isOpen}
+        setUpdateUsersWhileRunning={
+          breakoutRoomsUpdateUsersModal.isOpen
+            ? breakoutRoomsUpdateUsersModal.close
+            : breakoutRoomsUpdateUsersModal.open
+        }
       />
     ));
   }

@@ -11,7 +11,7 @@ case class TimerDbModel(
     active:           Boolean,
     time:             Long,
     accumulated:      Long,
-    startedAt:        Option[Long],
+    startedAt:        Option[java.sql.Timestamp],
     songTrack:        String,
     elapsed:          Boolean,
 )
@@ -23,7 +23,7 @@ class TimerDbTableDef(tag: Tag) extends Table[TimerDbModel](tag, None, "timer") 
   val active = column[Boolean]("active")
   val time = column[Long]("time")
   val accumulated = column[Long]("accumulated")
-  val startedAt = column[Option[Long]]("startedAt")
+  val startedAt = column[Option[java.sql.Timestamp]]("startedAt")
   val songTrack = column[String]("songTrack")
   val elapsed = column[Boolean]("elapsed")
   override def * = (meetingId, stopwatch, running, active, time, accumulated, startedAt, songTrack, elapsed) <> (TimerDbModel.tupled, TimerDbModel.unapply)
@@ -40,7 +40,7 @@ object TimerDAO {
           active = getIsActive(model),
           time = getTime(model),
           accumulated = getAccumulated(model),
-          startedAt = getStartedAt(model).map(_.getTime),
+          startedAt = getStartedAt(model),
           songTrack = getTrack(model),
           elapsed = isElapsed(model),
         )
@@ -55,7 +55,7 @@ object TimerDAO {
         .map(t => (t.stopwatch, t.running, t.active, t.time, t.accumulated, t.startedAt, t.songTrack, t.elapsed))
         .update(
           (isStopwatch(timerModel), isRunning(timerModel), getIsActive(timerModel), getTime(timerModel),
-          getAccumulated(timerModel), getStartedAt(timerModel).map(_.getTime), getTrack(timerModel), isElapsed(timerModel))
+          getAccumulated(timerModel), getStartedAt(timerModel), getTrack(timerModel), isElapsed(timerModel))
         )
     )
   }

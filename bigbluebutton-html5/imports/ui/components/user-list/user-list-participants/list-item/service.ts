@@ -350,7 +350,7 @@ export const createToolbarOptions = (
   setRole: MutationFunction,
   setLocked: MutationFunction,
   userEjectCameras: MutationFunction,
-  setIsConfirmationModalOpen: React.Dispatch<React.SetStateAction<boolean>>,
+  setIsConfirmationModalOpen: (value: boolean) => void,
 ) => {
   const MODERATOR_ROLE = window.meetingClientSettings.public.user.role_moderator;
   const VIEWER_ROLE = window.meetingClientSettings.public.user.role_viewer;
