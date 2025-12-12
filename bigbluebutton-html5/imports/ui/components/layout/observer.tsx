@@ -15,7 +15,7 @@ import getFromUserSettings from '/imports/ui/services/users-settings';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import MediaService from '/imports/ui/components/media/service';
 import { useVideoStreams, useVideoStreamsCount } from '/imports/ui/components/video-provider/hooks';
-import { useIsChatEnabled, useIsPresentationEnabled, useIsScreenSharingEnabled } from '/imports/ui/services/features';
+import { useIsChatEnabled, useIsPresentationEnabled } from '/imports/ui/services/features';
 import useUserChangedLocalSettings from '/imports/ui/services/settings/hooks/useUserChangedLocalSettings';
 import Session from '/imports/ui/services/storage/in-memory';
 import deviceInfo from '/imports/utils/deviceInfo';
@@ -48,7 +48,6 @@ const LayoutObserver: React.FC = () => {
 
   const isThereWebcam = useVideoStreamsCount() > 0;
   const { streams: videoStream } = useVideoStreams();
-  const isScreenSharingEnabled = useIsScreenSharingEnabled();
   const isPresentationEnabled = useIsPresentationEnabled();
   const isChatEnabled = useIsChatEnabled();
 
@@ -57,10 +56,12 @@ const LayoutObserver: React.FC = () => {
   const { numCameras } = cameraDockInput;
   const { isOpen: sidebarContentIsOpen } = sidebarContentInput;
   const { isOpen: presentationIsOpen } = presentationInput;
+  const isSharedNotesPinned = sharedNotesInput?.isPinned;
 
   const { currentLayoutType } = currentMeeting?.layout || {};
   const meetingLayout = currentLayoutType && LAYOUT_TYPE[currentLayoutType as keyof typeof LAYOUT_TYPE];
   const isSharingVideo = currentMeeting?.componentsFlags?.hasExternalVideo;
+  const hasScreenshare = currentMeeting?.componentsFlags?.hasScreenshare ?? false;
   const hasCameraAsContent = currentMeeting?.componentsFlags?.hasCameraAsContent
     || videoStream.some((stream) => !!(stream as any)?.showAsContent);
 
@@ -225,18 +226,25 @@ const LayoutObserver: React.FC = () => {
     }
 
     cameraAsContentWasActive.current = hasCameraAsContent;
-  }, [hasCameraAsContent, layoutContextDispatch, presentationIsOpen]);
+  }, [hasCameraAsContent, layoutContextDispatch]);
+
+  // If user toggles presentation while camera-as-content is active, remember latest choice
+  useEffect(() => {
+    if (hasCameraAsContent && cameraAsContentWasActive.current) {
+      presentationStateBeforeCameraContent.current = presentationIsOpen;
+    }
+  }, [hasCameraAsContent, presentationIsOpen]);
 
   useEffect(() => {
     MediaService.buildLayoutWhenPresentationAreaIsDisabled(
       layoutContextDispatch,
       isSharingVideo,
-      sharedNotesInput?.isPinned,
+      isSharedNotesPinned,
       isThereWebcam,
-      isScreenSharingEnabled,
+      hasScreenshare,
       isPresentationEnabled,
     );
-  });
+  }, [hasScreenshare, isPresentationEnabled, isSharingVideo, isSharedNotesPinned, isThereWebcam]);
 
   useEffect(() => {
     layoutContextDispatch({

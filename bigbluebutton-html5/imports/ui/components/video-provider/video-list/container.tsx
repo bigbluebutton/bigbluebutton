@@ -2,10 +2,12 @@ import React, {
   useContext,
   useEffect,
   useState,
+  useCallback,
 } from 'react';
+import { useMutation } from '@apollo/client';
 import { UserCameraHelperButton, UserCameraHelperInterface, UserCameraHelperItemPosition } from 'bigbluebutton-html-plugin-sdk';
 import VideoList from '/imports/ui/components/video-provider/video-list/component';
-import { layoutSelect, layoutDispatch } from '/imports/ui/components/layout/context';
+import { layoutSelect, layoutDispatch, layoutSelectInput } from '/imports/ui/components/layout/context';
 import { useNumberOfPages } from '/imports/ui/components/video-provider/hooks';
 import { VideoItem } from '/imports/ui/components/video-provider/types';
 import { Layout, Output } from '/imports/ui/components/layout/layoutTypes';
@@ -16,8 +18,10 @@ import { DomElementManipulationHooks } from 'bigbluebutton-html-plugin-sdk/dist/
 import { UpdatedEventDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
 import { UserCameraHelperAreas } from '../../plugins-engine/extensible-areas/components/user-camera-helper/types';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
-import { Meeting } from '/imports/ui/Types/meeting';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import { CAMERA_SET_SHOW_AS_CONTENT } from '/imports/ui/core/graphql/mutations/userMutations';
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import { CURRENT_PRESENTATION_PAGE_SUBSCRIPTION, CurrentPresentationPagesSubscriptionResponse } from '/imports/ui/components/whiteboard/queries';
 
 interface VideoListContainerProps {
   streams: VideoItem[];
@@ -60,7 +64,28 @@ const VideoListContainer: React.FC<VideoListContainerProps> = (props) => {
   } = useCurrentUser((u) => ({
     isModerator: u.isModerator,
     userId: u.userId,
+    presenter: u.presenter,
   }));
+  const {
+    data: presentationPageData,
+  } = useDeduplicatedSubscription<CurrentPresentationPagesSubscriptionResponse>(
+    CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
+  );
+  const presentationInput = layoutSelectInput((i) => i.presentation);
+  const isPresentationOpen = presentationInput?.isOpen ?? true;
+  const hasPresentation = !!presentationPageData?.pres_page_curr?.[0]?.presentationId;
+  const isPresentationAvailable = hasPresentation && isPresentationOpen;
+  const viewersCanSeeViewersScreenShares = meeting?.lockSettings?.viewersCanSeeViewersScreenShares !== false;
+  const [cameraSetShowAsContent] = useMutation(CAMERA_SET_SHOW_AS_CONTENT);
+  const handleSetStreamAsContent = useCallback((streamId: string, showAsContent: boolean) => {
+    if (!streamId) return;
+    cameraSetShowAsContent({
+      variables: {
+        streamId,
+        showAsContent,
+      },
+    });
+  }, [cameraSetShowAsContent]);
 
   const filteredStreams = streams.filter((stream) => {
     const streamUserRole = stream?.user?.role;
@@ -151,6 +176,11 @@ const VideoListContainer: React.FC<VideoListContainerProps> = (props) => {
           onVideoItemUnmount={onVideoItemUnmount}
           onVirtualBgDrop={onVirtualBgDrop}
           screenShare={screenShare}
+          currentUserId={currentUser?.userId || ''}
+          isCurrentUserPresenter={currentUser?.presenter || false}
+          onSetStreamAsContent={handleSetStreamAsContent}
+          isPresentationAvailable={isPresentationAvailable}
+          viewersCanSeeViewersScreenShares={viewersCanSeeViewersScreenShares}
         />
       )
   );

@@ -36,6 +36,8 @@ interface VideoListItemContainerProps {
   isContent?: boolean;
   onPeek?: () => void;
   screenShare?: boolean;
+  setAsContentHint?: string;
+  viewersCanSeeViewersScreenShares: boolean;
 }
 
 const VideoListItemContainer: React.FC<VideoListItemContainerProps> = (props) => {
@@ -57,6 +59,8 @@ const VideoListItemContainer: React.FC<VideoListItemContainerProps> = (props) =>
     contentType,
     isContent,
     onPeek,
+    setAsContentHint,
+    viewersCanSeeViewersScreenShares,
   } = props;
 
   const fullscreen = layoutSelect((i: Layout) => i.fullscreen);
@@ -108,8 +112,9 @@ const VideoListItemContainer: React.FC<VideoListItemContainerProps> = (props) =>
         layoutContextDispatch,
         isRTL,
         amIModerator,
-        screenShare,
-      }}
+      screenShare,
+      viewersCanSeeViewersScreenShares,
+    }}
       pluginUserCameraHelperPerPosition={pluginUserCameraHelperPerPosition}
       setUserCamerasRequestedFromPlugin={setUserCamerasRequestedFromPlugin}
       cameraId={cameraId}
@@ -129,6 +134,7 @@ const VideoListItemContainer: React.FC<VideoListItemContainerProps> = (props) =>
       isContent={(stream as any).showAsContent ?? isContent ?? false}
       voiceUser={voiceUser}
       raisedHandPosition={raisedHandIndex}
+      setAsContentHint={setAsContentHint}
     />
   );
 };

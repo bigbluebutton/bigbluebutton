@@ -260,7 +260,6 @@ class LockViewersComponent extends Component {
                     }}
                     ariaLabel={intl.formatMessage(intlMessages.viewersCanShareScreenLabel)}
                     showToggleLabel={showToggleLabel}
-                    invertColors={invertColors}
                     data-test="lockViewersShareScreen"
                   />
                 </Styled.FormElementRight>
@@ -285,7 +284,6 @@ class LockViewersComponent extends Component {
                     }}
                     ariaLabel={intl.formatMessage(intlMessages.viewersCanSeeViewersScreenSharesLabel)}
                     showToggleLabel={showToggleLabel}
-                    invertColors={invertColors}
                     data-test="lockViewersSeeScreenshares"
                   />
                 </Styled.FormElementRight>

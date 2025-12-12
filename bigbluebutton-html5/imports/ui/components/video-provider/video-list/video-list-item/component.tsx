@@ -43,6 +43,7 @@ interface VideoListItemProps {
   screenShare?: boolean;
   isRTL: boolean;
   amIModerator: boolean;
+  setAsContentHint?: string;
   cameraId: string;
   disabledCams: string[];
   focused: boolean;
@@ -55,6 +56,7 @@ interface VideoListItemProps {
   settingsSelfViewDisable: boolean;
   stream: VideoItem;
   onPeek?: () => void;
+  viewersCanSeeViewersScreenShares: boolean;
   makeDragOperations: (userId?: string) => {
     onDragOver: (e: DragEvent) => void,
     onDrop: (e: DragEvent) => void,
@@ -126,7 +128,7 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
     makeDragOperations, dragging, draggingOver, isRTL, isStream, settingsSelfViewDisable,
     disabledCams, amIModerator, stream, setUserCamerasRequestedFromPlugin,
     pluginUserCameraHelperPerPosition, screenShare, raisedHandPosition,
-    contentType, isContent, onPeek,
+    contentType, isContent, onPeek, setAsContentHint, viewersCanSeeViewersScreenShares,
   } = props;
 
   const intl = useIntl();
@@ -140,15 +142,17 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
   const [isVideoPluginHelperSqueezed, setIsVideoPluginHelperSqueezed] = useState(false);
   const [isSelfViewDisabled, setIsSelfViewDisabled] = useState(false);
 
-  const pluginSqueezedResizeObserver = new ResizeObserver((entry) => {
-    if (entry && entry[0]?.contentRect?.width < VIDEO_CONTAINER_PLUGIN_HELPERS_WIDTH_BOUND) {
+  const pluginSqueezedResizeObserver = new ResizeObserver((entries = []) => {
+    const entry = entries[0];
+    if (entry?.contentRect?.width < VIDEO_CONTAINER_PLUGIN_HELPERS_WIDTH_BOUND) {
       return setIsVideoPluginHelperSqueezed(true);
     }
     return setIsVideoPluginHelperSqueezed(false);
   });
 
-  const resizeObserver = new ResizeObserver((entry) => {
-    if (entry && entry[0]?.contentRect?.width < VIDEO_CONTAINER_WIDTH_BOUND) {
+  const resizeObserver = new ResizeObserver((entries = []) => {
+    const entry = entries[0];
+    if (entry?.contentRect?.width < VIDEO_CONTAINER_WIDTH_BOUND) {
       return setIsVideoSqueezed(true);
     }
     return setIsVideoSqueezed(false);
@@ -298,6 +302,7 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
       amIModerator={amIModerator}
       isFullscreenContext={isFullscreenContext}
       layoutContextDispatch={layoutContextDispatch}
+      viewersCanSeeViewersScreenShares={viewersCanSeeViewersScreenShares}
     />
   );
   const renderRaiseHandElement = () => {
@@ -370,6 +375,7 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
       contentType={contentType || (stream as any).contentType}
       isContent={(stream as any).showAsContent ?? isContent}
       onPeek={onPeek}
+      viewersCanSeeViewersScreenShares={viewersCanSeeViewersScreenShares}
     />
         <UserStatus
           voiceUser={voiceUser}
@@ -441,6 +447,7 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
     onDragOver,
     onDrop,
   } = makeDragOperations(stream.userId);
+  const [isHovering, setIsHovering] = useState(false);
 
   return (
     // @ts-expect-error -> Until everything in Typescript.
@@ -452,6 +459,8 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
       data-test={talking ? 'webcamItemTalkingUser' : 'webcamItem'}
       animations={animations}
       isStream={isStream}
+      onMouseEnter={() => setIsHovering(true)}
+      onMouseLeave={() => setIsHovering(false)}
       {...{
         onDragLeave,
         onDragOver,
@@ -498,6 +507,11 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
       {((isSelfViewDisabled && stream.userId === Auth.userID) || disabledCams.includes(cameraId))
       && renderWebcamConnecting()}
       {renderCameraHelperButtons()}
+      {setAsContentHint && isHovering && (
+        <Styled.SetAsContentOverlay>
+          {setAsContentHint}
+        </Styled.SetAsContentOverlay>
+      )}
     </Styled.Content>
   );
 };

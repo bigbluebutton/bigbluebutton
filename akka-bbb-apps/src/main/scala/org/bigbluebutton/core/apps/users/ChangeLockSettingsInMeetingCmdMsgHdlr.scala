@@ -3,10 +3,10 @@ package org.bigbluebutton.core.apps.users
 import org.bigbluebutton.LockSettingsUtil
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
-import org.bigbluebutton.core.db.{ MeetingLockSettingsDAO, NotificationDAO }
+import org.bigbluebutton.core.db.{ MeetingLockSettingsDAO, NotificationDAO, UserCameraDAO }
 import org.bigbluebutton.core.graphql.GraphqlMiddleware
 import org.bigbluebutton.core.models._
-import org.bigbluebutton.core.running.OutMsgRouter
+import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core.running.MeetingActor
 import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core2.Permissions
@@ -45,6 +45,10 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
         val oldPermissions = MeetingStatus2x.getPermissions(liveMeeting.status)
 
         MeetingStatus2x.setPermissions(liveMeeting.status, settings)
+
+        if (settings.viewersCanSeeViewersScreenShares && !oldPermissions.viewersCanSeeViewersScreenShares) {
+          unsetViewerScreensharesContent(liveMeeting, msg.body.setBy)
+        }
 
         //Refresh graphql session for all locked viewers
         for {
@@ -267,6 +271,28 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
 
         outGW.send(BbbCommonEnvCoreMsg(envelope, LockSettingsInMeetingChangedEvtMsg(header, body)))
       }
+    }
+  }
+
+  private def unsetViewerScreensharesContent(liveMeeting: LiveMeeting, setBy: String): Unit = {
+    val meetingId = liveMeeting.props.meetingProp.intId
+
+    val viewerScreenshareContentStreams = Webcams
+      .findAll(liveMeeting.webcams)
+      .filter(cam => cam.showAsContent && cam.contentType == "screenshare")
+      .filter(cam => Users2x.findWithIntId(liveMeeting.users2x, cam.userId).exists(_.role == Roles.VIEWER_ROLE))
+
+    viewerScreenshareContentStreams.foreach { cam =>
+      Webcams.updateShowAsContent(liveMeeting.webcams, cam.streamId, showAsContent = false)
+      UserCameraDAO.updateShowAsContent(meetingId, cam.streamId, showAsContent = false)
+
+      val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, cam.userId)
+      val envelope = BbbCoreEnvelope(SetCamShowAsContentEvtMsg.NAME, routing)
+      val header = BbbClientMsgHeader(SetCamShowAsContentEvtMsg.NAME, meetingId, cam.userId)
+      val body = SetCamShowAsContentEvtMsgBody(cam.streamId, showAsContent = false, setBy)
+      val event = SetCamShowAsContentEvtMsg(header, body)
+
+      outGW.send(BbbCommonEnvCoreMsg(envelope, event))
     }
   }
 }

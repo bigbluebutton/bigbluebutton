@@ -260,6 +260,22 @@ const UserCameraButtonsContainerWrapper = styled.div<UserCameraButtonsContainerW
   `}
 `;
 
+const SetAsContentOverlay = styled.div`
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.5);
+  color: ${colorWhite};
+  font-weight: 700;
+  text-align: center;
+  pointer-events: none;
+  z-index: 3;
+  backdrop-filter: blur(2px);
+`;
+
 export default {
   Content,
   UserCameraButtonsContainerWrapper,
@@ -273,4 +289,5 @@ export default {
   RaiseHand,
   RaiseHandNumber,
   RaiseHandEmoji,
+  SetAsContentOverlay,
 };

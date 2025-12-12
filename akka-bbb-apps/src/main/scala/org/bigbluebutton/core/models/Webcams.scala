@@ -67,6 +67,12 @@ object Webcams {
       case None         => false
     }
   }
+
+  def updateShowAsContent(webcams: Webcams, streamId: String, showAsContent: Boolean): Unit = {
+    for {
+      webcam <- findWithStreamId(webcams, streamId)
+    } yield webcams.save(webcam.copy(showAsContent = showAsContent))
+  }
 }
 
 class Webcams {

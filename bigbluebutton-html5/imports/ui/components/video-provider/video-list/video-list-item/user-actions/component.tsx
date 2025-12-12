@@ -102,6 +102,7 @@ interface UserActionProps {
   onSetAsContent?: () => void;
   onPeek?: () => void;
   isContent?: boolean;
+  viewersCanSeeViewersScreenShares: boolean;
 }
 
 const UserActions: React.FC<UserActionProps> = (props) => {
@@ -110,6 +111,7 @@ const UserActions: React.FC<UserActionProps> = (props) => {
     isVideoSqueezed = false, videoContainer, isRTL, isStream, isSelfViewDisabled, isMirrored,
     amIModerator, isFullscreenContext, layoutContextDispatch,
     contentType, onSetAsContent, onPeek, isContent = false,
+    viewersCanSeeViewersScreenShares,
   } = props;
 
   const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
@@ -213,25 +215,31 @@ const UserActions: React.FC<UserActionProps> = (props) => {
       const isUnsetLabel = isScreenshare
         ? 'app.screenshare.unsetAsContentLabel'
         : 'app.actionsBar.actionsDropdown.unshareCameraAsContent';
-      menuItems.push({
-        key: `${cameraId}-set-as-content`,
-        label: isContent
-          ? intl.formatMessage({ id: isUnsetLabel, defaultMessage: 'Unset content' })
-          : intl.formatMessage({ id: isSetLabel, defaultMessage: 'Set as content' }),
-        description: isContent
-          ? intl.formatMessage({ id: isUnsetLabel, defaultMessage: 'Unset content' })
-          : intl.formatMessage({ id: isSetLabel, defaultMessage: 'Set as content' }),
-        onClick: () => {
-          setStreamAsContent({
-            variables: {
-              streamId: cameraId,
-              showAsContent: !isContent,
-            },
-          });
-          onSetAsContent?.();
-        },
-        dataTest: isScreenshare ? 'setScreenshareAsContent' : 'setCameraAsContent',
-      });
+      const isViewerScreenshareWithLockDisabled = isScreenshare
+        && stream.user?.role === 'VIEWER'
+        && !viewersCanSeeViewersScreenShares;
+
+      if (!isViewerScreenshareWithLockDisabled) {
+        menuItems.push({
+          key: `${cameraId}-set-as-content`,
+          label: isContent
+            ? intl.formatMessage({ id: isUnsetLabel, defaultMessage: 'Unset content' })
+            : intl.formatMessage({ id: isSetLabel, defaultMessage: 'Set as content' }),
+          description: isContent
+            ? intl.formatMessage({ id: isUnsetLabel, defaultMessage: 'Unset content' })
+            : intl.formatMessage({ id: isSetLabel, defaultMessage: 'Set as content' }),
+          onClick: () => {
+            setStreamAsContent({
+              variables: {
+                streamId: cameraId,
+                showAsContent: !isContent,
+              },
+            });
+            onSetAsContent?.();
+          },
+          dataTest: isScreenshare ? 'setScreenshareAsContent' : 'setCameraAsContent',
+        });
+      }
     }
 
     if (isScreenshare && onPeek) {

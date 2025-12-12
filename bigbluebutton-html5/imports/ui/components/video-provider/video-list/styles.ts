@@ -138,25 +138,25 @@ const PeekOverlay = styled.div`
   position: absolute;
   inset: 0;
   display: flex;
-  justify-content: center;
-  align-items: center;
+  justify-content: flex-end;
+  align-items: flex-end;
   padding: 0;
   pointer-events: auto;
-  z-index: 2;
-  background: rgba(0, 0, 0, 0.35);
+  z-index: 1200;
 `;
 
 const PeekCard = styled.div`
   position: relative;
   pointer-events: auto;
   width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.9);
+  height: 75%;
   border-radius: 6px;
   overflow: hidden;
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.45);
   border: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
+  ${({presentation}) => presentation ? `height: 100%;
+  background: rgba(0, 0, 0, 0.9);` : ''}
 `;
 
 // @ts-expect-error -> Untyped component.
