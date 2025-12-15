@@ -72,6 +72,7 @@ export interface App {
   enableMultipleCameras: boolean
   enableCameraAsContent: boolean
   enableWebcamSelectorButton: boolean
+  enableMultiScreenshare: boolean
   enableTalkingIndicator: boolean
   enableCameraBrightness: boolean
   mirrorOwnWebcam: boolean

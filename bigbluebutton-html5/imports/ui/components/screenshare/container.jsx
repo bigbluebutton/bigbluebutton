@@ -25,8 +25,6 @@ import { EXTERNAL_VIDEO_STOP } from '../external-video-player/mutations';
 import AudioManager from '/imports/ui/services/audio-manager';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { PIN_NOTES } from '../notes/mutations';
-import VideoProviderContainer from '../video-provider/container';
-import { useVideoStreams } from '../video-provider/hooks';
 
 const screenshareIntlMessages = defineMessages({
   // SCREENSHARE
@@ -162,14 +160,6 @@ const ScreenshareContainer = (props) => {
   const hasAudio = useScreenshareHasAudio();
   const streamId = useScreenshareStreamId();
 
-  const {
-    streams,
-    gridUsers,
-    totalNumberOfStreams,
-    totalNumberOfOtherStreams,
-  } = useVideoStreams();
-
-
   let pluginScreenshareHelperItems = [];
   if (pluginsExtensibleAreasAggregatedState.screenshareHelperItems) {
     pluginScreenshareHelperItems = [
@@ -177,36 +167,10 @@ const ScreenshareContainer = (props) => {
     ];
   }
 
-  const screenShareStreams = streams.filter((stream) => stream.contentType === 'screenshare');
-
-  if (screenShareStreams.length > 0) {
-    return (
-      <div
-        style={
-          {
-            position: 'absolute',
-            backgroundColor: '#06172A',
-            ...screenShare,
-          }
-        }
-      >
-        <VideoProviderContainer
-          cameraDock={{
-            position: 'absolute',
-            backgroundColor: '#06172A',
-            ...screenShare,
-          }}
-          streams={screenShareStreams}
-          focusedId=""
-          handleVideoFocus={() => {}}
-          screenShare
-        />
-      </div>
-    );
-  } else {
-    return null;
-  }
-
+  console.log('🚀 -> :170 -> ScreenshareContainer -> isScreenBroadcasting:', isScreenBroadcasting)
+  console.log('🚀 -> :171 -> ScreenshareContainer -> isCameraAsContentBroadcasting:', isCameraAsContentBroadcasting)
+    console.log('🚀 -> :172 -> ScreenshareContainer -> currentUserData:', currentUserData)
+    console.log('🚀 -> :173 -> ScreenshareContainer -> bridgeIsReady:', bridgeIsReady)
   if ((isScreenBroadcasting || isCameraAsContentBroadcasting)
     && currentUserData
     && bridgeIsReady

@@ -2543,20 +2543,48 @@ select "meeting"."meetingId",
             where "timer"."meetingId" = "meeting"."meetingId"
             and "active" is true
         ) as "hasTimer",
+
         exists (
-            select 1
-            from "v_user_camera"
-            where "v_user_camera"."meetingId" = "meeting"."meetingId"
-            and "contentType" = 'screenshare'
-            and "showAsContent" is true
+          select 1
+          where
+            exists (
+              select 1
+              from "v_screenshare"
+              where "v_screenshare"."meetingId" = "meeting"."meetingId"
+                and "contentType" = 'screenshare'
+            )
+            or
+            exists (
+              select 1
+              from "v_user_camera"
+              where "v_user_camera"."meetingId" = "meeting"."meetingId"
+                and "contentType" = 'screenshare'
+                and "showAsContent" is true
+            )
         ) as "hasScreenshare",
         exists (
-            select 1
-            from "v_user_camera"
-            join "v_layout" on "v_layout"."meetingId" = "v_user_camera"."meetingId" and "v_layout"."screenshareAsContent" is true
-            where "v_user_camera"."meetingId" = "meeting"."meetingId"
-            and "contentType" = 'screenshare'
-            and "showAsContent" is true
+          select 1
+          where
+            exists (
+              select 1
+              from "v_user_camera"
+              join "v_layout"
+                on "v_layout"."meetingId" = "v_user_camera"."meetingId"
+               and "v_layout"."screenshareAsContent" is true
+              where "v_user_camera"."meetingId" = "meeting"."meetingId"
+                and "contentType" = 'screenshare'
+                and "showAsContent" is true
+            )
+            or
+            exists (
+              select 1
+              from "v_screenshare"
+              join "v_layout"
+                on "v_layout"."meetingId" = "v_screenshare"."meetingId"
+               and "v_layout"."screenshareAsContent" is true
+              where "v_screenshare"."meetingId" = "meeting"."meetingId"
+                and "contentType" = 'screenshare'
+            )
         ) as "hasScreenshareAsContent",
         exists (
             select 1

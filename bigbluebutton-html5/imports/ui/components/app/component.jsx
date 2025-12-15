@@ -46,6 +46,7 @@ import VoiceActivityAdapter from '../../core/adapters/voice-activity';
 import LayoutObserver from '../layout/observer';
 import BBBLiveKitRoomContainer from '/imports/ui/components/livekit/component';
 import RaiseHandNotifier from '/imports/ui/components/raisehand-notifier/container';
+import ScreenshareContainer from '../screenshare/container';
 
 const intlMessages = defineMessages({
   userListLabel: {
@@ -387,6 +388,10 @@ class App extends Component {
             )
             : null
             }
+          {
+            !isNonMediaLayout
+            && <ScreenshareContainer shouldShowScreenshare={shouldShowScreenshare} />
+          }
           {isSharedNotesPinned
             ? (
               <NotesContainer

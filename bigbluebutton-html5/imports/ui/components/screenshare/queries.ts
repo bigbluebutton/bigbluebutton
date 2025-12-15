@@ -14,7 +14,7 @@ export interface ScreenshareResponse {
   voiceConf: string;
 }
 
-export const SCREENSHARE_SUBSCRIPTION = gql`
+export const MULTI_SCREENSHARE_SUBSCRIPTION = gql`
   subscription Screenshare {
     user_camera(where: {contentType: {_eq: "screenshare"}}) {
     contentType
@@ -26,6 +26,24 @@ export const SCREENSHARE_SUBSCRIPTION = gql`
 }
 `;
 
+export const SINGLE_SCREENSHARE_SUBSCRIPTION = gql`
+  subscription Screenshare {
+    screenshare {
+      contentType
+      hasAudio
+      screenshareConf
+      screenshareId
+      startedAt
+      stoppedAt
+      stream
+      vidHeight
+      vidWidth
+      voiceConf
+    }
+  }
+`;
+
 export default {
-  SCREENSHARE_SUBSCRIPTION,
+  MULTI_SCREENSHARE_SUBSCRIPTION,
+  SINGLE_SCREENSHARE_SUBSCRIPTION,
 };

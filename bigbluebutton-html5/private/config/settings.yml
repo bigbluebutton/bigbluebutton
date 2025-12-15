@@ -69,6 +69,8 @@ public:
     enableLimitOfViewersInWebcam: false
     enableMultipleCameras: true
     enableCameraAsContent: true
+    # Allow multiple participants to share their screens simultaneously (LiveKit meetings only)
+    enableMultiScreenshare: false
     # Allow users to open webcam video modal/preview when video is already
     # active. This also allows to change virtual backgrounds without
     # restarting webcam.

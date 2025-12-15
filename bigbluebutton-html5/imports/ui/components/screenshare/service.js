@@ -8,7 +8,7 @@ import logger from '/imports/startup/client/logger';
 import AudioService from '/imports/ui/components/audio/service';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import browserInfo from '/imports/utils/browserInfo';
-import { SCREENSHARE_SUBSCRIPTION } from './queries';
+import { MULTI_SCREENSHARE_SUBSCRIPTION, SINGLE_SCREENSHARE_SUBSCRIPTION } from './queries';
 import VideoService from '/imports/ui/components/video-provider/service';
 import VideoPreviewService from '/imports/ui/components/video-preview/service';
 import BBBVideoStream from '../../services/webrtc-base/bbb-video-stream';
@@ -63,6 +63,7 @@ export const sharingContentTypeVar = makeVar(false);
 export const cameraAsContentDeviceIdTypeVar = makeVar('');
 
 export const useScreenshare = () => {
+  const multiScreenshareEnabled = window.meetingClientSettings.public.app.enableMultiScreenshare;
   const {
     data: meeting,
     loading: meetingLoading,
@@ -71,14 +72,14 @@ export const useScreenshare = () => {
   }));
 
   const { data, loading, error } = useDeduplicatedSubscription(
-    SCREENSHARE_SUBSCRIPTION,
+    multiScreenshareEnabled ? MULTI_SCREENSHARE_SUBSCRIPTION : SINGLE_SCREENSHARE_SUBSCRIPTION,
     {
       skip: meetingLoading,
     },
   );
 
   return {
-    data: data?.user_camera || [],
+    data: multiScreenshareEnabled ? data?.user_camera || [] : data?.screenshare || [],
     loading,
     error,
   };
@@ -314,7 +315,7 @@ export const setOutputDeviceId = (outputDeviceId, element) => {
   }
 };
 
-export const shareScreen1 = async (
+export const singleShareScreen = async (
   isCameraAsContentBroadcasting,
   stopWatching,
   isPresenter,
@@ -360,17 +361,13 @@ export const shareScreen1 = async (
   }
 };
 
-export const shareScreen2 = async (
+export const multiScreenshare = async (
   isCameraAsContentBroadcasting,
   stopWatching,
   isPresenter,
   onFail,
   options = {},
 ) => {
-  // if (isCameraAsContentBroadcasting) {
-  //   screenshareHasEnded();
-  // }
-
   try {
     let stream;
     let contentType = CONTENT_TYPE_SCREENSHARE;
@@ -382,33 +379,20 @@ export const shareScreen2 = async (
     }
     _trackStreamTermination(stream, _handleStreamTermination);
 
-    // if (!isPresenter) {
-    //   MediaStreamUtils.stopMediaStreamTracks(stream);
-    //   return;
-    // }
-
-    // await KurentoBridge.share(stream, onFail, contentType);
     VideoPreviewService.storeStream('screenshare', new BBBVideoStream(stream));
     VideoService.joinVideo('screenshare', false, 'screenshare');
-
-    // Stream might have been disabled in the meantime. I love badly designed
-    // async components like this screen sharing bridge :) - prlanzarin 09 May 22
-    // if (!_isStreamActive(stream)) {
-    //   _handleStreamTermination();
-    //   return;
-    // }
-
-    // stop external video share if running
-    // stopWatching();
-
-    // setSharingContentType(contentType);
-    // setIsSharing(true);
   } catch (error) {
     onFail(error);
   }
 };
 
-export const shareScreen = shareScreen2;
+export const shareScreen = (...args) => {
+  const multiScreenshareEnabled = window.meetingClientSettings.public.app.enableMultiScreenshare;
+  if (multiScreenshareEnabled) {
+    return multiScreenshare(...args);
+  }
+  return singleShareScreen(...args);
+};
 
 export const viewScreenshare = (streamId, hasAudio, options = {}) => {
   screenShareBridge.view(streamId, { hasAudio, outputDeviceId: options.outputDeviceId })

@@ -49,6 +49,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       enableLimitOfViewersInWebcam: false,
       enableMultipleCameras: true,
       enableCameraAsContent: true,
+      enableMultiScreenshare: false,
       enableWebcamSelectorButton: true,
       enableTalkingIndicator: true,
       enableCameraBrightness: true,
