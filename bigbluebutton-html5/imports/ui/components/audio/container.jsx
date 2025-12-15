@@ -220,7 +220,7 @@ const AudioContainer = (props) => {
     if (userSelectedMicrophone) {
       joinMicrophone({
         skipEchoTest: true,
-        muted: meeting?.voiceSettings?.muteOnStart || storageMuteState,
+        muted: storageMuteState ?? meeting?.voiceSettings?.muteOnStart,
       });
       return;
     }

@@ -250,7 +250,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
         dataTest: 'muteAllExceptPresenter',
       },
       {
-        allow: true,
+        allow: !isBreakout,
         key: uuids.current[2],
         label: intl.formatMessage(intlMessages.lockViewersLabel),
         description: intl.formatMessage(intlMessages.lockViewersDesc),

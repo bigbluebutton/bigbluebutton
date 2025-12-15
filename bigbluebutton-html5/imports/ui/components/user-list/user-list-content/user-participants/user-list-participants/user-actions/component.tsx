@@ -157,7 +157,7 @@ const messages = defineMessages({
     description: 'Confirmation message for removing a user from the meeting',
   },
   lowerUserHand: {
-    id: 'app.statusNotifier.lowerHandDescOneUser',
+    id: 'app.actionsBar.reactions.lowUserHand',
     description: 'Label for lowering a user raised hand',
   },
 });
@@ -407,6 +407,8 @@ const UserActions: React.FC<UserActionsProps> = ({
     {
       allowed: (() => {
         const preventSelfChat = user.userId !== currentUser.userId;
+        const isBreakoutPrivateChatLocked = isBreakout
+          && lockSettings?.disablePrivateChat;
         const moderatorOverride = currentUser.isModerator
           && allowedToChatPrivately;
         const regularUserCondition = (isPrivateChatEnabled
@@ -418,6 +420,7 @@ const UserActions: React.FC<UserActionsProps> = ({
 
         const isAllowed = preventSelfChat
           && (moderatorOverride || regularUserCondition || !currentUser.locked)
+          && !isBreakoutPrivateChatLocked
           && type === 'participant';
 
         return isAllowed;

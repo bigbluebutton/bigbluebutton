@@ -5,3 +5,4 @@ pr-*/
 playwright-report/
 blob-report/
 logs/
+dist/

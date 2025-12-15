@@ -1971,35 +1971,25 @@ CREATE UNLOGGED TABLE "timer" (
 	"meetingId" varchar(100) PRIMARY KEY REFERENCES "meeting"("meetingId") ON DELETE CASCADE,
 	"stopwatch" boolean,
 	"running" boolean,
+	"elapsed" boolean,
 	"active" boolean,
 	"time" bigint,
 	"accumulated" bigint,
-	"startedOn" bigint,
+	"startedAt" timestamp with time zone,
 	"songTrack" varchar(50)
 );
 
-ALTER TABLE "timer" ADD COLUMN "startedAt" timestamp with time zone GENERATED ALWAYS AS (CASE WHEN "startedOn" = 0 THEN NULL ELSE to_timestamp("startedOn"::double precision / 1000) END) STORED;
 
 CREATE OR REPLACE VIEW "v_timer" AS
 SELECT
      "meetingId",
      "stopwatch",
-     case
-        when "stopwatch" is true or "running" is false then "running"
-        when "startedAt" + (("time" - coalesce("accumulated",0)) * interval '1 milliseconds') >= current_timestamp then true
-        else false
-     end "running",
-    case when
-        "stopwatch" is false
-        and "startedAt" + (("time" - coalesce("accumulated",0)) * interval '1 milliseconds') <= current_timestamp
-        then true
-        else false
-    end "elapsed",
+     "running",
+     "elapsed",
      "active",
      "time",
      "accumulated",
      "startedAt",
-     "startedOn",
      "songTrack"
  FROM "timer";
 
