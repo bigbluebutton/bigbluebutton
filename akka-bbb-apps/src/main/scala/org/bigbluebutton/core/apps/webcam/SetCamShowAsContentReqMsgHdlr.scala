@@ -54,6 +54,18 @@ trait SetCamShowAsContentReqMsgHdlr {
             liveMeeting
           )
         } else {
+          if (msg.body.showAsContent) {
+            Webcams
+              .findAll(liveMeeting.webcams)
+              .filter(cam => cam.showAsContent && cam.streamId != webcam.streamId)
+              .foreach { cam =>
+                Webcams.updateShowAsContent(liveMeeting.webcams, cam.streamId, false)
+                UserCameraDAO.updateShowAsContent(meetingId, cam.streamId, false)
+                broadcastEvent(meetingId, msg.header.userId, cam.streamId, showAsContent = false, msg.body.setBy)
+              }
+          }
+
+          Webcams.updateShowAsContent(liveMeeting.webcams, webcam.streamId, msg.body.showAsContent)
           broadcastEvent(meetingId, msg.header.userId, webcam.streamId, msg.body.showAsContent, msg.body.setBy)
           UserCameraDAO.updateShowAsContent(meetingId, webcam.streamId, msg.body.showAsContent)
         }
