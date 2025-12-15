@@ -67,6 +67,9 @@ RUN mv /usr/share/bbb-web/WEB-INF/classes/application.conf /usr/share/bbb-web/WE
 # Copy overwrite file
 COPY --chown=bigbluebutton ./docker/application.conf /usr/share/bbb-web/WEB-INF/classes/application.conf
 
+COPY --chown=bigbluebutton ./docker/run-in-systemd.sh /usr/share/bbb-web/run-in-systemd.sh
+RUN chmod +x /usr/share/bbb-web/run-in-systemd.sh
+
 USER bigbluebutton
 
 ENTRYPOINT ["/entrypoint.sh"]
