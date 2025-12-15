@@ -88,6 +88,7 @@ public class MeetingService implements MessageListener {
   private SlidesGenerationProgressNotifier notifier;
 
   private Boolean pluginManifestCacheEnabled;
+  private PluginUtils pluginUtils;
 
   private long usersTimeout;
   private int numPluginManifestsFetchingThreads;
@@ -378,52 +379,29 @@ public class MeetingService implements MessageListener {
 
       CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
         try {
-          String pluginManifestContent = null;
-          if (pluginManifestCacheEnabled) {
-            pluginManifestContent = PluginUtils.getPluginManifestContentFromCache(pluginManifestUrlString);
-          }
-          boolean isPluginManifestContentCached = pluginManifestContent != null;
-          boolean fetchManifestContent = !pluginManifestCacheEnabled || !isPluginManifestContentCached;
-          if (fetchManifestContent) {
-            pluginManifestContent = PluginUtils.fetchPluginManifestContentFromUrl(pluginManifestUrlString);
-          }
-
-          // Parse the JSON content
-          JsonNode jsonNode = objectMapper.readTree(pluginManifestContent);
+          String pluginManifestContent = pluginUtils.getRawPluginManifestContent(pluginManifest);
 
           // Validate checksum if any
-          String paramChecksum = pluginManifest.getChecksum();
-          if (!StringUtils.isEmpty(paramChecksum)) {
-            String hash = DigestUtils.sha256Hex(pluginManifestContent);
-            if (!paramChecksum.equals(hash)) {
-              String clientErrorMessage = "Plugin's manifest.json checksum mismatch with that of the URL parameter. For more information, see bbb-web";
-              pluginsResult.put(pluginManifestUrlString, PluginUtils.createEmptyPluginObjectWithError(
-                      clientErrorMessage,
-                      pluginManifestUrlString
-              ));
-              log.info("Plugin's manifest.json checksum mismatch with that of the URL parameter for [{}].",
-                      pluginManifestUrlString);
-              log.info("Plugin {} is not going to be loaded", pluginManifestUrlString);
-              return;
-            }
+          String pluginManifestChecksum = pluginManifest.getChecksum();
+          if (!pluginUtils.isPluginManifestChecksumValid(pluginManifestContent, pluginManifestChecksum)) {
+            String clientErrorMessage = "Plugin's manifest.json checksum mismatch with that of the URL parameter. For more information, see bbb-web";
+            pluginsResult.put(pluginManifestUrlString, PluginUtils.createEmptyPluginObjectWithError(
+                    clientErrorMessage,
+                    pluginManifestUrlString
+            ));
+            log.info("Plugin's manifest.json checksum mismatch with that of the URL parameter for [{}].",
+                    pluginManifestUrlString);
+            log.info("Plugin {} is not going to be loaded", pluginManifestUrlString);
+            return;
           }
 
           // Get the "name" field
-          String pluginName;
-          if (jsonNode.has("name")) {
-            pluginName = jsonNode.get("name").asText();
-          } else {
-            throw new PluginMissingNameException(
-                    "For url " + pluginManifestUrlString + " there is no name field configured.",
-                    pluginManifestUrlString
-            );
-          }
+          String pluginName = pluginUtils.getPluginName(pluginManifestContent);
+          if (pluginName == null) throw new PluginMissingNameException(
+                  "For url " + pluginManifestUrlString + " there is no name field configured.",
+                  pluginManifestUrlString
+          );
 
-          if (pluginManifestCacheEnabled && !PluginUtils.hasPluginManifestContentCacheFile(pluginManifestUrlString)) {
-            PluginUtils.savePluginManifestContentInCache(pluginManifestUrlString, pluginManifestContent);
-          }
-
-          String pluginKey = pluginName;
           HashMap<String, Object> manifestObject = new HashMap<>();
           manifestObject.put("url", pluginManifestUrlString);
           String manifestContent = PluginUtils.replaceMetadataParametersIntoManifestTemplate(
@@ -434,7 +412,7 @@ public class MeetingService implements MessageListener {
 
           Map<String, Object> manifestWrapper = new HashMap<>();
           manifestWrapper.put("manifest", manifestObject);
-          pluginsResult.put(pluginKey, manifestWrapper);
+          pluginsResult.put(pluginName, manifestWrapper);
 
         } catch (MalformedURLException e) {
           String clientErrorMessage = "Invalid URL/Malformed URl when processing a plugin. For more information, see bbb-web";
@@ -1600,5 +1578,9 @@ public class MeetingService implements MessageListener {
 
     public void setPluginManifestCacheEnabled(Boolean pluginManifestCacheEnabled) {
         this.pluginManifestCacheEnabled = pluginManifestCacheEnabled;
+    }
+
+    public void setPluginUtils(PluginUtils pluginUtils) {
+        this.pluginUtils = pluginUtils;
     }
 }

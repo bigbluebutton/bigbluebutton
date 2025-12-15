@@ -1,13 +1,18 @@
 package org.bigbluebutton.api.util;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.bigbluebutton.api.ParamsProcessorUtil;
 import org.bigbluebutton.api.domain.PluginManifest;
 import org.bigbluebutton.api.exception.PluginMalformedParametersException;
 import org.bigbluebutton.api.exception.PluginMetadataException;
 import java.time.LocalDate;
+
 import org.bigbluebutton.api.service.impl.PluginRedirectValidatorService;
 import org.bigbluebutton.api.service.RedirectFollowerService;
 import org.slf4j.Logger;
@@ -41,8 +46,11 @@ public class PluginUtils {
     private String html5PluginSdkVersion;
     private RedirectFollowerService redirectFollower;
     private PluginRedirectValidatorService pluginRedirectValidator;
-    public static String CACHED_PLUGINS_BASE_DIRECTORY = "/var/bigbluebutton/plugin-manifests-cache/";
+    public String cachedPluginsBaseDirectory;
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+    private Boolean pluginManifestCacheEnabled;
+
 
     private static final ConcurrentHashMap<String, Object> PLUGIN_LOCKS = new ConcurrentHashMap<>();
     private static Object getLockFor(String pluginUrl) {
@@ -202,37 +210,33 @@ public class PluginUtils {
         return result.toString();
     }
 
-    public static String getPluginManifestContentFromCache(
+    public String getPluginManifestContentFromCache(
             String pluginManifestUrlString
     ) throws IOException {
-        synchronized (getLockFor(pluginManifestUrlString)) {
-            Path cachedPluginManifestPath = getCachedPluginManifestPath(pluginManifestUrlString);
-            String content;
-            if (Files.isRegularFile(cachedPluginManifestPath)) {
-                log.info("Found cache for plugin [{}]. Using it.", pluginManifestUrlString);
-                content = Files.readString(cachedPluginManifestPath);
-            } else {
-                log.info("Cache for plugin [{}] not found.", pluginManifestUrlString);
-                content = null;
-            }
-            return content;
+        Path cachedPluginManifestPath = getCachedPluginManifestPath(pluginManifestUrlString);
+        String content;
+        if (Files.isRegularFile(cachedPluginManifestPath)) {
+            log.info("Found cache for plugin [{}]. Using it.", pluginManifestUrlString);
+            content = Files.readString(cachedPluginManifestPath);
+        } else {
+            log.info("Cache for plugin [{}] not found.", pluginManifestUrlString);
+            content = null;
         }
+        return content;
     }
 
-    public static boolean hasPluginManifestContentCacheFile(String pluginManifestUrlString) throws IOException {
+    public boolean hasPluginManifestContentCacheFile(String pluginManifestUrlString) throws IOException {
         return getPluginManifestContentFromCache(pluginManifestUrlString) != null;
     }
 
-    public static void savePluginManifestContentInCache(
+    public void savePluginManifestContentInCache(
             String pluginManifestUrlString, String manifestContent
     ) throws IOException {
-        synchronized (getLockFor(pluginManifestUrlString)) {
-            log.info("Saving cache for plugin [{}].", pluginManifestUrlString);
-            Path cachedPluginManifestPath = getCachedPluginManifestPath(pluginManifestUrlString);
-            Path cacheDir = getCachedPluginsBaseDirectory();
-            Files.createDirectories(cacheDir);
-            Files.writeString(cachedPluginManifestPath, manifestContent);
-        }
+        log.info("Saving cache for plugin [{}].", pluginManifestUrlString);
+        Path cachedPluginManifestPath = getCachedPluginManifestPath(pluginManifestUrlString);
+        Path cacheDir = getCachedPluginsBaseDirectory();
+        Files.createDirectories(cacheDir);
+        Files.writeString(cachedPluginManifestPath, manifestContent);
     }
 
     public static String fetchPluginManifestContentFromUrl(
@@ -241,19 +245,81 @@ public class PluginUtils {
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder(URI.create(pluginManifestUrlString)).GET().build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        if (response.statusCode() < 200 || response.statusCode() >= 300) {
+            throw new IOException("HTTP " + response.statusCode() + " when fetching " + pluginManifestUrlString);
+        }
         return response.body();
     }
 
-    public static Path getCachedPluginsBaseDirectory() {
-        return Paths.get(CACHED_PLUGINS_BASE_DIRECTORY);
+    public String getRawPluginManifestContent(
+            PluginManifest pluginManifest
+    ) throws IOException, InterruptedException {
+        String pluginManifestUrlString = pluginManifest.getUrl();
+        synchronized (getLockFor(pluginManifestUrlString)) {
+            String pluginManifestContent = null;
+            String pluginManifestChecksum = pluginManifest.getChecksum();
+            if (pluginManifestCacheEnabled) {
+                log.info("Cache enabled. Trying to get saved cache for plugin [{}].", pluginManifestUrlString);
+                pluginManifestContent = getPluginManifestContentFromCache(pluginManifestUrlString);
+                if (pluginManifestContent == null) {
+                    log.info("Cache not found for plugin [{}].", pluginManifestUrlString);
+                }
+            }
+            boolean isPluginManifestContentCached = pluginManifestContent != null;
+            boolean fetchManifestContent = !pluginManifestCacheEnabled || !isPluginManifestContentCached;
+            if (fetchManifestContent) {
+                log.info("Fetching plugin manifest content for [{}]", pluginManifestUrlString);
+                pluginManifestContent = PluginUtils.fetchPluginManifestContentFromUrl(pluginManifestUrlString);
+            }
+
+            boolean isRawPluginManifestContentValid = isPluginManifestChecksumValid(
+                    pluginManifestContent, pluginManifestChecksum)
+                    && !getPluginName(pluginManifestContent).isEmpty();
+
+            boolean savePluginManifestInCache = !hasPluginManifestContentCacheFile(pluginManifestUrlString)
+                    && isRawPluginManifestContentValid
+                    && pluginManifestCacheEnabled;
+
+            if (savePluginManifestInCache) {
+                savePluginManifestContentInCache(pluginManifestUrlString, pluginManifestContent);
+            }
+
+            return pluginManifestContent;
+        }
     }
 
-    public static Path getCachedPluginManifestPath(String pluginManifestUrlString) {
+    public boolean isPluginManifestChecksumValid(String pluginManifestContent, String pluginManifestChecksum) {
+        if (!StringUtils.isEmpty(pluginManifestChecksum)) {
+            String hash = DigestUtils.sha256Hex(pluginManifestContent);
+            return pluginManifestChecksum.equals(hash);
+        }
+        return true;
+    }
+
+    public String getPluginName(
+            String pluginManifestContent
+    ) throws JsonProcessingException {
+        JsonNode jsonNode = objectMapper.readTree(pluginManifestContent);
+
+        String pluginName;
+        if (jsonNode.has("name")) {
+            pluginName = jsonNode.get("name").asText();
+        } else {
+            pluginName = null;
+        }
+        return pluginName;
+    }
+
+    public Path getCachedPluginsBaseDirectory() {
+        return Paths.get(cachedPluginsBaseDirectory);
+    }
+
+    public Path getCachedPluginManifestPath(String pluginManifestUrlString) {
         LocalDate date = LocalDate.now();
         String formatted = date.format(formatter);
 
-        String hashedPluginManifestUrl = DigestUtils.sha256Hex(pluginManifestUrlString + formatted);
-        Path cacheDir = Paths.get(CACHED_PLUGINS_BASE_DIRECTORY);
+        String hashedPluginManifestUrl = DigestUtils.md5Hex(pluginManifestUrlString + formatted);
+        Path cacheDir = Paths.get(cachedPluginsBaseDirectory);
         return cacheDir.resolve(hashedPluginManifestUrl + ".json");
     }
 
@@ -265,11 +331,19 @@ public class PluginUtils {
         PluginUtils.bbbVersion = bbbVersion;
     }
 
+    public void setCachedPluginsBaseDirectory(String cachedPluginsBaseDirectory) {
+        this.cachedPluginsBaseDirectory = cachedPluginsBaseDirectory;
+    }
+
     public void setRedirectFollower(RedirectFollowerService redirectFollower) {
         this.redirectFollower = redirectFollower;
     }
 
     public void setPluginRedirectValidator(PluginRedirectValidatorService pluginRedirectValidator) {
         this.pluginRedirectValidator = pluginRedirectValidator;
+    }
+
+    public void setPluginManifestCacheEnabled(Boolean pluginManifestCacheEnabled) {
+        this.pluginManifestCacheEnabled = pluginManifestCacheEnabled;
     }
 }
