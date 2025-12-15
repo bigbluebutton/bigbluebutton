@@ -251,6 +251,7 @@ export const elements = {
   publicChatToast: 'New Public Chat message',
   privateChatToast: 'New Private Chat message',
   joinAudioToast: 'You have joined the audio conference',
+  leftAudioToast: 'You have left the audio conference',
   pollPublishedToast: 'Poll results were published',
   startScreenshareToast: 'Screenshare has started',
   endScreenshareToast: 'Screenshare has ended',
