@@ -222,9 +222,9 @@ const ScreenshareButton = ({
   // basically: if you are not a presenter, the label/desc will be 'the screen cannot be shared'.
   // if you are: the label/desc intl will be 'stop/start screenshare'.
   let info = screenshareDataSavingSetting ? 'desktopShare' : 'lockedDesktopShare';
-  if (!amIPresenter) {
+  if (!amIPresenter && !viewersCanShareScreen) {
     info = 'notPresenterDesktopShare';
-  } else if (isScreenBroadcasting) {
+  } else if (amIBroadcasting) {
     info = 'stopDesktopShare';
   }
 
