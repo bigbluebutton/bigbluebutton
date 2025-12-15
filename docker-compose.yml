@@ -10,6 +10,8 @@ services:
       - BBB_WEB_LOGLEVEL=INFO
       - BBB_SERVER_URL=${BBB_SERVER_URL}
       - SHARED_SECRET=${SHARED_SECRET}
+    volumes:
+      - ./data/bigbluebutton:/var/bigbluebutton
     depends_on:
       - redis
       - etherpad
@@ -204,6 +206,8 @@ services:
     build:
       tags:
         - "${IMAGE_REPO:-bigbluebutton}/bbb-nginx:local"
+    volumes:
+      - ./data/bigbluebutton:/var/bigbluebutton
     depends_on:
       - web
       - etherpad
