@@ -22,6 +22,7 @@ import java.io.ByteArrayOutputStream
 import java.net.URI
 import java.net.http.HttpRequest.BodyPublishers
 import java.net.http.{HttpClient, HttpRequest, HttpResponse}
+import java.nio.charset.StandardCharsets
 import java.util.zip.{ZipEntry, ZipOutputStream}
 
 trait HandlerHelpers extends SystemConfiguration {
@@ -199,16 +200,16 @@ trait HandlerHelpers extends SystemConfiguration {
       val gson: Gson = new Gson()
       val lockSettingsJson: String = gson.toJson(getPermissions(liveMeeting.status))
       val log = LoggerFactory.getLogger(this.getClass)
-      log.info("collectPersistentState: Meeting lock settings: {}", lockSettingsJson)
-      log.info("collectPersistentState: Meeting shared notes: {}", liveMeeting.sharedNotesHtml)
       val baos = new ByteArrayOutputStream
       val zos = new ZipOutputStream(baos)
       zos.putNextEntry(new ZipEntry("locksettings.json"))
-      zos.write(lockSettingsJson.getBytes("utf-8"))
+      zos.write(lockSettingsJson.getBytes(StandardCharsets.UTF_8))
       zos.closeEntry()
-      zos.putNextEntry(new ZipEntry("shared_notes.html"))
-      zos.write(liveMeeting.sharedNotesHtml.getBytes("utf-8"))
-      zos.closeEntry()
+      if (liveMeeting.sharedNotesHtml != null) {
+        zos.putNextEntry(new ZipEntry("shared_notes.html"))
+        zos.write(liveMeeting.sharedNotesHtml.getBytes(StandardCharsets.UTF_8))
+        zos.closeEntry()
+      }
       zos.close()
       baos.toByteArray
     }

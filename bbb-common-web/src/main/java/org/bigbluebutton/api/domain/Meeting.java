@@ -973,7 +973,7 @@ public class Meeting {
 	public int getMaxNumPages() { return maxNumPages; }
 
 	public void setPersistentStateUrl(String persistentStateUrl) { this.persistentStateUrl = persistentStateUrl; }
-	public String getPersistenStateUrl() { return this.persistentStateUrl; }
+	public String getPersistentStateUrl() { return this.persistentStateUrl; }
 
     public Map<String, String> getPluginMetadataParametersMap() {
         return pluginMetadataParametersMap;

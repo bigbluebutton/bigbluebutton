@@ -36,6 +36,7 @@ import java.util.regex.Pattern;
 import com.google.gson.*;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.apache.commons.io.FileUtils;
 import org.bigbluebutton.api.domain.*;
 import org.bigbluebutton.api.util.PluginUtils;
 import org.jsoup.Jsoup;
@@ -579,21 +580,38 @@ public class ParamsProcessorUtil {
         return null;
     }
 
-    private void downloadAndExtractState(String stateURL, Path destDir) {
+    private boolean downloadAndExtractState(String stateURL, Path destDir) {
+        HttpURLConnection httpConn = null;
         try {
             log.debug("extracting state file to " + destDir.getFileName());
             URL url = new URL(stateURL);
-            HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();
+            // At minimum, restrict to https
+            if (!"https".equalsIgnoreCase(url.getProtocol())) {
+                log.warn("Refusing to download persistent state over non-HTTPS URL");
+                return false;
+            }
+            httpConn = (HttpURLConnection) url.openConnection();
+            httpConn.setInstanceFollowRedirects(false);
+            httpConn.setConnectTimeout(5000);
+            httpConn.setReadTimeout(5000);
             int responseCode = httpConn.getResponseCode();
 
             if (responseCode == HttpURLConnection.HTTP_OK) {
                 try (InputStream inputStream = httpConn.getInputStream();
-                    ZipInputStream zipIn = new ZipInputStream(inputStream)) {
+                     ZipInputStream zipIn = new ZipInputStream(inputStream)) {
 
                     ZipEntry entry;
+                    long extractedBytes = 0L;
+                    // allow 10 maxsize presentations + 2 MB for shared notes, annotations ect.
+                    final long maxExtractBytes = maxPresentationFileUpload * 10 + 2L * 1024 * 1024;
                     while ((entry = zipIn.getNextEntry()) != null) {
                         // Construct the file path to unzip to
-                        Path entryPath = destDir.resolve(entry.getName());
+                        Path entryPath = destDir.resolve(entry.getName()).normalize();
+                        if (!entryPath.startsWith(destDir)) {
+                            log.warn("Skipping suspicious ZIP entry path: {}", entry.getName());
+                            zipIn.closeEntry();
+                            continue;
+                        }
 
                         // If it's a directory, create it
                         if (entry.isDirectory()) {
@@ -602,33 +620,40 @@ public class ParamsProcessorUtil {
                         } else {
                             // If it's a file, extract it
                             log.debug("extracting file " + entryPath.getFileName());
-                            extractFile(zipIn, entryPath);
+                            extractedBytes += extractFile(zipIn, entryPath, maxExtractBytes - extractedBytes);
+                            if (extractedBytes > maxExtractBytes) {
+                                log.warn("Aborting ZIP extract: exceeding max extracted bytes");
+                                return false;
+                            }
                         }
 
                         zipIn.closeEntry();
                     }
                     log.debug("extracted state file to " + destDir.getFileName());
                 } catch (IOException e) {
-                    e.printStackTrace();
-                    log.error("failed to extract zip file");
-                    //throw new IOException("Error extracting ZIP file");
-                }       
+                    log.error("failed to extract zip file", e);
+                    return false;
+                }
             } else {
                 log.info("No file to download. Server replied HTTP code: " + responseCode);
+                return false;
             }
-            httpConn.disconnect();
-            
         } catch (MalformedURLException e) {
-            e.printStackTrace();
             log.warn("malformed URL for statefile");
+            return false;
         } catch (IOException e) {
-            e.printStackTrace();
-            log.error("IO Exception while downloading state file");
+            log.error("IO Exception while downloading state file", e);
+            return false;
+        } finally {
+            if (httpConn != null) {
+                httpConn.disconnect();
+            }
         }
+        return true;
     }
 
     // Helper method to extract files from the ZIP stream
-    private static void extractFile(ZipInputStream zipIn, Path filePath) throws IOException {
+    private static long extractFile(ZipInputStream zipIn, Path filePath, long remainingBudgetBytes) throws IOException {
         // Create parent directories if they do not exist
         Files.createDirectories(filePath.getParent());
 
@@ -636,9 +661,15 @@ public class ParamsProcessorUtil {
         try (BufferedOutputStream bos = new BufferedOutputStream(Files.newOutputStream(filePath))) {
             byte[] bytesIn = new byte[4096];
             int read;
+            long written =0L;
             while ((read = zipIn.read(bytesIn)) != -1) {
+                if (written + read > remainingBudgetBytes) {
+                    throw new IOException("ZIP entry exceeds remaining extraction budget");
+                }
                 bos.write(bytesIn, 0, read);
+                written += read;
             }
+            return written;
         }
     }
 
@@ -1010,14 +1041,26 @@ public class ParamsProcessorUtil {
         String initialSharedNotesContent = "";
         if (!StringUtils.isEmpty(params.get(ApiParams.PERSISTENT_STATE_URL))) {
             persistentStateUrl = params.get(ApiParams.PERSISTENT_STATE_URL);
+            Path tempDir = null;
             try {
-                Path tempDir = Files.createTempDirectory(Paths.get(System.getProperty("java.io.tmpdir")), "bbb_downloaded_state_");
-                downloadAndExtractState(persistentStateUrl, tempDir);
-                savedLockSettingsState = parsePersistedLockSettings(tempDir);
-                initialSharedNotesContent = loadSharedNotesInitialContent(tempDir);
-                webcamsOnlyForMod = savedLockSettingsState.webcamsOnlyForModerator;
+                tempDir = Files.createTempDirectory(Paths.get(System.getProperty("java.io.tmpdir")), "bbb_downloaded_state_");
+                if (downloadAndExtractState(persistentStateUrl, tempDir)) {
+                    savedLockSettingsState = parsePersistedLockSettings(tempDir);
+                    initialSharedNotesContent = loadSharedNotesInitialContent(tempDir);
+                    if (savedLockSettingsState != null) {
+                        webcamsOnlyForMod = savedLockSettingsState.webcamsOnlyForModerator;
+                    }
+                }
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error("Error handling downloaded persistence zip file", e);
+            } finally {
+                if (tempDir != null) {
+                    try {
+                        FileUtils.deleteDirectory(tempDir.toFile());
+                    } catch (IOException e) {
+                        log.error("Error deleting temporary directory", e);
+                    }
+                }
             }
         }
         LockSettingsParams lockSettingsParams = processLockSettingsParams(params, savedLockSettingsState);

@@ -109,7 +109,7 @@ trait AppsTestFixtures {
     val polls2x = new Polls
     val guestsWaiting = new GuestsWaiting
     val deskshareModel = new ScreenshareModel
-    val SharedNotesHtml = ""
+    val sharedNotesHtml = ""
 
     // We extract the meeting handlers into this class so it is
     // easy to test.

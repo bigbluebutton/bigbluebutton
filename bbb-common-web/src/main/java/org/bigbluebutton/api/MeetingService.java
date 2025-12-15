@@ -613,7 +613,7 @@ public class MeetingService implements MessageListener {
             m.getMuteOnStart(), m.getAllowModsToUnmuteUsers(), m.getAllowModsToEjectCameras(), m.getMeetingKeepEvents(),
             m.breakoutRoomsParams, m.lockSettingsParams, m.getLoginUrl(), m.getLogoutUrl(), m.getCustomLogoURL(), m.getCustomDarkLogoURL(),
             m.getBannerText(), m.getBannerColor(), m.getGroups(), m.getDisabledFeatures(), m.getNotifyRecordingIsOn(),
-            m.getPresentationUploadExternalDescription(), m.getPresentationUploadExternalUrl(), m.getPersistenStateUrl(), m.getSharedNotesInitialContent(),  m.getPlugins(),
+            m.getPresentationUploadExternalDescription(), m.getPresentationUploadExternalUrl(), m.getPersistentStateUrl(), m.getSharedNotesInitialContent(),  m.getPlugins(),
             m.getHtml5PluginSdkVersion(), m.getOverrideClientSettings());
   }
 
