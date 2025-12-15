@@ -47,6 +47,7 @@ const LockViewersContainer = (props) => {
   const { data: meeting } = useMeeting((m) => ({
     lockSettings: m.lockSettings,
     usersPolicies: m.usersPolicies,
+    screenShareBridge: m.screenShareBridge,
   }));
   const isChatEnabled = useIsChatEnabled();
   const isPrivateChatEnabled = useIsPrivateChatEnabled();
@@ -62,6 +63,7 @@ const LockViewersContainer = (props) => {
       isChatEnabled={isChatEnabled}
       isPrivateChatEnabled={isPrivateChatEnabled}
       isSharedNotesEnabled={isSharedNotesEnabled}
+      screenShareBridge={meeting.screenShareBridge}
       {...props}
     />
   );

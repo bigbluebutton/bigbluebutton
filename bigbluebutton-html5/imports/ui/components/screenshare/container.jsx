@@ -167,10 +167,6 @@ const ScreenshareContainer = (props) => {
     ];
   }
 
-  console.log('🚀 -> :170 -> ScreenshareContainer -> isScreenBroadcasting:', isScreenBroadcasting)
-  console.log('🚀 -> :171 -> ScreenshareContainer -> isCameraAsContentBroadcasting:', isCameraAsContentBroadcasting)
-    console.log('🚀 -> :172 -> ScreenshareContainer -> currentUserData:', currentUserData)
-    console.log('🚀 -> :173 -> ScreenshareContainer -> bridgeIsReady:', bridgeIsReady)
   if ((isScreenBroadcasting || isCameraAsContentBroadcasting)
     && currentUserData
     && bridgeIsReady
