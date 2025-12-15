@@ -46,18 +46,8 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
 
         MeetingStatus2x.setPermissions(liveMeeting.status, settings)
 
-        if (settings.viewersCanSeeViewersScreenShares && !oldPermissions.viewersCanSeeViewersScreenShares) {
+        if (!settings.viewersCanSeeViewersScreenShares) {
           unsetViewerScreensharesContent(liveMeeting, msg.body.setBy)
-        }
-
-        //Refresh graphql session for all locked viewers
-        for {
-          user <- Users2x.findAll(liveMeeting.users2x)
-          if user.locked
-          if user.role == Roles.VIEWER_ROLE
-          regUser <- RegisteredUsers.findWithUserId(user.intId, liveMeeting.registeredUsers)
-        } yield {
-          GraphqlMiddleware.requestGraphqlReconnection(regUser.sessionToken, "lockSettings_changed")
         }
 
         //Update database
@@ -279,12 +269,12 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
 
     val viewerScreenshareContentStreams = Webcams
       .findAll(liveMeeting.webcams)
-      .filter(cam => cam.showAsContent && cam.contentType == "screenshare")
+      .filter(cam => cam.contentType == "screenshare")
       .filter(cam => Users2x.findWithIntId(liveMeeting.users2x, cam.userId).exists(_.role == Roles.VIEWER_ROLE))
 
     viewerScreenshareContentStreams.foreach { cam =>
-      Webcams.updateShowAsContent(liveMeeting.webcams, cam.streamId, showAsContent = false)
-      UserCameraDAO.updateShowAsContent(meetingId, cam.streamId, showAsContent = false)
+      Webcams.updateShowAsContent(liveMeeting.webcams, cam.streamId, false)
+      UserCameraDAO.updateShowAsContent(meetingId, cam.streamId, false)
 
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, cam.userId)
       val envelope = BbbCoreEnvelope(SetCamShowAsContentEvtMsg.NAME, routing)

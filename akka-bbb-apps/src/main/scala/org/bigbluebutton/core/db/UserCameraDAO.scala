@@ -28,7 +28,7 @@ object UserCameraDAO {
   private def unsetShowAsContentExcept(meetingId: String, streamId: String) = {
     TableQuery[UserCameraDbTableDef]
       .filter(_.meetingId === meetingId)
-      .filter(_.streamId =!= streamId)
+      .filter(_.streamId === streamId)
       .filter(_.showAsContent)
       .map(cam => cam.showAsContent)
       .update(false)
