@@ -75,6 +75,7 @@ export const elements = {
   speechRecognitionUnsupported: 'div[data-test="speechRecognitionUnsupported"]',
   // Breakout
   createBreakoutRooms: 'li[data-test="createBreakoutRooms"]',
+  inviteUsersToBreakoutRooms: 'li[data-test="inviteUsers"]',
   randomlyAssign: 'button[data-test="randomlyAssign"]',
   resetAssignments: 'button[data-test="resetAssignments"]',
   breakoutRoomsItem: 'div[data-test="breakoutRoomsItem"]',
