@@ -5,6 +5,7 @@ import { DrawShape } from './drawShape';
 import { ShapeOptions } from './shapeOptions';
 import { ShapeTools } from './shapeTools';
 import { TextShape } from './textShape';
+import { linkIssue } from '../core/helpers';
 
 //! @flaky note:
 // all whiteboard tests are flagged as flaky due to unexpected zooming slides
@@ -74,7 +75,8 @@ test.describe.parallel('Whiteboard tools', { tag: '@ci' }, () => {
     await textShape.stickyNote();
   });
 
-  test('Pan', async ({ browser, context, page }, testInfo) => {
+  test('Pan', { tag: '@flaky-3.1' }, async ({ browser, context, page }, testInfo) => {
+    linkIssue(24367);
     const tools = new ShapeTools(browser, context);
     await tools.initModPage(page, { testInfo });
     await tools.initUserPage(context, { testInfo });

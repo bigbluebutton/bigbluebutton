@@ -1,6 +1,7 @@
 import { test } from '../core/setup/fixtures';
 import { MultiUsers } from '../user/multiusers';
 import { Webcam } from './webcam';
+import { linkIssue } from '../core/helpers';
 
 test.describe.parallel('Webcam', { tag: '@ci' }, () => {
   // https://docs.bigbluebutton.org/3.0/testing/release-testing/#joining-webcam-automated
@@ -65,7 +66,8 @@ test.describe.parallel('Webcam', { tag: '@ci' }, () => {
     await webcam.focusUnfocusWebcam();
   });
 
-  test('Resize webcam area', async ({ browser, page }, testInfo) => {
+  test('Resize webcam area', { tag: '@flaky-3.1' }, async ({ browser, page }, testInfo) => {
+    linkIssue(24367);
     const webcam = new Webcam(browser, page);
     await webcam.init(true, { testInfo });
     await webcam.resizeWebcamArea();

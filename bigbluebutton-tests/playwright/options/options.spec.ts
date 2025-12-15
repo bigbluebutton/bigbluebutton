@@ -1,6 +1,7 @@
 import { initializePages } from '../core/helpers';
 import { test } from '../core/setup/fixtures';
 import { Options } from './options';
+import { linkIssue } from '../core/helpers';
 
 test.describe.parallel('Options', { tag: '@ci' }, () => {
   let options: Options;
@@ -30,7 +31,8 @@ test.describe.parallel('Options', { tag: '@ci' }, () => {
     await options.fontSizeTest();
   });
 
-  test('Auto hide whiteboard toolbar', async () => {
+  test('Auto hide whiteboard toolbar', { tag: '@flaky-3.1' }, async () => {
+    linkIssue(24367);
     await options.autoHideWhiteboardToolbar();
   });
 

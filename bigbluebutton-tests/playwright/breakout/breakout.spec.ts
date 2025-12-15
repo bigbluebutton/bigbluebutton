@@ -121,14 +121,16 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
       await join.moveUserToOtherRoom();
     });
 
-    test('Export breakout room shared notes', async ({ browser, context, page }, testInfo) => {
+    test('Export breakout room shared notes', { tag: '@flaky-3.1' }, async ({ browser, context, page }, testInfo) => {
+      linkIssue(24367);
       const join = new Join(browser, context);
       await join.initPages(page, testInfo);
       await join.create(true);
       await join.exportBreakoutNotes();
     });
 
-    test('Export breakout room whiteboard annotations', async ({ browser, context, page }, testInfo) => {
+    test('Export breakout room whiteboard annotations', { tag: '@flaky-3.1' }, async ({ browser, context, page }, testInfo) => {
+      linkIssue(24367);
       const join = new Join(browser, context);
       await join.initPages(page, testInfo);
       await join.create(false, true);

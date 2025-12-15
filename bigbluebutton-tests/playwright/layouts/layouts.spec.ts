@@ -1,11 +1,13 @@
 import { initializePages } from '../core/helpers';
 import { test } from '../core/setup/fixtures';
 import { Layouts } from './layouts';
+import { linkIssue } from '../core/helpers';
 
-test.describe.parallel('Layout', { tag: '@ci' }, () => {
+test.describe.parallel('Layout', { tag: '@flaky-3.1' }, () => {
   let layouts: Layouts;
 
   test.beforeEach(async ({ browser, context }, testInfo) => {
+    linkIssue(24367);
     layouts = new Layouts(browser, context);
     await initializePages(layouts, browser, { isMultiUser: true, testInfo });
     await layouts.modPage.shareWebcam();
