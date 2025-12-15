@@ -554,6 +554,8 @@
     "app.actionsBar.actionsDropdown.breakoutRoomInvitationLabel": "Breakout room invitation",
     "app.actionsBar.actionsDropdown.breakoutRoomInvitationDesc": "Invite users to a breakout room",
     "app.screenshare.screenShareLabel": "Screen share",
+    "app.screenshare.peek": "Peek",
+    "app.screenshare.unpeek": "Close peek",
     "app.cameraAsContent.cameraAsContentLabel": "Present camera",
     "app.submenu.application.applicationSectionTitle": "Application",
     "app.submenu.application.pushToTalkLabel": "Audio push to talk",

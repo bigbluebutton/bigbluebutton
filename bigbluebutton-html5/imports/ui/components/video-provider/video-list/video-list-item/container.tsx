@@ -35,6 +35,7 @@ interface VideoListItemContainerProps {
   contentType?: string;
   isContent?: boolean;
   onPeek?: () => void;
+  hasPeekedStream?: boolean;
   screenShare?: boolean;
   setAsContentHint?: string;
   viewersCanSeeViewersScreenShares: boolean;
@@ -59,6 +60,7 @@ const VideoListItemContainer: React.FC<VideoListItemContainerProps> = (props) =>
     contentType,
     isContent,
     onPeek,
+    hasPeekedStream,
     setAsContentHint,
     viewersCanSeeViewersScreenShares,
   } = props;
@@ -130,6 +132,7 @@ const VideoListItemContainer: React.FC<VideoListItemContainerProps> = (props) =>
       settingsSelfViewDisable={settingsSelfViewDisable}
       stream={stream}
       onPeek={onPeek}
+      hasPeekedStream={hasPeekedStream}
       contentType={contentType || (stream as any).contentType}
       isContent={(stream as any).showAsContent ?? isContent ?? false}
       voiceUser={voiceUser}

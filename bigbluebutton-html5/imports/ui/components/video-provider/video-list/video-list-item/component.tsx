@@ -129,6 +129,7 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
     disabledCams, amIModerator, stream, setUserCamerasRequestedFromPlugin,
     pluginUserCameraHelperPerPosition, screenShare, raisedHandPosition,
     contentType, isContent, onPeek, setAsContentHint, viewersCanSeeViewersScreenShares,
+    hasPeekedStream = false,
   } = props;
 
   const intl = useIntl();
@@ -297,6 +298,7 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
       isRTL={isRTL}
       isStream={isStream}
       onPeek={onPeek}
+      hasPeekedStream={hasPeekedStream}
       onHandleDisableCam={() => setIsSelfViewDisabled((value) => !value)}
       isSelfViewDisabled={isSelfViewDisabled}
       amIModerator={amIModerator}
@@ -379,6 +381,7 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
           contentType={contentType || (stream as any).contentType}
           isContent={(stream as any).showAsContent ?? isContent}
           onPeek={onPeek}
+          hasPeekedStream={hasPeekedStream}
           viewersCanSeeViewersScreenShares={viewersCanSeeViewersScreenShares}
         />
         <UserStatus

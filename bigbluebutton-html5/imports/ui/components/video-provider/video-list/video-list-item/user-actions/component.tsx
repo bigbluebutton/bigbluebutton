@@ -48,6 +48,14 @@ const intlMessages = defineMessages({
   unpinDesc: {
     id: 'app.videoDock.webcamUnpinDesc',
   },
+  peekLabel: {
+    id: 'app.screenshare.peek',
+    defaultMessage: 'Peek',
+  },
+  unpeekLabel: {
+    id: 'app.screenshare.unpeek',
+    defaultMessage: 'Close peek',
+  },
   enableMirrorLabel: {
     id: 'app.videoDock.webcamEnableMirrorLabel',
   },
@@ -107,6 +115,7 @@ interface UserActionProps {
   onPeek?: () => void;
   isContent?: boolean;
   viewersCanSeeViewersScreenShares: boolean;
+  hasPeekedStream?: boolean;
 }
 
 const UserActions: React.FC<UserActionProps> = (props) => {
@@ -115,7 +124,7 @@ const UserActions: React.FC<UserActionProps> = (props) => {
     isVideoSqueezed = false, videoContainer, isRTL, isStream, isSelfViewDisabled, isMirrored,
     amIModerator, isFullscreenContext, layoutContextDispatch,
     contentType, onSetAsContent, onPeek, isContent = false,
-    viewersCanSeeViewersScreenShares,
+    viewersCanSeeViewersScreenShares, hasPeekedStream = false,
   } = props;
 
   const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
@@ -252,10 +261,11 @@ const UserActions: React.FC<UserActionProps> = (props) => {
     }
 
     if (isScreenshare && onPeek) {
+      const peekMessage = hasPeekedStream ? intlMessages.unpeekLabel : intlMessages.peekLabel;
       menuItems.push({
         key: `${cameraId}-peek`,
-        label: intl.formatMessage({ id: 'app.screenshare.peek', defaultMessage: 'Peek' }),
-        description: intl.formatMessage({ id: 'app.screenshare.peek', defaultMessage: 'Peek' }),
+        label: intl.formatMessage(peekMessage),
+        description: intl.formatMessage(peekMessage),
         onClick: () => onPeek(),
         dataTest: 'peekScreenshare',
       });

@@ -250,6 +250,13 @@ class VideoList extends Component<VideoListProps, VideoListState> {
 
   handleOpenPeek(stream: VideoItem) {
     const { streams, isPresentationAvailable } = this.props;
+    const { peekedStream } = this.state;
+
+    if (peekedStream && (peekedStream as any).stream === (stream as any).stream) {
+      this.handleClosePeek();
+      return;
+    }
+
     this.setState({ peekedStream: '' });
     const hasStreamAsContent = streams.filter((s) => s.contentType === 'screenshare').find((s) => (s as any).showAsContent);
     if (!hasStreamAsContent && !isPresentationAvailable) return;
@@ -487,6 +494,7 @@ class VideoList extends Component<VideoListProps, VideoListState> {
     } = this.props;
     const contentStream = streams.find((stream) => stream.type !== VIDEO_TYPES.GRID
       && (stream as any).showAsContent);
+    const { peekedStream } = this.state;
     const allowPeek = isPresentationAvailable || !!contentStream;
     const nonContentStreams = contentStream
       ? streams.filter((stream) => stream !== contentStream)
@@ -507,6 +515,7 @@ class VideoList extends Component<VideoListProps, VideoListState> {
       const setAsContentHint = showSetAsContentHint
         ? intl.formatMessage(intlMessages.setScreenshareAsContentHint)
         : undefined;
+      const isPeeked = !!(peekedStream && (peekedStream as any).stream === (item as any).stream);
 
       return (
         <Styled.VideoListItem
@@ -552,6 +561,7 @@ class VideoList extends Component<VideoListProps, VideoListState> {
             onPeek={contentType === 'screenshare' && isStream && !(item as any).showAsContent && allowPeek
               ? () => this.handleOpenPeek(item)
               : undefined}
+            hasPeekedStream={isPeeked}
             setAsContentHint={setAsContentHint}
           />
         </Styled.VideoListItem>
