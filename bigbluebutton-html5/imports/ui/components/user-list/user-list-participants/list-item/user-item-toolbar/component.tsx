@@ -39,20 +39,32 @@ const UserItemToolbar: React.FC<UserItemToolbarProps> = ({
       disabled,
     } = pinnedToolbarOption;
 
+    if (icon) {
+      return (
+        <Styled.ToolbarItem
+          key={key}
+          onClick={onClick}
+          data-test={dataTest}
+          disabled={disabled}
+        >
+          <Tooltip
+            title={label}
+          >
+            <Icon iconName={icon} />
+          </Tooltip>
+        </Styled.ToolbarItem>
+      );
+    }
+
     return (
       <Styled.ToolbarItem
         key={key}
         onClick={onClick}
         data-test={dataTest}
         disabled={disabled}
+        hasText
       >
-        <Tooltip
-          title={label}
-        >
-          <Icon
-            iconName={icon}
-          />
-        </Tooltip>
+        {label}
       </Styled.ToolbarItem>
     );
   };

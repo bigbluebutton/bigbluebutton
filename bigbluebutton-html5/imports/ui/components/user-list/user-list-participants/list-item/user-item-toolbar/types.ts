@@ -4,7 +4,7 @@ import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 
 export interface ToolbarEntry {
   allowed: boolean | undefined;
-  icon: string;
+  icon?: string;
   onClick: React.MouseEventHandler;
   dataTest: string;
   label: string;

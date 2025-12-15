@@ -15,6 +15,7 @@ import useWhoIsUnmuted from '/imports/ui/core/hooks/useWhoIsUnmuted';
 import { VIDEO_TYPES } from '/imports/ui/components/video-provider/enums';
 import { UserCameraHelperAreas } from '../../../plugins-engine/extensible-areas/components/user-camera-helper/types';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import { RaisedHandUser } from '/imports/ui/Types/user';
 import { RAISED_HAND_USERS } from '/imports/ui/core/graphql/queries/users';
 
 interface VideoListItemContainerProps {
@@ -79,10 +80,6 @@ const VideoListItemContainer: React.FC<VideoListItemContainerProps> = (props) =>
     talking: talkingUsers[userId],
     muted: !unmutedUsers[userId],
   } : {};
-
-  type RaisedHandUser = {
-    userId: string;
-  };
 
   const {
     data: usersData,

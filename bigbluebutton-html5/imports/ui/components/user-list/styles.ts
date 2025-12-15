@@ -37,6 +37,23 @@ const ScrollableSection = styled(ScrollboxVertical)`
   margin-top: 0;
 `;
 
+const SplitScrollContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  margin: ${mdPadding};
+  margin-top: 0;
+  overflow: hidden;
+  min-height: 0;
+`;
+
+const ParticipantsScrollSection = styled(ScrollboxVertical)`
+  flex-grow: 1;
+  flex-shrink: 1;
+  min-height: 0;
+  padding-bottom: ${contentSidebarBottomScrollPadding};
+`;
+
 const UserList = styled(FlexColumn)`
   justify-content: flex-start;
   background-color: ${userListBg};
@@ -104,6 +121,8 @@ export default {
   PanelContent,
   Separator,
   ScrollableSection,
+  SplitScrollContainer,
+  ParticipantsScrollSection,
   UserList,
   SmallTitle,
   ListItem,
