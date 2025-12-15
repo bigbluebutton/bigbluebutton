@@ -48,6 +48,7 @@ export const OWN_VIDEO_STREAMS_QUERY = gql`
       where: {
         userId: { _eq: $userId },
         streamId: { _like: $streamIdPrefix }
+        contentType: {_neq: "screenshare"}
       },
     ) {
       streamId
