@@ -366,21 +366,21 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
           numOfStreams={numOfStreams}
           onHandleVideoFocus={onHandleVideoFocus}
           focused={focused}
-      onHandleMirror={() => setIsMirrored((value) => !value)}
-      isMirrored={isMirrored}
-      isRTL={isRTL}
-      isStream={isStream}
-      onHandleDisableCam={() => setIsSelfViewDisabled((value) => !value)}
-      isSelfViewDisabled={isSelfViewDisabled}
-      amIModerator={amIModerator}
-      videoContainer={videoContainer}
-      isFullscreenContext={isFullscreenContext}
-      layoutContextDispatch={layoutContextDispatch}
-      contentType={contentType || (stream as any).contentType}
-      isContent={(stream as any).showAsContent ?? isContent}
-      onPeek={onPeek}
-      viewersCanSeeViewersScreenShares={viewersCanSeeViewersScreenShares}
-    />
+          onHandleMirror={() => setIsMirrored((value) => !value)}
+          isMirrored={isMirrored}
+          isRTL={isRTL}
+          isStream={isStream}
+          onHandleDisableCam={() => setIsSelfViewDisabled((value) => !value)}
+          isSelfViewDisabled={isSelfViewDisabled}
+          amIModerator={amIModerator}
+          videoContainer={videoContainer}
+          isFullscreenContext={isFullscreenContext}
+          layoutContextDispatch={layoutContextDispatch}
+          contentType={contentType || (stream as any).contentType}
+          isContent={(stream as any).showAsContent ?? isContent}
+          onPeek={onPeek}
+          viewersCanSeeViewersScreenShares={viewersCanSeeViewersScreenShares}
+        />
         <UserStatus
           voiceUser={voiceUser}
           user={user}
@@ -457,7 +457,7 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
     // @ts-expect-error -> Until everything in Typescript.
     <Styled.Content
       ref={videoContainer}
-      talking={talking}
+      talking={talking && (contentType !== 'screenshare')}
       customHighlight={webcamBorderHighlightColor}
       fullscreen={isFullscreenContext}
       data-test={talking ? 'webcamItemTalkingUser' : 'webcamItem'}
