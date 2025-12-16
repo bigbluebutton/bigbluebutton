@@ -4,7 +4,7 @@ import { ELEMENT_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { InitOptionsProps, Page } from '../core/page';
 import { checkTextContent } from '../core/util';
-import { checkAvatarIcon, checkIsPresenter, checkMutedUser } from './util';
+import { checkAvatarIcon, checkMutedUser } from './util';
 
 interface InitExtraPageOptionsProps extends InitOptionsProps {
   useModMeetingId?: boolean;

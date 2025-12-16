@@ -2,7 +2,6 @@ import { expect } from '@playwright/test';
 
 import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
-import { openSettings } from '../options/util';
 import { MultiUsers } from '../user/multiusers';
 import * as util from './util';
 

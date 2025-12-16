@@ -1,5 +1,4 @@
 import { expect, test } from '@playwright/test';
-import path from 'path';
 
 import { ELEMENT_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';

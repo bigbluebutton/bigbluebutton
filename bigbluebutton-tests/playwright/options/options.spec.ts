@@ -1,7 +1,6 @@
-import { initializePages } from '../core/helpers';
+import { initializePages, linkIssue } from '../core/helpers';
 import { test } from '../core/setup/fixtures';
 import { Options } from './options';
-import { linkIssue } from '../core/helpers';
 
 test.describe.parallel('Options', { tag: '@ci' }, () => {
   let options: Options;

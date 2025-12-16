@@ -1,7 +1,6 @@
-import { initializePages } from '../core/helpers';
+import { initializePages, linkIssue } from '../core/helpers';
 import { test } from '../core/setup/fixtures';
 import { Layouts } from './layouts';
-import { linkIssue } from '../core/helpers';
 
 test.describe.parallel('Layout', { tag: '@flaky-3.1' }, () => {
   let layouts: Layouts;

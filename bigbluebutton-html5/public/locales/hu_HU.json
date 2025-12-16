@@ -1187,7 +1187,7 @@
     "app.connection-status.label": "Kapcsolódás állapota",
     "app.connection-status.settings": "Beállításaim alkalmazása",
     "app.connection-status.no": "Nem",
-    "app.connection-status.notification": "A kapcsolatod szakadozik",
+    "app.connection-status.notification": "Kapcsolatod szakadozik.",
     "app.connection-status.offline": "offline",
     "app.connection-status.clientNotRespondingWarning": "A kliens nem válaszol",
     "app.connection-status.audioUploadRate": "Hang feltöltési arány",

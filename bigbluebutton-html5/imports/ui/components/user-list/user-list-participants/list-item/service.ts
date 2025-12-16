@@ -564,7 +564,7 @@ export const createToolbarOptions = (
         key: 'remove',
         label: intl.formatMessage(intlMessages.removeUserLabel, { userName: user.name }),
         onClick: () => {
-          setIsConfirmationModalOpen(true);
+          openConfirmationModal();
         },
         icon: 'circle_close',
         dataTest: 'removeUser',
