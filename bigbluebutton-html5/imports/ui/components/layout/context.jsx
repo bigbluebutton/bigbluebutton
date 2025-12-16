@@ -2,7 +2,7 @@ import React, { useEffect, useReducer, useRef } from 'react';
 import { createContext, useContextSelector } from 'use-context-selector';
 import PropTypes from 'prop-types';
 import { clone } from 'ramda';
-import { presentationContentHasChanges } from './utils';
+import { getDeviceType, presentationContentHasChanges } from './utils';
 import {
   ACTIONS, PRESENTATION_AREA, PANELS, LAYOUT_TYPE,
 } from '/imports/ui/components/layout/enums';
@@ -14,7 +14,6 @@ import { usePrevious } from '../whiteboard/utils';
 import Session from '/imports/ui/services/storage/in-memory';
 import logger from '/imports/startup/client/logger';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
-import { getDeviceType } from './utils';
 
 // variable to debug in console log
 const debug = false;

@@ -380,26 +380,24 @@ const BreakoutRoomContainer: React.FC = () => {
   }
   if (!currentUserData || !breakoutData || !meetingData) return null; // or loading spinner or error
 
-  const returnedComponents = [(
-    <BreakoutRoom
-      breakouts={breakoutData.breakoutRoom || []}
-      isModerator={currentUserData.isModerator ?? false}
-      presenter={currentUserData.presenter ?? false}
-      durationInSeconds={meetingData.durationInSeconds ?? 0}
-      userJoinedAudio={(currentUserData?.voice?.joined && !currentUserData?.voice?.deafened) ?? false}
-      userId={currentUserData.userId ?? ''}
-      meetingId={meetingData.meetingId ?? ''}
-      setUpdateUsersWhileRunning={
+  return (
+    <>
+      <BreakoutRoom
+        breakouts={breakoutData.breakoutRoom || []}
+        isModerator={currentUserData.isModerator ?? false}
+        presenter={currentUserData.presenter ?? false}
+        durationInSeconds={meetingData.durationInSeconds ?? 0}
+        userJoinedAudio={(currentUserData?.voice?.joined && !currentUserData?.voice?.deafened) ?? false}
+        userId={currentUserData.userId ?? ''}
+        meetingId={meetingData.meetingId ?? ''}
+        setUpdateUsersWhileRunning={
         breakoutRoomsUpdateUsersModal.isOpen
           ? breakoutRoomsUpdateUsersModal.close
           : breakoutRoomsUpdateUsersModal.open
-}
-      createdTime={meetingData.createdTime ?? 0}
-    />
-  )];
-
-  if (breakoutRoomsUpdateUsersModal.isOpen) {
-    returnedComponents.push((
+        }
+        createdTime={meetingData.createdTime ?? 0}
+      />
+      {breakoutRoomsUpdateUsersModal.isOpen && (
       <CreateBreakoutRoomContainer
         isOpen={isOpen}
         setIsOpen={(value: boolean) => {
@@ -423,9 +421,8 @@ const BreakoutRoomContainer: React.FC = () => {
             : breakoutRoomsUpdateUsersModal.open
         }
       />
-    ));
-  }
-
-  return returnedComponents;
+      )}
+    </>
+  );
 };
 export default BreakoutRoomContainer;

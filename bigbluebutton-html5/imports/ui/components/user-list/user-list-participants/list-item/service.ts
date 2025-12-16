@@ -350,7 +350,7 @@ export const createToolbarOptions = (
   setRole: MutationFunction,
   setLocked: MutationFunction,
   userEjectCameras: MutationFunction,
-  setIsConfirmationModalOpen: (value: boolean) => void,
+  openConfirmationModal: () => void,
 ) => {
   const MODERATOR_ROLE = window.meetingClientSettings.public.user.role_moderator;
   const VIEWER_ROLE = window.meetingClientSettings.public.user.role_viewer;
@@ -530,7 +530,7 @@ export const createToolbarOptions = (
         key: 'remove',
         label: intl.formatMessage(intlMessages.removeUserLabel, { userName: user.name }),
         onClick: () => {
-          setIsConfirmationModalOpen(true);
+          openConfirmationModal();
         },
         icon: 'circle_close',
         dataTest: 'removeUser',

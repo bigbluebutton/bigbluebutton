@@ -761,7 +761,6 @@
     "app.actionsBar.reactions.removeReactionLabel": "移除反應",
     "app.actionsBar.reactions.raiseHand": "舉手",
     "app.actionsBar.reactions.lowHand": "降低手",
-    "app.actionsBar.reactions.lowUserHand": "放下使用者的手",
     "app.actionsBar.reactions.autoCloseReactionsBarLabel": "自動關閉反應欄",
     "app.actionsBar.currentStatusDesc": "當前狀態 {status}",
     "app.actionsBar.reactions.away": "離開",

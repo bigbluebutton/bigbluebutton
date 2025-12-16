@@ -116,11 +116,6 @@ const UserListItem: React.FC<UserListItemProps> = ({
     priority: 'low',
   });
 
-  const setIsConfirmationModalOpen = (value: boolean) => {
-    if (value) openCofirmationModal();
-    else closeConfirmationModal();
-  };
-
   const whiteboardAccess = hasWhiteboardWriteAccess(user);
   const { data: talkingUsers } = useWhoIsTalking();
   const { data: unmutedUsers } = useWhoIsUnmuted();
@@ -161,7 +156,7 @@ const UserListItem: React.FC<UserListItemProps> = ({
     setRole,
     setLocked,
     userEjectCameras,
-    setIsConfirmationModalOpen,
+    openCofirmationModal,
   );
 
   const userAvatarFiltered = (user.raiseHand === true || user.away === true || (user.reactionEmoji && user.reactionEmoji !== 'none')) ? '' : user.avatar;
@@ -198,9 +193,12 @@ const UserListItem: React.FC<UserListItemProps> = ({
           onConfirm={removeUser}
           confirmButtonDataTest="removeUserConfirmation"
           {...{
-            onRequestClose: () => setIsConfirmationModalOpen(false),
+            onRequestClose: closeConfirmationModal,
             priority: 'low',
-            setIsOpen: setIsConfirmationModalOpen,
+            setIsOpen: (value: boolean) => {
+              if (value) openCofirmationModal();
+              else closeConfirmationModal();
+            },
             isOpen: isConfirmationModalOpen,
           }}
         />
