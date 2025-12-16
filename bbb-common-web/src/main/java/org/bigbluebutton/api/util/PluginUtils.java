@@ -276,12 +276,17 @@ public class PluginUtils {
                     pluginManifestContent, pluginManifestChecksum)
                     && !getPluginName(pluginManifestContent).isEmpty();
 
-            boolean savePluginManifestInCache = !hasPluginManifestContentCacheFile(pluginManifestUrlString)
-                    && isRawPluginManifestContentValid
-                    && pluginManifestCacheEnabled;
 
-            if (savePluginManifestInCache) {
-                savePluginManifestContentInCache(pluginManifestUrlString, pluginManifestContent);
+            try {
+                boolean savePluginManifestInCache = !hasPluginManifestContentCacheFile(pluginManifestUrlString)
+                        && isRawPluginManifestContentValid
+                        && pluginManifestCacheEnabled;
+
+                if (savePluginManifestInCache) {
+                    savePluginManifestContentInCache(pluginManifestUrlString, pluginManifestContent);
+                }
+            } catch (IOException e) {
+               log.error("Failed to save cache for plugin [{}]", pluginManifestUrlString, e);
             }
 
             return pluginManifestContent;
