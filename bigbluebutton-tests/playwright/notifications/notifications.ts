@@ -49,6 +49,7 @@ export class Notifications extends MultiUsers {
   async raiseAndLowerHandNotification() {
     await this.modPage.waitForSelector(e.whiteboard);
     await this.modPage.closeAllToastNotifications();
+    await this.modPage.waitAndClick(e.usersListSidebarButton);
     await this.modPage.waitAndClick(e.raiseHandBtn);
     await this.modPage.page.waitForTimeout(1000);
     await this.modPage.hasElement(

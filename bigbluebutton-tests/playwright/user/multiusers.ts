@@ -148,7 +148,10 @@ export class MultiUsers {
   async promoteToModerator() {
     await this.userPage.waitAndClick(e.usersListSidebarButton);
     await checkAvatarIcon(this.userPage, false);
-    await this.userPage.wasRemoved(e.moreOptionsUserItemButton, 'should not display the more options button for the attendee');
+    await this.userPage.wasRemoved(
+      e.moreOptionsUserItemButton,
+      'should not display the more options button for the attendee',
+    );
     await this.modPage.waitAndClick(e.usersListSidebarButton);
     await this.modPage.waitAndClick(e.moreOptionsUserItemButton);
     await this.modPage.waitAndClick(e.promoteToModerator);
@@ -161,12 +164,18 @@ export class MultiUsers {
     await this.modPage2.waitAndClick(e.usersListSidebarButton);
     await checkAvatarIcon(this.modPage2);
     const modPage2moreOptionsButtonLocator = await this.modPage2.page.locator(e.moreOptionsUserItemButton).first();
-    await expect(modPage2moreOptionsButtonLocator, 'should display the more options button for the second moderator').toBeVisible();
-    await this.modPage.waitAndClick(e.usersListSidebarButton)
+    await expect(
+      modPage2moreOptionsButtonLocator,
+      'should display the more options button for the second moderator',
+    ).toBeVisible();
+    await this.modPage.waitAndClick(e.usersListSidebarButton);
     await this.modPage.waitAndClick(e.moreOptionsUserItemButton);
     await this.modPage.waitAndClick(e.demoteToViewer);
     await checkAvatarIcon(this.modPage2, false);
-    await expect(modPage2moreOptionsButtonLocator, 'should not display the more options button for the second moderator').toBeHidden();
+    await expect(
+      modPage2moreOptionsButtonLocator,
+      'should not display the more options button for the second moderator',
+    ).toBeHidden();
   }
 
   async raiseAndLowerHand() {
@@ -176,7 +185,6 @@ export class MultiUsers {
     await this.userPage.waitAndClick(e.raiseHandBtn);
     await this.userPage.hasElement(e.lowerHandBtn, 'should display the lower hand button after raising the hand');
     await this.modPage.waitAndClick(e.usersListSidebarButton);
-    await this.modPage.comparingSelectorsBackgroundColor(e.avatarsWrapperAvatar, `${e.raiseHandWrapper} >> ${e.avatarsWrapperAvatar}`);
     await this.modPage.page.waitForTimeout(1000);
     await this.userPage.waitAndClick(e.lowerHandBtn);
     await this.userPage.hasElement(e.raiseHandBtn, 'should display the raise hand button after lowering the hand');
@@ -185,11 +193,11 @@ export class MultiUsers {
   async raiseHandRejected() {
     await this.modPage.waitForSelector(e.whiteboard);
     await this.initUserPage();
+    await this.userPage.waitAndClick(e.usersListSidebarButton);
     await this.userPage.waitAndClick(e.raiseHandBtn);
     await this.userPage.hasElement(e.lowerHandBtn, 'should display the lower hand button for the attendee');
     await this.userPage.press('Escape');
-    await this.modPage.waitAndClick(e.usersListSidebarButton)
-    await this.modPage.comparingSelectorsBackgroundColor(e.avatarsWrapperAvatar, `${e.raiseHandWrapper} >> ${e.avatarsWrapperAvatar}`);
+    await this.modPage.waitAndClick(e.usersListSidebarButton);
     await this.modPage.waitAndClick(e.raiseHandRejection);
     await this.userPage.hasElement(e.raiseHandBtn, 'should display the raise hand button after rejection');
   }
@@ -465,7 +473,10 @@ export class MultiUsers {
     await this.modPage.waitAndClick(e.removeUser);
     await this.modPage.waitAndClick(e.confirmationCheckbox);
     await this.modPage.waitAndClick(e.removeUserConfirmationBtn);
-    await this.modPage.wasRemoved(e.moreOptionsUserItemButton, 'should not display the user on the user list for the moderator');
+    await this.modPage.wasRemoved(
+      e.moreOptionsUserItemButton,
+      'should not display the user on the user list for the moderator',
+    );
 
     // Will be modified when the issue is fixed and accept just one of both screens
     // https://github.com/bigbluebutton/bigbluebutton/issues/16463
