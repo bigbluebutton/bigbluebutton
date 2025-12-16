@@ -324,7 +324,7 @@ module BigBlueButton
           output_filename_ogg = File.join(target_directory, "#{original_basename}_resampled.#{WF_EXT}")
           BigBlueButton.logger.info "Segmented resampling for '#{original_filename}' (duration: #{original_total_duration_s}s). Output: '#{output_filename_ogg}'"
 
-          processing_segments = get_all_processing_segments(original_filename, MAX_AUDIO_GAP_FOR_RESAMPLE_MS, original_total_duration_s, 0.01)
+          processing_segments = get_all_processing_segments(original_filename, 1_000, original_total_duration_s, 0.05)
 
           if processing_segments.empty? || (processing_segments.length == 1 && processing_segments.first[:action] == :copy)
              BigBlueButton.logger.info "No gaps requiring special handling found for '#{original_filename}'. Performing standard resampling."
