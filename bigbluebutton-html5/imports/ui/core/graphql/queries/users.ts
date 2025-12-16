@@ -108,6 +108,11 @@ User,
 | 'whiteboardWriteAccess'
 > & {
   raiseHandTime?: string;
+  voice?: {
+    joined: boolean;
+    listenOnly: boolean;
+    deafened: boolean;
+  };
 };
 
 export interface RaisedHandUsersSubscriptionResponse {
@@ -131,5 +136,10 @@ subscription RaisedHandUsers {
     raiseHand
     raiseHandTime
     whiteboardWriteAccess
+    voice {
+      joined
+      listenOnly
+      deafened
+    }
   }
 }`;
