@@ -24,7 +24,7 @@ interface FormProps {
 }
 
 interface InputProps {
-  $showEmojiPicker?: boolean;
+  $hasContent?: boolean;
 }
 
 const Form = styled.form<FormProps>`
@@ -55,7 +55,8 @@ const Input = styled(TextareaAutosize)<InputProps>`
   transition: color 0.3s ease, margin-right 0.3s ease;
   font-size: ${fontSizeBase};
   line-height: 1;
-  overflow-y: auto;
+  overflow-y: ${({ $hasContent }) => ($hasContent ? 'auto' : 'hidden')};
+  white-space: ${({ $hasContent }) => ($hasContent ? 'normal' : 'nowrap')};
   border: ${colorBorder};
   box-shadow: none;
   outline: none;

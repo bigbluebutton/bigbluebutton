@@ -675,6 +675,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
               onCut={(e) => { e.stopPropagation(); }}
               onCopy={(e) => { e.stopPropagation(); }}
               async
+              $hasContent={message.length > 0}
             />
             {ENABLE_EMOJI_PICKER ? (
               <Tooltip title={<span style={{ fontSize: '0.9rem' }}>{intl.formatMessage(messages.emojiButtonLabel)}</span>} arrow>
