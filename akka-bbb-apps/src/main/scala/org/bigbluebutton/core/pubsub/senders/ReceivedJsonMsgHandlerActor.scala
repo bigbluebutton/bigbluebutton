@@ -111,6 +111,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[SetUserSpeechOptionsReqMsg](envelope, jsonNode)
       case UnmuteRequestAnswerEvtMsg.NAME =>
         routeGenericMsg[UnmuteRequestAnswerEvtMsg](envelope, jsonNode)
+      case UserSetPresenterRequestReqMsg.NAME =>
+        routeGenericMsg[UserSetPresenterRequestReqMsg](envelope, jsonNode)
       // Poll
       case StartCustomPollReqMsg.NAME =>
         routeGenericMsg[StartCustomPollReqMsg](envelope, jsonNode)

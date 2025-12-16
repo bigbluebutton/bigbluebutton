@@ -213,6 +213,7 @@ select_permissions:
         - inactivityWarningDisplay
         - inactivityWarningTimeoutSecs
         - requestedUnmuteByMod
+        - requestedPresenter
         - bot
         - isDialIn
         - isModerator
@@ -293,6 +294,7 @@ select_permissions:
         - registeredAt
         - registeredOn
         - requestedUnmuteByMod
+        - requestedPresenter
         - role
         - speechLocale
         - userId

@@ -105,6 +105,7 @@ export interface User {
   size: number;
   away: boolean;
   raiseHand: boolean;
+  requestedPresenter?: boolean;
   raiseHandTime?: string;
   userLockSettings: userLockSettings;
   sessionCurrent: sessionCurrent;

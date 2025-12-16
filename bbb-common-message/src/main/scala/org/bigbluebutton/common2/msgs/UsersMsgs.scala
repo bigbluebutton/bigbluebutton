@@ -485,3 +485,7 @@ case class SetUserSpeechOptionsReqMsgBody(partialUtterances: Boolean, minUtteran
 object UserSpeechOptionsChangedEvtMsg { val NAME = "UserSpeechOptionsChangedEvtMsg" }
 case class UserSpeechOptionsChangedEvtMsg(header: BbbClientMsgHeader, body: UserSpeechOptionsChangedEvtMsgBody) extends BbbCoreMsg
 case class UserSpeechOptionsChangedEvtMsgBody(partialUtterances: Boolean, minUtteranceLength: Int)
+
+object UserSetPresenterRequestReqMsg { val NAME = "UserSetPresenterRequestReqMsg" }
+case class UserSetPresenterRequestReqMsg(header: BbbClientMsgHeader, body: UserSetPresenterRequestReqMsgBody) extends StandardMsg
+case class UserSetPresenterRequestReqMsgBody(requesterId: String, requestedPresenter: Boolean, approved: Boolean)

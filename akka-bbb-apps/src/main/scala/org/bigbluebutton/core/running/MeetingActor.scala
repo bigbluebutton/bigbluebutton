@@ -580,6 +580,9 @@ class MeetingActor(
         updateUserLastActivity(m.body.mutedBy)
       case m: UnmuteRequestAnswerEvtMsg =>
         handleUnmuteRequestAnswer(m)
+      case m: UserSetPresenterRequestReqMsg =>
+        updateUserLastActivity(m.header.userId)
+        state = handleUserSetPresenterRequestReqMsg(m)
       case m: DeafenUserCmdMsg =>
         handleDeafenUserCmdMsg(m)
         updateUserLastActivity(m.body.deafenedBy)
