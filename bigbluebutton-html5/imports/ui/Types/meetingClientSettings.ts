@@ -551,7 +551,7 @@ export interface Chat {
   autoConvertEmoji: boolean
   emojiPicker: EmojiPicker
   disableEmojis: string[]
-  allowedElements: string[]
+  markdownImageAllowed: boolean
   toolbar: string[]
 }
 

@@ -20,9 +20,17 @@ import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import CreateBreakoutRoomContainer from '../create-breakout-room/component';
 import { UserIsInvitedSubscriptionResponse } from '/imports/ui/components/breakout-room/breakout-rooms-list-item/types';
 import { useIsBreakoutRoomsEnabled } from '/imports/ui/services/features';
+import { useModalRegistration } from '/imports/ui/core/singletons/modalController';
 
 const BreakoutRoomsAppObserver = () => {
-  const [breakoutsCreationIsOpen, setBreakoutsCreationIsOpen] = useState(false);
+  const {
+    isOpen: isCreateBreakoutRoomModalOpen,
+    close: createBreakoutRoomClose,
+    open: createBreakoutRoomOpen,
+  } = useModalRegistration({
+    id: 'createBreakoutRoomModal',
+    priority: 'medium',
+  });
   const [hasOpenedPanel, setHasOpenedPanel] = useState(false);
 
   const { data: currentUser } = useCurrentUser((u: Partial<User>) => (
@@ -71,7 +79,15 @@ const BreakoutRoomsAppObserver = () => {
         name,
         icon,
         hasNotification: isNotAssigned && !hasOpenedPanel,
-        ...(!hasBreakoutRoom && { onClick: () => setBreakoutsCreationIsOpen((currentState) => !currentState) }),
+        ...(!hasBreakoutRoom && {
+          onClick: () => {
+            if (isCreateBreakoutRoomModalOpen) {
+              createBreakoutRoomClose();
+            } else {
+              createBreakoutRoomOpen();
+            }
+          },
+        }),
       },
     });
   };
@@ -108,7 +124,7 @@ const BreakoutRoomsAppObserver = () => {
       registerApp(BREAKOUTS_APP_KEY, intl.formatMessage(breakoutLabel), BREAKOUTS_ICON);
       pinApp(BREAKOUTS_APP_KEY);
     }
-    setBreakoutsCreationIsOpen(false);
+    createBreakoutRoomClose();
   }, [hasBreakoutRoom, isBreakoutMeeting, isModerator, isBreakoutRoomsEnabled]);
 
   useEffect(() => {
@@ -171,11 +187,11 @@ const BreakoutRoomsAppObserver = () => {
     }
   }, [intl, breakoutLabel]);
 
-  return (breakoutsCreationIsOpen && (
+  return (isCreateBreakoutRoomModalOpen && (
     <CreateBreakoutRoomContainer
-      priority="low"
-      setIsOpen={setBreakoutsCreationIsOpen}
-      isOpen={breakoutsCreationIsOpen}
+      priority="medium"
+      setIsOpen={isCreateBreakoutRoomModalOpen ? createBreakoutRoomClose : createBreakoutRoomOpen}
+      isOpen={isCreateBreakoutRoomModalOpen}
       setUpdateUsersWhileRunning={() => {}}
     />
   ));

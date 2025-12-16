@@ -87,7 +87,7 @@ const MediaArea = (props: MediaAreaProps) => {
         isMobile={isMobile}
         isRTL={isRTL}
         open={menuOpen}
-        onClose={handleToggleMenu}
+        onClose={() => setMenuOpen(false)}
         intl={intl}
         amIPresenter={amIPresenter}
         amIModerator={amIModerator}

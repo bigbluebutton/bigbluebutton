@@ -61,6 +61,7 @@ class DataSaving extends BaseMenu {
                       onChange={() => this.handleToggle('viewParticipantsWebcams')}
                       aria-labelledby="webcamToggle"
                       aria-label={`${intl.formatMessage(intlMessages.webcamLabel)} - ${displaySettingsStatus(viewParticipantsWebcams, true)}`}
+                      data-test="webcamToggleBtn"
                     />
                     <Styled.Label>
                       {intl.formatMessage(intlMessages.webcamLabel)}
@@ -81,6 +82,7 @@ class DataSaving extends BaseMenu {
                       onChange={() => this.handleToggle('viewScreenshare')}
                       aria-labelledby="screenShare"
                       aria-label={`${intl.formatMessage(intlMessages.screenShareLabel)} - ${displaySettingsStatus(viewScreenshare, true)}`}
+                      data-test="desktopSharingToggleBtn"
                     />
                     <Styled.Label>
                       {intl.formatMessage(intlMessages.screenShareLabel)}

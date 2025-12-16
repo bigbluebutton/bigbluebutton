@@ -106,6 +106,7 @@ export interface User {
   away: boolean;
   raiseHand: boolean;
   requestedPresenter?: boolean;
+  raiseHandTime?: string;
   userLockSettings: userLockSettings;
   sessionCurrent: sessionCurrent;
   livekit?: Livekit;
@@ -126,4 +127,10 @@ export interface UserBasicInfo {
   color: string;
   avatar: string;
   presenter?: boolean;
+}
+
+export interface RaisedHandUser extends Partial<User> {
+  userId: string;
+  name: string;
+  raiseHandTime?: string;
 }

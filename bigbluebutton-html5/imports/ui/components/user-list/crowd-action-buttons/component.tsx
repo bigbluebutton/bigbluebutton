@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useIntl, defineMessages } from 'react-intl';
 import { useMutation } from '@apollo/client';
 import logger from '/imports/startup/client/logger';
@@ -6,6 +6,7 @@ import { SET_MUTED } from './mutations';
 import { CrowdActionButtonsProps } from './types';
 import Styled from './styles';
 import LockViewersContainer from '../../lock-viewers/container';
+import { useModalRegistration } from '/imports/ui/core/singletons/modalController';
 
 const intlMessages = defineMessages({
   muteAllExceptPresenterLabel: {
@@ -29,7 +30,7 @@ const intlMessages = defineMessages({
 const CrowdActionButtons: React.FC<CrowdActionButtonsProps> = () => {
   const intl = useIntl();
   const [setMuted] = useMutation(SET_MUTED);
-  const [isLockSettingsModalOpen, setIsLockSettingsModalOpen] = useState(false);
+  const lockViewersModal = useModalRegistration({ id: 'lockViewersModal', priority: 'low' });
 
   const muteAll = () => {
     setMuted({
@@ -49,16 +50,16 @@ const CrowdActionButtons: React.FC<CrowdActionButtonsProps> = () => {
   };
 
   const openLockSettingsModal = () => {
-    setIsLockSettingsModalOpen(true);
+    lockViewersModal.open();
   };
 
   return (
     <>
-      {isLockSettingsModalOpen && (
+      {lockViewersModal.isOpen && (
         <LockViewersContainer
-          onRequestClose={() => setIsLockSettingsModalOpen(false)}
-          isOpen={isLockSettingsModalOpen}
-          setIsOpen={setIsLockSettingsModalOpen}
+          onRequestClose={() => lockViewersModal.close}
+          isOpen={lockViewersModal.isOpen}
+          setIsOpen={lockViewersModal.close}
         />
       )}
       <Styled.ActionButtonsWrapper>

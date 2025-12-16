@@ -46,22 +46,22 @@ const GenericContentMainAreaContainer: React.FC<GenericContentMainAreaContainerP
     );
     if (genericContentItemsAdded.length > 0 || genericContentItemsRemoved.length > 0) {
       previousPluginGenericContainerContents.current = [...genericContainerContentExtensibleArea];
-      genericContentItemsAdded.forEach((g) => {
-        layoutContextDispatch({
-          type: ACTIONS.SET_PILE_CONTENT_FOR_PRESENTATION_AREA,
-          value: {
-            content: PRESENTATION_AREA.GENERIC_CONTENT,
-            open: true,
-            genericContentId: g.id,
-          },
-        });
-      });
       genericContentItemsRemoved.forEach((g) => {
         layoutContextDispatch({
           type: ACTIONS.SET_PILE_CONTENT_FOR_PRESENTATION_AREA,
           value: {
             content: PRESENTATION_AREA.GENERIC_CONTENT,
             open: false,
+            genericContentId: g.id,
+          },
+        });
+      });
+      genericContentItemsAdded.forEach((g) => {
+        layoutContextDispatch({
+          type: ACTIONS.SET_PILE_CONTENT_FOR_PRESENTATION_AREA,
+          value: {
+            content: PRESENTATION_AREA.GENERIC_CONTENT,
+            open: true,
             genericContentId: g.id,
           },
         });
