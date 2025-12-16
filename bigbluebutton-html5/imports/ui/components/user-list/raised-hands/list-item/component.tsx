@@ -1,30 +1,88 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-import React, { useContext } from 'react';
+import React, { useContext, useMemo } from 'react';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
-import Auth from '/imports/ui/services/auth';
+import { defineMessages, IntlShape } from 'react-intl';
 import {
   UserListItemAdditionalInformationType,
 } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/user-list-item-additional-information/enums';
-import Styled from './styles';
+import { User, RaisedHandUser } from '/imports/ui/Types/user';
+import { LockSettings, UsersPolicies } from '/imports/ui/Types/meeting';
 import Icon from '/imports/ui/components/common/icon/icon-ts/component';
-import { useIsChatEnabled, useIsPrivateChatEnabled } from '/imports/ui/services/features';
-import useWhoIsTalking from '/imports/ui/core/hooks/useWhoIsTalking';
+import { useIsChatEnabled, useIsPrivateChatEnabled, useIsReactionsEnabled } from '/imports/ui/services/features';
 import useWhoIsUnmuted from '/imports/ui/core/hooks/useWhoIsUnmuted';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { layoutDispatch } from '/imports/ui/components/layout/context';
-import UserItemToolbar from './user-item-toolbar/component';
+import UserItemToolbar from '/imports/ui/components/user-list/user-list-participants/list-item/user-item-toolbar/component';
 import ConfirmationModal from '/imports/ui/components/common/modal/confirmation/component';
-import AvatarContent from './avatar-content/component';
 import {
   generateActionsPermissions,
   hasWhiteboardWriteAccess,
   isMe,
   createToolbarOptions,
-} from './service';
-import { UserListItemProps } from './types';
-import UserNameWithSubs from './user-name-with-subs/component';
+} from '/imports/ui/components/user-list/user-list-participants/list-item/service';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
-import { useUserOperations } from '/imports/ui/components/user-list/hooks/useUserOperations';
+import Styled from '/imports/ui/components/user-list/user-list-participants/list-item/styles';
+import UserNameStyled from '/imports/ui/components/user-list/user-list-participants/list-item/user-name-with-subs/styles';
+import TooltipContainer from '/imports/ui/components/common/tooltip/container';
+import { convertRemToPixels } from '/imports/utils/dom-utils';
+import RaisedHandsStyles from '../styles';
+import { useUserOperations, mapRaisedHandToUser } from '/imports/ui/components/user-list/hooks/useUserOperations';
+
+const intlMessages = defineMessages({
+  presenter: {
+    id: 'app.userList.presenter',
+    description: 'Text for identifying presenter user',
+  },
+  moderator: {
+    id: 'app.userList.moderator',
+    description: 'Text for identifying moderator user',
+  },
+  you: {
+    id: 'app.userList.you',
+    description: 'Text for identifying your user',
+  },
+});
+
+const RaisedHandUserName: React.FC<{ user: User; intl: IntlShape }> = ({ user, intl }) => {
+  const subs = [];
+
+  if (user.presenter) {
+    subs.push(intl.formatMessage(intlMessages.presenter));
+  }
+  if (user.isModerator) {
+    subs.push(intl.formatMessage(intlMessages.moderator));
+  }
+
+  const subsWithSeparators = subs.map((sub, index) => (
+    <React.Fragment key={sub}>
+      {sub}
+      {index < subs.length - 1 && <span> | </span>}
+    </React.Fragment>
+  ));
+
+  return (
+    <UserNameStyled.UserNameContainer>
+      <UserNameStyled.UserName>
+        <TooltipContainer title={user.name}>
+          {isMe(user.userId) ? (
+            <UserNameStyled.StrongName>
+              {user.name}
+              &nbsp;
+              {`(${intl.formatMessage(intlMessages.you)})`}
+            </UserNameStyled.StrongName>
+          ) : (
+            <UserNameStyled.RegularName>{user.name}</UserNameStyled.RegularName>
+          )}
+        </TooltipContainer>
+      </UserNameStyled.UserName>
+
+      {subs.length > 0 && (
+        <UserNameStyled.UserNameSub>
+          {subsWithSeparators}
+        </UserNameStyled.UserNameSub>
+      )}
+    </UserNameStyled.UserNameContainer>
+  );
+};
 
 const renderUserListItemIconsFromPlugin = (
   userItemsFromPlugin: PluginSdk.UserListItemAdditionalInformationInterface[],
@@ -33,27 +91,42 @@ const renderUserListItemIconsFromPlugin = (
 ).map((item: PluginSdk.UserListItemAdditionalInformationInterface) => {
   const itemToRender = item as PluginSdk.UserListItemIcon;
   return (
-    <Styled.IconRightContainer
-      key={item.id}
-    >
+    <Styled.IconRightContainer key={item.id}>
       <Icon iconName={itemToRender.icon} />
     </Styled.IconRightContainer>
   );
 });
 
-const UserListItem: React.FC<UserListItemProps> = ({
+interface RaisedHandsListItemProps {
+  user: RaisedHandUser;
+  currentUser: User;
+  lockSettings: LockSettings;
+  usersPolicies: UsersPolicies;
+  isBreakout: boolean;
+  pageId: string;
+  index: number;
+  openUserAction: string | null;
+  setOpenUserAction: React.Dispatch<React.SetStateAction<string | null>>;
+}
+
+const RaisedHandsListItem: React.FC<RaisedHandsListItemProps> = ({
+  user: raisedHandUser,
   currentUser,
-  user,
   lockSettings,
   usersPolicies,
   isBreakout,
-  index,
-  setOpenUserAction,
-  open,
   pageId,
-  type,
+  index,
+  openUserAction,
+  setOpenUserAction,
 }) => {
+  const user = useMemo(() => mapRaisedHandToUser(raisedHandUser), [raisedHandUser]);
   const { intl, operations, modal } = useUserOperations(user.userId);
+
+  const isReactionsEnabled = useIsReactionsEnabled();
+  const emojiSize = convertRemToPixels(2.2);
+  const handEmoji = { id: 'hand', native: '✋' };
+  const type = 'raised-hand';
 
   const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
   let userItemsFromPlugin = [] as PluginSdk.UserListItemAdditionalInformationInterface[];
@@ -63,6 +136,7 @@ const UserListItem: React.FC<UserListItemProps> = ({
       return userListItem.userId === user.userId;
     }) as PluginSdk.UserListItemAdditionalInformationInterface[];
   }
+
   let userListDropdownItems = [] as PluginSdk.UserListDropdownInterface[];
   if (pluginsExtensibleAreasAggregatedState.userListDropdownItems) {
     userListDropdownItems = [
@@ -75,15 +149,9 @@ const UserListItem: React.FC<UserListItemProps> = ({
   const isPrivateChatEnabled = useIsPrivateChatEnabled();
 
   const whiteboardAccess = hasWhiteboardWriteAccess(user);
-  const { data: talkingUsers } = useWhoIsTalking();
+
   const { data: unmutedUsers } = useWhoIsUnmuted();
   const isMuted = !unmutedUsers[user.userId];
-
-  const voiceUser = {
-    ...user.voice,
-    talking: talkingUsers[user.userId],
-    muted: isMuted,
-  };
 
   const actionsPermitions = generateActionsPermissions(
     user,
@@ -121,13 +189,11 @@ const UserListItem: React.FC<UserListItemProps> = ({
     operations.setRaiseHand,
   );
 
-  const userAvatarFiltered = (user.away === true || (user.reactionEmoji && user.reactionEmoji !== 'none')) ? '' : user.avatar;
-
   const Settings = getSettingsSingletonInstance();
   const animations = Settings?.application?.animations;
 
   return (
-    <Styled.UserItemContents id={`user-index-${index}`} tabIndex={-1} data-test={(isMe(user.userId)) ? 'userListItemCurrent' : 'userListItem'}>
+    <Styled.UserItemContents id={`raised-user-${index}`} tabIndex={-1} data-test="raisedHandsListItem">
       {modal.isOpen && (
         <ConfirmationModal
           intl={intl}
@@ -143,41 +209,44 @@ const UserListItem: React.FC<UserListItemProps> = ({
           isOpen={modal.isOpen}
         />
       )}
-      <Styled.Avatar
-        data-test-presenter={user.presenter ? '' : undefined}
-        data-test-avatar="userAvatar"
+
+      <Styled.RaiseHandAvatar
+        data-test="raisedHandAvatar"
         moderator={user.isModerator}
         presenter={user.presenter}
-        talking={voiceUser?.talking}
-        muted={voiceUser?.muted}
+        talking={false}
         color={user.color}
         animations={animations}
-        avatar={userAvatarFiltered}
-        you={user.userId === Auth.userID}
+        avatar=""
       >
-        {/* @ts-ignore */}
-        <AvatarContent
-          data-test={user.isModerator ? 'moderatorAvatar' : 'viewerAvatar'}
-          user={user}
-        />
-      </Styled.Avatar>
-      <UserNameWithSubs
-        subjectUser={user}
-        lockSettings={lockSettings}
-        intl={intl}
-        userItemsFromPlugin={userItemsFromPlugin}
-      />
+        <RaisedHandsStyles.IndexBadge data-test="raisedHandRank">
+          {index + 1}
+        </RaisedHandsStyles.IndexBadge>
+
+        <RaisedHandsStyles.EmojiContainer>
+          {isReactionsEnabled ? (
+            // @ts-ignore
+            <em-emoji emoji={handEmoji} native={handEmoji.native} size={emojiSize} />
+          ) : (
+            <Icon iconName="hand" />
+          )}
+        </RaisedHandsStyles.EmojiContainer>
+      </Styled.RaiseHandAvatar>
+
+      <RaisedHandUserName user={user} intl={intl} />
+
       {renderUserListItemIconsFromPlugin(userItemsFromPlugin)}
+
       <UserItemToolbar
         subjectUser={user}
         pinnedToolbarOptions={pinnedToolbarOptions}
         otherToolbarOptions={otherToolbarOptions}
         setOpenUserAction={setOpenUserAction}
-        open={open}
+        open={user.userId === openUserAction}
         userListDropdownItems={userListDropdownItems}
       />
     </Styled.UserItemContents>
   );
 };
 
-export default React.memo(UserListItem);
+export default React.memo(RaisedHandsListItem);
