@@ -400,6 +400,8 @@ export const useVideoStreams = () => {
   const isPaginationEnabled = useIsPaginationEnabled();
   let streams: StreamItem[] = [...videoStreams];
   let totalNumberOfOtherStreams: number | undefined;
+  const isContentStream = (stream: StreamItem) => stream.type === VIDEO_TYPES.STREAM
+    && Boolean((stream as any).showAsContent);
 
   const {
     paginationSorting: PAGINATION_SORTING,
@@ -422,12 +424,13 @@ export const useVideoStreams = () => {
     if (sortingConfig.customPagination) {
       // For PRESENTER_LOCAL_PINNED mode, paginate all streams equally
       // This means local cameras will only appear on their page (where they belong in sort order)
-      const sortedStreams = sortVideoStreams(streams, sortingMethod);
+      const sortedStreams = sortVideoStreams([...streams], sortingMethod);
+      const [contentStreams, nonContentStreams] = partition(sortedStreams, isContentStream);
 
-      totalNumberOfOtherStreams = sortedStreams.length;
-      const paginatedStreams = sortedStreams.slice(chunkIndex, chunkIndex + myPageSize) || [];
+      totalNumberOfOtherStreams = nonContentStreams.length;
+      const paginatedStreams = nonContentStreams.slice(chunkIndex, chunkIndex + myPageSize) || [];
 
-      const localStreamsNotInPage = sortedStreams.filter(
+      const localStreamsNotInPage = nonContentStreams.filter(
         (vs, index) => videoService.isLocalStream(vs.stream)
         && (index < chunkIndex || index >= chunkIndex + myPageSize),
       );
@@ -438,13 +441,19 @@ export const useVideoStreams = () => {
         render: false,
       }));
 
-      streams = [...paginatedStreams, ...localStreamsWithRenderFlag];
+      const visibleStreams = sortVideoStreams(
+        [...paginatedStreams, ...contentStreams],
+        sortingMethod,
+      );
+
+      streams = [...visibleStreams, ...localStreamsWithRenderFlag];
     } else {
       // Original pagination logic for other sorting methods
       const [filtered, others] = partition(
         streams,
         (vs: StreamItem) => videoService.isLocalStream(vs.stream)
-          || (vs.type === VIDEO_TYPES.STREAM && vs.user?.pinned),
+          || (vs.type === VIDEO_TYPES.STREAM && vs.user?.pinned)
+          || isContentStream(vs),
       );
       const [pin, mine] = partition(
         filtered,
