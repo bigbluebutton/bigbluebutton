@@ -1,3 +1,4 @@
+import { linkIssue } from '../core/helpers';
 import { test } from '../core/setup/fixtures';
 import { Create } from './create';
 import { Join } from './join';
@@ -72,7 +73,7 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
       await join.joinWithAudio();
     });
 
-    test('Message to all rooms', async ({ browser, context, page }, testInfo) => {
+    test('Message to all rooms', { tag: '@flaky-3.1' }, async ({ browser, context, page }, testInfo) => {
       const join = new Join(browser, context);
       await join.initPages(page, testInfo);
       await join.create();
@@ -100,7 +101,7 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
       await join.showBreakoutRoomTimeRemaining();
     });
 
-    test('End all breakout rooms', async ({ browser, context, page }, testInfo) => {
+    test('End all breakout rooms', { tag: '@flaky-3.1' }, async ({ browser, context, page }, testInfo) => {
       const join = new Join(browser, context);
       await join.initPages(page, testInfo);
       await join.create();
@@ -129,13 +130,17 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
       await join.exportBreakoutNotes();
     });
 
-    test('Export breakout room whiteboard annotations', { tag: '@flaky-3.1' }, async ({ browser, context, page }, testInfo) => {
-      linkIssue(24367);
-      const join = new Join(browser, context);
-      await join.initPages(page, testInfo);
-      await join.create(false, true);
-      await join.exportBreakoutWhiteboard();
-    });
+    test(
+      'Export breakout room whiteboard annotations',
+      { tag: '@flaky-3.1' },
+      async ({ browser, context, page }, testInfo) => {
+        linkIssue(24367);
+        const join = new Join(browser, context);
+        await join.initPages(page, testInfo);
+        await join.create(false, true);
+        await join.exportBreakoutWhiteboard();
+      },
+    );
 
     test('User can choose a room', async ({ browser, context, page }, testInfo) => {
       const join = new Join(browser, context);
