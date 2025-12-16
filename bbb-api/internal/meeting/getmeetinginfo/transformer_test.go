@@ -8,6 +8,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/bigbluebutton/bigbluebutton/bbb-api/gen/common"
+	"github.com/bigbluebutton/bigbluebutton/bbb-api/gen/meeting"
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/bbbhttp"
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/pipeline"
 	meetingapi "github.com/bigbluebutton/bigbluebutton/bbb-api/internal/meeting"
@@ -334,4 +336,865 @@ func TestHTTPToGRPC_Transform_MessageContext(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestGRPCToResponse_Transform(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    *meeting.MeetingInfoResponse
+		expected *meetingapi.GetMeetingInfoResponse
+	}{
+		{
+			name: "Full meeting info with all fields populated",
+			input: &meeting.MeetingInfoResponse{
+				MeetingInfo: &common.MeetingInfo{
+					MeetingName:  "Test Meeting",
+					MeetingExtId: "ext-123",
+					MeetingIntId: "int-456",
+					VoiceBridge:  "71234",
+					DialNumber:   "613-555-1234",
+					AttendeePw:   "ap",
+					ModeratorPw:  "mp",
+					Recording:    true,
+					Users: []*common.User{
+						{
+							UserId:          "user-1",
+							FullName:        "John Doe",
+							Role:            "MODERATOR",
+							IsPresenter:     true,
+							IsListeningOnly: false,
+							HasJoinedVoice:  true,
+							HasVideo:        true,
+							ClientType:      "HTML5",
+							CustomData:      map[string]string{"key1": "value1"},
+						},
+						{
+							UserId:          "user-2",
+							FullName:        "Jane Smith",
+							Role:            "VIEWER",
+							IsPresenter:     false,
+							IsListeningOnly: true,
+							HasJoinedVoice:  false,
+							HasVideo:        false,
+							ClientType:      "HTML5",
+							CustomData:      nil,
+						},
+					},
+					Metadata:      map[string]string{"meta1": "data1", "meta2": "data2"},
+					BreakoutRooms: []string{"breakout-1", "breakout-2"},
+					DurationInfo: &common.DurationInfo{
+						CreateTime:           1700000000000,
+						CreatedOn:            "Wed Nov 14 12:26:40 UTC 2023",
+						Duration:             60,
+						StartTime:            1700000001000,
+						EndTime:              0,
+						IsRunning:            true,
+						HasBeenForciblyEnded: false,
+					},
+					ParticipantInfo: &common.ParticipantInfo{
+						HasUserJoined:         true,
+						ParticipantCount:      2,
+						ListenerCount:         1,
+						VoiceParticipantCount: 1,
+						VideoCount:            1,
+						MaxUsers:              100,
+						ModeratorCount:        1,
+					},
+					BreakoutInfo: &common.BreakoutInfo{
+						IsBreakout: false,
+					},
+				},
+			},
+			expected: &meetingapi.GetMeetingInfoResponse{
+				ReturnCode:            "SUCCESS",
+				MeetingName:           "Test Meeting",
+				MeetingId:             "ext-123",
+				InternalMeetingId:     "int-456",
+				CreateTime:            1700000000000,
+				CreateDate:            "Wed Nov 14 12:26:40 UTC 2023",
+				VoiceBridge:           "71234",
+				DialNumber:            "613-555-1234",
+				AttendeePW:            "ap",
+				ModeratorPW:           "mp",
+				Running:               true,
+				Duration:              60,
+				HasUserJoined:         true,
+				Recording:             true,
+				HasBeenForciblyEnded:  false,
+				StartTime:             1700000001000,
+				EndTime:               0,
+				ParticipantCount:      2,
+				ListenerCount:         1,
+				VoiceParticipantCount: 1,
+				VideoCount:            1,
+				MaxUsers:              100,
+				ModeratorCount:        1,
+				Users: meetingapi.Users{
+					Users: []meetingapi.User{
+						{
+							UserId:          "user-1",
+							FullName:        "John Doe",
+							Role:            "MODERATOR",
+							IsPresenter:     true,
+							IsListeningOnly: false,
+							HasJoinedVoice:  true,
+							HasVideo:        true,
+							ClientType:      "HTML5",
+							CustomData:      meetingapi.MapData{Data: map[string]string{"key1": "value1"}, TagName: "customdata"},
+						},
+						{
+							UserId:          "user-2",
+							FullName:        "Jane Smith",
+							Role:            "VIEWER",
+							IsPresenter:     false,
+							IsListeningOnly: true,
+							HasJoinedVoice:  false,
+							HasVideo:        false,
+							ClientType:      "HTML5",
+							CustomData:      meetingapi.MapData{Data: nil, TagName: "customdata"},
+						},
+					},
+				},
+				Metadata:      meetingapi.MapData{Data: map[string]string{"meta1": "data1", "meta2": "data2"}, TagName: "metadata"},
+				IsBreakout:    false,
+				BreakoutRooms: meetingapi.BreakoutRooms{Breakout: []string{"breakout-1", "breakout-2"}},
+			},
+		},
+		{
+			name: "Meeting with no users",
+			input: &meeting.MeetingInfoResponse{
+				MeetingInfo: &common.MeetingInfo{
+					MeetingName:   "Empty Meeting",
+					MeetingExtId:  "empty-ext",
+					MeetingIntId:  "empty-int",
+					VoiceBridge:   "70000",
+					DialNumber:    "",
+					AttendeePw:    "att",
+					ModeratorPw:   "mod",
+					Recording:     false,
+					Users:         []*common.User{},
+					Metadata:      map[string]string{},
+					BreakoutRooms: []string{},
+					DurationInfo: &common.DurationInfo{
+						CreateTime:           1700000000000,
+						CreatedOn:            "Wed Nov 14 12:26:40 UTC 2023",
+						Duration:             0,
+						StartTime:            0,
+						EndTime:              0,
+						IsRunning:            false,
+						HasBeenForciblyEnded: false,
+					},
+					ParticipantInfo: &common.ParticipantInfo{
+						HasUserJoined:         false,
+						ParticipantCount:      0,
+						ListenerCount:         0,
+						VoiceParticipantCount: 0,
+						VideoCount:            0,
+						MaxUsers:              50,
+						ModeratorCount:        0,
+					},
+					BreakoutInfo: &common.BreakoutInfo{
+						IsBreakout: false,
+					},
+				},
+			},
+			expected: &meetingapi.GetMeetingInfoResponse{
+				ReturnCode:            "SUCCESS",
+				MeetingName:           "Empty Meeting",
+				MeetingId:             "empty-ext",
+				InternalMeetingId:     "empty-int",
+				CreateTime:            1700000000000,
+				CreateDate:            "Wed Nov 14 12:26:40 UTC 2023",
+				VoiceBridge:           "70000",
+				DialNumber:            "",
+				AttendeePW:            "att",
+				ModeratorPW:           "mod",
+				Running:               false,
+				Duration:              0,
+				HasUserJoined:         false,
+				Recording:             false,
+				HasBeenForciblyEnded:  false,
+				StartTime:             0,
+				EndTime:               0,
+				ParticipantCount:      0,
+				ListenerCount:         0,
+				VoiceParticipantCount: 0,
+				VideoCount:            0,
+				MaxUsers:              50,
+				ModeratorCount:        0,
+				Users:                 meetingapi.Users{Users: []meetingapi.User{}},
+				Metadata:              meetingapi.MapData{Data: map[string]string{}, TagName: "metadata"},
+				IsBreakout:            false,
+				BreakoutRooms:         meetingapi.BreakoutRooms{Breakout: []string{}},
+			},
+		},
+		{
+			name: "Breakout room meeting",
+			input: &meeting.MeetingInfoResponse{
+				MeetingInfo: &common.MeetingInfo{
+					MeetingName:   "Breakout Room 1",
+					MeetingExtId:  "breakout-ext",
+					MeetingIntId:  "breakout-int",
+					VoiceBridge:   "71111",
+					DialNumber:    "613-555-9999",
+					AttendeePw:    "bap",
+					ModeratorPw:   "bmp",
+					Recording:     false,
+					Users:         nil,
+					Metadata:      nil,
+					BreakoutRooms: nil,
+					DurationInfo: &common.DurationInfo{
+						CreateTime:           1700000500000,
+						CreatedOn:            "Wed Nov 14 12:35:00 UTC 2023",
+						Duration:             30,
+						StartTime:            1700000501000,
+						EndTime:              0,
+						IsRunning:            true,
+						HasBeenForciblyEnded: false,
+					},
+					ParticipantInfo: &common.ParticipantInfo{
+						HasUserJoined:         true,
+						ParticipantCount:      5,
+						ListenerCount:         2,
+						VoiceParticipantCount: 3,
+						VideoCount:            2,
+						MaxUsers:              10,
+						ModeratorCount:        1,
+					},
+					BreakoutInfo: &common.BreakoutInfo{
+						IsBreakout: true,
+					},
+				},
+			},
+			expected: &meetingapi.GetMeetingInfoResponse{
+				ReturnCode:            "SUCCESS",
+				MeetingName:           "Breakout Room 1",
+				MeetingId:             "breakout-ext",
+				InternalMeetingId:     "breakout-int",
+				CreateTime:            1700000500000,
+				CreateDate:            "Wed Nov 14 12:35:00 UTC 2023",
+				VoiceBridge:           "71111",
+				DialNumber:            "613-555-9999",
+				AttendeePW:            "bap",
+				ModeratorPW:           "bmp",
+				Running:               true,
+				Duration:              30,
+				HasUserJoined:         true,
+				Recording:             false,
+				HasBeenForciblyEnded:  false,
+				StartTime:             1700000501000,
+				EndTime:               0,
+				ParticipantCount:      5,
+				ListenerCount:         2,
+				VoiceParticipantCount: 3,
+				VideoCount:            2,
+				MaxUsers:              10,
+				ModeratorCount:        1,
+				Users:                 meetingapi.Users{Users: []meetingapi.User{}},
+				Metadata:              meetingapi.MapData{Data: nil, TagName: "metadata"},
+				IsBreakout:            true,
+				BreakoutRooms:         meetingapi.BreakoutRooms{Breakout: nil},
+			},
+		},
+		{
+			name: "Meeting that has been forcibly ended",
+			input: &meeting.MeetingInfoResponse{
+				MeetingInfo: &common.MeetingInfo{
+					MeetingName:   "Ended Meeting",
+					MeetingExtId:  "ended-ext",
+					MeetingIntId:  "ended-int",
+					VoiceBridge:   "72222",
+					DialNumber:    "",
+					AttendeePw:    "eap",
+					ModeratorPw:   "emp",
+					Recording:     true,
+					Users:         []*common.User{},
+					Metadata:      map[string]string{"recording": "true"},
+					BreakoutRooms: []string{},
+					DurationInfo: &common.DurationInfo{
+						CreateTime:           1700000000000,
+						CreatedOn:            "Wed Nov 14 12:26:40 UTC 2023",
+						Duration:             120,
+						StartTime:            1700000001000,
+						EndTime:              1700003600000,
+						IsRunning:            false,
+						HasBeenForciblyEnded: true,
+					},
+					ParticipantInfo: &common.ParticipantInfo{
+						HasUserJoined:         true,
+						ParticipantCount:      0,
+						ListenerCount:         0,
+						VoiceParticipantCount: 0,
+						VideoCount:            0,
+						MaxUsers:              200,
+						ModeratorCount:        0,
+					},
+					BreakoutInfo: &common.BreakoutInfo{
+						IsBreakout: false,
+					},
+				},
+			},
+			expected: &meetingapi.GetMeetingInfoResponse{
+				ReturnCode:            "SUCCESS",
+				MeetingName:           "Ended Meeting",
+				MeetingId:             "ended-ext",
+				InternalMeetingId:     "ended-int",
+				CreateTime:            1700000000000,
+				CreateDate:            "Wed Nov 14 12:26:40 UTC 2023",
+				VoiceBridge:           "72222",
+				DialNumber:            "",
+				AttendeePW:            "eap",
+				ModeratorPW:           "emp",
+				Running:               false,
+				Duration:              120,
+				HasUserJoined:         true,
+				Recording:             true,
+				HasBeenForciblyEnded:  true,
+				StartTime:             1700000001000,
+				EndTime:               1700003600000,
+				ParticipantCount:      0,
+				ListenerCount:         0,
+				VoiceParticipantCount: 0,
+				VideoCount:            0,
+				MaxUsers:              200,
+				ModeratorCount:        0,
+				Users:                 meetingapi.Users{Users: []meetingapi.User{}},
+				Metadata:              meetingapi.MapData{Data: map[string]string{"recording": "true"}, TagName: "metadata"},
+				IsBreakout:            false,
+				BreakoutRooms:         meetingapi.BreakoutRooms{Breakout: []string{}},
+			},
+		},
+		{
+			name: "Meeting with special characters in fields",
+			input: &meeting.MeetingInfoResponse{
+				MeetingInfo: &common.MeetingInfo{
+					MeetingName:   "Test <Meeting> & \"Special\" 'Chars'",
+					MeetingExtId:  "special-<>&\"'-ext",
+					MeetingIntId:  "special-int",
+					VoiceBridge:   "73333",
+					DialNumber:    "+1-555-TEST",
+					AttendeePw:    "pass<>",
+					ModeratorPw:   "mod&pass",
+					Recording:     false,
+					Users:         []*common.User{},
+					Metadata:      map[string]string{"key<>": "value&"},
+					BreakoutRooms: []string{},
+					DurationInfo: &common.DurationInfo{
+						CreateTime:           1700000000000,
+						CreatedOn:            "Wed Nov 14 12:26:40 UTC 2023",
+						Duration:             0,
+						StartTime:            0,
+						EndTime:              0,
+						IsRunning:            false,
+						HasBeenForciblyEnded: false,
+					},
+					ParticipantInfo: &common.ParticipantInfo{
+						HasUserJoined:         false,
+						ParticipantCount:      0,
+						ListenerCount:         0,
+						VoiceParticipantCount: 0,
+						VideoCount:            0,
+						MaxUsers:              0,
+						ModeratorCount:        0,
+					},
+					BreakoutInfo: &common.BreakoutInfo{
+						IsBreakout: false,
+					},
+				},
+			},
+			expected: &meetingapi.GetMeetingInfoResponse{
+				ReturnCode:            "SUCCESS",
+				MeetingName:           "Test <Meeting> & \"Special\" 'Chars'",
+				MeetingId:             "special-<>&\"'-ext",
+				InternalMeetingId:     "special-int",
+				CreateTime:            1700000000000,
+				CreateDate:            "Wed Nov 14 12:26:40 UTC 2023",
+				VoiceBridge:           "73333",
+				DialNumber:            "+1-555-TEST",
+				AttendeePW:            "pass<>",
+				ModeratorPW:           "mod&pass",
+				Running:               false,
+				Duration:              0,
+				HasUserJoined:         false,
+				Recording:             false,
+				HasBeenForciblyEnded:  false,
+				StartTime:             0,
+				EndTime:               0,
+				ParticipantCount:      0,
+				ListenerCount:         0,
+				VoiceParticipantCount: 0,
+				VideoCount:            0,
+				MaxUsers:              0,
+				ModeratorCount:        0,
+				Users:                 meetingapi.Users{Users: []meetingapi.User{}},
+				Metadata:              meetingapi.MapData{Data: map[string]string{"key<>": "value&"}, TagName: "metadata"},
+				IsBreakout:            false,
+				BreakoutRooms:         meetingapi.BreakoutRooms{Breakout: []string{}},
+			},
+		},
+		{
+			name: "Meeting with single user having nil custom data",
+			input: &meeting.MeetingInfoResponse{
+				MeetingInfo: &common.MeetingInfo{
+					MeetingName:  "Single User Meeting",
+					MeetingExtId: "single-ext",
+					MeetingIntId: "single-int",
+					VoiceBridge:  "74444",
+					DialNumber:   "",
+					AttendeePw:   "ap",
+					ModeratorPw:  "mp",
+					Recording:    false,
+					Users: []*common.User{
+						{
+							UserId:          "solo-user",
+							FullName:        "Solo Person",
+							Role:            "MODERATOR",
+							IsPresenter:     true,
+							IsListeningOnly: false,
+							HasJoinedVoice:  false,
+							HasVideo:        false,
+							ClientType:      "FLASH",
+							CustomData:      nil,
+						},
+					},
+					Metadata:      nil,
+					BreakoutRooms: nil,
+					DurationInfo: &common.DurationInfo{
+						CreateTime:           1700000000000,
+						CreatedOn:            "Wed Nov 14 12:26:40 UTC 2023",
+						Duration:             0,
+						StartTime:            1700000001000,
+						EndTime:              0,
+						IsRunning:            true,
+						HasBeenForciblyEnded: false,
+					},
+					ParticipantInfo: &common.ParticipantInfo{
+						HasUserJoined:         true,
+						ParticipantCount:      1,
+						ListenerCount:         0,
+						VoiceParticipantCount: 0,
+						VideoCount:            0,
+						MaxUsers:              25,
+						ModeratorCount:        1,
+					},
+					BreakoutInfo: &common.BreakoutInfo{
+						IsBreakout: false,
+					},
+				},
+			},
+			expected: &meetingapi.GetMeetingInfoResponse{
+				ReturnCode:            "SUCCESS",
+				MeetingName:           "Single User Meeting",
+				MeetingId:             "single-ext",
+				InternalMeetingId:     "single-int",
+				CreateTime:            1700000000000,
+				CreateDate:            "Wed Nov 14 12:26:40 UTC 2023",
+				VoiceBridge:           "74444",
+				DialNumber:            "",
+				AttendeePW:            "ap",
+				ModeratorPW:           "mp",
+				Running:               true,
+				Duration:              0,
+				HasUserJoined:         true,
+				Recording:             false,
+				HasBeenForciblyEnded:  false,
+				StartTime:             1700000001000,
+				EndTime:               0,
+				ParticipantCount:      1,
+				ListenerCount:         0,
+				VoiceParticipantCount: 0,
+				VideoCount:            0,
+				MaxUsers:              25,
+				ModeratorCount:        1,
+				Users: meetingapi.Users{
+					Users: []meetingapi.User{
+						{
+							UserId:          "solo-user",
+							FullName:        "Solo Person",
+							Role:            "MODERATOR",
+							IsPresenter:     true,
+							IsListeningOnly: false,
+							HasJoinedVoice:  false,
+							HasVideo:        false,
+							ClientType:      "FLASH",
+							CustomData:      meetingapi.MapData{Data: nil, TagName: "customdata"},
+						},
+					},
+				},
+				Metadata:      meetingapi.MapData{Data: nil, TagName: "metadata"},
+				IsBreakout:    false,
+				BreakoutRooms: meetingapi.BreakoutRooms{Breakout: nil},
+			},
+		},
+		{
+			name: "Meeting with Unicode characters",
+			input: &meeting.MeetingInfoResponse{
+				MeetingInfo: &common.MeetingInfo{
+					MeetingName:   "会议 - Встреча - مؤتمر",
+					MeetingExtId:  "unicode-ext",
+					MeetingIntId:  "unicode-int",
+					VoiceBridge:   "75555",
+					DialNumber:    "",
+					AttendeePw:    "密码",
+					ModeratorPw:   "пароль",
+					Recording:     false,
+					Users:         []*common.User{},
+					Metadata:      map[string]string{"名前": "値"},
+					BreakoutRooms: []string{},
+					DurationInfo: &common.DurationInfo{
+						CreateTime:           1700000000000,
+						CreatedOn:            "Wed Nov 14 12:26:40 UTC 2023",
+						Duration:             0,
+						StartTime:            0,
+						EndTime:              0,
+						IsRunning:            false,
+						HasBeenForciblyEnded: false,
+					},
+					ParticipantInfo: &common.ParticipantInfo{
+						HasUserJoined:         false,
+						ParticipantCount:      0,
+						ListenerCount:         0,
+						VoiceParticipantCount: 0,
+						VideoCount:            0,
+						MaxUsers:              0,
+						ModeratorCount:        0,
+					},
+					BreakoutInfo: &common.BreakoutInfo{
+						IsBreakout: false,
+					},
+				},
+			},
+			expected: &meetingapi.GetMeetingInfoResponse{
+				ReturnCode:            "SUCCESS",
+				MeetingName:           "会议 - Встреча - مؤتمر",
+				MeetingId:             "unicode-ext",
+				InternalMeetingId:     "unicode-int",
+				CreateTime:            1700000000000,
+				CreateDate:            "Wed Nov 14 12:26:40 UTC 2023",
+				VoiceBridge:           "75555",
+				DialNumber:            "",
+				AttendeePW:            "密码",
+				ModeratorPW:           "пароль",
+				Running:               false,
+				Duration:              0,
+				HasUserJoined:         false,
+				Recording:             false,
+				HasBeenForciblyEnded:  false,
+				StartTime:             0,
+				EndTime:               0,
+				ParticipantCount:      0,
+				ListenerCount:         0,
+				VoiceParticipantCount: 0,
+				VideoCount:            0,
+				MaxUsers:              0,
+				ModeratorCount:        0,
+				Users:                 meetingapi.Users{Users: []meetingapi.User{}},
+				Metadata:              meetingapi.MapData{Data: map[string]string{"名前": "値"}, TagName: "metadata"},
+				IsBreakout:            false,
+				BreakoutRooms:         meetingapi.BreakoutRooms{Breakout: []string{}},
+			},
+		},
+		{
+			name: "Meeting with multiple breakout rooms",
+			input: &meeting.MeetingInfoResponse{
+				MeetingInfo: &common.MeetingInfo{
+					MeetingName:   "Parent Meeting",
+					MeetingExtId:  "parent-ext",
+					MeetingIntId:  "parent-int",
+					VoiceBridge:   "76666",
+					DialNumber:    "",
+					AttendeePw:    "ap",
+					ModeratorPw:   "mp",
+					Recording:     false,
+					Users:         []*common.User{},
+					Metadata:      map[string]string{},
+					BreakoutRooms: []string{"breakout-room-1", "breakout-room-2", "breakout-room-3", "breakout-room-4"},
+					DurationInfo: &common.DurationInfo{
+						CreateTime:           1700000000000,
+						CreatedOn:            "Wed Nov 14 12:26:40 UTC 2023",
+						Duration:             0,
+						StartTime:            0,
+						EndTime:              0,
+						IsRunning:            true,
+						HasBeenForciblyEnded: false,
+					},
+					ParticipantInfo: &common.ParticipantInfo{
+						HasUserJoined:         false,
+						ParticipantCount:      0,
+						ListenerCount:         0,
+						VoiceParticipantCount: 0,
+						VideoCount:            0,
+						MaxUsers:              0,
+						ModeratorCount:        0,
+					},
+					BreakoutInfo: &common.BreakoutInfo{
+						IsBreakout: false,
+					},
+				},
+			},
+			expected: &meetingapi.GetMeetingInfoResponse{
+				ReturnCode:            "SUCCESS",
+				MeetingName:           "Parent Meeting",
+				MeetingId:             "parent-ext",
+				InternalMeetingId:     "parent-int",
+				CreateTime:            1700000000000,
+				CreateDate:            "Wed Nov 14 12:26:40 UTC 2023",
+				VoiceBridge:           "76666",
+				DialNumber:            "",
+				AttendeePW:            "ap",
+				ModeratorPW:           "mp",
+				Running:               true,
+				Duration:              0,
+				HasUserJoined:         false,
+				Recording:             false,
+				HasBeenForciblyEnded:  false,
+				StartTime:             0,
+				EndTime:               0,
+				ParticipantCount:      0,
+				ListenerCount:         0,
+				VoiceParticipantCount: 0,
+				VideoCount:            0,
+				MaxUsers:              0,
+				ModeratorCount:        0,
+				Users:                 meetingapi.Users{Users: []meetingapi.User{}},
+				Metadata:              meetingapi.MapData{Data: map[string]string{}, TagName: "metadata"},
+				IsBreakout:            false,
+				BreakoutRooms:         meetingapi.BreakoutRooms{Breakout: []string{"breakout-room-1", "breakout-room-2", "breakout-room-3", "breakout-room-4"}},
+			},
+		},
+		{
+			name: "Meeting with max integer values",
+			input: &meeting.MeetingInfoResponse{
+				MeetingInfo: &common.MeetingInfo{
+					MeetingName:   "Max Values Meeting",
+					MeetingExtId:  "max-ext",
+					MeetingIntId:  "max-int",
+					VoiceBridge:   "99999",
+					DialNumber:    "",
+					AttendeePw:    "ap",
+					ModeratorPw:   "mp",
+					Recording:     false,
+					Users:         []*common.User{},
+					Metadata:      map[string]string{},
+					BreakoutRooms: []string{},
+					DurationInfo: &common.DurationInfo{
+						CreateTime:           9223372036854775807,
+						CreatedOn:            "Max Time",
+						Duration:             2147483647,
+						StartTime:            9223372036854775807,
+						EndTime:              9223372036854775807,
+						IsRunning:            false,
+						HasBeenForciblyEnded: false,
+					},
+					ParticipantInfo: &common.ParticipantInfo{
+						HasUserJoined:         false,
+						ParticipantCount:      2147483647,
+						ListenerCount:         2147483647,
+						VoiceParticipantCount: 2147483647,
+						VideoCount:            2147483647,
+						MaxUsers:              2147483647,
+						ModeratorCount:        2147483647,
+					},
+					BreakoutInfo: &common.BreakoutInfo{
+						IsBreakout: false,
+					},
+				},
+			},
+			expected: &meetingapi.GetMeetingInfoResponse{
+				ReturnCode:            "SUCCESS",
+				MeetingName:           "Max Values Meeting",
+				MeetingId:             "max-ext",
+				InternalMeetingId:     "max-int",
+				CreateTime:            9223372036854775807,
+				CreateDate:            "Max Time",
+				VoiceBridge:           "99999",
+				DialNumber:            "",
+				AttendeePW:            "ap",
+				ModeratorPW:           "mp",
+				Running:               false,
+				Duration:              2147483647,
+				HasUserJoined:         false,
+				Recording:             false,
+				HasBeenForciblyEnded:  false,
+				StartTime:             9223372036854775807,
+				EndTime:               9223372036854775807,
+				ParticipantCount:      2147483647,
+				ListenerCount:         2147483647,
+				VoiceParticipantCount: 2147483647,
+				VideoCount:            2147483647,
+				MaxUsers:              2147483647,
+				ModeratorCount:        2147483647,
+				Users:                 meetingapi.Users{Users: []meetingapi.User{}},
+				Metadata:              meetingapi.MapData{Data: map[string]string{}, TagName: "metadata"},
+				IsBreakout:            false,
+				BreakoutRooms:         meetingapi.BreakoutRooms{Breakout: []string{}},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			transformer := &GRPCToResponse{}
+			msg := pipeline.NewMessage(tt.input)
+
+			result, err := transformer.Transform(msg)
+
+			if err != nil {
+				t.Errorf("Transform() unexpected error = %v", err)
+				return
+			}
+
+			if result.Payload == nil {
+				t.Errorf("Transform() returned nil payload")
+				return
+			}
+
+			got := result.Payload
+
+			// Check all scalar fields
+			if got.ReturnCode != tt.expected.ReturnCode {
+				t.Errorf("ReturnCode = %q, want %q", got.ReturnCode, tt.expected.ReturnCode)
+			}
+			if got.MeetingName != tt.expected.MeetingName {
+				t.Errorf("MeetingName = %q, want %q", got.MeetingName, tt.expected.MeetingName)
+			}
+			if got.MeetingId != tt.expected.MeetingId {
+				t.Errorf("MeetingId = %q, want %q", got.MeetingId, tt.expected.MeetingId)
+			}
+			if got.InternalMeetingId != tt.expected.InternalMeetingId {
+				t.Errorf("InternalMeetingId = %q, want %q", got.InternalMeetingId, tt.expected.InternalMeetingId)
+			}
+			if got.CreateTime != tt.expected.CreateTime {
+				t.Errorf("CreateTime = %d, want %d", got.CreateTime, tt.expected.CreateTime)
+			}
+			if got.CreateDate != tt.expected.CreateDate {
+				t.Errorf("CreateDate = %q, want %q", got.CreateDate, tt.expected.CreateDate)
+			}
+			if got.VoiceBridge != tt.expected.VoiceBridge {
+				t.Errorf("VoiceBridge = %q, want %q", got.VoiceBridge, tt.expected.VoiceBridge)
+			}
+			if got.DialNumber != tt.expected.DialNumber {
+				t.Errorf("DialNumber = %q, want %q", got.DialNumber, tt.expected.DialNumber)
+			}
+			if got.AttendeePW != tt.expected.AttendeePW {
+				t.Errorf("AttendeePW = %q, want %q", got.AttendeePW, tt.expected.AttendeePW)
+			}
+			if got.ModeratorPW != tt.expected.ModeratorPW {
+				t.Errorf("ModeratorPW = %q, want %q", got.ModeratorPW, tt.expected.ModeratorPW)
+			}
+			if got.Running != tt.expected.Running {
+				t.Errorf("Running = %v, want %v", got.Running, tt.expected.Running)
+			}
+			if got.Duration != tt.expected.Duration {
+				t.Errorf("Duration = %d, want %d", got.Duration, tt.expected.Duration)
+			}
+			if got.HasUserJoined != tt.expected.HasUserJoined {
+				t.Errorf("HasUserJoined = %v, want %v", got.HasUserJoined, tt.expected.HasUserJoined)
+			}
+			if got.Recording != tt.expected.Recording {
+				t.Errorf("Recording = %v, want %v", got.Recording, tt.expected.Recording)
+			}
+			if got.HasBeenForciblyEnded != tt.expected.HasBeenForciblyEnded {
+				t.Errorf("HasBeenForciblyEnded = %v, want %v", got.HasBeenForciblyEnded, tt.expected.HasBeenForciblyEnded)
+			}
+			if got.StartTime != tt.expected.StartTime {
+				t.Errorf("StartTime = %d, want %d", got.StartTime, tt.expected.StartTime)
+			}
+			if got.EndTime != tt.expected.EndTime {
+				t.Errorf("EndTime = %d, want %d", got.EndTime, tt.expected.EndTime)
+			}
+			if got.ParticipantCount != tt.expected.ParticipantCount {
+				t.Errorf("ParticipantCount = %d, want %d", got.ParticipantCount, tt.expected.ParticipantCount)
+			}
+			if got.ListenerCount != tt.expected.ListenerCount {
+				t.Errorf("ListenerCount = %d, want %d", got.ListenerCount, tt.expected.ListenerCount)
+			}
+			if got.VoiceParticipantCount != tt.expected.VoiceParticipantCount {
+				t.Errorf("VoiceParticipantCount = %d, want %d", got.VoiceParticipantCount, tt.expected.VoiceParticipantCount)
+			}
+			if got.VideoCount != tt.expected.VideoCount {
+				t.Errorf("VideoCount = %d, want %d", got.VideoCount, tt.expected.VideoCount)
+			}
+			if got.MaxUsers != tt.expected.MaxUsers {
+				t.Errorf("MaxUsers = %d, want %d", got.MaxUsers, tt.expected.MaxUsers)
+			}
+			if got.ModeratorCount != tt.expected.ModeratorCount {
+				t.Errorf("ModeratorCount = %d, want %d", got.ModeratorCount, tt.expected.ModeratorCount)
+			}
+			if got.IsBreakout != tt.expected.IsBreakout {
+				t.Errorf("IsBreakout = %v, want %v", got.IsBreakout, tt.expected.IsBreakout)
+			}
+
+			// Check Users
+			if len(got.Users.Users) != len(tt.expected.Users.Users) {
+				t.Errorf("Users count = %d, want %d", len(got.Users.Users), len(tt.expected.Users.Users))
+			} else {
+				for i, gotUser := range got.Users.Users {
+					expUser := tt.expected.Users.Users[i]
+					if gotUser.UserId != expUser.UserId {
+						t.Errorf("User[%d].UserId = %q, want %q", i, gotUser.UserId, expUser.UserId)
+					}
+					if gotUser.FullName != expUser.FullName {
+						t.Errorf("User[%d].FullName = %q, want %q", i, gotUser.FullName, expUser.FullName)
+					}
+					if gotUser.Role != expUser.Role {
+						t.Errorf("User[%d].Role = %q, want %q", i, gotUser.Role, expUser.Role)
+					}
+					if gotUser.IsPresenter != expUser.IsPresenter {
+						t.Errorf("User[%d].IsPresenter = %v, want %v", i, gotUser.IsPresenter, expUser.IsPresenter)
+					}
+					if gotUser.IsListeningOnly != expUser.IsListeningOnly {
+						t.Errorf("User[%d].IsListeningOnly = %v, want %v", i, gotUser.IsListeningOnly, expUser.IsListeningOnly)
+					}
+					if gotUser.HasJoinedVoice != expUser.HasJoinedVoice {
+						t.Errorf("User[%d].HasJoinedVoice = %v, want %v", i, gotUser.HasJoinedVoice, expUser.HasJoinedVoice)
+					}
+					if gotUser.HasVideo != expUser.HasVideo {
+						t.Errorf("User[%d].HasVideo = %v, want %v", i, gotUser.HasVideo, expUser.HasVideo)
+					}
+					if gotUser.ClientType != expUser.ClientType {
+						t.Errorf("User[%d].ClientType = %q, want %q", i, gotUser.ClientType, expUser.ClientType)
+					}
+					if gotUser.CustomData.TagName != expUser.CustomData.TagName {
+						t.Errorf("User[%d].CustomData.TagName = %q, want %q", i, gotUser.CustomData.TagName, expUser.CustomData.TagName)
+					}
+					if !mapsEqual(gotUser.CustomData.Data, expUser.CustomData.Data) {
+						t.Errorf("User[%d].CustomData.Data = %v, want %v", i, gotUser.CustomData.Data, expUser.CustomData.Data)
+					}
+				}
+			}
+
+			// Check Metadata
+			if got.Metadata.TagName != tt.expected.Metadata.TagName {
+				t.Errorf("Metadata.TagName = %q, want %q", got.Metadata.TagName, tt.expected.Metadata.TagName)
+			}
+			if !mapsEqual(got.Metadata.Data, tt.expected.Metadata.Data) {
+				t.Errorf("Metadata.Data = %v, want %v", got.Metadata.Data, tt.expected.Metadata.Data)
+			}
+
+			// Check BreakoutRooms
+			if len(got.BreakoutRooms.Breakout) != len(tt.expected.BreakoutRooms.Breakout) {
+				t.Errorf("BreakoutRooms count = %d, want %d", len(got.BreakoutRooms.Breakout), len(tt.expected.BreakoutRooms.Breakout))
+			} else {
+				for i, gotRoom := range got.BreakoutRooms.Breakout {
+					if gotRoom != tt.expected.BreakoutRooms.Breakout[i] {
+						t.Errorf("BreakoutRooms[%d] = %q, want %q", i, gotRoom, tt.expected.BreakoutRooms.Breakout[i])
+					}
+				}
+			}
+		})
+	}
+}
+
+// mapsEqual compares two string maps for equality, handling nil maps.
+func mapsEqual(a, b map[string]string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for k, v := range a {
+		if bv, ok := b[k]; !ok || v != bv {
+			return false
+		}
+	}
+	return true
 }
