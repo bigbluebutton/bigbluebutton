@@ -131,8 +131,7 @@ const UserListItem: React.FC<UserListItemProps> = ({
       {modal.isOpen && (
         <ConfirmationModal
           intl={intl}
-          titleMessageId="app.userList.menu.removeConfirmation.label"
-          titleMessageExtra={user.name}
+          title={intl.formatMessage({ id: 'app.userList.menu.removeConfirmation.label' }, { userName: user.name })}
           checkboxMessageId="app.userlist.menu.removeConfirmation.desc"
           confirmParam={user.userId}
           onConfirm={operations.removeUser}
