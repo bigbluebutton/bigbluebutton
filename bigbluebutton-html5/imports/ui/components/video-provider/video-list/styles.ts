@@ -8,6 +8,7 @@ import Button from '/imports/ui/components/common/button/component';
 const NextPageButton = styled(Button)`
   color: ${colorWhite};
   width: ${mdPaddingX};
+  flex-shrink: 0;
 
   & > i {
     [dir="rtl"] & {
@@ -35,6 +36,7 @@ const NextPageButton = styled(Button)`
 const PreviousPageButton = styled(Button)`
   color: ${colorWhite};
   width: ${mdPaddingX};
+  flex-shrink: 0;
 
   i {
     [dir="rtl"] & {
@@ -94,10 +96,9 @@ const VideoCanvas = styled.div<{
   right: 0;
   bottom: 0;
   display: flex;
-  align-items: ${({ $hasContent }) => ($hasContent ? 'flex-start' : 'center')};
-  justify-content: center;
   align-items: center;
-  flex-direction: ${({ $hasContent }) => ($hasContent ? 'column' : 'row')};
+  justify-content: center;
+  flex-direction: column;
 
   ${({ $position }) => ($position === 'contentRight' || $position === 'contentLeft') && `
     flex-wrap: wrap;
@@ -132,6 +133,31 @@ const ContentWrapper = styled.div`
   align-items: stretch;
   justify-content: center;
   position: relative;
+`;
+
+const VideoListColumn = styled.div<{
+  $hasContent: boolean;
+}>`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: ${({ $hasContent }) => ($hasContent ? '6px' : '0')};
+  flex: 1;
+  min-width: 0;
+`;
+
+const PaginationRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+
+  @media ${mediumUp} {
+    gap: 12px;
+  }
 `;
 
 const PeekOverlay = styled.div`
@@ -175,6 +201,8 @@ export default {
   VideoList,
   Break,
   ContentWrapper,
+  VideoListColumn,
+  PaginationRow,
   PeekOverlay,
   PeekCard,
   PeekCloseButton,

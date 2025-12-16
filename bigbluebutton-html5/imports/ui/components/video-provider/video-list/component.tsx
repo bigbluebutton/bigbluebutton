@@ -585,6 +585,11 @@ class VideoList extends Component<VideoListProps, VideoListState> {
     const { position } = cameraDock;
     const shouldOverlayPresentation = !!peekedStream;
 
+    const gridAvailableWidth = Math.min(
+      optimalGrid.width,
+      cameraDock?.width || optimalGrid.width,
+    );
+
     const { gridItems, contentItem } = this.renderVideoList();
 
     return (
@@ -599,24 +604,29 @@ class VideoList extends Component<VideoListProps, VideoListState> {
             minHeight: 'inherit',
           }}
         >
-          {this.renderPreviousPageButton()}
-
           {!streams.length && !isGridEnabled ? null : (
             <>
-              <Styled.VideoList
-                ref={(ref) => {
-                  this.grid = ref;
-                }}
-                style={{
-                  width: `${optimalGrid.width}px`,
-                  height: `${optimalGrid.height}px`,
-                  gridTemplateColumns: `repeat(${optimalGrid.columns}, 1fr)`,
-                  gridTemplateRows: `repeat(${optimalGrid.rows}, 1fr)`,
-                }}
-                className="video-provider_list"
-              >
-                {gridItems}
-              </Styled.VideoList>
+              <Styled.PaginationRow>
+                {this.renderPreviousPageButton()}
+                <Styled.VideoListColumn $hasContent={false}>
+                  <Styled.VideoList
+                    ref={(ref) => {
+                      this.grid = ref;
+                    }}
+                    style={{
+                      width: '100%',
+                      maxWidth: `${gridAvailableWidth}px`,
+                      height: `${optimalGrid.height}px`,
+                      gridTemplateColumns: `repeat(${optimalGrid.columns}, 1fr)`,
+                      gridTemplateRows: `repeat(${optimalGrid.rows}, 1fr)`,
+                    }}
+                    className="video-provider_list"
+                  >
+                    {gridItems}
+                  </Styled.VideoList>
+                </Styled.VideoListColumn>
+                {this.renderNextPageButton()}
+              </Styled.PaginationRow>
               {contentHeight > 0 && contentItem && (
                 <Styled.ContentWrapper
                   style={{
@@ -645,8 +655,6 @@ class VideoList extends Component<VideoListProps, VideoListState> {
             (position === 'contentRight' || position === 'contentLeft')
             && <Styled.Break />
           }
-
-          {this.renderNextPageButton()}
         </Styled.VideoCanvas>
       </>
     );

@@ -491,12 +491,13 @@ export const useHasVideoStream = () => {
   return (!!connectingStream && connectingStream.contentType.includes('camera')) || streams.filter(s => s.contentType.includes('camera')).some((s) => videoService.isLocalStream(s.stream));
 };
 
-const useOwnVideoStreamsQuery = () => useLazyQuery<OwnVideoStreamsResponse>(
+const useOwnVideoStreamsQuery = (contentType: string = 'camera') => useLazyQuery<OwnVideoStreamsResponse>(
   OWN_VIDEO_STREAMS_QUERY,
   {
     variables: {
       userId: Auth.userID,
       streamIdPrefix: `${videoService.getPrefix()}%`,
+      contentType,
     },
     // UID and prefix are stable, so for now we need to bust the cache. If we don't,
     // users will hit issues where cannot unshare their webcam or unsharing deals
@@ -563,9 +564,9 @@ export const useLockUser = () => {
   }, [exitVideo]);
 };
 
-export const useStopVideo = () => {
+export const useStopVideo = (contentType: string = 'camera') => {
   const [cameraBroadcastStop] = useMutation(CAMERA_BROADCAST_STOP);
-  const [getOwnVideoStreams] = useOwnVideoStreamsQuery();
+  const [getOwnVideoStreams] = useOwnVideoStreamsQuery(contentType);
 
   return useCallback(async (cameraId?: string) => {
     const { data } = await getOwnVideoStreams();

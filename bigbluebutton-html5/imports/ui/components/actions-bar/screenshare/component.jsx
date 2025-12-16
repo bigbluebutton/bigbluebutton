@@ -159,7 +159,7 @@ const ScreenshareButton = ({
   const TROUBLESHOOTING_URLS = window.meetingClientSettings.public.media.screenshareTroubleshootingLinks;
   const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
   const isCameraAsContentBroadcasting = useIsCameraAsContentBroadcasting();
-  const stopVideo = useStopVideo();
+  const stopVideo = useStopVideo('screenshare');
 
   const {
     isOpen: isScreenshareUnavailableModalOpen,
