@@ -49,7 +49,7 @@ const RaisedHandsContainer: React.FC = () => {
     color: u.color,
   }));
 
-  const { data: presentationData, loading: presentationLoading } = useDeduplicatedSubscription<{
+  const { data: presentationData } = useDeduplicatedSubscription<{
     pres_page_curr: Array<{ pageId: string }> }>(CURRENT_PRESENTATION_PAGE_SUBSCRIPTION);
   const pageId = presentationData?.pres_page_curr?.[0]?.pageId ?? '';
 
@@ -60,7 +60,7 @@ const RaisedHandsContainer: React.FC = () => {
     );
   }
 
-  if (!meeting || !currentUser || meetingLoading || presentationLoading || raisedHands.length === 0) {
+  if (!meeting || !currentUser || meetingLoading || raisedHands.length === 0) {
     return null;
   }
 

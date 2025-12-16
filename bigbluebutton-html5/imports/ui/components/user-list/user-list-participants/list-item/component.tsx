@@ -53,7 +53,7 @@ const UserListItem: React.FC<UserListItemProps> = ({
   pageId,
   type,
 }) => {
-  const { intl, operations, modal } = useUserOperations(pageId);
+  const { intl, operations, modal } = useUserOperations(user.userId);
 
   const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
   let userItemsFromPlugin = [] as PluginSdk.UserListItemAdditionalInformationInterface[];
@@ -117,7 +117,7 @@ const UserListItem: React.FC<UserListItemProps> = ({
     operations.setRole,
     operations.setLocked,
     operations.userEjectCameras,
-    modal.setIsOpen,
+    () => modal.setIsOpen(true),
     operations.setRaiseHand,
   );
 

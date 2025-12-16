@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useLazyQuery, useMutation } from '@apollo/client';
 import { useIntl } from 'react-intl';
 import { User, RaisedHandUser } from '/imports/ui/Types/user';
@@ -14,6 +13,7 @@ import {
   SET_PRESENTER,
   SET_RAISE_HAND,
 } from '/imports/ui/core/graphql/mutations/userMutations';
+import { useModalRegistration } from '/imports/ui/core/singletons/modalController';
 
 export const mapRaisedHandToUser = (raisedHandUser: RaisedHandUser): User => {
   const voiceData = raisedHandUser.voice || {};
@@ -48,14 +48,29 @@ export const mapRaisedHandToUser = (raisedHandUser: RaisedHandUser): User => {
   return user;
 };
 
-export const useUserOperations = (pageId: string) => {
+export const useUserOperations = (userId?: string) => {
   const intl = useIntl();
   const toggleVoiceFunction = useToggleVoice();
-  const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState<boolean>(false);
   const [chatCreateWithUser] = useMutation(CHAT_CREATE_WITH_USER);
 
+  const {
+    isOpen: isConfirmationModalOpen,
+    open: openConfirmationModal,
+    close: closeConfirmationModal,
+  } = useModalRegistration({
+    id: `removeUserConfirmation-${userId || 'default'}`,
+    priority: 'low',
+  });
+
+  const setIsConfirmationModalOpen = (isOpen: boolean) => {
+    if (isOpen) {
+      openConfirmationModal();
+    } else {
+      closeConfirmationModal();
+    }
+  };
+
   const [getWriters] = useLazyQuery(CURRENT_PAGE_WRITERS_QUERY, {
-    variables: { pageId },
     fetchPolicy: 'no-cache',
   });
 

@@ -26,8 +26,6 @@ const RaisedHandsList: React.FC<RaisedHandsListProps> = ({
 }) => {
   const [openUserAction, setOpenUserAction] = useState<string | null>(null);
 
-  if (raisedHands.length === 0) return null;
-
   const listContent = raisedHands.map((user, index) => (
     <Styled.RaisedHandsItem key={user.userId}>
       <RaisedHandsListItem

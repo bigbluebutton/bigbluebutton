@@ -21,15 +21,7 @@ interface AvatarProps {
   isSkeleton?: boolean;
 }
 
-interface RaisedHandAvatarProps {
-  moderator?: boolean;
-  presenter?: boolean;
-  talking?: boolean;
-  color?: string;
-  animations?: boolean;
-  emoji?: boolean;
-  avatar?: string;
-  isSkeleton?: boolean;
+interface RaisedHandAvatarProps extends AvatarProps {
   children?: React.ReactNode;
 }
 

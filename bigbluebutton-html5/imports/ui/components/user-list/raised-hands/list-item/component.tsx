@@ -120,9 +120,8 @@ const RaisedHandsListItem: React.FC<RaisedHandsListItemProps> = ({
   openUserAction,
   setOpenUserAction,
 }) => {
-  const { intl, operations, modal } = useUserOperations(pageId);
-
   const user = useMemo(() => mapRaisedHandToUser(raisedHandUser), [raisedHandUser]);
+  const { intl, operations, modal } = useUserOperations(user.userId);
 
   const isReactionsEnabled = useIsReactionsEnabled();
   const emojiSize = convertRemToPixels(2.2);
@@ -186,7 +185,7 @@ const RaisedHandsListItem: React.FC<RaisedHandsListItemProps> = ({
     operations.setRole,
     operations.setLocked,
     operations.userEjectCameras,
-    modal.setIsOpen,
+    () => modal.setIsOpen(true),
     operations.setRaiseHand,
   );
 

@@ -171,6 +171,7 @@ export const generateActionsPermissions = (
     && !isDialInUser
     && isPrivateChatEnabled
     && !isSubjectUserBot
+    && !isBreakout
     && type === 'participant';
 
   const allowedToMuteAudio = hasAuthority
@@ -178,6 +179,7 @@ export const generateActionsPermissions = (
     && !isMuted
     && !subjectUserVoice?.listenOnly
     && !isSubjectUserBot
+    && !isBreakout
     && (type === 'participant' || type === 'raised-hand');
 
   const allowedToUnmuteAudio = hasAuthority
@@ -186,6 +188,7 @@ export const generateActionsPermissions = (
     && isMuted
     && (amISubjectUser || usersPolicies?.allowModsToUnmuteUsers)
     && !lockSettings?.disableMic
+    && !isBreakout
     && (type === 'participant' || type === 'raised-hand');
 
   const allowedToChangeWhiteboardAccess = currentUser.presenter
@@ -368,7 +371,7 @@ export const createToolbarOptions = (
   setRole: MutationFunction,
   setLocked: MutationFunction,
   userEjectCameras: MutationFunction,
-  setIsConfirmationModalOpen: (value: boolean) => void,
+  openConfirmationModal: () => void,
   setRaiseHand: MutationFunction,
 ) => {
   const MODERATOR_ROLE = window.meetingClientSettings.public.user.role_moderator;
