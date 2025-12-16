@@ -48,13 +48,17 @@ const OverflowTileContent = styled.div`
   gap: 0.75rem;
 `;
 
-const AvatarsContainer = styled.div`
+const AvatarsContainer = styled.div<{ $count: number }>`
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   height: 60px;
-  width: 120px;
+  width: ${({ $count }) => {
+    if ($count === 1) return '50px';
+    if ($count === 2) return '78px';
+    return '106px';
+  }};
 `;
 
 const AvatarWrapper = styled.div<{ $index: number }>`
