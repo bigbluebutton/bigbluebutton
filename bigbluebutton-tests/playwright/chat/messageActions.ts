@@ -289,9 +289,9 @@ export class MessageActions extends Chat {
     // create breakout rooms
     await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
     await this.modPage.dragDropSelector(e.attendeeNotAssigned, e.breakoutBox1);
-    await this.modPage.waitAndClick(e.modalConfirmButton);
+    await this.modPage.waitAndClick(e.createBreakoutRoomsButton);
     // join both users in room1
-    await this.modPage.waitAndClick(e.createBreakoutRoomsButton, ELEMENT_WAIT_LONGER_TIME);
+    await this.userPage.waitAndClick(e.modalConfirmButton);
     await this.userPage.waitAndClick(e.breakoutRoomSidebarButton);
     await this.userPage.hasElement(
       e.alreadyConnected,

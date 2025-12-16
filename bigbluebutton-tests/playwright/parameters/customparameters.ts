@@ -274,7 +274,7 @@ export class CustomParameters extends MultiUsers {
   }
 
   async hidePresentationOnJoinPinSharedNotes() {
-    await this.modPage.hasElement(e.actions, 'should display the actions button');
+    await this.modPage.hasElement(e.mediaAreaButton, 'should display the media area button');
     await this.modPage.hasElement(
       e.restorePresentation,
       'should display the restore presentation button for the moderator',
@@ -380,7 +380,6 @@ export class CustomParameters extends MultiUsers {
       'should display the presentation title inside the breakout room',
     );
     await breakoutUserPage.wasRemoved(e.whiteboard, 'should not display the whiteboard inside the breakout room');
-    await this.modPage.waitAndClick(e.breakoutRoomsItem);
     await this.modPage.waitAndClick(e.breakoutOptionsMenu);
     await this.modPage.closeAllToastNotifications();
     await this.modPage.waitAndClick(e.endAllBreakouts);

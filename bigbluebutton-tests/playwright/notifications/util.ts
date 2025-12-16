@@ -39,7 +39,7 @@ export async function privateChatMessageToast(testPage: Page) {
   // wait for the private chat to be ready
   await testPage.hasElement(e.privateChatBackButton, 'should display the private chat back button');
   // send a private message
-  await testPage.type(e.chatBox, e.message1);
   await testPage.page.waitForTimeout(1000);
+  await testPage.type(e.chatBox, e.message1);
   await testPage.waitAndClick(e.sendButton);
 }

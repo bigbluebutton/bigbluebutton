@@ -136,13 +136,13 @@ export class CreateParameters extends MultiUsers {
     await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard for the moderator');
     await this.modPage.waitAndClick(e.usersListSidebarButton);
     await this.modPage.hasElementCount(e.userListItem, 2, 'should display the two attendees for the moderator');
-    await this.modPage.waitAndClick(e.usersListSidebarButton);
+    await this.userPage.waitAndClick(e.usersListSidebarButton);
     await this.userPage.hasElementCount(
       e.userListItem,
       1,
       'should display one user(the moderator) for the first attendee',
     );
-    await this.modPage.waitAndClick(e.usersListSidebarButton);
+    await this.userPage2.waitAndClick(e.usersListSidebarButton);
     await this.userPage2.hasElementCount(
       e.userListItem,
       1,

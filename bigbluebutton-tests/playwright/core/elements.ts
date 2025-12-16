@@ -402,8 +402,8 @@ export const elements = {
   messageTitle: 'h2[data-test="messageTitle"]',
   notesTitle: 'h2[data-test="notesTitle"]',
   dataSavingsTab: 'span[id="dataSaving"]',
-  enableWebcamsToggleBtn: 'span[data-test="webcamToggleBtn"]',
-  enableDesktopSharingToggleBtn: 'span[data-test="desktopSharingToggleBtn"]',
+  enableWebcamsToggleBtn: 'span[data-test="webcamToggleBtn"] input',
+  enableDesktopSharingToggleBtn: 'span[data-test="desktopSharingToggleBtn"] input',
   shortcutsButton: 'button[data-test="shortcutsButton"]',
 
   // User

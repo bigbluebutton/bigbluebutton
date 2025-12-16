@@ -93,7 +93,8 @@ export class Options extends MultiUsers {
     const getBackgroundColorComputed = (node: HTMLElement) => getComputedStyle(node).backgroundColor;
     const getTextColorComputed = (node: HTMLElement) => getComputedStyle(node).color;
     // background color elements that should be changed (light mode)
-    const navigationSidebarContainerBackgroundColor = await navigationSidebarContainerLocator.evaluate(getBackgroundColorComputed);
+    const navigationSidebarContainerBackgroundColor =
+      await navigationSidebarContainerLocator.evaluate(getBackgroundColorComputed);
     const whiteboardOptionsButtonBackground = await whiteboardOptionsButtonLocator.evaluate(getBackgroundColorComputed);
     const joinAudioBackgroundColor = await joinAudioLocator.evaluate(getBackgroundColorComputed);
     const leaveMeetingDropdownBackgroundColor = await leaveMeetingDropdownLocator.evaluate(getBackgroundColorComputed);
@@ -148,11 +149,7 @@ export class Options extends MultiUsers {
   async fontSizeTest() {
     await this.modPage.hasElement(e.whiteboard, 'should the whiteboard be display');
     const getFontSizeNumber = (node: HTMLElement) => Number(getComputedStyle(node).fontSize.slice(0, -2));
-    const [
-      presentationTitleLocator,
-      messagesSidebarButtonLocator,
-      chatTitleLocator,
-    ] = [
+    const [presentationTitleLocator, messagesSidebarButtonLocator, chatTitleLocator] = [
       e.presentationTitle,
       e.messagesSidebarButton,
       e.chatTitle,
@@ -173,7 +170,10 @@ export class Options extends MultiUsers {
       )
       .toBeGreaterThan(presentationTitleFontSize);
     expect
-      .soft(await messagesSidebarButtonLocator.evaluate(getFontSizeNumber), 'should the chat button font size be increased')
+      .soft(
+        await messagesSidebarButtonLocator.evaluate(getFontSizeNumber),
+        'should the chat button font size be increased',
+      )
       .toBeGreaterThan(messagesSidebarButtonFontSize);
     expect
       .soft(await chatTitleLocator.evaluate(getFontSizeNumber), 'should the message title font size be increased')
@@ -214,7 +214,7 @@ export class Options extends MultiUsers {
     await expect(wbToolbarLocator).toHaveClass(/fade-in/);
     await this.modPage.hasElement(e.wbToolbar, 'should display the whiteboard toolbar when hover the whiteboard');
 
-    await this.modPage.hoverElement(e.messagesSidebarButton)
+    await this.modPage.hoverElement(e.messagesSidebarButton);
     await expect(wbToolbarLocator).toHaveClass(/fade-out/);
 
     await expect(whiteboardLocator).toHaveScreenshot('whiteboard-with-toolbar-hidden.png', {
@@ -251,8 +251,8 @@ export class Options extends MultiUsers {
       e.enableWebcamsToggleBtn,
       'should display the toggle button as OFF after clicking it',
     );
-    await this.modPage.waitAndClick(e.modalConfirmButton);
-    await this.userPage.waitAndClick(e.modalConfirmButton);
+    await this.modPage.waitAndClick(e.saveSettingsButton);
+    await this.userPage.waitAndClick(e.saveSettingsButton);
 
     await this.userPage.hasElementCount(
       'video',
@@ -323,8 +323,8 @@ export class Options extends MultiUsers {
       e.enableDesktopSharingToggleBtn,
       'should display the toggle button as OFF, after clicking it',
     );
-    await this.modPage.waitAndClick(e.modalConfirmButton);
-    await this.userPage.waitAndClick(e.modalConfirmButton);
+    await this.modPage.waitAndClick(e.saveSettingsButton);
+    await this.userPage.waitAndClick(e.saveSettingsButton);
 
     await this.userPage.wasRemoved(
       e.screenShareVideo,
