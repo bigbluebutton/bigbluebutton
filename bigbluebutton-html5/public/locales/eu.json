@@ -63,6 +63,7 @@
     "app.chat.header.tooltipReact": "Erreakzionatu mezuari",
     "app.chat.content.pollVote": "bozka",
     "app.chat.content.pollVotes": "bozka",
+    "app.chat.plugin.metadataInformation": "{userName} - {pluginName}",
     "app.timer.toolTipTimerStopped": "Tenporizadorea gelditu da.",
     "app.timer.toolTipTimerRunning": "Tenporizadorea martxan dago.",
     "app.timer.toolTipStopwatchStopped": "Kronometroa gelditu da.",

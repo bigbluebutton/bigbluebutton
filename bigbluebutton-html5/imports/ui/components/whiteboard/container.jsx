@@ -79,7 +79,6 @@ const WhiteboardContainer = (props) => {
   const removedQueueRef = useRef([]);
   const flushScheduledRef = useRef(false);
 
-  const fetchDeletableShapesRef = useRef();
   const currentPresentationPageRef = useRef();
 
   // Aggregates the queues and updates state at once.
@@ -188,36 +187,11 @@ const WhiteboardContainer = (props) => {
     setPresentationPage(slideId);
   };
 
-  const fetchDeletableShapes = useCallback((shapeIds) => {
-    if (!hasWBAccess) return null;
-
-    const currentShapeIds = new Set(shapes.map((s) => s.id));
-    const myOwnShapeIds = new Set(
-      shapes.filter((s) => s.meta?.createdBy === currentUser?.userId).map((s) => s.id),
-    );
-    const filteredShapeIds = shapeIds.filter((id) => currentShapeIds.has(id));
-    const allowedShapeIds = (isModerator || isPresenter)
-      ? filteredShapeIds
-      : filteredShapeIds.filter((id) => myOwnShapeIds.has(id));
-
-    return allowedShapeIds;
-  }, [isModerator, isPresenter, hasWBAccess, shapes, currentUser?.userId]);
-
-  fetchDeletableShapesRef.current = fetchDeletableShapes;
-
   const removeShapes = (shapeIds) => {
-    const deletableShapeIds = fetchDeletableShapesRef.current?.(shapeIds);
-
-    if (
-      !Array.isArray(deletableShapeIds)
-      || deletableShapeIds.length === 0
-      || !curPageIdRef.current
-    ) return;
-
     presentationDeleteAnnotations({
       variables: {
         pageId: curPageIdRef.current,
-        annotationsIds: deletableShapeIds,
+        annotationsIds: shapeIds,
       },
     });
   };

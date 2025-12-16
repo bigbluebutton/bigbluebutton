@@ -6,6 +6,7 @@ import {
 } from 'react-intl';
 import VirtualBgSelector from '/imports/ui/components/video-preview/virtual-background/component';
 import browserInfo from '/imports/utils/browserInfo';
+import { MutationFunction } from '@apollo/client';
 import PreviewService from './service';
 import VideoService from '/imports/ui/components/video-provider/service';
 import Styled from './styles';
@@ -41,6 +42,8 @@ interface VideoPreviewProps {
   priority?: number;
   isVirtualBackgroundsEnabled: boolean;
   isCustomVirtualBackgroundsEnabled: boolean;
+  setAway: MutationFunction;
+  isAway: boolean;
 }
 
 const intlMessages: { [key: string]: { id: string; description?: string } } = defineMessages({
@@ -165,6 +168,8 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
   priority,
   isVirtualBackgroundsEnabled,
   isCustomVirtualBackgroundsEnabled,
+  setAway,
+  isAway,
 }) => {
   const intl = useIntl();
   const [selectedTab, setSelectedTab] = useState(0);
@@ -589,6 +594,13 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
                       handleStopSharing();
                     } else {
                       handleStartSharing(webcamDeviceId as string);
+                      if (isAway) {
+                        setAway({
+                          variables: {
+                            away: false,
+                          },
+                        });
+                      }
                     }
                   }}
                   disabled={isCameraLoading || shouldDisableButtons}

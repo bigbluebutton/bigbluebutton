@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 import { isEqual } from 'radash';
 import { makeVar, useReactiveVar } from '@apollo/client';
-import { VoiceActivityResponse } from '/imports/ui/core/graphql/queries/whoIsTalking';
 
 const createUseWhoIsUnmuted = () => {
   const countVar = makeVar(0);
@@ -14,7 +13,7 @@ const createUseWhoIsUnmuted = () => {
 
   const getWhoIsUnmuted = () => stateVar();
 
-  const dispatchWhoIsUnmutedUpdate = (data?: VoiceActivityResponse['user_voice_activity_stream']) => {
+  const dispatchWhoIsUnmutedUpdate = (data?: { userId: string; muted: boolean; }[]) => {
     if (countVar() === 0) return;
 
     if (!data) {
@@ -27,6 +26,8 @@ const createUseWhoIsUnmuted = () => {
     data.forEach((voice) => {
       const { userId, muted } = voice;
 
+      // Delete the user key instead of setting it to false
+      // to keep the state object small and easy to compare with isEqual
       if (muted) {
         delete newUnmutedUsers[userId];
         return;

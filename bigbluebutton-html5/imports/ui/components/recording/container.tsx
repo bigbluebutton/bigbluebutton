@@ -10,7 +10,7 @@ import RecordingComponent from './component';
 import useMeeting from '../../core/hooks/useMeeting';
 
 interface RecordingContainerProps {
-  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsOpen: (visible: boolean) => void;
   amIModerator: boolean;
   onRequestClose: () => void;
   // eslint-disable-next-line react/no-unused-prop-types

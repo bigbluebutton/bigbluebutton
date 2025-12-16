@@ -29,6 +29,7 @@ import SvgIcon from '/imports/ui/components/common/icon-svg/component';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import Service from './service';
 import { Layout } from '../../../layout/layoutTypes';
+import { useModalRegistration } from '/imports/ui/core/singletons/modalController';
 
 const intlMessages = defineMessages({
   notificationRecordingStart: {
@@ -117,14 +118,46 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
   isLoading,
 }) => {
   const intl = useIntl();
-  const [isRecordingModalOpen, setIsRecordingModalOpen] = useState(false);
-  const [isRecordingNotifyModalOpen, setIsRecordingNotifyModalOpen] = useState(false);
   const [shouldNotify, setShouldNotify] = useState(true);
   const [time, setTime] = useState(serverTime);
   const setIntervalRef = React.useRef<ReturnType<typeof setTimeout>>();
   const disabled = hasError || isLoading;
   const showButton = Service.mayIRecord(isModerator, allowStartStopRecording);
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
+
+  const {
+    isOpen: isRecordingModalOpen,
+    open: openRecordingModal,
+    close: closeRecordingModal,
+  } = useModalRegistration({
+    id: 'recordingIndicatorModal',
+    priority: 'high',
+  });
+
+  const setIsRecordingModalOpen = useCallback((isOpen: boolean) => {
+    if (isOpen) {
+      openRecordingModal();
+    } else {
+      closeRecordingModal();
+    }
+  }, [openRecordingModal, closeRecordingModal]);
+
+  const {
+    isOpen: isRecordingNotifyModalOpen,
+    open: openRecordingNotifyModal,
+    close: closeRecordingNotifyModal,
+  } = useModalRegistration({
+    id: 'recordingNotifyModal',
+    priority: 'high',
+  });
+
+  const setIsRecordingNotifyModalOpen = useCallback((isOpen: boolean) => {
+    if (isOpen) {
+      openRecordingNotifyModal();
+    } else {
+      closeRecordingNotifyModal();
+    }
+  }, [openRecordingNotifyModal, closeRecordingNotifyModal]);
 
   const recordingToggle = useCallback((hasMicUser: boolean, isRecording: boolean) => {
     if (!hasMicUser && !isRecording) {

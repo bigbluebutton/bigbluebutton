@@ -12,6 +12,7 @@ import fs from 'fs';
  * @property {'fill'} FillColor - Solid fill color inside the shape.
  * @property {'semi'} SemiFillColor - Semi fill shape color.
  * @property {'sticky'} StickyColor - Color for sticky notes.
+ * @property {'highlight'} HighlightColor - Color for highlight drawings.
  */
 export class Shape {
   /**
@@ -32,6 +33,7 @@ export class Shape {
     rotation,
     opacity,
     props,
+    type,
   }) {
     this.id = id;
     this.x = x;
@@ -39,6 +41,7 @@ export class Shape {
     this.rotation = rotation;
     this.opacity = opacity;
     this.props = props;
+    this.type = type;
 
     this.size = this.props?.size;
     this.color = this.props?.color;
@@ -46,6 +49,7 @@ export class Shape {
     this.fill = this.props?.fill;
     this.text = this.props?.text;
     this.padding = this.props?.padding ?? 0;
+    this.scale = this.props?.scale ?? 1;
 
     // Derived SVG properties
     this.thickness = Shape.getStrokeWidth(this.size);
@@ -130,7 +134,8 @@ export class Shape {
     const translate = `translate(${x} ${y})`;
     const transformOrigin = 'transform-origin: center';
     const rotate = `rotate(${rotation})`;
-    const transform = `${translate}; ${transformOrigin}; ${rotate}`;
+    const scale = `scale(${this.scale})`;
+    const transform = `${translate}; ${transformOrigin}; ${rotate}; ${scale}`;
 
     return transform;
   }
@@ -160,6 +165,21 @@ export class Shape {
       'light-green': '#38B845',
       'light-red': '#FC7075',
       'red': '#D61A25',
+    };
+
+    const highlightMap = {
+      'black': '#fddd00',
+      'blue': '#10acff',
+      'green': '#00ffc8',
+      'grey': '#cbe7f1',
+      'light-blue': '#00f4ff',
+      'light-green': '#65f641',
+      'light-red': '#ff7fa3',
+      'light-violet': '#ff88ff',
+      'orange': '#ffa500',
+      'red': '#ff636e',
+      'violet': '#c77cff',
+      'yellow': '#fddd00',
     };
 
     const fillMap = {
@@ -201,6 +221,7 @@ export class Shape {
       fill: fillMap,
       semi: semiFillMap,
       sticky: stickyMap,
+      highlight: highlightMap,
     };
 
     return colors[colorType][color] || '#0d0d0d';
@@ -267,17 +288,31 @@ export class Shape {
    * Get the font size in pixels.
    *
    * @param {string} size - The size of the font ('s', 'm', 'l', 'xl').
+   * @param {string} [type='default'] The type of the shape
    * @return {number} - The corresponding font size, in pixels.
   */
-  static determineFontSize(size) {
-    const fontSizes = {
+  static determineFontSize(size, type = 'default') {
+    const textFontSizes = {
       's': 18,
       'm': 24,
       'l': 36,
       'xl': 44,
     };
 
-    return fontSizes[size] || 18;
+    const geoFontSizes = {
+      's': 18,
+      'm': 22,
+      'l': 26,
+      'xl': 32,
+    };
+
+    const fontSizeTypes = {
+      'geo': geoFontSizes,
+      'text': textFontSizes,
+      'default': textFontSizes,
+    };
+
+    return fontSizeTypes[type]?.[size] || 18;
   }
 
   /**
@@ -358,6 +393,20 @@ export class Shape {
   }
 
   /**
+     * Gets the smallest character width of a given text string using
+     * font metrics.
+    * @param {string} text - The text to measure.
+    * @param {opentype.Font} font - The loaded font object.
+    * @param {number} fontSize - The size of the font.
+    * @return {number} The width of the smallest character.
+    */
+  getSmallestCharWidth(text, font, fontSize) {
+    const widths = text.split('')
+        .map((char) => this.measureTextWidth(char, font, fontSize));
+    return Math.min(...widths);
+  }
+
+  /**
    * Wraps text to fit within a specified width and height.
    * @param {string} text - The text to wrap.
    * @param {number} width - The width of the bounding box.
@@ -385,19 +434,20 @@ export class Shape {
 
     const decompressedBuffer = await wawoff2.decompress(arrayBuffer);
 
-    const decompresseArrayBuffer = decompressedBuffer.buffer.slice(
+    const decompressedArrayBuffer = decompressedBuffer.buffer.slice(
         decompressedBuffer.byteOffset,
         decompressedBuffer.byteOffset + decompressedBuffer.byteLength);
 
     // Parse the font using the ArrayBuffer
-    const parsedFont = opentype.parse(decompresseArrayBuffer);
-    const fontSize = Shape.determineFontSize(this.size);
+    const parsedFont = opentype.parse(decompressedArrayBuffer);
+    const fontSize = Shape.determineFontSize(this.size, this.type);
 
     // In order to avoid bad line breaks due to rendering mismatch between
     // environments (browser and CairoSVG) we add some spacing for safety.
-    // Such spacing needs to be less than 2 characters width wide
-    // to not mess up original line breaks.
-    width += fontSize * 1.35;
+    width += (this.getSmallestCharWidth(text, parsedFont, fontSize) - 1);
+
+    // Subtract inline padding
+    width -= (this.padding * 2);
 
     const _wrapText = (token, availableWidth) => {
       let prefix = '';
@@ -476,7 +526,7 @@ export class Shape {
     const width = this.w;
     const height = this.h + this.growY;
 
-    const lineHeight = Shape.determineFontSize(this.size);
+    const lineHeight = Shape.determineFontSize(this.size, this.type);
     const fontFamily = Shape.determineFontFromFamily(this.props?.font);
     const x = Shape.alignHorizontally(this.align, width, this.padding);
     const y = Shape.alignVertically(
@@ -541,4 +591,5 @@ export const ColorTypes = Object.freeze({
   FillColor: 'fill',
   SemiFillColor: 'semi',
   StickyColor: 'sticky',
+  HighlightColor: 'highlight',
 });

@@ -126,6 +126,7 @@ class RedisRecorderActor(
       case m: WebcamsOnlyForModeratorChangedEvtMsg  => handleWebcamsOnlyForModeratorChangedEvtMsg(m)
       case m: MeetingEndingEvtMsg                   => handleMeetingEndingEvtMsg(m)
       case m: MeetingCreatedEvtMsg                  => handleStarterConfigurations(m)
+      case m: BroadcastLayoutEvtMsg                 => handleBroadcastLayoutEvtMsg(m)
       case m: SetScreenshareAsContentEvtMsg         => handleSetScreenshareAsContent(m)
       case m: ScreenshareRtmpBroadcastStartedEvtMsg => handleScreenshareRtmpBroadcastStartedEvtMsg(m)
       case m: ScreenshareRtmpBroadcastStoppedEvtMsg => handleScreenshareRtmpBroadcastStoppedEvtMsg(m)
@@ -168,7 +169,7 @@ class RedisRecorderActor(
       ev.setMeetingId(msg.header.meetingId)
       ev.setMessageId(msg.body.msg.id)
       ev.setSenderId(msg.body.msg.sender.id)
-      ev.setMessage(msg.body.msg.message)
+      ev.setMessage(msg.body.msg.messageAsHtml)
       ev.setSenderRole(msg.body.msg.sender.role)
       ev.setReplyToMessageId(msg.body.msg.replyToMessageId)
 
@@ -184,7 +185,7 @@ class RedisRecorderActor(
       val ev = new EditPublicChatMessageRecordEvent()
       ev.setMeetingId(msg.header.meetingId)
       ev.setMessageId(msg.body.messageId)
-      ev.setMessage(msg.body.message)
+      ev.setMessage(msg.body.messageAsHtml)
       record(msg.header.meetingId, ev.toMap.asJava)
     }
   }
@@ -802,6 +803,18 @@ class RedisRecorderActor(
     val ev = new MeetingConfigurationEvent()
     ev.setWebcamsOnlyForModerator(msg.body.props.usersProp.webcamsOnlyForModerator)
     record(msg.body.props.meetingProp.intId, ev.toMap().asJava)
+  }
+
+  private def handleBroadcastLayoutEvtMsg(msg: BroadcastLayoutEvtMsg): Unit = {
+    val ev = new LayoutBroadcastedRecordEvent()
+    ev.setMeetingId(msg.header.meetingId)
+    ev.setLayout(msg.body.layout)
+    ev.setPresentationIsOpen(msg.body.presentationIsOpen)
+    ev.setIsResizing(msg.body.isResizing)
+    ev.setCameraPosition(msg.body.cameraPosition)
+    ev.setFocusedCamera(msg.body.focusedCamera)
+    ev.setPresentationVideoRate(msg.body.presentationVideoRate)
+    record(msg.header.meetingId, ev.toMap().asJava)
   }
 
   private def handleSetScreenshareAsContent(msg: SetScreenshareAsContentEvtMsg): Unit = {
