@@ -16,6 +16,9 @@ import { Output } from '/imports/ui/components/layout/layoutTypes';
 import { VideoItem } from '/imports/ui/components/video-provider/types';
 import { VIDEO_TYPES } from '/imports/ui/components/video-provider/enums';
 import { UserCameraHelperAreas } from '../../plugins-engine/extensible-areas/components/user-camera-helper/types';
+import { ModalRegistration } from '/imports/ui/core/singletons/modalController';
+// @ts-ignore Untyped component.
+import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 
 const intlMessages = defineMessages({
   autoplayBlockedDesc: {
@@ -127,6 +130,10 @@ class VideoList extends Component<VideoListProps, VideoListState> {
 
   private presentationOverlayHost: HTMLElement | null;
 
+  private openPeekModal: (() => void) | null;
+
+  private closePeekModal: (() => void) | null;
+
   constructor(props: VideoListProps) {
     super(props);
 
@@ -159,6 +166,8 @@ class VideoList extends Component<VideoListProps, VideoListState> {
     this.handleClosePeek = this.handleClosePeek.bind(this);
     this.autoplayWasHandled = false;
     this.presentationOverlayHost = null;
+    this.openPeekModal = null;
+    this.closePeekModal = null;
   }
 
   componentDidMount() {
@@ -167,9 +176,9 @@ class VideoList extends Component<VideoListProps, VideoListState> {
     window.addEventListener('videoPlayFailed', this.handlePlayElementFailed);
   }
 
-  componentDidUpdate(prevProps: VideoListProps) {
+  componentDidUpdate(prevProps: VideoListProps, prevState: VideoListState) {
     const {
-      layoutType, cameraDock, streams, focusedId, isPresentationAvailable,
+      layoutType, cameraDock, streams, focusedId,
     } = this.props;
     const { peekedStream } = this.state;
     const { width: cameraDockWidth, height: cameraDockHeight } = cameraDock;
@@ -177,7 +186,6 @@ class VideoList extends Component<VideoListProps, VideoListState> {
       && (s as any).showAsContent)?.stream;
     const prevContentStreamId = prevProps.streams.find((s) => s.contentType === 'screenshare'
       && (s as any).showAsContent)?.stream;
-    const allowPeek = isPresentationAvailable || !!contentStreamId;
     const {
       layoutType: prevLayoutType,
       cameraDock: prevCameraDock,
@@ -195,9 +203,24 @@ class VideoList extends Component<VideoListProps, VideoListState> {
       this.handleCanvasResize();
     }
 
-    if (peekedStream && (!allowPeek || !streams.find((s) => s.contentType === 'screenshare'
-      && (s as any).stream === (peekedStream as any).stream))) {
+    if (peekedStream && !streams.find((s) => s.contentType === 'screenshare'
+      && (s as any).stream === (peekedStream as any).stream)) {
       this.handleClosePeek();
+      return;
+    }
+
+    const prevPeekedStream = prevState.peekedStream;
+    const needsPeekModal = Boolean(peekedStream) && this.shouldUsePeekModal(this.props);
+    const prevNeedsPeekModal = Boolean(prevPeekedStream) && this.shouldUsePeekModal(prevProps);
+
+    if (peekedStream && needsPeekModal && !prevNeedsPeekModal) {
+      this.openPeekModal?.();
+      this.teardownPresentationOverlay();
+    }
+
+    if ((!peekedStream && prevNeedsPeekModal)
+      || (peekedStream && !needsPeekModal && prevNeedsPeekModal)) {
+      this.closePeekModal?.();
     }
   }
 
@@ -249,7 +272,6 @@ class VideoList extends Component<VideoListProps, VideoListState> {
   }
 
   handleOpenPeek(stream: VideoItem) {
-    const { streams, isPresentationAvailable } = this.props;
     const { peekedStream } = this.state;
 
     if (peekedStream && (peekedStream as any).stream === (stream as any).stream) {
@@ -257,17 +279,38 @@ class VideoList extends Component<VideoListProps, VideoListState> {
       return;
     }
 
-    this.setState({ peekedStream: '' });
-    const hasStreamAsContent = streams.filter((s) => s.contentType === 'screenshare').find((s) => (s as any).showAsContent);
-    if (!hasStreamAsContent && !isPresentationAvailable) return;
-    setTimeout(() => {
-      this.setState({ peekedStream: stream });
-    }, 0);
+    const needsPeekModal = this.shouldUsePeekModal(this.props);
+
+    this.teardownPresentationOverlay();
+    this.closePeekModal?.();
+
+    this.setState({ peekedStream: null }, () => {
+      setTimeout(() => {
+        this.setState({ peekedStream: stream }, () => {
+          if (needsPeekModal) {
+            this.openPeekModal?.();
+          } else {
+            this.closePeekModal?.();
+          }
+        });
+      }, 0);
+    });
   }
 
   handleClosePeek() {
     this.setState({ peekedStream: null });
+    this.closePeekModal?.();
     this.teardownPresentationOverlay();
+  }
+
+  hasPeekContentArea(props: VideoListProps): boolean {
+    const { streams, isPresentationAvailable } = props;
+    const hasStreamAsContent = streams.some((s) => s.contentType === 'screenshare' && (s as any).showAsContent);
+    return isPresentationAvailable || hasStreamAsContent;
+  }
+
+  shouldUsePeekModal(props: VideoListProps): boolean {
+    return !this.hasPeekContentArea(props);
   }
 
   mountPresentationOverlay(): HTMLElement | null {
@@ -495,7 +538,7 @@ class VideoList extends Component<VideoListProps, VideoListState> {
     const contentStream = streams.find((stream) => stream.type !== VIDEO_TYPES.GRID
       && (stream as any).showAsContent);
     const { peekedStream } = this.state;
-    const allowPeek = isPresentationAvailable || !!contentStream;
+    const allowPeek = true;
     const nonContentStreams = contentStream
       ? streams.filter((stream) => stream !== contentStream)
       : streams;
@@ -583,7 +626,8 @@ class VideoList extends Component<VideoListProps, VideoListState> {
     } = this.props;
     const { optimalGrid, autoplayBlocked, contentHeight, peekedStream } = this.state;
     const { position } = cameraDock;
-    const shouldOverlayPresentation = !!peekedStream;
+    const usePeekModal = Boolean(peekedStream) && this.shouldUsePeekModal(this.props);
+    const shouldOverlayPresentation = Boolean(peekedStream) && this.hasPeekContentArea(this.props);
 
     const gridAvailableWidth = Math.min(
       optimalGrid.width,
@@ -639,10 +683,11 @@ class VideoList extends Component<VideoListProps, VideoListState> {
               )}
             </>
           )}
-          {peekedStream && this.renderPeekOverlay(
+          {peekedStream && !usePeekModal && this.renderPeekOverlay(
             peekedStream as VideoItem,
             shouldOverlayPresentation,
           )}
+          {this.renderPeekModal()}
           {!autoplayBlocked ? null : (
             <AutoplayOverlay
               autoplayBlockedDesc={intl.formatMessage(intlMessages.autoplayBlockedDesc)}
@@ -660,10 +705,51 @@ class VideoList extends Component<VideoListProps, VideoListState> {
     );
   }
 
-  renderPeekOverlay(
-    stream: VideoItem,
-    usePresentationOverlay: boolean,
-  ) {
+  renderPeekModal() {
+    return (
+      <ModalRegistration id="peekStreamModal" priority="high">
+        {({ isOpen, open, close, id }) => {
+          this.openPeekModal = open;
+          this.closePeekModal = close;
+
+          const { peekedStream } = this.state;
+          const usePeekModal = Boolean(peekedStream) && this.shouldUsePeekModal(this.props);
+          if (!usePeekModal || !peekedStream) return null;
+
+          const peekContent = this.renderPeekContent(peekedStream as VideoItem);
+          if (!peekContent) return null;
+
+          const name = (peekedStream as any).name ?? '';
+          const title = name ? `Peek: ${name}` : 'Peek';
+
+          return (
+            <ModalSimple
+              id={id}
+              title={title}
+              isOpen={isOpen}
+              modalIsOpen={isOpen}
+              onRequestClose={this.handleClosePeek}
+              setIsOpen={close}
+              priority="high"
+              shouldCloseOnOverlayClick
+              style={{
+                content: {
+                  width: '55vw',
+                  maxWidth: '55vw',
+                },
+              }}
+            >
+              <Styled.PeekModalBody>
+                {peekContent}
+              </Styled.PeekModalBody>
+            </ModalSimple>
+          );
+        }}
+      </ModalRegistration>
+    );
+  }
+
+  renderPeekContent(stream: VideoItem) {
     const {
       onVideoItemMount,
       onVideoItemUnmount,
@@ -672,6 +758,7 @@ class VideoList extends Component<VideoListProps, VideoListState> {
       pluginUserCameraHelperPerPosition,
       handleVideoFocus,
       streams,
+      viewersCanSeeViewersScreenShares,
     } = this.props;
 
     const isStream = stream.type !== VIDEO_TYPES.GRID;
@@ -683,6 +770,36 @@ class VideoList extends Component<VideoListProps, VideoListState> {
     const isContent = (stream as any).showAsContent ?? false;
     const contentType = (stream as any).contentType;
     const numOfStreams = streams.length;
+
+    return (
+      <VideoListItemContainer
+        pluginUserCameraHelperPerPosition={pluginUserCameraHelperPerPosition}
+        numOfStreams={numOfStreams}
+        cameraId={streamId}
+        userId={userId}
+        name={name}
+        focused={false}
+        isStream
+        onHandleVideoFocus={handleVideoFocus}
+        onVideoItemMount={(videoRef) => onVideoItemMount(streamId, videoRef)}
+        onVideoItemUnmount={() => onVideoItemUnmount(streamId)}
+        onVirtualBgDrop={(type, dropName, data) => onVirtualBgDrop(streamId, type, dropName, data)}
+        setUserCamerasRequestedFromPlugin={setUserCamerasRequestedFromPlugin}
+        stream={stream}
+        screenShare
+        contentType={contentType}
+        isContent={isContent}
+        viewersCanSeeViewersScreenShares={viewersCanSeeViewersScreenShares}
+      />
+    );
+  }
+
+  renderPeekOverlay(
+    stream: VideoItem,
+    usePresentationOverlay: boolean,
+  ) {
+    const peekContent = this.renderPeekContent(stream);
+    if (!peekContent) return null;
 
     const overlay = (
       <Styled.PeekOverlay
@@ -698,24 +815,7 @@ class VideoList extends Component<VideoListProps, VideoListState> {
             onClick={this.handleClosePeek}
             data-test="closePeekOverlay"
           />
-          <VideoListItemContainer
-            pluginUserCameraHelperPerPosition={pluginUserCameraHelperPerPosition}
-            numOfStreams={numOfStreams}
-            cameraId={streamId}
-            userId={userId}
-            name={name}
-            focused={false}
-            isStream
-            onHandleVideoFocus={handleVideoFocus}
-            onVideoItemMount={(videoRef) => onVideoItemMount(streamId, videoRef)}
-            onVideoItemUnmount={() => onVideoItemUnmount(streamId)}
-            onVirtualBgDrop={(type, dropName, data) => onVirtualBgDrop(streamId, type, dropName, data)}
-            setUserCamerasRequestedFromPlugin={setUserCamerasRequestedFromPlugin}
-            stream={stream}
-            screenShare
-            contentType={contentType}
-            isContent={isContent}
-          />
+          {peekContent}
         </Styled.PeekCard>
       </Styled.PeekOverlay>
     );

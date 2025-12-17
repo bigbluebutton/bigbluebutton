@@ -171,7 +171,9 @@ const PeekOverlay = styled.div`
   z-index: 1200;
 `;
 
-const PeekCard = styled.div`
+const PeekCard = styled.div<{
+  presentation: HTMLElement | null;
+}>`
   position: relative;
   pointer-events: auto;
   width: 100%;
@@ -181,8 +183,19 @@ const PeekCard = styled.div`
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.45);
   border: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
-  ${({presentation}) => presentation ? `height: 100%;
-  background: rgba(0, 0, 0, 0.9);` : ''}
+  ${({ presentation }) => (presentation ? `height: 100%;
+  background: rgba(0, 0, 0, 0.9);` : '')}
+`;
+
+const PeekModalBody = styled.div`
+  width: 100%;
+  height: 60vh;
+  display: flex;
+  align-items: stretch;
+  justify-content: stretch;
+  overflow: hidden;
+  border-radius: 10px;
+  background: transparent;
 `;
 
 // @ts-expect-error -> Untyped component.
@@ -205,5 +218,6 @@ export default {
   PaginationRow,
   PeekOverlay,
   PeekCard,
+  PeekModalBody,
   PeekCloseButton,
 };
