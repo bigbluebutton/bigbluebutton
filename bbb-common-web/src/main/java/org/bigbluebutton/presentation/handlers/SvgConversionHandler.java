@@ -18,6 +18,9 @@ public class SvgConversionHandler extends AbstractCommandHandler {
     private static String USE_TAG_OUTPUT = "<use";
     private static String USE_TAG_PATTERN = "\\d+\\s" + USE_TAG_OUTPUT;
 
+    private static String MASK_TAG_OUTPUT = "<mask";
+    private static String MASK_TAG_PATTERN = "\\d+\\s" + MASK_TAG_OUTPUT;
+
     private final String id;
 
     public SvgConversionHandler(String id) {
@@ -78,6 +81,26 @@ public class SvgConversionHandler extends AbstractCommandHandler {
                 return Integer.parseInt(m.group(0).replace(USE_TAG_OUTPUT, "").trim());
             } catch (Exception e) {
                 log.error("Exception counting the number of use tags", e);
+                return 0;
+            }
+        }
+        return 0;
+    }
+
+    /**
+     *
+     * @return The number of <mask/> tags in the generated SVG.
+     */
+    public int numberOfMaskTags() {
+        if (stdoutContains(MASK_TAG_OUTPUT)) {
+            try {
+                String out = stdoutBuilder.toString();
+                Pattern r = Pattern.compile(MASK_TAG_PATTERN);
+                Matcher m = r.matcher(out);
+                m.find();
+                return Integer.parseInt(m.group(0).replace(MASK_TAG_OUTPUT, "").trim());
+            } catch (Exception e) {
+                log.error("Exception counting the number of mask tags", e);
                 return 0;
             }
         }
