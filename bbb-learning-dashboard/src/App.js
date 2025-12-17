@@ -129,6 +129,73 @@ class App extends React.Component {
     });
   }
 
+  getAverageActivityScore() {
+    const { activitiesJson } = this.state;
+    let meetingAveragePoints = 0;
+
+    const allUsers = Object.values(activitiesJson.users || {})
+      .filter((currUser) => !currUser.isModerator);
+    const nrOfUsers = allUsers.length;
+
+    if (nrOfUsers === 0) return meetingAveragePoints;
+
+    // Calculate points of Talking
+    const usersTalkTime = allUsers.map((currUser) => currUser.talk.totalTime);
+    const maxTalkTime = Math.max(...usersTalkTime);
+    const totalTalkTime = usersTalkTime.reduce((prev, val) => prev + val, 0);
+    if (totalTalkTime > 0) {
+      meetingAveragePoints += ((totalTalkTime / nrOfUsers) / maxTalkTime) * 2;
+    }
+
+    // Calculate points of Chatting
+    const usersTotalOfMessages = allUsers.map((currUser) => currUser.totalOfMessages);
+    const maxMessages = Math.max(...usersTotalOfMessages);
+    const totalMessages = usersTotalOfMessages.reduce((prev, val) => prev + val, 0);
+    if (maxMessages > 0) {
+      meetingAveragePoints += ((totalMessages / nrOfUsers) / maxMessages) * 2;
+    }
+
+    // Calculate points of Raise hand
+    const usersRaiseHand = allUsers.map((currUser) => currUser.raiseHand.length);
+    const maxRaiseHand = Math.max(...usersRaiseHand);
+    const totalRaiseHand = usersRaiseHand.reduce((prev, val) => prev + val, 0);
+    if (maxRaiseHand > 0) {
+      meetingAveragePoints += ((totalRaiseHand / nrOfUsers) / maxRaiseHand) * 2;
+    }
+
+    // Calculate points of Reactions
+    const usersReactions = allUsers.map((currUser) => currUser.reactions.length);
+    const maxReactions = Math.max(...usersReactions);
+    const totalReactions = usersReactions.reduce((prev, val) => prev + val, 0);
+    if (maxReactions > 0) {
+      meetingAveragePoints += ((totalReactions / nrOfUsers) / maxReactions) * 2;
+    }
+
+    // Calculate points of Polls
+    const totalOfPolls = Object.values(activitiesJson.polls || {}).length;
+    if (totalOfPolls > 0) {
+      const totalAnswers = allUsers
+        .reduce((prevVal, currUser) => prevVal + Object.values(currUser.answers || {}).length, 0);
+      meetingAveragePoints += ((totalAnswers / nrOfUsers) / totalOfPolls) * 2;
+    }
+
+    return meetingAveragePoints;
+  }
+
+  getErrorMessage() {
+    const { activitiesJson, learningDashboardAccessToken, sessionToken } = this.state;
+    const { intl } = this.props;
+    if (learningDashboardAccessToken === '' && sessionToken === '') {
+      return intl.formatMessage({ id: 'app.learningDashboard.errors.invalidToken', defaultMessage: 'Invalid session token' });
+    }
+
+    if (Object.keys(activitiesJson).length === 0 || typeof activitiesJson.name === 'undefined') {
+      return intl.formatMessage({ id: 'app.learningDashboard.errors.dataUnavailable', defaultMessage: 'Data is no longer available' });
+    }
+
+    return '';
+  }
+
   fetchMostUsedReactions() {
     const { activitiesJson } = this.state;
     if (!activitiesJson) { return []; }
@@ -236,10 +303,44 @@ class App extends React.Component {
     }, 10000 * (2 ** invalidSessionCount));
   }
 
+  totalOfReactions() {
+    const { activitiesJson } = this.state;
+    if (activitiesJson && activitiesJson.users) {
+      return Object.values(activitiesJson.users)
+        .reduce((prevVal, elem) => prevVal + elem.reactions.length, 0);
+    }
+    return 0;
+  }
+
+  totalOfActivity() {
+    const { activitiesJson } = this.state;
+
+    const usersTimes = Object.values(activitiesJson.users || {}).reduce((prev, user) => ([
+      ...prev,
+      ...Object.values(user.intIds),
+    ]), []);
+
+    const minTime = Object.values(usersTimes || {}).reduce((prevVal, elem) => {
+      if (prevVal === 0 || elem.sessions[0].registeredOn < prevVal) {
+        return elem.sessions[0].registeredOn;
+      }
+      return prevVal;
+    }, 0);
+
+    const maxTime = Object.values(usersTimes || {}).reduce((prevVal, elem) => {
+      if (elem.sessions[elem.sessions.length - 1].leftOn === 0) return (new Date()).getTime();
+      if (elem.sessions[elem.sessions.length - 1].leftOn > prevVal) {
+        return elem.sessions[elem.sessions.length - 1].leftOn;
+      }
+      return prevVal;
+    }, 0);
+
+    return maxTime - minTime;
+  }
+
   render() {
     const {
-      activitiesJson, tab, sessionToken, loading, lastUpdated,
-      learningDashboardAccessToken, ldAccessTokenCopied,
+      activitiesJson, tab, loading, lastUpdated, ldAccessTokenCopied,
     } = this.state;
     const { intl } = this.props;
 
@@ -261,103 +362,7 @@ class App extends React.Component {
 
     document.title = `${intl.formatMessage({ id: 'app.learningDashboard.bigbluebuttonTitle', defaultMessage: 'BigBlueButton' })} - ${intl.formatMessage({ id: 'app.learningDashboard.dashboardTitle', defaultMessage: 'Learning Analytics Dashboard' })} - ${activitiesJson.name}`;
 
-    function totalOfReactions() {
-      if (activitiesJson && activitiesJson.users) {
-        return Object.values(activitiesJson.users)
-          .reduce((prevVal, elem) => prevVal + elem.reactions.length, 0);
-      }
-      return 0;
-    }
-
-    function totalOfActivity() {
-      const usersTimes = Object.values(activitiesJson.users || {}).reduce((prev, user) => ([
-        ...prev,
-        ...Object.values(user.intIds),
-      ]), []);
-
-      const minTime = Object.values(usersTimes || {}).reduce((prevVal, elem) => {
-        if (prevVal === 0 || elem.sessions[0].registeredOn < prevVal) {
-          return elem.sessions[0].registeredOn;
-        }
-        return prevVal;
-      }, 0);
-
-      const maxTime = Object.values(usersTimes || {}).reduce((prevVal, elem) => {
-        if (elem.sessions[elem.sessions.length - 1].leftOn === 0) return (new Date()).getTime();
-        if (elem.sessions[elem.sessions.length - 1].leftOn > prevVal) {
-          return elem.sessions[elem.sessions.length - 1].leftOn;
-        }
-        return prevVal;
-      }, 0);
-
-      return maxTime - minTime;
-    }
-
-    function getAverageActivityScore() {
-      let meetingAveragePoints = 0;
-
-      const allUsers = Object.values(activitiesJson.users || {})
-        .filter((currUser) => !currUser.isModerator);
-      const nrOfUsers = allUsers.length;
-
-      if (nrOfUsers === 0) return meetingAveragePoints;
-
-      // Calculate points of Talking
-      const usersTalkTime = allUsers.map((currUser) => currUser.talk.totalTime);
-      const maxTalkTime = Math.max(...usersTalkTime);
-      const totalTalkTime = usersTalkTime.reduce((prev, val) => prev + val, 0);
-      if (totalTalkTime > 0) {
-        meetingAveragePoints += ((totalTalkTime / nrOfUsers) / maxTalkTime) * 2;
-      }
-
-      // Calculate points of Chatting
-      const usersTotalOfMessages = allUsers.map((currUser) => currUser.totalOfMessages);
-      const maxMessages = Math.max(...usersTotalOfMessages);
-      const totalMessages = usersTotalOfMessages.reduce((prev, val) => prev + val, 0);
-      if (maxMessages > 0) {
-        meetingAveragePoints += ((totalMessages / nrOfUsers) / maxMessages) * 2;
-      }
-
-      // Calculate points of Raise hand
-      const usersRaiseHand = allUsers.map((currUser) => currUser.raiseHand.length);
-      const maxRaiseHand = Math.max(...usersRaiseHand);
-      const totalRaiseHand = usersRaiseHand.reduce((prev, val) => prev + val, 0);
-      if (maxRaiseHand > 0) {
-        meetingAveragePoints += ((totalRaiseHand / nrOfUsers) / maxRaiseHand) * 2;
-      }
-
-      // Calculate points of Reactions
-      const usersReactions = allUsers.map((currUser) => currUser.reactions.length);
-      const maxReactions = Math.max(...usersReactions);
-      const totalReactions = usersReactions.reduce((prev, val) => prev + val, 0);
-      if (maxReactions > 0) {
-        meetingAveragePoints += ((totalReactions / nrOfUsers) / maxReactions) * 2;
-      }
-
-      // Calculate points of Polls
-      const totalOfPolls = Object.values(activitiesJson.polls || {}).length;
-      if (totalOfPolls > 0) {
-        const totalAnswers = allUsers
-          .reduce((prevVal, currUser) => prevVal + Object.values(currUser.answers || {}).length, 0);
-        meetingAveragePoints += ((totalAnswers / nrOfUsers) / totalOfPolls) * 2;
-      }
-
-      return meetingAveragePoints;
-    }
-
-    function getErrorMessage() {
-      if (learningDashboardAccessToken === '' && sessionToken === '') {
-        return intl.formatMessage({ id: 'app.learningDashboard.errors.invalidToken', defaultMessage: 'Invalid session token' });
-      }
-
-      if (activitiesJson === {} || typeof activitiesJson.name === 'undefined') {
-        return intl.formatMessage({ id: 'app.learningDashboard.errors.dataUnavailable', defaultMessage: 'Data is no longer available' });
-      }
-
-      return '';
-    }
-
-    if (loading === false && getErrorMessage() !== '') return <ErrorMessage message={getErrorMessage()} />;
+    if (loading === false && this.getErrorMessage() !== '') return <ErrorMessage message={this.getErrorMessage()} />;
 
     const usersCount = Object.values(activitiesJson.users || {})
       .filter((u) => activitiesJson.endedOn > 0
@@ -445,7 +450,7 @@ class App extends React.Component {
             <p data-test="meetingDurationTimeDashboard">
               <FormattedMessage id="app.learningDashboard.indicators.duration" defaultMessage="Duration" />
               :&nbsp;
-              {tsToHHmmss(totalOfActivity())}
+              {tsToHHmmss(this.totalOfActivity())}
             </p>
           </div>
         </div>
@@ -493,7 +498,7 @@ class App extends React.Component {
                 <CardContent classes={{ root: '!p-0' }}>
                   <CardBody
                     name={intl.formatMessage({ id: 'app.learningDashboard.indicators.activityScore', defaultMessage: 'Activity Score' })}
-                    number={intl.formatNumber((getAverageActivityScore() || 0), {
+                    number={intl.formatNumber((this.getAverageActivityScore() || 0), {
                       minimumFractionDigits: 0,
                       maximumFractionDigits: 1,
                     })}
@@ -529,7 +534,7 @@ class App extends React.Component {
                 <CardContent classes={{ root: '!p-0' }}>
                   <CardBody
                     name={intl.formatMessage({ id: 'app.learningDashboard.indicators.timeline', defaultMessage: 'Timeline' })}
-                    number={totalOfReactions()}
+                    number={this.totalOfReactions()}
                     cardClass={tab === TABS.TIMELINE ? 'border-purple-500' : 'hover:border-purple-500 border-white'}
                     iconClass="bg-purple-200 text-purple-500"
                   >
@@ -619,7 +624,7 @@ class App extends React.Component {
               <div className="w-full overflow-x-auto">
                 <UsersTable
                   allUsers={activitiesJson.users}
-                  totalOfActivityTime={totalOfActivity()}
+                  totalOfActivityTime={this.totalOfActivity()}
                   totalOfPolls={Object.values(activitiesJson.polls || {}).length}
                   tab="overview"
                 />
@@ -634,7 +639,7 @@ class App extends React.Component {
               <div className="w-full overflow-x-auto">
                 <UsersTable
                   allUsers={activitiesJson.users}
-                  totalOfActivityTime={totalOfActivity()}
+                  totalOfActivityTime={this.totalOfActivity()}
                   totalOfPolls={Object.values(activitiesJson.polls || {}).length}
                   tab="overview_activityscore"
                 />

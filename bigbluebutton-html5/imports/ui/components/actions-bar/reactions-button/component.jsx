@@ -30,9 +30,8 @@ const ReactionsButton = (props) => {
       defaultMessage: 'Share a reaction',
     },
     removeReactionsLabel: {
-      id: 'app.actionsBar.reactions.removeReactionButtonLabel',
+      id: 'app.actionsBar.reactions.removeReactionLabel',
       description: 'remove reaction Label',
-      defaultMessage: 'Remove reaction',
     },
   });
 
@@ -90,6 +89,7 @@ const ReactionsButton = (props) => {
           label={intl.formatMessage(intlMessages.removeReactionsLabel)}
           description={intl.formatMessage(intlMessages.removeReactionsLabel)}
           onKeyPress={() => { }}
+          onClick={() => { }}
           hideLabel
           circle
           disabled={currentUserReaction === 'none'}

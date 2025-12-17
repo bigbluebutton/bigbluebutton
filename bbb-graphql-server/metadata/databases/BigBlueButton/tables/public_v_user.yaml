@@ -94,7 +94,7 @@ select_permissions:
         - bot
         - guest
         - guestStatus
-        - hasDrawPermissionOnCurrentPage
+        - whiteboardWriteAccess
         - isDialIn
         - isModerator
         - currentlyInMeeting
@@ -119,6 +119,7 @@ select_permissions:
         - role
         - speechLocale
         - userId
+        - meetingId
       filter:
         _and:
           - meetingId:

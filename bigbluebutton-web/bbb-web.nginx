@@ -164,10 +164,14 @@
             add_header Cache-Control "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0";
             add_header Pragma "no-cache";
             add_header Expires "0";
+            add_header X-Server-Epoch-Msec $msec;
+            add_header X-Request-Id $request_id;
+
             # this Header is required for cluster setups as the ping check is a
             # CORS request. No cookies are required so we can just allow anyone
             # to use this endpoint.
             add_header 'Access-Control-Allow-Origin' '*';
+            add_header 'Access-Control-Expose-Headers' 'X-Server-Epoch-Msec,X-Request-Id';
             return 200 "";
         }
 

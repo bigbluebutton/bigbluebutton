@@ -57,9 +57,9 @@ export class Line extends Shape {
   /**
    * Renders the line object as an SVG group element.
    *
-   * @return {G} - An SVG group element.
+   * @return {Promise<G>} - An SVG group element.
    */
-  draw() {
+  async draw() {
     const lineGroup = this.shapeGroup;
     const linePath = new Path();
 
@@ -74,7 +74,7 @@ export class Line extends Shape {
     });
 
     lineGroup.add(linePath);
-    this.drawLabel(lineGroup);
+    await this.drawLabel(lineGroup);
 
     return lineGroup;
   }

@@ -21,7 +21,7 @@ We have done significant work to adopt the newly released version 2 of tl;draw. 
 
 When transparentListenOnly is enabled on the server (enabled by default starting with BigBlueButton 3.0.0-rc.1), users can now switch seamlessly between Listen Only and Microphone modes without needing to rejoin audio.
 
-To further improve the user experience, you can disable listenOnlyMode (`public.app.listenOnlyMode` in `/etc/bigbluebutton/bbb-html5.yml` or `userdata-bbb_listen_only_mode`). 
+To further improve the user experience, you can disable listenOnlyMode (`public.app.listenOnlyMode` in `/etc/bigbluebutton/bbb-html5.yml` or `userdata-bbb_listen_only_mode`).
 This removes the need to choose between Microphone or Listen Only mode when joining audio in a session. Instead, you are taken directly to the audio configuration screen.
 
 ![audio controls when joining audio](/img/30/30-ui-join-audio.png)
@@ -68,7 +68,7 @@ A contribution from community member Jan Kessler, the direct Leave Meeting butto
 
 ![leave the meeting red button](/img/30/30-leave-meeting.png)
 
-Viewers can leave the meeting by using this new red button, previously hidden near the Setting menu. For moderators, the button includes the option to end the meeting as well. 
+Viewers can leave the meeting by using this new red button, previously hidden near the Setting menu. For moderators, the button includes the option to end the meeting as well.
 
 #### Better looking polling results
 
@@ -105,7 +105,7 @@ To enable see `public.app.defaultSettings.application.pushToTalkEnabled` https:/
 
 We have made significant changes to the architecture of BigBlueButton and have introduced support to plugins -- optional custom modules included in the client which allow expanding the capabilities of BigBlueButton. A data channel is provided to allow for data exchange between clients. See the [HTML5 Plugin SDK](https://github.com/bigbluebutton/bigbluebutton-html-plugin-sdk) for examples and more information.
 
-At the moment of writing this documentation, the official list of plugins includes: 
+At the moment of writing this documentation, the official list of plugins includes:
 - [Select Random User](https://github.com/bigbluebutton/plugin-pick-random-user)
 - [Share a link](https://github.com/bigbluebutton/plugin-generic-link-share)
 - [H5P plugin for BigBlueButton](https://github.com/bigbluebutton/plugin-h5p)
@@ -239,13 +239,20 @@ or the mailing lists.
 ### Upgraded components
 
 Under the hood, BigBlueButton 3.0 installs on Ubuntu 22.04 64-bit, and the following key components have been upgraded
-...
+- Grails 7.0.0
+- Gradle 8.14.3
+- Groovy 4.0.21
+- Spring 6.2.11
+- Spring Boot 3.4.9 
 
 For full details on what is new in BigBlueButton 3.0, see the release notes.
 
 
 Recent releases:
-
+- [3.0.16](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.16)
+- [3.0.15](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.15)
+- [3.0.14](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.14)
+- [3.0.13](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.13)
 - [3.0.12](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.12)
 - [3.0.11](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.11)
 - [3.0.10](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.10)
@@ -363,17 +370,21 @@ Added
 - `maxPluginManifestsFetchUrlPayloadSize` added
 - `numPluginManifestsFetchingThreads` added
 - `extractTimeoutInMs` added
-- `pngCreationExecTimeoutInMs` added
-- `thumbnailCreationExecTimeoutInMs` added
+- `pngCreationExecTimeoutInMs` added, later (BBB 3.0.17) renamed to `pngCreationExecTimeout`
+- `pngCreationExecTimeout` added (used to be `pngCreationExecTimeoutInMs`)
+- `thumbnailCreationExecTimeoutInMs` added, later (BBB 3.0.17) renamed to `thumbnailCreationExecTimeout`
+- `thumbnailCreationExecTimeout` added (used to be `thumbnailCreationExecTimeoutInMs`)
 - `pdfPageDownscaleExecTimeoutInMs` added
 - `officeDocumentValidationExecTimeoutInMs` added
-- `textFileCreationExecTimeoutInMs` added
+- `textFileCreationExecTimeoutInMs` added, later (BBB 3.0.17) renamed to `textFileCreationExecTimeout`
+- `textFileCreationExecTimeout` added (used to be `textFileCreationExecTimeoutInMs`)
 - `presDownloadReadTimeoutInMs` added
 - `pngCreationConversionTimeout` added
 - `imageResizeWait` added
 - `officeDocumentValidationTimeout` added
 - `presOfficeConversionTimeout` added
 - `pdfPageCountWait` added
+- `detectImageDimensionsTimeout` added
 - `presentationConversionCacheEnabled` added
 - `presentationConversionCacheS3AccessKeyId` added
 - `presentationConversionCacheS3AccessKeySecret` added
@@ -401,7 +412,7 @@ In BigBlueButton 2.6.18/2.7.8 POST requests are no longer allowed for the `join`
 
 #### Changes in document formats we support
 
-We improved the documentation for which types of files we support when uploading presentations. Support for `.odi` and `.odc` was dropped. Support for `.svg`, `.odg` and `.webp` was officially added even though animated webp's are no longer animated after the image processing. 
+We improved the documentation for which types of files we support when uploading presentations. Support for `.odi` and `.odc` was dropped. Support for `.svg`, `.odg` and `.webp` was officially added even though animated webp's are no longer animated after the image processing.
 
 #### We mirror the webcam preview by default now
 

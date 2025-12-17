@@ -3,7 +3,7 @@ import { useMutation } from '@apollo/client';
 import { PresentationUploaderToast } from './component';
 
 import {
-  EXPORTING_PRESENTATIONS_SUBSCRIPTION,
+  PRESENTATIONS_SUBSCRIPTION,
 } from '/imports/ui/components/whiteboard/queries';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import SET_PRESENTATION_RENDERED_IN_TOAST from './mutation';
@@ -13,7 +13,7 @@ const PresentationUploaderToastContainer = (props) => {
     data: presentationData,
     loading: presentationLoading,
   } = useDeduplicatedSubscription(
-    EXPORTING_PRESENTATIONS_SUBSCRIPTION,
+    PRESENTATIONS_SUBSCRIPTION,
   );
 
   // Force show toast in first render, since default.pdf is completely uploaded at this point

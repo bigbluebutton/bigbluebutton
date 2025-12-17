@@ -9,11 +9,8 @@ import deviceInfo, { isMobile } from '/imports/utils/deviceInfo';
 import { defineMessages, useIntl } from 'react-intl';
 import {
   GET_MEETING_RECORDING_DATA,
-  GET_MEETING_RECORDING_POLICIES,
   getMeetingRecordingData,
-  getMeetingRecordingPoliciesResponse,
   meetingRecordingAssertion,
-  meetingRecordingPoliciesAssertion,
 } from './queries';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import Tooltip from '/imports/ui/components/common/tooltip/component';
@@ -29,6 +26,7 @@ import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import logger from '/imports/startup/client/logger';
 import SvgIcon from '/imports/ui/components/common/icon-svg/component';
 import Service from './service';
+import { useModalRegistration } from '/imports/ui/core/singletons/modalController';
 
 const intlMessages = defineMessages({
   notificationRecordingStart: {
@@ -109,12 +107,44 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
   isLoading,
 }) => {
   const intl = useIntl();
-  const [isRecordingModalOpen, setIsRecordingModalOpen] = useState(false);
-  const [isRecordingNotifyModalOpen, setIsRecordingNotifyModalOpen] = useState(false);
   const [shouldNotify, setShouldNotify] = useState(true);
   const [time, setTime] = useState(0);
   const setIntervalRef = React.useRef<ReturnType<typeof setTimeout>>();
   const disabled = hasError || isLoading;
+
+  const {
+    isOpen: isRecordingModalOpen,
+    open: openRecordingModal,
+    close: closeRecordingModal,
+  } = useModalRegistration({
+    id: 'recordingIndicatorModal',
+    priority: 'high',
+  });
+
+  const setIsRecordingModalOpen = useCallback((isOpen: boolean) => {
+    if (isOpen) {
+      openRecordingModal();
+    } else {
+      closeRecordingModal();
+    }
+  }, [openRecordingModal, closeRecordingModal]);
+
+  const {
+    isOpen: isRecordingNotifyModalOpen,
+    open: openRecordingNotifyModal,
+    close: closeRecordingNotifyModal,
+  } = useModalRegistration({
+    id: 'recordingNotifyModal',
+    priority: 'high',
+  });
+
+  const setIsRecordingNotifyModalOpen = useCallback((isOpen: boolean) => {
+    if (isOpen) {
+      openRecordingNotifyModal();
+    } else {
+      closeRecordingNotifyModal();
+    }
+  }, [openRecordingNotifyModal, closeRecordingNotifyModal]);
 
   const recordingToggle = useCallback((hasMicUser: boolean, isRecording: boolean) => {
     if (!hasMicUser && !isRecording) {
@@ -307,12 +337,6 @@ const RecordingIndicatorContainer: React.FC = () => {
   const { isMobile } = deviceInfo;
 
   const {
-    data: meetingRecordingPoliciesData,
-    loading: meetingRecordingPoliciesLoading,
-    error: meetingRecordingPoliciesError,
-  } = useDeduplicatedSubscription<getMeetingRecordingPoliciesResponse>(GET_MEETING_RECORDING_POLICIES);
-
-  const {
     data: meetingRecordingData,
     loading: meetingRecordingLoading,
     error: meetingRecordingError,
@@ -329,16 +353,21 @@ const RecordingIndicatorContainer: React.FC = () => {
       : null,
   } as Partial<User>));
 
-  const { data: currentMeeting } = useMeeting((meeting) => ({
+  const {
+    data: currentMeeting,
+    errors: currentMeetingErrors,
+    loading: currentMeetingLoading,
+  } = useMeeting((meeting) => ({
     meetingId: meeting.meetingId,
     notifyRecordingIsOn: meeting.notifyRecordingIsOn,
+    recordingPolicies: meeting.recordingPolicies,
   }));
 
   const [timeSync] = useTimeSync();
   const Settings = getSettingsSingletonInstance();
   const animations = Settings?.application?.animations;
 
-  if (meetingRecordingPoliciesLoading || meetingRecordingLoading) {
+  if (meetingRecordingLoading) {
     return (
       <>
         <Styled.PresentationTitleSeparator aria-hidden="true">|</Styled.PresentationTitleSeparator>
@@ -351,15 +380,6 @@ const RecordingIndicatorContainer: React.FC = () => {
       </>
     );
   }
-  if (meetingRecordingPoliciesError) {
-    logger.error({
-      logCode: 'meeting_recordingPolicies_sub_error',
-      extraInfo: {
-        errorName: meetingRecordingPoliciesError.name,
-        errorMessage: meetingRecordingPoliciesError.message,
-      },
-    }, 'Meeting recording policies subscription failed.');
-  }
 
   if (meetingRecordingError) {
     logger.error({
@@ -370,18 +390,6 @@ const RecordingIndicatorContainer: React.FC = () => {
       },
     }, 'Meeting recording subscription failed.');
   }
-
-  const meetingRecordingPolicies = meetingRecordingPoliciesData?.meeting_recordingPolicies[0] || {
-    allowStartStopRecording: false,
-    autoStartRecording: false,
-    record: false,
-    keepEvents: false,
-    startedAt: null,
-    startedBy: null,
-    stoppedAt: null,
-    stoppedBy: null,
-  };
-  meetingRecordingPoliciesAssertion(meetingRecordingPolicies);
 
   const meetingRecording = meetingRecordingData?.meeting_recording[0] || {
     isRecording: false,
@@ -400,9 +408,9 @@ const RecordingIndicatorContainer: React.FC = () => {
 
   return (
     <RecordingIndicator
-      allowStartStopRecording={meetingRecordingPolicies?.allowStartStopRecording ?? false}
-      autoStartRecording={meetingRecordingPolicies?.autoStartRecording ?? false}
-      record={meetingRecordingPolicies?.record ?? false}
+      allowStartStopRecording={currentMeeting?.recordingPolicies?.allowStartStopRecording ?? false}
+      autoStartRecording={currentMeeting?.recordingPolicies?.autoStartRecording ?? false}
+      record={currentMeeting?.recordingPolicies?.record ?? false}
       recording={meetingRecording?.isRecording ?? false}
       micUser={(currentUser?.voice && !currentUser?.voice.listenOnly) ?? false}
       isPhone={isMobile}
@@ -413,8 +421,8 @@ const RecordingIndicatorContainer: React.FC = () => {
       }
       serverTime={passedTime > 0 ? passedTime : 0}
       isModerator={currentUser?.isModerator ?? false}
-      hasError={Boolean(meetingRecordingPoliciesError || meetingRecordingError)}
-      isLoading={meetingRecordingPoliciesLoading || meetingRecordingLoading}
+      hasError={Boolean(currentMeetingErrors || meetingRecordingError)}
+      isLoading={currentMeetingLoading || meetingRecordingLoading}
     />
   );
 };

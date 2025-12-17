@@ -1,18 +1,36 @@
 import { useEffect, useRef, useState } from 'react';
 import { makeVar, useReactiveVar } from '@apollo/client';
-import { VoiceActivityResponse } from '/imports/ui/core/graphql/queries/whoIsTalking';
 import { partition } from '/imports/utils/array-utils';
 
-type VoiceItem = VoiceActivityResponse['user_voice_activity_stream'][number];
+type VoiceItem = {
+  startTime?: number;
+  endTime?: number;
+  muted: boolean;
+  talking: boolean;
+  userId: string;
+  user: { color: string; speechLocale?: string; name: string };
+};
 
 const TALKING_INDICATOR_TIMEOUT = 6000;
 
 const createUseTalkingUsers = () => {
   const countVar = makeVar(0);
-  const stateVar = makeVar<VoiceActivityResponse['user_voice_activity_stream'] | undefined>([]);
+  const stateVar = makeVar<{
+    muted: boolean;
+    talking: boolean;
+    userId: string;
+    voiceUserId: string;
+    user: { color: string; speechLocale?: string; name: string }
+  }[] | undefined>([]);
   const loadingVar = makeVar(true);
 
-  const dispatchTalkingUserUpdate = (data?: VoiceActivityResponse['user_voice_activity_stream']) => stateVar(data);
+  const dispatchTalkingUserUpdate = (data?: {
+    muted: boolean;
+    talking: boolean;
+    userId: string;
+    voiceUserId: string;
+    user: { color: string; speechLocale?: string; name: string }
+  }[]) => stateVar(data);
 
   const setTalkingUserLoading = (loading: boolean) => loadingVar(loading);
 
@@ -40,24 +58,34 @@ const createUseTalkingUsers = () => {
 
       const [muted, unmuted] = partition(
         voiceActivity,
-        (v: VoiceItem) => v.muted,
-      ) as [VoiceItem[], VoiceItem[]];
+        (v) => v.muted,
+      );
 
       unmuted.forEach((voice) => {
         const {
-          endTime, startTime, talking, userId,
+          talking, userId, muted, user,
         } = voice;
         const currentSpokeTimeout = spokeTimeoutRegistry.current[userId];
         const currentMutedTimeout = mutedTimeoutRegistry.current[userId];
-
-        // User has never talked
-        if (!(endTime || startTime)) return;
 
         setRecord((previousRecord) => {
           const previousIndicator = previousRecord[userId];
 
           if (!previousIndicator && !talking) {
             return previousRecord;
+          }
+
+          let startTime = previousIndicator?.startTime ?? 0;
+          let endTime = previousIndicator?.endTime ?? 0;
+
+          if (previousIndicator?.talking && !talking) {
+            endTime = Date.now();
+            startTime = 0;
+          }
+
+          if (!previousIndicator?.talking && talking) {
+            startTime = Date.now();
+            endTime = 0;
           }
 
           // Cancel any deletion if user has started talking
@@ -87,32 +115,42 @@ const createUseTalkingUsers = () => {
             ...previousRecord,
             [userId]: Object.assign(
               previousRecord[userId] || {},
-              voice,
+              {
+                userId,
+                muted,
+                talking,
+                startTime,
+                endTime,
+                user,
+              },
             ),
           };
         });
       });
 
       muted.forEach((voice) => {
-        const { userId, endTime, startTime } = voice;
+        const { userId, voiceUserId, user } = voice;
         const currentSpokeTimeout = spokeTimeoutRegistry.current[userId];
         const currentMutedTimeout = mutedTimeoutRegistry.current[userId];
-
-        // User has never talked or exited audio
-        if (!(endTime || startTime)) {
-          setRecord((previousRecord) => {
-            const newRecord = { ...previousRecord };
-            delete newRecord[userId];
-            return newRecord;
-          });
-          return;
-        }
 
         setRecord((previousRecord) => {
           const previousIndicator = previousRecord[userId];
 
           if (!previousIndicator) {
             return previousRecord;
+          }
+
+          const { startTime } = previousIndicator;
+
+          const endTime = previousIndicator.talking
+            ? Date.now()
+            : previousIndicator.endTime;
+
+          // User has never talked or exited audio
+          if (!(endTime || startTime) || !voiceUserId) {
+            const newRecord = { ...previousRecord };
+            delete newRecord[userId];
+            return newRecord;
           }
 
           if (!currentMutedTimeout && !currentSpokeTimeout) {
@@ -130,7 +168,14 @@ const createUseTalkingUsers = () => {
             ...previousRecord,
             [userId]: Object.assign(
               previousRecord[userId] || {},
-              voice,
+              {
+                userId,
+                muted,
+                talking: false,
+                startTime,
+                endTime,
+                user,
+              },
             ),
           };
         });

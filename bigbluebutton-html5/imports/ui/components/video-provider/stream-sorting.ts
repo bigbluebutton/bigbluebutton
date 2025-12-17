@@ -6,6 +6,12 @@ import { VIDEO_TYPES } from './enums';
 
 const DEFAULT_SORTING_MODE = 'LOCAL_ALPHABETICAL';
 
+export interface SortingMethodConfig {
+  sortingMethod: (s1: StreamItem, s2: StreamItem) => number;
+  localFirst: boolean;
+  customPagination?: boolean;
+}
+
 // pin first, ignore connecting streams
 export const sortPin = (s1: StreamItem, s2: StreamItem) => {
   if (s1.type === VIDEO_TYPES.CONNECTING) {
@@ -14,9 +20,9 @@ export const sortPin = (s1: StreamItem, s2: StreamItem) => {
   if (s2.type === VIDEO_TYPES.CONNECTING) {
     return 0;
   }
-  if (s1.user.pinned) {
+  if (s1.user?.pinned) {
     return -1;
-  } if (s2.user.pinned) {
+  } if (s2.user?.pinned) {
     return 1;
   }
   return 0;
@@ -91,6 +97,37 @@ export const sortLocalPresenterAlphabetical = (s1: StreamItem, s2: StreamItem) =
     || sortPresenter(s1, s2)
     || UserListService.sortUsersByName(s1, s2);
 
+export const sortByPinned = (s1: StreamItem, s2: StreamItem) => {
+  if (s1.type === VIDEO_TYPES.STREAM && s1.user?.pinned) {
+    return -1;
+  }
+  if (s2.type === VIDEO_TYPES.STREAM && s2.user?.pinned) {
+    return 1;
+  }
+  return 0;
+};
+
+// presenter -> local -> pinned -> alphabetical
+export const sortPresenterLocalPinned = (s1: StreamItem, s2: StreamItem) => {
+  // First, check if either is presenter
+  const presenterSort = sortPresenter(s1, s2);
+  if (presenterSort !== 0) return presenterSort;
+
+  // If neither is presenter, check if either is local
+  const isS1Local = VideoService.isLocalStream(s1.stream);
+  const isS2Local = VideoService.isLocalStream(s2.stream);
+
+  if (isS1Local && !isS2Local) return -1;
+  if (!isS1Local && isS2Local) return 1;
+
+  // If both are local or both are not local, check pinned status
+  const pinnedSort = sortByPinned(s1, s2);
+  if (pinnedSort !== 0) return pinnedSort;
+
+  // Finally, sort alphabetically
+  return UserListService.sortUsersByName(s1, s2);
+};
+
 const SORTING_METHODS = Object.freeze({
   // Default
   LOCAL_ALPHABETICAL: {
@@ -109,9 +146,16 @@ const SORTING_METHODS = Object.freeze({
     sortingMethod: sortLocalPresenterAlphabetical,
     localFirst: true,
   },
+  PRESENTER_LOCAL_PINNED: {
+    sortingMethod: sortPresenterLocalPinned,
+    localFirst: false,
+    // Custom pagination: this method handles its own sorting logic
+    // and should not have streams pre-separated by the pagination handler
+    customPagination: true,
+  },
 });
 
-export const getSortingMethod = (identifier: string) => {
+export const getSortingMethod = (identifier: string): SortingMethodConfig => {
   return SORTING_METHODS[identifier as keyof typeof SORTING_METHODS] || SORTING_METHODS[DEFAULT_SORTING_MODE];
 };
 

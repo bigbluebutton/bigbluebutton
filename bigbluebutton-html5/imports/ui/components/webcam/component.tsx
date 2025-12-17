@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import Resizable from 're-resizable';
+import { Resizable } from 're-resizable';
 import Draggable, { DraggableEvent } from 'react-draggable';
 import { useVideoStreams } from '/imports/ui/components/video-provider/hooks';
 import {
@@ -10,7 +10,7 @@ import {
   layoutDispatch,
 } from '/imports/ui/components/layout/context';
 import { LAYOUT_TYPE, ACTIONS, CAMERADOCK_POSITION } from '/imports/ui/components/layout/enums';
-import { CURRENT_PRESENTATION_PAGE_SUBSCRIPTION } from '/imports/ui/components/whiteboard/queries';
+import { CURRENT_PRESENTATION_PAGE_SUBSCRIPTION, CurrentPresentationPagesSubscriptionResponse } from '/imports/ui/components/whiteboard/queries';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import DropAreaContainer from './drop-areas/container';
 import VideoProviderContainer from '/imports/ui/components/video-provider/container';
@@ -316,8 +316,10 @@ const WebcamContainer: React.FC = () => {
   const presentation = layoutSelectOutput((i: Output) => i.presentation);
   const cameraDock = layoutSelectOutput((i: Output) => i.cameraDock);
   const layoutContextDispatch = layoutDispatch();
-  const { data: presentationPageData } = useDeduplicatedSubscription(CURRENT_PRESENTATION_PAGE_SUBSCRIPTION);
-  const presentationPage = presentationPageData?.pres_page_curr[0] || {};
+  const { data: presentationPageData } = useDeduplicatedSubscription<CurrentPresentationPagesSubscriptionResponse>(
+    CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
+  );
+  const presentationPage = presentationPageData?.pres_page_curr[0];
   const hasPresentation = !!presentationPage?.presentationId;
   const { isOpen: presentationIsOpen } = presentationInput;
   const isLayoutSwapped = !presentationIsOpen;
@@ -339,8 +341,10 @@ const WebcamContainer: React.FC = () => {
     presenter: user.presenter,
   }));
   const { selectedLayout } = useSettings(SETTINGS.APPLICATION) as { selectedLayout: string };
+  const isVideoFocus = selectedLayout === LAYOUT_TYPE.VIDEO_FOCUS;
+  const isUnifiedLayout = selectedLayout === LAYOUT_TYPE.UNIFIED_LAYOUT;
 
-  const isGridEnabled = selectedLayout === LAYOUT_TYPE.VIDEO_FOCUS;
+  const isGridEnabled = isVideoFocus || (isUnifiedLayout && !presentationIsOpen);
 
   const { streams: videoUsers, gridUsers } = useVideoStreams();
 

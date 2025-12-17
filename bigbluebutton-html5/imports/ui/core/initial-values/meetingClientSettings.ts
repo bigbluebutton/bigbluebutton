@@ -28,7 +28,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         iosAppStoreUrl: 'https://apps.apple.com/us/app/bigbluebutton-tablet/id1641156756',
         iosAppUrlScheme: 'bigbluebutton-tablet',
       },
-      lockOnJoin: true,
       cdn: '',
       basename: '/html5client',
       bbbWebBase: '/bigbluebutton',
@@ -213,6 +212,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       disableWebsocketFallback: true,
       maxMutationPayloadSize: 10485760, // 10MB
       timeoutBeforeRedirectOnMeetingEnd: 20000,
+      showConnectionErrors: [3001, 3002, 3003, 3004, 3005, 3006],
     },
     externalVideoPlayer: {
       enabled: true,
@@ -483,7 +483,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       chatMessage: true,
       quickPollConfirmationStep: false,
       quiz: {
-        enabled: false,
+        enabled: true,
         quickPollCorrectAnswerSuffix: '__',
       },
     },
@@ -520,12 +520,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         track2: 'CalmMusic',
         track3: 'aristocratDrums',
       },
-      interval: {
-        clock: 100,
-        offset: 60000,
-      },
       time: 5,
-      tabIndicator: false,
     },
     chat: {
       enabled: true,
@@ -566,22 +561,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         enable: false,
       },
       disableEmojis: [],
-      allowedElements: [
-        'a',
-        'code',
-        'em',
-        'h1',
-        'h2',
-        'h3',
-        'h4',
-        'h5',
-        'h6',
-        'li',
-        'ol',
-        'ul',
-        'p',
-        'strong',
-      ],
+      markdownImageAllowed: false,
       toolbar: [],
     },
     userReaction: {
@@ -698,6 +678,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
             forceStereo: false,
           },
           unpublishOnMute: false,
+          unpublishAfterMuteMs: 5000,
         },
         camera: {
           publishOptions: {
@@ -845,6 +826,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       maxStickyNoteLength: 1000,
       maxNumberOfAnnotations: 300,
       maxNumberOfActiveUsers: 25,
+      maxHistoryStackSize: 400,
       lockToolbarTools: false,
       allowInfiniteWhiteboard: false,
       allowInfiniteWhiteboardInBreakouts: false,

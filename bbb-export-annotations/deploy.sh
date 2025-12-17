@@ -9,7 +9,8 @@ do
     fi
 done
 
-if [ ! -d ./node_modules ] ; then
+if [ ! -d ./node_modules ] || ! npm ls --depth=0 >/dev/null 2>&1; then
+    echo "Running npm install..."
 	npm install --production
 fi
 

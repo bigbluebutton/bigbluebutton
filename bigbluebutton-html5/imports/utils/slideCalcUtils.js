@@ -13,12 +13,18 @@ export default class SlideCalcUtil {
    * Calculate the viewed region width
    */
   static calcViewedRegionWidth(vpw, cpw) {
-    const width = (vpw / cpw) * HUNDRED_PERCENT;
+    let width = (vpw / cpw) * HUNDRED_PERCENT;
+    if (Math.abs(width - HUNDRED_PERCENT) < 0.2) {
+      width = HUNDRED_PERCENT;
+    }
     return Math.max(MIN_PERCENT, width);
   }
 
   static calcViewedRegionHeight(vph, cph) {
-    const height = (vph / cph) * HUNDRED_PERCENT;
+    let height = (vph / cph) * HUNDRED_PERCENT;
+    if (Math.abs(height - HUNDRED_PERCENT) < 0.2) {
+      height = HUNDRED_PERCENT;
+    }
     return Math.max(MIN_PERCENT, height);
   }
 

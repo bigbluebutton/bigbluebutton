@@ -73,7 +73,7 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration with HandlerHelp
         avatar = "",
         webcamBackground = "",
         color = userColor,
-        clientType = if (isDialInUser) "dial-in-user" else "",
+        clientType = if (isDialInUser) ClientType.DIAL_IN else "",
         userLeftFlag = UserLeftFlag(false, 0)
       )
       Users2x.add(liveMeeting.users2x, newUser)
@@ -117,7 +117,9 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration with HandlerHelp
         msg.body.callerIdName,
         msg.body.callerIdNum,
         userColor,
+        speechLocale = "",
         msg.body.muted,
+        listenOnlyInputDevice = false,
         deafened = false,
         msg.body.talking,
         "freeswitch",

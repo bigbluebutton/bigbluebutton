@@ -162,7 +162,8 @@ const PollsTable = (props) => {
 
   gridCols.push({
     ...commonCountProps,
-    valueGetter: (params) => Object.keys(params?.row?.User?.answers)?.length || 0,
+    valueGetter: (params) => Object.keys(params?.row?.User?.answers)
+      .filter((k) => Boolean(polls[k]))?.length || 0,
     renderCell: (params) => params?.value,
   });
 

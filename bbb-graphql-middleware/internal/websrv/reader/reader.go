@@ -1,19 +1,30 @@
 package reader
 
 import (
-	"bbb-graphql-middleware/internal/common"
 	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
-	"nhooyr.io/websocket"
 	"sync"
 	"time"
+
+	"bbb-graphql-middleware/internal/common"
+	streamingserver "bbb-graphql-middleware/internal/streaming_server"
+
+	"github.com/coder/websocket"
 )
+
+var streamingHandleByMiddlewarePatterns = [][]byte{
+	[]byte("\"query\":\"subscription getCursorCoordinatesStream"),
+	[]byte("\"query\":\"subscription getChatMessageStream"),
+	[]byte("\"query\":\"subscription getNotificationStream"),
+	[]byte("\"query\":\"subscription getUserVoiceStateStream"),
+}
 
 func BrowserConnectionReader(
 	browserConnection *common.BrowserConnection,
-	waitGroups []*sync.WaitGroup) {
+	waitGroups []*sync.WaitGroup,
+) {
 	defer browserConnection.Logger.Debugf("finished")
 	browserConnection.Logger.Debugf("starting")
 
@@ -71,11 +82,24 @@ func BrowserConnectionReader(
 
 		if browserMessageType.Type == "subscribe" {
 			if bytes.Contains(message, []byte("\"query\":\"mutation")) {
-				browserConnection.FromBrowserToGqlActionsChannel.Send(message)
+				browserConnection.FromBrowserToGqlActionsChannel.SendWait(browserConnection.Context, message)
+				continue
+			}
+
+			isStreamingSubscription := false
+			for _, p := range streamingHandleByMiddlewarePatterns {
+				if bytes.Contains(message, p) {
+					isStreamingSubscription = true
+					break
+				}
+			}
+
+			if isStreamingSubscription {
+				go streamingserver.ReadNewStreamingSubscription(browserConnection, message)
 				continue
 			}
 		}
 
-		browserConnection.FromBrowserToHasuraChannel.Send(message)
+		browserConnection.FromBrowserToHasuraChannel.SendWait(browserConnection.Context, message)
 	}
 }

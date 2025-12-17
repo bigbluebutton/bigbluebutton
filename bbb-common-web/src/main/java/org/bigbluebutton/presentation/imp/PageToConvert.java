@@ -4,6 +4,7 @@ package org.bigbluebutton.presentation.imp;
 import org.bigbluebutton.presentation.*;
 import java.io.File;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class PageToConvert {
 
@@ -53,6 +54,8 @@ public class PageToConvert {
     return page;
   }
 
+  public UploadedPresentation getPres() { return this.pres; }
+
   public String getPresId() {
     return pres.getId();
   }
@@ -69,8 +72,7 @@ public class PageToConvert {
     this.messageErrorInConversion = messageErrorInConversion;
   }
 
-  public PageToConvert convert() {
-
+  public boolean convert() {
     /* adding accessibility */
     createThumbnails(pres, page, pageFile);
 
@@ -90,7 +92,14 @@ public class PageToConvert {
       createPngImages(pres, page, pageFile);
     }
 
-    return this;
+    return true;
+  }
+
+  public void createBlanks() {
+    thumbnailCreator.createBlank(pres, page);
+    textFileCreator.createBlank(pres, page);
+    if (svgImagesRequired) svgImageCreator.createBlank(pres, page);
+    if (generatePngs) pngCreator.createBlank(pres, page);
   }
 
   private void createThumbnails(UploadedPresentation pres, int page, File pageFile) {

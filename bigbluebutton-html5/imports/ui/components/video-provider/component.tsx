@@ -97,6 +97,7 @@ interface VideoProviderProps {
   isGridEnabled: boolean;
   isClientConnected: boolean;
   totalNumberOfStreams: number;
+  overflowCount: number;
   isUserLocked: boolean;
   currentVideoPageIndex: number;
   streams: VideoItem[];
@@ -435,7 +436,7 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
   findAllPrivilegedStreams() {
     const { streams } = this.props;
     // Privileged streams are: floor holders, pinned users
-    return streams.filter((stream) => stream.type === VIDEO_TYPES.STREAM && (stream.floor || stream.pinned));
+    return streams.filter((stream) => stream.type === VIDEO_TYPES.STREAM && (stream.floor || stream?.pinned));
   }
 
   updateQualityThresholds(numberOfPublishers: number) {
@@ -1372,6 +1373,7 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
       focusedId,
       handleVideoFocus,
       isGridEnabled,
+      overflowCount,
     } = this.props;
 
     return (
@@ -1383,6 +1385,7 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
           focusedId,
           handleVideoFocus,
           isGridEnabled,
+          overflowCount,
         }}
         onVideoItemMount={this.createVideoTag}
         onVideoItemUnmount={this.destroyVideoTag}

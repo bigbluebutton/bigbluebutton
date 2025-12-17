@@ -13,7 +13,7 @@ import Auth from '/imports/ui/services/auth';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { partition } from '/imports/utils/array-utils';
-import { USER_AGGREGATE_COUNT_SUBSCRIPTION } from '/imports/ui/core/graphql/queries/users';
+import { USER_AGGREGATE_COUNT_SUBSCRIPTION, UsersCountSubscriptionResponse } from '/imports/ui/core/graphql/queries/users';
 import {
   getSortingMethod,
   sortVideoStreams,
@@ -30,6 +30,7 @@ import {
   GRID_USERS_SUBSCRIPTION,
   VIEWERS_IN_WEBCAM_COUNT_SUBSCRIPTION,
   VIDEO_STREAMS_SUBSCRIPTION,
+  ViewerVideoStreamsSubscriptionResponse,
 } from '/imports/ui/components/video-provider/queries';
 import videoService from '/imports/ui/components/video-provider/service';
 import { CAMERA_BROADCAST_STOP } from '/imports/ui/components/video-provider/mutations';
@@ -150,10 +151,7 @@ export const useLocalVideoStreamsCount = () => {
 
 export const useInfo = () => {
   const { data } = useMeeting((m) => ({
-    voiceSettings: {
-      // @ts-expect-error -> There seems to be a design issue on the projection portion.
-      voiceConf: m.voiceSettings?.voiceConf,
-    },
+    voiceSettings: m.voiceSettings,
   }));
   const voiceBridge = data?.voiceSettings ? data.voiceSettings.voiceConf : null;
   return {
@@ -168,10 +166,7 @@ export const useInfo = () => {
 export const useHasCapReached = () => {
   const { data: meeting } = useMeeting((m) => ({
     meetingCameraCap: m.meetingCameraCap,
-    usersPolicies: {
-      // @ts-expect-error -> There seems to be a design issue on the projection portion.
-      userCameraCap: m.usersPolicies?.userCameraCap,
-    },
+    usersPolicies: m.usersPolicies,
   }));
   const videoStreamsCount = useVideoStreamsCount();
   const localVideoStreamsCount = useLocalVideoStreamsCount();
@@ -179,13 +174,12 @@ export const useHasCapReached = () => {
   // If the meeting prop data is unreachable, force a safe return
   if (
     meeting?.usersPolicies === undefined
-    || !meeting?.meetingCameraCap === undefined
+    || meeting?.meetingCameraCap === undefined
   ) return true;
   const { meetingCameraCap } = meeting;
   const { userCameraCap } = meeting.usersPolicies;
 
-  // @ts-expect-error -> There seems to be a design issue on the projection portion.
-  const meetingCap = meetingCameraCap !== 0 && videoStreamsCount >= meetingCameraCap;
+  const meetingCap = meetingCameraCap !== 0 && videoStreamsCount >= (meetingCameraCap as number);
   const userCap = userCameraCap !== 0 && localVideoStreamsCount >= userCameraCap;
 
   return meetingCap || userCap;
@@ -193,16 +187,13 @@ export const useHasCapReached = () => {
 
 export const useDisableCam = () => {
   const { data: meeting } = useMeeting((m) => ({
-    lockSettings: {
-      // @ts-expect-error -> There seems to be a design issue on the projection portion.
-      disableCam: m.lockSettings?.disableCam,
-    },
+    lockSettings: m.lockSettings,
   }));
   return meeting?.lockSettings ? meeting?.lockSettings.disableCam : false;
 };
 
 const getCountData = () => {
-  const { data: countData } = useDeduplicatedSubscription(
+  const { data: countData } = useDeduplicatedSubscription<UsersCountSubscriptionResponse>(
     USER_AGGREGATE_COUNT_SUBSCRIPTION,
   );
   return countData?.user_aggregate?.aggregate?.count || 0;
@@ -303,8 +294,10 @@ export const useIsPaginationEnabled = () => {
 
 export const useGridUsers = (visibleStreamCount: number) => {
   const gridSize = useGridSize();
+  const userCount = getCountData();
   const isGridEnabled = useStorageKey('isGridEnabled');
   const gridItems = useRef<GridItem[]>([]);
+  const overflowCount = useRef<number>(0);
 
   const {
     data: gridData,
@@ -318,7 +311,7 @@ export const useGridUsers = (visibleStreamCount: number) => {
     },
   );
 
-  if (gridLoading) return gridItems.current;
+  if (gridLoading) return { gridUsers: gridItems.current, overflowCount: overflowCount.current };
 
   if (gridError) {
     logger.error({
@@ -336,11 +329,18 @@ export const useGridUsers = (visibleStreamCount: number) => {
       type: VIDEO_TYPES.GRID,
     }));
     gridItems.current = newGridUsers;
+
+    const overflow = Math.max(userCount - gridSize, 0);
+
+    // if there's overflow, we replace the last grid user with the overflow tile,
+    // so we need to add 1 to the overflow count to account for the replaced user
+    overflowCount.current = overflow > 0 ? overflow + 1 : 0;
   } else {
     gridItems.current = [];
+    overflowCount.current = 0;
   }
 
-  return gridItems.current;
+  return { gridUsers: gridItems.current, overflowCount: overflowCount.current };
 };
 
 export const useSharedDevices = () => {
@@ -410,35 +410,63 @@ export const useVideoStreams = () => {
   }
 
   if (isPaginationEnabled) {
-    const [filtered, others] = partition(
-      streams,
-      (vs: StreamItem) => videoService.isLocalStream(vs.stream) || (vs.type === VIDEO_TYPES.STREAM && vs.user.pinned),
-    );
-    const [pin, mine] = partition(
-      filtered,
-      (vs: StreamItem) => vs.type === VIDEO_TYPES.STREAM && vs.user.pinned,
-    );
-
-    totalNumberOfOtherStreams = others.length;
     const chunkIndex = currentVideoPageIndex * myPageSize;
     const sortingMethod = (numberOfPages > 1) ? PAGINATION_SORTING : DEFAULT_SORTING;
-    const paginatedStreams = sortVideoStreams(others, sortingMethod)
-      .slice(chunkIndex, (chunkIndex + myPageSize)) || [];
+    const sortingConfig = getSortingMethod(sortingMethod);
 
-    if (getSortingMethod(sortingMethod).localFirst) {
-      streams = [...pin, ...mine, ...paginatedStreams];
+    // Check if this sorting method uses custom pagination logic
+    if (sortingConfig.customPagination) {
+      // For PRESENTER_LOCAL_PINNED mode, paginate all streams equally
+      // This means local cameras will only appear on their page (where they belong in sort order)
+      const sortedStreams = sortVideoStreams(streams, sortingMethod);
+
+      totalNumberOfOtherStreams = sortedStreams.length;
+      const paginatedStreams = sortedStreams.slice(chunkIndex, chunkIndex + myPageSize) || [];
+
+      const localStreamsNotInPage = sortedStreams.filter(
+        (vs, index) => videoService.isLocalStream(vs.stream)
+        && (index < chunkIndex || index >= chunkIndex + myPageSize),
+      );
+
+      // Mark local cameras not in current page with render: false
+      const localStreamsWithRenderFlag = localStreamsNotInPage.map((stream) => ({
+        ...stream,
+        render: false,
+      }));
+
+      streams = [...paginatedStreams, ...localStreamsWithRenderFlag];
     } else {
-      streams = [...pin, ...paginatedStreams, ...mine];
+      // Original pagination logic for other sorting methods
+      const [filtered, others] = partition(
+        streams,
+        (vs: StreamItem) => videoService.isLocalStream(vs.stream)
+          || (vs.type === VIDEO_TYPES.STREAM && vs.user?.pinned),
+      );
+      const [pin, mine] = partition(
+        filtered,
+        (vs: StreamItem) => vs.type === VIDEO_TYPES.STREAM && vs.user?.pinned,
+      );
+
+      totalNumberOfOtherStreams = others.length;
+      const paginatedStreams = sortVideoStreams(others, sortingMethod)
+        .slice(chunkIndex, (chunkIndex + myPageSize)) || [];
+
+      if (sortingConfig.localFirst) {
+        streams = [...pin, ...mine, ...paginatedStreams];
+      } else {
+        streams = [...pin, ...paginatedStreams, ...mine];
+      }
     }
   } else {
     streams = sortVideoStreams(streams, DEFAULT_SORTING);
   }
 
-  const gridUsers = useGridUsers(streams.length);
+  const { gridUsers, overflowCount } = useGridUsers(streams.length);
 
   return {
     streams,
-    gridUsers,
+    gridUsers: gridUsers.filter((u) => !streams.find((s) => s.userId === u.userId)),
+    overflowCount,
     totalNumberOfStreams: streams.length,
     totalNumberOfOtherStreams,
   };
@@ -506,7 +534,9 @@ export const useExitVideo = (forceExit = false) => {
 };
 
 export const useViewersInWebcamCount = (): number => {
-  const { data } = useDeduplicatedSubscription(VIEWERS_IN_WEBCAM_COUNT_SUBSCRIPTION);
+  const { data } = useDeduplicatedSubscription<ViewerVideoStreamsSubscriptionResponse>(
+    VIEWERS_IN_WEBCAM_COUNT_SUBSCRIPTION,
+  );
   return data?.user_camera_aggregate?.aggregate?.count || 0;
 };
 

@@ -54,7 +54,6 @@ export interface App {
   helpLink: string
   delayForUnmountOfSharedNote: number
   bbbTabletApp: BbbTabletApp
-  lockOnJoin: boolean
   cdn: string
   basename: string
   bbbWebBase: string
@@ -107,6 +106,7 @@ export interface App {
   enableApolloDevTools: boolean
   terminateAndRetryConnection: number
   timeoutBeforeRedirectOnMeetingEnd: number | null
+  showConnectionErrors: number[]
 }
 
 export interface BbbTabletApp {
@@ -501,9 +501,7 @@ export interface Timer {
   enabled: boolean
   alarm: boolean
   music: Music
-  interval: Interval
   time: number
-  tabIndicator: boolean
 }
 
 export interface Music {
@@ -512,11 +510,6 @@ export interface Music {
   track1: string
   track2: string
   track3: string
-}
-
-export interface Interval {
-  clock: number
-  offset: number
 }
 
 export interface Chat {
@@ -546,7 +539,7 @@ export interface Chat {
   autoConvertEmoji: boolean
   emojiPicker: EmojiPicker
   disableEmojis: string[]
-  allowedElements: string[]
+  markdownImageAllowed: boolean
   toolbar: string[]
 }
 
@@ -655,6 +648,7 @@ export interface LiveKitScreenShareSettings {
 export interface LiveKitAudioSettings {
   publishOptions?: TrackPublishOptions
   unpublishOnMute?: boolean
+  unpublishAfterMuteMs?: number
 }
 
 export interface LiveKitSettings {
@@ -756,6 +750,7 @@ export interface Whiteboard {
   maxStickyNoteLength: number
   maxNumberOfAnnotations: number
   maxNumberOfActiveUsers: number
+  maxHistoryStackSize: number
   lockToolbarTools: boolean
   annotations: Annotations
   allowInfiniteWhiteboard: boolean

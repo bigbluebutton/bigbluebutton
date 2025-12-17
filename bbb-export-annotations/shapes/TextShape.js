@@ -1,4 +1,4 @@
-import {Text} from '@svgdotjs/svg.js';
+import {Text, Tspan} from '@svgdotjs/svg.js';
 import {Shape} from './Shape.js';
 
 /**
@@ -34,15 +34,14 @@ export class TextShape extends Shape {
    * Overrides the placeholder draw method in the Shape base class.
    * @override
    * @method draw
-   * @return {G} An SVG group element containing the text.
+   * @return {Promise<G>} An SVG group element containing the text.
    */
-  draw() {
+  async draw() {
     const x = Shape.alignHorizontally(this.align, this.w);
     const y = 0;
 
     const textGroup = this.shapeGroup;
     const textElement = new Text()
-        .text(this.text)
         .attr({'xml:space': 'preserve'})
         .move(x, y)
         .font({
@@ -52,6 +51,20 @@ export class TextShape extends Shape {
           'alignment-baseline': 'middle',
         })
         .fill(this.shapeColor);
+
+    const lines = await this.wrapText(this.text ?? '', this.w ?? 200);
+    const lineHeight = this.fontSize * 1.35;
+
+    lines.forEach((line, idx) => {
+      const tspan = new Tspan()
+          .text(line)
+          .attr({
+            x,
+            dy: idx === 0 ? lineHeight / 2 : lineHeight,
+          });
+
+      textElement.add(tspan);
+    });
 
     textGroup.add(textElement);
 

@@ -19,6 +19,9 @@
 
 package org.bigbluebutton.presentation;
 
+import org.bigbluebutton.presentation.imp.PageToConvert;
+
 public interface TextFileCreator {
 	public boolean createTextFile(UploadedPresentation pres, int page);
+	public void createBlank(UploadedPresentation pres, int page);
 }

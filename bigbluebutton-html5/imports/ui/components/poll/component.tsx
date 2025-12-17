@@ -305,13 +305,13 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
           : pollType,
       );
       setIsQuiz(isQuiz);
-      setCorrectAnswer({
-        text: correctAnswer ?? '',
-        index: answers.indexOf(correctAnswer) ?? -1,
-      });
       if (answers.length) {
         // @ts-ignore
         setOptList(answers.map((answer) => ({ key: pollTypesKeys[answer] ?? answer, val: answer })));
+        setCorrectAnswer({
+          text: correctAnswer ?? '',
+          index: answers.indexOf(correctAnswer) ?? -1,
+        });
         return;
       }
 
@@ -331,7 +331,7 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
 
       switch (pollType) {
         case pollTypes.TrueFalse: {
-          setOptList([
+          const pattern = [
             {
               key: pollTypesKeys.true,
               val: intl.formatMessage(intlMessages.true),
@@ -340,11 +340,16 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
               key: pollTypesKeys.false,
               val: intl.formatMessage(intlMessages.false),
             },
-          ]);
+          ];
+          setCorrectAnswer({
+            text: correctAnswer ?? '',
+            index: pattern.findIndex((o) => o.val === correctAnswer) ?? -1,
+          });
+          setOptList(pattern);
           break;
         }
         case pollTypes.YesNo: {
-          setOptList([
+          const pattern = [
             {
               key: pollTypesKeys.yes,
               val: intl.formatMessage(intlMessages.yes),
@@ -353,11 +358,16 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
               key: pollTypesKeys.no,
               val: intl.formatMessage(intlMessages.no),
             },
-          ]);
+          ];
+          setCorrectAnswer({
+            text: correctAnswer ?? '',
+            index: pattern.findIndex((o) => o.val === correctAnswer) ?? -1,
+          });
+          setOptList(pattern);
           break;
         }
         case pollTypes.YesNoAbstention: {
-          setOptList([
+          const pattern = [
             {
               key: pollTypesKeys.yes,
               val: intl.formatMessage(intlMessages.yes),
@@ -370,7 +380,12 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
               key: pollTypesKeys.abstention,
               val: intl.formatMessage(intlMessages.abstention),
             },
-          ]);
+          ];
+          setCorrectAnswer({
+            text: correctAnswer ?? '',
+            index: pattern.findIndex((o) => o.val === correctAnswer) ?? -1,
+          });
+          setOptList(pattern);
           break;
         }
         default: {
@@ -450,7 +465,12 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
       setType(type);
       setWarning(warning);
       setIsQuiz(isQuiz);
-      setCorrectAnswer(correctAnswer);
+      setCorrectAnswer({
+        text: correctAnswer.text,
+        index: correctAnswer.index === -1
+          ? optList.findIndex((o) => o.val === correctAnswer.text)
+          : correctAnswer.index,
+      });
     }
   }, []);
 
@@ -829,7 +849,7 @@ const PollCreationPanelContainer: React.FC = () => {
   return (
     <PollCreationPanel
       layoutContextDispatch={layoutContextDispatch}
-      hasPoll={currentMeeting.componentsFlags?.hasPoll ?? false}
+      hasPoll={currentMeeting?.componentsFlags?.hasPoll ?? false}
     />
   );
 };
