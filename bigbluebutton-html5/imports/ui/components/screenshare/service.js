@@ -14,6 +14,7 @@ import VideoPreviewService from '/imports/ui/components/video-preview/service';
 import BBBVideoStream from '../../services/webrtc-base/bbb-video-stream';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 import useMeeting from '../../core/hooks/useMeeting';
+import meetingStaticData from '../../core/singletons/meetingStaticData';
 
 let screenShareBridge = sfuScreenShareBridge;
 
@@ -388,7 +389,7 @@ export const multiScreenshare = async (
 
 export const shareScreen = (...args) => {
   const multiScreenshareEnabled = window.meetingClientSettings.public.app.enableMultiScreenshare;
-  if (multiScreenshareEnabled) {
+  if (multiScreenshareEnabled && meetingStaticData.getMeetingData().screenShareBridge === 'livekit') {
     return multiScreenshare(...args);
   }
   return singleShareScreen(...args);
