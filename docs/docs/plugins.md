@@ -1029,7 +1029,7 @@ So the idea is that we have a `uiCommands` object and at a point, there will be 
 
 This integration allow you to insert/update entry in LAD (Learning Analytics Dashboard) via `upsertUserData` function and also delete entries via `deleteUserData` function.
 
-It's an object available in the `pluginApi` that wraps those 2 functions:
+It's an object available in the `pluginApi` that wraps those 3 functions:
 
 - `pluginApi.learningAnalyticsDashboard.upsertUserData`
 - `pluginApi.learningAnalyticsDashboard.deleteUserData`
