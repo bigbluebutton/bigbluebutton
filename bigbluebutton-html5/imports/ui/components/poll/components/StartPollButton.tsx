@@ -53,7 +53,7 @@ const intlMessages = defineMessages({
 });
 
 interface StartPollButtonProps {
-  optList: Array<{val: string}>;
+  optList: Array<{val: string, key: string}>;
   question: string | string[];
   type: string | null;
   setError: (err: string) => void;
@@ -116,7 +116,7 @@ const StartPollButton: React.FC<StartPollButtonProps> = ({
     && optList.filter((o) => o.val.trim().length > 0).length < 1);
   const quizHasNoCorrectAnswer = (
     isQuiz
-    && !(optList[correctAnswer.index]?.val === correctAnswer.text));
+    && !(optList[correctAnswer.index]?.key === correctAnswer.text));
   return (
     <Styled.StartPollBtn
       data-test="startPoll"

@@ -4,7 +4,6 @@ import Icon from '/imports/ui/components/common/icon/component';
 import NotesService from '/imports/ui/components/notes/service';
 import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
 import { PANELS } from '/imports/ui/components/layout/enums';
-import { notify } from '/imports/ui/services/notification';
 import { layoutSelectInput, layoutDispatch } from '/imports/ui/components/layout/context';
 import Styled from './styles';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
@@ -79,7 +78,6 @@ const UserNotesGraphql: React.FC<UserNotesGraphqlProps> = (props) => {
     toggleNotesPanel,
   } = props;
   const [unread, setUnread] = useState(false);
-  const [pinWasNotified, setPinWasNotified] = useState(false);
   const intl = useIntl();
   const prevSidebarContentPanel = usePreviousValue(sidebarContentPanel);
   const prevIsPinned = usePreviousValue(isPinned);
@@ -87,11 +85,6 @@ const UserNotesGraphql: React.FC<UserNotesGraphqlProps> = (props) => {
   useEffect(() => {
     setUnread(hasUnreadNotes);
   }, []);
-
-  if (isPinned && !pinWasNotified) {
-    notify(intl.formatMessage(intlMessages.pinnedNotification), 'info', 'copy', { pauseOnFocusLoss: false });
-    setPinWasNotified(true);
-  }
 
   const notesOpen = sidebarContentPanel === PANELS.SHARED_NOTES && !isPinned;
   const notesClosed = (prevSidebarContentPanel === PANELS.SHARED_NOTES
@@ -106,9 +99,6 @@ const UserNotesGraphql: React.FC<UserNotesGraphqlProps> = (props) => {
   }
   if (unread && !hasUnreadNotes) {
     setUnread(false);
-  }
-  if (prevIsPinned && !isPinned && pinWasNotified) {
-    setPinWasNotified(false);
   }
 
   const renderNotes = () => {
