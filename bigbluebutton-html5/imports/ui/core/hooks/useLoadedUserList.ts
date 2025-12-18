@@ -39,7 +39,7 @@ const createLocalUserListDataGathering = (): [
 };
 
 const useLoadedUserList = (
-  variables: { offset: number, limit: number },
+  variables: { offset: number, limit: number, where: object },
   fn: (c: Partial<User>) => Partial<User>,
 ) => {
   const useLoadedUserListSubscription = useCreateUseSubscription<User>(
