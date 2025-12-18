@@ -118,6 +118,7 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
                             isLastItem={isLastItem}
                             restOfUsers={isLastItem ? restOfUsers : 50}
                             setVisibleUsers={setVisibleUsers}
+                            search={search}
                           />
                         )
                         : (
