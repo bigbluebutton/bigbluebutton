@@ -30,3 +30,5 @@ node_modules
 .env
 data/postgres
 ssl
+data/bbb-webrtc-recorder
+data/bigbluebutton
