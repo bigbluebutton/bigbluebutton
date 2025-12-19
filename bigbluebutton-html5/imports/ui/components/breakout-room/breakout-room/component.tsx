@@ -29,6 +29,7 @@ import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedS
 import CreateBreakoutRoomContainer from '../create-breakout-room/component';
 import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
 import { useModalRegistration } from '/imports/ui/core/singletons/modalController';
+import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 
 interface BreakoutRoomProps {
   breakouts: BreakoutRoomType[];
@@ -40,6 +41,7 @@ interface BreakoutRoomProps {
   meetingId: string;
   setUpdateUsersWhileRunning: Dispatch<SetStateAction<boolean>>;
   createdTime: number;
+  closePanel: () => void;
 }
 
 const intlMessages = defineMessages({
@@ -131,13 +133,13 @@ const BreakoutRoom: React.FC<BreakoutRoomProps> = ({
   meetingId,
   setUpdateUsersWhileRunning,
   createdTime,
+  closePanel,
 }) => {
   const [breakoutRoomEndAll] = useMutation(BREAKOUT_ROOM_END_ALL);
   const [breakoutRoomTransfer] = useMutation(USER_TRANSFER_VOICE_TO_MEETING);
   const [breakoutRoomRequestJoinURL] = useMutation(BREAKOUT_ROOM_REQUEST_JOIN_URL);
   const stopMediaOnMainRoom = useStopMediaOnMainRoom();
 
-  const layoutContextDispatch = layoutDispatch();
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
   const intl = useIntl();
 
@@ -159,17 +161,6 @@ const BreakoutRoom: React.FC<BreakoutRoomProps> = ({
   const requestJoinURL = (breakoutRoomId: string) => {
     breakoutRoomRequestJoinURL({ variables: { breakoutRoomId } });
   };
-
-  const closePanel = useCallback(() => {
-    layoutContextDispatch({
-      type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-      value: false,
-    });
-    layoutContextDispatch({
-      type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-      value: PANELS.NONE,
-    });
-  }, []);
 
   useEffect(() => {
     if (requestedBreakoutRoomId) {
@@ -353,7 +344,27 @@ const BreakoutRoomContainer: React.FC = () => {
     voice: u.voice,
     userId: u.userId,
   }));
+
+  const closePanel = useCallback(() => {
+    layoutContextDispatch({
+      type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+      value: false,
+    });
+    layoutContextDispatch({
+      type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+      value: PANELS.NONE,
+    });
+  }, [layoutContextDispatch]);
+
   const hasBreakoutRoom = meetingData?.componentsFlags?.hasBreakoutRoom ?? false;
+  const prevHasBreakoutRoom = usePreviousValue(hasBreakoutRoom);
+
+  useEffect(() => {
+    if (prevHasBreakoutRoom && !hasBreakoutRoom) {
+      closePanel();
+    }
+  }, [hasBreakoutRoom, prevHasBreakoutRoom, closePanel]);
+
   const {
     data: breakoutData,
     loading: breakoutLoading,
@@ -396,20 +407,14 @@ const BreakoutRoomContainer: React.FC = () => {
           : breakoutRoomsUpdateUsersModal.open
         }
         createdTime={meetingData.createdTime ?? 0}
+        closePanel={closePanel}
       />
       {breakoutRoomsUpdateUsersModal.isOpen && (
       <CreateBreakoutRoomContainer
         isOpen={isOpen}
         setIsOpen={(value: boolean) => {
           if (!hasBreakoutRoom) {
-            layoutContextDispatch({
-              type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-              value: false,
-            });
-            layoutContextDispatch({
-              type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-              value: PANELS.NONE,
-            });
+            closePanel();
           }
           setIsOpen(value);
         }}
