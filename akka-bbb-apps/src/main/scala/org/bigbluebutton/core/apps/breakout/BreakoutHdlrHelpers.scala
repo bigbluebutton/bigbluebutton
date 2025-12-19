@@ -43,7 +43,7 @@ object BreakoutHdlrHelpers extends SystemConfiguration {
       apiCall = "join"
       (redirectParams, redirectToHtml5Params) = BreakoutRoomsUtil.joinParams(
         user.name,
-        userId + "-" + roomSequence,
+        user.extId + "-" + roomSequence,
         true,
         externalMeetingId,
         user.avatar,
