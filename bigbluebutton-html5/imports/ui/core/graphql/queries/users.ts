@@ -10,9 +10,9 @@ export interface UsersCountSubscriptionResponse {
 }
 
 export const USER_LIST_SUBSCRIPTION = gql`
-subscription UserListSubscription($offset: Int!, $limit: Int!, $searchQuery: String) {
+subscription UserListSubscription($offset: Int!, $limit: Int!, $where: user_bool_exp) {
   user(limit:$limit, offset: $offset,
-                where: { name: { _ilike: $searchQuery } },
+                where: $where,
                 order_by: [
                   { bot: asc },
                   {presenter: desc},

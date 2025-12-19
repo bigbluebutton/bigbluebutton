@@ -490,6 +490,13 @@ export const getUsersPerUserListPage = () => window.meetingClientSettings?.publi
   ?.usersPerUserListPage
   || DEFAULT_USERS_PER_USER_LIST_PAGE;
 
+export const makeUserSearchWhere = (searchQuery) => {
+  const searchTerms = searchQuery ? searchQuery.trim().split(/\s+/) : [];
+  return searchTerms.length > 0
+    ? { _and: searchTerms.map((term) => ({ name: { _ilike: `%${term}%` } })) }
+    : { name: { _ilike: '%' } };
+};
+
 export default {
   sortUsersByName,
   sortUsers,
@@ -504,4 +511,5 @@ export default {
   sortUsersByCurrent,
   UserJoinedMeetingAlert,
   UserLeftMeetingAlert,
+  makeUserSearchWhere,
 };

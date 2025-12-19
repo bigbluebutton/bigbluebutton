@@ -3,7 +3,7 @@ import { UI_DATA_LISTENER_SUBSCRIBED } from 'bigbluebutton-html-plugin-sdk/dist/
 import { UserListUiDataPayloads } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data/domain/user-list/types';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import { User } from '/imports/ui/Types/user';
-import { getUsersPerUserListPage } from '/imports/ui/components/user-list/service';
+import { getUsersPerUserListPage, makeUserSearchWhere } from '/imports/ui/components/user-list/service';
 import UserSearch from '/imports/ui/components/user-list/user-search/component';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import Styled from './styles';
@@ -168,12 +168,15 @@ const UserListParticipantsContainer: React.FC<UserListParticipantsContainerProps
   const { data: currentUserData } = useCurrentUser((user) => ({
     isModerator: user.isModerator,
   }));
+
+  const where = makeUserSearchWhere(searchQuery);
+
   const {
     data: countData,
     loading: countLoading,
   } = useDeduplicatedSubscription<UsersCountSubscriptionResponse>(
     USER_AGGREGATE_COUNT_SUBSCRIPTION,
-    { variables: { searchQuery: searchQuery ? `%${searchQuery}%` : '%' } },
+    { variables: { where } },
   );
   const count = countData?.user_aggregate?.aggregate?.count || 0;
 

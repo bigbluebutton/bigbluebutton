@@ -126,7 +126,7 @@ const UserListParticipantsPageContainer: React.FC<UserListParticipantsContainerP
   } = useLoadedUserList({
     offset,
     limit: limit.current,
-    searchQuery: searchQuery ? `%${searchQuery}%` : '%',
+    searchQuery,
   }, (u) => u) as GraphqlDataHookSubscriptionResponse<Array<User>>;
 
   const users = meeting?.meetingId
