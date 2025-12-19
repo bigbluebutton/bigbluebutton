@@ -656,6 +656,7 @@ export interface LiveKitSettings {
   selectiveSubscription?: boolean
   logLevel?: LogLevel
   roomOptions?: Partial<InternalRoomOptions>
+  reconnectOnFatalFailures?: boolean
   audio?: LiveKitAudioSettings
   camera?: LiveKitCameraSettings
   screenshare?: LiveKitScreenShareSettings
