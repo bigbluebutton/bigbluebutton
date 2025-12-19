@@ -955,6 +955,9 @@ public:
       # when set to true and in effect (conditional to client behavior).
       selectiveSubscription: true
       logLevel: 3
+      # reconnectOnFatalFailures: whether to trigger LK room reconnections when
+      # fatal errors occur (e.g.: unrecoverable publish timeouts). Default is false.
+      reconnectOnFatalFailures: false
       roomOptions:
         adaptiveStream: true
         dynacast: true
