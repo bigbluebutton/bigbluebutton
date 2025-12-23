@@ -11,6 +11,7 @@ import (
 	"io"
 
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/gen/meeting"
+	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/random"
 	"google.golang.org/grpc"
 )
 
@@ -214,4 +215,10 @@ func NewMockClient() *MockClient {
 func (m *MockClient) Reset() {
 	m.MockMeetingServiceClient.Reset()
 	m.MockHTTPClient.Reset()
+}
+
+// Helper function to generate a valid checksum for a request
+func GenerateChecksum(endpoint, queryString, salt string) string {
+	data := endpoint + queryString + salt
+	return random.Sha256Hex(data)
 }

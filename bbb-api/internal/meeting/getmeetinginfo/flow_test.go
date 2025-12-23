@@ -12,23 +12,16 @@ import (
 	grpcmeeting "github.com/bigbluebutton/bigbluebutton/bbb-api/gen/meeting"
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/bbbhttp"
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/pipeline"
-	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/random"
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/core/responses"
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/meeting"
 	"github.com/bigbluebutton/bigbluebutton/bbb-api/internal/meeting/config"
 )
 
-// Helper function to generate a valid checksum for a request
-func generateChecksum(endpoint, queryString, salt string) string {
-	data := endpoint + queryString + salt
-	return random.Sha256Hex(data)
-}
-
 // Helper function to create an HTTP request with proper params context
 func createTestRequest(meetingID, salt string) *http.Request {
 	endpoint := "getMeetingInfo"
 	queryString := "meetingID=" + meetingID
-	checksum := generateChecksum(endpoint, queryString, salt)
+	checksum := meeting.GenerateChecksum(endpoint, queryString, salt)
 
 	req := httptest.NewRequest(http.MethodGet, "/getMeetingInfo?meetingID="+meetingID+"&checksum="+checksum, nil)
 
@@ -392,7 +385,7 @@ func TestNewGetMeetingInfoFlow_FilterErrors(t *testing.T) {
 			setupRequest: func() *http.Request {
 				endpoint := "getMeetingInfo"
 				queryString := "meetingID="
-				checksum := generateChecksum(endpoint, queryString, salt)
+				checksum := meeting.GenerateChecksum(endpoint, queryString, salt)
 
 				req := httptest.NewRequest(http.MethodGet, "/getMeetingInfo?meetingID=&checksum="+checksum, nil)
 
@@ -411,7 +404,7 @@ func TestNewGetMeetingInfoFlow_FilterErrors(t *testing.T) {
 				meetingID := "a"
 				endpoint := "getMeetingInfo"
 				queryString := "meetingID=" + meetingID
-				checksum := generateChecksum(endpoint, queryString, salt)
+				checksum := meeting.GenerateChecksum(endpoint, queryString, salt)
 
 				req := httptest.NewRequest(http.MethodGet, "/getMeetingInfo?meetingID="+meetingID+"&checksum="+checksum, nil)
 
@@ -430,7 +423,7 @@ func TestNewGetMeetingInfoFlow_FilterErrors(t *testing.T) {
 				meetingID := "meeting,with,commas"
 				endpoint := "getMeetingInfo"
 				queryString := "meetingID=" + meetingID
-				checksum := generateChecksum(endpoint, queryString, salt)
+				checksum := meeting.GenerateChecksum(endpoint, queryString, salt)
 
 				req := httptest.NewRequest(http.MethodGet, "/getMeetingInfo?meetingID="+meetingID+"&checksum="+checksum, nil)
 
