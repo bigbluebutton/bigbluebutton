@@ -63,6 +63,9 @@ const (
 	MeetingNotFoundKey = "notFound"
 	MeetingNotFoundMsg = "A meeting with that ID does not exist."
 
+	MissingMeetingDataKey = "missingMeetingData"
+	MissingMeetingDataMsg = "Np meeting data was provided"
+
 	PresentationDisabledKey = "presentationDisabled"
 	PresentationDisabledMsg = "Presentation feature is disabled, ignoring."
 
