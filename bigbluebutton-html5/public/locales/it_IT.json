@@ -1079,7 +1079,7 @@
     "app.toast.chat.poll": "Risultati del sondaggio",
     "app.toast.chat.pollClick": "Sono stati pubblicati i risultati del sondaggio. Clicca qui per vederli.",
     "app.toast.usersJoinMutedOn.label": "Gli utenti possono unirsi in modalità mutata ed è stata abilitata",
-    "app.toast.usersJoinMutedOff.label": "Gli utenti che si uniscono alla modalità mutata sono stati disabilitati",
+    "app.toast.usersJoinMutedOff.label": "GLI utenti che accedono con l'audio disattivato sono stati disabilitati",
     "app.toast.muteAllViewers.label": "Tutti gli spettatori sono stati mutati",
     "app.toast.wakeLock.acquireSuccess": "Blocco dello spegnimento attivo! Puoi disattivarlo dal menù delle impostazioni.",
     "app.toast.wakeLock.acquireFailed": "Errore nel bloccare lo spegnimento",
