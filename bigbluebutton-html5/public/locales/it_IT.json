@@ -181,7 +181,7 @@
     "app.userList.userOptions.manageUsersLabel": "Gestisci utenti",
     "app.userList.userOptions.usersJoinMutedEnableLabel": "Abilita gli utenti a unirsi in modalità mutata",
     "app.userList.userOptions.usersJoinMutedEnableDesc": "Gli utenti che si uniscono sono mutati ​​per impostazione predefinita",
-    "app.userList.userOptions.usersJoinMutedDisableLabel": "Disabilita Utenti che partecipano in modalità mutata",
+    "app.userList.userOptions.usersJoinMutedDisableLabel": "Disabilita l'accesso degli utenti con audio disattivato",
     "app.userList.userOptions.usersJoinMutedDisableDesc": "Gli utenti che si uniscono non sono mutati ​​per impostazione predefinita",
     "app.userList.userOptions.clearAllReactionsLabel": "Elimina tutte le reazioni",
     "app.userList.userOptions.clearAllReactionsDesc": "Elimina tutte gli emoji di reazione dagli utenti",
