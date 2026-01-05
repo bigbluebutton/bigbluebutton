@@ -679,7 +679,14 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
         </Styled.Content>
         <Styled.PanelSeparator />
         <Styled.ActionButtonContainer>
-          <Styled.FooterButton onClick={() => setIsOpen(false)}>
+          <Styled.FooterButton onClick={() => {
+            if (isUpdate) {
+              setUpdateUsersWhileRunning(false);
+            } else {
+              setIsOpen(false);
+            }
+          }}
+          >
             {intl.formatMessage(intlMessages.cancelLabel)}
           </Styled.FooterButton>
           <Styled.FooterButton
