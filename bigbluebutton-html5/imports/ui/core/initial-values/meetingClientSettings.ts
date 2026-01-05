@@ -529,6 +529,9 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         track3: 'aristocratDrums',
       },
       time: 5,
+      maxHours: 23,
+      presets: [60, 300, 600, 900, 1200, 1800, 3600],
+      quickAddButtons: [30, 60, 300],
       serverSyncTimeInterval: 300000, // 5 minutes
     },
     chat: {
