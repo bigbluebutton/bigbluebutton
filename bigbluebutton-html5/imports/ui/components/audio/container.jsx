@@ -15,6 +15,7 @@ import {
 
 import Service from './service';
 import AudioModalContainer from './audio-modal/container';
+import useAudioManagerStateSync from './hooks/useAudioManagerStateSync';
 import useToggleVoice from './audio-graphql/hooks/useToggleVoice';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
@@ -219,6 +220,9 @@ const AudioContainer = (props) => {
 
   const { data: unmutedUsers } = useWhoIsUnmuted();
   const currentUserMuted = currentUser?.userId && !unmutedUsers[currentUser.userId];
+
+  // Sync AudioManager muted/talking states when using LiveKit audio state.
+  useAudioManagerStateSync();
 
   const joinAudio = useCallback(() => {
     if (Service.isConnected()) return;
