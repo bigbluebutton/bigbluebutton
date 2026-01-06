@@ -8,18 +8,6 @@ object Users2x {
     users.toVector find (u => u.intId == intId)
   }
 
-  def findWithBreakoutRoomId(users: Users2x, breakoutRoomId: String): Option[UserState] = {
-    //userId + "-" + roomSequence
-    val lastHyphenIdx = breakoutRoomId.lastIndexOf('-')
-    val userExtId = if (lastHyphenIdx != -1) {
-      breakoutRoomId.substring(0, lastHyphenIdx)
-    } else {
-      breakoutRoomId
-    }
-
-    users.toVector find (u => u.extId == userExtId)
-  }
-
   def findAll(users: Users2x): Vector[UserState] = users.toVector
 
   def add(users: Users2x, user: UserState): Option[UserState] = {
