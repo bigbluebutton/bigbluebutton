@@ -225,6 +225,7 @@
     "app.media.cameraAsContent.endDueToDataSaving": "La fotocamera attuale si è fermata a causa del risparmio di dati",
     "app.media.cameraAsContent.autoplayBlockedDesc": "Abbiamo bisogno del tuo permesso per mostrarti la fotocamera del presentatore.",
     "app.media.cameraAsContent.autoplayAllowLabel": "Visualizza fotocamera attuale",
+    "app.media.mediaReconnecting": "Rilevato un problema di connessione. Ripristino audio e video in corso...",
     "app.screenshare.presenterLoadingLabel": "Caricamento della condivisione schermo",
     "app.screenshare.viewerLoadingLabel": "Caricamento dello schermo del relatore",
     "app.screenshare.presenterSharingLabel": "Stai condividendo lo schermo",
