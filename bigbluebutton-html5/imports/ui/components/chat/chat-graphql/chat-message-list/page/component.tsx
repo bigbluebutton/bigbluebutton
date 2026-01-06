@@ -334,6 +334,14 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
     }
   }
 
+  // Defer the state update to avoid
+  // "Cannot update a component while rendering a different component" warning
+  useEffect(() => {
+    if (chatMessageData) {
+      setLoadedMessageGathering(page, chatMessageData);
+    }
+  }, [page, chatMessageData]);
+
   useEffect(() => {
     // component will unmount
     return () => {
@@ -352,7 +360,7 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
   if (chatMessageData.length > 0 && chatMessageData[chatMessageData.length - 1].user?.userId) {
     setLastSender(page, chatMessageData[chatMessageData.length - 1].user?.userId);
   }
-  setLoadedMessageGathering(page, chatMessageData);
+
   return (
     <MemoizedChatListPage
       messages={chatMessageData}

@@ -21,7 +21,7 @@ const LeaveButton = styled(Button)`
   }
 `}
 
-  ${({ isMobile }) => !isMobile && `
+  ${({ $isMobile }) => !$isMobile && `
     margin-left: 1.0rem;
     margin-right: 0.5rem;
   `}

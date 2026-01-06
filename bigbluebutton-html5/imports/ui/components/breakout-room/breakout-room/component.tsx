@@ -430,4 +430,5 @@ const BreakoutRoomContainer: React.FC = () => {
     </>
   );
 };
+
 export default BreakoutRoomContainer;

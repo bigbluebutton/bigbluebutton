@@ -140,7 +140,7 @@ class LeaveMeetingButton extends PureComponent {
           trigger={(
             <Styled.LeaveButton
               state={isDropdownOpen ? 'open' : 'closed'}
-              isMobile={ismobile.toString()}
+              $isMobile={ismobile}
               accessKey={openLeaveMenu}
               aria-label={intl.formatMessage(intlMessages.leaveMeetingBtnLabel)}
               label={intl.formatMessage(intlMessages.leaveMeetingBtnLabel)}
