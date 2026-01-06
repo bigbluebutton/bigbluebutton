@@ -13,10 +13,6 @@ const AvatarContent: React.FC<AvatarContentProps> = ({ user }) => {
   const isReactionsEnabled = useIsReactionsEnabled();
   const emojiIcons = [
     {
-      id: 'hand',
-      native: '✋',
-    },
-    {
       id: 'clock7',
       native: '⏰',
     },
@@ -28,24 +24,13 @@ const AvatarContent: React.FC<AvatarContentProps> = ({ user }) => {
     if (user.isDialIn) {
       return <Icon iconName="volume_level_2" />;
     }
-    if (user.raiseHand === true) {
-      return isReactionsEnabled
-        ? (
-          <Emoji
-            key={emojiIcons[0].id}
-            emoji={emojiIcons[0]}
-            native={emojiIcons[0].native}
-            size={emojiSize}
-          />
-        ) : <Icon iconName="hand" />;
-    }
     if (user.away === true) {
       return isReactionsEnabled
         ? (
           <Emoji
             key="away"
-            emoji={emojiIcons[1]}
-            native={emojiIcons[1].native}
+            emoji={emojiIcons[0]}
+            native={emojiIcons[0].native}
             size={emojiSize}
           />
         ) : <Icon iconName="time" />;
@@ -59,7 +44,7 @@ const AvatarContent: React.FC<AvatarContentProps> = ({ user }) => {
     return '';
   };
 
-  const userAvatarFiltered = (user.raiseHand === true || user.away === true || (user.reactionEmoji && user.reactionEmoji !== 'none')) ? '' : user.avatar;
+  const userAvatarFiltered = (user.away === true || (user.reactionEmoji && user.reactionEmoji !== 'none')) ? '' : user.avatar;
   const avatarContent = user.lastBreakoutRoom?.currentlyInRoom && userAvatarFiltered.length === 0
     ? user.lastBreakoutRoom?.sequence
     : getIconUser();

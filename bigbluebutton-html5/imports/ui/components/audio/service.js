@@ -34,30 +34,30 @@ export const didUserSelectListenOnly = () => (
   !!Storage.getItem(CLIENT_DID_USER_SELECT_LISTEN_ONLY_KEY)
 );
 
-const recoverMicState = (toggleVoice) => {
+const getStorageMuteStateKey = () => {
   const meetingStaticStore = meetingStaticData.getMeetingData();
-  const recover = (storageKey) => {
-    const muted = Storage.getItem(storageKey);
-
-    if ((muted === undefined) || (muted === null) || AudioManager.inputDeviceId === 'listen-only') {
-      return;
-    }
-
-    logger.debug({
-      logCode: 'audio_recover_mic_state',
-    }, `Audio recover previous mic state: muted = ${muted}`);
-    toggleVoice(Auth.userID, muted);
-  };
-
   const isBreakout = meetingStaticStore?.isBreakout;
   const parentId = meetingStaticStore?.breakoutPolicies?.parentId;
-
   const meetingId = isBreakout && parentId
     ? parentId
     : Auth.meetingID;
-  const storageKey = `${MUTED_KEY}_${meetingId}`;
 
-  recover(storageKey);
+  return `${MUTED_KEY}_${meetingId}`;
+};
+
+const getStorageMuteState = () => Storage.getItem(getStorageMuteStateKey());
+
+const recoverMicState = (toggleVoice) => {
+  const muted = getStorageMuteState();
+
+  if ((muted === undefined) || (muted === null) || AudioManager.inputDeviceId === 'listen-only') {
+    return;
+  }
+
+  logger.debug({
+    logCode: 'audio_recover_mic_state',
+  }, `Audio recover previous mic state: muted = ${muted}`);
+  toggleVoice(Auth.userID, muted);
 };
 
 const audioEventHandler = (toggleVoice) => (event) => {
@@ -235,7 +235,6 @@ export default {
   handleAllowAutoplay: () => AudioManager.handleAllowAutoplay(),
   playAlertSound: (url) => AudioManager.playAlertSound(url),
   updateAudioConstraints: (constraints) => AudioManager.updateAudioConstraints(constraints),
-  recoverMicState,
   setBreakoutAudioTransferStatus: (status) => AudioManager
     .setBreakoutAudioTransferStatus(status),
   getBreakoutAudioTransferStatus: () => AudioManager
@@ -251,4 +250,6 @@ export default {
   didUserSelectListenOnly,
   setUserSelectedMicrophone,
   setUserSelectedListenOnly,
+  getStorageMuteStateKey,
+  getStorageMuteState,
 };

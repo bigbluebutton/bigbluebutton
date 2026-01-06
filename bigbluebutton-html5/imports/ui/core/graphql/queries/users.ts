@@ -1,4 +1,5 @@
 import { gql } from '@apollo/client';
+import type { User } from '/imports/ui/Types/user';
 
 export interface UsersCountSubscriptionResponse {
   user_aggregate: {
@@ -15,7 +16,6 @@ subscription UserListSubscription($offset: Int!, $limit: Int!) {
                   { bot: asc },
                   {presenter: desc},
                   {role: asc},
-                  {raiseHandTime: asc_nulls_last},
                   {isDialIn: desc},
                   {whiteboardWriteAccess: desc},
                   {nameSortable: asc},
@@ -96,3 +96,50 @@ export const GET_USER_NAMES = gql`
     }
   }
 `;
+
+export type RaisedHandUser = Pick<
+User,
+| 'userId'
+| 'name'
+| 'color'
+| 'presenter'
+| 'isModerator'
+| 'raiseHand'
+| 'whiteboardWriteAccess'
+> & {
+  raiseHandTime?: string;
+  voice?: {
+    joined: boolean;
+    listenOnly: boolean;
+    deafened: boolean;
+  };
+};
+
+export interface RaisedHandUsersSubscriptionResponse {
+  user: RaisedHandUser[];
+}
+
+export const RAISED_HAND_USERS = gql`
+subscription RaisedHandUsers {
+  user(
+    where: {
+      raiseHand: {_eq: true}
+    },
+    order_by: [
+      {raiseHandTime: asc_nulls_last},
+    ]) {
+    userId
+    name
+    color
+    presenter
+    isModerator
+    raiseHand
+    raiseHandTime
+    whiteboardWriteAccess
+    voice {
+      joined
+      listenOnly
+      deafened
+    }
+  }
+}`;

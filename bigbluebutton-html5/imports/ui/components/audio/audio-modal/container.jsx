@@ -38,6 +38,7 @@ const AudioModalContainer = (props) => {
   }));
   const usingLiveKit = meeting?.audioBridge === 'livekit';
   const getEchoTest = useStorageKey('getEchoTest', 'session');
+  const storageMuteState = useStorageKey(Service.getStorageMuteStateKey(), 'session');
 
   const away = currentUserData?.away;
   const isModerator = currentUserData?.isModerator;
@@ -102,9 +103,11 @@ const AudioModalContainer = (props) => {
   const joinMic = useCallback(
     (options = {}) => joinMicrophone({
       skipEchoTest: options.skipEchoTest || joinFullAudioImmediately,
-      muted: options.muteOnStart || meeting?.voiceSettings?.muteOnStart,
+      muted: options.muteOnStart
+        || meeting?.voiceSettings?.muteOnStart
+        || storageMuteState,
     }),
-    [skipCheck, skipCheckOnJoin, meeting],
+    [skipCheck, skipCheckOnJoin, meeting, storageMuteState],
   );
   const close = useCallback(() => {
     const handleJoinError = (error, listenOnly) => {

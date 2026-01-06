@@ -346,6 +346,16 @@ object Users2x {
     users2x.presenterGroup.contains(userId)
   }
 
+  def setUserRequestedPresenter(users: Users2x, userId: String, requested: Boolean): Option[UserState] = {
+    for {
+      u <- findWithIntId(users, userId)
+    } yield {
+      val newUser = u.modify(_.requestedPresenter).setTo(requested)
+      users.save(newUser)
+      UserStateDAO.updateRequestedPresenter(u.intId, requested)
+      newUser
+    }
+  }
 }
 
 class Users2x {
@@ -459,6 +469,7 @@ case class UserState(
     lastActivityTime:      Long                = System.currentTimeMillis(),
     lastInactivityInspect: Long                = 0,
     requestedUnmuteByMod:  Boolean             = false,
+    requestedPresenter:    Boolean             = false,
     clientType:            String,
     userLeftFlag:          UserLeftFlag,
     speechLocale:          String              = "",
@@ -486,6 +497,7 @@ object Roles {
 object ClientType {
   val FLASH = "FLASH"
   val HTML5 = "HTML5"
+  val DIAL_IN = "dial-in-user"
 }
 
 object SystemUser {

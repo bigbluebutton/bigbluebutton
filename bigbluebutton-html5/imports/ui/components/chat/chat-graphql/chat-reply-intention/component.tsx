@@ -6,7 +6,7 @@ import KEYS from '/imports/utils/keys';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
 import Tooltip from '/imports/ui/components/common/tooltip/container';
-import { messageToQuoteMarkdown } from '/imports/ui/components/chat/chat-graphql/service';
+import { getFirstVisibleLineHtml } from '/imports/ui/components/chat/chat-graphql/service';
 
 const intlMessages = defineMessages({
   cancel: {
@@ -88,13 +88,10 @@ const ChatReplyIntention = () => {
       }}
     >
       <Styled.Message>
-        <Styled.Markdown
-          linkTarget="_blank"
-          allowedElements={window.meetingClientSettings.public.chat.allowedElements}
-          unwrapDisallowed
-        >
-          {messageToQuoteMarkdown(message)}
-        </Styled.Markdown>
+        <Styled.HtmlContent
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{ __html: getFirstVisibleLineHtml(message || '') }}
+        />
       </Styled.Message>
       <Tooltip title={intl.formatMessage(intlMessages.cancel, { cancelKey: CANCEL_KEY })}>
         <Styled.CloseBtn

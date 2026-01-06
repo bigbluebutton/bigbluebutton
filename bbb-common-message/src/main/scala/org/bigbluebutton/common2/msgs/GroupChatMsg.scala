@@ -32,6 +32,7 @@ case class GroupChatMsgToUser(
     sender:             GroupChatUser,
     chatEmphasizedText: Boolean       = false,
     message:            String,
+    messageAsHtml:      String,
     replyToMessageId:   String,
     messageType:        String,
     metadata:           Map[String, Any],
@@ -129,7 +130,7 @@ case class EditGroupChatMessageReqMsgBody(chatId: String, messageId: String, mes
 
 object GroupChatMessageEditedEvtMsg { val NAME = "GroupChatMessageEditedEvtMsg" }
 case class GroupChatMessageEditedEvtMsg(header: BbbClientMsgHeader, body: GroupChatMessageEditedEvtMsgBody) extends BbbCoreMsg
-case class GroupChatMessageEditedEvtMsgBody(chatId: String, messageId: String, message: String)
+case class GroupChatMessageEditedEvtMsgBody(chatId: String, messageId: String, message: String, messageAsHtml: String)
 
 object DeleteGroupChatMessageReqMsg { val NAME = "DeleteGroupChatMessageReqMsg" }
 case class DeleteGroupChatMessageReqMsg(header: BbbClientMsgHeader, body: DeleteGroupChatMessageReqMsgBody) extends StandardMsg

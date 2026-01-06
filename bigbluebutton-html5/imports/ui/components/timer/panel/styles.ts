@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
 import { styled as materialStyled } from '@mui/material/styles';
@@ -7,6 +7,7 @@ import {
   borderSizeLarge,
   toastContentWidth,
   lgBorderRadius,
+  borderRadiusRounded,
   smPadding,
   contentSidebarPadding,
 } from '../../../stylesheets/styled-components/general';
@@ -15,6 +16,9 @@ import {
   colorBorder,
   colorWhite,
   colorPrimary,
+  colorBlueLighter,
+  colorText,
+  colorGray,
 } from '../../../stylesheets/styled-components/palette';
 import { TextElipsis } from '../../../stylesheets/styled-components/placeholders';
 import Button from '/imports/ui/components/common/button/component';
@@ -105,6 +109,7 @@ const TimerSwitchButton = styled(Button)`
 
 const TimeInputWrapper = styled.div`
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   gap: 0.5rem;
@@ -117,9 +122,10 @@ const TimeInputWrapper = styled.div`
 const TimeInputGroup = styled.div`
   display: flex;
   align-items: center;
-  font-size: 2.5rem;
+  font-size: 2.2rem;
   color: ${colorGrayDark};
   justify-content: center;
+  gap: 1rem; 
 `;
 
 // @ts-ignore - JS code
@@ -133,17 +139,15 @@ const IncrementDecrementButton = styled(Button)`
   line-height: 0.9;
 `;
 
-const TimeInputColon = styled.span`
-  align-self: center;
-  padding: 0 0.1rem;
-`;
-
 const TimerSongsWrapper = styled.div`
   display: flex;
   align-items: flex-start;
   flex-flow: column;
   margin-top: 2rem;
   width: 100%;
+  padding: 0.75rem;
+  border: 1px solid color-mix(in srgb, ${colorBlueLighter} 50%, transparent);
+  border-radius: 0.5rem;
 `;
 
 const TimerRow = `
@@ -155,9 +159,7 @@ const TimerRow = `
 const TimerTracks = styled.div`
   display: flex;
   flex-flow: column;
-  flex-grow: 1;
-  flex-basis: 0;
-  display: flex;
+  width: 100%;
   margin-top: 0.8rem;
   padding-left: 0;
 
@@ -166,28 +168,57 @@ const TimerTracks = styled.div`
     align-items: center;
   }
 
-  input {
+  input[type="radio"] {
     margin: auto 0.5rem;
+    accent-color: ${colorPrimary};
   }
 `;
 
-const TimerTrackItem = styled.div`
+const TimerTrackItem = styled.div<{isSelected?: boolean}>`
   ${TimerRow}
+  width: 100%;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  border: 0.125rem solid ${({ isSelected }) => (
+    isSelected
+      ? colorPrimary
+      : `color-mix(in srgb, ${colorBlueLighter} 40%, transparent)`
+  )};
+  background-color: ${({ isSelected }) => (
+    isSelected
+      ? `color-mix(in srgb, ${colorBlueLighter} 15%, transparent)`
+      : 'transparent'
+  )};
+  margin-bottom: 0.5rem;
+  transition: all 120ms ease;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  label {
+    width: 100%;
+    cursor: pointer;
+  }
 `;
 
 const TimerInput = styled.input<{isSelected: boolean}>`
   background: none;
   border: none;
-  border-bottom: 2px solid #e9e9ed;
-  color: inherit;
+  background-color: color-mix(in srgb, ${colorBlueLighter} 20%, transparent);
+  color: ${colorPrimary};
   font-family: inherit;
-  font-size: inherit;
-  font-weight: ${textFontWeight};
+  font-size: 2rem;
+  line-height: 1.2;
+  font-weight: 600; 
+  border-radius: ${borderRadiusRounded};
   font-variant-numeric: tabular-nums;
   text-align: center;
-  width: 2ch;
-  padding: 0;
+  width: 5rem; 
+  height: 2.8rem;
+  padding: 0.4rem 1rem 0.2rem 0;
   -moz-appearance: textfield;
+  transition: all 150ms ease;
 
   &::-webkit-outer-spin-button,
   &::-webkit-inner-spin-button {
@@ -197,18 +228,127 @@ const TimerInput = styled.input<{isSelected: boolean}>`
 
   &:focus {
     outline: none;
-    border-bottom: 2px solid ${colorPrimary};
+    background-color: color-mix(in srgb, ${colorPrimary} 15%, transparent);
+    box-shadow: 0 0 0 0.125rem ${colorPrimary};
   }
-  ${({ isSelected }) => (isSelected && `
-    outline: none;
-    border-bottom: 2px solid ${colorPrimary};   
-  `)};
+
+  ${({ isSelected }) => isSelected && css`
+    background-color: color-mix(in srgb, ${colorPrimary} 15%, transparent);
+    box-shadow: 0 0 0 0.125rem ${colorPrimary};
+  `}
 
   &:disabled,
   &[disabled] {
     cursor: not-allowed;
     opacity: .75;
     background-color: transparent;
+  }
+`;
+
+const TimeUnitContainer = styled.div`
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+`;
+
+const TimeUnitLabel = styled.span`
+  font-size: 0.80rem;
+  color: ${colorGray};
+  text-transform: capitalize;
+`;
+
+const InputArrows = styled.div<{disabled?: boolean; isSelected?: boolean}>`
+  position: absolute;
+  right: 0;
+  padding-top: 0.2rem;
+  padding-bottom: 0.2rem;
+  padding-right: 0.1rem;
+  height: 2.8rem;
+  width: 1.6rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: stretch;
+  align-items: stretch;
+  opacity: ${({ disabled }) => (disabled ? 0.4 : 0.8)};
+  pointer-events: ${({ disabled }) => (disabled ? 'none' : 'auto')};
+  background: none;
+  border: none;
+  background-color: ${({ isSelected }) => (isSelected
+    ? `color-mix(in srgb, ${colorPrimary} 15%, transparent)`
+    : `color-mix(in srgb, ${colorBlueLighter} 20%, transparent)`)};
+  border-radius: ${borderRadiusRounded};
+  transition: all 150ms ease;
+`;
+
+// @ts-ignore - JS code
+const InputArrowButton = styled(Button)<{isSelected?: boolean}>`
+  flex: 1;
+  min-width: auto;
+  padding: 0;
+  background: transparent !important;
+  border: none;
+  box-shadow: none !important;
+  
+  &:hover {
+    background: transparent !important;
+  }
+  
+  i {
+    display: none;
+  }
+  
+  &::before {
+    content: '';
+    display: block;
+    width: 0;
+    height: 0;
+    border-left: 0.25rem solid transparent;
+    border-right: 0.25rem solid transparent;
+    border-bottom: 0.28rem solid ${colorPrimary};
+    margin: auto;
+    transition: border-bottom-color 120ms ease;
+  }
+  
+  &:hover::before {
+    border-bottom-color: ${colorPrimary};
+    opacity: 1;
+  }
+`;
+
+// @ts-ignore - JS code
+const InputArrowButtonDown = styled(Button)<{isSelected?: boolean}>`
+  flex: 1;
+  min-width: auto;
+  padding: 0;
+  background: transparent !important;
+  border: none;
+  box-shadow: none !important;
+  
+  &:hover {
+    background: transparent !important;
+  }
+  
+  i {
+    display: none;
+  }
+  
+  &::before {
+    content: '';
+    display: block;
+    width: 0;
+    height: 0;
+    border-left: 0.25rem solid transparent;
+    border-right: 0.25rem solid transparent;
+    border-top: 0.28rem solid ${colorPrimary};
+    margin: auto;
+    transition: border-top-color 120ms ease;
+  }
+  
+  &:hover::before {
+    border-top-color: ${colorPrimary};
+    opacity: 1;
   }
 `;
 
@@ -272,6 +412,104 @@ const MaterialSwitch = materialStyled(Switch)(({ theme }) => ({
   },
 }));
 
+const TimerPresetsRow = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 0 0.25rem 0;
+  color: ${colorGrayDark};
+`;
+
+const TimerPresetButton = styled.button<{disabled?: boolean; isActive?: boolean}>`
+  all: unset;
+  cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')};
+  font-size: 0.95rem;
+  line-height: 1;
+  color: ${colorGrayDark};
+  opacity: ${({ disabled }) => (disabled ? 0.4 : 0.7)};
+  transition: opacity 120ms ease, color 120ms ease, background-color 120ms ease,
+    border-color 120ms ease, transform 120ms ease, box-shadow 120ms ease;
+  padding: 0.25rem 0.35rem;
+  border: 1px solid ${colorBorder};
+  border-radius: 0.35rem;
+  text-align: center;
+
+  ${({ isActive }) => isActive && css`
+    opacity: 1;
+    transform: scale(1.05);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+    font-size: 1.1rem;
+  `}
+
+  &:hover, &:focus {
+    opacity: 1;
+    color: ${colorGrayDark};
+  }
+
+  &:active:not(:disabled) {
+    background-color: color-mix(in srgb, ${colorPrimary} 15%, transparent);
+    border-color: ${colorPrimary};
+    color: ${colorPrimary};
+    animation: preset-click-feedback 300ms ease;
+  }
+
+  @keyframes preset-click-feedback {
+    0% {
+      background-color: color-mix(in srgb, ${colorPrimary} 25%, transparent);
+      border-color: ${colorPrimary};
+    }
+    100% {
+      background-color: transparent;
+      border-color: ${colorBorder};
+    }
+  }
+`;
+
+// @ts-ignore - JS code
+const PresetArrowButton = styled(Button)`
+  padding: 0.25rem 0.35rem;
+  min-width: auto;
+  
+  i {
+    margin: 0;
+    font-size: 1rem;
+  }
+
+  [dir="rtl"] & i {
+    -webkit-transform: scale(-1, 1);
+    -moz-transform: scale(-1, 1);
+    -ms-transform: scale(-1, 1);
+    -o-transform: scale(-1, 1);
+    transform: scale(-1, 1);
+  }
+`;
+
+const TimerAddsRow = styled.div`
+  color: ${colorText};
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0 0.25rem 0;
+`;
+
+const TimerAddButton = styled.button<{disabled?: boolean}>`
+  all: unset;
+  cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')};
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: ${colorPrimary};
+  background-color: color-mix(in srgb, ${colorBlueLighter} 20%, transparent);
+  border-radius: 0.35rem;
+  padding: 0.2rem 0.4rem;
+  opacity: ${({ disabled }) => (disabled ? 0.5 : 1)};
+  transition: filter 120ms ease, transform 60ms ease;
+
+  &:hover, &:focus { filter: brightness(0.98); }
+  &:active { transform: translateY(1px); }
+`;
+
 const ControlsContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -325,11 +563,15 @@ export default {
   TimeInputWrapper,
   TimeInputGroup,
   IncrementDecrementButton,
-  TimeInputColon,
   TimerSongsWrapper,
   TimerTracks,
   TimerTrackItem,
   TimerInput,
+  TimeUnitContainer,
+  TimeUnitLabel,
+  InputArrows,
+  InputArrowButton,
+  InputArrowButtonDown,
   TimerScrollableContent,
   MusicSwitchLabel,
   MaterialSwitch,
@@ -339,4 +581,9 @@ export default {
   ResetButton,
   DeactivateButton,
   FooterSeparator,
+  TimerPresetsRow,
+  TimerPresetButton,
+  PresetArrowButton,
+  TimerAddsRow,
+  TimerAddButton,
 };

@@ -1,12 +1,10 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
-import { useIntl } from 'react-intl';
 import Auth from '/imports/ui/services/auth';
 import {
   UserListItemAdditionalInformationType,
 } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/user-list-item-additional-information/enums';
-import { useLazyQuery, useMutation } from '@apollo/client';
 import Styled from './styles';
 import Icon from '/imports/ui/components/common/icon/icon-ts/component';
 import { useIsChatEnabled, useIsPrivateChatEnabled } from '/imports/ui/services/features';
@@ -14,7 +12,6 @@ import useWhoIsTalking from '/imports/ui/core/hooks/useWhoIsTalking';
 import useWhoIsUnmuted from '/imports/ui/core/hooks/useWhoIsUnmuted';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { layoutDispatch } from '/imports/ui/components/layout/context';
-import { CHAT_CREATE_WITH_USER, SET_ROLE, USER_EJECT_CAMERAS } from './mutations';
 import UserItemToolbar from './user-item-toolbar/component';
 import ConfirmationModal from '/imports/ui/components/common/modal/confirmation/component';
 import AvatarContent from './avatar-content/component';
@@ -22,21 +19,12 @@ import {
   generateActionsPermissions,
   hasWhiteboardWriteAccess,
   isMe,
-  isVoiceOnlyUser,
   createToolbarOptions,
 } from './service';
 import { UserListItemProps } from './types';
-import { PRESENTATION_SET_WRITERS } from '/imports/ui/components/presentation/mutations';
-import { CURRENT_PAGE_WRITERS_QUERY } from '/imports/ui/components/whiteboard/queries';
-import useToggleVoice from '/imports/ui/components/audio/audio-graphql/hooks/useToggleVoice';
-import {
-  EJECT_FROM_MEETING,
-  EJECT_FROM_VOICE,
-  SET_LOCKED,
-  SET_PRESENTER,
-} from '/imports/ui/core/graphql/mutations/userMutations';
 import UserNameWithSubs from './user-name-with-subs/component';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
+import { useUserOperations } from '/imports/ui/components/user-list/hooks/useUserOperations';
 
 const renderUserListItemIconsFromPlugin = (
   userItemsFromPlugin: PluginSdk.UserListItemAdditionalInformationInterface[],
@@ -63,7 +51,10 @@ const UserListItem: React.FC<UserListItemProps> = ({
   setOpenUserAction,
   open,
   pageId,
+  type,
 }) => {
+  const { intl, operations, modal } = useUserOperations(user.userId);
+
   const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
   let userItemsFromPlugin = [] as PluginSdk.UserListItemAdditionalInformationInterface[];
   if (pluginsExtensibleAreasAggregatedState.userListItemAdditionalInformation) {
@@ -79,26 +70,9 @@ const UserListItem: React.FC<UserListItemProps> = ({
     ];
   }
 
-  const intl = useIntl();
   const layoutContextDispatch = layoutDispatch();
   const isChatEnabled = useIsChatEnabled();
   const isPrivateChatEnabled = useIsPrivateChatEnabled();
-  const [chatCreateWithUser] = useMutation(CHAT_CREATE_WITH_USER);
-  const toggleVoiceFunction = useToggleVoice();
-  const [getWriters] = useLazyQuery(
-    CURRENT_PAGE_WRITERS_QUERY,
-    {
-      fetchPolicy: 'no-cache',
-    },
-  );
-  const [presentationSetWriters] = useMutation(PRESENTATION_SET_WRITERS);
-  const [setPresenter] = useMutation(SET_PRESENTER);
-  const [setRole] = useMutation(SET_ROLE);
-  const [setLocked] = useMutation(SET_LOCKED);
-  const [userEjectCameras] = useMutation(USER_EJECT_CAMERAS);
-  const [ejectFromMeeting] = useMutation(EJECT_FROM_MEETING);
-  const [ejectFromVoice] = useMutation(EJECT_FROM_VOICE);
-  const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState<boolean>(false);
 
   const whiteboardAccess = hasWhiteboardWriteAccess(user);
   const { data: talkingUsers } = useWhoIsTalking();
@@ -110,6 +84,7 @@ const UserListItem: React.FC<UserListItemProps> = ({
     talking: talkingUsers[user.userId],
     muted: isMuted,
   };
+
   const actionsPermitions = generateActionsPermissions(
     user,
     currentUser,
@@ -119,7 +94,9 @@ const UserListItem: React.FC<UserListItemProps> = ({
     isMuted,
     isChatEnabled,
     isPrivateChatEnabled,
+    type,
   );
+
   const {
     pinnedToolbarOptions,
     otherToolbarOptions,
@@ -132,55 +109,37 @@ const UserListItem: React.FC<UserListItemProps> = ({
     lockSettings,
     pageId,
     layoutContextDispatch,
-    chatCreateWithUser,
-    toggleVoiceFunction,
-    getWriters,
-    presentationSetWriters,
-    setPresenter,
-    setRole,
-    setLocked,
-    userEjectCameras,
-    setIsConfirmationModalOpen,
+    operations.chatCreateWithUser,
+    operations.toggleVoiceFunction,
+    operations.getWriters,
+    operations.presentationSetWriters,
+    operations.setPresenter,
+    operations.setRole,
+    operations.setLocked,
+    operations.userEjectCameras,
+    () => modal.setIsOpen(true),
+    operations.setRaiseHand,
   );
 
-  const userAvatarFiltered = (user.raiseHand === true || user.away === true || (user.reactionEmoji && user.reactionEmoji !== 'none')) ? '' : user.avatar;
-
-  const removeUser = (userId: string, banUser: boolean) => {
-    if (isVoiceOnlyUser(user.userId)) {
-      ejectFromVoice({
-        variables: {
-          userId,
-          banUser,
-        },
-      });
-    } else {
-      ejectFromMeeting({
-        variables: {
-          userId,
-          banUser,
-        },
-      });
-    }
-  };
+  const userAvatarFiltered = (user.away === true || (user.reactionEmoji && user.reactionEmoji !== 'none')) ? '' : user.avatar;
 
   const Settings = getSettingsSingletonInstance();
   const animations = Settings?.application?.animations;
 
   return (
     <Styled.UserItemContents id={`user-index-${index}`} tabIndex={-1} data-test={(isMe(user.userId)) ? 'userListItemCurrent' : 'userListItem'}>
-      {isConfirmationModalOpen && (
+      {modal.isOpen && (
         <ConfirmationModal
           intl={intl}
-          titleMessageId="app.userList.menu.removeConfirmation.label"
-          titleMessageExtra={user.name}
+          title={intl.formatMessage({ id: 'app.userList.menu.removeConfirmation.label' }, { userName: user.name })}
           checkboxMessageId="app.userlist.menu.removeConfirmation.desc"
           confirmParam={user.userId}
-          onConfirm={removeUser}
+          onConfirm={operations.removeUser}
           confirmButtonDataTest="removeUserConfirmation"
-          onRequestClose={() => setIsConfirmationModalOpen(false)}
+          onRequestClose={() => modal.setIsOpen(false)}
           priority="low"
-          setIsOpen={setIsConfirmationModalOpen}
-          isOpen={isConfirmationModalOpen}
+          setIsOpen={modal.setIsOpen}
+          isOpen={modal.isOpen}
         />
       )}
       <Styled.Avatar

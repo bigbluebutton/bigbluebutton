@@ -253,7 +253,15 @@ case class ClearedAllUsersReactionEvtMsgBody()
  */
 object UserConnectionAliveReqMsg { val NAME = "UserConnectionAliveReqMsg" }
 case class UserConnectionAliveReqMsg(header: BbbClientMsgHeader, body: UserConnectionAliveReqMsgBody) extends StandardMsg
-case class UserConnectionAliveReqMsgBody(userId: String, sessionToken: String, clientSessionUUID: String, networkRttInMs: Double, applicationRttInMs: Double, traceLog: String)
+case class UserConnectionAliveReqMsgBody(
+    userId:             String,
+    sessionToken:       String,
+    serverRequestId:    String,
+    clientSessionUUID:  String,
+    networkRttInMs:     Double,
+    applicationRttInMs: Double,
+    traceLog:           String
+)
 
 /**
  * Sent from client to update clientSettings.
@@ -477,3 +485,7 @@ case class SetUserSpeechOptionsReqMsgBody(partialUtterances: Boolean, minUtteran
 object UserSpeechOptionsChangedEvtMsg { val NAME = "UserSpeechOptionsChangedEvtMsg" }
 case class UserSpeechOptionsChangedEvtMsg(header: BbbClientMsgHeader, body: UserSpeechOptionsChangedEvtMsgBody) extends BbbCoreMsg
 case class UserSpeechOptionsChangedEvtMsgBody(partialUtterances: Boolean, minUtteranceLength: Int)
+
+object UserSetPresenterRequestReqMsg { val NAME = "UserSetPresenterRequestReqMsg" }
+case class UserSetPresenterRequestReqMsg(header: BbbClientMsgHeader, body: UserSetPresenterRequestReqMsgBody) extends StandardMsg
+case class UserSetPresenterRequestReqMsgBody(requesterId: String, requestedPresenter: Boolean, approved: Boolean)

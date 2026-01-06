@@ -40,6 +40,7 @@ const intlMessages = defineMessages({
 });
 
 interface ChatMessageToolbarProps {
+  isCustomPluginMessage: boolean;
   own: boolean;
   amIModerator: boolean;
   isBreakoutRoom: boolean;
@@ -60,8 +61,8 @@ interface ChatMessageToolbarProps {
 
 const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
   const {
-    deleted, messageSequence, own, amIModerator, isBreakoutRoom, locked,
-    onReactionPopoverOpenChange, reactionPopoverIsOpen, hasToolbar,
+    isCustomPluginMessage, deleted, messageSequence, own, amIModerator, isBreakoutRoom,
+    locked, onReactionPopoverOpenChange, reactionPopoverIsOpen, hasToolbar,
     chatDeleteEnabled, chatEditEnabled, chatReactionsEnabled, chatReplyEnabled,
     onDelete, onEdit, onReply,
   } = props;
@@ -76,7 +77,7 @@ const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
 
   const showReplyButton = chatReplyEnabled;
   const showReactionsButton = chatReactionsEnabled;
-  const showEditButton = chatEditEnabled && own;
+  const showEditButton = chatEditEnabled && own && !isCustomPluginMessage;
   const showDeleteButton = chatDeleteEnabled && (own || (amIModerator && !isBreakoutRoom));
   const showDivider = (showReplyButton || showReactionsButton) && (showEditButton || showDeleteButton);
 

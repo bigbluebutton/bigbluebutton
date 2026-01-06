@@ -529,6 +529,9 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         track3: 'aristocratDrums',
       },
       time: 5,
+      maxHours: 23,
+      presets: [60, 300, 600, 900, 1200, 1800, 3600],
+      quickAddButtons: [30, 60, 300],
       serverSyncTimeInterval: 300000, // 5 minutes
     },
     chat: {
@@ -570,22 +573,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         enable: false,
       },
       disableEmojis: [],
-      allowedElements: [
-        'a',
-        'code',
-        'em',
-        'h1',
-        'h2',
-        'h3',
-        'h4',
-        'h5',
-        'h6',
-        'li',
-        'ol',
-        'ul',
-        'p',
-        'strong',
-      ],
+      markdownImageAllowed: false,
       toolbar: [],
     },
     userReaction: {

@@ -513,6 +513,9 @@ export interface Timer {
   alarm: boolean
   music: Music
   time: number
+  maxHours: number
+  presets: number[]
+  quickAddButtons: number[]
   serverSyncTimeInterval: number
 }
 
@@ -551,7 +554,7 @@ export interface Chat {
   autoConvertEmoji: boolean
   emojiPicker: EmojiPicker
   disableEmojis: string[]
-  allowedElements: string[]
+  markdownImageAllowed: boolean
   toolbar: string[]
 }
 

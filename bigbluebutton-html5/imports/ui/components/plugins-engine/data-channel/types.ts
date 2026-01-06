@@ -21,7 +21,6 @@ export interface DataChannelEntry {
   entryId: string;
   payloadJson: object;
   createdBy: string;
-  fromUserId: string;
   pluginName: string;
   toRoles?: string[];
 }

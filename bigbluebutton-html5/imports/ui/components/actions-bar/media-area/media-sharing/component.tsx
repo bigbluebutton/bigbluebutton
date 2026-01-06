@@ -4,6 +4,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import SvgIcon from '@mui/material/SvgIcon';
 import { btnDefaultColor, colorPrimary } from '/imports/ui/stylesheets/styled-components/palette';
 import CoPresentIcon from '@mui/icons-material/CoPresent';
+import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
 import KEYS from '/imports/utils/keys';
 import { useIsScreenGloballyBroadcasting, screenshareHasEnded } from '/imports/ui/components/screenshare/service';
 import { defineMessages, IntlShape } from 'react-intl';
@@ -30,6 +31,7 @@ interface MediaSharingModalProps {
   isCameraAsContentEnabled: boolean;
   hasCameraAsContent: boolean;
   handleTakePresenter: () => void;
+  handleRequestPresenter: () => void;
   hasPresentation: boolean;
   isPresentationManagementDisabled: boolean | undefined;
   isPresentationEnabled: boolean;
@@ -38,6 +40,7 @@ interface MediaSharingModalProps {
   stopExternalVideoShare: () => void;
   isMobile: boolean;
   isRTL: boolean;
+  isRequestingPresenter?: boolean;
 }
 
 const intlMessages = defineMessages({
@@ -97,6 +100,22 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.actionsDropdown.takePresenterDesc',
     description: 'Description of take presenter role option',
   },
+  requestPresenter: {
+    id: 'app.actionsBar.actionsDropdown.requestPresenter',
+    description: 'Label for request presenter role option',
+  },
+  requestPresenterDesc: {
+    id: 'app.actionsBar.actionsDropdown.requestPresenterDesc',
+    description: 'Description of request presenter role option',
+  },
+  waitingForModerator: {
+    id: 'app.actionsBar.actionsDropdown.waitingForModerator',
+    description: 'Label when waiting for moderator approval',
+  },
+  waitingForModeratorDesc: {
+    id: 'app.actionsBar.actionsDropdown.waitingForModeratorDesc',
+    description: 'Description when waiting for moderator approval',
+  },
   startExternalVideoLabel: {
     id: 'app.actionsBar.actionsDropdown.shareExternalVideo',
     description: 'Start sharing external video button',
@@ -131,6 +150,7 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
   hasPresentation,
   amIModerator = false,
   handleTakePresenter,
+  handleRequestPresenter,
   isPresentationManagementDisabled = false,
   isPresentationEnabled,
   isSharingVideo,
@@ -138,6 +158,7 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
   stopExternalVideoShare,
   isMobile,
   isRTL,
+  isRequestingPresenter = false,
 }) => {
   const actionsBarStyle = layoutSelectOutput((i: Output) => i.actionBar);
   const { screenIsShared: isScreenGloballyBroadcasting } = useIsScreenGloballyBroadcasting();
@@ -307,16 +328,45 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
   };
 
   const renderTakePresenterView = () => {
+    if (isRequestingPresenter) {
+      return (
+        <Styled.BecomePresenterViewContainer>
+          <Styled.BecomePresenterText>
+            {intl.formatMessage(intlMessages.mustBePresenter)}
+          </Styled.BecomePresenterText>
+          <Styled.WaitingButton
+            data-test="waitingPresenterButton"
+            disabled
+          >
+            <HourglassEmptyIcon sx={{ marginRight: '0.5rem' }} />
+            {intl.formatMessage(intlMessages.waitingForModerator)}
+          </Styled.WaitingButton>
+        </Styled.BecomePresenterViewContainer>
+      );
+    }
+
+    const buttonLabel = amIModerator
+      ? intl.formatMessage(intlMessages.takePresenter)
+      : intl.formatMessage(intlMessages.requestPresenter);
+
+    const buttonAction = amIModerator
+      ? handleTakePresenter
+      : handleRequestPresenter;
+
+    const dataTestId = amIModerator
+      ? 'takePresenterButton'
+      : 'requestPresenterButton';
+
     return (
       <Styled.BecomePresenterViewContainer>
         <Styled.BecomePresenterText>
           {intl.formatMessage(intlMessages.mustBePresenter)}
         </Styled.BecomePresenterText>
         <Styled.ConfirmationButton
-          data-test="takePresenterButton"
-          label={intl.formatMessage(intlMessages.takePresenter)}
+          data-test={dataTestId}
+          label={buttonLabel}
           color="primary"
-          onClick={handleTakePresenter}
+          onClick={buttonAction}
           customIcon={<CoPresentIcon />}
         />
       </Styled.BecomePresenterViewContainer>
@@ -351,7 +401,7 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
         actionsBarHeight={actionsBarStyle.height}
         reducedWidth={!amIPresenter && amIModerator}
       >
-        {!amIPresenter && amIModerator
+        {!amIPresenter
           ? renderTakePresenterView()
           : (
             <>

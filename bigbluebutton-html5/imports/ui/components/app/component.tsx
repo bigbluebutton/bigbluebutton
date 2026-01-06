@@ -1,6 +1,4 @@
-import React, {
-  useState, useEffect,
-} from 'react';
+import React, { useEffect } from 'react';
 import { useIntl } from 'react-intl';
 import PollingContainer from '/imports/ui/components/polling/container';
 import ActivityCheckContainer from '/imports/ui/components/activity-check/container';
@@ -50,6 +48,7 @@ import useAppInitialization from './hooks/useAppInitialization';
 import usePollShortcut from './hooks/usePollShortcut';
 import useUserStatusNotifications from './hooks/useUserStatusNotifications';
 import { NotesRenderMode } from '/imports/ui/components/notes/constants';
+import RequestPresenterContainer from '/imports/ui/components/request-presenter/container';
 
 interface AppProps {
   darkTheme: boolean;
@@ -99,9 +98,6 @@ const App: React.FC<AppProps> = ({
   layoutContextDispatch,
 }) => {
   const intl = useIntl();
-  // State
-  const [isAudioModalOpen, setIsAudioModalOpen] = useState<boolean>(false);
-  const [isVideoPreviewModalOpen, setIsVideoPreviewModalOpen] = useState<boolean>(false);
 
   useAppInitialization();
   useJoinLogger(meetingId, meetingName, isBreakout);
@@ -178,12 +174,7 @@ const App: React.FC<AppProps> = ({
           )}
           <BreakoutJoinConfirmationContainerGraphQL />
           <BBBLiveKitRoomContainer />
-          <AudioContainer
-            isAudioModalOpen={isAudioModalOpen}
-            setAudioModalIsOpen={setIsAudioModalOpen}
-            isVideoPreviewModalOpen={isVideoPreviewModalOpen}
-            setVideoPreviewModalIsOpen={setIsVideoPreviewModalOpen}
-          />
+          <AudioContainer />
           {!hideNotificationToasts && isNotificationEnabled && (
             <ToastContainer rtl />
           )}
@@ -196,6 +187,7 @@ const App: React.FC<AppProps> = ({
           <EmojiRainContainer />
           <VoiceActivityAdapter />
         </Styled.Layout>
+        <RequestPresenterContainer />
       </>
     );
   }

@@ -57,6 +57,7 @@ select_permissions:
         - createdAt
         - deletedAt
         - message
+        - messageAsHtml
         - messageId
         - messageMetadata
         - messageSequence

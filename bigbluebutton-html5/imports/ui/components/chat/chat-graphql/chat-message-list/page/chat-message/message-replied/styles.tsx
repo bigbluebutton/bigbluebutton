@@ -1,10 +1,10 @@
 import styled from 'styled-components';
 import {
+  colorDangerDark,
   colorGrayLight,
   colorGrayLightest, colorOffWhite, colorPrimary, colorText, colorWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { $3xlPadding, smPadding } from '/imports/ui/stylesheets/styled-components/general';
-import ReactMarkdown from 'react-markdown';
 
 const Container = styled.div`
   border-top-left-radius: 0.5rem;
@@ -37,7 +37,7 @@ export const DeleteMessage = styled.span`
   white-space: nowrap;
 `;
 
-export const Markdown = styled(ReactMarkdown)`
+export const HtmlContent = styled.div`
   color: ${colorText};
 
   & img {
@@ -47,20 +47,43 @@ export const Markdown = styled(ReactMarkdown)`
 
   & p {
     margin: 0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    white-space: pre-wrap;
   }
 
-  & code {
-    white-space: nowrap;
+  & pre:has(code), p code:not(pre > code) {
     background-color: ${colorOffWhite};
     border: solid 1px ${colorGrayLightest};
     border-radius: 4px;
     padding: 2px;
+    margin: 0;
     font-size: 12px;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-wrap: anywhere;
+  }
+  & p code:not(pre > code) {
+    color: ${colorDangerDark};
+  }
+  & h1 {
+    font-size: 1.5em;
+    margin: 0;
+  }
+  & h2 {
+    font-size: 1.3em;
+    margin: 0;
+  }
+  & h3 {
+    font-size: 1.1em;
+    margin: 0;
+  }
+  & h4 {
+    margin: 0;
+  }
+  & h5 {
+    margin: 0;
+  }
+  & h6 {
+    margin: 0;
   }
 `;
 
@@ -68,5 +91,5 @@ export default {
   Container,
   Message,
   DeleteMessage,
-  Markdown,
+  HtmlContent,
 };

@@ -743,6 +743,10 @@ type Mutation {
   ): Boolean
 }
 
+type Mutation {
+  userSetPresenterRequest(requestedPresenter: Boolean!, userId: String, approved: Boolean): Boolean
+}
+
 input BreakoutRoom {
   captureNotesFilename: String!
   captureSlidesFilename: String!
@@ -764,4 +768,3 @@ input AudioGroupParticipant {
   participantType: String!
   active: Boolean!
 }
-

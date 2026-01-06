@@ -476,7 +476,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
           sendCancelEvents();
         });
       }
-      const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY);
+      const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) as string[];
 
       // Remove the chat that user send messages from the session.
       if (indexOf(currentClosedChats, chatId) > -1) {
@@ -645,7 +645,6 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
             <Styled.Input
               id="message-input"
               ref={textAreaRef}
-              $showEmojiPicker={showEmojiPicker}
               placeholder={intl.formatMessage(messages.inputPlaceholder, { chatName: title })}
               aria-label={intl.formatMessage(messages.inputLabel, { chatName: title })}
               aria-invalid={hasErrors ? 'true' : 'false'}
@@ -676,6 +675,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
               onCut={(e) => { e.stopPropagation(); }}
               onCopy={(e) => { e.stopPropagation(); }}
               async
+              $hasContent={message.length > 0}
             />
             {ENABLE_EMOJI_PICKER ? (
               <Tooltip title={<span style={{ fontSize: '0.9rem' }}>{intl.formatMessage(messages.emojiButtonLabel)}</span>} arrow>

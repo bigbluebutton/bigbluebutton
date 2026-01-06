@@ -101,7 +101,6 @@ const TimeRemaingPanel: React.FC<TimeRemainingPanelProps> = ({
 
   return (
     <Styled.DurationContainer
-      centeredText={!showChangeTimeForm}
       ref={durationContainerRef}
     >
       <BreakoutRemainingTime

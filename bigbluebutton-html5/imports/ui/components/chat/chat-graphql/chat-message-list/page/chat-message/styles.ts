@@ -27,12 +27,12 @@ import UserAvatar from '/imports/ui/components/user-avatar/component';
 
 interface ChatWrapperProps {
   sameSender: boolean;
-  isSystemSender: boolean;
+  messageHighlight: boolean;
   isPresentationUpload?: boolean;
   isCustomPluginMessage: boolean;
 }
 
-interface ChatContentProps {
+interface ChatMessageContentWrapperProps {
   sameSender: boolean;
   isCustomPluginMessage: boolean;
   $isSystemSender: boolean;
@@ -67,7 +67,7 @@ export const ChatWrapper = styled.div<ChatWrapperProps>`
       border-radius: 8px;
       background-color: ${colorWhite};
     `}
-  ${({ isSystemSender }) => isSystemSender && `
+  ${({ messageHighlight }) => messageHighlight && `
     background-color: #fef9f1;
     border-left: 2px solid #f5c67f;
     border-radius: 0px 3px 3px 0px;
@@ -79,7 +79,7 @@ export const ChatWrapper = styled.div<ChatWrapperProps>`
   `}
 `;
 
-export const ChatContent = styled.div<ChatContentProps>`
+export const ChatMessageContentWrapper = styled.div<ChatMessageContentWrapperProps>`
   display: flex;
   flex-flow: column;
   width: 100%;
@@ -87,11 +87,12 @@ export const ChatContent = styled.div<ChatContentProps>`
   position: relative;
   border: 1px solid transparent;
 
-  ${({ $isSystemSender }) => !$isSystemSender && `
+  ${({ $isSystemSender, isCustomPluginMessage }) => !$isSystemSender && !isCustomPluginMessage
+  && `
     background-color: #f4f6fa;
   `}
 
-  ${({ $highlight }) => $highlight && `
+  ${({ $highlight, isCustomPluginMessage }) => ($highlight && !isCustomPluginMessage) && `
     &:hover {
       border: 1px solid ${highlightedMessageBorderColor};
     }
@@ -99,7 +100,8 @@ export const ChatContent = styled.div<ChatContentProps>`
 
   ${({
     $editing, $reactionPopoverIsOpen, $keyboardFocused,
-  }) => ($reactionPopoverIsOpen || $editing || $keyboardFocused)
+    isCustomPluginMessage,
+  }) => !isCustomPluginMessage && ($reactionPopoverIsOpen || $editing || $keyboardFocused)
     && `
     background-color: ${colorBlueLightest} !important;
   `}
@@ -108,7 +110,7 @@ export const ChatContent = styled.div<ChatContentProps>`
     background-color: ${colorBlueLightest} !important;
   }
 
-  ${({ $emphasizedMessage }) => $emphasizedMessage && `
+  ${({ $emphasizedMessage, isCustomPluginMessage }) => (!isCustomPluginMessage && $emphasizedMessage) && `
     background-color: ${emphasizedMessageBackgroundColor};
 
     &:hover {
@@ -174,6 +176,14 @@ export const MessageItemWrapper = styled.div`
   display: flex;
   flex-direction: row;
   padding: calc(${lgPadding} + 2px) ${$3xlPadding};
+`;
+
+export const PluginInformationMetadata = styled.div`
+  font-size: 75%;
+  font-style: italic;
+  color: ${colorGrayDark};
+  padding: 0 .25rem 0 0;
+  text-align: end;
 `;
 
 export const DeleteMessage = styled.span`
