@@ -225,6 +225,7 @@
     "app.media.cameraAsContent.endDueToDataSaving": "تم إيقاف الكاميرا الحالية بسبب توفير البيانات",
     "app.media.cameraAsContent.autoplayBlockedDesc": "نحن بحاجة إلى إذنك لإظهار كاميرا المقدم لك.",
     "app.media.cameraAsContent.autoplayAllowLabel": "عرض الكاميرا الحالية",
+    "app.media.mediaReconnecting": "تم اكتشاف مشكلة في الاتصال. جارٍ استعادة الصوت والفيديو...",
     "app.screenshare.presenterLoadingLabel": "يتم تحميل مشاركة شاشتك",
     "app.screenshare.viewerLoadingLabel": "جاري تحميل شاشة المقدم",
     "app.screenshare.presenterSharingLabel": "أنت الآن تشارك شاشتك",
