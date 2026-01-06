@@ -182,15 +182,8 @@ const BreakoutScrollableList = styled(ScrollboxVertical)`
   background: none;
 `;
 
-type DurationContainerProps = {
-  centeredText: boolean;
-};
-
-const DurationContainer = styled.div<DurationContainerProps>`
-  ${({ centeredText }) => centeredText && `
-    text-align: center;
-  `}
-
+const DurationContainer = styled.div`
+  text-align: center;
   border-radius: ${borderRadius};
 `;
 
