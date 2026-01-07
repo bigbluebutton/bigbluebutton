@@ -136,7 +136,7 @@ const propTypes = {
   amIModerator: PropTypes.bool,
   shortcuts: PropTypes.string,
   isBreakoutRoom: PropTypes.bool,
-  connected: PropTypes.bool.isRequired,
+  isConnected: PropTypes.bool.isRequired,
   isDropdownOpen: PropTypes.bool,
   audioCaptionsEnabled: PropTypes.bool,
   audioCaptionsActive: PropTypes.bool.isRequired,
