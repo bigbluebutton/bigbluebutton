@@ -50,6 +50,7 @@ const Notes = styled.div<{ isChrome: boolean }>`
 const Header = styled(CommonHeader)`
   background-color: ${colorWhite};
   padding-bottom: .2rem;
+  padding-left: ${mdPaddingX};
   border-radius: ${lgBorderRadius} ${lgBorderRadius} 0 0;
 `;
 

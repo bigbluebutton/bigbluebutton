@@ -111,6 +111,7 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
   const renderHeaderOnMedia = () => {
     return amIPresenter ? (
       <Styled.Header
+        title={intl.formatMessage(intlMessages.title)}
         rightButtonProps={{
           'aria-label': intl.formatMessage(intlMessages.unpinNotes),
           'data-test': 'unpinNotes',
