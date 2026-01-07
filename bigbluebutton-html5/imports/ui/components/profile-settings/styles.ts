@@ -36,7 +36,7 @@ const SimpleButton = styled.button`
   border: none;
   background: none;
   padding: 0;
-  outline: none; 
+  outline: none;
 `;
 
 const RootContainer = styled.div`
@@ -124,7 +124,7 @@ const VideoPreviewContent = styled.div`
   justify-content: center;
   align-items: center;
   background: ${colorWhite};
-  
+
   color: ${colorText};
   font-weight: normal;
 
@@ -210,10 +210,12 @@ const UserPresenceRoot = styled.div`
 
 const UserPresenceContainer = styled.div`
   display: flex;
-  height: 3.5rem;
+  flex-wrap: wrap;
+  min-height: 3.5rem;
   padding: 0.5rem 1rem;
   align-items: center;
-  gap: 1rem;
+  justify-content: center;
+  gap: 0.5rem 1rem;
   border-radius: 1rem;
   border: 1px solid ${colorBorder};
 `;
@@ -223,7 +225,8 @@ const UserPresenceButton = styled(SimpleButton)<{ active?: boolean }>`
   padding: 0.125rem 1rem;
   justify-content: center;
   align-items: center;
-  flex: 1 0 0;
+  flex: 1 1 auto;
+  min-width: 6rem;
   align-self: stretch;
   border-radius: 0.5rem;
 
@@ -246,6 +249,7 @@ const UserPresenceDivider = styled.div`
   width: 0.0625rem;
   height: 2.5rem;
   background: ${colorBorder};
+  flex-shrink: 0;
 `;
 
 const Separator = styled.hr`
