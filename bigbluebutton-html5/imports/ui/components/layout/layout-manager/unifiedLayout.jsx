@@ -711,7 +711,7 @@ const UnifiedLayout = (props) => {
         left: cameraDockBounds.left,
         right: cameraDockBounds.right,
         tabOrder: 4,
-        isDraggable: !isMobile && !isTablet && presentationInput.isOpen,
+        isDraggable: !isMobile && !isTablet && isMediaOpen,
         resizableEdge: {
           top:
           isMediaOpen
