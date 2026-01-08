@@ -182,6 +182,9 @@ const updateCameraSections = (
   return finalSections;
 };
 
+const HIDE_DIVIDER_THRESHOLD = 200;
+const SHOW_DIVIDER_THRESHOLD = 220;
+
 interface ProfileSettingsProps {
 }
 const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
@@ -195,9 +198,6 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
 
   const presenceContainerRef = useRef<HTMLDivElement>(null);
   const [showPresenceDivider, setShowPresenceDivider] = useState(true);
-
-  const HIDE_DIVIDER_THRESHOLD = 200;
-  const SHOW_DIVIDER_THRESHOLD = 220;
 
   useEffect(() => {
     const container = presenceContainerRef.current;
