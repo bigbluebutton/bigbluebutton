@@ -7,7 +7,7 @@ import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { layoutSelect, layoutDispatch, layoutSelectInput } from '/imports/ui/components/layout/context';
 import VideoListItem from './component';
 import { VideoItem } from '/imports/ui/components/video-provider/types';
-import { Layout } from '/imports/ui/components/layout/layoutTypes';
+import { Layout, Input } from '/imports/ui/components/layout/layoutTypes';
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
 import { useStorageKey } from '/imports/ui/services/storage/hooks';
@@ -94,7 +94,7 @@ const VideoListItemContainer: React.FC<VideoListItemContainerProps> = (props) =>
     ? raisedHands.findIndex((user) => user.userId === userId) + 1
     : 0;
 
-  const { hideNotificationToasts } = layoutSelectInput((i) => i.notificationsBar);
+  const { hideNotificationToasts } = layoutSelectInput((i: Input) => i.notificationsBar);
   const hideNotifications = hideNotificationToasts
     || getFromUserSettings('bbb_hide_notifications', false);
 
