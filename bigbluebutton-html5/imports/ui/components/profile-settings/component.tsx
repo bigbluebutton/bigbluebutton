@@ -1,4 +1,6 @@
-import React, { useCallback, useEffect } from 'react';
+import React, {
+  useCallback, useEffect, useRef, useState,
+} from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -180,6 +182,9 @@ const updateCameraSections = (
   return finalSections;
 };
 
+const HIDE_DIVIDER_THRESHOLD = 200;
+const SHOW_DIVIDER_THRESHOLD = 220;
+
 interface ProfileSettingsProps {
 }
 const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
@@ -190,6 +195,32 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
   const streams = useStreams();
   const isVirtualBackgroundsEnabled = useIsVirtualBackgroundsEnabled();
   const isCustomVirtualBackgroundsEnabled = useIsCustomVirtualBackgroundsEnabled();
+
+  const presenceContainerRef = useRef<HTMLDivElement>(null);
+  const [showPresenceDivider, setShowPresenceDivider] = useState(true);
+
+  useEffect(() => {
+    const container = presenceContainerRef.current;
+    if (!container) return;
+
+    const observer = new ResizeObserver((entries) => {
+      entries.forEach((entry) => {
+        const { width } = entry.contentRect;
+
+        setShowPresenceDivider((prev) => {
+          if (prev && width < HIDE_DIVIDER_THRESHOLD) return false;
+          if (!prev && width > SHOW_DIVIDER_THRESHOLD) return true;
+          return prev;
+        });
+      });
+    });
+
+    observer.observe(container);
+    // eslint-disable-next-line consistent-return
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
 
   // @ts-ignore
   const settingsStorage = window.meetingClientSettings.public.app.userSettingsStorage;
@@ -755,11 +786,11 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
           <Styled.Username>{currentUserData?.name ?? ''}</Styled.Username>
         </Styled.UsernameContainer>
         <Styled.UserPresenceRoot>
-          <Styled.UserPresenceContainer>
+          <Styled.UserPresenceContainer ref={presenceContainerRef}>
             <Styled.UserPresenceButton active={!currentUserData?.away} onClick={handleToggleAFK}>
               <Styled.UserPresenceText>{formatMessage(intlMessages.availableLabel)}</Styled.UserPresenceText>
             </Styled.UserPresenceButton>
-            <Styled.UserPresenceDivider />
+            {showPresenceDivider && <Styled.UserPresenceDivider />}
             <Styled.UserPresenceButton active={currentUserData?.away} onClick={handleToggleAFK}>
               <Styled.UserPresenceText>{formatMessage(intlMessages.awayLabel)}</Styled.UserPresenceText>
             </Styled.UserPresenceButton>
