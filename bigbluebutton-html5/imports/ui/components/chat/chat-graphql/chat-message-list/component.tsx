@@ -5,7 +5,7 @@ import React, {
   useMemo,
   KeyboardEventHandler,
 } from 'react';
-import { makeVar, useMutation } from '@apollo/client';
+import { makeVar, useMutation, useReactiveVar } from '@apollo/client';
 import { defineMessages, useIntl } from 'react-intl';
 import useChat from '/imports/ui/core/hooks/useChat';
 import useIntersectionObserver from '/imports/ui/hooks/useIntersectionObserver';
@@ -67,7 +67,7 @@ interface ChatListProps {
         lastSeenAt: string,
       },
     }
-  ) => void;
+  ) => Promise<unknown>;
 }
 
 const isElement = (el: unknown): el is HTMLElement => {
@@ -102,19 +102,24 @@ const setLastSender = (lastSenderPerPage: Map<number, string>) => {
 };
 
 const lastSeenQueue = makeVar<{ [key: string]: Set<number> }>({});
-const setter = makeVar<{ [key: string]:(lastSeenTime: string) => void }>({});
 const lastSeenAtVar = makeVar<{ [key: string]: number }>({});
+const pendingLastSeenAtVar = makeVar<{ [key: string]: number }>({});
 const chatIdVar = makeVar<string>('');
 
 const dispatchLastSeen = () => setTimeout(() => {
   const lastSeenQueueValue = lastSeenQueue();
-  if (lastSeenQueueValue[chatIdVar()]) {
-    const lastTimeQueue = Array.from(lastSeenQueueValue[chatIdVar()]);
+  const activeChatId = chatIdVar();
+  if (lastSeenQueueValue[activeChatId]) {
+    const lastTimeQueue = Array.from(lastSeenQueueValue[activeChatId]);
     const lastSeenTime = Math.max(...lastTimeQueue);
     const lastSeenAtVarValue = lastSeenAtVar();
-    if (lastSeenTime > (lastSeenAtVarValue[chatIdVar()] ?? 0)) {
-      lastSeenAtVar({ ...lastSeenAtVar(), [chatIdVar()]: lastSeenTime });
-      setter()[chatIdVar()](new Date(lastSeenTime).toISOString());
+    const pendingLastSeenAtVarValue = pendingLastSeenAtVar();
+    if (
+      lastSeenTime > (lastSeenAtVarValue[activeChatId] ?? 0)
+      && lastSeenTime > (pendingLastSeenAtVarValue[activeChatId] ?? 0)
+    ) {
+      pendingLastSeenAtVar({ ...pendingLastSeenAtVarValue, [activeChatId]: lastSeenTime });
+      lastSeenQueue({ ...lastSeenQueueValue, [activeChatId]: new Set([lastSeenTime]) });
     }
   }
 }, 500);
@@ -210,6 +215,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
   const [lockLoadingNewPages, setLockLoadingNewPages] = useState(true);
   const [isScrollingDisabled, setIsScrollingDisabled] = useState(false);
   const allPagesLoaded = loadingPages.size === 0;
+  const pendingLastSeenAtByChat = useReactiveVar(pendingLastSeenAtVar);
   const {
     childRefProxy: endSentinelRefProxy,
     intersecting: isEndSentinelVisible,
@@ -318,24 +324,56 @@ const ChatMessageList: React.FC<ChatListProps> = ({
   }, [isStartSentinelVisible]);
 
   useEffect(() => {
-    setter({
-      ...setter(),
-      [chatId]: setLastMessageCreatedAt,
-    });
     chatIdVar(chatId);
     setLastMessageCreatedAt('');
   }, [chatId]);
 
   useEffect(() => {
-    if (lastMessageCreatedAt !== '') {
-      setMessageAsSeenMutation({
-        variables: {
+    const lastSeenTime = new Date(lastMessageCreatedAt).getTime();
+    if (!Number.isFinite(lastSeenTime) || lastMessageCreatedAt === '') return;
+
+    setMessageAsSeenMutation({
+      variables: {
+        chatId,
+        lastSeenAt: lastMessageCreatedAt,
+      },
+    }).then(() => {
+      // Use callback to confirm we have no connection issues before updating the last seen time
+      const lastSeenAtVarValue = lastSeenAtVar();
+      if (lastSeenTime > (lastSeenAtVarValue[chatId] ?? 0)) {
+        lastSeenAtVar({ ...lastSeenAtVarValue, [chatId]: lastSeenTime });
+      }
+
+      const pending = pendingLastSeenAtVar();
+      if ((pending[chatId] ?? 0) <= lastSeenTime) {
+        const pendingKeys = Object.keys(pending);
+        const pendingOtherKeys = pendingKeys.filter((key) => key !== chatId);
+        const rest = pendingOtherKeys.reduce((acc, key) => {
+          acc[key] = pending[key];
+          return acc;
+        }, {} as { [key: string]: number });
+        pendingLastSeenAtVar(rest);
+      }
+    }).catch((e) => {
+      logger.error({
+        logCode: 'chat_set_last_seen_error',
+        extraInfo: {
+          errorName: e?.name,
+          errorMessage: e?.message,
           chatId,
-          lastSeenAt: lastMessageCreatedAt,
         },
-      });
-    }
-  }, [lastMessageCreatedAt]);
+      }, `Setting chat last seen failed: ${e?.message}`);
+    });
+  }, [lastMessageCreatedAt, chatId, setMessageAsSeenMutation]);
+
+  useEffect(() => {
+    const pendingLastSeenAt = pendingLastSeenAtByChat[chatId];
+    if (!pendingLastSeenAt) return;
+    if (pendingLastSeenAt <= (lastSeenAtVar()[chatId] ?? 0)) return;
+    if (pendingLastSeenAt <= new Date(lastMessageCreatedAt || 0).getTime()) return;
+
+    setLastMessageCreatedAt(new Date(pendingLastSeenAt).toISOString());
+  }, [pendingLastSeenAtByChat, chatId, lastMessageCreatedAt]);
 
   useEffect(() => {
     const handler = (e: Event) => {
