@@ -4,7 +4,7 @@ import { UpdatedDataForUserCameraDomElement } from 'bigbluebutton-html-plugin-sd
 
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
-import { layoutSelect, layoutDispatch } from '/imports/ui/components/layout/context';
+import { layoutSelect, layoutDispatch, layoutSelectInput } from '/imports/ui/components/layout/context';
 import VideoListItem from './component';
 import { VideoItem } from '/imports/ui/components/video-provider/types';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
@@ -17,6 +17,7 @@ import { VIDEO_TYPES } from '/imports/ui/components/video-provider/enums';
 import { UserCameraHelperAreas } from '../../../plugins-engine/extensible-areas/components/user-camera-helper/types';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import { RAISED_HAND_USERS } from '/imports/ui/core/graphql/queries/users';
+import getFromUserSettings from '/imports/ui/services/users-settings';
 
 interface VideoListItemContainerProps {
   numOfStreams: number;
@@ -93,6 +94,10 @@ const VideoListItemContainer: React.FC<VideoListItemContainerProps> = (props) =>
     ? raisedHands.findIndex((user) => user.userId === userId) + 1
     : 0;
 
+  const { hideNotificationToasts } = layoutSelectInput((i) => i.notificationsBar);
+  const hideNotifications = hideNotificationToasts
+    || getFromUserSettings('bbb_hide_notifications', false);
+
   return (
     <VideoListItem
       {...{
@@ -117,6 +122,7 @@ const VideoListItemContainer: React.FC<VideoListItemContainerProps> = (props) =>
       stream={stream}
       voiceUser={voiceUser}
       raisedHandPosition={raisedHandIndex}
+      hideNotificationToasts={hideNotifications}
     />
   );
 };
