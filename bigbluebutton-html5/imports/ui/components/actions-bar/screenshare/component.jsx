@@ -31,8 +31,8 @@ const propTypes = {
   amIPresenter: PropTypes.bool,
   isScreenBroadcasting: PropTypes.bool.isRequired,
   isScreenGloballyBroadcasting: PropTypes.bool.isRequired,
-  isMeteorConnected: PropTypes.bool.isRequired,
   viewersCanShareScreen: PropTypes.bool,
+  isConnected: PropTypes.bool.isRequired,
 };
 
 const intlMessages = defineMessages({
@@ -150,7 +150,7 @@ const ScreenshareButton = ({
   isScreenBroadcasting,
   isScreenGloballyBroadcasting,
   amIPresenter = false,
-  isMeteorConnected,
+  isConnected,
   screenshareDataSavingSetting,
   streamId,
   isUserSharedScreen,

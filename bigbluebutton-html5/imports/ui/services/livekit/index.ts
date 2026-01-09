@@ -7,6 +7,8 @@ import {
 } from 'livekit-client';
 import logger from '/imports/startup/client/logger';
 
+export const LK_FATAL_ERROR_EVENT = 'liveKitFatalError';
+
 export const liveKitRoom: Room = new Room();
 
 export const getLKStats = async (): Promise<Map<string, unknown>> => {
@@ -64,6 +66,7 @@ export const lkToggleMuteCameras = (mute: boolean): void => {
 };
 
 export default {
+  LK_FATAL_ERROR_EVENT,
   getLKStats,
   lkIsCameraSource,
   liveKitRoom,

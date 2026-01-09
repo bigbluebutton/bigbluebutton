@@ -49,7 +49,6 @@ const ScreenshareButtonContainer = (props) => {
  * isScreenBroadcasting,
  * amIPresenter,
  * screenSharingCheck,
- * isMeteorConnected,
  * screenshareDataSavingSetting,
  */
 export default ScreenshareButtonContainer;

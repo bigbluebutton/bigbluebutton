@@ -329,7 +329,7 @@ class PresentationToolbar extends PureComponent {
       fitToWidth,
       intl,
       zoom,
-      isMeteorConnected,
+      isConnected,
       isPollingEnabled,
       amIPresenter,
       startPoll,
@@ -410,7 +410,7 @@ class PresentationToolbar extends PureComponent {
             aria-describedby={
               startOfSlides ? 'noPrevSlideDesc' : 'prevSlideDesc'
             }
-            disabled={startOfSlides || !isMeteorConnected}
+            disabled={startOfSlides || !isConnected}
             color="light"
             circle
             icon="left_arrow"
@@ -430,7 +430,7 @@ class PresentationToolbar extends PureComponent {
               aria-describedby="skipSlideDesc"
               aria-live="polite"
               aria-relevant="all"
-              disabled={!isMeteorConnected}
+              disabled={!isConnected}
               value={currentSlideNum}
               onChange={this.handleSkipToSlideChange}
               data-test="skipSlide"
@@ -444,7 +444,7 @@ class PresentationToolbar extends PureComponent {
             aria-describedby={
               endOfSlides ? 'noNextSlideDesc' : 'nextSlideDesc'
             }
-            disabled={endOfSlides || !isMeteorConnected}
+            disabled={endOfSlides || !isConnected}
             color="light"
             circle
             icon="right_arrow"
@@ -466,7 +466,7 @@ class PresentationToolbar extends PureComponent {
                 : intl.formatMessage(intlMessages.infiniteWhiteboardOn)
             }
             color="light"
-            disabled={!isMeteorConnected}
+            disabled={!isConnected}
             customIcon={infiniteWhiteboardIcon(isInfiniteWhiteboard)}
             size="md"
             circle
@@ -520,7 +520,7 @@ class PresentationToolbar extends PureComponent {
                 maxBound={MAX_PERCENT}
                 step={STEP}
                 isInfiniteWhiteboard={isInfiniteWhiteboard}
-                isMeteorConnected={isMeteorConnected}
+                isConnected={isConnected}
               />
             </TooltipContainer>
           ) : null}
@@ -538,7 +538,7 @@ class PresentationToolbar extends PureComponent {
                 )} ${intl.formatMessage(intlMessages.fitToWidth)}`
             }
             color="light"
-            disabled={!isMeteorConnected}
+            disabled={!isConnected}
             icon="fit_to_width"
             size="md"
             circle
@@ -571,12 +571,11 @@ PresentationToolbar.propTypes = {
   fitToWidthHandler: PropTypes.func.isRequired,
   fitToWidth: PropTypes.bool.isRequired,
   zoom: PropTypes.number.isRequired,
-  isMeteorConnected: PropTypes.bool.isRequired,
+  isConnected: PropTypes.bool.isRequired,
   fullscreenElementId: PropTypes.string.isRequired,
   fullscreenAction: PropTypes.string.isRequired,
   isFullscreen: PropTypes.bool.isRequired,
   layoutContextDispatch: PropTypes.func.isRequired,
-  setIsPanning: PropTypes.func.isRequired,
   multiUser: PropTypes.bool.isRequired,
   whiteboardId: PropTypes.string.isRequired,
   removeWhiteboardGlobalAccess: PropTypes.func.isRequired,

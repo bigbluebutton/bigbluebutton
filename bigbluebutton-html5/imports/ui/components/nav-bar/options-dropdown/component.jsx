@@ -136,7 +136,7 @@ const propTypes = {
   amIModerator: PropTypes.bool,
   shortcuts: PropTypes.string,
   isBreakoutRoom: PropTypes.bool,
-  isMeteorConnected: PropTypes.bool.isRequired,
+  isConnected: PropTypes.bool.isRequired,
   isDropdownOpen: PropTypes.bool,
   audioCaptionsEnabled: PropTypes.bool,
   audioCaptionsActive: PropTypes.bool.isRequired,
@@ -234,7 +234,7 @@ class OptionsDropdown extends PureComponent {
 
   renderMenuItems() {
     const {
-      intl, amIModerator, isBreakoutRoom, isMeteorConnected, audioCaptionsEnabled,
+      intl, amIModerator, isBreakoutRoom, isConnected, audioCaptionsEnabled,
       audioCaptionsActive, audioCaptionsSet, isMobile, optionsDropdownItems,
       isDirectLeaveButtonEnabled, isLayoutsEnabled, away, handleToggleAFK,
     } = this.props;
@@ -387,7 +387,7 @@ class OptionsDropdown extends PureComponent {
       }
     });
 
-    if (isMeteorConnected && !isDirectLeaveButtonEnabled) {
+    if (isConnected && !isDirectLeaveButtonEnabled) {
       const bottomItems = [{ key: 'list-item-separator', isSeparator: true }];
 
       if (allowLogoutSetting) {
