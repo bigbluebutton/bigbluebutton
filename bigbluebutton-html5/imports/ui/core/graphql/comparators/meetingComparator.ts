@@ -115,7 +115,15 @@ export const meetingComparator = <T>(
 
   const al = aData.layout;
   const bl = bData.layout;
+  if ((al?.updatedAt ?? 0) !== (bl?.updatedAt ?? 0)) return false;
   if ((al?.currentLayoutType ?? '') !== (bl?.currentLayoutType ?? '')) return false;
+  if ((al?.propagateLayout ?? false) !== (bl?.propagateLayout ?? false)) return false;
+  if ((al?.cameraDockIsResizing ?? false) !== (bl?.cameraDockIsResizing ?? false)) return false;
+  if ((al?.cameraDockPlacement ?? '') !== (bl?.cameraDockPlacement ?? '')) return false;
+  if ((al?.cameraDockAspectRatio ?? '') !== (bl?.cameraDockAspectRatio ?? '')) return false;
+  if ((al?.cameraWithFocus ?? '') !== (bl?.cameraWithFocus ?? '')) return false;
+  if ((al?.presentationMinimized ?? false) !== (bl?.presentationMinimized ?? false)) return false;
+  if ((al?.setByUserId ?? '') !== (bl?.setByUserId ?? '')) return false;
 
   const acf = aData.componentsFlags;
   const bcf = bData.componentsFlags;
