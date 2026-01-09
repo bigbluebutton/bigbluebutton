@@ -208,9 +208,10 @@ const makeDropdownPluginItem: (
           break;
         }
         case UserListDropdownItemType.SEPARATOR: {
+          const dropdownSeparator = userDropdownItem as PluginSdk.UserListDropdownSeparator;
           returnValue.allowed = true;
           returnValue.isSeparator = true;
-          returnValue.dataTest = userDropdownItem.dataTest;
+          returnValue.dataTest = dropdownSeparator.dataTest;
           break;
         }
         default:

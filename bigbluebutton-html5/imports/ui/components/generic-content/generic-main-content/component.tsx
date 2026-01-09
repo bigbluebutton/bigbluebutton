@@ -30,11 +30,12 @@ const GenericMainContent: React.FC<GenericContentMainAreaProps> = ({
         left,
         right,
       }}
-      dataTest={dataTest}
+      data-test={`container-${dataTest}`}
       isResizing={isResizing}
       isMinimized={isMinimized}
     >
       <GenericContentItem
+        dataTest={dataTest}
         key={componentToRender?.id}
         renderFunction={componentToRender?.contentFunction}
       />
