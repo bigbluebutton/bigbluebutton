@@ -117,6 +117,8 @@ public class ApiParams {
 
     public static final String MAX_NUM_PAGES = "maxNumPages";
 
+    public static final String PERSISTENT_STATE_URL = "persistentStateUrl";
+
     private ApiParams() {
         throw new IllegalStateException("ApiParams is a utility class. Instantiation is forbidden.");
     }

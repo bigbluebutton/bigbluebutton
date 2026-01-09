@@ -28,6 +28,18 @@ object Pads {
     }
   }
 
+  def isSharedNotes(liveMeeting: LiveMeeting, groupId: String): Boolean = {
+    getGroupById(liveMeeting.pads, groupId) match {
+      case Some(group) => {
+        group.model match {
+          case "notes" => true
+          case _       => false
+        }
+      }
+      case _ => false
+    }
+  }
+
   def hasGroup(pads: Pads, externalId: String): Boolean = pads.groups.contains(externalId)
 
   def addGroup(pads: Pads, externalId: String, model: String, name: String, userId: String): Unit = pads.addGroup(externalId, model, name, userId)

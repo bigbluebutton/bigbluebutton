@@ -109,10 +109,11 @@ trait AppsTestFixtures {
     val polls2x = new Polls
     val guestsWaiting = new GuestsWaiting
     val deskshareModel = new ScreenshareModel
+    val sharedNotesHtml = ""
 
     // We extract the meeting handlers into this class so it is
     // easy to test.
     new LiveMeeting(defaultProps, meetingStatux2x, deskshareModel, chatModel, layouts,
-      registeredUsers, polls2x, wbModel, presModel, webcams, voiceUsers, users2x, guestsWaiting)
+      registeredUsers, polls2x, wbModel, presModel, webcams, voiceUsers, users2x, guestsWaiting, sharedNotesHtml)
   }
 }

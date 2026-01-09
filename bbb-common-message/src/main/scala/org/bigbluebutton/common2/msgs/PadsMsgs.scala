@@ -27,7 +27,7 @@ case class PadCreateReqMsgBody(externalId: String, name: String)
 // apps -> pads
 object PadCreateCmdMsg { val NAME = "PadCreateCmdMsg" }
 case class PadCreateCmdMsg(header: BbbCoreHeaderWithMeetingId, body: PadCreateCmdMsgBody) extends BbbCoreMsg
-case class PadCreateCmdMsgBody(groupId: String, name: String)
+case class PadCreateCmdMsgBody(groupId: String, name: String, initialHtmlContent: String)
 
 // pads -> apps
 object PadCreatedEvtMsg { val NAME = "PadCreatedEvtMsg" }
@@ -82,7 +82,7 @@ case class PadUpdatedEvtMsgBody(externalId: String, padId: String, userId: Strin
 // pads -> apps
 object PadContentSysMsg { val NAME = "PadContentSysMsg" }
 case class PadContentSysMsg(header: BbbCoreHeaderWithMeetingId, body: PadContentSysMsgBody) extends PadStandardMsg
-case class PadContentSysMsgBody(groupId: String, padId: String, rev: String, start: Int, end: Int, text: String)
+case class PadContentSysMsgBody(groupId: String, padId: String, rev: String, html: String, start: Int, end: Int, text: String)
 
 // apps -> client
 object PadContentEvtMsg { val NAME = "PadContentEvtMsg" }

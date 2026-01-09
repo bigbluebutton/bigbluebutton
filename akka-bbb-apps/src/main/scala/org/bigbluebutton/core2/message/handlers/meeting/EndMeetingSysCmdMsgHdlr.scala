@@ -1,5 +1,6 @@
 package org.bigbluebutton.core2.message.handlers.meeting
 
+import com.google.gson.Gson
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.InternalEventBus
 import org.bigbluebutton.core.domain.{ MeetingEndReason, MeetingState2x }

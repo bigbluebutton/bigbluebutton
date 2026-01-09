@@ -14,7 +14,7 @@ trait PadCreateReqMsgHdlr {
       val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
       val envelope = BbbCoreEnvelope(PadCreateCmdMsg.NAME, routing)
       val header = BbbCoreHeaderWithMeetingId(PadCreateCmdMsg.NAME, liveMeeting.props.meetingProp.intId)
-      val body = PadCreateCmdMsgBody(groupId, name)
+      val body = PadCreateCmdMsgBody(groupId, name, liveMeeting.props.meetingProp.sharedNotesInitialContent)
       val event = PadCreateCmdMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
 

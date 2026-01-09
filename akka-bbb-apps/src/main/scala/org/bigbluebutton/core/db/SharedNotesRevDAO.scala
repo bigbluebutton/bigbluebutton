@@ -6,7 +6,7 @@ case class SharedNotesRevDbModel(
     meetingId:        String,
     sharedNotesExtId: String,
     rev:              Int,
-    userId:           String,
+    userId:           Option[String],
     changeset:        String,
     start:            Option[Int],
     end:              Option[Int],
@@ -18,7 +18,7 @@ class SharedNotesRevDbTableDef(tag: Tag) extends Table[SharedNotesRevDbModel](ta
   val meetingId = column[String]("meetingId", O.PrimaryKey)
   val sharedNotesExtId = column[String]("sharedNotesExtId", O.PrimaryKey)
   val rev = column[Int]("rev", O.PrimaryKey)
-  val userId = column[String]("userId")
+  val userId = column[Option[String]]("userId")
   val changeset = column[String]("changeset")
   val start = column[Option[Int]]("start")
   val end = column[Option[Int]]("end")
@@ -35,7 +35,10 @@ object SharedNotesRevDAO {
           meetingId = meetingId,
           sharedNotesExtId = sharedNotesExtId,
           rev = revId,
-          userId = userId,
+          userId = userId match {
+            case ""         => None
+            case id: String => Some(id)
+          },
           changeset = changeset,
           start = None,
           end = None,

@@ -19,17 +19,24 @@
 
 package org.bigbluebutton.api;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.*;
+import java.util.zip.*;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.google.gson.*;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import org.apache.commons.io.FileUtils;
 import org.bigbluebutton.api.domain.*;
 import org.bigbluebutton.api.util.PluginUtils;
 import org.jsoup.Jsoup;
@@ -350,11 +357,17 @@ public class ParamsProcessorUtil {
 			return new BreakoutRoomsParams(breakoutRoomsRecord, breakoutRoomsPrivateChatEnabled, breakoutRoomsCaptureNotes, breakoutRoomsCaptureSlides, breakoutRoomsCaptureNotesFilename, breakoutRoomsCaptureSlidesFilename);
 		}
 
-		private LockSettingsParams processLockSettingsParams(Map<String, String> params) {
+		private LockSettingsParams processLockSettingsParams(Map<String, String> params, LockSettingsStateFormat savedState) {
 			Boolean lockSettingsDisableCam = defaultLockSettingsDisableCam;
+            log.debug("processing lock settings parameters");
+            Gson gson = new Gson();
+            log.debug("state format is " + gson.toJson(savedState));
 			String lockSettingsDisableCamParam = params.get(ApiParams.LOCK_SETTINGS_DISABLE_CAM);
 			if (!StringUtils.isEmpty(lockSettingsDisableCamParam)) {
 				lockSettingsDisableCam = Boolean.parseBoolean(lockSettingsDisableCamParam);
+			}
+			if (savedState != null) {
+				lockSettingsDisableCam = savedState.disableCam;
 			}
 
 			Boolean lockSettingsDisableMic = defaultLockSettingsDisableMic;
@@ -362,17 +375,26 @@ public class ParamsProcessorUtil {
 			if (!StringUtils.isEmpty(lockSettingsDisableMicParam)) {
 				lockSettingsDisableMic = Boolean.parseBoolean(lockSettingsDisableMicParam);
 			}
+			if (savedState != null) {
+				lockSettingsDisableMic = savedState.disableMic;
+			}
 
 			Boolean lockSettingsDisablePrivateChat = defaultLockSettingsDisablePrivateChat;
 			String lockSettingsDisablePrivateChatParam = params.get(ApiParams.LOCK_SETTINGS_DISABLE_PRIVATE_CHAT);
 			if (!StringUtils.isEmpty(lockSettingsDisablePrivateChatParam)) {
 				lockSettingsDisablePrivateChat = Boolean.parseBoolean(lockSettingsDisablePrivateChatParam);
 			}
+			if (savedState != null) {
+				lockSettingsDisablePrivateChat = savedState.disablePrivChat;
+			}
 
 			Boolean lockSettingsDisablePublicChat = defaultLockSettingsDisablePublicChat;
 			String lockSettingsDisablePublicChatParam = params.get(ApiParams.LOCK_SETTINGS_DISABLE_PUBLIC_CHAT);
 			if (!StringUtils.isEmpty(lockSettingsDisablePublicChatParam)) {
 				lockSettingsDisablePublicChat = Boolean.parseBoolean(lockSettingsDisablePublicChatParam);
+			}
+			if (savedState != null) {
+				lockSettingsDisablePublicChat = savedState.disablePubChat;
 			}
 
 			Boolean lockSettingsDisableNotes = defaultLockSettingsDisableNotes;
@@ -387,11 +409,17 @@ public class ParamsProcessorUtil {
 					lockSettingsDisableNotes = Boolean.parseBoolean(lockSettingsDisableNotesParam);
 				}
 			}
+			if (savedState != null) {
+				lockSettingsDisableNotes = savedState.disableNotes;
+			}
 
 			Boolean lockSettingsHideUserList = defaultLockSettingsHideUserList;
 			String lockSettingsHideUserListParam = params.get(ApiParams.LOCK_SETTINGS_HIDE_USER_LIST);
 			if (!StringUtils.isEmpty(lockSettingsHideUserListParam)) {
 				lockSettingsHideUserList = Boolean.parseBoolean(lockSettingsHideUserListParam);
+			}
+			if (savedState != null) {
+				lockSettingsHideUserList = savedState.hideUserList;
 			}
 
 			Boolean lockSettingsLockOnJoin = defaultLockSettingsLockOnJoin;
@@ -399,11 +427,17 @@ public class ParamsProcessorUtil {
 			if (!StringUtils.isEmpty(lockSettingsLockOnJoinParam)) {
 				lockSettingsLockOnJoin = Boolean.parseBoolean(lockSettingsLockOnJoinParam);
 			}
+			if (savedState != null) {
+				lockSettingsLockOnJoin = savedState.lockOnJoin;
+			}
 
 			Boolean lockSettingsLockOnJoinConfigurable = defaultLockSettingsLockOnJoinConfigurable;
 			String lockSettingsLockOnJoinConfigurableParam = params.get(ApiParams.LOCK_SETTINGS_LOCK_ON_JOIN_CONFIGURABLE);
 			if (!StringUtils.isEmpty(lockSettingsLockOnJoinConfigurableParam)) {
 				lockSettingsLockOnJoinConfigurable = Boolean.parseBoolean(lockSettingsLockOnJoinConfigurableParam);
+			}
+			if (savedState != null) {
+				lockSettingsLockOnJoinConfigurable = savedState.lockOnJoinConfigurable;
 			}
 
 			Boolean lockSettingsHideViewersCursor = defaultLockSettingsHideViewersCursor;
@@ -411,11 +445,17 @@ public class ParamsProcessorUtil {
 			if (!StringUtils.isEmpty(lockSettingsHideViewersCursorParam)) {
                 lockSettingsHideViewersCursor = Boolean.parseBoolean(lockSettingsHideViewersCursorParam);
 			}
+			if (savedState != null) {
+				lockSettingsHideViewersCursor = savedState.hideViewersCursor;
+			}
 
             Boolean lockSettingsHideViewersAnnotation = defaultLockSettingsHideViewersAnnotation;
 			String lockSettingsHideViewersAnnotationParam = params.get(ApiParams.LOCK_SETTINGS_HIDE_VIEWERS_ANNOTATION);
 			if (!StringUtils.isEmpty(lockSettingsHideViewersAnnotationParam)) {
                 lockSettingsHideViewersAnnotation = Boolean.parseBoolean(lockSettingsHideViewersAnnotationParam);
+			}
+			if (savedState != null) {
+				lockSettingsHideViewersAnnotation = savedState.hideViewersAnnotation;
 			}
 
 			return new LockSettingsParams(lockSettingsDisableCam,
@@ -538,6 +578,137 @@ public class ParamsProcessorUtil {
             log.error("Unexpected error while processing pluginManifestsFetchUrl [{}]", urlStr, e);
         }
         return null;
+    }
+
+    private boolean downloadAndExtractState(String stateURL, Path destDir) {
+        HttpURLConnection httpConn = null;
+        try {
+            log.debug("extracting state file to " + destDir.getFileName());
+            URL url = new URL(stateURL);
+            // At minimum, restrict to https
+            if (!"https".equalsIgnoreCase(url.getProtocol())) {
+                log.warn("Refusing to download persistent state over non-HTTPS URL");
+                return false;
+            }
+            httpConn = (HttpURLConnection) url.openConnection();
+            httpConn.setInstanceFollowRedirects(false);
+            httpConn.setConnectTimeout(5000);
+            httpConn.setReadTimeout(5000);
+            int responseCode = httpConn.getResponseCode();
+
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                try (InputStream inputStream = httpConn.getInputStream();
+                     ZipInputStream zipIn = new ZipInputStream(inputStream)) {
+
+                    ZipEntry entry;
+                    long extractedBytes = 0L;
+                    // allow 10 maxsize presentations + 2 MB for shared notes, annotations ect.
+                    final long maxExtractBytes = maxPresentationFileUpload * 10 + 2L * 1024 * 1024;
+                    while ((entry = zipIn.getNextEntry()) != null) {
+                        // Construct the file path to unzip to
+                        Path entryPath = destDir.resolve(entry.getName()).normalize();
+                        if (!entryPath.startsWith(destDir)) {
+                            log.warn("Skipping suspicious ZIP entry path: {}", entry.getName());
+                            zipIn.closeEntry();
+                            continue;
+                        }
+
+                        // If it's a directory, create it
+                        if (entry.isDirectory()) {
+                            log.debug("create directories " + entryPath.getFileName());
+                            Files.createDirectories(entryPath);
+                        } else {
+                            // If it's a file, extract it
+                            log.debug("extracting file " + entryPath.getFileName());
+                            extractedBytes += extractFile(zipIn, entryPath, maxExtractBytes - extractedBytes);
+                            if (extractedBytes > maxExtractBytes) {
+                                log.warn("Aborting ZIP extract: exceeding max extracted bytes");
+                                return false;
+                            }
+                        }
+
+                        zipIn.closeEntry();
+                    }
+                    log.debug("extracted state file to " + destDir.getFileName());
+                } catch (IOException e) {
+                    log.error("failed to extract zip file", e);
+                    return false;
+                }
+            } else {
+                log.info("No file to download. Server replied HTTP code: " + responseCode);
+                return false;
+            }
+        } catch (MalformedURLException e) {
+            log.warn("malformed URL for statefile");
+            return false;
+        } catch (IOException e) {
+            log.error("IO Exception while downloading state file", e);
+            return false;
+        } finally {
+            if (httpConn != null) {
+                httpConn.disconnect();
+            }
+        }
+        return true;
+    }
+
+    // Helper method to extract files from the ZIP stream
+    private static long extractFile(ZipInputStream zipIn, Path filePath, long remainingBudgetBytes) throws IOException {
+        // Create parent directories if they do not exist
+        Files.createDirectories(filePath.getParent());
+
+        // Write the content of the zip entry to the file
+        try (BufferedOutputStream bos = new BufferedOutputStream(Files.newOutputStream(filePath))) {
+            byte[] bytesIn = new byte[4096];
+            int read;
+            long written =0L;
+            while ((read = zipIn.read(bytesIn)) != -1) {
+                if (written + read > remainingBudgetBytes) {
+                    throw new IOException("ZIP entry exceeds remaining extraction budget");
+                }
+                bos.write(bytesIn, 0, read);
+                written += read;
+            }
+            return written;
+        }
+    }
+
+    private static LockSettingsStateFormat parsePersistedLockSettings(Path stateDir) {
+        Map<String, Boolean> settings = new HashMap<>();
+        Path jsonPath = stateDir.resolve("locksettings.json");
+        if (Files.exists(jsonPath)) {
+            try {
+                String message = Files.readString(jsonPath);
+                /*JsonObject obj = JsonParser.parseString(message).getAsJsonObject();
+                if (obj.has("disableCam")) {
+                    settings.put(ApiParams.LOCK_SETTINGS_DISABLE_CAM, obj.get("disableCam").getAsBoolean());
+                }*/
+                Gson gson = new Gson();
+                LockSettingsStateFormat lockSettingsState = gson.fromJson(message, LockSettingsStateFormat.class);
+                return lockSettingsState;
+            } catch (IOException e) {
+                e.printStackTrace();
+                log.error("parsePersistedLockSettings failed");
+            }
+        } else {
+            log.info("no locksettings.json found in persistence zip file");
+        }
+        return null;
+    }
+
+    public String loadSharedNotesInitialContent(Path stateDir) {
+        Path sharedNotesPath = stateDir.resolve("shared_notes.html");
+        try {
+            if (Files.exists(sharedNotesPath)) {
+                return Files.readString(sharedNotesPath);
+            } else {
+                log.info("no shared notes in persistence zip file found");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            log.error("error loading shared notes from persistence zip file");
+        }
+        return "";
     }
 
     public Meeting processCreateParams(Map<String, String> params) {
@@ -864,7 +1035,37 @@ public class ParamsProcessorUtil {
         }
 
         BreakoutRoomsParams breakoutParams = processBreakoutRoomsParams(params);
-        LockSettingsParams lockSettingsParams = processLockSettingsParams(params);
+
+        LockSettingsStateFormat savedLockSettingsState = null;
+        String persistentStateUrl = "";
+        String initialSharedNotesContent = "";
+        if (!StringUtils.isEmpty(params.get(ApiParams.PERSISTENT_STATE_URL))) {
+            persistentStateUrl = params.get(ApiParams.PERSISTENT_STATE_URL);
+            Path tempDir = null;
+            try {
+                tempDir = Files.createTempDirectory(Paths.get(System.getProperty("java.io.tmpdir")), "bbb_downloaded_state_");
+                if (downloadAndExtractState(persistentStateUrl, tempDir)) {
+                    savedLockSettingsState = parsePersistedLockSettings(tempDir);
+                    initialSharedNotesContent = loadSharedNotesInitialContent(tempDir);
+                    if (savedLockSettingsState != null) {
+                        webcamsOnlyForMod = savedLockSettingsState.webcamsOnlyForModerator;
+                    }
+                }
+            } catch (IOException e) {
+                log.error("Error handling downloaded persistence zip file", e);
+            } finally {
+                if (tempDir != null) {
+                    try {
+                        FileUtils.deleteDirectory(tempDir.toFile());
+                    } catch (IOException e) {
+                        log.error("Error deleting temporary directory", e);
+                    }
+                }
+            }
+        }
+        LockSettingsParams lockSettingsParams = processLockSettingsParams(params, savedLockSettingsState);
+        Gson gson = new Gson();
+        log.debug("lockSettingsParams = " + gson.toJson(lockSettingsParams));
 
         // Collect metadata for this meeting that the third-party app wants to
         // store if meeting is recorded.
@@ -953,6 +1154,8 @@ public class ParamsProcessorUtil {
                 .withNotifyRecordingIsOn(notifyRecordingIsOn)
                 .withPresentationUploadExternalDescription(presentationUploadExternalDescription)
                 .withPresentationUploadExternalUrl(presentationUploadExternalUrl)
+                .withPersistentStateUrl(persistentStateUrl)
+                .withInitialSharedNotesContent(initialSharedNotesContent)
                 .build();
 
         if (!StringUtils.isEmpty(params.get(ApiParams.MODERATOR_ONLY_MESSAGE))) {

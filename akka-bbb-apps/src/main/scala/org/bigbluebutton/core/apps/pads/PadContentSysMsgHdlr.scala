@@ -35,5 +35,8 @@ trait PadContentSysMsgHdlr {
       }
       case _ =>
     }
+    if (Pads.isSharedNotes(liveMeeting, groupId = msg.body.groupId)) {
+      liveMeeting.sharedNotesHtml = msg.body.html
+    }
   }
 }
