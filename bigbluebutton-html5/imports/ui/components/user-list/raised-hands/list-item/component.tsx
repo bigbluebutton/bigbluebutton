@@ -155,7 +155,9 @@ const RaisedHandsListItem: React.FC<RaisedHandsListItemProps> = ({
 
   const actionsPermitions = generateActionsPermissions(
     user,
-    currentUser,
+    currentUser?.presenter ?? false,
+    currentUser?.isModerator ?? false,
+    currentUser?.locked ?? false,
     lockSettings,
     usersPolicies,
     isBreakout,
