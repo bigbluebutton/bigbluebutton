@@ -20,7 +20,10 @@ const GenericMainContent: React.FC<GenericContentMainAreaProps> = ({
   const isMinimized = width === 0 && height === 0;
 
   const componentToRender = renderFunctionComponents.filter((g) => genericContentId === g.id)[0];
-  const { dataTest } = componentToRender;
+  let dataTest: string = genericContentId;
+  if (componentToRender) {
+    dataTest = componentToRender.dataTest;
+  }
   return (
     <Styled.Container
       style={{
