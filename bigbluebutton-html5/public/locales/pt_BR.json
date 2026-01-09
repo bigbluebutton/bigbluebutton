@@ -740,7 +740,7 @@
     "app.switch.offLabel": "Desligado",
     "app.talkingIndicator.ariaMuteDesc": "Selecione para silenciar o usuário",
     "app.talkingIndicator.isTalking": "{userName} está falando",
-    "app.talkingIndicator.moreThanMaxIndicatorsTalking": "{userCount}+ estão a falar",
+    "app.talkingIndicator.moreThanMaxIndicatorsTalking": "{userCount}+ estão falando",
     "app.talkingIndicator.moreThanMaxIndicatorsWereTalking": "{userCount}+ estavam falando",
     "app.talkingIndicator.wasTalking": "{userName} parou de falar",
     "app.mediaSharing.modal.title": "Compartilhamento de Mídia",
