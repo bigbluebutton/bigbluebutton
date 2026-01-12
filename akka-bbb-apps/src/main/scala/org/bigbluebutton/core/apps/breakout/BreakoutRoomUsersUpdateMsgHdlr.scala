@@ -22,22 +22,22 @@ trait BreakoutRoomUsersUpdateMsgHdlr extends HandlerHelpers {
       //Update user lastActivityTime in parent room (to avoid be ejected while is in Breakout room)
       for {
         breakoutRoomUser <- updatedRoom.users
-        user <- matchByBreakoutRoomId(liveMeeting.users2x, breakoutRoomUser.extId)
-      } yield Users2x.updateLastUserActivity(liveMeeting.users2x, user)
+        parentMeetingUser <- findUserInMainRoom(liveMeeting.users2x, breakoutRoomUser.extId)
+      } yield Users2x.updateLastUserActivity(liveMeeting.users2x, parentMeetingUser)
 
       //Update lastBreakout in registeredUsers to avoid lose this info when the user leaves
       for {
         breakoutRoomUser <- updatedRoom.users
-        user <- matchByBreakoutRoomId(liveMeeting.registeredUsers, breakoutRoomUser.extId)
+        parentMeetingUser <- findUserInMainRoom(liveMeeting.registeredUsers, breakoutRoomUser.extId)
       } yield {
-        if (room != null && (user.lastBreakoutRoom == null || user.lastBreakoutRoom.id != room.id)) {
-          RegisteredUsers.updateUserLastBreakoutRoom(liveMeeting.registeredUsers, user, room)
+        if (room != null && (parentMeetingUser.lastBreakoutRoom == null || parentMeetingUser.lastBreakoutRoom.id != room.id)) {
+          RegisteredUsers.updateUserLastBreakoutRoom(liveMeeting.registeredUsers, parentMeetingUser, room)
         }
       }
 
       for {
         breakoutRoomUser <- updatedRoom.users
-        parentMeetingUser <- matchByBreakoutRoomId(liveMeeting.registeredUsers, breakoutRoomUser.extId)
+        parentMeetingUser <- findUserInMainRoom(liveMeeting.registeredUsers, breakoutRoomUser.extId)
       } yield {
         BreakoutRoomUserDAO.updateUserJoined(breakoutRoomUser, parentMeetingUser, updatedRoom)
       }
