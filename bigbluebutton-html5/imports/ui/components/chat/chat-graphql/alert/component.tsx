@@ -1,4 +1,9 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { isEqual } from 'radash';
 import { defineMessages, useIntl } from 'react-intl';
 import { layoutSelect, layoutSelectInput, layoutDispatch } from '/imports/ui/components/layout/context';
@@ -71,6 +76,7 @@ interface ChatAlertGraphqlProps {
   chatUnreadMessages: Array<Message> | null;
   audioAlertEnabled: boolean;
   pushAlertEnabled: boolean;
+  tabIsFocused: boolean;
 }
 
 const ChatAlertGraphql: React.FC<ChatAlertGraphqlProps> = (props) => {
@@ -80,6 +86,7 @@ const ChatAlertGraphql: React.FC<ChatAlertGraphqlProps> = (props) => {
     layoutContextDispatch,
     pushAlertEnabled,
     chatUnreadMessages,
+    tabIsFocused,
   } = props;
   const intl = useIntl();
   const history = useRef(new Set<string>());
@@ -89,9 +96,10 @@ const ChatAlertGraphql: React.FC<ChatAlertGraphqlProps> = (props) => {
     && !!chatUnreadMessages
     && chatUnreadMessages.length > 0;
   const shouldPlayAudioAlert = useCallback(
-    (m: Message) => m.senderId !== Auth.userID
-      && m.chatId !== idChatOpen && !history.current.has(m.messageId),
-    [history.current, idChatOpen],
+    (m: Message) => (m.senderId !== Auth.userID
+      && (m.chatId !== idChatOpen || !tabIsFocused)
+      && !history.current.has(m.messageId)),
+    [history.current, idChatOpen, tabIsFocused],
   );
 
   const CHAT_CONFIG = window.meetingClientSettings.public.chat;
@@ -197,6 +205,7 @@ const ChatAlertContainerGraphql: React.FC = () => {
     chatPushAlerts: boolean;
   };
 
+  const [tabIsFocused, setTabIsFocused] = useState(true);
   const skipSubscriptions = !chatPushAlerts && !chatAudioAlerts;
   const previousSkipSubscriptions = usePreviousValue(skipSubscriptions);
   const cursor = useRef(new Date());
@@ -214,6 +223,23 @@ const ChatAlertContainerGraphql: React.FC = () => {
       },
     },
   );
+
+  useEffect(() => {
+    const handleBlur = () => {
+      setTabIsFocused(false);
+    };
+
+    const handleFocus = () => {
+      setTabIsFocused(true);
+    };
+
+    window.addEventListener('blur', handleBlur);
+    window.addEventListener('focus', handleFocus);
+    return () => {
+      window.removeEventListener('blur', handleBlur);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [setTabIsFocused]);
 
   const idChatOpen = layoutSelect((i: Layout) => i.idChatOpen);
   const sidebarContent = layoutSelectInput((i: Input) => i.sidebarContent);
@@ -233,6 +259,7 @@ const ChatAlertContainerGraphql: React.FC = () => {
       layoutContextDispatch={layoutContextDispatch}
       pushAlertEnabled={chatPushAlerts}
       chatUnreadMessages={chatMessages?.chat_message_stream ?? null}
+      tabIsFocused={tabIsFocused}
     />
   );
 };
