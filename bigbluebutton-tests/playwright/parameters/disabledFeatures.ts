@@ -140,6 +140,15 @@ export class DisabledFeatures extends MultiUsers {
     );
   }
 
+  async infiniteWhiteboard() {
+    const { allowInfiniteWhiteboard } = this.modPage.settings || {};
+
+    if(allowInfiniteWhiteboard) {
+      await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard');
+      await this.modPage.wasRemoved(e.turnInfiniteWhiteboardOn, 'should not display the infinite whiteboard button');
+    }
+  }
+
   // Disabled Features Exclude
   async breakoutRoomsExclude() {
     await this.modPage.waitAndClick(e.manageUsers);
@@ -267,5 +276,14 @@ export class DisabledFeatures extends MultiUsers {
       e.shareCameraAsContent,
       'should display the share camera as content on the action options.',
     );
+  }
+
+  async infiniteWhiteboardExclude() {
+    const { allowInfiniteWhiteboard } = this.modPage.settings || {};
+
+    if(allowInfiniteWhiteboard) {
+      await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard');
+      await this.modPage.hasElement(e.turnInfiniteWhiteboardOn, 'should display the infinite whiteboard button');
+    }
   }
 }

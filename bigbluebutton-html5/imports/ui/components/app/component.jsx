@@ -46,6 +46,7 @@ import { notify } from '/imports/ui/services/notification';
 import VoiceActivityAdapter from '../../core/adapters/voice-activity';
 import LayoutObserver from '../layout/observer';
 import BBBLiveKitRoomContainer from '/imports/ui/components/livekit/component';
+import RaiseHandNotifier from '/imports/ui/components/raisehand-notifier/container';
 
 const intlMessages = defineMessages({
   userListLabel: {
@@ -114,6 +115,7 @@ const propTypes = {
   darkTheme: PropTypes.bool.isRequired,
   hideNotificationToasts: PropTypes.bool.isRequired,
   isBreakout: PropTypes.bool.isRequired,
+  isRaiseHandEnabled: PropTypes.bool.isRequired,
   meetingId: PropTypes.string.isRequired,
   meetingName: PropTypes.string.isRequired,
 };
@@ -333,6 +335,7 @@ class App extends Component {
       hideNotificationToasts,
       isNotificationEnabled,
       isNonMediaLayout,
+      isRaiseHandEnabled,
     } = this.props;
 
     const {
@@ -409,6 +412,7 @@ class App extends Component {
             !hideNotificationToasts
             && isNotificationEnabled) && <ToastContainer rtl /> }
           <ChatAlertContainerGraphql />
+          {isRaiseHandEnabled && <RaiseHandNotifier />}
           <ManyWebcamsNotifier />
           <PollingContainer />
           <WakeLockContainer />

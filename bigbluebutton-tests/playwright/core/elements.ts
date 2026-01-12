@@ -75,6 +75,7 @@ export const elements = {
   speechRecognitionUnsupported: 'div[data-test="speechRecognitionUnsupported"]',
   // Breakout
   createBreakoutRooms: 'li[data-test="createBreakoutRooms"]',
+  inviteUsersToBreakoutRooms: 'li[data-test="inviteUsers"]',
   randomlyAssign: 'button[data-test="randomlyAssign"]',
   resetAssignments: 'button[data-test="resetAssignments"]',
   breakoutRoomsItem: 'div[data-test="breakoutRoomsItem"]',
@@ -100,7 +101,8 @@ export const elements = {
   inputSetTimeSelector: 'input[id="inputSetTimeSelector"]',
   sendButtonDurationTime: 'button[data-test="sendButtonDurationTime"]',
   breakoutRemainingTime: 'span[data-test="breakoutRemainingTime"]',
-  roomNameInput: 'input[data-test="roomName-1"]',
+  roomNameInput1: 'input[data-test="roomName-1"]',
+  roomNameInput2: 'input[data-test="roomName-2"]',
   roomName1Test: 'span[data-test="TestRoom 1"]',
   breakoutRoomItemOnManage: 'span[data-test^="Room"]',
   userNameBreakoutRoom: 'div[data-test="userNameBreakoutRoom-Room 1"]',
@@ -250,6 +252,7 @@ export const elements = {
   publicChatToast: 'New Public Chat message',
   privateChatToast: 'New Private Chat message',
   joinAudioToast: 'You have joined the audio conference',
+  leftAudioToast: 'You have left the audio conference',
   pollPublishedToast: 'Poll results were published',
   startScreenshareToast: 'Screenshare has started',
   endScreenshareToast: 'Screenshare has ended',
@@ -573,6 +576,7 @@ export const elements = {
   wbTextTrue: 'div[data-hastext="true"]',
   wbDrawnArrow: 'div[data-shape-type="arrow"]',
   wbAutoHideToggleBtn: 'input[data-test="autoHideToolbarToggleBtn"]',
+  turnInfiniteWhiteboardOn: 'button[data-test="turnInfiniteWhiteboardOn"]',
   // About modal
   showAboutModalButton: 'li[data-test="aboutModal"]',
   aboutModal: 'div[data-test="aboutModalTitleLabel"]',

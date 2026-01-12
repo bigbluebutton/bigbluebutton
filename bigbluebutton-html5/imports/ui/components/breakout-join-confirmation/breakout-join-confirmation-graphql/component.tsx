@@ -283,7 +283,7 @@ const BreakoutJoinConfirmationContainer: React.FC = () => {
   if (currentUser?.isModerator
       && !currentMeeting?.breakoutRoomsCommonProperties?.sendInvitationToModerators) return null;
 
-  if (!breakoutData || breakoutData.breakoutRoom.length === 0) return null;
+  if (!breakoutData || (breakoutData.breakoutRoom?.length ?? 0) === 0) return null;
 
   return (
     <BreakoutJoinConfirmation

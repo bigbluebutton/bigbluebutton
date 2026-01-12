@@ -74,8 +74,8 @@ export class Timer extends MultiUsers {
     // check for initial values
     await this.modPage.hasText(
       e.timerCurrent,
-      /00:00/,
-      'should display the timer current to contain the value "00:00"',
+      /05:00/,
+      'should display the timer current to contain the value "05:00"',
     );
     await this.modPage.hasValue(
       e.minutesInput,
@@ -101,12 +101,12 @@ export class Timer extends MultiUsers {
     await this.clickOnTimerControl();
     await this.modPage.hasText(
       e.timerCurrent,
-      /05:44/,
+      /05:45/,
       'should display an increased value on the timer current after a while running',
     );
     await this.modPage.hasText(
       e.timerIndicator,
-      /05:42/,
+      /05:43/,
       'should display an increased value on the timer indicator after a while running (2 seconds delay expected)',
     );
 
