@@ -162,6 +162,7 @@ export interface SharedNotes {
     width: number;
     display?: boolean;
     left?: number;
+    right?: number;
     tabOrder?: number;
     top?: number;
     zIndex?: number;
