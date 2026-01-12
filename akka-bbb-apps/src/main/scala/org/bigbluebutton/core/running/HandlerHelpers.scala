@@ -17,22 +17,23 @@ import org.bigbluebutton.core.util.TimeUtil
 
 trait HandlerHelpers extends SystemConfiguration {
 
-  def breakoutRoomExtId(breakoutRoomId: String): String = {
-    val lastHyphenIdx = breakoutRoomId.lastIndexOf('-')
-    if (lastHyphenIdx == -1) breakoutRoomId else breakoutRoomId.substring(0, lastHyphenIdx)
+  def extractMainRoomInternalUserId(breakoutRoomUserId: String): String = {
+    val lastHyphenIdx = breakoutRoomUserId.lastIndexOf('-')
+    if (lastHyphenIdx == -1) breakoutRoomUserId else breakoutRoomUserId.substring(0, lastHyphenIdx)
   }
 
-  def matchByBreakoutRoomId[T](users: Vector[T], breakoutRoomId: String)(extractExternId: T => String): T = {
-    val userExtId = breakoutRoomExtId(breakoutRoomId)
-    users.find(user => extractExternId(user) == userExtId)
+  def matchByBreakoutRoomExtUserId[T](users: Vector[T], breakoutRoomExtUserId: String)(extractInternalUserId: T => String): Option[T] = {
+    // The external id of the user in the breakout is the internal id of the user in the main room appended by the room sequence
+    val mainRoomInternalUserId = extractMainRoomInternalUserId(breakoutRoomExtUserId)
+    users.find(user => extractInternalUserId(user) == mainRoomInternalUserId)
   }
 
-  def matchByBreakoutRoomId(users: Users2x, breakoutRoomId: String): UserState = {
-    matchByBreakoutRoomId(Users2x.findAll(users), breakoutRoomId)(_.extId)
+  def findUserInMainRoom(users: Users2x, breakoutRoomExtUserId: String): Option[UserState] = {
+    matchByBreakoutRoomExtUserId(Users2x.findAll(users), breakoutRoomExtUserId)(_.intId)
   }
 
-  def matchByBreakoutRoomId(users: RegisteredUsers, breakoutRoomId: String): RegisteredUser = {
-    matchByBreakoutRoomId(RegisteredUsers.findAll(users), breakoutRoomId)(_.externId)
+  def findUserInMainRoom(users: RegisteredUsers, breakoutRoomExtUserId: String): Option[RegisteredUser] = {
+    matchByBreakoutRoomExtUserId(RegisteredUsers.findAll(users), breakoutRoomExtUserId)(_.id)
   }
 
   def sendUserLeftFlagUpdatedEvtMsg(
