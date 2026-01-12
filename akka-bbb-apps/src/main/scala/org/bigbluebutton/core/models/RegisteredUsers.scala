@@ -2,9 +2,7 @@ package org.bigbluebutton.core.models
 
 import com.softwaremill.quicklens._
 import org.bigbluebutton.core.db.{
-  UserBreakoutRoomDAO,
   UserDAO,
-  UserDbModel,
   UserSessionTokenDAO,
   UserLivekitDAO
 }
@@ -179,7 +177,6 @@ object RegisteredUsers {
                                  lastBreakoutRoom: BreakoutRoom2x): RegisteredUser = {
     val u = user.modify(_.lastBreakoutRoom).setTo(lastBreakoutRoom)
     users.save(u)
-//    UserBreakoutRoomDAO.updateLastBreakoutRoom(u.id, lastBreakoutRoom)
     u
   }
 

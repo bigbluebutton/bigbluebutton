@@ -59,7 +59,7 @@ subscription UserListSubscription($offset: Int!, $limit: Int!) {
       isDefaultName
       sequence
       shortName
-      currentlyInRoom
+      isUserCurrentlyInRoom
     }
     userLockSettings {
       disablePublicChat

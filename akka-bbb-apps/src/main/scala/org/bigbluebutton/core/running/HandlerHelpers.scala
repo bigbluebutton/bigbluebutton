@@ -7,8 +7,8 @@ import org.bigbluebutton.core.api.{BreakoutRoomEndedInternalMsg, DestroyMeetingI
 import org.bigbluebutton.core.apps.groupchats.GroupChatApp
 import org.bigbluebutton.core.apps.users.UsersApp
 import org.bigbluebutton.core.apps.voice.VoiceApp
-import org.bigbluebutton.core.bus.{BigBlueButtonEvent, InternalEventBus}
-import org.bigbluebutton.core.db.{ MeetingDAO, MeetingRecordingDAO, NotificationDAO, UserBreakoutRoomDAO}
+import org.bigbluebutton.core.bus.{ BigBlueButtonEvent, InternalEventBus }
+import org.bigbluebutton.core.db.{ MeetingDAO, MeetingRecordingDAO, NotificationDAO }
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core2.MeetingStatus2x
@@ -245,7 +245,6 @@ trait HandlerHelpers extends SystemConfiguration {
     } yield {
       model.rooms.values.foreach { room =>
         eventBus.publish(BigBlueButtonEvent(room.id, EndBreakoutRoomInternalMsg(liveMeeting.props.meetingProp.intId, room.id, reason)))
-        UserBreakoutRoomDAO.updateLastBreakoutRoom(liveMeeting.props.meetingProp.intId, Vector(), room)
       }
     }
 
