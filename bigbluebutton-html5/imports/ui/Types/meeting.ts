@@ -54,6 +54,7 @@ export interface UsersPolicies {
   meetingLayout: string;
   userCameraCap: number;
   webcamsOnlyForModerator: boolean;
+  multiUserWhiteboardEnabled: boolean;
   guestLobbyMessage: string | null;
 }
 

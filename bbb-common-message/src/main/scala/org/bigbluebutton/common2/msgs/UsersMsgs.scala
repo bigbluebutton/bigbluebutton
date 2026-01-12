@@ -289,6 +289,17 @@ case class AssignPresenterReqMsg(header: BbbClientMsgHeader, body: AssignPresent
 case class AssignPresenterReqMsgBody(assignedBy: String, newPresenterId: String)
 
 /**
+ * Sent from client to change the whiteboardWriteAccess of the user in the meeting.
+ */
+object SetUserWhiteboardWriteAccessReqMsg { val NAME = "SetUserWhiteboardWriteAccessReqMsg" }
+case class SetUserWhiteboardWriteAccessReqMsg(header: BbbClientMsgHeader, body: SetUserWhiteboardWriteAccessReqMsgBody) extends StandardMsg
+case class SetUserWhiteboardWriteAccessReqMsgBody(userIds: Vector[String], allUsers: Boolean, whiteboardWriteAccess: Boolean)
+
+object SetUserWhiteboardWriteAccessEvtMsg { val NAME = "SetUserWhiteboardWriteAccessEvtMsg" }
+case class SetUserWhiteboardWriteAccessEvtMsg(header: BbbClientMsgHeader, body: SetUserWhiteboardWriteAccessEvtMsgBody) extends BbbCoreMsg
+case class SetUserWhiteboardWriteAccessEvtMsgBody(userId: String, whiteboardWriteAccess: Boolean)
+
+/**
  * Sent from client to change the video pin of the user in the meeting.
  */
 object ChangeUserPinStateReqMsg { val NAME = "ChangeUserPinStateReqMsg" }
