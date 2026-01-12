@@ -90,7 +90,7 @@ export interface App {
   showAllAvailableLocales: boolean
   showAudioFilters: boolean
   reactionsButton: ReactionsButton
-  emojiRain: EmojiRain
+  reactionsAnimation: ReactionsAnimation
   enableNetworkStats: boolean
   enableCopyNetworkStatsButton: boolean
   userSettingsStorage: 'local' | 'session'
@@ -165,7 +165,7 @@ export interface ReactionsButton {
   enabled: boolean
 }
 
-export interface EmojiRain {
+export interface ReactionsAnimation {
   enabled: boolean
   intervalEmojis: number
   numberOfEmojis: number

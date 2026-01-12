@@ -24,7 +24,6 @@ import PresentationContainer from '../presentation/container';
 import ScreenshareContainer from '../screenshare/container';
 import ExternalVideoPlayerContainer from '../external-video-player/external-video-player-graphql/component';
 import GenericContentMainAreaContainer from '../generic-content/generic-main-content/container';
-import EmojiRainContainer from '../emoji-rain/container';
 import Styled from './styles';
 import LayoutEngine from '../layout/layout-manager/layoutEngine';
 import NavBarContainer from '../nav-bar/container';
@@ -47,6 +46,7 @@ import VoiceActivityAdapter from '../../core/adapters/voice-activity';
 import LayoutObserver from '../layout/observer';
 import BBBLiveKitRoomContainer from '/imports/ui/components/livekit/component';
 import RaiseHandNotifier from '/imports/ui/components/raisehand-notifier/container';
+import EmojiBoomContainer from '../emoji-boom/container';
 
 const intlMessages = defineMessages({
   userListLabel: {
@@ -417,7 +417,7 @@ class App extends Component {
           <PollingContainer />
           <WakeLockContainer />
           {this.renderActionsBar()}
-          <EmojiRainContainer />
+          <EmojiBoomContainer />
           <VoiceActivityAdapter />
         </Styled.Layout>
       </>

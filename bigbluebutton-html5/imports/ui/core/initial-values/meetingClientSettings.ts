@@ -103,7 +103,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       reactionsButton: {
         enabled: true,
       },
-      emojiRain: {
+      reactionsAnimation: {
         enabled: false,
         intervalEmojis: 2000,
         numberOfEmojis: 5,
