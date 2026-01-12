@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import React, { useContext } from 'react';
+import React, { useContext, useMemo } from 'react';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import Auth from '/imports/ui/services/auth';
 import {
@@ -8,8 +8,8 @@ import {
 import Styled from './styles';
 import Icon from '/imports/ui/components/common/icon/icon-ts/component';
 import { useIsChatEnabled, useIsPrivateChatEnabled } from '/imports/ui/services/features';
-import useWhoIsTalking from '/imports/ui/core/hooks/useWhoIsTalking';
-import useWhoIsUnmuted from '/imports/ui/core/hooks/useWhoIsUnmuted';
+import { useWhoIsTalking } from '/imports/ui/core/hooks/useWhoIsTalking';
+import { useWhoIsUnmuted } from '/imports/ui/core/hooks/useWhoIsUnmuted';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { layoutDispatch } from '/imports/ui/components/layout/context';
 import UserItemToolbar from './user-item-toolbar/component';
@@ -42,7 +42,9 @@ const renderUserListItemIconsFromPlugin = (
 });
 
 const UserListItem: React.FC<UserListItemProps> = ({
-  currentUser,
+  currentUserIsModerator,
+  currentUserIsPresenter,
+  currentUserLocked,
   user,
   lockSettings,
   usersPolicies,
@@ -56,38 +58,37 @@ const UserListItem: React.FC<UserListItemProps> = ({
   const { intl, operations, modal } = useUserOperations(user.userId);
 
   const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
-  let userItemsFromPlugin = [] as PluginSdk.UserListItemAdditionalInformationInterface[];
-  if (pluginsExtensibleAreasAggregatedState.userListItemAdditionalInformation) {
-    userItemsFromPlugin = pluginsExtensibleAreasAggregatedState.userListItemAdditionalInformation.filter((item) => {
+  const userItemsFromPlugin = useMemo(() => {
+    if (!pluginsExtensibleAreasAggregatedState.userListItemAdditionalInformation) {
+      return [] as PluginSdk.UserListItemAdditionalInformationInterface[];
+    }
+    return pluginsExtensibleAreasAggregatedState.userListItemAdditionalInformation.filter((item) => {
       const userListItem = item as PluginSdk.UserListItemAdditionalInformationInterface;
       return userListItem.userId === user.userId;
     }) as PluginSdk.UserListItemAdditionalInformationInterface[];
-  }
-  let userListDropdownItems = [] as PluginSdk.UserListDropdownInterface[];
-  if (pluginsExtensibleAreasAggregatedState.userListDropdownItems) {
-    userListDropdownItems = [
-      ...pluginsExtensibleAreasAggregatedState.userListDropdownItems,
-    ];
-  }
+  }, [pluginsExtensibleAreasAggregatedState.userListItemAdditionalInformation, user.userId]);
+
+  const userListDropdownItems = useMemo(() => {
+    if (!pluginsExtensibleAreasAggregatedState.userListDropdownItems) {
+      return [] as PluginSdk.UserListDropdownInterface[];
+    }
+    return pluginsExtensibleAreasAggregatedState.userListDropdownItems;
+  }, [pluginsExtensibleAreasAggregatedState.userListDropdownItems]);
 
   const layoutContextDispatch = layoutDispatch();
   const isChatEnabled = useIsChatEnabled();
   const isPrivateChatEnabled = useIsPrivateChatEnabled();
 
   const whiteboardAccess = hasWhiteboardWriteAccess(user);
-  const { data: talkingUsers } = useWhoIsTalking();
-  const { data: unmutedUsers } = useWhoIsUnmuted();
-  const isMuted = !unmutedUsers[user.userId];
-
-  const voiceUser = {
-    ...user.voice,
-    talking: talkingUsers[user.userId],
-    muted: isMuted,
-  };
+  const { data: isTalking } = useWhoIsTalking(user.userId);
+  const { data: isUnmuted } = useWhoIsUnmuted(user.userId);
+  const isMuted = !isUnmuted;
 
   const actionsPermitions = generateActionsPermissions(
     user,
-    currentUser,
+    currentUserIsPresenter,
+    currentUserIsModerator,
+    currentUserLocked,
     lockSettings,
     usersPolicies,
     isBreakout,
@@ -147,8 +148,8 @@ const UserListItem: React.FC<UserListItemProps> = ({
         data-test-avatar="userAvatar"
         moderator={user.isModerator}
         presenter={user.presenter}
-        talking={voiceUser?.talking}
-        muted={voiceUser?.muted}
+        talking={isTalking}
+        muted={isMuted}
         color={user.color}
         animations={animations}
         avatar={userAvatarFiltered}

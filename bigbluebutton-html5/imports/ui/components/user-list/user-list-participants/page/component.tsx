@@ -1,4 +1,10 @@
-import React, { useContext, useEffect, useRef } from 'react';
+import React, {
+  useContext,
+  useEffect,
+  useRef,
+  useMemo,
+  memo,
+} from 'react';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import { setLocalUserList, useLoadedUserList } from '/imports/ui/core/hooks/useLoadedUserList';
@@ -49,12 +55,11 @@ const UsersListParticipantsPage: React.FC<UsersListParticipantsPage> = ({
   const [openUserAction, setOpenUserAction] = React.useState<string | null>(null);
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
   const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
-  let userListDropdownItems = [] as PluginSdk.UserListDropdownInterface[];
-  if (pluginsExtensibleAreasAggregatedState.userListDropdownItems) {
-    userListDropdownItems = [
-      ...pluginsExtensibleAreasAggregatedState.userListDropdownItems,
-    ];
-  }
+  const userListDropdownItems = useMemo<PluginSdk.UserListDropdownInterface[]>(() => (
+    pluginsExtensibleAreasAggregatedState.userListDropdownItems
+      ? [...pluginsExtensibleAreasAggregatedState.userListDropdownItems]
+      : []
+  ), [pluginsExtensibleAreasAggregatedState.userListDropdownItems]);
 
   if (!meeting) return null;
 
@@ -66,7 +71,9 @@ const UsersListParticipantsPage: React.FC<UsersListParticipantsPage> = ({
             <Styled.UserListItem key={user.userId} style={{ direction: isRTL }}>
               <ListItem
                 index={offset + idx}
-                currentUser={currentUser as User}
+                currentUserIsPresenter={currentUser?.presenter ?? false}
+                currentUserIsModerator={currentUser?.isModerator ?? false}
+                currentUserLocked={currentUser?.locked ?? false}
                 user={user}
                 lockSettings={meeting.lockSettings}
                 usersPolicies={meeting.usersPolicies}
@@ -187,6 +194,15 @@ const UserListParticipantsPageContainer: React.FC<UserListParticipantsContainerP
     };
   }, []);
 
+  // create a stable meeting prop so child receives a stable reference when
+  // nothing relevant changed
+  const meetingProp = useMemo(() => ({
+    meetingId: meeting?.meetingId ?? '',
+    isBreakout: !!meeting?.isBreakout,
+    lockSettings: (meeting?.lockSettings ?? ({} as LockSettings)) as LockSettings,
+    usersPolicies: (meeting?.usersPolicies ?? ({} as UsersPolicies)) as UsersPolicies,
+  }), [meeting?.meetingId, meeting?.isBreakout, meeting?.lockSettings, meeting?.usersPolicies]);
+
   if (usersLoading || meetingLoading || !meeting || currentUserLoading || presentationLoading) {
     return Array.from({ length: isLastItem ? restOfUsers : usersPerUserListPage }).map((_, i) => (
       <Styled.UserListItem key={`not-visible-item-${i + 1}`}>
@@ -196,15 +212,10 @@ const UserListParticipantsPageContainer: React.FC<UserListParticipantsContainerP
     ));
   }
 
-  const currentUserIndex = users.findIndex((u: User) => u.userId === currentUser?.userId);
-
-  if (currentUserIndex !== -1) {
-    users.splice(currentUserIndex, 1);
-  }
-
-  if (offset === 0) {
-    users.unshift(currentUser as User);
-  }
+  const usersWithoutCurrent = users.filter((u: User) => u.userId !== currentUser?.userId);
+  const displayUsers = offset === 0
+    ? [currentUser as User, ...usersWithoutCurrent]
+    : usersWithoutCurrent;
 
   if (!meeting || !currentUser) {
     return null;
@@ -212,13 +223,8 @@ const UserListParticipantsPageContainer: React.FC<UserListParticipantsContainerP
 
   return (
     <UsersListParticipantsPage
-      users={users ?? []}
-      meeting={{
-        meetingId: meeting.meetingId!,
-        isBreakout: !!meeting.isBreakout,
-        lockSettings: meeting.lockSettings as LockSettings ?? {},
-        usersPolicies: (meeting.usersPolicies as UsersPolicies) ?? {},
-      }}
+      users={displayUsers ?? []}
+      meeting={meetingProp}
       currentUser={currentUser ?? {}}
       pageId={pageId ?? ''}
       offset={offset}
@@ -227,4 +233,4 @@ const UserListParticipantsPageContainer: React.FC<UserListParticipantsContainerP
   );
 };
 
-export default UserListParticipantsPageContainer;
+export default memo(UserListParticipantsPageContainer);

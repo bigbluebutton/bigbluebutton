@@ -87,6 +87,7 @@ export interface User {
   joinErrorCode: string;
   joinErrorMessage: string;
   inactivityWarningDisplay: boolean;
+  inactivityWarningTimeoutSecs: number;
   joined: boolean;
   loggedOut: boolean;
   mobile?: boolean;
@@ -95,6 +96,7 @@ export interface User {
   voice?: Partial<Voice>;
   locked: boolean;
   registeredAt: string;
+  requestedUnmuteByMod: boolean;
   whiteboardWriteAccess: boolean;
   lastBreakoutRoom?: LastBreakoutRoom;
   breakoutRoomsSummary?: BreakoutRoomsSummary;

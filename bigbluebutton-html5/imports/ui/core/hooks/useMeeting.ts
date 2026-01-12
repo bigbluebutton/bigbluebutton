@@ -1,11 +1,14 @@
 // useMeeting.ts
 import { useMemo } from 'react';
 import { mergeDeepRight, isEmpty } from 'ramda';
+import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
+import useStableResponse from './useStableResponse';
 import useCreateUseSubscription from './createUseSubscription';
 import MEETING_SUBSCRIPTION from '../graphql/queries/meetingSubscription';
 import { Meeting } from '../../Types/meeting';
 import MeetingStaticDataStore from '/imports/ui/core/singletons/meetingStaticData';
 import { MeetingStaticData } from '/imports/ui/Types/meetingStaticData';
+import { meetingComparator } from '../graphql/comparators/meetingComparator';
 
 // ---------- internal helpers (DeepPartial only inside the hook)
 type DeepPartial<T> = {
@@ -87,10 +90,14 @@ export function useMeeting<T extends Loose<Combined> = Partial<Combined>>(
     return mergeDeepRight(projectedStatic as object, projectedLive as object) as T;
   }, [response.data, fn]);
 
-  return useMemo(() => ({
+  // Build the final return value and avoid returning a new object reference
+  // when the combined shape didn't change (shallow compare top-level keys).
+  const combined = useMemo(() => ({
     ...response,
     data,
   }), [response, data]);
+
+  return useStableResponse<T>(combined as GraphqlDataHookSubscriptionResponse<T>, meetingComparator);
 }
 
 export default useMeeting;

@@ -98,6 +98,14 @@ export interface ExternalVideo {
 
 export interface Layout {
   currentLayoutType: string;
+  updatedAt: string;
+  propagateLayout: boolean;
+  cameraDockIsResizing: boolean;
+  cameraDockPlacement: string;
+  cameraDockAspectRatio: string;
+  cameraWithFocus: string;
+  presentationMinimized: boolean;
+  setByUserId: string;
 }
 
 export interface ComponentsFlags {

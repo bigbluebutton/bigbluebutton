@@ -19,7 +19,7 @@ export function useMeetingIsBreakout() {
     isBreakout: m.isBreakout,
   }));
 
-  return meeting && meeting.isBreakout;
+  return !!(meeting && meeting.isBreakout);
 }
 
 export const setDarkTheme = (value) => {

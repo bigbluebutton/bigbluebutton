@@ -4,6 +4,9 @@ import createUseSubscription from './createUseSubscription';
 import CURRENT_USER_SUBSCRIPTION from '../graphql/queries/currentUserSubscription';
 import logger from '/imports/startup/client/logger';
 import Auth from '/imports/ui/services/auth';
+import useStableResponse from './useStableResponse';
+import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
+import { currentUserComparator } from '../graphql/comparators/currentUserComparator';
 
 const currentUserSubscription = createUseSubscription<User>(CURRENT_USER_SUBSCRIPTION, {}, true);
 const useCurrentUser = (fn: (c: Partial<User>) => Partial<User> = (u) => u) => {
@@ -23,12 +26,22 @@ const useCurrentUser = (fn: (c: Partial<User>) => Partial<User> = (u) => u) => {
     responseData = responseData.filter((user) => user.userId === Auth.userID);
   }
 
-  const returnObject = useMemo(() => ({
-    ...response,
-    data: responseData ? responseData[0] : null,
+  const singleUserData = responseData ? responseData[0] : null;
+
+  // Create a stable response for the single user data
+  const stableResponse = useStableResponse<Partial<User> | null>(
+    {
+      ...response,
+      data: singleUserData,
+    } as GraphqlDataHookSubscriptionResponse<Partial<User> | null>,
+    currentUserComparator,
+  );
+
+  // Combine stable response with rawData
+  return useMemo(() => ({
+    ...stableResponse,
     rawData: responseData ?? null,
-  }), [response]);
-  return returnObject;
+  }), [stableResponse, responseData]);
 };
 
 export default useCurrentUser;
