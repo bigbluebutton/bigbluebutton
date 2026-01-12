@@ -260,6 +260,8 @@ export const elements = {
   raisingHandToast: 'You have raised your hand',
   loweringHandToast: 'Your hand has been lowered',
   noActiveMicrophoneToast: 'No active microphone. Share your microphone to add audio to this recording.',
+  whiteboardAvailableToast: 'The whiteboard is now available',
+  whiteboardDisabledToast: 'The whiteboard access has been removed',
   // Icons
   unmuteIcon: `${baseBbbIcon}unmute`,
   listenOnlyIcon: `${baseBbbIcon}listen`,
