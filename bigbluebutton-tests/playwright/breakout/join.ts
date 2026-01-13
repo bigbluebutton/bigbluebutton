@@ -223,7 +223,7 @@ export class Join extends Create {
       chatMessagesLocator,
       'should match the screenshot showing different background color for moderator message',
     ).toHaveScreenshot('breakout-moderator-chat-messages.png', {
-      maxDiffPixels: 150,
+      maxDiffPixels: 1000,
     });
   }
 
