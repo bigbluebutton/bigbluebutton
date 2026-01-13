@@ -2,7 +2,13 @@ package org.bigbluebutton.core2.message.senders
 
 import org.bigbluebutton.common2.domain.DefaultProps
 import org.bigbluebutton.common2.msgs.{BbbCommonEnvCoreMsg, BbbCoreEnvelope, BbbCoreHeaderWithMeetingId, MessageTypes, NotifyAllInMeetingEvtMsg, NotifyAllInMeetingEvtMsgBody, NotifyRoleInMeetingEvtMsg, NotifyRoleInMeetingEvtMsgBody, NotifyUserInMeetingEvtMsg, NotifyUserInMeetingEvtMsgBody, Routing, _}
-import org.bigbluebutton.core.models.{GuestWaiting, PresentationPod, UserState, VoiceUserState}
+import org.bigbluebutton.core.models.{
+  GuestWaiting,
+  PresentationPod,
+  UserState,
+  VoiceUserState,
+  Roles
+}
 
 object MsgBuilder {
   def buildGuestPolicyChangedEvtMsg(meetingId: String, userId: String, policy: String, setBy: String): BbbCommonEnvCoreMsg = {
@@ -691,6 +697,7 @@ object MsgBuilder {
           userId,
           voiceUserId = vu.voiceUserId,
           userName = vu.callerName,
+          userRole = vu.role,
           userColor = vu.color,
           userSpeechLocale = vu.speechLocale,
           talking = vu.talking,
@@ -703,6 +710,7 @@ object MsgBuilder {
         userId,
         voiceUserId = "",
         userName = "",
+        userRole = Roles.VIEWER_ROLE,
         userColor = "",
         userSpeechLocale = "",
         talking = false,

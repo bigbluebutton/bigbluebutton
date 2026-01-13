@@ -169,6 +169,21 @@ object VoiceUsers {
     users.save(vu)
     vu
   }
+
+  def setUserRole(
+      users:  VoiceUsers,
+      userId: String,
+      role:   String
+  ): Option[VoiceUserState] = {
+    for {
+      u <- findWIthIntId(users, userId)
+    } yield {
+      val vu = u.modify(_.role).setTo(role)
+        .modify(_.lastStatusUpdateOn).setTo(System.currentTimeMillis())
+      users.save(vu)
+      vu
+    }
+  }
 }
 
 class VoiceUsers {
@@ -254,6 +269,7 @@ case class VoiceUserState(
     callingWith:           String,
     callerName:            String,
     callerNum:             String,
+    role:                  String,
     color:                 String,
     speechLocale:          String,
     muted:                 Boolean,
