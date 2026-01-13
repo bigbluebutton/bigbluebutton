@@ -495,6 +495,7 @@ case class UserVoiceStateEvtMsgBody(
     userId:           String,
     voiceUserId:      String,
     userName:         String,
+    userRole:         String,
     userColor:        String,
     userSpeechLocale: String,
     talking:          Boolean,

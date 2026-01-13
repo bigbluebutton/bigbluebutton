@@ -106,6 +106,11 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration with HandlerHelp
     }
 
     def letUserEnter() = {
+      val role = Users2x.findWithIntId(liveMeeting.users2x, msg.body.intId) match {
+        case Some(u) => u.role
+        case None    => Roles.VIEWER_ROLE
+      }
+
       VoiceApp.handleUserJoinedVoiceConfEvtMsg(
         liveMeeting,
         outGW,
@@ -116,6 +121,7 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration with HandlerHelp
         msg.body.callingWith,
         msg.body.callerIdName,
         msg.body.callerIdNum,
+        role,
         userColor,
         speechLocale = "",
         msg.body.muted,

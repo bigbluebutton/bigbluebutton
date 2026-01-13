@@ -4,6 +4,7 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.models.{ RegisteredUser, RegisteredUsers, Roles, UserState, Users2x }
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
+import org.bigbluebutton.core.apps.voice.VoiceApp
 import org.bigbluebutton.LockSettingsUtil
 import org.bigbluebutton.core.db.{ NotificationDAO, UserDAO }
 import org.bigbluebutton.core.graphql.GraphqlMiddleware
@@ -83,6 +84,9 @@ trait ChangeUserRoleCmdMsgHdlr extends RightsManagementTrait {
 
     // Update the database
     UserDAO.update(newRegUser)
+
+    // Update voice user's role state
+    VoiceApp.setUserRole(liveMeeting, outGW, uvo.intId, newRole)
 
     //Send Evt redis msg
     val event = buildUserRoleChangedEvtMsg(liveMeeting.props.meetingProp.intId, u.id, changedBy, newRole)
