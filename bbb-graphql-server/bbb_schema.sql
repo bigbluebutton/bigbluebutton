@@ -1066,6 +1066,17 @@ WHERE "user"."currentlyInMeeting" is true
 AND "user"."whiteboardWriteAccess" is true;
 
 
+create unlogged table "user_activity"(
+	"meetingId" varchar(100),
+    "userId" varchar(50),
+    "bucketTime" timestamp with time zone,
+    "activityName" text,
+	"count" integer,
+	CONSTRAINT "user_activity_pkey" PRIMARY KEY ("meetingId", "userId", "bucketTime", "activityName"),
+	FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE cascade
+);
+create index "idx_user_activity_orderBy" on "user_activity" ("meetingId", "userId", "bucketTime" asc nulls last, "activityName" asc nulls last);
+
 -- ===================== CHAT TABLES
 
 
@@ -2007,7 +2018,7 @@ SELECT bu."meetingId" as "userMeetingId", bu."userId", b."meetingId", b."breakou
             b."shortName", b."startedAt", b."endedAt", b."durationInSeconds", b."sendInvitationToModerators",
             bu."assignedAt", bu."joinURL", bu."inviteDismissedAt",
             bu."isLastAssignedRoom", bu."isLastJoinedRoom", bu."isUserCurrentlyInRoom", bu."showInvitation",
-            bu."joinedAt" is not null as "hasJoined"
+            bu."joinedAt", bu."joinedAt" is not null as "hasJoined"
     FROM "breakoutRoom_user" bu
     JOIN "breakoutRoom" b ON b."breakoutRoomMeetingId" = bu."breakoutRoomMeetingId" and b."endedAt" IS NULL
     --JOIN  bu ON bu."meetingId" = u."meetingId" AND bu."userId" = u."userId" AND bu."breakoutRoomMeetingId" = b."breakoutRoomMeetingId"
@@ -2032,7 +2043,8 @@ where "createdAt" = (
 					);
 
 CREATE OR REPLACE VIEW "v_breakoutRoom_assignedUser" AS
-SELECT "meetingId", "breakoutRoomMeetingId", "userMeetingId", "userId"
+SELECT "meetingId", "breakoutRoomMeetingId", "userMeetingId", "userId",
+        "isLastAssignedRoom", "assignedAt", "inviteDismissedAt", "isLastJoinedRoom", "hasJoined", "joinedAt", "isUserCurrentlyInRoom"
 FROM "v_breakoutRoom"
 WHERE "assignedAt" IS NOT NULL;
 
@@ -2088,11 +2100,22 @@ where parent_user."transferredFromParentMeeting" is false;
 create index on "user"("userId") where "transferredFromParentMeeting" is true and "currentlyInMeeting" is true;
 create index on "user"("meetingId") where "transferredFromParentMeeting" is false;
 
+--view to monitor users activity in the breakout room
+CREATE OR REPLACE VIEW "v_breakoutRoom_user_activity" as
+select u."userId", u."meetingId", u."breakoutRoomMeetingId", a."bucketTime", a."activityName", a.count
+from "breakoutRoom_user" u
+left join "user_activity" a on a."meetingId" = u."breakoutRoomMeetingId" and a."userId" = u."breakoutRoomUserId";
+
+create or replace view "v_breakoutRoom_activity" as
+select a."meetingId", a."bucketTime", a."activityName", sum(coalesce(a.count,0)) as "total"
+from "user_activity" a
+group by a."meetingId", a."bucketTime", a."activityName";
+
 --SELECT DISTINCT br."meetingId", br."breakoutRoomMeetingId", "user"."meetingId", "user"."userId"
 --FROM v_user "user"
 --JOIN "meeting" m using("meetingId")
 --JOIN "v_meeting_breakoutPolicies" vmbp using("meetingId")
---JOIN "breakoutRoom" br ON br."meetingId" = vmbp."parentId" AND br."externalId" = m."extId";
+--JOIN "breakoutRoom" br ON br."meetingId" = vmbp."parentId" AND br."breakoutRoomExternalId" = m."extId";
 
 --User to update "inviteDismissedAt" via Mutation
 --TODO check if it is being used

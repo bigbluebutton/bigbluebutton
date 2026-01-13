@@ -7,6 +7,15 @@ configuration:
   custom_name: breakoutRoom
   custom_root_fields: {}
 array_relationships:
+  - name: activities
+    using:
+      manual_configuration:
+        column_mapping:
+          breakoutRoomMeetingId: meetingId
+        insertion_order: null
+        remote_table:
+          name: v_breakoutRoom_activity
+          schema: public
   - name: assignedUsers
     using:
       manual_configuration:

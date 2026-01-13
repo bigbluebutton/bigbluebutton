@@ -90,6 +90,7 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
     for (breakout <- rooms.values.toVector) {
 
       val roomSlides = if (breakout.allPages) -1 else presSlide;
+
       // get lock settings from parent meeting
       val lockSettings = org.bigbluebutton.core2.MeetingStatus2x.getPermissions(liveMeeting.status)
 
