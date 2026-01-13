@@ -150,6 +150,7 @@ create unlogged table "meeting_usersPolicies" (
     "maxUsers"                     integer,
     "maxUserConcurrentAccesses"    integer,
     "webcamsOnlyForModerator"      boolean,
+    "multiUserWhiteboardEnabled"   boolean,
     "userCameraCap"                integer,
     "guestPolicy"                  varchar(100),
     "guestLobbyMessage"            text,
@@ -165,6 +166,7 @@ SELECT "meeting_usersPolicies"."meetingId",
     "meeting_usersPolicies"."maxUsers",
     "meeting_usersPolicies"."maxUserConcurrentAccesses",
     "meeting_usersPolicies"."webcamsOnlyForModerator",
+    "meeting_usersPolicies"."multiUserWhiteboardEnabled",
     "meeting_usersPolicies"."userCameraCap",
     "meeting_usersPolicies"."guestPolicy",
     "meeting_usersPolicies"."guestLobbyMessage",
@@ -335,8 +337,6 @@ CREATE TRIGGER update_user_raiseHand_away_time_trigger BEFORE UPDATE OF "raiseHa
     FOR EACH ROW EXECUTE FUNCTION update_user_raiseHand_away_time_trigger_func();
 
 
---whiteboardWriteAccess is necessary to improve the performance of the order by of userlist
-COMMENT ON COLUMN "user"."whiteboardWriteAccess" IS 'This column is dynamically populated by triggers of tables: user, pres_presentation, pres_page, pres_page_writers';
 COMMENT ON COLUMN "user"."disconnected" IS 'This column is set true when the user closes the window or his with the server is over';
 COMMENT ON COLUMN "user"."expired" IS 'This column is set true after 10 seconds with disconnected=true';
 COMMENT ON COLUMN "user"."loggedOut" IS 'This column is set to true when the user click the button to Leave meeting';
@@ -1651,140 +1651,12 @@ JOIN "user" on "user"."meetingId" = pah."meetingId" and "user"."userId" = pah."u
 WHERE p."current" IS true
 AND pp."current" IS true;
 
-CREATE UNLOGGED TABLE "pres_page_writers" (
-	"pageId" varchar(100)  REFERENCES "pres_page"("pageId") ON DELETE CASCADE,
-    "meetingId" varchar(100),
-    "userId" varchar(50),
-    "changedModeOn" bigint,
-    CONSTRAINT "pres_page_writers_pkey" PRIMARY KEY ("pageId","meetingId","userId"),
-    FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE
-);
-create index "idx_pres_page_writers_userID" on "pres_page_writers"("meetingId", "userId", "pageId");
-create index "idx_pres_page_writers_userID_rev" on "pres_page_writers"("userId", "meetingId", "pageId");
-
-CREATE OR REPLACE VIEW "v_pres_page_writers" AS
-SELECT
-	"pres_presentation"."presentationId",
-	"pres_page_writers"."meetingId",
-	"pres_page_writers"."pageId",
-	"pres_page_writers"."userId",
-	CASE WHEN pres_presentation."current" IS true AND pres_page."current" IS true THEN true ELSE false END AS "isCurrentPage"
-FROM "pres_page_writers"
-JOIN "pres_page" ON "pres_page"."pageId" = "pres_page_writers"."pageId"
-JOIN "pres_presentation" ON "pres_presentation"."presentationId"  = "pres_page"."presentationId"
-UNION
-SELECT
-	"pres_presentation"."presentationId",
-	"pres_presentation"."meetingId",
-	"pres_page"."pageId",
-	"user"."userId",
-	CASE WHEN pres_presentation."current" IS true AND pres_page."current" IS true THEN true ELSE false END AS "isCurrentPage"
-FROM pres_presentation
-JOIN pres_page ON pres_page."presentationId"::text = pres_presentation."presentationId"::text
-JOIN "user" on "user"."meetingId" = "pres_presentation"."meetingId"
-            and "user".presenter IS TRUE;
-;
 
 CREATE OR REPLACE VIEW "v_pres_presentation_uploadToken" AS
 SELECT "meetingId", "presentationId", "uploadUserId", "uploadTemporaryId", "uploadToken"
 FROM pres_presentation pp
 WHERE "uploadInProgress" IS FALSE
 AND "uploadCompleted" IS FALSE;
-
-------------------------------------------------------------
--- Triggers to automatically control "user" flag "whiteboardWriteAccess"
-
-CREATE OR REPLACE FUNCTION "update_user_whiteboardWriteAccess"("p_userId" varchar DEFAULT NULL, "p_meetingId" varchar DEFAULT NULL)
-RETURNS VOID AS $$
-DECLARE
-    where_clause TEXT := '';
-BEGIN
-    IF "p_userId" IS NOT NULL THEN
-        where_clause := format(' AND "userId" = %L', "p_userId");
-    END IF;
-    IF "p_meetingId" IS NOT NULL THEN
-        where_clause := format('%s AND "meetingId" = %L', where_clause, "p_meetingId");
-    END IF;
-
-    IF where_clause <> '' THEN
-        where_clause := substring(where_clause from 6);
-        EXECUTE format('UPDATE "user"
-						SET "whiteboardWriteAccess" =
-						CASE WHEN presenter THEN TRUE
-						WHEN EXISTS (
-							SELECT 1 FROM "v_pres_page_writers" v
-							WHERE v."meetingId" = "user"."meetingId"
-							AND v."userId" = "user"."userId"
-							AND v."isCurrentPage" IS TRUE
-						) THEN TRUE
-						ELSE FALSE
-						END  WHERE %s', where_clause);
-    ELSE
-        RAISE EXCEPTION 'No params provided';
-    END IF;
-END;
-$$ LANGUAGE plpgsql;
-
--- user (on update presenter)
-CREATE OR REPLACE FUNCTION update_user_presenter_trigger_func() RETURNS TRIGGER AS $$
-BEGIN
-    IF OLD."presenter" <> NEW."presenter" THEN
-        PERFORM "update_user_whiteboardWriteAccess"(NEW."userId", NEW."meetingId");
-    END IF;
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER update_user_presenter_trigger AFTER UPDATE OF "presenter" ON "user"
-FOR EACH ROW EXECUTE FUNCTION update_user_presenter_trigger_func();
-
--- pres_presentation (on update current)
-CREATE OR REPLACE FUNCTION update_pres_presentation_current_trigger_func() RETURNS TRIGGER AS $$
-BEGIN
-    IF OLD."current" <> NEW."current" THEN
-    	PERFORM "update_user_whiteboardWriteAccess"(NULL, NEW."meetingId");
-    END IF;
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER update_pres_presentation_current_trigger AFTER UPDATE OF "current" ON "pres_presentation"
-FOR EACH ROW EXECUTE FUNCTION update_pres_presentation_current_trigger_func();
-
--- pres_page (on update current)
-CREATE OR REPLACE FUNCTION update_pres_page_current_trigger_func()
-RETURNS TRIGGER AS $$
-BEGIN
-    IF OLD."current" <> NEW."current" THEN
-    	PERFORM "update_user_whiteboardWriteAccess"(NULL, pres_presentation."meetingId")
-        FROM pres_presentation
-        WHERE "presentationId" = NEW."presentationId";
-    END IF;
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER update_pres_page_current_trigger AFTER UPDATE OF "current" ON "pres_page"
-FOR EACH ROW EXECUTE FUNCTION update_pres_page_current_trigger_func();
-
--- pres_page_writers (on insert, update or delete)
-CREATE OR REPLACE FUNCTION ins_upd_del_pres_page_writers_trigger_func()
-RETURNS TRIGGER AS $$
-BEGIN
-    IF TG_OP = 'UPDATE' or TG_OP = 'INSERT' THEN
-        PERFORM "update_user_whiteboardWriteAccess"(NEW."userId", NEW."meetingId");
-    ELSIF TG_OP = 'DELETE' THEN
-        PERFORM "update_user_whiteboardWriteAccess"(OLD."userId", OLD."meetingId");
-    END IF;
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER ins_upd_del_pres_page_writers_trigger AFTER INSERT OR UPDATE OR DELETE ON "pres_page_writers"
-FOR EACH ROW EXECUTE FUNCTION ins_upd_del_pres_page_writers_trigger_func();
-
-------------------------------------------------------------
-
 
 
 CREATE UNLOGGED TABLE "pres_page_cursor" (
@@ -1963,35 +1835,25 @@ CREATE UNLOGGED TABLE "timer" (
 	"meetingId" varchar(100) PRIMARY KEY REFERENCES "meeting"("meetingId") ON DELETE CASCADE,
 	"stopwatch" boolean,
 	"running" boolean,
+	"elapsed" boolean,
 	"active" boolean,
 	"time" bigint,
 	"accumulated" bigint,
-	"startedOn" bigint,
+	"startedAt" timestamp with time zone,
 	"songTrack" varchar(50)
 );
 
-ALTER TABLE "timer" ADD COLUMN "startedAt" timestamp with time zone GENERATED ALWAYS AS (CASE WHEN "startedOn" = 0 THEN NULL ELSE to_timestamp("startedOn"::double precision / 1000) END) STORED;
 
 CREATE OR REPLACE VIEW "v_timer" AS
 SELECT
      "meetingId",
      "stopwatch",
-     case
-        when "stopwatch" is true or "running" is false then "running"
-        when "startedAt" + (("time" - coalesce("accumulated",0)) * interval '1 milliseconds') >= current_timestamp then true
-        else false
-     end "running",
-    case when
-        "stopwatch" is false
-        and "startedAt" + (("time" - coalesce("accumulated",0)) * interval '1 milliseconds') <= current_timestamp
-        then true
-        else false
-    end "elapsed",
+     "running",
+     "elapsed",
      "active",
      "time",
      "accumulated",
      "startedAt",
-     "startedOn",
      "songTrack"
  FROM "timer";
 

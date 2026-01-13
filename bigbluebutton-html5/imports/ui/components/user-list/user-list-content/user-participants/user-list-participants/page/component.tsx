@@ -139,6 +139,7 @@ const UserListParticipantsPageContainer: React.FC<UserListParticipantsContainerP
 
   const { data: currentUser, loading: currentUserLoading } = useCurrentUser((c: Partial<User>) => ({
     userId: c.userId,
+    extId: c.extId,
     voice: c.voice,
     isModerator: c.isModerator,
     presenter: c.presenter,

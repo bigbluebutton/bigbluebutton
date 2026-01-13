@@ -1,4 +1,4 @@
-import { useMutation } from '@apollo/client';
+import { useMutation, useReactiveVar } from '@apollo/client';
 import React, { useCallback, useEffect } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import {
@@ -31,6 +31,7 @@ interface BreakoutRoomProps {
   userId: string;
   meetingId: string;
   createdTime: number;
+  isConnected: boolean;
 }
 
 const intlMessages = defineMessages({
@@ -109,6 +110,7 @@ const BreakoutRoom: React.FC<BreakoutRoomProps> = ({
   userId,
   meetingId,
   createdTime,
+  isConnected,
 }) => {
   const [breakoutRoomEndAll] = useMutation(BREAKOUT_ROOM_END_ALL);
   const [breakoutRoomTransfer] = useMutation(USER_TRANSFER_VOICE_TO_MEETING);
@@ -182,7 +184,7 @@ const BreakoutRoom: React.FC<BreakoutRoomProps> = ({
               closePanel();
               breakoutRoomEndAll();
             }}
-            isMeteorConnected
+            isConnected={isConnected}
             amIModerator={isModerator}
             isRTL={isRTL}
           />
@@ -318,6 +320,7 @@ const BreakoutRoomContainer: React.FC = () => {
     loading: breakoutLoading,
     error: breakoutError,
   } = useDeduplicatedSubscription<GetBreakoutDataResponse>(getBreakoutData);
+  const connected = useReactiveVar(connectionStatus.getConnectedStatusVar());
   if (
     breakoutLoading
     || currentUserLoading
@@ -348,6 +351,7 @@ const BreakoutRoomContainer: React.FC = () => {
       userId={currentUserData.userId ?? ''}
       meetingId={meetingData.meetingId ?? ''}
       createdTime={meetingData.createdTime ?? 0}
+      isConnected={connected}
     />
   );
 };

@@ -45,7 +45,6 @@
 - "!include public_v_pres_page.yaml"
 - "!include public_v_pres_page_curr.yaml"
 - "!include public_v_pres_page_cursor.yaml"
-- "!include public_v_pres_page_writers.yaml"
 - "!include public_v_pres_presentation.yaml"
 - "!include public_v_pres_presentation_uploadToken.yaml"
 - "!include public_v_screenshare.yaml"

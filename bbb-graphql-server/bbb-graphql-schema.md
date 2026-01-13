@@ -490,7 +490,6 @@ Permission: Restricted to Poll Owner or User Viewing Self-Related Data
 - `running`
 - `songTrack`
 - `startedAt`
-- `startedOn`
 - `stopwatch`
 - `time`
 
@@ -556,6 +555,7 @@ Permission: Restricted to Presenter
 - `moderatorsCanUnmuteAudio`
 - `userCameraCap`
 - `webcamsOnlyForModerator`
+- `multiUserWhiteboardEnabled`
 
 ## Type: chat
 ### Fields:

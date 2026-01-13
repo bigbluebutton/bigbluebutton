@@ -139,7 +139,7 @@ class ActionsBar extends PureComponent {
       stopExternalVideoShare,
       isTimerActive,
       isTimerEnabled,
-      isMeteorConnected,
+      isConnected,
       isPollingEnabled,
       isThereCurrentPresentation,
       allowExternalVideo,
@@ -204,7 +204,7 @@ class ActionsBar extends PureComponent {
               stopExternalVideoShare,
               isTimerActive,
               isTimerEnabled,
-              isMeteorConnected,
+              isConnected,
               setMeetingLayout,
               setPushLayout,
               presentationIsOpen,
@@ -226,7 +226,7 @@ class ActionsBar extends PureComponent {
             {shouldShowPresentationButton && (
               <ScreenshareButtonContainer {...{
                 amIPresenter,
-                isMeteorConnected,
+                isConnected,
               }}
               />
             )}

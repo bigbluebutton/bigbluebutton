@@ -90,6 +90,7 @@ class Layouts {
 
 object LayoutsType {
   val layoutsType = Map(
+    "unified" -> "UNIFIED_LAYOUT",
     "custom" -> "CUSTOM_LAYOUT",
     "smart" -> "SMART_LAYOUT",
     "presentationFocus" -> "PRESENTATION_FOCUS",
