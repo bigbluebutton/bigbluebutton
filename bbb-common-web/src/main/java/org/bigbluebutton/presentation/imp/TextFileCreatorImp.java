@@ -28,6 +28,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.bigbluebutton.presentation.SupportedFileTypes;
 import org.bigbluebutton.presentation.TextFileCreator;
@@ -40,7 +41,7 @@ import com.google.gson.Gson;
 public class TextFileCreatorImp implements TextFileCreator {
   private static Logger log = LoggerFactory.getLogger(TextFileCreatorImp.class);
 
-  private long execTimeout = 60000;
+  private long execTimeout = 60;
 
   @Override
   public boolean createTextFile(UploadedPresentation pres, int page) {
@@ -125,7 +126,7 @@ public class TextFileCreatorImp implements TextFileCreator {
             execTimeout = pageConversionTimeoutInMs;
         }
 
-        boolean done = new ExternalProcessExecutor().exec(COMMAND, execTimeout);
+        boolean done = new ExternalProcessExecutor().exec(COMMAND, TimeUnit.SECONDS.toMillis(execTimeout));
         if (!done) {
           success = false;
 

@@ -4,7 +4,7 @@ import { useMutation } from '@apollo/client';
 import logger from '/imports/startup/client/logger';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import Styled from './styles';
-import { RAISED_HAND_USERS } from '/imports/ui/core/graphql/queries/users';
+import { RAISED_HAND_USERS, RaisedHandUser, RaisedHandUsersSubscriptionResponse } from '/imports/ui/core/graphql/queries/users';
 import { SET_RAISE_HAND } from '/imports/ui/core/graphql/mutations/userMutations';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import UserListStyles from '../user-participants/user-list-participants/list-item/styles';
@@ -36,26 +36,6 @@ const intlMessages = defineMessages({
   },
 
 });
-
-type RaisedHandUser = {
-  userId: string;
-  name: string;
-  color?: string;
-  presenter?: boolean;
-  isModerator?: boolean;
-  raiseHand?: boolean;
-  whiteboardWriteAccess?: boolean;
-  userAvatarFiltered?: string;
-  avatarContent?: React.ReactNode;
-  voiceUser?: {
-    joined: boolean;
-    talking: boolean;
-    muted: boolean;
-    listenOnly: boolean;
-    listenOnlyInputDevice: boolean;
-    deafened: boolean;
-  };
-};
 
 interface RaisedHandsComponentProps {
   raisedHands: RaisedHandUser[];
@@ -120,7 +100,6 @@ const RaisedHandsComponent: React.FC<RaisedHandsComponentProps> = ({
         open={user.userId === openUserAction}
         setOpenUserAction={setOpenUserAction}
         isBreakout={meeting.isBreakout}
-        type="raised-hand"
       >
         <UserListStyles.UserItemContents id={`raised-hand-index-${index}`} tabIndex={-1} role="listitem">
           <UserListStyles.Avatar
@@ -204,7 +183,7 @@ const RaisedHandsContainer: React.FC = () => {
   const {
     data: usersData,
     error: usersError,
-  } = useDeduplicatedSubscription<{ user: RaisedHandUser[] }>(RAISED_HAND_USERS);
+  } = useDeduplicatedSubscription<RaisedHandUsersSubscriptionResponse>(RAISED_HAND_USERS);
   const raisedHands: RaisedHandUser[] = usersData?.user ?? [];
 
   const [setRaiseHand] = useMutation(SET_RAISE_HAND);

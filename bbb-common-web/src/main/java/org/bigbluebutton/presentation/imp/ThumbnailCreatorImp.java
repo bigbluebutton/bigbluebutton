@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
 import org.bigbluebutton.presentation.SupportedFileTypes;
@@ -35,6 +36,7 @@ import org.bigbluebutton.presentation.ThumbnailCreator;
 import org.bigbluebutton.presentation.UploadedPresentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 import com.google.gson.Gson;
 
@@ -49,7 +51,7 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
 
   private String BLANK_THUMBNAIL;
 
-  private long execTimeout = 10000;
+  private long execTimeout = 10;
 
   @Override
   public boolean createThumbnail(UploadedPresentation pres, int page, File pageFile) {
@@ -104,7 +106,7 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
       execTimeout = pageConversionTimeoutInMs;
     }
 
-    boolean done = new ExternalProcessExecutor().exec(COMMAND, execTimeout);
+    boolean done = new ExternalProcessExecutor().exec(COMMAND, TimeUnit.SECONDS.toMillis(execTimeout));
 
     if (done) {
       return true;

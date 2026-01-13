@@ -31,6 +31,7 @@ public class CreateBreakoutRoom implements IMessage {
     public final String audioBridge;
     public final String cameraBridge;
     public final String screenShareBridge;
+    public final Boolean disablePrivChat;
 
     public CreateBreakoutRoom(String meetingId,
 															String parentMeetingId,
@@ -56,7 +57,8 @@ public class CreateBreakoutRoom implements IMessage {
                                                             ArrayList<String> disabledFeatures,
                                                             String audioBridge,
                                                             String cameraBridge,
-                                                            String screenShareBridge) {
+                                                            String screenShareBridge,
+                                                            Boolean disablePrivChat) {
         this.meetingId = meetingId;
         this.parentMeetingId = parentMeetingId;
         this.name = name;
@@ -82,5 +84,6 @@ public class CreateBreakoutRoom implements IMessage {
         this.audioBridge = audioBridge;
         this.cameraBridge = cameraBridge;
         this.screenShareBridge = screenShareBridge;
+        this.disablePrivChat = disablePrivChat;
     }
 }

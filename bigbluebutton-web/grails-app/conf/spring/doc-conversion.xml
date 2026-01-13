@@ -88,18 +88,18 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <bean id="thumbCreator" class="org.bigbluebutton.presentation.imp.ThumbnailCreatorImp">
         <property name="imageMagickDir" value="${imageMagickDir}"/>
         <property name="blankThumbnail" value="${BLANK_THUMBNAIL}"/>
-        <property name="execTimeout" value="${thumbnailCreationExecTimeoutInMs}"/>
+        <property name="execTimeout" value="${thumbnailCreationExecTimeout}"/>
     </bean>
 
     <bean id="pngCreator" class="org.bigbluebutton.presentation.imp.PngCreatorImp">
         <property name="blankPng" value="${BLANK_PNG}"/>
         <property name="slideWidth" value="${pngSlideWidth}"/>
         <property name="convTimeout" value="${pngCreationConversionTimeout}"/>
-        <property name="execTimeout" value="${pngCreationExecTimeoutInMs}"/>
+        <property name="execTimeout" value="${pngCreationExecTimeout}"/>
     </bean>
 
     <bean id="textFileCreator" class="org.bigbluebutton.presentation.imp.TextFileCreatorImp">
-        <property name="execTimeout" value="${textFileCreationExecTimeoutInMs}"/>
+        <property name="execTimeout" value="${textFileCreationExecTimeout}"/>
     </bean>
 
     <bean id="svgImageCreator" class="org.bigbluebutton.presentation.imp.SvgImageCreatorImp">

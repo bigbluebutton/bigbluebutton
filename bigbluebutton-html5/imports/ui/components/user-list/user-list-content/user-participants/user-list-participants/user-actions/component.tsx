@@ -36,12 +36,10 @@ import ConfirmationModal from '/imports/ui/components/common/modal/confirmation/
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import { setPendingChat } from '/imports/ui/core/local-states/usePendingChat';
 import Styled from './styles';
-import { useMutation, useLazyQuery } from '@apollo/client';
-import { CURRENT_PAGE_WRITERS_QUERY } from '/imports/ui/components/whiteboard/queries';
-import { PRESENTATION_SET_WRITERS } from '/imports/ui/components/presentation/mutations';
+import { useMutation } from '@apollo/client';
+import { USER_SET_WHITEBOARD_WRITE_ACCESS } from '/imports/ui/components/presentation/mutations';
 import useToggleVoice from '/imports/ui/components/audio/audio-graphql/hooks/useToggleVoice';
 import useWhoIsUnmuted from '/imports/ui/core/hooks/useWhoIsUnmuted';
-import { notify } from '/imports/ui/services/notification';
 import { useModalRegistration } from '/imports/ui/core/singletons/modalController';
 
 interface UserActionsProps {
@@ -69,10 +67,6 @@ interface DropdownItem {
   isSeparator?: boolean;
   contentFunction?: ((element: HTMLElement) => void);
   onClick?: (() => void);
-}
-
-interface Writer {
-  userId: string;
 }
 
 const messages = defineMessages({
@@ -157,7 +151,7 @@ const messages = defineMessages({
     description: 'Confirmation message for removing a user from the meeting',
   },
   lowerUserHand: {
-    id: 'app.statusNotifier.lowerHandDescOneUser',
+    id: 'app.actionsBar.reactions.lowUserHand',
     description: 'Label for lowering a user raised hand',
   },
 });
@@ -244,57 +238,28 @@ const UserActions: React.FC<UserActionsProps> = ({
     else closeConfirmationModal();
   };
 
-  const [presentationSetWriters] = useMutation(PRESENTATION_SET_WRITERS);
-  const [getWriters] = useLazyQuery(
-    CURRENT_PAGE_WRITERS_QUERY,
-    {
-      fetchPolicy: 'no-cache',
-    },
-  );
+  const [userSetWhiteboardWriteAccess] = useMutation(USER_SET_WHITEBOARD_WRITE_ACCESS);
   const voiceToggle = useToggleVoice();
   const isChatEnabled = useIsChatEnabled();
   const isPrivateChatEnabled = useIsPrivateChatEnabled();
 
-  const handleWhiteboardAccessChange = async () => {
+  const handleWhiteboardAccessChange = async (newWhiteboardWriteAccess: boolean) => {
     // There is no presentation available, so access cannot be granted.
     if (!pageId) return;
     try {
-      // Fetch the writers data
-      const { data } = await getWriters();
-      const currentWriters: Writer[] = data?.user_whiteboardWriteAccess || [];
-
       // Determine if the user has access
       const { userId, whiteboardWriteAccess } = user;
-      const hasAccess = whiteboardWriteAccess === true;
 
-      // Prepare the updated list of user IDs for whiteboard access
-      const usersIds = currentWriters?.map((writer: { userId: string }) => writer?.userId);
-      const newUsersIds: string[] = hasAccess
-        ? usersIds.filter((id: string) => id !== userId)
-        : [...usersIds, userId];
-
-      // Check if the maximum number of writers has been reached.
-      // If so, notify the user then return.
-      const WHITEBOARD_CONFIG = window.meetingClientSettings.public.whiteboard;
-      if (newUsersIds.length >= WHITEBOARD_CONFIG.maxNumberOfActiveUsers) {
-        notify(
-          intl.formatMessage(
-            messages.multiUserLimitHasBeenReachedNotification,
-            { numberOfUsers: WHITEBOARD_CONFIG.maxNumberOfActiveUsers },
-          ),
-          'info',
-          'pen_tool',
-        );
-        return;
+      if (newWhiteboardWriteAccess !== whiteboardWriteAccess) {
+        // Update user whiteboardWriteAccess
+        await userSetWhiteboardWriteAccess({
+          variables: {
+            userIds: [userId],
+            allUsers: false,
+            whiteboardWriteAccess: newWhiteboardWriteAccess,
+          },
+        });
       }
-
-      // Update the writers
-      await presentationSetWriters({
-        variables: {
-          pageId,
-          usersIds: newUsersIds,
-        },
-      });
     } catch (error) {
       logger.warn({
         logCode: 'user_action_whiteboard_access_failed',
@@ -407,6 +372,8 @@ const UserActions: React.FC<UserActionsProps> = ({
     {
       allowed: (() => {
         const preventSelfChat = user.userId !== currentUser.userId;
+        const isBreakoutPrivateChatLocked = isBreakout
+          && lockSettings?.disablePrivateChat;
         const moderatorOverride = currentUser.isModerator
           && allowedToChatPrivately;
         const regularUserCondition = (isPrivateChatEnabled
@@ -418,6 +385,7 @@ const UserActions: React.FC<UserActionsProps> = ({
 
         const isAllowed = preventSelfChat
           && (moderatorOverride || regularUserCondition || !currentUser.locked)
+          && !isBreakoutPrivateChatLocked
           && type === 'participant';
 
         return isAllowed;
@@ -505,7 +473,7 @@ const UserActions: React.FC<UserActionsProps> = ({
         ? intl.formatMessage(messages.removeWhiteboardAccess)
         : intl.formatMessage(messages.giveWhiteboardAccess),
       onClick: () => {
-        handleWhiteboardAccessChange();
+        handleWhiteboardAccessChange(!hasWhiteboardAccess);
         setOpenUserAction(null);
       },
       icon: 'pen_tool',

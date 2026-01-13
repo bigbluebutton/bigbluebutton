@@ -1,7 +1,7 @@
 import createUseLocalState from './createUseLocalState';
 
-const initialPendingChat: number = 0;
-const [useTimeSync, setTimeSync] = createUseLocalState<number>(initialPendingChat);
+const initialPendingSync: number = 0;
+const [useTimeSync, setTimeSync] = createUseLocalState<number>(initialPendingSync);
 
 export default useTimeSync;
 export { setTimeSync };

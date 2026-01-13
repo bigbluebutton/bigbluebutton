@@ -738,10 +738,10 @@ class ApiController {
       response.addHeader("Cache-Control", "no-cache")
       withFormat {
         xml {
-          render(text: responseBuilder.buildJoinMeeting(us, session[sessionToken], guestStatusVal, destUrl, msgKey, msgValue, RESP_CODE_SUCCESS), contentType: "text/xml")
+          render(text: responseBuilder.buildJoinMeeting(us, session[sessionToken], us.guestStatus, destUrl, msgKey, msgValue, RESP_CODE_SUCCESS), contentType: "text/xml")
         }
         '*' {
-          render(text: responseBuilder.buildJoinMeeting(us, session[sessionToken], guestStatusVal, destUrl, msgKey, msgValue, RESP_CODE_SUCCESS), contentType: "text/xml")
+          render(text: responseBuilder.buildJoinMeeting(us, session[sessionToken], us.guestStatus, destUrl, msgKey, msgValue, RESP_CODE_SUCCESS), contentType: "text/xml")
         }
       }
     }
