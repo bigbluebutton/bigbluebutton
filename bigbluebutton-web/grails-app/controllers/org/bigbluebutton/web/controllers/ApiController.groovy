@@ -456,9 +456,13 @@ class ApiController {
     //Return a Map with the user custom data
     Map<String, String> userCustomData = meetingService.getUserCustomData(meeting, externUserID, params);
 
-    String clientIp = request.getHeader("X-Forwarded-For") ?: ""
-    String userAgent = request.getHeader('User-Agent') ?: ""
-    String referer = request.getHeader('Referer') ?: ""
+    String clientIp = paramsProcessorUtil.extractClientIp(
+        request.getHeader("X-Forwarded-For"),
+        request.getHeader("X-Real-IP"),
+        request.getRemoteAddr()
+    )
+    String userAgent = paramsProcessorUtil.sanitizeHeader(request.getHeader('User-Agent'), 512)
+    String referer = paramsProcessorUtil.sanitizeHeader(request.getHeader('Referer'), 1024)
 
     //Currently, it's associated with the externalUserID
     meetingService.addUserCustomData(meeting.getInternalId(), externUserID, userCustomData);
