@@ -1,6 +1,7 @@
 import { ReactiveVar, makeVar, useReactiveVar } from '@apollo/client';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import Storage from '/imports/ui/services/storage/session';
+import { useStorageKey } from '/imports/ui/services/storage/hooks';
 import logger from '/imports/startup/client/logger';
 import AudioManager from '/imports/ui/services/audio-manager';
 import VideoService from '/imports/ui/components/video-provider/service';
@@ -14,9 +15,12 @@ import {
 import meetingStaticData from '/imports/ui/core/singletons/meetingStaticData';
 
 const MUTED_KEY = 'muted';
+const PREV_SPEAKER_LEVEL_KEY = 'prevSpeakerLevel';
 const DEVICE_LABEL_MAX_LENGTH = 40;
 const TOGGLE_MUTE_THROTTLE_TIME = 300;
 const TOGGLE_MUTE_DEBOUNCE_TIME = 500;
+
+export const SPEAKER_LEVEL_KEY = 'speakerLevel';
 
 export const handleLeaveAudio = (meetingIsBreakout: boolean) => {
   if (!meetingIsBreakout) {
@@ -76,11 +80,11 @@ const toggleMute = (
     }
   };
 
-  const parentId = meetingStaticStore?.breakoutPolicies.parentId || '';
+  const parentMeetingId = meetingStaticStore?.breakoutPolicies.parentMeetingId || '';
   const isBreakout = meetingStaticStore?.isBreakout || false;
 
-  const meetingId = isBreakout && parentId
-    ? parentId
+  const meetingId = isBreakout && parentMeetingId
+    ? parentMeetingId
     : Auth.meetingID;
   const storageKey = `${MUTED_KEY}_${meetingId}`;
 
@@ -134,20 +138,34 @@ export const liveChangeInputDevice = (inputDeviceId: string) => AudioManager.liv
 export const liveChangeOutputDevice = (inputDeviceId: string, isLive: boolean) => AudioManager
   .changeOutputDevice(inputDeviceId, isLive);
 
-export const getSpeakerLevel = () => {
-  const MEDIA_TAG = window.meetingClientSettings.public.media.mediaTag;
+const getSpeakerLevel = () => {
+  const storageLevel = Storage.getItem(SPEAKER_LEVEL_KEY);
 
-  const audioElement = document.querySelector(MEDIA_TAG) as HTMLMediaElement;
-  return audioElement ? audioElement.volume : 0;
+  if (storageLevel != null) return Number(storageLevel);
+
+  return 1;
+};
+
+export const useSpeakerLevel = () => {
+  const speakerLevel = useStorageKey(SPEAKER_LEVEL_KEY, 'session');
+
+  if (speakerLevel != null) return Number(speakerLevel);
+
+  return 1;
 };
 
 export const setSpeakerLevel = (level: number) => {
+  // mediasoup/FS/bbb-webrtc-sfu volume changes happen here since there's a
+  // global media element.
+  // LiveKit handles volume changes per track - that happens as a side-effect
+  // in livekit/component#RoomAudioRenderer
   const MEDIA_TAG = window.meetingClientSettings.public.media.mediaTag;
-
   const audioElement = document.querySelector(MEDIA_TAG) as HTMLMediaElement;
-  if (audioElement) {
-    audioElement.volume = level;
-  }
+
+  // mediasoup/FS/bbb-webrtc-sfu only
+  if (audioElement) audioElement.volume = level;
+
+  Storage.setItem(SPEAKER_LEVEL_KEY, level);
 };
 
 export const muteAway = (
@@ -156,7 +174,7 @@ export const muteAway = (
   voiceToggle: (userId: string, muted: boolean) => void,
 ) => {
   const prevAwayMuted = Storage.getItem('prevAwayMuted') || false;
-  const prevSpeakerLevelValue = Storage.getItem('prevSpeakerLevel') || 1;
+  const prevSpeakerLevelValue = Storage.getItem(PREV_SPEAKER_LEVEL_KEY) || 1;
 
   // mute/unmute microphone
   if (muted === away && muted === Boolean(prevAwayMuted)) {
@@ -173,7 +191,7 @@ export const muteAway = (
     if (away) {
       setSpeakerLevel(Number(prevSpeakerLevelValue));
     } else {
-      Storage.setItem('prevSpeakerLevel', getSpeakerLevel());
+      Storage.setItem(PREV_SPEAKER_LEVEL_KEY, getSpeakerLevel());
       setSpeakerLevel(0);
     }
   }
@@ -183,13 +201,14 @@ export const muteAway = (
 };
 
 export default {
+  SPEAKER_LEVEL_KEY,
   handleLeaveAudio,
   toggleMuteMicrophone,
   truncateDeviceName,
   notify,
   liveChangeInputDevice,
-  getSpeakerLevel,
   setSpeakerLevel,
+  useSpeakerLevel,
   startPushToTalk,
   stopPushToTalk,
 };

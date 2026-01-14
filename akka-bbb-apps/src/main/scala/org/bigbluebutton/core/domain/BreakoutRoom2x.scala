@@ -25,5 +25,5 @@ case class BreakoutRoom2x(
 
 }
 
-case class BreakoutUser(id: String, name: String)
+case class BreakoutUser(userId: String, extId: String, name: String)
 case class BreakoutVoiceUser(id: String, extId: String, voiceUserId: String)

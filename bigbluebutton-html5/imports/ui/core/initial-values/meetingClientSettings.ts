@@ -665,6 +665,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         url: `wss://${window.location.hostname}/livekit`,
         selectiveSubscription: false,
         logLevel: LogLevel.warn,
+        reconnectOnFatalFailures: false,
         roomOptions: {
           adaptiveStream: true,
           dynacast: true,
@@ -678,6 +679,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
             forceStereo: false,
           },
           unpublishOnMute: false,
+          unpublishAfterMuteMs: 5000,
         },
         camera: {
           publishOptions: {
