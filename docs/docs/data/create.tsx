@@ -171,6 +171,12 @@ const createEndpointTableData = [
     "description": (<>Setting <code className="language-plaintext highlighter-rouge">webcamsOnlyForModerator=true</code> will cause all webcams shared by viewers during this meeting to only appear for moderators (added 1.1)</>)
   },
   {
+    "name": "multiUserWhiteboardEnabled",
+    "required": false,
+    "type": "Boolean",
+    "description": (<>Setting <code className="language-plaintext highlighter-rouge">multiUserWhiteboardEnabled=true</code> automatically grants whiteboard drawing access to all users when they join (added 3.0)</>)
+  },
+  {
     "name": "bannerText",
     "required": false,
     "type": "String",

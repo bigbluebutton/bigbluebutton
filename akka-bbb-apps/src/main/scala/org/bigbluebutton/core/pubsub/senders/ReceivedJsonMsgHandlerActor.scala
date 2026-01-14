@@ -280,6 +280,8 @@ class ReceivedJsonMsgHandlerActor(
 
       case UserLeaveReqMsg.NAME =>
         routeGenericMsg[UserLeaveReqMsg](envelope, jsonNode)
+      case SetUserWhiteboardWriteAccessReqMsg.NAME =>
+        routeGenericMsg[SetUserWhiteboardWriteAccessReqMsg](envelope, jsonNode)
       case ChangeUserRaiseHandReqMsg.NAME =>
         routeGenericMsg[ChangeUserRaiseHandReqMsg](envelope, jsonNode)
       case ChangeUserAwayReqMsg.NAME =>
@@ -294,10 +296,6 @@ class ReceivedJsonMsgHandlerActor(
       // Whiteboard
       case SendCursorPositionPubMsg.NAME =>
         routeGenericMsg[SendCursorPositionPubMsg](envelope, jsonNode)
-      case ModifyWhiteboardAccessPubMsg.NAME =>
-        routeGenericMsg[ModifyWhiteboardAccessPubMsg](envelope, jsonNode)
-      case ClearWhiteboardPubMsg.NAME =>
-        routeGenericMsg[ClearWhiteboardPubMsg](envelope, jsonNode)
       case DeleteWhiteboardAnnotationsPubMsg.NAME =>
         routeGenericMsg[DeleteWhiteboardAnnotationsPubMsg](envelope, jsonNode)
       case SendWhiteboardAnnotationsPubMsg.NAME =>

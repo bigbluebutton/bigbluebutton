@@ -52,6 +52,7 @@ func createChatMesssageGraphqlMessage(receivedMessage common.RedisMessage) ([]by
 		return nil, fmt.Errorf("it was not able to read msg in GroupChatMessageBroadcastEvtMsg")
 	}
 	message := messageProps["message"].(string)
+	messageAsHtml := messageProps["messageAsHtml"].(string)
 	messageId := messageProps["id"].(string)
 	messageMetadata := messageProps["metadata"]
 	messageType := messageProps["messageType"].(string)
@@ -68,6 +69,7 @@ func createChatMesssageGraphqlMessage(receivedMessage common.RedisMessage) ([]by
 	item := map[string]any{
 		"chatId":          chatId,
 		"message":         message,
+		"messageAsHtml":   messageAsHtml,
 		"messageId":       messageId,
 		"messageMetadata": messageMetadata,
 		"messageType":     messageType,

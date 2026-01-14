@@ -94,8 +94,9 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
       // get lock settings from parent meeting
       val lockSettings = org.bigbluebutton.core2.MeetingStatus2x.getPermissions(liveMeeting.status)
 
-      val roomDetail = new BreakoutRoomDetail(
-        breakout.id, breakout.name,
+      val roomDetail = BreakoutRoomDetail(
+        breakout.id,
+        breakout.name,
         liveMeeting.props.meetingProp.intId,
         breakout.sequence,
         breakout.shortName,

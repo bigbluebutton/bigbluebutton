@@ -22,6 +22,7 @@ public interface IBbbWebApiGWApp {
                      Boolean allowStartStopRecording,
                      Boolean recordFullDurationMedia,
                      Boolean webcamsOnlyForModerator,
+                     Boolean multiUserWhiteboardEnabled,
                      Integer meetingCameraCap,
                      Integer userCameraCap,
                      Integer maxPinnedCameras,

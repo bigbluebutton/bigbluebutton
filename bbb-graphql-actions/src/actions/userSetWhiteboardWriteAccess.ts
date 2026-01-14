@@ -1,17 +1,17 @@
 import { RedisMessage } from '../types';
-import { ValidationError } from '../types/ValidationError';
-import {throwErrorIfInvalidInput, throwErrorIfNotPresenter} from "../imports/validation";
+import {throwErrorIfInvalidInput, throwErrorIfNotPresenterNorModerator} from "../imports/validation";
 
 export default function buildRedisMessage(sessionVariables: Record<string, unknown>, input: Record<string, unknown>): RedisMessage {
-  throwErrorIfNotPresenter(sessionVariables);
+  throwErrorIfNotPresenterNorModerator(sessionVariables);
   throwErrorIfInvalidInput(input,
       [
-        {name: 'pageId', type: 'string', required: true},
-        {name: 'usersIds', type: 'stringArray', required: true},
+        {name: 'userIds', type: 'stringArray', required: false},
+        {name: 'allUsers', type: 'boolean', required: true},
+        {name: 'whiteboardWriteAccess', type: 'boolean', required: true},
       ]
   )
 
-  const eventName = `ModifyWhiteboardAccessPubMsg`;
+  const eventName = `SetUserWhiteboardWriteAccessReqMsg`;
 
   const routing = {
     meetingId: sessionVariables['x-hasura-meetingid'] as String,
@@ -25,8 +25,9 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
   };
 
   const body = {
-    whiteboardId: input.pageId,
-    multiUser: input.usersIds
+    userIds: input.userIds || [],
+    allUsers: input.allUsers,
+    whiteboardWriteAccess: input.whiteboardWriteAccess
   };
 
   return { eventName, routing, header, body };

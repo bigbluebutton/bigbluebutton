@@ -133,7 +133,7 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings, index }
       </span>,
     );
   }
-  if (user.lastBreakoutRoom?.currentlyInRoom) {
+  if (user.lastBreakoutRoom?.isUserCurrentlyInRoom) {
     subs.push(
       <span key={uniqueId('breakout-')}>
         <Icon iconName="rooms" />
@@ -199,7 +199,7 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings, index }
     return '';
   };
 
-  const avatarContent = user.lastBreakoutRoom?.currentlyInRoom && userAvatarFiltered.length === 0
+  const avatarContent = user.lastBreakoutRoom?.isUserCurrentlyInRoom && userAvatarFiltered.length === 0
     ? user.lastBreakoutRoom?.sequence
     : getIconUser();
 

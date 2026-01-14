@@ -385,8 +385,8 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
         moveUser({
           variables: {
             userId,
-            fromBreakoutRoomId: fromRoomId || '',
-            toBreakoutRoomId: toRoomId || '',
+            fromBreakoutRoomMeetingId: fromRoomId || '',
+            toBreakoutRoomMeetingId: toRoomId || '',
           },
         });
       }
