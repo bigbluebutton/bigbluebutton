@@ -114,6 +114,8 @@ export interface UserBasicInfo {
   userId: string;
   extId: string;
   name: string;
+  nameSortable: string;
+  bot: boolean;
   isModerator: boolean;
   role: string;
   color: string;
