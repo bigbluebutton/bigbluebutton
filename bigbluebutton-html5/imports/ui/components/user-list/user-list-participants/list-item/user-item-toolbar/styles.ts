@@ -18,7 +18,6 @@ const ToolbarItem = styled.div<{ disabled?: boolean, hasText?: boolean }>`
   cursor: pointer;
   color: ${({ hasText }) => (hasText ? colorPrimary : colorGrayIcons)};
 
-  font-size: 0.8rem;
   line-height: 1;
 
   ${({ disabled }) => disabled && `
