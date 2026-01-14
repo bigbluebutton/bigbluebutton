@@ -24,6 +24,7 @@ const FloatingWindowContainer = () => {
         left={itemToRender.left}
         backgroundColor={itemToRender.backgroundColor}
         boxShadow={itemToRender.boxShadow}
+        zIndex={itemToRender.zIndex}
         renderFunction={itemToRender.contentFunction}
         isDraggable={itemToRender.movable}
         dataTest={itemToRender.dataTest}
