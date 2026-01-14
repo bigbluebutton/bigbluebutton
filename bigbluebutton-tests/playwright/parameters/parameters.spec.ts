@@ -514,12 +514,12 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
     test.describe.serial(() => {
       test('Infinite Whiteboard', async ({ browser, context, page }, testInfo) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
-        await disabledFeatures.initModPage(page, true, { createParameter: c.infiniteWhiteboard, testInfo });
+        await disabledFeatures.initModPage(page, { createParameter: c.infiniteWhiteboard, testInfo });
         await disabledFeatures.infiniteWhiteboard();
       });
       test('Infinite Whiteboard (exclude)', async ({ browser, context, page }, testInfo) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
-        await disabledFeatures.initModPage(page, true, { createParameter: c.infiniteWhiteboardExclude, testInfo });
+        await disabledFeatures.initModPage(page, { createParameter: c.infiniteWhiteboardExclude, testInfo });
         await disabledFeatures.infiniteWhiteboardExclude();
       });
     });
