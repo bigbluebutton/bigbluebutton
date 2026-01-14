@@ -89,8 +89,9 @@ const ChatAlertGraphql: React.FC<ChatAlertGraphqlProps> = (props) => {
     && !!chatUnreadMessages
     && chatUnreadMessages.length > 0;
   const shouldPlayAudioAlert = useCallback(
-    (m: Message) => m.senderId !== Auth.userID && !history.current.has(m.messageId),
-    [history.current],
+    (m: Message) => m.senderId !== Auth.userID
+      && m.chatId !== idChatOpen && !history.current.has(m.messageId),
+    [history.current, idChatOpen],
   );
 
   const CHAT_CONFIG = window.meetingClientSettings.public.chat;
@@ -128,7 +129,7 @@ const ChatAlertGraphql: React.FC<ChatAlertGraphqlProps> = (props) => {
       return intl.formatMessage(intlMessages.publicChatClear);
     }
 
-    return unescapeHtml(stripTags(msg.message));
+    return unescapeHtml(stripTags(msg.messageAsHtml));
   };
 
   const createMessage = (msg: Message) => (

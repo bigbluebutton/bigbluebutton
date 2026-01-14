@@ -16,6 +16,8 @@ import { useStorageKey } from '../../services/storage/hooks';
 import { useIsCustomVirtualBackgroundsEnabled, useIsVirtualBackgroundsEnabled } from '../../services/features';
 import { SET_AWAY } from '../user-list/user-list-content/user-participants/user-list-participants/user-actions/mutations';
 import useCurrentUser from '../../core/hooks/useCurrentUser';
+import { layoutSelectInput } from '../layout/context';
+import getFromUserSettings from '/imports/ui/services/users-settings';
 
 const VideoPreviewContainer = (props) => {
   const {
@@ -40,6 +42,9 @@ const VideoPreviewContainer = (props) => {
   const { data: currentUser } = useCurrentUser((u) => ({
     away: u.away,
   }));
+  const { hideNotificationToasts } = layoutSelectInput((i) => i.notificationsBar);
+  const hideNotifications = hideNotificationToasts
+    || getFromUserSettings('bbb_hide_notifications', false);
   const stopSharing = (deviceId) => {
     callbackToClose();
     setIsOpen(false);
@@ -110,6 +115,7 @@ const VideoPreviewContainer = (props) => {
         isCustomVirtualBackgroundsEnabled,
         setAway,
         isAway: currentUser?.away ?? false,
+        hideNotificationToasts: hideNotifications,
         ...props,
       }}
     />

@@ -59,7 +59,7 @@ subscription UserListSubscription($offset: Int!, $limit: Int!) {
       isDefaultName
       sequence
       shortName
-      currentlyInRoom
+      isUserCurrentlyInRoom
     }
     userLockSettings {
       disablePublicChat
@@ -73,14 +73,6 @@ export const USER_AGGREGATE_COUNT_SUBSCRIPTION = gql`
       aggregate {
         count
       }
-    }
-  }
-`;
-
-export const GET_USER_IDS = gql`
-  query Users {
-    user(where: { bot: { _eq: false } } ) {
-      userId
     }
   }
 `;
