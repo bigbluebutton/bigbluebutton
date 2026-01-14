@@ -5,6 +5,7 @@ import { throttle } from '/imports/utils/throttle';
 import { range } from '/imports/utils/array-utils';
 import Styled from './styles';
 import VideoListItemContainer from './video-list-item/container';
+import OverflowTile from './overflow-tile/component';
 import AutoplayOverlay from '/imports/ui/components/media/autoplay-overlay/component';
 import logger from '/imports/startup/client/logger';
 import playAndRetry from '/imports/utils/mediaElementPlayRetry';
@@ -77,6 +78,7 @@ interface VideoListProps {
   focusedId: string;
   handleVideoFocus: (id: string) => void;
   isGridEnabled: boolean;
+  overflowCount: number;
   streams: VideoItem[];
   intl: IntlShape;
   setUserCamerasRequestedFromPlugin: React.Dispatch<React.SetStateAction<UpdatedDataForUserCameraDomElement[]>>;
@@ -226,7 +228,10 @@ class VideoList extends Component<VideoListProps, VideoListState> {
       cameraDock,
       layoutContextDispatch,
     } = this.props;
-    let numItems = streams.length;
+    const visibleStreams = streams.filter(
+      (item) => item.type === VIDEO_TYPES.GRID || !('render' in item) || item.render !== false,
+    );
+    let numItems = visibleStreams.length;
 
     if (numItems < 1 || !this.canvas || !this.grid) {
       return;
@@ -238,7 +243,7 @@ class VideoList extends Component<VideoListProps, VideoListState> {
     const gridGutter = parseInt(window.getComputedStyle(this.grid)
       .getPropertyValue('grid-row-gap'), 10);
 
-    const hasFocusedItem = streams.filter(
+    const hasFocusedItem = visibleStreams.filter(
       (s) => s.type !== VIDEO_TYPES.GRID && s.stream === focusedId,
     ).length && numItems > 2;
 
@@ -358,15 +363,36 @@ class VideoList extends Component<VideoListProps, VideoListState> {
       setUserCamerasRequestedFromPlugin,
       focusedId,
       pluginUserCameraHelperPerPosition,
+      isGridEnabled,
+      overflowCount,
     } = this.props;
-    const numOfStreams = streams.length;
+    const numOfStreams = streams.filter(
+      (item) => item.type === VIDEO_TYPES.GRID || !('render' in item) || item.render !== false,
+    ).length;
 
-    return streams.map((item) => {
+    const shouldShowOverflowTile = isGridEnabled && overflowCount > 0;
+
+    let streamsToRender = streams;
+    if (shouldShowOverflowTile) {
+      const lastGridUserIndex = streams.map((s, idx) => ({ s, idx }))
+        .reverse()
+        .find(({ s }) => s.type === VIDEO_TYPES.GRID)?.idx;
+
+      if (lastGridUserIndex !== undefined) {
+        // remove the last grid user to replace it with the overflow tile
+        streamsToRender = streams.filter((_, idx) => idx !== lastGridUserIndex);
+      }
+    }
+
+    const videoItems = streamsToRender.map((item) => {
       const { userId, name } = item;
       const isStream = item.type !== VIDEO_TYPES.GRID;
       const stream = isStream ? item.stream : null;
       const key = isStream ? stream : userId;
       const isFocused = isStream && focusedId === stream && numOfStreams > 2;
+      const shouldRender = item.type === VIDEO_TYPES.GRID || !('render' in item) || item.render !== false;
+
+      if (!shouldRender) return null;
 
       return (
         <Styled.VideoListItem
@@ -399,6 +425,20 @@ class VideoList extends Component<VideoListProps, VideoListState> {
         </Styled.VideoListItem>
       );
     });
+
+    if (shouldShowOverflowTile) {
+      videoItems.push(
+        <Styled.VideoListItem
+          key="overflow-tile"
+          $focused={false}
+          data-test="overflowTile"
+        >
+          <OverflowTile overflowCount={overflowCount} />
+        </Styled.VideoListItem>,
+      );
+    }
+
+    return videoItems;
   }
 
   render() {

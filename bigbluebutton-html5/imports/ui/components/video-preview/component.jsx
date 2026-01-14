@@ -1176,7 +1176,7 @@ class VideoPreview extends Component {
   }
 
   renderVirtualBgSelector() {
-    const { isCustomVirtualBackgroundsEnabled } = this.props;
+    const { isCustomVirtualBackgroundsEnabled, hideNotificationToasts } = this.props;
     const { isStartSharingDisabled, webcamDeviceId } = this.state;
     const initialVirtualBgState = this.currentVideoStream ? {
       type: this.currentVideoStream.virtualBgType,
@@ -1187,7 +1187,7 @@ class VideoPreview extends Component {
     const {
       showThumbnails: SHOW_THUMBNAILS = true,
     } = window.meetingClientSettings.public.virtualBackgrounds;
-    
+
     return (
       <VirtualBgSelector
         handleVirtualBgSelected={this.handleVirtualBgSelected}
@@ -1195,6 +1195,7 @@ class VideoPreview extends Component {
         showThumbnails={SHOW_THUMBNAILS}
         initialVirtualBgState={initialVirtualBgState}
         isCustomVirtualBackgroundsEnabled={isCustomVirtualBackgroundsEnabled}
+        hideNotificationToasts={hideNotificationToasts}
       />
     );
   }

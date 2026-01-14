@@ -27,7 +27,7 @@ val compileSettings = Seq(
   )
 )
 
-scalaVersion := "2.13.9"
+scalaVersion := "2.13.18"
 
 resolvers += Resolver.sonatypeRepo("releases")
 

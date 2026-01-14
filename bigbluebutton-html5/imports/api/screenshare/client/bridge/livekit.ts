@@ -104,6 +104,8 @@ export default class LiveKitScreenshareBridge {
 
   private streamId?: string;
 
+  private isResyncing: boolean = false;
+
   constructor() {
     this.hasAudio = false;
     this.liveKitRoom = liveKitRoom;
@@ -116,6 +118,7 @@ export default class LiveKitScreenshareBridge {
     this.handleTrackUnpublished = this.handleTrackUnpublished.bind(this);
     this.handleTrackSubscribed = this.handleTrackSubscribed.bind(this);
     this.handleTrackUnsubscribed = this.handleTrackUnsubscribed.bind(this);
+    this.handleConnectionStateChanged = this.handleConnectionStateChanged.bind(this);
 
     this.observeRoomEvents();
   }
@@ -328,6 +331,70 @@ export default class LiveKitScreenshareBridge {
     });
   }
 
+  private resyncOnReconnection(): void {
+    if (this.role !== RECV_ROLE || !this.streamId) return;
+
+    this.findInitialRemotePublications();
+
+    const publication = this.getPublication(this.streamId);
+
+    if (!publication || !(publication instanceof RemoteTrackPublication)) {
+      logger.error({
+        logCode: 'livekit_screenshare_reconnection_pub_not_found',
+        extraInfo: {
+          bridgeName: this.bridgeName,
+          streamId: this.streamId,
+          role: this.role,
+        },
+      }, `LiveKit: screenshare pub not found on reconnection - streamId: ${this.streamId}`);
+      return;
+    }
+
+    if (publication.isSubscribed && publication.track) {
+      this.setSubscription(this.streamId, publication.track, publication);
+      this.handleViewerStart(this.streamId);
+
+      logger.warn({
+        logCode: 'livekit_screenshare_reconnection_reattached',
+        extraInfo: {
+          bridgeName: this.bridgeName,
+          streamId: this.streamId,
+          role: this.role,
+        },
+      }, `LiveKit: screenshare track reattached on reconnection - streamId: ${this.streamId}`);
+    } else {
+      this.subscribe(publication);
+      logger.warn({
+        logCode: 'livekit_screenshare_reconnection_resubscribed',
+        extraInfo: {
+          bridgeName: this.bridgeName,
+          streamId: this.streamId,
+          role: this.role,
+        },
+      }, `LiveKit: screenshare resubscribed on reconnection - streamId: ${this.streamId}`);
+    }
+  }
+
+  private handleConnectionStateChanged(): void {
+    if (!this.liveKitRoom) return;
+
+    const currentState = this.liveKitRoom.state;
+
+    if (currentState === ConnectionState.Connected) {
+      const hasActiveSubscription = this.subscriptions.size > 0
+        || (this.role === RECV_ROLE && this.streamId);
+
+      if (hasActiveSubscription && !this.isResyncing) {
+        this.isResyncing = true;
+        try {
+          this.resyncOnReconnection();
+        } finally {
+          this.isResyncing = false;
+        }
+      }
+    }
+  }
+
   private observeRoomEvents(): void {
     if (!this.liveKitRoom) return;
 
@@ -337,6 +404,7 @@ export default class LiveKitScreenshareBridge {
     this.liveKitRoom.on(RoomEvent.LocalTrackUnpublished, this.handleTrackUnpublished);
     this.liveKitRoom.on(RoomEvent.TrackSubscribed, this.handleTrackSubscribed);
     this.liveKitRoom.on(RoomEvent.TrackUnsubscribed, this.handleTrackUnsubscribed);
+    this.liveKitRoom.on(RoomEvent.ConnectionStateChanged, this.handleConnectionStateChanged);
     this.liveKitRoom.localParticipant.on(ParticipantEvent.LocalTrackPublished, this.handleLocalTrackPublished);
     this.findInitialRemotePublications();
   }
@@ -349,6 +417,7 @@ export default class LiveKitScreenshareBridge {
     this.liveKitRoom.off(RoomEvent.LocalTrackUnpublished, this.handleTrackUnpublished);
     this.liveKitRoom.off(RoomEvent.TrackSubscribed, this.handleTrackSubscribed);
     this.liveKitRoom.off(RoomEvent.TrackUnsubscribed, this.handleTrackUnsubscribed);
+    this.liveKitRoom.off(RoomEvent.ConnectionStateChanged, this.handleConnectionStateChanged);
     this.liveKitRoom.localParticipant.off(ParticipantEvent.LocalTrackPublished, this.handleLocalTrackPublished);
     this.clearPublications();
     this.clearSubscriptions();
