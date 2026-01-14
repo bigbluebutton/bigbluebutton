@@ -199,7 +199,7 @@ export class Join extends Create {
 
     await this.modPage.waitAndClick(e.breakoutRoomsItem);
     await this.modPage.hasElement(e.breakoutRemainingTime, 'should display the breakout room remaining time element');
-    await this.modPage.type(e.chatBox, 'Test message to all breakout rooms');
+    await this.modPage.fill(e.chatBox, 'Test message to all breakout rooms');
     await this.modPage.waitAndClick(e.sendButton);
     await breakoutUserPage.hasElement(e.chatUserMessageText, 'should have a test message on the public chat.');
 
@@ -208,7 +208,7 @@ export class Join extends Create {
       'should display a message from the moderator, html element will have data-message-type="breakoutRoomModeratorMsg"',
     );
 
-    await this.modPage.type(e.chatBox, 'Second Test message to all breakout rooms');
+    await this.modPage.fill(e.chatBox, 'Second Test message to all breakout rooms');
     await this.modPage.waitAndClick(e.sendButton);
     await breakoutUserPage.hasElement(e.chatUserMessageText, 'should have another test message on the public chat.');
 
@@ -400,7 +400,7 @@ export class Join extends Create {
       'should display the hide notes element when shared notes is opened',
     );
     const notesLocator = getNotesLocator(breakoutUserPage);
-    await notesLocator.type(e.message);
+    await notesLocator.pressSequentially(e.message);
     // making sure there's enough time for the typing to finish
     await breakoutUserPage.page.waitForTimeout(1000);
     // end breakout rooms

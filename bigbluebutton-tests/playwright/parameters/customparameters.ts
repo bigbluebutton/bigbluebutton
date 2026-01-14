@@ -251,7 +251,7 @@ export class CustomParameters extends MultiUsers {
 
     await this.modPage.waitAndClick(e.actions);
     await this.modPage.waitAndClick(e.shareExternalVideoBtn);
-    await this.modPage.type(e.videoModalInput, e.youtubeLink);
+    await this.modPage.fill(e.videoModalInput, e.youtubeLink);
     await this.modPage.waitAndClick(e.startShareVideoBtn);
 
     const modFrame = await this.modPage.getYoutubeFrame();

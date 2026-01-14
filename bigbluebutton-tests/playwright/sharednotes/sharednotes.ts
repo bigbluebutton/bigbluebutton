@@ -75,7 +75,7 @@ export class SharedNotes extends MultiUsers {
     }
     await startSharedNotes(this.modPage);
     const notesLocator = getNotesLocator(this.modPage);
-    await notesLocator.type(e.message);
+    await notesLocator.pressSequentially(e.message);
 
     await notesLocator.press('Control+Z');
     await expect(notesLocator, 'should not contain any text on the shared notes').toContainText('');
@@ -112,7 +112,7 @@ export class SharedNotes extends MultiUsers {
     }
     await startSharedNotes(this.modPage);
     const notesLocator = getNotesLocator(this.modPage);
-    await notesLocator.type(e.message);
+    await notesLocator.pressSequentially(e.message);
 
     const showMoreButtonLocator = getShowMoreButtonLocator(this.modPage);
     await showMoreButtonLocator.click({ timeout: ELEMENT_WAIT_TIME });
@@ -166,7 +166,7 @@ export class SharedNotes extends MultiUsers {
     }
     await startSharedNotes(this.modPage);
     const notesLocator = getNotesLocator(this.modPage);
-    await notesLocator.type('test');
+    await notesLocator.pressSequentially('test');
     await this.modPage.page.waitForTimeout(1000);
 
     await this.modPage.waitAndClick(e.notesOptions);
@@ -201,12 +201,12 @@ export class SharedNotes extends MultiUsers {
     }
     await startSharedNotes(this.modPage);
     const notesLocator = getNotesLocator(this.modPage);
-    await notesLocator.type(e.message);
+    await notesLocator.pressSequentially(e.message);
 
     await startSharedNotes(this.userPage);
     const notesLocatorUser = getNotesLocator(this.userPage);
     await notesLocatorUser.press('Delete');
-    await notesLocatorUser.type('J');
+    await notesLocatorUser.press('J');
 
     await expect(notesLocator, 'should the shared notes contain the text "Jello" for the moderator').toContainText(
       /Jello/,
@@ -233,7 +233,7 @@ export class SharedNotes extends MultiUsers {
     // type on shared notes as moderator
     await startSharedNotes(this.modPage);
     const notesLocator = getNotesLocator(this.modPage);
-    await notesLocator.type('Hello');
+    await notesLocator.pressSequentially('Hello');
     // lock shared notes
     await startSharedNotes(this.userPage);
 
@@ -272,7 +272,7 @@ export class SharedNotes extends MultiUsers {
     // type on shared notes as moderator
     await startSharedNotes(this.modPage);
     const notesLocator = getNotesLocator(this.modPage);
-    await notesLocator.type('Hello');
+    await notesLocator.pressSequentially('Hello');
     await this.modPage.page.waitForTimeout(1000); // avoid pinning notes before the text is fully applied
     // pin notes
     await this.modPage.waitAndClick(e.notesOptions);
