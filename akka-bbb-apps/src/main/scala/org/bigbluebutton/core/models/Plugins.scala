@@ -8,9 +8,11 @@ import org.bigbluebutton.ClientSettings.getPluginsFromConfig
 import org.bigbluebutton.core.db.PluginDAO
 import org.slf4j.{Logger, LoggerFactory}
 import com.github.zafarkhaja.semver.Version
+import org.apache.commons.codec.digest.DigestUtils
 import org.bigbluebutton.common2.util.JsonUtil
 import org.apache.http.client.utils.URIBuilder
 import org.bigbluebutton.core.exceptions.PluginHtml5VersionValidationException
+import org.bigbluebutton.core.util.RandomStringGenerator
 import spray.json.JsValue
 
 import java.util
@@ -324,9 +326,14 @@ object PluginModel {
     validatePluginsBeforeCreateModel(instance, clientSettings)
   }
 
+  private def generateUnidentifiedPluginName(pluginmanifestUrl: String): String = {
+    "unidentified-plugin" + "-" + DigestUtils.sha1Hex(pluginmanifestUrl)
+  }
+
   def persistPluginsForClient(meetingId: String, instance: PluginModel): Unit = {
     instance.plugins.foreach { case (pluginNameRaw, plugin) =>
-      val pluginName = if (plugin.manifest.url == pluginNameRaw) "unidentified-plugin" else pluginNameRaw
+      val pluginName = if (plugin.manifest.url == pluginNameRaw) generateUnidentifiedPluginName(plugin.manifest.url) else pluginNameRaw
+
       plugin.manifest.content match {
         case Some(pluginManifestContent) =>
           PluginDAO.insert(meetingId, pluginName, pluginManifestContent.loggerSettings, pluginManifestContent.javascriptEntrypointUrl,

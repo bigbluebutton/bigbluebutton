@@ -501,9 +501,7 @@ export interface Timer {
   enabled: boolean
   alarm: boolean
   music: Music
-  interval: Interval
   time: number
-  tabIndicator: boolean
 }
 
 export interface Music {
@@ -512,11 +510,6 @@ export interface Music {
   track1: string
   track2: string
   track3: string
-}
-
-export interface Interval {
-  clock: number
-  offset: number
 }
 
 export interface Chat {
@@ -655,6 +648,7 @@ export interface LiveKitScreenShareSettings {
 export interface LiveKitAudioSettings {
   publishOptions?: TrackPublishOptions
   unpublishOnMute?: boolean
+  unpublishAfterMuteMs?: number
 }
 
 export interface LiveKitSettings {
@@ -662,6 +656,7 @@ export interface LiveKitSettings {
   selectiveSubscription?: boolean
   logLevel?: LogLevel
   roomOptions?: Partial<InternalRoomOptions>
+  reconnectOnFatalFailures?: boolean
   audio?: LiveKitAudioSettings
   camera?: LiveKitCameraSettings
   screenshare?: LiveKitScreenShareSettings

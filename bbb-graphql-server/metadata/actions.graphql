@@ -59,14 +59,14 @@ type Mutation {
 type Mutation {
   breakoutRoomMoveUser(
     userId: String!
-    fromBreakoutRoomId: String!
-    toBreakoutRoomId: String!
+    fromBreakoutRoomMeetingId: String!
+    toBreakoutRoomMeetingId: String!
   ): Boolean
 }
 
 type Mutation {
   breakoutRoomRequestJoinUrl(
-    breakoutRoomId: String!
+    breakoutRoomMeetingId: String!
   ): Boolean
 }
 
@@ -488,9 +488,10 @@ type Mutation {
 }
 
 type Mutation {
-  presentationSetWriters(
-    pageId: String!
-    usersIds: [String]!
+  userSetWhiteboardWriteAccess(
+    userIds: [String]
+    allUsers: Boolean!
+    whiteboardWriteAccess: Boolean!
   ): Boolean
 }
 

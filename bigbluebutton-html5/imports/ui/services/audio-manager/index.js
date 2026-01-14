@@ -23,7 +23,7 @@ import { makeVar } from '@apollo/client';
 import { hasMediaDevicesEventTarget } from '/imports/ui/services/webrtc-base/utils';
 import AudioErrors from '/imports/ui/services/audio-manager/error-codes';
 import GrahqlSubscriptionStore, { stringToHash } from '/imports/ui/core/singletons/subscriptionStore';
-import VOICE_ACTIVITY from '../../core/graphql/queries/whoIsTalking';
+import VOICE_ACTIVITY from '../../core/graphql/queries/voiceActivity';
 import {
   setUserSelectedMicrophone,
   setUserSelectedListenOnly,
@@ -717,8 +717,18 @@ class AudioManager {
   }
 
   onVoiceUserChanges(fields = {}) {
-    if (fields.muted !== undefined && fields.muted !== this.isMuted) {
-      this.isMuted = fields.muted;
+    let newMuteState;
+
+    // when user leaves voice conf, set muted = false
+    // as the user might have been transfered to a breakout room
+    if (fields.leftVoiceConf !== undefined && fields.leftVoiceConf) {
+      newMuteState = false;
+    } else if (fields.muted !== undefined && fields.muted !== this.isMuted) {
+      newMuteState = fields.muted;
+    }
+
+    if (newMuteState !== undefined && newMuteState !== this.isMuted) {
+      this.isMuted = newMuteState;
 
       if (this.isMuted) {
         this.mute();
@@ -1373,7 +1383,7 @@ class AudioManager {
 
     if (outputDeviceId && typeof audioAlert.setSinkId === 'function') {
       return audioAlert
-        .setSinkId(outputDeviceId)
+        .setSinkId(outputDeviceId || 'default')
         .then(() => AudioManager.playAudioElement(audioAlert));
     }
 

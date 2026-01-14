@@ -8,7 +8,7 @@ export interface getUserResponse {
 export interface breakoutRoom {
   sequence: number;
   name: string;
-  breakoutRoomId: string;
+  breakoutRoomMeetingId: string;
   participants: Array<{
     user: {
       name: string;
@@ -25,8 +25,8 @@ export interface getBreakoutsResponse {
 export interface LastBreakoutData {
   user: {
     lastBreakoutRoom: {
-      breakoutRoomId: string;
-      currentlyInRoom: boolean;
+      breakoutRoomMeetingId: string;
+      isUserCurrentlyInRoom: boolean;
       sequence: number;
       shortName: string;
       userId: string;
@@ -54,7 +54,6 @@ export const getUser = gql`
       order_by: [
         {presenter: desc},
         {role: asc},
-        {raiseHandTime: asc_nulls_last},
         {isDialIn: desc},
         {whiteboardWriteAccess: desc},
         {nameSortable: asc},
@@ -74,7 +73,7 @@ export const getBreakouts = gql`
     breakoutRoom {
       sequence
       name
-      breakoutRoomId
+      breakoutRoomMeetingId
       participants {
         user {
           name
@@ -90,8 +89,8 @@ export const getLastBreakouts = gql`
   query getLastBreakouts {
     user {
       lastBreakoutRoom {
-        breakoutRoomId
-        currentlyInRoom
+        breakoutRoomMeetingId
+        isUserCurrentlyInRoom
         sequence
         shortName
         userId
