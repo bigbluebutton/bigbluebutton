@@ -191,7 +191,7 @@ export class Chat extends MultiUsers {
     await this.modPage.press('Control+KeyC');
     await this.modPage.page.locator(e.chatBox).focus();
     await this.modPage.press('Control+KeyV');
-    await this.modPage.fill(e.chatBox, '2');
+    await this.modPage.type(e.chatBox, '2');
     await this.modPage.waitAndClick(e.sendButton);
 
     await checkLastMessageSent(this.modPage, /test2/);
