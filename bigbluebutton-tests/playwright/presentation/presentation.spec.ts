@@ -23,15 +23,6 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
     await presentation.hideAndRestorePresentation();
   });
 
-  // https://docs.bigbluebutton.org/3.0/testing/release-testing/#start-youtube-video-sharing
-  test('Start external video', { tag: '@flaky' }, async ({ browser, context, page }, testInfo) => {
-    // requiring logged user to start external video on CI environment
-    linkIssue(21589);
-    const presentation = new Presentation(browser, context);
-    await presentation.initPages(page, testInfo);
-    await presentation.startExternalVideo();
-  });
-
   // https://docs.bigbluebutton.org/3.0/testing/release-testing/#fit-to-width-option
   test('Presentation fit to width', async ({ browser, context, page }, testInfo) => {
     const presentation = new Presentation(browser, context);
@@ -70,6 +61,50 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
     const presentation = new Presentation(browser, context);
     await presentation.initPages(page, testInfo);
     await presentation.selectSlide();
+  });
+
+  test.describe.parallel('External Video', () => {
+    // https://docs.bigbluebutton.org/3.0/testing/release-testing/#start-youtube-video-sharing
+    test('Start external video', { tag: '@flaky' }, async ({ browser, context, page }, testInfo) => {
+      // requiring logged user to start external video on CI environment
+      linkIssue(21589);
+      const presentation = new Presentation(browser, context);
+      await presentation.initPages(page, testInfo);
+      await presentation.startExternalVideo();
+    });
+
+    test('External video loads correctly after new user joins the meeting', async ({
+      browser,
+      context,
+      page,
+    }, testInfo) => {
+      const presentation = new Presentation(browser, context);
+      await presentation.initPages(page, testInfo);
+      await presentation.startExternalVideo();
+      await presentation.initUserPage2(context, { testInfo });
+      await presentation.checkVideoAfterUserJoins();
+    });
+
+    test('Pause External video', async ({ browser, context, page }, testInfo) => {
+      const presentation = new Presentation(browser, context);
+      await presentation.initPages(page, testInfo);
+      await presentation.startExternalVideo();
+      await presentation.pauseExternalVideo();
+    });
+
+    test('Change presenter while playing external video', async ({ browser, context, page }, testInfo) => {
+      const presentation = new Presentation(browser, context);
+      await presentation.initPages(page, testInfo);
+      await presentation.startExternalVideo();
+      await presentation.changePresenterWhileVideoPlaying();
+    });
+
+    test('End External video', { tag: '@flaky' }, async ({ browser, context, page }, testInfo) => {
+      const presentation = new Presentation(browser, context);
+      await presentation.initPages(page, testInfo);
+      await presentation.startExternalVideo();
+      await presentation.endExternalVideo();
+    });
   });
 
   test.describe.parallel('Manage', () => {
