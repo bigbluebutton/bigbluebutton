@@ -489,12 +489,14 @@ const PresentationMenu = (props) => {
             label: item.label,
             icon: item.icon,
             onClick: item.onClick,
+            dataTest: item.dataTest,
           });
           break;
         case PresentationDropdownItemType.SEPARATOR:
           menuItems.push({
             key: `${item.id}-${index}`,
             isSeparator: true,
+            dataTest: item.dataTest,
           });
           break;
         default:
