@@ -203,7 +203,7 @@ class LearningDashboardActor(
 
       // Meeting
       case m: CreateMeetingReqMsg         => handleCreateMeetingReqMsg(m)
-      case m: MeetingEndingEvtMsg     => handleMeetingEndingEvtMsg(m)
+      case m: MeetingEndingEvtMsg         => handleMeetingEndingEvtMsg(m)
 
       // Poll
       case m: PollStartedEvtMsg                     => handlePollStartedEvtMsg(m)
@@ -906,11 +906,12 @@ class LearningDashboardActor(
         ),
       )
 
-    meetings += (newMeeting.intId -> newMeeting)
-    meetingAccessTokens += (newMeeting.intId -> msg.body.props.password.learningDashboardAccessToken)
+      meetings += (newMeeting.intId -> newMeeting)
+      meetingAccessTokens += (newMeeting.intId -> msg.body.props.password.learningDashboardAccessToken)
 
-    if (msg.body.props.meetingProp.disabledFeatures.contains("learningDashboard")) {
-      log.info(" disabled for meeting {}.",msg.body.props.meetingProp.intId)
+      if (msg.body.props.meetingProp.disabledFeatures.contains("learningDashboard")) {
+        log.info(" disabled for meeting {}.",msg.body.props.meetingProp.intId)
+      }
     }
   }
 
