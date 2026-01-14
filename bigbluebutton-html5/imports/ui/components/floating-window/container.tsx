@@ -27,6 +27,7 @@ const FloatingWindowContainer = () => {
         zIndex={itemToRender.zIndex}
         renderFunction={itemToRender.contentFunction}
         isDraggable={itemToRender.movable}
+        dataTest={itemToRender.dataTest}
       />
     );
   });

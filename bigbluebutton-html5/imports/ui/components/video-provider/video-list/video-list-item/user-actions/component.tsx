@@ -268,6 +268,7 @@ const UserActions: React.FC<UserActionProps> = (props) => {
               browserClickEvent: event,
             }),
             icon: optionItem.icon,
+            dataTest: optionItem.dataTest,
           });
           break;
         }
@@ -275,6 +276,7 @@ const UserActions: React.FC<UserActionProps> = (props) => {
           menuItems.push({
             key: pluginItem.id,
             isSeparator: true,
+            dataTest: pluginItem.dataTest,
           });
           break;
         default:

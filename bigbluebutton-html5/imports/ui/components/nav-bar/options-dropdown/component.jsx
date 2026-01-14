@@ -377,10 +377,11 @@ class OptionsDropdown extends PureComponent {
             icon: item.icon,
             onClick: item.onClick,
             label: item.label,
+            dataTest: item.dataTest,
           });
           break;
         case OptionsDropdownItemType.SEPARATOR:
-          this.menuItems.push({ key: item.id, isSeparator: true });
+          this.menuItems.push({ key: item.id, isSeparator: true, dataTest: item.dataTest });
           break;
         default:
           break;

@@ -82,6 +82,7 @@ const renderUserListItemIconsFromPlugin = (
   return (
     <Styled.IconRightContainer
       key={item.id}
+      data-test={itemToRender.dataTest}
     >
       <Icon iconName={itemToRender.icon} />
     </Styled.IconRightContainer>
@@ -160,7 +161,7 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings, index }
   ).forEach((item) => {
     const itemToRender = item as PluginSdk.UserListItemLabel;
     subs.push(
-      <span key={itemToRender.id}>
+      <span key={itemToRender.id} data-test={itemToRender.dataTest}>
         { itemToRender.icon
           && <Styled.UserAdditionalInformationIcon iconName={itemToRender.icon} /> }
         {itemToRender.label}
