@@ -87,8 +87,14 @@ const Chat: React.FC<ChatProps> = ({
         type: ACTIONS.SET_ID_CHAT_OPEN,
         value: PUBLIC_GROUP_CHAT_ID,
       });
-    } else {
+    } else if (filteredPrivateChats.length > 0) {
       setPrivateList(true);
+    } else {
+      // no private chat was started, go back to public chat
+      layoutContextDispatch({
+        type: ACTIONS.SET_ID_CHAT_OPEN,
+        value: PUBLIC_GROUP_CHAT_ID,
+      });
     }
   };
 
@@ -167,7 +173,7 @@ const Chat: React.FC<ChatProps> = ({
     );
   };
 
-  const privateChatButtonLabel = isPrivateChat
+  const privateChatButtonLabel = isPrivateChat && !privateList
     ? intl.formatMessage(intlMessages.titlePrivateToUser, { participantName })
     : intl.formatMessage(intlMessages.titlePrivate);
 
