@@ -1,6 +1,5 @@
 import React, { memo, useEffect, useState } from 'react';
 import { FetchResult } from '@apollo/client';
-import ButtonEmoji from '/imports/ui/components/common/button/button-emoji/ButtonEmoji';
 import { IntlShape, defineMessages, injectIntl } from 'react-intl';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { debounce } from '/imports/utils/debounce';
@@ -210,7 +209,7 @@ const JoinVideoButton: React.FC<JoinVideoButtonProps> = ({
       <BBBMenu
         customStyles={!isMobile ? customStyles : null}
         trigger={(
-          <ButtonEmoji
+          <Styled.VideoDropdown
             emoji="device_list_selector"
             data-test="videoDropdownMenu"
             hideLabel

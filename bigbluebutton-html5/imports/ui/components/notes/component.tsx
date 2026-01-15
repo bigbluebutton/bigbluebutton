@@ -130,6 +130,7 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
     width,
     top,
     left,
+    right,
     zIndex,
   } = sharedNotesOutput;
 
@@ -138,6 +139,7 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
     width,
     top,
     left,
+    right,
     zIndex,
   };
 

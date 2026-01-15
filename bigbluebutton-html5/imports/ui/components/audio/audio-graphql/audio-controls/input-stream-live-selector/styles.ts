@@ -91,7 +91,7 @@ export const DangerColor = {
 export const AudioDropdown = styled(ButtonEmoji)`
   span {
     i {
-      width: 10px !important;
+      width: 98% !important;
       bottom: 1px;
     }
   }
