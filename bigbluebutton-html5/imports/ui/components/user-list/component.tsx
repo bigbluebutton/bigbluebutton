@@ -139,7 +139,7 @@ const UserList: React.FC<UserListComponentProps> = () => {
   }, [layoutContextDispatch]);
 
   const title = hideUserList
-    ? intl.formatMessage(intlMessages.hideUserListTitle, { moderatorCount: count })
+    ? intl.formatMessage(intlMessages.hideUserListTitle, { userCount: count })
     : intl.formatMessage(intlMessages.usersTitle, { userCount: count });
 
   return (

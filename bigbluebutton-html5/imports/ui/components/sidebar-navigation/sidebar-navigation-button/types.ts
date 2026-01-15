@@ -8,6 +8,7 @@ export interface SidebarNavigationButtonProps {
   label: string;
   hasNotification?: boolean;
   isDisabled?: boolean;
+  isLocked?: boolean;
   accessKey?: string;
   dataTest?: string;
   id?: string;
@@ -22,4 +23,5 @@ export interface ListItemProps {
   $active?: boolean;
   $hasNotification?: boolean;
   $disabled?: boolean;
+  $locked?: boolean;
 }

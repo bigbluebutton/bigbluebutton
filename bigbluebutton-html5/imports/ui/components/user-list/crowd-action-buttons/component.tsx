@@ -57,7 +57,7 @@ const CrowdActionButtons: React.FC<CrowdActionButtonsProps> = () => {
     <>
       {lockViewersModal.isOpen && (
         <LockViewersContainer
-          onRequestClose={() => lockViewersModal.close}
+          onRequestClose={() => lockViewersModal.close()}
           isOpen={lockViewersModal.isOpen}
           setIsOpen={lockViewersModal.close}
         />

@@ -1190,7 +1190,7 @@
     "app.lock-viewers.button.cancel": "Cancel",
     "app.lock-viewers.locked": "Locked",
     "app.lock-viewers.hideViewersCursor": "Seeing other participants' cursors on the whiteboard.",
-    "app.lock-viewers.hideAnnotationsLabel": "Seeing other participants' shared notes.",
+    "app.lock-viewers.hideAnnotationsLabel": "Seeing other participants' annotations on the whiteboard.",
     "app.guest-policy.ariaTitle": "Guest policy settings modal",
     "app.guest-policy.title": "Guest policy",
     "app.guest-policy.description": "Change session guest policy setting",

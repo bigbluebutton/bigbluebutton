@@ -60,7 +60,6 @@ const Input = styled(TextareaAutosize)<InputProps>`
   border: ${colorBorder};
   box-shadow: none;
   outline: none;
-  align-content: center;
 
   &::-webkit-scrollbar {
     width: 5px;

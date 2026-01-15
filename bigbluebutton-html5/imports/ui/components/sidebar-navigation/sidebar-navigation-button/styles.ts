@@ -88,6 +88,12 @@ export const ListItem = styled.div<ListItemProps>`
     background-color: ${colorGrayLightest};
   `}
 
+  ${({ $locked }) => $locked && `
+    cursor: normal;
+    border: none;
+    background-color: ${colorGrayLightest};
+  `}
+
   :disabled {
     border: none;
   }

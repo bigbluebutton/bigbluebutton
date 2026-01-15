@@ -1,9 +1,7 @@
 import React, { useEffect, useState, memo } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import Icon from '/imports/ui/components/common/icon/component';
 import NotesService from '/imports/ui/components/notes/service';
 import { notify } from '/imports/ui/services/notification';
-import Styled from './styles';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 import useHasUnreadNotes from '/imports/ui/components/notes/hooks/useHasUnreadNotes';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
@@ -77,7 +75,9 @@ const UserNotesListItemContainerGraphql: React.FC<BaseSidebarButtonProps> = (pro
   });
 
   const notesOpen = isOpened && !isPinned;
-  const label = intl.formatMessage(isPinned ? intlMessages.sharedNotesPinned : intlMessages.sharedNotes);
+  const label = disableNotes
+    ? `${intl.formatMessage(intlMessages.locked)} ${intl.formatMessage(intlMessages.byModerator)}`
+    : intl.formatMessage(isPinned ? intlMessages.sharedNotesPinned : intlMessages.sharedNotes);
   if (!isEnabled) return null;
   return (
     <SidebarNavigationButton
@@ -89,20 +89,9 @@ const UserNotesListItemContainerGraphql: React.FC<BaseSidebarButtonProps> = (pro
       ariaDescribedBy="lockedNotes"
       dataTest="sharedNotesSidebarButton"
       hasNotification={hasUnreadNotes}
-      isDisabled={disableNotes || isPinned}
-    >
-      {disableNotes
-        ? (
-          <Styled.NotesLock>
-            {/* @ts-ignore */}
-            <span id="lockedNotes">
-              <Icon iconName="lock" />
-              &nbsp;
-              {`${intl.formatMessage(intlMessages.locked)} ${intl.formatMessage(intlMessages.byModerator)}`}
-            </span>
-          </Styled.NotesLock>
-        ) : null}
-    </SidebarNavigationButton>
+      isDisabled={isPinned}
+      isLocked={disableNotes}
+    />
   );
 };
 
