@@ -1190,7 +1190,7 @@
     "app.lock-viewers.button.cancel": "Annulla",
     "app.lock-viewers.locked": "Bloccato",
     "app.lock-viewers.hideViewersCursor": "Visualizzare i cursori degli altri partecipanti sulla lavagna.",
-    "app.lock-viewers.hideAnnotationsLabel": "Visualizzare le note condivise dagli altri partecipanti.",
+    "app.lock-viewers.hideAnnotationsLabel": "Visualizzare le annotazioni degli altri partecipanti sulla lavagna.",
     "app.guest-policy.ariaTitle": "Finestra impostazioni regolamento degli ospiti",
     "app.guest-policy.title": "Ammissione degli ospiti",
     "app.guest-policy.description": "Modifica l'impostazione della politica degli ospiti della sessione",
