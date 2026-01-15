@@ -456,6 +456,8 @@ class ApiController {
     //Return a Map with the user custom data
     Map<String, String> userCustomData = meetingService.getUserCustomData(meeting, externUserID, params);
 
+    // Build joinRequestMetadata with client request info (IP, User-Agent, Referer, sessionToken)
+    // This is static metadata from the initial join request, not dynamic user state
     String clientIp = paramsProcessorUtil.extractClientIp(
         request.getHeader("X-Forwarded-For"),
         request.getHeader("X-Real-IP"),
@@ -463,6 +465,12 @@ class ApiController {
     )
     String userAgent = paramsProcessorUtil.sanitizeHeader(request.getHeader('User-Agent'), 512)
     String referer = paramsProcessorUtil.sanitizeHeader(request.getHeader('Referer'), 1024)
+
+    Map<String, String> joinRequestMetadata = new HashMap<>()
+    joinRequestMetadata.put("ipAddress", clientIp)
+    joinRequestMetadata.put("userAgent", userAgent)
+    joinRequestMetadata.put("referer", referer)
+    joinRequestMetadata.put("sessionToken", sessionToken)
 
     //Currently, it's associated with the externalUserID
     meetingService.addUserCustomData(meeting.getInternalId(), externUserID, userCustomData);
@@ -565,9 +573,7 @@ class ApiController {
         us.leftGuestLobby,
         us.enforceLayout,
         us.logoutUrl,
-        clientIp,
-        userAgent,
-        referer,
+        joinRequestMetadata,
         meeting.getUserCustomData(us.externUserID)
     )
 

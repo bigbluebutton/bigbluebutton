@@ -468,10 +468,7 @@ case class UserState(
     loggedOut:             Boolean             = false,
     speechLocale:          String              = "",
     captionLocale:         String              = "",
-    sessionToken:          Vector[String]      = Vector(""),
-    ipAddress:             String              = "",
-    userAgent:             String              = "",
-    referer:               String              = "",
+    joinRequestMetadata:   Map[String, String] = Map.empty,
     userMetadata:          Map[String, String] = Map.empty,
     userLockSettings:      UserLockSettings    = UserLockSettings()
 )

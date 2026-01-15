@@ -12,7 +12,7 @@ object RegisteredUsers {
   def create(meetingId: String, userId: String, extId: String, name: String, firstName: String, lastName: String, roles: String,
              authToken: String, sessionToken: Vector[String], avatar: String, webcamBackground: String, color: String, bot: Boolean,
              guest: Boolean, authenticated: Boolean, guestStatus: String, excludeFromDashboard: Boolean, enforceLayout: String, logoutUrl: String,
-             ipAddress: String, userAgent: String, referer: String, userMetadata: Map[String, String], loggedOut: Boolean,
+             joinRequestMetadata: Map[String, String], userMetadata: Map[String, String], loggedOut: Boolean,
              livekitToken: Option[String] = None): RegisteredUser = {
     new RegisteredUser(
       userId,
@@ -41,9 +41,7 @@ object RegisteredUsers {
       banned = false,
       enforceLayout,
       logoutUrl,
-      ipAddress,
-      userAgent,
-      referer,
+      joinRequestMetadata,
       userMetadata,
       loggedOut,
       livekitToken = livekitToken
@@ -288,10 +286,8 @@ case class RegisteredUser(
     banned:                   Boolean,
     enforceLayout:            String,
     logoutUrl:                String,
-    ipAddress:                String,
-    userAgent:                String,
-    referer:                  String,
-    userMetadata:         Map[String,String],
+    joinRequestMetadata:      Map[String, String],
+    userMetadata:             Map[String, String],
     loggedOut:                Boolean,
     lastBreakoutRoom:         BreakoutRoom2x = null,
     livekitToken:             Option[String] = None,

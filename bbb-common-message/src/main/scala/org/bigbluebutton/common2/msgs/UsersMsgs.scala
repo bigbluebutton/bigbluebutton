@@ -9,7 +9,7 @@ case class RegisterUserReqMsgBody(meetingId: String, intUserId: String, name: St
                                   role: String, extUserId: String, authToken: String, sessionToken: String, avatarURL: String,
                                   webcamBackgroundURL: String, bot: Boolean, guest: Boolean, authed: Boolean,
                                   guestStatus: String, excludeFromDashboard: Boolean, enforceLayout: String,
-                                  logoutUrl: String, ipAddress: String, userAgent: String, referer: String, userMetadata: Map[String, String])
+                                  logoutUrl: String, joinRequestMetadata: Map[String, String], userMetadata: Map[String, String])
 
 object UserRegisteredRespMsg { val NAME = "UserRegisteredRespMsg" }
 case class UserRegisteredRespMsg(
@@ -86,29 +86,26 @@ case class UserJoinedMeetingEvtMsg(
     body:   UserJoinedMeetingEvtMsgBody
 ) extends BbbCoreMsg
 case class UserJoinedMeetingEvtMsgBody(
-    intId:            String,
-    extId:            String,
-    name:             String,
-    role:             String,
-    bot:              Boolean,
-    guest:            Boolean,
-    authed:           Boolean,
-    guestStatus:      String,
-    reactionEmoji:    String,
-    raiseHand:        Boolean,
-    away:             Boolean,
-    pin:              Boolean,
-    presenter:        Boolean,
-    locked:           Boolean,
-    avatar:           String,
-    webcamBackground: String,
-    color:            String,
-    clientType:       String,
-    sessionToken:     Vector[String],
-    ipAddress:        String,
-    userAgent:        String,
-    referer:          String,
-    userMetadata:     Map[String, String]
+    intId:               String,
+    extId:               String,
+    name:                String,
+    role:                String,
+    bot:                 Boolean,
+    guest:               Boolean,
+    authed:              Boolean,
+    guestStatus:         String,
+    reactionEmoji:       String,
+    raiseHand:           Boolean,
+    away:                Boolean,
+    pin:                 Boolean,
+    presenter:           Boolean,
+    locked:              Boolean,
+    avatar:              String,
+    webcamBackground:    String,
+    color:               String,
+    clientType:          String,
+    joinRequestMetadata: Map[String, String],
+    userMetadata:        Map[String, String]
 )
 
 /**
