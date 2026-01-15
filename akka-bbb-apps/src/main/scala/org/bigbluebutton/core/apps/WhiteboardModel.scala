@@ -44,6 +44,8 @@ class WhiteboardModel extends SystemConfiguration {
     }).toMap
 
   def addAnnotations(wbId: String, meetingId: String, userId: String, annotations: Array[AnnotationVO], isPresenter: Boolean, isModerator: Boolean): Array[AnnotationVO] = {
+    println("=== wbId:", wbId)
+
     val wb = getWhiteboard(wbId)
 
     var annotationsAdded = Array[AnnotationVO]()

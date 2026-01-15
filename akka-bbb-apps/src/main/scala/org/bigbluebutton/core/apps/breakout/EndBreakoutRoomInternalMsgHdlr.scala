@@ -4,9 +4,11 @@ import org.bigbluebutton.common2.msgs.{ BbbClientMsgHeader, BbbCommonEnvCoreMsg,
 import org.bigbluebutton.core.api.{ CapturePresentationReqInternalMsg, EndBreakoutRoomInternalMsg }
 import org.bigbluebutton.core.apps.presentationpod.PresentationPodsApp
 import org.bigbluebutton.core.bus.{ BigBlueButtonEvent, InternalEventBus }
-import org.bigbluebutton.core.db.{ PresPresentationDAO }
+import org.bigbluebutton.core.db.PresPresentationDAO
 import org.bigbluebutton.core.models.{ Pads, PresentationInPod, PresentationPage, PresentationPod }
 import org.bigbluebutton.core.running.{ BaseMeetingActor, HandlerHelpers, LiveMeeting, OutMsgRouter }
+import org.bigbluebutton.core.domain.MeetingState2x
+import org.bigbluebutton.core.models.PresentationInPod.getCurrentPage
 
 trait EndBreakoutRoomInternalMsgHdlr extends HandlerHelpers {
   this: BaseMeetingActor =>
@@ -15,16 +17,36 @@ trait EndBreakoutRoomInternalMsgHdlr extends HandlerHelpers {
   val outGW: OutMsgRouter
   val eventBus: InternalEventBus
 
-  def handleEndBreakoutRoomInternalMsg(msg: EndBreakoutRoomInternalMsg): Unit = {
+  def handleEndBreakoutRoomInternalMsg(msg: EndBreakoutRoomInternalMsg, state: MeetingState2x): Unit = {
+    println("=== Handling EndBreakoutRoomInternalMsg for breakoutId=" + msg.breakoutId + ", parentId=" + msg.parentId)
     if (liveMeeting.props.breakoutProps.captureSlides) {
-      val filename = liveMeeting.props.breakoutProps.captureSlidesFilename
-      val captureSlidesEvent = BigBlueButtonEvent(msg.breakoutId, CapturePresentationReqInternalMsg("system", msg.parentId, filename))
-      eventBus.publish(captureSlidesEvent)
+      val allPods = state.presentationPodManager.getAllPresentationPodsInMeeting()
+
+      val hasAnnotations = allPods.exists { pod =>
+        pod.presentations.values.exists { pres =>
+          pres.pages.values.exists { page =>
+            liveMeeting.wbModel.getWhiteboard(page.id).annotationsMap.nonEmpty
+          }
+        }
+      }
+
+      if (hasAnnotations) {
+        val filename = liveMeeting.props.breakoutProps.captureSlidesFilename
+        println(s"=== captureSlides: triggering capture with filename=${filename}")
+        val captureSlidesEvent = BigBlueButtonEvent(msg.breakoutId, CapturePresentationReqInternalMsg("system", msg.parentId, filename))
+        eventBus.publish(captureSlidesEvent)
+      } else {
+        println(s"=== captureSlides: skipping capture - no annotations found in any presentation")
+      }
     }
 
-    if (liveMeeting.props.breakoutProps.captureNotes) {
-      handleCaptureNotes(msg)
-    }
+    Pads.getGroup(liveMeeting.pads, "notes").foreach(group => {
+      println("=== group:", group)
+
+      if (liveMeeting.props.breakoutProps.captureNotes && group.rev > 0) {
+        handleCaptureNotes(msg)
+      }
+    })
 
     log.info("Breakout room {} ended by parent meeting {}.", msg.breakoutId, msg.parentId)
     sendEndMeetingDueToExpiry(msg.reason, eventBus, outGW, liveMeeting, "system")
