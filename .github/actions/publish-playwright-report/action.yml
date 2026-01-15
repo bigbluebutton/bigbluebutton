@@ -1,0 +1,46 @@
+name: Publish Playwright report to external repo
+description: Publish a Playwright HTML report to a separate GitHub Pages repository
+inputs:
+  reports-repo:
+    description: GitHub repository (owner/name) that hosts Playwright reports
+    required: true
+  token:
+    description: Token with contents:write permission on the reports repo
+    required: true
+  pr-number:
+    description: Pull request number used for pr-<number> folder
+    required: true
+  report-path:
+    description: Local path to the Playwright HTML report directory
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Checkout reports repository
+      uses: actions/checkout@v4
+      with:
+        repository: ${{ inputs.reports-repo }}
+        token: ${{ inputs.token }}
+        path: reports-repo
+    - name: Publish report
+      shell: bash
+      run: |
+        set -euo pipefail
+        if [ ! -d "${{ inputs.report-path }}" ]; then
+          echo "Report path not found: ${{ inputs.report-path }}"
+          exit 1
+        fi
+        dest_dir="reports-repo/pr-${{ inputs.pr-number }}"
+        rm -rf "$dest_dir"
+        mkdir -p "$dest_dir"
+        rsync -a --delete "${{ inputs.report-path }}/" "$dest_dir/"
+        touch reports-repo/.nojekyll
+        git -C reports-repo config user.name "github-actions[bot]"
+        git -C reports-repo config user.email "github-actions[bot]@users.noreply.github.com"
+        if [ -n "$(git -C reports-repo status --porcelain)" ]; then
+          git -C reports-repo add .
+          git -C reports-repo commit -m "Add Playwright report for PR #${{ inputs.pr-number }}"
+          git -C reports-repo push
+        else
+          echo "No changes to publish"
+        fi

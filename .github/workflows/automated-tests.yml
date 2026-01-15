@@ -418,7 +418,7 @@ jobs:
             echo "SDK_URL=$SDK_DEP" >> $GITHUB_ENV
           else
             SDK_VERSION=$(jq -r '.packages["node_modules/bigbluebutton-html-plugin-sdk"]["version"]' package-lock.json)
-            echo "SDK_URL=https://github.com/bigbluebutton/bigbluebutton-html-plugin-sdk/archive/refs/tags/v${SDK_VERSION}.tar.gz" >> $GITHUB_ENV
+            echo "SDK_URL=https://github.com/${{ github.repository_owner }}/bigbluebutton-html-plugin-sdk/archive/refs/tags/v${SDK_VERSION}.tar.gz" >> $GITHUB_ENV
           fi
       - name: Plugins SDK - Download bigbluebutton-html-plugin-sdk.tar.gz
         working-directory: bigbluebutton-tests
