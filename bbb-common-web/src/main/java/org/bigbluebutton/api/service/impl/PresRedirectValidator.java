@@ -57,14 +57,23 @@ public class PresRedirectValidator implements RedirectValidator {
                 }
 
                 if(localhostBlocked && !redirectUrl.equalsIgnoreCase(defaultUploadedPresentation)) {
-                    if(address.isAnyLocalAddress()) {
+                    if (address.isAnyLocalAddress()) {
                         log.error("Address [{}] is a local address", address.getHostAddress());
                         return false;
                     }
 
-                    if(address.isLoopbackAddress()) {
+                    if (address.isLoopbackAddress()) {
                         log.error("Address [{}] is a loopback address", address.getHostAddress());
                         return false;
+                    }
+
+                    if (address.isSiteLocalAddress()) {
+                        log.error("Address [{}] is a private/site-local address", address.getHostAddress());
+                        return false;
+                    }
+
+                    if (address.isLinkLocalAddress()) {
+                        log.error("Address [{}] is a link local address", address.getHostAddress());
                     }
                 }
             }
