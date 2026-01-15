@@ -22,11 +22,12 @@ import (
 )
 
 var (
-	allowedSubscriptions []string
-	deniedSubscriptions  []string
-	jsonPatchDisabled    = config.GetConfig().Server.JsonPatchDisabled
-	dumpQueriesDir       = ""
-	dumpQueriesCounter   = make(map[string]int)
+	allowedSubscriptions    []string
+	deniedSubscriptions     []string
+	jsonPatchDisabled       = config.GetConfig().Server.JsonPatchDisabled
+	dumpQueriesDir          = ""
+	dumpQueriesCounter      = make(map[string]int)
+	dumpQueriesCounterMutex sync.RWMutex
 )
 
 func init() {
@@ -238,15 +239,18 @@ RangeLoop:
 
 					// Dump of all subscriptions for analysis purpose
 					if dumpQueriesDir != "" {
+						dumpQueriesCounterMutex.Lock()
 						if _, exists := dumpQueriesCounter[browserConnection.Id]; !exists {
 							dumpQueriesCounter[browserConnection.Id] = 1
 						} else {
 							dumpQueriesCounter[browserConnection.Id]++
 						}
+						counterValue := dumpQueriesCounter[browserConnection.Id]
+						dumpQueriesCounterMutex.Unlock()
 
 						if errSavingQueryDump := saveContentToFile(
 							fmt.Sprintf("/%s/%s", common.GetUniqueID(), browserConnection.Id),
-							fmt.Sprintf("%02d-%s-%s", dumpQueriesCounter[browserConnection.Id], string(messageType), browserMessage.Payload.OperationName),
+							fmt.Sprintf("%02d-%s-%s", counterValue, string(messageType), strings.ReplaceAll(browserMessage.Payload.OperationName, "/", "_")),
 							fromBrowserMessage,
 						); errSavingQueryDump != nil {
 							hc.BrowserConn.Logger.Error(errSavingQueryDump)
@@ -311,7 +315,6 @@ func saveContentToFile(subDir string, filename string, contentInBytes []byte) er
 		if err != nil {
 			return fmt.Errorf("error creating directory: %v", err)
 		}
-		fmt.Println("Directory created:", fileDir)
 	} else if err != nil {
 		return fmt.Errorf("error checking directory: %v", err)
 	}
