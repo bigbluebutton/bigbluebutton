@@ -46,7 +46,6 @@ trait EndBreakoutRoomInternalMsgHdlr extends HandlerHelpers {
         theMeetingHasNoChanges = false
       }
     })
-    println("=== theMeetingHasNoChanges:", theMeetingHasNoChanges)
     if (theMeetingHasNoChanges) {
       val notifyEvent = MsgBuilder.buildNotifyRoleInMeetingEvtMsg(
         Roles.PRESENTER_ROLE,
