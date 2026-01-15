@@ -1003,6 +1003,7 @@
     "app.userList.guest.feedbackMessage": "Action applied: ",
     "app.user-info.title": "Directory Lookup",
     "app.toast.breakoutRoomEnded": "The breakout room ended.  Please rejoin in the audio.",
+    "app.toast.breakoutHadNoChanges": "One or more breakout rooms had no changes to be converted.",
     "app.toast.chat.public": "New Public Chat message",
     "app.toast.chat.private": "New Private Chat message",
     "app.toast.chat.system": "System",

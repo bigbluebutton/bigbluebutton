@@ -4,11 +4,12 @@ import org.bigbluebutton.common2.msgs.{ BbbClientMsgHeader, BbbCommonEnvCoreMsg,
 import org.bigbluebutton.core.api.{ CapturePresentationReqInternalMsg, EndBreakoutRoomInternalMsg }
 import org.bigbluebutton.core.apps.presentationpod.PresentationPodsApp
 import org.bigbluebutton.core.bus.{ BigBlueButtonEvent, InternalEventBus }
-import org.bigbluebutton.core.db.PresPresentationDAO
-import org.bigbluebutton.core.models.{ Pads, PresentationInPod, PresentationPage, PresentationPod }
+import org.bigbluebutton.core.db.{ NotificationDAO, PresPresentationDAO }
+import org.bigbluebutton.core.models.{ Pads, PresentationInPod, PresentationPage, PresentationPod, Roles }
 import org.bigbluebutton.core.running.{ BaseMeetingActor, HandlerHelpers, LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models.PresentationInPod.getCurrentPage
+import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 trait EndBreakoutRoomInternalMsgHdlr extends HandlerHelpers {
   this: BaseMeetingActor =>
@@ -18,7 +19,8 @@ trait EndBreakoutRoomInternalMsgHdlr extends HandlerHelpers {
   val eventBus: InternalEventBus
 
   def handleEndBreakoutRoomInternalMsg(msg: EndBreakoutRoomInternalMsg, state: MeetingState2x): Unit = {
-    println("=== Handling EndBreakoutRoomInternalMsg for breakoutId=" + msg.breakoutId + ", parentId=" + msg.parentId)
+    var theMeetingHasNoChanges = true
+
     if (liveMeeting.props.breakoutProps.captureSlides) {
       val allPods = state.presentationPodManager.getAllPresentationPodsInMeeting()
 
@@ -32,21 +34,31 @@ trait EndBreakoutRoomInternalMsgHdlr extends HandlerHelpers {
 
       if (hasAnnotations) {
         val filename = liveMeeting.props.breakoutProps.captureSlidesFilename
-        println(s"=== captureSlides: triggering capture with filename=${filename}")
         val captureSlidesEvent = BigBlueButtonEvent(msg.breakoutId, CapturePresentationReqInternalMsg("system", msg.parentId, filename))
         eventBus.publish(captureSlidesEvent)
-      } else {
-        println(s"=== captureSlides: skipping capture - no annotations found in any presentation")
+        theMeetingHasNoChanges = false
       }
     }
 
     Pads.getGroup(liveMeeting.pads, "notes").foreach(group => {
-      println("=== group:", group)
-
       if (liveMeeting.props.breakoutProps.captureNotes && group.rev > 0) {
         handleCaptureNotes(msg)
+        theMeetingHasNoChanges = false
       }
     })
+    println("=== theMeetingHasNoChanges:", theMeetingHasNoChanges)
+    if (theMeetingHasNoChanges) {
+      val notifyEvent = MsgBuilder.buildNotifyRoleInMeetingEvtMsg(
+        Roles.PRESENTER_ROLE,
+        msg.parentId,
+        "info",
+        "rooms",
+        "app.toast.breakoutHadNoChanges",
+        "Message informing that breakout room had no changes to capture.",
+        Map()
+      )
+      outGW.send(notifyEvent)
+    }
 
     log.info("Breakout room {} ended by parent meeting {}.", msg.breakoutId, msg.parentId)
     sendEndMeetingDueToExpiry(msg.reason, eventBus, outGW, liveMeeting, "system")
