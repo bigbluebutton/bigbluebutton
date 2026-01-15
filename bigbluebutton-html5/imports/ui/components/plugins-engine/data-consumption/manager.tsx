@@ -29,6 +29,7 @@ import CustomQueryHookContainer from './domain/shared/custom-query/hook-manager'
 import CustomDataConsumptionHooksErrorBoundary from './error-boundary/handler';
 import UsersBasicInfoHookContainer from './domain/users/users-basic-info/hook-manager';
 import { EssentialHookInformation } from './domain/shared/types';
+import MeetingDataHookContainer from './domain/meeting/meeting-data/hook-manager';
 
 const hooksMap:{
   [key: string]: React.FunctionComponent<GeneralHookManagerProps>
@@ -39,6 +40,7 @@ const hooksMap:{
   [DataConsumptionHooks.CURRENT_USER]: CurrentUserHookContainer,
   [DataConsumptionHooks.CURRENT_PRESENTATION]: CurrentPresentationHookContainer,
   [DataConsumptionHooks.MEETING]: MeetingHookContainer,
+  [DataConsumptionHooks.MEETING_DATA]: MeetingDataHookContainer,
   [DataConsumptionHooks.USERS_BASIC_INFO]: UsersBasicInfoHookContainer,
 };
 
@@ -161,6 +163,7 @@ const PluginDataConsumptionManager: React.FC = () => {
     loginUrl: meeting?.loginUrl,
     meetingId: meeting?.meetingId,
   }));
+  const allMeetingInformation = useMeeting((m) => m);
   return (
     <>
       {
@@ -172,6 +175,7 @@ const PluginDataConsumptionManager: React.FC = () => {
             const HookComponent = hooksMap[hookName];
             if (hookName === DataConsumptionHooks.CURRENT_USER) data = currentUser;
             if (hookName === DataConsumptionHooks.MEETING) data = meetingInformation;
+            if (hookName === DataConsumptionHooks.MEETING_DATA) data = allMeetingInformation;
             const usage = hookInfo.get(hookName)!;
             return (
               <HookComponent

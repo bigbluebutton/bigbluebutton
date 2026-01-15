@@ -22,9 +22,16 @@ select_permissions:
     permission:
       columns:
         - userId
+        - isLastAssignedRoom
+        - assignedAt
+        - inviteDismissedAt
+        - isLastJoinedRoom
+        - hasJoined
+        - joinedAt
+        - isUserCurrentlyInRoom
       filter:
         _or:
-          - parentMeetingId:
+          - meetingId:
               _eq: X-Hasura-ModeratorInMeeting
           - _and:
               - userMeetingId:

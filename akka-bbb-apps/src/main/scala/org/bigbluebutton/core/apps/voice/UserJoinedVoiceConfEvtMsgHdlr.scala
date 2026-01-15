@@ -69,6 +69,7 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration with HandlerHelp
         pin = false,
         mobile = false,
         presenter = false,
+        whiteboardWriteAccess = MeetingStatus2x.multiUserWhiteboardEnabled(liveMeeting.status),
         locked = MeetingStatus2x.getPermissions(liveMeeting.status).lockOnJoin,
         avatar = "",
         webcamBackground = "",
