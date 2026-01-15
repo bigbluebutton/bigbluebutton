@@ -197,7 +197,7 @@ public class PresentationUrlDownloadService {
         try {
             httpclient.start();
             File download = new File(filename);
-            ZeroCopyConsumer<File> consumer = new ZeroCopyConsumer<File>(download) {
+            ZeroCopyConsumer<File> consumer = new ZeroCopyConsumer<>(download) {
                 @Override
                 protected File process(
                         final HttpResponse response,
@@ -210,6 +210,11 @@ public class PresentationUrlDownloadService {
                 }
 
             };
+
+            if (!presRedirectValidator.isRedirectValid(finalUrl)) {
+                log.error("Final URL is not valid [{}]", finalUrl);
+                return false;
+            }
             Future<File> future = httpclient.execute(HttpAsyncMethods.createGet(finalUrl), consumer, null);
             File result = future.get();
             success = result.exists();

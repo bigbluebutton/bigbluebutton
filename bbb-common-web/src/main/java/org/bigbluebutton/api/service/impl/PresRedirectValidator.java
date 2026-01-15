@@ -56,25 +56,32 @@ public class PresRedirectValidator implements RedirectValidator {
                     return false;
                 }
 
-                if(localhostBlocked && !redirectUrl.equalsIgnoreCase(defaultUploadedPresentation)) {
-                    if (address.isAnyLocalAddress()) {
-                        log.error("Address [{}] is a local address", address.getHostAddress());
-                        return false;
-                    }
+                if (redirectUrl.equalsIgnoreCase(defaultUploadedPresentation)) {
+                    return true;
+                }
 
-                    if (address.isLoopbackAddress()) {
-                        log.error("Address [{}] is a loopback address", address.getHostAddress());
-                        return false;
-                    }
+                if (!localhostBlocked) {
+                    return true;
+                }
 
-                    if (address.isSiteLocalAddress()) {
-                        log.error("Address [{}] is a private/site-local address", address.getHostAddress());
-                        return false;
-                    }
+                if (address.isAnyLocalAddress()) {
+                    log.error("Address [{}] is a local address", address.getHostAddress());
+                    return false;
+                }
 
-                    if (address.isLinkLocalAddress()) {
-                        log.error("Address [{}] is a link local address", address.getHostAddress());
-                    }
+                if (address.isLoopbackAddress()) {
+                    log.error("Address [{}] is a loopback address", address.getHostAddress());
+                    return false;
+                }
+
+                if (address.isSiteLocalAddress()) {
+                    log.error("Address [{}] is a private/site-local address", address.getHostAddress());
+                    return false;
+                }
+
+                if (address.isLinkLocalAddress()) {
+                    log.error("Address [{}] is a link local address", address.getHostAddress());
+                    return false;
                 }
             }
         } catch(UnknownHostException e) {
