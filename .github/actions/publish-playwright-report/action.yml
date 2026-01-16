@@ -24,22 +24,32 @@ runs:
         path: reports-repo
     - name: Publish report
       shell: bash
+      env:
+        REPORT_PATH: ${{ inputs.report-path }}
+        PR_NUMBER: ${{ inputs.pr-number }}
       run: |
         set -euo pipefail
-        if [ ! -d "${{ inputs.report-path }}" ]; then
-          echo "Report path not found: ${{ inputs.report-path }}"
+
+        # Validate PR_NUMBER is strictly numeric
+        if ! [[ "$PR_NUMBER" =~ ^[0-9]+$ ]]; then
+          echo "Invalid PR number: must be numeric"
           exit 1
         fi
-        dest_dir="reports-repo/pr-${{ inputs.pr-number }}"
+        if [ ! -d "$REPORT_PATH" ]; then
+          echo "Report path not found: $REPORT_PATH"
+          exit 1
+        fi
+
+        dest_dir="reports-repo/pr-$PR_NUMBER"
         rm -rf "$dest_dir"
         mkdir -p "$dest_dir"
-        rsync -a --delete "${{ inputs.report-path }}/" "$dest_dir/"
+        rsync -a --delete "$REPORT_PATH/" "$dest_dir/"
         touch reports-repo/.nojekyll
         git -C reports-repo config user.name "github-actions[bot]"
         git -C reports-repo config user.email "github-actions[bot]@users.noreply.github.com"
         if [ -n "$(git -C reports-repo status --porcelain)" ]; then
           git -C reports-repo add .
-          git -C reports-repo commit -m "Add Playwright report for PR #${{ inputs.pr-number }}"
+          git -C reports-repo commit -m "Add Playwright report for PR #$PR_NUMBER"
           git -C reports-repo push
         else
           echo "No changes to publish"

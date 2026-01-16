@@ -101,28 +101,33 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const allArtifacts = await github.paginate(github.rest.actions.listWorkflowRunArtifacts, {
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              run_id: context.payload.workflow_run.id,
-            });
-            const report = allArtifacts.find((artifact) => {
-              return artifact.name == "tests-report";
-            });
-            if (!report) {
+            try {
+              const allArtifacts = await github.paginate(github.rest.actions.listWorkflowRunArtifacts, {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                run_id: context.payload.workflow_run.id,
+              });
+              const report = allArtifacts.find((artifact) => {
+                return artifact.name == "tests-report";
+              });
+              if (!report) {
+                core.exportVariable('REPORT_ARTIFACT_FOUND', 'false');
+                console.log('No tests-report artifact found');
+                return;
+              }
+              const download = await github.rest.actions.downloadArtifact({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                artifact_id: report.id,
+                archive_format: 'zip',
+              });
+              const fs = require('fs');
+              fs.writeFileSync(`${process.env.GITHUB_WORKSPACE}/tests-report.zip`, Buffer.from(download.data));
+              core.exportVariable('REPORT_ARTIFACT_FOUND', 'true');
+            } catch (error) {
+              console.log('Error fetching or downloading tests-report artifact:', error);
               core.exportVariable('REPORT_ARTIFACT_FOUND', 'false');
-              console.log('No tests-report artifact found');
-              return;
             }
-            const download = await github.rest.actions.downloadArtifact({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              artifact_id: report.id,
-              archive_format: 'zip',
-            });
-            const fs = require('fs');
-            fs.writeFileSync(`${process.env.GITHUB_WORKSPACE}/tests-report.zip`, Buffer.from(download.data));
-            core.exportVariable('REPORT_ARTIFACT_FOUND', 'true');
       - name: Unzip tests report artifact
         if: ${{ env.REPORT_ARTIFACT_FOUND == 'true' }}
         run: unzip tests-report.zip -d tests-report
