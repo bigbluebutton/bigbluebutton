@@ -48,9 +48,10 @@ end
 MAGIC_MYSTERY_NUMBER = 2
 
 def scale_to_deskshare_video(width, height)
-  deskshare_video_height = deskshare_video_width = @presentation_props['deskshare_output_height'].to_f
+  deskshare_video_width = @presentation_props['deskshare_output_width'].to_f
+  deskshare_video_height = @presentation_props['deskshare_output_height'].to_f
 
-  return [deskshare_video_height, deskshare_video_width] if width.nil? || height.nil?
+  return [deskshare_video_width, deskshare_video_height] if width.nil? || height.nil?
 
   scale_min = [deskshare_video_width / width, deskshare_video_height / height].min
   video_width = width * scale_min
