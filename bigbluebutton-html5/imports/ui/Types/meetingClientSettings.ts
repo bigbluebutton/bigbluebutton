@@ -758,7 +758,7 @@ interface Search {
 }
 
 export interface UserList {
-  search: Search
+  searchBar: Search
 }
 
 export interface Label {

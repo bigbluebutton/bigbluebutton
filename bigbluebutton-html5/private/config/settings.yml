@@ -1074,7 +1074,7 @@ public:
       sharingWebcam: true
       bot: true
   userList:
-    search:
+    searchBar:
       enabled: true
   whiteboard:
     annotationsQueueProcessInterval: 60

@@ -835,7 +835,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       },
     },
     userList: {
-      search: {
+      searchBar: {
         enabled: true,
       },
     },

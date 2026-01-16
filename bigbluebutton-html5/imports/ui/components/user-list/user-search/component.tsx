@@ -3,7 +3,6 @@ import SearchIcon from '@mui/icons-material/Search';
 import { CircularProgress } from '@mui/material';
 import { useIntl, defineMessages } from 'react-intl';
 import Styled from './styles';
-import isSearchEnabled from './service';
 
 const intlMessages = defineMessages({
   searchUsers: {
@@ -49,8 +48,6 @@ const UserSearch: React.FC<UserSearchProps> = ({
     setInternalValue('');
     onSearchChange('');
   }, [onSearchChange]);
-
-  if (!isSearchEnabled()) return null;
 
   return (
     <Styled.SearchContainer>

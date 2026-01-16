@@ -4,7 +4,7 @@ import { UserListUiDataPayloads } from 'bigbluebutton-html-plugin-sdk/dist/cjs/u
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import { User } from '/imports/ui/Types/user';
 import { getUsersPerUserListPage, makeUserSearchWhere } from '/imports/ui/components/user-list/service';
-import UserSearch from '/imports/ui/components/user-list/user-search/component';
+import UserSearchContainer from '/imports/ui/components/user-list/user-search/container';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import Styled from './styles';
 import {
@@ -139,7 +139,7 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
   return (
     <>
       {isModerator && (
-        <UserSearch
+        <UserSearchContainer
           onSearchChange={onSearchChange}
           isQueryLoading={isQueryLoading}
         />

@@ -1,5 +1,5 @@
-export const isSearchEnabled = () => (
-  window.meetingClientSettings.public.userList.search.enabled
+export const isUserListSearchEnabled = () => (
+  window.meetingClientSettings.public.userList.searchBar.enabled
 );
 
-export default isSearchEnabled;
+export default isUserListSearchEnabled;
