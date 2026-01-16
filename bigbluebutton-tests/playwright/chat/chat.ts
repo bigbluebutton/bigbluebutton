@@ -156,7 +156,7 @@ export class Chat extends MultiUsers {
     );
 
     await this.modPage.page.fill(e.chatBox, e.uniqueCharacterMessage.repeat(maxMessageLength || 1000));
-    await this.modPage.fill(e.chatBox, '123'); // it should has no effect
+    await this.modPage.type(e.chatBox, '123'); // it should has no effect
     await this.modPage.hasElement(e.errorTypingIndicator, 'Should appear the warning message below the chat box');
     await this.modPage.waitAndClick(e.sendButton);
     await this.modPage.hasElementCount(
