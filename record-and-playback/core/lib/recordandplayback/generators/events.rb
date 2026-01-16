@@ -464,9 +464,6 @@ module BigBlueButton
     #
     # This EDL does not have recording marks pre-applied.
     #
-    # The :screenshare_as_content condition is set based on the SetScreenshareAsContentEvent in the events.xml file. If there
-    # is no such event, the condition will not be set.
-    #
     # @param events [Nokogiri::XML::Document] the events.xml file
     # @param archive_dir [String] the directory containing the raw recording data
     # @return [Array<Hash<Symbol, Object>>] the EDL for the deskshare area
