@@ -41,3 +41,5 @@ session_vars_hook:
   url: http://127.0.0.1:8901/userInfo
 prometheus_advanced_metrics_enabled: false
 log_level: INFO
+# If set, all received queries will be dumped to the specified path, e.g /tmp/queries-dump
+dump_queries_dir:
