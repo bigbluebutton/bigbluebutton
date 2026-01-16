@@ -67,16 +67,28 @@ presets:
       #
       # Each layout can specify a list of 'conditions'. The layout will only be used if all of the
       # conditions match the state of the meeting. The currently available conditions are:
+      # * presentation_is_open: This is `true` when the main content area of the meeting (which
+      #   contains the presentation, screenshare, or webcam as content) is visible, and `false`
+      #   when the content area is minimized to leave more space for cameras.
       # * presentation_used: This is `false` at the start of the meeting, and changes to `true`
       #   when a non-default presentation is shared, the slide is changed, or a whiteboard shape is
       #   drawn.
-      # * screenshare_as_content: This is `false` when screenshare should not be shown in the main
-      #   content area (i.e. the presentation or webcams should be shown instead of screenshare)
-      #   and `true` when the screenshare should be shown in the main content area.
+      # * screenshare_as_content: This is `true` when screenshare replaces the presentation in the
+      #   main content area, and false otherwise.
       #
       # The order of layouts is important - the first one that matches will be used.
       # If none of the layouts specified here match, then the layout from the 'layout' key will be
       # used instead.
+
+      # If the main content area is minimized, show cameras full-screen.
+      # Note that this will leave a blank video if no webcams are being shared (matching the blank
+      # BigBlueButton session during the live meeting)
+      - areas:
+          - { name: presentation, hidden: true }
+          - { name: webcam, x: 0, y: 0, width: 1920, height: 1080 }
+          - { name: deskshare, hidden: true }
+        conditions:
+          presentation_is_open: false
 
       # Various special cases for hiding the deskshare when screenshare_as_content is false.
       #
@@ -89,7 +101,7 @@ presets:
         conditions:
           presentation_used: false
           screenshare_as_content: false
-      # Show presentation with webcams at side when presentation area has been used
+      # Show presentation with webcams at side if presentation area has been used
       - required: [ presentation, webcam, deskshare ]
         areas:
           - { name: presentation, x: 0, y: 0, width: 1600, height: 1080 }
@@ -114,8 +126,8 @@ presets:
         conditions:
           presentation_used: false
 
-      # Have the presentation area and deskshare cover the whole area of the video if the session
-      # did not have any webcams shared
+      # Have the presentation area and deskshare cover the whole area of the video if no webcams
+      # are being shared
       - areas:
           - { name: presentation, x: 0, y: 0, width: 1920, height: 1080 }
           - { name: deskshare, x: 0, y: 0, width: 1920, height: 1080 }
@@ -173,6 +185,16 @@ presets:
         - { name: webcam, x: 960, y: 0, width: 320, height: 720 }
         - { name: deskshare, x: 0, y: 0, width: 960, height: 720 }
     layouts:
+      # If the main content area is minimized, show cameras full-screen.
+      # Note that this will leave a blank video if no webcams are being shared (matching the blank
+      # BigBlueButton session during the live meeting)
+      - areas:
+          - { name: presentation, hidden: true }
+          - { name: webcam, x: 0, y: 0, width: 1280, height: 720 }
+          - { name: deskshare, hidden: true }
+        conditions:
+          presentation_is_open: false
+
       # Various special cases for hiding the deskshare when screenshare_as_content is false.
       #
       # If there are webcams, and the presentation area has not been used, show only webcams
@@ -196,7 +218,7 @@ presets:
       - required: [ presentation, deskshare ]
         areas:
           - { name: presentation, x: 0, y: 0, width: 1280, height: 720 }
-          - { name: deskshare, hidden: false }
+          - { name: deskshare, hidden: true }
         conditions:
           screenshare_as_content: false
 
@@ -208,6 +230,14 @@ presets:
           - { name: webcam, x: 0, y: 0, width: 1280, height: 720 }
         conditions:
           presentation_used: false
+
+      # Show both deskshare and webcams
+      # Adjust the deskshare area to be slightly larger than the standard presentation area
+      - required: [ webcam, deskshare ]
+        areas:
+          - { name: presentation, hidden: true }
+          - { name: webcam, x: 1040, y: 0, width: 240, height: 720 }
+          - { name: deskshare, x: 0, y: 0, width: 1040, height: 720 }
 
       # Have the presentation area and deskshare cover the whole area of the video if the session
       # did not have any webcams

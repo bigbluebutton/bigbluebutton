@@ -126,7 +126,7 @@ if preset.include?('presentation_webcam_layout')
   layout = preset['presentation_webcam_layout']
   layout['name'] = 'presentation_webcam_layout'
   if layout['areas'].include?('presentation') && layout['areas'].include?('webcam')
-    layout['required'] = ['webcam', 'presentation']
+    layout['required'] = %w[webcam presentation]
     preset['layouts'] << layout
   end
 end
@@ -135,7 +135,7 @@ if preset.include?('deskshare_webcam_layout')
   layout = preset['deskshare_webcam_layout']
   layout['name'] = 'deskshare_webcam_layout'
   if layout['areas'].include?('deskshare') && layout['areas'].include?('webcam')
-    layout['required'] = ['webcam', 'deskshare']
+    layout['required'] = %w[webcam deskshare]
     layout['areas'] = layout['areas'].select { |name, _videos| layout['required'].include?(name) }
     preset['layouts'] << layout
   end
@@ -183,7 +183,11 @@ presentation_edl = BigBlueButton::Events.create_presentation_edl(events, raw_arc
 logger.debug 'Presentation EDL:'
 BigBlueButton::EDL::Video.dump(presentation_edl)
 
-video_edl = BigBlueButton::EDL::Video.merge(webcam_edl, deskshare_edl, presentation_edl)
+layout_edl = BigBlueButton::Events.create_layout_edl(events)
+logger.debug 'Layout EDL'
+BigBlueButton::EDL::Video.dump(layout_edl)
+
+video_edl = BigBlueButton::EDL::Video.merge(webcam_edl, deskshare_edl, presentation_edl, layout_edl)
 
 logger.debug 'Merged Video EDL:'
 BigBlueButton::EDL::Video.dump(video_edl)

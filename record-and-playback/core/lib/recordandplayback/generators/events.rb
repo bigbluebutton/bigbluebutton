@@ -468,7 +468,7 @@ module BigBlueButton
     # is no such event, the condition will not be set.
     #
     # @param events [Nokogiri::XML::Document] the events.xml file
-    # @param archive_dir [String] the directory containing the raw recording data 
+    # @param archive_dir [String] the directory containing the raw recording data
     # @return [Array<Hash<Symbol, Object>>] the EDL for the deskshare area
     def self.create_deskshare_edl(events, archive_dir)
       initial_timestamp = BigBlueButton::Events.first_event_timestamp(events)
@@ -478,11 +478,9 @@ module BigBlueButton
 
       deskshare_edl = []
 
-      screenshare_as_content = true
       deskshare_edl << {
         timestamp: 0,
         areas: { deskshare: [] },
-        conditions: { screenshare_as_content: screenshare_as_content },
       }
 
       original_durations = {}
@@ -526,19 +524,6 @@ module BigBlueButton
           new_entry[:timestamp] = timestamp
           new_entry[:areas][:deskshare].reject! { |file| file[:filename] == filename }
           deskshare_edl << new_entry
-
-        when %w[PARTICIPANT SetScreenshareAsContentEvent]
-          new_screenshare_as_content = event.at_xpath('screenshareAsContent').content == 'true'
-          next if new_screenshare_as_content == screenshare_as_content
-
-          screenshare_as_content = new_screenshare_as_content
-
-          # Screenshare as content flag has changed, so create an EDL entry with the update
-          last_entry = deskshare_edl.last
-          new_entry = offset_entry.call(last_entry, timestamp - last_entry[:timestamp])
-          new_entry[:timestamp] = timestamp
-          new_entry[:conditions][:screenshare_as_content] = screenshare_as_content
-          deskshare_edl << new_entry
         end
       end
 
@@ -564,8 +549,9 @@ module BigBlueButton
     #
     # This EDL does not have recording marks pre-applied.
     #
-    # The :presentation_used condition is set to false initially, and is changed to true when the slide is changed,
-    # a non-default presentation is shared, or a shape is added to the whiteboard.
+    # The :presentation_used condition describes whether the presentation area should be visible in
+    # the recording. It is kept `false` until a new presentation is shared, the slide is changed,
+    # or a mark is drawn on the whiteboard. Afterwards, the value will be `true`.
     #
     # @param events [Nokogiri::XML::Document] the events.xml file
     # @param archive_dir [String] the directory containing the raw recording data (events.xml file)
@@ -587,11 +573,12 @@ module BigBlueButton
         },
       }
 
-      pres_events = events.xpath('/recording/event[@module="PRESENTATION" or @module="WHITEBOARD"]')
+      pres_events = events.xpath('/recording/event')
       seen_share_presentation = false
 
       pres_events.each do |event|
         timestamp = event['timestamp'].to_i - initial_timestamp
+
         case event['eventname']
         # The following events are considered to indicate that the presentation
         # area was actively used during the session.
@@ -599,9 +586,9 @@ module BigBlueButton
             'ClearPageEvent', 'AddTldrawShapeEvent', 'DeleteTldrawShapeEvent'
           BigBlueButton.logger.debug("Seen a #{event['eventname']} event, presentation area used.")
           presentation_used = true
-        # We ignore the first SharePresentationEvent, since it's the default
-        # presentation
         when 'SharePresentationEvent'
+          # We ignore the first SharePresentationEvent, since it's the default
+          # presentation
           if seen_share_presentation
             BigBlueButton.logger.debug('Have a non-default SharePresentation')
             presentation_used = true
@@ -609,17 +596,21 @@ module BigBlueButton
             BigBlueButton.logger.debug('Skipping default SharePresentation')
             seen_share_presentation = true
           end
-        # We ignore the 'GotoSlideEvent' for page 0 (first page)
         when 'GotoSlideEvent'
           slide = event.at_xpath('./slide').content.to_i
-          if slide != 0
+          # We ignore the 'GotoSlideEvent' for page 0 (first page)
+          if slide == 0
+            BigBlueButton.logger.debug('Ignoring GotoSlide with default slide #')
+          else
             BigBlueButton.logger.debug("Switched to slide #{slide}")
             presentation_used = true
           end
-          BigBlueButton.logger.debug('Ignoring GotoSlide with default slide #')
+        else
+          next
         end
 
-        next unless presentation_used
+        # Don't create a new entry if the condition has not changed
+        next if presentation_used == presentation_edl.dig(-1, :conditions, :presentation_used)
 
         presentation_edl << {
           timestamp: timestamp,
@@ -637,6 +628,81 @@ module BigBlueButton
       }
 
       presentation_edl
+    end
+
+    # Create a video EDL for layout events
+    #
+    # This EDL does not have recording marks pre-applied.
+    #
+    # This EDL does not actually define any video areas. It only provides conditions, which reflect
+    # layout changes pushed by the presenter in the meeting.
+    #
+    # The :presentation_is_open condition describes whether the "main content area" (which
+    # typically contains the presentation area, screensharing, or webcam as content) is currently
+    # visible. If it is not visible, the webcam grid is expected to fill the entire recording area.
+    # The :screenshare_as_content conditions describes whether the screenshare replaces the
+    # presentation in the main content area.
+    #
+    # @param events [Nokogiri::XML::Document] the events.xml file
+    # @return [Array<Hash<Symbol, Object>>] the EDL containing layout conditions
+    def self.create_layout_edl(events)
+      initial_timestamp = BigBlueButton::Events.first_event_timestamp(events)
+      final_timestamp = BigBlueButton::Events.last_event_timestamp(events)
+
+      # Assume the presentation is open by default for compatibility
+      presentation_is_open = true
+      # Assume screenshare as content (screenshare replaces presentation) is true by default for
+      # compatibility
+      screenshare_as_content = true
+      # Initialize the EDL with the default state
+      layout_edl = [
+        {
+          timestamp: 0,
+          areas: {},
+          conditions: {
+            presentation_is_open: presentation_is_open,
+            screenshare_as_content: screenshare_as_content,
+          },
+        },
+      ]
+
+      events.xpath('/recording/event').each do |event|
+        timestamp = event['timestamp'].to_i - initial_timestamp
+
+        case [event['module'], event['eventname']]
+        when %w[PARTICIPANT LayoutBroadcastedEvent]
+          pio_el = event.at_xpath('presentationIsOpen')
+          presentation_is_open = pio_el.content.casecmp?('true') if pio_el
+
+        when %w[PARTICIPANT SetScreenshareAsContentEvent]
+          sac_el = event.at_xpath('screenshareAsContent')
+          screenshare_as_content = sac_el.content.casecmp?('true') if sac_el
+
+        else
+          next
+        end
+
+        # Don't create a new entry if none of the conditions have changed
+        next if layout_edl.dig(-1, :conditions, :presentation_is_open) == presentation_is_open &&
+                layout_edl.dig(-1, :conditions, :screenshare_as_content) == screenshare_as_content
+
+        layout_edl << {
+          timestamp: timestamp,
+          areas: {},
+          conditions: {
+            presentation_is_open: presentation_is_open,
+            screenshare_as_content: screenshare_as_content,
+          },
+        }
+      end
+
+      # Add a terminating event at the meeting end
+      layout_edl << {
+        timestamp: final_timestamp - initial_timestamp,
+        areas: {},
+      }
+
+      layout_edl
     end
 
     def self.edl_entry_offset_audio
