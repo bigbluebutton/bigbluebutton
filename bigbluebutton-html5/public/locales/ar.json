@@ -1190,7 +1190,7 @@
     "app.lock-viewers.button.cancel": "إلغاء",
     "app.lock-viewers.locked": "مقفل",
     "app.lock-viewers.hideViewersCursor": "رؤية مؤشرات المشاركين الآخرين على السبورة البيضاء.",
-    "app.lock-viewers.hideAnnotationsLabel": "الاطلاع على الملاحظات المشتركة للمشاركين الآخرين.",
+    "app.lock-viewers.hideAnnotationsLabel": "رؤية تعليقات المشاركين الآخرين على السبورة البيضاء.",
     "app.guest-policy.ariaTitle": "نهج إعدادات سياسة الضيف",
     "app.guest-policy.title": "سياسة الضيف",
     "app.guest-policy.description": "تغيير إعداد سياسة الضيف في الاجتماع",
