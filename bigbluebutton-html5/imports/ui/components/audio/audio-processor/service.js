@@ -11,7 +11,8 @@ const loadedFiles = {
 };
 
 // known constants
-const KPARAMETER_VAD_METER = 18;
+const PARAMETER_VAD_METER = 20;
+const PARAMETER_INTENSITY = 21;
 
 // global audio processor so we can communicate with it
 let audioProcessor = null;
@@ -49,7 +50,7 @@ const createWasmProcessorStream = (stream) => {
         audioProcessor = new AudioWorkletNode(audioContext, 'mapi-proc', audioProcessorOptions);
         audioProcessor.port.onmessage = (event) => {
           if (event.data?.type === 'loaded') {
-            audioProcessor.port.postMessage({ type: 'monitor', index: KPARAMETER_VAD_METER });
+            audioProcessor.port.postMessage({ type: 'monitor', index: PARAMETER_VAD_METER });
             resolve(contextDestination.stream);
           } else if (event.data?.type === 'error') {
             reject(event.data.error);
