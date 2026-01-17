@@ -186,7 +186,7 @@ const doGUM = async (constraints, retryOnFailure = false) => {
 
       if (deviceId) {
         // eslint-disable-next-line no-param-reassign
-        constraints.audio.deviceId = deviceId;
+        constraints.audio.deviceId = { ideal: deviceId };
       }
     }
   }
