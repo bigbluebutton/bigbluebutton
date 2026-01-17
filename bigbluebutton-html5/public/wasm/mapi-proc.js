@@ -1,4 +1,4 @@
-// Copyright 2025 Filipe Coelho <falktx@falktx.com>
+// Copyright 2025-2026 Filipe Coelho <falktx@falktx.com>
 // SPDX-License-Identifier: ISC
 
 // known constants
@@ -10,13 +10,6 @@ const createWasmOpts = (wasmBlob, postRunCallback, errorCallback) => {
         // override to use previously retrieved blob data, as `fetch` is not allowed in worklets
         instantiateWasm: (imports, successCallback) => {
             WebAssembly.instantiate(wasmBlob, imports).then(output => {
-                // Taken from emscripten example:
-                // When overriding instantiateWasm, in asan builds, we also need
-                // to take care of creating the WasmOffsetConverter
-                if (typeof WasmOffsetConverter != "undefined") {
-                    const wasmOffsetConverter = new WasmOffsetConverter(wasmBlob, output.module);
-                }
-
                 successCallback(output.instance, output.module);
             }).catch(error => {
                 errorCallback(error);
@@ -31,7 +24,7 @@ const createWasmOpts = (wasmBlob, postRunCallback, errorCallback) => {
 // class that holds a mono audio plugin instance
 // see https://github.com/DISTRHO/MAPI for the API used here
 class MapiProcessorInstance {
-    constructor(portm, module) {
+    constructor(port, module) {
         this.port = port;
         this.module = module;
         this.handle = module._mapi_create(sampleRate);
@@ -69,8 +62,7 @@ class MapiProcessorInstance {
             const value = this.module._mapi_get_parameter(this.handle, this.monitor_param);
             if (this.monitor_value != value) {
                 this.monitor_value = value;
-                // TODO report value changed, can't be done from within process?
-                // this.port.postMessage({ type: 'monitor', value: value });
+                this.port.postMessage({ type: 'monitor', value: value });
             }
         }
     }
