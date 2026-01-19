@@ -644,7 +644,7 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
                       type="number"
                       readOnly={running}
                       disabled={running}
-                      value={String(localHours).padStart(2, '0')}
+                      value={String(running ? hours : localHours).padStart(2, '0')}
                       max={MAX_HOURS}
                       min="0"
                       step="1"
@@ -691,7 +691,7 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
                       type="number"
                       readOnly={running}
                       disabled={running}
-                      value={String(localMinutes).padStart(2, '0')}
+                      value={String(running ? minutes : localMinutes).padStart(2, '0')}
                       max="59"
                       min="0"
                       step="1"
@@ -738,7 +738,7 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
                       type="number"
                       readOnly={running}
                       disabled={running}
-                      value={String(localSeconds).padStart(2, '0')}
+                      value={String(running ? seconds : localSeconds).padStart(2, '0')}
                       max="59"
                       min="0"
                       step="1"
@@ -842,7 +842,7 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
 
 const TimerPanelContaier: React.FC = () => {
   const [timerActivate] = useMutation(TIMER_ACTIVATE);
-  const { data: timerData } = useTimer();
+  const { data: timerData } = useTimer(true);
   const { data: currentUser } = useCurrentUser();
 
   const amIModerator = !!currentUser?.isModerator;
