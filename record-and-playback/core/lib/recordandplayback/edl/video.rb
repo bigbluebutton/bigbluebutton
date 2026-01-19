@@ -20,6 +20,7 @@
 require 'json'
 require 'set'
 require 'shellwords'
+require_relative './media_utils'
 
 module BigBlueButton
   module EDL
@@ -36,6 +37,8 @@ module BigBlueButton
         '-force_key_frames', 'expr:gte(t,n_forced*10)', '-pix_fmt', 'yuv420p',
       ]
       WF_EXT = 'mp4'
+      # Max PTS gap in ms to trigger video resampling
+      MAX_GAP_FOR_RESAMPLE_MS = 60_000 # 1 minute
 
       def self.dump(edl)
         BigBlueButton.logger.debug "EDL Dump:"
@@ -312,6 +315,55 @@ module BigBlueButton
           end
         end
 
+        # Identify and resample videos with large PTS gaps
+        videos_to_resample_due_to_gaps = {}
+        videoinfo.keys.each do |videofile|
+          next if corrupt_videos.include?(videofile) # Skip already corrupt videos
+
+          # Ensure videofile is not already a resampled one from a previous remux step if names overlap
+          next if videofile.include?("_resampled.") || videofile.include?(".nut")
+
+          gap_details = BigBlueButton::EDL::MediaUtils.has_large_pts_gaps?(videofile, MAX_GAP_FOR_RESAMPLE_MS, 'v')
+          if gap_details
+            BigBlueButton.logger.info "Video '#{File.basename(videofile)}' identified with large PTS gap between #{gap_details[0].round(3)}s and #{gap_details[1].round(3)}s. Marking for segmented resampling."
+            videos_to_resample_due_to_gaps[videofile] = gap_details
+          end
+        end
+
+        if videos_to_resample_due_to_gaps.any?
+          BigBlueButton.logger.info "Resampling #{videos_to_resample_due_to_gaps.length} video(s) with large PTS gaps (segmented approach)."
+          resampled_videos_dir = File.join(File.dirname(output_basename), "resampled_videos_segmented")
+          FileUtils.mkdir_p(resampled_videos_dir)
+          
+          filename_update_map_gaps = resample_video_files(videos_to_resample_due_to_gaps, resampled_videos_dir, videoinfo)
+
+          if filename_update_map_gaps.any?
+            BigBlueButton.logger.info "Updating EDL and video information for segment-resampled videos."
+            edl.each do |entry|
+              entry[:areas].each_value do |videos_in_area|
+                videos_in_area.each do |video_data|
+                  if filename_update_map_gaps.key?(video_data[:filename])
+                    video_data[:filename] = filename_update_map_gaps[video_data[:filename]]
+                  end
+                end
+              end
+            end
+
+            filename_update_map_gaps.each do |original_filename, new_filename|
+              info = video_info(new_filename)
+              if !info[:video] || info[:duration] == 0
+                BigBlueButton.logger.error "Resampled video file #{new_filename} is corrupt or invalid. Original: #{original_filename}. This may cause issues."
+                corrupt_videos << new_filename # Mark the new file as corrupt
+                videoinfo.delete(original_filename) if videoinfo.key?(original_filename)
+              else
+                BigBlueButton.logger.debug "Successfully resampled and got info for #{new_filename}. Duration: #{info[:duration]}"
+                videoinfo[new_filename] = info
+                videoinfo.delete(original_filename) if videoinfo.key?(original_filename)
+              end
+            end
+          end
+        end
+
         if corrupt_videos.length > 0
           BigBlueButton.logger.info "Removing corrupt video files from EDL"
           edl.each do |event|
@@ -393,6 +445,208 @@ module BigBlueButton
       end
 
       # The methods below are for private use
+
+      # Determines segments for processing based on PTS gaps and keyframes.
+      # Returns an array of hashes: [{start_pts: float, end_pts: float, action: :copy | :recode}, ...]
+      def self.get_all_processing_segments(filename, max_gap_ms, video_total_duration_s, video_info_entry)
+        times_data = get_packet_and_keyframe_times(filename)
+        return [{ start_pts: 0.0, end_pts: video_total_duration_s, action: :copy }] if times_data.nil? # Fallback to full copy if data unavailable
+
+        all_pts_times = times_data[:pts_times]
+        keyframe_pts = times_data[:keyframe_pts_times]
+
+        if all_pts_times.empty?
+          BigBlueButton.logger.warn "No PTS times found for '#{File.basename(filename)}'. Assuming no gaps and full copy."
+          return [{ start_pts: 0.0, end_pts: video_total_duration_s, action: :copy }]
+        end
+
+        # Add 0.0 and duration to keyframes if not present, to simplify segment boundary logic
+        keyframe_pts.unshift(0.0) unless keyframe_pts.include?(0.0) || keyframe_pts.any? { |kf| kf < 0.01 } # Add 0 if no early keyframe
+        keyframe_pts.push(video_total_duration_s) unless keyframe_pts.include?(video_total_duration_s) || keyframe_pts.any? { |kf| (kf - video_total_duration_s).abs < 0.01 }
+        keyframe_pts.sort!.uniq!
+
+        max_gap_seconds = max_gap_ms / 1000.0
+        recode_intervals = []
+
+        BigBlueButton.logger.debug "Analyzing PTS gaps for '#{File.basename(filename)}' (max_gap: #{max_gap_seconds.round(3)}s)"
+        previous_pts = nil
+        all_pts_times.each do |current_pts|
+          if previous_pts
+            gap = current_pts - previous_pts
+            if gap > max_gap_seconds
+              BigBlueButton.logger.info "Large PTS gap (#{gap.round(3)}s) found in '#{File.basename(filename)}' between #{previous_pts.round(3)}s and #{current_pts.round(3)}s."
+              
+              # Find keyframe at or before previous_pts (gap_start)
+              kf_before_gap = keyframe_pts.select { |kf| kf <= previous_pts + 0.001 }.max || 0.0 
+              # Find keyframe at or after current_pts (gap_end)
+              kf_after_gap = keyframe_pts.select { |kf| kf >= current_pts - 0.001 }.min || video_total_duration_s
+
+              # Ensure kf_after_gap is greater than kf_before_gap for a valid interval
+              if kf_after_gap > kf_before_gap + 0.01 # Min duration for re-encode segment
+                recode_intervals << { start: kf_before_gap, end: kf_after_gap }
+                BigBlueButton.logger.info "  Gap will be handled by re-encoding segment from keyframe #{kf_before_gap.round(3)}s to keyframe #{kf_after_gap.round(3)}s."
+              else
+                BigBlueButton.logger.warn "  Could not define a valid keyframe interval for gap at #{previous_pts.round(3)}s; kf_before=#{kf_before_gap.round(3)}, kf_after=#{kf_after_gap.round(3)}. Gap might persist."
+              end
+            end
+          end
+          previous_pts = current_pts
+        end
+
+        # Merge overlapping/adjacent recode_intervals
+        recode_intervals.sort_by! { |r| r[:start] }
+        merged_recode_intervals = []
+        recode_intervals.each do |current_interval|
+          if merged_recode_intervals.empty? || current_interval[:start] >= merged_recode_intervals.last[:end] - 0.001 # Allow tiny overlaps due to float precision
+            merged_recode_intervals << current_interval
+          else
+            merged_recode_intervals.last[:end] = [merged_recode_intervals.last[:end], current_interval[:end]].max
+          end
+        end
+        
+        segments = []
+        last_processed_pts = 0.0
+        merged_recode_intervals.each do |interval|
+          if interval[:start] > last_processed_pts + 0.01 # Min duration for copy segment
+            segments << { start_pts: last_processed_pts, end_pts: interval[:start], action: :copy }
+          end
+          segments << { start_pts: interval[:start], end_pts: interval[:end], action: :recode }
+          last_processed_pts = interval[:end]
+        end
+
+        if last_processed_pts < video_total_duration_s - 0.01 # Min duration for final copy segment
+          segments << { start_pts: last_processed_pts, end_pts: video_total_duration_s, action: :copy }
+        end
+        
+        if segments.empty? && video_total_duration_s > 0.01
+           BigBlueButton.logger.info "No recode intervals for '#{File.basename(filename)}', creating a single copy segment."
+           segments << { start_pts: 0.0, end_pts: video_total_duration_s, action: :copy }
+        elsif segments.empty? && video_total_duration_s <= 0.01
+           BigBlueButton.logger.warn "Video '#{File.basename(filename)}' has zero or negligible duration. No segments generated."
+        end
+
+        BigBlueButton.logger.debug "Processing segments for '#{File.basename(filename)}': #{segments.inspect}"
+        segments
+      end
+
+      # Resamples video files by identifying all large PTS gaps, cutting at surrounding keyframes,
+      # re-encoding gappy segments (by replacing with blank video), and stream-copying stable segments.
+      # Outputs an MKV file.
+      def self.resample_video_files(files_and_gap_info_map, target_directory, videoinfo_h)
+        filename_update_map = {}
+        intermediate_format = 'webm' # Intermediate parts can remain webm
+
+        files_and_gap_info_map.each do |original_filename, _first_gap_info_ignored| # First gap info is ignored, we find all gaps
+          original_basename = File.basename(original_filename, '.*')
+          parts_dir = File.join(target_directory, "#{original_basename}_parts")
+          FileUtils.mkdir_p(parts_dir)
+
+          original_video_codec_info = videoinfo_h[original_filename]&.dig(:video, :codec_name)
+          unless original_video_codec_info
+            BigBlueButton.logger.error "Could not determine original video codec for #{original_filename}. Skipping segmented resampling."
+            FileUtils.remove_entry_secure(parts_dir) if Dir.exist?(parts_dir)
+            next
+          end
+          original_total_duration_s = videoinfo_h[original_filename][:duration] / 1000.0
+
+          output_ext = 'webm' # Reverted from 'mkv' back to 'webm'
+          final_resampled_filename = File.join(target_directory, "#{original_basename}_segmented_resampled.#{output_ext}")
+          
+          BigBlueButton.logger.info "Segmented resampling for '#{original_filename}' (codec: #{original_video_codec_info}, duration: #{original_total_duration_s.round(3)}s). Output: '#{final_resampled_filename}'"
+
+          processing_segments = get_all_processing_segments(original_filename, MAX_GAP_FOR_RESAMPLE_MS, original_total_duration_s, videoinfo_h[original_filename])
+
+          if processing_segments.empty?
+            BigBlueButton.logger.warn "No processing segments generated for '#{original_filename}'. Skipping segmented resampling for this file."
+            FileUtils.remove_entry_secure(parts_dir) if Dir.exist?(parts_dir)
+            next
+          end
+          
+          # If only one copy segment covering the whole video, it's like a remux.
+          # This can happen if no significant gaps are found or keyframes don't allow isolation.
+          if processing_segments.length == 1 && processing_segments.first[:action] == :copy && processing_segments.first[:start_pts] < 0.01 && (processing_segments.first[:end_pts] - original_total_duration_s).abs < 0.01
+             BigBlueButton.logger.info "No gaps requiring re-encoding found for '#{original_filename}' based on keyframes. Will perform a simple copy/remux."
+             # This will be handled by the loop below creating one copy part.
+          end
+
+          parts_to_concat = []
+          overall_success = true
+
+          processing_segments.each_with_index do |segment, index|
+            part_start_pts = segment[:start_pts]
+            part_end_pts = segment[:end_pts]
+            action = segment[:action]
+            part_duration = part_end_pts - part_start_pts
+
+            if part_duration <= 0.01 # Skip negligible/zero duration segments
+              BigBlueButton.logger.debug "Skipping segment ##{index+1} for '#{original_filename}' due to zero/negligible duration (#{part_duration.round(3)}s)."
+              next
+            end
+
+            part_path = File.join(parts_dir, "#{original_basename}_part#{index + 1}.#{intermediate_format}")
+            
+            if action == :recode
+              # Generate a blank video segment for the duration of the gap.
+              original_info = videoinfo_h[original_filename]
+              width = original_info[:width]
+              height = original_info[:height]
+              framerate = 25 
+
+              color_source_spec = "color=c=#{self.background_color}:s=#{width}x#{height}:r=#{framerate}"
+
+              cmd_part = [*FFMPEG, '-y', '-f', 'lavfi', '-i', color_source_spec, '-t', part_duration.to_s]
+              cmd_part += ['-an'] # No audio for the blank video segment
+              # Using typical VP8 parameters.
+              cmd_part += ['-c:v', 'libvpx', '-crf', '30', '-b:v', '1M'] 
+              BigBlueButton.logger.info "Creating Part ##{index + 1} (BLANK VIDEO from #{part_start_pts.round(3)}s to #{part_end_pts.round(3)}s, duration #{part_duration.round(3)}s) for '#{original_filename}'"
+            else # :copy
+              # Use -t with part_duration for copied segments.
+              # Add -avoid_negative_ts make_zero for robust timestamp handling.
+              cmd_part = [*FFMPEG, '-y', '-ss', part_start_pts.to_s, '-i', original_filename, '-t', part_duration.to_s]
+              cmd_part += ['-c', 'copy', '-avoid_negative_ts', 'make_zero', '-reset_timestamps', '1']
+              BigBlueButton.logger.info "Creating Part ##{index + 1} (COPY from #{part_start_pts.round(3)}s, duration #{part_duration.round(3)}s) for '#{original_filename}'"
+            end
+            cmd_part << part_path
+
+            exit_status_part = BigBlueButton.exec_ret(*cmd_part)
+
+            if exit_status_part == 0 && File.exist?(part_path) && File.size(part_path) > 0
+              parts_to_concat << part_path
+            else
+              BigBlueButton.logger.error "Failed to create or empty Part ##{index + 1} (#{action}) for '#{original_filename}'. Segmented resampling failed for this file."
+              overall_success = false
+              break # Stop processing further parts for this file
+            end
+          end
+
+          if overall_success && parts_to_concat.any?
+            concat_list_path = File.join(parts_dir, "concat_list.txt")
+            File.open(concat_list_path, 'w') do |f|
+              parts_to_concat.each { |part_file| f.puts "file '#{File.absolute_path(part_file)}'" }
+            end
+
+            cmd_concat = [*FFMPEG, '-y', '-f', 'concat', '-safe', '0', '-i', concat_list_path,
+                          '-c', 'copy', '-an',
+                          final_resampled_filename]
+            BigBlueButton.logger.debug "Concatenating #{parts_to_concat.length} parts for '#{original_filename}'"
+            exit_status_concat = BigBlueButton.exec_ret(*cmd_concat)
+
+            if exit_status_concat == 0 && File.exist?(final_resampled_filename)
+              BigBlueButton.logger.info "Successfully segment-resampled '#{original_filename}' to '#{final_resampled_filename}'"
+              filename_update_map[original_filename] = final_resampled_filename
+            else
+              BigBlueButton.logger.error "Concatenation failed for '#{original_filename}'. Segmented resampling failed. Check ffmpeg logs."
+            end
+          elsif overall_success && parts_to_concat.empty?
+            BigBlueButton.logger.warn "No valid parts to concatenate for '#{original_filename}' after attempting segmented resampling (e.g., source too short or all parts failed/skipped)."
+          elsif !overall_success
+            BigBlueButton.logger.error "Segmented resampling process failed for '#{original_filename}' during part creation."
+          end
+          
+          FileUtils.remove_entry_secure(parts_dir) if Dir.exist?(parts_dir)
+        end
+        filename_update_map
+      end
 
       def self.video_info(filename)
         IO.popen([*FFPROBE, '-select_streams', 'v:0', '-count_frames', '-read_intervals', '%+#10', filename]) do |probe|
@@ -672,7 +926,10 @@ module BigBlueButton
             # Set up filters and inputs for video pre-processing ffmpeg command
             ffmpeg_preprocess_command = [
               *FFMPEG,
+              # Add -fflags +discardcorrupt to try and discard corrupted packets.
               # Ensure input isn't misdetected as cfr, and frames prior to seek point run through filters.
+              # Add -err_detect ignore_err to try and power through decoding errors, especially for VP8.
+              #'-fflags', '+discardcorrupt', '-err_detect', 'ignore_err', '-vsync', 'vfr', '-noaccurate_seek',
               '-vsync', 'vfr', '-noaccurate_seek',
               '-ss', ms_to_s(seek).to_s, '-itsoffset', ms_to_s(seek).to_s, '-i', video[:filename],
               '-filter_complex', ffmpeg_preprocess_filter, '-map', '[out]',
@@ -848,6 +1105,43 @@ module BigBlueButton
         end
 
         raise
+      end
+
+      # Helper method to get all packet PTS times and keyframe PTS times from a video file.
+      # Returns a hash {pts_times: [float], keyframe_pts_times: [float]} or nil on error.
+      def self.get_packet_and_keyframe_times(filename)
+        ffprobe_cmd = [
+          *FFPROBE, '-v', 'error', '-select_streams', 'v:0',
+          '-show_entries', 'packet=pts_time,flags', '-of', 'json', filename
+        ]
+        BigBlueButton.logger.debug "Getting packet and keyframe times for '#{File.basename(filename)}': #{Shellwords.join(ffprobe_cmd)}"
+        begin
+          output = IO.popen(ffprobe_cmd) { |io| io.read }
+          data = JSON.parse(output, symbolize_names: true)
+          
+          pts_times = []
+          keyframe_pts_times = []
+
+          if data[:packets] && data[:packets].is_a?(Array)
+            data[:packets].each do |packet|
+              next unless packet[:pts_time] # Skip packets without pts_time
+              pts_time = packet[:pts_time].to_f
+              pts_times << pts_time
+              keyframe_pts_times << pts_time if packet[:flags]&.include?('K')
+            end
+          end
+          
+          # Ensure keyframe_pts_times are sorted and unique, as ffprobe might list them out of order or duplicate if packets are reordered.
+          # pts_times from ffprobe json output for packets should already be in presentation order.
+          # However, defensive sorting for keyframes is good.
+          { pts_times: pts_times.sort.uniq, keyframe_pts_times: keyframe_pts_times.sort.uniq }
+        rescue JSON::ParserError => e
+          BigBlueButton.logger.error "Failed to parse ffprobe JSON output for packet/keyframe times from '#{File.basename(filename)}': #{e.message}"
+          nil
+        rescue StandardError => e
+          BigBlueButton.logger.error "Error getting packet/keyframe times from '#{File.basename(filename)}': #{e.message}"
+          nil
+        end
       end
     end
   end
