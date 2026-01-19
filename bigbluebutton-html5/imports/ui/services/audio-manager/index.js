@@ -128,6 +128,7 @@ class AudioManager {
     this.callStateCallback = this.callStateCallback.bind(this);
     this.onBeforeUnload = this.onBeforeUnload.bind(this);
     this.handleMediaStreamInactive = this.handleMediaStreamInactive.bind(this);
+    this.onAudioJoining = this.onAudioJoining.bind(this);
 
     window.addEventListener('StopAudioTracks', () => this.forceExitAudio());
     window.addEventListener('beforeunload', this.onBeforeUnload);
@@ -509,8 +510,7 @@ class AudioManager {
     this.isListenOnly = false;
     this.isEchoTest = false;
 
-    return this.onAudioJoining
-      .bind(this)()
+    return this.onAudioJoining({ muted })
       .then(() => {
         const callOptions = {
           isListenOnly: false,
@@ -532,8 +532,7 @@ class AudioManager {
     const EXPERIMENTAL_USE_KMS_TRICKLE_ICE_FOR_MICROPHONE =
     window.meetingClientSettings.public.app.experimentalUseKmsTrickleIceForMicrophone;
 
-    return this.onAudioJoining
-      .bind(this)()
+    return this.onAudioJoining({ muted })
       .then(async () => {
         let validIceCandidates = [];
         if (EXPERIMENTAL_USE_KMS_TRICKLE_ICE_FOR_MICROPHONE) {
@@ -668,7 +667,7 @@ class AudioManager {
       this.inputDeviceId = 'listen-only';
     }
 
-    return this.onAudioJoining.bind(this)()
+    return this.onAudioJoining()
       .then(() => {
         const callOptions = {
           isListenOnly: true,
@@ -679,9 +678,9 @@ class AudioManager {
       });
   }
 
-  onAudioJoining() {
+  onAudioJoining({ muted }) {
     this.isConnecting = true;
-    this.isMuted = true;
+    this.isMuted = (typeof muted === 'boolean') ? muted : true;
     this.error = false;
     // Ensure the local mute state (this.isMuted) is aligned with the initial
     // placeholder value before joining audio.
@@ -800,6 +799,8 @@ class AudioManager {
           outputDeviceId: this.outputDeviceId,
         },
       }, `Failed to enforce input/output devices: ${error.message}`);
+    } finally {
+      this.setSenderTrackEnabled(!this.isMuted);
     }
 
     if (!this.isEchoTest) {
