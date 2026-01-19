@@ -281,7 +281,11 @@ class ApiController {
 
     boolean redirectClient = REDIRECT_RESPONSE
     if(!(validationResponse == null)) {
-      invalid(validationResponse.getKey(), validationResponse.getValue(), redirectClient, errorRedirectUrl);
+      if (validationResponse.getKey() == "checksumError") {
+        invalid(validationResponse.getKey(), validationResponse.getValue(), redirectClient);
+      } else {
+        invalid(validationResponse.getKey(), validationResponse.getValue(), redirectClient, errorRedirectUrl);
+      }
       return
     }
 
@@ -2096,6 +2100,10 @@ class ApiController {
     if(!violations.isEmpty()) {
       for (Map.Entry<String, String> violation: violations.entrySet()) {
         log.error violation.getValue()
+      }
+
+      if (violations.containsKey("checksumError")) {
+        response = new AbstractMap.SimpleEntry<String, String>("checksumError", violations.get("checksumError"))
       }
 
       if(response == null) {
