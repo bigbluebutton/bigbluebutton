@@ -97,6 +97,7 @@ User,
 | 'isModerator'
 | 'raiseHand'
 | 'whiteboardWriteAccess'
+| 'locked'
 > & {
   raiseHandTime?: string;
 };
@@ -122,5 +123,6 @@ subscription RaisedHandUsers {
     raiseHand
     raiseHandTime
     whiteboardWriteAccess
+    locked
   }
 }`;
