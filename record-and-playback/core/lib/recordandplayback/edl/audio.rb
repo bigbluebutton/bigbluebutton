@@ -17,6 +17,8 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with BigBlueButton.  If not, see <http://www.gnu.org/licenses/>.
 
+require_relative './media_utils'
+
 module BigBlueButton
   module EDL
     module Audio
@@ -25,6 +27,7 @@ module BigBlueButton
       FFMPEG_WF_CODEC = 'libvorbis'
       FFMPEG_WF_ARGS = ['-c:a', FFMPEG_WF_CODEC, '-q:a', '2', '-f', 'ogg']
       WF_EXT = 'ogg'
+      MAX_AUDIO_GAP_FOR_RESAMPLE_MS = 60_000 # 1 minute
 
       def self.dump(edl)
         BigBlueButton.logger.debug "EDL Dump:"
@@ -115,37 +118,56 @@ module BigBlueButton
 
         # Get a list of unique audio files that are still valid after corruption check
         # These are the files that need to be resampled.
-        valid_original_filenames = audioinfo.keys.dup 
+        valid_original_filenames = audioinfo.keys.dup
         if valid_original_filenames.any?
-          BigBlueButton.logger.info "Resampling audio files with aresample=async=1000"
-          filename_update_map = resample_audio_files(valid_original_filenames, output_basename)
+          BigBlueButton.logger.info "Checking audio files for large PTS gaps."
+          audio_files_to_resample = []
+          valid_original_filenames.each do |audio_filename|
+            gap_details = BigBlueButton::EDL::MediaUtils.has_large_pts_gaps?(audio_filename, MAX_AUDIO_GAP_FOR_RESAMPLE_MS, 'a')
+            if gap_details
+              BigBlueButton.logger.info "Audio file '#{File.basename(audio_filename)}' identified with large PTS gap between #{gap_details[0].round(3)}s and #{gap_details[1].round(3)}s. Marking for resampling."
+              audio_files_to_resample << audio_filename
+            else
+              BigBlueButton.logger.debug "No large PTS gaps found in '#{File.basename(audio_filename)}'."
+            end
+          end
 
-          # Update EDL to point to new .ogg files
-          if filename_update_map.any?
-            BigBlueButton.logger.info "Updating EDL with resampled audio filenames"
-            edl.each do |entry|
-              if entry[:audios]
-                entry[:audios].each do |a|
-                  if filename_update_map.key?(a[:filename])
-                    a[:filename] = filename_update_map[a[:filename]]
+          if audio_files_to_resample.any?
+            BigBlueButton.logger.info "Resampling #{audio_files_to_resample.length} audio file(s) with aresample=async=1000 due to large PTS gaps."
+            filename_update_map = resample_audio_files(audio_files_to_resample, output_basename)
+
+            # Update EDL to point to new .ogg files
+            if filename_update_map.any?
+              BigBlueButton.logger.info "Updating EDL with resampled audio filenames"
+              edl.each do |entry|
+                if entry[:audios]
+                  entry[:audios].each do |a|
+                    if filename_update_map.key?(a[:filename])
+                      a[:filename] = filename_update_map[a[:filename]]
+                    end
                   end
                 end
               end
+              dump(edl)
             end
-            dump(edl)
-          end
           
-          # Update audioinfo with the new resampled files
-          BigBlueButton.logger.info "Updating audio information for resampled files"
-          #new_audioinfo = {}
-          filename_update_map.each_value do |new_filename|
-            info = audio_info(new_filename)
-            if !info[:audio] || !info[:duration]
-              BigBlueButton.logger.warn "Resampled audio file #{new_filename} is corrupt or invalid. This should not happen."
-              raise "Resampled audio file #{new_filename} is corrupt or invalid after resampling."
-            else
-              audioinfo[new_filename] = info
+            # Update audioinfo with the new resampled files
+            BigBlueButton.logger.info "Updating audio information for resampled files"
+            filename_update_map.each_value do |new_filename|
+              # Remove original file info if it was resampled, to avoid using stale data
+              original_file_key = filename_update_map.key(new_filename)
+              audioinfo.delete(original_file_key) if original_file_key
+              
+              info = audio_info(new_filename)
+              if !info[:audio] || !info[:duration]
+                BigBlueButton.logger.warn "Resampled audio file #{new_filename} is corrupt or invalid. This should not happen."
+                raise "Resampled audio file #{new_filename} is corrupt or invalid after resampling."
+              else
+                audioinfo[new_filename] = info
+              end
             end
+          else
+            BigBlueButton.logger.info "No audio files required resampling based on PTS gap analysis."
           end
         end
 
@@ -281,9 +303,9 @@ module BigBlueButton
 
       # Resamples a list of audio files to OGG Vorbis into the output_basename directory.
       # Returns a map of { original_filename => new_resampled_filename }.
-      def self.resample_audio_files(original_filenames, output_dir_basename)
+      def self.resample_audio_files(original_filenames_to_resample, output_dir_basename)
         filename_update_map = {}
-        original_filenames.each do |original_filename|
+        original_filenames_to_resample.each do |original_filename|
           output_filename_base = File.basename(original_filename, '.*')
           resampled_file_dir = File.dirname(output_dir_basename)
           output_filename_ogg = File.join(resampled_file_dir, "#{output_filename_base}_resampled.#{WF_EXT}")
