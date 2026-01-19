@@ -2,6 +2,7 @@ package org.bigbluebutton.api.service.impl;
 
 import org.apache.commons.validator.routines.InetAddressValidator;
 import org.bigbluebutton.api.service.RedirectValidator;
+import org.bigbluebutton.api.service.ValidatedUrl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,11 +10,13 @@ import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class PresRedirectValidator implements RedirectValidator {
     private List<String> insertDocumentSupportedProtocols;
     private List<String> insertDocumentBlockedHosts;
+    private List<String> insertDocumentAllowedLocalHosts = new ArrayList<>();
     private String defaultUploadedPresentation;
     private static final Logger log = LoggerFactory.getLogger(PresRedirectValidator.class);
 
@@ -92,12 +95,108 @@ public class PresRedirectValidator implements RedirectValidator {
         return true;
     }
 
+    @Override
+    public ValidatedUrl validateUrl(String redirectUrl) {
+        log.info("Validating and resolving URL [{}]", redirectUrl);
+        URL url;
+
+        try {
+            url = new URL(redirectUrl);
+        } catch (MalformedURLException e) {
+            log.error("Malformed URL [{}]", redirectUrl);
+            return null;
+        }
+
+        String protocol = url.getProtocol();
+        String host = url.getHost();
+        int port = url.getPort();
+        String path = url.getFile(); // includes query string
+
+        // Validate protocol
+        if (insertDocumentSupportedProtocols.stream().noneMatch(p -> p.equalsIgnoreCase(protocol))) {
+            if (insertDocumentSupportedProtocols.size() == 1 && insertDocumentSupportedProtocols.get(0).equalsIgnoreCase("all")) {
+                log.warn("Warning: All protocols are supported for presentation download. It is recommended to only allow HTTPS.");
+            } else {
+                log.error("Invalid protocol [{}]", protocol);
+                return null;
+            }
+        }
+
+        // Check blocked hosts
+        if (insertDocumentBlockedHosts.stream().anyMatch(h -> h.equalsIgnoreCase(host))) {
+            log.error("Attempted to download from blocked host [{}]", host);
+            return null;
+        }
+
+        // Resolve DNS once and validate all resolved addresses
+        InetAddress[] addresses;
+        try {
+            addresses = InetAddress.getAllByName(host);
+        } catch (UnknownHostException e) {
+            log.error("Unknown host [{}]", host);
+            return null;
+        }
+
+        if (addresses.length == 0) {
+            log.error("No addresses resolved for host [{}]", host);
+            return null;
+        }
+
+        InetAddressValidator validator = InetAddressValidator.getInstance();
+        boolean localhostBlocked = insertDocumentBlockedHosts.stream().anyMatch(h -> h.equalsIgnoreCase("localhost"));
+        boolean isDefaultPresentation = redirectUrl.equalsIgnoreCase(defaultUploadedPresentation);
+        boolean isAllowedLocalHost = insertDocumentAllowedLocalHosts.stream().anyMatch(h -> h.equalsIgnoreCase(host));
+
+        // Validate all resolved addresses
+        for (InetAddress address : addresses) {
+            if (!validator.isValid(address.getHostAddress())) {
+                log.error("Invalid address [{}]", address.getHostAddress());
+                return null;
+            }
+
+            // Skip local address checks for default presentation or allowed local hosts
+            if (isDefaultPresentation || isAllowedLocalHost || !localhostBlocked) {
+                continue;
+            }
+
+            if (address.isAnyLocalAddress()) {
+                log.error("Address [{}] is a local address", address.getHostAddress());
+                return null;
+            }
+
+            if (address.isLoopbackAddress()) {
+                log.error("Address [{}] is a loopback address", address.getHostAddress());
+                return null;
+            }
+
+            if (address.isSiteLocalAddress()) {
+                log.error("Address [{}] is a private/site-local address", address.getHostAddress());
+                return null;
+            }
+
+            if (address.isLinkLocalAddress()) {
+                log.error("Address [{}] is a link local address", address.getHostAddress());
+                return null;
+            }
+        }
+
+        // Return the first valid address pinned for subsequent connections
+        InetAddress pinnedAddress = addresses[0];
+        log.info("URL [{}] validated, pinning to IP [{}]", redirectUrl, pinnedAddress.getHostAddress());
+
+        return new ValidatedUrl(redirectUrl, host, port, protocol, path, pinnedAddress);
+    }
+
     public void setInsertDocumentSupportedProtocols(List<String> insertDocumentSupportedProtocols) {
         this.insertDocumentSupportedProtocols = insertDocumentSupportedProtocols;
     }
 
     public void setInsertDocumentBlockedHosts(List<String> insertDocumentBlockedHosts) {
         this.insertDocumentBlockedHosts = insertDocumentBlockedHosts;
+    }
+
+    public void setInsertDocumentAllowedLocalHosts(List<String> insertDocumentAllowedLocalHosts) {
+        this.insertDocumentAllowedLocalHosts = insertDocumentAllowedLocalHosts != null ? insertDocumentAllowedLocalHosts : new ArrayList<>();
     }
 
     public void setDefaultUploadedPresentation(String defaultUploadedPresentation) {

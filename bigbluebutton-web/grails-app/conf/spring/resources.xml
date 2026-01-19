@@ -102,6 +102,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="defaultUploadedPresentation" value="${beans.presentationService.defaultUploadedPresentation}"/>
         <property name="insertDocumentSupportedProtocols" value="${insertDocumentSupportedProtocols}" />
         <property name="insertDocumentBlockedHosts" value="${insertDocumentBlockedHosts}" />
+        <property name="insertDocumentAllowedLocalHosts" value="${insertDocumentAllowedLocalHosts}" />
     </bean>
 
     <bean id="presDownloadService" class="org.bigbluebutton.presentation.PresentationUrlDownloadService"
