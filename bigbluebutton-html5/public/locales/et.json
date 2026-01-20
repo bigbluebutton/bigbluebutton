@@ -777,7 +777,7 @@
     "app.actionsBar.actionsDropdown.requestPresenter": "Palu esitlejaks",
     "app.actionsBar.actionsDropdown.requestPresenterDesc": "Palu end muuta uueks esitlejaks",
     "app.actionsBar.actionsDropdown.waitingForModerator": "Moderaatori vastuse ootamine...",
-    "app.actionsBar.actionsDropdown.waitingForModeratorDesc": "Oodatakse moderaatori heakskiitu taotlusele",
+    "app.actionsBar.actionsDropdown.waitingForModeratorDesc": "Oodatakse moderaatori heakskiitu taotlusele.",
     "app.actionsBar.reactions.reactionsButtonLabel": "Jaga reaktsiooni",
     "app.actionsBar.reactions.removeReactionLabel": "Eemalda reaktsioon",
     "app.actionsBar.reactions.raiseHand": "Tõsta käsi",
