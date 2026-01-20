@@ -49,9 +49,6 @@ const config = {
                     lastVersion: '3.0',
                     includeCurrentVersion: false,
                     versions: {
-                        '2.5-legacy': {
-                            banner: 'none'
-                        },
                         '2.6': {
                             banner: 'none'
                         },
