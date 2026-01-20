@@ -37,7 +37,7 @@ fi
 # We build the docs for historical reasons. The branch no longer exists
 # since the release is no longer supported/maintained.
 TAGS=(
-  v2.5.20
+  # v2.5.20 # antobinary disabling this during docusaurus upgrades which seem to have stricter rules, requiring me to go back and update super old docs
 )
 
 # Build the docs only for these release branches
