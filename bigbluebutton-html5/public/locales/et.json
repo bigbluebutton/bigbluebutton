@@ -1190,7 +1190,7 @@
     "app.lock-viewers.button.cancel": "Tühista",
     "app.lock-viewers.locked": "Lukustatud",
     "app.lock-viewers.hideViewersCursor": "Näha tahvlil teiste osalejate kursoreid",
-    "app.lock-viewers.hideAnnotationsLabel": "Näha teiste osalejate tahvlimärkeid",
+    "app.lock-viewers.hideAnnotationsLabel": "Näha tahvlil teiste osalejate märkeid",
     "app.guest-policy.ariaTitle": "Külaliste reeglite määramise aken",
     "app.guest-policy.title": "Külaliste reeglid",
     "app.guest-policy.description": "Muuda sessiooni külaliste reegleid",
