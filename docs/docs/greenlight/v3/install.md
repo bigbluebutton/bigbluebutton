@@ -57,19 +57,17 @@ docker exec -it greenlight-v3 bundle exec rake user:set_admin_role['email']
 
 ### Update a user password
 
-You can do that by running the following command:
+Open a Rails console in the container:
 ```bash
 docker exec -it greenlight-v3 bundle exec rails console
 
 ```
-After Entering the console run these step-by-step:
-```bash
-user = User.find_by(email: '<Enter Email of the User>');
-user.password='<New Password>';
-user.password_confirmation='<Retype the New Password>';
-user.save;
-exit;
+After entering the console, run:
+```ruby
+user = User.find_by!(email: 'user@example.com')
+user.update!(password: 'NewPassword', password_confirmation: 'NewPassword')
 ```
+Note: This applies to locally authenticated users. If you use External Authentication (OpenID Connect), reset the password at your identity provider instead.
 
 ## Installing on a Standalone Server
 ### Greenlight Install Script
