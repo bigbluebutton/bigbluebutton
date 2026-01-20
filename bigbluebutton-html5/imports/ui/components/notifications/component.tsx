@@ -27,7 +27,7 @@ const Notifications: React.FC = () => {
         'app.notification.userJoinPushAlert': userJoinPushAlert,
         'app.notification.userLeavePushAlert': userLeavePushAlert,
         'app.layoutUpdate.label': layoutUpdate,
-        'app.toast.breakoutHadNoChanges': breakoutHadNoChanges,
+        'app.toast.breakoutContentUnchangedNotConverted': breakoutHadNoChanges,
       });
 
   const {

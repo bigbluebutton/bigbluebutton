@@ -19,7 +19,7 @@ trait EndBreakoutRoomInternalMsgHdlr extends HandlerHelpers {
   val eventBus: InternalEventBus
 
   def handleEndBreakoutRoomInternalMsg(msg: EndBreakoutRoomInternalMsg, state: MeetingState2x): Unit = {
-    var theMeetingHasNoChanges = true
+    var noContentToImportFromRoom = liveMeeting.props.breakoutProps.captureSlides || liveMeeting.props.breakoutProps.captureNotes
 
     if (liveMeeting.props.breakoutProps.captureSlides) {
       val allPods = state.presentationPodManager.getAllPresentationPodsInMeeting()
@@ -36,23 +36,23 @@ trait EndBreakoutRoomInternalMsgHdlr extends HandlerHelpers {
         val filename = liveMeeting.props.breakoutProps.captureSlidesFilename
         val captureSlidesEvent = BigBlueButtonEvent(msg.breakoutId, CapturePresentationReqInternalMsg("system", msg.parentId, filename))
         eventBus.publish(captureSlidesEvent)
-        theMeetingHasNoChanges = false
+        noContentToImportFromRoom = false
       }
     }
 
     Pads.getGroup(liveMeeting.pads, "notes").foreach(group => {
       if (liveMeeting.props.breakoutProps.captureNotes && group.rev > 0) {
         handleCaptureNotes(msg)
-        theMeetingHasNoChanges = false
+        noContentToImportFromRoom = false
       }
     })
-    if (theMeetingHasNoChanges) {
+    if (noContentToImportFromRoom) {
       val notifyEvent = MsgBuilder.buildNotifyRoleInMeetingEvtMsg(
-        Roles.PRESENTER_ROLE,
+        Roles.MODERATOR_ROLE,
         msg.parentId,
         "info",
         "rooms",
-        "app.toast.breakoutHadNoChanges",
+        "app.toast.breakoutContentUnchangedNotConverted",
         "Message informing that breakout room had no changes to capture.",
         Map()
       )
