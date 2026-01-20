@@ -120,7 +120,6 @@ const createUseTalkingUsersLiveKit = () => {
           // Use BBB fallback for unsubscribed participants
           // LiveKit only emits speaking events for subscribed tracks of remote participants.
           const bbbTalking = bbbTalkingUsers[userId]?.talking ?? false;
-          console.debug('Livekit fallback for unsubscribed participant', userId, bbbTalking);
 
           if (bbbTalking) {
             newTalkingState[userId] = true;
@@ -133,7 +132,13 @@ const createUseTalkingUsersLiveKit = () => {
       if (!isEqual(currentTalkingState, newTalkingState)) {
         currentTalkingStateVar(newTalkingState);
       }
-    }, [remoteParticipants, localParticipant, subscribedAudioUsers, bbbTalkingUsers]);
+    }, [
+      remoteParticipants,
+      localParticipant,
+      subscribedAudioUsers,
+      bbbTalkingUsers,
+      shouldUseLiveKit,
+    ]);
 
     useEffect(() => {
       if (!shouldUseLiveKit) return;
