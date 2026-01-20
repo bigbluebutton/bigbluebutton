@@ -14,7 +14,7 @@ import useShouldUseLiveKitAudioState from './useShouldUseLiveKitAudioState';
 import useSubscribedAudioUsers from './useSubscribedAudioUsers';
 import useTalkingUsersGraphql from '../useTalkingUsersGraphql';
 import { VoiceActivityResponse } from '/imports/ui/core/graphql/queries/voiceActivity';
-import { VoiceItem, TalkingUsersHookResult } from '../types';
+import { VoiceItem, TalkingUsersHookResult, VoiceUserMetadata } from '../types';
 import { TALKING_INDICATOR_TIMEOUT } from '../constants';
 
 const BASELINE_DATA: TalkingUsersHookResult = Object.freeze({
@@ -28,10 +28,7 @@ const createUseTalkingUsersLiveKit = () => {
   const loadingVar = makeVar(true);
   const currentTalkingStateVar = makeVar<Record<string, boolean>>({});
   // User metadata from voiceActivity subscription
-  const userMetadataVar = makeVar<Record<string, {
-    name: string;
-    speechLocale?: string;
-  }>>({});
+  const userMetadataVar = makeVar<Record<string, VoiceUserMetadata>>({});
 
   const setTalkingUserLoading = (loading: boolean) => loadingVar(loading);
   const useTalkingUserConsumersCount = () => useReactiveVar(countVar);
@@ -44,7 +41,7 @@ const createUseTalkingUsersLiveKit = () => {
     if (!data) return;
 
     // Extract user metadata from voiceActivity data
-    const newUserMetadata: Record<string, { name: string; speechLocale?: string }> = {
+    const newUserMetadata: Record<string, VoiceUserMetadata> = {
       ...userMetadataVar(),
     };
 
@@ -52,6 +49,7 @@ const createUseTalkingUsersLiveKit = () => {
       const { userId, user } = voice;
       newUserMetadata[userId] = {
         name: user.name,
+        color: user?.color,
         speechLocale: user?.speechLocale,
       };
     });
@@ -189,7 +187,6 @@ const createUseTalkingUsersLiveKit = () => {
 
           userMetadata = {
             name: participant.name ?? participant.identity,
-            speechLocale: undefined,
           };
         }
 

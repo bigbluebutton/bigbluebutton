@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { makeVar, useReactiveVar } from '@apollo/client';
 import { partition } from '/imports/utils/array-utils';
-import { VoiceItem } from './types';
+import { VoiceItem, VoiceUserMetadata } from './types';
 import { TALKING_INDICATOR_TIMEOUT } from './constants';
 import { VoiceActivityResponse } from '/imports/ui/core/graphql/queries/voiceActivity';
 
@@ -12,7 +12,7 @@ const createUseTalkingUsersGraphql = () => {
     talking: boolean;
     userId: string;
     voiceUserId: string;
-    user: { speechLocale?: string; name: string }
+    user: VoiceUserMetadata;
   }[] | undefined>([]);
   const loadingVar = makeVar(true);
 

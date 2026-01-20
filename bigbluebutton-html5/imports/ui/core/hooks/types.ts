@@ -4,7 +4,13 @@ export type VoiceItem = {
   muted: boolean;
   talking: boolean;
   userId: string;
-  user: { speechLocale?: string; name: string };
+  user: VoiceUserMetadata;
+};
+
+export type VoiceUserMetadata = {
+  color?: string;
+  speechLocale?: string;
+  name: string;
 };
 
 /**
