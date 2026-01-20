@@ -370,7 +370,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     ) => changeVolume(event.detail.volume)) as EventListener;
     window.addEventListener(ExternalVideoVolumeCommandsEnum.SET, handleExternalVideoVolumeSet);
     return () => {
-      window.addEventListener(ExternalVideoVolumeCommandsEnum.SET, handleExternalVideoVolumeSet);
+      window.removeEventListener(ExternalVideoVolumeCommandsEnum.SET, handleExternalVideoVolumeSet);
     };
   }, []);
 
