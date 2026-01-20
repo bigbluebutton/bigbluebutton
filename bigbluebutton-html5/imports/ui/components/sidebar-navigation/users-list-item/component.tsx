@@ -7,6 +7,7 @@ import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedS
 import { useShortcut } from '/imports/ui/core/hooks/useShortcut';
 import SidebarNavigationButton from '/imports/ui/components/sidebar-navigation/sidebar-navigation-button/component';
 import { BaseSidebarButtonProps } from '../types';
+import { RAISED_HAND_USERS, RaisedHandUsersSubscriptionResponse } from '/imports/ui/core/graphql/queries/users';
 
 const intlMessages = defineMessages({
   usersListLabel: {
@@ -22,9 +23,16 @@ const UsersListItem: React.FC<BaseSidebarButtonProps> = ({ isOpened }) => {
   const {
     data: guestWaitingUsersData,
   } = useDeduplicatedSubscription<GuestWaitingUsers>(GET_GUEST_WAITING_USERS_SUBSCRIPTION);
+  const {
+    data: usersData,
+  } = useDeduplicatedSubscription<RaisedHandUsersSubscriptionResponse>(
+    RAISED_HAND_USERS,
+    { skip: isOpened },
+  );
 
   const label = intl.formatMessage(intlMessages.usersListLabel);
-  const hasNotification = (guestWaitingUsersData?.user_guest?.length ?? 0) > 0;
+  const hasNotification = (guestWaitingUsersData?.user_guest?.length ?? 0) > 0
+    || (usersData?.user?.length ?? 0) > 0;
 
   return (
     <SidebarNavigationButton
