@@ -31,7 +31,6 @@ const createUseTalkingUsersLiveKit = () => {
   const userMetadataVar = makeVar<Record<string, {
     name: string;
     speechLocale?: string;
-    role: string;
   }>>({});
 
   const setTalkingUserLoading = (loading: boolean) => loadingVar(loading);
@@ -45,7 +44,7 @@ const createUseTalkingUsersLiveKit = () => {
     if (!data) return;
 
     // Extract user metadata from voiceActivity data
-    const newUserMetadata: Record<string, { name: string; speechLocale?: string, role: string }> = {
+    const newUserMetadata: Record<string, { name: string; speechLocale?: string }> = {
       ...userMetadataVar(),
     };
 
@@ -54,7 +53,6 @@ const createUseTalkingUsersLiveKit = () => {
       newUserMetadata[userId] = {
         name: user.name,
         speechLocale: user?.speechLocale,
-        role: user.role,
       };
     });
 
@@ -187,7 +185,6 @@ const createUseTalkingUsersLiveKit = () => {
           userMetadata = {
             name: participant.name ?? participant.identity,
             speechLocale: undefined,
-            role: window.meetingClientSettings.public.user.role_viewer,
           };
         }
 
