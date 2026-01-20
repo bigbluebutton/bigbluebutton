@@ -54,9 +54,15 @@ trait MuteUserCmdMsgHdlr extends RightsManagementTrait {
 
             val isUnmuting = !msg.body.mute
             val isActingOnOtherUser = msg.body.userId != msg.header.userId
-            val settingRequiresRequest = liveMeeting.props.usersProp.requireUserConsentBeforeUnmuting;
-
-            val shouldRequestUnmute = isUnmuting && isActingOnOtherUser && settingRequiresRequest
+            val requireUserConsentBeforeUnmuting = liveMeeting.props.usersProp.requireUserConsentBeforeUnmuting;
+            // shouldRequestUnmute: whether we need consent before unmuting a
+            // remote user. This is controlled by two factors:
+            //  - bbb-web's requireUserConsentBeforeUnmuting setting
+            //  - If the audio bridge is LiveKit, which will _always_ require
+            //    user consent before unmuting due to technical limitations.
+            val shouldRequestUnmute = isUnmuting &&
+              isActingOnOtherUser &&
+              (requireUserConsentBeforeUnmuting || isUsingLiveKitAudio(liveMeeting))
 
             if (shouldRequestUnmute) {
               log.info("Requesting user to unmute. meetingId=" + meetingId + " userId=" + u.intId)
