@@ -24,6 +24,16 @@ object PadCreateReqMsg { val NAME = "PadCreateReqMsg" }
 case class PadCreateReqMsg(header: BbbClientMsgHeader, body: PadCreateReqMsgBody) extends StandardMsg
 case class PadCreateReqMsgBody(externalId: String, name: String)
 
+// apps -> shared-notes-server
+object BNSharedNotesCreateCmdMsg { val NAME = "BNSharedNotesCreateCmdMsg" }
+case class BNSharedNotesCreateCmdMsg(header: BbbCoreHeaderWithMeetingId, body: BNSharedNotesCreateCmdMsgBody) extends BbbCoreMsg
+case class BNSharedNotesCreateCmdMsgBody(externalId: String, model: String)
+
+// shared-notes-server -> apps
+object BNSharedNotesCreatedEvtMsg { val NAME = "BNSharedNotesCreatedEvtMsg" }
+case class BNSharedNotesCreatedEvtMsg(header: BbbCoreHeaderWithMeetingId, body: BNSharedNotesCreatedEvtMsgBody) extends BbbCoreMsg
+case class BNSharedNotesCreatedEvtMsgBody(padId: String, externalId: String, model: String)
+
 // apps -> pads
 object PadCreateCmdMsg { val NAME = "PadCreateCmdMsg" }
 case class PadCreateCmdMsg(header: BbbCoreHeaderWithMeetingId, body: PadCreateCmdMsgBody) extends BbbCoreMsg

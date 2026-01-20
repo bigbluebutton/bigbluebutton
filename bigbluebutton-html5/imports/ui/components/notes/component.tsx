@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import { useMutation } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import PadContainer from '/imports/ui/components/pads/pads-graphql/component';
 import browserInfo from '/imports/utils/browserInfo';
@@ -22,6 +22,7 @@ import {
 import { useIsPresentationEnabled } from '../../services/features';
 import { useStorageKey } from '/imports/ui/services/storage/hooks';
 import useMeeting from '../../core/hooks/useMeeting';
+import { GET_PAD_ID, GetPadIdQueryResponse } from './queries';
 
 const intlMessages = defineMessages({
   hide: {
@@ -45,6 +46,7 @@ interface NotesContainerGraphqlProps {
 
 interface NotesGraphqlProps extends NotesContainerGraphqlProps {
   hasPermission: boolean;
+  padId: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   layoutContextDispatch: (action: any) => void;
   isResizing: boolean;
@@ -64,6 +66,7 @@ const sidebarContentToIgnoreDelay = ['captions'];
 const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
   const {
     hasPermission,
+    padId,
     isRTL,
     layoutContextDispatch,
     isResizing,
@@ -159,9 +162,13 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
             }}
             data-test="notesHeader"
             rightButtonProps={null}
-            customRightButton={
-              <NotesDropdown handlePinSharedNotes={handlePinSharedNotes} presentationEnabled={isPresentationEnabled} />
-          }
+            customRightButton={(
+              <NotesDropdown
+                handlePinSharedNotes={handlePinSharedNotes}
+                presentationEnabled={isPresentationEnabled}
+                padId={padId}
+              />
+          )}
           />
         </>
       ) : renderHeaderOnMedia()}
@@ -183,6 +190,14 @@ const NotesContainerGraphql: React.FC<NotesContainerGraphqlProps> = (props) => {
   const { data: currentUserData } = useCurrentUser((user) => ({
     presenter: user.presenter,
   }));
+
+  const NOTES_CONFIG = window.meetingClientSettings.public.notes;
+  const { data: padIdData } = useQuery<GetPadIdQueryResponse>(
+    GET_PAD_ID,
+    { variables: { externalId: NOTES_CONFIG.id } },
+  );
+  const padId = padIdData?.sharedNotes?.[0]?.padId;
+  const sharedNotesType = padIdData?.sharedNotes?.[0]?.sharedNotesType;
 
   const { data: currentMeeting } = useMeeting((meeting) => ({
     componentsFlags: meeting.componentsFlags,
@@ -222,8 +237,13 @@ const NotesContainerGraphql: React.FC<NotesContainerGraphqlProps> = (props) => {
     });
   };
 
+  const isEtherpadSharedNotes = sharedNotesType === 'etherpad';
+
+  if (!padId || !isEtherpadSharedNotes) return null;
+
   return (
     <NotesGraphql
+      padId={padId}
       area={area}
       hasPermission={hasPermission}
       layoutContextDispatch={layoutContextDispatch}

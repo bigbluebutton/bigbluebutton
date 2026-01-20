@@ -74,7 +74,7 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
   const [shouldRenderNotes, setShouldRenderNotes] = useState(false);
   const intl = useIntl();
 
-  const { meetingId } = currentMeeting ? currentMeeting : { meetingId: '' };
+  const { meetingId } = currentMeeting || { meetingId: '' };
 
   const { disableNotes } = currentMeeting?.lockSettings || { disableNotes: false };
 
@@ -127,7 +127,6 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
       && hasSessionToken(sessionToken)
       && !isAuthenticating
     ) {
-
       const documentName = `bn-document__${meetingId}`;
       const blockNoteToken = sessionToken;
 

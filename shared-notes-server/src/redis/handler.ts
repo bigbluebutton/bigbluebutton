@@ -19,7 +19,7 @@ const events = {
 
 const commands = {
   GROUP_CREATE: 'PadCreateGroupCmdMsg',
-  PAD_CREATE: 'PadCreateCmdMsg',
+  BN_SHARED_NOTES_CREATE: 'BNSharedNotesCreateCmdMsg',
   PAD_UPDATE: 'PadUpdateCmdMsg',
   SESSION_CREATE: 'PadCreateSessionCmdMsg',
 };
@@ -106,17 +106,16 @@ const handleGroupCreate = (header: MessageHeader, body: MessageBody): void => {
   // --
 };
 
-const handlePadCreate = (header: MessageHeader, body: MessageBody): void => {
+const handleSharedNotesCreate = (header: MessageHeader, body: MessageBody): void => {
   const { meetingId } = header;
   const {
-    groupId,
-    name,
+    externalId,
+    model,
   } = body;
 
-  // TODO: Create pad and group;
-  // const padId = `bn-document__${meetingId}`;
+  const padId = `bn-document__${meetingId}`;
 
-  // sender.send('padCreated', meetingId, { groupId, padId, name });
+  sender.send('sharedNotesCreated', meetingId, { padId, externalId, model });
   // --
 };
 
@@ -284,8 +283,8 @@ const handler: PubSubHandler = {
       case commands.GROUP_CREATE:
         handleGroupCreate(header, body);
         break;
-      case commands.PAD_CREATE:
-        handlePadCreate(header, body);
+      case commands.BN_SHARED_NOTES_CREATE:
+        handleSharedNotesCreate(header, body);
         break;
       case commands.PAD_UPDATE:
         handlePadUpdate(header, body);

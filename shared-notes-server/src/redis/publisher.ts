@@ -17,7 +17,21 @@ const options: RedisClientOptions = {
 
 const publisher = createClient(options);
 
+// Connect the publisher client
+publisher.connect().catch((err) => {
+  logger.error('Failed to connect publisher', { error: err });
+});
+
+// Handle connection errors
+publisher.on('error', (err) => {
+  logger.error('Publisher error', { error: err });
+});
+
 const publish = (message: string) => {
+  if (!publisher.isOpen) {
+    logger.error('Publisher is not connected');
+    return;
+  }
   publisher.publish(channel, message);
   logger.debug('published', { message });
 };

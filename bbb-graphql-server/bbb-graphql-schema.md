@@ -734,6 +734,7 @@ Permission: Restricted to User Viewing Self-Related Data
 - `lastRev`
 - `model`
 - `name`
+- `sharedNotesType`
 - `padId`
 - `pinned`
 - `sharedNotesExtId`

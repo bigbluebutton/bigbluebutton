@@ -4,6 +4,7 @@ export interface GetPadIdQueryResponse {
   sharedNotes: Array<{
     padId: string;
     sharedNotesExtId: string;
+    sharedNotesType: string;
   }>;
 }
 
@@ -12,6 +13,7 @@ export const GET_PAD_ID = gql`
     sharedNotes(where: { sharedNotesExtId: { _eq: $externalId } }) {
       padId
       sharedNotesExtId
+      sharedNotesType
     }
   }
 `;

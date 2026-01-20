@@ -92,6 +92,7 @@ public class ParamsProcessorUtil {
     private boolean disableRecordingDefault;
     private boolean autoStartRecording;
     private boolean allowStartStopRecording;
+    private String defaultSharedNotesType;
     private boolean presentationConversionCacheEnabled;
     private boolean recordFullDurationMedia;
     private int learningDashboardCleanupDelayInMinutes;
@@ -615,6 +616,18 @@ public class ParamsProcessorUtil {
             }
         }
 
+        String sharedNotesType = defaultSharedNotesType;
+        if (!StringUtils.isEmpty(params.get(ApiParams.SHARED_NOTES_TYPE))) {
+            try {
+                sharedNotesType = params
+                        .get(ApiParams.SHARED_NOTES_TYPE);
+            } catch (Exception ex) {
+                log.warn(
+                        "Invalid param [sharedNotesType] for meeting=[{}]",
+                        internalMeetingId);
+            }
+        }
+
         boolean allowStartStoptRec = allowStartStopRecording;
         if (!StringUtils.isEmpty(params.get(ApiParams.ALLOW_START_STOP_RECORDING))) {
             try {
@@ -934,6 +947,7 @@ public class ParamsProcessorUtil {
                 .withDefaultWebcamBackgroundURL(webcamBackgroundURL)
                 .withAutoStartRecording(autoStartRec)
                 .withAllowStartStopRecording(allowStartStoptRec)
+                .withSharedNotesType(sharedNotesType)
                 .withPresentationConversionCacheEnabled(presentationCacheEnabled)
                 .withRecordFullDurationMedia(_recordFullDurationMedia)
                 .withWebcamsOnlyForModerator(webcamsOnlyForMod)
@@ -1849,5 +1863,9 @@ public class ParamsProcessorUtil {
 
     public void setPluginUtils(PluginUtils pluginUtils) {
         this.pluginUtils = pluginUtils;
+    }
+
+    public void setSharedNotesType(String sharedNotesType) {
+        this.defaultSharedNotesType = sharedNotesType;
     }
 }

@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { defineMessages, useIntl } from 'react-intl';
 import Icon from '/imports/ui/components/common/icon/component';
 import Styled from './styles';
@@ -64,6 +63,11 @@ const BNSharedNotesItem = ({
 
   return (
     <Styled.Messages>
+      <Styled.Container>
+        <Styled.SmallTitle data-test="notesTitle">
+          {intl.formatMessage(intlMessages.title)}
+        </Styled.SmallTitle>
+      </Styled.Container>
       <Styled.ScrollableList>
         <Styled.List>
           <Styled.ListItem
@@ -104,9 +108,3 @@ const BNSharedNotesItem = ({
 };
 
 export default BNSharedNotesItem;
-
-BNSharedNotesItem.propTypes = {
-  intl: PropTypes.shape({
-    formatMessage: PropTypes.func.isRequired,
-  }).isRequired,
-};

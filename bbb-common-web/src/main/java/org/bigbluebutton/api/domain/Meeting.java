@@ -69,6 +69,7 @@ public class Meeting {
 	private boolean record;
 	private boolean autoStartRecording = false;
 	private boolean allowStartStopRecording = false;
+	private String sharedNotesType = "etherpad";
 	private boolean presentationConversionCacheEnabled = false;
 	private boolean recordFullDurationMedia = false;
 	private boolean haveRecordingMarks = false;
@@ -169,6 +170,7 @@ public class Meeting {
         record = builder.record;
         autoStartRecording = builder.autoStartRecording;
         allowStartStopRecording = builder.allowStartStopRecording;
+        sharedNotesType = builder.sharedNotesType;
 		presentationConversionCacheEnabled = builder.presentationConversionCacheEnabled;
         recordFullDurationMedia = builder.recordFullDurationMedia;
         webcamsOnlyForModerator = builder.webcamsOnlyForModerator;
@@ -673,6 +675,10 @@ public class Meeting {
 		return allowStartStopRecording;
 	}
 
+	public String getSharedNotesType() {
+		return sharedNotesType;
+	}
+
 	public boolean isPresentationConversionCacheEnabled() {
 		return presentationConversionCacheEnabled;
 	}
@@ -994,6 +1000,7 @@ public class Meeting {
     	private boolean autoStartRecording;
     	private boolean recordFullDurationMedia;
         private boolean allowStartStopRecording;
+        private String sharedNotesType;
         private boolean presentationConversionCacheEnabled;
         private boolean webcamsOnlyForModerator;
         private boolean multiUserWhiteboardEnabled;
@@ -1078,6 +1085,11 @@ public class Meeting {
 
     	public Builder withAllowStartStopRecording(boolean allow) {
     		this.allowStartStopRecording = allow;
+    		return this;
+    	}
+
+		public Builder withSharedNotesType(String type) {
+    		this.sharedNotesType = type;
     		return this;
     	}
 

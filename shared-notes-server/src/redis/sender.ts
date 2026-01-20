@@ -37,8 +37,8 @@ const buildMessage = (type: string, meetingId: string, body: object) => {
     case 'groupCreated':
       message = build('PadGroupCreatedEvtMsg', meetingId, body);
       break;
-    case 'padCreated':
-      message = build('PadCreatedEvtMsg', meetingId, body);
+    case 'sharedNotesCreated':
+      message = build('BNSharedNotesCreatedEvtMsg', meetingId, body);
       break;
     case 'padUpdated':
       message = build('PadUpdatedSysMsg', meetingId, body);

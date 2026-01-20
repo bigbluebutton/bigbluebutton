@@ -11,7 +11,7 @@ import {
   PresentationsSubscriptionResponse,
 } from '/imports/ui/components/whiteboard/queries';
 import Service from './service';
-import { GET_PAD_ID, GetPadIdQueryResponse } from './queries';
+import { GET_PAD_ID, GetPadIdQueryResponse } from '../queries';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 
 const DEBOUNCE_TIMEOUT = 15000;
@@ -34,6 +34,7 @@ const intlMessages = defineMessages({
 interface NotesDropdownContainerGraphqlProps {
   handlePinSharedNotes: (pinned: boolean) => void;
   presentationEnabled: boolean;
+  padId: string;
 }
 
 interface NotesDropdownGraphqlProps extends NotesDropdownContainerGraphqlProps {
@@ -125,7 +126,7 @@ const NotesDropdownGraphql: React.FC<NotesDropdownGraphqlProps> = (props) => {
 };
 
 const NotesDropdownContainerGraphql: React.FC<NotesDropdownContainerGraphqlProps> = (props) => {
-  const { handlePinSharedNotes, presentationEnabled } = props;
+  const { handlePinSharedNotes, presentationEnabled, padId } = props;
   const { data: currentUserData } = useCurrentUser((user) => ({
     presenter: user.presenter,
   }));
@@ -137,14 +138,6 @@ const NotesDropdownContainerGraphql: React.FC<NotesDropdownContainerGraphqlProps
     PRESENTATIONS_SUBSCRIPTION,
   );
   const presentations = presentationData?.pres_presentation || [];
-
-  const NOTES_CONFIG = window.meetingClientSettings.public.notes;
-
-  const { data: padIdData } = useQuery<GetPadIdQueryResponse>(
-    GET_PAD_ID,
-    { variables: { externalId: NOTES_CONFIG.id } },
-  );
-  const padId = padIdData?.sharedNotes?.[0]?.padId;
 
   if (!padId) return null;
 

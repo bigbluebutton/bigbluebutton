@@ -11,6 +11,10 @@ import {
 
 const Messages = styled(Styled.Messages)``;
 
+const SmallTitle = styled(Styled.SmallTitle)``;
+
+const Container = styled(StyledContent.Container)``;
+
 const ScrollableList = styled(StyledContent.ScrollableList)``;
 
 const List = styled(StyledContent.List)``;
@@ -34,6 +38,8 @@ const NotesLock = styled.div`
 
 export default {
   Messages,
+  SmallTitle,
+  Container,
   ScrollableList,
   List,
   ListItem,

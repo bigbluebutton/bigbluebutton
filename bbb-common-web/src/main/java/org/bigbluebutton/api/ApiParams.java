@@ -22,6 +22,7 @@ package org.bigbluebutton.api;
 public class ApiParams {
 
     public static final String ALLOW_START_STOP_RECORDING = "allowStartStopRecording";
+    public static final String SHARED_NOTES_TYPE = "sharedNotesType";
     public static final String ATTENDEE_PW = "attendeePW";
     public static final String AUTO_START_RECORDING = "autoStartRecording";
     public static final String BANNER_COLOR = "bannerColor";

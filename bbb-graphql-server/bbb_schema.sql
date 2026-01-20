@@ -2149,6 +2149,7 @@ create unlogged table "sharedNotes" (
     "meetingId" varchar(100) references "meeting"("meetingId") ON DELETE CASCADE,
     "sharedNotesExtId" varchar(25),
     "padId" varchar(25),
+    "sharedNotesType" varchar(25),
     "model" varchar(25),
     "name" varchar(25),
     "pinned" boolean,

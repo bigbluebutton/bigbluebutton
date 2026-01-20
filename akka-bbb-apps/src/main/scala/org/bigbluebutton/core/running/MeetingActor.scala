@@ -342,16 +342,28 @@ class MeetingActor(
       alternativeValue = true
     )
 
-    if (sharedNotesEnabledInClientSettings && !liveMeeting.props.meetingProp.disabledFeatures.contains("sharedNotes")) {
+    val isSharedNotesEnabled = (sharedNotesEnabledInClientSettings
+      && !liveMeeting.props.meetingProp.disabledFeatures.contains("sharedNotes"))
+
+    val isEtherpadType = liveMeeting.props.meetingProp.sharedNotesType == "etherpad"
+
+    if (isSharedNotesEnabled) {
       val sharedNotesPadId = getConfigPropertyValueByPathAsStringOrElse(
         liveMeeting.clientSettings,
         "public.notes.id",
         alternativeValue = ""
       )
-
-      if (!Pads.hasGroup(liveMeeting.pads, sharedNotesPadId)) {
-        Pads.addGroup(liveMeeting.pads, sharedNotesPadId, sharedNotesPadId, sharedNotesPadId, "SYSTEM")
-        PadslHdlrHelpers.broadcastPadCreateGroupCmdMsg(outGW, liveMeeting.props.meetingProp.intId, sharedNotesPadId, sharedNotesPadId)
+      if (isEtherpadType) {
+        if (!Pads.hasGroup(liveMeeting.pads, sharedNotesPadId)) {
+          Pads.addGroup(liveMeeting.pads, sharedNotesPadId, sharedNotesPadId, sharedNotesPadId, "SYSTEM")
+          PadslHdlrHelpers.broadcastPadCreateGroupCmdMsg(
+            outGW, liveMeeting.props.meetingProp.intId, sharedNotesPadId, sharedNotesPadId
+          )
+        }
+      } else {
+        PadslHdlrHelpers.broadcastBNSharedNotesCreateCmdMsg(
+          outGW, liveMeeting.props.meetingProp.intId, sharedNotesPadId, sharedNotesPadId
+        )
       }
     }
   }
@@ -607,6 +619,7 @@ class MeetingActor(
       case m: PadGroupCreatedEvtMsg         => padsApp2x.handle(m, liveMeeting, msgBus)
       case m: PadCreateReqMsg               => padsApp2x.handle(m, liveMeeting, msgBus)
       case m: PadCreatedEvtMsg              => padsApp2x.handle(m, liveMeeting, msgBus)
+      case m: BNSharedNotesCreatedEvtMsg    => padsApp2x.handle(m, liveMeeting, msgBus)
       case m: PadCreateSessionReqMsg        => padsApp2x.handle(m, liveMeeting, msgBus)
       case m: PadSessionCreatedEvtMsg       => padsApp2x.handle(m, liveMeeting, msgBus)
       case m: PadSessionDeletedSysMsg       => padsApp2x.handle(m, liveMeeting, msgBus)

@@ -6,10 +6,10 @@ import org.bigbluebutton.core.db.SharedNotesDAO
 import org.bigbluebutton.core.models.Pads
 import org.bigbluebutton.core.running.LiveMeeting
 
-trait PadCreatedEvtMsgHdlr {
+trait BNSharedNotesCreatedEvtMsgHdlr {
   this: PadsApp2x =>
 
-  def handle(msg: PadCreatedEvtMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
+  def handle(msg: BNSharedNotesCreatedEvtMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
 
     def broadcastEvent(externalId: String, userId: String, padId: String, name: String): Unit = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, userId)
@@ -22,17 +22,10 @@ trait PadCreatedEvtMsgHdlr {
       bus.outGW.send(msgEvent)
     }
 
-    Pads.getGroupById(liveMeeting.pads, msg.body.groupId) match {
-      case Some(group) => {
-        Pads.setPadId(liveMeeting.pads, group.externalId, msg.body.padId)
-        SharedNotesDAO.insert(
-          liveMeeting.props.meetingProp.intId,
-          group.externalId, group.model,
-          msg.body.padId, msg.body.name, liveMeeting.props.meetingProp.sharedNotesType
-        )
-        broadcastEvent(group.externalId, group.userId, msg.body.padId, msg.body.name)
-      }
-      case _ =>
-    }
+    Pads.setPadId(liveMeeting.pads, msg.body.externalId, msg.body.padId)
+    SharedNotesDAO.insert(liveMeeting.props.meetingProp.intId, msg.body.externalId, msg.body.model,
+      msg.body.padId, msg.body.externalId, liveMeeting.props.meetingProp.sharedNotesType)
+    broadcastEvent(msg.body.externalId, "SYSTEM", msg.body.padId, msg.body.externalId)
   }
 }
+
