@@ -35,6 +35,10 @@
     }
   },
   "dependencies": {
+    "@blocknote/core": "^0.31.1",
+    "@blocknote/mantine": "^0.31.1",
+    "@blocknote/react": "^0.31.1",
+    "@hocuspocus/provider": "^2.15.2",
     "@apollo/client": "^3.10.4",
     "@babel/runtime": "^7.26.10",
     "@bigbluebutton/tldraw": "^2.0.0-alpha.31",
