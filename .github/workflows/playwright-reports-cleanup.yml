@@ -10,7 +10,7 @@ jobs:
       - name: Checkout reports repository
         uses: actions/checkout@v4
         with:
-          repository: ${{ github.repository_owner }}/bigbluebutton-ci-playwright-reports
+          repository: ${{ github.repository_owner }}/bbb-ci-playwright-reports
           token: ${{ secrets.PLAYWRIGHT_REPORTS_REPO_TOKEN }}
           path: reports-repo
       - name: Remove PR report
