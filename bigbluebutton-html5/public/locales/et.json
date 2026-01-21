@@ -225,6 +225,7 @@
     "app.media.cameraAsContent.endDueToDataSaving": "Esitluskaamera peatatud andmesäästu tõttu",
     "app.media.cameraAsContent.autoplayBlockedDesc": "Vajame sinu luba, et näidata sulle esitleja kaamerat.",
     "app.media.cameraAsContent.autoplayAllowLabel": "Vaata esitluskaamerat",
+    "app.media.mediaReconnecting": "Avastati ühendusprobleem. Audio ja video taastamine...",
     "app.screenshare.presenterLoadingLabel": "Sinu ekraanijagamist laaditakse",
     "app.screenshare.viewerLoadingLabel": "Esitleja ekraani laaditakse",
     "app.screenshare.presenterSharingLabel": "Sa jagad nüüd oma ekraani",

@@ -667,7 +667,7 @@ class AudioManager {
       this.inputDeviceId = 'listen-only';
     }
 
-    return this.onAudioJoining()
+    return this.onAudioJoining({ muted: true })
       .then(() => {
         const callOptions = {
           isListenOnly: true,
@@ -678,7 +678,7 @@ class AudioManager {
       });
   }
 
-  onAudioJoining({ muted }) {
+  onAudioJoining({ muted } = {}) {
     this.isConnecting = true;
     this.isMuted = (typeof muted === 'boolean') ? muted : true;
     this.error = false;
