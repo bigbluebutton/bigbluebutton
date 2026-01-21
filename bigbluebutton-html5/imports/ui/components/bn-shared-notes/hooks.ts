@@ -20,7 +20,6 @@ const useHocuspocusProvider = () => {
     { variables: { externalId: NOTES_CONFIG.id } },
   );
   const padId = padIdData?.sharedNotes?.[0]?.padId;
-  console.log('teste aqui --ssss-> ', padIdData, padIdLoading);
 
   const urlParams = new URLSearchParams(window.location.search);
   const sessionToken = urlParams.get('sessionToken');

@@ -324,6 +324,7 @@ const CamerasOnlyLayout = (props) => {
       value: false,
     });
 
+    console.log('teste aqui abc - camerasOnly');
     layoutContextDispatch({
       type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
       value: false,

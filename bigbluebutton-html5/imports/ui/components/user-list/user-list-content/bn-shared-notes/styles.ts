@@ -9,6 +9,13 @@ import {
   fontSizeXS,
 } from '/imports/ui/stylesheets/styled-components/typography';
 
+interface ListItemProps {
+  active: boolean;
+  as: string;
+  disabled: boolean;
+  $disabled: boolean;
+}
+
 const Messages = styled(Styled.Messages)``;
 
 const SmallTitle = styled(Styled.SmallTitle)``;
@@ -19,7 +26,13 @@ const ScrollableList = styled(StyledContent.ScrollableList)``;
 
 const List = styled(StyledContent.List)``;
 
-const ListItem = styled(StyledContent.ListItem)``;
+const ListItem = styled(StyledContent.ListItem)<ListItemProps>`
+  i{ left: 4px; }
+
+  :disabled {
+    border: none;
+  }
+`;
 
 const BlockNoteTitle = styled.div`
   font-size: ${fontSizeSmall};

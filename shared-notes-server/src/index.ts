@@ -19,7 +19,6 @@ app.ws("/collaboration", async (websocket, request) => {
   const url = new URL(request.url, `http://${request.headers.host}`);
   const sessionToken = url.searchParams.get('sessionToken');
 
-  console.log('teste aqui -- no websocket-> ', sessionToken);
   const context = {
     sessionToken,
     websocket,

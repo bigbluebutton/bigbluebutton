@@ -60,7 +60,6 @@ const handleMeetingLocked = async (header: MessageHeader, body: MessageBody): Pr
   };
   meetingLockMap.set(meetingId, meetingLock);
 
-  console.log('Teste aqui dentro do meeting locked ---> ', websocketMap);
   const viewers = await fetchViewersByMeetingId(meetingId);
   viewers.forEach((v) => {
     const viewerWsConnection = websocketMap.get(v.sessionToken);

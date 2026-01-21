@@ -63,9 +63,6 @@ const hocuspocus = new Hocuspocus({
 
     const isMeetingLocked = meetingLockMap.get(meetingId)?.viewerReadOnly;
 
-    console.log('teste aqui no authenticate. ---> ', {
-      sessionToken, meetingLockMap, userIsModerator, meetingId});
-
     const isConnectionReadOnly = isMeetingLocked && !userIsModerator;
     if (isConnectionReadOnly) {
       data.connection.readOnly = true;

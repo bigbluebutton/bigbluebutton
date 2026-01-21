@@ -4,7 +4,6 @@ import { useMutation } from '@apollo/client';
 import {
   screenshareHasEnded,
 } from '/imports/ui/components/screenshare/service';
-import { HocuspocusProvider, HocuspocusProviderWebsocket } from '@hocuspocus/provider';
 import browserInfo from '/imports/utils/browserInfo';
 import Button from '/imports/ui/components/common/button/component';
 import {
@@ -15,7 +14,6 @@ import Styled from './styles';
 import { useStorageKey } from '/imports/ui/services/storage/hooks';
 import useMeeting from '../../core/hooks/useMeeting';
 import BlockNoteApp from './app/component';
-import logger from '/imports/startup/client/logger';
 import useCurrentUser from '../../core/hooks/useCurrentUser';
 import { User } from '../../Types/user';
 import { Meeting } from '../../Types/meeting';
@@ -245,13 +243,13 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
 const BlockNoteContainer: React.FC<NotesContainerGraphqlProps> = (props) => {
   const { isToSharedNotesBeShow, area } = props;
 
-  const { data: currentMeeting, loading: currentMeetingLoading } = useMeeting((meeting) => ({
+  const { data: currentMeeting } = useMeeting((meeting) => ({
     meetingId: meeting.meetingId,
     componentsFlags: meeting.componentsFlags,
     lockSettings: meeting.lockSettings,
   }));
 
-  const { data: currentUser, loading: currentUserLoading } = useCurrentUser((user) => ({
+  const { data: currentUser } = useCurrentUser((user) => ({
     color: user.color,
     name: user.name,
     isModerator: user.isModerator,

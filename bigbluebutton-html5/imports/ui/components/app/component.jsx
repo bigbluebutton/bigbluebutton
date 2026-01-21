@@ -328,6 +328,7 @@ class App extends Component {
       shouldShowPresentation,
       shouldShowScreenshare,
       isSharedNotesPinned,
+      isEtherpadSharedNotes,
       presentationIsOpen,
       darkTheme,
       intl,
@@ -342,6 +343,9 @@ class App extends Component {
     const {
       presentationFitToWidth,
     } = this.state;
+
+    const showBNSharedNotes = !isEtherpadSharedNotes && isSharedNotesPinned;
+    const showEtherpadSharedNotes = isEtherpadSharedNotes && isSharedNotesPinned;
     return (
       <>
         <ScreenReaderAlertAdapter />
@@ -394,14 +398,14 @@ class App extends Component {
             && <ScreenshareContainer shouldShowScreenshare={shouldShowScreenshare} />
           }
 
-          {isSharedNotesPinned
+          {showEtherpadSharedNotes
             ? (
               <NotesContainer
                 area="media"
               />
             ) : null}
 
-          {isSharedNotesPinned
+          {showBNSharedNotes
             ? (
               <BlockNoteContainer
                 area="media"

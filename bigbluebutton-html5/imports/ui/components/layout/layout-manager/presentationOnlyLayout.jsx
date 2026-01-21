@@ -319,6 +319,7 @@ const PresentationOnlyLayout = (props) => {
       value: false,
     });
 
+    console.log('teste aqui abc - presentationOnlyLayout');
     layoutContextDispatch({
       type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
       value: false,

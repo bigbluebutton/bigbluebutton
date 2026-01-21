@@ -53,7 +53,6 @@ export async function getUserInformation(
       const headersCorrect = checkHeaders();
 
       if (!headersCorrect) resolve(null);
-      console.log('teste aqui ----asdasd> ', res.headers);
 
       const userInfo: UserInformation = {
         userId: res.headers['user-external-id'] as string,
@@ -114,17 +113,11 @@ export async function checkUserAuthenticated(
         'X-session-token': sessionToken
       }
     };
-    // console.log('teste aqui ---> (1) ', cookie, sessionToken);
 
     const req = http.request(checkAuthorizationUrl, options, (res) => {
-      // console.log('teste aqui ---> (1234) ', res.headers)
       const isUserInformationCorrect = checkBbbWebResult(
         userInformation, res.headers
       )
-      console.log('teste aqui ---> (1234) ', {
-        code: res.statusCode === 200,
-        isUserInformationCorrect
-      })
       resolve(res.statusCode === 200 && isUserInformationCorrect);
     });
 

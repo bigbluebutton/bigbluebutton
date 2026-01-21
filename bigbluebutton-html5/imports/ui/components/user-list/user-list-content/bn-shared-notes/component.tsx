@@ -2,7 +2,13 @@ import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import Icon from '/imports/ui/components/common/icon/component';
 import Styled from './styles';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import NotesService from '/imports/ui/components/notes/service';
 import { ACTIONS, PANELS } from '../../../layout/enums';
+import { layoutSelectInput, layoutDispatch } from '../../../layout/context';
+import lockContextContainer from '/imports/ui/components/lock-viewers/context/container';
+import { useQuery } from '@apollo/client';
+import { GET_PAD_ID, GetPadIdQueryResponse } from '../../../notes/queries';
 
 // TODO: Add internatioalization
 
@@ -41,10 +47,22 @@ const intlMessages = defineMessages({
   },
 });
 
-const BNSharedNotesItem = ({
+interface BNSharedNotesItemProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  sidebarContentPanel: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  layoutContextDispatch: any;
+  disableNotes: boolean;
+  isEnabled: boolean;
+  isPinned: boolean;
+}
+
+const BNSharedNotesItem: React.FC<BNSharedNotesItemProps> = ({
   sidebarContentPanel,
   layoutContextDispatch,
   disableNotes,
+  isPinned,
+  isEnabled,
 }) => {
   const intl = useIntl();
 
@@ -61,7 +79,7 @@ const BNSharedNotesItem = ({
     });
   };
 
-  return (
+  return (isEnabled &&
     <Styled.Messages>
       <Styled.Container>
         <Styled.SmallTitle data-test="notesTitle">
@@ -76,12 +94,16 @@ const BNSharedNotesItem = ({
             active={sidebarContentPanel === PANELS.BN_SHARED_NOTES}
             onClick={toggleBlockNotePanel}
             data-test="blockNoteSidebar"
+            // @ts-ignore
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
                 e.preventDefault();
                 toggleBlockNotePanel();
               }
             }}
+            as={isPinned ? 'button' : 'div'}
+            disabled={isPinned}
+            $disabled={isPinned}
           >
             <Icon iconName="copy" />
             <div aria-hidden>
@@ -107,4 +129,48 @@ const BNSharedNotesItem = ({
   );
 };
 
-export default BNSharedNotesItem;
+interface BNSharedNotesContainerProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  userLocks: any;
+}
+
+const BNSharedNotesContainer: React.FC<BNSharedNotesContainerProps> = (props) => {
+  const { userLocks } = props;
+  const disableNotes = userLocks?.userNotes;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const sidebarContent = layoutSelectInput((i: any) => i.sidebarContent);
+  const { sidebarContentPanel } = sidebarContent;
+  const layoutContextDispatch = layoutDispatch();
+  const {
+    data: currentMeeting,
+  } = useMeeting((meeting) => ({
+    componentsFlags: meeting.componentsFlags,
+  }));
+
+  const NOTES_CONFIG = window.meetingClientSettings.public.notes;
+
+  const { data: padIdData } = useQuery<GetPadIdQueryResponse>(
+    GET_PAD_ID,
+    { variables: { externalId: NOTES_CONFIG.id } },
+  );
+  const sharedNotesType = padIdData?.sharedNotes?.[0]?.sharedNotesType;
+
+  const isBNSharedNotes = sharedNotesType === 'block-note';
+
+  const isEnabled = NotesService.useIsEnabled() && isBNSharedNotes;
+
+  const isPinned = currentMeeting?.componentsFlags?.isSharedNotesPinned ?? false;
+  
+  return (
+    <BNSharedNotesItem {...{
+      layoutContextDispatch,
+      sidebarContentPanel,
+      disableNotes,
+      isPinned,
+      isEnabled,
+    }}
+    />
+  );
+};
+
+export default lockContextContainer(BNSharedNotesContainer);
