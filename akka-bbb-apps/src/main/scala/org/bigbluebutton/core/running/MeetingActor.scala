@@ -307,7 +307,7 @@ class MeetingActor(
     case msg: BreakoutRoomCreatedInternalMsg       => state = handleBreakoutRoomCreatedInternalMsg(msg, state)
     case msg: SendBreakoutUsersAuditInternalMsg    => handleSendBreakoutUsersUpdateInternalMsg(msg)
     case msg: BreakoutRoomUsersUpdateInternalMsg   => state = handleBreakoutRoomUsersUpdateInternalMsg(msg, state)
-    case msg: EndBreakoutRoomInternalMsg           => handleEndBreakoutRoomInternalMsg(msg)
+    case msg: EndBreakoutRoomInternalMsg           => handleEndBreakoutRoomInternalMsg(msg, state)
     case msg: UpdateBreakoutRoomTimeInternalMsg    => state = handleUpdateBreakoutRoomTimeInternalMsgHdlr(msg, state)
     case msg: EjectUserFromBreakoutInternalMsg     => handleEjectUserFromBreakoutInternalMsgHdlr(msg)
     case msg: BreakoutRoomEndedInternalMsg         => state = handleBreakoutRoomEndedInternalMsg(msg, state)

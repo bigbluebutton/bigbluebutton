@@ -59,6 +59,7 @@ type Config struct {
 	} `yaml:"session_vars_hook"`
 	LogLevel                         string `yaml:"log_level"`
 	PrometheusAdvancedMetricsEnabled bool   `yaml:"prometheus_advanced_metrics_enabled"`
+	DumpQueriesDir                   string `yaml:"dump_queries_dir"`
 }
 
 func GetConfig() *Config {

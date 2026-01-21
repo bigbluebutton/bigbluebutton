@@ -1023,14 +1023,14 @@ public class ParamsProcessorUtil {
 			meeting.setCustomLogoURL(this.getDefaultLogoURL());
 		}
 
-        if (!StringUtils.isEmpty(params.get(ApiParams.DARK_LOGO))) {                
-            meeting.setCustomDarkLogoURL(params.get(ApiParams.DARK_LOGO));          
-        } else if  (!StringUtils.isEmpty(params.get(ApiParams.LOGO))) {             
-            meeting.setCustomDarkLogoURL(params.get(ApiParams.LOGO));               
-        } else if  (this.getUseDefaultDarkLogo()) {                                 
-            meeting.setCustomDarkLogoURL(this.getDefaultDarkLogoURL());             
-        } else if (!this.getUseDefaultDarkLogo() && this.getUseDefaultLogo()) {     
-            meeting.setCustomDarkLogoURL(this.getDefaultLogoURL());                 
+        if (!StringUtils.isEmpty(params.get(ApiParams.DARK_LOGO))) {
+            meeting.setCustomDarkLogoURL(params.get(ApiParams.DARK_LOGO));
+        } else if  (!StringUtils.isEmpty(params.get(ApiParams.LOGO))) {
+            meeting.setCustomDarkLogoURL(params.get(ApiParams.LOGO));
+        } else if  (this.getUseDefaultDarkLogo()) {
+            meeting.setCustomDarkLogoURL(this.getDefaultDarkLogoURL());
+        } else if (!this.getUseDefaultDarkLogo() && this.getUseDefaultLogo()) {
+            meeting.setCustomDarkLogoURL(this.getDefaultLogoURL());
         }
 
 		if (!StringUtils.isEmpty(params.get(ApiParams.COPYRIGHT))) {
@@ -1867,5 +1867,49 @@ public class ParamsProcessorUtil {
 
     public void setSharedNotesType(String sharedNotesType) {
         this.defaultSharedNotesType = sharedNotesType;
+    }
+
+    /**
+     * Extracts client IP from headers. Parses X-Forwarded-For (first valid IP),
+     * falls back to X-Real-IP, then remoteAddr. Returns sanitized IP (max 128 chars).
+     */
+    public String extractClientIp(String xForwardedFor, String xRealIp, String remoteAddr) {
+        String clientIp = "";
+
+        // Parse X-Forwarded-For (may contain multiple IPs)
+        if (xForwardedFor != null && !xForwardedFor.trim().isEmpty()) {
+            String[] parts = xForwardedFor.split(",");
+            for (String part : parts) {
+                String trimmed = part.trim();
+                if (!trimmed.isEmpty()) {
+                    clientIp = trimmed;
+                    break;
+                }
+            }
+        }
+
+        if (clientIp.isEmpty() && xRealIp != null && !xRealIp.trim().isEmpty()) {
+            clientIp = xRealIp.trim();
+        }
+
+        if (clientIp.isEmpty() && remoteAddr != null && !remoteAddr.trim().isEmpty()) {
+            clientIp = remoteAddr.trim();
+        }
+
+        return sanitizeHeader(clientIp, 128);
+    }
+
+    /**
+     * Sanitizes header value: trims whitespace and caps length.
+     */
+    public String sanitizeHeader(String value, int maxLength) {
+        if (value == null || value.isEmpty()) {
+            return "";
+        }
+        String trimmed = value.trim();
+        if (trimmed.length() > maxLength) {
+            return trimmed.substring(0, maxLength);
+        }
+        return trimmed;
     }
 }

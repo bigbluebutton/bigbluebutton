@@ -1117,17 +1117,36 @@ If no permission is present in the manifest, then we consider that every user in
 
 ### Learning Analytics Dashboard integration
 
-- `sendGenericDataForLearningAnalyticsDashboard`: This function will send data for the bbb to render inside the plugin's table
+This integration allow you to insert/update entry in LAD (Learning Analytics Dashboard) via `upsertUserData` function and also delete entries via `deleteUserData` function.
 
-The object structure of this function's argument must be:
+It's an object available in the `pluginApi` that wraps those 3 functions:
+
+- `pluginApi.learningAnalyticsDashboard.upsertUserData`
+- `pluginApi.learningAnalyticsDashboard.deleteUserData`
+- `pluginApi.learningAnalyticsDashboard.clearAllUsersData`
+
+For the `upsert` function, the argument's data object structure must be:
 
 ```ts
-interface GenericDataForLearningAnalyticsDashboard {
-  cardTitle: string; // Yet to be implemented (future updates)
+interface LearningAnalyticsDashboardUserData {
+  cardTitle: string;
   columnTitle: string;
   value: string;
 }
 ```
+
+For the `deleteUserData` function, the argument's data object structure must be:
+
+```ts
+interface LearningAnalyticsDashboardDeleteUserData {
+  cardTitle: string;
+  columnTitle: string;
+}
+```
+
+For the `clearAllUsersData` function, the argument is the cardTitle (optionally), and when it's not sent, all the entries for a specific plugin will be deleted. (And if the card ends up empty, it will be removed) 
+
+If the user is a moderator, there is the possibility to publish data on behalf of other users by using the second **optional** parameter named `targetUserId`
 
 So that the data will appear in the following form:
 
@@ -1135,6 +1154,36 @@ So that the data will appear in the following form:
 |    ---    |  :--  |      --:        |
 | user-name |   1   |   `<value>`     |
 
+
+See example of use ahead:
+
+```ts
+const targetUserId = 'abcd-efg';
+pluginApi.learningAnalyticsDashboard.upsertUserData(
+  {
+    cardTitle: 'Example Title',
+    columnTitle: 'link sent by user',
+    value: '[link](https://my-website.com/abc.png)'
+  },
+  targetUserId,
+);
+
+pluginApi.learningAnalyticsDashboard.deleteUserData(
+  {
+    cardTitle: 'Example Title',
+    columnTitle: 'link sent by user',
+  },
+  targetUserId,
+);
+
+pluginApi.learningAnalyticsDashboard.clearAllUsersData(columnTitle);
+
+pluginApi.learningAnalyticsDashboard.clearAllUsersData(); // Or without the Column Title
+```
+
+Note 1: the `value` field (in the upsert function's argument) supports markdown, so feel free to use it as you wish.
+
+Note 2: pluginApi.sendGenericDataForLearningAnalyticsDashboard is now being deprecated, but has the same data structure as upsert (without the possibility to send entry on behalf of another user)
 
 ### External data resources
 

@@ -225,6 +225,7 @@
     "app.media.cameraAsContent.endDueToDataSaving": "Kameranın sunulması veri harcamamak için kapatıldı",
     "app.media.cameraAsContent.autoplayBlockedDesc": "Sunucunun kamerasını size gösterebilmemiz için izin vermeniz gerekiyor.",
     "app.media.cameraAsContent.autoplayAllowLabel": "Sunulan kamerayı görüntüle",
+    "app.media.mediaReconnecting": "Bağlantı sorunu algılandı. Sesiniz ve görüntünüz geri yükleniyor...",
     "app.screenshare.presenterLoadingLabel": "Ekran paylaşımınız yükleniyor",
     "app.screenshare.viewerLoadingLabel": "Sunucunun ekranı yükleniyor",
     "app.screenshare.presenterSharingLabel": "Ekranınız şu anda paylaşılıyor",

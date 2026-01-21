@@ -1003,6 +1003,7 @@
     "app.userList.guest.feedbackMessage": "Action applied: ",
     "app.user-info.title": "Directory Lookup",
     "app.toast.breakoutRoomEnded": "The breakout room ended.  Please rejoin in the audio.",
+    "app.toast.breakoutContentUnchangedNotConverted": "One or more breakout rooms had no whiteboard/shared notes updates, so they weren't converted to slides.",
     "app.toast.chat.public": "New Public Chat message",
     "app.toast.chat.private": "New Private Chat message",
     "app.toast.chat.system": "System",
