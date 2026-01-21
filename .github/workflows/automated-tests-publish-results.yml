@@ -143,7 +143,7 @@ jobs:
         if: ${{ env.REPORT_ARTIFACT_FOUND == 'true' }}
         uses: ./.github/actions/publish-playwright-report
         with:
-          reports-repo: ${{ github.repository_owner }}/bigbluebutton-ci-playwright-reports
+          reports-repo: ${{ github.repository_owner }}/bbb-ci-playwright-reports
           token: ${{ secrets.PLAYWRIGHT_REPORTS_REPO_TOKEN }}
           pr-number: ${{ needs.get-pr-data.outputs.pr-number }}
           report-path: ${{ env.REPORT_PATH }}
@@ -198,4 +198,4 @@ jobs:
 
             ___
 
-            [Click here](https://bigbluebutton.github.io/bigbluebutton-ci-playwright-reports/pr-${{ needs.get-pr-data.outputs.pr-number }}/) to check the action test reports (_to view the report locally, see the [docs](https://github.com/${{ github.repository_owner }}/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/README.md#check-test-results)_)
+            [Click here](https://bigbluebutton.github.io/bbb-ci-playwright-reports/pr-${{ needs.get-pr-data.outputs.pr-number }}/) to check the action test reports (_to view the report locally, see the [docs](https://github.com/${{ github.repository_owner }}/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/README.md#check-test-results)_)
