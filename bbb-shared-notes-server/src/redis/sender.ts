@@ -34,26 +34,8 @@ const build = (name: string, meetingId: string, body: object) => {
 const buildMessage = (type: string, meetingId: string, body: object) => {
   let message;
   switch (type) {
-    case 'groupCreated':
-      message = build('PadGroupCreatedEvtMsg', meetingId, body);
-      break;
     case 'sharedNotesCreated':
       message = build('BNSharedNotesCreatedEvtMsg', meetingId, body);
-      break;
-    case 'padUpdated':
-      message = build('PadUpdatedSysMsg', meetingId, body);
-      break;
-    case 'padContent':
-      message = build('PadContentSysMsg', meetingId, body);
-      break;
-    case 'padPatch':
-      message = build('PadPatchSysMsg', meetingId, body);
-      break;
-    case 'sessionCreated':
-      message = build('PadSessionCreatedEvtMsg', meetingId, body);
-      break;
-    case 'sessionDeleted':
-      message = build('PadSessionDeletedSysMsg', meetingId, body);
       break;
     default:
   }

@@ -14,5 +14,5 @@ if [ ! -d ./node_modules ] || ! npm ls --depth=0 >/dev/null 2>&1; then
 	npm install
 fi
 
-sudo systemctl stop shared-notes-server
+sudo systemctl stop bbb-shared-notes-server
 npm start

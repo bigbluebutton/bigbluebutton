@@ -4,27 +4,20 @@ import { meetingLockMap, websocketMap } from "../common/singleton";
 import * as Y from "yjs";
 import { extractMeetingId } from "./utils";
 import sqliteDB from "./extensions/sqlite";
+import { Logger } from "../common/logger";
 
+const logger = new Logger('hocuspocus');
 // Configure Hocuspocus
 const hocuspocus = new Hocuspocus({
   extensions: [
     sqliteDB,
   ],
 
-  onAwarenessUpdate: async ({ awareness, added, updated, removed }) => {
-    console.log('=== Awareness Update (Cursor Positions) ===');
-  },
-
-  // TODO: Validate message before it's processed 
-  beforeHandleMessage: async ({
-    context
-  }) => {},
-
   onAuthenticate: async (data) => {
     const { documentName, requestHeaders, context } = data;
 
-    console.log('=== Authentication Data ===');
-    console.log('Document Name:', documentName);
+    logger.info('=== Authentication Data ===')
+    logger.info('Document Name:', documentName)
 
     const role = "READ-WRITE";
 
@@ -79,18 +72,6 @@ const hocuspocus = new Hocuspocus({
         meetingId,
       }
     };
-  },
-
-  // onDisconnect: async ({ context }) => {
-  //   const {
-  //     sessionToken,
-  //   } = context;
-  //   websocketMap.delete(sessionToken);
-  //   console.log('=== Disconnected ===', sessionToken);
-  // },
-
-  onChange: async (data) => {
-    console.log('=== Document Changed ===', data.context.user.sessionToken);
   },
 });
 
