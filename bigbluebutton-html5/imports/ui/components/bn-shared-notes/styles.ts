@@ -8,7 +8,6 @@ import CommonHeader from '/imports/ui/components/common/control-header/component
 
 const Notes = styled.div<{ isChrome: boolean }>`
   background-color: ${colorWhite};
-  padding: ${mdPaddingX} 0 0 ${mdPaddingX};
   display: flex;
   flex-grow: 1;
   flex-direction: column;
@@ -27,7 +26,7 @@ const Notes = styled.div<{ isChrome: boolean }>`
 `;
 
 const Header = styled(CommonHeader)`
-  padding-bottom: .2rem;
+  padding: ${mdPaddingX};
 `;
 
 const WarningNotificationContainer = styled.div`

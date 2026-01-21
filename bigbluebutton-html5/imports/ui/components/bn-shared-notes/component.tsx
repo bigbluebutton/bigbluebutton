@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import { useMutation, useQuery } from '@apollo/client';
+import { useMutation } from '@apollo/client';
+import {
+  screenshareHasEnded,
+} from '/imports/ui/components/screenshare/service';
 import { HocuspocusProvider, HocuspocusProviderWebsocket } from '@hocuspocus/provider';
 import browserInfo from '/imports/utils/browserInfo';
-import Header from '/imports/ui/components/common/control-header/component';
 import Button from '/imports/ui/components/common/button/component';
 import {
   PANELS, ACTIONS,
 } from '/imports/ui/components/layout/enums';
-import { layoutSelectInput, layoutDispatch } from '/imports/ui/components/layout/context';
+import { layoutSelectInput, layoutDispatch, layoutSelectOutput } from '/imports/ui/components/layout/context';
 import Styled from './styles';
 import { useStorageKey } from '/imports/ui/services/storage/hooks';
 import useMeeting from '../../core/hooks/useMeeting';
@@ -18,6 +20,11 @@ import useCurrentUser from '../../core/hooks/useCurrentUser';
 import { User } from '../../Types/user';
 import { Meeting } from '../../Types/meeting';
 import NotesDropdownContainerGraphql from './dropdown/component';
+import { PIN_NOTES } from '../notes/mutations';
+import { EXTERNAL_VIDEO_STOP } from '../external-video-player/mutations';
+import { useIsScreenBroadcasting } from '../screenshare/service';
+import injectWbResizeEvent from '../presentation/resize-wrapper/component';
+import useHocuspocusProvider from './hooks';
 
 const intlMessages = defineMessages({
   hide: {
@@ -36,6 +43,7 @@ const intlMessages = defineMessages({
 
 interface NotesContainerGraphqlProps {
   isToSharedNotesBeShow: boolean;
+  area: 'media' | undefined;
 }
 
 interface NotesGraphqlProps extends NotesContainerGraphqlProps {
@@ -45,18 +53,18 @@ interface NotesGraphqlProps extends NotesContainerGraphqlProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   sidebarContent: any;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  sharedNotesOutput: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   shouldShowSharedNotesOnPresentationArea: boolean;
   currentUser: Partial<User> | null;
   currentMeeting?: Partial<Meeting>;
-  sessionToken: string | null;
-  currentMeetingLoading: boolean;
-  currentUserLoading: boolean;
+  isRTL: boolean;
+  amIPresenter: boolean;
+  isResizing: boolean;
 }
 
 const sidebarContentToIgnoreDelay = ['captions'];
 
-const hasSessionToken = (sessionToken?: string | null) => sessionToken !== undefined || sessionToken !== null;
-const checkLockReason = (reason: string): boolean => reason === 'Lock rules changed.';
 
 const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
   const {
@@ -66,10 +74,12 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
     shouldShowSharedNotesOnPresentationArea,
     currentUser,
     currentMeeting,
-    sessionToken,
-    currentMeetingLoading,
-    currentUserLoading,
     handlePinSharedNotes,
+    area,
+    sharedNotesOutput,
+    isRTL,
+    amIPresenter,
+    isResizing,
   } = props;
   const [shouldRenderNotes, setShouldRenderNotes] = useState(false);
   const intl = useIntl();
@@ -79,12 +89,28 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
   const { disableNotes } = currentMeeting?.lockSettings || { disableNotes: false };
 
   const { isChrome } = browserInfo;
+  const isOnMediaArea = area === 'media';
 
   const DELAY_UNMOUNT_SHARED_NOTES = window.meetingClientSettings.public.app.delayForUnmountOfSharedNote;
 
+  const style = isOnMediaArea ? {
+    position: 'absolute',
+    ...sharedNotesOutput,
+  } : {};
+
+  const isHidden = (isOnMediaArea && (style.width === 0 || style.height === 0))
+    || (!isToSharedNotesBeShow
+      && !sidebarContentToIgnoreDelay.includes(sidebarContent.sidebarContentPanel))
+    || shouldShowSharedNotesOnPresentationArea;
+
+  if (isHidden && !isOnMediaArea) {
+    style.padding = 0;
+    style.display = 'none';
+  }
+
   let timoutRef: NodeJS.Timeout | undefined;
   useEffect(() => {
-    if (isToSharedNotesBeShow) {
+    if (isToSharedNotesBeShow || shouldShowSharedNotesOnPresentationArea) {
       setShouldRenderNotes(true);
       clearTimeout(timoutRef!);
     } else {
@@ -95,142 +121,85 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
         ? 0 : DELAY_UNMOUNT_SHARED_NOTES);
     }
     return () => clearTimeout(timoutRef!);
-  }, [isToSharedNotesBeShow, sidebarContent.sidebarContentPanel]);
+  }, [isToSharedNotesBeShow, shouldShowSharedNotesOnPresentationArea, sidebarContent.sidebarContentPanel]);
 
-  const [hocuspocusProvider, setHocuspocusProvider] = useState<HocuspocusProvider>();
-  const [isAuthenticating, setIsAuthenticating] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [connectionClosed, setConnectionClosed] = useState(false);
-  const [retryTrigger, setRetryTrigger] = useState(0);
-
-  const handleRetry = () => {
-    setError(null);
-    setConnectionClosed(false);
-    setHocuspocusProvider(undefined);
-    setRetryTrigger((prev) => prev + 1);
-  };
-
-  useEffect(() => {
-    console.log('teste aqui ---> 123', {
-      hocuspocusProvider,
-      currentMeeting,
-      currentUser,
-      sessionToken,
-      isAuthenticating,
-      currentMeetingLoading,
-      currentUserLoading,
-    });
-
-    if (!hocuspocusProvider
-      && !currentMeetingLoading
-      && !currentUserLoading
-      && hasSessionToken(sessionToken)
-      && !isAuthenticating
-    ) {
-      const documentName = `bn-document__${meetingId}`;
-      const blockNoteToken = sessionToken;
-
-      const wsProvider = new HocuspocusProviderWebsocket({
-        url: 'wss://bbb30.bbb.imdt.dev/hocuspocus/collaboration',
-        maxAttempts: 1,
-        parameters: {
-          sessionToken,
-        },
-      });
-      console.log('teste aqui --->(abcd) ', blockNoteToken);
-
-      setIsAuthenticating(true);
-      const provider = new HocuspocusProvider({
-        name: documentName,
-        token: blockNoteToken,
-        websocketProvider: wsProvider,
-        onConnect: () => {
-          console.log('teste aquiii --->>asdas', provider);
-          setHocuspocusProvider(provider);
-          setIsAuthenticating(false);
-        },
-        onAuthenticated: () => {
-          console.log('teste aquiii --->>asdas (1)', provider);
-          setIsAuthenticating(false);
-        },
-        onAuthenticationFailed: (data) => {
-          setError('Authentication failed');
-          logger.error({
-            logCode: 'hocuspocus_authentication_failed',
-            extraInfo: {
-              reason: data.reason,
-              documentId: documentName,
-            },
-          }, `Authentication failed while trying to connect to hocuspocus server [${data.reason}]`);
-        },
-        onClose: (data) => {
-          logger.debug({
-            logCode: 'hocuspocus_closed_connection',
-            extraInfo: {
-              code: data.event.code,
-              reason: data.event.reason,
-              documentId: documentName,
-            },
-          }, `Hocuspocus server closed websocket connection, reason: ${data.event.reason}`);
-
-          const {
-            code,
-            reason,
-          } = data.event;
-
-          if (code === 1008 && checkLockReason(reason)) {
-            handleRetry();
-          } else {
-            setConnectionClosed(true);
-            setIsAuthenticating(false);
-          }
-        },
-      });
-    }
-  }, [retryTrigger, sessionToken, currentMeetingLoading, currentUserLoading]);
+  const {
+    error, isAuthenticating, hocuspocusProvider, connectionClosed, handleRetry,
+  } = useHocuspocusProvider();
 
   const renderBlockNote = shouldRenderNotes && !error && !isAuthenticating
     && hocuspocusProvider && !connectionClosed;
 
   const hasError = !!error;
 
+  // Debug logging
+  console.log('BlockNote render conditions:', {
+    shouldRenderNotes,
+    error,
+    isAuthenticating,
+    hocuspocusProvider: !!hocuspocusProvider,
+    connectionClosed,
+    renderBlockNote,
+    area,
+    isOnMediaArea,
+  });
+
   useEffect(() => {
     const hasError = !!error;
     if (hasError) hocuspocusProvider?.destroy();
   }, [error]);
 
-  return (isToSharedNotesBeShow) && (
+  const renderHeaderOnMedia = () => {
+    return amIPresenter ? (
+      <Styled.Header
+        rightButtonProps={{
+          'aria-label': intl.formatMessage(intlMessages.unpinNotes),
+          'data-test': 'unpinNotes',
+          icon: 'close',
+          label: intl.formatMessage(intlMessages.unpinNotes),
+          onClick: () => {
+            handlePinSharedNotes(false);
+          },
+        }}
+      />
+    ) : null;
+  };
+
+  return (shouldRenderNotes || shouldShowSharedNotesOnPresentationArea) && (
     <Styled.Notes
       data-test="notes"
       isChrome={isChrome}
+      style={style}
     >
-      <>
-        <h2 className="sr-only">Block Note</h2>
-        <Header
-          leftButtonProps={{
-            onClick: () => {
-              layoutContextDispatch({
-                type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-                value: false,
-              });
-              layoutContextDispatch({
-                type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-                value: PANELS.NONE,
-              });
-            },
-            'data-test': 'hideNotesLabel',
-            'aria-label': intl.formatMessage(intlMessages.hide),
-            label: intl.formatMessage(intlMessages.title),
-          }}
-          customRightButton={(
-            <NotesDropdownContainerGraphql
-              handlePinSharedNotes={handlePinSharedNotes}
-            />
-          )}
-          data-test="notesHeader"
-          rightButtonProps={null}
-        />
-      </>
+      {!isOnMediaArea ? (
+        <>
+          <h2 className="sr-only">{intl.formatMessage(intlMessages.title)}</h2>
+          <Styled.Header
+            leftButtonProps={{
+              onClick: () => {
+                layoutContextDispatch({
+                  type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+                  value: false,
+                });
+                layoutContextDispatch({
+                  type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+                  value: PANELS.NONE,
+                });
+              },
+              'data-test': 'hideNotesLabel',
+              'aria-label': intl.formatMessage(intlMessages.hide),
+              label: intl.formatMessage(intlMessages.title),
+            }}
+            customRightButton={(
+              <NotesDropdownContainerGraphql
+                handlePinSharedNotes={handlePinSharedNotes}
+              />
+            )}
+            data-test="notesHeader"
+            rightButtonProps={null}
+          />
+        </>
+      ) : renderHeaderOnMedia()}
       {(isAuthenticating && !hasError)
         && (
           <div style={{ padding: '20px', textAlign: 'center' }}>
@@ -274,7 +243,7 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
 };
 
 const BlockNoteContainer: React.FC<NotesContainerGraphqlProps> = (props) => {
-  const { isToSharedNotesBeShow } = props;
+  const { isToSharedNotesBeShow, area } = props;
 
   const { data: currentMeeting, loading: currentMeetingLoading } = useMeeting((meeting) => ({
     meetingId: meeting.meetingId,
@@ -287,48 +256,57 @@ const BlockNoteContainer: React.FC<NotesContainerGraphqlProps> = (props) => {
     name: user.name,
     isModerator: user.isModerator,
     userLockSettings: user.userLockSettings,
+    presenter: user.presenter,
   }));
 
+  const [pinSharedNotes] = useMutation(PIN_NOTES);
+  const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
+  const isScreenBroadcasting = useIsScreenBroadcasting();
+
   // @ts-ignore Until everything in Typescript
+  const cameraDock = layoutSelectInput((i) => i.cameraDock);
+  // @ts-ignore Until everything in Typescript
+  const sharedNotesOutput = layoutSelectOutput((i) => i.sharedNotes);
   // @ts-ignore Until everything in Typescript
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
+  const { isResizing } = cameraDock;
   const layoutContextDispatch = layoutDispatch();
+  const amIPresenter = !!currentUser?.presenter;
 
+  const isRTL = document.documentElement.getAttribute('dir') === 'rtl';
   const { isOpen: isSidebarContentOpen } = sidebarContent;
   const isGridLayout = useStorageKey('isGridEnabled');
 
   const shouldShowSharedNotesOnPresentationArea = isGridLayout ? !!currentMeeting?.componentsFlags?.isSharedNotesPinned
     && isSidebarContentOpen : !!currentMeeting?.componentsFlags?.isSharedNotesPinned;
 
-  const urlParams = new URLSearchParams(window.location.search);
-  const sessionToken = urlParams.get('sessionToken');
-
   const handlePinSharedNotes = (pinned: boolean) => {
-    // TODO: Handle pin flow
-    // if (pinned) {
-    //   stopExternalVideoShare();
-    //   if (isScreenBroadcasting) screenshareHasEnded();
-    // }
-    // pinSharedNotes({ variables: { pinned, padId } });
-    // layoutContextDispatch({
-    //   type: ACTIONS.SET_NOTES_IS_PINNED,
-    //   value: pinned,
-    // });
+    if (pinned) {
+      stopExternalVideoShare();
+      if (isScreenBroadcasting) screenshareHasEnded();
+    }
+    pinSharedNotes({ variables: { pinned } });
+    layoutContextDispatch({
+      type: ACTIONS.SET_NOTES_IS_PINNED,
+      value: pinned,
+    });
   };
   return (
     <NotesGraphql
       layoutContextDispatch={layoutContextDispatch}
       sidebarContent={sidebarContent}
+      sharedNotesOutput={sharedNotesOutput}
+      area={area}
       shouldShowSharedNotesOnPresentationArea={shouldShowSharedNotesOnPresentationArea}
       isToSharedNotesBeShow={isToSharedNotesBeShow}
       currentUser={currentUser}
       currentMeeting={currentMeeting}
       handlePinSharedNotes={handlePinSharedNotes}
-      currentMeetingLoading={currentMeetingLoading}
-      currentUserLoading={currentUserLoading}
-      sessionToken={sessionToken}
+      isRTL={isRTL}
+      amIPresenter={amIPresenter}
+      isResizing={isResizing}
     />
   );
 };
 
-export default BlockNoteContainer;
+export default injectWbResizeEvent(BlockNoteContainer);

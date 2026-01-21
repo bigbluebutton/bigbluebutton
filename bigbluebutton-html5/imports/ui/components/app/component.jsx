@@ -37,6 +37,7 @@ import GlobalStyles from '/imports/ui/stylesheets/styled-components/globalStyles
 import ActionsBarContainer from '../actions-bar/container';
 import PushLayoutEngine from '../layout/push-layout/pushLayoutEngine';
 import NotesContainer from '/imports/ui/components/notes/component';
+import BlockNoteContainer from '../bn-shared-notes/component';
 import AppService from '/imports/ui/components/app/service';
 import PresentationUploaderToastContainer from '/imports/ui/components/presentation/presentation-toast/presentation-uploader-toast/container';
 import BreakoutJoinConfirmationContainerGraphQL from '../breakout-join-confirmation/breakout-join-confirmation-graphql/component';
@@ -396,6 +397,13 @@ class App extends Component {
           {isSharedNotesPinned
             ? (
               <NotesContainer
+                area="media"
+              />
+            ) : null}
+
+          {isSharedNotesPinned
+            ? (
+              <BlockNoteContainer
                 area="media"
               />
             ) : null}

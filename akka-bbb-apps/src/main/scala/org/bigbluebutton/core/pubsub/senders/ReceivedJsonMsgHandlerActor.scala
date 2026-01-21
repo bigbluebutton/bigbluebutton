@@ -157,6 +157,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[PadCreateReqMsg](envelope, jsonNode)
       case PadCreatedEvtMsg.NAME =>
         routePadMsg[PadCreatedEvtMsg](envelope, jsonNode)
+      case BNSharedNotesCreatedEvtMsg.NAME =>
+        routePadMsg[BNSharedNotesCreatedEvtMsg](envelope, jsonNode)
       case PadCreateSessionReqMsg.NAME =>
         routeGenericMsg[PadCreateSessionReqMsg](envelope, jsonNode)
       case PadSessionCreatedEvtMsg.NAME =>

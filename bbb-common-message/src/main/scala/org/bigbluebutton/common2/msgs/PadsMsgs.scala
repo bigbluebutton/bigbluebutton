@@ -31,7 +31,7 @@ case class BNSharedNotesCreateCmdMsgBody(externalId: String, model: String)
 
 // shared-notes-server -> apps
 object BNSharedNotesCreatedEvtMsg { val NAME = "BNSharedNotesCreatedEvtMsg" }
-case class BNSharedNotesCreatedEvtMsg(header: BbbCoreHeaderWithMeetingId, body: BNSharedNotesCreatedEvtMsgBody) extends BbbCoreMsg
+case class BNSharedNotesCreatedEvtMsg(header: BbbCoreHeaderWithMeetingId, body: BNSharedNotesCreatedEvtMsgBody) extends PadStandardMsg
 case class BNSharedNotesCreatedEvtMsgBody(padId: String, externalId: String, model: String)
 
 // apps -> pads

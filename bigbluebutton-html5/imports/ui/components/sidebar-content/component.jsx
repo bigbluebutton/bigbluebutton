@@ -150,7 +150,7 @@ const SidebarContent = (props) => {
           isToSharedNotesBeShow={sidebarContentPanel === PANELS.SHARED_NOTES}
         />
       )}
-      {showBlockNote && (
+      {!isSharedNotesPinned && (
         <BlockNoteContainer
           isToSharedNotesBeShow={showBlockNote}
         />
