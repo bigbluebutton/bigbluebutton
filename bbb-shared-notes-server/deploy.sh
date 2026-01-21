@@ -19,6 +19,7 @@ sudo npm run build
 # create target directory if it doesn't exist
 sudo mkdir -p /usr/local/bigbluebutton/bbb-shared-notes-server
 
+sudo mv -f dist/index.js dist/bbb-shared-notes-server.js
 sudo cp -rf dist/* /usr/local/bigbluebutton/bbb-shared-notes-server
 sudo systemctl restart bbb-shared-notes-server
 echo ''
