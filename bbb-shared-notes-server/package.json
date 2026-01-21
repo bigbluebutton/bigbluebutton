@@ -1,6 +1,6 @@
 {
-  "name": "bbb-graphql-actions",
-  "homepage": "https://github.com/bigbluebutton/bigbluebutton/tree/develop/bbb-graphql-actions#readme",
+  "name": "bbb-shared-notes-server",
+  "homepage": "https://github.com/bigbluebutton/bigbluebutton/tree/develop/bbb-shared-notes-server#readme",
   "version": "0.0.1",
   "description": "A server component designed to interface between Hasura GraphQL actions and BigBlueButton ecosystem.",
   "main": "index.ts",
@@ -14,12 +14,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/bigbluebutton/bigbluebutton/tree/develop/bbb-graphql-actions"
+    "url": "git+https://github.com/bigbluebutton/bigbluebutton/tree/develop/bbb-shared-notes-server"
   },
   "keywords": [
     "bigbluebutton",
-    "graphql",
-    "actions"
+    "shared-notes",
+    "hocuspocus",
+    "blocknote"
   ],
   "author": "BigBlueButton Inc.",
   "license": "LGPL-3.0",

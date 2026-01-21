@@ -36,10 +36,15 @@ export interface BbbPostgresConfig {
   connectionTimeoutMillis?: number;
 }
 
+export interface SqliteConfig {
+  database: string;
+}
+
 export interface AppSettings {
   hocuspocusServer: HocuspocusServerConfig;
   bbbWeb: BbbWebConfig;
   log: LogConfig;
   redis: RedisConfig;
   bbbPostgres: BbbPostgresConfig;
+  sqlite: SqliteConfig;
 }

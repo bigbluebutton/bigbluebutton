@@ -32,6 +32,7 @@ mv ../bbb-shared-notes-server-temp/dist/* .
 mv index.js bbb-shared-notes-server.js
 cp ../bbb-shared-notes-server-temp/package.json .
 cp ../bbb-shared-notes-server-temp/package-lock.json .
+sudo cp -f ../src/bbb-shared-notes-server-temp/config/settings.json.template /usr/local/bigbluebutton/bbb-shared-notes-server/config/settings.json
 npm ci --no-progress --omit=dev
 rm -rf ../bbb-shared-notes-server-temp/
 popd

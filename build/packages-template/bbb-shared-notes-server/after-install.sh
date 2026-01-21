@@ -3,6 +3,11 @@
 case "$1" in
   configure|upgrade|1|2)
 
+  # Create SQLite database directory with proper permissions
+  mkdir -p /var/lib/bbb-shared-notes-server
+  chown bigbluebutton:bigbluebutton /var/lib/bbb-shared-notes-server
+  chmod 755 /var/lib/bbb-shared-notes-server
+
   fc-cache -f
   if [ ! -f /.dockerenv ]; then
     systemctl enable bbb-shared-notes-server.service

@@ -2,7 +2,9 @@ import fs from 'fs';
 import { AppSettings } from './type';
 import DEFAULT_SETTINGS from './const';
 
-const DEFAULT_SETTINGS_FILE_PATH = './settings.json';
+const DEFAULT_SETTINGS_FILE_PATH = process.env.NODE_ENV === 'production'
+  ? '/usr/local/bigbluebutton/bbb-shared-notes-server/config/settings.json'
+  : './settings.json';
 const LOCAL_SETTINGS_FILE_PATH = '/etc/bigbluebutton/shared-notes-server.json';
 
 let settings: AppSettings = DEFAULT_SETTINGS

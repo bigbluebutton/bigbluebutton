@@ -1,5 +1,5 @@
 [Unit]
-Description=BigBlueButton GraphQL Actions Adapter Server
+Description=BigBlueButton Shared Notes Server
 Wants=redis-server.service bbb-graphql-server.service
 After=syslog.target network.target redis-server.service bbb-graphql-server.service
 PartOf=bigbluebutton.target
