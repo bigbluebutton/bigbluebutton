@@ -154,6 +154,14 @@ jobs:
     needs: get-pr-data
     if: ${{ needs.get-pr-data.outputs.pr-number && needs.get-pr-data.outputs.workflow-id }}
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Check if test reports exist
+        if: ${{ github.event.workflow_run.conclusion != 'success' && fromJson(env.isCompleted) }}
+        id: check-reports
+        uses: ./.github/actions/check-artifact-exists
+        with:
+          artifact-name: tests-report
       - name: Find Comment
         uses: peter-evans/find-comment@v3
         id: fc
@@ -187,15 +195,22 @@ jobs:
           body: |
             <h1>Automated tests Summary</h1>
             <h3><strong>:white_check_mark:</strong> All the CI tests have passed!</h3>
-      - name: Failing tests comment
-        if: ${{ github.event.workflow_run.conclusion != 'success' && fromJson(env.isCompleted) }}
+      - name: Failing tests comment (with report)
+        if: ${{ github.event.workflow_run.conclusion != 'success' && fromJson(env.isCompleted) && fromJson(steps.check-reports.outputs.exists || 'false') }}
         uses: peter-evans/create-or-update-comment@v4
         with:
           issue-number: ${{ needs.get-pr-data.outputs.pr-number }}
           body: |
-            <h1> Automated tests Summary</h1>
-            <h3><strong>:rotating_light:</strong> Test workflow has failed</h3>
+            <h2><strong>:rotating_light:</strong> Automated tests failed</h2>
 
-            ___
+            - [Test results](https://bigbluebutton.github.io/bbb-ci-playwright-reports/pr-${{ needs.get-pr-data.outputs.pr-number }})
+            - [Github workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ needs.get-pr-data.outputs.workflow-id }})
+      - name: Failing tests comment (without report)
+        if: ${{ github.event.workflow_run.conclusion != 'success' && fromJson(env.isCompleted) && !fromJson(steps.check-reports.outputs.exists || 'false') }}
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          issue-number: ${{ needs.get-pr-data.outputs.pr-number }}
+          body: |
+            <h2><strong>:rotating_light:</strong> Automated tests failed</h2>
 
-            [Click here](https://bigbluebutton.github.io/bbb-ci-playwright-reports/pr-${{ needs.get-pr-data.outputs.pr-number }}/) to check the action test reports (_to view the report locally, see the [docs](https://github.com/${{ github.repository_owner }}/bigbluebutton/blob/v3.0.x-release/bigbluebutton-tests/playwright/README.md#check-test-results)_)
+            - [Github workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ needs.get-pr-data.outputs.workflow-id }})
