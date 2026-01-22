@@ -17,7 +17,7 @@
     "react-dom": "^17.0.2",
     "react-intl": "^5.20.6",
     "react-scripts": "^5.0.0",
-    "react-markdown": "^8.0.7",
+    "react-markdown": "^9.0.0",
     "recharts": "^2.15.4"
   },
   "scripts": {
