@@ -1,4 +1,4 @@
-# encoding: UTF-8
+# frozen_string_literal: true
 
 # BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
 #
@@ -20,6 +20,10 @@
 require 'json'
 require 'set'
 require 'shellwords'
+
+require_relative 'video/presentation_video_source'
+require_relative 'video/video_source_reader'
+require_relative 'video/video_source'
 
 module BigBlueButton
   module EDL
@@ -49,13 +53,27 @@ module BigBlueButton
               BigBlueButton.logger.debug "      #{video[:filename]} at #{video[:timestamp]} (original duration: #{video[:original_duration]})"
             end
           end
+          next unless entry[:conditions]&.any?
+
+          BigBlueButton.logger.debug('  Conditions:')
+          entry[:conditions].each do |name, value|
+            BigBlueButton.logger.debug("    #{name}: #{value}")
+          end
         end
       end
 
+      # Merge multiple EDLs into a single EDL
+      #
+      # The merged EDL will preserve all areas from all EDLS, and merge the list of videos for each area if multiple EDLs
+      # provide videos for the same area. Conditions will be merged from all EDLS. If multiple EDLs provide the same condition
+      # at the same time with different values, the result is undefined.
+      #
+      # @param edls [Array<Array<Hash>>] The EDLs to merge
+      # @return [Array<Hash>] The merged EDL
       def self.merge(*edls)
         entries_i = Array.new(edls.length, 0)
         done = Array.new(edls.length, false)
-        merged_edl = [ { :timestamp => 0, :areas => {} } ]
+        merged_edl = [{ timestamp: 0, areas: {}, conditions: {} }]
 
         while !done.all?
           # Figure out what the next entry in each edl is
@@ -119,25 +137,20 @@ module BigBlueButton
           end
 
           # Determine whether to create a new entry or edit the previous one
-          merged_entry = { :timestamp => next_entry[:timestamp], :areas => {} }
-          last_entry = merged_edl.last
-          if last_entry[:timestamp] == next_entry[:timestamp]
-            # Edit the existing entry
-            merged_entry = last_entry
-          else
-            # Create a new entry
-            merged_entry = { :timestamp => next_entry[:timestamp], :areas => {} }
+          merged_entry = last_entry = merged_edl.last
+          unless last_entry[:timestamp] == next_entry[:timestamp]
+            # Need to create a new entry
+            merged_entry = { timestamp: next_entry[:timestamp], areas: {}, conditions: {} }
             merged_edl << merged_entry
-            # Have to copy videos from the last entry into the new entry, updating timestamps
+            # Copy videos from the last entry into the new entry, updating timestamps
+            offset = merged_entry[:timestamp] - last_entry[:timestamp]
             last_entry[:areas].each do |area, videos|
               merged_entry[:areas][area] = videos.map do |video|
-                {
-                  :filename => video[:filename],
-                  :timestamp => video[:timestamp] + merged_entry[:timestamp] - last_entry[:timestamp],
-                  :original_duration => video[:original_duration]
-                }
+                video.merge(timestamp: video[:timestamp] + offset)
               end
             end
+            # Carry forward conditions from the last entry
+            merged_entry[:conditions] = last_entry.fetch(:conditions, {}).dup
           end
 
           # Remove deleted videos
@@ -166,6 +179,9 @@ module BigBlueButton
               end
             end
           end
+
+          # Merge conditions from the next entry
+          merged_entry[:conditions].merge!(next_entry.fetch(:conditions, {}))
 
           entries_i[next_edl] += 1
           if entries_i[next_edl] >= edls[next_edl].length
@@ -225,95 +241,56 @@ module BigBlueButton
         nil
       end
 
-      def self.render(edl, layout, output_basename, threads = 2)
-        videoinfo = {}
+      # Render a video EDL to a file
+      #
+      # @param edl [Array<Hash>] The EDL to render
+      # @param layout [Hash] The layout to use
+      # @param output_basename [String] The base name of the output file
+      # @param threads [Integer] The number of threads to use
+      # @param layouts [Array<Hash>] Additional layouts to select between automatically
+      def self.render(edl, layout, output_basename, threads = 2, layouts: nil)
+        video_sources = {}
 
         corrupt_videos = Set.new
-        try_remux_videos = Set.new
 
-        BigBlueButton.logger.info "Pre-processing EDL"
+        BigBlueButton.logger.info 'Pre-processing EDL'
         enforce_cut_lengths(edl, layout[:framerate])
 
         (0...(edl.length - 1)).each do |i|
           # The render scripts need this to calculate cut lengths
-          edl[i][:next_timestamp] = edl[i+1][:timestamp]
+          edl[i][:next_timestamp] = edl[i + 1][:timestamp]
           # Have to fetch information about all the input video files,
           # so collect them.
           edl[i][:areas].each_value do |videos|
             videos.each do |video|
-              videoinfo[video[:filename]] = {}
-            end
-          end
-        end
-
-        BigBlueButton.logger.info "Reading source video information"
-        videoinfo.keys.each do |videofile|
-          BigBlueButton.logger.debug "  #{videofile}"
-          info = video_info(videofile)
-          if !info[:video]
-            BigBlueButton.logger.warn "    This video file is corrupt! It will be removed from the output."
-            corrupt_videos << videofile
-            next
-          end
-
-          videoinfo[videofile] = info
-
-          BigBlueButton.logger.debug "    width: #{info[:width]}, height: #{info[:height]}, duration: #{info[:duration]}, start_time: #{info[:start_time]}"
-          if info[:video][:deskshare_timestamp_bug]
-            BigBlueButton.logger.debug("    has early 1.1 deskshare timestamp bug")
-          elsif info[:format][:format_name] == 'flv' and info[:start_time] > 1
-            BigBlueButton.logger.debug("    has large start time, needs remuxing")
-            try_remux_videos << videofile
-          end
-
-          # Try decoding a frame to detect some types of problems
-          unless test_video_decode(videofile)
-            BigBlueButton.logger.warn("    Failed to run test decode; will attempt to remux")
-            try_remux_videos << videofile
-          end
-        end
-
-        if try_remux_videos.length > 0
-          BigBlueButton.logger.info("Attempting remux of videos with problems")
-          remuxdir = File.join(File.dirname(output_basename), "remux")
-          FileUtils.mkdir_p(remuxdir)
-          try_remux_videos.each do |videofile|
-            BigBlueButton.logger.info("  #{File.basename(videofile)}")
-            newvideofile = File.join(remuxdir, "#{File.basename(videofile, '.*')}.nut")
-
-            unless File.exist?(newvideofile)
-              ffmpeg_cmd = [*FFMPEG, '-i', videofile, '-c', 'copy', newvideofile]
-              exitstatus = BigBlueButton.execute(ffmpeg_cmd, false)
-              unless exitstatus.success?
-                BigBlueButton.logger.warn("    Remux command failed, input file is unusable")
-                corrupt_videos << videofile
+              if video[:source]
+                # A video source was passed in as part of the EDL, nothing to do
                 next
               end
-            end
 
-            info = video_info(newvideofile)
-            if !info[:video] || !test_video_decode(newvideofile)
-              BigBlueButton.logger.warn("    Result of remux is corrupt, not using it.")
-              corrupt_videos << videofile
-              next
-            end
-
-            BigBlueButton.logger.debug "    width: #{info[:width]}, height: #{info[:height]}, duration: #{info[:duration]}, start_time: #{info[:start_time]}"
-            videoinfo[newvideofile] = info
-
-            # Update the filename in the EDL
-            edl.each do |event|
-              event[:areas].each_value do |videos|
-                videos.each do |video|
-                  video[:filename] = newvideofile if video[:filename] == videofile
-                end
+              if video_sources.key?(video[:filename])
+                # We've already determined the video source to use for this file
+                video[:source] = video_sources[video[:filename]]
+                next
               end
+
+              # Create a new file video source from the filename
+              video_source = VideoSource.new(
+                video[:filename],
+                File.dirname(output_basename),
+                original_duration: video[:original_duration]
+              )
+              if video_source.corrupt?
+                BigBlueButton.logger.warn('Will remove corrupt video file from output')
+                corrupt_videos << video[:filename]
+              end
+              video[:source] = video_sources[video[:filename]] = video_source
             end
           end
         end
 
-        if corrupt_videos.length > 0
-          BigBlueButton.logger.info "Removing corrupt video files from EDL"
+        unless corrupt_videos.empty?
+          BigBlueButton.logger.info 'Removing corrupt video files from EDL'
           edl.each do |event|
             event[:areas].each_value do |videos|
               videos.delete_if { |video| corrupt_videos.include?(video[:filename]) }
@@ -335,12 +312,13 @@ module BigBlueButton
               file: segment,
               duration: cut[:next_timestamp] - cut[:timestamp],
             }
+            cut_layout = select_layout_for_cut(cut, layout, layouts)
 
             # Because of the process management that the composite_cut function does internally for the ffmpeg processes
             # it spawns, it is much simpler to run the function in a separate (forked) process rather than attempt to
             # use threads or async. This way each composite_cut function can separately manage its own child processes.
             running << fork do
-              composite_cut(segment, cut, layout, videoinfo)
+              composite_cut(segment, cut, cut_layout)
             end
 
             next if running.length < threads
@@ -389,101 +367,10 @@ module BigBlueButton
           File.delete(segment[:file])
         end
 
-        return render
+        render
       end
 
       # The methods below are for private use
-
-      def self.video_info(filename)
-        IO.popen([*FFPROBE, '-select_streams', 'v:0', '-count_frames', '-read_intervals', '%+#10', filename]) do |probe|
-          info = nil
-          begin
-            info = JSON.parse(probe.read, :symbolize_names => true)
-          rescue StandardError => e
-            BigBlueButton.logger.warn("Couldn't parse video info: #{e}")
-          end
-          return {} if !info
-          return {} if !info[:streams]
-          return {} if !info[:format]
-
-          info[:video] = info[:streams].find do |stream|
-            stream[:codec_type] == 'video'
-          end
-
-          return {} if !info[:video]
-
-          info[:width] = info[:video][:width].to_i
-          info[:height] = info[:video][:height].to_i
-
-          # Check for corrupt/undecodable video streams
-          return {} if info[:video][:pix_fmt].nil?
-          return {} if info[:width] == 0 or info[:height] == 0
-          return {} if info[:video][:nb_read_frames].nil? || info[:video][:nb_read_frames] == 'N/A'
-
-          info[:sample_aspect_ratio] = Rational(1, 1)
-          if !info[:video][:sample_aspect_ratio].nil? and
-              info[:video][:sample_aspect_ratio] != 'N/A'
-            aspect_x, aspect_y = info[:video][:sample_aspect_ratio].split(':')
-            aspect_x = aspect_x.to_i
-            aspect_y = aspect_y.to_i
-            if aspect_x != 0 and aspect_y != 0
-              info[:sample_aspect_ratio] = Rational(aspect_x, aspect_y)
-            end
-          end
-
-          info[:aspect_ratio] = Rational(info[:width], info[:height]) * info[:sample_aspect_ratio]
-
-          if info[:format][:format_name] == 'flv' and info[:video][:codec_name] == 'h264'
-            info[:video][:deskshare_timestamp_bug] = self.check_deskshare_timestamp_bug(filename)
-          end
-
-          # Convert the duration to milliseconds
-          info[:duration] = (info[:format][:duration].to_r * 1000).to_i
-
-          info[:start_time] = (info[:format][:start_time].to_r * 1000).to_i
-          info[:video][:start_time] = (info[:video][:start_time].to_r * 1000).to_i
-
-          return info
-        end
-        {}
-      end
-
-      # Try decoding a frame to detect some types of problems
-      def self.test_video_decode(videofile)
-        ffmpeg_cmd = [
-          *FFMPEG,
-          '-max_error_rate', '0',
-          '-noaccurate_seek', '-ss', '0', '-i', videofile,
-          '-map', '0:v:0', '-frames:v', '1', '-f', 'null', '-',
-        ]
-        exitstatus = BigBlueButton.execute(ffmpeg_cmd, false)
-        exitstatus.success?
-      end
-
-      def self.check_deskshare_timestamp_bug(filename)
-        IO.popen([*FFPROBE, '-select_streams', 'v:0', '-show_frames', '-read_intervals', '%+#10', filename]) do |probe|
-          info = JSON.parse(probe.read, symbolize_names: true)
-          return false if !info
-
-          if !info[:frames]
-            return false
-          end
-
-          # First frame in broken stream always has pts=1
-          if info[:frames][0][:pkt_pts] != 1
-            return false
-          end
-
-          # Remaining frames start at 200, and go up by exactly 200 each frame
-          for i in 1...info[:frames].length
-            if info[:frames][i][:pkt_pts] != i * 200
-              return false
-            end
-          end
-
-          return true
-        end
-      end
 
       def self.ms_to_s(timestamp)
         s = timestamp / 1000
@@ -492,6 +379,8 @@ module BigBlueButton
       end
 
       def self.aspect_scale(old_width, old_height, new_width, new_height)
+        return [new_width, new_height] if old_width.nil? || old_height.nil?
+
         if old_width.to_f / old_height > new_width.to_f / new_height
           new_height = (2 * (old_height.to_f * new_width / old_width / 2).round).to_i
         else
@@ -500,12 +389,91 @@ module BigBlueButton
         [new_width, new_height]
       end
 
-      def self.composite_cut(output, cut, layout, videoinfo)
+      # Select one of multiple possible layouts separately for each cut.
+      #
+      # This function is used to select a layout for a specific cut, based on the media present in the cut and the
+      # constraints of the layout (required media types, etc).
+      #
+      # The layout and area hashes must be normalized to have symbol keys, and the area names and required media types must also
+      # be symbols.
+      #
+      # @param cut [Hash] EDL cut to select layout for
+      # @param layout [Hash] Default layout to use if no specific layout is found
+      # @param layouts [Array<Hash>, nil] Array of alternative layouts to select from
+      # @return [Hash] Selected layout
+      def self.select_layout_for_cut(cut, layout, layouts = nil)
+        layouts ||= []
+        layout_name = 'default'
+
+        media = Set.new(cut[:areas].filter_map { |name, videos| name unless videos.empty? })
+        BigBlueButton.logger.info("Media present in cut: #{media.to_a.inspect}")
+        cut_conditions = cut.fetch(:conditions, {})
+
+        # Find a specific layout based on layout constraints
+        specific_layout, _layout_index = layouts.each_with_index.find do |sl, i|
+          required = Set.new(sl.fetch(:required, []))
+          supported = Set.new(sl.fetch(:areas, layout.fetch(:areas, [])).map { |area| area[:name] })
+          conditions = sl.fetch(:conditions, {})
+
+          sl_name = sl.fetch(:name, "layout #{i}")
+
+          if !media.superset?(required)
+            BigBlueButton.logger.debug("Not using #{sl_name} - missing required media #{(required - media).to_a.inspect}")
+            false
+          elsif !media.subset?(supported)
+            BigBlueButton.logger.debug("Not using #{sl_name} - doesn't support media #{(media - supported).to_a.inspect}")
+            false
+          elsif !conditions.all? { |key, value| cut_conditions[key] == value }
+            BigBlueButton.logger.debug do
+              key, value = conditions.find { |key, value| cut_conditions[key] != value }
+              "Not using #{sl_name} - condition mismatch for #{key.inspect}; " \
+              "expected #{value}, actual #{cut_conditions[key].inspect}"
+            end
+            false
+          else
+            BigBlueButton.logger.debug(
+              "Using #{sl_name} - required #{required.to_a.inspect}, areas: #{supported.to_a.inspect}, " \
+              " conditions: #{conditions.inspect}"
+            )
+            layout_name = sl_name
+            true
+          end
+        end
+
+        cut_layout = \
+          if specific_layout
+            layout.merge(specific_layout)
+          else
+            BigBlueButton.logger.debug('No specific layout found, falling back to default')
+            layout
+          end
+
+        if cut_layout[:width] != layout[:width] ||
+           cut_layout[:height] != layout[:height] ||
+           cut_layout[:framerate] != layout[:framerate]
+          raise "Specific layout #{layout_name} has different dimensions or framerate from default layout"
+        end
+
+        unless %i[width height framerate areas].all? { |prop| cut_layout.include?(prop) }
+          raise "Layout #{layout_name} is missing required properties in configuration"
+        end
+
+        BigBlueButton.logger.debug("Selected layout: #{layout_name}")
+        cut_layout[:areas].each do |area|
+          BigBlueButton.logger.debug(
+            "  #{area[:name]}: position: #{area[:x]}x#{area[:y]}, size: #{area[:width]}x#{area[:height]}"
+          )
+        end
+
+        cut_layout
+      end
+
+      def self.composite_cut(output, cut, layout)
         duration = cut[:next_timestamp] - cut[:timestamp]
         BigBlueButton.logger.info "  Cut start time #{cut[:timestamp]}, duration #{duration}"
 
         ffmpeg_pid = nil
-        aux_ffmpeg_processes = {}
+        video_source_processes = {}
         ffmpeg_inputs = []
         ffmpeg_input_pipes = {}
         ffmpeg_filter = String.new
@@ -514,11 +482,13 @@ module BigBlueButton
         # Check for obscured (completely hidden) video areas, and skip processing for those areas
         layout[:areas].each_with_index do |layout_area, i|
           next unless i >= 1
+
           area = cut[:areas][layout_area[:name]]
-          next if area.nil? || area.empty?
+          next if area.nil? || area.empty? || layout_area.fetch(:hidden, false)
 
           (0...i).each do |j|
             prev_area = layout[:areas][j]
+            next if prev_area.fetch(:hidden, false)
             next if prev_area[:x] < layout_area[:x] ||
                     prev_area[:y] < layout_area[:y] ||
                     prev_area[:x] + prev_area[:width] > layout_area[:x] + layout_area[:width] ||
@@ -531,11 +501,10 @@ module BigBlueButton
 
         layout[:areas].each do |layout_area|
           area = cut[:areas][layout_area[:name]]
-          next if area.nil?
+          next if area.nil? || area.empty? || layout_area.fetch(:hidden, false)
 
           video_count = area.length
           BigBlueButton.logger.debug "  Laying out #{video_count} videos in #{layout_area[:name]}"
-          next if video_count == 0
 
           tiles_h = 0
           tiles_v = 0
@@ -554,19 +523,19 @@ module BigBlueButton
 
             tmp_total_area = 0
             area.each do |video|
-              video_width = videoinfo[video[:filename]][:aspect_ratio].numerator
-              video_height = videoinfo[video[:filename]][:aspect_ratio].denominator
+              video_width = video[:source].aspect_ratio&.numerator
+              video_height = video[:source].aspect_ratio&.denominator
               scale_width, scale_height = aspect_scale(video_width, video_height, tmp_tile_width, tmp_tile_height)
               tmp_total_area += scale_width * scale_height
             end
 
-            if tmp_total_area > total_area
-              tiles_h = tmp_tiles_h
-              tiles_v = tmp_tiles_v
-              tile_width = tmp_tile_width
-              tile_height = tmp_tile_height
-              total_area = tmp_total_area
-            end
+            next unless tmp_total_area > total_area
+
+            tiles_h = tmp_tiles_h
+            tiles_v = tmp_tiles_v
+            tile_width = tmp_tile_width
+            tile_height = tmp_tile_height
+            total_area = tmp_total_area
           end
 
           tile_offset_x = (2 * ((layout_area[:width] - (tiles_h * tile_width)) / 4).floor)
@@ -581,41 +550,9 @@ module BigBlueButton
           xstack_layout = []
 
           area.each do |video|
-            this_videoinfo = videoinfo[video[:filename]]
             BigBlueButton.logger.debug "    tile location (#{tile_x}, #{tile_y})"
-            video_width = this_videoinfo[:aspect_ratio].numerator
-            video_height = this_videoinfo[:aspect_ratio].denominator
-            BigBlueButton.logger.debug "      original aspect: #{video_width}x#{video_height}"
 
-            scale_width, scale_height = aspect_scale(video_width, video_height, tile_width, tile_height)
-            BigBlueButton.logger.debug "      scaled size: #{scale_width}x#{scale_height}"
-
-            seek = video[:timestamp]
-            BigBlueButton.logger.debug("      start timestamp: #{seek}")
-            seek_offset = this_videoinfo[:start_time]
-            video_start_offset = this_videoinfo[:video][:start_time]
-            BigBlueButton.logger.debug("      seek offset: #{seek_offset}, video start offset: #{video_start_offset}")
-            BigBlueButton.logger.debug("      codec: #{this_videoinfo[:video][:codec_name].inspect}")
-            BigBlueButton.logger.debug("      duration: #{this_videoinfo[:duration]}, original duration: #{video[:original_duration]}")
-
-            # Desktop sharing videos in flashsv2 do not have regular
-            # keyframes, so seeking in them doesn't really work.
-            # To make processing more reliable, always decode them from the
-            # start in each cut. (Slow!)
-            seek = 0 if this_videoinfo[:video][:codec_name] == 'flashsv2'
-
-            # Workaround early 1.1 deskshare timestamp bug
-            # It resulted in video files that were too short. To workaround, we
-            # assume that the framerate was constant throughout (it might not
-            # actually be...) and scale the video length.
-            scale = nil
-            if !video[:original_duration].nil? and
-                  this_videoinfo[:video][:deskshare_timestamp_bug]
-              scale = video[:original_duration].to_f / this_videoinfo[:duration]
-              # Rather than attempt to recalculate seek...
-              seek = 0
-              BigBlueButton.logger.debug("      Early 1.1 deskshare timestamp bug: scaling video length by #{scale}")
-            end
+            video_source = video[:source]
 
             pad_name = "#{layout_area[:name]}_x#{tile_x}_y#{tile_y}"
 
@@ -628,91 +565,33 @@ module BigBlueButton
               tile_y += 1
             end
 
-            # If the seekpoint is at or after the end of the file, the filter chain will
-            # have problems. Substitute in a blank video.
-            if seek >= this_videoinfo[:duration]
-              ffmpeg_filter << "color=c=white:s=#{tile_width}x#{tile_height}:r=#{layout[:framerate]}"
-              ffmpeg_filter << ",trim=end=#{ms_to_s(duration)}[#{pad_name}];\n"
-              next
-            end
-
-            # Apply the video start time offset to seek to the correct point.
-            # Only actually apply the offset if we're already seeking so we
-            # don't start seeking in a file where we've overridden the seek
-            # behaviour.
-            seek += seek_offset if seek > 0
-            in_time = video[:timestamp] + seek_offset
-            out_time = in_time + duration
-
-            # Launch the ffmpeg process to use for this input to pre-process the video to constant video resolution
-            # This has to be done in an external process, since if it's done in the same process, the entire filter
-            # chain gets re-initialized on every resolution change, resulting in losing state on all stateful filters.
-            ffmpeg_preprocess_log = "#{output}.#{pad_name}.log"
-            ffmpeg_preprocess_read, ffmpeg_preprocess_write = IO.pipe
-
-            # To reduce overhead, adjust the size of the fifo buffer larger
-            # By default, Linux allows pipe sizes to be increased to 1MB by normal users.
-            begin
-              ffmpeg_preprocess_write.fcntl(Fcntl::F_SETPIPE_SZ, 1_048_576)
-            rescue Errno::EPERM
-              BigBlueButton.logger.warn('Unable to increase pipe size to 1MB')
-            rescue NameError
-              # Fcntl::F_SETPIPE_SZ isn't available on Ruby version older than 3.0
-            end
-
-            # Pre-filtering: scaling, padding, and extending.
-            ffmpeg_preprocess_filter = String.new
-            ffmpeg_preprocess_filter << '[0:v:0]'
-            ffmpeg_preprocess_filter << "scale=w=#{tile_width}:h=#{tile_height}:force_original_aspect_ratio=decrease,"
-            ffmpeg_preprocess_filter << "setsar=1,pad=w=#{tile_width}:h=#{tile_height}:x=-1:y=-1:color=white,"
-            # The trim command combines its arguments - end at the timestamp but only if at least one frame has been output.
-            ffmpeg_preprocess_filter << "trim=end=#{ms_to_s(out_time)}:end_frame=1"
-            ffmpeg_preprocess_filter << '[out]'
-
-            # Set up filters and inputs for video pre-processing ffmpeg command
-            ffmpeg_preprocess_command = [
-              *FFMPEG,
-              # Ensure input isn't misdetected as cfr, and frames prior to seek point run through filters.
-              '-vsync', 'vfr', '-noaccurate_seek',
-              '-ss', ms_to_s(seek).to_s, '-itsoffset', ms_to_s(seek).to_s, '-i', video[:filename],
-              '-filter_complex', ffmpeg_preprocess_filter, '-map', '[out]',
-              # Copy timebase from input instead of guessing based on framerate
-              '-enc_time_base', '-1',
-              '-c:v', 'rawvideo', '-f', 'nut', "pipe:#{ffmpeg_preprocess_write.fileno}",
-            ]
-            BigBlueButton.logger.info("Executing: #{Shellwords.join(ffmpeg_preprocess_command)}")
-            ffmpeg_preprocess_pid = spawn(
-              *ffmpeg_preprocess_command,
-              close_others: true,
-              out: ffmpeg_preprocess_log,
-              err: [:child, :out],
-              ffmpeg_preprocess_write => ffmpeg_preprocess_write
+            video_source_reader = video_source.open(
+              tile_width,
+              tile_height,
+              video[:timestamp],
+              duration,
+              layout[:framerate],
+              "#{cut[:timestamp]}_#{pad_name}"
             )
-            ffmpeg_preprocess_write.close
-            BigBlueButton.logger.debug("preprocessing ffmpeg command pid #{ffmpeg_preprocess_pid}")
-            aux_ffmpeg_processes[ffmpeg_preprocess_pid] = { log: ffmpeg_preprocess_log }
+
+            unless video_source_reader.pid.nil?
+              video_source_processes[video_source_reader.pid] = { log: video_source_reader.log_file }
+            end
 
             input_index = ffmpeg_inputs.length
+            ffmpeg_inputs << video_source_reader.ffmpeg_input unless video_source_reader.ffmpeg_input.nil?
 
-            ffmpeg_inputs << [ '-f', 'nut', '-i', "pipe:#{ffmpeg_preprocess_read.fileno}" ]
-            ffmpeg_input_pipes[ffmpeg_preprocess_read] = ffmpeg_preprocess_read
+            ffmpeg_input_pipes[video_source_reader.read] = video_source_reader.read unless video_source_reader.read.nil?
 
-            ffmpeg_filter << "[#{input_index}]"
-            # Scale the video length for the deskshare timestamp workaround
-            ffmpeg_filter << "setpts=PTS*#{scale}," unless scale.nil?
-            # Apply PTS offset so '0' time is aligned
-            ffmpeg_filter << "setpts=PTS-#{ms_to_s(in_time)}/TB[#{pad_name}_input];"
-            # Extend the video if needed
-            ffmpeg_filter << "color=c=white:s=#{tile_width}x#{tile_height}:r=#{layout[:framerate]}[#{pad_name}_tpad];"
-            ffmpeg_filter << "[#{pad_name}_input][#{pad_name}_tpad]concat=n=2:v=1:a=0,"
-            # Clean up the framerate
-            ffmpeg_filter << "fps=#{layout[:framerate]},"
-            # Trim frames before the start time
-            ffmpeg_filter << 'trim=start=0,'
-            # Trim frames after stop time, which can be generated by the pre-processing ffmpeg if there's an unlucky
-            # large timestamp gap before a frame which changes resolution.
-            # The trim filter is needed to eat these frames so they don't queue up on the inputs of xstack.
-            ffmpeg_filter << "trim=end=#{ms_to_s(duration)}"
+            ffmpeg_filter << "[#{input_index}]" unless video_source_reader.ffmpeg_input.nil?
+            if video_source_reader.ffmpeg_filter.nil?
+              # VideoSourceReader requires at least one of ffmpeg_input or ffmpeg_filter, so if ffmpeg_filter is nil,
+              # ffmpeg_input must have been present. In that case, the video needs to be passed through to the correct pad name,
+              # and the "null" ffmpeg filter handles that.
+              ffmpeg_filter << 'null'
+            else
+              ffmpeg_filter << video_source_reader.ffmpeg_filter
+            end
             ffmpeg_filter << "[#{pad_name}];"
           end
 
@@ -760,7 +639,7 @@ module BigBlueButton
           **ffmpeg_input_pipes,
         )
         # We are explicitly keeping our copy of the read side of the pipes open here, since if there
-        # are any preprocessing ffmpeg commands still running when the main ffmpeg exits, we want to
+        # are any video source commands still running when the main ffmpeg exits, we want to
         # be able to signal them to exit cleanly while they're blocked trying to write. If the pipe
         # was closed, they would exit with an error code before we can do anything.
 
@@ -770,9 +649,9 @@ module BigBlueButton
           if pid == ffmpeg_pid
             BigBlueButton.logger.info("ffmpeg command #{exitstatus} (#{File.basename(ffmpeg_log)})")
 
-            # Tell any preprocessing ffmpeg processes which are blocking on writing
+            # Tell any video source processes which are blocking on writing
             # to the pipe to exit cleanly
-            aux_ffmpeg_processes.each_key do |pid|
+            video_source_processes.each_key do |pid|
               Process.kill('TERM', pid)
             rescue Errno::ESRCH, Errno::EPERM
               # Ignore; these errors mean the process is no longer running
@@ -783,11 +662,16 @@ module BigBlueButton
             ffmpeg_exitok << exitstatus.success?
             log = ffmpeg_log
           else
-            process = aux_ffmpeg_processes.delete(pid)
-            BigBlueButton.logger.debug("preprocessing ffmpeg command #{exitstatus} (#{File.basename(process[:log])})")
+            process = video_source_processes.delete(pid)
+            BigBlueButton.logger.debug("video source command #{exitstatus} (#{File.basename(process[:log])})")
 
-            # Exit code 255 indicates that ffmpeg was terminated due to user request by signal
-            ffmpeg_exitok << (exitstatus.success? || exitstatus.exitstatus == 255)
+            ffmpeg_exitok << (
+              exitstatus.success? ||
+              # Exit code 255 indicates that ffmpeg was terminated due to user request by signal
+              exitstatus.exitstatus == 255 ||
+              # Unhandled SIGTERM (produced by e.g. bbb-presentation-video)
+              (exitstatus.signaled? && exitstatus.termsig == 15)
+            )
             log = process[:log]
           end
 
@@ -816,7 +700,7 @@ module BigBlueButton
           Process.kill('TERM', ffmpeg_pid) unless ffmpeg_pid.nil?
         rescue Errno::ESRCH, Errno::EPERM
         end
-        aux_ffmpeg_processes.each_key do |pid|
+        video_source_processes.each_key do |pid|
           Process.kill('TERM', pid)
         rescue Errno::ESRCH, Errno::EPERM
         end
@@ -826,10 +710,10 @@ module BigBlueButton
         loop do
           pid, exitstatus = Process.waitpid2
           if pid == ffmpeg_pid
-            BigBlueButton.logger.debug("ffmpeg_command #{exitstatus} (#{File.basename(ffmpeg_log)})")
+            BigBlueButton.logger.debug("ffmpeg command #{exitstatus} (#{File.basename(ffmpeg_log)})")
             log = ffmpeg_log
-          elsif (process = aux_ffmpeg_processes.delete(pid))
-            BigBlueButton.logger.debug("preprocessing ffmpeg command #{exitstatus} (#{File.basename(process[:log])})")
+          elsif (process = video_source_processes.delete(pid))
+            BigBlueButton.logger.debug("video source command #{exitstatus} (#{File.basename(process[:log])})")
             log = process[:log]
           else
             log = nil
