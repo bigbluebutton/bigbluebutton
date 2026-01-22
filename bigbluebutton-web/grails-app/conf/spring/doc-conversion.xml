@@ -40,6 +40,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="presentationFileProcessor" ref="presentationFileProcessor"/>
         <property name="slidesGenerationProgressNotifier" ref="slidesGenerationProgressNotifier"/>
         <property name="maxPageConversionTime" value="${maxPageConversionTime}"/>
+        <property name="embeddedPngBudget" value="${embeddedPngBudget}"/>
     </bean>
 
     <bean id="officeDocumentValidator" class="org.bigbluebutton.presentation.imp.OfficeDocumentValidator2">
@@ -116,6 +117,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="pngWidthRasterizedSlides" value="${pngWidthRasterizedSlides}"/>
         <property name="imageResizer" ref="imageResizer"/>
         <property name="imageResolutionService" ref="imageResolutionService"/>
+        <property name="maxEmbeddedPngSize" value="${maxEmbeddedPngSize}"/>
     </bean>
 
     <bean id="generatedSlidesInfoHelper" class="org.bigbluebutton.presentation.GeneratedSlidesInfoHelperImp"/>

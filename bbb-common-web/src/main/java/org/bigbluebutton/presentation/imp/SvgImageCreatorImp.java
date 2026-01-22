@@ -37,6 +37,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
     private int svgResolutionPpi = 300;
     private boolean forceRasterizeSlides = false;
     private int pngWidthRasterizedSlides = 2048;
+    private long maxEmbeddedPngSize = 8 * 1024 * 1024;
 	private String BLANK_SVG;
     private int maxNumberOfAttempts = 3;
     private ImageResizer imageResizer;
@@ -247,14 +248,14 @@ public class SvgImageCreatorImp implements SvgImageCreator {
             }
 
 
-            File tempPng = null;
+            File tempPng;
             String basePresentationame = UUID.randomUUID().toString();
             try {
                 tempPng = File.createTempFile(basePresentationame + "-" + page, ".png");
             } catch (IOException ioException) {
                 // We should never fall into this if the server is correctly
                 // configured
-                Map<String, Object> logData = new HashMap<String, Object>();
+                Map<String, Object> logData;
                 logData = new HashMap<String, Object>();
                 logData.put("meetingId", pres.getMeetingId());
                 logData.put("presId", pres.getId());
@@ -264,6 +265,9 @@ public class SvgImageCreatorImp implements SvgImageCreator {
                 Gson gson = new Gson();
                 String logStr = gson.toJson(logData);
                 log.error(" --analytics-- data={}", logStr, ioException);
+
+                copyBlankSvg(destsvg);
+                return false;
             }
 
             // Step 1: Convert a PDF page to PNG using a raw pdftocairo
@@ -287,35 +291,34 @@ public class SvgImageCreatorImp implements SvgImageCreator {
 
             if(tempPng.length() > 0) {
                 try  {
+                    int width = 500;
+                    int height = 500;
+
+                    ImageResolution imageResolution = imageResolutionService.identifyImageResolution(tempPng);
+                    log.debug("Identified page {} image {} width={} and height={}", page, pres.getName(), imageResolution.getWidth(), imageResolution.getHeight());
+
+                    if (imageResolution.getWidth() != 0 && imageResolution.getHeight() != 0) {
+                        width = imageResolution.getWidth();
+                        height = imageResolution.getHeight();
+                    }
+
+                    if(imageResolution.getWidth() > MAX_SVG_WIDTH || imageResolution.getHeight() > MAX_SVG_HEIGHT) {
+                        log.info("The image exceeds max dimension allowed, it will be resized.");
+                        imageResizer.resize(tempPng, MAX_SVG_WIDTH + "x" + MAX_SVG_HEIGHT);
+                        imageResolution = imageResolutionService.identifyImageResolution(tempPng);
+                        width = imageResolution.getWidth();
+                        height = imageResolution.getHeight();
+                    }
+
                     byte[] pngData = readFileToByteArray(tempPng);
                     String base64encodedPng = Base64.getEncoder().encodeToString(pngData);
                     int base64Size = base64encodedPng.getBytes(StandardCharsets.UTF_8).length;
 
-                    // Maximum base64 encoded PNG size to embed in the SVG (currently 4MB)
-                    int browserLimit = 2 * 2 * 1024 * 1024;
-
-                    if (base64Size > browserLimit) {
-                        log.error("Encoded PNG is too large for the browser");
+                    if (base64Size > maxEmbeddedPngSize) {
+                        log.error("Encoded PNG is too large for the browser - size: {}, limit: {}", base64Size, maxEmbeddedPngSize);
+                    } else if (!pres.tryConsumeRemainingEmbeddedPngBudget(base64Size)) {
+                        log.error("Encoded PNG size exceeds the remaining embedded PNG budget - size: {}, remaining: {}", base64Size, pres.getRemainingEmbeddedPngBudget());
                     } else {
-                        int width = 500;
-                        int height = 500;
-
-                        ImageResolution imageResolution = imageResolutionService.identifyImageResolution(tempPng);
-                        log.debug("Identified page {} image {} width={} and height={}", page, pres.getName(), imageResolution.getWidth(), imageResolution.getHeight());
-
-                        if (imageResolution.getWidth() != 0 && imageResolution.getHeight() != 0) {
-                            width = imageResolution.getWidth();
-                            height = imageResolution.getHeight();
-                        }
-
-                        if(imageResolution.getWidth() > MAX_SVG_WIDTH || imageResolution.getHeight() > MAX_SVG_HEIGHT) {
-                            log.info("The image exceeds max dimension allowed, it will be resized.");
-                            imageResizer.resize(tempPng, MAX_SVG_WIDTH + "x" + MAX_SVG_HEIGHT);
-                            imageResolution = imageResolutionService.identifyImageResolution(tempPng);
-                            width = imageResolution.getWidth();
-                            height = imageResolution.getHeight();
-                        }
-
                         String svg = createSvgWithEmbeddedPng(base64encodedPng, width, height);
                         try (FileWriter writer = new FileWriter(destsvg)) {
                             writer.write(svg);
@@ -505,5 +508,13 @@ public class SvgImageCreatorImp implements SvgImageCreator {
 
     public void setImageResolutionService(ImageResolutionService imageResolutionService) {
         this.imageResolutionService = imageResolutionService;
+    }
+
+    public void setMaxEmbeddedPngSize(long maxEmbeddedPngSize) {
+        if (maxEmbeddedPngSize <= 0) {
+            this.maxEmbeddedPngSize = Long.MAX_VALUE;
+        } else {
+            this.maxEmbeddedPngSize = maxEmbeddedPngSize * 1024 * 1024;
+        }
     }
 }
