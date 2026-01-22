@@ -490,6 +490,8 @@ export class Join extends Create {
     await breakoutModPage.waitForSelector(e.presentationTitle);
     await breakoutModPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_EXTRA_LONG_TIME);
     await breakoutModPage.closeAllToastNotifications();
+    // Wait for presentations to fully load and stabilize
+    await breakoutModPage.page.waitForTimeout(2000);
     // visual assertion on the presentations
     await expect(breakoutModPage.page).toHaveScreenshot('moderator-page-first-room.png');
     await expect(breakoutUserPage.page).toHaveScreenshot('attendee-page-second-room.png');
