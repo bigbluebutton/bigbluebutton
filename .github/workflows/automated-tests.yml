@@ -585,14 +585,20 @@ jobs:
       - install-and-run-plugin-tests
     runs-on: ubuntu-22.04
     env:
-      hasReportData: ${{ needs.install-and-run-bbb-tests.result == 'failure' || needs.install-and-run-plugin-tests.result == 'failure' }}
+      hasFailure: ${{ needs.install-and-run-bbb-tests.result == 'failure' || needs.install-and-run-plugin-tests.result == 'failure' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Check if blob reports exist
+        if: ${{ github.event.workflow_run.conclusion != 'success' && fromJSON(env.hasFailure) }}
+        id: check-blob-reports
+        uses: ./.github/actions/check-artifact-exists
+        with:
+          artifact-name: blob-report-
       - name: Merge and upload the blob reports
-        if: ${{ fromJSON(env.hasReportData) }}
+        if: ${{ fromJSON(env.hasFailure) && fromJSON(steps.check-blob-reports.outputs.result || 'false') }}
         uses: ./.github/actions/merge-and-upload-blob-reports
       - name: Write PR data for auto-comment
         if: github.event_name == 'pull_request'
