@@ -842,7 +842,7 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
 
 const TimerPanelContaier: React.FC = () => {
   const [timerActivate] = useMutation(TIMER_ACTIVATE);
-  const { data: timerData } = useTimer(true);
+  const { data: timerData } = useTimer();
   const { data: currentUser } = useCurrentUser();
 
   const amIModerator = !!currentUser?.isModerator;
