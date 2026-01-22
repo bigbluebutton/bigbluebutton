@@ -12,17 +12,17 @@ type refMutex struct {
 }
 
 type CacheLocks struct {
-	locks map[uint32]*refMutex
+	locks map[uint64]*refMutex
 	mutex sync.Mutex // Protects the 'locks' map
 }
 
 func NewCacheLocks() *CacheLocks {
 	return &CacheLocks{
-		locks: make(map[uint32]*refMutex),
+		locks: make(map[uint64]*refMutex),
 	}
 }
 
-func (c *CacheLocks) Lock(id uint32) {
+func (c *CacheLocks) Lock(id uint64) {
 	var rm *refMutex
 
 	c.mutex.Lock()
@@ -42,7 +42,7 @@ func (c *CacheLocks) Lock(id uint32) {
 	rm.mutex.Lock()
 }
 
-func (c *CacheLocks) Unlock(id uint32) {
+func (c *CacheLocks) Unlock(id uint64) {
 	var rm *refMutex
 
 	c.mutex.Lock()
