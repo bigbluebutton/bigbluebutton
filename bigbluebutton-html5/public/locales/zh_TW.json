@@ -1003,6 +1003,7 @@
     "app.userList.guest.feedbackMessage": "已套用操作：",
     "app.user-info.title": "目錄查找",
     "app.toast.breakoutRoomEnded": "分組討論室已結束。請重新加入語音。",
+    "app.toast.breakoutContentUnchangedNotConverted": "一個或多個破冰室沒有白板/共享筆記，因此不會轉為簡報。",
     "app.toast.chat.public": "新的公共聊天訊息",
     "app.toast.chat.private": "新的私人聊天訊息",
     "app.toast.chat.system": "系統",
