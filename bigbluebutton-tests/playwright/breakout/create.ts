@@ -112,10 +112,10 @@ export class Create extends MultiUsers {
     await this.modPage.waitAndClick(e.createBreakoutRooms);
     await this.modPage.waitAndClick(e.randomlyAssign);
     // Change room's name
-    await this.modPage.type(e.roomNameInput1, 'Test');
+    await this.modPage.fill(e.roomNameInput1, 'TestRoom 1');
     await this.modPage.waitAndClick(e.modalConfirmButton, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.waitAndClick(e.breakoutRoomsItem);
-    await this.modPage.hasText(e.roomName1Test, /Test/, 'should display the correct breakout room name');
+    await this.modPage.hasText(e.roomName1Test, /TestRoom 1/, 'should display the correct breakout room name');
   }
 
   async removeAndResetAssignments() {

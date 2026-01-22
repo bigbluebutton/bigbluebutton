@@ -97,6 +97,7 @@ export const constants = {
   customVirtualBackgroundDisabled: 'disabledFeatures=customVirtualBackgrounds',
   slideSnapshotDisabled: 'disabledFeatures=snapshotOfCurrentSlide',
   cameraAsContent: 'disabledFeatures=cameraAsContent',
+  infiniteWhiteboard: 'disabledFeatures=infiniteWhiteboard',
   // Disabled Features Exclude
   breakoutRoomsExclude: 'disabledFeatures=breakoutRooms,presentation,chat&disabledFeaturesExclude=breakoutRooms',
   speechRecognitionExclude:
@@ -123,6 +124,7 @@ export const constants = {
     'disabledFeatures=presentation,chat,customVirtualBackground&disabledFeaturesExclude=customVirtualBackground',
   slideSnapshotExclude: 'disabledFeatures=snapShotOfCurrentSlide,chat&disabledFeaturesExclude=snapShotOfCurrentSlide',
   cameraAsContentExclude: 'disabledFeatures=cameraAsContent,chat&disabledFeaturesExclude=cameraAsContent',
+  infiniteWhiteboardExclude: 'disabledFeatures=infiniteWhiteboard,chat&disabledFeaturesExclude=infiniteWhiteboard',
   // Shortcuts
   shortcuts: 'userdata-bbb_shortcuts=[$]',
   initialShortcuts: [
