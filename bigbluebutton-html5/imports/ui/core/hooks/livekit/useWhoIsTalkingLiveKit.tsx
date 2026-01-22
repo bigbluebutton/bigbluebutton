@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import { isEqual } from 'radash';
-import { makeVar, useReactiveVar } from '@apollo/client';
 import {
   useRemoteParticipants,
   useLocalParticipant,
@@ -12,24 +11,26 @@ import Auth from '/imports/ui/services/auth';
 import useShouldUseLiveKitAudioState from './useShouldUseLiveKitAudioState';
 import useSubscribedAudioUsers from './useSubscribedAudioUsers';
 import useWhoIsTalkingGraphql from '../useWhoIsTalkingGraphql';
+import createReactiveStateHook from '../createReactiveStateHook';
 import { TalkingUsersState } from '../types';
 
-const BASELINE_DATA: TalkingUsersState = {
+const BASELINE_DATA: TalkingUsersState = Object.freeze({
   data: {},
   loading: false,
-};
+});
 
 const createUseWhoIsTalkingLiveKit = () => {
-  const countVar = makeVar(0);
-  const stateVar = makeVar<Record<string, boolean>>({});
-  const loadingVar = makeVar(true);
+  const {
+    useData,
+    useConsumersCount,
+    setLoading,
+    setState,
+    getState,
+  } = createReactiveStateHook<Record<string, boolean>>({});
 
-  const setWhoIsTalkingState = (newState: Record<string, boolean>) => stateVar(newState);
-  const setWhoIsTalkingLoading = (loading: boolean) => loadingVar(loading);
-  const getWhoIsTalking = () => stateVar();
-  const useWhoIsTalkingConsumersCount = () => useReactiveVar(countVar);
   const useWhoIsTalking = () => {
     const shouldUseLiveKit = useShouldUseLiveKitAudioState();
+    const { data: talkingUsers, loading } = useData();
     const remoteParticipants = useRemoteParticipants({
       room: liveKitRoom,
       updateOnlyOn: [
@@ -43,32 +44,18 @@ const createUseWhoIsTalkingLiveKit = () => {
     const connectionState = useConnectionState(liveKitRoom);
     const subscribedAudioUsers = useSubscribedAudioUsers();
     const { data: bbbTalkingUsers } = useWhoIsTalkingGraphql();
-    const talkingUsers = useReactiveVar(stateVar);
-    const loading = useReactiveVar(loadingVar);
-
-    useEffect(() => {
-      // Only track consumers when LiveKit is actually used
-      if (!shouldUseLiveKit) return undefined;
-
-      countVar(countVar() + 1);
-      return () => {
-        countVar(countVar() - 1);
-        if (countVar() === 0) setWhoIsTalkingState({});
-      };
-    }, [shouldUseLiveKit]);
 
     useEffect(() => {
       if (!shouldUseLiveKit) return;
 
       const isConnected = connectionState === ConnectionState.Connected;
-
-      setWhoIsTalkingLoading(!isConnected);
+      setLoading(!isConnected);
 
       // When LiveKit is disconnected, use BBB state as fallback
       if (!isConnected) {
         const bbbState = bbbTalkingUsers || {};
 
-        if (!isEqual(getWhoIsTalking(), bbbState)) setWhoIsTalkingState(bbbState);
+        if (!isEqual(getState(), bbbState)) setState(bbbState);
 
         return;
       }
@@ -83,9 +70,8 @@ const createUseWhoIsTalkingLiveKit = () => {
         }
       }
 
-      // For remote users, use LK if subscribed, otherwise BBB.
-      // LiveKit only emits speaking events for subscribed tracks and we *want*
-      // talking state to be shown regardless.
+      // Handle remote participants - use LK if subscribed, otherwise BBB as fallback
+      // LiveKit only emits speaking events for subscribed tracks
       remoteParticipants.forEach((participant) => {
         const userId = participant.identity;
         const isSubscribed = subscribedAudioUsers[userId] ?? false;
@@ -97,9 +83,7 @@ const createUseWhoIsTalkingLiveKit = () => {
         }
       });
 
-      if (!isEqual(getWhoIsTalking(), newTalkingUsers)) {
-        setWhoIsTalkingState(newTalkingUsers);
-      }
+      if (!isEqual(getState(), newTalkingUsers)) setState(newTalkingUsers);
     }, [
       remoteParticipants,
       localParticipant,
@@ -109,28 +93,23 @@ const createUseWhoIsTalkingLiveKit = () => {
       bbbTalkingUsers,
     ]);
 
-    // Short-circuit when LiveKit is not used to prevent unnecessary re-renders
-    // Return stable empty values to ensure no re-renders are triggered
     if (!shouldUseLiveKit) return BASELINE_DATA;
 
-    return {
-      data: talkingUsers,
-      loading,
-    };
+    return { data: talkingUsers, loading };
   };
 
-  return [
+  return {
     useWhoIsTalking,
-    useWhoIsTalkingConsumersCount,
-    setWhoIsTalkingLoading,
-  ] as const;
+    useWhoIsTalkingConsumersCount: useConsumersCount,
+    setWhoIsTalkingLoading: setLoading,
+  };
 };
 
-const [
+const {
   useWhoIsTalking,
   useWhoIsTalkingConsumersCount,
   setWhoIsTalkingLoading,
-] = createUseWhoIsTalkingLiveKit();
+} = createUseWhoIsTalkingLiveKit();
 
 export {
   useWhoIsTalking,
