@@ -92,6 +92,51 @@ We have added an indicator showing when your private chat recipient has seen the
 You can now use the "M" shortcut while in a conference to control how long your microphone is open. If the option for push to talk is enabled in settings.yml holding "M" will keep your microphone unmuted for as long you hold the key down. Releasing it will mute you again.
 
 
+#### Multi-User Whiteboard Improvements
+
+![multi user whiteboard toggle](/img/30/30-multi-user-whiteboard.png)
+
+Starting with BigBlueButton 3.0.20, the activation logic for multi-user whiteboard has changed. Previously, presenters had to re-enable this feature for each slide, which often caused confusion among participants. Now, once enabled, multi-user whiteboard remains active through slide changes and presentation switches until intentionally deactivated.
+
+Additionally, breakout rooms now have multi-user whiteboard enabled by default, encouraging collaboration.
+
+#### Relocated Raised Hands List
+
+A common piece of feedback from moderators was that the raised hands list obscured important screen real estate and made it difficult to see participants' full names.
+
+This has been addressed in BigBlueButton 3.0.17+ with a redesigned raised hands list in the left-hand side panel.
+
+![list of users with raised hand](/img/30/30-raised-hands-in-panel.png)
+
+Names are now displayed in full, and the list order is clear. Selecting a row provides convenient actions such as lowering the hand, initiating a chat with the user, or changing their role or lock status.
+
+#### Quiz
+
+BigBlueButton 3.0.11 introduced the commonly requested Quiz functionality, located near the existing Polling feature.
+
+When creating a quiz, be sure to specify the correct answer(s).
+
+![quiz initialization](/img/30/30-quiz-1.png)
+
+As viewers vote, the presenter receives immediate feedback showing who answered correctly.
+
+![quiz live feedback](/img/30/30-quiz-2.png)
+
+The published results can optionally reveal which answer(s) were correct.
+
+![quiz results](/img/30/30-quiz-3.png)
+
+A new section of the Learning Analytics Dashboard dedicated to quizzes helps track the results of each quiz.
+
+![quiz results in learning analytics dashboard](/img/30/30-quiz-4.png)
+
+#### Layout Redesign
+
+BigBlueButton 3.0.19 introduced a new layout called "Unified Layout." This layout is intended to eventually replace most of BigBlueButton's existing layouts. For now (BBB 3.0.x), the existing behavior remains available (`enableDeprecatedLayoutSelection: true`).
+
+Unified Layout behaves similarly to Custom Layout when the presentation is active, and similarly to Grid Layout when it is not. Once the new layout becomes the default, the layout manager will no longer be used. The only way to change the arrangement of the visible area will be via the button that hides or restores the presentation area.
+
+
 ### Engagement
 
 <!-- ####  -->
@@ -156,6 +201,7 @@ For details check the [server customization](/administration/customize/#configur
 
 BigBlueButton now supports file scanning (virus detection) for presentation files using ClamAV.
 For details check the [ClamAV section](/administration/customize#support-for-clamav-as-presentation-file-scanner) of the server customization documentation.
+
 
 ### Experimental
 
@@ -251,6 +297,20 @@ For full details on what is new in BigBlueButton 3.0, see the release notes.
 
 Recent releases:
 
+- [3.0.19](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.19)
+- [3.0.18](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.18)
+- [3.0.17](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.17)
+- [3.0.16](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.16)
+- [3.0.15](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.15)
+- [3.0.14](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.14)
+- [3.0.13](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.13)
+- [3.0.12](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.12)
+- [3.0.11](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.11)
+- [3.0.10](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.10)
+- [3.0.9](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.9)
+- [3.0.8](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.8)
+- [3.0.7](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.7)
+- [3.0.6](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.6)
 - [3.0.5](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.5)
 - [3.0.4](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.4)
 - [3.0.3](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.3)
